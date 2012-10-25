@@ -61,7 +61,7 @@ tf workspace -noprompt -delete -collection:$COLLECTION $WORKSPACE
 echo "Creating workspace"
 tf workspace -noprompt -new -collection:$COLLECTION $WORKSPACE -comment:"Clean Build"
 echo "Mapping workspace to $rootpath"
-tf workfold  -noprompt -map -collection:$COLLECTION -workspace:$WORKSPACE \$/Basin\ Modeling $rootpath
+tf workfold  -noprompt -map -collection:$COLLECTION -workspace:$WORKSPACE \$/Basin\ Modeling/IBS $rootpath
 
 ## Clean and create directory structure
 echo "Creating base directory $rootpath"

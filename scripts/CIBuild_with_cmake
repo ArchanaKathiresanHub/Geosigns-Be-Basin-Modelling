@@ -29,7 +29,7 @@ if ${TF} workspaces -collection:${COLLECTION} | grep -q ^${WORKSPACE} ; then
     ${TF} workspace -delete ${WORKSPACE} -collection:$COLLECTION >/dev/null
 fi
 ${TF} workspace -new ${WORKSPACE} -collection:$COLLECTION
-${TF} workfold -map -workspace:${WORKSPACE} '$/Basin Modeling/Trunk' ${BUILD_BASE_DIRECTORY}
+${TF} workfold -map -workspace:${WORKSPACE} '$/Basin Modeling/IBS/Trunk' ${BUILD_BASE_DIRECTORY}
 
 rm -rf ${BUILD_BASE_DIRECTORY}/scripts
 rm -rf ${BUILD_BASE_DIRECTORY}/development
