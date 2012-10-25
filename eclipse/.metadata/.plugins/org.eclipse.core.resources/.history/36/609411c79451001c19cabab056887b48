@@ -1,0 +1,36 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_UPPER_SRCS += \
+../buffer_readwrite.C \
+../h5_file_types.C \
+../h5_struct_types.C \
+../h5_types.C \
+../readwriteobject.C 
+
+OBJS += \
+./buffer_readwrite.o \
+./h5_file_types.o \
+./h5_struct_types.o \
+./h5_types.o \
+./readwriteobject.o 
+
+C_UPPER_DEPS += \
+./buffer_readwrite.d \
+./h5_file_types.d \
+./h5_struct_types.d \
+./h5_types.d \
+./readwriteobject.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+%.o: ../%.C
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -m64 -fPIC -I/nfs/rvl/users/ibs/IBS/EXTERNALS/HDF5/curr/LinuxRHEL64_x86_64/SERIAL/64/DEBUG/include -O1 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

@@ -1,0 +1,7 @@
+//1st line: benchmark-fluid
+//2nd line: gorm-function (gorm computed)
+//3rd line: gorm-function (gorm prescribed)
+
+OilDensity: 839.13889 GasDensity: 1.0280118
+OilDensity: 832.81703 GasDensity: 0.91016573
+OilDensity: 869.72025 GasDensity: 1.0275048

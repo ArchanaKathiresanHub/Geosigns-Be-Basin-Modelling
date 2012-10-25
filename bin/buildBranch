@@ -1,0 +1,20 @@
+#!/bin/csh
+
+set directory = $1
+set owner = "$directory:t"
+set address = $2
+
+set mailTitle = "Errors and warnings found in nightly CBM build of $directory on $HOST"
+
+date
+echo "building  $directory"
+$CBMSCRIPTSDIR/buildVersion $directory >& $CBMBUILDLOGSDIR/log.$owner
+date
+echo "done building  $directory"
+$CBMSCRIPTSDIR/analyzebuild.pl $CBMBUILDLOGSDIR/log.$owner $CBMBUILDLOGSDIR/log.$owner.filtered
+if (! -z $CBMBUILDLOGSDIR/log.$owner.filtered) then
+   echo "errors and/or warnings found in nightly build of $directory"
+   mailx -s "$mailTitle" $address@shell.com < $CBMBUILDLOGSDIR/log.$owner.filtered
+else
+   echo "no errors or warnings found in nightly build of $directory"
+endif

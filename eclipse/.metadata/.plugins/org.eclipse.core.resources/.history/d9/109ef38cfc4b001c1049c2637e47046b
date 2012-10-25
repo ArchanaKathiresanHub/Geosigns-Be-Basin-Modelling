@@ -1,0 +1,141 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_UPPER_SRCS += \
+../Barrier.C \
+../Biodegrade.C \
+../CapillarySealStrength.C \
+../Column.C \
+../Composition.C \
+../DiffusionCoefficient.C \
+../DiffusionLeak.C \
+../Interpolator.C \
+../Leak.C \
+../LeakAllGasAndOilDistributor.C \
+../LeakGas.C \
+../LeakGasAndSpillOil.C \
+../LeakOrSpill.C \
+../LeakOrWaste.C \
+../LeakOrWasteGasAndSpillOil.C \
+../LeakWasteAndSpillDistributor.C \
+../MassBalance.C \
+../MassBalance_ofstream.C \
+../MassBalance_ostream.C \
+../Migrator.C \
+../ObjectFactory.C \
+../Reservoir.C \
+../Spill.C \
+../SpillAllGasAndOilDistributor.C \
+../SpillOilAndGas.C \
+../SurfaceGridMap.C \
+../SurfaceGridMapContainer.C \
+../Trap.C \
+../Waste.C \
+../WasteGasAndSpillOil.C \
+../depthToVolume.C \
+../depthToVolume_Column.C \
+../formation.C \
+../formation_MPI.C \
+../main.C \
+../migration.C \
+../overburden.C \
+../overburden_MPI.C \
+../rankings.C \
+../utils.C 
+
+OBJS += \
+./Barrier.o \
+./Biodegrade.o \
+./CapillarySealStrength.o \
+./Column.o \
+./Composition.o \
+./DiffusionCoefficient.o \
+./DiffusionLeak.o \
+./Interpolator.o \
+./Leak.o \
+./LeakAllGasAndOilDistributor.o \
+./LeakGas.o \
+./LeakGasAndSpillOil.o \
+./LeakOrSpill.o \
+./LeakOrWaste.o \
+./LeakOrWasteGasAndSpillOil.o \
+./LeakWasteAndSpillDistributor.o \
+./MassBalance.o \
+./MassBalance_ofstream.o \
+./MassBalance_ostream.o \
+./Migrator.o \
+./ObjectFactory.o \
+./Reservoir.o \
+./Spill.o \
+./SpillAllGasAndOilDistributor.o \
+./SpillOilAndGas.o \
+./SurfaceGridMap.o \
+./SurfaceGridMapContainer.o \
+./Trap.o \
+./Waste.o \
+./WasteGasAndSpillOil.o \
+./depthToVolume.o \
+./depthToVolume_Column.o \
+./formation.o \
+./formation_MPI.o \
+./main.o \
+./migration.o \
+./overburden.o \
+./overburden_MPI.o \
+./rankings.o \
+./utils.o 
+
+C_UPPER_DEPS += \
+./Barrier.d \
+./Biodegrade.d \
+./CapillarySealStrength.d \
+./Column.d \
+./Composition.d \
+./DiffusionCoefficient.d \
+./DiffusionLeak.d \
+./Interpolator.d \
+./Leak.d \
+./LeakAllGasAndOilDistributor.d \
+./LeakGas.d \
+./LeakGasAndSpillOil.d \
+./LeakOrSpill.d \
+./LeakOrWaste.d \
+./LeakOrWasteGasAndSpillOil.d \
+./LeakWasteAndSpillDistributor.d \
+./MassBalance.d \
+./MassBalance_ofstream.d \
+./MassBalance_ostream.d \
+./Migrator.d \
+./ObjectFactory.d \
+./Reservoir.d \
+./Spill.d \
+./SpillAllGasAndOilDistributor.d \
+./SpillOilAndGas.d \
+./SurfaceGridMap.d \
+./SurfaceGridMapContainer.d \
+./Trap.d \
+./Waste.d \
+./WasteGasAndSpillOil.d \
+./depthToVolume.d \
+./depthToVolume_Column.d \
+./formation.d \
+./formation_MPI.d \
+./main.d \
+./migration.d \
+./overburden.d \
+./overburden_MPI.d \
+./rankings.d \
+./utils.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+%.o: ../%.C
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -m64 -fPIC -DDISTRIBUTED -DH5_HAVE_PARALLEL -DPETSC_USE_DEBUG -DPETSC_USE_LOG -DPETSC_USE_BOPT_O -D__SDIR__="" -I/usr/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-parallel/1.4.5-post2/LinuxRHEL64_x86_64_30WS/include -I../../../../libraries/DistributedDataAccess/src -I../../../../libraries/Utilities_Petsc/src -I../../../../libraries/Serial_Hdf5/src -I../../../../libraries/Parallel_Hdf5/src -I../../../../libraries/EosPack/src -I../../../../libraries/CBMGenerics/src -I../../../../libraries/utilities/src -I/apps/3rdparty/EPTFlexLm/v9.2/include -I../../../../libraries -I../../../../libraries/TableIO/src -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/petsc/2.1.6/LinuxRHEL64_x86_64_30WS -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/petsc/2.1.6/LinuxRHEL64_x86_64_30WS/bmake/linux64 -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/petsc/2.1.6/LinuxRHEL64_x86_64_30WS/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpi/mpich-1.2.6/LinuxRHEL64_x86_64_30WS/include -O1 -Wall -c -fmessage-length=0 -fomit-frame-pointer -Wshadow -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

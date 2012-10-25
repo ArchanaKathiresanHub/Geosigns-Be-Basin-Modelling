@@ -1,0 +1,60 @@
+TouchstoneMap.d TouchstoneMap.o: ../TouchstoneMap.C \
+  ../../../TableIO/src/database.h ../../../TableIO/src/dataschema.h \
+  ../../../TableIO/src/datatype.h \
+  ../../../TableIO/src/cauldronschemafuncs.h \
+  ../Implementation/ProjectHandle.h ../Interface/ProjectHandle.h \
+  ../Interface/Interface.h ../Implementation/Implementation.h \
+  ../Implementation/PropertyValue.h ../Interface/PropertyValue.h \
+  ../Implementation/DAObject.h ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/AttributeValue.h \
+  ../Interface/AttributeValue.h ../Implementation/Child.h \
+  ../Implementation/TouchstoneMap.h ../Interface/TouchstoneMap.h \
+  ../Implementation/Surface.h ../Interface/Surface.h \
+  ../Implementation/Formation.h ../Interface/Formation.h \
+  ../../../CBMGenerics/src/capillarySealStrength.h
+
+../../../TableIO/src/database.h:
+
+../../../TableIO/src/dataschema.h:
+
+../../../TableIO/src/datatype.h:
+
+../../../TableIO/src/cauldronschemafuncs.h:
+
+../Implementation/ProjectHandle.h:
+
+../Interface/ProjectHandle.h:
+
+../Interface/Interface.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/PropertyValue.h:
+
+../Interface/PropertyValue.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/AttributeValue.h:
+
+../Implementation/Child.h:
+
+../Implementation/TouchstoneMap.h:
+
+../Interface/TouchstoneMap.h:
+
+../Implementation/Surface.h:
+
+../Interface/Surface.h:
+
+../Implementation/Formation.h:
+
+../Interface/Formation.h:
+
+../../../CBMGenerics/src/capillarySealStrength.h:

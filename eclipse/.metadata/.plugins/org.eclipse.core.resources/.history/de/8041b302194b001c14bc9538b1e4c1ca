@@ -1,0 +1,21 @@
+gxhist.d gxhist.o: ../gxhist.c ../gxerror.h ../gxgenerl.h ../gxfile.h \
+  ../gxprjdef.h ../gxhist.h ../list.h ../gxnumer.h ../gxprjct.h \
+  ../gxutils.h
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxfile.h:
+
+../gxprjdef.h:
+
+../gxhist.h:
+
+../list.h:
+
+../gxnumer.h:
+
+../gxprjct.h:
+
+../gxutils.h:

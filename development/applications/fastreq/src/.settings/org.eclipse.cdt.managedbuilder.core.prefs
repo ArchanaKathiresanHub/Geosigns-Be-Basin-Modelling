@@ -1,0 +1,17 @@
+#Tue Sep 11 17:56:52 CEST 2007
+cdt.managedbuild.config.gnu.exe.debug.952920958/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.exe.debug.952920958/internalBuilder/ignoreErr=true
+cdt.managedbuild.config.gnu.exe.release.1243500729/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.exe.release.1243500729/internalBuilder/ignoreErr=true
+cdt.managedbuild.config.gnu.exe.release.1736759865/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.exe.release.1736759865/internalBuilder/ignoreErr=true
+cdt.managedbuild.config.gnu.exe.release.707964503/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.exe.release.707964503/internalBuilder/ignoreErr=true
+eclipse.preferences.version=1
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.exe.release.1243500729=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n<variable name\="CPLUS_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.exe.release.1736759865=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n<variable name\="CPLUS_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.exe.release.1243500729=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="LIBRARY_PATH" operation\="remove"/>\n</environment>\n
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.exe.release.1736759865=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="LIBRARY_PATH" operation\="remove"/>\n</environment>\n
+environment/project=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
+environment/project/cdt.managedbuild.config.gnu.exe.release.1243500729=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
+environment/project/cdt.managedbuild.config.gnu.exe.release.707964503=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n

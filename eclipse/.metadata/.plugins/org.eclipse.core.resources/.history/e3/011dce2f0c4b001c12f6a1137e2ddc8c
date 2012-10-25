@@ -1,0 +1,36 @@
+DiffusionLeakageParameters.d DiffusionLeakageParameters.o:  \
+ ../DiffusionLeakageParameters.C \
+  ../Implementation/DiffusionLeakageParameters.h \
+  ../Implementation/DAObject.h ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/AttributeValue.h \
+  ../Interface/Interface.h ../Implementation/Child.h \
+  ../Implementation/Implementation.h ../Implementation/ProjectHandle.h \
+  ../../../cauldronschema/cauldronschemafuncs.h \
+  ../../../TableIO/src/database.h ../../../TableIO/src/dataschema.h \
+  ../../../TableIO/src/datatype.h
+
+../Implementation/DiffusionLeakageParameters.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/Interface.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/ProjectHandle.h:
+
+../../../cauldronschema/cauldronschemafuncs.h:
+
+../../../TableIO/src/database.h:
+
+../../../TableIO/src/dataschema.h:
+
+../../../TableIO/src/datatype.h:

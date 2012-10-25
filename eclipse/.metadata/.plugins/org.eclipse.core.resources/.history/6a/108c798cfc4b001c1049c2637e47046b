@@ -1,0 +1,31 @@
+LithoType.d LithoType.o: ../LithoType.C ../../../TableIO/src/database.h \
+  ../../../TableIO/src/dataschema.h ../../../TableIO/src/datatype.h \
+  ../../../TableIO/src/cauldronschemafuncs.h \
+  ../Implementation/LithoType.h ../Interface/Interface.h \
+  ../Implementation/DAObject.h ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/AttributeValue.h \
+  ../Implementation/Child.h ../Implementation/Implementation.h
+
+../../../TableIO/src/database.h:
+
+../../../TableIO/src/dataschema.h:
+
+../../../TableIO/src/datatype.h:
+
+../../../TableIO/src/cauldronschemafuncs.h:
+
+../Implementation/LithoType.h:
+
+../Interface/Interface.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:

@@ -1,0 +1,41 @@
+#!/bin/csh
+
+if ( $1 == "" ) then
+    setenv opt optimized
+else
+    setenv opt $1
+    shift
+endif
+
+if ($?IBS_LIMITEDBUILDANDINSTALL) then
+   # source /apps/3rdparty/intel/Compiler/11.1/046/bin/intel64/iccvars_intel64.csh
+   source envs_limitedbuild
+   echo `date` ": Building required $opt applications"
+   echo "----------------------------------------------------------"
+   else
+   source /nfs/rvl/users/ibs/bin/gocbm3
+   echo `date` ": Building additonal $opt applications"
+   echo "----------------------------------------------------------"
+endif
+
+# build all with a more modern compiler, for cauldron2voxet
+setenv GCC_VERSION 4.2
+
+set exitstatus = 0
+
+source ApplicationList
+
+foreach application ($applications)
+   echo "Building $application"
+   ./BuildApplication $application $opt
+   set applicationstatus = $status
+   if ($applicationstatus != 0) then
+      echo `date` ": Could not build $application"
+      echo "                              See `pwd`/$application.log to find out what went wrong"
+      set exitstatus = 1
+   else
+      echo `date` ": Successfully built $application"
+   endif
+end
+
+exit $exitstatus

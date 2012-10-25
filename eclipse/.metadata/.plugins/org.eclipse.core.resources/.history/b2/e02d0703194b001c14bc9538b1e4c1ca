@@ -1,0 +1,19 @@
+gxsbarea.d gxsbarea.o: ../gxsbarea.c ../gxerror.h ../gxgenerl.h \
+  ../gxhist.h ../gxprjdef.h ../list.h ../gxprjct.h ../gxsbarea.h \
+  ../sortlst.h
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxhist.h:
+
+../gxprjdef.h:
+
+../list.h:
+
+../gxprjct.h:
+
+../gxsbarea.h:
+
+../sortlst.h:

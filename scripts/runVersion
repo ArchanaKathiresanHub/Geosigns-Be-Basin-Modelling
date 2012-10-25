@@ -1,0 +1,57 @@
+#!/bin/csh -f
+
+if ( $#argv != 3 ) then 
+    echo "Usage: $0 Directory Scope EmailName"
+    goto done
+endif
+
+echo "runVersion $*"
+set dir       = $1
+set subdir    = "$1:t"
+set scope     = $2
+set emailName = $3
+
+set projectNames = $PROJECTNAMES
+
+set cpuCount = 3
+
+setenv CBMTESTLOGSDIR $CBMTESTLOGSDIR/$HOST/$TODAY
+
+rm -rf $CBMTESTLOGSDIR
+mkdir -p $CBMTESTLOGSDIR
+
+set logFile = $CBMTESTLOGSDIR/log
+
+set execPath = $dir/applications/fastcauldron/obj.Silicon64
+
+rm -f $logFile
+
+foreach project ( $projectNames )
+
+    set oldWD = `pwd`
+
+    echo "---- $project ----"
+    cd $project
+
+    $CBMSCRIPTSDIR/runModel FastCauldron $execPath $scope $project $cpuCount $subdir $emailName >>& $logFile
+    if ($status == 0) then
+       echo " --- runModel $project succeeded"
+    else
+       echo " --- runModel $project failed"
+    endif
+    cd $oldWD
+end
+
+grep "Failed" $logFile >& /dev/null
+set grepStatus = $status
+
+if ( $grepStatus == 0 ) then
+    set MAILSUBJECT="Results of your nightly FastCauldron $scope runs"
+    set TOADDRESS="${emailName}@shell.com"
+    cat $logFile | mail -s "$MAILSUBJECT" $TOADDRESS
+    echo "+++++++++ e-mail content sent +++++++++"
+    echo "Sent to:" $TOADDRESS
+    echo "Subject:" $MAILSUBJECT
+    cat $logFile
+    echo "+++++++++++++++++++++++++++++++++++++++"
+endif

@@ -1,0 +1,10 @@
+dataschema.d dataschema.o: ../dataschema.C ../datautils.h ../database.h \
+  ../dataschema.h ../datatype.h
+
+../datautils.h:
+
+../database.h:
+
+../dataschema.h:
+
+../datatype.h:

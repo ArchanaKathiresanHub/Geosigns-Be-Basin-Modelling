@@ -1,0 +1,47 @@
+FaultElementCalculator.d FaultElementCalculator.o:  \
+ ../FaultElementCalculator.C ../Implementation/FaultElementCalculator.h \
+  ../Implementation/auxiliaryfaulttypes.h \
+  ../Implementation/Implementation.h ../Implementation/Grid.h \
+  ../Interface/Grid.h ../Interface/Interface.h \
+  ../Implementation/GridMap.h ../Interface/GridMap.h \
+  ../Implementation/Child.h ../Implementation/Snapshot.h \
+  ../Interface/Snapshot.h ../Implementation/DAObject.h \
+  ../Implementation/Parent.h ../Implementation/DynArray.h \
+  ../Implementation/AttributeValue.h ../Interface/AttributeValue.h \
+  ../Implementation/FaultCollection.h ../Implementation/Faulting.h
+
+../Implementation/FaultElementCalculator.h:
+
+../Implementation/auxiliaryfaulttypes.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/Grid.h:
+
+../Interface/Grid.h:
+
+../Interface/Interface.h:
+
+../Implementation/GridMap.h:
+
+../Interface/GridMap.h:
+
+../Implementation/Child.h:
+
+../Implementation/Snapshot.h:
+
+../Interface/Snapshot.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/AttributeValue.h:
+
+../Implementation/FaultCollection.h:
+
+../Implementation/Faulting.h:

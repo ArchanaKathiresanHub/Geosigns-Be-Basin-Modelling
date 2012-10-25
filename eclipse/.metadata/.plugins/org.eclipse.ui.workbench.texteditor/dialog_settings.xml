@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="893"/>
+		<item key="DIALOG_Y_ORIGIN" value="260"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="wholeword" value="false"/>
+		<item key="incremental" value="false"/>
+		<item key="isRegEx" value="false"/>
+		<item key="selection" value="PetscVi"/>
+		<item key="wrap" value="false"/>
+		<item key="casesensitive" value="false"/>
+		<list key="findhistory">
+			<item value="PetscVi"/>
+			<item value="MapWriter"/>
+			<item value="Grid.C"/>
+			<item value="Grid"/>
+			<item value="SurfaceGridMap"/>
+			<item value="FILE"/>
+		</list>
+		<list key="replacehistory">
+		</list>
+	</section>
+</section>

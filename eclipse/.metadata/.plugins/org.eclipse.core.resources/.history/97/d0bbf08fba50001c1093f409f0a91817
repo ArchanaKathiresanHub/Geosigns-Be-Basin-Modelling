@@ -1,0 +1,39 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_UPPER_SRCS += \
+../cauldronschema.C \
+../cauldronschemafuncs.C \
+../database.C \
+../dataschema.C \
+../datautils.C \
+../parspec.C 
+
+OBJS += \
+./cauldronschema.o \
+./cauldronschemafuncs.o \
+./database.o \
+./dataschema.o \
+./datautils.o \
+./parspec.o 
+
+C_UPPER_DEPS += \
+./cauldronschema.d \
+./cauldronschemafuncs.d \
+./database.d \
+./dataschema.d \
+./datautils.d \
+./parspec.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+%.o: ../%.C
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -m64 -fPIC -I../../../cauldronschema -O1 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

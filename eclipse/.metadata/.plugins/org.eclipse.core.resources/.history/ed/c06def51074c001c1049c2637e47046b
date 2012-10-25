@@ -1,0 +1,42 @@
+gxinit.d gxinit.o: ../gxinit.c ../../../genex4_kernel/src/mshell.h \
+  ../../../genex4_kernel/src/gxgenerl.h \
+  ../../../genex4_kernel/src/gxconfig.h \
+  ../../../genex4_kernel/src/gxerror.h \
+  ../../../genex4_kernel/src/gxhist.h \
+  ../../../genex4_kernel/src/gxprjdef.h ../../../genex4_kernel/src/list.h \
+  ../../../genex4_kernel/src/gxhorizn.h \
+  ../../../genex4_kernel/src/gxlithol.h \
+  ../../../genex4_kernel/src/sortlst.h \
+  ../../../genex4_kernel/src/gxsbarea.h \
+  ../../../genex4_kernel/src/gxkernel.h \
+  ../../../genex4_kernel/src/gxmodel.h ../ibsgxkernel.h ../ibsgx.h
+
+../../../genex4_kernel/src/mshell.h:
+
+../../../genex4_kernel/src/gxgenerl.h:
+
+../../../genex4_kernel/src/gxconfig.h:
+
+../../../genex4_kernel/src/gxerror.h:
+
+../../../genex4_kernel/src/gxhist.h:
+
+../../../genex4_kernel/src/gxprjdef.h:
+
+../../../genex4_kernel/src/list.h:
+
+../../../genex4_kernel/src/gxhorizn.h:
+
+../../../genex4_kernel/src/gxlithol.h:
+
+../../../genex4_kernel/src/sortlst.h:
+
+../../../genex4_kernel/src/gxsbarea.h:
+
+../../../genex4_kernel/src/gxkernel.h:
+
+../../../genex4_kernel/src/gxmodel.h:
+
+../ibsgxkernel.h:
+
+../ibsgx.h:

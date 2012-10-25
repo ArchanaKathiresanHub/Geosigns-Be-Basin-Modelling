@@ -1,0 +1,83 @@
+31
+                          Stratigraphic Table
+                          *******************
+
+ Some additional notes on how to fill in this compulsory table are warranted, 
+ particularly for handling unconformities.
+
+ 1. Depths (in metres) and one-way travel times (in msec) are input with
+    reference to datum depth and datum travel time respectively, and refer to
+    geological boundaries.
+ 2. The first line should always represent the present day surface (Age = 0,
+    Depth = datum depth, 1-way travel time = datum travel time). If older
+    rocks outcrop, this first entry line is denoted as unconformity (see 3).
+ 3. The indicator column (Ind) indicates whether the geological boundary is
+    a preserved formation top (F), a hiatus (-), an unconformity (U) or the
+    thickness of a missing section (M) in an unconformity.
+ 4. When a ? is entered in the age or 1-way travel time columns, the value
+    is interpolates or extrapolated. This only works for formation tops (F)!
+ 5. The format for a single unconformity is as follows:
+            Ind  Age(Mabp)            Missing(m)   Depth(m)
+            -----------------------------------------------
+            F    0.0                                0.0
+            U    20.0    70.0                    1000.0
+            M    start of erosion     thickness 
+                 of missing section   of missing    -
+                                      section  
+            F    70.0                            1000.0 
+    The unconformity 'loop' starts at 70 Ma with deposition of missing section
+    and finishes at 20  Ma when all missing section is eroded.
+    The age of the next formation top (F) must be the start age of the
+    unconformity (70 Ma in this example).
+
+ 6. Unconformities within unconformities are permitted, as shown in the 
+    example below. Instead of input lines in the sequence U, M, F, the F line 
+    is replaced by another unconformity line (nested unconformity) and its F 
+    line by a missing line (M) with the thickness of the missing horzion
+    that was deposited by the time of the start of the nested unconformity loop.
+    In the example below, UNCONF3.GEO, there are two stratigraphic horizons
+    deposited and removed completely within the main unconformity between 80 and
+    20 Ma.The first was 300m thick at 77 Ma (line 9) and the second was 200m
+    thick at 55 Ma (line 6). There is an illustration of this example on p.16
+    of the IBS User Guide.
+
+ 7. Available lithologies are sandstone (enter SS or ss), claystone/shale
+    (SH), coal (CO), limestone (LS), dolomite (DM), salt (SL), crust (CR),
+    lithosphere (LI) and asthenosphere (AT). '-' means not specified.
+
+ 8. The deepest boundary should always read:
+
+    F   (Age)   (Depth)   (li-1)   (li-2)   (%li-1)  (1-way time).
+
+    li-1, li-2 and %li-1 are copied from the previous line upon accepting
+    the table.
+
+
+
+
+
+
+
+
+
+
+ EXAMPLE: 
+ -------                Stratigraphic table  UNCONF3.GEO                     
+ 
+ 
+   Ind  Age(Mabp)      Missing(m) Depth(m) li-1 li-2 %li-1 1-way time(ms) 
+   ---------------------------------------------------------------------
+1   F    0.000                        0.0  -    SS   100        0.000    
+2   U   20.000   80.000            1000.0  -    -    0        500.000    
+3   M   22.000            250.0       -    SH   SS   50         0.000      
+4   U   30.000   55.000               -    -    -    0          0.000    
+5   M   40.000            150.0       -    SS   -    100        0.000    
+6   M   55.000            200.0       -    SS   SH   60         0.000    
+7   U   60.000   77.000               -    -    -    0          0.000    
+8   M   70.000            400.0       -    SS   SH   80         0.000       
+9   M   77.000            300.0       -    SS   SH   50         0.000    
+    F   80.000                     1000.0  SH   -    100      500.000    
+    F  100.000                     1500.0  SH   -    100      750.000
+  
+ 
+

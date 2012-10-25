@@ -1,0 +1,97 @@
+#!/bin/ksh
+# 
+# release_alpha - releases an executable for use in the alpha environment
+#
+# Syntax: release_alpha <executable> [<special_flag>]
+#
+# executable   - executable to be saved in archive
+# special_flag - some unique way to identify the executable
+#
+
+# verify alpha environment active
+if [ -z "$ALPHA_BASE" ]; then
+    echo "Error: Alpha environment not defined, use gocbm first."
+    exit 2
+fi
+echo "    Alpha release location is $ALPHA_BASE."
+
+# define location of log files
+log=$ALPHA_BASE/log/release_alpha.log
+
+# get executable name to be saved
+executable=$1
+if [ -z "$executable" ]; then
+	echo "Usage: $0 <executable_name> [<special_flag>]"
+	exit 1
+fi
+if [ ! -f $executable ]; then 
+	echo "Error! File $executable not found."
+	exit 2
+fi
+
+# check if there is a special flag
+special_flag=$2
+if [ -n "$special_flag" ]; then
+
+    echo "this version is being defined as special release $special_flag"
+    release="$special_flag"
+else
+    # determine SVN revision
+    release=`svn log -q | head -2 | tail -1 | awk '{ print $1 }'` 
+    result=$?
+    if [ $result -ne 0 ]; then
+	echo "Error! Current directory is not located within a subversion archive."
+	exit 3
+    fi
+    # inform user what has happened
+    echo "    Subversion revision is $release."
+fi
+
+# Create destination file name
+basename=`echo $executable | awk -F'/' '{ print $NF }'`
+destination=$ALPHA_BASE/bin/$CSCE_ARCH/$basename.$release
+dest_link=$ALPHA_BASE/bin/$CSCE_ARCH/$basename
+
+# if already file then say so
+if [ -f $destination ]; then
+    echo "    Destination file $basename.$release already exists and will be overwritten."
+fi
+
+# copy executable over to location
+cp $executable $destination
+result=$?
+if [ $result -ne 0 ]; then
+	echo "Error! Copy failed, result $result."
+	# add an entry to the release log
+	echo "`date`|`whoami`|$release|$CSCE_ARCH|Error! Failed copy $basename -> $destination|Result=$result|" >>$log
+	exit 4
+fi
+# inform user what has happened
+echo "    Executable $executable copied."
+
+# add an entry to the release log
+echo "`date`|`whoami`|$release|$CSCE_ARCH|Copy $basename -> $destination|Result=$result|" >>$log
+
+# set file protection on destination so others can change it in the future
+chmod 777 $destination
+
+# don't overwrite default executable if special flag has been given
+if [ -z "$special_flag" }; then
+    # replace the link to the default executable with this one
+    [ -f $dest_link ] && rm $dest_link
+    ln -s $destination $dest_link
+    result=$?
+    echo "`date`|`whoami`|$release|$CSCE_ARCH|Link $dest_link -> $destination|Result=$result|" >>$log
+
+    if [ $result -ne 0 ]; then
+	echo "Error! Create link failed, result $result."
+	exit 5
+    fi
+    # inform user what has happened
+    echo "    Latest executable link for $CSCE_ARCH defined."
+fi
+
+echo "Alpha release procedure completed successfully."
+
+# End script
+exit 0

@@ -1,0 +1,10 @@
+IBSFaultFileReader.d IBSFaultFileReader.o: ../IBSFaultFileReader.C \
+  ../Implementation/IBSFaultFileReader.h \
+  ../Implementation/FaultFileReader.h \
+  ../Implementation/auxiliaryfaulttypes.h
+
+../Implementation/IBSFaultFileReader.h:
+
+../Implementation/FaultFileReader.h:
+
+../Implementation/auxiliaryfaulttypes.h:

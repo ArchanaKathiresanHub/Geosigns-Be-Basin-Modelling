@@ -1,0 +1,13 @@
+cauldronschemafuncs.d cauldronschemafuncs.o: ../cauldronschemafuncs.C \
+  ../database.h ../dataschema.h ../datatype.h \
+  ../../src/cauldronschemafuncs.h ../../src/database.h
+
+../database.h:
+
+../dataschema.h:
+
+../datatype.h:
+
+../../src/cauldronschemafuncs.h:
+
+../../src/database.h:

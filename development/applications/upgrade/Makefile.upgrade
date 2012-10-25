@@ -1,0 +1,31 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+CC = $(CXX)
+CLINKER = $(CC)
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+SRCDIR  	= $(ROOTDIR)/src
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = upgrade
+
+target: upgrade
+
+upgrade : $(SRCDIR)/$(EXE)
+	/bin/cp $(SRCDIR)/$(EXE) $(EXE)
+
+clean :
+	rm -rf $(EXE) *~
+
+depend: $(EXEOBJECTS:.o=.C)
+

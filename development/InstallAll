@@ -1,0 +1,90 @@
+#!/bin/csh
+if (! $?IBS_LIMITEDBUILDANDINSTALL) then
+   source /nfs/rvl/users/ibs/bin/gocbm3
+   setenv OIV_HOME /nfs/rvl/groups/sgs/spirit2/APPL/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6/
+   setenv LD_LIBRARY_PATH /nfs/rvl/groups/sgs/spirit2/APPL/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6/lib:$LD_LIBRARY_PATH
+endif
+
+set version = "v2013.01nightly"
+if ($# == 1) then
+   set version = $1
+endif
+
+set wd = `pwd`
+set installStatus = 0
+
+# directory to put the release in
+setenv targetDirectory /apps/sssdev/ibs/${version}
+# main system directory
+set mainSystemDirectory = LinuxRHEL64
+# main system binary directory
+setenv mainBinaryDirectory $targetDirectory/$mainSystemDirectory/bin
+setenv miscDirectory $targetDirectory/misc
+
+# system directory aliases
+set otherSystemDirectories = "Linux LinuxRHEL64_53AS LinuxRHEL64_53WS LinuxRHEL64_56AS LinuxRHEL64_56WS LinuxRHEL64_57AS LinuxRHEL64_57WS LinuxRHEL64_58AS LinuxRHEL64_58WS"
+
+#building the directory structure
+echo "making target directory $targetDirectory"
+if (-d $targetDirectory) then
+   rm -rf $targetDirectory
+endif
+mkdir -p $targetDirectory
+
+cd $targetDirectory
+
+echo "Creating system directories"
+mkdir -p $mainSystemDirectory
+mkdir -p $mainBinaryDirectory
+
+echo "Linking other system directories"
+echo "pwd = `pwd`"
+foreach otherSystemDirectory ($otherSystemDirectories)
+   echo "ln -s $mainSystemDirectory $otherSystemDirectory"
+   ln -s $mainSystemDirectory $otherSystemDirectory
+end
+
+cd $wd
+
+if (! $?IBS_LIMITEDBUILDANDINSTALL) then
+   # copying OIV libraries
+   echo "Copying OIV libraries"
+   cd $targetDirectory/$mainSystemDirectory
+   mkdir -p geocase64
+   cp $OIV_HOME/lib/*.so geocase64
+   cd $wd
+endif
+
+# installing classic applications
+cd geocase
+echo "Installing geocase"
+./InstallAll
+if ( $installStatus == 0 ) then
+   set installStatus = $status
+endif
+cd $wd
+
+# installing modern applications
+cd applications
+echo "Installing applications"
+
+./InstallAll
+if ( $installStatus == 0 )then
+   set installStatus = $status
+endif
+cd $wd
+
+# installing 3rdparty stuff
+echo "Installing 3rdparty stuff"
+echo "Installing geocosm"
+/bin/cp -f geocosm.tar $miscDirectory/geocosm.tar
+cd $miscDirectory
+tar xf geocosm.tar
+/bin/rm -f geocosm.tar
+cd $wd
+
+echo "Changing group to g_psaz00"
+chgrp -R g_psaz00 $targetDirectory
+echo "changing mode to g+w"
+chmod -R g+w $targetDirectory
+exit $installStatus

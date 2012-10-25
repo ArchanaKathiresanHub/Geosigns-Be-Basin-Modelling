@@ -1,0 +1,46 @@
+# Make.petsc - contains definitions for PETSc 3rd party library
+#
+#
+
+
+#
+# Definitions for the base directory location for optimized or debug
+#   compiled include files and libraries
+#
+ifeq ($(BOPT),g_c++)
+  PETSC_BASE = $(PETSC_D_HOME)
+  PETSC_LIB  = $(PETSC_BASE)/lib/libg_c++/$(PETSC_ARCH)
+
+else
+  PETSC_BASE = $(PETSC_HOME)
+  PETSC_LIB  = $(PETSC_BASE)/lib/libO_c++/$(PETSC_ARCH)
+
+endif
+      
+#
+# PETSc definitions
+#
+# PETSC_DIR definition is required by PETSc itself
+#
+
+#Intel math-kernel-library.
+MKL_ROOT = /nfs/rvl/apps/3rdparty/intel/ics2011/composerxe-2011.3.174/mkl
+
+BLASLAPACK_LIB= -Wl,--start-group \
+   $(MKL_ROOT)/lib/intel64/libmkl_intel_lp64.a \
+   $(MKL_ROOT)/lib/intel64/libmkl_sequential.a \
+   $(MKL_ROOT)/lib/intel64/libmkl_core.a \
+   -Wl,--end-group 
+
+
+PETSC_DIR = $(PETSC_BASE)
+PETSC_INCLUDE = $(PETSC_BASE)/include
+PETSC_LIB = $(PETSC_BASE)/lib/libpetsc.a $(BLASLAPACK_LIB) -lpthread
+
+CFLAGS += -I$(PETSC_INCLUDE)
+CXXFLAGS += -I$(PETSC_INCLUDE)
+
+# Include compiler definitions specified by PETSc
+# include $(PETSC_BASE)/bmake/common/base
+
+# End 

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="genex4_kernel.cdt.managedbuild.target.gnu.so.330088756" name="Shared Library (Gnu)" projectType="cdt.managedbuild.target.gnu.so">
+<configuration artifactExtension="so" artifactName="genex4_kernel" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.so.debug.622396653" name="Debug" parent="cdt.managedbuild.config.gnu.so.debug" postbuildStep="ar -cr ${BuildArtifactFileBaseName}.a *.o">
+<toolChain id="cdt.managedbuild.toolchain.gnu.so.debug.1764288065" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.so.debug">
+<tool command="g++ -m64 -fPIC" id="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug.547401572" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug">
+<option id="gnu.cpp.compiler.option.other.other.2134941992" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.so.debug.96171858" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.so.debug.1655829959" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.linker.so.debug.935964765" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.so.debug.583194186" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.so.debug"/>
+<macros/>
+</toolChain>
+</configuration>
+<configuration artifactExtension="so" artifactName="genex4_kernel" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.so.release.82162480" name="Release" parent="cdt.managedbuild.config.gnu.so.release" postbuildStep="ar -cr ${BuildArtifactFileBaseName}.a *.o">
+<toolChain id="cdt.managedbuild.toolchain.gnu.so.release.1777993200" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.so.release">
+<tool command="g++ -m64 -fPIC" id="cdt.managedbuild.tool.gnu.cpp.compiler.so.release.1035345261" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.release">
+<option id="gnu.cpp.compiler.so.release.option.optimization.level.1395793836" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+</tool>
+<tool command="gcc -m64 -fPIC" id="cdt.managedbuild.tool.gnu.c.compiler.so.release.1563481262" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release">
+<option id="gnu.c.compiler.so.release.option.optimization.level.782112505" superClass="gnu.c.compiler.so.release.option.optimization.level" value="gnu.c.optimization.level.more" valueType="enumerated"/>
+<option id="gnu.c.compiler.option.misc.other.1921336025" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.so.release.1852550539" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.release"/>
+<tool command="g++ -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.so.release.1408735738" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.release">
+<option id="gnu.cpp.link.option.strip.1652056333" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.so.release.1430863381" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.so.release"/>
+<macros/>
+</toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.so.release.82162480./genex4_kernel/main.c" name="main.c" rcbsApplicability="disable" resourcePath="/genex4_kernel/main.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.so.release.1563481262./genex4_kernel/main.c">
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.so.release.1563481262./genex4_kernel/main.c" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release.1563481262"/>
+</resourceConfiguration>
+</configuration>
+</project>
+</ManagedProjectBuildInfo>

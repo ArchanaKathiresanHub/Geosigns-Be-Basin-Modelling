@@ -1,0 +1,6 @@
+# Gempis Job File
+PROJECT "Bad Parallel Job"
+REQUIREMENTS "fastreq Acquifer.project3d"
+PARALLEL "fastcauldron -project xxx.project3d -temperature" "temperature Calculation"
+LOCAL "echo done"
+PARALLEL "fastcauldron -project AMT_BASE_CASE_2006_ALL_SANDS.project3d -temperature" "temperature Calculation"

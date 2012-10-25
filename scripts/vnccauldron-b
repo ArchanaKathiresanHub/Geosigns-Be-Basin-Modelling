@@ -1,0 +1,142 @@
+#!/bin/csh -f
+# This is a script that starts up cauldron in a vnc session
+# Upon exiting cauldron this script will kill the vnc session
+# This script depends on the presesence of a $IBS_NAMES/vnchome directory that
+# contains a .vnc directory with a start up file xstartup with the following content
+# --- start ----
+# #!/bin/sh -f
+#
+# xrdb $HOME/.Xresources
+# xsetroot -solid grey
+# ( cauldron $CAULDRONARGS && vncserver -kill $DISPLAY ) &
+# mwm
+# ---  end  ----
+# The .vnc directory must be readable, writable and executable by all
+
+set loud=0
+set cauldronargs="-$CAULDRON_VERSION"
+set serverargs=""
+set viewerargs=""
+set geomset=0
+
+set oldhome=$HOME
+set homehome=$IBS_NAMES/vnchome
+set newhome=/tmp/home.vnccauldron.$$
+
+#
+# splitting argument list into one for cauldron and one for vncserver
+# and one for the vncviewer
+
+while ($#argv > 0)
+   switch ($1)
+      case -help:
+	 echo "usage:"
+	 echo "	vnccauldron [-help] [-display X11-display] [-geometry wxh] cauldronargs"
+	 exit 0
+      case -verbose:
+         set loud=1
+	 breaksw
+      case -display:
+         set viewerargs="$viewerargs $1 $2"
+	 shift
+	 breaksw
+      case -geometry:
+         set serverargs="$serverargs $1 $2"
+	 set geomset=1
+	 shift
+	 breaksw
+      default:
+         set cauldronargs="$cauldronargs $1"
+	 if ($loud) then
+	    echo cauldronargs = $cauldronargs
+	 endif
+	 breaksw
+   endsw
+   shift
+end
+
+# default geometry
+if (! $geomset ) then
+   set serverargs="$serverargs -geometry 1268x1024"
+endif
+
+if ($loud) then
+   echo "viewerargs  = $viewerargs"
+   echo "serverargs  = $serverargs"
+   echo "cauldronargs  = $cauldronargs"
+endif
+
+setenv CAULDRONARGS "$cauldronargs"
+
+# copying home directory template to temporary home
+if ($loud) then
+   echo "Copying $homehome to $newhome"
+endif
+
+cp -r $homehome $newhome
+# setting access permissions for vncserver to accept the files
+chmod 600 $newhome/.Xauthority
+chmod 600 $newhome/.vnc/passwd
+
+# HOME needs to point to $newhome to get the right startup file
+setenv HOME $newhome
+
+set logfile = /tmp/log.vnccauldron.$$
+
+# running vncserver with -cc 3 -depth 8 to get an 8-bit PseudoColor display
+if ($loud) then
+echo "starting vncserver"
+vncserver -name "cauldron $cauldronargs" -cc 3 -depth 8 $serverargs |& tee $logfile
+echo "vncserver started"
+else
+vncserver -name "cauldron $cauldronargs" -cc 3 -depth 8 $serverargs >& $logfile
+endif
+
+onintr interrupted
+
+# find out the name of the display of the server
+set displaystring=`grep "desktop is" $logfile`
+rm -f $logfile
+
+foreach display ( $displaystring )
+   ;;
+end
+
+if ($loud) then
+   echo display = $display
+endif
+
+setenv OLDDISPLAY $DISPLAY
+setenv DISPLAY $display
+
+setenv HOME $oldhome
+if ($loud) then
+   echo "merging $newhome/.Xauthority"
+endif
+
+xauth merge $newhome/.Xauthority
+
+# upon exit of cauldron the vncserver will be killed
+( cauldron $CAULDRONARGS && setenv HOME $newhome && vncserver -kill $display ) &
+
+setenv HOME $oldhome
+
+# start up the vncviewer with the proper passwd file
+if ($loud) then
+   echo "Starting vncviewer"
+   vncviewer -display $OLDDISPLAY -owncmap -passwd $newhome/.vnc/passwd $viewerargs $display
+   echo "vncviewer started"
+else
+   vncviewer -display $OLDDISPLAY -owncmap -passwd $newhome/.vnc/passwd $viewerargs $display |& grep Error
+endif
+
+# cleaning up
+interrupted:
+setenv HOME $newhome
+if ($loud) then
+   echo "killing vncserver"
+endif
+# vncserver -kill $display >& /dev/null
+setenv HOME $oldhome
+rm -rf $newhome
+

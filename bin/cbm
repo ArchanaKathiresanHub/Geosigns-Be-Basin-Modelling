@@ -1,0 +1,87 @@
+#!/bin/ksh
+#
+# Purpose: A user front door for starting alpha release fastcauldron CBM jobs 
+#
+# Description:
+#
+# Syntax: cbm [-r <svn_revision>] <calc_type> <numcpus> <project_name>  
+#                   [<fastcauldron_options>]
+#
+# svn_revision      - (optional) svn revision to use (if it exists)
+# calc_type         - type of calculation (STANDALONE, CUSTOM, LSF, LSFHPC)
+# numcpus           - number of CPU's to use. Giving 1 or 2 processors will run locally.
+# project_name      - name of project3d file
+# fastcauldron_opts - other fastcauldron options 
+#
+# Environment Variables:
+#   DEBUG - when defined generates additional messages
+#
+# Dependencies:
+#
+# Notes:
+# 1. 
+#
+# To Do:
+#
+###############################################################################
+
+###############################################################################
+#
+# parse the arguments to get:
+#   number of CPU's, machine file name, and command to run
+#
+set state = MPI
+set mpi_opts = ""
+set exec_opts = ""
+while ( ${#argv} > 0 )
+
+    if ( $?DEBUG ) then
+	echo "Parsing options, state = ${state}, opt = $1"
+    endif
+
+    switch ( $state )
+    case MPI:
+	if ( "$1" == "--" ) then
+	    set state = EXEC
+	else
+	    set mpi_opts = "$mpi_opts $1"
+	endif
+	breaksw
+
+    case EXEC:
+	set exec = `which $1`
+	set result = $?
+	if ( "$result" != 0 ) then
+	    echo "Error unknown executable $exec"
+	    exit 1
+	endif
+	set state = ARGS
+	breaksw
+
+    case ARGS:
+	set exec_opts = "$exec_opts $1"
+	breaksw
+    endsw
+    shift
+end
+
+################################################################################
+#
+# define executable
+#
+if ( ${?revision} ) then
+	set executable = $ALPHA_BIN/$CSCE_ARCH/fastcauldron.$revision
+else
+	set executable = $ALPHA_BIN/$CSCE_ARCH/fastcauldron
+endif
+
+# make sure that the executable exists
+if ( ! -f $executable ) then
+	echo "Error! Executable $executable not found."
+	exit 1
+endif
+
+set command = "$executable -project $project $calc_type $options"
+
+
+# End script

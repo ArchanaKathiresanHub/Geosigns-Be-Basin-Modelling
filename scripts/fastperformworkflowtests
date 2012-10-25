@@ -1,0 +1,18 @@
+#!/bin/csh
+
+set verbose
+
+########################## workflow tests ######################################
+
+cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/RegressionTests
+
+/bin/rm -rf workflow
+/bin/rm -rf workflow
+
+mkdir -p workflow
+cd workflow
+
+fastretrieve workflow Acquifer
+fastconducttest -application workflow -project  Acquifer -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+

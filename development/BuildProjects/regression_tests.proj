@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+
+    <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
+
+    <cpio_exe Condition="Exists('C:\cygwin\bin\cpio.exe')">"C:\cygwin\bin\cpio.exe"</cpio_exe>
+    <cpio_exe Condition="Exists('C:\opt\cygwin\bin\cpio.exe')">"C:\opt\cygwin\bin\cpio.exe"</cpio_exe>
+    <cpio_exe Condition="Exists('D:\cygwin\bin\cpio.exe')">"D:\cygwin\bin\cpio.exe"</cpio_exe>
+
+    <ssh_command>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk" ksaho3@amsd2a-n-b01001</ssh_command>
+    <scp_command>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk"</scp_command>
+    
+    <!--Paths as in the build server. The GNU/Linux blade used is Alfred's -->
+    <run_script>$(ssh_command) "sh -x ~/bin/fastperformtests_with_cmake"  </run_script>
+    <copy_script>$(scp_command) "$(MSBuildProjectDirectory)\..\..\scripts\fastperformtests_with_cmake" "ksaho3@amsd2a-n-b01001:bin" </copy_script>
+    
+    <copy_results_back>$(ssh_command) "set -e ; cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/RegressionTests ; find -maxdepth 2 -type f | cpio -o" | $(cpio_exe) -id </copy_results_back>
+    <regression_test_dir>$(OutDir)regression_tests</regression_test_dir>
+  </PropertyGroup>
+
+  <Target Name="DebugInfo">
+    <Message Text="IsDesktopBuild = $(IsDesktopBuild)" />
+
+    <Message Text="MSBuildProjectDirectory is $(MSBuildProjectDirectory)"/>
+    <Message Text="OutDir = $(OutDir)" />
+    <Message Text="TeamFoundationServerUrl = $(TeamFoundationServerUrl)" />
+    <Message Text="BuildUri = $(BuildUri)" />
+    <Message Text="BuildNumber = $(BuildNumber)" />
+    <Message Text="SourceGetVersion = $(SourceGetVersion)" />
+  </Target>
+
+  <Target Name="RunTests">
+
+    <RemoveDir Directories="$(regression_test_dir)" Condition="Exists('$(regression_test_dir)')" />
+    <MakeDir Directories="$(regression_test_dir)" Condition="!Exists('$(regression_test_dir)')" />
+    <!--
+    <Exec IgnoreExitCode="false" Command="$(copy_script)" />
+    -->
+    <!-- 
+    <Exec IgnoreExitCode="true" Command="$(run_script)" />
+    -->
+
+    <Message Text="regression_test_dir = $(regression_test_dir)" />
+    
+    <Exec Condition="'$(SkipCopyResults)' != 'true'"
+      Command="$(copy_results_back)"
+      WorkingDirectory="$(regression_test_dir)"
+      />
+
+  </Target>
+
+  <Target Name="PublishResults">
+    <Message Text="solution_root = $(solution_root)" />
+
+    <MSBuild Projects="$(solution_root)\tests\regression_tests\bmtotrx.proj" />
+    <MSBuild Projects="$(solution_root)\tests\regression_tests\regression_tests_proxy.proj"  Properties="regression_test_dir=$(regression_test_dir)"/>
+  </Target>
+  
+  <Target Name="Build" DependsOnTargets="DebugInfo;RunTests;PublishResults">
+  </Target>
+</Project>

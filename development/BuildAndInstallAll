@@ -1,0 +1,72 @@
+#!/bin/csh
+
+set version = "v2013.01nightly"
+if ($# == 1) then
+   set version = $1
+endif
+
+switch ( `whoami`)
+    case ksaho3:
+	setenv BUILDINSTALLADDRESS alfred.vanderhoeven@shell.com
+	breaksw
+    case nlnku3:
+	setenv BUILDINSTALLADDRESS natalya.kuznetsova@shell.com
+	breaksw
+    case nlwse0:
+	setenv BUILDINSTALLADDRESS william.senior@shell.com
+	breaksw
+    case nlamuv:
+	setenv BUILDINSTALLADDRESS alfredo.muela@shell.com
+	breaksw
+    case nlskui:
+	setenv BUILDINSTALLADDRESS sreejith.kuttanikkad@shell.com
+	breaksw
+    case nlvam0:
+	setenv BUILDINSTALLADDRESS vijaya.ambati@shell.com
+	breaksw
+    case nlrnig:
+	setenv BUILDINSTALLADDRESS ruben.nijp@shell.com
+	breaksw
+    case nlskp6:
+	setenv BUILDINSTALLADDRESS stefan.kollet@shell.com
+	breaksw
+    case nlome0:
+	setenv BUILDINSTALLADDRESS olivier.meuric@shell.com
+	breaksw
+    case *:
+	setenv BUILDINSTALLADDRESS alfred.vanderhoeven@shell.com
+	breaksw
+ endsw
+
+echo "Sending emails to: $BUILDINSTALLADDRESS"
+
+
+echo "Performing BuildAll of $version"
+./BuildAll >& BuildAll.log
+set exitStatus = $status
+if ($exitStatus != 0) then
+   echo "Failed to complete BuildAll of $version"
+   cat BuildAll.log | mail -s "failed to complete BuildAll of $version" $BUILDINSTALLADDRESS
+   exit 1
+endif
+
+echo "Performing MoveInstalls of $version"
+./MoveInstalls $version >& MoveInstalls.log
+set exitStatus = $status
+if ($exitStatus != 0) then
+   echo "Exit status = $exitStatus, failed to complete MoveInstalls of $version, aborting"
+   cat MoveInstalls.log | mail -s "failed to complete MoveInstalls of $version" $BUILDINSTALLADDRESS
+   exit 1
+endif
+
+echo "Performing InstallAll of $version"
+./InstallAll $version >& InstallAll.log
+set exitStatus = $status
+if ($exitStatus != 0) then
+   echo "Exit status = $exitStatus, failed to complete InstallAll of $version, aborting"
+   cat InstallAll.log | mail -s "failed to complete InstallAll of $version" $BUILDINSTALLADDRESS
+   exit 1
+endif
+
+cat BuildAll.log | mail -s "Completed BuildAndInstallAll of $version" $BUILDINSTALLADDRESS
+exit 0

@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# This scripts processes the reports in $GEMPIS_STAT_HOME to create a cluster 
+# usage summary for the year suitable to paste in an Excel spread sheet.
+#
+# Example:
+#   users 01/01/2007 01/02/2007 01/03/2007 01/04/2007 01/05/2007 01/06/2007 01/07/2007 01/08/2007 01/09/2007 01/10/2007 01/ 11/2007 01/12/2007
+#  ksaho3          0          0          0          0          0          0          0          0          0          1       7          4
+#  nlafu1          0          0          0          0          0          0          0          0          0          0       7          0
+#
+# To do:
+# - Merge this script into gempis_stat 
+#
+
+# check parameters
+cluster=$1
+if [ -z "$cluster" ]; then
+	echo "Usage $0 <cluster>"
+	exit 1
+fi
+echo "Reporting capacity on cluster [$cluster]."
+
+year=2007
+
+user_list=`cat $cluster/seconds.log | awk '{ print $3 }' | sort -u`
+if [ -z "$user_list" ]; then
+    echo "No users"
+    exit 1
+fi
+
+printf "%8s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s\n" users "01/01/$year" "01/02/$year" "01/03/$year" "01/04/$year" "01/05/$year" "01/06/$year" "01/07/$year" "01/08/$year" "01/09/$year" "01/10/$year" "01/11/$year" "01/12/$year"  
+
+for user in $user_list; do
+
+    hours=""
+    for month in 1 2 3 4 5 6 7 8 9 10 11 12; do
+
+	mnth=`printf "%02d" $month`
+
+	f="${cluster}-${year}-${mnth}.txt"
+#echo "month [$mnth] file [$f]"
+
+	if [ -f $f ]; then
+	    x=`cat $f | grep "  $user " | tail -1 | awk '{ print $2 }'`
+	else
+	    x=""
+	fi
+#echo "x = [$x]"
+	if [ -n "$x" ]; then
+	    hours[${month}]=$x
+	else
+	    hours[${month}]=0
+	fi
+    done
+#set -x 
+#    echo "$user ${hours[*]}"
+
+    printf "%8s %10d %10d %10d %10d %10d %10d %10d %10d %10d %10d %10d %10d\n" $user ${hours[1]} ${hours[2]} ${hours[3]} ${hours[4]} ${hours[5]} ${hours[6]} ${hours[7]} ${hours[8]} ${hours[9]} ${hours[10]} ${hours[11]} ${hours[12]}
+
+done
+
+exit
+# Ens script

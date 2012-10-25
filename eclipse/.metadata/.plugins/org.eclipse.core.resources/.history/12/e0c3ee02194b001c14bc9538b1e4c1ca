@@ -1,0 +1,14 @@
+gxoption.d gxoption.o: ../gxoption.c ../gxconsts.h ../gxerror.h \
+  ../gxgenerl.h ../gxoption.h ../gxprjdef.h ../gxprjct.h
+
+../gxconsts.h:
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxoption.h:
+
+../gxprjdef.h:
+
+../gxprjct.h:

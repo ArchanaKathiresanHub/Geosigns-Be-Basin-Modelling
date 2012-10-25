@@ -1,0 +1,119 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+include $(FILE_BASE)/Make.machine
+
+CC = $(CXX)
+CLINKER = $(CC)
+
+#
+#  Override for Make.machine definitions
+ifeq ($(machine),Linux64)
+  FLEX_LIB        = -lrt
+endif
+#
+ifeq ($(machine),Sun)
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),SunOS64)
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),Silicon64)
+  SOCKET_LIB      = -L/usr/lib64/mips4 -lsocket -woff 15
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+
+FLEXLMBITS      = 64
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+
+MAKEDEPEND = /usr/bin/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = fastreq.cfg
+
+SRCDIR  	= $(ROOTDIR)/src/
+
+SERIAL_DATAACCESS_INC	= $(LIBDIR)/SerialDataAccess/src
+SERIAL_DATAACCESS_LIB	= $(LIBDIR)/lib/$(machine)/libSerialDataAccess.a
+
+DATAACCESS_INC	= $(LIBDIR)/DataAccess/src
+DATAACCESS_LIB	= $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+TABLEIO_INC = $(LIBDIR)/TableIO/src
+TABLEIO_LIB = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB	= $(LIBDIR)/lib/$(machine)/libutilities.a
+
+CBMGENERICS_INC	=  $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	=  $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+
+EXEOBJECTS	= main.o \
+         	  FastReqProjectHandle.o \
+		  FastReqObjectFactory.o 
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(DATAACCESS_LIB) \
+											$(SERIAL_DATAACCESS_LIB) \
+											$(DATAACCESS_LIB) \
+											$(TABLEIO_LIB)\
+											$(H5_SERIAL_LIB)\
+											$(CBMGENERICS_LIB)\
+											$(UTILITIES_LIB)\
+											$(HDF5_SLIB)/libhdf5.a \
+											$(SOCKET_LIB) -lz -lrt -lm
+
+CFLAGS		=  -I/usr/include \
+		-DUSEINTERFACE \
+		-I$(SERIAL_DATAACCESS_INC) \
+		-I$(SERIAL_DATAACCESS_INC)/Interface \
+		-I$(DATAACCESS_INC) \
+		-I$(DATAACCESS_INC)/Interface \
+		-I$(DATAACCESS_INC)/Implementation \
+		-I$(HDF5_SINCLUDE) \
+		-I$(TABLEIO_INC) \
+		-I$(H5_SERIAL_INC) \
+		-I$(CBMGENERICS_INC) \
+		-I$(UTILITIES_INC)
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = fastreq
+
+target: $(EXE)
+
+$(EXE): $(EXEOBJECTS) 
+	$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.fastreq -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE
+
+main.o: FastReqProjectHandle.h FastReqObjectFactory.h
+FastReqProjectHandle.o: FastReqProjectHandle.h
+FastReqObjectFactory.o: FastReqObjectFactory.h FastReqProjectHandle.h

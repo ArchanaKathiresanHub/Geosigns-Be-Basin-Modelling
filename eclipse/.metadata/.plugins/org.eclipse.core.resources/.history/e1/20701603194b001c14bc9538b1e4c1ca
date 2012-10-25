@@ -1,0 +1,5 @@
+list.d list.o: ../list.c ../error.h ../list.h
+
+../error.h:
+
+../list.h:

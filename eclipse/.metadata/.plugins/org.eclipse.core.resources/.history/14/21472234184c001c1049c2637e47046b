@@ -1,0 +1,27 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_UPPER_SRCS += \
+../h5_vector_conversions.C \
+../petscvector_readwrite.C 
+
+OBJS += \
+./h5_vector_conversions.o \
+./petscvector_readwrite.o 
+
+C_UPPER_DEPS += \
+./h5_vector_conversions.d \
+./petscvector_readwrite.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+%.o: ../%.C
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -m64 -fPIC -I/nfs/rvl/users/ibs/IBS/EXTERNALS/MPICH/1.2.6/LinuxRHEL64_x86_64/OPTIMIZED/include -I/nfs/rvl/users/ibs/IBS/EXTERNALS/HDF5/curr/LinuxRHEL64_x86_64/PARALLEL/64/DEBUG/include -I/nfs/rvl/users/ibs/IBS/EXTERNALS/PETSC/2.1.6/LinuxRHEL64_x86_64/DEBUG/include -I/nfs/rvl/users/ibs/IBS/EXTERNALS/PETSC/2.1.6/LinuxRHEL64_x86_64/DEBUG/bmake/linux64 -I../../../Serial_Hdf5/src -I../../../Utilities_Petsc/src -O1 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

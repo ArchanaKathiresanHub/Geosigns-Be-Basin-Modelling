@@ -1,0 +1,5 @@
+BuildAndInstallAll: x
+InstallAll: x
+BuildAll: x
+MoveInstalls: x
+boostrap.csh: x

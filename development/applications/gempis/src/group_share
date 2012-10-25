@@ -1,0 +1,145 @@
+#!/bin/bash
+#
+# Purpose: changes files permission in current directory to same group so they 
+#          can be shared
+#
+# Syntax: group_share <group_id> [<path>]
+#
+##############################################################################
+
+# say hello
+cat <<EOF 
+Welcome to $0
+
+IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+
+  This tool will convert all files owned by yourself in the directory given 
+so that others from your group can read and write to them. If you have data in 
+this directory that is not to be shared, them do not use this tool!
+
+Everyone that shares data on this disk must run this script in order for it to work.
+
+EOF
+
+echo -n "Type <yes> to continue: "
+read ans
+echo ""
+if [ "$ans" != "yes" ]; then
+    echo "Only the answer 'yes' will continue."
+    echo ""
+    echo "Application terminated."
+
+    exit 1
+fi
+
+
+# define the group id
+group_id=$1
+if [ -z "$group_id" ]; then
+    echo "ERROR!"
+    echo "Usage: $0 <group_id> [<path>]"
+    echo ""
+    echo "You are a member of the following groups:"
+    groups | sed 's/ /\n/g'
+    echo ""
+    echo "Application terminated with errors."
+    exit 1
+fi
+
+# check that I am a member of that group
+list=`groups`
+gotone=`for gid in $list; do
+    if [ "$gid" = "$group_id" ]; then
+	echo "yes"
+	break
+    fi
+done`
+if [ "$gotone" != "yes" ]; then
+    echo "ERROR!"
+    echo "You are not a member of group $group_id or the group is not defined."
+    echo "This script can only change to a valid group id that you are a member of."
+    echo "You are a member of the following groups:"
+    groups | sed 's/ /\n/g'
+    echo ""
+    echo "Application terminated with errors."
+    exit 1
+fi
+
+# get the location to change, if not given then it the CWD
+path=$2
+if [ -z "$path" ]; then
+    path=`pwd`
+fi
+
+# make sure that user is not in home directory
+if [ `pwd` = "$HOME" ]; then
+    echo "ERROR! It is not permitted to run this script on your HOME directory."
+    echo ""
+    echo "Application terminated with errors."
+    exit 1
+fi
+
+# now start changing things
+echo "Changing permissions of file and directories in $path."
+home=`pwd`
+chmod u+rwx,g+rwxs $path
+for dir in `find $path -type d`; do
+
+    cd $home
+
+#    echo "    $dir."
+    #chmod u+rwx,g+rwxs `find $path -type d 2>/dev/null` 2>/dev/null
+    #chmod u+rwx,g+rwxs `find $path -type d`
+    chmod u+rwx,g+rwxs $dir
+    res=$?
+    if [ $res != 0 ]; then
+	echo "Error chmod u+rwx.g+rwxs $dir."
+	continue
+    fi
+
+    cd $dir
+    res=$?
+    if [ $res != 0 ]; then
+	echo "Error cd $dir."
+	continue
+    fi
+
+    # only continue in this loop if there are files in the directory
+    ls * >/dev/null 2>&1
+    res=$?
+    if [ $res != 0 ]; then
+	continue
+    fi
+    
+    #chmod u+rw,g+rw `find $path 2>/dev/null` 2>/dev/null
+    #chmod u+rw,g+rw `find $path`
+    chmod u+rw,g+rw *
+    res=$?
+    if [ $res != 0 ]; then
+	echo "Error chmod u+rw,g+rw *."
+	continue
+    fi
+done
+cd $home
+
+echo "Changing all files in $path to $group_id."
+chgrp -R $group_id $path
+
+# Give some last instructions
+echo ""
+echo ""
+echo "Your umask must be changed so files created by yourself can be shared by"
+echo "others of your group. Add the command"
+echo ""
+echo "    umask 002"
+echo ""
+if [ "$SHELL" = "/bin/csh" ]; then
+    echo "into the last line of your .custom.cshrc or .cshrc file."
+else
+    echo "into the last line of your .custom.kshrc or .kshrc file."
+fi
+echo ""
+
+echo "Application completed."
+echo ""
+exit 0

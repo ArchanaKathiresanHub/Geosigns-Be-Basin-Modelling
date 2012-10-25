@@ -1,0 +1,5 @@
+gxscanner.d gxscanner.o: ../gxscanner.c ../gxscanner.h ../gxgenerl.h
+
+../gxscanner.h:
+
+../gxgenerl.h:

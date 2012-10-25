@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions>
+	<bundle bundleID="298" schema="3.2">
+		<extension id="ddj.example.prettyprinter.toolchain" line="7" name="Dr Dobbs Example Enscript Tool Chain" point="org.eclipse.cdt.managedbuilder.core.buildDefinitions"/>
+	</bundle>
+</extensions>

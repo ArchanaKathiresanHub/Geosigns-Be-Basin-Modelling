@@ -1,0 +1,31 @@
+32
+
+              Formation Temperatures from Bottomhole Temperatures
+              ***************************************************
+
+ When accepting the completed input table, undisturbed formation temperatures
+ are calculated from the entered data, as well as the overall temperature
+ gradient and surface heatflow. These calculated formation temperatures may
+ then be used in the HEAT program as constraints for the heatflow solution.
+
+ The input table comprises 5 columns for the following data:
+ 1 Depth below measurement datum (in metres)    Mandatory
+ 2 Circulation time (in minutes)                Enter ? if not known
+ 3 Time since circulation stopped (in minutes)  Enter ? if not known
+ 4 Recorded bottomhole temperature or best 
+   estimate of the undisturbed formation
+   temperature (e.g. production test
+   temperature) (in degC)                       Mandatory
+ 5 Bit diameter (in inches)                     Enter ? if not known
+
+ For the unknown parameters values will be calculated after "Accept", based
+ on some simple rules of thumb (e.g. circulation time increases linearly with
+ depth). For single temperature entries (i.e., one temperature within a depth
+ interval of 2 m), no correction to that temperature will be made, and the
+ input value will be used as the undisturbed formation temperature. 
+ For multiple temperature entries within a depth interval of 2 m, the CTCYM
+ calculation will be activated to compute the best estimate for the
+ formation temperature.
+
+ When accepting the input table, simple calculations of geothermal gradient and
+ heatflow will be performed and the results stored in a .BHT file.

@@ -1,0 +1,4 @@
+methaneSolubility.d methaneSolubility.o: ../methaneSolubility.C \
+  ../methaneSolubility.h
+
+../methaneSolubility.h:

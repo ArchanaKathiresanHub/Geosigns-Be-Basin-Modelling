@@ -1,0 +1,10 @@
+ZycorFaultFileReader.d ZycorFaultFileReader.o: ../ZycorFaultFileReader.C \
+  ../Implementation/ZycorFaultFileReader.h \
+  ../Implementation/FaultFileReader.h \
+  ../Implementation/auxiliaryfaulttypes.h
+
+../Implementation/ZycorFaultFileReader.h:
+
+../Implementation/FaultFileReader.h:
+
+../Implementation/auxiliaryfaulttypes.h:

@@ -1,0 +1,7 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+LIBS := -lpetscgsolver -lpetscgrid -lpetscmesh -lpetscts -lpetscsnes -lpetscsles -lpetscdm -lpetscmat -lpetscvec -lpetsc -lX11 -llapack -lblas -lmpich -ldl -lm -lfrtbegin -lg2c -lgcc_s -lz -lrt
+
+USER_OBJS := ../../../../libraries/DistributedDataAccess/src/Release/libDistributedDataAccess.a ../../../../libraries/Utilities_Petsc/src/Release/libUtilities_Petsc.a ../../../../libraries/Serial_Hdf5/src/Release/libSerial_Hdf5.a ../../../../libraries/Parallel_Hdf5/src/Release/libParallel_Hdf5.a ../../../../libraries/EosPack/src/Release/libEosPack.a ../../../../libraries/TableIO/src/Release/libTableIO.a ../../../../libraries/functions/src/Release/libfunctions.a ../../../../libraries/CBMGenerics/src/Release/libCBMGenerics.a ../../../../libraries/utilities/src/Release/libutilities.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-parallel/1.4.5-post2/LinuxRHEL64_x86_64_30WS/lib/libhdf5.a /apps/3rdparty/EPTFlexLm/v9.2/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o

@@ -1,0 +1,65 @@
+* Format  (C,R etc. in first column) :
+* C company name                                     <1> <3-52>
+* R residence                                        <1> <3-52>
+* S screen-title,uniras-screen-device                <1> <3-42> <44-52>
+* H screen-title,uniras-hardcopy-device,plotfile     <1> <3-42> <44-52> <54:64>
+* $plot-submitstring  (must appear after the H line) <1:80>
+* * commentary                                       <1:80>
+* Up to 18 devices can be specified
+* The plot-submitstring will be completed with filename;version
+* at the end or 'P1' and 'P2' will be replaced by these
+* The ^ causes a new line; ~ suppresses the file;version
+* addition at the end of the line containing that character
+* ***************COMPANY*NAME***********************
+C SIEP  RTS                   Rijswijk           
+* ***************RESIDENCE**************************
+R      Petroleum Systems Analysis
+* ***********TITLES*FOR*THE*MENU********** *DEVICES* *FILENAMES*
+S QUIT                                     QUIT               
+*
+S X - Window system                        MX11
+*
+S X - Window system (Macintosh 256)        LX11L8
+*
+S IRIS window system                       LSIRIS               
+*
+S Tektronix 41xx series & Mac              MT41XX
+*
+H Postscript colour PHASER III A4          HTP3A4    POST
+lp 
+*
+H Postscript colour PHASER III A3          HTP3A3    POST
+lp
+*
+H Postscript colour  A4                    HCPOSTA4   POST
+lp 
+*
+H Postscript colour  A3                    HCPOSTA3   POST
+lp
+*
+H Postscript bl&wh  A4                     HPOSTA4   POST
+lp 
+*
+H Postscript bl&wh  A3                     HPOSTA3   POST
+lp
+*
+H Postscript EPS colour nosize             HCPOSTEPS POST
+lp 
+*
+H QMS ColorScript 100 A4                   HQCS100A4 POST
+lp
+*
+H HP Color plotter 750C                    GHP650C   POST
+~                         
+*
+H GKS Metafile                             LGKSM8    unimeta.gks
+~
+*
+H CGM Metafile (Clear Text)                HCGMCLT   unicgm.cgm
+~
+*
+H CGM Metafile  (Character)                HCGMCHR   unicgm.cgm
+~  
+*
+H CGM Metafile   (Binary)                  HCGMBIN   unicgm.cgm
+~

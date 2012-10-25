@@ -1,0 +1,18 @@
+[PressureFuncIoTbl]
+;
+PresFuncName   CoefA   CoefB        CoefC      CoefD        Selected UserDefined
+()             (MPa)   (MPa/m)      (MPa/m^2) (MPa/m^3)     ()       ()
+"None        " 1e9      0           0          0            1         0 
+"C-NorthSea  " 23.718   -0.01384    1.06869e-5 -9.05768e-10 0         0
+"Nigeria Deep" 0.101    0.019906    0          0            0         0
+"Terschelling" 0.101    0.01        2.3e-6     0            0         0 
+"Nigeria East" 0.365422 9.95306e-3  1.85536e-6 0            0         0
+"Nigeria West" 0.101    9.95306e-3  2.37486e-6 0            0         0
+"Brunei Deep " 0.101    0.022621    0          0            0         0
+"Linear 70%  " 0.101    0.018834    0          0            0         0
+"Linear 75%  " 0.101    0.019465    0          0            0         0
+"Linear 80%  " 0.101    0.020096    0          0            0         0
+"Linear 85%  " 0.101    0.020728    0          0            0         0
+"Linear 90%  " 0.101    0.021359    0          0            0         0
+"Linear 95%  " 0.101    0.021990    0          0            0         0
+[End]

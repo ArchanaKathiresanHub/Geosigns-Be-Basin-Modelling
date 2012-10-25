@@ -1,0 +1,27 @@
+gxphchem.d gxphchem.o: ../gxphchem.c ../gxconsts.h ../gxerror.h \
+  ../gxgenerl.h ../gxnumer.h ../gxphchem.h ../gxlithol.h ../gxprjdef.h \
+  ../sortlst.h ../list.h ../gxutils.h ../gxkernel.h ../gxmodel.h
+
+../gxconsts.h:
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxnumer.h:
+
+../gxphchem.h:
+
+../gxlithol.h:
+
+../gxprjdef.h:
+
+../sortlst.h:
+
+../list.h:
+
+../gxutils.h:
+
+../gxkernel.h:
+
+../gxmodel.h:

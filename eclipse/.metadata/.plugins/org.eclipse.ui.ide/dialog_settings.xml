@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.views.task">
+	</section>
+	<section name="DialogMarkerPropertiesDialogSettings">
+		<item key="DIALOG_X_ORIGIN" value="666"/>
+		<item key="DIALOG_FONT_NAME" value="1|Sans|10|0|GTK|1|"/>
+		<item key="DIALOG_HEIGHT" value="326"/>
+		<item key="DIALOG_Y_ORIGIN" value="356"/>
+		<item key="DIALOG_WIDTH" value="732"/>
+	</section>
+	<section name="NewWizardAction">
+		<item key="NewWizardSelectionPage.STORE_SELECTED_ID" value="org.eclipse.cdt.managedbuilder.ui.wizards.StdCCWizard"/>
+		<list key="NewWizardSelectionPage.STORE_EXPANDED_CATEGORIES_ID">
+			<item value="org.eclipse.ui.Basic"/>
+			<item value="org.eclipse.cdt.ui.newCWizards"/>
+			<item value="org.eclipse.cdt.ui.newCCWizards"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.views.problem">
+	</section>
+	<section name="ResourceNavigator">
+		<item key="ResourceWorkingSetFilter.STORE_WORKING_SET" value=""/>
+		<item key="ResourceViewer.STORE_SORT_TYPE" value="1"/>
+	</section>
+	<section name="BasicNewProjectResourceWizard">
+	</section>
+</section>

@@ -1,0 +1,7 @@
+gxnumer.d gxnumer.o: ../gxnumer.c ../gxerror.h ../gxgenerl.h ../gxnumer.h
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxnumer.h:

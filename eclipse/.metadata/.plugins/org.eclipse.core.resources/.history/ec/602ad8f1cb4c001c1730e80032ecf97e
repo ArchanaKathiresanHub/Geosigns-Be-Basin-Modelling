@@ -1,0 +1,8 @@
+Child.d Child.o: ../Child.C ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/Child.h
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/Child.h:

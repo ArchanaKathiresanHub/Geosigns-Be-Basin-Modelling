@@ -1,0 +1,138 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+include $(FILE_BASE)/Make.hdf5
+include $(FILE_BASE)/Make.machine
+CC = $(CXX)
+
+SERIALDATAACCESS_DIR  = $(LIBDIR)/SerialDataAccess
+
+CFLAGS		+=  ${PROFILEFLAGS} ${COMPILEFLAGS}  ${DEBUGFLAGS} -I$(HDF5_SINCLUDE) \
+		  -I$(H5_SERIAL_INC) \
+		  -I$(UTILITIES_INC) \
+		  -I$(DATABASE_INC) \
+		  -I$(DATAACCESS_INC) \
+		  -I$(SERIALDATAACCESS_DIR)/src \
+		  -I$(CBMGENERICS_INC) -fPIC
+
+LIBDIR = ../../../libraries
+
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+DATABASE_INC	= $(LIBDIR)/TableIO/src
+DATABASE_LIB    = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB    = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+DATAACCESS_INC	= $(LIBDIR)/DataAccess/src
+DATAACCESS_LIB	= $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+DOXYGENCFG = SerialDataAccess.cfg
+
+LIBOBJECTS = \
+	SerialApplicationGlobalOperations.o \
+	SerialGrid.o \
+	SerialGridMap.o \
+	SerialMapWriter.o \
+	SerialMessageHandler.o \
+	SerialObjectFactory.o \
+ SerialProjectHandle.o \
+ Serialhdf5funcs.o	
+
+
+LIBSRCS = $(LIBOBJECTS:.o=.C)
+
+LIBINCLUDES = \
+	Interface/SerialApplicationGlobalOperations.h \
+    	Interface/SerialGrid.h \
+	Interface/SerialGridMap.h \
+	Interface/SerialMapWriter.h \
+	Interface/SerialMessageHandler.h
+
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+DOXYGEN = doxygen
+
+SHAREDLINKLIB = $(DATABASE_LIB) \
+		$(H5_SERIAL_LIB) \
+		$(CBMGENERICS_LIB) \
+		$(UTILITIES_LIB) \
+		$(DATAACCESS_LIB) \
+		$(HDF5_SLIB)/libhdf5.so
+
+LINKLIB =	$(DATABASE_LIB) \
+		$(H5_SERIAL_LIB) \
+		$(CBMGENERICS_LIB) \
+		$(UTILITIES_LIB) \
+		$(DATAACCESS_LIB) \
+		$(HDF5_SLIB)/libhdf5.a
+
+
+SELECTEDLINKLIB = $(LINKLIB)
+
+SHAREDLIB = libSerialDataAccess.so
+STATICLIB = libSerialDataAccess.a
+
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(STATICLIB)
+
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+
+# target: $(STATICLIB) $(SHAREDLIB)
+target: links $(STATICLIB)
+
+
+$(STATICLIB):
+	$(MAKE) $(LIBOBJECTS)
+	$(AR) $(STATICLIB) $(LIBOBJECTS)
+
+$(SHAREDLIB): $(STATICLIB)
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+links:
+	cd ../../DataAccess/src && ln -sf ../../../files/array.h array.h
+
+clean:
+	rm -rf $(STATICLIB) $(SHAREDLIB) $(LIBOBJECTS) \
+	core ii_files SunWS_cache ../../DataAccess/src/array.h
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(LIBOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.SerialDataAccess -Y $(INCLUDEDIRS) $(LIBOBJECTS:.o=.C) 2> /dev/null
+
+
+libSerialDataAccess.a: $(LIBOBJECTS)
+
+# DO NOT DELETE THIS LINE
+
+SerialGrid.o: Interface/SerialGrid.h
+SerialGridMap.o: Interface/SerialGridMap.h Interface/SerialGrid.h
+SerialMapWriter.o: Interface/SerialMapWriter.h Interface/SerialGridMap.h
+SerialMapWriter.o: Interface/SerialGrid.h
+SerialObjectFactory.o: Interface/SerialGrid.h Interface/SerialGridMap.h
+SerialObjectFactory.o: Interface/SerialMapWriter.h

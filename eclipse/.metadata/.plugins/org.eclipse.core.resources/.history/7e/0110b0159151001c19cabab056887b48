@@ -1,0 +1,8 @@
+Grid.d Grid.o: ../Grid.C ../Implementation/Grid.h ../Interface/Grid.h \
+  ../Interface/Interface.h
+
+../Implementation/Grid.h:
+
+../Interface/Grid.h:
+
+../Interface/Interface.h:

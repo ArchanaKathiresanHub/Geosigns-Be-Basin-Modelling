@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libraryInfos>
+<libraryInfo home="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS" version="1.5.0_07">
+<bootpath>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/rt.jar"/>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/i18n.jar"/>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/sunrsasign.jar"/>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/jsse.jar"/>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/jce.jar"/>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/charsets.jar"/>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/classes"/>
+</bootpath>
+<extensionDirs>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/ext"/>
+</extensionDirs>
+<endorsedDirs>
+<entry path="/nfs/rvl/apps/sssdev/SSSJava/1.5/LinuxRHEL64_30WS/lib/endorsed"/>
+</endorsedDirs>
+</libraryInfo>
+</libraryInfos>

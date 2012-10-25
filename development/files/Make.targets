@@ -1,0 +1,68 @@
+#
+#
+#
+
+FILE_BASE = ../../../files
+
+include $(FILE_BASE)/Make.machine
+
+
+optimized ose ode osl odl: optimizedobjects
+	@$(MAKE) target BOPT=O_c++ DEBUGFLAGS="-O2" LDFLAGS="-s"
+
+profile: profileobjects
+	@$(MAKE) target CC="mpiicc -trace" CXX="mpiicpc -trace" BOPT=O_c++ DEBUGFLAGS="-g -O2" PROFILEFLAGS="" LDFLAGS=""
+
+scalasca: scalascaobjects
+	@$(MAKE) target BOPT=O_c++ DEBUGFLAGS="-O2" LDFLAGS="" SCALASCA_FLAG=yes
+
+debug dse dde dsl ddl: debugobjects
+	@$(MAKE) target BOPT=g_c++ DEBUGFLAGS="-g" LDFLAGS="-g"
+
+purify: purifyobjects
+        @$(MAKE) target BOPT=g_c++ DEBUGFLAGS="-g" LDFLAGS="" PRELINK=purify 
+
+optimizedobjects:
+	@$(MAKE) clean
+	@touch optimizedobjects
+	@rm -f debugobjects
+	@rm -f profileobjects
+	@rm -f scalascaobjects
+	@rm -f purifyobjects
+
+profileobjects:
+	@$(MAKE) clean
+	@rm -f optimizedobjects
+	@touch profileobjects
+	@rm -f scalascaobjects
+	@rm -f debugobjects
+	@rm -f purifyobjects
+
+scalascaobjects:
+	@$(MAKE) clean
+	@rm -f optimizedobjects
+	@rm -f profileobjects
+	@touch scalascaobjects
+	@rm -f debugobjects
+	@rm -f purifyobjects
+
+debugobjects:
+	@$(MAKE) clean
+	@rm -f optimizedobjects
+	@rm -f profileobjects
+	@rm -f scalascaobjects
+	@touch debugobjects
+	@rm -f purifyobjects
+
+purifyobjects:
+	@$(MAKE) clean
+	@rm -f optimizedobjects
+	@rm -f profileobjects
+	@rm -f scalascaobjects
+	@rm -f debugobjects
+	@touch purifyobjects
+
+all: dse
+
+
+

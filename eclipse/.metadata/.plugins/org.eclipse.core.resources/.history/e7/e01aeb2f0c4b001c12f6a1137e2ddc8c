@@ -1,0 +1,41 @@
+LeadTrap.d LeadTrap.o: ../LeadTrap.C ../../../TableIO/src/database.h \
+  ../../../TableIO/src/dataschema.h ../../../TableIO/src/datatype.h \
+  ../../../cauldronschema/cauldronschemafuncs.h \
+  ../Implementation/LeadTrap.h ../Implementation/DAObject.h \
+  ../Implementation/Parent.h ../Implementation/DynArray.h \
+  ../Implementation/AttributeValue.h ../Interface/Interface.h \
+  ../Implementation/Child.h ../Implementation/Implementation.h \
+  ../Implementation/Trap.h ../Implementation/TrapPhase.h \
+  ../Implementation/Reservoir.h ../Implementation/ObjectFactory.h
+
+../../../TableIO/src/database.h:
+
+../../../TableIO/src/dataschema.h:
+
+../../../TableIO/src/datatype.h:
+
+../../../cauldronschema/cauldronschemafuncs.h:
+
+../Implementation/LeadTrap.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/Interface.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/Trap.h:
+
+../Implementation/TrapPhase.h:
+
+../Implementation/Reservoir.h:
+
+../Implementation/ObjectFactory.h:

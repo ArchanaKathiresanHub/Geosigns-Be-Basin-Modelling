@@ -1,0 +1,4 @@
+ComponentManager.d ComponentManager.o: ../ComponentManager.C \
+  ../ComponentManager.h
+
+../ComponentManager.h:

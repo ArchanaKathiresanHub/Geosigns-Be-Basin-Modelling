@@ -1,0 +1,35 @@
+Screen("IBS release v2002.05","IBS",
+	      NULL,535,510,NULL);
+
+Form("title", NULL, NULL,0,0,100,100,25,10,50 );
+
+
+
+
+Skip(1)
+
+Label("IBS:  SEPTAR /PSA's Integrated Basin Simulation package","tan",15);
+Label("  ","tan",10);
+Label("    All IBS programs are SEPTAR Product Software","tan",15);
+Label("               unless indicated otherwise.","tan",15);
+Label("  ","tan",10);
+Label("Title to, ownership of and copyright of this software is vested in Shell","tan",1); 
+Label("International Exploration and Production B.V. All rights reserved. ","tan",1);
+Label("Neither the whole nor any part of this software may be reproduced, copied, ","tan",1);
+Label("stored in any retrieval system or transmitted in any form or by any means ","tan",1);
+Label("without prior written consent of the copyright owner.","tan",1);
+Label("This software and the information and data it contains, is confidential. ","tan",1);
+Label("Neither the whole nor any part of the software and the data and information ","tan",1);
+Label("it contains may be disclosed to any third party without the prior written ","tan",1);
+Label("consent of Shell Exploration and Production Technology Applications and Research ","tan",1);
+Label("The Netherlands.","tan",1);
+
+  Action(NULL,"red",
+   "Exit",
+   40,70,TRUE,BHpopdownBefore,StartProgram,"");
+
+
+FormEnd()
+
+ScreenEnd()
+

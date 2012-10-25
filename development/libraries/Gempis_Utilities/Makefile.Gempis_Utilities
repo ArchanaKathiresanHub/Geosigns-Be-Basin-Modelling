@@ -1,0 +1,61 @@
+ROOTDIR		= ../../../files
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+#
+#  Override for Make.machine definitions
+#ifeq ($(machine),Linux64)
+#  LCC           = $(CC)
+#  AR            = ar -cr
+#  SLAR          = $(LCC) -shared -all -o
+#endif
+#
+#ifeq ($(machine),Sun)
+#  LCC           = $(CC)
+#  AR            = $(CC) -V -xar -o
+#  SLAR          = $(LCC) -G -o
+#endif
+#
+#ifeq ($(machine),SunOS64)
+#  LCC           = $(CC)
+#  AR            = $(CC) -V -xar -o
+#  SLAR          = $(LCC) -G -o
+#endif
+#
+#ifeq ($(machine),Silicon64)
+#  LCC           = $(CC)
+#  AR            = $(CC) -ar -WR,-u -WR,-v -o
+#  SLAR          = $(LCC) -shared -all -o
+#endif
+
+LIB             = libGempis_Utilities.a
+SHAREDLIB       = libGempis_Utilities.so
+
+LIBOBJECTS      = Gempis.o
+
+LIBSRCS         = $(LIBOBJECTS:.o=.C)
+
+# CFLAGS          += -LANG:std
+
+OBJDIR	= .
+SRCDIR 	= ../src
+
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+vpath %.o $(OBJDIR)
+
+target: $(LIB) $(SHAREDLIB)
+
+%.o:%.C
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(LIB): $(LIBOBJECTS)
+	$(AR) $(LIB) $(LIBOBJECTS)
+
+$(SHAREDLIB): $(LIBOBJECTS)
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS)
+
+clean :
+	rm -rf $(LIBOBJECTS) $(LIB) $(SHAREDLIB) so_locations

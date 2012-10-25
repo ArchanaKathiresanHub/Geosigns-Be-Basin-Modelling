@@ -1,0 +1,202 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+include $(FILE_BASE)/Make.machine
+#for blas-lapack lib path
+include $(FILE_BASE)/Make.petsc
+
+
+CC = $(CXX)
+CLINKER = $(CC)
+
+#
+#  Override for Make.machine definitions
+ifeq ($(machine),Linux64)
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/LinuxRHEL_i686_30WS/lib$(FLEXLMBITS)/EPTFlexLm.o  
+endif
+#
+ifeq ($(machine),Sun)
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),SunOS64)
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),Silicon64)
+  SOCKET_LIB      = -L/usr/lib64/mips4 -lsocket -woff 15
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+
+FLEXLMBITS      = 64
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+
+MAKEDEPEND = /usr/bin/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = geomorph.cfg
+
+SRCDIR  	= $(ROOTDIR)/src/
+
+SERIAL_DATA_ACCESS_INC = $(LIBDIR)/SerialDataAccess/src
+SERIAL_DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libSerialDataAccess.a
+
+DATA_ACCESS_INC = $(LIBDIR)/DataAccess/src
+DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+TABLEIO_INC = $(LIBDIR)/TableIO/src
+TABLEIO_LIB = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB	= $(LIBDIR)/lib/$(machine)/libutilities.a
+
+THREADUTILITIES_INC	= $(LIBDIR)/ThreadUtilities/src
+THREADUTILITIES_LIB	= $(LIBDIR)/lib/$(machine)/libThreadUtilities.a
+
+LINEARALGEBRA_INC	= $(LIBDIR)/LinearAlgebra/src
+LINEARALGEBRA_LIB	= $(LIBDIR)/lib/$(machine)/libLinearAlgebra.a
+
+INTERPOLATION_INC	= $(LIBDIR)/Interpolation/src
+INTERPOLATION_LIB	= $(LIBDIR)/lib/$(machine)/libInterpolation.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+
+EXEOBJECTS	=  AllochthonousLithology.o \
+	AllochthonousLithologyDistribution.o \
+	AllochthonousLithologySimulator.o \
+	AllochthonousModellingFactory.o \
+	ErrorPointSet.o \
+	geomorph.o \
+	MapIntervalInterpolator.o \
+	MapProcessingOperations.o \
+	PrescribedGridPointCondenser.o \
+	PThreadsAllochthonousLithology.o \
+	PThreadsAllochthonousModellingFactory.o \
+	PThreadsMapIntervalInterpolator.o \
+	SubsampledGridPointCondenser.o
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(DATA_ACCESS_LIB) \
+											$(SERIAL_DATA_ACCESS_LIB) \
+											$(DATA_ACCESS_LIB) \
+											$(TABLEIO_LIB)\
+											$(CBMGENERICS_LIB) \
+											$(H5_SERIAL_LIB)\
+											$(UTILITIES_LIB)\
+											$(LINEARALGEBRA_LIB) \
+											$(INTERPOLATION_LIB) \
+											$(THREADUTILITIES_LIB) \
+											$(HDF5_SLIB)/libhdf5.a \
+		  $(BLASLAPACK_LIB) \
+											$(FLEX_LIB)\
+											$(SOCKET_LIB) -lz -lrt -lm $(PTHREADS_LIB)
+
+CFLAGS		=  -I/usr/include \
+	-I$(SERIAL_DATA_ACCESS_INC) \
+	-I$(SERIAL_DATA_ACCESS_INC)/Interface \
+	-I$(DATA_ACCESS_INC) \
+	-I$(DATA_ACCESS_INC)/Interface \
+	-I$(TABLEIO_INC)\
+	-I$(CBMGENERICS_INC) \
+	-I$(HDF5_SINCLUDE) \
+	-I$(H5_SERIAL_INC)\
+	-I$(UTILITIES_INC)\
+	-I$(UTILITIES_INC)\
+	-I$(THREADUTILITIES_INC) \
+	-I$(FLEX_INCLUDE) \
+	-I$(LINEARALGEBRA_INC) \
+	-I$(INTERPOLATION_INC) ${PROFILEFLAGS} ${COMPILEFLAGS} ${DEBUGFLAGS}
+
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = geomorph
+
+target: $(EXE)
+
+$(EXE): $(EXEOBJECTS)
+	$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.geomorph -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE
+
+AllochthonousLithology.o: AllochthonousLithology.h
+AllochthonousLithology.o: AllochthonousLithologyDistribution.h
+AllochthonousLithology.o: GenericTwoDArray.h MapProcessingOperations.h
+AllochthonousLithology.o: MapIntervalInterpolator.h PointSelectionArbiter.h
+AllochthonousLithologyDistribution.o: AllochthonousLithologyDistribution.h
+AllochthonousLithologyDistribution.o: GenericTwoDArray.h
+AllochthonousLithologyDistribution.o: MapProcessingOperations.h
+AllochthonousLithologyDistribution.o: PointSelectionArbiter.h
+AllochthonousLithologySimulator.o: AllochthonousLithologySimulator.h
+AllochthonousLithologySimulator.o: AllochthonousLithologyDistribution.h
+AllochthonousLithologySimulator.o: GenericTwoDArray.h
+AllochthonousLithologySimulator.o: MapProcessingOperations.h
+AllochthonousLithologySimulator.o: AllochthonousLithology.h
+AllochthonousLithologySimulator.o: MapIntervalInterpolator.h
+AllochthonousModellingFactory.o: AllochthonousModellingFactory.h
+AllochthonousModellingFactory.o: AllochthonousLithology.h
+AllochthonousModellingFactory.o: AllochthonousLithologyDistribution.h
+AllochthonousModellingFactory.o: GenericTwoDArray.h MapProcessingOperations.h
+AllochthonousModellingFactory.o: MapIntervalInterpolator.h
+AllochthonousModellingFactory.o: AllochthonousLithologySimulator.h
+ErrorPointSet.o: ErrorPointSet.h
+geomorph.o: AllochthonousLithologySimulator.h
+geomorph.o: AllochthonousLithologyDistribution.h GenericTwoDArray.h
+geomorph.o: MapProcessingOperations.h AllochthonousModellingFactory.h
+geomorph.o: PThreadsAllochthonousModellingFactory.h
+MapIntervalInterpolator.o: MapIntervalInterpolator.h
+MapIntervalInterpolator.o: AllochthonousLithologyDistribution.h
+MapIntervalInterpolator.o: GenericTwoDArray.h MapProcessingOperations.h
+MapIntervalInterpolator.o: SubsampledGridPointCondenser.h
+MapIntervalInterpolator.o: PointSelectionArbiter.h
+MapIntervalInterpolator.o: PrescribedGridPointCondenser.h ErrorPointSet.h
+MapProcessingOperations.o: MapProcessingOperations.h GenericTwoDArray.h
+PrescribedGridPointCondenser.o: PrescribedGridPointCondenser.h
+PrescribedGridPointCondenser.o: MapProcessingOperations.h GenericTwoDArray.h
+PThreadsAllochthonousLithology.o: PThreadsAllochthonousLithology.h
+PThreadsAllochthonousLithology.o: AllochthonousLithology.h
+PThreadsAllochthonousLithology.o: AllochthonousLithologyDistribution.h
+PThreadsAllochthonousLithology.o: GenericTwoDArray.h
+PThreadsAllochthonousLithology.o: MapProcessingOperations.h
+PThreadsAllochthonousLithology.o: MapIntervalInterpolator.h
+PThreadsAllochthonousLithology.o: PThreadsMapIntervalInterpolator.h
+PThreadsAllochthonousModellingFactory.o: PThreadsAllochthonousModellingFactory.h
+PThreadsAllochthonousModellingFactory.o: AllochthonousModellingFactory.h
+PThreadsAllochthonousModellingFactory.o: PThreadsAllochthonousLithology.h
+PThreadsAllochthonousModellingFactory.o: AllochthonousLithology.h
+PThreadsAllochthonousModellingFactory.o: AllochthonousLithologyDistribution.h
+PThreadsAllochthonousModellingFactory.o: GenericTwoDArray.h
+PThreadsAllochthonousModellingFactory.o: MapProcessingOperations.h
+PThreadsAllochthonousModellingFactory.o: MapIntervalInterpolator.h
+PThreadsMapIntervalInterpolator.o: PThreadsMapIntervalInterpolator.h
+PThreadsMapIntervalInterpolator.o: MapIntervalInterpolator.h
+PThreadsMapIntervalInterpolator.o: AllochthonousLithologyDistribution.h
+PThreadsMapIntervalInterpolator.o: GenericTwoDArray.h
+PThreadsMapIntervalInterpolator.o: MapProcessingOperations.h
+SubsampledGridPointCondenser.o: SubsampledGridPointCondenser.h

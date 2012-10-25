@@ -1,0 +1,55 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+LIBDIR = ../../../libraries
+
+LIBOBJECTS = lock.o
+
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+
+SHAREDLIB = libmpich2_lock.so
+LIB = libmpich2_lock.a
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(LIB) $(SHARELIB)
+
+lock.o:  $(SRCDIR)/lock.c
+	. /apps/3rdparty/intel/ics2011/composerxe-2011.3.174/bin/compilervars.sh intel64; icc  -I. -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpi/romio/adio/common/../include -I../include -I../../include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpi/romio/adio/common/../../../../../src/include -I../../../../../src/include -O2 -DFORTRANUNDERSCORE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_ROMIOCONF_H -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpl/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpl/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/openpa/src -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/openpa/src -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/common/datatype -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/common/datatype -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/common/locks -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/common/locks -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/channels/nemesis/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/channels/nemesis/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/channels/nemesis/nemesis/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/channels/nemesis/nemesis/include -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/channels/nemesis/nemesis/utils/monitor -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpid/ch3/channels/nemesis/nemesis/utils/monitor -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/util/wrappers -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/util/wrappers -c $(SRCDIR)/lock.c
+
+$(LIB): $(LIBOBJECTS)
+	$(AR) $(LIB) $(LIBOBJECTS)
+
+$(SHAREDLIB): $(LIB) Makefile
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+clean:
+	rm -rf $(LIB) $(SHAREDLIB) $(LIBOBJECTS) \
+	core ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(LIBOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.utilities -Y $(INCLUDEDIRS) $(LIBOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

@@ -1,0 +1,3 @@
+parspec.d parspec.o: ../parspec.C ../datautils.h
+
+../datautils.h:

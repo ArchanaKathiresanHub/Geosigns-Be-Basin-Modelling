@@ -1,0 +1,38 @@
+ROOTDIR		= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.machine
+CC = $(CXX)
+
+CFLAGS		+= -I$(PETSCUTILS_INC) -I$(H5_SERIAL_INC) -I$(HDF5_PINCLUDE) -I$(PETSC_INCLUDE) $(MPI_INCLUDE) -DH5_HAVE_PARALLEL ${PROFILEFLAGS} ${COMPILEFLAGS} ${DEBUGFLAGS}
+
+H5_SERIAL_INC	= ../../Serial_Hdf5/src/
+PETSCUTILS_INC	= ../../Utilities_Petsc/src/
+
+LIB		= libparallelhdf5.a
+SHAREDLIB	= libparallelhdf5.so
+
+LIBOBJECTS	= h5_vector_conversions.o petscvector_readwrite.o
+
+LIBSRCS 	= $(LIBOBJECTS:.o=.C)
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+#target: $(LIB) $(SHAREDLIB)
+target: $(LIB)
+
+$(LIB): $(LIBOBJECTS)
+	$(AR) $(LIB) $(LIBOBJECTS)
+
+$(SHAREDLIB): $(LIBOBJECTS)
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS)
+
+clean :
+	rm -rf $(LIBOBJECTS) $(LIB) $(SHAREDLIB) ii_files so_locations

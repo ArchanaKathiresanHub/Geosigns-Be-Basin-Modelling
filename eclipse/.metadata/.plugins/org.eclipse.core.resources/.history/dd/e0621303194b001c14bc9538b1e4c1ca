@@ -1,0 +1,7 @@
+gxutils.d gxutils.o: ../gxutils.c ../gxerror.h ../gxgenerl.h ../gxutils.h
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxutils.h:

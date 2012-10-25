@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="genex4_util.cdt.managedbuild.target.gnu.so.1067580633" name="Shared Library (Gnu)" projectType="cdt.managedbuild.target.gnu.so">
+<configuration artifactExtension="so" artifactName="genex4_util" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.so.debug.404013019" name="Debug" parent="cdt.managedbuild.config.gnu.so.debug" postbuildStep="ar -cr ${BuildArtifactFileBaseName}.a *.o">
+<toolChain id="cdt.managedbuild.toolchain.gnu.so.debug.378741667" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.so.debug">
+<tool command="g++ -m64 -fPIC" id="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug.1759558001" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug">
+<option id="gnu.cpp.compiler.option.include.paths.1879196760" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.other.other.356665199" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.so.debug.349851675" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.so.debug.1958628995" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.linker.so.debug.1125169226" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.so.debug.2110469577" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.so.debug"/>
+<macros/>
+</toolChain>
+</configuration>
+<configuration artifactExtension="so" artifactName="genex4_util" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.so.release.82753232" name="Release" parent="cdt.managedbuild.config.gnu.so.release" postbuildStep="ar -cr ${BuildArtifactFileBaseName}.a *.o">
+<toolChain id="cdt.managedbuild.toolchain.gnu.so.release.384543816" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.so.release">
+<tool command="g++ -m64 -fPIC" id="cdt.managedbuild.tool.gnu.cpp.compiler.so.release.1514658788" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.release">
+<option id="gnu.cpp.compiler.so.release.option.optimization.level.542796107" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.include.paths.1173402196" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.other.other.643457368" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+</tool>
+<tool command="gcc -m64 -fPIC" id="cdt.managedbuild.tool.gnu.c.compiler.so.release.569227472" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release">
+<option id="gnu.c.compiler.option.include.paths.488414703" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel}&quot;"/>
+</option>
+<option id="gnu.c.compiler.so.release.option.optimization.level.189253668" superClass="gnu.c.compiler.so.release.option.optimization.level" value="gnu.c.optimization.level.more" valueType="enumerated"/>
+<option id="gnu.c.compiler.option.misc.other.653377869" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.so.release.784444784" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.release"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.linker.so.release.452468969" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.release">
+<option id="gnu.cpp.link.option.strip.955553971" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.so.release.1050814520" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.so.release"/>
+<macros/>
+</toolChain>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>

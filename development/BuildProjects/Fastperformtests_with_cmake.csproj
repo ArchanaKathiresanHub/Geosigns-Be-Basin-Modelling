@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{BCB12574-7630-4B97-81AC-D432C2C332AF}</ProjectGuid>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>x64\Release\</OutputPath>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!--Paths as in the build server. The GNU/Linux blade used is Alfred's -->
+    <run_script>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk"  ksaho3@amsd2a-n-b01001 "sh -x ~/bin/fastperformtests_with_cmake"  </run_script>
+    <copy_script>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk" "$(MSBuildProjectDirectory)\..\..\scripts\fastperformtests_with_cmake" "ksaho3@amsd2a-n-b01001:bin" </copy_script>
+  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="Build">
+    <Message Text="MSBuildProjectDirectory is $(MSBuildProjectDirectory)"/>
+    <Exec IgnoreExitCode="false" Command="$(copy_script)" />
+    <Exec IgnoreExitCode="false" Command="$(run_script)" />
+  </Target>
+</Project>

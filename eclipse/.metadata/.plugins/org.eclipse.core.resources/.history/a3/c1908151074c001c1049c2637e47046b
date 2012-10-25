@@ -1,0 +1,10 @@
+gxfile.d gxfile.o: ../gxfile.c ../gxerror.h ../gxgenerl.h ../gxfile.h \
+  ../gxprjdef.h
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxfile.h:
+
+../gxprjdef.h:

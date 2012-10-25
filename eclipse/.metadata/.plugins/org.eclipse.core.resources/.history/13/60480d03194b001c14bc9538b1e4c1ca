@@ -1,0 +1,5 @@
+gxsysdep.d gxsysdep.o: ../gxsysdep.c ../gxsysdep.h ../gxgenerl.h
+
+../gxsysdep.h:
+
+../gxgenerl.h:

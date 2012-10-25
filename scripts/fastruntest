@@ -1,0 +1,138 @@
+#!/bin/csh
+
+set platform=""
+set project=""
+set procs=""
+set subdir="."
+set testdir=""
+set debug="false"
+
+while ($#argv > 0)
+   switch ($1)
+      case -h*:
+         echo "usage: fastruntest -platform <OS-identifier>"
+	 echo "                       -project <project-name>"
+	 echo "                       -procs <# procs>"
+	 echo "                       -testdir < test-name>"
+	 echo "                       [-help]"
+	 echo "                       [-subdir <subdir>]"
+	 echo ""
+	 echo "       OS-identifier: e.g. Linux64 or IRIX64"
+	 echo "       project-name:  e.g. Acquifer"
+	 echo "       # procs:       e.g. 1 or 2 or 4"
+	 echo "       test-name:          Test or Valid"
+	 echo "       subdir:        e.g. HydrostaticTemperature or LooselyCoupled (for fastcauldron only)"
+	 exit 0
+      case -platform:
+	 set platform=$2
+	 shift
+	 shift
+	 breaksw
+      case -project:
+	 set project=$2
+	 shift
+	 shift
+	 breaksw
+      case -procs:
+	 set procs=$2
+	 shift
+	 shift
+	 breaksw
+      case -testdir:
+	 set testdir=$2
+	 shift
+	 shift
+	 breaksw
+      case -subdir:
+	 set subdir=$2
+	 shift
+	 shift
+	 breaksw
+      case -debug:
+         set debug="true"
+	 shift
+	 breaksw
+      case *:
+         echo "${1}: illegal option"
+	 exit -1
+   endsw
+end
+
+if ($platform == "") then
+   echo "Error: platform  (e.g. IRIX64 or Linux64) to execute your test on is not specified, use -platform to specify"
+   exit -1
+endif
+
+if ($project == "") then
+   echo "Error: project to test is not specified, use -project to specify"
+   exit -1
+endif
+
+if ($procs == "") then
+   echo "Error: number of processors to execute your test on is not specified, use -procs to specify"
+   exit -1
+endif
+
+if ($testdir == "") then
+   echo "Error: directory in which to execute the test is not specified, use -testdir to specify"
+   exit -1
+endif
+
+set subdir = "${subdir}/"
+endif
+
+if ($debug == "true") then
+   echo "variables:"
+   echo "   platform = $platform"
+   echo "   project = $project"
+   echo "   procs = $procs"
+   echo "   testdir = $testdir"
+   echo "   subdir = $subdir"
+endif
+
+if (-d $project) then
+   cd $project
+else
+   echo "Error: directory $project does not exist"
+   exit -1;
+endif
+
+cd $subdir$platform/$procs/$testdir
+
+set extension=""
+if (-f ${project}.project3d) then
+   set extension="project3d"
+else
+   set extension="project1d" 
+endif
+
+set projectoutfile = ${project}_out.${extension}
+
+setenv PROCS $procs
+setenv PROJECTNAME ${project}
+setenv PROJECTFILENAME ${project}.${extension}
+setenv PROJECTOUTFILENAME ${projectoutfile}
+
+./Commands
+
+set exitstatus = $status
+
+echo "Commands exitstatus = $exitstatus"
+
+#check whether it is a 1d or 3d project (be careful: 3d projects might have 1d related projects in the same directory)
+set extension=""
+if (-f ${project}.project3d) then
+   set extension="project3d"
+else
+   set extension="project1d" 
+endif
+
+set projectoutfile = ${project}_out.${extension}
+
+if ( ! -f $projectoutfile ) then
+   set exitstatus = 1
+endif
+
+echo "fastruntest exitstatus = $exitstatus"
+
+exit $exitstatus

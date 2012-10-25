@@ -1,0 +1,46 @@
+AllochthonousLithology.d AllochthonousLithology.o:  \
+ ../AllochthonousLithology.C ../../../TableIO/src/database.h \
+  ../../../TableIO/src/dataschema.h ../../../TableIO/src/datatype.h \
+  ../../../cauldronschema/cauldronschemafuncs.h \
+  ../Implementation/ProjectHandle.h ../Interface/Interface.h \
+  ../Implementation/Implementation.h ../Implementation/ObjectFactory.h \
+  ../Implementation/Formation.h ../Implementation/DAObject.h \
+  ../Implementation/Parent.h ../Implementation/DynArray.h \
+  ../Implementation/AttributeValue.h ../Implementation/Child.h \
+  ../../../CBMGenerics/src/capillarySealStrength.h \
+  ../Implementation/LithoType.h \
+  ../Implementation/AllochthonousLithology.h
+
+../../../TableIO/src/database.h:
+
+../../../TableIO/src/dataschema.h:
+
+../../../TableIO/src/datatype.h:
+
+../../../cauldronschema/cauldronschemafuncs.h:
+
+../Implementation/ProjectHandle.h:
+
+../Interface/Interface.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/ObjectFactory.h:
+
+../Implementation/Formation.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Implementation/Child.h:
+
+../../../CBMGenerics/src/capillarySealStrength.h:
+
+../Implementation/LithoType.h:
+
+../Implementation/AllochthonousLithology.h:

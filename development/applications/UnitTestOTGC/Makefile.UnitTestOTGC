@@ -1,0 +1,94 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+include $(FILE_BASE)/Make.machine
+
+CC = $(CXX)
+CLINKER = $(CXX)
+
+
+
+#
+#  Override for Make.machine definitions
+ifeq ($(machine),Linux64)
+  MP_INCLUDE	  = $(MPI_BASE)/include
+  FLEX_LIB        = -lrt
+endif
+#
+ifeq ($(machine),Sun)
+  MP_INCLUDE	  = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),SunOS64)
+  MP_INCLUDE      = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),Silicon64)
+  MP_INCLUDE      = /usr/include/CC
+  SOCKET_LIB      = -L/usr/lib64/mips4 -lsocket -woff 15
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+
+FLEXLMBITS      = 64
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = UnitTestOTGC.cfg
+
+ROOTDIR		= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+OTGCKERNEL_INC = $(LIBDIR)/OTGC_kernel/src
+OTGCKERNEL_LIB = $(LIBDIR)/lib/$(machine)/libOTGC_kernel.a
+
+
+
+EXEOBJECTS	= main.o	TestingCode.o
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(OTGCKERNEL_LIB) \
+                  $(CBMGENERICS_LIB)\
+		  $(SOCKET_LIB) -lz -lrt -lm
+#requires setting the BOOST path tempPath: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlima5/temp/codeplay/BOOST/boost_1_34_0
+CFLAGS		+=  ${PROFILEFLAGS} ${COMPILEFLAGS} -pedantic -I/usr/include -I$(OTGCKERNEL_INC) \
+					-I$(CBMGENERICS_INC) \
+					-I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlima5/temp/codeplay/BOOST/boost_1_34_0/INCLUDEDIR/boost-1_34/ 												                                           
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = UnitTestOTGC
+
+target: $(EXE)
+
+$(EXE): $(EXEOBJECTS)
+	-$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.genex5kernelApp -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

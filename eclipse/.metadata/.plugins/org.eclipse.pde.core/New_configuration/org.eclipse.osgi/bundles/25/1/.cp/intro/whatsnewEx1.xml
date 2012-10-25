@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<introContent>
+  <!-- Extension to the What's New Page. -->
+  <extensionContent id="com.yoxos.yim.ui" name="Yoxos" alt-style="css/swt.properties" style="css/yoxos.css" path="whatsnew/@">
+     <group id="content-group" style-id="content-group">
+    	<link label="Yoxos Install Manager" 
+    	      url="http://org.eclipse.ui.intro/showHelpTopic?id=/com.yoxos.yim.doc.user/html/changelog.txt" 
+    	      id="yoxos" 
+    	      style-id="content-link">
+           <text>Find out about the new features in this release.</text>
+        </link>
+     </group>
+  </extensionContent>
+</introContent>

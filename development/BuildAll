@@ -1,0 +1,77 @@
+#!/bin/csh
+set wd = `pwd`
+
+set exitStatus = 0
+
+set yesterday=`date -d yesterday +"%F %T %z"`
+set today=`date +"%F %T %z"`
+set logoptions=""
+set svnrepo="svn://rijkes-n-d99540.linux.shell.com"
+
+# make sure we start with a clean slate as libraries may have been built with a different compiler
+touch xxx
+/bin/rm -f xxx `find . -name \*.o`
+
+if (! $?IBS_LIMITEDBUILDANDINSTALL) then
+   setenv IBS_LIMITEDBUILDANDINSTALL true
+   setenv IBS_FULLBUILDANDINSTALL true
+endif
+
+cd applications
+setenv HDF5_VERSION 1.8.7
+./BuildAll $*
+set buildStatus = $status
+if ($buildStatus != 0) then
+   echo "failed to build applications"
+   set logoptions="-v"
+   set exitStatus = 1
+else
+   echo "succeeded to build applications"
+endif
+
+cd $wd
+
+if ($?IBS_FULLBUILDANDINSTALL) then
+# make sure we start with a clean slate again as libraries will have been built with a different compiler
+   rm `find . -name \*.o`
+
+   unsetenv IBS_LIMITEDBUILDANDINSTALL
+   cd applications
+   setenv HDF5_VERSION 1.8.6
+   ./BuildAll
+   set buildStatus = $status
+   if ($buildStatus != 0) then
+      echo "failed to build applications"
+      set logoptions="-v"
+      set exitStatus = 1
+   else
+      echo "succeeded to build applications"
+   endif
+   cd $wd
+endif
+
+# make sure we start with a clean slate again as libraries will have been built with a different compiler
+rm `find . -name \*.o`
+
+cd geocase/BB
+unsetenv HDF5_VERSION
+./BuildAll
+set buildStatus = $status
+if ($buildStatus != 0) then
+   echo "failed to build BB"
+   set logoptions="-v"
+   set exitStatus = 1
+else
+   echo "succeeded to build BB"
+endif
+cd $wd
+
+set today = `date +"%b %-d, %Y"`
+echo "Changesets checked into TFS today ($today)"
+tf history -recursive -stopafter:100 .. | grep "$today"
+
+set yesterday = `date --date=yesterday +"%b %-d, %Y"`
+echo "Changesets checked into TFS yesterday ($yesterday)"
+tf history -recursive -stopafter:100 .. | grep "$yesterday"
+
+exit $exitStatus

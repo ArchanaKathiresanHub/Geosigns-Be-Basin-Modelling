@@ -1,0 +1,126 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.machine
+include $(FILE_BASE)/Make.libraries
+
+LIBDIR = ../../../libraries
+
+
+CRUSTALTHICKNESS_INC	= $(LIBDIR)/CrustalThickness/src
+CRUSTALTHICKNESS_LIB	= $(LIBDIR)/lib/$(machine)/libCrustalThickness.a
+
+DOXYGENCFG = GeoPhysicsLib.dox
+
+GEOPHYSHDRS=AllochthonousLithologyInterpolator.h \
+	AllochthonousLithologyManager.h \
+	BasementLithology.h \
+	CauldronGridDescription.h \
+	CompoundLithologyArray.h \
+	CompoundLithologyComposition.h \
+	CompoundLithology.h \
+	CompoundProperty.h \
+	FracturePressureCalculator.h \
+	GeoPhysicalConstants.h \
+	GeoPhysicalFunctions.h \
+	GeoPhysicsCrustFormation.h \
+	GeoPhysicsFluidType.h \
+	GeoPhysicsFormation.h \
+	GeoPhysicsMantleFormation.h \
+	GeoPhysicsObjectFactory.h \
+	GeoPhysicsProjectHandle.h \
+	GeoPhysicsSourceRock.h \
+	HCDensity.h \
+	LithologyManager.h \
+	Local2DArray.h \
+	Local3DArray.h \
+	SimpleLithology.h \
+	TimeDependantLithology.h
+
+
+GEOPHYSSRCS=AllochthonousLithologyInterpolator.C \
+	AllochthonousLithologyManager.C \
+	BasementLithology.C \
+	CauldronGridDescription.C \
+	CompoundLithologyArray.C \
+	CompoundLithology.C \
+	CompoundLithologyComposition.C \
+	CompoundProperty.C \
+	FracturePressureCalculator.C \
+	GeoPhysicalFunctions.C \
+	GeoPhysicsCrustFormation.C \
+	GeoPhysicsFluidType.C \
+	GeoPhysicsFormation.C \
+	GeoPhysicsMantleFormation.C \
+	GeoPhysicsObjectFactory.C \
+	GeoPhysicsProjectHandle.C \
+	GeoPhysicsSourceRock.C \
+	HCDensity.C \
+	LithologyManager.C \
+	SimpleLithology.C \
+	TimeDependantLithology.C
+
+
+
+GEOPHYSOBJS=$(GEOPHYSSRCS:.C=.o)
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+
+SHAREDLIB = libGeoPhysics.so
+LIB = libGeoPhysics.a
+
+CFLAGS	+=  ${PROFILEFLAGS} ${COMPILEFLAGS} ${DEBUGFLAGS} \
+		-I$(HDF5_SINCLUDE) \
+		-I$(H5_SERIAL_INC) \
+		-I$(UTILITIES_INC) \
+		-I$(LINEARALGEBRA_INC) \
+		-I$(INTERPOLATION_INC) \
+		-I$(DATA_ACCESS_INC) \
+		-I$(GENEX6_INC)\
+		-I$(GENEX6KERNEL_INC)\
+		-I$(PETSC_UTILS_INC) \
+		-I$(DATABASE_INC) -I$(CBMGENERICS_INC) -I$(EOSPACK_INC) -I$(CRUSTALTHICKNESS_INC)
+
+
+
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(LIB) $(SHARELIB)
+
+
+$(LIB): $(GEOPHYSOBJS)
+	$(AR) $(LIB) $(GEOPHYSOBJS)
+
+$(SHAREDLIB): $(LIB) Makefile
+	$(SLAR) $(SHAREDLIB) $(GEOPHYSOBJS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+clean:
+	rm -rf $(LIB) $(SHAREDLIB) $(GEOPHYSOBJS) \
+	core ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(GEOPHYSOBJS)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.GeoPhysics -Y $(INCLUDEDIRS) $(GEOPHYSOBJS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

@@ -1,0 +1,10 @@
+# skip lines with # at front
+# varType cauldronparam name_in_project3d given_name type_point point min max initial
+# never use tab to space. 
+
+
+Lithotype  Shale1 Multipoint_Permeability Shale1_Kat5 Multi 2 1 -8.5 -5.0 -6.1
+Lithotype  Shale2 Multipoint_Permeability Shale2_Kat5 Multi 2 1 -8.5 -5.0 -6.1
+Lithotype  Shale3 Multipoint_Permeability Shale3_Kat5 Multi 2 1 -8.5 -5.0 -6.1
+Lithotype  Shale4 Multipoint_Permeability Shale4_Kat5 Multi 2 1 -8.5 -5.0 -6.1
+Lithotype  Shale5 Multipoint_Permeability Shale5_Kat5 Multi 2 1 -8.5 -5.0 -6.1

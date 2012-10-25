@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# defines the subroutines for LSF with no shared resources
+#
+# Syntax: . jobtype_LSFNORES
+#
+# External Environment Variables:
+#   GEMPIS_JOBTYPE - the name of the JOBTYPE
+#   GEMPIS_DATADIR - location where resource usage is maintained
+#   LSB_MCPU_HOSTS - (defined by LSF) List of computers and their number of 
+#                      processors to be used for a particular job.
+#
+# Notes:
+# It is not currently possible to define identify the BJOB id because 
+# the LSF job is interactive. So the command doesn't return until the 
+# job is completed
+#    BJOBS=`echo $line | sed 's/<//' | sed 's/>//' | awk '{ print $2 }'`
+#    send_message INFO "$jobtype jobid is $BJOBS."
+#############################################################################
+
+# load standard LSF definitions
+. $GEMPIS_DEFDIR/jobtype_LSF
+
+#
+# any definitions here will override the previous definitions
+#
+
+lsf_resources()
+{
+    bhosts -w $GEMPIS_REQUEST | tail -n +2
+}
+
+#
+# subroutines defined in jobtype_LSF
+#
+#lsf_shared_resources()
+#lsf_computer_info()
+#lsf_all_jobs()
+#lsf_my_jobs()
+
+# 
+# prints the total number of resources to stdout
+#
+jobtype_resource_total()
+{
+    lsf_resources | awk 'BEGIN {c = 0}
+		{ c += $4 }
+		END { print c }'
+}
+
+# 
+# prints the number of resources available to stdout
+#
+jobtype_resource_available()
+{
+    lsf_resources | awk 'BEGIN {c = 0}
+		$2 == "ok" { c += $4 - $6 }
+		END { print c }'
+}
+
+#
+# prints the list of computers allocated to a resource to stdout
+# 
+# Format:
+# <hostname> [...]
+#
+jobtype_resource_computers()
+{
+    lsf_resources | grep ok | awk '{ printf( "%s ", $1) }'
+    echo ""
+}
+
+#
+#jobtype_resource_memory()
+#jobtype_resource_usage()
+#jobtype_submit_command()
+#jobtype_hostlist()
+#jobtype_verify()
+#jobtype_end()
+#jobtype_killjob()
+#
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End script
+

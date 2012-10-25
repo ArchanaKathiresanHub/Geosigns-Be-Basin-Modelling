@@ -1,0 +1,6 @@
+NightlyBuildAndInstall: x
+CleanBuildAndInstall: x
+LimitedBuildAndInstall: x
+CleanBuild: x
+ReleaseBuildAndInstall: x
+ReleaseToHouston: x

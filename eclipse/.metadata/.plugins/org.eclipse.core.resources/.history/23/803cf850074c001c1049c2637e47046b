@@ -1,0 +1,14 @@
+BiCG.d BiCG.o: ../BiCG.C ../BiCG.h ../Vector.h ../Numerics.h \
+  ../DenseMatrix.h ../Preconditioner.h ../LinearSolver.h
+
+../BiCG.h:
+
+../Vector.h:
+
+../Numerics.h:
+
+../DenseMatrix.h:
+
+../Preconditioner.h:
+
+../LinearSolver.h:

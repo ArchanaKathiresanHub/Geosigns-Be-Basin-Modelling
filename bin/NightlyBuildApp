@@ -1,0 +1,80 @@
+#!/bin/ksh
+#
+# BuildApp - builds a single application from scratch and verifies that the 
+#            build was successful.
+#
+# Syntax: $0 <base_directory> <appname> <mail_address>
+#
+#
+################################################################################
+
+# get parameters and make sure everything is there
+base_dir=$1
+appname=$2
+owner=$3
+if [ -z "$owner" ]; then
+    echo "usage $0 <base_dir> <appname> <owner>"
+    exit 1
+fi
+
+# format output
+echo ""
+echo "------------------------------------------------------------------------------------------"
+
+# object platform name (ie obj.Linux64)
+platform=`echo $base_dir | awk '{ print $NF }'`
+mailTitle="Errors/Warnings in NightlyBuild of $appname on $machine"
+
+# define log files
+RAW_LOG=$NIGHTLY_LOGS/$appname-$machine.log
+FILTER_LOG=$NIGHTLY_LOGS/$appname-$machine.filtered
+
+# move ionto the base directory of the applications
+cd $REPOSITORY_HOME
+cd $base_dir
+
+# build a clean copy opf the application
+echo ""
+echo "--- `date` --- Building $appname from $base_dir."
+
+( 
+make $appname OPT=clean
+make $appname OPT=optimized ) > $RAW_LOG 2>&1
+
+echo "--- `date` --- Build of $base_dir complete."
+
+# check if any errors were found
+$NIGHTLY_SCRIPTS/NightlyAnalyze $RAW_LOG $FILTER_LOG
+
+# if filtered file contains error, it is an error. send log to owner
+if [ `wc $FILTER_LOG | awk '{ print $1 }'` != 0 ]; then
+   echo "$mailTitle"
+   $MAIL -s "$mailTitle" $owner < $FILTER_LOG
+#   exit 1
+fi
+
+# check if regression data is there
+if [ -d $appname/regression ]; then
+    # create a temp file of regression test
+    OUTFILE=$NIGHTLY_LOGS/regression_$appname-$machine.out
+    DIFFILE=$NIGHTLY_LOGS/regression_$appname-$machine.diff
+
+    # now run a regression test of the application if it exists
+    echo ""
+    echo "--- `date` --- Performing regression testing."
+    make $appname OPT=regression >$OUTFILE 2>&1
+
+    # check for differences
+    diff $appname/regression/$appname.$machine $OUTFILE >$DIFFILE
+    size=`wc $DIFFILE | awk '{ print $1 }'`
+    if [ $size != 0 ]; then
+	echo "Regression difference detected: size = $size."
+	$MAIL -s "Regression diff in NightlyBuild for $appname on $machine" $owner < $DIFFILE
+#	exit 2
+    fi
+    echo "--- `date` --- Regression testing complete."
+fi
+
+# If here then everything went well
+echo "No errors or warnings found in nightly build of $base_dir."
+exit 0

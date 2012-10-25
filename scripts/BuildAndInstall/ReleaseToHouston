@@ -1,0 +1,26 @@
+#!/bin/sh
+set -x
+cd /apps/sssdev/ibs
+
+WHOAMI=`/usr/bin/whoami`
+REMOTEUSER=s_bpac00
+LOCALDIR=/scratch/$WHOAMI
+REMOTEDIR=/scratch/$REMOTEUSER
+REMOTECOMPUTER=houic-n-b01309.americas.shell.com
+REMOTEACCOUNT=$REMOTEUSER@$REMOTECOMPUTER
+SSHKEYFILE=${REMOTEUSER}-id_dsa
+if [ $# -eq 0 ]
+then
+   VERSION=v2013.01nightly
+else
+   VERSION=$1
+fi
+TARFILE=${VERSION}.tgz
+
+mkdir -p $LOCALDIR
+tar czf $LOCALDIR/$TARFILE $VERSION
+cd
+ssh -i $SSHKEYFILE $REMOTEACCOUNT "mkdir -p $REMOTEDIR"
+scp -i $SSHKEYFILE $LOCALDIR/$TARFILE ${REMOTEACCOUNT}:$REMOTEDIR/$TARFILE
+ssh -i $SSHKEYFILE $REMOTEACCOUNT "bin/unpackrelease $REMOTEDIR/$TARFILE $VERSION"
+/bin/rm $LOCALDIR/$TARFILE

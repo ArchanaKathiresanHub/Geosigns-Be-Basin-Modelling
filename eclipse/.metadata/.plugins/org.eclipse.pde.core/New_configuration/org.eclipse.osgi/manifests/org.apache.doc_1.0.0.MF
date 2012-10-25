@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Generated-from: 1167469702000;type=10
+Bundle-ManifestVersion: 2
+Bundle-Name: Doc Plug-in
+Bundle-SymbolicName: org.apache.doc; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: EclipseDocs
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.help
+Eclipse-LazyStart: true

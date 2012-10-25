@@ -1,0 +1,84 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+-include ../makefile.init
+
+RM := rm -rf
+
+# All of the sources participating in the build are defined here
+-include sources.mk
+-include subdir.mk
+-include objects.mk
+
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(strip $(C++_DEPS)),)
+-include $(C++_DEPS)
+endif
+ifneq ($(strip $(CC_DEPS)),)
+-include $(CC_DEPS)
+endif
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
+ifneq ($(strip $(CPP_DEPS)),)
+-include $(CPP_DEPS)
+endif
+ifneq ($(strip $(CXX_DEPS)),)
+-include $(CXX_DEPS)
+endif
+ifneq ($(strip $(C_UPPER_DEPS)),)
+-include $(C_UPPER_DEPS)
+endif
+endif
+
+-include ../makefile.defs
+
+# Add inputs and outputs from these tool invocations to the build variables 
+
+# All Target
+all: fastcauldron
+
+dependents:
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/calibration_kernel/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/CBMGenerics/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/genex4_kernel/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/genex4_util/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Interpolation/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/LinearAlgebra/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Parallel_Hdf5/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Serial_Hdf5/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/TableIO/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/ThreadUtilities/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/utilities/src/Release && $(MAKE) clean all
+	-cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Utilities_Petsc/src/Release && $(MAKE) clean all
+
+# Tool invocations
+fastcauldron: $(OBJS) $(USER_OBJS) /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/calibration_kernel/src/Release/libcalibration_kernel.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/CBMGenerics/src/Release/libCBMGenerics.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/genex4_kernel/src/Release/libgenex4_kernel.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/genex4_util/src/Release/libgenex4_util.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Interpolation/src/Release/libInterpolation.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/LinearAlgebra/src/Release/libLinearAlgebra.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Parallel_Hdf5/src/Release/libParallel_Hdf5.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Serial_Hdf5/src/Release/libSerial_Hdf5.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/TableIO/src/Release/libTableIO.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/ThreadUtilities/src/Release/libThreadUtilities.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/utilities/src/Release/libutilities.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Utilities_Petsc/src/Release/libUtilities_Petsc.a
+	@echo 'Building target: $@'
+	@echo 'Invoking: GCC C++ Linker'
+	g++ -m64 -fPIC -L/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/petsc/2.1.6/LinuxRHEL64_x86_64_30WS/lib/libO_c++/linux64 -L/usr/X11R6/lib64 -L/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpi/mpich-1.2.6/LinuxRHEL64_x86_64_30WS/lib -L"/usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3/../../../../lib64" -L/usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3/../../.. -L/lib/../lib64 -L/usr/lib/../lib64 -o"fastcauldron" $(OBJS) $(USER_OBJS) $(LIBS)
+	@echo 'Finished building target: $@'
+	@echo ' '
+
+# Other Targets
+clean:
+	-$(RM) $(OBJS)$(C++_DEPS)$(EXECUTABLES)$(CC_DEPS)$(C_DEPS)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) fastcauldron
+	-@echo ' '
+
+.PHONY: all clean dependents
+.SECONDARY:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/calibration_kernel/src/Release/libcalibration_kernel.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/CBMGenerics/src/Release/libCBMGenerics.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/genex4_kernel/src/Release/libgenex4_kernel.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/genex4_util/src/Release/libgenex4_util.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Interpolation/src/Release/libInterpolation.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/LinearAlgebra/src/Release/libLinearAlgebra.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Parallel_Hdf5/src/Release/libParallel_Hdf5.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Serial_Hdf5/src/Release/libSerial_Hdf5.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/TableIO/src/Release/libTableIO.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/ThreadUtilities/src/Release/libThreadUtilities.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/utilities/src/Release/libutilities.a:
+/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlamol/projects/current/development/libraries/Utilities_Petsc/src/Release/libUtilities_Petsc.a:
+
+-include ../makefile.targets

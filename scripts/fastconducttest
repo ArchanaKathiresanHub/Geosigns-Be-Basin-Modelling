@@ -1,0 +1,240 @@
+#!/bin/csh
+# script to periodically build and perform a test of one of the tools of the fastcbm suite
+
+set testdir=""
+set cluster=""
+set platform=""
+set project=""
+set application=""
+set procs=""
+set option=""
+set subdir=""
+set debug="false"
+
+while ($#argv > 0)
+   switch ($1)
+      case -h*:
+         echo "usage: fastconducttest  -cluster <cluster-name>"
+	 echo "                        -platform <OS-identifier>"
+	 echo "                        -project <project-name>"
+	 echo "                        -application <tool-to-test>"
+	 echo "                        -procs <# procs>"
+	 echo "                        [-help]"
+	 echo "                        [-subdir <subdir>]"
+	 echo ""
+	 echo "       cluster-name:  e.g. EINSTEIN or kseu1206, do not use LOCAL"
+	 echo "       OS-identifier: e.g. Linux64 or IRIX64"
+	 echo "       project-name:  e.g. Acquifer"
+	 echo "       application:   e.g. fastcauldron or fastgenex5 or fastmig"
+	 echo "       test-name:          Test or Valid"
+	 echo "       # procs:       e.g. 1 or 2 or 4"
+	 echo "       subdir:        e.g. HydrostaticTemperature or LooselyCoupled (for fastcauldron only)"
+	 echo ""
+	 echo "       version of the application to be tested is determined at"
+	 echo "       execution time through" \$CAULDRON_VERSION
+	 exit 0
+      case -testdir:
+	 set testdir=$2
+	 shift
+	 shift
+	 breaksw
+      case -cluster:
+	 set cluster=$2
+	 shift
+	 shift
+	 breaksw
+      case -option:
+	 set option=$2
+	 shift
+	 shift
+	 breaksw
+      case -platform:
+	 set platform=$2
+	 shift
+	 shift
+	 breaksw
+      case -project:
+	 set project=$2
+	 shift
+	 shift
+	 breaksw
+      case -application:
+	 set application=$2
+	 shift
+	 shift
+	 breaksw
+      case -procs:
+	 set procs=$2
+	 shift
+	 shift
+	 breaksw
+      case -subdir:
+	 set subdir=$2
+	 shift
+	 shift
+	 breaksw
+      case -debug:
+         set debug="true"
+	 shift
+	 breaksw
+      case *:
+         echo "${1}: illegal option"
+	 exit -1
+   endsw
+end
+
+if ($testdir == "") then
+   echo "Error: testdir to execute your test in is not specified, use -testdir to specify"
+   exit -1
+endif
+
+if ($cluster == "") then
+   echo "Error: cluster to execute your test on is not specified, use -cluster to specify"
+   exit -1
+endif
+
+if ($platform == "") then
+   echo "Error: platform  (e.g. IRIX64 or Linux64) to execute your test on is not specified, use -platform to specify"
+   exit -1
+endif
+
+if ($project == "") then
+   echo "Error: project to test is not specified, use -project to specify"
+   exit -1
+endif
+
+if ($application == "") then
+   echo "Error: application to test is not specified, use -application to specify"
+   exit -1
+endif
+
+if ($procs == "") then
+   echo "Error: number of processors to execute your test on is not specified, use -procs to specify"
+   exit -1
+endif
+
+if ($option == "") then
+   set optionstring=""
+else
+   set optionstring="-option $option"
+endif
+
+if ($debug == "true") then
+   echo "variables:"
+   echo "   testdir = $testdir"
+   echo "   cluster = $cluster"
+   echo "   option = $option"
+   echo "   platform = $platform"
+   echo "   project = $project"
+   echo "   application = $application"
+   echo "   procs = $procs"
+   echo "   subdir = $subdir"
+endif
+
+
+set subdirstring = ""
+if ($subdir != "") then
+   set subdirstring = "-subdir $subdir"
+   if ($debug == "true") then
+      echo "subdirstring = $subdirstring"
+   endif
+endif
+
+#email addresses
+set bill = william.senior@shell.com
+set annette = annette.fugl@shell.com
+set alfred = noaddress
+set alfred = alfred.vanderhoeven@shell.com
+set alfred = dominik.scholz@shell.com
+set dominik = dominik.scholz@shell.com
+
+#default address
+set address = $alfred
+
+if ($application == "fastmig") then
+   set address = $alfred
+endif
+
+if ($application == "fastgenex5") then
+   set address = $alfred
+endif
+
+if ($application == "fastcauldron") then
+   set address = $bill
+endif
+
+if ($application == "workflow") then
+   set address = $dominik
+endif
+
+if ($debug == "true") then
+echo "fastbuildtest -cluster $cluster -platform $platform -project $project -application $application $subdirstring $optionstring -procs $procs -testdir $testdir"
+endif
+fastbuildtest -cluster $cluster -platform $platform -project $project -application $application $subdirstring $optionstring -procs $procs -testdir $testdir >& \
+	${application}_${project}_${platform}_${procs}.log
+
+set exitstatus = $status
+if ($exitstatus != 0) then
+    set MAILSUBJECT="fastbuildtest of ${application} for ${project} on ${platform} with ${procs} failed"
+    set TOADDRESS="$address $alfred"
+    cat ${application}_${project}_${platform}_${procs}.log | mail -s "$MAILSUBJECT" $TOADDRESS
+    echo "+++++++++ e-mail content sent +++++++++"
+    echo "Sent to:" $TOADDRESS
+    echo "Subject:" $MAILSUBJECT
+    cat ${application}_${project}_${platform}_${procs}.log
+    echo "+++++++++++++++++++++++++++++++++++++++"
+    exit $exitstatus
+endif
+
+if ($debug == "true") then
+echo "fastruntest -project $project -platform $platform $subdirstring -procs $procs -testdir $testdir"
+endif
+fastruntest -project $project -platform $platform $subdirstring -procs $procs -testdir $testdir >>& \
+	${application}_${project}_${platform}_${procs}.log
+
+set exitstatus = $status
+echo "fastruntest exitstatus = $exitstatus" >>& ${application}_${project}_${platform}_${procs}.log
+
+if ($exitstatus != 0) then
+    set MAILSUBJECT="fastruntest of ${application} for ${project} on ${platform} with ${procs} failed"
+    set TOADDRESS="$address $alfred"
+    cat ${application}_${project}_${platform}_${procs}.log | mail -s "$MAILSUBJECT" $TOADDRESS
+    echo "+++++++++ e-mail content sent +++++++++"
+    echo "Sent to:" $TOADDRESS
+    echo "Subject:" $MAILSUBJECT
+    cat ${application}_${project}_${platform}_${procs}.log
+    echo "+++++++++++++++++++++++++++++++++++++++"
+   exit $exitstatus
+endif
+
+if ($testdir == "Test") then
+   if ($debug == "true") then
+      echo "fastchecktest -project $project -platform $platform $subdirstring -procs $procs"
+   endif
+   fastchecktest -project $project -platform $platform $subdirstring -procs $procs >& \
+           ${application}_${project}_${platform}_${procs}.result
+
+   set exitstatus = $status
+
+   if ($exitstatus != 0) then
+    set MAILSUBJECT="$application test failed"
+    set TOADDRESS="$address $alfred"
+    cat ${application}_${project}_${platform}_${procs}.result | mail -s "$MAILSUBJECT" $TOADDRESS
+    echo "+++++++++ e-mail content sent +++++++++"
+    echo "Sent to:" $TOADDRESS
+    echo "Subject:" $MAILSUBJECT
+    cat ${application}_${project}_${platform}_${procs}.result
+    echo "+++++++++++++++++++++++++++++++++++++++"
+    
+      exit $exitstatus
+#  else
+#     mail -s "$application test succeeded" $address $alfred < ${application}_${project}_${platform}_${procs}.result
+   endif
+endif
+
+if ($debug == "true") then
+   echo "exit status = $exitstatus"
+endif
+
+exit $exitstatus
+

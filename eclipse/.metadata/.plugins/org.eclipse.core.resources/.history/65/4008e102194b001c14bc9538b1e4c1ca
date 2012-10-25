@@ -1,0 +1,21 @@
+gxlocat.d gxlocat.o: ../gxlocat.c ../gxerror.h ../gxgenerl.h ../gxfile.h \
+  ../gxprjdef.h ../gxlocat.h ../gxrdfile.h ../sortlst.h ../list.h \
+  ../gxutils.h
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxfile.h:
+
+../gxprjdef.h:
+
+../gxlocat.h:
+
+../gxrdfile.h:
+
+../sortlst.h:
+
+../list.h:
+
+../gxutils.h:

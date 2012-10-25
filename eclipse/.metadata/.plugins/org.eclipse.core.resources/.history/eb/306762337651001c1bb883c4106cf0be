@@ -1,0 +1,39 @@
+Faulting.d Faulting.o: ../Faulting.C ../Implementation/Snapshot.h \
+  ../Interface/Snapshot.h ../Interface/Interface.h \
+  ../Implementation/DAObject.h ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/AttributeValue.h \
+  ../Interface/AttributeValue.h ../Implementation/Child.h \
+  ../Implementation/Implementation.h ../Implementation/FaultFileReader.h \
+  ../Implementation/auxiliaryfaulttypes.h ../Implementation/Faulting.h \
+  ../Implementation/FaultElementCalculator.h \
+  ../Implementation/FaultFileReaderFactory.h
+
+../Implementation/Snapshot.h:
+
+../Interface/Snapshot.h:
+
+../Interface/Interface.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/AttributeValue.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/FaultFileReader.h:
+
+../Implementation/auxiliaryfaulttypes.h:
+
+../Implementation/Faulting.h:
+
+../Implementation/FaultElementCalculator.h:
+
+../Implementation/FaultFileReaderFactory.h:

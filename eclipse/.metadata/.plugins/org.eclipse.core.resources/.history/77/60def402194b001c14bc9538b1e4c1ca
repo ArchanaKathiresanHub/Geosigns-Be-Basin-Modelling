@@ -1,0 +1,23 @@
+gxprjct.d gxprjct.o: ../gxprjct.c ../gxerror.h ../gxgenerl.h ../gxfile.h \
+  ../gxprjdef.h ../gxinstnc.h ../sortlst.h ../list.h ../gxprjct.h \
+  ../gxscanner.h ../gxsysdep.h
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxfile.h:
+
+../gxprjdef.h:
+
+../gxinstnc.h:
+
+../sortlst.h:
+
+../list.h:
+
+../gxprjct.h:
+
+../gxscanner.h:
+
+../gxsysdep.h:

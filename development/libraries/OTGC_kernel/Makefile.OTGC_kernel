@@ -1,0 +1,122 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+#ifeq ($(machine),Silicon64)
+#include $(FILE_BASE)/Make.3rdparty
+#endif
+
+LIBDIR = ../../../libraries
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+
+#
+#  Override for Make.machine definitions
+#
+ifeq ($(machine),Silicon64)
+#  LCC 		= $(CC)
+endif
+#
+ifeq ($(machine),Silicon32)
+#  LCC 		= $(CC)
+#  CXXFLAGS 	= -ansi -n32 -mips4 -ptused -woff 15  -OPT:Olimit=2950
+endif
+#
+
+
+CFLAGS   += ${PROFILEFLAGS} ${COMPILEFLAGS} -I$(CBMGENERICS_INC) 
+CXXFLAGS += ${PROFILEFLAGS} ${COMPILEFLAGS} -I$(CBMGENERICS_INC)  
+
+
+DOXYGEN = doxygen
+DOXYGENCFG = OTGC_kernel.cfg
+
+LIBOBJECTS = \
+	Utilities.o \
+	SpeciesState.o \
+	SpeciesProperties.o \
+	Species.o \
+	Input.o \
+	SimulatorState.o \
+	GeneralParametersHandler.o \
+	Simulator.o \
+	SCmathlib.o \
+	ReactionRatio.o \
+	Reaction.o \
+	ChemicalModel.o \
+   LinearInterpolator.o\
+
+LIBSRCS = $(LIBOBJECTS:.o=.C)
+
+LIBINCLUDES = \
+	Utilities.h \
+	SpeciesState.h \
+	SpeciesProperties.h \
+	Species.h \
+	Input.h \
+	SourceRockNode.h \
+	SimulatorState.h \
+	GeneralParametersHandler.h \
+	Simulator.h \
+	SCmathlib.h \
+	ReactionRatio.h \
+	Reaction.h \
+   ChemicalModel.h \
+   Element.h \
+   LinearInterpolator.h\
+	Constants.h
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+SHAREDLINKLIB = $(CBMGENERICS_LIB).so
+
+LINKLIB = $(CBMGENERICS_LIB).a 
+	
+SELECTEDLINKLIB = $(LINKLIB)
+
+SHAREDLIB = libOTGC_kernel.so
+LIB = libOTGC_kernel.a
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(LIB) $(SHARELIB)
+
+$(LIB): $(LIBOBJECTS) 
+	$(AR) $(LIB) $(LIBOBJECTS) 
+
+$(SHAREDLIB): $(LIB) Makefile
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+clean:
+	rm -rf $(LIB) $(SHAREDLIB) $(LIBOBJECTS) \
+	core ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+
+depend: $(LIBOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.genex5_kernel -Y $(CXXINCLUDE) $(LIBOBJECTS:.o=.C) 2> /dev/null
+        
+
+# DO NOT DELETE
+
+Species.o:Species.h ChemicalModel.h Constants.h SimulatorState.h SpeciesState.h

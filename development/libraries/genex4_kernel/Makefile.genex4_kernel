@@ -1,0 +1,32 @@
+ROOTDIR 	= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+
+LIB 		= libgenex4_kernel.a
+
+LIBOBJECTS 	= error.o gxhist.o gxlabexp.o gxnumer.o gxrdfile.o \
+		  gxscanner.o list.o gxconfig.o gxhorizn.o gxlithol.o \
+		  gxoption.o gxressub.o gxsysdep.o gxerror.o gxinstnc.o \
+		  gxlocat.o gxphchem.o gxrock.o gxtrap.o mshell.o \
+		  gxfile.o gxkernel.o gxmodel.o gxprjct.o gxsbarea.o \
+		  gxutils.o sortlst.o
+
+LIBSRCS 	= $(LIBOBJECTS:.o=.c)
+
+vpath %.h $(SRCDIR)
+vpath %.c $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+target: $(LIB)
+
+
+$(LIB): $(LIBOBJECTS)
+	$(AR) $(LIB) $(LIBOBJECTS)
+
+clean:
+	rm -rf $(LIBOBJECTS) $(LIB) ii_files so_locations

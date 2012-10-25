@@ -1,0 +1,23 @@
+gxlithol.d gxlithol.o: ../gxlithol.c ../gxkernel.h ../gxgenerl.h \
+  ../gxmodel.h ../list.h ../sortlst.h ../gxconsts.h ../gxerror.h \
+  ../gxprjct.h ../gxprjdef.h ../gxlithol.h
+
+../gxkernel.h:
+
+../gxgenerl.h:
+
+../gxmodel.h:
+
+../list.h:
+
+../sortlst.h:
+
+../gxconsts.h:
+
+../gxerror.h:
+
+../gxprjct.h:
+
+../gxprjdef.h:
+
+../gxlithol.h:

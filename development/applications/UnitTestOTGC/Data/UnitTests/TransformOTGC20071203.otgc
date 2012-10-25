@@ -1,0 +1,17 @@
+[Table:OTGCTest]
+TestName,TransformOTGC20071203.otgc
+TestType,TRANSFORMSCH2CFG
+[EndOfTable]
+
+
+[Table:TransformSch2CfgData]
+InputFullPath,./ConfigurationFiles/
+InputSchName,reactTypeII20071203.sch
+OuputFullPath,./ConfigurationFiles/
+OuputCfgName,TransCFGreactTypeII20071203.cfg
+HC,1.15
+Emean,210000
+PreprocessData,False 
+[EndOfTable]
+
+

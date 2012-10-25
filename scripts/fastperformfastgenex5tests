@@ -1,0 +1,107 @@
+#!/bin/csh
+
+set verbose
+
+######################### fastgenex5 tests ####################################
+
+cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/RegressionTests
+
+/bin/rm -rf fastgenex5
+/bin/rm -rf fastgenex5
+
+mkdir -p fastgenex5
+cd fastgenex5
+
+fastretrieve fastgenex5 AlphaTestScale3TypeIIHS
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIIHS -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIIHS -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIIHS -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AcquiferScale3Offset2Window33
+fastconducttest -application fastgenex5 -project AcquiferScale3Offset2Window33 -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale3Offset2Window33 -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale3Offset2Window33 -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AlphaTestFullRes
+fastconducttest -application fastgenex5 -project AlphaTestFullRes -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestFullRes -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 SAUDI1LowRes
+fastconducttest -application fastgenex5 -project SAUDI1LowRes -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project SAUDI1LowRes -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project SAUDI1LowRes -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AcquiferScale3Offset2
+fastconducttest -application fastgenex5 -project AcquiferScale3Offset2 -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale3Offset2 -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale3Offset2 -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 SAUDI1FullRes
+fastconducttest -application fastgenex5 -project SAUDI1FullRes -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project SAUDI1FullRes -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+
+fastretrieve fastgenex5 AlphaTestScale3TypeII
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeII -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeII -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeII -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AlphaTestScale3TypeIIS
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIIS -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIIS -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIIS -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AcquiferScale1
+fastconducttest -application fastgenex5 -project AcquiferScale1 -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale1 -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale1 -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AcquiferScale3
+fastconducttest -application fastgenex5 -project AcquiferScale3 -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale3 -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AcquiferScale3 -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AlphaTestScale3TypeI
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeI -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeI -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeI -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastgenex5 AlphaTestScale3TypeIII
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIII -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIII -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastgenex5 -project AlphaTestScale3TypeIII -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+

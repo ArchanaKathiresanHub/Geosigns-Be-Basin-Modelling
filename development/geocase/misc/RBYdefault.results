@@ -1,0 +1,20 @@
+[RunStatusIoTbl]
+;
+NrMCLoopsCompleted MCStatusOfLastRun MCCurrentSeedNumber 
+() () () 
+0 "Initial" 367
+[End]
+;
+;
+[DepthIoTbl]
+;
+PropertyName Time Depth_ Average StandardDev Minimum Maximum Sum Sum2 NP 
+() (Ma) (m) () () () () () () () 
+[End]
+;
+;
+[TimeIoTbl]
+;
+PropertyName Time SurfaceName FormationName Average StandardDev Minimum Maximum Sum Sum2 NP PropertyGrid 
+() (Ma) () () () () () () () () () () 
+[End]

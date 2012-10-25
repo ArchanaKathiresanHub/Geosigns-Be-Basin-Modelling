@@ -1,0 +1,42 @@
+#!/bin/csh -l
+
+setenv TODAY `date +%a`
+# set todayfull=`date`
+setenv HOST `/usr/bsd/hostname -s`
+
+set path = ($HOME/bin $HOME/bin.`uname` $HOME/bin/X11 /nobackup/ksaho3/bin /usr/bin/X11 /usr/bin/ $path)
+source /apps/oss/etc/oss.login
+
+setenv USE64BITS
+source .ibsrc
+unsetenv PETSC_ARCH
+unsetenv PETSC_DIR
+unalias make
+
+setenv LD_LIBRARY_PATH /local9/ksaho3/apr/lib:/local9/ksaho3/subversion/lib:/local9/ksaho3/qwt/lib:/local9/ksaho3/qt/lib:/apps/3rdparty/jdk/1.4.1_02/IRIX64_65/lib:/nobackup9/ksaho3/cauldron/lib/Silicon64:/usr/lib32/cmplrs:/apps/3rdparty/oiv/3.1.1/IRIX64_65/lib:/apps/3rdparty/msuite/3.6/IRIX64_65/lib:/nfs/rvl/users/ksaho3/lib.IRIX64:~/lib:.:/nfs/rvl/users/ibs/geocase_64/prod/v2.4/lib/IRIX6.2n64:/apps/3rdparty/motif/1.2.4/IRIX64_65/lib
+setenv LD_LIBRARYN32_PATH /local9/ksaho3/apr/lib:/local9/ksaho3/subversion/lib:/apps/3rdparty/jdk/1.4.1_02/IRIX64_65/lib32:/nobackup9/ksaho3/cauldron/lib/Silicon64:/apps/3rdparty/msuite/3.6/IRIX64_65/lib32:/nfs/rvl/users/ksaho3/lib.IRIX64:/apps/oss/lib:/apps/oss/lib
+setenv LD_LIBRARY64_PATH /apps/3rdparty/oiv/5.0/IRIX64/lib:/usr/Motif-2.1/lib64:/nobackup9/ksaho3/cauldron/lib/Silicon64:/apps/3rdparty/msuite/3.6/IRIX64_65/lib64:/apps/oss/lib:/apps/oss/lib
+setenv MANPATH /nfs/rvl/users/ksaho3/man:/local9/ksaho3/subversion/doc/man:/local9/ksaho3/qt/doc/man:/apps/oss/man:/apps/3rdparty/easycopy/6.1.0/IRIX64_65/man:/apps/3rdparty/motif/1.2.4/IRIX64_65/man:/apps/oss/man:/usr/afsws/local/catman:/usr/afsws/local/man:/fsf/man
+setenv XFILESEARCHPATH /apps/3rdparty/oiv/3.1.1/IRIX64_65/%T/%N%S:/apps/oss/lib/app-defaults/%N:/apps/3rdparty/motif/1.2.4/IRIX64_65/lib/%T/%N%S:/apps/oss/lib/app-defaults/%N
+setenv LM_LICENSE_FILE /apps/3rdparty/oiv/3.1.1/IRIX64_65/license/license01.dat:/apps/3rdparty/oiv/3.1.1/IRIX64_65/license/license.dat:/apps/3rdparty/msuite/3.6/IRIX64_65/license/license01.dat:/apps/3rdparty/msuite/3.6/IRIX64_65/license/license.dat:3001@AMSDC1-S-768.europe.shell.com:3001@CBJ-S-459.asia-pac.shell.com:3001@HOUIC-S-438.americas.shell.com:SIEPRTS_LICENSE_FILE=3000@AMSDC1-S-768.europe.shell.com:3000@CBJ-S-459.asia-pac.shell.com:3000@HOUIC-S-438.americas.shell.com:/apps/3rdparty/etc/licenses/license.dat:/var/flexlm/license.dat
+setenv SCRPATH /nobackup9/ksaho3/cauldron/scr:/nfs/rvl/users/ibs/Silicon64/d/misc/GospelScriptFiles:/nfs/rvl/users/ibs/geocase_64/prod/v2.4/script:/nfs/rvl/users/ibs/geocase_64/prod/v2.4/bitmap
+setenv XUSERFILESEARCHPATH /nfs/rvl/users/ksaho3/app-defaults/%N:/usr/lib/X11/app-defaults/%N:/nfs/rvl/users/ibs/Silicon64/d/misc/%N:./%N%S:/nfs/rvl/users/ibs/geocase_64/prod/v2.4/res/%N%S
+
+setenv CBMROOTDIR $HOME/local9/ksaho3/CBM
+setenv CBMBUILDSDIR  $CBMROOTDIR/builds
+setenv CBMSCRIPTSDIR  $CBMROOTDIR/scripts
+setenv CBMTESTSDIR  $CBMROOTDIR/tests
+
+cd $CBMBUILDSDIR
+
+setenv CBMBUILDLOGSDIR $CBMBUILDSDIR/logs/$HOST/$TODAY
+
+rm -rf $CBMBUILDLOGSDIR
+mkdir -p $CBMBUILDLOGSDIR
+
+$CBMSCRIPTSDIR/buildBranch trunk alfred.vanderhoeven &
+$CBMSCRIPTSDIR/buildBranch branches/alfred alfred.vanderhoeven &
+$CBMSCRIPTSDIR/buildBranch branches/bill william.senior &
+$CBMSCRIPTSDIR/buildBranch branches/olivier olivier.meuric &
+
+wait

@@ -1,0 +1,10 @@
+LandmarkFaultFileReader.d LandmarkFaultFileReader.o:  \
+ ../LandmarkFaultFileReader.C ../Implementation/LandmarkFaultFileReader.h \
+  ../Implementation/FaultFileReader.h \
+  ../Implementation/auxiliaryfaulttypes.h
+
+../Implementation/LandmarkFaultFileReader.h:
+
+../Implementation/FaultFileReader.h:
+
+../Implementation/auxiliaryfaulttypes.h:

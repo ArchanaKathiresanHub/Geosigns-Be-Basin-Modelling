@@ -1,0 +1,25 @@
+gxmodel.d gxmodel.o: ../gxmodel.c ../gxconsts.h ../gxerror.h \
+  ../gxgenerl.h ../gxmodel.h ../list.h ../gxnumer.h ../gxphchem.h \
+  ../gxlithol.h ../gxprjdef.h ../sortlst.h ../gxutils.h
+
+../gxconsts.h:
+
+../gxerror.h:
+
+../gxgenerl.h:
+
+../gxmodel.h:
+
+../list.h:
+
+../gxnumer.h:
+
+../gxphchem.h:
+
+../gxlithol.h:
+
+../gxprjdef.h:
+
+../sortlst.h:
+
+../gxutils.h:

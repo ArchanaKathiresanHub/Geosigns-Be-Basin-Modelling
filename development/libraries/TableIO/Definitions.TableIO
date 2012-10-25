@@ -1,0 +1,37 @@
+MAKE_FILES -> .
+        Makefile.TableIO
+	Make.Silicon32
+	Make.Silicon64
+	Make.Sun
+	Make.SunOS64
+	Make.Linux32
+	Make.targets
+
+DEF_FILES -> ./def
+
+C_FILES -> ./src
+	TableIO/src/database.C
+	TableIO/src/dataschema.C
+	TableIO/src/datautils.C
+	TableIO/src/parspec.C
+
+H_FILES -> ./src
+	TableIO/src/database.h
+	TableIO/src/dataschema.h
+	TableIO/src/datautils.h
+	TableIO/src/datatype.h
+	TableIO/src/tableio.cfg
+
+	
+SCR_FILES -> ./scr
+
+REF_FILES -> .
+	RubyPropModel/BasinModellerProperty.Spec
+
+DOC_FILES -> ./doc
+
+QAC_FILES -> ./qac
+
+SYMLINKS -> ./def
+
+MISC_FILES -> ./data

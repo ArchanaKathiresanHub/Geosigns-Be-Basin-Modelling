@@ -1,0 +1,688 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>ResourceManagerUI</class>
+<author>Greg Lackore</author>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>ResourceManagerUI</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>720</width>
+            <height>428</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>3</hsizetype>
+            <vsizetype>3</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>534</width>
+            <height>428</height>
+        </size>
+    </property>
+    <property name="sizeIncrement">
+        <size>
+            <width>0</width>
+            <height>0</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>Resource Manager</string>
+    </property>
+    <property name="usesTextLabel">
+        <bool>false</bool>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>ResourcegroupBox</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="paletteBackgroundColor">
+                <color>
+                    <red>230</red>
+                    <green>230</green>
+                    <blue>230</blue>
+                </color>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <property name="alignment">
+                <set>AlignAuto</set>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QComboBox" row="0" column="1">
+                    <property name="name">
+                        <cstring>ResourceNamecomboBox</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>220</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>ClickFocus</enum>
+                    </property>
+                    <property name="autoCompletion">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Selects resource to display</string>
+                        <comment>Use ths Combobox to select the resource to display</comment>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>Resource selector</string>
+                    </property>
+                </widget>
+                <widget class="QGroupBox" row="1" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>ProcessorsgroupBox</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="title">
+                        <string>Number of Processors</string>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel" row="0" column="0">
+                            <property name="name">
+                                <cstring>ProcessorsTotaltextLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Total</string>
+                            </property>
+                            <property name="alignment">
+                                <set>WordBreak|AlignCenter</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="2">
+                            <property name="name">
+                                <cstring>ProcessorsAvailabletextLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Available</string>
+                            </property>
+                            <property name="alignment">
+                                <set>WordBreak|AlignCenter</set>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit" row="0" column="1">
+                            <property name="name">
+                                <cstring>ResourceProcessorsProcessorsTotallineEdit</cstring>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignRight</set>
+                            </property>
+                            <property name="readOnly">
+                                <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>The number of processors defined for this resource</string>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit" row="0" column="3">
+                            <property name="name">
+                                <cstring>ResourceProcessorsProcessorsAvailablelineEdit</cstring>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignRight</set>
+                            </property>
+                            <property name="readOnly">
+                                <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>The number of processors that can still be assigned</string>
+                            </property>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QGroupBox" row="1" column="2" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>groupBox8</cstring>
+                    </property>
+                    <property name="title">
+                        <string>Memory per Processor</string>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel" row="0" column="1">
+                            <property name="name">
+                                <cstring>ProcessorsMemorypertextLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>MegaBytes</string>
+                            </property>
+                            <property name="alignment">
+                                <set>WordBreak|AlignCenter</set>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit" row="0" column="0">
+                            <property name="name">
+                                <cstring>ResourceProcessorsProcessorsMemorylineEdit</cstring>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignRight</set>
+                            </property>
+                            <property name="readOnly">
+                                <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>The number of mega bytes per processor</string>
+                            </property>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>ResourceNametextLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Resource Name</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="2">
+                    <property name="name">
+                        <cstring>ResourceNametextLabel_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Display Last Updated</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignVCenter|AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="0" column="3">
+                    <property name="name">
+                        <cstring>ResourceUpdatedlineEdit</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignRight</set>
+                    </property>
+                    <property name="readOnly">
+                        <bool>true</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>The number of processors defined for this resource</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QFrame">
+            <property name="name">
+                <cstring>frame3</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>3</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>500</width>
+                    <height>220</height>
+                </size>
+            </property>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QListView" row="0" column="0">
+                    <column>
+                        <property name="text">
+                            <string>Job Id</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>State</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string># Processors</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>User Id</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Project : Command</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Starting Date</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                <item>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap></pixmap>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap></pixmap>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap></pixmap>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap></pixmap>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap></pixmap>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap></pixmap>
+                    </property>
+                </item>
+                    <property name="name">
+                        <cstring>ResourceProcessorsInUsebylistView</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>7</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>500</width>
+                            <height>200</height>
+                        </size>
+                    </property>
+                    <property name="frameShape">
+                        <enum>StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
+                    <property name="resizePolicy">
+                        <enum>Manual</enum>
+                    </property>
+                    <property name="allColumnsShowFocus">
+                        <bool>true</bool>
+                    </property>
+                    <property name="showSortIndicator">
+                        <bool>false</bool>
+                    </property>
+                    <property name="resizeMode">
+                        <enum>LastColumn</enum>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>ClosepushButton</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>3</hsizetype>
+                    <vsizetype>3</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>500</width>
+                    <height>20</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>32767</width>
+                    <height>20</height>
+                </size>
+            </property>
+            <property name="autoMask">
+                <bool>true</bool>
+            </property>
+            <property name="text">
+                <string>Close</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Exit the application</string>
+            </property>
+        </widget>
+    </vbox>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>m_menuBar</cstring>
+    </property>
+    <item text="File" name="fileMenu">
+        <action name="fileExitAction"/>
+    </item>
+    <item text="Edit" name="editMenu">
+        <action name="editResourcesAction"/>
+        <separator/>
+        <action name="editPreferencesAction"/>
+    </item>
+    <item text="Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <separator/>
+        <action name="helpAboutAction"/>
+        <separator/>
+        <action name="helpEmail_Log_FileAction"/>
+    </item>
+</menubar>
+<toolbars>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileNewAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>New</string>
+        </property>
+        <property name="menuText">
+            <string>New</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Open</string>
+        </property>
+        <property name="menuText">
+            <string>Open</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Save</string>
+        </property>
+        <property name="menuText">
+            <string>Save</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSave_AsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Save As</string>
+        </property>
+        <property name="menuText">
+            <string>Save As</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>Exit</string>
+        </property>
+        <property name="statusTip">
+            <string>Exit this application</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editResourcesAction</cstring>
+        </property>
+        <property name="text">
+            <string>Resources</string>
+        </property>
+        <property name="menuText">
+            <string>Resources</string>
+        </property>
+        <property name="statusTip">
+            <string>Use ths tool to manage you own Resources</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editPreferencesAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Preferences</string>
+        </property>
+        <property name="menuText">
+            <string>Preferences</string>
+        </property>
+        <property name="statusTip">
+            <string>Currently not implemented</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>Contents</string>
+        </property>
+        <property name="statusTip">
+            <string>Starts a web browser with help</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>About</string>
+        </property>
+        <property name="statusTip">
+            <string>Shows software release information</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpEmail_Log_FileAction</cstring>
+        </property>
+        <property name="text">
+            <string>Email Log File</string>
+        </property>
+        <property name="menuText">
+            <string>Email Log File</string>
+        </property>
+        <property name="statusTip">
+            <string>Send a log via email to Cauldron Helpdesk</string>
+        </property>
+    </action>
+</actions>
+<connections>
+    <connection>
+        <sender>editResourcesAction</sender>
+        <signal>activated()</signal>
+        <receiver>ResourceManagerUI</receiver>
+        <slot>editResouce()</slot>
+    </connection>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>ResourceManagerUI</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>ResourceManagerUI</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>ResourceManagerUI</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>m_menuBar</sender>
+        <signal>highlighted(int)</signal>
+        <receiver>ResourceManagerUI</receiver>
+        <slot>m_menuBar_highlighted(int)</slot>
+    </connection>
+    <connection>
+        <sender>ResourceManagerUI</sender>
+        <signal>dockWindowPositionChanged(QDockWindow*)</signal>
+        <receiver>ResourceManagerUI</receiver>
+        <slot>ResourceManagerUI_dockWindowPositionChanged(QDockWindow*)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in declaration">ResourceManagerController.h</include>
+    <include location="local" impldecl="in declaration">ResourceEditorController.h</include>
+</includes>
+<variables>
+    <variable access="public">ResourceManagerController * controller;</variable>
+</variables>
+<slots>
+    <slot>showError( const char * str )</slot>
+    <slot>helpAbout()</slot>
+    <slot>editResouce()</slot>
+    <slot>helpContents()</slot>
+    <slot>m_menuBar_highlighted( int )</slot>
+    <slot>ResourceManagerUI_dockWindowPositionChanged( QDockWindow * )</slot>
+    <slot>helpEmailLog()</slot>
+    <slot>helpEmail_Log_FileAction_activated()</slot>
+</slots>
+<functions>
+    <function access="private" specifier="non virtual">init()</function>
+    <function access="private">destroy()</function>
+</functions>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

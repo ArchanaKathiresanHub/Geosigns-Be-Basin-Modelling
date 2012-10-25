@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="RevertDialog.column1" value="240"/>
+	<item key="CommitDialog.location.y" value="221"/>
+	<item key="CommitDialog.sortReversed" value="false"/>
+	<item key="CommitDialog.column1" value="385"/>
+	<item key="RevertDialog.column0" value="20"/>
+	<item key="RevertDialog.location.y" value="276"/>
+	<item key="CommitDialog.column0" value="20"/>
+	<item key="CommitDialog.size.x" value="911"/>
+	<item key="CommitDialog.weights.0" value="555"/>
+	<item key="RevertDialog.sortReversed" value="false"/>
+	<item key="RevertDialog.size.x" value="540"/>
+	<item key="CommitDialog.size.y" value="859"/>
+	<item key="RevertDialog.sortColumn" value="1"/>
+	<item key="CommitDialog.sortColumn" value="1"/>
+	<item key="CommitDialog.weights.1" value="444"/>
+	<item key="RevertDialog.column3" value="150"/>
+	<item key="RevertDialog.location.x" value="1888"/>
+	<item key="RevertDialog.size.y" value="463"/>
+	<item key="CommitDialog.location.x" value="1849"/>
+	<item key="RevertDialog.column2" value="150"/>
+	<item key="CommitDialog.column3" value="316"/>
+	<item key="CommitDialog.column2" value="150"/>
+	<section name="NewLocationWizard">
+		<list key="ConfigurationWizardMainPage.STORE_URL_ID">
+			<item value="svn://rijkes-n-d99610/trunk/eclipse"/>
+			<item value="svn://rijkes-n-d99610/trunk/development/libraries"/>
+		</list>
+	</section>
+</section>

@@ -1,0 +1,15 @@
+# dont use tabs for spacing
+# param x y z value wellindex, wellfile
+Porosity 0 0 3432.353 7.92 1 Point_0_east__0_north_PTCoupled.well
+Porosity 0 0 3436.925 8.26 1 Point_0_east__0_north_PTCoupled.well
+Porosity 0 0 3444.850 9.28 1 Point_0_east__0_north_PTCoupled.well
+Porosity 0 0 3799.942 14.40 1 Point_0_east__0_north_PTCoupled.well
+Porosity 0 0 3805.733 14.50 1 Point_0_east__0_north_PTCoupled.well
+Porosity 0 0 3808.476 13.90 1 Point_0_east__0_north_PTCoupled.well
+
+Permeability 0 0 3432.353 8.60e-08 1 Point_0_east__0_north_PTCoupled.well
+Permeability 0 0 3436.925 1.10e-08 1 Point_0_east__0_north_PTCoupled.well
+Permeability 0 0 3444.850 2.20e-08 1 Point_0_east__0_north_PTCoupled.well
+Permeability 0 0 3799.942 2.60e-05 1 Point_0_east__0_north_PTCoupled.well
+Permeability 0 0 3805.733 3.30e-06 1 Point_0_east__0_north_PTCoupled.well
+Permeability 0 0 3808.476 1.10e-04 1 Point_0_east__0_north_PTCoupled.well

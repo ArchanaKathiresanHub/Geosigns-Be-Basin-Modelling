@@ -1,0 +1,54 @@
+#!/bin/csh
+#
+# calls the script to build all applications
+#
+# Syntax: $0 <number_of_bits>
+#
+# Notes:
+# 1. This script also update the location where the script will be called
+# 2. This script must be csh so we can call gocbm
+################################################################################
+
+# define my home locations
+setenv NIGHTLY_HOME    /nfs/rvl/groups/ept-sg/SWEast/Cauldron/NightlyBuilds
+setenv REPOSITORY_HOME /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Repository/
+setenv NIGHTLY_SCRIPTS $REPOSITORY_HOME/trunk/scripts
+
+################################################################################
+# set number of bits to 32
+set bits = 32
+
+# setup the development environment, for both NIS or AD users
+#     fix with with a better way when you find it.
+groups ibs >& /dev/null
+if ( $status == 0 ) then
+    source ~ibs/bin/gocbm $bits
+else
+    source ~s_ibsz00/bin/gocbm $bits 
+endif
+
+# now call the korn shell scripts that will do the rest
+$NIGHTLY_SCRIPTS/NightlyBuildAll $bits 
+
+################################################################################
+# set number of bits to 64
+set bits = 64
+
+# setup the development environment, for both NIS or AD users
+#     fix with with a better way when you find it.
+groups ibs >& /dev/null
+if ( $status == 0 ) then
+    source ~ibs/bin/gocbm $bits
+else
+    source ~s_ibsz00/bin/gocbm $bits
+endif
+
+# now call the korn shell scripts that will do the rest
+$NIGHTLY_SCRIPTS/NightlyBuildAll $bits 
+
+################################################################################
+# now get out of here
+exit 0
+
+
+

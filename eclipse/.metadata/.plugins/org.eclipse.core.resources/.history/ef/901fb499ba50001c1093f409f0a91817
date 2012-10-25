@@ -1,0 +1,7 @@
+FaultFileReader.d FaultFileReader.o: ../FaultFileReader.C \
+  ../Implementation/FaultFileReader.h \
+  ../Implementation/auxiliaryfaulttypes.h
+
+../Implementation/FaultFileReader.h:
+
+../Implementation/auxiliaryfaulttypes.h:

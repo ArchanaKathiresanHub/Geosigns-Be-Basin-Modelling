@@ -1,0 +1,3 @@
+wildMatch.d wildMatch.o: ../wildMatch.C ../wildMatch.h
+
+../wildMatch.h:

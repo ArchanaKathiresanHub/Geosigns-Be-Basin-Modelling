@@ -1,0 +1,121 @@
+ROOTDIR = ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+include $(FILE_BASE)/Make.machine
+
+#
+MKL_ROOT = /nfs/rvl/apps/3rdparty/intel/ics2011/composerxe-2011.3.174/mkl
+MKL_LIB = \
+   -Wl,--start-group \
+   $(MKL_ROOT)/lib/intel64/libmkl_intel_lp64.a \
+   $(MKL_ROOT)/lib/intel64/libmkl_sequential.a \
+   $(MKL_ROOT)/lib/intel64/libmkl_core.a \
+   -Wl,--end-group \
+   -lpthread
+
+CC = $(CXX)
+CLINKER = $(CC)
+
+FLEXLMBITS      = 64
+FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+
+MAKEDEPEND = /usr/bin/makedepend
+
+SRCDIR  	= $(ROOTDIR)/src/
+
+
+BLASLAPACK_LIB= -Wl,--start-group \
+		$(MKL_ROOT)/lib/intel64/libmkl_intel_lp64.a \
+		$(MKL_ROOT)/lib/intel64/libmkl_sequential.a \
+		$(MKL_ROOT)/lib/intel64/libmkl_core.a \
+		-Wl,--end-group
+
+INCLUDES=\
+  -I$(LIBDIR)/DataMining/src \
+  -I$(LIBDIR)/DataAccess/src \
+  -I$(LIBDIR)/TableIO/src \
+  -I$(LIBDIR)/Interpolation/src \
+  -I$(LIBDIR)/LinearAlgebra/src \
+  -I$(LIBDIR)/GeoPhysics/src \
+  -I$(LIBDIR)/utilities/src \
+  -I$(LIBDIR)/CBMGenerics/src \
+  -I$(LIBDIR)/EosPack/src \
+  -I$(HDF5_SINCLUDE)\
+  -I$(PETSC_INCLUDE)\
+  -I$(MPI_INCLUDE)
+
+LIBS=\
+  $(LIBDIR)/lib/$(machine)/libDataMining.a \
+  $(LIBDIR)/lib/$(machine)/libInterpolation.a \
+  $(LIBDIR)/lib/$(machine)/libLinearAlgebra.a \
+  $(LIBDIR)/lib/$(machine)/libFiniteElements.a \
+  $(LIBDIR)/lib/$(machine)/libGeoPhysics.a \
+  $(LIBDIR)/lib/$(machine)/libgenex6_kernel.a \
+  $(LIBDIR)/lib/$(machine)/libgenex6.a\
+  $(LIBDIR)/lib/$(machine)/libInterpolation.a\
+  $(LIBDIR)/lib/$(machine)/libCrustalThickness.a \
+  $(LIBDIR)/lib/$(machine)/libLinearAlgebra.a \
+  $(LIBDIR)/lib/$(machine)/libOTGC_kernel6.a \
+  $(LIBDIR)/lib/$(machine)/libDataAccess.a \
+  $(LIBDIR)/lib/$(machine)/libSerialDataAccess.a \
+  $(LIBDIR)/lib/$(machine)/libDataAccess.a \
+  $(LIBDIR)/lib/$(machine)/libdatabase.a \
+  $(LIBDIR)/lib/$(machine)/libCBMGenerics.a \
+  $(LIBDIR)/lib/$(machine)/libserialhdf5.a \
+  $(LIBDIR)/lib/$(machine)/libutilities.a \
+  $(LIBDIR)/lib/$(machine)/libEosPack.a \
+  $(HDF5_SLIB)/libhdf5.a \
+  $(PETSC_LIB) \
+  $(MKL_LIB) \
+  $(MPI_LIB) \
+  -lz -lrt
+
+# FIXME: MPI library shouldn't be necessary here
+
+CFLAGS=${PROFILEFLAGS} ${COMPILEFLAGS} ${DEBUGFLAGS}\
+	$(INCLUDES)	\
+	-DMPICH_SKIP_MPICXX
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR=.
+vpath %.o $(OBJDIR)
+
+PROBE_SOURCES=\
+  generalexception.C\
+  probe.C
+
+ADJUST_SOURCES=\
+  generalexception.C\
+  adjust.C
+
+
+ADJUST=adjust
+ADJUST_OBJECTS=$(ADJUST_SOURCES:.C=.o)
+
+PROBE=probe
+PROBE_OBJECTS=$(PROBE_SOURCES:.C=.o)
+
+target: $(ADJUST) $(PROBE)
+
+$(ADJUST): $(ADJUST_OBJECTS)
+	$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(ADJUST) $(ADJUST_OBJECTS) $(LIBS)
+
+$(PROBE): $(PROBE_OBJECTS)
+	$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(PROBE) $(PROBE_OBJECTS) $(LIBS)
+
+clean :
+	rm -rf $(ADJUST_OBJECTS) $(PROBE_OBJECTS) $(EXE) ii_files *~
+
+depend: $(ADJUST_SOURCES) $(PROBE_SOURCES)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.inversion_workbench -Y  $(INCLUDEDIRS) $(HEADERS) $(SOURCES)
+
+all: $(PROGRAMS)
+
+

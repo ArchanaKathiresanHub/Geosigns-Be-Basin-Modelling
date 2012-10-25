@@ -1,0 +1,35 @@
+FaultCollection.d FaultCollection.o: ../FaultCollection.C \
+  ../Implementation/FaultCollection.h \
+  ../Implementation/auxiliaryfaulttypes.h ../Implementation/DAObject.h \
+  ../Implementation/Parent.h ../Implementation/DynArray.h \
+  ../Implementation/AttributeValue.h ../Interface/Interface.h \
+  ../Implementation/Child.h ../Implementation/Implementation.h \
+  ../Implementation/Faulting.h ../Implementation/Snapshot.h \
+  ../Implementation/Formation.h \
+  ../../../CBMGenerics/src/capillarySealStrength.h
+
+../Implementation/FaultCollection.h:
+
+../Implementation/auxiliaryfaulttypes.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/Interface.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/Faulting.h:
+
+../Implementation/Snapshot.h:
+
+../Implementation/Formation.h:
+
+../../../CBMGenerics/src/capillarySealStrength.h:

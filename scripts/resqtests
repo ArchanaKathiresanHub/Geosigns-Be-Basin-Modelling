@@ -1,0 +1,506 @@
+#!/usr/bin/perl 
+use Term::ANSIColor qw(:constants);
+# Check for the correct usage 
+&Usage($ARGV[0], $ARGV[1], $ARGV[2], $ARGV[3], $ARGV[4]);
+print "Command usage                                   [",GREEN, "OK",RESET,"]\n";
+
+&FindTouchstoneIOTableLines( $ARGV[1], $startline, $finishline );
+print "Touchstone Map Io Table                         [",GREEN, "OK",RESET,"]\n";
+
+my (@formations, $surfaces );
+&PrepareForTests( $ARGV[1], $ARGV[3], $ARGV[4], $startline, $finishline, $prodir, 
+$proname, \@formations, \@surfaces );
+
+print "Project files are prepared                      [",GREEN, "OK",RESET,"]\n";
+
+&FastTouchResults( $prodir, $proname );
+
+print "FastTouch Results Found                         [",GREEN, "OK",RESET,"]\n";   
+
+&FastTouchComparisons ($prodir, $proname, \@formations, \@surfaces );
+
+print "Comparisions are complete and successful.       [",GREEN, "OK",RESET,"]\n";
+
+sub FastTouchComparisons
+{
+    $prodir  = $_[0];
+    $proname = $_[1];
+    $proname =~ s/\.project3d//;
+    
+    $oldfasttouchresult = $prodir. "Old/" . $proname . "_CauldronOutputDir/FastTouch_Results\.HDF";
+    $newfasttouchresult = $prodir. "New/" . $proname . "_CauldronOutputDir/FastTouch_Results\.HDF";
+    
+    my (@cateogories, @formats, @percentiles);
+    &TouchstoneToTest ( \@cateogories, \@formats, \@percentiles );
+
+    $options = '-r -d 1.0e-09 | ~nlwse0/bin/columns 7 | grep -v [a-zA-Z] |sort -n | tail -1';
+    $newoptions = '-r -d 1.0e-09 | grep "\[ 7 14 \]"';
+
+    for ( $f = 0; $f < $#{$_[2]} + 1; $f = $f + 1)
+    {
+
+        ${$_[2]}[$f] =~ s/ /_/; 
+        ${$_[3]}[$f] =~ s/ /_/; 
+        $command = "h5diff " . $oldfasttouchresult . " " . $newfasttouchresult . " ";
+        $dataset = '"/Layer=Resq: testtcf.tcf ';
+
+        $csvfilename = $proname . "_" . ${$_[2]}[$f] . ".csv";
+        open csvfile, ">", "$csvfilename" or die "$csvfilename: No such file or directory";
+        $header = " , , ";
+        for ( $j = 0; $j < $#formats + 1; $j = $j + 1 )
+        {
+            if ( $j != 7 )
+            {
+                $header = $header . $formats[$j]. ", ";
+            }
+            else
+            {
+                for ( $k = 0; $k < $#percentiles + 1; $k = $k + 1)
+                {
+                    $header = $header . "P" . $percentiles[$k]. ", "
+                }
+            }
+        }
+        chop ($header);
+        chop ($header);
+        print csvfile "$header \n" ; 
+        #print "$header \n" ; 
+        for ( $i = 0; $i < $#cateogories + 1; $i = $i + 1)
+        {
+            $row[0] = "              " . ", TsLib 3.1 value, ";
+            $row[1] = $cateogories[$i] . ", TsLib 7.2 value, ";
+            $row[2] = "              " . ", Absolute difference, ";
+            $dataset1 = $dataset . $cateogories[$i]. " ";
+
+            for ( $j = 0; $j < $#formats + 1; $j = $j + 1 )
+            {
+                $dataset2 = $dataset1 . $formats[$j] . " " ;
+                if ( $j != 7 )
+                {
+                    $dataset3 = $dataset2. "0_0_" . "${$_[2]}[$f]" . "_" .
+                    ${$_[3]}[$f] . '"' ;
+                    #chomp($tmpnumber=`$command $dataset3 $dataset3 $options`);
+                    chomp($value = `$command $dataset3 $dataset3 $newoptions`);
+                    #print "$command $dataset3 $dataset3 $newoptions $tmpnumber\n";
+                    #print "$value\n";
+                    @svalue = split (/\s+/,$value);
+                    #for ($cc = 0; $cc < $#svalue + 1; $cc = $cc + 1){
+                    #    print "$svalue[$cc]\n";
+                    #}
+                    #print foreach @svalue;
+                    $row[0] = $row[0] . $svalue[4] . ", ";
+                    $row[1] = $row[1] . $svalue[5] . ", ";
+                    $row[2] = $row[2] . $svalue[6] . ", ";
+                    #print "$row[0]\n";
+                    #print "$row[1]\n";
+                    #print "$row[2]\n";
+                }
+                else
+                {  
+                    for ( $k = 0; $k < $#percentiles + 1; $k = $k + 1)
+                    {
+                        $dataset3 = $dataset2. $percentiles[$k] . "_0_" . "${$_[2]}[$f]" . "_" . ${$_[3]}[$f] . '"' ;
+                        #chomp($tmpnumber=`$command $dataset3 $dataset3 $options`);
+                        chomp($value = `$command $dataset3 $dataset3 $newoptions`);
+                        @svalue = split (/\s+/,$value);
+                        #print "$command $dataset3 $dataset3 $options \n";
+                        #print $value; print "\n";
+                        $row[0] = $row[0] . $svalue[4] . ", ";
+                        $row[1] = $row[1] . $svalue[5] . ", ";
+                        $row[2] = $row[2] . $svalue[6] . ", ";
+                    }
+                }
+            }
+            chop ($row[0]);
+            chop ($row[0]);
+            chop ($row[1]);
+            chop ($row[1]);
+            chop ($row[2]);
+            chop ($row[2]);
+            #print "$row\n" ;
+            print csvfile "$row[0] \n" ; 
+            print csvfile "$row[1] \n" ; 
+            print csvfile "$row[2] \n" ; 
+            #print "$row[0]\n";
+            #print "$row[1]\n";
+            #print "$row[2]\n";
+        }
+        close $csvffile;
+    }
+    print "Comparision results written to $csvfilename\n";   
+}
+
+sub FastTouchResults
+{
+    $DirPro   = $_[0];
+    $NameProe = $_[1];
+    $NamePro  = $_[1];
+    $NamePro  =~ s/\.project3d//;
+    $oldfasttouchfile = $DirPro . "Old/". $NamePro . "_CauldronOutputDir/FastTouch_Results\.HDF";
+    $newfasttouchfile = $DirPro . "New/". $NamePro . "_CauldronOutputDir/FastTouch_Results\.HDF";
+    if ( -e $oldfasttouchfile)
+    { 
+        if ( -e $newfasttouchfile)
+        { 
+        }
+        else
+        {
+            &GetTouchStoneResults ( $DirPro, $NameProe, "New");
+            print "FastTouch Results                               [",YELLOW,"WAIT",RESET,"]\n";   
+            exit;
+        }
+    }
+    else
+    {
+        &GetTouchStoneResults ( $DirPro, $NameProe, "Old");
+        if ( -e $newfasttouchfile)
+        {
+        }
+        else
+        {
+            &GetTouchStoneResults ( $DirPro, $NameProe, "New");
+        }
+        print "FastTouch Results                               [",YELLOW,"WAIT",RESET,"]\n";
+        exit; 
+    }
+}
+
+sub GetTouchStoneResults
+{
+
+    $Directory = $_[0];
+    $Project   = $_[1];
+    $tag       = $_[2];
+
+    print "Execute the following commands to get touchstone results: \n\n";
+
+    print "cd $Directory","$tag \n";
+    print "gempis <cluster> <np> fastcauldron -v{build-version} -project $Project -temperature \n";
+    print "gempis <cluster> <np> fasttouch7 -v{build-version} -project $Project \n\n";
+
+    print "or\n\n";
+
+    print "cd $Directory","$tag \n";
+    print "gempis Darwin 4 fastcauldron -v2011.1102 -project $Project -temperature \n";
+    print "gempis Darwin 4 fasttouch7 -v2011.1102 -project $Project \n\n";
+}
+#
+# Prepare the Touchstone Map IO Table for testing:
+#
+sub PrepareForTests
+{
+    #store the full or relative path to the project file;
+    $projectname = $_[0]; $projectdir = $_[0];
+    # Remove the path and store only the project file name;
+    $projectdir =~ s/(.*)\///; $newprojectname = $projectdir;
+    # Remove the extension to project file name and append "ResQTests"
+    $projectdir =~ s/\.project3d//; $projectdir = $projectdir . 'ResQTests/';
+    # Make this as a project directory
+    if (-d $projectdir)
+    {
+        print "Directory $projectdir exists.\n";
+        if ( -d $projectdir."New")
+        {
+            print "Directory ",$projectdir,"New exists. \n";
+        }
+        else
+        {
+            $mesg = `mkdir $projectdir"New"`;
+        }
+        if ( -d $projectdir."Old")
+        {
+            print "Directory ",$projectdir,"Old exists. \n";
+        }
+        else
+        {
+            $mesg = `mkdir $projectdir"Old"`;
+        }
+    }
+    else
+    {
+        $mesg = `mkdir $projectdir`;
+        $mesg = `mkdir $projectdir"New"`;
+        $mesg = `mkdir $projectdir"Old"`;
+    }
+    $_[5] = $projectdir;
+    $_[6] = $newprojectname;
+    # Make new project file name
+    $oldprojectname = './' . $projectdir . 'Old/' . $newprojectname;
+    $newprojectname = './' . $projectdir . 'New/' . $newprojectname;
+
+    # copy tcf files;
+    $mesg = `cp $_[1] $projectdir"Old/testtcf.tcf"`;
+    $mesg = `cp $_[2] $projectdir"New/testtcf.tcf"`;
+    
+    # copy hdf file
+    $hdfdir = $_[0]; $hdfdir =~ s/(\w*)\.project3d//; 
+    $hdffiles = $hdfdir . "*.HDF";
+    $project1dfiles = $hdfdir . "*.project1d";
+    $mesg = `cp $hdffiles $projectdir"Old/"`;
+    $mesg = `cp $hdffiles $projectdir"New/"`;
+    $mesg = `cp $project1dfiles $projectdir"Old/"`;
+    $mesg = `cp $project1dfiles $projectdir"New/"`;
+
+    # Make Project File 
+    &MakeProjectFile ( $projectname, $oldprojectname, "testtcf.tcf", $_[3],
+        $_[4], $_[7], $_[8]);
+    &MakeProjectFile ( $projectname, $newprojectname, "testtcf.tcf", $_[3],
+        $_[4], $_[7], $_[8]);
+}
+sub MakeProjectFile
+{
+    $inprojectname  = $_[0];
+    $tmpprojectname = $_[1];
+    $tcffilename    = $_[2];
+    $beginline      = $_[3];
+    $endline        = $_[4];
+    open projecthandle, "<", "$inprojectname" or die "$inprojectname: No such file or directory";
+    @projectlines = <projecthandle>;
+    $f=0;
+    for($i = $beginline+1; $i < $endline; $i = $i + 1)
+    {
+        $comment = substr($projectlines[$i],0,1);
+        if($comment ne ";")
+        {
+            if ( $projectlines[$i] !~ /TcfName/)
+            {
+                if( $projectlines[$i] !~ /\(\)/)
+                {
+                    @details = split(/"/, $projectlines[$i]);
+                    $formationname[$f] = $details[3];
+                    $surfacename[$f] = $details[5];
+                    if($f == 0)
+                    {
+                       $f = $f + 1
+                    }
+                    else
+                    {
+                        for( $j = $f - 1; $j >=0; $j = $j - 1)
+                        {
+                            if($formationname[$f] ne $formationname[$j])
+                            {
+                                $f = $f + 1;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    $touchstonelines[1] = $projectlines[$i];
+                }
+            }
+            else
+            {
+                $touchstonelines[0] = $projectlines[$i];
+            }
+        }
+    }
+    for ($i = 0; $i < $f; $i = $i + 1)
+    {
+        ${$_[5]}[$i] = $formationname[$i];
+        ${$_[6]}[$i] = $surfacename[$i];
+        print "Formation: $formationname[$i] and Surface: $surfacename[$i] are being conifugred.\n";
+    }
+    
+    close projecthandle;
+
+    if ( -e $tmpprojectname)
+    {
+        print "Project file $tmpprojectname exists.\n";
+        &FindTouchstoneIOTableLines( $tmpprojectname, $begintsline, $endtsline );
+        if ($begintsline eq "")
+        {
+            print "No touchstone map configurations are defined. Delete the ";
+            print "project file and try this command again.\n"
+        }
+    }
+    else
+    {
+        open oldprojecthandle, ">", "$tmpprojectname" or die "$tmpprojectname: No such file or directory";
+
+        for($i = 0; $i <= $beginline; $i = $i + 1)
+        {
+            print oldprojecthandle $projectlines[$i];
+        }
+
+        print oldprojecthandle $touchstonelines[0];
+        print oldprojecthandle $touchstonelines[1];
+
+        my (@outcateogory, @outformat, @outpercentile);
+        &TouchstoneToTest ( \@outcateogory, \@outformat, \@outpercentile );
+        for ($i = 0; $i < $f; $i = $i + 1)
+        {
+            $line = "\t" . '"' . $tcffilename . '"' . "\t" . 
+                    "\t" . '"' . $formationname[$i] . '"' . "\t" .
+                    "\t" . '"' . $surfacename[$i] . '"' . "\t";               
+                    #print "$line\n";
+
+            for ($j = 0; $j < $#outcateogory+1; $j = $j + 1)
+            {
+                $newline = $line . "\t" . '"' . $outcateogory[$j] . '"' . "\t";
+                #print "$newline\n";
+
+                for($k = 0; $k < $#outformat+1; $k = $k + 1)
+                {
+                    if ($k != 7)
+                    {
+                        $newnewline = $newline . "\t" . '"' . $outformat[$k] . '"' . "\t"
+                                               . "\t" . 0 . "\t";
+                        print oldprojecthandle "$newnewline\n";
+                        #print "$newnewline\n";
+
+                    }
+                    else
+                    {
+                        $newnewline = $newline . "\t" . '"' . $outformat[$k] . '"' . "\t";
+                        for ( $l = 0; $l < $#outpercentile+1; $l = $l + 1)
+                        {
+                            $newnewnewline = $newnewline . "\t" . $outpercentile[$l] . "\t";
+                            print oldprojecthandle "$newnewnewline\n";
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+
+        for($i = $endline; $i < $#projectlines+1; $i=$i+1)
+        {
+            print oldprojecthandle $projectlines[$i];
+        }
+    }
+}
+
+#
+# Touchstone cateogories and formats to test
+#
+
+sub TouchstoneToTest
+{
+
+
+    #\@cateogory = $_[0];
+    #\@format = $_[1]; 
+    #\@percentile = $_[2];
+    
+    ${$_[0]}[0]  = "Porosity Core Equivalent";
+    ${$_[0]}[1]  = "Porosity Intergranular Volume";
+    ${$_[0]}[2]  = "Porosity Macro";
+    ${$_[0]}[3]  = "Porosity Micro";
+    ${$_[0]}[4]  = "Permeability Absolute";
+    ${$_[0]}[5]  = "Cement Quartz";
+
+
+    ${$_[1]}[0]  = "Summary Standard Deviation";
+    ${$_[1]}[1]  = "Summary Mean";
+    ${$_[1]}[2]  = "Summary Skewness";
+    ${$_[1]}[3]  = "Summary Kurtosis";
+    ${$_[1]}[4]  = "Summary Minimum";
+    ${$_[1]}[5]  = "Summary Maximum";
+    ${$_[1]}[6]  = "Summary Mode";
+    ${$_[1]}[7]  = "Percentile";
+    
+
+    ${$_[2]}[ 0] = 1;
+    ${$_[2]}[ 1] = 10;
+    ${$_[2]}[ 2] = 15;
+    ${$_[2]}[ 3] = 20;
+    ${$_[2]}[ 4] = 25;
+    ${$_[2]}[ 5] = 30;
+    ${$_[2]}[ 6] = 35;
+    ${$_[2]}[ 7] = 40;
+    ${$_[2]}[ 8] = 45;
+    ${$_[2]}[ 9] = 50;
+    ${$_[2]}[10] = 55;
+    ${$_[2]}[11] = 60;
+    ${$_[2]}[12] = 65;
+    ${$_[2]}[13] = 70;
+    ${$_[2]}[14] = 75;
+    ${$_[2]}[15] = 80;
+    ${$_[2]}[16] = 85;
+    ${$_[2]}[17] = 90;
+    ${$_[2]}[18] = 95;
+    ${$_[2]}[19] = 99;
+
+    
+}
+#
+# Find the Touchstone Map IO Table lines in the project3d file.
+#
+sub FindTouchstoneIOTableLines
+{
+    $ProName = $_[0];
+    open ProHandle, "<", "$ProName" or die "$ProName: No such file or directory";
+    @ProLines = <ProHandle>;
+    for($i = 0; $i <= $#ProLines; $i = $i + 1)
+    {
+        if ( $ProLines[$i] =~ /\[TouchstoneMapIoTbl\]/)
+        {
+            $bl = $i;
+            last;
+        }
+    }
+    for($i = $bl; $i <= $#ProLines; $i = $i + 1)
+    {
+        if ( $ProLines[$i] =~ /\[End\]/)
+        {
+            $el = $i;
+            last;
+        }
+    }
+    if($bl eq "")
+    {
+        print "Touchstone Map Io Table                         [",RED, "Failed",RESET,"]\n";
+        print "Touchstone Map Io Table lines not found in the project file.\n";
+        exit;
+    }
+    $_[1] = $bl; $_[2] = $el;
+
+}
+
+#
+# Check for the correct usage;
+# If incorrect display the error.
+#
+sub Usage 
+{
+
+    if($_[0] !~ /-project/ or $_[2] !~ /-tcf/)
+    {
+        print "Command usage                                   [",RED, "Failed",RESET,"]\n";
+        print "Incorrect usage of the ResQ test command.\n";
+        print "Correct usage: resqtests -project <Project File> -tcf <Old Tcf";
+        print " File> <New Tcf File> -np <Number Of Processors>.\n";
+        if ($_[1] =~ /-tcf/ or $_[1] eq "")
+        {
+            print "Specify a project3d file with -project option\n";
+            exit;
+        }
+        else
+        {
+            print "Specify old and new tcf files with -tcf option\n"
+        }
+        exit;
+    }
+    if ($_[3] eq "")
+    {
+        print "Command usage                                   [",RED, "Failed",RESET,"]\n";
+        print "Incorrect usage of the ResQ test command.\n";
+        print "Correct usage: resqtests -project <Project File> -tcf <Old Tcf";
+        print " File> <New Tcf File> -np <Number Of Processors>.\n";
+        print "Please specify an old tcf file\n";
+        exit;
+    }
+    if ($_[4] eq "")
+    {
+        print "Command usage                                   [",RED, "Failed",RESET,"]\n";
+        print "Incorrect usage of the ResQ test command.\n";
+        print "Correct usage: resqtests -project <Project File> -tcf <Old Tcf";
+        print " File> <New Tcf File> -np <Number Of Processors>.\n";
+        print "Please specify a new tcf file\n";
+        exit;
+    }
+}
+#

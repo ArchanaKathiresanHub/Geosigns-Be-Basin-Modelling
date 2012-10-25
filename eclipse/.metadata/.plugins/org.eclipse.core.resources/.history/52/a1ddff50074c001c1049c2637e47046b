@@ -1,0 +1,12 @@
+FortranMatrix.d FortranMatrix.o: ../FortranMatrix.C ../FortranMatrix.h \
+  ../DenseMatrix.h ../Numerics.h ../Vector.h ../BLASFunctions.h
+
+../FortranMatrix.h:
+
+../DenseMatrix.h:
+
+../Numerics.h:
+
+../Vector.h:
+
+../BLASFunctions.h:

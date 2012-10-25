@@ -1,0 +1,16 @@
+RBFGeneralOperations.d RBFGeneralOperations.o: ../RBFGeneralOperations.C \
+  ../RBFGeneralOperations.h ../../../LinearAlgebra/src/DenseMatrix.h \
+  ../../../LinearAlgebra/src/Numerics.h \
+  ../../../LinearAlgebra/src/Vector.h ../Point.h ../GeometryVector.h
+
+../RBFGeneralOperations.h:
+
+../../../LinearAlgebra/src/DenseMatrix.h:
+
+../../../LinearAlgebra/src/Numerics.h:
+
+../../../LinearAlgebra/src/Vector.h:
+
+../Point.h:
+
+../GeometryVector.h:

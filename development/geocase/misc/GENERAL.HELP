@@ -1,0 +1,31 @@
+32
+
+                             General Well Data Table
+                             ***********************
+
+ This menu allows the user to set up some general parameters for the selected
+ (well) location. Defaults are provided for all mandatory data.
+ 
+ Notes:
+ 1. The sign convention for datum depth and datum traveltime is that depth
+    and time above landsurface or seabottom should be entered as positive
+    numbers.
+ 2. The default values for "Overall temperature gradient" and "Present day
+    surface heatflow" need not be changed since they are updated/computed
+    from formation temperatures, which in turn are calculated from bottomhole
+    temperature data.
+ 3. The value for the "Time-invariant mantle heatflow" is used as the basic
+    mantle heatflow value through time in all calculations.
+ 4. The product Ao*d is the additional heatflow generated from radiogenic heat
+    production in the upper crust.
+    While modelling with a fixed parameter solution the Ao value in this
+    table is used, whereas during modelling with Ao free the Ao value in this
+    table is initially used but then optimised to fit present-day temperature
+    data. For d the value in this table is always used.
+ 5. Hydrocarbon calculation: Following the user's choice the appropriate input
+    data table will be displayed in the menu "Source-rock data".
+ 6. The choice of the Time Stratigraphic Table determines the position of
+    chronostratigraphic boundaries displayed in all time-variant plots of the
+    modules PREGEO and PLTGHS.  
+
+                 

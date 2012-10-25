@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<introContent>
+  <!-- Extension to the Overview Page. -->
+  <extensionContent id="com.yoxos.yim.ui" name="Yoxos" alt-style="css/swt.properties" style="css/yoxos.css" path="overview/@">
+     <group id="content-group" style-id="content-group">
+  		<link style-id="content-link" 
+  		      label="Yoxos Install Manager" 
+  		      url="http://org.eclipse.ui.intro/runAction?pluginId=com.yoxos.yim.ui&amp;class=com.yoxos.yim.ui.yeifragment.internal.actions.SwitchPerspective"
+  		      id="yoxos">
+          	  <text>Find out how to install additional features within minutes.</text>
+        </link>
+     </group>
+  </extensionContent>
+</introContent>

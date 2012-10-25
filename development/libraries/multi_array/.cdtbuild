@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="multi_array.cdt.managedbuild.target.gnu.lib.1893096913" name="Static Library (Gnu)" projectType="cdt.managedbuild.target.gnu.lib">
+<configuration artifactExtension="a" artifactName="multi_array" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.lib.debug.1692903310" name="Debug" parent="cdt.managedbuild.config.gnu.lib.debug">
+<toolChain id="cdt.managedbuild.toolchain.gnu.lib.debug.1397496175" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.lib.debug">
+<tool command="g++ -m64" id="cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.604302528" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug">
+<option id="gnu.cpp.compiler.option.include.paths.730883327" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/multi_array}/..&quot;"/>
+<listOptionValue builtIn="false" value="&quot;/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/eclipse/eclipse.yoxos.cdt_3.1.1.200609270800/LinuxRHEL64_x86_64_30WS/plugins/net.sf.webcat.eclipse.cxxtest.framework_1.3.3/cxxtest&quot;"/>
+<listOptionValue builtIn="false" value="&quot;/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/eclipse/eclipse.yoxos.cdt_3.1.1.200609270800/LinuxRHEL64_x86_64_30WS/plugins/net.sf.webcat.eclipse.cxxtest.bfd_1.3.3/symreader-src&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.warnings.toerrors.1239404506" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
+<option id="gnu.cpp.compiler.option.other.other.170246522" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -finstrument-functions" valueType="string"/>
+<option id="gnu.cpp.compiler.option.preprocessor.def.263058382" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="CXXTEST_INCLUDE_SYMREADER_DIRECTLY"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.1738638750" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.archiver.lib.debug.1719495926" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.lib.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.lib.debug.1291703033" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.debug"/>
+<macros/>
+</toolChain>
+</configuration>
+<configuration artifactExtension="a" artifactName="multi_array" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.lib.release.1204448851" name="Release" parent="cdt.managedbuild.config.gnu.lib.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.lib.release.1898638213" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.lib.release">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.lib.release.1862634303" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.lib.release">
+<option id="gnu.cpp.compiler.option.include.paths.1396938623" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/eclipse/eclipse.yoxos.cdt_3.1.1.200609270800/LinuxRHEL64_x86_64_30WS/plugins/net.sf.webcat.eclipse.cxxtest.framework_1.3.3/cxxtest&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.warnings.toerrors.497299476" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.1919705653" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release"/>
+<tool id="cdt.managedbuild.tool.gnu.archiver.lib.release.887664416" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.lib.release"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.lib.release.96206298" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.release"/>
+</toolChain>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>

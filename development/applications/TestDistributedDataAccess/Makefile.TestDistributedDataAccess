@@ -1,0 +1,400 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+include $(FILE_BASE)/Make.machine
+CC = $(CXX)
+CLINKER = $(CXX)
+
+FLEXLMBITS      = 64
+FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+
+#
+#  Override for Make.machine definitions
+ifeq ($(machine),Linux64)
+  MP_INCLUDE	  = $(MPI_BASE)/include
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/LinuxRHEL_i686_30WS/lib$(FLEXLMBITS)/EPTFlexLm.o  
+endif
+#
+ifeq ($(machine),Sun)
+  MP_INCLUDE	  = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),SunOS64)
+  MP_INCLUDE      = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),Silicon64)
+  MP_INCLUDE      = /usr/include/CC
+  SOCKET_LIB      = -L/usr/lib64/mips4 -lsocket -woff 15
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = TestDistributedDataAccess.cfg
+
+SRCDIR  	= $(ROOTDIR)/src/
+
+DISTRIBUTED_DATA_ACCESS_INC = $(LIBDIR)/DistributedDataAccess/src
+DISTRIBUTED_DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libDistributedDataAccess.a
+
+DATA_ACCESS_INC = $(LIBDIR)/DataAccess/src
+DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+PETSC_UTILS_INC = $(LIBDIR)/Utilities_Petsc/src
+PETSC_UTILS_LIB = $(LIBDIR)/lib/$(machine)/libUtilities_Petsc.a
+
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+H5_PARALLEL_INC = $(LIBDIR)/Parallel_Hdf5/src
+H5_PARALLEL_LIB = $(LIBDIR)/lib/$(machine)/libparallelhdf5.a
+
+DATABASE_INC	= $(LIBDIR)/TableIO/src
+DATABASE_LIB    = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB    = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+GENEX5KERNEL_INC	= $(LIBDIR)/genex5_kernel/src
+GENEX5KERNEL_LIB	= $(LIBDIR)/lib/$(machine)/libgenex5_kernel.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+PVT_PACK_LIB    = $(soardir)/libPVTPACK.a
+
+FLEXLMBITS      = 64
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+
+EXEOBJECTS	= TestDataAccess.o
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(DATA_ACCESS_LIB) $(DISTRIBUTED_DATA_ACCESS_LIB) $(DATA_ACCESS_LIB) $(PETSC_UTILS_LIB) \
+		  $(GENEX5KERNEL_LIB) $(H5_SERIAL_LIB) $(H5_PARALLEL_LIB) \
+		  $(CBMGENERICS_LIB) \
+		  $(DATABASE_LIB) \
+		  $(UTILITIES_LIB) \
+		  $(HDF5_PLIB)/libhdf5.a \
+		  $(PETSC_LIB) $(SOCKET_LIB) -lrt -lz
+
+CFLAGS		= -I$(MP_INCLUDE) -I/usr/include -I$(HDF5_PINCLUDE) \
+		  -I$(DATA_ACCESS_INC) \
+		  -I$(DISTRIBUTED_DATA_ACCESS_INC) \
+		  -I$(PETSC_UTILS_INC) \
+		  -I$(H5_SERIAL_INC) -I$(H5_PARALLEL_INC) \
+		  -I$(DATABASE_INC) -I$(FLEX_INCLUDE) -DH5_HAVE_PARALLEL
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = TestDistributedDataAccess
+
+target: $(EXE)
+
+$(EXE): $(EXEOBJECTS)
+	-$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.fastcauldron -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE
+
+CauldronWriter.o: CauldronWriter.h globaldefs.h
+CauldronWriter.o: ../../fastcauldron/src/array.h utils.h
+dynamic_reservoirs.o: dynamic_reservoirs.h propinterface.h globaldefs.h
+dynamic_reservoirs.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+dynamic_reservoirs.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+dynamic_reservoirs.o: fluidprops.h simplelitho.h
+dynamic_reservoirs.o: preevaluated_basis_functions.h fem_types.h layer.h
+dynamic_reservoirs.o: sourcerocklitho.h filterwizard.h timefilter.h
+dynamic_reservoirs.o: ghost_array.h property_manager.h CauldronWriter.h
+dynamic_reservoirs.o: utils.h profile.h fileio.h System.h array.h
+dynamic_reservoirs.o: mantleheatflow.h gridmaps.h seabottomtemp.h
+dynamic_reservoirs.o: reservoirs.h
+element_contributions.o: element_contributions.h fem_types.h globaldefs.h
+element_contributions.o: ../../fastcauldron/src/array.h quadrature.h
+element_contributions.o: lithoprops.h IBSinterpolator.h fluidprops.h
+element_contributions.o: IBSinterpolator2d.h simplelitho.h
+element_contributions.o: preevaluated_basis_functions.h fem_operations.h
+element_contributions.o: utils.h
+error.o: error.h
+fctcalc.o: fctcalc.h propinterface.h globaldefs.h
+fctcalc.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+fctcalc.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+fctcalc.o: simplelitho.h preevaluated_basis_functions.h fem_types.h layer.h
+fctcalc.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+fctcalc.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+fctcalc.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+fctcalc.o: reservoirs.h modelwriter.h readproperties.h grid.h
+fctcalc.o: layer_iterators.h dynamic_reservoirs.h Output.h
+fem_grid.o: fem_grid.h propinterface.h globaldefs.h
+fem_grid.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+fem_grid.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+fem_grid.o: simplelitho.h preevaluated_basis_functions.h fem_types.h layer.h
+fem_grid.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+fem_grid.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+fem_grid.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+fem_grid.o: reservoirs.h pressuresolver.h temperature_solver.h vrecalc.h
+fem_grid.o: modelwriter.h fem_grid_auxiliary_functions.h layer_iterators.h
+fem_grid.o: dynamic_reservoirs.h Output.h Well.h element_contributions.h
+fem_grid.o: quadrature.h
+fem_grid_auxiliary_functions.o: fem_grid_auxiliary_functions.h fem_grid.h
+fem_grid_auxiliary_functions.o: propinterface.h globaldefs.h
+fem_grid_auxiliary_functions.o: ../../fastcauldron/src/array.h
+fem_grid_auxiliary_functions.o: IBSinterpolator.h IBSinterpolator2d.h
+fem_grid_auxiliary_functions.o: polyfunction.h lithoprops.h fluidprops.h
+fem_grid_auxiliary_functions.o: simplelitho.h preevaluated_basis_functions.h
+fem_grid_auxiliary_functions.o: fem_types.h layer.h sourcerocklitho.h
+fem_grid_auxiliary_functions.o: filterwizard.h timefilter.h ghost_array.h
+fem_grid_auxiliary_functions.o: property_manager.h CauldronWriter.h utils.h
+fem_grid_auxiliary_functions.o: profile.h fileio.h System.h array.h
+fem_grid_auxiliary_functions.o: mantleheatflow.h gridmaps.h seabottomtemp.h
+fem_grid_auxiliary_functions.o: reservoirs.h pressuresolver.h
+fem_grid_auxiliary_functions.o: temperature_solver.h vrecalc.h modelwriter.h
+fem_operations.o: fem_operations.h fem_types.h
+fem_types.o: fem_types.h
+fileio.o: fileio.h utils.h
+filterwizard.o: filterwizard.h timefilter.h
+fluidprops.o: fluidprops.h globaldefs.h ../../fastcauldron/src/array.h
+fluidprops.o: IBSinterpolator.h IBSinterpolator2d.h
+genex.o: genex.h propinterface.h globaldefs.h ../../fastcauldron/src/array.h
+genex.o: IBSinterpolator.h IBSinterpolator2d.h polyfunction.h lithoprops.h
+genex.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h
+genex.o: fem_types.h layer.h sourcerocklitho.h filterwizard.h timefilter.h
+genex.o: ghost_array.h property_manager.h CauldronWriter.h utils.h profile.h
+genex.o: fileio.h System.h array.h mantleheatflow.h gridmaps.h
+genex.o: seabottomtemp.h reservoirs.h Petsc_X_Windows.h modelreader.h
+genex.o: modelwriter.h layer_iterators.h dynamic_reservoirs.h
+ghost_array.o: ghost_array.h
+grid.o: grid.h propinterface.h globaldefs.h ../../fastcauldron/src/array.h
+grid.o: IBSinterpolator.h IBSinterpolator2d.h polyfunction.h lithoprops.h
+grid.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h fem_types.h
+grid.o: layer.h sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+grid.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+grid.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+grid.o: reservoirs.h layer_iterators.h dynamic_reservoirs.h
+gridmaps.o: gridmaps.h
+history.o: history.h propinterface.h globaldefs.h
+history.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+history.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+history.o: simplelitho.h preevaluated_basis_functions.h fem_types.h layer.h
+history.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+history.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+history.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+history.o: reservoirs.h
+IBSinterpolator.o: IBSinterpolator.h array.h
+IBSinterpolator2d.o: IBSinterpolator2d.h array.h
+layer.o: layer.h polyfunction.h lithoprops.h globaldefs.h
+layer.o: ../../fastcauldron/src/array.h IBSinterpolator.h fluidprops.h
+layer.o: IBSinterpolator2d.h simplelitho.h preevaluated_basis_functions.h
+layer.o: fem_types.h sourcerocklitho.h filterwizard.h timefilter.h
+layer.o: ghost_array.h property_manager.h array.h error.h utils.h
+layer.o: element_contributions.h quadrature.h propinterface.h
+layer.o: CauldronWriter.h profile.h fileio.h System.h mantleheatflow.h
+layer.o: gridmaps.h seabottomtemp.h reservoirs.h
+layer_iterators.o: layer_iterators.h layer.h polyfunction.h lithoprops.h
+layer_iterators.o: globaldefs.h ../../fastcauldron/src/array.h
+layer_iterators.o: IBSinterpolator.h fluidprops.h IBSinterpolator2d.h
+layer_iterators.o: simplelitho.h preevaluated_basis_functions.h fem_types.h
+layer_iterators.o: sourcerocklitho.h filterwizard.h timefilter.h
+layer_iterators.o: ghost_array.h property_manager.h dynamic_reservoirs.h
+layer_iterators.o: propinterface.h CauldronWriter.h utils.h profile.h
+layer_iterators.o: fileio.h System.h array.h mantleheatflow.h gridmaps.h
+layer_iterators.o: seabottomtemp.h reservoirs.h
+lithoprops.o: globaldefs.h ../../fastcauldron/src/array.h lithoprops.h
+lithoprops.o: IBSinterpolator.h fluidprops.h IBSinterpolator2d.h
+lithoprops.o: simplelitho.h preevaluated_basis_functions.h fem_types.h
+lithoprops.o: utils.h
+main.o: history.h propinterface.h globaldefs.h ../../fastcauldron/src/array.h
+main.o: IBSinterpolator.h IBSinterpolator2d.h polyfunction.h lithoprops.h
+main.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h fem_types.h
+main.o: layer.h sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+main.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+main.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+main.o: reservoirs.h fctcalc.h tempsolve.h Petsc_X_Windows.h vrecalc.h Well.h
+main.o: layer_iterators.h dynamic_reservoirs.h genex.h pressuresolver.h
+main.o: fem_grid.h temperature_solver.h modelwriter.h readproperties.h
+main.o: ProjectFile.h secondary_migration.h
+mantleheatflow.o: mantleheatflow.h polyfunction.h gridmaps.h array.h
+modelreader.o: modelreader.h modelwriter.h error.h
+modelwriter.o: modelwriter.h
+Output.o: Output.h propinterface.h globaldefs.h
+Output.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+Output.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+Output.o: simplelitho.h preevaluated_basis_functions.h fem_types.h layer.h
+Output.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+Output.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+Output.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+Output.o: reservoirs.h modelwriter.h layer_iterators.h dynamic_reservoirs.h
+Petsc_X_Windows.o: Petsc_X_Windows.h propinterface.h globaldefs.h
+Petsc_X_Windows.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+Petsc_X_Windows.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+Petsc_X_Windows.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h
+Petsc_X_Windows.o: fem_types.h layer.h sourcerocklitho.h filterwizard.h
+Petsc_X_Windows.o: timefilter.h ghost_array.h property_manager.h
+Petsc_X_Windows.o: CauldronWriter.h utils.h profile.h fileio.h System.h
+Petsc_X_Windows.o: array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+Petsc_X_Windows.o: reservoirs.h
+polyfunction.o: polyfunction.h
+preevaluated_basis_functions.o: preevaluated_basis_functions.h fem_types.h
+preevaluated_basis_functions.o: array.h quadrature.h fem_operations.h
+pressuresolver.o: layer_iterators.h layer.h polyfunction.h lithoprops.h
+pressuresolver.o: globaldefs.h ../../fastcauldron/src/array.h
+pressuresolver.o: IBSinterpolator.h fluidprops.h IBSinterpolator2d.h
+pressuresolver.o: simplelitho.h preevaluated_basis_functions.h fem_types.h
+pressuresolver.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+pressuresolver.o: property_manager.h dynamic_reservoirs.h propinterface.h
+pressuresolver.o: CauldronWriter.h utils.h profile.h fileio.h System.h
+pressuresolver.o: array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+pressuresolver.o: reservoirs.h pressuresolver.h element_contributions.h
+pressuresolver.o: quadrature.h fem_grid.h temperature_solver.h vrecalc.h
+pressuresolver.o: modelwriter.h Output.h
+profile.o: profile.h
+ProjectFile.o: ProjectFile.h propinterface.h globaldefs.h
+ProjectFile.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+ProjectFile.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+ProjectFile.o: simplelitho.h preevaluated_basis_functions.h fem_types.h
+ProjectFile.o: layer.h sourcerocklitho.h filterwizard.h timefilter.h
+ProjectFile.o: ghost_array.h property_manager.h CauldronWriter.h utils.h
+ProjectFile.o: profile.h fileio.h System.h array.h mantleheatflow.h
+ProjectFile.o: gridmaps.h seabottomtemp.h reservoirs.h
+PropertiesIoTbl.o: PropertiesIoTbl.h propinterface.h globaldefs.h
+PropertiesIoTbl.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+PropertiesIoTbl.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+PropertiesIoTbl.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h
+PropertiesIoTbl.o: fem_types.h layer.h sourcerocklitho.h filterwizard.h
+PropertiesIoTbl.o: timefilter.h ghost_array.h property_manager.h
+PropertiesIoTbl.o: CauldronWriter.h utils.h profile.h fileio.h System.h
+PropertiesIoTbl.o: array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+PropertiesIoTbl.o: reservoirs.h readmapsfromfile.h layer_iterators.h
+PropertiesIoTbl.o: dynamic_reservoirs.h
+property_manager.o: property_manager.h fem_types.h
+propinterface.o: propinterface.h globaldefs.h ../../fastcauldron/src/array.h
+propinterface.o: IBSinterpolator.h IBSinterpolator2d.h polyfunction.h
+propinterface.o: lithoprops.h fluidprops.h simplelitho.h
+propinterface.o: preevaluated_basis_functions.h fem_types.h layer.h
+propinterface.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+propinterface.o: property_manager.h CauldronWriter.h utils.h profile.h
+propinterface.o: fileio.h System.h array.h mantleheatflow.h gridmaps.h
+propinterface.o: seabottomtemp.h reservoirs.h readproperties.h readinpgrids.h
+propinterface.o: readmapsfromfile.h modelreader.h modelwriter.h error.h
+propinterface.o: layer_iterators.h dynamic_reservoirs.h
+pvt_flash.o: pvt_flash.h C_to_Fortran.h utils.h
+quadrature.o: quadrature.h utils.h
+readinpgrids.o: readinpgrids.h propinterface.h globaldefs.h
+readinpgrids.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+readinpgrids.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+readinpgrids.o: simplelitho.h preevaluated_basis_functions.h fem_types.h
+readinpgrids.o: layer.h sourcerocklitho.h filterwizard.h timefilter.h
+readinpgrids.o: ghost_array.h property_manager.h CauldronWriter.h utils.h
+readinpgrids.o: profile.h fileio.h System.h array.h mantleheatflow.h
+readinpgrids.o: gridmaps.h seabottomtemp.h reservoirs.h
+readmapsfromfile.o: readmapsfromfile.h propinterface.h globaldefs.h
+readmapsfromfile.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+readmapsfromfile.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+readmapsfromfile.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h
+readmapsfromfile.o: fem_types.h layer.h sourcerocklitho.h filterwizard.h
+readmapsfromfile.o: timefilter.h ghost_array.h property_manager.h
+readmapsfromfile.o: CauldronWriter.h utils.h profile.h fileio.h System.h
+readmapsfromfile.o: array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+readmapsfromfile.o: reservoirs.h
+readproperties.o: readproperties.h propinterface.h globaldefs.h
+readproperties.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+readproperties.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+readproperties.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h
+readproperties.o: fem_types.h layer.h sourcerocklitho.h filterwizard.h
+readproperties.o: timefilter.h ghost_array.h property_manager.h
+readproperties.o: CauldronWriter.h utils.h profile.h fileio.h System.h
+readproperties.o: array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+readproperties.o: reservoirs.h PropertiesIoTbl.h
+reservoirs.o: reservoirs.h layer.h polyfunction.h lithoprops.h globaldefs.h
+reservoirs.o: ../../fastcauldron/src/array.h IBSinterpolator.h fluidprops.h
+reservoirs.o: IBSinterpolator2d.h simplelitho.h
+reservoirs.o: preevaluated_basis_functions.h fem_types.h sourcerocklitho.h
+reservoirs.o: filterwizard.h timefilter.h ghost_array.h property_manager.h
+seabottomtemp.o: seabottomtemp.h polyfunction.h gridmaps.h array.h
+simplelitho.o: simplelitho.h globaldefs.h ../../fastcauldron/src/array.h
+simplelitho.o: IBSinterpolator.h utils.h
+sourcerocklitho.o: sourcerocklitho.h propinterface.h globaldefs.h
+sourcerocklitho.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+sourcerocklitho.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+sourcerocklitho.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h
+sourcerocklitho.o: fem_types.h layer.h filterwizard.h timefilter.h
+sourcerocklitho.o: ghost_array.h property_manager.h CauldronWriter.h utils.h
+sourcerocklitho.o: profile.h fileio.h System.h array.h mantleheatflow.h
+sourcerocklitho.o: gridmaps.h seabottomtemp.h reservoirs.h
+System.o: System.h
+secondary_migration.o: secondary_migration.h propinterface.h globaldefs.h
+secondary_migration.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+secondary_migration.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+secondary_migration.o: fluidprops.h simplelitho.h
+secondary_migration.o: preevaluated_basis_functions.h fem_types.h layer.h
+secondary_migration.o: sourcerocklitho.h filterwizard.h timefilter.h
+secondary_migration.o: ghost_array.h property_manager.h CauldronWriter.h
+secondary_migration.o: utils.h profile.h fileio.h System.h array.h
+secondary_migration.o: mantleheatflow.h gridmaps.h seabottomtemp.h
+secondary_migration.o: reservoirs.h dynamic_reservoirs.h layer_iterators.h
+tempsolve.o: tempsolve.h Petsc_X_Windows.h propinterface.h globaldefs.h
+tempsolve.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+tempsolve.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+tempsolve.o: simplelitho.h preevaluated_basis_functions.h fem_types.h layer.h
+tempsolve.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+tempsolve.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+tempsolve.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+tempsolve.o: reservoirs.h vrecalc.h history.h Well.h layer_iterators.h
+tempsolve.o: dynamic_reservoirs.h C_to_Fortran.h modelwriter.h error.h
+tempsolve.o: Output.h
+temperature_solver.o: temperature_solver.h propinterface.h globaldefs.h
+temperature_solver.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+temperature_solver.o: IBSinterpolator2d.h polyfunction.h lithoprops.h
+temperature_solver.o: fluidprops.h simplelitho.h
+temperature_solver.o: preevaluated_basis_functions.h fem_types.h layer.h
+temperature_solver.o: sourcerocklitho.h filterwizard.h timefilter.h
+temperature_solver.o: ghost_array.h property_manager.h CauldronWriter.h
+temperature_solver.o: utils.h profile.h fileio.h System.h array.h
+temperature_solver.o: mantleheatflow.h gridmaps.h seabottomtemp.h
+temperature_solver.o: reservoirs.h vrecalc.h layer_iterators.h
+temperature_solver.o: dynamic_reservoirs.h fem_grid.h pressuresolver.h
+temperature_solver.o: modelwriter.h element_contributions.h quadrature.h
+thermalindicator.o: thermalindicator.h globaldefs.h
+thermalindicator.o: ../../fastcauldron/src/array.h
+timefilter.o: timefilter.h
+utils.o: utils.h System.h
+vrecalc.o: vrecalc.h propinterface.h globaldefs.h
+vrecalc.o: ../../fastcauldron/src/array.h IBSinterpolator.h
+vrecalc.o: IBSinterpolator2d.h polyfunction.h lithoprops.h fluidprops.h
+vrecalc.o: simplelitho.h preevaluated_basis_functions.h fem_types.h layer.h
+vrecalc.o: sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+vrecalc.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+vrecalc.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+vrecalc.o: reservoirs.h thermalindicator.h layer_iterators.h
+vrecalc.o: dynamic_reservoirs.h
+Well.o: Well.h propinterface.h globaldefs.h ../../fastcauldron/src/array.h
+Well.o: IBSinterpolator.h IBSinterpolator2d.h polyfunction.h lithoprops.h
+Well.o: fluidprops.h simplelitho.h preevaluated_basis_functions.h fem_types.h
+Well.o: layer.h sourcerocklitho.h filterwizard.h timefilter.h ghost_array.h
+Well.o: property_manager.h CauldronWriter.h utils.h profile.h fileio.h
+Well.o: System.h array.h mantleheatflow.h gridmaps.h seabottomtemp.h
+Well.o: reservoirs.h

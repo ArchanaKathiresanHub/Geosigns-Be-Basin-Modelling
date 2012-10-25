@@ -1,0 +1,49 @@
+Lead.d Lead.o: ../Lead.C ../../../TableIO/src/database.h \
+  ../../../TableIO/src/dataschema.h ../../../TableIO/src/datatype.h \
+  ../../../TableIO/src/cauldronschemafuncs.h \
+  ../Implementation/ProjectHandle.h ../Interface/ProjectHandle.h \
+  ../Interface/Interface.h ../Implementation/Implementation.h \
+  ../Implementation/Lead.h ../Interface/Lead.h \
+  ../Implementation/DAObject.h ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/AttributeValue.h \
+  ../Interface/AttributeValue.h ../Implementation/Child.h \
+  ../Implementation/LeadTrap.h ../Interface/LeadTrap.h \
+  ../Implementation/ObjectFactory.h
+
+../../../TableIO/src/database.h:
+
+../../../TableIO/src/dataschema.h:
+
+../../../TableIO/src/datatype.h:
+
+../../../TableIO/src/cauldronschemafuncs.h:
+
+../Implementation/ProjectHandle.h:
+
+../Interface/ProjectHandle.h:
+
+../Interface/Interface.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/Lead.h:
+
+../Interface/Lead.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/AttributeValue.h:
+
+../Implementation/Child.h:
+
+../Implementation/LeadTrap.h:
+
+../Interface/LeadTrap.h:
+
+../Implementation/ObjectFactory.h:

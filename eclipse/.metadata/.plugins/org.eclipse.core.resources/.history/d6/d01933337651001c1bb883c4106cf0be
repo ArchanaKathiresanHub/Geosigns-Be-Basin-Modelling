@@ -1,0 +1,3 @@
+mangle.d mangle.o: ../mangle.C ../mangle.h
+
+../mangle.h:

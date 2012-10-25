@@ -1,0 +1,10 @@
+mpirun: x
+mpirun.args: x
+mpirun.ch_p4: x
+mpirun.ch_p4.args: x
+mpirun.p4shmem: x
+mpirun.pg: x
+mpirun.rand: x
+mpptest: x
+tarch: x
+tdevice: x

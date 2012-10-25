@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Toolchain Plug-in
+Bundle-SymbolicName: ddj.example.prettyprinter.toolchain
+Bundle-Version: 1.0.0
+Bundle-Activator: ddj.example.prettyprinter.toolchain.Activator
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime
+Eclipse-LazyStart: true

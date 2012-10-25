@@ -1,0 +1,71 @@
+#!/bin/csh -f
+
+# List of 12 Projects Executed in the Regression Test Suite #1:
+# Marmul NAM Nigeria Oman Perdido SAUDI SHARKDIP SNS_Regional Trinidad Tutorial WNB 
+
+if ( $#argv != 4 ) then 
+echo "Usage: $0 Path1 Path2 Scope EmailName"
+goto done
+endif
+
+echo "compareVersions $*"
+set path1     = $1
+set path2     = $2
+set scope     = $3
+set emailName = $4
+
+set projectNames = $PROJECTNAMES
+
+if ($scope == "decompaction") then
+   set hdffiles = ( Decompaction_Results.HDF )
+endif
+if ($scope == "temperature") then
+   set hdffiles = ( Temperature_Results.HDF )
+endif
+if ($scope == "newtemperature") then
+   set hdffiles = ( Temperature_Results.HDF )
+endif
+if ($scope == "genex") then
+   set hdffiles = ( Temperature_Results.HDF Genex_Results.HDF )
+endif
+
+set logFile1 = $CBMTESTLOGSDIR/$path1/$HOST/$TODAY/log
+set logFile2 = $CBMTESTLOGSDIR/$path2/$HOST/$TODAY/log
+
+set diffFile = $CBMTESTLOGSDIR/$path2/$HOST/$TODAY/diff.$path1
+set tmpDiffFile = ${diffFile}.tmp
+
+echo "diffFile = $diffFile"
+echo "tmpDiffFile = $tmpDiffFile"
+
+rm -f $diffFile
+
+foreach project ( $projectNames )
+   rm -f $tmpDiffFile
+   set project1 = ${project}_${path1}
+   set project2 = ${project}_${path2}
+   echo "----- comparing $project1 to $project2"
+   fgrep "${project1} : Succeeded" $logFile1 >& /dev/null
+   set status1 = $status
+   fgrep "${project2} : Succeeded" $logFile2 >& /dev/null
+   set status2 = $status
+
+   if ($status1 == 0 && $status2 == 0) then
+      foreach hdffile ( $hdffiles )
+	 echo "doing h5diff $hdffile"
+	    h5diff $CBMTESTSDIR/$project/${project1}_CauldronOutputDir/$hdffile \
+	       $CBMTESTSDIR/$project/${project2}_CauldronOutputDir/$hdffile  -r >>& $tmpDiffFile
+      end
+      echo "doing analyzetestdiffs"
+      $CBMSCRIPTSDIR/analyzetestdiffs.pl $tmpDiffFile $diffFile
+   endif
+end
+
+if (! -z $diffFile) then
+   echo "mailing differences found in nightly test runs to ${emailName}@shell.com"
+   mailx -s "Differences found in your nightly test runs" ${emailName}@shell.com < $diffFile
+else
+   echo "no differences found in nightly test runs of ${emailName}"
+endif
+
+exit 0

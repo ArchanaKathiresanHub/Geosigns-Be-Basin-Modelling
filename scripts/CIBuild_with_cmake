@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -e
+
+# setting variables
+PATH=/bin:/usr/bin:/usr/local/bin
+
+SVNREPO="svn://amsd2a-n-b01001.europe.shell.com"
+
+TF="/glb/home/ksaho3/Eclipse/TF/TEE-CLC-11.0.0/tf"
+SVN=svn
+CMAKE=/apps/3rdparty/share/cmake
+
+WORKSPACE=ci_build_with_cmake
+COLLECTION=https://tfs.sede-coe.pds.nl/tfs/COE-II
+BUILD_BASE_DIRECTORY=/scratch/`whoami`/${WORKSPACE}
+# CONFIGURATION ::= {Release|Debug}
+CONFIGURATION=Debug
+OUTPUT_DIR=Linux64_${CONFIGURATION}
+
+printenv # DEBUG
+
+rm -rf ${BUILD_BASE_DIRECTORY}
+mkdir -p ${BUILD_BASE_DIRECTORY}
+
+cd ${BUILD_BASE_DIRECTORY} 
+
+if ${TF} workspaces -collection:${COLLECTION} | grep -q ^${WORKSPACE} ; then
+    ${TF} workspace -delete ${WORKSPACE} -collection:$COLLECTION >/dev/null
+fi
+${TF} workspace -new ${WORKSPACE} -collection:$COLLECTION
+${TF} workfold -map -workspace:${WORKSPACE} '$/Basin Modeling/Trunk' ${BUILD_BASE_DIRECTORY}
+
+rm -rf ${BUILD_BASE_DIRECTORY}/scripts
+rm -rf ${BUILD_BASE_DIRECTORY}/development
+
+${TF} get -recursive -force ${BUILD_BASE_DIRECTORY}/scripts >/dev/null
+${TF} get -recursive -force ${BUILD_BASE_DIRECTORY}/development >/dev/null
+
+${SVN} export -q ${SVNREPO}/trunk/development/geocase/BB development/geocase/BB
+${SVN} export -q ${SVNREPO}/trunk/development/geocase/misc/GospelScriptFiles development/geocase/misc/GospelScriptFiles
+
+rm -rf $OUTPUT_DIR
+mkdir -p $OUTPUT_DIR
+pushd $OUTPUT_DIR
+
+csh -x <<EOF
+${BUILD_BASE_DIRECTORY}/development/bootstrap.csh || exit 1
+source envsetup.csh
+make -j20 || exit 1
+make install || exit 1
+EOF
+
+popd
+
+rm -rf geocase_$OUTPUT_DIR
+mkdir -p geocase_$OUTPUT_DIR
+pushd geocase_$OUTPUT_DIR
+CC=gcc34 CXX=g++34 ${CMAKE} ${BUILD_BASE_DIRECTORY}/development/geocase/BB_Lists \
+    -DCMAKE_INSTALL_PREFIX=${BUILD_BASE_DIRECTORY}/${OUTPUT_DIR} \
+    -DCMAKE_BUILD_TYPE=${CONFIGURATION}
+make -j20
+make install
+popd

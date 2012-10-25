@@ -1,0 +1,19 @@
+[MobLayThicknIoTbl]
+;
+LayerName Age Thickness ErrThickness 
+() (Ma) (m) () 
+[End]
+;
+;
+[StratIoTbl]
+;
+SurfaceName DepoAge Depth DepthGrid TwoWayTtime LayerName DepoSequence Thickness CalibThickness OptimThickness ThicknessGrid Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 Percent3 MixModel SeisVelocity Fluidtype TempGradient SourceRock MobileLayer HydroSand ChemicalCompaction
+() (Ma) (m) (m) (s) () () (m) (m) () (m) () (volume%) (volume%) () (volume%) (volume%) () (volume%) () (m/s) () (C/m) () () () ()
+"Water bottom" 0 0 "" 0 "Formation 1" 3 -9999 -9999 -9999 "" "Std. Sandstone" 100 "" ""  0  "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0
+"Horizon 1" 100 800 "" 0 "" -9999 -9999 -9999 -9999 "" "" -9999 "" ""  -9999 "" ""  -9999 "" -9999 ""  -9999 0 0 0 0 
+[End]
+;
+[SourceRockLithoIoTbl]
+;
+[End]
+;

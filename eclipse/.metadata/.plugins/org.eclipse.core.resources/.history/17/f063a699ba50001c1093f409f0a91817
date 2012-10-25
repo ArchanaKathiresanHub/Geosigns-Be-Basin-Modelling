@@ -1,0 +1,44 @@
+BiodegradationParameters.d BiodegradationParameters.o:  \
+ ../BiodegradationParameters.C \
+  ../Implementation/BiodegradationParameters.h \
+  ../Implementation/DAObject.h ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/AttributeValue.h \
+  ../Interface/AttributeValue.h ../Interface/Interface.h \
+  ../Implementation/Child.h ../Implementation/Implementation.h \
+  ../Implementation/ProjectHandle.h ../Interface/ProjectHandle.h \
+  ../Implementation/BioConsts.h \
+  ../../../TableIO/src/cauldronschemafuncs.h \
+  ../../../TableIO/src/database.h ../../../TableIO/src/dataschema.h \
+  ../../../TableIO/src/datatype.h
+
+../Implementation/BiodegradationParameters.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/AttributeValue.h:
+
+../Interface/Interface.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/ProjectHandle.h:
+
+../Interface/ProjectHandle.h:
+
+../Implementation/BioConsts.h:
+
+../../../TableIO/src/cauldronschemafuncs.h:
+
+../../../TableIO/src/database.h:
+
+../../../TableIO/src/dataschema.h:
+
+../../../TableIO/src/datatype.h:

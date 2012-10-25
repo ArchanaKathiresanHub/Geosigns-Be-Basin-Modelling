@@ -1,0 +1,59 @@
+ROOTDIR = ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.libraries
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = fastcauldron.cfg
+
+ROOTDIR		= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+GENERAL_INC     = $(LIBDIR)
+FUNCTIONS_LIB   = $(LIBDIR)/lib/$(machine)/libfunctions.a
+
+GENEX5KERNEL_INC = $(LIBDIR)/genex5_kernel/src
+GENEX5KERNEL_LIB = $(LIBDIR)/lib/$(machine)/libgenex5_kernel.a
+
+EXEOBJECTS	= DiffusionLeak.o DiffusionCoefficient.o \
+                  testDiffusionLeakage.o
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(FUNCTIONS_LIB) $(GENEX5KERNEL_LIB)
+
+INCLUDEDIRS     = -I/usr/include -I$(GENERAL_INC) -I$(GENEX5KERNEL_INC) -I../../fastmig/src
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = testDiffusionLeakage
+
+$(EXESRCS):
+	ln -s ../../fastmig/src/$@ .
+
+target: $(EXE)
+
+%.o:%.C
+	$(CC) $(INCLUDEDIRS) $(CFLAGS) -DDEBUG -c $< -o $@
+
+$(EXE): $(EXEOBJECTS)
+	-$(LCC) $(CFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.fastmig -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

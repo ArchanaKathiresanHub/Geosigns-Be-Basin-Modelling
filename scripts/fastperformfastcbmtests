@@ -1,0 +1,161 @@
+#!/bin/csh
+
+set verbose
+
+######################## fastcbm tests ########################################
+
+cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/RegressionTests
+
+/bin/rm -rf fastcbm
+/bin/rm -rf fastcbm
+
+mkdir -p fastcbm
+cd fastcbm
+
+# fastretrieve fastcbm NVG_HalfRes
+# fastconducttest -application fastcauldron -project NVG_HalfRes -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 8 -testdir $testdir &
+# sleep $sleeptime
+
+fastretrieve fastcbm AcquiferScale3Offset2Window33
+fastconducttest -application fastcauldron -project AcquiferScale3Offset2Window33 -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm AlphaTestFullRes
+fastconducttest -application fastcauldron -project AlphaTestFullRes -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm AdvecTest
+fastconducttest -application fastcauldron -project AdvecTest -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm SAUDI1LowRes
+fastconducttest -application fastcauldron -project SAUDI1LowRes -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+# fastretrieve fastcbm ChemicalCompactionReproducePaper
+# fastconducttest -application fastcauldron -project ChemicalCompactionReproducePaper -subdir loosely_coupled -option pressuredtemperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+# sleep $sleeptime
+
+fastretrieve fastcbm AcquiferScale3Offset2
+fastconducttest -application fastcauldron -project AcquiferScale3Offset2 -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm SAUDI1FullRes
+fastconducttest -application fastcauldron -project SAUDI1FullRes -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm AcquiferScale3OffsetI1J2
+fastconducttest -application fastcauldron -project AcquiferScale3OffsetI1J2 -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm AcquiferScale1
+fastconducttest -application fastcauldron -project AcquiferScale1 -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project AcquiferScale1 -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm AcquiferScale3
+fastconducttest -application fastcauldron -project AcquiferScale3 -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm NVG_revised_model
+fastconducttest -application fastcauldron -project NVG_revised_model -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 8 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm QuasimodoEW
+fastconducttest -application fastcauldron -project QuasimodoEW -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 6 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project QuasimodoEW -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+# fastretrieve fastcbm FracturePressure2x2
+# fastconducttest -application fastcauldron -project FracturePressure2x2 -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+# sleep $sleeptime
+
+# fastretrieve fastcbm WellExport2x2
+# fastconducttest -application fastcauldron -project WellExport2x2 -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+# sleep $sleeptime
+
+fastretrieve fastcbm QuasimodoNS
+fastconducttest -application fastcauldron -project QuasimodoNS -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 6 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project QuasimodoNS -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+# fastretrieve fastcbm SimpleTest_FullyLooselyHydro_GlNgl
+# fastconducttest -application fastcauldron -project SimpleTest_FullyLooselyHydro_GlNgl -subdir loosely_coupled -option pressuredtemperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+# sleep $sleeptime
+# fastconducttest -application fastcauldron -project SimpleTest_FullyLooselyHydro_GlNgl -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+# sleep $sleeptime
+# fastconducttest -application fastcauldron -project SimpleTest_FullyLooselyHydro_GlNgl -procs 1 -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -testdir $testdir &
+# sleep $sleeptime
+
+fastretrieve fastcbm AlphaTestScale2Offset1
+fastconducttest -application fastcauldron -project AlphaTestScale2Offset1 -subdir Hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 2 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm AdvectionFault
+fastconducttest -application fastcauldron -project AdvectionFault -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm QuasimodoNSHydro
+fastconducttest -application fastcauldron -project QuasimodoNSHydro -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm TopoFlowTest
+fastconducttest -application fastcauldron -project TopoFlowTest -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+
+# fastretrieve fastcbm Erosion2x2
+# fastconducttest -application fastcauldron -project Erosion2x2 -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+# sleep $sleeptime
+
+fastretrieve fastcbm AdvectionErosionTest
+fastconducttest -application fastcauldron -project AdvectionErosionTest -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 8 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm QuasimodoEWZeroThicknessBot
+fastconducttest -application fastcauldron -project QuasimodoEWZeroThicknessBot -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 6 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm SRAK_2D_Sand_Map_SSAQ
+fastconducttest -application fastcauldron -project SRAK_2D_Sand_Map_SSAQ -subdir loosely_coupled -option pressuredtemperature -platform Linux64 -cluster $cluster -procs 4 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project SRAK_2D_Sand_Map_SSAQ -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 6 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm generic1D_3layer
+fastconducttest -application fastcauldron -project generic1D_3layer -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project generic1D_3layer -subdir hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm calibration
+fastconducttest -application fastcauldron -project calibration -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project calibration -subdir hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm TestOvp_withErosion
+fastconducttest -application fastcauldron -project TestOvp_withErosion -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project TestOvp_withErosion -subdir hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm OPSalt_HS
+fastconducttest -application fastcauldron -project OPSalt_HS -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project OPSalt_HS -subdir hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm calibrationSR
+fastconducttest -application fastcauldron -project calibrationSR -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project calibrationSR -subdir hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+
+fastretrieve fastcbm test_geo
+fastconducttest -application fastcauldron -project test_geo -subdir fully_coupled -option coupled -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime
+fastconducttest -application fastcauldron -project test_geo -subdir hydrostatic -option temperature -platform Linux64 -cluster $cluster -procs 1 -testdir $testdir &
+sleep $sleeptime

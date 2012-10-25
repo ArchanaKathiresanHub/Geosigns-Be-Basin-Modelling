@@ -1,0 +1,544 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>TrapTrackingForm</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>TrapTrackingForm</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>703</width>
+            <height>382</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>5</hsizetype>
+            <vsizetype>5</vsizetype>
+            <horstretch>100</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="paletteBackgroundColor">
+        <color>
+            <red>223</red>
+            <green>223</green>
+            <blue>223</blue>
+        </color>
+    </property>
+    <property name="caption">
+        <string>Trapper -v2010.03</string>
+    </property>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout26</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton" row="7" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>RefreshProjectButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>100</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>300</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="paletteBackgroundColor">
+                        <color>
+                            <red>220</red>
+                            <green>220</green>
+                            <blue>220</blue>
+                        </color>
+                    </property>
+                    <property name="text">
+                        <string>Refresh Input Data</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Refresh Cauldron project file and re-generate trap history</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="0">
+                    <property name="name">
+                        <cstring>YoungestAgeLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Age:</string>
+                    </property>
+                </widget>
+                <spacer row="0" column="5">
+                    <property name="name">
+                        <cstring>spacer13</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Fixed</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLabel" row="4" column="0" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>ProjectNameLabel</cstring>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>190</width>
+                            <height>32767</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Project Filename:</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget" row="4" column="3" rowspan="3" colspan="3">
+                    <property name="name">
+                        <cstring>layout25</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>projNameLabel</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>410</width>
+                                    <height>30</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="scaledContents">
+                                <bool>true</bool>
+                            </property>
+                            <property name="alignment">
+                                <set>WordBreak|AlignVCenter|AlignLeft</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>cauldronProjectModLabel</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>410</width>
+                                    <height>30</height>
+                                </size>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <family>Helvetica [Adobe]</family>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="scaledContents">
+                                <bool>true</bool>
+                            </property>
+                            <property name="alignment">
+                                <set>WordBreak|AlignVCenter|AlignLeft</set>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>trapHistGenLabel</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>410</width>
+                                    <height>30</height>
+                                </size>
+                            </property>
+                            <property name="paletteForegroundColor">
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <family>Helvetica [Adobe]</family>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="scaledContents">
+                                <bool>true</bool>
+                            </property>
+                            <property name="alignment">
+                                <set>WordBreak|AlignVCenter|AlignLeft</set>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QComboBox" row="7" column="2" rowspan="1" colspan="2">
+                    <item>
+                        <property name="text">
+                            <string>Properties Graph</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Source Graph</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>SelectGraphComboBox</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>150</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>300</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="editable">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Select a graph. Once open it will update automatically with the seelction of a new age or trap Id</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="5" column="0" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>CauldronProjectModLabel</cstring>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>190</width>
+                            <height>32767</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Last Modified:</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>ReservoirNameLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Reservoir:</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget" row="1" column="1" rowspan="3" colspan="5">
+                    <property name="name">
+                        <cstring>layout24</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QComboBox">
+                            <property name="name">
+                                <cstring>reservoirComboBox</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>500</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <property name="name">
+                                <cstring>ageComboBox</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>500</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <property name="name">
+                                <cstring>trapIdComboBox</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>500</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QLabel" row="6" column="0" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>TrapHistoryGeneratedLabel</cstring>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>190</width>
+                            <height>32767</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Trap History Last Generated:</string>
+                    </property>
+                    <property name="alignment">
+                        <set>WordBreak|AlignVCenter</set>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="7" column="5">
+                    <property name="name">
+                        <cstring>closeAllGraphsButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>100</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>300</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="paletteBackgroundColor">
+                        <color>
+                            <red>220</red>
+                            <green>220</green>
+                            <blue>220</blue>
+                        </color>
+                    </property>
+                    <property name="text">
+                        <string>Close All Graphs</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="7" column="4">
+                    <property name="name">
+                        <cstring>userSettingsButton</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>100</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>300</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>User Settings</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Impose range restrictions on graph displays by setting max and min values for each graph axis. To see the effect open a new graph</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="3" column="0">
+                    <property name="name">
+                        <cstring>TrapIdLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Trap Id:</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+    </hbox>
+</widget>
+<connections>
+    <connection>
+        <sender>RefreshProjectButton</sender>
+        <signal>clicked()</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>refreshInputDataSlot()</slot>
+    </connection>
+    <connection>
+        <sender>SelectGraphComboBox</sender>
+        <signal>activated(int)</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>graphSelectedSlot()</slot>
+    </connection>
+    <connection>
+        <sender>closeAllGraphsButton</sender>
+        <signal>clicked()</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>closeAllGraphsSlot()</slot>
+    </connection>
+    <connection>
+        <sender>trapIdComboBox</sender>
+        <signal>activated(int)</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>trapIdEditedSlot()</slot>
+    </connection>
+    <connection>
+        <sender>reservoirComboBox</sender>
+        <signal>activated(int)</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>reservoirEditSlot()</slot>
+    </connection>
+    <connection>
+        <sender>userSettingsButton</sender>
+        <signal>clicked()</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>userSettingsSlot()</slot>
+    </connection>
+    <connection>
+        <sender>ageComboBox</sender>
+        <signal>activated(int)</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>ageEditSlot()</slot>
+    </connection>
+    <connection>
+        <sender>ageComboBox</sender>
+        <signal>highlighted(int)</signal>
+        <receiver>TrapTrackingForm</receiver>
+        <slot>ageHighlightedSlot()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>reservoirComboBox</tabstop>
+    <tabstop>ageComboBox</tabstop>
+    <tabstop>trapIdComboBox</tabstop>
+    <tabstop>RefreshProjectButton</tabstop>
+    <tabstop>closeAllGraphsButton</tabstop>
+    <tabstop>SelectGraphComboBox</tabstop>
+    <tabstop>userSettingsButton</tabstop>
+</tabstops>
+<includes>
+    <include location="local" impldecl="in declaration">traptrackingkernel.h</include>
+    <include location="local" impldecl="in declaration">usersettings.h</include>
+</includes>
+<forwards>
+    <forward>class QMenuBar</forward>
+    <forward>class QPopupMenu</forward>
+    <forward>class QFileDialog</forward>
+    <forward>class UserSettings</forward>
+    <forward>class QTimer</forward>
+    <forward>class CommandThread;</forward>
+    <forward>class TrapChangeEvent;</forward>
+    <forward>class QMessageBox</forward>
+</forwards>
+<variables>
+    <variable access="private">double m_previousAge;</variable>
+    <variable access="private">QTimer *m_timer;</variable>
+    <variable access="private">QString m_lastOpenFileDir;</variable>
+    <variable access="private">QFileDialog *m_openProjectFileDialog;</variable>
+    <variable access="private">string m_ageStr;</variable>
+    <variable access="private">string m_projectNameStr;</variable>
+    <variable access="private">string m_trapIdStr;</variable>
+    <variable access="private">string m_outputDirStr;</variable>
+    <variable access="private">string m_reservoirStr;</variable>
+    <variable access="private">bool m_userRequestUpToDate;</variable>
+    <variable access="private">enum Graph_Option { PROP_GRAPH = 0, SRC_GRAPH, COMP_GRAPH };</variable>
+    <variable access="private">TrapTrackingKernel m_kernel;</variable>
+    <variable access="private">QMenuBar *m_mainMenu;</variable>
+    <variable access="private">QPopupMenu *m_openFileMenu;</variable>
+    <variable access="private">UserSettings *m_userSettings;</variable>
+    <variable access="private">CommandThread *m_commandThread;</variable>
+    <variable access="private">QPopupMenu *m_helpMenu;</variable>
+    <variable access="private">bool m_showErrors;</variable>
+</variables>
+<slots>
+    <slot>tidyUp()</slot>
+    <slot>setProjectName( const char * name )</slot>
+    <slot>refreshAll()</slot>
+    <slot access="protected">trapIdEditedSlot()</slot>
+    <slot>trapIdUpdate()</slot>
+    <slot access="protected">ageEditSlot()</slot>
+    <slot access="protected">ageHighlightedSlot()</slot>
+    <slot access="protected">reservoirEditSlot()</slot>
+    <slot>refreshInputDataSlot()</slot>
+    <slot>closeAllGraphsSlot()</slot>
+    <slot>userSettingsSlot()</slot>
+    <slot>setUserRequestNotUpToDate()</slot>
+    <slot>setUserRequestUpToDate()</slot>
+    <slot>setShowErrors( bool value )</slot>
+    <slot access="protected">graphSelectedSlot()</slot>
+    <slot>hide()</slot>
+    <slot>createHelpMenu()</slot>
+    <slot access="protected">openProjectFileSlot()</slot>
+    <slot>displayHelp()</slot>
+    <slot>openInternetHelp()</slot>
+    <slot>setComboItem( QComboBox * cb, const QString str )</slot>
+    <slot>setTrapIdComboItem( QComboBox * cb, const QString str )</slot>
+    <slot>setTrapIdComboItem( QComboBox * cb, int id )</slot>
+    <slot>showMessage( const char * str )</slot>
+    <slot>createCommandThread()</slot>
+    <slot>closeCommandThread()</slot>
+</slots>
+<functions>
+    <function access="private" specifier="non virtual">init()</function>
+    <function>executeCommandLineArgs( int argc, char * * argv )</function>
+    <function access="private" specifier="non virtual" returnType="string">getReservoirArgument( char * * argv, int argc, int index )</function>
+    <function access="private" specifier="non virtual" returnType="bool">isFlag( const char * str )</function>
+    <function returnType="string &amp;">getProjectNameStr()</function>
+    <function>setReservoirName( const char * name )</function>
+    <function returnType="string &amp;">getReservoirNameStr()</function>
+    <function access="private" specifier="non virtual">setOutputDirectoryName( const char * name )</function>
+    <function specifier="non virtual" returnType="string &amp;">getOutputDirectoryNameStr()</function>
+    <function>setUserAge( const char * name )</function>
+    <function returnType="double">getUserAge()</function>
+    <function returnType="string &amp;">getUserAgeStr()</function>
+    <function>setUserTrapId( const char * name )</function>
+    <function returnType="int">getUserTrapId()</function>
+    <function returnType="string &amp;">getUserTrapIdStr()</function>
+    <function>setTrapHistMod()</function>
+    <function access="private" specifier="non virtual">setMigrationHistFileMod()</function>
+    <function returnType="UserSettings *">userSettings()</function>
+    <function>refreshMigrationHistory()</function>
+    <function>generateTrapIdHistory()</function>
+    <function returnType="bool">userRequestUpToDate()</function>
+    <function returnType="bool">userRequestNotUpToDate()</function>
+    <function returnType="bool">showErrors()</function>
+    <function access="private" specifier="non virtual" returnType="bool">openGraphDatabase()</function>
+    <function access="protected">displayPropGraph()</function>
+    <function access="protected">displayCompGraph()</function>
+    <function access="protected">displaySrcGraph()</function>
+    <function access="protected">closeGraphs()</function>
+    <function access="private" specifier="non virtual" returnType="bool">closeGraphsIfUserRequest()</function>
+    <function access="protected">createMainMenu()</function>
+    <function access="private" specifier="non virtual">deleteMainMenu()</function>
+    <function access="private" specifier="non virtual" returnType="QFileDialog *">initFileDialog()</function>
+    <function access="private" specifier="non virtual" returnType="QString">createStdOutputDirName( const QString &amp; filename )</function>
+    <function access="private" specifier="non virtual">buildReservoirComboBox()</function>
+    <function access="private" specifier="non virtual">buildAgeComboBox()</function>
+    <function access="private" specifier="non virtual">buildTrapIdComboBox()</function>
+    <function returnType="bool">showQuestion( const char * str )</function>
+    <function returnType="bool">event( QEvent * e )</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

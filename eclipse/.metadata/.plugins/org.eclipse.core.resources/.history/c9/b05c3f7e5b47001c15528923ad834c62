@@ -1,0 +1,144 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_UPPER_SRCS += \
+../AllochthonousLithology.C \
+../AllochthonousLithologyDistribution.C \
+../AllochthonousLithologyInterpolation.C \
+../AttributeValue.C \
+../BiodegradationParameters.C \
+../Child.C \
+../DAObject.C \
+../DiffusionLeakageParameters.C \
+../FaultCollection.C \
+../FaultElementCalculator.C \
+../FaultFileReader.C \
+../FaultFileReaderFactory.C \
+../Faulting.C \
+../FluidParameters.C \
+../Formation.C \
+../FracturePressureFunctionParameters.C \
+../IBSFaultFileReader.C \
+../InputValue.C \
+../LandmarkFaultFileReader.C \
+../Lead.C \
+../LeadTrap.C \
+../LithoType.C \
+../MD5.C \
+../MobileLayer.C \
+../ObjectFactory.C \
+../Parent.C \
+../ProjectHandle.C \
+../Property.C \
+../PropertyValue.C \
+../ReconModelFaultFileReader.C \
+../Reservoir.C \
+../Snapshot.C \
+../SourceRock.C \
+../Surface.C \
+../TouchstoneMap.C \
+../Trap.C \
+../TrapPhase.C \
+../ZycorFaultFileReader.C \
+../auxiliaryfaulttypes.C \
+../hdf5funcs.C \
+../wildMatch.C 
+
+OBJS += \
+./AllochthonousLithology.o \
+./AllochthonousLithologyDistribution.o \
+./AllochthonousLithologyInterpolation.o \
+./AttributeValue.o \
+./BiodegradationParameters.o \
+./Child.o \
+./DAObject.o \
+./DiffusionLeakageParameters.o \
+./FaultCollection.o \
+./FaultElementCalculator.o \
+./FaultFileReader.o \
+./FaultFileReaderFactory.o \
+./Faulting.o \
+./FluidParameters.o \
+./Formation.o \
+./FracturePressureFunctionParameters.o \
+./IBSFaultFileReader.o \
+./InputValue.o \
+./LandmarkFaultFileReader.o \
+./Lead.o \
+./LeadTrap.o \
+./LithoType.o \
+./MD5.o \
+./MobileLayer.o \
+./ObjectFactory.o \
+./Parent.o \
+./ProjectHandle.o \
+./Property.o \
+./PropertyValue.o \
+./ReconModelFaultFileReader.o \
+./Reservoir.o \
+./Snapshot.o \
+./SourceRock.o \
+./Surface.o \
+./TouchstoneMap.o \
+./Trap.o \
+./TrapPhase.o \
+./ZycorFaultFileReader.o \
+./auxiliaryfaulttypes.o \
+./hdf5funcs.o \
+./wildMatch.o 
+
+C_UPPER_DEPS += \
+./AllochthonousLithology.d \
+./AllochthonousLithologyDistribution.d \
+./AllochthonousLithologyInterpolation.d \
+./AttributeValue.d \
+./BiodegradationParameters.d \
+./Child.d \
+./DAObject.d \
+./DiffusionLeakageParameters.d \
+./FaultCollection.d \
+./FaultElementCalculator.d \
+./FaultFileReader.d \
+./FaultFileReaderFactory.d \
+./Faulting.d \
+./FluidParameters.d \
+./Formation.d \
+./FracturePressureFunctionParameters.d \
+./IBSFaultFileReader.d \
+./InputValue.d \
+./LandmarkFaultFileReader.d \
+./Lead.d \
+./LeadTrap.d \
+./LithoType.d \
+./MD5.d \
+./MobileLayer.d \
+./ObjectFactory.d \
+./Parent.d \
+./ProjectHandle.d \
+./Property.d \
+./PropertyValue.d \
+./ReconModelFaultFileReader.d \
+./Reservoir.d \
+./Snapshot.d \
+./SourceRock.d \
+./Surface.d \
+./TouchstoneMap.d \
+./Trap.d \
+./TrapPhase.d \
+./ZycorFaultFileReader.d \
+./auxiliaryfaulttypes.d \
+./hdf5funcs.d \
+./wildMatch.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+%.o: ../%.C
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -m64 -fPIC -I/nfs/rvl/users/ibs/IBS/EXTERNALS/HDF5/curr/LinuxRHEL64_x86_64/SERIAL/64/DEBUG/include -I../../../cauldronschema -I../../../CBMGenerics/src -I../../../utilities/src -I../../../TableIO/src -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

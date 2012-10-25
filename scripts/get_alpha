@@ -1,0 +1,46 @@
+#!/bin/ksh
+# 
+# get_alpha - returns the location of the alpha environment executable
+#
+# Syntax: release_alpha <executable> [<revision_or_special_flag>]
+#
+# executable   - name of executable
+# revision     - subversion identifier (ie. r309)
+# or
+# special_flag - a way to uniquely identify this executable
+#
+# Returns: 0 on success, >0 otherwise
+#
+
+# verify alpha environment active
+if [ -z "$ALPHA_BASE" ]; then
+    echo "Error: Alpha environment not defined, use gocbm first."
+    exit 2
+fi
+
+# get parameters and check format
+executable=$1
+revision=$2
+if [ -z "$executable" ]; then
+    echo "Usage: $0 <executable_name> [<revision>]"
+    exit 1
+fi
+
+# get location of file
+if [ -n "$revision" ]; then
+    file="$ALPHA_BASE/bin/$CSCE_ARCH/${executable}.${revision}"
+else
+    file="$ALPHA_BASE/bin/$CSCE_ARCH/$1"
+fi
+
+# verify file exists
+if [ ! -f $file ]; then 
+    echo "Error: File $file not found."
+    exit 3
+fi
+
+# return name
+echo $file
+exit 0
+
+# End script

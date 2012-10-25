@@ -1,0 +1,7 @@
+#!/bin/csh
+
+set version = $1
+./CleanBuildAndInstall -branch Branches/$version -version $version
+# or
+# ./CleanBuildAndInstall -branch Branches/$version/development -version $version
+./ReleaseToHouston $version

@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# setting variables
+PATH=/glb/home/ksaho3/Eclipse/TF/TEE-CLC-11.0.0:$PATH
+
+WORKSPACE=BuildScripts
+COLLECTION=https://tfs.sede-coe.pds.nl/tfs/COE-II
+ROOTDIRECTORY=$HOME/BuildAndInstall
+
+# Creating and mapping the workspace
+if tf workspaces -collection:${COLLECTION} | grep -q ^${WORKSPACE} ; then
+    echo "- deleting existing workspace $WORKSPACE"
+    tf workspace -noprompt -delete -collection:$COLLECTION $WORKSPACE
+fi
+
+echo "- Creating new workspace $WORKSPACE"
+tf workspace -noprompt -new -collection:$COLLECTION $WORKSPACE -comment:"BuildScripts"
+echo "- Mapping workspace $WORKSPACE to folder $ROOTDIRECTORY"
+tf workfold  -noprompt -map -collection:$COLLECTION -workspace:$WORKSPACE \$/Basin\ Modeling/Trunk/scripts/BuildAndInstall $ROOTDIRECTORY
+
+# creating directory to hold the scripts
+echo "- (Re-)creating work folder $ROOTDIRECTORY"
+rm -rf $ROOTDIRECTORY
+mkdir -p $ROOTDIRECTORY
+cd $ROOTDIRECTORY
+
+echo "- Retrieving the build and install scripts"
+tf get -recursive -force "$ROOTDIRECTORY"
+
+echo "- Running clean build with arguments '$*'"
+echo
+echo "------------------------------------------------------------"
+echo
+./CleanBuild $*

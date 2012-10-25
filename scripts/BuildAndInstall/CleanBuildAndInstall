@@ -1,0 +1,102 @@
+#!/bin/csh
+
+set echo # debug
+
+## Setting variables
+setenv IBS_CLEANBUILDANDINSTALL true
+# Repository targets
+set developmentbranch = "Trunk/development"
+set geocasedevelopmentbranch = "trunk/development/geocase"
+set thirdpartybranch = "Trunk/3rdparty"
+set version = "v2013.01nightly"
+set svnrepo = svn://amsd2a-n-b01001.europe.shell.com
+# Executable paths
+set path = (/usr/bin/X11 /usr/bin/ $path)
+set path = ($HOME/bin $HOME/bin.`uname` $path)
+set path = (/glb/home/ksaho3/Eclipse/TF/TEE-CLC-11.0.0 $path)
+
+# TFS specifics
+set TF = tf
+set projectroot = '$/Basin Modeling'
+set rootpath = "/scratch/`whoami`/CleanBuildAndInstall"
+
+set WORKSPACE = CleanBuild
+set COLLECTION = https://tfs.sede-coe.pds.nl/tfs/COE-II
+
+while ($#argv > 0)
+   switch ($1)
+      case -branch:
+      shift
+      set developmentbranch = "$1"
+      breaksw
+      case -development:
+      shift
+      set developmentbranch = "$1"
+      breaksw
+      case -svnbranch:
+      case -subversionbranch:
+      shift
+      set geocasedevelopmentbranch = "$1/development/geocase"
+      breaksw
+      case -thirdparty:
+      case -3rdparty:
+      shift
+      set thirdpartybranch = "$1"
+      breaksw
+      case -version:
+      shift
+      set version = "$1"
+      breaksw
+   endsw
+   shift
+end
+
+set developmentdirectory = "$developmentbranch"
+set geocasedevelopmentdirectory = "$developmentdirectory/geocase"
+set geocasemiscdevelopmentdirectory = "$geocasedevelopmentdirectory/misc"
+set thirdpartydirectory = "3rdparty"
+
+echo "Deleting workspace"
+tf workspace -noprompt -delete -collection:$COLLECTION $WORKSPACE
+echo "Creating workspace"
+tf workspace -noprompt -new -collection:$COLLECTION $WORKSPACE -comment:"Clean Build"
+echo "Mapping workspace to $rootpath"
+tf workfold  -noprompt -map -collection:$COLLECTION -workspace:$WORKSPACE \$/Basin\ Modeling $rootpath
+
+## Clean and create directory structure
+echo "Creating base directory $rootpath"
+rm -rf $rootpath
+mkdir -p $rootpath
+
+## Retrieve from TFS
+# Get into the mapped directory of the desired workspace
+cd $rootpath
+
+echo Get the latest versions
+echo "$TF get -recursive -force $developmentdirectory"
+eval $TF get -recursive -force $developmentdirectory
+
+echo "$TF get -recursive -force $thirdpartybranch/geocosm.tar"
+eval $TF get -recursive -force $thirdpartybranch/geocosm.tar
+
+cp `find . -name geocosm.tar` $rootpath/$developmentdirectory
+
+echo "Check out svn-based legacy code"
+cd $rootpath/$geocasedevelopmentdirectory
+svn co "$svnrepo/$geocasedevelopmentbranch/BB" BB
+
+cd $rootpath/$geocasemiscdevelopmentdirectory
+svn co "$svnrepo/$geocasedevelopmentbranch/misc/GospelScriptFiles" GospelScriptFiles
+
+echo "Change to the development directory $rootpath/$developmentdirectory"
+cd $rootpath/$developmentdirectory
+
+## Build and install all
+echo "./BuildAndInstallAll $version"
+./BuildAndInstallAll $version
+set exitstatus = $status
+
+chgrp -R g_psaz00 .
+chmod -R g+rw .
+
+exit $exitstatus

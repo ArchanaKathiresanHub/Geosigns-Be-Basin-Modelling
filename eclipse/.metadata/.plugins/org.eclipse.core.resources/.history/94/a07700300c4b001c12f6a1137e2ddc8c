@@ -1,0 +1,23 @@
+Property.d Property.o: ../Property.C ../Implementation/Property.h \
+  ../Implementation/DAObject.h ../Implementation/Parent.h \
+  ../Implementation/DynArray.h ../Implementation/AttributeValue.h \
+  ../Interface/Interface.h ../Implementation/Child.h \
+  ../Implementation/Implementation.h ../Implementation/ProjectHandle.h
+
+../Implementation/Property.h:
+
+../Implementation/DAObject.h:
+
+../Implementation/Parent.h:
+
+../Implementation/DynArray.h:
+
+../Implementation/AttributeValue.h:
+
+../Interface/Interface.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:
+
+../Implementation/ProjectHandle.h:

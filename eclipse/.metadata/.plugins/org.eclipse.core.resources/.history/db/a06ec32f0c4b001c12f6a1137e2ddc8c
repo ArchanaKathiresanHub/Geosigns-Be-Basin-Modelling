@@ -1,0 +1,11 @@
+AttributeValue.d AttributeValue.o: ../AttributeValue.C \
+  ../Implementation/AttributeValue.h ../Interface/Interface.h \
+  ../Implementation/Child.h ../Implementation/Implementation.h
+
+../Implementation/AttributeValue.h:
+
+../Interface/Interface.h:
+
+../Implementation/Child.h:
+
+../Implementation/Implementation.h:

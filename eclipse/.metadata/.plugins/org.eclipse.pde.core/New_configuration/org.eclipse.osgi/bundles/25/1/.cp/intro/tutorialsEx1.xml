@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<introContent>
+  <!-- Extension to the SDK Tutorials Page. -->
+  <extensionContent id="org.eclipse.jdt" name="Workbench" alt-style="css/swt.properties" style="css/yoxos.css" path="tutorials/@">
+    <group label="Workbench" id="java" style-id="content-group">
+      <link url="http://org.eclipse.ui.intro/runAction?pluginId=com.yoxos.yim.ui&amp;class=com.yoxos.yim.ui.yeifragment.internal.actions.SwitchPerspective"
+            label="Yoxos Install Manager" 
+            id="yoxos" 
+            style-id="content-link">
+        <text>Discover how to extend and update your installation within minutes.</text>
+      </link>
+    </group>
+  </extensionContent>
+</introContent>

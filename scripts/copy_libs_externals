@@ -1,0 +1,84 @@
+#!/bin/csh
+
+## Install libraries from Subversion for use in socoms
+## ---------------------------------------------------
+## run from the scripts directory
+#
+source /nfs/rvl/users/ibs/bin/gocbm
+
+setenv user_home /nfs/rvl/groups/ept-sg/SWEast/Cauldron/s_ibsz00
+
+setenv DEST_1 ${GENEX5_HOME}/../..
+setenv DEST_2 ${EOSPACK_HOME}/../..
+setenv DEST_3 ${CBMGENERICS_HOME}/../..
+
+setenv ORIGIN_1 genex5_kernel
+setenv ORIGIN_2 EosPack
+setenv ORIGIN_3 CBMGenerics
+
+#
+# default
+#
+setenv VERSION "OPTIMIZED"
+
+if "$1" == "OPTIMIZED" then 
+  setenv VERSION "OPTIMIZED"
+endif
+if "$1" == "DEBUG" then 
+  setenv VERSION "DEBUG"
+endif
+
+
+setenv LIB ${user_home}/LIBS_TRUNK_${VERSION}/libraries
+
+### echo " "
+echo "=============================================================="
+echo " Installing ${VERSION} EXTERNAL libraries from Subversion tree"
+echo "=============================================================="
+### echo " Without  argument, the OPTMIZED versions will be installed"
+### echo " Arguments: OPTIMIZED or DEBUG"
+### echo " Note that this script must run from the script directory in the trunk that holds the created libraries"
+### echo " "
+#
+##  Now copy the libraries for all platforms (if there)
+##  ---------------------------------------------------
+
+foreach ORG ($ORIGIN_1 $ORIGIN_2 $ORIGIN_3)
+
+   if ($ORG == $ORIGIN_1) then
+     setenv DEST ${DEST_1}
+   endif
+   
+   if ($ORG == $ORIGIN_2) then
+     setenv DEST ${DEST_2}
+   endif
+   
+   if ($ORG == $ORIGIN_3) then
+     setenv DEST ${DEST_3}
+   endif
+   
+   
+   echo "Copying ${VERSION}  library= "${ORG}" to "${DEST}
+   
+### v2007.06 ###   cp ${LIB}/${ORG}/obj.Silicon32/lib${ORG}.a ${DEST}/IRIX64_IP27/32/${VERSION}/lib
+### v2007.06 ###   cp ${LIB}/${ORG}/obj.Silicon64/lib${ORG}.a ${DEST}/IRIX64_IP27/64/${VERSION}/lib
+### v2007.06 ###   cp ${LIB}/${ORG}/obj.Sun/lib${ORG}.a   ${DEST}/SunOS64_sun4u/32/${VERSION}/lib
+### v2007.06 ###   cp ${LIB}/${ORG}/obj.SunOS64/lib${ORG}.a   ${DEST}/SunOS64_sun4u/64/${VERSION}/lib
+   cp ${LIB}/${ORG}/obj.Linux32/lib${ORG}.a   ${DEST}/LinuxRHEL64_x86_64/32/${VERSION}/lib
+   cp ${LIB}/${ORG}/obj.Linux64/lib${ORG}.a   ${DEST}/LinuxRHEL64_x86_64/64/${VERSION}/lib
+   
+   ls -l ${DEST}/*/*/*/lib/lib${ORG}.a
+   
+   
+   ##  Now copy the code and include files
+   ##  -----------------------------------
+   
+   echo "Copying Sources "${ORG}" to "${DEST}
+   cp ${LIB}/${ORG}/src/*  ${DEST}/src 
+   
+   ### ls -l ${DEST}/src
+
+end
+echo "   ---- DONE copying the "$VERSION" version of the libs ----"
+
+

@@ -1,0 +1,44 @@
+#include "ReactionRatio.h"
+#include "Constants.h"
+#include "GeneralParametersHandler.h"
+#include "Species.h"
+namespace OTGC
+{
+ReactionRatio::ReactionRatio(Species *const in_react1,Species *const in_react2,const std::string &functionCode):
+m_reactant1(in_react1), m_reactant2(in_react2),m_functionCode(functionCode)
+{
+}
+ReactionRatio::~ReactionRatio()
+{
+   
+}
+void ReactionRatio::OutputOnScreen()
+{
+   cout<<m_reactant1->GetName()<<","<<m_reactant2->GetName()<<","<<m_functionCode<<endl;
+}
+void ReactionRatio::OutputOnFile(ofstream &outfile)
+{
+   outfile<<m_reactant1->GetName()<<","<<m_reactant2->GetName()<<","<<m_functionCode<<endl;
+}
+double ReactionRatio::GetRatio(const double &preasphaltheneArom) const
+{
+   double theRatio=0.0;
+   
+   if(m_functionCode!="*")//most likely
+   {
+      theRatio = atof(m_functionCode.c_str());
+   }
+   else
+   {
+       GeneralParametersHandler & theHandler = GeneralParametersHandler::getInstance();
+      //must use * in config file only for ratio related to aromaticity
+      //Rat   = Arom(Lpreasphalt)  / (1 - Arom(Lpreasphalt) ) * AsphalteneRatio
+      theRatio= preasphaltheneArom / (1.0 - preasphaltheneArom ) * theHandler.GetParameterById(GeneralParametersHandler::asphalteneRatio);
+   }
+    //minus( - ) explanation: A/B=RATIO-->A-B*RATIO=0
+    theRatio *= -1.0;
+    
+    return  theRatio;
+}
+
+};

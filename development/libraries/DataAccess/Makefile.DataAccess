@@ -1,0 +1,835 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+include $(FILE_BASE)/Make.hdf5
+include $(FILE_BASE)/Make.machine
+include $(FILE_BASE)/Make.libraries
+CC = $(CXX)
+
+DATAACCESS_DIR  = $(LIBDIR)/DataAccess
+
+CFLAGS		+=  ${PROFILEFLAGS} ${COMPILEFLAGS}  ${DEBUGFLAGS}\
+		  -I$(HDF5_SINCLUDE) \
+		  -I$(H5_SERIAL_INC) \
+		  -I$(UTILITIES_INC) \
+		  -I$(DATABASE_INC) \
+		  -I$(DATAACCESS_DIR)/src \
+		  -I$(EOSPACK_INC) \
+		  -I$(CBMGENERICS_INC) \
+		  -I$(CTC_INC) -fPIC
+
+LIBDIR = ../../../libraries
+
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+DATABASE_INC	= $(LIBDIR)/TableIO/src
+DATABASE_LIB    = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB    = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+
+#DOXYGENCFG = SerialDataAccess.cfg
+
+LIBOBJECTS = \
+	AllochthonousLithology.o \
+	AllochthonousLithologyDistribution.o \
+	AllochthonousLithologyInterpolation.o \
+	AttributeValue.o \
+	BasementFormation.o \
+	BasementSurface.o \
+	BiodegradationParameters.o \
+	Child.o \
+	ConstrainedOverpressureInterval.o \
+	CrustFormation.o \
+	CrustalThicknessData.o \
+	DAObject.o \
+    DiffusionLeakageParameters.o \
+	FaultElementCalculator.o \
+	FaultFileReader.o \
+	FaultFileReaderFactory.o \
+	Faulting.o \
+	FaultCollection.o \
+    FluidType.o \
+	FluidHeatCapacitySample.o \
+	FluidThermalConductivitySample.o \
+	FluidDensitySample.o \
+	Formation.o \
+    FracturePressureFunctionParameters.o \
+	GridMap.o \
+	IBSFaultFileReader.o \
+	InputValue.o \
+	IrreducibleWaterSaturationSample.o \
+	LandmarkFaultFileReader.o \
+	LangmuirAdsorptionIsothermSample.o \
+	LangmuirAdsorptionTOCEntry.o \
+	Lead.o \
+	LeadTrap.o \
+	LithoType.o \
+	LithologyHeatCapacitySample.o \
+	LithologyThermalConductivitySample.o \
+	MD5.o \
+	MantleFormation.o \
+	MobileLayer.o \
+	ObjectFactory.o \
+	OutputProperty.o \
+	PaleoFormationProperty.o \
+	PaleoProperty.o \
+	PaleoSurfaceProperty.o \
+	Parent.o \
+	PointAdsorptionHistory.o \
+    ProjectHandle.o \
+	Property.o \
+	PropertyValue.o \
+	ReconModelFaultFileReader.o \
+	RelatedProject.o \
+	Reservoir.o \
+	RunParameters.o \
+	ProjectData.o \
+	SGDensitySample.o \
+	Snapshot.o \
+	SourceRock.o \
+	Surface.o \
+	TouchstoneMap.o \
+	Trap.o \
+	Trapper.o \
+	Migration.o \
+	TrapPhase.o \
+	ZycorFaultFileReader.o \
+	auxiliaryfaulttypes.o \
+	hdf5funcs.o \
+	wildMatch.o
+
+
+LIBSRCS = $(LIBOBJECTS:.o=.C)
+
+LIBINCLUDES = \
+	Interface/AllochthonousLithology.h \
+	Interface/AllochthonousLithologyDistribution.h \
+	Interface/AllochthonousLithologyInterpolation.h \
+	Interface/ApplicationGlobalOperations.h \
+	Interface/AttributeAccess.h \
+	Interface/AttributeValue.h \
+	Interface/BasementFormation.h \
+	Interface/BasementSurface.h \
+	Interface/BiodegradationParameters.h \
+	Interface/Child.h \
+	Interface/ConstrainedOverpressureInterval.h \
+	Interface/CrustFormation.h \
+	Interface/CrustalThicknessData.h \
+	Interface/DAObject.h \
+	Interface/FaultElementCalculator.h \
+	Interface/FaultFileReader.h \
+	Interface/FaultFileReaderFactory.h \
+	Interface/Faulting.h \
+	Interface/FaultCollection.h \
+	Interface/Formation.h \
+	Interface/FluidHeatCapacitySample.h \
+	Interface/FluidDensitySample.h \
+	Interface/FluidThermalConductivitySample.h \
+	Interface/FluidType.h \
+	Interface/IBSFaultFileReader.h \
+	Interface/InputValue.h \
+	Interface/IrreducibleWaterSaturationSample.h \
+	Interface/LandmarkFaultFileReader.h \
+	Interface/Grid.h \
+	Interface/GridMap.h \
+	Interface/LangmuirAdsorptionIsothermSample.h \
+	Interface/LangmuirAdsorptionTOCEntry.h \
+	Interface/Lead.h \
+	Interface/LeadTrap.h \
+	Interface/LithoType.h \
+	Interface/LithologyHeatCapacitySample.h \
+	Interface/LithologyThermalConductivitySample.h \
+	Interface/MantleFormation.h \
+	Interface/MessageHandler.h \
+	Interface/MobileLayer.h \
+	Interface/ObjectFactory.h \
+	Interface/OutputProperty.h \
+	Interface/PaleoFormationProperty.h \
+	Interface/PaleoProperty.h \
+	Interface/PaleoSurfaceProperty.h \
+	Interface/Parent.h \
+	Interface/PointAdsorptionHistory.h \
+	Interface/ProjectHandle.h \
+	Interface/Property.h \
+	Interface/PropertyValue.h \
+	Interface/ReconModelFaultFileReader.h \
+	Interface/RelatedProject.h \
+	Interface/Reservoir.h \
+	Interface/RunParameters.h \
+	Interface/ProjectData.h \
+	Interface/SGDensitySample.h \
+	Interface/Snapshot.h \
+	Interface/SourceRock.h \
+	Interface/Surface.h \
+	Interface/TouchstoneMap.h \
+	Interface/Trap.h \
+	Interface/Trapper.h \
+	Interface/Migration.h \
+	Interface/TrapPhase.h \
+	Interface/ZycorFaultFileReader.h \
+	Interface/auxiliaryfaulttypes.h \
+	MD5.h \
+	hdf5funcs.h \
+	errorhandling.h \
+	wildMatch.h
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+DOXYGEN = doxygen
+
+SHAREDLINKLIB = $(DATABASE_LIB) \
+		$(H5_SERIAL_LIB) \
+		$(CBMGENERICS_LIB) \
+		$(UTILITIES_LIB) \
+		$(HDF5_SLIB)/libhdf5.so
+
+LINKLIB = $(DATABASE_LIB) \
+		$(H5_SERIAL_LIB) \
+		$(CBMGENERICS_LIB) \
+		$(UTILITIES_LIB) \
+		$(HDF5_SLIB)/libhdf5.a
+
+
+SELECTEDLINKLIB = $(LINKLIB)
+
+SHAREDLIB = libDataAccess.so
+STATICLIB = libDataAccess.a
+
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(STATICLIB)
+
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+
+# target: $(STATICLIB) $(SHAREDLIB)
+target: $(STATICLIB)
+
+$(STATICLIB): 
+	$(MAKE) $(LIBOBJECTS)
+	$(AR) $(STATICLIB) $(LIBOBJECTS)
+
+$(SHAREDLIB): $(STATICLIB)
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+clean:
+	rm -rf $(STATICLIB) $(SHAREDLIB) $(LIBOBJECTS) \
+	core ii_files SunWS_cache 
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(LIBOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.DataAccess -Y $(INCLUDEDIRS) $(LIBOBJECTS:.o=.C) 2> /dev/null
+
+
+libDataAccess.a: $(LIBOBJECTS)
+
+# DO NOT DELETE THIS LINE
+
+AllochthonousLithology.o: Interface/ProjectHandle.h Interface/Interface.h
+AllochthonousLithology.o: Interface/MessageHandler.h
+AllochthonousLithology.o: Interface/ApplicationGlobalOperations.h
+AllochthonousLithology.o: Interface/ObjectFactory.h Interface/Interface.h
+AllochthonousLithology.o: Interface/Formation.h Interface/DAObject.h
+AllochthonousLithology.o: Interface/Parent.h Interface/DynArray.h
+AllochthonousLithology.o: Interface/AttributeValue.h Interface/Child.h
+AllochthonousLithology.o: ../../CBMGenerics/src/capillarySealStrength.h
+AllochthonousLithology.o: ../../CBMGenerics/src/DllExport.h
+AllochthonousLithology.o: ../../CBMGenerics/src/stdafx.h
+AllochthonousLithology.o: Interface/LithoType.h
+AllochthonousLithology.o: Interface/AllochthonousLithology.h
+AllochthonousLithologyDistribution.o: Interface/ProjectHandle.h
+AllochthonousLithologyDistribution.o: Interface/Interface.h
+AllochthonousLithologyDistribution.o: Interface/MessageHandler.h
+AllochthonousLithologyDistribution.o: Interface/ApplicationGlobalOperations.h
+AllochthonousLithologyDistribution.o: Interface/ObjectFactory.h
+AllochthonousLithologyDistribution.o: Interface/Interface.h
+AllochthonousLithologyDistribution.o: Interface/GridMap.h Interface/Child.h
+AllochthonousLithologyDistribution.o: Interface/Formation.h
+AllochthonousLithologyDistribution.o: Interface/DAObject.h Interface/Parent.h
+AllochthonousLithologyDistribution.o: Interface/DynArray.h
+AllochthonousLithologyDistribution.o: Interface/AttributeValue.h
+AllochthonousLithologyDistribution.o: ../../CBMGenerics/src/capillarySealStrength.h
+AllochthonousLithologyDistribution.o: ../../CBMGenerics/src/DllExport.h
+AllochthonousLithologyDistribution.o: ../../CBMGenerics/src/stdafx.h
+AllochthonousLithologyDistribution.o: Interface/Snapshot.h
+AllochthonousLithologyDistribution.o: Interface/AllochthonousLithologyDistribution.h
+AllochthonousLithologyInterpolation.o: Interface/ProjectHandle.h
+AllochthonousLithologyInterpolation.o: Interface/Interface.h
+AllochthonousLithologyInterpolation.o: Interface/MessageHandler.h
+AllochthonousLithologyInterpolation.o: Interface/ApplicationGlobalOperations.h
+AllochthonousLithologyInterpolation.o: Interface/Formation.h
+AllochthonousLithologyInterpolation.o: Interface/DAObject.h
+AllochthonousLithologyInterpolation.o: Interface/Parent.h
+AllochthonousLithologyInterpolation.o: Interface/DynArray.h
+AllochthonousLithologyInterpolation.o: Interface/AttributeValue.h
+AllochthonousLithologyInterpolation.o: Interface/Child.h
+AllochthonousLithologyInterpolation.o: Interface/Interface.h
+AllochthonousLithologyInterpolation.o: ../../CBMGenerics/src/capillarySealStrength.h
+AllochthonousLithologyInterpolation.o: ../../CBMGenerics/src/DllExport.h
+AllochthonousLithologyInterpolation.o: ../../CBMGenerics/src/stdafx.h
+AllochthonousLithologyInterpolation.o: Interface/Snapshot.h
+AllochthonousLithologyInterpolation.o: Interface/AllochthonousLithologyInterpolation.h
+AttributeValue.o: Interface/AttributeValue.h Interface/Child.h
+AttributeValue.o: Interface/Interface.h
+BasementFormation.o: Interface/BasementFormation.h Interface/DAObject.h
+BasementFormation.o: Interface/Parent.h Interface/DynArray.h
+BasementFormation.o: Interface/AttributeValue.h Interface/Child.h
+BasementFormation.o: Interface/Interface.h Interface/Formation.h
+BasementFormation.o: ../../CBMGenerics/src/capillarySealStrength.h
+BasementFormation.o: ../../CBMGenerics/src/DllExport.h
+BasementFormation.o: ../../CBMGenerics/src/stdafx.h Interface/SourceRock.h
+BasementFormation.o: Interface/LithoType.h Interface/Surface.h
+BasementFormation.o: Interface/Interface.h Interface/Grid.h
+BasementFormation.o: Interface/GridMap.h Interface/Snapshot.h
+BasementFormation.o: Interface/ObjectFactory.h Interface/ProjectHandle.h
+BasementFormation.o: Interface/MessageHandler.h
+BasementFormation.o: Interface/ApplicationGlobalOperations.h
+BasementFormation.o: Interface/FaultElementCalculator.h
+BasementFormation.o: Interface/auxiliaryfaulttypes.h Interface/FluidType.h
+BasementFormation.o: ../../CBMGenerics/src/waterDensity.h
+BasementFormation.o: Interface/AllochthonousLithology.h
+BasementSurface.o: Interface/BasementSurface.h Interface/DAObject.h
+BasementSurface.o: Interface/Parent.h Interface/DynArray.h
+BasementSurface.o: Interface/AttributeValue.h Interface/Child.h
+BasementSurface.o: Interface/Interface.h Interface/Surface.h
+BasementSurface.o: Interface/Interface.h Interface/Formation.h
+BasementSurface.o: ../../CBMGenerics/src/capillarySealStrength.h
+BasementSurface.o: ../../CBMGenerics/src/DllExport.h
+BasementSurface.o: ../../CBMGenerics/src/stdafx.h Interface/GridMap.h
+BasementSurface.o: Interface/ObjectFactory.h Interface/ProjectHandle.h
+BasementSurface.o: Interface/MessageHandler.h
+BasementSurface.o: Interface/ApplicationGlobalOperations.h
+BasementSurface.o: Interface/Snapshot.h
+BiodegradationParameters.o: Interface/BiodegradationParameters.h
+BiodegradationParameters.o: Interface/ProjectHandle.h Interface/Interface.h
+BiodegradationParameters.o: Interface/MessageHandler.h
+BiodegradationParameters.o: Interface/ApplicationGlobalOperations.h
+BiodegradationParameters.o: Interface/DAObject.h Interface/Parent.h
+BiodegradationParameters.o: Interface/DynArray.h Interface/AttributeValue.h
+BiodegradationParameters.o: Interface/Child.h Interface/Interface.h
+BiodegradationParameters.o: Interface/BioConsts.h
+Child.o: Interface/Parent.h Interface/DynArray.h Interface/Child.h
+ConstrainedOverpressureInterval.o: Interface/ConstrainedOverpressureInterval.h
+ConstrainedOverpressureInterval.o: Interface/DAObject.h Interface/Parent.h
+ConstrainedOverpressureInterval.o: Interface/DynArray.h
+ConstrainedOverpressureInterval.o: Interface/AttributeValue.h
+ConstrainedOverpressureInterval.o: Interface/Child.h Interface/Interface.h
+ConstrainedOverpressureInterval.o: Interface/Snapshot.h Interface/Formation.h
+ConstrainedOverpressureInterval.o: ../../CBMGenerics/src/capillarySealStrength.h
+ConstrainedOverpressureInterval.o: ../../CBMGenerics/src/DllExport.h
+ConstrainedOverpressureInterval.o: ../../CBMGenerics/src/stdafx.h
+ConstrainedOverpressureInterval.o: Interface/ProjectHandle.h
+ConstrainedOverpressureInterval.o: Interface/Interface.h
+ConstrainedOverpressureInterval.o: Interface/MessageHandler.h
+ConstrainedOverpressureInterval.o: Interface/ApplicationGlobalOperations.h
+CrustFormation.o: Interface/Interface.h Interface/CrustFormation.h
+CrustFormation.o: Interface/DAObject.h Interface/Parent.h
+CrustFormation.o: Interface/DynArray.h Interface/AttributeValue.h
+CrustFormation.o: Interface/Child.h Interface/BasementFormation.h
+CrustFormation.o: Interface/Formation.h
+CrustFormation.o: ../../CBMGenerics/src/capillarySealStrength.h
+CrustFormation.o: ../../CBMGenerics/src/DllExport.h
+CrustFormation.o: ../../CBMGenerics/src/stdafx.h Interface/Grid.h
+CrustFormation.o: Interface/GridMap.h Interface/Interface.h
+CrustFormation.o: Interface/Snapshot.h Interface/Surface.h
+CrustFormation.o: Interface/ObjectFactory.h Interface/ProjectHandle.h
+CrustFormation.o: Interface/MessageHandler.h
+CrustFormation.o: Interface/ApplicationGlobalOperations.h
+CrustFormation.o: Interface/PaleoFormationProperty.h
+CrustFormation.o: Interface/PaleoProperty.h
+DAObject.o: Interface/AttributeValue.h Interface/Child.h
+DAObject.o: Interface/Interface.h Interface/ProjectHandle.h
+DAObject.o: Interface/Interface.h Interface/MessageHandler.h
+DAObject.o: Interface/ApplicationGlobalOperations.h Interface/DAObject.h
+DAObject.o: Interface/Parent.h Interface/DynArray.h
+DiffusionLeakageParameters.o: ../../CBMGenerics/src/stdafx.h
+DiffusionLeakageParameters.o: ../../CBMGenerics/src/DllExport.h
+DiffusionLeakageParameters.o: Interface/DiffusionLeakageParameters.h
+DiffusionLeakageParameters.o: Interface/DAObject.h Interface/Parent.h
+DiffusionLeakageParameters.o: Interface/DynArray.h Interface/AttributeValue.h
+DiffusionLeakageParameters.o: Interface/Child.h Interface/Interface.h
+DiffusionLeakageParameters.o: Interface/ProjectHandle.h Interface/Interface.h
+DiffusionLeakageParameters.o: Interface/MessageHandler.h
+DiffusionLeakageParameters.o: Interface/ApplicationGlobalOperations.h
+FaultElementCalculator.o: Interface/FaultElementCalculator.h
+FaultElementCalculator.o: Interface/auxiliaryfaulttypes.h
+FaultElementCalculator.o: Interface/Interface.h Interface/Interface.h
+FaultElementCalculator.o: Interface/Grid.h Interface/GridMap.h
+FaultElementCalculator.o: Interface/Child.h Interface/Snapshot.h
+FaultElementCalculator.o: Interface/DAObject.h Interface/Parent.h
+FaultElementCalculator.o: Interface/DynArray.h Interface/AttributeValue.h
+FaultElementCalculator.o: Interface/FaultCollection.h
+FaultElementCalculator.o: Interface/auxiliaryfaulttypes.h
+FaultElementCalculator.o: Interface/Faulting.h
+FaultFileReader.o: Interface/FaultFileReader.h
+FaultFileReader.o: Interface/auxiliaryfaulttypes.h Interface/Interface.h
+FaultFileReaderFactory.o: Interface/FaultFileReaderFactory.h
+FaultFileReaderFactory.o: Interface/FaultFileReader.h
+FaultFileReaderFactory.o: Interface/auxiliaryfaulttypes.h
+FaultFileReaderFactory.o: Interface/Interface.h
+Faulting.o: Interface/Snapshot.h Interface/DAObject.h Interface/Parent.h
+Faulting.o: Interface/DynArray.h Interface/AttributeValue.h Interface/Child.h
+Faulting.o: Interface/Interface.h Interface/FaultFileReader.h
+Faulting.o: Interface/auxiliaryfaulttypes.h Interface/Faulting.h
+Faulting.o: Interface/Interface.h Interface/FaultElementCalculator.h
+Faulting.o: Interface/FaultFileReaderFactory.h Interface/FaultFileReader.h
+FaultCollection.o: Interface/FaultCollection.h
+FaultCollection.o: Interface/auxiliaryfaulttypes.h Interface/DAObject.h
+FaultCollection.o: Interface/Parent.h Interface/DynArray.h
+FaultCollection.o: Interface/AttributeValue.h Interface/Child.h
+FaultCollection.o: Interface/Interface.h Interface/Faulting.h
+FaultCollection.o: Interface/auxiliaryfaulttypes.h Interface/Interface.h
+FaultCollection.o: Interface/Snapshot.h Interface/Formation.h
+FaultCollection.o: ../../CBMGenerics/src/capillarySealStrength.h
+FaultCollection.o: ../../CBMGenerics/src/DllExport.h
+FaultCollection.o: ../../CBMGenerics/src/stdafx.h
+FluidType.o: Interface/FluidType.h Interface/DAObject.h Interface/Parent.h
+FluidType.o: Interface/DynArray.h Interface/AttributeValue.h
+FluidType.o: Interface/Child.h Interface/Interface.h
+FluidType.o: Interface/ProjectHandle.h Interface/Interface.h
+FluidType.o: Interface/MessageHandler.h
+FluidType.o: Interface/ApplicationGlobalOperations.h
+FluidType.o: ../../CBMGenerics/src/waterDensity.h
+FluidType.o: ../../CBMGenerics/src/DllExport.h
+FluidHeatCapacitySample.o: Interface/Formation.h Interface/DAObject.h
+FluidHeatCapacitySample.o: Interface/Parent.h Interface/DynArray.h
+FluidHeatCapacitySample.o: Interface/AttributeValue.h Interface/Child.h
+FluidHeatCapacitySample.o: Interface/Interface.h
+FluidHeatCapacitySample.o: ../../CBMGenerics/src/capillarySealStrength.h
+FluidHeatCapacitySample.o: ../../CBMGenerics/src/DllExport.h
+FluidHeatCapacitySample.o: ../../CBMGenerics/src/stdafx.h
+FluidHeatCapacitySample.o: Interface/FluidHeatCapacitySample.h
+FluidHeatCapacitySample.o: Interface/FluidType.h Interface/ProjectHandle.h
+FluidHeatCapacitySample.o: Interface/Interface.h Interface/MessageHandler.h
+FluidHeatCapacitySample.o: Interface/ApplicationGlobalOperations.h
+FluidHeatCapacitySample.o: ../../CBMGenerics/src/waterDensity.h
+FluidHeatCapacitySample.o: Interface/ObjectFactory.h
+FluidThermalConductivitySample.o: Interface/Formation.h Interface/DAObject.h
+FluidThermalConductivitySample.o: Interface/Parent.h Interface/DynArray.h
+FluidThermalConductivitySample.o: Interface/AttributeValue.h
+FluidThermalConductivitySample.o: Interface/Child.h Interface/Interface.h
+FluidThermalConductivitySample.o: ../../CBMGenerics/src/capillarySealStrength.h
+FluidThermalConductivitySample.o: ../../CBMGenerics/src/DllExport.h
+FluidThermalConductivitySample.o: ../../CBMGenerics/src/stdafx.h
+FluidThermalConductivitySample.o: Interface/FluidThermalConductivitySample.h
+FluidThermalConductivitySample.o: Interface/ObjectFactory.h
+FluidThermalConductivitySample.o: Interface/ProjectHandle.h
+FluidThermalConductivitySample.o: Interface/Interface.h
+FluidThermalConductivitySample.o: Interface/MessageHandler.h
+FluidThermalConductivitySample.o: Interface/ApplicationGlobalOperations.h
+FluidThermalConductivitySample.o: Interface/FluidType.h
+FluidThermalConductivitySample.o: ../../CBMGenerics/src/waterDensity.h
+FluidDensitySample.o: Interface/Formation.h Interface/DAObject.h
+FluidDensitySample.o: Interface/Parent.h Interface/DynArray.h
+FluidDensitySample.o: Interface/AttributeValue.h Interface/Child.h
+FluidDensitySample.o: Interface/Interface.h
+FluidDensitySample.o: ../../CBMGenerics/src/capillarySealStrength.h
+FluidDensitySample.o: ../../CBMGenerics/src/DllExport.h
+FluidDensitySample.o: ../../CBMGenerics/src/stdafx.h
+FluidDensitySample.o: Interface/FluidDensitySample.h
+FluidDensitySample.o: Interface/ObjectFactory.h Interface/ProjectHandle.h
+FluidDensitySample.o: Interface/Interface.h Interface/MessageHandler.h
+FluidDensitySample.o: Interface/ApplicationGlobalOperations.h
+FluidDensitySample.o: Interface/FluidType.h
+FluidDensitySample.o: ../../CBMGenerics/src/waterDensity.h
+Formation.o: Interface/Formation.h Interface/DAObject.h Interface/Parent.h
+Formation.o: Interface/DynArray.h Interface/AttributeValue.h
+Formation.o: Interface/Child.h Interface/Interface.h
+Formation.o: ../../CBMGenerics/src/capillarySealStrength.h
+Formation.o: ../../CBMGenerics/src/DllExport.h ../../CBMGenerics/src/stdafx.h
+Formation.o: Interface/SourceRock.h Interface/LithoType.h Interface/Surface.h
+Formation.o: Interface/Interface.h Interface/Grid.h Interface/GridMap.h
+Formation.o: Interface/Snapshot.h Interface/ObjectFactory.h
+Formation.o: Interface/ProjectHandle.h Interface/MessageHandler.h
+Formation.o: Interface/ApplicationGlobalOperations.h
+Formation.o: Interface/FaultElementCalculator.h
+Formation.o: Interface/auxiliaryfaulttypes.h Interface/FluidType.h
+Formation.o: ../../CBMGenerics/src/waterDensity.h
+Formation.o: Interface/AllochthonousLithology.h
+FracturePressureFunctionParameters.o: Interface/FracturePressureFunctionParameters.h
+FracturePressureFunctionParameters.o: Interface/Interface.h
+FracturePressureFunctionParameters.o: Interface/DAObject.h Interface/Parent.h
+FracturePressureFunctionParameters.o: Interface/DynArray.h
+FracturePressureFunctionParameters.o: Interface/AttributeValue.h
+FracturePressureFunctionParameters.o: Interface/Child.h Interface/Interface.h
+FracturePressureFunctionParameters.o: Interface/ProjectHandle.h
+FracturePressureFunctionParameters.o: Interface/Interface.h
+FracturePressureFunctionParameters.o: Interface/MessageHandler.h
+FracturePressureFunctionParameters.o: Interface/ApplicationGlobalOperations.h
+FracturePressureFunctionParameters.o: Interface/RunParameters.h
+FracturePressureFunctionParameters.o: Interface/DAObject.h
+GridMap.o: Interface/GridMap.h Interface/Interface.h Interface/Child.h
+GridMap.o: Interface/Grid.h
+IBSFaultFileReader.o: Interface/IBSFaultFileReader.h
+IBSFaultFileReader.o: Interface/FaultFileReader.h
+IBSFaultFileReader.o: Interface/auxiliaryfaulttypes.h Interface/Interface.h
+InputValue.o: Interface/InputValue.h Interface/DAObject.h Interface/Parent.h
+InputValue.o: Interface/DynArray.h Interface/AttributeValue.h
+InputValue.o: Interface/Child.h Interface/Interface.h
+InputValue.o: Interface/ProjectHandle.h Interface/Interface.h
+InputValue.o: Interface/MessageHandler.h
+InputValue.o: Interface/ApplicationGlobalOperations.h Interface/GridMap.h
+InputValue.o: hdf5funcs.h
+IrreducibleWaterSaturationSample.o: Interface/IrreducibleWaterSaturationSample.h
+IrreducibleWaterSaturationSample.o: Interface/DAObject.h Interface/Parent.h
+IrreducibleWaterSaturationSample.o: Interface/DynArray.h
+IrreducibleWaterSaturationSample.o: Interface/AttributeValue.h
+IrreducibleWaterSaturationSample.o: Interface/Child.h Interface/Interface.h
+LandmarkFaultFileReader.o: Interface/LandmarkFaultFileReader.h
+LandmarkFaultFileReader.o: Interface/FaultFileReader.h
+LandmarkFaultFileReader.o: Interface/auxiliaryfaulttypes.h
+LandmarkFaultFileReader.o: Interface/Interface.h
+LangmuirAdsorptionIsothermSample.o: Interface/LangmuirAdsorptionIsothermSample.h
+LangmuirAdsorptionIsothermSample.o: Interface/DAObject.h Interface/Parent.h
+LangmuirAdsorptionIsothermSample.o: Interface/DynArray.h
+LangmuirAdsorptionIsothermSample.o: Interface/AttributeValue.h
+LangmuirAdsorptionIsothermSample.o: Interface/Child.h Interface/Interface.h
+LangmuirAdsorptionTOCEntry.o: Interface/LangmuirAdsorptionTOCEntry.h
+LangmuirAdsorptionTOCEntry.o: Interface/DAObject.h Interface/Parent.h
+LangmuirAdsorptionTOCEntry.o: Interface/DynArray.h Interface/AttributeValue.h
+LangmuirAdsorptionTOCEntry.o: Interface/Child.h Interface/Interface.h
+Lead.o: Interface/ProjectHandle.h Interface/Interface.h
+Lead.o: Interface/MessageHandler.h Interface/ApplicationGlobalOperations.h
+Lead.o: Interface/Lead.h Interface/DAObject.h Interface/Parent.h
+Lead.o: Interface/DynArray.h Interface/AttributeValue.h Interface/Child.h
+Lead.o: Interface/Interface.h Interface/LeadTrap.h Interface/ObjectFactory.h
+LeadTrap.o: Interface/Interface.h Interface/LeadTrap.h Interface/DAObject.h
+LeadTrap.o: Interface/Parent.h Interface/DynArray.h
+LeadTrap.o: Interface/AttributeValue.h Interface/Child.h Interface/Trap.h
+LeadTrap.o: Interface/TrapPhase.h Interface/Reservoir.h
+LeadTrap.o: Interface/ObjectFactory.h
+LithoType.o: Interface/LithoType.h Interface/Interface.h Interface/DAObject.h
+LithoType.o: Interface/Parent.h Interface/DynArray.h
+LithoType.o: Interface/AttributeValue.h Interface/Child.h
+LithoType.o: Interface/LithologyHeatCapacitySample.h
+LithoType.o: Interface/LithologyThermalConductivitySample.h
+LithoType.o: Interface/ProjectHandle.h Interface/Interface.h
+LithoType.o: Interface/MessageHandler.h
+LithoType.o: Interface/ApplicationGlobalOperations.h
+LithologyHeatCapacitySample.o: Interface/Formation.h Interface/DAObject.h
+LithologyHeatCapacitySample.o: Interface/Parent.h Interface/DynArray.h
+LithologyHeatCapacitySample.o: Interface/AttributeValue.h Interface/Child.h
+LithologyHeatCapacitySample.o: Interface/Interface.h
+LithologyHeatCapacitySample.o: ../../CBMGenerics/src/capillarySealStrength.h
+LithologyHeatCapacitySample.o: ../../CBMGenerics/src/DllExport.h
+LithologyHeatCapacitySample.o: ../../CBMGenerics/src/stdafx.h
+LithologyHeatCapacitySample.o: Interface/LithologyHeatCapacitySample.h
+LithologyHeatCapacitySample.o: Interface/ObjectFactory.h
+LithologyHeatCapacitySample.o: Interface/ProjectHandle.h
+LithologyHeatCapacitySample.o: Interface/Interface.h
+LithologyHeatCapacitySample.o: Interface/MessageHandler.h
+LithologyHeatCapacitySample.o: Interface/ApplicationGlobalOperations.h
+LithologyThermalConductivitySample.o: Interface/Formation.h
+LithologyThermalConductivitySample.o: Interface/DAObject.h Interface/Parent.h
+LithologyThermalConductivitySample.o: Interface/DynArray.h
+LithologyThermalConductivitySample.o: Interface/AttributeValue.h
+LithologyThermalConductivitySample.o: Interface/Child.h Interface/Interface.h
+LithologyThermalConductivitySample.o: ../../CBMGenerics/src/capillarySealStrength.h
+LithologyThermalConductivitySample.o: ../../CBMGenerics/src/DllExport.h
+LithologyThermalConductivitySample.o: ../../CBMGenerics/src/stdafx.h
+LithologyThermalConductivitySample.o: Interface/LithologyThermalConductivitySample.h
+LithologyThermalConductivitySample.o: Interface/ObjectFactory.h
+LithologyThermalConductivitySample.o: Interface/ProjectHandle.h
+LithologyThermalConductivitySample.o: Interface/Interface.h
+LithologyThermalConductivitySample.o: Interface/MessageHandler.h
+LithologyThermalConductivitySample.o: Interface/ApplicationGlobalOperations.h
+MD5.o: MD5.h
+MantleFormation.o: Interface/MantleFormation.h Interface/DAObject.h
+MantleFormation.o: Interface/Parent.h Interface/DynArray.h
+MantleFormation.o: Interface/AttributeValue.h Interface/Child.h
+MantleFormation.o: Interface/Interface.h Interface/BasementFormation.h
+MantleFormation.o: Interface/Formation.h
+MantleFormation.o: ../../CBMGenerics/src/capillarySealStrength.h
+MantleFormation.o: ../../CBMGenerics/src/DllExport.h
+MantleFormation.o: ../../CBMGenerics/src/stdafx.h Interface/Grid.h
+MantleFormation.o: Interface/GridMap.h Interface/Interface.h
+MantleFormation.o: Interface/Snapshot.h Interface/Surface.h
+MantleFormation.o: Interface/ObjectFactory.h Interface/ProjectHandle.h
+MantleFormation.o: Interface/MessageHandler.h
+MantleFormation.o: Interface/ApplicationGlobalOperations.h
+MobileLayer.o: Interface/ProjectHandle.h Interface/Interface.h
+MobileLayer.o: Interface/MessageHandler.h
+MobileLayer.o: Interface/ApplicationGlobalOperations.h Interface/DAObject.h
+MobileLayer.o: Interface/Parent.h Interface/DynArray.h
+MobileLayer.o: Interface/AttributeValue.h Interface/Child.h
+MobileLayer.o: Interface/Interface.h Interface/ObjectFactory.h
+MobileLayer.o: Interface/GridMap.h Interface/Formation.h
+MobileLayer.o: ../../CBMGenerics/src/capillarySealStrength.h
+MobileLayer.o: ../../CBMGenerics/src/DllExport.h
+MobileLayer.o: ../../CBMGenerics/src/stdafx.h Interface/Snapshot.h
+MobileLayer.o: Interface/MobileLayer.h Interface/PaleoFormationProperty.h
+MobileLayer.o: Interface/PaleoProperty.h
+ObjectFactory.o: Interface/AllochthonousLithology.h Interface/Interface.h
+ObjectFactory.o: Interface/DAObject.h Interface/Parent.h Interface/DynArray.h
+ObjectFactory.o: Interface/AttributeValue.h Interface/Child.h
+ObjectFactory.o: Interface/AllochthonousLithologyDistribution.h
+ObjectFactory.o: Interface/AllochthonousLithologyInterpolation.h
+ObjectFactory.o: Interface/Formation.h
+ObjectFactory.o: ../../CBMGenerics/src/capillarySealStrength.h
+ObjectFactory.o: ../../CBMGenerics/src/DllExport.h
+ObjectFactory.o: ../../CBMGenerics/src/stdafx.h Interface/Snapshot.h
+ObjectFactory.o: Interface/BasementSurface.h Interface/Surface.h
+ObjectFactory.o: Interface/Interface.h Interface/BiodegradationParameters.h
+ObjectFactory.o: Interface/ProjectHandle.h Interface/MessageHandler.h
+ObjectFactory.o: Interface/ApplicationGlobalOperations.h Interface/DAObject.h
+ObjectFactory.o: Interface/BioConsts.h
+ObjectFactory.o: Interface/ConstrainedOverpressureInterval.h
+ObjectFactory.o: Interface/CrustFormation.h Interface/BasementFormation.h
+ObjectFactory.o: Interface/DiffusionLeakageParameters.h
+ObjectFactory.o: Interface/ProjectHandle.h Interface/FaultCollection.h
+ObjectFactory.o: Interface/auxiliaryfaulttypes.h
+ObjectFactory.o: Interface/FluidDensitySample.h
+ObjectFactory.o: Interface/FluidHeatCapacitySample.h Interface/FluidType.h
+ObjectFactory.o: ../../CBMGenerics/src/waterDensity.h
+ObjectFactory.o: Interface/FluidThermalConductivitySample.h
+ObjectFactory.o: Interface/FracturePressureFunctionParameters.h
+ObjectFactory.o: Interface/Interface.h Interface/Grid.h Interface/GridMap.h
+ObjectFactory.o: Interface/InputValue.h
+ObjectFactory.o: Interface/IrreducibleWaterSaturationSample.h
+ObjectFactory.o: Interface/LangmuirAdsorptionIsothermSample.h
+ObjectFactory.o: Interface/LangmuirAdsorptionTOCEntry.h Interface/Lead.h
+ObjectFactory.o: Interface/LeadTrap.h Interface/LithoType.h
+ObjectFactory.o: Interface/LithologyHeatCapacitySample.h
+ObjectFactory.o: Interface/LithologyThermalConductivitySample.h
+ObjectFactory.o: Interface/MantleFormation.h Interface/MobileLayer.h
+ObjectFactory.o: Interface/PaleoFormationProperty.h Interface/PaleoProperty.h
+ObjectFactory.o: Interface/ObjectFactory.h Interface/OutputProperty.h
+ObjectFactory.o: Interface/Property.h Interface/PaleoSurfaceProperty.h
+ObjectFactory.o: Interface/PointAdsorptionHistory.h Interface/ProjectData.h
+ObjectFactory.o: Interface/PropertyValue.h Interface/RelatedProject.h
+ObjectFactory.o: Interface/Reservoir.h Interface/RunParameters.h
+ObjectFactory.o: Interface/SGDensitySample.h Interface/SourceRock.h
+ObjectFactory.o: Interface/TouchstoneMap.h Interface/Trap.h
+ObjectFactory.o: Interface/Trapper.h Interface/TrapPhase.h
+ObjectFactory.o: Interface/Migration.h
+OutputProperty.o: Interface/OutputProperty.h Interface/Property.h
+OutputProperty.o: Interface/DAObject.h Interface/Parent.h
+OutputProperty.o: Interface/DynArray.h Interface/AttributeValue.h
+OutputProperty.o: Interface/Child.h Interface/Interface.h
+OutputProperty.o: Interface/ProjectHandle.h Interface/Interface.h
+OutputProperty.o: Interface/MessageHandler.h
+OutputProperty.o: Interface/ApplicationGlobalOperations.h
+PaleoFormationProperty.o: Interface/ProjectHandle.h Interface/Interface.h
+PaleoFormationProperty.o: Interface/MessageHandler.h
+PaleoFormationProperty.o: Interface/ApplicationGlobalOperations.h
+PaleoFormationProperty.o: Interface/ObjectFactory.h Interface/Interface.h
+PaleoFormationProperty.o: Interface/GridMap.h Interface/Child.h
+PaleoFormationProperty.o: Interface/Formation.h Interface/DAObject.h
+PaleoFormationProperty.o: Interface/Parent.h Interface/DynArray.h
+PaleoFormationProperty.o: Interface/AttributeValue.h
+PaleoFormationProperty.o: ../../CBMGenerics/src/capillarySealStrength.h
+PaleoFormationProperty.o: ../../CBMGenerics/src/DllExport.h
+PaleoFormationProperty.o: ../../CBMGenerics/src/stdafx.h Interface/Snapshot.h
+PaleoFormationProperty.o: Interface/PaleoFormationProperty.h
+PaleoFormationProperty.o: Interface/PaleoProperty.h
+PaleoProperty.o: Interface/ProjectHandle.h Interface/Interface.h
+PaleoProperty.o: Interface/MessageHandler.h
+PaleoProperty.o: Interface/ApplicationGlobalOperations.h
+PaleoProperty.o: Interface/ObjectFactory.h Interface/Interface.h
+PaleoProperty.o: Interface/GridMap.h Interface/Child.h Interface/Snapshot.h
+PaleoProperty.o: Interface/DAObject.h Interface/Parent.h Interface/DynArray.h
+PaleoProperty.o: Interface/AttributeValue.h Interface/PaleoProperty.h
+PaleoSurfaceProperty.o: Interface/ProjectHandle.h Interface/Interface.h
+PaleoSurfaceProperty.o: Interface/MessageHandler.h
+PaleoSurfaceProperty.o: Interface/ApplicationGlobalOperations.h
+PaleoSurfaceProperty.o: Interface/ObjectFactory.h Interface/Interface.h
+PaleoSurfaceProperty.o: Interface/GridMap.h Interface/Child.h
+PaleoSurfaceProperty.o: Interface/Surface.h Interface/DAObject.h
+PaleoSurfaceProperty.o: Interface/Parent.h Interface/DynArray.h
+PaleoSurfaceProperty.o: Interface/AttributeValue.h Interface/Snapshot.h
+PaleoSurfaceProperty.o: Interface/PaleoSurfaceProperty.h
+PaleoSurfaceProperty.o: Interface/PaleoProperty.h
+Parent.o: Interface/Parent.h Interface/DynArray.h Interface/Child.h
+PointAdsorptionHistory.o: Interface/PointAdsorptionHistory.h
+PointAdsorptionHistory.o: Interface/DAObject.h Interface/Parent.h
+PointAdsorptionHistory.o: Interface/DynArray.h Interface/AttributeValue.h
+PointAdsorptionHistory.o: Interface/Child.h Interface/Interface.h
+ProjectHandle.o: ../../CBMGenerics/src/stdafx.h
+ProjectHandle.o: ../../CBMGenerics/src/DllExport.h hdf5funcs.h MD5.h
+ProjectHandle.o: Interface/ProjectHandle.h Interface/Interface.h
+ProjectHandle.o: Interface/MessageHandler.h
+ProjectHandle.o: Interface/ApplicationGlobalOperations.h
+ProjectHandle.o: Interface/AllochthonousLithology.h Interface/Interface.h
+ProjectHandle.o: Interface/DAObject.h Interface/Parent.h Interface/DynArray.h
+ProjectHandle.o: Interface/AttributeValue.h Interface/Child.h
+ProjectHandle.o: Interface/AllochthonousLithologyDistribution.h
+ProjectHandle.o: Interface/AllochthonousLithologyInterpolation.h
+ProjectHandle.o: Interface/Formation.h
+ProjectHandle.o: ../../CBMGenerics/src/capillarySealStrength.h
+ProjectHandle.o: Interface/Snapshot.h Interface/RunParameters.h
+ProjectHandle.o: Interface/ProjectData.h Interface/BasementSurface.h
+ProjectHandle.o: Interface/Surface.h Interface/BiodegradationParameters.h
+ProjectHandle.o: Interface/ProjectHandle.h Interface/DAObject.h
+ProjectHandle.o: Interface/BioConsts.h
+ProjectHandle.o: Interface/ConstrainedOverpressureInterval.h
+ProjectHandle.o: Interface/DiffusionLeakageParameters.h Interface/FluidType.h
+ProjectHandle.o: ../../CBMGenerics/src/waterDensity.h
+ProjectHandle.o: Interface/FracturePressureFunctionParameters.h
+ProjectHandle.o: Interface/Interface.h Interface/CrustFormation.h
+ProjectHandle.o: Interface/BasementFormation.h Interface/InputValue.h
+ProjectHandle.o: Interface/Lead.h Interface/LeadTrap.h Interface/LithoType.h
+ProjectHandle.o: Interface/LithologyHeatCapacitySample.h
+ProjectHandle.o: Interface/LithologyThermalConductivitySample.h
+ProjectHandle.o: Interface/FluidHeatCapacitySample.h
+ProjectHandle.o: Interface/FluidDensitySample.h
+ProjectHandle.o: Interface/FluidThermalConductivitySample.h Interface/Grid.h
+ProjectHandle.o: Interface/GridMap.h Interface/MapWriter.h
+ProjectHandle.o: Interface/MantleFormation.h Interface/MobileLayer.h
+ProjectHandle.o: Interface/PaleoFormationProperty.h Interface/PaleoProperty.h
+ProjectHandle.o: Interface/TouchstoneMap.h Interface/ObjectFactory.h
+ProjectHandle.o: Interface/OutputProperty.h Interface/Property.h
+ProjectHandle.o: Interface/PaleoSurfaceProperty.h Interface/PropertyValue.h
+ProjectHandle.o: Interface/RelatedProject.h Interface/Reservoir.h
+ProjectHandle.o: Interface/SourceRock.h Interface/Trap.h Interface/Trapper.h
+ProjectHandle.o: Interface/Migration.h Interface/FaultCollection.h
+ProjectHandle.o: Interface/auxiliaryfaulttypes.h Interface/Faulting.h
+ProjectHandle.o: Interface/auxiliaryfaulttypes.h
+ProjectHandle.o: Interface/FaultFileReaderFactory.h
+ProjectHandle.o: Interface/FaultFileReader.h Interface/FaultFileReader.h
+ProjectHandle.o: Interface/IBSFaultFileReader.h
+ProjectHandle.o: Interface/LandmarkFaultFileReader.h
+ProjectHandle.o: Interface/ZycorFaultFileReader.h
+ProjectHandle.o: Interface/PointAdsorptionHistory.h
+ProjectHandle.o: Interface/IrreducibleWaterSaturationSample.h
+ProjectHandle.o: Interface/LangmuirAdsorptionIsothermSample.h
+ProjectHandle.o: Interface/LangmuirAdsorptionTOCEntry.h
+ProjectHandle.o: Interface/SGDensitySample.h errorhandling.h wildMatch.h
+Property.o: Interface/Property.h Interface/DAObject.h Interface/Parent.h
+Property.o: Interface/DynArray.h Interface/AttributeValue.h Interface/Child.h
+Property.o: Interface/Interface.h Interface/ProjectHandle.h
+Property.o: Interface/Interface.h Interface/MessageHandler.h
+Property.o: Interface/ApplicationGlobalOperations.h
+PropertyValue.o: Interface/Formation.h Interface/DAObject.h
+PropertyValue.o: Interface/Parent.h Interface/DynArray.h
+PropertyValue.o: Interface/AttributeValue.h Interface/Child.h
+PropertyValue.o: Interface/Interface.h
+PropertyValue.o: ../../CBMGenerics/src/capillarySealStrength.h
+PropertyValue.o: ../../CBMGenerics/src/DllExport.h
+PropertyValue.o: ../../CBMGenerics/src/stdafx.h Interface/GridMap.h
+PropertyValue.o: Interface/Interface.h Interface/MapWriter.h
+PropertyValue.o: Interface/ObjectFactory.h Interface/ProjectHandle.h
+PropertyValue.o: Interface/MessageHandler.h
+PropertyValue.o: Interface/ApplicationGlobalOperations.h Interface/Property.h
+PropertyValue.o: Interface/PropertyValue.h Interface/Reservoir.h
+PropertyValue.o: Interface/Snapshot.h Interface/Surface.h
+ReconModelFaultFileReader.o: Interface/ReconModelFaultFileReader.h
+ReconModelFaultFileReader.o: Interface/FaultFileReader.h
+ReconModelFaultFileReader.o: Interface/auxiliaryfaulttypes.h
+ReconModelFaultFileReader.o: Interface/Interface.h
+RelatedProject.o: Interface/RelatedProject.h Interface/DAObject.h
+RelatedProject.o: Interface/Parent.h Interface/DynArray.h
+RelatedProject.o: Interface/AttributeValue.h Interface/Child.h
+RelatedProject.o: Interface/Interface.h Interface/ProjectHandle.h
+RelatedProject.o: Interface/Interface.h Interface/MessageHandler.h
+RelatedProject.o: Interface/ApplicationGlobalOperations.h
+Reservoir.o: Interface/ObjectFactory.h Interface/Interface.h
+Reservoir.o: Interface/ProjectHandle.h Interface/Interface.h
+Reservoir.o: Interface/MessageHandler.h
+Reservoir.o: Interface/ApplicationGlobalOperations.h Interface/GridMap.h
+Reservoir.o: Interface/Child.h Interface/Formation.h Interface/DAObject.h
+Reservoir.o: Interface/Parent.h Interface/DynArray.h
+Reservoir.o: Interface/AttributeValue.h
+Reservoir.o: ../../CBMGenerics/src/capillarySealStrength.h
+Reservoir.o: ../../CBMGenerics/src/DllExport.h ../../CBMGenerics/src/stdafx.h
+Reservoir.o: Interface/Reservoir.h
+RunParameters.o: Interface/RunParameters.h Interface/DAObject.h
+RunParameters.o: Interface/Parent.h Interface/DynArray.h
+RunParameters.o: Interface/AttributeValue.h Interface/Child.h
+RunParameters.o: Interface/Interface.h Interface/ProjectHandle.h
+RunParameters.o: Interface/Interface.h Interface/MessageHandler.h
+RunParameters.o: Interface/ApplicationGlobalOperations.h
+ProjectData.o: Interface/ProjectHandle.h Interface/Interface.h
+ProjectData.o: Interface/MessageHandler.h
+ProjectData.o: Interface/ApplicationGlobalOperations.h
+ProjectData.o: Interface/ProjectData.h Interface/DAObject.h
+ProjectData.o: Interface/Parent.h Interface/DynArray.h
+ProjectData.o: Interface/AttributeValue.h Interface/Child.h
+ProjectData.o: Interface/Interface.h
+SGDensitySample.o: ../../CBMGenerics/src/stdafx.h
+SGDensitySample.o: ../../CBMGenerics/src/DllExport.h
+SGDensitySample.o: Interface/SGDensitySample.h Interface/DAObject.h
+SGDensitySample.o: Interface/Parent.h Interface/DynArray.h
+SGDensitySample.o: Interface/AttributeValue.h Interface/Child.h
+SGDensitySample.o: Interface/Interface.h
+Snapshot.o: Interface/Snapshot.h Interface/DAObject.h Interface/Parent.h
+Snapshot.o: Interface/DynArray.h Interface/AttributeValue.h Interface/Child.h
+Snapshot.o: Interface/Interface.h
+SourceRock.o: Interface/GridMap.h Interface/Interface.h Interface/Child.h
+SourceRock.o: Interface/ProjectHandle.h Interface/MessageHandler.h
+SourceRock.o: Interface/ApplicationGlobalOperations.h Interface/SourceRock.h
+SourceRock.o: Interface/DAObject.h Interface/Parent.h Interface/DynArray.h
+SourceRock.o: Interface/AttributeValue.h Interface/Interface.h
+SourceRock.o: Interface/ObjectFactory.h
+Surface.o: Interface/Surface.h Interface/DAObject.h Interface/Parent.h
+Surface.o: Interface/DynArray.h Interface/AttributeValue.h Interface/Child.h
+Surface.o: Interface/Interface.h Interface/Interface.h Interface/Formation.h
+Surface.o: ../../CBMGenerics/src/capillarySealStrength.h
+Surface.o: ../../CBMGenerics/src/DllExport.h ../../CBMGenerics/src/stdafx.h
+Surface.o: Interface/GridMap.h Interface/ObjectFactory.h
+Surface.o: Interface/ProjectHandle.h Interface/MessageHandler.h
+Surface.o: Interface/ApplicationGlobalOperations.h Interface/Snapshot.h
+TouchstoneMap.o: Interface/ProjectHandle.h Interface/Interface.h
+TouchstoneMap.o: Interface/MessageHandler.h
+TouchstoneMap.o: Interface/ApplicationGlobalOperations.h
+TouchstoneMap.o: Interface/PropertyValue.h Interface/DAObject.h
+TouchstoneMap.o: Interface/Parent.h Interface/DynArray.h
+TouchstoneMap.o: Interface/AttributeValue.h Interface/Child.h
+TouchstoneMap.o: Interface/Interface.h Interface/TouchstoneMap.h
+TouchstoneMap.o: Interface/Surface.h Interface/Formation.h
+TouchstoneMap.o: ../../CBMGenerics/src/capillarySealStrength.h
+TouchstoneMap.o: ../../CBMGenerics/src/DllExport.h
+TouchstoneMap.o: ../../CBMGenerics/src/stdafx.h
+Trap.o: Interface/Grid.h Interface/ProjectHandle.h Interface/Interface.h
+Trap.o: Interface/MessageHandler.h Interface/ApplicationGlobalOperations.h
+Trap.o: Interface/Reservoir.h Interface/DAObject.h Interface/Parent.h
+Trap.o: Interface/DynArray.h Interface/AttributeValue.h Interface/Child.h
+Trap.o: Interface/Interface.h Interface/Snapshot.h Interface/Trap.h
+Trapper.o: Interface/Grid.h Interface/ProjectHandle.h Interface/Interface.h
+Trapper.o: Interface/MessageHandler.h Interface/ApplicationGlobalOperations.h
+Trapper.o: Interface/Reservoir.h Interface/DAObject.h Interface/Parent.h
+Trapper.o: Interface/DynArray.h Interface/AttributeValue.h Interface/Child.h
+Trapper.o: Interface/Interface.h Interface/Snapshot.h Interface/Trapper.h
+Migration.o: Interface/Formation.h Interface/DAObject.h Interface/Parent.h
+Migration.o: Interface/DynArray.h Interface/AttributeValue.h
+Migration.o: Interface/Child.h Interface/Interface.h
+Migration.o: ../../CBMGenerics/src/capillarySealStrength.h
+Migration.o: ../../CBMGenerics/src/DllExport.h ../../CBMGenerics/src/stdafx.h
+Migration.o: Interface/ProjectHandle.h Interface/Interface.h
+Migration.o: Interface/MessageHandler.h
+Migration.o: Interface/ApplicationGlobalOperations.h Interface/Reservoir.h
+Migration.o: Interface/Snapshot.h Interface/Migration.h Interface/Trapper.h
+TrapPhase.o: Interface/ProjectHandle.h Interface/Interface.h
+TrapPhase.o: Interface/MessageHandler.h
+TrapPhase.o: Interface/ApplicationGlobalOperations.h Interface/TrapPhase.h
+TrapPhase.o: Interface/DAObject.h Interface/Parent.h Interface/DynArray.h
+TrapPhase.o: Interface/AttributeValue.h Interface/Child.h
+TrapPhase.o: Interface/Interface.h
+ZycorFaultFileReader.o: Interface/ZycorFaultFileReader.h
+ZycorFaultFileReader.o: Interface/FaultFileReader.h
+ZycorFaultFileReader.o: Interface/auxiliaryfaulttypes.h Interface/Interface.h
+auxiliaryfaulttypes.o: Interface/Grid.h Interface/auxiliaryfaulttypes.h
+hdf5funcs.o: hdf5funcs.h
+wildMatch.o: wildMatch.h
