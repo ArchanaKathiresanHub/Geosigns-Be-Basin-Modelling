@@ -1,0 +1,66 @@
+33
+                  HEAT Solution Strategy
+                      **********************
+
+ In this window the main operating details for the program HEAT are
+ specified, as follows:
+ 
+ Line 1: Heat conduction analysis: Choice between a transient (default)
+         and a steady-state solution to the heat diffusion differential
+         equation.
+         In the steady-state solution the heat storage capacity of the
+         sediments is neglected; the temperature gradient is adapted
+         instantaneously to changes in base sediment heatflow or to
+         sediment deposition or erosion. This leads to erroneous re-
+         sults when transient effects are expected to be large (e.g.
+         high (>100 m/Ma) or highly varying sedimentation or erosion
+         rates, strong heat pulses).
+
+ Line 2: Surface temperature through time: Variable or constant.
+         Variable temperatures through time are taken from the surface
+         temperature history entered in the option "Palaeo surface
+         temperatures". For the constant-temperature solution, the
+         present-day value of the above option is used (in case the
+         table has been filled in) or the value listed under "General
+         data surface temperature etc.".
+
+ Line 3: Mantle heatflow through time: Variable or constant.
+         Similar to above; the variable heatflow values are those
+         entered in the option "Palaeo anomalous mantle heatflow".
+         For the constant mantle heatflow solution, the present-day
+         value listed under "General data surface temperature etc."
+         is used.
+ 
+ Line 4: Solution type: Ao (default) or fixed parameter.
+         In the "Ao" solution, the HEAT program uses first the user-
+         specified value for the radiogenic heat contribution in the
+         crust (Solution pass 0) and then iteratively varies that
+         value (pass 1, pass 2) to get the best fit to the present-day
+         subsurface temperatures.
+         In the "fixed parameter" solution, the Ao value of the .GEO
+         is used, and NO FIT TO THE PRESENT-DAY SUBSURFACE TEMPERATURES
+         IS MADE by HEAT (one pass only). This solution is typically
+         used in combination with the steady-state solution (above, 1)
+         or to model a series of wells with an average Ao derived from
+         previous modelling with a variable Ao.
+
+ Line 5: Sediments below TD: Default Crust (default) or user specified.
+         The default assumes crust below the deepest geological
+         boundary entered in the "Stratigraphy ..." table; this often
+         produces a sudden change in the modelled present-day
+         temperature.
+         When the "user specified" option is selected, a window with
+         an empty table appears where a lithology sequence below T.D.
+         can be specified.
+
+
+
+
+
+
+
+
+
+
+
+  

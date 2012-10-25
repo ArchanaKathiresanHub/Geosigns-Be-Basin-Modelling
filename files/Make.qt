@@ -1,0 +1,71 @@
+# Make.qt - contains definitions for Qt 3rd party libraries
+#
+#
+
+#
+# Definitions for the base directory location for OPTIMIZED or DEBUG 
+#   compiled include files and libraries
+#
+# Currently there is no Qt environment built for DEBUG
+#
+#QTDIR = /usr/lib64/qt-3.3
+
+#   Qt definitions 
+QTINC = $(QTDIR)/include
+QTLIB = $(QTDIR)/lib
+QTBIN = $(QTDIR)/bin
+
+####### Compiler flags
+CFLAGS += -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED
+CXXFLAGS += -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED
+
+####### Include file definitions
+CINCLUDE += -I$(QTINC)
+CXXINCLUDE += -I$(QTINC)
+
+####### Library definitions
+CLIBS += -L$(QTLIB) -lqt-mt
+
+# Libraries to get Qt to link statically
+#
+# on Linux64-bit
+ifeq ($(machine),Linux64)
+  ####### Compiler, tools and options
+#  MOC = /usr/bin/moc
+#  UIC = /usr/bin/uic
+  MOC = $(QTBIN)/moc
+  UIC = $(QTBIN)/uic
+
+  CINCLUDE += -I$(QTDIR)/mkspecs/default
+  CXXINCLUDE += -I$(QTDIR)/mkspecs/default
+
+  CLIBS += -L/usr/X11R6/lib64 -lXext -lX11 -lXrender -lXrandr -lXcursor -lXft -lSM -lICE -lXinerama
+endif
+
+#
+# on Solaris 32-bit environment
+ifeq ($(machine),Sun)
+  ####### Compiler, tools and options
+  MOC = $(QTBIN)/moc
+  UIC = $(QTBIN)/uic
+
+  CINCLUDE += -I$(QTDIR)/mkspecs/solaris-cc
+  CXXINCLUDE += -I$(QTDIR)/mkspecs/solaris-cc
+
+  CLIBS += -L/usr/lib -lXext -lX11 -lSM -lICE -ldl -lrt
+endif
+
+#
+# on SGI 32-bit environmewnt
+ifeq ($(machine),Silicon32)
+  ####### Compiler, tools and options
+  MOC = $(QTBIN)/moc
+  UIC = $(QTBIN)/uic
+
+  CINCLUDE += -I$(QTDIR)/mkspecs/default
+  CXXINCLUDE += -I$(QTDIR)/mkspecs/default
+
+  CLIBS += -L/usr/lib32 -lXext -lX11 -lXt
+endif
+
+# End 

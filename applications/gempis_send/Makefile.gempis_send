@@ -1,0 +1,30 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+SRCDIR  	= $(ROOTDIR)/src
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+OBJECTS = gempis_send.o
+
+EXE = gempis_send
+
+target: $(EXE)
+
+$(EXE) : $(OBJECTS) Makefile
+	$(LCC) $(CFLAGS) $(OBJECTS) -o $(EXE)
+
+clean :
+	rm -rf $(EXE) *~
+
+depend: $(EXEOBJECTS:.o=.C)
+

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="DistributedDataAccess.cdt.managedbuild.target.gnu.so.1107144635" name="Shared Library (Gnu)" projectType="cdt.managedbuild.target.gnu.so">
+<configuration artifactExtension="so" artifactName="DistributedDataAccess" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.so.release.823601702" name="Release" parent="cdt.managedbuild.config.gnu.so.release" postbuildStep="ar -cr ${BuildArtifactFileBaseName}.a *.o">
+<toolChain id="cdt.managedbuild.toolchain.gnu.so.release.1210645038" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.so.release">
+<tool command="mpicxx -m64 -fPIC" id="cdt.managedbuild.tool.gnu.cpp.compiler.so.release.1519743753" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.release">
+<option id="gnu.cpp.compiler.so.release.option.optimization.level.1574940177" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.538396600" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+<option id="gnu.cpp.compiler.option.include.paths.2105480364" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(HDF5_DP_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cauldronschema}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.preprocessor.def.823308639" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="DISTRIBUTED"/>
+<listOptionValue builtIn="false" value="H5_HAVE_PARALLEL"/>
+<listOptionValue builtIn="false" value="PETSC_USE_LOG"/>
+<listOptionValue builtIn="false" value="PETSC_USE_BOPT_O"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.so.release.1274423519" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.so.release.1817068317" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.so.release.763172989" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.release">
+<option id="gnu.cpp.link.option.strip.502071410" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.so.release.58485219" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.so.release"/>
+<macros/>
+</toolChain>
+</configuration>
+<configuration artifactExtension="so" artifactName="DistributedDataAccess" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.so.release.1506327125" name="Debug" parent="cdt.managedbuild.config.gnu.so.release" postbuildStep="ar -cr ${BuildArtifactFileBaseName}.a *.o">
+<toolChain id="cdt.managedbuild.toolchain.gnu.so.release.119407448" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.so.release">
+<tool command="mpicxx -m64 -fPIC" id="cdt.managedbuild.tool.gnu.cpp.compiler.so.release.968150678" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.release">
+<option id="gnu.cpp.compiler.so.release.option.optimization.level.3735646" name="Optimization Level" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.1584721789" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+<option id="gnu.cpp.compiler.option.include.paths.1850905422" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cauldronschema}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.preprocessor.def.1778897561" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="DISTRIBUTED"/>
+<listOptionValue builtIn="false" value="H5_HAVE_PARALLEL"/>
+<listOptionValue builtIn="false" value="PETSC_USE_LOG"/>
+<listOptionValue builtIn="false" value="PETSC_USE_BOPT_O"/>
+</option>
+<option id="gnu.cpp.compiler.so.release.option.debugging.level.85361288" superClass="gnu.cpp.compiler.so.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.so.release.378195318" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.so.release.200358519" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.so.release.2007141782" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.release">
+<option id="gnu.cpp.link.option.strip.1964690579" name="Omit all symbol information (-s)" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.so.release.332705202" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.so.release"/>
+<macros/>
+</toolChain>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>

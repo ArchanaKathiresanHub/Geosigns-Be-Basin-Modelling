@@ -1,0 +1,74 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+LIBDIR = ../../../libraries
+
+LIBOBJECTS = \
+	ComponentManager.o \
+	GenexResultManager.o \
+	capillarySealStrength.o \
+	fracturePressure.o \
+	waterDensity.o \
+   methaneSolubility.o \
+   Polyfunction.o 
+
+LIBSRCS = $(LIBOBJECTS:.o=.C)
+
+LIBINCLUDES = \
+	ComponentManager.h \
+	GenexResultManager.h \
+	capillarySealStrength.h \
+	fracturePressure.h \
+	waterDensity.h \
+   methaneSolubility.h \
+   Polyfunction.h
+
+CFLAGS   += ${PROFILEFLAGS} ${COMPILEFLAGS}
+CXXFLAGS += ${PROFILEFLAGS} ${COMPILEFLAGS}
+
+DOXYGEN = doxygen
+DOXYGENCFG = CBMGenerics.cfg
+
+SHAREDLIB = libCBMGenerics.so
+LIB = libCBMGenerics.a
+
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(LIB)
+
+CFLAGS := $(CFLAGS) 
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(LIB) $(SHARELIB)
+
+$(LIB): $(LIBOBJECTS)
+	$(AR) $(LIB) $(LIBOBJECTS)
+
+$(SHAREDLIB): $(LIB) Makefile
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+clean:
+	rm -rf $(LIB) $(SHAREDLIB) $(LIBOBJECTS) \
+	core ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(LIBOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.CBMGenerics -Y $(INCLUDEDIRS) $(LIBOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE
+

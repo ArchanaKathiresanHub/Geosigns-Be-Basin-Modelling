@@ -1,0 +1,52 @@
+#
+# ======================== Attention!!! ======================== 
+# This file should not exist!!!
+# All projects should link to Make.target that have the latest definitions
+#
+
+FILE_BASE = ../../../files
+
+include $(FILE_BASE)/Make.machine
+
+
+optimized ose ode osl odl: optimizedobjects
+	@$(MAKE) target BOPT=O_c++ DEBUGFLAGS="-O2" LDFLAGS=-s
+
+profile : profileobjects
+	@$(MAKE) target CC="mpiicc -trace" CXX="mpiicpc -trace" BOPT=O_c++ DEBUGFLAGS="-g -O2" PROFILEFLAGS="" LDFLAGS=""
+
+debug dse dde dsl ddl: debugobjects
+	@$(MAKE) target BOPT=g_c++ DEBUGFLAGS="-g"
+
+purify: purifyobjects
+	@$(MAKE) target PRELINK=purify BOPT=g_c++
+
+optimizedobjects:
+	@$(MAKE) clean
+	@rm -f debugobjects
+	@rm -f profileobjects
+	@rm -f purifyobjectsyes
+	@touch optimizedobjects
+
+profileobjects:
+	@$(MAKE) clean
+	@rm -f debugobjects
+	@rm -f purifyobjectsyes
+	@rm -f optimizedobjects
+	@touch profileobjects
+
+debugobjects:
+	@$(MAKE) clean
+	@rm -f optimizedobjects
+	@rm -f purifyobjects
+	@rm -f profileobjects
+	@touch debugobjects
+
+purifyobjects:
+	@$(MAKE) clean
+	@rm -f optimizedobjects
+	@rm -f debugobjects
+	@rm -f profileobjects
+	@touch purifyobjects
+
+all: dse

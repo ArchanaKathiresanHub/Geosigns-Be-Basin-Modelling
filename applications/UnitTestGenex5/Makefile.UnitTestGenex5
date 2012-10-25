@@ -1,0 +1,88 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+
+#
+#  Override for Make.machine definitions
+ifeq ($(machine),Linux64)
+  MP_INCLUDE	  = $(MPI_BASE)/include
+  FLEX_LIB        = -lrt
+endif
+#
+ifeq ($(machine),Sun)
+  MP_INCLUDE	  = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),SunOS64)
+  MP_INCLUDE      = /opt/SUNWhpc/include/v9
+  SOCKET_LIB      = -L/usr/lib/sparcv9 -lsocket -lnsl /apps/oss/lib/gcc-lib/sparc-sun-solaris2.8/2.95.3/libgcc.a
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),Silicon64)
+  MP_INCLUDE      = /usr/include/CC
+  SOCKET_LIB      = -L/usr/lib64/mips4 -lsocket -woff 15
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+
+FLEXLMBITS      = 64
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = UnitTestGenex5.cfg
+
+ROOTDIR		= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+GENEX5KERNEL_INC = $(LIBDIR)/genex5_kernel/src
+GENEX5KERNEL_LIB = $(LIBDIR)/lib/$(machine)/libgenex5_kernel.a
+
+
+
+EXEOBJECTS	= main.o	
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(GENEX5KERNEL_LIB) \
+                  $(CBMGENERICS_LIB)\
+		  $(SOCKET_LIB) -lz -lrt -lm
+
+CFLAGS		=  -I/usr/include -I$(GENEX5KERNEL_INC) -I$(CBMGENERICS_INC) ${PROFILEFLAGS} ${COMPILEFLAGS} ${DEBUGFLAGS}
+		
+
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = UnitTestGenex5
+
+target: $(EXE)
+
+$(EXE): $(EXEOBJECTS)
+	-$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.genex5kernelApp -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

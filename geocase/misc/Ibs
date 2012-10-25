@@ -1,0 +1,23 @@
+Ibs*background: 			#c3c3c3
+Ibs*foreground: 			black
+
+Ibs*XmTextField*foreground:		black
+
+Ibs*XmScale*background:			#c3c3c3
+
+Ibs*XmFileSelectionBox*background:   	#c3c3c3
+Ibs*XmFileSelectionBox*foreground:   	black
+
+Ibs*fontList:	*helvetica-bold-r-normal*14*=charset1 *courier-medium-r-normal*14*=charset2
+
+
+Ibs*XmTextField*marginHeight:		1
+
+Ibs*XmRowColumn*marginWidth:		0
+Ibs*XmRowColumn*marginHeight:		0
+Ibs*XmRowColumn*leftOffset:		-3
+
+! to cancel funny Landmark defaults:
+! ----------------------------------
+Ibs*.borderWidth: 			0
+

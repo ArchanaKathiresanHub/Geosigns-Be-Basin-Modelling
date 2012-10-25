@@ -1,0 +1,32 @@
+33
+             Transform PREGEO to HEAT Input Data (General Text)
+             ***********************************
+
+ With this option a .UNI file is created which contains the parameters
+ that specify the operating details for the program HEAT. After having
+ prepared the .UNI file, the program HEAT is run by simply selecting
+ this .UNI file.
+ This option is therefore mandatory when HEAT should be run on a new
+ .GEO file or from an existing .GEO file with new operating details.
+
+ The "Transform PREGEO to HEAT Input Data" option consists of the
+ following three windows:
+ (1) Temperature Constraints: Which temperatures should be used to
+     constrain the HEAT solution? (see below)
+ (2) Heat Solution Strategy: Selection of the main operating details
+     for the program HEAT (see Help text with that window)
+ (3) Sea-level File Selection: User's choice from the built-in library
+     of sea-level curves (<>.SLV files). The selected file is used for
+     the computation of the backstripped tectonic subsidence.
+ 
+_______________________________________________________________________
+
+                       Temperature Constraints
+                       ***********************
+
+ The data in this window are copied from the BHT data of the .GEO file.
+ Changing the buttons from the default position (constraint = yes) 
+ allows the user to single out uncertain or erroneous temperature values
+ which should NOT be used to constrain the HEAT solution. These values
+ will be plotted differently on the .GHS plots. 
+

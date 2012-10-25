@@ -1,0 +1,324 @@
+#!/bin/bash
+#
+# defines the subroutines for STANDALONE jobtypes
+#
+# Syntax: . jobtype_STANDALONE
+#
+# External Environment Variables:
+#   GEMPIS_JOBTYPE - the name of the JOBTYPE
+#   GEMPIS_DATADIR - location where resource usage is maintained
+# Format or each file
+#   JOBID STATE PROCS     USER COMMAND                              START
+#00000027   RUN     2   nlgla8  Acquifer:fastcauldron                Apr 04 12:13
+#
+# Notes:
+# This file is also used by jobtype_CUSTOM.
+#############################################################################   
+
+# 
+# prints the total number of resources to stdout
+#
+jobtype_resource_total()
+{
+    get_my_cpus
+}
+
+# 
+# prints the number of resources available to stdout
+#
+jobtype_resource_available()
+{
+    total=`jobtype_resource_total`
+
+    ls $GEMPIS_DATADIR/* >/dev/null 2>&1
+    if [ $? != 0 ]; then
+	available=$total
+    else
+	used=`cat $GEMPIS_DATADIR/* | awk 'BEGIN { tot = 0 }
+{
+    tot += $3
+}
+END { print tot }'`
+
+	let 'available = total - used'
+    fi
+    echo $available
+}
+
+#
+# prints the list of computers allocated to a resource to stdout
+# 
+# Format:
+# <hostname> [...]
+#
+jobtype_resource_computers()
+{
+    echo "$GEMPIS_HOSTNAME"
+}
+
+# 
+# print the memory available per resource to stdout
+#
+jobtype_resource_memory()
+{
+    # get total memory
+    memory=`get_my_memory`
+
+    # find out what this computer has
+    cpus=`get_my_cpus`
+
+    # compute memory per cpu
+    if [ $cpus != 0 ]; then
+	let 'memoryper = memory / cpus'
+    else
+	memoryper="?"
+    fi
+    echo $memoryper
+}
+
+# 
+# prints resource usage to stdout
+#
+# Format:
+#    JOBID STATE PROCS     USER COMMAND                  START       
+#    <job list>
+#123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+#00000083   RUN     1   nlgla8  28562 Acquifer_00M03:fastcauldron          Apr 03 17:36
+# Don't put any verbose messages in here as they will appear in gempir
+#
+jobtype_resource_usage()
+{
+    # print data header
+    printf "%8s %5s %5s %8s %-36s %-12s\n" JOBID STATE PROCS USER COMMAND START
+
+    # check if the processes are still running, if not delete the record
+    ls $GEMPIS_DATADIR/* >/dev/null 2>&1
+    if [ $? = 0 ]; then
+	for file in $GEMPIS_DATADIR/*; do
+	    line=`cat $file | tail -1`
+	    pid=`echo $line | awk '{ print $5 }'`
+	    user=`echo $line | awk '{ print $4 }'`
+
+	    # check that the process is still there
+	    still_there=`ps -ef | grep -v grep | grep "^${user} " | grep " ${pid} "`
+	    [ -z "$still_there" ] && rm -f $file
+	done
+    fi
+
+    # display record if they exist
+    ls $GEMPIS_DATADIR/* >/dev/null 2>&1
+    [ $? = 0 ] && ( cat $GEMPIS_DATADIR/* | awk '{ print substr($0,0,30), substr($0,38,90) }' )
+}
+
+#
+# executes the command to submit an application and determines the result
+# 
+jobtype_submit_command()
+{
+    # define the name to use for the project project 
+    name="${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC}"
+    dexec=`echo $name | awk '{ print substr( $1, 0, 39) }'`
+
+    # write job info to database
+    printf "%8s %5s %5s %8s %6s %-36s %-12s\n" $GEMPIS_ID RUN $GEMPIS_NUMCPUS `whoami` $$ $name "`date '+%b %d %H:%M'`" > $GEMPIS_DATADIR/$GEMPIS_ID
+
+    # make sure everyone can delete it
+    chmod 666 $GEMPIS_DATADIR/$GEMPIS_ID
+
+    command="$GEMPIS_EXEDIR/gempis_mpiwrapper"
+
+    # executed command and determine the result
+    verbose "Executing command [$command]."
+
+    $GEMPIS_EXEDIR/gempis_mpiwrapper
+    result=$?
+    verbose "MPI wrapper script returned [$result]."
+
+    # if the result was good check with LSF if that is correct
+    if [ $result != "0" ]; then
+	verbose "Job submission failed."
+	return $result
+    fi
+
+    # evaluate whether job proceeded correctly
+    evaluate_result_files
+    result=$?
+
+    return $result
+}
+
+#
+# prints the list of computers to by used by application to stdout
+# 
+# Format:
+# <hostname> <number of cpus> [...]
+#
+jobtype_hostlist()
+{
+    echo "$GEMPIS_HOSTNAME `get_my_cpus`"
+}
+
+
+############################################################################
+# 
+# Verify that the environment is setup correctly
+#
+# Called by: gempis
+#
+# Syntax: jobtype_verify
+#
+# Returns: nothing 
+#
+# Output: formatted WARNING message on error, 
+#         but does not terminate
+#
+jobtype_verify()
+{
+    # create the data directory if it does not exist
+    if [ ! -d $GEMPIS_DATADIR ]; then
+
+	verbose "Data directory [$GEMPIS_DATADIR] does not exist, creating."
+	mkdir -p $GEMPIS_DATADIR 
+
+	# check that directory was correctly created
+	if [ ! -d $GEMPIS_DATADIR ]; then
+	    send_message WARNING "Cannot create data directory [$GEMPIS_DATADIR]."
+	else
+	    # allow anyone to change files in here
+	    chmod -R 777 $GEMPIS_DATADIR
+	fi
+    fi
+}
+
+
+############################################################################
+#
+# called when job is completed/terminated
+# 
+# Called by: gempis_postjob
+#
+# Syntax: jobtype_end
+#
+# Returns: nothing
+#
+# Output: verbose string
+# 
+jobtype_end()
+{
+    # remove the job description from the data directory
+    if [ -f  $GEMPIS_DATADIR/$GEMPIS_ID ]; then
+	verbose "Removing job file [$GEMPIS_DATADIR/$GEMPIS_ID]."
+	rm -f $GEMPIS_DATADIR/$GEMPIS_ID
+    fi
+}
+
+############################################################################
+#
+# terminates running jobs for the current user
+# 
+# Called by: gempis
+#
+# Syntax: jobtype_killjob [<gempis_jobid>]
+# 
+#       when no jobid is given it will terminate all user jobs for the 
+#       current resource
+#
+# Returns: 0 = nothing to do or successful, 1 = jobs still remaining
+#
+# Output: none
+#
+# The pid stored is from the gempis_submit command. Use the gempis pstree 
+# command to get the data. The pid that needs to be 
+# killed is the executable that is not bash,sh, ksh, or python. e.g.
+#    05115 nlgla8 /bin/bash /apps/sssdev/ibs/v2007.xx/LinuxRHEL64_x86_64_30W
+#      06280 nlgla8 /bin/bash /apps/sssdev/ibs/v2007.xx/LinuxRHEL64_30WS/bin
+#        06332 nlgla8 /bin/sh /apps/sssdev/ibs/v2007.xx/LinuxRHEL64_30WS/bin
+#          06439 nlgla8 /bin/bash /glb/home/nlgla8/.gempis_tmp/fastcauldron-
+#            06467 nlgla8 /bin/ksh -p /apps/sssdev/share/fastcauldron -v2007
+# this one --> 06629 nlgla8 /apps/sssdev/ibs/v2007.xx/LinuxRHEL64_x86_64_30WS
+#                06631 nlgla8 /apps/sssdev/ibs/v2007.xx/LinuxRHEL64_x86_64_30
+#                06632 nlgla8 ssh rijkes-n-d99654 -l nlgla8 -n /glb/home/nlg
+#                06843 nlgla8 ssh rijkes-n-d99654 -l nlgla8 -n /glb/home/nlg
+# 
+jobtype_killjob()
+{
+    # get the list of jobids and pid that are to be killed
+    jidlist=""
+    if [ -z "$1" ]; then
+	username=`whoami`
+	for line in `cat $GEMPIS_DATADIR/* | grep $username 2>/dev/null`; do
+	    jid=`echo $line | awk '{ print $1 }'`
+	    jidlist="$jidlist $jid"
+	done
+    else
+	jid=$1
+	file=$GEMPIS_DATADIR/$jid
+	if [ ! -f $file ]; then
+	    echo "ERROR! Job [$jid] cannot be found in [$GEMPIS_DATADIR]."
+	    return 1
+	fi
+	jidlist=$jid
+    fi
+
+    # for each processid
+    verbose "The jid list is [$jidlist]."
+    for jid in $jidlist; do
+
+	verbose "Job [$jid] detected."
+	ppid=`cat $GEMPIS_DATADIR/$jid | awk '{ print $5 }'`
+
+        # look down the tree for the 1st non scripted executable
+	verbose "Looking for an executable running under parent process [$ppid]."
+	$EXEDIR/pstree $ppid | while read pid user path args; do
+
+	    exec=`echo $path | awk -F'/' '{ print $NF }'`
+	    verbose "Checking process [$pid] [$user] [$path] [$args] ([$exec]) for suitability."
+	    # skip any shells
+	    case $exec in 
+		ash)
+		    skip=yes
+		    ;;
+		bash)
+		    skip=yes
+		    ;;
+		csh)
+		    skip=yes;
+		    ;;
+		ksh)
+		    skip=yes;
+		    ;;
+		pdksh)
+		    skip=yes
+		    ;;
+		sh)
+		    skip=yes
+		    ;;
+		tcsh)
+		    skip=yes
+		    ;;
+		zsh)
+		    skip=yes
+		    ;;
+		*)
+		    gotone=yes
+		    echo "Job [$jid] is being terminated."
+		    verbose "Killing process [$pid] running exec [$exec]."
+		    kill_pid $pid
+		    res=$?
+		    [ ! $res = 0 ] && echo "ERROR! Could not kill [$GEMPIS_RESOURCE] job [$jid]."
+		    break
+		    ;;
+	    esac
+	done
+    done
+
+    # currently don't check
+    return 0
+}
+
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End script

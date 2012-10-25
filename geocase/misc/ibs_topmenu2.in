@@ -1,0 +1,54 @@
+Screen("IBS: 1D Burial / Temp / Expulsion History","IBS",
+	NULL,365,660,NULL);
+Form("title",NULL,NULL,0,0,100,100,0,5,50 );
+Skip(2)
+Label("Data Preparation (+ calc. opt. for HEAT):","wheat",8);
+ Action(NULL,"light grey",
+   "Input Screens (PREGEO)",
+   4,0,TRUE,BHnone,StartProgram,"pregeo");
+Skip(2)
+Label("General Heatflow Model:","wheat",8);
+  Action(NULL,"light grey",
+   "Temperature Reconstruction (HEAT)",
+   4,0,TRUE,BHnone,StartProgram,"heat");
+Skip(2)
+Label("Rift Model:","wheat",8);
+  Action(NULL,"light grey",
+   "Generate Geohistory (GHS) File (BURPRO)",
+   4,0,TRUE,BHnone,StartProgram,"burpro");
+  Action(NULL,"light grey",
+   "Set Calculation Options for TISA",
+   4,0,TRUE,BHnone,StartProgram,"prtisa");
+  Action(NULL,"light grey",
+   "Subsidence/Temperature Reconstruction (TISA)",
+   4,0,TRUE,BHnone,StartProgram,"tisa");
+Skip(2)
+Label("Plot:","wheat",8);
+  Action(NULL,"light grey",
+   "HEAT and TISA Results (PLTGHS)",
+   4,0,TRUE,BHnone,StartProgram,"pltghs");
+Skip(2)
+Label("Generation / Expulsion Model + Plot:","wheat",8);
+  Action(NULL,"light grey",
+   "GENEX2",
+   4,0,TRUE,BHnone,StartProgram,"genexp");
+  Action(NULL,"light grey",
+   "GENEX3",
+   4,0,TRUE,BHnone,StartProgram,"genex3");
+  Action(NULL,"light grey",
+   "GENEX4",
+   4,0,TRUE,BHnone,StartProgram,"genex4");
+Skip(2)
+Label("Burial / Pressure Model + Plot:","wheat",8);
+  Action(NULL,"light grey",
+   "DISCO",
+   4,0,TRUE,BHnone,StartProgram,"disco");
+Skip(2)
+Label("Maturity Estimation:","wheat",8);
+  Action(NULL,"light grey",
+   "INTIMATE",
+   4,0,TRUE,BHnone,StartProgram,"intimate");
+FormButtonList("red",90,30);
+   StandardFormButton(FBexit,NULL);  
+FormEnd()
+ScreenEnd()

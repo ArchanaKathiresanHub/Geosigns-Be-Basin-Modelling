@@ -1,0 +1,6 @@
+[TrapIoTbl]
+;
+ReservoirName Age XCoord YCoord Temperature Pressure MassC1 MassC2 MassC3 MassC4 MassC5 MassN2 MassCox MassOilPL MassOilPM MassOilPH MassOilAL MassOilAM MassOilAH
+() (Ma) () () (C) (MPa) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg) (kg)
+[End]
+

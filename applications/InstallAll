@@ -1,0 +1,41 @@
+#!/bin/csh
+
+set exitstatus = 0
+set gempis_exitstatus = 0
+
+echo
+echo "Installing modern applications"
+echo "----------------------------"
+
+source ApplicationList
+
+if ($?IBS_LIMITEDBUILDANDINSTALL) then
+   source envs_limitedbuild
+else
+   setenv applications "$limitedbuild_applications $complementarybuild_applications"
+   source /nfs/rvl/users/ibs/bin/gocbm3
+endif
+
+foreach application ($applications)
+   echo "Installing $application"
+   if ( $application == "gempis" ) then
+      foreach gempis_application ($gempis_applications)
+	 if ( ! -f $application/bin.${machine}/$gempis_application ) then
+	    echo "Could not find $application/$gempis_application"
+	    set exitstatus = 1
+	    set gempis_exitstatus = 1
+	 else
+	    cp  $application/bin.${machine}/$gempis_application $mainBinaryDirectory
+	 endif
+      end
+   else
+      if ( ! -f $application/obj.${machine}/$application ) then
+	 echo "Could not find $application"
+	 set exitstatus = 1
+      else
+	 cp  $application/obj.${machine}/$application $mainBinaryDirectory
+      endif
+   endif
+end
+
+exit $exitstatus

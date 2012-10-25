@@ -1,0 +1,20 @@
+setenv limitedbuild_applications "cauldron2voxet gempis fastcauldron fastmig fastgenex6 fasttouch7 fastreq isosurface cauldron2eclipse cauldron2bhf fastctc track1d xcauldron datadriller fastmiglogger tracktraps geomorph deviatedwell gempis_send gempis_recv"
+
+
+setenv complementarybuild_applications "upgrade setupView4D trapper"
+if ($?IBS_LIMITEDBUILDANDINSTALL) then
+   setenv applications "$limitedbuild_applications"
+else # complementary buildandinstall, legacy tools (geocase based)
+   setenv applications "$complementarybuild_applications"
+endif
+setenv all_applications "$limitedbuild_applications $complementarybuild_applications"
+echo
+echo "applications are: "
+echo $applications
+echo
+
+   setenv gempis_applications "cfg2html cfg2html_linux cfg2html_sun gempil gempil_setup gempis_adm gempis_cfg gempis_mpiwrapper gempis_mon gempis_perf gempis_postapp gempis_postjob gempis_preapp gempis_resource gempis_stat gempis_submit gempis_utils gempir gempir_setup getnextjobid parselog pstree" 
+   echo "gempis_applications are: "
+   echo $gempis_applications
+   echo
+

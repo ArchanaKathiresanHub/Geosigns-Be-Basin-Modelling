@@ -1,0 +1,29 @@
+creating library for fission tracks (calibration_kernel)
+used files:
+ftanalysis.[hC]
+ftsampleprediction.[hC]
+ftsampleobservation.[hC]
+ftgrain.[hC]
+ftparameters.[hC]
+histogram.[hC]
+
+
+class FtSimulator
+-----------------
+setup
+-ftAnalysis.addSample()
+-ftSimulator.register(predSample, depth)
+ (find element/local coordinates of corresponding depoage)
+-ftAnalysis.addGrain() 
+-ftAnalysis.addTrackLength()
+-ftFinalise()
+
+timestep loop
+-ftAnalysis.calcPredTrackLenght()
+
+Finalisation
+-ftAnalysis.finalise()
+-retrieve results and write to tableIO (including new tables for histogram output)
+
+
+

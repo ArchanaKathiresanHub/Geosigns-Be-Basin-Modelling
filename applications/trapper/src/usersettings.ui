@@ -1,0 +1,331 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>UserSettings</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>UserSettings</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>448</width>
+            <height>258</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>User Settings</string>
+    </property>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okaybutton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>310</x>
+                <y>220</y>
+                <width>110</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>OK</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>saveSettingsButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>180</x>
+                <y>220</y>
+                <width>120</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Save Settings</string>
+        </property>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>430</width>
+                <height>200</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>GroupBoxPanel</enum>
+        </property>
+        <property name="title">
+            <string>Plot Ranges</string>
+        </property>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>enableMassRange</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>343</x>
+                    <y>161</y>
+                    <width>80</width>
+                    <height>21</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Enable</string>
+            </property>
+        </widget>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>enableTempPressRange</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>343</x>
+                    <y>118</y>
+                    <width>80</width>
+                    <height>21</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Enable</string>
+            </property>
+        </widget>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>enableVolRange</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>343</x>
+                    <y>74</y>
+                    <width>80</width>
+                    <height>21</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Enable</string>
+            </property>
+        </widget>
+        <widget class="QCheckBox">
+            <property name="name">
+                <cstring>enableAgeRange</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>343</x>
+                    <y>35</y>
+                    <width>80</width>
+                    <height>21</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Enable</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>tempPressureButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>116</y>
+                    <width>320</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Temperature (C) / Pressure (MPa) Range</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>oilgasvolButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>70</y>
+                    <width>320</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Oil and Gas Volume (m3) Range</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>ageRangeButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>30</y>
+                    <width>320</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Snapshot (Ma) Range</string>
+            </property>
+            <property name="autoDefault">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>massButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>158</y>
+                    <width>320</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Mass (kg) Range</string>
+            </property>
+        </widget>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>ageRangeButton</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>snapshotButtonSlot()</slot>
+    </connection>
+    <connection>
+        <sender>massButton</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>massButtonSlot()</slot>
+    </connection>
+    <connection>
+        <sender>oilgasvolButton</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>volButtonSlot()</slot>
+    </connection>
+    <connection>
+        <sender>tempPressureButton</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>tempPressButtonSlot()</slot>
+    </connection>
+    <connection>
+        <sender>okaybutton</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>enableAgeRange</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>enableAgeSlot()</slot>
+    </connection>
+    <connection>
+        <sender>enableMassRange</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>enableMassSlot()</slot>
+    </connection>
+    <connection>
+        <sender>enableTempPressRange</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>enableTempPressSlot()</slot>
+    </connection>
+    <connection>
+        <sender>enableVolRange</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>enableVolSlot()</slot>
+    </connection>
+    <connection>
+        <sender>saveSettingsButton</sender>
+        <signal>clicked()</signal>
+        <receiver>UserSettings</receiver>
+        <slot>saveSettingsSlot()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">axisRange.h</include>
+    <include location="local" impldecl="in implementation">qsettings.h</include>
+    <include location="local" impldecl="in implementation">usersettings.ui.h</include>
+</includes>
+<forwards>
+    <forward>class AxisRange;</forward>
+    <forward>class QSettings;</forward>
+</forwards>
+<variables>
+    <variable access="private">char *m_projectName;</variable>
+    <variable access="private">AxisRange *m_massRange;</variable>
+    <variable access="private">AxisRange *m_tempPressRange;</variable>
+    <variable access="private">AxisRange *m_ageRange;</variable>
+    <variable access="private">AxisRange *m_volRange;</variable>
+    <variable>QSettings *m_settings;</variable>
+</variables>
+<slots>
+    <slot>setProjectName( const char * projectName )</slot>
+    <slot access="protected">snapshotButtonSlot()</slot>
+    <slot access="protected">volButtonSlot()</slot>
+    <slot access="protected">tempPressButtonSlot()</slot>
+    <slot>massButtonSlot()</slot>
+    <slot>enableVolSlot()</slot>
+    <slot>enableMassSlot()</slot>
+    <slot>enableAgeSlot()</slot>
+    <slot>enableTempPressSlot()</slot>
+    <slot>saveSettingsSlot()</slot>
+    <slot>createSettingsObject()</slot>
+    <slot>deleteProjectName()</slot>
+    <slot returnType="char *">extractProjectName( const char * projectName )</slot>
+</slots>
+<functions>
+    <function access="private" specifier="non virtual">init()</function>
+    <function access="private" specifier="non virtual">destroy()</function>
+    <function returnType="AxisRange *">getOilGasVolRange() const</function>
+    <function returnType="AxisRange *">getTempPressRange() const</function>
+    <function returnType="AxisRange *">getMassRange() const</function>
+    <function returnType="AxisRange *">getSnapshotRange() const</function>
+    <function returnType="bool">massRangeEnabled() const</function>
+    <function returnType="bool">oilGasVolumeRangeEnabled() const</function>
+    <function returnType="bool">tempPressRangeEnabled() const</function>
+    <function returnType="bool">snapshotRangeEnabled() const</function>
+    <function access="protected">writeSettingsToFile()</function>
+    <function access="protected">writeOilGasVolRange( QSettings * settings )</function>
+    <function access="protected">writeMassRange( QSettings * settings )</function>
+    <function access="protected">writeTempPressRange( QSettings * settings )</function>
+    <function access="protected">writeAgeRange( QSettings * settings )</function>
+    <function access="protected">readSettingsFromFile()</function>
+    <function access="protected">readOilGasVolRange( QSettings * settings )</function>
+    <function access="protected">readMassRange( QSettings * settings )</function>
+    <function access="protected">readTempPressRange( QSettings * settings )</function>
+    <function access="protected">readAgeRange( QSettings * settings )</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

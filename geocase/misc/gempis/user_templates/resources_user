@@ -1,0 +1,168 @@
+#!/bin/bash
+#
+# resources_user - GEMPIS User resource configuration file
+#
+# Purpose: defines GEMPIS user resources. 
+# 
+# References: See GEMPIS User manual for details.
+#
+# This file is executed in a korn shell to define references.
+# Lines preceeded by a '#' are treated as comments.
+# Not all properties need to be defined.
+# Properties with the same index value describe the same object.
+#
+# Format: <property>[<index>]="<value>"
+#
+# Only index values from 11 to 20 are permitted.
+# Do not use spaces between '=' character.
+# Make sure group definitions use different index values. 
+# System definitions end at index value 10.
+#
+# Example: res_jobtype[22]="MPICH"
+#
+# Properties:
+# res_name      - (required) Resource name as used in the gempis command.
+# res_jobtype   - (required) Job Type: STANDALONE, LSF, or LSFHPC, or CUSTOM.
+# res_mpiref    - (required) MPI Reference name: refers to an entry in the 
+#	gempis_MPIRef file.
+# res_remote    - Name of remote computer to submit the gempis command.
+# res_request   - Identifier to use when requesting resource information. 
+# res_submit    - Identifier to use when submitting a job.
+# res_prepath   - Prepend directory list to PATH (separate entries using the 
+#	colon character ':' as used in the PATH)
+# res_cluster   - Cluster list: a list of computer names and number of 
+#	processors when Job Type is CUSTOM.
+#
+###############################################################
+
+#
+# Undefined resource 21
+#
+#res_name[21]=""
+#res_jobtype[21]=""
+#res_mpiref[21]=""
+#res_remote[21]=""
+#res_request[21]=""
+#res_submit[21]=""
+#res_prepath[21]=""
+#res_cluster[21]=""
+
+#
+# Undefined resource 22
+#
+#res_name[22]=""
+#res_jobtype[22]=""
+#res_mpiref[22]=""
+#res_remote[22]=""
+#res_request[22]=""
+#res_submit[22]=""
+#res_prepath[22]=""
+#res_cluster[22]=""
+
+#
+# Undefined resource 23
+#
+#res_name[23]=""
+#res_jobtype[23]=""
+#res_mpiref[23]=""
+#res_remote[23]=""
+#res_request[23]=""
+#res_submit[23]=""
+#res_prepath[23]=""
+#res_cluster[23]=""
+
+#
+# Undefined resource 24
+#
+#res_name[24]=""
+#res_jobtype[24]=""
+#res_mpiref[24]=""
+#res_remote[24]=""
+#res_request[24]=""
+#res_submit[24]=""
+#res_prepath[24]=""
+#res_cluster[24]=""
+
+#
+# Undefined resource 25
+#
+#res_name[25]=""
+#res_jobtype[25]=""
+#res_mpiref[25]=""
+#res_remote[25]=""
+#res_request[25]=""
+#res_submit[25]=""
+#res_prepath[25]=""
+#res_cluster[25]=""
+
+#
+# Undefined resource 26
+#
+#res_name[26]=""
+#res_jobtype[26]=""
+#res_mpiref[26]=""
+#res_remote[26]=""
+#res_request[26]=""
+#res_submit[26]=""
+#res_prepath[26]=""
+#res_cluster[26]=""
+
+#
+# Undefined resource 27
+#
+#res_name[27]=""
+#res_jobtype[27]=""
+#res_mpiref[27]=""
+#res_remote[27]=""
+#res_request[27]=""
+#res_submit[27]=""
+#res_prepath[27]=""
+#res_cluster[27]=""
+
+#
+# Undefined resource 28
+#
+#res_name[28]=""
+#res_jobtype[28]=""
+#res_mpiref[28]=""
+#res_remote[28]=""
+#res_request[28]=""
+#res_submit[28]=""
+#res_prepath[28]=""
+#res_cluster[28]=""
+
+#
+# Undefined resource 29
+#
+#res_name[29]=""
+#res_jobtype[29]=""
+#res_mpiref[29]=""
+#res_remote[29]=""
+#res_request[29]=""
+#res_submit[29]=""
+#res_prepath[29]=""
+#res_cluster[29]=""
+
+#
+# Undefined resource 30
+#
+#res_name[30]=""
+#res_jobtype[30]=""
+#res_mpiref[30]=""
+#res_remote[30]=""
+#res_request[30]=""
+#res_submit[30]=""
+#res_prepath[30]=""
+#res_cluster[30]=""
+
+#
+# Resource definitions 31 to 50 can be made bu copying a reference above 
+# and changing the index values.
+#
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End Script
+

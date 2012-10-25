@@ -1,0 +1,292 @@
+#!/bin/bash
+#
+# defines the subroutines for SLURM jobtypes
+#
+# Syntax: . jobtype_SLURM
+#
+# External Environment Variables:
+#   GEMPIS_JOBTYPE - the name of the JOBTYPE
+#   GEMPIS_DATADIR - location where resource usage is maintained
+#
+#   SLURM_NODELIST - list of computers participating in the jobs
+#          SLURM_NODELIST=rijkes-n-d[99610,99620,99623,99654]
+#
+#   SLURM_TASKS_PER_NODE - the topology of the application. Corresponds 
+#                    to the NODELIST above.
+#          SLURM_TASKS_PER_NODE=3,4(x2)
+#
+# Notes:
+# --slurm-debug=<level>
+#############################################################################
+
+# define some slurm internal helper routines
+# Output Format:
+#JOBID    STATE CPUS  USER   NAME                                          START
+#28       RUNNI 9     nlgla8 elfendyn                             01/30-16:53:34
+slurm_my_jobs()
+{
+    squeue --noheader --format="%8i %5T %5C %6u %36j %.14S" | grep `whoami`
+}
+
+
+# 
+# prints the total number of resources to stdout
+#
+# Output Format: x
+jobtype_resource_total()
+{
+    # CPUS(A/I/O/T)
+    #0/16/0/16    
+    sinfo --noheader --format="%C" | awk -F'/' '{ print $4 }'
+}
+
+# 
+# prints the number of resources available to stdout
+#
+# Output Format: x
+jobtype_resource_available()
+{
+    # CPUS(A/I/O/T)
+    #0/16/0/16
+    sinfo --noheader --format="%C" | awk -F'/' '{ print $2 }'
+}
+
+#
+# prints the list of computers allocated to a resource to stdout
+# 
+# Output Format:
+# <hostname> [...]
+#
+jobtype_resource_computers()
+{
+    list=`scontrol --oneliner show node | while read line ; do
+	echo "$line" | awk '{ print $1 }' | awk -F'=' '{ print $2 }'
+    done`
+    echo $list
+}
+
+# 
+# print the memory available per resource to stdout
+#
+jobtype_resource_memory()
+{
+    minmem=9999999999
+
+    # get the lowest valid memory value
+    count=1
+    for computer in `jobtype_resource_computers`; do
+
+         # do at most only the first 10 VALID entries
+	if [ $count -gt 10 ]; then
+	    break
+	fi
+
+	# Example:
+        #NodeName=rijkes-n-d99540 State=IDLE CPUs=4 AllocCPUs=0 RealMemory=15698 TmpDisk=259507 Sockets=2 Cores=2 Threads=1 Weight=1 Features=(null) Reason=(null)
+	line=`scontrol --oneliner show node $computer`
+
+        # check if memory value is valid
+	memory=`echo "$line" | awk '{ print $5 }' | awk -F'=' '{ print $2 }'`
+
+	# check for valid value
+	if [ -z "$memory" -o "$memory" = "-" ]; then
+	    continue
+	fi
+
+	# get number of cpus
+	cpus=`echo "$line" | awk '{ print $3 }' | awk -F'=' '{ print $2 }'`
+
+	# check for valid value
+	if [ -z "$cpus" -o "$cpus" = "-" ]; then
+	    continue
+	fi
+
+        # assume the computer needs 500 MB for itself
+	let 'memoryper = ( memory - 500 ) / cpus'
+	if [ "$memoryper" -lt "$minmem" ]; then
+	    minmem=$memoryper
+	fi
+
+	let 'count = count + 1'
+    done
+
+    # output value
+    if [ "$memoryper" = 0 ]; then
+	echo "?"
+    else
+	echo $memoryper
+    fi
+}
+
+# 
+# prints resource usage to stdout
+#
+# Output Format:
+#JOBID STATE PROCS     USER COMMAND                  START       
+#<job list>
+#
+jobtype_resource_usage()
+{
+    squeue --format="%8i %5T %5C %6u %36j %.14S"
+}
+
+#
+# executes the command to submit an application and determines the result
+# 
+jobtype_submit_command()
+{
+    command="srun --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} $GEMPIS_SUBMIT --ntasks=$GEMPIS_NUMCPUS --ntasks-per-core=1 $GEMPIS_EXEDIR/gempis_mpiwrapper $GEMPIS_SLURM_DEBUG"
+    verbose "The job submission command is [$command]."
+
+    # executed command and determine the result
+    srun --job-name=${GEMPIS_PROJECTNAME}:${GEMPIS_EXEC} $GEMPIS_SUBMIT --ntasks=$GEMPIS_NUMCPUS --ntasks-per-core=1 $GEMPIS_EXEDIR/gempis_mpiwrapper $GEMPIS_SLURM_DEBUG
+    result=$?
+    verbose "SLURM srun returned [$result]."
+
+    # if the result was good check with SLURM if that is correct
+    if [ $result != "0" ]; then
+	verbose "Job submission failed."
+	return $result
+    fi
+
+    # evaluate whether job proceeded correctly
+    evaluate_result_files
+    result=$?
+    return $result
+}
+
+#
+# prints the list of computers to by used by application to stdout
+# 
+# Output format:
+# <hostname> <number of cpus> [...]
+#
+# SLURM_NODELIST format:
+#rijkes-n-d[99540,99620,99623] 
+#
+jobtype_hostlist()
+{
+    # find out what environment variables are available
+    env | sort 
+
+    echo "$SLURM_NODELIST" | tr "[],]" " " | awk '{ i=2; while (i<=NF) { print $1$i; i++;} }'
+
+    # remove any domain names from list
+    for val in $NODE_CPU_LIST; do
+	entry="`echo $val | awk -F'.' '{ print $1 }'`"
+	if [ -z "$outlist" ]; then
+	    outlist="$entry"
+	else
+	    outlist="$outlist $entry"
+	fi
+    done
+    echo "$outlist"
+}
+
+
+############################################################################
+# 
+# Verify that the environment is setup correctly
+#
+# Called by: gempis
+#
+# Syntax: jobtype_verify
+#
+# Returns: nothing 
+#
+# Output: terminates on error
+#
+jobtype_verify()
+{
+    # determine if required exec are on this computer
+    verbose "Verifying required SLURM commands are defined in PATH."
+    verify_exec srun  
+    verify_exec sinfo
+    verify_exec scontrol
+}
+
+############################################################################
+#
+# called when job is completed/terminated
+# 
+# Called by: gempis_postjob
+#
+# Syntax: jobtype_end
+#
+# Returns: nothing
+#
+# Output: verbose string
+# 
+jobtype_end()
+{
+    echo "" >/dev/null
+}
+
+############################################################################
+#
+# terminates running jobs for the current user
+# 
+# Called by: gempis
+#
+# Syntax: jobtype_killjob [<SLURM_jobid>]
+# 
+#       when no jobid is given it will terminate all user jobs for the 
+#       current resource
+#
+# Returns: 0 = nothing to do or successful, 1 = jobs still remaining
+#
+# Output: none
+#
+jobtype_killjob()
+{
+    jobid="$1"
+
+    # are we to kill all user jobs
+    if [ -z "$jobid" ]; then
+	verbose "Killing all user jobs."
+	list=`slurm_my_jobs | awk '{ print $1 }' 2>/dev/null`
+    else
+	list=`slurm_my_jobs | grep $jobid | awk '{ print $1 }' 2>/dev/null`
+    fi
+
+    # see if we have something to do
+    if [ -z "$list" ]; then
+	if [ -z "$jobid" ]; then
+	    echo "No jobs found."
+	    return 0
+	else
+	    echo "Jobid $jobid does not exist."
+	    return 1
+	fi
+    fi
+
+    # kill jobs
+    for id in $list; do
+	echo "- Attempting to kill jobid $id."
+	scancel $id
+    done
+
+    # wait for things to settle down
+    sleep 5
+
+    # check that they have been killed
+    if [ -z "$jobid" ]; then
+	list=`slurm_my_jobs | awk '{ print $1 }' 2>/dev/null`
+    else
+	list=`slurm_my_jobs | grep $jobid | awk '{ print $1 }' 2>/dev/null`
+    fi
+    if [ -n "$list" ]; then
+	verbose "Job id(s) were not killed [$list]."
+	return 1
+    fi
+
+    # jobs killed
+    return 0
+}
+
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End script

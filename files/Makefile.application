@@ -1,0 +1,4 @@
+all: debug
+
+debug optimized profile clean:
+	 mkdir -p obj.$(machine); cd obj.$(machine); ln -sf ../Makefile.${shell basename `pwd`} Makefile; $(MAKE) $@

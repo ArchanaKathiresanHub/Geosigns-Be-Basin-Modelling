@@ -1,0 +1,5 @@
+# Gempis Job File for Saudi 
+PROJECT "Saudi"
+REQUIREMENTS "fastreq Saudi.project3d"
+LOCAL "echo next"
+PARALLEL "fastcauldron -project Saudi.project3d  -save _Acquifer1OP.project3d -itcoupled 

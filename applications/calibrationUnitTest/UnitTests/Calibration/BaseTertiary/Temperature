@@ -1,0 +1,19 @@
+[ExportTimeIoTbl]
+;
+PropertyName  Time        SurfaceName     FormationName Average StandardDev Minimum Maximum P15 P50 P85 Skewness Kurtosis 
+()            (Ma)        ()              ()            ()      ()          ()      ()      ()  ()  ()  ()       ()       
+"Temperature" 0           "Base_Tertiary" ""            55.85   -9999       55.85   55.85   0   0   0   -9999    -9999    
+"Temperature" 5           "Base_Tertiary" ""            28.364  -9999       28.364  28.364  0   0   0   -9999    -9999    
+"Temperature" 8           "Base_Tertiary" ""            28.361  -9999       28.361  28.361  0   0   0   -9999    -9999    
+"Temperature" 28          "Base_Tertiary" ""            28.276  -9999       28.276  28.276  0   0   0   -9999    -9999    
+"Temperature" 45          "Base_Tertiary" ""            20.682  -9999       20.682  20.682  0   0   0   -9999    -9999    
+"Temperature" 65          "Base_Tertiary" ""            10      -9999       10      10      0   0   0   -9999    -9999    
+"Temperature" 75.09999847 "Base_Tertiary" ""            58.021  -9999       58.021  58.021  0   0   0   -9999    -9999    
+"Temperature" 90          "Base_Tertiary" ""            45.931  -9999       45.931  45.931  0   0   0   -9999    -9999    
+"Temperature" 97.09999847 "Base_Tertiary" ""            41.104  -9999       41.104  41.104  0   0   0   -9999    -9999    
+"Temperature" 104.5       "Base_Tertiary" ""            36.679  -9999       36.679  36.679  0   0   0   -9999    -9999    
+"Temperature" 124.5       "Base_Tertiary" ""            20.35   -9999       20.35   20.35   0   0   0   -9999    -9999    
+"Temperature" 140         "Base_Tertiary" ""            25      -9999       25      25      0   0   0   -9999    -9999    
+"Temperature" 140.5       "Base_Tertiary" ""            25      -9999       25      25      0   0   0   -9999    -9999    
+[End]
+;

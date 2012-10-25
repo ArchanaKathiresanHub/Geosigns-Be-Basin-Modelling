@@ -1,0 +1,27 @@
+[Table:OTGCTest]
+TestName,TemplateUnitTest 
+TestType,BENCHMARK or SENSITIVITY TRANSFORMSCH2CFG
+[EndOfTable]
+
+[Table:BenchmarkTest]
+sourceRockType,TypeIISstd:
+HC, 1.2					  
+Emean, 208000.0 	  
+[EndOfTable]
+
+[Table:TransformSch2Cfg]
+PreprocessData,True or False 
+[EndOfTable]
+
+[Table:UnitTestDataCreation]
+ int in_numberOfTimesteps=400;
+ double  in_TemperatureAtStart=0.0;
+ double  in_TemperatureAtEnd=250;
+ double  in_heatingRate=3.0;
+ double  in_temperatureGradient=0.038;
+ double  in_surfaceTemperature=20.0;
+ double  in_overBurderDensity=2300.0;
+ double  in_maximumPeff=20.0;//MPa
+ double  in_Pfract=0.25; //toDo
+ bool 	in_openConditions=true;
+[EndOfTable]

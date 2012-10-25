@@ -1,0 +1,20 @@
+[ProjectIoTbl]
+;
+ProjectName ProjectSize Description ProjectTeam ProjectStartDate ProjectEndDate ProgramVersion ModellingMode XCoord YCoord NumberX NumberY DeltaX DeltaY 
+() () () () () () () () () () () () (m) (m) 
+"" "Big" "" "" "" "" "" "1d" 0 0 2 2 100 100 
+[End]
+;
+;
+[ProjectNotesIoTbl]
+;
+ProjectNotes 
+() 
+[End]
+;
+;
+[RelatedProjectsIoTbl]
+;
+Filename 
+() 
+[End]

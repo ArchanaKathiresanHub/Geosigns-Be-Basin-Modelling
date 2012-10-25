@@ -1,0 +1,13 @@
+# Make.3rdparty - contains definitions for 3rd party libraries
+#
+# This file includes the separate 3rd party library definitions
+# given separately. This facilitates tha ability for projects
+# to define a specific library when needed.
+#
+
+include ../../../files/Make.mpi
+include ../../../files/Make.hdf5
+include ../../../files/Make.petsc
+include ../../../files/Make.qt
+include ../../../files/Make.hack4link
+# End 

@@ -1,0 +1,176 @@
+#!/bin/bash
+#
+# defines the subroutines for CUSTOM jobtypes
+#
+# Syntax: . jobtype_CUSTOM
+#
+# External Environment Variables:
+#   GEMPIS_JOBTYPE - the name of the JOBTYPE
+#   GEMPIS_DATADIR - location where resource usage is maintained
+#
+# Notes:
+#############################################################################
+
+# load STANDALONE definitions
+. $GEMPIS_DEFDIR/jobtype_STANDALONE
+
+#
+# any definitions here will override the previous definitions
+#
+
+# 
+# prints the total number of resources to stdout
+#
+jobtype_resource_total()
+{
+    total=0
+    state=1
+    for var in $GEMPIS_CLUSTER; do
+	if [ $state -eq 1 ]; then
+	    state=2
+	else
+	    state=1
+	    if [ -n "$GEMPIS_USE_WHOLE_NODES" ]; then
+		let 'total = total + 1'
+	    else
+		let 'total = total + var'
+	    fi
+	fi
+    done
+    echo $total
+}
+
+# 
+# prints the number of resources available to stdout
+#
+#jobtype_resource_available()
+#{
+#}
+
+#
+# prints the list of computers allocated to a resource to stdout
+# 
+# Format:
+# <hostname> [...]
+#
+jobtype_resource_computers()
+{
+    state=1
+    for name in $GEMPIS_CLUSTER; do
+	if [ $state = 2 ]; then
+	    state=1
+	else
+	    printf "%s " $name
+	    state=2
+	fi
+    done
+    # terminating line
+    echo ""
+}
+
+# 
+# print the memory available per resource to stdout
+#
+# For this we assume that the cluster nodes have the same amount of 
+# memory as the head node.
+#
+#jobtype_resource_memory()
+#{
+#}
+
+
+# 
+# prints resource usage to stdout
+#
+# Format:
+#    JOBID STATE PROCS     USER COMMAND                  START       
+#    <job list>
+#
+#jobtype_resource_usage()
+#{
+#}
+
+#
+# executes the command to submit an application and determines the result
+# 
+#jobtype_submit_command()
+#{
+#}
+
+#
+# prints the list of computers to by used by application to stdout
+# 
+# Format:
+# <hostname> <number of cpus> [...]
+#
+jobtype_hostlist()
+{
+    # remove any domain names from list
+    for val in $GEMPIS_CLUSTER; do
+	entry="`echo $val | awk -F'.' '{ print $1 }'`"
+	if [ -z "$outlist" ]; then
+	    outlist="$entry"
+	else
+	    outlist="$outlist $entry"
+	fi
+    done
+    echo "$outlist"
+}
+
+
+############################################################################
+# 
+# Verify that the environment is setup correctly
+#
+# Called by: gempis
+#
+# Syntax: jobtype_verify
+#
+# Returns: nothing 
+#
+# Output: formatted WARNING message on error, 
+#         but does not terminate
+#
+#jobtype_verify()
+#{
+#}
+
+############################################################################
+#
+# called when job is completed/terminated
+# 
+# Syntax: jobtype_end
+#
+# Returns: nothing
+#
+# Output: verbose string
+# 
+#jobtype_end()
+#{
+#}
+
+############################################################################
+#
+# terminates running jobs for the current user
+# 
+# Called by: gempis
+#
+# Syntax: jobtype_killjob [<gempis_jobid>]
+# 
+#       when no jobid is given it will terminate all user jobs for the 
+#       current resource
+#
+# Returns: 0 = nothing to do or successful, 1 = jobs still remaining
+#
+# Output: none
+#
+#jobtype_killjob()
+#{
+#}
+
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End script

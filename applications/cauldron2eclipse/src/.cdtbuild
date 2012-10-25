@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="cauldron2eclipse.cdt.managedbuild.target.gnu.exe.1912856539" name="Executable (Gnu)" projectType="cdt.managedbuild.target.gnu.exe">
+<configuration artifactName="cauldron2eclipse" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.627974121" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.513323630" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1122094445" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<option id="gnu.cpp.compiler.option.preprocessor.def.832032346" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="USEINTERFACE"/>
+</option>
+<option id="gnu.cpp.compiler.option.include.paths.1596044751" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SerialDataAccess/Interface}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1075692453" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.865876267" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1288355665" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1314702761" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.628138097" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<option id="gnu.cpp.link.option.strip.1087096684" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+<option id="gnu.cpp.link.option.libs.1157069090" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<listOptionValue builtIn="false" value="hdf5"/>
+<listOptionValue builtIn="false" value="z"/>
+</option>
+<option id="gnu.cpp.link.option.paths.1759568041" superClass="gnu.cpp.link.option.paths" valueType="stringList">
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/lib"/>
+</option>
+<option id="gnu.cpp.link.option.userobjs.1033042746" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SerialDataAccess/Release/libSerialDataAccess.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO/Release/libTableIO.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5/Release/libSerial_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics/Release/libCBMGenerics.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities/Release/libutilities.a}&quot;"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.2000257623" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
+</toolChain>
+</configuration>
+<configuration artifactName="cauldron2eclipse" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.686683845" name="Debug" parent="cdt.managedbuild.config.gnu.exe.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1657743214" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.302027632" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<option id="gnu.cpp.compiler.option.preprocessor.def.1480252468" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="USEINTERFACE"/>
+</option>
+<option id="gnu.cpp.compiler.option.include.paths.1390509139" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SerialDataAccess/Interface}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.exe.release.option.optimization.level.606006780" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.1957213442" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+<option id="gnu.cpp.compiler.exe.release.option.debugging.level.166311929" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.216654812" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.851705122" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.158101186" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<option id="gnu.cpp.link.option.strip.939233273" name="Omit all symbol information (-s)" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+<option id="gnu.cpp.link.option.libs.467680708" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<listOptionValue builtIn="false" value="hdf5"/>
+<listOptionValue builtIn="false" value="z"/>
+</option>
+<option id="gnu.cpp.link.option.paths.1286126412" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="stringList">
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/lib"/>
+</option>
+<option id="gnu.cpp.link.option.userobjs.1987443168" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SerialDataAccess/Debug/libSerialDataAccess.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO/Debug/libTableIO.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5/Debug/libSerial_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics/Debug/libCBMGenerics.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities/Debug/libutilities.a}&quot;"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1934055612" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
+</toolChain>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>

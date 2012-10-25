@@ -1,0 +1,23 @@
+[MntlHeatFlowIoTbl]
+;
+Age HeatFlow ErrHeatFlow 
+(Ma) (mW/m2) () 
+0 30 5 
+[End]
+;
+;
+[BasementIoTbl]
+;
+BottomBoundaryModel TopAsthenoTemp TopCrustHeatProd CalibTopCrustHeatProd CrustHeatPDecayConst LithoMantleThickness CalibLithoMantleThickness InitialLthMntThickns CalibInitialLthMntThickns FixedCrustThickness CalibFixedCrustThickness ErrLithoMantleThickness ErrInitialLthMntThickns ErrFixedCrustThickness ErrTopCrustHeatProd ErrCrustHeatPDecayConst 
+() (C) (uW/m3) (uW/m3) (m) (m) (m) (m) (m) (m) (m) () () () () () 
+"Fixed Temperature" 1333 2.5 -9999 10000 90000 -9999 90000 -9999 30000 -9999 0 0 0 0 0 
+[End]
+;
+;
+[CrustIoTbl]
+;
+Age Thickness CalibThickness OptimThickness ErrThickness 
+(Ma) (m) (m) () () 
+0 30000 -9999 -9999 0 
+100 30000 -9999 -9999 0 
+[End]

@@ -1,0 +1,108 @@
+# gocbm - script for defining the development environment for Cauldron CBM
+#
+# To use: Call once from your development directory 
+#
+# Syntax:	source /nfs/rvl/users/ibs/bin/gocbm [old]
+# 
+# 	[old] - define for the old development environment
+#
+# Variables created or modified:
+#  PATH			- Compensated so correct development tools are selected
+#  MAKE			- Changed where necessary
+#  CC	                - for Sun platform
+#  CXX                  - for Sun platform
+#  CSCE_ARCH		- Hardware platform as defined by the getos2 command
+#  machine		- Hardware platform as required by socom
+#  USE64BITS		- Set TRUE when machine is 64-bits
+#  PETSC_ARCH		- Hardware platform as expected by PETSc libraries
+#
+###############################################################################
+
+echo "Setting up BPA-Cauldron Development Environment"
+unsetenv machine
+
+###############################################################################
+#
+# general setup
+#
+# define root directory of CBM development
+
+if (`hostname -d` == "americas.shell.com") then
+   setenv CBM_HOME /glb/home/s_bpac00
+else # europe
+   setenv CBM_HOME /nfs/rvl/groups/ept-sg/SWEast/Cauldron
+endif
+
+# remove flags used by other scripts
+unsetenv MAKEFLAGS
+
+###############################################################################
+#
+# setup based on machines architecture specified by Shell CSCE
+#
+setenv CSCE_ARCH `/apps/sss/share/getos2 --os --arch`
+setenv CSCE_VERSION `/apps/sss/share/getos2 --ver`
+echo "Native platform is $CSCE_ARCH, version is $CSCE_VERSION"
+
+# this is used by the new HPC libraries
+setenv CSCE_FULL `/apps/sss/share/getos2`
+setenv HPC_HOME ${CBM_HOME}/hpc
+
+# 
+switch ($CSCE_ARCH)
+# Linux 64-bit
+case LinuxRHEL64_x86_64:
+	setenv NATIVE_BITS 64
+        setenv TARGET_BITS 64
+        setenv machine Linux64
+
+        breaksw
+
+default:
+        echo "!!Error: Operating System not supported."
+        echo "  Aborting setup..."
+        exit 1
+        breaksw
+endsw
+
+###############################################################################
+#
+# setup based on target machine
+#
+# Define the home directory of the 3rd party libraries
+#
+# these are under the new format
+
+
+source /apps/3rdparty/intel/ics2011/composerxe-2011.3.174/bin/compilervars.csh intel64
+source /apps/3rdparty/intel/ics2011/impi/4.0.1.007/bin/mpivars.csh
+
+setenv MPI_HOME		/nfs/rvl/apps/3rdparty/intel/ics2011/impi/4.0.1.007/intel64
+setenv MPI_D_HOME	/nfs/rvl/apps/3rdparty/intel/ics2011/impi/4.0.1.007/intel64
+setenv PATH 	${MPI_HOME}/bin:${PATH}
+
+source /apps/3rdparty/intel/ics2011/itac/8.0.1.009/bin/itacvars.csh
+
+setenv HDF5_VERSION	 1.8.7
+
+setenv HDF5_HOME        ${HPC_HOME}/hdf5-intel/${HDF5_VERSION}/${CSCE_FULL}
+setenv HDF5_D_HOME      ${HPC_HOME}/hdf5-intel/${HDF5_VERSION}/${CSCE_FULL}
+setenv HDF5_P_HOME      ${HPC_HOME}/hdf5-intel-parallel/${HDF5_VERSION}/${CSCE_FULL}
+setenv HDF5_PD_HOME     ${HPC_HOME}/hdf5-intel-parallel/${HDF5_VERSION}/${CSCE_FULL}
+
+# PETSc definitions
+setenv PETSC_VERSION	3.1.8
+setenv PETSC_ARCH 	linux-gnu-intel
+setenv PETSC_HOME       ${HPC_HOME}/petsc/${PETSC_VERSION}/${CSCE_FULL}
+setenv PETSC_D_HOME     ${HPC_HOME}/petsc-debug/${PETSC_VERSION}/${CSCE_FULL}
+
+# define the default mail program to use
+setenv MAIL mailx
+# 
+setenv IBS_FIELDWIDTH 24
+
+setenv FLEXLMINCLUDEDIR /apps/3rdparty/EPTFlexLm/v9.2
+
+setenv PATH /glb/home/ksaho3/bin.`uname`:$PATH # for the subversion comands
+
+setenv IBS_LIMITEDBUILDANDINSTALL true

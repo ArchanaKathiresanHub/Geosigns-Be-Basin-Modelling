@@ -1,0 +1,82 @@
+ROOTDIR = ..
+LIBDIR = ../../../libraries
+
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.hdf5
+
+SRCDIR  = ${ROOTDIR}/src/
+CURDIR = $(cwd)
+
+C2EOBJECTS = cauldron2eclipse.o
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+C2E = cauldron2eclipse
+
+SERIAL_DATA_ACCESS_INC = $(LIBDIR)/SerialDataAccess/src
+SERIAL_DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libSerialDataAccess.a
+
+DATA_ACCESS_INC = $(LIBDIR)/DataAccess/src
+DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+DATABASE_INC	= $(LIBDIR)/TableIO/src
+DATABASE_LIB    = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB    = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+INCLUDEDIRS = -I$(SERIAL_DATA_ACCESS_INC) -I$(SERIAL_DATA_ACCESS_INC)/Interface \
+														-I$(DATA_ACCESS_INC) -I$(DATA_ACCESS_INC)/Interface \
+														-I$(H5_SERIAL_INC) \
+														-I$(HDF5_SINCLUDE) \
+														-I$(DATABASE_INC)
+
+LIB = \
+      $(DATA_ACCESS_LIB) \
+      $(SERIAL_DATA_ACCESS_LIB) \
+      $(DATA_ACCESS_LIB) \
+      $(DATABASE_LIB) \
+      $(H5_SERIAL_LIB) \
+      $(CBMGENERICS_LIB) \
+      $(UTILITIES_LIB) \
+      $(HDF5_SLIB)/libhdf5.a \
+      -lz -lm -lrt
+
+
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(C2E)
+
+CXXFLAGS += $(INCLUDEDIRS)
+
+$(C2E) : $(C2EOBJECTS) $(SELECTEDLIB) Makefile
+	$(PURIFY) $(LCC) $(CFLAGS) $(C2EOBJECTS) $(SELECTEDLIB) $(DLLIB) -o $(C2E)
+
+clean:
+	rm -rf $(C2E) $(C2EOBJECTS) \
+	core test test.out snap.* ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+depend: $(C2EOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f ../Makefile.cauldron2eclipse -Y $(INCLUDEDIRS) $(C2EOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

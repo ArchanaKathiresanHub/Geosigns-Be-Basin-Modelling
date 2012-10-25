@@ -1,0 +1,242 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+
+#ifeq ($(machine),Silicon64)
+#include $(FILE_BASE)/Make.3rdparty
+#endif
+
+LIBDIR = ../../../libraries
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics
+EOSPACK_INC	= $(LIBDIR)/EosPack/src
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+
+#
+#  Override for Make.machine definitions
+#
+ifeq ($(machine),Silicon64)
+#  LCC 		= $(CC)
+endif
+#
+ifeq ($(machine),Silicon32)
+#  LCC 		= $(CC)
+#  CXXFLAGS 	= -ansi -n32 -mips4 -ptused -woff 15  -OPT:Olimit=2950
+endif
+#
+
+INCLUDEDIRS=-I$(CBMGENERICS_INC) -I$(UTILITIES_INC) -I$(EOSPACK_INC)
+
+
+CFLAGS   += ${PROFILEFLAGS} ${COMPILEFLAGS} $(INCLUDEDIRS)
+CXXFLAGS += ${PROFILEFLAGS} ${COMPILEFLAGS} $(INCLUDEDIRS)
+
+
+DOXYGEN = doxygen
+DOXYGENCFG = genex6.cfg
+
+LIBOBJECTS = \
+	Utilities.o \
+	SpeciesManager.o \
+	SpeciesProperties.o \
+	Species.o \
+	SpeciesState.o \
+	GeneralParametersHandler.o \
+	ImmobileSpecies.o \
+	Input.o \
+	SimulatorStateBase.o \
+	Simulator.o \
+	SCmathlib.o \
+	ReactionRatio.o \
+	Reaction.o \
+	ChemicalModel.o
+
+SOURCES = $(LIBOBJECTS:.o=.C)
+
+HEADERS = \
+	Utilities.h \
+	SpeciesManager.h \
+	SpeciesState.h \
+	SpeciesProperties.h \
+	Species.h \
+	ImmobileSpecies.h \
+	Input.h \
+	SimulatorStateBase.h \
+	SubProcessSimulator.h \
+	GeneralParametersHandler.h \
+	Simulator.h \
+	SCmathlib.h \
+	ReactionRatio.h \
+	Reaction.h \
+	ChemicalModel.h \
+	Element.h \
+	Constants.h
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+SHAREDLINKLIB = $(CBMGENERICS_LIB).so
+
+LINKLIB = $(CBMGENERICS_LIB).a 
+	
+SELECTEDLINKLIB = $(LINKLIB)
+
+SHAREDLIB = libgenex6.so
+LIB = libgenex6.a
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(LIB) $(SHARELIB)
+
+$(LIB): $(LIBOBJECTS) 
+	$(AR) $(LIB) $(LIBOBJECTS) 
+
+$(SHAREDLIB): $(LIB) Makefile
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+clean:
+	rm -rf $(LIB) $(SHAREDLIB) $(LIBOBJECTS) \
+	core ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+
+depend: $(LIBOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.genex6 -Y $(INCLUDEDIRS) $(HEADERS) $(SOURCES)   2> /dev/null
+
+
+# DO NOT DELETE
+
+SpeciesManager.o: ../../../libraries/EosPack/src/EosPack.h
+SpeciesManager.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+SpeciesManager.o: ../../../libraries/CBMGenerics/src/DllExport.h
+SpeciesManager.o: ../../../libraries/EosPack/src/polynomials.h
+SpeciesManager.o: ../../../libraries/utilities/src/NumericFunctions.h
+Species.o: SpeciesManager.h ../../../libraries/EosPack/src/EosPack.h
+Species.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+Species.o: ../../../libraries/CBMGenerics/src/DllExport.h
+Species.o: ../../../libraries/EosPack/src/polynomials.h
+Species.o: ../../../libraries/utilities/src/NumericFunctions.h
+Species.o: ChemicalModel.h Constants.h
+Input.o: Constants.h
+SimulatorStateBase.o: SpeciesState.h SpeciesManager.h
+SimulatorStateBase.o: ../../../libraries/EosPack/src/EosPack.h
+SimulatorStateBase.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+SimulatorStateBase.o: ../../../libraries/CBMGenerics/src/DllExport.h
+SimulatorStateBase.o: ../../../libraries/EosPack/src/polynomials.h
+SimulatorStateBase.o: ../../../libraries/utilities/src/NumericFunctions.h
+SimulatorStateBase.o: ChemicalModel.h Constants.h
+SubProcessSimulator.o: Input.h Constants.h SimulatorStateBase.h
+SubProcessSimulator.o: SpeciesState.h SpeciesManager.h
+SubProcessSimulator.o: ../../../libraries/EosPack/src/EosPack.h
+SubProcessSimulator.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+SubProcessSimulator.o: ../../../libraries/CBMGenerics/src/DllExport.h
+SubProcessSimulator.o: ../../../libraries/EosPack/src/polynomials.h
+SubProcessSimulator.o: ../../../libraries/utilities/src/NumericFunctions.h
+SubProcessSimulator.o: ChemicalModel.h
+Simulator.o: SubProcessSimulator.h Input.h Constants.h SimulatorStateBase.h
+Simulator.o: SpeciesState.h SpeciesManager.h
+Simulator.o: ../../../libraries/EosPack/src/EosPack.h
+Simulator.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+Simulator.o: ../../../libraries/CBMGenerics/src/DllExport.h
+Simulator.o: ../../../libraries/EosPack/src/polynomials.h
+Simulator.o: ../../../libraries/utilities/src/NumericFunctions.h
+Simulator.o: ChemicalModel.h
+ChemicalModel.o: SpeciesManager.h ../../../libraries/EosPack/src/EosPack.h
+ChemicalModel.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+ChemicalModel.o: ../../../libraries/CBMGenerics/src/DllExport.h
+ChemicalModel.o: ../../../libraries/EosPack/src/polynomials.h
+ChemicalModel.o: ../../../libraries/utilities/src/NumericFunctions.h
+ChemicalModel.o: Constants.h
+Utilities.o: Utilities.h
+SpeciesManager.o: SpeciesManager.h ../../../libraries/EosPack/src/EosPack.h
+SpeciesManager.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+SpeciesManager.o: ../../../libraries/CBMGenerics/src/DllExport.h
+SpeciesManager.o: ../../../libraries/EosPack/src/polynomials.h
+SpeciesManager.o: ../../../libraries/utilities/src/NumericFunctions.h
+SpeciesManager.o: Utilities.h
+SpeciesProperties.o: Species.h SpeciesManager.h
+SpeciesProperties.o: ../../../libraries/EosPack/src/EosPack.h
+SpeciesProperties.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+SpeciesProperties.o: ../../../libraries/CBMGenerics/src/DllExport.h
+SpeciesProperties.o: ../../../libraries/EosPack/src/polynomials.h
+SpeciesProperties.o: ../../../libraries/utilities/src/NumericFunctions.h
+SpeciesProperties.o: ChemicalModel.h Constants.h SpeciesProperties.h
+SpeciesProperties.o: GeneralParametersHandler.h
+Species.o: Species.h SpeciesManager.h
+Species.o: ../../../libraries/EosPack/src/EosPack.h
+Species.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+Species.o: ../../../libraries/CBMGenerics/src/DllExport.h
+Species.o: ../../../libraries/EosPack/src/polynomials.h
+Species.o: ../../../libraries/utilities/src/NumericFunctions.h
+Species.o: ChemicalModel.h Constants.h SimulatorStateBase.h SpeciesState.h
+Species.o: SpeciesProperties.h Element.h
+Species.o: ../../../libraries/CBMGenerics/src/GenexResultManager.h
+Species.o: GeneralParametersHandler.h
+SpeciesState.o: SpeciesState.h
+GeneralParametersHandler.o: GeneralParametersHandler.h
+ImmobileSpecies.o: ImmobileSpecies.h Utilities.h
+Input.o: Input.h Constants.h
+Input.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+Input.o: ../../../libraries/CBMGenerics/src/DllExport.h
+SimulatorStateBase.o: SimulatorStateBase.h SpeciesState.h SpeciesManager.h
+SimulatorStateBase.o: ../../../libraries/EosPack/src/EosPack.h
+SimulatorStateBase.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+SimulatorStateBase.o: ../../../libraries/CBMGenerics/src/DllExport.h
+SimulatorStateBase.o: ../../../libraries/EosPack/src/polynomials.h
+SimulatorStateBase.o: ../../../libraries/utilities/src/NumericFunctions.h
+SimulatorStateBase.o: ChemicalModel.h Constants.h
+Simulator.o: Simulator.h SubProcessSimulator.h Input.h Constants.h
+Simulator.o: SimulatorStateBase.h SpeciesState.h SpeciesManager.h
+Simulator.o: ../../../libraries/EosPack/src/EosPack.h
+Simulator.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+Simulator.o: ../../../libraries/CBMGenerics/src/DllExport.h
+Simulator.o: ../../../libraries/EosPack/src/polynomials.h
+Simulator.o: ../../../libraries/utilities/src/NumericFunctions.h
+Simulator.o: ChemicalModel.h Utilities.h Species.h GeneralParametersHandler.h
+Simulator.o: ImmobileSpecies.h
+SCmathlib.o: SCmathlib.h
+ReactionRatio.o: ReactionRatio.h Constants.h GeneralParametersHandler.h
+ReactionRatio.o: Species.h SpeciesManager.h
+ReactionRatio.o: ../../../libraries/EosPack/src/EosPack.h
+ReactionRatio.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+ReactionRatio.o: ../../../libraries/CBMGenerics/src/DllExport.h
+ReactionRatio.o: ../../../libraries/EosPack/src/polynomials.h
+ReactionRatio.o: ../../../libraries/utilities/src/NumericFunctions.h
+ReactionRatio.o: ChemicalModel.h
+Reaction.o: Reaction.h SCmathlib.h Species.h SpeciesManager.h
+Reaction.o: ../../../libraries/EosPack/src/EosPack.h
+Reaction.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+Reaction.o: ../../../libraries/CBMGenerics/src/DllExport.h
+Reaction.o: ../../../libraries/EosPack/src/polynomials.h
+Reaction.o: ../../../libraries/utilities/src/NumericFunctions.h
+Reaction.o: ChemicalModel.h Constants.h ReactionRatio.h
+ChemicalModel.o: ChemicalModel.h SpeciesManager.h
+ChemicalModel.o: ../../../libraries/EosPack/src/EosPack.h
+ChemicalModel.o: ../../../libraries/CBMGenerics/src/ComponentManager.h
+ChemicalModel.o: ../../../libraries/CBMGenerics/src/DllExport.h
+ChemicalModel.o: ../../../libraries/EosPack/src/polynomials.h
+ChemicalModel.o: ../../../libraries/utilities/src/NumericFunctions.h
+ChemicalModel.o: Constants.h Element.h Species.h Reaction.h ReactionRatio.h
+ChemicalModel.o: SimulatorStateBase.h SpeciesState.h SpeciesProperties.h
+ChemicalModel.o: Utilities.h
+ChemicalModel.o: ../../../libraries/CBMGenerics/src/GenexResultManager.h
+ChemicalModel.o: GeneralParametersHandler.h

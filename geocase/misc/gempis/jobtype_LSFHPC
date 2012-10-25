@@ -1,0 +1,116 @@
+#!/bin/bash
+#
+# defines the subroutines for LSFHPC jobtypes
+#
+# Syntax: . jobtype_LSFHPC
+#
+# External Environment Variables:
+#   GEMPIS_JOBTYPE - the name of the JOBTYPE
+#   GEMPIS_DATADIR - location where resource usage is maintained
+#   LSB_MCPU_HOSTS   - (defined by LSF) List of computers and their number of 
+#                      processors to be used for a particular job.
+#   LSF_PJL_WAIT_DEF - (used by LSF) defined the timeout period, in seconds, 
+#                      given by LSF on job start before terminating (default
+#                      is 30 seconds).
+#   LSF_PJL_WAIT_REG - (used by LSF) timeout period, in seconds, 
+#                      added on to the timeout for each processor added to 
+#                      the list. The default value is 1/10, we set to 5.
+#
+#
+# Notes:
+# It is not currently possible to define identify the BJOB id because 
+# the LSF job is interactive. So the command doesn't return until the 
+# job is completed
+#    BJOBS=`echo $line | sed 's/<//' | sed 's/>//' | awk '{ print $2 }'`
+#    send_message INFO "$jobtype jobid is $BJOBS."
+#
+#############################################################
+
+
+# load standard LSF definitions
+. $GEMPIS_DEFDIR/jobtype_LSF
+
+#
+# any definitions here will override the previous definitions
+#
+
+# subroutines defined in jobtype_LSF
+#lsf_shared_resources()
+#lsf_computer_info()
+#lsf_all_jobs()
+#lsf_my_jobs()
+#jobtype_resource_total()
+#jobtype_resource_available()
+#jobtype_resource_computers()
+#jobtype_resource_memory()
+#jobtype_resource_usage()
+#
+# executes the command to submit an application and determines the result
+# 
+jobtype_submit_command()
+{
+    # LSF HPC requires and extra option indicating which MPI to use
+case $GEMPIS_MPIREF in
+MPICH)
+    extra_option="-a mpich mpirun.lsf"
+    ;;
+MVAPICH)
+    extra_option="-a mvapich mpirun.lsf"
+    ;;
+LAMMPI)
+    extra_option="-a lammpi mpirun.lsf"
+    ;;
+MPICH2)
+    extra_option="-a mpich2 mpirun.lsf"
+    ;;
+INTELMPI)
+    extra_option=""
+    ;;
+OpenMPI)
+    extra_option="-a openmpi mpirun.lsf"
+    ;;
+*)
+    terminate ERROR "MPI reference [$GEMPIS_MPIREF] does not have a $GEMPIS_JOBTYPE option."
+    ;;
+esac
+
+    # executed command and determine the result
+    /bin/rm -f log
+    command='bsub -K -o log ${BSUB_EXEC_OPTIONS} -J ${GEMPIS_PROJECTNAME}:$GEMPIS_EXEC $GEMPIS_SUBMIT -n $GEMPIS_NUMCPUS $extra_option $GEMPIS_APPWRAPPATH $GEMPIS_LSF_DEBUG'
+    verbose "The job submission command is [$command]."
+
+    # do not use the command variable
+    if [ ${GEMPIS_NOPREEMPT:-false} != "false" ]; then
+       bsub -K -o log -R "select[nvr_preempt]" ${BSUB_EXEC_OPTIONS} -J ${GEMPIS_PROJECTNAME}:$GEMPIS_EXEC $GEMPIS_SUBMIT -n $GEMPIS_NUMCPUS $extra_option $GEMPIS_APPWRAPPATH $GEMPIS_LSF_DEBUG
+    else
+       bsub -K -o log ${BSUB_EXEC_OPTIONS} -J ${GEMPIS_PROJECTNAME}:$GEMPIS_EXEC $GEMPIS_SUBMIT -n $GEMPIS_NUMCPUS $extra_option $GEMPIS_APPWRAPPATH $GEMPIS_LSF_DEBUG
+    fi
+    # $command
+    result=$?
+    verbose "LSF bsub returned [$result]."
+
+    # if the result was good check with LSF if that is correct
+    if [ $result != "0" ]; then
+	verbose "Job submission failed."
+	return $result
+    fi
+
+    # evaluate whether job proceeded correctly
+    evaluate_result_files
+    result=$?
+    return $result
+}
+#
+# other subroutines
+#
+#jobtype_hostlist()
+#jobtype_verify()
+#jobtype_end()
+#jobtype_killjob()
+
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End script

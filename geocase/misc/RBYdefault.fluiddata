@@ -1,0 +1,409 @@
+[FluidtypeIoTbl]
+;
+Fluidtype Description DefinedBy DefinitionDate LastChangedDate LastChangedBy Density DensModel SeisVelocity SeisVelocityModel Salinity ThermCondtype HeatCaptype Viscotype Denstype
+() () () () () () (kg/m3) () (m/s) () () () () () ()
+"Std. Water" "KSEPL's Standard Water" "KSEPL" "November 1994" "" "" 1000 "Calculated"  1500  "Calculated"  0 "Std. Water" "Std. Water" "Std. Water" "Std. Water"
+"Std. Marine Water" "KSEPL's Standard Marine Water" "KSEPL" "February 2000" "" "" 1000 "Calculated"  1500  "Calculated"  0.13 "Std. Water" "Std. Water" "Std. Water" "Std. Water"
+"Std. Hyper Saline Water" "KSEPL's Standard Ultra Marine Water" "KSEPL" "February 2000" "" "" 1000 "Calculated"  1500  "Calculated" 0.22 "Std. Water" "Std. Water" "Std. Water" "Std. Water"
+[End]
+;
+;
+[FltThCondIoTbl]
+;
+Fluidtype TempIndex ThCond 
+() (C) (W/mK) 
+"Std. Water" 0 0.57 
+"Std. Water" 20 0.6 
+"Std. Water" 100 0.67 
+"Std. Water" 200 0.66 
+"Std. Water" 300 0.53 
+"Std. Water" 400 0.29 
+[End]
+;
+;
+[FltHeatCapIoTbl]
+;
+;This table has been modified to make its entries consistent with the
+;FltDensityIoTbl. To this end we have just added .1 to all the pressure entries.
+;It should be checked whether this is allowed. Further, the heatcapacity
+;entries seem to be non monotonic, which deserves checking as well!
+;
+Fluidtype TempIndex Pressure HeatCapacity 
+() (C) (MPa) (J/kgK) 
+"Std. Water" 0 0.1 4250 
+"Std. Water" 50 0.1 4190 
+"Std. Water" 100 0.1 4200 
+"Std. Water" 150 0.1 4200 
+"Std. Water" 200 0.1 4200 
+"Std. Water" 250 0.1 4200 
+"Std. Water" 300 0.1 4200 
+"Std. Water" 350 0.1 4200 
+"Std. Water" 400 0.1 4200 
+"Std. Water" 450 0.1 4200 
+"Std. Water" 500 0.1 4200 
+"Std. Water" 550 0.1 4200 
+"Std. Water" 600 0.1 4200 
+"Std. Water" 0 40.1 4060 
+"Std. Water" 50 40.1 4090 
+"Std. Water" 100 40.1 4120 
+"Std. Water" 150 40.1 4120 
+"Std. Water" 200 40.1 4120 
+"Std. Water" 250 40.1 4120 
+"Std. Water" 300 40.1 4120 
+"Std. Water" 350 40.1 4120 
+"Std. Water" 400 40.1 4120 
+"Std. Water" 450 40.1 4120 
+"Std. Water" 500 40.1 4120 
+"Std. Water" 550 40.1 4120 
+"Std. Water" 600 40.1 4120 
+"Std. Water" 0 80.1 4030 
+"Std. Water" 50 80.1 4030 
+"Std. Water" 100 80.1 4060 
+"Std. Water" 150 80.1 4120 
+"Std. Water" 200 80.1 4190 
+"Std. Water" 250 80.1 4190 
+"Std. Water" 300 80.1 4190 
+"Std. Water" 350 80.1 4190 
+"Std. Water" 400 80.1 4190 
+"Std. Water" 450 80.1 4190 
+"Std. Water" 500 80.1 4190 
+"Std. Water" 550 80.1 4190 
+"Std. Water" 600 80.1 4190 
+"Std. Water" 0 120.1 4000 
+"Std. Water" 50 120.1 4000 
+"Std. Water" 100 120.1 4000 
+"Std. Water" 150 120.1 4030 
+"Std. Water" 200 120.1 4090 
+"Std. Water" 250 120.1 4090 
+"Std. Water" 300 120.1 4090 
+"Std. Water" 350 120.1 4090 
+"Std. Water" 400 120.1 4090 
+"Std. Water" 450 120.1 4090 
+"Std. Water" 500 120.1 4090 
+"Std. Water" 550 120.1 4090 
+"Std. Water" 600 120.1 4090 
+"Std. Water" 0 160.1 3970 
+"Std. Water" 50 160.1 3970 
+"Std. Water" 100 160.1 3970 
+"Std. Water" 150 160.1 4000 
+"Std. Water" 200 160.1 4030 
+"Std. Water" 250 160.1 4080 
+"Std. Water" 300 160.1 4080 
+"Std. Water" 350 160.1 4080 
+"Std. Water" 400 160.1 4080 
+"Std. Water" 450 160.1 4080 
+"Std. Water" 500 160.1 4080 
+"Std. Water" 550 160.1 4080 
+"Std. Water" 600 160.1 4080 
+"Std. Water" 0 200.1 3910 
+"Std. Water" 50 200.1 3910 
+"Std. Water" 100 200.1 3910 
+"Std. Water" 150 200.1 3910 
+"Std. Water" 200 200.1 3940 
+"Std. Water" 250 200.1 4000 
+"Std. Water" 300 200.1 4060 
+"Std. Water" 350 200.1 4060 
+"Std. Water" 400 200.1 4060 
+"Std. Water" 450 200.1 4060 
+"Std. Water" 500 200.1 4060 
+"Std. Water" 550 200.1 4060 
+"Std. Water" 600 200.1 4060 
+"Std. Water" 0 240.1 3880 
+"Std. Water" 50 240.1 3880 
+"Std. Water" 100 240.1 3880 
+"Std. Water" 150 240.1 3880 
+"Std. Water" 200 240.1 3910 
+"Std. Water" 250 240.1 3960 
+"Std. Water" 300 240.1 4000 
+"Std. Water" 350 240.1 4060 
+"Std. Water" 400 240.1 4060 
+"Std. Water" 450 240.1 4060 
+"Std. Water" 500 240.1 4060 
+"Std. Water" 550 240.1 4060 
+"Std. Water" 600 240.1 4060 
+"Std. Water" 0 280.1 3870 
+"Std. Water" 50 280.1 3870 
+"Std. Water" 100 280.1 3870 
+"Std. Water" 150 280.1 3870 
+"Std. Water" 200 280.1 3870 
+"Std. Water" 250 280.1 3910 
+"Std. Water" 300 280.1 3930 
+"Std. Water" 350 280.1 3970 
+"Std. Water" 400 280.1 4030 
+"Std. Water" 450 280.1 4030 
+"Std. Water" 500 280.1 4030 
+"Std. Water" 550 280.1 4030 
+"Std. Water" 600 280.1 4030 
+"Std. Water" 0 320.1 3860 
+"Std. Water" 50 320.1 3860 
+"Std. Water" 100 320.1 3860 
+"Std. Water" 150 320.1 3860 
+"Std. Water" 200 320.1 3860 
+"Std. Water" 250 320.1 3860 
+"Std. Water" 300 320.1 3870 
+"Std. Water" 350 320.1 3900 
+"Std. Water" 400 320.1 3940 
+"Std. Water" 450 320.1 3980 
+"Std. Water" 500 320.1 3980 
+"Std. Water" 550 320.1 3980 
+"Std. Water" 600 320.1 3980 
+"Std. Water" 0 360.1 3840 
+"Std. Water" 50 360.1 3840 
+"Std. Water" 100 360.1 3840 
+"Std. Water" 150 360.1 3840 
+"Std. Water" 200 360.1 3840 
+"Std. Water" 250 360.1 3840 
+"Std. Water" 300 360.1 3850 
+"Std. Water" 350 360.1 3860 
+"Std. Water" 400 360.1 3890 
+"Std. Water" 450 360.1 3930 
+"Std. Water" 500 360.1 3940 
+"Std. Water" 550 360.1 3940 
+"Std. Water" 600 360.1 3940 
+"Std. Water" 0 400.1 3800 
+"Std. Water" 50 400.1 3800 
+"Std. Water" 100 400.1 3800 
+"Std. Water" 150 400.1 3800 
+"Std. Water" 200 400.1 3800 
+"Std. Water" 250 400.1 3800 
+"Std. Water" 300 400.1 3800 
+"Std. Water" 350 400.1 3810 
+"Std. Water" 400 400.1 3830 
+"Std. Water" 450 400.1 3850 
+"Std. Water" 500 400.1 3860 
+"Std. Water" 550 400.1 3850 
+"Std. Water" 600 400.1 3840 
+"Std. Water" 0 440.1 3770 
+"Std. Water" 50 440.1 3770 
+"Std. Water" 100 440.1 3770 
+"Std. Water" 150 440.1 3770 
+"Std. Water" 200 440.1 3770 
+"Std. Water" 250 440.1 3770 
+"Std. Water" 300 440.1 3770 
+"Std. Water" 350 440.1 3780 
+"Std. Water" 400 440.1 3800 
+"Std. Water" 450 440.1 3810 
+"Std. Water" 500 440.1 3820 
+"Std. Water" 550 440.1 3820 
+"Std. Water" 600 440.1 3800 
+[End]
+;
+[FltDensityIoTbl]
+;
+; The Std.Water density table is generated with the
+; steam table routine sstdf0.f of the SPPTS package.
+; The main program is waterdens.f in PVTPACK.
+; The routine sstdf0 calcalutes also densities for unstable
+; fluid phases, but for low pressures and high temperatures
+; these fluid densities do not exist. In that case the program
+; switches to vapour densities. This happened in the calculated
+; table below only for Pressure = .1 MPa and TempIndex >= 350.
+; These vapour densities have been replaced by fake numbers
+; which guarantee monotonicity in pressure and in temperature.
+; Apart from the replaced vapour densities the numbers agree with
+; 'Haar, Gallagher and Kell: NBS/NRC steam tables 1984'.
+
+Fluidtype   TempIndex  Pressure   Density ErrDensity 
+()                 (C)    (MPa)   (kg/m3)         ()         
+
+"Std. Water"        0       0.1     999.8     -9999
+"Std. Water"       50       0.1     988.0     -9999
+"Std. Water"      100       0.1     958.4     -9999
+"Std. Water"      150       0.1     916.8     -9999
+"Std. Water"      200       0.1     863.6     -9999
+"Std. Water"      250       0.1     794.4     -9999
+"Std. Water"      300       0.1     689.8     -9999
+"Std. Water"      350       0.1     600.0     -9999
+"Std. Water"      400       0.1     400.0     -9999
+"Std. Water"      450       0.1     250.0     -9999
+"Std. Water"      500       0.1     150.0     -9999
+"Std. Water"      550       0.1     125.0     -9999
+"Std. Water"      600       0.1     100.0     -9999
+"Std. Water"        0      40.1    1019.3     -9999
+"Std. Water"       50      40.1    1004.7     -9999
+"Std. Water"      100      40.1     976.2     -9999
+"Std. Water"      150      40.1     937.9     -9999
+"Std. Water"      200      40.1     891.1     -9999
+"Std. Water"      250      40.1     834.5     -9999
+"Std. Water"      300      40.1     764.7     -9999
+"Std. Water"      350      40.1     672.3     -9999
+"Std. Water"      400      40.1     524.4     -9999
+"Std. Water"      450      40.1     272.4     -9999
+"Std. Water"      500      40.1     178.7     -9999
+"Std. Water"      550      40.1     143.9     -9999
+"Std. Water"      600      40.1     124.2     -9999
+"Std. Water"        0      80.1    1037.0     -9999
+"Std. Water"       50      80.1    1020.1     -9999
+"Std. Water"      100      80.1     992.2     -9999
+"Std. Water"      150      80.1     956.3     -9999
+"Std. Water"      200      80.1     913.7     -9999
+"Std. Water"      250      80.1     864.1     -9999
+"Std. Water"      300      80.1     806.7     -9999
+"Std. Water"      350      80.1     739.4     -9999
+"Std. Water"      400      80.1     659.5     -9999
+"Std. Water"      450      80.1     564.0     -9999
+"Std. Water"      500      80.1     457.4     -9999
+"Std. Water"      550      80.1     362.3     -9999
+"Std. Water"      600      80.1     295.9     -9999
+"Std. Water"        0     120.1    1053.2     -9999
+"Std. Water"       50     120.1    1034.5     -9999
+"Std. Water"      100     120.1    1007.0     -9999
+"Std. Water"      150     120.1     972.8     -9999
+"Std. Water"      200     120.1     933.2     -9999
+"Std. Water"      250     120.1     888.4     -9999
+"Std. Water"      300     120.1     838.0     -9999
+"Std. Water"      350     120.1     781.7     -9999
+"Std. Water"      400     120.1     719.1     -9999
+"Std. Water"      450     120.1     650.3     -9999
+"Std. Water"      500     120.1     577.1     -9999
+"Std. Water"      550     120.1     504.0     -9999
+"Std. Water"      600     120.1     437.4     -9999
+"Std. Water"        0     160.1    1067.9     -9999
+"Std. Water"       50     160.1    1047.9     -9999
+"Std. Water"      100     160.1    1020.7     -9999
+"Std. Water"      150     160.1     987.9     -9999
+"Std. Water"      200     160.1     950.6     -9999
+"Std. Water"      250     160.1     909.2     -9999
+"Std. Water"      300     160.1     863.7     -9999
+"Std. Water"      350     160.1     814.0     -9999
+"Std. Water"      400     160.1     760.3     -9999
+"Std. Water"      450     160.1     703.3     -9999
+"Std. Water"      500     160.1     644.0     -9999
+"Std. Water"      550     160.1     584.6     -9999
+"Std. Water"      600     160.1     527.7     -9999
+"Std. Water"        0     200.1    1081.2     -9999
+"Std. Water"       50     200.1    1060.5     -9999
+"Std. Water"      100     200.1    1033.5     -9999
+"Std. Water"      150     200.1    1001.9     -9999
+"Std. Water"      200     200.1     966.4     -9999
+"Std. Water"      250     200.1     927.7     -9999
+"Std. Water"      300     200.1     885.7     -9999
+"Std. Water"      350     200.1     840.6     -9999
+"Std. Water"      400     200.1     792.7     -9999
+"Std. Water"      450     200.1     742.6     -9999
+"Std. Water"      500     200.1     691.3     -9999
+"Std. Water"      550     200.1     639.9     -9999
+"Std. Water"      600     200.1     590.1     -9999
+"Std. Water"        0     240.1    1093.1     -9999
+"Std. Water"       50     240.1    1072.3     -9999
+"Std. Water"      100     240.1    1045.6     -9999
+"Std. Water"      150     240.1    1014.9     -9999
+"Std. Water"      200     240.1     981.0     -9999
+"Std. Water"      250     240.1     944.3     -9999
+"Std. Water"      300     240.1     905.1     -9999
+"Std. Water"      350     240.1     863.5     -9999
+"Std. Water"      400     240.1     819.8     -9999
+"Std. Water"      450     240.1     774.5     -9999
+"Std. Water"      500     240.1     728.4     -9999
+"Std. Water"      550     240.1     682.4     -9999
+"Std. Water"      600     240.1     637.5     -9999
+"Std. Water"        0     280.1    1104.0     -9999
+"Std. Water"       50     280.1    1083.5     -9999
+"Std. Water"      100     280.1    1057.0     -9999
+"Std. Water"      150     280.1    1027.1     -9999
+"Std. Water"      200     280.1     994.5     -9999
+"Std. Water"      250     280.1     959.6     -9999
+"Std. Water"      300     280.1     922.7     -9999
+"Std. Water"      350     280.1     883.8     -9999
+"Std. Water"      400     280.1     843.2     -9999
+"Std. Water"      450     280.1     801.5     -9999
+"Std. Water"      500     280.1     759.2     -9999
+"Std. Water"      550     280.1     717.1     -9999
+"Std. Water"      600     280.1     675.8     -9999
+"Std. Water"        0     320.1    1114.1     -9999
+"Std. Water"       50     320.1    1094.0     -9999
+"Std. Water"      100     320.1    1067.9     -9999
+"Std. Water"      150     320.1    1038.6     -9999
+"Std. Water"      200     320.1    1007.2     -9999
+"Std. Water"      250     320.1     973.8     -9999
+"Std. Water"      300     320.1     938.7     -9999
+"Std. Water"      350     320.1     902.0     -9999
+"Std. Water"      400     320.1     864.1     -9999
+"Std. Water"      450     320.1     825.1     -9999
+"Std. Water"      500     320.1     785.8     -9999
+"Std. Water"      550     320.1     746.6     -9999
+"Std. Water"      600     320.1     708.3     -9999
+"Std. Water"        0     360.1    1123.4     -9999
+"Std. Water"       50     360.1    1104.0     -9999
+"Std. Water"      100     360.1    1078.2     -9999
+"Std. Water"      150     360.1    1049.6     -9999
+"Std. Water"      200     360.1    1019.1     -9999
+"Std. Water"      250     360.1     987.1     -9999
+"Std. Water"      300     360.1     953.6     -9999
+"Std. Water"      350     360.1     918.8     -9999
+"Std. Water"      400     360.1     882.9     -9999
+"Std. Water"      450     360.1     846.3     -9999
+"Std. Water"      500     360.1     809.3     -9999
+"Std. Water"      550     360.1     772.6     -9999
+"Std. Water"      600     360.1     736.5     -9999
+"Std. Water"        0     400.1    1132.3     -9999
+"Std. Water"       50     400.1    1113.6     -9999
+"Std. Water"      100     400.1    1088.0     -9999
+"Std. Water"      150     400.1    1060.1     -9999
+"Std. Water"      200     400.1    1030.4     -9999
+"Std. Water"      250     400.1     999.5     -9999
+"Std. Water"      300     400.1     967.4     -9999
+"Std. Water"      350     400.1     934.2     -9999
+"Std. Water"      400     400.1     900.1     -9999
+"Std. Water"      450     400.1     865.4     -9999
+"Std. Water"      500     400.1     830.5     -9999
+"Std. Water"      550     400.1     795.7     -9999
+"Std. Water"      600     400.1     761.5     -9999
+"Std. Water"        0     440.1    1140.6     -9999
+"Std. Water"       50     440.1    1122.7     -9999
+"Std. Water"      100     440.1    1097.4     -9999
+"Std. Water"      150     440.1    1070.0     -9999
+"Std. Water"      200     440.1    1041.2     -9999
+"Std. Water"      250     440.1    1011.3     -9999
+"Std. Water"      300     440.1     980.4     -9999
+"Std. Water"      350     440.1     948.6     -9999
+"Std. Water"      400     440.1     916.1     -9999
+"Std. Water"      450     440.1     883.1     -9999
+"Std. Water"      500     440.1     849.8     -9999
+"Std. Water"      550     440.1     816.7     -9999
+"Std. Water"      600     440.1     784.2     -9999
+[End]
+;
+[FltViscoIoTbl]
+;
+Fluidtype TempIndex Viscosity 
+() (C) (PaS) 
+"Std. Water" 0 0.001771538
+"Std. Water" 5 0.001508841
+"Std. Water" 10 0.001301496
+"Std. Water" 15 0.001135227
+"Std. Water" 20 0.001
+"Std. Water" 25 0.00088862
+"Std. Water" 30 0.000795831
+"Std. Water" 35 0.000717731
+"Std. Water" 40 0.000651377
+"Std. Water" 45 0.000594521
+"Std. Water" 50 0.000545424
+"Std. Water" 100 0.00028178
+"Std. Water" 150 0.000181005
+"Std. Water" 200 0.000130062
+"Std. Water" 250 9.97583E-05
+"Std. Water" 300 7.97434E-05
+"Std. Water" 350 6.55424E-05
+"Std. Water" 400 5.49377E-05
+"Std. Water" 450 4.67147E-05
+"Std. Water" 500 4.01547E-05
+"Std. Water" 550 3.48055E-05
+"Std. Water" 600 3.03683E-05
+"Std. Water" 650 2.66373E-05
+"Std. Water" 700 2.34655E-05
+"Std. Water" 750 2.07449E-05
+"Std. Water" 800 1.83944E-05
+"Std. Water" 850 1.6351E-05
+"Std. Water" 900 1.45656E-05
+"Std. Water" 950 1.2999E-05
+"Std. Water" 1000 1.16192E-05
+"Std. Water" 1050 1.04002E-05
+"Std. Water" 1100 9.32031E-06
+"Std. Water" 1150 8.36144E-06
+"Std. Water" 1200 7.50828E-06
+"Std. Water" 1250 6.74781E-06
+"Std. Water" 1300 6.06891E-06
+"Std. Water" 1350 5.46198E-06
+[End]
+;

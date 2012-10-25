@@ -1,0 +1,66 @@
+Screen("IBS: Hydrocarbon Migration Modelling","IBS",
+	      NULL,550,305,NULL);
+
+Form("title", NULL,NULL,0,0,50,20,0,5,50 );
+Label("Data Preparation:","wheat",5);
+  Action(NULL,"light grey",
+   "Demultiplex DEC Files (DEMULT)",
+   5,0,TRUE,BHnone,StartProgram,"demult");
+FormEnd()
+
+Form("title", NULL,NULL,0,20,35,80,0,5,50 );
+Label("Darcy Flow (SECMIG):","wheat",8);
+  Action(NULL,"light grey",
+   "Calculation",
+   5,0,TRUE,BHnone,StartProgram,"secmig_compute");
+Skip(1)
+Label("Plots:","wheat",8);
+  Action(NULL,"light grey",
+   "Single",
+   5,0,TRUE,BHnone,StartProgram,"secplt");
+  Action(NULL,"light grey",
+   "Multiple (4)",
+   5,0,TRUE,BHnone,StartProgram,"mulplt");
+  Action(NULL,"light grey",
+   "Video",
+   5,0,TRUE,BHnone,StartProgram,"secmig_video");
+FormEnd()
+
+Form("title", NULL,NULL,35,20,30,80,0,5,50 );
+Label("Ray Tracing (PIMS):","wheat",8);
+  Action(NULL,"light grey",
+   "Calculation",
+   5,0,TRUE,BHnone,StartProgram,"pims_compute");
+Skip(1)
+Label("Plots:","wheat",8);
+  Action(NULL,"light grey",
+   "Single",
+   5,0,TRUE,BHnone,StartProgram,"secplp");
+  Action(NULL,"light grey",
+   "Multiple (4)",
+   5,0,TRUE,BHnone,StartProgram,"mulplp");
+  Action(NULL,"light grey",
+   "Video",
+   5,0,TRUE,BHnone,StartProgram,"pims_video");
+  Action(NULL,"light grey",
+   "Trap History",
+   5,0,TRUE,BHnone,StartProgram,"traplt");
+FormEnd()
+
+Form("title",NULL,NULL,65,20,40,80,0,5,50 );
+Label("Quick Look (DREAM):","wheat",8);
+  Action(NULL,"light grey",
+   "Prepare Gas/Oil Charge",
+   5,0,TRUE,BHnone,StartProgram,"chargq");
+  Action(NULL,"light grey",
+   "Merge Gas/Oil Charge",
+   5,0,TRUE,BHnone,StartProgram,"chmerg");
+  Action(NULL,"light grey",
+   "Drainage Area Mapping",
+   5,0,TRUE,BHnone,StartProgram,"dream");
+Skip(40)
+FormButtonList("red",90,30);
+   StandardFormButton(FBexit,NULL);  
+
+FormEnd()
+ScreenEnd()

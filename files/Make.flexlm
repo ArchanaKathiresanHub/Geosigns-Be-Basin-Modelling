@@ -1,0 +1,31 @@
+# Make.flexlm - contains definitions for Flexlm license libraries
+#
+#
+
+#
+# Definitions for the base directory location for OPTIMIZED or DEBUG 
+#   compiled include files and libraries
+#
+#
+#  Override for Make.machine definitions
+ifeq ($(machine),Linux64)
+  FLEX_LIB        = -lrt
+endif
+#
+ifeq ($(machine),Sun)
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),SunOS64)
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+#
+ifeq ($(machine),Silicon64)
+  FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+endif
+
+FLEXLMBITS      = 64
+FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
+FLEX_LIB        = $(FLEXLMINCLUDEDIR)/$(APPSOS)/lib$(FLEXLMBITS)/EPTFlexLm.o
+
+# End 

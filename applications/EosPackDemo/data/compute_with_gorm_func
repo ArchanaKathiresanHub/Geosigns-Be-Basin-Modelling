@@ -1,0 +1,6 @@
+FLUID=$1
+echo "compute fluid ${FLUID}"
+cp PVT_properties.cfg PVT_properties_backup.cfg
+cp PVT_gorm_func.cfg PVT_properties.cfg
+./EosPackDemo < ${FLUID}.in
+cp PVT_properties_backup.cfg PVT_properties.cfg

@@ -1,0 +1,6 @@
+[ReservoirLeakIoTbl]
+;
+Age SourceReservoirName SourceTrapID LeakPointX LeakPointY MassOilSpilled MassGasSpilled WasteLeakPoint
+(Ma) () () () () (kg) (kg) (kg)
+[End]
+

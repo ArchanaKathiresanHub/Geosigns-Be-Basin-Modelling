@@ -1,0 +1,6 @@
+[TrapSpillIoTbl]
+;
+Age SourceReservoirName SourceTrapID SpillPointX SpillPointY DestinationReservoirName DestinationTrapID GasDestinationTrapID OilDestinationTrapID MassOilSpilled MassGasSpilled
+(Ma) () () () () () () () () (kg) (kg)
+[End]
+

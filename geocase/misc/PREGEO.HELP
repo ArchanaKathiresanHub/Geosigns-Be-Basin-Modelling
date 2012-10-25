@@ -1,0 +1,22 @@
+23
+
+                           The Module PREGEO
+                           *****************
+
+ With the module PREGEO a <>.GEO file is created, which contains the
+ geological data used by both 1-D calculation programs HEAT and TISA.
+ 
+ The different types of geological data are entered in different windows.
+ In order to run HEAT and TISA, the following minimum number of menus has
+ to be selected and tables filled in:
+
+         HEAT                                      TISA
+         ----                                      ----
+              Stratigraphy Age depth traveltime lith.
+
+  Transform PREGEO to HEAT input data           Palaeo bathymetry
+                                                Tectonic history
+
+ 
+ For further explanation we refer to the Help windows of individual menus
+ and to the IBS91 user guide.

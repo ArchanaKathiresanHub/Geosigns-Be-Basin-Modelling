@@ -1,0 +1,307 @@
+# Makefile.gempis - makefile for gempis application 
+#
+# Notes:
+# This file only builds for the following environments:
+#  - Linux64
+#  - Sun (32-bit)
+#  - Silicon32
+#
+
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+FILE_BASE = ../../../files
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+include $(FILE_BASE)/Make.machine
+include $(FILE_BASE)/Make.qt
+
+# for subroutine debugging
+#CXXFLAGS += -DDEBUG
+#CXXFLAGS += -DDEBUG_GEMPIR
+#CXXFLAGS += -DDEBUG_GEMPIL
+#CXXFLAGS += -DDEBUG_GEMPIR
+#CXXFLAGS += -DDEBUG_APPTIMER
+#CXXFLAGS += -DDEBUG_GEMPISTHREAD
+#CXXFLAGS += -DDEBUG_RESOURCELIMITS
+#CXXFLAGS += -DDEBUG_RESOURCEEDITOR
+#CXXFLAGS += -DDEBUG_RESOURCEFILE
+#CXXFLAGS +=  DEBUG_FILELOCK
+
+#  for debug option
+CXXFLAGS += $(DEBUGFLAG)
+CFLAGS += $(DEBUGFLAG)
+
+##############################################################################
+#
+# Linux 64-bit specific definitions
+#
+ifeq ($(machine),Linux64)
+  CFLAGS     += -pipe -W -D_REENTRANT
+  CXXFLAGS   += -pipe -W -D_REENTRANT
+
+  CINCLUDE   += -I/nfs/rvl/apps/oss2/Linux_24/include
+  CXXINCLUDE += -I/nfs/rvl/apps/oss2/Linux_24/include
+endif
+
+####### give method messages during execution
+#
+#  for gempil and gempir messages
+CXXFLAGS += $(GEMPIL_TRACE) $(GEMPIR_TRACE)
+#
+#  for gempisThread messages
+CXXFLAGS += $(GEMPIS_THREAD_TRACE)
+
+# add some standard libraries used by everyone
+CLIBS += -L/usr/lib64 -lpthread -lm -lc
+
+####### Directory definitions
+
+OBJDIR = .
+TMPDIR = ../tmp.$(machine)
+SRCDIR = ../src
+BINDIR = ../bin.$(machine)
+
+##############################################################################
+#
+# add specific definitions for the project
+#
+CINCLUDE   += -I$(TMPDIR) -I$(SRCDIR)
+CXXINCLUDE += -I$(TMPDIR) -I$(SRCDIR)
+
+
+vpath %.h $(SRCDIR)
+vpath %.ui $(SRCDIR)
+vpath %.C $(SRCDIR)
+vpath %.c $(SRCDIR)
+vpath %.cpp $(TMPDIR)
+vpath %.hpp $(TMPDIR)
+vpath %.o $(OBJDIR)
+
+
+DOXYGENCFG = gempis.dox
+
+####### Gempil File definitions
+
+GEMPIL_QTSOURCES = AppTimer.C \
+		GempisThread.C \
+		GlobalData.C \
+		JobLauncherController.C \
+		LocalCommandController.C \
+		LogFile.C \
+		ResourceFile.C \
+		ResourceLimits.C \
+		SubmitStatusController.C 
+
+GEMPIL_SOURCES = JobLauncherMain.C \
+		$(GEMPIL_QTSOURCES)
+
+GEMPIL_FORMS = JobLauncherUI.ui \
+		LocalCommandUI.ui \
+		SubmitStatusUI.ui 
+
+GEMPIL_UICDECLS = $(GEMPIL_FORMS:.ui=.hpp)
+
+GEMPIL_UICIMPLS = $(GEMPIL_FORMS:.ui=.cpp)
+
+GEMPIL_SRCMOC   = $(GEMPIL_QTSOURCES:.C=.moc.cpp) \
+		$(GEMPIL_FORMS:.ui=.moc.cpp)
+
+GEMPIL_OBJECTS = $(GEMPIL_SOURCES:.C=.o) \
+		$(GEMPIL_QTSOURCES:.C=.moc.o) \
+		$(GEMPIL_FORMS:.ui=.o) \
+		$(GEMPIL_FORMS:.ui=.moc.o)
+
+GEMPIL   = $(BINDIR)/gempil
+
+
+####### Gempir file definitions
+
+GEMPIR_QTSOURCES = AppTimer.C \
+		GempisThread.C \
+		GlobalData.C \
+		LogFile.C \
+		ResourceManagerController.C \
+		ResourceFile.C \
+		ResourceEditorController.C
+
+GEMPIR_SOURCES = ResourceManagerMain.C \
+		$(GEMPIR_QTSOURCES)
+
+GEMPIR_FORMS = ResourceManagerUI.ui \
+		ResourceEditorUI.ui 
+
+GEMPIR_UICDECLS = $(GEMPIR_FORMS:.ui=.hpp)
+
+GEMPIR_UICIMPLS = $(GEMPIR_FORMS:.ui=.cpp)
+
+GEMPIR_SRCMOC   = $(GEMPIR_QTSOURCES:.C=.moc.cpp) \
+		$(GEMPIR_FORMS:.ui=.moc.cpp)
+
+GEMPIR_OBJECTS = $(GEMPIR_SOURCES:.C=.o) \
+		$(GEMPIR_QTSOURCES:.C=.moc.o) \
+		$(GEMPIR_FORMS:.ui=.o) \
+		$(GEMPIR_FORMS:.ui=.moc.o)
+
+GEMPIR   = $(BINDIR)/gempir
+
+
+####### Gempis file definitions
+
+GEMPIS_OBJECTS  = $(BINDIR)/cbm_perf \
+		$(BINDIR)/cfg2html \
+		$(BINDIR)/cfg2html_linux \
+		$(BINDIR)/cfg2html_sun \
+		$(BINDIR)/gempil_setup \
+		$(BINDIR)/gempir_setup \
+		$(BINDIR)/gempis_adm \
+		$(BINDIR)/gempis_cfg \
+		$(BINDIR)/gempis_mpiwrapper \
+		$(BINDIR)/gempis_mon \
+		$(BINDIR)/gempis_perf \
+		$(BINDIR)/gempis_postapp \
+		$(BINDIR)/gempis_postjob \
+		$(BINDIR)/gempis_preapp \
+		$(BINDIR)/gempis_resource \
+		$(BINDIR)/gempis_stat \
+		$(BINDIR)/gempis_submit \
+		$(BINDIR)/gempis_utils 
+
+
+####### pstree file defiitions
+
+PSTREE_SOURCES = pstree.c
+
+PSTREE_OBJECTS = $(PSTREE_SOURCES:.c=.o) 
+
+PSTREE   = $(BINDIR)/pstree
+
+
+####### parselog file definitions
+
+PARSELOG_SOURCES = ParseLog.C
+
+PARSELOG_OBJECTS = $(PARSELOG_SOURCES:.C=.o)
+
+PARSELOG   = $(BINDIR)/parselog
+
+
+####### GetNextJobid file definitions
+
+GETNEXTJOBID_SOURCES = File.C \
+		FileLock.C \
+		JobId.C \
+		Signal.C \
+		GetNextJobid.C
+
+GETNEXTJOBID_OBJECTS = $(GETNEXTJOBID_SOURCES:.C=.o)
+
+GETNEXTJOBID   = $(BINDIR)/getnextjobid
+
+
+
+####### All combined stuff
+
+SOURCES = $(GEMPIL_SOURCES) \
+	$(GEMPIR_SOURCES) \
+	$(PSTREE_SOURCES) \
+	$(GETNEXTJOBID_SOURCES) \
+	$(PARSELOG_SOURCES)
+
+
+
+OBJECTS = $(GEMPIL_OBJECTS) \
+	$(GEMPIR_OBJECTS) \
+	$(GEMPIS_OBJECTS) \
+	$(PSTREE_OBJECTS) \
+	$(GETNEXTJOBID_OBJECTS) \
+	$(PARSELOG_OBJECTS)
+
+first: all
+
+
+####### Implicit rules
+# commented out for now. 
+#.SUFFIXES: .moc.o .moc.cpp .c .cpp .C .ui .h .ksh
+
+%.moc.cpp: %.hpp
+	$(MOC) $(TMPDIR)/$< -o $(TMPDIR)/$@
+
+%.moc.cpp: %.h
+	$(MOC) $< -o $(TMPDIR)/$@
+
+%.moc.o: %.moc.cpp
+	$(CXX) -c $(CXXFLAGS) $(CXXINCLUDE) -o $@ $(TMPDIR)/$<
+
+%.hpp: %.ui
+	$(UIC) $< -o $(TMPDIR)/$@ 
+
+%.cpp: %.ui
+	$(UIC) $(SRCDIR)/$*.ui -i $(TMPDIR)/$*.hpp -o $(TMPDIR)/$@
+
+%.o: %.cpp
+	$(CXX) -c $(CXXFLAGS) $(CXXINCLUDE) -o $@ $(TMPDIR)/$<
+
+%.o: %.C
+	$(CXX) -c $(CXXFLAGS) $(CXXINCLUDE) -o $@ $<
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $(CINCLUDE) -o $@ $<
+
+$(BINDIR)/%: $(SRCDIR)/%.ksh
+	echo "#!/bin/bash" > $@
+	cat $? >> $@
+	chmod 755 $@
+
+
+####### Build rules
+
+target: gempil gempir pstree gempis parselog getnextjobid
+	touch target
+	-$(DEL_FILE) target
+
+gempil:  $(GEMPIL_UICDECLS) $(GEMPIL_OBJECTS)
+	$(LCC) $(DEBUGFLAG) -o $(GEMPIL) $(GEMPIL_OBJECTS) $(CLIBS)
+
+gempir:  $(GEMPIR_UICDECLS) $(GEMPIR_OBJECTS) 
+	$(LCC) $(DEBUGFLAG) -o $(GEMPIR) $(GEMPIR_OBJECTS) $(CLIBS)
+
+pstree:	$(PSTREE_OBJECTS)
+	$(CC) $(CFLAGS) -o $(PSTREE) $(SRCDIR)/pstree.c
+
+parselog: $(PARSELOG_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $(PARSELOG) $(SRCDIR)/ParseLog.C
+
+getnextjobid: $(GETNEXTJOBID_OBJECTS)
+	$(LCC) $(DEBUGFLAG) -o $(GETNEXTJOBID) $(GETNEXTJOBID_OBJECTS)
+
+# build the gempis scripts
+gempis: $(GEMPIS_OBJECTS)
+	chmod 755 $(GEMPIS_OBJECTS)
+
+# clean up temporary file and objects
+clean:
+	-$(DEL_FILE) $(OBJECTS)
+	-$(DEL_FILE) *~ core *.core
+	-$(DEL_FILE) optimizedobjects debugobjects
+	-$(DEL_FILE) $(GEMPIL) $(GEMPIR) $(PSTREE) $(PARSELOG) $(GETNEXTJOBID)
+	-$(DEL_FILE) target
+	-@cd $(TMPDIR); $(DEL_FILE) $(GEMPIL_SRCMOC) $(GEMPIR_SRCMOC) $(GEMPIL_UICIMPLS) $(GEMPIR_UICIMPLS) $(GEMPIL_UICDECLS) $(GEMPIR_UICDECLS) 
+
+
+####### Install
+
+install: all
+
+uninstall: 
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(SOURCES)
+	cd ../src && makedepend -f../Makefile.gempis -- $(CXXINCLUDE) -- $(SOURCES)
+
+
+
+################## this section is maintained by makedepend
+

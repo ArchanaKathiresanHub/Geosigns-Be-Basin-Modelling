@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="fasttouch.cdt.managedbuild.target.gnu.exe.138282003" name="Executable (Gnu)" projectType="cdt.managedbuild.target.gnu.exe">
+<configuration artifactName="fasttouch" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.107974557" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1686789315" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.988536761" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1106714063" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.182688198" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+<option id="gnu.cpp.compiler.option.include.paths.1701910832" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DistributedDataAccess}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities}&quot;"/>
+<listOptionValue builtIn="false" value="/glb/home/ksaho3/TsLib3.1.1_64/Lib"/>
+</option>
+<option id="gnu.cpp.compiler.option.preprocessor.def.1741309770" superClass="gnu.cpp.compiler.option.preprocessor.def"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1367165390" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.670845936" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1024310267" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<option id="gnu.cpp.link.option.strip.1499232350" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+<option id="gnu.cpp.link.option.libs.527673595" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<listOptionValue builtIn="false" value="petscdm"/>
+<listOptionValue builtIn="false" value="petscmat"/>
+<listOptionValue builtIn="false" value="petscvec"/>
+<listOptionValue builtIn="false" value="petsc"/>
+<listOptionValue builtIn="false" value="lapack"/>
+<listOptionValue builtIn="false" value="blas"/>
+<listOptionValue builtIn="false" value="g2c"/>
+<listOptionValue builtIn="false" value="hdf5"/>
+<listOptionValue builtIn="false" value="z"/>
+<listOptionValue builtIn="false" value="rt"/>
+</option>
+<option id="gnu.cpp.link.option.paths.1073622323" superClass="gnu.cpp.link.option.paths" valueType="stringList">
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/lib"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/lib/libO_c++/linux64"/>
+<listOptionValue builtIn="false" value="/usr/lib64"/>
+</option>
+<option id="gnu.cpp.link.option.userobjs.969392635" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+<listOptionValue builtIn="false" value="/glb/home/ksaho3/TsLib3.1.1_64/Lib/libTsLib.a"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DistributedDataAccess/Release/libDistributedDataAccess.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5/Release/libParallel_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5/Release/libSerial_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc/Release/libUtilities_Petsc.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO/Release/libTableIO.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics/Release/libCBMGenerics.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities/Release/libutilities.a}&quot;"/>
+<listOptionValue builtIn="false" value="/apps/3rdparty/EPTFlexLm/v9.2/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1137254365" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
+</toolChain>
+</configuration>
+<configuration artifactName="fasttouch" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.1007412239" name="Debug" parent="cdt.managedbuild.config.gnu.exe.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.25935757" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.41707298" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1451962239" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.452779587" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+<option id="gnu.cpp.compiler.option.include.paths.612068287" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(HDF5_DP_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_D_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_D_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DistributedDataAccess}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities}&quot;"/>
+<listOptionValue builtIn="false" value="/glb/home/ksaho3/TsLib3.1.1_64/Lib"/>
+</option>
+<option id="gnu.cpp.compiler.option.preprocessor.def.1142890484" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def"/>
+<option id="gnu.cpp.compiler.exe.release.option.debugging.level.276075444" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.442272804" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.86602826" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1139328156" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<option id="gnu.cpp.link.option.strip.778775195" name="Omit all symbol information (-s)" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+<option id="gnu.cpp.link.option.libs.267880217" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<listOptionValue builtIn="false" value="petscdm"/>
+<listOptionValue builtIn="false" value="petscmat"/>
+<listOptionValue builtIn="false" value="petscvec"/>
+<listOptionValue builtIn="false" value="petsc"/>
+<listOptionValue builtIn="false" value="lapack"/>
+<listOptionValue builtIn="false" value="blas"/>
+<listOptionValue builtIn="false" value="g2c"/>
+<listOptionValue builtIn="false" value="hdf5"/>
+<listOptionValue builtIn="false" value="z"/>
+<listOptionValue builtIn="false" value="rt"/>
+</option>
+<option id="gnu.cpp.link.option.paths.912786993" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="stringList">
+<listOptionValue builtIn="false" value="$(HDF5_DP_HOME)/lib"/>
+<listOptionValue builtIn="false" value="$(PETSC_D_HOME)/lib/libO_c++/linux64"/>
+<listOptionValue builtIn="false" value="/usr/lib64"/>
+</option>
+<option id="gnu.cpp.link.option.userobjs.150559123" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+<listOptionValue builtIn="false" value="/glb/home/ksaho3/TsLib3.1.1_64/Lib/libTsLib.a"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/DistributedDataAccess/Debug/libDistributedDataAccess.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5/Debug/libParallel_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5/Debug/libSerial_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc/Debug/libUtilities_Petsc.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO/Debug/libTableIO.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics/Debug/libCBMGenerics.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities/Debug/libutilities.a}&quot;"/>
+<listOptionValue builtIn="false" value="/apps/3rdparty/EPTFlexLm/v9.2/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1113983804" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
+</toolChain>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>

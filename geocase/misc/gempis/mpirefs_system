@@ -1,0 +1,690 @@
+#!/bin/bash
+#
+# mpirefs_system - GEMPIS default MPIREF definitions
+#
+# Purpose: defines GEMPIS environment for all users of this 
+#          environment. Users can overrides the default values 
+#          in their own definition file.
+#
+# This is the only script that needs to be directly references by gempis
+#
+# Syntax:
+#     . $GEMPIS_DEFDIR/mpirefs_system
+# 
+# References: See GEMPIS User manual for details.
+#
+# File permissions need to be set to 444 in order to work.
+#
+# This file is executed in a korn shell to define references.
+# Lines preceeded by a '#' are treated as comments. Remove '#'
+# to activate the variable. Do not activate a properties unless 
+# you know what it is needed for.
+#
+#
+# Format: <property>[<index>]="<value>"
+#
+# Only index values from 1 to 10 are permitted in the configuration.
+# Do not use spaces between '=' character.
+# Make sure group definitions use different index values. 
+#
+# Example: mpi_name[3]="MPICH"
+#
+# Properties:
+# mpi_name   - (required) Reference name.
+# mpi_os     - (required) List of `uname` platforms where this MPI 
+#	       reference is valid. Each reference is fseparated with a comma 
+#	       (',').
+# mpi_run    - (required) Command to start MPI job.
+# mpi_path   - Executable directory (prepended to path).
+# mpi_lib    - Path to shared libraries used by MPI.
+# mpi_start  - Command to start MPI environment.
+# mpi_stop   - Command to stop MPI environment.
+#
+# mpi_buildfile_*  - subroutine that builds the appropriate machine file.
+# the block a prejob and post routine MUST also be defined. Use the prefix
+# prejob_ and postjob_ follow by the exact name of the reference. Use the 
+# command currently definedin the routine id
+#
+# Predefined environment variables (for use in the commands);
+# GEMPIS_EXEDIR	        - location of sss executable for current platform.
+# GEMPIS_NUMCPUS	- number of processors to use.
+# GEMPIS_MACHINEFILE	- name of machine file created by gempis when 
+#		mpi_buildfile[] is defined.
+# GEMPIS_MPISTART_OPTIONS - allows for an option in the MPI start command
+# GEMPIS_MPIRUN_OPTIONS  - allows for an option after the mpirun command
+#
+#
+# To be done:
+#
+#####################################################################
+# builds a machinefile 
+#
+# Syntax: mpi_buildfile_${GEMPIS_MPIREF} 
+#
+# Input (Environment Variables):
+# GEMPIS_TESTLIST    - a list in the form: "machine numcpus machine numcpus ..."
+# GEMPIS_NUMCPUS     - the number of CPU's required
+# GEMPIS_MACHINEFILE - name of file to be created
+#
+# Output (machinefile):
+#  The format of the file as required by the MPI environment
+#
+# Notes:
+# 1. The machine calling this script should always be the first one 
+# noted.
+############################################################
+
+############################################################
+#
+# INTELMPI environment
+#
+# INTELMPI_HOME - defines the base directory of the environment
+#
+mpi_name[1]="INTELMPI"
+mpi_os[1]="Linux"
+# This is for testing only!!!
+mpi_path[1]="$INTELMPI_HOME/bin"
+mpi_lib[1]="$INTELMPI_HOME/lib"
+# mpi_run[1]="mpiexec -n $GEMPIS_NUMCPUS $GEMPIS_MPIRUN_OPTIONS "
+# mpi_start[1]="mpdboot -n $GEMPIS_NUMHOSTS -f $GEMPIS_MACHINEFILE $GEMPIS_MPISTART_OPTIONS "
+# mpi_stop[1]="mpdallexit"
+mpi_run[1]="mpirun -r ssh -np $GEMPIS_NUMCPUS -f $GEMPIS_MACHINEFILE -env I_MPI_DEBUG 5 -env I_MPI_FABRICS shm:tcp $GEMPIS_MPIRUN_OPTIONS "
+# mpi_start[1]="mpdboot -n $GEMPIS_NUMHOSTS -f $GEMPIS_MACHINEFILE $GEMPIS_MPISTART_OPTIONS "
+# mpi_stop[1]="mpdallexit"
+# builds machine file 
+# Format:
+# <computer>:<number_processors>
+mpi_buildfile_INTELMPI()
+{
+    # parse the assignment list find out the number of processor 
+    # fill in the rest of the machine list (order is not important)
+    . /apps/3rdparty/intel/impi/4.0.2.003/intel64/bin/mpivars.sh
+
+    # find out the number of processor I have been allowed 
+    # and put me at the top of the list
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+	    state=2
+	else
+	    state=1
+	    if [ $host = $GEMPIS_HOSTNAME ]; then
+		cpus=$var
+		break
+	    fi
+	fi
+    done
+    [ -z "$cpus" ] && cpus=1
+
+    # write to machine file
+    i=1
+    echo "${GEMPIS_HOSTNAME}" > $GEMPIS_MACHINEFILE
+    while (( $i < $cpus )); do
+	echo "${GEMPIS_HOSTNAME}" >> $GEMPIS_MACHINEFILE
+	let 'i = i + 1'
+    done
+
+    # fill in the rest of the machine file
+    totalcpus=$cpus
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+	    state=2
+	else
+	    cpus=$var
+	    state=1
+	    # I am already at the top of the list, so skip me
+	    if [ $host = $GEMPIS_HOSTNAME ]; then
+		continue
+	    fi
+
+	    # write line to machine file
+	    i=0
+	    while (( $i < $cpus )); do
+		echo "${host}" >> $GEMPIS_MACHINEFILE
+		let 'i = i + 1'
+	    done
+
+	    # check if the required number have been defined
+	    let 'totalcpus = totalcpus + cpus'
+	    if [ $totalcpus -ge $GEMPIS_NUMCPUS ]; then
+		break
+	    fi
+	fi
+    done
+
+    NUMSLOTS=$(echo $LSB_MCPU_HOSTS | awk '{for(i=1;i<=NF;i+=2){v+=$(i+1)}}; END {print v}')
+
+    # return the number of processors allocated
+    return $NUMSLOTS
+}
+# define a prejob routine
+mpi_prejob_INTELMPI()
+{
+    # check that variable are defined
+    verbose "INTELMPI_HOME set to [$INTELMPI_HOME]."
+    [ -z "$INTELMPI_HOME" ] && terminate ERROR "INTELMPI_HOME not defined."
+}
+# define a postjob routine
+mpi_postjob_INTELMPI()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# Sun HPC environment
+#
+mpi_name[2]="SUNHPC"
+mpi_os[2]="SunOS"
+mpi_path[2]="/opt/SUNWhpc/bin"
+mpi_lib[2]="/opt/SUNWhpc/lib/sparcv9"
+mpi_run[2]="mprun -np $GEMPIS_NUMCPUS $GEMPIS_MPIRUN_OPTIONS "
+# builds machine file 
+# a machine file is not used here
+mpi_buildfile_SUNHPC()
+{
+    echo "" >/dev/null
+}
+# define a prejob routine
+mpi_prejob_SUNHPC()
+{
+    echo "" >/dev/null
+}
+# define a postjob routine
+mpi_postjob_SUNHPC()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# MPICH v1.2 environment
+#
+# P4_RSHCOMMAND - (used by MPICH) indicates the connection 
+#                 method (define as "ssh")
+# MPICH_HOME    - defines the base 
+#                 directory of MPICH environment
+#
+mpi_name[3]="MPICH"
+mpi_os[3]="Linux"
+mpi_path[3]="$MPICH_HOME/bin"
+mpi_lib[3]="$MPICH_HOME/lib"
+mpi_run[3]="mpirun -n $GEMPIS_NUMCPUS -machinefile $GEMPIS_MACHINEFILE $GEMPIS_MPIRUN_OPTIONS "
+# builds machine file 
+# Format: (on line for each processor)
+# <computer>
+# <computer>
+#  ...
+# <computer>
+mpi_buildfile_MPICH()
+{
+    # find out the number of processor I have been allowed 
+    # and put me at the top of the list
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+	    state=2
+	else
+	    state=1
+	    if [ $host = $GEMPIS_HOSTNAME ]; then
+		cpus=$var
+		break
+	    fi
+	fi
+    done
+    [ -z "$cpus" ] && cpus=1
+
+    # write to machine file
+    i=1
+    echo "${GEMPIS_HOSTNAME}" > $GEMPIS_MACHINEFILE
+    while (( $i < $cpus )); do
+	echo "${GEMPIS_HOSTNAME}" >> $GEMPIS_MACHINEFILE
+	let 'i = i + 1'
+    done
+
+    # fill in the rest of the machine filmpirefs_systeme
+    totalcpus=$cpus
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+	    state=2
+	else
+	    cpus=$var
+	    state=1
+	    # I am already at the top of the list, so skip me
+	    if [ $host = $GEMPIS_HOSTNAME ]; then
+		continue
+	    fi
+
+	    # write line to machine file
+	    i=0
+	    while (( $i < $cpus )); do
+		echo "${host}" >> $GEMPIS_MACHINEFILE
+		let 'i = i + 1'
+	    done
+
+	    # check if the required number have been defined
+	    let 'totalcpus = totalcpus + cpus'
+	    if [ $totalcpus -ge $GEMPIS_NUMCPUS ]; then
+		break
+	    fi
+	fi
+    done
+    # return the number of processors allocated
+    return $totalcpus
+}
+# define a prejob routine
+mpi_prejob_MPICH()
+{
+    # check that variable are defined
+    verbose "MPICH_HOME set to [$MPICH_HOME]."
+    [ -z "$MPICH_HOME" ] && terminate ERROR "MPICH_HOME not defined."
+
+    # check that ssh is available
+    verify_exec ssh
+
+    # define MPI  protocol as ssh
+    #  no ssh options are recognized in the variable
+    export P4_RSHCOMMAND="ssh"
+}
+# define a postjob routine
+mpi_postjob_MPICH()
+{
+    # remove any MPICH PI files created
+    list=`ls PI* 2>/dev/null`
+    if [ -n "$list" ]; then
+	  verbose "Removing temporary MPICH PI files."
+	  rm -f $list
+    fi
+}
+
+############################################################
+#
+# OSU's Infiniband MPI, compatible with MPICH v1.2
+#
+# MVAPICH_HOME - defines the base directory of the environment
+#
+mpi_name[4]="MVAPICH"
+mpi_os[4]="Linux"
+mpi_path[4]="$MVAPICH_HOME/bin"
+mpi_lib[4]="$MVAPICH_HOME/lib"
+mpi_run[4]="mpirun_ssh -np $GEMPIS_NUMCPUS -m $GEMPIS_MACHINEFILE $GEMPIS_MPIRUN_OPTIONS "
+#mpi_start[4]=""
+#mpi_stop[4]=""
+# builds machine file 
+# Format:
+# <a line with the computer name for each processor>
+mpi_buildfile_MVAPICH()
+{
+    [ -f $GEMPIS_MACHINEFILE ] && rm -f $GEMPIS_MACHINEFILE
+    # get the current hostname and num_procs from the list 
+    state=1/apps/sssdev/ibs/v2008.xx/LinuxRHEL64_40AS/bin/openm
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ] ;then
+	    if [ $var = $GEMPIS_HOSTNAME ]; then
+		state=2
+	    fi
+	else
+	    cpus=$var
+	    break
+	fi
+    done
+    [ -z "$cpus" ] && cpus=1
+
+    i=0
+    while [ $i -lt $cpus ]; do
+	echo "$GEMPIS_HOSTNAME" >> $GEMPIS_MACHINEFILE
+	let 'i = i + 1'
+    done
+    totalcpus=$cpus
+
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host=$var
+	    state=2
+	else
+	    if [ $host != $GEMPIS_HOSTNAME ]; then
+		cpus=$var
+		i=0
+		while [ $i -lt $cpus ]; do
+		    echo "$host" >> $GEMPIS_MACHINEFILE
+		    let 'i = i + 1'
+		done
+    	        # check if the required number have been defined
+		let 'totalcpus = totalcpus + cpus'
+		if [ $totalcpus -ge $GEMPIS_NUMCPUS ]; then
+		    break
+		fi
+	    fi
+	    state=1
+	fi
+    done
+    # return the number of processors allocated
+    return $totalcpus
+}
+# define a prejob routine
+mpi_prejob_MVAPICH()
+{
+    # check that variable are defined
+    verbose "MVAPICH_HOME set to [$MVAPICH_HOME]."
+    [ -z "$MVAPICH_HOME" ] && terminate ERROR "MVAPICH_HOME not defined."
+}
+# define a postjob routine
+mpi_postjob_MVAPICH()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# LAM-MPI
+#
+# LAMMPI_HOME - defines the base directory of the environment
+#
+mpi_name[5]="LAMMPI"
+mpi_os[5]="Linux"
+mpi_path[5]="$LAMMPI_HOME/bin"
+mpi_lib[5]="$LAMMPI_HOME/lib64"
+mpi_run[5]="mpirun -np $GEMPIS_NUMCPUS $GEMPIS_MPIRUN_OPTIONS "
+mpi_start[5]="lamboot -ssi boot rsh $GEMPIS_MPISTART_OPTIONS $GEMPIS_MACHINEFILE "
+mpi_stop[5]="lamhalt"
+# builds machine file 
+# Format:
+# <computer> [cpu=<number_processors>]
+mpi_buildfile_LAMMPI()
+{
+    # find out the number of processor I have been allowed and put me 
+    # at the top of the list
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+	    state=2
+	else
+	    state=1
+	    if [ $host = $GEMPIS_HOSTNAME ]; then
+		cpus=$var
+		break
+	    fi
+	fi
+    done
+    [ -z "$cpus" ] && cpus=1
+
+    # write to machine file
+    echo "${GEMPIS_HOSTNAME} cpu=${cpus}" > $GEMPIS_MACHINEFILE
+
+    # fill in the rest of the machine file
+    totalcpus=$cpus
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+	    state=2
+	else
+	    cpus=$var
+	    state=1
+	    # I am already at the top of the list, so skip me
+	    if [ $host = $GEMPIS_HOSTNAME ]; then
+		continue
+	    fi
+
+	    # write machine file line
+	    echo "$host cpu=$cpus" >> $GEMPIS_MACHINEFILE
+
+	    # check if the required number have been defined
+	    let 'totalcpus = totalcpus + cpus'
+	    if [ $totalcpus -ge $GEMPIS_NUMCPUS ]; then
+		break
+	    fi
+	fi
+    done
+    # return the number of processors allocated
+    return $totalcpus
+}
+# define a prejob routine
+mpi_prejob_LAMMPI()
+{
+    # check that variable are defined
+    verbose "LAMMPI_HOME set to [$LAMMPI_HOME]."
+    [ -z "$LAMMPI_HOME" ] && terminate ERROR "LAMMPI_HOME not defined."
+
+    export LAMRSH="ssh"
+}
+# define a postjob routine
+mpi_postjob_LAMMPI()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# MPICH2 environment
+#
+# MPICH2_HOME - defines the base directory of the environment
+#
+mpi_name[6]="MPICH2"
+mpi_os[6]="Linux"
+# This is for testing only!!!
+mpi_path[6]="$MPICH2_HOME/bin"
+mpi_lib[6]="$MPICH2_HOME/lib"
+mpi_run[6]="mpirun -f $GEMPIS_MACHINEFILE -n $GEMPIS_NUMCPUS -env I_MPI_DEBUG 5 -env I_MPI_FABRICS shm:tcp $GEMPIS_MPIRUN_OPTIONS "
+#mpi_run[6]="mpiexec -n $GEMPIS_NUMCPUS $GEMPIS_MPIRUN_OPTIONS "
+#mpi_start[6]="mpdboot -n $GEMPIS_NUMHOSTS -f $GEMPIS_MACHINEFILE $GEMPIS_MPISTART_OPTIONS "
+#mpi_stop[6]="mpdallexit"
+# builds machine file 
+# Format:
+# <computer>:<number_processors>
+mpi_buildfile_MPICH2()
+{
+    # parse the assignment list find out the number of processor 
+    # fill in the rest of the machine list (order is not important)
+    totalcpus=0
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+
+	    state=2
+	else
+	    cpus=$var
+
+	    # write line to machine file
+	    echo "${host}:${cpus}" >> $GEMPIS_MACHINEFILE
+
+	    # check if the required number have been defined
+	    let 'totalcpus = totalcpus + cpus'
+	    if [ $totalcpus -ge $GEMPIS_NUMCPUS ]; then
+		break
+	    fi
+	    state=1
+	fi
+    done
+
+    # return the number of processors allocated
+    return $totalcpus
+}
+# define a prejob routine
+mpi_prejob_MPICH2()
+{
+    # check that variable are defined
+    verbose "MPICH2_HOME set to [$MPICH2_HOME]."
+    [ -z "$MPICH2_HOME" ] && terminate ERROR "MPICH2_HOME not defined."
+}
+# define a postjob routine
+mpi_postjob_MPICH2()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# OSU's Infiniband MPI2, compatible with MPICH v2.0/
+#
+# MVAPICH2_HOME - defines the base directory of the environment
+#
+mpi_name[7]="MVAPICH2"
+mpi_os[7]="Linux"
+mpi_path[7]="$MVAPICH2_HOME/bin"
+mpi_lib[7]="$MVAPICH2_HOME/lib"
+mpi_run[7]="mpirun_ssh -n $GEMPIS_NUMCPUS -hostfile $GEMPIS_MACHINEFILE $GEMPIS_MPIRUN_OPTIONS "
+#mpi_start[7]=""
+#mpi_stop[7]=""
+# builds machine file 
+mpi_buildfile_MVAPICH2()
+{
+    # the format is the same as the other one
+    mpi_buildfile_MVAPICH
+    return $?
+}
+# define a prejob routine
+mpi_prejob_MVAPICH2()
+{
+    # check that variable are defined
+    verbose "MVAPICH2_HOME set to [$MVAPICH2_HOME]."
+    [ -z "$MVAPICH2_HOME" ] && terminate ERROR "MVAPICH2_HOME not defined."
+}
+# define a postjob routine
+mpi_postjob_MVAPICH2()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# OpenMPI
+#
+# OPENMPI_HOME - defines the base directory of the environment
+#
+mpi_name[8]="OpenMPI"
+mpi_os[8]="Linux"
+#mpi_path[8]="$OPENMPI_HOME/bin"
+#mpi_lib[8]="$OPENMPI_HOME/lib"
+mpi_run[8]="mpirun -np $GEMPIS_NUMCPUS -machinefile $GEMPIS_MACHINEFILE $GEMPIS_MPIRUN_OPTIONS "
+#mpi_start[8]=""
+#mpi_stop[8]=""
+# builds machine file 
+# Format:
+# <computer> slots=<number_processors>
+mpi_buildfile_OpenMPI()
+{
+    # parse the assignment list find out the number of processor 
+    # fill in the rest of the machine list (order is not important)
+    totalcpus=0
+    state=1
+    for var in $GEMPIS_TESTLIST; do
+	if [ $state -eq 1 ]; then
+	    host="$var"
+
+	    state=2
+	else
+	    cpus=$var
+
+	    # write line to machine file
+	    echo "${host} slots=${cpus}" >> $GEMPIS_MACHINEFILE
+
+	    # check if the required number have been defined
+	    let 'totalcpus = totalcpus + cpus'
+	    if [ $totalcpus -ge $GEMPIS_NUMCPUS ]; then
+		break
+	    fi
+	    state=1
+	fi
+    done
+
+    # return the number of processors allocated
+    return $totalcpus
+}
+# define a prejob routine
+mpi_prejob_OpenMPI()
+{
+    # check that variable are defined
+    verbose "OPENMPI_HOME set to [$OPENMPI_HOME]."
+    [ -z "$OPENMPI_HOME" ] && terminate ERROR "OPENMPI_HOME not defined."
+}
+# define a postjob routine
+mpi_postjob_OpenMPI()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# Shell Global Linux (GL) implementation of LAM-MPI
+#
+mpi_name[9]="GL-LAMMPI"
+mpi_os[9]="Linux"
+mpi_path[9]="/usr/bin"
+mpi_lib[9]="/usr/lib64/lam"
+mpi_run[9]="lamrun -np $GEMPIS_NUMCPUS $GEMPIS_MPIRUN_OPTIONS "
+mpi_start[9]="lamboot -ssi boot rsh $GEMPIS_MPISTART_OPTIONS $GEMPIS_MACHINEFILE"
+mpi_stop[9]="lamhalt"
+# builds machine file 
+# Format:
+# <computer> [cpu=<number_processors>]
+mpi_buildfile_GLLAMMPI()
+{
+    return mpi_buildfile_LAMMPI
+}
+# define a prejob routine
+mpi_prejob_GLLAMMPI()
+{
+    export LAMRSH="ssh"
+}
+# define a postjob routine
+mpi_postjob_GLLAMMPI()
+{
+    echo "" >/dev/null
+}
+
+
+############################################################
+#
+# Shell Global Linux (GL) implementation of OpenMPI
+#
+# OPENMPI_HOME - defines the base directory of the environment
+#
+mpi_name[10]="GL-OpenMPI"
+mpi_os[10]="Linux"
+mpi_path[10]="/usr/bin"
+mpi_lib[10]="/usr/lib64/openmpi"
+mpi_run[10]="mpirun -np $GEMPIS_NUMCPUS -machinefile $GEMPIS_MACHINEFILE $GEMPIS_MPIRUN_OPTIONS "
+#mpi_start[10]=""
+#mpi_stop[10]=""
+# builds machine file 
+# Format:
+# <computer> slots=<number_processors>
+mpi_buildfile_GLOpenMPI()
+{
+    return mpi_buildfile_OpenMPI
+}
+# define a prejob routine
+mpi_prejob_GLOpenMPI()
+{
+    # the standard OpenMPI terminates when an environment variable is not defined
+    echo "" >/dev/null
+}
+# define a postjob routine
+mpi_postjob_GLOpenMPI()
+{
+    echo "" >/dev/null
+}
+
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End Script

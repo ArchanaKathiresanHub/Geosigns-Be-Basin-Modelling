@@ -1,0 +1,19 @@
+[ExportTimeIoTbl]
+;
+PropertyName           Time        SurfaceName     FormationName Average    StandardDev Minimum    Maximum    P15 P50 P85 Skewness Kurtosis 
+()                     (Ma)        ()              ()            ()         ()          ()         ()         ()  ()  ()  ()       ()       
+"SteraneIsomerisation" 0           "Base Tertiary" ""            0.0005659  -9999       0.0005659  0.0005659  0   0   0   -9999    -9999    
+"SteraneIsomerisation" 5           "Base Tertiary" ""            0.00049937 -9999       0.00049937 0.00049937 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 8           "Base Tertiary" ""            0.00049908 -9999       0.00049908 0.00049908 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 28          "Base Tertiary" ""            0.00049719 -9999       0.00049719 0.00049719 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 45          "Base Tertiary" ""            0.00049639 -9999       0.00049639 0.00049639 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 65          "Base Tertiary" ""            0.00049625 -9999       0.00049625 0.00049625 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 75.09999847 "Base Tertiary" ""            0.0002974  -9999       0.0002974  0.0002974  0   0   0   -9999    -9999    
+"SteraneIsomerisation" 90          "Base Tertiary" ""            3.1297e-05 -9999       3.1297e-05 3.1297e-05 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 97.09999847 "Base Tertiary" ""            1.2302e-05 -9999       1.2302e-05 1.2302e-05 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 104.5       "Base Tertiary" ""            4.7457e-06 -9999       4.7457e-06 4.7457e-06 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 124.5       "Base Tertiary" ""            5.2731e-07 -9999       5.2731e-07 5.2731e-07 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 140         "Base Tertiary" ""            2.2214e-07 -9999       2.2214e-07 2.2214e-07 0   0   0   -9999    -9999    
+"SteraneIsomerisation" 140.5       "Base Tertiary" ""            1.9993e-07 -9999       1.9993e-07 1.9993e-07 0   0   0   -9999    -9999    
+[End]
+;

@@ -1,0 +1,81 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.machine
+include $(FILE_BASE)/Make.libraries
+
+LIBDIR = ../../../libraries
+
+DOXYGENCFG = FiniteElementsLib.dox
+
+FINITEELEMHDRS=BasisFunction.h \
+	FiniteElement.h \
+	FiniteElementTypes.h
+
+
+FINITEELEMSRCS=BasisFunction.C \
+	FiniteElement.C \
+	FiniteElementTypes.C
+
+
+
+FINITEELEMOBJS=$(FINITEELEMSRCS:.C=.o)
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+DOXYGEN = doxygen
+
+SHAREDLIB = libFiniteElements.so
+LIB = libFiniteElements.a
+
+CFLAGS	+=  ${PROFILEFLAGS} ${COMPILEFLAGS} ${DEBUGFLAGS} -I$(UTILITIES_INC)
+
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(LIB) $(SHARELIB)
+
+
+$(LIB): $(FINITEELEMOBJS)
+	$(AR) $(LIB) $(FINITEELEMOBJS)
+
+$(SHAREDLIB): $(LIB) Makefile
+	$(SLAR) $(SHAREDLIB) $(FINITEELEMOBJS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+.PHONY: clean
+
+clean:
+	rm -rf $(LIB) $(SHAREDLIB) $(FINITEELEMOBJS) \
+	core ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(FINITEELEMOBJS)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.FiniteElements -Y $(INCLUDEDIRS) $(FINITEELEMHDRS) $(FINITEELEMSRCS) 2> /dev/null
+
+#	cd ../src && $(MAKEDEPEND) -f../Makefile.FiniteElements -Y $(INCLUDEDIRS) $(FINITEELEMSRCS) 2> /dev/null
+
+# DO NOT DELETE
+
+fBasisFunction.o: FiniteElementTypes.h
+FiniteElement.o: FiniteElementTypes.h BasisFunction.h
+BasisFunction.o: BasisFunction.h FiniteElementTypes.h
+FiniteElement.o: FiniteElement.h FiniteElementTypes.h BasisFunction.h
+FiniteElementTypes.o: FiniteElementTypes.h

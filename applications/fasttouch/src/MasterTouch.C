@@ -1,0 +1,591 @@
+/// This class controls the functional requests to the ResQ library
+/// The necessary steps using the library are as follows
+/// - Load Tcf files associated with user-selected layer
+/// - Calculate all results for each grid point on the layer, based on
+///   the burial history and the Tcf file
+/// - Save user-requested results to maps
+
+#include <unistd.h>
+
+#include "petsc.h"
+
+#include "MasterTouch.h"
+#include "BurialHistory.h"
+
+#include "FastTouch.h"
+using namespace fasttouch;
+
+#include <sstream>
+using namespace std;
+
+#include "Interface/Formation.h"
+#include "Interface/Surface.h"
+#include "Interface/Grid.h"
+#include "Interface/GridMap.h"
+#include "Interface/PropertyValue.h"
+
+
+void InitializeTimeComplete ();
+bool ReportTimeToComplete (int stepCompleted, int totalNumberOfSteps, int & afterSeconds);
+
+using namespace DataAccess;
+using namespace Interface;
+
+#include <stdlib.h>
+
+// initialise statics for user interface
+char* iSd_str             = {"Summary Standard Deviation"};
+char* iMean_str           = {"Summary Mean"};
+char* iSkewness_str       = {"Summary Skewness"};
+char* iKurtosis_str       = {"Summary Kurtosis"};
+char* iMin_str            = {"Summary Minimum"};
+char* iMax_str            = {"Summary Maximum"};
+char* iMode_str           = {"Summary Mode"};
+char* iPercentile_str     = {"Percentile"};
+char* iDistribution_str   = {"Distribution"};
+char* iCore_equiv_str     = {"Porosity Core Equivalent"};
+char* iIntergranular_str  = {"Porosity Intergranular Volume"};
+char* iMacro_str          = {"Porosity Macro"};
+char* iMicro_str          = {"Porosity Micro"};
+char* iAbsolute_str       = {"Permeability Absolute"};
+char* iLog_str            = {"Permeability Log10"};
+char* iCement_Quartz_str  = {"Cement Quartz"};
+
+extern void ReportProgress (const string & message);
+
+// PUBLIC METHODS
+//
+/// The job of the constructor is to open the ResQ library and initialise
+/// the format and category string lists
+MasterTouch::MasterTouch (FastTouch * fastTouch) :
+   m_fastTouch (fastTouch)
+{
+   // open TS library
+   if ( ! TsLib_Open() )
+   {
+      touchstoneError ("MasterTouch");
+   }
+   else
+   {
+      // set up fixed string lists
+      setFormatsMapping   ();
+      setCategoriesMapping ();
+   }
+}
+
+MasterTouch::~MasterTouch()
+{
+   TsLib_Close();
+}
+
+/// The run function is responsible for carrying out the functional
+/// steps involved in using the ResQ library.
+/// So firstly, a request is sent to the ResQ library to open all the user-selected
+/// Tcf files. Then for each Tcf file, all calculations and saving of results
+/// are executed through the functions: calculate and saveGrids. Lastly, the 
+/// Tcf files are closed and dynamic memory is cleaned up
+bool MasterTouch::run (void)
+{
+   // make sure data has been selected 
+   if (m_fileList.size () < 1)
+   {
+      return false;
+   }
+
+   FileLayerCategoryMapInfoList::iterator it;
+
+   for (it = m_fileList.begin (); it != m_fileList.end (); ++it)
+   {
+      const string & filename = (it->first);
+      char * tcf_filename = (char *) filename.c_str ();
+
+      // load all touchstone files
+      if (TsLib_LoadTcfs (&tcf_filename, 1) != 1)
+      {
+         touchstoneError ("run");
+         return false;
+      }
+
+      // ReportProgress ("Loaded Touchstone Configuration files");
+      // set up timestep boundaries
+
+      // for each TCF file
+      LayerCategoryMapInfoList::iterator outIt;
+
+      m_layerList = &(m_fileList[filename]);
+
+      for (outIt = m_layerList->begin (); outIt != m_layerList->end (); ++outIt)
+      {
+         // set current layer iterator so can retrieve all output 
+         // combinations during write/save maps
+         m_currentOutputs = (*outIt).second;
+
+         string progressString;
+
+         progressString = "Starting TCF: ";
+	 progressString += filename;
+         progressString += ", Surface: ";
+	 progressString += (outIt->first).surface->getName ();
+	 progressString += ", Formation: ";
+	 progressString += (outIt->first).formation->getName ();;
+
+         ReportProgress (progressString);
+         // execute TS calculate
+         retrieveGridMaps ();
+         bool calculated = calculate (tcf_filename, (outIt->first).surface, (outIt->first).formation);
+
+         restoreGridMaps ();
+
+         progressString = "Finished TCF: ";
+	 progressString += filename;
+         progressString += ", Surface: ";
+	 progressString += (outIt->first).surface->getName ();
+	 progressString += ", Formation: ";
+	 progressString += (outIt->first).formation->getName ();;
+
+         ReportProgress (progressString);
+
+         if (!calculated)
+            break;
+      }
+
+      // check for early exit from For loop
+      if (outIt != m_layerList->end ())
+      {
+         break;
+      }
+
+      TsLib_UnloadTcfs(&tcf_filename, 1);
+
+      // clean up TS calculate memory
+      TsLib_CalculationCleanUp ();
+   }
+
+   return true;
+}
+
+
+/// Each set of results requested by the user corresponds to a grid map
+/// generated by Cauldron, filled with ResQ calculation results.
+/// Each grid map created must correspond to a Tcf file, a specific layer,
+/// a results category and a result format.
+bool MasterTouch::addOutputFormat (const string& filename, const Surface * surface, const Formation * formation, 
+                                          const string & category, const string & format, short percent)
+{
+   if ( filename.size() < 1 )
+   {
+      cerr << endl << "Warning, a tcf file has not been chosen" << endl;
+      return false;
+   }
+   
+   string propertyValueName;
+   propertyValueName += "Resq: ";
+   propertyValueName += filename;
+   propertyValueName += " ";
+   propertyValueName += category;
+   propertyValueName += " ";
+   propertyValueName += format;
+
+   char perc_str[5];
+   sprintf (perc_str, "%d", (int) percent);
+
+   propertyValueName += " ";
+   propertyValueName += perc_str;
+
+   const Snapshot * zeroSnapshot = m_fastTouch->findSnapshot (0);
+   if (!zeroSnapshot)
+   {
+      cerr << endl << "Could not create PropertyValue: " << propertyValueName  << ", could not find present day snapshot"<< endl;
+      return false;
+   }
+
+   PropertyValue * propertyValue = m_fastTouch->createMapPropertyValue (propertyValueName, zeroSnapshot, 0, formation, surface);
+   if (!propertyValue)
+   {
+      cerr << endl << "Could not create PropertyValue named: " << propertyValueName << endl;
+      return false;
+   }
+
+   GridMap * gridMap = propertyValue->getGridMap ();
+
+   // create map info
+   MapInfo map;
+   map.format = format;
+   map.gridMap = gridMap;
+   map.percent = percent;
+
+   LayerInfo layer (surface, formation);
+
+   // add layer info and map info to output list
+   m_fileList[filename][layer][category].push_back(map);
+
+   return true;
+}
+
+//
+// PRIVATE METHODS
+//
+
+bool MasterTouch::validTcfFile (char* filename)
+{
+   // a valid tcf file should end with extension .tcf
+   int length = strlen (filename);
+   if ( length > 5 )
+   {
+      char *extension = filename+length-4;
+      if ( strcmp (extension,".tcf") == 0 )
+      {
+	 return true; 
+      }
+   }
+
+   return false;
+}
+
+/// This function controls the build of the Cauldron - ResQ functionality. 
+/// Firstly, it creates a burial history for the user-chosen layer through
+/// the Burial History class. THen for each grid point in the layer, it called th
+/// ResQ::calculate function, passing it the burial history data for that particular
+/// coordinate and the Tcf file associated with that layer, to generate all ResQ
+/// results for that particular coordinate. Finally it writes the results to a result
+/// list which is saved to file at a later stage.
+bool MasterTouch::calculate (const char *filename, const Surface * surface, 
+                                    const Formation * formation)
+{
+   int reportAfter = 30;
+
+   // create burial history
+   BurialHistory * burialHistory = new BurialHistory (surface, formation, m_fastTouch);
+
+   // create progress bar
+   int numTimeSteps;
+
+   // for each defined node on reservoir surface  
+   int firstI = m_fastTouch->getActivityOutputGrid ()->firstI ();
+   int firstJ = m_fastTouch->getActivityOutputGrid ()->firstJ ();
+   int lastI = m_fastTouch->getActivityOutputGrid ()->lastI ();
+   int lastJ = m_fastTouch->getActivityOutputGrid ()->lastJ ();
+
+   tsLib_burHistTimestep *burHistTimesteps;
+
+   int step = 0;
+
+   int totalNumberOfSteps = (lastI + 1 - firstI) * (lastJ + 1 - firstJ);
+
+   int maxNumTimeSteps = 0;
+   InitializeTimeComplete ();
+   bool allHaveCompleted = false;
+
+   for (int i = firstI; i <= lastI; ++i)
+   {
+      int numJ = 0;
+      for (int j = firstJ; j <= lastJ; ++j)
+      {
+         // extract burial history 
+         if ((burHistTimesteps = burialHistory->returnAsArray (i, j, numTimeSteps)) != NULL)
+         {
+	    maxNumTimeSteps = maxNumTimeSteps < numTimeSteps ? numTimeSteps : maxNumTimeSteps;
+
+	    ++numJ;
+            // call TS calculate with TCF filename and burial history
+            if (TsLib_Calculate (const_cast < char *>(filename), burHistTimesteps, numTimeSteps) != 1)
+            {
+               touchstoneError ("calculate");
+               return false;
+            }
+
+            // retrieve and write calculation results to grid
+            writeResultsToGrids (i, j, numTimeSteps - 1);
+         }
+
+	 allHaveCompleted = ReportTimeToComplete (++step, totalNumberOfSteps, reportAfter);
+      }
+   }
+
+   while (!allHaveCompleted)
+   {
+      sleep (5);
+      allHaveCompleted = ReportTimeToComplete (totalNumberOfSteps, totalNumberOfSteps, reportAfter);
+   }
+
+   MPI_Barrier (PETSC_COMM_WORLD);
+
+   delete burialHistory;
+   return true;
+}
+
+void MasterTouch::cleanUpRun (char **filenames, int size)
+{
+// #define BOTHVERSIONSCRASH 1
+#ifdef BOTHVERSIONSCRASH
+   // unload the tcf files
+#ifdef ONEBYONE
+   for ( int s=0; s < size; ++s )
+   {
+      // cerr << "Unloading TCF: " << filenames[s] << "(" << s << ")" << endl;
+      TsLib_UnloadTcfs(&filenames[s], 1);
+   }
+#else
+      // cerr << "Unloading TCFs" << endl;
+      TsLib_UnloadTcfs(filenames, size);
+#endif
+#endif
+      
+   for ( int i=0; i < size; ++i )
+   {
+      delete []filenames[i];
+   }
+   
+   delete []filenames;
+}
+
+/// For each layer and associated tcf file, there may be more than one result
+/// category and format selected. This means that after the ResQ results are calculated
+/// for a grid point on a certain layer, all the categories and formats associated 
+/// with that particular layer should be extracted before the next grid point's 
+/// results are processed
+void MasterTouch::writeResultsToGrids (int i, int j, int timestepIndex)
+{
+   // loop through each combination of category and format choices
+   // for the current layer
+   short resultFormat;
+   
+   // for each category selected
+   for ( CategoryMapInfoList::iterator it = m_currentOutputs.begin(); it != m_currentOutputs.end (); ++it )
+   {
+      short resultCat = m_categoriesMapping[(*it).first];
+
+      // for each format selected
+      for ( MapInfoList::iterator mIt = ((*it).second).begin(); mIt != ((*it).second).end(); ++mIt )
+      {
+	 // write appropriate results to grid
+	 resultFormat = m_formatsMapping[(*mIt).format];
+	 
+	 if ( resultFormat > -1 && resultFormat <= MODE )
+         {
+            writeSummaryResults ((*mIt).gridMap, resultCat, resultFormat, i, j, timestepIndex);
+         }
+         else if ( resultFormat == PERCENTILE )
+         {
+            writePercentileResults ((*mIt).gridMap, (*mIt).percent, resultCat, i, j, timestepIndex);
+         }
+         else if ( resultFormat ==  DISTRIBUTION )
+         {
+            writeDistributionResults ((*mIt).gridMap, resultCat, i, j, timestepIndex);
+         }
+      }
+   }
+}
+
+bool MasterTouch::retrieveGridMaps (void)
+{
+   for (CategoryMapInfoList::iterator cmilIterator = m_currentOutputs.begin (); cmilIterator != m_currentOutputs.end (); ++cmilIterator)
+   {
+      MapInfoList & mapInfoList = (*cmilIterator).second;
+
+      for (MapInfoList::iterator milIterator = mapInfoList.begin (); milIterator != mapInfoList.end (); ++milIterator)
+      {
+	 MapInfo & mapInfo = *milIterator;
+         mapInfo.gridMap->retrieveData ();
+      }
+   }
+
+   return true;
+}
+
+bool MasterTouch::restoreGridMaps (void)
+{
+   for (CategoryMapInfoList::iterator cmilIterator = m_currentOutputs.begin (); cmilIterator != m_currentOutputs.end (); ++cmilIterator)
+   {
+      MapInfoList & mapInfoList = (*cmilIterator).second;
+      
+      for (MapInfoList::iterator milIterator = mapInfoList.begin (); milIterator != mapInfoList.end (); ++milIterator)
+      {
+	 MapInfo & mapInfo = *milIterator;
+         mapInfo.gridMap->restoreData ();
+      }
+   }
+
+   return true;
+}
+
+
+#ifdef Grainne
+void MasterTouch::writeSummaryResults (GridMap *gridMap, short category, short format, int east, 
+                                         int north, int timestepIndex)
+{
+   // prepare input for TS Summary call
+   int m;
+   double **summaryResults;
+
+   try
+   {
+      summaryResults = new double *[MODE];
+
+      for (m = 0; m < MODE; ++m)
+      {
+         summaryResults[m] = new double;
+      }
+   }
+   catch (...)
+   {
+      for (int n = 0; n < m; ++n)
+         delete summaryResults[n];
+      delete[]summaryResults;
+      cerr << endl << "Memory Allocation Error during MasterTouch::writeSummaryResults" << endl;
+      return;
+   }
+
+   double *summaryMode;
+   long nMode;
+
+   // call TS summary 
+   if (TsLib_GetSummaryStatistics
+       (timestepIndex,
+        category,
+        summaryResults[MEAN],
+        summaryResults[SD],
+        summaryResults[SKEWNESS],
+        summaryResults[KURTOSIS], &summaryMode, &nMode, summaryResults[MIN], summaryResults[MAX]) != 1)
+   {
+      touchstoneError ("writeResults");
+      return;
+   }
+
+   if (format != MODE)
+   {
+      // write result to 2d map
+      // cerr << endl << "For Pos (" << east << "," << north << ") Summary Value = " << *(summaryResults[format]) << endl;
+      gridMap->setValue (east, north, *(summaryResults[format]));
+   }
+   else
+   {
+      // write mode to something 3d (NOT YET IMPLEMENTED)
+
+      // free mode memory
+      TsLib_FreeMode (summaryMode, nMode);
+   }
+
+   for (m = 0; m < MODE; m++)
+   {
+      delete summaryResults[m];
+   }
+   delete[]summaryResults;
+}
+#else
+void MasterTouch::writeSummaryResults (GridMap *gridMap, short category, short format, int east, 
+                                         int north, int timestepIndex)
+{
+   // prepare input for TS Summary call
+   double summaryResults[MODE];
+
+   double *summaryMode;
+   long nMode;
+
+   // call TS summary 
+   if (TsLib_GetSummaryStatistics
+       (timestepIndex,
+        category,
+        &summaryResults[MEAN],
+        &summaryResults[SD],
+        &summaryResults[SKEWNESS],
+        &summaryResults[KURTOSIS], &summaryMode, &nMode, &summaryResults[MIN], &summaryResults[MAX]) != 1)
+   {
+      touchstoneError ("writeResults");
+      return;
+   }
+
+   if (format != MODE)
+   {
+      // write result to 2d map
+      // cerr << endl << "For Pos (" << east << "," << north << ") Summary Value = " << (summaryResults[format]) << endl;
+      gridMap->setValue (east, north, (summaryResults[format]));
+   }
+
+   // free mode memory
+   TsLib_FreeMode (summaryMode, nMode);
+}
+#endif
+
+void MasterTouch::writePercentileResults (GridMap * gridMap, short percent, short category, int east, int north, int timestepIndex)
+{
+   double percentileValue;
+      
+   // call TS percentile
+   if ( TsLib_GetPercentile
+            (timestepIndex,
+	     category,
+	     percent,
+	     &percentileValue) != 1 )
+   {
+      touchstoneError ("writeResults");
+      return;
+   }
+
+   // cerr << endl << "For Pos (" << east << "," << north << ") Percentile Value (" << percent << ") = " << percentileValue << endl;
+   gridMap->setValue (east, north, percentileValue);
+}
+
+void MasterTouch::writeDistributionResults (GridMap *gridMap, short category, int east, int north, int timestepIndex)
+{
+     
+   //
+   // 3D - NOT YET IMPLEMENTED
+   //
+   
+   /*
+   // call TS distribution
+   double *distribution;
+   long   *nDistribution;
+
+   if ( TsLib_GetDistribution
+            (timestepIndex,
+	     category,
+	     &distribution,
+	     nDistribution) != 1 )
+   {
+      touchstoneError ("writeResults");
+      return;
+   }
+   else
+   {
+      // save distribution results to something 3d
+
+      // free distribution array memory
+      TsLib_FreeDistribution (distribution, *nDistribution);
+   }
+   */
+}
+
+void MasterTouch::touchstoneError (const char *function)
+{
+   tsLib_errInfo * errInfo = TsLib_GetError();
+   
+   cerr << endl << "MasterTouch::" << function 
+        << endl << errInfo->description
+        << endl << errInfo->source << endl;
+}
+
+void MasterTouch::setCategoriesMapping ()
+{
+   m_categoriesMapping [iCore_equiv_str] = TSLIB_RC_CORE_PORO;
+   m_categoriesMapping [iIntergranular_str] = TSLIB_RC_IGV;
+   m_categoriesMapping [iMacro_str] = TSLIB_RC_MACRO_PORO;
+   m_categoriesMapping [iMicro_str] = TSLIB_RC_MICRO_PORO;
+   m_categoriesMapping [iAbsolute_str] = TSLIB_RC_PERM;
+   m_categoriesMapping [iLog_str] = TSLIB_RC_LOGPERM;
+   m_categoriesMapping [iCement_Quartz_str] = TSLIB_RC_CMT_QRTZ;
+}
+
+void MasterTouch::setFormatsMapping (void)
+{
+   m_formatsMapping[iSd_str]           = SD;  
+   m_formatsMapping[iMean_str]         = MEAN;  
+   m_formatsMapping[iSkewness_str]     = SKEWNESS;   
+   m_formatsMapping[iKurtosis_str]     = KURTOSIS;    
+   m_formatsMapping[iMin_str]          = MIN;          
+   m_formatsMapping[iMax_str]          = MAX;          
+   m_formatsMapping[iMode_str]         = MODE;         
+   m_formatsMapping[iPercentile_str]   = PERCENTILE;  
+   m_formatsMapping[iDistribution_str] = DISTRIBUTION;
+}

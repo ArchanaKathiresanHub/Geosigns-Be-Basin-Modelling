@@ -1,0 +1,19 @@
+#Thu Aug 30 14:55:30 CEST 2007
+cdt.managedbuild.config.gnu.lib.debug.1817227103/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.lib.debug.1817227103/internalBuilder/ignoreErr=true
+cdt.managedbuild.config.gnu.lib.debug.584461038/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.lib.debug.584461038/internalBuilder/ignoreErr=true
+cdt.managedbuild.config.gnu.lib.release.279645253/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.lib.release.279645253/internalBuilder/ignoreErr=true
+cdt.managedbuild.config.gnu.so.debug.404013019/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.so.debug.404013019/internalBuilder/ignoreErr=true
+cdt.managedbuild.config.gnu.so.release.82753232/internalBuilder/enabled=false
+cdt.managedbuild.config.gnu.so.release.82753232/internalBuilder/ignoreErr=true
+eclipse.preferences.version=1
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.lib.debug.1817227103=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.lib.debug.584461038=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.so.release.82753232=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n<variable name\="CPLUS_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.so.release.82753232=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="LIBRARY_PATH" operation\="remove"/>\n</environment>\n
+environment/project=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
+environment/project/cdt.managedbuild.config.gnu.so.debug.404013019=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
+environment/project/cdt.managedbuild.config.gnu.so.release.82753232=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n

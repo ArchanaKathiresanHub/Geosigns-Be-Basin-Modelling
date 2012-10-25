@@ -1,0 +1,534 @@
+!
+!       This resource file is loaded by GOSPEL-applications
+! 
+
+!*table.background: #888
+
+!
+! General settings
+!
+*background:		#bdb09f
+*Cauldron 1D Main Window*background:		#cdc0af
+*fontList:		-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*selectColor:		red
+*XmLabel.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*XmLabel.foreground:	Black
+
+!
+! Popup menu font size
+!
+*UIPopupmenu.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+!
+! Label resources
+!
+*UILabel.fontList:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*UILabel.foreground:	Black
+
+!
+! Pushbutton resources
+!
+*UIAcceptbutton.background:	#bfb
+*UIApplybutton.background:	#ffb
+*UIHelpbutton.background:	#bbf
+*UICancelbutton.background:	#fbb
+
+!
+! Listbox resources
+!
+*UIListbox.fontList:	-*-courier-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+! XmText must be non proportional to keep the field sizes on the
+! RS6000 <---> Sun,Silicon consistent
+
+*XmText.fontList:	-*-courier-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+*mwmFunctions:          30
+
+!------------------------------------------------------------------------
+
+!1 = noscrollbars; 0 = scrollbars for verticalAutoSized
+*XintScroll.verticalAutoSized:		true
+*XintScroll.horizontalAutoSized:	true
+*XintScroll.scrollBarExtend:		false
+*XintScroll.addChildrenToTabGroup:	false
+*XintScroll.titleMargin:	        5
+*XintScroll.verticalOutsideMargin:	5
+*XintScroll.verticalInsideMargin:	5
+*XintScroll.horizontalOutsideMargin:	5
+*XintScroll.horizontalInsideMargin:	5
+*XintScroll.shadowThickness:	        2
+
+! prevent zooming for crashing
+*PlotXYZoomWindow.width:        600
+*PlotXYZoomWindow.height:       550
+
+*PlotXYZoomLControlForm.height:  45
+*PlotXYZoomUControlForm.height:  85
+*PlotXYZoomScales.width:        250
+*PlotXYZoomLocations.height:     40
+*PlotXYZoomLocations.width:     250
+
+
+*XintPlotXY.titleFont:	-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+*XintPlotXY.horizontalLabelFont: -*-helvetica-bold-r-normal-*-10-*-*-*-*-*-*-*
+*XintPlotXY.verticalLabelFont:	-*-helvetica-bold-r-normal-*-10-*-*-*-*-*-*-*
+!*XintPlotXY.titleForeground:	Blue3
+!*XintPlotXY.labelForeground:	Blue3
+
+*XintPlotXY.horizontalMajorGridLineStyle:       grid_line_dashed
+*XintPlotXY.horizontalMajorThickness:           1
+*XintPlotXY.horizontalMinorThickness:           1
+
+*XintPlotXY.verticalMajorGridLineStyle:         grid_line_dashed
+*XintPlotXY.verticalMajorThickness:	        1
+*XintPlotXY.verticalMinorThickness:	        1
+
+!*XintPlotXY.background:				Wheat
+!*XintPlotXY.color:				Grey40
+!*XintPlotXY.frame:				frame_none
+*XintPlotXY.frameStyle:				frame_shadow_in
+*XintPlotXY.frameThickness:			2
+*XintPlotXY.horizontalLabelPlacement:           placement_bottom
+*XintPlotXY.verticalLabelPlacement:             placement_right
+*XintPlotXY.horizontalAnnotationPlacement:	placement_bottom
+*XintPlotXY.verticalAnnotationPlacement:	placement_right
+
+!GridViewOnly:
+*GridViewOnly*XintPlotXY.titleFont: -*-helvetica-bold-r-normal-*-10-*-*-*-*-*-*-*
+*GridViewOnly*XintPlotXY.verticalAnnotationPlacement: placement_left
+*GridViewOnly*XintPlotXY.verticalLabelPlacement: placement_left
+
+!BurialgraphViewOnly:
+*BurialgraphViewOnly*XintPlotXY.verticalAnnotationFormat:		%5.0f
+
+!Burialgraph:
+*Burialgraph.XintPlotXY.horizontalAnnotationPlacement:	placement_top
+
+!StratColViewOnly:
+*StratColViewOnly*XintPlotXY.horizontalMajorGridLineStyle:  grid_line_none
+*StratColViewOnly*XintPlotXY.verticalMajorGridLineStyle:  grid_line_none
+*StratColViewOnly*XintPlotXY.horizontalAnnotationFormat:	\ 
+*StratColViewOnly*XintPlotXY.verticalAnnotationPlacement: placement_none
+*StratColViewOnly*XintPlotXY.horizontalAnnotationPlacement: placement_bottom
+*StratColViewOnly*XintPlotXY.horizontalMajorAnnotation: true
+*StratColViewOnly*XintPlotXY.horizontalMinorAnnotation: false
+*StratColViewOnly*XintPlotXY.verticalLabelPlacement:    placement_none
+!*StratColViewOnly*XintPlotXY.horizontalMajorTickLength: -10
+!*StratColViewOnly*XintPlotXY.horizontalMinorTickLength: -10
+
+!StratColumn:
+*StratColumn*XintPlotXY.horizontalMajorGridLineStyle:   grid_line_none
+*StratColumn*XintPlotXY.verticalMajorGridLineStyle:   grid_line_none
+*StratColumn*XintPlotXY.horizontalAnnotationFormat:	\ 
+*StratColumn*XintPlotXY.verticalAnnotationPlacement:	placement_none
+!*StratColumn.XintPlotXY.horizontalAnnotationPlacement:	placement_none
+*StratColumn.XintPlotXY.horizontalAnnotationPlacement:	placement_top
+*StratColumn*XintPlotXY.verticalLabelPlacement:    placement_none
+
+!StratColumnUnconf:
+*StratColumnUnconf*XintPlotXY.horizontalMajorGridLineStyle:       grid_line_none
+*StratColumnUnconf*XintPlotXY.verticalMajorGridLineStyle:       grid_line_none
+*StratColumnUnconf*XintPlotXY.horizontalAnnotationFormat:	\ 
+*StratColumnUnconf*XintPlotXY.verticalAnnotationPlacement:	placement_right
+!*StratColumnUnconf.XintPlotXY.horizontalAnnotationPlacement:	placement_none
+*StratColumnUnconf.XintPlotXY.horizontalAnnotationPlacement:	placement_top
+*StratColumnUnconf*XintPlotXY.verticalLabelPlacement:    placement_none
+
+
+!PressureViewOnly:
+*PressureViewOnly*XintPlotXY.verticalAnnotationPlacement:    placement_none
+*PressureViewOnly*XintPlotXY.verticalLabelPlacement:         placement_none
+*PressureViewOnly.rightAnnotationWidth:		0
+
+
+!BottomTempViewOnly:
+*BottomTempViewOnly*XintPlotXY.verticalAnnotationPlacement:    placement_none
+*BottomTempViewOnly*XintPlotXY.verticalLabelPlacement:         placement_none
+*BottomTempViewOnly.rightAnnotationWidth:		0
+
+!VreViewOnly:
+*VreViewOnly*XintPlotXY.verticalAnnotationPlacement:    placement_none
+*VreViewOnly*XintPlotXY.verticalLabelPlacement:         placement_none
+!*VreViewOnly*XintPlotXY.horizontalAxisType:            1
+*VreViewOnly.verticalInsideMargin:			0
+*VreViewOnly.rightAnnotationWidth:			0
+
+!IndicatorDepth:
+!*IndicatorDepth*XintPlotXY.horizontalDirection:		end_to_start
+
+!IndicatorTime:
+*IndicatorTime*XintPlotXY.horizontalLabelPlacement:	placement_bottom
+
+!SurfaceTemperatureViewOnly:
+*SurfaceTemperatureViewOnly*XintPlotXY.horizontalAnnotationPlacement: placement_none
+*SurfaceTemperatureViewOnly*XintPlotXY.horizontalLabelPlacement:   placement_none
+*SurfaceTemperatureViewOnly.bottomAnnotationHeight:	0
+*SurfaceTemperatureViewOnly*XintPlotXY.verticalAnnotationFormat:	%5.1f
+
+!HeatflowViewOnly:
+*HeatflowViewOnly*XintPlotXY.horizontalAnnotationPlacement: placement_none
+*HeatflowViewOnly*XintPlotXY.horizontalLabelPlacement:      placement_none
+*HeatflowViewOnly.bottomAnnotationHeight:		0
+*HeatflowViewOnly*XintPlotXY.verticalAnnotationFormat:		%5.0f
+
+*RelatedProjectsTemperatureDepth*XintPlotXY.verticalAnnotationPlacement: placement_none
+
+*RelatedProjectsTempCorr*XintPlotXY.verticalAnnotationPlacement: placement_left
+*RelatedProjectsTempCorr*XintPlotXY.verticalLabelPlacement: placement_left
+*RelatedProjectsVrCorr*XintPlotXY.verticalAnnotationPlacement: placement_left
+*RelatedProjectsVrCorr*XintPlotXY.verticalLabelPlacement: placement_left
+
+!------------------------------------------------------------------------------
+
+*XmFrame.shadowThickness:        2
+*XmFrame.shadowType:             XmSHADOW_ETCHED_IN
+
+!------------------------------------------------------------------------------
+
+*table*UITextinput.marginHeight:        0
+*table*UITextinput.marginWidth: 0
+*table*UIIntinput.marginWidth:  0
+*table*UIIntinput.marginHeight: 0
+*table*UIFloatinput.marginWidth:        0
+*table*UIFloatinput.marginHeight:       0
+*table*UIToggle.spacing:        0
+*table*UIToggle.marginWidth:    0
+*table*UIToggle.marginHeight:   0
+*table*Optionmenu.spacing:     0
+*table*Optionmenu.marginWidth: 0
+*table*Optionmenu.marginHeight:        0
+
+*Optionmenu*shadowThickness:        2
+
+!--------------------- Inventor hack ------------------------------------------
+
+
+!#################################################
+!	RESSOURCE FILE FOR OPEN INVENTOR         !
+!#################################################
+!
+! You must put this file in
+! /usr/lib/X11/app-defaults
+! or set up XAPPLRESDIR (see X window documentation)
+!
+!#################################################
+!!################################################
+!!                 POPUP MENU
+!!------------------------------------------------
+!!               FUNCTIONS MENU
+!!------------------------------------------------
+*IvMenu.IvFunctions1.labelString: Functions
+*IvFunctions2.IvHelp.labelString: Help
+*IvFunctions2.IvHome.labelString: Home
+*IvFunctions2.IvSetHome.labelString: Set Home
+*IvFunctions2.IvViewAll.labelString: View All
+*IvFunctions2.IvSeek.labelString: Seek
+*IvFunctions2.IvCopyView.labelString: Copy View
+*IvFunctions2.IvPasteView.labelString: Paste View
+!!------------------------------------------------
+!!               DRAW STYLE MENU
+!!------------------------------------------------
+*IvMenu.IvDrawStyle1.labelString: Draw Style
+*IvDrawStyle2.IvAsIs.labelString: as is
+*IvDrawStyle2.IvHiddenLine.labelString: hidden line
+*IvDrawStyle2.IvNoTexture.labelString: no texture
+*IvDrawStyle2.IvLowResolution.labelString: low resolution
+*IvDrawStyle2.IvWireFrame.labelString: wireframe
+*IvDrawStyle2.IvPoints.labelString: points
+*IvDrawStyle2.IvBoundingBoxNoDepth.labelString: bounding box ( no depth )
+*IvDrawStyle2.IvMoveSameAsStill.labelString: move same as still
+*IvDrawStyle2.IvMoveNoTexture.labelString:  move no texture.
+*IvDrawStyle2.IvMoveLowRes.labelString: move low res
+*IvDrawStyle2.IvMoveWireFrame.labelString: move wireframe
+*IvDrawStyle2.IvMoveLowResWireFrameNoDepth.labelString: move low res wire frame ( no depth )
+*IvDrawStyle2.IvMovePoints.labelString: move points
+*IvDrawStyle2.IvMoveLowResPointsNoDepth.labelString: move low res points ( no depth )
+*IvDrawStyle2.IvMoveBoundingBoxNoDepth.labelString: move bounding box ( no depth )
+*IvDrawStyle2.IvSingleBuffer.labelString: single buffer
+*IvDrawStyle2.IvDoubleBuffer.labelString: Double buffer
+*IvDrawStyle2.IvInteractiveBuffer.labelString: interactive buffer
+!!------------------------------------------------
+*IvMenu.IvViewing.labelString: Viewing
+!!------------------------------------------------
+*IvMenu.IvDecoration.labelString: Decoration
+!!------------------------------------------------
+*IvMenu.IvHeadlight.labelString: Headlight
+!!------------------------------------------------
+*IvMenu.IvPreferences.labelString: Preferences ...
+
+!!------------------------------------------------
+!!		   PREFERENCES
+!!------------------------------------------------
+*IvFormPreference1.IvSeekAnimationTime.labelString: Seek animation time
+*IvFormPreference1.IvSeconds.labelString: seconds
+*IvFormPreference1.IvSeekTo.labelString: Seek to:
+*IvFormPreference1.IvPoint.labelString: point
+*IvFormPreference1.IvObject.labelString: object
+*IvFormPreference2.IvSeekDistance.labelString: Seek distance:
+*IvFormPreference2.IvPercentage.labelString: percentage
+*IvFormPreference2.IvAbsolute.labelString: absolute
+*IvZoomForm.IvCameraZoom.labelString: Camera zoom
+*IvZoomForm.IvZoomSliderRangesFrom.labelString: Zoom slider ranges from:
+*IvZoomForm.IvTo.labelString: to:
+*IvZoomForm.IvZoomSlider.labelString: Zoom slider
+*IvZoomForm.IvZoomField.labelString: Zoom field
+*IvZoomForm.IvZoomFrom.labelString: Zoom from
+*IvZoomForm.IvZoomTo.labelString: Zoom to
+*IvFormPreference3.IvAutoClippingPlanes.labelString: Auto clipping planes 
+*IvFormPreference4.IvStereoViewing.labelString: Stereo Viewing
+*IvFormPreference6.IvNearPlane.labelString: near plane
+*IvFormPreference6.IvFarPlane.labelString: far plane
+*IvStereoThumbForm.IvCameraRotation.labelString: Camera rotation
+
+!!------------------------------------------------
+!! Preferences for Examiner Viewer
+!!------------------------------------------------
+*IvFormExaminer1.IvEnableSpinAnimation.labelString: Enable spin animation
+*IvFormExaminer1.IvShowPointOfRotationAxes.labelString: Show point of rotation axes
+*IvFormExaminer1.IvAxesSize.labelString: axes size
+*IvFormExaminer1.IvPixels.labelString: pixels
+!!------------------------------------------------
+!! Decorations for Examiner Viewer !!
+!!------------------------------------------------
+*IvExamTitle.labelString: Examiner Viewer
+*IvExamPrefTitle.labelString: Examiner Viewer Preference Sheet
+*IvExamPopupTitle.labelString: Examiner Viewer
+*IvExamIconTitle.labelString: Examiner Viewer
+*IvExamRotx.labelString: Rotx
+*IvExamRoty.labelString: Roty
+*IvExamZoom.labelString: Zoom
+*IvExamDolly.labelString: Dolly
+!!------------------------------------------------
+!! Decorations for Plane Viewer !!
+!!------------------------------------------------
+*IvPlaneTitle.labelString: Plane Viewer
+*IvPlanePrefTitle.labelString: Plane Viewer Preference Sheet
+*IvPlanePopupTitle.labelString: Plane Viewer
+*IvPlaneIconTitle.labelString: Plane Viewer
+*IvPlaneTransx.labelString: transX
+*IvPlaneTransy.labelString: transY
+*IvPlaneZoom.labelString: Zoom
+*IvPlaneDolly.labelString: Dolly
+!!------------------------------------------------
+!! Decorations for Fly Viewer !!
+!!------------------------------------------------
+*IvFlyTitle.labelString: Fly Viewer
+*IvFlyPrefTitle.labelString: Fly Viewer Preference Sheet
+*IvFlyPopupTitle.labelString: Fly Viewer
+*IvFlyIconTitle.labelString: Fly Viewer
+!! Same for Walk Viewer !!
+*IvFlyWalkRotate.labelString: Rotate
+!! Same for Walk Viewer !!
+*IvFlyWalkTilt.labelString: Tilt
+!! Same for Walk Viewer !!
+*IvFlyWalkDolly.labelString: Dolly
+!!------------------------------------------------
+!! Preferences for Fly Viewer !!
+!!------------------------------------------------
+*FlyPreference.FlyingSpeed.labelString: Flying speed:
+*FlyPreference.Increase.labelString: increase
+*FlyPreference.Decrease.labelString: decrease 
+!!------------------------------------------------
+!! Decorations for Walk Viewer !!
+!!------------------------------------------------
+*IvWalkTitle.labelString: Walk Viewer
+*IvWalkPrefTitle.labelString: Walk Viewer Preference Sheet
+*IvWalkPopupTitle.labelString: Walk Viewer
+*IvWalkIconTitle.labelString: Walk Viewer
+*IvLeftTrimForm.IvH.labelString: H
+!!------------------------------------------------
+!! Preferences for Walk Viewer !!
+!!------------------------------------------------
+*IvFormPreference5.IvViewerSpeed.labelString: Viewer speed
+*IvFormPreference5.IvIncrease.labelString: increase
+*IvFormPreference5.IvDecrease.labelString: decrease
+!!------------------------------------------------
+!!		EDITORS
+!!------------------------------------------------
+!! Drectional Light Editor !!
+!!------------------------------------------------	
+*IvDirectLightTitle.labelString: Dir Light Editor
+*IvDirectLightIconTitle.labelString: Dir Light Ed
+*IvDirectLightInten.labelString: Inten
+*IvDirectLightColorEditor.labelString: Directional Light Color
+*IvDLMenuBar.IvEdit.labelString: Edit
+*IvDLMenuBar*IvControlPullDown*IvColorEditor.labelString: Color Editor
+*IvDLMenuBar*IvControlPullDown*IvCopy.labelString: Copy
+*IvDLMenuBar*IvControlPullDown*IvPaste.labelString: Paste
+*IvDLMenuBar*IvControlPullDown*IvHelp.labelString: Help
+!!------------------------------------------------
+!! Color Editor !!
+!!------------------------------------------------
+*IvColorEditorTitle.labelString: Color Editor
+*IvColorEditorIconTitle.labelString: Color Editor
+*IvColorEditorR.labelString: R
+*IvColorEditorG.labelString: G
+*IvColorEditorB.labelString: B
+*IvColorEditorH.labelString: H
+*IvColorEditorS.labelString: S
+*IvColorEditorV.labelString: V
+*IvColorEditorRight.labelString: Right
+*IvColorEditorSwitch.labelString: Switch
+*IvColorEditorCont.labelString: Continuous
+*IvColorEditorManu.labelString: Manual
+*IvColorEditorWysi.labelString: WYSIWYG
+*IvColorEditorCopy.labelString: Copy
+*IvColorEditorPaste.labelString: Paste
+*IvColorEditorHelp.labelString: Help
+*IvColorEditorNone.labelString: None
+*IvColorEditorValue.labelString: Value
+*IvColorEditorRGB.labelString: RGB
+*IvColorEditorHSV.labelString: HSV
+*IvColorEditorRGBV.labelString: RGB V
+*IvColorEditorRGBHSV.labelString: RGB HSV
+
+*IvCEMenuBar.IvEdit.labelString: Edit
+*IvCEMenuBar.IvSliders.labelString: Sliders
+*IvButtonsForm.IvAccept.labelString: Accept
+!!------------------------------------------------
+!! Material Editor !!
+!!------------------------------------------------
+*IvMaterialEditorTitle.labelString: Material Editor
+*IvMaterialEditorIconTitle.labelString: Mat Editor
+*IvMaterialAmbientTitle.labelString: Material Ambient Color
+*IvMaterialDiffuseTitle.labelString: Material Diffuse Color
+*IvMaterialSpecularTitle.labelString: Material Specular Color
+*IvMaterialEmissiveTitle.labelString: -Material Emissive Color
+*IvMaterialEditorMaterial.labelString: Material / 
+*IvMaterialEditorAmb.labelString: Amb / 
+*IvMaterialEditorDiff.labelString: Diff /  
+*IvMaterialEditorSpec.labelString: Spec / 
+*IvMaterialEditorEmis.labelString: Emis / 
+*IvMaterialEditorColor.labelString: Color
+*IvMEMenuBar.IvEdit.labelString: Edit
+*IvMEMenuBar*IvEditPullDown.IvMaterialList.labelString: Material List
+*IvMEMenuBar*IvEditPullDown.IvContinuous.labelString: Continuous
+*IvMEMenuBar*IvEditPullDown.IvManual.labelString: Manual
+*IvMEMenuBar*IvEditPullDown.IvCopy.labelString: Copy
+*IvMEMenuBar*IvEditPullDown.IvPaste.labelString: Paste
+*IvMEMenuBar*IvEditPullDown.IvHelp.labelString: Help
+*IvControls.IvEditColor.labelString: Edit Color
+*IvsliderForm.IvtextForm.IvAmb.labelString: Amb:
+*IvsliderForm.IvtextForm.IvDiff.labelString: Diff
+*IvsliderForm.IvtextForm.IvSpec.labelString: Spec
+*IvsliderForm.IvtextForm.IvEmis.labelString: Emis
+*IvsliderForm.IvtextForm.IvShininess.labelString: Shininess
+*IvsliderForm.IvtextForm.IvTransp.labelString: Transp:
+*IvMETop.IvAccept.labelString: Accept
+!!------------------------------------------------
+!! Material List !!
+!!------------------------------------------------
+*IvMaterialListTitle.labelString: Material List
+*IvMaterialListeIconTitle.labelString: Mat List
+*IvMLMenuBar*IvPalettes.labelString: Palettes
+!!------------------------------------------------
+!! Print Dialog
+!!------------------------------------------------
+*IvPrintDialTitle.labelString: Print Dialog 
+*IvPrintDialIconTitle.labelString: -rint Dialog
+*IvPrintDialPrinter.labelString: Printer:
+*IvPrintDialPageOut.labelString: Page Output:
+*IvPrintDialToPrinter.labelString: To Printer
+*IvPrintDialToFile.labelString: To File
+*IvPrintDialQuit.labelString: Quit
+*IvPrintDialPrint.labelString: Print
+*IvPrintDialMessage.labelString: Message:
+*IvPrintDialFileFormat.labelString: File Format:
+*IvPrintDialPostScript.labelString: PostScript
+*IvPrintDialRGB.labelString: RGB
+*IvPrintDialPrintQuality.labelString: Print Quality:
+*IvPrintDialHigh.labelString: High
+*IvPrintDialDraft.labelString: Draft
+*IvPrintDialPageFormat.labelString: Page Format
+*IvPrintDialPortrait.labelString: Portrait
+*IvPrintDialLandscape.labelString: Landscape
+*IvPrintDialPrintSize.labelString: Print Size (inches):
+*IvPrintDialFileName.labelString: File Name:
+*IvPrintDialResolution.labelString: Resolution
+*IvPrintDialBy.labelString: by
+*IvPrintDialDpi.labelString: DPI:
+*IvPrintDialMess1.labelString: Printing in progress...
+*IvPrintDialMess2.labelString: ERROR:  Empty database.
+*IvPrintDialMess3.labelString: ERROR:  Exceeds 
+*IvPrintDialMess4.labelString: ERROR:  Could not execute print.
+*IvPrintDialMess5.labelString: ERROR:  Could not execute print.
+*IvPrintDialMess6.labelString: ERROR:  No printer.
+*IvPrintDialMess7.labelString: ERROR:  Couldn't open 
+*IvPrintDialMess8.labelString: ERROR:  No file name.
+*IvPrintDialMess9.labelString: ERROR:   Could not open file.
+*IvPrintDialMess10.labelString: ERROR:  Could not get data.
+*IvPrintDialMess11.labelString: ERROR:  Could not get data.
+*IvPrintDialMess12.labelString: Printing completed.
+
+!!------------------------------------------------
+!! Xt Component ( For Light and Material Sliders Set )
+!!------------------------------------------------
+*IvXtComponentTitle.labelString: Xt Component
+*IvTGSXtComponentTitle.labelString: TGS: Xt Component
+!!------------------------------------------------
+!! For All Sliders
+!!------------------------------------------------
+*IvSlidersMin.labelString: min
+*IvSlidersMax.labelString: max
+*IvSlidersStyle.labelString: style
+!!------------------------------------------------
+!! Light Slider Set 
+!!------------------------------------------------
+*IvLightSliderColor.labelString: COLOR
+*IvLightSliderRed.labelString: Red
+*IvLightSliderGreen.labelString: Green
+*IvLightSliderBlue.labelString: Blue
+*IvLightSliderIntensity1.labelString: INTENSITY
+*IvLightSliderIntensity2.labelString: Intensity
+!!------------------------------------------------
+!! Material Slider Set
+!!------------------------------------------------
+*IvMaterialSliderAmbient.labelString: AMBIENT
+*IvMaterialSliderAmbientRed.labelString: Ambient Red
+*IvMaterialSliderAmbientGreen.labelString: Ambient Green
+*IvMaterialSliderAmbientBleu.labelString: Ambient Blue
+*IvMaterialSliderDiffuse.labelString: DIFFUSE
+*IvMaterialSliderDiffuseRed.labelString: Diffuse Red
+*IvMaterialSliderDiffuseGreen.labelString:  Diffuse Green
+*IvMaterialSliderDiffuseBleu.labelString: Diffuse Blue
+*IvMaterialSliderSpecular.labelString: SPECULAR
+*IvMaterialSliderSpecularRed.labelString: Specular Red
+*IvMaterialSliderSpecularGreen.labelString: Specular Green
+*IvMaterialSliderSpecularBleu.labelString: Specular Blue
+*IvMaterialSliderEmissive.labelString: EMISSIVE
+*IvMaterialSliderEmissiveRed.labelString: Emissive Red
+*IvMaterialSliderEmissiveGreen.labelString: Emissive Green
+*IvMaterialSliderEmissiveBlue.labelString: Emissive Blue
+*IvMaterialSliderShininess.labelString: SHININESS
+*IvMaterialSliderShininessShininess.labelString: shininess 
+*IvMaterialSliderTransparency.labelString: TRANSPARENCY
+*IvMaterialSliderTransparencyTransparency.labelString: transparency
+!!------------------------------------------------
+!! Transform Slider Set
+!!------------------------------------------------
+*IvTransformSliderTrans.labelString: TRANSLATIONS
+*IvTransformSliderTransX.labelString: X Translation
+*IvTransformSliderTransY.labelString: Y Translation
+*IvTransformSliderTransZ.labelString: Z Translation
+*IvTransformSliderScale.labelString: SCALES
+*IvTransformSliderScaleX.labelString: X Scale
+*IvTransformSliderScaleY.labelString: Y Scale
+*IvTransformSliderScaleZ.labelString: Z Scale
+*IvTransformSliderRotate.labelString: ROTATIONS
+*IvTransformSliderRotateX.labelString: X Rotate
+*IvTransformSliderRotateY.labelString: Y Rotate
+*IvTransformSliderRotateZ.labelString: Z Rotate
+*IvTransformSliderScaleOrient.labelString: SCALE ORIENTATION
+*IvTransformSliderScaleOrientX.labelString: X Rotate
+*IvTransformSliderScaleOrientY.labelString: Y Rotate
+*IvTransformSliderScaleOrientZ.labelString: Z Rotate
+*IvTransformSliderCenter.labelString: CENTER
+*IvTransformSliderCenterX.labelString: X Center
+*IvTransformSliderCenterY.labelString: Y Center
+*IvTransformSliderCenterZ.labelString: Z Center
+*IvTransformSliderTitle.labelString: Transform Editor
+*IvTransformSliderIconTitle.labelString: Xf Editor
+
+
+!!------------------- THE END --------------------

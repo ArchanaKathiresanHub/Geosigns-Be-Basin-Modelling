@@ -1,0 +1,92 @@
+#include "PermeabilityCalculator.h"
+
+#include "GeoPhysicsFormation.h"
+#include "GeoPhysicalConstants.h"
+#include "CompoundLithology.h"
+#include "CompoundProperty.h"
+
+
+DataAccess::Mining::PermeabilityCalculator::PermeabilityCalculator ( const DomainPropertyCollection*  collection,
+                                                                     const Interface::Snapshot* snapshot,
+                                                                     const Interface::Property* property,
+                                                                     const bool                 normalPermeability ) :
+   DomainFormationProperty ( collection, snapshot, property ),
+   m_normalPermeability ( normalPermeability )
+{
+   m_ves = 0;
+   m_maxVes = 0;
+   m_initialised = false;
+}
+
+bool DataAccess::Mining::PermeabilityCalculator::initialise () {
+
+   if ( not m_initialised ) {
+      m_ves = getPropertyCollection ()->getDomainProperty ( "Ves" );
+      m_maxVes = getPropertyCollection ()->getDomainProperty ( "MaxVes" );
+
+      if ( m_ves != 0 and m_maxVes != 0 ) {
+         m_initialised = true;
+      } else {
+         m_initialised = false;
+      }
+
+   }
+
+   return m_initialised;
+}
+
+double DataAccess::Mining::PermeabilityCalculator::compute ( const ElementPosition& position ) const {
+
+   if ( not m_initialised or not position.isValidElement ()) {
+      return Interface::DefaultUndefinedMapValue;
+   }
+
+   GeoPhysics::CompoundProperty porosity;
+   double ves;
+   double maxVes;
+   double permeabilityN;
+   double permeabilityP;
+
+   ves = m_ves->compute ( position );
+   maxVes = m_maxVes->compute ( position );
+
+   if ( ves != Interface::DefaultUndefinedMapValue and maxVes != Interface::DefaultUndefinedMapValue ) {
+
+      const Interface::Formation* formation = position.getFormation ();
+      const GeoPhysics::Formation* geoForm = dynamic_cast<const GeoPhysics::Formation*>( formation );
+      const GeoPhysics::CompoundLithology* lithology = geoForm->getCompoundLithology ( position.getI (), position.getJ ());
+
+      lithology->getPorosity ( ves, maxVes, false, 1.0, porosity );
+      lithology->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityN, permeabilityP );
+
+      permeabilityN *= GeoPhysics::M2TOMILLIDARCY;
+      permeabilityP *= GeoPhysics::M2TOMILLIDARCY;
+
+#if 0
+      permeabilityN = std::log10 ( permeabilityN );
+      permeabilityH = std::log10 ( permeabilityH );
+#endif
+
+   } else {
+      permeabilityN = Interface::DefaultUndefinedMapValue;
+      permeabilityP = Interface::DefaultUndefinedMapValue;
+   }
+
+   if ( m_normalPermeability ) {
+      return permeabilityN;
+   } else {
+      return permeabilityP;
+   }
+
+}
+
+DataAccess::Mining::PermeabilityCalculatorAllocator::PermeabilityCalculatorAllocator ( const bool normalPermeability ) :
+   m_normalPermeability ( normalPermeability )
+{
+}
+
+DataAccess::Mining::DomainProperty* DataAccess::Mining::PermeabilityCalculatorAllocator::allocate ( const DomainPropertyCollection*  collection,
+                                                                                                    const Interface::Snapshot* snapshot,
+                                                                                                    const Interface::Property* property ) const {
+   return new PermeabilityCalculator ( collection, snapshot, property, m_normalPermeability );
+}

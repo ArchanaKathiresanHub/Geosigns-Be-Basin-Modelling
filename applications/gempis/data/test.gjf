@@ -1,0 +1,13 @@
+# Gempis Job File
+PROJECT "Test application"
+REQUIREMENTS "fastreq -v2006.90 Acquifer.project3d"
+# LOCAL "xxx"
+# LOCAL "find /"
+# PARALLEL "fastcbm -project xxx.project3d -temperature" "temperature Calculation"
+LOCAL "echo next"
+# PARALLEL "fastcbm -v2006.90 -project AMT_BASE_CASE_2006_ALL_SANDS.project3d -temperature" "temperature Calculation"
+PARALLEL "fastcbm -v2006.90 -project Acquifer.project3d -temperature" "temperature Calculation"
+# PARALLEL "fastcbm -v2006.90 -project xxx1.project3d -temperature" "temperature Calculation"
+LOCAL "ls *.gjf"
+PARALLEL "fastcbm -v2006.90 -project Acquifer2.project3d -temperature" "temperature Calculation"
+PARALLEL "fastcbm -v2006.90 -project Acquifer3.project3d -temperature" "temperature Calculation"

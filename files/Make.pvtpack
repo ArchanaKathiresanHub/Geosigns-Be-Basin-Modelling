@@ -1,0 +1,17 @@
+# Make.pvtpack - contains definitions for PvtPack 3rd party library
+#
+#
+
+#
+# Definitions for the base directory location for OPTIMIZED or DEBUG 
+#   compiled include files and libraries
+#
+PVTPACK_BASE = $(PVTPACK_HOME)/OPTIMIZED
+
+#
+# PVTPACK definitions
+#
+PVTPACK_INCLUDE = $(PVTPACK_BASE)/include
+PVTPACK_LIB     = $(PVTPACK_BASE)/lib
+
+# End 

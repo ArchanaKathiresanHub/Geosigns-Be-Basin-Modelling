@@ -1,0 +1,11 @@
+
+Title to, ownership of and copyright of this software is vested in Shell 
+International Exploration and Production B.V. All rights reserved. 
+Neither the whole nor any part of this software may be reproduced, copied, 
+stored in any retrieval system or transmitted in any form or by any means 
+without prior written consent of the copyright owner.
+This software and the information and data it contains, is confidential. 
+Neither the whole nor any part of the software and the data and information 
+it contains may be disclosed to any third party without the prior written 
+consent of Shell International Exploration and Production B.V., The Hague, 
+The Netherlands.

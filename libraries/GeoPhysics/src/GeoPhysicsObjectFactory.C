@@ -1,0 +1,95 @@
+#include "GeoPhysicsObjectFactory.h"
+
+#include "GeoPhysicsFluidType.h"
+#include "GeoPhysicsFormation.h"
+
+#include "GeoPhysicsCrustFormation.h"
+#include "GeoPhysicsMantleFormation.h"
+#include "GeoPhysicsSourceRock.h"
+
+#include "Interface/CrustFormation.h"
+#include "Interface/MantleFormation.h"
+
+#include "database.h"
+#include "cauldronschemafuncs.h"
+
+#include "BasementLithology.h"
+
+using namespace DataAccess;
+
+Interface::ProjectHandle * GeoPhysics::ObjectFactory::produceProjectHandle ( database::Database * database,
+                                                                             const string & name,
+                                                                             const string & accessMode ) {
+   return new GeoPhysics::ProjectHandle ( database, name, accessMode );
+}
+
+
+Interface::FluidType* GeoPhysics::ObjectFactory::produceFluidType ( Interface::ProjectHandle* projectHandle,
+                                                                    database::Record*         record ) {
+
+   return new GeoPhysics::FluidType ( projectHandle, record );
+}
+
+DataAccess::Interface::Formation* GeoPhysics::ObjectFactory::produceFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+                                                                                database::Record*                     record ) {
+   return new GeoPhysics::Formation ( projectHandle, record );
+}
+
+DataAccess::Interface::CrustFormation* GeoPhysics::ObjectFactory::produceCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+                                                                                          database::Record*                     record ) {
+
+
+   GeoPhysics::GeoPhysicsCrustFormation * result = new GeoPhysics::GeoPhysicsCrustFormation ( projectHandle, record );
+
+   return result;
+}
+
+DataAccess::Interface::MantleFormation* GeoPhysics::ObjectFactory::produceMantleFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+                                                                                            database::Record*                     record ) {
+
+
+   GeoPhysics::GeoPhysicsMantleFormation * result = new GeoPhysics::GeoPhysicsMantleFormation ( projectHandle, record );
+
+   return result;
+}
+
+DataAccess::Interface::SourceRock* GeoPhysics::ObjectFactory::produceSourceRock ( DataAccess::Interface::ProjectHandle* projectHandle,
+                                                                                  database::Record*                     record ) {
+   
+   GeoPhysics::GeoPhysicsSourceRock * result = new GeoPhysics::GeoPhysicsSourceRock ( projectHandle, record );
+
+   return result;
+}
+
+Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( Interface::ProjectHandle * projectHandle, 
+                                                                    database::Record *         record ) {
+
+   const string lithoname = database::getLithotype (record);
+   if(( projectHandle->getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ) &&
+      ( lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname  == "ALC Basalt" )) {
+      return new BasementLithology( projectHandle, record );
+   } else {
+      return new SimpleLithology ( projectHandle, record );
+   }
+}
+
+Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( const SimpleLithology* litho,
+                                                                    const std::string&     newName ) {
+   return new SimpleLithology ( litho, newName );
+}
+
+Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( const SimpleLithology*            litho,
+                                                                    const std::string&                newName,
+                                                                    const double                      permeabilityAnisotropy,
+                                                                    const ibs::PiecewiseInterpolator& permeabilities ) {
+
+   return new SimpleLithology ( litho, newName, permeabilityAnisotropy, permeabilities );
+}
+
+GeoPhysics::CompoundLithology* GeoPhysics::ObjectFactory::produceCompoundLithology ( GeoPhysics::ProjectHandle* projectHandle ) {
+   return new CompoundLithology ( projectHandle );
+}
+
+GeoPhysics::FracturePressureCalculator* GeoPhysics::ObjectFactory::produceFracturePressureCalculator ( GeoPhysics::ProjectHandle* projectHandle ) {
+   return new FracturePressureCalculator ( projectHandle );
+}

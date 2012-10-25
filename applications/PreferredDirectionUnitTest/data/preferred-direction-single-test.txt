@@ -1,0 +1,10 @@
+
+ theta 0.314159  18
+
+ predicted direction :        0.565321               0        0.824871  
+ computed direction  :        0.565321               0       -0.824871  
+
+ ratio of directions |  angle (rad) | angle (deg)
+ --------------------+--------------+------------
+      0.685344       |  0.600822    |    34.4246
+

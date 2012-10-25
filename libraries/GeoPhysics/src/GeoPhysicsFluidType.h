@@ -1,0 +1,190 @@
+#ifndef _GEOPHYSICS__FLUID_TYPE_H_
+#define _GEOPHYSICS__FLUID_TYPE_H_
+
+#include "IBSinterpolator.h"
+#include "IBSinterpolator2d.h"
+
+#include "database.h"
+
+#include "Interface/FluidType.h"
+#include "Interface/Interface.h"
+
+
+namespace DataAccess
+{
+   namespace Interface
+   {
+      class ProjectHandle;
+   }
+}
+
+namespace GeoPhysics {
+
+   class FluidType : public DataAccess::Interface::FluidType {
+
+   public :
+
+      /// \brief Make the density function visible.
+      using DataAccess::Interface::FluidType::density;
+
+
+      /// \var DefaultHydrostaticPressureGradient
+      /// Assumed pressure gradient used when computing the simple fluid density.
+      /// Units are MPa/km.
+      static const double DefaultHydrostaticPressureGradient = 10.0; 
+
+      /// \var StandardSurfaceTemperature
+      /// Assumed surface temperature when computing the simple fluid density.
+      /// Units are Celsius.
+      static const double StandardSurfaceTemperature = 10.0;
+
+      /// \var DefaultStandardDepth
+      /// Assumed 'standard' depth at which the parameters for the fluid density 
+      /// are evaluated.
+      /// Units are Metres.
+      static const double DefaultStandardDepth = 2000.0;
+
+      /// \var DefaultThermalConductivityCorrectionTemperature
+      /// The temperature at the thermal conductivity tables are corrected.
+      /// Units are Celsius.
+      static const double DefaultThermalConductivityCorrectionTemperature = 20.0;
+
+      /// Constructor.
+      FluidType ( DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record );
+
+      /// Destructor.
+      ~FluidType ();
+
+      /// Load the fluid-property tables from the project-file.
+      ///
+      /// These are:
+      ///   - heat-capacity;
+      ///   - thermal-conductivity;
+      ///   - density; and 
+      ///   - density-x-heat-capacity (this one is not directly in the project-file).
+      void loadPropertyTables ();
+
+      /// return the simple density.
+      ///
+      /// This may be different to what appears in the fluid-io table.
+      double getConstantDensity () const;
+
+      /// Over-ride the project file value and set the fluid-density function to constant.
+      void setDensityToConstant ();
+
+//    /// return the simple seismic velocity.
+//    double getConstantSeismicVelocity () const;
+
+#if 0
+   /// return the simple density, possibly changed from what appears in the fluid-io table.
+   double density () const;
+#endif
+
+      /// Compute the fluid density.
+      ///
+      /// If the density calculation model is 'constant' the result here may be different from that in the fluid-io table.
+      double density ( const double temperature, const double pressure ) const;
+
+      /// Compte the fluid density from the density table.
+      double densityFromTable ( const double temperature, const double pressure ) const;
+
+      /// Correct the simple density (density value) of the fluid.
+      ///
+      /// The fluid density that is used in decompaction and some of the hydrostatic temperature 
+      /// calculation is the simple density. This may not be the best choice (the default is 
+      /// 1000 Kg/M^3) this function "corrects" this, and uses the Batzle and Wang density function
+      /// evaluated at the standard depth, with the standard pressure gradient and the
+      /// temperature gradient given in the project3d file.
+      void correctSimpleDensity ( const double standardDepth,
+                                  const double pressureGradient,
+                                  const double surfaceTemperature,
+                                  const double temperatureGradient );
+
+      /// Compute the derivative of the fluid density w.r.t. pressure.
+      double computeDensityDerivativeWRTPressure ( const double temperature, const double pressure ) const;
+
+      /// Compute the derivative of the fluid density w.r.t. temperature.
+      double computeDensityDerivativeWRTTemperature ( const double temperature, const double pressure ) const;
+
+      /// Compute the fluid viscosity.
+      double viscosity ( const double temperature ) const;
+
+      /// Compute the thermal conductivity.
+      double thermalConductivity ( const double temperature ) const;
+
+      /// Compute the heat-capacity.
+      double heatCapacity ( const double temperature, const double pressure ) const;
+
+      /// Compute the density x heat-capacity.
+      double densXheatCapacity ( const double temperature, const double pressure ) const;
+
+      /// Compute the seismic velocity.
+      double seismicVelocity ( const double temperature, const double pressure ) const;
+
+      /// Return the string representation of the fluid-type.
+      void asString ( std::string& str ) const;
+
+      // Should these functions be private?
+      // private :
+
+      /// Compute the seismic velocity using the Batzle and Wang function.
+      double seismicVelocityBatzleWang ( const double temperature, const double pressure ) const;
+
+      /// Compute the density using the Batzle and Wang function.
+      double densityBatzleWang ( const double temperature, const double pressure ) const;
+
+      /// Compute the derivative, of the Batzle and Wang density function, w.r.t. pressure.
+      double computeDensityDerivativeWRTPressureBatzleWang    ( const double temperature, const double pressure ) const;
+
+      /// Compute the derivative, of the Batzle and Wang density function, w.r.t. temperature.
+      double computeDensityDerivativeWRTTemperatureBatzleWang ( const double temperature, const double pressure ) const;
+
+      /// Compute the viscosity using the Batzle and Wang function.
+      // Since the viscosity table interpolator is not used this function should be removed.
+      double viscosityBatzleWang ( const double temperature ) const;
+
+      /// Compute the viscosity using the TemisPack type function.
+      double viscosityTemisPack ( const double temperature ) const;
+
+   private :
+
+      /// The interpolator for the fluid-thermal-conductivity table.
+      ///
+      /// It depends only on temperature.
+      mutable ibs::Interpolator     thermalConductivitytbl;
+
+      /// The interpolator for the fluid-density table.
+      ///
+      /// It depends on both temperature and pressure.
+      mutable ibs::Interpolator2d   densitytbl;
+
+      /// The interpolator for the fluid-heat-capacity table.
+      ///
+      /// It depends on both temperature and pressure.
+      mutable ibs::Interpolator2d   heatCapacitytbl;
+
+      /// The interpolator for the fluid-density-x-heat-capacity table.
+      ///
+      /// It depends on both temperature and pressure. It is computed from the 
+      /// heat-capacity-table and the fluid-density table NOT the fluid-density function.
+      mutable ibs::Interpolator2d   densXheatCapacitytbl;
+
+      /// Which calculation model to use for the seismic velocity.
+      DataAccess::Interface::CalculationModel m_seismicVelocityCalculationModel;
+
+      /// Which calculation model to use for the density.
+      CBMGenerics::waterDensity::FluidDensityModel m_densityCalculationModel;
+
+      double           m_densityVal;
+      double           m_salinity;
+      double           m_seismicVelocityVal;
+
+      /// An optimisation. Pre-compute some terms from the viscosity function.
+      double m_precomputedViscosityTerm1;
+      double m_precomputedViscosityTerm2;
+
+   };
+
+} // end GeoPhysics
+
+#endif // _GEOPHYSICS__FLUID_TYPE_H_

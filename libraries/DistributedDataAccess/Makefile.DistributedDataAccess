@@ -1,0 +1,142 @@
+ROOTDIR = ..
+SRCDIR  = ${ROOTDIR}/src/
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.machine
+CC = $(CXX)
+
+CFLAGS		=  ${PROFILEFLAGS} ${COMPILEFLAGS} ${DEBUGFLAGS} \
+                  -I$(DISTDATAACCESS_INC) \
+                  -I$(DATAACCESS_INC) \
+                  -I$(HDF5_PINCLUDE) \
+		  -I$(PETSC_UTILS_INC) \
+		  -I$(H5_SERIAL_INC) -I$(H5_PARALLEL_INC) \
+		  -I$(PETSC_INCLUDE) $(MPI_INCLUDE) \
+		  -I$(UTILITIES_INC) \
+		  -I$(DATABASE_INC) -I$(CBMGENERICS_INC) -DH5_HAVE_PARALLEL
+
+LIBDIR = ../../../libraries
+
+DISTDATAACCESS_INC = $(LIBDIR)/DistributedDataAccess/src
+
+DATAACCESS_INC = $(LIBDIR)/DataAccess/src
+DATAACCESS_LIB = $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+PETSC_UTILS_INC = $(LIBDIR)/Utilities_Petsc/src
+PETSC_UTILS_LIB = $(LIBDIR)/lib/$(machine)/libUtilities_Petsc.a
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+H5_PARALLEL_INC = $(LIBDIR)/Parallel_Hdf5/src
+H5_PARALLEL_LIB = $(LIBDIR)/lib/$(machine)/libparallelhdf5.a
+
+DATABASE_INC	= $(LIBDIR)/TableIO/src
+DATABASE_LIB    = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB    = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+
+DOXYGENCFG = DistributedDataAccess.cfg
+
+
+LIBOBJECTS = \
+	 DistributedApplicationGlobalOperations.o \
+	 DistributedMapWriter.o \
+	 DistributedGridMap.o \
+	 DistributedGrid.o \
+	 DistributedMessageHandler.o \
+	 DistributedObjectFactory.o \
+	 DistributedProjectHandle.o \
+     GlobalGrid.o \
+		Distributedhdf5funcs.o
+
+LIBSRCS = $(LIBOBJECTS:.o=.C)
+
+
+LIBINCLUDES = \
+	  Interface/DistributedApplicationGlobalOperations.h \
+	  Interface/GlobalGrid.h \
+	  Interface/DistributedMapWriter.h \
+	  Interface/DistributedGrid.h \
+	  Interface/DistributedGridMap.h \
+	  Interface/DistributedMessageHandler.h
+
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+DOXYGEN = doxygen
+
+SHAREDLINKLIB = ../../TableIO/obj.$(machine)/libdatabase.so \
+		$(HDF5LIBS)/libhdf5.so
+
+LINKLIB = ../../TableIO/obj.$(machine)/libdatabase.a \
+	$(HDF5LIBS)/libhdf5$(BITS).a
+
+
+SELECTEDLINKLIB = $(LINKLIB)
+
+SHAREDLIB = libDistributedDataAccess.so
+LIB = libDistributedDataAccess.a
+
+
+SELECTEDLIB = $(SHAREDLIB)
+SELECTEDLIB = $(LIB)
+
+
+vpath %.h ${SRCDIR}:${DISTDATAACCESS_INC}
+
+vpath %.C ${SRCDIR}:${DISTDATAACCESS_INC}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(LIB) $(SHARELIB)
+
+#$(LIBOBJECTS): ../src/array.h
+#
+#../src/array.h: ../../../files/array.h
+#	cd ../src && ln -s ../../../files/array.h array.h
+
+$(LIB): $(LIBOBJECTS)
+	$(AR) $(LIB) $(LIBOBJECTS)
+
+$(SHAREDLIB): $(LIB) Makefile
+	$(SLAR) $(SHAREDLIB) $(LIBOBJECTS) $(DSOLINKS) $(SELECTEDLINKLIB) $(DSOLIBS)
+
+clean:
+	rm -rf $(LIB) $(SHAREDLIB) $(LIBOBJECTS) \
+	core ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(LIBOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.DistributedDataAccess -Y $(INCLUDEDIRS) $(LIBOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE THIS LINE
+
+GlobalGrid.o: Interface/GlobalGrid.h
+DistributedMapWriter.o: Interface/DistributedMapWriter.h
+DistributedMapWriter.o: Interface/DistributedGrid.h Interface/GlobalGrid.h
+DistributedMapWriter.o: Interface/DistributedGridMap.h
+DistributedGridMap.o: Interface/DistributedGridMap.h
+DistributedGridMap.o: Interface/DistributedGrid.h Interface/GlobalGrid.h
+DistributedGrid.o: Interface/DistributedGrid.h Interface/GlobalGrid.h
+DistributedObjectFactory.o: Interface/DistributedGrid.h
+DistributedObjectFactory.o: Interface/GlobalGrid.h
+DistributedObjectFactory.o: Interface/DistributedGridMap.h
+DistributedObjectFactory.o: Interface/DistributedMapWriter.h
+DistributedProjectHandle.o: Interface/DistributedGridMap.h
+DistributedProjectHandle.o: Interface/DistributedGrid.h
+DistributedProjectHandle.o: Interface/GlobalGrid.h

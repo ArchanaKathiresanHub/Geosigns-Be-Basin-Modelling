@@ -1,0 +1,72 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+include $(FILE_BASE)/Make.libraries
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = sm.cfg
+
+ROOTDIR		= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB	= $(LIBDIR)/lib/$(machine)/libutilities.a
+
+LINEARALGEBRA_INC	= $(LIBDIR)/LinearAlgebra/src
+LINEARALGEBRA_LIB	= $(LIBDIR)/lib/$(machine)/libLinearAlgebra.a
+
+INTERPOLATION_INC	= $(LIBDIR)/Interpolation/src
+INTERPOLATION_LIB	= $(LIBDIR)/lib/$(machine)/libInterpolation.a
+
+THREADUTILITIES_INC	= $(LIBDIR)/ThreadUtilities/src
+THREADUTILITIES_LIB	= $(LIBDIR)/lib/$(machine)/libThreadUtilities.a
+
+
+EXEOBJECTS	= testInterpolation.o
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(UTILITIES_LIB)\
+		  $(LINEARALGEBRA_LIB) \
+		  $(INTERPOLATION_LIB) \
+		  $(THREADUTILITIES_LIB) \
+		  $(SOCKET_LIB) -lrt -lm $(PTHREADS_LIB)
+
+CFLAGS		= -I/usr/include \
+	-I$(UTILITIES_INC) \
+	-I$(BLASINCPATH) \
+	-I$(UTILITIES_INC) \
+	-I$(THREADUTILITIES_INC) \
+	-I$(LINEARALGEBRA_INC) \
+	-I$(INTERPOLATION_INC)
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = testInterpolation
+
+target: $(EXE) newResults.txt
+	cd ../data && ../obj.Linux64/testInterpolation 10 50 > newResults.txt && diff --brief newResults.txt results.txt
+
+$(EXE): $(EXEOBJECTS) 
+	-$(LCC) $(CFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+	touch newResults.txt
+
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.geomorph -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

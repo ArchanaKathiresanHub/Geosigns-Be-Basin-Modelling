@@ -1,0 +1,7 @@
+OUT_FILE=tempfile
+REF_FILE=verified_211-29-2.lastline
+rm -f ${OUT_FILE}
+./compute 211-29-2 | tail -n 1 > ${OUT_FILE}
+./EosPackDemo < 211-29-2.in | tail -n 1 >> ${OUT_FILE}
+./EosPackDemo < 211-29-2_prescr_gorm.in | tail -n 1 >> ${OUT_FILE}
+diff ${REF_FILE} ${OUT_FILE}

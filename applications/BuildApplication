@@ -1,0 +1,23 @@
+#!/bin/csh
+set application = $1
+
+if ( $2 == "" ) then
+    setenv opt optimized
+else
+    setenv opt $2
+endif
+
+make $application OPT=$opt >& $application.log
+if ( $application == "gempis" ) then
+   foreach gempis_application ($gempis_applications)
+      if ( ! -f $application/bin.${machine}/$gempis_application ) then
+	 exit 1
+      endif
+   end
+else
+   if ( ! -f $application/obj.${machine}/$application ) then
+      exit 1
+   endif
+endif
+exit 0
+

@@ -1,0 +1,83 @@
+ROOTDIR = ..
+LIBDIR = ../../../libraries
+
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.hdf5
+
+SRCDIR  = ${ROOTDIR}/src/
+CURDIR = $(cwd)
+
+ISOSURF_OBJECTS = isosurface.o
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+ISOSURF_ = isosurface
+
+SERIAL_DATA_ACCESS_INC = $(LIBDIR)/SerialDataAccess/src
+SERIAL_DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libSerialDataAccess.a
+
+DATA_ACCESS_INC = $(LIBDIR)/DataAccess/src/
+DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+DATABASE_INC	= $(LIBDIR)/TableIO/src
+DATABASE_LIB    = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB    = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+INCLUDEDIRS = -I$(SERIAL_DATA_ACCESS_INC) \
+														-I$(DATA_ACCESS_INC) \
+														-I$(DATABASE_INC) \
+														-I$(UTILITIES_INC) \
+														-I$(HDF5_SINCLUDE)
+
+LIB = $(DATA_ACCESS_LIB) \
+						$(SERIAL_DATA_ACCESS_LIB) \
+						$(DATA_ACCESS_LIB) \
+						$(DATABASE_LIB) \
+      $(H5_SERIAL_LIB) \
+      $(CBMGENERICS_LIB) \
+      $(UTILITIES_LIB) \
+      $(HDF5_SLIB)/libhdf5.a \
+      -lz -lm -lrt
+
+
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(ISOSURF_)
+
+$(ISOSURF_OBJECTS):
+
+CXXFLAGS += $(INCLUDEDIRS) -DUSEINTERFACE
+
+$(ISOSURF_) : $(ISOSURF_OBJECTS) $(SELECTEDLIB) Makefile
+	$(PURIFY) $(LCC) $(CFLAGS) $(ISOSURF_OBJECTS) $(SELECTEDLIB) $(DLLIB) -o $(ISOSURF_)
+
+clean:
+	rm -rf $(ISOSURF_) $(ISOSURF_OBJECTS) \
+	core test test.out snap.* ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+depend: $(ISOSURF_OBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f ../Makefile.isosurface -Y $(INCLUDEDIRS) $(ISOSURF_OBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

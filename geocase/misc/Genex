@@ -1,0 +1,152 @@
+*Genex*error*background:			black
+*Genex*error*foreground:			white
+
+*Genex*Close*background:			DodgerBlue
+*Genex*Close*foreground:			yellow
+*Genex*Okay*foreground:				yellow
+*Genex*Okay*background:				DodgerBlue
+*Genex*Cancel*foreground:			yellow
+*Genex*Cancel*background:			DodgerBlue
+*Genex*Help*foreground:				yellow
+*Genex*Help*background:				DodgerBlue
+*Genex*Print*foreground:			yellow
+*Genex*Print*background:			DodgerBlue
+*Genex*Apply*foreground:			yellow
+*Genex*Apply*background:			DodgerBlue
+
+*Genex*textfield*background:			grey75
+*Genex*textfield*foreground:			Black
+*Genex*doublefield*background:			grey75
+*Genex*doublefield*foreground:			Black
+*Genex*intfield*background:			grey75
+*Genex*intfield*foreground:			Black
+*Genex*label*fontList:				*helvetica-bold-r-*-120*
+*Genex*scale*fontList:				*helvetica-bold-r-*-120*
+*Genex*label*foreground:			white
+*Genex*optionmenu*fontlist:			*helvetica-bold-r-*-140*
+*Genex*togglebutton*fontList:			helvB10
+
+*Genex*togglebutton*selectColor:		green
+
+
+*Genex*scrolledtext*fontList:			*courier-medium-r-*-*-*-100*
+*Genex*scrolledtext*background:			mediumturquoise
+*Genex*scrolledtext*foreground:			black
+*Genex*list*listSpacing:			0			
+*Genex*list*fontList:				*courier-bold-r-*-120*
+*Genex*list*foreground:				Black
+*Genex*prompt*XmText.background:		white
+
+*Genex*draw*background:				gray65
+
+*Genex*plBackground:				gray64
+*Genex*plOptional:				pink
+
+*Genex*plColor0:				white
+*Genex*plColor1:				black
+*Genex*plColor2:				gray70
+*Genex*plColor3:				gray50
+*Genex*plColor4:				gray30
+*Genex*plColor5:				brown
+*Genex*plColor6:				brown
+*Genex*plColor7:				brown
+*Genex*plColor8:				red
+*Genex*plColor9:				red
+*Genex*plColor10:				red
+*Genex*plColor11:				green
+*Genex*plColor12:				green
+*Genex*plColor13:				green
+*Genex*plColor14:				green
+*Genex*plColor15:				lime green
+*Genex*plColor16:				navy blue
+*Genex*plColor17:				yellow
+*Genex*plColor18:				orange
+*Genex*plColor19:				light sky blue
+*Genex*plColor20:				gray20
+*Genex*plColor21:				gray40
+*Genex*plColor22:				green
+*Genex*plColor23:				red
+*Genex*plColor29:                               green
+*Genex*plColor30:                               yellow
+*Genex*plColor31:				red
+
+*Genex*GtAxisColor:				white
+*Genex*GtAnnotationFont0:			*helvetica-medium-r-*-120*
+*Genex*GtAnnotationFont1:			*helvetica-medium-r-*-120*
+*Genex*GtAnnotationFont2:			*helvetica-medium-r-*-120*
+*Genex*GtAnnotationFont3:			*helvetica-medium-r-*-120*
+*Genex*GtLabelFont:				*helvetica-medium-r-*-120*
+*Genex*GtTitleFont0:				*helvetica-medium-r-*-120*
+*Genex*GtTitleFont1:				*helvetica-medium-r-*-120*
+
+*Genex*XmList*background:			mediumturquoise
+*Genex*XmList*foreground:			Black
+*Genex*XmList*fontlist:				*helvetica-bold-r-*-120*
+*Genex*XmMessageBox*foreground:			White
+
+*Genex*XmFileSelectionBox*foreground:		mediumturquoise
+*Genex*XmFileSelectionBox*XmList*foreground:	Black
+*Genex*XmFileSelectionBox*XmText*background:	mediumturquoise
+*Genex*XmFileSelectionBox*XmText*foreground:	Black
+
+*Genex*XmFileSelectionBox*XmText*fontList:	*helvetica-bold-r-*-120*
+*Genex*XmFileSelectionBox*XmList*fontList:	*helvetica-bold-r-*-120*
+*Genex*XmFileSelectionBox*XmLabel*fontList:	*helvetica-bold-r-*-120*
+*Genex*XmFileSelectionBox*fontList:		*helvetica-bold-r-*-120*
+
+*Genex*XmPushButtonGadget*fontList:		*helvetica-bold-r-*-120*
+
+
+*Genex*XmPushButton*width:			3000
+*Genex*XmPushButton*fontList:			*helvetica-bold-r-*-120*
+*Genex*XmPushButton*foreground: 		White
+*Genex*XmLabel*fontList: 			*helvetica-bold-r-*-120*
+*Genex*XmScale*fontList: 			*helvetica-bold-r-*-120*
+*Genex*XmMessageBox*fontList: 			*helvetica-bold-r-*-120*
+*Genex*XmSelectionBox*fontList:			*helvetica-bold-r-*-120*
+*Genex*XmCascadeButton*fontList:		*helvetica-bold-r-*-120*
+*Genex*XmRowColumn*fontList:			*helvetica-bold-r-*-*-*-120*
+*Genex*XmRowColumn*foreground:			white
+*Genex*XmRowColumn*marginHeight:		1
+*Genex*XmRowColumn*marginWidth:			1
+*Genex*XmRowColumn*marginLeft:			1
+*Genex*XmRowColumn*marginRight:			1
+*Genex*XmRowColumn*marginTop:			1
+*Genex*XmRowColumn*marginBottom:		1
+
+*Genex*XmMENU_OPTION*shadowThickness:		50
+*Genex*XmMENU_OPTION*width:			2000
+
+*Genex*XmText*foreground:			Black
+
+*Genex*menubar*background:			palegreen
+*Genex*menubar*foreground:			black
+*Genex*menubar*fontList:			*helvetica-bold-r-*-140*
+
+*Genex*menuCursor:				hand1
+
+*Genex*XmPulldownMenu*background:		palegreen
+*Genex*XmPulldownMenu*foreground:		black
+*Genex*XmPulldownMenu*fontlist:			*helvetica-bold-r-*-140*
+
+*Genex*foreground:				White
+*Genex*background:				DodgerBlue
+
+*Genex*doublefield*fontList:			*helvetica-bold-r-*-120*
+*Genex*intfield*fontList:			*helvetica-bold-r-*-120*
+*Genex*textfield*fontList:			*helvetica-bold-r-*-120*
+
+*Genex*ApplicationLabel*foreground:		yellow
+*Genex*ApplicationLabel*fontList:		*helvetica-medium-r-*-140*
+
+*Mwm*Genex*clientDecoration:		-menu   -resize -maximize
+*Mwm*Genex*clientFunctions:		-menu   -resize -maximize
+*Mwm*Genex*resizeBorderWidth:		20
+*Mwm*Genex*iconImage:			/usr2/ks420/genex40/data/genex.bm
+*Mwm*Genex*useClientIcon:		False
+*Mwm*Genex*iconImageBackground:		midnightblue
+*Mwm*Genex*iconImageForeground:		white
+
+
+	
+

@@ -1,0 +1,158 @@
+#!/bin/bash
+#
+# resources_SDA - GEMPIS resource definitions for regional users
+#
+# References: See GEMPIS User manual for details.
+#
+# This file is executed in a korn shell to define references.
+# Lines preceeded by a '#' are treated as comments.
+# Not all properties need to be defined.
+# Properties with the same index value describe the same object.
+#
+# Format: <property>[<index>]="<value>"
+#
+# Only index values from 1 to 10 are permitted in the system configuration.
+# Do not use spaces between '=' character.
+# Make sure group definitions use different index values. 
+# User definitions begin at index value 11.
+#
+# Example: res_jobtype[3]="MPICH"
+#
+# Properties:
+# res_name      - (required) Resource name as used in the gempis command.
+# res_jobtype   - (required) Job Type: STANDALONE, LSF, or LSFHPC, or CUSTOM.
+# res_mpiref    - (required) MPI Reference name: refers to an entry in the 
+#	gempis_MPIRef file.
+# res_remote    - Name of remote computer to submit the gempis command.
+# res_request   - Identifier to use when requesting resource information. 
+# res_submit    - Identifier to use when submitting a job.
+# res_prepath   - Prepend directory list to PATH (separate entries using the 
+#	colon character ':' as used in the PATH)
+# res_cluster   - Cluster list: a list of computer names and number of 
+#	processors when Job Type is CUSTOM.
+
+#
+# Undefined resource 11
+#
+res_name[11]="EPDTW-PTH"
+res_jobtype[11]="LSF"
+res_mpiref[11]="MPICH"
+res_remote[11]="pth-n-s01taw pth-n-s02taw"
+res_request[11]="CAULDRON"
+res_submit[11]="-q epdtw_cauldron"
+#res_prepath[11]=""
+#res_cluster[11]=""
+
+#
+# Undefined resource 12
+#
+#res_name[12]=""
+#res_jobtype[12]=""
+#res_mpiref[12]=""
+#res_remote[12]=""
+#res_request[12]=""
+#res_submit[12]=""
+#res_prepath[12]=""
+#res_cluster[12]=""
+
+#
+# Undefined resource 13
+#
+#res_name[13]=""
+#res_jobtype[13]=""
+#res_mpiref[13]=""
+#res_remote[13]=""
+#res_request[13]=""
+#res_submit[13]=""
+#res_prepath[13]=""
+#res_cluster[13]=""
+
+#
+# Undefined resource 14
+#
+#res_name[14]=""
+#res_jobtype[14]=""
+#res_mpiref[14]=""
+#res_remote[14]=""
+#res_request[14]=""
+#res_submit[14]=""
+#res_prepath[14]=""
+#res_cluster[14]=""
+
+#
+# Undefined resource 15
+#
+#res_name[15]=""
+#res_jobtype[15]=""
+#res_mpiref[15]=""
+#res_remote[15]=""
+#res_request[15]=""
+#res_submit[15]=""
+#res_prepath[15]=""
+#res_cluster[15]=""
+
+#
+# Undefined resource 16
+#
+#res_name[16]=""
+#res_jobtype[16]=""
+#res_mpiref[16]=""
+#res_remote[16]=""
+#res_request[16]=""
+#res_submit[16]=""
+#res_prepath[16]=""
+#res_cluster[16]=""
+
+#
+# Undefined resource 17
+#
+#res_name[17]=""
+#res_jobtype[17]=""
+#res_mpiref[17]=""
+#res_remote[17]=""
+#res_request1[7]=""
+#res_submit[17]=""
+#res_prepath[17]=""
+#res_cluster[17]=""
+
+#
+# Undefined resource 18
+#
+#res_name[18]=""
+#res_jobtype[18]=""
+#res_mpiref[18]=""
+#res_remote[18]=""
+#res_request[18]=""
+#res_submit[18]=""
+#res_prepath[18]=""
+#res_cluster[18]=""
+
+#
+# Undefined resource 19
+#
+#res_name[19]=""
+#res_jobtype[19]=""
+#res_mpiref[19]=""
+#res_remote[19]=""
+#res_request[19]=""
+#res_submit[19]=""
+#res_prepath[19]=""
+#res_cluster[19]=""
+
+#
+# Undefined resource 20
+#
+#res_name[20]=""
+#res_jobtype[20]=""
+#res_mpiref[20]=""
+#res_remote[20]=""
+#res_request[20]=""
+#res_submit[20]=""
+#res_prepath[20]=""
+#res_cluster[20]=""
+
+#
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End scripty

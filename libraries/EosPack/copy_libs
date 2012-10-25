@@ -1,0 +1,41 @@
+#!/apps/oss/bin/bash
+LIB=libEosPack.a
+
+for PLATFORM in Linux64 Silicon64 SunOS64
+do
+	echo "cd obj.${PLATFORM}"
+	cd obj.${PLATFORM}
+
+	if [ -f optimizedobjects ] 
+	then
+		OPT_FLG=optimized
+	elif [ -f debugobjects ]
+   then
+		OPT_FLG=debug
+	fi
+
+	cp ${LIB} ~/EosPack/${PLATFORM}/$OPT_FLG
+	echo "cp ${LIB} ~/EosPack/${PLATFORM}/$OPT_FLG"
+	cd ..
+	echo "cd .."
+	echo
+done 
+
+cd src
+echo "cd src"
+for SRC_FILE in  EosCauldron.C  EosPack.C  EosPvtModel.C  Parse.C  polynomials.C EosCauldron.h  EosPack.h  EosPvtModel.h  Parse.h  polynomials.h
+do
+	cp ${SRC_FILE} ~/EosPack/src
+	echo "cp ${SRC_FILE} ~/EosPack/src"
+done
+cd ..
+echo "cd .."
+echo
+
+cp Makefile.EosPack ~/EosPack
+echo "cp Makefile.EosPack ~/EosPack"
+echo
+
+cp ../../applications/EosPackDemo/data/PVT_properties_v4.0_limitedGorm.cfg ~/EosPack/PVT_properties.cfg
+echo "cp ../../applications/EosPackDemo/data/PVT_properties_v4.0_limitedGorm.cfg ~/EosPack/PVT_properties.cfg"
+

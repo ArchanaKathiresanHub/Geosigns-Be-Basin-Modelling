@@ -1,0 +1,22 @@
+23
+
+                   Quick-look Steady-state Calculation
+                   ***********************************
+
+ This option gives the user the possiblity to quickly run a LOPATIN
+ program within PREGEO on the entered burial curve, based on the steady-
+ state solution to the heat diffusion equation. The calculation can be
+ based on one of the four options:
+ 
+   - Constant temperature gradient with time
+   - Variable temperature gradient with time
+   - Constant heatflow with time
+   - Variable heatflow with time.
+ 
+ In all these options temperature gradient and heatflow are constant with
+ depth.
+
+ VR equivalents are computed with the Hood calibration AND with the TTM
+ method.
+ 
+ The displayed results are stored as .LIS files.
