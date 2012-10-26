@@ -15,7 +15,7 @@ fi
 echo "- Creating new workspace $WORKSPACE"
 tf workspace -noprompt -new -collection:$COLLECTION $WORKSPACE -comment:"RegressionTestBench"
 echo "- Mapping workspace $WORKSPACE to folder $ROOTDIRECTORY"
-tf workfold  -noprompt -map -collection:$COLLECTION -workspace:$WORKSPACE \$/Basin\ Modeling/Tests/RegressionTestBench $ROOTDIRECTORY
+tf workfold  -noprompt -map -collection:$COLLECTION -workspace:$WORKSPACE \$/Basin\ Modeling/IBS/Tests/RegressionTestBench $ROOTDIRECTORY
 
 # creating directory to hold the scripts
 echo "- (Re-)creating work folder $ROOTDIRECTORY"
