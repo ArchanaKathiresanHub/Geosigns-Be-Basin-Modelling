@@ -13,7 +13,6 @@ bm_include_libraries(
 )
 
 include_directories(
-	src
 	${BLAS_INCLUDE_DIRS}
 )
 

@@ -16,7 +16,8 @@ option( BM_BUILD_COMPLEMENTARY_APPS "Also build complementary apps" ON )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
-option( BM_BUILD_DOCS "Build documentation" OFF)
+option( BM_BUILD_DOCS "Build documentation" OFF )
+option( BM_BUILD_REGRESSION_TESTS "Build regression tests" OFF )
 
 option( BM_BUILD_CBMGENERICS_STATIC "Build CBMGENERICS library STATIC" ON )
 option( BM_BUILD_EOSPACK_STATIC "Build EOSPACK library STATIC" ON )
@@ -46,6 +47,10 @@ set(BM_VERSION_STRING "v${BM_VERSION_NUMBER}${BM_VERSION_TAG}")
 
 if(NOT CMAKE_BUILD_TYPE)
 	set (CMAKE_BUILD_TYPE Release)
+endif()
+
+if(BM_BUILD_REGRESSION_TESTS)
+	enable_testing()
 endif()
 
 include(files/PredefinedVariables.cmake)
@@ -109,10 +114,11 @@ if (BM_PARALLEL)
 	find_package(MPI REQUIRED)
 	# Note: We only need C bindings. The C++ bindings sometimes give trouble
 	# because of SEEK_SET, etc... already being defined in stdio.h or iostream
-	add_definitions(-DMPICH_SKIP_MPICXX)
+	# add_definitions(-DMPICH_SKIP_MPICXX)
 	if (BM_USE_OWN_MPICH_LOCK)
 		add_subdirectory(libraries/mpich2_lock)
-		list(INSERT MPI_C_LIBRARIES 0 "mpich2_lock")
+		set(BM_MPI_LOCK_LIBRARIES)
+		list(APPEND BM_MPI_LOCK_LIBRARIES "-Wl,--whole-archive" mpich2_lock "-Wl,--no-whole-archive")
 	endif(BM_USE_OWN_MPICH_LOCK)
 endif()
 
@@ -224,23 +230,25 @@ endif()
 add_definitions(-DIBSFLEXLMVERSION="2008.04")
 add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DIBSSHORTVERSION="v${BM_VERSION_NUMBER}")
+add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DSVNREVISION="${BM_SVNREVISION}")
 
+if(WIN32)
+	if(BM_BUILD_CBMGENERICS_STATIC)
+		add_definitions(-DCBMGENERICS_STATIC)
+	endif()
 
-if(BM_BUILD_CBMGENERICS_STATIC)
-	add_definitions(-DCBMGENERICS_STATIC)
-endif()
+	if(BM_BUILD_EOSPACK_STATIC)
+		add_definitions(-DEOSPACK_STATIC)
+	endif()
 
-if(BM_BUILD_EOSPACK_STATIC)
-	add_definitions(-DEOSPACK_STATIC)
-endif()
+	if(BM_BUILD_TABLEIO_STATIC)
+		add_definitions(-DTABLEIO_STATIC)
+	endif()
 
-if(BM_BUILD_TABLEIO_STATIC)
-	add_definitions(-DTABLEIO_STATIC)
-endif()
-
-if(BM_BUILD_UTILITIES_STATIC)
-	add_definitions(-DUTILITIES_STATIC)
+	if(BM_BUILD_UTILITIES_STATIC)
+		add_definitions(-DUTILITIES_STATIC)
+	endif()
 endif()
 
 ### 
@@ -248,6 +256,9 @@ endif()
 ### Add subdirs
 add_subdirectory(libraries)
 add_subdirectory(applications)
+if(BM_BUILD_REGRESSION_TESTS)
+	add_subdirectory(regression_tests)
+endif()
 
 ### Generate setup scripts
 

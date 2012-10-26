@@ -6,7 +6,7 @@ add_executable(fastcauldron
 	src/BiomarkersAdapter.C
 	src/BiomarkersCalculator.C
 	src/BoundaryId.C
-        src/BrineProperties.C
+	src/BrineProperties.C
 	src/BulkDensityCalculator.C
 	src/CapillaryPressureCalculator.C
 	src/CauldronCalculator.C
@@ -30,7 +30,7 @@ add_executable(fastcauldron
 	src/fileio.C
 	src/filterwizard.C
 	src/FissionTrackCalculator.C
-        src/FluidPropertyCalculator.C
+	src/FluidPropertyCalculator.C
 	src/FluidVelocityCalculator.C
 	src/FormationMapping.C
 	src/GeometricLoopPressureSolver.C
@@ -114,6 +114,7 @@ add_executable(fastcauldron
 )
 
 add_definitions(${HDF5_parallel_DEFINITIONS})
+remove_definitions(-fPIC)
 
 include_directories(
 	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
@@ -170,6 +171,7 @@ target_link_libraries(fastcauldron
 	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${BLAS_LIBRARIES}
+	${BM_MPI_LOCK_LIBRARIES}
 	${MPI_C_LIBRARIES}
 	z
 )

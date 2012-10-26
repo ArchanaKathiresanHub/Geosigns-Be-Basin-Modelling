@@ -9,14 +9,13 @@ add_library(CrustalThickness
 	src/InterfaceOutput.C
 )
 
-bm_include_libraries( 
-	DataAccess 
-	TableIO 
-	Utilities 
+bm_include_libraries(
+	DataAccess
+	TableIO
 	Serial_Hdf5
-	utilities 
-	CBMGenerics
 )
+
+remove_definitions(-fPIC)
 
 include_directories(
 	${HDF5_serial_INCLUDE_DIRS}
@@ -28,7 +27,6 @@ target_link_libraries(CrustalThickness
 	TableIO
 	Utilities_Petsc
 	Serial_Hdf5
-	utilities
 	${HDF5_serial_LIBRARIES}
 )
 

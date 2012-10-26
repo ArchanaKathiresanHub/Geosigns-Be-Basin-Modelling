@@ -24,8 +24,6 @@ add_library(EosPack
 	${EOSPACK_EXTRA_SOURCES}
 )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 bm_include_libraries(CBMGenerics)
 
 target_link_libraries(EosPack CBMGenerics)

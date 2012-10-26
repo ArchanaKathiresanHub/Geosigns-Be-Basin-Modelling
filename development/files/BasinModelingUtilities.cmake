@@ -12,7 +12,7 @@ macro( bm_include_libraries )
 	foreach(library ${ARGN})
 		include_directories( 
 			${PROJECT_SOURCE_DIR}/libraries/${library}/src
-			${PROJECT_BINARY_DIR}/libraries/${library}
+#			${PROJECT_BINARY_DIR}/libraries/${library}
 		)
 	endforeach(library)
 endmacro( bm_include_libraries )

@@ -12,8 +12,6 @@ add_library(CBMGenerics
 	src/Polyfunction.C
 )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 generate_dox( src/CBMGenerics.cfg )
 
 install(TARGETS CBMGenerics

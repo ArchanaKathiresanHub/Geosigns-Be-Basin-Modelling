@@ -11,7 +11,7 @@ add_library( utilities
 )
 
 #generate_export_header( utilities )
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (MSVC)
 	add_definitions( "-D_USE_MATH_DEFINES" )

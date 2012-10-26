@@ -8,7 +8,7 @@ add_library(Serial_Hdf5
 	src/readwriteobject.C
 )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${HDF5_serial_INCLUDE_DIRS})
 target_link_libraries(Serial_Hdf5 ${HDF5_serial_LIBRARIES})
 	
