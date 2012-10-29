@@ -8,14 +8,26 @@ endif()
 set(BasinModelingUtilities_INCLUDED TRUE)
 
 # Basin Modeling Utilities & Functions
+
+#
+# WITH_BINARY_DIR instruct to include binary directory of the library as well
+#
 macro( bm_include_libraries )
 	foreach(library ${ARGN})
-		include_directories( 
-			${PROJECT_SOURCE_DIR}/libraries/${library}/src
-#			${PROJECT_BINARY_DIR}/libraries/${library}
-		)
+		if(${library} STREQUAL "TableIO")
+			include_directories( ${PROJECT_BINARY_DIR}/libraries/${library} )
+		endif()
+		include_directories( ${PROJECT_SOURCE_DIR}/libraries/${library}/src )
 	endforeach(library)
 endmacro( bm_include_libraries )
+
+macro( bm_include_bin_libraries )
+	foreach(library ${ARGN})
+		include_directories( 
+			${PROJECT_BINARY_DIR}/libraries/${library}
+		)
+	endforeach(library)
+endmacro( bm_include_bin_libraries )
 
 # The following function is copied from 
 # http://stackoverflow.com/questions/10113017/setting-the-msvc-runtime-in-cmake

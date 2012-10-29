@@ -56,6 +56,7 @@ target_link_libraries(${target_name}
 	${XERCES_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${BLAS_LIBRARIES}
+	${BM_MPI_LOCK_LIBRARIES}
 )
 
 install(TARGETS fasttouch7

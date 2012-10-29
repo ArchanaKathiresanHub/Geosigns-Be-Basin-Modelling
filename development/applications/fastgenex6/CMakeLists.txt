@@ -47,6 +47,7 @@ target_link_libraries( fastgenex6
 	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${BLAS_LIBRARIES}
+	${BM_MPI_LOCK_LIBRARIES}
 )
 
 install(TARGETS fastgenex6
@@ -54,3 +55,9 @@ install(TARGETS fastgenex6
 )
 
 endif(BM_PARALLEL)
+
+# Local Variables:
+# mode: cmake
+# cmake-tab-width: 4
+# tab-width: 4
+# End:

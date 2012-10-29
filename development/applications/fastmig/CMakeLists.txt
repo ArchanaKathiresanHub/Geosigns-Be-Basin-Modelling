@@ -90,6 +90,7 @@ target_link_libraries(fastmig
 	${PETSC_LIBRARIES}
 	${HDF5_parallel_LIBRARIES}
 	${BLAS_LIBRARIES}
+	${BM_MPI_LOCK_LIBRARIES}
 )
 
 install(TARGETS fastmig
@@ -97,3 +98,9 @@ install(TARGETS fastmig
 )
 
 endif (BM_PARALLEL)
+
+# Local Variables:
+# mode: cmake
+# cmake-tab-width: 4
+# tab-width: 4
+# End:

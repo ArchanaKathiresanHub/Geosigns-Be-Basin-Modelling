@@ -74,7 +74,7 @@ bm_include_libraries(
 	Serial_Hdf5
 	CBMGenerics
 	utilities 
-	TableIO 
+	TableIO
 	EosPack
 	CrustalThickness
 )

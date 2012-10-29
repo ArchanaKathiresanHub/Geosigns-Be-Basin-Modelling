@@ -45,6 +45,7 @@ target_link_libraries(fastctc
 	${HDF5_parallel_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${FLEXLM_LIBRARIES}
+	${BM_MPI_LOCK_LIBRARIES}
 )
 
 install(TARGETS fastctc

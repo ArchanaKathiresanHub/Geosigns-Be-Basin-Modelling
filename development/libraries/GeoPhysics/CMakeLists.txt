@@ -29,7 +29,7 @@ bm_include_libraries(
 	DataAccess
 	genex6 
 	genex6_kernel 
-	TableIO 
+	TableIO
 	CBMGenerics
 	EosPack
 	CrustalThickness
