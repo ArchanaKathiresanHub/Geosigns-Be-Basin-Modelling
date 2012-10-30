@@ -299,6 +299,7 @@ void CrustalThicknessCalculator::run() {
                theOutput[thicknessBasaltMap] = Interface::DefaultUndefinedMapValue;
                theOutput[mohoMap] = Interface::DefaultUndefinedMapValue;
                theOutput[ECTMap] = Interface::DefaultUndefinedMapValue; 
+               theOutput[thicknessCrustMeltOnset] = Interface::DefaultUndefinedMapValue;  
             } else {
                theOutput[WLSadjustedMap] = WLS_adjusted;
             

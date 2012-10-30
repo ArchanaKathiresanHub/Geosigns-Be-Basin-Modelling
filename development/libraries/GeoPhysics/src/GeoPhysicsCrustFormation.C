@@ -139,11 +139,13 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
          
          for ( i = thicknessMap->firstI (); i <= thicknessMap->lastI (); ++i ) {
             for ( j = thicknessMap->firstJ (); j <= thicknessMap->lastJ (); ++j ) {
-               ectValue = project->getCrustThickness ( i, j, age ); //effective crustal thickness in this case
-               // gridMapMaximumLocal = PetscMax ( gridMapMaximumLocal, ectValue );
-               // gridMapMinimumLocal = PetscMin ( gridMapMinimumLocal, ectValue );
-               gridMapMaximumLocal = NumericFunctions::Maximum ( gridMapMaximumLocal, ectValue );
-               gridMapMinimumLocal = NumericFunctions::Minimum ( gridMapMinimumLocal, ectValue );
+               if ( project->getNodeIsValid ( i, j )) {
+                  ectValue = project->getCrustThickness ( i, j, age ); //effective crustal thickness in this case
+                  // gridMapMaximumLocal = PetscMax ( gridMapMaximumLocal, ectValue );
+                  // gridMapMinimumLocal = PetscMin ( gridMapMinimumLocal, ectValue );
+                  gridMapMaximumLocal = NumericFunctions::Maximum ( gridMapMaximumLocal, ectValue );
+                  gridMapMinimumLocal = NumericFunctions::Minimum ( gridMapMinimumLocal, ectValue );
+               }
             }
          }
          // MPI_Allreduce (&gridMapMaximumLocal, &gridMapMaximum, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
