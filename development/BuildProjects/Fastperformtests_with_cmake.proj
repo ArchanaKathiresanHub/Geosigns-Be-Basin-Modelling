@@ -16,8 +16,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <!--Paths as in the build server. The GNU/Linux blade used is Alfred's -->
-    <run_script>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk"  ksaho3@amsd2a-n-b01001 "sh -x ~/bin/fastperformtests_with_cmake"  </run_script>
-    <copy_script>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk" "$(MSBuildProjectDirectory)\..\..\scripts\fastperformtests_with_cmake" "ksaho3@amsd2a-n-b01001:bin" </copy_script>
+    <run_script>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk"  ksaho3@amsd2a-n-b01002 "sh -x ~/bin/fastperformtests_with_cmake"  </run_script>
+    <copy_script>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk" "$(MSBuildProjectDirectory)\..\..\scripts\fastperformtests_with_cmake" "ksaho3@amsd2a-n-b01002:bin" </copy_script>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="Build">

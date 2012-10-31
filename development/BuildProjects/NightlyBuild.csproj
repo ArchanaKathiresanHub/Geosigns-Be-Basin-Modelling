@@ -17,10 +17,10 @@
   <PropertyGroup>
     
     <!--Paths as in the build server. The GNU/Linux blade used is Alfred's -->
-    <CopyScript1>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk" "$(MSBuildProjectDirectory)\..\..\scripts\BatchBuildAndInstall" "ksaho3@amsd2a-n-b01001:bin" </CopyScript1>
-    <CopyScript2>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk" "$(MSBuildProjectDirectory)\..\..\scripts\BuildAndInstall\ReleaseToHouston" "ksaho3@amsd2a-n-b01001:bin" </CopyScript2>
-    <RemoteBuild>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk"  ksaho3@amsd2a-n-b01001 "/bin/sh ~/bin/BatchBuildAndInstall" </RemoteBuild>
-    <RemoteDeploy>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk"  ksaho3@amsd2a-n-b01001 "/bin/sh ~/bin/ReleaseToHouston" </RemoteDeploy>
+    <CopyScript1>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk" "$(MSBuildProjectDirectory)\..\..\scripts\BatchBuildAndInstall" "ksaho3@amsd2a-n-b01002:bin" </CopyScript1>
+    <CopyScript2>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk" "$(MSBuildProjectDirectory)\..\..\scripts\BuildAndInstall\ReleaseToHouston" "ksaho3@amsd2a-n-b01002:bin" </CopyScript2>
+    <RemoteBuild>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk"  ksaho3@amsd2a-n-b01002 "/bin/sh ~/bin/BatchBuildAndInstall" </RemoteBuild>
+    <RemoteDeploy>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk"  ksaho3@amsd2a-n-b01002 "/bin/sh ~/bin/ReleaseToHouston" </RemoteDeploy>
     
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

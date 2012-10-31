@@ -9,7 +9,7 @@ set developmentbranch = "Trunk/development"
 set geocasedevelopmentbranch = "trunk/development/geocase"
 set thirdpartybranch = "Trunk/3rdparty"
 set version = "v2013-CI"
-set svnrepo = svn://amsd2a-n-b01001.europe.shell.com
+set svnrepo = svn://amsd2a-n-b01002.europe.shell.com
 # Executable paths
 set path = (/usr/bin/X11 /usr/bin/ $path)
 set path = ($HOME/bin $HOME/bin.`uname` $path)

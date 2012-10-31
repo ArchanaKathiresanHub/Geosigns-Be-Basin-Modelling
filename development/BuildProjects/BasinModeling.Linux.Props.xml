@@ -1,0 +1,70 @@
+<!--
+***********************************************************************************************
+BasinModeling.Linux.props.xml
+
+WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and have
+          created a backup copy.  Incorrect changes to this file will make it
+          impossible to load or build your projects from the command-line or the IDE.
+***********************************************************************************************
+-->
+
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Identification">
+    <SvnRepoHost Condition="'$(SvnRepoHost)' == ''">amsd2a-n-b01002</SvnRepoHost>
+    <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b01002</AgentHost>
+    <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
+  </PropertyGroup>
+ 
+  <PropertyGroup Label="StandardUtilities" >
+    <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\cygwin\bin')" >C:\cygwin\bin\</cygwin_bin_dir>
+    <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')" >D:\cygwin\bin\</cygwin_bin_dir>
+    <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin\bin')" >C:\opt\cygwin\bin\</cygwin_bin_dir>
+
+    <cpio_exe Condition="'$(cpio_exe)' == ''">"$(cygwin_bin_dir)cpio.exe"</cpio_exe>
+
+    <ssh_command>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk" $(AgentAccount)@$(AgentHost)</ssh_command>
+    <scp_command>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk"</scp_command>
+
+    <printenv>cmd /c set</printenv>
+
+  </PropertyGroup>
+
+  <PropertyGroup Label="Locations">
+    <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
+  </PropertyGroup>
+  
+  <Target Name="DispalyStandardVariables">
+    <Message Text="TeamProject=$(TeamProject)"/>
+    <Message Text="TeamFoundationServerUrl=$(TeamFoundationServerUrl)"/>
+    <Message Text="BuildDefinitionName=$(BuildDefinitionName)"/>
+    <Message Text="LinuxBuildRoot=$(LinuxBuildRoot)"/>
+    <Message Text="BuildDefinitionID=$(BuildDefinitionID)"/>
+    <Message Text="SourcePath=$(SourcePath)"/>
+    <Message Text="Configuration=$(Configuration)"/>
+    <Message Text="SourceGetVersion=$(SourceGetVersion)"/>
+    <Message Text="IncrementalGet=$(IncrementalGet)"/>
+    <Message Text="IncrementalBuild=$(IncrementalBuild)"/>
+    <Message Text="OutDir=$(OutDir)"/>
+    <Message Text="MSBuildProjectDirectory=$(MSBuildProjectDirectory)"/>
+    <Message Text="BuildAgent=$(BuildAgent)" />
+    <Message Text="Workspace=$(BuildAgent)" />
+    <Message Text="BuildDirectory=$(BuildDirectory)" />
+    <Message Text="LabelName=$(LabelName)" />
+    <Message Text="WorkspaceName=$(WorkspaceName)" />
+    <Message Text="SourcesDirectory=$(SourcesDirectory)" />
+    <Message Text="BinariesDirectory=$(BinariesDirectory)" />
+    <Message Text="TestResultsDirectory=$(TestResultsDirectory)" />
+    <Message Text="BuildAgentId=$(BuildAgentId)" />
+    <Message Text="BuildDefinitionPath=$(BuildDefinitionPath)" />
+    <Message Text="AgentHost = $(AgentHost)" />
+    <Message Text="AgentAccount = $(AgentAccount)" />
+    <Message Text="cygwin_bin_dir = $(cygwin_bin_dir)" />
+    <Message Text="cpio_exe = $(cpio_exe)" />
+    <Message Text="solution_root = $(solution_root)" />
+  </Target>
+
+  <Target Name="PrintEnv">
+    <Exec Command="$(printenv)" />
+  </Target>
+</Project>

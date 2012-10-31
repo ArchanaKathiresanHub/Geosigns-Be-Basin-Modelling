@@ -5,7 +5,7 @@ set -e
 # setting variables
 PATH=/bin:/usr/bin:/usr/local/bin
 
-SVNREPO="svn://amsd2a-n-b01001.europe.shell.com"
+SVNREPO=svn://${SVN_REPO_HOST:-amsd2a-n-b01002}.europe.shell.com
 
 TF="/glb/home/ksaho3/Eclipse/TF/TEE-CLC-11.0.0/tf"
 SVN=svn
