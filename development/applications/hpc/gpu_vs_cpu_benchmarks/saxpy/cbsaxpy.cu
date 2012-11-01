@@ -10,18 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <sys/time.h>
-
 #include <cublas_v2.h>
 
-
-double getTime()
-{
-  struct timeval t;
-  gettimeofday(&t, NULL);
-
-  return t.tv_sec + 1.0e-6 * t.tv_usec;
-}
+#include "gettime.h"
 
 void c(cublasStatus_t errorcode)
 {

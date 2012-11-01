@@ -15,17 +15,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <sys/time.h>
-#include <unistd.h>
 
+#include "gettime.h"
 
-double getTime()
-{
-  struct timeval t;
-  gettimeofday(&t, NULL);
-
-  return t.tv_sec + 1.0e-6 * t.tv_usec;
-}
 
 void c(cudaError_t errorcode)
 {

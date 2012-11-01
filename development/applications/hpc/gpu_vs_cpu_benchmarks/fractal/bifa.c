@@ -23,19 +23,9 @@ combinations are available:
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <sys/time.h>
-#include <unistd.h>
-
+#include "gettime.h"
 
 const int THREADS =32;
-
-double getTime()
-{
-  struct timeval t;
-  gettimeofday(&t, NULL);
-
-  return t.tv_sec + 1.0e-6 * t.tv_usec;
-}
 
 inline void iteration(long N, float amax, float amin, float xmax, float xmin, float * xs)
 {

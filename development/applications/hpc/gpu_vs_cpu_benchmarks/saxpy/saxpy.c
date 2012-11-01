@@ -15,22 +15,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <sys/time.h>
-#include <unistd.h>
 #include <math.h>
 #include <omp.h>
 
-
-double getTime()
-{
-  struct timeval t;
-  gettimeofday(&t, NULL);
-
-  return t.tv_sec + 1.0e-6 * t.tv_usec;
-}
+#include "gettime.h"
 
 const int ITER1=1<<10;
 const int ITER2=1<<6;
+
+#ifndef restrict
+#define restrict
+#endif
 
 void saxpy( int n, float a, float * restrict x, float * restrict y)
 {
