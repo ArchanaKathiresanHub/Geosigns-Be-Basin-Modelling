@@ -373,13 +373,54 @@ int main (int argc, char ** argv)
    const GridMap *depthGridMap = 0;
    const GridMap *vesGridMap = 0;
 
-   int propertyCount;
+   int propertyCount = 1;
 
    const GridDescription & gridDescription = voxetProject->getGridDescription ();
 
    VoxetCalculator vc (projectHandle, voxetProject->getGridDescription ());
 
    vc.setDepthProperty (depthProperty);
+
+
+   // Array used to store interpolated values, this will then be output to file.
+   VoxetPropertyGrid interpolatedProperty (voxetProject->getGridDescription ());
+
+   asciiOutputFile.flags (ios::fixed);
+
+   asciiOutputFile << "GOCAD Voxet 1.0" << endl;
+   asciiOutputFile << "HEADER" << endl;
+   asciiOutputFile << "{" << endl;
+   asciiOutputFile << "name:" << outputFileName << endl;
+   asciiOutputFile << "}" << endl;
+
+   asciiOutputFile << "GOCAD_ORIGINAL_COORDINATE_SYSTEM" << endl;
+   asciiOutputFile << "NAME Default" << endl;
+   asciiOutputFile << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
+   asciiOutputFile << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
+   asciiOutputFile << "ZPOSITIVE Depth" << endl;
+   asciiOutputFile << "END_ORIGINAL_COORDINATE_SYSTEM" << endl;
+
+   asciiOutputFile << "AXIS_O "
+                   << gridDescription.getVoxetGridOrigin (0) << "  "
+                   << gridDescription.getVoxetGridOrigin (1) << "  "
+                   << gridDescription.getVoxetGridOrigin (2) << "  " << endl;
+
+
+   asciiOutputFile << "AXIS_U " << gridDescription.getVoxetGridMaximum (0) - gridDescription.getVoxetGridOrigin (0) << "  " << " 0.0  0.0 " << endl;
+   asciiOutputFile << "AXIS_V  0.0 " << gridDescription.getVoxetGridMaximum (1) - gridDescription.getVoxetGridOrigin (1) << "  " << " 0.0  " << endl;
+   asciiOutputFile << "AXIS_W 0.0 0.0  " << gridDescription.getVoxetGridMaximum (2) - gridDescription.getVoxetGridOrigin (2) << "  " << endl;
+   asciiOutputFile << "AXIS_MIN 0.0 0.0 0.0 " << endl;
+   asciiOutputFile << "AXIS_MAX 1  1  1" << endl;
+
+   asciiOutputFile << "AXIS_N "
+                   << gridDescription.getVoxetNodeCount (0) << "  "
+                   << gridDescription.getVoxetNodeCount (1) << "  " << gridDescription.getVoxetNodeCount (2) << "  " << endl;
+
+   asciiOutputFile << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
+   asciiOutputFile << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
+   asciiOutputFile << "AXIS_TYPE even even even" << endl;
+
+   asciiOutputFile << endl;
 
 
    for (cauldronPropIter = voxetProject->cauldronPropertyBegin (); cauldronPropIter != voxetProject->cauldronPropertyEnd (); ++cauldronPropIter)
@@ -401,121 +442,22 @@ int main (int argc, char ** argv)
       {
          continue;
       }
+
       if (verbose)
       {
          cout << " Adding cauldron property: " << property->getName () << endl;
       }
 
-      vc.addProperty (property);
-
-   }
-
-   if (verbose)
-   {
-      cout << endl;
-   }
-
-   if (vc.computeInterpolators (snapshot, verbose) == -1)
-   {
-      cerr << " Are there any results in the project? " << endl;
-      return -1;
-   }
-
-   // Array used to store interpolated values, this will then be output to file.
-   VoxetPropertyGrid interpolatedProperty (voxetProject->getGridDescription ());
-
-   asciiOutputFile.flags (ios::fixed);
-
-   asciiOutputFile << "GOCAD Voxet 1.0" << endl;
-   asciiOutputFile << "HEADER" << endl;
-   asciiOutputFile << "{" << endl;
-   asciiOutputFile << "name:" << outputFileName << endl;
-   asciiOutputFile << "}" << endl;
-
-   asciiOutputFile << "GOCAD_ORIGINAL_COORDINATE_SYSTEM" << endl;
-   asciiOutputFile << "NAME Default" << endl;
-   asciiOutputFile << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
-   asciiOutputFile << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
-   asciiOutputFile << "ZPOSITIVE Depth" << endl;
-   asciiOutputFile << "END_ORIGINAL_COORDINATE_SYSTEM" << endl;
-
-   asciiOutputFile << "AXIS_O " << gridDescription.getVoxetGridOrigin (0) << "  " << gridDescription.getVoxetGridOrigin (1) << "  " << gridDescription.getVoxetGridOrigin (2) << "  " << endl;
-
-//    asciiOutputFile << "AXIS_U 1.0 0.0 0.0 " << endl;
-//    asciiOutputFile << "AXIS_V 0.0 1.0 0.0 " << endl;
-//    asciiOutputFile << "AXIS_W 0.0 0.0 1.0 " << endl;
-
-   asciiOutputFile << "AXIS_U " << gridDescription.getVoxetGridMaximum (0) - gridDescription.getVoxetGridOrigin (0) << "  " << " 0.0  0.0 " << endl;
-
-   asciiOutputFile << "AXIS_V  0.0 " << gridDescription.getVoxetGridMaximum (1) - gridDescription.getVoxetGridOrigin (1) << "  " << " 0.0  " << endl;
-
-   asciiOutputFile << "AXIS_W 0.0 0.0  " << gridDescription.getVoxetGridMaximum (2) - gridDescription.getVoxetGridOrigin (2) << "  " << endl;
-
-
-   asciiOutputFile << "AXIS_MIN 0.0 0.0 0.0 " << endl;
-
-   asciiOutputFile << "AXIS_MAX 1  1  1"
-//                    << gridDescription.getVoxetGridMaximum ( 0 ) - gridDescription.getVoxetGridOrigin ( 0 ) << "  " 
-//                    << gridDescription.getVoxetGridMaximum ( 1 ) - gridDescription.getVoxetGridOrigin ( 1 ) << "  " 
-//                    << gridDescription.getVoxetGridMaximum ( 2 ) - gridDescription.getVoxetGridOrigin ( 2 )
-         << endl;
-
-   asciiOutputFile << "AXIS_N "
-         << gridDescription.getVoxetNodeCount (0) << "  "
-         << gridDescription.getVoxetNodeCount (1) << "  " << gridDescription.getVoxetNodeCount (2) << "  " << endl;
-
-   asciiOutputFile << "AXIS_NAME \"X\" \"Y\" \"Z\" " << endl;
-   asciiOutputFile << "AXIS_UNIT \"m\" \"m\" \"m\" " << endl;
-   asciiOutputFile << "AXIS_TYPE even even even" << endl;
-
-   asciiOutputFile << endl;
-
-//    asciiOutputFile << "AXIS_O 0.0 0.0 "
-// //                    << gridDescription.getCauldronGridOrigin ( 0 ) << "  "
-// //                    << gridDescription.getCauldronGridOrigin ( 1 ) << "  "
-//                    << 0.0
-//                    << endl;
-
-//    asciiOutputFile << "AXIS_U 1.0 0.0 0.0 " << endl;
-//    asciiOutputFile << "AXIS_V 0.0 1.0 0.0 " << endl;
-//    asciiOutputFile << "AXIS_W 0.0 0.0 1.0 " << endl;
-
-//    asciiOutputFile << "AXIS_MIN 0.0 0.0 0.0 "
-// //                    << gridDescription.getVoxetGridOrigin ( 1 ) << "  " 
-// //                    << gridDescription.getVoxetGridOrigin ( 0 ) << "  "
-// //                    << gridDescription.getVoxetGridOrigin ( 2 )
-//                    << endl;
-
-//    asciiOutputFile << "AXIS_MAX " 
-//                    << gridDescription.getVoxetGridMaximum ( 0 ) - gridDescription.getVoxetGridOrigin ( 0 ) << "  " 
-//                    << gridDescription.getVoxetGridMaximum ( 1 ) - gridDescription.getVoxetGridOrigin ( 1 ) << "  " 
-//                    << gridDescription.getVoxetGridMaximum ( 2 ) - gridDescription.getVoxetGridOrigin ( 2 )
-//                    << endl;
-
-//    asciiOutputFile << "AXIS_N " 
-//                    << gridDescription.getVoxetNodeCount ( 0 ) << "  " 
-//                    << gridDescription.getVoxetNodeCount ( 1 ) << "  " 
-//                    << gridDescription.getVoxetNodeCount ( 2 ) << "  " 
-//                    << endl;
-
-//    asciiOutputFile << "AXIS_D "
-//                    << gridDescription.getVoxetGridDelta ( 0 ) << "  " 
-//                    << gridDescription.getVoxetGridDelta ( 1 ) << "  " 
-//                    << gridDescription.getVoxetGridDelta ( 2 ) << "  " 
-//                    << endl;
-
-   // Output Cauldron properties.
-
-   for (cauldronPropIter = voxetProject->cauldronPropertyBegin (), propertyCount = 1; cauldronPropIter != voxetProject->cauldronPropertyEnd ();
-        ++cauldronPropIter)
-   {
-
       if ((*cauldronPropIter)->getVoxetOutput ())
       {
-         const Property *property = (*cauldronPropIter)->getProperty ();
 
-         if (!property)
-            continue;
+         vc.addProperty (property);
+
+         if (vc.computeInterpolators (snapshot, verbose) == -1)
+         {
+            cerr << " Are there any results in the project? " << endl;
+            return -1;
+         }
 
 	 string propertyFileName = binaryFileName + "_" + (*cauldronPropIter)->getCauldronName () + "@@";
 
@@ -546,35 +488,21 @@ int main (int argc, char ** argv)
          correctEndian (interpolatedProperty);
          write (propertyFileName, interpolatedProperty);
          ++propertyCount;
+
+         if ( verbose ) {
+            cout << " deleting interpolators for property: " << property->getName () << endl;
+         }
+
+         vc.deleteProperty (property);
+
       }
 
    }
 
-   // Output computed derived properties.
-
-   DerivedPropertyList::iterator derivedPropIter;
-
-   for (derivedPropIter = voxetProject->getDerivedPropertyBegin (); derivedPropIter != voxetProject->getDerivedPropertyEnd (); ++derivedPropIter)
-   {
-
-      asciiOutputFile << "PROPERTY " << propertyCount << "  \"" << (*derivedPropIter)->getName () << '"' << endl;
-      asciiOutputFile << "PROP_UNIT " << propertyCount << "  \"" << (*derivedPropIter)->getUnits () << '"' << endl;
-      asciiOutputFile << "PROP_ESIZE " << propertyCount << " " << sizeof (float) << endl;
-      asciiOutputFile << "PROP_ETYPE " << propertyCount << " IEEE " << endl;
-      asciiOutputFile << "PROP_NO_DATA_VALUE " << propertyCount << " " << vc.getNullValue () << endl;
-      asciiOutputFile << "PROP_FILE " << propertyCount << " " << binaryFileName + "_" + (*derivedPropIter)->getName () + "@@" << endl;
-
-      (*derivedPropIter)->calculate (vc, snapshot, interpolatedProperty, verbose);
-      correctEndian (interpolatedProperty);
-      write (binaryFileName + "_" + (*derivedPropIter)->getName () + "@@", interpolatedProperty);
-      ++propertyCount;
-
-   }
-
-
    if (verbose)
+   {
       cout << endl;
-
+   }
 
    asciiOutputFile.close ();
    CloseCauldronProject (projectHandle);

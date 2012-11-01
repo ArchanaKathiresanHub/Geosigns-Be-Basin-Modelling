@@ -82,6 +82,19 @@ void VoxetCalculator::addProperty ( const Property* property ) {
 
 //------------------------------------------------------------//
 
+void VoxetCalculator::deleteProperty ( const Property* property ) {
+
+   PropertyInterpolatorMap::iterator propertyIter = m_propertyInterpolators.find ( property );
+
+   if ( propertyIter != m_propertyInterpolators.end ()) { 
+      m_propertyInterpolators.erase ( propertyIter );
+      delete (*propertyIter).second;
+   }
+
+}
+
+//------------------------------------------------------------//
+
 int VoxetCalculator::computeInterpolators ( const Snapshot * snapshot,
                                             const bool   verbose ) {
 
@@ -668,7 +681,10 @@ VoxetDomainInterpolator& VoxetCalculator::getVoxetDomainInterpolator ( const Pro
    {
       // Error;
       assert (false);
-      return * (VoxetDomainInterpolator *) 0;
+
+      static VoxetDomainInterpolator nullResult ( 0, 0 );
+
+      return nullResult;
    }
 }
 
@@ -685,7 +701,10 @@ VoxetDomainInterpolator& VoxetCalculator::getAnyVoxetDomainInterpolator ()
    else
    {
       assert (false);
-      return * (VoxetDomainInterpolator *) 0;
+
+      static VoxetDomainInterpolator nullResult ( 0, 0 );
+
+      return nullResult;
    }
 
 }
@@ -706,6 +725,23 @@ VoxetCalculator::PropertyInterpolator::PropertyInterpolator ( const unsigned int
 VoxetCalculator::PropertyInterpolator::~PropertyInterpolator () {
 
    if ( m_propertyValues != 0 ) {
+      size_t i;
+
+      for ( i = 0; i < m_propertyValues->size (); ++i ) {
+         const PropertyValue *propertyValue = (*m_propertyValues)[ i ];
+
+         if ( propertyValue == 0 ) {
+            continue;
+         }
+
+         const GridMap *propertyGridMap = propertyValue->getGridMap ();
+
+         if ( propertyGridMap != 0 ) {
+            propertyGridMap->release ();
+         }
+         
+      }
+
       delete m_propertyValues;
    }
 

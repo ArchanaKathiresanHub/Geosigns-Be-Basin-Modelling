@@ -73,6 +73,8 @@ public :
 
    void addProperty ( const Property* property );
 
+   void deleteProperty ( const Property* property );
+
    int computeInterpolators ( const Snapshot * snapshot,
                               const bool   verbose = false );
 
