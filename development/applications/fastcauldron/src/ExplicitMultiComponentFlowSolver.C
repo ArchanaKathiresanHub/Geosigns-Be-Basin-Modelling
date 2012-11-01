@@ -2138,8 +2138,11 @@ double ExplicitMultiComponentFlowSolver::computeElementMassMatrix ( const Subdom
    double massTerm = 0.0;
 
    NumericFunctions::Quadrature3D::Iterator quad;
+   NumericFunctions::Quadrature3D::getInstance ().get ( m_previousContributionsQuadratureDegree, quad );
+
+#if 0
    NumericFunctions::Quadrature3D::getInstance ().get ( 2, 2, m_massMatrixQuadratureDegree, quad );
-   // NumericFunctions::Quadrature3D::getInstance ().get ( m_massMatrixQuadratureDegree, quad );
+#endif
 
    getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambdaEnd );
    finiteElement.setGeometry ( geometryMatrix );
