@@ -22,14 +22,17 @@
 #endif
 
 
+const int WORK=1<<20;
+const int MINN=1<<7;
+const int MAXN=1<<19; // assert( WORK / MAX >= 1 );
+const int ITER1=1<<10;
+
 void c(cudaError_t errorcode)
 {
   if (errorcode != cudaSuccess)
     fprintf(stderr, "CUDA ERROR = %s\n", cudaGetErrorString(errorcode));
 }
 
-const int ITER1=1<<10;
-const int ITER2=1<<3;
 
 __global__ void saxpy( int n, float a, float *x, float *y)
 {
@@ -73,6 +76,7 @@ double measureSaxpy( const int N, const int THREADS)
   c( cudaMemcpy(d_y, y, sizeof(float)*N, cudaMemcpyHostToDevice) );
 
   // run kernel
+  const int ITER2=WORK / N;
   for (int i = 0; i < ITER2; ++i)
   {
     saxpy<<< N/THREADS, THREADS>>>(N, a, d_x, d_y);
@@ -135,8 +139,6 @@ int main(int argc, char ** argv)
 
   cudaGetLastError(); // clear cuda errors;
 
-  const int MINN=1<<7;
-  const int MAXN=1<<17;
   const int MAXTHREADS=1<<9;
   printf("% 10s  % 10s  % 10s\n", "N", "Threads", "GFLOPS/s");
   for(int i = MINN; i <= MAXN; i*=2)

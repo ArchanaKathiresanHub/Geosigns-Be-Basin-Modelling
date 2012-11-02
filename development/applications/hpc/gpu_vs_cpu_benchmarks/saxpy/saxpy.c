@@ -21,8 +21,10 @@
 
 #include "gettime.h"
 
+const int WORK=1<<26;
+const size_t MINN=1<<7;
+const size_t MAXN=1<<25; // assert( WORK / MAX >= 1 );
 const int ITER1=1<<10;
-const int ITER2=1<<6;
 
 #ifndef restrict
 #define restrict
@@ -59,6 +61,7 @@ double measureSaxpy( const size_t N)
   t0 = getTime();
 
   // run kernel
+  const int ITER2=WORK / N;
 #pragma omp parallel
   {
 	int j;
@@ -102,9 +105,6 @@ double measureSaxpy( const size_t N)
 int main(int argc, char ** argv)
 {
   size_t i;
-  const size_t MINN=1<<7;
-  const size_t MAXN=1<<20;
-  const size_t MAXTHREADS=1<<9;
   printf("#% 9s  % 10s\n", "N", "GFLOPS/s");
   for(i = MINN; i <= MAXN; i*=2)
   {
