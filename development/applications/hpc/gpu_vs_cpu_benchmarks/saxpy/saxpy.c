@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <math.h>
 #include <omp.h>
+#include <limits.h>
 
 #include "gettime.h"
 
@@ -36,10 +37,11 @@ void saxpy( int n, float a, float * restrict x, float * restrict y)
 }
 
 
-double measureSaxpy( const int N)
+double measureSaxpy( const size_t N)
 {
-  int i;
+  size_t i;
   float *x, *y, a;
+  double t0, t1;
 
   // allocate memory
   x = (float *) malloc(sizeof(float)*N);
@@ -54,58 +56,63 @@ double measureSaxpy( const int N)
   }
 
   // start timer
-  double t0 = getTime();
+  t0 = getTime();
 
   // run kernel
 #pragma omp parallel
   {
-
+	int j;
     int rank = omp_get_thread_num();
     int procs = omp_get_num_threads();
-    assert( N % procs == 0);
-    const int n = N/procs;
-    const int offset = rank * n;
-    for (i = 0; i < ITER2; ++i)
+    const size_t n = N/procs;
+    const size_t offset = rank * n;
+
+	assert( N % procs == 0);
+	assert( n < INT_MAX );
+
+    for (j = 0; j < ITER2; ++j)
     {
-      saxpy(n, a, x + offset, y + offset);
+      saxpy( (int) n, a, x + offset, y + offset);
     }
   }
 
   // synchronize and stop timer
-  double t3 = getTime();
+  t1 = getTime();
 
-  // print some statistic based on x & y;
-  double sum = 0.0;
-  for (i = 0 ; i < N; ++i)
-    sum += y[i];
-  double avg= sum / N;
+  // Validate results
+  {
+	const double epsilon = 0.1;
+	const double expected = (0.5 + ITER2 * (0.5 * (ITER1+1) * ITER1) * 0.5 * a);
+	double avg=0.0;
+	for (i = 0 ; i < N; ++i)
+	  avg += y[i] / N;
+	
+	if (fabs( avg - expected ) / expected > epsilon)
+	  fprintf(stderr, "High deviation: avg = %f, expected = %f\n", avg, expected);
+  }
 
-  const double epsilon = 0.1;
-  const double expected = (0.5 + ITER2 * (0.5 * (ITER1+1) * ITER1) * 0.5 * a);
-  if (fabs( avg - expected ) / expected > epsilon)
-    fprintf(stderr, "High deviation: avg = %f, expected = %f\n", avg, expected);
-
-
-  // print performance
-  double flops= (double) ITER1 * ITER2 * N*2 / (t3 - t0);
-
-   // release memory
+  // release memory
   free(x);
   free(y);
 
-  return flops;
+  // Return FLOPS
+  return (double) ITER1 * ITER2 * N*2 / (t1 - t0);
 }
 
 int main(int argc, char ** argv)
 {
-  int i, j;
-  const int MINN=1<<7;
-  const int MAXN=1<<20;
-  const int MAXTHREADS=1<<9;
+  size_t i;
+  const size_t MINN=1<<7;
+  const size_t MAXN=1<<20;
+  const size_t MAXTHREADS=1<<9;
   printf("#% 9s  % 10s\n", "N", "GFLOPS/s");
   for(i = MINN; i <= MAXN; i*=2)
   {
-    printf("% 10d  % 10f\n", i, measureSaxpy(i) * 1e-09);
+#ifdef _MSC_VER
+	printf("% 10Iu  % 10f\n", i, measureSaxpy(i) * 1e-09);
+#else
+    printf("% 10zu  % 10f\n", i, measureSaxpy(i) * 1e-09);
+#endif
   }
 
   return 0;

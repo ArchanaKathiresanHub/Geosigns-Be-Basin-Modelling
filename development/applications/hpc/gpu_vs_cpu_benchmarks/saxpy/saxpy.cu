@@ -15,8 +15,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
 #include "gettime.h"
+
+#ifdef _MSC_VER
+  #define NAN -1.0f
+#endif
 
 
 void c(cudaError_t errorcode)

@@ -49,7 +49,7 @@ int main(int argc, char ** argv)
   const float x0max = 0.99;
 
   const int BLOCKS= 1<<13; 
-  const int N = (1l << 35) / (THREADS * BLOCKS);
+  const int N = (1ll << 35) / (THREADS * BLOCKS);
 
   // allocate output array
   float * h_xs, * d_xs;

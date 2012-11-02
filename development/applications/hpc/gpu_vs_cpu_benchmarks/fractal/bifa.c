@@ -23,13 +23,19 @@ combinations are available:
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <omp.h>
+#include <string.h>
 #include "gettime.h"
 
+#ifdef _MSC_VER
+#define THREADS 32
+#else
 const int THREADS =32;
+#endif
 
-inline void iteration(long N, float amax, float amin, float xmax, float xmin, float * xs)
+void iteration(size_t N, float amax, float amin, float xmax, float xmin, float * xs)
 {
-  long i;
+  size_t i;
   int j;
 
 #ifdef _OPENMP
@@ -112,7 +118,7 @@ inline void iteration(long N, float amax, float amin, float xmax, float xmin, fl
 
 int main(int argc, char ** argv)
 {
-  int i;
+  size_t i;
 
   // parameters
   const float amin = 1.0;
@@ -120,7 +126,7 @@ int main(int argc, char ** argv)
   const float x0min = 0.01; 
   const float x0max = 0.99;
 
-  const long N = (1l << 31) / THREADS;
+  const size_t N = (1ll << 31) / THREADS;
 
   // allocate output array
   float * xs;
@@ -128,6 +134,7 @@ int main(int argc, char ** argv)
  
   #pragma omp parallel
   {
+	double t0, t1;
 
 #ifdef _OPENMP
     const int rank = omp_get_thread_num();
@@ -144,32 +151,41 @@ int main(int argc, char ** argv)
     
       // check input
       for (i = 0; i < procs*THREADS; ++i)
-	if (xs[i] != 0.0)
-	{
-	  printf("Error in validation. xs[%d] = %f\n", i, xs[i]);
-	  break; 
-	}
+		if (xs[i] != 0.0)
+		{
+#ifdef _MSC_VER
+		  printf("Error in validation. xs[%Iu] = %f\n", i, xs[i]);
+#else
+		  printf("Error in validation. xs[%zu] = %f\n", i, xs[i]);
+#endif
+		  break; 
+		}
     }
     #pragma omp barrier
 
     // run kernel
-    double t0 = getTime();
+    t0 = getTime();
     iteration(N, amax, amin, x0max, x0min, xs);
     #pragma omp barrier
-    double t1 = getTime();
+    t1 = getTime();
 
     #pragma omp master
     {
+	  double flops = 3.0 * N * procs * THREADS / (t1 - t0);
+
       // check output
       for (i = 0; i < procs*THREADS; ++i)
-	if (xs[i] <= 0.0 || xs[i] > 1.0)
-	{
-	  printf("Error in validation. xs[%d] = %f\n", i, xs[i]);
-	  break; 
-	}
+		if (xs[i] <= 0.0 || xs[i] > 1.0)
+		{
+#ifdef _MSC_VER
+		  printf("Error in validation. xs[%Iu] = %f\n", i, xs[i]);
+#else
+		  printf("Error in validation. xs[%zu] = %f\n", i, xs[i]);
+#endif
+		  break; 
+		}
 
-      double flops = 3.0 * N * procs * THREADS / (t1 - t0);
-
+      // print result
       printf("Cores: %d\n", procs);
       printf("Time: %f, GFLOPS/s = %f\n", (t1 - t0), flops * 1e-9);
     }
