@@ -18,6 +18,10 @@ option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
 option( BM_BUILD_DOCS "Build documentation" OFF )
 option( BM_BUILD_REGRESSION_TESTS "Build regression tests" OFF )
+option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
+if(BM_CODE_COVERAGE_ENABLE)
+	set( BM_CODE_COVERAGE_DIR "${PROJECT_BINARY_DIR}/profiled" CACHE PATH "Code coverage directory" )
+endif()
 
 option( BM_BUILD_CBMGENERICS_STATIC "Build CBMGENERICS library STATIC" ON )
 option( BM_BUILD_EOSPACK_STATIC "Build EOSPACK library STATIC" ON )
@@ -100,6 +104,11 @@ if(UNIX)
 	set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 	# IMPORTANT: somehow -fPIC affects regression test results
 	add_definitions(-fPIC)
+	if(BM_CODE_COVERAGE_ENABLE)
+		file(MAKE_DIRECTORY ${BM_CODE_COVERAGE_DIR})
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -prof-gen=srcpos -prof-dir \"${BM_CODE_COVERAGE_DIR}\"")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
+	endif()
 endif()
 
 ### SWIG
