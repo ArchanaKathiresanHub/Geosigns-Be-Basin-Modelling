@@ -44,6 +44,7 @@ double measureSaxpy( const size_t N)
   size_t i;
   float *x, *y, a;
   double t0, t1;
+  const int ITER2=WORK / N;
 
   // allocate memory
   x = (float *) malloc(sizeof(float)*N);
@@ -61,8 +62,7 @@ double measureSaxpy( const size_t N)
   t0 = getTime();
 
   // run kernel
-  const int ITER2=WORK / N;
-#pragma omp parallel
+  #pragma omp parallel
   {
 	int j;
     int rank = omp_get_thread_num();

@@ -45,6 +45,7 @@ __global__ void saxpy( int n, float a, float *x, float *y)
 
 double measureSaxpy( const int N, const int THREADS)
 {
+  const int ITER2=WORK / N;
   if (N / THREADS >= 1 << 16 || THREADS > N || THREADS > 1 << 9)
     return NAN;
 
@@ -76,7 +77,6 @@ double measureSaxpy( const int N, const int THREADS)
   c( cudaMemcpy(d_y, y, sizeof(float)*N, cudaMemcpyHostToDevice) );
 
   // run kernel
-  const int ITER2=WORK / N;
   for (int i = 0; i < ITER2; ++i)
   {
     saxpy<<< N/THREADS, THREADS>>>(N, a, d_x, d_y);
