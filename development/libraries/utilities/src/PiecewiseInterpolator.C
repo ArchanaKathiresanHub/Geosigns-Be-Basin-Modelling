@@ -214,6 +214,8 @@ void ibs::PiecewiseInterpolator::setInterpolation
       m_ys [ i ] = newYs [ pointer [ i ]];
    }
 
+   delete [] pointer;
+
 }
 
 //------------------------------------------------------------//
