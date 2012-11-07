@@ -14,20 +14,42 @@ namespace ibs {
    // there, it has not been tested.
    class PiecewiseInterpolator {
 
+      /// Class used to sort porosit and permeability values.
+      ///
+      /// It does not sort the values directly but is used to sort an index pointer array.
+      class PointerSort {
+
+      public :
+
+         /// Constructor with the array to be sorted.
+         PointerSort ( const double* xVals );
+
+         bool operator ()( const int p1, 
+                           const int p2 ) const;
+
+      private :
+
+         const double* m_xs;
+
+      };
+
    public :
 
       /// Which kind of interpolation, linear or cubic.
       enum InterpolationMethod { PIECEWISE_LINEAR, CUBIC_SPLINE };
 
+
       PiecewiseInterpolator ();
 
       ~PiecewiseInterpolator ();
 
-      void setInterpolation
-         ( const InterpolationMethod newInterpolationMethod,
-           const int                 newNumberOfPoints,
-           const double*             newPorosities,
-           const double*             newPermeabilities );
+      /// Set the values for the interpolator.
+      ///
+      /// The data will copied and sorted into ascending order of porosities.
+      void setInterpolation ( const InterpolationMethod newInterpolationMethod,
+                              const int                 newNumberOfPoints,
+                              const double*             newPorosities,
+                              const double*             newPermeabilities );
 
       /// Compute the interpolation coefficients, based on the data set.
       void computeCoefficients ();
@@ -95,6 +117,12 @@ namespace ibs {
 
    }; 
 
+}
+
+
+inline bool ibs::PiecewiseInterpolator::PointerSort::operator ()( const int p1, 
+                                                                  const int p2 ) const {
+   return m_xs [ p1 ] < m_xs [ p2 ];
 }
 
 

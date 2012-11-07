@@ -1,6 +1,14 @@
 #include "PiecewiseInterpolator.h"
 
 #include <sstream>
+#include <algorithm>
+
+//------------------------------------------------------------//
+
+ibs::PiecewiseInterpolator::PointerSort::PointerSort ( const double* xVals ) : m_xs ( xVals ) {
+}
+
+//------------------------------------------------------------//
 
 ibs::PiecewiseInterpolator::PiecewiseInterpolator () {
   m_xs             = 0;
@@ -153,47 +161,58 @@ void ibs::PiecewiseInterpolator::setInterpolation
      const double*             newXs,
      const double*             newYs ) {
 
-  int i;
+   int* pointer = new int [ newNumberOfPoints ];
+   int i;
 
-  m_method         = newInterpolationMethod;
-  m_numberOfPoints = newNumberOfPoints;
+   PointerSort comp ( newXs );
+
+   // Initialise the array index pointer.
+   for ( i = 0; i < newNumberOfPoints; ++i ) {
+      pointer [ i ] = i;
+   }
+
+   m_method         = newInterpolationMethod;
+   m_numberOfPoints = newNumberOfPoints;
 
 #if 0
-  if ( m_numberOfPoints < 4 ) {
-    //
-    //
-    // Need at least 4 points for a Cubic Spline interpolant!
-    //
-    m_method = PIECEWISE_LINEAR;
-  } else {
-    m_method = CUBIC_SPLINE;
-  }
+   if ( m_numberOfPoints < 4 ) {
+      //
+      //
+      // Need at least 4 points for a Cubic Spline interpolant!
+      //
+      m_method = PIECEWISE_LINEAR;
+   } else {
+      m_method = CUBIC_SPLINE;
+   }
 #endif
 
-  m_method = PIECEWISE_LINEAR;
+   m_method = PIECEWISE_LINEAR;
 
-  if ( m_numberOfPoints != 0 ) {
-    deleteCoefficients ();
-  }
+   if ( m_numberOfPoints != 0 ) {
+      deleteCoefficients ();
+   }
 
-  m_xs = new double [ m_numberOfPoints ];
-  m_ys = new double [ m_numberOfPoints ];
+   m_xs = new double [ m_numberOfPoints ];
+   m_ys = new double [ m_numberOfPoints ];
 
+   if ( m_method == PIECEWISE_LINEAR ) {
+      m_aCoeffs = new double [ m_numberOfPoints - 1 ];
+      m_bCoeffs = new double [ m_numberOfPoints - 1 ];
+   } else {
+      m_aCoeffs = new double [ m_numberOfPoints ];
+      m_bCoeffs = new double [ m_numberOfPoints - 1 ];
+      m_cCoeffs = new double [ m_numberOfPoints - 1 ];
+      m_dCoeffs = new double [ m_numberOfPoints - 1 ];
+   }
 
-  if ( m_method == PIECEWISE_LINEAR ) {
-    m_aCoeffs = new double [ m_numberOfPoints - 1 ];
-    m_bCoeffs = new double [ m_numberOfPoints - 1 ];
-  } else {
-    m_aCoeffs = new double [ m_numberOfPoints ];
-    m_bCoeffs = new double [ m_numberOfPoints - 1 ];
-    m_cCoeffs = new double [ m_numberOfPoints - 1 ];
-    m_dCoeffs = new double [ m_numberOfPoints - 1 ];
-  }
+   // Sort the array index pointer based on the order of the x-values.
+   std::sort ( pointer, pointer + m_numberOfPoints, comp );
 
-  for ( i = 0; i < m_numberOfPoints; i++ ) {
-    m_xs [ i ] = newXs [ i ];
-    m_ys [ i ] = newYs [ i ];
-  }
+   // Copy the x- and y-values based on their order given by the index pointer.
+   for ( i = 0; i < m_numberOfPoints; i++ ) {
+      m_xs [ i ] = newXs [ pointer [ i ]];
+      m_ys [ i ] = newYs [ pointer [ i ]];
+   }
 
 }
 
