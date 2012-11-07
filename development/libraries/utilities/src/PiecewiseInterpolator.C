@@ -171,6 +171,10 @@ void ibs::PiecewiseInterpolator::setInterpolation
       pointer [ i ] = i;
    }
 
+   if ( m_numberOfPoints != 0 ) {
+      deleteCoefficients ();
+   }
+
    m_method         = newInterpolationMethod;
    m_numberOfPoints = newNumberOfPoints;
 
@@ -187,10 +191,6 @@ void ibs::PiecewiseInterpolator::setInterpolation
 #endif
 
    m_method = PIECEWISE_LINEAR;
-
-   if ( m_numberOfPoints != 0 ) {
-      deleteCoefficients ();
-   }
 
    m_xs = new double [ m_numberOfPoints ];
    m_ys = new double [ m_numberOfPoints ];
