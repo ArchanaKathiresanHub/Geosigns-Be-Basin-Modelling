@@ -548,6 +548,14 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
                                                                                                   doComputeOTGC (),
                                                                                                   false );
 
+      status = status and adsorptionFunction->isValid ();
+
+      if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 ) {
+         cerr << " ERROR Invalid adsorption function. Please check adsorption function parameters. Aborting ..." << endl;
+         cerr << adsorptionFunction->getErrorMessage () << endl;
+      }
+
+
       assert ( m_adsorptionSimulator != 0 );
       assert ( adsorptionFunction != 0 );
 
@@ -580,7 +588,14 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
          
          assert ( m_adsorptionSimulator2 != 0 );
          assert ( adsorptionFunction != 0 );
-         
+
+         status = status and adsorptionFunction->isValid ();
+
+         if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 ) {
+            cerr << " ERROR Invalid adsorption function. Please check adsorption function parameters. Aborting ..." << endl;
+            cerr << adsorptionFunction->getErrorMessage () << endl;
+         }
+
          m_adsorptionSimulator2->setAdsorptionFunction ( adsorptionFunction );
       }
    }

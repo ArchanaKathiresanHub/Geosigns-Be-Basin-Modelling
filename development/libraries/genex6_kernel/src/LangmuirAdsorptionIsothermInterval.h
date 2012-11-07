@@ -40,6 +40,12 @@ namespace Genex6 {
       /// Return the string representation of the interval.
       std::string image () const;
 
+      /// \brief Indicate whether or not the interval has valid values.
+      bool isValid () const;
+
+      /// \brief Get information about any error that may have occurred during initialisation.
+      std::string getErrorMessage () const;
+
    private :
 
       const DataAccess::Interface::LangmuirAdsorptionIsothermSample* m_lowerBound;

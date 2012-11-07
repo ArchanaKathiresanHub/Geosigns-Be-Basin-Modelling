@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "Interface/Interface.h"
+
 Genex6::LangmuirAdsorptionIsothermInterval::LangmuirAdsorptionIsothermInterval ( const DataAccess::Interface::LangmuirAdsorptionIsothermSample* lowerBound,
                                                                                  const DataAccess::Interface::LangmuirAdsorptionIsothermSample* upperBound ) :
    m_lowerBound ( lowerBound ),
@@ -28,8 +30,6 @@ Genex6::LangmuirAdsorptionIsothermInterval::LangmuirAdsorptionIsothermInterval (
 bool Genex6::LangmuirAdsorptionIsothermInterval::temperatureInRange ( const double temperature ) const {
    return m_temperatureLow <= temperature and temperature <= m_temperatureHigh;
 }
-
-
 
 double Genex6::LangmuirAdsorptionIsothermInterval::compute ( const double temperature,
                                                              const double pressure ) const {
@@ -109,6 +109,48 @@ std::string Genex6::LangmuirAdsorptionIsothermInterval::image () const {
           << m_plHigh << "  " 
           << m_vlHigh << "  "
           << std::endl;
+
+   return buffer.str ();
+}
+
+
+bool Genex6::LangmuirAdsorptionIsothermInterval::isValid () const {
+   return m_temperatureLow != DataAccess::Interface::DefaultUndefinedScalarValue and 
+          m_vlLow != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_plLow != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_temperatureHigh != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_vlHigh != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_plHigh != DataAccess::Interface::DefaultUndefinedScalarValue;
+}
+
+
+std::string Genex6::LangmuirAdsorptionIsothermInterval::getErrorMessage () const {
+
+   std::stringstream buffer;
+
+   if ( m_temperatureLow == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Interval lower bound temperature is invalid. " << std::endl;
+   }
+
+   if ( m_vlLow == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Interval lower bound Langmuir volume is invalid. " << std::endl;
+   }
+
+   if ( m_plLow == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Interval lower bound Langmuir pressure is invalid. " << std::endl;
+   }
+
+   if ( m_temperatureHigh == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Interval upper bound temperature is invalid. " << std::endl;
+   }
+
+   if ( m_vlHigh == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Interval upper bound Langmuir volume is invalid. " << std::endl;
+   }
+
+   if ( m_plHigh == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Interval upper bound Langmuir pressure is invalid. " << std::endl;
+   }
 
    return buffer.str ();
 }

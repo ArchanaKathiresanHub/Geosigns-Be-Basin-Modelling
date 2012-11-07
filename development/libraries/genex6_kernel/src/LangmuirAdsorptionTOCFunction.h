@@ -3,7 +3,6 @@
 
 #include <string>
 
-
 #include "Interface/GridMap.h"
 #include "Interface/ProjectHandle.h"
 
@@ -53,6 +52,13 @@ namespace Genex6 {
       double getReferenceTemperature () const;
 
       void initialise ();
+
+      /// \brief Indicate whether or not the adsorption function has valid values.
+      bool isValid () const;
+
+      /// \brief Get information about any error that may have occurred during initialisation.
+      std::string getErrorMessage () const;
+
 
    private :
 

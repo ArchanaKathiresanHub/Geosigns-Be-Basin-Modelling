@@ -82,6 +82,12 @@ namespace Genex6 {
 
       void initialise ();
 
+      /// \brief Indicate whether or not the adsorption function has valid values.
+      bool isValid () const;
+
+      /// \brief Get information about any error that may have occurred during initialisation.
+      std::string getErrorMessage () const;
+
    private :
 
       DataAccess::Interface::ProjectHandle* m_projectHandle;

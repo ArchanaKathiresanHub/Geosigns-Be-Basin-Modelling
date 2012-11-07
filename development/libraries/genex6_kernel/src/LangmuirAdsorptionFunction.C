@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 #include "LangmuirAdsorptionIsothermInterval.h"
 
@@ -34,13 +35,22 @@ Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionFunction ( DataAccess::Int
    ++sampleIter;
 
    m_temperatureLowerBound = previous->getLangmuirTemperature ();
+   m_temperatureUpperBound = previous->getLangmuirTemperature ();
 
    for ( ; sampleIter != endSamples; ++sampleIter ) {
+
+      if ( m_temperatureLowerBound > (*sampleIter)->getLangmuirTemperature ()) {
+         m_temperatureLowerBound = (*sampleIter)->getLangmuirTemperature ();
+      }
+
+      if ( m_temperatureUpperBound < (*sampleIter)->getLangmuirTemperature ()) {
+         m_temperatureUpperBound = (*sampleIter)->getLangmuirTemperature ();
+      }
+
       m_isothermIntervals.push_back ( new LangmuirAdsorptionIsothermInterval ( previous, *sampleIter ));
       previous = *sampleIter;
    }
 
-   m_temperatureUpperBound = previous->getLangmuirTemperature ();
 
    std::sort ( m_isothermIntervals.begin (), m_isothermIntervals.end (), LangmuirAdsorptionIsothermLowerBoundOrder ());
    delete samples;
@@ -96,6 +106,21 @@ void Genex6::LangmuirAdsorptionFunction::initialise () {
 
 }
 
+bool Genex6::LangmuirAdsorptionFunction::isValid () const {
+
+   bool valid = true;
+   size_t i;
+
+   valid = m_temperatureLowerBound != DataAccess::Interface::DefaultUndefinedScalarValue and 
+           m_temperatureUpperBound != DataAccess::Interface::DefaultUndefinedScalarValue;
+
+   for ( i = 0; i < m_isothermIntervals.size (); ++i ) {
+      valid = valid and m_isothermIntervals [ i ]->isValid ();
+   }
+
+   return valid;
+}
+
 
 bool Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionIsothermLowerBoundOrder::operator ()( const LangmuirAdsorptionIsothermInterval* i1,
                                                                                                  const LangmuirAdsorptionIsothermInterval* i2 ) const {
@@ -121,3 +146,23 @@ bool Genex6::LangmuirAdsorptionFunction::LangmuirAdsorptionIsothermInRange::oper
 double Genex6::LangmuirAdsorptionFunction::getReferenceTemperature () const {
    return m_temperatureLowerBound;
 } 
+
+
+std::string Genex6::LangmuirAdsorptionFunction::getErrorMessage () const {
+
+   std::stringstream buffer;
+
+   size_t i;
+
+
+   for ( i = 0; i < m_isothermIntervals.size (); ++i ) {
+
+      if ( not m_isothermIntervals [ i ]->isValid ()) {
+         buffer << std::endl << m_isothermIntervals [ i ]->getErrorMessage () << std::endl;
+      }
+
+   }
+
+   return buffer.str ();
+}
+

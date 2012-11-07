@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 #include "Interface/Formation.h"
@@ -68,10 +69,10 @@ double Genex6::LangmuirAdsorptionTOCFunction::compute ( const unsigned int i,
 
 
 double Genex6::LangmuirAdsorptionTOCFunction::computeVL ( const unsigned int i,
-                                                  const unsigned int j,
-                                                  const double       temperature,
-                                                  const double       toc,
-                                                  const CBMGenerics::ComponentManager::SpeciesNamesId species ) const {
+                                                          const unsigned int j,
+                                                          const double       temperature,
+                                                          const double       toc,
+                                                          const CBMGenerics::ComponentManager::SpeciesNamesId species ) const {
 
    if ( species != CBMGenerics::ComponentManager::C1 ) {
       return 0.0;
@@ -87,3 +88,38 @@ double Genex6::LangmuirAdsorptionTOCFunction::computeVL ( const unsigned int i,
 double Genex6::LangmuirAdsorptionTOCFunction::getReferenceTemperature () const {
    return m_referenceTemperature;
 } 
+
+bool Genex6::LangmuirAdsorptionTOCFunction::isValid () const {
+   return m_referenceTemperature != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_temperatureGradient != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_coeffA != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_coeffB != DataAccess::Interface::DefaultUndefinedScalarValue and
+          m_langmuirPressure != DataAccess::Interface::DefaultUndefinedScalarValue;
+}
+
+std::string Genex6::LangmuirAdsorptionTOCFunction::getErrorMessage () const {
+
+   std::stringstream buffer;
+
+   if ( m_referenceTemperature == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Reference temperature is invalid " << std::endl;
+   }
+
+   if ( m_temperatureGradient == DataAccess::Interface::DefaultUndefinedScalarValue  ) {
+      buffer << " Temperature gradient is invalid  " << std::endl;
+   }
+
+   if ( m_coeffA == DataAccess::Interface::DefaultUndefinedScalarValue  ) {
+      buffer << " CoeffA is invalid  " << std::endl;
+   }
+
+   if ( m_coeffB == DataAccess::Interface::DefaultUndefinedScalarValue  ) {
+      buffer << " CoeffB is invalid  " << std::endl;
+   }
+
+   if ( m_langmuirPressure == DataAccess::Interface::DefaultUndefinedScalarValue ) {
+      buffer << " Lamgmuir pressure is invalid  " << std::endl;
+   }
+
+   return buffer.str ();
+}

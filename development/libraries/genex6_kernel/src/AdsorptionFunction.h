@@ -1,6 +1,7 @@
 #ifndef _GENEX6__ADSORPTION_FUNCTION_H_
 #define _GENEX6__ADSORPTION_FUNCTION_H_
 
+#include <string>
 #include "ComponentManager.h"
 
 namespace Genex6 {
@@ -33,6 +34,12 @@ namespace Genex6 {
 
       /// \brief The reference temperature.
       virtual double getReferenceTemperature () const = 0;
+
+      /// \brief Indicate whether or not the adsorption function has valid values.
+      virtual bool isValid () const = 0;
+
+      /// \brief Get information about any error that may have occurred during initialisation.
+      virtual std::string getErrorMessage () const = 0;
 
    };
 
