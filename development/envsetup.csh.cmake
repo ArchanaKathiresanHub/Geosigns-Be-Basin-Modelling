@@ -2,7 +2,7 @@
 # Automatically generated from ${CMAKE_CURRENT_SOURCE_DIR}/envsetup.csh.cmake
 #
 
-setenv PATH ${MPI_ROOT}/bin:${HDF5_ROOT}/bin:/usr/bin:/bin:/usr/local/bin:${CMAKE_COMMAND_PATH}
+setenv PATH ${MPI_ROOT}/bin:${HDF5_ROOT}/bin:/usr/bin:/bin:/usr/local/bin:${CMAKE_COMMAND_PATH}:$PATH
 setenv IBS_FIELDWIDTH 24
 setenv IBS_LIMITEDBUILDANDINSTALL true
 

@@ -32,12 +32,12 @@ setenv CC icc
 
 # figure out the Configuration which is either Release or Debug
 switch(`basename $cwd`)
-case "*_Debug"
-case "*_debug"
+case "*Debug*"
+case "*debug*"
     set configuration=Debug
     breaksw
-case "*_Release"
-case "*_release"
+case "*Release*"
+case "*release*"
 default:
     set configuration=Release
 endsw
