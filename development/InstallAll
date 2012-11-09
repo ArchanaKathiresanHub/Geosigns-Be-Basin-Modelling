@@ -78,9 +78,20 @@ cd $wd
 echo "Installing 3rdparty stuff"
 echo "Installing geocosm"
 /bin/cp -f geocosm.tar $miscDirectory/geocosm.tar
+echo "unpacking geocosm archive"
 cd $miscDirectory
 tar xf geocosm.tar
 /bin/rm -f geocosm.tar
+echo "Installing geocosm 3rd party stuff"
+cd geocosm/3rdparty
+echo "unpacking Xerces archive"
+tar xf Xerces.tar
+echo "unpacking xsd archive"
+tar xf xsd.tar
+echo "Installing Matlab runtime"
+echo "-P installLocation=`pwd`/matlabmcr/matlab" > MCRInstaller.in
+./MCRInstaller.bin -silent -options MCRInstaller.in
+
 cd $wd
 
 echo "Changing group to g_psaz00"

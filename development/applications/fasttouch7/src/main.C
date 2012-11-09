@@ -251,7 +251,7 @@ int main (int argc, char ** argv)
     PetscFinalize ();
 
     // To prevent functions registered with atexit being called as they are causing crashes
-   _exit (status ? 0 : -1);
+   return (status ? 0 : -1);
 }
 
 /** Print using Petsc print function. */
