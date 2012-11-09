@@ -50,6 +50,19 @@ echo "Installing 3rdparty stuff"
 echo "Installing geocosm"
 
 tar xf @CMAKE_CURRENT_SOURCE_DIR@/../3rdparty/geocosm.tar -C $miscDirectory
+pushd $miscDirectory
+echo "Installing geocosm 3rd party stuff"
+pushd geocosm/3rdparty
+echo "unpacking Xerces archive"
+tar xf Xerces.tar
+echo "unpacking xsd archive"
+tar xf xsd.tar
+echo "Installing Matlab runtime"
+echo "-P installLocation=`pwd`/matlabmcr/matlab" > MCRInstaller.in
+./MCRInstaller.bin -silent -options MCRInstaller.in
+
+popd
+popd
 
 echo "Changing group to g_psaz00"
 chgrp -R g_psaz00 $targetDirectory
