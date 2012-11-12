@@ -3,6 +3,9 @@ set(EOSPACK_SOURCES
 	src/EosPack.C
 	src/EosCauldron.C
 	src/EosPvtModel.C
+	src/EosPvtTable.C
+	src/EosUtils.C
+	src/EosWater.C
 	src/Parse.C
 	src/polynomials.C
 )

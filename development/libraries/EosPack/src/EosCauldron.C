@@ -42,73 +42,31 @@
 *  Source module for Cauldron implementation is EosCauldron.cpp      *
 *                                                                    *
 *********************************************************************/
-/* 
-// Include the needed files 
-*/
 #include "stdafx.h"
 
 #include <math.h>
 #include <malloc.h>
 #include <stdlib.h>
 
-/*
-// Include the external definitions 
-*/
 #include "EosCauldron.h"
+#include "EosPvtModel.h"
+#include "EosPvtTable.h"
 
-/* 
-// ConcoctBrew
+// Construction of pvttable using the Cauldron brew
 //
-//   Construction of pvttable
-//
-//   See EosCauldron.h for argument list description
-// 
+// Note: All input should be in MKS SI units
 // 1) Generate an instance of the pvt table from supplied data
-*/
-EosPvtTable *EosCauldron::ConcoctBrew ( int iNc, int isRK, double *pMolecularWeight, 
-                                        double *pCriticalPressure, double *pCriticalTemperature,
-                                        double *pCriticalVolume, double *pAcentricFactor,
-                                        double *pOmegaA, double *pOmegaB, double *pShiftC, 
-                                        double *pBinary, double *pLohrenz )
+EosPvtTable *EosCauldron::ConcoctBrew ( int iNc,                       // Number of components
+                                        int isRK,                      // Set to 1 for Redlich Kwong; otherwise Peng Robinson correct
+                                        double *pvtData,
+                                        double *pT,                    // default temperature in SI units
+                                        double *pLohrenz               // Lohrenz tuning terms
+                                      )
 {
-   double* pMw = ( double* ) malloc ( ( 1 + iNc * ( 9 + iNc ) ) * sizeof ( double ) );
    double  pdTables[EOS_METHOD_LAST_DOUBLE];
    int     piTables[EOS_METHOD_LAST_INTEGER];
-   double* pPc  = pMw  + iNc;
-   double* pTc  = pPc  + iNc;
-   double* pVc  = pTc  + iNc;
-   double* pIft = pVc  + iNc;
-   double* pAc  = pIft + iNc;
-   double* pT   = pAc  + iNc;
-   double* pA   = pT   + 1;
-   double* pB   = pA   + iNc;
-   double* pC   = pB   + iNc;
-   double* pI   = pC   + iNc;
-   EosPvtTable *pvttable;
-   int i;
-
    /* Default temperature SI units */
    *pT = 373.16;
-
-   /* Component terms */
-   for ( i = 0; i < iNc; i++ ) 
-   {
-      pMw[i]  = pMolecularWeight[i];
-      pPc[i]  = pCriticalPressure[i];
-      pTc[i]  = pCriticalTemperature[i];
-      pVc[i]  = pCriticalVolume[i];
-      pAc[i]  = pAcentricFactor[i];
-      pA[i]   = pOmegaA[i];
-      pB[i]   = pOmegaB[i];
-      pC[i]   = pShiftC[i];
-      pIft[i] = 0.0;
-   }
-
-   /* Binary interaction terms */
-   for ( i = 0; i < iNc * iNc; i++ ) 
-   {
-      pI[i] = pBinary[i]; 
-   }
 
    /* Initialize integers for PVT */
    if ( isRK )
@@ -158,18 +116,16 @@ EosPvtTable *EosCauldron::ConcoctBrew ( int iNc, int isRK, double *pMolecularWei
    pdTables[EOS_METHOD_VTUNE4]      = pLohrenz[4];
 
    /* Do the deed */
-   pvttable = ( EosPvtTable* ) new EosPvtTable ( 3, piTables, pdTables, pMw, pT, NULL );
+   //EosPvtTable *pvttable = new EosPvtTable( 3, piTables, pdTables, pMw, pT, NULL );
+   EosPvtTable *pvttable = new EosPvtTable( 3, piTables, pdTables, pvtData, pT, NULL );
 
    /* Free the molecular weight */
-   free ( pMw );
+   //free ( pMw );
 
    /* Return pointer */
    return ( pvttable );
 }
 
-/* 
-// EosGetProperties
-//
 // Interface routine to compute the phase properties 
 //
 // Set EosCauldron.h for description of input
@@ -179,63 +135,76 @@ EosPvtTable *EosCauldron::ConcoctBrew ( int iNc, int isRK, double *pMolecularWei
 // 3) Construct EosPvtModel instance
 // 4) Do flash
 // 5) Deconstruct EosCauldron and EosPvtModel
-*/
-void EosCauldron::EosGetProperties
-   (
-         int iFlashes, 
-         int iOil,
-         int iGas,
-         double *pPressure,
-         double *pTemperature,
-         double *pAccumulation,
-         double *pPhaseAcc,
-         double *pMassFraction,
-         double *pDensity,
-         double *pViscosity,
-         EosPvtTable *pvttable
-   )
+void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
+                                    int iOil,              // C index of oil phase 
+                                    int iGas,              // C index of gas phase 
+                                    double *pPressure,     // Pointer to array of reference phase pressures (SI units) of size the number of objects
+                                    double *pTemperature,  // Pointer to array of temperatures  (SI units) of size the number of objects.
+                                    double *pAccumulation, // Pointer to array of mass accumulations (SI units). The array is over all objects and is of size 
+                                                           // number of objects (varies first) 
+                                                           // components (varies last)
+                                    double *pPhaseAcc,     // Pointer to array of phase accumulations on a mass basis (SI units). The array is 
+                                                           // over all objects and is of size number of 
+                                                           // objects (varies first)
+                                                           // phases (varies last)
+                                                           // Can be set to NULL
+                                    double *pMassFraction, // Pointer to array of phase mass fractions. The array is over all objects and is of size
+                                                           // number of objects (varies first)
+                                                           // number of components (+1 if enthalpies required)
+                                                           // phases (varies last)
+                                                           // Can be set to NULL
+                                    double *pDensity,      // Pointer to array of densities on a mass basis (SI units). The array is over all objects and is of size
+                                                           // number of objects (varies first) 
+                                                           // phases (varies last)
+                                                           // Can be set to NULL
+                                    double *pViscosity,    // Pointer to array of viscosities (SI units). The array is over all objects and is of size
+                                                           // number of objects (varies first)
+                                                           // phases (varies last)
+                                                           // Can be set to NULL if viscosities not required
+                                    EosPvtTable *pvttable  // Pointer to a cached Pvt table
+                                  )
 {
-   int piApplication[EOS_APPLICATION_LAST_INTEGER];
-   double *pointR[EOS_APPLICATION_LAST_DARRAY];
-   int *pointI[EOS_APPLICATION_LAST_IARRAY];
-   double pdFlasher[EOS_LAST_DOUBLE];
-   int piFlasher[EOS_LAST_INTEGER];
+   int          piApplication[EOS_APPLICATION_LAST_INTEGER];
+   double      *pointR[EOS_APPLICATION_LAST_DARRAY];
+   int         *pointI[EOS_APPLICATION_LAST_IARRAY];
+   double       pdFlasher[EOS_LAST_DOUBLE];
+   int          piFlasher[EOS_LAST_INTEGER];
    EosPvtModel *pvtmodel;
    EosCauldron *program;
 
    /* Set the integer data */
    piApplication[EOS_APPLICATION_COMPONENTS] = pvttable->GetNumberHydrocarbons ( );
-   piApplication[EOS_APPLICATION_FLASHES] = iFlashes;
-   piApplication[EOS_APPLICATION_LIQUID] = iOil;
-   piApplication[EOS_APPLICATION_VAPOUR] = iGas;
+   piApplication[EOS_APPLICATION_FLASHES]    = iFlashes;
+   piApplication[EOS_APPLICATION_LIQUID]     = iOil;
+   piApplication[EOS_APPLICATION_VAPOUR]     = iGas;
 
    /* Set integer pointers */
-   pointI[INTEGERDATA] = piApplication;
-   pointI[EOS_APPLICATION_EOSCOMPS] = NULL;
+   pointI[INTEGERDATA]                 = piApplication;
+   pointI[EOS_APPLICATION_EOSCOMPS]    = NULL;
    pointI[EOS_APPLICATION_INDIRECTION] = NULL;
-   pointI[EOS_APPLICATION_PHASES] = NULL;
+   pointI[EOS_APPLICATION_PHASES]      = NULL;
 
    /* Set real pointers */
-   pointR[REALDATA] = NULL;
-   pointR[EOS_APPLICATION_PRESSURE] = pPressure;
-   pointR[EOS_APPLICATION_TEMPERATURE] = pTemperature;
-   pointR[EOS_APPLICATION_ACCUMULATION] = pAccumulation;
-   pointR[EOS_APPLICATION_DENSITY] = pDensity;
-   pointR[EOS_APPLICATION_DDENSITY] = NULL;
-   pointR[EOS_APPLICATION_TOTALPHASE] = pPhaseAcc;
-   pointR[EOS_APPLICATION_DTOTALPHASE] = NULL;
-   pointR[EOS_APPLICATION_VISCOSITIES] = pViscosity;
-   pointR[EOS_APPLICATION_DVISCOSITIES] = NULL;
-   pointR[EOS_APPLICATION_TENSIONS] = NULL;
-   pointR[EOS_APPLICATION_DTENSIONS] = NULL;
-   pointR[EOS_APPLICATION_FRACTION] = pMassFraction;
-   pointR[EOS_APPLICATION_DFRACTION] = NULL;
-   pointR[EOS_APPLICATION_DEPTH] = NULL;
-   pointR[EOS_APPLICATION_SPLIT] = NULL;
-   pointR[EOS_APPLICATION_KVALUES] = NULL;
-   pointR[EOS_APPLICATION_BPRESSURE] = NULL;
-   pointR[EOS_APPLICATION_DPRESSURE] = NULL;
-   pointR[EOS_APPLICATION_MW] = NULL;
+   pointR[REALDATA]                      = NULL;
+   pointR[EOS_APPLICATION_PRESSURE]      = pPressure;
+   pointR[EOS_APPLICATION_TEMPERATURE]   = pTemperature;
+   pointR[EOS_APPLICATION_ACCUMULATION]  = pAccumulation;
+   pointR[EOS_APPLICATION_DENSITY]       = pDensity;
+   pointR[EOS_APPLICATION_DDENSITY]      = NULL;
+   pointR[EOS_APPLICATION_TOTALPHASE]    = pPhaseAcc;
+   pointR[EOS_APPLICATION_DTOTALPHASE]   = NULL;
+   pointR[EOS_APPLICATION_VISCOSITIES]   = pViscosity;
+   pointR[EOS_APPLICATION_DVISCOSITIES]  = NULL;
+   pointR[EOS_APPLICATION_TENSIONS]      = NULL;
+   pointR[EOS_APPLICATION_DTENSIONS]     = NULL;
+   pointR[EOS_APPLICATION_FRACTION]      = pMassFraction;
+   pointR[EOS_APPLICATION_DFRACTION]     = NULL;
+   pointR[EOS_APPLICATION_DEPTH]         = NULL;
+   pointR[EOS_APPLICATION_SPLIT]         = NULL;
+   pointR[EOS_APPLICATION_KVALUES]       = NULL;
+   pointR[EOS_APPLICATION_BPRESSURE]     = NULL;
+   pointR[EOS_APPLICATION_DPRESSURE]     = NULL;
+   pointR[EOS_APPLICATION_MW]            = NULL;
    pointR[EOS_APPLICATION_PHASEPRESSURE] = NULL;
 
    /* Flasher integer data */
@@ -255,10 +224,10 @@ void EosCauldron::EosGetProperties
    pdFlasher[EOS_BUBBLEREDUCE]     = 0.5;
 
    /* Read Cauldron data */
-   program = new EosCauldron ( 0, pointI, pointR );
+   program = new EosCauldron( 0, pointI, pointR );
 
    /* Construct model */
-   pvtmodel = new EosPvtModel ( 0, piFlasher, pdFlasher );
+   pvtmodel = new EosPvtModel( 0, piFlasher, pdFlasher );
 
    /* Do the flash */
    pvtmodel->DoFlash( program, &pvttable );
@@ -268,97 +237,63 @@ void EosCauldron::EosGetProperties
    delete program;
 }
 
-/* 
-// Class EosCauldron
-*/
-EosCauldron::EosCauldron ( )
+// Constructor application object
+EosCauldron::EosCauldron ()
 {
-   this->Initialize ( 0, NULL, NULL );
+   this->Initialize( 0, NULL, NULL );
 }
-/* 
-// EosCauldron
-// 
+
 // Constructor application object
 // 
-// iVersion (input): Version of flasher (set to zero)
-// pointI (input):   Array of pointers to integer arrays
-//                   as is described above when using external
-//                   memory
-//        (output):  Except for the first integer array, 
-//                   array of pointers to integer arrays
-//                   as is described above when using internal
-//                   memory
-// pointR (input):   Array of pointers to double precision arrays
-//                   as is described above
-//        (output):  Except for the first double array, 
-//                   array of pointers to double arrays
-//                   as is described above when using internal
-//                   memory
-//
 // 1) Allocate memory
 // 2) Set current flash to zero
 // 3) If no input data supply defaults
 // 4) Else call ReadAllData to read in the data
-*/
-EosCauldron::EosCauldron ( int iVersion, int **pointI, double **pointR )
+EosCauldron::EosCauldron( int iVersion,   // Version of flasher (set to zero)
+                          int **pointI,   // (in) Array of pointers to integer arrays as is described above when using external memory
+                                          // (ou) Except for the first integer array, array of pointers to integer arrays
+                          double **pointR // (in) Array of pointers to double precision arrays as is described above when using external memeory
+                                          // (out) Except for the first double array, array of pointers to double arrays
+                         )
 {
-
    /* Initialize current flash */
    this->Initialize ( iVersion, pointI, pointR );
 }
 
-/* 
-// EosCauldron copy constructor
+// Copy constructor
 //
 // 1) Make a copy, but do not set iOwnMemory
-*/
-EosCauldron::EosCauldron ( EosCauldron &self )
+EosCauldron::EosCauldron( const EosCauldron & self )
 {   
-   this->iCurrentFlash = self.iCurrentFlash;
-   this->iFlashes = self.iFlashes;
-   this->iLiquidPhase = self.iLiquidPhase;
-   this->iVapourPhase = self.iVapourPhase;
-   this->iComponents = self.iComponents;
-   this->pInd = self.pInd;
-   this->pInd1 = self.pInd1;
-   this->pInd2 = self.pInd2;
-   this->pSavedPhase = self.pSavedPhase;
-   this->dMinPressure = self.dMinPressure;
-   this->pPressure = self.pPressure;
-   this->pTemperature = self.pTemperature;
-   this->pAccumulation = self.pAccumulation;
-   this->pMassFraction = self.pMassFraction;
+   this->iCurrentFlash      = self.iCurrentFlash;
+   this->iFlashes           = self.iFlashes;
+   this->iLiquidPhase       = self.iLiquidPhase;
+   this->iVapourPhase       = self.iVapourPhase;
+   this->iComponents        = self.iComponents;
+   this->pInd               = self.pInd;
+   this->pInd1              = self.pInd1;
+   this->pInd2              = self.pInd2;
+   this->pSavedPhase        = self.pSavedPhase;
+   this->dMinPressure       = self.dMinPressure;
+   this->pPressure          = self.pPressure;
+   this->pTemperature       = self.pTemperature;
+   this->pAccumulation      = self.pAccumulation;
+   this->pMassFraction      = self.pMassFraction;
    this->pPhaseAccumulation = self.pPhaseAccumulation;
-   this->pDensity = self.pDensity;
-   this->pViscosity = self.pViscosity;
-   this->pSavedSplit = self.pSavedSplit;
-   this->pSavedKvalue = self.pSavedKvalue;
+   this->pDensity           = self.pDensity;
+   this->pViscosity         = self.pViscosity;
+   this->pSavedSplit        = self.pSavedSplit;
+   this->pSavedKvalue       = self.pSavedKvalue;
 }
 
-/* 
-// ~EosCauldron 
-//
-// Destructor 
-//
-// 1) Delete all memory
-*/
-EosCauldron::~EosCauldron(  )
-{
-}
-
-/* 
-// Initialize
-// 
 // Initialize constructor application object
 //
 // 1) Allocate memory
 // 2) Set current flash to zero
 // 3) If no input data supply defaults
 // 4) Else call ReadAllData to read in the data
-*/
-void EosCauldron::Initialize ( int iVersion, int **pointI, double **pointR )
+void EosCauldron::Initialize( int iVersion, int **pointI, double **pointR )
 {
-
    /* Initialize current flash */
    this->iCurrentFlash = 0;
 
@@ -383,87 +318,56 @@ void EosCauldron::Initialize ( int iVersion, int **pointI, double **pointR )
       this->pSavedSplit = this->pPressure;
       this->pSavedKvalue = this->pPressure;
    }
-
-   /* Read application data */
-   else
+   else /* Read application data */
    {
       this->ReadAllData( iVersion, pointI, pointR );
    }
 }
 
-/* 
-// WriteWaterIndex
-//
 // Routine to write out the index of the water component 
 //
 // Returns Cauldron index of water component
-//
-// 1) Get index of water component
-*/
 int EosCauldron::WriteWaterIndex( )
 {
    return( -1 );
 }
 
-/* 
-// WriteOldValues
-//
 // See if we need to restore old K values
 //
 // Returns value of iRestore
-//
-// 1) Get iRestore
-*/
 int EosCauldron::WriteOldValues( )
 {
    return( EOS_OPTION_OFF );
 }
 
-/* 
-// WriteNumberFlashes
-// 
 // Write out number of flashes 
 //
 // Returns total number of flashes
-//
-// 1) Return the number of flashes
-*/
 int EosCauldron::WriteNumberFlashes( )
 {
    return( this->iFlashes );
 }
 
-/* 
-// WriteIsothermal
-// 
 // Write out whether we are isothermal
 //
 // Returns 1 if isothermal, 0 if thermal
-//
-// 1) Return whether system is isothermal
-*/
-int EosCauldron::WriteIsothermal( )
+int EosCauldron::WriteIsothermal()
 {
    return ( EOS_OPTION_OFF );
 }
 
-/* 
-// WriteMinimumTemperature
-// 
 // Write the minimum temperature
 //
 // Returns the minimum temperature
 //
 // 1) Determine the minimum temperature
-*/
-double EosCauldron::WriteMinimumTemperature( )
+double EosCauldron::WriteMinimumTemperature()
 {
    double dA, dB;
-   int i;
 
    /* Set minimum */
    dA = this->pTemperature[0];
-   for ( i = 1; i < this->iFlashes; i++ )
+   for ( int i = 1; i < this->iFlashes; ++i )
    {
       dB = this->pTemperature[i];
       dA = dA < dB ? dA : dB;
@@ -473,161 +377,89 @@ double EosCauldron::WriteMinimumTemperature( )
    return( dA );
 }
 
-/* 
-// WriteOutputData
-// 
-// Various terms needed for output 
-//    pDrv 
-//       derivative level
-//    pGetV
-//       get viscosity
-//    pGetT
-//       get tension
-//    pGetH
-//       get enthalpies
-//    pGetM
-//       get molecular weights
-//    pVolume
-//       indicator for whether densities or volumes returned
-//    pMolar
-//       output is to be molar
-//    pMolarDensity
-//       keep molar output as molar densities, otherwise
-//       convert to mass
+// Returns output controls needed by flasher
 //
+// Various terms needed for output 
 // 1) Get data
 // 2) Do some checks for consistency
-*/
-void EosCauldron::WriteOutputData( int *pDrv, int *pGetV,
-   int *pGetT, int *pGetH, int *pGetM,
-   int *pVolume, int *pMolar,
-   int *pMolarDensity )
+void EosCauldron::WriteOutputData( int *pDrv,         // pDrv          derivative level
+                                   int *pGetV,        // pGetV         get viscosity
+                                   int *pGetT,        // pGetT         get tension
+                                   int *pGetH,        // pGetH         get enthalpies
+                                   int *pGetM,        // pGetM         get molecular weights
+                                   int *pVolume,      // pVolume       indicator for whether densities or volumes returned
+                                   int *pMolar,       // pMolar        output is to be molar
+                                   int *pMolarDensity // pMolarDensity keep molar output as molar densities, otherwise convert to mass
+                                 )
 {
-
    /* Set the terms */
-   *pDrv = EOS_NODRV;
-   *pGetV = ( this->pViscosity != NULL );
-   *pGetT = EOS_OPTION_OFF;
-   *pGetH = EOS_OPTION_OFF;
-   *pGetM = EOS_OPTION_OFF;
-   *pVolume = EOS_OPTION_OFF;
-   *pMolar = EOS_OPTION_OFF;
+   *pDrv          = EOS_NODRV;
+   *pGetV         = ( this->pViscosity != NULL );
+   *pGetT         = EOS_OPTION_OFF;
+   *pGetH         = EOS_OPTION_OFF;
+   *pGetM         = EOS_OPTION_OFF;
+   *pVolume       = EOS_OPTION_OFF;
+   *pMolar        = EOS_OPTION_OFF;
    *pMolarDensity = EOS_OPTION_OFF;
 }
 
-/* 
 // Write Control Data
 // 
 // Get control terms for flasher
-//
-// pType
-//    Number of hydrocarbon phases allowed in flasher, either
-//       EOS_TOF_2P
-//          Two hydrocarbon phases may be present
-//       EOS_TOF_0P
-//          No hydrocarbon phases present
-//       EOS_SINGLE_PHASE_OIL
-//          Single phase oil only possible
-//       EOS_SINGLE_PHASE_GAS
-//          Single phase gas only possible
-// pSaved
-//    Indicator for whether saved K values used
-// pNobj
-//    Total number of objects
-// pFlash
-//    Do the flash
-// pProp
-//    Get properties
-// pBubble
-//    Do a bubble dew point calculation instead of a flash
-// pWater
-//    Do water phase calculations
-// pInit
-//    Do initialization or separator calculations; values are
-//       EOS_FLASH_CALCULATIONS
-//          Indicates that the flasher will be used for flash 
-//       EOS_COMPOSITIONAL_GRADING
-//          Indicates that the flasher will be used for 
-//          compositional grading calculations.
-//       EOS_SEPARATOR_FLASH
-//          Indicates that the flasher will be used for 
-//          separator calculations.
-// pBubbleDew
-//    Indicates whether bubble point tracking to be used for
-//    a single phase mixture
-// pPseudoProperties
-//    Indicates whether pseudo phase properties to be generated
-//    for Cauldron
-//
 // 1) Access and return data
-*/
-void EosCauldron::WriteControlData
-   (
-         int *pType,
-         int *pSaved,
-         int *pNobj,
-         int *pFlash,
-         int *pProp,
-         int *pBubble,
-         int *pWater,
-         int *pInit,
-         int *pBubbleDew,
-         int *pPseudoProperties
-   )
+void EosCauldron::WriteControlData( int *pType,            // Number of hydrocarbon phases allowed in flasher, either
+                                                           // EOS_TOF_2P           - Two hydrocarbon phases may be present
+                                                           // EOS_TOF_0P           - No hydrocarbon phases present
+                                                           // EOS_SINGLE_PHASE_OIL - Single phase oil only possible
+                                                           // EOS_SINGLE_PHASE_GAS - Single phase gas only possible
+                                                           //
+                                    int *pSaved,           // Indicator for whether saved K values used
+                                    int *pNobj,            // Total number of objects
+                                    int *pFlash,           // Do the flash
+                                    int *pProp,            // Get properties
+                                    int *pBubble,          // Do a bubble dew point calculation instead of a flash
+                                    int *pWater,           // Do water phase calculations
+                                    int *pInit,            // Do initialization or separator calculations; values are
+                                                           // EOS_FLASH_CALCULATIONS    - flasher will be used for flash 
+                                                           // EOS_COMPOSITIONAL_GRADING - flasher will be used for compositional grading calculations.
+                                                           // EOS_SEPARATOR_FLASH       - flasher will be used for separator calculations.
+                                                           //
+                                    int *pBubbleDew,       // pBubbleDew        bubble point tracking to be used for a single phase mixture
+                                    int *pPseudoProperties // pPseudoProperties pseudo phase properties to be generated for Application
+                                  )
 {
    /* Set the control terms */
-   *pType = EOS_TOF_2P;
-   *pSaved = EOS_OPTION_OFF;
-   *pNobj = this->iFlashes;
-   *pFlash = EOS_OPTION_ON;
-   *pProp = EOS_OPTION_ON;
-   *pBubble = EOS_OPTION_OFF;
-   *pWater = EOS_OPTION_OFF;
-   *pInit = EOS_OPTION_OFF;
-   *pBubbleDew = EOS_OPTION_OFF;
+   *pType             = EOS_TOF_2P;
+   *pSaved            = EOS_OPTION_OFF;
+   *pNobj             = this->iFlashes;
+   *pFlash            = EOS_OPTION_ON;
+   *pProp             = EOS_OPTION_ON;
+   *pBubble           = EOS_OPTION_OFF;
+   *pWater            = EOS_OPTION_OFF;
+   *pInit             = EOS_OPTION_OFF;
+   *pBubbleDew        = EOS_OPTION_OFF;
    *pPseudoProperties = EOS_OPTION_OFF;
 }
 
-/* 
-// WriteData
-//
 // Load grid block properties into temporary vectors 
-//
-// iM ** constant **
-//    Number of elements in slice
-// iGetK ** constant **
-//    Indicator if estimate of K values required
-// isSalt ** constant **
-//    Indicator if we are getting hydrocarbon or water information
-// pP
-//    Pointer to pressure to be loaded
-// pT 
-//    Pointer to temperature to be loaded
-// pZ
-//    Pointer to composition to be loaded
-// pSplit
-//    Pointer to phase split to be loaded
-// pValueK
-//    Pointer to K values to be loaded
-// pPhases
-//    Pointer to phase indicator (2 phase, etc.) to be loaded
-// pIsothermal
-//    If temperature data is present then returns that 
-//    this is not isothermal.
-// pMolar
-//    Indicates that the returned data is in terms of mole fractions
-//
 // 1) Set simple indicators
-// 2) Two similar loops, one for hydrocarbons and one for
-//    water phase, load pressure, temperature, and saved
-//    split information
-// 3) A second loop for compositional information including
-//    saved K values if required
-*/
-void EosCauldron::WriteData( int iM, int i1, int i2,
-   int iGetK, int isSalt, double *pP, double *pT, double *pZ,
-   double *pSplit, double *pValueK, int *pPhases,
-   int *pIsothermal, int *pMolar )
+// 2) Two similar loops, one for hydrocarbons and one for water phase, load pressure,
+//    temperature, and saved split information
+// 3) A second loop for compositional information including saved K values if required
+void EosCauldron::WriteData( int iM,           // Number of elements in slice
+                             int i1,           // Starting index between 0 and iM - 1
+                             int i2,           // Ending index between 0 and iM - 1
+                             int iGetK,        // Indicator if estimate of K values required
+                             int isSalt,       // Indicator if we are getting hydrocarbon or water information
+                             double *pP,       // Pointer to pressure to be loaded
+                             double *pT,       // Pointer to temperature to be loaded
+                             double *pZ,       // Pointer to composition to be loaded
+                             double *pSplit,   // Pointer to phase split to be loaded
+                             double *pValueK,  // Pointer to K values to be loaded
+                             int *pPhases,     // Pointer to phase indicator (2 phase, etc.) to be loaded
+                             int *pIsothermal, // If temperature data is present then returns that this is not isothermal.
+                             int *pMolar       // Indicates that the returned data is in terms of mole fractions
+                           )
 {
    int i, iJ, iNi, iNj;
    double dA, *pTa, *pTb;
@@ -725,38 +557,19 @@ void EosCauldron::WriteData( int iM, int i1, int i2,
    }
 }
 
-/* 
-// ReadMinimumPressure
-//
 // Routine to change minimum allowed pressure
-//
-// dMinP
-//    Minimum allowed pressure
 //
 // 1) Do reset
 //
-// Cauldron does specify a minimum pressure.  The flasher,
+// Cauldron does specify a minimum pressure. The flasher,
 // being smarter than Cauldron, can make a more intelligent
 // guess and hence the value is overwritten
-*/
 void EosCauldron::ReadMinimumPressure( double dMinP )
 {
    this->dMinPressure = dMinP;
 }
 
-/* 
-// ReadAllData
-//
 // Set all data from the outside world
-// 
-// iVersion ** constant **
-//    Version number, currently 0
-// pointI
-//    Pointer to integer arrays.  See EosPvtModel.h for a
-//    description 
-// pointR
-//    Pointer to double arrays.  See EosPvtModel.h for a
-//    description
 //
 // 1) Set constant terms at beginning of each array
 // 2) Allocate memory if requested
@@ -767,9 +580,10 @@ void EosCauldron::ReadMinimumPressure( double dMinP )
 //    memory used
 // 6) Set index of water component and number of implicit
 //    derivatives
-*/
-void EosCauldron::ReadAllData( int iVersion, int **pointI,
-   double **pointR )
+void EosCauldron::ReadAllData( int iVersion,   // Version number, currently 0
+                               int **pointI,   // Pointer to integer arrays.  See EosPvtModel.h for a description
+                               double **pointR //  Pointer to double arrays.  See EosPvtModel.h for a description
+                             )
 {
    int *pITerms;
 
@@ -779,79 +593,28 @@ void EosCauldron::ReadAllData( int iVersion, int **pointI,
    /* Loop over integer terms */
    this->iVapourPhase = pITerms[EOS_APPLICATION_VAPOUR];
    this->iLiquidPhase = pITerms[EOS_APPLICATION_LIQUID];
-   this->iComponents = pITerms[EOS_APPLICATION_COMPONENTS];
-   this->iFlashes = pITerms[EOS_APPLICATION_FLASHES];
+   this->iComponents  = pITerms[EOS_APPLICATION_COMPONENTS];
+   this->iFlashes     = pITerms[EOS_APPLICATION_FLASHES];
 
    /* Initialization terms */
    this->dMinPressure = 1.0;
 
    /* Simulator real variables */
-   this->pPressure = pointR[EOS_APPLICATION_PRESSURE];
-   this->pTemperature = pointR[EOS_APPLICATION_TEMPERATURE];
-   this->pAccumulation = pointR[EOS_APPLICATION_ACCUMULATION];
-   this->pDensity = pointR[EOS_APPLICATION_DENSITY];
+   this->pPressure          = pointR[EOS_APPLICATION_PRESSURE];
+   this->pTemperature       = pointR[EOS_APPLICATION_TEMPERATURE];
+   this->pAccumulation      = pointR[EOS_APPLICATION_ACCUMULATION];
+   this->pDensity           = pointR[EOS_APPLICATION_DENSITY];
    this->pPhaseAccumulation = pointR[EOS_APPLICATION_TOTALPHASE];
-   this->pMassFraction = pointR[EOS_APPLICATION_FRACTION];
-   this->pViscosity = pointR[EOS_APPLICATION_VISCOSITIES];
-   this->pSavedPhase = NULL;
-   this->pSavedSplit = NULL;
-   this->pSavedKvalue = NULL;
+   this->pMassFraction      = pointR[EOS_APPLICATION_FRACTION];
+   this->pViscosity         = pointR[EOS_APPLICATION_VISCOSITIES];
+   this->pSavedPhase        = NULL;
+   this->pSavedSplit        = NULL;
+   this->pSavedKvalue       = NULL;
 }
 
-/* 
 // ReadData
 //
 // Routine to store phase properties into Cauldron permanent arrays 
-//
-// iPhaseId ** constant **
-//    Type of phase to be processed
-//       EOS_SINGLE_PHASE_OIL
-//          Phase stored in "x" arrays in flasher
-//       EOS_SINGLE_PHASE_GAS
-//          Phase stored in "y" arrays in flasher
-//       EOS_WATER
-//          Aqueous phase
-// iM ** constant **
-//    Number of objects to read
-// iNc ** constant **
-//    Number of components used in the flasher
-// pPhases ** constant **
-//    Indentifier for phases
-//       EOS_SINGLE_PHASE_OIL
-//          Phase is a liquid
-//       EOS_SINGLE_PHASE_GAS
-//          Phase is a gas
-//    Not used for an aqueous phase load
-// pX ** constant **
-//    Pointer to compositions or overall mass/moles from the flasher
-// pDX ** constant **
-//    Pointer to derivatives of pX
-// pMx ** constant **
-//    Pointer to total mass/moles from the flasher
-// pDMx ** constant **
-//    Pointer to derivatives of pMx
-// pZx ** constant **
-//    Pointer to density or volume from the flasher
-// pDZx ** constant **
-//    Pointer to derivatives of pZx
-// pMux ** constant **
-//    Pointer to viscosity from the flasher
-// pDMux ** constant **
-//    Pointer to derivatives of pMux
-// pIfx ** constant **
-//    Pointer to tension from the flasher
-// pDIfx ** constant **
-//    Pointer to derivatives of pIfx
-// pHx ** constant **
-//    Pointer to enthalpies from flasher
-// pDHx ** constant **
-//    Pointer to derivatives of pHx
-// pP ** constant **
-//    Pointer to bubble or dew point from flasher
-// pDP ** constant **
-//    Pointer to derivatives of pP
-// pMW ** constant **
-//    Pointer to molecular weight from flasher
 //
 // 1) Set output control terms
 // 2) Set an indirection term corresponding to the proper phase
@@ -866,14 +629,32 @@ void EosCauldron::ReadAllData( int iVersion, int **pointI,
 // b) iPvtUse controls which components were present in
 //    the flasher
 // c) Only take loops over implicit derivative components
-*/
-void EosCauldron::ReadData( int iPhaseId, int iM, int iNc,
-   int *pPhases, double *pX, double *pDX,
-   double *pMx, double *pDMx, double *pZx,
-   double *pDZx, double *pMux, double *pDMux,
-   double *pIfx, double *pDIfx, double *pHx,
-   double *pDHx, double *pP, double *pDP,
-   double *pMwx )
+void EosCauldron::ReadData( int iPhaseId, /// Type of phase to be processed
+                                          ///    EOS_SINGLE_PHASE_OIL - Phase stored in "x" arrays in flasher
+                                          ///    EOS_SINGLE_PHASE_GAS - Phase stored in "y" arrays in flasher
+                                          ///    EOS_WATER            - Aqueous phase
+                            int iM,       /// Number of objects to read
+                            int iNc,      /// Number of components used in the flasher
+                            int *pPhases, /// (constant) Indentifier for phases
+                                          ///    EOS_SINGLE_PHASE_OIL - Phase is a liquid
+                                          ///    EOS_SINGLE_PHASE_GAS - Phase is a gas
+                                          ///    Not used for an aqueous phase load
+                            double *pX,   /// (constant) Pointer to compositions or overall mass/moles from the flasher
+                            double *pDX,  /// (constant) Pointer to derivatives of pX
+                            double *pMx,  /// (constant) Pointer to total mass/moles from the flasher
+                            double *pDMx, /// (constant) Pointer to derivatives of pMx
+                            double *pZx,  /// (constant) Pointer to density or volume from the flasher
+                            double *pDZx, /// (constant) Pointer to derivatives of pZx
+                            double *pMux, /// (constant) Pointer to viscosity from the flasher
+                            double *pDMux,/// (constant) Pointer to derivatives of pMux
+                            double *pIfx, /// (constant) Pointer to tension from the flasher
+                            double *pDIfx,/// (constant) Pointer to derivatives of pIfx
+                            double *pHx,  /// (constant) Pointer to enthalpies from flasher
+                            double *pDHx, /// (constant) Pointer to derivatives of pHx
+                            double *pP,   /// (constant) Pointer to bubble or dew point from flasher
+                            double *pDP,  /// (constant) Pointer to derivatives of pP
+                            double *pMwx  /// (constant) Pointer to molecular weight from flasher
+                          )
 {
    int iNi, iNl, i, iJ, iK, i1, i2;
    double *pTa, *pTb;
@@ -1004,42 +785,24 @@ void EosCauldron::ReadData( int iPhaseId, int iM, int iNc,
    }
 }
 
-/* 
-// ReadNull
-//
 // Routine to store phase properties into Cauldron permanent arrays 
 // when a phase is not present
-//
-// iPhaseId ** constant **
-//    Type of phase to be processed
-//       EOS_SINGLE_PHASE_OIL
-//          Phase stored in "x" arrays in flasher
-//       EOS_SINGLE_PHASE_GAS
-//          Phase stored in "y" arrays in flasher
-//       EOS_WATER
-//          Aqueous phase
-// iM ** constant **
-//    Number of objects to read
-// pPhases ** constant **
-//    Indentifier for phases
-//       EOS_SINGLE_PHASE_OIL
-//          Phase is a liquid
-//       EOS_SINGLE_PHASE_GAS
-//          Phase is a gas
-//    Not used for an aqueous phase load
 //
 // 1) Set output control terms
 // 2) Set an indirection term corresponding to the proper phase
 // 3) Load required phase properties
 //
 // Note that enthalpy terms loaded into composition arrays
-*/
-void EosCauldron::ReadNull
-   (
-         int iPhaseId,
-         int iM,
-         int *pPhases
-   )
+void EosCauldron::ReadNull( int iPhaseId, // Type of phase to be processed
+                                          //    EOS_SINGLE_PHASE_OIL  Phase stored in "x" arrays in flasher
+                                          //    EOS_SINGLE_PHASE_GAS  Phase stored in "y" arrays in flasher
+                                          //    EOS_WATER  Aqueous phase
+                            int iM,       // Number of objects to read
+                            int *pPhases  // Indentifier for phases
+                                          //    EOS_SINGLE_PHASE_OIL Phase is a liquid
+                                          //    EOS_SINGLE_PHASE_GAS Phase is a gas
+                                          //    Not used for an aqueous phase load
+                          )
 {
    int iNi, i, iJ, iK, i1, i2;
    double *pTa;
@@ -1169,42 +932,7 @@ void EosCauldron::ReadNull
    }
 }
 
-/* 
-//
-// ReadFlashResults
-// 
 // Subroutine to load flash results into permanent arrays 
-//
-// iM ** constant **
-//    Number of elements to load
-// iSet ** constant **
-//    Integer above which success is declared.  Generally when the
-//    pPhase array is of following form
-//       EOS_2P_NCV
-//          Nonconverged two phase flash
-//       EOS_2P_CV
-//          Converged two phase flash
-//       EOS_BP_NCV
-//          Nonconverged bubble point calculation
-//       EOS_BP_CV
-//          Converged bubble point calculation
-//    It is better to load partially converged blocks than
-//    to ditch them!
-// iReset ** constant **
-//    Integer controlling what happens if not successful. 
-//    Lack of success is generally indicated by the following
-//       EOS_1P_NCV
-//          Nonconverged one phase system
-//    If iReset is on then the current compositions and
-//    pressures are saved in order to be used later to see
-//    if we need to do the stability testing again.  
-// pSplit ** constant **
-//    Phase split from the flasher.  Overloaded with bubble
-//    or dew point for a bubble point calculation
-// pPhases ** constant **
-//    Current phase indicator from flasher; see above
-// pValueK ** constant **
-//    Current estimate of K values
 //
 // 1) Check to see if success
 // 2) If successful load K values and "split" terms as well 
@@ -1212,17 +940,22 @@ void EosCauldron::ReadNull
 // 3) If needs a reset on lack of success store the current
 //    fractions and pressure for later testing
 // 4) Otherwise indicate a single phase system
-*/
-void EosCauldron::ReadFlashResults
-   (
-         int iS,
-         int iM,
-         int iSet,
-         int iReset,
-         double *pSplit,
-         int *pPhases,
-         double *pValueK
-   )
+void EosCauldron::ReadFlashResults( int iS,   
+                                    int iM,         // Number of elements to load
+                                    int iSet,       // Integer above which success is declared. Generally when the pPhase array is of following form
+                                                    //    - EOS_2P_NCV - Nonconverged two phase flash
+                                                    //    - EOS_2P_CV  - Converged two phase flash
+                                                    //    - EOS_BP_NCV - Nonconverged bubble point calculation
+                                                    //    - EOS_BP_CV  - Converged bubble point calculation
+                                                    // It is better to load partially converged blocks than  to ditch them!
+                                    int iReset,     // Integer controlling what happens if not successful. Lack of success is generally indicated by the following
+                                                    //    - EOS_1P_NCV - Nonconverged one phase system
+                                                    // If iReset is on then the current compositions and pressures are saved in order to be used later 
+                                                    // to see if we need to do the stability testing again.
+                                    double *pSplit, // Phase split from the flasher.  Overloaded with bubble or dew point for a bubble point calculation
+                                    int *pPhases,   // Current phase indicator from flasher; see above
+                                    double *pValueK // Current estimate of K values
+                                  )
 {
    int i, i1, i2, iJ, iK, iNi, iTemp;
 
@@ -1266,14 +999,7 @@ void EosCauldron::ReadFlashResults
    }
 }
 
-/* 
-// ModifyPhaseIndicator
-//
 // Routine to modify phase property indicators 
-//
-// iDoAll ** constant **
-//    Indicator as to whether to modify all phase indicators
-//    or only the current flash
 //
 // 1) Divide the current phase indicator by 2 after adding
 //    1.  The definitions of the numbers EOS_FL_1P_NCV and
@@ -1281,29 +1007,24 @@ void EosCauldron::ReadFlashResults
 //    result in EOS_FL_1P.  This is necessary since the
 //    flasher needs to know whether a flash is converged
 //    or not, whereas the Cauldron storage can care less.
-*/
-void EosCauldron::ModifyPhaseIndicator( int iDoAll )
+void EosCauldron::ModifyPhaseIndicator( int iDoAll // Indicator as to whether to modify all phase indicators or only the current flash
+                                      )
 {
-   int iN, iJ;
-
    /* Reset objects */
    if ( iDoAll )
    {
-      for ( iN = 0; iN < this->iFlashes; iN++ )
+      for ( int iN = 0; iN < this->iFlashes; iN++ )
       {
          this->pSavedPhase[iN] = ( this->pSavedPhase[iN] + 1 ) / 2;
       }
    }
    else
    {
-      iJ = *this->pInd;
+      int iJ = *this->pInd;
       this->pSavedPhase[iJ] = ( this->pSavedPhase[iJ] + 1 ) / 2;
    }
 }
 
-/* 
-// ModifyPhaseIdentification
-//
 // Check to see which grid blocks to do stability test 
 //
 // 1) If no hydrocarbon phases then do nothing!
@@ -1316,7 +1037,6 @@ void EosCauldron::ModifyPhaseIndicator( int iDoAll )
 // 6) Else block is either EOS_FL_1P_NCV or EOS_FL_2P_NCV
 //
 // Note that EOS_FL_1P_CV means that no testing will be done
-*/
 void EosCauldron::ModifyPhaseIdentification( double dEnorm )
 {
    double dA, dB, dMass, dMaxMass, dVeryTiny;
@@ -1362,9 +1082,6 @@ void EosCauldron::ModifyPhaseIdentification( double dEnorm )
    }
 }
 
-/* 
-// ModifyOnePhaseIdentification
-//
 // Check to see which grid blocks to do stability test 
 //
 // 1) If no hydrocarbon phases then do nothing!
@@ -1374,7 +1091,6 @@ void EosCauldron::ModifyPhaseIdentification( double dEnorm )
 // 4) Else block is EOS_FL_1P_NCV
 //
 // This routine does not use previous results
-*/
 void EosCauldron::ModifyOnePhaseIdentification
    (
          double dEnorm
@@ -1416,58 +1132,39 @@ void EosCauldron::ModifyOnePhaseIdentification
    }
 }
 
-/* 
-// SetSlice
-//
-// Slice objects 
-// 
-// iTestPhase ** constant **
-//    Phase indicator for which to form the slice
-// iMVL ** constant **
-//    Slice length
-//
-// Returns the length of the slice
+// Slice objects and return the length of the slice
 //
 // 1) Fill up a slice of length up to iMVL based upon
 //    the value of iTestPhase as compared to the current
 //    state of the phase indicator 
-*/
-int EosCauldron::SetSlice( int iTestPhase, int iMVL )
+int EosCauldron::SetSlice( int iTestPhase, // Phase indicator for which to form the slice
+                           int iMVL        // Slice length
+                         )
 {
-   int i, iJ;
-
    /* Load up the blocks */
-   i = 0;
+   int i = 0;
    while ( i < iMVL && this->iCurrentFlash < this->iFlashes )
    {
-      iJ = this->iCurrentFlash++;
+      int iJ = this->iCurrentFlash++;
       if ( this->pSavedPhase[iJ] == iTestPhase )
       {
          this->pInd[i++] = iJ;
       }
    }
 
-   /* End of function */
    return( i );
 }
 
 
-/* 
-// Aandebeurt
-//
 // See if any more objects present to compute
-// 
-// iM ** constant ** 
-//   Set the indirection "aan de beurt" to this value if greater than zero
-// iTestPhase ** constant ** 
-//   Phase indicator for which to check if anything more present for calculations
 //
 // Returns 1 if anything aan de beurt, 0 otherwise
 //
 // 1) If iM greater than zero reset the iM place
 // 2) Get the next object aan de beurt
-*/
-int EosCauldron::Aandebeurt( int iM, int iTestPhase )
+int EosCauldron::Aandebeurt( int iM,        // Set the indirection "aan de beurt" to this value if greater than zero
+                             int iTestPhase // Phase indicator for which to check if anything more present for calculations
+                           )
 {
    int i = 0;
 
@@ -1494,30 +1191,18 @@ int EosCauldron::Aandebeurt( int iM, int iTestPhase )
    return ( i );
 }
 
-/* 
-// SetTrivialSlice
 //
 // Trivial slice 
 // 
 // 1) Set slice for a single block
-*/
-void EosCauldron::SetTrivialSlice( )
+void EosCauldron::SetTrivialSlice()
 {
    /* Set indirection indicator */
    *this->pInd = 0;
 }
 
-/* 
-// SetPointers
-// 
 // Set the pointers to temporary memory
 //
-// iN
-//    Length of calculations
-// pFinal
-//    On input the end of the temporary memory.  On output
-//    the new end
-// 
 // 1) Need to set aside some memory for indirection arrays
 //    Note that these integer arrays are allowed to have
 //    double space just to ensure that the allocation
@@ -1530,8 +1215,9 @@ void EosCauldron::SetTrivialSlice( )
 // first calculates the memory assuming that the pointers
 // start at null to get the length, the second after the
 // allocation to set the correct locations
-*/
-void EosCauldron::SetPointers( int iN, double **pFinal )
+void EosCauldron::SetPointers( int iN,          // Length of calculations
+                               double **pFinal  // On input the end of the temporary memory. On output the new end
+                             )
 {
    /* Indirection terms */
    this->pInd1 = (int *) *pFinal;
@@ -1546,14 +1232,10 @@ void EosCauldron::SetPointers( int iN, double **pFinal )
    *pFinal = this->pSavedKvalue + this->iFlashes * this->iComponents;
 }
 
-/* 
-// ResetSlice
-// 
 // Reset the slice back to the beginning of objects
 //
 // 1) Set the current flash to the beginning of the objects
-*/
-void EosCauldron::ResetSlice( )
+void EosCauldron::ResetSlice()
 {
    this->iCurrentFlash = 0;
 }

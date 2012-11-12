@@ -7,7 +7,8 @@
 
 #include "NumericFunctions.h"
 #include "EosPack.h"
-#include "EosPvtModel.h"
+#include "EosApplication.h"
+#include "EosPvtTable.h"
 
 #define OIL 1
 #define GAS 0
