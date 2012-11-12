@@ -5,7 +5,7 @@ if (! $?IBS_LIMITEDBUILDANDINSTALL) then
    setenv LD_LIBRARY_PATH /nfs/rvl/groups/sgs/spirit2/APPL/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6/lib:$LD_LIBRARY_PATH
 endif
 
-set version = "v2012.07nightly"
+set version = "v2013.01nightly"
 if ($# == 1) then
    set version = $1
 endif
@@ -78,9 +78,20 @@ cd $wd
 echo "Installing 3rdparty stuff"
 echo "Installing geocosm"
 /bin/cp -f geocosm.tar $miscDirectory/geocosm.tar
+echo "unpacking geocosm archive"
 cd $miscDirectory
 tar xf geocosm.tar
 /bin/rm -f geocosm.tar
+echo "Installing geocosm 3rd party stuff"
+cd geocosm/3rdparty
+echo "unpacking Xerces archive"
+tar xf Xerces.tar
+echo "unpacking xsd archive"
+tar xf xsd.tar
+echo "Installing Matlab runtime"
+echo "-P installLocation=`pwd`/matlabmcr/matlab" > MCRInstaller.in
+./MCRInstaller.bin -silent -options MCRInstaller.in
+
 cd $wd
 
 echo "Changing group to g_psaz00"

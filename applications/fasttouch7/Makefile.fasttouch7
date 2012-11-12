@@ -17,6 +17,7 @@ FLEX_INCLUDE    = $(FLEXLMINCLUDEDIR)/include
 # Touch Stone 7.0 include paths
 #
 TSLIB_DIR         = /nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlvam0/opt/tslib
+TSLIB_DIR         = /nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/opt/tslib3.2
 XERCESCPP_INC     = $(TSLIB_DIR)/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4/include
 GEOCOSMXML_INC    = $(TSLIB_DIR)/geocosmxml
 GEOCOSM_INC       = $(TSLIB_DIR)/include

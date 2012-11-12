@@ -83,12 +83,10 @@ MasterTouch::MasterTouch (FastTouch * fastTouch) : m_fastTouch (fastTouch)
 
 MasterTouch::~MasterTouch()
 {
-#ifdef ISCRASHING
     delete tcfInfo;
     delete tslib;
     Geocosm::TsLibPluginManager::UnloadPluginLibraries( );
     TsLib_Close();
-#endif
 }
 
 /** The run function is responsible for carrying out the functional
