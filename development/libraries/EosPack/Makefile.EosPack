@@ -17,6 +17,9 @@ LIBOBJECTS = \
 	     EosPack.o \
 	     EosCauldron.o \
 	     EosPvtModel.o \
+	     EosPvtTable.o \
+	     EosUtils.o \
+	     EosWater.o \
 	     Parse.o \
 	     polynomials.o
 
@@ -28,6 +31,9 @@ LIBINCLUDES = \
 	      EosPack.h \
 	      EosCauldron.h \
 	      EosPvtModel.h \
+	      EosPvtTable.h \
+	      EosUtils.h \
+	      EosWater.h \
 	      Parse.h \
 	      polynomials.h
 
