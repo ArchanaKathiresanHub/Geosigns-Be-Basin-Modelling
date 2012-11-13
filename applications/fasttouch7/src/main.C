@@ -74,7 +74,7 @@ int main (int argc, char ** argv)
     {
         PrintUsage (argv0);
         PetscFinalize ();
-        return -1;
+        _exit (-1);
     }
  
     char outputFileName[128];
@@ -178,7 +178,7 @@ int main (int argc, char ** argv)
         }
         // Close PetSc
         PetscFinalize ();
-        return -1;
+        _exit (-1);
    }
 #endif
  
@@ -193,7 +193,7 @@ int main (int argc, char ** argv)
     if (!status)
     {
         ReportProgress (string ("ERROR: Could not start FastTouch7"));
-        return -1;
+        _exit (-1);
     }
 
     ReportProgress (string ("Reading Project File: ") + inputFileName);
@@ -204,14 +204,14 @@ int main (int argc, char ** argv)
     if (!status)
     {
         ReportProgress (string ("ERROR: Could not open Project File: ") + inputFileName);
-        return -1;
+        _exit (-1);
     }
     
     status = fastTouch->removeResqPropertyValues ();
     if (!status)
     {
         ReportProgress ("ERROR: Failed to remove existing Resq property values: ");
-        return -1;
+        _exit (-1);
     }
 
     ReportProgress ("Starting Simulation");
@@ -221,7 +221,7 @@ int main (int argc, char ** argv)
     if (!status)
     {
         ReportProgress ("ERROR: Failed to complete simulation");
-        return -1;
+        _exit (-1);
     }
  
     ReportProgress ("Finished Simulation, Saved output maps");
@@ -230,7 +230,7 @@ int main (int argc, char ** argv)
     {
         ReportProgress (string ("Did not save project file: ") + outputFileName);
         ReportProgress ("Finished Simulation prematurely");
-        return -1;
+        _exit (-1);
     }   
     ReportProgress (string ("Saved project file: ") + outputFileName);
     ReportProgress ("Finished Simulation");
@@ -251,7 +251,7 @@ int main (int argc, char ** argv)
     PetscFinalize ();
 
     // To prevent functions registered with atexit being called as they are causing crashes
-   return (status ? 0 : -1);
+   _exit (status ? 0 : -1);
 }
 
 /** Print using Petsc print function. */
