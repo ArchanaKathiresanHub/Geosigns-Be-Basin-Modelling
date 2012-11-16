@@ -1194,9 +1194,9 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVT
    double deltaX = 100.0;
    int    face;
 
-   Saturation::Phase whichPhase = Saturation::convert ( phase );
-
    if ( phases ( phase ) > ConcentrationLowerLimit ) {
+      Saturation::Phase whichPhase = Saturation::convert ( phase );
+
       elementPressure = subdomainPhasePressure ( element.getK (), element.getJ (), element.getI ());
 
       for ( face = 0; face < NumberOfFluxFaces; ++face ) {
@@ -3772,6 +3772,7 @@ double ExplicitMultiComponentFlowSolver::totalLayerHcMass ( FormationSubdomainEl
    const LayerProps& theLayer = formationGrid.getFormation ();
 
    const ElementVolumeGrid& concentrationGrid = theLayer.getVolumeGrid ( NumberOfPVTComponents );
+   const ElementVolumeGrid& immobileComponentsGrid = theLayer.getVolumeGrid ( ImmobileSpeciesValues::NumberOfImmobileSpecies );
 
    FiniteElementMethod::ElementGeometryMatrix geometryMatrix;
    PVTComponents massConcentration;
@@ -3785,6 +3786,9 @@ double ExplicitMultiComponentFlowSolver::totalLayerHcMass ( FormationSubdomainEl
 
    CompositionPetscVector concentrations;
    concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES, true );
+
+   ImmobileSpeciesPetscVector layerImmobileComponents;
+   layerImmobileComponents.setVector ( immobileComponentsGrid, theLayer.getImmobileComponentsVec (), INSERT_VALUES );
 
    double layerMass = 0.0;
    double elementMass;
@@ -3813,8 +3817,8 @@ double ExplicitMultiComponentFlowSolver::totalLayerHcMass ( FormationSubdomainEl
                                               lambda,
                                               m_massMatrixQuadratureDegree );
 
-                  massConcentration *= elementPoreVolume;
-                  elementMass = massConcentration.sum ();
+                  elementMass = ( massConcentration.sum () + layerImmobileComponents ( k, j, i ).sum ()) * elementPoreVolume;
+
                   layerMass += elementMass;
 
                }
@@ -3828,6 +3832,7 @@ double ExplicitMultiComponentFlowSolver::totalLayerHcMass ( FormationSubdomainEl
    }
 
    concentrations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+   layerImmobileComponents.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
 
    return layerMass;
 }
