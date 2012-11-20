@@ -94,6 +94,9 @@ static bool containsFormation (FormationSurfaceVector & formationSurfacePairs, c
 static bool containsSurface (FormationSurfaceVector & formationSurfacePairs, const Surface * surface);
 static bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, const Formation * formation, const Surface * surface);
 
+static bool snapshotSorter (const Snapshot * snapshot1, const Snapshot * snapshot2);
+static bool snapshotIsEqual (const Snapshot * snapshot1, const Snapshot * snapshot2);
+
 
 static void outputSnapshotFormationData (ostream & outputStream, DoublePair & coordinatePair,
       const Snapshot * snapshot, const Formation * formation, PropertyList & properties,
@@ -706,12 +709,18 @@ bool parseStrings (StringVector & strings, char * stringsString)
 bool parseAges (DoubleVector & ages, char * agesString)
 {
    char * strPtr = agesString;
+   char * commasection;
    char * section;
-   while (splitString (strPtr, '-', section, strPtr))
+   while (splitString (strPtr, ',', commasection, strPtr))
    {
-      double number = atof (section);
-      ages.push_back (number);
+      while (splitString (commasection, '-', section, commasection))
+      {
+	 double number = atof (section);
+	 ages.push_back (number);
+      }
+      ages.push_back (-1); // separator
    }
+   ages.push_back (-1); // separator
    return true;
 }
 
@@ -723,31 +732,82 @@ bool acquireSnapshots (ProjectHandle * projectHandle, SnapshotList & snapshots, 
       snapshots = * allSnapshots;
       return true;
    }
-   else if (ages.size () == 1)
-   {
-      const Snapshot * snapshot = projectHandle->findSnapshot (ages.front ());
-      snapshots.push_back (snapshot);
-   }
    else
    {
-      double firstAge = ages[0];
-      double secondAge = ages[1];
-      if (firstAge > secondAge)
+      int index;
+      double firstAge = -1;
+      double secondAge = -1;
+      for (index = 0; index < ages.size(); ++index)
       {
-	 Swap (firstAge, secondAge);
-      }
-
-      SnapshotList * allSnapshots = projectHandle->getSnapshots ();
-      SnapshotList::iterator snapshotIter;
-      for (snapshotIter = allSnapshots->begin (); snapshotIter != allSnapshots->end (); ++snapshotIter)
-      {
-	 const Snapshot * snapshot = * snapshotIter;
-	 if (snapshot->getTime () >= firstAge && snapshot->getTime () <= secondAge)
+	 if (ages[index] >= 0)
 	 {
-	    snapshots.push_back (snapshot);
+	    if (firstAge < 0)
+	       firstAge = ages[index];
+	    else
+	       secondAge = ages[index];
+	 }
+	 else
+	 {
+	    if (secondAge < 0)
+	    {
+	       if (firstAge >= 0)
+	       {
+		  const Snapshot * snapshot = projectHandle->findSnapshot (firstAge);
+		  if(snapshot) snapshots.push_back (snapshot);
+		  if(debug && snapshot) cerr << "adding single snapshot " << snapshot->getTime() << endl;
+	       }
+	    }
+	    else
+	    {
+	       if (firstAge >= 0)
+	       {
+		  if (firstAge > secondAge)
+		  {
+		     Swap (firstAge, secondAge);
+		  }
+
+		  SnapshotList * allSnapshots = projectHandle->getSnapshots ();
+		  SnapshotList::iterator snapshotIter;
+		  for (snapshotIter = allSnapshots->begin (); snapshotIter != allSnapshots->end (); ++snapshotIter)
+		  {
+		     const Snapshot * snapshot = * snapshotIter;
+		     if (snapshot->getTime () >= firstAge && snapshot->getTime () <= secondAge)
+		     {
+			if (snapshot) snapshots.push_back (snapshot);
+			if(debug && snapshot) cerr << "adding range snapshot " << snapshot->getTime() << endl;
+		     }
+		  }
+	       }
+	    }
+	    firstAge = secondAge = -1;
 	 }
       }
    }
+   sort (snapshots.begin(), snapshots.end(), snapshotSorter);
+
+   if (debug)
+   {
+      cerr << "Snapshots ordered" << endl;
+      SnapshotList::iterator snapshotIter;
+      for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end();++snapshotIter)
+      {
+	 cerr << (*snapshotIter)->getTime() << endl;
+      }
+   }
+
+   SnapshotList::iterator firstObsolete = unique (snapshots.begin(), snapshots.end(), snapshotIsEqual);
+   snapshots.erase(firstObsolete, snapshots.end());
+
+   if (debug)
+   {
+      cerr << "Snapshots uniquefied" << endl;
+      SnapshotList::iterator snapshotIter;
+      for (snapshotIter = snapshots.begin(); snapshotIter != snapshots.end();++snapshotIter)
+      {
+	 cerr << (*snapshotIter)->getTime() << endl;
+      }
+   }
+
    return true;
 }
 
@@ -859,6 +919,16 @@ bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, c
    return false;
 }
 
+bool snapshotIsEqual (const Snapshot * snapshot1, const Snapshot * snapshot2)
+{
+   return snapshot1->getTime() == snapshot2->getTime();
+}
+
+bool snapshotSorter (const Snapshot * snapshot1, const Snapshot * snapshot2)
+{
+   return snapshot1->getTime() > snapshot2->getTime();
+}
+
 void showUsage ( const char* command,
       const char* message )
 {
@@ -873,7 +943,7 @@ void showUsage ( const char* command,
    cout << "Usage (case sensitive!!): " << command << endl << endl
          << "\t-coordinates x1,y1,x2,y2....                       coordinates to produce output for" << endl
          << "\t[-properties name1,name2...]                       properties to produce output for" << endl
-         << "\t[-ages age1[-age2]]                                limit the snapshot ages to a single value or range" << endl << endl
+         << "\t[-ages age1[-age2],...]                            select snapshot ages using single values and/or ranges" << endl << endl
          << "\t[-history]                                         produce output in a time-centric instead of a depth-centric fashion" << endl << endl
          << "\t[-topsurfaces formation1,formation2...]            produce output for the surfaces at the top of the given formations" << endl
          << "\t[-bottomsurfaces formation1,formation2...]         produce output for the surfaces at the bottom of the given formations" << endl
