@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace bmtotrx
 {
@@ -22,7 +23,7 @@ namespace bmtotrx
 
         public string escape_function_name(string test_name)
         {
-            string escaped = test_name.Replace('-', '_');
+            string escaped = Regex.Replace(test_name, "[^a-zA-z0-9_]", "_");
             return escaped;
         }
 
@@ -62,7 +63,7 @@ namespace bmtotrx
 
         void method_header(string method_name)
         {
-            code.WriteLine("\t\t[TestMethod()]");
+            code.WriteLine("\t\t[TestMethod(),Description(\"{0}\")]", method_name);
             code.WriteLine("\t\tpublic void {0}() {{", escape_function_name(method_name));
         }
 
