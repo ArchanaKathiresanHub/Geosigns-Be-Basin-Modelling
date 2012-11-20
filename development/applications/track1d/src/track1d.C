@@ -628,7 +628,7 @@ void outputSnapshotFormationData (ostream & outputStream, DoublePair & coordinat
       if (!containsFormationSurface (formationSurfacePairs, formation, 0)) return;
       outputStream << coordinatePair.first << "," << coordinatePair.second << "," << snapshot->getTime ();
       outputStream << "," << formation->getName ();
-      outputStream << ",";
+      outputStream << "," << formation->getName () << " sub-surface " << k;
    }
 
    PropertyList::iterator propertyIter;
