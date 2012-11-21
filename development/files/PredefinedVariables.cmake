@@ -21,12 +21,12 @@ if(UNIX)
 	set( FP_INCLUDE_DIRS "/glb/home/ksaho3/FunctionParser/src" CACHE PATH "Path to Function Parser library include directory" )
 	set( TS_INCLUDE_DIRS "/glb/home/ksaho3/TsLib3.1.1_64/Lib" CACHE PATH "Path to Geocosm's TsLib include files" )
 	set( TS_LIBRARIES "/glb/home/ksaho3/TsLib3.1.1_64/Lib/libTsLib.a" CACHE PATH "Path to Geocosm's TsLib library" )
-	set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlvam0/opt/tslib" CACHE PATH "Path to Geocosm's TsLib 7.0" )
-	set( TS7_LIBRARY_DIR "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlvam0/opt/tslib/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library" )
+	set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/opt/tslib3.2" CACHE PATH "Path to Geocosm's TsLib 7.0" )
+	set( TS7_LIBRARY_DIR "${TS7_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library" )
 
-	set( XSD_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlvam0/opt/tslib/3rdparty/xsd/xsd-3.3.0.b3-i686-linux-gnu" CACHE PATH "Path to Codesynthesis XSD library" )
+	set( XSD_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/opt/tslib3.2/3rdparty/xsd/xsd-3.3.0.b3-i686-linux-gnu" CACHE PATH "Path to Codesynthesis XSD library" )
 
-	set( XERCES_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlvam0/opt/tslib/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
+	set( XERCES_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/opt/tslib3.2/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
 
 	set( QWT_ROOT "/nfs/rvl/users/ibs/IBS/EXTERNALS/QWT/curr/LinuxRHEL64_x86_64/64/OPTIMIZED" CACHE PATH "Path to QWT library" )
 endif(UNIX)
