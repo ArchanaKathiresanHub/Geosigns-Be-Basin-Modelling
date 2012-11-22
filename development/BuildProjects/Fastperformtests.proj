@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
+
+  <PropertyGroup>
+    <VWSCall>$(ssh_command) "/bin/sh -x bin/fastperformtests"  </VWSCall>
+    <copy_script>$(scp_command) "$(MSBuildProjectDirectory)\..\..\scripts\fastperformtests" "$(AgentAccount)@$(AgentHost):bin" </copy_script>
+    <copy_results_back>$(ssh_command) "set -e ; cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/$(AgentAccount)/RegressionTests ; find -maxdepth 2 -type f | cpio -o" | $(cpio_exe) -id </copy_results_back>
+    <regression_test_dir>$(OutDir)/regression_tests</regression_test_dir>
+  </PropertyGroup>
+  
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <Target Name="Build">
+    <Message Text="MSBuildProjectDirectory is $(MSBuildProjectDirectory)"/>
+    <Message Text="OutDir = $(OutDir)" />
+    <!-- -->
+    <Exec IgnoreExitCode="false" Command="$(copy_script)" />
+    <Exec IgnoreExitCode="true" Command="$(VWSCall)" />
+    <!-- -->
+	<RemoveDir Directories="$(regression_test_dir)" Condition="Exists('$(regression_test_dir)')" />
+    <MakeDir Directories="$(regression_test_dir)" Condition="!Exists('$(regression_test_dir)')" />
+    <Exec
+      Command="$(copy_results_back)"
+      WorkingDirectory="$(regression_test_dir)"
+      />
+  </Target>
+</Project>
