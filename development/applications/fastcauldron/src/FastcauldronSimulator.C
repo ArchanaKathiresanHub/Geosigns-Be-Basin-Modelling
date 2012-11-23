@@ -1950,6 +1950,34 @@ bool FastcauldronSimulator::checkMobileLayerThicknesses () const {
 
 //------------------------------------------------------------//
 
+void FastcauldronSimulator::updateSourceRocksForGenex () {
+
+   DataAccess::Interface::MutableSourceRockList::iterator srIter;
+
+   for ( srIter = m_sourceRocks.begin (); srIter != m_sourceRocks.end (); ++srIter ) {
+      GeoPhysics::GeoPhysicsSourceRock* sourceRock = dynamic_cast<GeoPhysics::GeoPhysicsSourceRock*>(*srIter);
+
+      sourceRock->addHistoryToNodes ();
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void FastcauldronSimulator::saveGenexHistory () {
+
+   DataAccess::Interface::MutableSourceRockList::iterator srIter;
+
+   for ( srIter = m_sourceRocks.begin (); srIter != m_sourceRocks.end (); ++srIter ) {
+      GeoPhysics::GeoPhysicsSourceRock* sourceRock = dynamic_cast<GeoPhysics::GeoPhysicsSourceRock*>(*srIter);
+
+      sourceRock->saveSourceRockNodeAdsorptionHistory ();
+   }
+
+}
+
+//------------------------------------------------------------//
+
 void FastcauldronSimulator::updateSourceRocksForDarcy () {
 
    if ( not getMcfHandler ().solveFlowEquations ()) {

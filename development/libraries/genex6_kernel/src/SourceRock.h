@@ -93,13 +93,22 @@ public:
    /// \brief Get the species-manager from chemical-model.
    const SpeciesManager& getSpeciesManager () const;
 
+   /// \brief Add history objects to the nodes.
+   bool addHistoryToNodes ();
+
+   /// \brief Save data for all items on the history list.
+   void saveSourceRockNodeAdsorptionHistory ();
+
+   /// \brief Clear the history list.
+   void clearSourceRockNodeAdsorptionHistory ();
+
+   /// \brief Collect the history data from any nodes selected.
+   void collectSourceRockNodeHistory ();
+
 protected:
 
    /// Construct the valid source rock node set, the valid snapshot intervals 
    bool preprocess ();
-
-   /// \brief Add history objects to the nodes.
-   bool addHistoryToNodes ();
 
    /// Main processing functionality
    bool process();
@@ -207,8 +216,6 @@ protected:
 private: 
    Genex6::ChemicalModel * loadChemicalModel( const Interface::SourceRock * sr,
                                               const bool printInitialisationDetails = true );
-
-   void saveSourceRockNodeAdsorptionHistory ();
 
    void setLayerName( const string & layerName );
 

@@ -127,6 +127,7 @@ void SourceRock::clear()
    clearSnapshotIntervals();
    clearSimulator();
    clearSourceRockNodes();
+   clearSourceRockNodeAdsorptionHistory ();
 
    m_theSnapShotOutputMaps.clear();
    m_adsorpedOutputMaps.clear ();
@@ -210,6 +211,7 @@ void SourceRock::clearSnapshotIntervals()
 }
 void SourceRock::clearSourceRockNodes()
 {
+
    std::vector<Genex6::SourceRockNode*>::iterator itEnd = m_theNodes.end();
 
    for(std::vector<Genex6::SourceRockNode*>::iterator it = m_theNodes.begin(); it !=itEnd; ++ it) {
@@ -1059,6 +1061,17 @@ void SourceRock::saveSourceRockNodeAdsorptionHistory () {
       (*histIter)->save ();
    }
 
+}
+
+void SourceRock::clearSourceRockNodeAdsorptionHistory () {
+
+   SourceRockAdsorptionHistoryList::iterator histIter;
+
+   for ( histIter = m_sourceRockNodeAdsorptionHistory.begin (); histIter != m_sourceRockNodeAdsorptionHistory.end (); ++histIter ) {
+      delete *histIter;
+   }
+
+   m_sourceRockNodeAdsorptionHistory.clear ();
 }
 
 bool SourceRock::isNodeActive ( const double VreAtPresentDay,
@@ -2191,6 +2204,17 @@ void SourceRock::zeroTimeStepAccumulations () {
 }
 
 
+void SourceRock::collectSourceRockNodeHistory () {
+
+   std::vector<Genex6::SourceRockNode*>::iterator itEnd = m_theNodes.end();
+
+   for(std::vector<Genex6::SourceRockNode*>::iterator it = m_theNodes.begin(); it !=itEnd; ++ it) {
+      (*it)->collectHistory ();
+   }
+
+}
+
+
 double SourceRock::getMaximumTimeStepSize ( const double depositionTime ) const {
    return m_theSimulator->GetMaximumTimeStepSize ( depositionTime );
 }
@@ -2268,9 +2292,11 @@ void SourceRock::computeTimeInstance ( const double &startTime,
       if( m_applySRMixing ) {
          (*itNode)->RequestMixing( m_theChemicalModel );
       }
+
       if ( not isInitialTimeStep ) {
          (*itNode)->collectHistory ();
       }
+
       (*itNode)->ClearInputHistory();
    } 
 }

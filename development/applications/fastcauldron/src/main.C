@@ -31,7 +31,7 @@
 #undef FLEXLM
 #endif
 
-#define FLEXLM  1
+// #define FLEXLM  1
 
 #ifdef FLEXLM
 // FlexLM license handling
@@ -256,6 +256,8 @@ int main(int argc, char** argv)
    appctx->setInitialTimeStep ();
    FastcauldronSimulator::getInstance ().getMcfHandler ().initialise ();
    FastcauldronSimulator::getInstance ().updateSourceRocksForDarcy ();
+   // Must be done after updating source-rocks for Darcy, since this disables adsorption.
+   FastcauldronSimulator::getInstance ().updateSourceRocksForGenex ();
 
    // Now that every thing has been loaded, we can correct the property lists:
    //     o Property list;
@@ -346,6 +348,10 @@ int main(int argc, char** argv)
      Basin_Modelling::FEM_Grid basin ( appctx );
      // Do Coupled Calculation
      basin.solveCoupled ( solverHasConverged, errorInDarcy );
+   }
+
+   if ( appctx->integrateGenexEquations ()) {
+      FastcauldronSimulator::getInstance ().saveGenexHistory ();
    }
 
    /// Delete all the arrays used to store the quadrature points and weights.

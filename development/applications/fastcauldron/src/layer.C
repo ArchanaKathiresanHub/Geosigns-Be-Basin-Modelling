@@ -1073,6 +1073,7 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
       sourceRock->initialiseNodes ();
       sourceRock->initialize ( printInitialisationDetails );
       sourceRock->preprocess ( nodeIsValid, vre, printInitialisationDetails );
+      sourceRock->addHistoryToNodes ();
 
       delete nodeIsValid;
       delete vre;
@@ -2685,6 +2686,7 @@ void LayerProps::integrateGenexEquations ( const double previousTime,
                                      &permeabilityInterp,
                                      &vreInterp,
                                      m_genexData );
+
 
 //    if ( previousTime - currentTime > sourceRock->getMaximumTimeStepSize ( depoage ) and currentTime < depoage ) {
 //       extractGenexDataInterval ( previousTime, currentTime, vesInterp, temperatureInterp );

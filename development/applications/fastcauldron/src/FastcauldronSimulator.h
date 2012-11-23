@@ -161,6 +161,14 @@ public :
    void printSnapshotProperties () const;
 
 
+   /// \brief Update any flags in the source rocks for the GenEx simulation.
+   ///
+   /// This includes adding node history.
+   void updateSourceRocksForGenex ();
+
+   /// \brief Save GenEx history.
+   void saveGenexHistory ();
+
    /// \brief Update any flags in the source rocks for the Darcy simulation.
    ///
    /// This includes disabling of Adsorption.
