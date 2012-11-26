@@ -7,6 +7,11 @@
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>x64\Release\</OutputPath>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <VWSCall>$(ssh_command) "/bin/sh -x bin/fastperformtests"  </VWSCall>
     <copy_script>$(scp_command) "$(MSBuildProjectDirectory)\..\..\scripts\fastperformtests" "$(AgentAccount)@$(AgentHost):bin" </copy_script>
