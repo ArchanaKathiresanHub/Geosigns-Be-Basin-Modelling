@@ -76,7 +76,8 @@ typedef map < const Formation *, unsigned int > FormationMaxKMap;
 
 typedef map < const Property *, const GridMap * > GridMapsMap;
 
-typedef pair < const Formation *, const Surface * > FormationSurface;
+typedef pair < const Surface *, int > SubSurface;
+typedef pair < const Formation *, SubSurface > FormationSurface;
 typedef vector < FormationSurface > FormationSurfaceVector;
 
 
@@ -89,17 +90,20 @@ static bool acquireSnapshots (ProjectHandle * projectHandle, SnapshotList & snap
 static bool acquireProperties (ProjectHandle * projectHandle, PropertyList & properties, StringVector & propertyNames);
 static bool acquireFormationSurfaces (ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationNames, bool useTop);
 static bool acquireFormations (ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationNames);
+static bool acquireSurfaces (ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationSurfaceNames);
 
 static bool containsFormation (FormationSurfaceVector & formationSurfacePairs, const Formation * formation);
 static bool containsSurface (FormationSurfaceVector & formationSurfacePairs, const Surface * surface);
-static bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, const Formation * formation, const Surface * surface);
+static bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, const Formation * formation, const Surface * surface, int index);
+
+static bool specifiesFormationSurface (FormationSurface & formationSurface, const Formation * formation, const Surface * surface, int subSurfaceIndex);
 
 static bool snapshotSorter (const Snapshot * snapshot1, const Snapshot * snapshot2);
 static bool snapshotIsEqual (const Snapshot * snapshot1, const Snapshot * snapshot2);
 
 
 static void outputSnapshotFormationData (ostream & outputStream, DoublePair & coordinatePair,
-      const Snapshot * snapshot, const Formation * formation, PropertyList & properties,
+      const Snapshot * snapshot, FormationSurface & formationSurface, PropertyList & properties,
       SnapshotFormationPropertyValueMap & allPropertyValues,
       FormationSurfaceVector & formationSurfacePairs, double i, double j, unsigned int k, unsigned int maxK);
 
@@ -135,13 +139,15 @@ void Swap (T & x, T & y)
 
 int main (int argc, char ** argv)
 {
-   DoublePairVector coordinatePairs;
+   DoublePairVector realWorldCoordinatePairs;
+   DoublePairVector logicalCoordinatePairs;
    StringVector propertyNames;
    DoubleVector ages;
 
    StringVector topSurfaceFormationNames;
    StringVector bottomSurfaceFormationNames;
    StringVector formationNames;
+   StringVector formationSurfaceNames;
 
    SnapshotList snapshots;
    PropertyList properties;
@@ -149,6 +155,7 @@ int main (int argc, char ** argv)
    FormationSurfaceVector formationSurfacePairs;
 
    bool versusDepth = true;
+   bool reverseOutputOrder = false;
 
    string inputProjectFileName = "";
    string outputFileName = "";
@@ -168,9 +175,22 @@ int main (int argc, char ** argv)
             showUsage ( argv[ 0 ], "Argument for '-coordinates' is missing");
             return -1;
          }
-	 if (!parseCoordinates (coordinatePairs, argv[++arg]))
+	 if (!parseCoordinates (realWorldCoordinatePairs, argv[++arg]))
 	 {
 	    showUsage ( argv[ 0 ], "Illegal argument for '-coordinates'");
+	    return -1;
+	 }
+      }
+      else if (strncmp (argv[arg], "-logical-coordinates", Max (2, (int) strlen (argv[arg]))) == 0)
+      {
+         if (arg + 1 >= argc)
+         {
+            showUsage ( argv[ 0 ], "Argument for '-logical-coordinates' is missing");
+            return -1;
+         }
+	 if (!parseCoordinates (logicalCoordinatePairs, argv[++arg]))
+	 {
+	    showUsage ( argv[ 0 ], "Illegal argument for '-ij'");
 	    return -1;
 	 }
       }
@@ -213,6 +233,19 @@ int main (int argc, char ** argv)
 	    return -1;
 	 }
       }
+      else if (strncmp (argv[arg], "-surfaces", Max (5, (int) strlen (argv[arg]))) == 0)
+      {
+         if (arg + 1 >= argc || argv[arg+1][0] == '-')
+         {
+            showUsage ( argv[ 0 ], "Argument for '-surfaces' is missing");
+            return -1;
+         }
+	 if (!parseStrings (formationSurfaceNames, argv[++arg]))
+	 {
+	    showUsage ( argv[ 0 ], "Illegal argument for '-formations'");
+	    return -1;
+	 }
+      }
       else if (strncmp (argv[arg], "-topsurfaces", Max (2, (int) strlen (argv[arg]))) == 0)
       {
          if (arg + 1 >= argc || argv[arg+1][0] == '-')
@@ -242,6 +275,10 @@ int main (int argc, char ** argv)
       else if (strncmp (argv[arg], "-history", Max (3, (int) strlen (argv[arg]))) == 0)
       {
          versusDepth = false;
+      }
+      else if (strncmp (argv[arg], "-reverse", Max (3, (int) strlen (argv[arg]))) == 0)
+      {
+         reverseOutputOrder = true;
       }
       else if (strncmp (argv[arg], "-basement", Max (3, (int) strlen (argv[arg]))) == 0)
       {
@@ -466,6 +503,7 @@ int main (int argc, char ** argv)
    acquireFormationSurfaces (projectHandle, formationSurfacePairs, topSurfaceFormationNames, true);
    acquireFormationSurfaces (projectHandle, formationSurfacePairs, bottomSurfaceFormationNames, false);
    acquireFormations (projectHandle, formationSurfacePairs, formationNames);
+   acquireSurfaces (projectHandle, formationSurfacePairs, formationSurfaceNames);
 
    if (formationSurfacePairs.empty ())
    {
@@ -474,7 +512,7 @@ int main (int argc, char ** argv)
       for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
       {
 	 const Formation * formation = * formationIter;
-	 formationSurfacePairs.push_back (FormationSurface (formation, 0));
+	 formationSurfacePairs.push_back (FormationSurface (formation, SubSurface (0, -1)));
       }
    }
 
@@ -533,7 +571,7 @@ int main (int argc, char ** argv)
       }
    }
    
-   outputStream << "X(m),Y(m),Age(Ma),Formation,Surface";
+   outputStream << "X(m),Y(m),I,J,Age(Ma),Formation,Surface,LayerIndex";
 
    for (propertyIter = properties.begin (); propertyIter != properties.end (); ++propertyIter)
    {
@@ -541,7 +579,22 @@ int main (int argc, char ** argv)
    }
    outputStream << endl;
 
-   for (coordinatePairIter = coordinatePairs.begin (); coordinatePairIter != coordinatePairs.end (); ++coordinatePairIter)
+   // convert i,j pairs into x,y pairs
+   for (coordinatePairIter = logicalCoordinatePairs.begin (); coordinatePairIter != logicalCoordinatePairs.end (); ++coordinatePairIter)
+   {
+      DoublePair & coordinatePair = * coordinatePairIter;
+
+      double x, y;
+      if (!grid->getPosition (coordinatePair.first, coordinatePair.second, x, y))
+      {
+	 cerr << "illegal (i,j) coordinate pair: (" << coordinatePair.first << ", " << coordinatePair.second << ")" << endl;
+	 continue;
+      }
+
+      realWorldCoordinatePairs.push_back (DoublePair (x, y));
+   }
+
+   for (coordinatePairIter = realWorldCoordinatePairs.begin (); coordinatePairIter != realWorldCoordinatePairs.end (); ++coordinatePairIter)
    {
       DoublePair & coordinatePair = * coordinatePairIter;
 
@@ -560,7 +613,7 @@ int main (int argc, char ** argv)
 	    for (formationSurfaceIter = formationSurfacePairs.begin ();
 		  formationSurfaceIter != formationSurfacePairs.end (); ++formationSurfaceIter)
 	    {
-	       const Formation * formation = (* formationSurfaceIter).first ;
+	       const Formation * formation = (* formationSurfaceIter).first;
 
 	       if (!allPropertyValues[snapshot][formation][properties[0]]) continue;
 
@@ -568,7 +621,8 @@ int main (int argc, char ** argv)
 	       unsigned int k;
 	       for (k = 0; k < maxK; ++k)
 	       {
-		  outputSnapshotFormationData (outputStream, coordinatePair, snapshot, formation, properties, allPropertyValues, formationSurfacePairs, i, j, k, maxK);
+		  int kUsed = reverseOutputOrder ? maxK -1 - k : k;
+		  outputSnapshotFormationData (outputStream, coordinatePair, snapshot, (* formationSurfaceIter), properties, allPropertyValues, formationSurfacePairs, i, j, kUsed, maxK);
 	       }
 	    }
 	 }
@@ -578,18 +632,19 @@ int main (int argc, char ** argv)
 	 for (formationSurfaceIter = formationSurfacePairs.begin ();
 	       formationSurfaceIter != formationSurfacePairs.end (); ++formationSurfaceIter)
 	 {
-	    const Formation * formation = (* formationSurfaceIter).first ;
+	    const Formation * formation = (* formationSurfaceIter).first;
 
 	    unsigned int maxK = formationMaxKMap[formation];
 	    unsigned int k;
 	    for (k = 0; k < maxK; ++k)
 	    {
+	       int kUsed = reverseOutputOrder ? maxK -1 - k : k;
 	       for (snapshotIter = snapshots.begin (); snapshotIter != snapshots.end (); ++snapshotIter)
 	       {
 		  const Snapshot * snapshot = * snapshotIter;
 		  if (!allPropertyValues[snapshot][formation][properties[0]]) continue;
 
-		  outputSnapshotFormationData (outputStream, coordinatePair, snapshot, formation, properties, allPropertyValues, formationSurfacePairs, i, j, k, maxK);
+		  outputSnapshotFormationData (outputStream, coordinatePair, snapshot, (* formationSurfaceIter), properties, allPropertyValues, formationSurfacePairs, i, j, kUsed, maxK);
 	       }
 	    }
 	 }
@@ -603,33 +658,46 @@ int main (int argc, char ** argv)
 }
 
 void outputSnapshotFormationData (ostream & outputStream, DoublePair & coordinatePair,
-      const Snapshot * snapshot, const Formation * formation, PropertyList & properties,
+      const Snapshot * snapshot, FormationSurface  & formationSurface, PropertyList & properties,
       SnapshotFormationPropertyValueMap & allPropertyValues,
       FormationSurfaceVector & formationSurfacePairs, double i, double j, unsigned int k, unsigned int maxK)
 {
+   int kInverse = (maxK - 1) - k;
+
+   const Formation * formation = formationSurface.first;
+   string formationSurfaceName;
+
    if (k == 0)
    {
-      if (!containsFormationSurface (formationSurfacePairs, formation, 0) &&
-	    !containsFormationSurface (formationSurfacePairs, formation, formation->getTopSurface ())) return;
-      outputStream << coordinatePair.first << "," << coordinatePair.second << "," << snapshot->getTime ();
-      outputStream << "," << formation->getName ();
-      outputStream << "," << formation->getTopSurface ()->getName ();
+
+      if (specifiesFormationSurface (formationSurface, formation, formation->getTopSurface (), kInverse))
+      {
+	 formationSurfaceName = formation->getTopSurface ()->getName ();
+      }
+      else return;
    }
    else if (k == maxK - 1)
    {
-      if (!containsFormationSurface (formationSurfacePairs, formation, 0) &&
-	    !containsFormationSurface (formationSurfacePairs, formation, formation->getBottomSurface ())) return;
-      outputStream << coordinatePair.first << "," << coordinatePair.second << "," << snapshot->getTime ();
-      outputStream << "," << formation->getName ();
-      outputStream << "," << formation->getBottomSurface ()->getName ();
+      if (specifiesFormationSurface (formationSurface, formation, formation->getBottomSurface (), kInverse))
+      {
+	 formationSurfaceName = formation->getBottomSurface ()->getName ();
+      }
+      else return;
    }
    else
    {
-      if (!containsFormationSurface (formationSurfacePairs, formation, 0)) return;
-      outputStream << coordinatePair.first << "," << coordinatePair.second << "," << snapshot->getTime ();
-      outputStream << "," << formation->getName ();
-      outputStream << "," << formation->getName () << " sub-surface " << k;
+      if (specifiesFormationSurface (formationSurface, formation, 0, kInverse))
+      {
+	 formationSurfaceName = "";
+      }
+      else return;
    }
+
+   outputStream << coordinatePair.first << "," << coordinatePair.second << "," << i << "," << j << "," << snapshot->getTime ();
+   outputStream << "," << formation->getName ();
+   outputStream << "," << formationSurfaceName;
+
+   outputStream << "," << kInverse;
 
    PropertyList::iterator propertyIter;
    for (propertyIter = properties.begin (); propertyIter != properties.end (); ++propertyIter)
@@ -852,7 +920,7 @@ bool acquireFormationSurfaces (ProjectHandle * projectHandle, FormationSurfaceVe
 	    cerr << "Could not find " << (useTop ? "Top " : "Bottom") << " surface for formation named '" << * stringIter << "'" << endl;
 	    continue;
 	 }
-	 formationSurfacePairs.push_back (FormationSurface (formation, surface));
+	 formationSurfacePairs.push_back (FormationSurface (formation, SubSurface (surface, -1)));
       }
    }
 
@@ -873,7 +941,51 @@ bool acquireFormations (ProjectHandle * projectHandle, FormationSurfaceVector & 
 	    continue;
 	 }
 
-	 formationSurfacePairs.push_back (FormationSurface (formation, 0));
+	 formationSurfacePairs.push_back (FormationSurface (formation, SubSurface (0, -1)));
+      }
+   }
+
+   return true;
+}
+
+bool acquireSurfaces (ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationSurfaceNames)
+{
+   if (formationSurfaceNames.size () != 0)
+   {
+      StringVector::iterator stringIter;
+      for (stringIter = formationSurfaceNames.begin (); stringIter != formationSurfaceNames.end (); ++stringIter)
+      {
+	 string surfaceName = * stringIter;
+	 char * formationName;
+	 char * formationSurfaceName;
+	 char surfaceNamePtr[256];
+	 strcpy (surfaceNamePtr, surfaceName.c_str ());
+
+	 if (splitString (surfaceNamePtr, ':', formationName, formationSurfaceName) == false) continue;
+	 if (formationName == 0 || strlen (formationName) == 0) continue;
+	 if (formationSurfaceName == 0 || strlen (formationSurfaceName) == 0) continue;
+
+	 const Formation * formation = projectHandle->findFormation (formationName);
+	 if (!formation)
+	 {
+	    cerr << "Could not find formation named '" << * stringIter << "'" << endl;
+	    continue;
+	 }
+
+	 if (formationSurfaceName[0] < '0' || formationSurfaceName[0] > '9')
+	 {
+	    const Surface * surface = projectHandle->findSurface (formationSurfaceName);
+	    if (!surface)
+	    {
+	       cerr << "Could not find surface named '" << formationSurfaceName << "'" << endl;
+	       continue;
+	    }
+	    formationSurfacePairs.push_back (FormationSurface (formation, SubSurface (surface, -1)));
+	 }
+	 else
+	 {
+	    formationSurfacePairs.push_back (FormationSurface (formation, SubSurface (0, atoi (formationSurfaceName))));
+	 }
       }
    }
 
@@ -900,23 +1012,33 @@ bool containsSurface (FormationSurfaceVector & formationSurfacePairs, const Surf
    for (fsIterator = formationSurfacePairs.begin (); fsIterator != formationSurfacePairs.end (); ++fsIterator)
    {
       FormationSurface & formationSurface = * fsIterator;
-      if (formationSurface.second == surface)
+      if (formationSurface.second.first == surface)
 	 return true;
    }
    return false;
 }
 
-bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, const Formation * formation, const Surface * surface)
+bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, const Formation * formation, const Surface * surface, int index)
 {
    if (formationSurfacePairs.empty ()) return true;
    FormationSurfaceVector::iterator fsIterator;
    for (fsIterator = formationSurfacePairs.begin (); fsIterator != formationSurfacePairs.end (); ++fsIterator)
    {
       FormationSurface & formationSurface = * fsIterator;
-      if (formationSurface.first == formation && formationSurface.second == surface)
+      if (formationSurface.first == formation &&
+	    ((formationSurface.second.second < 0 && formationSurface.second.first == surface) ||
+	     (formationSurface.second.first == 0 && formationSurface.second.second == index)))
 	 return true;
    }
    return false;
+}
+
+static bool specifiesFormationSurface (FormationSurface & formationSurface, const Formation * formation, const Surface * surface, int subSurfaceIndex)
+{
+   return (formationSurface.first == formation &&
+	 (formationSurface.second.first != 0 && formationSurface.second.first == surface) || 
+	 (formationSurface.second.second >= 0 && formationSurface.second.second == subSurfaceIndex) ||
+	 (formationSurface.second.first == 0 && formationSurface.second.second < 0));
 }
 
 bool snapshotIsEqual (const Snapshot * snapshot1, const Snapshot * snapshot2)
@@ -941,14 +1063,17 @@ void showUsage ( const char* command,
    }
 
    cout << "Usage (case sensitive!!): " << command << endl << endl
-         << "\t-coordinates x1,y1,x2,y2....                       coordinates to produce output for" << endl
+         << "\t-coordinates x1,y1,x2,y2....                       real-world coordinates to produce output for" << endl
+         << "\tlogical-coordinates i1,j1,i2,j2....                logical coordinates to produce output for" << endl
          << "\t[-properties name1,name2...]                       properties to produce output for" << endl
          << "\t[-ages age1[-age2],...]                            select snapshot ages using single values and/or ranges" << endl << endl
          << "\t[-history]                                         produce output in a time-centric instead of a depth-centric fashion" << endl << endl
+         << "\t[-reverse]                                         reverse the depth order (to bottom-up) in which output is produced" << endl << endl
          << "\t[-topsurfaces formation1,formation2...]            produce output for the surfaces at the top of the given formations" << endl
          << "\t[-bottomsurfaces formation1,formation2...]         produce output for the surfaces at the bottom of the given formations" << endl
-         << "\t[-formations formation1,formation2...]             produce output for the given formations" << endl << endl
-	 << "\t                                                   the three options above can include Crust or Mantle" << endl << endl
+         << "\t[-formations formation1,formation2...]             produce output for the given formations" << endl
+         << "\t[-surfaces formation1:<index|surface>,...]         produce output for the given formation surfaces" << endl << endl
+	 << "\t                                                   the four options above can include Crust or Mantle" << endl << endl
          << "\t[-basement]                                        produce output for the basement as well," << endl
 	 << "\t                                                   only needed if none of the three options above have been specified" << endl << endl
          << "\t[-project] projectname                             name of 3D Cauldron project file to produce output for" << endl
