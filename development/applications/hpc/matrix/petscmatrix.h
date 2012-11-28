@@ -174,7 +174,7 @@ namespace hpc
     const ValueType * nonZeros() const
     { return &m_nonZeros[0]; }
 
-    const SizeType numberNonZeros() const
+    SizeType numberNonZeros() const
     { return m_nonZeros.size(); }
 
   private:

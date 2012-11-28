@@ -3,6 +3,12 @@ project(matrix)
 
 
 # configuration
+
+#Compiler
+set( CMAKE_CXX_COMPILER "icpc" )
+set( CMAKE_C_COMPILER "icc")
+
+#BLAS
 set( BLA_VENDOR "Intel10_64lp_seq" CACHE STRING "Choice of BLAS/LAPACK vendor. Set to 'All' if any vendor isok. Vendors are: Goto, ATLAS PhiPACK, CXML, DXML, SunPerf, SCSL, SGIMATH, IBMESSL, Intel10_32 (intel mkl v10 32 bit), Intel10_64lp (intel mkl v10 64 bit,lp thread model, lp64 model), Intel10_64lp_seq (intel mkl v10 64 bit,sequential code, lp64 model), Intel( older versions of mkl 32 and 64 bit),ACML, ACML_MP, ACML_GPU, Apple, NAS, Generic" )
 set( BLAS_ROOT "/nfs/rvl/apps/3rdparty/intel/ics2011/composerxe-2011.3.174/mkl" CACHE PATH "Path to BLAS library" )
 set( BLAS_FOUND "ON" CACHE BOOL "Whether a BLAS library is available" )
@@ -46,19 +52,11 @@ add_executable(petscio.t
     generalexception.C
 )
 
-set_target_properties(petscio.t
-    PROPERTIES COMPILE_FLAGS "-fno-access-control"
-)
-
 add_executable(petscmatrix.t
     petscmatrix.t.C
     petscmatrix.C
     petscio.C
     generalexception.C
-)
-
-set_target_properties(petscmatrix.t
-    PROPERTIES COMPILE_FLAGS "-fno-access-control"
 )
 
 add_test(NAME petscio::convertHostToNetwork
