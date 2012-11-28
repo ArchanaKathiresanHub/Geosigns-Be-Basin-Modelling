@@ -92,9 +92,11 @@ static bool acquireFormationSurfaces (ProjectHandle * projectHandle, FormationSu
 static bool acquireFormations (ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationNames);
 static bool acquireSurfaces (ProjectHandle * projectHandle, FormationSurfaceVector & formationSurfacePairs, StringVector & formationSurfaceNames);
 
+#if 0
 static bool containsFormation (FormationSurfaceVector & formationSurfacePairs, const Formation * formation);
 static bool containsSurface (FormationSurfaceVector & formationSurfacePairs, const Surface * surface);
 static bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, const Formation * formation, const Surface * surface, int index);
+#endif
 
 static bool specifiesFormationSurface (FormationSurface & formationSurface, const Formation * formation, const Surface * surface, int subSurfaceIndex);
 
@@ -992,6 +994,7 @@ bool acquireSurfaces (ProjectHandle * projectHandle, FormationSurfaceVector & fo
    return true;
 }
 
+#if 0
 bool containsFormation (FormationSurfaceVector & formationSurfacePairs, const Formation * formation)
 {
    if (formationSurfacePairs.empty ()) return true;
@@ -1032,6 +1035,7 @@ bool containsFormationSurface (FormationSurfaceVector & formationSurfacePairs, c
    }
    return false;
 }
+#endif
 
 static bool specifiesFormationSurface (FormationSurface & formationSurface, const Formation * formation, const Surface * surface, int subSurfaceIndex)
 {
@@ -1063,8 +1067,8 @@ void showUsage ( const char* command,
    }
 
    cout << "Usage (case sensitive!!): " << command << endl << endl
-         << "\t-coordinates x1,y1,x2,y2....                       real-world coordinates to produce output for" << endl
-         << "\tlogical-coordinates i1,j1,i2,j2....                logical coordinates to produce output for" << endl
+         << "\t[-coordinates x1,y1,x2,y2....]                     real-world coordinates to produce output for" << endl
+         << "\t[-logical-coordinates i1,j1,i2,j2....]             logical coordinates to produce output for" << endl
          << "\t[-properties name1,name2...]                       properties to produce output for" << endl
          << "\t[-ages age1[-age2],...]                            select snapshot ages using single values and/or ranges" << endl << endl
          << "\t[-history]                                         produce output in a time-centric instead of a depth-centric fashion" << endl << endl
