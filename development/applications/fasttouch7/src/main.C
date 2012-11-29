@@ -38,6 +38,8 @@ static char help[] = "Parallel FastTouch \n\n";
 #undef __FUNCT__
 #define __FUNCT__ "main"
 
+#define EXIT(v)	{ if (debug) ReportProgress ("Exiting..."); exit(v); }
+
 /** Start clock to measure time taken. */
 void StartProgress (void);
 
@@ -50,7 +52,9 @@ void PrintUsage (char * argv0);
 /** Holds the argument for number of processors. */
 string NumProcessorsArg;
 
-static int rank = -1;
+int rank = -1;
+int numProcessors = -1;
+PetscTruth debug = PETSC_FALSE;
 
 /** Fast Touch application: Touch stone 7.0 implementation calculating the
  * porosity of the rock based on the temperature and pressure history. */
@@ -59,6 +63,7 @@ int main (int argc, char ** argv)
     PetscInitialize (&argc, &argv, (char *) 0, help);
 
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+    MPI_Comm_size (PETSC_COMM_WORLD, &numProcessors);
     
     char * argv0;
     if ((argv0 = strrchr (argv[0], '/')) == 0)
@@ -66,6 +71,8 @@ int main (int argc, char ** argv)
     else
         ++argv0;
     
+    PetscOptionsHasName (PETSC_NULL, "-debug", &debug);
+
     char inputFileName[128];
     PetscTruth inputFileSet;
  
@@ -74,7 +81,7 @@ int main (int argc, char ** argv)
     {
         PrintUsage (argv0);
         PetscFinalize ();
-        _exit (-1);
+        EXIT (-1);
     }
  
     char outputFileName[128];
@@ -86,17 +93,6 @@ int main (int argc, char ** argv)
         strcpy (outputFileName, inputFileName);
     }
  
-    char numProcessors[128];
-    PetscTruth numProcessorsSet;
-    
-    NumProcessorsArg = "";
-    PetscOptionsGetString (PETSC_NULL, "-procs", numProcessors, 128, &numProcessorsSet);
-    if (numProcessorsSet)
-    {
-        NumProcessorsArg += "_";
-        NumProcessorsArg += numProcessors;
-    }
-
     PetscTruth ddd = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
     if (ddd)
@@ -178,7 +174,7 @@ int main (int argc, char ** argv)
         }
         // Close PetSc
         PetscFinalize ();
-        _exit (-1);
+        EXIT (-1);
    }
 #endif
  
@@ -189,11 +185,12 @@ int main (int argc, char ** argv)
     DataAccess::Interface::ProjectHandle::UseFactory (objectFactory);
     
     StartProgress ();
+    if (debug) ReportProgress (string ("XAPPLRESDIR: ") + getenv ("XAPPLRESDIR"));
  
     if (!status)
     {
         ReportProgress (string ("ERROR: Could not start FastTouch7"));
-        _exit (-1);
+        EXIT (-1);
     }
 
     ReportProgress (string ("Reading Project File: ") + inputFileName);
@@ -204,14 +201,14 @@ int main (int argc, char ** argv)
     if (!status)
     {
         ReportProgress (string ("ERROR: Could not open Project File: ") + inputFileName);
-        _exit (-1);
+        EXIT (-1);
     }
     
     status = fastTouch->removeResqPropertyValues ();
     if (!status)
     {
         ReportProgress ("ERROR: Failed to remove existing Resq property values: ");
-        _exit (-1);
+        EXIT (-1);
     }
 
     ReportProgress ("Starting Simulation");
@@ -221,7 +218,7 @@ int main (int argc, char ** argv)
     if (!status)
     {
         ReportProgress ("ERROR: Failed to complete simulation");
-        _exit (-1);
+        EXIT (-1);
     }
  
     ReportProgress ("Finished Simulation, Saved output maps");
@@ -230,11 +227,12 @@ int main (int argc, char ** argv)
     {
         ReportProgress (string ("Did not save project file: ") + outputFileName);
         ReportProgress ("Finished Simulation prematurely");
-        _exit (-1);
+        EXIT (-1);
     }   
     ReportProgress (string ("Saved project file: ") + outputFileName);
     ReportProgress ("Finished Simulation");
  
+    if (debug) ReportProgress ("deleting Objects");
     delete fastTouch;
     delete objectFactory;
 
@@ -251,7 +249,7 @@ int main (int argc, char ** argv)
     PetscFinalize ();
 
     // To prevent functions registered with atexit being called as they are causing crashes
-   _exit (status ? 0 : -1);
+   EXIT (status ? 0 : -1);
 }
 
 /** Print using Petsc print function. */
@@ -334,48 +332,35 @@ void InitializeTimeComplete ()
    LapTime = WallTime::clock ();
 }
 
-bool ReportTimeToComplete (int stepsCompleted, int totalNumberOfSteps, int & afterSeconds)
+bool ReportTimeToComplete (bool hasCompleted, int stepsCompleted, int totalNumberOfSteps, int & afterSeconds)
 {
    int hours;
    int minutes;
    double seconds;
 
-   if (AllHaveCompleted (stepsCompleted == totalNumberOfSteps)) return true;   // All have completed
+   if (AllHaveCompleted (hasCompleted)) return true;   // All have completed
 
-   double fractionCompleted = MinimumAll ((double) stepsCompleted / (double) totalNumberOfSteps);
+   double fractionCompleted = ((double) stepsCompleted / (double) totalNumberOfSteps);
 
    WallTime::Time clockTime = WallTime::clock ();
-
    WallTime::Duration executionTime = clockTime - LapTime;
+
    if (executionTime.floatValue () < afterSeconds)
    {
       return false;
    }
-   afterSeconds += 300;
+
+   if (debug) afterSeconds += 1;
+   else afterSeconds += 300;
 
    double multiplicationFactor = (1 - fractionCompleted) / fractionCompleted;
    WallTime::Duration timeToComplete = executionTime * multiplicationFactor;
-
-
-
-#if 0
-   ostringstream buf1;
-   executionTime.separate (hours, minutes, seconds);
-
-   buf1 << "percentage completed: " << fractionCompleted * 100;
-   buf1 << "execution time: ";
-   buf1 << setw (2) << setfill ('0') << hours << ":";
-   buf1 << setw (2) << setfill ('0') << minutes << ":";
-   buf1 << setw (2) << setfill ('0') << (int) seconds;
-   buf1 << ", multiplication factor: ";
-   buf1 << multiplicationFactor;
-   ReportProgress (buf1.str ());
-#endif
 
    ostringstream buf2;
    timeToComplete.separate (hours, minutes, seconds);
 
    buf2 << "percentage completed: " << fractionCompleted * 100;
+   if (debug) buf2 << " (" << stepsCompleted << " of " << totalNumberOfSteps << ")";
    buf2 << ", estimated time to complete: ";
    buf2 << setw (2) << setfill ('0') << hours << ":";
    buf2 << setw (2) << setfill ('0') << minutes << ":";

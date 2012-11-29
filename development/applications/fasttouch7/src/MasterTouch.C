@@ -20,9 +20,13 @@ using namespace std;
 #include "Interface/GridMap.h"
 #include "Interface/PropertyValue.h"
 
+extern int rank;
+extern int numProcessors;
+
+extern PetscTruth debug;
 
 void InitializeTimeComplete ();
-bool ReportTimeToComplete (int stepCompleted, int totalNumberOfSteps, int & afterSeconds);
+bool ReportTimeToComplete (bool hasCompleted, int stepCompleted, int totalNumberOfSteps, int & afterSeconds);
 
 using namespace DataAccess;
 using namespace Interface;
@@ -83,6 +87,7 @@ MasterTouch::MasterTouch (FastTouch * fastTouch) : m_fastTouch (fastTouch)
 
 MasterTouch::~MasterTouch()
 {
+#define STILLCRASHES
 #ifdef STILLCRASHES
     delete tcfInfo;
     delete tslib;
@@ -134,13 +139,13 @@ bool MasterTouch::run (void)
             {
                 m_nrOfRealizations = tcfInfo->Realizations();
                 stringstream ss; ss << m_nrOfRealizations;
-                starting = "Loaded TsLib 7.0 Configuration file \"" 
+                starting = "Loaded TsLib 7.x Configuration file \"" 
                          + filename + "\" and setting up for a monte carlo calculation with "
                          + ss.str() +" realizations"; 
             }
             else
             {
-                starting = "Loaded TsLib 7.0 Configuration file \""
+                starting = "Loaded TsLib 7.x Configuration file \""
                          + filename + "\" and setting up  for a direct analog calculation";
             }
             
@@ -341,6 +346,7 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
                               const Formation * formation )
 {
     int reportAfter = 30;
+    if (debug) reportAfter = 1;
  
     // create burial history
     BurialHistory< Geocosm::TsLib::burHistTimestep >* burialHistory = new BurialHistory < Geocosm::TsLib::burHistTimestep > (surface, formation, m_fastTouch);
@@ -357,7 +363,7 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
     Geocosm::TsLib::burHistTimestep *burHistTimesteps;
    
     int step = 0;   
-    int totalNumberOfSteps = (lastI + 1 - firstI) * (lastJ + 1 - firstJ);
+    int totalNumberOfSteps = (lastI + 1 - firstI) /* * (lastJ + 1 - firstJ) */;
     int maxNumTimeSteps = 0;
     bool allHaveCompleted = false;   
 
@@ -465,6 +471,22 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
     
     if(!m_directAnalogRun) tslibCalcContext->CreateRealizations(m_nrOfRealizations);
     
+    if (debug)
+    {
+       int r;
+       for (r = 0; r < rank; ++r)
+       {
+	  MPI_Barrier(PETSC_COMM_WORLD);
+       }
+
+       cerr << "Rank " << rank << ": # nodes = " <<  (lastI + 1 - firstI) << " * " << (lastJ + 1 - firstJ) <<  " = " << (lastI + 1 - firstI) * (lastJ + 1 - firstJ) << endl;
+
+       for (r = rank; r < numProcessors; ++r)
+       {
+	  MPI_Barrier(PETSC_COMM_WORLD);
+       }
+    }
+
     InitializeTimeComplete ();
     for (int i = firstI; i <= lastI; ++i)
     {
@@ -484,18 +506,17 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
                  tslibCalcContext->Calculate( tslibBurialHistoryInfo, true ); 
                  writeResultsToGrids (i, j, numTimeSteps - 1);
             }
-            allHaveCompleted = ReportTimeToComplete (++step, totalNumberOfSteps, reportAfter);
         }
+	allHaveCompleted = ReportTimeToComplete (false, ++step, totalNumberOfSteps, reportAfter);
     }
 
     while (!allHaveCompleted)
     {
-        sleep (5);
-        allHaveCompleted = ReportTimeToComplete (totalNumberOfSteps, totalNumberOfSteps, reportAfter);
+        allHaveCompleted = ReportTimeToComplete (true, totalNumberOfSteps, totalNumberOfSteps, reportAfter);
     }
     MPI_Barrier (PETSC_COMM_WORLD);
     delete burialHistory;
-   return true;
+    return true;
 }
 
 /** This function controls the build of the Cauldron - Old ResQ functionality. 
@@ -510,6 +531,7 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
                               const Formation * formation )
 {
     int reportAfter = 30;
+    if (debug) reportAfter = 1;
 
     // create burial history
     BurialHistory<tsLib_burHistTimestep> * burialHistory = new BurialHistory <tsLib_burHistTimestep> (surface, formation, m_fastTouch);
@@ -526,7 +548,7 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
     tsLib_burHistTimestep* burHistTimesteps;
  
     int step = 0;
-    int totalNumberOfSteps = (lastI + 1 - firstI) * (lastJ + 1 - firstJ);
+    int totalNumberOfSteps = (lastI + 1 - firstI) /* * (lastJ + 1 - firstJ) */;
     int maxNumTimeSteps = 0;
  
     InitializeTimeComplete ();
@@ -551,14 +573,13 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
                 // retrieve and write calculation results to grid
                 writeResultsToGridsOld (i, j, numTimeSteps - 1);
             }
-            allHaveCompleted = ReportTimeToComplete (++step, totalNumberOfSteps, reportAfter);
+            allHaveCompleted = ReportTimeToComplete (false, ++step, totalNumberOfSteps, reportAfter);
         }
     }
 
     while (!allHaveCompleted)
     {
-        sleep (5);
-        allHaveCompleted = ReportTimeToComplete (totalNumberOfSteps, totalNumberOfSteps, reportAfter);
+        allHaveCompleted = ReportTimeToComplete (true, totalNumberOfSteps, totalNumberOfSteps, reportAfter);
     }
  
     MPI_Barrier (PETSC_COMM_WORLD);
