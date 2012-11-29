@@ -25,10 +25,6 @@ const double GeoPhysics::SimpleLithology::Log10 = std::log ( 10.0 );
 GeoPhysics::SimpleLithology::SimpleLithology ( Interface::ProjectHandle * projectHandle, 
                                                database::Record *              record ) : Interface::LithoType ( projectHandle, record ) {
 
-   double* multipointPorosityValues;
-   double* multipointPermeabilityValues;
-
-
    m_lithoname = Interface::LithoType::getName ();
    m_density = Interface::LithoType::getDensity ();
    m_heatproduction = Interface::LithoType::getHeatProduction ();
@@ -88,6 +84,9 @@ GeoPhysics::SimpleLithology::SimpleLithology ( Interface::ProjectHandle * projec
    }
 
    if ( m_permeabilityModel == Interface::MULTIPOINT_PERMEABILITY ) {
+      double* multipointPorosityValues;
+      double* multipointPermeabilityValues;
+
       int i;
 
       multipointPorosityValues = new double [ this->getNumberOfMultipointSamplePoints ()];
@@ -115,6 +114,10 @@ GeoPhysics::SimpleLithology::SimpleLithology ( Interface::ProjectHandle * projec
       // not realy necessary, because the m_depopermeability 
       // is not used if permeability model is a multi-point.
       m_depopermeability = m_porosityPermeabilityInterpolant.evaluate ( m_depoporosity );
+
+      delete [] multipointPorosityValues;
+      delete [] multipointPermeabilityValues;
+
    }
 
    if (( m_permeabilityModel == Interface::IMPERMEABLE_PERMEABILITY or m_permeabilityModel == Interface::NONE_PERMEABILITY ) and m_permeabilityaniso == 0.0 ) {
