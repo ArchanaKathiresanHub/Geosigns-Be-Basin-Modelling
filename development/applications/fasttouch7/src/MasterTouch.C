@@ -26,7 +26,9 @@ extern int numProcessors;
 extern PetscTruth debug;
 
 void InitializeTimeComplete ();
-bool ReportTimeToComplete (bool hasCompleted, int stepCompleted, int totalNumberOfSteps, int & afterSeconds);
+bool ReportTimeToComplete (int stepCompleted, int totalNumberOfSteps, int & afterSeconds, double &reportAfterFractionCompleted);
+bool AllHaveCompleted (bool completed);
+double MinimumAll (double myValue);
 
 using namespace DataAccess;
 using namespace Interface;
@@ -345,8 +347,9 @@ bool MasterTouch::addOutputFormat ( const string& filename, const Surface * surf
 bool MasterTouch::calculate ( const char *filename, const Surface * surface, 
                               const Formation * formation )
 {
-    int reportAfter = 30;
-    if (debug) reportAfter = 1;
+    int reportAfterTime = 30;
+    double reportAfterFractionCompleted = 0.1;
+    // if (debug) reportAfterTime = 1;
  
     // create burial history
     BurialHistory< Geocosm::TsLib::burHistTimestep >* burialHistory = new BurialHistory < Geocosm::TsLib::burHistTimestep > (surface, formation, m_fastTouch);
@@ -494,7 +497,7 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
         for (int j = firstJ; j <= lastJ; ++j)
         {
             // extract burial history 
-            if ((burHistTimesteps = burialHistory->returnAsArray (i, j, numTimeSteps, true)) != NULL)
+            if ((burHistTimesteps = burialHistory->returnAsArray (i, j, numTimeSteps, true)) != 0)
             {
                 tslibBurialHistoryInfo.burialHistoryTSteps = burHistTimesteps;
                 tslibBurialHistoryInfo.count               = numTimeSteps;
@@ -507,14 +510,13 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
                  writeResultsToGrids (i, j, numTimeSteps - 1);
             }
         }
-	allHaveCompleted = ReportTimeToComplete (false, ++step, totalNumberOfSteps, reportAfter);
+	ReportTimeToComplete (++step, totalNumberOfSteps, reportAfterTime, reportAfterFractionCompleted);
     }
 
-    while (!allHaveCompleted)
-    {
-        allHaveCompleted = ReportTimeToComplete (true, totalNumberOfSteps, totalNumberOfSteps, reportAfter);
-    }
-    MPI_Barrier (PETSC_COMM_WORLD);
+    if (debug) cerr << "Rank " << rank << " completed in " << step << " steps" << endl;
+
+    while (MinimumAll (10) < 10); // To be used here as it is also used in ReportTimeToComplete, required to use a value > any value used in ReportTimeToComplete here.
+
     delete burialHistory;
     return true;
 }
@@ -530,8 +532,9 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
 bool MasterTouch::calculateOld ( const char *filename, const Surface * surface, 
                               const Formation * formation )
 {
-    int reportAfter = 30;
-    if (debug) reportAfter = 1;
+    int reportAfterTime = 30;
+    double reportAfterFractionCompleted = 0.1;
+    // if (debug) reportAfterTime = 1;
 
     // create burial history
     BurialHistory<tsLib_burHistTimestep> * burialHistory = new BurialHistory <tsLib_burHistTimestep> (surface, formation, m_fastTouch);
@@ -560,7 +563,7 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
         for (int j = firstJ; j <= lastJ; ++j)
         {
             // extract burial history 
-            if ((burHistTimesteps = burialHistory->returnAsArray (i, j, numTimeSteps, false)) != NULL)
+            if ((burHistTimesteps = burialHistory->returnAsArray (i, j, numTimeSteps, false)) != 0)
             {
                 maxNumTimeSteps = maxNumTimeSteps < numTimeSteps ? numTimeSteps : maxNumTimeSteps;     
                 ++numJ;
@@ -573,16 +576,11 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
                 // retrieve and write calculation results to grid
                 writeResultsToGridsOld (i, j, numTimeSteps - 1);
             }
-            allHaveCompleted = ReportTimeToComplete (false, ++step, totalNumberOfSteps, reportAfter);
         }
+	ReportTimeToComplete (++step, totalNumberOfSteps, reportAfterTime, reportAfterFractionCompleted);
     }
 
-    while (!allHaveCompleted)
-    {
-        allHaveCompleted = ReportTimeToComplete (true, totalNumberOfSteps, totalNumberOfSteps, reportAfter);
-    }
- 
-    MPI_Barrier (PETSC_COMM_WORLD);
+    while (MinimumAll (1) != 1);
  
     delete burialHistory;
     return true;

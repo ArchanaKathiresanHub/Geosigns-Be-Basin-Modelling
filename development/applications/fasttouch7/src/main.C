@@ -279,6 +279,7 @@ double MinimumAll (double myValue)
 {
    double result;
    MPI_Allreduce (&myValue, &result, 1, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
+   // if (rank == 0 && debug) cerr << "Minimum (" << myValue << ") = " << result << endl;
    return result;
 }
 
@@ -332,26 +333,45 @@ void InitializeTimeComplete ()
    LapTime = WallTime::clock ();
 }
 
-bool ReportTimeToComplete (bool hasCompleted, int stepsCompleted, int totalNumberOfSteps, int & afterSeconds)
+bool ReportTimeToComplete (int stepsCompleted, int totalNumberOfSteps, int & reportAfterTime, double &reportAfterFractionCompleted)
 {
    int hours;
    int minutes;
    double seconds;
 
-   if (AllHaveCompleted (hasCompleted)) return true;   // All have completed
+   const int reportAfterTimeIncrement = 300;
+   const double fractionIncrement = 0.1;
 
-   double fractionCompleted = ((double) stepsCompleted / (double) totalNumberOfSteps);
+   double fractionCompleted = MinimumAll ((double) stepsCompleted / (double) totalNumberOfSteps);
 
    WallTime::Time clockTime = WallTime::clock ();
    WallTime::Duration executionTime = clockTime - LapTime;
 
-   if (executionTime.floatValue () < afterSeconds)
+   if (fractionCompleted < reportAfterFractionCompleted && executionTime.floatValue () < reportAfterTime)
    {
       return false;
    }
 
-   if (debug) afterSeconds += 1;
-   else afterSeconds += 300;
+   if (debug && rank == 0)
+   {
+      cerr << "executionTime = " << executionTime.floatValue () << endl;
+      cerr << "fractionCompleted = " << fractionCompleted << endl;
+   }
+
+   while (executionTime.floatValue () >= reportAfterTime)
+   {
+      if (debug && rank == 0) cerr << reportAfterTime << " -> ";
+      reportAfterTime += reportAfterTimeIncrement;
+      if (debug && rank == 0) cerr << "reportAfterTime -> " << reportAfterTime << endl;
+   }
+
+   while (fractionCompleted >= reportAfterFractionCompleted)
+   {
+      if (debug && rank == 0) cerr << reportAfterFractionCompleted << " -> ";
+      reportAfterFractionCompleted += fractionIncrement;
+      if (debug && rank == 0) cerr << "reportAfterFractionCompleted -> " << reportAfterFractionCompleted << endl;
+   }
+
 
    double multiplicationFactor = (1 - fractionCompleted) / fractionCompleted;
    WallTime::Duration timeToComplete = executionTime * multiplicationFactor;
