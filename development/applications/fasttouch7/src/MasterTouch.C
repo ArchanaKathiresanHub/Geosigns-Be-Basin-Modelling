@@ -580,7 +580,7 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
 	ReportTimeToComplete (++step, totalNumberOfSteps, reportAfterTime, reportAfterFractionCompleted);
     }
 
-    while (MinimumAll (1) != 1);
+    while (MinimumAll (10) < 10); // To be used here as it is also used in ReportTimeToComplete, required to use a value > any value used in ReportTimeToComplete here.
  
     delete burialHistory;
     return true;
