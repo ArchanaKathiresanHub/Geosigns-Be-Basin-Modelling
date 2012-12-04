@@ -2,8 +2,12 @@
 #include <arpa/inet.h>
 #include <cassert>
 
+#include <mkl.h>
+#include <mkl_spblas.h>
+
 #include "petscmatrix.h"
 #include "petscio.h"
+#include "petscvector.h"
 
 namespace hpc
 {
@@ -127,6 +131,32 @@ PetscMatrix
 
   for (SizeType i = 0; i < nz; ++i)
     petscio::writeReal(output, m_nonZeros[i] );
+}
+
+void
+PetscMatrix
+  :: multiply( ValueType alpha, const PetscVector & x, ValueType beta, PetscVector & y) const
+{
+  assert( x.rows() == this->columns() );
+  assert( y.rows() == this->rows() );
+
+  char transa = 'N';
+  char matdescra[6] = "GLNC";
+  SizeType rows = this->rows();
+  SizeType columns = this->columns();
+  mkl_dcsrmv( &transa,
+      & rows,
+      & columns,
+      &alpha,
+      matdescra,
+      const_cast<double *>(&m_nonZeros[0]),
+      const_cast<int32_t *>(&m_columnIndices[0]),
+      const_cast<int32_t *>(&m_rowOffsets[0]),
+      const_cast<int32_t *>(&m_rowOffsets[0]) + 1,
+      const_cast<double *>(&x[0]),
+      &beta,
+      &y[0]
+  );
 }
 
 

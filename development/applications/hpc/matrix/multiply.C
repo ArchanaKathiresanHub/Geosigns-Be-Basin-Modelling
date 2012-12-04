@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
   double t0 = getTime(), t1 = 0.0;
   while ( t0 + duration > (t1=getTime()) )
       for (int i = 0; i < 100; ++i, ++N)
-        MklCsrMultiply(1.0, A, b, 0.0, x);
+        MklCsrMultiply(1.0, A, b, 1.0, x);
 
   std::cout << "Time/matrix = " << (t1-t0)/N << " seconds." << std::endl;
   double flops = 2.0 * N * A.numberNonZeros() / (t1 - t0);

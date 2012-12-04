@@ -9,8 +9,8 @@ namespace hpc
 
   namespace petscio
   {
-    typedef uint32_t SizeType;
-    typedef double   ValueType;
+    typedef int32_t SizeType;
+    typedef double  ValueType;
 
     struct Header
     {

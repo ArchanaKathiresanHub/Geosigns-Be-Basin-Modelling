@@ -3,22 +3,24 @@
 
 #include <iosfwd>
 #include <vector>
+#include <algorithm>
 
 #include "generalexception.h"
 
 namespace hpc
 {
+  class PetscVector;
 
 
   class PetscMatrix
   {
   public:
-    typedef uint32_t SizeType;
+    typedef int32_t SizeType;
     typedef double  ValueType;
 
     // Construction
-    template <typename Iterator>
-    PetscMatrix(SizeType rows, SizeType columns, Iterator begin, Iterator end) 
+    template <typename It>
+    PetscMatrix(SizeType rows, SizeType columns, It begin, It end) 
       : m_rows(rows)
       , m_columns(columns)
       , m_nonZeros()
@@ -54,32 +56,31 @@ namespace hpc
     public:
       ValueType operator[](SizeType column ) const
       {
-	const SizeType * index = std::lower_bound( m_colIndices, m_colIndices + m_cols, column);
-	if (*index == column)
-	  return m_row[ index - m_colIndices ];
+	const SizeType * columns = & m_matrix->m_columnIndices[0];
+	const SizeType index 
+	  = std::distance( 
+	        columns,
+	        std::lower_bound( columns + m_rowBegin, columns + m_rowEnd, column)
+	      );
+
+	if ( index < m_rowEnd && columns[index] == column)
+	  return m_matrix->m_nonZeros[ index];
 	else
 	  return 0.0;
       }
 
     private:
       friend class PetscMatrix;
-      Row( SizeType cols, const ValueType * row, const SizeType * colIndices)
-	: m_cols(cols), m_row(row), m_colIndices(colIndices)
+      Row(const PetscMatrix * matrix, SizeType rowBegin, SizeType rowEnd)
+	: m_rowBegin(rowBegin), m_rowEnd(rowEnd), m_matrix(matrix)
       {}
 
-      SizeType m_cols;
-      const ValueType * m_row;
-      const SizeType * m_colIndices;
+      SizeType m_rowBegin, m_rowEnd;
+      const PetscMatrix * m_matrix;
     };
 
     Row operator[](SizeType row) const
-    { 
-      return Row( 
-	  m_rowOffsets[row+1] - m_rowOffsets[row], 
-	  &m_nonZeros[ m_rowOffsets[row] ], 
-	  &m_columnIndices[ m_rowOffsets[row]]
-	  )  ;
-    }
+    { return Row( this, m_rowOffsets[row], m_rowOffsets[row+1]); }
 
     // Iterator
     struct Element
@@ -110,13 +111,13 @@ namespace hpc
       Iterator operator--(int)  // postfix
       { Iterator copy(*this); decrement(); return copy; }
 
-      Element operator*()
+      Element operator*() const
       { return dereference(); }
 
-      bool operator==(const Iterator & other)
+      bool operator==(const Iterator & other) const
       { return this->m_elemIndex == other.m_elemIndex; }
 
-      bool operator!=(const Iterator & other)
+      bool operator!=(const Iterator & other) const
       { return this->m_elemIndex != other.m_elemIndex; }
 
 
@@ -164,6 +165,9 @@ namespace hpc
 
     Iterator end() const
     { return Iterator( &m_rowOffsets[0], &m_columnIndices[0], &m_nonZeros[0], m_rows, m_nonZeros.size()); }
+
+
+    void multiply( ValueType alpha, const PetscVector & x, ValueType beta, PetscVector & y) const;
 
     const SizeType * rowOffsets() const
     { return &m_rowOffsets[0]; }

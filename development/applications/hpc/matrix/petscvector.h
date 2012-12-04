@@ -12,7 +12,7 @@ namespace hpc
 class PetscVector
 {
 public:
-  typedef uint32_t SizeType;
+  typedef int32_t SizeType;
   typedef double ValueType;
 
   struct LoadException : BaseException<LoadException> {};
@@ -31,6 +31,15 @@ public:
 
   const ValueType & operator[](SizeType i) const
   { return m_values[i]; }
+
+  typedef std::vector<ValueType>::const_iterator
+    Iterator;
+
+  Iterator begin() const
+  { return m_values.begin(); }
+
+  Iterator end() const
+  { return m_values.end(); }
 
 private:
   std::vector<ValueType> m_values;
