@@ -946,6 +946,7 @@ bool ProjectHandle::loadGrids (void)
 
    
    int numI, numJ;
+   int lowResNumI, lowResNumJ;
    double deltaI, deltaJ;
    double minI, minJ;
    double maxI, maxJ;
@@ -964,6 +965,17 @@ bool ProjectHandle::loadGrids (void)
    maxI = minI + deltaI * (numI - 1);
    maxJ = minJ + deltaJ * (numJ - 1);
 
+   offsetI = database::getOffsetX (projectIoRecord);
+   offsetJ = database::getOffsetY (projectIoRecord);
+
+   scaleI = database::getScaleX (projectIoRecord);
+   scaleJ = database::getScaleY (projectIoRecord);
+
+   // required to check partitioning
+   lowResNumI = (numI - offsetI - 1) / scaleI + 1;
+   lowResNumJ = (numJ - offsetJ - 1) / scaleJ + 1;
+   checkForValidPartitioning (lowResNumI, lowResNumJ); // NOOP in case of serial data access
+
 
 #if 0
    if (getRank () == 0)
@@ -973,16 +985,9 @@ bool ProjectHandle::loadGrids (void)
    
    m_highResOutputGrid = getFactory ()->produceGrid (minI, minJ, maxI, maxJ, numI, numJ);
 
+   numI = lowResNumI;
+   numJ = lowResNumJ;
    
-   offsetI = database::getOffsetX (projectIoRecord);
-   offsetJ = database::getOffsetY (projectIoRecord);
-
-   scaleI = database::getScaleX (projectIoRecord);
-   scaleJ = database::getScaleY (projectIoRecord);
-
-   numI = (numI - offsetI - 1) / scaleI + 1;
-   numJ = (numJ - offsetJ - 1) / scaleJ + 1;
-
    minI = minI + offsetI * deltaI;
    minJ = minJ + offsetJ * deltaJ;
 
@@ -3451,7 +3456,7 @@ void ProjectHandle::computeMantlePaleoThicknessHistory () const {
    AdditionFunctor add;
    SubtractionFunctor subtract;
 
-   GridMap* presentDayBasementThickness = getFactory ()->produceGridMap (0, -1, presentDayCrustThickness, presentDayMantleThickness, add );
+   GridMap* presentDayBasementThickness = getFactory ()->produceGridMap (0, 0, presentDayCrustThickness, presentDayMantleThickness, add );
    MutablePaleoFormationPropertyList::const_iterator crustThicknessIter;
    MutablePaleoFormationPropertyList::const_iterator mantleThicknessIter;
 

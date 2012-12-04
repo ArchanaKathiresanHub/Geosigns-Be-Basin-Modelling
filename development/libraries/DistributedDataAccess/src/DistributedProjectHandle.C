@@ -79,6 +79,40 @@ void ProjectHandle::mapFileCacheDestructor (void)
     }
 }
 
+void ProjectHandle::checkForValidPartitioning (int M, int N)
+{
+   int size;
+   int m, n;
+
+   MPI_Comm_size (PETSC_COMM_WORLD, &size);
+
+   int M_ = M / 2;
+   int N_ = N / 2;
+
+   m = (int) (0.5 + sqrt (((double) M_) * ((double) size) / ((double) N_)));
+   if (m == 0) m = 1;
+
+   while (m > 0)
+   {
+      n = size / m;
+      if (m * n == size) break;
+      m--;
+   }
+
+   if (M > N && m < n) std::swap (m, n);
+
+   if (m * n != size || M_ < m || N_ < n)
+   {
+      PetscPrintf (PETSC_COMM_WORLD,
+                   "\nUnable to partition a %d x %d grid using %d cores, please select a different number of cores:\n", M, N, size);
+      PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d\n\n", M_, N_);
+      PetscPrintf(PETSC_COMM_WORLD, "Exiting ...\n\n");
+      
+      MPI_Finalize ();
+      exit (-1);
+   }
+}
+
 void ProjectHandle::allocateArchitectureRelatedParameters () {
    m_messageHandler = new DistributedMessageHandler;
    m_globalOperations = new DistributedApplicationGlobalOperations;
@@ -254,7 +288,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    {
       DistributedGridMap *gridMapInActivityOutputGrid = 0;
 
-      gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (0, -1, grid, undefinedValue, depth));
+      gridMap = dynamic_cast<DistributedGridMap * > (getFactory ()->produceGridMap (0, 0, grid, undefinedValue, depth));
 
       reader.read (&gridMapFile, fileId, dataSetName.c_str (), gridMap->getDA (), gridMap->getVec (), petscD);
 
@@ -342,7 +376,7 @@ namespace ddd
       clock_gettime(CLOCK_REALTIME, &tp);
 
       char timestr[32];
-      sprintf (timestr, "%9d.%9ld\t", tp.tv_sec, tp.tv_nsec);
+      sprintf (timestr, "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
 
       static string rankString = "";
       if (rankString == "")

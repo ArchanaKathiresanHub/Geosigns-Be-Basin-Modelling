@@ -56,6 +56,8 @@ void ProjectHandle::mapFileCacheConstructor (void){ }
 
 void ProjectHandle::mapFileCacheDestructor  (void){ }
 
+void ProjectHandle::checkForValidPartitioning (int M, int N) {}
+
 void ProjectHandle::allocateArchitectureRelatedParameters () {
    m_messageHandler = new SerialMessageHandler;
    m_globalOperations = new SerialApplicationGlobalOperations;
