@@ -86,6 +86,8 @@ void ProjectHandle::checkForValidPartitioning (int M, int N)
 
    MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
+   if (size == 1) return; // 1 is always okay!
+
    int M_ = M / 4;
    int N_ = N / 4;
 
@@ -105,7 +107,7 @@ void ProjectHandle::checkForValidPartitioning (int M, int N)
    {
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nUnable to partition a %d x %d grid using %d cores, please select a different number of cores:\n", M, N, size);
-      PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d\n\n", M_, N_);
+      PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d.\n\n", std::max (1, M_), std::max (1, N_));
       PetscPrintf(PETSC_COMM_WORLD, "Exiting ...\n\n");
       
       MPI_Finalize ();
