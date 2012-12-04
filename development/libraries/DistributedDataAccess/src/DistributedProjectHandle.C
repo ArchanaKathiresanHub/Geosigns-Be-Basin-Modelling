@@ -86,8 +86,8 @@ void ProjectHandle::checkForValidPartitioning (int M, int N)
 
    MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
-   int M_ = M / 2;
-   int N_ = N / 2;
+   int M_ = M / 4;
+   int N_ = N / 4;
 
    m = (int) (0.5 + sqrt (((double) M_) * ((double) size) / ((double) N_)));
    if (m == 0) m = 1;
