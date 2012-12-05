@@ -177,6 +177,11 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology*       defi
   m_density = definedLithology->m_density;
   m_heatproduction = definedLithology->m_heatproduction;
   m_depoporosity = definedLithology->m_depoporosity;
+
+  m_PcKrModel = definedLithology->getPcKrModel ();
+  m_LambdaPc  = definedLithology->getLambdaPc ();
+  m_LambdaKr  = definedLithology->getLambdaKr ();
+
   m_depositionVoidRatio = m_depoporosity / ( 1.0 - m_depoporosity );
   m_compactionincr = definedLithology->m_compactionincr;
   m_compactiondecr = definedLithology->m_compactiondecr;
@@ -237,6 +242,11 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology* definedLit
   m_density = definedLithology->m_density;
   m_heatproduction = definedLithology->m_heatproduction;
   m_depoporosity = definedLithology->m_depoporosity;
+
+  m_PcKrModel = definedLithology->getPcKrModel ();
+  m_LambdaPc  = definedLithology->getLambdaPc ();
+  m_LambdaKr  = definedLithology->getLambdaKr ();
+
   m_depositionVoidRatio = m_depoporosity / ( 1.0 - m_depoporosity );
   m_compactionincr = definedLithology->m_compactionincr;
   m_compactiondecr = definedLithology->m_compactiondecr;
