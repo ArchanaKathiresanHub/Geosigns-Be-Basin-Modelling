@@ -110,3 +110,8 @@ void AllochthonousLithologyDistribution::printOn (ostream & ostr) const
    ostr << ", age = " << getSnapshot ()->getTime ();
    ostr << endl;
 }
+
+bool AllochthonousLithologyDistributionTimeLessThan::operator ()( const AllochthonousLithologyDistribution* ald1, 
+                                                                  const AllochthonousLithologyDistribution* ald2 ) const {
+   return ald1->getAge () < ald2->getAge ();
+}

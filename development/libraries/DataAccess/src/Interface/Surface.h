@@ -70,6 +70,18 @@ namespace DataAccess
             SurfaceKind m_kind;
 
       };
+
+      /// \brief Functor class for ordering surfaces.
+      class SurfaceLessThan {
+
+      public :
+
+         bool operator ()( const Surface* s1,
+                           const Surface* s2 ) const;
+
+      };
+
+
    }
 }
 

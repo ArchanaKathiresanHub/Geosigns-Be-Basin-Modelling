@@ -193,3 +193,9 @@ void Surface::asString (string & str) const
    buf.rdbuf ()->freeze (0);
 #endif
 }
+
+
+bool SurfaceLessThan::operator ()( const Surface* s1,
+                                   const Surface* s2 ) const {
+   return s1->getSnapshot ()->getTime () < s2->getSnapshot ()->getTime ();
+}

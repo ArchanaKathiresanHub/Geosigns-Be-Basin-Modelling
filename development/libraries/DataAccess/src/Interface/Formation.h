@@ -177,6 +177,18 @@ namespace DataAccess
             FormationKind m_kind;
 
       };
+
+      /// \brief Functor class for ordering formations.
+      class FormationLessThan {
+
+      public :
+
+         bool operator ()( const Formation* f1,
+                           const Formation* f2 ) const;
+
+      };
+
+
    }
 }
 #endif // _INTERFACE_FORMATION_H_

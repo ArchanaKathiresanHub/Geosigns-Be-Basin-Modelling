@@ -53,6 +53,18 @@ namespace DataAccess
          static const string s_MapAttributeNames [];
 
       };
+
+
+      /// \brief Functor class for ordering allochthonous lithology distribution objects.
+      class AllochthonousLithologyDistributionTimeLessThan {
+         
+      public :
+         
+         bool operator ()( const AllochthonousLithologyDistribution* ald1, 
+                           const AllochthonousLithologyDistribution* ald2 ) const;
+         
+      };
+
    }
 }
 

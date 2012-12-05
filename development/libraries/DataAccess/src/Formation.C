@@ -576,3 +576,10 @@ void Formation::asString (string & str) const
 #endif
 }
 
+bool FormationLessThan::operator ()( const Formation* f1,
+                                     const Formation* f2 ) const {
+   // Use the depo-sequence number here, since the surfaces may not be assigned at the point
+   // at which we would like to do the sort. We should sort into ascending age, which means 
+   // descending depo-sequence number.
+   return f1->getDepositionSequence () > f2->getDepositionSequence ();
+}
