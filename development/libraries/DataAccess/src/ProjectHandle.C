@@ -1044,10 +1044,6 @@ bool ProjectHandle::loadSurfaces (void)
    // Sort the list of surfaces into age order, youngest first, oldest last on the list.
    std::sort ( m_surfaces.begin (), m_surfaces.end (), SurfaceLessThan ());
 
-   for ( int i = 0; i < m_surfaces.size (); ++ i ) {
-      cout << m_surfaces [ i ]->getName () << "  " << m_surfaces [ i ]->getSnapshot ()->getTime () << endl;
-   }
-
    return true;
 }
 
