@@ -227,7 +227,7 @@ void GenexSimulator::setRequestedOutputProperties()
             if( theResultManager.getResultId ( propertyName ) != -1 ) {
                m_requestedProperties.push_back(propertyName);
                theResultManager.SetResultToggleByName(propertyName, true);
-            } else if( propertyName == "SourceRockEndMember1" or propertyName == "SourceRockEndMember2" ) {
+            } else if( propertyName == "SourceRockEndMember1" or propertyName == "SourceRockEndMember2" or propertyName == "TOC" ) {
                m_requestedProperties.push_back(propertyName);
             }
          }
@@ -299,8 +299,11 @@ void GenexSimulator::registerProperties()
    m_registeredProperties.push_back ( "OverChargeFactor" );
    m_registeredProperties.push_back ( "PorosityLossFromPyroBitumen" );
    m_registeredProperties.push_back ( "H2SRisk" );
+
    m_registeredProperties.push_back ( "SourceRockEndMember1" );
    m_registeredProperties.push_back ( "SourceRockEndMember2" );
+
+   m_registeredProperties.push_back ( "TOC" );
 
    sort(m_registeredProperties.begin(), m_registeredProperties.end());
 }

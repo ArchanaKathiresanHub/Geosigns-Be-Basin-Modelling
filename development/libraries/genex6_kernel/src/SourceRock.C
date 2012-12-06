@@ -88,6 +88,7 @@ SourceRock::SourceRock (Interface::ProjectHandle * projectHandle, database::Reco
    m_applySRMixing = false;
    m_sourceRockEndMember1 = 0;
    m_sourceRockEndMember2 = 0;
+   m_tocOutputMap = 0;
    m_isSulphur = false;
 }
 void SourceRock::initializeCfgFileNameBySRType()
@@ -174,6 +175,7 @@ void SourceRock::clear()
    m_overChargeFactor = 0;
    m_porosityLossDueToPyrobitumen = 0;
    m_h2sRisk = 0;
+   m_tocOutputMap = 0;
 
    m_sourceRockEndMember1 = 0;
    m_sourceRockEndMember2 = 0;
@@ -1417,10 +1419,11 @@ void SourceRock::initializeSnapShotOutputMaps ( const vector<string> & requiredP
    m_overChargeFactor = 0;
    m_porosityLossDueToPyrobitumen = 0;
    m_h2sRisk = 0;
+   m_tocOutputMap = 0;
 
    m_sourceRockEndMember1 = 0;
    m_sourceRockEndMember2 = 0;
-  
+
   if ( m_theSimulator != 0 ) { // this piece of code is never executed. m_Simulator == 0 at this point
 
       if ( doOutputAdsorptionProperties ()) {
@@ -1505,6 +1508,14 @@ void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot)
       }
    } 
 
+   it = m_theSnapShotOutputMaps.find("TOC");
+   if( it != m_theSnapShotOutputMaps.end() ) {
+      m_tocOutputMap = it->second; 
+      if ( m_tocOutputMap != 0 ) {
+         m_tocOutputMap->retrieveData ();
+      }
+   }
+      
    if ( doOutputAdsorptionProperties ()) {
       GridMap* theMap;
       int speciesIndex;
@@ -1791,9 +1802,15 @@ void SourceRock::saveSnapShotOutputMaps(const Snapshot *theSnapshot)
       m_sourceRockEndMember1->restoreData ();
       m_sourceRockEndMember1 = 0;
    }
+
    if ( m_sourceRockEndMember2 != 0 ) {
       m_sourceRockEndMember2->restoreData ();
       m_sourceRockEndMember2 = 0;
+   }
+
+   if ( m_tocOutputMap != 0 ) {
+      m_tocOutputMap->restoreData ();
+      m_tocOutputMap = 0;
    }
 
    for ( adsorpedIt = m_sourceRockExpelledOutputMaps.begin (); adsorpedIt != m_sourceRockExpelledOutputMaps.end (); ++adsorpedIt ) {
@@ -1889,7 +1906,10 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
          m_sourceRockEndMember2->setValue ( i, j, 100.0 * theNode->GetF2() );
       }
    }
-   
+   if( m_tocOutputMap != 0 ) {
+      m_tocOutputMap->setValue ( i, j, theSimulatorState.getCurrentToc () );
+   }
+
    if ( doOutputAdsorptionProperties ()) {
 
       using namespace Genex6;

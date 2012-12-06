@@ -290,6 +290,7 @@ private:
    Interface::GridMap* m_overChargeFactor;
    Interface::GridMap* m_porosityLossDueToPyrobitumen;
    Interface::GridMap* m_h2sRisk;
+   Interface::GridMap* m_tocOutputMap;
 
    Interface::GridMap* m_sourceRockEndMember1;
    Interface::GridMap* m_sourceRockEndMember2;
