@@ -58,7 +58,7 @@ void SimulatorStateBase::AddSpeciesStateById(const int in_SpeciesId, SpeciesStat
    m_SpeciesStateBySpeciesName[in_SpeciesId - 1] = theSpeciesState;
 }
 void SimulatorStateBase::GetSpeciesStateConcentrations( const ChemicalModel* chemicalModel,
-                                                        std::map<string, double> &currentSpeciesConcs) const
+                                                        std::map<string, double> &currentSpeciesConcs  ) const
 {
    currentSpeciesConcs.clear();
 
@@ -71,6 +71,17 @@ void SimulatorStateBase::GetSpeciesStateConcentrations( const ChemicalModel* che
 
    }
 
+}
+void SimulatorStateBase::GetSpeciesStateConcentrations( double * currentSpeciesConcs ) const
+{
+  for( int i = 0; i < Genex6::SpeciesManager::numberOfSpecies; ++ i ) {
+     if( m_SpeciesStateBySpeciesName[i] != NULL ) {
+        currentSpeciesConcs[i] = m_SpeciesStateBySpeciesName[i]->GetConcentration();
+     } else {
+        currentSpeciesConcs[i] = 0;
+     }
+   }
+   
 }
 double SimulatorStateBase::getSpeciesUltimateMassByName(const int id) const
 {

@@ -5,7 +5,7 @@
 #include <map>
 #include<iostream>
 #include <fstream>
-#include<iomanip>
+#include<iomanip> 
 #include "SpeciesState.h"
 #include "SpeciesManager.h"
 #include "ChemicalModel.h"
@@ -15,8 +15,7 @@ using namespace std;
 namespace Genex6
 {
 class SpeciesState;
-class Species;
-
+class Species; 
 class SimulatorStateBase
 {
 public:
@@ -26,8 +25,8 @@ public:
    double GetSpeciesConcentrationByName(const int in_SpeciesName) const;
    SpeciesState *GetSpeciesStateById(const int in_SpeciesId);
    void AddSpeciesStateById(const int in_SpeciesId, SpeciesState *theSpeciesState);
-   void GetSpeciesStateConcentrations(const ChemicalModel* chemicalModel,
-                                      std::map<string, double> &currentSpeciesConcs) const;
+   void GetSpeciesStateConcentrations(const ChemicalModel* chemicalModel, std::map<string, double> &currentSpeciesConcs) const;
+   void GetSpeciesStateConcentrations( double * currentSpeciesConcs ) const;
    
    double GetReferenceTime() const;
    int GetTimeStep() const;

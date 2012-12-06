@@ -1,6 +1,10 @@
 #ifndef _FASTCAULDRON__IMMOBILE_SPECIES_VALUES_H_
 #define _FASTCAULDRON__IMMOBILE_SPECIES_VALUES_H_
 
+#include "SpeciesManager.h"
+
+//using namespace Genex6;
+
 #include <string>
 
 /// \brief Holds concentrations of immobile species.
@@ -53,7 +57,7 @@ public :
    static double getDensity ( const SpeciesId id );
 
    /// \brief Set the density of the immobile species.
-   static void setDensity ( const SpeciesId id,
+   static void setDensity ( const SpeciesId id, 
                             const double    density );
 
    /// \brief Get the specied-id from the string representation.
@@ -65,7 +69,11 @@ public :
    /// \brief Return the string for the species-id.
    static const std::string& getName ( const SpeciesId id );
 
+   /// \brief Return the correspondent SpeciesManager id.
+   static int getSpeciesManagerId(  const SpeciesId id );
 
+   /// \brief Set the mapping to SpeciesManager
+   static void setMappingToSpeciesManager ( const Genex6::SpeciesManager & species );
 private :
 
    /// \brief Array of immobile-species names in lower case.
@@ -76,6 +84,9 @@ private :
 
    /// \brief Array if species densities.
    static double s_densities [ NUM_IMMOBILES ];
+
+   /// \brief Array for mapping immobile species to Species Manager id.
+   static double s_mappingToSpeciesManager [ NUM_IMMOBILES ];
 
    double m_retained [ NUM_IMMOBILES ];
 

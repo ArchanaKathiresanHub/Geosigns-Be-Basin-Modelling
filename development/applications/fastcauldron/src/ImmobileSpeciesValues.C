@@ -5,6 +5,7 @@
 
 std::string ImmobileSpeciesValues::s_namesLc [ NUM_IMMOBILES ] = { "precoke", "coke1", "hetero1", "coke2", "cokes" };
 std::string ImmobileSpeciesValues::s_names [ NUM_IMMOBILES + 1 ] = { "precoke", "coke1", "Hetero1", "coke2", "CokeS", "Unknown" };
+double ImmobileSpeciesValues::s_mappingToSpeciesManager [ NUM_IMMOBILES ];
 
 // Default values for density of immobile species.
 double ImmobileSpeciesValues::s_densities [ NUM_IMMOBILES ] = { 1264.05, 1247.43, 2323.59, 2245.05, 2159.056 };
@@ -16,7 +17,6 @@ ImmobileSpeciesValues::ImmobileSpeciesValues () {
    for ( i = 0; i < NUM_IMMOBILES; ++i ) {
       m_retained [ i ] = 0.0;
    }
-
 }
 
 ImmobileSpeciesValues::SpeciesId ImmobileSpeciesValues::getId ( const std::string& name ) {
@@ -38,6 +38,15 @@ ImmobileSpeciesValues::SpeciesId ImmobileSpeciesValues::getId ( const std::strin
 
 }
 
+int ImmobileSpeciesValues::getSpeciesManagerId (  const SpeciesId id  ) {
+
+   if ( id != UNKNOWN ) {
+      return s_mappingToSpeciesManager [ id ];
+   } else {
+      return -1;
+   }
+}
+
 const std::string& ImmobileSpeciesValues::getName ( const SpeciesId id ) { 
 
    if ( id != UNKNOWN ) {
@@ -50,12 +59,12 @@ const std::string& ImmobileSpeciesValues::getName ( const SpeciesId id ) {
 
 
 void ImmobileSpeciesValues::setRetained ( const SpeciesId id,
-                                                  double    retained ) {
+                                                  double  retained ) {
 
    if ( id != UNKNOWN ) {
       m_retained [ id ] = retained;
    }
-
+ 
 }
 
 std::string ImmobileSpeciesValues::image () const {
@@ -88,6 +97,15 @@ double ImmobileSpeciesValues::getRetainedVolume () const {
 
 
 void ImmobileSpeciesValues::setDensity ( const SpeciesId id,
-                                           const double    density ) {
+                                         const double    density ) {
    s_densities [ id ] = density;
+}
+
+void ImmobileSpeciesValues::setMappingToSpeciesManager ( const Genex6::SpeciesManager & speciesManager ) {
+
+   s_mappingToSpeciesManager [ PRECOKE ] = speciesManager.getPrecokeId ();
+   s_mappingToSpeciesManager [ COKE1 ]   = speciesManager.getCoke1Id ();
+   s_mappingToSpeciesManager [ HETERO1 ] = speciesManager.getHetero1Id ();
+   s_mappingToSpeciesManager [ COKE2 ]   = speciesManager.getCoke2Id ();
+   s_mappingToSpeciesManager [ COKES ]   = speciesManager.getCokeSId(); 
 }

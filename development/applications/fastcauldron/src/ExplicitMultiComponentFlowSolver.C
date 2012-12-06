@@ -40,6 +40,8 @@ static const pvtFlash::PVTPhase DesignatedPhase = pvtFlash::LIQUID_PHASE;
 #define OUTPUT ( i == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugINode () and j == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugJNode () and ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugKNode () == - 1 or element.getK () == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugKNode ()))
 #define OUTPUTNOK ( i == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugINode () and j == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugJNode ())
 
+#define NEW_OTGC_INTERFACE
+
 //------------------------------------------------------------//
 
 ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
@@ -110,6 +112,10 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
       }
 
    }
+
+#ifdef NEW_OTGC_INTERFACE
+   ImmobileSpeciesValues::setMappingToSpeciesManager ( m_otgcSimulator->getSpeciesManager() );
+#endif
 
    if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
       bool doGenex = FastcauldronSimulator::getInstance ().getCauldron ()->integrateGenexEquations ();
@@ -1195,7 +1201,7 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVT
    int    face;
 
    if ( phases ( phase ) > ConcentrationLowerLimit ) {
-      Saturation::Phase whichPhase = Saturation::convert ( phase );
+   Saturation::Phase whichPhase = Saturation::convert ( phase );
 
       elementPressure = subdomainPhasePressure ( element.getK (), element.getJ (), element.getI ());
 
@@ -2142,7 +2148,6 @@ double ExplicitMultiComponentFlowSolver::computeElementMassMatrix ( const Subdom
 #if 0
    NumericFunctions::Quadrature3D::getInstance ().get ( m_previousContributionsQuadratureDegree, quad );
 #endif
-
    NumericFunctions::Quadrature3D::getInstance ().get ( 2, 2, m_massMatrixQuadratureDegree, quad );
 
    getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambdaEnd );
@@ -3024,10 +3029,14 @@ void ExplicitMultiComponentFlowSolver::applyOtgc ( SubdomainElement& element,
    const Genex6::Species** allSpecies = m_otgcSimulator->getSpeciesInChemicalModel ();
    // const std::vector<std::string>& speciesNames = m_otgcSimulator->getSpeciesInChemicalModel ();
 
+#ifndef NEW_OTGC_INTERFACE 
    std::map<string, double> components;
    std::map<string, double>::iterator componentsIter;
+#else
+   double components[Genex6::SpeciesManager::numberOfSpecies];
+#endif
 
-   double        concentrationSum;
+   double   concentrationSum;
 
    unsigned int species;
 
@@ -3050,6 +3059,8 @@ void ExplicitMultiComponentFlowSolver::applyOtgc ( SubdomainElement& element,
    // Collect and normalise all modelled species for OTGC.
    //
    // First mobile ones.
+#ifndef NEW_OTGC_INTERFACE
+
    for ( species = 0; species < Genex6::SpeciesManager::numberOfSpecies; ++species ) {
 
       if ( allSpecies [ species ] != 0 ) {
@@ -3058,12 +3069,10 @@ void ExplicitMultiComponentFlowSolver::applyOtgc ( SubdomainElement& element,
 
          if ( id != pvtFlash::UNKNOWN ) {
             components [ name ] = concentration ( id ) / concentrationSum;
-         }
-
+         } 
       }
 
    }
-
 
    // Then the immobiles.
    for ( species = 0; species < ImmobileSpeciesValues::NumberOfImmobileSpecies; ++species ) {
@@ -3072,6 +3081,32 @@ void ExplicitMultiComponentFlowSolver::applyOtgc ( SubdomainElement& element,
 
       components [ name ] = immobiles ( id ) / concentrationSum;
    }
+#else
+   for ( species = 0; species < Genex6::SpeciesManager::numberOfSpecies; ++species ) {
+
+      if ( allSpecies [ species ] != 0 ) {
+
+         pvtFlash::ComponentId id = speciesManager.mapIdToPvtComponents ( species + 1 );
+         if ( id != pvtFlash::UNKNOWN ) { 
+            components [ species ] = concentration ( id ) / concentrationSum;
+         } else {
+            components[ species ] = 0.0;
+         }
+      }
+
+   } 
+
+   // Then the immobiles.
+   for ( species = 0; species < ImmobileSpeciesValues::NumberOfImmobileSpecies; ++species ) {
+      ImmobileSpeciesValues::SpeciesId id = ImmobileSpeciesValues::SpeciesId ( species );
+
+      int speciesManagerId = ImmobileSpeciesValues::getSpeciesManagerId( id );
+
+      if( speciesManagerId >= 0 ) {
+         components [ speciesManagerId - 1 ]  = immobiles ( id ) / concentrationSum;
+       }
+   }
+#endif
 
    OTGC6::SimulatorState otgcState ( timeStepStart, allSpecies, components );
 
@@ -3080,16 +3115,23 @@ void ExplicitMultiComponentFlowSolver::applyOtgc ( SubdomainElement& element,
                                       previousPorePressure, currentPorePressure,
                                       timeStepStart, timeStepEnd );
 
-   otgcState.GetSpeciesStateConcentrations ( &m_otgcSimulator->getChemicalModel (), components );
 
+     
+#ifdef NEW_OTGC_INTERFACE
+   otgcState.GetSpeciesStateConcentrations ( components );
+#else
+   otgcState.GetSpeciesStateConcentrations ( &m_otgcSimulator->getChemicalModel (), components );
+#endif
+
+#ifndef NEW_OTGC_INTERFACE
    // De-normalise the species and assign back to mobile and immobile objects.
    for ( componentsIter = components.begin (); componentsIter != components.end (); ++componentsIter ) {
       int speciesId = CBMGenerics::ComponentManager::getInstance ().GetSpeciedIdByName ( componentsIter->first );
-
+ 
       if ( speciesId != -1 ) {
          pvtFlash::ComponentId id = static_cast<pvtFlash::ComponentId>( speciesId );
          concentration ( id ) = componentsIter->second * concentrationSum;
-      } else {
+     } else {
 
          ImmobileSpeciesValues::SpeciesId id = ImmobileSpeciesValues::getId ( componentsIter->first );
 
@@ -3097,11 +3139,30 @@ void ExplicitMultiComponentFlowSolver::applyOtgc ( SubdomainElement& element,
             // Keep the immobile species in kg/m^3 units.
             immobiles ( id ) =  componentsIter->second * concentrationSum;
          }
-
       }
+   }
+#else
 
+   for ( species = 0; species < Genex6::SpeciesManager::numberOfSpecies; ++species ) {
+      
+      pvtFlash::ComponentId id = speciesManager.mapIdToPvtComponents( species + 1 );
+
+      if( id != pvtFlash::UNKNOWN ) {
+         concentration ( id ) = components[species] * concentrationSum;
+      } 
    }
 
+   // Then the immobiles.
+   for ( species = 0; species < ImmobileSpeciesValues::NumberOfImmobileSpecies; ++species ) {
+      ImmobileSpeciesValues::SpeciesId id = ImmobileSpeciesValues::SpeciesId ( species );
+      int speciesManagerId = ImmobileSpeciesValues::getSpeciesManagerId( id );
+
+      if( speciesManagerId >= 0 ) {
+         immobiles ( id ) = components [ speciesManagerId - 1 ]  * concentrationSum;
+      }
+   }
+ 
+#endif
    // Convert back to mol/m^3.
    concentration /= m_defaultMolarMasses;
 
@@ -3786,7 +3847,6 @@ double ExplicitMultiComponentFlowSolver::totalLayerHcMass ( FormationSubdomainEl
 
    CompositionPetscVector concentrations;
    concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES, true );
-
    ImmobileSpeciesPetscVector layerImmobileComponents;
    layerImmobileComponents.setVector ( immobileComponentsGrid, theLayer.getImmobileComponentsVec (), INSERT_VALUES );
 

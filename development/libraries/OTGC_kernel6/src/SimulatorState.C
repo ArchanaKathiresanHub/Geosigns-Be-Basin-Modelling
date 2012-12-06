@@ -50,6 +50,31 @@ SimulatorState::SimulatorState(const double inReferenceTime,
 //       GetSpeciesResult(Genex6::SpeciesManager::LSO4).SetConcentration(2);
 //    }
 }
+
+
+SimulatorState::SimulatorState(const double inReferenceTime, 
+                               const Species ** SpeciesInChemicalModel,
+                               const double  *  initSpeciesConcs ) : SimulatorStateBase()
+{
+   SetReferenceTime( inReferenceTime );
+
+   m_isInitialized = false;
+ 
+   for(int i = 0; i < Genex6::SpeciesManager::numberOfSpecies; ++ i) {
+
+      if(SpeciesInChemicalModel[i] != NULL) {
+         Genex6::SpeciesState *stateToAdd = new Genex6::SpeciesState( SpeciesInChemicalModel[i], initSpeciesConcs[i] );
+
+         AddSpeciesStateById( SpeciesInChemicalModel[i]->GetId(), stateToAdd );
+      } 
+
+   }
+//    if(Genex6::SpeciesManager::LSO4 > 0) {
+//       GetSpeciesStateById(Genex6::SpeciesManager::LSO4)->SetConcentration(2);
+//       GetSpeciesResult(Genex6::SpeciesManager::LSO4).SetConcentration(2);
+//    }
+}
+
 void SimulatorState::initSpeciesUltimateMass( const SpeciesManager& speciesManager )
 {
 

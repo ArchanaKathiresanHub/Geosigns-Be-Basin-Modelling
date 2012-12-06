@@ -29,6 +29,9 @@ public:
    SimulatorState(const double inReferenceTime, const Species ** SpeciesInChemicalModel,
                   const std::map<string, double> &initSpeciesConcs);
 
+   SimulatorState(const double inReferenceTime, const Species ** SpeciesInChemicalModel,
+                  const double * initSpeciesConcs);
+
    virtual ~SimulatorState(){};
 
    void SetSpeciesTimeStepVariablesToZero(){};
@@ -49,5 +52,6 @@ protected:
 
 };
 
-}
+} 
 #endif // _OTGC_KERNEL6__SIMULATOR_STATE_H_
+ 
