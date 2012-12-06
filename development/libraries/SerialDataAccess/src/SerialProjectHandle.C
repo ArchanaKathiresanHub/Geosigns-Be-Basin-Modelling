@@ -56,7 +56,7 @@ void ProjectHandle::mapFileCacheConstructor (void){ }
 
 void ProjectHandle::mapFileCacheDestructor  (void){ }
 
-void ProjectHandle::checkForValidPartitioning (int M, int N) const {}
+void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const {}
 
 void ProjectHandle::allocateArchitectureRelatedParameters () {
    m_messageHandler = new SerialMessageHandler;

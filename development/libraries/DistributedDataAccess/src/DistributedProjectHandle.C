@@ -79,20 +79,23 @@ void ProjectHandle::mapFileCacheDestructor (void)
     }
 }
 
-void ProjectHandle::checkForValidPartitioning (int M, int N) const
+void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const
 {
    int size;
    int m, n;
 
-   int scalingFactor;
-   if (getActivityName () == "CrustalThicknessCalculator" || getActivityName () == "Genex5")
+#if 0
+   PetscPrintf (PETSC_COMM_WORLD, "\nRunning activity %s\n", name.c_str());
+#endif
+
+   int scalingFactor = 2;
+   if (name == "CrustalThicknessCalculator" || getActivityName () == "Genex5" || name == "Unknown")
    {
       scalingFactor = 1;
    }
-   else
-   {
-      scalingFactor = 2;
-   }
+#if 0
+   PetscPrintf (PETSC_COMM_WORLD, "\nScalingFactor for %s = %d\n", name.c_str(), scalingFactor);
+#endif
 
 
 
@@ -125,7 +128,15 @@ void ProjectHandle::checkForValidPartitioning (int M, int N) const
    {
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nUnable to partition a %d x %d grid using %d cores, please select a different number of cores:\n", M, N, size);
-      PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d.\n\n", std::max (1, M_), std::max (1, N_));
+      if (name == "Unknown")
+      {
+	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d.\n", std::max (1, M_), std::max (1, N_));
+	 PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n\n");
+      }
+      else
+      {
+	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d.\n\n", std::max (1, M_), std::max (1, N_));
+      }
       PetscPrintf(PETSC_COMM_WORLD, "Exiting ...\n\n");
       
       MPI_Finalize ();
