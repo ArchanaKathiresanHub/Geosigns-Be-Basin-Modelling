@@ -4499,7 +4499,7 @@ const Interface::Grid * ProjectHandle::getLowResolutionOutputGrid (void) const
       maxI = minI + deltaI * (numI - 1);
       maxJ = minJ + deltaJ * (numJ - 1);
 
-      checkForValidPartitioning (numI, numJ, 2); // NOOP in case of serial data access
+      checkForValidPartitioning (numI, numJ); // NOOP in case of serial data access
 
       m_lowResOutputGrid = getFactory ()->produceGrid (getHighResolutionOutputGrid (), minI, minJ, maxI, maxJ, numI, numJ);
    }
@@ -4537,7 +4537,7 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid (void) const
       maxI = minI + deltaI * (numI - 1);
       maxJ = minJ + deltaJ * (numJ - 1);
 
-      checkForValidPartitioning (numI, numJ, 2); // NOOP in case of serial data access
+      checkForValidPartitioning (numI, numJ); // NOOP in case of serial data access
 
       m_highResOutputGrid = getFactory ()->produceGrid (minI, minJ, maxI, maxJ, numI, numJ);
    }

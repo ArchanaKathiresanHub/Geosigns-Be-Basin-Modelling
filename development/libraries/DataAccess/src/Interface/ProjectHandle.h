@@ -623,7 +623,7 @@ namespace DataAccess
          void mapFileCacheConstructor (void);
          void mapFileCacheDestructor  (void);
 
-	 void checkForValidPartitioning (int M, int N, int scalingFactor) const;
+	 void checkForValidPartitioning (int M, int N) const;
 
          enum { auxiliary, hrdecompaction, genex, fastcauldron };
 

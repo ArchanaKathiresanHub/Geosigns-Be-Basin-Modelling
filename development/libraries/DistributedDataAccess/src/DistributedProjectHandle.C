@@ -79,10 +79,22 @@ void ProjectHandle::mapFileCacheDestructor (void)
     }
 }
 
-void ProjectHandle::checkForValidPartitioning (int M, int N, int scalingFactor) const
+void ProjectHandle::checkForValidPartitioning (int M, int N) const
 {
    int size;
    int m, n;
+
+   int scalingFactor;
+   if (getActivityName () == "CrustalThicknessCalculator" || getActivityName () == "Genex5")
+   {
+      scalingFactor = 1;
+   }
+   else
+   {
+      scalingFactor = 2;
+   }
+
+
 
    MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
