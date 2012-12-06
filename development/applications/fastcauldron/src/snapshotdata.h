@@ -103,7 +103,7 @@ public :
   ~SnapshotData ();
 
 
-  void initialiseMinorSnapshotVector ();
+  void initialiseMinorSnapshotVector ( const bool usingDarcy );
 
   void writeSnapshotIoTbl ( database::Table * snapshotTable );
 

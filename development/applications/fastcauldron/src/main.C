@@ -184,6 +184,7 @@ int main(int argc, char** argv)
    }
 
    FastcauldronSimulator::getInstance ().initialiseFastcauldronLayers ();
+   FastcauldronSimulator::getInstance ().getMcfHandler ().determineUsage ();
 
    if ( not appctx->readProjectFile ()) {
      finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR Error when reading the project file", factory );
@@ -192,7 +193,6 @@ int main(int argc, char** argv)
 
    // There are several command line parameters that can be set only after the project file has been read.
    FastcauldronSimulator::getInstance ().readCommandLineParameters ( argc, argv );
-   FastcauldronSimulator::getInstance ().getMcfHandler ().determineUsage ();
 
    // Initialise anything that is to be set from the environment.
    appctx->setParametersFromEnvironment ();

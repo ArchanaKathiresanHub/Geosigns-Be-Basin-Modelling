@@ -56,6 +56,8 @@ using namespace Basin_Modelling;
 
 #include "Subdomain.h"
 #include "MultiComponentFlowHandler.h"
+#include "FastcauldronSimulator.h"
+
 
 //------------------------------------------------------------//
 
@@ -238,7 +240,7 @@ bool AppCtx::readProjectFile () {
 
      // Now that the set of major snapshot's has been assigned if there are no 
      // existing minorsnapshots then they must be computed.
-     projectSnapshots.initialiseMinorSnapshotVector ();
+      projectSnapshots.initialiseMinorSnapshotVector ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ());
    }
 
    // If we are not doing an iteratively coupled model then there is no 

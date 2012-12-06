@@ -165,7 +165,7 @@ void SnapshotData::setMaximumNumberOfMinorSnapshots () {
 
 //------------------------------------------------------------//
 
-void SnapshotData::initialiseMinorSnapshotVector () {
+void SnapshotData::initialiseMinorSnapshotVector ( const bool usingDarcy ) {
 
 
   PetscTruth foundMinorSnapshotCount;
@@ -175,8 +175,7 @@ void SnapshotData::initialiseMinorSnapshotVector () {
   double minorSnapshotInterval;
   int    I;
 
-
-  if ( projectPrescribesMinorSnapshots ()) {
+  if ( not usingDarcy and projectPrescribesMinorSnapshots ()) {
     /// Only need to find the maximum number of minor snapshots that lie bwtween two consecutive major snapshots.
     setMaximumNumberOfMinorSnapshots ();
   } else {
@@ -192,10 +191,28 @@ void SnapshotData::initialiseMinorSnapshotVector () {
 
     PetscOptionsGetInt( PETSC_NULL, "-numberminorss", &maximumNumberOfMinorSnapshotsValue, &foundMinorSnapshotCount );
 
+#if 0
     if ( ! foundMinorSnapshotCount ) {
       maximumNumberOfMinorSnapshotsValue = DefaultNumberOfMinorSnapshots;
     } else if ( maximumNumberOfMinorSnapshotsValue < 0 ) {
       maximumNumberOfMinorSnapshotsValue = 0;
+    }
+#endif
+
+    if ( not foundMinorSnapshotCount and not usingDarcy ) {
+      maximumNumberOfMinorSnapshotsValue = DefaultNumberOfMinorSnapshots;
+    } else {
+
+       if ( foundMinorSnapshotCount ) {
+
+          if ( maximumNumberOfMinorSnapshotsValue < 0 ) {
+             maximumNumberOfMinorSnapshotsValue = 0;
+          }
+
+       } else if ( usingDarcy ) {
+          maximumNumberOfMinorSnapshotsValue = 0;
+       }
+
     }
 
     it = majorSnapshotsBegin ();
