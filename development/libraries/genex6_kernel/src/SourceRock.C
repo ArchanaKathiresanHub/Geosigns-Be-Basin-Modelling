@@ -529,7 +529,7 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
    }
    if ( status && m_theSimulator != 0 and doApplyAdsorption ()) {
 
-      if ( m_projectHandle->getRank() == 0 ) {
+      if ( m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
          cerr << "Applying adsorption, TOCDependent is " << (adsorptionIsTOCDependent () ? "true" : "false" ) << ", function is " << getAdsorptionCapacityFunctionName () 
               << ", OTGC is " << ( doComputeOTGC () ? "on" : "off" ) << endl;
 
@@ -552,7 +552,7 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
 
       status = status and adsorptionFunction->isValid ();
 
-      if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 ) {
+      if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
          cerr << " ERROR Invalid adsorption function. Please check adsorption function parameters. Aborting ..." << endl;
          cerr << adsorptionFunction->getErrorMessage () << endl;
       }
@@ -593,7 +593,7 @@ bool SourceRock::initialize ( const bool printInitialisationDetails )
 
          status = status and adsorptionFunction->isValid ();
 
-         if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 ) {
+         if ( not adsorptionFunction->isValid () and m_projectHandle->getRank() == 0 and printInitialisationDetails ) {
             cerr << " ERROR Invalid adsorption function. Please check adsorption function parameters. Aborting ..." << endl;
             cerr << adsorptionFunction->getErrorMessage () << endl;
          }
