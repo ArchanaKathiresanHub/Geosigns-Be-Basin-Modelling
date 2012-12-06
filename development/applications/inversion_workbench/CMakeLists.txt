@@ -5,6 +5,8 @@ add_executable(probe
 
 add_executable(adjust
     src/adjust.C
+    src/project.C
+    src/optionparser.C
     src/generalexception.C
 )
 

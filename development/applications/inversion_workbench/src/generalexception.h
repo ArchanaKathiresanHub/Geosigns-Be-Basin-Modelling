@@ -1,3 +1,6 @@
+#ifndef INVERSION_GENERALEXCEPTION_H
+#define INVERSION_GENERALEXCEPTION_H
+
 #include <exception>
 #include <sstream>
 
@@ -36,4 +39,4 @@ struct BaseException : GeneralException
   }
 };
 
-
+#endif
