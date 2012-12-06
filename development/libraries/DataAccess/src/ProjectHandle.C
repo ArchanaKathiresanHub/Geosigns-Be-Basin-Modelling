@@ -938,96 +938,9 @@ bool ProjectHandle::isEqualTime (double t1, double t2)
 
 bool ProjectHandle::loadGrids (void)
 {
-   database::Table *projectIoTbl = getTable ("ProjectIoTbl");
-
-   assert (projectIoTbl);
-
-   assert (projectIoTbl->size () != 0);
-   Record *projectIoRecord = projectIoTbl->getRecord (0);
-
-   assert (projectIoRecord);
-
-   
-   int numI, numJ;
-   int lowResNumI, lowResNumJ;
-   double deltaI, deltaJ;
-   double minI, minJ;
-   double maxI, maxJ;
-   int offsetI, offsetJ;
-   int scaleI, scaleJ;
-
-   numI = database::getWindowXMax (projectIoRecord) - database::getWindowXMin (projectIoRecord) + 1;
-   numJ = database::getWindowYMax (projectIoRecord) - database::getWindowYMin (projectIoRecord) + 1;
-
-   deltaI = database::getDeltaX (projectIoRecord);
-   deltaJ = database::getDeltaY (projectIoRecord);
-
-   minI = database::getXCoord (projectIoRecord) + database::getWindowXMin (projectIoRecord) * database::getDeltaX (projectIoRecord);
-   minJ = database::getYCoord (projectIoRecord) + database::getWindowYMin (projectIoRecord) * database::getDeltaY (projectIoRecord);
-
-   maxI = minI + deltaI * (numI - 1);
-   maxJ = minJ + deltaJ * (numJ - 1);
-
-   offsetI = database::getOffsetX (projectIoRecord);
-   offsetJ = database::getOffsetY (projectIoRecord);
-
-   scaleI = database::getScaleX (projectIoRecord);
-   scaleJ = database::getScaleY (projectIoRecord);
-
-   // required to check partitioning
-   lowResNumI = (numI - offsetI - 1) / scaleI + 1;
-   lowResNumJ = (numJ - offsetJ - 1) / scaleJ + 1;
-   checkForValidPartitioning (lowResNumI, lowResNumJ); // NOOP in case of serial data access
-
-
-#if 0
-   if (getRank () == 0)
-   cerr << getRankString () << ": producing highres output grid" <<
-      " (" << minI << ", " << minJ << ", " << maxI << ", " << maxJ << ", " << numI << ", " << numJ << ")" << endl;
-#endif
-   
-   m_highResOutputGrid = getFactory ()->produceGrid (minI, minJ, maxI, maxJ, numI, numJ);
-
-   numI = lowResNumI;
-   numJ = lowResNumJ;
-   
-   minI = minI + offsetI * deltaI;
-   minJ = minJ + offsetJ * deltaJ;
-
-   deltaI = scaleI * deltaI;
-   deltaJ = scaleJ * deltaJ;
-
-   maxI = minI + deltaI * (numI - 1);
-   maxJ = minJ + deltaJ * (numJ - 1);
-
-#if 0
-   if (getRank () == 0)
-   cerr << getRankString () << ": producing lowres output grid" <<
-      " (" << minI << ", " << minJ << ", " << maxI << ", " << maxJ << ", " << numI << ", " << numJ << ")" << endl;
-#endif
-	
-   m_lowResOutputGrid = getFactory ()->produceGrid (m_highResOutputGrid, minI, minJ, maxI, maxJ, numI, numJ);
-
-   numI = database::getNumberX (projectIoRecord);
-   numJ = database::getNumberY (projectIoRecord);
-
-   deltaI = database::getDeltaX (projectIoRecord);
-   deltaJ = database::getDeltaY (projectIoRecord);
-
-   minI = database::getXCoord (projectIoRecord);
-   minJ = database::getYCoord (projectIoRecord);
-
-   maxI = minI + deltaI * (numI - 1);
-   maxJ = minJ + deltaJ * (numJ - 1);
-
-#if 0
-   if (getRank () == 0)
-   cerr << getRankString () << ": producing input grid" <<
-      " (" << minI << ", " << minJ << ", " << maxI << ", " << maxJ << ", " << numI << ", " << numJ << ")" << endl;
-#endif
-
-   m_inputGrid = getFactory ()->produceGrid (m_highResOutputGrid, minI, minJ, maxI, maxJ, numI, numJ);
-
+   // (void) getHighResolutionOutputGrid();
+   // (void) getLowResolutionOutputGrid();
+   // (void) getInputGrid();
    return true;
 }
 
@@ -4501,16 +4414,133 @@ const string & ProjectHandle::getCurrentPropertyValueName (void)
 
 const Interface::Grid * ProjectHandle::getInputGrid (void) const
 {
+   if (m_inputGrid == 0)
+   {
+      database::Table *projectIoTbl = getTable ("ProjectIoTbl");
+
+      assert (projectIoTbl);
+
+      assert (projectIoTbl->size () != 0);
+      Record *projectIoRecord = projectIoTbl->getRecord (0);
+
+      assert (projectIoRecord);
+
+      int numI, numJ;
+      double deltaI, deltaJ;
+      double minI, minJ;
+      double maxI, maxJ;
+
+      numI = database::getNumberX (projectIoRecord);
+      numJ = database::getNumberY (projectIoRecord);
+
+      deltaI = database::getDeltaX (projectIoRecord);
+      deltaJ = database::getDeltaY (projectIoRecord);
+
+      minI = database::getXCoord (projectIoRecord);
+      minJ = database::getYCoord (projectIoRecord);
+
+      maxI = minI + deltaI * (numI - 1);
+      maxJ = minJ + deltaJ * (numJ - 1);
+
+      m_inputGrid = getFactory ()->produceGrid (getHighResolutionOutputGrid (), minI, minJ, maxI, maxJ, numI, numJ);
+   }
+
    return m_inputGrid;
 }
 
 const Interface::Grid * ProjectHandle::getLowResolutionOutputGrid (void) const
 {
+   if (m_lowResOutputGrid == 0)
+   {
+      database::Table *projectIoTbl = getTable ("ProjectIoTbl");
+
+      assert (projectIoTbl);
+
+      assert (projectIoTbl->size () != 0);
+      Record *projectIoRecord = projectIoTbl->getRecord (0);
+
+      assert (projectIoRecord);
+
+      int numI, numJ;
+      int lowResNumI, lowResNumJ;
+      double deltaI, deltaJ;
+      double minI, minJ;
+      double maxI, maxJ;
+      int offsetI, offsetJ;
+      int scaleI, scaleJ;
+
+      numI = database::getWindowXMax (projectIoRecord) - database::getWindowXMin (projectIoRecord) + 1;
+      numJ = database::getWindowYMax (projectIoRecord) - database::getWindowYMin (projectIoRecord) + 1;
+
+      deltaI = database::getDeltaX (projectIoRecord);
+      deltaJ = database::getDeltaY (projectIoRecord);
+
+      minI = database::getXCoord (projectIoRecord) + database::getWindowXMin (projectIoRecord) * database::getDeltaX (projectIoRecord);
+      minJ = database::getYCoord (projectIoRecord) + database::getWindowYMin (projectIoRecord) * database::getDeltaY (projectIoRecord);
+
+      maxI = minI + deltaI * (numI - 1);
+      maxJ = minJ + deltaJ * (numJ - 1);
+
+      offsetI = database::getOffsetX (projectIoRecord);
+      offsetJ = database::getOffsetY (projectIoRecord);
+
+      scaleI = database::getScaleX (projectIoRecord);
+      scaleJ = database::getScaleY (projectIoRecord);
+
+      numI = (numI - offsetI - 1) / scaleI + 1;
+      numJ = (numJ - offsetJ - 1) / scaleJ + 1;
+
+      minI = minI + offsetI * deltaI;
+      minJ = minJ + offsetJ * deltaJ;
+
+      deltaI = scaleI * deltaI;
+      deltaJ = scaleJ * deltaJ;
+
+      maxI = minI + deltaI * (numI - 1);
+      maxJ = minJ + deltaJ * (numJ - 1);
+
+      checkForValidPartitioning (numI, numJ, 2); // NOOP in case of serial data access
+
+      m_lowResOutputGrid = getFactory ()->produceGrid (getHighResolutionOutputGrid (), minI, minJ, maxI, maxJ, numI, numJ);
+   }
+
    return m_lowResOutputGrid;
 }
 
 const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid (void) const
 {
+   if (m_highResOutputGrid == 0)
+   {
+      database::Table *projectIoTbl = getTable ("ProjectIoTbl");
+
+      assert (projectIoTbl);
+
+      assert (projectIoTbl->size () != 0);
+      Record *projectIoRecord = projectIoTbl->getRecord (0);
+
+      assert (projectIoRecord);
+
+      int numI, numJ;
+      double deltaI, deltaJ;
+      double minI, minJ;
+      double maxI, maxJ;
+
+      numI = database::getWindowXMax (projectIoRecord) - database::getWindowXMin (projectIoRecord) + 1;
+      numJ = database::getWindowYMax (projectIoRecord) - database::getWindowYMin (projectIoRecord) + 1;
+
+      deltaI = database::getDeltaX (projectIoRecord);
+      deltaJ = database::getDeltaY (projectIoRecord);
+
+      minI = database::getXCoord (projectIoRecord) + database::getWindowXMin (projectIoRecord) * database::getDeltaX (projectIoRecord);
+      minJ = database::getYCoord (projectIoRecord) + database::getWindowYMin (projectIoRecord) * database::getDeltaY (projectIoRecord);
+
+      maxI = minI + deltaI * (numI - 1);
+      maxJ = minJ + deltaJ * (numJ - 1);
+
+      checkForValidPartitioning (numI, numJ, 2); // NOOP in case of serial data access
+
+      m_highResOutputGrid = getFactory ()->produceGrid (minI, minJ, maxI, maxJ, numI, numJ);
+   }
    return m_highResOutputGrid;
 }
 
@@ -5906,15 +5936,15 @@ bool ProjectHandle::containsHDF5OutputMaps (void) const
    else return true;
 }
 
-Grid * ProjectHandle::findOutputGrid (int numI, int numJ)
+const Grid * ProjectHandle::findOutputGrid (int numI, int numJ) const
 {
-   if (m_lowResOutputGrid->numIGlobal () == numI && m_lowResOutputGrid->numJGlobal () == numJ)
+   if (getLowResolutionOutputGrid()->numIGlobal () == numI && getLowResolutionOutputGrid()->numJGlobal () == numJ)
    {
-      return m_lowResOutputGrid;
+      return getLowResolutionOutputGrid();
    }
-   else if (m_highResOutputGrid->numIGlobal () == numI && m_highResOutputGrid->numJGlobal () == numJ)
+   else if (getHighResolutionOutputGrid()->numIGlobal () == numI && getHighResolutionOutputGrid()->numJGlobal () == numJ)
    {
-      return m_highResOutputGrid;
+      return getHighResolutionOutputGrid();
    }
    else
    {
@@ -5922,11 +5952,11 @@ Grid * ProjectHandle::findOutputGrid (int numI, int numJ)
    }
 }
 
-Grid * ProjectHandle::findGrid (int numI, int numJ)
+const Grid * ProjectHandle::findGrid (int numI, int numJ) const
 {
-   if (m_inputGrid->numIGlobal () == numI && m_inputGrid->numJGlobal () == numJ)
+   if (getInputGrid ()->numIGlobal () == numI && getInputGrid ()->numJGlobal () == numJ)
    {
-      return m_inputGrid;
+      return getInputGrid ();
    }
    else
    {

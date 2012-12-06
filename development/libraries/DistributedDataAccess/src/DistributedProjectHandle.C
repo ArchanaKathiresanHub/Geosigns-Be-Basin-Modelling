@@ -79,31 +79,37 @@ void ProjectHandle::mapFileCacheDestructor (void)
     }
 }
 
-void ProjectHandle::checkForValidPartitioning (int M, int N)
+void ProjectHandle::checkForValidPartitioning (int M, int N, int scalingFactor) const
 {
    int size;
    int m, n;
 
    MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
+#if 0
+   PetscPrintf (PETSC_COMM_WORLD, "Checking resolution %d x %d for %d cores with scaling %d\n", M, N, size, scalingFactor);
+#endif
+
    if (size == 1) return; // 1 is always okay!
 
-   int M_ = M / 4;
-   int N_ = N / 4;
+   int M_ = (M + scalingFactor - 1) / scalingFactor;
+   int N_ = (N + scalingFactor - 1) / scalingFactor;
 
-   m = (int) (0.5 + sqrt (((double) M_) * ((double) size) / ((double) N_)));
-   if (m == 0) m = 1;
-
-   while (m > 0)
+   bool scalingFound;
+   for (m = size, scalingFound = false; m > 0; --m)
    {
       n = size / m;
-      if (m * n == size) break;
-      m--;
+      if (m * n == size && m <= M_ && n <= N_)
+      {
+	 scalingFound = true;
+#if 0
+	 PetscPrintf(PETSC_COMM_WORLD, "M_ = %d, N_ = %d, size = %d -> m = %d, n = %d\n", M_, N_, size, m, n);
+#endif
+	 break;
+      }
    }
 
-   if (M > N && m < n) std::swap (m, n);
-
-   if (m * n != size || M_ < m || N_ < n)
+   if (!scalingFound)
    {
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nUnable to partition a %d x %d grid using %d cores, please select a different number of cores:\n", M, N, size);

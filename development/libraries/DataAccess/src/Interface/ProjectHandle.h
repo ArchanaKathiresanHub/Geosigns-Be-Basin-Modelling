@@ -441,8 +441,8 @@ namespace DataAccess
 
 	    static ObjectFactory * GetFactoryToUse (void);
 
-	    Grid * findOutputGrid (int numI, int numJ);
-	    Grid * findGrid (int numI, int numJ);
+	    const Grid * findOutputGrid (int numI, int numJ) const;
+	    const Grid * findGrid (int numI, int numJ) const;
 
 	    /// return the Grid that is used to produce new PropertyValues
 	    const Grid * getActivityOutputGrid (void) const;
@@ -609,9 +609,9 @@ namespace DataAccess
 
 	    MutableFaultCollectionList m_faultCollections;
 
-	    Grid * m_inputGrid;
-	    Grid * m_highResOutputGrid;
-	    Grid * m_lowResOutputGrid;
+	    mutable Grid * m_inputGrid;
+	    mutable Grid * m_highResOutputGrid;
+	    mutable Grid * m_lowResOutputGrid;
             
 	    const Grid * m_activityOutputGrid;
 
@@ -623,8 +623,7 @@ namespace DataAccess
          void mapFileCacheConstructor (void);
          void mapFileCacheDestructor  (void);
 
-	 void checkForValidPartitioning (int M, int N);
-
+	 void checkForValidPartitioning (int M, int N, int scalingFactor) const;
 
          enum { auxiliary, hrdecompaction, genex, fastcauldron };
 
