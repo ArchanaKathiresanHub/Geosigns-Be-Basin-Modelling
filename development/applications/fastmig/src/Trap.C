@@ -2567,7 +2567,7 @@ void Trap::collectProperties (TrapPropertiesRequest & tpRequest)
    tpRequest.rank = GetRank ();
    tpRequest.capacity = getCapacity ();
    tpRequest.depth = getTopDepth ();
-   tpRequest.spillDepth = getBottomDepth ();
+   tpRequest.spillDepth = getSpillDepth ();
    tpRequest.spillPointI = getSpillColumn()->getI();
    tpRequest.spillPointJ = getSpillColumn()->getJ();
    tpRequest.wcSurface = getSurface (LAST_PHASE);
