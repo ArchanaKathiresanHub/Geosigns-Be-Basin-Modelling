@@ -13,7 +13,7 @@ if tf workspaces -collection:${COLLECTION} | grep -q ^${WORKSPACE} ; then
     tf workspace -noprompt -delete -collection:$COLLECTION $WORKSPACE
 fi
 echo "- Creating new workspace $WORKSPACE"
-tf workspace -noprompt -new -collection:$COLLECTION $WORKSPACE -comment:"RegressionTestBench"
+tf workspace -noprompt -new -collection:$COLLECTION $WORKSPACE -comment:"RegressionTestBench" -location:local
 echo "- Mapping workspace $WORKSPACE to folder $ROOTDIRECTORY"
 tf workfold  -noprompt -map -collection:$COLLECTION -workspace:$WORKSPACE \$/Basin\ Modeling/IBS/Tests/RegressionTestBench $ROOTDIRECTORY
 
