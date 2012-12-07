@@ -9,8 +9,13 @@ namespace hpc
 class CudaVector;
 class CudaCSRMatrix;
 
+template <typename, typename>
+class ILU;
+
 class CudaHYBMatrix
 {
+  friend class ILU<CudaHYBMatrix, CudaVector>;
+
 public:
   typedef int SizeType;
   typedef double ValueType;

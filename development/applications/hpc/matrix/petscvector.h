@@ -15,6 +15,10 @@ public:
   typedef int32_t SizeType;
   typedef double ValueType;
 
+  PetscVector()
+    : m_values()
+  {}
+
   struct LoadException : BaseException<LoadException> {};
   static PetscVector load( std::istream & );
 

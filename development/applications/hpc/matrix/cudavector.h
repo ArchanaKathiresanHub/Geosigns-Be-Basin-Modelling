@@ -17,6 +17,10 @@ public:
     : m_values( &x[0], &x[0] + x.rows() )
   {}
 
+  CudaVector()
+    : m_values()
+  {}
+
   SizeType rows() const
   { return m_values.size() ;}
 

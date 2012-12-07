@@ -12,6 +12,7 @@
 #include "gettime.h"
 #include "cudaexception.h"
 #include "cudasparse.h"
+#include "ilu.h"
 
 #include <fstream>
 #include <iostream>
@@ -75,7 +76,8 @@ void benchmark(int ITER, int procs, int rank, double flops, const Matrix & A, co
   const double aggFlops = procs * flops / (t2 - t0) ;
   if (rank == 0)
   {
-    std::cout << std::setw(15) << MatrixTypeTraits<Matrix>::s_name
+    std::cout << std::setw(15) << "MatMult"
+              << std::setw(15) << MatrixTypeTraits<Matrix>::s_name
               << std::setw(10) << procs
 	      << std::setw(10) << CudaSparse::instance().deviceCount()
               << std::setw(15) << maxT
@@ -124,6 +126,61 @@ void check( const PetscMatrix & origMatrix, const PetscVector & origVector
        << MatrixTypeTraits<CudaHYBMatrix>::s_name 
        << " matrix multiplication does not give the same results as the original";
 }
+
+template <typename Matrix, typename Vector>
+void benchmarkTrSolve(int ITER, int procs, int rank, const PetscMatrix & A, const Vector & b)
+{
+    const double flops = 2.0 * ITER * ( 2.0 * A.numberNonZeros() - A.rows());
+
+    ILU<Matrix, Vector> ilu(A);
+    Vector z;
+
+#if HAVE_MPI
+  MPI_Barrier(MPI_COMM_WORLD);
+#endif
+  double t0 = hpc::getTime();
+  for (int i = 0 ; i < ITER; ++i)
+    ilu.apply( b, z);
+
+  // read an element to force synchronization
+  (void) z[0];
+
+  double t1 = hpc::getTime();
+
+#if HAVE_MPI  
+  MPI_Barrier(MPI_COMM_WORLD);
+#endif
+  double t2 = hpc::getTime();
+
+  double t = t1-t0;
+  double maxT = t, minT = t, sumT = t;
+#if HAVE_MPI
+  MPI_Reduce( &t, &maxT, 1, MPI_DOUBLE, MPI_MAX , 0, MPI_COMM_WORLD);
+  MPI_Reduce( &t, &minT, 1, MPI_DOUBLE, MPI_MIN , 0, MPI_COMM_WORLD);
+  MPI_Reduce( &t, &sumT, 1, MPI_DOUBLE, MPI_SUM , 0, MPI_COMM_WORLD);
+#endif
+  const double avgT = sumT / procs;
+  
+  const double maxFlops = flops / minT;
+  const double minFlops = flops / maxT;
+  const double aggFlops = procs * flops / (t2 - t0) ;
+  if (rank == 0)
+  {
+    std::cout << std::setw(15) << "ILUApply"
+              << std::setw(15) << MatrixTypeTraits<Matrix>::s_name
+              << std::setw(10) << procs
+	      << std::setw(10) << CudaSparse::instance().deviceCount()
+              << std::setw(15) << maxT
+	      << std::setw(15) << minT
+	      << std::setw(15) << avgT
+	      << std::setw(15) << maxT/ITER
+	      << std::setw(20) << maxFlops
+	      << std::setw(20) << minFlops
+	      << std::setw(20) << aggFlops
+	      << '\n';
+  }
+}
+  
 
 
 
@@ -181,7 +238,9 @@ int main(int argc, char ** argv)
   input.close();
 
   if (rank == 0)
-    std::cout   << std::setw(15) << "Matrix format"
+  {
+    std::cout   << std::setw(15) << "Algorithm"
+                << std::setw(15) << "Matrix format"
                 << std::setw(10) << "CPU Cores"
 		<< std::setw(10) << "GPUs"
                 << std::setw(15) << "Max Time" 
@@ -192,6 +251,7 @@ int main(int argc, char ** argv)
 		<< std::setw(20) << "Min FLOPS/sec"
 		<< std::setw(20) << "Agg. FLOPS/sec"
 		<< '\n';
+  }
 
   const double flops = 2.0 * A.numberNonZeros();
   
@@ -266,5 +326,9 @@ int main(int argc, char ** argv)
       std::cerr << "CUDA benchmarks failed:\n\t" << e.what() << std::endl ;
   }
 
+  benchmarkTrSolve<PetscMatrix, PetscVector>(1000, procs, rank, A, b);
+  benchmarkTrSolve<CudaCSRMatrix, CudaVector>(1000, procs, rank, A, CudaVector( b));
+  benchmarkTrSolve<CudaHYBMatrix, CudaVector>(1000, procs, rank, A, CudaVector( b));
+  
   return 0;
 }

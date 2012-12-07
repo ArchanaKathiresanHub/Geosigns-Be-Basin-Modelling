@@ -44,6 +44,14 @@ set( CMAKE_CXX_FLAGS "-Wall")
 enable_testing()
 
 # building
+add_executable(tslevelset
+    tslevelset.C
+)
+
+target_link_libraries(tslevelset
+    matrix
+)
+
 add_executable(bench
     bench.C
     gettime.C
@@ -68,6 +76,8 @@ cuda_add_library(matrix
     cudaarray.cu
     cudamatdescr.C
     cudahybmatrix.C
+    ilu.C
+    cudasolveanalysisinfo.C
 )
 
 target_link_libraries(matrix    

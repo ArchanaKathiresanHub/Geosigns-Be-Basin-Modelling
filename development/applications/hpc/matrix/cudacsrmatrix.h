@@ -11,9 +11,13 @@ namespace hpc {
 class CudaVector;
 class PetscMatrix;
 
+template <typename, typename > 
+class ILU;
+
 class CudaCSRMatrix
 { 
   friend class CudaHYBMatrix;
+  friend class ILU<CudaCSRMatrix, CudaVector>;
 
 public:
   typedef int SizeType;

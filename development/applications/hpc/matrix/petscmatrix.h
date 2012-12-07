@@ -11,7 +11,6 @@ namespace hpc
 {
   class PetscVector;
 
-
   class PetscMatrix
   {
   public:
@@ -33,7 +32,6 @@ namespace hpc
 
     // insertion
     void insert( SizeType rowIndex, SizeType columnIndex, ValueType value);
-
 
     // Input
     struct LoadException : BaseException<LoadException> {};
