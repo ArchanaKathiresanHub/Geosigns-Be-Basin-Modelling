@@ -114,7 +114,9 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
    }
 
 #ifdef NEW_OTGC_INTERFACE
-   ImmobileSpeciesValues::setMappingToSpeciesManager ( m_otgcSimulator->getSpeciesManager() );
+   if( m_otgcSimulator != 0 ) {
+      ImmobileSpeciesValues::setMappingToSpeciesManager ( m_otgcSimulator->getSpeciesManager() );
+   }
 #endif
 
    if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
