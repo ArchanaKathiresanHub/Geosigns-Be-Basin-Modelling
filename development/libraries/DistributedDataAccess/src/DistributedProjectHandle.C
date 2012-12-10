@@ -107,8 +107,13 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
 
    if (size == 1) return; // 1 is always okay!
 
+#if ISWRONG
    int M_ = (M + scalingFactor - 1) / scalingFactor;
    int N_ = (N + scalingFactor - 1) / scalingFactor;
+#else
+   int M_ = M / scalingFactor;
+   int N_ = N / scalingFactor;
+#endif
 
    bool scalingFound;
    for (m = size, scalingFound = false; m > 0; --m)
@@ -119,8 +124,9 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
 	 scalingFound = true;
 #if 0
 	 PetscPrintf(PETSC_COMM_WORLD, "M_ = %d, N_ = %d, size = %d -> m = %d, n = %d\n", M_, N_, size, m, n);
-#endif
+#else
 	 break;
+#endif
       }
    }
 
@@ -130,12 +136,12 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
                    "\nUnable to partition a %d x %d grid using %d cores, please select a different number of cores:\n", M, N, size);
       if (name == "Unknown")
       {
-	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d.\n", std::max (1, M_), std::max (1, N_));
+	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n", std::max (1, M_), std::max (1, N_));
 	 PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n\n");
       }
       else
       {
-	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect M * N cores where M <= %d and N <= %d.\n\n", std::max (1, M_), std::max (1, N_));
+	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n\n", std::max (1, M_), std::max (1, N_));
       }
       PetscPrintf(PETSC_COMM_WORLD, "Exiting ...\n\n");
       
