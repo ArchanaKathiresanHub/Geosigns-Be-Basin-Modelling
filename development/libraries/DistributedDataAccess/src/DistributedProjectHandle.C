@@ -81,69 +81,39 @@ void ProjectHandle::mapFileCacheDestructor (void)
 
 void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const
 {
-   int size;
    int m, n;
 
-#if 0
-   PetscPrintf (PETSC_COMM_WORLD, "\nRunning activity %s\n", name.c_str());
-#endif
-
    int scalingFactor = 2;
-   if (name == "CrustalThicknessCalculator" || getActivityName () == "Genex5" || name == "Unknown")
+   if (name == "CrustalThicknessCalculator" || name == "Genex5" || name == "Unknown")
    {
       scalingFactor = 1;
    }
+
 #if 0
    PetscPrintf (PETSC_COMM_WORLD, "\nScalingFactor for %s = %d\n", name.c_str(), scalingFactor);
 #endif
 
+   int M_ = M / scalingFactor;
+   int N_ = N / scalingFactor;
 
-
+   int size;
    MPI_Comm_size (PETSC_COMM_WORLD, &size);
-
-#if 0
-   PetscPrintf (PETSC_COMM_WORLD, "Checking resolution %d x %d for %d cores with scaling %d\n", M, N, size, scalingFactor);
-#endif
 
    if (size == 1) return; // 1 is always okay!
 
-#if ISWRONG
-   int M_ = (M + scalingFactor - 1) / scalingFactor;
-   int N_ = (N + scalingFactor - 1) / scalingFactor;
-#else
-   int M_ = M / scalingFactor;
-   int N_ = N / scalingFactor;
-#endif
+   bool scalingFound = DistributedGrid::CalculatePartitioning (M_, N_, m, n);
 
-   bool scalingFound;
-   for (m = size, scalingFound = false; m > 0; --m)
-   {
-      n = size / m;
-      if (m * n == size && m <= M_ && n <= N_)
-      {
-	 scalingFound = true;
-#if 0
-	 PetscPrintf(PETSC_COMM_WORLD, "M_ = %d, N_ = %d, size = %d -> m = %d, n = %d\n", M_, N_, size, m, n);
-#else
-	 break;
-#endif
-      }
-   }
 
    if (!scalingFound)
    {
       PetscPrintf (PETSC_COMM_WORLD,
-                   "\nUnable to partition a %d x %d grid using %d cores, please select a different number of cores:\n", M, N, size);
+                   "\nUnable to partition a %d x %d grid using %d cores for activity %s, please select a different number of cores:\n", M, N, size, name.c_str());
+      PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n", std::max (1, M_), std::max (1, N_));
       if (name == "Unknown")
       {
-	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n", std::max (1, M_), std::max (1, N_));
-	 PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n\n");
+	 PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n");
       }
-      else
-      {
-	 PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n\n", std::max (1, M_), std::max (1, N_));
-      }
-      PetscPrintf(PETSC_COMM_WORLD, "Exiting ...\n\n");
+      PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
       
       MPI_Finalize ();
       exit (-1);

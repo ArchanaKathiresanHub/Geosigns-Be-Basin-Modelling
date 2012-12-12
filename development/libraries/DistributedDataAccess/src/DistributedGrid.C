@@ -28,14 +28,79 @@ using namespace DataAccess;
 using namespace Interface;
 
 
+bool DistributedGrid::CalculatePartitioning (int M, int N, int & mSelected, int & nSelected)
+{
+   int size;
+
+#if 0
+   PetscPrintf (PETSC_COMM_WORLD, "\nCalculating partioning for %d, %d\n", M, N);
+#endif
+
+   MPI_Comm_size (PETSC_COMM_WORLD, &size);
+
+   double minimumScalingRatio = 1e10;
+   bool scalingFound = false;
+   int m, n;
+   for (m = size; m > 0; --m)
+   {
+      n = size / m;
+      if (m * n == size && m <= M && n <= N)
+      {
+	 scalingFound = true;
+	 double mScaling = double(M) / double (m);
+	 double nScaling = double(N) / double (n);
+
+	 double scalingRatio = std::max (mScaling, nScaling) / std::min (mScaling, nScaling);
+	 if (scalingRatio < minimumScalingRatio)
+	 {
+	    mSelected = m, nSelected = n;
+	    minimumScalingRatio = scalingRatio;
+	 }
+#if 0
+	 PetscPrintf (PETSC_COMM_WORLD, "m = %d, n = %d, mScaling = %lf, nScaling = %lf, scalingRatio = %lf, mSelected = %d, nSelected = %d\n",
+	       m, n, mScaling, nScaling, scalingRatio, mSelected, nSelected);
+#endif
+
+      }
+   }
+
+#if 0
+   if (scalingFound)
+   {
+      PetscPrintf (PETSC_COMM_WORLD,
+	    "\nPartitioning %d x %d grid using %d cores into %d x %d cores\n", M, N, size, mSelected, nSelected);
+   }
+#endif
+   return scalingFound;
+}
+
 DistributedGrid::DistributedGrid (double minI, double minJ,
-      double maxI, double maxJ, int numI, int numJ) :
+      double maxI, double maxJ, int numI, int numJ, int lowResNumI, int lowResNumJ) :
    m_globalGrid (minI, minJ, maxI, maxJ, numI, numJ), m_numProcsI (-1), m_numProcsJ (-1), m_numsI (0), m_numsJ (0),
    m_convertingTo (0), m_conversionsToI (0), m_conversionsToJ (0), m_returnsI (0), m_returnsJ (0)
 {
+   int numICores, numJCores;
+
+   int size;
+   MPI_Comm_size (PETSC_COMM_WORLD, &size);
+
+   // Calculate the core partitioning based on the low resolution output grid as that is the grid mostly used.
+   // If there is no core partitioning for the low res grid, use the high res grid and hope the low res grid will not be used (checked elsewhere).
+   if (!CalculatePartitioning (lowResNumI, lowResNumJ, numICores, numJCores) &&
+	 !CalculatePartitioning (numIGlobal (), numJGlobal (), numICores, numJCores))
+   {
+      PetscPrintf (PETSC_COMM_WORLD,
+                   "\nUnable to partition a %d (%d) x %d (%d) grid using %d cores, please select a different number of cores:\n", lowResNumI, numIGlobal (),  lowResNumJ, numJGlobal (), size);
+      PetscPrintf(PETSC_COMM_WORLD, "Exiting ...\n\n");
+      
+      MPI_Finalize ();
+      exit (-1);
+   }
+
+
    DACreate2d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
 	      numIGlobal (), numJGlobal (), 
-	      PETSC_DECIDE, PETSC_DECIDE, 1, 1, 
+	      numICores, numJCores, 1, 1, 
 	      PETSC_NULL, PETSC_NULL, &m_localInfo.da );
 
    DAGetLocalInfo (m_localInfo.da, &m_localInfo);

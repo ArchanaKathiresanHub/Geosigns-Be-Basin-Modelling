@@ -26,8 +26,8 @@ namespace DataAccess
       {
 public:        
          /// create a new grid
-         DistributedGrid (double minI, double minJ, double maxI, double maxJ, int numI, int numJ);
-	     ~DistributedGrid (void);
+         DistributedGrid (double minI, double minJ, double maxI, double maxJ, int numI, int numJ, int lowResNumI, int lowResNumJ);
+	 ~DistributedGrid (void);
 
          /// Create a new grid such that each grid point and its corresponding grid point in the reference grid
          /// are assigned to the same processor
@@ -149,10 +149,13 @@ public:
          /// return DALocalInfo;
          const GlobalGrid & getGlobalGrid (void) const;
 
-	     virtual void asString (string &) const;
-	     virtual void printOn (ostream &) const;
+	 virtual void asString (string &) const;
+	 virtual void printOn (ostream &) const;
 
          void printDistributionOn (MPI_Comm com) const;
+
+	 static bool CalculatePartitioning (int M, int N, int & m, int & n);
+
 	
 private:
          GlobalGrid m_globalGrid;

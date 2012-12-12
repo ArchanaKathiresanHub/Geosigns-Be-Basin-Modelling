@@ -4515,6 +4515,7 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid (void) const
       assert (projectIoRecord);
 
       int numI, numJ;
+      int lowResNumI, lowResNumJ;
       double deltaI, deltaJ;
       double minI, minJ;
       double maxI, maxJ;
@@ -4533,7 +4534,20 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid (void) const
 
       checkForValidPartitioning ("Unknown", numI, numJ); // NOOP in case of serial data access
 
-      m_highResOutputGrid = getFactory ()->produceGrid (minI, minJ, maxI, maxJ, numI, numJ);
+      int offsetI, offsetJ;
+      int scaleI, scaleJ;
+
+      offsetI = database::getOffsetX (projectIoRecord);
+      offsetJ = database::getOffsetY (projectIoRecord);
+
+      scaleI = database::getScaleX (projectIoRecord);
+      scaleJ = database::getScaleY (projectIoRecord);
+
+
+      lowResNumI = (numI - offsetI - 1) / scaleI + 1;
+      lowResNumJ = (numJ - offsetJ - 1) / scaleJ + 1;
+
+      m_highResOutputGrid = getFactory ()->produceGrid (minI, minJ, maxI, maxJ, numI, numJ, lowResNumI, lowResNumJ);
    }
    return m_highResOutputGrid;
 }
