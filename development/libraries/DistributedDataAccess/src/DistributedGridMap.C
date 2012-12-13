@@ -865,8 +865,10 @@ bool DistributedGridMap::convertToGridMap(GridMap *mapB) const
 
 bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const 
 {
+   const GridMap *mapA = this;
    const Grid *GridB = (Grid *) mapB->getGrid ();
 
+   bool useGhostNodes = true;
    bool ret = true;
 
    unsigned int indexImapA, indexJmapA;
@@ -876,12 +878,12 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
 
    indexImapA = indexJmapA = indexImapB = indexJmapB = 0;
 
-   this->retrieveData ();
+   mapA->retrieveData (useGhostNodes);
    mapB->retrieveData ();
 
-   unsigned int depthA = this->getDepth ();
+   unsigned int depthA = mapA->getDepth ();
 
-   const Grid *highResGridA = (Grid *) this->getGrid();
+   const Grid *highResGridA = (Grid *) mapA->getGrid();
    
    for (indexImapB = mapB->firstI (); indexImapB <= mapB->lastI (); ++indexImapB)
    {
@@ -891,10 +893,11 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
 	 {
 	    for (k = 0; k < depthA; k++)
 	    {
-               mapB->setValue (indexImapB, indexJmapB, k, this->getValue (indexImapA, indexJmapA, k));
+               mapB->setValue (indexImapB, indexJmapB, k, mapA->getValue (indexImapA, indexJmapA, k));
 	       
 #if 0
-	       cerr << ddd::GetRankString () << ": converting value " << this->getValue (indexImapA, indexJmapA, k) <<
+	       cerr << ddd::GetRankString () << ": converting value " << mapA->getValue (indexImapA, indexJmapA, k) <<
+	 GridB->numI() << ", " << GridB->numJ()  << ")" << endl;
 		  " from lowres (" << indexImapB << ", " << indexJmapB << ", " << k <<
 		  ") to highres (" << indexImapA << ", "  << indexJmapA << ", " << k << ")" << endl;
 #endif
@@ -910,7 +913,7 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
       }
    }
 
-   this->restoreData ();
+   mapA->restoreData (true, true);
    mapB->restoreData ();
 
    return ret;
@@ -1017,6 +1020,10 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
 
             //set the value
             mapB->setValue (highResI, highResJ, k, highResMapValue);
+#if 0
+	    cerr << ddd::GetRankString () << ": setting value " << highResMapValue  <<
+	       ") to highres (" << highResI << ", "  << highResJ << ", " << k << ")" << endl;
+#endif
          }
       }
    }

@@ -407,10 +407,22 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
 {
    float time = (float) getSnapshot ()->getTime ();
 
+   GridMap * gridMapCalculated = (GridMap *) getGridMap ();
+   GridMap * gridMapToOutput = gridMapCalculated;
+
+   if (m_projectHandle->saveAsInputGrid ())
+   {
+      gridMapToOutput = getFactory ()->produceGridMap (0, 0, m_projectHandle->getInputGrid(), DefaultUndefinedMapValue, 1);
+      gridMapCalculated->convertToGridMap (gridMapToOutput);
+      
+   }
    database::setMapFileName (m_record, mapWriter.getFileName ());
 
-   mapWriter.writeMapToHDF ((GridMap *) getGridMap (), time, time, database::getPropertyGrid (m_record),
+   mapWriter.writeMapToHDF (gridMapToOutput, time, time, database::getPropertyGrid (m_record),
                               (m_surface == 0 ? "" : m_surface->getName ()));
+
+   if (m_projectHandle->saveAsInputGrid ()) delete gridMapToOutput;
+
    return true;
 }
 

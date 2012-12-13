@@ -101,7 +101,7 @@ namespace DataAccess
 	    virtual const string & getFileName (void) const;
 
 	    /// start a new activity
-	    bool startActivity (const string & name, const Grid * grid);
+	    bool startActivity (const string & name, const Grid * grid, bool saveAsInputGrid = false);
 
 	    /// report completion of an activity to the in-core project file.
 	    bool reportActivityCompletion (void);
@@ -118,6 +118,8 @@ namespace DataAccess
 
 	    /// finish an activity
 	    bool finishActivity (bool isComplete = true);
+
+	    bool saveAsInputGrid (void) const;
 
 	    /// Returns the Grid in which the input maps of this project are specified.
 	    virtual const Grid * getInputGrid (void) const;
@@ -613,7 +615,9 @@ namespace DataAccess
 	    mutable Grid * m_highResOutputGrid;
 	    mutable Grid * m_lowResOutputGrid;
             
-	    const Grid * m_activityOutputGrid;
+	    const Grid * m_activityOutputGrid; // grid in which the output is computed by the activity
+	    bool m_saveAsInputGrid; // whether to use the input grid to save the computed output
+
 
 	    MapWriter * m_mapPropertyValuesWriter;
 
@@ -638,6 +642,7 @@ namespace DataAccess
 	    /// set the name of the data production activity
 	    bool setActivityName (const string & name);
 	    const string & getActivityName (void) const;
+
 
 	    void resetActivityOutputGrid (void);
 	    /// set the Grid that is used to produce new PropertyValues

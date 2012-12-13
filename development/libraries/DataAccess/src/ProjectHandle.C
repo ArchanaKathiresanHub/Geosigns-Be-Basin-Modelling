@@ -512,7 +512,7 @@ const string & ProjectHandle::getFileName (void) const
    return m_fileName;
 }
 
-bool ProjectHandle::startActivity (const string & name, const Interface::Grid * grid)
+bool ProjectHandle::startActivity (const string & name, const Interface::Grid * grid, bool saveAsInputGrid)
 {
    char * svnRevision = "unknown";
 
@@ -531,6 +531,7 @@ bool ProjectHandle::startActivity (const string & name, const Interface::Grid * 
    if (!setActivityOutputGrid ((const Interface::Grid *) grid)) return false;
 
    setActivityName (name);
+   m_saveAsInputGrid = saveAsInputGrid;
 
    initializeMapPropertyValuesWriter ();
 
@@ -653,6 +654,11 @@ bool ProjectHandle::setActivityName (const string & name)
 const string & ProjectHandle::getActivityName (void) const
 {
    return m_activityName;
+}
+
+bool ProjectHandle::saveAsInputGrid (void) const
+{
+   return m_saveAsInputGrid;
 }
 
 void ProjectHandle::resetActivityOutputGrid (void)
@@ -2558,7 +2564,7 @@ bool ProjectHandle::initializeMapPropertyValuesWriter (void)
    m_mapPropertyValuesWriter = getFactory ()->produceMapWriter();
    m_mapPropertyValuesWriter->open (filePathName, false);
 
-   m_mapPropertyValuesWriter->saveDescription (getActivityOutputGrid ());
+   m_mapPropertyValuesWriter->saveDescription (saveAsInputGrid() ? getInputGrid () : getActivityOutputGrid ());
 
    return true;
 }

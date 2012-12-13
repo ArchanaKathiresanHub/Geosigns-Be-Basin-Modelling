@@ -129,8 +129,8 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
 void CrustalThicknessCalculator::run() {
 
    bool started = CrustalThicknessCalculator::getInstance().startActivity ( "CrustalThicknessCalculator", 
-                                                                            //CrustalThicknessCalculator::getInstance().getLowResolutionOutputGrid ());
-                                                                             CrustalThicknessCalculator::getInstance().getHighResolutionOutputGrid ());
+                                                                             CrustalThicknessCalculator::getInstance().getHighResolutionOutputGrid (),
+									     true);
 
    if( !started ) {
       string s = "Can not start CrustalThicknessCalculator";
