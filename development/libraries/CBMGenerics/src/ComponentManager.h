@@ -60,6 +60,8 @@ namespace CBMGenerics
          NumberOfPhases = 2
       };
 
+      static double MolecularWeight[NumberOfSpecies];
+
       const std::string GetSpeciesName( int speciesIndex ) const;
       const std::string GetPhaseName( int phaseIndex ) const;
 

@@ -166,6 +166,15 @@ namespace pvtFlash
       void  unlumpComponents( double in_paseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash], 
                               double out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies], 
                               double unlump_fraction[]);
+
+      /// \brief Change the default value which is used for single phase lableing in PVT library. Also this call
+      ///        changes method to labeling single phase to 
+      /// \param val the new value. The default value is 5.0
+      void setCritAoverBterm( double val );
+
+      /// \brief Cange back to default value CritAoverB term and single phase labeling method
+      void resetToDefaultCritAoverBterm();
+
       ~EosPack();
 
    private:
@@ -186,7 +195,11 @@ namespace pvtFlash
       polynomials::PiecewisePolynomial* m_corrLBC;         // [5], general data
 
       bool m_isReadInOk;
-       
+
+      int    m_phaseIdMethod;    // Method for labeling a single phase
+      double m_CritAoverB;       // if m_phaseIdMethode is set to EOS_SINGLE_PHASE_AOVERB, this value will 
+                                 // be used for labeling single phase as liquid or vapor 
+
       int lumpedSpeciesIndex[NUM_COMPONENTS];
    };
       

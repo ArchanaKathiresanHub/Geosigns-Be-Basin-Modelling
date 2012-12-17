@@ -23,7 +23,6 @@ void testPolynomialParse();
 #include "EosPvtModel.h"
 #include "Parse.h"
 
-
 std::string pvtFlash::pvtPropertiesConfigFile;
 
 static const std::string ConfigFileName = "PVT_properties.cfg";
@@ -37,6 +36,8 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
 #ifdef DEBUG_EXTENSIVE
    std::cout << "calling EosPack-constructor" << std::endl;
 #endif
+
+   resetToDefaultCritAoverBterm(); // init m_CritAoverB and m_phaseIdMethod
 
    try
    {
@@ -135,10 +136,11 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
 #ifdef DEBUG_EXTENSIVE         
       for ( int i = 0; i < NUM_COMP; ++i )
       {   
+         int indexFramework = theComponentManager.GetSpeciedIdByName( compPropTable.getEntry( i, 0 ) );
+
          // test output: are critical temperatures read correctly?
-         std::cout << "parsed Property[" << theComponentManager.GetSpeciesName( i ) << "] = " <<
-                      m_propertyFunc[i][5](0.0) << " Index for re-ordering: " <<
-                      theComponentManager.GetSpeciedIdByName( compPropTable.getEntry( i, 0 ) ) << std::endl;
+         std::cout << "parsed Property[" << theComponentManager.GetSpeciesName( indexFramework ) << "] = " <<
+                      m_propertyFunc[indexFramework][5](0.0) << " Index for re-ordering: " << indexFramework << std::endl;
       }
 #endif
 
@@ -436,7 +438,7 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][CBMGenerics
 
 #ifdef DEBUG_EXTENSIVE1         
       std::cout << "Unlumped from "<<  lump_component_ind << " : ";
-      for ( int i = 0; i < cmpNum; ++i ) std::cout << compIndex[i] << ", "; <<  compIndex[1] << ", ";
+      for ( int i = 0; i < cmpNum; ++i ) std::cout << compIndex[i] << ", ";
       std::cout << std::endl;
       double out_totMassesGas = 0, out_totMassesOil = 0;
       for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfOutputSpecies; ++i )
@@ -615,7 +617,7 @@ bool pvtFlash::EosPack::compute( double temperature,
 #endif
 
       /* Construct pvt table */
-      pvttable = EosCauldron::ConcoctBrew ( iNc, m_isRK, pMw, pT, pLB );
+      pvttable = EosCauldron::ConcoctBrew ( iNc, m_isRK, pMw, pT, pLB, m_CritAoverB, m_phaseIdMethod );
 
       /* Constants */
       int iOil = 1;
@@ -630,10 +632,7 @@ bool pvtFlash::EosPack::compute( double temperature,
       /* Memory distribution done in stack */
       const int iFlashes = 1;
       
-      // reuse arrays for ConcoctBrew call it is 8 * iNc + iN*iNc doubles here we need much less, but do checking for precaution
-      assert( iFlashes * ( 2 + iNc + 2 * ( 3 + iNc ) ) < sizeof( pMw ) / sizeof(double) ); 
-
-      double* pTemperature  = pMw; 
+      double pTemperature[ iFlashes * ( 2 + iNc + 2 * ( 3 + iNc )) ];
       double* pPressure     = pTemperature  + iFlashes;
       double* pAccumulation = pPressure     + iFlashes;
       double* pDensity      = pAccumulation + iFlashes * iNc;
@@ -656,17 +655,14 @@ bool pvtFlash::EosPack::compute( double temperature,
               << setw( 15 ) << pTemperature[i];
          for ( int iJ = 0; iJ < iNc; iJ++ ) 
          {
-            std::cout << setw( 15 ) << pAccumulation[i+iJ*iFlashes];
+            std::cout << setw( 20 ) << pAccumulation[i+iJ*iFlashes];
          }
          std::cout << std::endl;
       }
 #endif
       
       /* Call the function */
-      EosCauldron::EosGetProperties( iFlashes, iOil, iGas, pPressure, pTemperature, pAccumulation, NULL,      pMassFraction, NULL,     NULL,       pvttable );
-
-      /* Call the function again */
-      EosCauldron::EosGetProperties( iFlashes, iOil, iGas, pPressure, pTemperature, pAccumulation, pPhaseAcc, NULL,          pDensity, pViscosity, pvttable );
+      EosCauldron::EosGetProperties( iFlashes, iOil, iGas, pPressure, pTemperature, pAccumulation, pPhaseAcc, pMassFraction, pDensity, pViscosity, pvttable );
 
 #ifdef EOSPACK_OUT
       //output 
@@ -727,8 +723,11 @@ bool pvtFlash::EosPack::compute( double temperature,
          phaseDensity[iOil]   = iOil > -1 ? pDensity[ i + iOil * iFlashes] : 0.0;
          phaseDensity[iGas]   = iGas > -1 ? pDensity[ i + iGas * iFlashes] : 0.0;
 
-         phaseViscosity[iOil] = iOil > -1 ? pViscosity[ i + iOil * iFlashes] * 1000 : 0.0;
-         phaseViscosity[iGas] = iGas > -1 ? pViscosity[ i + iGas * iFlashes] * 1000 : 0.0;
+         if ( phaseViscosity )
+         {
+            phaseViscosity[iOil] = iOil > -1 ? pViscosity[ i + iOil * iFlashes] * 1000 : 0.0;
+            phaseViscosity[iGas] = iGas > -1 ? pViscosity[ i + iGas * iFlashes] * 1000 : 0.0;
+         }
          
 #ifdef DEBUG_EXTENSIVE
          std::cout.precision( 7 );
@@ -740,9 +739,11 @@ bool pvtFlash::EosPack::compute( double temperature,
               << setw( 17 ) << ( iOil > -1 ? pPhaseAcc[i + iOil * iFlashes] : 0.0 )
               << setw( 17 ) << ( iGas > -1 ? pPhaseAcc[i + iGas * iFlashes] : 0.0 )
               << setw( 17 ) << phaseDensity[iOil]
-              << setw( 17 ) << phaseDensity[iGas]
-              << setw( 17 ) << phaseViscosity[iOil]
-              << setw( 17 ) << phaseViscosity[iGas];
+              << setw( 17 ) << phaseDensity[iGas];
+         if ( phaseViscosity )
+         {
+            std::cout << setw( 17 ) << phaseViscosity[iOil]
+                      << setw( 17 ) << phaseViscosity[iGas];
          }
 #endif
 
@@ -764,7 +765,6 @@ bool pvtFlash::EosPack::compute( double temperature,
 #endif
 
       }
-      
       /* Free memory */
       delete pvttable;
 
@@ -982,6 +982,19 @@ double pvtFlash::criticalTemperatureAccordingToLiMixingRuleWithLumping( const ve
   
    return critialTemperature;
 }
+
+void pvtFlash::EosPack::setCritAoverBterm( double val )
+{
+   m_CritAoverB = val;
+   m_phaseIdMethod = EOS_SINGLE_PHASE_AOVERB;
+}
+
+void pvtFlash::EosPack::resetToDefaultCritAoverBterm()
+{
+   m_CritAoverB = 5.0;
+   m_phaseIdMethod = EOS_SINGLE_PHASE_DEFAULT;
+}
+
 
 void testPolynomialParse()
 {

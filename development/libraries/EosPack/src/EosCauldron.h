@@ -21,19 +21,27 @@ public:
    ///
    /// \param iNc                  Number of components
    /// \param isRK                 Set to 1 for Redlich Kwong; otherwise Peng Robinson corrected
-   /// \param pMolecularWeight     Molecular weight of components
-   /// \param pCriticalPressure    Critical pressure of components
-   /// \param pCriticalTemperature Critical temperatures of components
-   /// \param pCriticalVolume      Critical volume of components
-   /// \param pAcentric            Acentric factor of components
-   /// \param pOmegaA              Omega A for components
-   /// \param pOmegaB              Omega B for components
-   /// \param pShiftC              Volume shift for components
-   /// \param pBinary              Binary interaction terms
+   /// \param pvtData              pointer to array wich contains the following data (doubles):
+   ///                                MolecularWeight[NC]     - Molecular weight of components
+   ///                                CriticalPressure[NC]    - Critical pressure of components
+   ///                                CriticalTemperature[NC] - Critical temperatures of components
+   ///                                CriticalVolume[NC]      - Critical volume of components
+   ///                                Ift[NC]                 - Interfacial tension array, filled in ConcoctBrew and used in PVT library
+   ///                                Acentric[NC]            - Acentric factor of components
+   ///                                T[1]                    - dummy, filled in ConcoctBrew and used in PVT library
+   ///                                OmegaA[NC]              - Omega A for components
+   ///                                OmegaB[NC]              - Omega B for components
+   ///                                ShiftC[NC]              - Volume shift for components
+   ///                                Binary[NC][NC]          - Binary interaction terms
+   ///                             pvtData is used to pass data to PVT library further that is why it contains Ift and T 
+   ///                             which will be defined inside of ConcoctBrew.
+   /// \param pT                   default temperature, assigned in ConcotBrew and used in PVT library should point to T in pvtData
    /// \param pLohrenz             Lohrenz tuning terms
-   //
+   /// \param dCritAoverB              
+   /// \param iPhaseMethod         Methods for labeling a single phase
+   ///
    /// \note All input should be in MKS SI units
-   static EosPvtTable* ConcoctBrew ( int iNc, int isRK, double *pvtData, double *pT, double *pLohrenz );
+   static EosPvtTable* ConcoctBrew ( int iNc, int isRK, double *pvtData, double *pT, double *pLohrenz, double dCritAoverB, int iPhaseMethod );
 
 
    /// \brief Entry point for Cauldron 

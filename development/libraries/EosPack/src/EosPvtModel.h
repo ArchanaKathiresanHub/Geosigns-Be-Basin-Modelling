@@ -104,7 +104,7 @@
 // Preprocessor Declarations
 // 
 // The preprocessor declarations are found in this file,
-// EosPvtModelDefinitions.h 
+// EosPvtDefinitions.h 
 //
 // These are used internally within the flasher and 
 // are not of interest for the interface.

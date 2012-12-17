@@ -56,11 +56,13 @@
 //
 // Note: All input should be in MKS SI units
 // 1) Generate an instance of the pvt table from supplied data
-EosPvtTable *EosCauldron::ConcoctBrew ( int iNc,                       // Number of components
-                                        int isRK,                      // Set to 1 for Redlich Kwong; otherwise Peng Robinson correct
+EosPvtTable *EosCauldron::ConcoctBrew ( int iNc,            // Number of components
+                                        int isRK,           // Set to 1 for Redlich Kwong; otherwise Peng Robinson correct
                                         double *pvtData,
-                                        double *pT,                    // default temperature in SI units
-                                        double *pLohrenz               // Lohrenz tuning terms
+                                        double *pT,         // default temperature in SI units
+                                        double *pLohrenz,   // Lohrenz tuning terms
+                                        double dCritAOverB,
+                                        int    iPhaseMethod // Methods for labeling a single phase
                                       )
 {
    double  pdTables[EOS_METHOD_LAST_DOUBLE];
@@ -78,7 +80,7 @@ EosPvtTable *EosCauldron::ConcoctBrew ( int iNc,                       // Number
       piTables[EOS_METHOD] = EOS_PVT_PRCORR;
    }
    piTables[EOS_METHOD_COMPONENTS] = iNc;
-   piTables[EOS_METHOD_PHASEID]    = 2;
+   piTables[EOS_METHOD_PHASEID]    = iPhaseMethod;
    piTables[EOS_METHOD_NUMBERABC]  = 0;
    piTables[EOS_METHOD_HEATDATA]   = EOS_OPTION_OFF;
    piTables[EOS_METHOD_OWNMEMORY]  = EOS_OPTION_ON;
@@ -107,7 +109,7 @@ EosPvtTable *EosCauldron::ConcoctBrew ( int iNc,                       // Number
    pdTables[EOS_METHOD_HEATCONV]    = 1.0; 
    pdTables[EOS_METHOD_TENSCONV]    = 1.0; 
    pdTables[EOS_METHOD_CRITZMINUSB] = 0.25;
-   pdTables[EOS_METHOD_CRITAOVERB]  = 5.0;
+   pdTables[EOS_METHOD_CRITAOVERB]  = dCritAOverB;
    pdTables[EOS_METHOD_VTUNE]       = 0.0;
    pdTables[EOS_METHOD_VTUNE0]      = pLohrenz[0];
    pdTables[EOS_METHOD_VTUNE1]      = pLohrenz[1];
@@ -116,11 +118,7 @@ EosPvtTable *EosCauldron::ConcoctBrew ( int iNc,                       // Number
    pdTables[EOS_METHOD_VTUNE4]      = pLohrenz[4];
 
    /* Do the deed */
-   //EosPvtTable *pvttable = new EosPvtTable( 3, piTables, pdTables, pMw, pT, NULL );
    EosPvtTable *pvttable = new EosPvtTable( 3, piTables, pdTables, pvtData, pT, NULL );
-
-   /* Free the molecular weight */
-   //free ( pMw );
 
    /* Return pointer */
    return ( pvttable );
@@ -238,7 +236,7 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
 }
 
 // Constructor application object
-EosCauldron::EosCauldron ()
+EosCauldron::EosCauldron()
 {
    this->Initialize( 0, NULL, NULL );
 }
@@ -580,9 +578,9 @@ void EosCauldron::ReadMinimumPressure( double dMinP )
 //    memory used
 // 6) Set index of water component and number of implicit
 //    derivatives
-void EosCauldron::ReadAllData( int iVersion,   // Version number, currently 0
-                               int **pointI,   // Pointer to integer arrays.  See EosPvtModel.h for a description
-                               double **pointR //  Pointer to double arrays.  See EosPvtModel.h for a description
+void EosCauldron::ReadAllData( int iVersion,    // Version number, currently 0
+                               int    **pointI, // Pointer to integer arrays.  See EosPvtModel.h for a description
+                               double **pointR  // Pointer to double arrays.  See EosPvtModel.h for a description
                              )
 {
    int *pITerms;
@@ -941,20 +939,20 @@ void EosCauldron::ReadNull( int iPhaseId, // Type of phase to be processed
 //    fractions and pressure for later testing
 // 4) Otherwise indicate a single phase system
 void EosCauldron::ReadFlashResults( int iS,   
-                                    int iM,         // Number of elements to load
-                                    int iSet,       // Integer above which success is declared. Generally when the pPhase array is of following form
-                                                    //    - EOS_2P_NCV - Nonconverged two phase flash
-                                                    //    - EOS_2P_CV  - Converged two phase flash
-                                                    //    - EOS_BP_NCV - Nonconverged bubble point calculation
-                                                    //    - EOS_BP_CV  - Converged bubble point calculation
-                                                    // It is better to load partially converged blocks than  to ditch them!
-                                    int iReset,     // Integer controlling what happens if not successful. Lack of success is generally indicated by the following
-                                                    //    - EOS_1P_NCV - Nonconverged one phase system
-                                                    // If iReset is on then the current compositions and pressures are saved in order to be used later 
-                                                    // to see if we need to do the stability testing again.
-                                    double *pSplit, // Phase split from the flasher.  Overloaded with bubble or dew point for a bubble point calculation
-                                    int *pPhases,   // Current phase indicator from flasher; see above
-                                    double *pValueK // Current estimate of K values
+                                    int iM,          // Number of elements to load
+                                    int iSet,        // Integer above which success is declared. Generally when the pPhase array is of following form
+                                                     //    - EOS_2P_NCV - Nonconverged two phase flash
+                                                     //    - EOS_2P_CV  - Converged two phase flash
+                                                     //    - EOS_BP_NCV - Nonconverged bubble point calculation
+                                                     //    - EOS_BP_CV  - Converged bubble point calculation
+                                                     // It is better to load partially converged blocks than  to ditch them!
+                                    int iReset,      // Integer controlling what happens if not successful. Lack of success is generally indicated by the following
+                                                     //    - EOS_1P_NCV - Nonconverged one phase system
+                                                     // If iReset is on then the current compositions and pressures are saved in order to be used later 
+                                                     // to see if we need to do the stability testing again.
+                                    double *pSplit,  // Phase split from the flasher.  Overloaded with bubble or dew point for a bubble point calculation
+                                    int    *pPhases, // Current phase indicator from flasher; see above
+                                    double *pValueK  // Current estimate of K values
                                   )
 {
    int i, i1, i2, iJ, iK, iNi, iTemp;

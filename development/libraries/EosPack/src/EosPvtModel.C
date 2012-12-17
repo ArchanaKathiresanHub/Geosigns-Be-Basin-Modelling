@@ -59,7 +59,7 @@
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
-
+#include <algorithm>
 
 /* Define whether to restore terms */
 #define EOS_NORESTORE 0
@@ -262,9 +262,6 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
    /* Standard flash calculations */
    if ( iInitialize == EOS_FLASH_CALCULATIONS )
    {
-      /* Set the cache to the proper value */
-      m_pEosPvtTable = pTEosPvtTable[0];
-
       /* Set minimum pressure */
       WriteMinimumPressure();
 
@@ -882,21 +879,26 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
    }
 }
 
-
-/* 
+/*
 // WriteMinimumPressure
-// 
-// Write out the minimum pressure.  
+//
+// Write out the minimum pressure.
 //
 // 1) Get the minimum allowed temperature in the flashes
 // 2) The minimum pressure is then the vapor pressure of
-//    water at that temperature  
+//    water at that temperature
+//    Modified to have the minimum pressure capped at 1Bar (100000 Pascal).
+//    This is because in ThermoMoReS with high temperature, the flash is used to
+//    generate K-values,the water vapour pressure could be higher than user
+//    specified flash pressure.
 // 3) Send the results to Application
 */
 void EosPvtModel::WriteMinimumPressure( void )
 {
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->ReadMinimumPressure( ( m_pEosPvtTable )->WaterVaporPressure( (double)( ( m_pApplication )->WriteIsothermal() ? ( m_pEosPvtTable )->WriteTemperature() : ( m_pApplication )->WriteMinimumTemperature() ) ) );
+   double dT = m_pApplication->WriteIsothermal() ? m_pEosPvtTable->WriteTemperature() : m_pApplication->WriteMinimumTemperature();
+   double minP = m_pEosPvtTable->WaterVaporPressure( dT );
+
+   ( m_pApplication )->ReadMinimumPressure( std::min( 100000.0, minP ) );
 }
 
 

@@ -1078,8 +1078,9 @@ double EosWater::WaterVaporPressure( double dT )
    double dQ = ( dT > dS ? dT : dS );
    double dU = ( 1.45220717 - 2.0 * pow( dR / ( dQ > dR ? dR : dQ ) - 0.95, 0.4 ) ) / 0.84878953;
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   return ( exp( 14.03079 + dU * ( 4.771298 - dU * ( 2.31523 - dU * ( 4.973715e-1 - dU * ( 8.098531e-2 - dU * ( 8.365383e-3 + dU * ( 4.688029e-2 - dU * ( 7.770678e-2 + dU * ( 2.587746e-2 - dU * ( 7.086141e-2 + dU * ( 7.834283e-3 - dU * 2.145744e-2 ) ) ) ) ) ) ) ) ) ) ) * m_dConvPressure );
+   return exp( 14.03079 + dU * ( 4.771298    - dU * ( 2.31523     - dU * ( 4.973715e-1 - dU * ( 8.098531e-2 - 
+                          dU * ( 8.365383e-3 + dU * ( 4.688029e-2 - dU * ( 7.770678e-2 + dU * ( 2.587746e-2 - 
+                          dU * ( 7.086141e-2 + dU * ( 7.834283e-3 - dU * ( 2.145744e-2 ) ) ) ) ) ) ) ) ) ) ) ) * m_dConvPressure;
 }
 
 

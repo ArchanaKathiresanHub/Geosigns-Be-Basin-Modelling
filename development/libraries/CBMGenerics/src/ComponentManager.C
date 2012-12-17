@@ -28,6 +28,34 @@ const char * CBMGenerics::ComponentManager::s_SpeciesNames[NumberOfOutputSpecies
    "C6-14AroS"
 };
 
+double CBMGenerics::ComponentManager::MolecularWeight[NumberOfSpecies] =
+{
+   795.2186697,      //Asphaltenes
+   618.07398,        //Resins
+   474.1257111,      //C15+ Aro
+   281.2408344,      //C15+ Sat
+   158.3971864,      //C6-14 Aro
+   103.0699011,      //C6-14 Sat
+   72.15064,         //C5
+   58.1237,          //C4
+   44.09676,         //C3
+   30.06982,         //C2
+   16.04288,         //C1
+   44.0098,          //COx
+   28.01352,         //N2
+   34.08,            //H2S
+   281.2408344,      //LSC
+   281.2408344,      //C15+ AT
+   158.3971864,      //C6-14 BT
+   158.3971864,      //C6-14 DBT
+   158.3971864,      //C6-14 BP
+   281.2408344,      //C15+ AroS
+   281.2408344,      //C15+ SatS
+   158.3971864,      //C6-14 SatS
+   158.3971864      //C6-14 AroS
+};
+
+
 const char * CBMGenerics::ComponentManager::s_phaseNames[NumberOfPhases] = { "Vapour", "Liquid" };
 const char * CBMGenerics::ComponentManager::s_speciesOutputProperty = "ExpelledCumulative";
 
