@@ -14,6 +14,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <SvnRepoHost Condition="'$(SvnRepoHost)' == ''">amsd2a-n-b01002</SvnRepoHost>
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b01002</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
+    <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\private_id.ppk</AgentKey>
   </PropertyGroup>
  
   <PropertyGroup Label="StandardUtilities" >
@@ -21,10 +22,18 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')" >D:\cygwin\bin\</cygwin_bin_dir>
     <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\opt\cygwin\bin')" >C:\opt\cygwin\bin\</cygwin_bin_dir>
 
+    <putty_dir Condition="'$(putty_dir)' == '' And Exists('C:\opt\putty')">C:\opt\putty</putty_dir>
+
     <cpio_exe Condition="'$(cpio_exe)' == ''">"$(cygwin_bin_dir)cpio.exe"</cpio_exe>
 
-    <ssh_command>C:\opt\putty\PLINK.exe -batch -ssh -i "C:\opt\putty\private_id.ppk" $(AgentAccount)@$(AgentHost)</ssh_command>
-    <scp_command>c:\opt\putty\PSCP.EXE -i "C:\opt\putty\private_id.ppk"</scp_command>
+    <!-- Command to start non interactive SSH session -->
+    <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>
+    
+    <!-- Command to SCP (SSH copy). Note the 'echo y' which is necessary when copying 
+         something to a destination host that has not been connected with before. 
+         The 'y' answers yes to the question whether or not to trust the new host
+     -->
+    <scp_command>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKey)"</scp_command>
 
     <printenv>cmd /c set</printenv>
 
@@ -59,8 +68,12 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <Message Text="BuildDefinitionPath=$(BuildDefinitionPath)" />
     <Message Text="AgentHost = $(AgentHost)" />
     <Message Text="AgentAccount = $(AgentAccount)" />
+    <Message Text="AgentKey = $(AgentKey)" />
     <Message Text="cygwin_bin_dir = $(cygwin_bin_dir)" />
     <Message Text="cpio_exe = $(cpio_exe)" />
+    <Message Text="putty_dir = $(putty_dir)"/>
+    <Message Text="ssh_command = $(ssh_command)" />
+    <Message Text="scp_command = $(scp_command)" />
     <Message Text="solution_root = $(solution_root)" />
   </Target>
 
