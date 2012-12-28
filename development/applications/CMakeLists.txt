@@ -34,6 +34,7 @@ if (UNIX)
 		add_subdirectory(gempis_send)
 		add_subdirectory(gempis_recv)
   		add_subdirectory(inversion_workbench)
+  		add_subdirectory(eosptdiag)
 	endif (BM_BUILD_SERIAL_APPS)
 
 

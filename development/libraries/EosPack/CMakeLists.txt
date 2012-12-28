@@ -8,6 +8,7 @@ set(EOSPACK_SOURCES
 	src/EosWater.C
 	src/Parse.C
 	src/polynomials.C
+	src/PTDiagCalculator.C
 )
 
 #if (WIN32)

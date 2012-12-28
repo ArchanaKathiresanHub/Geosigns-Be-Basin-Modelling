@@ -1,0 +1,105 @@
+! Dynamo input file to calculate Bubble/Dew curve using EOS pack data from Cauldron
+! User need to generate .INC file from eosptdiag using -dynamo command line switch
+! and define generated .INC file name at the end of this input file
+
+PROJECT MORES "BubbleDewCurve.run"
+  NX=40 ; NY=1 ; NZ=10
+  WATER=ON ; OIL=ON ; GAS= ON
+  H2O=ON; CNAMES ECL_FILE "cauld.ecl"
+ENDPROJ
+
+INCLUDE UNITS_SI.INC
+LONGTIME = YEAR
+
+GEODATA BEGIN
+
+  ORIGINZ = -6000*FT ; DIPX = 4*DEG
+  DELX [1:NX] = 2000*FT/NX ; DELY [1:NY] = 2000*FT/NY ; DELZ [1:NZ] = 100*FT/NZ
+ 
+  PERMZ XYZF =  100*MDARCY
+  Z=0 ; WHILE ( Z +=1 ; Z LE NZ ) DO \
+    ( PERMX [1:NX,1:NY,Z,1:NF] = Z/NZ*200*MDARCY ; 
+      PERMY [1:NX,1:NY,Z,1:NF] = Z/NZ*200*MDARCY )
+
+  GEOMODEL BOX; GEOMODEL CALCULATE
+
+GEODATA END
+
+
+RLPDATA BEGIN
+      
+  MAKECOREYII ( "KrEx", Swc -> 0.15 , Sorw ->0.10 , Krw ->0.40 , Krow ->0.8 , 
+                 Nw ->3 , Now ->4 , Sgc ->0.05 , Sorg ->0.10 , Krg ->0.8 , 
+                 Krog -> 0.8,  Ng ->1 , Nog ->1 , KrgIsAtSlr -> TRUE, 
+                 threePhaseModel ->"LINEAR_ISOPERMS") 
+  KrEx LOC [1:NX, 1:NY, 1:NZ, 1:NF, 1:ND]
+    
+RLPDATA END
+
+CPRDATA BEGIN
+
+  TABLE PCTABLEDEF Pc_w
+  Pc_w,   .15,  -10.4 *PSI
+  Pc_w,   .20,  -7.77 *PSI
+  Pc_w,   .25,  -4.24 *PSI
+  Pc_w,   .35,  -1.70 *PSI
+  Pc_w,   .50,  -.640 *PSI
+  Pc_w,   .60,  -.390 *PSI
+  Pc_w,   .65,  -.320 *PSI
+  Pc_w,   .70,  -.260 *PSI
+  Pc_w,   .72,   .000 *PSI
+  Pc_w,   1.0,   .000 *PSI
+
+  CPRMODEL pcModel ; pcModel PCTABLE WATER : Pc_w ; pcModel LOC XYZF
+
+CPRDATA END
+PORDATA.PHI XYZF = 0.2
+
+EOSDATA BEGIN
+
+  ECLMODEL eosmodel ; eosmodel ECL_FILE "cauld.ecl"
+
+  eosmodel PREF = 3000*PSI
+  eosmodel SALINITY = 90000 ! Salinity in PPM
+
+  DEFAULT_P_STANK = 14.7*PSI
+  DEFAULT_T_STANK = FAHRENHEIT (60)
+
+  VARIABLE INTEGER VARDICT.NHC = TableGetSize(eosmodel_CMP1)
+
+  ! Store the component names as strings in a table.
+  TABLE ( STRING CompName ) VARDICT.CN
+  C=0; WHILE ( C+=1, C LE NHC ) DO \
+  ( CN CompName [C] = SPRINT(STRING, eosmodel_CMP1 CNAMES [C]) )
+ 
+  ! The composition in mass fractions.
+  ARRAY MASSFRAC (C NHC) PRJDICT.HFEED
+
+  INIDATA BEGIN   
+    C=0 ; WHILE ( C+=1, C LE NHC ) DO EVAL \
+      ( HFEED[C] = eosmodel_EOS_HGT1 $(CN CompName [C]) [1] )
+  INIDATA END
+
+  ! The correct ABCRIT value for the CO2 flooding of oil above 
+  PHASE_ID = PHASE_ID_AOVERB ; ABCRIT = 5.0 ;
+
+EOSDATA END
+
+PVTDATA BEGIN
+
+  PVTMODEL pvtmodel ; pvtmodel ECLMODEL : EOSDATA.eosmodel
+  pvtmodel LOC XYZF
+  
+  VARIABLE STRING VARDICT.DelumpModel = "DLMDATA.pvtmodel_dlm1"
+  
+  ARRAY MASSFRAC (C NHC) PRJDICT.HFEEDO PRJDICT.HFEEDG PRJDICT.HFEEDI
+
+  ! Calculation of the saturation pressure and the vanishing phase composition.
+  VARIABLE PRESSURE PRJDICT.SatPres
+
+  ! Here user should substitute name of generated from eosptdiag .INC file
+  !INCLUDE "0_Unknown_0_PTDiag_mass.INC"
+  INCLUDE "1_Reservoir4_8_PTDiag_mass.INC"
+
+   FlashOut CONTENTS
+PVTDATA END
