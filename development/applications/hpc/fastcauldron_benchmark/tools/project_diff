@@ -34,7 +34,7 @@ do
   cp $b2 $b1
 done
 
-diff $a1 $b1
+${DIFF:-diff} $a1 $b1
 echo
 
 rm $a1 $a2 $b1 $b2

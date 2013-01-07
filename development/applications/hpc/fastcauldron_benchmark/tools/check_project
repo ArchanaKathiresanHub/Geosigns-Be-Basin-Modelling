@@ -1,0 +1,68 @@
+#!/bin/bash
+
+${VERBOSE:=false}
+${QUIET:=false}
+
+
+project=$1
+versions="2011.1105 2012.0705 2012.1008_b 2013.01nightly"
+
+if [ x$project = x ]; then
+  echo Please supply a project file to check
+  exit 1
+fi
+
+
+errors=`mktemp` || { echo Cannot create temp file; exit 1; }
+failed=`mktemp` || { echo Cannot create temp file; exit 1; }
+success=`mktemp` || { echo Cannot create temp file; exit 1; }
+
+export PATH=/apps/sssdev/share:$PATH
+
+
+allAreValid=true
+for v in $versions
+do
+  rm $errors
+  fastcauldron -v $v -project $project > /dev/null 2> $errors
+ 
+  if [ $? -ne 0 ]; then
+    if [ ! -s $errors ]; then
+      echo "Unknown reason" > $errors
+    fi
+
+    allAreValid=false
+
+    if [ $VERBOSE = true ]; then
+      echo ======== ERROR ========================================
+      echo Project $project cannot be read by version $v, because: 
+      echo -n "   "
+      cat $errors
+      echo =======================================================
+      echo
+    fi
+    ( echo -n $v; echo -n ", because: "; head -n 1 $errors) >> $failed
+  else
+    echo $v >> $success
+  fi
+done
+
+if [ $QUIET != true ]; then
+  echo ============== RESULT ===========================
+  echo Project $project works for versions
+  sed -e "s/^/- /" < $success
+  echo
+
+  echo Project $project does NOT work for versions
+  sed -e "s/^/- /" < $failed
+  echo =================================================
+  echo
+fi
+
+rm $errors $failed $success
+
+if [ $allAreValid = true ]; then
+  exit 0;
+else
+  exit 1;
+fi
