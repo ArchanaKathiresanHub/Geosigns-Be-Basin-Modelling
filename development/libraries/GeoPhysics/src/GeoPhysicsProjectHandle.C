@@ -38,6 +38,7 @@
 #include "NumericFunctions.h"
 #include "errorhandling.h"
 
+
 using namespace DataAccess;
 using namespace CBMGenerics;
 
@@ -1331,6 +1332,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
    FloatStack uncMaxVes;
    FloatStack uncThickness;
    int nrActUnc;
+   bool noErrorFound = true;
 
    for ( i = firstI ( true ); i <= lastI ( true ); ++i ) {
 
@@ -1350,8 +1352,12 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 #endif
 
                if ( not computeThicknessHistories ( i, j, formation )) {
-                  return false;
+                  noErrorFound = false;
                }
+
+               // if ( not computeThicknessHistories ( i, j, formation )) {
+               //    return false;
+               // }
 
             }
 
@@ -1417,7 +1423,16 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
       formation->restoreAllThicknessMaps ();
    }
 
-   return true;
+
+   int noErrorFoundInt = ( noErrorFound ? 1 : 0 );
+   int globalNoErrorFoundInt;
+
+   getMinValue ( noErrorFoundInt, globalNoErrorFoundInt );//MpiFunctions::Minimum<int> ( PETSC_COMM_WORLD, noErrorFoundInt );
+
+   noErrorFound = ( globalNoErrorFoundInt != 0 ? true : false );
+
+
+   return noErrorFound;
 }
 
 //------------------------------------------------------------//
@@ -1724,8 +1739,13 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
 
       unsigned int segment;
       double age;
+      bool onlyPositiveThickness = true;
 
       double segmentThickness = formation->getInputThicknessMap ()->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
+
+      if ( segmentThickness < 0.0 ) {
+         onlyPositiveThickness = false;
+      }
 
       for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
          formation->getSolidThickness ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
@@ -1755,7 +1775,7 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
          delete mobileLayerThicknesses;
       }
 
-      return true;
+      return onlyPositiveThickness;
    }
 
 }

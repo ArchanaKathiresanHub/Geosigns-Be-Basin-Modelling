@@ -182,6 +182,17 @@ void ProjectHandle::getMaxValue ( double * localMax, double * globalMax ) const 
 
 }
 
+
+void ProjectHandle::getMinValue ( int localValue, int& globalValue ) const {
+   globalValue = localValue;
+}
+
+
+void ProjectHandle::getMaxnValue ( int localValue, int& globalValue ) const {
+   globalValue = localValue;
+}
+
+
 #include<time.h>
 
 namespace ddd

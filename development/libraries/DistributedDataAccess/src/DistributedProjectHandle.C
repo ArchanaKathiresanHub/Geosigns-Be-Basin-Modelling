@@ -336,6 +336,15 @@ void ProjectHandle::getMaxValue ( double * localMax, double * globalMax ) const 
    MPI_Allreduce ( localMax, globalMax, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD );
 }
 
+void ProjectHandle::getMinValue ( int localValue, int& globalValue ) const {
+   MPI_Allreduce ( &localValue, &globalValue, 1, MPI_INT, MPI_MIN, PETSC_COMM_WORLD );
+}
+
+void ProjectHandle::getMaxValue ( int localValue, int& globalValue ) const {
+   MPI_Allreduce ( &localValue, &globalValue, 1, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
+}
+
+
 #include <time.h>
 
 namespace ddd

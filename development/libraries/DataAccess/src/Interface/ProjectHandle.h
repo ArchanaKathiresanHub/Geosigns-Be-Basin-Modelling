@@ -504,6 +504,13 @@ namespace DataAccess
             void getMinValue ( double * localMin, double * globalMin ) const;
             void getMaxValue ( double * localMax, double * globalMax ) const;
 
+            /// \brief Function to get global min/max values
+            ///
+            /// In serial programmes this returns the local value, in MPI programmes this calls the mpi-allReduce to find the global minimum/maximum.
+            void getMinValue ( int localValue, int& globalValue ) const;
+
+            void getMaxValue ( int localValue, int& globalValue ) const;
+
            const DataAccess::Interface::MessageHandler& getMessageHandler () const;
 
            const DataAccess::Interface::ApplicationGlobalOperations& getGlobalOperations () const;

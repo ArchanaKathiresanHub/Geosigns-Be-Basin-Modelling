@@ -274,7 +274,10 @@ int main(int argc, char** argv)
                                         FastcauldronSimulator::getInstance ().getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE or
                                         FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE;
 
-   FastcauldronSimulator::getInstance ().initialiseLayerThicknessHistory ( overpressureCalculation );
+   if ( not FastcauldronSimulator::getInstance ().initialiseLayerThicknessHistory ( overpressureCalculation )) {
+     finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR when initialising thickness history.", factory );
+     return 1;
+   }
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
         FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ) {
