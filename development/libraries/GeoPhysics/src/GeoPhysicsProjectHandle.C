@@ -1426,10 +1426,25 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
    int errorFoundInt = ( errorFound ? 1 : 0 );
    int globalErrorFoundInt;
 
-   getMaxValue ( errorFoundInt, globalErrorFoundInt );
-   errorFound = ( globalErrorFoundInt != 1 ? true : false );
+   // if ( errorFound ) {
+   //    errorFoundInt = 1;
+   // } else {
+   //    errorFoundInt = 0;
+   // }
 
-   return errorFound;
+   // cout << " errorFoundInt " << errorFoundInt << endl;
+   getMaxValue ( errorFoundInt, globalErrorFoundInt );
+   // cout << " globalErrorFoundInt " << globalErrorFoundInt << endl;
+
+   // if ( globalErrorFoundInt == 1 ) {
+   //    errorFound = true;
+   // } else {
+   //    errorFound = false;
+   // }
+
+   errorFound = ( globalErrorFoundInt == 1 );
+
+   return not errorFound;
 }
 
 //------------------------------------------------------------//
