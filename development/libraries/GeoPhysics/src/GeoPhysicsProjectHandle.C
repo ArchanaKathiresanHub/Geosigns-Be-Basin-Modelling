@@ -1332,7 +1332,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
    FloatStack uncMaxVes;
    FloatStack uncThickness;
    int nrActUnc;
-   bool noErrorFound = true;
+   bool errorFound = false;
 
    for ( i = firstI ( true ); i <= lastI ( true ); ++i ) {
 
@@ -1352,7 +1352,7 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 #endif
 
                if ( not computeThicknessHistories ( i, j, formation )) {
-                  noErrorFound = false;
+                  errorFound = true;
                }
 
                // if ( not computeThicknessHistories ( i, j, formation )) {
@@ -1423,16 +1423,13 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
       formation->restoreAllThicknessMaps ();
    }
 
+   int errorFoundInt = ( errorFound ? 1 : 0 );
+   int globalErrorFoundInt;
 
-   int noErrorFoundInt = ( noErrorFound ? 1 : 0 );
-   int globalNoErrorFoundInt;
+   getMaxValue ( errorFoundInt, globalErrorFoundInt );
+   errorFound = ( globalErrorFoundInt != 1 ? true : false );
 
-   getMinValue ( noErrorFoundInt, globalNoErrorFoundInt );//MpiFunctions::Minimum<int> ( PETSC_COMM_WORLD, noErrorFoundInt );
-
-   noErrorFound = ( globalNoErrorFoundInt != 0 ? true : false );
-
-
-   return noErrorFound;
+   return errorFound;
 }
 
 //------------------------------------------------------------//
