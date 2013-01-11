@@ -188,7 +188,7 @@ void ProjectHandle::getMinValue ( int localValue, int& globalValue ) const {
 }
 
 
-void ProjectHandle::getMaxnValue ( int localValue, int& globalValue ) const {
+void ProjectHandle::getMaxValue ( int localValue, int& globalValue ) const {
    globalValue = localValue;
 }
 
