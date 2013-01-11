@@ -7,6 +7,25 @@
 #define EOSUTILS_H
 
 ///
+/// \brief Linear algebra utility routines
+///
+class EosLinAlg
+{
+public:
+   //--------------------------------------------------------------------// 
+   // Linear solver routines 
+   //--------------------------------------------------------------------// 
+
+   // Performs the back substitution on a factored matrix
+   static void BackSolve( int iM, int iNc, double *pMatrix, double *pRhs );
+
+   // Performs a modified Cholesky decomposition
+   static void Cholesky( int iM, int iNc, double dTiny, double *pMatrix,
+      double *pWork1, double *pWork2 );
+};
+
+
+///
 /// \brief Mathematical functions of general utility
 ///
 class EosUtils

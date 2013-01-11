@@ -395,16 +395,6 @@ private:
    int SetPointers( void );
 
    //--------------------------------------------------------------------// 
-   // Linear solver routines 
-   //--------------------------------------------------------------------// 
-
-   // Performs the back substitution on a factored matrix
-   static void BackSolve( int iM, int iNc, double *pMatrix, double *pRhs );
-
-   // Performs a modified Cholesky decomposition
-   void Cholesky( int iM, int iNc, double *pMatrix );
-
-   //--------------------------------------------------------------------// 
    // Methods to perform flash calculations
    //--------------------------------------------------------------------// 
 

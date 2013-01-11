@@ -15,14 +15,6 @@ set(EOSPACK_SOURCES
 #	set(EOSPACK_EXTRA_SOURCES src/EosPackWin.c)
 #endif(WIN32)
 
-if(UNIX)
-	message(STATUS "CMAKE_CXX_FLAGS_RELEASE  = ${CMAKE_CXX_FLAGS_RELEASE}")
-	# The library to be compiled with -O3 is EosPack, all others,
-	# including the applications are to be compiled with -O2.
-	# Also we want assert(3) in Release configuration
-	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-endif()
-
 add_library(EosPack 
 	${EOSPACK_SOURCES}
 	${EOSPACK_EXTRA_SOURCES}

@@ -65,19 +65,19 @@
 #define EOS_NORESTORE 0
 #define EOS_RESTORE   1
 
-/* Define constants for scaling K values */
+/* Constants for scaling K values */
 #define EOS_NOSCALEK 0
 #define EOS_SCALEK   1
 
-/* Define constants for retrograde bubble points */
+/* Constants for retrograde bubble points */
 #define EOS_NORETROGRADE 0
 #define EOS_RETROGRADE   1
 
-/* Define constants for forcing bubble point calculation */
+/* Constants for forcing bubble point calculation */
 #define EOS_NOFORCEBP 0
 #define EOS_FORCEBP   1
 
-/* Define constants for flash pressure */
+/* Constants for flash pressure */
 #define EOS_NONORMALIZE 0
 #define EOS_NORMALIZE   1
 
@@ -86,8 +86,7 @@
 #define EOS_OIL 1
 
 
-
-/* 
+/*
 // EosPvtModel
 //
 // Default construction of pvt data 
@@ -98,7 +97,7 @@ EosPvtModel::EosPvtModel( void )
 }
 
 
-/* 
+/*
 // EosPvtModel
 //
 // Construction of pvt data 
@@ -116,31 +115,31 @@ EosPvtModel::EosPvtModel( int iVersion, int *piFlasher, double *pdFlasher )
 }
 
 
-/* 
+/*
 // EosPvtModel
 //
 // Copy EOS Pvt Model 
 */
 EosPvtModel::EosPvtModel( const EosPvtModel &self )
 {
-   m_dEnorm = self.m_dEnorm;
-   m_dLnEnorm = self.m_dLnEnorm;
-   m_dTiny = self.m_dTiny;
-   m_dConverge = self.m_dConverge;
+   m_dEnorm            = self.m_dEnorm;
+   m_dLnEnorm          = self.m_dLnEnorm;
+   m_dTiny             = self.m_dTiny;
+   m_dConverge         = self.m_dConverge;
    m_dThermalDiffusion = self.m_dThermalDiffusion;
-   m_dBubbleReduce = self.m_dBubbleReduce;
-   m_iMaxIterations = self.m_iMaxIterations;
-   m_iFlashLength = self.m_iFlashLength;
-   m_iMichelson = self.m_iMichelson;
-   m_iSubstitutions = self.m_iSubstitutions;
-   m_iDebug = self.m_iDebug;
+   m_dBubbleReduce     = self.m_dBubbleReduce;
+   m_iMaxIterations    = self.m_iMaxIterations;
+   m_iFlashLength      = self.m_iFlashLength;
+   m_iMichelson        = self.m_iMichelson;
+   m_iSubstitutions    = self.m_iSubstitutions;
+   m_iDebug            = self.m_iDebug;
 }
 
 
-/* 
+/*
 // Initialize
 //
-// Construction of pvt data 
+// Construction of pvt data
 //
 // iVersion (input):  Version of flasher (set to zero)
 // piFlasher (input): Pointer to array of integer input variables
@@ -156,29 +155,29 @@ void EosPvtModel::Initialize( int iVersion, int *piFlasher, double *pdFlasher )
    /* Set general pointers */
    m_pApplication = (EosApplication *)0;
    m_pEosPvtTable = (EosPvtTable *)0;
-   m_pWorkArray = (double *)0;
-   m_iDrv = EOS_DRV_N;
-   m_iHeat = EOS_OPTION_OFF;
-   m_iVolume = EOS_OPTION_OFF;
-   m_iMolarFlash = EOS_OPTION_OFF;
+   m_pWorkArray   = (double *)0;
+   m_iDrv         = EOS_DRV_N;
+   m_iHeat        = EOS_OPTION_OFF;
+   m_iVolume      = EOS_OPTION_OFF;
+   m_iMolarFlash  = EOS_OPTION_OFF;
    m_iWaterComp = -1;
 
    /* Set default terms */
    if ( piFlasher == (int *)0 )
    {
-      m_dEnorm = FLT_MAX;
-      m_dLnEnorm = log( m_dEnorm );
-      m_dTiny = DBL_EPSILON;
+      m_dEnorm            = FLT_MAX;
+      m_dLnEnorm          = log( m_dEnorm );
+      m_dTiny             = DBL_EPSILON;
       m_dThermalDiffusion = 0.0;
-      m_dBubbleReduce = 0.5;
-      m_dConverge = 0.0001;
-      m_iMichelson = EOS_OPTION_ON;
-      m_iBubbleDew = EOS_OPTION_OFF;
+      m_dBubbleReduce     = 0.5;
+      m_dConverge         = 0.0001;
+      m_iMichelson        = EOS_OPTION_ON;
+      m_iBubbleDew        = EOS_OPTION_OFF;
       m_iPseudoProperties = EOS_OPTION_OFF;
-      m_iDebug = EOS_OPTION_OFF;
-      m_iMaxIterations = 20;
-      m_iFlashLength = 64;
-      m_iSubstitutions = 0;
+      m_iDebug            = EOS_OPTION_OFF;
+      m_iMaxIterations    = 20;
+      m_iFlashLength      = 64;
+      m_iSubstitutions    = 0;
    }
 
    /* Read data */
@@ -189,10 +188,10 @@ void EosPvtModel::Initialize( int iVersion, int *piFlasher, double *pdFlasher )
 }
 
 
-/* 
+/*
 // DoFlash
-// 
-// Subroutine to perform the flash calculations  
+//
+// Subroutine to perform the flash calculations
 //
 // pTApplication
 //    Pointer to the application class
@@ -227,7 +226,6 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
    int iType;
    int iFlashIt;
    int iSaved;
-   int iNc;
    int iNObj;
    int iSize;
    int iProps;
@@ -242,10 +240,10 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
    m_pEosPvtTable = pTEosPvtTable[0];
 
    /* Set the application type */
-   iNc = ( m_pEosPvtTable )->GetNumberHydrocarbons();
+   const int iNc = m_pEosPvtTable->GetNumberHydrocarbons();
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteControlData( &iType, &iSaved, &iNObj, &iFlash, &iProperties, &m_iBubbleDewPoint, &iWater, &iInitialize, &m_iBubbleDew, &m_iPseudoProperties );
+   m_pApplication->WriteControlData( &iType, &iSaved, &iNObj, &iFlash, &iProperties,
+                                  &m_iBubbleDewPoint, &iWater, &iInitialize, &m_iBubbleDew, &m_iPseudoProperties );
 
    /* Reset the maximum flash length */
    if ( iInitialize != EOS_FLASH_CALCULATIONS )
@@ -255,9 +253,9 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
 
    /* Set the memory */
    m_pWorkArray = (double *)0;
-   iSize = SetPointers();
-   m_pWorkArray = CNEW ( double, iSize );
-   iSize = SetPointers();
+   iSize = SetPointers(); // get the size...
+   m_pWorkArray = CNEW ( double, iSize ); //...allocate it
+   iSize = SetPointers(); //...set the pointers
 
    /* Standard flash calculations */
    if ( iInitialize == EOS_FLASH_CALCULATIONS )
@@ -278,7 +276,7 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
       /* Check grid blocks for maximum changes, etc. */
       if ( iFlashIt || m_iBubbleDewPoint )
       {
-         ( m_pApplication )->ModifyPhaseIdentification( m_dEnorm );
+         m_pApplication->ModifyPhaseIdentification( m_dEnorm );
       }
 
       /* Reset the flags */
@@ -303,7 +301,7 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
          /* Load data */
          if ( iNc > 0 )
          {
-            ( m_pApplication )->SetTrivialSlice();
+            m_pApplication->SetTrivialSlice();
             ReadData( 1, 1, iNc, EOS_OPTION_OFF, EOS_GETK, &iThermal );
          }
 
@@ -354,16 +352,13 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
       /* Debug printing */
       if ( m_iDebug )
       {
-         ( m_pApplication )->PrintOutputData();
+         m_pApplication->PrintOutputData();
       }
    }
 
    /* Compositional grading */
    else if ( iInitialize == EOS_COMPOSITIONAL_GRADING )
    {
-      /* Set the cache to the proper value */
-      m_pEosPvtTable = pTEosPvtTable[0];
-
       /* Set minimum pressure */
       WriteMinimumPressure();
 
@@ -385,10 +380,10 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
 }
 
 
-/* 
+/*
 // BubblePointCalculations
 //
-// Subroutine to calculate bubble point 
+// Subroutine to calculate bubble point
 //
 // iNc
 //    Number of components
@@ -410,7 +405,7 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
 //    a valid initial guess
 // 5) Generate properties when a bubble point exists
 // 6) Generate properties for single phase objects
-// 7) Set dummy properties when there are no hydrocarbons 
+// 7) Set dummy properties when there are no hydrocarbons
 */
 void EosPvtModel::BubblePointCalculations( int iNc, int iType )
 {
@@ -422,57 +417,59 @@ void EosPvtModel::BubblePointCalculations( int iNc, int iType )
    int iTherm;
 
    /* See which simulator data needed */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteOutputData( &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity );
+   m_pApplication->WriteOutputData(
+      &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity
+      );
 
    /* Bubble point initial guess */
    if ( iType == EOS_TOF_2P )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       while ( iM )
       {
          ReadData( iM, iM, iNc, EOS_OPTION_OFF, EOS_NOGETK, &iTherm );
          BubblePointInit( iM, iNc, EOS_NORETROGRADE );
-         ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_BP_NCV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults( iM, iM, EOS_FL_BP_NCV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
+         iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       }
 
       /* Bubble point iterations */
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
       while ( iM )
       {
          ReadData( iM, iM, iNc, EOS_OPTION_OFF, EOS_GETK, &iTherm );
          BubblePointNewton( iM, iNc, EOS_FL_BP_CV );
 
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pApplication )->ReadFlashResults( iM, iM, ( m_iDrv ? EOS_FL_BP_CV : EOS_FL_BP_NCV ), EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults(
+            iM, iM, ( m_iDrv ? EOS_FL_BP_CV : EOS_FL_BP_NCV ), EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue
+            );
+         iM = m_pApplication->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
       }
    }
 
    /* Reset phase indicator */
-   ( m_pApplication )->ModifyPhaseIndicator( EOS_OPTION_ON );
+   m_pApplication->ModifyPhaseIndicator( EOS_OPTION_ON );
 
    /* Set bubble point properties */
    if ( iType == EOS_TOF_2P )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_BP, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_BP, m_iFlashLength );
       while ( iM )
       {
          AdjustPointers( iM, iNc, EOS_OPTION_OFF );
          ReadData( iM, iM, iNc, EOS_OPTION_OFF, EOS_GETK, &iTherm );
          BubblePoint( iM, iNc );
          WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_2P );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_BP, m_iFlashLength );
+         iM = m_pApplication->SetSlice( EOS_FL_BP, m_iFlashLength );
       }
    }
 
    /* Set single phase properties */
-   ( m_pApplication )->ResetSlice();
-   iM = ( m_pApplication )->SetSlice( EOS_FL_1P, m_iFlashLength );
+   m_pApplication->ResetSlice();
+   iM = m_pApplication->SetSlice( EOS_FL_1P, m_iFlashLength );
    while ( iM )
    {
       AdjustPointers( iM, iNc, EOS_OPTION_OFF );
@@ -480,24 +477,24 @@ void EosPvtModel::BubblePointCalculations( int iNc, int iType )
       OnePhase( iM, iNc );
       BubblePointZero( iM, iNc );
       WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_1P );
-      iM = ( m_pApplication )->SetSlice( EOS_FL_1P, m_iFlashLength );
+      iM = m_pApplication->SetSlice( EOS_FL_1P, m_iFlashLength );
    }
 
    /* Set no hydrocarbon properties */
-   ( m_pApplication )->ResetSlice();
-   iM = ( m_pApplication )->SetSlice( EOS_FL_0P, m_iFlashLength );
+   m_pApplication->ResetSlice();
+   iM = m_pApplication->SetSlice( EOS_FL_0P, m_iFlashLength );
    while ( iM )
    {
       WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_0P );
-      iM = ( m_pApplication )->SetSlice( EOS_FL_0P, m_iFlashLength );
+      iM = m_pApplication->SetSlice( EOS_FL_0P, m_iFlashLength );
    }
 }
 
 
-/* 
+/*
 // AdjustPointers
 //
-// Adjust pointers 
+// Adjust pointers
 //
 // iM
 //    Number of objects in current slice
@@ -572,10 +569,10 @@ void EosPvtModel::AdjustPointers( int iM, int iNc, int isWater )
 }
 
 
-/* 
+/*
 // PrintInputData
 //
-// Debug print routine 
+// Debug print routine
 //
 // iSize
 //    Size of work array
@@ -648,15 +645,15 @@ void EosPvtModel::PrintInputData( int iSize )
    printf( "\nEosPvtModel.*pEosPvtTable: " );
    printf( "%p", (void *)( m_pEosPvtTable ) );
    printf( "\n" );
-   ( m_pEosPvtTable )->PrintInputData();
-   ( m_pApplication )->PrintInputData();
+   m_pEosPvtTable->PrintInputData();
+   m_pApplication->PrintInputData();
 }
 
 
-/* 
+/*
 // ReadAllData
 //
-// Set all flasher related data 
+// Set all flasher related data
 //
 // iVersion
 //    Version of the flasher; set to zero
@@ -672,24 +669,24 @@ void EosPvtModel::ReadAllData( int iVersion, int *piFlasher, double *pdFlasher )
    USE_PARAM_EOSPVT( iVersion );
 
    /* Set flasher terms */
-   m_dEnorm = pdFlasher[EOS_ENORM];
-   m_dLnEnorm = log( m_dEnorm );
-   m_dTiny = pdFlasher[EOS_TINY];
-   m_dConverge = pdFlasher[EOS_CONVERGENCE];
+   m_dEnorm            = pdFlasher[EOS_ENORM];
+   m_dLnEnorm          = log( m_dEnorm );
+   m_dTiny             = pdFlasher[EOS_TINY];
+   m_dConverge         = pdFlasher[EOS_CONVERGENCE];
    m_dThermalDiffusion = pdFlasher[EOS_THERMALDIFFUSION];
-   m_dBubbleReduce = pdFlasher[EOS_BUBBLEREDUCE];
-   m_iMaxIterations = piFlasher[EOS_MAXITN];
-   m_iFlashLength = piFlasher[EOS_MAXFLASH];
-   m_iMichelson = piFlasher[EOS_MICHELSON];
-   m_iSubstitutions = piFlasher[EOS_SUBSTITUTIONS];
-   m_iDebug = piFlasher[EOS_DEBUG];
+   m_dBubbleReduce     = pdFlasher[EOS_BUBBLEREDUCE];
+   m_iMaxIterations    = piFlasher[EOS_MAXITN];
+   m_iFlashLength      = piFlasher[EOS_MAXFLASH];
+   m_iMichelson        = piFlasher[EOS_MICHELSON];
+   m_iSubstitutions    = piFlasher[EOS_SUBSTITUTIONS];
+   m_iDebug            = piFlasher[EOS_DEBUG];
 }
 
 
-/* 
+/*
 // ReadData
 //
-// Load grid block properties into temporary vectors 
+// Load grid block properties into temporary vectors
 //
 // iM
 //    Number of objects in slice
@@ -698,10 +695,10 @@ void EosPvtModel::ReadAllData( int iVersion, int *piFlasher, double *pdFlasher )
 // isSalt
 //    Indicator if water phase (1) with salts, or hydrocarbons (0)
 // iGetK
-//    Indicator if whether to read saved K values.                 
-//       EOS_NOGETK  
-//          Do not get K values             
-//       EOS_GETK   
+//    Indicator if whether to read saved K values.
+//       EOS_NOGETK
+//          Do not get K values
+//       EOS_GETK
 //          Get K values
 // pThermal
 //    Indicator as to whether the system is thermal or isothermal
@@ -712,27 +709,18 @@ void EosPvtModel::ReadAllData( int iVersion, int *piFlasher, double *pdFlasher )
 //    since water calculations differ from hydrocarbon
 // 3) Load some additional properties from the EosPvtTable
 //    class, such as molecular weights and temperatures
-//    for isothermal simulations  
+//    for isothermal simulations
 // 4) Calculate mole fractions and total moles.  Note that
 //    depending upon what type of data comes from the EosApplication
-//    class that the molecular weight is involved. 
+//    class that the molecular weight is involved.
 // 5) If doing the water phase, make sure that the total
 //    amount of water is greater than zero   
 */
 void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int *pThermal )
 {
-   double  dA;
-   double  dB;
-   double  dC;
-   double *pTa;
-   double *pforMW;
-   int     iMolar;
-   int     i;
+   /* Loop bounds */
    int     i1;
    int     i2;
-   int     iNi;
-
-   /* Loop bounds */
    if ( iS == iM )
    {
       i1 = 0;
@@ -745,16 +733,18 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
    }
 
    /* Load the properties */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteData( iM, i1, i2, iGetK, isSalt, m_pPressure, m_pTemperature, m_pComposition, m_pSplit, m_pKValue, m_pPhase, pThermal, &iMolar );
+   int     iMolar;
+   m_pApplication->WriteData( iM, i1, i2, iGetK, isSalt, m_pPressure, m_pTemperature, m_pComposition,
+      m_pSplit, m_pKValue, m_pPhase, pThermal, &iMolar );
 
    /* Use correct molecular weight */
-   pforMW = isSalt ? m_pSaltMW : m_pMolecularWeight;
-
+   double *pforMW = isSalt ? m_pSaltMW : m_pMolecularWeight;
+   
    /* Set the pvt term assignments */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->WritePvtInfo( iM, i1, i2, *pThermal, isSalt, m_iWaterComp, m_pAbcOffset, &m_iMultipleAbc, m_pTemperature, pforMW );
-
+   m_pEosPvtTable->WritePvtInfo(
+      iM, i1, i2, *pThermal, isSalt, m_iWaterComp, m_pAbcOffset, &m_iMultipleAbc, m_pTemperature, pforMW
+      );
+      
    /* Reset thermal indicator */
    *pThermal = ( *pThermal == EOS_OPTION_OFF ) ? 1 : 0;
 
@@ -763,23 +753,23 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
    {
       if ( iNc == 0 )
       {
-         for ( i = i1; i < i2; i++ )
+         for ( int i = i1; i < i2; i++ )
          {
             m_pMoles[i] = 0.0;
          }
       }
       else if ( iMolar )
       {
-         pTa = m_pComposition;
-         for ( i = i1; i < i2; i++ )
+         double *pTa = m_pComposition;
+         for ( int i = i1; i < i2; i++ )
          {
             m_pMoles[i] = pTa[i];
          }
 
-         for ( iNi = 1; iNi < iNc; iNi++ )
+         for ( int iNi = 1; iNi < iNc; iNi++ )
          {
             pTa += iM;
-            for ( i = i1; i < i2; i++ )
+            for ( int i = i1; i < i2; i++ )
             {
                m_pMoles[i] += pTa[i];
             }
@@ -787,19 +777,20 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
       }
       else
       {
-         pTa = m_pComposition;
-         dA = pforMW[0];
-         for ( i = i1; i < i2; i++ )
+         double *pTa = m_pComposition;
+         double dA = pforMW[0];
+         for ( int i = i1; i < i2; i++ )
          {
             pTa[i] = pTa[i] / dA;
             m_pMoles[i] = pTa[i];
          }
 
-         for ( iNi = 1; iNi < iNc; iNi++ )
+         // the following loop is NOT relevant when m_iUseBlkSlt = ON (because iNc=1)
+         for ( int iNi = 1; iNi < iNc; iNi++ )
          {
             pTa += iM;
             dA = pforMW[iNi];
-            for ( i = i1; i < i2; i++ )
+            for ( int i = i1; i < i2; i++ )
             {
                pTa[i] = pTa[i] / dA;
                m_pMoles[i] += pTa[i];
@@ -808,18 +799,18 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
       }
 
       /* Normalize */
-      for ( i = i1; i < i2; i++ )
+      for ( int i = i1; i < i2; i++ )
       {
-         dA = m_pMoles[i];
+         double dA = m_pMoles[i];
          m_pWork[i] = 1.0 / ( dA > 0.0 ? dA : 1.0 );
       }
 
-      pTa = m_pComposition;
-      for ( iNi = 0; iNi < iNc; iNi++ )
+      double *pTa = m_pComposition;
+      for ( int iNi = 0; iNi < iNc; iNi++ )
       {
-         for ( i = i1; i < i2; i++ )
+         for ( int i = i1; i < i2; i++ )
          {
-            dA = pTa[i] * m_pWork[i];
+            double dA = pTa[i] * m_pWork[i];
             pTa[i] = ( dA >= m_dTiny ) ? dA : 0.0;
          }
 
@@ -837,7 +828,7 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
       else if ( iMolar )
       {
          m_pMoles[0] = m_pComposition[0];
-         for ( iNi = 1; iNi < iNc; iNi++ )
+         for ( int iNi = 1; iNi < iNc; iNi++ )
          {
             m_pMoles[0] += m_pComposition[iNi];
          }
@@ -846,7 +837,7 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
       {
          m_pComposition[0] = m_pComposition[0] / pforMW[0];
          m_pMoles[0] = m_pComposition[0];
-         for ( iNi = 1; iNi < iNc; iNi++ )
+         for ( int iNi = 1; iNi < iNc; iNi++ )
          {
             m_pComposition[iNi] = m_pComposition[iNi] / pforMW[iNi];
             m_pMoles[0] += m_pComposition[iNi];
@@ -854,11 +845,11 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
       }
 
       /* Normalize */
-      dA = m_pMoles[0];
-      dB = 1.0 / ( dA > 0.0 ? dA : 1.0 );
-      for ( iNi = 0; iNi < iNc; iNi++ )
+      double dA = m_pMoles[0];
+      double dB = 1.0 / ( dA > 0.0 ? dA : 1.0 );
+      for ( int iNi = 0; iNi < iNc; iNi++ )
       {
-         dC = m_pComposition[iNi] * dB;
+         double dC = m_pComposition[iNi] * dB;
          m_pComposition[iNi] = ( dC >= m_dTiny ) ? dC : 0.0;
       }
    }
@@ -866,8 +857,8 @@ void EosPvtModel::ReadData( int iS, int iM, int iNc, int isSalt, int iGetK, int 
    /* If water check to see if anything there and take action */
    if ( isSalt && m_iWaterComp >= 0 )
    {
-      iNi = m_iWaterComp * iM;
-      for ( i = i1; i < i2; i++ )
+      int iNi = m_iWaterComp * iM;
+      for ( int i = i1; i < i2; i++ )
       {
          if ( m_pMoles[i] == 0.0 )
          {
@@ -898,13 +889,13 @@ void EosPvtModel::WriteMinimumPressure( void )
    double dT = m_pApplication->WriteIsothermal() ? m_pEosPvtTable->WriteTemperature() : m_pApplication->WriteMinimumTemperature();
    double minP = m_pEosPvtTable->WaterVaporPressure( dT );
 
-   ( m_pApplication )->ReadMinimumPressure( std::min( 100000.0, minP ) );
+   m_pApplication->ReadMinimumPressure( std::min( 100000.0, minP ) );
 }
 
 
-/* 
+/*
 // SetPointers
-// 
+//
 // Set pointers in temporary memory
 //
 // Returns the size of the double precision memory that
@@ -954,12 +945,12 @@ int EosPvtModel::SetPointers( void )
    double *pFinal;
 
    /* Get the maximum flash length */
-   iFlashes = ( m_pApplication )->WriteNumberFlashes();
+   iFlashes = m_pApplication->WriteNumberFlashes();
    iN = iFlashes > m_iFlashLength ? m_iFlashLength : iFlashes;
 
    /* Terms to set up locations */
-   iNc = ( m_pEosPvtTable )->GetNumberHydrocarbons();
-   iSalts = ( m_pEosPvtTable )->GetNumberSalts();
+   iNc = m_pEosPvtTable->GetNumberHydrocarbons();
+   iSalts = m_pEosPvtTable->GetNumberSalts();
    iNc = ( iNc > iSalts ) ? iNc : ( iSalts + 1 );
    iNcm = iNc * iN;
    iNc2 = iNc * iNcm;
@@ -971,12 +962,12 @@ int EosPvtModel::SetPointers( void )
    m_pPhase = (int *)( m_pMolecularWeight + iNc );
 
    /* Set up locations for saved properties in work array */
-   m_pPressure = ( (double *)m_pPhase ) + iN;
-   m_pTemperature = m_pPressure + iN;
-   m_pMoles = m_pTemperature + iN;
-   m_pSplit = m_pMoles + iN;
-   m_pKValue = m_pSplit + iN;
-   m_pComposition = m_pKValue + iNcm;
+   m_pPressure    = ( (double *)m_pPhase ) + iN;
+   m_pTemperature = m_pPressure    + iN;
+   m_pMoles       = m_pTemperature + iN;
+   m_pSplit       = m_pMoles       + iN;
+   m_pKValue      = m_pSplit       + iN;
+   m_pComposition = m_pKValue      + iNcm;
 
    /* Bubble point locations */
    i = iNcm + iNcm + iNc2;
@@ -994,32 +985,32 @@ int EosPvtModel::SetPointers( void )
 
    /* Set up locations in the work array */
    m_pX = ( (double *)m_pPhaseId ) + iN;
-   m_pDXdp = m_pX + iNcm;
-   m_pY = m_pDXdp + i;
-   m_pDYdp = m_pY + iNcm;
-   m_pMx = m_pDYdp + i;
-   m_pDMxdp = m_pMx + iN;
-   m_pMy = m_pDMxdp + iJ;
-   m_pDMydp = m_pMy + iN;
-   m_pZx = m_pDMydp + iJ;
-   m_pDZxdp = m_pZx + iN;
-   m_pZy = m_pDZxdp + iJ;
-   m_pDZydp = m_pZy + iN;
-   m_pHx = m_pDZydp + iJ;
-   m_pDHxdp = m_pHx + iN;
-   m_pHy = m_pDHxdp + iJ;
-   m_pDHydp = m_pHy + iN;
-   m_pMWx = m_pDHydp + iJ;
-   m_pMWy = m_pMWx + iN;
-   m_pMux = m_pMWy + iN;
-   m_pDMuxdp = m_pMux + iN;
-   m_pMuy = m_pDMuxdp + iJ;
-   m_pDMuydp = m_pMuy + iN;
-   m_pIfx = m_pDMuydp + iJ;
-   m_pDIfxdp = m_pIfx + iN;
-   m_pIfy = m_pDIfxdp + iJ;
-   m_pDIfydp = m_pIfy + iN;
-   m_pWork = m_pDIfydp + iJ;
+   m_pDXdp   = m_pX      + iNcm;
+   m_pY      = m_pDXdp   + i;
+   m_pDYdp   = m_pY      + iNcm;
+   m_pMx     = m_pDYdp   + i;
+   m_pDMxdp  = m_pMx     + iN;
+   m_pMy     = m_pDMxdp  + iJ;
+   m_pDMydp  = m_pMy     + iN;
+   m_pZx     = m_pDMydp  + iJ;
+   m_pDZxdp  = m_pZx     + iN;
+   m_pZy     = m_pDZxdp  + iJ;
+   m_pDZydp  = m_pZy     + iN;
+   m_pHx     = m_pDZydp  + iJ;
+   m_pDHxdp  = m_pHx     + iN;
+   m_pHy     = m_pDHxdp  + iJ;
+   m_pDHydp  = m_pHy     + iN;
+   m_pMWx    = m_pDHydp  + iJ;
+   m_pMWy    = m_pMWx    + iN;
+   m_pMux    = m_pMWy    + iN;
+   m_pDMuxdp = m_pMux    + iN;
+   m_pMuy    = m_pDMuxdp + iJ;
+   m_pDMuydp = m_pMuy    + iN;
+   m_pIfx    = m_pDMuydp + iJ;
+   m_pDIfxdp = m_pIfx    + iN;
+   m_pIfy    = m_pDIfxdp + iJ;
+   m_pDIfydp = m_pIfy    + iN;
+   m_pWork   = m_pDIfydp + iJ;
 
    /* Save bubble point locations */
    if ( m_iBubbleDewPoint == EOS_OPTION_OFF )
@@ -1028,36 +1019,36 @@ int EosPvtModel::SetPointers( void )
    }
 
    /* Set pvt table pointers */
-   ( m_pEosPvtTable )->SetPointers( iN, m_pMWy, m_pIfx, m_pWork, &m_pATable, &m_pSumTable, &pFinal );
+   m_pEosPvtTable->SetPointers( iN, m_pMWy, m_pIfx, m_pWork, &m_pATable, &m_pSumTable, &pFinal );
    i = (int)( pFinal - m_pWorkArray );
 
    /* Give values to other pointers */
    if ( m_pWorkArray != ( (double *)0 ) )
    {
       AdjustPointers( iN, iNc, EOS_OPTION_OFF );
-      m_pOSplit = m_pWork;
-      m_pFx = m_pWork + iN;
-      m_pG = m_pMWx;
-      m_pH = m_pDXdp;
-      m_pFy = m_pDXdt;
-      m_pGx = m_pDHxdp;
-      m_pGy = m_pDHxdt;
-      m_pBeta = m_pDHydp;
-      m_pGold = m_pDHydt;
-      m_pLow = m_pDMydp;
-      m_pHigh = m_pDMydt;
-      m_pXRhs = m_pMx;
-      m_pXMat = m_pDMxdt;
-      m_pTerm1 = m_pMux;
-      m_pTerm2 = m_pMuy;
-      m_pTerm3 = m_pDMuydp;
-      m_pTermx = m_pDMuxda;
-      m_pTermy = m_pDMuyda;
+      m_pOSplit     = m_pWork;
+      m_pFx         = m_pWork + iN;
+      m_pG          = m_pMWx;
+      m_pH          = m_pDXdp;
+      m_pFy         = m_pDXdt;
+      m_pGx         = m_pDHxdp;
+      m_pGy         = m_pDHxdt;
+      m_pBeta       = m_pDHydp;
+      m_pGold       = m_pDHydt;
+      m_pLow        = m_pDMydp;
+      m_pHigh       = m_pDMydt;
+      m_pXRhs       = m_pMx;
+      m_pXMat       = m_pDMxdt;
+      m_pTerm1      = m_pMux;
+      m_pTerm2      = m_pMuy;
+      m_pTerm3      = m_pDMuydp;
+      m_pTermx      = m_pDMuxda;
+      m_pTermy      = m_pDMuyda;
       m_pPotentialx = m_pDMxda;
       m_pPotentialy = m_pDMyda;
-      m_pLastx = pFinal - iNcm;
-      m_pLasty = m_pDHyda;
-      m_pPoint = m_pDMxdp;
+      m_pLastx      = pFinal - iNcm;
+      m_pLasty      = m_pDHyda;
+      m_pPoint      = m_pDMxdp;
    }
 
    /* Water terms */
@@ -1096,10 +1087,10 @@ int EosPvtModel::SetPointers( void )
 
    /* Set application pointers */
    pFinal = m_pWorkArray + i1 - iN - iN;
-   ( m_pApplication )->SetPointers( iN, &pFinal );
+   m_pApplication->SetPointers( iN, &pFinal );
 
    /* Set pvt pointers */
-   ( m_pEosPvtTable )->SetAbcPointers( iN, &m_pAbcOffset, &pFinal );
+   m_pEosPvtTable->SetAbcPointers( iN, &m_pAbcOffset, &pFinal );
 
    /* Calculate the total length */
    i = pFinal - m_pWorkArray;
@@ -1110,646 +1101,11 @@ int EosPvtModel::SetPointers( void )
 }
 
 
-/* 
-// BackSolve
-// 
-// Back substitution routine  
-//
-// iM
-//    Number of objects
-// iNc
-//    Number of components
-// pMatrix
-//    Pointer to matrix.  The array order is
-//       Objects (first)
-//       Columns
-//       Rows (last)
-//    Only the diagonal and bottom subdiagonal elements are used
-// pRhs
-//    Pointer to the right hand side.  The array order is
-//       Objects (first)
-//       Columns (last) 
-//
-// 1) This routine assumes that Cholesky has first been called
-// 2) This routine solves an equation of the form
-//    
-//          T
-//       L L  S = R
-// 
-//    by solving, in order
-//
-//       ^    -1               -T ^
-//       R = L   R        R = L   R
-//
-//    The right hand side is destroyed in the process.  See
-//    J. E. Dennis and R. Schnabel, Numerical Methods for
-//    Unconstrained Optimization and Nonlinear Equations, 
-//    Prentice Hall, Englewood Cliffs, N.J., 1983.
-*/
-void EosPvtModel::BackSolve( int iM, int iNc, double *pMatrix, double *pRhs )
-{
-   int     i;
-   int     iNc1;
-   int     iNcm;
-   int     iNi;
-   int     iNj;
-   int     iNk;
-   int     iNn;
-   double *pTa;
-   double *pTb;
-   double *pTc;
-   double *pTd;
-
-   /* Code for more than one grid block */
-   if ( iM > 1 )
-   {
-      iNcm = iNc * iM;
-      iNc1 = iNcm + iM;
-
-      /* Forward loop */
-      pTa = pRhs;
-      pTb = pMatrix;
-      for ( iNi = 1; iNi < iNc; iNi++ )
-      {
-         pTa += iM;
-         pTb += iM;
-         pTc = pRhs;
-         pTd = pTb;
-         for ( iNj = 0; iNj < iNi; iNj++ )
-         {
-#ifdef IPFtune
-            int cnt = iM;
-#pragma ivdep
-            for ( i = 0; i < cnt; i++ )
-            {
-               pTa[i] += pTd[i] * pTc[i];
-            }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-            for ( i = 0; i < iM; i++ )
-            {
-               pTa[i] += pTd[i] * pTc[i];
-            }
-#endif
-
-            pTc += iM;
-            pTd += iNcm;
-         }
-      }
-
-      /* Hit by the diagonal matrix */
-      pTa = pRhs;
-      pTb = pMatrix;
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-#ifdef IPFtune
-         int cnt = iM;
-#pragma ivdep
-         for ( i = 0; i < cnt; i++ )
-         {
-            pTa[i] *= pTb[i];
-         }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-         for ( i = 0; i < iM; i++ )
-         {
-            pTa[i] *= pTb[i];
-         }
-#endif
-
-         pTa += iM;
-         pTb += iM + iNcm;
-      }
-
-      /* Backsolve loop */
-      pTa -= iM;
-      pTb -= iNcm;
-      for ( iNi = 1; iNi < iNc; iNi++ )
-      {
-         pTc = pTa;
-         pTa -= iM;
-         pTb -= iNc1;
-         pTd = pTb;
-         for ( iNj = 0; iNj < iNi; iNj++ )
-         {
-#ifdef IPFtune
-            int cnt = iM;
-#pragma ivdep
-            for ( i = 0; i < cnt; i++ )
-            {
-               pTa[i] += pTd[i] * pTc[i];
-            }
-#else    
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-            for ( i = 0; i < iM; i++ )
-            {
-               pTa[i] += pTd[i] * pTc[i];
-            }
-#endif
-
-            pTc += iM;
-            pTd += iM;
-         }
-      }
-   }
-
-   /* Code for one grid block */
-   else
-   {
-      iNc1 = iNc + 1;
-
-      /* Forward loop */
-      for ( iNi = 1; iNi < iNc; iNi++ )
-      {
-         iNk = iNi;
-#ifdef IPFtune
-         double tRhs = pRhs[iNi];
-#pragma ivdep
-         for ( iNj = 0; iNj < iNi; iNj++ )
-         {
-            tRhs += pMatrix[iNk] * pRhs[iNj];
-            iNk += iNc;
-         }
-         pRhs[iNi] = tRhs;
-#else
-         for ( iNj = 0; iNj < iNi; iNj++ )
-         {
-            pRhs[iNi] += pMatrix[iNk] * pRhs[iNj];
-            iNk += iNc;
-         }
-#endif 
-      }
-
-      /* Hit by the diagonal matrix */
-      iNk = 0;
-#ifdef IPFtun
-#pragma ivdep
-#endif      
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         pRhs[iNi] *= pMatrix[iNk];
-         iNk += iNc1;
-      }
-
-      /* Backsolve loop */
-      iNk -= iNc1;
-      for ( iNi = iNc - 2; iNi >= 0; iNi-- )
-      {
-         iNk -= iNc1;
-         iNn = iNk;
-#ifdef IPFtune
-         double tRhs = pRhs[iNi];
-#pragma ivdep 
-         for ( iNj = iNi + 1; iNj < iNc; iNj++ )
-         {
-            tRhs += pMatrix[++iNn] * pRhs[iNj];
-         }
-         pRhs[iNi] = tRhs;
-#else 
-         for ( iNj = iNi + 1; iNj < iNc; iNj++ )
-         {
-            pRhs[iNi] += pMatrix[++iNn] * pRhs[iNj];
-         }
-#endif
-      }
-   }
-}
-
-
-/* 
-// Cholesky
-//
-// Cholesky factorization routine  
-//
-// iM
-//    Number of objects
-// iNc
-//    Number of components
-// pMatrix
-//    Pointer to matrix.  The array order is
-//       Objects (first)
-//       Columns
-//       Rows (last)
-//    Only the diagonal and bottom subdiagonal elements are used.
-//    The matrix is destroyed in the process, and only the
-//    factored matrix remains
-//
-// 1) Generates a modified cholesky decomposition
-//    of pMatrix, which is destroyed in the process.
-//    this modified cholesky method is needed due
-//    to the fact that negative curvature is often
-//    encountered during the flash calculations
-//    The first step is to compute the square root
-//    of the maximum diagonal element of the matrix
-//
-//    AMAX = SQRT ( MAX ( ABS ( A    ) , ABS ( A    ) / NC ) )
-//                               I,I            I,J
-//
-// 2) Now for each column, i = 1 to n, do
-//
-//                  I-1  2
-//    A    = A    - SUM A
-//     I,I    I,I   J=1  J,I
-//
-// 3) For each row j = i+1 to n in column i, do
-//
-//                  I-1
-//    A    = A    + SUM A    * A
-//     J,I    J,I   K=1  J,K    I,K
-//
-// 4) Compute perturbation parameter
-//
-//             N
-//    MAXA =  MAX  ( A    ) / AMAX
-//           J=I+1    J,I
-//
-// 5) Compute the diagonal term
-//
-//                                   2
-//    A    = SQRT ( MAX ( A    , MAXA  , EPSMAC ) )
-//     I,I                 I,I
-//
-// 6) For each row j = i+1 to n in column i, do
-//
-//    A    = A    / A
-//     J,I    J,I    I,I
-//
-// 7) If the matrix is safely positive definite, we
-//    have then formed a lower traingular matrix l
-//    stored in "a" such that
-//
-//         T
-//    A = L L - D
-//
-//    where D is a zero matrix.  If the original
-//    matrix was not positive definite, the matrix
-//    D is a positive diagonal matrix which is can
-//    be computed from the maxa perturbation.  See
-//    J. E. Dennis and R. Schnabel, Numerical Methods for
-//    Unconstrained Optimization and Nonlinear Equations, 
-//    Prentice Hall, Englewood Cliffs, N.J., 1983.
-*/
-void EosPvtModel::Cholesky( int iM, int iNc, double *pMatrix )
-{
-   int     iNc1;
-   int     iNcm;
-   int     iNi;
-   int     iNj;
-   int     iNk;
-   int     iNm;
-   int     iNn;
-   int     iNo;
-   int     iNp;
-   int     iNq;
-   int     i;
-   double  dA;
-   double  dB;
-   double  dC;
-   double  dD;
-   double  dTerm;
-   double  dNc;
-   double  dTerm1;
-   double  dTerm2;
-   double *pTa;
-   double *pTb;
-   double *pTc;
-   double *pTd;
-   double *pTe;
-   double *pTf;
-
-   /* Temporary term */
-   dTerm = sqrt( m_dTiny );
-   dNc = (double)iNc;
-
-   /* Code for more than one grid block */
-   if ( iM > 1 )
-   {
-      iNcm = iNc * iM;
-      iNc1 = iNcm + iM;
-
-      /* Set scaling factor */
-      pTa = pMatrix;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-      for ( i = 0; i < iM; i++ )
-      {
-         dA = pTa[i];
-         m_pTerm3[i] = dA > 0.0 ? dA : -dA;
-      }
-
-      for ( iNi = 1; iNi < iNc; iNi++ )
-      {
-         pTa += iNcm + iM;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-         for ( i = 0; i < iM; i++ )
-         {
-            dB = pTa[i];
-            dA = dB > 0.0 ? dB : -dB;
-            dB = m_pTerm3[i];
-            m_pTerm3[i] = ( dA > dB ) ? dA : dB;
-         }
-      }
-
-      dA = 1.0 / dNc;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-      for ( i = 0; i < iM; i++ )
-      {
-         m_pTerm3[i] = m_pTerm3[i] * dA;
-      }
-
-      iNk = 0;
-      pTa = pMatrix;
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         pTa += iNk;
-         iNk += iM;
-         for ( iNj = iNi + 1; iNj < iNc; iNj++ )
-         {
-#ifdef IPFtune
-            int     cnt = iM;
-            double *pT3 = m_pTerm3;
-#pragma ivdep
-            for ( i = 0; i < cnt; i++ )
-            {
-               dB = pTa[i];
-               dA = fabs(dB);
-               dB = pT3[i];
-               pT3[i] = ( dA > dB ) ? dA : dB;
-            }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-            for ( i = 0; i < iM; i++ )
-            {
-               dB = pTa[i];
-               dA = dB > 0.0 ? dB : -dB;
-               dB = m_pTerm3[i];
-               m_pTerm3[i] = ( dA > dB ) ? dA : dB;
-            }
-#endif
-         }
-
-         pTa += iM;
-      }
-
-#ifdef IPFtune
-      double *pT3 = m_pTerm3;
-      double tiny = m_dTiny;
-#pragma ivdep
-      for ( i = 0; i < iM; i++ )
-      {
-         dA = dNc * pT3[i];
-         pT3[i] = 1.0 / sqrt( ( dA > tiny ) ? dA : tiny );
-      }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-      for ( i = 0; i < iM; i++ )
-      {
-         dA = dNc * m_pTerm3[i];
-         m_pTerm3[i] = 1.0 / sqrt( ( dA > m_dTiny ) ? dA : m_dTiny );
-      }
-#endif
-
-      /* For every row */
-      pTa = pMatrix;
-      pTb = pTa;
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         /* Modify the diagonal element */
-         pTd = pTb;
-         pTe = pMatrix;
-         for ( iNj = 0; iNj < iNi; iNj++ )
-         {
-#ifdef IPFtune
-            int cnt = iM;
-#pragma ivdep
-            for ( i = 0; i < cnt; i++ )
-            {
-               dB = pTd[i];
-               dA = 0-pTe[i] * dB;
-               pTa[i] += dA * dB;
-               pTd[i] = dA;
-            }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-            for ( i = 0; i < iM; i++ )
-            {
-               dB = pTd[i];
-               dA = -pTe[i] * dB;
-               pTa[i] += dA * dB;
-               pTd[i] = dA;
-            }
-#endif
-
-            pTd += iNcm;
-            pTe += iNc1;
-         }
-
-         /* Prepare to patch column */
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-         for ( i = 0; i < iM; i++ )
-         {
-            m_pTerm2[i] = 0.0;
-         }
-
-         /* Go down column */
-         pTd = pTb;
-         pTc = pTa + iM;
-         for ( iNj = iNi + 1; iNj < iNc; iNj++ )
-         {
-            pTd += iM;
-            pTe = pTb;
-            pTf = pTd;
-            for ( iNk = 0; iNk < iNi; iNk++ )
-            {
-#ifdef IPFtune
-               int cnt = iM;
-#pragma ivdep
-               for ( i = 0; i < cnt; i++ )
-               {
-                  pTc[i] += pTe[i] * pTf[i];
-               }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-               for ( i = 0; i < iM; i++ )
-               {
-                  pTc[i] += pTe[i] * pTf[i];
-               }
-#endif
-
-               pTe += iNcm;
-               pTf += iNcm;
-            }
-
-#ifdef IPFtune
-            double *pT2 = m_pTerm2;
-            int     cnt = iM;
-#pragma ivdep
-            for ( i = 0; i < cnt; i++ )
-            {
-               dB = pTc[i];
-               dA = fabs(dB);
-               dB = pT2[i];
-               pT2[i] = ( dA > dB ) ? dA : dB;
-            }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-            for ( i = 0; i < iM; i++ )
-            {
-               dB = pTc[i];
-               dA = dB > 0.0 ? dB : -dB;
-               dB = m_pTerm2[i];
-               m_pTerm2[i] = ( dA > dB ) ? dA : dB;
-            }
-#endif
-
-            pTc += iM;
-         }
-
-         /* Patch term for column and take inverse */
-#ifdef IPFtune
-                 pT3 = m_pTerm3;
-         double *pT2 = m_pTerm2;
-#pragma ivdep
-         for ( i = 0; i < iM; i++ )
-         {
-            dB = pTa[i];
-            dA = fabs(dB);
-            dB = pT3[i] * pT2[i];
-            dC = dB * dB;
-            dD = dTerm > dC ? dTerm : dC;
-            pTa[i] = 1.0 / ( dD > dA ? dD : dA );
-         }
-#else
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-         for ( i = 0; i < iM; i++ )
-         {
-            dB = pTa[i];
-            dA = dB > 0.0 ? dB : -dB;
-            dB = m_pTerm3[i] * m_pTerm2[i];
-            dC = dB * dB;
-            dD = dTerm > dC ? dTerm : dC;
-            pTa[i] = 1.0 / ( dD > dA ? dD : dA );
-         }
-#endif
-
-         pTa += iNcm + iM;
-         pTb += iM;
-      }
-   }
-
-   /* Code for one grid block */
-   else
-   {
-      iNc1 = iNc + 1;
-
-      /* Set scaling factor */
-      iNk = 0;
-      dB = pMatrix[0];
-      dTerm1 = dB > 0.0 ? dB : -dB;
-      for ( iNi = 1; iNi < iNc; iNi++ )
-      {
-         iNk += iNc1;
-         dB = pMatrix[iNk];
-         dA = dB > 0.0 ? dB : -dB;
-         dTerm1 = ( dA > dTerm1 ) ? dA : dTerm1;
-      }
-
-      iNk = 0;
-      dTerm1 = dTerm1 / dNc;
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         iNk += iNi;
-         for ( iNj = iNi + 1; iNj < iNc; iNj++ )
-         {
-            dB = pMatrix[iNk++];
-            dA = dB > 0.0 ? dB : -dB;
-            dTerm1 = ( dA > dTerm1 ) ? dA : dTerm1;
-         }
-      }
-
-      dA = dNc * dTerm1;
-      dTerm1 = 1.0 / sqrt( ( dA > m_dTiny ) ? dA : m_dTiny );
-
-      /* For every row */
-      iNm = 0;
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         /* Modify the diagonal element */
-         iNn = iNi;
-         iNo = 0;
-         dC = pMatrix[iNm];
-         for ( iNj = 0; iNj < iNi; iNj++ )
-         {
-            dB = pMatrix[iNn];
-            dA = -pMatrix[iNo] * dB;
-            dC += dA * dB;
-            pMatrix[iNn] = dA;
-            iNn += iNc;
-            iNo += iNc1;
-         }
-
-         pMatrix[iNm] = dC;
-
-         /* Go down column */
-         iNo = iNm;
-         dTerm2 = 0;
-         for ( iNj = iNi + 1; iNj < iNc; iNj++ )
-         {
-            iNo++;
-            iNp = iNi;
-            iNq = iNj;
-            for ( iNk = 0; iNk < iNi; iNk++ )
-            {
-               pMatrix[iNo] += pMatrix[iNp] * pMatrix[iNq];
-               iNp += iNc;
-               iNq += iNc;
-            }
-
-            dA = fabs( pMatrix[iNo] );
-            dTerm2 = ( dA > dTerm2 ) ? dA : dTerm2;
-         }
-
-         /* Patch term for column and take inverse */
-         dA = fabs( pMatrix[iNm] );
-         dB = dTerm1 * dTerm2;
-         dC = dB * dB;
-         dD = dTerm > dC ? dTerm : dC;
-         pMatrix[iNm] = 1.0 / ( dD > dA ? dD : dA );
-         iNm += iNc1;
-      }
-   }
-}
-
 
 /* 
 // FlashMultipleObjects
 //
-// Subroutine to perform two phase flash calculations 
+// Subroutine to perform two phase flash calculations
 //
 // iNc
 //    Number of components
@@ -1773,14 +1129,14 @@ void EosPvtModel::Cholesky( int iM, int iNc, double *pMatrix )
 // 5) Then do some successive substitution iterations.
 //    These might converge very quickly
 // 6) Then do the full Newton iterations.  If the Newton
-//    iterations do not converge, we assume there is a 
+//    iterations do not converge, we assume there is a
 //    problem with negative curvature in the old K value
 //    initial guess and prepare to redo the stability test
 // 7) The remainder of this routine does not require the
 //    saved K values.  In these cases, if
 //    the test fails, we save the state of the system.
 // 8) We then do either a full Michelson stability test
-//    or a simplified stability test.  
+//    or a simplified stability test.
 // 9) Successive substitution is then applied to blocks
 //    which can possibly be two phase.  The "possibly"
 //    applies since the simplified test is only there
@@ -1800,17 +1156,17 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
    int iThermal;
 
    /* Section for restored data */
-   iRestore = ( m_pApplication )->WriteOldValues();
+   iRestore = m_pApplication->WriteOldValues();
    if ( iRestore )
    {
       /* Reset bubble point terms */
       if ( m_iBubbleDew )
       {
-         ( m_pApplication )->ModifyBubble( EOS_OPTION_ON, EOS_FL_1P_NCV, EOS_FL_BP_NCV );
+         m_pApplication->ModifyBubble( EOS_OPTION_ON, EOS_FL_1P_NCV, EOS_FL_BP_NCV );
 
          /* Bubble point iterations */
-         ( m_pApplication )->ResetSlice();
-         iM = ( m_pApplication )->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
+         m_pApplication->ResetSlice();
+         iM = m_pApplication->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
          while ( iM )
          {
             /* Set up locations in the work array */
@@ -1820,13 +1176,13 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
             BubblePointNewton( iM, iNc, EOS_FL_BP_CHK );
 
             /* Store grid block values */
-            ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_BP_CV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
-            iM = ( m_pApplication )->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
+            m_pApplication->ReadFlashResults( iM, iM, EOS_FL_BP_CV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
+            iM = m_pApplication->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
          }
 
          /* Check bubble point */
-         ( m_pApplication )->ResetSlice();
-         iM = ( m_pApplication )->SetSlice( EOS_FL_BP_CHK, m_iFlashLength );
+         m_pApplication->ResetSlice();
+         iM = m_pApplication->SetSlice( EOS_FL_BP_CHK, m_iFlashLength );
          while ( iM )
          {
             /* Set up locations in the work array */
@@ -1836,16 +1192,16 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
             BubblePointTest( iM, iNc );
 
             /* Store grid block values */
-            ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
-            iM = ( m_pApplication )->SetSlice( EOS_FL_BP_CHK, m_iFlashLength );
+            m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
+            iM = m_pApplication->SetSlice( EOS_FL_BP_CHK, m_iFlashLength );
          }
       }
 
       /* Successive substitution */
       if ( m_iSubstitutions )
       {
-         ( m_pApplication )->ResetSlice();
-         iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+         m_pApplication->ResetSlice();
+         iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
          while ( iM )
          {
             /* Set up locations in the work array */
@@ -1855,14 +1211,14 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
             Substitution( iM, iNc );
 
             /* Store grid block values */
-            ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
-            iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+            m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
+            iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
          }
       }
 
       /* Newton iterations */
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -1872,16 +1228,16 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
          NewtonFlash( iM, iNc, EOS_NORESTORE, EOS_FL_2P_CV );
 
          /* Store grid block values */
-         ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_2P_CV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_CV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
+         iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
       }
    }
 
    /* Michelson stability analysis */
    if ( m_iMichelson )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -1891,16 +1247,16 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
          Michelson( iM, iNc );
 
          /* Store grid block values */
-         ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
+         iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       }
    }
 
    /* Fast stability analysis */
    if ( m_iMichelson == EOS_OPTION_OFF )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -1910,16 +1266,16 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
          FastInitialization( iM, iNc );
 
          /* Store grid block values */
-         ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
+         iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       }
    }
 
    /* Successive substitution */
    if ( m_iSubstitutions )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -1929,14 +1285,14 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
          Substitution( iM, iNc );
 
          /* Store grid block values */
-         ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
+         iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
       }
    }
 
    /* Newton iterations */
-   ( m_pApplication )->ResetSlice();
-   iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+   m_pApplication->ResetSlice();
+   iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
    while ( iM )
    {
       /* Set up locations in the work array */
@@ -1946,15 +1302,15 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
       NewtonFlash( iM, iNc, iRestore, EOS_FL_2P_NCV );
 
       /* Store grid block values */
-      ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
-      iM = ( m_pApplication )->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
+      m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
+      iM = m_pApplication->SetSlice( EOS_FL_2P_NCV, m_iFlashLength );
    }
 
    /* Bubble point initial guess */
    if ( m_iBubbleDew )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -1964,13 +1320,13 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
          BubblePointInit( iM, iNc, EOS_NORETROGRADE );
 
          /* Store grid block values */
-         ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_BP_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults( iM, iM, EOS_FL_BP_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
+         iM = m_pApplication->SetSlice( EOS_FL_1P_NCV, m_iFlashLength );
       }
 
       /* Bubble point iterations */
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -1980,26 +1336,26 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
          BubblePointNewton( iM, iNc, EOS_FL_BP_CV );
 
          /* Store grid block values */
-         ( m_pApplication )->ReadFlashResults( iM, iM, EOS_FL_BP_CV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
+         m_pApplication->ReadFlashResults( iM, iM, EOS_FL_BP_CV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
+         iM = m_pApplication->SetSlice( EOS_FL_BP_NCV, m_iFlashLength );
       }
    }
 
    /* Reset phase indicator */
-   ( m_pApplication )->ModifyPhaseIndicator( EOS_OPTION_ON );
+   m_pApplication->ModifyPhaseIndicator( EOS_OPTION_ON );
 
    /* Reset bubble point terms */
    if ( m_iBubbleDew )
    {
-      ( m_pApplication )->ModifyBubble( EOS_TO_APPLICATION, EOS_FL_BP, EOS_FL_1P );
+      m_pApplication->ModifyBubble( EOS_TO_APPLICATION, EOS_FL_BP, EOS_FL_1P );
    }
 }
 
 
-/* 
+/*
 // FlashOneObject
-// 
-// Subroutine to perform two phase flash calculations 
+//
+// Subroutine to perform two phase flash calculations
 //
 // iNc
 //    Number of components
@@ -2016,14 +1372,14 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
 // 4) Then do some successive substitution iterations.
 //    These might converge very quickly
 // 5) Then do the full Newton iterations.  If the Newton
-//    iterations do not converge, we assume there is a 
+//    iterations do not converge, we assume there is a
 //    problem with negative curvature in the old K value
 //    initial guess and prepare to redo the stability test
 // 6) The remainder of this routine does not require the
 //    saved K values.  In these cases, if
 //    the test fails, we save the state of the system.
 // 7) We then do either a full Michelson stability test
-//    or a simplified stability test.  
+//    or a simplified stability test.
 // 8) Successive substitution is then applied to blocks
 //    which can possibly be two phase.  The "possibly"
 //    applies since the simplified test is only there
@@ -2046,7 +1402,7 @@ void EosPvtModel::FlashOneObject( int iNc )
 
    /* Section for restored data */
    iTested = EOS_OPTION_OFF;
-   iRestore = ( m_pApplication )->WriteOldValues();
+   iRestore = m_pApplication->WriteOldValues();
    if ( iRestore )
    {
       /* Reset bubble point terms */
@@ -2136,17 +1492,17 @@ void EosPvtModel::FlashOneObject( int iNc )
    /* Store grid block values and reset phase indicator */
    if ( *m_pPhase != EOS_FL_0P )
    {
-      ( m_pApplication )->ReadFlashResults( 1, 1, EOS_FL_1P_CV, iTested, m_pSplit, m_pPhase, m_pKValue );
-      ( m_pApplication )->ModifyPhaseIndicator( EOS_OPTION_OFF );
+      m_pApplication->ReadFlashResults( 1, 1, EOS_FL_1P_CV, iTested, m_pSplit, m_pPhase, m_pKValue );
+      m_pApplication->ModifyPhaseIndicator( EOS_OPTION_OFF );
       *m_pPhase = ( *m_pPhase + 1 ) / 2;
    }
 }
 
 
-/* 
+/*
 // FlashEquations
 //
-// Solve the flash equations 
+// Solve the flash equations
 //
 // iM
 //    Number of objects in slice
@@ -2160,7 +1516,7 @@ void EosPvtModel::FlashOneObject( int iNc )
 //    Indicator whether to update the mole numbers after all
 //    is complete
 //
-// 
+//
 //    1) Define the following
 //
 //       CHIX  = X  * ( ONE - SPLIT ) , CHIY  = Y  * SPLIT
@@ -2168,16 +1524,16 @@ void EosPvtModel::FlashOneObject( int iNc )
 //
 //    2) We have the following material balances
 //
-//       Z  = CHIX  + CHIY   ,  K  = Y  / X  
+//       Z  = CHIX  + CHIY   ,  K  = Y  / X
 //        I       I       I      I    I    I
 //
 //    3) Based upon the material balances, we can
 //       obtain a standard flash equation
 //
-//       F(SPLIT) = SUM Z  * ( K  - 1 ) / ( 1 - SPLIT + SPLIT * K  ) 
+//       F(SPLIT) = SUM Z  * ( K  - 1 ) / ( 1 - SPLIT + SPLIT * K  )
 //                   I   I      I                                I
-//                       
-//       This equation must be zero at the solution.  The Multisim 
+//
+//       This equation must be zero at the solution.  The Multisim
 //       experience is that this equation has overflow trouble if the
 //       denominator is evaluated as
 //
@@ -2194,20 +1550,20 @@ void EosPvtModel::FlashOneObject( int iNc )
 //       this function is decreasing on this interval,
 //       this will only happen if f(0) and f(1) have
 //       different signs.  Normally the flash equation
-//       should have a solution.  
+//       should have a solution.
 //
 //    5) If there is no solution then the K values
 //       are reset to one and the phase indicator
 //       reset
 //
 //    6) The starting guess is a split of 0.5, set in
-//       another routine.  This has proved as good as anything.  
+//       another routine.  This has proved as good as anything.
 //       On subsequent calls we use a restored value.  When the
 //       K values get very large or small, the big
 //       slopes near the origin have a bad affect upon
 //       saved starting guesses.  The split is then
-//       updated using Newton's method.  Bisection (with a 
-//       maximum step of 0.9 towards the end of the world) is 
+//       updated using Newton's method.  Bisection (with a
+//       maximum step of 0.9 towards the end of the world) is
 //       employed to keep the solution in the interval [0,1]
 //
 //    7) At the end of the routine, if needed, the compositions
@@ -2265,28 +1621,16 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
          m_pTerm2[i] = dB / dA;
       }
 
-#ifdef IPFtune
-      double *pT1 = m_pTerm1;
-      double *pT2 = m_pTerm2;
-#endif
       for ( iNi = 1; iNi < iNc; iNi++ )
       {
          pTa += iM;
          pTb += iM;
-#ifdef IPFtune
-#pragma ivdep
-#endif
          for ( i = i1; i < i2; i++ )
          {
             dA = pTa[i];
             dB = ( dA - 1.0 ) * pTb[i];
-#ifdef IPFtune
-            pT1[i] += dB;
-            pT2[i] += dB / dA;
-#else    
             m_pTerm1[i] += dB;
             m_pTerm2[i] += dB / dA;
-#endif
          }
       }
 
@@ -2311,16 +1655,9 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
       pTd = m_pTermy;
       for ( iNi = 0; iNi < iNc; iNi++ )
       {
-#ifdef IPFtune
-#pragma ivdep
-#endif
          for ( i = i1; i < i2; i++ )
          {
-#ifdef IPFtune
-            pTa[i] = pT2[i] * pTa[i] + pT1[i];
-#else 
             pTa[i] = m_pTerm2[i] * pTa[i] + m_pTerm1[i];
-#endif
             pTc[i] = pTa[i] - 1.0;
             pTd[i] = pTc[i] * pTb[i];
          }
@@ -2339,19 +1676,6 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
          pTa = m_pKValue;
          pTb = m_pTermx;
          pTc = m_pTermy;
-#ifdef IPFtune
-         double *pOS  = m_pOSplit;
-         double *pS   = m_pSplit;
-         double mtiny = -m_dTiny;
-#pragma ivdep
-         for ( i = i1; i < i2; i++ )
-         {
-            dA = 1.0 / ( pOS[i] + pS[i] * pTa[i] );
-            dB = pTc[i] * dA;
-            pT1[i] = dB;
-            pT2[i] = mtiny - pTb[i] * dB * dA;
-         }
-#else
          for ( i = i1; i < i2; i++ )
          {
             dA = 1.0 / ( m_pOSplit[i] + m_pSplit[i] * pTa[i] );
@@ -2359,23 +1683,12 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
             m_pTerm1[i] = dB;
             m_pTerm2[i] = -m_dTiny - pTb[i] * dB * dA;
          }
-#endif
 
          for ( iNi = 1; iNi < iNc; iNi++ )
          {
             pTa += iM;
             pTb += iM;
             pTc += iM;
-#ifdef IPFtune
-#pragma ivdep
-            for ( i = i1; i < i2; i++ )
-            {
-               dA = 1.0 / ( pOS[i] + pS[i] * pTa[i] );
-               dB = pTc[i] * dA;
-               pT1[i] += dB;
-               pT2[i] -= pTb[i] * dB * dA;
-            }
-#else
             for ( i = i1; i < i2; i++ )
             {
                dA = 1.0 / ( m_pOSplit[i] + m_pSplit[i] * pTa[i] );
@@ -2383,14 +1696,10 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
                m_pTerm1[i] += dB;
                m_pTerm2[i] -= pTb[i] * dB * dA;
             }
-#endif
          }
 
          /* New split and test for convergence */
          dF = 0.0;
-#ifdef IPFtune
-#pragma ivdep
-#endif
          for ( i = i1; i < i2; i++ )
          {
             dA = 0.99 * m_pSplit[i];
@@ -2415,9 +1724,6 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
          pTd = m_pY;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( i = i1; i < i2; i++ )
             {
                dA = pTa[i];
@@ -2458,26 +1764,12 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
       dOSplit = 1.0 - dSplit;
 
       /* Reset K values if root does not exist */
-#ifdef IPFtune
-      double *pKV = m_pKValue;
-      double *pTx = m_pTermx;
-      double *pTy = m_pTermy;
-      double *pCm = m_pComposition;
-#pragma ivdep
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         pKV[iNi] = dTerm2 * pKV[iNi] + dTerm1;
-         pTx[iNi] = pKV[iNi] - 1.0;
-         pTy[iNi] = pTx[iNi] * pCm[iNi];
-      }
-#else      
       for ( iNi = 0; iNi < iNc; iNi++ )
       {
          m_pKValue[iNi] = dTerm2 * m_pKValue[iNi] + dTerm1;
          m_pTermx[iNi] = m_pKValue[iNi] - 1.0;
          m_pTermy[iNi] = m_pTermx[iNi] * m_pComposition[iNi];
       }
-#endif      
 
       /* Newton's method until convergence */
       iConvrg = EOS_NOCONVERGE;
@@ -2524,10 +1816,10 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
 }
 
 
-/* 
+/*
 // OneSideStability
-// 
-// Function to perform one side of the stability test analysis 
+//
+// Function to perform one side of the stability test analysis
 //
 // iM
 //    Number of objects
@@ -2535,7 +1827,7 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
 //    Number of components
 // pP
 //    Pressure
-// pT 
+// pT
 //    Temperature
 // pState
 //    Term corresponding to the excess energy.  Is negative
@@ -2617,12 +1909,12 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
 //
 //  7) If any grid block have not converged, we now form
 //     the jacobian matrix to obtain a new estimate of
-//     the mole numbers y.  The Jacobian can be shown to 
+//     the mole numbers y.  The Jacobian can be shown to
 //     be equal to, when scaled by the square root of X,
-//     
+//
 //             0.5    0.5
-//     J    = X    * X    * DFDX    + DELTA    
-//      I,J    I      J         I,J        I,J 
+//     J    = X    * X    * DFDX    + DELTA
+//      I,J    I      J         I,J        I,J
 //
 //     Note that this is really done by forming the
 //     system
@@ -2649,7 +1941,7 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
 //     and since we will use the log of the mole number as
 //     primary unknown to ensure we stay above zero, since
 //
-//     dF/dLn(X) = X dF/dX   
+//     dF/dLn(X) = X dF/dX
 //
 //     we use
 //
@@ -2661,11 +1953,12 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
 //                       ^
 //     Y  = Y  * EXP ( - S  )
 //      I    I            I
-//    
+//
 //     Note that proper care must be taken in this expression
 //     to avoid rounding trouble
 */
-void EosPvtModel::OneSideStability( int iM, int iNc, double *pP, double *pT, double *pState, double *pFz )
+void EosPvtModel::
+OneSideStability( int iM, int iNc, double *pP, double *pT, double *pState, double *pFz )
 {
    double *pTa;
    double *pTb;
@@ -2759,8 +2052,11 @@ void EosPvtModel::OneSideStability( int iM, int iNc, double *pP, double *pT, dou
       }
 
       /* Calculate fugacity */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, pP, pT, m_pX, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, pFz, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID,
+         m_iMultipleAbc, m_pAbcOffset, pP, pT, m_pX, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, pFz,
+         m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
 
       /* Evaluate function for more than one block */
       if ( iM > 1 )
@@ -2873,8 +2169,8 @@ void EosPvtModel::OneSideStability( int iM, int iNc, double *pP, double *pT, dou
       }
 
       /* Newton step */
-      Cholesky( iM, iNc, m_pDYda );
-      BackSolve( iM, iNc, m_pDYda, m_pDYdp );
+      EosLinAlg::Cholesky( iM, iNc, m_dTiny, m_pDYda, m_pTerm3, m_pTerm2 );
+      EosLinAlg::BackSolve( iM, iNc, m_pDYda, m_pDYdp );
 
       /* Redo the scaling for many blocks */
       if ( iM > 1 )
@@ -2989,10 +2285,10 @@ void EosPvtModel::OneSideStability( int iM, int iNc, double *pP, double *pT, dou
 }
 
 
-/* 
+/*
 // Michelson
 //
-// Function to perform the Michelson stability analysis 
+// Function to perform the Michelson stability analysis
 //
 // iM
 //    Number of objects
@@ -3039,8 +2335,8 @@ void EosPvtModel::OneSideStability( int iM, int iNc, double *pP, double *pT, dou
 //
 //                   ^1         ^2
 //    K  = exp ( F ( Y  ) - F ( Y  ) )
-//     i          i          i    
-//         
+//     i          i          i
+//
 //    where Y-hat-1 is the fugacity of the Y phase if it
 //    is stable wrt the original composition and the original
 //    composition if it is not.
@@ -3075,13 +2371,16 @@ void EosPvtModel::Michelson( int iM, int iNc )
    dC = 1.0 / m_dEnorm;
 
    /* Store ideal K values */
-   ( m_pEosPvtTable )->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
+   m_pEosPvtTable->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
 
-   /* Invarient part of function */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+   /* Calculate invariant part of function */
+   m_pEosPvtTable->SolveCubic(
+      iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx,
+      m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+      );
 
-   /* Store invarient part of function for multiple blocks */
+   /* Store invariant part of function for multiple blocks */
    if ( iM > 1 )
    {
       pTa = m_pComposition;
@@ -3245,12 +2544,12 @@ void EosPvtModel::Michelson( int iM, int iNc )
 }
 
 
-/* 
+/*
 // FastInitialization
-// 
-// Function to perform a fast two sided stability analysis 
 //
-// iM 
+// Function to perform a fast two sided stability analysis
+//
+// iM
 //    Number of objects
 // iNc
 //    Number of components
@@ -3270,10 +2569,10 @@ void EosPvtModel::Michelson( int iM, int iNc )
 //     I    I    I
 //
 // 3) Use this to form an initial guess for the flasher,
-//    namely, 
+//    namely,
 //
 //    K  = exp [ F ( X ) - F ( Y ) ]
-//     i          i         i    
+//     i          i         i
 //
 // 4) Solve the flash equations to ensure there is at
 //    least a possible solution at the initial guess
@@ -3297,7 +2596,7 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
    int     iNi;
 
    /* Store ideal K values */
-   ( m_pEosPvtTable )->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
+   m_pEosPvtTable->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
 
    /* Set and normalize compositions multiple grid block case */
    if ( iM > 1 )
@@ -3370,11 +2669,18 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
    }
 
    /* Get the fugacities */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+      m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+      );
+
+   m_pEosPvtTable->SolveCubic(
+      iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda,
+      m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+      );
 
    /* Overflow terms */
    dB = m_dLnEnorm;
@@ -3424,10 +2730,10 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
 }
 
 
-/* 
+/*
 // Substitution
 //
-// Successive substitution routine 
+// Successive substitution routine
 //
 // iM
 //    Number of objects
@@ -3436,10 +2742,10 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
 //
 // 1) Call the flasher to get X and Y
 // 2) Call SolveCubic for fugacities
-// 3) Update the K values 
+// 3) Update the K values
 //
 //    K  = exp [ F ( X ) - F ( Y ) ]
-//     i          i         i    
+//     i          i         i
 //
 // 4) Test for convergence
 // 5) At the end of the routine ensure that there
@@ -3474,12 +2780,18 @@ void EosPvtModel::Substitution( int iM, int iNc )
       FlashEquations( iM, 0, iM, iNc, EOS_NORMALIZE );
 
       /* Get the x phase properties */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+         m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+         );
 
       /* Get the y phase properties */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda,
+         m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
 
       /* Final update and compute norm */
       if ( iM > 1 )
@@ -3554,10 +2866,10 @@ void EosPvtModel::Substitution( int iM, int iNc )
 }
 
 
-/* 
+/*
 // NewtonFlash
-// 
-// Routine to perform Newton's method for a two phase flash 
+//
+// Routine to perform Newton's method for a two phase flash
 //
 // iM
 //    Number of objects
@@ -3577,8 +2889,8 @@ void EosPvtModel::Substitution( int iM, int iNc )
 //    FX  - FY  - LN ( K  ) = F = 0 , I = 1 ... NC
 //      I     I         I
 //
-// 6) Since we wish to use the logarithm of the k values as our 
-//    primary unknown, the jacobian matrix is formally (delta is 
+// 6) Since we wish to use the logarithm of the k values as our
+//    primary unknown, the jacobian matrix is formally (delta is
 //    the Kronecker function)
 //
 //             D FX          D FY
@@ -3611,7 +2923,7 @@ void EosPvtModel::Substitution( int iM, int iNc )
 //
 //    and multiplying through by (1-SPLIT) * SPLIT
 //
-//    A = SPLIT * dFXdX + ( 1 - SPLIT ) dFYdY - 
+//    A = SPLIT * dFXdX + ( 1 - SPLIT ) dFYdY -
 //                        ( 1 - SPLIT ) * SPLIT * dLN(k)/DX
 //
 //    and the last term is equal to
@@ -3626,11 +2938,11 @@ void EosPvtModel::Substitution( int iM, int iNc )
 //               ( 1 - SPLIT + SPLIT * Ki )^2
 //
 //    Thus
-//  
-//    A = SPLIT * dFXdX + ( 1 - SPLIT ) dFYdY - 
+//
+//    A = SPLIT * dFXdX + ( 1 - SPLIT ) dFYdY -
 //
 //       ( 1 - SPLIT + SPLIT * Ki )^2 / (Ki * Zi)
-//         
+//
 // 10) Define a scale term
 //
 //     Si = sqrt ( Ki * Zi ) / ( 1 - SPLIT + SPLIT * Ki )
@@ -3695,7 +3007,7 @@ void EosPvtModel::Substitution( int iM, int iNc )
 //      I,J        I,J       I
 //
 // 17) After having set up all of this, we first solve,
-//     using Choleski, 
+//     using Choleski,
 //
 //                                -1  -1
 //     S A S y = S F   where Y = S   D   dLNK
@@ -3743,16 +3055,11 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
    double *pTc;
    double *pTd;
    double *pTe;
-#ifdef IPFtune   
-   double *pS;
-   double *pOS;
-   double *pT;
-#endif
 
    /* Prepare for iterations for more than one block */
    if ( iM > 1 )
    {
-      iNextExists = ( m_pApplication )->Aandebeurt( -1, EOS_FL_2P_NCV );
+      iNextExists = m_pApplication->Aandebeurt( -1, EOS_FL_2P_NCV );
       iNi = -m_iMaxIterations;
       for ( i = 0; i < iM; i++ )
       {
@@ -3780,19 +3087,22 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
       FlashEquations( iM, 0, iM, iNc, EOS_NORMALIZE );
 
       /* Chemical potential for the x phase */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+         m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+         );
 
       /* Chemical potential for the y phase */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda,
+         m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
 
       /* Scale terms for multiple grid block case */
       if ( iM > 1 )
       {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( i = 0; i < iM; i++ )
          {
             m_pG[i] = ( m_pPhase[i] != EOS_FL_1P_NCV ) ? 1.0 : 0.0;
@@ -3803,26 +3113,11 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          pTc = m_pDYdp;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-            pT  = m_pG;
-            pS  = m_pSplit;
-            pOS = m_pOSplit;
-#pragma ivdep
-            for ( i = 0; i < iM; i++ )
-            {
-               dA = pTa[i];
-               pTc[i] = sqrt( pTb[i] * dA ) * pT[i] / ( pOS[i] + pS[i] * dA );
-            }
-#else
             for ( i = 0; i < iM; i++ )
             {
                dA = pTa[i];
                pTc[i] = sqrt( pTb[i] * dA ) * m_pG[i] / ( m_pOSplit[i] + m_pSplit[i] * dA );
             }
-#endif
 
             pTa += iM;
             pTb += iM;
@@ -3841,23 +3136,10 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
             pTb += iNk;
             for ( iNj = iNi; iNj < iNc; iNj++ )
             {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-               pS  = m_pSplit;
-               pOS = m_pOSplit;
-#pragma ivdep
-               for ( i = 0; i < iM; i++ )
-               {
-                  pTa[i] = pTd[i] * pTc[i] * ( pTa[i] * pS[i] + pTb[i] * pOS[i] - 1.0 );
-               }
-#else
                for ( i = 0; i < iM; i++ )
                {
                   pTa[i] = pTd[i] * pTc[i] * ( pTa[i] * m_pSplit[i] + pTb[i] * m_pOSplit[i] - 1.0 );
                }
-#endif
 
                pTa += iM;
                pTb += iM;
@@ -3877,20 +3159,6 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          EosUtils::VectorLog( iNc * iM, m_pKValue, m_pKValue );
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-            pT  = m_pG;
-#pragma ivdep
-            for ( i = 0; i < iM; i++ )
-            {
-               dA = pT[i] * ( ( pTb[i] - pTc[i] ) - pTa[i] );
-               pTc[i] = dA;
-               pTb[i] = pTd[i] * dA;
-               pTe[i] += 1.0;
-            }
-#else
             for ( i = 0; i < iM; i++ )
             {
                dA = m_pG[i] * ( ( pTb[i] - pTc[i] ) - pTa[i] );
@@ -3898,7 +3166,6 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
                pTb[i] = pTd[i] * dA;
                pTe[i] += 1.0;
             }
-#endif
 
             pTa += iM;
             pTb += iM;
@@ -3914,9 +3181,6 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          dE = ( *m_pPhase != EOS_FL_1P_NCV ) ? 1.0 : 0.0;
          dB = *m_pOSplit;
          dC = *m_pSplit;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
             dA = m_pKValue[iNi];
@@ -3928,9 +3192,6 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          pTb = m_pDYda;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( iNj = iNi; iNj < iNc; iNj++ )
             {
                pTa[iNj] = m_pDYdp[iNj] * m_pDYdp[iNi] * ( pTa[iNj] * dC + pTb[iNj] * dB - 1.0 );
@@ -3953,19 +3214,16 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
       }
 
       /* Factor the matrix */
-      Cholesky( iM, iNc, m_pDXda );
+      EosLinAlg::Cholesky( iM, iNc, m_dTiny, m_pDXda, m_pTerm3, m_pTerm2 );
 
       /* Perform back substitution */
-      BackSolve( iM, iNc, m_pDXda, m_pFx );
+      EosLinAlg::BackSolve( iM, iNc, m_pDXda, m_pFx );
 
       /* Transform solution with the matrix and get maximum residual */
       if ( iM > 1 )
       {
          pTa = m_pDYdp;
          pTb = m_pFx;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( i = 0; i < iM; i++ )
          {
             m_pOSplit[i] = pTb[i] * pTa[i];
@@ -3975,18 +3233,12 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          {
             pTa += iM;
             pTb += iM;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                m_pOSplit[i] += pTb[i] * pTa[i];
             }
          }
 
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( i = 0; i < iM; i++ )
          {
             m_pOSplit[i] *= m_pG[i];
@@ -3996,12 +3248,6 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          pTb = m_pFy;
          pTc = m_pDYdp;
          pTd = m_pComposition;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
          for ( i = 0; i < iM; i++ )
          {
             dB = pTc[i];
@@ -4017,22 +3263,6 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
             pTb += iM;
             pTc += iM;
             pTd += iM;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-            pOS = m_pOSplit;
-            pT  = m_pDYdt;
-#pragma ivdep
-            for ( i = 0; i < iM; i++ )
-            {
-               dB = pTc[i];
-               dA = ( pTa[i] - dB * pOS[i] ) / ( dB > dVeryTiny ? dB : dVeryTiny );
-               dC = ( pTd[i] > 0.0 ? dA : pTb[i] );
-               pT[i] += dC * dC;
-               pTa[i] = dC;
-            }
-#else
             for ( i = 0; i < iM; i++ )
             {
                dB = pTc[i];
@@ -4041,15 +3271,11 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
                m_pDYdt[i] += dC * dC;
                pTa[i] = dC;
             }
-#endif
          }
 
          /* Test for convergence */
          iConvrg = EOS_CONVERGE;
          iAnyConvrg = EOS_NOCONVERGE;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( i = 0; i < iM; i++ )
          {
             iNk = m_pPhase[i];
@@ -4068,12 +3294,6 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          dB = -m_dLnEnorm;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( i = 0; i < iM; i++ )
             {
                dC = pTa[i] + pTb[i];
@@ -4097,10 +3317,10 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
                FlashEquations( iM, i, i + 1, iNc, EOS_NONORMALIZE );
 
                /* Store grid block values */
-               ( m_pApplication )->ReadFlashResults( i, iM, iLevel, iRestore, m_pSplit, m_pPhase, m_pKValue );
+               m_pApplication->ReadFlashResults( i, iM, iLevel, iRestore, m_pSplit, m_pPhase, m_pKValue );
 
                /* Set the indirection location */
-               iNextExists = ( m_pApplication )->Aandebeurt( i, EOS_FL_2P_NCV );
+               iNextExists = m_pApplication->Aandebeurt( i, EOS_FL_2P_NCV );
 
                /* Load the next location */
                ReadData( i, iM, iNc, EOS_OPTION_OFF, EOS_GETK, &iThermal );
@@ -4160,7 +3380,7 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
 }
 
 
-/* 
+/*
 // BubblePointInit
 // 
 // Function to perform Michelson analysis for bubble points 
@@ -4181,14 +3401,14 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
 //       the lower pressure to zero
 //    b) For a standard system without any knowledge of a
 //       current pressure, set the current estimate
-//       to be a rough estimate of the bubble point pressure.  
+//       to be a rough estimate of the bubble point pressure.
 //       Set the lower and upper pressures to zero
 //    c) For retrograde calculations, we know the current
-//       bubble point pressure is an upper bound, so set the 
+//       bubble point pressure is an upper bound, so set the
 //       upper bound to the current bubble point pressure, the lower
 //       bound to zero
 // 2) Save some terms which are used throughout the calculations,
-//    namely the Wilson K values and the log of the 
+//    namely the Wilson K values and the log of the
 //    mole fraction term
 // 3) Then take the next step.  If an upper bound has not been
 //    found yet double the step.  If one has been found, then
@@ -4216,9 +3436,9 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
 // 7) If the energy in one direction is negative and in the
 //    other direction is positive the current pressure will
 //    be a fine pressure to start the Newton iterations.  Use
-//    the fugacities of the composition and the negative 
+//    the fugacities of the composition and the negative
 //    energy solution to generate an initial guess for
-//    K values for Newton's method.  
+//    K values for Newton's method.
 */
 void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
 {
@@ -4245,7 +3465,7 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
    /* Scaling factor for overflow */
    dVeryTiny = 1.0 / m_dEnorm;
    dF = -1.0 / m_dTiny;
-   dB = ( m_pEosPvtTable )->InitBubblePoint();
+   dB = m_pEosPvtTable->InitBubblePoint();
    dL = 0.0;
    dH = 0.0;
 
@@ -4295,7 +3515,7 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
    }
 
    /* Get wilson k values */
-   ( m_pEosPvtTable )->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
+   m_pEosPvtTable->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
 
    /* Store log term */
    if ( iM > 1 )
@@ -4345,11 +3565,14 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
          *m_pBp = ( dL == dH ) ? dA : dC;
       }
 
-      /* Invarient part of function */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pBp, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pPotentialy, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+      /* Invariant part of function */
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pBp, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+         m_pPotentialy, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+         );
 
-      /* Store invarient part of function */
+      /* Store invariant part of function */
       if ( iM > 1 )
       {
          pTa = m_pH;
@@ -4544,10 +3767,10 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
 }
 
 
-/* 
+/*
 // BubblePointNewton
 //
-// Function to obtain the saturation pressure of a fluid 
+// Function to obtain the saturation pressure of a fluid
 //
 // iM
 //    Number of objects
@@ -4567,11 +3790,11 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
 //    cause havoc.
 // 2) The input to this routine are the K values; the
 //    object of this routine is to obtain converged
-//    K values and a bubble point pressure.  The primary unknowns 
+//    K values and a bubble point pressure.  The primary unknowns
 //    will be the composition and the log of the pressure
-// 3) From the initial estimate of K values, obtain the 
-//    initial estimate of the composition 
-// 4) For each step in Newton's method, obtain the fugacity terms 
+// 3) From the initial estimate of K values, obtain the
+//    initial estimate of the composition
+// 4) For each step in Newton's method, obtain the fugacity terms
 //    from the compositions and pressures
 // 5) The equations to be solved are
 //
@@ -4606,7 +3829,7 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
 //    that it will be the identity matrix for an ideal
 //    gas
 //
-// 8) Let 
+// 8) Let
 //
 //         -1
 //    y = S  dX
@@ -4616,7 +3839,7 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
 //    SAS z = SG and SAS w = SP
 //
 //    The equations are then of the form
-//     
+//
 //    I  w  y   = z
 //    S  0  dP    H
 //
@@ -4631,7 +3854,7 @@ void EosPvtModel::BubblePointInit( int iM, int iNc, int iRetrograde )
 //    0  1  dP    dP
 //
 //    and thus
-// 
+//
 //    y = z - w dP
 //
 // 10) dX is not used; rather dlnX is used.  Thus
@@ -4749,12 +3972,18 @@ void EosPvtModel::BubblePointNewton( int iM, int iNc, int iCheck )
       }
 
       /* Calculate x phase fugacity */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_P, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pBp, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_P, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pBp, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx,
+         m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+         );
 
       /* Calculate y phase fugacity */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_P, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pBp, m_pTemperature, m_pX, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_P, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pBp, m_pTemperature, m_pX, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pFy,
+         m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
 
       /* Evaluate function and help matrix for multiple blocks */
       if ( iM > 1 )
@@ -4835,8 +4064,8 @@ void EosPvtModel::BubblePointNewton( int iM, int iNc, int iCheck )
             dB = m_pComposition[iNi];
             dG = sqrt( dA );
 
-            /* TODO: The next line is too long. Please rewrite to make it shorter. */
-            dC = dG * ( ( m_pFx[iNi] + log( dB > dVeryTiny ? dB : dVeryTiny ) ) - ( m_pFy[iNi] + log( dA > dVeryTiny ? dA : dVeryTiny ) ) );
+            dC = dG * ( ( m_pFx[iNi] + log( dB > dVeryTiny ? dB : dVeryTiny ) )
+                        - ( m_pFy[iNi] + log( dA > dVeryTiny ? dA : dVeryTiny ) ) );
             dD = dG **m_pBp * ( m_pDYdp[iNi] - m_pDXdp[iNi] );
             m_pDXdp[iNi] = dC + dG;
             dE += dG * dD;
@@ -4866,9 +4095,9 @@ void EosPvtModel::BubblePointNewton( int iM, int iNc, int iCheck )
       }
 
       /* Newton step */
-      Cholesky( iM, iNc, m_pDYda );
-      BackSolve( iM, iNc, m_pDYda, m_pDYdp );
-      BackSolve( iM, iNc, m_pDYda, m_pFy );
+      EosLinAlg::Cholesky(  iM, iNc, m_dTiny, m_pDYda, m_pTerm3, m_pTerm2 );
+      EosLinAlg::BackSolve( iM, iNc, m_pDYda, m_pDYdp );
+      EosLinAlg::BackSolve( iM, iNc, m_pDYda, m_pFy );
 
       /* Update pressure for multiple blocks */
       if ( iM > 1 )
@@ -5017,11 +4246,11 @@ void EosPvtModel::BubblePointNewton( int iM, int iNc, int iCheck )
 }
 
 
-/* 
+/*
 // BubblePointTest
 //
-// Function to test to see if a two phase mixture based upon current 
-// bubble point estimate 
+// Function to test to see if a two phase mixture based upon current
+// bubble point estimate
 //
 // iM
 //    Number of objects to test
@@ -5031,9 +4260,9 @@ void EosPvtModel::BubblePointNewton( int iM, int iNc, int iCheck )
 // 1) If an object has a pressure slighty above the bubble
 //    point pressure or below the bubble point pressure, it
 //    might be two phase.  The purpose of this routine is
-//    to perform the Michelson stability test on the 
+//    to perform the Michelson stability test on the
 //    bubble point composition and the overall composition
-//    to see if it is indeed two phase.  
+//    to see if it is indeed two phase.
 // 2) The computations follow the methods in the Michelson
 //    routine, although only one side of the analysis need
 //    be performed by default
@@ -5055,11 +4284,12 @@ void EosPvtModel::BubblePointTest( int iM, int iNc )
    /* Scaling factor for overflow */
    dTerm = 1.0 / m_dEnorm;
 
-   /* Invarient part of function */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+   /* Invariant part of function */
+   m_pEosPvtTable->SolveCubic( iM, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+                               m_pPressure, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pFx,
+                               m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
 
-   /* Store invarient part of function */
+   /* Store invariant part of function */
    if ( iM > 1 )
    {
       pTa = m_pComposition;
@@ -5114,10 +4344,10 @@ void EosPvtModel::BubblePointTest( int iM, int iNc )
 }
 
 
-/* 
+/*
 // PropertiesMultipleObjects
 //
-// Routine to store properties 
+// Routine to store properties
 //
 // iNc
 //    Number of components
@@ -5155,8 +4385,9 @@ void EosPvtModel::PropertiesMultipleObjects( int iNc, int iType )
    int iThermal;
 
    /* See which simulator data needed */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteOutputData( &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity );
+   m_pApplication->WriteOutputData(
+      &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity
+      );
 
    /* See if a bubble point possible */
    iBubble = m_iPseudoProperties && m_iBubbleDew && m_iVolume == EOS_DENSITY && iType == EOS_TOF_2P;
@@ -5164,14 +4395,14 @@ void EosPvtModel::PropertiesMultipleObjects( int iNc, int iType )
    /* Fix bubble point terms */
    if ( iBubble )
    {
-      ( m_pApplication )->ModifyBubble( EOS_TO_INTERNAL, EOS_FL_1P, EOS_FL_BP );
+      m_pApplication->ModifyBubble( EOS_TO_INTERNAL, EOS_FL_1P, EOS_FL_BP );
    }
 
    /* Two phase calculations */
    if ( iType == EOS_TOF_2P )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_2P, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_2P, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -5185,15 +4416,15 @@ void EosPvtModel::PropertiesMultipleObjects( int iNc, int iType )
 
          /* Store properties */
          WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_2P );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_2P, m_iFlashLength );
+         iM = m_pApplication->SetSlice( EOS_FL_2P, m_iFlashLength );
       }
    }
 
    /* Single phase calculations with known bubble point */
    if ( iBubble )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_BP, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_BP, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -5207,15 +4438,15 @@ void EosPvtModel::PropertiesMultipleObjects( int iNc, int iType )
 
          /* Store properties */
          WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_2P );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_BP, m_iFlashLength );
+         iM = m_pApplication->SetSlice( EOS_FL_BP, m_iFlashLength );
       }
    }
 
    /* Single phase calculations with a pseudo phase */
    if ( m_iPseudoProperties && m_iVolume == EOS_DENSITY && iType == EOS_TOF_2P )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_1P, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_1P, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -5229,15 +4460,15 @@ void EosPvtModel::PropertiesMultipleObjects( int iNc, int iType )
 
          /* Store properties */
          WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_2P );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_1P, m_iFlashLength );
+         iM = m_pApplication->SetSlice( EOS_FL_1P, m_iFlashLength );
       }
    }
 
    /* Single phase calculations without a pseudo phase */
    if ( m_iVolume != EOS_DENSITY || m_iPseudoProperties == EOS_OPTION_OFF || iType != EOS_TOF_2P )
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_1P, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_1P, m_iFlashLength );
       while ( iM )
       {
          /* Set up locations in the work array */
@@ -5251,28 +4482,28 @@ void EosPvtModel::PropertiesMultipleObjects( int iNc, int iType )
 
          /* Store properties */
          WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_1P );
-         iM = ( m_pApplication )->SetSlice( EOS_FL_1P, m_iFlashLength );
+         iM = m_pApplication->SetSlice( EOS_FL_1P, m_iFlashLength );
       }
    }
 
    /* Nothing present */
-   ( m_pApplication )->ResetSlice();
-   iM = ( m_pApplication )->SetSlice( EOS_FL_0P, m_iFlashLength );
+   m_pApplication->ResetSlice();
+   iM = m_pApplication->SetSlice( EOS_FL_0P, m_iFlashLength );
    while ( iM )
    {
       WriteData( iM, iNc, iGetViscosity, iGetTension, iMolarDensity, iType, EOS_FL_0P );
-      iM = ( m_pApplication )->SetSlice( EOS_FL_0P, m_iFlashLength );
+      iM = m_pApplication->SetSlice( EOS_FL_0P, m_iFlashLength );
    }
 
    /* Fix bubble point terms */
    if ( iBubble )
    {
-      ( m_pApplication )->ModifyBubble( EOS_TO_APPLICATION, EOS_FL_BP, EOS_FL_1P );
+      m_pApplication->ModifyBubble( EOS_TO_APPLICATION, EOS_FL_BP, EOS_FL_1P );
    }
 }
 
 
-/* 
+/*
 // PropertiesOneObject
 //
 // Routine to store properties for one object
@@ -5309,8 +4540,9 @@ void EosPvtModel::PropertiesOneObject( int iNc, int iType )
    double dA;
 
    /* Get simulator data */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteOutputData( &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity );
+   m_pApplication->WriteOutputData(
+      &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity
+      );
 
    /* See if a bubble point possible */
    iBubble = m_iPseudoProperties && m_iBubbleDew && m_iVolume == EOS_DENSITY && iType == EOS_TOF_2P;
@@ -5363,7 +4595,7 @@ void EosPvtModel::PropertiesOneObject( int iNc, int iType )
 /*
 // PhaseId
 //
-// Determine molecular weight and whether a phase is a liquid or a 
+// Determine molecular weight and whether a phase is a liquid or a
 // vapour
 //
 // iM
@@ -5376,7 +4608,7 @@ void EosPvtModel::PropertiesOneObject( int iNc, int iType )
 //    Indicator whether to get phase identification for two phase
 //    mixture... any non-zero number indicates that we need
 //    to get the phase index
-// 
+//
 // 1) Compute the molecular weight
 // 2) Determine phase identification.  If the "x" phase is
 //    more dense than the "y" phase, set the phase indicator
@@ -5497,6 +4729,12 @@ void EosPvtModel::PhaseId( int iM, int iNc, int iMolar, int iGetPhase )
          m_pY[0] *= dC;
          dA = m_pX[0];
          dB = m_pY[0];
+#ifdef __INTEL_COMPILER
+         // With Intel 12.0.2.137 compiler without this pragma the compiler
+         // generate a faulty code, by specifying this pragma the generated
+         // code is corrected and the optimization working.
+         #pragma distribute_point
+#endif         
          for ( iNi = 1; iNi < iNc; iNi++ )
          {
             dC = m_pMolecularWeight[iNi];
@@ -5526,10 +4764,10 @@ void EosPvtModel::PhaseId( int iM, int iNc, int iMolar, int iGetPhase )
 }
 
 
-/* 
+/*
 // WriteData
-// 
-// Routine to write properties to outside world 
+//
+// Routine to write properties to outside world
 //
 // iM
 //    Number of objects
@@ -5568,8 +4806,9 @@ void EosPvtModel::PhaseId( int iM, int iNc, int iMolar, int iGetPhase )
 //    ReadNull in the application class for a phase which
 //    is not present.
 */
-void EosPvtModel::WriteData( int iM, int iNc, int iGetViscosity, int iGetTension, int iMolarDensity, int iType,
-                             int iPhase )
+void EosPvtModel::
+WriteData( int iM, int iNc, int iGetViscosity, int iGetTension, int iMolarDensity,
+           int iType, int iPhase )
 {
    int i;
 
@@ -5581,31 +4820,38 @@ void EosPvtModel::WriteData( int iM, int iNc, int iGetViscosity, int iGetTension
          /* Get the viscosity */
          if ( iGetViscosity )
          {
-            /* TODO: The next line is too long. Please rewrite to make it shorter. */
-            ( m_pEosPvtTable )->Viscosity( iM, m_iDrv, m_iMolarFlash, m_dTiny, m_pPressure, m_pTemperature, m_pX, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMux, m_pDMuxdp, m_pDMuxdt, m_pDMuxda, m_pSumTable );
+            m_pEosPvtTable->Viscosity(
+               iM, m_iDrv, m_iMolarFlash, m_dTiny, m_pPressure, m_pTemperature, m_pX, m_pDXdp, m_pDXdt, m_pDXda,
+               m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMux, m_pDMuxdp, m_pDMuxdt, m_pDMuxda, m_pSumTable
+               );
          }
 
          /* Get the parachor terms */
          if ( iGetTension )
          {
-            /* TODO: The next line is too long. Please rewrite to make it shorter. */
-            ( m_pEosPvtTable )->Tension( iM, m_iDrv, m_iMolarFlash, EOS_OPTION_OFF, m_pX, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda, m_pWork );
+            m_pEosPvtTable->Tension(
+               iM, m_iDrv, m_iMolarFlash, EOS_OPTION_OFF, m_pX, m_pDXdp, m_pDXdt, m_pDXda,
+               m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda, m_pWork
+               );
          }
 
          /* Get the mass density */
          if ( m_iMolarFlash && iMolarDensity == EOS_OPTION_OFF )
          {
-            /* TODO: The next line is too long. Please rewrite to make it shorter. */
-            ( m_pEosPvtTable )->MassDensity( iM, m_iDrv, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMWx, m_pWork );
+            m_pEosPvtTable->MassDensity(
+               iM, m_iDrv, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMWx, m_pWork
+               );
          }
 
          /* Set results */
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pApplication )->ReadData( iType, iM, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp, m_pZx, m_pDZxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx );
+         m_pApplication->ReadData(
+            iType, iM, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp, m_pZx, m_pDZxdp,
+            m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx
+            );
       }
       else
       {
-         ( m_pApplication )->ReadNull( iType, iM, m_pPhaseId );
+         m_pApplication->ReadNull( iType, iM, m_pPhaseId );
       }
    }
 
@@ -5615,42 +4861,59 @@ void EosPvtModel::WriteData( int iM, int iNc, int iGetViscosity, int iGetTension
       /* Get the viscosity */
       if ( iGetViscosity )
       {
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->Viscosity( iM, m_iDrv, m_iMolarFlash, m_dTiny, m_pPressure, m_pTemperature, m_pX, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMux, m_pDMuxdp, m_pDMuxdt, m_pDMuxda, m_pSumTable );
+         double *pP = m_iBubbleDewPoint ? m_pBp : m_pPressure;
+         m_pEosPvtTable->Viscosity(
+            iM, m_iDrv, m_iMolarFlash, m_dTiny, pP, m_pTemperature, m_pX, m_pDXdp, m_pDXdt, m_pDXda,
+            m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMux, m_pDMuxdp, m_pDMuxdt, m_pDMuxda, m_pSumTable
+            );
 
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->Viscosity( iM, m_iDrv, m_iMolarFlash, m_dTiny, m_pPressure, m_pTemperature, m_pY, m_pDYdp, m_pDYdt, m_pDYda, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pMuy, m_pDMuydp, m_pDMuydt, m_pDMuyda, m_pSumTable );
+         m_pEosPvtTable->Viscosity(
+            iM, m_iDrv, m_iMolarFlash, m_dTiny, pP, m_pTemperature, m_pY, m_pDYdp, m_pDYdt, m_pDYda,
+            m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pMuy, m_pDMuydp, m_pDMuydt, m_pDMuyda, m_pSumTable
+            );
       }
 
       /* Get the parachor terms */
       if ( iGetTension )
       {
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->Tension( iM, m_iDrv, m_iMolarFlash, EOS_OPTION_ON, m_pX, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda, m_pWork );
+         m_pEosPvtTable->Tension(
+            iM, m_iDrv, m_iMolarFlash, EOS_OPTION_ON, m_pX, m_pDXdp, m_pDXdt, m_pDXda,
+            m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda, m_pWork
+            );
 
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->Tension( iM, m_iDrv, m_iMolarFlash, EOS_OPTION_ON, m_pY, m_pDYdp, m_pDYdt, m_pDYda, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pIfy, m_pDIfydp, m_pDIfydt, m_pDIfyda, m_pWork );
+         m_pEosPvtTable->Tension(
+            iM, m_iDrv, m_iMolarFlash, EOS_OPTION_ON, m_pY, m_pDYdp, m_pDYdt, m_pDYda,
+            m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pIfy, m_pDIfydp, m_pDIfydt, m_pDIfyda, m_pWork
+            );
 
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->SetTension( iM, m_iDrv, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda, m_pIfy, m_pDIfydp, m_pDIfydt, m_pDIfyda, m_pWork );
+         m_pEosPvtTable->SetTension(
+            iM, m_iDrv, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda,
+            m_pIfy, m_pDIfydp, m_pDIfydt, m_pDIfyda, m_pWork
+            );
       }
 
       /* Get the mass density */
       if ( m_iMolarFlash && iMolarDensity == EOS_OPTION_OFF )
       {
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->MassDensity( iM, m_iDrv, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMWx, m_pWork );
+         m_pEosPvtTable->MassDensity(
+            iM, m_iDrv, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMWx, m_pWork
+            );
 
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->MassDensity( iM, m_iDrv, m_pDYdp, m_pDYdt, m_pDYda, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pMWy, m_pWork );
+         m_pEosPvtTable->MassDensity(
+            iM, m_iDrv, m_pDYdp, m_pDYdt, m_pDYda, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pMWy, m_pWork
+            );
       }
 
       /* Set results */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadData( EOS_SINGLE_PHASE_OIL, iM, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp, m_pZx, m_pDZxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx );
+      m_pApplication->ReadData(
+         EOS_SINGLE_PHASE_OIL, iM, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp,
+         m_pZx, m_pDZxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx
+         );
 
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadData( EOS_SINGLE_PHASE_GAS, iM, iNc, m_pPhaseId, m_pY, m_pDYdp, m_pMy, m_pDMydp, m_pZy, m_pDZydp, m_pMuy, m_pDMuydp, m_pIfy, m_pDIfydp, m_pHy, m_pDHydp, m_pBp, m_pDBpdp, m_pMWy );
+      m_pApplication->ReadData(
+         EOS_SINGLE_PHASE_GAS, iM, iNc, m_pPhaseId, m_pY, m_pDYdp, m_pMy, m_pDMydp,
+         m_pZy, m_pDZydp, m_pMuy, m_pDMuydp, m_pIfy, m_pDIfydp, m_pHy, m_pDHydp, m_pBp, m_pDBpdp, m_pMWy
+         );
    }
 
    /* Single phase */
@@ -5659,28 +4922,36 @@ void EosPvtModel::WriteData( int iM, int iNc, int iGetViscosity, int iGetTension
       /* Get the viscosity */
       if ( iGetViscosity )
       {
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->Viscosity( iM, m_iDrv, m_iMolarFlash, m_dTiny, m_pPressure, m_pTemperature, m_pX, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMux, m_pDMuxdp, m_pDMuxdt, m_pDMuxda, m_pSumTable );
+         m_pEosPvtTable->Viscosity(
+            iM, m_iDrv, m_iMolarFlash, m_dTiny, m_pPressure, m_pTemperature, m_pX, m_pDXdp, m_pDXdt, m_pDXda,
+            m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMux, m_pDMuxdp, m_pDMuxdt, m_pDMuxda, m_pSumTable
+            );
       }
 
       /* Get the parachor terms */
       if ( iGetTension )
       {
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->Tension( iM, m_iDrv, m_iMolarFlash, EOS_OPTION_OFF, m_pX, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda, m_pWork );
+         m_pEosPvtTable->Tension(
+            iM, m_iDrv, m_iMolarFlash, EOS_OPTION_OFF, m_pX, m_pDXdp, m_pDXdt, m_pDXda,
+            m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pIfx, m_pDIfxdp, m_pDIfxdt, m_pDIfxda, m_pWork
+            );
       }
 
       /* Get the mass density */
       if ( m_iMolarFlash && iMolarDensity == EOS_OPTION_OFF )
       {
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->MassDensity( iM, m_iDrv, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMWx, m_pWork );
+         m_pEosPvtTable->MassDensity(
+            iM, m_iDrv, m_pDXdp, m_pDXdt, m_pDXda, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pMWx, m_pWork
+            );
       }
 
       /* Set results */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadData( EOS_SINGLE_PHASE_OIL, iM, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp, m_pZx, m_pDZxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx );
-      ( m_pApplication )->ReadNull( EOS_SINGLE_PHASE_GAS, iM, m_pPhaseId );
+      m_pApplication->ReadData(
+         EOS_SINGLE_PHASE_OIL, iM, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp,
+         m_pZx, m_pDZxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp,
+         m_pBp, m_pDBpdp, m_pMWx
+         );
+      m_pApplication->ReadNull( EOS_SINGLE_PHASE_GAS, iM, m_pPhaseId );
    }
 
    /* No hydrocarbons */
@@ -5691,17 +4962,17 @@ void EosPvtModel::WriteData( int iM, int iNc, int iGetViscosity, int iGetTension
          m_pPhaseId[i] = EOS_SINGLE_PHASE_GAS;
       }
 
-      ( m_pApplication )->ReadNull( EOS_SINGLE_PHASE_OIL, iM, m_pPhaseId );
-      ( m_pApplication )->ReadNull( EOS_SINGLE_PHASE_GAS, iM, m_pPhaseId );
+      m_pApplication->ReadNull( EOS_SINGLE_PHASE_OIL, iM, m_pPhaseId );
+      m_pApplication->ReadNull( EOS_SINGLE_PHASE_GAS, iM, m_pPhaseId );
    }
 }
 
 
-/* 
+/*
 //
 // BubblePoint
 //
-// Subroutine to get bubble point properties 
+// Subroutine to get bubble point properties
 //
 // iM
 //    Number of objects
@@ -5741,13 +5012,13 @@ void EosPvtModel::BubblePoint( int iM, int iNc )
    /* Modify heats */
    if ( m_iHeat && m_iMolarFlash == 0 )
    {
-      ( m_pEosPvtTable )->MassHeat( iM, iDrvp, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
-      ( m_pEosPvtTable )->MassHeat( iM, iDrvp, m_pMWy, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda );
+      m_pEosPvtTable->MassHeat( iM, iDrvp, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
+      m_pEosPvtTable->MassHeat( iM, iDrvp, m_pMWy, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda );
    }
 
    /* Convert to a density */
-   ( m_pEosPvtTable )->Density( iM, iDrvp, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
-   ( m_pEosPvtTable )->Density( iM, iDrvp, m_iMolarFlash, m_pMWy, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda );
+   m_pEosPvtTable->Density( iM, iDrvp, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
+   m_pEosPvtTable->Density( iM, iDrvp, m_iMolarFlash, m_pMWy, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda );
 
    /* Scale terms by the molecular weight */
    if ( m_iMolarFlash )
@@ -5775,7 +5046,7 @@ void EosPvtModel::BubblePoint( int iM, int iNc )
 }
 
 
-/* 
+/*
 // BubblePointCubicTerms
 //
 // Subroutine to get cubic terms for bubble point properties
@@ -5846,12 +5117,18 @@ void EosPvtModel::BubblePointCubicTerms( int iM, int iNc )
       iGetH = m_iHeat && m_iBubbleDewPoint;
 
       /* Z factor for the x phase */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, iFugacity, iGetH, EOS_NOPOTENTIAL, iDrvp, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pBp, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, iFugacity, iGetH, EOS_NOPOTENTIAL, iDrvp, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pBp, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+         m_pWork, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+         );
 
       /* Z factor for the y phase */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, iFugacity, iGetH, EOS_NOPOTENTIAL, iDrvp, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pBp, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, iFugacity, iGetH, EOS_NOPOTENTIAL, iDrvp, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pBp, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda,
+         m_pWork, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
    }
 
    /* Solve the matrix */
@@ -5872,23 +5149,33 @@ void EosPvtModel::BubblePointCubicTerms( int iM, int iNc )
       pP = m_pPressure;
       iDrvp = m_iDrv;
 
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork, m_pDYdp, m_pDXdt, m_pDYda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+         m_pWork, m_pDYdp, m_pDXdt, m_pDYda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+         );
 
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork, m_pDYdp, m_pDXdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda,
+         m_pWork, m_pDYdp, m_pDXdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
    }
 
    /* Convert to a volume */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( iM, iDrvp, m_iMultipleAbc, m_pAbcOffset, pP, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork );
+   m_pEosPvtTable->Volume(
+      iM, iDrvp, m_iMultipleAbc, m_pAbcOffset, pP, m_pTemperature, m_pX,
+      m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork
+      );
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( iM, iDrvp, m_iMultipleAbc, m_pAbcOffset, pP, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork );
+   m_pEosPvtTable->Volume(
+      iM, iDrvp, m_iMultipleAbc, m_pAbcOffset, pP, m_pTemperature, m_pY,
+      m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork
+      );
 }
 
 
-/* 
+/*
 // BubblePointMatrix
 //
 // Subroutine to form matrix for bubble point derivatives
@@ -5897,20 +5184,20 @@ void EosPvtModel::BubblePointCubicTerms( int iM, int iNc )
 // iM
 //    Number of objects
 // iNc
-//    Number of components 
+//    Number of components
 //
 // 1) The matrix is formed, scaled, factored and solved in
 //    precisely the same manner as in BubblePointNewton, so
 //    see description there.
 // 2) To compute the accumulation derivatives, solve
 //
-//    M dYdA  = dRdA 
+//    M dYdA  = dRdA
 //        j i       i
 //
 //    where R is the right hand side.  A similar equation
 //    holds for the temperature derivatives.  Pressure
 //    derivatives need not be calculated, but derivatives
-//    with respect to the bubble point pressure are 
+//    with respect to the bubble point pressure are
 //    computed in the solution process as the last entry
 //    in each row.
 */
@@ -6009,10 +5296,10 @@ void EosPvtModel::BubblePointMatrix( int iM, int iNc )
       }
 
       /* Factor matrix */
-      Cholesky( iM, iNc, m_pDYda );
+      EosLinAlg::Cholesky( iM, iNc, m_dTiny, m_pDYda, m_pTerm3, m_pTerm2 );
 
       /* Solve matrix for pressure derivatives */
-      BackSolve( iM, iNc, m_pDYda, m_pDYdp );
+      EosLinAlg::BackSolve( iM, iNc, m_pDYda, m_pDYdp );
 
       /* Set up diagonals */
       pTa = m_pDYdp;
@@ -6038,7 +5325,7 @@ void EosPvtModel::BubblePointMatrix( int iM, int iNc )
       for ( iNj = 0; iNj < iNc; iNj++ )
       {
          /* Solve matrix for composition derivatives */
-         BackSolve( iM, iNc, m_pDYda, pTa );
+         EosLinAlg::BackSolve( iM, iNc, m_pDYda, pTa );
 
          /* Update composition step */
          pTd = pW;
@@ -6111,7 +5398,7 @@ void EosPvtModel::BubblePointMatrix( int iM, int iNc )
             }
 
             /* Solve matrix for temperature derivatives */
-            BackSolve( iM, iNc, m_pDYda, m_pDYdt );
+            EosLinAlg::BackSolve( iM, iNc, m_pDYda, m_pDYdt );
 
             /* Update pressure */
             pTa = m_pDYdt;
@@ -6204,10 +5491,10 @@ void EosPvtModel::BubblePointMatrix( int iM, int iNc )
       }
 
       /* Factor matrix */
-      Cholesky( iM, iNc, m_pDYda );
+      EosLinAlg::Cholesky( iM, iNc, m_dTiny, m_pDYda, m_pTerm3, m_pTerm2 );
 
       /* Solve matrix for pressure derivatives */
-      BackSolve( iM, iNc, m_pDYda, m_pDYdp );
+      EosLinAlg::BackSolve( iM, iNc, m_pDYda, m_pDYdp );
 
       /* Set up diagonals */
       m_pDYdp[0] *= pW[0];
@@ -6226,7 +5513,7 @@ void EosPvtModel::BubblePointMatrix( int iM, int iNc )
       for ( iNj = 0; iNj < iNc; iNj++ )
       {
          /* Solve matrix for composition derivatives */
-         BackSolve( iM, iNc, m_pDYda, pTa );
+         EosLinAlg::BackSolve( iM, iNc, m_pDYda, pTa );
 
          /* Update composition step */
          if ( m_iMolarFlash )
@@ -6269,7 +5556,7 @@ void EosPvtModel::BubblePointMatrix( int iM, int iNc )
             }
 
             /* Solve matrix for temperature derivatives */
-            BackSolve( iM, iNc, m_pDYda, m_pDYdt );
+            EosLinAlg::BackSolve( iM, iNc, m_pDYda, m_pDYdt );
 
             /* Update pressure */
             pTa = m_pDYdt;
@@ -6300,7 +5587,7 @@ void EosPvtModel::BubblePointMatrix( int iM, int iNc )
 }
 
 
-/* 
+/*
 // BubblePointZero
 //
 // Zero out the bubble point terms
@@ -6351,10 +5638,10 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 }
 
 
-/* 
+/*
 // BubblePointDerivatives
-// 
-// Subroutine to compute derivatives of bubble point properties 
+//
+// Subroutine to compute derivatives of bubble point properties
 //
 // iM
 //    Number of objects
@@ -6365,7 +5652,7 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 //    property, reset the bubble point pressure derivatives to
 //    zero for the chain rules.
 // 2) Compute density and enthalpy temperature derivatives.
-//    Note that 
+//    Note that
 //
 //    dDdT = dDdT + dDdBP * dBPdT
 //
@@ -6380,9 +5667,9 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 // 3) Then set the total mole or mass temperature derivatives
 // 4) Then have to set the composition temperature derivatives.
 //    Since
-//    
-//    Y = N  / SUM N     
-//     i   i    j   j        
+//
+//    Y = N  / SUM N
+//     i   i    j   j
 //
 //    or
 //
@@ -6391,13 +5678,13 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 //
 //    the derivatives are
 //
-//    dYdT = ( dNdT - Y  sum dNdT )   
-//      i        i     i  j    j        
+//    dYdT = ( dNdT - Y  sum dNdT )
+//      i        i     i  j    j
 //
-//    or 
+//    or
 //
 //    dYdT  = ( M * dNdT- Y  sum M dNdT ) / MW
-//      i        i    i    i  j   j  j        
+//      i        i    i    i  j   j  j
 //
 //    The signs are different in the code since the computation
 //    of dNdT in BubblePointMatrix did not use the negative
@@ -6407,10 +5694,10 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 //    only depend upon the bubble point pressure, thus
 //
 //    dDxdA  = dDxdA  / moles + dBPdA * dDxdBP
-//         i        i                i        
+//         i        i                i
 //
 //    The above expression is for molar quantities.  For
-//    mass quantities, 
+//    mass quantities,
 //
 //    dDxdA  = dDxdA  / moles / M  + dBPdA * dDxdBP [ / M  ]
 //         i        i            i        i              i
@@ -6432,9 +5719,9 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 //    that BubblePointMatrix already took into account the
 //    molecular weight in the provisional composition derivatives
 // 7) For the Y phase composition derivatives, since
-//    
-//    Y = N  / SUM N     
-//     i   i    j   j        
+//
+//    Y = N  / SUM N
+//     i   i    j   j
 //
 //    or
 //
@@ -6443,10 +5730,10 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 //
 //    the derivatives are
 //
-//    dYdA  = ( dNdA  - Y  sum dNdA  )   
-//      i j       i j    i  k    k j       
+//    dYdA  = ( dNdA  - Y  sum dNdA  )
+//      i j       i j    i  k    k j
 //
-//    or 
+//    or
 //
 //    dYdA  = ( M * dNdA  - Y  sum M dNdA  ) / MW [ / M  ]
 //      i j      i    i j    i  k   k  k j             j
@@ -6457,16 +5744,16 @@ void EosPvtModel::BubblePointZero( int iM, int iNc )
 //    by the molecular weight in BubblePointMatrix, so the
 //    term in brackets does not appear
 // 8) Since
-//    
-//    X = A  / SUM A     
-//     i   i    j   j        
+//
+//    X = A  / SUM A
+//     i   i    j   j
 //
 //    the derivatives are
 //
-//    dXdA  = ( d   - X  ) / total   
-//      i j      ij    i  
+//    dXdA  = ( d   - X  ) / total
+//      i j      ij    i
 //
-// 9) The total mass/mole derivative of the x phase is 
+// 9) The total mass/mole derivative of the x phase is
 //    one; that of the y phase is zero.
 // 10) Finally, set the appropriate pressure derivatives
 //     to zero since they have been used as intermediate
@@ -7159,10 +6446,10 @@ void EosPvtModel::BubblePointDerivatives( int iM, int iNc )
 }
 
 
-/* 
+/*
 // OnePhase
-// 
-// Routine to get properties of one phase object 
+//
+// Routine to get properties of one phase object
 //
 // iM
 //    Number of objects
@@ -7172,17 +6459,22 @@ void EosPvtModel::BubblePointDerivatives( int iM, int iNc )
 // 1) SolveCubic
 // 2) Translate to volumes
 // 3) If normal call for densities, get properties
-// 4) Otherwise compute phase volume 
+// 4) Otherwise compute phase volume
 */
 void EosPvtModel::OnePhase( int iM, int iNc )
 {
    /* Chemical potential and z factor for the x phase */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_PHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_PHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork,
+      m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+      );
 
    /* Perform the volume translations */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork );
+   m_pEosPvtTable->Volume(
+      iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition,
+      m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork
+      );
 
    /* Finish getting the properties */
    if ( m_iVolume == EOS_DENSITY )
@@ -7196,7 +6488,7 @@ void EosPvtModel::OnePhase( int iM, int iNc )
 }
 
 
-/* 
+/*
 // OnePhaseProperties
 //
 // Routine to get properties of one phase object
@@ -7210,7 +6502,7 @@ void EosPvtModel::OnePhase( int iM, int iNc )
 // 2) If enthalpy needed and mass quantities, convert
 //    enthalpy
 // 3) Convert volume to density
-// 4) The temperature and pressure derivatives of 
+// 4) The temperature and pressure derivatives of
 //    fractions and total mass/moles are zero
 // 5) The temperature and pressure derivatives of
 //    the density and enthalpy are as calculated
@@ -7219,19 +6511,19 @@ void EosPvtModel::OnePhase( int iM, int iNc )
 //
 //    dDxdA  = dDxdN  / moles
 //         i        i
-//    
+//
 //    or
 //
 //    dDxdA  = dDxdN  / moles / M
 //         i        i            i
-//    
+//
 //    since the call to SolveCubic is based upon a normalized
 //    mole/mass fraction
 // 7) The accumulation derivatives of composition are
 //
-//    dXdA  = ( d   - X  ) / total   
-//      i j      ij    i  
-// 
+//    dXdA  = ( d   - X  ) / total
+//      i j      ij    i
+//
 // 8) The total mass or mole derivatives with respect to
 //    accumulation are unity
 */
@@ -7357,11 +6649,11 @@ void EosPvtModel::OnePhaseProperties( int iM, int iNc )
    /* Modify heats */
    if ( m_iHeat && m_iMolarFlash == 0 )
    {
-      ( m_pEosPvtTable )->MassHeat( iM, m_iDrv, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
+      m_pEosPvtTable->MassHeat( iM, m_iDrv, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
    }
 
    /* Convert to a density */
-   ( m_pEosPvtTable )->Density( iM, m_iDrv, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
+   m_pEosPvtTable->Density( iM, m_iDrv, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
 
    /* Multiple blocks: derivatives */
    if ( iM > 1 )
@@ -7614,10 +6906,10 @@ void EosPvtModel::OnePhaseProperties( int iM, int iNc )
 }
 
 
-/* 
+/*
 // OnePhaseVolume
 //
-// Subroutine to do computations for volume of a one phase mixture 
+// Subroutine to do computations for volume of a one phase mixture
 //
 // iM
 //    Number of objects
@@ -7650,7 +6942,7 @@ void EosPvtModel::OnePhaseProperties( int iM, int iNc )
 // 3) Pressure and temperature derivatives of the moles/mass
 //    of each component are zero.
 // 4) The accumulation derivative of the volume is trivial.
-//    SolveCubic has not yet scaled the accumulation 
+//    SolveCubic has not yet scaled the accumulation
 //    derivative by the total moles, thus
 //
 //            -    -
@@ -7871,32 +7163,32 @@ void EosPvtModel::OnePhaseVolume( int iM, int iNc )
 }
 
 
-/* 
+/*
 // PseudoPhase
 //
-// Routine to get results of one phase flash with a pseudo phase 
+// Routine to get results of one phase flash with a pseudo phase
 //
 // iM
 //    Number of objects
 // iNc
 //    Number of components
-// 
+//
 // 1) Normalize and get compositions
 // 2) Get the z factor and phase identification by calling SolveCubic
 // 3) Get the Wilson K values.
 // 4) Form a "pseudophase" by
 //
 //    Y  = K  X   / ( sum K  X  )
-//     i    i   i      j   j  j 
+//     i    i   i      j   j  j
 //
 //    if the single phase mixture is an oil, else, for a gas,
 //
 //    Y  = X  / K   / ( sum X  / K  )
-//     i    i    i       j   j    j 
+//     i    i    i       j   j    j
 //
 //    This is implemented by inverting the K values for
 //    the gas case
-// 5) Get the z factor for the pseudophase by calling 
+// 5) Get the z factor for the pseudophase by calling
 //    SolveCubic
 // 6) Convert the z factor to a volume for both phases
 // 7) Compute the actual properties
@@ -7934,11 +7226,14 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
    }
 
    /* Chemical potential and z factor for the x phase */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_PHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_PHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork,
+      m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+      );
 
-   /* Get wilson k values */
-   ( m_pEosPvtTable )->WilsonKValues( iM, EOS_NOSCALEK, m_pTemperature, m_pKValue, m_pWork );
+   /* Get Wilson k values */
+   m_pEosPvtTable->WilsonKValues( iM, EOS_NOSCALEK, m_pTemperature, m_pKValue, m_pWork );
 
    /* Set the mole fractions and normalize for multiple grid blocks */
    if ( iM > 1 )
@@ -7989,6 +7284,12 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
       m_pKValue[0] = iNj ? dA : ( 1.0 / dA );
       m_pY[0] = m_pComposition[0] * m_pKValue[0];
       dB = m_pY[0];
+#if __INTEL_COMPILER
+      // With Intel 12.1.6.233 compiler and without this pragma the compiler
+      // generate a poorly accurate code, by specifying this pragma the generated
+      // code is more accurate and the optimization is still enabled.
+      #pragma distribute_point
+#endif         
       for ( iNi = 1; iNi < iNc; iNi++ )
       {
          dA = m_pKValue[iNi];
@@ -8007,22 +7308,29 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
    }
 
    /* Chemical potential and z factor for the y phase */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      iM, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork,
+      m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+      );
 
    /* Perform the volume translations */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork );
+   m_pEosPvtTable->Volume(
+      iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX,
+      m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork
+      );
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork );
+   m_pEosPvtTable->Volume(
+      iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY,
+      m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork
+      );
 
    /* Get pseudo phase properties */
    PseudoPhaseProperties( iM, iNc );
 }
 
 
-/* 
+/*
 // PseudoPhaseProperties
 //
 // Routine to get properties of one phase object with pseudo
@@ -8037,7 +7345,7 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
 // 2) If enthalpy needed and mass quantities, convert
 //    enthalpy
 // 3) Convert volume to density
-// 4) The temperature and pressure derivatives of 
+// 4) The temperature and pressure derivatives of
 //    fractions and total mass/moles are zero.  Well, not
 //    quite... there really should be a temperature
 //    dependence in the temperature derivatives of the
@@ -8054,18 +7362,18 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
 //
 //    dDxdA  = dDxdN  / moles
 //         i        i
-//    
+//
 //    or
 //
 //    dDxdA  = dDxdN  / moles / M
 //         i        i            i
-//    
+//
 //    since the call to SolveCubic is based upon a normalized
 //    mole/mass fraction.  For the pseudo phase
 //
 //    dDydA  = dDydN  * K  / ( sum A  K  )
 //         i        i    i      j   j  j
-//    
+//
 //    or
 //
 //    dDxdA  = dDxdN  / ( sum A  K  ) / M
@@ -8073,14 +7381,14 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
 //
 // 7) The accumulation derivatives of composition are
 //
-//    dXdA  = ( d   - X  ) / total   
-//      i j      ij    i  
+//    dXdA  = ( d   - X  ) / total
+//      i j      ij    i
 //
-//    For the pseudo phase, 
+//    For the pseudo phase,
 //
 //    Y = A  K   / ( sum A  K  )
-//     i   i   i      j   j  j 
-//   
+//     i   i   i      j   j  j
+//
 //    or
 //
 //    Y = A  K   M  / ( sum A  K  M  )
@@ -8089,13 +7397,13 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
 //    Thus
 //
 //    dYdA  = ( d   K  - K  Y  ) / ( sum A  K  )
-//      i j      ij  i    j  i        k   k  k  
+//      i j      ij  i    j  i        k   k  k
 //
 //    or
 //
 //    dYdA  = ( d   K  M  - M  K  Y  ) / ( sum A  K  M  ) / M
 //      i j      ij  i  i    j  j  i        k   k  k  k      j
-// 
+//
 // 8) The total mass or mole derivatives with respect to
 //    accumulation are unity
 */
@@ -8119,13 +7427,13 @@ void EosPvtModel::PseudoPhaseProperties( int iM, int iNc )
    /* Modify heats */
    if ( m_iHeat && m_iMolarFlash == 0 )
    {
-      ( m_pEosPvtTable )->MassHeat( iM, m_iDrv, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
-      ( m_pEosPvtTable )->MassHeat( iM, m_iDrv, m_pMWy, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda );
+      m_pEosPvtTable->MassHeat( iM, m_iDrv, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
+      m_pEosPvtTable->MassHeat( iM, m_iDrv, m_pMWy, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda );
    }
 
    /* Convert to a density */
-   ( m_pEosPvtTable )->Density( iM, m_iDrv, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
-   ( m_pEosPvtTable )->Density( iM, m_iDrv, m_iMolarFlash, m_pMWy, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda );
+   m_pEosPvtTable->Density( iM, m_iDrv, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
+   m_pEosPvtTable->Density( iM, m_iDrv, m_iMolarFlash, m_pMWy, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda );
 
    /* Multiple blocks */
    if ( iM > 1 )
@@ -8260,8 +7568,8 @@ void EosPvtModel::PseudoPhaseProperties( int iM, int iNc )
                   dA = m_pMolecularWeight[iNi];
                   for ( i = 0; i < iM; i++ )
                   {
-                     *pTa = *pTa / dA / m_pMoles[i];
-                     *pTc = *pTc **pTd++ / dA / m_pSplit[i];
+                     *pTa = *pTa / ( dA * m_pMoles[i] );
+                     *pTc = *pTc **pTd++ / ( dA * m_pSplit[i] );
                      pTa++;
                      pTc++;
                   }
@@ -8495,10 +7803,10 @@ void EosPvtModel::PseudoPhaseProperties( int iM, int iNc )
 }
 
 
-/* 
+/*
 // TwoPhase
 //
-// Routine to get results of two phase flash 
+// Routine to get results of two phase flash
 //
 // iM
 //    Number of objects
@@ -8519,11 +7827,15 @@ void EosPvtModel::TwoPhase( int iM, int iNc )
    TwoPhaseMatrix( iM, iNc );
 
    /* Convert to a volume */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork );
+   m_pEosPvtTable->Volume(
+      iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX,
+      m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork
+      );
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork );
+   m_pEosPvtTable->Volume(
+      iM, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature,
+      m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork
+      );
 
    /* Set properties */
    if ( m_iVolume == EOS_DENSITY )
@@ -8537,10 +7849,10 @@ void EosPvtModel::TwoPhase( int iM, int iNc )
 }
 
 
-/* 
+/*
 // TwoPhaseMatrix
 //
-// Subroutine to compute derivatives of phase mole numbers 
+// Subroutine to compute derivatives of phase mole numbers
 //
 // iM
 //    Number of objects
@@ -8559,9 +7871,9 @@ void EosPvtModel::TwoPhase( int iM, int iNc )
 //
 // 3) Then get the z factors.  Fugacities are required if
 //    there are derivatives.  Enthalpies may also be needed
-// 4) Matrix formation and scaling is similar to that 
+// 4) Matrix formation and scaling is similar to that
 //    done in NewtonFlash.  There are a few differences,
-//    however, for reasons which will be clear in other 
+//    however, for reasons which will be clear in other
 //    derivative routines.  Recall in NewtonFlash that
 //    both sides were multiplied by Split * ( 1 - Split ).
 //    In this routine, we only multiply the X term right
@@ -8574,7 +7886,7 @@ void EosPvtModel::TwoPhase( int iM, int iNc )
 //
 //       dNxdP = [ dNxdP / ( 1 - S ) ]
 //
-//       dNydP = [ dNydP / S ] 
+//       dNydP = [ dNydP / S ]
 //
 //       The reasons for this will be clear later on.
 //    b) Considerable care is taken for components that
@@ -8582,7 +7894,7 @@ void EosPvtModel::TwoPhase( int iM, int iNc )
 //
 //  5) We solve the matrix systems, for example,
 //
-//     S * ( 1 - S ) * M dNxdP = S * dRdP 
+//     S * ( 1 - S ) * M dNxdP = S * dRdP
 //
 //     where M represents the Jacobian and R represents the right
 //     hand side
@@ -8591,8 +7903,8 @@ void EosPvtModel::TwoPhase( int iM, int iNc )
 //
 //     [ dNydP / S ] = [ dNxdP / ( 1 - S ) ] * ( 1 - S ) / S
 //
-//     Note that since [ dNxdP / ( 1 - S ) ] is returned with the 
-//     wronf sign that [ dNydP / S ] will have the correct sign 
+//     Note that since [ dNxdP / ( 1 - S ) ] is returned with the
+//     wrong sign that [ dNydP / S ] will have the correct sign
 //     For accumulations
 //
 //     [ dNydA / S ] = I / S - [ dNxdA / ( 1 - S ) ] * ( 1 - S ) / S
@@ -8629,12 +7941,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
       pTa = m_pKValue;
       pTd = m_pX;
       pTf = m_pY;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
       for ( i = 0; i < iM; i++ )
       {
          dD = m_pSplit[i];
@@ -8660,12 +7966,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          pTa += iM;
          pTd += iM;
          pTf += iM;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
          for ( i = 0; i < iM; i++ )
          {
             dD = pTa[i];
@@ -8706,12 +8006,18 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
    /* Chemical potential for the x phase */
    iFugacity = m_iDrv ? EOS_FUGACITY : EOS_NOFUGACITY;
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, iFugacity, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      iM, iFugacity, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork,
+      m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+      );
 
    /* Chemical potential for the y phase */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( iM, iFugacity, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      iM, iFugacity, m_iHeat, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork,
+      m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+      );
 
    /* Set scaling terms */
    if ( m_iDrv )
@@ -8725,12 +8031,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          pTc = m_pComposition;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( i = 0; i < iM; i++ )
             {
                dA = pTa[i];
@@ -8753,12 +8053,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
             pTb = m_pPotentialx;
             for ( iNi = 0; iNi < iNc; iNi++ )
             {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   pTd[i] = pTb[i] * m_pMy[i] * ( pTd[i] - pTf[i] );
@@ -8794,12 +8088,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
             pTb = m_pPotentialx;
             for ( iNj = 0; iNj < iNi; iNj++ )
             {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   pTf[i] = pTb[i] * ( pTf[i] - 1.0 );
@@ -8812,12 +8100,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
             pTd += iNi * iM;
             for ( iNj = iNi; iNj < iNc; iNj++ )
             {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   dA = pTb[i];
@@ -8842,12 +8124,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          pTa = m_pPotentialx;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( i = 0; i < iM; i++ )
             {
                dB = pTa[i];
@@ -8880,9 +8156,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          /* Set the pressure and temperature derivative terms first */
          if ( m_iDrv >= EOS_DRV_P )
          {
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( iNi = 0; iNi < iNc; iNi++ )
             {
                m_pDXdp[iNi] = m_pPotentialx[iNi] * dC * ( m_pDXdp[iNi] - m_pDYdp[iNi] );
@@ -8890,9 +8163,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
 
             if ( m_iDrv >= EOS_DRV_T )
             {
-#ifdef IPFtune
-#pragma ivdep
-#endif
                for ( iNi = 0; iNi < iNc; iNi++ )
                {
                   m_pDXdt[iNi] = m_pPotentialx[iNi] * dC * ( m_pDXdt[iNi] - m_pDYdt[iNi] );
@@ -8938,7 +8208,7 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
       }
 
       /* Factor the matrix */
-      Cholesky( iM, iNc, m_pDXda );
+      EosLinAlg::Cholesky( iM, iNc, m_dTiny,  m_pDXda, m_pTerm3, m_pTerm2 );
 
       /* Backsolve matrices multiple grid block */
       if ( iM > 1 )
@@ -8946,7 +8216,7 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          pTf = m_pDYda;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-            BackSolve( iM, iNc, m_pDXda, pTf );
+            EosLinAlg::BackSolve( iM, iNc, m_pDXda, pTf );
             pTc = m_pComposition;
             pTd = pTf;
             pTb = m_pWork;
@@ -8962,9 +8232,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
                }
                else
                {
-#ifdef IPFtune
-#pragma ivdep
-#endif       
                   for ( i = 0; i < iM; i++ )
                   {
                      pTd[i] *= pTa[i];
@@ -8983,7 +8250,7 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          /* Pressure derivatives */
          if ( m_iDrv >= EOS_DRV_P )
          {
-            BackSolve( iM, iNc, m_pDXda, m_pDXdp );
+            EosLinAlg::BackSolve( iM, iNc, m_pDXda, m_pDXdp );
             pTd = m_pDXdp;
             pTb = m_pPotentialx;
             for ( iNj = 0; iNj < iNc; iNj++ )
@@ -8998,7 +8265,7 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
             /* Temperature derivatives */
             if ( m_iDrv >= EOS_DRV_T )
             {
-               BackSolve( iM, iNc, m_pDXda, m_pDXdt );
+               EosLinAlg::BackSolve( iM, iNc, m_pDXda, m_pDXdt );
                pTd = m_pDXdt;
                pTb = m_pPotentialx;
                for ( iNj = 0; iNj < iNc; iNj++ )
@@ -9049,23 +8316,12 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          iNj = iNc * iNc;
          for ( iNi = 0; iNi < iNj; iNi++ )
          {
-#ifdef IPFtune
-            double *pPx = m_pPotentialx;
-#pragma ivdep
-            for ( i = 0; i < iM; i++ )
-            {
-               dA = *pTf;
-               *pTd++ = dA;
-               *pTf++ = 0-pPx[i] * dA;
-            }
-#else
             for ( i = 0; i < iM; i++ )
             {
                dA = *pTf;
                *pTd++ = dA;
                *pTf++ = -m_pPotentialx[i] * dA;
             }
-#endif
          }
 
          for ( i = 0; i < iM; i++ )
@@ -9093,13 +8349,7 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          pTf = m_pDYda;
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
-            BackSolve( 1, iNc, m_pDXda, pTf );
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
+            EosLinAlg::BackSolve( 1, iNc, m_pDXda, pTf );
             for ( iNj = 0; iNj < iNc; iNj++ )
             {
                pTf[iNj] *= m_pPotentialx[iNj];
@@ -9112,13 +8362,7 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          /* Pressure derivatives */
          if ( m_iDrv >= EOS_DRV_P )
          {
-            BackSolve( 1, iNc, m_pDXda, m_pDXdp );
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
+            EosLinAlg::BackSolve( 1, iNc, m_pDXda, m_pDXdp );
             for ( iNj = 0; iNj < iNc; iNj++ )
             {
                m_pDXdp[iNj] *= m_pPotentialx[iNj];
@@ -9127,7 +8371,7 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
             /* Temperature derivatives */
             if ( m_iDrv >= EOS_DRV_T )
             {
-               BackSolve( 1, iNc, m_pDXda, m_pDXdt );
+               EosLinAlg::BackSolve( 1, iNc, m_pDXda, m_pDXdt );
                for ( iNj = 0; iNj < iNc; iNj++ )
                {
                   m_pDXdt[iNj] *= m_pPotentialx[iNj];
@@ -9139,12 +8383,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          dB = 1.0 / *m_pSplit - 1.0;
          if ( m_iDrv >= EOS_DRV_P )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( iNi = 0; iNi < iNc; iNi++ )
             {
                m_pDYdp[iNi] = m_pDXdp[iNi] * dB;
@@ -9160,12 +8398,6 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
          }
 
          iNj = iNc * iNc;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
          for ( iNi = 0; iNi < iNj; iNi++ )
          {
             dA = m_pDYda[iNi];
@@ -9185,18 +8417,17 @@ void EosPvtModel::TwoPhaseMatrix( int iM, int iNc )
 }
 
 
-/* 
+/*
 // TwoPhaseProperties
 //
-// Routine to set results of two phase flash 
+// Routine to set results of two phase flash
 //
 // iM
 //    Number of objects
 // iNc
 //    Number of components
 //
-// 1) First set the phase identifications and the molecular
-//    weights
+// 1) First set the phase identifications and the molecular weights
 // 2) Then, if needed, convert enthalpies to a mass basis
 // 3) Then convert volumes to densities
 // 4) Then set the total mass or mole number for each phase
@@ -9216,13 +8447,13 @@ void EosPvtModel::TwoPhaseProperties( int iM, int iNc )
    /* Modify heats */
    if ( m_iHeat && m_iMolarFlash == 0 )
    {
-      ( m_pEosPvtTable )->MassHeat( iM, m_iDrv, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
-      ( m_pEosPvtTable )->MassHeat( iM, m_iDrv, m_pMWy, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda );
+      m_pEosPvtTable->MassHeat( iM, m_iDrv, m_pMWx, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda );
+      m_pEosPvtTable->MassHeat( iM, m_iDrv, m_pMWy, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda );
    }
 
    /* Convert to a density */
-   ( m_pEosPvtTable )->Density( iM, m_iDrv, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
-   ( m_pEosPvtTable )->Density( iM, m_iDrv, m_iMolarFlash, m_pMWy, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda );
+   m_pEosPvtTable->Density( iM, m_iDrv, m_iMolarFlash, m_pMWx, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda );
+   m_pEosPvtTable->Density( iM, m_iDrv, m_iMolarFlash, m_pMWy, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda );
 
    /* Scale terms */
    if ( m_iMolarFlash )
@@ -9250,14 +8481,16 @@ void EosPvtModel::TwoPhaseProperties( int iM, int iNc )
       /* Pressure derivatives */
       if ( m_iDrv >= EOS_DRV_P )
       {
-         /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         TwoPhaseDerivatives( iM, iNc, m_pDXdp, m_pDYdp, m_pDZxdp, m_pDZydp, m_pDHxdp, m_pDHydp, m_pDMxdp, m_pDMydp );
+         TwoPhaseDerivatives(
+            iM, iNc, m_pDXdp, m_pDYdp, m_pDZxdp, m_pDZydp, m_pDHxdp, m_pDHydp, m_pDMxdp, m_pDMydp
+            );
 
          /* Now for temperature derivatives */
          if ( m_iDrv >= EOS_DRV_T )
          {
-            /* TODO: The next line is too long. Please rewrite to make it shorter. */
-            TwoPhaseDerivatives( iM, iNc, m_pDXdt, m_pDYdt, m_pDZxdt, m_pDZydt, m_pDHxdt, m_pDHydt, m_pDMxdt, m_pDMydt );
+            TwoPhaseDerivatives(
+               iM, iNc, m_pDXdt, m_pDYdt, m_pDZxdt, m_pDZydt, m_pDHxdt, m_pDHydt, m_pDMxdt, m_pDMydt
+               );
          }
       }
 
@@ -9278,10 +8511,10 @@ void EosPvtModel::TwoPhaseProperties( int iM, int iNc )
 }
 
 
-/* 
+/*
 // TwoPhaseDerivatives
 //
-// Routine to compute two phase pressure and temperature derivatives 
+// Routine to compute two phase pressure and temperature derivatives
 //
 // iM
 //    Number of objects
@@ -9310,22 +8543,22 @@ void EosPvtModel::TwoPhaseProperties( int iM, int iNc )
 //
 //    dHxdP = dHxdP + ( sum dHxdNx  dNxdP ) / ( 1 - S )
 //                       i        i    i
-//    
+//
 //    Note here we discover why dNxdP was scaled by ( 1 - S )!
 //    The equation for dHydP is similar.  There are some
 //    differences in sign in the x derivatives.  The
 //    molecular weight terms were accounted for in MassHeat
 //    thus there is no difference between mass and moles
-// 3) Then need to handle density and total mass terms, 
+// 3) Then need to handle density and total mass terms,
 //    as well as compositions.  For mole fractions and mass
 //    fractions
 //
 //    dZxdP = dZxdP + ( sum dZxdNx  dNxdP ) / ( 1 - S )
 //                       i        i    i
 //
-//    For mole fractions, 
+//    For mole fractions,
 //
-//    dMxdP = sum dNxdP 
+//    dMxdP = sum dNxdP
 //             i     i
 //
 //    For mass fractions
@@ -9341,10 +8574,10 @@ void EosPvtModel::TwoPhaseProperties( int iM, int iNc )
 //    Thus
 //
 //    dXdP = ( dNxdP - X  Sum dNxdP ) / ( 1 - S )
-//      i         i     i  j               
+//      i         i     i  j
 //
 //    Once again we see why the derivative terms were scaled
-//    as they were.  For mass fractions, 
+//    as they were.  For mass fractions,
 //
 //    dXdP = ( M dNxdP - X  Sum M dNxdP ) / ( 1 - S ) / MWx
 //      i       i   i     i  j   j
@@ -9356,10 +8589,11 @@ void EosPvtModel::TwoPhaseProperties( int iM, int iNc )
 //
 //    dMydP = dMydP * Split * moles
 //
-//    dMxdP = - dMydP            
+//    dMxdP = - dMydP
 */
-void EosPvtModel::TwoPhaseDerivatives( int iM, int iNc, double *pDX, double *pDY, double *pDZx, double *pDZy,
-                                       double *pDHx, double *pDHy, double *pDMx, double *pDMy )
+void EosPvtModel::
+TwoPhaseDerivatives( int iM, int iNc, double *pDX, double *pDY, double *pDZx, double *pDZy,
+                     double *pDHx, double *pDHy, double *pDMx, double *pDMy )
 {
    double *pTa;
    double *pTb;
@@ -9569,6 +8803,13 @@ void EosPvtModel::TwoPhaseDerivatives( int iM, int iNc, double *pDX, double *pDY
          pDY[0] = dB;
          dDMxt = dC;
          dDMyt = dB;
+#ifdef __INTEL_COMPILER
+         // with intel 11.1 this loop crashes the program when it's vectorized
+         // it appears that the register which contains iNi is not properly
+         // initilized to 1. That's should reflect a compiler issue.
+         // Unrolling the loop prevents it and keeps optimization on.
+         #pragma unroll(4)
+#endif
          for ( iNi = 1; iNi < iNc; iNi++ )
          {
             dA = m_pMolecularWeight[iNi];
@@ -9604,7 +8845,7 @@ void EosPvtModel::TwoPhaseDerivatives( int iM, int iNc, double *pDX, double *pDY
 }
 
 
-/* 
+/*
 // TwoPhaseDensity
 //
 // Routine to compute density derivatives wrt composition
@@ -9705,19 +8946,10 @@ void EosPvtModel::TwoPhaseDensity( int iM, int iNc, double *pDZ, double *pDX )
 
             for ( iNj = 1; iNj < iNc; iNj++ )
             {
-#ifdef IPFtune
-               int cnt = iM;
-#pragma ivdep
-               for ( i = 0; i < cnt; i++ )
-               {
-                  pTa[i] += *pTb++ * *pTc++;
-               }
-#else
                for ( i = 0; i < iM; i++ )
                {
                   pTa[i] += *pTb++ **pTc++;
                }
-#endif
             }
 
             dC = m_pMolecularWeight[iNi];
@@ -9781,11 +9013,11 @@ void EosPvtModel::TwoPhaseDensity( int iM, int iNc, double *pDZ, double *pDX )
 }
 
 
-/* 
+/*
 // TwoPhaseComposition
-// 
+//
 // Routine to compute composition derivatives wrt accumulation
-// 
+//
 // iM
 //    Number of objects
 // iNc
@@ -9799,10 +9031,10 @@ void EosPvtModel::TwoPhaseDensity( int iM, int iNc, double *pDZ, double *pDX )
 //    Thus
 //
 //    dXdA  = ( dNxdA - X  Sum dNxdA ) / ( 1 - S ) / moles
-//      i j        i j   i  k     k j        
+//      i j        i j   i  k     k j
 //
 //    Once again we see why the derivative terms were scaled
-//    as they were.  For mass fractions, 
+//    as they were.  For mass fractions,
 //
 //    dXdA  = ( M dNxdA  - X  Sum M dNxdA  ) / (1-S) / MWx / M  / mole
 //      i j      i   i j    i  k   k     j                    j
@@ -9914,9 +9146,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
          {
             dB = m_pMolecularWeight[iNi];
             dC = m_pMolecularWeight[0];
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                m_pWork[i] = 1.0 / ( dB * m_pMoles[i] );
@@ -9934,9 +9163,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
                pTe += iM;
                pTf += iM;
                dC = m_pMolecularWeight[iNj];
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   dA = dC * m_pWork[i];
@@ -9960,9 +9186,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
          pTd = m_pDMyda;
          pTe = m_pDXda;
          pTf = m_pDYda;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( i = 0; i < iM; i++ )
          {
             m_pWork[i] = m_pMoles[i] * m_pSplit[i];
@@ -9974,12 +9197,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
             pTb = m_pY;
             for ( iNj = 0; iNj < iNc; iNj++ )
             {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   pTe[i] -= ( pTa[i] * pTc[i] );
@@ -10002,9 +9219,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
             pTd += iM;
          }
 
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( i = 0; i < iM; i++ )
          {
             m_pWork[i] = 1.0 / m_pMWx[i];
@@ -10014,12 +9228,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
          pTe = m_pDXda;
          for ( iNi = 0; iNi < iNj; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( i = 0; i < iM; i++ )
             {
                pTe[i] *= m_pWork[i];
@@ -10028,9 +9236,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
             pTe += iM;
          }
 
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
          for ( i = 0; i < iM; i++ )
          {
             m_pWork[i] = 1.0 / m_pMWy[i];
@@ -10039,12 +9244,6 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
          pTe = m_pDYda;
          for ( iNi = 0; iNi < iNj; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
-#ifdef IPFtune
-#pragma ivdep
-#endif
             for ( i = 0; i < iM; i++ )
             {
                pTe[i] *= m_pWork[i];
@@ -10117,17 +9316,9 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
             dE = pTf[0] * dA;
             pTe[0] = dD;
             pTf[0] = dE;
-#ifdef IPFtune
-            double *pMW = m_pMolecularWeight;
-#pragma ivdep
-#endif
             for ( iNj = 1; iNj < iNc; iNj++ )
             {
-#ifdef IPFtune
-               dA = pMW[iNj] / dB;
-#else       
                dA = m_pMolecularWeight[iNj] / dB;
-#endif
                dF = pTe[iNj] * dA;
                dG = pTf[iNj] * dA;
                dD += dF;
@@ -10152,25 +9343,11 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
          {
             dA = m_pDMxda[iNi];
             dB = m_pDMyda[iNi];
-#ifdef IPFtune
-            double *ptX = m_pX;
-            double *ptY = m_pY;
-#pragma ivdep
-            for ( iNj = 0; iNj < iNc; iNj++ )
-            {
-               pTe[iNj] = ( pTe[iNj] - ptX[iNj] * dA ) * dD;
-               pTf[iNj] = ( pTf[iNj] - ptY[iNj] * dB ) * dE;
-            }
-#else    
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( iNj = 0; iNj < iNc; iNj++ )
             {
                pTe[iNj] = ( pTe[iNj] - m_pX[iNj] * dA ) * dD;
                pTf[iNj] = ( pTf[iNj] - m_pY[iNj] * dB ) * dE;
             }
-#endif    
 
             pTe += iNc;
             pTf += iNc;
@@ -10182,10 +9359,10 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
 }
 
 
-/* 
+/*
 // TwoPhaseVolume
 //
-// Subroutine to do computations for total volume of two phases 
+// Subroutine to do computations for total volume of two phases
 //
 // iM
 //    Number of objects
@@ -10193,7 +9370,7 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
 //    Number of components
 //
 // 1) The purpose of this routine is to calculate
-//        
+//
 //         -
 //    Nx = Nx * moles * ( 1 - split )
 //
@@ -10211,17 +9388,17 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
 //    of each component in each phase
 // 2) First, of course, we must store the phase identification
 //    and obtain the molecular weights
-// 3) For the derivatives of the moles with respect to 
+// 3) For the derivatives of the moles with respect to
 //    pressure or temperature.  Recall that dNxdP is the
 //    really the derivative of the mole fraction times the
 //    phase moles as defined in TwoPhaseMatrix.  Hence
 //
 //    dNxdP = [ dNxdP / ( 1 - S ) ] * moles * ( 1 - S )
-// 
+//
 //    Note that the sign must be consistent with what is
 //    returned in TwoPhaseMatrix
 // 4) For the volume derivatives
-//          
+//
 //    dVxdP = ((1-S)*(dVxdP + sum dVxdNx dNxdP) - Vx*dSdP ) * moles
 //                             j        j   j
 //
@@ -10233,17 +9410,17 @@ void EosPvtModel::TwoPhaseComposition( int iM, int iNc )
 //    dSdP = sum [ dNxdP / ( 1 - S ) ] * ( 1 - S )
 //            j       j
 //
-// 5) For the derivatives of the moles with respect to 
+// 5) For the derivatives of the moles with respect to
 //    accumulations.  Recall that dNxdA is the
 //    really the derivative of the mole fraction times the
 //    phase moles as defined in TwoPhaseMatrix.  Hence
 //
 //    dNxdA = [ dNxdA / ( 1 - S ) ] * ( 1 - S )
-// 
+//
 //    Note that the sign must be consistent with what is
 //    returned in TwoPhaseMatrix
 // 6) For the volume derivatives
-//          
+//
 //    dVxdA = ((1-S)*(dVxdA + sum dVxdNx dNxdA) - Vx*dSdA ) * moles
 //                             j        j   j
 //
@@ -10306,9 +9483,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
             pTb = m_pDYdp;
             pTc = m_pDZxda;
             pTd = m_pDZyda;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                dB = pTb[i];
@@ -10323,9 +9497,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
                pTb += iM;
                pTc += iM;
                pTd += iM;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   dB = pTb[i];
@@ -10335,9 +9506,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
                }
             }
 
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                dB = m_pMoles[i];
@@ -10368,9 +9536,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
                for ( iNi = 0; iNi < iNcv; iNi++ )
                {
                   dA = m_pMolecularWeight[iNi];
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
                   for ( i = 0; i < iM; i++ )
                   {
                      pTa[i] *= ( -dA * m_pIfx[i] );
@@ -10457,9 +9622,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
          pTe = m_pDZyda;
          for ( iNi = 0; iNi < iNcs; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                pTc[i] = pTb[i];
@@ -10481,9 +9643,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
          {
             pTe = m_pMux;
             pTf = m_pMuy;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                dA = pTc[i];
@@ -10499,9 +9658,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
 
             for ( iNj = 1; iNj < iNc; iNj++ )
             {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   dA = pTc[i];
@@ -10566,9 +9722,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
             for ( iNi = 0; iNi < iNcs; iNi++ )
             {
                dB = m_pMolecularWeight[iNi];
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
                for ( i = 0; i < iM; i++ )
                {
                   dA = m_pSplit[i] * pTc[i];
@@ -10590,9 +9743,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
                for ( iNj = 0; iNj < iNc; iNj++ )
                {
                   dA = m_pMolecularWeight[iNj] / dB;
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
                   for ( i = 0; i < iM; i++ )
                   {
                      pTa[i] *= dA * m_pMx[i];
@@ -10613,9 +9763,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
          pTb = m_pY;
          for ( iNi = 0; iNi < iNcv; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                pTa[i] *= m_pIfx[i];
@@ -10632,9 +9779,6 @@ void EosPvtModel::TwoPhaseVolume( int iM, int iNc )
          pTb = m_pY;
          for ( iNi = 0; iNi < iNcv; iNi++ )
          {
-#ifdef USE_VECTOR_ALWAYS
-#pragma vector always
-#endif
             for ( i = 0; i < iM; i++ )
             {
                dA = m_pMolecularWeight[iNi];
@@ -10896,12 +10040,12 @@ void EosPvtModel::WaterProperties( int iUseCurrent, int iStatus )
 
    /* See which simulator data needed */
    /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteOutputData( &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity );
+   m_pApplication->WriteOutputData( &m_iDrv, &iGetViscosity, &iGetTension, &m_iHeat, &iGetMW, &m_iVolume, &m_iMolarFlash, &iMolarDensity );
    iMolarDensity = iMolarDensity && m_iMolarFlash;
 
    /* Get number of components */
-   iSalts = ( m_pEosPvtTable )->GetNumberSalts();
-   m_iWaterComp = ( m_pApplication )->WriteWaterIndex();
+   iSalts = m_pEosPvtTable->GetNumberSalts();
+   m_iWaterComp = m_pApplication->WriteWaterIndex();
    iNc = iSalts + ( ( m_iWaterComp >= 0 ) ? 1 : 0 );
 
    /* Start anew if not using current */
@@ -10911,8 +10055,8 @@ void EosPvtModel::WaterProperties( int iUseCurrent, int iStatus )
    }
    else
    {
-      ( m_pApplication )->ResetSlice();
-      iM = ( m_pApplication )->SetSlice( EOS_FL_AP, m_iFlashLength );
+      m_pApplication->ResetSlice();
+      iM = m_pApplication->SetSlice( EOS_FL_AP, m_iFlashLength );
    }
 
    /* Loop over all slices */
@@ -10931,7 +10075,7 @@ void EosPvtModel::WaterProperties( int iUseCurrent, int iStatus )
 
          /* Calculate the water properties */
          /* TODO: The next line is too long. Please rewrite to make it shorter. */
-         ( m_pEosPvtTable )->Water( iM, iNc, m_iDrv, m_iVolume, iGetViscosity, iGetTension, m_iHeat, iTherm, m_pPressure, m_pTemperature, m_pSalinity, m_pDSda, m_pRhoW, m_pDRhoWdp, m_pDRhoWdt, m_pDRhoWds, m_pDRhoWda, m_pMuW, m_pDMuWdp, m_pDMuWdt, m_pDMuWds, m_pDMuWda, m_pIftW, m_pDIftWdp, m_pDIftWdt, m_pDIftWda, m_pHeatW, m_pDHeatWdp, m_pDHeatWdt, m_pDHeatWds, m_pDHeatWda, m_pWorkW );
+         m_pEosPvtTable->Water( iM, iNc, m_iDrv, m_iVolume, iGetViscosity, iGetTension, m_iHeat, iTherm, m_pPressure, m_pTemperature, m_pSalinity, m_pDSda, m_pRhoW, m_pDRhoWdp, m_pDRhoWdt, m_pDRhoWds, m_pDRhoWda, m_pMuW, m_pDMuWdp, m_pDMuWdt, m_pDMuWds, m_pDMuWda, m_pIftW, m_pDIftWdp, m_pDIftWdt, m_pDIftWda, m_pHeatW, m_pDHeatWdp, m_pDHeatWdt, m_pDHeatWds, m_pDHeatWda, m_pWorkW );
 
          /* Adjust water density and heat to molar values */
          if ( iMolarDensity )
@@ -10956,7 +10100,7 @@ void EosPvtModel::WaterProperties( int iUseCurrent, int iStatus )
 
       /* Store the data */
       /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadData( EOS_WATER, iM, iNc, m_pPhaseId, m_pW, m_pDWdp, m_pMW, m_pDMWdp, m_pRhoW, m_pDRhoWdp, m_pMuW, m_pDMuWdp, m_pIftW, m_pDIftWdp, m_pHeatW, m_pDHeatWdp, pDummy, pDummy, m_pMWW );
+      m_pApplication->ReadData( EOS_WATER, iM, iNc, m_pPhaseId, m_pW, m_pDWdp, m_pMW, m_pDMWdp, m_pRhoW, m_pDRhoWdp, m_pMuW, m_pDMuWdp, m_pIftW, m_pDIftWdp, m_pHeatW, m_pDHeatWdp, pDummy, pDummy, m_pMWW );
 
       /* Next slice */
       if ( iUseCurrent )
@@ -10965,7 +10109,7 @@ void EosPvtModel::WaterProperties( int iUseCurrent, int iStatus )
       }
       else
       {
-         iM = ( m_pApplication )->SetSlice( EOS_FL_AP, m_iFlashLength );
+         iM = m_pApplication->SetSlice( EOS_FL_AP, m_iFlashLength );
       }
    }
 }
@@ -11767,10 +10911,10 @@ void EosPvtModel::WaterVolume( int iM, int iNc )
 }
 
 
-/* 
+/*
 // CompositionalGrading
 //
-// Driving routine to perform compositional grading 
+// Driving routine to perform compositional grading
 //
 // iM
 //    Number of objects
@@ -11794,13 +10938,13 @@ void EosPvtModel::CompositionalGrading( int iNc, int iType )
    int iMove = 0;
 
    /* Get output values */
-   ( m_pApplication )->WriteOutputData( &iTemp, &iTemp, &iTemp, &m_iHeat, &iTemp, &iTemp, &iMolar, &iTemp );
+   m_pApplication->WriteOutputData( &iTemp, &iTemp, &iTemp, &m_iHeat, &iTemp, &iTemp, &iMolar, &iTemp );
 
    /* Set the gravity constant in internal units */
-   ( m_pEosPvtTable )->GetGravity( &m_dGravity, &m_dGascon );
+   m_pEosPvtTable->GetGravity( &m_dGravity, &m_dGascon );
 
    /* Set pointer to the starting table entry */
-   ( m_pApplication )->SetTableEntry( EOS_INIT_START );
+   m_pApplication->SetTableEntry( EOS_INIT_START );
 
    /* Read the compositional grading data */
    ReadGradingData( iNc, EOS_INIT_COMP );
@@ -11811,14 +10955,14 @@ void EosPvtModel::CompositionalGrading( int iNc, int iType )
    /* Tell Application that this is a GOC if two phases present */
    if ( *m_pPhase == EOS_FL_2P_CV )
    {
-      ( m_pApplication )->ReadGOC( m_dDepthx );
+      m_pApplication->ReadGOC( m_dDepthx );
    }
 
    /* Write out results */
    WriteGradingData( iNc, iMolar );
 
    /* Go one direction */
-   while ( ( m_pApplication )->SetTableEntry( EOS_INIT_UP ) )
+   while ( m_pApplication->SetTableEntry( EOS_INIT_UP ) )
    {
       /* Iterate using Newton's method */
       CompositionalGradingDo( iNc, iType, &iMove );
@@ -11828,7 +10972,7 @@ void EosPvtModel::CompositionalGrading( int iNc, int iType )
    }
 
    /* Set pointer again to the starting table entry */
-   ( m_pApplication )->SetTableEntry( EOS_INIT_START );
+   m_pApplication->SetTableEntry( EOS_INIT_START );
 
    /* Read the compositional grading data */
    ReadGradingData( iNc, EOS_INIT_COMP );
@@ -11837,7 +10981,7 @@ void EosPvtModel::CompositionalGrading( int iNc, int iType )
    GradingBubblePoint( iNc, iType, EOS_NOFORCEBP, EOS_RETROGRADE );
 
    /* Go other direction */
-   while ( ( m_pApplication )->SetTableEntry( EOS_INIT_DOWN ) )
+   while ( m_pApplication->SetTableEntry( EOS_INIT_DOWN ) )
    {
       /* Iterate using Newton's method */
       CompositionalGradingDo( iNc, iType, &iMove );
@@ -11848,7 +10992,7 @@ void EosPvtModel::CompositionalGrading( int iNc, int iType )
 }
 
 
-/* 
+/*
 // ReadGradingData
 //
 // Load object properties into temporary vectors for composition
@@ -11876,12 +11020,14 @@ void EosPvtModel::ReadGradingData( int iNc, int iDirection )
    double dB;
 
    /* Load the properties */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteGradingData( iDirection, &m_dDepthx, m_pPressure, m_pTemperature, m_pComposition, &isothermal, &iMolar );
+   m_pApplication->WriteGradingData(
+      iDirection, &m_dDepthx, m_pPressure, m_pTemperature, m_pComposition, &isothermal, &iMolar
+      );
 
    /* Set the pvt term assignments */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->WritePvtInfo( 1, 0, 1, isothermal, EOS_OPTION_OFF, 0, m_pAbcOffset, &m_iMultipleAbc, m_pTemperature, m_pMolecularWeight );
+   m_pEosPvtTable->WritePvtInfo(
+      1, 0, 1, isothermal, EOS_OPTION_OFF, 0, m_pAbcOffset, &m_iMultipleAbc, m_pTemperature, m_pMolecularWeight
+      );
 
    /* Calculate mole fraction and moles for first block */
    if ( iDirection == EOS_INIT_COMP )
@@ -11916,18 +11062,18 @@ void EosPvtModel::ReadGradingData( int iNc, int iDirection )
 }
 
 
-/* 
+/*
 // WriteGradingData
 //
-// Routine to write out to simulator compositions for compositional 
-// grading 
+// Routine to write out to simulator compositions for compositional
+// grading
 //
 // iNc
 //    Number of components
 // iMolar
 //    Indicator for molar values
 //
-// 1) Call CompositionGradingDensity to calculate the 
+// 1) Call CompositionGradingDensity to calculate the
 //    needed phase properties
 // 2) Need to store the values into more permenant arrays.
 // 3) If not using molar values, compute to mass values
@@ -12025,21 +11171,25 @@ void EosPvtModel::WriteGradingData( int iNc, int iMolar )
    /* Store data */
    if ( dDensityx > dDensityy )
    {
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadGradingData( m_dDepthx, *m_pTemperature, *m_pPressure, m_dPressurex, m_dPressurey, *m_pZx, *m_pZy, *m_pHx, *m_pHy, m_pComposition, m_pLastx, m_pLasty );
+      m_pApplication->ReadGradingData(
+         m_dDepthx, *m_pTemperature, *m_pPressure, m_dPressurex, m_dPressurey,
+         *m_pZx, *m_pZy, *m_pHx, *m_pHy, m_pComposition, m_pLastx, m_pLasty
+         );
    }
    else
    {
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadGradingData( m_dDepthx, *m_pTemperature, *m_pPressure, m_dPressurey, m_dPressurex, *m_pZy, *m_pZx, *m_pHy, *m_pHx, m_pComposition, m_pLasty, m_pLastx );
+      m_pApplication->ReadGradingData(
+         m_dDepthx, *m_pTemperature, *m_pPressure, m_dPressurey, m_dPressurex,
+         *m_pZy, *m_pZx, *m_pHy, *m_pHx, m_pComposition, m_pLasty, m_pLastx
+         );
    }
 }
 
 
-/* 
+/*
 // CompositionalGradingDensity
-// 
-// Routine to compute needed properties for compositional grading 
+//
+// Routine to compute needed properties for compositional grading
 //
 // iNc
 //    Number of components
@@ -12059,7 +11209,7 @@ void EosPvtModel::WriteGradingData( int iNc, int iMolar )
 // 1) First calculate the z factor and the enthalpy, if required
 // 2) Then convert to a volume
 // 3) Then obtain the molecular weight
-// 4) Then convert to a density.  
+// 4) Then convert to a density.
 // 5) The density and possibly the enthalpy are then
 //    prepared to be output
 */
@@ -12070,12 +11220,17 @@ void EosPvtModel::CompositionalGradingDensity( int iNc, int iMolar, double *pP, 
    int    iNi;
 
    /* Get the z factor */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( 1, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, pP, m_pTemperature, pComp, pZfactor, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pPotentialx, m_pDXdp, m_pDXdt, m_pDXda, pHt, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      1, EOS_NOFUGACITY, m_iHeat, EOS_NOPOTENTIAL, EOS_NODRV, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      pP, m_pTemperature, pComp, pZfactor, m_pDZxdp, m_pDZxdt, m_pDZxda,
+      m_pPotentialx, m_pDXdp, m_pDXdt, m_pDXda, pHt, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+      );
 
    /* Perform the volume translations */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->Volume( 1, EOS_NODRV, m_iMultipleAbc, m_pAbcOffset, pP, m_pTemperature, pComp, pZfactor, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork );
+   m_pEosPvtTable->Volume(
+      1, EOS_NODRV, m_iMultipleAbc, m_pAbcOffset, pP, m_pTemperature, pComp,
+      pZfactor, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pWork
+      );
 
    /* Set the molecular weight */
    dA = m_pMolecularWeight[0] * pComp[0];
@@ -12103,10 +11258,10 @@ void EosPvtModel::CompositionalGradingDensity( int iNc, int iMolar, double *pP, 
 }
 
 
-/* 
+/*
 // GradingBubblePoint
 //
-// Routine to get bubble point for compositional grading 
+// Routine to get bubble point for compositional grading
 //
 // iNc
 //    Number of components
@@ -12121,11 +11276,11 @@ void EosPvtModel::CompositionalGradingDensity( int iNc, int iMolar, double *pP, 
 //                      already
 // iRetrograde
 //    Indicator whether to check for retrograde regions
-// 
+//
 // 1) First we must normalize the composition
 // 2) If we are not intending to force a bubble point calculation,
 //    determine if the mixture is two phase
-// 3) If the mixture is not two phase, or if the 
+// 3) If the mixture is not two phase, or if the
 //    mixture is forced to have a bubble point, calculate it
 // 4) If the mixture has a bubble point but the bubble
 //    point pressure is greater than the current pressure, then
@@ -12285,15 +11440,15 @@ void EosPvtModel::GradingBubblePoint( int iNc, int iType, int iForceBP, int iRet
 }
 
 
-/* 
+/*
 // CompositionalGradingDo
 //
-// Routine to do one step of compositional grading 
+// Routine to do one step of compositional grading
 //
 // iNc
 //    Number of components
 // iType
-//    Type of hydrocarbon phases which can be present.  If 
+//    Type of hydrocarbon phases which can be present.  If
 //    EOS_TOF_2P, two hydrocarbon phases may occur.
 // iMove
 //    Indicator whether we have moved things or not
@@ -12428,7 +11583,7 @@ void EosPvtModel::CompositionalGradingDo( int iNc, int iType, int *iMove )
          *m_pTemperature = dTemperatureSave;
 
          /* Tell Application that this is a GOC */
-         ( m_pApplication )->ReadGOC( m_dDepthy );
+         m_pApplication->ReadGOC( m_dDepthy );
       }
 
       /* Move contact */
@@ -12452,7 +11607,7 @@ void EosPvtModel::CompositionalGradingDo( int iNc, int iType, int *iMove )
          GradingBubblePoint( iNc, iType, EOS_NOFORCEBP, EOS_RETROGRADE );
 
          /* Tell Application that this is a GOC */
-         ( m_pApplication )->ReadGOC( m_dDepthx );
+         m_pApplication->ReadGOC( m_dDepthx );
       }
    }
 
@@ -12486,155 +11641,154 @@ void EosPvtModel::CompositionalGradingDo( int iNc, int iType, int *iMove )
 }
 
 
-/* 
-// CompositionalGradingNewton
-//
-// Routine to take Newton iterations for compositional grading 
-//
-// iNc
-//    Number of components
-//
-// 1) Load properties from the previous step.
-// 2) Determine whether enthalpy calculations are
-//    required.  The enthalpy is required if thermal
-//    diffusion is used AND the temperature is not 
-//    constant between steps.
-// 3) Calculate the chemical potential at the initial guess
-// 4) Calculate the thermal diffusion term if required
-// 5) Restore current properties
-// 6) Calculate the constant terms used in the iterations
-//    At this point we will describe the system to be solved.
-//    The equation to be solved is
-//
-//    dMu  = - M g dH - K  dlnT
-//       i      i        i
-//
-//    where Mu is the chemical potential, M is the molecular
-//    weight, and K is the thermal diffusion term.  The
-//    thermal diffusion term is based upon the work of 
-//    Kempers (L.J.T.M Kempers, "A thermodynamic theory of the Soret
-//    effect in a multicomponent liquid", J. Chem. Phys, 90, 
-//    June 1989.), while the basic form of the equation is
-//    due to Schulte (A.M. Schulte, "Compositional Variations
-//    within a Hydrocarbon Column Due to Gravity", SPE 9235,
-//    1980)
-// 7) This differential equation can be integrated to
-//    yield
-//
-//      +     -          +    -              +    -
-//    Mu  = Mu  - M g ( H  - H  ) - K  ln ( T  / T  )
-//      i     i    i                 i
-//
-//    The thermal diffusion term will always be lagged
-//    at the last level.  Also, the thermal diffusion
-//    can be tuned by the same constant for all components
-// 8) The term dMu depends upon pressure, composition,
-//    and temperature.  The temperature field is known,
-//    and thus the temperature dependence in the differential
-//    of the chemical potential must be estimated.  It
-//    is estimated in a second order correct way, namely,
-//
-//                    +   +      -   -           +    -
-//    dMu/dT = 1/2 ( T dMu/dT + T dMu/dT ) ln ( T  / T  )
-//       i                i          i
-//
-//    Note that in the iteration scheme these terms
-//    are lagged by one iteration at the new level.  Actually,
-//    since the temperature derivative of the chemical potential
-//    is the non-ideal partial entropy, we are doing a midpoint
-//    rule for estimating S for S dT
-// 9) Upon expansion we get
-//
-//          +         +        -     +                  
-//    Sum Mu  dX  + Mu  dP = Mu  - Mu  - M g dH - AdlnT
-//     j    ij  j     ip       i     i    i
-//
-// 10) Note, however, that this condition means that there
-//     are more unknowns than equations.  The appropriate
-//     additional constraint is that the sum of the mole
-//     fractions at the next level must be unity.  This
-//     is ensured since
-//
-//     Sum dMu  = V dP = - MW g dH
-//      i     i         
-//
-//     and thus
-//
-//     dP = - rho g dH
-//
-//     meaning that the system is in mechanical equilibrium.
-//     Also, the thermal diffusion terms sum to zero when
-//     performing the sum over all components
-// 11) Use as an initial guess at the new level the current
-//     composition and the pressure
-// 12) When forming the Jacobian matrix we choose the
-//     square root of the mole fraction divided by a
-//     scaling term involving units to ensure that 
-//     the matrix will be the identity matrix for the 
-//     ideal gas case
-// 13) The equations can be written in the form
-//
-//     A P dX = G
-//     1 0 dP   H
-//
-//     The pressure derivatives appearing in the matrix
-//     P are obtained by multiplying the standard
-//     pressure derivatives by the current pressure,
-//     which produces the derivative wrt the log of the
-//     pressure.  But instead of this, we will use as
-//     primary unknowns PX (the partial pressure) and 
-//     the pressure.  Thus the equations will be
-//
-//     A  P dPX = G
-//     1 -1 dP    H
-//
-// 14) By choosing a scaling factor of S = sqrt ( PX / RT )
-//     above equation is rewritten as
-//
-//             -1
-//     SAS SP S  dPX = SG
-//      S  -1    dP     H
-//
-//     In this case the matrix SAS will have the property
-//     that it will be a diagonal matrix for an ideal gas
-// 15) Let 
-//
-//          -1
-//     y = S  dPX
-//
-//     Then solve
-//
-//     SAS z = SG and SAS w = SP
-//
-//     The equations are then of the form
-//     
-//     I   w   y  = z
-//     S  -1  dP    H
-//
-// 16) Now solve for dP.  We have
-//
-//     dP = ( Sz - H ) / ( 1 + Sw )
-//
-//     The solution is not allowed to grow more than one log
-//     cycle.  The equations are now of the form
-//
-//     I  w  y   = z
-//     0  1  dP    dP
-//
-//     and thus
-// 
-//     y = z - w dP
-//
-// 17) dPX is not used; rather dlnPX is used.  Thus
-//
-//     dlnPX = S y / PX = y / S
-//
-//     New partial pressures can then be set.
-// 18) The iterations are stopped when the pressure
-//     has converged.  As noted above the system is then
-//     in gravitational equilibrium owing to the definition
-//     of the chemical potential
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+/// @brief   Routine to take Newton iterations for compositional grading
+///
+/// @param   iNc Number of components
+///
+/// 1) Load properties from the previous step.
+/// 2) Determine whether enthalpy calculations are
+///    required.  The enthalpy is required if thermal
+///    diffusion is used AND the temperature is not
+///    constant between steps.
+/// 3) Calculate the chemical potential at the initial guess
+/// 4) Calculate the thermal diffusion term if required
+/// 5) Restore current properties
+/// 6) Calculate the constant terms used in the iterations
+///    At this point we will describe the system to be solved.
+///    The equation to be solved is
+///
+///    dMu  = - M g dH - K  dlnT
+///       i      i        i
+///
+///    where Mu is the chemical potential, M is the molecular
+///    weight, and K is the thermal diffusion term.  The
+///    thermal diffusion term is based upon the work of
+///    Kempers (L.J.T.M Kempers, "A thermodynamic theory of the Soret
+///    effect in a multicomponent liquid", J. Chem. Phys, 90,
+///    June 1989.), while the basic form of the equation is
+///    due to Schulte (A.M. Schulte, "Compositional Variations
+///    within a Hydrocarbon Column Due to Gravity", SPE 9235,
+///    1980)
+/// 7) This differential equation can be integrated to
+///    yield
+///
+///      +     -          +    -              +    -
+///    Mu  = Mu  - M g ( H  - H  ) - K  ln ( T  / T  )
+///      i     i    i                 i
+///
+///    The thermal diffusion term will always be lagged
+///    at the last level.  Also, the thermal diffusion
+///    can be tuned by the same constant for all components
+/// 8) The term dMu depends upon pressure, composition,
+///    and temperature.  The temperature field is known,
+///    and thus the temperature dependence in the differential
+///    of the chemical potential must be estimated.  It
+///    is estimated in a second order correct way, namely,
+///
+///                    +   +      -   -           +    -
+///    dMu/dT = 1/2 ( T dMu/dT + T dMu/dT ) ln ( T  / T  )
+///       i                i          i
+///
+///    Note that in the iteration scheme these terms
+///    are lagged by one iteration at the new level.  Actually,
+///    since the temperature derivative of the chemical potential
+///    is the non-ideal partial entropy, we are doing a midpoint
+///    rule for estimating S for S dT
+/// 9) Upon expansion we get
+///
+///          +         +        -     +
+///    Sum Mu  dX  + Mu  dP = Mu  - Mu  - M g dH - AdlnT
+///     j    ij  j     ip       i     i    i
+///
+/// 10) Note, however, that this condition means that there
+///     are more unknowns than equations.  The appropriate
+///     additional constraint is that the sum of the mole
+///     fractions at the next level must be unity.  This
+///     is ensured since
+///
+///     Sum dMu  = V dP = - MW g dH
+///      i     i
+///
+///     and thus
+///
+///     dP = - rho g dH
+///
+///     meaning that the system is in mechanical equilibrium.
+///     Also, the thermal diffusion terms sum to zero when
+///     performing the sum over all components
+/// 11) Use as an initial guess at the new level the current
+///     composition and the pressure
+/// 12) When forming the Jacobian matrix we choose the
+///     square root of the mole fraction divided by a
+///     scaling term involving units to ensure that
+///     the matrix will be the identity matrix for the
+///     ideal gas case
+/// 13) The equations can be written in the form
+///
+///     A P dX = G
+///     1 0 dP   H
+///
+///     The pressure derivatives appearing in the matrix
+///     P are obtained by multiplying the standard
+///     pressure derivatives by the current pressure,
+///     which produces the derivative wrt the log of the
+///     pressure.  But instead of this, we will use as
+///     primary unknowns PX (the partial pressure) and
+///     the pressure.  Thus the equations will be
+///
+///     A  P dPX = G
+///     1 -1 dP    H
+///
+/// 14) By choosing a scaling factor of S = sqrt ( PX / RT )
+///     above equation is rewritten as
+///
+///             -1
+///     SAS SP S  dPX = SG
+///      S  -1    dP     H
+///
+///     In this case the matrix SAS will have the property
+///     that it will be a diagonal matrix for an ideal gas
+/// 15) Let
+///
+///          -1
+///     y = S  dPX
+///
+///     Then solve
+///
+///     SAS z = SG and SAS w = SP
+///
+///     The equations are then of the form
+///
+///     I   w   y  = z
+///     S  -1  dP    H
+///
+/// 16) Now solve for dP.  We have
+///
+///     dP = ( Sz - H ) / ( 1 + Sw )
+///
+///     The solution is not allowed to grow more than one log
+///     cycle.  The equations are now of the form
+///
+///     I  w  y   = z
+///     0  1  dP    dP
+///
+///     and thus
+///
+///     y = z - w dP
+///
+/// 17) dPX is not used; rather dlnPX is used.  Thus
+///
+///     dlnPX = S y / PX = y / S
+///
+///     New partial pressures can then be set.
+/// 18) The iterations are stopped when the pressure
+///     has converged.  As noted above the system is then
+///     in gravitational equilibrium owing to the definition
+///     of the chemical potential
+///
+////////////////////////////////////////////////////////////////////////////////
 int EosPvtModel::CompositionalGradingNewton( int iNc )
 {
    int     iConvrg;
@@ -12685,8 +11839,9 @@ int EosPvtModel::CompositionalGradingNewton( int iNc )
    /* Compute thermal diffusion contribution */
    if ( iGetH )
    {
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->ThermalDiffusion( 1, dT, m_dThermalDiffusion, m_pZx, m_pDZxda, m_pHx, m_pDHxda, m_pPotentialy );
+      m_pEosPvtTable->ThermalDiffusion(
+         1, dT, m_dThermalDiffusion, m_pZx, m_pDZxda, m_pHx, m_pDHxda, m_pPotentialy
+         );
    }
 
    /* Restore data for current step */
@@ -12801,9 +11956,9 @@ int EosPvtModel::CompositionalGradingNewton( int iNc )
       }
 
       /* Newton step */
-      Cholesky( 1, iNc, m_pDXda );
-      BackSolve( 1, iNc, m_pDXda, m_pDXdp );
-      BackSolve( 1, iNc, m_pDXda, m_pDXdt );
+      EosLinAlg::Cholesky ( 1, iNc, m_dTiny, m_pDXda, m_pTerm3, m_pTerm2 );
+      EosLinAlg::BackSolve( 1, iNc, m_pDXda, m_pDXdp );
+      EosLinAlg::BackSolve( 1, iNc, m_pDXda, m_pDXdt );
 
       /* Update pressure */
       dA = m_pDZxda[0];
@@ -12850,24 +12005,21 @@ int EosPvtModel::CompositionalGradingNewton( int iNc )
 }
 
 
-/* 
-// ChemicalPotential
-//
-// Routine to get the chemical potentials 
-//
-// iNc
-//    Number of components
-// iDrvt
-//    Indicator for derivative level.  Either
-//       EOS_NODRV - isothermal case
-//       EOS_DRV_T - thermal case
-// iGetH
-//    Indicator as to whether we need enthalpy for thermal
-//    diffusion
-//
-// 1) Call SolveCubic to get the chemical potential
-// 2) Add the term RT log PXi
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+/// @brief   Routine to get the chemical potentials
+///
+/// @param   iNc Number of components
+/// @param   iDrvt Indicator for derivative level.  Either
+///                EOS_NODRV - isothermal case
+///                EOS_DRV_T - thermal case
+/// @param   iGetH Indicator as to whether we need enthalpy for thermal
+///                diffusion
+///
+/// 1) Call SolveCubic to get the chemical potential
+/// 2) Add the term RT log PXi
+///
+////////////////////////////////////////////////////////////////////////////////
 void EosPvtModel::ChemicalPotentials( int iNc, int iDrvt, int iGetH, int iNorm )
 {
    double dA;
@@ -12891,8 +12043,11 @@ void EosPvtModel::ChemicalPotentials( int iNc, int iDrvt, int iGetH, int iNorm )
    }
 
    /* Chemical potential and PV factor for the x phase */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pEosPvtTable )->SolveCubic( 1, EOS_FUGACITY, iGetH, EOS_POTENTIAL, iDrvt, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pY, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda, m_pPotentialx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId );
+   m_pEosPvtTable->SolveCubic(
+      1, EOS_FUGACITY, iGetH, EOS_POTENTIAL, iDrvt, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+      m_pPressure, m_pTemperature, m_pY, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+      m_pPotentialx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+      );
 
    /* Scale derivatives */
    if ( iDrvt && ( !iNorm ) )
@@ -12938,51 +12093,45 @@ void EosPvtModel::ChemicalPotentials( int iNc, int iDrvt, int iGetH, int iNorm )
 }
 
 
-/* 
-// SeparatorFlash
-//
-// Routine to perform a surface flash through a separator train
-//
-// iNc
-//    Number of hydrocarbon components
-// iType
-//    Type of hydrocarbon phases that can be present.  If
-//    EOS_TOF_2P, two phases can be present
-// iWater
-//    Indicator if a water phase is present
-// iFlash
-//    Indicator whether we are to flash
-// pPvtTable
-//    Array of pointers to pvt tables for each separator
-//
-// 1) The following type of system is modeled
-//
-//          [stock tank oil]
-//                  ^
-//                  |
-//    More feed--> [ ] -----------------+
-//                  ^                   |
-//              oil |                   |
-//                  |     gas           |
-//    More feed--> [ ] -----------------+
-//                  ^                   |
-//              oil |                   |
-//                  |     gas           |
-//    Feed ------> [ ] ------------------->[stock tank gas]
-//
-// 1) For each separator...
-// 2) First read in the previous values present in the oil
-//    phase, and add in the new feed.  Of course, for the
-//    first separator, there is only feed
-// 3) Then flash the mixture, obtaining only mole fractions,
-//    except at the last stage
-// 4) Move on to the next separator
-// 5) Now for a pass in the other direction.  We must gather
-//    the gas, and form the volumetric terms.  The computations
-//    are different for a system that can have two hydrocarbon
-//    phases and a single phase hydrocarbon system
-// 6) Finally, add in the water properties
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+/// @brief   Routine to perform a surface flash through a separator train
+///
+/// @param   iNc       Number of hydrocarbon components
+/// @param   iType     Type of hydrocarbon phases that can be present.  If
+///                    EOS_TOF_2P, two phases can be present
+/// @param   iWater    Indicator if a water phase is present
+/// @param   iFlash    Indicator whether we are to flash
+/// @param   pPvtTable Array of pointers to pvt tables for each separator
+///
+/// 1) The following type of system is modeled
+///
+///          [stock tank oil]
+///                  ^
+///                  |
+///    More feed--> [ ] -----------------+
+///                  ^                   |
+///              oil |                   |
+///                  |     gas           |
+///    More feed--> [ ] -----------------+
+///                  ^                   |
+///              oil |                   |
+///                  |     gas           |
+///    Feed ------> [ ] ------------------->[stock tank gas]
+///
+/// 1) For each separator...
+/// 2) First read in the previous values present in the oil
+///    phase, and add in the new feed.  Of course, for the
+///    first separator, there is only feed
+/// 3) Then flash the mixture, obtaining only mole fractions,
+///    except at the last stage
+/// 4) Move on to the next separator
+/// 5) Now for a pass in the other direction.  We must gather
+///    the gas, and form the volumetric terms.  The computations
+///    are different for a system that can have two hydrocarbon
+///    phases and a single phase hydrocarbon system
+/// 6) Finally, add in the water properties
+////////////////////////////////////////////////////////////////////////////////
 void EosPvtModel::SeparatorFlash( int iNc, int iType, int iWater, int iFlash, EosPvtTable **pPvtTable )
 {
    int iSep;
@@ -12990,11 +12139,12 @@ void EosPvtModel::SeparatorFlash( int iNc, int iType, int iWater, int iFlash, Eo
    int iThermal;
 
    /* See which simulator data needed */
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->WriteOutputData( &m_iDrv, &iCount, &iCount, &m_iHeat, &iCount, &m_iVolume, &m_iMolarFlash, &iCount );
+   m_pApplication->WriteOutputData(
+      &m_iDrv, &iCount, &iCount, &m_iHeat, &iCount, &m_iVolume, &m_iMolarFlash, &iCount
+      );
 
    /* Reset the slice */
-   iSep = ( m_pApplication )->SetSeparator( EOS_INIT_START );
+   iSep = m_pApplication->SetSeparator( EOS_INIT_START );
 
    /* If anything to do */
    iCount = 0;
@@ -13006,13 +12156,13 @@ void EosPvtModel::SeparatorFlash( int iNc, int iType, int iWater, int iFlash, Eo
       m_pEosPvtTable = pPvtTable[iSep];
 
       /* Load previous values */
-      ( m_pApplication )->ModifySeparatorAccumulations();
+      m_pApplication->ModifySeparatorAccumulations();
 
       /* If hydrocarbon present */
       if ( iType != EOS_TOF_0P )
       {
          /* Set the phase identification flag */
-         ( m_pApplication )->ModifyOnePhaseIdentification( m_dEnorm );
+         m_pApplication->ModifyOnePhaseIdentification( m_dEnorm );
 
          /* Read Data */
          ReadData( 1, 1, iNc, EOS_OPTION_OFF, EOS_NOGETK, &iThermal );
@@ -13026,7 +12176,7 @@ void EosPvtModel::SeparatorFlash( int iNc, int iType, int iWater, int iFlash, Eo
          /* Need to reset phase identification flags */
          else
          {
-            ( m_pApplication )->ModifyPhaseIndicator( EOS_OPTION_OFF );
+            m_pApplication->ModifyPhaseIndicator( EOS_OPTION_OFF );
             *m_pPhase = ( *m_pPhase + 1 ) / 2;
          }
 
@@ -13035,7 +12185,7 @@ void EosPvtModel::SeparatorFlash( int iNc, int iType, int iWater, int iFlash, Eo
       }
 
       /* Reset the slice */
-      iSep = ( m_pApplication )->SetSeparator( EOS_INIT_UP );
+      iSep = m_pApplication->SetSeparator( EOS_INIT_UP );
    }
 
    /* Load separator gas */
@@ -13060,77 +12210,75 @@ void EosPvtModel::SeparatorFlash( int iNc, int iType, int iWater, int iFlash, Eo
    }
 
    /* Restore volume control */
-   ( m_pApplication )->ReadVolumeControl( m_iVolume );
+   m_pApplication->ReadVolumeControl( m_iVolume );
 }
 
 
-/* 
-// SeparatorGas
-//
-// Load separator gas 
-//
-// iNc
-//    Number of components
-// pPvtTable
-//    Array of pointers to pvt tables for each separator
-// 
-// 1) Ensure that the routine is going to calculate
-//    both volumes and total moles/mass of each component
-// 2) We get the oil density from the stack.
-//    However, we might need to interchange phases
-// 3) First make a pass through all separators to
-//    obtain the gas which was produced.  
-// 4) We already have calculated the oil, so load it
-//    Note that the oil at the last stage is the volume
-//    and partial volumes with respect to the feed, i.e.,
-//
-//    V      = Sum V        ( O      + F    )
-//     oil,n    i   oil,i,n    i,n-1    i,n
-//
-//    where O represents the oil from the last stage and
-//    F is the feed at the last stage
-//
-// 5) Form the partial volumes for the gas.  Thus, at the
-//    last stage, then
-//
-//    V      = Sum V        ( O      + F    )
-//     gas,n    i   gas,i,n    i,n-1    i,n
-//
-//    where Q is the total feed into all separators
-//
-// 6) Then go backwards through the other separators.
-//    At each stage j we have
-//
-//    O    = M  ( F  + O    )
-//     j+1    j    j    j-1
-//
-//    where M is simply the derivative matrix of the total mass or
-//    moles of components of the oil phase with respect to 
-//    the feed + previous oil.
-//
-// 7) We can telescope the sums so that at the first stage
-//
-//    V      = Sum ( Prod M  ) V         F 
-//     oil,1    i      j   j    oil,i,n    i,1
-//
-//    Thus
-//
-//    V      = Sum V         F 
-//     oil,1    i   oil,i,n    i,1
-//    
-// 8) The products for gas are similar
-//
-//    V      = Sum ( I - Prod M  ) V         F    
-//     gas,1    i          j   j    gas,i,n   i,1
-//
-//    Thus
-//
-//    V      = Sum V         F 
-//     gas,1    i   gas,i,n    i,1
-//
-// 9) At each stage of this process we must write the results
-//    to Application
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+/// @brief   Load separator gas
+///
+/// @param   iNc       Number of components
+/// @param   pPvtTable Array of pointers to pvt tables for each separator
+///
+/// 1) Ensure that the routine is going to calculate
+///    both volumes and total moles/mass of each component
+/// 2) We get the oil density from the stack.
+///    However, we might need to interchange phases
+/// 3) First make a pass through all separators to
+///    obtain the gas which was produced.
+/// 4) We already have calculated the oil, so load it
+///    Note that the oil at the last stage is the volume
+///    and partial volumes with respect to the feed, i.e.,
+///
+///    V      = Sum V        ( O      + F    )
+///     oil,n    i   oil,i,n    i,n-1    i,n
+///
+///    where O represents the oil from the last stage and
+///    F is the feed at the last stage
+///
+/// 5) Form the partial volumes for the gas.  Thus, at the
+///    last stage, then
+///
+///    V      = Sum V        ( O      + F    )
+///     gas,n    i   gas,i,n    i,n-1    i,n
+///
+///    where Q is the total feed into all separators
+///
+/// 6) Then go backwards through the other separators.
+///    At each stage j we have
+///
+///    O    = M  ( F  + O    )
+///     j+1    j    j    j-1
+///
+///    where M is simply the derivative matrix of the total mass or
+///    moles of components of the oil phase with respect to
+///    the feed + previous oil.
+///
+/// 7) We can telescope the sums so that at the first stage
+///
+///    V      = Sum ( Prod M  ) V         F
+///     oil,1    i      j   j    oil,i,n    i,1
+///
+///    Thus
+///
+///    V      = Sum V         F
+///     oil,1    i   oil,i,n    i,1
+///
+/// 8) The products for gas are similar
+///
+///    V      = Sum ( I - Prod M  ) V         F
+///     gas,1    i          j   j    gas,i,n   i,1
+///
+///    Thus
+///
+///    V      = Sum V         F
+///     gas,1    i   gas,i,n    i,1
+///
+/// 9) At each stage of this process we must write the results
+///    to Application
+///
+////////////////////////////////////////////////////////////////////////////////
 void EosPvtModel::SeparatorGas( int iNc, EosPvtTable **pPvtTable )
 {
    double  dA;
@@ -13141,19 +12289,19 @@ void EosPvtModel::SeparatorGas( int iNc, EosPvtTable **pPvtTable )
    int     iSep;
 
    /* Reset the volume indicator */
-   ( m_pApplication )->ReadVolumeControl( EOS_STOCK_TANK );
+   m_pApplication->ReadVolumeControl( EOS_STOCK_TANK );
 
    /* Reset the slice */
-   iSep = ( m_pApplication )->SetSeparator( EOS_INIT_START );
+   iSep = m_pApplication->SetSeparator( EOS_INIT_START );
 
    /* Load previous values */
-   ( m_pApplication )->WriteSeparatorInfo( m_pY, m_pZx, m_pDZxda );
+   m_pApplication->WriteSeparatorInfo( m_pY, m_pZx, m_pDZxda );
 
    /* If anything to do */
-   while ( ( m_pApplication )->SetSeparator( EOS_INIT_UP ) >= 0 )
+   while ( m_pApplication->SetSeparator( EOS_INIT_UP ) >= 0 )
    {
       /* Load previous values */
-      ( m_pApplication )->WriteSeparatorInfo( m_pX, m_pZx, m_pDZxda );
+      m_pApplication->WriteSeparatorInfo( m_pX, m_pZx, m_pDZxda );
 
       /* Add to total gas */
       for ( iNi = 0; iNi < iNc; iNi++ )
@@ -13163,13 +12311,13 @@ void EosPvtModel::SeparatorGas( int iNc, EosPvtTable **pPvtTable )
    }
 
    /* Reset the slice to end */
-   iSep = ( m_pApplication )->SetSeparator( EOS_INIT_END );
+   iSep = m_pApplication->SetSeparator( EOS_INIT_END );
 
    /* Set the pvt table */
    m_pEosPvtTable = pPvtTable[iSep];
 
    /* Load separator oil derivatives */
-   ( m_pApplication )->WriteSeparatorDrv( EOS_OIL, m_pDXda );
+   m_pApplication->WriteSeparatorDrv( EOS_OIL, m_pDXda );
 
    /* Set the composition */
    for ( iNi = 0; iNi < iNc; iNi++ )
@@ -13206,12 +12354,17 @@ void EosPvtModel::SeparatorGas( int iNc, EosPvtTable **pPvtTable )
       }
 
       /* Z factor */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->SolveCubic( 1, EOS_NOFUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId );
+      m_pEosPvtTable->SolveCubic(
+         1, EOS_NOFUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, m_iDrv, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pComposition, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork,
+         m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
 
       /* Perform the volume translations */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pEosPvtTable )->Volume( 1, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork );
+      m_pEosPvtTable->Volume(
+         1, m_iDrv, m_iMultipleAbc, m_pAbcOffset, m_pPressure, m_pTemperature, m_pComposition,
+         m_pZy, m_pDZydp, m_pDZydt, m_pDZyda, m_pWork
+         );
 
       /* Density */
       dB = *m_pZy;
@@ -13274,22 +12427,25 @@ void EosPvtModel::SeparatorGas( int iNc, EosPvtTable **pPvtTable )
    }
 
    /* Retrieve gas phase derivative */
-   ( m_pApplication )->WriteSeparatorDrv( EOS_GAS, m_pDYda );
+   m_pApplication->WriteSeparatorDrv( EOS_GAS, m_pDYda );
 
    /* Store the data */
    *m_pPhaseId = EOS_SINGLE_PHASE_GAS;
 
-   /* TODO: The next line is too long. Please rewrite to make it shorter. */
-   ( m_pApplication )->ReadData( EOS_SINGLE_PHASE_OIL, 1, iNc, m_pPhaseId, m_pY, m_pDYdp, m_pMy, m_pDMydp, m_pZy, m_pDMydp, m_pMuy, m_pDMuydp, m_pIfy, m_pDIfydp, m_pHy, m_pDHydp, m_pBp, m_pDBpdp, m_pMWy );
+   m_pApplication->ReadData(
+      EOS_SINGLE_PHASE_OIL, 1, iNc, m_pPhaseId, m_pY, m_pDYdp, m_pMy, m_pDMydp,
+      m_pZy, m_pDMydp, m_pMuy, m_pDMuydp, m_pIfy, m_pDIfydp,
+      m_pHy, m_pDHydp, m_pBp, m_pDBpdp, m_pMWy
+      );
 
    /* Reset the volume indicator */
-   ( m_pApplication )->ReadVolumeControl( EOS_VOLUME );
+   m_pApplication->ReadVolumeControl( EOS_VOLUME );
 
    /* While anything more to do */
-   while ( ( m_pApplication )->SetSeparator( EOS_INIT_DOWN ) >= 0 )
+   while ( m_pApplication->SetSeparator( EOS_INIT_DOWN ) >= 0 )
    {
       /* Load next compositions */
-      ( m_pApplication )->WriteSeparatorDrv( EOS_OIL, m_pDXda );
+      m_pApplication->WriteSeparatorDrv( EOS_OIL, m_pDXda );
 
       /* Set the derivatives */
       if ( m_iDrv )
@@ -13318,44 +12474,52 @@ void EosPvtModel::SeparatorGas( int iNc, EosPvtTable **pPvtTable )
       }
 
       /* Write it out */
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadData( EOS_SINGLE_PHASE_OIL, 1, iNc, m_pPhaseId, m_pY, m_pDYdp, m_pMy, m_pDMydp, m_pZy, m_pDMydp, m_pMuy, m_pDMuydp, m_pIfy, m_pDIfydp, m_pHy, m_pDHydp, m_pBp, m_pDBpdp, m_pMWy );
+      m_pApplication->ReadData(
+         EOS_SINGLE_PHASE_OIL, 1, iNc, m_pPhaseId, m_pY, m_pDYdp, m_pMy, m_pDMydp,
+         m_pZy, m_pDMydp, m_pMuy, m_pDMuydp, m_pIfy, m_pDIfydp,
+         m_pHy, m_pDHydp, m_pBp, m_pDBpdp, m_pMWy
+         );
 
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadData( EOS_SINGLE_PHASE_GAS, 1, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp, m_pZx, m_pDMxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx );
+      m_pApplication->ReadData(
+         EOS_SINGLE_PHASE_GAS, 1, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp,
+         m_pZx, m_pDMxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp,
+         m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx
+         );
    }
 }
 
 
-/* 
-// SeparatorHydrocarbon
-//
-// Volume calculations for a single phase hydrocarbon 
-//
-// iNc
-//    Number of hydrocarbons
-//
-// 1) The flash results from the last separator are already
-//    known.  Copy these to other separators in the train 
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+/// @brief   Volume calculations for a single phase hydrocarbon
+///
+/// @param   iNc Number of hydrocarbons
+///
+///  1) The flash results from the last separator are already
+///    known.  Copy these to other separators in the train
+///
+////////////////////////////////////////////////////////////////////////////////
 void EosPvtModel::SeparatorHydrocarbon( int iNc )
 {
    /* Move to the first separator */
    /*int iSep =*/
-   ( m_pApplication )->SetSeparator( EOS_INIT_END );
+   m_pApplication->SetSeparator( EOS_INIT_END );
 
    /* Set volume control to volume only */
-   ( m_pApplication )->ReadVolumeControl( EOS_VOLUME );
+   m_pApplication->ReadVolumeControl( EOS_VOLUME );
 
    /* Load previous values */
-   ( m_pApplication )->WriteSeparatorInfo( m_pX, m_pZx, m_pDZxda );
+   m_pApplication->WriteSeparatorInfo( m_pX, m_pZx, m_pDZxda );
 
    /* Save the data for other separators */
    *m_pPhaseId = EOS_SINGLE_PHASE_OIL;
-   while ( ( m_pApplication )->SetSeparator( EOS_INIT_DOWN ) >= 0 )
+   while ( m_pApplication->SetSeparator( EOS_INIT_DOWN ) >= 0 )
    {
-      /* TODO: The next line is too long. Please rewrite to make it shorter. */
-      ( m_pApplication )->ReadData( EOS_SINGLE_PHASE_OIL, 1, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp, m_pZx, m_pDZxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp, m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx );
+      m_pApplication->ReadData(
+         EOS_SINGLE_PHASE_OIL, 1, iNc, m_pPhaseId, m_pX, m_pDXdp, m_pMx, m_pDMxdp,
+         m_pZx, m_pDZxdp, m_pMux, m_pDMuxdp, m_pIfx, m_pDIfxdp,
+         m_pHx, m_pDHxdp, m_pBp, m_pDBpdp, m_pMWx
+         );
    }
 }
 
@@ -13375,10 +12539,10 @@ void EosPvtModel::SeparatorWater( EosPvtTable **pPvtTable )
    int iSep;
 
    /* Set volume control to everything */
-   ( m_pApplication )->ReadVolumeControl( EOS_STOCK_TANK );
+   m_pApplication->ReadVolumeControl( EOS_STOCK_TANK );
 
    /* Move to last separator */
-   iSep = ( m_pApplication )->SetSeparator( EOS_INIT_END );
+   iSep = m_pApplication->SetSeparator( EOS_INIT_END );
 
    /* Set the pvt table */
    m_pEosPvtTable = pPvtTable[iSep];
@@ -13387,10 +12551,10 @@ void EosPvtModel::SeparatorWater( EosPvtTable **pPvtTable )
    WaterProperties( EOS_OPTION_ON, EOS_OPTION_ON );
 
    /* Set volume control to volume only */
-   ( m_pApplication )->ReadVolumeControl( EOS_VOLUME );
+   m_pApplication->ReadVolumeControl( EOS_VOLUME );
 
    /* Loop over other data */
-   while ( ( m_pApplication )->SetSeparator( EOS_INIT_DOWN ) >= 0 )
+   while ( m_pApplication->SetSeparator( EOS_INIT_DOWN ) >= 0 )
    {
       /* Update water properties */
       WaterProperties( EOS_OPTION_ON, EOS_OPTION_OFF );
