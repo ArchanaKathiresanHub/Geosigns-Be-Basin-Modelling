@@ -15,15 +15,31 @@
 /// Pressure [Pa]
 /// Temperature [K]
 ///
-/// the typical usage should look like this
-///
+// the typical usage should looks like this
+//
+//  
+//  PTDiagramCalculator::DiagramType typeOfDiag = PTDiagramCalculator::MoleMassFractionDiagram;
+//  // or PTDiagramCalculator::VolumeFractionDiagram
+//  // or PTDiagramCalculator::MassFractionDiagram
+//
 //  PTDiagramCalculator diagramCalculator( typeOfDiagram, masses );
 //
 //  diagramCalculator.findBubleDewLines( CompTemperature, CompPressure, std::vector<double>() );
 //  double critT = diagramCalculator.getCriticalP();
 //  double critP = diagramCalculator.getCriticalT();
+// 
+//  if ( critT > 0.0 && crtiP > 0.0 ) // found criticla P & T
+//  {
+//     ...
+//  }
 //
-//  for ( double v = 0.0; v <= 1.0; v+= 0.1 )
+//  double bubbleP;
+//  if ( diagBuilder->getBubblePressure( CompTemperature, bubbleP ) ) found bubble point for given T
+//  {
+//     ...
+//  }
+//
+//  for ( double v = 0.0; v <= 1.0; v+= 0.1 ) // collect isolines, 0.0 - dew line / 1.0 - bubble line
 //  {
 //     const std::vector< std::pair<double,double> > & contLine = diagramCalculator.calcIsoline( v );
 //     ...
@@ -139,6 +155,11 @@ private:
    /// \param foundT[out] on return, if iterations were successful, it contains bubble or dew point temperature value
    /// \return true if value was found, false otherwise
    bool doBisectionForContourLineSearch( size_t p1, size_t t1, size_t p2, size_t t2, double frac, double & foundP, double & foundT );
+
+   /// \brief Find critical point as intersection of 0.5 isoline with bubble/dew curve. If not found - go along bubble/dew curve
+   ///        and look for phase changed from gas to liquid
+   /// \return true on success, false otherwise
+   bool findCriticalPoint();
 
    /// \brief Create 1D grids along P and T
    /// \param minP lower bound for P grid

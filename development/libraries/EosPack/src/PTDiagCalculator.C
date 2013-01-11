@@ -289,15 +289,15 @@ bool PTDiagramCalculator::doBisectionForBubbleDewSearch( size_t p1, size_t t1, s
 
       if ( std::abs( V1 - V2 ) < m_eps * ( V1 + V2 ) ) // check convergence using relative tolerance
       {
-         if ( bothPhases == phase1 ) // always return value inside of 2 phase region
+         if ( bothPhases == phase1 ) // always return value outside of 2 phase region
          {
-            if ( bisectT ) foundT = V1; 
-            else           foundP = V1;
+            if ( bisectT ) foundT = V2; 
+            else           foundP = V2;
          } 
          else if ( bothPhases == phase2 )
          {
-            if ( bisectT ) foundT = V2;
-            else           foundP = V2;
+            if ( bisectT ) foundT = V1;
+            else           foundP = V1;
          }
          else
          {
@@ -539,24 +539,37 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
    // trace 0.5 contour line at first
    m_c0p5Line = calcContourLine( 0.5 );
 
-   bool foundCriticalPoint = m_c0p5Line.size() > 3 ? true : false;
-   m_critT = m_c0p5Line.back().first;
-   m_critP = m_c0p5Line.back().second;
+   findCriticalPoint();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Find critical point as intersection of 0.5 isoline with bubble/dew curve. If not found - go along bubble/dew curve
+//  and look for phase changed from gas to liquid
+// return true on success, false otherwise
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool PTDiagramCalculator::findCriticalPoint()
+{
+   bool foundCriticalPoint = false;
 
    m_critPointPos = m_bubbleDewLine.end();
 
-   if ( foundCriticalPoint ) // find critical point on to Bubble/Dew curve
+   double scaleT = 1.0 / (m_gridT.back() - m_gridT.front());
+   double scaleP = 1.0 / (m_gridP.back() - m_gridP.front());
+
+   if ( m_c0p5Line.size() > 3 ) // find critical point on to Bubble/Dew curve
    {  double minDist = 2;
 
       // convert to 0-1 segment
-      double critT = (m_critT - m_gridT.front())/(m_gridT.back() - m_gridT.front() );
-      double critP = (m_critP - m_gridP.front())/(m_gridP.back() - m_gridP.front() );
+      double critT = ( m_c0p5Line.back().first  - m_gridT.front() ) * scaleT;
+      double critP = ( m_c0p5Line.back().second - m_gridP.front() ) * scaleP;
 
       for ( std::vector< std::pair<double,double> >::iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
       {
-         double T = ( it->first  - m_gridT.front())/(m_gridT.back() - m_gridT.front() );
-         double P = ( it->second - m_gridP.front())/(m_gridP.back() - m_gridP.front() );
-         double dist = std::sqrt( ( T - critT ) * ( T - critT ) + ( P - critP ) * (P - critP ) );
+         // convert to 0-1 segment
+         double T = ( it->first  - m_gridT.front()) * scaleT;
+         double P = ( it->second - m_gridP.front()) * scaleP;
+         double dist = std::sqrt( ( T - critT ) * ( T - critT ) + ( P - critP ) * ( P - critP ) );
 
          if ( dist < minDist )
          {
@@ -568,25 +581,92 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
       if ( m_critPointPos != m_bubbleDewLine.end() )
       {
          // check is found nearest bubble/dew point not too far from critical point
-         if ( std::abs( m_critPointPos->first  - m_critT ) < ( m_gridT[1] - m_gridT[0] ) * 0.5 &&
-              std::abs( m_critPointPos->second - m_critP ) < ( m_gridP[1] - m_gridP[0] ) * 0.5 && 
-              // and also it is not already on bubble dew curve
-              ( (( m_critPointPos->first  - m_critT ) > m_eps) || (( m_critPointPos->second - m_critP ) > m_eps)
-              )
+         if ( std::abs( m_critPointPos->first  - m_c0p5Line.back().first  ) < ( m_gridT[1] - m_gridT[0] ) * 0.5 &&
+              std::abs( m_critPointPos->second - m_c0p5Line.back().second ) < ( m_gridP[1] - m_gridP[0] ) * 0.5 
             )
          {
-            m_critPointPos = m_bubbleDewLine.insert( (m_critPointPos->first > m_critT ? m_critPointPos : (m_critPointPos + 1)), 
+            // and also it is not already on bubble dew curve
+            if ( (( m_critPointPos->first  - m_c0p5Line.back().first ) > m_eps) || (( m_critPointPos->second - m_c0p5Line.back().second ) > m_eps) )
+            {
+               m_critT = m_c0p5Line.back().first;
+               m_critP = m_c0p5Line.back().second;
+               m_critPointPos = m_bubbleDewLine.insert( (m_critPointPos->first > m_critT ? m_critPointPos : (m_critPointPos + 1)), 
                                                      std::pair<double, double>( m_critT, m_critP ) );
-         }
-         else
-         {
-            m_critT = m_critPointPos->first;
-            m_critP = m_critPointPos->second;
+            }
+            else
+            {
+               m_critT = m_critPointPos->first;
+               m_critP = m_critPointPos->second;
+            }
+            foundCriticalPoint = true;
          }
       }
    }
-}
 
+   // if critical point wasn't found, try to find critical point by tracking changing phases from vapor to liquid along buble/dew line
+   if ( !foundCriticalPoint && m_bubbleDewLine.size() > 2 )
+   {
+      double massFraction[2];
+      int phase1 = GetMassFractions( m_bubbleDewLine.front().second, m_bubbleDewLine.front().first, m_masses, massFraction, m_diagType );
+      ++m_bdBisecIters;
+
+      m_critPointPos = m_bubbleDewLine.begin();
+      for ( std::vector< std::pair<double,double> >::iterator it = m_critPointPos + 1; it != m_bubbleDewLine.end() && !foundCriticalPoint; ++it )
+      {
+         int phase2 = GetMassFractions( it->second, it->first, m_masses, massFraction, m_diagType );
+         ++m_bdBisecIters;
+
+         if ( phase1 != phase2 && phase1 != bothPhases && phase2 != bothPhases )
+         {
+            double P1 = m_critPointPos->second;
+            double T1 = m_critPointPos->first;
+            double P2 = it->second;
+            double T2 = it->first;
+
+            for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
+            {
+               double newP = 0.5 * (P1 + P2);
+               double newT = 0.5 * (T1 + T2);
+
+               int newPhase = GetMassFractions( newP, newT, m_masses, massFraction, m_diagType );
+               ++m_bdBisecIters;
+
+               if ( phase1 == newPhase )
+               {
+                  P1 = newP;
+                  T1 = newT;
+               }
+               else if ( phase2 = newPhase )
+               {
+                  P2 = newP;
+                  T2 = newT;
+               }
+               else
+               {
+                  break;
+               }
+
+               // check convergence
+               if ( std::max( std::abs( P1 - P2 ) * scaleP, std::abs( T1 - T2 ) * scaleT ) < m_eps )
+               {
+                  m_critT = 0.5 * ( T1 + T2 );
+                  m_critP = 0.5 * ( P1 + P2 );
+
+                  m_critPointPos = m_bubbleDewLine.insert( it, std::pair<double, double>( m_critT, m_critP ) );
+                  foundCriticalPoint = true;
+                  break;
+               }
+            }
+         }
+         else
+         {
+            phase1 = phase2;
+            m_critPointPos = it;
+         }
+      }
+   }
+   return foundCriticalPoint;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Calculate contour line for given value. Should be called after findBubleDewLines().

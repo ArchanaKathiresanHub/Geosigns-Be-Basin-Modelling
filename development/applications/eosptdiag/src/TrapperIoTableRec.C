@@ -99,11 +99,11 @@ void TrapperIoTableRec::loadRec( const database::Table::iterator & tit )
 std::string TrapperIoTableRec::toString() const
 {
    std::ostringstream oss;
-   oss << "Persistent Trap ID: " << m_TrapId << std::endl;
-   oss << "Reservoir Name: " << m_ReservoirName << std::endl;
-   oss << "Age: " << m_Age << std::endl;
-   oss << "Pressure: " << m_Pressure << std::endl;
-   oss << "Temperature: " << m_Temperature << std::endl;
+   oss << "Persistent Trap ID: " << m_TrapId        << std::endl;
+   oss << "Reservoir Name: "     << m_ReservoirName << std::endl;
+   oss << "Age: "                << m_Age           << std::endl;
+   oss << "Pressure: "           << m_Pressure      << std::endl;
+   oss << "Temperature: "        << m_Temperature   << std::endl;
 
    oss << "  Total masses by phases: " << std::endl;
    oss << "     FreeGas: "      << m_TotMass[0] << std::endl;
@@ -137,34 +137,18 @@ std::string TrapperIoTableRec::toString() const
    oss << compMass( CBMGenerics::ComponentManager::resin ) << " ";
    oss << compMass( CBMGenerics::ComponentManager::asphaltene ) << std::endl;
 
-   oss << "  Masses by components per phase: " << std::endl << "      " << std::endl;
-   for ( int p = 0; p < 4; ++p )
+   oss << "  Masses by components: " << std::endl << "      " << std::endl;
+   for ( int i = CBMGenerics::ComponentManager::NumberOfSpecies-1; i >=0; --i )
    {
-      if ( m_TotMass[p] < 1.e-10 ) continue;
-
-      std::string fracPref;
-      switch ( p )
-      {
-         case 0: oss << "FreeGas";      break;
-         case 1: oss << "Condensate";   break;
-         case 2: oss << "SolutionGas";  break;
-         case 3: oss << "StockTankOil"; break;
-         default: assert(0); break;
-      }
-      oss << ": " << std::endl;
-      for ( int i = CBMGenerics::ComponentManager::NumberOfSpecies-1; i >= 0; --i )
-      {
-//         if ( m_CompMass[p][i] < 1.e-10 ) continue;
-         oss << "      " << CBMGenerics::ComponentManager::getInstance().GetSpeciesName( i ) << ": " << m_CompMass[p][i] << std::endl;
-      }
-      oss << std::endl;
+      oss << "      " << CBMGenerics::ComponentManager::getInstance().GetSpeciesName( i ) << ": " << compMass(i) << std::endl;
    }
+   oss << std::endl;
    return oss.str();
 }
 
 std::string TrapperIoTableRec::name() const
 {
    std::ostringstream oss;
-   oss << m_TrapId << "_" << m_ReservoirName << "_" << m_Age;
+   oss << m_ReservoirName << "_trap_" << m_TrapId << "_age_" << m_Age;
    return oss.str();
 }
