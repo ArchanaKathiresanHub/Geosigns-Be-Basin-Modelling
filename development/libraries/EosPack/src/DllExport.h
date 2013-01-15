@@ -1,6 +1,7 @@
 #ifndef DLLEXPORT_H
 #define DLLEXPORT_H
 
+#include "stdafx.h"
 #include "EosPack.h"
 #include "ComponentManager.h"
 #include "polynomials.h"
