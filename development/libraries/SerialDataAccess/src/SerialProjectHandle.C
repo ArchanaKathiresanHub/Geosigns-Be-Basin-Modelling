@@ -7,7 +7,6 @@
 
 #if defined(_WIN32) || defined (_WIN64)
 #include <direct.h>
-#include "EosPackIndirect.h"
 #endif
 
 #include <algorithm>
