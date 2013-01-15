@@ -9,7 +9,6 @@ set(EOSPACK_SOURCES
 	src/Parse.C
 	src/polynomials.C
 	src/PTDiagCalculator.C
-	src/stdafx.cpp
 )
 
 #if (WIN32)
