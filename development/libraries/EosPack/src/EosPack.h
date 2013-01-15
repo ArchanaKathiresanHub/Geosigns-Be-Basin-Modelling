@@ -1,6 +1,7 @@
 #ifndef EOSPACK_H
 #define EOSPACK_H
 
+#include "stdafx.h"
 ///#include "Genex5Framework.h"
 #include "ComponentManager.h"
 #include "polynomials.h"
@@ -211,6 +212,70 @@ namespace pvtFlash
    
    double criticalTemperatureAccordingToLiMixingRule( const vector<double>& weights, const double& gorm );
    double criticalTemperatureAccordingToLiMixingRuleWithLumping( const vector<double>& weights, const double& gorm );
+
+
+   #if defined(_WIN32) || defined (_WIN64)	
+
+   struct ComputeStruct
+   {
+   public:
+      double temperature;
+      double pressure;
+      double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+      double phaseCompMasses[N_PHASES * CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+      double phaseDensity[N_PHASES];
+      double phaseViscosity[N_PHASES];
+      bool isGormPrescribed;
+      double gorm;        
+   };
+
+   extern "C" 
+   {
+      EOSPACK_DLL_EXPORT void __stdcall SetPvtPropertiesConfigFile(char* fileName)
+      {	
+         pvtFlash::pvtPropertiesConfigFile = string(fileName);
+      }
+      
+      EOSPACK_DLL_EXPORT bool __stdcall EosPackComputeWithLumping(ComputeStruct* computeInfo)
+      {
+         double phaseCompMasses[N_PHASES][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+         pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
+         
+         bool result = instance.computeWithLumping(
+                                                   computeInfo->temperature, 
+                                                   computeInfo->pressure, 
+                                                   computeInfo->compMasses,
+                                                   phaseCompMasses,
+                                                   computeInfo->phaseDensity, 
+                                                   computeInfo->phaseViscosity, 
+                                                   computeInfo->isGormPrescribed, 
+                                                   computeInfo->gorm);
+         
+         int index = 0;
+         for( int i = 0; i < N_PHASES; i++ )
+            for( int j = 0; j < CBMGenerics::ComponentManager::NumberOfOutputSpecies; j++)
+               computeInfo->phaseCompMasses[index++] = phaseCompMasses[i][j];
+         return result;
+      }
+      
+	  EOSPACK_DLL_EXPORT double __stdcall GetMolWeight(int componentId, double gorm)
+      {
+         pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
+         return instance.getMolWeightLumped(componentId, gorm);
+      }
+      
+      EOSPACK_DLL_EXPORT double __stdcall Gorm(ComputeStruct* computeInfo)
+      {
+         pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
+         computeInfo->gorm = instance.gorm(computeInfo->compMasses);
+		 return computeInfo->gorm;
+      }
+      
+   }
+   #endif
+
+
+
 
 } // namespace pvtFlash
 
