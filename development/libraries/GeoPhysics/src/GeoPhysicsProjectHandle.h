@@ -402,6 +402,12 @@ namespace GeoPhysics {
       double m_minimumLithosphereThickness; // defined in configuration file
       int    m_maximumNumberOfMantleElements; // defined in configuration file
       double m_constrainedBasaltTemperature; // defined in configuration file
+
+
+      /// If an error occurred, when calculating the mobile-layer thickness, 
+      /// this indicates that the error-message has been output.
+      bool m_hasOutputMobileLayerThicknessError;
+
    }; 
 
 }

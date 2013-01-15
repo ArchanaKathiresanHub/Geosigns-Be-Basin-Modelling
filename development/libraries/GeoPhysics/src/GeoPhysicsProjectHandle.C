@@ -90,6 +90,7 @@ GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const 
    }
 #endif
 
+   m_hasOutputMobileLayerThicknessError = false;
 }
 //------------------------------------------------------------//
 
@@ -1742,6 +1743,12 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
 
       if ( segmentThickness < 0.0 ) {
          onlyPositiveThickness = false;
+
+         if ( not m_hasOutputMobileLayerThicknessError ) {
+            cout << " MeSsAgE ERROR negative mobile layer thickness detected." << endl;
+            m_hasOutputMobileLayerThicknessError = true;
+         } 
+
       }
 
       for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
