@@ -19,6 +19,7 @@ bm_include_libraries(
 	TableIO
 	CBMGenerics
 	DataAccess
+	EosPack
 )
 
 include_directories(
