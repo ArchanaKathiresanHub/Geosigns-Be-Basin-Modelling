@@ -222,38 +222,39 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                                                                                phaseComposition.m_masses,
                                                                                phaseDensities.m_values,
                                                                                phaseViscosities.m_values );
-                        
+
                         //Vapour Gas ?
                         freeGasVolume = phaseComposition.sum ( pvtFlash::VAPOUR_PHASE ) / phaseDensities ( pvtFlash::VAPOUR_PHASE );
                         condensateVolume = phaseComposition.sum ( pvtFlash::LIQUID_PHASE ) / phaseDensities ( pvtFlash::LIQUID_PHASE );
                         
                         //CondensateAPI
                         if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 )
-                           {
-                              condensateApi = 141.5 / phaseDensities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
+                        {
+                           condensateApi = 141.5 / phaseDensities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
                               
-                              if ( condensateApi < 1.99 )
-                                 {
-                                    condensateApi = undefinedValue;
-                                 }
-                           }
-                        else
+                           if ( condensateApi < 1.99 )
                            {
                               condensateApi = undefinedValue;
                            }
+
+                        }
+                        else
+                        {
+                           condensateApi = undefinedValue;
+                        }
                         
                         condensateApiMap->setValue(i,j,k,condensateApi);
                         
                         
                         //CGR
-                        if ( freeGasVolume > 0.0 and phaseDensities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 )
-                           {
-                              cgr = condensateVolume / freeGasVolume;
-                           }
+                        if ( freeGasVolume > 0.0 and phaseDensities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 and phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 )
+                        {
+                           cgr = condensateVolume / freeGasVolume;
+                        }
                         else
-                           {
-                              cgr = undefinedValue;
-                           }
+                        {
+                           cgr = undefinedValue;
+                        }
                         
                         cgrMap->setValue(i,j,k,cgr);
 
@@ -270,30 +271,32 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         
                         //OilAPI 
                         if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 )
-                           {
-                              oilApi = 141.5 / phaseDensities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
-                              
-                              if ( oilApi < 1.99 )
-                                 {
-                                    oilApi = undefinedValue;
-                                 }
-                              
-                           }
-                        else
+                        {
+                           oilApi = 141.5 / phaseDensities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
+                           
+                           if ( oilApi < 1.99 )
                            {
                               oilApi = undefinedValue;
                            }
+                           
+                        }
+                        else
+                        {
+                           oilApi = undefinedValue;
+                        }
+
                         oilApiMap->setValue(i,j,k,oilApi);
                         
                         //GOR 
-                        if ( liquidOilVolume > 0.0 and phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 )
-                           {
-                              gor = solutionGasVolume / liquidOilVolume;
-                           }
+                        if ( liquidOilVolume > 0.0 and phaseDensities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 and phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 )
+                        {
+                           gor = solutionGasVolume / liquidOilVolume;
+                        }
                         else
-                           {
-                              gor = undefinedValue;
-                           }
+                        {
+                           gor = undefinedValue;
+                        }
+
                         gorMap->setValue(i,j,k,gor);
                         
                      }
