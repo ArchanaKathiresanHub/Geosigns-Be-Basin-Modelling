@@ -186,6 +186,10 @@ public :
    /// Normally only volume results are output during a Darcy run.
    bool outputDarcyMaps () const;
 
+   /// \brief Add mass per element to 3d results.
+   ///
+   /// Selectable by command line parameter only.
+   bool outputElementMasses () const;
 
    /// \brief Return all command line information required by the multi-component flow solver.
    static std::string getCommandLineOptions ();
@@ -290,6 +294,9 @@ private :
 
    /// \brief Indicate whether or not to save project file and results after an error has been detected.
    bool m_outputDarcyMaps;
+
+   /// \brief Indicate whether or not to save project file and results after an error has been detected.
+   bool m_outputElementMasses;
 
 
    int  m_timeStepSubSample;
@@ -458,6 +465,10 @@ inline bool MultiComponentFlowHandler::timeStepSubSampleFlux () const {
 
 inline bool MultiComponentFlowHandler::outputDarcyMaps () const {
    return m_outputDarcyMaps;
+}
+
+inline bool MultiComponentFlowHandler::outputElementMasses () const {
+   return m_outputElementMasses;
 }
 
 

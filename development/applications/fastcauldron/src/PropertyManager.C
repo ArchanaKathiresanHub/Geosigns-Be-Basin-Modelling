@@ -135,10 +135,13 @@ PropertyManager::PropertyManager () {
    
    //for(i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i)
    for(i = 0; i < NumberOfPVTComponents; ++i)
-	 {
+   {
       const string propertyName = CBMGenerics::ComponentManager::getInstance ().GetSpeciesName ( i ) + "Concentration";
       m_propertyName2OutputName [ propertyName ] = propertyName;
    }
+
+
+   m_propertyName2OutputName [ "ElementMass" ] = "ElementMass";
 
    m_propertyName2OutputName [ "BrineSaturation" ] = "BrineSaturation";
    m_propertyName2OutputName [ "HcLiquidSaturation"   ] = "HcLiquidSaturation";

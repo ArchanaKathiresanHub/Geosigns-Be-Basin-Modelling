@@ -127,6 +127,7 @@ std::string MultiComponentFlowHandler::getCommandLineOptions () {
 MultiComponentFlowHandler::MultiComponentFlowHandler () {
    m_solveFlowEquations = PETSC_FALSE;
    m_outputDarcyMaps = false;
+   m_outputElementMasses = false;
 
    // m_userDefinedSubdomains = false;
    m_userDefinedMaximumPermeability = DefaultMcfMaximumPermeability;
@@ -285,6 +286,7 @@ void MultiComponentFlowHandler::initialise () {
    PetscTruth applyOtgc;
    PetscTruth doNotStopHCTransportChanged;
    PetscTruth includeDarcyMaps = PETSC_FALSE;
+   PetscTruth includeElementMasses = PETSC_FALSE;
 
    m_applyOtgc = static_cast<PetscTruth>(FastcauldronSimulator::getInstance ().getRunParameters ()->getApplyOtgcToDarcy ());
    m_maximumTimeStepSize = static_cast<double>(FastcauldronSimulator::getInstance().getRunParameters ()->getDarcyMaxTimeStep());
@@ -318,6 +320,7 @@ void MultiComponentFlowHandler::initialise () {
    PetscOptionsGetReal ( PETSC_NULL, "-mcfstoptrans", &ageToStopHCTransport, &ageToStopHCTransportChanged );
    PetscOptionsHasName ( PETSC_NULL, "-mcfnostoptrans", &doNotStopHCTransportChanged );
    PetscOptionsHasName ( PETSC_NULL, "-mcfmaps", &includeDarcyMaps );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfelemmasses", &includeElementMasses );
 
 
    PetscOptionsGetReal ( PETSC_NULL, "-mcfcflfrac", &newMcfCflTimeStepFraction, &mcfCflTimeStepFractionChanged );
@@ -349,6 +352,12 @@ void MultiComponentFlowHandler::initialise () {
       m_outputDarcyMaps = true;
    } else {
       m_outputDarcyMaps = false;
+   }
+
+   if ( includeElementMasses ) {
+      m_outputElementMasses = true;
+   } else {
+      m_outputElementMasses = false;
    }
 
    if ( doNotApplyOtgc and applyOtgc ) {
