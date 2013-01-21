@@ -159,8 +159,10 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
                                                            // number of objects (varies first)
                                                            // phases (varies last)
                                                            // Can be set to NULL if viscosities not required
-                                    EosPvtTable *pvttable  // Pointer to a cached Pvt table
-                                  )
+                                    EosPvtTable *pvttable ,// Pointer to a cached Pvt table
+                                    int iItersNum,         // Maximal number of iterations for nonlinear solver
+                                    double dStopTol        // Convergence tolerance value for nonlinear solver
+                                 )
 {
    int          piApplication[EOS_APPLICATION_LAST_INTEGER];
    double      *pointR[EOS_APPLICATION_LAST_DARRAY];
@@ -207,7 +209,7 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
 
    /* Flasher integer data */
    piFlasher[PVTMETHOD]         = EOS_PVT_MODEL;
-   piFlasher[EOS_MAXITN]        = 50;
+   piFlasher[EOS_MAXITN]        = iItersNum;
    piFlasher[EOS_MAXFLASH]      = 32;
    piFlasher[EOS_MICHELSON]     = EOS_OPTION_OFF;
    piFlasher[EOS_SUBSTITUTIONS] = 0;
@@ -217,7 +219,7 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
    /* Flasher real data */
    pdFlasher[EOS_ENORM]            = 1.0e80;
    pdFlasher[EOS_TINY]             = 1.0e-15;
-   pdFlasher[EOS_CONVERGENCE]      = 0.0001;
+   pdFlasher[EOS_CONVERGENCE]      = dStopTol;
    pdFlasher[EOS_THERMALDIFFUSION] = 0.0;
    pdFlasher[EOS_BUBBLEREDUCE]     = 0.5;
 

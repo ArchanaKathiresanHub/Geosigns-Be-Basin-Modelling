@@ -37,108 +37,6 @@ static const int    g_GridExtStep        = 5;        // extend T grid when neede
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Call PVT library and calculate mole/volume or mass fraction for Liquid/Vapor phases for given composition for single set of P, T values
-/// \param p pressure
-/// \param t temperature
-/// \param composition  array of mass values for each component
-/// \param[out] massFraction on return contains accumulated fractions for vapor/liquid phases
-/// \param massFracType which fraction should be calculated - mass, mole or volume fraction
-/// \return which phases exist in given composition for given P and T. "unknown" if call for flashing was failed
-///////////////////////////////////////////////////////////////////////////////////////////////////
-static int GetMassFractions( double p, double t, const std::vector<double> & composition, double massFraction[2], PTDiagramCalculator::DiagramType & massFracType )
-{
-   // Get acronims of some constants
-   const int iNc     = CBMGenerics::ComponentManager::NumberOfSpecies;
-   const int iNp     = CBMGenerics::ComponentManager::NumberOfPhases;
-   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
-   const int iVapour = CBMGenerics::ComponentManager::Vapour;
-   
-   // arrays for passing to flasher
-   double masses[iNc];
-   double phaseMasses[iNp][iNc];
-   double phaseDensities[iNp];
-
-   assert( composition.size() == iNc );
-   std::copy( composition.begin(), composition.begin() + iNc, &(masses[0]) );
-
-   std::fill_n( &(phaseMasses[0][0]), sizeof( phaseMasses )    / sizeof( double ), 0.0 );
-   std::fill_n( phaseDensities,       sizeof( phaseDensities ) / sizeof( double ), 0.0 );
-
-
-   // change the default behaviour for labeling phases for high temperature span
-   pvtFlash::EosPack::getInstance().setCritAoverBterm( 2.0 ); 
-
-   // Call flasher to get compositions for phases
-   bool res = pvtFlash::EosPack::getInstance().computeWithLumping( t, p, masses, phaseMasses, phaseDensities, NULL );  
-
-   // revert back flasher settings
-   pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm();
-
-   if ( !res ) return unknown;
-
-   double totMass = std::accumulate( masses, masses + iNc, 0.0 ); // collect total mass for normalisation
-   assert( totMass > 0.0 );
-
-   double total = 0.0;
-
-   switch( massFracType )
-   {
-      case PTDiagramCalculator::MoleMassFractionDiagram: // convert to molar mass fraction
-         for ( int phase = 0; phase < iNp; ++phase )
-         {
-            for ( int comp = 0; comp < iNc; ++comp )
-            {
-               phaseMasses[phase][comp] /= totMass * CBMGenerics::ComponentManager::MolecularWeight[comp];
-               total += phaseMasses[phase][comp];
-            }
-         }
-         break;
-
-      case PTDiagramCalculator::VolumeFractionDiagram:
-         for ( int phase = 0; phase < iNp; ++phase )
-         {
-            for ( int comp = 0; comp < iNc; ++comp )
-            {  // convert from masses to volumes
-               phaseMasses[phase][comp] = phaseDensities[phase] > 0.0 ? phaseMasses[phase][comp] / phaseDensities[phase] : 0.0;
-               total += phaseMasses[phase][comp];
-            }
-         }
-         break;
-
-      default: // mass fraction
-         total = totMass;
-         break;
-   }
-
-   // normalise fractions
-   for ( int phase = 0; phase < iNp; ++phase )
-   {
-      for ( int comp = 0; comp < iNc; ++comp )
-      {
-         phaseMasses[phase][comp] /= total;
-      }
-   }
-
-   massFraction[iVapour] = std::accumulate( phaseMasses[iVapour], phaseMasses[iVapour] + iNc, 0.0 );
-   massFraction[iLiquid] = std::accumulate( phaseMasses[iLiquid], phaseMasses[iLiquid] + iNc, 0.0 );
-
-   // round values lower than tolerance to make some stabilisation of algorithm
-   for ( int i = 0; i < 2; ++i )
-   {
-      if ( massFraction[i] < g_Tolerance * g_Tolerance )
-      {
-         massFraction[i] = 0.0;
-      }
-      if ( std::abs( 1.0 - massFraction[i] ) < g_Tolerance * g_Tolerance )
-      {
-         massFraction[i] = 1.0;
-      }
-   }
-   
-   return ((massFraction[iLiquid]) > 0.0 ? liquidPhase : unknown) + ((massFraction[iVapour] > 0.0) ? vaporPhase : unknown);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 // Constructor. It also creates default grid for T from g_MinimalTemperature:g_MinimalTemperature
 // typeOfDiagram which type of diagram should be built - Mass/Mole/Volume fraction
 // massFraction array of component masses
@@ -148,7 +46,10 @@ PTDiagramCalculator::PTDiagramCalculator( DiagramType & typeOfDiagram, const std
       m_critP( -1.0 ),
       m_critT( -1.0 ),
       m_bdBisecIters( 0 ),
-      m_isoBisecIters( 0 )
+      m_isoBisecIters( 0 ),
+      m_AoverB( 2.0 ),
+      m_stopTol( g_Tolerance * 1e-2 ),
+      m_maxIters( g_MaxStepsNum * 2 )
 {
    m_diagType = typeOfDiagram;
    m_masses   = massFraction;
@@ -225,6 +126,111 @@ void PTDiagramCalculator::extendTGrid( int steps )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Call PVT library and calculate mole/volume or mass fraction for Liquid/Vapor phases for given composition for single set of P, T values
+/// p pressure
+/// t temperature
+/// composition  array of mass values for each component
+/// massFraction on return contains accumulated fractions for vapor/liquid phases (depends on m_diagType value)
+/// return which phases exist in given composition for given P and T. "unknown" if call for flashing was failed
+///////////////////////////////////////////////////////////////////////////////////////////////////
+int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector<double> & composition, double massFraction[2] )
+{
+   // Get acronims of some constants
+   const int iNc     = CBMGenerics::ComponentManager::NumberOfSpecies;
+   const int iNp     = CBMGenerics::ComponentManager::NumberOfPhases;
+   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
+   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+   
+   // arrays for passing to flasher
+   double masses[iNc];
+   double phaseMasses[iNp][iNc];
+   double phaseDensities[iNp];
+
+   assert( composition.size() == iNc );
+   std::copy( composition.begin(), composition.begin() + iNc, &(masses[0]) );
+
+   std::fill_n( &(phaseMasses[0][0]), sizeof( phaseMasses )    / sizeof( double ), 0.0 );
+   std::fill_n( phaseDensities,       sizeof( phaseDensities ) / sizeof( double ), 0.0 );
+
+
+   // change the default behaviour for labeling phases for high temperature span
+   pvtFlash::EosPack::getInstance().setCritAoverBterm( m_AoverB ); 
+   // increase precision for nonlinear solver
+   pvtFlash::EosPack::getInstance().setNonLinearSolverTolerance( m_maxIters, m_stopTol ); 
+
+   // Call flasher to get compositions for phases
+   bool res = pvtFlash::EosPack::getInstance().computeWithLumping( t, p, masses, phaseMasses, phaseDensities, NULL );  
+
+   // revert back flasher settings
+   pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm();
+   pvtFlash::EosPack::getInstance().resetToDefaulNonLinearSolverConvergencePrms();
+
+   if ( !res ) return unknown;
+
+   double totMass = std::accumulate( masses, masses + iNc, 0.0 ); // collect total mass for normalisation
+   assert( totMass > 0.0 );
+
+   double total = 0.0;
+
+   switch( m_diagType )
+   {
+      case PTDiagramCalculator::MoleMassFractionDiagram: // convert to molar mass fraction
+         for ( int phase = 0; phase < iNp; ++phase )
+         {
+            for ( int comp = 0; comp < iNc; ++comp )
+            {
+               phaseMasses[phase][comp] /= totMass * CBMGenerics::ComponentManager::MolecularWeight[comp];
+               total += phaseMasses[phase][comp];
+            }
+         }
+         break;
+
+      case PTDiagramCalculator::VolumeFractionDiagram:
+         for ( int phase = 0; phase < iNp; ++phase )
+         {
+            for ( int comp = 0; comp < iNc; ++comp )
+            {  // convert from masses to volumes
+               phaseMasses[phase][comp] = phaseDensities[phase] > 0.0 ? phaseMasses[phase][comp] / phaseDensities[phase] : 0.0;
+               total += phaseMasses[phase][comp];
+            }
+         }
+         break;
+
+      default: // mass fraction
+         total = totMass;
+         break;
+   }
+
+   // normalise fractions
+   for ( int phase = 0; phase < iNp; ++phase )
+   {
+      for ( int comp = 0; comp < iNc; ++comp )
+      {
+         phaseMasses[phase][comp] /= total;
+      }
+   }
+
+   massFraction[iVapour] = std::accumulate( phaseMasses[iVapour], phaseMasses[iVapour] + iNc, 0.0 );
+   massFraction[iLiquid] = std::accumulate( phaseMasses[iLiquid], phaseMasses[iLiquid] + iNc, 0.0 );
+
+   // round values lower than tolerance to make some stabilisation of algorithm
+   for ( int i = 0; i < 2; ++i )
+   {
+      if ( massFraction[i] < g_Tolerance * g_Tolerance )
+      {
+         massFraction[i] = 0.0;
+      }
+      if ( std::abs( 1.0 - massFraction[i] ) < g_Tolerance * g_Tolerance )
+      {
+         massFraction[i] = 1.0;
+      }
+   }
+   
+   return ((massFraction[iLiquid]) > 0.0 ? liquidPhase : unknown) + ((massFraction[iVapour] > 0.0) ? vaporPhase : unknown);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Do bisections for 2 given grid points to find bubble/dew curve
 // p1 P grid the first point
 // t1 T grid the first point
@@ -258,7 +264,7 @@ bool PTDiagramCalculator::doBisectionForBubbleDewSearch( size_t p1, size_t t1, s
 
       double V = 0.5 * ( V1 + V2 );
 
-      int phase = GetMassFractions( (bisectT ? foundP : V), (bisectT ? V : foundT), m_masses, phaseFrac, m_diagType ); // get phase composition for new guess
+      int phase = getMassFractions( (bisectT ? foundP : V), (bisectT ? V : foundT), m_masses, phaseFrac ); // get phase composition for new guess
       ++m_bdBisecIters;
 
       if ( unknown == phase ) { return false; } // flasher failed
@@ -360,7 +366,7 @@ bool PTDiagramCalculator::doBisectionForContourLineSearch( size_t p1, size_t t1,
       // make the new guess
       double V = V1 + (frac - frac1)/(frac2 - frac1) * (V2 - V1);
 
-      int phase = GetMassFractions( (bisectT ? foundP : V), (bisectT ? V : foundT), m_masses, phaseFrac, m_diagType );
+      int phase = getMassFractions( (bisectT ? foundP : V), (bisectT ? V : foundT), m_masses, phaseFrac );
       ++m_isoBisecIters;
 
       if ( bothPhases != phase ) // outside of the bubble/dew curve
@@ -607,13 +613,13 @@ bool PTDiagramCalculator::findCriticalPoint()
    if ( !foundCriticalPoint && m_bubbleDewLine.size() > 2 )
    {
       double massFraction[2];
-      int phase1 = GetMassFractions( m_bubbleDewLine.front().second, m_bubbleDewLine.front().first, m_masses, massFraction, m_diagType );
+      int phase1 = getMassFractions( m_bubbleDewLine.front().second, m_bubbleDewLine.front().first, m_masses, massFraction );
       ++m_bdBisecIters;
 
       m_critPointPos = m_bubbleDewLine.begin();
       for ( std::vector< std::pair<double,double> >::iterator it = m_critPointPos + 1; it != m_bubbleDewLine.end() && !foundCriticalPoint; ++it )
       {
-         int phase2 = GetMassFractions( it->second, it->first, m_masses, massFraction, m_diagType );
+         int phase2 = getMassFractions( it->second, it->first, m_masses, massFraction );
          ++m_bdBisecIters;
 
          if ( phase1 != phase2 && phase1 != bothPhases && phase2 != bothPhases )
@@ -628,7 +634,7 @@ bool PTDiagramCalculator::findCriticalPoint()
                double newP = 0.5 * (P1 + P2);
                double newT = 0.5 * (T1 + T2);
 
-               int newPhase = GetMassFractions( newP, newT, m_masses, massFraction, m_diagType );
+               int newPhase = getMassFractions( newP, newT, m_masses, massFraction );
                ++m_bdBisecIters;
 
                if ( phase1 == newPhase )
@@ -884,7 +890,7 @@ std::vector< std::pair<double, double> > PTDiagramCalculator::calcContourLine( d
          if ( P3 < m_gridP.front() || P3 > m_gridP.back() || T3 < m_gridT.front() || T3 > m_gridT.back()  ) break;
 
          double phaseFrac[2];
-         phase3 = GetMassFractions( P3, T3, m_masses, phaseFrac, m_diagType );
+         phase3 = getMassFractions( P3, T3, m_masses, phaseFrac );
          ++m_isoBisecIters;
          
          if ( bothPhases == phase3 ) // keep last point where we have 2 phase region
@@ -903,7 +909,7 @@ std::vector< std::pair<double, double> > PTDiagramCalculator::calcContourLine( d
             double newP = 0.5 * (P + P3);
             double newT = 0.5 * (T + T3);
 
-            int newPhase = GetMassFractions( newP, newT, m_masses, phaseFrac, m_diagType );
+            int newPhase = getMassFractions( newP, newT, m_masses, phaseFrac );
             ++m_isoBisecIters;
 
             if ( bothPhases == newPhase )
@@ -927,6 +933,61 @@ std::vector< std::pair<double, double> > PTDiagramCalculator::calcContourLine( d
    }
    return isoline;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// calculate (if it wasn't done before) liquid fraction value for given P & T points on the grid
+/// p pressure grid position 
+/// t temperature grid position
+/// return liquid fraction value
+///////////////////////////////////////////////////////////////////////////////////////////////////
+double PTDiagramCalculator::getLiquidFraction( int p, int t )
+{
+   double val = -1.0;
+   
+   if ( p > -1 && p < m_gridP.size() && t > -1 && t < m_gridT.size() )
+   {
+      getPhase( p, t );
+      val = m_liqFrac[p][t];
+   }
+   return val;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Get cricondentherm point for defined in constructor composition. Must be called after bubble/dew lines calculation
+// return point on bubble/dew curve with maximum temperature
+///////////////////////////////////////////////////////////////////////////////////////////////////
+std::pair<double, double> PTDiagramCalculator::getCricondenthermPoint() const
+{
+   std::pair<double, double> ret( 0.0, 0.0 );
+   
+   std::vector< std::pair<double, double> >::const_iterator cct = m_bubbleDewLine.begin();
+
+   for ( std::vector< std::pair<double, double> >::const_iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
+   {
+      if ( cct->first < it->first ) { cct = it; ret = *it; }
+   }
+   return ret;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Get cricondenbar point for defined in constructor composition. Must be called after bubble/dew lines calculation
+// return point on bubble/dew curve with maximum pressure
+///////////////////////////////////////////////////////////////////////////////////////////////////
+std::pair<double, double> PTDiagramCalculator::getCricondenbarPoint() const
+{
+   std::pair<double, double> ret( 0.0, 0.0 );
+
+   std::vector< std::pair<double, double> >::const_iterator cct = m_bubbleDewLine.begin();
+
+   for ( std::vector< std::pair<double, double> >::const_iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
+   {
+      if ( cct->second < it->second ) { cct = it; ret = *it; }
+   }
+   return ret;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // calculate bubble pressure for given Temperature
@@ -963,7 +1024,7 @@ int PTDiagramCalculator::getPhase( size_t p, size_t t )
    if ( m_liqFrac[p][t] < 0.0 )
    {
       double phaseFrac[2];
-      phase = GetMassFractions( m_gridP[p], m_gridT[t], m_masses, phaseFrac, m_diagType );
+      phase = getMassFractions( m_gridP[p], m_gridT[t], m_masses, phaseFrac );
       ++m_bdBisecIters;
 
       m_liqFrac[p][t] = phaseFrac[CBMGenerics::ComponentManager::Liquid];
@@ -975,3 +1036,4 @@ int PTDiagramCalculator::getPhase( size_t p, size_t t )
 
    return phase;
 }
+

@@ -175,6 +175,14 @@ namespace pvtFlash
       /// \brief Cange back to default value CritAoverB term and single phase labeling method
       void resetToDefaultCritAoverBterm();
 
+      /// \brief Change nonlinear solver maximal number of iteration and convergence tolerance
+      /// \param maxItersNum new value for maximal iterations number (default is 50)
+      /// \param stopTol new value for stop tolerance (default is 1e-4)
+      void setNonLinearSolverTolerance( int maxItersNum, double stopTol );
+
+      /// \brief Reset to default values max iterations number and stop tolerance vaule for nonlinear solver in PVT library
+      void resetToDefaulNonLinearSolverConvergencePrms();
+
       ~EosPack();
 
    private:
@@ -199,6 +207,9 @@ namespace pvtFlash
       int    m_phaseIdMethod;    // Method for labeling a single phase
       double m_CritAoverB;       // if m_phaseIdMethode is set to EOS_SINGLE_PHASE_AOVERB, this value will 
                                  // be used for labeling single phase as liquid or vapor 
+
+      int    m_maxItersNum;      // maximal iterations number for the nonlinear solver
+      double m_stopTolerance;   // convergence stop tolerance for nonliner solver
 
       int lumpedSpeciesIndex[NUM_COMPONENTS];
    };

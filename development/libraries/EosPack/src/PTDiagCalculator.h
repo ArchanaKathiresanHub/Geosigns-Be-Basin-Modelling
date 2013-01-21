@@ -76,20 +76,30 @@ public:
    /// \returns array of (T,P) pair for each contour line point
    std::vector< std::pair<double, double> > calcContourLine( double val );
 
-   /// \brief Get critical temperature for defined in constructor composition. Must be called after bubble/dew lines calculation
-   /// \return critical composition temperature
-   double getCriticalT() const { return m_critT; }
+   /// \brief Get critical point for defined in constructor composition. Must be called after bubble/dew lines calculation
+   /// \return critical composition temperature,pressure
+   std::pair<double, double> getCriticalPoint() const { return std::pair<double,double>( m_critT, m_critP ); }
 
-   /// \brief Get critical pressure for defined in constructor composition. Must be called after bubble/dew lines calculation
-   /// \return critical composition pressure
-   double getCriticalP() const { return m_critP; }
+   /// \brief Get cricondentherm point for defined in constructor composition. Must be called after bubble/dew lines calculation
+   /// \return point on bubble/dew curve with maximum temperature
+   std::pair<double, double> getCricondenthermPoint() const;
+
+   /// \brief Get cricondenbar point for defined in constructor composition. Must be called after bubble/dew lines calculation
+   /// \return point on bubble/dew curve with maximum pressure
+   std::pair<double, double> getCricondenbarPoint() const;
 
    /// \brief calculate bubble pressure for given Temperature
    /// \param T temperature value 
    /// \param[out] bubbleP on success it contains bubble pressure for given temperature
    /// \return true on success, false otherwise
    bool getBubblePressure( double T, double & bubbleP ) const;
-   
+
+   /// \brief calculate (if it wasn't done before) liquid fraction value for given P & T points on the grid
+   /// \param p pressure grid position 
+   /// \param t temperature grid position
+   /// \return liquid fraction value
+   double getLiquidFraction( int p, int t );
+
    // some statistic info
    /// \brief get size of 1D grid along T axis
    /// \return grid T size
@@ -107,8 +117,22 @@ public:
    /// \return total number of flasher calls for contour lines search
    int getContourLinesSearchIterationsNumber() const { return m_isoBisecIters; }
 
+   /// \brief Returns 1D grid values for Temperature (X) axis
+   /// \return grid along T
    std::vector<double> getGridT() const { return m_gridT; }
+
+   /// \brief Returns 1D grid value for Pressure (Y) axis
+   /// \return grid along P
    std::vector<double> getGridP() const { return m_gridP; }
+
+   /// \brief Change the default value for A over B term in EosPack. Should be called before bubble/dew line search
+   /// \param val new value for A over B term. Shold be more then 0 (at least)
+   void setAoverBTerm( double val ) { m_AoverB = val; }
+
+   /// \brief Change the default value for nonlinear solver in PVT library
+   /// \param stopTol stop tolerance for convergence of iterations, the default value for PTDiagramCalculator/EosPack 1e-6/1e-4
+   /// \param maxItNum maximum iterations number, the default value for PTDiagramCalculator/EosPack 400/50
+   void setNonLinSolverConvPrms( double stopTol, int maxItNum ) { m_stopTol = stopTol; m_maxIters = maxItNum; }
 
 private:
    DiagramType m_diagType;           ///< which type of diagram are calculating - Mass/Mole/Volume fraction
@@ -127,11 +151,26 @@ private:
 
    double m_eps;                     ///< some small number used in bisection iterations convergence and for mass fraction comparison
 
+   // PVT library parameters
+   double m_AoverB;                  ///< A over B term EosPack parameter
+   double m_stopTol;                 ///< Stop tolerancer for nonlinear solver of EosPack
+   int    m_maxIters;                ///< Max. iterations number for nonlinear solver of EosPack
+
    double m_critP;                   ///< critical point P
    double m_critT;                   ///< critical point T
 
    int    m_bdBisecIters;            ///< total number of PVT flasher calls for bubble dew points search
    int    m_isoBisecIters;           ///< total number of PVT flasher calls contour line points search
+
+
+   /// \brief Call PVT library and calculate mole/volume or mass fraction for Liquid/Vapor phases for given composition for single set of P, T values
+   /// \param p pressure
+   /// \param t temperature
+   /// \param composition  array of mass values for each component
+   /// \param[out] massFraction on return contains accumulated fractions for vapor/liquid phases
+   /// \param massFracType which fraction should be calculated - mass, mole or volume fraction
+   /// \return which phases exist in given composition for given P and T. "unknown" if call for flashing was failed
+   int getMassFractions( double p, double t, const std::vector<double> & composition, double massFraction[2] );
 
    /// \brief Search by doing bisections bubble or dew point value, phases should be different for minP and maxP
    /// \param p1 lower P border for bisections

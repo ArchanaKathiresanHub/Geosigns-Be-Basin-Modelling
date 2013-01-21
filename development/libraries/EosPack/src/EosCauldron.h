@@ -78,9 +78,11 @@ public:
    ///                            Can be set to NULL if viscosities not required
    ///
    /// \param[in]  pvtTable       Pointer to a cached Pvt table
+   /// \param[in]  iItersNum      Maximal number of iterations for nonlinear solver
+   /// \param[in]  dStopTol       Convergence tolerance value for nonlinear solver
    static void EosGetProperties( int iFlashes, int iOil, int iGas, double *pPressure, double *pTemperature,
                                  double *pAccumulation, double *pPhaseAcc, double *pMassFraction, double *pDensity,
-                                 double *pViscosity, EosPvtTable *pvttable );
+                                 double *pViscosity, EosPvtTable *pvttable, int iItersNum, double dStopTol );
 
    /// \brief Default constructor
    EosCauldron();
