@@ -89,6 +89,10 @@ enum PropertyList {
    // A debugging (might be useful in general) output.
    VOLUME_CALCULATIONS,
 
+   // A debugging (might be useful in general) output.
+   TRANSPORTED_VOLUME_CALCULATIONS,
+
+
 #if 0
    //
    SPECIES_ASPHALTENE_CONCENTRATION, SPECIES_RESIN_CONCENTRATION, SPECIES_C15_PLUS_ARO_CONCENTRATION, SPECIES_C15_PLUS_SAT_CONCENTRATION,

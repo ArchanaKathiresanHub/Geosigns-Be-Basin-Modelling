@@ -181,6 +181,11 @@ public :
    /// This is a debug option.
    bool saveVolumeOutput () const;
 
+   /// \brief Indicate whether or not the volume of transported hc calculations should be saved.
+   ///
+   /// This is a debug option.
+   bool saveTransportedVolumeOutput () const;
+
    /// \brief Output maps for Darcy runs.
    ///
    /// Normally only volume results are output during a Darcy run.
@@ -276,6 +281,7 @@ private :
    bool   m_applyPvtAveraging;
 
    bool m_saveVolumeOutput;
+   bool m_saveTransportedVolumeOutput;
 
    /// \brief Indicates whether or not the grad-pressure should be limited.
    bool m_limitGradPressure;
@@ -425,6 +431,10 @@ inline double MultiComponentFlowHandler::removeHcTransportAge () const {
 
 inline bool MultiComponentFlowHandler::saveVolumeOutput () const {
    return m_saveVolumeOutput;
+}
+
+inline bool MultiComponentFlowHandler::saveTransportedVolumeOutput () const {
+   return m_saveTransportedVolumeOutput;
 }
 
 inline bool MultiComponentFlowHandler::limitGradPressure () const {

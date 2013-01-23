@@ -636,11 +636,11 @@ CalculationMode FastcauldronSimulator::getCalculationMode () const {
 
 //------------------------------------------------------------//
 
-Interface::PropertyValue * FastcauldronSimulator::createMapPropertyValue ( const string &                    propertyValueName,
-                                                                                const Interface::Snapshot *  snapshot,
-                                                                                const Interface::Reservoir * reservoir,
-                                                                                const Interface::Formation * formation,
-                                                                                const Interface::Surface *   surface ) {
+Interface::PropertyValue * FastcauldronSimulator::createMapPropertyValue ( const string &               propertyValueName,
+                                                                           const Interface::Snapshot *  snapshot,
+                                                                           const Interface::Reservoir * reservoir,
+                                                                           const Interface::Formation * formation,
+                                                                           const Interface::Surface *   surface ) {
 
    Interface::PropertyValue* propertyValue;
 
@@ -652,11 +652,11 @@ Interface::PropertyValue * FastcauldronSimulator::createMapPropertyValue ( const
 
 //------------------------------------------------------------//
 
-Interface::PropertyValue * FastcauldronSimulator::createVolumePropertyValue ( const string &                    propertyValueName,
-                                                                                   const Interface::Snapshot *  snapshot,
-                                                                                   const Interface::Reservoir * reservoir,
-                                                                                   const Interface::Formation * formation,
-                                                                                         unsigned int                depth ) {
+Interface::PropertyValue * FastcauldronSimulator::createVolumePropertyValue ( const string &               propertyValueName,
+                                                                              const Interface::Snapshot *  snapshot,
+                                                                              const Interface::Reservoir * reservoir,
+                                                                              const Interface::Formation * formation,
+                                                                                    unsigned int           depth ) {
 
    Interface::PropertyValue* propertyValue;
 
@@ -1154,6 +1154,13 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
 
+
+   // Add the property name for the mass that is transported over the snapshot interval
+   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
+                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
+                                                        "TransportedMass" );
+   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+   m_timeOutputProperties.push_back ( newProperty );
 
    newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,

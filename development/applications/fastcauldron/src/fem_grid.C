@@ -430,13 +430,15 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( RELATIVE_PERMEABILITY );
      m_volumeOutputProperties.push_back ( CAPILLARY_PRESSURE );
      m_volumeOutputProperties.push_back ( FLUID_PROPERTIES );
-     
-	
-	 
+
      if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveVolumeOutput ()) {
         m_volumeOutputProperties.push_back ( VOLUME_CALCULATIONS );
      }
-     
+
+     if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveTransportedVolumeOutput ()) {
+        m_volumeOutputProperties.push_back ( TRANSPORTED_VOLUME_CALCULATIONS );
+     }
+
      // Time of invasion is needed only at present day.
      m_concludingVolumeOutputProperties.push_back ( TIME_OF_ELEMENT_INVASION );
   }
@@ -940,7 +942,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
        Destroy_Vectors ();
        Save_Properties ( Current_Time );
 
-       clearGenexOutput ();
+       postTimeStepOperations ( Current_Time );
        Number_Of_Timesteps = Number_Of_Timesteps + 1;
     }
 
@@ -1078,7 +1080,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
        Destroy_Vectors ();
 
        Save_Properties ( Current_Time );
-       clearGenexOutput ();
+       postTimeStepOperations ( Current_Time );
     }
 
     if (( basinModel->debug1 or FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
@@ -1230,7 +1232,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
        Destroy_Vectors ();
 
        Save_Properties ( Current_Time );
-       clearGenexOutput ();
+       postTimeStepOperations ( Current_Time );
        Number_Of_Timesteps = Number_Of_Timesteps + 1;
     }
 
@@ -1964,6 +1966,38 @@ void Basin_Modelling::FEM_Grid::clearGenexOutput () {
       Basin_Layers++;
    }
 
+}
+
+//------------------------------------------------------------//
+
+void Basin_Modelling::FEM_Grid::zeroTransportedMass ( const double currentTime ) {
+
+   if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()) {
+      // If not doing a Darcy simulation then return.
+      return;
+   }
+
+   if ( currentTime != (*majorSnapshots)->time ()) {
+      // If the current time is not a snapshot time then do not zero the transported mass vectors.
+      return;
+   }
+
+   Layer_Iterator Basin_Layers ( basinModel->layers, Descending, Sediments_Only, Active_Layers_Only );
+   LayerProps_Ptr Current_Layer;
+
+   while ( ! Basin_Layers.Iteration_Is_Done ()) {
+      Current_Layer = Basin_Layers.Current_Layer ();
+      Current_Layer->zeroTransportedMass ();
+      Basin_Layers++;
+   }
+
+}
+
+//------------------------------------------------------------//
+
+void Basin_Modelling::FEM_Grid::postTimeStepOperations ( const double currentTime ) {
+   clearGenexOutput ();
+   zeroTransportedMass ( currentTime );
 }
 
 //------------------------------------------------------------//

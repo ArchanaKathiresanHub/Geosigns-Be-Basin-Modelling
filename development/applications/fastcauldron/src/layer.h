@@ -185,6 +185,9 @@ public:
 
    void clearGenexOutput ();
 
+   /// \brief Set the transported mass vector to zero.
+   void zeroTransportedMass ();
+
    void getGenexGenerated ( const int i,
                             const int j,
                             PVTComponents& generated ) const;
@@ -307,6 +310,16 @@ public:
    const Vec& getPreviousPhaseSaturationVec () const;
 
    Vec& getPreviousPhaseSaturationVec ();
+
+   /// \brief Return the vector containing the transported masses.
+   ///
+   /// The masses for the hc transported over a snapshot-interval.
+   Vec& getTransportedMassesVec ();
+
+   /// \brief Return the vector containing the transported masses.
+   ///
+   /// The masses for the hc transported over a snapshot-interval.
+   const Vec& getTransportedMassesVec () const;
 
 
    /// \brief Get the vector containing the averaged saturations.
@@ -583,6 +596,7 @@ public:
 
    NodalVolumeGrid    m_averagedSaturationGrid;
 
+   Vec                m_transportedMasses;
 
    LayerElementArray m_elements;
 
@@ -738,6 +752,14 @@ inline Vec& LayerProps::getTimeOfElementInvasionVec () {
 
 inline const Vec& LayerProps::getTimeOfElementInvasionVec () const {
    return m_timeOfElementInvasionVec;
+}
+
+inline const Vec& LayerProps::getTransportedMassesVec () const {
+   return m_transportedMasses;
+}
+
+inline Vec& LayerProps::getTransportedMassesVec () {
+   return m_transportedMasses;
 }
 
 

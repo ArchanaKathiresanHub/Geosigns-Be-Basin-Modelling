@@ -159,6 +159,7 @@ MultiComponentFlowHandler::MultiComponentFlowHandler () {
 #endif
 
    m_saveVolumeOutput = false;
+   m_saveTransportedVolumeOutput = false;
 
    m_limitGradPressure = false;
    m_gradPressureMaximum = DefaultMaximumGradPressure;
@@ -268,6 +269,7 @@ void MultiComponentFlowHandler::initialise () {
    PetscTruth allQuadDegreeSet;
 
    PetscTruth saveVolumeOutput;
+   PetscTruth saveTransportedVolumeOutput;
    PetscTruth useImmobileSaturation;
 
    PetscTruth changeTimeStepSubSampleStep;
@@ -310,6 +312,7 @@ void MultiComponentFlowHandler::initialise () {
    PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxformperm", &lowPermeability, &lowPermeabilityDefined );
 
    PetscOptionsHasName ( PETSC_NULL, "-mcfsavevol",  &saveVolumeOutput );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfsavevoltrans",  &saveTransportedVolumeOutput );
 
    PetscOptionsHasName ( PETSC_NULL, "-mcfnosatop",  &doNotIncludeWaterSaturationInOp );
    PetscOptionsHasName ( PETSC_NULL, "-mcfcp",  &includeCapillaryPressureInDarcy );
@@ -393,6 +396,10 @@ void MultiComponentFlowHandler::initialise () {
 
    if ( saveVolumeOutput ) {
       m_saveVolumeOutput = bool ( saveVolumeOutput );
+   }
+
+   if ( saveTransportedVolumeOutput ) {
+      m_saveTransportedVolumeOutput = bool ( saveTransportedVolumeOutput );
    }
 
    //----------------------------//

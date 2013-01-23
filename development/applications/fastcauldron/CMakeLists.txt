@@ -104,6 +104,7 @@ add_executable(fastcauldron
 	src/ThicknessErrorMapCalculator.C
 	src/TimeOfElementInvasionCalculator.C
 	src/timefilter.C
+	src/TransportedVolumeCalculator.C
 	src/utils.C
 	src/VelocityCalculator.C
 	src/VitriniteReflectanceCalculator.C

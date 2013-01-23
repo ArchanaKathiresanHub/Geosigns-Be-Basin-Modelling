@@ -5450,6 +5450,15 @@ START-properties
     Property I/O        : No
 
 
+    Identification      : TransportedMass
+    Description         : Mass that has been transported during a snapshot interval (for debugging only).
+    Type                : float
+    Unit of measurement : kg
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+
 
 ##
 ## Concentration of HCs

@@ -177,6 +177,7 @@ PropertyManager::PropertyManager () {
 
    m_propertyName2OutputName [ "ElementVolume" ] = "ElementVolume";
    m_propertyName2OutputName [ "ElementPoreVolume" ] = "ElementPoreVolume";
+   m_propertyName2OutputName [ "TransportedMass" ] = "TransportedMass";
    m_propertyName2OutputName [ "BrineRelativePermeability" ] = "BrineRelativePermeability";
    m_propertyName2OutputName [ "HcLiquidRelativePermeability" ] = "HcLiquidRelativePermeability";
    m_propertyName2OutputName [ "HcVapourRelativePermeability" ] = "HcVapourRelativePermeability";

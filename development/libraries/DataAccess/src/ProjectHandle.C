@@ -1083,6 +1083,11 @@ bool ProjectHandle::loadProperties (void)
    m_properties.push_back (getFactory ()->produceProperty (this, 0,
                                                            "ElementMass", "ElementMass",
                                                            "kg/m3", FORMATIONPROPERTY));
+
+   m_properties.push_back (getFactory ()->produceProperty (this, 0,
+                                                           "TransportedMass", "TransportedMass",
+                                                           "kg", FORMATIONPROPERTY));
+
    for (i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i)
    {
       m_properties.push_back (getFactory ()->produceProperty (this, 0,

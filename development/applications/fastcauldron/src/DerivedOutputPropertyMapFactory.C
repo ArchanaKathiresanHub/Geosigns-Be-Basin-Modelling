@@ -40,6 +40,7 @@
 #include "PvtHcProperties.h"
 #include "HcFluidVelocityCalculator.h"
 #include "VolumeCalculator.h"
+#include "TransportedVolumeCalculator.h"
 #include "RelativePermeabilityCalculator.h"
 
 #include "CapillaryPressureCalculator.h"
@@ -593,6 +594,11 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_propertyAllocator = allocateVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ VOLUME_CALCULATIONS ] = volumeTraits;
+
+   // Calculates the mass of hc that was transported around the system over the snapshot-time.
+   volumeTraits.m_propertyAllocator = allocateTransportedVolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap [ TRANSPORTED_VOLUME_CALCULATIONS ] = volumeTraits;
 
 
    // The set of liquid- vapour- and brine-saturations.

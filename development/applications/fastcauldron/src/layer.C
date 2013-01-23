@@ -200,6 +200,8 @@ void LayerProps::setElementInvariants () {
 
 void LayerProps::initialise () {
 
+   bool darcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
+
    if ( m_record != 0 ) {
 
       layername      = Interface::Formation::getName ();
@@ -313,6 +315,14 @@ void LayerProps::initialise () {
 
       m_elements.create ( m_componentLayerVolumes.getDa ());
       setElementInvariants ();
+
+      // if ( darcySimulation ) {
+         // Allocate the vector containing the transported masses.
+         ElementVolumeGrid& elementGrid = getVolumeGrid ( 1 );
+
+         DACreateGlobalVector ( elementGrid.getDa (), &m_transportedMasses );
+         VecSet ( m_transportedMasses, 0.0 );
+      // }
 
    } else {
       layername         = "";
@@ -496,6 +506,8 @@ void LayerProps::connectElements ( LayerProps* layerAbove ) {
 
 LayerProps::~LayerProps(){
 
+   bool darcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
+
    if ( depthvec != 0 ) {
       Destroy_Petsc_Vector(depthvec);
    }
@@ -559,6 +571,11 @@ LayerProps::~LayerProps(){
   Destroy_Petsc_Vector ( Computed_Deposition_Thickness );
 
   Destroy_Petsc_Vector ( m_averagedSaturation );
+
+  // if ( darcySimulation ) {
+     Destroy_Petsc_Vector ( m_transportedMasses );
+  // }
+
   // Destroy_Petsc_Vector ( m_numberOfContributingElements );
 
 
@@ -1143,6 +1160,7 @@ void LayerProps::reInitialise (){
    if( isBasement() ) {
      reInitialiseBasementVecs();
    }
+
    if ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()) {
       PetscTruth isValid;
      
@@ -2764,6 +2782,12 @@ void LayerProps::clearGenexOutput () {
 //    const GeoPhysics::GeoPhysicsSourceRock* sourceRock = dynamic_cast<const GeoPhysicsSourceRock*>(getSourceRock ());
 
    sourceRock->clearOutputHistory ();
+}
+
+//------------------------------------------------------------//
+
+void LayerProps::zeroTransportedMass () {
+   VecSet ( m_transportedMasses, 0.0 );
 }
 
 //------------------------------------------------------------//
