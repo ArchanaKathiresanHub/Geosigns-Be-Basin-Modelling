@@ -270,8 +270,16 @@ namespace Basin_Modelling {
      void integrateGenex ( const double previousTime,
                            const double currentTime );
 
+     /// \brief Perform any operations that are required after the time-step.
+     ///
+     /// Zeroing vectors, deleting vectors, ...
+     void postTimeStepOperations ( const double currentTime );
+
      /// \brief Clear the source-rock-node-output objects from the source-rock nodes.
      void clearGenexOutput ();
+
+     /// \brief Reset the transported mass vectors to zero.
+     void zeroTransportedMass ( const double currentTime );
 
      /// \brief Compute temperature dependant properties when solving for over-pressure only.
      void Compute_Temperature_Dependant_Properties     ( const double Previous_Time, 
