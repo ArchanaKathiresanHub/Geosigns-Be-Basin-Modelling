@@ -75,7 +75,7 @@ namespace DataAccess
 	    virtual ~ProjectHandle (void);
 
 	    int GetNumberOfSpecies (void);
-	    const string & GetSpeciesName (int i);
+            std::string GetSpeciesName (int i);
 
 	    database::Database * getDataBase (void) const;
 

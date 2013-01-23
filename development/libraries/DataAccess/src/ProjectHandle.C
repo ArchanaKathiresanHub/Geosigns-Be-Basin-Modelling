@@ -186,7 +186,7 @@ int Interface::ProjectHandle::GetNumberOfSpecies (void)
    return CBMGenerics::ComponentManager::NumberOfOutputSpecies;
 }
 
-const string & Interface::ProjectHandle::GetSpeciesName (int i)
+std::string Interface::ProjectHandle::GetSpeciesName (int i)
 {
    CBMGenerics::ComponentManager & theComponentManager = CBMGenerics::ComponentManager::getInstance();
    return theComponentManager.GetSpeciesName(i);
