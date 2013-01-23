@@ -5,5 +5,6 @@
  
   <Target Name="Build" >
     <Exec Command="cmd /c &quot;set&quot;" />
+	<Message Text="BuildNumber = $(BuildNumber)" />
  </Target>
 </Project>
