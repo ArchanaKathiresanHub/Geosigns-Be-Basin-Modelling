@@ -294,6 +294,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    PhaseValueArray       phaseDensities;
    PhaseValueArray       phaseViscosities;
    CompositionArray      computedConcentrations;
+   ScalarArray           transportedMasses;
 
    // Holds the pressure at the centre of every element in the sub-domain.
    Vec                   subdomainLiquidPressureVec;
@@ -344,6 +345,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    ScalarPetscVector subdomainLiquidPressure;// ( simpleGrid, subdomainLiquidPressureVec, INSERT_VALUES, true );
 
    computedConcentrations.create ( concentrationGrid );
+   transportedMasses.create ( simpleGrid );
 
    activateProperties ( subdomain, currentAlreadyActivatedProperties, previousAlreadyActivatedProperties );
 
@@ -415,6 +417,8 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    timeStepStartMa = startTime;
    timeStepStartSec = startTime * GeoPhysics::SecondsPerMillionYears;
    lambdaStart = 0.0;
+
+   transportedMasses.fill ( 0.0 );
 
    while ( not timeSteppingFinished ) {
    // for ( t = 0; t < numberOfSubTimeSteps; ++t ) {
@@ -592,7 +596,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
          // Since the flux terms may not added here should they be calculated?
          // Now add the flux terms to the concentrations.
          transportStart = WallTime::clock ();
-         transportComponents ( subdomain, phaseComposition, elementGasFluxTerms, elementOilFluxTerms, computedConcentrations );
+         transportComponents ( subdomain, phaseComposition, elementGasFluxTerms, elementOilFluxTerms, computedConcentrations, transportedMasses );
          transportIntervalTime += WallTime::clock () - transportStart;
       }
 
@@ -678,7 +682,8 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       satIntervalTime = WallTime::clock () - satStart;
 
       //set time of element invasion
-      setTimeOfElementInvasion(subdomain,endTime);
+      setTimeOfElementInvasion ( subdomain, endTime );
+      updateTransportedMasses ( subdomain, transportedMasses );
    }
 
    if ( errorOccurred != NO_DARCY_ERROR ) {
@@ -852,7 +857,9 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
                                                               const double            neighbourFlux,
                                                               const PVTComponents&    elementComposition,
                                                               const PVTComponents&    neighbourComposition,
-                                                                    PVTComponents&    flux ) {
+                                                                    PVTComponents&    flux,
+                                                                    double&           transportedMassesIn,
+                                                                    double&           transportedMassesOut ) {
 
    PVTComponents ws;
    double        sum;
@@ -874,6 +881,9 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
       ws *= -NumericFunctions::Maximum ( 0.0, elementFlux );
       ws *= m_defaultMolarMasses;
       flux = ws;
+
+      // Add mass transported out ot element.
+      transportedMassesOut += NumericFunctions::Maximum ( 0.0, elementFlux );
    } else {
       flux.zero ();
    }
@@ -888,6 +898,8 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
       ws *= m_defaultMolarMasses;
 
       flux += ws;
+      // Add mass transported into element.
+      transportedMassesIn += NumericFunctions::Maximum ( 0.0, neighbourFlux );
    }
 
 }
@@ -899,7 +911,9 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( const SubdomainElem
                                                              const pvtFlash::PVTPhase      phase,
                                                              const ElementFaceValueVector& elementFluxes,
                                                              const PhaseCompositionArray&  phaseComposition,
-                                                                   PVTComponents&          computedConcentrations ) {
+                                                                   PVTComponents&          computedConcentrations,
+                                                                   double&                 transportedMassesIn,
+                                                                   double&                 transportedMassesOut ) {
 
    PVTComponents elementComponents;
    PVTComponents neighbourComponents;
@@ -931,7 +945,9 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( const SubdomainElem
                                 elementFluxes ( neighbour->getK (), neighbour->getJ (), neighbour->getI ())( opposite ),
                                 elementComponents,
                                 neighbourComponents,
-                                transportedComponents );
+                                transportedComponents,
+                                transportedMassesIn,
+                                transportedMassesOut );
 
       } else {
 
@@ -940,7 +956,9 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( const SubdomainElem
                                 0.0,
                                 elementComponents,
                                 zeroComponents,
-                                transportedComponents );
+                                transportedComponents,
+                                transportedMassesIn,
+                                transportedMassesOut );
 
       // } else if ( faceIsBoundary ) {
       //    neighbourComponents = boundaryValues;
@@ -977,7 +995,8 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
                                                              const PhaseCompositionArray&     phaseComposition,
                                                              const ElementFaceValueVector&    gasFluxes,
                                                              const ElementFaceValueVector&    oilFluxes,
-                                                                   CompositionArray&          computedConcentrations ) {
+                                                                   CompositionArray&          computedConcentrations,
+                                                                   ScalarArray&               transportedMasses ) {
 
    const ElementGrid& elementGrid = FastcauldronSimulator::getInstance ().getElementGrid ();
 
@@ -985,6 +1004,17 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
    int j;
    int k;
    int face;
+
+#if 0
+   int elementCount = 0;
+   int elementCountWithTransportIn = 0;
+   int elementCountWithTransportOut = 0;
+   int elementCountWithHc = 0;
+   int elementCountWithSor = 0;
+#endif
+
+   double massTransportedIn;
+   double massTransportedOut;
 
    for ( i = elementGrid.firstI (); i <= elementGrid.lastI (); ++i ) {
 
@@ -998,8 +1028,33 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
             unsigned int elementK = element.getK ();
 
             if ( layerElement.isActive ()) {
-               transportComponents ( element, pvtFlash::VAPOUR_PHASE, gasFluxes, phaseComposition, computedConcentrations ( i, j, elementK ));
-               transportComponents ( element, pvtFlash::LIQUID_PHASE, oilFluxes, phaseComposition, computedConcentrations ( i, j, elementK ));
+
+               massTransportedIn = 0.0;
+               massTransportedOut = 0.0;
+
+               transportComponents ( element, pvtFlash::VAPOUR_PHASE, gasFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), massTransportedIn, massTransportedOut );
+               transportComponents ( element, pvtFlash::LIQUID_PHASE, oilFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), massTransportedIn, massTransportedOut );
+
+               transportedMasses ( i, j, elementK ) += massTransportedIn + massTransportedOut;
+
+#if 0
+               if ( computedConcentrations ( i, j, elementK ).sum () > 1.0e-18 ) {
+                  ++elementCountWithHc;
+               }
+
+               if ( massTransportedIn != 0.0 )  {
+                  ++elementCountWithTransportIn;
+               }
+
+               if ( massTransportedOut != 0.0 )  {
+                  ++elementCountWithTransportOut;
+               }
+
+               // transportComponents ( element, pvtFlash::VAPOUR_PHASE, gasFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), transportedMasses ( i, j, elementK ));
+               // transportComponents ( element, pvtFlash::LIQUID_PHASE, oilFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), transportedMasses ( i, j, elementK ));
+
+               ++elementCount;
+#endif
             }
 
          }
@@ -1007,6 +1062,14 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
       }
 
    }
+
+#if 0
+   cout << " For layer: " << formationGrid.getFormation ().layername << "  " 
+        << elementCountWithHc << "  "
+        << elementCountWithTransportIn << " of "
+        << elementCountWithTransportOut << " of "
+        << elementCount << " had transported hc." << endl;
+#endif
 
 }
 
@@ -1016,14 +1079,15 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( Subdomain&         
                                                              const PhaseCompositionArray&     phaseComposition,
                                                              const ElementFaceValueVector&    gasFluxes,
                                                              const ElementFaceValueVector&    oilFluxes,
-                                                             CompositionArray&                computedConcentrations ) {
+                                                             CompositionArray&                computedConcentrations,
+                                                             ScalarArray&                     transportedMasses ) {
 
    Subdomain::ActiveLayerIterator iter;
 
    subdomain.initialiseLayerIterator ( iter );
 
    while ( not iter.isDone ()) {
-      transportComponents ( *iter, subdomain.getVolumeGrid ( NumberOfPVTComponents ), phaseComposition, gasFluxes, oilFluxes, computedConcentrations );
+      transportComponents ( *iter, subdomain.getVolumeGrid ( NumberOfPVTComponents ), phaseComposition, gasFluxes, oilFluxes, computedConcentrations, transportedMasses );
       ++iter;
    }
 
@@ -2951,7 +3015,6 @@ void ExplicitMultiComponentFlowSolver::setSaturations ( Subdomain&              
 
 //------------------------------------------------------------//
 
-
 void ExplicitMultiComponentFlowSolver::setTimeOfElementInvasion ( FormationSubdomainElementGrid& formationGrid, double endTime ) {
 
    LayerProps& theLayer = formationGrid.getFormation ();
@@ -3011,6 +3074,77 @@ void ExplicitMultiComponentFlowSolver::setTimeOfElementInvasion ( Subdomain& sub
    }
 
 }
+
+//------------------------------------------------------------//
+
+void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdomainElementGrid& formationGrid, 
+                                                                 const ScalarArray& transportedMasses ) {
+
+   LayerProps& theLayer = formationGrid.getFormation ();
+
+   PetscBlockVector<double>  layerTransportedMasses;
+
+   layerTransportedMasses.setVector ( theLayer.getVolumeGrid ( 1 ), theLayer.getTransportedMassesVec (), INSERT_VALUES );
+
+   int i;
+   int j;
+   int k;
+
+#if 0
+   double maximum = 0.0;
+#endif
+
+   for ( i = formationGrid.firstI (); i <= formationGrid.lastI (); ++i ) {
+
+      for ( j = formationGrid.firstJ (); j <= formationGrid.lastJ (); ++j ) {
+
+         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
+
+            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
+
+               const SubdomainElement& element = formationGrid ( i, j, k );
+               unsigned int elementK = element.getK ();
+
+               if ( element.getLayerElement ().isActive ()) {
+                  layerTransportedMasses ( k, j, i ) = transportedMasses ( i, j, elementK );
+
+#if 0
+                  maximum = NumericFunctions::Maximum ( maximum, transportedMasses ( i, j, elementK ));
+#endif
+
+               }
+
+            }
+            
+         }
+         
+      }
+      
+   }
+   
+#if 0
+   cout << " Maximum transported for layer " << theLayer.layername << "  " << maximum << endl;
+#endif
+
+   layerTransportedMasses.restoreVector ( UPDATE_INCLUDING_GHOSTS );
+}
+
+//------------------------------------------------------------//
+
+void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( Subdomain& subdomain, 
+                                                                 const ScalarArray& transportedMasses ) {
+
+   Subdomain::ActiveLayerIterator iter;
+
+   subdomain.initialiseLayerIterator ( iter );
+
+   while ( not iter.isDone ()) {
+      updateTransportedMasses ( *iter, transportedMasses );
+      ++iter;
+   }
+
+}
+
 
 //------------------------------------------------------------//
 

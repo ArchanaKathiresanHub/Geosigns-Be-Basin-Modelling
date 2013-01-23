@@ -224,14 +224,18 @@ private :
                                const double            neighbourFlux,
                                const PVTComponents&    elementComposition,
                                const PVTComponents&    neighbourComposition,
-                                     PVTComponents&    flux );
+                                     PVTComponents&    flux,
+                                     double&           transportedMassesIn,
+                                     double&           transportedMassesOut );
 
    // Transport components for en element.
    void transportComponents ( const SubdomainElement&       element,
                               const pvtFlash::PVTPhase      phase,
                               const ElementFaceValueVector& elementFluxes,
                               const PhaseCompositionArray&  phaseComposition,
-                                    PVTComponents&          computedConcentrations );
+                                    PVTComponents&          computedConcentrations,
+                                    double&                 transportedMassesIn,
+                                    double&                 transportedMassesOut );
 
    /// \brief Transport the composition through the subdomain.
    void transportComponents ( FormationSubdomainElementGrid&   formationGrid,
@@ -239,14 +243,16 @@ private :
                               const PhaseCompositionArray&     phaseComposition,
                               const ElementFaceValueVector&    gasFluxes,
                               const ElementFaceValueVector&    oilFluxes,
-                              CompositionArray&                computedConcentrations );
+                              CompositionArray&                computedConcentrations,
+                              ScalarArray&                     transportedMasses );
 
    /// \brief Transport the composition through the subdomain.
    void transportComponents ( Subdomain&                       subdomain,
                               const PhaseCompositionArray&     phaseComposition,
                               const ElementFaceValueVector&    gasFluxes,
                               const ElementFaceValueVector&    oilFluxes,
-                              CompositionArray&                computedConcentrations );
+                              CompositionArray&                computedConcentrations,
+                              ScalarArray&                     transportedMasses );
 
 
 
@@ -438,6 +444,15 @@ private :
 
    /// \brief Set the time of element invasion, the time when a cell has non-zero concentration
    void setTimeOfElementInvasion ( Subdomain& subdomain, double time );
+
+
+   /// \brief Update the vector containing the masses that have been transported since the vector was zeroed.
+   void updateTransportedMasses ( FormationSubdomainElementGrid& formationGrid, 
+                                  const ScalarArray& transportedMasses );
+
+   /// \brief Update the vector containing the masses that have been transported since the vector was zeroed.
+   void updateTransportedMasses ( Subdomain& subdomain, 
+                                  const ScalarArray& transportedMasses );
 
 
    /// \brief Activate any properties that are required for the mcf-calculation.
