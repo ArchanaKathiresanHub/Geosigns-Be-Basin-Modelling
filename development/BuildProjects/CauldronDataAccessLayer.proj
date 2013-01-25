@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
+    <build_dir>$(solution_root)\Build\$(Configuration)\$(Platform)</build_dir>
+    <cmake_generator Condition=" '$(Platform)' == 'x64' ">Visual Studio 10 Win64</cmake_generator>
+	<cmake_generator Condition=" '$(Platform)' == 'Win32' ">Visual Studio 10</cmake_generator>
+
+    <cmake_exe Condition="'$(cmake_exe)' == ''">"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe"</cmake_exe>
+   </PropertyGroup>
+
+  <ItemGroup>
+    <cmake_options Include='-DCMAKE_CONFIGURATION_TYPES="$(Configuration)"'/>
+   
+    <!-- IMPORTANT: notice the back-slash added to BM_OUTPUT_DIRECTORY parameter. It is REQUIRED -->
+    <cmake_options Include='-DBM_OUTPUT_DIRECTORY="$(OutDir)\"' Condition=" '$(OutDir)' != ''" />
+
+    <!-- TODO: Set version / build numbers in DLLs 
+    <cmake_variables  Condition="'$(BM_BUILD_NUMBER)' != ''" >$(cmake_variables) -DBM_BUILD_NUMBER=$(BM_BUILD_NUMBER)</cmake_variables>
+    <cmake_variables  Condition="'$(BM_REVISION)' != ''" >$(cmake_variables) -DBM_REVISION=$(BM_REVISION)</cmake_variables>
+	-->
+	<cmake_options Include='-DHDF5_ROOT="$(solution_root)\3rdparty\hdf5.win64\hdf5"' Condition=" '$(Platform)' == 'x64' "/>
+	<cmake_options Include='-DHDF5_ROOT="$(solution_root)\3rdparty\hdf5.win32\hdf5"' Condition=" '$(Platform)' == 'Win32' " />
+	
+  </ItemGroup>
+  
+  <Target Name="DebugInfo">
+    <Exec Command='cmd /c "set"' />
+    
+    <Message Text="Project File Name = $(MSBuildProjectFile)" />
+    <Message Text="MSBuildProjectDirectory = $(MSBuildProjectDirectory)" />
+    <Message Text="solution_root = $(solution_root)" />
+    <Message Text="OutDir = $(OutDir)" />
+    <Message Text="BuildNumber = $(BuildNumber)" />
+	<Message Text="@(cmake_options, ' ')"/>
+  </Target>
+
+  <Target Name="CmakeProject">
+    <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
+    <MakeDir Directories="$(build_dir)" Condition="!Exists('$(build_dir)')" />
+    <Exec 
+	  Command="$(cmake_exe) &quot;$(solution_root)\development&quot; -G&quot;$(cmake_generator)&quot; @(cmake_options, ' ')" 
+      WorkingDirectory="$(build_dir)"
+    />
+  </Target>
+  
+  <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
+    <MSBuild Projects="$(build_dir)\BasinModeling.sln" RemoveProperties="OutDir" BuildInParallel="true"/>
+  </Target>
+  
+  <Target Name="Clean" >
+    <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
+  </Target>
+  
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+</Project>

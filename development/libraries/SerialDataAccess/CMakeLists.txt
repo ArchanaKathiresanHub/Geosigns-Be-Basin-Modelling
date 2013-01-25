@@ -61,14 +61,7 @@ if (BM_CSHARP_API)
 		LINK_FLAGS_RELEASE /NODEFAULTLIB:"libcmt.lib"
 		)
 
-	set(WINDOWS_PLATFORM)
-	if (CMAKE_CL_64)
-		set(WINDOWS_PLATFORM "x64")
-	else (CMAKE_CL_64)
-		set(WINDOWS_PLATFORM "x86")
-	endif (CMAKE_CL_64)
-		
-	# I wish I could configure the C# project file in such a way that the names of the generated SWIG files
+		# I wish I could configure the C# project file in such a way that the names of the generated SWIG files
 	# are replaced via variable substitution. However, with the current version of CMake this hard to do.
 	# Therefore, the names of the generated C# files are hard-coded in the .csproj file below, and the file
 	# only needs to be copied.
@@ -84,7 +77,7 @@ if (BM_CSHARP_API)
 	
 	include_external_msproject(Shell.BasinModeling.DataAccess ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj
 		TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
-		PLATFORM "${WINDOWS_PLATFORM}"
+		PLATFORM "${BM_WINDOWS_PLATFORM}"
 		SerialDataAccess
 	)
 	
