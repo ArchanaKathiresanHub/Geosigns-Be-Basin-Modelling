@@ -353,6 +353,7 @@ const string PropertyName[] = {
   "PVTProperties",
   "RelativePermeability",
   "ElementVolumes",
+  "TransportedMass",
   "Saturations",
   "AverageSaturations",
   "CapillaryPressures",
