@@ -1,22 +1,32 @@
 #include   "timefilter.h"
 
+#include <petsc.h>
+
 #include<iostream>
 #include<iomanip>
+
+#include<assert.h>
 using namespace std;
 
 TimeFilter::TimeFilter(){
-  PropertyList PLCount;
 
-  for ( PLCount=DIFFUSIVITYVEC; PLCount<ENDPROPERTYLIST; ++PLCount) {
-    PropertyOutputOption[PLCount] = NOOUTPUT;
-  }
+   PropertyList PLCount;
 
-  for ( PLCount=DIFFUSIVITYVEC; PLCount<ENDPROPERTYLIST; ++PLCount) {
-    PropertyOutputOption[PLCount] = NOOUTPUT;
-    m_string2PropertyName [ PropertyName [ PLCount ] ] = PLCount;
-  }
+   for ( PLCount=DIFFUSIVITYVEC; PLCount<ENDPROPERTYLIST; ++PLCount) {
+      PropertyOutputOption[PLCount] = NOOUTPUT;
+   }
 
-};
+   for ( PLCount=DIFFUSIVITYVEC; PLCount<ENDPROPERTYLIST; ++PLCount) {
+      PropertyOutputOption[PLCount] = NOOUTPUT;
+      m_string2PropertyName [ PropertyName [ PLCount ] ] = PLCount;
+   }
+
+   if ( sizeof ( PropertyName ) / sizeof ( std::string ) != ENDPROPERTYLIST + 1 ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR The number of items in the PropertyName list does not match the number of enumerations in the PropertyName enumeration type.\n" );
+      assert ( sizeof ( PropertyName ) / sizeof ( std::string ) == ENDPROPERTYLIST + 1 );
+   }
+
+}
 
 TimeFilter::~TimeFilter(){
 };
