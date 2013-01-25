@@ -5,6 +5,11 @@
  
   <Target Name="Build" >
     <Exec Command="cmd /c &quot;set&quot;" />
+	<Message Text="============================================" />
 	<Message Text="BuildNumber = $(BuildNumber)" />
+	<Message Text="TeamFoundationServerUrl = $(TeamFoundationServerUrl)" />
+	<Message Text="TeamProject = $(TeamProject)" />
+	<Message Text="Configuration = $(Configuration)" />
+	<Message Text="Platform = $(Platform)" />
  </Target>
 </Project>
