@@ -28,10 +28,11 @@ include_directories(
 generate_dox( src/SerialDataAccess.cfg )
 
 if (BM_CSHARP_API)
-	# generate version.rc resource file
+	##### Generate the C# API
+	
 	configure_file(src/version.rc.cmake version.rc)
 	configure_file(src/AssemblyInfo.cs.cmake csharp/Properties/AssemblyInfo.cs)
-
+	
 	if (NOT MSVC)
 	  message(FATAL_ERROR "MS Visual studio is necessary to build the C sharp interface")
 	endif()
@@ -61,10 +62,7 @@ if (BM_CSHARP_API)
 		LINK_FLAGS_RELEASE /NODEFAULTLIB:"libcmt.lib"
 		)
 
-		# I wish I could configure the C# project file in such a way that the names of the generated SWIG files
-	# are replaced via variable substitution. However, with the current version of CMake this hard to do.
-	# Therefore, the names of the generated C# files are hard-coded in the .csproj file below, and the file
-	# only needs to be copied.
+		
 	if (BM_OUTPUT_DIRECTORY)
 		# bm_output_directory_native MUST contain trailing back-slash
 		file(TO_NATIVE_PATH ${BM_OUTPUT_DIRECTORY}/${BM_WINDOWS_PLATFORM}/ bm_output_directory_native)
@@ -72,16 +70,22 @@ if (BM_CSHARP_API)
 		# bm_output_directory_native MUST contain trailing back-slash
 		file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BM_WINDOWS_PLATFORM}/ bm_output_directory_native)
 	endif()
+	file(TO_CMAKE_PATH ${bm_output_directory_native} bm_output_directory_cmake)
+	
 	message(STATUS "bm_output_directory_native = ${bm_output_directory_native}")
-	configure_file( Shell.BasinModeling.DataAccess.csproj.in ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj @ONLY)
+	
+	# I wish I could configure the C# project file in such a way that the names of the generated SWIG files
+	# are replaced via variable substitution. However, with the current version of CMake this hard to do.
+	# Therefore, the names of the generated C# files are hard-coded in the .csproj file below, and the file
+	# only needs to be copied.
+	configure_file( Shell.BasinModeling.DataAccess.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj @ONLY)
 	
 	include_external_msproject(Shell.BasinModeling.DataAccess ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj
 		TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
 		PLATFORM "${BM_WINDOWS_PLATFORM}"
 		SerialDataAccess
 	)
-	
-	file(TO_CMAKE_PATH ${bm_output_directory_native} bm_output_directory_cmake)
+		
 	install( PROGRAMS ${bm_output_directory_cmake}/Debug/Shell.BasinModeling.DataAccess.dll
 		DESTINATION	lib
 		CONFIGURATIONS Debug
@@ -95,7 +99,39 @@ if (BM_CSHARP_API)
 		RUNTIME DESTINATION bin
 		LIBRARY	DESTINATION lib
 	)
+	
+	#### Compile and run unit tests
+	configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
+	configure_file(test/SerialDataAccessTest.cs csharp-test/SerialDataAccessTest.cs)
+	configure_file(Shell.BasinModeling.DataAccess.Test.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Shell.BasinModeling.DataAccess.Test.csproj @ONLY)
 
+	include_external_msproject(Shell.BasinModeling.DataAccess.Test ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Shell.BasinModeling.DataAccess.Test.csproj
+		TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
+		Shell.BasinModeling.DataAccess
+		PLATFORM "${BM_WINDOWS_PLATFORM}"
+	)
+	
+	
+	# Run all tests that contain the word 'Test' on all configurations
+	set(flavors "${CMAKE_CONFIGURATION_TYPES}")
+	if (NOT flavors)
+	    set(flavors "${CMAKE_BUILD_TYPE}")
+	endif()
+	foreach( flavor ${flavors})
+		add_test(NAME "Shell.BasinModeling.DataAccess.Test.SerialDataAccess.${flavor}"
+		   COMMAND "${MSTEST}" 
+			  "/testcontainer:${bm_output_directory_cmake}/Debug/Shell.BasinModeling.DataAccess.Test.dll"
+			  "/testsettings:${CMAKE_CURRENT_SOURCE_DIR}/test/local.testsettings"
+			  "/test:Test"
+			  "/publish:${BM_TFS_SERVER_URL}"
+			  "/publishbuild:${BM_TFS_BUILD_NUMBER}"
+			  "/flavor:${flavor}"
+			  "/platform:${BM_WINDOWS_PLATFORM}"
+			  "/teamproject:${BM_TFS_PROJECT_NAME}"
+		)
+	endforeach(flavor)
+	   
+	
 else (BM_CSHARP_API)
 	
 	add_library(SerialDataAccess 
@@ -115,3 +151,4 @@ else (BM_CSHARP_API)
 	)
 	
 endif (BM_CSHARP_API)	
+

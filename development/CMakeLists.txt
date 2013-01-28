@@ -17,7 +17,7 @@ option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
 option( BM_BUILD_DOCS "Build documentation" OFF )
-option( BM_BUILD_REGRESSION_TESTS "Build regression tests" OFF )
+option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 if(BM_CODE_COVERAGE_ENABLE)
 	set( BM_CODE_COVERAGE_DIR "${PROJECT_BINARY_DIR}/profiled" CACHE PATH "Code coverage directory" )
@@ -37,11 +37,16 @@ set(BM_VERSION_NUMBER_MINOR "01" CACHE STRING "Numerical version minor string. A
 set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
 set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
 set(BM_SVNREVISION "-9999" CACHE STRING "Source control revision number (TFS or SVN)")
-if(NOT BM_BUILD_NUMBER)
-	set(BM_BUILD_NUMBER 9999)
-endif()
+
+set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.BuildNumber)")
+set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
+set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
 
 set(BM_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/Binaries" CACHE PATH "Output directory (MSBuild uses this variable to pass OutDir build parameter)")
+
+if(NOT BM_BUILD_NUMBER)
+    set(BM_BUILD_NUMBER 0)
+endif()
 
 if(NOT BM_REVISION)
 	set(BM_REVISION 0)
@@ -53,7 +58,7 @@ if(NOT CMAKE_BUILD_TYPE)
 	set (CMAKE_BUILD_TYPE Release)
 endif()
 
-if(BM_BUILD_REGRESSION_TESTS)
+if(BM_BUILD_ENABLE_TESTING)
 	enable_testing()
 endif()
 
@@ -95,6 +100,12 @@ if (MSVC)
 #	else()
 #		configure_msvc_runtime("static")
 #	endif()
+    
+	find_program( MSTEST "mstest.exe"
+	  PATHS "C:/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/IDE"
+	        "C:/Program Files (x86)/Microsoft Visual Studio 11.0/Common7/IDE"
+	  DOC "Location of MSTest unit test driver"
+	)
 endif ()
 
 if(UNIX)

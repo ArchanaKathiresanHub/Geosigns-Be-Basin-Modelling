@@ -8,6 +8,7 @@
 	<cmake_generator Condition=" '$(Platform)' == 'Win32' ">Visual Studio 10</cmake_generator>
 
     <cmake_exe Condition="'$(cmake_exe)' == ''">"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe"</cmake_exe>
+	<ctest_exe Condition="'$(ctest_exe)' == ''">"C:\Program Files (x86)\CMake 2.8\bin\ctest.exe"</ctest_exe>
    </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,10 @@
     <!-- IMPORTANT: notice the back-slash added to BM_OUTPUT_DIRECTORY parameter. It is REQUIRED -->
     <cmake_options Include='-DBM_OUTPUT_DIRECTORY="$(OutDir)\"' Condition=" '$(OutDir)' != ''" />
 
+	<cmake_options Include='-DBM_TFS_SERVER_URL="$(TeamFoundationServerUrl)"' />
+	<cmake_options Include='-DBM_TFS_BUILD_NUMBER="$(BuildNumber)"' />
+	<cmake_options Include='-DBM_TFS_PROJECT_NAME="$(TeamProject)"' />
+	
     <!-- TODO: Set version / build numbers in DLLs 
     <cmake_variables  Condition="'$(BM_BUILD_NUMBER)' != ''" >$(cmake_variables) -DBM_BUILD_NUMBER=$(BM_BUILD_NUMBER)</cmake_variables>
     <cmake_variables  Condition="'$(BM_REVISION)' != ''" >$(cmake_variables) -DBM_REVISION=$(BM_REVISION)</cmake_variables>
@@ -47,7 +52,9 @@
   
   <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
     <MSBuild Projects="$(build_dir)\BasinModeling.sln" RemoveProperties="OutDir" BuildInParallel="true"/>
+	<Exec Command="$(ctest_exe) -VV -C $(Configuration)" WorkingDirectory="$(build_dir)" IgnoreExitCode="true" />
   </Target>
+  
   
   <Target Name="Clean" >
     <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
