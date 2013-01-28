@@ -63,17 +63,6 @@ if (BM_CSHARP_API)
 		)
 
 		
-	if (BM_OUTPUT_DIRECTORY)
-		# bm_output_directory_native MUST contain trailing back-slash
-		file(TO_NATIVE_PATH ${BM_OUTPUT_DIRECTORY}/${BM_WINDOWS_PLATFORM}/ bm_output_directory_native)
-	else()
-		# bm_output_directory_native MUST contain trailing back-slash
-		file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/${BM_WINDOWS_PLATFORM}/ bm_output_directory_native)
-	endif()
-	file(TO_CMAKE_PATH ${bm_output_directory_native} bm_output_directory_cmake)
-	
-	message(STATUS "bm_output_directory_native = ${bm_output_directory_native}")
-	
 	# I wish I could configure the C# project file in such a way that the names of the generated SWIG files
 	# are replaced via variable substitution. However, with the current version of CMake this hard to do.
 	# Therefore, the names of the generated C# files are hard-coded in the .csproj file below, and the file
@@ -86,15 +75,10 @@ if (BM_CSHARP_API)
 		SerialDataAccess
 	)
 		
-	install( PROGRAMS ${bm_output_directory_cmake}/Debug/Shell.BasinModeling.DataAccess.dll
-		DESTINATION	lib
-		CONFIGURATIONS Debug
+	install( PROGRAMS Shell.BasinModeling.DataAccess.dll
+		DESTINATION	bin
 	)
-	install( PROGRAMS ${bm_output_directory_cmake}/Release/Shell.BasinModeling.DataAccess.dll
-		DESTINATION	lib
-		CONFIGURATIONS Release
-	)
-	
+		
 	install(TARGETS SerialDataAccess
 		RUNTIME DESTINATION bin
 		LIBRARY	DESTINATION lib
@@ -120,7 +104,7 @@ if (BM_CSHARP_API)
 	foreach( flavor ${flavors})
 		add_test(NAME "Shell.BasinModeling.DataAccess.Test.SerialDataAccess.${flavor}"
 		   COMMAND "${MSTEST}" 
-			  "/testcontainer:${bm_output_directory_cmake}/Debug/Shell.BasinModeling.DataAccess.Test.dll"
+			  "/testcontainer:csharp-test/Debug/Shell.BasinModeling.DataAccess.Test.dll"
 			  "/testsettings:${CMAKE_CURRENT_SOURCE_DIR}/test/local.testsettings"
 			  "/test:Test"
 			  "/publish:${BM_TFS_SERVER_URL}"

@@ -42,7 +42,7 @@ set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.B
 set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
 set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
 
-set(BM_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/Binaries" CACHE PATH "Output directory (MSBuild uses this variable to pass OutDir build parameter)")
+#set(BM_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/Binaries" CACHE PATH "Output directory (MSBuild uses this variable to pass OutDir build parameter)")
 
 if(NOT BM_BUILD_NUMBER)
     set(BM_BUILD_NUMBER 0)
@@ -82,14 +82,6 @@ message(STATUS "BM_WINDOWS_PLATFORM = ${BM_WINDOWS_PLATFORM}")
 include(FeatureSummary)
 
 include(files/BasinModelingUtilities.cmake)
-
-if(BM_OUTPUT_DIRECTORY)
-	if(WIN32)
-		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BM_OUTPUT_DIRECTORY}/${BM_WINDOWS_PLATFORM})
-		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BM_OUTPUT_DIRECTORY}/${BM_WINDOWS_PLATFORM})
-		set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BM_OUTPUT_DIRECTORY}/${BM_WINDOWS_PLATFORM})
-	endif()
-endif()
 
 ### Visual Studio 
 if (MSVC)
