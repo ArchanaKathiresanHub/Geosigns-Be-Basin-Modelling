@@ -75,16 +75,25 @@ if (BM_CSHARP_API)
 		SerialDataAccess
 	)
 		
-	install( PROGRAMS Shell.BasinModeling.DataAccess.dll
-		DESTINATION	bin
-	)
+	###### Installation
+	set(flavors "${CMAKE_CONFIGURATION_TYPES}")
+	if (NOT flavors)
+	    set(flavors "${CMAKE_BUILD_TYPE}")
+	endif()
 		
 	install(TARGETS SerialDataAccess
 		RUNTIME DESTINATION bin
-		LIBRARY	DESTINATION lib
+		LIBRARY	DESTINATION bin
 	)
-	
-	#### Compile and run unit tests
+		
+	foreach(flavor ${flavors})
+	    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/${flavor}/Shell.BasinModeling.DataAccess.dll
+		    DESTINATION	bin
+	    )
+	endforeach(flavor)
+		
+		
+	###### Compile and run unit tests
 	configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
 	configure_file(test/SerialDataAccessTest.cs csharp-test/SerialDataAccessTest.cs)
 	configure_file(Shell.BasinModeling.DataAccess.Test.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Shell.BasinModeling.DataAccess.Test.csproj @ONLY)
@@ -97,14 +106,12 @@ if (BM_CSHARP_API)
 	
 	
 	# Run all tests that contain the word 'Test' on all configurations
-	set(flavors "${CMAKE_CONFIGURATION_TYPES}")
-	if (NOT flavors)
-	    set(flavors "${CMAKE_BUILD_TYPE}")
-	endif()
+	
 	foreach( flavor ${flavors})
+	    
 		add_test(NAME "Shell.BasinModeling.DataAccess.Test.SerialDataAccess.${flavor}"
 		   COMMAND "${MSTEST}" 
-			  "/testcontainer:csharp-test/Debug/Shell.BasinModeling.DataAccess.Test.dll"
+			  "/testcontainer:csharp-test/${flavor}/Shell.BasinModeling.DataAccess.Test.dll"
 			  "/testsettings:${CMAKE_CURRENT_SOURCE_DIR}/test/local.testsettings"
 			  "/test:Test"
 			  "/publish:${BM_TFS_SERVER_URL}"
@@ -112,6 +119,15 @@ if (BM_CSHARP_API)
 			  "/flavor:${flavor}"
 			  "/platform:${BM_WINDOWS_PLATFORM}"
 			  "/teamproject:${BM_TFS_PROJECT_NAME}"
+		)
+		
+		# Extend path so that it can find the SerialDataAccess.dll
+		#get_target_property(SDA_LIB_PATH SerialDataAccess LOCATION)
+	    #get_filename_component(SDA_LIB_DIR "${SDA_LIB_PATH}" PATH)
+		
+		#message("****************** SerialDataAcces.dll = ${SDA_LIB_DIR} ")
+		set_tests_properties( "Shell.BasinModeling.DataAccess.Test.SerialDataAccess.${flavor}"
+		  PROPERTIES ENVIRONMENT "PATH=${CMAKE_CURRENT_BINARY_DIR}/${flavor};$ENV{PATH}"
 		)
 	endforeach(flavor)
 	   

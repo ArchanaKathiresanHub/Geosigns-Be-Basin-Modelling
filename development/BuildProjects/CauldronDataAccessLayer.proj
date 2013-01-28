@@ -15,7 +15,7 @@
     <cmake_options Include='-DCMAKE_CONFIGURATION_TYPES="$(Configuration)"'/>
    
     <!-- IMPORTANT: notice the back-slash added to BM_OUTPUT_DIRECTORY parameter. It is REQUIRED -->
-    <cmake_options Include='-DCMAKE_INSTALL_PREFIX="$(OutDir)\"' Condition=" '$(OutDir)' != ''" />
+    <cmake_options Include='-DCMAKE_INSTALL_PREFIX="$(OutDir)\\"' Condition=" '$(OutDir)' != ''" />
 
 	<cmake_options Include='-DBM_TFS_SERVER_URL="$(TeamFoundationServerUrl)"' />
 	<cmake_options Include='-DBM_TFS_BUILD_NUMBER="$(BuildNumber)"' />
@@ -51,7 +51,7 @@
   </Target>
   
   <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
-    <MSBuild Projects="$(build_dir)\BasinModeling.sln" RemoveProperties="OutDir" BuildInParallel="true"/>
+    <MSBuild Projects="$(build_dir)\Install.vcxproj" RemoveProperties="OutDir" BuildInParallel="true"/>
 	<Exec Command="$(ctest_exe) -VV -C $(Configuration)" WorkingDirectory="$(build_dir)" IgnoreExitCode="true" />
   </Target>
   
