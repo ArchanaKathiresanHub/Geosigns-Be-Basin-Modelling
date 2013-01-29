@@ -2,8 +2,9 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
-    <build_dir>$(solution_root)\Build\$(Configuration)\$(Platform)</build_dir>
+    <solution_root_native>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root_native>
+	<solution_root_cmake>$(solution_root_native.Replace('\','/'))</solution_root_cmake>
+    <build_dir>$(solution_root_native)\Build\$(Configuration)\$(Platform)</build_dir>
     <cmake_generator Condition=" '$(Platform)' == 'x64' ">Visual Studio 10 Win64</cmake_generator>
 	<cmake_generator Condition=" '$(Platform)' == 'Win32' ">Visual Studio 10</cmake_generator>
 
@@ -13,7 +14,7 @@
 
   <ItemGroup>
     <cmake_options Include='-DCMAKE_CONFIGURATION_TYPES="$(Configuration)"'/>
-    <cmake_options Include='-DCMAKE_INSTALL_PREFIX="$(OutDir)\"' Condition=" '$(OutDir)' != ''" />
+    <cmake_options Include="-DCMAKE_INSTALL_PREFIX=&quot;$(OutDir.Replace('\', '/'))&quot;" Condition=" '$(OutDir)' != ''" />
 	
 	<cmake_options Include='-DBM_TFS_SERVER_URL="$(TeamFoundationServerUrl)"' />
 	<cmake_options Include='-DBM_TFS_BUILD_NUMBER="$(BuildNumber)"' />
@@ -23,14 +24,14 @@
     <cmake_variables  Condition="'$(BM_BUILD_NUMBER)' != ''" >$(cmake_variables) -DBM_BUILD_NUMBER=$(BM_BUILD_NUMBER)</cmake_variables>
     <cmake_variables  Condition="'$(BM_REVISION)' != ''" >$(cmake_variables) -DBM_REVISION=$(BM_REVISION)</cmake_variables>
 	-->
-	<cmake_options Include='-DHDF5_ROOT="$(solution_root)\3rdparty\hdf5.win64\hdf5"' Condition=" '$(Platform)' == 'x64' "/>
-	<cmake_options Include='-DHDF5_ROOT="$(solution_root)\3rdparty\hdf5.win32\hdf5"' Condition=" '$(Platform)' == 'Win32' " />
+	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win64/hdf5"' Condition=" '$(Platform)' == 'x64' "/>
+	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win32/hdf5"' Condition=" '$(Platform)' == 'Win32' " />
   </ItemGroup>
 
-  <Target Name="CheckOutDir">
-   <!-- There is a lot to do about the 'OutDir' parameter 
+  <!--<Target Name="CheckOutDir">
+   
 	    http://www.pseale.com/blog/IHateYouOutDirParameter.aspx
-    -->
+   
 	  <Error Condition="$(OutDir.Contains(' ')) AND ( ! $(OutDir.EndsWith('\\'))  OR $(OutDir.EndsWith('\\\'))) "
 	         Text="If the OutDir path contains spaces, it must have exactly two trailing backslashes"
 	    />
@@ -39,14 +40,15 @@
 	         Text="If the OutDir path does not contain spaces, it must have exactly one trailing backslash"
 	    />
   </Target>
-
+-->
   
   <Target Name="DebugInfo">
     <Exec Command='cmd /c "set"' />
     
     <Message Text="Project File Name = $(MSBuildProjectFile)" />
     <Message Text="MSBuildProjectDirectory = $(MSBuildProjectDirectory)" />
-    <Message Text="solution_root = $(solution_root)" />
+    <Message Text="solution_root_native = $(solution_root_native)" />
+	<Message Text="solution_root_cmake = $(solution_root_cmake)" />
     <Message Text="OutDir = $(OutDir)" />
     <Message Text="BuildNumber = $(BuildNumber)" />
 	<Message Text="@(cmake_options, ' ')"/>
@@ -56,12 +58,12 @@
     <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
     <MakeDir Directories="$(build_dir)" Condition="!Exists('$(build_dir)')" />
     <Exec 
-	  Command="$(cmake_exe) &quot;$(solution_root)\development&quot; -G&quot;$(cmake_generator)&quot; @(cmake_options, ' ')" 
+	  Command="$(cmake_exe) &quot;$(solution_root_cmake)/development&quot; -G&quot;$(cmake_generator)&quot; @(cmake_options, ' ')" 
       WorkingDirectory="$(build_dir)"
     />
   </Target>
   
-  <Target Name="Build" DependsOnTargets="DebugInfo;CheckOutDir;CmakeProject">
+  <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
     <MSBuild Projects="$(build_dir)\Install.vcxproj" RemoveProperties="OutDir" BuildInParallel="true"/>
 	<Exec Command="$(ctest_exe) -VV -C $(Configuration)" WorkingDirectory="$(build_dir)" IgnoreExitCode="true" />
   </Target>
