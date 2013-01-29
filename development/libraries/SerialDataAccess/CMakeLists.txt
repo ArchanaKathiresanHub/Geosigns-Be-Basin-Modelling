@@ -97,6 +97,19 @@ if (BM_CSHARP_API)
 	configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
 	configure_file(test/SerialDataAccessTest.cs csharp-test/SerialDataAccessTest.cs)
 	configure_file(Shell.BasinModeling.DataAccess.Test.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Shell.BasinModeling.DataAccess.Test.csproj @ONLY)
+	
+	if ( BM_WINDOWS_PLATFORM STREQUAL x64 )
+	  set( TESTSETTINGS_EXECUTION_PARAMS hostProcessPlatform="MSIL" ) 
+	  # Adding this attribute let's MSTest test 64-bit code
+	  # Note, see http://www.cmake.org/Wiki/CMake/Language_Syntax for the weird rules on quoting in CMake
+	elseif ( BM_WINDOWS_PLATFORM STREQUAL Win32 )
+	  set( TESTSETTINGS_EXECUTION_PARAMS )
+	  # Clearing that attribute, forces MSTest to run in 32-bit mode.
+	else()
+		message("Error: Cannot run MSTest on other platforms than x64 and Win32")
+		set( TESTSETTINGS_EXECUTION_PARAMS )
+	endif()
+	configure_file(test/Local.testsettings.cmake csharp-test/Local.testsettings)
 
 	include_external_msproject(Shell.BasinModeling.DataAccess.Test ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Shell.BasinModeling.DataAccess.Test.csproj
 		TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
@@ -112,7 +125,7 @@ if (BM_CSHARP_API)
 		add_test(NAME "Shell.BasinModeling.DataAccess.Test.SerialDataAccess.${flavor}"
 		   COMMAND "${MSTEST}" 
 			  "/testcontainer:csharp-test/${flavor}/Shell.BasinModeling.DataAccess.Test.dll"
-			  "/testsettings:${CMAKE_CURRENT_SOURCE_DIR}/test/local.testsettings"
+			  "/testsettings:${CMAKE_CURRENT_BINARY_DIR}/csharp-test/local.testsettings"
 			  "/test:Test"
 			  "/publish:${BM_TFS_SERVER_URL}"
 			  "/publishbuild:${BM_TFS_BUILD_NUMBER}"

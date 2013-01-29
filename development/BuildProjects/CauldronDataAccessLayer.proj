@@ -20,27 +20,13 @@
 	<cmake_options Include='-DBM_TFS_BUILD_NUMBER="$(BuildNumber)"' />
 	<cmake_options Include='-DBM_TFS_PROJECT_NAME="$(TeamProject)"' />
 	
-    <!-- TODO: Set version / build numbers in DLLs 
+    <!-- TODO: Set version / build numbers in DLLs (are used in version.rc resource file)
     <cmake_variables  Condition="'$(BM_BUILD_NUMBER)' != ''" >$(cmake_variables) -DBM_BUILD_NUMBER=$(BM_BUILD_NUMBER)</cmake_variables>
     <cmake_variables  Condition="'$(BM_REVISION)' != ''" >$(cmake_variables) -DBM_REVISION=$(BM_REVISION)</cmake_variables>
 	-->
 	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win64/hdf5"' Condition=" '$(Platform)' == 'x64' "/>
 	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win32/hdf5"' Condition=" '$(Platform)' == 'Win32' " />
   </ItemGroup>
-
-  <!--<Target Name="CheckOutDir">
-   
-	    http://www.pseale.com/blog/IHateYouOutDirParameter.aspx
-   
-	  <Error Condition="$(OutDir.Contains(' ')) AND ( ! $(OutDir.EndsWith('\\'))  OR $(OutDir.EndsWith('\\\'))) "
-	         Text="If the OutDir path contains spaces, it must have exactly two trailing backslashes"
-	    />
-	  
-	  <Error Condition="! $(OutDir.Contains(' ')) AND ( $(OutDir.EndsWith('\\')) OR ! $(OutDir.EndsWith('\')) )"
-	         Text="If the OutDir path does not contain spaces, it must have exactly one trailing backslash"
-	    />
-  </Target>
--->
   
   <Target Name="DebugInfo">
     <Exec Command='cmd /c "set"' />
