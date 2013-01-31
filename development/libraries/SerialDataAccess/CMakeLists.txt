@@ -62,16 +62,16 @@ if (BM_CSHARP_API)
 		LINK_FLAGS_RELEASE /NODEFAULTLIB:"libcmt.lib"
 		)
 
-		
-	# I wish I could configure the C# project file in such a way that the names of the generated SWIG files
-	# are replaced via variable substitution. However, with the current version of CMake this hard to do.
-	# Therefore, the names of the generated C# files are hard-coded in the .csproj file below, and the file
-	# only needs to be copied.
-	configure_file( Shell.BasinModeling.DataAccess.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj @ONLY)
 	
+    # I wish I could configure the C# project file in such a way that the names of the generated SWIG files
+	# are replaced via variable substitution. However, with the current version of CMake this hard to do.
+	# Therefore, the names of the generated C# files are hard-coded in the .csproj file below.
+	new_guid(Guid)
+	configure_file( Shell.BasinModeling.DataAccess.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj @ONLY)
 	include_external_msproject(Shell.BasinModeling.DataAccess ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj
 		TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
 		PLATFORM "${BM_WINDOWS_PLATFORM}"
+		GUID "${Guid}"
 		SerialDataAccess
 	)
 		
@@ -96,55 +96,25 @@ if (BM_CSHARP_API)
 	###### Compile and run unit tests
 	configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
 	configure_file(test/SerialDataAccessTest.cs csharp-test/SerialDataAccessTest.cs)
-	configure_file(Shell.BasinModeling.DataAccess.Test.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Shell.BasinModeling.DataAccess.Test.csproj @ONLY)
-	
-	if ( BM_WINDOWS_PLATFORM STREQUAL x64 )
-	  set( TESTSETTINGS_EXECUTION_PARAMS hostProcessPlatform="MSIL" ) 
-	  # Adding this attribute let's MSTest test 64-bit code
-	  # Note, see http://www.cmake.org/Wiki/CMake/Language_Syntax for the weird rules on quoting in CMake
-	elseif ( BM_WINDOWS_PLATFORM STREQUAL Win32 )
-	  set( TESTSETTINGS_EXECUTION_PARAMS )
-	  # Clearing that attribute, forces MSTest to run in 32-bit mode.
-	else()
-		message("Error: Cannot run MSTest on other platforms than x64 and Win32")
-		set( TESTSETTINGS_EXECUTION_PARAMS )
-	endif()
-	configure_file(test/Local.testsettings.cmake csharp-test/Local.testsettings)
-
-	include_external_msproject(Shell.BasinModeling.DataAccess.Test ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Shell.BasinModeling.DataAccess.Test.csproj
-		TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
-		Shell.BasinModeling.DataAccess
-		PLATFORM "${BM_WINDOWS_PLATFORM}"
+	add_csharp_unittest( 
+	  NAME Shell.BasinModeling.DataAccess.Test
+	  PLATFORM ${BM_WINDOWS_PLATFORM}
+	  DIRECTORY csharp-test
+	  DEPENDS Shell.BasinModeling.DataAccess
+	  TESTLIST "Test"
+	  TFS_SERVER_URL ${BM_TFS_SERVER_URL}
+	  TFS_BUILD_NUMBER ${BM_TFS_BUILD_NUMBER}
+	  TFS_PROJECT_NAME ${BM_TFS_PROJECT_NAME}
+	  DEPLOYMENT_ITEMS 
+		"Debug/SerialDataAccess.dll" 
+		"Release/SerialDataAccess.dll" 
+	  PROJECT_REFERENCE
+	    Shell.BasinModeling.DataAccess
+		"${Guid}"
+		"${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.DataAccess.csproj"
 	)
 	
-	
-	# Run all tests that contain the word 'Test' on all configurations
-	
-	foreach( flavor ${flavors})
-	    
-		add_test(NAME "Shell.BasinModeling.DataAccess.Test.SerialDataAccess.${flavor}"
-		   COMMAND "${MSTEST}" 
-			  "/testcontainer:csharp-test/${flavor}/Shell.BasinModeling.DataAccess.Test.dll"
-			  "/testsettings:${CMAKE_CURRENT_BINARY_DIR}/csharp-test/local.testsettings"
-			  "/test:Test"
-			  "/publish:${BM_TFS_SERVER_URL}"
-			  "/publishbuild:${BM_TFS_BUILD_NUMBER}"
-			  "/flavor:${flavor}"
-			  "/platform:${BM_WINDOWS_PLATFORM}"
-			  "/teamproject:${BM_TFS_PROJECT_NAME}"
-		)
 		
-		# Extend path so that it can find the SerialDataAccess.dll
-		#get_target_property(SDA_LIB_PATH SerialDataAccess LOCATION)
-	    #get_filename_component(SDA_LIB_DIR "${SDA_LIB_PATH}" PATH)
-		
-		#message("****************** SerialDataAcces.dll = ${SDA_LIB_DIR} ")
-		set_tests_properties( "Shell.BasinModeling.DataAccess.Test.SerialDataAccess.${flavor}"
-		  PROPERTIES ENVIRONMENT "PATH=${CMAKE_CURRENT_BINARY_DIR}/${flavor};$ENV{PATH}"
-		)
-	endforeach(flavor)
-	   
-	
 else (BM_CSHARP_API)
 	
 	add_library(SerialDataAccess 

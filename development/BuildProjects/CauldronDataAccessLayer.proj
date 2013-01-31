@@ -51,7 +51,7 @@
   
   <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
     <MSBuild Projects="$(build_dir)\Install.vcxproj" RemoveProperties="OutDir" BuildInParallel="true"/>
-	<Exec Command="$(ctest_exe) -VV -C $(Configuration)" WorkingDirectory="$(build_dir)" IgnoreExitCode="true" />
+	<MSBuild Projects="$(build_dir)\RUN_TESTS.vcxproj" RemoveProperties="OutDir" BuildInParallel="true"/>
   </Target>
   
   
