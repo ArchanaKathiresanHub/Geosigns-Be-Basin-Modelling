@@ -90,7 +90,6 @@ GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const 
    }
 #endif
 
-   m_hasOutputMobileLayerThicknessError = false;
 }
 //------------------------------------------------------------//
 
@@ -1311,6 +1310,8 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
 
    Interface::MutableFormationList::iterator formationIter;
 
+   // Intially the check is only for negative thicknesses in mobile layers.
+   IntegerArray numberOfErrorsPerLayer ( m_formations.size () - 2, 0 );
    unsigned int i;
    unsigned int j;
    int formCount;
@@ -1352,13 +1353,9 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
                GeoPhysics::Formation* formation = dynamic_cast<GeoPhysics::Formation*>(*formationIter);
 #endif
 
-               if ( not computeThicknessHistories ( i, j, formation )) {
+               if ( not computeThicknessHistories ( i, j, formation, numberOfErrorsPerLayer )) {
                   errorFound = true;
                }
-
-               // if ( not computeThicknessHistories ( i, j, formation )) {
-               //    return false;
-               // }
 
             }
 
@@ -1424,6 +1421,15 @@ bool GeoPhysics::ProjectHandle::initialiseLayerThicknessHistory ( const bool ove
       formation->restoreAllThicknessMaps ();
    }
 
+   for ( i = 0; i < numberOfErrorsPerLayer.size (); ++i ) {
+
+      if ( numberOfErrorsPerLayer [ i ] > MaximumNumberOfErrorsPerLayer ) {
+         cout << " MeSsAgE ERROR formation '" << m_formations [ numberOfErrorsPerLayer.size () - i - 1 ]->getName () << "' has multiple errors, more than is indicated." << endl;
+      }
+
+   }
+
+
    int errorFoundInt = ( errorFound ? 1 : 0 );
    int globalErrorFoundInt;
 
@@ -1460,10 +1466,11 @@ void GeoPhysics::ProjectHandle::storePresentDayThickness ( const unsigned int i,
 
 bool GeoPhysics::ProjectHandle::computeThicknessHistories ( const unsigned int i,
                                                             const unsigned int j,
-                                                                  GeoPhysics::Formation* formation ) {
+                                                                  GeoPhysics::Formation* formation,
+                                                                  IntegerArray& numberOfErrorsPerLayer ) {
 
    if ( formation->isMobileLayer () or formation->kind () == Interface::BASEMENT_FORMATION ) {
-      return setMobileLayerThicknessHistory ( i, j, formation ); 
+      return setMobileLayerThicknessHistory ( i, j, formation, numberOfErrorsPerLayer ); 
    } else {
 
       double thickness = formation->getInputThicknessMap ()->getValue ( i, j );
@@ -1687,7 +1694,8 @@ bool GeoPhysics::ProjectHandle::setErosionHistory ( const unsigned int i,
 
 bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned int i,
                                                                  const unsigned int j,
-                                                                       GeoPhysics::Formation* formation ) {
+                                                                       GeoPhysics::Formation* formation,
+                                                                       IntegerArray& numberOfErrorsPerLayer ) {
 
    if ( formation->isMantle ()) {
       return true;
@@ -1744,10 +1752,14 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
       if ( segmentThickness < 0.0 ) {
          onlyPositiveThickness = false;
 
-         if ( not m_hasOutputMobileLayerThicknessError ) {
-            cout << " MeSsAgE ERROR negative mobile layer thickness detected." << endl;
-            m_hasOutputMobileLayerThicknessError = true;
-         } 
+         if ( formation->getDepositionSequence () > 0 and formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
+            ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
+
+            if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
+               cout << " MeSsAgE ERROR negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ")." << endl;
+            }
+
+         }
 
       }
 

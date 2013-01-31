@@ -3,6 +3,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 
 #include "Polyfunction.h"
 
@@ -41,6 +42,10 @@ namespace GeoPhysics {
       typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
       typedef std::list<double> FloatStack;
+
+      typedef std::vector<int> IntegerArray;
+
+      static const int MaximumNumberOfErrorsPerLayer = 5;
 
    public :
 
@@ -282,7 +287,8 @@ namespace GeoPhysics {
       /// Part of the solid-thickness initialisation.
       bool computeThicknessHistories ( const unsigned int i,
                                        const unsigned int j,
-                                             GeoPhysics::Formation* formation );
+                                             GeoPhysics::Formation* formation,
+                                             IntegerArray& numberOfErrorsPerLayer );
 
       /// Set the deposition history of the layer.
       ///
@@ -309,7 +315,8 @@ namespace GeoPhysics {
       /// Part of the solid-thickness initialisation.
       bool setMobileLayerThicknessHistory ( const unsigned int i,
                                             const unsigned int j,
-                                                  GeoPhysics::Formation* formation );
+                                                  GeoPhysics::Formation* formation,
+                                                  IntegerArray&          numberOfErrorsPerLayer );
 
       /// Part of the solid-thickness initialisation.
       void storePresentDayThickness ( const unsigned int i,
@@ -402,11 +409,6 @@ namespace GeoPhysics {
       double m_minimumLithosphereThickness; // defined in configuration file
       int    m_maximumNumberOfMantleElements; // defined in configuration file
       double m_constrainedBasaltTemperature; // defined in configuration file
-
-
-      /// If an error occurred, when calculating the mobile-layer thickness, 
-      /// this indicates that the error-message has been output.
-      bool m_hasOutputMobileLayerThicknessError;
 
    }; 
 
