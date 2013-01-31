@@ -895,6 +895,39 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType*
 }
 
 
+void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType* fluid, 
+                                                                const double     Porosity, 
+                                                                const double     Pressure, 
+                                                                const double     Temperature, 
+                                                                const double     LithoPressure, 
+                                                                const bool       increasingTemperature,
+                                                                      double&    BulkDensXHeatCapacity ) const {
+
+  bool LithoHasFluid = (fluid != 0);
+
+  double MatrixDensXHeatCap = densityXheatcapacity(Temperature, LithoPressure);
+  
+  if (LithoHasFluid) {
+    
+     double FluidDensXHeatCap = fluid->densXheatCapacity ( Porosity, Temperature, Pressure, increasingTemperature );
+     BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap;
+
+#if 0
+     double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature,Pressure);
+     BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
+#endif
+
+
+  } else {
+    //
+    //
+    // Should this be scaled by ( 1.0 - Porosity ) ?
+    //
+    BulkDensXHeatCapacity = MatrixDensXHeatCap;
+
+  }
+}
+
 void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
                                                       const double     Porosity,
                                                             double&    BulkDensity ) const {

@@ -136,6 +136,16 @@ namespace GeoPhysics {
                                        const double  LithoPressure,
                                              double& BulkDensXHeatCapacity ) const;
 
+      /// Calculate the bulk-density times heat-capacity.
+      //  Latent heat term is included
+      void calcBulkDensXHeatCapacity ( const FluidType* fluid, 
+                                       const double  Porosity,
+                                       const double  Pressure,
+                                       const double  Temperature, 
+                                       const double  LithoPressure,
+                                       const bool    increasingTemperature,
+                                             double& BulkDensXHeatCapacity ) const;
+
       /// Calculate the bulk-density value.
       // Should this be a lithology function?
       void calcBulkDensity ( const FluidType* fluid,

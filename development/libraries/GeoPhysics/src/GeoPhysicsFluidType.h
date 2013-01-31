@@ -3,6 +3,7 @@
 
 #include "IBSinterpolator.h"
 #include "IBSinterpolator2d.h"
+#include "PiecewiseInterpolator.h"
 
 #include "database.h"
 
@@ -118,6 +119,12 @@ namespace GeoPhysics {
       /// Compute the density x heat-capacity.
       double densXheatCapacity ( const double temperature, const double pressure ) const;
 
+      /// Compute the density x heat-capacity.
+      double densXheatCapacity ( const double porosity,
+                                 const double temperature,
+                                 const double pressure,
+                                 const bool   increasingTemperature ) const;
+
       /// Compute the seismic velocity.
       double seismicVelocity ( const double temperature, const double pressure ) const;
 
@@ -182,6 +189,33 @@ namespace GeoPhysics {
       /// An optimisation. Pre-compute some terms from the viscosity function.
       double m_precomputedViscosityTerm1;
       double m_precomputedViscosityTerm2;
+
+      // For permeafrost.
+
+      double solidDensityTimesHeatCapacity ( const double temperature ) const;
+
+      double computeTheta ( const double temperature ) const;
+
+      double computeThetaDerivative ( const double temperature ) const;
+
+      /// An interpolator for the density of water containing some fraction of ice ( t < 0.0 ).
+      ///
+      /// It depends only on temperature.
+      mutable ibs::PiecewiseInterpolator     m_iceDensityInterpolator;
+
+      /// An interpolator for the heat-capacity of water containing some fraction of ice ( t < 0.0 ).
+      ///
+      /// It depends only on temperature.
+      mutable ibs::PiecewiseInterpolator     m_iceHeatCapacityInterpolator;
+
+      /// An interpolator for the thermal-conductivity of water containing some fraction of ice ( t < 0.0 ).
+      ///
+      /// It depends only on temperature.
+      mutable ibs::PiecewiseInterpolator     m_iceThermalConductivityInterpolator;
+
+      double m_liquidusTemperature;
+      double m_solidusTemperature;
+      double m_omega;
 
    };
 

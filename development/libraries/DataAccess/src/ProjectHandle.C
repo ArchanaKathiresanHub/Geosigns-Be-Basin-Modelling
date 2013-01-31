@@ -708,7 +708,9 @@ bool ProjectHandle::loadSnapshots (void)
       Record * snapshotRecord = * tblIter;
       m_snapshots.push_back (getFactory ()->produceSnapshot (this, snapshotRecord));
    }
+
    std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
+
    Table * tbl = getTable ("BasementIoTbl");
    assert (tbl);
    Record *firstRecord = tbl->getRecord (0);
@@ -971,7 +973,10 @@ bool ProjectHandle::loadSurfaces (void)
       Record * stratRecord = * tblIter;
       m_surfaces.push_back (getFactory ()->produceSurface (this, stratRecord));
    }
+
+   // Sort the list of surfaces into age order, youngest first, oldest last on the list.
    std::sort ( m_surfaces.begin (), m_surfaces.end (), SurfaceLessThan ());
+
    return true;
 }
 
@@ -1625,6 +1630,9 @@ bool ProjectHandle::loadFormations (void)
 
       const std::string& layerName = database::getLayerName ( stratRecord );
       int depoSequenceNumber = database::getDepoSequence ( stratRecord );
+
+      // If the depo-sequence number is the null value then this is the bottom most surface definition.
+      // There is no formation contained in this strat-table record.
       if ( depoSequenceNumber != DefaultUndefinedScalarValue ) {
          formation = getFactory ()->produceFormation (this, stratRecord);
 	 m_formations.push_back ( formation );
@@ -1660,6 +1668,8 @@ bool ProjectHandle::loadFormations (void)
       }
 
    }
+
+   // Sort the list of surfaces into age order, youngest first, oldest last on the list.
    std::sort ( m_formations.begin (), m_formations.end (), FormationLessThan ());
 
    return true;
@@ -2002,7 +2012,9 @@ bool ProjectHandle::loadMobileLayers (void)
       Record * mobileLayerRecord = * tblIter;
       m_mobileLayers.push_back (getFactory ()->produceMobileLayer (this, mobileLayerRecord));
    }
+
    std::sort ( m_mobileLayers.begin (), m_mobileLayers.end (), PaleoPropertyTimeLessThan ());
+
    return true;
 }
 
@@ -2018,6 +2030,8 @@ bool ProjectHandle::loadHeatFlowHistory (void)
       Record * heatFlowRecord = * tblIter;
       m_heatFlowHistory.push_back (getFactory ()->producePaleoSurfaceProperty ( this, heatFlowRecord, m_mantleBottomSurface ));
    }
+
+   // Sort into correct order. Youngest first on the list.
    std::sort ( m_heatFlowHistory.begin (), m_heatFlowHistory.end (), PaleoPropertyTimeLessThan ());
 
    return true;
@@ -2096,7 +2110,10 @@ bool ProjectHandle::loadCrustThinningHistory (void)
       Record * crustThinningRecord = * tblIter;
       m_crustPaleoThicknesses.push_back (getFactory ()->producePaleoFormationProperty ( this, crustThinningRecord, m_crustFormation ));
    }
+
+   // Sort the items in the table into the correct order.
    sort ( m_crustPaleoThicknesses.begin (), m_crustPaleoThicknesses.end (), PaleoPropertyTimeLessThan ());
+
    if( m_crustPaleoThicknesses.empty() ) {
       return false;
    }
@@ -2210,7 +2227,10 @@ bool ProjectHandle::loadSurfaceTemperatureHistory (void)
       Record * surfaceTemperatureRecord = * tblIter;
       m_surfaceTemperatureHistory.push_back (getFactory ()->producePaleoProperty ( this, surfaceTemperatureRecord ));
    }
+
+   // Sort into correct order. Youngest first on the list.
    std::sort ( m_surfaceTemperatureHistory.begin (), m_surfaceTemperatureHistory.end (), PaleoPropertyTimeLessThan ());
+
    return true;
 }
 
@@ -2225,7 +2245,10 @@ bool ProjectHandle::loadSurfaceDepthHistory (void)
       Record * surfaceDepthRecord = * tblIter;
       m_surfaceDepthHistory.push_back (getFactory ()->producePaleoProperty ( this, surfaceDepthRecord ));
    }
+
+   // Sort into correct order. Youngest first on the list.
    std::sort ( m_surfaceDepthHistory.begin (), m_surfaceDepthHistory.end (), PaleoPropertyTimeLessThan ());
+
    return true;
 }
 
@@ -2370,7 +2393,9 @@ bool ProjectHandle::loadAllochthonousLithologyDistributions (void)
 
       m_allochthonousLithologyDistributions.push_back (getFactory ()->produceAllochthonousLithologyDistribution (this, allochthonousLithoDistRecord));
    }
+
    sort ( m_allochthonousLithologyDistributions.begin (), m_allochthonousLithologyDistributions.end (), AllochthonousLithologyDistributionTimeLessThan ());
+
    return true;
 }
 
@@ -6069,6 +6094,14 @@ bool ProjectHandle::containsSulphur () const {
    return false;
 }
 
+void ProjectHandle::setLatentHeat( const bool aLatentHeat ) 
+{
+   m_latentHeat = aLatentHeat;
+}
+
+bool ProjectHandle::getLatentHeat() const {
+   return m_latentHeat;
+}
 
 void ProjectHandle::printOn (ostream & ostr) const
 {

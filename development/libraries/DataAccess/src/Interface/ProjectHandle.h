@@ -514,6 +514,12 @@ namespace DataAccess
            const DataAccess::Interface::MessageHandler& getMessageHandler () const;
 
            const DataAccess::Interface::ApplicationGlobalOperations& getGlobalOperations () const;
+         
+           /// Return whether or not the latent heat is applied
+           bool getLatentHeat() const;
+
+           /// Set whether or not the latent heat is applied
+           void setLatentHeat( const bool aLatentHeat );
 
 	 protected:
 	    friend ProjectHandle * OpenCauldronProject (const string & name, const string & accessMode);
@@ -625,6 +631,9 @@ namespace DataAccess
 	    const Grid * m_activityOutputGrid; // grid in which the output is computed by the activity
 	    bool m_saveAsInputGrid; // whether to use the input grid to save the computed output
 
+      
+             /// I.e. whether latent heat is included in the calculation.
+             bool m_latentHeat;
 
 	    MapWriter * m_mapPropertyValuesWriter;
 
@@ -863,6 +872,7 @@ namespace DataAccess
 
             IrreducibleWaterSaturationSample* m_irreducibleWaterSample;
             SGDensitySample* m_sgDensitySample;
+
   private:
             static float GetUndefinedValue (hid_t fileId);
 

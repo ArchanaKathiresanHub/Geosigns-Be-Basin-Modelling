@@ -130,7 +130,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_numberOfInferiorMantleElements = 0;
    m_inferiorMantleElementHeightScaling = 1.0;
    m_minCrustThicknessIsZero = false;
-  
 
 }
 
@@ -747,6 +746,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
    PetscTruth petscBurialRateTimeStepping = PETSC_FALSE;
    PetscTruth petscCflTimeStepping = PETSC_FALSE;
+   PetscTruth petscLatentHeat = PETSC_FALSE;
 
    PetscTruth petscBurialRateFraction = PETSC_FALSE;
    double elementFraction;
@@ -769,8 +769,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscTruth mantleElementScalingChanged = PETSC_FALSE;
    double     mantleElementScaling;
 
-
-
+ 
    PetscOptionsGetString (PETSC_NULL, "-lateralstress", lateralStressFileName, MAXLINESIZE, &hasLateralStressFile );
    PetscOptionsGetInt  ( PETSC_NULL, "-pressplanequadrature", &pressurePlaneDegree, &pressurePlaneDegreeChanged );
    PetscOptionsGetInt  ( PETSC_NULL, "-pressdepthquadrature", &pressureDepthDegree, &pressureDepthDegreeChanged );
@@ -793,6 +792,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetReal ( PETSC_NULL, "-fcvesscale", &vesScale, &vesScaleChanged ); 
    PetscOptionsGetInt  ( PETSC_NULL, "-fcctmodel", &crustThinningModel, &crustThinningModelChanged ); 
    PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged ); 
+   PetscOptionsHasName ( PETSC_NULL, "-latentheat", &petscLatentHeat ); 
 
    PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
 
@@ -1038,6 +1038,11 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
   }
 
+  FastcauldronSimulator::getInstance ().setLatentHeat ( bool( petscLatentHeat ));
+
+  if (  bool( petscLatentHeat ) && debug1 ) {
+     PetscPrintf ( PETSC_COMM_WORLD, " Using latent heat associated with permafrost.\n" );
+  }
 }
 
 //------------------------------------------------------------//
