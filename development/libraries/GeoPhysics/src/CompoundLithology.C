@@ -1,5 +1,6 @@
 #include "CompoundLithology.h"
 #include "capillarySealStrength.h"
+#include "GeoPhysicsProjectHandle.h"
 
 #include <iostream>
 #include <sstream>
@@ -903,29 +904,27 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType*
                                                                 const bool       increasingTemperature,
                                                                       double&    BulkDensXHeatCapacity ) const {
 
-  bool LithoHasFluid = (fluid != 0);
-
-  double MatrixDensXHeatCap = densityXheatcapacity(Temperature, LithoPressure);
-  
-  if (LithoHasFluid) {
-    
-     double FluidDensXHeatCap = fluid->densXheatCapacity ( Porosity, Temperature, Pressure, increasingTemperature );
-     BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap;
-
-#if 0
-     double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature,Pressure);
-     BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
-#endif
-
-
-  } else {
-    //
-    //
-    // Should this be scaled by ( 1.0 - Porosity ) ?
-    //
-    BulkDensXHeatCapacity = MatrixDensXHeatCap;
-
-  }
+   bool LithoHasFluid = (fluid != 0);
+   
+   double MatrixDensXHeatCap = densityXheatcapacity(Temperature, LithoPressure);
+   
+   if (LithoHasFluid) {
+      
+      if( m_projectHandle->getLatentHeat() ) {
+         double FluidDensXHeatCap = fluid->densXheatCapacity ( Porosity, Temperature, Pressure, increasingTemperature );
+         BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap;
+      } else {
+         double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature,Pressure);
+         BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
+      }        
+   } else {
+      //
+      //
+      // Should this be scaled by ( 1.0 - Porosity ) ?
+      //
+      BulkDensXHeatCapacity = MatrixDensXHeatCap;
+      
+   }
 }
 
 void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
