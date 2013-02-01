@@ -344,12 +344,15 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    ofs << "#Hydrocarbons composition masses" << std::endl;
    ofs << "Composition = [" << std::endl;
 
+   double mss[iNc];
+   std::copy( masses.begin(), masses.begin() + iNc, &(mss[0]) );
+   double gorm = pvtFlash::EosPack::getInstance().gorm( mss );
+
    for ( size_t i = 0; i < iNc; ++i )
    {
-      ofs << "  " << data.compMass( i ) << std::endl;
-
+      ofs << "  " << masses[i] << std::endl;
       // also calulate mole fraction
-      masses[i] /= massTotal * CBMGenerics::ComponentManager::MolecularWeight[i];
+      masses[i] /= massTotal * pvtFlash::EosPack::getInstance().getMolWeightLumped( i, gorm ); 
    }
    ofs << "];" << std::endl << std::endl;
 
@@ -566,14 +569,12 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
 
    ios_base::fmtflags ofsff = ofs.flags();
 
-   ofs.precision( 4 );
-   ofs << std::fixed;
-   for ( int i = 0; i < iNc; ++i )
-   {
-      ofs << "text( 0.1, ax(4) - dy * " << i + 2 << ", [CompNames(" << i + 1 << ",:) ' - " << 
-             (g_DiagType == PTDiagramCalculator::MoleMassFractionDiagram ? masses[i] : data.compMass( i ) / data.totMass()) * 100 << "%'] );" << std::endl;
-   }
-   ofs.setf( ofsff );
+
+   ofs << "for i = 1:length( Composition )" << std::endl;
+   ofs << "   str = sprintf( '%s - %1.3e', CompNames(i,:), " << 
+      ( PTDiagramCalculator::MoleMassFractionDiagram == g_DiagType ? "CompMoleFrac( i )" : "CompositionNorm( i )" ) << " );" << std::endl;
+   ofs << "   text( 0.1, ax(4) - dy * (i+1), str );" << std::endl;
+   ofs << "end" << std::endl;
 
    ofs << "print -djpg \"-S2400,1800\" " << plotName << ".jpg;" << std::endl; 
    if ( !g_IsBatch ) { ofs << "pause;" << std::endl; }

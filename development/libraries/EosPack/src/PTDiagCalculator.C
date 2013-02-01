@@ -175,12 +175,15 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
    switch( m_diagType )
    {
       case PTDiagramCalculator::MoleMassFractionDiagram: // convert to molar mass fraction
-         for ( int phase = 0; phase < iNp; ++phase )
          {
-            for ( int comp = 0; comp < iNc; ++comp )
+            double gorm = pvtFlash::EosPack::getInstance().gorm( masses );
+            for ( int phase = 0; phase < iNp; ++phase )
             {
-               phaseMasses[phase][comp] /= totMass * CBMGenerics::ComponentManager::MolecularWeight[comp];
-               total += phaseMasses[phase][comp];
+               for ( int comp = 0; comp < iNc; ++comp )
+               {  
+                  phaseMasses[phase][comp] /= totMass * pvtFlash::EosPack::getInstance().getMolWeightLumped( comp, gorm );
+                  total += phaseMasses[phase][comp];
+               }
             }
          }
          break;
