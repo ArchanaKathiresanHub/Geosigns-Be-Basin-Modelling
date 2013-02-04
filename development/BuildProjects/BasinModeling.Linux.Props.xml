@@ -15,6 +15,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b01002</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
     <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\private_id.ppk</AgentKey>
+	<RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">/scratch/$(AgentAccount)/src</RemoteSourceDir>
+	<RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccount)/build</RemoteBuildDir>
   </PropertyGroup>
  
   <PropertyGroup Label="StandardUtilities" >
@@ -25,6 +27,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <putty_dir Condition="'$(putty_dir)' == '' And Exists('C:\opt\putty')">C:\opt\putty</putty_dir>
 
     <cpio_exe Condition="'$(cpio_exe)' == ''">"$(cygwin_bin_dir)cpio.exe"</cpio_exe>
+	<tar_exe Condition="'$(tar_exe)' == ''">"$(cygwin_bin_dir)tar.exe"</tar_exe>
 
     <!-- Command to start non interactive SSH session -->
     <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>
@@ -43,7 +46,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
   </PropertyGroup>
   
-  <Target Name="DispalyStandardVariables">
+  <Target Name="DisplayStandardVariables">
     <Message Text="TeamProject=$(TeamProject)"/>
     <Message Text="TeamFoundationServerUrl=$(TeamFoundationServerUrl)"/>
     <Message Text="BuildDefinitionName=$(BuildDefinitionName)"/>
@@ -77,6 +80,9 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <Message Text="solution_root = $(solution_root)" />
   </Target>
 
+  <!-- phony target to maintain backwards compatibility with the mispelled target -->
+  <Target Name="DispalyStandardVariables" DependsOnTargets="DisplayStandardVariables" />  
+  
   <Target Name="PrintEnv">
     <Exec Command="$(printenv)" />
   </Target>
