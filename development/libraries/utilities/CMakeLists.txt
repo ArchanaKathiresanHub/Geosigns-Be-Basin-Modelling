@@ -8,6 +8,7 @@ add_library( utilities
 	src/Quadrature.C
 	src/Quadrature3D.C
 	src/WallTime.C
+        src/formattingexception.C
 )
 
 #generate_export_header( utilities )

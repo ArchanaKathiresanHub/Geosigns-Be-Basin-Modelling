@@ -14,7 +14,7 @@ cp -R $dir/input $tmpdir
 all_valid=true
 for f in `find $tmpdir -name "*.project3d"`
 do 
-  $dir/tools/check_project $f || { all_valid=false;  }
+  bash $dir/tools/check_project $f || { all_valid=false;  }
 done
 
 # remove temporary copy

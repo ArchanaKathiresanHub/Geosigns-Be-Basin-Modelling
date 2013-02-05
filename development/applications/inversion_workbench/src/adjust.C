@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "generalexception.h"
+#include "formattingexception.h"
 #include "project.h"
 #include "optionparser.h"
 
@@ -145,7 +145,7 @@ catch( std::exception & e)
   std::exit(1);
 }
 
-struct ConversionException : BaseException< ConversionException > {};			     
+struct ConversionException : formattingexception::BaseException< ConversionException > {};			     
 
 template <typename T>
 T fromString(const std::string & x)

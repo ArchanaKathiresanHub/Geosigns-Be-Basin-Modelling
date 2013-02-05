@@ -1,5 +1,5 @@
 #include "project.h"
-#include "generalexception.h"
+#include "formattingexception.h"
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Surface.h"
@@ -10,7 +10,7 @@
 
 #include <cmath>
 
-struct AdjustException : BaseException< AdjustException > 
+struct AdjustException : formattingexception::BaseException< AdjustException > 
 { AdjustException() { *this << "Error adjusting parameter in project file: "; } };
 
 Project

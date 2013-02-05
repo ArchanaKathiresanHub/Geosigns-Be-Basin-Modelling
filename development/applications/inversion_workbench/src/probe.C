@@ -3,7 +3,7 @@
 #include <vector>
 #include <sstream>
 
-#include "generalexception.h"
+#include "formattingexception.h"
 #include "Interface/ProjectHandle.h"
 #include "DataMiningProjectHandle.h"
 #include "CauldronDomain.h"
@@ -28,7 +28,7 @@ void showUsage ( const char* command, const char* message )
              << std::endl;
 }
 
-struct ProbeException : BaseException< ProbeException >
+struct ProbeException : formattingexception::BaseException< ProbeException >
 { ProbeException() { *this << "Error while probing Cauldron project: "; } };
 
 /// Probes a Cauldron project3d file. Given:

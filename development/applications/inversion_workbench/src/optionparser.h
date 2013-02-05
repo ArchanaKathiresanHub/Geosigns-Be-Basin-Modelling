@@ -5,10 +5,10 @@
 #include <vector>
 #include <string>
 
-#include "generalexception.h"
+#include "formattingexception.h"
 
 
-struct OptionException : BaseException< OptionException > 
+struct OptionException : formattingexception::BaseException< OptionException > 
 { OptionException() { *this << "Error reading command line parameter: "; } };
 
 class OptionParser

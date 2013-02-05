@@ -1,13 +1,11 @@
 add_executable(probe
     src/probe.C
-    src/generalexception.C
 )
 
 add_executable(adjust
     src/adjust.C
     src/project.C
     src/optionparser.C
-    src/generalexception.C
 )
 
 include_directories(
