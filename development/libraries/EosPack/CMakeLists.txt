@@ -43,6 +43,8 @@ install(TARGETS EosPack
 if (BM_CSHARP_API)
 	configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
 	configure_file(test/EosPackTest.cs csharp-test/EosPackTest.cs)
+	configure_file(test/PTDiagCalculatorTest.cs csharp-test/PTDiagCalculatorTest.cs)
+	configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg)
 	add_csharp_unittest( 
 	  NAME EosPack.Test
 	  PLATFORM ${BM_WINDOWS_PLATFORM}
