@@ -1,0 +1,45 @@
+# Lines beginning with a # are comments
+# 
+# General syntax is
+#   Name: Section - Name - Parameter
+#
+# The Name is an identifier with which you can refer to it.
+# 
+# Section can be
+#  - 'Project3D' for parameters in the .project3d files
+#  - 'CauldronCmdLine' for parameters that are given on the command line when starting fastcauldron
+#  - 'MpiCmdLine' for parameters that are given to mpiexec
+#  - 'LsfCmdLine' for parameters that arg given to LSF bsub
+#  - 'Build' for information how the fastcauldron executable was build
+#
+# The syntax for Project3D parameters is
+#   Table.Field:Type.RecordNr
+# or
+#   Table.Field:Type.[ Field:Type = Value ] 
+#
+# The syntax for CmdLine parameters is
+#   option,option,...
+#
+# The former form states explicitly from which record to extract the field from,
+# the latter refers to the first record for which the condition between the brackets is true, holds.
+# That can be useful when that field has only unique values
+
+## Grid size
+# Horizontal
+ScaleX - Project3D - ProjectIoTbl . ScaleX : int . 0
+ScaleY - Project3D - ProjectIoTbl . ScaleY : int . 0
+
+# Vertical
+ScaleZ - Project3D - RunOptionsIoTbl . BrickHeightSediment : double . 0
+RefineZ - Project3D - StratIoTbl . ElementRefinementZ : int . *
+
+## Time stepping
+TimeStepping - Project3D - RunOptionsIoTbl.TempDiffBasedStepping : int . 0 { BurialRateTimeStepping = 0, TempDiffTimeStepping = 1 }
+
+
+## Algorithm
+SimulationMode - CauldronCmdLine - { Hydrostatic : "-temperature", FullyCoupled : "-itcoupled" }
+#LinearSolve - CmdLine - # Use CG, GMRES, etc...
+
+# Run options
+CauldronVersion - CauldronCmdLine - "-v{0}"

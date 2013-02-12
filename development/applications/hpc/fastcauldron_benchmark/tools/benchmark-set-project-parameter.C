@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "basinmodelparameter.h"
+#include "project3dparameter.h"
 #include "Interface/ProjectHandle.h"
 
 
@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
    DataAccess::Interface::ProjectHandle * project 
       = DataAccess::Interface::OpenCauldronProject( inputProjectFile, "r");
 
-   hpc::BasinModelParameter::parse( parameter)->writeValue(project, value);
+   hpc::Project3DParameter::parse( parameter)->writeValue(project, value);
 
    project->saveToFile( outputProjectFile );
 

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "basinmodelparameter.h"
+#include "project3dparameter.h"
 #include "Interface/ProjectHandle.h"
 
 
@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
    DataAccess::Interface::ProjectHandle * project 
       = DataAccess::Interface::OpenCauldronProject( projectFile, "r");
 
-   std::cout << hpc::BasinModelParameter::parse( parameter)->readValue(project) << std::endl;
+   std::cout << hpc::Project3DParameter::parse( parameter)->readValue(project) << std::endl;
 
    return 0;
 }

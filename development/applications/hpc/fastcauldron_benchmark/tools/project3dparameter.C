@@ -1,4 +1,5 @@
-#include "basinmodelparameter.h"
+#include "project3dparameter.h"
+#include "parser.h"
 
 #include <cstdlib>
 #include <cctype>
@@ -10,98 +11,11 @@ namespace hpc
 {
 
 
-boost::shared_ptr<BasinModelParameter>
-BasinModelParameter
+boost::shared_ptr<Project3DParameter>
+Project3DParameter
    :: parse( const std::string & text )
 {
-   struct Parser
-   {
-      Parser(const std::string & text)
-         : m_text(text)
-         , m_pos(0)
-         , m_ignoreWhiteSpace(true)
-      {}
-
-      void skipws()
-      {
-         while (m_pos < m_text.size() && std::isspace(m_text[m_pos]) )
-         {
-            ++m_pos;
-         }
-      }
-
-      void expect(const std::string & string)
-      {
-         if (m_ignoreWhiteSpace)
-            skipws();
-
-         if (string.empty())
-            return;
-
-         if ( m_text.find(string, m_pos) == m_pos)
-         {
-            m_pos += string.size()-1;
-            ++m_pos;
-         }
-         else
-         {
-            throw ParseException() << "Expected '" << string << "' at position " << m_pos;
-         }
-      }
-
-      bool hasNextToken()
-      {
-         skipws();
-         return !eof();
-      }
-
-      std::string nextToken() 
-      {
-         if (!hasNextToken())
-            throw ParseException() << "Unexpected end of input";
-                  
-         if (m_text[m_pos] == '"')
-         {
-            ++m_pos; // skip the start quote character
-
-            std::string token;
-            while ( !eof() && m_text[m_pos] != '"')
-            {
-              token.push_back(m_text[m_pos]);
-              ++m_pos;
-            }
-            
-            if (!eof())
-               ++m_pos; // skip the end quote 
-
-            return token;
-         }
-         else if (std::isalnum(m_text[m_pos]) || m_text[m_pos] == '_')
-         {
-            std::string token;
-            while ( !eof() && std::isalnum(m_text[m_pos]))
-            {
-               token.push_back(m_text[m_pos]);
-               ++m_pos;
-            }
-            
-            return token;
-         }
-         else 
-         {
-            return std::string(m_text, m_pos++, 1);
-         }
-      }
-
-      bool eof() const
-      { return m_pos == m_text.size(); }
-
-      bool m_ignoreWhiteSpace;
-      std::string m_text;
-      std::string::size_type m_pos;
-   } 
-   parser(text);
-
+   Parser parser(text);
 
    std::string table = parser.nextToken();
    parser.expect(".");
@@ -111,6 +25,7 @@ BasinModelParameter
    parser.expect(".");
    std::string record = parser.nextToken();
 
+   boost::shared_ptr< Project3DParameter > param;
    if (record == "[")
    {
       std::string conditionalField = parser.nextToken();
@@ -120,8 +35,14 @@ BasinModelParameter
       std::string conditionalValue = parser.nextToken();
       parser.expect("]");
 
-      return boost::shared_ptr< BasinModelParameter >(
-            new ImplicitBasinModelParameter( table, field, type, conditionalField, conditionalType, conditionalValue)
+      param.reset(
+            new ImplicitProject3DParameter( table, field, type, conditionalField, conditionalType, conditionalValue)
+         );
+   }
+   else if (record == "*")
+   {
+      param.reset(
+            new ExplicitProject3DParameter( table, field, type, -1)
          );
    }
    else
@@ -140,14 +61,45 @@ BasinModelParameter
       if (number < 0)
          throw ParseException() << "The record number can't be negative.";
 
-      return boost::shared_ptr< BasinModelParameter >(
-            new ExplicitBasinModelParameter( table, field, type, number)
+      param.reset( 
+            new ExplicitProject3DParameter( table, field, type, number)
          );
    }
+
+   if (parser.hasNextToken() )
+   {
+      std::string attribute = parser.nextToken();
+
+      if (attribute == "{")
+      {
+         std::vector< std::string > names;
+         std::vector< std::string > values;
+         std::string comma;
+         do
+         {
+            names.push_back( parser.nextToken() );
+            parser.expect("=");
+            values.push_back(parser.nextToken());
+
+            comma = parser.nextToken();
+         } while(comma == ",");
+
+         if (comma != "}")
+            throw ParseException() << "Expected '}' to conclude choice of parameter values";
+
+         param.reset( new ChoiceProject3DParameter( param, names, values) );
+      }
+      else
+      {
+         throw ParseException() << "Unexpected '" << attribute << "' after parameter.";
+      }
+   }
+
+   return param;
 }
 
-BasinModelParameter :: Type
-BasinModelParameter
+Project3DParameter :: Type
+Project3DParameter
   :: parseType(const std::string & type)
 {
   const std::string types[]
@@ -157,7 +109,7 @@ BasinModelParameter
 }
 
 std::string
-BasinModelParameter
+Project3DParameter
   :: readValue(Type type, database::Record * record, const std::string & field)
 {
    assert( record );
@@ -188,7 +140,7 @@ namespace
      if (v)
         record->setValue(field, x);
      else
-        throw BasinModelParameter::QueryException() << "The value '" << value << "' cannot be parsed as '"
+        throw Project3DParameter::QueryException() << "The value '" << value << "' cannot be parsed as '"
            << typeid(T).name() << "' for field '" << field << "'";
   }
 
@@ -208,7 +160,7 @@ namespace
      if (v)
         return table->findRecord(field, x);
      else
-        throw BasinModelParameter::QueryException() << "The value '" << value << "' cannot be parsed as '"
+        throw Project3DParameter::QueryException() << "The value '" << value << "' cannot be parsed as '"
            << typeid(T).name() << "' for field '" << field << "'";
   }
   
@@ -221,7 +173,7 @@ namespace
 }
 
 void
-BasinModelParameter
+Project3DParameter
   :: writeValue(Type type, database::Record * record, const std::string & field, const std::string & value)
 {
    switch(type)
@@ -238,45 +190,67 @@ BasinModelParameter
    }
 }
 
-ExplicitBasinModelParameter
-   :: ExplicitBasinModelParameter( const std::string & table, const std::string & field, Type type, int record)
+ExplicitProject3DParameter
+   :: ExplicitProject3DParameter( const std::string & table, const std::string & field, Type type, int record)
    : m_table(table), m_field(field), m_recordNumber(record), m_type(type)
 {}
 
 std::string
-ExplicitBasinModelParameter
+ExplicitProject3DParameter
    :: readValue( const DataAccess::Interface::ProjectHandle * project) const
 {
    database::Table * table = project->getTable(m_table);
    if (!table)
       throw QueryException() << "Table '" << m_table << "' not found.";
 
-   database::Record * record = table->getRecord(m_recordNumber);
- 
-   if (!record)
-      throw QueryException() << "Record " << m_recordNumber << " not found in table '" << m_table << "'.";
+   if (m_recordNumber == -1)
+   {
+      if (table->size() == 0)
+         throw QueryException() << "Table does not contain any records.";
 
-   return BasinModelParameter::readValue(m_type, record, m_field);
+      std::string value = Project3DParameter::readValue(m_type, table->getRecord(0), m_field);
+      for (int i = 1; i < table->size(); ++i)
+         if (Project3DParameter::readValue(m_type, table->getRecord(i), m_field) != value)
+            throw QueryException() << "Cannot use * as record number, because the field in this table has differing values";
+      return value;
+   }
+   else
+   {
+      database::Record * record = table->getRecord(m_recordNumber);
+    
+      if (!record)
+         throw QueryException() << "Record " << m_recordNumber << " not found in table '" << m_table << "'.";
+
+      return Project3DParameter::readValue(m_type, record, m_field);
+   }
 }
 
 void
-ExplicitBasinModelParameter
+ExplicitProject3DParameter
    :: writeValue( DataAccess::Interface::ProjectHandle * project, const std::string & value) const
 {
    database::Table * table = project->getTable(m_table);
    if (!table)
       throw QueryException() << "Table '" << m_table << "' not found.";
 
-   database::Record * record = table->getRecord(m_recordNumber);
- 
-   if (!record)
-      throw QueryException() << "Record " << m_recordNumber << " not found in table '" << m_table << "'.";
+   if (m_recordNumber == -1)
+   {
+      for (int i = 0 ; i < table->size(); ++i)
+         Project3DParameter::writeValue(m_type, table->getRecord(i), m_field, value);
+   }
+   else
+   {
+      database::Record * record = table->getRecord(m_recordNumber);
+    
+      if (!record)
+         throw QueryException() << "Record " << m_recordNumber << " not found in table '" << m_table << "'.";
 
-   BasinModelParameter::writeValue(m_type, record, m_field, value);
+      Project3DParameter::writeValue(m_type, record, m_field, value);
+   }
 }
 
-ImplicitBasinModelParameter
-   :: ImplicitBasinModelParameter( const std::string & table, const std::string & field, Type type
+ImplicitProject3DParameter
+   :: ImplicitProject3DParameter( const std::string & table, const std::string & field, Type type
          , const std::string & conditionField, Type conditionalType, const std::string & conditionValue
          )
    : m_table(table), m_field(field)
@@ -287,7 +261,7 @@ ImplicitBasinModelParameter
 {}
 
 std::string
-ImplicitBasinModelParameter
+ImplicitProject3DParameter
    :: readValue( const DataAccess::Interface::ProjectHandle * project) const
 {
    database::Table * table = project->getTable(m_table);
@@ -300,11 +274,11 @@ ImplicitBasinModelParameter
       throw QueryException() << "Record with '" << m_conditionField << "' = '" 
          << m_conditionValue << "' not found in table '" << m_table << "'.";
 
-   return BasinModelParameter::readValue(m_type, record, m_field);
+   return Project3DParameter::readValue(m_type, record, m_field);
 }
 
 void
-ImplicitBasinModelParameter
+ImplicitProject3DParameter
    :: writeValue( DataAccess::Interface::ProjectHandle * project, const std::string & value) const
 {
    database::Table * table = project->getTable(m_table);
@@ -317,11 +291,11 @@ ImplicitBasinModelParameter
       throw QueryException() << "Record with '" << m_conditionField << "' = '" 
          << m_conditionValue << "' not found in table '" << m_table << "'.";
 
-   BasinModelParameter::writeValue(m_type, record, m_field, value);
+   Project3DParameter::writeValue(m_type, record, m_field, value);
 }
 
 database::Record *
-ImplicitBasinModelParameter
+ImplicitProject3DParameter
   :: findRecord(database::Table * table, Type type, const std::string & field, const std::string & value)
 {
    switch(type)
@@ -337,5 +311,39 @@ ImplicitBasinModelParameter
          throw QueryException() << "Unknown type";
    }
 }
+
+ChoiceProject3DParameter
+  :: ChoiceProject3DParameter(boost::shared_ptr< Project3DParameter> parameter
+           , const std::vector< Name > & names, const std::vector< Value > & values)
+  : m_parameter(parameter)
+  , m_names(names)
+  , m_values(values)                
+{}
+
+std::string
+ChoiceProject3DParameter
+  :: readValue(const DataAccess::Interface::ProjectHandle * project) const
+{
+  std::string value = m_parameter->readValue(project);
+  unsigned i = std::distance(m_values.begin(), std::find( m_values.begin(), m_values.end(), value));
+
+  if (i == m_values.size())
+     throw QueryException() << "Value that was read from parameter was not defined in choice parameter";
+
+  return m_names[i];
+}
+                                  
+void
+ChoiceProject3DParameter
+  :: writeValue(DataAccess::Interface::ProjectHandle * project, const std::string & value) const
+{
+  unsigned i = std::distance(m_names.begin(), std::find( m_names.begin(), m_names.end(), value));
+
+  if (i == m_names.size())
+     throw QueryException() << "The name for the used to write a choice parameter is not defined";
+
+  m_parameter->writeValue(project, m_values[i]);
+}
+ 
 
 }

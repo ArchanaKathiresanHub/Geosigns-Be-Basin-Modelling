@@ -2,6 +2,8 @@
 #define HPC_FCBENCH_BASIN_MODEL_PARAMETER_H
 
 #include <string>
+#include <vector>
+#include <map>
 #include <boost/shared_ptr.hpp>
 
 #include "formattingexception.h"
@@ -22,10 +24,10 @@ namespace hpc
  
   
 
-  class BasinModelParameter
+  class Project3DParameter 
   {
   public:
-    virtual ~BasinModelParameter() {};
+    virtual ~Project3DParameter() {}
 
     enum Type { BOOL, INT, LONG, FLOAT, DOUBLE, STRING};
 
@@ -36,9 +38,9 @@ namespace hpc
     // input text can have several forms:
     // 1) Table . Field : Type . RecordNr            , i.e.: Explicit
     // 2) Table . Field : Type . [ Field : Type = Value ]   , i.e.: Implicit
+    // 3) Param {  Name = Value, ... }   , i.e.: Choice
     // all whitespace should be ignored
-    struct ParseException : formattingexception::BaseException< ParseException > {};
-    static boost::shared_ptr< BasinModelParameter > parse( const std::string & text );
+    static boost::shared_ptr< Project3DParameter > parse( const std::string & text );
 
   protected:
     static std::string readValue(Type type, database::Record * record, const std::string & field);
@@ -47,10 +49,10 @@ namespace hpc
   };
 
 
-  class ImplicitBasinModelParameter : public BasinModelParameter
+  class ImplicitProject3DParameter : public Project3DParameter
   {
   public:
-    ImplicitBasinModelParameter( const std::string & table, const std::string & field, Type type
+    ImplicitProject3DParameter( const std::string & table, const std::string & field, Type type
 	, const std::string & m_conditionField, Type conditionalType, const std::string & m_conditionValue
 	);
 
@@ -67,10 +69,10 @@ namespace hpc
     Type m_type, m_conditionalType;
   };
 
-  class ExplicitBasinModelParameter : public BasinModelParameter
+  class ExplicitProject3DParameter : public Project3DParameter
   {
   public:
-    ExplicitBasinModelParameter( const std::string & table, const std::string & field, Type type, int record);
+    ExplicitProject3DParameter( const std::string & table, const std::string & field, Type type, int record);
 
     virtual std::string readValue( const DataAccess::Interface::ProjectHandle * ) const ;
     virtual void writeValue( DataAccess::Interface::ProjectHandle *, const std::string & value) const ;
@@ -79,10 +81,28 @@ namespace hpc
 
     std::string m_table;
     std::string m_field;
-    int m_recordNumber;
+    int m_recordNumber; // -1 = all record. 0, 1, 2, etc... are normal records
     Type m_type;
   };
 
+
+  class ChoiceProject3DParameter : public Project3DParameter
+  {
+  public:
+     typedef std::string Name;
+     typedef std::string Value;
+
+     ChoiceProject3DParameter( boost::shared_ptr< Project3DParameter> parameter
+           , const std::vector< Name > & name, const std::vector< Value > & values);
+
+     virtual std::string readValue( const DataAccess::Interface::ProjectHandle * ) const ;
+     virtual void writeValue( DataAccess::Interface::ProjectHandle *, const std::string & value) const ;
+
+  private:
+     boost::shared_ptr< Project3DParameter > m_parameter;
+     std::vector<Name> m_names;
+     std::vector<Value> m_values;
+  };
 
 
 }

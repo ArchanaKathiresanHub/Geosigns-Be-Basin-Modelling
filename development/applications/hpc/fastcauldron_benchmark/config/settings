@@ -1,0 +1,11 @@
+ID      nvg01
+Project "input/nvg/01/NVG.project3d"
+Processors 12
+ScaleX 10
+ScaleY 10
+ScaleZ 400
+RefineZ 1
+TimeStepping BurialRateTimeStepping
+SimulationMode Hydrostatic
+CauldronVersion "2012.0704"
+

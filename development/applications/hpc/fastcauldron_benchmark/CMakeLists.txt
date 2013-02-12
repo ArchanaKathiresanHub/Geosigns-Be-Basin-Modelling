@@ -3,13 +3,18 @@ enable_testing()
 
 add_subdirectory(tools)
 
-#install(DIRECTORY input 
-#    DESTINATION share/fcbench
-#    PATTERN "*"
-#    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-#                GROUP_EXECUTE GROUP_READ
-#		WORLD_EXECUTE WORLD_READ
-#)
+if (BM_INSTALL_BENCHMARK_SUITE)
+   install(DIRECTORY input 
+       DESTINATION fcbench/
+       USE_SOURCE_PERMISSIONS
+   )
+
+   install(DIRECTORY config
+       DESTINATION fcbench/
+       USE_SOURCE_PERMISSIONS
+   )
+
+endif()
 
 add_test(NAME hpc.benchmark.input_wellformedness_tests
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
