@@ -9,6 +9,7 @@
 #include <sstream>
 #include <tr1/array>
 #include <map>
+#include <set>
 
 namespace hpc
 {
@@ -18,7 +19,7 @@ namespace hpc
       typedef ParameterDefinitions :: ProjectParamMap :: const_iterator P;
       typedef ParameterDefinitions :: CmdLineParamMap :: const_iterator C;
 
-      std::tr1::array<std::string, 3> mandatorySettings = { { "ID", "Project", "Processors" } };
+      std::tr1::array<std::string, 4> mandatorySettings = { { "ID", "Project", "Processors", "CauldronVersion" } };
 
       struct MandatorySetting { static 
          std::string getValue(const ParameterSettings::Map & map, const std::string & parameter)
@@ -42,6 +43,7 @@ namespace hpc
       typedef std::string ID;
       typedef std::map<Processors, ID > ProcList;
       std::multimap< Processors, ID > processorsPerSetting;
+      std::set<ID> ids;
 
       // write the directory structure with project files, scripts, etc...
       for (unsigned i = 0; i < settings.size(); ++i)
@@ -53,42 +55,58 @@ namespace hpc
            std::istringstream input(MandatorySetting :: getValue(settings[i].map(), "Processors"));
            input >> processors;
          }
+         std::string version = MandatorySetting::getValue(settings[i].map(), "CauldronVersion");
 
          if (projectFile.empty() || settingID.empty() || processors < 1)
             continue;
 
-         FastCauldronEnvironment env( settingID, projectFile, processors );
-
-         typedef ParameterSettings::Map::const_iterator It;
-         for (It s = settings[i].map().begin(); s != settings[i].map().end(); ++s)
+         if ( !ids.insert( settingID ).second)
          {
-            const std::string & name = s->first;
-            const std::string & value = s->second;
-
-            if (std::find(mandatorySettings.begin(), mandatorySettings.end(), name) != mandatorySettings.end())
-               continue;
-
-            {
-               P p = pd.projectParameters().find( name );
-               if ( p != pd.projectParameters().end())
-                  env.applyProjectParameter( *p->second, value );
-            }
-
-            {
-               C c = pd.mpiCmdLineParameters().find( name );
-               if (c != pd.mpiCmdLineParameters().end())
-                  env.applyMpiCmdLineParameter( *c->second, std::vector<std::string>(1,value));
-            }
-
-            {
-               C c = pd.cauldronCmdLineParameters().find( name );
-               if (c != pd.cauldronCmdLineParameters().end())
-                  env.applyCauldronCmdLineParameter( *c->second, std::vector<std::string>(1, value));
-            }
+            std::cerr << "Warning: Multiple benchmarks have the same ID '" << settingID << "'" << std::endl;
+            continue;
          }
 
-         if (env.generateJob(workingDir))
-            processorsPerSetting.insert( std::make_pair( processors , settingID ) );
+         try
+         {
+
+            FastCauldronEnvironment env( settingID, projectFile, processors, version );
+
+            typedef ParameterSettings::Map::const_iterator It;
+            for (It s = settings[i].map().begin(); s != settings[i].map().end(); ++s)
+            {
+               const std::string & name = s->first;
+               const std::string & value = s->second;
+
+               if (std::find(mandatorySettings.begin(), mandatorySettings.end(), name) != mandatorySettings.end())
+                  continue;
+
+               {
+                  P p = pd.projectParameters().find( name );
+                  if ( p != pd.projectParameters().end())
+                     env.applyProjectParameter( *p->second, value );
+               }
+
+               {
+                  C c = pd.mpiCmdLineParameters().find( name );
+                  if (c != pd.mpiCmdLineParameters().end())
+                     env.applyMpiCmdLineParameter( *c->second, std::vector<std::string>(1,value));
+               }
+
+               {
+                  C c = pd.cauldronCmdLineParameters().find( name );
+                  if (c != pd.cauldronCmdLineParameters().end())
+                     env.applyCauldronCmdLineParameter( *c->second, std::vector<std::string>(1, value));
+               }
+            }
+
+            if (env.generateJob(workingDir))
+               processorsPerSetting.insert( std::make_pair( processors , settingID ) );
+         }
+         catch(std::exception & e)
+         {
+            std::cerr << "Warning: Cannot generate benchmark for setting '" << settingID << "', because"
+              << e.what() << std::endl;
+         }
       }
 
       if (processorsPerSetting.empty())

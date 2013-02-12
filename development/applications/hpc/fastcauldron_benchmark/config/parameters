@@ -8,21 +8,27 @@
 # Section can be
 #  - 'Project3D' for parameters in the .project3d files
 #  - 'CauldronCmdLine' for parameters that are given on the command line when starting fastcauldron
-#  - 'MpiCmdLine' for parameters that are given to mpiexec
-#  - 'LsfCmdLine' for parameters that arg given to LSF bsub
-#  - 'Build' for information how the fastcauldron executable was build
+#  - 'MpiCmdLine' for parameters that are given to mpirun
 #
 # The syntax for Project3D parameters is
-#   Table.Field:Type.RecordNr
-# or
-#   Table.Field:Type.[ Field:Type = Value ] 
+#   Table . Field : Type . Record Choice
+# where 
+#  - Table is a table name
+#  - Field is a field name in that table
+#  - Type is a one of 'bool', 'int', 'long', 'float', 'double'
+#  - Record can be
+#    * A record number, e.g. 0
+#    * A predicate of the form [ Field : Type = Value ], e.g.: "[ SurfaceName : string = Top_well ]"
+#    * A * to denote all records. Note: the field must have the same value in all records
+#  - Choice is optional. With it you can give names to specific values. Format is:
+#      { Name = Value, Name = Value, ... }
 #
 # The syntax for CmdLine parameters is
-#   option,option,...
-#
-# The former form states explicitly from which record to extract the field from,
-# the latter refers to the first record for which the condition between the brackets is true, holds.
-# That can be useful when that field has only unique values
+#  - "some string {0} another string"
+#    In this string the value {0} is subsituted with the value of the parameter
+#  - { Name : Value, Name : Value }
+#    Where Value is a legal parameter to either mpirun or fastcauldron
+#   
 
 ## Grid size
 # Horizontal
@@ -30,16 +36,15 @@ ScaleX - Project3D - ProjectIoTbl . ScaleX : int . 0
 ScaleY - Project3D - ProjectIoTbl . ScaleY : int . 0
 
 # Vertical
-ScaleZ - Project3D - RunOptionsIoTbl . BrickHeightSediment : double . 0
-RefineZ - Project3D - StratIoTbl . ElementRefinementZ : int . *
+BrickHeightSediment - Project3D - RunOptionsIoTbl . BrickHeightSediment : double . 0
+ElementRefinementZ - Project3D - StratIoTbl . ElementRefinementZ : int . *
 
-## Time stepping
-TimeStepping - Project3D - RunOptionsIoTbl.TempDiffBasedStepping : int . 0 { BurialRateTimeStepping = 0, TempDiffTimeStepping = 1 }
+## Time stepping method
+TimeSteppingMethod - Project3D - RunOptionsIoTbl.TempDiffBasedStepping : int . 0 { BurialRateTimeStepping = 0, TempDiffTimeStepping = 1 }
 
 
 ## Algorithm
 SimulationMode - CauldronCmdLine - { Hydrostatic : "-temperature", FullyCoupled : "-itcoupled" }
+GeometricLoop - Project3D - RunOptionsIoTbl . NonGeometricLoop : int . 0 { Yes = 0, No = 1 }
 #LinearSolve - CmdLine - # Use CG, GMRES, etc...
 
-# Run options
-CauldronVersion - CauldronCmdLine - "-v{0}"

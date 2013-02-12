@@ -21,7 +21,7 @@ class CmdLineParameter;
 class FastCauldronEnvironment 
 {
 public:
-   FastCauldronEnvironment(const std::string & id, const std::string & projectFile, int processors);
+   FastCauldronEnvironment(const std::string & id, const std::string & projectFile, int processors, const std::string & version);
 
    struct Exception : formattingexception::BaseException< Exception > {};
 
@@ -56,6 +56,7 @@ private:
    std::vector< std::string > m_cauldronCmdLine;
    boost::shared_ptr<DataAccess::Interface::ProjectHandle>  m_project;
    std::string m_projectSourceDir;
+   std::string m_version;
 };  
 
 }

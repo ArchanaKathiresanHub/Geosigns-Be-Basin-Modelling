@@ -12,14 +12,18 @@ namespace hpc
 {
 
 FastCauldronEnvironment
-   :: FastCauldronEnvironment( const std::string & id, const std::string & projectFile, int processors)
+   :: FastCauldronEnvironment( const std::string & id, const std::string & projectFile, int processors, const std::string & version)
    : m_id(id)
    , m_processors(processors)
    , m_mpiCmdLine()
    , m_cauldronCmdLine()
    , m_project( DataAccess::Interface::OpenCauldronProject( projectFile, "r"))
    , m_projectSourceDir( dirname(projectFile))
-{}
+   , m_version(version)                                             
+{
+  if (!m_project)
+     throw Exception() << "Could not open project file '" << projectFile << "'";
+}
 
 void
 FastCauldronEnvironment
@@ -164,16 +168,30 @@ FastCauldronEnvironment
          << "echo /////////////////// HOST INFORMATION BEFORE RUN //////////////////////\n"
          << hostInformationScript
          << "\n"
-         // execute fastcauldron
          << "echo\n"
          << "echo /////////////////// FASTCAULDRON OUTPUT //////////////////////////////\n"
+         // setup the environment
+         << "export SIEPRTS_LICENSE_FILE"
+            << "=\"3000@amsdc1-s-7225.europe.shell.com"
+            << ":3000@cbj-s-7018.asia-pac.shell.com"
+            << ":3000@houic-s-7050.americas.shell.com\"\n"
+         << "MISC=/apps/sssdev/ibs/v" << m_version << "/misc\n"
+         << "FASTCAULDRON=/apps/sssdev/ibs/v" << m_version << "/`getos2 --ver --os`/bin/fastcauldron\n"
+         << "export EOSPACKDIR=$MISC/eospack\n"
+         << "export GENEXDIR=$MISC/genex40\n"
+         << "export GENEX5DIR=$MISC/genex50\n"
+         << "export GENEX6DIR=$MISC/genex60\n"
+         << "export OTGCDIR=$MISC/OTGC\n"
+         << MPICmdLineTools().loadEnv() << '\n'
+         << "\n"
+         // execute fastcauldron
          << "mpirun -np " << m_processors << ' ' ;
       
       for (unsigned i = 0; i < m_mpiCmdLine.size(); ++i)
          commandFile << m_mpiCmdLine[i] << ' ';
 
       commandFile 
-         << "fastcauldron "
+         << "$FASTCAULDRON "
          << "-project Project.project3d "  // the project file
          << "-save Project_output.project3d " // the output project file
          << "-debug1 -log_summary "       // flags to fastcauldron that print a lot of performance data

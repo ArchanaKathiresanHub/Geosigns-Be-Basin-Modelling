@@ -89,14 +89,11 @@ DelayedLsfCluster
       << "HOSTS=$(( `echo $LSB_MCPU_HOSTS | wc -w` / 2 ))\n"
       << "PROCS=`echo $LSB_HOSTS | wc -w`\n"
       << "\n"
-      << "echo ============== INIT ==========================\n"
-      << "echo Loading MPI environment\n"
-      << MPICmdLineTools().loadEnv() << '\n'
-      << "echo ============== DEBUGINFO ======================\n"
+      << "echo =========== DEBUGINFO =================\n"
       << "echo HOSTS=$HOSTS\n"
       << "echo PROCS=$PROCS\n"
       << "echo =======================================\n"
-      << "echo RUNNING MPI PROCESS\n"
+      << "echo RUNNING EXPERIMENTS\n"
       << "echo ---------------------------------------\n"
       ;
 
