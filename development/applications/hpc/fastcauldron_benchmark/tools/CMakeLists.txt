@@ -16,6 +16,8 @@ add_executable(benchmark
   system.C
   hpccluster.C
   configurationfile.C
+  resultstabulator.C
+  variabledefinitions.C
 )
 
 target_link_libraries(benchmark

@@ -4,8 +4,11 @@
 #include "parameterdefinitions.h"
 #include "parametersettings.h"
 #include "hpccluster.h"
+#include "resultstabulator.h"
+#include "variabledefinitions.h"
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <tr1/array>
 #include <map>
@@ -14,7 +17,7 @@
 namespace hpc
 {
 
-   void benchmark( const std::string & parameterDefinitionsFile, const std::string & settingsFile, const std::string & workingDir, HPCCluster & cluster )
+   void benchmark( const std::string & parameterDefinitionsFile, const std::string & settingsFile, const std::string & variableDefinitionsFile,  const std::string & workingDir, HPCCluster & cluster )
    {
       typedef ParameterDefinitions :: ProjectParamMap :: const_iterator P;
       typedef ParameterDefinitions :: CmdLineParamMap :: const_iterator C;
@@ -39,13 +42,23 @@ namespace hpc
       ParameterDefinitions pd( parameterDefinitionsFile );
       std::vector<ParameterSettings> settings = ParameterSettings::parse(settingsFile);
 
+      // write the results tabulator script
+      {  std::ofstream resultsTabulator( (workingDir + "/tabulate_results.sh").c_str());
+         writeResultsTabulatorScript( resultsTabulator, 
+              pd, 
+              VariableDefinitions(variableDefinitionsFile),
+              settings, 
+              workingDir
+              );
+      }
+
+      // write the directory structure with project files, scripts, etc...
       typedef int         Processors;
       typedef std::string ID;
       typedef std::map<Processors, ID > ProcList;
       std::multimap< Processors, ID > processorsPerSetting;
       std::set<ID> ids;
 
-      // write the directory structure with project files, scripts, etc...
       for (unsigned i = 0; i < settings.size(); ++i)
       {
          std::string projectFile = MandatorySetting :: getValue(settings[i].map(), "Project");
@@ -130,6 +143,8 @@ namespace hpc
       // wait on results
       cluster.wait();
 
+      
+
    }
 } // namespace hpc
 
@@ -138,12 +153,12 @@ int main(int argc, char ** argv)
    using namespace hpc;
    if (argc < 5)
    {
-      std::cerr << "Usage: " << argv[0] << " PARAMETERDEFINITIONS SETTINGS CLUSTERCONF WORKDIR" << std::endl;
+      std::cerr << "Usage: " << argv[0] << " PARAMETERDEFINITIONS SETTINGS VARIABLEDEFS CLUSTERCONF WORKDIR" << std::endl;
       return 1;
    }
 
-   DelayedLsfCluster cluster(argv[3], argv[4]);
-   benchmark( argv[1], argv[2], argv[4], cluster);
+   DelayedLsfCluster cluster(argv[4], argv[5]);
+   benchmark( argv[1], argv[2], argv[3], argv[5], cluster);
 
    return 0;
 }
