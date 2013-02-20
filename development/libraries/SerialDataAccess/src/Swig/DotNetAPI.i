@@ -83,7 +83,7 @@
 #include "../../../DataAccess/src/interface/Trapper.h"
 #include "../../../DataAccess/src/interface/TrapPhase.h"
 #include "../../../DataAccess/src/interface/zycorfaultfilereader.h"
-
+#include "../../../DataAccess/src/Interface/IgneousIntrusionEvent.h"
 %}
 
 
