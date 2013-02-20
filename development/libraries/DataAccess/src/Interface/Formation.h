@@ -102,6 +102,20 @@ namespace DataAccess
             /// Return the name of Mixing HI grid
             virtual const string & getSourceRockMixingHIGridName(void) const;
 
+            /// \brief Indicate whether or not the layer is an igneous intrusion.
+            virtual bool getIsIgneousIntrusion () const;
+
+            /// \brief The age at which the igneous intrusion event occurs.
+            virtual double getIgneousIntrusionAge () const;
+
+            /// \brief The initial temperature of the igneous intrusion.
+            virtual double getIgneousIntrusionTemperature () const;
+
+            /// \brief Return a pointer to the intrusion event.
+            ///
+            /// Return null if the formation is not an intrusion.
+            virtual const IgneousIntrusionEvent* getIgneousIntrusionEvent () const;
+
             /// \brief Return the refinement value in depth direction.
             virtual unsigned int getElementRefinement () const;
 

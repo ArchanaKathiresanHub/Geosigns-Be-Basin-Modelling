@@ -466,6 +466,23 @@ const SourceRock * Formation::getSourceRock2 (void) const
    return m_sourceRock2;
 }
 
+bool Formation::getIsIgneousIntrusion () const {
+   return database::getIsIgneousIntrusion ( m_record ) == 1;
+}
+
+double Formation::getIgneousIntrusionAge () const {
+   return database::getIgneousIntrusionAge ( m_record );
+}
+
+double Formation::getIgneousIntrusionTemperature () const {
+   return database::getIgneousIntrusionTemperature ( m_record );
+}
+
+const IgneousIntrusionEvent* Formation::getIgneousIntrusionEvent () const {
+   return m_projectHandle->findIgneousIntrusionEvent ( this );
+}
+
+
 bool Formation::hasConstrainedOverpressure (void) const
 {
    return database::getHydroSand (m_record) == 1;

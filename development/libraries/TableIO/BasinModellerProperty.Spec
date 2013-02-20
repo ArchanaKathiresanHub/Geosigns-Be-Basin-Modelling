@@ -1278,6 +1278,36 @@ START-properties
     Default             : 0
 
 
+    Identification      : IsIgneousIntrusion
+    Description         : Flag to indicate whether a layer is an igneous intrusion or not.
+    Type                : boolean
+    Unit of measurement : 
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : false
+
+    Identification      : IgneousIntrusionAge
+    Description         : The age at which the intrusion is inflated
+    Type                : double
+    Unit of measurement : 
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999.0
+
+    Identification      : IgneousIntrusionTemperature
+    Description         : The initial temperature of the intruted material,
+    Type                : double
+    Unit of measurement : 
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999.0
+
+
+
+
 #### Source Rock properties -------------------------------------------------
 
     Identification      : SourceRockType
@@ -9031,7 +9061,9 @@ START-property-tables
     Column         : SourceRockMixingHIGrid
     Column         : ElementRefinementZ
     Column         : IncludeInDarcy
-   
+    Column         : IsIgneousIntrusion
+    Column         : IgneousIntrusionAge
+    Column         : IgneousIntrusionTemperature
 
     Header         : Stratigraphic Data  
     Time dependent : No

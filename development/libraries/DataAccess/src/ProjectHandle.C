@@ -53,6 +53,7 @@ using namespace std;
 #include "Interface/FracturePressureFunctionParameters.h"
 #include "Interface/CrustFormation.h"
 #include "Interface/InputValue.h"
+#include "Interface/IgneousIntrusionEvent.h"
 #include "Interface/Lead.h"
 #include "Interface/LeadTrap.h"
 #include "Interface/LithoType.h"
@@ -261,6 +262,7 @@ ProjectHandle::ProjectHandle (Database * tables, const string & name, const stri
    loadGrids ();
    loadSurfaces ();
    loadFormations ();
+   loadIgneousIntrusions ();
    loadReservoirs ();
    loadMobileLayers ();
    loadAllochthonousLithologies ();
@@ -411,6 +413,7 @@ ProjectHandle::~ProjectHandle (void)
    deleteLithoTypes ();
    deleteSurfaces ();
    deleteFormations ();
+   deleteIgneousIntrusions ();
    deleteSourceRocks ();
    deleteReservoirs ();
    deleteMobileLayers ();
@@ -1674,6 +1677,25 @@ bool ProjectHandle::loadFormations (void)
 
    return true;
 }
+
+bool ProjectHandle::loadIgneousIntrusions () {
+
+   MutableFormationList::iterator formationIter;
+
+   for (formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter)
+   {
+      Formation * formation = * formationIter;
+
+      if ( formation->getIsIgneousIntrusion ()) {
+         IgneousIntrusionEvent* igneousIntrusion = getFactory ()->produceIgneousIntrusionEvent ( this, formation );
+         m_igneousIntrusionEvents.push_back ( igneousIntrusion );
+      }
+
+   }
+
+   return true;
+}
+
 
 bool ProjectHandle::loadFluidTypes () {
 
@@ -4661,6 +4683,27 @@ const Interface::Formation * ProjectHandle::findFormation (const string & name) 
    return 0;
 }
 
+const Interface::IgneousIntrusionEvent* ProjectHandle::findIgneousIntrusionEvent ( const Formation* formation ) const {
+
+   if ( formation->getIsIgneousIntrusion ()) {
+      MutableIgneousIntrusionEventList::const_iterator intrusionIter;
+
+      for ( intrusionIter = m_igneousIntrusionEvents.begin (); intrusionIter != m_igneousIntrusionEvents.end (); ++intrusionIter )
+      {
+         const IgneousIntrusionEvent* intrusionEvent = *intrusionIter;
+
+         if ( intrusionEvent->getFormation () == formation ) {
+            return intrusionEvent;
+         }
+
+      }
+
+   }
+
+   return 0;
+}
+
+
 const Interface::FluidType * ProjectHandle::findFluid (const string & name) const
 {
    MutableFluidTypeList::const_iterator fluidIter;
@@ -5676,6 +5719,21 @@ void ProjectHandle::deleteLeads (void)
       delete lead;
    }
    m_leads.clear ();
+}
+
+void ProjectHandle::deleteIgneousIntrusions () {
+
+   MutableIgneousIntrusionEventList::iterator intrusionIter;
+
+   for ( intrusionIter = m_igneousIntrusionEvents.begin (); intrusionIter != m_igneousIntrusionEvents.end (); ++intrusionIter )
+   {
+      IgneousIntrusionEvent* intrusionEvent = *intrusionIter;
+
+      delete intrusionEvent;
+
+   }
+
+   m_igneousIntrusionEvents.clear ();
 }
 
 void ProjectHandle::deleteInputValues (void)

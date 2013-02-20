@@ -4,7 +4,7 @@
 #
 include_directories(src)
 
-set (generater_sorce_files
+set (generator_source_files
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschema.C 
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.C
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschema.h
@@ -15,7 +15,7 @@ add_library( TableIO
 	src/dataschema.C
 	src/database.C
 	src/datautils.C
-	${generater_sorce_files}
+	${generator_source_files}
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -28,8 +28,8 @@ add_executable( parspec
 get_target_property(PARSPEC_EXEC parspec LOCATION)
 
 
-add_custom_command( OUTPUT ${generater_sorce_files}
-	DEPENDS parspec
+add_custom_command( OUTPUT ${generator_source_files}
+	DEPENDS parspec BasinModellerProperty.Spec
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMAND ${PARSPEC_EXEC} 
 	ARGS -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input BasinModellerProperty.Spec 

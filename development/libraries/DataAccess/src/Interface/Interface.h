@@ -60,6 +60,7 @@ namespace DataAccess
       class Formation;
       class Grid;
       class GridMap;
+      class IgneousIntrusionEvent;
       class InputValue;
       class IrreducibleWaterSaturationSample;
       class LangmuirAdsorptionIsothermSample;
@@ -663,6 +664,9 @@ namespace DataAccess
       /// mutable list type for the formations
       typedef vector< const Formation *> ConstFormationList;
 
+      /// \brief Mutable array of ingneous-intrusion events.
+      typedef vector<IgneousIntrusionEvent*> MutableIgneousIntrusionEventList;
+
       // Shale-gas specific classes.
 
       /// \typedef MutableIrreducibleWaterSaturationSampleList
@@ -725,6 +729,12 @@ namespace DataAccess
       /// \var MantleLithologyName
       /// The name of the lithology used in the mantle formation.
       static const std::string MantleLithologyName = "Litho. Mantle";
+
+      /// \var IgneousIntrusionEventDuration
+      /// \brief The time interval over which an igneous intrusion can be inflated.
+      ///
+      /// 1000 years.
+      static const double IgneousIntrusionEventDuration = 0.001; // Ma
 
    }
 }

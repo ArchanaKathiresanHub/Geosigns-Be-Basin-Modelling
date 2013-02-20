@@ -28,6 +28,7 @@
 #include "Interface/FracturePressureFunctionParameters.h"
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
+#include "Interface/IgneousIntrusionEvent.h"
 #include "Interface/InputValue.h"
 #include "Interface/IrreducibleWaterSaturationSample.h"
 #include "Interface/LangmuirAdsorptionIsothermSample.h"
@@ -259,6 +260,11 @@ LeadTrap * ObjectFactory::produceLeadTrap (ProjectHandle * projectHandle, Trap *
 TrapPhase * ObjectFactory::produceTrapPhase (ProjectHandle * projectHandle, database::Record * record)
 {
    return new TrapPhase (projectHandle, record);
+}
+
+IgneousIntrusionEvent* ObjectFactory::produceIgneousIntrusionEvent (ProjectHandle * projectHandle, Formation* formation )
+{
+   return new IgneousIntrusionEvent (projectHandle, formation);
 }
 
 InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, database::Record * record)

@@ -25,6 +25,7 @@ set (SOURCE_FILES
     src/FracturePressureFunctionParameters.C
 	src/GridMap.C
 	src/IBSFaultFileReader.C
+	src/IgneousIntrusionEvent.C
 	src/InputValue.C
 	src/IrreducibleWaterSaturationSample.C
 	src/LandmarkFaultFileReader.C

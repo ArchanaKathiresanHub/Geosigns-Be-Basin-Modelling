@@ -132,6 +132,9 @@ namespace DataAccess
 
 	    virtual InputValue * produceInputValue (ProjectHandle * projectHandle, database::Record * record);
 
+            /// \brief Function for allocating igneous-intrusion events.
+            virtual IgneousIntrusionEvent* produceIgneousIntrusionEvent (ProjectHandle * projectHandle, Formation* formation );
+
 	    virtual Property * produceProperty (ProjectHandle * projectHandle, database::Record * record,
                      const string & userName, const string & cauldronName,
                      const string & unit, PropertyType type);

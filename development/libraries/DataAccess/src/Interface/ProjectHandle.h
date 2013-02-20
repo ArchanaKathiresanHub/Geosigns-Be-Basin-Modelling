@@ -143,6 +143,11 @@ namespace DataAccess
 	    /// Find the Reservoir with the given name
 	    virtual const Reservoir * findReservoir (const string & name) const;
 
+            /// \brief Find the igneous-intrueion event associated with the formation.
+            ///
+            /// If none is found the a null will be returned.
+            virtual const IgneousIntrusionEvent* findIgneousIntrusionEvent ( const Formation* formation ) const;
+
 	    /// Find the Property  with the given name
 	    virtual const Property * findProperty (const string & name) const;
 
@@ -593,6 +598,9 @@ namespace DataAccess
             MutableRelatedProjectList m_relatedProjects;
             MutableConstrainedOverpressureIntervalList m_constrainedOverpressureIntervals;
 
+            /// \brief A set of all of the igneous intrusion contained within a project.
+            MutableIgneousIntrusionEventList m_igneousIntrusionEvents;
+
             BiodegradationParameters* m_biodegradationParameters;
             FracturePressureFunctionParameters* m_fracturePressureFunctionParameters;
 	    DiffusionLeakageParameters* m_diffusionLeakageParameters;
@@ -690,6 +698,8 @@ namespace DataAccess
 	    bool loadProperties (void);
 	    bool loadMapPropertyValues (void);
 	    bool loadVolumePropertyValues (void);
+
+            bool loadIgneousIntrusions ();
 
 
             bool loadCrustFormation ();
@@ -804,6 +814,9 @@ namespace DataAccess
 	    void deleteProperties (void);
 	    void deletePropertyValues (void);
             void deleteFluidTypes ();
+
+            void deleteIgneousIntrusions ();
+
 
             void deleteBiodegradationParameters (void);
             void deleteFracturePressureFunctionParameters (void);
