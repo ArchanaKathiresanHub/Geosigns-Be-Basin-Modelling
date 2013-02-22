@@ -262,9 +262,9 @@ TrapPhase * ObjectFactory::produceTrapPhase (ProjectHandle * projectHandle, data
    return new TrapPhase (projectHandle, record);
 }
 
-IgneousIntrusionEvent* ObjectFactory::produceIgneousIntrusionEvent (ProjectHandle * projectHandle, Formation* formation )
+IgneousIntrusionEvent* ObjectFactory::produceIgneousIntrusionEvent (ProjectHandle * projectHandle, database::Record * record )
 {
-   return new IgneousIntrusionEvent (projectHandle, formation);
+   return new IgneousIntrusionEvent ( projectHandle, record );
 }
 
 InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, database::Record * record)

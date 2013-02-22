@@ -971,6 +971,7 @@ bool ProjectHandle::loadSurfaces (void)
 {
    database::Table * stratTbl = getTable ("StratIoTbl");
    database::Table::iterator tblIter;
+
    for (tblIter = stratTbl->begin (); tblIter != stratTbl->end (); ++tblIter)
    {
       Record * stratRecord = * tblIter;
@@ -1687,8 +1688,9 @@ bool ProjectHandle::loadIgneousIntrusions () {
       Formation * formation = * formationIter;
 
       if ( formation->getIsIgneousIntrusion ()) {
-         IgneousIntrusionEvent* igneousIntrusion = getFactory ()->produceIgneousIntrusionEvent ( this, formation );
+         IgneousIntrusionEvent* igneousIntrusion = getFactory ()->produceIgneousIntrusionEvent ( this, formation->getRecord ());
          m_igneousIntrusionEvents.push_back ( igneousIntrusion );
+         formation->setIgneousIntrusionEvent ( igneousIntrusion );
       }
 
    }

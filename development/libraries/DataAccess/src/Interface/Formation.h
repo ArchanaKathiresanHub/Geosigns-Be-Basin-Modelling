@@ -111,6 +111,11 @@ namespace DataAccess
             /// \brief The initial temperature of the igneous intrusion.
             virtual double getIgneousIntrusionTemperature () const;
 
+            /// \brief Set the igneous-intrusion event.
+            ///
+            ///  This is only so that there is no lookup when getting the event object.
+            virtual void setIgneousIntrusionEvent ( IgneousIntrusionEvent* igneousIntrusion );
+
             /// \brief Return a pointer to the intrusion event.
             ///
             /// Return null if the formation is not an intrusion.
@@ -189,6 +194,8 @@ namespace DataAccess
             mutable const FluidType* m_fluidType;
 
             FormationKind m_kind;
+
+            const IgneousIntrusionEvent* m_igneousIntrusion;
 
       };
 

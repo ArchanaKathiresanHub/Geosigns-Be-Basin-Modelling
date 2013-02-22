@@ -174,8 +174,9 @@ namespace DataAccess
 	    virtual FormationList * getFormations (const Snapshot * snapshot = 0,
                                                               const bool                  includeBasement = false ) const;
 	    /// return the list of surfaces, all or for a given snapshot.
+            // Do we need to include igneous intrusions here, as they will have the same snapshot time as the surface below.
 	    virtual SurfaceList * getSurfaces (const Snapshot * snapshot = 0,
-                                                          const bool                  includeBasement = false ) const;
+                                               const bool       includeBasement = false ) const;
 	    /// return the list of TouchstoneMaps
 	    virtual TouchstoneMapList * getTouchstoneMaps (void) const;
 	    /// return the list of reservoirs

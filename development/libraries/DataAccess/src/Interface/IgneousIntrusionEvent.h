@@ -21,7 +21,7 @@ namespace DataAccess
       {
       public:
 
-         IgneousIntrusionEvent ( ProjectHandle* projectHandle, const Formation* formation );
+         IgneousIntrusionEvent ( ProjectHandle* projectHandle, database::Record * record );
 
          virtual ~IgneousIntrusionEvent ();
 
@@ -39,12 +39,14 @@ namespace DataAccess
          /// \brief Get the temperature at which the material is intruded.
          virtual double getIntrusionTemperature () const;
 
+         /// \brief Return the strnig representation of the intrusion event object.
          virtual std::string image () const;
 
       private :
 
          const Formation* m_formation;
          const Snapshot*  m_snapshot;
+         double m_intrusionTemperature;
 
       };
 

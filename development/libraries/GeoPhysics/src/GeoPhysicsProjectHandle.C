@@ -11,6 +11,7 @@
 #include "Interface/CrustFormation.h"
 #include "Interface/Formation.h"
 #include "Interface/GridMap.h"
+#include "Interface/IgneousIntrusionEvent.h"
 #include "Interface/MantleFormation.h"
 #include "Interface/MobileLayer.h"
 #include "Interface/PaleoFormationProperty.h"
@@ -1471,6 +1472,8 @@ bool GeoPhysics::ProjectHandle::computeThicknessHistories ( const unsigned int i
 
    if ( formation->isMobileLayer () or formation->kind () == Interface::BASEMENT_FORMATION ) {
       return setMobileLayerThicknessHistory ( i, j, formation, numberOfErrorsPerLayer ); 
+   } else if ( formation->getIsIgneousIntrusion ()) {
+      return setIgneousIntrusionThicknessHistory ( i, j, formation, numberOfErrorsPerLayer ); 
    } else {
 
       double thickness = formation->getInputThicknessMap ()->getValue ( i, j );
@@ -1564,6 +1567,11 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
 
       if ( currentFormation->isMobileLayer ()) {
          cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] is not permitted " << endl;
+         return false;
+      }
+
+      if ( currentFormation->getIsIgneousIntrusion ()) {
+         cout << "MeSsAgE ERROR Erosion of igneousIntrusion [" << currentFormation->getName () << "] is not permitted " << endl;
          return false;
       }
 
@@ -1798,6 +1806,117 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
 
 //------------------------------------------------------------//
 
+bool GeoPhysics::ProjectHandle::setIgneousIntrusionThicknessHistory ( const unsigned int i,
+                                                                      const unsigned int j,
+                                                                            GeoPhysics::Formation* formation,
+                                                                            IntegerArray& numberOfErrorsPerLayer ) {
+
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //
+   //                                             ^
+   //                    +==================+     |
+   //                   /                         |
+   //                   |                         | 
+   //                   |                         | thickness
+   //                   |                         |
+   //                  /                          |
+   //  +===============+-+-----------------+------+ 0
+   //  t0             ts te               tp
+   //
+   //  t0 age of surrounding material
+   //  ts start of inflation of the igneous intrusion
+   //  te end of inflation of the igneous intrusion
+   //  tp present day
+   //
+   // The difference between ts and te (duration of inflation = ts - te) is defined by IgneousIntrusionEventDuration
+   // this can be found in DataAccess/src/Interface/interface/h
+   //
+
+   if ( not formation->getIsIgneousIntrusion ()) {
+      // If the formation is not an igneous intrusion then should not be in this function.
+      return false;
+   }
+
+   bool onlyPositiveThickness = true;
+
+   double endOfIntrusionAge;
+   double startOfIntrusionAge;
+   // The age at which the igneous intrusion formation appears in the strat table.
+   double formationInclusionAge;
+
+   unsigned int segment;
+
+   double segmentThickness = formation->getInputThicknessMap ()->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
+
+   if ( segmentThickness < 0.0 ) {
+      onlyPositiveThickness = false;
+
+      if ( formation->getDepositionSequence () > 0 and formation->getDepositionSequence () != Interface::DefaultUndefinedScalarValue ) {
+         ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
+
+         if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
+            cout << " MeSsAgE ERROR negative igneous intrusion thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ")." << endl;
+         }
+
+      }
+
+   }
+
+   Interface::MobileLayerList::const_iterator mapIter;
+   Interface::MobileLayerList* mobileLayerThicknesses = formation->getMobileLayers ();
+   const Interface::IgneousIntrusionEvent* intrusionEvent = formation->getIgneousIntrusionEvent ();
+
+   endOfIntrusionAge = intrusionEvent->getEndOfIntrusion ()->getTime ();
+   startOfIntrusionAge = intrusionEvent->getStartOfIntrusion ();
+   formationInclusionAge = formation->getTopSurface ()->getSnapshot ()->getTime ();
+
+   // Set present day thicknesses.
+   for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( 0.0, segmentThickness );
+   }
+
+   // Set thickness at end of intrusion event age.
+   // If this is the same as present day then there is no need to add it because it has been added already.
+   if ( endOfIntrusionAge != 0.0 ) {
+
+      for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+         formation->getSolidThickness ( i, j, segment ).AddPoint ( endOfIntrusionAge, segmentThickness );
+         formation->getRealThickness  ( i, j, segment ).AddPoint ( endOfIntrusionAge, segmentThickness );
+      }
+
+   }
+
+   for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( startOfIntrusionAge, 0.0 );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( startOfIntrusionAge, 0.0 );
+   }
+
+
+   // set the thickness at the top surface age.
+   // This is the age the surrounding formation appears in the strat table.
+   for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
+      formation->getSolidThickness ( i, j, segment ).AddPoint ( formationInclusionAge, 0.0 );
+      formation->getRealThickness  ( i, j, segment ).AddPoint ( formationInclusionAge, 0.0 );
+   }
+
+
+   return onlyPositiveThickness;
+}
+
+//------------------------------------------------------------//
+
 double GeoPhysics::ProjectHandle::getSeaBottomDepth ( const unsigned int i,
                                                       const unsigned int j,
                                                       const double       age ) const {
@@ -1892,10 +2011,9 @@ bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
    // we have 3 possible types of layer: 1: a mobile layer, 2: a normal
    // sedemented layer or 3: an erosion (layer).
 
-   if ( formation->isMobileLayer ()) {
-
-      // mobile layer !!
-      return updateMLMaxVes (i, j, formation, uncMaxVes.front ());
+   if ( formation->isMobileLayer () or formation->getIsIgneousIntrusion ()) {
+      // mobile layer or igneous intrusion!!
+      return updateMobileLayerOrIgneousIntrusionMaxVes (i, j, formation, uncMaxVes.front ());
    } else  {
       // get the thickness of the layer at this point to 
       // determine whether the layer is depositing or eroding.
@@ -1923,10 +2041,10 @@ bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::ProjectHandle::updateMLMaxVes ( const unsigned int i,
-                                                 const unsigned int j,
-                                                       GeoPhysics::Formation* formation,
-                                                       double &maxVes ) {
+bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( const unsigned int i,
+                                                                            const unsigned int j,
+                                                                            GeoPhysics::Formation* formation,
+                                                                            double &maxVes ) {
 
   bool result = true;
   double segmentThickness;
@@ -1941,6 +2059,40 @@ bool GeoPhysics::ProjectHandle::updateMLMaxVes ( const unsigned int i,
   for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment ) {
 
       segmentThickness = formation->getSolidThickness ( i, j, (unsigned int)(segment)).MaxY (dummy);
+      assert( segmentThickness != Interface::DefaultUndefinedScalarValue );
+
+      if ( fluid != 0 and lithology->surfacePorosity () != 0.0 ) {
+         diffdensity = lithology->density () - fluid->getConstantDensity ();
+      } else {
+         diffdensity = lithology->density ();
+      }
+
+      maxVes += AccelerationDueToGravity * diffdensity * segmentThickness;
+    }
+
+  return result;
+}
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::updateIgneousIntrusionMaxVes ( const unsigned int i,
+                                                               const unsigned int j,
+                                                               GeoPhysics::Formation* formation,
+                                                               double &maxVes ) {
+
+  bool result = true;
+  double segmentThickness;
+  double dummy;
+  double diffdensity;
+
+  int segment;
+
+  const CompoundLithology* lithology = formation->getCompoundLithology ( i, j );
+  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
+
+  for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment ) {
+
+      segmentThickness = formation->getSolidThickness ( i, j, static_cast<unsigned int>(segment)).MaxY (dummy);
       assert( segmentThickness != Interface::DefaultUndefinedScalarValue );
 
       if ( fluid != 0 and lithology->surfacePorosity () != 0.0 ) {

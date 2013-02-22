@@ -53,6 +53,12 @@ namespace DataAccess
 
 	    virtual void asString (string &) const;
 
+            /// \brief Get the deposition sequence of the formation directly BELOW the surface.
+            /// 
+            /// This function is required because it may be called before the formations have been set.
+            /// If the formation below is part of the basement a scalar null value will be returned.
+            int getFormationDepoSequenceNumber () const;
+
 	 protected :
 
             /// The record is null.
@@ -68,6 +74,7 @@ namespace DataAccess
 	    const Snapshot * m_snapshot;
 
             SurfaceKind m_kind;
+            int m_formationDepositionSequenceNumber;
 
       };
 

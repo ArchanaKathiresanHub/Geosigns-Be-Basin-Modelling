@@ -47,9 +47,11 @@ Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (pr
       assert (m_snapshot);
       m_mangledName = utilities::mangle (getName ());
       m_kind = SEDIMENT_SURFACE;
+      m_formationDepositionSequenceNumber = database::getDepoSequence ( m_record );
    } else {
       m_snapshot = 0;
       m_kind = BASEMENT_SURFACE;
+      m_formationDepositionSequenceNumber = DefaultUndefinedScalarValue;
    }
 
 }
@@ -194,8 +196,36 @@ void Surface::asString (string & str) const
 #endif
 }
 
+int Surface::getFormationDepoSequenceNumber () const {
+   return m_formationDepositionSequenceNumber;
+}
+
 
 bool SurfaceLessThan::operator ()( const Surface* s1,
                                    const Surface* s2 ) const {
+
+
+   // Snapshots can be the same if the formation is an intrusion.
+   // So the top surface of the intrusion formation will have the same time 
+   // as the formation below.
+   if ( s1->getSnapshot () == s2->getSnapshot ()) {
+
+      if ( s1->getFormationDepoSequenceNumber () == DefaultUndefinedScalarValue ) {
+         // The s1 surface is the top surface of a basement layer.
+         return false;
+      } else if ( s2->getFormationDepoSequenceNumber () == DefaultUndefinedScalarValue ) {
+         // The s2 surface is the top surface of a basement layer.
+         return true;
+      } else {
+         return s1->getFormationDepoSequenceNumber () > s2->getFormationDepoSequenceNumber ();
+      }
+
+   } else {
+      return s1->getSnapshot ()->getTime () < s2->getSnapshot ()->getTime ();
+   }
+
+#if 0
    return s1->getSnapshot ()->getTime () < s2->getSnapshot ()->getTime ();
+#endif
+
 }

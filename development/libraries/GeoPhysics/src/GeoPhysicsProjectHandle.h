@@ -318,16 +318,22 @@ namespace GeoPhysics {
                                                   GeoPhysics::Formation* formation,
                                                   IntegerArray&          numberOfErrorsPerLayer );
 
+      /// \brief Part of the solid-thickness initialisation when layer is igneous intrusion.
+      bool setIgneousIntrusionThicknessHistory ( const unsigned int i,
+                                                 const unsigned int j,
+                                                       GeoPhysics::Formation* formation,
+                                                       IntegerArray&          numberOfErrorsPerLayer );
+
       /// Part of the solid-thickness initialisation.
       void storePresentDayThickness ( const unsigned int i,
                                       const unsigned int j,
                                             GeoPhysics::Formation* formation );
 
       /// Part of the solid-thickness initialisation.
-      bool updateMLMaxVes ( const unsigned int i,
-                            const unsigned int j,
-                                  GeoPhysics::Formation* formation,
-                                  double &maxVes );
+      bool updateMobileLayerOrIgneousIntrusionMaxVes ( const unsigned int i,
+                                                       const unsigned int j,
+                                                       GeoPhysics::Formation* formation,
+                                                       double &maxVes );
 
       /// Part of the solid-thickness initialisation.
       bool compFCThicknessHistories ( const unsigned int i,

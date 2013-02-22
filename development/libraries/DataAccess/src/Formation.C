@@ -62,6 +62,9 @@ Formation::Formation (ProjectHandle * projectHandle, Record * record) :
    m_sourceRock1 = 0;
    m_sourceRock2 = 0;
 
+   m_igneousIntrusion = 0;
+
+
    // Moved to project handle::load-formations.
 #if 0
    if ( recordFromStratIOTbl and isSourceRock ())
@@ -478,8 +481,12 @@ double Formation::getIgneousIntrusionTemperature () const {
    return database::getIgneousIntrusionTemperature ( m_record );
 }
 
+void Formation::setIgneousIntrusionEvent ( IgneousIntrusionEvent* igneousIntrusion ) {
+   m_igneousIntrusion = igneousIntrusion;
+}
+
 const IgneousIntrusionEvent* Formation::getIgneousIntrusionEvent () const {
-   return m_projectHandle->findIgneousIntrusionEvent ( this );
+   return m_igneousIntrusion;
 }
 
 
