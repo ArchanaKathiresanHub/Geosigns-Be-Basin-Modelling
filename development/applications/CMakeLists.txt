@@ -36,6 +36,7 @@ if (UNIX)
   		add_subdirectory(inversion_workbench)
   		add_subdirectory(eosptdiag)
                 add_subdirectory(hpc)
+                add_subdirectory(cauldron-crop)
 	endif (BM_BUILD_SERIAL_APPS)
 
 
