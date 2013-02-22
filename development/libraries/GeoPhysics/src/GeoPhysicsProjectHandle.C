@@ -2075,40 +2075,6 @@ bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( cons
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::ProjectHandle::updateIgneousIntrusionMaxVes ( const unsigned int i,
-                                                               const unsigned int j,
-                                                               GeoPhysics::Formation* formation,
-                                                               double &maxVes ) {
-
-  bool result = true;
-  double segmentThickness;
-  double dummy;
-  double diffdensity;
-
-  int segment;
-
-  const CompoundLithology* lithology = formation->getCompoundLithology ( i, j );
-  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
-
-  for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment ) {
-
-      segmentThickness = formation->getSolidThickness ( i, j, static_cast<unsigned int>(segment)).MaxY (dummy);
-      assert( segmentThickness != Interface::DefaultUndefinedScalarValue );
-
-      if ( fluid != 0 and lithology->surfacePorosity () != 0.0 ) {
-         diffdensity = lithology->density () - fluid->getConstantDensity ();
-      } else {
-         diffdensity = lithology->density ();
-      }
-
-      maxVes += AccelerationDueToGravity * diffdensity * segmentThickness;
-    }
-
-  return result;
-}
-
-//------------------------------------------------------------//
-
 bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned int i,
                                                                const unsigned int j,
                                                                const bool     overpressureCalculation,
