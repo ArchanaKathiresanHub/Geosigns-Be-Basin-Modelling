@@ -71,6 +71,8 @@ namespace pvtFlash
       "C6_14AROS"
    };
 
+   const int N_PHASES = CBMGenerics::ComponentManager::NumberOfPhases;
+
    enum PVTPhase { VAPOUR_PHASE = 0, LIQUID_PHASE = 1 };
 
    extern std::string pvtPropertiesConfigFile;

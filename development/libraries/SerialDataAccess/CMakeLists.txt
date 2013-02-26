@@ -23,13 +23,17 @@ include_directories(
 
 generate_dox( src/SerialDataAccess.cfg )
 
-target_link_libraries(SerialDataAccess 
-   Serial_Hdf5 
-   CBMGenerics 
+target_link_libraries(SerialDataAccess
+   Serial_Hdf5
+   CBMGenerics
    utilities
    TableIO
-   DataAccess 
+   DataAccess
 )
+
+if (UNIX)
+   target_link_libraries(SerialDataAccess rt)
+endif(UNIX)
 
 install(TARGETS SerialDataAccess
    RUNTIME DESTINATION bin

@@ -11,12 +11,12 @@ namespace pvtFlash
 {
    extern "C" 
    {
-      void __stdcall SetPvtPropertiesConfigFile(char* fileName)
+      void SetPvtPropertiesConfigFile(char* fileName)
       {  
          pvtFlash::pvtPropertiesConfigFile = std::string(fileName);
       }
       
-      bool __stdcall EosPackComputeWithLumping(ComputeStruct* computeInfo)
+      bool EosPackComputeWithLumping(ComputeStruct* computeInfo)
       {
          double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
          pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
@@ -42,13 +42,13 @@ namespace pvtFlash
          return result;
       }
       
-      double __stdcall GetMolWeight(int componentId, double gorm)
+      double GetMolWeight(int componentId, double gorm)
       {
          pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
          return instance.getMolWeightLumped(componentId, gorm);
       }
       
-      double __stdcall Gorm(ComputeStruct* computeInfo)
+      double Gorm(ComputeStruct* computeInfo)
       {
          pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
          computeInfo->gorm = instance.gorm(computeInfo->compMasses);
@@ -65,7 +65,7 @@ namespace pvtFlash
       ///                      on output it contains real number of points for each isoline
       /// \param[out] isolines 1D array which keeps T,P values for each isoline, number of points for each isoline keeps szIso array 
       /// \return true on success, false otherwise
-      bool __stdcall BuildPTDiagram( int diagType, double T, double P, double * comp, double * points, int * szIso, double * isolines )
+      bool BuildPTDiagram( int diagType, double T, double P, double * comp, double * points, int * szIso, double * isolines )
       {
          const int iNc = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
 
