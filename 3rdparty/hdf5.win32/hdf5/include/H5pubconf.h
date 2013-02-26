@@ -16,10 +16,10 @@
 #define H5_HAVE_VISUAL_STUDIO 1
 
 /* Defined if HDF5 was built with CMake AND build as a shared library */
-#define H5_BUILT_AS_DYNAMIC_LIB 1
+/* #undef H5_BUILT_AS_DYNAMIC_LIB */
 
 /* Defined if HDF5 was built with CMake AND build as a static library */
-/* #undef H5_BUILT_AS_STATIC_LIB */
+#define H5_BUILT_AS_STATIC_LIB 1
 
 /* Defined if HDF5 CPP  was built with CMake AND build as a shared library  */
 /* #undef H5_CPP_BUILT_AS_DYNAMIC_LIB */

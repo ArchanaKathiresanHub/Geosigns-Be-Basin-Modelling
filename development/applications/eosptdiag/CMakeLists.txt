@@ -11,11 +11,6 @@ bm_include_libraries(
 	EosPack
 )
 
-target_link_libraries(eosptdiag
-	EosPack
-	CBMGenerics
-)
-
 include_directories(
 	${HDF5_serial_INCLUDE_DIRS}
 )
