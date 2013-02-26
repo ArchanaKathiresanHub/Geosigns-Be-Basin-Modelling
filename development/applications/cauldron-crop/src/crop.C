@@ -14,16 +14,106 @@
 
 struct CropException : formattingexception::BaseException<CropException> {};
 
+#define Max(a,b)        (a > b ? a : b)
+#define Min(a,b)        (a < b ? a : b)
+
+struct LayerInfo
+{
+   string name;
+   int index;
+};
+
+/// Function used to iterate through a HDF5 file to find the name of the DataSet with the given layerIndex
+herr_t checkForLayerName (hid_t groupId, const char * layerName, LayerInfo * layerInfo)
+{
+   if (strncmp (layerName, "Layer=", 6) == 0)
+   {
+      int layerIndex;
+      sscanf (layerName, "Layer=%d", &layerIndex);
+      if (layerIndex == layerInfo->index)
+      {
+	 layerInfo->name = layerName;
+	 return 1;
+      }
+   }
+   return 0;
+}
+
 int main(int argc, char ** argv)
 {
-   if (argc < 3)
+   std::string inputProjectFile;
+   std::string outputDir;
+
+   bool oversampled = false;
+   bool subsampled = false;
+
+   int oversampled_x = 1, oversampled_y = 1;
+   int subsampled_x = 1, subsampled_y = 1;
+
+   int arg;
+   for (arg = 1; arg < argc; arg++)
    {
-      std::cerr << "usage: " << argv[0] << " cauldron-crop input_project output_dir";
-      return 1;
+      if (strncmp (argv[arg], "-oversample", Max (4, strlen (argv[arg]))) == 0)
+      {
+	 if (subsampled)
+	 {
+	    throw CropException() 
+	       << "Only one of -subsample and -oversample is allowed" ;
+	 }
+
+         if (arg + 2 >= argc)
+         {
+	    throw CropException() 
+	       << "one or more arguments for -oversample is missing" ;
+         }
+
+	 oversampled = true;
+         oversampled_x = atoi (argv[++arg]);
+         oversampled_y = atoi (argv[++arg]);
+      }
+
+      else if (strncmp (argv[arg], "-subsample", Max (2, strlen (argv[arg]))) == 0)
+      {
+	 throw CropException() 
+	    << "-subsample not yet implemented" ;
+
+	 if (oversampled)
+	 {
+	    throw CropException() 
+	       << "Only one of -subsample and -oversample is allowed" ;
+	 }
+
+         if (arg + 2 >= argc)
+         {
+	    throw CropException() 
+	       << "one or more arguments for -subsample is missing" ;
+         }
+
+	 subsampled = true;
+         subsampled_x = atoi (argv[++arg]);
+         subsampled_y = atoi (argv[++arg]);
+      }
+      else if (inputProjectFile.empty())
+      {
+	 inputProjectFile = argv[arg];
+      }
+
+      else if (outputDir.empty())
+      {
+	 outputDir = argv[arg];
+      }
    }
 
-   std::string inputProjectFile = argv[1];
-   std::string outputDir = argv[2];
+
+   if (inputProjectFile.empty () || outputDir.empty())
+   {
+#if 1
+      std::cerr << "usage: " << argv[0] << " [-oversample x y] input_project output_dir" << endl;
+#else
+      std::cerr << "usage: " << argv[0] << " [-oversample x y] [-subsample x y] input_project output_dir" << endl;
+#endif
+      return 1;
+   }
 
    boost::shared_ptr<DataAccess::Interface::ProjectHandle> project( 
       DataAccess::Interface::OpenCauldronProject( inputProjectFile, "r")
@@ -43,10 +133,28 @@ int main(int argc, char ** argv)
    int x1 = getWindowXMax( projectTbl );
    int y1 = getWindowYMax( projectTbl );
 
+   int layerNXout = 0, layerNYout = 0;
+
    if (offsetX != 0 || offsetY != 0)
    {
       throw CropException() 
          << "Non-zero offsets in the project3d file are not supported" ;
+   }
+
+   if (!subsampled)
+   {
+      layerNXout = (x1 - x0) * oversampled_x + 1;
+      layerNYout = (y1 - y0) * oversampled_y + 1;
+   }
+   else
+   {
+      if ((x1 -x0) % subsampled_x != 0 || (y1 - y0) % subsampled_y != 0)
+      {
+	 throw CropException() << "Unable to subsample with" << subsampled_x << ", " << subsampled_y;
+      }
+
+      layerNXout = (x1 - x0) / subsampled_x + 1;
+      layerNYout = (y1 - y0) * subsampled_y + 1;
    }
 
    database::Table * gridMapTbl = project->getTable("GridMapIoTbl");
@@ -56,8 +164,7 @@ int main(int argc, char ** argv)
       std::string fileName = getMapFileName(gridMapTbl->getRecord(i));
       int mapSeqNr = getMapSeqNbr(gridMapTbl->getRecord(i));
 
-      std::ostringstream hdfLayerName;
-      hdfLayerName << "/Layer=" << std::setfill('0') << std::setw(2) << mapSeqNr;
+      std::string hdfLayerName;
 
       // open hdf5 file
       herr_t status;
@@ -70,7 +177,7 @@ int main(int argc, char ** argv)
 
       // do some basic checks
       float layerDX = 0, layerDY = 0;
-      int layerNX = 0, layerNY = 0;
+      int layerNXin = 0, layerNYin = 0;
       float layerOffsetX = 0, layerOffsetY = 0;
       float layerNull = 0;
 
@@ -97,24 +204,24 @@ int main(int argc, char ** argv)
             << " '" << fileName << "'";
 
       status = H5LTread_dataset( hdfFile, "number in I dimension",
-            H5T_NATIVE_INT, &layerNX);
+            H5T_NATIVE_INT, &layerNXin);
 
       if (status != 0)
          throw CropException() << "Dataset 'number in I dimension' not found in"
             " gridmap file '" << fileName << "'";
 
-      if ( Nx != layerNX )
+      if ( Nx != layerNXin )
          throw CropException() << "NumberX mismatch between project3d file and gridmap"
             << " '" << fileName << "'";
 
       status = H5LTread_dataset( hdfFile, "number in J dimension",
-            H5T_NATIVE_INT, &layerNY);
+            H5T_NATIVE_INT, &layerNYin);
 
       if (status != 0)
          throw CropException() << "Dataset 'number in J dimension' not found in"
             " gridmap file '" << fileName << "'";
 
-      if ( Ny != layerNY )
+      if ( Ny != layerNYin )
          throw CropException() << "NumberY mismatch between project3d file and gridmap"
             << " '" << fileName << "'";
 
@@ -127,25 +234,35 @@ int main(int argc, char ** argv)
      
       // read the grid map
       std::vector<float> data( Nx * Ny);
-      status = H5LTread_dataset( hdfFile, hdfLayerName.str().c_str(), H5T_NATIVE_FLOAT, &data[0]);
+
+      LayerInfo layerInfo;
+      layerInfo.index = mapSeqNr;
+      layerInfo.name = "";
+      
+      int ret = H5Giterate (hdfFile, "/", NULL, (H5G_iterate_t) checkForLayerName, &layerInfo);
+      if (ret != 1)
+      {
+         throw CropException() << "Layer " << "'Layer=" << mapSeqNr << "' not found in"
+            " gridmap file '" << fileName << "'";
+      }
+
+      hdfLayerName = "/" + layerInfo.name;
+      status = H5LTread_dataset( hdfFile, hdfLayerName.c_str(), H5T_NATIVE_FLOAT, &data[0]);
 
       if (status != 0)
-         throw CropException() << "Dataset '" << hdfLayerName.str() << "' not found in"
+         throw CropException() << "Dataset '" << hdfLayerName << "' not found in"
             " gridmap file '" << fileName << "'";
 
       // close the hdf5 file
       status = H5Fclose(hdfFile);
 
       if (status != 0)
-         std::clog << "Unabel to close input HDF5 gridmap '" << fileName << "'" << std::endl;
+         std::clog << "Unable to close input HDF5 gridmap '" << fileName << "'" << std::endl;
 
 
       // compute basic properties
       float layerOriginX = originX + layerDX * x0;
       float layerOriginY = originY + layerDY * y0;
-      layerNX = x1 - x0 + 1;
-      layerNY = y1 - y0 + 1;
-
 
       // open a new file if one is needed
       std::string outputFileName = outputDir + "/" + fileName;
@@ -163,8 +280,8 @@ int main(int argc, char ** argv)
          hsize_t scalar = 1;
          status = H5LTmake_dataset( file, "delta in I dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerDX);
          status |= H5LTmake_dataset( file, "delta in J dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerDY);
-         status |= H5LTmake_dataset( file, "number in I dimension", 1, &scalar, H5T_NATIVE_INT, &layerNX);
-         status |= H5LTmake_dataset( file, "number in J dimension", 1, &scalar, H5T_NATIVE_INT, &layerNY);
+         status |= H5LTmake_dataset( file, "number in I dimension", 1, &scalar, H5T_NATIVE_INT, &layerNXout);
+         status |= H5LTmake_dataset( file, "number in J dimension", 1, &scalar, H5T_NATIVE_INT, &layerNYout);
          status |= H5LTmake_dataset( file, "origin in I dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerOriginX);
          status |= H5LTmake_dataset( file, "origin in J dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerOriginY);
          status |= H5LTmake_dataset( file, "null value", 1, &scalar, H5T_NATIVE_FLOAT, &layerNull);
@@ -176,24 +293,36 @@ int main(int argc, char ** argv)
 
       hid_t outputFile = outputFiles[outputFileName];
 
-      // crop the data
-      std::vector<float > cropped( (x1-x0+1) * (y1-y0+1));
-      for (unsigned i = x0; i <= x1; ++i)
+      // crop and scale the data
+      std::vector<float > cropped( layerNXout * layerNYout);
+      for (unsigned i = x0; i < x0 + layerNXout; ++i)
       {
-         for (unsigned j = y0; j <= y1; ++j)
+         for (unsigned j = y0; j <= layerNYout; ++j)
          {
-            int newNy = y1 - y0 + 1;
-            cropped[j - y0 + (i-x0)* newNy] = data[j + i * Ny ];
-         }
+	    int newNy = layerNYout;
+	    int unsampled_Ny = y1 - y0 + 1;
+	    
+	    int unsampled_i = i / oversampled_x;
+	    int unsampled_j = j / oversampled_y;
+
+	    double fraction_i = double (i % oversampled_x) / oversampled_x;
+	    double fraction_j = double (j % oversampled_y) / oversampled_y;
+
+	    cropped[j - y0 + (i -x0)* newNy] =
+	       (1 - fraction_i) * (1 - fraction_j) * data[unsampled_j     + (unsampled_i    ) * unsampled_Ny ] +
+	       (    fraction_i) * (1 - fraction_j) * data[unsampled_j     + (unsampled_i + 1) * unsampled_Ny ] +
+	       (1 - fraction_i) * (    fraction_j) * data[unsampled_j + 1 + (unsampled_i    ) * unsampled_Ny ] +
+	       (    fraction_i) * (    fraction_j) * data[unsampled_j + 1 + (unsampled_i + 1) * unsampled_Ny ];
+	 }
       }
 
       // write the new grid map
-      hsize_t croppedDims[2] = { layerNX, layerNY };
-      status = H5LTmake_dataset( outputFile, hdfLayerName.str().c_str(), 2, croppedDims, H5T_NATIVE_FLOAT, &cropped[0]); 
+      hsize_t croppedDims[2] = { layerNXout, layerNYout };
+      status = H5LTmake_dataset( outputFile, hdfLayerName.c_str(), 2, croppedDims, H5T_NATIVE_FLOAT, &cropped[0]); 
 
       if (status != 0)
          throw CropException() << "Could not write dataset '" 
-             << hdfLayerName.str() << "' to output gridmap '"
+             << hdfLayerName << "' to output gridmap '"
              << outputFileName << "'";
    }
 
@@ -210,14 +339,14 @@ int main(int argc, char ** argv)
    // change project file
    setXCoord( projectTbl, originX + dx * x0 );
    setYCoord( projectTbl, originY  + dy * y0 );
-   setNumberX( projectTbl, x1 - x0 + 1 );
-   setNumberY( projectTbl, y1 - y0 + 1 );
+   setNumberX( projectTbl, layerNXout );
+   setNumberY( projectTbl, layerNYout );
    setWindowXMin( projectTbl, 0 );
    setWindowYMin( projectTbl, 0 );
-   setWindowXMax( projectTbl, x1 - x0 );
-   setWindowYMax( projectTbl, y1 - y0 );
+   setWindowXMax( projectTbl, layerNXout - 1 );
+   setWindowYMax( projectTbl, layerNYout - 1 );
 
-   project->saveToFile( outputDir + "/Project.project3d");
+   project->saveToFile( outputDir + "/" + inputProjectFile);
 
    return 0;
 }
