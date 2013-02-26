@@ -481,6 +481,10 @@ void GeoPhysics::ProjectHandle::addCrustUndefinedAreas ( const Interface::CrustF
          addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*thicknessIter)->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap )));
       }
 
+      if( m_isALCMode ) {
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getBasaltThicknessMap ()));
+         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getCrustThicknessMeltOnsetMap ()));
+      }
       addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getCrustHeatProductionMap ()));
 
       delete thicknesses;
@@ -961,9 +965,9 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
          thicknessMap->retrieveData ( true );
 
-         for ( i = thicknessMap->firstI (); i <= thicknessMap->lastI (); ++i ) {
+         for ( i = thicknessMap->getGrid()->firstI ( true ); i <= thicknessMap->getGrid()->lastI (true); ++i ) {
 
-            for ( j = thicknessMap->firstJ (); j <= thicknessMap->lastJ (); ++j ) {
+            for ( j = thicknessMap->getGrid()->firstJ (true); j <= thicknessMap->getGrid()->lastJ (true); ++j ) {
 
                if ( m_validNodes ( i, j )) {
                   value = 0.0;
@@ -1031,7 +1035,7 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
          const Interface::GridMap* thicknessMap = dynamic_cast<const Interface::GridMap*>(thicknessInstance->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap ));
          const double age = thicknessInstance->getSnapshot ()->getTime ();
          double min, max;
-            thicknessMap->retrieveData ( true );
+         thicknessMap->retrieveData ( true );
          thicknessMap->getMinMaxValue ( min, max );
          if ( true or age <= firstSimulationSnapshot->getTime ()) {
 
@@ -1073,12 +1077,12 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
          const double age = thicknessInstance->getSnapshot ()->getTime ();
 
          
-         if ( age <= firstSimulationSnapshot->getTime ()) {
+         if ( true or age <= firstSimulationSnapshot->getTime ()) {
 
             thicknessMap->retrieveData ( true );
-            for ( i = thicknessMap->firstI (); i <= thicknessMap->lastI (); ++i ) {
+            for ( i = thicknessMap->getGrid()->firstI ( true ); i <= thicknessMap->getGrid()->lastI ( true ); ++i ) {
                
-               for ( j = thicknessMap->firstJ (); j <= thicknessMap->lastJ (); ++j ) {
+               for ( j = thicknessMap->getGrid()->firstJ ( true ); j <= thicknessMap->getGrid()->lastJ ( true ); ++j ) {
                   
                   if ( m_validNodes ( i, j )) {
                      m_contCrustThicknessHistory ( i, j ).AddPoint( age, thicknessMap->getValue ( i, j ));

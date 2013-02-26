@@ -1973,16 +1973,27 @@ bool ProjectHandle::loadLithoTypes (void)
 {
    database::Table * lithoTypeTbl = getTable ("LithotypeIoTbl");
    database::Table::iterator tblIter;
+   Record * crustLithoType = NULL;
+
    for (tblIter = lithoTypeTbl->begin (); tblIter != lithoTypeTbl->end (); ++tblIter)
    {
       Record * lithoTypeRecord = * tblIter;
       m_lithoTypes.push_back (getFactory ()->produceLithoType (this, lithoTypeRecord));
+
+      if( getLithotype(lithoTypeRecord) == "Crust" ) {
+         crustLithoType = lithoTypeRecord;
+      }
    }
      
    if( m_bottomBoundaryConditions == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ) {
-      database::Record * record = new Record( lithoTypeTbl->getTableDefinition(), lithoTypeTbl );
+      database::Record * record = NULL;
+      if( crustLithoType != NULL ) {   
+         record = new Record( * crustLithoType ); 
+      } else {
+         record = new Record( lithoTypeTbl->getTableDefinition(), lithoTypeTbl );
+         setPermMixModel( record, "None" );
+      }
       setLithotype( record, "ALC Basalt" );
-      setPermMixModel( record, "None" );
       m_lithoTypes.push_back (getFactory ()->produceLithoType (this, record));
    }
    return true;

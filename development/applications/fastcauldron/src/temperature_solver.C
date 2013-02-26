@@ -610,14 +610,15 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
 		      Current_Layer -> Current_Properties ( Basin_Modelling::Chemical_Compaction ),
 		      INSERT_VALUES, IncludeGhosts);
 
+
     PETSC_2D_Array topBasaltDepth;
     PETSC_2D_Array bottomBasaltDepth;
-
     if( Basin_Model -> isALC() && Current_Layer -> isBasement() ) {
        CrustFormation*  crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
-       topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth);//, INSERT_VALUES, IncludeGhosts );
-       bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth);//, INSERT_VALUES, IncludeGhosts );
+       topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth, INSERT_VALUES, IncludeGhosts );
+       bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
     }
+
     DAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
     DAGetCorners(Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
@@ -736,55 +737,34 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
                      int LidxZ = Layer_K + (Inode < 4 ? 1 : 0);
                      int GidxY = Basin_Model -> mapElementList[EltCount].j[Inode%4];
                      int GidxX = Basin_Model -> mapElementList[EltCount].i[Inode%4];
-                     Current_Layer->setBasaltLitho ( GidxX, GidxY, LidxZ );
-                     
+                     Current_Layer->setBasaltLitho ( GidxX, GidxY, LidxZ );                   
+
+                     if ( Inode > 3 ) {
+                        if( bottomBasaltDepth( GidxY, GidxX ) == CAULDRONIBSNULLVALUE ) {
+                           bottomBasaltDepth( GidxY, GidxX ) = depth( LidxZ, GidxY, GidxX ); 
+                        }
+                        
+                     } else {
+                        topBasaltDepth( GidxY, GidxX ) = depth( LidxZ, GidxY, GidxX ); 
+                        
+                     }
 
                      if( ! Basin_Model->bottomBasaltTemp ) {
                         if( !Current_Layer->getPreviousBasaltLitho( GidxX, GidxY, LidxZ ) && 
                             Current_Time > FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY ) ) {
-                           Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
-                           BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
-                        }
+                             Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
+                             BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
+                        } 
                      } else {
                         // set constraied temperature only for the bottom basalt element
-                        if(( bottomBasaltDepth( xY,  xX ) == CAULDRONIBSNULLVALUE ) && 
+                        if(( bottomBasaltDepth( GidxY, GidxX ) == CAULDRONIBSNULLVALUE ) && 
                            ( FastcauldronSimulator::getInstance ().getBasaltThickness( GidxX, GidxY, Current_Time ) > 
                              FastcauldronSimulator::getInstance ().getBasaltThickness( GidxX, GidxY, Previous_Time )) &&
                            Current_Time >  FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY )) {
+                           
                            Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
                            BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
                         }
-                     }
-                  }
-                  if( bottomBasaltDepth( xY,  xX ) == CAULDRONIBSNULLVALUE ) {
-                     bottomBasaltDepth( xY,  xX ) = Geometry_Matrix1 ( 3, 5 ) +  depth( zs + zm - 1, xY, xX ); 
-                  }
-                  
-                  if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY + 1, xX ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY + 1, xX ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY + 1, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY + 1, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( Current_Layer ->isCrust() ) {
-                     topBasaltDepth( xY, xX ) = Geometry_Matrix1 ( 3, 1 ) +  depth( zs + zm - 1, xY, xX );
-                     if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                        topBasaltDepth( xY, xX + 1 ) =  topBasaltDepth( xY,  xX );
-                     }
-                     if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                        topBasaltDepth( xY + 1, xX ) =  topBasaltDepth( xY,  xX );
-                     }
-                     if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                        topBasaltDepth( xY + 1, xX + 1 ) = topBasaltDepth( xY,  xX );
                      }
                   }
                }
@@ -854,6 +834,11 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
 
     delete[] GlobalK;
 
+    if( Basin_Model -> isALC() && Current_Layer -> isBasement() ) {
+       topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );  
+       bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts ); 
+    }
+    
     Current_Layer -> Previous_Properties.Restore_Property ( Basin_Modelling::Depth );
 
     Layers++;
@@ -1072,8 +1057,8 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
     PETSC_2D_Array bottomBasaltDepth;
     if( Basin_Model -> isALC() && Current_Layer -> isBasement() ) {
        CrustFormation*  crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
-       topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth);//, INSERT_VALUES, IncludeGhosts );
-       bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth);//, INSERT_VALUES, IncludeGhosts );
+       topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth, INSERT_VALUES, IncludeGhosts );
+       bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
     }
 
     DAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
@@ -1186,8 +1171,17 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
                      int GidxX = Basin_Model -> mapElementList[EltCount].i[Inode%4];
                      Current_Layer->setBasaltLitho ( GidxX, GidxY, LidxZ );
 
+                     if ( Inode > 3 ) {
+                        if( bottomBasaltDepth( GidxY, GidxX ) == CAULDRONIBSNULLVALUE ) {
+                           bottomBasaltDepth( GidxY, GidxX ) = depth( LidxZ, GidxY, GidxX ); 
+                        }
+                        
+                     } else {
+                        topBasaltDepth( GidxY, GidxX ) = depth( LidxZ, GidxY, GidxX);
+                        
+                     }
 
-                     if( ! Basin_Model->bottomBasaltTemp ) {
+                    if( ! Basin_Model->bottomBasaltTemp ) {
                         if( !Current_Layer->getPreviousBasaltLitho( GidxX, GidxY, LidxZ ) &&
                             Current_Time > FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY ) ) {
                            Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
@@ -1195,44 +1189,13 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
                         }
                      } else {
                         // set constraied temperature only for the bottom basalt element
-                        if(( bottomBasaltDepth( xY,  xX ) == CAULDRONIBSNULLVALUE ) && 
+                        if(( bottomBasaltDepth( GidxY, GidxX ) == CAULDRONIBSNULLVALUE ) && 
                            ( FastcauldronSimulator::getInstance ().getBasaltThickness( GidxX, GidxY, Current_Time ) > 
                              FastcauldronSimulator::getInstance ().getBasaltThickness( GidxX, GidxY, Previous_Time )) &&
                            Current_Time >  FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY )) {
                            Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
                            BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
                         }
-                     }
-                  }
-                  
-                  if( bottomBasaltDepth( xY,  xX ) == CAULDRONIBSNULLVALUE ) {
-                     bottomBasaltDepth( xY,  xX ) = Geometry_Matrix1 ( 3, 5 ) +  depth( zs + zm - 1, xY, xX ); 
-                  }
-                  if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY + 1, xX ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY + 1, xX ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY + 1, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY + 1, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( Current_Layer ->isCrust() ) {
-                     topBasaltDepth( xY, xX ) = Geometry_Matrix1 ( 3, 1 ) +  depth( zs + zm - 1, xY, xX );
-                     if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                        topBasaltDepth( xY, xX + 1 ) =  topBasaltDepth( xY,  xX );
-                     }
-                     if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                        topBasaltDepth( xY + 1, xX ) =  topBasaltDepth( xY,  xX );
-                     }
-                     if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                        topBasaltDepth( xY + 1, xX + 1 ) = topBasaltDepth( xY,  xX );
                      }
                   }
                }
@@ -1287,6 +1250,11 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
     }
 
     delete[] GlobalK;
+
+    if( Basin_Model -> isALC() && Current_Layer -> isBasement() ) {
+       topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );  
+       bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts ); 
+    }
 
     Current_Layer -> Previous_Properties.Restore_Property ( Basin_Modelling::Depth );
 
@@ -2058,6 +2026,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
   }
+  
   while ( ! Layers.Iteration_Is_Done () ) {
 
     LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
@@ -2153,8 +2122,8 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
     PETSC_2D_Array bottomBasaltDepth;
     if( Basin_Model -> isALC() && Current_Layer -> isBasement() ) {
        CrustFormation*  crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
-       topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth);//, INSERT_VALUES, IncludeGhosts );
-       bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth);//, INSERT_VALUES, IncludeGhosts );
+       topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth, INSERT_VALUES, IncludeGhosts );
+       bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
     }
 
     DAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
@@ -2243,14 +2212,13 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
             }
             if( Current_Layer -> isBasement() && Basin_Model -> isALC() ) {
                ElementGeometryMatrix Geometry_Matrix1;
-               double v1, v2;
+
                for ( Inode = 0; Inode < 8; Inode ++ ) {
                   int LidxZ = Layer_K + (Inode < 4 ? 1 : 0);
                   int GidxY = Basin_Model -> mapElementList[EltCount].j[Inode%4];
                   int GidxX = Basin_Model -> mapElementList[EltCount].i[Inode%4];
-                  v1 = depth(LidxZ,GidxY,GidxX) ;
-                  v2 = depth( zs + zm - 1, GidxY, GidxX );
-                  Geometry_Matrix1 ( 3, Inode + 1 ) = depth(LidxZ,GidxY,GidxX) - depth( zs + zm - 1, GidxY, GidxX );
+
+                  Geometry_Matrix1 ( 3, Inode + 1 ) = depth( LidxZ, GidxY, GidxX ) - depth( zs + zm - 1, GidxY, GidxX );
 
                   if( Current_Layer -> isMantle() ) {
                      double Hfix  = FastcauldronSimulator::getInstance ().getLithosphereThicknessMod( GidxX, GidxY, Current_Time);
@@ -2266,15 +2234,22 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
                int xX = Basin_Model -> mapElementList[EltCount].i[0];
 
                Element_Lithology = Current_Layer -> getLithology( Current_Time, xX, xY, midPointDepth );
-               
+
                if( Current_Layer->isBasalt() ) {
+               
                   for ( Inode = 0; Inode < 8; Inode ++ ) {
                      int LidxZ = Layer_K + (Inode < 4 ? 1 : 0);
                      int GidxY = Basin_Model -> mapElementList[EltCount].j[Inode%4];
                      int GidxX = Basin_Model -> mapElementList[EltCount].i[Inode%4];
                      Current_Layer->setBasaltLitho ( GidxX, GidxY, LidxZ );
                      
-
+                     if ( Inode > 3 ) {
+                        if( bottomBasaltDepth( GidxY,  GidxX ) == CAULDRONIBSNULLVALUE ) {
+                           bottomBasaltDepth( GidxY,  GidxX ) = depth(LidxZ,GidxY,GidxX); 
+                        }
+                     } else {
+                        topBasaltDepth( GidxY, GidxX ) = depth(LidxZ,GidxY,GidxX); 
+                     }
                      if( ! Basin_Model->bottomBasaltTemp ) {
                         if( !Current_Layer->getPreviousBasaltLitho( GidxX, GidxY, LidxZ ) && 
                             Current_Time > FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY )) {
@@ -2283,7 +2258,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
                         }
                      } else {
                         // set constraied temperature only for the bottom basalt element
-                        if(( bottomBasaltDepth( xY,  xX ) == CAULDRONIBSNULLVALUE ) && 
+                        if(( bottomBasaltDepth( GidxY, GidxX ) == CAULDRONIBSNULLVALUE ) && 
                            ( FastcauldronSimulator::getInstance ().getBasaltThickness( GidxX, GidxY, Current_Time ) > 
                              FastcauldronSimulator::getInstance ().getBasaltThickness( GidxX, GidxY, Previous_Time )) &&
                            Current_Time >  FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY )) {
@@ -2291,38 +2266,8 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
                            BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
                         }
                      }
-                  }
-                  
-                  if( bottomBasaltDepth( xY,  xX ) == CAULDRONIBSNULLVALUE ) {
-                     bottomBasaltDepth( xY,  xX ) = Geometry_Matrix1 ( 3, 5 ) +  depth( zs + zm - 1, xY, xX ); 
-                  }
-                  
-                  if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY + 1, xX ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY + 1, xX ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                     if( bottomBasaltDepth( xY + 1, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                        bottomBasaltDepth( xY + 1, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                     }
-                  }
-                  if( Current_Layer ->isCrust() ) {
-                     topBasaltDepth( xY, xX ) = Geometry_Matrix1 ( 3, 1 ) +  depth( zs + zm - 1, xY, xX );
-                     if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                        topBasaltDepth( xY, xX + 1 ) =  topBasaltDepth( xY,  xX );
-                     }
-                     if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                        topBasaltDepth( xY + 1, xX ) =  topBasaltDepth( xY,  xX );
-                     }
-                     if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                        topBasaltDepth( xY + 1, xX + 1 ) = topBasaltDepth( xY,  xX );
-                     }
+
+                   
                   }
                }
             }
@@ -2387,6 +2332,10 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
 
     delete[] GlobalK;
 
+    if( Basin_Model -> isALC() && Current_Layer -> isBasement() ) {
+       topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );  
+       bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts ); 
+    }
     Current_Layer -> Previous_Properties.Restore_Property ( Basin_Modelling::Depth );
 
     Layers++;
