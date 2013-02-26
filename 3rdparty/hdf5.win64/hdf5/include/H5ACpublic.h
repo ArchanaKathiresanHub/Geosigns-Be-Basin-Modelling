@@ -36,8 +36,6 @@
 extern "C" {
 #endif
 
-#define H5AC__MAX_TRACE_FILE_NAME_LEN	1024
-
 /****************************************************************************
  *
  * structure H5AC_cache_config_t
@@ -57,7 +55,7 @@ extern "C" {
  * structure.
  *
  * Similarly, the open_trace_file, close_trace_file, and trace_file_name
- * fields do not appear in H5C_auto_size_ctl_t, as most trace file 
+ * fields do not appear in H5C_auto_size_ctl_t, as most trace file
  * issues are handled at the H5AC level.  The one exception is storage of
  * the pointer to the trace file, which is handled by H5C.
  *
@@ -82,7 +80,7 @@ extern "C" {
  *
  * 	The trace file is a debuging feature that allow the capture of
  * 	top level metadata cache requests for purposes of debugging and/or
- * 	optimization.  This field should normally be set to FALSE, as 
+ * 	optimization.  This field should normally be set to FALSE, as
  * 	trace file collection imposes considerable overhead.
  *
  * 	This field should only be set to TRUE when the trace_file_name
@@ -100,7 +98,7 @@ extern "C" {
  * trace_file_name: Full path of the trace file to be opened if the
  * 	open_trace_file field is TRUE.
  *
- * 	In the parallel case, an ascii representation of the mpi rank of 
+ * 	In the parallel case, an ascii representation of the mpi rank of
  * 	the process will be appended to the file name to yield a unique
  * 	trace file name for each process.
  *
@@ -108,12 +106,12 @@ extern "C" {
  * 	characters.
  *
  * evictions_enabled:  Boolean field used to either report the current
- * 	evictions enabled status of the cache, or to set the cache's 
+ * 	evictions enabled status of the cache, or to set the cache's
  *	evictions enabled status.
  *
- * 	In general, the metadata cache should always be allowed to 
- * 	evict entries.  However, in some cases it is advantageous to 
- * 	disable evictions briefly, and thereby postpone metadata 
+ * 	In general, the metadata cache should always be allowed to
+ * 	evict entries.  However, in some cases it is advantageous to
+ * 	disable evictions briefly, and thereby postpone metadata
  * 	writes.  However, this must be done with care, as the cache
  * 	can grow quickly.  If you do this, re-enable evictions as
  * 	soon as possible and monitor cache size.
@@ -179,7 +177,7 @@ extern "C" {
  *              at its maximum size, or if the cache is not already using
  *              all available space.
  *
- *      Note that you must set decr_mode to H5C_incr__off if you 
+ *      Note that you must set decr_mode to H5C_incr__off if you
  *      disable metadata cache entry evictions.
  *
  * lower_hr_threshold: Lower hit rate threshold.  If the increment mode
@@ -216,7 +214,7 @@ extern "C" {
  *      The addition of the flash increment mode was occasioned by performance
  *      problems that appear when a local heap is increased to a size in excess
  *      of the current cache size.  While the existing re-size code dealt with
- *      this eventually, performance was very bad for the remainder of the 
+ *      this eventually, performance was very bad for the remainder of the
  *      epoch.
  *
  *      At present, there are two possible values for the flash_incr_mode:
@@ -240,28 +238,27 @@ extern "C" {
  *      stay within max_size.
  *
  *      With a little thought, it should be obvious that the above flash
- *      cache size increase algorithm is not sufficient for all circumstances --
- *      for example, suppose the user round robins through 
+ *      cache size increase algorithm is not sufficient for all circumstances
+ *      -- for example, suppose the user round robins through
  *      (1/flash_threshold) +1 groups, adding one data set to each on each
  *      pass.  Then all will increase in size at about the same time, requiring
  *      the max cache size to at least double to maintain acceptable
  *      performance, however the above flash increment algorithm will not be
  *      triggered.
  *
- *      Hopefully, the add space algorithms detailed above will be sufficient 
- *      for the performance problems encountered to date.  However, we should 
+ *      Hopefully, the add space algorithms detailed above will be sufficient
+ *      for the performance problems encountered to date.  However, we should
  *      expect to revisit the issue.
  *
  * flash_multiple: Double containing the multiple described above in the
- *      H5C_flash_incr__add_space section of the discussion of the 
- *      flash_incr_mode section.  This field is ignored unless flash_incr_mode 
+ *      H5C_flash_incr__add_space section of the discussion of the
+ *      flash_incr_mode section.  This field is ignored unless flash_incr_mode
  *      is H5C_flash_incr__add_space.
  *
- * flash_threshold: Double containing the factor by which current max cache size
- *      is multiplied to obtain the size threshold for the add_space flash
+ * flash_threshold: Double containing the factor by which current max cache
+ *      size is multiplied to obtain the size threshold for the add_space flash
  *      increment algorithm.  The field is ignored unless flash_incr_mode is
  *      H5C_flash_incr__add_space.
- *
  *
  *
  * Cache size decrease control fields:
@@ -294,7 +291,7 @@ extern "C" {
  *              over the last epoch exceeds the value provided in the
  *              upper_hr_threshold field.
  *
- *      Note that you must set decr_mode to H5C_decr__off if you 
+ *      Note that you must set decr_mode to H5C_decr__off if you
  *      disable metadata cache entry evictions.
  *
  * upper_hr_threshold: Upper hit rate threshold.  The use of this field
@@ -357,21 +354,22 @@ extern "C" {
  * Parallel Configuration Fields:
  *
  * In PHDF5, all operations that modify metadata must be executed collectively.
+ *
  * We used to think that this was enough to ensure consistency across the
  * metadata caches, but since we allow processes to read metadata individually,
  * the order of dirty entries in the LRU list can vary across processes,
  * which can result in inconsistencies between the caches.
  *
- * To prevent this, only the metadata cache on process 0 is allowed to write
- * to file, and then only after synchronizing with the other caches.  After
- * it writes entries to file, it sends the base addresses of the now clean
- * entries to the other caches, so they can mark these entries clean as well.
+ * PHDF5 uses several strategies to prevent such inconsistencies in metadata,
+ * all of which use the fact that the same stream of dirty metadata is seen
+ * by all processes for purposes of synchronization.  This is done by 
+ * having each process count the number of bytes of dirty metadata generated,
+ * and then running a "sync point" whenever this count exceeds a user 
+ * specified threshold (see dirty_bytes_threshold below).
  *
- * The different caches know when to synchronize caches by counting the
- * number of bytes of dirty metadata created by the collective operations
- * modifying metadata.  Whenever this count exceeds a user specified
- * threshold (see below), process 0 flushes down to its minimum clean size,
- * and then sends the list of newly cleaned entries to the other caches.
+ * The current metadata write strategy is indicated by the 
+ * metadata_write_strategy field.  The possible values of this field, along
+ * with the associated metadata write strategies are discussed below.
  *
  * dirty_bytes_threshold:  Threshold of dirty byte creation used to
  * 	synchronize updates between caches. (See above for outline and
@@ -381,9 +379,66 @@ extern "C" {
  *	file.  This field is ignored unless HDF5 has been compiled for
  *	parallel.
  *
+ * metadata_write_strategy: Integer field containing a code indicating the
+ *	desired metadata write strategy.  The valid values of this field
+ *	are enumerated and discussed below:
+ *
+ *
+ *	H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY:
+ *
+ *	When metadata_write_strategy is set to this value, only process 
+ *	zero is allowed to write dirty metadata to disk.  All other 
+ *	processes must retain dirty metadata until they are informed at
+ *	a sync point that the dirty metadata in question has been written
+ *	to disk.
+ *
+ *	When the sync point is reached (or when there is a user generated
+ *	flush), process zero flushes sufficient entries to bring it into
+ *	complience with its min clean size (or flushes all dirty entries in
+ *	the case of a user generated flush), broad casts the list of 
+ *	entries just cleaned to all the other processes, and then exits
+ *	the sync point.
+ *
+ *	Upon receipt of the broadcast, the other processes mark the indicated
+ *	entries as clean, and leave the sync point as well.
+ *
+ *
+ *	H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED:
+ *
+ *	In the distributed metadata write strategy, process zero still makes
+ *	the decisions as to what entries should be flushed, but the actual 
+ *	flushes are distributed across the processes in the computation to 
+ *	the extent possible.
+ *
+ *	In this strategy, when a sync point is triggered (either by dirty
+ *	metadata creation or manual flush), all processes enter a barrier.
+ *
+ *	On the other side of the barrier, process 0 constructs an ordered
+ *	list of the entries to be flushed, and then broadcasts this list
+ *	to the caches in all the processes.
+ *
+ *	All processes then scan the list of entries to be flushed, flushing
+ *	some, and marking the rest as clean.  The algorithm for this purpose
+ *	ensures that each entry in the list is flushed exactly once, and 
+ *	all are marked clean in each cache.
+ *
+ *	Note that in the case of a flush of the cache, no message passing
+ *	is necessary, as all processes have the same list of dirty entries, 
+ *	and all of these entries must be flushed.  Thus in this case it is 
+ *	sufficient for each process to sort its list of dirty entries after 
+ *	leaving the initial barrier, and use this list as if it had been 
+ *	received from process zero.
+ *
+ *	To avoid possible messages from the past/future, all caches must
+ *	wait until all caches are done before leaving the sync point.
+ *      
  ****************************************************************************/
 
-#define H5AC__CURR_CACHE_CONFIG_VERSION 1
+#define H5AC__CURR_CACHE_CONFIG_VERSION 	1
+#define H5AC__MAX_TRACE_FILE_NAME_LEN		1024
+
+#define H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY    0
+#define H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED       1
 
 typedef struct H5AC_cache_config_t
 {
@@ -442,6 +497,7 @@ typedef struct H5AC_cache_config_t
 
     /* parallel configuration fields: */
     int                      dirty_bytes_threshold;
+    int                      metadata_write_strategy;
 
 } H5AC_cache_config_t;
 

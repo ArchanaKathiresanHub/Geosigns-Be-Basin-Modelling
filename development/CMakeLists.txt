@@ -24,9 +24,10 @@ if(BM_CODE_COVERAGE_ENABLE)
 endif()
 
 option( BM_BUILD_CBMGENERICS_STATIC "Build CBMGENERICS library STATIC" ON )
-option( BM_BUILD_EOSPACK_STATIC "Build EOSPACK library STATIC" OFF )
+option( BM_BUILD_EOSPACK_STATIC "Build EOSPACK library STATIC" ON )
 option( BM_BUILD_TABLEIO_STATIC "Build TABLEIO library STATIC" ON )
 option( BM_BUILD_UTILITIES_STATIC "Build utilities library STATIC" ON )
+option( BM_BUILD_SERIALHDF5_STATIC "Build SERIALHDF5 library STATIC" ON )
 
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
 
@@ -263,6 +264,11 @@ if(WIN32)
 	if(BM_BUILD_UTILITIES_STATIC)
 		add_definitions(-DUTILITIES_STATIC)
 	endif()
+
+	if(BM_BUILD_SERIALHDF5_STATIC)
+		add_definitions(-DSERIALHDF5_STATIC)
+	endif()
+	
 endif()
 
 ### 

@@ -21,7 +21,6 @@
 
 /* Public header files needed by this file */
 #include "H5public.h"
-#include "H5Cpublic.h"
 #include "H5ACpublic.h"
 #include "H5Ipublic.h"
 
@@ -50,6 +49,10 @@
 #define H5F_ACC_DEBUG	(H5CHECK 0x0008u)	/*print debug info	     */
 #define H5F_ACC_CREAT	(H5CHECK 0x0010u)	/*create non-existing files  */
 
+/* Value passed to H5Pset_elink_acc_flags to cause flags to be taken from the
+ * parent file. */
+#define H5F_ACC_DEFAULT (H5CHECK 0xffffu)	/*ignore setting on lapl     */
+
 /* Flags for H5Fget_obj_count() & H5Fget_obj_ids() calls */
 #define H5F_OBJ_FILE	(0x0001u)       /* File objects */
 #define H5F_OBJ_DATASET	(0x0002u)       /* Dataset objects */
@@ -75,8 +78,7 @@
 /* The difference between a single file and a set of mounted files */
 typedef enum H5F_scope_t {
     H5F_SCOPE_LOCAL	= 0,	/*specified file handle only		*/
-    H5F_SCOPE_GLOBAL	= 1,	/*entire virtual file			*/
-    H5F_SCOPE_DOWN      = 2	/*for internal use only			*/
+    H5F_SCOPE_GLOBAL	= 1 	/*entire virtual file			*/
 } H5F_scope_t;
 
 /* Unlimited file size for H5Pset_external() */
@@ -107,11 +109,42 @@ typedef struct H5F_info_t {
     } sohm;
 } H5F_info_t;
 
+/*
+ * Types of allocation requests. The values larger than H5FD_MEM_DEFAULT
+ * should not change other than adding new types to the end. These numbers
+ * might appear in files.
+ *
+ * Note: please change the log VFD flavors array if you change this
+ * enumeration.
+ */
+typedef enum H5F_mem_t {
+    H5FD_MEM_NOLIST     = -1,   /* Data should not appear in the free list.
+                                 * Must be negative.
+                                 */
+    H5FD_MEM_DEFAULT    = 0,    /* Value not yet set.  Can also be the
+                                 * datatype set in a larger allocation
+                                 * that will be suballocated by the library.
+                                 * Must be zero.
+                                 */
+    H5FD_MEM_SUPER      = 1,    /* Superblock data */
+    H5FD_MEM_BTREE      = 2,    /* B-tree data */
+    H5FD_MEM_DRAW       = 3,    /* Raw data (content of datasets, etc.) */
+    H5FD_MEM_GHEAP      = 4,    /* Global heap data */
+    H5FD_MEM_LHEAP      = 5,    /* Local heap data */
+    H5FD_MEM_OHDR       = 6,    /* Object header data */
+
+    H5FD_MEM_NTYPES             /* Sentinel value - must be last */
+} H5F_mem_t;
+
 /* Library's file format versions */
 typedef enum H5F_libver_t {
     H5F_LIBVER_EARLIEST,        /* Use the earliest possible format for storing objects */
     H5F_LIBVER_LATEST           /* Use the latest possible format available for storing objects*/
 } H5F_libver_t;
+
+/* Define file format version for 1.8 to prepare for 1.10 release.  
+ * (Not used anywhere now)*/
+#define H5F_LIBVER_18 H5F_LIBVER_LATEST
 
 #ifdef __cplusplus
 extern "C" {
@@ -129,13 +162,14 @@ H5_DLL herr_t H5Fclose(hid_t file_id);
 H5_DLL hid_t  H5Fget_create_plist(hid_t file_id);
 H5_DLL hid_t  H5Fget_access_plist(hid_t file_id);
 H5_DLL herr_t H5Fget_intent(hid_t file_id, unsigned * intent);
-H5_DLL int H5Fget_obj_count(hid_t file_id, unsigned types);
-H5_DLL int H5Fget_obj_ids(hid_t file_id, unsigned types, int max_objs, hid_t *obj_id_list);
+H5_DLL ssize_t H5Fget_obj_count(hid_t file_id, unsigned types);
+H5_DLL ssize_t H5Fget_obj_ids(hid_t file_id, unsigned types, size_t max_objs, hid_t *obj_id_list);
 H5_DLL herr_t H5Fget_vfd_handle(hid_t file_id, hid_t fapl, void **file_handle);
 H5_DLL herr_t H5Fmount(hid_t loc, const char *name, hid_t child, hid_t plist);
 H5_DLL herr_t H5Funmount(hid_t loc, const char *name);
 H5_DLL hssize_t H5Fget_freespace(hid_t file_id);
 H5_DLL herr_t H5Fget_filesize(hid_t file_id, hsize_t *size);
+H5_DLL ssize_t H5Fget_file_image(hid_t file_id, void * buf_ptr, size_t buf_len);
 H5_DLL herr_t H5Fget_mdc_config(hid_t file_id,
 				H5AC_cache_config_t * config_ptr);
 H5_DLL herr_t H5Fset_mdc_config(hid_t file_id,
@@ -149,6 +183,11 @@ H5_DLL herr_t H5Fget_mdc_size(hid_t file_id,
 H5_DLL herr_t H5Freset_mdc_hit_rate_stats(hid_t file_id);
 H5_DLL ssize_t H5Fget_name(hid_t obj_id, char *name, size_t size);
 H5_DLL herr_t H5Fget_info(hid_t obj_id, H5F_info_t *bh_info);
+H5_DLL herr_t H5Fclear_elink_file_cache(hid_t file_id);
+#ifdef H5_HAVE_PARALLEL
+H5_DLL herr_t H5Fset_mpi_atomicity(hid_t file_id, hbool_t flag);
+H5_DLL herr_t H5Fget_mpi_atomicity(hid_t file_id, hbool_t *flag);
+#endif /* H5_HAVE_PARALLEL */
 
 #ifdef __cplusplus
 }

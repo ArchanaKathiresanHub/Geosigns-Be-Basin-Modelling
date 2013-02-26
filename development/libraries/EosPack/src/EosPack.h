@@ -70,8 +70,6 @@ namespace pvtFlash
       "C6_14SATS",
       "C6_14AROS"
    };
-  
-   const int N_PHASES = 2;
 
    enum PVTPhase { VAPOUR_PHASE = 0, LIQUID_PHASE = 1 };
 

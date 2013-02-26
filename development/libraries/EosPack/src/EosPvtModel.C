@@ -1093,7 +1093,7 @@ int EosPvtModel::SetPointers( void )
    m_pEosPvtTable->SetAbcPointers( iN, &m_pAbcOffset, &pFinal );
 
    /* Calculate the total length */
-   i = pFinal - m_pWorkArray;
+   i = (int)(pFinal - m_pWorkArray);
    i = ( i > i1 ? i : i1 );
 
    /* End of the routine */

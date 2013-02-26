@@ -297,11 +297,14 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
                                         double unlump_fraction[] )    // size is NumberOfOutputSpecies
 {
    CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-
+   
    const int NUM_COMP     = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
    const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
 
-   std::copy( in_compMasses, in_compMasses + NUM_COMP, out_compMasses );
+   for ( int i = 0; i < NUM_COMP; ++i )
+   {
+      out_compMasses[i] = in_compMasses[i];
+   }
    std::fill( unlump_fraction, unlump_fraction + NUM_COMP_TOT, 1.0 );
 
    for ( int k = 0; k < 2; ++k )
@@ -391,9 +394,11 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][CBMGenerics
 
    const int iOil = 1;
    const int iGas = 0;
-
-   std::copy( in_paseCompMasses[iOil], in_paseCompMasses[iOil] + NUM_COMP, out_phaseCompMasses[iOil] );
-   std::copy( in_paseCompMasses[iGas], in_paseCompMasses[iGas] + NUM_COMP, out_phaseCompMasses[iGas] );
+   for ( int i = 0; i < NUM_COMP; ++i )
+   {
+      out_phaseCompMasses[iOil][i] = in_paseCompMasses[iOil][i];
+      out_phaseCompMasses[iGas][i] = in_paseCompMasses[iGas][i];
+   }
 
    for ( int k = 0; k < 2; ++k )
    {
@@ -468,7 +473,7 @@ bool pvtFlash::EosPack::computeWithLumping( double temperature,
    const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
    
    double compMasses[NUM_COMP];
-   double phaseCompMasses[N_PHASES][NUM_COMP];
+   double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][NUM_COMP];
    double unlump_fractions[NUM_COMP_TOT];
 
    pvtFlash::EosPack::lumpComponents( in_compMasses, compMasses, unlump_fractions );
@@ -646,7 +651,10 @@ bool pvtFlash::EosPack::compute( double temperature,
       pPressure[0]    = pressure;
 
       /* Set compositions */
-      std::copy( compMasses, compMasses + iNc, pAccumulation );
+      for ( int i = 0; i < iNc; ++i )
+      {
+         pAccumulation[i] = compMasses[i];
+      }
       
 #ifdef DEBUG_EXTENSIVE
       for ( int i = 0; i < iFlashes; i++ )

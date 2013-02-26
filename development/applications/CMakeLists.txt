@@ -1,3 +1,6 @@
+if (BM_BUILD_SERIAL_APPS)
+	add_subdirectory(eosptdiag)
+endif (BM_BUILD_SERIAL_APPS)
 
 # Applications that can only be built on Unix at the moment.
 if (UNIX)
@@ -34,9 +37,8 @@ if (UNIX)
 		add_subdirectory(gempis_send)
 		add_subdirectory(gempis_recv)
   		add_subdirectory(inversion_workbench)
-  		add_subdirectory(eosptdiag)
-                add_subdirectory(hpc)
-                add_subdirectory(cauldron-crop)
+        add_subdirectory(hpc)
+        add_subdirectory(cauldron-crop)
 	endif (BM_BUILD_SERIAL_APPS)
 
 

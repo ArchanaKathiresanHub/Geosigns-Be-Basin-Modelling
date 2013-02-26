@@ -22,8 +22,8 @@
 #ifndef H5FDmpi_H
 #define H5FDmpi_H
 
-/***** Macros for One linked collective IO case. *****/ 
-/* The default value to do one linked collective IO for all chunks. 
+/***** Macros for One linked collective IO case. *****/
+/* The default value to do one linked collective IO for all chunks.
    If the average number of chunks per process is greater than this value,
       the library will create an MPI derived datatype to link all chunks to do collective IO.
       The user can set this value through an API. */
@@ -81,10 +81,8 @@ typedef struct H5FD_class_mpi_t {
 /* ======== Temporary data transfer properties ======== */
 /* Definitions for memory MPI type property */
 #define H5FD_MPI_XFER_MEM_MPI_TYPE_NAME        "H5FD_mpi_mem_mpi_type"
-#define H5FD_MPI_XFER_MEM_MPI_TYPE_SIZE        sizeof(MPI_Datatype)
 /* Definitions for file MPI type property */
 #define H5FD_MPI_XFER_FILE_MPI_TYPE_NAME       "H5FD_mpi_file_mpi_type"
-#define H5FD_MPI_XFER_FILE_MPI_TYPE_SIZE       sizeof(MPI_Datatype)
 
 /*
  * The view is set to this value
@@ -105,9 +103,8 @@ H5_DLL herr_t H5FD_mpi_comm_info_free(MPI_Comm *comm, MPI_Info *info);
 H5_DLL herr_t H5FD_mpio_wait_for_left_neighbor(H5FD_t *file);
 H5_DLL herr_t H5FD_mpio_signal_right_neighbor(H5FD_t *file);
 #endif /* NOT_YET */
-H5_DLL herr_t H5FD_mpi_setup_collective(hid_t dxpl_id, MPI_Datatype btype,
-    MPI_Datatype ftype);
-H5_DLL herr_t H5FD_mpi_teardown_collective(hid_t dxpl_id);
+H5_DLL herr_t H5FD_mpi_setup_collective(hid_t dxpl_id, MPI_Datatype *btype,
+    MPI_Datatype *ftype);
 
 /* Driver specific methods */
 H5_DLL int H5FD_mpi_get_rank(const H5FD_t *file);
@@ -120,3 +117,4 @@ H5_DLL MPI_Comm H5FD_mpi_get_comm(const H5FD_t *_file);
 #endif /* H5_HAVE_PARALLEL */
 
 #endif /* H5FDmpi_H */
+

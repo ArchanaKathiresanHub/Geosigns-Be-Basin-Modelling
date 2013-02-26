@@ -92,7 +92,8 @@ H5E_CANTRELEASE_g=
 /* Property list errors */    
 H5E_CANTGET_g=    
 H5E_CANTSET_g=    
-H5E_DUPCLASS_g=
+H5E_DUPCLASS_g=    
+H5E_SETDISALLOWED_g=
 
 /* Free space errors */    
 H5E_CANTMERGE_g=    
@@ -107,7 +108,8 @@ H5E_BADMESG_g=
 H5E_CANTDELETE_g=    
 H5E_BADITER_g=    
 H5E_CANTPACK_g=    
-H5E_CANTRESET_g=
+H5E_CANTRESET_g=    
+H5E_CANTRENAME_g=
 
 /* System level errors */    
 H5E_SYSERRSTR_g=
@@ -156,7 +158,6 @@ H5E_PROTECT_g=
 H5E_NOTCACHED_g=    
 H5E_SYSTEM_g=    
 H5E_CANTINS_g=    
-H5E_CANTRENAME_g=    
 H5E_CANTPROTECT_g=    
 H5E_CANTUNPROTECT_g=    
 H5E_CANTPIN_g=    

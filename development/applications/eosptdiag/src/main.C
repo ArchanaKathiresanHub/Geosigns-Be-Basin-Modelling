@@ -2,7 +2,7 @@
 // All rights reserved. This document and the data and information contained herein is CONFIDENTIAL.
 // Neither the whole nor any part of this document may be copied, modified or distributed in any
 // form without the prior written consent of the copyright owner.
-
+#define NOMINMAX
 
 #include <cassert>
 #include <iostream>
@@ -13,7 +13,7 @@
 #include "EosPack.h"
 #include "consts.h"
 #include "TrapperIoTableRec.h"
-#include "PTDiagCalculator.h"
+#include "PTDiagramCalculator.h"
 
 #define PTDIAG_VERSION "2.1b"
 
@@ -29,7 +29,7 @@ double g_MassThreshold = 0.0;
 /// EosPack parameters
 double g_ABTerm   = 2;
 double g_StopTol  = 1e-6;
-double g_MaxIters = 400;
+int    g_MaxIters = 400;
 
 static void showUsage( const std::string & msg )
 {
@@ -113,7 +113,7 @@ int main( int argc, char ** argv )
       else if ( prm == "-abterm"      ) { g_ABTerm        = atof( val.c_str() ); ++i; }
       else if ( prm == "-massthresh"  ) { g_MassThreshold = atof( val.c_str() ); ++i; }
       else if ( prm == "-stoptol"     ) { g_StopTol       = atof( val.c_str() ); ++i; }
-      else if ( prm == "-iters"       ) { g_MaxIters      = atof( val.c_str() ); ++i; }
+      else if ( prm == "-iters"       ) { g_MaxIters      = atol( val.c_str() ); ++i; }
       else if ( prm == "-batch"       ) { g_IsBatch       = true; }
       else if ( prm == "-dynamo"      ) { genDynamo       = true; }
       else if ( prm == "-colormap"    ) { g_ColormapType = 1; }
@@ -294,7 +294,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
 
    std::vector<double> masses( iNc, 0.0 );
    
-   for ( size_t comp = 0; comp < iNc; ++comp )
+   for ( int comp = 0; comp < iNc; ++comp )
    {
       double cMass = data.compMass( comp );
       masses[comp] = cMass / massTotal * 100 < g_MassThreshold ? 0.0 : cMass;
@@ -345,10 +345,10 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    ofs << "Composition = [" << std::endl;
 
    double mss[iNc];
-   std::copy( masses.begin(), masses.begin() + iNc, &(mss[0]) );
+   for ( int i = 0; i < iNc; ++i ) mss[i] = masses[i];
    double gorm = pvtFlash::EosPack::getInstance().gorm( mss );
 
-   for ( size_t i = 0; i < iNc; ++i )
+   for ( int i = 0; i < iNc; ++i )
    {
       ofs << "  " << masses[i] << std::endl;
       // also calulate mole fraction
@@ -372,7 +372,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    ofs << "#Hydrocarbons components names" << std::endl;
    ofs << "CompNames = [" << std::endl;
 
-   for ( size_t i = 0; i < iNc; ++i )
+   for ( int i = 0; i < iNc; ++i )
    {
       ofs << "'" << std::setw( 11 ) << std::left << CBMGenerics::ComponentManager::getInstance().GetSpeciesName( i ) << "'" << std::endl;
    }
@@ -385,9 +385,9 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    if ( g_ColormapType )
    {
       ofs << "LiqFraction = [" << std::endl;
-      for ( size_t i = 0; i < gridP.size(); ++i )
+      for ( int i = 0; i < gridP.size(); ++i )
       {
-         for ( size_t j = 0; j < gridT.size(); ++j )
+         for ( int j = 0; j < gridT.size(); ++j )
          {
             double val = diagBuilder->getLiquidFraction( i, j );
             if ( val == 0.0 && g_ColormapType > 1 ) // can't calculate log10( 0 )
@@ -524,7 +524,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    }
 
    T = data.temperature() + CBMGenerics::C2K;
-   if ( diagBuilder->getBubblePressure( T, P ) )
+   if ( diagBuilder->getBubblePressure( T, &P ) )
    {
       ofs << "#Bubble/dew point for temperature in trap" << std::endl;
       P *= CBMGenerics::Pa2MPa;

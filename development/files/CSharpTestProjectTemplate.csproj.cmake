@@ -41,7 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
+	<Compile Include="Properties/AssemblyInfo.cs" />
+    <Compile Include="@FileListForCompilation@" />
   </ItemGroup>
   <ItemGroup>
     @ProjectReferences@

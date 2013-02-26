@@ -72,16 +72,9 @@
 /****************************/
 /* Package Private Typedefs */
 /****************************/
-
-/* Define the main attribute structure */
-struct H5A_t {
-    H5O_shared_t sh_loc;    /* Shared message info (must be first) */
-
-    unsigned    version;    /* Version to encode attribute with */
-    hbool_t     initialized;/* Indicate whether the attribute has been modified */
-    hbool_t     obj_opened; /* Object header entry opened? */
-    H5O_loc_t   oloc;       /* Object location for object attribute is on */
-    H5G_name_t  path;       /* Group hierarchy path */
+/* Define the shared attribute structure */
+typedef struct H5A_shared_t {
+    uint8_t     version;    /* Version to encode attribute with */
 
     char        *name;      /* Attribute's name */
     H5T_cset_t  encoding;   /* Character encoding of attribute name */
@@ -95,6 +88,16 @@ struct H5A_t {
     void        *data;      /* Attribute data (on a temporary basis) */
     size_t      data_size;  /* Size of data on disk */
     H5O_msg_crt_idx_t crt_idx;  /* Attribute's creation index in the object header */
+    unsigned	nrefs;		/* Ref count for times this object is refered	*/
+} H5A_shared_t;
+
+/* Define the main attribute structure */
+struct H5A_t {
+    H5O_shared_t sh_loc;     /* Shared message info (must be first) */
+    H5O_loc_t    oloc;       /* Object location for object attribute is on */
+    hbool_t      obj_opened; /* Object header entry opened? */
+    H5G_name_t   path;       /* Group hierarchy path */
+    H5A_shared_t *shared;    /* Shared attribute information */
 };
 
 /* Typedefs for "dense" attribute storage */
@@ -152,29 +155,8 @@ typedef struct H5A_bt2_ud_ins_t {
 /* Data structure to hold table of attributes for an object */
 typedef struct {
     size_t      nattrs;         /* # of attributes in table */
-    H5A_t       *attrs;         /* Pointer to array of attributes */
+    H5A_t       **attrs;        /* Pointer to array of attribute pointers */
 } H5A_attr_table_t;
-
-/* Attribute iteration operator for internal library callbacks */
-typedef herr_t (*H5A_lib_iterate_t)(const H5A_t *attr, void *op_data);
-
-/* Describe kind of callback to make for each attribute */
-struct H5A_attr_iter_op_t {
-    enum {
-#ifndef H5_NO_DEPRECATED_SYMBOLS
-        H5A_ATTR_OP_APP,                /* Application callback */
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-        H5A_ATTR_OP_APP2,               /* Revised application callback */
-        H5A_ATTR_OP_LIB                 /* Library internal callback */
-    } op_type;
-    union {
-#ifndef H5_NO_DEPRECATED_SYMBOLS
-        H5A_operator1_t app_op;         /* Application callback for each attribute */
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-        H5A_operator2_t app_op2;        /* Revised application callback for each attribute */
-        H5A_lib_iterate_t lib_op;       /* Library internal callback for each attribute */
-    } u;
-};
 
 
 /*****************************/
@@ -183,6 +165,9 @@ struct H5A_attr_iter_op_t {
 
 /* Declare extern the free list for H5A_t's */
 H5FL_EXTERN(H5A_t);
+
+/* Declare the external free lists for H5A_shared_t's */
+H5FL_EXTERN(H5A_shared_t);
 
 /* Declare extern a free list to manage blocks of type conversion data */
 H5FL_BLK_EXTERN(attr_buf);
@@ -206,12 +191,12 @@ H5_DLL H5A_t * H5A_open_by_name(const H5G_loc_t *loc, const char *obj_name,
     const char *attr_name, hid_t lapl_id, hid_t dxpl_id);
 H5_DLL H5A_t *H5A_open_by_idx(const H5G_loc_t *loc, const char *obj_name,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t n, hid_t lapl_id, hid_t dxpl_id);
+H5_DLL ssize_t H5A_get_name(H5A_t *attr, size_t buf_size, char *buf);
 H5_DLL H5A_t *H5A_copy(H5A_t *new_attr, const H5A_t *old_attr);
 H5_DLL herr_t H5A_get_info(const H5A_t *attr, H5A_info_t *ainfo);
 H5_DLL herr_t H5A_free(H5A_t *attr);
 H5_DLL herr_t H5A_close(H5A_t *attr);
-H5_DLL H5O_ainfo_t *H5A_get_ainfo(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
-    H5O_ainfo_t *ainfo);
+H5_DLL htri_t H5A_get_ainfo(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_ainfo_t *ainfo);
 H5_DLL herr_t H5A_set_version(const H5F_t *f, H5A_t *attr);
 
 /* Attribute "dense" storage routines */
@@ -260,9 +245,6 @@ H5_DLL herr_t H5O_attr_write(const H5O_loc_t *loc, hid_t dxpl_id,
     H5A_t *attr);
 H5_DLL herr_t H5O_attr_rename(const H5O_loc_t *loc, hid_t dxpl_id,
     const char *old_name, const char *new_name);
-H5_DLL herr_t H5O_attr_iterate(hid_t loc_id, hid_t dxpl_id, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t skip, hsize_t *last_attr,
-    const H5A_attr_iter_op_t *op, void *op_data);
 H5_DLL herr_t H5O_attr_remove(const H5O_loc_t *loc, const char *name,
     hid_t dxpl_id);
 H5_DLL herr_t H5O_attr_remove_by_idx(const H5O_loc_t *loc, H5_index_t idx_type,
@@ -271,6 +253,13 @@ H5_DLL htri_t H5O_attr_exists(const H5O_loc_t *loc, const char *name, hid_t dxpl
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 H5_DLL int H5O_attr_count(const H5O_loc_t *loc, hid_t dxpl_id);
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
+H5_DLL H5A_t *H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_size,
+    H5O_copy_t *cpy_info, hid_t dxpl_id);
+H5_DLL herr_t H5A_attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *mesg_src,
+    H5O_loc_t *dst_oloc, const H5A_t *mesg_dst, hid_t dxpl_id, H5O_copy_t *cpy_info);
+H5_DLL herr_t H5A_dense_post_copy_file_all(const H5O_loc_t *src_oloc, const H5O_ainfo_t * ainfo_src,
+    H5O_loc_t *dst_oloc, H5O_ainfo_t *ainfo_dst, hid_t dxpl_id, H5O_copy_t *cpy_info);
+
 
 /* Testing functions */
 #ifdef H5A_TESTING

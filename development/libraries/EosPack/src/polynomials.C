@@ -144,29 +144,23 @@ const polynomials::TermList polynomials::Polynomial::getTerms() const
 
 double polynomials::Polynomial::operator()(double x) const
 {  
-
-   if ( m_allExponentsAreInteger ) {
-      double sum = m_coeffs [ m_coeffs.size () - 1 ];
-      int i;
-
-      for ( i = m_coeffs.size () - 2; i >= 0; --i ) {
-         sum = sum * x + m_coeffs [ i ];
+   double sum = 0.0;
+   if ( m_allExponentsAreInteger )
+   {         
+      for ( CoeffList::const_reverse_iterator iter = m_coeffs.rbegin(); iter != m_coeffs.rend(); ++iter )
+      {
+         sum = sum * x + (*iter);
       }
-
       return sum;
-   } else {
-
-      double sum=0.0;
-      TermList::const_iterator iter;
-
-      for (iter=m_terms.begin();iter!=m_terms.end();++iter)
+   }
+   else
+   {
+      for ( TermList::const_iterator iter = m_terms.begin(); iter != m_terms.end(); ++iter )
       {
          sum+=(*iter)(x);  
       }
-
-      return sum;
    }
-
+   return sum;
 }
 
 #endif
