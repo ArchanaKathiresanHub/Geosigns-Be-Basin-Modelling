@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="Properties/AssemblyInfo.cs" />
+	<Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="@FileListForCompilation@" />
   </ItemGroup>
   <ItemGroup>
