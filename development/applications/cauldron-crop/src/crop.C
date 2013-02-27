@@ -303,7 +303,7 @@ int main(int argc, char ** argv)
       std::vector<float > cropped( layerNXout * layerNYout);
       for (unsigned i = x0; i < x0 + layerNXout; ++i)
       {
-         for (unsigned j = y0; j <= layerNYout; ++j)
+         for (unsigned j = y0; j < y0 + layerNYout; ++j)
          {
 	    int newNy = layerNYout;
 	    int unsampled_Ny = y1 - y0 + 1;
@@ -316,22 +316,57 @@ int main(int argc, char ** argv)
 
 	    double dataloc[2][2];
 
-	    dataloc[0][0] = data[unsampled_j     + (unsampled_i    ) * unsampled_Ny ];
-	    dataloc[1][0] = data[unsampled_j     + (unsampled_i + 1) * unsampled_Ny ];
-	    dataloc[0][1] = data[unsampled_j + 1 + (unsampled_i    ) * unsampled_Ny ];
-	    dataloc[1][1] = data[unsampled_j + 1 + (unsampled_i + 1) * unsampled_Ny ];
+	    // Should check data index is not out of bounds.
+	    // Now checking for NaN below.
 
-	    if (isnan (dataloc[0][0])) dataloc[0][0] = 0;
-	    if (isnan (dataloc[1][0])) dataloc[1][0] = 0;
-	    if (isnan (dataloc[0][1])) dataloc[0][1] = 0;
-	    if (isnan (dataloc[1][1])) dataloc[1][1] = 0;
+	    double indices[2][2];
+	    indices[0][0] = unsampled_j     + (unsampled_i    ) * unsampled_Ny;
+	    indices[1][0] = unsampled_j     + (unsampled_i + 1) * unsampled_Ny;
+	    indices[0][1] = unsampled_j + 1 + (unsampled_i    ) * unsampled_Ny;
+	    indices[1][1] = unsampled_j + 1 + (unsampled_i + 1) * unsampled_Ny;
 
+	    if (indices[0][0] < Nx * Ny)
+	    {
+	       dataloc[0][0] = data[indices[0][0]];
+	    }
+	    else
+	    {
+	       assert (fraction_i == 1 || fraction_j == 1);
+	       dataloc[0][0] = 0;
+	    }
+	    if (indices[1][0] < Nx * Ny)
+	    {
+	       dataloc[1][0] = data[indices[1][0]];
+	    }
+	    else
+	    {
+	       assert (fraction_i == 0 || fraction_j == 1);
+	       dataloc[1][0] = 0;
+	    }
+	    if (indices[0][1] < Nx * Ny)
+	    {
+	       dataloc[0][1] = data[indices[0][1]];
+	    }
+	    else
+	    {
+	       assert (fraction_i == 1 || fraction_j == 0);
+	       dataloc[0][1] = 0;
+	    }
+	    if (indices[1][1] < Nx * Ny)
+	    {
+	       dataloc[1][1] = data[indices[1][1]];
+	    }
+	    else
+	    {
+	       assert (fraction_i == 0 || fraction_j == 0);
+	       dataloc[1][1] = 0;
+	    }
 	    double croppedloc;
 
-	    if (dataloc[0][0] == 99999 || 
-		  dataloc[1][0] == 99999 ||
-		  dataloc[0][1] == 99999 ||
-		  dataloc[1][1] == 99999)
+	    if (  (dataloc[0][0] == 99999 && fraction_i != 1 && fraction_j != 1) || 
+		  (dataloc[1][0] == 99999 && fraction_i != 0 && fraction_j != 1) || 
+		  (dataloc[0][1] == 99999 && fraction_i != 1 && fraction_j != 0) || 
+		  (dataloc[1][1] == 99999 && fraction_i != 0 && fraction_j != 0))
 	    {
 	       croppedloc = 99999;
 	    }
