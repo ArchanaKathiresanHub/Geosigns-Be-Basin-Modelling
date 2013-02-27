@@ -11,6 +11,8 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <math.h>
+#include <assert.h>
 
 struct CropException : formattingexception::BaseException<CropException> {};
 
@@ -126,8 +128,8 @@ int main(int argc, char ** argv)
    int Ny = getNumberY( projectTbl );
    int offsetX = getOffsetX( projectTbl );
    int offsetY = getOffsetY( projectTbl );
-   int dx = getDeltaX( projectTbl );
-   int dy = getDeltaY( projectTbl );
+   double dx = getDeltaX( projectTbl );
+   double dy = getDeltaY( projectTbl );
    int x0 = getWindowXMin( projectTbl );
    int y0 = getWindowYMin( projectTbl );
    int x1 = getWindowXMax( projectTbl );
@@ -176,32 +178,36 @@ int main(int argc, char ** argv)
       }
 
       // do some basic checks
-      float layerDX = 0, layerDY = 0;
+      float layerDXin = 0, layerDYin = 0;
+      float layerDXout = 0, layerDYout = 0;
       int layerNXin = 0, layerNYin = 0;
       float layerOffsetX = 0, layerOffsetY = 0;
       float layerNull = 0;
 
       status = H5LTread_dataset( hdfFile, "delta in I dimension",
-            H5T_NATIVE_FLOAT, &layerDX);
+            H5T_NATIVE_FLOAT, &layerDXin);
 
       if (status != 0)
          throw CropException() << "Dataset 'delta in I dimension' not found in"
             " gridmap file '" << fileName << "'";
  
-      if ( dx != layerDX )
+      if ( dx != layerDXin )
          throw CropException() << "DeltaX mismatch between project3d file and gridmap"
             << " '" << fileName << "'";
 
       status = H5LTread_dataset( hdfFile, "delta in J dimension",
-            H5T_NATIVE_FLOAT, &layerDY);
+            H5T_NATIVE_FLOAT, &layerDYin);
 
       if (status != 0)
          throw CropException() << "Dataset 'delta in J dimension' not found in"
             " gridmap file '" << fileName << "'";
 
-      if ( dy != layerDY )
+      if ( dy != layerDYin )
          throw CropException() << "DeltaY mismatch between project3d file and gridmap"
             << " '" << fileName << "'";
+
+      layerDXout = layerDXin / oversampled_x;
+      layerDYout = layerDYin / oversampled_y;
 
       status = H5LTread_dataset( hdfFile, "number in I dimension",
             H5T_NATIVE_INT, &layerNXin);
@@ -261,8 +267,8 @@ int main(int argc, char ** argv)
 
 
       // compute basic properties
-      float layerOriginX = originX + layerDX * x0;
-      float layerOriginY = originY + layerDY * y0;
+      float layerOriginX = originX + layerDXin * x0;
+      float layerOriginY = originY + layerDYin * y0;
 
       // open a new file if one is needed
       std::string outputFileName = outputDir + "/" + fileName;
@@ -278,8 +284,8 @@ int main(int argc, char ** argv)
          outputFiles[ outputFileName ] = file;
 
          hsize_t scalar = 1;
-         status = H5LTmake_dataset( file, "delta in I dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerDX);
-         status |= H5LTmake_dataset( file, "delta in J dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerDY);
+         status = H5LTmake_dataset( file, "delta in I dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerDXout);
+         status |= H5LTmake_dataset( file, "delta in J dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerDYout);
          status |= H5LTmake_dataset( file, "number in I dimension", 1, &scalar, H5T_NATIVE_INT, &layerNXout);
          status |= H5LTmake_dataset( file, "number in J dimension", 1, &scalar, H5T_NATIVE_INT, &layerNYout);
          status |= H5LTmake_dataset( file, "origin in I dimension", 1, &scalar, H5T_NATIVE_FLOAT, &layerOriginX);
@@ -308,11 +314,39 @@ int main(int argc, char ** argv)
 	    double fraction_i = double (i % oversampled_x) / oversampled_x;
 	    double fraction_j = double (j % oversampled_y) / oversampled_y;
 
-	    cropped[j - y0 + (i -x0)* newNy] =
-	       (1 - fraction_i) * (1 - fraction_j) * data[unsampled_j     + (unsampled_i    ) * unsampled_Ny ] +
-	       (    fraction_i) * (1 - fraction_j) * data[unsampled_j     + (unsampled_i + 1) * unsampled_Ny ] +
-	       (1 - fraction_i) * (    fraction_j) * data[unsampled_j + 1 + (unsampled_i    ) * unsampled_Ny ] +
-	       (    fraction_i) * (    fraction_j) * data[unsampled_j + 1 + (unsampled_i + 1) * unsampled_Ny ];
+	    double dataloc[2][2];
+
+	    dataloc[0][0] = data[unsampled_j     + (unsampled_i    ) * unsampled_Ny ];
+	    dataloc[1][0] = data[unsampled_j     + (unsampled_i + 1) * unsampled_Ny ];
+	    dataloc[0][1] = data[unsampled_j + 1 + (unsampled_i    ) * unsampled_Ny ];
+	    dataloc[1][1] = data[unsampled_j + 1 + (unsampled_i + 1) * unsampled_Ny ];
+
+	    if (isnan (dataloc[0][0])) dataloc[0][0] = 0;
+	    if (isnan (dataloc[1][0])) dataloc[1][0] = 0;
+	    if (isnan (dataloc[0][1])) dataloc[0][1] = 0;
+	    if (isnan (dataloc[1][1])) dataloc[1][1] = 0;
+
+	    double croppedloc;
+
+	    if (dataloc[0][0] == 99999 || 
+		  dataloc[1][0] == 99999 ||
+		  dataloc[0][1] == 99999 ||
+		  dataloc[1][1] == 99999)
+	    {
+	       croppedloc = 99999;
+	    }
+	    else
+	    {
+	       croppedloc =
+		  (1 - fraction_i) * (1 - fraction_j) * dataloc[0][0] +
+		  (    fraction_i) * (1 - fraction_j) * dataloc[1][0] +
+		  (1 - fraction_i) * (    fraction_j) * dataloc[0][1] +
+		  (    fraction_i) * (    fraction_j) * dataloc[1][1];
+	    }
+
+	    assert (!isnan(croppedloc));
+
+	    cropped[j - y0 + (i -x0)* newNy] = croppedloc;
 	 }
       }
 
@@ -341,6 +375,8 @@ int main(int argc, char ** argv)
    setYCoord( projectTbl, originY  + dy * y0 );
    setNumberX( projectTbl, layerNXout );
    setNumberY( projectTbl, layerNYout );
+   setDeltaX( projectTbl, dx / oversampled_x  );
+   setDeltaY( projectTbl, dy / oversampled_y );
    setWindowXMin( projectTbl, 0 );
    setWindowYMin( projectTbl, 0 );
    setWindowXMax( projectTbl, layerNXout - 1 );
