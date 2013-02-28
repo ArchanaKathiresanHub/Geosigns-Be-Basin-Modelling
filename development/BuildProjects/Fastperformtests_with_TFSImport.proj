@@ -19,8 +19,6 @@
     <regression_test_dir>$(OutDir)/regression_tests</regression_test_dir>
   </PropertyGroup>
   
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-
   <Target Name="Build">
     <Message Text="MSBuildProjectDirectory is $(MSBuildProjectDirectory)"/>
     <Message Text="OutDir = $(OutDir)" />
@@ -43,7 +41,4 @@
     <MSBuild Projects="$(solution_root)\tests\regression_tests\regression_tests_proxy.proj"  Properties="regression_test_dir=$(regression_test_dir)"/>
   </Target>
   
-  
-  
-  
-</Project>
+ </Project>
