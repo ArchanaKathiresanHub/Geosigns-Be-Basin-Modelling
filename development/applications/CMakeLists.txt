@@ -1,11 +1,11 @@
 if (BM_BUILD_SERIAL_APPS)
 	add_subdirectory(eosptdiag)
+	add_subdirectory(EosPackDemo)
 endif (BM_BUILD_SERIAL_APPS)
 
 # Applications that can only be built on Unix at the moment.
 if (UNIX)
 	# Tests
-	# add_subdirectory(EosPackDemo)
 	# add_subdirectory(PreferredDirectionUnitTest)
 	# add_subdirectory(TestDataAccess), Compilation error
 	# add_subdirectory(TestDistributedDataAccess), Compilation error

@@ -45,8 +45,6 @@ set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.B
 set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
 set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
 
-#set(BM_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/Binaries" CACHE PATH "Output directory (MSBuild uses this variable to pass OutDir build parameter)")
-
 if(NOT BM_BUILD_NUMBER)
     set(BM_BUILD_NUMBER 0)
 endif()

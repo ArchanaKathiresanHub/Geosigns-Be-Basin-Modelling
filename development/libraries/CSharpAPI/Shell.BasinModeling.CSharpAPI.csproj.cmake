@@ -41,12 +41,16 @@
   <ItemGroup>
     <Compile Include="*.cs" />
   </ItemGroup>
+    
+  <!-- Include C# targets, because this is a C# project -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+  
   <Target Name="BeforeBuild">
+     <!-- Because Visual studio doesn't handle wildcards very well, a rebuild is forced each time by removing the resulting files -->
+     <Delete Files="obj/$(Platform)/$(Configuration)/Shell.BasinModeling.CSharpAPI.dll" Condition="Exists('obj/$(Platform)/$(Configuration)/Shell.BasinModeling.CSharpAPI.dll')" />
+	 <Delete Files="$(Configuration)/Shell.BasinModeling.CSharpAPI.dll" Condition="Exists('$(Configuration)/Shell.BasinModeling.CSharpAPI.dll')" />
   </Target>
   <Target Name="AfterBuild">
+     <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.CSharpAPI.dll. Reload the project, and build the solution again"/>
   </Target>
-  -->
 </Project>

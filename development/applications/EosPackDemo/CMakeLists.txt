@@ -9,3 +9,7 @@ target_link_libraries( EosPackDemo
 	EosPack
 	CBMGenerics
 )
+
+install( TARGETS EosPackDemo
+   DESTINATION	bin
+)
