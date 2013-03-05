@@ -77,7 +77,7 @@ if(GEOCASE_BUILD_GRID2GRID)
 endif()
 
 if(GEOCASE_BUILD_VIEW4D)
-	set(OPENINVENTOR_BASE_DIR "/nfs/rvl/groups/sgs/spirit2/APPL/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6" CACHE PATH "OpenInventor base directory")
+	set(OPENINVENTOR_BASE_DIR "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6" CACHE PATH "OpenInventor base directory")
 	add_subdirectory(view4D)
 endif()
 
