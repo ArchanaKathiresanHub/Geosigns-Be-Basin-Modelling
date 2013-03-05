@@ -23,12 +23,6 @@ if(BM_CODE_COVERAGE_ENABLE)
 	set( BM_CODE_COVERAGE_DIR "${PROJECT_BINARY_DIR}/profiled" CACHE PATH "Code coverage directory" )
 endif()
 
-option( BM_BUILD_CBMGENERICS_STATIC "Build CBMGENERICS library STATIC" ON )
-option( BM_BUILD_EOSPACK_STATIC "Build EOSPACK library STATIC" ON )
-option( BM_BUILD_TABLEIO_STATIC "Build TABLEIO library STATIC" ON )
-option( BM_BUILD_UTILITIES_STATIC "Build utilities library STATIC" ON )
-option( BM_BUILD_SERIALHDF5_STATIC "Build SERIALHDF5 library STATIC" ON )
-
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
 
 set(CMAKE_INSTALL_PREFIX "" CACHE PATH "Installation prefix" )
@@ -93,6 +87,13 @@ if (MSVC)
 #	else()
 #		configure_msvc_runtime("static")
 #	endif()
+
+    if (NOT BUILD_SHARED_LIBS)
+	   add_definitions(-DCBMGENERICS_STATIC)
+	   add_definitions(-DUTILITIES_STATIC)
+	   add_definitions(-DSERIALHDF5_STATIC)
+	   add_definitions(-DTABLEIO_STATIC)
+	endif()
     
 	find_program( MSTEST "mstest.exe"
 	  PATHS "C:/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/IDE"
@@ -245,29 +246,6 @@ add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DIBSSHORTVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DSVNREVISION="${BM_SVNREVISION}")
-
-if(WIN32)
-	if(BM_BUILD_CBMGENERICS_STATIC)
-		add_definitions(-DCBMGENERICS_STATIC)
-	endif()
-
-	if(BM_BUILD_EOSPACK_STATIC)
-		add_definitions(-DEOSPACK_STATIC)
-	endif()
-
-	if(BM_BUILD_TABLEIO_STATIC)
-		add_definitions(-DTABLEIO_STATIC)
-	endif()
-
-	if(BM_BUILD_UTILITIES_STATIC)
-		add_definitions(-DUTILITIES_STATIC)
-	endif()
-
-	if(BM_BUILD_SERIALHDF5_STATIC)
-		add_definitions(-DSERIALHDF5_STATIC)
-	endif()
-	
-endif()
 
 ### 
 

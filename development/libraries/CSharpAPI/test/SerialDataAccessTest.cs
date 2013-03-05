@@ -1,92 +1,46 @@
-﻿using Shell.BasinModeling.CSharpAPI;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿/*******************************************************************
+ * 
+ * Copyright (C) 2013 Shell International Exploration & Production.
+ * All rights reserved.
+ * 
+ * Developed under licence for Shell by PDS BV.
+ * 
+ * Confidential and proprietary source code of Shell.
+ * Do not distribute without written permission from Shell.
+ * 
+ *******************************************************************/
 
-namespace Shell.BasinModeling.CSharpAPI.Test
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shell.BasinModeling.CSharpAPI;
+
+
+namespace BasinModelingLinkTest
 {
-    
-    
-    /// <summary>
-    ///This is a test class for SerialDataAccessTest and is intended
-    ///to contain all SerialDataAccessTest Unit Tests
-    ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SerialDataAccessTest
     {
-
-
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        [TestMethod]
+        public void OpenProject3DTest()
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
+            //string pathToProject3D = @"..\..\..\csharp-test\Project.project3d";
+            string pathToProject3D = @"D:\dev\bm-trunk\Trunk\development\libraries\CSharpAPI\test\Project.project3d";
+            ProjectHandle projectHandle = CauldronAPI.OpenCauldronProject(pathToProject3D.Replace("\\", "/"), "r");
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
+            Assert.IsNotNull(projectHandle, "Could not open project file");
 
+            FormationList formations = projectHandle.getFormations();
+            Assert.IsTrue(formations.Count == 1, "Not all formations loaded");
 
-		/// <summary>
-        /// Open a non-existent project file 
-        ///</summary>
-        [TestMethod()]
-        public void OpenCauldronNonExistingProjectTest()
-        {
-            string name = "non-existent-file.project3d"; 
-            ProjectHandle expected = null; // TODO: Initialize to an appropriate value
-            ProjectHandle actual;
-            actual = CauldronAPI.OpenCauldronProject(name, "r");
-            Assert.AreEqual(expected, actual);
-        }
-		
-        /// <summary>
-        /// Open an existing project file
-        ///</summary>
-        [TestMethod()]
-        public void OpenCauldronExistingProjectTest()
-        {
-            string name = "..\\..\\..\\csharp-test\\Project.project3d"; 
-            ProjectHandle actual;
-            actual = CauldronAPI.OpenCauldronProject(name, "r");
-            Assert.IsNotNull( actual );
+            SurfaceList surfaces = projectHandle.getSurfaces();
+            Assert.IsTrue(surfaces.Count == 2, "Not all surfaces loaded");
+
+            // Get all possible properties
+            PropertyList properties = projectHandle.getProperties(true);
+            Assert.IsTrue(properties.Count == 402, "Not all possible properties loaded");
+
+            // Get all defined properties
+            properties = projectHandle.getProperties();
+            Assert.IsTrue(properties.Count == 0, "An project without results doesn't contain any properties");
         }
     }
 }

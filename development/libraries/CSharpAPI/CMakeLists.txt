@@ -86,6 +86,9 @@ install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Release/Shell.BasinModeling
 set( CSHARP_UNIT_TESTS_SRC
 	test/SerialDataAccessTest.cs
 	test/PTDiagCalculatorTest.cs
+	test/EospackCApiTest.cs
+	test/BpaComponent.cs
+	test/BpaPhase.cs
 )
 
 configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
@@ -96,7 +99,7 @@ add_csharp_unittest(
   NAME Shell.BasinModeling.CSharpAPI.Test
   PLATFORM ${BM_WINDOWS_PLATFORM}
   DIRECTORY csharp-test
-  TEST_SOURCES test/SerialDataAccessTest.cs test/PTDiagCalculatorTest.cs
+  TEST_SOURCES ${CSHARP_UNIT_TESTS_SRC}
   DEPENDS Shell.BasinModeling.CSharpAPI
   TESTLIST "Test"
   TFS_SERVER_URL ${BM_TFS_SERVER_URL}

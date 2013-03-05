@@ -186,11 +186,16 @@
 // Interface for EosPack library
 %include "../../../EosPack/src/EosPack.h"
 
+%include <carrays.i>
+%array_functions(double, doubleArray);
+
+
 %include <arrays_csharp.i>
 %apply double INPUT[]  { double * comp }
 %apply double OUTPUT[] { double * points }
 %apply int    INOUT[]  { int * szIso }
 %apply double OUTPUT[] { double * isolines }
+
 
 %include "../../../EosPack/src/EosPackCAPI.h"
 

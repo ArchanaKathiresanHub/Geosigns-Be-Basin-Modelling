@@ -92,11 +92,6 @@ target_link_libraries(DataAccess
 	TableIO
 )
 
-
-# DataAccess library should be position independent because it is linked later
-# with SerialDataAccess
-set_target_properties(DataAccess PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
 generate_dox( src/DataAccess.cfg )
 
 # Local Variables:
