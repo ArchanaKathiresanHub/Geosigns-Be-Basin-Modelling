@@ -22,8 +22,7 @@ namespace BasinModelingLinkTest
         [TestMethod]
         public void OpenProject3DTest()
         {
-            //string pathToProject3D = @"..\..\..\csharp-test\Project.project3d";
-            string pathToProject3D = @"D:\dev\bm-trunk\Trunk\development\libraries\CSharpAPI\test\Project.project3d";
+            string pathToProject3D = @"..\..\..\csharp-test\Project.project3d";
             ProjectHandle projectHandle = CauldronAPI.OpenCauldronProject(pathToProject3D.Replace("\\", "/"), "r");
 
             Assert.IsNotNull(projectHandle, "Could not open project file");
