@@ -33,9 +33,7 @@ if(WIN32)
 	# serial version
 	set (HDF5_serial_INCLUDE_DIR ${HDF5_HOME}/include)
 	set (HDF5_serial_INCLUDE_DIRS ${HDF5_serial_INCLUDE_DIR})
-	set (HDF5_hdf5_serial_LIBRARY
-		debug ${HDF5_HOME}/lib/hdf5d.lib
-		optimized ${HDF5_HOME}/lib/hdf5.lib )
+	set (HDF5_hdf5_serial_LIBRARY ${HDF5_HOME}/lib/hdf5.lib )
 	list (APPEND HDF5_serial_LIBRARIES ${HDF5_hdf5_serial_LIBRARY})
 endif()
 
