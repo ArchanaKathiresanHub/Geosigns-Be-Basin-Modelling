@@ -2333,7 +2333,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       // If the max iterations is exceeded then declare that the solver has diverged.
       // Perhaps we need an error code to indicate the range of errors that can occur.
       overpressureHasDiverged = isnan ( Po_Norm ) || isnan ( Solution_Length ) || isnan ( Residual_Solution_Length ) || isnan ( Residual_Length ) ||
-                                convergedReason == KSP_DIVERGED_DTOL;
+                                convergedReason == KSP_DIVERGED_DTOL || convergedReason == KSP_DIVERGED_NAN;
 
       if ( Number_Of_Nonlinear_Iterations == 0 ) {
         First_Po_Norm = Solution_Length;
@@ -2549,6 +2549,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   PetscLogDouble Total_Jacobian_Time = 0.0;
 
   KSP Temperature_Linear_Solver;  
+  KSPConvergedReason convergedReason;
 
   PetscScalar Previous_T_Norm = 0.0;
 
@@ -2660,7 +2661,8 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     KSPSolve( Temperature_Linear_Solver, Residual, Residual_Solution );
     KSPGetIterationNumber ( Temperature_Linear_Solver, &numberOfLinearIterations );
 
-    temperatureHasDiverged = ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations );
+    KSPGetConvergedReason ( Temperature_Linear_Solver, &convergedReason );
+    temperatureHasDiverged = ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NAN;
 
     PetscGetTime(&End_Time);
 
@@ -2793,6 +2795,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   PetscLogDouble Total_System_Assembly_Time;
 
   KSP Temperature_Linear_Solver;  
+  KSPConvergedReason convergedReason;
 
   PetscGetTime(&Iteration_Start_Time);
 
@@ -2867,8 +2870,9 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   Solve_Time = End_Time - Start_Time;
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
+  KSPGetConvergedReason ( Temperature_Linear_Solver, &convergedReason );
 
-  temperatureHasDiverged = isnan ( T_Norm ) || ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations );
+  temperatureHasDiverged = isnan ( T_Norm ) || ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NAN;
 
   PetscGetTime(&storeStartTime);
 
