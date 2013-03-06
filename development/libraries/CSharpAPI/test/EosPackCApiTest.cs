@@ -33,7 +33,7 @@ namespace BasinModelingLinkTest
         {
             ComputeStruct computeStruct = new ComputeStruct();
             computeStruct.pressure = 1e6 * 1 ;  // in Pa
-            computeStruct.temperature = 273.15 + 290 ;  // in K
+            computeStruct.temperature = 273.15 + 290 + 88;  // in K
 
             InitializeCompositionMasses(computeStruct);
 
@@ -44,6 +44,24 @@ namespace BasinModelingLinkTest
             double sumLiquid = SumPhase(computeStruct, BpaPhase.Liquid);
             Assert.IsTrue(Math.Abs(sumVapour - 7426542) < 0.00001, "Vapour mass not as expected");
             Assert.IsTrue(Math.Abs(sumLiquid) < 0.00001, "Liquid mass not as expected");
+        }
+
+        [TestMethod]
+        public void FlashVapourLiquidWarmerTest()
+        {
+            ComputeStruct computeStruct = new ComputeStruct();
+            computeStruct.pressure = 1e6 * 1;  // in Pa
+            computeStruct.temperature = 273.15 + 290;  // in K
+
+            InitializeCompositionMasses(computeStruct);
+
+            computeStruct.isGormPrescribed = false;
+            CauldronAPI.EosPackComputeWithLumping(computeStruct);
+
+            double sumVapour = SumPhase(computeStruct, BpaPhase.Vapour);
+            double sumLiquid = SumPhase(computeStruct, BpaPhase.Liquid);
+            Assert.IsTrue(Math.Abs(sumVapour - 7400659.1 ) < 0.1, "Vapour mass not as expected");
+            Assert.IsTrue(Math.Abs(sumLiquid - 25882.915) < 0.001, "Liquid mass not as expected");
         }
 
         [TestMethod]
