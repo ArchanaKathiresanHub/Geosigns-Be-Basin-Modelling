@@ -32,16 +32,13 @@ namespace BasinModelingLinkTest
         public void FlashVapourTest()
         {
             ComputeStruct computeStruct = new ComputeStruct();
-            computeStruct.pressure = 1e6  ;  // in Pa
-            computeStruct.temperature = 273.15 + 290 + 88;  // in K
+            computeStruct.pressure = 1e6 * 1 ;  // in Pa
+            computeStruct.temperature = 273.15 + 290 ;  // in K
 
             InitializeCompositionMasses(computeStruct);
 
             computeStruct.isGormPrescribed = false;
             CauldronAPI.EosPackComputeWithLumping(computeStruct);
-
-            double row1 = CauldronAPI.doubleArray_getitem(computeStruct.phaseDensity, 0);
-            double row2 = CauldronAPI.doubleArray_getitem(computeStruct.phaseDensity, 1);
 
             double sumVapour = SumPhase(computeStruct, BpaPhase.Vapour);
             double sumLiquid = SumPhase(computeStruct, BpaPhase.Liquid);
