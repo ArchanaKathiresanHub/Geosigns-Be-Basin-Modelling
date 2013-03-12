@@ -14,6 +14,8 @@
 //Data access library
 #include "Interface/GridMap.h"
 
+#include "PetscLogStages.h"
+
 //------------------------------------------------------------//
 
 int Temperature_Solver::PlaneQuadratureDegrees [ NumberOfOptimisationLevels ] = { 2, 2, 2, 2, 3 };
@@ -414,6 +416,8 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
                                                  double& Element_Contributions_Time ) {
 
   using namespace Basin_Modelling;
+
+  PetscLogStages::push( PetscLogStages::TEMPERATURE_INITIALISATION_SYSTEM_ASSEMBLY);
 
   const double Time_Step = Previous_Time - Current_Time;
 
@@ -848,6 +852,8 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
 
   MatAssemblyBegin( Jacobian,MAT_FINAL_ASSEMBLY);
   MatAssemblyEnd( Jacobian,MAT_FINAL_ASSEMBLY);
+
+  PetscLogStages::pop();
 }
 
 
@@ -864,6 +870,8 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
                                                    double& Element_Contributions_Time ) {
 
   using namespace Basin_Modelling;
+
+  PetscLogStages::push( PetscLogStages::TEMPERATURE_INITIALISATION_SYSTEM_ASSEMBLY );
 
   const double Time_Step = Previous_Time - Current_Time;
 
@@ -1262,6 +1270,8 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
   }
 
   rhsF.Restore_Global_Array( Update_Including_Ghosts );  
+
+  PetscLogStages::pop();
 }
 
 
@@ -1918,6 +1928,8 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
 
   using namespace Basin_Modelling;
 
+  PetscLogStages::push( PetscLogStages :: TEMPERATURE_SYSTEM_ASSEMBLY);
+
   const double Time_Step = Previous_Time - Current_Time;
 
   const int Plane_Quadrature_Degree = getPlaneQuadratureDegree ( Basin_Model -> Optimisation_Level );
@@ -2346,7 +2358,9 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
   MatAssemblyBegin( Stiffness_Matrix,MAT_FINAL_ASSEMBLY);
   MatAssemblyEnd( Stiffness_Matrix,MAT_FINAL_ASSEMBLY);
 
+  PetscLogStages::pop();
 }
+
 void Temperature_Solver::writeFissionTrackResultsToDatabase(void)
 {
    Basin_Model->writeFissionTrackResultsToDatabase(m_FissionTrackCalculator);

@@ -17,6 +17,8 @@
 #include "Nodal3DIndexArray.h"
 #include "MultiComponentFlowHandler.h"
 
+#include "PetscLogStages.h"
+
 using namespace FiniteElementMethod;
 
 
@@ -266,16 +268,12 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
   using namespace Basin_Modelling;
 
+  
+  PetscLogStages::push( PetscLogStages::PRESSURE_SYSTEM_ASSEMBLY );
 
   const int Plane_Quadrature_Degree = getPlaneQuadratureDegree ( cauldron->Optimisation_Level );
   const int Depth_Quadrature_Degree = getDepthQuadratureDegree ( cauldron->Optimisation_Level );
 
-
-
-#if 0
-  PetscLogStageSetVisible(cauldron->Stages[6], PETSC_TRUE);
-  PetscLogStagePush(cauldron->Stages[6]);
-#endif
 
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
@@ -794,10 +792,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
   PetscGetTime(&End_Time);
 
-#if 0
-  PetscLogStagePop();
-#endif
-
+  PetscLogStages::pop();
 }
 
 //------------------------------------------------------------//
@@ -814,11 +809,6 @@ void PressureSolver::assembleResidual ( const double  previousTime,
   const int Plane_Quadrature_Degree = getPlaneQuadratureDegree ( cauldron->Optimisation_Level );
   const int Depth_Quadrature_Degree = getDepthQuadratureDegree ( cauldron->Optimisation_Level );
                                                
-
-#if 0
-  PetscLogStageSetVisible(cauldron->Stages[6], PETSC_TRUE);
-  PetscLogStagePush(cauldron->Stages[6]);
-#endif
 
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
@@ -1196,9 +1186,6 @@ void PressureSolver::assembleResidual ( const double  previousTime,
   residualVector.Restore_Global_Array ( Update_Including_Ghosts );  
   PetscGetTime(&End_Time);
 
-#if 0
-  PetscLogStagePop();
-#endif
 }
 #endif
 

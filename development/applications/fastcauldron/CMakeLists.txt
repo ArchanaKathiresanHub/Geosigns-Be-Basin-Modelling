@@ -112,6 +112,7 @@ add_executable(fastcauldron
 	src/LayerElement.C
 	src/vrecalc.C
 	src/Well.C
+        src/PetscLogStages.C
 )
 
 add_definitions(${HDF5_parallel_DEFINITIONS})

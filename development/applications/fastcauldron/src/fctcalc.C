@@ -111,11 +111,6 @@ void FCTCalc::printTestVals()
 
 void FCTCalc::decompact(){
 
-#if 0
-  PetscLogStageSetVisible(cauldron->Stages[0], PETSC_TRUE);
-  PetscLogStagePush(cauldron->Stages[0]);
-#endif
-
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
      FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
   }
@@ -153,10 +148,6 @@ void FCTCalc::decompact(){
     wells.Save_Present_Day_Data ();
   }
 
-#if 0
-  PetscLogStagePop();
-#endif
-  
   if (cauldron->DoDecompaction)
   {
      displayTime(cauldron->debug1,"Decompaction Calculation: ");

@@ -67,6 +67,8 @@
 #include "Interface/RunParameters.h"
 #include "Interface/Grid.h"
 
+#include "PetscLogStages.h"
+
 using namespace GeoPhysics;
 
 //------------------------------------------------------------//
@@ -134,10 +136,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   Accumulated_System_Solve_Time = 0.0;
   Accumulated_Property_Calculation_Time = 0.0;
 
-#if 0
-  PetscLogStageSetVisible(basinModel->Stages[4], PETSC_TRUE);
-  PetscLogStagePush(basinModel->Stages[4]);
-#endif
 
   // Set properties that may be required for the calculation
   // Formation properties
@@ -524,10 +522,6 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
 
   delete cauldronCalculator;
   delete pressureSolver;
-
-#if 0
-  PetscLogStagePop();
-#endif
 
 }
 
@@ -2057,13 +2051,10 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
                                                                      double& Po_Norm,
                                                                      bool&   fracturingOccurred ) {
 
+  PetscLogStages :: push(PetscLogStages :: PRESSURE_LINEAR_SOLVER);
+
   const int MaximumNumberOfFractureIterations = HydraulicFracturingManager::getInstance ().maximumNumberOfFractureIterations ();
 
-
-#if 0
-  PetscLogStageSetVisible(basinModel->Stages[5], PETSC_TRUE);
-  PetscLogStagePush(basinModel->Stages[5]);
-#endif
 
   int Old_Precision;
 
@@ -2461,10 +2452,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   cout.precision ( Old_Precision );
   cout.flags     ( Old_Flags );
 
-#if 0
-  PetscLogStagePop();
-#endif
-
+  PetscLogStages::pop();
 }
 
 //------------------------------------------------------------//
@@ -2552,6 +2540,8 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   KSPConvergedReason convergedReason;
 
   PetscScalar Previous_T_Norm = 0.0;
+
+  PetscLogStages :: push( PetscLogStages :: TEMPERATURE_INITIALISATION_LINEAR_SOLVER );
 
   basinModel -> setTemperatureLinearSolver ( Temperature_Linear_Solver,
                                               Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
@@ -2741,6 +2731,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   VecDestroy  ( Residual_Solution );
   MatDestroy  ( Jacobian );
 
+  PetscLogStages :: pop();
 }
 
 
@@ -2797,6 +2788,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   KSP Temperature_Linear_Solver;  
   KSPConvergedReason convergedReason;
 
+  PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
   PetscGetTime(&Iteration_Start_Time);
 
   basinModel -> setTemperatureLinearSolver ( Temperature_Linear_Solver,
@@ -2926,6 +2918,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   Property_Calculation_Time = Property_Calculation_Time + Property_Time;
   Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
 
+  PetscLogStages::pop();
 }
 
 

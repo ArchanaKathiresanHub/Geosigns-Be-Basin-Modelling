@@ -89,21 +89,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_unitTestNumber = 0;
 
 #if 0
-   PetscLogStageRegister (&Stages[0], "Decompaction");
-   PetscLogStageSetVisible (Stages[0], PETSC_FALSE);
-
-   PetscLogStageRegister (&Stages[1], "Temperature");
-   PetscLogStageSetVisible (Stages[1], PETSC_FALSE);
-
-   PetscLogStageRegister (&Stages[4], "OverPressure");
-   PetscLogStageSetVisible (Stages[4], PETSC_FALSE);
-
-   PetscLogStageRegister (&Stages[5], "OverPressure_Solver");
-   PetscLogStageSetVisible (Stages[5], PETSC_FALSE);
-
-   PetscLogStageRegister (&Stages[6], "OverPressure_System_Assembly");
-   PetscLogStageSetVisible (Stages[6], PETSC_FALSE);
-
    PetscLogEventRegister (&Vec_Allocate, "Vec_Allocate", 0);
 #endif
 
