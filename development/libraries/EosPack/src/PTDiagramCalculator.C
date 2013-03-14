@@ -34,6 +34,7 @@ static const int    g_GridSize           = 100;      // number of points between
 static const double g_Tolerance          = 1e-4;     // stop tolerance for bisection iterations
 static const int    g_MaxStepsNum        = 200;      // maximum steps number in bisections iterations
 static const int    g_GridExtStep        = 5;        // extend T grid when needed for this number of points
+static const int    g_DefaultAoverB      = 2.0;      // the default value for A/B term
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +48,8 @@ PTDiagramCalculator::PTDiagramCalculator( DiagramType typeOfDiagram, const std::
       m_critT( -1.0 ),
       m_bdBisecIters( 0 ),
       m_isoBisecIters( 0 ),
-      m_AoverB( 2.0 ),
+      m_AoverB( g_DefaultAoverB ),
+      m_ChangeAoverB( false ),
       m_stopTol( g_Tolerance * 1e-2 ),
       m_maxIters( g_MaxStepsNum * 2 )
 {
@@ -157,7 +159,7 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
    }
 
    // change the default behaviour for labeling phases for high temperature span
-   pvtFlash::EosPack::getInstance().setCritAoverBterm( m_AoverB ); 
+   if ( m_ChangeAoverB ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( m_AoverB ); }
    // increase precision for nonlinear solver
    pvtFlash::EosPack::getInstance().setNonLinearSolverTolerance( m_maxIters, m_stopTol ); 
 
@@ -165,7 +167,7 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
    bool res = pvtFlash::EosPack::getInstance().computeWithLumping( t, p, masses, phaseMasses, phaseDensities, NULL );  
 
    // revert back flasher settings
-   pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm();
+   if ( m_ChangeAoverB ) { pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm(); }
    pvtFlash::EosPack::getInstance().resetToDefaulNonLinearSolverConvergencePrms();
 
    if ( !res ) return unknown;
@@ -409,6 +411,71 @@ bool PTDiagramCalculator::doBisectionForContourLineSearch( size_t p1, size_t t1,
    return false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Search by doing bisection iterations for single phases separation line values. Bisections could be done by the Pressure or by the Temperature
+// p1 lower P border for bisections
+// t1 lower T border for bisections
+// p2 upper P border for bisections
+// t2 upper T border for bisections
+// foundP[out] on return, if iterations were successful, it contains bubble or dew point pressure value
+// foundT[out] on return, if iterations were successful, it contains bubble or dew point temperature value
+// return true if value was found, false otherwise
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool PTDiagramCalculator::doBisectionForSinglePhaseSeparationLineSearch( size_t p1, size_t t1, size_t p2, size_t t2, double & foundP, double & foundT )
+{
+   int phase1 = getPhase( p1, t1 );
+   int phase2 = getPhase( p2, t2 );
+
+   bool bisectT = p1 == p2 && t1 != t2 ? true : false;
+   if ( !bisectT && (p1 == p2 || t1 != t2) ) assert(0);
+
+   // flasher failed for some reason, can't separation point, or we do not have phase transition for (P1,T1)->(P2,T2)
+   if ( unknown == phase1 || unknown == phase2 || phase1 == phase2 ) { return false; } 
+
+   double V1 = bisectT ? m_gridT[t1] : m_gridP[p1];
+   double V2 = bisectT ? m_gridT[t2] : m_gridP[p2];
+
+   foundP = m_gridP[p1];
+   foundT = m_gridT[t1];
+
+   for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
+   {
+      double phaseFrac[2];
+
+      double V = 0.5 * ( V1 + V2 );
+
+      int phase = getMassFractions( (bisectT ? foundP : V), (bisectT ? V : foundT), m_masses, phaseFrac ); // get phase composition for new guess
+      ++m_bdBisecIters;
+
+      if ( unknown == phase ) { return false; } // flasher failed
+
+      if ( phase == phase1 )
+      {
+         V1 = V;
+         phase1 = phase;
+      }
+      else if ( phase == phase2 )
+      {
+         V2 = V;
+         phase2 = phase;
+      }
+      else //stop iterations 
+      {
+         V = (V1 + V2) * 0.5;
+         V1 = V;
+         V2 = V;
+      }
+
+      if ( std::abs( V1 - V2 ) < m_eps * ( V1 + V2 ) ) // check convergence using relative tolerance
+      {
+         if ( bisectT ) foundT = 0.5 * ( V1 + V2 );
+         else           foundP = 0.5 * ( V1 + V2 );
+         return true;
+      }
+   }
+   return false; // can't find bubble/dew point for maximum iterations
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Calculate bubble/dew point lines, critical P and T and isoline for 0.5 fraction value
@@ -434,6 +501,7 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
 
    m_bubbleDewLine.clear();
    m_c0p5Line.clear();
+   m_spsLine.clear();
 
    const int iLiquid = CBMGenerics::ComponentManager::Liquid;
    const int iVapour = CBMGenerics::ComponentManager::Vapour;
@@ -555,14 +623,13 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Find critical point as intersection of 0.5 isoline with bubble/dew curve. If not found - go along bubble/dew curve
-//  and look for phase changed from gas to liquid
+// and look for phase changed from gas to liquid
+//
 // return true on success, false otherwise
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool PTDiagramCalculator::findCriticalPoint()
+bool PTDiagramCalculator::findCriticalPointInContourBubbleDewLinesIntersection()
 {
    bool foundCriticalPoint = false;
-
-   m_critPointPos = m_bubbleDewLine.end();
 
    double scaleT = 1.0 / (m_gridT.back() - m_gridT.front());
    double scaleP = 1.0 / (m_gridP.back() - m_gridP.front());
@@ -612,68 +679,102 @@ bool PTDiagramCalculator::findCriticalPoint()
          }
       }
    }
+   return foundCriticalPoint;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Find critical point as single phase change point along bubble/dew line
+// addToBubblDewLine add found value to bubble/dew line
+// return true on success, false otherwise
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool PTDiagramCalculator::findCriticalPointInChangePhaseAlongBubbleDewLine( bool addToBubblDewLine )
+{
+   bool foundCriticalPoint = false;
+
+   double scaleT = 1.0 / (m_gridT.back() - m_gridT.front());
+   double scaleP = 1.0 / (m_gridP.back() - m_gridP.front());
+
+
+   double massFraction[2];
+   int phase1 = getMassFractions( m_bubbleDewLine.front().second, m_bubbleDewLine.front().first, m_masses, massFraction );
+   ++m_bdBisecIters;
+
+   m_critPointPos = m_bubbleDewLine.begin();
+   for ( std::vector< std::pair<double,double> >::iterator it = m_critPointPos + 1; it != m_bubbleDewLine.end() && !foundCriticalPoint; ++it )
+   {
+      int phase2 = getMassFractions( it->second, it->first, m_masses, massFraction );
+      ++m_bdBisecIters;
+
+      if ( phase1 != phase2 && phase1 != bothPhases && phase2 != bothPhases )
+      {
+         double P1 = m_critPointPos->second;
+         double T1 = m_critPointPos->first;
+         double P2 = it->second;
+         double T2 = it->first;
+
+         for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
+         {
+            double newP = 0.5 * (P1 + P2);
+            double newT = 0.5 * (T1 + T2);
+
+            int newPhase = getMassFractions( newP, newT, m_masses, massFraction );
+            ++m_bdBisecIters;
+
+            if ( phase1 == newPhase )
+            {
+               P1 = newP;
+               T1 = newT;
+            }
+            else if ( phase2 = newPhase )
+            {
+               P2 = newP;
+               T2 = newT;
+            }
+            else
+            {
+               break;
+            }
+
+            // check convergence
+            if ( std::max( std::abs( P1 - P2 ) * scaleP, std::abs( T1 - T2 ) * scaleT ) < m_eps )
+            {
+               m_critT = 0.5 * ( T1 + T2 );
+               m_critP = 0.5 * ( P1 + P2 );
+
+               if ( addToBubblDewLine )
+               {
+                  m_critPointPos = m_bubbleDewLine.insert( it, std::pair<double, double>( m_critT, m_critP ) );
+               }
+               foundCriticalPoint = true;
+               break;
+            }
+         }
+      }
+      else
+      {
+         phase1 = phase2;
+         m_critPointPos = it;
+      }
+   }
+   return foundCriticalPoint;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Find critical pont by calling findCriticalPointInContourBubbleDewLinesIntersection() first, if it wasn't found
+// then call findCriticalPointInChangePhaseAlongBubbleDewLine()
+//
+// return true on success, false otherwise
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool PTDiagramCalculator::findCriticalPoint()
+{
+   m_critPointPos = m_bubbleDewLine.end();
+   
+   bool foundCriticalPoint = findCriticalPointInContourBubbleDewLinesIntersection();
 
    // if critical point wasn't found, try to find critical point by tracking changing phases from vapor to liquid along buble/dew line
    if ( !foundCriticalPoint && m_bubbleDewLine.size() > 2 )
    {
-      double massFraction[2];
-      int phase1 = getMassFractions( m_bubbleDewLine.front().second, m_bubbleDewLine.front().first, m_masses, massFraction );
-      ++m_bdBisecIters;
-
-      m_critPointPos = m_bubbleDewLine.begin();
-      for ( std::vector< std::pair<double,double> >::iterator it = m_critPointPos + 1; it != m_bubbleDewLine.end() && !foundCriticalPoint; ++it )
-      {
-         int phase2 = getMassFractions( it->second, it->first, m_masses, massFraction );
-         ++m_bdBisecIters;
-
-         if ( phase1 != phase2 && phase1 != bothPhases && phase2 != bothPhases )
-         {
-            double P1 = m_critPointPos->second;
-            double T1 = m_critPointPos->first;
-            double P2 = it->second;
-            double T2 = it->first;
-
-            for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
-            {
-               double newP = 0.5 * (P1 + P2);
-               double newT = 0.5 * (T1 + T2);
-
-               int newPhase = getMassFractions( newP, newT, m_masses, massFraction );
-               ++m_bdBisecIters;
-
-               if ( phase1 == newPhase )
-               {
-                  P1 = newP;
-                  T1 = newT;
-               }
-               else if ( phase2 = newPhase )
-               {
-                  P2 = newP;
-                  T2 = newT;
-               }
-               else
-               {
-                  break;
-               }
-
-               // check convergence
-               if ( std::max( std::abs( P1 - P2 ) * scaleP, std::abs( T1 - T2 ) * scaleT ) < m_eps )
-               {
-                  m_critT = 0.5 * ( T1 + T2 );
-                  m_critP = 0.5 * ( P1 + P2 );
-
-                  m_critPointPos = m_bubbleDewLine.insert( it, std::pair<double, double>( m_critT, m_critP ) );
-                  foundCriticalPoint = true;
-                  break;
-               }
-            }
-         }
-         else
-         {
-            phase1 = phase2;
-            m_critPointPos = it;
-         }
-      }
+      foundCriticalPoint = findCriticalPointInChangePhaseAlongBubbleDewLine();
    }
    return foundCriticalPoint;
 }
@@ -696,7 +797,7 @@ std::vector< std::pair<double, double> > PTDiagramCalculator::calcContourLine( d
       return isoline;
    }
    
-   if ( val < m_eps ) // request for dew curve
+   if ( val < m_eps && m_critPointPos != m_bubbleDewLine.end() ) // request for dew curve
    {
       for ( int ti = static_cast<int>(m_critPointPos - m_bubbleDewLine.begin()); ti >= 0; --ti )
       {
@@ -982,6 +1083,234 @@ double PTDiagramCalculator::getLiquidFraction( int p, int t )
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// After bubble/dew line & critical point search it is possible to find A/B term value in such way 
+// that liquid/vapour division line  will come through critical point
+// 
+// return found value of A/B term if it was found or the default value if not found (0.5 countour 
+//        line doesn't cross bubble/dew line)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+double PTDiagramCalculator::findAoverBTerm()
+{
+   if ( !m_bubbleDewLine.size() ) return m_AoverB;
+
+   double foundCritT = m_critT;
+   double foundCritP = m_critP;
+   double abSaved = m_AoverB;
+
+   // look for the single phase change on buble/dew curve
+   if ( !findCriticalPointInChangePhaseAlongBubbleDewLine( false ) ) return m_AoverB;
+
+   double abMin = -1.0;
+   double abMax = -1.0;
+   if ( m_critT + m_eps < foundCritT ) // should decrease A/B term
+   {
+      while( m_critT + m_eps < foundCritT )
+      {
+         m_AoverB *= 0.8;
+         if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
+         {
+            if ( m_critT > m_eps + foundCritT )
+            {
+               abMin = m_AoverB;
+               abMax = m_AoverB / 0.8;
+            }
+         }
+         else { break; }
+      }
+   }
+   else if ( m_critT > m_eps + foundCritT ) // should increase A/B term
+   {
+      while( m_critT > m_eps + foundCritT )
+      {
+         m_AoverB *= 1.2;
+         if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
+         {
+            if ( m_critT + m_eps < foundCritT )
+            {
+               abMin = m_AoverB / 1.2;
+               abMax = m_AoverB;
+            }
+         }
+         else { break; }
+      }
+   }
+   else // critical point was found by phase change along bubble/dew curve
+   { 
+      m_critT = foundCritT;
+      m_critP = foundCritP;
+      return m_AoverB;
+   } 
+
+   // do bisections by A/B term
+   for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
+   {
+      m_AoverB = 0.5 * ( abMin + abMax );
+
+      if ( !findCriticalPointInChangePhaseAlongBubbleDewLine( false ) ) break;
+     
+      if ( m_critT + m_eps < foundCritT )
+      {
+         abMax = m_AoverB;
+      }
+      else if ( m_critT > m_eps + foundCritT )
+      {
+         abMin = m_AoverB;
+      }
+      
+      if ( std::abs( m_critT - foundCritT ) / ( m_critT + foundCritT ) < m_eps )
+      {
+         break;
+      }
+   }
+
+   abMin = m_AoverB;
+
+   // restore saved values
+   m_AoverB = abSaved;
+   m_critT = foundCritT;
+   m_critP = foundCritP;
+
+   return abMin;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Get single phase separation line for 1 phase region as EosPack calculates it
+// return separation line as set of points
+///////////////////////////////////////////////////////////////////////////////////////////////////
+std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSeparationLine()
+{
+   // if done search before or there is no bubble/dew line just return m_spsLine
+   if ( m_spsLine.size() || !m_bubbleDewLine.size() ) return m_spsLine;
+
+   int inEdge = -1;
+   int p1 = m_gridP.size() - 1;
+   int t1 = 0;
+   
+   bool   foundBDPt = false;
+   double foundP;
+   double foundT;
+
+   // run over upper border of P/T grid
+   int phase1 = getPhase( p1, 0 );
+   for ( int t = 1; t < m_gridT.size(); ++t )
+   {
+      int phase2 = getPhase( p1, t );
+      if ( phase1 != phase2 && bothPhases != phase1 && bothPhases != phase2 ) //found
+      {
+         t1 = t-1;
+         foundBDPt = doBisectionForSinglePhaseSeparationLineSearch( p1, t1, p1, t1+1, foundP, foundT );
+         --p1;
+         inEdge = 1;
+         break;
+      }
+      phase1 = phase2;
+   }
+
+   if ( inEdge < 0 )
+   {
+      p1 = 0;
+      t1 = m_gridT.size() - 1;
+   
+      int phase1 = getPhase( 0, t1 );
+      // run over right border of P/T grid
+      for ( int p = 1; p < m_gridP.size(); ++p )
+      {
+         int phase2 = getPhase( p, t1 );
+         if ( phase1 != phase2 && bothPhases != phase1 && bothPhases != phase2 ) //found
+         {
+            p1 = p - 1;
+            foundBDPt = doBisectionForSinglePhaseSeparationLineSearch( p1, t1, p1+1, t1, foundP, foundT );
+            --t1;
+            inEdge = 2;
+            break;
+         }
+         phase1 = phase2;
+      }
+   }
+
+   if ( inEdge < 0 ) return m_spsLine; // doesn't find anything
+
+   if ( foundBDPt ) m_spsLine.push_back( std::pair<double,double>( foundT, foundP ) );
+
+   std::set<int>  trace; // for keeping cells through which line came across
+
+   foundBDPt = true;
+   while( foundBDPt )
+   {
+      if ( t1 + 1 == m_gridT.size() || p1 + 1 == m_gridP.size() ) { break; } //  can't trace outside grid
+
+      int phase[4];
+      phase[0] = getPhase( p1,   t1   );
+      phase[1] = getPhase( p1+1, t1   );
+      phase[2] = getPhase( p1+1, t1+1 );
+      phase[3] = getPhase( p1,   t1+1 );
+
+      bool inters[4] = { false, false, false, false };
+
+      for ( int i = 0; i < 4; ++i )
+      {
+         if ( phase[i] != phase[(i+1)%4] )
+         {
+            // get vapour/liquid interface
+            inters[i] = phase[i] != bothPhases && phase[(i+1)%4] != bothPhases ? true : false;
+         }
+      }
+
+      foundBDPt = false;
+      for ( int i = 0; i < 4; ++i )
+      {
+         if ( inters[i] && i != inEdge )
+         {
+            switch( i )
+            {
+               case 0: foundBDPt = doBisectionForSinglePhaseSeparationLineSearch( p1,   t1,   p1+1, t1,   foundP, foundT ); break;
+               case 1: foundBDPt = doBisectionForSinglePhaseSeparationLineSearch( p1+1, t1,   p1+1, t1+1, foundP, foundT ); break;
+               case 2: foundBDPt = doBisectionForSinglePhaseSeparationLineSearch( p1,   t1+1, p1+1, t1+1, foundP, foundT ); break;
+               case 3: foundBDPt = doBisectionForSinglePhaseSeparationLineSearch( p1,   t1,   p1,   t1+1, foundP, foundT ); break;
+            }
+
+            if ( foundBDPt )
+            {
+               m_spsLine.push_back( std::pair<double,double>( foundT, foundP ) );
+
+               switch( i ) // choose next cell
+               {
+                  case 0: --t1; break;
+                  case 1: ++p1; break;
+                  case 2: ++t1; break;
+                  case 3: --p1; break;
+               }
+
+               if ( t1 < 0 || p1 < 0 ) foundBDPt = false;
+
+               // do checking is this cell was already in trace ? if yes - stop tracing
+               foundBDPt = foundBDPt && trace.insert( p1 * 10000 + t1 ).second;
+
+               inEdge = (i + 2) %4;
+               break;
+            }
+         }
+      }
+   }
+   // add the last point as point where liquid/vapour phases changed on bubble/dew line
+   double oldCritT = m_critT;
+   double oldCritP = m_critP;
+
+   if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
+   {
+      double foundT = m_critT;
+      double foundP = m_critP;
+      m_spsLine.push_back( std::pair<double,double>( foundT, foundP ) );
+
+      m_critT = oldCritT;
+      m_critP = oldCritP;
+   }
+
+   return m_spsLine;
+}
+
+ 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Get cricondentherm point for defined in constructor composition. Must be called after bubble/dew lines calculation
 // return point on bubble/dew curve with maximum temperature
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1045,6 +1374,12 @@ bool PTDiagramCalculator::getBubblePressure( double T, double * bubbleP ) const
 }
    
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Return which phase exist for given (p,t)
+// p pressure
+// t temperature
+// return phase ID
+///////////////////////////////////////////////////////////////////////////////////////////////////
 int PTDiagramCalculator::getPhase( size_t p, size_t t )
 {
    assert( p < m_gridP.size() && t < m_gridT.size() );

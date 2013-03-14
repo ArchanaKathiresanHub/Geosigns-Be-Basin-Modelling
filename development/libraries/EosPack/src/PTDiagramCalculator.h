@@ -81,6 +81,10 @@ public:
    /// \returns array of (T,P) pair for each contour line point. Countour lines are divided by (-1,-1) value
    std::vector<double> calcContourLines( std::vector<double> & vals );
 
+   /// \brief Get single phase separation line for 1 phase region as EosPack calculates it
+   /// \return separation line as set of points
+   std::vector< std::pair<double,double> > getSinglePhaseSeparationLine();
+
    /// \brief Get critical point for defined in constructor composition. Must be called after bubble/dew lines calculation
    /// \return critical composition temperature,pressure
    std::pair<double, double> getCriticalPoint() const { return std::pair<double,double>( m_critT, m_critP ); }
@@ -132,7 +136,12 @@ public:
 
    /// \brief Change the default value for A over B term in EosPack. Should be called before bubble/dew line search
    /// \param val new value for A over B term. Shold be more then 0 (at least)
-   void setAoverBTerm( double val ) { m_AoverB = val; }
+   void setAoverBTerm( double val ) { m_AoverB = val; m_ChangeAoverB = true; }
+
+   /// \brief After bubble/dew line & critical point search it is possible to find A/B term value in such way that liquid/vapour division line 
+   ///        will come through critical point
+   /// \return found value of A/B term if it was found or the default value if not found (0.5 countour line doesn't cross bubble/dew line)
+   double findAoverBTerm();
 
    /// \brief Change the default value for nonlinear solver in PVT library
    /// \param stopTol stop tolerance for convergence of iterations, the default value for PTDiagramCalculator/EosPack 1e-6/1e-4
@@ -151,6 +160,7 @@ private:
 
    std::vector< std::pair< double,double > > m_bubbleDewLine; ///< Bubble/Dew line
    std::vector< std::pair< double,double > > m_c0p5Line;      ///< 0.5 contour line
+   std::vector< std::pair< double,double > > m_spsLine;       ///< single phase separation line outside of the 2 phase region
 
    std::vector< std::pair<double,double> >::iterator  m_critPointPos; // position of critical point on bubble/dew line
 
@@ -158,6 +168,7 @@ private:
 
    // PVT library parameters
    double m_AoverB;                  ///< A over B term EosPack parameter
+   bool   m_ChangeAoverB;            ///< Should we use A/B term as EosPack parameter
    double m_stopTol;                 ///< Stop tolerancer for nonlinear solver of EosPack
    int    m_maxIters;                ///< Max. iterations number for nonlinear solver of EosPack
 
@@ -193,15 +204,33 @@ private:
    /// \param p2 upper P border for bisections
    /// \param t2 upper T border for bisections
    /// \param frac liquid fraction value for contour line
-   /// \param guessP initial P guess for iterations
-   /// \param guessT initial T guess for iterations
    /// \param foundP[out] on return, if iterations were successful, it contains bubble or dew point pressure value
    /// \param foundT[out] on return, if iterations were successful, it contains bubble or dew point temperature value
    /// \return true if value was found, false otherwise
    bool doBisectionForContourLineSearch( size_t p1, size_t t1, size_t p2, size_t t2, double frac, double & foundP, double & foundT );
 
+   /// \brief Search by doing bisection iterations for single phases separation line values. Bisections could be done by the Pressure or by the Temperature
+   /// \param p1 lower P border for bisections
+   /// \param t1 lower T border for bisections
+   /// \param p2 upper P border for bisections
+   /// \param t2 upper T border for bisections
+   /// \param foundP[out] on return, if iterations were successful, it contains bubble or dew point pressure value
+   /// \param foundT[out] on return, if iterations were successful, it contains bubble or dew point temperature value
+   /// \return true if value was found, false otherwise
+   bool doBisectionForSinglePhaseSeparationLineSearch( size_t p1, size_t t1, size_t p2, size_t t2, double & foundP, double & foundT );
+
    /// \brief Find critical point as intersection of 0.5 isoline with bubble/dew curve. If not found - go along bubble/dew curve
    ///        and look for phase changed from gas to liquid
+   /// \return true on success, false otherwise
+   bool findCriticalPointInContourBubbleDewLinesIntersection();
+
+   /// \brief Find critical point as single phase change point along bubble/dew linei
+   /// \brief addToBubblDewLine add found value to bubble/dew line
+   /// return true on success, false otherwise
+   bool findCriticalPointInChangePhaseAlongBubbleDewLine( bool addToBubblDewLine = true );
+
+   /// \brief Find critical pont by calling findCriticalPointInContourBubbleDewLinesIntersection() first, if it wasn't found
+   ///        then call findCriticalPointInChangePhaseAlongBubbleDewLine()
    /// \return true on success, false otherwise
    bool findCriticalPoint();
 
@@ -221,8 +250,8 @@ private:
    void extendTGrid( int steps );
 
    /// \brief Return which phase exist for given (p,t)
-   /// \brief p pressure
-   /// \brief t temperature
+   /// \param p pressure
+   /// \param t temperature
    /// \return phase ID
    int getPhase( size_t p, size_t t );
 };
