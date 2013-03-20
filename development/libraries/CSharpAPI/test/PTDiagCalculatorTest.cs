@@ -81,6 +81,7 @@ namespace Shell.BasinModeling.CSharpAPI.Test
            }
 
            PTDiagramCalculator diagramBuilder = new PTDiagramCalculator(PTDiagramCalculator.DiagramType.MassFractionDiagram, comp);
+           diagramBuilder.setAoverBTerm(2.0);
            diagramBuilder.findBubbleDewLines(588.15, 12665600, new DoubleVector());
 
            // Check special points
@@ -113,6 +114,7 @@ namespace Shell.BasinModeling.CSharpAPI.Test
            }
 
            PTDiagramCalculator diagramBuilder = new PTDiagramCalculator(PTDiagramCalculator.DiagramType.MassFractionDiagram, comp);
+           diagramBuilder.setAoverBTerm(2.0); 
            diagramBuilder.findBubbleDewLines(588.15, 12665600, new DoubleVector());
 
            int[] checkSz = new int[] { 65, 55, 55, 54, 57, 60, 69, 77, 87, 93, 125 };

@@ -32,8 +32,9 @@ namespace BasinModelingLinkTest
         public void FlashVapourTest()
         {
             ComputeStruct computeStruct = new ComputeStruct();
-            computeStruct.pressure = 1e6 * 1 ;  // in Pa
-            computeStruct.temperature = 273.15 + 290 + 88;  // in K
+            // Cricondentherm point plus some delta must give pure vapour phase
+            computeStruct.pressure = 1e6 * 3.12139 ;  // in Pa
+            computeStruct.temperature = 682.255 + 1;  // in K
 
             InitializeCompositionMasses(computeStruct);
 
@@ -68,8 +69,9 @@ namespace BasinModelingLinkTest
         public void FlashLiquidTest()
         {
             ComputeStruct computeStruct = new ComputeStruct();
-            computeStruct.pressure = 1e6 * 7;  // in Pa
-            computeStruct.temperature = 273.15 + 100;  // in K
+            // Cricondenbar point plus some delta must give pure liquid phase
+            computeStruct.pressure = 1e6 * (8.0467 + 0.001);  // in Pa
+            computeStruct.temperature = 470.578;  // in K
 
             InitializeCompositionMasses(computeStruct);
 
