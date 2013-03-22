@@ -15,13 +15,15 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b01002</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
     <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\private_id.ppk</AgentKey>
+    <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">/scratch/$(AgentAccount)/src</RemoteSourceDir>
+    <RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccount)/build</RemoteBuildDir>
 
-    <!-- Alternative credentials -->
+    <!-- Same variables based on alternative credentials -->
     <AgentAccountAlt Condition="'$(AgentAccountAlt)' == ''">s_bpac00</AgentAccountAlt>
     <AgentKeyAlt Condition="'$(AgentKeyAlt)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKeyAlt>
+    <RemoteSourceDirAlt Condition="'$(RemoteSourceDir)' == ''">/scratch/$(AgentAccountAlt)/src</RemoteSourceDirAlt>
+    <RemoteBuildDirAlt Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccountAlt)/build</RemoteBuildDirAlt>
     
-	<RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">/scratch/$(AgentAccount)/src</RemoteSourceDir>
-	<RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccount)/build</RemoteBuildDir>
   </PropertyGroup>
  
   <PropertyGroup Label="StandardUtilities" >
