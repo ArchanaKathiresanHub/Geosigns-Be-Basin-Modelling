@@ -9,13 +9,13 @@
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
 
   <PropertyGroup>
-    <init_remote_dirs>$(ssh_command) "rm -Rf $(RemoteSourceDir) $(RemoteBuildDir); mkdir -p $(RemoteSourceDir) $(RemoteBuildDir)"</init_remote_dirs>
+    <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteSourceDir) $(RemoteBuildDir); mkdir -p $(RemoteSourceDir) $(RemoteBuildDir)"</init_remote_dirs>
 	
 	<!-- To copy the source code, we use 'tar' because 'scp' is slow. There are many small files to copy -->
     <copy_code>cd /d "$(solution_root)" &amp;&amp; $(tar_exe) c . | $(ssh_command) "cd $(RemoteSourceDir); tar -x; chmod -R 750 $(RemoteSourceDir)"</copy_code>
 	
     <script_to_build>CIBuild_with_cmake_improved</script_to_build>
-    <execute_script>$(ssh_command) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDir) BUILD_DIR=$(RemoteBuildDir) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDir)/scripts/$(script_to_build)"</execute_script>
+    <execute_script>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDir) BUILD_DIR=$(RemoteBuildDir) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDir)/scripts/$(script_to_build)"</execute_script>
   </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="DisplayStandardVariables">
