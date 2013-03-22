@@ -49,19 +49,6 @@ class BasementLithology : public SimpleLithology
                        database::Record*                     record );
 
 
-  ///
-  /// Create new lithology from a previously defined one, but change the permeability interpolator.
-  ///
-  BasementLithology ( const SimpleLithology*            definedLithology,
-                      const string&                     faultLithologyName,
-                      const double                      permeabilityAnisotropy,
-                      const ibs::PiecewiseInterpolator& newPermeabilities );
-
-  ///
-  /// Create new lithology from a previously defined one, and assign a new name
-  ///
-  BasementLithology ( const SimpleLithology*  definedLithology, const string& newName );
-
    virtual ~BasementLithology(){};
 
    double crustThermCondStandard (const double  inTemperature) const;

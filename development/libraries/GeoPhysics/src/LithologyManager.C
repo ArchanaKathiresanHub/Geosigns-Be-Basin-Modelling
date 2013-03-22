@@ -131,7 +131,6 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleFaultLitholo
 
     // If the fault lithology does not already exsit, then one must be created with the correct properties.
     if ( simpleFaultLithology == 0 ) {
-      ibs::PiecewiseInterpolator interpolator;
 
       // Put these in correct place when everything is defined. WHERE IS THE CORRECT PLACE???
       static const double permeabilityAnisotropy = 1000.0;
@@ -140,8 +139,12 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleFaultLitholo
       // The values here should be derived from the passingPerm values * log10 ( permAniso ), log10 ( 1000 ) = 3
       static const double sealingPermeabilities [ 2 ] = { -4.0, -6.0 };
 
-      double defaultPermeabilities [ 2 ];
-      double defaultPorosities [ 2 ] = { 70.0, 3.0 };
+      std::vector<double> defaultPermeabilities(2);
+      std::vector<double> defaultPorosities(2);
+      // defaultPorosities[0] = 70.0 ; // FIXME: Uncomment this line
+      // defaultPorositues[1] = 3.0  ; // FIXME: Uncomment this line
+      defaultPorosities[0] = 70.0 * 100.0; // FIXME: Remove this line
+      defaultPorosities[1] = 3.0 * 100.0; // FIXME: Remove this line
       double anisotropy;
 
       if ( verticalStatus == Interface::PASS_WATER ) {
@@ -166,14 +169,12 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleFaultLitholo
 
       }
 
-      interpolator.setInterpolation ( ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, 2, defaultPorosities, defaultPermeabilities );
-      
       simpleLithology = getSimpleLithology ( simpleLithologyName );
 
       assert ( simpleLithology != 0 );
 
       // Create the new fault lithology (simple lithology).
-      simpleFaultLithology = (SimpleLithology*)(((GeoPhysics::ObjectFactory*)(m_projectHandle->getFactory ()))->produceLithoType ( simpleLithology, simpleFaultLithologyName, anisotropy, interpolator ));
+      simpleFaultLithology = (SimpleLithology*)(((GeoPhysics::ObjectFactory*)(m_projectHandle->getFactory ()))->produceLithoType ( simpleLithology, simpleFaultLithologyName, anisotropy, defaultPorosities, defaultPermeabilities));
 
       // Now add it to the list of currently defined simple lithologies.
       simpleLithologies.push_back ( simpleFaultLithology );

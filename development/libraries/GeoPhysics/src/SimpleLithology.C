@@ -19,12 +19,21 @@ using namespace DataAccess;
 using namespace ibs;
 
 
-const double GeoPhysics::SimpleLithology::Log10 = std::log ( 10.0 );
-
-
 GeoPhysics::SimpleLithology::SimpleLithology ( Interface::ProjectHandle * projectHandle, 
-                                               database::Record *              record ) : Interface::LithoType ( projectHandle, record ) {
-
+                                               database::Record *              record ) 
+   : Interface::LithoType ( projectHandle, record ) 
+   , m_permeability( Permeability::create(
+         Interface::LithoType::getPermeabilityModel (),
+         this->getPermeabilityAnisotropy (),
+         this->getSurfacePorosity () ,
+         this->getDepositionalPermeability (),
+         this->getPermeabilityRecoveryCoefficient (),
+         this->getPermeabilitySensitivityCoefficient (),
+         this->getMultipointPorosityValues (),
+         this->getMultipointPermeabilityValues (),
+         this->getNumberOfMultipointSamplePoints ()
+      ) )
+{
    m_lithoname = Interface::LithoType::getName ();
    m_density = Interface::LithoType::getDensity ();
    m_heatproduction = Interface::LithoType::getHeatProduction ();
@@ -50,12 +59,6 @@ GeoPhysics::SimpleLithology::SimpleLithology ( Interface::ProjectHandle * projec
    m_compactiondecr = 0.1 * m_compactionincr;
    m_thermalconductivityval = this->getThermalConductivity ();
    m_thermalcondaniso = this->getThermalConductivityAnisotropy ();
-   m_depopermeability = this->getDepositionalPermeability ();
-   m_permeabilityincr = this->getPermeabilityRecoveryCoefficient ();
-   m_permeabilitydecr = this->getPermeabilitySensitivityCoefficient ();
-   m_permeabilityaniso = this->getPermeabilityAnisotropy ();
-
-   m_permeabilityModel = Interface::LithoType::getPermeabilityModel ();
 
    m_soilMechanicsCompactionCoefficient = this->getSoilMechanicsCompactionCoefficient ();
    m_thermalcondmodel = Interface::TABLE_MODEL;
@@ -81,47 +84,6 @@ GeoPhysics::SimpleLithology::SimpleLithology ( Interface::ProjectHandle * projec
    /// If value is a null value then DO NOT convert to cauldron units.
    if ( m_minimumMechanicalPorosity != Interface::DefaultUndefinedMapValue and m_minimumMechanicalPorosity != Interface::DefaultUndefinedScalarValue ) {
       m_minimumMechanicalPorosity = 0.01 * m_minimumMechanicalPorosity;
-   }
-
-   if ( m_permeabilityModel == Interface::MULTIPOINT_PERMEABILITY ) {
-      double* multipointPorosityValues;
-      double* multipointPermeabilityValues;
-
-      int i;
-
-      multipointPorosityValues = new double [ this->getNumberOfMultipointSamplePoints ()];
-      multipointPermeabilityValues = new double [ this->getNumberOfMultipointSamplePoints ()];
-
-      getCoefficientsFromString ( this->getMultipointPorosityValues ().c_str (),
-                                  this->getNumberOfMultipointSamplePoints (),
-                                  multipointPorosityValues );
-
-      getCoefficientsFromString ( this->getMultipointPermeabilityValues ().c_str (),
-                                  this->getNumberOfMultipointSamplePoints (),
-                                  multipointPermeabilityValues );
-
-      for ( i = 0; i < this->getNumberOfMultipointSamplePoints (); ++i ) {
-         multipointPorosityValues [ i ] /= 100.0;
-      }
-
-      m_porosityPermeabilityInterpolant.setInterpolation ( PiecewiseInterpolator::PIECEWISE_LINEAR,
-                                                           this->getNumberOfMultipointSamplePoints (),
-                                                           multipointPorosityValues,
-                                                           multipointPermeabilityValues );
-
-      m_porosityPermeabilityInterpolant.computeCoefficients ();
-
-      // not realy necessary, because the m_depopermeability 
-      // is not used if permeability model is a multi-point.
-      m_depopermeability = m_porosityPermeabilityInterpolant.evaluate ( m_depoporosity );
-
-      delete [] multipointPorosityValues;
-      delete [] multipointPermeabilityValues;
-
-   }
-
-   if (( m_permeabilityModel == Interface::IMPERMEABLE_PERMEABILITY or m_permeabilityModel == Interface::NONE_PERMEABILITY ) and m_permeabilityaniso == 0.0 ) {
-      m_permeabilityaniso = 1.0;
    }
 
    loadPropertyTables ();
@@ -161,125 +123,26 @@ void GeoPhysics::SimpleLithology::loadPropertyTables () {
 
 
 
-GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology*       definedLithology,
-                                               const string&                faultLithologyName,
-                                               const double                 permeabilityAnisotropy,
-                                               const PiecewiseInterpolator& newPermeabilities ) : 
-   Interface::LithoType ( definedLithology->getProjectHandle (), definedLithology->getRecord ()) {
-
-  ///
-  /// Copy all components that are not affected by the permeability.
-  ///
-  m_thermCondTbl = definedLithology->m_thermCondTbl;
-  m_thermalconductivitytbl = definedLithology->m_thermalconductivitytbl;
-  m_heatcapacitytbl = definedLithology->m_heatcapacitytbl;
-
-  m_density = definedLithology->m_density;
-  m_heatproduction = definedLithology->m_heatproduction;
-  m_depoporosity = definedLithology->m_depoporosity;
-
-  m_PcKrModel = definedLithology->getPcKrModel ();
-  m_LambdaPc  = definedLithology->getLambdaPc ();
-  m_LambdaKr  = definedLithology->getLambdaKr ();
-
-  m_depositionVoidRatio = m_depoporosity / ( 1.0 - m_depoporosity );
-  m_compactionincr = definedLithology->m_compactionincr;
-  m_compactiondecr = definedLithology->m_compactiondecr;
-  m_thermalconductivityval = definedLithology->m_thermalconductivityval;
-  m_thermalcondaniso = definedLithology->m_thermalcondaniso;
-  m_seismicvelocity = definedLithology->m_seismicvelocity;
-  m_soilMechanicsCompactionCoefficient = definedLithology->m_soilMechanicsCompactionCoefficient;
-  m_thermalcondmodel = Interface::TABLE_MODEL;
-  m_heatcapmodel = Interface::TABLE_MODEL;
-  m_specificSurfaceArea = definedLithology->getSpecificSurfArea();
-  m_geometricVariance = definedLithology->getGeometricVariance();
-  m_capC1 = definedLithology->getCapC1();
-  m_capC2 = definedLithology->getCapC2();
-
-  m_referenceSolidViscosity   = definedLithology->m_referenceSolidViscosity;
-  m_lithologyActivationEnergy = definedLithology->m_lithologyActivationEnergy;
-  m_lithologyFractureGradient = definedLithology->m_lithologyFractureGradient;
-  m_minimumMechanicalPorosity = definedLithology->m_minimumMechanicalPorosity;
-
-  ///
-  /// The following two are not strictly necessary, as they will never be used.
-  ///
-  m_permeabilityincr = definedLithology->m_permeabilityincr;
-  m_permeabilitydecr = definedLithology->m_permeabilitydecr;
+void GeoPhysics::SimpleLithology::setPermeability(
+      const string&   faultLithologyName,
+      const double    permeabilityAnisotropy,
+      const std::vector<double> & porositySamples, const std::vector<double> & permeabilitySamples )
+{
 
   ///
   /// Now, define the new permeability
   ///
-  m_permeabilityaniso = permeabilityAnisotropy;
-
-  m_permeabilityModel = Interface::MULTIPOINT_PERMEABILITY;
-  m_porosityPermeabilityInterpolant = newPermeabilities;
-
-  ///
-  /// Again, this is not strictly neccessary but is added for completness.
-  ///
-  m_depopermeability = m_porosityPermeabilityInterpolant.evaluate ( m_depoporosity );
+  m_permeability = Permeability::createMultiPoint(
+        permeabilityAnisotropy, 
+        this->getDepositionalPermeability(), 
+        porositySamples, 
+        permeabilitySamples
+     );
 
   ///
   /// We have a new name as well.
   ///
   m_lithoname = faultLithologyName;
-
-}
-
-
-GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology* definedLithology,
-                                               const string&          newName )  : 
-   Interface::LithoType ( definedLithology->getProjectHandle (), definedLithology->getRecord ()) {
-
-  ///
-  /// Copy all components that are not affected by the permeability.
-  ///
-  m_thermCondTbl = definedLithology->m_thermCondTbl;
-  m_thermalconductivitytbl = definedLithology->m_thermalconductivitytbl;
-  m_heatcapacitytbl = definedLithology->m_heatcapacitytbl;
-
-  m_density = definedLithology->m_density;
-  m_heatproduction = definedLithology->m_heatproduction;
-  m_depoporosity = definedLithology->m_depoporosity;
-
-  m_PcKrModel = definedLithology->getPcKrModel ();
-  m_LambdaPc  = definedLithology->getLambdaPc ();
-  m_LambdaKr  = definedLithology->getLambdaKr ();
-
-  m_depositionVoidRatio = m_depoporosity / ( 1.0 - m_depoporosity );
-  m_compactionincr = definedLithology->m_compactionincr;
-  m_compactiondecr = definedLithology->m_compactiondecr;
-  m_thermalconductivityval = definedLithology->m_thermalconductivityval;
-  m_thermalcondaniso = definedLithology->m_thermalcondaniso;
-  m_seismicvelocity = definedLithology->m_seismicvelocity;
-  m_soilMechanicsCompactionCoefficient = definedLithology->m_soilMechanicsCompactionCoefficient;
-  m_thermalcondmodel = Interface::TABLE_MODEL;
-  m_heatcapmodel = Interface::TABLE_MODEL;
-  m_specificSurfaceArea = definedLithology->getSpecificSurfArea();
-  m_geometricVariance = definedLithology->getGeometricVariance();
-  m_capC1 = definedLithology->getCapC1();
-  m_capC2 = definedLithology->getCapC2();
-
-  m_referenceSolidViscosity   = definedLithology->m_referenceSolidViscosity;
-  m_lithologyActivationEnergy = definedLithology->m_lithologyActivationEnergy;
-  m_lithologyFractureGradient = definedLithology->m_lithologyFractureGradient;
-  m_minimumMechanicalPorosity = definedLithology->m_minimumMechanicalPorosity;
-
-  ///
-  /// The following two are not strictly necessary, as they will never be used.
-  ///
-  m_permeabilityincr  = definedLithology->m_permeabilityincr;
-  m_permeabilitydecr  = definedLithology->m_permeabilitydecr;
-  m_permeabilityaniso = definedLithology->m_permeabilityaniso;
-  m_permeabilityModel = definedLithology->m_permeabilityModel;
-  m_depopermeability  = definedLithology->m_depopermeability;
-
-  if ( m_permeabilityModel == Interface::MULTIPOINT_PERMEABILITY ) {
-    m_porosityPermeabilityInterpolant = definedLithology->m_porosityPermeabilityInterpolant;
-  }
-
-  m_lithoname = newName;
 }
 
   
@@ -298,180 +161,14 @@ void GeoPhysics::SimpleLithology::correctThermCondPoint ( const double correctio
 
 } 
 
+void GeoPhysics::SimpleLithology::setName(const string & newName) {
+   m_lithoname = newName;
+}
+
 const std::string& GeoPhysics::SimpleLithology::getName () const {
    return m_lithoname;
 }
 
-
-double GeoPhysics::SimpleLithology::permeability ( const double ves,
-                                                   const double maxVes, 
-                                                   const double calculatedPorosity ) const {
-  double val = 0.0;
-
-  switch (m_permeabilityModel) {
-
-    case Interface::SANDSTONE_PERMEABILITY : {
-
-      double deltaphi = calculatedPorosity - m_depoporosity;
-      double m = 0.12 + 0.02 * m_permeabilityincr;
-      val = m_depopermeability * pow(10.0, m * deltaphi * 100.0);
-
-#if 0
-      val = (m_depopermeability*1000.0)*pow(10.0, m * deltaphi * 100.0);
-#endif
-
-      if (val >= 1000.0) val = 1000.0;
-
-      return val;
-
-    }
-    case Interface::MUDSTONE_PERMEABILITY : {
-
-      double ves0 = 1.0E+05;
-      double cut_off = 0.0;
-      
-      if ( ves > cut_off) {
-	val = shalepermeability (ves, maxVes, ves0);
-      } else {
-	double a = shalepermeabilityder (cut_off, maxVes, ves0);
-	double b = shalepermeability (cut_off, maxVes, ves0);
-	val = a*(ves-cut_off)+b;
-      }
-
-      if (val >= 1000.0) val = 1000.0;
-
-      return val;
-
-    }
-    case Interface::MULTIPOINT_PERMEABILITY : {
-
-      val = exp ( Log10 * m_porosityPermeabilityInterpolant.evaluate ( calculatedPorosity ));
-
-      return NumericFunctions::Minimum ( val, 1000.0 );
-    }
-    case Interface::IMPERMEABLE_PERMEABILITY: {
-      // lithology has a non-zero porosity but a zero permeability.
-      val = 1.0E-09;
-      return val;
-    }
-    case Interface::NONE_PERMEABILITY: {
-      // lithology has a zero porosity and thus no permeability!
-      val = 1.0E-09;
-      return val;
-    }
-    default: {
-       assert ( 0 );
-    }
-  }
-  return 0;
-}
-
-
-void GeoPhysics::SimpleLithology::permeabilityDerivative ( const double  ves,
-                                                           const double  maxVes, 
-                                                           const double  calculatedPorosity, 
-                                                                 double& Permeability, 
-                                                                 double& Derivative ) const {
-
-  Permeability = this->permeability ( ves, maxVes, calculatedPorosity );
-
-  switch (m_permeabilityModel) {
-
-    case Interface::SANDSTONE_PERMEABILITY : {
-
-      double perm;
-      double deltaphi = calculatedPorosity - m_depoporosity;
-      double m = 0.12 + 0.02 * m_permeabilityincr;
-
-      perm =  m_depopermeability * pow ( 10.0, m * deltaphi * 100.0);
-
-#if 0
-      perm = (m_depopermeability*1000.0)*pow(10.0, m * deltaphi * 100.0);
-#endif
-
-      Derivative = Log10 * m * perm;
-      break;
-    } 
-
-    case Interface::MUDSTONE_PERMEABILITY : {
-
-      double ves0 = 1.0E+05;
-      double maxVesUsed = maxVes;
-
-      if ( maxVes < ves0 ) {
-         maxVesUsed = ves0;
-      }
-
-      Derivative = shalepermeabilityder (ves, maxVesUsed, ves0);
-      break;
-    }
-
-    case Interface::MULTIPOINT_PERMEABILITY : {
-
-      Derivative = Log10 * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity ) * Permeability;
-      break;
-    }
-
-    case Interface::IMPERMEABLE_PERMEABILITY: {
-      Derivative = 0.0;
-      break;
-    }
-
-    case Interface::NONE_PERMEABILITY: {
-      Derivative = 0.0;
-      break;
-    }
-
-    default: {
-      assert ( 0 );
-    }
-  }
-
-}
-
-double GeoPhysics::SimpleLithology::shalepermeability ( const double ves,
-                                                        const double maxVes, 
-                                                        const double ves0 ) const {
-  double val;
-
-  assert ( 0 != ves0 );
-
-  if (ves >= maxVes) {
-    val = m_depopermeability * pow((ves+ves0)/ves0, -m_permeabilityincr);
-  } else {
-    assert ( maxVes != -ves0 );
-    assert ( 0 != maxVes );
-
-    val = m_depopermeability * pow ((maxVes+ves0)/ ves0, -m_permeabilityincr) *
-          pow ((ves+ves0)/(maxVes+ves0), -m_permeabilitydecr);
-  }
-
-  return val;
-}
-
-double GeoPhysics::SimpleLithology::shalepermeabilityder ( const double ves,
-                                                           const double maxVes, 
-                                                           const double ves0 ) const {
-
-   double val;
-
-   assert (0 != ves0);
-   assert (0 != (maxVes+ves0));
-
-   if (ves >= maxVes) {
-      val = -m_depopermeability * m_permeabilityincr * 
-         pow ((ves+ves0)/ves0, (-m_permeabilityincr - 1.0)) / ves0;
-   } else {
-
-      assert (maxVes != -ves0);
-      val = -m_depopermeability * m_permeabilitydecr * 
-         pow (( maxVes + ves0) / ves0, -m_permeabilityincr ) * 
-         pow (( ves + ves0 ) / ( maxVes + ves0 ), 
-              ( -m_permeabilitydecr - 1.0 )) / ( maxVes + ves0 );
-   }
-
-   return val;  
-}
 
 double GeoPhysics::SimpleLithology::thermalconductivity ( const double t ) const
 {
@@ -516,9 +213,6 @@ void GeoPhysics::SimpleLithology::print() const {
   cout << m_compactionincr << " ";
   cout << m_compactiondecr << " ";
   cout << m_thermalconductivityval << " ";
-  cout << m_depopermeability << " ";
-  cout << m_permeabilityincr << " ";
-  cout << m_permeabilitydecr << " ";
   //if (isincompressible()){
   //  cout << "Incompressible";
   //}
@@ -541,20 +235,17 @@ std::string GeoPhysics::SimpleLithology::image () const {
    buffer << " m_lithoname              " << getName () << " " << endl;
    buffer << " m_thermalcondaniso       " << m_thermalcondaniso << " " << endl;
    buffer << " m_heatproduction         " << m_heatproduction << " " << endl;
-   buffer << " m_permeabilityaniso      " << m_permeabilityaniso << " " << endl;
    buffer << " m_density                " << m_density << " " << endl;
    buffer << " m_depoporosity           " << m_depoporosity << " " << endl;
    buffer << " m_compactionincr         " << m_compactionincr << " " << endl;
    buffer << " m_compactiondecr         " << m_compactiondecr << " " << endl;
    buffer << " m_thermalconductivityval " << m_thermalconductivityval << " " << endl;
-   buffer << " m_depopermeability       " << m_depopermeability << " " << endl;
-   buffer << " m_permeabilityincr       " << m_permeabilityincr << " " << endl;
-   buffer << " m_permeabilitydecr       " << m_permeabilitydecr << " " << endl;
+   buffer << " m_permeability           [does not have .image() method yet]" << endl;
    buffer << " is incompressible        " << ( isIncompressible () ? "TRUE" : "FALSE") << endl;
 
    buffer << " permeability model       ";
 
-   switch ( m_permeabilityModel ) {
+   switch ( m_permeability.getPermModel() ) {
      case Interface::SANDSTONE_PERMEABILITY   : buffer << "SANDSTONE_PERMEABILITY"; break;
      case Interface::MUDSTONE_PERMEABILITY    : buffer << "SANDSTONE_PERMEABILITY"; break;
      case Interface::MULTIPOINT_PERMEABILITY  : buffer << "MULTIPOINT_PERMEABILITY"; break;
@@ -565,9 +256,8 @@ std::string GeoPhysics::SimpleLithology::image () const {
 
    buffer << endl << endl;
 
-   if ( m_permeabilityModel == Interface::MULTIPOINT_PERMEABILITY ) {   
-      buffer << "Porosity-Permeability interpolator: " << endl;
-      buffer << m_porosityPermeabilityInterpolant.image () << endl;
+   if ( m_permeability.getPermModel() == Interface::MULTIPOINT_PERMEABILITY ) {   
+      buffer << "Porosity-Permeability interpolator: [does not have .image() method yet]" << endl;
       buffer << endl << endl;
    }
 
@@ -707,44 +397,6 @@ double GeoPhysics::SimpleLithology::porosity ( const double ves,
   return calculatedPorosity;
 }
 
-
-//------------------------------------------------------------//
-
-void GeoPhysics::SimpleLithology::getCoefficientsFromString ( const char*   coefficientString,
-                                                              const int     numberOfCoefficients,
-                                                              double*&      coefficients ) const {
-  if ( numberOfCoefficients == 0 ) {
-  
-    coefficients = (double*)(0);
-    return;
-
-  }
-
-  int I;
-  int coefficientStringStart = 0;
-
-  for ( I = 0; I < numberOfCoefficients; I++ ) {
-
-    /* find the position of the first character in the coefficientString */
-
-    while ( coefficientString [ coefficientStringStart ] == ' ' ) {
-      coefficientStringStart = coefficientStringStart + 1;
-    }
-
-    /* convert string to double */
-    //
-    coefficients [ I ] = atof ( &coefficientString [ coefficientStringStart ] );
-
-    /* find the next non-blank position in the coefficientString */
-
-    while (( coefficientString [ coefficientStringStart ] != 0 ) &&
-           ( coefficientString [ coefficientStringStart ] != ' ' ) ) {
-      coefficientStringStart = coefficientStringStart + 1;
-    }
-
-  }
-
-}
 
 //------------------------------------------------------------//
 

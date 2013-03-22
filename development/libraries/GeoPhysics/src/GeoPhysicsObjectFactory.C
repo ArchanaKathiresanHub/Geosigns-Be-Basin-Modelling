@@ -75,15 +75,20 @@ Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( Interface::P
 
 Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( const SimpleLithology* litho,
                                                                     const std::string&     newName ) {
-   return new SimpleLithology ( litho, newName );
+   SimpleLithology * copy = new SimpleLithology ( *litho );
+   copy->setName(newName);
+   return copy;
 }
 
-Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( const SimpleLithology*            litho,
-                                                                    const std::string&                newName,
-                                                                    const double                      permeabilityAnisotropy,
-                                                                    const ibs::PiecewiseInterpolator& permeabilities ) {
-
-   return new SimpleLithology ( litho, newName, permeabilityAnisotropy, permeabilities );
+Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( const SimpleLithology*      litho,
+                                                                    const std::string&          newName,
+                                                                    const double                permeabilityAnisotropy,
+                                                                    const std::vector<double> & porosityPercentageSamples,
+                                                                    const std::vector<double> & permeabilitySamples )
+{
+   SimpleLithology * copy = new SimpleLithology(*litho);
+   copy->setPermeability( newName, permeabilityAnisotropy, porosityPercentageSamples, permeabilitySamples);
+   return copy;
 }
 
 GeoPhysics::CompoundLithology* GeoPhysics::ObjectFactory::produceCompoundLithology ( GeoPhysics::ProjectHandle* projectHandle ) {

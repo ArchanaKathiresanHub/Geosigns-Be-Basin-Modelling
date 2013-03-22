@@ -78,7 +78,8 @@ namespace GeoPhysics {
       DataAccess::Interface::LithoType* produceLithoType ( const SimpleLithology*            litho,
                                                            const std::string&                newName,
                                                            const double                      permeabilityAnisotropy,
-                                                           const ibs::PiecewiseInterpolator& permeabilities );
+                                                           const std::vector<double> &  porosityPercentageSamples,
+                                                           const std::vector<double> & permeabilitySamples );
 
       /// New classes in the GeoPhysics namespace.
       ///

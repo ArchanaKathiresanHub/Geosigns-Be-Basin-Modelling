@@ -26,24 +26,6 @@ BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* pr
 }
 
 
-BasementLithology::BasementLithology( const SimpleLithology*            definedLithology,
-                                      const string&                     faultLithologyName,
-                                      const double                      permeabilityAnisotropy,
-                                      const ibs::PiecewiseInterpolator& newPermeabilities ) : 
-   SimpleLithology ( definedLithology, faultLithologyName, permeabilityAnisotropy, newPermeabilities ) {
-
-  
-   setLithoType();
-}
-
-
-BasementLithology::BasementLithology( const SimpleLithology* definedLithology, const string& newName ) :
-   SimpleLithology (  definedLithology, newName ) {
-
-   
-   setLithoType();
-}
-
 bool BasementLithology::setThermalModel( const string& aThermalModel ) {
 
    if( aThermalModel == "Low Conductivity Crust" ) {

@@ -11,6 +11,7 @@
 
 #include "IBSinterpolator.h"
 #include "PiecewiseInterpolator.h"
+#include "Permeability.h"
 
 namespace GeoPhysics {
 
@@ -25,17 +26,15 @@ namespace GeoPhysics {
                         database::Record*                     record );
 
 
-      /// Create new lithology from a previously defined one, but change the permeability interpolator.
-      SimpleLithology ( const SimpleLithology*            definedLithology,
-                        const string&                     faultLithologyName,
-                        const double                      permeabilityAnisotropy,
-                        const ibs::PiecewiseInterpolator& newPermeabilities );
-
-      /// Create new lithology from a previously defined one, and assign a new name
-      SimpleLithology ( const SimpleLithology* definedLithology,
-                        const string&          newName );
-
       virtual ~SimpleLithology ();
+
+      // Change the name of a lithology
+      void setName( const string & newName);
+
+      /// Change the permeability interpolator.
+      void setPermeability(const string & faultLithologyName, const double permeabilityAnisotropy, 
+            const std::vector<double> & porositySamples, const std::vector<double> & permeabilitySamples
+            );
 
       /// Correct the thermal conductivity tables.
       void correctThermCondPoint ( const double correction );
@@ -174,10 +173,6 @@ namespace GeoPhysics {
 
    private:
 
-      /// \var Log10
-      /// Constant used in conversions between different log bases (namely base e and 10)
-      static const double Log10;
-
       /// Loads the heat-capacity and thermal-conductivity tables.
       void loadPropertyTables ();
 
@@ -191,39 +186,19 @@ namespace GeoPhysics {
                                      const double maxVes,
                                      const bool   includeChemicalCompaction ) const;
 
-      /// Compute the permeability for shales.
-      double shalepermeability ( const double ves,
-                                 const double maxVes, 
-                                 const double ves0 ) const;
-
-      /// Compute the derivative of the permeability function for shales.
-      double shalepermeabilityder ( const double ves,
-                                    const double maxVes, 
-                                    const double ves0 ) const;
-
-      // not really sure where this should go just yet.
-      void getCoefficientsFromString ( const char*   coefficientString,
-                                       const int     numberOfCoefficients,
-                                       double*&      coefficients ) const;
-
-
       typedef std::vector<ibs::XF> XYContainer;
       XYContainer m_thermCondTbl;
 
       double            m_density;
-      double            m_permeabilityaniso;
       double            m_depoporosity;
       double            m_depositionVoidRatio;
       double            m_compactionincr;
       double            m_compactiondecr;
 
-      double            m_depopermeability;
       double            m_heatproduction;
       double            m_seismicvelocity;
 
       double            m_soilMechanicsCompactionCoefficient;
-      double            m_permeabilityincr;
-      double            m_permeabilitydecr;
       double            m_thermalcondaniso;
       double            m_thermalconductivityval;
       double            m_specificSurfaceArea;
@@ -239,17 +214,15 @@ namespace GeoPhysics {
 
 	
 
-      DataAccess::Interface::PermeabilityModel m_permeabilityModel;
-
       mutable ibs::Interpolator m_thermalconductivitytbl;
       mutable ibs::Interpolator m_heatcapacitytbl;
-
-      ibs::PiecewiseInterpolator m_porosityPermeabilityInterpolant;
 
       double m_referenceSolidViscosity;
       double m_lithologyActivationEnergy;
       double m_lithologyFractureGradient;
       double m_minimumMechanicalPorosity;
+
+      Permeability m_permeability;
 
    protected:
       string            m_lithoname;
@@ -263,7 +236,6 @@ namespace GeoPhysics {
 //------------------------------------------------------------//
 //   Inline functions.
 //------------------------------------------------------------//
-
 
 inline std::vector<ibs::XF>& GeoPhysics::SimpleLithology::getThermCondTbl () {
    return m_thermCondTbl;
@@ -290,15 +262,15 @@ inline double GeoPhysics::SimpleLithology::getDepoPoro () const {
 }
 
 inline DataAccess::Interface::PermeabilityModel GeoPhysics::SimpleLithology::getPermeabilityModel () const {
-   return m_permeabilityModel;
+   return m_permeability.getPermModel();
 }
 
 inline double GeoPhysics::SimpleLithology::getDepoPerm () const {
-   return m_depopermeability;
+   return m_permeability.getDepoPerm();
 }
 
 inline double GeoPhysics::SimpleLithology::getPermAniso () const {
-   return m_permeabilityaniso;
+   return m_permeability.getPermAniso();
 }
 
 inline double GeoPhysics::SimpleLithology::getDensity ()  const {
@@ -368,5 +340,22 @@ inline double GeoPhysics::SimpleLithology::getLambdaPc () const {
 inline double GeoPhysics::SimpleLithology::getLambdaKr () const {
    return  m_LambdaKr;
 }
+
+inline double GeoPhysics::SimpleLithology::permeability( const double ves, const double maxVes, const double calculatedPorosity) const
+{
+   return m_permeability.permeability(ves, maxVes, calculatedPorosity);
+}
+
+      /// Compte the derivative of the permeability function.
+inline void GeoPhysics::SimpleLithology::permeabilityDerivative( 
+                                          const double ves, 
+                                          const double  maxVes, 
+                                          const double  calculatedPorosity, 
+                                          double& permeability, 
+                                          double& derivative ) const
+{
+   m_permeability.permeabilityDerivative(ves, maxVes, calculatedPorosity, permeability, derivative);
+}
+
 
 #endif // _GEOPHYSICS__SIMPLE_LITHOLOGY_H_
