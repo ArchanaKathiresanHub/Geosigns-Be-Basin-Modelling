@@ -134,6 +134,10 @@ public:
    /// \return grid along P
    std::vector<double> getGridP() const { return m_gridP; }
 
+   /// \brief Set tolerance value which used for bisection iterations and for cutting very small phase fractions (<eps^2)
+   /// \param tol new tolerance value
+   void setTolValue( double tol ) { m_eps = tol; }
+   
    /// \brief Change the default value for A over B term in EosPack. Should be called before bubble/dew line search
    /// \param val new value for A over B term. Shold be more then 0 (at least)
    void setAoverBTerm( double val ) { m_AoverB = val; m_ChangeAoverB = true; }
@@ -169,7 +173,7 @@ private:
    // PVT library parameters
    double m_AoverB;                  ///< A over B term EosPack parameter
    bool   m_ChangeAoverB;            ///< Should we use A/B term as EosPack parameter
-   double m_stopTol;                 ///< Stop tolerancer for nonlinear solver of EosPack
+   double m_stopTol;                 ///< Stop tolerance for nonlinear solver of EosPack
    int    m_maxIters;                ///< Max. iterations number for nonlinear solver of EosPack
 
    double m_critP;                   ///< critical point P

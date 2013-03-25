@@ -31,7 +31,7 @@ static const double g_MinimalPressure    = 101325.0; // stock tank pressure - 1 
 static const double g_MaximalPressure    = 30e6;     // default maximum Pressure value for diagram 15 MPa
 static const double g_MaximalDiagramPressure = g_MaximalPressure * 3; // absolute maximum pressure for diagram. Sometimes it could be more than 300 MPa 
 static const int    g_GridSize           = 100;      // number of points between Min/Max temperature and pressure
-static const double g_Tolerance          = 1e-4;     // stop tolerance for bisection iterations
+static double       g_Tolerance          = 1e-4;     // stop tolerance for bisection iterations
 static const int    g_MaxStepsNum        = 200;      // maximum steps number in bisections iterations
 static const int    g_GridExtStep        = 5;        // extend T grid when needed for this number of points
 static const int    g_DefaultAoverB      = 2.0;      // the default value for A/B term
@@ -691,6 +691,8 @@ bool PTDiagramCalculator::findCriticalPointInChangePhaseAlongBubbleDewLine( bool
 {
    bool foundCriticalPoint = false;
 
+   if ( !m_bubbleDewLine.size() ) return foundCriticalPoint;
+
    double scaleT = 1.0 / (m_gridT.back() - m_gridT.front());
    double scaleP = 1.0 / (m_gridP.back() - m_gridP.front());
 
@@ -1180,7 +1182,7 @@ double PTDiagramCalculator::findAoverBTerm()
 std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSeparationLine()
 {
    // if done search before or there is no bubble/dew line just return m_spsLine
-   if ( m_spsLine.size() || !m_bubbleDewLine.size() ) return m_spsLine;
+   if ( m_spsLine.size() ) return m_spsLine;
 
    int inEdge = -1;
    int p1 = m_gridP.size() - 1;

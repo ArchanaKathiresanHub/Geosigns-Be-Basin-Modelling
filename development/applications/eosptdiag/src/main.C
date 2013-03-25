@@ -1,7 +1,8 @@
-// Copyright 2011, Shell Global Solutions International B.V.
+/// Copyright 2011, Shell Global Solutions International B.V.
 // All rights reserved. This document and the data and information contained herein is CONFIDENTIAL.
 // Neither the whole nor any part of this document may be copied, modified or distributed in any
 // form without the prior written consent of the copyright owner.
+
 #define NOMINMAX
 
 #include <cassert>
@@ -15,21 +16,28 @@
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
 
-#define PTDIAG_VERSION "2.1b"
+#define PTDIAG_VERSION "3.1"
 
 /// Type of diagram: Mass, Mole of Volume
 PTDiagramCalculator::DiagramType g_DiagType     = PTDiagramCalculator::MoleMassFractionDiagram;
 
 /// Draw colormap for liquid fraction in octave (0 - no colormap, 1 - linear colormap, 2 - logarithmic colormap)
-int  g_ColormapType = 0;
-bool g_IsBatch = false;
+bool g_DataOnly         = false;
+int  g_ColormapType     = 0;
+bool g_IsBatch          = false;
+bool g_LogCountourLines = false;
+int  g_CountourLinesNum = 11;
 
 // Drop spices from composition for octave outpu if their mass fraction less then given threshold
 double g_MassThreshold = 0.0; 
+
 /// EosPack parameters
 double g_ABTerm   = 2;
+bool   g_tuneAB   = false;
 double g_StopTol  = 1e-6;
 int    g_MaxIters = 400;
+double g_Tol      = 1e-4;
+bool   g_exportToPVTsim = false;
 
 static void showUsage( const std::string & msg )
 {
@@ -42,15 +50,22 @@ static void showUsage( const std::string & msg )
 
    std::cerr << "Usage: " << endl
       << "\t-help                      Shows this help message and exit." << std::endl << std::endl
-      << "\t-diag [mass | vol | mole*] Type of diagram, default is mass fraction diagram." << std::endl
+      << "\t-diag <mass | vol | mole*> Type of diagram, default is mass fraction diagram." << std::endl
+      << "\t-dataonly                  Do not add plot commands to octave .m file." << std::endl
+      << "\t-lines <linesNumber>       Set number of conotour lines to given number." << std::endl
+      << "\t-log                       Contour lines will be in logarithmic scale - like (0.001, 0.01, 0.1). Given lines number value must be odd number." << std::endl
+      << "\t[-tol <smallValue> ]       Set small value which is used in bisection iterations for finding bubble/dew and coutour lines" << std::endl
       << "\t[-dynamo]                  Create INC file to run with Dynamo" << std::endl << std::endl
       << "\t[-colormap]                Add liquid fraction values grid and colored countour lines to the plot" << std::endl
       << "\t[-logcolormap]             The same as colormap but use logarithmic scale for colormap" << std::endl
-      << "\t[-abterm val]              Set parmateres A/B term for EosPack. This paramters has influence how PvtLibrary labeling phases in 1 phase region" << std::endl 
+      << "\t[-abterm val]              Set parmateres A/B term for EosPack. This paramters has influence how PVT library labeling phases in 1 phase region" << std::endl 
+      << "                             Any negative value will set algorithm to the default behaviour (A/B doesn't be used)" << std::endl
+      << "\t[-tuneab]                  Do search for the value of A/B term in such way that single phases division line will go through the critical point" << std::endl
       << "\t[-massthresh val]          Drop component if it mass fraction less then given value in percents" << std::endl
       << "\t[-batch]                   Do not generate pause command in octave file to process bunch of compositions in one go" << std::endl
       << "\t[-stoptol val]             Set stop tolerance for nonlinear solver of EosPack to the given value (default is 1e-6)" << std::endl
       << "\t[-iters val]               Set max. iterations number for nonlinear solver of EosPack to the given value (default is 400)" << std::endl
+      << "\t[-pvtsim]                  Dump composition into csv file in order of components suitable for importing into PVTsim" << std::endl
       << ""                            << std::endl
       << "\t-project projectname       Name of the project file" << std::endl
       << "\t[-trap trapname]           Define trap for which diagram will be build" << std::endl
@@ -64,7 +79,7 @@ static void showUsage( const std::string & msg )
 
 void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & diagBuilder );
 PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data );
-
+void dumpCompositionToCSVforPVTsim( TrapperIoTableRec & data );
 
 
 int main( int argc, char ** argv )
@@ -108,16 +123,22 @@ int main( int argc, char ** argv )
          showUsage( argv[0] );
          return 0;
       }
-      else if ( prm == "-age"         ) { trapAge = std::string( "_" ) + val;    ++i; }
-      else if ( prm == "-trap"        ) { trapId          = val + "_";           ++i; }
-      else if ( prm == "-abterm"      ) { g_ABTerm        = atof( val.c_str() ); ++i; }
-      else if ( prm == "-massthresh"  ) { g_MassThreshold = atof( val.c_str() ); ++i; }
-      else if ( prm == "-stoptol"     ) { g_StopTol       = atof( val.c_str() ); ++i; }
-      else if ( prm == "-iters"       ) { g_MaxIters      = atol( val.c_str() ); ++i; }
-      else if ( prm == "-batch"       ) { g_IsBatch       = true; }
-      else if ( prm == "-dynamo"      ) { genDynamo       = true; }
-      else if ( prm == "-colormap"    ) { g_ColormapType = 1; }
-      else if ( prm == "-logcolormap" ) { g_ColormapType = 2; }
+      else if ( prm == "-age"         ) { trapAge            = std::string( "_" ) + val;    ++i; }
+      else if ( prm == "-trap"        ) { trapId             = val + "_";           ++i; }
+      else if ( prm == "-abterm"      ) { g_ABTerm           = atof( val.c_str() ); ++i; }
+      else if ( prm == "-tuneab"      ) { g_tuneAB           = true; }
+      else if ( prm == "-massthresh"  ) { g_MassThreshold    = atof( val.c_str() ); ++i; }
+      else if ( prm == "-stoptol"     ) { g_StopTol          = atof( val.c_str() ); ++i; }
+      else if ( prm == "-iters"       ) { g_MaxIters         = atol( val.c_str() ); ++i; }
+      else if ( prm == "-tol"         ) { g_Tol              = atof( val.c_str() ); ++i; }
+      else if ( prm == "-pvtsim"      ) { g_exportToPVTsim   = true; }
+      else if ( prm == "-batch"       ) { g_IsBatch          = true; }
+      else if ( prm == "-dynamo"      ) { genDynamo          = true; }
+      else if ( prm == "-dataonly"    ) { g_DataOnly         = true; }
+      else if ( prm == "-colormap"    ) { g_ColormapType     = 1; }
+      else if ( prm == "-logcolormap" ) { g_ColormapType     = 2; }
+      else if ( prm == "-lines"       ) { g_CountourLinesNum = atol( val.c_str() ) + 2; ++i; }
+      else if ( prm == "-log"         ) { g_LogCountourLines = true; }
       else if ( prm == "-diag" )
       {
          if (      val == "mole" ) { g_DiagType = PTDiagramCalculator::MoleMassFractionDiagram; ++i; }
@@ -261,21 +282,42 @@ int main( int argc, char ** argv )
 
    for ( std::vector<TrapperIoTableRec>::iterator it = data.begin(); it != data.end(); ++it )
    {
+      if ( g_exportToPVTsim )
+      {
+         dumpCompositionToCSVforPVTsim( *it );
+      }
+      // can't build diagram for empty composition
+      if ( (*it).totMass() < 1.e-5 ) 
+      {
+         std::cout << "Empty composition ignorred, total mass: " << (*it).totMass() << std::endl;
+      }
       clock_t cStart = clock();
       std::auto_ptr<PTDiagramCalculator> diagBuilder( CreateDiagramAndSaveToMFile( *it ) );
       clock_t cEnd = clock();
+
       if ( diagBuilder.get() )
       {
          if ( genDynamo )
          {
             dumpBblDewLineToDynamoInc( *it, *(diagBuilder.get()) );
          }
-
-         std::cout << "Calculation time: " << (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC) << std::endl;
+         std::cout << "Diagram calculation time: " << (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC) << std::endl;
          std::cout << "   Number of points along P axis - " << diagBuilder->getSizeGridP() << std::endl;
          std::cout << "   Number of points along T axis - " << diagBuilder->getSizeGridT() << std::endl;
          std::cout << "   Number of PVT library calls for bubble/dew points search - " << diagBuilder->getBubbleDewSearchIterationsNumber() << std::endl;
          std::cout << "   Number of PVT library calls for building isolines - " << diagBuilder->getContourLinesSearchIterationsNumber() << std::endl;
+
+         int pvtCals = diagBuilder->getBubbleDewSearchIterationsNumber();
+         if ( g_tuneAB )
+         {
+            cStart = clock();
+            g_ABTerm = diagBuilder->findAoverBTerm();
+            cEnd = clock();
+            
+            std::cout << std::endl <<  "Tunned value for A/B term is: " << g_ABTerm << std::endl;
+            std::cout << "   A/B parameter search time: " << (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC) << std::endl;
+            std::cout << "   Number of PVT library calls for A/B term search - " << diagBuilder->getBubbleDewSearchIterationsNumber() - pvtCals << std::endl;
+         }
       }
    }
    return 0;
@@ -288,7 +330,6 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    std::cout << str << std::endl;
 
    double massTotal = data.totMass();
-   if ( massTotal < 1.0 ) return 0; // can't build diagram for empty composition
 
    const int iNc = CBMGenerics::ComponentManager::NumberOfSpecies;
 
@@ -302,34 +343,39 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
 
    std::auto_ptr<PTDiagramCalculator> diagBuilder( new PTDiagramCalculator( g_DiagType, masses ) );
    
-   diagBuilder->setAoverBTerm( g_ABTerm );
+   if ( g_ABTerm > 0 ) // negative value means ignore AoverB term
+   {
+      diagBuilder->setAoverBTerm( g_ABTerm );
+   }
    diagBuilder->setNonLinSolverConvPrms( g_StopTol, g_MaxIters );
-
+   diagBuilder->setTolValue( g_Tol );
    diagBuilder->findBubbleDewLines( data.temperature() + CBMGenerics::C2K, data.pressure() * CBMGenerics::MPa2Pa, std::vector<double>() );
-
-   double vals[]   = { 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
-   int    colors[] = { 0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0 };
-   
+ 
    std::string plotName = data.name() + "_PTDiag";
+
+   std::string diagTypeStr;
    switch( g_DiagType )
    {
-      case PTDiagramCalculator::MoleMassFractionDiagram:   plotName += "_mole";   break;
-      case PTDiagramCalculator::VolumeFractionDiagram:     plotName += "_vol"; break;
-      case PTDiagramCalculator::MassFractionDiagram:       plotName += "_mass";   break;
-      default:                                             assert( 0 );     break;
+      case PTDiagramCalculator::MoleMassFractionDiagram:   diagTypeStr = "mole";   break;
+      case PTDiagramCalculator::VolumeFractionDiagram:     diagTypeStr = "volume"; break;
+      case PTDiagramCalculator::MassFractionDiagram:       diagTypeStr = "mass";   break;
+      default:                                             assert( 0 );            break;
    }
+   plotName += "_" + diagTypeStr;
+
    std::ofstream ofs( (plotName + ".m").c_str(), ios_base::out | ios_base::trunc );
  
    const std::vector<double> & gridT = diagBuilder->getGridT();
    const std::vector<double> & gridP = diagBuilder->getGridP();
 
+ 
    ofs << "#Pressure-Temperature phase diagram for hydrocarbons composition genertated by PTDiag utility v." << PTDIAG_VERSION << std::endl;
    ofs << "#Units are: P [MPa], T [K], masss [kg] or fraction" << std::endl;
    ofs << "#Grid along T axis (X)" << std::endl;
    ofs << "gridT = [ ";
    for ( size_t i = 0; i < gridT.size(); ++i )
    {
-      ofs << gridT[i] << ( i + 1 == gridT.size() ? "" : ", " );
+      ofs << gridT[i] << " ";
    }
    ofs << "];" << std::endl << std::endl;
 
@@ -337,7 +383,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    ofs << "gridP = [ ";
    for ( size_t i = 0; i < gridP.size(); ++i )
    {
-      ofs << gridP[i] * CBMGenerics::Pa2MPa << ( i + 1 == gridP.size() ? "" : ", " );
+      ofs << gridP[i] * CBMGenerics::Pa2MPa << gridP.size() << " ";
    }
    ofs << "];" << std::endl << std::endl;
 
@@ -378,9 +424,9 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    }
    ofs << "];" << std::endl << std::endl;
 
-   ofs << "grid on" << std::endl;
-   ofs << "hold off" << std::endl << std::endl;
-   ofs << "subplot( 3, 4, [ 1 2 3 5 6 7 9 10 11] );" << std::endl;
+   if ( !g_DataOnly ) ofs << "grid on" << std::endl;
+   if ( !g_DataOnly ) ofs << "hold off" << std::endl << std::endl;
+   if ( !g_DataOnly ) ofs << "subplot( 3, 4, [ 1 2 3 5 6 7 9 10 11] );" << std::endl;
 
    if ( g_ColormapType )
    {
@@ -394,14 +440,29 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
             {
                val = 1e-30;
             }
-            ofs << val << ( j < gridT.size() - 1 ? ", " : "" );
+            ofs << val << " ";
          }
          ofs << std::endl;
       }
       ofs << "];" << std::endl << std::endl;
 
-      ofs << "colormap( cool() );" << std::endl;
-      
+      double maxP = ceil(  std::max( gridP.back()  * CBMGenerics::Pa2MPa, data.pressure() ) );
+      double minP = floor( std::min( gridP.front() * CBMGenerics::Pa2MPa, data.pressure() ) );
+      ofs << std::endl;
+      if ( !g_DataOnly )
+      {
+         ofs << "for i = size( LiqFraction, 2 )-3:-1:1" << std::endl;
+         ofs << "   if ( length( find( LiqFraction(:,i) != LiqFraction(1,i))) > 0 )" << std::endl;
+         ofs << "      axis( [ gridT(1) gridT(i+3) " << minP << " " << maxP << " ] );" << std::endl;
+         ofs << "      break;" << std::endl;
+         ofs << "   end" << std::endl;
+         ofs << "end" << std::endl << std::endl;
+      }
+   }
+
+   if ( !g_DataOnly && g_ColormapType )
+   {
+      ofs << "colormap( cool(64) );" << std::endl;
       if ( g_ColormapType == 1 )
       {
          ofs << "contourf( gridT, gridP, LiqFraction, [0:0.1:1] );" << std::endl;
@@ -414,18 +475,96 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
          ofs << "cbh = findobj( gcf(), 'tag', 'colorbar' );" << std::endl;
          ofs << "set( cbh, 'xtick', [-8, -7, -6, -5, -4, -3, -2, -1, 0], 'xticklabel', {'1e-8', '1e-7', '1e-6', '1e-5', '1e-4', '1e-3', '1e-2', '1e-1', '1'} );" << std::endl;
       }
-      double maxP = ceil(  std::max( gridP.back()  * CBMGenerics::Pa2MPa, data.pressure() ) );
-      double minP = floor( std::min( gridP.front() * CBMGenerics::Pa2MPa, data.pressure() ) );
-      ofs << std::endl;
-      ofs << "for i = size( LiqFraction, 2 )-3:-1:1" << std::endl;
-      ofs << "   if ( length( find( LiqFraction(:,i) != LiqFraction(1,i))) > 0 )" << std::endl;
-      ofs << "      axis( [ gridT(1) gridT(i+3) " << minP << " " << maxP << " ] );" << std::endl;
-      ofs << "      break;" << std::endl;
-      ofs << "   end" << std::endl;
-      ofs << "end" << std::endl << std::endl;
    }
 
-   for ( int i = 0; i < sizeof(vals)/sizeof(double); ++i )
+   std::vector<double> vals;
+   std::vector<int> colors;
+
+   if ( g_LogCountourLines ) // if countour lines should have logarithmic scale build sequence like this [0 0.001 0.01 0.1 0.5 0.9 0.99 0.999 1]
+   {
+      if ( !(g_CountourLinesNum % 2) )
+      {
+         g_CountourLinesNum++; 
+      }
+
+      vals.push_back( 0.0 );
+      for ( int i = 1; i < g_CountourLinesNum / 2 + g_CountourLinesNum % 2 - 1; ++i )
+      {
+         vals.push_back( std::pow( 10.0, -(g_CountourLinesNum/2 + g_CountourLinesNum % 2 - 1 - i) ) );
+      }
+
+      vals.push_back( 0.5 );
+
+      for ( int i = g_CountourLinesNum / 2 + g_CountourLinesNum % 2 - 1; i < g_CountourLinesNum - 2; ++i )
+      {
+         vals.push_back( 1.0 - std::pow( 10.0, -i + (g_CountourLinesNum/2 + g_CountourLinesNum % 2 - 2) ) );
+      }
+      vals.push_back( 1.0 );
+
+      for ( int i = 0; i < vals.size(); ++i )
+         std::cout << vals[i] << " ";
+   }
+   else // just linear spacing like [0 0.2 0.4 0.6 0.8 1]
+   {
+      for ( int i = 0; i < g_CountourLinesNum; ++i )
+      {
+         vals.push_back( i * (1.0 / (g_CountourLinesNum - 1) ) );
+      }
+   }
+
+   // if number of lines rather small use legend and predefined plot colors
+   if ( vals.size() <= 11 ) 
+   {
+      for ( int i = 0; i < vals.size() / 2 + vals.size() % 2; ++i )
+      {
+         colors.push_back( i );
+      }
+      for ( int i = vals.size() / 2 +vals.size() % 2; i < vals.size(); ++i )
+      {
+         colors.push_back( vals.size() - 1 - i );
+      }
+   }
+   else // use colormap to define plot colors
+   {
+      if ( !g_DataOnly ) ofs << "colors = jet( " << vals.size()/2+1 << ");" << std::endl;
+   }
+
+   ofs << "#Contour lines for" << std::endl;
+   ofs << "clVals = [ ";
+   for ( std::vector<double>::iterator it = vals.begin(); it != vals.end(); ++it )
+   {
+      ofs << *it << " ";
+   }
+   ofs << "];" << std::endl << std::endl;
+
+   // draw Liquid/Vapor single phases separation line
+   const std::vector< std::pair<double,double> > & spsline = diagBuilder->getSinglePhaseSeparationLine();
+   if ( spsline.size() )
+   {
+      ofs << "#Vapor/Liquid single phase separation line" << std::endl;
+      ofs << "spsline = [" << std::endl << "  ";
+
+      for ( size_t j = 0; j < spsline.size(); ++j )
+      {
+         ofs << spsline[j].first << " ";
+      }
+      ofs << std::endl << "  ";
+
+      for ( size_t j = 0; j < spsline.size(); ++j )
+      {
+         ofs << spsline[j].second * CBMGenerics::Pa2MPa << " ";
+      }
+      ofs << std::endl << "];" << std::endl << std::endl;
+      
+      if ( !g_DataOnly )
+      {
+         ofs << "hold on" << std::endl;
+         ofs << "plot( spsline(1,:), spsline(2,:), 'k', 'linewidth', 3 )" << std::endl << std::endl;
+         ofs << "plot( spsline(1,:), spsline(2,:), 'r', 'linewidth', 1 )" << std::endl << std::endl;
+      }
+   }
+
+   for ( int i = 0; i < vals.size(); ++i )
    {
       const std::vector< std::pair<double,double> > & isoline = diagBuilder->calcContourLine( vals[i] );
       if ( !isoline.size() ) continue;
@@ -435,26 +574,73 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
 
       for ( size_t j = 0; j < isoline.size(); ++j )
       {
-         ofs << isoline[j].first << (j + 1 == isoline.size() ? "" : ", ");
+         ofs << isoline[j].first << " ";
       }
       ofs << std::endl << "  ";
 
       for ( size_t j = 0; j < isoline.size(); ++j )
       {
-         ofs << isoline[j].second * CBMGenerics::Pa2MPa << (j + 1 == isoline.size() ? "" : ", ");
+         ofs << isoline[j].second * CBMGenerics::Pa2MPa << " ";
       }
       ofs << std::endl << "];" << std::endl << std::endl;
       
-      ofs << (i == 0 ? "hold on" : "" )<< std::endl;
-      ofs << "plot( data_" << i << "(1,:), data_" << i << "(2,:), '" << colors[i] ;
-/*
-      switch( i )
+      if ( !g_DataOnly )
       {
-         case 0:                               ofs << "-x"; break;
-         //case sizeof(vals)/sizeof(double) - 1: ofs << "-+"; break;
+         ofs << (i == 0 ? "hold on" : "" )<< std::endl;
+   
+         ofs << "plot( data_" << i << "(1,:), data_" << i << "(2,:), ";
+      
+         if ( vals.size() <= 11 )
+         {
+            ofs << "'" << colors[i] << "', ";
+         }
+         else
+         {
+            ofs << "'color', colors( " << (vals[i] <= 0.5 ? i+1 : vals.size() - i) << ",:), ";
+         }
+         ofs << "'linewidth', 2 )" << std::endl << std::endl;
       }
-*/
-      ofs << "', 'linewidth', 2 )" << std::endl << std::endl;
+   }
+   if ( g_DataOnly )
+   {
+      // Point with trap condition could call axiss ajustmenst that is why we should draw it first
+      ofs << "#Point for trap conditions" << std::endl; 
+      ofs << "TrapCond = [" << (data.temperature() + CBMGenerics::C2K) << ", " << data.pressure() << "];" << std::endl;
+      ofs << std::endl;
+      
+      ofs << "#Point for surface conditions" << std::endl;
+      ofs << "SurfCond = [" << 273.15 + 15 << ", " << 101325.0 * CBMGenerics::Pa2MPa << "];" << std::endl;
+      ofs << std::endl;
+
+      ofs << "#Critical point" << std::endl;
+      ofs << "CritPoint = [" << diagBuilder->getCriticalPoint().first << ", " << 
+                                diagBuilder->getCriticalPoint().second * CBMGenerics::Pa2MPa << "];" << std::endl;
+      ofs << std::endl;
+
+      ofs << "#Bubble/dew point for temperature in trap" << std::endl;
+      double T = data.temperature() + CBMGenerics::C2K;
+      double P;
+      if ( diagBuilder->getBubblePressure( T, &P ) )
+      {
+         ofs << "BubblePoint = [" << T << ", " << P * CBMGenerics::Pa2MPa << "];" << std::endl;
+      }
+      else 
+      {
+         ofs << "BubblePoint = [" << T << ", " << 0.0 << "];" << std::endl;
+      }
+      ofs << std::endl;
+ 
+      const std::pair<double,double> & cct = diagBuilder->getCricondenthermPoint();
+      ofs << "#Cricondentherm point" << std::endl;
+      ofs << "CricondthermPoint = [" << cct.first << ", " << cct.second * CBMGenerics::Pa2MPa << "];" << std::endl;
+      ofs << std::endl;
+ 
+      const std::pair<double,double> & ccp = diagBuilder->getCricondenbarPoint();
+      ofs << "#Cricondenbar point" << std::endl;
+      ofs << "Cricondenbar = [" << ccp.first << ", " << ccp.second * CBMGenerics::Pa2MPa << "];" << std::endl;
+      ofs << std::endl;
+
+      return diagBuilder.release();
    }
 
    ofs << "#Axiss names" << std::endl;
@@ -462,23 +648,90 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
    ofs << "ylabel( '" << "Pressure, MPa" << "')" << std::endl;
    ofs << std::endl;
    ofs << "#Plot legend" << std::endl;
-   ofs << "legend( ";
-   for ( size_t j = 0; j < (sizeof(vals)/sizeof(double) / 2 + 1); ++j )
-   {
-      ofs << "'" << "Vap/Liq ";
-      switch( g_DiagType )
+
+   // Generate legend/colorbar
+   if ( g_CountourLinesNum <= 11 )
+   {  // simplest case - legend and colorbar separated
+      if ( g_ColormapType )
       {
-         case PTDiagramCalculator::MoleMassFractionDiagram:   ofs << "mole";   break;
-         case PTDiagramCalculator::VolumeFractionDiagram:     ofs << "volume"; break;
-         case PTDiagramCalculator::MassFractionDiagram:       ofs << "mass";   break;
-         default:                                             assert( 0 );     break;
+         ofs << "colormap( cool( 64 ) );" << std::endl;
+      
+         if ( g_ColormapType == 1 )
+         {
+            ofs << "contourf( gridT, gridP, LiqFraction, [0:0.1:1] );" << std::endl;
+            ofs << "colorbar( 'SouthOutside' );" << std::endl;
+         }
+         else
+         {
+            ofs << "contourf( gridT, gridP, log10( LiqFraction ), [-8, -7, -6, -5, -4, -3, -2, -1, 0] );" << std::endl;
+            ofs << "colorbar( 'SouthOutside' );" << std::endl;
+            ofs << "cbh = findobj( gcf(), 'tag', 'colorbar' );" << std::endl;
+            ofs << "set( cbh, 'xtick', [-8, -7, -6, -5, -4, -3, -2, -1, 0], ";
+            ofs <<           "'xticklabel', {'1e-8', '1e-7', '1e-6', '1e-5', '1e-4', '1e-3', '1e-2', '1e-1', '1'} );" << std::endl;
+         }
       }
-      ofs << " frac ";
-      if ( vals[j] == 0.0 ) ofs << "0.0";
-      else                  ofs << vals[j];
-      ofs << "'" << ((j < sizeof(vals)/sizeof(double) / 2) ? ", " : "");
+      // generate legend
+      ofs << "legend( ";
+      if ( g_ColormapType ) ofs << "'',"; // for some reason octave shift legend by one line if contourf was called
+
+      for ( size_t j = 0; j < vals.size() / 2 + 1; ++j )
+      {
+         ofs << "'" << "Vap/Liq " << diagTypeStr << " frac ";
+         if ( vals[j] == 0.0 ) ofs << "0.0";
+         else                  ofs << vals[j];
+         ofs << "'" << ((j < vals.size() / 2) ? ", " : "");
+      }
+      ofs << ", 'location', 'northeast' );" << std::endl;
    }
-   ofs << ", 'location', 'northeast' );" << std::endl;
+   else
+   {
+      if ( g_ColormapType )
+      {  // we should join 2 coloromaps in one colorbar         
+         ofs << "colormap( [cool(64); [1 1 1; 1 1 1; 1 1 1]; colors ] );" << std::endl;
+         ofs << "isolNum = size(colors,1);" << std::endl;
+         ofs << "if isolNum/64 > 1" << std::endl;
+         ofs << "   ticksNum = 10;" << std::endl;
+         ofs << "elseif isolNum/64 > 0.5" << std::endl;
+         ofs << "   ticksNum = 5;" << std::endl;
+         ofs << "elseif isolNum/64 > 0.2" << std::endl;
+         ofs << "   ticksNum = 3;" << std::endl;
+         ofs << "else" << std::endl;
+         ofs << "   ticksNum = 2;" << std::endl;
+         ofs << "end" << std::endl;
+         ofs << "tickStep = isolNum/64/ticksNum;" << std::endl;
+         ofs << "isoTicks = [1+(3/64) : tickStep : 1+(3+isolNum)/64 ];" << std::endl;
+         ofs << "caxis( [0 (1 + (3+isolNum)/64.0)] );" << std::endl;
+         ofs << "colorbar( 'SouthOutside' );" << std::endl;
+         ofs << "cbh = findobj( gcf(), 'tag', 'colorbar' );" << std::endl;
+         ofs << "tickStep = 0.5/(length(isoTicks)-1);" << std::endl;
+         ofs << "isoTicksLabel = [0, tickStep:tickStep:(0.5-tickStep), 0.5];" << std::endl;
+         ofs << "set(cbh, 'xtick', [0,0.2,0.4,0.6,0.8,1.0,[isoTicks]], ";
+         ofs << "'xticklabel', [{'0'; '0.2'; '0.4'; '0.6'; '0.8'; '1.0'}; cellstr(num2str(isoTicksLabel')) ] );" << std::endl;
+         ofs << "set( cbh, 'xlabel', 'Liquid " << diagTypeStr << " fraction (Left). Vap/Liq " << diagTypeStr << " fraction (Right)' );";
+      }
+      else
+      {
+         // if there is no contourf use simple colorbar
+         ofs << "colorbar( 'SouthOutside' );" << std::endl;
+         ofs << "cbh = findobj( gcf(), 'tag', 'colorbar' );" << std::endl;
+         ofs << "caxis( [0 1] );" << std::endl;
+         ofs << "set( cbh, 'xlabel', 'Vap/Liq " << diagTypeStr << " fraction', 'xtick', ";
+         if ( !g_LogCountourLines )
+         {
+            ofs << "[ 0 0.2 0.4 0.6 0.8 1 ], 'xticklabel', {'0', '0.1', '0.2', '0.3', '0.4', '0.5'} );" << std::endl;
+         }
+         else
+         {
+            double minV = static_cast<int>( std::floor( (std::log10( vals[1] ) + 0.5 ) ) );
+            ofs<< "[ 0 ";
+            for ( int i = minV; i <= 0; ++i ) ofs << (minV-i)/minV << " ";
+            ofs << "], 'xticklabel', {";
+            for ( int i = minV-1; i < 0; ++i ) ofs << "'1e" << i << "', ";
+            ofs << "'0.5'} )" << std::endl;
+         }
+      }
+   }
+
    ofs << std::endl;
 
    ofs << "#Plot title" << std::endl;
@@ -533,7 +786,25 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
       ofs << "text( " << T << " + dT, " << P << " + dP, 'Pbb = " << P << " MPa', 'fontweight', 'bold' );" << std::endl;
       ofs << std::endl;
    }
-      
+ 
+   const std::pair<double,double> & cct = diagBuilder->getCricondenthermPoint();
+   T = cct.first;
+   P = cct.second * CBMGenerics::Pa2MPa;
+   ofs << "#Cricondentherm point" << std::endl;
+   ofs << "plot( [" << T << "], [" << P << "], 'bo', 'linewidth', 2 );" << std::endl;
+   ofs << "text( " << T << " + dT, " << P << " - dP, 'Tct = " << T << " K',   'fontweight', 'bold' );" << std::endl;
+   ofs << "text( " << T << " + dT, " << P << " + dP, 'Pct = " << P << " MPa', 'fontweight', 'bold' );" << std::endl;
+   ofs << std::endl;
+ 
+   const std::pair<double,double> & ccp = diagBuilder->getCricondenbarPoint();
+   T = ccp.first;
+   P = ccp.second * CBMGenerics::Pa2MPa;
+   ofs << "#Cricondenbar point" << std::endl;
+   ofs << "plot( [" << T << "], [" << P << "], 'bo', 'linewidth', 2 );" << std::endl;
+   ofs << "text( " << T << " + dT, " << P << " - dP, 'Tcp = " << T << " K',   'fontweight', 'bold' );" << std::endl;
+   ofs << "text( " << T << " + dT, " << P << " + dP, 'Pcp = " << P << " MPa', 'fontweight', 'bold' );" << std::endl;
+   ofs << std::endl;
+
    ofs << "#Show composition info into the plot" << std::endl;
    ofs << "#Create a pie chart for nonzero components" << std::endl;
    ofs << "subplot( 3, 4, [ 4 ] );" << std::endl << std::endl;
@@ -686,4 +957,33 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
 
 }
 
+
+void dumpCompositionToCSVforPVTsim( TrapperIoTableRec & data )
+{
+   std::ofstream ofs( (data.name()+".csv").c_str(), ios_base::trunc );
+
+   ofs << data.compMass( CBMGenerics::ComponentManager::C1 ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C2 ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C3 ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C4 ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C5 ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::N2 ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::COx ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::H2S ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14Aro ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14Sat ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusAro ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusSat ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::LSC ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusAT ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusAroS ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusSatS ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14BT ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14DBT ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14BP ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14SatS ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14AroS ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::resin ) << ",";
+   ofs << data.compMass( CBMGenerics::ComponentManager::asphaltene ) << std::endl;
+}
 

@@ -111,32 +111,6 @@ std::string TrapperIoTableRec::toString() const
    oss << "     SolutionGas: "  << m_TotMass[2] << std::endl;
    oss << "     StockTankOil: " << m_TotMass[3] << std::endl;
 
-   oss << "  Masses by components for PVT Sim: " << std::endl << "      " << std::endl;
-
-   oss << compMass( CBMGenerics::ComponentManager::C1 ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C2 ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C3 ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C4 ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C5 ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::N2 ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::COx ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::H2S ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C6Minus14Aro ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C6Minus14Sat ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C15PlusAro ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C15PlusSat ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::LSC ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C15PlusAT ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C15PlusAroS ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C15PlusSatS ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C6Minus14BT ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C6Minus14DBT ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C6Minus14BP ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C6Minus14SatS ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::C6Minus14AroS ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::resin ) << " ";
-   oss << compMass( CBMGenerics::ComponentManager::asphaltene ) << std::endl;
-
    oss << "  Masses by components: " << std::endl << "      " << std::endl;
    for ( int i = CBMGenerics::ComponentManager::NumberOfSpecies-1; i >=0; --i )
    {

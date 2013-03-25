@@ -60,7 +60,7 @@ EOSDATA BEGIN
   ECLMODEL eosmodel ; eosmodel ECL_FILE "cauld.ecl"
 
   eosmodel PREF = 3000*PSI
-  eosmodel SALINITY = 90000 ! Salinity in PPM
+  !eosmodel SALINITY = 90000 ! Salinity in PPM
 
   DEFAULT_P_STANK = 14.7*PSI
   DEFAULT_T_STANK = FAHRENHEIT (60)

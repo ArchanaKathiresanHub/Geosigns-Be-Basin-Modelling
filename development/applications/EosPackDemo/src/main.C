@@ -61,20 +61,33 @@ int main (int nArg, char *pszArgs[])
       isGormPrescribed = false;
 
    //Genex5::Genex5Framework& genex5 = Genex5::Genex5Framework::getInstance();
+   cout.precision (8);
 
+   double totMass = 0;
    for (i = 0; i < NUM_COMP_TOT; ++i)
    {
       //cout << "mass " << genex5.GetSpeciesName(i) << ": " << compMasses[i] << endl;
       cout << "mass " << theComponentManager.GetSpeciesName (i) << ": " << compMasses[i] << endl;
+      totMass += compMasses[i];
    }
+
+   cout << "Total mass: " << totMass << endl;
 
    if (pvtFlash::EosPack::getInstance ().computeWithLumping (temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm))
    {
       //cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
 
-      cout.precision (8);
       cout << "results of run 1:" << endl;
       cout << "OilDensity: " << phaseDensity[1] << " GasDensity: " << phaseDensity[0] << endl;
+
+      double liqPhaseMass = 0;
+      double vapPhaseMass = 0;
+      for ( i = 0; i < NUM_COMP_TOT; ++i )
+      {
+         liqPhaseMass += phaseCompMasses[1][i];
+         vapPhaseMass += phaseCompMasses[0][i];
+      }
+      cout << "Liquid phase mass: " << liqPhaseMass << ", Vapour phase masss: " << vapPhaseMass << endl;
    }
 
    for (i = 0; i < NUM_COMP; ++i)
@@ -83,7 +96,7 @@ int main (int nArg, char *pszArgs[])
       //    << "mass " << genex5.GetSpeciesName(i) << " [oilphase]: " << phaseCompMasses[1][i] <<  endl;
 
       cout << "mass " << theComponentManager.GetSpeciesName (i) << " [gasphase]: " << phaseCompMasses[0][i] << " --- "
-            << "mass " << theComponentManager.GetSpeciesName (i) << " [oilphase]: " << phaseCompMasses[1][i] << endl;
+           << "mass " << theComponentManager.GetSpeciesName (i) << " [oilphase]: " << phaseCompMasses[1][i] << endl;
    }
 
 
@@ -132,7 +145,7 @@ int main (int nArg, char *pszArgs[])
       double testBuf[NUM_COMP_TOT + 2];
       double testBuf1[NUM_COMP];
       
-      for(int o = 0; o < NUM_COMP_TOT - 2; ++ o ) {
+      for(int o = 0; o < NUM_COMP_TOT; ++ o ) {
          testBuf[o]  = compMasses[o];
       }
       testBuf[NUM_COMP_TOT]  = 131;
