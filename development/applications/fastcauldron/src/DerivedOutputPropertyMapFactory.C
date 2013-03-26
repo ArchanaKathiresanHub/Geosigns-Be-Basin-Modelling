@@ -89,7 +89,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    m_mapPropertyTraitsMap [ PRESSURE ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
-   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
+   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ CHEMICAL_COMPACTION ] = mapTraits;
 
