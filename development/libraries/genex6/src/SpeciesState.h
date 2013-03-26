@@ -64,6 +64,38 @@ public:
    /// Units are in moles/m^3.
    double getAdsorpedMol () const;
 
+   /// Set a new adsorped value for the species.
+   ///
+   /// Units are in kg/m^2
+   void setAdsorpedMass ( const double newValue );
+
+   /// Get the current adsorped value for the species.
+   ///
+   /// Units are in kg/m^3.
+   double getAdsorpedMass () const;
+
+
+   /// Set adsorped value for the species over time-step.
+   ///
+   /// Units are in kg/m^2
+   void setTransientAdsorpedMass ( const double transientAdsorped );
+
+   /// Set desorped value for the species over the time-step.
+   ///
+   /// Units are in kg/m^2
+   void setTransientDesorpedMass ( const double transientDesorped );
+
+   /// Get adsorped value for the species.
+   ///
+   /// Units are in kg/m^2
+   double getTransientAdsorpedMass () const;
+
+   /// Get adsorped value for the species.
+   ///
+   /// Units are in kg/m^2
+   double getTransientDesorpedMass () const;
+
+
    /// Set a new desorped value for the species.
    ///
    /// Units are in moles/m^3
@@ -124,6 +156,10 @@ private:
    double m_previousExpelledMassSR;
 
    double m_adsorpedMol;
+   double m_adsorpedMass;
+   double m_transientAdsorpedMass;
+   double m_transientDesorpedMass;
+
    double m_desorpedMol;
    double m_freeMol;
    double m_expelledMol;
@@ -160,6 +196,11 @@ inline SpeciesState::SpeciesState(const Species* species,const double &in_concen
    m_generatedMass = 0.0;
 
    m_adsorpedMol = 0.0;
+   m_adsorpedMass = 0.0;
+
+   m_transientAdsorpedMass = 0.0;
+   m_transientDesorpedMass = 0.0;
+
    m_desorpedMol = 0.0;
    m_freeMol = 0.0;
    m_expelledMol = 0.0;
@@ -202,6 +243,18 @@ inline double SpeciesState::getMassExpelledFromSourceRock () const {
 
 inline double SpeciesState::getAdsorpedMol () const {
    return m_adsorpedMol;
+}
+
+inline double SpeciesState::getAdsorpedMass () const {
+   return m_adsorpedMass;
+}
+
+inline double SpeciesState::getTransientAdsorpedMass () const {
+   return m_transientAdsorpedMass;
+}
+
+inline double SpeciesState::getTransientDesorpedMass () const {
+   return m_transientDesorpedMass;
 }
 
 inline double SpeciesState::getDesorpedMol () const {

@@ -286,7 +286,15 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
          simulatorState->addH2SFromGenex ( speciesState->getExpelledMassTransient ());
       } else if ( componentId != CBMGenerics::ComponentManager::UNKNOWN ) {
+
          double speciesRetained = speciesState->getRetained () + speciesState->GetExpelledMass () - speciesState->getPreviousExpelledMass ();
+
+         if ( m_c1AdsorptionSimulator.speciesIsSimulated ( componentId )) {
+            // If the species is being modelled in the adsorption then also remove what was adsorped over the time-step.
+            speciesRetained -= speciesState->getTransientAdsorpedMass ();
+            // And add what was desorped over the time-step.
+            speciesRetained += speciesState->getTransientDesorpedMass ();
+         }
 
          if ( CBMGenerics::ComponentManager::getInstance ().isGas ( componentId )) {
             hcGasBeforeOtgc += speciesRetained;

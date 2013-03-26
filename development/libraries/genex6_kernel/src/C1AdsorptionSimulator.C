@@ -111,8 +111,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    double gasCapacity;
    double gasCapacityMol;
 
-   double c1ExpelledMass;
-   double c1ExpelledMol;
    double adsorpedGasMolNext;
    double adsorpedTransient = 0.0;
    double desorpedTransient = 0.0;
@@ -155,9 +153,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    if ( output ) {
       cout << " adsorption: " << adsorptionCapacity << "  " << simulatorState->getCurrentToc () << endl;
    }
-
-   // kg/m2
-   c1ExpelledMass = c1State->GetExpelledMass ();
 
    if ( output ) {
       cout << " c1 state: " 
@@ -246,12 +241,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    }
 
-   // How much was expelled for this time-step (moles).
-   c1ExpelledMol = desorpedTransient - adsorpedTransient;
-
-   // How much was expelled for this time-step (kg/m2).
-   c1ExpelledMass += c1ExpelledMol * thickness / 1000.0 * molarComponentMasses [ pvtFlash::C1 ];
-
 #if 0
    if ( excessCapacityMol > 0.0 ) {
 
@@ -288,8 +277,10 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    }
 #endif
 
-   c1State->SetExpelledMass ( c1ExpelledMass, false );
    c1State->setAdsorpedMol ( adsorpedGasMol );
+   c1State->setAdsorpedMass ( adsorpedGasMol * thickness / 1000.0 * molarComponentMasses [ pvtFlash::C1 ]);
+   c1State->setTransientAdsorpedMass ( adsorpedTransient * thickness / 1000.0 * molarComponentMasses [ pvtFlash::C1 ]);
+   c1State->setTransientDesorpedMass ( desorpedTransient * thickness / 1000.0 * molarComponentMasses [ pvtFlash::C1 ]);
    c1State->setDesorpedMol ( desorpedTransient + c1State->getDesorpedMol ());
    c1State->setFreeMol ( freeGasMol );
    c1State->setExpelledMol ( c1State->getExpelledMol () + expelledGasMol );

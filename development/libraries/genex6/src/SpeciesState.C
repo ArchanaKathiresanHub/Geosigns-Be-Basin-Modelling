@@ -36,6 +36,20 @@ void Genex6::SpeciesState::setAdsorpedMol ( const double newValue ) {
    m_adsorpedMol = newValue;
 }
 
+void Genex6::SpeciesState::setAdsorpedMass ( const double newValue ) {
+   m_adsorpedMass = newValue;
+}
+
+void Genex6::SpeciesState::setTransientAdsorpedMass ( const double transientAdsorped ) {
+   m_transientAdsorpedMass = transientAdsorped;
+
+}
+
+void Genex6::SpeciesState::setTransientDesorpedMass ( const double transientDesorped ) {
+   m_transientDesorpedMass = transientDesorped;
+}
+
+
 void Genex6::SpeciesState::setDesorpedMol ( const double newValue ) {
    m_desorpedMol = newValue;
 }
