@@ -13,7 +13,7 @@
 	
 	  <!-- Copy source with rsync -->
     <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>
-    <copy_code>$(rsync_exe) --rsh="$(rsh)" --recursive --delete $(solution_root) $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
+    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
     <!-- To copy the source code, we use 'tar' because 'scp' is slow. There are many small files to copy -->
     <!--<copy_code>cd /d "$(solution_root)" &amp;&amp; $(tar_exe) c . | $(ssh_command_alt) "cd $(RemoteSourceDirAlt); tar -x; chmod -R 750 $(RemoteSourceDirAlt)"</copy_code>-->
 	
