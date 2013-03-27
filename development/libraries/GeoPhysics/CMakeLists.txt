@@ -139,6 +139,31 @@ add_test(NAME GeoPhysics::PermeabilityMudStone::model
 )      
 
 
+add_executable(PermeabilityMultiPoint
+      test/PermeabilityMultiPoint.C
+)
+
+target_link_libraries(PermeabilityMultiPoint
+      GeoPhysics
+)      
+
+add_test(NAME GeoPhysics::PermeabilityMultiPoint::permeability
+      COMMAND PermeabilityMultiPoint permeability
+)      
+
+add_test(NAME GeoPhysics::PermeabilityMultiPoint::permeabilityDerivative
+      COMMAND PermeabilityMultiPoint permeabilityDerivative
+)      
+
+add_test(NAME GeoPhysics::PermeabilityMultiPoint::depoPerm
+      COMMAND PermeabilityMultiPoint depoPerm
+)      
+
+add_test(NAME GeoPhysics::PermeabilityMultiPoint::model
+      COMMAND PermeabilityMultiPoint model
+)      
+
+
 
 # Local Variables:
 # mode: cmake
