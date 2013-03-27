@@ -153,6 +153,20 @@ bool HydraulicFracturingManager::setSelectedFunction () {
                   hydraulicFractureFunctionTypeStr ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type ()).c_str ());
   }
 
+
+   if (( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type () == DataAccess::Interface::FunctionOfDepthWrtSeaLevelSurface or
+         m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type () == DataAccess::Interface::FunctionOfDepthWrtSedimentSurface ) and
+       m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getName () == "None" ) {
+
+      PetscPrintf ( PETSC_COMM_WORLD, "\n ERROR Fracture pressure function has been defined incorrectly.\n       'Fracture function type' is a depth function but the 'fracture pressure model' is None.\n" );
+      PetscPrintf ( PETSC_COMM_WORLD, "        Fracture function type  = %s\n",
+                    m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getTypeName ().c_str ());
+      PetscPrintf ( PETSC_COMM_WORLD, "        Fracture pressure model = %s\n",
+                    m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getName ().c_str ());
+      functionDefined = false;
+     
+  }
+
   return functionDefined;
 }
 

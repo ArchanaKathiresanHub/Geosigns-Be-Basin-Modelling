@@ -2,6 +2,7 @@
 #define DISTRIBUTEDDATAACCESS_INTERFACE_FRACTUREPRESSUREFUNCTIONPARAMETERS_H_
 
 #include <vector>
+#include <string>
 
 #include "../Interface/Interface.h"
 #include "../Interface/DAObject.h"
@@ -11,11 +12,6 @@ namespace DataAccess { namespace Interface {
 
    class FracturePressureFunctionParameters: public DAObject
    {
-   private:
-
-      FracturePressureFunctionType m_type;
-      FracturePressureModel        m_fractureModel;
-      vector<double>               m_coefficients;
 
    public:
       FracturePressureFunctionParameters(ProjectHandle* projecthandle, database::Record* runOptionsIoTblRecord, 
@@ -28,6 +24,20 @@ namespace DataAccess { namespace Interface {
       FracturePressureModel getFractureModel () const;
 
       const std::vector<double>& coefficients() const;
+
+      /// \brief Get the name of the fracture function type.
+      const std::string& getTypeName () const;
+
+      /// \brief Get the name of the function.
+      const std::string& getName () const;
+
+   private:
+
+      FracturePressureFunctionType m_type;
+      FracturePressureModel        m_fractureModel;
+      vector<double>               m_coefficients;
+      std::string                  m_typeName;
+      std::string                  m_name;
 
    };
 

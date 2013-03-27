@@ -26,6 +26,9 @@ FracturePressureFunctionParameters::FracturePressureFunctionParameters(
       m_type = FunctionOfLithostaticPressure;
    else assert(0);
 
+   m_typeName = function;
+   m_name = database::getPresFuncName ( pressureIoTblRecord );
+
    if ( m_projectHandle->getRunParameters ()->getFractureModel () <= 0 or
         m_projectHandle->getRunParameters ()->getFractureModel () > int ( CONSERVATIVE_2 )) {
       m_fractureModel = NON_CONSERVATIVE_TOTAL;
@@ -66,6 +69,14 @@ const std::vector<double>& FracturePressureFunctionParameters::coefficients() co
    return m_coefficients;
 }
 
+const std::string& FracturePressureFunctionParameters::getTypeName () const {
+   return m_typeName;
+}
+
+
+const std::string& FracturePressureFunctionParameters::getName () const {
+   return m_name;
+}
 
 
 } } // namespace DataAccess::Interface
