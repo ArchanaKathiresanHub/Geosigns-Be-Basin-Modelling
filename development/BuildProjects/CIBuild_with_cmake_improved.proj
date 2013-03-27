@@ -12,7 +12,7 @@
     <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteSourceDirAlt) $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</init_remote_dirs>
 	
 	<!-- To copy the source code, we use 'tar' because 'scp' is slow. There are many small files to copy -->
-    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(tar_exe) c . | $(ssh_command) "cd $(RemoteSourceDirAlt); tar -x; chmod -R 750 $(RemoteSourceDirAlt)"</copy_code>
+    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(tar_exe) c . | $(ssh_command_alt) "cd $(RemoteSourceDirAlt); tar -x; chmod -R 750 $(RemoteSourceDirAlt)"</copy_code>
 	
     <script_to_build>CIBuild_with_cmake_improved</script_to_build>
     <execute_script>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_to_build)"</execute_script>
