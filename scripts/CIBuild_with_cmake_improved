@@ -23,6 +23,7 @@ popd
 # Standard applications
 SVN=svn
 CMAKE=/apps/3rdparty/share/cmake
+CTEST=/apps/3rdparty/share/ctest
 
 # Import (legacy) Geocase
 ${SVN} export -q ${snvRepository}/trunk/development/geocase/BB $src/development/geocase/BB
@@ -30,10 +31,11 @@ ${SVN} export -q ${snvRepository}/trunk/development/geocase/misc/GospelScriptFil
 
 pushd $build
 csh -x <<EOF
-${src}/development/bootstrap.csh || exit 1
-source envsetup.csh
-make -j${nprocs} || exit 1
-make install || exit 1
+${src}/development/bootstrap.csh || ( echo error: Configuration has failed; exit 1; ) || exit 1
+source envsetup.csh 
+make -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
+${CTEST} || ( echo error: One or more unit tests have failed; exit 1; ) || exit 1
+make install || ( echo error: Installation has failed; exit 1 ;) || exit 1
 EOF
 
 rm -rf geocase_build
