@@ -34,7 +34,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <putty_dir Condition="'$(putty_dir)' == '' And Exists('C:\opt\putty')">C:\opt\putty</putty_dir>
 
     <cpio_exe Condition="'$(cpio_exe)' == ''">"$(cygwin_bin_dir)cpio.exe"</cpio_exe>
-	<tar_exe Condition="'$(tar_exe)' == ''">"$(cygwin_bin_dir)tar.exe"</tar_exe>
+	  <tar_exe Condition="'$(tar_exe)' == ''">"$(cygwin_bin_dir)tar.exe"</tar_exe>
+    <rsync_exe Condition="'$(rsync_exe)' == ''">"$(cygwin_bin_dir)rsync.exe"</rsync_exe>
 
     <!-- Command to start non interactive SSH session -->
     <ssh_command>$(putty_dir)\PLINK.exe -batch -ssh -i "$(AgentKey)" $(AgentAccount)@$(AgentHost)</ssh_command>
