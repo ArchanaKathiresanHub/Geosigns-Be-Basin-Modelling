@@ -543,81 +543,125 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
    }
 
    // scanned all grid by can't find bubble/dew line - can't build diagram
-   if ( t1 < 0 && p1 < 0 ) { return; }
-
-   std::set<int>  trace; // for keeping cells through which isoline came across
-
-   // now we can trace bubble-dew line
-   bool foundBDPt = true;
-   while( foundBDPt )
+   if ( t1 >= 0 || p1 >= 0 )
    {
-      if ( t1 + 1 == m_gridT.size() ) { extendTGrid( g_GridExtStep ); }
-      if ( p1 + 1 == m_gridP.size() ) { extendPGrid( m_gridP[p1] + ( m_gridP[p1-1] - m_gridP[p1-2] ) * g_GridExtStep ); }
+      std::set<int>  trace; // for keeping cells through which isoline came across
 
-      if ( m_gridP.back() > g_MaximalDiagramPressure ) foundBDPt = false; // if we came too much in pressure stop tracing
-
-      int phase[4];
-
-      phase[0] = getPhase( p1,   t1   );
-      phase[1] = getPhase( p1+1, t1   );
-      phase[2] = getPhase( p1+1, t1+1 );
-      phase[3] = getPhase( p1,   t1+1 );
-
-      bool inters[4] = { false, false, false, false };
-      
-      for ( int i = 0; i < 4; ++i )
+      // now we can trace bubble-dew line
+      bool foundBDPt = true;
+      while( foundBDPt )
       {
-         if ( phase[i] != phase[(i+1)%4] )
-         {
-            // skip vapour/liquid interface near critical point
-            inters[i] = phase[i] != bothPhases && phase[(i+1)%4] != bothPhases ? false : true;
-         }
-      }
-      assert( inters[inEdge] ); // just checking if we have right input point
+         if ( t1 + 1 == m_gridT.size() ) { extendTGrid( g_GridExtStep ); }
+         if ( p1 + 1 == m_gridP.size() ) { extendPGrid( m_gridP[p1] + ( m_gridP[p1-1] - m_gridP[p1-2] ) * g_GridExtStep ); }
 
-      if ( foundBDPt )
-      {
+         if ( m_gridP.back() > g_MaximalDiagramPressure ) foundBDPt = false; // if we came too much in pressure stop tracing
+
+         int phase[4];
+
+         phase[0] = getPhase( p1,   t1   );
+         phase[1] = getPhase( p1+1, t1   );
+         phase[2] = getPhase( p1+1, t1+1 );
+         phase[3] = getPhase( p1,   t1+1 );
+
+         bool inters[4] = { false, false, false, false };
+         
          for ( int i = 0; i < 4; ++i )
          {
-            if ( inters[i] && i != inEdge )
+            if ( phase[i] != phase[(i+1)%4] )
             {
-               switch( i )
-               {
-                  case 0: foundBDPt = doBisectionForBubbleDewSearch( p1,   t1,   p1+1, t1,   foundP, foundT ); break;
-                  case 1: foundBDPt = doBisectionForBubbleDewSearch( p1+1, t1,   p1+1, t1+1, foundP, foundT ); break;
-                  case 2: foundBDPt = doBisectionForBubbleDewSearch( p1,   t1+1, p1+1, t1+1, foundP, foundT ); break;
-                  case 3: foundBDPt = doBisectionForBubbleDewSearch( p1,   t1,   p1,   t1+1, foundP, foundT ); break;
-               }
+               // skip vapour/liquid interface near critical point
+               inters[i] = phase[i] != bothPhases && phase[(i+1)%4] != bothPhases ? false : true;
+            }
+         }
+         assert( inters[inEdge] ); // just checking if we have right input point
 
-               if ( foundBDPt )
+         if ( foundBDPt )
+         {
+            for ( int i = 0; i < 4; ++i )
+            {
+               if ( inters[i] && i != inEdge )
                {
-                  m_bubbleDewLine.push_back( std::pair<double,double>( foundT, foundP ) );
-
-                  switch( i ) // choose next cell
+                  switch( i )
                   {
-                     case 0: --t1; break;
-                     case 1: ++p1; break;
-                     case 2: ++t1; break;
-                     case 3: --p1; break;
+                     case 0: foundBDPt = doBisectionForBubbleDewSearch( p1,   t1,   p1+1, t1,   foundP, foundT ); break;
+                     case 1: foundBDPt = doBisectionForBubbleDewSearch( p1+1, t1,   p1+1, t1+1, foundP, foundT ); break;
+                     case 2: foundBDPt = doBisectionForBubbleDewSearch( p1,   t1+1, p1+1, t1+1, foundP, foundT ); break;
+                     case 3: foundBDPt = doBisectionForBubbleDewSearch( p1,   t1,   p1,   t1+1, foundP, foundT ); break;
                   }
 
-                  if ( t1 < 0 || p1 < 0 ) foundBDPt = false;
+                  if ( foundBDPt )
+                  {
+                     m_bubbleDewLine.push_back( std::pair<double,double>( foundT, foundP ) );
 
-                  // do checking is this cell was already in trace ? if yes - stop tracing
-                  foundBDPt = foundBDPt && trace.insert( p1 * 10000 + t1 ).second ;
+                     switch( i ) // choose next cell
+                     {
+                        case 0: --t1; break;
+                        case 1: ++p1; break;
+                        case 2: ++t1; break;
+                        case 3: --p1; break;
+                     }
 
-                  inEdge = (i + 2) %4;
-                  break;
+                     if ( t1 < 0 || p1 < 0 ) foundBDPt = false;
+
+                     // do checking is this cell was already in trace ? if yes - stop tracing
+                     foundBDPt = foundBDPt && trace.insert( p1 * 10000 + t1 ).second ;
+
+                     inEdge = (i + 2) %4;
+                     break;
+                  }
                }
             }
          }
       }
-   }
-
+   }   
    // trace 0.5 contour line at first
    m_c0p5Line = calcContourLine( 0.5 );
-
    findCriticalPoint();
+
+   // check the direction of Bubble/Dew line
+   if ( m_bubbleDewLine.size() > 1 )
+   {
+      double phaseFrac[2];
+      int phaseF = getMassFractions( m_bubbleDewLine.front().second, m_bubbleDewLine.front().first, m_masses, phaseFrac ); 
+      int phaseL = getMassFractions( m_bubbleDewLine.back().second, m_bubbleDewLine.back().first, m_masses, phaseFrac ); 
+
+      if ( phaseF != bothPhases && phaseL != bothPhases && phaseL == vaporPhase && phaseF == liquidPhase ) // should revert points ordering
+      {
+         size_t critPPos = m_critPointPos - m_bubbleDewLine.begin();
+         std::reverse( m_bubbleDewLine.begin(), m_bubbleDewLine.end() );
+         m_critPointPos = m_bubbleDewLine.end() - 1 - critPPos;
+      }
+   }
+
+   // it is possible that there is no any 2 phase region if only 1 component compostion
+   // in this case we will try to find buble/dew line as part of phases separation line
+   if ( !m_bubbleDewLine.size() && !m_c0p5Line.size() )
+   {
+      const std::vector< std::pair<double,double> > & psl = getSinglePhaseSeparationLine();
+      if ( psl.size() )
+      {
+         size_t critPtPos = 1;
+         // drop vertical part if exist
+         while( critPtPos < psl.size() && std::abs(psl[critPtPos-1].first - psl[critPtPos].first) < m_eps ) ++critPtPos;
+         size_t blp = critPtPos;
+         for ( critPtPos += 1; critPtPos < psl.size()-1; ++critPtPos )
+         {
+            // drop linear part
+            if ( std::abs( (psl[critPtPos  ].second - psl[blp].second)*1e-6 / (psl[critPtPos  ].first - psl[blp].first) - 
+                           (psl[critPtPos+1].second - psl[blp].second)*1e-6 / (psl[critPtPos+1].first - psl[blp].first)) > m_eps*10.0 )
+               break;
+         }
+         // the first point must be critical point
+         if ( critPtPos < psl.size() - 1 )
+         {
+            m_critT = psl[critPtPos].first;
+            m_critP = psl[critPtPos].second;
+            m_bubbleDewLine.assign( psl.rbegin(), psl.rend()-critPtPos );
+            m_spsLine.resize( critPtPos );
+            m_critPointPos = m_bubbleDewLine.end() - 1;
+         }
+      }
+   }
 }
 
 
@@ -658,8 +702,8 @@ bool PTDiagramCalculator::findCriticalPointInContourBubbleDewLinesIntersection()
       if ( m_critPointPos != m_bubbleDewLine.end() )
       {
          // check is found nearest bubble/dew point not too far from critical point
-         if ( std::abs( m_critPointPos->first  - m_c0p5Line.back().first  ) < ( m_gridT[1] - m_gridT[0] ) * 0.5 &&
-              std::abs( m_critPointPos->second - m_c0p5Line.back().second ) < ( m_gridP[1] - m_gridP[0] ) * 0.5 
+         if ( std::abs( m_critPointPos->first  - m_c0p5Line.back().first  ) < ( m_gridT[1] - m_gridT[0] ) &&
+              std::abs( m_critPointPos->second - m_c0p5Line.back().second ) < ( m_gridP[1] - m_gridP[0] ) 
             )
          {
             // and also it is not already on bubble dew curve
@@ -700,6 +744,9 @@ bool PTDiagramCalculator::findCriticalPointInChangePhaseAlongBubbleDewLine( bool
    double massFraction[2];
    int phase1 = getMassFractions( m_bubbleDewLine.front().second, m_bubbleDewLine.front().first, m_masses, massFraction );
    ++m_bdBisecIters;
+
+   // save current position   
+   std::vector< std::pair<double,double> >::iterator  old_critPointPos = m_critPointPos;
 
    m_critPointPos = m_bubbleDewLine.begin();
    for ( std::vector< std::pair<double,double> >::iterator it = m_critPointPos + 1; it != m_bubbleDewLine.end() && !foundCriticalPoint; ++it )
@@ -758,6 +805,9 @@ bool PTDiagramCalculator::findCriticalPointInChangePhaseAlongBubbleDewLine( bool
          m_critPointPos = it;
       }
    }
+   
+   if ( !addToBubblDewLine ) m_critPointPos = old_critPointPos;
+
    return foundCriticalPoint;
 }
 

@@ -28,6 +28,8 @@ bool g_IsBatch          = false;
 bool g_LogCountourLines = false;
 int  g_CountourLinesNum = 11;
 
+std::string g_mFilePrefix;
+
 // Drop spices from composition for octave outpu if their mass fraction less then given threshold
 double g_MassThreshold = 0.0; 
 
@@ -38,6 +40,7 @@ double g_StopTol  = 1e-6;
 int    g_MaxIters = 400;
 double g_Tol      = 1e-4;
 bool   g_exportToPVTsim = false;
+
 
 static void showUsage( const std::string & msg )
 {
@@ -58,7 +61,8 @@ static void showUsage( const std::string & msg )
       << "\t[-dynamo]                  Create INC file to run with Dynamo" << std::endl << std::endl
       << "\t[-colormap]                Add liquid fraction values grid and colored countour lines to the plot" << std::endl
       << "\t[-logcolormap]             The same as colormap but use logarithmic scale for colormap" << std::endl
-      << "\t[-abterm val]              Set parmateres A/B term for EosPack. This paramters has influence how PVT library labeling phases in 1 phase region" << std::endl 
+      << "\t[-abterm <val>]            Set parmateres A/B term for EosPack. This paramters has influence how PVT library labeling phases in 1 phase region" << std::endl 
+      << "\t[-mfile <mFilePrefix>]     Use given name as file name for Matlab .m file." << std::endl
       << "                             Any negative value will set algorithm to the default behaviour (A/B doesn't be used)" << std::endl
       << "\t[-tuneab]                  Do search for the value of A/B term in such way that single phases division line will go through the critical point" << std::endl
       << "\t[-massthresh val]          Drop component if it mass fraction less then given value in percents" << std::endl
@@ -126,6 +130,7 @@ int main( int argc, char ** argv )
       else if ( prm == "-age"         ) { trapAge            = std::string( "_" ) + val;    ++i; }
       else if ( prm == "-trap"        ) { trapId             = val + "_";           ++i; }
       else if ( prm == "-abterm"      ) { g_ABTerm           = atof( val.c_str() ); ++i; }
+      else if ( prm == "-mfile"       ) { g_mFilePrefix      = val; ++i; }
       else if ( prm == "-tuneab"      ) { g_tuneAB           = true; }
       else if ( prm == "-massthresh"  ) { g_MassThreshold    = atof( val.c_str() ); ++i; }
       else if ( prm == "-stoptol"     ) { g_StopTol          = atof( val.c_str() ); ++i; }
@@ -362,6 +367,8 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
       default:                                             assert( 0 );            break;
    }
    plotName += "_" + diagTypeStr;
+
+   if ( !g_mFilePrefix.empty() ) plotName = g_mFilePrefix;
 
    std::ofstream ofs( (plotName + ".m").c_str(), ios_base::out | ios_base::trunc );
  
@@ -637,7 +644,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data )
  
       const std::pair<double,double> & ccp = diagBuilder->getCricondenbarPoint();
       ofs << "#Cricondenbar point" << std::endl;
-      ofs << "Cricondenbar = [" << ccp.first << ", " << ccp.second * CBMGenerics::Pa2MPa << "];" << std::endl;
+      ofs << "CricondenbarPoint = [" << ccp.first << ", " << ccp.second * CBMGenerics::Pa2MPa << "];" << std::endl;
       ofs << std::endl;
 
       return diagBuilder.release();
