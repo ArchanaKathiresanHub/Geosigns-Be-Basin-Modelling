@@ -16,12 +16,45 @@ void test_PermeabilitySandStone_permeability()
    // depositionalPermeability = 6000 mD  
    // depositionalPorosity = 39%, 41%, 42%, 48%, 50%, 60%, 70%
    
-   // ves >= 1.0e+5
-   // maxVes >= ves
-   // 0 <= calculatedPorosity < 1
+   // ves: invalid (-infinity, -1.0e+5) [1.0e+5, 0). valid = {0}, (0, 1.0e+5), [1.0e+5, infinity)
+   // maxVes: invalid = (-infinity, 0), {0}, [0, ves).  valid = [ves, infinity)
+   // calculatedPorosity: invalid = (-infinity, 0), (1, infinity). valid = {0}, (0, 1), {1}
    
    double epsilon = std::numeric_limits<double>::epsilon();
 
+   // The weird/invalid cases
+   // varying ves invalid classes
+   ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.39, 6000, 1.5).permeability( -1e+6, 1.0e+5, 0)
+         , 8.47522526773653202270e-03 , epsilon
+     );
+
+   ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.41, 6000, 1.5).permeability( -1e+5, 1.0e+5, 0.1)
+         , 1.34323268314100546794e-01, epsilon
+     );
+
+   // varying maxVes invalid classes
+   ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.48, 6000, 1.5).permeability( 0, -1e+6, 1)
+         , 1000.0 , epsilon
+     );
+
+   ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.50, 6000, 1.5).permeability( 1e+4, 0, 0)
+         , 1.89736659610102758244e-04, epsilon
+     );
+
+   ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.60, 6000, 1.5).permeability( 1e+6, 1e+3, 0.3)
+         , 1.89736659610102775808e-01, epsilon
+     );
+
+   // varying calculatedPorosity invalid classes
+   ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.70, 6000, 1.5).permeability( 0,0, -5)
+         , 1.89736659610102764348e-82, epsilon
+     );
+
+   ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.35, 6000, 1.5).permeability( 1e+4, 1e+5, 5)
+         , 1000.0, epsilon
+     );
+
+   // The normal cases
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.39, 6000, 1.5).permeability( 1.0e+5, 1.0e+5, 0.0)
          , 8.47522526773653202270e-03 , epsilon 
      );
@@ -42,12 +75,69 @@ void test_PermeabilitySandStone_permeability()
 void test_PermeabilitySandStone_permeabilityDerivative()
 {
    //Input domain:
-   // ves >= 1.0e+5
-   // maxVes >= ves
-   // 0 <= calculatedPorosity < 1
+   // permeabilityIncr = 1.5
+   // depositionalPermeability = 6000 mD  
+   // depositionalPorosity = 39%, 41%, 42%, 48%, 50%, 60%, 70%
+   
+   // ves: invalid (-infinity, -1.0e+5) [1.0e+5, 0). valid = {0}, (0, 1.0e+5), [1.0e+5, infinity)
+   // maxVes: invalid = (-infinity, 0), {0}, [0, ves).  valid = [ves, infinity)
+   // calculatedPorosity: invalid = (-infinity, 0), (1, infinity). valid = {0}, (0, 1), {1}
 
    double epsilon = std::numeric_limits<double>::epsilon();
    
+   // The weird cases
+   {
+      double permeability = NAN, derivative = NAN;
+      PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( -1e+6, 1.0e+5, 0, permeability, derivative);
+      ASSERT_ALMOST_EQUAL( permeability, 8.47522526773653202270e-03, epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 2.92723910418849148432e-03, epsilon);
+   }
+
+   {
+      double permeability = NAN, derivative = NAN;
+
+      PermeabilitySandStone( 0.41, 6000, 1.5).permeabilityDerivative( -1e+5, 1.0e+5, 0.1, permeability, derivative);
+      ASSERT_ALMOST_EQUAL( permeability, 1.34323268314100546794e-01, epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 4.63936132893431052437e-02, epsilon);
+   }
+
+   {
+      double permeability = NAN, derivative = NAN;
+      PermeabilitySandStone( 0.48, 6000, 1.5).permeabilityDerivative( 0, -1e+6, 1, permeability, derivative);
+      ASSERT_ALMOST_EQUAL( permeability , 1000.0 , epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 1.30754967814368118286e+11, epsilon);
+   }
+
+   {
+      double permeability = NAN, derivative = NAN;
+      PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 1e+4, 0, 0, permeability, derivative);
+      ASSERT_ALMOST_EQUAL( permeability , 1.89736659610102758244e-04, epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 6.55327206019062116467e-05, epsilon);
+   }
+
+   {
+      double permeability = NAN, derivative = NAN;
+      PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1e+6, 1e+3, 0.3, permeability, derivative);
+      ASSERT_ALMOST_EQUAL( permeability , 1.89736659610102775808e-01, epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 6.55327206019062219466e-02, epsilon);
+   }
+
+   {
+      double permeability = NAN, derivative = NAN;
+      PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 0, 0, -5, permeability, derivative);
+      ASSERT_ALMOST_EQUAL( permeability , 1.89736659610102742578e-79, epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 6.55327206019062006483e-80, epsilon);
+   }
+
+   {
+      double permeability = NAN, derivative = NAN;
+      PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.0, permeability, derivative);
+      ASSERT_ALMOST_EQUAL( permeability , 6.00000000000000015201e-06, epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 2.07232658369464115328e-06, epsilon);
+   }
+
+   // The normal cases
+
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0, permeability, derivative);
