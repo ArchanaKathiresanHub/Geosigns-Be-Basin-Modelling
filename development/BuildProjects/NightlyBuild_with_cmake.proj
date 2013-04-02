@@ -18,7 +18,7 @@
 
     <!-- Execute remote build script -->
     <script_to_build>BatchBuild_with_cmake</script_to_build>
-    <execute_script>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_to_build)"</execute_script>
+    <build>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_to_build)"</build>
 
     <!-- Deploy to Houston -->
     <script_deploy_to_houston>BuildAndInstall/ReleaseToHouston</script_deploy_to_houston>
@@ -28,7 +28,7 @@
   <Target Name="Build" DependsOnTargets="DispalyStandardVariables">
     <Exec Command="$(init_remote_dirs)" />
     <Exec Command="$(copy_code)" />
-    <Exec Command="$(execute__script)" />
+    <Exec Command="$(build)" />
     <Exec Command="$(deploy_to_houston)"/>
  </Target>
 </Project>
