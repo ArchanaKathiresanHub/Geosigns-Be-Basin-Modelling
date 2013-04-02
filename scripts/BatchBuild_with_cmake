@@ -46,7 +46,7 @@ CC=gcc34 CXX=g++34 ${CMAKE} ${src}/development/geocase/BB_Lists \
     -DCMAKE_BUILD_TYPE=${configuration}
 make -j${nprocs}
 make install/strip
-
+popd
 
 
 echo "Rotate installations"
