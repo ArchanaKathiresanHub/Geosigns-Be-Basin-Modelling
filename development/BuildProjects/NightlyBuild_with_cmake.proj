@@ -9,17 +9,26 @@
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
 
   <PropertyGroup>
+    <!-- Clear remote build directory. Ensure existence of remote source directory -->
+    <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</init_remote_dirs>
+
+    <!-- Copy source with rsync -->
+    <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>
+    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
+
+    <!-- Execute remote build script -->
     <script_to_build>BatchBuild_with_cmake</script_to_build>
-    <copy_build_script>$(scp_command) "$(solution_root)\scripts\$(script_to_build)" "$(AgentAccount)@$(AgentHost):bin"</copy_build_script>
-    <execute_build_script>$(ssh_command) "env SVN_REPO_HOST=$(SvnRepoHost) /bin/sh -x $HOME/bin/$(script_to_build)"</execute_build_script>
-    <copy_deploy_to_houston_script>$(scp_command) "$(MSBuildProjectDirectory)\..\..\scripts\BuildAndInstall\ReleaseToHouston" "$(AgentAccount)@$(AgentHost):bin"</copy_deploy_to_houston_script>
-    <deploy_to_houston>$(ssh_command) "/bin/sh -x $HOME/bin/ReleaseToHouston"</deploy_to_houston>
+    <execute_script>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_to_build)"</execute_script>
+
+    <!-- Deploy to Houston -->
+    <script_deploy_to_houston>BuildAndInstall/ReleaseToHouston</script_deploy_to_houston>
+    <deploy_to_houston>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_deploy_to_houston)"</deploy_to_houston>
   </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="DispalyStandardVariables">
-    <Exec Command="$(copy_build_script)" />
-    <Exec Command="$(copy_deploy_to_houston_script)" />
-    <Exec Command="$(execute_build_script)" />
+    <Exec Command="$(init_remote_dirs)" />
+    <Exec Command="$(copy_code)" />
+    <Exec Command="$(execute__script)" />
     <Exec Command="$(deploy_to_houston)"/>
  </Target>
 </Project>

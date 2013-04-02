@@ -2,71 +2,55 @@
 
 set -e
 
-# setting variables
-PATH=/bin:/usr/bin:/usr/local/bin
+# Reading parameters
+snvRepository=svn://${SVN_REPO_HOST:-amsd2a-n-b01002}.europe.shell.com
+src=${SRC_DIR:-.}
+build=${BUILD_DIR:-/scratch/cauldron_build}
+install=${INSTALL_DIR:-/scratch/cauldron_build}
+platform=${PLATFORM:-Linux}
+configuration=${CONFIGURATION:-Release}
+nprocs=${NUMBER_OF_CORES:-8}
 
-SVNREPO=svn://${SVN_REPO_HOST:-amsd2a-n-b01002}.europe.shell.com
+# set dirs as absolute paths
+pushd $src
+src="`pwd -P`"
+popd
 
-TF="/glb/home/ksaho3/Eclipse/TF/TEE-CLC-11.0.0/tf"
+pushd $build
+build="`pwd -P`"
+popd
+
+# Standard applications
 SVN=svn
 CMAKE=/apps/3rdparty/share/cmake
+CTEST=/apps/3rdparty/share/ctest
 
-WORKSPACE=release_build_with_cmake
-COLLECTION=https://tfs.sede-coe.pds.nl/tfs/COE-II
-BUILD_BASE_DIRECTORY=/scratch/`whoami`/${WORKSPACE}
-# CONFIGURATION ::= {Release|Debug}
-CONFIGURATION=Release
-OUTPUT_DIR=Linux64_${CONFIGURATION}
+# Import (legacy) Geocase
+${SVN} export -q ${snvRepository}/trunk/development/geocase/BB $src/development/geocase/BB
+${SVN} export -q ${snvRepository}/trunk/development/geocase/misc/GospelScriptFiles $src/development/geocase/misc/GospelScriptFiles
 
-printenv # DEBUG
-
-rm -rf ${BUILD_BASE_DIRECTORY}
-mkdir -p ${BUILD_BASE_DIRECTORY}
-
-cd ${BUILD_BASE_DIRECTORY} 
-
-if ${TF} workspaces -collection:${COLLECTION} | grep -q ^${WORKSPACE} ; then
-    ${TF} workspace -delete ${WORKSPACE} -collection:$COLLECTION >/dev/null
-fi
-${TF} workspace -new ${WORKSPACE} -collection:$COLLECTION
-${TF} workfold -map -workspace:${WORKSPACE} '$/Basin Modeling/IBS/Trunk' ${BUILD_BASE_DIRECTORY}
-
-rm -rf ${BUILD_BASE_DIRECTORY}/scripts
-rm -rf ${BUILD_BASE_DIRECTORY}/development
-
-${TF} get -recursive -force ${BUILD_BASE_DIRECTORY}/scripts >/dev/null
-${TF} get -recursive -force ${BUILD_BASE_DIRECTORY}/development >/dev/null
-${TF} get -recursive -force ${BUILD_BASE_DIRECTORY}/3rdparty/geocosm.tar >/dev/null
-
-${SVN} export -q ${SVNREPO}/trunk/development/geocase/BB development/geocase/BB
-${SVN} export -q ${SVNREPO}/trunk/development/geocase/misc/GospelScriptFiles development/geocase/misc/GospelScriptFiles
-
-rm -rf $OUTPUT_DIR
-mkdir -p $OUTPUT_DIR
-pushd $OUTPUT_DIR
-
+pushd $build
 csh -x <<EOF
-${BUILD_BASE_DIRECTORY}/development/bootstrap.csh || exit 1
-source envsetup.csh
-make -j20 || exit 1
-make install/strip || exit 1
+${src}/development/bootstrap.csh || ( echo error: Configuration has failed; exit 1; ) || exit 1
+source envsetup.csh 
+make -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
+${CTEST} || ( echo error: One or more unit tests have failed; exit 1; ) || exit 1
+make install/strip || ( echo error: Installation has failed; exit 1 ;) || exit 1
 EOF
 
-popd
-
-rm -rf geocase_$OUTPUT_DIR
-mkdir -p geocase_$OUTPUT_DIR
-pushd geocase_$OUTPUT_DIR
-CC=gcc34 CXX=g++34 ${CMAKE} ${BUILD_BASE_DIRECTORY}/development/geocase/BB_Lists \
-    -DCMAKE_INSTALL_PREFIX=${BUILD_BASE_DIRECTORY}/${OUTPUT_DIR} \
-    -DCMAKE_BUILD_TYPE=${CONFIGURATION}
-make -j20
+rm -rf geocase_build
+mkdir -p geocase_build
+pushd geocase_build
+CC=gcc34 CXX=g++34 ${CMAKE} ${src}/development/geocase/BB_Lists \
+    -DCMAKE_INSTALL_PREFIX=${build} \
+    -DCMAKE_BUILD_TYPE=${configuration}
+make -j${nprocs}
 make install/strip
-popd
 
-pushd $OUTPUT_DIR
+
+
 echo "Rotate installations"
-csh ./MoveInstalls.csh
+csh -x ./MoveInstalls.csh || { echo error: Deployment has failed; exit 1 ; }
 echo "Install fresh binaries"
-csh -x ./InstallAll.csh
+csh -x ./InstallAll.csh || { echo error: Deployment has failed; exit 1 ; }
 popd
