@@ -720,6 +720,87 @@ void DistributedGridMap::getMinMaxValue (double & min, double & max) const
    max = maxGlobal;
 }
 
+double DistributedGridMap::getSumOfValues () const
+{
+   double total = 0;
+
+   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   {
+      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      {
+	 for (unsigned int k = 0; k < m_depth; ++k)
+	 {
+	    double value = getValue (i, j, k);
+
+	    if (value != getUndefinedValue ())
+	    {
+	       total += value;
+	    }
+	 }
+      }
+   }
+
+   double allTotal;
+
+   MPI_Allreduce (&total, &allTotal, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+
+   return allTotal;
+}
+
+double DistributedGridMap::getSumOfSquaredValues () const
+{
+   double total = 0;
+
+   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   {
+      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      {
+	 for (unsigned int k = 0; k < m_depth; ++k)
+	 {
+	    double value = getValue (i, j, k);
+
+	    if (value != getUndefinedValue ())
+	    {
+	       total += value * value;
+	    }
+	 }
+      }
+   }
+
+   double allTotal;
+
+   MPI_Allreduce (&total, &allTotal, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+
+   return allTotal;
+}
+
+int DistributedGridMap::getNumberOfDefinedValues () const
+{
+   unsigned int numValues = 0;
+
+   for (unsigned int i = firstI (); i <= lastI (); ++i)
+   {
+      for (unsigned int j = firstJ (); j <= lastJ (); ++j)
+      {
+	 for (unsigned int k = 0; k < m_depth; ++k)
+	 {
+	    double value = getValue (i, j, k);
+
+	    if (value != getUndefinedValue ())
+	    {
+	       numValues++;
+	    }
+	 }
+      }
+   }
+
+   int allNumValues;
+
+   MPI_Allreduce (&numValues, &allNumValues, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD);
+
+   return allNumValues;
+}
+
 bool DistributedGridMap::valueIsDefined (unsigned int i, unsigned int j, unsigned int k) const
 {
    return getValue (i, j, k) != m_undefinedValue;

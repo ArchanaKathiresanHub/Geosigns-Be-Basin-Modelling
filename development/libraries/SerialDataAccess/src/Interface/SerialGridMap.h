@@ -71,11 +71,11 @@ namespace DataAccess
 	    virtual double getValue (unsigned int i, unsigned int j, double k) const;
 
 	    /// get the value for the given index values.
-     /// Interpolate if necessary.
+	    /// Interpolate if necessary.
 	    virtual double getValue (double i, double j, double k) const;
 
-     /// return a fraction of the specified value
-     virtual double getFractionalValue (double fraction, unsigned int i, unsigned int j, unsigned int k = 0) const;
+	    /// return a fraction of the specified value
+	    virtual double getFractionalValue (double fraction, unsigned int i, unsigned int j, unsigned int k = 0) const;
 
 	    /// Return whether the value at the given index values is defined
 	    virtual bool valueIsDefined (unsigned int i, unsigned int j, unsigned int k = 0) const;
@@ -85,6 +85,15 @@ namespace DataAccess
 
 	    /// return the minimum & maximum value calculated over all GridPoints with a defined value
 	    virtual void getMinMaxValue (double & min, double & max) const;
+
+	    /// return the sum of values
+	    virtual double getSumOfValues (void) const;
+
+	    /// return the sum of squared values
+	    virtual double getSumOfSquaredValues (void) const;
+
+	    /// return the number of defined values
+	    virtual int getNumberOfDefinedValues (void) const;
 
 	    /// return the value used for undefined values
 	    virtual double getUndefinedValue (void) const;

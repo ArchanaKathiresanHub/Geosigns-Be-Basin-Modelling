@@ -418,6 +418,23 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
    }
    database::setMapFileName (m_record, mapWriter.getFileName ());
 
+   gridMapToOutput->retrieveData();
+
+   double min, max;
+   gridMapToOutput->getMinMaxValue (min, max);
+
+   cerr << "setting values for " << getName () << endl;
+   cerr << "min, max = " << min << ", " << max << endl;
+   cerr << "average = " << gridMapToOutput->getAverageValue () << endl;
+   database::setMinimum (m_record, min);
+   database::setMaximum (m_record, max);
+   database::setAverage (m_record, gridMapToOutput->getAverageValue ());
+   database::setSum (m_record, gridMapToOutput->getSumOfValues ());
+   database::setSum2 (m_record, gridMapToOutput->getSumOfSquaredValues ());
+   database::setNP (m_record, gridMapToOutput->getNumberOfDefinedValues ());
+
+   gridMapToOutput->restoreData();
+
    mapWriter.writeMapToHDF (gridMapToOutput, time, time, database::getPropertyGrid (m_record),
                               (m_surface == 0 ? "" : m_surface->getName ()));
 

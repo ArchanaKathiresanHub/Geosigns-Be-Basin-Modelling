@@ -124,7 +124,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 		  }
 		  else
 		  {
-		     gridMap = getFactory ()->produceGridMap (0, -1, grid, undefinedValue, (unsigned int) dimensions[2], array);
+		     gridMap = getFactory ()->produceGridMap (0, 0, grid, undefinedValue, (unsigned int) dimensions[2], array);
 
 		     GridMap * gridMapInActivityOutputGrid =
 			getFactory ()->produceGridMap (parent, childIndex, theActivityOutputGrid, undefinedValue, (unsigned int) dimensions[2]);
@@ -224,7 +224,7 @@ namespace ddd
       clock_gettime(CLOCK_REALTIME, &tp);
 
       char timestr[32];
-      sprintf (timestr, "%9d.%9ld\t", tp.tv_sec, tp.tv_nsec);
+      sprintf (timestr, "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
 
       fullRankString = "";
       fullRankString += timestr;      

@@ -474,6 +474,75 @@ void SerialGridMap::getMinMaxValue (double & min, double & max) const
    }
 }
 
+double SerialGridMap::getSumOfValues (void) const
+{
+   double total = 0;
+
+   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   {
+      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      {
+	 for (unsigned int k = 0; k < m_depth; k++)
+	 {
+	    double value = getValue (i, j, k);
+
+	    if (value != getUndefinedValue ())
+	    {
+	       total += value;
+	    }
+	 }
+      }
+   }
+
+   return total;
+}
+
+double SerialGridMap::getSumOfSquaredValues (void) const
+{
+   double total = 0;
+
+   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   {
+      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      {
+	 for (unsigned int k = 0; k < m_depth; k++)
+	 {
+	    double value = getValue (i, j, k);
+
+	    if (value != getUndefinedValue ())
+	    {
+	       total += value * value;
+	    }
+	 }
+      }
+   }
+
+   return total;
+}
+
+int SerialGridMap::getNumberOfDefinedValues (void) const
+{
+   int numValues = 0;
+
+   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   {
+      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      {
+	 for (unsigned int k = 0; k < m_depth; k++)
+	 {
+	    double value = getValue (i, j, k);
+
+	    if (value != getUndefinedValue ())
+	    {
+	       numValues++;
+	    }
+	 }
+      }
+   }
+
+   return numValues;
+}
+
 unsigned int SerialGridMap::getDepth (void) const
 {
    return m_depth;

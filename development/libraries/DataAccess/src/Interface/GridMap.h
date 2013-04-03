@@ -56,13 +56,13 @@ namespace DataAccess
 	    virtual double getValue (unsigned int i, unsigned int j, double k) const = 0;
 
 	    /// get the value for the given index values.
-     /// Interpolate if necessary.
+	    /// Interpolate if necessary.
 	    virtual double getValue (double i, double j, double k = 0) const = 0;
 
-     /// return a fraction of the specified value
-     virtual double getFractionalValue (double fraction, unsigned int i, unsigned int j, unsigned int k = 0) const = 0;
+	    /// return a fraction of the specified value
+	    virtual double getFractionalValue (double fraction, unsigned int i, unsigned int j, unsigned int k = 0) const = 0;
 	    
-   		/// Return whether the value at the given index values is defined
+	    /// Return whether the value at the given index values is defined
 	    virtual bool valueIsDefined (unsigned int i, unsigned int j, unsigned int k = 0) const = 0;
 
 	    /// return the average value calculated over all GridPoints with a defined value
@@ -71,13 +71,22 @@ namespace DataAccess
 	    /// return the minimum & maximum value calculated over all GridPoints with a defined value
 	    virtual void getMinMaxValue (double & min, double & max) const = 0;
 
+	    /// return the sum of values
+	    virtual double getSumOfValues (void) const = 0;
+
+	    /// return the sum of squared values
+	    virtual double getSumOfSquaredValues (void) const = 0;
+
+	    /// return the number of defined values
+	    virtual int getNumberOfDefinedValues (void) const = 0;
+
 	    /// return the value used for undefined values
 	    virtual double getUndefinedValue (void) const = 0;
 
-     /// Check if GridMap is constant
-     virtual bool isConstant (void) const = 0;
+	    /// Check if GridMap is constant
+	    virtual bool isConstant (void) const = 0;
 
-     /// Return the constant value. returns the undefined value if not constant
+	    /// Return the constant value. returns the undefined value if not constant
 	    virtual double getConstantValue (void) const = 0;
 
 	    /// Return the Grid on which this GridMap is based.

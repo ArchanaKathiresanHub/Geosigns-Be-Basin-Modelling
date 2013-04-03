@@ -133,35 +133,44 @@ public:
          virtual double getValue (unsigned int i, unsigned int j, unsigned int k) const;
 
          /// get the value for the given grid coordinates
-         virtual double getValue (unsigned int i, unsigned int j, double k) const;
+	 virtual double getValue (unsigned int i, unsigned int j, double k) const;
 
-	        /// get the value for the given index values.
-       	 /// Interpolate if necessary.
-	        virtual double getValue (double i, double j, double k = 0) const;
+	 /// get the value for the given index values.
+	 /// Interpolate if necessary.
+	 virtual double getValue (double i, double j, double k = 0) const;
 
-	        /// return a fraction of the specified value
-	        double getFractionalValue (double fraction, unsigned int i, unsigned int j, unsigned int k = 0) const;
+	 /// return a fraction of the specified value
+	 double getFractionalValue (double fraction, unsigned int i, unsigned int j, unsigned int k = 0) const;
 
-         /// get the average value for all points, collective function
-         virtual double getAverageValue () const;
+	 /// get the average value for all points, collective function
+	 virtual double getAverageValue () const;
 
-	        /// return the minimum & maximum value calculated over all GridPoints with a defined value
-	        virtual void getMinMaxValue (double & min, double & max) const;
+	 /// return the minimum & maximum value calculated over all GridPoints with a defined value
+	 virtual void getMinMaxValue (double & min, double & max) const;
 
-         /// Return whether the value at the given index values is defined
-         virtual bool valueIsDefined (unsigned int i, unsigned int j, unsigned int k = 0) const;
+	 /// return the sum of values
+	 virtual double getSumOfValues (void) const;
 
-         /// return the value used for undefined values
-         virtual double getUndefinedValue (void) const;
+	 /// return the sum of squared values
+	 virtual double getSumOfSquaredValues (void) const;
 
-       	 /// Check if GridMap is constant
-       	 virtual bool isConstant (void) const;
+	 /// return the number of defined values
+	 virtual int getNumberOfDefinedValues (void) const;
 
-         /// Return the constant value. returns the undefined value if not constant
-	        virtual double getConstantValue (void) const;
+	 /// Return whether the value at the given index values is defined
+	 virtual bool valueIsDefined (unsigned int i, unsigned int j, unsigned int k = 0) const;
 
-         /// return the underlying grid
-         virtual const Grid *getGrid (void) const;
+	 /// return the value used for undefined values
+	 virtual double getUndefinedValue (void) const;
+
+	 /// Check if GridMap is constant
+	 virtual bool isConstant (void) const;
+
+	 /// Return the constant value. returns the undefined value if not constant
+	 virtual double getConstantValue (void) const;
+
+	 /// return the underlying grid
+	 virtual const Grid *getGrid (void) const;
 
          /// return the depth (size) of the third dimension of the GridMap
          virtual unsigned int getDepth (void) const;
