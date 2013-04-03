@@ -66,5 +66,10 @@ popd
 
 echo "Changing group to g_psaz00"
 chgrp -R g_psaz00 $targetDirectory
-echo "changing mode to g+w"
+echo "changing directories to +x"
+find $targetDirectory -type d -exec chmod +x '{}' \;
+echo "changing file permissions o+r, g+rw u+rw"
+find $targetDirectory -type f -exec chmod o+r '{}' \;
+find $targetDirectory -type f -exec chmod g+rw '{}' \;
+find $targetDirectory -type f -exec chmod u+rw '{}' \;
 chmod -R g+w $targetDirectory
