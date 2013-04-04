@@ -12,6 +12,9 @@ set installsToMove = "${version}_b ${version}_a ${version}"
 set installToRemove = "${version}_c"
 set installToMoveTo = $installToRemove
 
+# Setting UMASK
+umask 0002
+
 if (-d $installDirectory/$installToRemove) then
       echo "$installDirectory/$installToRemove exists, removing it"
    rm -rf $installDirectory/$installToRemove

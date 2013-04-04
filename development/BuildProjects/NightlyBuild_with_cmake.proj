@@ -10,19 +10,19 @@
 
   <PropertyGroup>
     <!-- Clear remote build directory. Ensure existence of remote source directory -->
-    <init_remote_dirs>$(ssh_command) "rm -Rf $(RemoteBuildDir); mkdir -p $(RemoteSourceDir) $(RemoteBuildDir)"</init_remote_dirs>
+    <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</init_remote_dirs>
 
     <!-- Copy source with rsync -->
-    <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKey)</rsh>
-    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccount)@$(AgentHost):$(RemoteSourceDir)</copy_code>
+    <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>
+    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
 
     <!-- Execute remote build script -->
     <script_to_build>BatchBuild_with_cmake</script_to_build>
-    <build>$(ssh_command) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDir) BUILD_DIR=$(RemoteBuildDir) INSTALL_DIR=$(RemoteBuildDir) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDir)/scripts/$(script_to_build)"</build>
+    <build>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_to_build)"</build>
 
     <!-- Deploy to Houston -->
     <script_deploy_to_houston>BuildAndInstall/ReleaseToHouston</script_deploy_to_houston>
-    <deploy_to_houston>$(ssh_command) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDir) BUILD_DIR=$(RemoteBuildDir) INSTALL_DIR=$(RemoteBuildDir) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDir)/scripts/$(script_deploy_to_houston)"</deploy_to_houston>
+    <deploy_to_houston>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_deploy_to_houston)"</deploy_to_houston>
   </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="DispalyStandardVariables">

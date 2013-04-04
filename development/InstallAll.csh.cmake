@@ -20,6 +20,8 @@ set mainSystemDirectory = LinuxRHEL64
 set mainBinaryDirectory=$targetDirectory/$mainSystemDirectory/bin
 set miscDirectory=$targetDirectory/misc
 
+# Setting UMASK
+umask 0002
 
 #building the directory structure
 echo "making target directory $targetDirectory"
@@ -66,10 +68,5 @@ popd
 
 echo "Changing group to g_psaz00"
 chgrp -R g_psaz00 $targetDirectory
-echo "changing directories to +x"
-find $targetDirectory -type d -exec chmod +x '{}' \;
-echo "changing file permissions o+r, g+rw u+rw"
-find $targetDirectory -type f -exec chmod o+r '{}' \;
-find $targetDirectory -type f -exec chmod g+rw '{}' \;
-find $targetDirectory -type f -exec chmod u+rw '{}' \;
+echo "changing mode to g+w"
 chmod -R g+w $targetDirectory
