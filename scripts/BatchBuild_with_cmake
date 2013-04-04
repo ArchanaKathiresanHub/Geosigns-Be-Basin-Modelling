@@ -11,6 +11,9 @@ platform=${PLATFORM:-Linux}
 configuration=${CONFIGURATION:-Release}
 nprocs=${NUMBER_OF_CORES:-8}
 
+# set UMASK
+umask 0002
+
 # set dirs as absolute paths
 pushd $src
 src="`pwd -P`"
