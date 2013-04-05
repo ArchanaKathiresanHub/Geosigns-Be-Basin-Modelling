@@ -34,6 +34,7 @@ ${SVN} export -q ${snvRepository}/trunk/development/geocase/misc/GospelScriptFil
 
 pushd $build
 csh -x <<EOF
+umask 0002
 ${src}/development/bootstrap.csh || ( echo error: Configuration has failed; exit 1; ) || exit 1
 source envsetup.csh 
 make -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
