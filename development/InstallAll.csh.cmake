@@ -43,9 +43,13 @@ foreach otherSystemDirectory ($otherSystemDirectories)
 end
 popd
 
-cp -rp @CMAKE_INSTALL_PREFIX@/bin $targetDirectory/$mainSystemDirectory
-cp -rp @CMAKE_INSTALL_PREFIX@/geocase64 $targetDirectory/$mainSystemDirectory
-cp -rp @CMAKE_INSTALL_PREFIX@/misc $targetDirectory
+# Install results of main build
+install -d $targetDirectory/$mainSystemDirectory/bin
+install @CMAKE_INSTALL_PREFIX@/bin/* $targetDirectory/$mainSystemDirectory/bin
+
+# Install Geocase
+cp -r @CMAKE_INSTALL_PREFIX@/geocase64 $targetDirectory/$mainSystemDirectory
+cp -r @CMAKE_INSTALL_PREFIX@/misc $targetDirectory
 
 # installing 3rdparty stuff
 echo "Installing 3rdparty stuff"
