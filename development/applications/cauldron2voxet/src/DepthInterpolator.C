@@ -39,12 +39,12 @@ LayerInterpolator& DepthInterpolator::operator ()( const std::string& layerName 
 
    LayerInterpolatorMapping::iterator layer = m_layerInterpolators.find ( layerName );
 
-   if ( layer != m_layerInterpolators.end ()) {
-      return *(layer->second);
-   } else {
+   if ( layer == m_layerInterpolators.end ()) {
       std::cout << " NOT found layer " << layerName << std::endl;
       assert ( false );
    }
+
+   return *(layer->second);
 
 }
 

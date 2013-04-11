@@ -69,7 +69,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, ostream
 
 
 /// Write the values to the specified file.
-int write ( const std::string& name,
+void write ( const std::string& name,
             const VoxetPropertyGrid& values );
 
 /// Correct the endian-ness of the array. The voxet format requires that the binary data is written 
@@ -80,6 +80,7 @@ bool splitString (char * string, char separator, char * & firstPart, char * & se
 double selectDefined (double undefinedValue, double preferred, double alternative);
 
 bool derived = false;
+bool useBasement = true;
 bool verbose = false;
 bool debug = false;
 
@@ -219,6 +220,10 @@ int main (int argc, char ** argv)
       {
          showUsage (" Standard usage.");
          return -1;
+      }
+      else if (strncmp (argv[arg], "-nobasement", Max (4, strlen (argv[arg]))) == 0)
+      {
+         useBasement = false;
       }
       else if (strncmp (argv[arg], "-derived", Max (4, strlen (argv[arg]))) == 0)
       {
@@ -378,6 +383,8 @@ int main (int argc, char ** argv)
    const GridDescription & gridDescription = voxetProject->getGridDescription ();
 
    VoxetCalculator vc (projectHandle, voxetProject->getGridDescription ());
+   if (useBasement && verbose) cout << "Using basement" << endl;
+   vc.useBasement() = useBasement;
 
    vc.setDepthProperty (depthProperty);
 
@@ -531,6 +538,7 @@ void showUsage (const char * message)
          << "                  [-output <output-file-name>]" << endl
          << "                  [-create-spec <spec-file>]" << endl
          << "                  [-derived]" << endl
+         << "                  [-basement]" << endl
          << "                  [-verbose]" << endl
          << "                  [-help]" << endl
          << "                  [-?]" << endl
@@ -547,6 +555,7 @@ void showUsage (const char * message)
          << "                       the cauldron project file must also be specified." << endl
          << "    -derived           Produce template for derived properties. Not valid in conjunction with '-spec'," << endl
          << "                       to be used in conjunction with '-create-spec'" << endl
+         << "    -basement          Also produce output for the basement." << endl
          << "    -verbose           Generate some extra output." << endl
          << "    -help              Print this message." << endl
          << "    -?                 Print this message." << endl
@@ -560,7 +569,7 @@ static void changeUndefinedValue (double & var, double oldValue, double newValue
 }
 
 
-int write ( const std::string& name,
+void write ( const std::string& name,
             const VoxetPropertyGrid& values ) {
 
    FILE* file;
@@ -568,8 +577,8 @@ int write ( const std::string& name,
    file = fopen ( name.c_str (), "w" );
 
    if ( file == 0 ) {
-      cout << " cannot open file " << endl;
-      return -1;
+      cerr << " cannot open file: " << name << " for writing" << endl;
+      return;
    }
 
    fwrite ( values.getOneDData (), sizeof ( float ), values.getGridDescription ().getVoxetNodeCount (), file );

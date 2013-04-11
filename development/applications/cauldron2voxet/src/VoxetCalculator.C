@@ -54,9 +54,12 @@ void VoxetCalculator::setDefinedNodes ( const PropertyValueList* depthPropertyVa
    for (depthPropertyIter = depthPropertyValueList->begin (); depthPropertyIter != depthPropertyValueList->end (); ++depthPropertyIter ) {
       depthPropertyValue = *depthPropertyIter;
 
-      if ( depthPropertyValue->getFormation () != 0 && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION ) {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION )) {
          continue;
       }
+
+      if (depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION)
+	 cerr << "  Using basement: " << depthPropertyValue->getFormation ()->getName () << endl;
 
       depthGridMap = depthPropertyValue->getGridMap ();
       assert ( depthGridMap != 0);
@@ -177,8 +180,7 @@ void VoxetCalculator::initialiseInterpolators ( const PropertyValueList* depthPr
    {
       depthPropertyValue = *depthPropertyIter;
 
-      if (depthPropertyValue->getFormation () != 0 && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION)
-      {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION )) {
          continue;
       }
 
@@ -257,8 +259,7 @@ void VoxetCalculator::initialiseInterpolators ( const PropertyValueList* depthPr
    {
       depthPropertyValue = *depthPropertyIter;
 
-      if (depthPropertyValue->getFormation () != 0 && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION)
-      {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION )) {
          continue;
       }
 
@@ -312,7 +313,7 @@ int VoxetCalculator::getMaximumNumberOfLayerNodes ( const PropertyValueList* dep
    for (depthPropertyIter = depthPropertyValueList->begin (); depthPropertyIter != depthPropertyValueList->end (); ++depthPropertyIter ) {
       depthPropertyValue = *depthPropertyIter;
 
-      if ( depthPropertyValue->getFormation () != 0 && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION ) {
+      if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION )) {
          continue;
       }
 
@@ -385,12 +386,20 @@ void VoxetCalculator::calculatorInterpolatorValues ( const PropertyValueList* de
                     depthPropertyIter != depthPropertyValueList->end (); ++depthPropertyIter, ++formationCount)
                {
 
+		  if (verbose && i == 0 && j == 0)
+		  {
+		     cout << "formation count: " << formationCount << endl << flush;
+		  }
+
                   depthPropertyValue = *depthPropertyIter;
 
-                  if (depthPropertyValue->getFormation () != 0 && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION)
-                  {
-                     continue;
-                  }
+		  if ( depthPropertyValue->getFormation () == 0 || (!useBasement () && depthPropertyValue->getFormation ()->kind () == Interface::BASEMENT_FORMATION )) {
+		     continue;
+		  }
+		  if (verbose && i == 0 && j == 0)
+		  {
+		     cout << " computing formation: " << depthPropertyValue->getFormation ()->getName () << endl << flush;
+		  }
 
                   const PropertyValue *propertyValue = propertyIter->second->getPropertyValue (formationCount);
 
@@ -402,6 +411,13 @@ void VoxetCalculator::calculatorInterpolatorValues ( const PropertyValueList* de
                      }
                      continue;
                   }
+
+		  if (verbose && i == 0 && j == 0)
+		  {
+		     cout << " found property value for property " << propertyValue->getProperty()->getName() <<
+			" for formation: " << propertyValue->getFormation ()->getName () << endl << flush;
+		  }
+
 
                   const GridMap *propertyGridMap = propertyValue->getGridMap ();
 
@@ -432,15 +448,10 @@ void VoxetCalculator::calculatorInterpolatorValues ( const PropertyValueList* de
 
                      layerInterp.freeze ();
                   }
-
                }
-
             }
-
          }
-
       }
-
    }
 
    if (verbose)
@@ -647,6 +658,18 @@ float VoxetCalculator::getNullValue ()
 
 //------------------------------------------------------------//
 
+bool & VoxetCalculator::useBasement ()
+{
+   return m_useBasement;
+}
+
+bool VoxetCalculator::useBasement () const
+{
+   return m_useBasement;
+}
+
+//------------------------------------------------------------//
+
 float VoxetCalculator::getNullValue ( const Property* property ) const {
 
    float nullValue;
@@ -776,6 +799,7 @@ const PropertyValueList& VoxetCalculator::PropertyInterpolator::getPropertyValue
 //------------------------------------------------------------//
 
 const PropertyValue* VoxetCalculator::PropertyInterpolator::getPropertyValue ( const unsigned int position ) const {
+   if (position >= m_propertyValues-> size()) return 0;
    return (*m_propertyValues)[ position ];
 }
 

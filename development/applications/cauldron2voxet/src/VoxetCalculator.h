@@ -54,7 +54,6 @@ class VoxetCalculator {
       const Snapshot*         m_snapshot;
       VoxetDomainInterpolator m_interpolators;
       PropertyValueList*      m_propertyValues;
-
    };
 
 
@@ -88,6 +87,9 @@ public :
    float getNullValue ( );
 
    const GridDescription& getGridDescription () const;
+
+   bool & useBasement ();
+   bool useBasement () const;
 
    void print ( std::ostream& o ) const;
 
@@ -133,6 +135,8 @@ private :
    bool**                    m_interpolatorIsDefined;
    const Property*           m_depthProperty;
    PropertyInterpolatorMap   m_propertyInterpolators;
+   bool                      m_useBasement;
+
 
 };
 

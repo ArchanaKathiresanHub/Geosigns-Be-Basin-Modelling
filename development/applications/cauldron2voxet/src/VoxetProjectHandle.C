@@ -128,8 +128,6 @@ void VoxetProjectHandle::loadDerivedProperties () {
    if ( m_derivedProperties.size () == 0 ) {
       cout << " No data found in DerivedPropertyIoTbl." << endl;
    } 
-
-   assert ( m_derivedProperties.size () >= 0 );
 }
 
 //------------------------------------------------------------//
