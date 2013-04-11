@@ -21,7 +21,7 @@ build="`pwd -P`"
 popd
 
 # Standard applications
-SVN=svn
+SVN=/glb/home/ksaho3/bin.Linux/svn
 CMAKE=/apps/3rdparty/share/cmake
 CTEST=/apps/3rdparty/share/ctest
 
