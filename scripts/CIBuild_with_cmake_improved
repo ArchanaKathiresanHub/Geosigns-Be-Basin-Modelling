@@ -3,7 +3,7 @@
 set -e
 
 # Reading parameters
-snvRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository
+svnRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository
 src=${SRC_DIR:-.}
 build=${BUILD_DIR:-/scratch/cauldron_build}
 install=${INSTALL_DIR:-/scratch/cauldron_build}
