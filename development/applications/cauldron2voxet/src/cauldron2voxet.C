@@ -538,7 +538,7 @@ void showUsage (const char * message)
          << "                  [-output <output-file-name>]" << endl
          << "                  [-create-spec <spec-file>]" << endl
          << "                  [-derived]" << endl
-         << "                  [-basement]" << endl
+         << "                  [-nobasement]" << endl
          << "                  [-verbose]" << endl
          << "                  [-help]" << endl
          << "                  [-?]" << endl
@@ -555,7 +555,7 @@ void showUsage (const char * message)
          << "                       the cauldron project file must also be specified." << endl
          << "    -derived           Produce template for derived properties. Not valid in conjunction with '-spec'," << endl
          << "                       to be used in conjunction with '-create-spec'" << endl
-         << "    -basement          Also produce output for the basement." << endl
+         << "    -nobasement        Ignore basement layers." << endl
          << "    -verbose           Generate some extra output." << endl
          << "    -help              Print this message." << endl
          << "    -?                 Print this message." << endl
