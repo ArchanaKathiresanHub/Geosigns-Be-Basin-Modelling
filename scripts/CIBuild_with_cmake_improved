@@ -3,7 +3,7 @@
 set -e
 
 # Reading parameters
-snvRepository=svn://${SVN_REPO_HOST:-amsd2a-n-b01002}.europe.shell.com
+snvRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository
 src=${SRC_DIR:-.}
 build=${BUILD_DIR:-/scratch/cauldron_build}
 install=${INSTALL_DIR:-/scratch/cauldron_build}
@@ -26,8 +26,8 @@ CMAKE=/apps/3rdparty/share/cmake
 CTEST=/apps/3rdparty/share/ctest
 
 # Import (legacy) Geocase
-${SVN} export -q ${snvRepository}/trunk/development/geocase/BB $src/development/geocase/BB
-${SVN} export -q ${snvRepository}/trunk/development/geocase/misc/GospelScriptFiles $src/development/geocase/misc/GospelScriptFiles
+${SVN} export -q ${svnRepository}/trunk/development/geocase/BB $src/development/geocase/BB
+${SVN} export -q ${svnRepository}/trunk/development/geocase/misc/GospelScriptFiles $src/development/geocase/misc/GospelScriptFiles
 
 pushd $build
 csh -x <<EOF
