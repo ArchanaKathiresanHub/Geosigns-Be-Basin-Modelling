@@ -689,7 +689,7 @@ double DistributedGridMap::getAverageValue () const
 void DistributedGridMap::getMinMaxValue (double & min, double & max) const
 {
    double minLocal = std::numeric_limits< double >::max(); 
-   double maxLocal = std::numeric_limits< double >::min(); 
+   double maxLocal = -std::numeric_limits< double >::max(); 
 
    double minGlobal;
    double maxGlobal;
@@ -719,7 +719,7 @@ void DistributedGridMap::getMinMaxValue (double & min, double & max) const
 
    if (min == std::numeric_limits< double >::max() )
       min = getUndefinedValue ();
-   if (max == std::numeric_limits< double >::min() )
+   if (max == -std::numeric_limits< double >::max() )
       max = getUndefinedValue ();
 }
 

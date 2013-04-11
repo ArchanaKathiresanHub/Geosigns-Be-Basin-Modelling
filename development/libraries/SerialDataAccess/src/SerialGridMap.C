@@ -451,7 +451,7 @@ double SerialGridMap::getAverageValue (void) const
 void SerialGridMap::getMinMaxValue (double & min, double & max) const
 {
    min = std::numeric_limits< double >::max(); 
-   max = std::numeric_limits< double >::min(); 
+   max = -std::numeric_limits< double >::max(); 
 
    for (unsigned int i = 0; i < m_grid->numI (); i++)
    {
@@ -471,7 +471,7 @@ void SerialGridMap::getMinMaxValue (double & min, double & max) const
    }
    if (min == std::numeric_limits< double >::max() )
       min = getUndefinedValue ();
-   if (max == std::numeric_limits< double >::min() )
+   if (max == -std::numeric_limits< double >::max() )
       max = getUndefinedValue ();
 }
 
