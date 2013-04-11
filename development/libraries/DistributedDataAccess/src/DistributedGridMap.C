@@ -20,9 +20,6 @@
 using namespace DataAccess;
 using namespace Interface;
 
-#define Min(a,b)        (a < b ? a : b)
-#define Max(a,b)        (a > b ? a : b)
-
 DistributedGridMap::~DistributedGridMap (void)
 {
    restoreData (false, false);
@@ -691,8 +688,9 @@ double DistributedGridMap::getAverageValue () const
 /// return the minimum & maximum value calculated over all GridPoints with a defined value
 void DistributedGridMap::getMinMaxValue (double & min, double & max) const
 {
-   double minLocal = MAXDOUBLE;
-   double maxLocal = -MAXDOUBLE;
+   double minLocal = std::numeric_limits< double >::max(); 
+   double maxLocal = std::numeric_limits< double >::min(); 
+
    double minGlobal;
    double maxGlobal;
 
@@ -706,8 +704,8 @@ void DistributedGridMap::getMinMaxValue (double & min, double & max) const
 
 	    if (value != getUndefinedValue ())
 	    {
-	       maxLocal = Max (value, maxLocal);
-	       minLocal = Min (value, minLocal);
+	       maxLocal = std::max (value, maxLocal);
+	       minLocal = std::min (value, minLocal);
 	    }
 	 }
       }
@@ -718,6 +716,11 @@ void DistributedGridMap::getMinMaxValue (double & min, double & max) const
 
    min = minGlobal;
    max = maxGlobal;
+
+   if (min == std::numeric_limits< double >::max() )
+      min = getUndefinedValue ();
+   if (max == std::numeric_limits< double >::min() )
+      max = getUndefinedValue ();
 }
 
 double DistributedGridMap::getSumOfValues () const

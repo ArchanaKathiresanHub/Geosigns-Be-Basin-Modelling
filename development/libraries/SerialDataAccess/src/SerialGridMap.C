@@ -21,9 +21,6 @@
 using namespace DataAccess;
 using namespace Interface;
 
-#define Min(a,b)        (a < b ? a : b)
-#define Max(a,b)        (a > b ? a : b)
-
 
 SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double undefinedValue, unsigned int depth, float *** values) :
 	    GridMap (owner, childIndex), m_grid (grid),	m_undefinedValue (undefinedValue), m_averageValue (m_undefinedValue), m_depth (depth)
@@ -466,12 +463,16 @@ void SerialGridMap::getMinMaxValue (double & min, double & max) const
 
 	    if (value != getUndefinedValue ())
 	    {
-	       max = Max (value, max);
-	       min = Min (value, min);
+	       max = std::max (value, max);
+	       min = std::min (value, min);
 	    }
 	 }
       }
    }
+   if (min == std::numeric_limits< double >::max() )
+      min = getUndefinedValue ();
+   if (max == std::numeric_limits< double >::min() )
+      max = getUndefinedValue ();
 }
 
 double SerialGridMap::getSumOfValues (void) const
