@@ -18,8 +18,8 @@
     <copy_code>cd /d "$(solution_root)" &amp;&amp; $(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
 
     <!-- Execute remote build script -->
-    <script_to_build>CIBuild_with_cmake_improved</script_to_build>
-    <execute_script>$(ssh_command_alt) "env SVN_REPO_HOST=$(SvnRepoHost) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/scripts/$(script_to_build)"</execute_script>
+    <script_to_build>development/BuildProjects/Linux-CheckInBuild.sh</script_to_build>
+    <execute_script>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_to_build)"</execute_script>
   </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="DisplayStandardVariables">

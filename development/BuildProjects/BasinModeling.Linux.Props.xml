@@ -11,8 +11,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup Label="Identification">
-    <SvnRepoHost Condition="'$(SvnRepoHost)' == ''">amsdc1-n-v00121</SvnRepoHost>
-    <AgentHost Condition="'$(AgentHost)' == ''">amsdc1-n-v00121</AgentHost>
+    <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
     <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\private_id.ppk</AgentKey>
     <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">/scratch/$(AgentAccount)/src</RemoteSourceDir>
