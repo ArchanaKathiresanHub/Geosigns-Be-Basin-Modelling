@@ -423,9 +423,6 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
    double min, max;
    gridMapToOutput->getMinMaxValue (min, max);
 
-   cerr << "setting values for " << getName () << endl;
-   cerr << "min, max = " << min << ", " << max << endl;
-   cerr << "average = " << gridMapToOutput->getAverageValue () << endl;
    database::setMinimum (m_record, min);
    database::setMaximum (m_record, max);
    database::setAverage (m_record, gridMapToOutput->getAverageValue ());
