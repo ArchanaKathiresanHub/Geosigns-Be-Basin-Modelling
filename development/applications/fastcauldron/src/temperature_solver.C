@@ -1358,8 +1358,9 @@ void Temperature_Solver::Restore_Temperature_Solution ( const DA  Temperature_FE
 #define __FUNCT__ "Temperature_Solver::Store_Temperature_Solution"
 
 void Temperature_Solver::Store_Temperature_Solution ( const DA  Temperature_FEM_Grid,
-						      const Vec Temperature_DOF_Numbers,
-						      const Vec Temperature ) {
+                                                      const Vec Temperature_DOF_Numbers,
+                                                      const Vec Temperature,
+                                                      const double Current_Time ) {
 
   using namespace Basin_Modelling;
 
@@ -1378,7 +1379,7 @@ void Temperature_Solver::Store_Temperature_Solution ( const DA  Temperature_FEM_
   int Z_Node_Count = 0;
   int Number_Of_Segments;
 
-  PetscScalar Temperature_Value;
+  PetscScalar Temperature_Value, SeaBottomTemperature;
 
   Layer_Iterator Layers ( Basin_Model -> layers, Ascending, Basement_And_Sediments, Active_Layers_Only );
   LayerProps_Ptr Current_Layer;
@@ -1406,27 +1407,49 @@ void Temperature_Solver::Store_Temperature_Solution ( const DA  Temperature_FEM_
 
     Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Temperature );
 
-    for ( I = X_Start; I < X_Start + X_Count; I++ ) {
-
-      for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
-
-        if ( Basin_Model->nodeIsDefined ( I, J )) {
-
-          for ( K = Z_Start; K < Z_Start + Z_Count; K++ ) {
-            FEM_Grid_Index = GlobalK[ K ];
-            DOF_Index = (int) DOFs ( FEM_Grid_Index, J, I );
-
-            Temperature_Value = New_Temperature ( DOF_Index, J, I );
-
-            Current_Layer -> Current_Properties ( Basin_Modelling::Temperature,  K, J, I ) = Temperature_Value;
-
+    if( Basin_Model -> isALC() ) { 
+       
+       for ( I = X_Start; I < X_Start + X_Count; I++ ) {
+          
+          for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
+             
+             if ( Basin_Model->nodeIsDefined ( I, J )) {
+                SeaBottomTemperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, Current_Time );
+                for ( K = Z_Start; K < Z_Start + Z_Count; K++ ) {
+                   FEM_Grid_Index = GlobalK[ K ];
+                   DOF_Index = (int) DOFs ( FEM_Grid_Index, J, I );
+                   
+                   Temperature_Value = New_Temperature ( DOF_Index, J, I );
+                   // Negative temperature could occur during the basalt emplacement. Cut off negative values at surface temperature.
+                   Current_Layer -> Current_Properties ( Basin_Modelling::Temperature,  K, J, I ) = ( Temperature_Value < 0.0 ? SeaBottomTemperature :  Temperature_Value );
+                }
+             }
           }
+          
+       }
+    } else {
+        for ( I = X_Start; I < X_Start + X_Count; I++ ) {
+          
+          for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
+             
+             if ( Basin_Model->nodeIsDefined ( I, J )) {
+                
+                for ( K = Z_Start; K < Z_Start + Z_Count; K++ ) {
+                   FEM_Grid_Index = GlobalK[ K ];
+                   DOF_Index = (int) DOFs ( FEM_Grid_Index, J, I );
+                   
+                   Temperature_Value = New_Temperature ( DOF_Index, J, I );
 
-	}
-
-      }
-
-    }
+                   Current_Layer -> Current_Properties ( Basin_Modelling::Temperature,  K, J, I ) = Temperature_Value;
+                   
+                }
+                
+             }
+             
+          }
+          
+       }
+   }
 
     Current_Layer -> Current_Properties.Restore_Property ( Basin_Modelling::Temperature );
 

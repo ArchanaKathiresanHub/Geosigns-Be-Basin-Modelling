@@ -2667,7 +2667,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     VecNorm ( Temperature, NORM_2, &T_Norm );
 
     Temperature_Calculator.Store_Temperature_Solution ( Temperature_FEM_Grid, Temperature_DOF_Numbers, 
-							Temperature );
+							Temperature, Current_Time );
 
     Compute_Temperature_Dependant_Properties ( Previous_Time, Current_Time );
 
@@ -2870,7 +2870,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
 
   Temperature_Calculator.Store_Temperature_Solution ( Temperature_FEM_Grid,
                                                       Temperature_DOF_Numbers, 
-                                                      Temperature );
+                                                      Temperature, Current_Time );
   PetscGetTime(&storeEndTime);
   storeCreationTime = storeEndTime - storeStartTime;
 

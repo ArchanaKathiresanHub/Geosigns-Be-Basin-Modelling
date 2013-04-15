@@ -133,8 +133,9 @@ public:
 
 
   void Store_Temperature_Solution ( const DA  Temperature_FEM_Grid,
-				    const Vec Temperature_DOF_Numbers,
-				    const Vec Temperature );
+                                    const Vec Temperature_DOF_Numbers,
+                                    const Vec Temperature,
+                                    const double Current_Time );
 
   PetscScalar Maximum_Temperature_Difference ();
   PetscScalar Maximum_Temperature_Difference_In_Source_Rocks ();
