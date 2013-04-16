@@ -2673,7 +2673,6 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
                                                  Current_Pore_Pressure,
                                                  Current_Temperature,
                                                  CurrentLithoPressure,
-                                                 Current_Temperature > Previous_Temperature,
                                                  Current_Bulk_Density_X_Capacity );
 
         lithology -> calcBulkDensXHeatCapacity ( Fluid,
@@ -2681,7 +2680,6 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
                                                  Previous_Pore_Pressure,
                                                  Previous_Temperature,
                                                  PreviousLithoPressure,
-                                                 Current_Temperature > Previous_Temperature,
                                                  Previous_Bulk_Density_X_Capacity );
 
         // Load_Terms = Current_Bulk_Density_X_Capacity * Previous_Temperature * timeStepInv;
