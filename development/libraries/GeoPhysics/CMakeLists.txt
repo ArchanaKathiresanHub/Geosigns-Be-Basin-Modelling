@@ -1,29 +1,13 @@
-add_library( GeoPhysics
-	src/AllochthonousLithologyInterpolator.C
-	src/AllochthonousLithologyManager.C
-	src/BasementLithology.C
-	src/CauldronGridDescription.C
-	src/CompoundLithologyArray.C
-	src/CompoundLithology.C
-	src/CompoundLithologyComposition.C
-	src/CompoundProperty.C
-	src/FracturePressureCalculator.C
-	src/GeoPhysicalFunctions.C
-	src/GeoPhysicsCrustFormation.C
-	src/GeoPhysicsFluidType.C
-	src/GeoPhysicsFormation.C
-	src/GeoPhysicsMantleFormation.C
-	src/GeoPhysicsObjectFactory.C
-	src/GeoPhysicsProjectHandle.C
-	src/GeoPhysicsSourceRock.C
-	src/HCDensity.C
-	src/LithologyManager.C
-	src/SimpleLithology.C
-	src/TimeDependantLithology.C
-        src/Permeability.C
-        src/PermeabilityMudStone.C
-        src/PermeabilityMultiPoint.C
-        src/PermeabilitySandStone.C
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+
+add_library( GeoPhysics STATIC
+	${all_srcs}
+	${all_headers}
 )
 
 bm_include_libraries(

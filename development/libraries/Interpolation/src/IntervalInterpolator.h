@@ -40,17 +40,17 @@ namespace Numerics {
     /// \var SurfaceConstraint
     /// \brief The value assigned to the constraints of the interpolation equations for points that
     /// lie on the surface of the allochthonous body.
-    static const FloatingPoint SurfaceConstraint  =  0.0;
+    static const FloatingPoint SurfaceConstraint;
 
     /// \var ExteriorConstraint
     /// \brief The value assigned to the constraints of the interpolation equations for points that
     /// lie outside the surface of the allochthonous body.
-    static const FloatingPoint ExteriorConstraint = -10.0;
+    static const FloatingPoint ExteriorConstraint;
 
     /// \var InteriorConstraint
     /// \brief The value assigned to the constraints of the interpolation equations for points that
     /// lie inside the surface of the allochthonous body.
-    static const FloatingPoint InteriorConstraint =  10.0;
+    static const FloatingPoint InteriorConstraint;
 
     /// @}
 

@@ -32,23 +32,23 @@ namespace GeoPhysics {
       /// \var DefaultHydrostaticPressureGradient
       /// Assumed pressure gradient used when computing the simple fluid density.
       /// Units are MPa/km.
-      static const double DefaultHydrostaticPressureGradient = 10.0; 
+      static const double DefaultHydrostaticPressureGradient;
 
       /// \var StandardSurfaceTemperature
       /// Assumed surface temperature when computing the simple fluid density.
       /// Units are Celsius.
-      static const double StandardSurfaceTemperature = 10.0;
+      static const double StandardSurfaceTemperature;
 
       /// \var DefaultStandardDepth
-      /// Assumed 'standard' depth at which the parameters for the fluid density 
+      /// Assumed 'standard' depth at which the parameters for the fluid density
       /// are evaluated.
       /// Units are Metres.
-      static const double DefaultStandardDepth = 2000.0;
+      static const double DefaultStandardDepth;
 
       /// \var DefaultThermalConductivityCorrectionTemperature
       /// The temperature at the thermal conductivity tables are corrected.
       /// Units are Celsius.
-      static const double DefaultThermalConductivityCorrectionTemperature = 20.0;
+      static const double DefaultThermalConductivityCorrectionTemperature;
 
       /// Constructor.
       FluidType ( DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record );
@@ -61,7 +61,7 @@ namespace GeoPhysics {
       /// These are:
       ///   - heat-capacity;
       ///   - thermal-conductivity;
-      ///   - density; and 
+      ///   - density; and
       ///   - density-x-heat-capacity (this one is not directly in the project-file).
       void loadPropertyTables ();
 
@@ -122,8 +122,7 @@ namespace GeoPhysics {
       /// Compute the density x heat-capacity.
       double densXheatCapacity ( const double porosity,
                                  const double temperature,
-                                 const double pressure,
-                                 const bool   increasingTemperature ) const;
+                                 const double pressure ) const;
 
       /// Compute the seismic velocity.
       double seismicVelocity ( const double temperature, const double pressure ) const;

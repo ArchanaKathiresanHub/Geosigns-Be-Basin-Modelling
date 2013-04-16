@@ -731,7 +731,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
    PetscTruth petscBurialRateTimeStepping = PETSC_FALSE;
    PetscTruth petscCflTimeStepping = PETSC_FALSE;
-   PetscTruth petscLatentHeat = PETSC_FALSE;
+   PetscTruth petscLatentHeat = PETSC_TRUE;
 
    PetscTruth petscBurialRateFraction = PETSC_FALSE;
    double elementFraction;
@@ -777,7 +777,9 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetReal ( PETSC_NULL, "-fcvesscale", &vesScale, &vesScaleChanged ); 
    PetscOptionsGetInt  ( PETSC_NULL, "-fcctmodel", &crustThinningModel, &crustThinningModelChanged ); 
    PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged ); 
-   PetscOptionsHasName ( PETSC_NULL, "-latentheat", &petscLatentHeat ); 
+
+   // By default permafrost always available
+   //PetscOptionsHasName ( PETSC_NULL, "-latentheat", &petscLatentHeat ); 
 
    PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
 

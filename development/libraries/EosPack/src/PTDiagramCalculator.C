@@ -34,7 +34,7 @@ static const int    g_GridSize           = 100;      // number of points between
 static double       g_Tolerance          = 1e-4;     // stop tolerance for bisection iterations
 static const int    g_MaxStepsNum        = 200;      // maximum steps number in bisections iterations
 static const int    g_GridExtStep        = 5;        // extend T grid when needed for this number of points
-static const int    g_DefaultAoverB      = 2.0;      // the default value for A/B term
+static const double g_DefaultAoverB      = 2.0;      // the default value for A/B term
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1235,7 +1235,7 @@ std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSepar
    if ( m_spsLine.size() ) return m_spsLine;
 
    int inEdge = -1;
-   int p1 = m_gridP.size() - 1;
+   int p1 = static_cast<int>(m_gridP.size()) - 1;
    int t1 = 0;
    
    bool   foundBDPt = false;
@@ -1261,7 +1261,7 @@ std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSepar
    if ( inEdge < 0 )
    {
       p1 = 0;
-      t1 = m_gridT.size() - 1;
+      t1 = static_cast<int>(m_gridT.size()) - 1;
    
       int phase1 = getPhase( 0, t1 );
       // run over right border of P/T grid

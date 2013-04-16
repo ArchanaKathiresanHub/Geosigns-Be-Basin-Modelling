@@ -1187,6 +1187,34 @@ START-properties
     Time dependent      : No
     Property I/O        : No
    
+    Identification      : LiquidusTemperature
+    Description         : The liquidus temperature specifies the maximum 
+                          temperature at which crystals can co-exist with 
+                          the melt in thermodynamic equilibrium. The default
+                          liquidus temperature is defined for Std. Marine Water
+                          with 0.13 percent salininty
+
+    Unit of measurement : DegreesCelcius
+    Type                : float
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             :-9.03 
+
+    Identification      : SolidusTemperature  
+    Description         : The solidus is the locus of temperatures (a curve 
+                          on a phase diagram) below which a given substance
+                          is completely solid (crystallized). The default
+                          solidus temperature is defined for Std. Marine Water
+                          with 0.13 percent salininty
+
+
+    Unit of measurement : DegreesCelcius
+    Type                : float
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -11.1759660262894
 
     Identification      : FaultLithology
     Description         : name of lithology type used to model faults
@@ -10246,6 +10274,8 @@ START-property-tables
     Column         : ThermCondtype
     Column         : Denstype
     Column         : Viscotype
+    Column         : LiquidusTemperature  
+    Column         : SolidusTemperature  
     Header         : Fluidtype Data
     Time dependent : No
     Property I/O   : Yes

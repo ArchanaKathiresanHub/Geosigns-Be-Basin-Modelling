@@ -1,75 +1,13 @@
-set (SOURCE_FILES
-	src/AllochthonousLithology.C
-	src/AllochthonousLithologyDistribution.C
-	src/AllochthonousLithologyInterpolation.C
-	src/AttributeValue.C
-	src/BasementFormation.C
-	src/BasementSurface.C
-	src/BiodegradationParameters.C
-	src/Child.C
-	src/ConstrainedOverpressureInterval.C
-	src/CrustFormation.C
-	src/CrustalThicknessData.C
-	src/DAObject.C
-    src/DiffusionLeakageParameters.C
-	src/FaultElementCalculator.C
-	src/FaultFileReader.C
-	src/FaultFileReaderFactory.C
-	src/Faulting.C
-	src/FaultCollection.C
-    src/FluidType.C
-	src/FluidHeatCapacitySample.C
-	src/FluidThermalConductivitySample.C
-	src/FluidDensitySample.C
-	src/Formation.C
-    src/FracturePressureFunctionParameters.C
-	src/GridMap.C
-	src/IBSFaultFileReader.C
-	src/IgneousIntrusionEvent.C
-	src/InputValue.C
-	src/IrreducibleWaterSaturationSample.C
-	src/LandmarkFaultFileReader.C
-	src/LangmuirAdsorptionIsothermSample.C
-	src/LangmuirAdsorptionTOCEntry.C
-	src/Lead.C
-	src/LeadTrap.C
-	src/LithoType.C
-	src/LithologyHeatCapacitySample.C
-	src/LithologyThermalConductivitySample.C
-	src/MD5.C
-	src/MantleFormation.C
-	src/MobileLayer.C
-	src/ObjectFactory.C
-	src/OutputProperty.C
-	src/PaleoFormationProperty.C
-	src/PaleoProperty.C
-	src/PaleoSurfaceProperty.C
-	src/Parent.C
-	src/PointAdsorptionHistory.C
-    src/ProjectHandle.C
-	src/Property.C
-	src/PropertyValue.C
-	src/ReconModelFaultFileReader.C
-	src/RelatedProject.C
-	src/Reservoir.C
-	src/RunParameters.C
-	src/ProjectData.C
-	src/SGDensitySample.C
-	src/Snapshot.C
-	src/SourceRock.C
-	src/Surface.C
-	src/TouchstoneMap.C
-	src/Trap.C
-	src/Trapper.C
-	src/Migration.C
-	src/TrapPhase.C
-	src/ZycorFaultFileReader.C
-	src/auxiliaryfaulttypes.C
-	src/hdf5funcs.C
-	src/wildMatch.C
-	)
+FILE( GLOB all_headers src/*.h src/Interface/*.h )
+source_group(include FILES ${all_headers})
 
-add_library(DataAccess STATIC ${SOURCE_FILES})
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_library(DataAccess STATIC
+	${all_srcs}
+	${all_headers}
+)
 
 bm_include_libraries(
 	Serial_Hdf5

@@ -868,40 +868,12 @@ double GeoPhysics::CompoundLithology::computeSegmentThickness ( const double top
 
 }
 
-void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType* fluid, 
-                                                                const double     Porosity, 
-                                                                const double     Pressure, 
-                                                                const double     Temperature, 
-                                                                const double     LithoPressure, 
-                                                                      double&    BulkDensXHeatCapacity ) const {
-
-  bool LithoHasFluid = (fluid != 0);
-
-  double MatrixDensXHeatCap = densityXheatcapacity(Temperature, LithoPressure);
-  
-  if (LithoHasFluid) {
-    
-    double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature,Pressure);
-    
-    BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
-
-  } else {
-    //
-    //
-    // Should this be scaled by ( 1.0 - Porosity ) ?
-    //
-    BulkDensXHeatCapacity = MatrixDensXHeatCap;
-
-  }
-}
-
 
 void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType* fluid, 
                                                                 const double     Porosity, 
                                                                 const double     Pressure, 
                                                                 const double     Temperature, 
                                                                 const double     LithoPressure, 
-                                                                const bool       increasingTemperature,
                                                                       double&    BulkDensXHeatCapacity ) const {
 
    bool LithoHasFluid = (fluid != 0);
@@ -911,7 +883,7 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType*
    if (LithoHasFluid) {
       
       if( m_projectHandle->getLatentHeat() ) {
-         double FluidDensXHeatCap = fluid->densXheatCapacity ( Porosity, Temperature, Pressure, increasingTemperature );
+         double FluidDensXHeatCap = fluid->densXheatCapacity ( Porosity, Temperature, Pressure );
          BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap;
       } else {
          double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature,Pressure);

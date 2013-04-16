@@ -1,5 +1,9 @@
 #include "IntervalInterpolator.h"
 
+const Numerics::FloatingPoint Numerics::IntervalInterpolator::SurfaceConstraint  = 0.0;
+const Numerics::FloatingPoint Numerics::IntervalInterpolator::ExteriorConstraint = -10.0;
+const Numerics::FloatingPoint Numerics::IntervalInterpolator::InteriorConstraint =  10.0;
+
 //------------------------------------------------------------//
 
 Numerics::IntervalInterpolator::IntervalInterpolator () {
