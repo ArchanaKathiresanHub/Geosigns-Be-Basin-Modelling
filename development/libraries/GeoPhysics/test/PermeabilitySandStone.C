@@ -25,11 +25,11 @@ void test_PermeabilitySandStone_permeability()
    // The weird/invalid cases
    // varying ves invalid classes
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.39, 6000, 1.5).permeability( -1e+6, 1.0e+5, 0)
-         , 8.47522526773653202270e-03 , epsilon
+         , 8.47522526773653202270e-03 , 16*epsilon
      );
 
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.41, 6000, 1.5).permeability( -1e+5, 1.0e+5, 0.1)
-         , 1.34323268314100546794e-01, epsilon
+         , 1.34323268314100546794e-01, 4*epsilon
      );
 
    // varying maxVes invalid classes
@@ -38,7 +38,7 @@ void test_PermeabilitySandStone_permeability()
      );
 
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.50, 6000, 1.5).permeability( 1e+4, 0, 0)
-         , 1.89736659610102758244e-04, epsilon
+         , 1.89736659610102758244e-04, 4*epsilon
      );
 
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.60, 6000, 1.5).permeability( 1e+6, 1e+3, 0.3)
@@ -47,7 +47,7 @@ void test_PermeabilitySandStone_permeability()
 
    // varying calculatedPorosity invalid classes
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.70, 6000, 1.5).permeability( 0,0, -5)
-         , 1.89736659610102764348e-82, epsilon
+         , 1.89736659610102764348e-82, 64*epsilon
      );
 
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.35, 6000, 1.5).permeability( 1e+4, 1e+5, 5)
@@ -56,11 +56,11 @@ void test_PermeabilitySandStone_permeability()
 
    // The normal cases
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.39, 6000, 1.5).permeability( 1.0e+5, 1.0e+5, 0.0)
-         , 8.47522526773653202270e-03 , epsilon 
+         , 8.47522526773653202270e-03 , 16*epsilon 
      );
 
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.48, 6000, 1.5).permeability( 1.0e+6, 1.0e+6, 0.2)
-        , 3.78574406688116593678e-01, epsilon 
+        , 3.78574406688116593678e-01, 4*epsilon 
      );
 
    ASSERT_ALMOST_EQUAL( PermeabilitySandStone( 0.60, 6000, 1.5).permeability( 1.0e+6, 2.0e+6, 0.3) 
@@ -89,30 +89,30 @@ void test_PermeabilitySandStone_permeabilityDerivative()
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( -1e+6, 1.0e+5, 0, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability, 8.47522526773653202270e-03, epsilon);
-      ASSERT_ALMOST_EQUAL( derivative, 2.92723910418849148432e-03, epsilon);
+      ASSERT_ALMOST_EQUAL( permeability, 8.47522526773653202270e-03, 16*epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 2.92723910418849148432e-03, 16*epsilon);
    }
 
    {
       double permeability = NAN, derivative = NAN;
 
       PermeabilitySandStone( 0.41, 6000, 1.5).permeabilityDerivative( -1e+5, 1.0e+5, 0.1, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability, 1.34323268314100546794e-01, epsilon);
-      ASSERT_ALMOST_EQUAL( derivative, 4.63936132893431052437e-02, epsilon);
+      ASSERT_ALMOST_EQUAL( permeability, 1.34323268314100546794e-01, 8*epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 4.63936132893431052437e-02, 8*epsilon);
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.48, 6000, 1.5).permeabilityDerivative( 0, -1e+6, 1, permeability, derivative);
       ASSERT_ALMOST_EQUAL( permeability , 1000.0 , epsilon);
-      ASSERT_ALMOST_EQUAL( derivative, 1.30754967814368118286e+11, epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 1.30754967814368118286e+11, 4*epsilon);
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 1e+4, 0, 0, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability , 1.89736659610102758244e-04, epsilon);
-      ASSERT_ALMOST_EQUAL( derivative, 6.55327206019062116467e-05, epsilon);
+      ASSERT_ALMOST_EQUAL( permeability , 1.89736659610102758244e-04, 4*epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 6.55327206019062116467e-05, 4*epsilon);
    }
 
    {
@@ -125,15 +125,15 @@ void test_PermeabilitySandStone_permeabilityDerivative()
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 0, 0, -5, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability , 1.89736659610102742578e-79, epsilon);
-      ASSERT_ALMOST_EQUAL( derivative, 6.55327206019062006483e-80, epsilon);
+      ASSERT_ALMOST_EQUAL( permeability , 1.89736659610102742578e-79, 64*epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 6.55327206019062006483e-80, 64*epsilon);
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.0, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability , 6.00000000000000015201e-06, epsilon);
-      ASSERT_ALMOST_EQUAL( derivative, 2.07232658369464115328e-06, epsilon);
+      ASSERT_ALMOST_EQUAL( permeability , 6.00000000000000015201e-06, 4*epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, 2.07232658369464115328e-06, 4*epsilon);
    }
 
    // The normal cases
@@ -141,15 +141,15 @@ void test_PermeabilitySandStone_permeabilityDerivative()
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability , 8.47522526773653202270e-03, epsilon );
-      ASSERT_ALMOST_EQUAL( derivative , 2.92723910418849148432e-03 , epsilon );
+      ASSERT_ALMOST_EQUAL( permeability , 8.47522526773653202270e-03, 16*epsilon );
+      ASSERT_ALMOST_EQUAL( derivative , 2.92723910418849148432e-03 , 16*epsilon );
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilitySandStone( 0.48, 6000, 1.5).permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability , 3.78574406688116593678e-01, epsilon );
-      ASSERT_ALMOST_EQUAL( derivative , 1.30754967814368405765e-01 , epsilon );
+      ASSERT_ALMOST_EQUAL( permeability , 3.78574406688116593678e-01, 4*epsilon );
+      ASSERT_ALMOST_EQUAL( derivative , 1.30754967814368405765e-01 , 4*epsilon );
    }
 
    {

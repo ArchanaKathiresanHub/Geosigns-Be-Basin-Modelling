@@ -34,8 +34,13 @@ private:
                               const double maxVes) const;
 
    /// Compute the derivative of the permeability function for shales.
-   double shalePermeabilityDerivative ( const double ves,
-                                        const double maxVes ) const;
+   void shalePermeabilityAndDerivative ( const double ves,
+                                           const double maxVes,
+                                           double & permeability,
+                                           double & permeabilityDerivative ) const;
+
+   /// A std::pow function for some special cases.
+   static inline double fastPow( double x, double y);
 
    double            m_depoPermeability;
    double            m_permeabilityIncr;

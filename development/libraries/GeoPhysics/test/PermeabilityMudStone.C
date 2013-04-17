@@ -101,7 +101,7 @@ void test_PermeabilityMudStone_permeabilityDerivative()
       double permeability = NAN, derivative = NAN;
       PermeabilityMudStone( 0.1, 1.5, 0.01).permeabilityDerivative( 0, -1e+6, 1, permeability, derivative);
       ASSERT_ALMOST_EQUAL( permeability , 0.1, epsilon);
-      ASSERT_ALMOST_EQUAL( derivative, -3.56012548899267987993e-09,  epsilon);
+      ASSERT_ALMOST_EQUAL( derivative, -3.56012548899267987993e-09,  2*epsilon);
    }
 
    {

@@ -34,6 +34,7 @@ private:
    double            m_permeabilityIncr;
 
    static const double s_log10;
+   static const double s_maxPerm;
 };
 
 
