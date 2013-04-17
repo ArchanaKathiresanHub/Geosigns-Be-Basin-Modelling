@@ -228,6 +228,12 @@ find_library( QWT_LIBRARIES qwt
 	HINTS "${QWT_ROOT}/lib"
 )
 
+### Boost (boost.org)
+find_package( Boost 1.33.0 )
+if (Boost_FOUND)
+     include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 ### Doxygen (for documentation generation)
 if(BM_BUILD_DOCS)
 	find_package(Doxygen)
