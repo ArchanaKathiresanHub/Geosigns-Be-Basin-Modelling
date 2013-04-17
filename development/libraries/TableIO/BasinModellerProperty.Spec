@@ -1195,7 +1195,7 @@ START-properties
                           with 0.13 percent salininty
 
     Unit of measurement : DegreesCelcius
-    Type                : float
+    Type                : double 
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -1210,7 +1210,7 @@ START-properties
 
 
     Unit of measurement : DegreesCelcius
-    Type                : float
+    Type                : double
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
