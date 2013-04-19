@@ -1,3 +1,0 @@
-Barrier.d Barrier.o: ../Barrier.C ../Barrier.h
-
-../Barrier.h:

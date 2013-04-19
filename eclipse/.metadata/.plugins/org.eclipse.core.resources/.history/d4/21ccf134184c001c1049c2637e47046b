@@ -1,6 +1,0 @@
-DiffusionLeak.d DiffusionLeak.o: ../DiffusionLeak.C ../DiffusionLeak.h \
-  ../DiffusionCoefficient.h
-
-../DiffusionLeak.h:
-
-../DiffusionCoefficient.h:

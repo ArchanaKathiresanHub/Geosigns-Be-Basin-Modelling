@@ -1,1 +1,0 @@
-mshell.d mshell.o: ../mshell.c

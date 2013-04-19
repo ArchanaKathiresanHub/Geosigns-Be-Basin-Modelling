@@ -1,4 +1,0 @@
-h5_struct_types.d h5_struct_types.o: ../h5_struct_types.C \
-  ../h5_struct_types.h
-
-../h5_struct_types.h:

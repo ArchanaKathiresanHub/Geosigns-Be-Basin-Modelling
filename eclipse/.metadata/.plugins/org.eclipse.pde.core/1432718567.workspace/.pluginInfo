@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map>
-	<bundle bundleID="298" class="ddj.example.prettyprinter.toolchain.Activator" localization="plugin" name="Toolchain Plug-in" project="ddj.example.prettyprinter.toolchain"/>
-</map>

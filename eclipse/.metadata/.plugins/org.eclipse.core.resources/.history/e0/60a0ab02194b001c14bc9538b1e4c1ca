@@ -1,5 +1,0 @@
-gxerror.d gxerror.o: ../gxerror.c ../gxerror.h ../gxgenerl.h
-
-../gxerror.h:
-
-../gxgenerl.h:

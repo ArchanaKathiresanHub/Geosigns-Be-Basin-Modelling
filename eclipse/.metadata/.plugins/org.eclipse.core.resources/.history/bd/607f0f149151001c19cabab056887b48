@@ -1,4 +1,0 @@
-GenexResultManager.d GenexResultManager.o: ../GenexResultManager.C \
-  ../GenexResultManager.h
-
-../GenexResultManager.h:

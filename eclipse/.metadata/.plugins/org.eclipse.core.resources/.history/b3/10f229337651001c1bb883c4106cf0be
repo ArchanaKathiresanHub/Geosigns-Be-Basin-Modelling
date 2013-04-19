@@ -1,3 +1,0 @@
-WallTime.d WallTime.o: ../WallTime.C ../WallTime.h
-
-../WallTime.h:

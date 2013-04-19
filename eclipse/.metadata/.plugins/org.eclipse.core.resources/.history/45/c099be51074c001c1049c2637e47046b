@@ -1,7 +1,0 @@
-sortlst.d sortlst.o: ../sortlst.c ../error.h ../sortlst.h ../list.h
-
-../error.h:
-
-../sortlst.h:
-
-../list.h:

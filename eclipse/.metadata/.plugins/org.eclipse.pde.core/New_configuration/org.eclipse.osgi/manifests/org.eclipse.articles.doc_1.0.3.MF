@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Generated-from: 1167469707000;type=10
-Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse Articles
-Bundle-SymbolicName: org.eclipse.articles.doc; singleton:=true
-Bundle-Version: 1.0.3
-Bundle-Localization: plugin
-Require-Bundle: org.eclipse.help
-Eclipse-LazyStart: true

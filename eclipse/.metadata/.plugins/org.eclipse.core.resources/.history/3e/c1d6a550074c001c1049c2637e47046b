@@ -1,6 +1,0 @@
-fracturePressure.d fracturePressure.o: ../fracturePressure.C \
-  ../fracturePressure.h ../consts.h
-
-../fracturePressure.h:
-
-../consts.h:

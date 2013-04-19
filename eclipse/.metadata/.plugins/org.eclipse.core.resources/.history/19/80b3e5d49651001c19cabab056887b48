@@ -1,7 +1,0 @@
-################################################################################
-# Automatically-generated file. Do not edit!
-################################################################################
-
-LIBS := -lz -lm -ldl
-
-USER_OBJS := ../../../../libraries/SerialDataAccess/src/Release/libSerialDataAccess.a ../../../../libraries/src/Release/libTableIO.a ../../../../libraries/Serial_Hdf5/src/Release/libSerial_Hdf5.a ../../../../libraries/CBMGenerics/src/Release/libCBMGenerics.a ../../../../libraries/utilities/src/Release/libutilities.a /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5/1.4.5-post2/LinuxRHEL64_x86_64_30WS/lib/libhdf5.a

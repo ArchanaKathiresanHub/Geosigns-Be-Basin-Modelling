@@ -1,9 +1,0 @@
-#Wed Aug 22 15:57:27 CEST 2007
-cdt.managedbuild.config.gnu.so.debug.722721447/internalBuilder/enabled=false
-cdt.managedbuild.config.gnu.so.debug.722721447/internalBuilder/ignoreErr=true
-cdt.managedbuild.config.gnu.so.release.246586333/internalBuilder/enabled=false
-cdt.managedbuild.config.gnu.so.release.246586333/internalBuilder/ignoreErr=true
-eclipse.preferences.version=1
-environment/project=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
-environment/project/cdt.managedbuild.config.gnu.so.debug.722721447=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
-environment/project/cdt.managedbuild.config.gnu.so.release.246586333=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n

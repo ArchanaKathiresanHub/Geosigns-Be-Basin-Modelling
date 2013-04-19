@@ -1,4 +1,0 @@
-enableGDBBreak.d enableGDBBreak.o: ../enableGDBBreak.C \
-  ../enableGDBBreak.h
-
-../enableGDBBreak.h:

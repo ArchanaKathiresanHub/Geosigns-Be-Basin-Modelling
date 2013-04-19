@@ -1,4 +1,0 @@
-capillarySealStrength.d capillarySealStrength.o:  \
- ../capillarySealStrength.C ../capillarySealStrength.h
-
-../capillarySealStrength.h:

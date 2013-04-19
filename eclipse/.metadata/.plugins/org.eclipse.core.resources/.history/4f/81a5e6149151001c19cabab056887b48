@@ -1,3 +1,0 @@
-datautils.d datautils.o: ../datautils.C ../datautils.h
-
-../datautils.h:

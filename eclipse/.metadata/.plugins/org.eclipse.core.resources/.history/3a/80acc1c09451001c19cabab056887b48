@@ -1,7 +1,0 @@
-#Thu Aug 23 18:20:24 CEST 2007
-cdt.managedbuild.config.gnu.exe.debug.2003627462/internalBuilder/enabled=false
-cdt.managedbuild.config.gnu.exe.debug.2003627462/internalBuilder/ignoreErr=true
-cdt.managedbuild.config.gnu.exe.release.1658249218/internalBuilder/enabled=false
-cdt.managedbuild.config.gnu.exe.release.1658249218/internalBuilder/ignoreErr=true
-eclipse.preferences.version=1
-environment/project/cdt.managedbuild.config.gnu.exe.debug.2003627462=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
