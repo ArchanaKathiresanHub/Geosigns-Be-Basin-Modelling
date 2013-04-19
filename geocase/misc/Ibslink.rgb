@@ -1,0 +1,14 @@
+  0   0 205		blue3
+  0   0 238		blue2
+  0   0 128		blue1
+  0 205	  0		green3
+  0 238	  0		green2
+  0 255	  0		green1
+238   0	  0		red2
+255   0	  0		red1
+205 133	  0		orange3
+238 154	  0		orange2
+255 165	  0		orange1
+238 238	  0		yellow2
+255 255	  0		yellow1
+255 255 255		white

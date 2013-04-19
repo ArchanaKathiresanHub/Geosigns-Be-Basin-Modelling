@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+#
+# Syntax: pack <project_filename>
+#
+#
+##############################################################################
+
+# define program version and path
+version="-v2007.09"
+mypath="/apps/sssdev/share"
+support_dir="/nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUPPORT"
+
+# make sure the cauldron environment is defined
+# for gempis and xcauldron
+which gempis >/dev/null
+result=$?
+if [ $result != 0 ]; then
+    export PATH=${mypath}:${PATH}
+    which gempis >/dev/null
+    result=$?
+    if [ $result != 0 ]; then
+	echo "ERROR! Could not find the Cauldron environment."
+	exit 1
+    fi
+fi
+
+# define the project file
+project_file=$1
+if [ -z "$project_file" ]; then
+    echo "Usage: $0 <project3d_file>"
+    echo ""
+    echo "The following project3d files do exist:"
+    ls *.project3d | sed 's/ /\n/g'
+    echo ""
+    exit 1
+fi
+
+# check that file exists
+if [ ! -f $project_file ]; then
+    echo "ERROR! file [$project_file] does not exist in this directory."
+    echo ""
+    echo "The following project3d files do exist:"
+    ls *.project3d | sed 's/ /\n/g'
+    echo ""
+    exit 1
+fi
+
+# define local environment variabl;es
+project=`echo $project_file | awk -F'.' '{ print $1 }'`
+userid=`id -nu`
+host=`hostname -s`
+datetime="`date '+%Y.%m.%d'`"
+
+# create tar file in /tmp of the current computer
+file_list=`xcauldron $version $project_file`
+tarball=/tmp/$userid-$project-$datetime.taz
+tar cfz $tarball $file_list
+chmod 666 $tarball
+
+# create a file to send to us, telling where the tar file is
+echo "Cauldron project file available" > message_file
+echo "" >> message_file
+echo "A Cauldron project has been made available for transfer to support." >> message_file
+echo "" >> message_file
+echo "Project information" >> message_file
+echo "=================================" >> message_file
+echo "User :     $userid" >> message_file
+echo "Project:   $project" >> message_file
+echo "File:      $project_file" >> message_file
+echo "Host:      $host" >> message_file
+echo "Tarball:   $tarball" >> message_file
+echo "File List: [$file_list]" >> message_file
+echo "" >> message_file
+echo "Please login to the computer and move the file into the support directory" >> message_file
+echo "$support_dir" >> message_file
+echo "" >> message_file
+echo "and remove the file from the /tmp directory" >> message_file
+gempis $version adm email message_file
+
+# remove message
+rm -f message_file

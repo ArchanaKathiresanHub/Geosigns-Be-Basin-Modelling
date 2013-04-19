@@ -1,0 +1,5 @@
+# Gempis Job File for Saudi 
+PROJECT "Saudi"
+REQUIREMENTS "fastreq -v2006.90 Saudi.project3d"
+LOCAL "echo next"
+PARALLEL "fastcbm -v2006.90 -project Saudi.project3d -temperature" "temperature Calculation"

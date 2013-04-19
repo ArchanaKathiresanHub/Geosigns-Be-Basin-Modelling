@@ -1,0 +1,159 @@
+#!/bin/bash
+#
+#
+# Syntax: mon <filename>
+#   or
+#         mon <jobid>
+#
+# filename - list of files to monitor
+# jobid    - LSF job id
+#
+# create in the following format
+# row 1 (top) CPU states
+# row 2 (middle) Memory usage
+# row 3 (bottom) Network I/O
+#
+################################################################################
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 [<filename> | <LSF jobid>]"
+    exit 1
+fi
+
+infile=${1:-all.hosts}
+if [ -f $infile ]; then
+
+    host_list=`(cat $infile) | sort -u`
+    nhosts=`echo "$host_list" | wc -l`
+else
+
+
+    host_list=`bjobs -w $infile | tail -n +2 | awk '{ print $6 }'| sed 's/\*/ /g' | sed 's/^[2-9]//' | sed 's/:.//g'`
+    cpu_list=`bjobs -w $infile  | tail -n +2 | awk '{ print $6 }' | sed 's/*/ /g' | sed 's/:/ /g' | awk '{ for ( i=1; i<NF; i+=2 ) printf( "%d ", $i ) }'`
+    nhosts=`echo $host_list | wc -w`
+fi
+
+#
+#
+# params:
+# $1   - remote host where this script is started
+screenOwner () 
+{
+    host=$1
+    xuser=`ssh -x -q -o 'StrictHostKeyChecking=no' $host 'who' | awk '{print $1" "$2}' | grep ':0' | awk '{print $1}'`
+
+    [ -n "$xuser" ] && xuser=`finger $xuser | grep Name | sed '{s/.*: *//;s/ /_/g;}'`
+
+    echo ${host}:${xuser:-NoBody}
+}
+
+#
+# parses for all hosts
+#
+screenOwners () 
+{
+    for host in $*; do
+	screenOwner $host &
+    done
+    wait
+}
+
+
+###############################################################################
+#
+# main
+#
+
+
+# list of unique host with user
+screenowners=`screenOwners $host_list`
+
+MAXCOL=${MAXCOL:-$nhosts}
+
+# worksheet configuration file name (default)
+f=`pwd`/ksysguard.sgrd
+
+NROWS=$((3*((nhosts-1)/MAXCOL+1)))
+
+#
+# start build XML configuration worksheet file
+#
+cat << EOF > $f
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE KSysGuardWorkSheet>
+<WorkSheet rows="${NROWS}" interval="2" columns="$MAXCOL" >
+EOF
+
+# define entry for host
+for host in $host_list; do
+    cat << EOF >> $f
+ <host port="-1" shell="" name="$host" command="ssh $host ksysguardd" />
+EOF
+done
+
+#
+#
+nrows=3
+row0=0
+row1=1
+row2=2
+col=0
+i=0
+while true; do
+    let 'i = i + 1'
+
+    host=`echo $host_list | awk -v i=$i '{ print $i }' | awk -F'.' '{ print $1 }'`
+    if [ -z "$host" ]; then
+	break
+    fi
+
+    cpus=`echo $cpu_list | awk -v i=$i '{ print $i }'`
+
+    # define display for CPU
+    cat << EOF >> $f
+ <display topBar="0" vColor="326429" title="${host}: CPU (* ${cpus})" bColor="3223601" graphStyle="0" class="FancyPlotter" row="$row0" unit="" hScale="1" column="$col" showUnit="0" hLines="1" hCount="5" vLines="1" autoRange="0" min="0" max="100" hColor="326429" globalUpdate="1" pause="0" fontSize="9" labels="1" vScroll="1" vDistance="30" >
+  <beam sensorName="cpu/user" hostName="$host" color="1608191"  sensorType="integer" />
+  <beam sensorName="cpu/sys"  hostName="$host" color="16743688" sensorType="integer" />
+  <beam sensorName="cpu/nice" hostName="$host" color="16771600" sensorType="integer" />
+ </display>
+EOF
+
+    # define Memory usage display
+    cat << EOF >> $f
+ <display topBar="0" vColor="326429" title="Memory" bColor="3223601" graphStyle="0" class="FancyPlotter" row="$row1" unit="" hScale="1" column="$col" showUnit="0" hLines="1" hCount="5" vLines="1" autoRange="1" min="0" max="0" hColor="326429" globalUpdate="1" pause="0" fontSize="9" labels="1" vScroll="1" vDistance="30" >
+  <beam sensorName="mem/physical/used" hostName="$host" color="16767744" sensorType="integer" />
+  <beam sensorName="mem/physical/buf" hostName="$host" color="16711680" sensorType="integer" />
+  <beam sensorName="mem/physical/cached" hostName="$host" color="37631" sensorType="integer" />
+  <beam sensorName="mem/physical/free" hostName="$host" color="46592" sensorType="integer" />
+ </display>
+EOF
+
+    # define network display
+    cat << EOF >> $f
+ <display topBar="0" vColor="326429" title="Network" bColor="3223601" graphStyle="0" class="FancyPlotter" row="$row2" unit="" hScale="1" column="$col" showUnit="0" hLines="1" hCount="5" vLines="1" autoRange="1" min="0" max="0" hColor="326429" globalUpdate="1" pause="0" fontSize="9" labels="1" vScroll="1" vDistance="30" >
+  <beam sensorName="network/interfaces/eth0/receiver/data" hostName="$host" color="16711680" sensorType="integer" />
+  <beam sensorName="network/interfaces/eth0/transmitter/data" hostName="$host" color="1608191" sensorType="integer" />
+ </display>
+EOF
+
+#  <beam sensorName="network/interfaces/eth0/transmitter/packets" hostName="$host" color="1608191" sensorType="integer" />
+#  <beam sensorName="network/interfaces/eth0/receiver/packets" hostName="$host" color="16771860" sensorType="integer" />
+
+    # make the rest empty
+    col=$((col+1))
+    if [ $col -ge $MAXCOL ]; then
+	col=0
+	row0=$((row0+nrows))
+	row1=$((row1+nrows))
+	row2=$((row2+nrows))
+    fi
+
+done
+
+#
+cat <<EOF >> $f
+</WorkSheet>
+EOF
+
+# call command to do display
+ksysguard $f

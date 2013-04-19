@@ -1,0 +1,396 @@
+[RunOptionsIoTbl]
+;
+<Row>
+CompactionAlgorithm            "Effective Stress"             ()
+VreAlgorithm                   "Burnham & Sweeney"            ()
+VelAlgorithm                   "Gardner's Velocity-Density"   ()
+HeatFlowSolution               "Transient"                    ()
+PrefSnapstep                   10                             (Ma)
+PrefReconstep                  0.1                            (Ma)
+OptimalTotalTempDiff           4.0                            (DegreesCelcius)
+OptimalSourceRockTempDiff      2.0                            (DegreesCelcius)
+OptimalTotalPresDiff           0.1                            (MPa)
+MaxTimeStepIncreaseFactor      1.5                            ()
+MinTimeStepDecreaseFactor      0.5                            ()
+BricksizeEast                  100                            (m)
+BricksizeNorth                 100                            (m)
+BrickHeightSediment            400                            (m)
+BrickHeightCrust               4000                           (m)
+BrickHeightMantle              20000                          (m)
+MaxNumberOfRunOverpressure     10                             ()
+FracturePressureFunction       "None        "                 ()
+FractureType                   "None"                         ()
+CalcAllDepthIoProps            0                              ()
+UncertaintyAnalysis            0                              ()
+SensitivityAnalysis            0                              ()
+ResponseSurfaceModeling        0                              ()
+NrMCLoops                      1000                           ()
+NrMCSaveEvery                  100                            ()
+NrSensSaveEvery                100                            ()
+McHistOutput                   0                              ()
+RSMxmlOutput                   0                              ()
+Optimization                   0                              ()
+OptimTopCrustHeatProd          0                              ()
+OptimCrustalThickness          0                              ()
+OptimMantleThickness           0                              ()
+OptimUnconfThickness           0                              ()
+FormTempOptimWeight            10                             ()
+VrmOptimWeight                 10                             ()
+BiomOptimWeight                10                             ()
+SmiOptimWeight                 10                             ()
+FtOptimWeight                  10                             ()
+OptimTolerance                 0.001                          ()
+Hims                           "Single Variables"             ()
+Him                            "1st and Total Order"          ()
+NumEstimates                   "2 SClosed, 2 STotal"          ()
+CoupledMode                    0                              ()
+ChemicalCompaction	       0                              ()
+ConvectiveTerm                 0                              ()
+NonGeometricLoop               0                              ()
+;
+[End]
+;
+;
+[SensAnalysisIoTbl]
+;
+AnalysisIdentification AnalysisIndicator PropertyDescription TypeOfDistribution ModellingMode
+() () () () ()
+0 0 "Age in stratigraphic data" "Normal_3SD" "1d"
+1 0 "Depth in stratigraphic data" "Normal_3SD" "1d"
+10 0 "Thickness in unconformity data" "Normal_3SD" "1d"
+20 0 "Density of lithology" "Normal_3SD" "1d"
+21 0 "STP thermal conductivity of lithology" "Normal_3SD" "1d"
+22 0 "Heat production of lithology" "Normal_3SD" "1d"
+23 0 "Surface porosity of lithology" "Normal_3SD" "1d"
+24 0 "Seismic velocity of lithology" "Normal_3SD" "1d"
+25 0 "Comp. coef. eff. stress of lithology" "Normal_3SD" "1d"
+26 0 "Comp. coef. Sclater & Christie of lithology" "Normal_3SD" "1d"
+27 0 "Comp. coef. Falvey & Middleton of lithology" "Normal_3SD" "1d"
+40 0 "Thickness in mobile layer" "Normal_3SD" "1d"
+50 0 "Surface temperature in boundary conditions" "Normal_3SD" "1d"
+51 0 "Mantle heat flow in boundary conditions" "Normal_3SD" "1d"
+100 0 "Initial TOC of source rock" "Normal_3SD" "1d"
+104 0 "Intial H/C ratio of source rock" "Normal_3SD" "1d"
+[End]
+;
+;
+[FilterDepthIoTbl]
+;
+PropertyName ModellingMode OutputOption ResultOption 
+() () () ()
+"Massflux" "1d" "SedimentsPlusBasement" "Simple"
+"Massflux_" "1d" "None" "Simple"
+"Pressure" "1d" "SedimentsOnly" "Simple" 
+"LithoStaticPressure" "1d" "SedimentsOnly" "Simple"
+"HydroStaticPressure" "1d" "SedimentsOnly" "Simple"
+"OverPressure" "1d" "SedimentsOnly" "Simple"
+"DiffusivityVec" "1d" "None" "Simple" 
+"HeatFlow" "1d" "SedimentsPlusBasement" "Simple" 
+"HeatFlow_" "1d" "None" "Simple"
+"FluidVelocity" "1d" "None" "Simple" 
+"MaxVes" "1d" "None" "Simple"
+"PorosityVec" "1d" "SedimentsOnly" "Simple" 
+"SonicVec" "1d" "SedimentsOnly" "Simple" 
+"VelocityVec" "1d" "SedimentsOnly" "Simple" 
+"ReflectivityVec" "1d" "SedimentsOnly" "Simple" 
+"BulkDensityVec" "1d" "SedimentsOnly" "Simple" 
+"Temperature" "1d" "SedimentsOnly" "Simple" 
+"ThCondVec" "1d" "SedimentsOnly" "Simple" 
+"PermeabilityVec" "1d" "SedimentsOnly" "Simple" 
+"Ves" "1d" "SedimentsOnly" "Simple"
+"VrVec" "1d" "SedimentsOnly" "Simple" 
+"FissionTracks" "1d" "None" "Simple" 
+"Biomarkers" "1d" "None" "Simple" 
+"IlliteFraction" "1d" "None" "Simple" 
+[End]
+;
+;
+[FilterTimeIoTbl]
+;
+PropertyName ModellingMode OutputOption ResultOption
+() () () ()
+"IsoStaticMass" "1d" "None" "Simple"
+"IsoStaticDeflection" "1d" "None" "Simple"
+"IsoStaticWaterBottom"  "1d" "None" "Simple"
+"Massflux" "1d" "SedimentsPlusBasement" "Simple" 
+"Massflux_" "1d" "None" "Simple" 
+"Pressure" "1d" "SedimentsOnly" "Simple"
+"LithoStaticPressure" "1d" "SedimentsOnly" "Simple"
+"HydroStaticPressure" "1d" "SedimentsOnly" "Simple"
+"OverPressure" "1d" "SedimentsOnly" "Simple" 
+"DiffusivityVec" "1d" "None" "Simple"
+"PorosityVec" "1d" "SedimentsOnly" "Simple" 
+"SonicVec" "1d" "SedimentsOnly" "Simple" 
+"VelocityVec" "1d" "SedimentsOnly" "Simple" 
+"ReflectivityVec" "1d" "SedimentsOnly" "Simple" 
+"BulkDensityVec" "1d" "SedimentsOnly" "Simple" 
+"ThCondVec" "1d" "SedimentsPlusBasement" "Simple" 
+"PermeabilityVec" "1d" "SedimentsOnly" "Simple" 
+"Depth" "1d" "SedimentsPlusBasement" "Simple"
+"HeatFlow" "1d" "SedimentsPlusBasement" "Simple" 
+"FluidVelocity" "1d" "None" "Simple"
+"HeatFlow_" "1d" "None" "Simple" 
+"MaxVes" "1d" "None" "Simple"
+"Temperature" "1d" "SedimentsPlusBasement" "Simple" 
+"Ves" "1d" "SedimentsOnly" "Simple"
+"VrVec" "1d" "SedimentsOnly" "Simple" 
+"Biomarkers" "1d" "None" "Simple" 
+"IlliteFraction" "1d" "None" "Simple" 
+"Thickness" "1d" "SedimentsPlusBasement" "Simple" 
+"InstantaneousExpulsionApi" "1d" "None" "Simple"
+"CumulativeExpulsionApi" "1d" "None" "Simple"
+"InstantaneousExpulsionCondensateGasRatio" "1d" "None" "Simple"
+"CumulativeExpulsionCondensateGasRatio" "1d" "None" "Simple"
+"InstantaneousExpulsionGasOilRatio" "1d" "None" "Simple"
+"CumulativeExpulsionGasOilRatio" "1d" "None" "Simple"
+"InstantaneousExpulsionGasWetness" "1d" "None" "Simple"
+"CumulativeExpulsionGasWetness" "1d" "None" "Simple"
+"InstantaneousExpulsionAromaticity" "1d" "None" "Simple"
+"CumulativeExpulsionAromaticity" "1d" "None" "Simple"
+"KerogenConversionRatio" "1d" "None" "Simple"
+"OilGeneratedCumulative" "1d" "None" "Simple"
+"OilGeneratedRate" "1d" "None" "Simple"
+"OilExpelledCumulative" "1d" "None" "Simple"
+"OilExpelledRate" "1d" "None" "Simple"
+"HcGasGeneratedCumulative" "1d" "None" "Simple"
+"HcGasGeneratedRate" "1d" "None" "Simple"
+"HcGasExpelledCumulative" "1d" "None" "Simple"
+"HcGasExpelledRate" "1d" "None" "Simple"
+"DryGasGeneratedCumulative" "1d" "None" "Simple"
+"DryGasGeneratedRate" "1d" "None" "Simple"
+"DryGasExpelledCumulative" "1d" "None" "Simple"
+"DryGasExpelledRate" "1d" "None" "Simple"
+"WetGasGeneratedCumulative" "1d" "None" "Simple"
+"WetGasGeneratedRate" "1d" "None" "Simple"
+"WetGasExpelledCumulative" "1d" "None" "Simple"
+"WetGasExpelledRate" "1d" "None" "Simple"
+"AdsorptionCapacity" "1d" "SedimentsOnly" "Simple"
+"RetainedGasVolumeST" "1d" "SedimentsOnly" "Simple"
+"RetainedOilVolumeST" "1d" "SedimentsOnly" "Simple"
+"FractionOfAdsorptionCap" "1d" "SedimentsOnly" "Simple"
+"GasExpansionRatio_Bg" "1d" "SedimentsOnly" "Simple"
+"Oil2GasGeneratedCumulative" "1d" "SedimentsOnly" "Simple"
+"HcSaturation" "1d" "SedimentsOnly" "Simple"
+"IrreducibleWaterSat" "1d" "SedimentsOnly" "Simple"
+"HcLiquidSat" "1d" "SedimentsOnly" "Simple"
+"HcVapourSat" "1d" "SedimentsOnly" "Simple"
+"TotalGasGeneratedCumulative" "1d" "SedimentsOnly" "Simple"
+"C1Adsorped" "1d" "SedimentsOnly" "Simple"
+"C1Retained" "1d" "SedimentsOnly" "Simple"
+"C1ExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C1ExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C2Retained" "1d" "SedimentsOnly" "Simple"
+"C2ExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C2ExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C3Retained" "1d" "SedimentsOnly" "Simple"
+"C3ExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C3ExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C4ExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C4ExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C4Retained" "1d" "SedimentsOnly" "Simple"
+"C5ExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C5ExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C5Retained" "1d" "SedimentsOnly" "Simple"
+"N2ExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"N2ExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"N2Retained" "1d" "SedimentsOnly" "Simple"
+"CoxExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"CoxExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"CoxRetained" "1d" "SedimentsOnly" "Simple"
+"asphaltenesRetained" "1d" "SedimentsOnly" "Simple"
+"asphaltenesExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"asphaltenesExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"resinsRetained" "1d" "SedimentsOnly" "Simple"
+"resinsExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"resinsExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C15+AroRetained" "1d" "SedimentsOnly" "Simple"
+"C15+AroExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C15+AroExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C6-14AroRetained" "1d" "SedimentsOnly" "Simple"
+"C6-14AroExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C6-14AroExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C15+SatRetained" "1d" "SedimentsOnly" "Simple"
+"C15+SatExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C15+SatExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"C6-14SatRetained" "1d" "SedimentsOnly" "Simple"
+"C6-14SatExpelledCumulative" "1d" "SedimentsOnly" "Simple"
+"C6-14SatExpelledCumulativeSR" "1d" "SedimentsOnly" "Simple"
+"Massflux" "3d" "None" "Simple"
+"Pressure" "3d" "SedimentsOnly" "Simple"
+"HydroStaticPressure" "3d" "SedimentsOnly" "Simple"
+"LithoStaticPressure" "3d" "SedimentsOnly" "Simple"
+"OverPressure" "3d" "SedimentsOnly" "Simple"
+"DiffusivityVec" "3d" "None" "Simple"
+"PorosityVec" "3d" "None" "Simple"
+"SonicVec" "3d" "None" "Simple" 
+"VelocityVec" "3d" "None" "Simple"
+"ReflectivityVec" "3d" "None" "Simple"
+"BulkDensityVec" "3d" "None" "Simple"
+"ThCondVec" "3d" "None" "Simple"
+"PermeabilityVec" "3d" "None" "Simple"
+"Depth" "3d" "SedimentsOnly" "Simple"
+"HeatFlow" "3d" "None" "Simple"
+"FluidVelocity" "3d" "None" "Simple"
+"MaxVes" "3d" "None" "Simple"
+"Temperature" "3d" "SedimentsOnly" "Simple"
+"Ves" "3d" "SedimentsOnly" "Simple"
+"VrVec" "3d" "SedimentsOnly" "Simple"
+"Thickness" "3d" "None" "Simple"
+"FaultElements" "3d" "None" "Simple"
+"InstantaneousExpulsionApi" "3d" "None" "Simple"
+"CumulativeExpulsionApi" "3d" "None" "Simple"
+"InstantaneousExpulsionCondensateGasRatio" "3d" "None" "Simple"
+"CumulativeExpulsionCondensateGasRatio" "3d" "None" "Simple"
+"InstantaneousExpulsionGasOilRatio" "3d" "None" "Simple"
+"CumulativeExpulsionGasOilRatio" "3d" "None" "Simple"
+"InstantaneousExpulsionGasWetness" "3d" "None" "Simple"
+"CumulativeExpulsionGasWetness" "3d" "None" "Simple"
+"InstantaneousExpulsionAromaticity" "3d" "None" "Simple"
+"CumulativeExpulsionAromaticity" "3d" "None" "Simple"
+"KerogenConversionRatio" "3d" "None" "Simple"
+"OilGeneratedCumulative" "3d" "None" "Simple"
+"OilGeneratedRate" "3d" "None" "Simple"
+"OilExpelledCumulative" "3d" "None" "Simple"
+"OilExpelledRate" "3d" "None" "Simple"
+"HcGasGeneratedCumulative" "3d" "None" "Simple"
+"HcGasGeneratedRate" "3d" "None" "Simple"
+"HcGasExpelledCumulative" "3d" "None" "Simple"
+"HcGasExpelledRate" "3d" "None" "Simple"
+"DryGasGeneratedCumulative" "3d" "None" "Simple"
+"DryGasGeneratedRate" "3d" "None" "Simple"
+"DryGasExpelledCumulative" "3d" "None" "Simple"
+"DryGasExpelledRate" "3d" "None" "Simple"
+"WetGasGeneratedCumulative" "3d" "None" "Simple"
+"WetGasGeneratedRate" "3d" "None" "Simple"
+"WetGasExpelledCumulative" "3d" "None" "Simple"
+"WetGasExpelledRate" "3d" "None" "Simple"
+"AdsorptionCapacity" "3d" "SedimentsOnly" "Simple"
+"RetainedGasVolumeST" "3d" "SedimentsOnly" "Simple"
+"RetainedOilVolumeST" "3d" "SedimentsOnly" "Simple"
+"FractionOfAdsorptionCap" "3d" "SedimentsOnly" "Simple"
+"GasExpansionRatio_Bg" "3d" "SedimentsOnly" "Simple"
+"Oil2GasGeneratedCumulative" "3d" "SedimentsOnly" "Simple"
+"HcSaturation" "3d" "SedimentsOnly" "Simple"
+"IrreducibleWaterSat" "3d" "SedimentsOnly" "Simple"
+"HcLiquidSat" "3d" "SedimentsOnly" "Simple"
+"HcVapourSat" "3d" "SedimentsOnly" "Simple"
+"TotalGasGeneratedCumulative" "3d" "SedimentsOnly" "Simple"
+"C1Adsorped" "3d" "SedimentsOnly" "Simple"
+"C1Retained" "3d" "SedimentsOnly" "Simple"
+"C1ExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C1ExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C2Retained" "3d" "SedimentsOnly" "Simple"
+"C2ExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C2ExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C3Retained" "3d" "SedimentsOnly" "Simple"
+"C3ExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C3ExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C4ExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C4ExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C4Retained" "3d" "SedimentsOnly" "Simple"
+"C5ExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C5ExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C5Retained" "3d" "SedimentsOnly" "Simple"
+"N2ExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"N2ExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"N2Retained" "3d" "SedimentsOnly" "Simple"
+"CoxExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"CoxExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"CoxRetained" "3d" "SedimentsOnly" "Simple"
+"asphaltenesRetained" "3d" "SedimentsOnly" "Simple"
+"asphaltenesExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"asphaltenesExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"resinsRetained" "3d" "SedimentsOnly" "Simple"
+"resinsExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"resinsExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C15+AroRetained" "3d" "SedimentsOnly" "Simple"
+"C15+AroExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C15+AroExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C6-14AroRetained" "3d" "SedimentsOnly" "Simple"
+"C6-14AroExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C6-14AroExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C15+SatRetained" "3d" "SedimentsOnly" "Simple"
+"C15+SatExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C15+SatExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+"C6-14SatRetained" "3d" "SedimentsOnly" "Simple"
+"C6-14SatExpelledCumulative" "3d" "SedimentsOnly" "Simple"
+"C6-14SatExpelledCumulativeSR" "3d" "SedimentsOnly" "Simple"
+[End]
+;
+;
+[FilterTimeDepthIoTbl]
+;
+PropertyName PropertyClass SurfaceName FormationName Time ResultOption NumberOfBins 
+() () () () (Ma) () () 
+"Massflux" "Physical" "" "" -9999 "None" -9999 
+"Massflux_" "Physical" "" "" -9999 "None" -9999 
+"Pressure" "Physical" "" "" -9999 "None" -9999
+"LithoStaticPressure" "Physical" "" "" -9999 "None" -9999
+"HydroStaticPressure" "Physical" "" "" -9999 "None" -9999
+"OverPressure" "Physical" "" "" -9999 "None" -9999 
+"DiffusivityVec" "FormationTop" "" "" -9999 "None" -9999
+"DiffusivityVec" "FormationBottom" "" "" -9999 "None" -9999
+"PorosityVec" "FormationTop" "" "" -9999 "None" -9999 
+"PorosityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"SonicVec" "FormationTop" "" "" -9999 "None" -9999 
+"SonicVec" "FormationBottom" "" "" -9999 "None" -9999 
+"VelocityVec" "FormationTop" "" "" -9999 "None" -9999 
+"VelocityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"ReflectivityVec" "FormationTop" "" "" -9999 "None" -9999 
+"ReflectivityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"BulkDensityVec" "FormationTop" "" "" -9999 "None" -9999 
+"BulkDensityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"ThCondVec" "FormationTop" "" "" -9999 "None" -9999 
+"ThCondVec" "FormationBottom" "" "" -9999 "None" -9999 
+"PermeabilityVec" "FormationTop" "" "" -9999 "None" -9999
+"PermeabilityVec" "FormationBottom" "" "" -9999 "None" -9999
+"Depth" "Physical" "" "" -9999 "None" -9999
+"HeatFlow" "Physical" "" "" -9999 "None" -9999 
+"HeatFlow_" "Physical" "" "" -9999 "None" -9999 
+"MaxVes" "Physical" "" "" -9999 "None" -9999
+"Temperature" "Physical" "" "" -9999 "None" -9999 
+"Ves" "Physical" "" "" -9999 "None" -9999
+"VrVec" "Physical" "" "" -9999 "None" -9999 
+"Biomarkers" "Physical" "" "" -9999 "None" -9999 
+"IlliteFraction" "Physical" "" "" -9999 "None" -9999 
+"Thickness" "Formation" "" "" -9999 "None" -9999 
+"InstantaneousExpulsionApi" "SourceRock" "" "" -9999 "None" -9999
+"CumulativeExpulsionApi" "SourceRock" "" "" -9999 "None" -9999
+"InstantaneousExpulsionCondensateGasRatio" "SourceRock" "" "" -9999 "None" -9999
+"CumulativeExpulsionCondensateGasRatio" "SourceRock" "" "" -9999 "None" -9999
+"InstantaneousExpulsionGasOilRatio" "SourceRock" "" "" -9999 "None" -9999
+"CumulativeExpulsionGasOilRatio" "SourceRock" "" "" -9999 "None" -9999
+"InstantaneousExpulsionGasWetness" "SourceRock" "" "" -9999 "None" -9999
+"CumulativeExpulsionGasWetness" "SourceRock" "" "" -9999 "None" -9999
+"InstantaneousExpulsionAromaticity" "SourceRock" "" "" -9999 "None" -9999
+"CumulativeExpulsionAromaticity" "SourceRock" "" "" -9999 "None" -9999
+"KerogenConversionRatio" "SourceRock" "" "" -9999 "None" -9999
+"OilGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999
+"OilGeneratedRate" "SourceRock" "" "" -9999 "None" -9999
+"OilExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999
+"OilExpelledRate" "SourceRock" "" "" -9999 "None" -9999
+"HcGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999
+"HcGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999
+"HcGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999
+"HcGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999
+"DryGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999
+"DryGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999
+"DryGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999
+"DryGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999
+"WetGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999
+"WetGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999
+"WetGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999
+"WetGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999
+[End]
+;
+[SnapshotIoTbl]
+;
+Time TypeOfSnapshot SnapshotFileName 
+(Ma) () () 
+[End]
+;
+[RespSurfModelParamsIoTbl]
+;
+AnalysisIdentification PrimaryRow SecondaryRow RSMparameter RSMnumber RSMparameterValue
+() () () () () ()
+[End]

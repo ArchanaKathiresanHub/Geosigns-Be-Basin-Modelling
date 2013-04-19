@@ -1,0 +1,145 @@
+ROOTDIR = ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.targets
+include $(FILE_BASE)/Make.hdf5
+
+SRCDIR  = ${ROOTDIR}/src/
+CURDIR = $(cwd)
+
+TESTDAOBJECTS = TestDataAccess.o
+
+TAR = /apps/oss/bin/tar
+MAKEDEPEND = /usr/bin/makedepend
+
+TESTDA = TestDataAccess
+
+SERIAL_DATA_ACCESS_INC = $(LIBDIR)/SerialDataAccess/src
+SERIAL_DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libSerialDataAccess.a
+
+DATA_ACCESS_INC = $(LIBDIR)/DataAccess/src
+DATA_ACCESS_LIB = $(LIBDIR)/lib/$(machine)/libDataAccess.a
+
+DATABASE_INC	= $(LIBDIR)/TableIO/src
+DATABASE_LIB    = $(LIBDIR)/lib/$(machine)/libdatabase.a
+
+CBMGENERICS_INC	= $(LIBDIR)/CBMGenerics/src
+CBMGENERICS_LIB	= $(LIBDIR)/lib/$(machine)/libCBMGenerics.a
+
+UTILITIES_INC	= $(LIBDIR)/utilities/src
+UTILITIES_LIB    = $(LIBDIR)/lib/$(machine)/libutilities.a
+
+H5_SERIAL_INC   = $(LIBDIR)/Serial_Hdf5/src
+H5_SERIAL_LIB   = $(LIBDIR)/lib/$(machine)/libserialhdf5.a
+
+INCLUDEDIRS = -I$(SERIAL_DATA_ACCESS_INC) -I$(DATA_ACCESS_INC) -I$(DATABASE_INC) -I$(HDF5_SINCLUDE)
+
+SHAREDLIB = 
+
+LIB = \
+      $(DATA_ACCESS_LIB) \
+      $(SERIAL_DATA_ACCESS_LIB) \
+						$(DATA_ACCESS_LIB) \
+      $(DATABASE_LIB) \
+      $(H5_SERIAL_LIB) \
+      $(CBMGENERICS_LIB) \
+      $(UTILITIES_LIB) \
+      $(HDF5_SLIB)/libhdf5.a \
+      -lz -lm -lrt
+
+SELECTEDLIB = $(LIB)
+
+vpath %.h ${SRCDIR}
+vpath %.C ${SRCDIR}
+
+OBJDIR		= .
+vpath %.o ${OBJDIR}
+
+target: $(TESTDA)
+	@echo "Starting Testing"
+	@./$(TESTDA) 1> ../data/results.out 2>&1
+	@diff ../data/results.out ../data/results.ref
+	@echo "Finished Testing"
+
+CXXFLAGS += $(INCLUDEDIRS) 
+
+$(TESTDA) : $(TESTDAOBJECTS) $(SELECTEDLIB) Makefile
+	$(PURIFY) $(LCC) $(CFLAGS) $(TESTDAOBJECTS) $(SELECTEDLIB) $(DLLIB) -o $(TESTDA)
+
+clean:
+	rm -rf $(TESTDA) $(TESTDAOBJECTS) \
+	core test test.out snap.* ii_files SunWS_cache
+
+DATE = `date +'%y%m%d_%H%M%S'`
+
+release:
+	cd ../src && $(TAR) cvhf ../releases/$(DATE).tar *.C *.h Makefile Make.*
+
+depend: $(TESTDAOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f ../Makefile.TestDataAccess -Y $(INCLUDEDIRS) $(TESTDAOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE
+
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/GridMap.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Interface.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Child.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Grid.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/ProjectHandle.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/hdf5.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5public.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5pubconf.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5api_adpt.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Apublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Ipublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5ACpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Bpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Dpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Epublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Fpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Gpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Opublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5HGpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5HLpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5MMpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Ppublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Zpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Rpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Spublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5Tpublic.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDcore.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDfamily.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDlog.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDmpi.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDmpio.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDmpiposix.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDmulti.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDsec2.h
+TestDataAccess.o: /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-intel/1.6.8/LinuxRHEL64_x86_64_53WS/include/H5FDstdio.h
+TestDataAccess.o: ../../../libraries/TableIO/src/database.h
+TestDataAccess.o: ../../../libraries/TableIO/src/stdafx.h
+TestDataAccess.o: ../../../libraries/TableIO/src/DllExport.h
+TestDataAccess.o: ../../../libraries/TableIO/src/dataschema.h
+TestDataAccess.o: ../../../libraries/TableIO/src/datatype.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Snapshot.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/DAObject.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Parent.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/DynArray.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/AttributeValue.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Interface.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Surface.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Formation.h
+TestDataAccess.o: ../../../libraries/CBMGenerics/src/capillarySealStrength.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/SourceRock.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Reservoir.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/MobileLayer.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/PaleoFormationProperty.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/PaleoProperty.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Trap.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Lead.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/LeadTrap.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/InputValue.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/Property.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/PropertyValue.h
+TestDataAccess.o: ../../../libraries/DataAccess/src/Interface/LithoType.h

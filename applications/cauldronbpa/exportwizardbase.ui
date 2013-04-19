@@ -1,0 +1,376 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>ExportWizardBase</class>
+<widget class="QWizard">
+    <property name="name">
+        <cstring>ExportWizardBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>650</width>
+            <height>466</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Upload to BPA</string>
+    </property>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>m_namePage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Provide name and description for the project</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLayoutWidget" row="0" column="0">
+                <property name="name">
+                    <cstring>layout21</cstring>
+                </property>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>m_descriptionLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Description:</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="0" column="1">
+                        <property name="name">
+                            <cstring>m_nameLine</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>m_nameLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Name:</string>
+                        </property>
+                    </widget>
+                    <widget class="QTextEdit" row="1" column="1" rowspan="2" colspan="1">
+                        <property name="name">
+                            <cstring>m_descriptionText</cstring>
+                        </property>
+                    </widget>
+                    <spacer row="2" column="0">
+                        <property name="name">
+                            <cstring>spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>294</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+        </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>m_basinsPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Select Basins of the project</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLayoutWidget" row="0" column="0">
+                <property name="name">
+                    <cstring>layout11</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout7</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout2</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>m_organisationLabel</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Organisations</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QListBox">
+                                        <property name="name">
+                                            <cstring>m_orgs</cstring>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout3</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>m_regionsLabel</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Regions</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QListBox">
+                                        <property name="name">
+                                            <cstring>m_regions</cstring>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout4</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>m_countiesLabel</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Countries</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QListBox">
+                                        <property name="name">
+                                            <cstring>m_countries</cstring>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout5</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>m_basinsLabel</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Basins</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QListBox">
+                                        <property name="name">
+                                            <cstring>m_basins</cstring>
+                                        </property>
+                                        <property name="selectionMode">
+                                            <enum>Extended</enum>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Minimum</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>40</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout9</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>m_selectedBasinsLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Selected Basins:</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer1</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Minimum</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>m_basinsLine</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                </vbox>
+            </widget>
+        </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>m_geoPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Select Coordinate System and Transform and provide Description</string>
+        </attribute>
+        <vbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout17</cstring>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout12</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>m_coordSystemsLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Coordinate Systems</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignCenter</set>
+                                </property>
+                            </widget>
+                            <widget class="QListBox">
+                                <property name="name">
+                                    <cstring>m_coordinateSystems</cstring>
+                                </property>
+                                <property name="columnMode">
+                                    <enum>FixedNumber</enum>
+                                </property>
+                                <property name="variableWidth">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>m_coordinateSystemLine</cstring>
+                                </property>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout13</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>m_transformsLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>GeoTransforms</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignCenter</set>
+                                </property>
+                            </widget>
+                            <widget class="QListBox">
+                                <property name="name">
+                                    <cstring>m_geoTransforms</cstring>
+                                </property>
+                                <property name="columnMode">
+                                    <enum>FixedNumber</enum>
+                                </property>
+                                <property name="variableWidth">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>m_geoTransformLine</cstring>
+                                </property>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </hbox>
+            </widget>
+        </vbox>
+    </widget>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

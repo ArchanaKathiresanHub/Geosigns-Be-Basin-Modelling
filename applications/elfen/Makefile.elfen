@@ -1,0 +1,85 @@
+# Makefile.elfen - makefile for elfen support applications
+#
+# Notes:
+# This file only builds for the following environments:
+#  - Linux64
+#
+
+ELFEN_INSTALL = /glb/eu/siep_bv/data/elfen
+
+ROOTDIR	= ..
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+
+DEL_FILE = rm -f
+LN = ln -s
+####### Directory definitions
+
+OBJDIR = .
+TMPDIR = ../tmp
+SRCDIR = ../src
+BINDIR = ../bin
+
+####### Elfen file definitions
+
+ELFEN_OBJECTS  = $(BINDIR)/csetup \
+		$(BINDIR)/launch \
+		$(BINDIR)/new_user \
+		$(BINDIR)/perftest \
+		$(BINDIR)/setup 
+
+
+####### All combined stuff
+
+OBJECTS = $(ELFEN_OBJECTS) 
+
+first: all
+
+
+####### Implicit rules
+
+$(BINDIR)/%: $(SRCDIR)/%.ksh
+	echo "#!/bin/bash" > $@
+	cat $? >> $@
+	chmod 755 $@
+
+$(BINDIR)/%: $(SRCDIR)/%.csh
+	echo "#!/bin/csh" > $@
+	cat $? >> $@
+	chmod 755 $@
+
+
+####### Build rules
+
+target: elfen
+	touch target
+	-$(DEL_FILE) target
+
+# build the elfen scripts
+elfen: $(ELFEN_OBJECTS)
+	chmod 755 $(ELFEN_OBJECTS)
+
+# clean up temporary file and objects
+clean:
+	-$(DEL_FILE) $(OBJECTS)
+
+####### Install
+
+install: elfen
+	cp $(ELFEN_OBJECTS) $(ELFEN_INSTALL)/bin
+	-cd $(ELFEN_INSTALL); $(LN) bin/csetup csetup
+	-cd $(ELFEN_INSTALL); $(LN) bin/setup setup
+
+uninstall: 
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(SOURCES)
+	cd ../src && makedepend -f../Makefile.elfen -- $(CXXINCLUDE) -- $(SOURCES)
+
+
+
+################## this section is maintained by makedepend
+

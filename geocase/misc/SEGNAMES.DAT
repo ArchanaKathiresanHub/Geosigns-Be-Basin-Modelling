@@ -1,0 +1,114 @@
+RD0 Input horizon depths (m)
+IS0 Input salt movement history maps (m)
+U1  Input heatflow maps          (mW/m2)
+LI% Input lithology (-1) percentage  map
+PRM Input permeability premultiplier map
+SRP Input source rock properties
+
+ISS Standard deviation map for ISO
+U1S Standard deviation map for U1
+LIS Standard deviation map for LI%
+PRS Standard deviation map for PRM
+SRS Standard deviation map for SRP
+U2S Standard deviation map for U2
+U3S Standard deviation map for U3
+U4S Standard deviation map for U4
+POS Standard deviation map for POR
+TMS Standard deviation map for TMP
+VRS Standard deviation map for VRE
+TRS Standard deviation map for TRA
+HCS Standard deviation map for HCR
+
+RD1 Reconstructed horizon depths (m)
+RD2 Reconstr. depth to temp milestone (m)
+RD3 Reconstr. depth to VRE milestone (m)
+RD4 Reconstr. depth to transf milestone(m)
+
+U2  Reconstr. horizon temperatures (C)
+U3  Reconstr. %VRE/Transf/Generat/Exp. 
+U4  Permeability, source-rock properties
+
+POR Reconstructed reservoir porosity (%)
+TMP Reconstr. horizon temperatures (C)
+VRE Reconstr. horizon maturity (%VRE)
+TRA Reconstr. source-rock transf. ratio
+HCR Reconstr. HC gen/exp rate (m3/m2/Ma)
+
+GGC Generated Gas cumulative (kg/m2)
+GGR Generated Gas rate (kg/m2/Ma)
+XG1 Exp. Gas upwards cumulative (kg/m2)
+XG2 Exp. Gas downwards cumul. (kg/m2)
+XG3 Exp. Gas upwards rate (kg/m2/Ma)
+XG4 Exp. Gas downwards rate (kg/m2/Ma)
+GOC Generated Oil cumulative (kg/m2)
+GOR Generated Oil rate (kg/m2/Ma)
+XO1 Exp. Oil upwards cumulative (kg/m2)
+XO2 Exp. Oil downwards cumul. (kg/m2)
+XO3 Exp. upwards rate (kg/m2/Ma)
+XO4 Exp. downwards rate (kg/m2/Ma)
+
+TRG Kerogen transformation ratio
+API Gravity of cum. expelled oil (kg/m3)
+
+XGO Expulsion Gas / Oil ratio
+XCG Exp. Condensate/Gas ratio (Sm3/Sm3)
+
+OUC Exp. Oil upwards cumulative (kg/m2)
+ODC Exp. Oil downwards cumul.  (kg/m2)
+OUR Exp. Oil upwards rate (kg/m2/Ma)
+ODR Exp. Oil downwards rate (kg/m2/Ma)
+OXC Expelled Oil cumulative (kg/m2)
+OXR Expelled Oil rate (kg/m2/Ma)
+
+GUC Exp. HCgas upwards cumul. (kg/m2)
+GDC Exp. HCgas downwards cumul. (kg/m2)
+GUR Exp. HCgas upwards rate (kg/m2/Ma)
+GDR Exp. HCgas downwards rate (kg/m2/Ma)
+GXC Expelled HCgas cumulative (kg/m2)
+GXR Expelled HCgas rate (kg/m2/Ma)
+
+WUC Exp. Wet HCgas upw. cumul.(kg/m2)
+WDC Exp. Wet HCgas downw. cumul.(kg/m2)
+WUR Exp. Wet HCgas upw. rate (kg/m2/Ma)
+WDR Exp. Wet HCgas downw. rate(kg/m2/Ma)
+WXC Exp. Wet HCgas cumulative (kg/m2)
+WXR Expelled Wet HCgas rate (kg/m2/Ma)
+
+DUC Exp. Dry HCgas upw. cumul.(kg/m2)
+DDC Exp. Dry HCgas downw. cumul.(kg/m2)
+DUR Exp. Dry HCgas upw. rate (kg/m2/Ma)
+DDR Exp. Dry HCgas downw. rate(kg/m2/Ma)
+DXC Exp. Dry HCgas cumulative (kg/m2)
+DXR Expelled Dry HCgas rate (kg/m2/Ma)
+
+CUC Exp. COx upwards cumulative (kg/m2)
+CDC Exp. COx downwards cumul. (kg/m2)
+CUR Expelled COx upwards rate (kg/m2/Ma)
+CDR Expelled COx downw. rate (kg/m2/Ma)
+CXC Expelled COx cumulative (kg/m2)
+CXR Expelled COx rate (kg/m2/Ma)
+
+NUC Exp. N2 upwards cumulative (kg/m2)
+NDC Exp. N2 downwards cumul. (kg/m2)
+NUR Expelled N2 upwards rate (kg/m2/Ma)
+NDR Expelled N2 downw. rate (kg/m2/Ma)
+NXC Expelled N2 cumulative (kg/m2)
+NXR Expelled N2 rate (kg/m2/Ma)
+
+OGC Generated Oil cumulative (kg/m2)
+OGR Generated Oil rate (kg/m2/Ma)
+
+GGC Generated HCgas cumulative (kg/m2)
+GGR Generated HCgas rate (kg/m2/Ma)
+
+WGC Generated Wet HCgas cumul. (kg/m2)
+WGR Generated Wet HCgas rate (kg/m2/Ma)
+
+DGC Generated Dry HCgas cumul. (kg/m2)
+DGR Generated Dry HCgas rate (kg/m2/Ma)
+
+CGC Generated COx cumulative (kg/m2)
+CGR Generated Cox rate (kg/m2/Ma)
+
+NGC Generated N2 cumulative (kg/m2)
+NGR Generated N2 rateative (kg/m2/Ma)

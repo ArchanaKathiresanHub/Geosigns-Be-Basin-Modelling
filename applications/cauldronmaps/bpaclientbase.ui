@@ -1,0 +1,812 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>BPAClientBase</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>BPAClientBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>621</width>
+            <height>616</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>BPA Client</string>
+    </property>
+    <property name="usesTextLabel">
+        <bool>true</bool>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QSplitter" row="0" column="0">
+            <property name="name">
+                <cstring>splitter2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>m_listsLayout</cstring>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout15</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>m_orgsLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Organisations</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignCenter</set>
+                                </property>
+                            </widget>
+                            <widget class="QListBox">
+                                <property name="name">
+                                    <cstring>m_orgs</cstring>
+                                </property>
+                                <property name="selectionMode">
+                                    <enum>Extended</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout11</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer7</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QPushButton">
+                                        <property name="name">
+                                            <cstring>m_orgsSelectButton</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Select All</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>(De)select all Organisations</string>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer8</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout17</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>m_regionsLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Regions</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>WordBreak|AlignCenter</set>
+                                </property>
+                            </widget>
+                            <widget class="QListBox">
+                                <property name="name">
+                                    <cstring>m_regions</cstring>
+                                </property>
+                                <property name="selectionMode">
+                                    <enum>Extended</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout12</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer9</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QPushButton">
+                                        <property name="name">
+                                            <cstring>m_regionsSelectButton</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Select All</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>(De)select all Regions</string>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer10</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout18</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>m_countriesLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Countries</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignCenter</set>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string></string>
+                                </property>
+                            </widget>
+                            <widget class="QListBox">
+                                <property name="name">
+                                    <cstring>m_countries</cstring>
+                                </property>
+                                <property name="selectionMode">
+                                    <enum>Extended</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout13</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer11</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QPushButton">
+                                        <property name="name">
+                                            <cstring>m_countriesSelectButton</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Select All</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>(De)select all Countries</string>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer12</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>m_basinsLayout</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>m_basinsLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Basins</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignCenter</set>
+                                </property>
+                            </widget>
+                            <widget class="QListBox">
+                                <property name="name">
+                                    <cstring>m_basins</cstring>
+                                </property>
+                                <property name="selectionMode">
+                                    <enum>Extended</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout14</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer13</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QPushButton">
+                                        <property name="name">
+                                            <cstring>m_basinsSelectButton</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Select All</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>(De)select all Basins</string>
+                                        </property>
+                                    </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>spacer14</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </hbox>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout13</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QListView">
+                        <column>
+                            <property name="text">
+                                <string>Project</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Basin(s)</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Description</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Owner</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Date</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <property name="name">
+                            <cstring>m_projects</cstring>
+                        </property>
+                        <property name="resizePolicy">
+                            <enum>Manual</enum>
+                        </property>
+                        <property name="vScrollBarMode">
+                            <enum>Auto</enum>
+                        </property>
+                        <property name="hScrollBarMode">
+                            <enum>Auto</enum>
+                        </property>
+                        <property name="allColumnsShowFocus">
+                            <bool>true</bool>
+                        </property>
+                        <property name="showSortIndicator">
+                            <bool>true</bool>
+                        </property>
+                        <property name="rootIsDecorated">
+                            <bool>false</bool>
+                        </property>
+                        <property name="resizeMode">
+                            <enum>AllColumns</enum>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout12</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>m_projectsDisplayAllButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Display All</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Display all Cauldron projects available to you</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>m_projectsDisplayMineButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Display Mine</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Display all Cauldron projects owned by you</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer3</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>115</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>m_importButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Import project</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Import the selected project from the BPA server</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>m_deleteButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Delete Project</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer4</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                </vbox>
+            </widget>
+        </widget>
+    </grid>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>MenuBar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileloginAction"/>
+        <action name="fileRefreshAction"/>
+        <action name="fileOpenProjectAction"/>
+        <separator/>
+        <action name="fileCloseAction"/>
+        <action name="fileExitAction"/>
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <action name="helpIndexAction"/>
+        <separator/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Quit</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Quit</string>
+        </property>
+        <property name="toolTip">
+            <string>Quit the application</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+Q</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpIndexAction</cstring>
+        </property>
+        <property name="text">
+            <string>Index</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Index...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileloginAction</cstring>
+        </property>
+        <property name="text">
+            <string>Login</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Login</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+L</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenProjectAction</cstring>
+        </property>
+        <property name="text">
+            <string>Open Project</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open Project</string>
+        </property>
+        <property name="toolTip">
+            <string>Open a local Cauldron Project</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+O</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileRefreshAction</cstring>
+        </property>
+        <property name="text">
+            <string>&amp;Refresh</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Refresh</string>
+        </property>
+        <property name="toolTip">
+            <string>Refresh the lists</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+R</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileCloseAction</cstring>
+        </property>
+        <property name="text">
+            <string>Close</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Close</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+C</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileRecent_ProjectsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Recent Projects</string>
+        </property>
+        <property name="menuText">
+            <string>Recent Projects</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileRecentProjectsaaaAction</cstring>
+        </property>
+        <property name="text">
+            <string>aaa</string>
+        </property>
+        <property name="menuText">
+            <string>aaa</string>
+        </property>
+    </action>
+</actions>
+<connections>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>fileExit()</slot>
+    </connection>
+    <connection>
+        <sender>helpIndexAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>helpIndex()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>fileloginAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>startLogin()</slot>
+    </connection>
+    <connection>
+        <sender>fileRefreshAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>fileRefresh()</slot>
+    </connection>
+    <connection>
+        <sender>fileOpenProjectAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>projectOpen()</slot>
+    </connection>
+    <connection>
+        <sender>fileCloseAction</sender>
+        <signal>activated()</signal>
+        <receiver>BPAClientBase</receiver>
+        <slot>fileClose()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">bpaclientbase.ui.h</include>
+</includes>
+<slots>
+    <slot>fileNew()</slot>
+    <slot>fileOpen()</slot>
+    <slot>fileSave()</slot>
+    <slot>fileSaveAs()</slot>
+    <slot>filePrint()</slot>
+    <slot>fileExit()</slot>
+    <slot>helpIndex()</slot>
+    <slot>helpContents()</slot>
+    <slot>helpAbout()</slot>
+    <slot>startLogin()</slot>
+    <slot>fileRefresh()</slot>
+    <slot>projectOpen()</slot>
+    <slot>fileClose()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
+
+  <PropertyGroup>
+    <!-- Clear remote build directory. Ensure existence of remote source directory -->
+    <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</init_remote_dirs>
+
+    <!-- Copy source with rsync -->
+    <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>
+    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
+
+    <!-- Execute remote build script -->
+    <script_to_build>development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
+    <build>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_to_build)"</build>
+
+    <!-- Deploy to Houston -->
+    <!-- FIXME: Move ReleaseToHouston script closer to .projc file, Simplify ReleaseToHouston, Don't rely on that 'unpackrelease' is present at remote site. -->
+    <script_deploy_to_houston>scripts/BuildAndInstall/ReleaseToHouston</script_deploy_to_houston>
+    <deploy_to_houston>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_deploy_to_houston)"</deploy_to_houston>
+  </PropertyGroup>
+
+  <Target Name="Build" DependsOnTargets="DispalyStandardVariables">
+    <Exec Command="$(init_remote_dirs)" />
+    <Exec Command="$(copy_code)" />
+    <Exec Command="$(build)" />
+    <Exec Command="$(deploy_to_houston)"/>
+ </Target>
+</Project>

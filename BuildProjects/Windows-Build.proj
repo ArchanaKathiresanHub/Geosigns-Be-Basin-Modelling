@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <solution_root_native>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root_native>
+	<solution_root_cmake>$(solution_root_native.Replace('\','/'))</solution_root_cmake>
+    <build_dir>$(solution_root_native)\Build\$(Configuration)\$(Platform)</build_dir>
+    <cmake_generator Condition=" '$(Platform)' == 'x64' ">Visual Studio 10 Win64</cmake_generator>
+	<cmake_generator Condition=" '$(Platform)' == 'Win32' ">Visual Studio 10</cmake_generator>
+
+    <cmake_exe Condition="'$(cmake_exe)' == ''">"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe"</cmake_exe>
+	<ctest_exe Condition="'$(ctest_exe)' == ''">"C:\Program Files (x86)\CMake 2.8\bin\ctest.exe"</ctest_exe>
+   </PropertyGroup>
+
+  <ItemGroup>
+    <cmake_options Include='-DCMAKE_CONFIGURATION_TYPES="$(Configuration)"'/>
+    <cmake_options Include="-DCMAKE_INSTALL_PREFIX=&quot;$(OutDir.Replace('\', '/'))&quot;" Condition=" '$(OutDir)' != ''" />
+	
+	<cmake_options Include='-DBM_TFS_SERVER_URL="$(TeamFoundationServerUrl)"' />
+	<cmake_options Include='-DBM_TFS_BUILD_NUMBER="$(BuildNumber)"' />
+	<cmake_options Include='-DBM_TFS_PROJECT_NAME="$(TeamProject)"' />
+	
+    <!-- TODO: Set version / build numbers in DLLs (are used in version.rc resource file)
+    <cmake_variables  Condition="'$(BM_BUILD_NUMBER)' != ''" >$(cmake_variables) -DBM_BUILD_NUMBER=$(BM_BUILD_NUMBER)</cmake_variables>
+    <cmake_variables  Condition="'$(BM_REVISION)' != ''" >$(cmake_variables) -DBM_REVISION=$(BM_REVISION)</cmake_variables>
+	-->
+	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win64/hdf5"' Condition=" '$(Platform)' == 'x64' "/>
+	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win32/hdf5"' Condition=" '$(Platform)' == 'Win32' " />
+  </ItemGroup>
+  
+  <Target Name="DebugInfo">
+    <Exec Command='cmd /c "set"' />
+    
+    <Message Text="Project File Name = $(MSBuildProjectFile)" />
+    <Message Text="MSBuildProjectDirectory = $(MSBuildProjectDirectory)" />
+    <Message Text="solution_root_native = $(solution_root_native)" />
+	<Message Text="solution_root_cmake = $(solution_root_cmake)" />
+    <Message Text="OutDir = $(OutDir)" />
+    <Message Text="BuildNumber = $(BuildNumber)" />
+	<Message Text="@(cmake_options, ' ')"/>
+  </Target>
+
+  <Target Name="CmakeProject">
+    <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
+    <MakeDir Directories="$(build_dir)" Condition="!Exists('$(build_dir)')" />
+    <Exec 
+	  Command="$(cmake_exe) &quot;$(solution_root_cmake)/development&quot; -G&quot;$(cmake_generator)&quot; @(cmake_options, ' ')" 
+      WorkingDirectory="$(build_dir)"
+    />
+  </Target>
+  
+  <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
+    <MSBuild Projects="$(build_dir)\Install.vcxproj" RemoveProperties="OutDir" BuildInParallel="true"/>
+	  <MSBuild Projects="$(build_dir)\RUN_TESTS.vcxproj" RemoveProperties="OutDir" BuildInParallel="true" ContinueOnError="WarnAndContinue"/>
+  </Target>
+  
+  
+  <Target Name="Clean" >
+    <RemoveDir Directories="$(build_dir)" Condition="Exists('$(build_dir)')" />
+  </Target>
+  
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+</Project>

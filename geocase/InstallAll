@@ -1,0 +1,24 @@
+#!/bin/csh
+setenv OIV_HOME /nfs/rvl/groups/sgs/spirit2/APPL/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6/
+
+set installStatus = 0
+
+# copying the misc directory
+echo "Copying misc"
+cp -R misc $targetDirectory/misc
+\cp $OIV_HOME/data/fonts/Utopia* $targetDirectory/misc
+\cp $OIV_HOME/data/fonts/Helvetica* $targetDirectory/misc
+
+if (! $?IBS_LIMITEDBUILDANDINSTALL) then
+set wd = `pwd`
+
+# installing the classic tools
+cd BB
+./InstallAll
+if (installStatus == 0) then
+   set installStatus = $status
+endif
+cd $wd
+endif
+
+exit $installStatus

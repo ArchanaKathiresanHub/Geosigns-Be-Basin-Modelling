@@ -1,0 +1,214 @@
+#!/bin/bash
+#
+# definitions_user - GEMPIS user override definitions
+#
+# Purpose: defines GEMPIS environment for a single users that can  
+#          override system environment values defined in 
+#          $GEMPIS_DEFDIR/definitions_system
+#          
+# Syntax:
+#     . $GEMPIS_USERDIR/definitions_user
+# 
+# References: See GEMPIS User manual for details.
+#
+# This file is executed in a korn shell to define references.
+# Lines preceeded by a '#' are treated as comments. Remove '#'
+# to activate the variable. Do not activate a properties unless 
+# you know what it is needed for.
+#
+# Note:
+# 1. any occurance of the word 'template' (all in capitals) will be
+# replaced by the user defined region they geive in setup.
+###############################################################
+
+
+###############################################################
+#
+# System definitions
+#
+
+#
+# Prepend directories so they can find scripts or executables. 
+# default = not defined. 
+#export PATH=`.:$PATH`
+
+
+###############################################################
+#
+# Gempis environment variables
+#
+
+#
+# the following pair of definitions allow a pathname on one computer 
+# to be redefined on another remote computer
+# format = /absolute/path/without/a/terminating/slash
+#   path name to be searched
+#export GEMPIS_FROM_PATH=
+#   when found, path name to change it into
+#export GEMPIS_TO_PATH=
+
+#
+# when set this writes to stdout all operations performed by gempis
+# Default = off
+#export GEMPIS_VERBOSE="yes"
+
+#
+# when set gempis does not delete temporary files which can be useful 
+# for debugging problems
+# Default = off
+#export GEMPIS_DEBUG="yes"
+
+#
+# when defined the application to be executed by gempis will not have 
+# a version number as expected by CSCE applications. The user will 
+# need to insure that their executable can be 
+# found in the PATH.
+# Default = not defined
+#export GEMPIS_NOT_CSCE="yes"
+
+#
+# defines the regional name, this is used by gempil to find the 
+# regional configuration file and must be the same as the template 
+# name below. 
+# This value is defined by the gempis SETUP procerdure (see Note 
+# 1.)
+# Default = required 
+export GEMPIS_REGION_NAME="TEMPLATE"
+
+#
+# defines the location of the regional configuration file
+# Default = defined 
+# the line is also referred to be gempil and 
+# This value is defined by the gempis SETUP procerdure (See Note 
+# 1.)
+# Default = required 
+export GEMPIS_REGION_CONF="$GEMPIS_DEFDIR/regional_resources/resources_TEMPLATE"
+
+#
+# override the definition of the names of the allowed job types.
+# Make sure to also include the system names.
+# Default = off
+#export GEMPIS_JOBTYPES="STANDALONE LSF LSFHPC CUSTOM"
+
+#
+# name of a script to execute just before a job is started
+# Default=off
+# make sure to specify the fuill path to the script
+#export GEMPIS_PREJOB=""
+
+#
+# name of a script to execute just after a job is complcted
+# Default=off
+# make sure to specify the fuill path to the script
+#export GEMPIS_POSTJOB=""
+
+#
+# name of a script to execute just before each instance of the 
+# application is executed
+# Default=off
+# make sure to specify the fuill path to the script
+#export GEMPIS_PREAPP=""
+
+#
+# name of a script to execute just after each instance of the 
+# application is executed
+# Default=off
+# make sure to specify the full path to the script
+#export GEMPIS_POSTAPP=""
+
+# 
+# when turned on this will activate a SAR computer monitor that 
+# runs on each computer for the duration of the application or 
+# up to 7 days. The monitor starts a sar program with samples
+# every 15 seconds.
+# Default = off
+#export GEMPIS_MONITORAPPS="yes"
+
+# 
+# when turned on this will do a "set -x" to enable debugging of the 
+# appwrapper script
+# Default = off
+#export GEMPIS_DEBUGAPPWRAPPER="yes"
+
+#
+# this option is prepended to the command being run
+# Default = off
+# This example will to a trace of the executables and will only work when 
+# gempis is called directly. Don't use this options unless you know 
+# what you are doing.
+#export GEMPIS_PREPEND_COMMAND="strace -ff"
+
+#
+# this option is is appended to the executable
+# Default = off
+#export GEMPIS_EXEC_OPTIONS=""
+
+#
+# define email address to send logfile on successful completion
+# default = not defined
+#export GEMPIS_EMAIL_SUCCESS=""
+
+#
+# define email address to send logfile on failure completion
+# default = not defined
+#export GEMPIS_EMAIL_FAILURE=""
+
+#
+# define email address to send a message when there appears to be 
+# something wrong with the system infrastructure
+# default = not defined
+#export GEMPIS_EMAIL_SUPPORT=""
+
+
+###############################################################
+#
+# MPICH environment variables
+#
+
+#
+# Defines the base location of MPICH
+# Default = off (defined in CSCE)
+#export MPICH_HOME=
+
+#
+# defines the communications protocol for MPICH between nodes. Unless
+# there is a very good reason for it, keep this definition on.
+# Default = not defined
+#export P4_RSHCOMMAND=ssh
+
+#
+# option to add extra parameters to the mpirun command
+# Default = off
+# This example sets local and remote debugging levels to 20 
+# Use this option only when using either a STANDALONE, CUSTOM or 
+# LSF cluster, LSFHPC doesn't currently work. It generates alot 
+# of output. Don't run from gempil either.
+#export GEMPIS_MPICH_OPTIONS="-p4dbg 20 -p4rdbg 20"
+
+
+###############################################################
+#
+# LSF environment variables.
+# 
+#
+# These two determine how long LSF will wait for a parallel task to 
+# start before deciding that it was unsuccessful. If Nodes is the number
+# of nodes, LSF will wait:
+#	$LSF_PJL_WAIT_DEF + ( Nodes * $LSF_PJL_WAIT_REG )
+# seconds before killing everything.
+
+#
+# when not already defined will assign the LSF BASE timer.
+# Default = defined
+#[ -z "$LSF_PJL_WAIT_DEF" ] && export LSF_PJL_WAIT_DEF=60
+
+#
+# when not already defined will assign the LSF INCREMENT timer.
+# Default = defined
+#[ -z "$LSF_PJL_WAIT_REG" ] && export LSF_PJL_WAIT_REG=20
+
+
+# this definition is only to make sure that the script terminates successfully
+echo "" >/dev/null
+
+# End script

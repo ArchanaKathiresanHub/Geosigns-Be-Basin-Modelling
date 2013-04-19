@@ -1,0 +1,67 @@
+#include "Interface/IgneousIntrusionEvent.h"
+#include "Interface/Formation.h"
+#include "Interface/Snapshot.h"
+#include "Interface/ProjectHandle.h"
+
+
+#include "database.h"
+#include "cauldronschemafuncs.h"
+
+using namespace database;
+
+#include <sstream>
+#include <iostream>
+using namespace std;
+
+DataAccess::Interface::IgneousIntrusionEvent::IgneousIntrusionEvent ( ProjectHandle* projectHandle, database::Record * record ) : DAObject ( projectHandle, record ) {
+
+   double intrusionAge;
+
+   m_formation = m_projectHandle->findFormation ( database::getLayerName (m_record));
+   assert ( m_formation != 0 );
+
+   intrusionAge = database::getIgneousIntrusionAge ( m_record );
+   assert ( intrusionAge != DefaultUndefinedScalarValue );
+
+   m_snapshot = m_projectHandle->findSnapshot ( intrusionAge );
+   assert ( m_snapshot != 0 );
+
+   // Intrusion event and snapshot must have the same age.
+   assert ( intrusionAge == m_snapshot->getTime ());
+
+   m_intrusionTemperature = database::getIgneousIntrusionTemperature ( m_record );
+   assert ( m_intrusionTemperature != DefaultUndefinedScalarValue );
+}
+
+DataAccess::Interface::IgneousIntrusionEvent::~IgneousIntrusionEvent () {
+   m_formation = 0;
+}
+
+const DataAccess::Interface::Formation* DataAccess::Interface::IgneousIntrusionEvent::getFormation () const {
+   return m_formation;
+}
+
+double DataAccess::Interface::IgneousIntrusionEvent::getStartOfIntrusion () const {
+   return m_snapshot->getTime () + IgneousIntrusionEventDuration;
+}
+
+const DataAccess::Interface::Snapshot* DataAccess::Interface::IgneousIntrusionEvent::getEndOfIntrusion () const {
+   return m_snapshot;
+}
+
+double DataAccess::Interface::IgneousIntrusionEvent::getIntrusionTemperature () const {
+   return m_intrusionTemperature;
+}
+
+std::string DataAccess::Interface::IgneousIntrusionEvent::image () const {
+
+   std::stringstream buffer;
+
+   buffer << "Igneous intrusion event." << std::endl;
+   buffer << "  associated formation  : " << m_formation->getName () << std::endl;
+   buffer << "  intrusion start age   : " << getStartOfIntrusion () << std::endl;
+   buffer << "  intrusion end age     : " << getEndOfIntrusion ()->getTime () << std::endl;
+   buffer << "  intrusion temperature : " << getIntrusionTemperature () << std::endl;
+
+   return buffer.str ();
+}

@@ -1,0 +1,10 @@
+jobtype_CUSTOM: x
+jobtype_LSF: x
+jobtype_LSFHPC: x
+jobtype_LSFNORES: x
+jobtype_SLURM: x
+jobtype_STANDALONE: x
+
+definitions_system: x
+mpirefs_system: x
+resources_system: x

@@ -1,0 +1,31 @@
+#!/bin/csh
+
+set project=""
+
+while ($#argv > 0)
+   echo $1
+   switch ($1)
+      case -h*:
+         echo "Usage: upgrade projectfile"
+	 exit 0
+      case -project:
+	 set project=$2
+	 shift
+	 shift
+	 breaksw
+      case *:
+	 set project=$1
+	 shift
+	 breaksw
+   endsw
+end
+
+if ($project == "") then
+   echo "Usage: upgrade projectfile"
+   exit 1
+endif
+
+foreach i  ( `xcauldron $project | grep project\[13\]d` )
+   echo "Upgrading $i ..."
+   cauldron -$IBS_VERSION -upgrade $i
+end

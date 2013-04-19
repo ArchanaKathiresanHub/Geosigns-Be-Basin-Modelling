@@ -1,0 +1,130 @@
+
+-- Snapshot: 8 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              0
+Charge produced by oil to gas cracking:            0
+Expelled into reservoir:                           1.02157e+09
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          1.02157e+09
+
+Charge converted by oil to gas cracking:           0
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               7.09992e+08
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     3.11582e+08
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         1.02157e+09
+
+----------------------------------------------------------------------
+Balance:                                           -1.19209e-07
+
+======================================================================
+
+
+
+-- Snapshot: 6 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              7.09992e+08
+Charge produced by oil to gas cracking:            0.133003
+Expelled into reservoir:                           7.11423e+09
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          7.82423e+09
+
+Charge converted by oil to gas cracking:           0.229293
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               6.02365e+09
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     1.80057e+09
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         7.82423e+09
+
+----------------------------------------------------------------------
+Balance:                                           9.53674e-07
+
+======================================================================
+
+
+
+-- Snapshot: 4 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              6.02365e+09
+Charge produced by oil to gas cracking:            122.818
+Expelled into reservoir:                           2.72421e+10
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          3.32657e+10
+
+Charge converted by oil to gas cracking:           230.541
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               2.73287e+10
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     5.93702e+09
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         3.32657e+10
+
+----------------------------------------------------------------------
+Balance:                                           3.8147e-06
+
+======================================================================
+
+
+
+-- Snapshot: 2 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              2.73287e+10
+Charge produced by oil to gas cracking:            28990.1
+Expelled into reservoir:                           7.6563e+10
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          1.03892e+11
+
+Charge converted by oil to gas cracking:           55820.4
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               8.89217e+10
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     1.497e+10
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         1.03892e+11
+
+----------------------------------------------------------------------
+Balance:                                           1.52588e-05
+
+======================================================================
+
+
+
+-- Snapshot: 0 -------------------------------- Reservoir: Reservoir3 --
+
+Already in reservoir:                              8.89217e+10
+Charge produced by oil to gas cracking:            2.24916e+06
+Expelled into reservoir:                           1.72011e+11
+Leaked into reservoir:                             0
+----------------------------------------------------------------------
+Total in:                                          2.60935e+11
+
+Charge converted by oil to gas cracking:           4.3092e+06
+Blocked from entering reservoir:                   0
+Stored in reservoir:                               2.29416e+11
+Biodegraded:                                       0
+Diffused:                                          0
+Leaked outward from reservoir:                     3.15148e+10
+Leaked upward from reservoir:                      0
+----------------------------------------------------------------------
+Total out:                                         2.60935e+11
+
+----------------------------------------------------------------------
+Balance:                                           -3.05176e-05
+
+======================================================================
+
+

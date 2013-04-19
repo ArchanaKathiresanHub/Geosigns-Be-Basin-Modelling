@@ -1,0 +1,8 @@
+PROJECT "NoLithoTest"
+REQUIREMENTS "fastreq -project NoLithoTest.project3d"
+PARALLEL "fastcauldron -maps -volumes -project NoLithoTest.project3d -save _NoLithoTest.project3d -temperature"
+LOCAL "cp -f _NoLithoTest.project3d NoLithoTest.project3d"
+PARALLEL "fastgenex5 -project NoLithoTest.project3d -save _NoLithoTest.project3d"
+LOCAL "cp -f _NoLithoTest.project3d NoLithoTest.project3d"
+PARALLEL "fastmig -project NoLithoTest.project3d -save _NoLithoTest.project3d"
+LOCAL "cp -f _NoLithoTest.project3d NoLithoTest.project3d"

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="fastcauldron.cdt.managedbuild.target.gnu.exe.925671584" name="Executable (Gnu)" projectType="cdt.managedbuild.target.gnu.exe">
+<configuration artifactName="fastcauldron" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.950480788" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1815016598" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1030604487" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.1056104663" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+<option id="gnu.cpp.compiler.option.include.paths.1251735689" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/include"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_util}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/calibration_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LinearAlgebra}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Interpolation}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.preprocessor.def.77383936" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="PETSC_USE_DEBUG"/>
+<listOptionValue builtIn="false" value="PETSC_USE_LOG"/>
+<listOptionValue builtIn="false" value="PETSC_USE_BOPT_O"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.631840069" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1951900864" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1918199014" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<option id="gnu.cpp.link.option.strip.1704197135" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+<option id="gnu.cpp.link.option.libs.922298964" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<listOptionValue builtIn="false" value="petscmesh"/>
+<listOptionValue builtIn="false" value="petscts"/>
+<listOptionValue builtIn="false" value="petscsnes"/>
+<listOptionValue builtIn="false" value="petscsles"/>
+<listOptionValue builtIn="false" value="petscdm"/>
+<listOptionValue builtIn="false" value="petscmat"/>
+<listOptionValue builtIn="false" value="petscvec"/>
+<listOptionValue builtIn="false" value="petsc"/>
+<listOptionValue builtIn="false" value="lapack"/>
+<listOptionValue builtIn="false" value="blas"/>
+<listOptionValue builtIn="false" value="g2c"/>
+<listOptionValue builtIn="false" value="hdf5"/>
+<listOptionValue builtIn="false" value="z"/>
+<listOptionValue builtIn="false" value="rt"/>
+</option>
+<option id="gnu.cpp.link.option.paths.36711238" superClass="gnu.cpp.link.option.paths" valueType="stringList">
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/lib"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/lib/libO_c++/linux64"/>
+</option>
+<option id="gnu.cpp.link.option.userobjs.1218264755" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/calibration_kernel/Release/libcalibration_kernel.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO/Release/libTableIO.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel/Release/libgenex4_kernel.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_util/Release/libgenex4_util.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Interpolation/Release/libInterpolation.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LinearAlgebra/Release/libLinearAlgebra.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5/Release/libParallel_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5/Release/libSerial_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc/Release/libUtilities_Petsc.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics/Release/libCBMGenerics.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities/Release/libutilities.a}&quot;"/>
+<listOptionValue builtIn="false" value="/apps/3rdparty/EPTFlexLm/v9.2/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1833043601" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
+</toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.950480788./fastcauldron/secondary_migration.h" name="secondary_migration.h" rcbsApplicability="disable" resourcePath="/fastcauldron/secondary_migration.h" toolsToInvoke=""/>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.950480788./fastcauldron/cauldron_element_contributions.C" name="cauldron_element_contributions.C" rcbsApplicability="disable" resourcePath="/fastcauldron/cauldron_element_contributions.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/cauldron_element_contributions.C">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/cauldron_element_contributions.C" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="false" id="cdt.managedbuild.config.gnu.exe.release.950480788./fastcauldron/main.C" name="main.C" rcbsApplicability="disable" resourcePath="/fastcauldron/main.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/main.C">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/main.C" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325">
+<option id="gnu.cpp.compiler.option.include.paths.501593239" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(PETSC_D_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_D_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="$(HDF5_DP_HOME)/include"/>
+<listOptionValue builtIn="false" value="/apps/3rdparty/EPTFlexLm/v9.2/include"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/calibration_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LinearAlgebra}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Interpolation}&quot;"/>
+</option>
+</tool>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.950480788./fastcauldron/secondary_migration.C" name="secondary_migration.C" rcbsApplicability="disable" resourcePath="/fastcauldron/secondary_migration.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/secondary_migration.C">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/secondary_migration.C" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.950480788./fastcauldron/pvt_flash.h" name="pvt_flash.h" rcbsApplicability="disable" resourcePath="/fastcauldron/pvt_flash.h" toolsToInvoke=""/>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.950480788./fastcauldron/pvt_flash.C" name="pvt_flash.C" rcbsApplicability="disable" resourcePath="/fastcauldron/pvt_flash.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/pvt_flash.C">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325./fastcauldron/pvt_flash.C" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325"/>
+</resourceConfiguration>
+</configuration>
+<configuration artifactName="fastcauldron" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.915096861" name="Debug" parent="cdt.managedbuild.config.gnu.exe.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.851758401" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2008390398" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<option id="gnu.cpp.compiler.exe.release.option.optimization.level.929432568" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.1838423740" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wshadow" valueType="string"/>
+<option id="gnu.cpp.compiler.option.include.paths.452988226" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/include"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_util}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/calibration_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LinearAlgebra}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Interpolation}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.preprocessor.def.2088986523" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="PETSC_USE_DEBUG"/>
+<listOptionValue builtIn="false" value="PETSC_USE_LOG"/>
+<listOptionValue builtIn="false" value="PETSC_USE_BOPT_O"/>
+</option>
+<option id="gnu.cpp.compiler.exe.release.option.debugging.level.467327702" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.946011364" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1292608600" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+<tool command="mpicxx -m64" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1999054806" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<option id="gnu.cpp.link.option.strip.1180384193" name="Omit all symbol information (-s)" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
+<option id="gnu.cpp.link.option.libs.743707740" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<listOptionValue builtIn="false" value="petscmesh"/>
+<listOptionValue builtIn="false" value="petscts"/>
+<listOptionValue builtIn="false" value="petscsnes"/>
+<listOptionValue builtIn="false" value="petscsles"/>
+<listOptionValue builtIn="false" value="petscdm"/>
+<listOptionValue builtIn="false" value="petscmat"/>
+<listOptionValue builtIn="false" value="petscvec"/>
+<listOptionValue builtIn="false" value="petsc"/>
+<listOptionValue builtIn="false" value="lapack"/>
+<listOptionValue builtIn="false" value="blas"/>
+<listOptionValue builtIn="false" value="g2c"/>
+<listOptionValue builtIn="false" value="hdf5"/>
+<listOptionValue builtIn="false" value="z"/>
+<listOptionValue builtIn="false" value="rt"/>
+</option>
+<option id="gnu.cpp.link.option.paths.231367350" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="stringList">
+<listOptionValue builtIn="false" value="$(HDF5_P_HOME)/lib"/>
+<listOptionValue builtIn="false" value="$(PETSC_D_HOME)/lib/libg_c++/linux64"/>
+</option>
+<option id="gnu.cpp.link.option.userobjs.1267184722" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/calibration_kernel/Debug/libcalibration_kernel.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO/Debug/libTableIO.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel/Debug/libgenex4_kernel.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_util/Debug/libgenex4_util.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Interpolation/Debug/libInterpolation.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LinearAlgebra/Debug/libLinearAlgebra.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5/Debug/libParallel_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5/Debug/libSerial_Hdf5.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc/Debug/libUtilities_Petsc.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CBMGenerics/Debug/libCBMGenerics.a}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/utilities/Debug/libutilities.a}&quot;"/>
+<listOptionValue builtIn="false" value="/apps/3rdparty/EPTFlexLm/v9.2/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1153048917" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
+</toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.915096861./fastcauldron/secondary_migration.h" name="secondary_migration.h" rcbsApplicability="disable" resourcePath="/fastcauldron/secondary_migration.h" toolsToInvoke=""/>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.915096861./fastcauldron/cauldron_element_contributions.C" name="cauldron_element_contributions.C" rcbsApplicability="disable" resourcePath="/fastcauldron/cauldron_element_contributions.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.404654299">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.404654299" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2008390398"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="false" id="cdt.managedbuild.config.gnu.exe.release.915096861./fastcauldron/main.C" name="main.C" rcbsApplicability="disable" resourcePath="/fastcauldron/main.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.838509116">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.838509116" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2008390398">
+<option id="gnu.cpp.compiler.option.include.paths.441529336" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/include"/>
+<listOptionValue builtIn="false" value="$(PETSC_HOME)/bmake/linux64"/>
+<listOptionValue builtIn="false" value="$(HDF5_HOME)/include"/>
+<listOptionValue builtIn="false" value="/apps/3rdparty/EPTFlexLm/v9.2/include"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/genex4_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Serial_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/calibration_kernel}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Utilities_Petsc}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Parallel_Hdf5}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LinearAlgebra}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/TableIO}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Interpolation}&quot;"/>
+</option>
+</tool>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.915096861./fastcauldron/secondary_migration.C" name="secondary_migration.C" rcbsApplicability="disable" resourcePath="/fastcauldron/secondary_migration.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.1706765584">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.1706765584" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2008390398"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.915096861./fastcauldron/pvt_flash.h" name="pvt_flash.h" rcbsApplicability="disable" resourcePath="/fastcauldron/pvt_flash.h" toolsToInvoke=""/>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.915096861./fastcauldron/pvt_flash.C" name="pvt_flash.C" rcbsApplicability="disable" resourcePath="/fastcauldron/pvt_flash.C" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.1164020447">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.28269325.1164020447" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2008390398"/>
+</resourceConfiguration>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>

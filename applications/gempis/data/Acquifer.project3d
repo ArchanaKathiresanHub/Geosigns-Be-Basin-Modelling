@@ -1,0 +1,1679 @@
+;
+; START - Acquifer.project3d 13-Jun-07 16:59:17
+;
+;
+; 
+;
+[IoOptionsIoTbl]
+;
+MapType FileVersioning AutoSaving SaveBeforeEachRun MaxFileWidth ConsoleLevel PopupLevel LogfileLevel 
+() () () () () () () () 
+"HDF5" 3 0 0 0 -5 -5 -5 
+[End]
+;
+[PlotBoundsTbl]
+;
+PropertyName BoundsEnabled LowerBound UpperBound 
+() () () () 
+[End]
+;
+;
+; Project data
+;
+[ProjectIoTbl]
+;
+ProjectName ProjectSize Description ProjectTeam ProjectStartDate ProjectEndDate BPAServer BPAName BPAOwnerOrg BPAChecksum ProgramVersion ModellingMode XCoord YCoord NumberX NumberY DeltaX DeltaY ScaleX ScaleY OffsetX OffsetY WindowXMin WindowXMax WindowYMin WindowYMax 
+() () () () () () () () () () () () (m) (m) () () (m) (m) () () () () () () () () 
+"Acquifer" "Big" "Exercise" "EPT-AE-PSA" "" "" "" "" "" "" "v2007.06" "3d" 0 0 21 21 500 500 3 3 0 0 0 20 0 20 
+[End]
+;
+[ProjectNotesIoTbl]
+;
+ProjectNotes 
+() 
+[End]
+;
+[RelatedProjectsIoTbl]
+;
+Filename 
+() 
+[End]
+;
+;
+; Default files
+;
+;
+; Run Options
+;
+[RunOptionsIoTbl]
+;
+CompactionAlgorithm VreAlgorithm VelAlgorithm Optimisation_Level Temperature_Gradient Constrain_VES HeatFlowSolution PrefSnapstep PrefReconstep OptimalTotalPresDiff OptimalTotalTempDiff OptimalSourceRockTempDiff MaxTimeStepIncreaseFactor MinTimeStepDecreaseFactor BricksizeEast BricksizeNorth BrickHeightSediment BrickHeightCrust BrickHeightMantle MaxNumberOfRunOverpressure FracturePressureFunction FractureType CalcAllDepthIoProps UncertaintyAnalysis SensitivityAnalysis ResponseSurfaceModeling NrMCLoops NrMCSaveEvery NrSensSaveEvery Optimization OptimTopCrustHeatProd OptimCrustalThickness OptimMantleThickness OptimUnconfThickness FormTempOptimWeight VrmOptimWeight BiomOptimWeight FtOptimWeight SmiOptimWeight OptimTolerance Hims Him NumEstimates CoupledMode ChemicalCompaction ConvectiveTerm NonGeometricLoop AllochthonousModelling McHistOutput RSMxmlOutput 
+() () () () () () () (Ma) (Ma) (MPa) (DegreesCelcius) (DegreesCelcius) () (Ma) (m) (m) (m) (m) (m) () () () () () () () () () () () () () () () () () () () () () () () () () () () () () () () 
+"Effective Stress" "Modified Lopatin" "Gardner's Velocity-Density" "Level 4 (default)" 30 0 "Transient" 10 0.5 0.1 4 2 1.5 0.5 100 100 100 4000 20000 10 "None        " "" 0 0 0 0 1 100 100 0 0 0 0 0 10 10 10 10 10 0.001 "Single Variables" "1st and Total Order" "2 SClosed, 2 STotal" 0 -1752516776 0 -1752516696 0 0 0 
+[End]
+;
+[SnapshotIoTbl]
+;
+Time IsMinorSnapshot TypeOfSnapshot SnapshotFileName 
+(Ma) () () () 
+0 0 "System Generated" "" 
+2 0 "User Defined" "" 
+4 0 "User Defined" "" 
+6 0 "User Defined" "" 
+8 0 "System Generated" "" 
+14 0 "System Generated" "" 
+23 0 "System Generated" "" 
+27 0 "System Generated" "" 
+33 0 "System Generated" "" 
+45 0 "System Generated" "" 
+[End]
+;
+[SensAnalysisIoTbl]
+;
+AnalysisIdentification AnalysisIndicator PropertyDescription TypeOfDistribution ModellingMode 
+() () () () () 
+0 0 "Age in stratigraphic data" "Normal_3SD" "1d" 
+1 0 "Depth in stratigraphic data" "Normal_3SD" "1d" 
+10 0 "Thickness in unconformity data" "Normal_3SD" "1d" 
+20 0 "Density of lithology" "Normal_3SD" "1d" 
+21 0 "STP thermal conductivity of lithology" "Normal_3SD" "1d" 
+22 0 "Heat production of lithology" "Normal_3SD" "1d" 
+23 0 "Surface porosity of lithology" "Normal_3SD" "1d" 
+24 0 "Seismic velocity of lithology" "Normal_3SD" "1d" 
+25 0 "Comp. coef. eff. stress of lithology" "Normal_3SD" "1d" 
+26 0 "Comp. coef. Sclater & Christie of lithology" "Normal_3SD" "1d" 
+27 0 "Comp. coef. Falvey & Middleton of lithology" "Normal_3SD" "1d" 
+40 0 "Thickness in mobile layer" "Normal_3SD" "1d" 
+50 0 "Surface temperature in boundary conditions" "Normal_3SD" "1d" 
+51 0 "Mantle heat flow in boundary conditions" "Normal_3SD" "1d" 
+100 0 "Initial TOC of source rock" "Normal_3SD" "1d" 
+104 0 "Intial H/C ratio of source rock" "Normal_3SD" "1d" 
+[End]
+;
+[RespSurfModelParamsIoTbl]
+;
+AnalysisIdentification PrimaryRow SecondaryRow RSMparameter RSMnumber RSMparameterValue 
+() () () () () () 
+[End]
+;
+[FilterDepthIoTbl]
+;
+PropertyName ModellingMode OutputOption ResultOption 
+() () () () 
+"Massflux" "1d" "SedimentsPlusBasement" "Simple" 
+"Massflux_" "1d" "None" "Simple" 
+"Pressure" "1d" "SedimentsOnly" "Simple" 
+"LithoStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"HydroStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"OverPressure" "1d" "SedimentsOnly" "Simple" 
+"DiffusivityVec" "1d" "None" "Simple" 
+"HeatFlow" "1d" "SedimentsPlusBasement" "Simple" 
+"HeatFlow_" "1d" "None" "Simple" 
+"MaxVes" "1d" "None" "Simple" 
+"PorosityVec" "1d" "SedimentsOnly" "Simple" 
+"SonicVec" "1d" "SedimentsOnly" "Simple" 
+"VelocityVec" "1d" "SedimentsOnly" "Simple" 
+"ReflectivityVec" "1d" "SedimentsOnly" "Simple" 
+"BulkDensityVec" "1d" "SedimentsOnly" "Simple" 
+"Temperature" "1d" "SedimentsOnly" "Simple" 
+"ThCondVec" "1d" "SedimentsOnly" "Simple" 
+"PermeabilityVec" "1d" "SedimentsOnly" "Simple" 
+"Ves" "1d" "None" "Simple" 
+"Vr" "1d" "SedimentsOnly" "Simple" 
+"FissionTracks" "1d" "None" "Simple" 
+"Biomarkers" "1d" "None" "Simple" 
+"IlliteFraction" "1d" "None" "Simple" 
+[End]
+;
+[FilterTimeIoTbl]
+;
+PropertyName ModellingMode OutputOption ResultOption 
+() () () () 
+"Massflux" "1d" "SedimentsPlusBasement" "Simple" 
+"Massflux_" "1d" "None" "Simple" 
+"Pressure" "1d" "SedimentsOnly" "Simple" 
+"LithoStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"HydroStaticPressure" "1d" "SedimentsOnly" "Simple" 
+"OverPressure" "1d" "SedimentsOnly" "Simple" 
+"DiffusivityVec" "1d" "None" "Simple" 
+"PorosityVec" "1d" "SedimentsOnly" "Simple" 
+"SonicVec" "1d" "SedimentsOnly" "Simple" 
+"VelocityVec" "1d" "SedimentsOnly" "Simple" 
+"ReflectivityVec" "1d" "SedimentsOnly" "Simple" 
+"BulkDensityVec" "1d" "SedimentsOnly" "Simple" 
+"ThCondVec" "1d" "SedimentsPlusBasement" "Simple" 
+"PermeabilityVec" "1d" "SedimentsOnly" "Simple" 
+"Depth" "1d" "SedimentsPlusBasement" "Simple" 
+"HeatFlow" "1d" "SedimentsPlusBasement" "Simple" 
+"HeatFlow_" "1d" "None" "Simple" 
+"MaxVes" "1d" "None" "Simple" 
+"Temperature" "1d" "SedimentsPlusBasement" "Simple" 
+"Ves" "1d" "None" "Simple" 
+"Vr" "1d" "SedimentsOnly" "Simple" 
+"Biomarkers" "1d" "None" "Simple" 
+"IlliteFraction" "1d" "None" "Simple" 
+"Thickness" "1d" "SedimentsPlusBasement" "Simple" 
+"VreMaturity" "1d" "None" "Simple" 
+"KerogenConversionRatio" "1d" "None" "Simple" 
+"DryGasExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"DryGasExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"DryGasGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"DryGasGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"HcGasExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"HcGasExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"HcGasGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"HcGasGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"OilExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"OilExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"OilGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"OilGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"WetGasExpelledCumulative" "1d" "SourceRockOnly" "Simple" 
+"WetGasExpelledRate" "1d" "SourceRockOnly" "Simple" 
+"WetGasGeneratedCumulative" "1d" "SourceRockOnly" "Simple" 
+"WetGasGeneratedRate" "1d" "SourceRockOnly" "Simple" 
+"IsoStaticMass" "1d" "None" "Simple" 
+"IsoStaticDeflection" "1d" "None" "Simple" 
+"IsoStaticWaterBottom" "1d" "None" "Simple" 
+"Massflux" "3d" "None" "Simple" 
+"Pressure" "3d" "SedimentsOnly" "Simple" 
+"HydroStaticPressure" "3d" "SedimentsOnly" "Simple" 
+"LithoStaticPressure" "3d" "SedimentsOnly" "Simple" 
+"OverPressure" "3d" "SedimentsOnly" "Simple" 
+"DiffusivityVec" "3d" "None" "Simple" 
+"PorosityVec" "3d" "SourceRockOnly" "Simple" 
+"VelocityVec" "3d" "None" "Simple" 
+"ReflectivityVec" "3d" "None" "Simple" 
+"BulkDensityVec" "3d" "None" "Simple" 
+"ThCondVec" "3d" "None" "Simple" 
+"PermeabilityVec" "3d" "SedimentsOnly" "Simple" 
+"Depth" "3d" "SedimentsOnly" "Simple" 
+"HeatFlow" "3d" "None" "Simple" 
+"MaxVes" "3d" "None" "Simple" 
+"Temperature" "3d" "SedimentsOnly" "Simple" 
+"Ves" "3d" "SedimentsOnly" "Simple" 
+"Vr" "3d" "SedimentsOnly" "Simple" 
+"Thickness" "3d" "None" "Simple" 
+"VreMaturity" "3d" "None" "Simple" 
+"KerogenConversionRatio" "3d" "SourceRockOnly" "Simple" 
+"DryGasExpelledCumulative" "3d" "None" "Simple" 
+"DryGasExpelledRate" "3d" "None" "Simple" 
+"DryGasGeneratedCumulative" "3d" "None" "Simple" 
+"DryGasGeneratedRate" "3d" "None" "Simple" 
+"HcGasExpelledCumulative" "3d" "None" "Simple" 
+"HcGasExpelledRate" "3d" "SourceRockOnly" "Simple" 
+"HcGasGeneratedCumulative" "3d" "None" "Simple" 
+"HcGasGeneratedRate" "3d" "SourceRockOnly" "Simple" 
+"OilExpelledCumulative" "3d" "None" "Simple" 
+"OilExpelledRate" "3d" "SourceRockOnly" "Simple" 
+"OilGeneratedCumulative" "3d" "None" "Simple" 
+"OilGeneratedRate" "3d" "SourceRockOnly" "Simple" 
+"WetGasExpelledCumulative" "3d" "None" "Simple" 
+"WetGasExpelledRate" "3d" "None" "Simple" 
+"WetGasGeneratedCumulative" "3d" "None" "Simple" 
+"WetGasGeneratedRate" "3d" "None" "Simple" 
+"ResRockLeakageUpward" "3d" "SedimentsPlusBasement" "Simple" 
+"ResRockLeakageOutward" "3d" "SedimentsPlusBasement" "Simple" 
+"InstantaneousExpulsionApi" "1d" "None" "Simple" 
+"CumulativeExpulsionApi" "1d" "None" "Simple" 
+"InstantaneousExpulsionCondensateGasRatio" "1d" "None" "Simple" 
+"CumulativeExpulsionCondensateGasRatio" "1d" "None" "Simple" 
+"InstantaneousExpulsionGasOilRatio" "1d" "None" "Simple" 
+"CumulativeExpulsionGasOilRatio" "1d" "None" "Simple" 
+"InstantaneousExpulsionGasWetness" "1d" "None" "Simple" 
+"CumulativeExpulsionGasWetness" "1d" "None" "Simple" 
+"InstantaneousExpulsionAromaticity" "1d" "None" "Simple" 
+"CumulativeExpulsionAromaticity" "1d" "None" "Simple" 
+"FaultElements" "3d" "None" "Simple" 
+"InstantaneousExpulsionApi" "3d" "None" "Simple" 
+"CumulativeExpulsionApi" "3d" "None" "Simple" 
+"InstantaneousExpulsionCondensateGasRatio" "3d" "None" "Simple" 
+"CumulativeExpulsionCondensateGasRatio" "3d" "None" "Simple" 
+"InstantaneousExpulsionGasOilRatio" "3d" "None" "Simple" 
+"CumulativeExpulsionGasOilRatio" "3d" "None" "Simple" 
+"InstantaneousExpulsionGasWetness" "3d" "None" "Simple" 
+"CumulativeExpulsionGasWetness" "3d" "None" "Simple" 
+"InstantaneousExpulsionAromaticity" "3d" "None" "Simple" 
+"CumulativeExpulsionAromaticity" "3d" "None" "Simple" 
+[End]
+;
+[FilterTimeDepthIoTbl]
+;
+PropertyName PropertyClass SurfaceName FormationName Time ResultOption NumberOfBins 
+() () () () (Ma) () () 
+"Massflux" "Physical" "" "" -9999 "None" -9999 
+"Massflux_" "Physical" "" "" -9999 "None" -9999 
+"Pressure" "Physical" "" "" -9999 "None" -9999 
+"LithoStaticPressure" "Physical" "" "" -9999 "None" -9999 
+"HydroStaticPressure" "Physical" "" "" -9999 "None" -9999 
+"OverPressure" "Physical" "" "" -9999 "None" -9999 
+"DiffusivityVec" "FormationTop" "" "" -9999 "None" -9999 
+"DiffusivityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"PorosityVec" "FormationTop" "" "" -9999 "None" -9999 
+"PorosityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"SonicVec" "FormationTop" "" "" -9999 "None" -9999 
+"SonicVec" "FormationBottom" "" "" -9999 "None" -9999 
+"VelocityVec" "FormationTop" "" "" -9999 "None" -9999 
+"VelocityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"ReflectivityVec" "FormationTop" "" "" -9999 "None" -9999 
+"ReflectivityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"BulkDensityVec" "FormationTop" "" "" -9999 "None" -9999 
+"BulkDensityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"ThCondVec" "FormationTop" "" "" -9999 "None" -9999 
+"ThCondVec" "FormationBottom" "" "" -9999 "None" -9999 
+"PermeabilityVec" "FormationTop" "" "" -9999 "None" -9999 
+"PermeabilityVec" "FormationBottom" "" "" -9999 "None" -9999 
+"Depth" "Physical" "" "" -9999 "None" -9999 
+"HeatFlow" "Physical" "" "" -9999 "None" -9999 
+"HeatFlow_" "Physical" "" "" -9999 "None" -9999 
+"MaxVes" "Physical" "" "" -9999 "None" -9999 
+"Temperature" "Physical" "" "" -9999 "None" -9999 
+"Ves" "Physical" "" "" -9999 "None" -9999 
+"Vr" "Physical" "" "" -9999 "None" -9999 
+"Biomarkers" "Physical" "" "" -9999 "None" -9999 
+"IlliteFraction" "Physical" "" "" -9999 "None" -9999 
+"Thickness" "Formation" "" "" -9999 "None" -9999 
+"VreMaturity" "SourceRock" "" "" -9999 "None" -9999 
+"ExpulsionApi" "SourceRock" "" "" -9999 "None" -9999 
+"ExpulsionCondesateGasRatio" "SourceRock" "" "" -9999 "None" -9999 
+"ExpulsionGasOilRatio" "SourceRock" "" "" -9999 "None" -9999 
+"KerogenConversionRatio" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"CoxExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"CoxGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"CoxGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"DryGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"HcGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"NExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"NGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"NGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"OilGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"OilGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledCumulativeDownward" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledCumulativeUpward" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledDownwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasExpelledUpwardRate" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasGeneratedCumulative" "SourceRock" "" "" -9999 "None" -9999 
+"WetGasGeneratedRate" "SourceRock" "" "" -9999 "None" -9999 
+[End]
+;
+;
+; Location Data
+;
+[WellLocIoTbl]
+;
+WellName XCoord YCoord Longitude Latitude Datum WellElevation DerFloorElev Waterdepth 
+() (m) (m) (degs,minutes) (degs,minutes) () (m) (m) (m) 
+"MyWell" 0 0 0 0 "Sea Bottom (OFF shore)" 0 0 0 
+[End]
+;
+;
+; Touchstone Well Data
+;
+[TouchstoneWellIoTbl]
+;
+WellName XCoord YCoord 
+() (m) (m) 
+[End]
+;
+;
+; Grid Map Data
+;
+[GridMapIoTbl]
+;
+ReferredBy MapName MapType MapFileName FileId MD5Checksum MapSeqNbr HDF5FileName 
+() () () () () () () () 
+"StratIoTbl" "Depth@Water bottom" "HDF5" "Acquifer.HDF" -1 "" 0 "" 
+"StratIoTbl" "Depth@Surface1" "HDF5" "Acquifer.HDF" -1 "" 1 "" 
+"StratIoTbl" "Depth@Surface2" "HDF5" "Acquifer.HDF" -1 "" 2 "" 
+"StratIoTbl" "Depth@Surface3" "HDF5" "Acquifer.HDF" -1 "" 3 "" 
+"StratIoTbl" "Depth@Surface4" "HDF5" "Acquifer.HDF" -1 "" 4 "" 
+"StratIoTbl" "Depth@Surface5" "HDF5" "Acquifer.HDF" -1 "" 5 "" 
+"StratIoTbl" "Depth@Horizon 1" "HDF5" "Acquifer.HDF" -1 "" 6 "" 
+[End]
+;
+;
+; Stratigraphic Data
+;
+[StratIoTbl]
+;
+SurfaceName DepoAge Depth ErrDepth DepthGrid TwoWayTtime LayerName DepoSequence Thickness CalibThickness OptimThickness ThicknessGrid Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 Percent3 MixModel SeisVelocity Fluidtype TempGradient SourceRock MobileLayer HasAllochthonLitho HydroSand ChemicalCompaction ErrDepoAge ErrTwoWayTtime ErrThickness ErrSeisVelocity 
+() (Ma) (m) (m) (m) (s) () () (m) (m) () (m) () (volume%) (volume%) () (volume%) (volume%) () (volume%) () (m/s) () (C/m) () () () () () () () () () 
+"Water bottom" 0 -9999 0 "Depth@Water bottom" 0 "Formation 1" 6 -9999 -9999 0 "" "Std. Shale" 100 "" "" 0 "" "" 0 "Homogeneous" 0 "Std. Marine Water" -9999 0 0 0 0 -1752516776 0 0 0 -9999 
+"Surface1" 8 -9999 0 "Depth@Surface1" 0 "Formation2" 5 -9999 -9999 0 "" "Std. Shale" 100 "" "" 0 "" "" 0 "Homogeneous" 0 "Std. Marine Water" -9999 0 0 0 0 0 0 0 0 -9999 
+"Surface2" 14 -9999 0 "Depth@Surface2" 0 "Formation3" 4 -9999 -9999 0 "" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Homogeneous" 0 "Std. Marine Water" -9999 0 0 0 0 0 0 0 0 -9999 
+"Surface3" 23 -9999 0 "Depth@Surface3" 0 "Formation4" 3 -9999 -9999 0 "" "Std. Shale" 100 "" "" 0 "" "" 0 "Homogeneous" 0 "Std. Marine Water" -9999 0 0 0 0 0 0 0 0 -9999 
+"Surface4" 27 -9999 0 "Depth@Surface4" 0 "Formation5" 2 -9999 -9999 0 "" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Homogeneous" 0 "Std. Marine Water" -9999 1 0 0 0 0 0 0 0 -9999 
+"Surface5" 33 -9999 0 "Depth@Surface5" 0 "Formation6" 1 -9999 -9999 0 "" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Homogeneous" 0 "Std. Marine Water" -9999 0 0 0 0 0 0 0 0 -9999 
+"Horizon 1" 45 -9999 0 "Depth@Horizon 1" 0 "" -9999 -9999 -9999 0 "" "" -9999 "" "" -9999 "" "" -9999 "" -9999 "" -9999 -9999 -9999 0 -9999 0 0 0 -9999 -9999 
+[End]
+;
+[MobLayThicknIoTbl]
+;
+LayerName Age Thickness ThicknessGrid ErrThickness 
+() (Ma) (m) (m) () 
+[End]
+;
+[SourceRockLithoIoTbl]
+;
+LayerName SourceRockType UserDefined TocIni TocIniGrid HCInputMode S1Ini S1IniGrid S2Ini S2IniGrid S3Ini S3IniGrid HcVRe05 HcIni HcIniGrid HiIni OcIni OcIniGrid NcIni NcIniGrid CharLength CharLengthGrid UpperBiot UpperBiotGrid LowerBiot LowerBiotGrid KerogenStartAct KerogenStartActGrid KerogenEndAct KerogenEndActGrid PreAsphaltStartAct PreAsphaltStartActGrid PreAsphaltEndAct PreAsphaltEndActGrid NettThickIni NettThickIniGrid NGenexTimeSteps NGenexTimeStepsGrid NGenexSlices NGenexSlicesGrid VREini AsphalteneDiffusionEnergy ResinDiffusionEnergy C15AroDiffusionEnergy C15SatDiffusionEnergy VREoptimization VREthreshold VESLimitIndicator VESLimit ErrTocIni ErrS1Ini ErrS2Ini ErrS3Ini ErrHcIni ErrHiIni ErrOcIni ErrNcIni ErrCharLength ErrUpperBiot ErrLowerBiot ErrKerogenStartAct ErrKerogenEndAct ErrPreAsphaltStartAct ErrPreAsphaltEndAct ErrNettThickIni 
+() () () (weight) () () (kg/tonne) () (kg/tonne) () (kg/tonne) () (kg/tonne) (kg/tonne) () (kg/tonne) (kg/tonne) () (kg/tonne) () (m) () () () () () (kJ/mol) () (kJ/mol) () (kJ/mol) () (kJ/mol) () (m) () () () () () () (kJ) (kJ) (kJ) (kJ) () () () (MPa) () () () () () () () () () () () () () () () () 
+"Formation5" "MarineClastics" 0 6 "" "" 5 "" 32.108 "" 1.7333 "" 1.56 1.2 "" 773.5 0.16 "" 0.016 "" 0.7 "" 100 "" 100 "" 170 "" 235 "" 207 "" 233 "" 10 "" 400 "" 10 "" 0.5 88 85 80 75 "True" 0.5 "No" 20 3 0 0 0 0.1 0 0.02 0.002 0.2 0 0 4 4 2 4 0 
+[End]
+;
+;
+; Formation Data
+;
+[AllochthonLithoIoTbl]
+;
+LayerName Lithotype 
+() () 
+[End]
+;
+[AllochthonLithoDistribIoTbl]
+;
+LayerName DistributionGrid Age 
+() () (Ma) 
+[End]
+;
+;
+; Crust Thickness Data
+;
+[CrustIoTbl]
+;
+Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness 
+(Ma) (m) (m) (m) () () 
+0 30000 "" -9999 0 0 
+100 30000 "" -9999 0 0 
+[End]
+;
+;
+; Geological Boundary datas
+;
+[GeologicalBoundaryIoTbl]
+;
+GeologicalObjectName GeologicalObjectType TypeOfProperty FirstIndexInPropertyIoTbl NumberOfProperties 
+() () () () () 
+[End]
+;
+;
+; Property Boundary datas
+;
+[PropertyBoundaryIoTbl]
+;
+NameOfProperty FirstIndexInPropertyBoundaryValuesIoTbl NumberOfTimeIntervals 
+() () () 
+[End]
+;
+;
+; Boundary values datas
+;
+[BoundaryValuesIoTbl]
+;
+BeginTimeValues EndTimeValues PropertyValueGrid PropertyValue 
+() () () () 
+[End]
+;
+;
+; Surface Temperatures
+;
+[SurfaceTempIoTbl]
+;
+Age Temperature ErrTemperature TemperatureGrid 
+(Ma) (C) (C) (C) 
+0 10 4 "" 
+[End]
+;
+;
+; Surface Depths
+;
+[SurfaceDepthIoTbl]
+;
+Age Depth DepthGrid 
+(Ma) (m) (m) 
+0 -9999 "Depth@Water bottom" 
+[End]
+;
+;
+; Mantle Heat Flows
+;
+[MntlHeatFlowIoTbl]
+;
+Age HeatFlow HeatFlowGrid ErrHeatFlow 
+(Ma) (mW/m2) (mW/m2) () 
+0 30 "" 5 
+[End]
+;
+;
+; Basement
+;
+[BasementIoTbl]
+;
+BottomBoundaryModel TopAsthenoTemp TopCrustHeatProd TopCrustHeatProdGrid CalibTopCrustHeatProd CrustHeatPDecayConst LithoMantleThickness CalibLithoMantleThickness InitialLthMntThickns CalibInitialLthMntThickns FixedCrustThickness CalibFixedCrustThickness ErrLithoMantleThickness ErrInitialLthMntThickns ErrFixedCrustThickness ErrTopCrustHeatProd ErrCrustHeatPDecayConst 
+() (C) (uW/m3) (uW/m3) (uW/m3) (m) (m) (m) (m) (m) (m) (m) () () () () () 
+"Fixed Temperature" 1333 2.5 "" -9999 10000 90000 -9999 90000 -9999 30000 -9999 0 0 0 0 -9999 
+[End]
+;
+;
+; Measured Pressures
+;
+[FormPressIoTbl]
+;
+DepthIndex MPressure FormPressureType Label ErrMPressure 
+(m) (MPa) () () () 
+0 0 "RFT" "" 0 
+[End]
+;
+;
+; Formation Temperatures (corrected)
+;
+[FormTempIoTbl]
+;
+DepthIndex Temperature ErrTemperature FormTempType Label Optimization 
+(m) (C) (C) () () () 
+[End]
+;
+;
+; Bottom Hole Temperatures (uncorrected)
+;
+[RawBhtIoTbl]
+;
+DepthIndex TimeSinceCirStopped Temperature ErrTemperature Theta 
+(m) (min) (C) (C) () 
+[End]
+;
+[RawBhtBitsizeIoTbl]
+;
+DepthIndex CirculationTime BitDiameter FormTempType 
+(m) (min) (inch) () 
+[End]
+;
+;
+; Marsden & Schreurs polynom coefficients
+;
+[MarsdenCoefIoTbl]
+;
+MarsdenAcoef MarsdenBcoef MarsdenCcoef 
+() () () 
+-3.8 22.8 -8.06 
+[End]
+;
+;
+; Vitrinite Reflectance Measurements
+;
+[VrmIoTbl]
+;
+DepthIndex Vr VrmType Label Optimization ErrVr 
+(m) (%) () () () () 
+[End]
+;
+;
+; Sonic Velocity Measurements
+;
+[SonicIoTbl]
+;
+Depth Dt 
+(m) (us/m) 
+0 0 
+[End]
+;
+;
+; Bulk Density Measurements
+;
+[BulkDensityIoTbl]
+;
+Depth BDensity 
+(m) (kg/m^3) 
+0 0 
+[End]
+;
+;
+; Biomarker Kinetics
+;
+[BiomarkerKinIoTbl]
+;
+HopIsoActEnergy SteIsoActEnergy SteAroActEnergy HopIsoFreqFactor SteIsoFreqFactor SteAroFreqFactor HopIsoGamma SteIsoGamma 
+(J/mol) (J/mol) (J/mol) (sec-1) (sec-1) (sec-1) () () 
+1.68e+05 1.69e+05 1.814e+05 8.1e+08 4.86e+08 4.85e+10 1.564 1.174 
+[End]
+;
+;
+; Biomarker Measurements
+;
+[BiomarkermIoTbl]
+;
+DepthIndex HopaneIsomerisation SteraneIsomerisation SteraneAromatisation Optimization ErrHopaneIsomerisation ErrSteraneIsomerisation ErrSteraneAromatisation 
+(m) () () () () () () () 
+[End]
+;
+;
+; Smectite Illite Kinetics
+;
+[SmectiteIlliteKinIoTbl]
+;
+ActEnergy1 FreqFactor1 ActEnergy2 FreqFactor2 InitIlliteFraction 
+() () () () () 
+55800 3.4229e+06 13700 1 0 
+[End]
+;
+;
+; Smectite Illite Measurements
+;
+[SmectiteIlliteIoTbl]
+;
+DepthIndex IlliteFraction Label Optimization ErrIlliteFraction 
+(m) () () () () 
+[End]
+;
+;
+; Fission track counts
+;
+[FtGrainIoTbl]
+;
+FtSampleId FtGrainId FtSpontTrackNo FtInducedTrackNo FtClWeightPerc FtGrainAge FtGrainAgeErr 
+() () () () (%) (Ma) (Ma) 
+[End]
+;
+;
+; Fission track lengths
+;
+[FtLengthIoTbl]
+;
+FtSampleId FtGrainId FtLength 
+() () (microns) 
+[End]
+;
+;
+; Fission track sample data
+;
+[FtSampleIoTbl]
+;
+FtSampleId DepthIndex FtZeta FtUstglTrackDensity FtPredictedAge FtPooledAge FtPooledAgeErr FtAgeChi2 FtDegreeOfFreedom FtPAgeChi2 FtCorrCoeff FtVarianceSqrtNs FtVarianceSqrtNi FtNsDivNi FtNsDivNiErr FtMeanRatio FtMeanRatioErr FtCentralAge FtCentralAgeErr FtMeanAge FtMeanAgeErr FtLengthChi2 FtApatiteYield Optimization 
+() (m) () (cm-2) (Ma) (Ma) (Ma) () () () () () () () () () () () () () () () () () 
+[End]
+;
+;
+; Reservoir Data
+;
+[ReservoirIoTbl]
+;
+ReservoirName FormationName TrapCapacity ActivityMode ActivityStart DepthOffset DepthOffsetGrid Thickness ThicknessGrid NetToGross NetToGrossGrid MicroTraps LeakProperty LeakRate Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 LayerFrequency LayerFrequencyGrid BioDegradInd DiffusionInd BlockingInd BlockingPermeability ErrThickness ErrDepthOffset ErrNetToGross ErrMicroTraps ErrLayerFrequency 
+() () (m3) () (Ma) (m) (m) (m) (m) (percent) (percent) (m3/m2) () (kg/m2/ma) () (volume%) (volume%) () (volume%) (volume%) () (km) () () () () (mD) () () () () () 
+"Reservoir3" "Formation3" 5e+05 "AlwaysActive" 0 -9999 "" -9999 "" -9999 "" -9999 "NoLeak" -9999 "" -9999 "" "" -9999 "" "" -9999 "" 0 0 0 1e-09 -9999 -9999 -9999 -9999 -9999 
+[End]
+;
+;
+; Bio Degradation Data
+;
+[BioDegradIoTbl]
+;
+MaxBioTemp TempConstant TimeConstant C1_BioFactor C2_BioFactor C3_BioFactor C4_BioFactor C5_BioFactor N2_BioFactor COx_BioFactor C6_14Aro_BioFactor C6_14Sat_BioFactor C15Aro_BioFactor C15Sat_BioFactor resins_BioFactor asphaltenes_BioFactor ErrMaxBioTemp ErrTempConstant ErrTimeConstant ErrC1_BioFactor ErrC2_BioFactor ErrC3_BioFactor ErrC4_BioFactor ErrC5_BioFactor ErrN2_BioFactor ErrCOx_BioFactor ErrC6_14Aro_BioFactor ErrC6_14Sat_BioFactor ErrC15Aro_BioFactor ErrC15Sat_BioFactor Errresins_BioFactor Errasphaltenes_BioFactor 
+(C) (1/C) (1/Ma) () () () () () () () () () () () () () () () () () () () () () () () () () () () () () 
+40 40 0.3 0.015 0.012 0.011 0.015 0.018 0.001 0 0.007 0.009 0.05 0.011 0.061 0.1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[End]
+;
+;
+; Diffusion Data
+;
+[DiffusionIoTbl]
+;
+DiffusionModel SealThicknessModel MaximumSealThickness DiffSalinity ActEnergy GasRatio C1_DiffFactor C2_DiffFactor C3_DiffFactor C4_DiffFactor C5_DiffFactor C1_ConcFactor C2_ConcFactor C3_ConcFactor C4_ConcFactor C5_ConcFactor ErrDiffSalinity ErrActEnergy ErrGasRatio ErrC1_DiffFactor ErrC2_DiffFactor ErrC3_DiffFactor ErrC4_DiffFactor ErrC5_DiffFactor ErrC1_ConcFactor ErrC2_ConcFactor ErrC3_ConcFactor ErrC4_ConcFactor ErrC5_ConcFactor 
+() () (m) (kg/kg) (J) (????) () () () () () () () () () () () () () () () () () () () () () () () 
+"Transient" "FullOverburden" 0 0.2 18360 8.31451 3.047e-06 2.484e-06 2.266e-06 2.036e-06 1.908e-06 1 0.222 0.089 0.02 0.0067 -9999 -9999 -9999 -9999 -9999 -9999 -9999 -9999 -9999 -9999 -9999 -9999 -9999 
+[End]
+;
+;
+; Palinspastic Map Data
+;
+[PalinspasticIoTbl]
+;
+DepthGrid FaultcutsMap SurfaceName BottomFormationName Age Depth MapSeqNbr OilSlope GasSlope MinimumSGR SGRIndicator ErrOilSlope ErrGasSlope ErrMinimumSGR 
+(m) (m) () () (Ma) (m) () (km) () () () () () () 
+[End]
+;
+;
+; Migration Faultcut status data
+;
+[FaultcutIoTbl]
+;
+SurfaceName FaultName FaultcutStatus Age 
+() () () (Ma) 
+[End]
+;
+;
+; Overpressure Faultcut status data
+;
+[PressureFaultcutIoTbl]
+;
+FaultcutsMap FaultName StartAge FaultLithology UsedInOverpressure 
+(m) () (Ma) () () 
+[End]
+;
+;
+; Fracture Pressure Functions against Depth
+;
+[PressureFuncIoTbl]
+;
+PresFuncName CoefA CoefB CoefC CoefD Selected UserDefined 
+() (MPa) (MPa/m) (MPa/m^2) (MPa/m^3) () () 
+"None        " 1e+09 0 0 0 1 0 
+"C-NorthSea  " 23.718 -0.01384 1.0687e-05 -9.0577e-10 0 0 
+"Nigeria Deep" 0.101 0.019906 0 0 0 0 
+"Terschelling" 0.101 0.01 2.3e-06 0 0 0 
+"Nigeria East" 0.36542 0.0099531 1.8554e-06 0 0 0 
+"Nigeria West" 0.101 0.0099531 2.3749e-06 0 0 0 
+"Brunei Deep " 0.101 0.022621 0 0 0 0 
+"Linear 70%  " 0.101 0.018834 0 0 0 0 
+"Linear 75%  " 0.101 0.019465 0 0 0 0 
+"Linear 80%  " 0.101 0.020096 0 0 0 0 
+"Linear 85%  " 0.101 0.020728 0 0 0 0 
+"Linear 90%  " 0.101 0.021359 0 0 0 0 
+"Linear 95%  " 0.101 0.02199 0 0 0 0 
+[End]
+;
+;
+; Trap Data
+;
+;
+; Lead Data
+;
+;
+; Present day source rock properties
+;
+;
+; Present day reservoir properties
+;
+;
+; Grid descriptions
+;
+;
+; Trap Loss Data
+;
+;
+; Reservoir Leak Data
+;
+;
+; Lithotype Data
+;
+[LithotypeIoTbl]
+;
+Lithotype Description DefinedBy UserDefined DefinitionDate LastChangedBy LastChangedDate FgColour BgColour Pixmap Density HeatProd SurfacePorosity CompacCoefES CompacCoefSC CompacCoefFM StpThCond ThCondAnisotropy DepoPerm PermDecrStressCoef PermIncrRelaxCoef PermAnisotropy PermMixModel SeisVelocity CapC1 CapC2 Porosity_Model Compaction_Coefficient_SM Number_Of_Data_Points Multipoint_Porosity Multipoint_Permeability HydraulicFracturingPercent ReferenceSolidViscosity ActivationEnergy MinimumPorosity ErrDensity ErrDepoPerm ErrStpThCond ErrThCondAnisotropy ErrPermAnisotropy ErrHeatProd ErrSurfacePorosity ErrSeisVelocity ErrCompacCoefSC ErrCompacCoefFM ErrCompacCoefES 
+() () () () () () () () () () (kg/m3) (uW/m3) (%) (10-8Pa-1) (km-1) (km-1) (W/mK) ((ratio)) (mD) () () ((ratio)) () (m/s) ((unknown)) ((unknown)) () () () () () (%) () () () () () () () () () () () () () () 
+"Std. Sandstone" "Standard Sandstone" "SIEP EPT-RXR" 0 "November 1994" "" "" "black" "#e3e01c" "Sandstone" 2650 0.8 48 3.22 0.39 1.53 3.4 1 6000 0 1.5 1 "Sands" 6097 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 51 0 1.9 0.2 0 0.48 8 0 0 0 1.6 
+"SM. Sandstone" "Soil Mechanics Sandstone" "SIEP EPT-RXR" 0 "December 2004" "" "" "black" "#e3e09c" "Sandstone" 2650 0.8 60 3.22 0.39 1.53 3.4 1 6000 0 1.5 1 "Multipoint" 6097 0.33 0.2611 "Soil_Mechanics" 0.222 2 "5.0e+00  60.0e+00" "3.0e-01   8.60e+00" 100 1e+17 0 0 51 0 1.9 0.2 0 0.48 8 0 0 0 1.6 
+"Std. Shale" "Standard Shale" "SIEP EPT-RXR" 0 "November 1994" "" "" "grey25" "grey75" "Shale" 2710 1.8 70 7.27 0.87 3.69 1.4 1.6 0.01 0.01 1.5 1 "Shales" 5000 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 225 0 0.69 0.5 0 0.2 20 0 0 0 4.5 
+"SM.Mudst.40%Clay" "Soil Mechanics Mudstone 40% Clay" "SIEP EPT-RXR" 0 "December 2004" "" "" "grey25" "PaleGreen2" "Shale" 2710 1.8 56.32 7.27 0.87 3.69 1.4 1.6 0.01 0.01 1.5 1 "Multipoint" 5000 0.33 0.2611 "Soil_Mechanics" 0.1988 2 "5.0e+00  60.0e+00" "-6.0e+00 -0.5e+00" 100 1e+17 0 0 225 0 0.69 0.5 0 0.2 20 0 0 0 4.5 
+"SM.Mudst.50%Clay" "Soil Mechanics Mudstone 50% Clay" "SIEP EPT-RXR" 0 "December 2004" "" "" "grey25" "PaleGreen3" "Shale" 2710 1.8 62 7.27 0.87 3.69 1.4 1.6 0.01 0.01 1.5 1 "Multipoint" 5000 0.33 0.2611 "Soil_Mechanics" 0.25675 2 "5.0e+00  60.0e+00" "-6.1e+00 -1.7e+00" 100 1e+17 0 0 225 0 0.69 0.5 0 0.2 20 0 0 0 4.5 
+"SM.Mudst.60%Clay" "Soil Mechanics Mudstone 60% Clay" "SIEP EPT-RXR" 0 "December 2004" "" "" "grey25" "PaleGreen4" "Shale" 2710 1.8 66.85 7.27 0.87 3.69 1.4 1.6 0.01 0.01 1.5 1 "Multipoint" 5000 0.33 0.2611 "Soil_Mechanics" 0.3221 6 "5.0e+00 20.0e+00 30.0e+00 40.0e+00 50.0e+00 60.0e+00" "-5.93e+00 -5.23e+00 -4.67e+00 -3.9e+00 -3.0e+00 -2.0e+00" 100 1e+17 0 0 225 0 0.69 0.5 0 0.2 20 0 0 0 4.5 
+"Std. Siltstone" "Standard Siltstone" "SIEP EPT-RXR" 0 "November 1994" "" "" "Black" "PaleGreen1" "Siltstone" 2648 0.91 38 4 0.39 2.18 1.8 1.5 50 0.01 1.5 1 "Shales" 5263 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 60 0 1.5 0.3 0 0 20 0 0 0 2 
+"Std.Grainstone" "Standard Grainstone (Limestone)" "SIEP EPT-RXR" 0 "October 1995" "" "" "Black" "#91e9e9" "Limestone" 2710 0.45 50 3.8 0.51 1.8 2.5 1 6000 0 1.5 1 "Sands" 6410 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 24 0 0.69 0.5 0 0.15 10 0 0 0 2 
+"Std.Dolo.Grainstone" "Standard Domlomitic Grainstone (Dolostone)" "SIEP EPT-RXR" 0 "October 1995" "" "" "Black" "#9589e2" "Dolomite" 2830 0.32 50 3.03 0.22 1.5 5 1 6000 0 1.5 1 "Sands" 6993 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 36 0 0.51 0.5 0 0.17 10 0 0 0 2 
+"Std.Lime Mudstone" "Standard Calcareous Mudstone (Limestone)" "SIEP EPT-RXR" 0 "October 1995" "" "" "Black" "#4ea7a7" "Limestone" 2710 0.45 70 7.27 0.51 1.8 2.5 1.5 0.01 0.01 1.5 1 "Shales" 6410 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 24 0 0.69 0.5 0 0.15 20 0 0 0 4.5 
+"Std.Dolo.Mudstone" "Standard Dolomitic Mudstone (Dolostone)" "SIEP EPT-RXR" 0 "October 1995" "" "" "Black" "#57499c" "Dolomite" 2830 0.32 70 7.27 0.22 1.5 5 1.5 0.01 0.01 1.5 1 "Shales" 6993 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 36 0 0.51 0.5 0 0.17 20 0 0 0 4.5 
+"Std. Chalk" "Standard Chalk" "SIEP EPT-RXR" 0 "November 1994" "" "" "Red" "#95cce5" "Limestone" 2655 0.45 70 4.83 0.71 2.5 2.9 1 0.1 0.01 1.5 1 "Shales" 5988 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 93 0 0.9 0.5 0 0.15 20 0 0 0 0 
+"Std. Marl" "Standard Marl" "SIEP EPT-RXR" 0 "November 1994" "" "" "Black" "#66a922" "Clear" 2670 0.93 70 4.83 0.71 2.5 1.6 1.4 0.01 0.01 1.5 1 "Shales" 5988 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 39 0 0.21 0.4 0 0.38 20 0 0 0 0 
+"Std. Anhydrite" "Standard Anhydrite" "SIEP EPT-RXR" 0 "November 1994" "" "" "Black" "#e595e5" "Chert" 2850 0.09 0 0 0 0 5.8 1 0 0 0 0 "None" 6097 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 135 0 0.81 0 0 0 0 0 0 0 0 
+"Std. Salt" "Standard Salt" "SIEP EPT-RXR" 0 "November 1994" "" "" "MediumAquamarine" "#96e4c9" "Trellis1" 2160 0.012 0 0 0 0 6.3 1 0 0 0 0 "None" 4545 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 120 0 1.5 0 0 0 0 0 0 0 0 
+"Sylvite" "Sylvite" "SIEP EPT-RXR" 0 "January  1997" "User" "January 1997" "Grey7" "Red" "Trellis1" 2100 0.95 0 0 0 0 6.95 1 0 0 0 0 "None" 0 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 100 0 0.21 0 0 0.2 0 0 0 0 0 
+"Std. Coal" "Standard Coal" "SIEP EPT-RXR" 0 "November 1994" "" "" "White" "gray20" "Clear" 1350 0 80 4.76 0.9 5 0.21 0.03 0 0 0 0 "Impermeable" 3003 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 210 0 0.03 0.01 0 0 10 0 0 0 0 
+"Std. Basalt" "Standard Basalt" "SIEP EPT-RXR" 0 "November 1994" "" "" "Black" "#e3a992" "Basement" 2730 0.63 0 0 0 0 2.4 1 0 0 0 0 "None" 0 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 180 0 0.3 0 0 0.27 0 0 0 0 0 
+"Crust" "Standard Crust" "SIEP EPT-RXR" 0 "November 1994" "" "" "Yellow" "#d5638e" "Basement" 2800 0 0 0 0 0 4.09 1 0 0 0 0 "None" 0 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 180 0 1.5 0 0 0 0 0 0 0 0 
+"Litho. Mantle" "Lithospheric Mantle" "SIEP EPT-RXR" 0 "November 1994" "" "" "Blue" "#da90da" "Basement" 3300 0 0 0 0 0 3.2 1 0 0 0 0 "None" 0 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 180 0 1.2 0 0 0 0 0 0 0 0 
+"Astheno. Mantle" "Asthenospheric Mantle" "SIEP EPT-RXR" 0 "November 1994" "" "" "White" "#c83232" "Basement" 3200 0 0 0 0 0 3.8 1 0 0 0 0 "None" 0 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 180 0 1.2 0 0 0 0 0 0 0 0 
+"HEAT Sandstone" "Sandstone as used by IBS-HEAT" "SIEP EPT-RXR" 0 "October 1995" "" "" "Grey7" "LightGrey" "Sandstone" 2700 0.8 48 2.67 0.39 1.53 3.5 1 6000 0 1.5 1 "Sands" 6097 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 51 0 3.4 0.2 0 0.48 8 0 0 0 0 
+"HEAT Shale" "Shale as used by IBS-HEAT" "SIEP EPT-RXR" 0 "October 1995" "" "" "Grey7" "Cyan" "Shale" 3330 1.8 70 5.98 0.87 3.69 2 1.6 0.01 0.01 1.5 1 "Shales" 5000 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 225 0 0.69 0.5 0 0.2 0 0 0 0 0 
+"HEAT Limestone" "Limestone as used by IBS-HEAT" "SIEP EPT-RXR" 0 "October 1995" "" "" "Grey7" "#91e9e9" "Limestone" 2800 0.45 50 3.47 0.51 1.8 1.7 1 0.01 0.01 1.5 1 "Shales" 6410 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 24 0 0.69 0.5 0 0.15 10 0 0 0 0 
+"HEAT Dolostone" "Dolostone as used by IBS-HEAT" "SIEP EPT-RXR" 0 "October 1995" "" "" "Grey7" "#9589e2" "Dolomite" 2800 0.32 40 1.5 0.22 1.5 3 1 0.01 0.01 1.5 1 "Shales" 6993 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 36 0 0.51 0.5 0 0.17 0 0 0 0 0 
+"HEAT Chalk" "Chalk as used by IBS-HEAT" "SIEP EPT-RXR" 0 "October 1995" "" "" "Grey7" "#66a922" "Limestone" 2650 0.45 70 4.83 0.71 2.5 1.5 1 0.1 0.01 1.5 1 "Shales" 5988 0.33 0.2611 "Exponential" 0 0 "" "" 100 1e+17 0 0 93 0 0.9 0.5 0 0.15 0 0 0 0 0 
+[End]
+;
+[LitMixIoTbl]
+;
+Lithotype Lithotype1 Percent1 
+() () (volume%) 
+[End]
+;
+[LitThCondIoTbl]
+;
+Lithotype TempIndex ThCond 
+() (C) (W/mK) 
+"Std. Sandstone" 0 3.54 
+"Std. Sandstone" 20 3.4 
+"Std. Sandstone" 100 2.95 
+"Std. Sandstone" 200 2.54 
+"Std. Sandstone" 300 2.21 
+"Std. Sandstone" 400 1.94 
+"Std. Sandstone" 500 1.94 
+"Std. Sandstone" 600 1.94 
+"SM. Sandstone" 0 3.54 
+"SM. Sandstone" 20 3.4 
+"SM. Sandstone" 100 2.95 
+"SM. Sandstone" 200 2.54 
+"SM. Sandstone" 300 2.21 
+"SM. Sandstone" 400 1.94 
+"SM. Sandstone" 500 1.94 
+"SM. Sandstone" 600 1.94 
+"Std. Shale" 0 1.4 
+"Std. Shale" 20 1.4 
+"Std. Shale" 100 1.4 
+"Std. Shale" 200 1.4 
+"Std. Shale" 300 1.4 
+"Std. Shale" 400 1.4 
+"Std. Shale" 500 1.4 
+"Std. Shale" 600 1.4 
+"SM.Mudst.40%Clay" 0 1.4 
+"SM.Mudst.40%Clay" 20 1.4 
+"SM.Mudst.40%Clay" 100 1.4 
+"SM.Mudst.40%Clay" 200 1.4 
+"SM.Mudst.40%Clay" 300 1.4 
+"SM.Mudst.40%Clay" 400 1.4 
+"SM.Mudst.40%Clay" 500 1.4 
+"SM.Mudst.40%Clay" 600 1.4 
+"SM.Mudst.50%Clay" 0 1.4 
+"SM.Mudst.50%Clay" 20 1.4 
+"SM.Mudst.50%Clay" 100 1.4 
+"SM.Mudst.50%Clay" 200 1.4 
+"SM.Mudst.50%Clay" 300 1.4 
+"SM.Mudst.50%Clay" 400 1.4 
+"SM.Mudst.50%Clay" 500 1.4 
+"SM.Mudst.50%Clay" 600 1.4 
+"SM.Mudst.60%Clay" 0 1.4 
+"SM.Mudst.60%Clay" 20 1.4 
+"SM.Mudst.60%Clay" 100 1.4 
+"SM.Mudst.60%Clay" 200 1.4 
+"SM.Mudst.60%Clay" 300 1.4 
+"SM.Mudst.60%Clay" 400 1.4 
+"SM.Mudst.60%Clay" 500 1.4 
+"SM.Mudst.60%Clay" 600 1.4 
+"Std. Siltstone" 0 1.82 
+"Std. Siltstone" 20 1.8 
+"Std. Siltstone" 100 1.72 
+"Std. Siltstone" 200 1.63 
+"Std. Siltstone" 300 1.55 
+"Std. Siltstone" 400 1.48 
+"Std. Siltstone" 500 1.48 
+"Std. Siltstone" 600 1.48 
+"Std.Grainstone" 0 2.64 
+"Std.Grainstone" 20 2.5 
+"Std.Grainstone" 100 2.22 
+"Std.Grainstone" 200 1.86 
+"Std.Grainstone" 300 1.55 
+"Std.Grainstone" 400 1.31 
+"Std.Grainstone" 500 1.31 
+"Std.Grainstone" 600 1.31 
+"Std.Dolo.Grainstone" 0 5.19 
+"Std.Dolo.Grainstone" 20 5 
+"Std.Dolo.Grainstone" 100 4.37 
+"Std.Dolo.Grainstone" 200 3.67 
+"Std.Dolo.Grainstone" 300 3.11 
+"Std.Dolo.Grainstone" 400 2.66 
+"Std.Dolo.Grainstone" 500 2.66 
+"Std.Dolo.Grainstone" 600 2.66 
+"Std.Lime Mudstone" 0 2.64 
+"Std.Lime Mudstone" 20 2.5 
+"Std.Lime Mudstone" 100 2.22 
+"Std.Lime Mudstone" 200 1.86 
+"Std.Lime Mudstone" 300 1.55 
+"Std.Lime Mudstone" 400 1.31 
+"Std.Lime Mudstone" 500 1.31 
+"Std.Lime Mudstone" 600 1.31 
+"Std.Dolo.Mudstone" 0 5.19 
+"Std.Dolo.Mudstone" 20 5 
+"Std.Dolo.Mudstone" 100 4.37 
+"Std.Dolo.Mudstone" 200 3.67 
+"Std.Dolo.Mudstone" 300 3.11 
+"Std.Dolo.Mudstone" 400 2.66 
+"Std.Dolo.Mudstone" 500 2.66 
+"Std.Dolo.Mudstone" 600 2.66 
+"Std. Chalk" 0 3 
+"Std. Chalk" 20 2.9 
+"Std. Chalk" 100 2.56 
+"Std. Chalk" 200 2.23 
+"Std. Chalk" 300 1.96 
+"Std. Chalk" 400 1.72 
+"Std. Chalk" 500 1.72 
+"Std. Chalk" 600 1.72 
+"Std. Marl" 0 1.61 
+"Std. Marl" 20 1.6 
+"Std. Marl" 100 1.56 
+"Std. Marl" 200 1.51 
+"Std. Marl" 300 1.47 
+"Std. Marl" 400 1.43 
+"Std. Marl" 500 1.43 
+"Std. Marl" 600 1.43 
+"Std. Anhydrite" 0 6.19 
+"Std. Anhydrite" 20 5.8 
+"Std. Anhydrite" 100 4.55 
+"Std. Anhydrite" 200 3.38 
+"Std. Anhydrite" 300 2.69 
+"Std. Anhydrite" 400 2.48 
+"Std. Anhydrite" 500 2.48 
+"Std. Anhydrite" 600 2.48 
+"Std. Salt" 0 6.57 
+"Std. Salt" 20 6.33 
+"Std. Salt" 100 5.46 
+"Std. Salt" 200 4.51 
+"Std. Salt" 300 3.71 
+"Std. Salt" 400 3.06 
+"Std. Salt" 500 3.06 
+"Std. Salt" 600 3.06 
+"Sylvite" 0 6.95 
+"Sylvite" 20 6.7 
+"Sylvite" 100 5.8 
+"Sylvite" 200 4.79 
+"Sylvite" 300 3.94 
+"Sylvite" 400 3.25 
+"Sylvite" 500 3.25 
+"Sylvite" 600 3.25 
+"Std. Coal" 0 0.21 
+"Std. Coal" 20 0.21 
+"Std. Coal" 100 0.21 
+"Std. Coal" 200 0.22 
+"Std. Coal" 300 0.22 
+"Std. Coal" 400 0.22 
+"Std. Coal" 500 0.22 
+"Std. Coal" 600 0.22 
+"Std. Basalt" 0 2.41 
+"Std. Basalt" 20 2.4 
+"Std. Basalt" 100 2.31 
+"Std. Basalt" 200 2.21 
+"Std. Basalt" 300 2.11 
+"Std. Basalt" 400 2.01 
+"Std. Basalt" 500 1.9 
+"Std. Basalt" 600 1.8 
+"Std. Basalt" 700 1.7 
+"Std. Basalt" 800 1.6 
+"Std. Basalt" 900 1.5 
+"Std. Basalt" 1000 1.4 
+"Std. Basalt" 1100 1.3 
+"Std. Basalt" 1200 1.2 
+"Std. Basalt" 1300 1.1 
+"Crust" 0 4.2 
+"Crust" 20 4.09 
+"Crust" 100 3.66 
+"Crust" 200 3.19 
+"Crust" 300 2.79 
+"Crust" 400 2.45 
+"Crust" 500 2.18 
+"Crust" 600 1.97 
+"Crust" 700 1.84 
+"Crust" 800 1.76 
+"Crust" 900 1.75 
+"Crust" 1000 1.75 
+"Crust" 1100 1.75 
+"Crust" 1200 1.75 
+"Crust" 1300 1.75 
+"Litho. Mantle" 0 3.2 
+"Litho. Mantle" 20 3.2 
+"Litho. Mantle" 100 3.2 
+"Litho. Mantle" 200 3.2 
+"Litho. Mantle" 300 3.2 
+"Litho. Mantle" 400 3.2 
+"Litho. Mantle" 500 3.2 
+"Litho. Mantle" 600 3.2 
+"Litho. Mantle" 700 3.2 
+"Litho. Mantle" 800 3.2 
+"Litho. Mantle" 900 3.2 
+"Litho. Mantle" 1000 3.2 
+"Litho. Mantle" 1100 3.2 
+"Litho. Mantle" 1200 3.2 
+"Litho. Mantle" 1300 3.2 
+"Astheno. Mantle" 0 3.96 
+"Astheno. Mantle" 20 3.85 
+"Astheno. Mantle" 100 3.42 
+"Astheno. Mantle" 200 2.95 
+"Astheno. Mantle" 300 2.55 
+"Astheno. Mantle" 400 2.21 
+"Astheno. Mantle" 500 1.94 
+"Astheno. Mantle" 600 1.74 
+"Astheno. Mantle" 700 1.6 
+"Astheno. Mantle" 800 1.52 
+"Astheno. Mantle" 900 1.52 
+"Astheno. Mantle" 1000 1.57 
+"Astheno. Mantle" 1100 1.7 
+"Astheno. Mantle" 1200 1.89 
+"Astheno. Mantle" 1300 2.15 
+"HEAT Sandstone" 0 3.5 
+"HEAT Sandstone" 20 3.54 
+"HEAT Sandstone" 100 3.17 
+"HEAT Sandstone" 200 2.81 
+"HEAT Sandstone" 300 2.52 
+"HEAT Sandstone" 400 2.29 
+"HEAT Sandstone" 500 2.29 
+"HEAT Sandstone" 600 2.29 
+"HEAT Shale" 0 2 
+"HEAT Shale" 20 2.02 
+"HEAT Shale" 100 1.8 
+"HEAT Shale" 200 1.61 
+"HEAT Shale" 300 1.44 
+"HEAT Shale" 400 1.309 
+"HEAT Shale" 500 1.309 
+"HEAT Shale" 600 1.309 
+"HEAT Limestone" 0 2.64 
+"HEAT Limestone" 20 2.55 
+"HEAT Limestone" 100 2.22 
+"HEAT Limestone" 200 1.86 
+"HEAT Limestone" 300 1.55 
+"HEAT Limestone" 400 1.31 
+"HEAT Limestone" 500 1.31 
+"HEAT Limestone" 600 1.31 
+"HEAT Dolostone" 0 5.19 
+"HEAT Dolostone" 20 5.02 
+"HEAT Dolostone" 100 4.37 
+"HEAT Dolostone" 200 3.67 
+"HEAT Dolostone" 300 3.11 
+"HEAT Dolostone" 400 2.66 
+"HEAT Dolostone" 500 2.66 
+"HEAT Dolostone" 600 2.66 
+"HEAT Chalk" 0 3 
+"HEAT Chalk" 20 2.9 
+"HEAT Chalk" 100 2.56 
+"HEAT Chalk" 200 2.23 
+"HEAT Chalk" 300 1.96 
+"HEAT Chalk" 400 1.72 
+"HEAT Chalk" 500 1.72 
+"HEAT Chalk" 600 1.72 
+[End]
+;
+[LitHeatCapIoTbl]
+;
+Lithotype TempIndex HeatCapacity 
+() (C) (J/kgK) 
+"Std. Sandstone" 0 737.3 
+"Std. Sandstone" 100 882.3 
+"Std. Sandstone" 200 977.4 
+"Std. Sandstone" 300 1054 
+"Std. Sandstone" 400 1122.3 
+"Std. Sandstone" 500 1122.3 
+"Std. Sandstone" 600 1122.3 
+"SM. Sandstone" 0 737.3 
+"SM. Sandstone" 100 882.3 
+"SM. Sandstone" 200 977.4 
+"SM. Sandstone" 300 1054 
+"SM. Sandstone" 400 1122.3 
+"SM. Sandstone" 500 1122.3 
+"SM. Sandstone" 600 1122.3 
+"Std. Shale" 0 779.1 
+"Std. Shale" 100 876.2 
+"Std. Shale" 200 962.9 
+"Std. Shale" 300 1045.7 
+"Std. Shale" 400 1126.8 
+"Std. Shale" 500 1126.8 
+"Std. Shale" 600 1126.8 
+"SM.Mudst.40%Clay" 0 779.1 
+"SM.Mudst.40%Clay" 100 876.2 
+"SM.Mudst.40%Clay" 200 962.9 
+"SM.Mudst.40%Clay" 300 1045.7 
+"SM.Mudst.40%Clay" 400 1126.8 
+"SM.Mudst.40%Clay" 500 1126.8 
+"SM.Mudst.40%Clay" 600 1126.8 
+"SM.Mudst.50%Clay" 0 779.1 
+"SM.Mudst.50%Clay" 100 876.2 
+"SM.Mudst.50%Clay" 200 962.9 
+"SM.Mudst.50%Clay" 300 1045.7 
+"SM.Mudst.50%Clay" 400 1126.8 
+"SM.Mudst.50%Clay" 500 1126.8 
+"SM.Mudst.50%Clay" 600 1126.8 
+"SM.Mudst.60%Clay" 0 779.1 
+"SM.Mudst.60%Clay" 100 876.2 
+"SM.Mudst.60%Clay" 200 962.9 
+"SM.Mudst.60%Clay" 300 1045.7 
+"SM.Mudst.60%Clay" 400 1126.8 
+"SM.Mudst.60%Clay" 500 1126.8 
+"SM.Mudst.60%Clay" 600 1126.8 
+"Std. Siltstone" 0 803.4 
+"Std. Siltstone" 100 946.7 
+"Std. Siltstone" 200 1034.7 
+"Std. Siltstone" 300 1102.3 
+"Std. Siltstone" 400 1160.7 
+"Std. Siltstone" 500 1160.7 
+"Std. Siltstone" 600 1160.7 
+"Std.Grainstone" 0 778.7 
+"Std.Grainstone" 100 931.5 
+"Std.Grainstone" 200 1015.7 
+"Std.Grainstone" 300 1074.6 
+"Std.Grainstone" 400 1122.1 
+"Std.Grainstone" 500 1122.1 
+"Std.Grainstone" 600 1122.1 
+"Std.Dolo.Grainstone" 0 813.9 
+"Std.Dolo.Grainstone" 100 972.6 
+"Std.Dolo.Grainstone" 200 1070.6 
+"Std.Dolo.Grainstone" 300 1146.3 
+"Std.Dolo.Grainstone" 400 1211.8 
+"Std.Dolo.Grainstone" 500 1211.8 
+"Std.Dolo.Grainstone" 600 1211.8 
+"Std.Lime Mudstone" 0 778.7 
+"Std.Lime Mudstone" 100 931.5 
+"Std.Lime Mudstone" 200 1015.7 
+"Std.Lime Mudstone" 300 1074.6 
+"Std.Lime Mudstone" 400 1122.1 
+"Std.Lime Mudstone" 500 1122.1 
+"Std.Lime Mudstone" 600 1122.1 
+"Std.Dolo.Mudstone" 0 813.9 
+"Std.Dolo.Mudstone" 100 972.6 
+"Std.Dolo.Mudstone" 200 1070.6 
+"Std.Dolo.Mudstone" 300 1146.3 
+"Std.Dolo.Mudstone" 400 1211.8 
+"Std.Dolo.Mudstone" 500 1211.8 
+"Std.Dolo.Mudstone" 600 1211.8 
+"Std. Chalk" 0 778.7 
+"Std. Chalk" 100 931.5 
+"Std. Chalk" 200 1015.7 
+"Std. Chalk" 300 1074.6 
+"Std. Chalk" 400 1122.1 
+"Std. Chalk" 500 1122.1 
+"Std. Chalk" 600 1122.1 
+"Std. Marl" 0 778.7 
+"Std. Marl" 100 931.5 
+"Std. Marl" 200 1015.7 
+"Std. Marl" 300 1074.6 
+"Std. Marl" 400 1122.1 
+"Std. Marl" 500 1122.1 
+"Std. Marl" 600 1122.1 
+"Std. Anhydrite" 0 711.5 
+"Std. Anhydrite" 100 788.7 
+"Std. Anhydrite" 200 861.7 
+"Std. Anhydrite" 300 933.2 
+"Std. Anhydrite" 400 1004 
+"Std. Anhydrite" 500 1004 
+"Std. Anhydrite" 600 1004 
+"Std. Salt" 0 846 
+"Std. Salt" 100 882.2 
+"Std. Salt" 200 913.9 
+"Std. Salt" 300 943.8 
+"Std. Salt" 400 973.1 
+"Std. Salt" 500 973.1 
+"Std. Salt" 600 973.1 
+"Sylvite" 0 679 
+"Sylvite" 100 708 
+"Sylvite" 200 730 
+"Sylvite" 300 755 
+"Sylvite" 400 780 
+"Sylvite" 500 808 
+"Sylvite" 600 834 
+"Std. Coal" 0 1000 
+"Std. Coal" 100 1000 
+"Std. Coal" 200 1000 
+"Std. Coal" 300 1000 
+"Std. Coal" 400 1000 
+"Std. Coal" 500 1000 
+"Std. Coal" 600 1000 
+"Std. Basalt" 0 852.9 
+"Std. Basalt" 100 928.9 
+"Std. Basalt" 200 987.2 
+"Std. Basalt" 300 1039 
+"Std. Basalt" 400 1087.9 
+"Std. Basalt" 500 1135.3 
+"Std. Basalt" 600 1181.8 
+"Std. Basalt" 700 1227.8 
+"Std. Basalt" 800 1273.4 
+"Std. Basalt" 900 1318.8 
+"Std. Basalt" 1000 1364.1 
+"Std. Basalt" 1100 1409.2 
+"Std. Basalt" 1200 1454.2 
+"Std. Basalt" 1300 1499.2 
+"Crust" 0 708.6 
+"Crust" 100 848.4 
+"Crust" 200 929.2 
+"Crust" 300 988.2 
+"Crust" 400 1037.4 
+"Crust" 500 1081.4 
+"Crust" 600 1122.6 
+"Crust" 700 1162 
+"Crust" 800 1200.2 
+"Crust" 900 1237.7 
+"Crust" 1000 1274.6 
+"Crust" 1100 1311.1 
+"Crust" 1200 1347.3 
+"Crust" 1300 1383.4 
+"Litho. Mantle" 0 721 
+"Litho. Mantle" 100 944.4 
+"Litho. Mantle" 200 1050.7 
+"Litho. Mantle" 300 1113.9 
+"Litho. Mantle" 400 1157.5 
+"Litho. Mantle" 500 1191 
+"Litho. Mantle" 600 1218.7 
+"Litho. Mantle" 700 1242.9 
+"Litho. Mantle" 800 1264.8 
+"Litho. Mantle" 900 1285.2 
+"Litho. Mantle" 1000 1304.6 
+"Litho. Mantle" 1100 1323.1 
+"Litho. Mantle" 1200 1341.1 
+"Litho. Mantle" 1300 1358.7 
+"Astheno. Mantle" 0 721 
+"Astheno. Mantle" 100 944.4 
+"Astheno. Mantle" 200 1050.7 
+"Astheno. Mantle" 300 1113.9 
+"Astheno. Mantle" 400 1157.5 
+"Astheno. Mantle" 500 1191 
+"Astheno. Mantle" 600 1218.7 
+"Astheno. Mantle" 700 1242.9 
+"Astheno. Mantle" 800 1264.8 
+"Astheno. Mantle" 900 1285.2 
+"Astheno. Mantle" 1000 1304.6 
+"Astheno. Mantle" 1100 1323.1 
+"Astheno. Mantle" 1200 1341.1 
+"Astheno. Mantle" 1300 1358.7 
+"HEAT Sandstone" 0 737.3 
+"HEAT Sandstone" 100 882.3 
+"HEAT Sandstone" 200 977.4 
+"HEAT Sandstone" 300 1054 
+"HEAT Sandstone" 400 1122.3 
+"HEAT Sandstone" 500 1122.3 
+"HEAT Sandstone" 600 1122.3 
+"HEAT Shale" 0 779.1 
+"HEAT Shale" 100 876.2 
+"HEAT Shale" 200 962.9 
+"HEAT Shale" 300 1045.7 
+"HEAT Shale" 400 1126.8 
+"HEAT Shale" 500 1126.8 
+"HEAT Shale" 600 1126.8 
+"HEAT Limestone" 0 778.7 
+"HEAT Limestone" 100 931.5 
+"HEAT Limestone" 200 1015.7 
+"HEAT Limestone" 300 1074.6 
+"HEAT Limestone" 400 1122.1 
+"HEAT Limestone" 500 1122.1 
+"HEAT Limestone" 600 1122.1 
+"HEAT Dolostone" 0 813.9 
+"HEAT Dolostone" 100 972.6 
+"HEAT Dolostone" 200 1070.6 
+"HEAT Dolostone" 300 1146.3 
+"HEAT Dolostone" 400 1211.8 
+"HEAT Dolostone" 500 1211.8 
+"HEAT Dolostone" 600 1211.8 
+"HEAT Chalk" 0 778.7 
+"HEAT Chalk" 100 931.5 
+"HEAT Chalk" 200 1015.7 
+"HEAT Chalk" 300 1074.6 
+"HEAT Chalk" 400 1122.1 
+"HEAT Chalk" 500 1122.1 
+"HEAT Chalk" 600 1122.1 
+[End]
+;
+;
+; Fluidtype Data
+;
+[FluidtypeIoTbl]
+;
+Fluidtype Description DefinedBy UserDefined DefinitionDate LastChangedDate LastChangedBy Density DensModel SeisVelocity SeisVelocityModel Salinity HeatCaptype ThermCondtype Denstype Viscotype ErrDensity ErrSeisVelocity 
+() () () () () () () (kg/m3) () (m/s) () (ppm) () () () () () () 
+"Std. Water" "KSEPL's Standard Water" "KSEPL" 0 "November 1994" "" "" 1000 "Calculated" 1500 "Calculated" 0 "Std. Water" "Std. Water" "Std. Water" "Std. Water" -9999 -9999 
+"Std. Marine Water" "KSEPL's Standard Marine Water" "KSEPL" 0 "February 2000" "" "" 1000 "Calculated" 1500 "Calculated" 0.13 "Std. Water" "Std. Water" "Std. Water" "Std. Water" -9999 -9999 
+"Std. Hyper Saline Water" "KSEPL's Standard Ultra Marine Water" "KSEPL" 0 "February 2000" "" "" 1000 "Calculated" 1500 "Calculated" 0.22 "Std. Water" "Std. Water" "Std. Water" "Std. Water" -9999 -9999 
+[End]
+;
+[FltThCondIoTbl]
+;
+Fluidtype TempIndex ThCond 
+() (C) (W/mK) 
+"Std. Water" 0 0.57 
+"Std. Water" 20 0.6 
+"Std. Water" 100 0.67 
+"Std. Water" 200 0.66 
+"Std. Water" 300 0.53 
+"Std. Water" 400 0.29 
+[End]
+;
+[FltHeatCapIoTbl]
+;
+Fluidtype TempIndex Pressure HeatCapacity 
+() (C) (MPa) (J/kgK) 
+"Std. Water" 0 0.1 4250 
+"Std. Water" 50 0.1 4190 
+"Std. Water" 100 0.1 4200 
+"Std. Water" 150 0.1 4200 
+"Std. Water" 200 0.1 4200 
+"Std. Water" 250 0.1 4200 
+"Std. Water" 300 0.1 4200 
+"Std. Water" 350 0.1 4200 
+"Std. Water" 400 0.1 4200 
+"Std. Water" 450 0.1 4200 
+"Std. Water" 500 0.1 4200 
+"Std. Water" 550 0.1 4200 
+"Std. Water" 600 0.1 4200 
+"Std. Water" 0 40.1 4060 
+"Std. Water" 50 40.1 4090 
+"Std. Water" 100 40.1 4120 
+"Std. Water" 150 40.1 4120 
+"Std. Water" 200 40.1 4120 
+"Std. Water" 250 40.1 4120 
+"Std. Water" 300 40.1 4120 
+"Std. Water" 350 40.1 4120 
+"Std. Water" 400 40.1 4120 
+"Std. Water" 450 40.1 4120 
+"Std. Water" 500 40.1 4120 
+"Std. Water" 550 40.1 4120 
+"Std. Water" 600 40.1 4120 
+"Std. Water" 0 80.1 4030 
+"Std. Water" 50 80.1 4030 
+"Std. Water" 100 80.1 4060 
+"Std. Water" 150 80.1 4120 
+"Std. Water" 200 80.1 4190 
+"Std. Water" 250 80.1 4190 
+"Std. Water" 300 80.1 4190 
+"Std. Water" 350 80.1 4190 
+"Std. Water" 400 80.1 4190 
+"Std. Water" 450 80.1 4190 
+"Std. Water" 500 80.1 4190 
+"Std. Water" 550 80.1 4190 
+"Std. Water" 600 80.1 4190 
+"Std. Water" 0 120.1 4000 
+"Std. Water" 50 120.1 4000 
+"Std. Water" 100 120.1 4000 
+"Std. Water" 150 120.1 4030 
+"Std. Water" 200 120.1 4090 
+"Std. Water" 250 120.1 4090 
+"Std. Water" 300 120.1 4090 
+"Std. Water" 350 120.1 4090 
+"Std. Water" 400 120.1 4090 
+"Std. Water" 450 120.1 4090 
+"Std. Water" 500 120.1 4090 
+"Std. Water" 550 120.1 4090 
+"Std. Water" 600 120.1 4090 
+"Std. Water" 0 160.1 3970 
+"Std. Water" 50 160.1 3970 
+"Std. Water" 100 160.1 3970 
+"Std. Water" 150 160.1 4000 
+"Std. Water" 200 160.1 4030 
+"Std. Water" 250 160.1 4080 
+"Std. Water" 300 160.1 4080 
+"Std. Water" 350 160.1 4080 
+"Std. Water" 400 160.1 4080 
+"Std. Water" 450 160.1 4080 
+"Std. Water" 500 160.1 4080 
+"Std. Water" 550 160.1 4080 
+"Std. Water" 600 160.1 4080 
+"Std. Water" 0 200.1 3910 
+"Std. Water" 50 200.1 3910 
+"Std. Water" 100 200.1 3910 
+"Std. Water" 150 200.1 3910 
+"Std. Water" 200 200.1 3940 
+"Std. Water" 250 200.1 4000 
+"Std. Water" 300 200.1 4060 
+"Std. Water" 350 200.1 4060 
+"Std. Water" 400 200.1 4060 
+"Std. Water" 450 200.1 4060 
+"Std. Water" 500 200.1 4060 
+"Std. Water" 550 200.1 4060 
+"Std. Water" 600 200.1 4060 
+"Std. Water" 0 240.1 3880 
+"Std. Water" 50 240.1 3880 
+"Std. Water" 100 240.1 3880 
+"Std. Water" 150 240.1 3880 
+"Std. Water" 200 240.1 3910 
+"Std. Water" 250 240.1 3960 
+"Std. Water" 300 240.1 4000 
+"Std. Water" 350 240.1 4060 
+"Std. Water" 400 240.1 4060 
+"Std. Water" 450 240.1 4060 
+"Std. Water" 500 240.1 4060 
+"Std. Water" 550 240.1 4060 
+"Std. Water" 600 240.1 4060 
+"Std. Water" 0 280.1 3870 
+"Std. Water" 50 280.1 3870 
+"Std. Water" 100 280.1 3870 
+"Std. Water" 150 280.1 3870 
+"Std. Water" 200 280.1 3870 
+"Std. Water" 250 280.1 3910 
+"Std. Water" 300 280.1 3930 
+"Std. Water" 350 280.1 3970 
+"Std. Water" 400 280.1 4030 
+"Std. Water" 450 280.1 4030 
+"Std. Water" 500 280.1 4030 
+"Std. Water" 550 280.1 4030 
+"Std. Water" 600 280.1 4030 
+"Std. Water" 0 320.1 3860 
+"Std. Water" 50 320.1 3860 
+"Std. Water" 100 320.1 3860 
+"Std. Water" 150 320.1 3860 
+"Std. Water" 200 320.1 3860 
+"Std. Water" 250 320.1 3860 
+"Std. Water" 300 320.1 3870 
+"Std. Water" 350 320.1 3900 
+"Std. Water" 400 320.1 3940 
+"Std. Water" 450 320.1 3980 
+"Std. Water" 500 320.1 3980 
+"Std. Water" 550 320.1 3980 
+"Std. Water" 600 320.1 3980 
+"Std. Water" 0 360.1 3840 
+"Std. Water" 50 360.1 3840 
+"Std. Water" 100 360.1 3840 
+"Std. Water" 150 360.1 3840 
+"Std. Water" 200 360.1 3840 
+"Std. Water" 250 360.1 3840 
+"Std. Water" 300 360.1 3850 
+"Std. Water" 350 360.1 3860 
+"Std. Water" 400 360.1 3890 
+"Std. Water" 450 360.1 3930 
+"Std. Water" 500 360.1 3940 
+"Std. Water" 550 360.1 3940 
+"Std. Water" 600 360.1 3940 
+"Std. Water" 0 400.1 3800 
+"Std. Water" 50 400.1 3800 
+"Std. Water" 100 400.1 3800 
+"Std. Water" 150 400.1 3800 
+"Std. Water" 200 400.1 3800 
+"Std. Water" 250 400.1 3800 
+"Std. Water" 300 400.1 3800 
+"Std. Water" 350 400.1 3810 
+"Std. Water" 400 400.1 3830 
+"Std. Water" 450 400.1 3850 
+"Std. Water" 500 400.1 3860 
+"Std. Water" 550 400.1 3850 
+"Std. Water" 600 400.1 3840 
+"Std. Water" 0 440.1 3770 
+"Std. Water" 50 440.1 3770 
+"Std. Water" 100 440.1 3770 
+"Std. Water" 150 440.1 3770 
+"Std. Water" 200 440.1 3770 
+"Std. Water" 250 440.1 3770 
+"Std. Water" 300 440.1 3770 
+"Std. Water" 350 440.1 3780 
+"Std. Water" 400 440.1 3800 
+"Std. Water" 450 440.1 3810 
+"Std. Water" 500 440.1 3820 
+"Std. Water" 550 440.1 3820 
+"Std. Water" 600 440.1 3800 
+[End]
+;
+[FltDensityIoTbl]
+;
+Fluidtype TempIndex Pressure Density ErrDensity 
+() (C) (MPa) (kg/m3) () 
+"Std. Water" 0 0.1 999.8 -9999 
+"Std. Water" 50 0.1 988 -9999 
+"Std. Water" 100 0.1 958.4 -9999 
+"Std. Water" 150 0.1 916.8 -9999 
+"Std. Water" 200 0.1 863.6 -9999 
+"Std. Water" 250 0.1 794.4 -9999 
+"Std. Water" 300 0.1 689.8 -9999 
+"Std. Water" 350 0.1 600 -9999 
+"Std. Water" 400 0.1 400 -9999 
+"Std. Water" 450 0.1 250 -9999 
+"Std. Water" 500 0.1 150 -9999 
+"Std. Water" 550 0.1 125 -9999 
+"Std. Water" 600 0.1 100 -9999 
+"Std. Water" 0 40.1 1019.3 -9999 
+"Std. Water" 50 40.1 1004.7 -9999 
+"Std. Water" 100 40.1 976.2 -9999 
+"Std. Water" 150 40.1 937.9 -9999 
+"Std. Water" 200 40.1 891.1 -9999 
+"Std. Water" 250 40.1 834.5 -9999 
+"Std. Water" 300 40.1 764.7 -9999 
+"Std. Water" 350 40.1 672.3 -9999 
+"Std. Water" 400 40.1 524.4 -9999 
+"Std. Water" 450 40.1 272.4 -9999 
+"Std. Water" 500 40.1 178.7 -9999 
+"Std. Water" 550 40.1 143.9 -9999 
+"Std. Water" 600 40.1 124.2 -9999 
+"Std. Water" 0 80.1 1037 -9999 
+"Std. Water" 50 80.1 1020.1 -9999 
+"Std. Water" 100 80.1 992.2 -9999 
+"Std. Water" 150 80.1 956.3 -9999 
+"Std. Water" 200 80.1 913.7 -9999 
+"Std. Water" 250 80.1 864.1 -9999 
+"Std. Water" 300 80.1 806.7 -9999 
+"Std. Water" 350 80.1 739.4 -9999 
+"Std. Water" 400 80.1 659.5 -9999 
+"Std. Water" 450 80.1 564 -9999 
+"Std. Water" 500 80.1 457.4 -9999 
+"Std. Water" 550 80.1 362.3 -9999 
+"Std. Water" 600 80.1 295.9 -9999 
+"Std. Water" 0 120.1 1053.2 -9999 
+"Std. Water" 50 120.1 1034.5 -9999 
+"Std. Water" 100 120.1 1007 -9999 
+"Std. Water" 150 120.1 972.8 -9999 
+"Std. Water" 200 120.1 933.2 -9999 
+"Std. Water" 250 120.1 888.4 -9999 
+"Std. Water" 300 120.1 838 -9999 
+"Std. Water" 350 120.1 781.7 -9999 
+"Std. Water" 400 120.1 719.1 -9999 
+"Std. Water" 450 120.1 650.3 -9999 
+"Std. Water" 500 120.1 577.1 -9999 
+"Std. Water" 550 120.1 504 -9999 
+"Std. Water" 600 120.1 437.4 -9999 
+"Std. Water" 0 160.1 1067.9 -9999 
+"Std. Water" 50 160.1 1047.9 -9999 
+"Std. Water" 100 160.1 1020.7 -9999 
+"Std. Water" 150 160.1 987.9 -9999 
+"Std. Water" 200 160.1 950.6 -9999 
+"Std. Water" 250 160.1 909.2 -9999 
+"Std. Water" 300 160.1 863.7 -9999 
+"Std. Water" 350 160.1 814 -9999 
+"Std. Water" 400 160.1 760.3 -9999 
+"Std. Water" 450 160.1 703.3 -9999 
+"Std. Water" 500 160.1 644 -9999 
+"Std. Water" 550 160.1 584.6 -9999 
+"Std. Water" 600 160.1 527.7 -9999 
+"Std. Water" 0 200.1 1081.2 -9999 
+"Std. Water" 50 200.1 1060.5 -9999 
+"Std. Water" 100 200.1 1033.5 -9999 
+"Std. Water" 150 200.1 1001.9 -9999 
+"Std. Water" 200 200.1 966.4 -9999 
+"Std. Water" 250 200.1 927.7 -9999 
+"Std. Water" 300 200.1 885.7 -9999 
+"Std. Water" 350 200.1 840.6 -9999 
+"Std. Water" 400 200.1 792.7 -9999 
+"Std. Water" 450 200.1 742.6 -9999 
+"Std. Water" 500 200.1 691.3 -9999 
+"Std. Water" 550 200.1 639.9 -9999 
+"Std. Water" 600 200.1 590.1 -9999 
+"Std. Water" 0 240.1 1093.1 -9999 
+"Std. Water" 50 240.1 1072.3 -9999 
+"Std. Water" 100 240.1 1045.6 -9999 
+"Std. Water" 150 240.1 1014.9 -9999 
+"Std. Water" 200 240.1 981 -9999 
+"Std. Water" 250 240.1 944.3 -9999 
+"Std. Water" 300 240.1 905.1 -9999 
+"Std. Water" 350 240.1 863.5 -9999 
+"Std. Water" 400 240.1 819.8 -9999 
+"Std. Water" 450 240.1 774.5 -9999 
+"Std. Water" 500 240.1 728.4 -9999 
+"Std. Water" 550 240.1 682.4 -9999 
+"Std. Water" 600 240.1 637.5 -9999 
+"Std. Water" 0 280.1 1104 -9999 
+"Std. Water" 50 280.1 1083.5 -9999 
+"Std. Water" 100 280.1 1057 -9999 
+"Std. Water" 150 280.1 1027.1 -9999 
+"Std. Water" 200 280.1 994.5 -9999 
+"Std. Water" 250 280.1 959.6 -9999 
+"Std. Water" 300 280.1 922.7 -9999 
+"Std. Water" 350 280.1 883.8 -9999 
+"Std. Water" 400 280.1 843.2 -9999 
+"Std. Water" 450 280.1 801.5 -9999 
+"Std. Water" 500 280.1 759.2 -9999 
+"Std. Water" 550 280.1 717.1 -9999 
+"Std. Water" 600 280.1 675.8 -9999 
+"Std. Water" 0 320.1 1114.1 -9999 
+"Std. Water" 50 320.1 1094 -9999 
+"Std. Water" 100 320.1 1067.9 -9999 
+"Std. Water" 150 320.1 1038.6 -9999 
+"Std. Water" 200 320.1 1007.2 -9999 
+"Std. Water" 250 320.1 973.8 -9999 
+"Std. Water" 300 320.1 938.7 -9999 
+"Std. Water" 350 320.1 902 -9999 
+"Std. Water" 400 320.1 864.1 -9999 
+"Std. Water" 450 320.1 825.1 -9999 
+"Std. Water" 500 320.1 785.8 -9999 
+"Std. Water" 550 320.1 746.6 -9999 
+"Std. Water" 600 320.1 708.3 -9999 
+"Std. Water" 0 360.1 1123.4 -9999 
+"Std. Water" 50 360.1 1104 -9999 
+"Std. Water" 100 360.1 1078.2 -9999 
+"Std. Water" 150 360.1 1049.6 -9999 
+"Std. Water" 200 360.1 1019.1 -9999 
+"Std. Water" 250 360.1 987.1 -9999 
+"Std. Water" 300 360.1 953.6 -9999 
+"Std. Water" 350 360.1 918.8 -9999 
+"Std. Water" 400 360.1 882.9 -9999 
+"Std. Water" 450 360.1 846.3 -9999 
+"Std. Water" 500 360.1 809.3 -9999 
+"Std. Water" 550 360.1 772.6 -9999 
+"Std. Water" 600 360.1 736.5 -9999 
+"Std. Water" 0 400.1 1132.3 -9999 
+"Std. Water" 50 400.1 1113.6 -9999 
+"Std. Water" 100 400.1 1088 -9999 
+"Std. Water" 150 400.1 1060.1 -9999 
+"Std. Water" 200 400.1 1030.4 -9999 
+"Std. Water" 250 400.1 999.5 -9999 
+"Std. Water" 300 400.1 967.4 -9999 
+"Std. Water" 350 400.1 934.2 -9999 
+"Std. Water" 400 400.1 900.1 -9999 
+"Std. Water" 450 400.1 865.4 -9999 
+"Std. Water" 500 400.1 830.5 -9999 
+"Std. Water" 550 400.1 795.7 -9999 
+"Std. Water" 600 400.1 761.5 -9999 
+"Std. Water" 0 440.1 1140.6 -9999 
+"Std. Water" 50 440.1 1122.7 -9999 
+"Std. Water" 100 440.1 1097.4 -9999 
+"Std. Water" 150 440.1 1070 -9999 
+"Std. Water" 200 440.1 1041.2 -9999 
+"Std. Water" 250 440.1 1011.3 -9999 
+"Std. Water" 300 440.1 980.4 -9999 
+"Std. Water" 350 440.1 948.6 -9999 
+"Std. Water" 400 440.1 916.1 -9999 
+"Std. Water" 450 440.1 883.1 -9999 
+"Std. Water" 500 440.1 849.8 -9999 
+"Std. Water" 550 440.1 816.7 -9999 
+"Std. Water" 600 440.1 784.2 -9999 
+[End]
+;
+[FltViscoIoTbl]
+;
+Fluidtype TempIndex Viscosity 
+() (C) (PaS) 
+"Std. Water" 0 0.0017715 
+"Std. Water" 5 0.0015088 
+"Std. Water" 10 0.0013015 
+"Std. Water" 15 0.0011352 
+"Std. Water" 20 0.001 
+"Std. Water" 25 0.00088862 
+"Std. Water" 30 0.00079583 
+"Std. Water" 35 0.00071773 
+"Std. Water" 40 0.00065138 
+"Std. Water" 45 0.00059452 
+"Std. Water" 50 0.00054542 
+"Std. Water" 100 0.00028178 
+"Std. Water" 150 0.00018101 
+"Std. Water" 200 0.00013006 
+"Std. Water" 250 9.9758e-05 
+"Std. Water" 300 7.9743e-05 
+"Std. Water" 350 6.5542e-05 
+"Std. Water" 400 5.4938e-05 
+"Std. Water" 450 4.6715e-05 
+"Std. Water" 500 4.0155e-05 
+"Std. Water" 550 3.4806e-05 
+"Std. Water" 600 3.0368e-05 
+"Std. Water" 650 2.6637e-05 
+"Std. Water" 700 2.3465e-05 
+"Std. Water" 750 2.0745e-05 
+"Std. Water" 800 1.8394e-05 
+"Std. Water" 850 1.6351e-05 
+"Std. Water" 900 1.4566e-05 
+"Std. Water" 950 1.2999e-05 
+"Std. Water" 1000 1.1619e-05 
+"Std. Water" 1050 1.04e-05 
+"Std. Water" 1100 9.3203e-06 
+"Std. Water" 1150 8.3614e-06 
+"Std. Water" 1200 7.5083e-06 
+"Std. Water" 1250 6.7478e-06 
+"Std. Water" 1300 6.0689e-06 
+"Std. Water" 1350 5.462e-06 
+[End]
+;
+;
+; Countour settings
+;
+[DisplayContourIoTbl]
+;
+PropertyName ContourValue ContourColour 
+() () () 
+"Temperature" 0 "red" 
+"Temperature" 20 "red" 
+"Temperature" 40 "red" 
+"Temperature" 60 "red" 
+"Temperature" 80 "red" 
+"Temperature" 100 "white" 
+"Temperature" 120 "red" 
+"Temperature" 140 "red" 
+"Temperature" 160 "red" 
+"Temperature" 180 "red" 
+"Temperature" 200 "white" 
+"Vr" 0.6 "red" 
+"Vr" 1.2 "red" 
+"Vr" 2.4 "green" 
+"Depth" 1000 "red" 
+"Depth" 2000 "white" 
+"Depth" 3000 "blue" 
+[End]
+;
+;
+; Output results
+;
+;
+; Histograms of MC output
+;
+;
+; Histogram data
+;
+;
+; Iso temperature data for burial graph
+;
+;
+; Iso vr data for burial graph
+;
+;
+; Iso vr or temperature data for burial graph
+;
+;
+; List of Touchstone Map Combinations
+;
+[TouchstoneMapsIoTbl]
+;
+LayerName TcfName SurfaceName FormationName Category Format Percentile PercentUsed MapDone 
+() () () () () () () () () 
+[End]
+;
+;
+; Sensitivity Analysis Sobol Input Group Combinations
+;
+[GrpCombIoTbl]
+;
+GroupCombination 
+() 
+[End]
+;
+;
+; END - Acquifer.project3d 13-Jun-07 16:59:17
+;

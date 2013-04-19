@@ -1,0 +1,6 @@
+PROJECT "Crash"
+REQUIREMENTS "fastreq -project Crash.project3d"
+PARALLEL "fastcauldron -maps -volumes -project Crash.project3d -save _Crash.project3d -temperature"
+LOCAL "mv -f _Crash.project3d Crash.project3d"
+PARALLEL "fastgenex5 -project Crash.project3d -save _Crash.project3d"
+LOCAL "mv -f _Crash.project3d Crash.project3d"

@@ -1,0 +1,109 @@
+[FormPressIoTbl]
+;
+DepthIndex MPressure FormPressureType Label  ErrMPressure 
+(m) (MPa) () () ()
+0    0.0  "RFT" "" 0.0
+[End]
+;
+[FormTempIoTbl]
+;
+DepthIndex Temperature FormTempType Label Optimization ErrTemperature 
+(m) (C) () () () () 
+[End]
+;
+;
+[RawBhtIoTbl]
+;
+DepthIndex TimeSinceCirStopped Temperature Theta ErrTemperature 
+(m) (min) (C) () ()
+[End]
+;
+;
+[RawBhtBitsizeIoTbl]
+;
+DepthIndex CirculationTime BitDiameter FormTempType 
+(m) (min) (inch) () 
+[End]
+;
+;
+[MarsdenCoefIoTbl]
+;
+MarsdenAcoef MarsdenBcoef MarsdenCcoef 
+() () () 
+-3.8 22.8 -8.06 
+[End]
+;
+;
+[VrmIoTbl]
+;
+DepthIndex Vr VrmType Label Optimization ErrVr 
+(m) (%) () () () () 
+[End]
+;
+;
+[SonicIoTbl]
+;
+Depth Dt
+(m) (us/m) 
+0	0
+[End]
+;
+;
+[BulkDensityIoTbl]
+;
+Depth BDensity
+(m) (kg/m^3) 
+0	0
+[End]
+;
+;
+[BiomarkerKinIoTbl]
+;
+HopIsoActEnergy SteIsoActEnergy SteAroActEnergy HopIsoFreqFactor SteIsoFreqFactor SteAroFreqFactor HopIsoGamma SteIsoGamma
+(J/mol) (J/mol) (J/mol) (sec-1) (sec-1) (sec-1) () () 
+168000.  169000.  181400.  8.1e8  4.86e8  4.85e10  1.564  1.174
+[End]
+;
+;
+[BiomarkermIoTbl]
+;
+DepthIndex HopaneIsomerisation SteraneIsomerisation SteraneAromatisation Optimization ErrHopaneIsomerisation ErrSteraneIsomerisation ErrSteraneAromatisation
+(m) () () () () () () () 
+[End]
+;
+;
+[SmectiteIlliteKinIoTbl]
+;
+ActEnergy1 FreqFactor1 ActEnergy2 FreqFactor2 InitIlliteFraction 
+() () () () () 
+55800 3.4229e+06 13700 1 0  
+[End]
+;
+[SmectiteIlliteIoTbl]
+;
+DepthIndex IlliteFraction Optimization ErrIlliteFraction 
+(m) () () () 
+[End]
+;
+;
+[FtSampleIoTbl]
+;
+FtSampleId DepthIndex FtZeta FtUstglTrackDensity FtPredictedAge FtPooledAge FtPooledAgeErr FtAgeChi2 FtDegreeOfFreedom FtPAgeChi2 FtCorrCoeff FtVarianceSqrtNs FtVarianceSqrtNi FtNsDivNi FtNsDivNiErr FtMeanRatio FtMeanRatioErr FtCentralAge FtCentralAgeErr FtMeanAge FtMeanAgeErr FtLengthChi2 FtApatiteYield Optimization 
+() (m) () (cm-2) (Ma) (Ma) (Ma) () () () () () () () () () () () () () () () () ()
+[End]
+;
+;
+[FtGrainIoTbl]
+;
+FtSampleId FtGrainId FtSpontTrackNo FtInducedTrackNo FtClWeightPerc FtGrainAge
+() () () () (%) (Ma)
+[End]
+;
+;
+[FtLengthIoTbl]
+;
+FtSampleId FtGrainId FtLength
+() () (microns)
+[End]
+;
+;

@@ -1,0 +1,263 @@
+#include "AllochthonousLithologySimulator.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>  
+
+#include <algorithm>
+#include "database.h"
+#include "cauldronschema.h"
+#include "cauldronschemafuncs.h"
+using namespace database;
+
+#include "AllochthonousLithology.h"
+#include "AllochthonousLithologyDistribution.h"
+
+#include "Interface/Formation.h"
+#include "Interface/Grid.h"
+#include "Interface/Formation.h"
+#include "Interface/Interface.h"
+#include "Interface/ProjectHandle.h"
+#include "Interface/AllochthonousLithology.h"
+#include "hdf5funcs.h"
+
+#include "WallTime.h"
+
+using namespace DataAccess;
+
+const std::string AllochMod::AllochthonousLithologySimulator::GeomorphRunStatus = "AllochthonousModelling";
+
+const std::string AllochMod::AllochthonousLithologySimulator::ResultsFileName = "InterpolationResults.HDF";
+
+//------------------------------------------------------------//
+
+bool AllochMod::AllochthonousLithologySimulator::DistributionMapEarlierThan::operator ()( const AllochthonousLithologyDistribution* m1,
+                                                                                          const AllochthonousLithologyDistribution* m2 ) const {
+  return m1->getAge () > m2->getAge ();
+}
+
+//------------------------------------------------------------//
+
+AllochMod::AllochthonousLithologySimulator::AllochthonousLithologySimulator (database::Database * database, const std::string & name, const std::string & accessMode)
+      : Interface::ProjectHandle (database, name, accessMode)
+{
+  outputDirectoryName = "";
+
+  if ( allochthonousModellingRequired ()) {
+     startActivity ( GeomorphRunStatus, getHighResolutionOutputGrid ());
+  }
+
+}
+
+//------------------------------------------------------------//
+
+AllochMod::AllochthonousLithologySimulator::~AllochthonousLithologySimulator (void){
+}
+
+//------------------------------------------------------------//
+
+bool AllochMod::AllochthonousLithologySimulator::saveToFile ( const std::string& fileName ) {
+
+  database::Table* runStatusIoTbl = getDataBase()->getTable ("RunStatusIoTbl");
+  database::Record* runStatusRecord;
+
+  const string outputDir = getOutputDir ();
+
+  runStatusRecord = runStatusIoTbl->createRecord ();
+
+  database::setNrMCLoopsCompleted ( runStatusRecord, 0 );
+  database::setMCCurrentSeedNumber ( runStatusRecord, 0 );
+  database::setMCCalculationScope ( runStatusRecord, "" );
+  database::setOutputDirOfLastRun ( runStatusRecord, outputDir );
+  database::setOutputDirCreatedBy ( runStatusRecord, GeomorphRunStatus );
+  database::setMCStatusOfLastRun ( runStatusRecord, GeomorphRunStatus );
+  database::setRestartTempCalcTimeStep ( runStatusRecord, IBSNULLVALUE );
+  database::setRestartPresCalcTimeStep ( runStatusRecord, IBSNULLVALUE );
+
+  getDataBase ()->saveToFile ( fileName );
+  return true;
+}
+
+//------------------------------------------------------------//
+
+void AllochMod::AllochthonousLithologySimulator::printOn (std::ostream & ostr) const {
+
+  ostr << " AllochthonousLithologySimulator " << std::endl;
+
+}
+
+//------------------------------------------------------------//
+
+AllochMod::AllochthonousLithologySimulator* AllochMod::AllochthonousLithologySimulator::CreateFrom ( const std::string & projectFileName ) {
+  return (AllochthonousLithologySimulator*) Interface::OpenCauldronProject ( projectFileName, "rw" );
+}
+
+//------------------------------------------------------------//
+
+bool AllochMod::AllochthonousLithologySimulator::allochthonousModellingRequired () const {
+
+  database::Table* runOptionsTable = getTable ( "RunOptionsIoTbl" );
+  Interface::MutableAllochthonousLithologyList::const_iterator allochthonousLithologyIter;
+
+  bool globalAllochthonousSwitchIsOn = database::getAllochthonousModelling ( runOptionsTable, 0 ) == 1;
+  bool anyLayerAllochthonousSwitchIsOn = false;
+
+  
+  for ( allochthonousLithologyIter = m_allochthonousLithologies.begin();
+        allochthonousLithologyIter != m_allochthonousLithologies.end(); 
+        ++allochthonousLithologyIter) { 
+
+     if ((*allochthonousLithologyIter)->getFormation ()->hasAllochthonousLithology ()) {
+        anyLayerAllochthonousSwitchIsOn = true;
+        // Found one for which the 'has allothchonous lithology' switch is on so no need to check for others.
+        break;
+     }
+
+  }
+
+  return globalAllochthonousSwitchIsOn and anyLayerAllochthonousSwitchIsOn;
+}
+
+//------------------------------------------------------------//
+
+bool AllochMod::AllochthonousLithologySimulator::execute ( const int debugLevel ) {
+
+  if ( ! allochthonousModellingRequired ()) {
+    return true;
+  }
+
+  WallTime::Time startTime;
+  WallTime::Time endTime;
+  WallTime::Duration executionTime;
+  int    hours;
+  int    minutes;
+  double seconds;
+
+  Interface::MutableAllochthonousLithologyList::iterator allochthonousLithologyIter;
+  AllochthonousLithologyDistributionSequence allochthonousLithologyDistributionSequence;
+
+  database::Table* allochthonousInterpTbl = getTable ( "AllochthonLithoInterpIoTbl" );
+
+  // Clear the interpolation results table, since they need to be recomputed.
+  allochthonousInterpTbl->clear ();
+
+  std::string fullResultFileName = getOutputDir () + '/' + ResultsFileName;
+
+  // Create directory, if it does not already exist.
+  mkdir ( getOutputDir ().c_str(), S_IRWXU | S_IRGRP | S_IXGRP);
+
+  cout << endl;
+
+  hid_t fileId = H5Fcreate ( fullResultFileName.c_str (), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
+
+  for ( allochthonousLithologyIter = m_allochthonousLithologies.begin();
+        allochthonousLithologyIter != m_allochthonousLithologies.end(); 
+        ++allochthonousLithologyIter) { 
+
+     if ((*allochthonousLithologyIter)->getFormation ()->hasAllochthonousLithology ()) {
+        std::cout << " Computation of halokinesis for layer " << (*allochthonousLithologyIter)->getFormationName () << std::endl;
+
+        startTime = WallTime::clock ();
+
+        // Get the distributions (maps, ages, ...) for this formation.
+        getAllochthonousLithologyDistributionList ( *allochthonousLithologyIter,
+                                                    allochthonousLithologyDistributionSequence );
+
+        ((AllochthonousLithology*)(*allochthonousLithologyIter))->computeInterpolant ( allochthonousLithologyDistributionSequence, debugLevel ); 
+        ((AllochthonousLithology*)(*allochthonousLithologyIter))->saveInterpolant ( fileId, ResultsFileName ); 
+
+        endTime = WallTime::clock ();
+        executionTime = endTime - startTime;
+
+        executionTime.separate ( hours, minutes, seconds );
+
+        std::cout << " Total computation time: " 
+                  <<  hours << " hours " 
+                  << minutes << " minutes " 
+                  << seconds << " seconds " 
+                  << std::endl
+                  << std::endl;
+     }
+
+  }
+
+  H5Fclose (fileId);
+
+
+  return true;
+}
+
+//------------------------------------------------------------//
+
+void AllochMod::AllochthonousLithologySimulator::printMaps ( std::ostream& output ) {
+
+  Interface::MutableAllochthonousLithologyList::iterator allochthonousLithologyIter;
+  AllochthonousLithologyDistributionSequence allochthonousLithologyDistributionSequence;
+
+  for ( allochthonousLithologyIter = m_allochthonousLithologies.begin();
+        allochthonousLithologyIter != m_allochthonousLithologies.end(); 
+        ++allochthonousLithologyIter) { 
+
+     if ((*allochthonousLithologyIter)->getFormation ()->hasAllochthonousLithology ()) {
+        // Get the distributions (maps, ages, ...) for this formation.
+        getAllochthonousLithologyDistributionList ( *allochthonousLithologyIter,
+                                                    allochthonousLithologyDistributionSequence );
+
+        ((AllochthonousLithology*)(*allochthonousLithologyIter))->printDistributionMaps ( allochthonousLithologyDistributionSequence, output );
+     }
+
+  }
+
+
+
+}
+
+//------------------------------------------------------------//
+
+void AllochMod::AllochthonousLithologySimulator::getAllochthonousLithologyDistributionList ( const Interface::AllochthonousLithology*     theAllochthonousLithology,
+                                                                                                   AllochthonousLithologyDistributionSequence& associatedLithologyDistributions ) {
+
+
+  Interface::MutableAllochthonousLithologyDistributionList::iterator distributionIter;
+
+  associatedLithologyDistributions.clear ();
+
+  // If the allochthonous lithology-record is null or the formation from which it comes 
+  // is not taking part in the allochthonous-modelling then return with the empty list.
+  if ( theAllochthonousLithology == 0 || 
+       ! theAllochthonousLithology->getFormation ()->hasAllochthonousLithology ()) {
+    return;
+  }
+
+  for ( distributionIter = m_allochthonousLithologyDistributions.begin (); distributionIter != m_allochthonousLithologyDistributions.end (); ++distributionIter ) {
+
+    AllochthonousLithologyDistribution* lithologyDistribution = (AllochthonousLithologyDistribution*)(*distributionIter);
+
+    if ( theAllochthonousLithology->getFormationName () == lithologyDistribution->getFormationName ()) {
+      lithologyDistribution->loadGridMap ();
+      associatedLithologyDistributions.push_back ( lithologyDistribution );
+    }
+
+  }
+
+  std::sort ( associatedLithologyDistributions.begin (), associatedLithologyDistributions.end (), DistributionMapEarlierThan ());
+}
+
+
+//------------------------------------------------------------//
+
+const std::string& AllochMod::AllochthonousLithologySimulator::getOutputDir () const {
+
+   if ( outputDirectoryName == "" ) {
+     outputDirectoryName = m_projectName;
+     std::string::size_type dotPos = outputDirectoryName.rfind (".project");
+     
+     if (dotPos != std::string::npos) {
+       outputDirectoryName.erase (dotPos, std::string::npos);
+     }
+
+     outputDirectoryName += "_CauldronOutputDir";
+   }
+
+   return outputDirectoryName;
+
+}

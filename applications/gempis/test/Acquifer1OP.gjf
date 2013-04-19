@@ -1,0 +1,3 @@
+PROJECT "Acquifer1OP"
+REQUIREMENTS "fastreq -project Acquifer1OP.project3d  -fastcauldron"
+PARALLEL "fastcauldron -maps -volumes -project Acquifer1OP.project3d -save _Acquifer1OP.project3d -itcoupled"

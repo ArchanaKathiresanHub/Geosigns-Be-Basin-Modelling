@@ -1,0 +1,14 @@
+[SurfaceTempIoTbl]
+;
+Age Temperature ErrTemperature 
+(Ma) (C) () 
+0 10 4 
+[End]
+;
+;
+[SurfaceDepthIoTbl]
+;
+Age Depth DepthGrid
+(Ma) (m) ()
+0 0 ""
+[End]

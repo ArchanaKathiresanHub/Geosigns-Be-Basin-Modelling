@@ -1,0 +1,53 @@
+ROOTDIR	= ..
+LIBDIR = ../../../libraries
+
+FILE_BASE = ../../../files
+include $(FILE_BASE)/Make.fctargets
+
+include $(FILE_BASE)/Make.3rdparty
+include $(FILE_BASE)/Make.libraries
+
+
+MAKEDEPEND = /usr/bin/X11/makedepend
+
+DOXYGEN = doxygen
+DOXYGENCFG = calirationUnitTest.cfg
+
+ROOTDIR		= ..
+SRCDIR  	= $(ROOTDIR)/src/
+
+CALIBRATIONKERNEL_INC = $(LIBDIR)/calibration_kernel/src
+CALIBRATIONKERNEL_LIB = $(LIBDIR)/lib/$(machine)/libcalibration_kernel.a
+
+EXEOBJECTS	= main.o	TestingCode.o
+
+EXESRCS 	= $(EXEOBJECTS:.o=.C)
+
+EXELIBS		= $(CALIBRATIONKERNEL_LIB) \
+                -lz -lrt -lm
+
+CFLAGS		=  -I/usr/include -I$(CALIBRATIONKERNEL_INC) 
+
+vpath %.h $(SRCDIR)
+vpath %.C $(SRCDIR)
+
+OBJDIR		= .
+vpath %.o $(OBJDIR)
+
+EXE = calibrationUnitTest
+
+target: $(EXE)
+
+$(EXE): $(EXEOBJECTS)
+	-$(PRELINK) $(CLINKER) $(LDFLAGS) -o $(EXE) $(EXEOBJECTS) $(EXELIBS)
+
+clean :
+	rm -rf $(EXEOBJECTS) ii_files
+
+doc:
+	cd ../src && $(DOXYGEN) $(DOXYGENCFG)
+
+depend: $(EXEOBJECTS:.o=.C)
+	cd ../src && $(MAKEDEPEND) -f../Makefile.calibrationUnitTest -Y $(INCLUDEDIRS) $(EXEOBJECTS:.o=.C) 2> /dev/null
+
+# DO NOT DELETE

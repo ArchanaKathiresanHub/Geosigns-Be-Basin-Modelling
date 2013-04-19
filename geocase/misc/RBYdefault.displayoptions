@@ -1,0 +1,22 @@
+[DisplayContourIoTbl]
+;
+PropertyName ContourValue ContourColour 
+() () () 
+"Temperature" 0 "red" 
+"Temperature" 20 "red" 
+"Temperature" 40 "red" 
+"Temperature" 60 "red" 
+"Temperature" 80 "red" 
+"Temperature" 100 "white" 
+"Temperature" 120 "red" 
+"Temperature" 140 "red" 
+"Temperature" 160 "red" 
+"Temperature" 180 "red" 
+"Temperature" 200 "white" 
+"VrVec" 0.5 "red" 
+"VrVec" 1.0 "red" 
+"VrVec" 2.0 "green" 
+"Depth" 1000 "red" 
+"Depth" 2000 "white" 
+"Depth" 3000 "blue" 
+[End]
