@@ -2,7 +2,7 @@
 #define _FASTCAULDRON__ELEMENT_GRID__H_
 
 #include "petsc.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include "Interface/Grid.h"
 
@@ -64,14 +64,14 @@ public :
                           const int j ) const;
 
    /// The DA object on which the element-grid is based.
-   DA getDa ();
+   DM getDa ();
 
    /// Return whether or not the object has been initialised.
    bool isInitialised () const;
 
 protected :
 
-   DALocalInfo m_localInfo;
+   DMDALocalInfo m_localInfo;
 
    int* m_xPartitioning;
    int  m_numberOfXProcessors;
@@ -86,7 +86,7 @@ protected :
 // Inline functions
 //------------------------------------------------------------//
 
-inline DA ElementGrid::getDa () {
+inline DM ElementGrid::getDa () {
    return m_localInfo.da;
 }
 

@@ -37,12 +37,12 @@ void NodalVolumeGrid::construct ( const NodalGrid& grid,
    }
 
    int i;
-   DA volumeDa;
+   DM volumeDa;
 
    if ( isInitialised ()) {
       delete [] m_xPartitioning;
       delete [] m_yPartitioning;
-      DADestroy ( m_localInfo.da );
+      DMDestroy ( m_localInfo.da );
    }
 
    m_numberOfXProcessors = grid.getNumberOfXProcessors ();
@@ -59,21 +59,21 @@ void NodalVolumeGrid::construct ( const NodalGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DACreate3d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-                grid.getNumberOfXNodes (),
-                grid.getNumberOfYNodes (),
-                numberOfZNodes,
-                grid.getNumberOfXProcessors (),
-                grid.getNumberOfYProcessors (),
-                1, 
-                numberOfDofs,
-                1,
-                m_xPartitioning,
-                m_yPartitioning,
-                PETSC_NULL,
-                &volumeDa );
+   DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                  grid.getNumberOfXNodes (),
+                  grid.getNumberOfYNodes (),
+                  numberOfZNodes,
+                  grid.getNumberOfXProcessors (),
+                  grid.getNumberOfYProcessors (),
+                  1, 
+                  numberOfDofs,
+                  1,
+                  m_xPartitioning,
+                  m_yPartitioning,
+                  PETSC_NULL,
+                  &volumeDa );
 
-   DAGetLocalInfo ( volumeDa, &m_localInfo );   
+   DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
 }
 
 //------------------------------------------------------------//
@@ -86,25 +86,25 @@ void NodalVolumeGrid::resizeInZDirection ( const int numberOfZNodes ) {
    } else if ( numberOfZNodes == ( lastK () - firstK () + 1 )) {
       return;
    } else {
-      DA volumeDa;
+      DM volumeDa;
 
-      DADestroy ( m_localInfo.da );
+      DMDestroy ( m_localInfo.da );
 
-      DACreate3d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-                   getNumberOfXNodes (),
-                   getNumberOfYNodes (),
-                   numberOfZNodes,
-                   getNumberOfXProcessors (),
-                   getNumberOfYProcessors (),
-                   1, 
-                   getNumberOfDofs (),
-                   1,
-                   m_xPartitioning,
-                   m_yPartitioning,
-                   PETSC_NULL,
-                   &volumeDa );
-
-      DAGetLocalInfo ( volumeDa, &m_localInfo );   
+      DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                     getNumberOfXNodes (),
+                     getNumberOfYNodes (),
+                     numberOfZNodes,
+                     getNumberOfXProcessors (),
+                     getNumberOfYProcessors (),
+                     1, 
+                     getNumberOfDofs (),
+                     1,
+                     m_xPartitioning,
+                     m_yPartitioning,
+                     PETSC_NULL,
+                     &volumeDa );
+      
+      DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
    }
 
 }

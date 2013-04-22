@@ -6,7 +6,7 @@
 #include <map>
 
 #include "petscts.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include "array.h"
 
@@ -146,7 +146,7 @@ public :
   virtual void setPropertyNames ( const std::string& newLayerName,
                                   const std::string& newPropertyName );
 
-  virtual void setDA ( const DA  newDA ) = 0;
+  virtual void setDA ( const DM  newDA ) = 0;
 
   virtual void setInterval ( const SnapshotInterval& interval,
                              const std::string&      directoryName,
@@ -186,7 +186,7 @@ public :
 
 
   /// Sets the DA used throughout the interpolator and allocates the memory used for the interpolants.
-  void setDA ( const DA  newDA );
+  void setDA ( const DM  newDA );
 
   /// Read-in the properties for the times specified in the snapshot interval.
   void setInterval ( const SnapshotInterval& interval,
@@ -213,12 +213,12 @@ private :
 
   /// Read-in the property values from the file.
   bool readTimeStepData ( H5_ReadOnly_File&         inFile,
-                          DA                        propertyDA,
+                          DM                        propertyDA,
                           SavedPropertyValuesArray& propertyValues );
 
 #if 0
   void setTimeStepData ( const std::string&        fileName,
-                         DA                        propertyDA,
+                         DM                        propertyDA,
                          SavedPropertyValuesArray& propertyValues );
 #endif
 
@@ -238,8 +238,8 @@ private :
   /// Object that computed the interpolant.
   InterpolatorCalculator         interpolant;
 
-  DA                             layerDA;
-  DALocalInfo                    dimensionInfo;
+  DM                             layerDA;
+  DMDALocalInfo                  dimensionInfo;
 
   float*                         localBuffer;
   int                            localBufferSize;
@@ -304,13 +304,13 @@ GenericSnapshotInterpolator<InterpolatorCalculator>::~GenericSnapshotInterpolato
 //------------------------------------------------------------//
 
 template <class InterpolatorCalculator>
-void GenericSnapshotInterpolator<InterpolatorCalculator>::setDA ( const DA  newDA ) {
+void GenericSnapshotInterpolator<InterpolatorCalculator>::setDA ( const DM  newDA ) {
 
   int I;
 
   layerDA = newDA;
 
-  DAGetLocalInfo( layerDA , &dimensionInfo );
+  DMDAGetLocalInfo( layerDA , &dimensionInfo );
 
   allCoefficients = Array<double>::create4d ( dimensionInfo.xm,
                                               dimensionInfo.ym,
@@ -330,7 +330,7 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setDA ( const DA  newD
 
 template <class InterpolatorCalculator>
 bool GenericSnapshotInterpolator<InterpolatorCalculator>::readTimeStepData ( H5_ReadOnly_File&         inFile,
-                                                                             DA                        propertyDA,
+                                                                             DM                        propertyDA,
                                                                              SavedPropertyValuesArray& propertyValues ) {
 
 
@@ -375,7 +375,7 @@ bool GenericSnapshotInterpolator<InterpolatorCalculator>::readTimeStepData ( H5_
 #if 0
 template <class InterpolatorCalculator>
 void GenericSnapshotInterpolator<InterpolatorCalculator>::setTimeStepData ( const std::string&        fileName,
-                                                                            DA                        propertyDA,
+                                                                            DM                        propertyDA,
                                                                             SavedPropertyValuesArray& propertyValues ) {
 
   H5_ReadOnly_File         inFile;

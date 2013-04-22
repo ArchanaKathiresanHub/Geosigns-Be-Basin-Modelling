@@ -46,9 +46,9 @@ bool SmectiteIlliteAdapter::operator ()( const OutputPropertyMap::OutputProperty
    bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
 
    if ( isSediment ) {
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_IlliteFraction,
-                       &propertyVector );
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_IlliteFraction,
+                        &propertyVector );
    }
 
    smectiteIlliteMap = propertyValues [ 0 ]->getGridMap ();
@@ -72,9 +72,9 @@ bool SmectiteIlliteAdapter::operator ()( const OutputPropertyMap::OutputProperty
    smectiteIlliteMap->restoreData ();
 
    if ( isSediment ) {
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_IlliteFraction,
-                          &propertyVector );
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_IlliteFraction,
+                            &propertyVector );
    }
 
    m_isCalculated = true;
@@ -118,9 +118,9 @@ bool SmectiteIlliteVolumeAdapter::operator ()( const OutputPropertyMap::OutputPr
    bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
 
    if ( isSediment ) {
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_IlliteFraction,
-                      &propertyVector );
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_IlliteFraction,
+                        &propertyVector );
    }
 
    smectiteIlliteMap = propertyValues [ 0 ]->getGridMap ();
@@ -152,9 +152,9 @@ bool SmectiteIlliteVolumeAdapter::operator ()( const OutputPropertyMap::OutputPr
    smectiteIlliteMap->restoreData ();
 
    if ( isSediment ) {
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_IlliteFraction,
-                          &propertyVector );
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_IlliteFraction,
+                            &propertyVector );
    }
 
    m_isCalculated = true;

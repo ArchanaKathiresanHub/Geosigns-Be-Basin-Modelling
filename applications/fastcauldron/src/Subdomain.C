@@ -401,7 +401,7 @@ void Subdomain::resizeGrids ( const int elementCount,
          VecDestroy ( m_scalarDofNumbers );
       }
 
-      DACreateGlobalVector ( m_nodalGrids [ 0 ]->getDa (), &m_scalarDofNumbers );
+      DMCreateGlobalVector ( m_nodalGrids [ 0 ]->getDa (), &m_scalarDofNumbers );
 
    }
 
@@ -450,10 +450,10 @@ void Subdomain::setSubdomainBoundary () {
    double ***dof2 = 0;
    Vec LocalDOF;
 
-   DAGetLocalVector ( scalarNodeGrid.getDa (), &LocalDOF );
-   DAGlobalToLocalBegin ( scalarNodeGrid.getDa (), m_scalarDofNumbers, INSERT_VALUES, LocalDOF );
-   DAGlobalToLocalEnd ( scalarNodeGrid.getDa (), m_scalarDofNumbers, INSERT_VALUES, LocalDOF );
-   DAVecGetArray ( scalarNodeGrid.getDa (), LocalDOF,  &dof2 );
+   DMGetLocalVector ( scalarNodeGrid.getDa (), &LocalDOF );
+   DMGlobalToLocalBegin ( scalarNodeGrid.getDa (), m_scalarDofNumbers, INSERT_VALUES, LocalDOF );
+   DMGlobalToLocalEnd ( scalarNodeGrid.getDa (), m_scalarDofNumbers, INSERT_VALUES, LocalDOF );
+   DMDAVecGetArray ( scalarNodeGrid.getDa (), LocalDOF,  &dof2 );
 
 
    ActiveLayerIterator iter;
@@ -582,8 +582,8 @@ void Subdomain::setSubdomainBoundary () {
       ++iter;
    }
 
-   DAVecRestoreArray ( scalarNodeGrid.getDa (), LocalDOF,  &dof2 );
-   DARestoreLocalVector ( scalarNodeGrid.getDa (), &LocalDOF );
+   DMDAVecRestoreArray ( scalarNodeGrid.getDa (), LocalDOF,  &dof2 );
+   DMRestoreLocalVector ( scalarNodeGrid.getDa (), &LocalDOF );
 
 }
 

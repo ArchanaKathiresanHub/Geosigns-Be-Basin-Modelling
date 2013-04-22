@@ -22,7 +22,7 @@ public:
   ///
   void Assemble_System   ( const double  Previous_Time,
                            const double  Current_Time,
-                           const DA&     Temperature_FEM_Grid,
+                           const DM&     Temperature_FEM_Grid,
                            const Vec&    Temperature_DOFs,
                                  Mat&    Jacobian,
                                  Vec&    Residual,
@@ -33,7 +33,7 @@ public:
   ///
   void Assemble_Residual ( const double  Previous_Time,
                            const double  Current_Time,
-                           const DA&     Temperature_FEM_Grid,
+                           const DM&     Temperature_FEM_Grid,
                            const Vec&    Temperature_DOFs,
                                  Vec&    Residual,
                                  double& Element_Contributions_Time );
@@ -43,7 +43,7 @@ public:
   ///
   void Assemble_Stiffness_Matrix   ( const double  Previous_Time,
                                      const double  Current_Time,
-                                     const DA&     Temperature_FEM_Grid,
+                                     const DM&     Temperature_FEM_Grid,
                                      const Vec&    Temperature_DOFs,
                                            Mat&    Stiffness_Matrix,
                                            Vec&    Load_Vector,
@@ -127,12 +127,12 @@ public:
   void Create_Source_Rocks_History_Arrays ( const int Number_Of_X_Nodes, 
 					    const int Number_Of_Y_Nodes );
 
-  void Restore_Temperature_Solution ( const DA  Temperature_FEM_Grid,
+  void Restore_Temperature_Solution ( const DM  Temperature_FEM_Grid,
 				      const Vec Temperature_DOF_Numbers,
 				            Vec Temperature );
 
 
-  void Store_Temperature_Solution ( const DA  Temperature_FEM_Grid,
+  void Store_Temperature_Solution ( const DM  Temperature_FEM_Grid,
                                     const Vec Temperature_DOF_Numbers,
                                     const Vec Temperature,
                                     const double Current_Time );

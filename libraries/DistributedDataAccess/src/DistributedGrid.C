@@ -98,13 +98,13 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
    }
 
 
-   DACreate2d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-	      numIGlobal (), numJGlobal (), 
-	      numICores, numJCores, 1, 1, 
-	      PETSC_NULL, PETSC_NULL, &m_localInfo.da );
+   DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                  numIGlobal (), numJGlobal (), 
+                  numICores, numJCores, 1, 1, 
+                  PETSC_NULL, PETSC_NULL, &m_localInfo.da );
 
-   DAGetLocalInfo (m_localInfo.da, &m_localInfo);
-   DACreateGlobalVector (m_localInfo.da, &m_vecGlobal);
+   DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
+   DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
 
    calculateNums(this); // calculated because fastcauldron is using them to create its own DA's.
 }
@@ -118,12 +118,12 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
 
    calculateNums(referenceGrid);
 
-   DACreate2d (PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-	 numIGlobal (), numJGlobal (),
-	 referenceGrid->numProcsI (), referenceGrid->numProcsJ (), 1, 1,
-	 numsI (), numsJ (), &m_localInfo.da);
+   DMDACreate2d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                 numIGlobal (), numJGlobal (),
+                 referenceGrid->numProcsI (), referenceGrid->numProcsJ (), 1, 1,
+                 numsI (), numsJ (), &m_localInfo.da);
 
-   DAGetLocalInfo (m_localInfo.da, &m_localInfo);
+   DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
 
 #if 0
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank %d: xs = %d, xm = %d, ys = %d, ym = %d\n",
@@ -133,7 +133,7 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
    PetscSynchronizedFlush (PETSC_COMM_WORLD);
 #endif
 
-   DACreateGlobalVector (m_localInfo.da, &m_vecGlobal);
+   DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
 }
 
 void DistributedGrid::calculateNums(const Grid * referenceGrid)
@@ -245,7 +245,7 @@ void DistributedGrid::calculateNums(const Grid * referenceGrid)
 DistributedGrid::~DistributedGrid (void)
 {
    VecDestroy (m_vecGlobal);
-   DADestroy (m_localInfo.da);
+   DMDestroy (m_localInfo.da);
 
    if (m_numsI) PetscFree (m_numsI);
    if (m_numsJ) PetscFree (m_numsJ);
@@ -431,10 +431,10 @@ int DistributedGrid::numProcsI (void) const
 {
    if (m_numProcsI < 0)
    {
-   DAGetInfo( m_localInfo.da, PETSC_NULL,
-            PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-            &m_numProcsI, PETSC_NULL, PETSC_NULL,
-            PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+   DMDAGetInfo( m_localInfo.da, PETSC_NULL,
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                &m_numProcsI, PETSC_NULL, PETSC_NULL,
+                PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
    }
 
    return m_numProcsI;
@@ -444,10 +444,10 @@ int DistributedGrid::numProcsJ (void) const
 {
    if (m_numProcsJ < 0)
    {
-   DAGetInfo( m_localInfo.da, PETSC_NULL,
-            PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-            PETSC_NULL, &m_numProcsJ, PETSC_NULL,
-            PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+   DMDAGetInfo( m_localInfo.da, PETSC_NULL,
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, &m_numProcsJ, PETSC_NULL,
+                PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
    }
    return m_numProcsJ;
 }
@@ -622,7 +622,7 @@ const GlobalGrid & DistributedGrid::getGlobalGrid (void) const
    return m_globalGrid;
 }
 
-const DALocalInfo & DistributedGrid::getLocalInfo (void) const
+const DMDALocalInfo & DistributedGrid::getLocalInfo (void) const
 {
    return m_localInfo;
 }

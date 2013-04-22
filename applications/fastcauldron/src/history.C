@@ -707,7 +707,7 @@ double History::Interpolate_Depositional_Property( LayerProps * layer,
 
   int  XS, YS;
 
-  DAGetCorners( * appctx -> mapDA, &XS, &YS, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+  DMDAGetCorners( * appctx -> mapDA, &XS, &YS, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
   return Calculate_Surface_Property( layer,
                                      node -> I_Index,
@@ -739,7 +739,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
     
   case THCONDVEC:
 
-    DAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+    DMDAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
     sea_bottom_temperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, current_time );
     
@@ -780,7 +780,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
   case BULKDENSITYVEC :
 
     surfacePorosityScalar = layer->getLithology ( I,J ) -> surfacePorosity();
-    DAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+    DMDAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
 
     sea_bottom_temperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, current_time );

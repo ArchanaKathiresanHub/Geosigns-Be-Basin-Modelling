@@ -30,9 +30,9 @@ bool FCTCorrectionCalculator::operator ()( const OutputPropertyMap::OutputProper
    bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
 
    if ( isSediment ) {
-      DAVecGetArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
-                      m_formation->FCTCorrection,
-                      &propertyVector );
+      DMDAVecGetArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
+                        m_formation->FCTCorrection,
+                        &propertyVector );
    }
 
    fctCorrectionMap = propertyValues [ 0 ]->getGridMap ();
@@ -56,9 +56,9 @@ bool FCTCorrectionCalculator::operator ()( const OutputPropertyMap::OutputProper
    fctCorrectionMap->restoreData ();
 
    if ( isSediment ) {
-      DAVecRestoreArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
-                          m_formation->FCTCorrection,
-                          &propertyVector );
+      DMDAVecRestoreArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
+                            m_formation->FCTCorrection,
+                            &propertyVector );
    }
 
    m_isCalculated = true;

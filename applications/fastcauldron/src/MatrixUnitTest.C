@@ -745,16 +745,16 @@ void MatrixUnitTest::solveForTimeStep ( const double                      startT
       int j;
       int k;
 
-      DALocalInfo info;
+      DMDALocalInfo info;
 
       
-      DAGetLocalInfo ( grid.getDa (), &info );
+      DMDAGetLocalInfo ( grid.getDa (), &info );
 
 
-      DACreateGlobalVector ( grid.getDa (), &rhsVec );
-      DACreateGlobalVector ( grid.getDa (), &solutionVec );
+      DMCreateGlobalVector ( grid.getDa (), &rhsVec );
+      DMCreateGlobalVector ( grid.getDa (), &solutionVec );
 
-      DAGetMatrix ( grid.getDa (), MATBAIJ, &mat );
+      DMCreateMatrix ( grid.getDa (), MATBAIJ, &mat );
 
       rhs.setVector ( grid, rhsVec, INSERT_VALUES, true );
 
@@ -931,16 +931,16 @@ void MatrixUnitTest::solveForTimeStep ( const double startTime,
       int j;
       int k;
 
-      DALocalInfo info;
+      DMDALocalInfo info;
 
       
-      DAGetLocalInfo ( grid.getDa (), &info );
+      DMDAGetLocalInfo ( grid.getDa (), &info );
 
 
-      DACreateGlobalVector ( grid.getDa (), &rhsVec );
-      DACreateGlobalVector ( grid.getDa (), &solutionVec );
+      DMCreateGlobalVector ( grid.getDa (), &rhsVec );
+      DMCreateGlobalVector ( grid.getDa (), &solutionVec );
 
-      DAGetMatrix ( grid.getDa (), MATBAIJ, &mat );
+      DMCreateMatrix ( grid.getDa (), MATBAIJ, &mat );
 
       rhs.setVector ( grid, rhsVec, INSERT_VALUES, true );
 

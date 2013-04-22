@@ -56,9 +56,9 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
    }
 
    if ( isSediment ) {
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->Vre,
-                      &propertyVector );
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->Vre,
+                        &propertyVector );
    }
 
    vitriniteReflectanceMap = propertyValues [ 0 ]->getGridMap ();
@@ -103,9 +103,9 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
    vitriniteReflectanceMap->restoreData ();
 
    if ( isSediment ) {
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->Vre,
-                          &propertyVector );
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->Vre,
+                            &propertyVector );
    }
 
    m_isCalculated = true;
@@ -149,9 +149,9 @@ bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap:
    bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
 
    if ( isSediment ) {
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->Vre,
-                      &propertyVector );
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->Vre,
+                        &propertyVector );
    }
 
    vitriniteReflectanceMap = propertyValues [ 0 ]->getGridMap ();
@@ -183,9 +183,9 @@ bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap:
    vitriniteReflectanceMap->restoreData ();
 
    if ( isSediment ) {
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->Vre,
-                          &propertyVector );
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->Vre,
+                            &propertyVector );
    }
 
    m_isCalculated = true;

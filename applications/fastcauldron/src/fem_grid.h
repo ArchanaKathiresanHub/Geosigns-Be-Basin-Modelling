@@ -309,8 +309,8 @@ namespace Basin_Modelling {
      int Number_Of_X_Processors;
      int Number_Of_Y_Processors;
 
-     DA          Pressure_FEM_Grid;
-     DA          Temperature_FEM_Grid;
+     DM          Pressure_FEM_Grid;
+     DM          Temperature_FEM_Grid;
 
      Vec         Pressure_Depths;
      Vec         Pressure_DOF_Numbers;

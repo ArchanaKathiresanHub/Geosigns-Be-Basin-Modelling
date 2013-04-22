@@ -38,12 +38,12 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
    }
 
    int i;
-   DA volumeDa;
+   DM volumeDa;
 
    if ( isInitialised ()) {
       delete [] m_xPartitioning;
       delete [] m_yPartitioning;
-      DADestroy ( m_localInfo.da );
+      DMDestroy ( m_localInfo.da );
    }
 
    m_numberOfXProcessors = grid.getNumberOfXProcessors ();
@@ -60,21 +60,21 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DACreate3d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_STAR,
-                grid.getNumberOfXElements (),
-                grid.getNumberOfYElements (),
-                numberOfZElements,
-                grid.getNumberOfXProcessors (),
-                grid.getNumberOfYProcessors (),
-                1, 
-                numberOfDofs,
-                1,
-                m_xPartitioning,
-                m_yPartitioning,
-                PETSC_NULL,
-                &volumeDa );
-
-   DAGetLocalInfo ( volumeDa, &m_localInfo );   
+   DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DA_STENCIL_STAR,
+                  grid.getNumberOfXElements (),
+                  grid.getNumberOfYElements (),
+                  numberOfZElements,
+                  grid.getNumberOfXProcessors (),
+                  grid.getNumberOfYProcessors (),
+                  1, 
+                  numberOfDofs,
+                  1,
+                  m_xPartitioning,
+                  m_yPartitioning,
+                  PETSC_NULL,
+                  &volumeDa );
+   
+   DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
 
    m_first [ 0 ] = m_localInfo.xs;
    m_first [ 1 ] = m_localInfo.ys;
@@ -105,11 +105,11 @@ void ElementVolumeGrid::resizeInZDirection ( const int numberOfZElements ) {
    } else if ( numberOfZElements == ( lastK () - firstK () + 1 )) {
       return;
    } else {
-      DA volumeDa;
+      DM volumeDa;
 
-      DADestroy ( m_localInfo.da );
+      DMDestroy ( m_localInfo.da );
 
-      DACreate3d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_STAR,
+      DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                    getNumberOfXElements (),
                    getNumberOfYElements (),
                    numberOfZElements,
@@ -123,7 +123,7 @@ void ElementVolumeGrid::resizeInZDirection ( const int numberOfZElements ) {
                    PETSC_NULL,
                    &volumeDa );
 
-      DAGetLocalInfo ( volumeDa, &m_localInfo );   
+      DMDAGetLocalInfo ( volumeDa, &m_localInfo );   
 
       m_first [ 0 ] = m_localInfo.xs;
       m_first [ 1 ] = m_localInfo.ys;

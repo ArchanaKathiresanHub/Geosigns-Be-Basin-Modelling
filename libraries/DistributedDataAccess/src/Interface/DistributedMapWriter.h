@@ -38,14 +38,14 @@ namespace DataAccess
         //                        const string & propertyGrid, const string& surfaceName );
 
 	    /// write a 2D gridmap to a file
-	    bool writeMapToHDF (DA & da, Vec & vec, float time, double depoAge,
+	    bool writeMapToHDF (DM & da, Vec & vec, float time, double depoAge,
                                 const string & propertyGrid, const string& surfaceName );
 
 	    /// write a 3D gridmap to a file; generic implementation (V.R.Ambati, 13/07/2011).
 	    bool writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName);
 	    
 		/// write a 3D gridmap to a file; originally implemented.
-	    bool writeVolumeToHDF (DA & da, Vec & vec, const string & propertyName, const string & layerName);
+	    bool writeVolumeToHDF (DM & da, Vec & vec, const string & propertyName, const string & layerName);
 
 	    bool write2DDataSet (const string & dataSetName, float *data, int *start, int *count, int *size);
 

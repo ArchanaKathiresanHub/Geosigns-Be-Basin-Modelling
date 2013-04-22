@@ -4,7 +4,7 @@
 #include "timefilter.h"
 
 
-double getPropValOfFirstNodeOnSurface(DA a_DA,
+double getPropValOfFirstNodeOnSurface(DM a_DA,
                                       Vec* a_vec,
                                       const SurfacePosition surfacePosition, 
                                       const double factor,
@@ -15,14 +15,14 @@ double getPropValOfFirstNodeOnSurface(DA a_DA,
   int start[3]  = {0, 0, 0}; 
   int count[3]  = {1, 1, 1}; 
 
-  DAGetCorners(a_DA,&start[0],&start[1],&start[2],&count[0],&count[1],&count[2]);
+  DMDAGetCorners(a_DA,&start[0],&start[1],&start[2],&count[0],&count[1],&count[2]);
 
   //*** get the info about the total model
   int size[3] = {0, 0, 0};
-  DAGetInfo(a_DA, PETSC_IGNORE,&size[0],&size[1],&size[2], 
-	    PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE, 
-	    PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
-
+  DMDAGetInfo(a_DA, PETSC_IGNORE,&size[0],&size[1],&size[2], 
+              PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE, 
+              PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+  
   double returnValue = CAULDRONIBSNULLVALUE;
 
   
@@ -238,7 +238,7 @@ void savePropertiesOnSegmentNodes1D( AppCtx*              basinModel,
 }
 
 
-void getPropValsOfFirstColumnInLayer(DA a_DA,
+void getPropValsOfFirstColumnInLayer(DM a_DA,
                                      Vec* a_vec,
                                      const double factor,
                                      const Boolean2DArray& validNeedle,
@@ -250,11 +250,11 @@ void getPropValsOfFirstColumnInLayer(DA a_DA,
   int start[3]  = {0, 0, 0}; 
   int count[3]  = {1, 1, 1}; 
 
-  DAGetCorners(a_DA,&start[0],&start[1],&start[2],&count[0],&count[1],&count[2]);
+  DMDAGetCorners(a_DA,&start[0],&start[1],&start[2],&count[0],&count[1],&count[2]);
 
   //*** get the info about the total model
   int size[3] = {0, 0, 0};
-  DAGetInfo(a_DA, PETSC_IGNORE,&size[0],&size[1],&size[2], 
+  DMDAGetInfo(a_DA, PETSC_IGNORE,&size[0],&size[1],&size[2], 
 	    PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE, 
 	    PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
 

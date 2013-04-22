@@ -18,7 +18,7 @@ CauldronCalculator::~CauldronCalculator () {
 // Is there any way to eliminate the Depth array used here?
 // And use the depths stored in the layer arrays?
 //
-void CauldronCalculator::setDOFs ( const DA   femGrid, 
+void CauldronCalculator::setDOFs ( const DM   femGrid, 
                                    const Vec  depths, 
                                          Vec  dofNumbers, 
                                          int& stencilWidth ) {
@@ -27,7 +27,7 @@ void CauldronCalculator::setDOFs ( const DA   femGrid,
   int xs, ys, zs, xm, ym, zm;
   int maxNbCollapsedSegt = 0;
 
-  DAGetCorners( femGrid,&xs,&ys,&zs,&xm,&ym,&zm); 
+  DMDAGetCorners( femGrid,&xs,&ys,&zs,&xm,&ym,&zm); 
 
   PETSC_3D_Array depth ( femGrid, depths );
   PETSC_3D_Array dof   ( femGrid, dofNumbers );
@@ -82,7 +82,7 @@ void CauldronCalculator::setDOFs ( const DA   femGrid,
 // This function should be removed when the dependancy on the depth array (for the 
 // full FEM mesh) has been removed. It is used solely to enumerate the DOF array.
 //
-void CauldronCalculator::setDepths ( const DA  femGrid, 
+void CauldronCalculator::setDepths ( const DM  femGrid, 
                                      const bool includeBasement,
                                            Vec depths ) {
 
@@ -132,7 +132,7 @@ void CauldronCalculator::setDepths ( const DA  femGrid,
     Z_Node_Count = Z_Node_Count - 1;
 
     // Get the size of the layer DA.
-    DAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     // Make a copy of the Layer_Depth array
     Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Depth );
@@ -166,7 +166,7 @@ void CauldronCalculator::setDepths ( const DA  femGrid,
 
 //------------------------------------------------------------//
 
-void CauldronCalculator::setRealNodes ( const DA  femGrid, 
+void CauldronCalculator::setRealNodes ( const DM  femGrid, 
                                           Vec femDOFs, 
                                           Vec femRealNodes ) {
 
@@ -226,7 +226,7 @@ void CauldronCalculator::setRealNodes ( const DA  femGrid,
     zNodeCount = zNodeCount - 1;
 
     // Get the size of the layer DA.
-    DAGetCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     // Why 'K <zCount - 1' ?
     // zCount - 1 because we are looping over the elements.
@@ -327,7 +327,7 @@ void CauldronCalculator::setRealNodes ( const DA  femGrid,
 
 #if 0
 
-void CauldronCalculator::setRealNodes ( const DA  femGrid, 
+void CauldronCalculator::setRealNodes ( const DM  femGrid, 
                                           Vec femDOFs, 
                                           Vec femRealNodes ) {
 
@@ -388,7 +388,7 @@ void CauldronCalculator::setRealNodes ( const DA  femGrid,
     //
     // Get the size of the layer DA.
     //
-    DAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, &zCount );
+    DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, &zCount );
 
     //
     // Why 'K <zCount - 1' ?
@@ -486,8 +486,8 @@ void CauldronCalculator::setRealNodes ( const DA  femGrid,
 
 //------------------------------------------------------------//
 
-int CauldronCalculator::createMatrixStructure ( const DA   Map_DA, 
-                                                const DA   FEM_Grid_DA, 
+int CauldronCalculator::createMatrixStructure ( const DM   Map_DA, 
+                                                const DM   FEM_Grid_DA, 
                                                 const Boolean2DArray& validNeedle,
                                                 const Vec  Degrees_Of_Freedom,
                                                       Mat* J, 
@@ -499,9 +499,10 @@ int CauldronCalculator::createMatrixStructure ( const DA   Map_DA,
   int                    dims[3],starts[3];
   MPI_Comm               comm;
   PetscScalar            *values;
-  DAPeriodicType         wrap;
+  //  DAPeriodicType         wrap;
+  DMDABoundaryType       wrap;
   ISLocalToGlobalMapping ltog;
-  DAStencilType          st;
+  DMDAStencilType        st;
 
 //    PetscFunctionBegin;
   /*     

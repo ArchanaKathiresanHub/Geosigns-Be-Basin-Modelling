@@ -14,7 +14,7 @@
 
 #include "globaldefs.h"
 #include "petscts.h"
-#include "petscda.h"
+#include "petscdmda.h"
 #include "IBSinterpolator.h"
 #include "Polyfunction.h"//from CBM Generics
 #include "layer.h"
@@ -366,8 +366,8 @@ public:
 
    Related_Project_List Related_Projects;
 
-   DA Reference_DA_For_Io_Maps;
-   DA *mapDA;
+   DM Reference_DA_For_Io_Maps;
+   DM *mapDA;
 
    Vec Defined_FCT_Correction;
 

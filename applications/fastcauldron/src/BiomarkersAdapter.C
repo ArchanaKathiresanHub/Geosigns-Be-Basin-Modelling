@@ -55,17 +55,17 @@ bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList
    bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
 
    if ( isSediment ) {
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_HopaneIsomerisation,
-                      &hopaneIsomerisationVector );
-
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_SteraneIsomerisation,
-                      &steraneIsomerisationVector );
-
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_SteraneAromatisation,
-                      &steraneAromatisationVector );
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_HopaneIsomerisation,
+                        &hopaneIsomerisationVector );
+      
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_SteraneIsomerisation,
+                        &steraneIsomerisationVector );
+      
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_SteraneAromatisation,
+                        &steraneAromatisationVector );
    }
 
    hopaneIsomerisationMap = propertyValues [ 0 ]->getGridMap ();
@@ -103,15 +103,15 @@ bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList
 
    if ( isSediment ) 
    {
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_HopaneIsomerisation,
-                          & hopaneIsomerisationVector);
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_SteraneIsomerisation,
-                          & steraneIsomerisationVector);
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_SteraneAromatisation,
-                          & steraneAromatisationVector);
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_HopaneIsomerisation,
+                            & hopaneIsomerisationVector);
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_SteraneIsomerisation,
+                            & steraneIsomerisationVector);
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_SteraneAromatisation,
+                            & steraneAromatisationVector);
    }
 
    m_isCalculated = true;
@@ -172,17 +172,17 @@ bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputProper
    bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
 
    if ( isSediment ) {
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_HopaneIsomerisation,
-                      &hopaneIsomerisationVector );
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_HopaneIsomerisation,
+                        &hopaneIsomerisationVector );
+      
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_SteraneIsomerisation,
+                        &steraneIsomerisationVector );
 
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_SteraneIsomerisation,
-                      &steraneIsomerisationVector );
-
-      DAVecGetArray ( m_formation->layerDA,
-                      m_formation->m_SteraneAromatisation,
-                      &steraneAromatisationVector );
+      DMDAVecGetArray ( m_formation->layerDA,
+                        m_formation->m_SteraneAromatisation,
+                        &steraneAromatisationVector );
    }
 
    hopaneIsomerisationMap = propertyValues [ 0 ]->getGridMap ();
@@ -226,15 +226,15 @@ bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputProper
    steraneAromatisationMap->restoreData ();
 
    if ( isSediment ) {
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_HopaneIsomerisation,
-                          & hopaneIsomerisationVector);
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_SteraneIsomerisation,
-                          & steraneIsomerisationVector);
-      DAVecRestoreArray ( m_formation->layerDA,
-                          m_formation->m_SteraneAromatisation,
-                          & steraneAromatisationVector);
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_HopaneIsomerisation,
+                            & hopaneIsomerisationVector);
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_SteraneIsomerisation,
+                            & steraneIsomerisationVector);
+      DMDAVecRestoreArray ( m_formation->layerDA,
+                            m_formation->m_SteraneAromatisation,
+                            & steraneAromatisationVector);
    }
 
    m_isCalculated = true;

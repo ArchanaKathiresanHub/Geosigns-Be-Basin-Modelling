@@ -9,13 +9,13 @@
 void savePropertiesOnSegmentNodes1D( AppCtx*              Basin_Model,
 				     const SnapshotEntry* snapshot );
 
-double getPropValOfFirstNodeOnSurface(DA a_DA,
+double getPropValOfFirstNodeOnSurface(DM a_DA,
                                       Vec* a_vec,
                                       const SurfacePosition surfacePosition, 
                                       const double factor,
                                       const Boolean2DArray& validNeedle );
 
-void getPropValsOfFirstColumnInLayer(DA a_DA,
+void getPropValsOfFirstColumnInLayer(DM a_DA,
                                      Vec* a_vec,
                                      const double factor,
                                      const Boolean2DArray& validNeedle,

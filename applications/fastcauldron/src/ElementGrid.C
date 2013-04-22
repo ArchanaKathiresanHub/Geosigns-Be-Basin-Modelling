@@ -34,11 +34,11 @@ ElementGrid::~ElementGrid () {
 void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
                               const int                          rank ) {
 
-   const DALocalInfo& info = dynamic_cast<const DataAccess::Interface::DistributedGrid*>(nodeGrid)->getLocalInfo ();
+   const DMDALocalInfo& info = dynamic_cast<const DataAccess::Interface::DistributedGrid*>(nodeGrid)->getLocalInfo ();
 
    // Used temporarily to create the DA, ownership of contents 
    // is then passed to the m_localInfo.da component.
-   DA elementDa;
+   DM elementDa;
 
    int i;
 
@@ -53,7 +53,7 @@ void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
    if ( m_xPartitioning != 0 ) {
       delete [] m_xPartitioning;
       delete [] m_yPartitioning;
-      DADestroy ( m_localInfo.da );
+      DMDestroy ( m_localInfo.da );
    }
 
    m_xPartitioning = new int [ m_numberOfXProcessors ];
@@ -106,17 +106,17 @@ void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
    // // Fill yElementPartitioning array.
    // MPI_Allreduce ( buffer, m_yPartitioning, m_numberOfYProcessors, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
 
-   DACreate2d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_STAR,
-                totalNumberOfXElements,
-                totalNumberOfYElements,
-                m_numberOfXProcessors,
-                m_numberOfYProcessors,
-                1, 1,
-                m_xPartitioning,
-                m_yPartitioning,
-                &elementDa );
-
-   DAGetLocalInfo ( elementDa, &m_localInfo );
+   DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+                  totalNumberOfXElements,
+                  totalNumberOfYElements,
+                  m_numberOfXProcessors,
+                  m_numberOfYProcessors,
+                  1, 1,
+                  m_xPartitioning,
+                  m_yPartitioning,
+                  &elementDa );
+   
+   DMDAGetLocalInfo ( elementDa, &m_localInfo );
 
    delete [] buffer;
 }

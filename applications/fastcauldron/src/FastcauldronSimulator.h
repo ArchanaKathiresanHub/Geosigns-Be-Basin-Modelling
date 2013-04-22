@@ -188,14 +188,14 @@ public :
 
    /// Create a 2d distributed array based on the dimensions used by the DAL.
    // Remove when no-longer needed.
-   static int DACreate2D ( DA& theDA );
+   static int DACreate2D ( DM& theDA );
 
    /// Create a 3d distributed array based on the dimensions used by the DAL and the number of z-nodes passed by the user.
    ///
    /// The distributed array will not be partitioned in the z-direction.
    // Remove when no-longer needed.
    static int DACreate3D ( const int numberOfZNodes,
-                           DA& theDA );
+                           DM& theDA );
 
    /// Return constant reference to the element-grid.
    const ElementGrid& getElementGrid () const;

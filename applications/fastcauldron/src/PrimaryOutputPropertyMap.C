@@ -75,9 +75,9 @@ bool PrimaryOutputPropertyMap::initialise () {
    propertyMap->retrieveData ();
    m_propertyMaps.push_back ( propertyMap );
 
-   DAVecGetArray( m_formation->layerDA,
-                  *m_formation->vectorList.VecArray [ m_propertyName ],
-		   &propertyVector );
+   DMDAVecGetArray( m_formation->layerDA,
+                    *m_formation->vectorList.VecArray [ m_propertyName ],
+                    &propertyVector );
 
    // Chemical compaction is an exception, in that it will not be output directly.
    bool propertyIsDefined = ( m_propertyName == CHEMICAL_COMPACTION ? m_formation->hasChemicalCompaction () and 
@@ -102,9 +102,9 @@ bool PrimaryOutputPropertyMap::initialise () {
    // The map has to be restored in case of any communicating of data is required.
    propertyMap->restoreData ();
 
-   DAVecRestoreArray ( m_formation->layerDA,
-                       *m_formation->vectorList.VecArray [ m_propertyName ],
-                        &propertyVector );
+   DMDAVecRestoreArray ( m_formation->layerDA,
+                         *m_formation->vectorList.VecArray [ m_propertyName ],
+                         &propertyVector );
 
   return true;
 }

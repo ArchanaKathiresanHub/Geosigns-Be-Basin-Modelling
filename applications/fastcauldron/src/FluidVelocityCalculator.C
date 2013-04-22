@@ -93,10 +93,10 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
    ElementVector temperature;
    ElementVector chemCompaction;
 
-   DAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
-              PETSC_NULL, &globalXNodes, &globalYNodes,
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+   DMDAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
+                PETSC_NULL, &globalXNodes, &globalYNodes,
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
    if ( not m_depth->isCalculated ()) {
 
@@ -424,12 +424,12 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
    ElementVector temperature;
    ElementVector chemCompaction;
 
-   DAGetInfo( m_formation->layerDA, 
-              PETSC_NULL,
-              &globalXNodes, &globalYNodes, &zCount,
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
-
+   DMDAGetInfo( m_formation->layerDA, 
+                PETSC_NULL,
+                &globalXNodes, &globalYNodes, &zCount,
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+   
    if ( not m_depth->isCalculated ()) {
 
       if ( not m_depth->calculate ()) {

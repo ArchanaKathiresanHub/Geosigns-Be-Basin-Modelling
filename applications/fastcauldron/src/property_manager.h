@@ -90,9 +90,9 @@ namespace Basin_Modelling {
 
   typedef Vec* Vec_Ptr;
 
-  typedef DA*  DA_Ptr;
+  typedef DM*  DA_Ptr;
 
-  typedef DA const*  DA_Const_Ptr;
+  typedef DM const*  DA_Const_Ptr;
 
   typedef PETSC_3D_Array* PETSC_3D_Array_Ptr;
 
@@ -195,7 +195,7 @@ namespace Basin_Modelling {
 //      Fundamental_Property_Manager ( const DA* Layer_Array );
     ~Fundamental_Property_Manager ();
 
-    void Set_Layer_DA ( const DA* Layer_Array );
+    void Set_Layer_DA ( const DM* Layer_Array );
 
     void Set_Property_Vector ( const Fundamental_Property Property_Value, Vec* Property_Vector );
 
@@ -333,7 +333,7 @@ namespace Basin_Modelling {
                        const int             Y_End,
                        const int             Z_Start,
                        const int             Z_End,
-                       const DA              Layer_DA,
+                       const DM              Layer_DA,
                        const Vec             Current_Property,
                              Vec&            Previous_Property ) const;
 

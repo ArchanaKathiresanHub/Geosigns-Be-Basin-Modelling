@@ -1472,10 +1472,10 @@ void AppCtx::shareValidNeedleData () {
    int j;
 
    Vec definedNodeVec;
-   DALocalInfo dainfo;
+   DMDALocalInfo dainfo;
 
-   DAGetLocalInfo ( *mapDA, &dainfo );
-   DACreateGlobalVector ( *mapDA, &definedNodeVec );
+   DMDAGetLocalInfo ( *mapDA, &dainfo );
+   DMCreateGlobalVector ( *mapDA, &definedNodeVec );
    VecSet ( definedNodeVec, Zero );
 
    PETSC_2D_Array definedNode ( *mapDA, definedNodeVec, INSERT_VALUES, IncludeGhostValues );
@@ -1663,7 +1663,7 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
   int IX, IY, IZ;
   int XS, YS;
 
-  DAGetCorners( *mapDA, &XS, &YS, PETSC_NULL, &NX, &NY, PETSC_NULL );
+  DMDAGetCorners( *mapDA, &XS, &YS, PETSC_NULL, &NX, &NY, PETSC_NULL );
 
   LayerProps_Ptr Current_Layer;
   Layer_Iterator Layers;
@@ -2034,7 +2034,7 @@ bool AppCtx::calcNodeVes( const double time ) {
     
     Current_Layer = Layers.Current_Layer ();
     
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     int Top_Z_Index = zm - 1;
     
@@ -2138,7 +2138,7 @@ bool AppCtx::calcNodeMaxVes( const double time ) {
     
     Current_Layer = Layers.Current_Layer ();
     
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     PETSC_3D_Array ves     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
     PETSC_3D_Array max_ves ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Max_VES ));
@@ -2210,7 +2210,7 @@ bool AppCtx::calcPorosities( const double time ) {
 
     Include_Chemical_Compaction = Do_Chemical_Compaction && ( Current_Layer -> Get_Chemical_Compaction_Mode ());
 
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     PETSC_3D_Array porosity( Current_Layer -> layerDA, Current_Layer -> Porosity );
 
@@ -2298,7 +2298,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
        cout << "Lithology has no fluid..." << Current_Layer->layername << endl;
     }
 
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     PETSC_3D_Array depth           ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
     PETSC_3D_Array temperature     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Temperature ));
@@ -2777,7 +2777,7 @@ bool AppCtx::setNodeDepths ( const double time ) {
        }
     }
 
-    DAGetCorners ( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
+    DMDAGetCorners ( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
     int numberOfNodes = zs + zm - 1;
 
     PETSC_3D_Array depth   ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Depth ));
@@ -3003,7 +3003,7 @@ bool AppCtx::calcNodeDepths( const double time ) {
        }
     }
 
-    DAGetCorners(currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
+    DMDAGetCorners(currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
 
 
     int numberOfNodes = zs + zm - 1;
@@ -3148,9 +3148,9 @@ void AppCtx::Retrieve_Lithology_ID ()
     
     Current_Layer = Layers.Current_Layer ();
 
-    DAGetCorners( Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm );
+    DMDAGetCorners( Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm );
 
-    DACreateGlobalVector( Current_Layer -> layerDA, &Current_Layer -> Lithology_ID );
+    DMCreateGlobalVector( Current_Layer -> layerDA, &Current_Layer -> Lithology_ID );
 
     VecSet( Current_Layer -> Lithology_ID, CAULDRONIBSNULLVALUE );
 
@@ -3375,7 +3375,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
       Current_Layer -> Current_Topmost_Segments.Fill ( -1 );
 
       int gxs,gys,gxm,gym;
-      DAGetGhostCorners(*mapDA,&gxs,&gys,PETSC_NULL,&gxm,&gym,PETSC_NULL);
+      DMDAGetGhostCorners(*mapDA,&gxs,&gys,PETSC_NULL,&gxm,&gym,PETSC_NULL);
 
       unsigned int i;
       unsigned int j;
@@ -3766,7 +3766,7 @@ bool AppCtx::inProcessorRange ( const int  globalIIndex,
                                 const bool includeLowerJGhostNodes,
                                 const bool includeUpperJGhostNodes ) const {
 
-  DALocalInfo dainfo;
+  DMDALocalInfo dainfo;
   int xMin;
   int xMax;
 
@@ -3774,7 +3774,7 @@ bool AppCtx::inProcessorRange ( const int  globalIIndex,
   int yMax;
 
 
-  DAGetLocalInfo( *mapDA, &dainfo );
+  DMDAGetLocalInfo( *mapDA, &dainfo );
 
   if ( includeLowerIGhostNodes ) {
     xMin = dainfo.gxs;
@@ -3810,14 +3810,14 @@ bool AppCtx::inProcessorRange ( const int  globalIIndex,
 bool AppCtx::In_Processor_Range ( const int globalIIndex, const int globalJIndex )
 {
 
-  DALocalInfo dainfo;
+  DMDALocalInfo dainfo;
   int xMin;
   int xMax;
 
   int yMin;
   int yMax;
 
-  DAGetLocalInfo( *mapDA, &dainfo );
+  DMDAGetLocalInfo( *mapDA, &dainfo );
 
   xMin = dainfo.xs;
   xMax = dainfo.xs + ( dainfo.xm - 1 );
@@ -4222,9 +4222,9 @@ void AppCtx::printFCT() {
 
   int xs, ys, xm, ym;
   size_t layer;
-  DAGetCorners(*mapDA, 
-               &xs, &ys, PETSC_NULL, 
-               &xm, &ym, PETSC_NULL); 
+  DMDAGetCorners(*mapDA, 
+                 &xs, &ys, PETSC_NULL, 
+                 &xm, &ym, PETSC_NULL); 
 
 
   for (layer=0; layer<layers.size(); layer++) {
@@ -4257,9 +4257,9 @@ void AppCtx::setUp2dEltMapping()
 
    int xs,ys,xm,ym,xdim,ydim;
 
-   DAGetInfo(*mapDA,PETSC_NULL,&xdim,&ydim,PETSC_NULL,PETSC_NULL,
-             PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
-   DAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);
+   DMDAGetInfo(*mapDA,PETSC_NULL,&xdim,&ydim,PETSC_NULL,PETSC_NULL,
+               PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+   DMDAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);
 
    int i, j;
 
@@ -4462,13 +4462,13 @@ void AppCtx::setUp2dEltMapping()
 void AppCtx::Examine_Load_Balancing() {
 
   int xs,ys,xm,ym;
-  DAGetCorners(*mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL); 
+  DMDAGetCorners(*mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL); 
 
   int Number_Of_Valid_Nodes = xm*ym;
 
   int NNodeX,NNodeY;
-  DAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-	     PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+  DMDAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
   float Percentage_Of_Total_Number_Of_Nodes = float(xm*ym) / float(NNodeX*NNodeY) * 100.0;
 
@@ -4515,8 +4515,8 @@ void AppCtx::Output_Number_Of_Geological_Events() {
 
 void AppCtx::Display_Grid_Description() {
 
-  DALocalInfo dainfo;
-  DAGetLocalInfo( *mapDA, &dainfo );
+  DMDALocalInfo dainfo;
+  DMDAGetLocalInfo( *mapDA, &dainfo );
 
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"rank            %3d \n",FastcauldronSimulator::getInstance ().getRank ());
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"mx , my, mz     %3d %3d %3d\n",dainfo.mx,dainfo.my,dainfo.mz);
@@ -4568,7 +4568,7 @@ AppCtx::~AppCtx(){
 
   Related_Projects.clear ();
 
-  if ( Reference_DA_For_Io_Maps != NULL ) DADestroy(Reference_DA_For_Io_Maps);
+  if ( Reference_DA_For_Io_Maps != NULL ) DMDestroy(Reference_DA_For_Io_Maps);
 
   if ( xCoarseGridPartitioning == 0 ) {
     delete [] xCoarseGridPartitioning;
@@ -4682,7 +4682,7 @@ double AppCtx::Minimum_Permeability ( const LayerProps* Current_Layer ) const {
 
   int I, J;
 
-  DAGetCorners ( *mapDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( *mapDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   for ( I = X_Start; I < X_Start + X_Count; I++ ) {
 
@@ -4980,7 +4980,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    ElementGeometryMatrix Geometry_Matrix;
    const CompoundLithology *  Element_Lithology;
    
-   DAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
+   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
    
    CrustFormation * crust = dynamic_cast<CrustFormation *>(layers [layers.size () - 2]);
    assert( crust != 0 );
@@ -5009,10 +5009,10 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
       LayerProps * currentLayer;
       int globalXNodes;
       int globalYNodes;
-      DAGetInfo( *mapDA, 
-                 PETSC_NULL, &globalXNodes, &globalYNodes,
-                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+      DMDAGetInfo( *mapDA, 
+                   PETSC_NULL, &globalXNodes, &globalYNodes,
+                   PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                   PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
       
 
       for ( layer = layers.size () - 1; layer >= layers.size () - 2; -- layer ) {
@@ -5027,8 +5027,8 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
          // layerMz - nodes
          // zs is always 0
          
-         DAGetInfo(currentLayer -> layerDA, 0, &layerMx, &layerMy, &layerMz, 0, 0, 0, 0, 0, 0, 0);
-         DAGetCorners(currentLayer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
+         DMDAGetInfo(currentLayer -> layerDA, 0, &layerMx, &layerMy, &layerMz, 0, 0, 0, 0, 0, 0, 0);
+         DMDAGetCorners(currentLayer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
          
          bool isCrust = currentLayer ->isCrust();
          
@@ -5108,7 +5108,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
          MPI_Barrier(PETSC_COMM_WORLD); 
       }
    }
-   DAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
+   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
 
 
    PETSC_3D_Array depth ( crust->layerDA,

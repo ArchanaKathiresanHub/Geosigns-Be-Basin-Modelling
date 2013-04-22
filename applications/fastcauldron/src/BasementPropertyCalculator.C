@@ -90,9 +90,9 @@ bool BasementPropertyCalculator::calculateProperty () {
       Interface::GridMap* theMap = m_values [ 0 ]->getGridMap ();
       theMap->retrieveData ();
       
-      DAVecGetArray( *m_BasinModel->mapDA,
-                     *m_formation->vectorList.VecArray [ m_propertyName ],
-                     (void*) &propertyVector );
+      DMDAVecGetArray( *m_BasinModel->mapDA,
+                       *m_formation->vectorList.VecArray [ m_propertyName ],
+                       (void*) &propertyVector );
 
       double offset;
       const double theTime = m_snapshot->getTime();

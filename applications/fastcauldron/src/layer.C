@@ -232,10 +232,10 @@ void LayerProps::initialise () {
                                           getMaximumNumberOfElements (),
                                           NumberOfPVTComponents );
 
-      DACreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_flowComponents );
+      DMCreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_flowComponents );
       VecZeroEntries ( m_flowComponents );
 
-      DACreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_previousFlowComponents );
+      DMCreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_previousFlowComponents );
       VecZeroEntries ( m_previousFlowComponents );
 
 
@@ -244,7 +244,7 @@ void LayerProps::initialise () {
                                        getMaximumNumberOfElements (),
                                        ImmobileSpeciesValues::NumberOfImmobileSpecies );
 
-      DACreateGlobalVector ( m_immobilesLayerGrid.getDa (), &m_immobileComponents );
+      DMCreateGlobalVector ( m_immobilesLayerGrid.getDa (), &m_immobileComponents );
       VecZeroEntries ( m_immobileComponents );
 
 
@@ -252,8 +252,8 @@ void LayerProps::initialise () {
       m_saturationGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
                                    getMaximumNumberOfElements (),
                                    Saturation::NumberOfPhases );
-      DACreateGlobalVector ( m_saturationGrid.getDa (), &m_saturations );
-      DACreateGlobalVector ( m_saturationGrid.getDa (), &m_previousSaturations );
+      DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_saturations );
+      DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_previousSaturations );
 
       VecZeroEntries ( m_saturations );
       VecZeroEntries ( m_previousSaturations );
@@ -268,7 +268,7 @@ void LayerProps::initialise () {
       m_timeOfElementInvasionGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
                                    getMaximumNumberOfElements (),
                                    1 );
-      DACreateGlobalVector ( m_timeOfElementInvasionGrid.getDa (), &m_timeOfElementInvasionVec );
+      DMCreateGlobalVector ( m_timeOfElementInvasionGrid.getDa (), &m_timeOfElementInvasionVec );
       VecSet ( m_timeOfElementInvasionVec, CAULDRONIBSNULLVALUE );
       PetscBlockVector<double> timeOfElementInvasion;
       timeOfElementInvasion.setVector (m_timeOfElementInvasionGrid, getTimeOfElementInvasionVec(), INSERT_VALUES );
@@ -301,7 +301,7 @@ void LayerProps::initialise () {
                                            getMaximumNumberOfElements () + 1,
                                            Saturation::NumberOfPhases );
 
-      DACreateGlobalVector ( m_averagedSaturationGrid.getDa (), &m_averagedSaturation );
+      DMCreateGlobalVector ( m_averagedSaturationGrid.getDa (), &m_averagedSaturation );
       // DACreateGlobalVector ( layerDA, &m_numberOfContributingElements );
 
 
@@ -320,7 +320,7 @@ void LayerProps::initialise () {
          // Allocate the vector containing the transported masses.
          ElementVolumeGrid& elementGrid = getVolumeGrid ( 1 );
 
-         DACreateGlobalVector ( elementGrid.getDa (), &m_transportedMasses );
+         DMCreateGlobalVector ( elementGrid.getDa (), &m_transportedMasses );
          VecSet ( m_transportedMasses, 0.0 );
       // }
 
@@ -344,7 +344,7 @@ void LayerProps::initialise () {
 
    if ( getMaximumNumberOfElements () > 0 )
    {
-      DA FCT_DA;
+      DM FCT_DA;
 
       FastcauldronSimulator::DACreate3D ( getMaximumNumberOfElements() + 1, FCT_DA );
       fracturedPermeabilityScaling.create ( FCT_DA );
@@ -359,7 +359,7 @@ void LayerProps::initialise () {
       preFractureScaling.create ( FCT_DA );
       preFractureScaling.fill ( 0.0 );
 
-      DADestroy( FCT_DA );
+      DMDestroy( FCT_DA );
 
       // Add scalar volume-grid.
       createVolumeGrid ( 1 );
@@ -525,7 +525,7 @@ LayerProps::~LayerProps(){
      delete m_genexData;
   }
 
-  if ( layerDA != NULL )  DADestroy(layerDA);
+  if ( layerDA != NULL )  DMDestroy(layerDA);
 
   Destroy_Petsc_Vector ( Present_Day_VRE );
 
@@ -773,8 +773,7 @@ bool LayerProps::createVec(Vec& propertyVector){
    //cerr<<&propertyVector<<endl;
   IBSASSERT(NULL == propertyVector);
   createCount++;
-  int ierr = DACreateGlobalVector(layerDA,
-			      &(propertyVector));
+  int ierr = DMCreateGlobalVector(layerDA, &(propertyVector));
   CHKERRQ(ierr);
 
   // return value is only here because of the CHKERRQ
@@ -784,7 +783,7 @@ bool LayerProps::createVec(Vec& propertyVector){
 bool LayerProps::destroyDA(DA& propertyDA){
 
   IBSASSERT(NULL != propertyDA);
-  int ierr = DADestroy(propertyDA);
+  int ierr = DMDestroy( propertyDA );
   CHKERRQ(ierr);
   propertyDA = NULL;
 
@@ -839,7 +838,7 @@ void LayerProps::print() {
   cout << Layer_Depo_Seq_Nb << endl;
 }
 
-bool LayerProps::propagateVec(DA from_da, DA to_da, Vec from_vec, Vec to_vec)
+bool LayerProps::propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec)
 {
   if ((from_da == NULL) || 
       (to_da == NULL) || 
@@ -853,13 +852,13 @@ bool LayerProps::propagateVec(DA from_da, DA to_da, Vec from_vec, Vec to_vec)
   int to_xs, to_ys, to_zs, to_xm, to_ym, to_zm;
   double ***from_array, ***to_array;
 
-  ierr = DAGetCorners(from_da, 
-		      &from_xs, &from_ys, &from_zs, 
-		      &from_xm, &from_ym, &from_zm);
+  ierr = DMDAGetCorners(from_da, 
+                        &from_xs, &from_ys, &from_zs, 
+                        &from_xm, &from_ym, &from_zm);
   CHKERRQ(ierr);
-  ierr = DAGetCorners(to_da, 
-		      &to_xs, &to_ys, &to_zs, 
-		      &to_xm, &to_ym, &to_zm);
+  ierr = DMDAGetCorners(to_da, 
+                        &to_xs, &to_ys, &to_zs, 
+                        &to_xm, &to_ym, &to_zm);
   CHKERRQ(ierr);
   
   // Check sizes -> PETSC_ASSERT if not ok!! Don't check Z counts as we are
@@ -869,9 +868,9 @@ bool LayerProps::propagateVec(DA from_da, DA to_da, Vec from_vec, Vec to_vec)
   PETSC_ASSERT(from_zs == to_zs);
 
   // Get the arrays
-  ierr = DAVecGetArray(from_da, from_vec,  &from_array);
+  ierr = DMDAVecGetArray(from_da, from_vec,  &from_array);
   CHKERRQ(ierr);
-  ierr = DAVecGetArray(to_da, to_vec,  &to_array);
+  ierr = DMDAVecGetArray(to_da, to_vec,  &to_array);
   CHKERRQ(ierr);
 
   // Boundary for k-index
@@ -884,9 +883,9 @@ bool LayerProps::propagateVec(DA from_da, DA to_da, Vec from_vec, Vec to_vec)
       for (int k = from_zs; k < from_zs+kmax; k++)
 	to_array[k][j][i] = from_array[k][j][i];
   
-  ierr = DAVecRestoreArray(from_da, from_vec,  &from_array);
+  ierr = DMDAVecRestoreArray(from_da, from_vec,  &from_array);
   CHKERRQ(ierr);
-  ierr = DAVecRestoreArray(to_da, to_vec,  &to_array);
+  ierr = DMDAVecRestoreArray(to_da, to_vec,  &to_array);
   CHKERRQ(ierr);
 
   return true;
@@ -895,7 +894,7 @@ bool LayerProps::propagateVec(DA from_da, DA to_da, Vec from_vec, Vec to_vec)
 #undef __FUNCT__  
 #define __FUNCT__ "LayerProps::Create_FC_Thickness_Polyfunction"
 
-void LayerProps::Create_FC_Thickness_Polyfunction ( const DA& Map_DA ) {
+void LayerProps::Create_FC_Thickness_Polyfunction ( const DM& Map_DA ) {
 
   unsigned int Number_Of_Segments;
 
@@ -906,7 +905,7 @@ void LayerProps::Create_FC_Thickness_Polyfunction ( const DA& Map_DA ) {
 
   if ( Number_Of_Segments > 0 )
   {
-    DA FCT_DA;
+    DM FCT_DA;
     
     // Set here temporarily
     FastcauldronSimulator::DACreate3D ( Number_Of_Segments + 1, FCT_DA );
@@ -922,7 +921,7 @@ void LayerProps::Create_FC_Thickness_Polyfunction ( const DA& Map_DA ) {
     preFractureScaling.create ( FCT_DA );
     preFractureScaling.fill ( 0.0 );
 
-    DADestroy( FCT_DA );
+    DMDestroy( FCT_DA );
 
   }
 
@@ -1102,7 +1101,7 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
 void LayerProps::reInitialise (){
 
    if ( layerDA != NULL ) {
-      DADestroy(layerDA);
+      DMDestroy(layerDA);
       layerDA = NULL;
    }
 
@@ -1257,7 +1256,7 @@ void LayerProps::resetSmectiteIlliteStateVectors()
 
    int xs, ys, zs, xm, ym, zm;
    int i, j, k;
-   DAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+   DMDAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
    for (i = xs; i < xs+xm; i++) 
    {
       for (j = ys; j < ys+ym; j++) 
@@ -1274,7 +1273,7 @@ void LayerProps::resetBiomarkerStateVectors()
 
    int xs, ys, zs, xm, ym, zm;
    int i, j, k;
-   DAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+   DMDAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
    for (i = xs; i < xs+xm; i++) 
    {
       for (j = ys; j < ys+ym; j++) 
@@ -1483,7 +1482,7 @@ void LayerProps::Fill_Topmost_Segment_Array ( const double                  Requ
 
   Topmost_Segment = -1;
 
-  DAGetGhostCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetGhostCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   for ( I = X_Start; I < X_Start + X_Count; I++ ) {
 
@@ -1575,13 +1574,13 @@ void LayerProps::SetIncludedNodeArray ( const Boolean2DArray& Valid_Needle ) {
   int zEnd;
   bool IncludeGhosts = true;
 
-  DACreateGlobalVector ( layerDA, &includedNodeVec );
+  DMCreateGlobalVector ( layerDA, &includedNodeVec );
 
   VecSet ( includedNodeVec, Zero );
 
   PETSC_3D_Array includedNodeArray ( layerDA, includedNodeVec, INSERT_VALUES, IncludeGhosts );
 
-  DAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   xEnd = xStart + xCount;
   yEnd = yStart + yCount;
@@ -1669,7 +1668,7 @@ void LayerProps::SetTopIncludedNodes ( const Boolean2DArray& Valid_Needle,
   int zCount;
   int zTop;
 
-  DAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   xEnd = xStart + xCount;
   yEnd = yStart + yCount;
@@ -1723,7 +1722,7 @@ void LayerProps::SetBottomIncludedNodes ( const Boolean2DArray& Valid_Needle,
   int zCount;
   int zTop;
 
-  DAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   xEnd = xStart + xCount;
   yEnd = yStart + yCount;
@@ -1767,9 +1766,9 @@ void LayerProps::setFaultElementsMap ( AppCtx*         basinModel,
 
   PETSC_3D_Array faultElementsMap;
 
-  DAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
-  DACreateGlobalVector ( layerDA, &faultElements );
+  DMCreateGlobalVector ( layerDA, &faultElements );
   VecSet ( faultElements, CAULDRONIBSNULLVALUE );
 
   faultElementsMap.Set_Global_Array( layerDA, faultElements, INSERT_VALUES );
@@ -1829,9 +1828,9 @@ void LayerProps::setErosionFactorMap ( AppCtx*         basinModel,
   // Should be 2d but due to limitations in the output mechanism, this must be a 3d array.
   PETSC_3D_Array erosionFactorMap;
 
-  DAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
-  DACreateGlobalVector ( layerDA, &erosionFactor );
+  DMCreateGlobalVector ( layerDA, &erosionFactor );
   VecSet ( erosionFactor, CAULDRONIBSNULLVALUE );
 
   erosionFactorMap.Set_Global_Array ( layerDA, erosionFactor, INSERT_VALUES, false );
@@ -1939,9 +1938,9 @@ void LayerProps::setAllochthonousLithologyMap ( AppCtx*         basinModel,
 
   PETSC_3D_Array allochthonousLithologies;
 
-  DAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
-  DACreateGlobalVector ( layerDA, &allochthonousLithologyMap );
+  DMCreateGlobalVector ( layerDA, &allochthonousLithologyMap );
   VecSet ( allochthonousLithologyMap, CAULDRONIBSNULLVALUE );
 
   allochthonousLithologies.Set_Global_Array( layerDA, allochthonousLithologyMap, INSERT_VALUES );
@@ -2047,7 +2046,7 @@ void LayerProps::PutIncludedNodes () const {
   int zCount;
   int zEnd;
 
-  DAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetGhostCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   xEnd = xStart + xCount;
   yEnd = yStart + yCount;
@@ -2107,7 +2106,7 @@ void LayerProps::interpolateProperty ( AppCtx*               basinModel,
 
   interpolator.setCurrentTime ( currentTime );
 
-  DAGetCorners ( propertyDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetCorners ( propertyDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   for ( K = zStart; K < zStart + zCount; K++ ) {
 
@@ -2221,8 +2220,8 @@ void LayerProps::Determine_CFL_Value ( AppCtx* Basin_Model,
 
   Element_Positions Positions;
 
-  DAGetInfo( layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
-  DAGetCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetInfo( layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
+  DMDAGetCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   Current_Properties.Activate_Properties  ( INSERT_VALUES, Include_Ghost_Values );
 
@@ -2824,7 +2823,7 @@ void LayerProps::Integrate_Chemical_Compaction ( const double          Previous_
   const CompoundLithology*  Current_Lithology;
   PETSC_3D_Array Layer_Porosity ( layerDA, Porosity );
 
-  DAGetCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   Current_Properties.Activate_Property  ( Basin_Modelling::VES_FP );
   Current_Properties.Activate_Property  ( Basin_Modelling::Temperature );

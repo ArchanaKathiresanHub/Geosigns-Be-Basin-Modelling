@@ -4,7 +4,7 @@
 
 #include "petsc.h"
 #include "petscts.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include "CauldronCalculator.h"
 
@@ -38,20 +38,20 @@ public :
 
    /// Copies the pressure solution that is stored in the vectors in the layers
    /// to the Overpressure vector that is defined on the entire basin.
-   void restorePressureSolution ( const DA  pressureFemGrid,
+   void restorePressureSolution ( const DM  pressureFemGrid,
                                   const Vec pressureDofNumbers,
                                         Vec Overpressure );
 
    /// Copies the overpressure vector that is stored on the entire basin to
    /// the vectors in the layers.
-   void storePressureSolution ( const DA  pressureFemGrid,
+   void storePressureSolution ( const DM  pressureFemGrid,
                                 const Vec pressureDofNumbers,
                                 const Vec overpressure );
 
    /// Assemble the Jacobian and residual for the Newton solver.
    void assembleSystem ( const double  previousTime,
                          const double  currentTime,
-                         const DA&     pressureFEMGrid,
+                         const DM&     pressureFEMGrid,
                          const Vec&    pressureDOFs,
                          const Vec&    pressureNodeIncluded,
                                Mat&    jacobian,
@@ -63,7 +63,7 @@ public :
    /// Assemble just the residual for the Newton solver.
    void assembleResidual ( const double  previousTime,
                            const double  currentTime,
-                           const DA&     pressureFEMGrid,
+                           const DM&     pressureFEMGrid,
                            const Vec&    pressureDOFs,
                                  Vec&    Residual,
                                  double& elementContributionsTime );
@@ -137,7 +137,7 @@ public :
                                   Double_Array_2D& Depth_Above,
                             const Boolean2DArray&  Valid_Needle );
 
-   void setLayerElements ( const DA  femGrid,
+   void setLayerElements ( const DM  femGrid,
                            const Vec dofNumbers,
                                  LayerElementReferenceArray& elementRefs );
 

@@ -35,7 +35,7 @@ private:
 
   static const int width = 21;
 
-  PETSC_3D_Array* getPropertyVector ( DA  layerDA,
+  PETSC_3D_Array* getPropertyVector ( DM  layerDA,
 				      Vec propertyVector ) const;
 
 

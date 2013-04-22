@@ -29,11 +29,11 @@ NodalGrid::~NodalGrid () {
 void NodalGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
                             const int                          rank ) {
 
-   const DALocalInfo& info = dynamic_cast<const DataAccess::Interface::DistributedGrid*>(nodeGrid)->getLocalInfo ();
+   const DMDALocalInfo& info = dynamic_cast<const DataAccess::Interface::DistributedGrid*>(nodeGrid)->getLocalInfo ();
 
    // Used temporarily to create the DA, ownership of contents 
    // is then passed to the m_localInfo.da component.
-   DA nodalDa;
+   DM nodalDa;
 
    int i;
 
@@ -48,7 +48,7 @@ void NodalGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
    if ( m_xPartitioning != 0 ) {
       delete [] m_xPartitioning;
       delete [] m_yPartitioning;
-      DADestroy ( m_localInfo.da );
+      DMDestroy ( m_localInfo.da );
    }
 
    m_xPartitioning = new int [ m_numberOfXProcessors ];
@@ -62,16 +62,16 @@ void NodalGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
       m_yPartitioning [ i ] = static_cast<int> ( nodeGrid->numsJ ()[ i ]);
    }
 
-   DACreate2d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-                totalNumberOfXNodes,
-                totalNumberOfYNodes,
-                m_numberOfXProcessors,
-                m_numberOfYProcessors,
-                1, 1,
-                m_xPartitioning,
-                m_yPartitioning,
-                &nodalDa );
-
-   DAGetLocalInfo ( nodalDa, &m_localInfo );
+   DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                  totalNumberOfXNodes,
+                  totalNumberOfYNodes,
+                  m_numberOfXProcessors,
+                  m_numberOfYProcessors,
+                  1, 1,
+                  m_xPartitioning,
+                  m_yPartitioning,
+                  &nodalDa );
+   
+   DMDAGetLocalInfo ( nodalDa, &m_localInfo );
 }
 

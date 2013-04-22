@@ -55,7 +55,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
   double Top_Depth;
   double Bottom_Depth;
 
-  DAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
 
   PETSc_Local_2D_Array<double> FCT_Scaling_Factors;
 
@@ -77,10 +77,10 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
     //
     // Get the size of the layer DA.
     //
-    DAGetGhostCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-    DALocalInfo Local_Info;
+    DMDAGetGhostCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDALocalInfo Local_Info;
 
-    DAGetLocalInfo ( *cauldron->mapDA, &Local_Info );
+    DMDAGetLocalInfo ( *cauldron->mapDA, &Local_Info );
 
     PETSC_2D_Array FCTCorrection;
     FCTCorrection.Set_Global_Array( *cauldron -> mapDA, currentLayer->FCTCorrection, 
@@ -405,7 +405,7 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
 
   const CompoundLithology*  currentLithology;
 
-  DAGetCorners ( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
   zTopIndex = Z_Start + Z_Count - 1;
 
   for ( I = X_Start; I < X_Start + X_Count; I++ ) {
@@ -657,7 +657,7 @@ void GeometricLoopPressureSolver::computeDependantProperties ( const double prev
 
    const Boolean2DArray& Valid_Needle = cauldron->getValidNeedles ();
 
-   DAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+   DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
    Double_Array_2D Hydrostatic_Pressure_Above ( X_Count, Y_Count );
    Double_Array_2D Pore_Pressure_Above        ( X_Count, Y_Count );
@@ -686,7 +686,7 @@ void GeometricLoopPressureSolver::computeDependantProperties ( const double prev
     currentLayer = FEM_Layers.Current_Layer ();
 
     // Get the size of the layer DA.
-    DAGetCorners ( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+    DMDAGetCorners ( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
     Z_Top = Z_Start + Z_Count - 1;
 
     // Fundamental Properties
@@ -786,7 +786,7 @@ void GeometricLoopPressureSolver::initialisePressureProperties ( const double pr
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
     currentLayer = Layers.Current_Layer ();
 
-    DAGetCorners( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count);
+    DMDAGetCorners( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count);
 
     PETSC_3D_Array Solid_Thickness ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Solid_Thickness ));
 

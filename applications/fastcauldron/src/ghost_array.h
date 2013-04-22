@@ -7,7 +7,7 @@ using std::ostream;
 using std::endl;
 using std::setw;
 
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include "ElementVolumeGrid.h"
 
@@ -43,9 +43,9 @@ class PETSc_Local_2D_Array {
     return array2D [ I - m_localInfo.gxs ][ J - m_localInfo.gys ];
   }
 
-  void create ( const DA Global_DA ) {
+  void create ( const DM Global_DA ) {
     
-    DAGetLocalInfo ( Global_DA , &m_localInfo );
+    DMDAGetLocalInfo ( Global_DA , &m_localInfo );
 
     X_Size        = m_localInfo.gxm;
     Y_Size        = m_localInfo.gym;
@@ -137,7 +137,7 @@ class PETSc_Local_2D_Array {
 
  private:
 
-   DALocalInfo m_localInfo;
+   DMDALocalInfo m_localInfo;
 
   int X_Size;
   int Y_Size;
@@ -173,7 +173,7 @@ public:
    ~PETSc_Local_3D_Array ();
 
 
-   void create ( const DA Global_DA );
+   void create ( const DM Global_DA );
 
    void create ( const ElementVolumeGrid& grid );
 
@@ -203,7 +203,7 @@ public:
 
 private:
 
-   DALocalInfo m_localInfo;
+   DMDALocalInfo m_localInfo;
 
    Type*   array1D;
    Type**  array2D;
@@ -269,9 +269,9 @@ Type& PETSc_Local_3D_Array<Type>::operator()( const int I, const int J, const in
 }
 
 template <class Type>
-void PETSc_Local_3D_Array<Type>::create ( const DA Global_DA ) {
+void PETSc_Local_3D_Array<Type>::create ( const DM Global_DA ) {
     
-   DAGetLocalInfo ( Global_DA , &m_localInfo );
+   DMDAGetLocalInfo ( Global_DA , &m_localInfo );
 
    if ( array1D != 0 ) {
       delete [] array1D;

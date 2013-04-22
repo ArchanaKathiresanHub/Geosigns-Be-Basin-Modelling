@@ -37,7 +37,7 @@ public :
 
    LinearPropertyInterpolator ();
 
-   void compute ( DA                                             da,
+   void compute ( DM                                             da,
                   const Basin_Modelling::Fundamental_Property    propertyTointerpolate,
                   const double                                   startTime,
                   Basin_Modelling::Fundamental_Property_Manager& startProperties,
@@ -45,24 +45,24 @@ public :
                   Basin_Modelling::Fundamental_Property_Manager& endProperties );
 
    // Compute a constant interpolator
-   void compute ( DA                                             da,
+   void compute ( DM                                            da,
                   const Basin_Modelling::Fundamental_Property    propertyTointerpolate,
                   const double                                   time,
                   Basin_Modelling::Fundamental_Property_Manager& properties );
 
-   void compute ( DA                    da,
+   void compute ( DM                    da,
                   const double          startTime,
                   const PETSC_3D_Array& startProperty,
                   const double          endTime,
                   const PETSC_3D_Array& endProperty );
 
-   void compute ( DA                                  da,
+   void compute ( DM                                  da,
                   const double                        startTime,
                   const PETSc_Local_2D_Array<double>& startProperty,
                   const double                        endTime,
                   const PETSc_Local_2D_Array<double>& endProperty );
 
-   void initialise ( DA da );
+   void initialise ( DM da );
 
    /// Add constant interpolation at single location
    void compute ( const int i,

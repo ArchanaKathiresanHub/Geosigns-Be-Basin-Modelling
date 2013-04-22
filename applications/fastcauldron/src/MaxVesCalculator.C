@@ -36,9 +36,9 @@ bool MaxVesCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
    maxVesMap->retrieveData ();
    undefinedValue = maxVesMap->getUndefinedValue ();
 
-   DAVecGetArray( m_formation->layerDA,
-                  *m_formation->vectorList.VecArray [ MAXVES ],
-		  &maxVesVector );
+   DMDAVecGetArray( m_formation->layerDA,
+                    *m_formation->vectorList.VecArray [ MAXVES ],
+                    &maxVesVector );
 
    for ( i = maxVesMap->firstI (); i <= maxVesMap->lastI (); ++i ) {
 
@@ -57,9 +57,9 @@ bool MaxVesCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
 
    maxVesMap->restoreData ();
 
-   DAVecRestoreArray ( m_formation->layerDA,
-                       *m_formation->vectorList.VecArray [ MAXVES ],
-                       &maxVesVector );
+   DMDAVecRestoreArray ( m_formation->layerDA,
+                         *m_formation->vectorList.VecArray [ MAXVES ],
+                         &maxVesVector );
 
    m_isCalculated = true;
 

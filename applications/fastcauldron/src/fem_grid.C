@@ -16,7 +16,7 @@
 
 #include <petscksp.h>
 #include <petsc.h>
-#include <petscda.h>
+#include <petscdmda.h>
 
 //------------------------------------------------------------//
 
@@ -105,13 +105,13 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      pressureSolver = new GeometricLoopPressureSolver ( basinModel );
   }
 
-  DAGetInfo ( *basinModel -> mapDA, PETSC_NULL,
-              &Number_Of_X_Nodes, &Number_Of_Y_Nodes, PETSC_NULL,
-              &Number_Of_X_Processors, &Number_Of_Y_Processors,
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL);
+  DMDAGetInfo ( *basinModel -> mapDA, PETSC_NULL,
+                &Number_Of_X_Nodes, &Number_Of_Y_Nodes, PETSC_NULL,
+                &Number_Of_X_Processors, &Number_Of_Y_Processors,
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL);
 
-  DAGetCorners ( *basinModel -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
-                 &Local_Number_Of_X_Nodes, &Local_Number_Of_Y_Nodes, PETSC_NULL );
+  DMDAGetCorners ( *basinModel -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
+                   &Local_Number_Of_X_Nodes, &Local_Number_Of_Y_Nodes, PETSC_NULL );
 
   Include_Ghost_Values = true;
   Update_Ghost_Values  = true;
@@ -1755,9 +1755,9 @@ void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previ
   m_elementRefs.create ( m_domainElements.getDa ());
 #endif
 
-  DACreateGlobalVector ( Pressure_FEM_Grid, &Pressure_Depths );
-  DACreateGlobalVector ( Pressure_FEM_Grid, &Pressure_DOF_Numbers );
-  DACreateGlobalVector ( Pressure_FEM_Grid, &pressureNodeIncluded );
+  DMCreateGlobalVector ( Pressure_FEM_Grid, &Pressure_Depths );
+  DMCreateGlobalVector ( Pressure_FEM_Grid, &Pressure_DOF_Numbers );
+  DMCreateGlobalVector ( Pressure_FEM_Grid, &pressureNodeIncluded );
 
   // This is really to initialise the properties (perhaps create a separate function to do this)
   pressureSolver->initialisePressureProperties ( Previous_Time, Current_Time );
@@ -1826,8 +1826,8 @@ void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double   
 
   FastcauldronSimulator::DACreate3D ( Number_Of_Temperature_Z_Nodes, Temperature_FEM_Grid );
 
-  DACreateGlobalVector ( Temperature_FEM_Grid, &Temperature_Depths );
-  DACreateGlobalVector ( Temperature_FEM_Grid, &Temperature_DOF_Numbers );
+  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature_Depths );
+  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature_DOF_Numbers );
 
   Temperature_Calculator.setSurfaceTemperature ( basinModel, Current_Time );
   Set_Pressure_Dependent_Properties ( Current_Time );
@@ -2142,10 +2142,10 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
 #else
 //    MatCreate ( PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, Total_Number_Of_Pressure_Nodes, Total_Number_Of_Pressure_Nodes, &Jacobian );
-  DAGetMatrix ( Pressure_FEM_Grid,MATAIJ,&Jacobian );
+  DMCreateMatrix ( Pressure_FEM_Grid, MATAIJ, &Jacobian );
 #endif
 
-  DACreateGlobalVector ( Pressure_FEM_Grid, &Overpressure );
+  DMCreateGlobalVector ( Pressure_FEM_Grid, &Overpressure );
 
   VecDuplicate( Overpressure, &Residual );
   VecDuplicate( Overpressure, &Residual_Solution );
@@ -2564,12 +2564,10 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   //       					   temperatureStencilWidth );
 #else
 //    MatCreate ( PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, Total_Number_Of_Temperature_Nodes, Total_Number_Of_Temperature_Nodes, &Jacobian );
-  DAGetMatrix ( Temperature_FEM_Grid,MATAIJ,&Jacobian );
+  DMCreateMatrix ( Temperature_FEM_Grid, MATAIJ, &Jacobian );
 #endif
 
-
-
-  DACreateGlobalVector ( Temperature_FEM_Grid, &Temperature );
+  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature );
   VecDuplicate( Temperature, &Residual );
   VecDuplicate( Temperature, &Residual_Solution );
 
@@ -2817,14 +2815,14 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   //       					   temperatureStencilWidth );
 #else
 //    MatCreate ( PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, Total_Number_Of_Temperature_Nodes, Total_Number_Of_Temperature_Nodes, &Stiffness_Matrix );
-  DAGetMatrix ( Temperature_FEM_Grid,MATAIJ,&Stiffness_Matrix );
+  DMCreateMatrix ( Temperature_FEM_Grid, MATAIJ, &Stiffness_Matrix );
 #endif
 
   PetscGetTime(&matrixEndTime);
   matrixCreationTime = matrixEndTime - matrixStartTime;
 
   PetscGetTime(&dupStartTime);
-  DACreateGlobalVector ( Temperature_FEM_Grid, &Temperature );
+  DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature );
   VecDuplicate( Temperature, &Load_Vector );
   PetscGetTime(&dupEndTime);
   dupCreationTime = dupEndTime - dupStartTime;
@@ -3042,14 +3040,14 @@ void Basin_Modelling::FEM_Grid::Destroy_Vectors () {
   if ( basinModel -> DoTemperature || basinModel -> Do_Iteratively_Coupled ) {
      Destroy_Petsc_Vector ( Temperature_Depths );
      Destroy_Petsc_Vector ( Temperature_DOF_Numbers );
-     DADestroy ( Temperature_FEM_Grid );
+     DMDestroy ( Temperature_FEM_Grid );
   }
 
   if ( basinModel->DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
     Destroy_Petsc_Vector ( Pressure_Depths );
     Destroy_Petsc_Vector ( Pressure_DOF_Numbers );
     Destroy_Petsc_Vector ( pressureNodeIncluded );
-    DADestroy ( Pressure_FEM_Grid );
+    DMDestroy ( Pressure_FEM_Grid );
   }
 
 }
@@ -3091,7 +3089,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
   Layer_Iterator Layers;
   const CompoundLithology*  Current_Lithology;
 
-  DAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *basinModel->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
   const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
 
@@ -3109,7 +3107,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
   Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Temperature );
   Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Depth );
 
-  DAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   for ( I = X_Start; I < X_Start + X_Count; I++ ) {
 
@@ -3147,7 +3145,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
 
     PETSC_3D_Array Layer_Porosity        ( Current_Layer -> layerDA, Current_Layer -> Porosity );
     PETSC_3D_Array Layer_Heat_Production ( Current_Layer -> layerDA, Current_Layer -> BulkHeatProd );
-    DAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+    DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
     for ( I = X_Start; I < X_Start + X_Count; I++ ) {
 
@@ -3286,12 +3284,12 @@ void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const doub
 
      const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
-    DACreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
+    DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
 
     PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
 						   Current_Layer -> Computed_Deposition_Thickness );
 
-    DAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+    DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
     X_End = X_Start + X_Count;
     Y_End = Y_Start + Y_Count;
 
@@ -3520,7 +3518,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
   double Permeability_Plane_Compound;
   double fracturePressure;
 
-  DA  const* gridUsed;
+  DM  const* gridUsed;
   Vec const* dofNumbers;
 
   CompoundProperty Porosity;
@@ -3544,7 +3542,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
   }
 
   Pressure_Layers.Initialise_Iterator ( basinModel->layers, Descending, Basin_Bottom, Active_Layers_Only );
-  DAGetCorners ( *gridUsed, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( *gridUsed, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, &Z_Count );
 
   int  DOF_Position = Z_Count - 1;
   int  Number_Of_Segments;
@@ -3604,7 +3602,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
     DOF_Position = DOF_Position + 1;
 
     // Get the size of the layer DA.
-    DAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+    DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
     Current_Layer -> Current_Properties.Activate_Properties ();
 
     PetscBlockVector<Saturation> saturations;
