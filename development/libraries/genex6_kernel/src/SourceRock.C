@@ -52,6 +52,7 @@ using Interface::LithoType;
 #include "GenexResultManager.h"
 #include "ComponentManager.h"
 
+#include "NumericFunctions.h"
 
 #include "AdsorptionFunctionFactory.h"
 #include "AdsorptionSimulatorFactory.h"
@@ -1261,6 +1262,15 @@ bool SourceRock::process()
 
             previousTime = t;
             t -= dt;
+
+            // If t is very close to the snapshot time then set t to be the snapshot time.
+            // This is to eliminate the very small time-steps that can occur (O(1.0e-13)) 
+            // as the time-stepping approaches a snapshot time.
+            if ( NumericFunctions::inRange<double>( t, snapShotIntervalEndTime - Genex6::Constants::TimeStepFraction * dt,
+                                                       snapShotIntervalEndTime + Genex6::Constants::TimeStepFraction * dt )) {
+               t = snapShotIntervalEndTime;
+            }
+
          }
 
          //if t has passed Major snapshot time, compute snapshot and save results

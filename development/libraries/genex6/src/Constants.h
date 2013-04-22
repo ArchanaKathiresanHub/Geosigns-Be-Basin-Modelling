@@ -55,6 +55,12 @@ namespace Genex6
       const double s_DensMaxGas = 10.0;
       //const double s_OmaxHC  = 0.3;
 
+      /// \brief Fraction of time-step that is used to determine closeness to a snapshot.
+      ///
+      /// If the next time-step is close to a snapshot then take the snapshot time 
+      /// rather than perform another time-step with a possibly very small (O(1.0e-13)) time-step size.
+      const double TimeStepFraction = 0.001;
+
       const double s_TCabs=273.15; //Kelvin transformation, input in C //
 
       /// \brief Standard temperature conditions.
