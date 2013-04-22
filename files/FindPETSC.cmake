@@ -11,10 +11,10 @@ if(UNIX)
 		message(FATAL_ERROR "CBM_HOME is not defined")
 	endif()
 	set (HPC_HOME ${CBM_HOME}/hpc)
-	set (CSCE_FULL "LinuxRHEL64_x86_64_57WS")
+	set (CSCE_FULL "LinuxRHEL64_x86_64_58WS")
 
 	# PETSc definitions
-	set(PETSC_VERSION "3.1.8" CACHE STRING "PETSC Version")
+	set(PETSC_VERSION "3.3.6" CACHE STRING "PETSC Version")
 
 	set(PETSC_ARCH linux-gnu-intel)
 	set(PETSC_RELEASE_HOME ${HPC_HOME}/petsc/${PETSC_VERSION}/${CSCE_FULL})
