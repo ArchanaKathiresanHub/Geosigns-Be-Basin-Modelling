@@ -1162,7 +1162,7 @@ void LayerProps::reInitialise (){
    }
 
    if ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()) {
-      PetscTruth isValid;
+      PetscBool isValid;
      
       VecValid ( m_flowComponents, &isValid );
 
@@ -1978,7 +1978,7 @@ void LayerProps::setAllochthonousLithologyMap ( AppCtx*         basinModel,
 
 void LayerProps::deleteAllochthonousLithologyMap () {
 
-  PetscTruth validVector;
+  PetscBool validVector;
 
   VecValid ( allochthonousLithologyMap, &validVector );
 
@@ -1993,7 +1993,7 @@ void LayerProps::deleteAllochthonousLithologyMap () {
 
 void LayerProps::deleteFaultElementsMap () {
 
-  PetscTruth validVector;
+  PetscBool validVector;
 
   VecValid ( faultElements, &validVector );
 
@@ -2008,7 +2008,7 @@ void LayerProps::deleteFaultElementsMap () {
 
 void LayerProps::deleteErosionFactorMap () {
 
-  PetscTruth validVector;
+  PetscBool validVector;
 
   VecValid ( erosionFactor, &validVector );
 

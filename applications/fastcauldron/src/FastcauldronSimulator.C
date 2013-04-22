@@ -114,11 +114,11 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
 
    char* namedFormationScalingArray [ MaximumNumberOfFormationRefinementPairs ];
    PetscInt namedFormationCount = MaximumNumberOfFormationRefinementPairs;
-   PetscTruth namedFormationRangeInput = PETSC_FALSE;
+   PetscBool namedFormationRangeInput = PETSC_FALSE;
 
    int numberedFormationScalingArray [ MaximumNumberOfFormationRefinementPairs ];
    PetscInt numberedFormationCount = MaximumNumberOfFormationRefinementPairs;
-   PetscTruth numberedFormationRangeInput = PETSC_FALSE;
+   PetscBool numberedFormationRangeInput = PETSC_FALSE;
 
    // Array containing depth-refinement information for domain.
    int formationRefinement [ MaximumNumberOfFormations ];
@@ -1717,9 +1717,9 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
    // Should move all command line parameters from appctx to fastcauldron-simulator.
    m_cauldron->setAdditionalCommandLineParameters ();
 
-   PetscTruth fctScalingChanged;
+   PetscBool fctScalingChanged;
    double     fctScaling;
-   PetscTruth hasPrintCommandLine;
+   PetscBool hasPrintCommandLine;
 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
    PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
@@ -1741,11 +1741,11 @@ void FastcauldronSimulator::readCommandLineWells () {
 
    const int MaximumNumberOfPseudoWells = 200;
 
-   PetscTruth pseudoWellIndexInput = PETSC_FALSE;
+   PetscBool pseudoWellIndexInput = PETSC_FALSE;
    int pseudoWellIndices [ MaximumNumberOfPseudoWells ];
    int numberOfWellIndicesInput = MaximumNumberOfPseudoWells;
 
-   PetscTruth pseudoWellLocationInput = PETSC_FALSE;
+   PetscBool pseudoWellLocationInput = PETSC_FALSE;
    int pseudoWellLocations [ MaximumNumberOfPseudoWells ];
    int numberOfWellLocationsInput = MaximumNumberOfPseudoWells;
 
@@ -1827,28 +1827,28 @@ void FastcauldronSimulator::setBrineViscosities ( const Interface::ViscosityMode
 
 void FastcauldronSimulator::readRelPermCommandLineParameters () {
 
-   // PetscTruth relPermMethodDescribed = PETSC_FALSE;
+   // PetscBool relPermMethodDescribed = PETSC_FALSE;
    // char relPermMethodName [ MAXLINESIZE ];
 
-   PetscTruth minimumHcSaturationChanged;
+   PetscBool minimumHcSaturationChanged;
    double     minimumHcSaturation;
 
-   PetscTruth minimumWaterSaturationChanged;
+   PetscBool minimumWaterSaturationChanged;
    double     minimumWaterSaturation;
 
-   PetscTruth waterCurveExponentChanged;
+   PetscBool waterCurveExponentChanged;
    double     waterCurveExponent;
 
-   PetscTruth hcCurveExponentChanged;
+   PetscBool hcCurveExponentChanged;
    double     hcCurveExponent;
 
-   PetscTruth hcLiquidCurveExponentChanged;
+   PetscBool hcLiquidCurveExponentChanged;
    double     hcLiquidCurveExponent;
 
-   PetscTruth hcVapourCurveExponentChanged;
+   PetscBool hcVapourCurveExponentChanged;
    double     hcVapourCurveExponent;
 
-   PetscTruth useTemisPackViscosities;
+   PetscBool useTemisPackViscosities;
 
    // PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
    PetscOptionsGetReal   ( PETSC_NULL, "-minhcsat", &minimumHcSaturation, &minimumHcSaturationChanged );

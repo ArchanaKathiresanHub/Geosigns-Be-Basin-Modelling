@@ -54,7 +54,7 @@ string NumProcessorsArg;
 
 int rank = -1;
 int numProcessors = -1;
-PetscTruth debug = PETSC_FALSE;
+PetscBool debug = PETSC_FALSE;
 
 /** Fast Touch application: Touch stone 7.0 implementation calculating the
  * porosity of the rock based on the temperature and pressure history. */
@@ -74,7 +74,7 @@ int main (int argc, char ** argv)
     PetscOptionsHasName (PETSC_NULL, "-debug", &debug);
 
     char inputFileName[128];
-    PetscTruth inputFileSet;
+    PetscBool inputFileSet;
  
     PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, 128, &inputFileSet);
     if (!inputFileSet)
@@ -85,7 +85,7 @@ int main (int argc, char ** argv)
     }
  
     char outputFileName[128];
-    PetscTruth outputFileSet;
+    PetscBool outputFileSet;
  
     PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &outputFileSet);
     if (!outputFileSet)
@@ -93,7 +93,7 @@ int main (int argc, char ** argv)
         strcpy (outputFileName, inputFileName);
     }
  
-    PetscTruth ddd = PETSC_FALSE;
+    PetscBool ddd = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
     if (ddd)
     {
@@ -104,7 +104,7 @@ int main (int argc, char ** argv)
         sleep (10);
     }
 
-    PetscTruth myddd = PETSC_FALSE;
+    PetscBool myddd = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
     if (myddd)
     {
@@ -115,7 +115,7 @@ int main (int argc, char ** argv)
         sleep (10);
     }
     
-    PetscTruth gdb = PETSC_FALSE;
+    PetscBool gdb = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-gdb", &gdb);
     if (gdb)
     {

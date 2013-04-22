@@ -496,7 +496,7 @@ void PETSC_1D_Array::Restore_Global_Array ( const Update_Mode Update_Method )
 
 void Destroy_Petsc_Vector ( Vec& vector ) {
   
-  PetscTruth IsValid;
+  PetscBool IsValid;
 
   VecValid( vector, &IsValid );
 

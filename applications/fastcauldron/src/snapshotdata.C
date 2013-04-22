@@ -168,7 +168,7 @@ void SnapshotData::setMaximumNumberOfMinorSnapshots () {
 void SnapshotData::initialiseMinorSnapshotVector ( const bool usingDarcy ) {
 
 
-  PetscTruth foundMinorSnapshotCount;
+  PetscBool foundMinorSnapshotCount;
   SnapshotEntrySetIterator it;
   double snapshotIntervalStartTime;
   double snapshotIntervalEndTime;

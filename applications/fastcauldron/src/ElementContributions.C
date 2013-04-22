@@ -47,7 +47,7 @@ void getPreviousCoefficients ( const LayerElement&                         eleme
                                const Basin_Modelling::Fundamental_Property property,
                                      FiniteElementMethod::ElementVector&   coefficients ) {
 
-   PetscTruth isValid;
+   PetscBool isValid;
    int i;
 
    const LayerProps* layer = element.getFormation ();

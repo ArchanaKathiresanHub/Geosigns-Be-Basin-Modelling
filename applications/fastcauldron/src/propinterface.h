@@ -398,7 +398,7 @@ public:
    // Fine control over output
    //
    int Output_Level;
-   PetscTruth debug1, debug2, debug3;
+   PetscBool debug1, debug2, debug3;
 
    bool       Use_Geometric_Loop;
    bool       includeAdvectiveTerm;
@@ -416,31 +416,31 @@ public:
    bool saveOnDarcyError () const;
 
 
-   PetscTruth Do_Iteratively_Coupled;
-   PetscTruth Nonlinear_Temperature;
-   PetscTruth DoOverPressure;
-   PetscTruth DoDecompaction;
-   PetscTruth DoHighResDecompaction;
-   PetscTruth DoTemperature;
-   PetscTruth DoGempis;
-   PetscTruth DoHDFOutput;
-   PetscTruth doGenex;
-   PetscTruth m_doOutputAtAge;
+   PetscBool Do_Iteratively_Coupled;
+   PetscBool Nonlinear_Temperature;
+   PetscBool DoOverPressure;
+   PetscBool DoDecompaction;
+   PetscBool DoHighResDecompaction;
+   PetscBool DoTemperature;
+   PetscBool DoGempis;
+   PetscBool DoHDFOutput;
+   PetscBool doGenex;
+   PetscBool m_doOutputAtAge;
    double m_ageToOutput;
 	 
-   PetscTruth allowPressureJacobianReuse;
+   PetscBool allowPressureJacobianReuse;
    int        pressureJacobianReuseCount;
-   PetscTruth allowIluFillIncrease;
-   PetscTruth allowSolverChange;
+   PetscBool allowIluFillIncrease;
+   PetscBool allowSolverChange;
 
-   PetscTruth IsCalculationCoupled;
-   PetscTruth readFCTCorrectionFactor;
+   PetscBool IsCalculationCoupled;
+   PetscBool readFCTCorrectionFactor;
    OutputFormat fileOutput;
 
 
    // return true if bottomBoundaryCondition == ADVANCED_LITHOSPHERE_CALCULATOR
    bool isALC() const;
-   PetscTruth bottomBasaltTemp;
+   PetscBool bottomBasaltTemp;
 
    // ModelArea Grid_Window;
    bool useTemisRelPerm () const;
@@ -567,7 +567,7 @@ public:
    double m_elementHiatusFraction;
    double m_vesScaling;
 
-   PetscTruth m_useTemisRelPerm;
+   PetscBool m_useTemisRelPerm;
 
    int m_unitTestNumber;
 };

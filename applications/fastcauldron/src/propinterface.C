@@ -132,7 +132,7 @@ bool AppCtx::readProjectName () {
    char dirExtension[MAXLINESIZE];
    dirExtension[0] = '\0';
 
-   PetscTruth hasProject   = PETSC_FALSE; 
+   PetscBool hasProject   = PETSC_FALSE; 
 
 
    PetscOptionsGetString (PETSC_NULL, "-project", fname, MAXLINESIZE, 0);
@@ -263,9 +263,9 @@ bool AppCtx::readProjectFile () {
 void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
 {
 
-  PetscTruth Start_In_CVD      = PETSC_FALSE;
-  PetscTruth Start_In_WORKSHOP = PETSC_FALSE;
-  PetscTruth Start_In_DDD      = PETSC_FALSE;
+  PetscBool Start_In_CVD      = PETSC_FALSE;
+  PetscBool Start_In_WORKSHOP = PETSC_FALSE;
+  PetscBool Start_In_DDD      = PETSC_FALSE;
 
   string Debug_Command;
   string Process_Id = IntegerToString( GetProcPID() );
@@ -500,19 +500,19 @@ bool AppCtx::getCommandLineOptions() {
 
   char Output_Level_Str [MAXLINESIZE];
 
-  PetscTruth Use_Non_Geometric_Loop = PETSC_FALSE;
+  PetscBool Use_Non_Geometric_Loop = PETSC_FALSE;
 
-  PetscTruth ShowHelp   = PETSC_FALSE; 
-  PetscTruth MapType    = PETSC_FALSE; 
-  PetscTruth VolumeType = PETSC_FALSE;
-  PetscTruth Dummy      = PETSC_FALSE;
-  PetscTruth outputNotRequired = PETSC_FALSE;
-  PetscTruth outputAgeChanged = PETSC_FALSE;
-  PetscTruth bbtemp = PETSC_FALSE;
-  PetscTruth Found;
+  PetscBool ShowHelp   = PETSC_FALSE; 
+  PetscBool MapType    = PETSC_FALSE; 
+  PetscBool VolumeType = PETSC_FALSE;
+  PetscBool Dummy      = PETSC_FALSE;
+  PetscBool outputNotRequired = PETSC_FALSE;
+  PetscBool outputAgeChanged = PETSC_FALSE;
+  PetscBool bbtemp = PETSC_FALSE;
+  PetscBool Found;
   double outputAge;
-  PetscTruth unitTestRequired;
-  PetscTruth saveResultsIfDarcyError = PETSC_FALSE;
+  PetscBool unitTestRequired;
+  PetscBool saveResultsIfDarcyError = PETSC_FALSE;
   int ierr;
 
 
@@ -563,7 +563,7 @@ bool AppCtx::getCommandLineOptions() {
      m_ageToOutput = outputAge;
   }
 
-  bottomBasaltTemp = PetscTruth ( bbtemp );
+  bottomBasaltTemp = PetscBool ( bbtemp );
   if( bottomBasaltTemp ) {
      PetscPrintf ( PETSC_COMM_WORLD, "Turning on basalt temperature in the lower elements only!" );
   }
@@ -592,7 +592,7 @@ bool AppCtx::getCommandLineOptions() {
 //   threeDoutputNotRequired = not threeDoutputNotRequired;
 //   twoDoutputNotRequired   = not twoDoutputNotRequired;
 
-  DoHDFOutput = PetscTruth ( ! outputNotRequired );
+  DoHDFOutput = PetscBool ( ! outputNotRequired );
 
   if ( DoDecompaction )
   {
@@ -696,62 +696,62 @@ bool AppCtx::getCommandLineOptions() {
 
 void AppCtx::setAdditionalCommandLineParameters () {
 
-   PetscTruth pressurePlaneDegreeChanged;
+   PetscBool pressurePlaneDegreeChanged;
    int        pressurePlaneDegree;
 
-   PetscTruth pressureDepthDegreeChanged;
+   PetscBool pressureDepthDegreeChanged;
    int        pressureDepthDegree;
 
-   PetscTruth temperaturePlaneDegreeChanged;
+   PetscBool temperaturePlaneDegreeChanged;
    int        temperaturePlaneDegree;
 
-   PetscTruth temperatureDepthDegreeChanged;
+   PetscBool temperatureDepthDegreeChanged;
    int        temperatureDepthDegree;
 
-   PetscTruth newtonToleranceChanged;
+   PetscBool newtonToleranceChanged;
    double     newtonTolerance;
 
-   PetscTruth newtonIterationsChanged;
+   PetscBool newtonIterationsChanged;
    int        newtonIterations;
 
-   PetscTruth fractureModelChanged;
+   PetscBool fractureModelChanged;
    int        fractureModel;
 
-   PetscTruth iterationsForIluFillLevelUpdateChanged;
+   PetscBool iterationsForIluFillLevelUpdateChanged;
    int        iterationsForIluFillLevelUpdate;
 
-   PetscTruth minimumTimeStepChanged;
+   PetscBool minimumTimeStepChanged;
    double newMinimumTimeStep;
 
-   PetscTruth maximumTimeStepChanged;
+   PetscBool maximumTimeStepChanged;
    double newMaximumTimeStep;
 
-   PetscTruth fixedTimeStepChanged;
+   PetscBool fixedTimeStepChanged;
    double newFixedTimeStep;
 
-   PetscTruth petscBurialRateTimeStepping = PETSC_FALSE;
-   PetscTruth petscCflTimeStepping = PETSC_FALSE;
-   PetscTruth petscLatentHeat = PETSC_TRUE;
+   PetscBool petscBurialRateTimeStepping = PETSC_FALSE;
+   PetscBool petscCflTimeStepping = PETSC_FALSE;
+   PetscBool petscLatentHeat = PETSC_TRUE;
 
-   PetscTruth petscBurialRateFraction = PETSC_FALSE;
+   PetscBool petscBurialRateFraction = PETSC_FALSE;
    double elementFraction;
 
-   PetscTruth petscErosionRateFraction = PETSC_FALSE;
+   PetscBool petscErosionRateFraction = PETSC_FALSE;
    double elementErosionFraction;
 
-   PetscTruth vesScaleChanged = PETSC_FALSE;
+   PetscBool vesScaleChanged = PETSC_FALSE;
    double vesScale;
 
-   PetscTruth hasLateralStressFile = PETSC_FALSE;
+   PetscBool hasLateralStressFile = PETSC_FALSE;
    char lateralStressFileName [ MAXLINESIZE ];
 
-   PetscTruth relPermMethodDescribed = PETSC_FALSE;
+   PetscBool relPermMethodDescribed = PETSC_FALSE;
    char relPermMethodName [ MAXLINESIZE ];
 
-   PetscTruth crustThinningModelChanged = PETSC_FALSE;
+   PetscBool crustThinningModelChanged = PETSC_FALSE;
    int        crustThinningModel;
 
-   PetscTruth mantleElementScalingChanged = PETSC_FALSE;
+   PetscBool mantleElementScalingChanged = PETSC_FALSE;
    double     mantleElementScaling;
 
  
@@ -3178,7 +3178,7 @@ void AppCtx::Retrieve_Lithology_ID ()
 
 void AppCtx::deleteLithologyIDs () {
 
-  PetscTruth validVector;
+  PetscBool validVector;
   LayerProps_Ptr currentLayer;
   Layer_Iterator Layers;
 

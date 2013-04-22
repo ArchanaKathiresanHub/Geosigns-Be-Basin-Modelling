@@ -155,7 +155,7 @@ void savePropertiesOnSegmentNodes1D( AppCtx*              basinModel,
 
          //loop over all (segment-)nodes in layer
          
-         PetscTruth validVector;
+         PetscBool validVector;
 
          VecValid ( *currentLayer -> vectorList.VecArray[ *iProp ], &validVector );
 

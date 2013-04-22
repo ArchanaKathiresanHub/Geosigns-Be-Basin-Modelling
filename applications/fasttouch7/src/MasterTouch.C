@@ -23,7 +23,7 @@ using namespace std;
 extern int rank;
 extern int numProcessors;
 
-extern PetscTruth debug;
+extern PetscBool debug;
 
 void InitializeTimeComplete ();
 bool ReportTimeToComplete (int stepCompleted, int totalNumberOfSteps, int & afterSeconds, double &reportAfterFractionCompleted);

@@ -176,7 +176,7 @@ void History::Save_Property ( const string &   property_name,
   double       Property_Value = 0.0;
   
   if ( Current_Vector != Null ) {
-    PetscTruth validVector;
+    PetscBool validVector;
 
     VecValid ( *Current_Vector, &validVector );
 

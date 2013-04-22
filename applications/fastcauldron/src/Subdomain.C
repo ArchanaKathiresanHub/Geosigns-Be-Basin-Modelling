@@ -374,7 +374,7 @@ void Subdomain::resizeGrids ( const int elementCount,
 
    unsigned int i;
    bool resizeDofVector = getNodeGrid ( 1 ).getNumberOfZNodes () != nodeCount;
-   PetscTruth isValid;
+   PetscBool isValid;
 
    for ( i = 0; i < m_elementVolumeGrids.size (); ++i ) {
 

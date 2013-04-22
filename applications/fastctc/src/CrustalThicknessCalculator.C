@@ -634,7 +634,7 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aMap) {
 //------------------------------------------------------------//
 bool CrustalThicknessCalculator::parseCommandLine() {
 
-   PetscTruth isDefined = PETSC_FALSE;
+   PetscBool isDefined = PETSC_FALSE;
    
    PetscOptionsHasName (PETSC_NULL, "-xyz", &isDefined);
    if (isDefined) {

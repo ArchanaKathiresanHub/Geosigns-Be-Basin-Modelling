@@ -172,7 +172,7 @@ PETSC_3D_Array* Well::getPropertyVector ( DA  layerDA,
   const bool IncludeGhosts = true;
   PETSC_3D_Array* array;
 
-  PetscTruth validVector;
+  PetscBool validVector;
 
   VecValid ( propertyVector, &validVector );
 

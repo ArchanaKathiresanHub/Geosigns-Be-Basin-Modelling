@@ -1739,7 +1739,7 @@ void Temperature_Solver::deleteSmectiteIlliteVector ()
    using namespace Basin_Modelling;
 
    Layer_Iterator Layers;
-   PetscTruth     validVector;
+   PetscBool     validVector;
 
    Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
@@ -1822,7 +1822,7 @@ void Temperature_Solver::deleteBiomarkersVectors ( )
    using namespace Basin_Modelling;
 
    Layer_Iterator Layers;
-   PetscTruth     validVector;
+   PetscBool     validVector;
 
    Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
@@ -1864,7 +1864,7 @@ void Temperature_Solver::deleteVReVectors ( AppCtx* basinModel ) {
   using namespace Basin_Modelling;
 
   Layer_Iterator Layers;
-  PetscTruth     validVector;
+  PetscBool     validVector;
 
   Layers.Initialise_Iterator ( basinModel -> layers, Descending, Source_Rocks_Only, 
                                Active_Layers_Only );

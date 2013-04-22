@@ -576,7 +576,7 @@ void Basin_Modelling::deleteBulkDensityVectors ( AppCtx* Basin_Model ) {
     return;
   }
 
-  PetscTruth     validVector;
+  PetscBool     validVector;
   Layer_Iterator Layers;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
@@ -689,7 +689,7 @@ void Basin_Modelling::deleteVelocityVectors ( AppCtx* Basin_Model ) {
   }
 
   Layer_Iterator Layers;
-  PetscTruth     validVector;
+  PetscBool     validVector;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
@@ -811,7 +811,7 @@ void Basin_Modelling::deleteReflectivityVectors ( AppCtx* Basin_Model ) {
   }
 
   Layer_Iterator Layers;
-  PetscTruth     validVector;
+  PetscBool     validVector;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
@@ -903,7 +903,7 @@ void Basin_Modelling::deleteSonicVectors ( AppCtx* Basin_Model ) {
   }
 
   Layer_Iterator Layers;
-  PetscTruth     validVector;
+  PetscBool     validVector;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
@@ -1022,7 +1022,7 @@ void Basin_Modelling::deleteThermalConductivityVectors ( AppCtx* Basin_Model ) {
   }
 
   Layer_Iterator Layers;
-  PetscTruth     validVector;
+  PetscBool     validVector;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
@@ -1154,7 +1154,7 @@ void Basin_Modelling::deleteDiffusivityVectors ( AppCtx* Basin_Model ) {
   }
 
   Layer_Iterator Layers;
-  PetscTruth     validVector;
+  PetscBool     validVector;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
@@ -1250,7 +1250,7 @@ void Basin_Modelling::deleteThicknessVectors ( AppCtx* Basin_Model ) {
   }
 
   Layer_Iterator Layers;
-  PetscTruth     validVector;
+  PetscBool     validVector;
 
   Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
@@ -1379,7 +1379,7 @@ void Basin_Modelling::computePermeabilityVectors ( AppCtx*        Basin_Model ) 
 //    }
 
 //    Layer_Iterator Layers;
-//    PetscTruth     validVector;
+//    PetscBool     validVector;
 
 //    Layers.Initialise_Iterator ( Basin_Model->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
@@ -1589,7 +1589,7 @@ void Basin_Modelling::deleteFaultElementMaps ( AppCtx* basinModel ) {
 
 
 //    Layer_Iterator Layers;
-//    PetscTruth     validVector;
+//    PetscBool     validVector;
 
 //    Layers.Initialise_Iterator ( basinModel->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
