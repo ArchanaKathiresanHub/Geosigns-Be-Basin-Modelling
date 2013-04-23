@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "petscvec.h"
-#include "petscda.h"
+#include "petsc.h"
 
 #ifdef sgi
    #ifdef _STANDARD_C_PLUS_PLUS

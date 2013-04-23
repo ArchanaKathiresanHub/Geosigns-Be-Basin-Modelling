@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "petscvec.h"
-#include "petscda.h"
+#include "petsc.h"
 
 #include <iostream>
 #include <sstream>

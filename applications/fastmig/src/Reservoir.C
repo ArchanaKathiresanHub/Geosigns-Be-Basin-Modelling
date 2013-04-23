@@ -26,7 +26,7 @@
 #include "CBMGenerics/src/consts.h"
 
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include <vector>
 #include <unistd.h>
