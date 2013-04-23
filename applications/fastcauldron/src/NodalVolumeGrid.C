@@ -42,7 +42,7 @@ void NodalVolumeGrid::construct ( const NodalGrid& grid,
    if ( isInitialised ()) {
       delete [] m_xPartitioning;
       delete [] m_yPartitioning;
-      DMDestroy ( m_localInfo.da );
+      DMDestroy ( &m_localInfo.da );
    }
 
    m_numberOfXProcessors = grid.getNumberOfXProcessors ();
@@ -88,7 +88,7 @@ void NodalVolumeGrid::resizeInZDirection ( const int numberOfZNodes ) {
    } else {
       DM volumeDa;
 
-      DMDestroy ( m_localInfo.da );
+      DMDestroy ( &m_localInfo.da );
 
       DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                      getNumberOfXNodes (),

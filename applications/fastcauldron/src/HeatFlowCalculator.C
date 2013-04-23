@@ -107,7 +107,7 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
    DMDAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
                 PETSC_NULL, &globalXNodes, &globalYNodes,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
    
    if ( not m_depth->isCalculated ()) {
 
@@ -518,7 +518,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
                 PETSC_NULL,
                 &globalXNodes, &globalYNodes, &zCount,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
    if ( not m_depth->isCalculated ()) {
 

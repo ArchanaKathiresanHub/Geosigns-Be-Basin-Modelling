@@ -701,12 +701,12 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    // 'Deactivate' all those properties that we not already 'activated'.
    deactivateProperties ( subdomain, currentAlreadyActivatedProperties, previousAlreadyActivatedProperties );
 
-   VecDestroy ( subdomainPermeabilityNVec );
-   VecDestroy ( subdomainPermeabilityHVec );
-   VecDestroy ( subdomainVapourPressureVec );
-   VecDestroy ( subdomainLiquidPressureVec );
-   VecDestroy ( elementGasFluxTermsVec );
-   VecDestroy ( elementOilFluxTermsVec );
+   VecDestroy ( &subdomainPermeabilityNVec );
+   VecDestroy ( &subdomainPermeabilityHVec );
+   VecDestroy ( &subdomainVapourPressureVec );
+   VecDestroy ( &subdomainLiquidPressureVec );
+   VecDestroy ( &elementGasFluxTermsVec );
+   VecDestroy ( &elementOilFluxTermsVec );
 
    totalIntervalTime += WallTime::clock () - totalStart;
 
@@ -3678,8 +3678,8 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
    averagedSaturations.restoreVector ( NO_UPDATE );
    divisor.restoreVector ( NO_UPDATE );
 
-   VecDestroy ( averagedSaturationsVec );
-   VecDestroy ( divisorVec );
+   VecDestroy ( &averagedSaturationsVec );
+   VecDestroy ( &divisorVec );
 
 }
 

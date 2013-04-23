@@ -21,7 +21,7 @@ double getPropValOfFirstNodeOnSurface(DM a_DA,
   int size[3] = {0, 0, 0};
   DMDAGetInfo(a_DA, PETSC_IGNORE,&size[0],&size[1],&size[2], 
               PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE, 
-              PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+              PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
   
   double returnValue = CAULDRONIBSNULLVALUE;
 
@@ -256,7 +256,7 @@ void getPropValsOfFirstColumnInLayer(DM a_DA,
   int size[3] = {0, 0, 0};
   DMDAGetInfo(a_DA, PETSC_IGNORE,&size[0],&size[1],&size[2], 
 	    PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE, 
-	    PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
+	    PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
 
  
   //each process gets its first node (but only rank0 process writes the project-file)

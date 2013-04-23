@@ -359,7 +359,7 @@ void LayerProps::initialise () {
       preFractureScaling.create ( FCT_DA );
       preFractureScaling.fill ( 0.0 );
 
-      DMDestroy( FCT_DA );
+      DMDestroy( &FCT_DA );
 
       // Add scalar volume-grid.
       createVolumeGrid ( 1 );
@@ -525,7 +525,7 @@ LayerProps::~LayerProps(){
      delete m_genexData;
   }
 
-  if ( layerDA != NULL )  DMDestroy(layerDA);
+  if ( layerDA != NULL )  DMDestroy(&layerDA);
 
   Destroy_Petsc_Vector ( Present_Day_VRE );
 
@@ -780,10 +780,10 @@ bool LayerProps::createVec(Vec& propertyVector){
   return true;
 }
 
-bool LayerProps::destroyDA(DA& propertyDA){
+bool LayerProps::destroyDA(DM& propertyDA){
 
   IBSASSERT(NULL != propertyDA);
-  int ierr = DMDestroy( propertyDA );
+  int ierr = DMDestroy( &propertyDA );
   CHKERRQ(ierr);
   propertyDA = NULL;
 
@@ -921,7 +921,7 @@ void LayerProps::Create_FC_Thickness_Polyfunction ( const DM& Map_DA ) {
     preFractureScaling.create ( FCT_DA );
     preFractureScaling.fill ( 0.0 );
 
-    DMDestroy( FCT_DA );
+    DMDestroy( &FCT_DA );
 
   }
 
@@ -1101,7 +1101,7 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
 void LayerProps::reInitialise (){
 
    if ( layerDA != NULL ) {
-      DMDestroy(layerDA);
+      DMDestroy( &layerDA );
       layerDA = NULL;
    }
 
@@ -1636,7 +1636,7 @@ void LayerProps::SetIncludedNodeArray ( const Boolean2DArray& Valid_Needle ) {
 
   }
 
-  VecDestroy ( includedNodeVec );
+  VecDestroy ( &includedNodeVec );
 
 }
 
@@ -1982,7 +1982,7 @@ void LayerProps::deleteAllochthonousLithologyMap () {
   VecValid ( allochthonousLithologyMap, &validVector );
 
   if ( validVector ) {
-    VecDestroy ( allochthonousLithologyMap );
+    VecDestroy ( &allochthonousLithologyMap );
     allochthonousLithologyMap = Vec ( 0 );
   }
 
@@ -1992,12 +1992,12 @@ void LayerProps::deleteAllochthonousLithologyMap () {
 
 void LayerProps::deleteFaultElementsMap () {
 
-  PetscBool validVector;
+   PetscBool validVector ( faultElements != 0 ? PETSC_TRUE : PETSC_FALSE );
 
-  VecValid ( faultElements, &validVector );
-
+  // VecValid ( faultElements, &validVector );
+  
   if ( validVector ) {
-    VecDestroy ( faultElements );
+    VecDestroy ( &faultElements );
     faultElements = Vec ( 0 );
   }
 
@@ -2007,12 +2007,12 @@ void LayerProps::deleteFaultElementsMap () {
 
 void LayerProps::deleteErosionFactorMap () {
 
-  PetscBool validVector;
+  PetscBool validVector ( erosionFactor != 0 ? PETSC_TRUE : PETSC_FALSE );
 
-  VecValid ( erosionFactor, &validVector );
+  // VecValid ( erosionFactor, &validVector );
 
   if ( validVector ) {
-    VecDestroy ( erosionFactor );
+    VecDestroy ( &erosionFactor );
     erosionFactor = Vec ( 0 );
   }
 
@@ -2086,7 +2086,7 @@ void LayerProps::setSnapshotInterval ( const SnapshotInterval& interval,
 
 void LayerProps::interpolateProperty ( AppCtx*               basinModel,
                                        const double          currentTime,
-                                       DA                    propertyDA,
+                                       DM                    propertyDA,
                                        SnapshotInterpolator& interpolator,
                                        Vec                   propertyVector ) {
 
@@ -2220,7 +2220,7 @@ void LayerProps::Determine_CFL_Value ( AppCtx* Basin_Model,
 
   Element_Positions Positions;
 
-  DMDAGetInfo( layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
+  DMDAGetInfo( layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0,0,0);
   DMDAGetCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   Current_Properties.Activate_Properties  ( INSERT_VALUES, Include_Ghost_Values );

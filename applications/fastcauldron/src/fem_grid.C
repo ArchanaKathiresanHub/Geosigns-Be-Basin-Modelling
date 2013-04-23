@@ -108,7 +108,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   DMDAGetInfo ( *basinModel -> mapDA, PETSC_NULL,
                 &Number_Of_X_Nodes, &Number_Of_Y_Nodes, PETSC_NULL,
                 &Number_Of_X_Processors, &Number_Of_Y_Processors,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL);
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL);
 
   DMDAGetCorners ( *basinModel -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
                    &Local_Number_Of_X_Nodes, &Local_Number_Of_Y_Nodes, PETSC_NULL );
@@ -2442,12 +2442,12 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
     system( "fastcauldron_PostNLsolve" );
   }
 
-  KSPDestroy ( Pressure_Linear_Solver );
+  KSPDestroy ( &Pressure_Linear_Solver );
 
-  VecDestroy  ( Residual );
-  VecDestroy  ( Overpressure );
-  VecDestroy  ( Residual_Solution );
-  MatDestroy  ( Jacobian );
+  VecDestroy  ( &Residual );
+  VecDestroy  ( &Overpressure );
+  VecDestroy  ( &Residual_Solution );
+  MatDestroy  ( &Jacobian );
 
   cout.precision ( Old_Precision );
   cout.flags     ( Old_Flags );
@@ -2722,12 +2722,12 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
 
   StatisticsHandler::update ();
 
-  KSPDestroy ( Temperature_Linear_Solver );
+  KSPDestroy ( &Temperature_Linear_Solver );
 
-  VecDestroy  ( Residual );
-  VecDestroy  ( Temperature );
-  VecDestroy  ( Residual_Solution );
-  MatDestroy  ( Jacobian );
+  VecDestroy  ( &Residual );
+  VecDestroy  ( &Temperature );
+  VecDestroy  ( &Residual_Solution );
+  MatDestroy  ( &Jacobian );
 
   PetscLogStages :: pop();
 }
@@ -2885,7 +2885,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
 
   StatisticsHandler::update ();
 
-  KSPDestroy ( Temperature_Linear_Solver );
+  KSPDestroy ( &Temperature_Linear_Solver );
 
 
   PetscGetTime(&Iteration_End_Time);
@@ -2906,9 +2906,9 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
          << endl;
   }
 
-  VecDestroy  ( Load_Vector );
-  VecDestroy  ( Temperature );
-  MatDestroy  ( Stiffness_Matrix );
+  VecDestroy  ( &Load_Vector );
+  VecDestroy  ( &Temperature );
+  MatDestroy  ( &Stiffness_Matrix );
 
 
   System_Assembly_Time = System_Assembly_Time + Total_System_Assembly_Time;
@@ -3040,14 +3040,14 @@ void Basin_Modelling::FEM_Grid::Destroy_Vectors () {
   if ( basinModel -> DoTemperature || basinModel -> Do_Iteratively_Coupled ) {
      Destroy_Petsc_Vector ( Temperature_Depths );
      Destroy_Petsc_Vector ( Temperature_DOF_Numbers );
-     DMDestroy ( Temperature_FEM_Grid );
+     DMDestroy ( &Temperature_FEM_Grid );
   }
 
   if ( basinModel->DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
     Destroy_Petsc_Vector ( Pressure_Depths );
     Destroy_Petsc_Vector ( Pressure_DOF_Numbers );
     Destroy_Petsc_Vector ( pressureNodeIncluded );
-    DMDestroy ( Pressure_FEM_Grid );
+    DMDestroy ( &Pressure_FEM_Grid );
   }
 
 }

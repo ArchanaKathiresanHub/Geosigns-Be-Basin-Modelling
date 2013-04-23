@@ -527,7 +527,11 @@ void Destroy_Petsc_Vector ( Vec& vector ) {
 } // end Destroy_Petsc_Vector 
 
 //------------------------------------------------------------//
+void VecValid( Vec& vector, PetscBool * isValid ) {
+   
+   * isValid = ( vector != 0 ? PETSC_TRUE : PETSC_FALSE );
 
+}
 //------------------------------------------------------------//
 
 // void View_Petsc_Vector ( Vec& vector ) {

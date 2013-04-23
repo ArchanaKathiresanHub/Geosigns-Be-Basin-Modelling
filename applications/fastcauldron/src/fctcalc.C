@@ -210,7 +210,7 @@ bool FCTCalc::getGrid ( const double                    currentTime,
 
     DMDAGetInfo(*cauldron->mapDA, PETSC_NULL,
                 &M, &N, &P, &m, &n, &p,
-                PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+                PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
 
     status &= Current_Layer -> allocateNewVecs ( cauldron );
 

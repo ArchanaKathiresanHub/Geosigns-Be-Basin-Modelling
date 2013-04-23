@@ -176,9 +176,9 @@ void History::Save_Property ( const string &   property_name,
   double       Property_Value = 0.0;
   
   if ( Current_Vector != Null ) {
-    PetscBool validVector;
+     PetscBool validVector;
 
-    VecValid ( *Current_Vector, &validVector );
+     VecValid ( *Current_Vector, &validVector );
 
     if ( validVector && appctx->timefilter.propertyIsSelected ( propertyId )) {
       PETSC_3D_Array buffer( layer -> layerDA, *Current_Vector, INSERT_VALUES, IncludeGhosts );

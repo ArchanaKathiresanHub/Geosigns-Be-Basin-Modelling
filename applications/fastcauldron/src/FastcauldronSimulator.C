@@ -377,7 +377,7 @@ void FastcauldronSimulator::initialiseElementGrid ( const bool printElementValid
    }
 
    activeElements.Restore_Global_Array ( No_Update );
-   VecDestroy ( activeElementsVec );
+   VecDestroy ( &activeElementsVec );
 
    // Finally determine whether the elemenmt boundaries lie on the active domain boundary.
    //

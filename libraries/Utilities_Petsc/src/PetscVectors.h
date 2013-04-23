@@ -249,7 +249,7 @@ private :
 
 void Destroy_Petsc_Vector ( Vec& vector );
 void View_Petsc_Vector ( Vec& vector );
-
+void VecValid( Vec& vector, PetscBool *isValid );
 //============================================================//
 
 

@@ -789,7 +789,7 @@ void MatrixUnitTest::solveForTimeStep ( const double                      startT
          PetscViewer viewer;
          PetscViewerSetFormat(PETSC_VIEWER_STDOUT_WORLD, PETSC_VIEWER_ASCII_MATLAB );
          PetscViewerCreate ( PETSC_COMM_WORLD, &viewer);
-         PetscViewerSetType(viewer, PETSC_VIEWER_ASCII );
+         PetscViewerSetType(viewer, PETSCVIEWERASCII );
          PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB );
 
          // if ( startTime < 1 or endTime < 1 ) {
@@ -803,7 +803,7 @@ void MatrixUnitTest::solveForTimeStep ( const double                      startT
 
          VecView ( rhsVec, viewer );
          MatView ( mat, viewer );
-         PetscViewerDestroy ( viewer );
+         PetscViewerDestroy ( &viewer );
       }
 #endif
 
@@ -876,9 +876,9 @@ void MatrixUnitTest::solveForTimeStep ( const double                      startT
       rhs.setVector ( grid, solutionVec, INSERT_VALUES );
 
 
-      VecDestroy ( rhsVec );
-      VecDestroy ( solutionVec );
-      MatDestroy ( mat );
+      VecDestroy ( &rhsVec );
+      VecDestroy ( &solutionVec );
+      MatDestroy ( &mat );
 
 #if 0
       if ( FastcauldronSimulator::getInstance ().getRank () == 0 ) {
@@ -964,7 +964,7 @@ void MatrixUnitTest::solveForTimeStep ( const double startTime,
          PetscViewer viewer;
          PetscViewerSetFormat(PETSC_VIEWER_STDOUT_WORLD, PETSC_VIEWER_ASCII_MATLAB );
          PetscViewerCreate ( PETSC_COMM_WORLD, &viewer);
-         PetscViewerSetType(viewer, PETSC_VIEWER_ASCII );
+         PetscViewerSetType(viewer, PETSCVIEWERASCII );
          PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB );
 
          // if ( startTime < 1 or endTime < 1 ) {
@@ -980,7 +980,7 @@ void MatrixUnitTest::solveForTimeStep ( const double startTime,
 
          VecView ( rhsVec, viewer );
          MatView ( mat, viewer );
-         PetscViewerDestroy ( viewer );
+         PetscViewerDestroy ( &viewer );
       }
 #endif
 
@@ -1021,9 +1021,9 @@ void MatrixUnitTest::solveForTimeStep ( const double startTime,
 
       rhs.setVector ( grid, solutionVec, INSERT_VALUES );
 
-      VecDestroy ( rhsVec );
-      VecDestroy ( solutionVec );
-      MatDestroy ( mat );
+      VecDestroy ( &rhsVec );
+      VecDestroy ( &solutionVec );
+      MatDestroy ( &mat );
 
       exit ( 1 );
    }

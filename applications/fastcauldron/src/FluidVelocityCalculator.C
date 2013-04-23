@@ -96,7 +96,7 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
    DMDAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
                 PETSC_NULL, &globalXNodes, &globalYNodes,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
    if ( not m_depth->isCalculated ()) {
 
@@ -428,7 +428,7 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
                 PETSC_NULL,
                 &globalXNodes, &globalYNodes, &zCount,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
    
    if ( not m_depth->isCalculated ()) {
 
