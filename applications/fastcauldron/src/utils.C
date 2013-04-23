@@ -7,7 +7,6 @@
 
 using namespace std;
 
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -721,7 +720,9 @@ void monitorProcessMemorySize() {
 
   double LocalSize = GetResidentSetSize(); //Mbytes
   double TotalSize;
-  PetscGlobalSum(&LocalSize,&TotalSize,PETSC_COMM_WORLD);
+  // PetscGlobalSum(&LocalSize,&TotalSize,PETSC_COMM_WORLD);
+
+  MPI_Allreduce( &LocalSize, &TotalSize, 1, MPIU_SCALAR, MPIU_SUM, PETSC_COMM_WORLD);
 
   PetscPrintf(PETSC_COMM_WORLD,"  ~~Process Memory~~\n");
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"    [%d] %f\n",PetscGlobalRank,LocalSize);

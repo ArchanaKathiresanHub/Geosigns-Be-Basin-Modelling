@@ -345,7 +345,9 @@ void Subdomain::numberNodeDofs ( const double age ) {
    double globalStencilWidth;
    double localStencilWidth = static_cast<double>( maximumDegenerateSegments );
 
-   PetscGlobalMax ( &localStencilWidth, &globalStencilWidth, PETSC_COMM_WORLD );
+   // PetscGlobalMax ( &localStencilWidth, &globalStencilWidth, PETSC_COMM_WORLD );
+   MPI_Allreduce( &localStencilWidth, &globalStencilWidth, 1, MPIU_REAL, MPI_MAX, PETSC_COMM_WORLD);
+  
    m_stencilWidth = static_cast<int>(globalStencilWidth);
 
    if (( fc.getCauldron ()->debug1 ) and ( fc.getRank () == 0 )) {
@@ -398,7 +400,7 @@ void Subdomain::resizeGrids ( const int elementCount,
    if ( nodeCount > 1 and ( resizeDofVector or not isValid )) {
 
       if ( isValid ) {
-         VecDestroy ( m_scalarDofNumbers );
+         VecDestroy ( &m_scalarDofNumbers );
       }
 
       DMCreateGlobalVector ( m_nodalGrids [ 0 ]->getDa (), &m_scalarDofNumbers );

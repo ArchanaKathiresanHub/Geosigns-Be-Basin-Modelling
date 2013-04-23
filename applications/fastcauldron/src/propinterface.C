@@ -1238,7 +1238,7 @@ bool AppCtx::openProject ()
 
    if (database == 0)
    {
-      SETERRQ (0, "unable to open project file\n");
+      SETERRQ (PETSC_COMM_SELF, 0, "unable to open project file\n");
       return false;
    }
 
@@ -4258,7 +4258,7 @@ void AppCtx::setUp2dEltMapping()
    int xs,ys,xm,ym,xdim,ydim;
 
    DMDAGetInfo(*mapDA,PETSC_NULL,&xdim,&ydim,PETSC_NULL,PETSC_NULL,
-               PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+               PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
    DMDAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);
 
    int i, j;
@@ -4468,7 +4468,7 @@ void AppCtx::Examine_Load_Balancing() {
 
   int NNodeX,NNodeY;
   DMDAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
   float Percentage_Of_Total_Number_Of_Nodes = float(xm*ym) / float(NNodeX*NNodeY) * 100.0;
 
@@ -4568,7 +4568,7 @@ AppCtx::~AppCtx(){
 
   Related_Projects.clear ();
 
-  if ( Reference_DA_For_Io_Maps != NULL ) DMDestroy(Reference_DA_For_Io_Maps);
+  if ( Reference_DA_For_Io_Maps != NULL ) DMDestroy( &Reference_DA_For_Io_Maps );
 
   if ( xCoarseGridPartitioning == 0 ) {
     delete [] xCoarseGridPartitioning;
@@ -5012,7 +5012,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
       DMDAGetInfo( *mapDA, 
                    PETSC_NULL, &globalXNodes, &globalYNodes,
                    PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                   PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                   PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
       
 
       for ( layer = layers.size () - 1; layer >= layers.size () - 2; -- layer ) {
@@ -5027,7 +5027,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
          // layerMz - nodes
          // zs is always 0
          
-         DMDAGetInfo(currentLayer -> layerDA, 0, &layerMx, &layerMy, &layerMz, 0, 0, 0, 0, 0, 0, 0);
+         DMDAGetInfo(currentLayer -> layerDA, 0, &layerMx, &layerMy, &layerMz, 0, 0, 0, 0, 0, 0, 0, 0, 0);
          DMDAGetCorners(currentLayer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
          
          bool isCrust = currentLayer ->isCrust();

@@ -397,7 +397,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
   int Degenerate_Segments;
 
   DMDAGetInfo ( pressureFEMGrid, PETSC_NULL,&globalXCount,&globalYCount,&globalZCount, 
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
   PETSC_3D_Array residualVector ( pressureFEMGrid, Residual, INSERT_VALUES, Include_Ghost_Values );
   PETSC_3D_Array dof  ( pressureFEMGrid, pressureDOFs, INSERT_VALUES, Include_Ghost_Values);
@@ -464,7 +464,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
     Current_Layer->Current_Properties.Activate_Properties  ( INSERT_VALUES, Include_Ghost_Values );
     Current_Layer->Previous_Properties.Activate_Properties ( INSERT_VALUES, Include_Ghost_Values );
 
-    DMDAGetInfo(Current_Layer->layerDA,0, &layerXCount, &layerYCount, &layerZCount,0,0,0,0,0,0,0);
+    DMDAGetInfo(Current_Layer->layerDA,0, &layerXCount, &layerYCount, &layerZCount,0,0,0,0,0,0,0,0,0);
     DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     for ( K = zStart; K < zStart + zCount; K++ ) {

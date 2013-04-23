@@ -42,7 +42,7 @@ TemporalPropertyInterpolator::~TemporalPropertyInterpolator () {
       m_propertyArray.restoreVector ( NO_UPDATE );
    }
 
-   VecDestroy ( m_propertyVector );
+   VecDestroy ( &m_propertyVector );
 }
 
 //------------------------------------------------------------//

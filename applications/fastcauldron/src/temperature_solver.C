@@ -461,7 +461,7 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
   int    CollapsedNodes = 0;
 
 
-  DMDAGetInfo( Temperature_FEM_Grid,0,&gridMx,&gridMy,&gridMz,0,0,0,0,0,0,0);
+  DMDAGetInfo( Temperature_FEM_Grid,0,&gridMx,&gridMy,&gridMz,0,0,0,0,0,0,0,0,0);
 
   PETSC_2D_Array MantleHeatFlow;
 
@@ -532,7 +532,7 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
      mantleLayer->cleanVectors();
      DMDAGetInfo( *Basin_Model -> mapDA, PETSC_NULL, &globalXNodes, &globalYNodes,
                   PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                  PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                  PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
   }
   while ( ! Layers.Iteration_Is_Done () ) {
 
@@ -623,7 +623,7 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
        bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
     }
 
-    DMDAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
+    DMDAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0,0,0);
     DMDAGetCorners(Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
     for ( Layer_K = zs; Layer_K < zs+zm; Layer_K++ ) {
@@ -912,7 +912,7 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
 
   int    CollapsedNodes = 0;
 
-  DMDAGetInfo( Temperature_FEM_Grid,0,&gridMx,&gridMy,&gridMz,0,0,0,0,0,0,0);
+  DMDAGetInfo( Temperature_FEM_Grid,0,&gridMx,&gridMy,&gridMz,0,0,0,0,0,0,0,0,0);
 
   PETSC_2D_Array MantleHeatFlow;
 
@@ -980,7 +980,7 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
      mantleLayer->cleanVectors();
      DMDAGetInfo( *Basin_Model -> mapDA, PETSC_NULL, &globalXNodes, &globalYNodes,
                   PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                  PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                  PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
   }
   while ( ! Layers.Iteration_Is_Done () ) {
 
@@ -1069,7 +1069,7 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
        bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
     }
 
-    DMDAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
+    DMDAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0,0,0);
     DMDAGetCorners(Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
     for ( Layer_K = zs; Layer_K < zs + zm; Layer_K++) {
@@ -1749,7 +1749,7 @@ void Temperature_Solver::deleteSmectiteIlliteVector ()
 
       if ( validVector ) 
       {
-         VecDestroy ( Layers.Current_Layer () -> m_IlliteFraction );
+         VecDestroy (&( Layers.Current_Layer () -> m_IlliteFraction ));
          Layers.Current_Layer () -> m_IlliteFraction = Vec ( 0 );
       }
 
@@ -1832,7 +1832,7 @@ void Temperature_Solver::deleteBiomarkersVectors ( )
 
       if ( validVector ) 
       {
-         VecDestroy ( Layers.Current_Layer () -> m_HopaneIsomerisation );
+         VecDestroy (&( Layers.Current_Layer () -> m_HopaneIsomerisation ));
          Layers.Current_Layer () -> m_HopaneIsomerisation = Vec ( 0 );
       }
 
@@ -1840,7 +1840,7 @@ void Temperature_Solver::deleteBiomarkersVectors ( )
 
       if ( validVector ) 
       {
-         VecDestroy ( Layers.Current_Layer () -> m_SteraneIsomerisation );
+         VecDestroy (&( Layers.Current_Layer () -> m_SteraneIsomerisation ));
          Layers.Current_Layer () -> m_SteraneIsomerisation = Vec ( 0 );
       }
       
@@ -1848,7 +1848,7 @@ void Temperature_Solver::deleteBiomarkersVectors ( )
       
       if ( validVector ) 
       {
-         VecDestroy ( Layers.Current_Layer () -> m_SteraneAromatisation );
+         VecDestroy (&( Layers.Current_Layer () -> m_SteraneAromatisation ));
          Layers.Current_Layer () -> m_SteraneAromatisation = Vec ( 0 );
       }
       
@@ -1873,8 +1873,8 @@ void Temperature_Solver::deleteVReVectors ( AppCtx* basinModel ) {
     VecValid ( Layers.Current_Layer () -> Vre, &validVector );
 
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> Vre );
-      Layers.Current_Layer () -> Vre = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> Vre ));
+       Layers.Current_Layer () -> Vre = Vec ( 0 );
     }
 
     Layers++;
@@ -1994,7 +1994,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
 
   int    CollapsedNodes = 0;
 
-  DMDAGetInfo( Temperature_FEM_Grid,0,&gridMx,&gridMy,&gridMz,0,0,0,0,0,0,0);
+  DMDAGetInfo( Temperature_FEM_Grid,0,&gridMx,&gridMy,&gridMz,0,0,0,0,0,0,0,0,0);
 
   PETSC_2D_Array MantleHeatFlow;
 
@@ -2059,7 +2059,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
      mantleLayer->cleanVectors();
      DMDAGetInfo( *Basin_Model -> mapDA, PETSC_NULL, &globalXNodes, &globalYNodes,
                   PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                  PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+                  PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
   }
   
   while ( ! Layers.Iteration_Is_Done () ) {
@@ -2161,7 +2161,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
        bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
     }
 
-    DMDAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0);
+    DMDAGetInfo(Current_Layer -> layerDA,0,&layerMx,&layerMy,&layerMz,0,0,0,0,0,0,0,0,0);
     DMDAGetCorners(Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
     for ( Layer_K = zs; Layer_K < zs+zm; Layer_K++ ) {

@@ -586,8 +586,8 @@ void Basin_Modelling::deleteBulkDensityVectors ( AppCtx* Basin_Model ) {
     VecValid ( Layers.Current_Layer () -> BulkDensity, &validVector );
 
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> BulkDensity );
-      Layers.Current_Layer () -> BulkDensity = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> BulkDensity ));
+       Layers.Current_Layer () -> BulkDensity = Vec ( 0 );
     }
 
   }
@@ -697,8 +697,8 @@ void Basin_Modelling::deleteVelocityVectors ( AppCtx* Basin_Model ) {
     VecValid ( Layers.Current_Layer () -> Velocity, &validVector );
 
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> Velocity );
-      Layers.Current_Layer () -> Velocity = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> Velocity ));
+       Layers.Current_Layer () -> Velocity = Vec ( 0 );
     }
 
   }
@@ -819,8 +819,8 @@ void Basin_Modelling::deleteReflectivityVectors ( AppCtx* Basin_Model ) {
     VecValid ( Layers.Current_Layer () -> Reflectivity, &validVector );
 
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> Reflectivity );
-      Layers.Current_Layer () -> Reflectivity = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> Reflectivity ));
+       Layers.Current_Layer () -> Reflectivity = Vec ( 0 );
     }
 
   }
@@ -911,8 +911,8 @@ void Basin_Modelling::deleteSonicVectors ( AppCtx* Basin_Model ) {
     VecValid ( Layers.Current_Layer () -> Sonic, &validVector );
 
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> Sonic );
-      Layers.Current_Layer () -> Sonic = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> Sonic ));
+       Layers.Current_Layer () -> Sonic = Vec ( 0 );
     }
 
 
@@ -1030,8 +1030,8 @@ void Basin_Modelling::deleteThermalConductivityVectors ( AppCtx* Basin_Model ) {
     VecValid ( Layers.Current_Layer () -> BulkTHCondN, &validVector );
 
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> BulkTHCondN );
-      Layers.Current_Layer () -> BulkTHCondN = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> BulkTHCondN ));
+       Layers.Current_Layer () -> BulkTHCondN = Vec ( 0 );
     }
 
   }
@@ -1162,8 +1162,8 @@ void Basin_Modelling::deleteDiffusivityVectors ( AppCtx* Basin_Model ) {
     VecValid ( Layers.Current_Layer () -> Diffusivity, &validVector );
 
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> Diffusivity );
-      Layers.Current_Layer () -> Diffusivity = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> Diffusivity ));
+       Layers.Current_Layer () -> Diffusivity = Vec ( 0 );
     }
 
   }
@@ -1261,8 +1261,8 @@ void Basin_Modelling::deleteThicknessVectors ( AppCtx* Basin_Model ) {
     // The vector should be valid. some other comment
     //
     if ( validVector ) {
-      VecDestroy ( Layers.Current_Layer () -> layerThickness );
-      Layers.Current_Layer () -> layerThickness = Vec ( 0 );
+       VecDestroy (&( Layers.Current_Layer () -> layerThickness ));
+       Layers.Current_Layer () -> layerThickness = Vec ( 0 );
     }
 
   }

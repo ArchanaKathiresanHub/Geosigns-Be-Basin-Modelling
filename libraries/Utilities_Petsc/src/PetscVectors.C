@@ -514,16 +514,16 @@ void PETSC_1D_Array::Restore_Global_Array ( const Update_Mode Update_Method )
 
 void Destroy_Petsc_Vector ( Vec& vector ) {
  
-   PetscBool IsValid = ( vector != 0 ? PETSC_TRUE : PETSC_FALSE );
-
-  // VecValid( vector, &IsValid );
-  
-  if ( IsValid ) {
-
-    VecDestroy ( &vector );
-    vector = 0;
-  }
-  
+   PetscBool IsValid;
+   
+   VecValid( vector, &IsValid );
+   
+   if ( IsValid ) {
+      
+      VecDestroy ( &vector );
+      vector = 0;
+   }
+   
 } // end Destroy_Petsc_Vector 
 
 //------------------------------------------------------------//
