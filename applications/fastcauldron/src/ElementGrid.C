@@ -53,7 +53,7 @@ void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
    if ( m_xPartitioning != 0 ) {
       delete [] m_xPartitioning;
       delete [] m_yPartitioning;
-      DMDestroy ( m_localInfo.da );
+      DMDestroy ( &m_localInfo.da );
    }
 
    m_xPartitioning = new int [ m_numberOfXProcessors ];

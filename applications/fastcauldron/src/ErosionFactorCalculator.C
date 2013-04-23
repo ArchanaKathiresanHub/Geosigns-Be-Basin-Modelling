@@ -42,7 +42,7 @@ bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputProper
    erosionFactorMap->retrieveData ();
    undefinedValue = erosionFactorMap->getUndefinedValue ();
 
-   DAGetCorners ( m_formation->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+   DMDAGetCorners ( m_formation->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
 
    for ( i = erosionFactorMap->firstI (); i <= erosionFactorMap->lastI (); ++i ) {
 

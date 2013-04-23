@@ -54,7 +54,8 @@ void getPreviousCoefficients ( const LayerElement&                         eleme
 
    Vec propertyVector = const_cast<Vec>(layer->Previous_Properties ( property ));
 
-   VecValid ( propertyVector, &isValid );
+   // VecValid ( propertyVector, &isValid ); not in 3.3
+   isValid = ( propertyVector != 0 ? PETSC_TRUE : PETSC_FALSE );
    // VecValid ( layer->Previous_Properties ( property ), &isValid );
    
    if ( isValid ) {

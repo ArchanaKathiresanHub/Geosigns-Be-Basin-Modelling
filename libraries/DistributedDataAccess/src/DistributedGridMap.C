@@ -24,11 +24,11 @@ DistributedGridMap::~DistributedGridMap (void)
 {
    restoreData (false, false);
 
-   VecDestroy (m_vecGlobal);
+   VecDestroy (&m_vecGlobal);
 
    if (m_depth != 1)
    {
-      DMDestroy (m_localInfo.da);
+      DMDestroy (&m_localInfo.da);
    }
 }
 

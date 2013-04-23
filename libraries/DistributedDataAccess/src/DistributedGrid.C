@@ -244,8 +244,8 @@ void DistributedGrid::calculateNums(const Grid * referenceGrid)
 
 DistributedGrid::~DistributedGrid (void)
 {
-   VecDestroy (m_vecGlobal);
-   DMDestroy (m_localInfo.da);
+   VecDestroy (&m_vecGlobal);
+   DMDestroy (&m_localInfo.da);
 
    if (m_numsI) PetscFree (m_numsI);
    if (m_numsJ) PetscFree (m_numsJ);
@@ -434,7 +434,9 @@ int DistributedGrid::numProcsI (void) const
    DMDAGetInfo( m_localInfo.da, PETSC_NULL,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, 
                 &m_numProcsI, PETSC_NULL, PETSC_NULL,
-                PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+                PETSC_NULL,PETSC_NULL,
+                PETSC_NULL,PETSC_NULL,PETSC_NULL,
+                PETSC_NULL);
    }
 
    return m_numProcsI;
@@ -447,7 +449,9 @@ int DistributedGrid::numProcsJ (void) const
    DMDAGetInfo( m_localInfo.da, PETSC_NULL,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, 
                 PETSC_NULL, &m_numProcsJ, PETSC_NULL,
-                PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+                PETSC_NULL,PETSC_NULL,
+                PETSC_NULL,PETSC_NULL,PETSC_NULL,
+                PETSC_NULL);
    }
    return m_numProcsJ;
 }

@@ -43,7 +43,7 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
    if ( isInitialised ()) {
       delete [] m_xPartitioning;
       delete [] m_yPartitioning;
-      DMDestroy ( m_localInfo.da );
+      DMDestroy ( &m_localInfo.da );
    }
 
    m_numberOfXProcessors = grid.getNumberOfXProcessors ();
@@ -60,7 +60,7 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DA_STENCIL_STAR,
+   DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                   grid.getNumberOfXElements (),
                   grid.getNumberOfYElements (),
                   numberOfZElements,
@@ -107,7 +107,7 @@ void ElementVolumeGrid::resizeInZDirection ( const int numberOfZElements ) {
    } else {
       DM volumeDa;
 
-      DMDestroy ( m_localInfo.da );
+      DMDestroy ( &m_localInfo.da );
 
       DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                    getNumberOfXElements (),

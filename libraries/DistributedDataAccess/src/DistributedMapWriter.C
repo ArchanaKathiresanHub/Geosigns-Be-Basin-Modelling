@@ -106,7 +106,7 @@ bool DistributedMapWriter::writeMapToHDF (DM & da, Vec & vec, float time, double
    int size[2];
 
    DMDAGetInfo (da, PETSC_IGNORE, &size[0], &size[1], PETSC_IGNORE,
-                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE);
+                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE);
 
    float *data = new float[count[0] * count[1]];
    int writeIndex;

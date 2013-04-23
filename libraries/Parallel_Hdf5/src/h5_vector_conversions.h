@@ -22,7 +22,7 @@ public:
 #endif
 
    // ctor / dtor
-   H5_VectorBoundaries (DALocalInfo &vecInfo);
+   H5_VectorBoundaries (DMDALocalInfo &vecInfo);
   
    // public methods
    Size&  globalBounds (void) { return hGlobal; }
