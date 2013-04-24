@@ -1,5 +1,7 @@
 #include "CauldronCalculator.h"
 
+#define DAPeriodic(pt) ((pt) == DMDA_BOUNDARY_PERIODIC )
+
 //------------------------------------------------------------//
 
 CauldronCalculator::CauldronCalculator ( AppCtx* appl ) {
@@ -27,7 +29,7 @@ void CauldronCalculator::setDOFs ( const DM   femGrid,
   int xs, ys, zs, xm, ym, zm;
   int maxNbCollapsedSegt = 0;
 
-  DMDAGetCorners( femGrid,&xs,&ys,&zs,&xm,&ym,&zm); 
+  DMDAGetCorners( femGrid, &xs, &ys, &zs, &xm, &ym, &zm ); 
 
   PETSC_3D_Array depth ( femGrid, depths );
   PETSC_3D_Array dof   ( femGrid, dofNumbers );
@@ -64,7 +66,8 @@ void CauldronCalculator::setDOFs ( const DM   femGrid,
   double GlobalStencilWidth;
   double LocalStencilWidth = (double) maxNbCollapsedSegt;
 
-  PetscGlobalMax(&LocalStencilWidth,&GlobalStencilWidth,PETSC_COMM_WORLD);
+  //  PetscGlobalMax(&LocalStencilWidth,&GlobalStencilWidth,PETSC_COMM_WORLD);
+  MPI_Allreduce( &LocalStencilWidth, &GlobalStencilWidth, 1, MPIU_REAL, MPI_MAX, PETSC_COMM_WORLD);
   stencilWidth = (int) GlobalStencilWidth;
 
   if (( cauldron -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
@@ -500,7 +503,9 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
   MPI_Comm               comm;
   PetscScalar            *values;
   //  DAPeriodicType         wrap;
-  DMDABoundaryType       wrap;
+  DMDABoundaryType       wrapX;
+  DMDABoundaryType       wrapY;
+  DMDABoundaryType       wrapZ;
   ISLocalToGlobalMapping ltog;
   DMDAStencilType        st;
 
@@ -510,7 +515,7 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
          col - number of colors needed in one direction for single component problem
   
   */
-  ierr = DAGetInfo( FEM_Grid_DA,&dim,&m,&n,&p,0,0,0,&nc,&s,&wrap,&st);CHKERRQ(ierr);
+  ierr = DMDAGetInfo( FEM_Grid_DA, &dim, &m, &n, &p, 0, 0, 0, &nc, &s, &wrapX, &wrapY, &wrapZ, &st); CHKERRQ( ierr );
   col    = 2*s + 1;
   colz   = 2*s + 1 + 2 * stencilWidth;
 
@@ -523,55 +528,55 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
 
   double ***dof = 0;
   Vec LocalDOF;
-  DAGetLocalVector(FEM_Grid_DA,&LocalDOF);
-  DAGlobalToLocalBegin(FEM_Grid_DA, Degrees_Of_Freedom,INSERT_VALUES,LocalDOF);
-  DAGlobalToLocalEnd(FEM_Grid_DA, Degrees_Of_Freedom,INSERT_VALUES,LocalDOF);
-  DAVecGetArray(FEM_Grid_DA, LocalDOF,  &dof);
+  DMGetLocalVector( FEM_Grid_DA, &LocalDOF );
+  DMGlobalToLocalBegin( FEM_Grid_DA, Degrees_Of_Freedom, INSERT_VALUES, LocalDOF );
+  DMGlobalToLocalEnd( FEM_Grid_DA, Degrees_Of_Freedom, INSERT_VALUES, LocalDOF );
+  DMDAVecGetArray( FEM_Grid_DA, LocalDOF, &dof );
 
-  ierr = DAGetCorners( FEM_Grid_DA,&xs,&ys,&zs,&nx,&ny,&nz);CHKERRQ(ierr);
-  ierr = DAGetGhostCorners( FEM_Grid_DA,&gxs,&gys,&gzs,&gnx,&gny,&gnz);CHKERRQ(ierr);
+  ierr = DMDAGetCorners( FEM_Grid_DA, &xs, &ys, &zs, &nx,& ny, &nz); CHKERRQ( ierr );
+  ierr = DMDAGetGhostCorners( FEM_Grid_DA, &gxs, &gys, &gzs, &gnx, &gny, &gnz); CHKERRQ( ierr );
   
-  ierr = PetscObjectGetComm((PetscObject)FEM_Grid_DA,&comm);CHKERRQ(ierr);
-  ierr = MPI_Comm_size(comm,&size);CHKERRQ(ierr);
-
+  ierr = PetscObjectGetComm(( PetscObject )FEM_Grid_DA, &comm); CHKERRQ( ierr );
+  ierr = MPI_Comm_size( comm, &size ); CHKERRQ( ierr );
 
   /* create the matrix */
   /* create empty Jacobian matrix */
 //   ierr = MatCreate(comm,nc*nx*ny*nz,nc*nx*ny*nz,PETSC_DECIDE,PETSC_DECIDE,J);CHKERRQ(ierr);  
-  ierr = MatCreate(comm,J);CHKERRQ(ierr);  
-  MatSetSizes ( *J, nc*nx*ny*nz,nc*nx*ny*nz,PETSC_DECIDE,PETSC_DECIDE);
-  ierr = PetscMalloc(col*col*colz*nc*nc*nc*sizeof(PetscScalar),&values);CHKERRQ(ierr);
-  ierr = PetscMemzero(values,col*col*colz*nc*nc*nc*sizeof(PetscScalar));CHKERRQ(ierr);
-  ierr = PetscMalloc(nc*sizeof(int),&rows);CHKERRQ(ierr);
-  ierr = PetscMalloc(col*col*colz*nc*sizeof(int),&cols);CHKERRQ(ierr);
-  ierr = DAGetISLocalToGlobalMapping( FEM_Grid_DA,&ltog);CHKERRQ(ierr);
+  ierr = MatCreate( comm, J ); CHKERRQ( ierr );  
+  MatSetSizes ( *J, nc * nx * ny * nz, nc * nx * ny * nz, PETSC_DECIDE, PETSC_DECIDE );
+  ierr = PetscMalloc( col * col * colz * nc * nc * nc * sizeof( PetscScalar ), &values ); CHKERRQ( ierr );
+  ierr = PetscMemzero( values, col * col * colz * nc * nc * nc * sizeof( PetscScalar )); CHKERRQ( ierr );
+  ierr = PetscMalloc( nc * sizeof( int ), &rows ); CHKERRQ( ierr );
+  ierr = PetscMalloc( col * col * colz * nc * sizeof( int ), &cols ); CHKERRQ( ierr );
+  //  ierr = DAGetISLocalToGlobalMapping( FEM_Grid_DA,&ltog);CHKERRQ (ierr);
+  ierr = DMGetLocalToGlobalMapping( FEM_Grid_DA, &ltog); CHKERRQ( ierr );
 
   int my_k_start, true_kk;
 
   /* determine the matrix preallocation information */
-  ierr = MatPreallocateInitialize(comm,nc*nx*ny*nz,nc*nx*ny*nz,dnz,onz);CHKERRQ(ierr);
-  for (i=xs; i<xs+nx; i++) {
-    istart = DAXPeriodic(wrap) ? -s : (PetscMax(-s,-i));
-    iend   = DAXPeriodic(wrap) ?  s : (PetscMin(s,m-i-1));
-    for (j=ys; j<ys+ny; j++) {
-      jstart = DAYPeriodic(wrap) ? -s : (PetscMax(-s,-j)); 
-      jend   = DAYPeriodic(wrap) ?  s : (PetscMin(s,n-j-1));
-      for (k=zs; k<zs+nz; k++) {
+  ierr = MatPreallocateInitialize( comm, nc * nx * ny * nz, nc * nx * ny * nz, dnz, onz); CHKERRQ( ierr );
+  for (i = xs; i < xs + nx; i ++) {
+    istart = DAPeriodic( wrapX ) ? -s : ( PetscMax( -s, -i ));
+    iend   = DAPeriodic( wrapX ) ?  s : ( PetscMin( s, m - i - 1 ));
+    for (j = ys; j < ys + ny; j++ ) {
+      jstart = DAPeriodic( wrapY ) ? -s : ( PetscMax( -s, -j )); 
+      jend   = DAPeriodic( wrapY ) ?  s : ( PetscMin( s, n - j - 1 ));
+      for (k = zs; k < zs + nz; k++ ) {
 
          if ( not validNeedle ( i, j )  or dof[k][j][i] != k ) {
 //         if ( !nodeIsDefined[j][i] || (dof[k][j][i] != k) ) {
-          slot = i - gxs + gnx*(j - gys) + gnx*gny*(k - gzs);
+          slot = i - gxs + gnx * (j - gys) + gnx * gny * (k - gzs);
           l = 0; cnt = 0;
           rows[l]      = l + nc*(slot);
           cols[cnt++]  = rows[l];
-          ierr = MatPreallocateSetLocal(ltog,nc,rows,cnt,cols,dnz,onz);CHKERRQ(ierr);
+          ierr = MatPreallocateSetLocal( ltog, nc, rows, ltog, cnt, cols, dnz, onz); CHKERRQ(ierr);
           continue;
         }
         my_k_start = k;
 //         while ( (--my_k_start >= 0 ) && ( dof[my_k_start][j][i] != my_k_start ) );
         while ( true ) {
           if ( my_k_start == 0 ) break;
-          my_k_start--;
+          my_k_start --;
           if ( dof[my_k_start][j][i] == my_k_start ) break;
         }
 //         if (my_k_start != 0) {
@@ -579,33 +584,33 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
 //             my_k_start -= 1;
 //           } while (dof[my_k_start][j][i] != my_k_start);
 //         }
-        kstart = DAZPeriodic(wrap) ? -s : (PetscMax(-(k-my_k_start),-k)); 
-        kend   = DAZPeriodic(wrap) ?  s : (PetscMin(s,p-k-1));
+        kstart = DAPeriodic( wrapZ ) ? -s : ( PetscMax( -( k - my_k_start ), -k )); 
+        kend   = DAPeriodic( wrapZ ) ?  s : ( PetscMin( s, p - k - 1 ));
         
-        slot = i - gxs + gnx*(j - gys) + gnx*gny*(k - gzs);
+        slot = i - gxs + gnx * ( j - gys ) + gnx * gny * ( k - gzs );
         
         cnt  = 0;
-        for (l=0; l<nc; l++) {
-          for (ii=istart; ii<iend+1; ii++) {
-            for (jj=jstart; jj<jend+1; jj++) {
-              for (kk=kstart; kk<kend+1; kk++) {
+        for ( l = 0; l < nc; l++ ) {
+          for ( ii = istart; ii < iend + 1; ii ++ ) {
+            for ( jj = jstart; jj < jend + 1; jj ++) {
+              for (kk = kstart; kk < kend + 1; kk ++) {
 
                  if ( not validNeedle ( i + ii, j + jj )) {
 //                 if (!nodeIsDefined[j+jj][i+ii]) {
                   true_kk = kk;
-                  cols[cnt++]  = l + nc*(slot + ii + gnx*jj + gnx*gny*true_kk);
+                  cols[cnt++]  = l + nc * ( slot + ii + gnx * jj + gnx * gny * true_kk );
                 }
-                else if (st == DA_STENCIL_BOX) {
-                  if ( (dof[k+kk][j+jj][i+ii] != k+kk) && (kk < 0) ) continue;
-                  true_kk = int ( dof[k+kk][j+jj][i+ii] )- int ( dof[k][j][i]);
-                  cols[cnt++]  = l + nc*(slot + ii + gnx*jj + gnx*gny*true_kk);
+                else if ( st == DMDA_STENCIL_BOX ) {
+                  if (( dof[k + kk][j + jj][i + ii] != k + kk ) && ( kk < 0 )) continue;
+                  true_kk = int ( dof[k+kk][j+jj][i+ii] ) - int ( dof[k][j][i] );
+                  cols[cnt++]  = l + nc * ( slot + ii + gnx * jj + gnx * gny * true_kk );
                 }
               }
             }
           }
           rows[l] = l + nc*(slot);
         }
-        ierr = MatPreallocateSetLocal(ltog,nc,rows,cnt,cols,dnz,onz);CHKERRQ(ierr);
+        ierr = MatPreallocateSetLocal(ltog,nc,rows,ltog,cnt,cols,dnz,onz);CHKERRQ(ierr);
       }
     }
   }
@@ -620,8 +625,8 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
   ierr = MatMPIAIJSetPreallocation(*J,0,dnz,0,onz);CHKERRQ(ierr);  
   ierr = MatMPIBAIJSetPreallocation(*J,nc,0,dnz,0,onz);CHKERRQ(ierr);  
   ierr = MatPreallocateFinalize(dnz,onz);CHKERRQ(ierr);
-  ierr = MatSetLocalToGlobalMapping(*J,ltog);CHKERRQ(ierr);
-  ierr = DAGetGhostCorners( FEM_Grid_DA,&starts[0],&starts[1],&starts[2],&dims[0],&dims[1],&dims[2]);CHKERRQ(ierr);
+  ierr = MatSetLocalToGlobalMapping(*J,ltog,ltog);CHKERRQ(ierr);
+  ierr = DMDAGetGhostCorners( FEM_Grid_DA,&starts[0],&starts[1],&starts[2],&dims[0],&dims[1],&dims[2]);CHKERRQ(ierr);
   ierr = MatSetStencil(*J,3,dims,starts,nc);CHKERRQ(ierr);
 
   /*
@@ -630,12 +635,12 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
     PETSc ordering.
   */
   for (i=xs; i<xs+nx; i++) {
-    istart = DAXPeriodic(wrap) ? -s : (PetscMax(-s,-i));
-    iend   = DAXPeriodic(wrap) ?  s : (PetscMin(s,m-i-1));
+    istart = DAPeriodic(wrapX) ? -s : (PetscMax(-s,-i));
+    iend   = DAPeriodic(wrapX) ?  s : (PetscMin(s,m-i-1));
 
     for (j=ys; j<ys+ny; j++) {
-      jstart = DAYPeriodic(wrap) ? -s : (PetscMax(-s,-j)); 
-      jend   = DAYPeriodic(wrap) ?  s : (PetscMin(s,n-j-1));
+      jstart = DAPeriodic(wrapY) ? -s : (PetscMax(-s,-j)); 
+      jend   = DAPeriodic(wrapY) ?  s : (PetscMin(s,n-j-1));
 
       for (k=zs; k<zs+nz; k++) {
 
@@ -658,8 +663,8 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
           if ( dof[my_k_start][j][i] == my_k_start ) break;
         }
 
-        kstart = DAZPeriodic(wrap) ? -s : (PetscMax(-(k-my_k_start),-k)); 
-        kend   = DAZPeriodic(wrap) ?  s : (PetscMin(s,p-k-1));
+        kstart = DAPeriodic(wrapZ) ? -s : (PetscMax(-(k-my_k_start),-k)); 
+        kend   = DAPeriodic(wrapZ) ?  s : (PetscMin(s,p-k-1));
         
         slot = i - gxs + gnx*(j - gys) + gnx*gny*(k - gzs);
         
@@ -673,7 +678,7 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
                   true_kk = kk;
                   cols[cnt++]  = l + nc*(slot + ii + gnx*jj + gnx*gny*true_kk);
                 }
-                else if (st == DA_STENCIL_BOX) {
+                else if (st == DMDA_STENCIL_BOX) {
                   if ( (dof[k+kk][j+jj][i+ii] != k+kk) && (kk < 0) ) continue;
                   true_kk = int ( dof[k+kk][j+jj][i+ii]) - int ( dof[k][j][i] );
                   cols[cnt++]  = l + nc*(slot + ii + gnx*jj + gnx*gny*true_kk);
@@ -691,8 +696,8 @@ int CauldronCalculator::createMatrixStructure ( const DM   Map_DA,
 //   DAVecRestoreArray(Map_DA, LocalNodeIsDefined,  &nodeIsDefined);
 //   DARestoreLocalVector(Map_DA,&LocalNodeIsDefined);
 
-  DAVecRestoreArray(FEM_Grid_DA, LocalDOF,  &dof);
-  DARestoreLocalVector(FEM_Grid_DA,&LocalDOF);
+  DMDAVecRestoreArray(FEM_Grid_DA, LocalDOF,  &dof);
+  DMRestoreLocalVector(FEM_Grid_DA,&LocalDOF);
 
   ierr = PetscFree(values);CHKERRQ(ierr);
   ierr = PetscFree(rows);CHKERRQ(ierr);
