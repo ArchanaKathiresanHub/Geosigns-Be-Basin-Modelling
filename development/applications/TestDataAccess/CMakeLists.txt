@@ -1,19 +1,32 @@
-
 add_executable(TestDataAccess src/TestDataAccess.C)
+
+include_directories(
+	${HDF5_serial_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
+	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
+)
+
 bm_include_libraries(
 	SerialDataAccess
 	DataAccess
 	TableIO
 	CBMGenerics
 )
-include_directories(
-	${HDF5_INCLUDE_DIRS}
-)
+
 target_link_libraries(TestDataAccess
-	SerialDataAccess
 	DataAccess
+	SerialDataAccess
 	TableIO
-	CBMGenerics
+	${HDF5_serial_LIBRARIES}
 )
 
+install(TARGETS TestDataAccess
+	RUNTIME DESTINATION bin
+)
 
+# Local Variables:
+
+# mode: cmake
+# cmake-tab-width: 4
+# tab-width: 4
+# End:
