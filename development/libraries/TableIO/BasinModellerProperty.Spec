@@ -2713,6 +2713,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
+    Default             : 100
 
     Identification      : ReferenceSolidViscosity
     Description         : Reference solid viscosity
@@ -2721,6 +2722,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
+    Default             : 1e17
 
     Identification      : ActivationEnergy
     Description         : Activation Energy
@@ -2729,6 +2731,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
+    Default             : 0
 
     Identification      : MinimumPorosity
     Description         : Minimum porosity
@@ -2737,6 +2740,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
+    Default             : 0
 
 
     Identification      : SpecSurfArea
