@@ -1148,7 +1148,7 @@ bool SourceRock::process()
    double dt                       = m_theSimulator->GetMaximumTimeStepSize(m_depositionTime);
 
    if(m_projectHandle->getRank() == 0) {      
-      cout << "Chosen timestep size:" << dt << endl;
+      cout << "Chosen maximum timestep size:" << dt << endl;
       cout << "-------------------------------------" << endl;
 
       cout << "Start Of processing..." << endl;
@@ -1159,16 +1159,15 @@ bool SourceRock::process()
    m_time = 0.0;
 
    //compute first snapshot 
+   // d + dt is outside of the time-domain for the source-rock.
+   // Should there be any computation at this point?
+   // Should there be any output at this point: i) is anything generated? ii) most/all? maps will be filled with null/default /values.
    status = computeSnapShot(t + dt, simulationStart);
 
    if(status == false) {
       return status;
    }
 
-   //increment time
-   previousTime = t;
-   t -= dt;
-  
    std::vector<SnapshotInterval*>::iterator itSnapInterv ;
    
    LinearGridInterpolator *VESInterpolator  = new LinearGridInterpolator;
@@ -1190,6 +1189,19 @@ bool SourceRock::process()
 
       intervalStart = (*itSnapInterv)->getStart();
       intervalEnd   = (*itSnapInterv)->getEnd();
+
+      // Compute the number of time-steps that will be in the snapshot interval.
+      double numberOfTimeSteps = std::ceil (( intervalStart->getTime () - intervalEnd->getTime ()) / dt );
+
+      // Compute the deltaT so that there is a uniform time-step size over the snapshot interval.
+      double deltaT = ( intervalStart->getTime () - intervalEnd->getTime ()) / numberOfTimeSteps;
+
+      // Because the time-step size is computed within this loop
+      // the current time (t) cannot be set outside of it.
+      if ( intervalStart == simulationStart ) {
+         previousTime = simulationStart->getTime ();
+         t = simulationStart->getTime () - deltaT;
+      }
 
       const GridMap *VESmapAtStart = getTopSurfacePropertyGridMap("Ves",intervalStart);
       const GridMap *VESmapAtEnd   = getTopSurfacePropertyGridMap("Ves",intervalEnd);
@@ -1237,17 +1249,24 @@ bool SourceRock::process()
          //erosion 
          const GridMap *thicknessScalingAtStart = getFormationPropertyGridMap("ErosionFactor", intervalStart);
          const GridMap *thicknessScalingAtEnd   = getFormationPropertyGridMap("ErosionFactor", intervalEnd);
+
          if(thicknessScalingAtStart && thicknessScalingAtEnd) {
             ThicknessScalingInterpolator->compute(intervalStart, thicknessScalingAtStart, 
                                                   intervalEnd,   thicknessScalingAtEnd);  
          }
 
          double snapShotIntervalEndTime = intervalEnd->getTime();
+
+         // t can be less that the interval end time.
+         // E.g. if the last snapshot interval was very small then t may be less than the interval end-time.
+         // This is okay, since the time-step performed for the end of the interval integrates the equations
+         // over the time-step previousTime .. interval-end-time.
          while(t > snapShotIntervalEndTime) {
             //within the interval just compute, do not save 
             // computeTimeInstance(t, VESInterpolator, TempInterpolator, ThicknessScalingInterpolator);
 
             if ( previousTime > t ) {
+
                computeTimeInstance ( previousTime, t,
                                      VESInterpolator,
                                      TempInterpolator,
@@ -1261,15 +1280,21 @@ bool SourceRock::process()
             }
 
             previousTime = t;
-            t -= dt;
+            t -= deltaT;
 
-            // If t is very close to the snapshot time then set t to be the snapshot time.
-            // This is to eliminate the very small time-steps that can occur (O(1.0e-13)) 
+            // If t is very close to the snapshot time then set t to be the snapshot interval end-time.
+            // This is to eliminate the very small time-steps that can occur (O(1.0e-13))
             // as the time-stepping approaches a snapshot time.
-            if ( NumericFunctions::inRange<double>( t, snapShotIntervalEndTime - Genex6::Constants::TimeStepFraction * dt,
-                                                       snapShotIntervalEndTime + Genex6::Constants::TimeStepFraction * dt )) {
+            if ( t - Genex6::Constants::TimeStepFraction * deltaT < snapShotIntervalEndTime ) {
                t = snapShotIntervalEndTime;
             }
+
+#if 0
+            if ( NumericFunctions::inRange<double>( t, snapShotIntervalEndTime - Genex6::Constants::TimeStepFraction * deltaT,
+                                                       snapShotIntervalEndTime + Genex6::Constants::TimeStepFraction * deltaT )) {
+               t = snapShotIntervalEndTime;
+            }
+#endif
 
          }
 
@@ -1277,7 +1302,8 @@ bool SourceRock::process()
          if( intervalEnd->getType() == Interface::MAJOR ) {
             computeSnapShot(previousTime, intervalEnd);
             previousTime = intervalEnd->getTime();
-         }    
+         }
+
       } else {
          status = false;
 
@@ -1894,8 +1920,8 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
    }
    m_theSimulator->setChemicalModel( m_theChemicalModel1 );
 
-   //then the optional 
 
+   // then the optional results 
    for(resultIndex = 0; resultIndex < GenexResultManager::NumberOfResults; ++ resultIndex) {
 
       if(theResultManager.IsResultRequired(resultIndex)) {
@@ -1908,6 +1934,8 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       }
 
    } 
+
+
    if( m_applySRMixing ) { 
       if ( m_sourceRockEndMember1 != 0 ) {
          m_sourceRockEndMember1->setValue ( i, j, 100.0 * theNode->GetF1() );
@@ -2052,7 +2080,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
 }
 
 bool SourceRock::computeSnapShot ( const double previousTime,
-                                   const Snapshot *theSnapshot)
+                                   const Snapshot *theSnapshot )
 {
    bool status = true;
    double time = theSnapshot->getTime();
@@ -2143,11 +2171,13 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
          Genex6::Input *theInput = new Genex6::Input( previousTime, time,
                                                       in_Temp,
+                                                      // The duplicate value is not used in the fastgenex6 simulator
                                                       in_Temp,
                                                       in_VES, 
                                                       nodeLithostaticPressure,
                                                       nodeHydrostaticPressure,
                                                       nodePorePressure,
+                                                      // The duplicate value is not used in the fastgenex6 simulator
                                                       nodePorePressure,
                                                       nodePorosity,
                                                       nodePermeability,
@@ -2177,6 +2207,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          if ( m_applySRMixing ) {
             (*itNode)->RequestMixing( m_theChemicalModel ); // we always use the chemicalModel with bigger number of Species - m_theChemicalModel - for mixing
          }
+
          if ( not isInitialTimeStep ) {
             (*itNode)->collectHistory ();
          }
