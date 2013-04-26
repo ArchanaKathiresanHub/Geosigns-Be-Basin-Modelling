@@ -1,14 +1,14 @@
-add_executable(UpgradeProject src/UpgradeProject.C)
+add_executable(upcauldron src/upcauldron.C)
 
 bm_include_libraries(
 	TableIO
 )
 
-target_link_libraries(UpgradeProject
+target_link_libraries(upcauldron
 	TableIO
 )
 
-install(TARGETS UpgradeProject
+install(TARGETS upcauldron
 	RUNTIME DESTINATION bin
 )
 
