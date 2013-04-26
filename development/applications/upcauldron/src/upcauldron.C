@@ -363,9 +363,9 @@ void showUsage (const char * message)
          << "                  [-usage]" << endl
          << endl
          << "    -project           The cauldron project file." << endl
-         << "    -output            Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
-         << "    -version           The value of the ProgramVersion variable." << endl
-         << "    -verbose           Generate some extra output." << endl
+         << "    -output            Output cauldron project file, defaults to the input file name." << endl
+         << "    -version           The value of the ProgramVersion variable, probably obsolete." << endl
+         << "    -verbose           Generate some extra output, nothing at the moment." << endl
          << "    -quiet             Do not generate any output." << endl
          << "    -help              Print this message." << endl
          << "    -?                 Print this message." << endl
