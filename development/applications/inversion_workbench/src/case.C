@@ -2,6 +2,7 @@
 #include "DatadrillerProperty.h"
 #include <string>
 #include <iostream>
+#include "formattingexception.h"
 
 Case::Case(const std::vector<Parameter*> & values)// const std::string & templateProjectFilename,
 : m_values(values)
@@ -95,6 +96,7 @@ ts=PropertyDrilled.getTime();
 
 }
 
+struct ReadPropertyException : formattingexception::BaseException<ReadPropertyException > {};
 
 /// Probes a Cauldron project3d file. Given:
 ///  - a physical quantity, as 'propertyName',
@@ -122,16 +124,16 @@ void Case::readOnePropertyProjectFile(const std::string & propertyName, int Prop
       );
 
   if (!projectHandle)
-    throw ProbeException() << "Could not load project file '" << project << "'";
+    throw ReadPropertyException() << "Could not load project file '" << project << "'";
 
   // Load property
   const DataAccess::Interface::Property* property = projectHandle->findProperty (propertyName);
   if (!property) 
-    throw ProbeException() << "Unknown PropertyName value: " << propertyName;
+    throw ReadPropertyException() << "Unknown PropertyName value: " << propertyName;
 
   // Load snapshot
   if (snapshotTime < 0) 
-    throw ProbeException() << "Illegal snapshot time: " << snapshotTime;
+    throw ReadPropertyException() << "Illegal snapshot time: " << snapshotTime;
   const DataAccess::Interface::Snapshot * snapshot = projectHandle->findSnapshot (snapshotTime);
   DataAccess::Mining::CauldronDomain domain ( projectHandle );
   domain.setSnapshot (snapshot);
@@ -142,14 +144,14 @@ void Case::readOnePropertyProjectFile(const std::string & propertyName, int Prop
   unsigned int a, b;
   const DataAccess::Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid ();
   if (!grid->getGridPoint (x, y, a, b)) 
-    throw ProbeException() << "Illegal (XCoord, YCoord) pair: (" << x << ", " << y << ")";
+    throw ReadPropertyException() << "Illegal (XCoord, YCoord) pair: (" << x << ", " << y << ")";
        
   // Retrieve the results
   for (size_t i = 0; i < zs.size(); ++i)
   {
     DataAccess::Mining::ElementPosition element;
     if (!domain.findLocation (x, y, zs[i], element))
-      throw ProbeException() << "Illegal point coordinates: " << x << ", " << y << ", " << zs[i];
+      throw ReadPropertyException() << "Illegal point coordinates: " << x << ", " << y << ", " << zs[i];
 
     results[Property_Iterator].push_back( domainProperties->getDomainProperty (property)->compute (element) );
   }

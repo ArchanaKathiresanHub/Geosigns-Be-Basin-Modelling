@@ -72,7 +72,6 @@ add_executable(parameter-space-exploration-tool
         src/case.C
         src/experiment.C
         src/project.C
-        src/generalexception.C
         src/BasementProperty.C
 	${generator_source_files}
 )

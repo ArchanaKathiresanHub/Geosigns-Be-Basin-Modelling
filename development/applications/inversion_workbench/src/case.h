@@ -6,8 +6,6 @@
 #include <vector>
 #include "project.h"
 
-#include "generalexception.h"
-#include "ProbeException.h"
 #include "Interface/ProjectHandle.h"
 #include "DataMiningProjectHandle.h"
 #include "CauldronDomain.h"
