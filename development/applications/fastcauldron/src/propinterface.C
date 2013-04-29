@@ -3617,14 +3617,14 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
      pMixedLitho = new LithoProps;
 
 #ifdef ALCPROPERTY
-     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology("ALC Basalt")); 
+     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt)); 
      IBSASSERT(pBasaltLitho != (BasementLitho*)0);
      pMixedLitho->addLithology(pBasaltLitho,100);
      if( !pBasaltLitho->setThermalModel( mantlePropertyModel, *m_basementLithoProps )) {
         return false;
      }
 #else
-     SimpleLitho* pBasaltLithoS = lithomanager.getSimpleLithology("ALC Basalt");
+     SimpleLitho* pBasaltLithoS = lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt);
      IBSASSERT(pBasaltLithoS != (SimpleLitho*)0);
      pMixedLitho->addLithology(pBasaltLithoS,100);
 #endif
@@ -3677,12 +3677,12 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
   if(isALC()) { // && !m_basaltThicknessHistory.isNull()){
      pMixedLitho = new LithoProps;
 #ifdef ALCPROPERTY
-     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology("ALC Basalt")); 
+     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt)); 
      IBSASSERT(pBasaltLitho != (BasementLitho*)0);
      pMixedLitho->addLithology(pBasaltLitho,100);
      pBasaltLitho->setThermalModel( crustPropertyModel, *m_basementLithoProps );
 #else
-     SimpleLitho* pBasaltLithoS = lithomanager.getSimpleLithology("ALC Basalt");
+     SimpleLitho* pBasaltLithoS = lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt);
      IBSASSERT(pBasaltLithoS != (SimpleLitho*)0);
      pMixedLitho->addLithology(pBasaltLithoS,100);
 #endif 
@@ -4969,9 +4969,6 @@ void AppCtx::deleteIsoValues(void)
 
 bool AppCtx::calcBasementProperties ( const double Current_Time ) {
 
-   // cout << " AppCtx::calcBasementProperties starts." << endl;
-   bool calcALC = false;
-
    int Layer_K;
    size_t layer;
    int xs, ys, zs, xm, ym, zm;
@@ -4988,133 +4985,21 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    MantleFormation * mantle = dynamic_cast<MantleFormation *>(layers [layers.size () - 1]);
    assert( mantle != 0 );
 
-   if( calcALC ) {
-      crust->cleanVectors();
-   }
+   PETSC_2D_Array basaltThicknessALC    ( *mapDA, crust->ThicknessBasaltALC );
+   PETSC_2D_Array topBasaltDepth        ( *mapDA, crust->TopBasaltDepth );
+   PETSC_2D_Array bottomBasaltDepth     ( *mapDA, crust->BottomBasaltDepth );
+   PETSC_2D_Array ccrustThickness       ( *mapDA, crust->ThicknessCCrustALC );
+   PETSC_2D_Array smoothBasaltThickness ( *mapDA, crust->BasaltThickness );    
+   PETSC_2D_Array smCrustThickness      ( *mapDA, crust->SmCCrustThickness );
+   PETSC_2D_Array smTopBasaltDepth      ( *mapDA, crust->SmTopBasaltDepth );
+   PETSC_2D_Array smBottomBasaltDepth   ( *mapDA, crust->SmBottomBasaltDepth );   
+   PETSC_2D_Array origMantleDepth       ( *mapDA, mantle->UpliftedOrigMantleDepth );
+   PETSC_2D_Array hlmod                 ( *mapDA, mantle->LithosphereThicknessMod );
 
-   PETSC_2D_Array basaltThicknessALC( *mapDA, crust->ThicknessBasaltALC );
-   PETSC_2D_Array topBasaltDepth ( *mapDA, crust->TopBasaltDepth );
-   PETSC_2D_Array bottomBasaltDepth( *mapDA, crust->BottomBasaltDepth );
-   PETSC_2D_Array ccrustThickness( *mapDA, crust->ThicknessCCrustALC );
-   PETSC_2D_Array smoothBasaltThickness ( *mapDA, crust->BasaltThickness );
-      
-   PETSC_2D_Array smCrustThickness ( *mapDA, crust->SmCCrustThickness );
-   PETSC_2D_Array smTopBasaltDepth ( *mapDA, crust->SmTopBasaltDepth );
-   PETSC_2D_Array smBottomBasaltDepth ( *mapDA, crust->SmBottomBasaltDepth );
-   
-   PETSC_2D_Array origMantleDepth ( *mapDA, mantle->UpliftedOrigMantleDepth );
-   PETSC_2D_Array hlmod           ( *mapDA, mantle->LithosphereThicknessMod );
-
-   if( calcALC ) {
-      LayerProps * currentLayer;
-      int globalXNodes;
-      int globalYNodes;
-      DAGetInfo( *mapDA, 
-                 PETSC_NULL, &globalXNodes, &globalYNodes,
-                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
-      
-
-      for ( layer = layers.size () - 1; layer >= layers.size () - 2; -- layer ) {
-         //for ( layer = layers.size () - 2; layer < layers.size (); ++ layer ) {
-         
-         currentLayer = layers [ layer ];
-         int m_kIndex = currentLayer->getMaximumNumberOfElements ();
-         
-         PETSC_3D_Array depth ( currentLayer->layerDA,
-                                currentLayer->Current_Properties ( Basin_Modelling::Depth ), INSERT_VALUES, true );
-         
-         // layerMz - nodes
-         // zs is always 0
-         
-         DAGetInfo(currentLayer -> layerDA, 0, &layerMx, &layerMy, &layerMz, 0, 0, 0, 0, 0, 0, 0);
-         DAGetCorners(currentLayer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
-         
-         bool isCrust = currentLayer ->isCrust();
-         
-         unsigned int EltCount;
-         int Inode;
-         
-         for ( EltCount = 0; EltCount < mapElementList.size(); EltCount++ ) {
-
-            if (mapElementList[EltCount].exists) {
-               for ( Layer_K = zs; Layer_K < zs + zm; Layer_K++ ) {
-                  if ( Layer_K != layerMz - 1) {
-                     
-                     int xY = mapElementList[EltCount].j[0];
-                     int xX = mapElementList[EltCount].i[0];
-                     
-                     for ( Inode = 0; Inode < 8; Inode++ ) {
-                        int LidxZ = Layer_K + (Inode < 4 ? 1 : 0);
-                        int GidxY = mapElementList[EltCount].j[Inode%4];
-                        int GidxX = mapElementList[EltCount].i[Inode%4];
-                        
-                        Geometry_Matrix ( 3, Inode + 1 ) = depth(LidxZ,GidxY,GidxX) - depth( m_kIndex, GidxY,GidxX );
-                     }
-                     double midPointDepth = Geometry_Matrix.getMidPoint();
-                     
-                     Element_Lithology = currentLayer -> getLithology( Current_Time, xX, xY, midPointDepth);
-                     
-                     
-                     //
-                     //  View from the top:
-                     //
-                     //         4         3 
-                     //(x1, y1)0---------0    
-                     //        |         |    
-                     //        |         |     xX  = xX1
-                     //        |1        |2    xY != xY1
-                     // (x, y) 0---------0
-                     //
-                     //
-                     
-                     if( currentLayer->isBasalt() ) {
-                        if( bottomBasaltDepth( xY,  xX ) == CAULDRONIBSNULLVALUE ) {
-                           bottomBasaltDepth( xY,  xX ) = Geometry_Matrix ( 3, 5 ) + depth( m_kIndex, xY, xX ); 
-                        }
-                        if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                           if( bottomBasaltDepth( xY, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                              bottomBasaltDepth( xY, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                           }
-                        }
-                        if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                           if( bottomBasaltDepth( xY + 1, xX ) == CAULDRONIBSNULLVALUE ) {
-                              bottomBasaltDepth( xY + 1, xX ) =  bottomBasaltDepth( xY,  xX );
-                           }
-                        }
-                        if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                           if( bottomBasaltDepth( xY + 1, xX + 1 ) == CAULDRONIBSNULLVALUE ) {
-                              bottomBasaltDepth( xY + 1, xX + 1 ) =  bottomBasaltDepth( xY,  xX );
-                           }
-                        }
-                     }
-                     
-                     if( isCrust && currentLayer->isBasalt() ) {
-                        topBasaltDepth( xY, xX ) = Geometry_Matrix ( 3, 1 ) +  depth( m_kIndex, xY, xX );
-                        if( xX == (unsigned int )(globalXNodes) - 2 ) {
-                           topBasaltDepth( xY, xX + 1 ) =  topBasaltDepth( xY,  xX );
-                        }
-                        if( xY == (unsigned int )(globalYNodes) - 2 ) {
-                           topBasaltDepth( xY + 1, xX ) =  topBasaltDepth( xY,  xX );
-                        }
-                        if( xX == (unsigned int )(globalXNodes) - 2 && xY == (unsigned int )(globalYNodes) - 2 ) {
-                           topBasaltDepth( xY + 1, xX + 1 ) = topBasaltDepth( xY,  xX );
-                        }
-                     }
-                  } 
-               }
-            }
-         }
-         MPI_Barrier(PETSC_COMM_WORLD); 
-      }
-   }
    DAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
 
-
-   PETSC_3D_Array depth ( crust->layerDA,
-                          crust->Current_Properties ( Basin_Modelling::Depth ));
-   PETSC_3D_Array mantleDepth ( mantle->layerDA,
-                                mantle->Current_Properties ( Basin_Modelling::Depth ));
+   PETSC_3D_Array depth ( crust->layerDA, crust->Current_Properties ( Basin_Modelling::Depth ));
+   PETSC_3D_Array mantleDepth ( mantle->layerDA, mantle->Current_Properties ( Basin_Modelling::Depth ));
 
    int m_kIndexCrust  = crust->getMaximumNumberOfElements ();
    int m_kIndexMantle = mantle->getMaximumNumberOfElements ();
@@ -5124,6 +5009,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    double crustThinningRatio;
    const double initCrustThickness  = FastcauldronSimulator::getInstance ().getCrustFormation()->getInitialCrustalThickness();
    const double initMantleThickness = FastcauldronSimulator::getInstance ().getMantleFormation ()->getInitialLithosphericMantleThickness ();
+
    for ( i = xs; i < xs + xm; ++i ) {
        for ( j = ys; j < ys + ym; ++j ) {
           if(FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
@@ -5154,7 +5040,6 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
           }
        }
    }
-   // cout << " AppCtx::calcBasementProperties ends." << endl;
    return true;
 }
 

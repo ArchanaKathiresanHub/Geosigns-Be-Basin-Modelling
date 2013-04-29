@@ -66,7 +66,7 @@ Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( Interface::P
 
    const string lithoname = database::getLithotype (record);
    if(( projectHandle->getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ) &&
-      ( lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname  == "ALC Basalt" )) {
+      ( lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname  == DataAccess::Interface::ALCBasalt )) {
       return new BasementLithology( projectHandle, record );
    } else {
       return new SimpleLithology ( projectHandle, record );

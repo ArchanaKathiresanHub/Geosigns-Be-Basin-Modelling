@@ -353,7 +353,7 @@ void GeoPhysics::ProjectHandle::correctThermalConductivityTables () {
 
   for ( simpleLithologyIter = m_lithoTypes.begin(); simpleLithologyIter != m_lithoTypes.end (); ++simpleLithologyIter ) {
 
-     if( (*simpleLithologyIter)->getName() == "ALC Basalt" ) {
+     if( (*simpleLithologyIter)->getName() == DataAccess::Interface::ALCBasalt ) {
         continue;
      }
      SimpleLithology* simpleLithology = dynamic_cast<SimpleLithology*>(*simpleLithologyIter);
@@ -376,7 +376,7 @@ void GeoPhysics::ProjectHandle::addSimpleLithologiesToLithologyManager () {
    for ( lithoIter = m_lithoTypes.begin (); lithoIter != m_lithoTypes.end (); ++lithoIter ) {
 
       Interface::LithoType* lithoType = *lithoIter;
-      if( m_isALCMode && ( lithoType->getName() == "Crust" || lithoType->getName() == "Litho. Mantle" || lithoType->getName() == "ALC Basalt" )) {
+      if( m_isALCMode && ( lithoType->getName() == "Crust" || lithoType->getName() == "Litho. Mantle" || lithoType->getName() == DataAccess::Interface::ALCBasalt )) {
          BasementLithology * litho = dynamic_cast<BasementLithology*>( lithoType );
          assert( litho );
          litho->setBasementLithoProperties( * m_basementLithoProps );
@@ -915,10 +915,10 @@ bool GeoPhysics::ProjectHandle::createMantleHeatFlow () {
 
 bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
+   bool status = true;
    if ( m_isALCMode ) {
       unsigned int i;
       unsigned int j;
-
 
       //Create 2D Array of Polyfunction for Crust Thickness
       m_crustThicknessHistory.allocate ( getActivityOutputGrid ());
@@ -934,13 +934,21 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
       if( presentDayBasaltThickness == 0 ) {
          if( getRank() == 0 ) {
-            cerr << " MeSsAgE ERROR: BasaltThickness map is not defined." << endl;
+            cerr << " MeSsAgE ERROR BasaltThickness map is not defined." << endl;
          }
          return false;
       }
       if( crustMeltOnsetMap == 0 ) {
          if( getRank() == 0 ) {
-            cerr << " MeSsAgE ERROR: Crustal thickness at melt onset  map is not defined." << endl;
+            cerr << " MeSsAgE ERROR Crustal thickness at melt onset  map is not defined." << endl;
+         }
+         return false;
+      }
+
+      double HLini = getMantleFormation ()->getInitialLithosphericMantleThickness ();
+      if( HLini < 0 ) {
+         if( getRank() == 0 ) {
+            cerr << " MeSsAgE ERROR Initial Lithosperic Mantle Thickness map is negative." << endl;
          }
          return false;
       }
@@ -948,14 +956,13 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
       presentDayBasaltThickness->retrieveData( true );
       crustMeltOnsetMap->retrieveData( true );
    
-      double HCt_prev;
-      double v_bt, v_co, v_coeff, value, ect;
+      double HCt, HCt_prev, v_pbt, v_co, v_ct, v_coeff, v_bt, v_ect;
       
       double initialCrustalThickness = crust->getInitialCrustalThickness();
-      double HLini = getMantleFormation ()->getInitialLithosphericMantleThickness () + initialCrustalThickness ;
-      double mult_coeff = initialCrustalThickness / HLini;
-      double HCt, agePrev = 0;
+      double mult_coeff = initialCrustalThickness / ( HLini + initialCrustalThickness );
+      double agePrev = 0;
 
+      bool onsetStatus = true, basaltStatus = true;
       for ( crustThicknessIter = crustThicknesses->rbegin (); crustThicknessIter != crustThicknesses->rend (); ++crustThicknessIter ) {
 
          const Interface::PaleoFormationProperty* thicknessInstance = dynamic_cast<const Interface::PaleoFormationProperty*>(*crustThicknessIter);
@@ -968,40 +975,76 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          for ( i = thicknessMap->getGrid()->firstI ( true ); i <= thicknessMap->getGrid()->lastI (true); ++i ) {
 
             for ( j = thicknessMap->getGrid()->firstJ (true); j <= thicknessMap->getGrid()->lastJ (true); ++j ) {
-
                if ( m_validNodes ( i, j )) {
-                  value = 0.0;
-                  ect   = 0.0;
-               
-                  HCt = thicknessMap->getValue ( i, j ); 
-                  v_co = crustMeltOnsetMap->getValue( i, j );
+                  v_bt  = 0.0;
+                  v_ect = 0.0;
+                  v_co  = crustMeltOnsetMap->getValue( i, j );
+                  HCt   = thicknessMap->getValue ( i, j ); 
  
+                  if( HCt < 0.0 ) { 
+                     // cout << "Continental crustal thickness is negative ... "   << " age " << age << ", (" << i << "," << j << ") = " << HCt << ", rank " << getRank() << endl << flush;                    
+                     HCt = 0.0;
+                     status = false;
+                  }
+                  if( v_co < 0.0 ) { 
+                     // cout << "Crustal thickness at melt onset is negative ... " << " age " << age << ", (" << i << "," << j << ") = " << v_co << ", rank " << getRank() << endl << flush;
+                     v_co = 0.0;
+                     status = false;
+                  }
+                  
                   if( initialCrustalThickness < HCt || v_co <= HCt) {
-                     value = 0.0;
+                     v_bt = 0.0;
                   } else if ( v_co > HCt || HCt <= 0 ) {
                      HCt_prev = getContCrustThickness( i, j, agePrev ); // should be the minimum before current Age
                      if( HCt < HCt_prev ) { 
-                        v_bt = presentDayBasaltThickness->getValue ( i, j );
-                        v_coeff = ( v_co - HCt ) / ( v_co - getContCrustThickness( i, j, 0.0 ));
-                        value = v_bt * v_coeff;
+                        v_pbt = presentDayBasaltThickness->getValue ( i, j );
+                        if( v_pbt < 0.0 ) { 
+                           // cout << "Present day basalt thickness is negative ... " << " age " << age << ", (" << i << "," << j << ") = " << v_pbt << ", rank " << getRank() << endl << flush;
+                           v_pbt = 0.0;
+                           status = false;
+                        }
+                        
+                        v_ct = getContCrustThickness( i, j, 0.0 );
+                        if( v_ct < 0.0 ) { 
+                           // cout << "Continental crustal thickness is negative ... age 0.0, (" << i << "," << j << ") = " << v_ct << ", rank " << getRank() << endl << flush;
+                           v_ct = 0.0;
+                           status = false;
+                        }
+                        
+                        v_coeff = v_co - v_ct;  
+                        
+                        if( v_coeff != 0.0 ) {
+                           v_bt = v_pbt * ( v_co - HCt ) / v_coeff;
+                        } else {
+                           //   cout << "Present day continental crustal thickness is equal to crust thickness at melt onset....";
+                           //   cout << " age " << age << ", (" << i << "," << j << ") = " << v_co << ", rank " << getRank() << endl << flush;
+                           onsetStatus = false;
+                           v_bt = m_basaltThicknessHistory ( i, j ).GetPoint(agePrev);
+                        }
                         m_endOfRiftEvent( i, j ) = age;
-                     } else {
+                     } else {                      
                         // stop generate basalt if HCt reachs or drops below the previous minimun
-                        value = m_basaltThicknessHistory ( i, j ).GetPoint(agePrev);
+                        v_bt = m_basaltThicknessHistory ( i, j ).GetPoint(agePrev);
                      }
                   } else {
                      // we shouldn't be here
-                     value = 0.0; 
+                     v_bt = 0.0; 
                   }
-                  m_basaltThicknessHistory ( i, j ).AddPoint( age, value );
-                  ect = HCt + value * mult_coeff;
-                  if( ect < 1000 ) {
-                     ect = 1000;
-                  }
-                  m_crustThicknessHistory ( i, j ).AddPoint( age, ect );
-               }
-            }
+                  if( v_bt < 0.0 ) { 
+                     // cout << "Basalt thickness is negative ... " << " age " << age << ", (" << i << "," << j << ") = " << v_bt << ", rank " << getRank() << endl << flush;
+                     basaltStatus = false;
+                     v_bt = 0.0;
+                  }                
+                  m_basaltThicknessHistory ( i, j ).AddPoint( age, v_bt );
 
+                  v_ect = HCt + v_bt * mult_coeff;
+
+                  if( v_ect < 1000 ) {
+                     v_ect = 1000;
+                  }
+                  m_crustThicknessHistory ( i, j ).AddPoint( age, v_ect );
+                } 
+            }
          }
          agePrev = age;
          thicknessMap->restoreData ( false, true );
@@ -1011,8 +1054,18 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
       crustMeltOnsetMap->restoreData( false, true );
       initialCrustalThickness = 0;
 
+      if( not onsetStatus ) {
+         getMessageHandler ().printLine ( " MeSsAgE ERROR  Present day continental crustal thickness is equal to crust thickness at melt onset." );
+      }
+      if( not basaltStatus ) {
+         getMessageHandler ().printLine ( " MeSsAgE ERROR  Calculated basalt has some non-positive values." );
+      }
    }
-   return true;
+   if( not status ) {
+      getMessageHandler ().printLine ( " MeSsAgE ERROR  Crust or basalt has some non-positive thickness values." );
+      getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive" );      
+   }
+   return status;
 }
 bool GeoPhysics::ProjectHandle::createCrustThickness () {
 
@@ -1069,6 +1122,11 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
       m_contCrustThicknessHistory.allocate ( getActivityOutputGrid ());
     
       double localInitialCrustThickness =  -9999999999.9;
+      double localMaximumCrustThickness =  -9999999999.9;
+      double currentThickness;
+
+      double oldestMapAge = dynamic_cast<const Interface::PaleoFormationProperty*>(*(crustThicknesses->rbegin ()))->getSnapshot ()->getTime ();
+
       bool flag = false;
       for ( crustThicknessIter = crustThicknesses->begin (); crustThicknessIter != crustThicknesses->end (); ++crustThicknessIter ) {
 
@@ -1085,12 +1143,16 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
                for ( j = thicknessMap->getGrid()->firstJ ( true ); j <= thicknessMap->getGrid()->lastJ ( true ); ++j ) {
                   
                   if ( m_validNodes ( i, j )) {
-                     m_contCrustThicknessHistory ( i, j ).AddPoint( age, thicknessMap->getValue ( i, j ));
+                     currentThickness = thicknessMap->getValue ( i, j );
+                     m_contCrustThicknessHistory ( i, j ).AddPoint( age, currentThickness );
                      if( age == m_basinAge ) {
                         flag = true;
                         // localInitialCrustThickness = NumePetscMax ( localInitialCrustThickness, thicknessMap->getValue ( i, j ) );  
-                        localInitialCrustThickness = NumericFunctions::Maximum ( localInitialCrustThickness, thicknessMap->getValue ( i, j ) );  
-                     }
+                        localInitialCrustThickness = NumericFunctions::Maximum ( localInitialCrustThickness, currentThickness );  
+                     } 
+                     if( age == oldestMapAge ) {
+                        localMaximumCrustThickness = NumericFunctions::Maximum ( localMaximumCrustThickness, currentThickness ); 
+                     } 
                   }
                }
                
@@ -1101,29 +1163,43 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
       }
       
 
-      GeoPhysics::GeoPhysicsCrustFormation*  crust  = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation );
+      GeoPhysics::GeoPhysicsCrustFormation* crust = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>( m_crustFormation );
       double initialCrustalThickness = 0;
 
-      //      PetscGlobalMax(&localInitialCrustThickness, &initialCrustalThickness, PETSC_COMM_WORLD);
       getMaxValue ( &localInitialCrustThickness, &initialCrustalThickness );
 
-      crust->setInitialCrustalThickness( initialCrustalThickness );
-
-      if( getRank() == 0 ) {
-         if( not flag ) {
-            cout << " WARNING: Initial crustal thickness is not defined!" << endl;
+      if( initialCrustalThickness < 0 ) {
+         if( getRank() == 0 ) {
+            if( flag ) {
+               cout << " WARNING: Initial crustal thickness is negative!" << endl;
+            } else {
+               cout << " WARNING: Initial crustal thickness is not defined at the age of basin!" << endl;
+            }      
+         }
+         getMaxValue ( &localMaximumCrustThickness, &initialCrustalThickness );
+         if( initialCrustalThickness < 0 ) {
+            getMessageHandler ().printLine (  " MeSsAgE ERROR  Could not determine the initial crustal thickness." );
+            return false;
          } else {
-            cout << " initialCrustalThickness = " << initialCrustalThickness << endl;
+            getMessageHandler ().print (  " Setting initialCrustalThickness to = " );
+            getMessageHandler ().print ( initialCrustalThickness );
+            getMessageHandler ().printLine ( "" );
+         }
+      } else {
+         if( getRank() == 0 ) {
+            getMessageHandler ().print (  " InitialCrustalThickness = " );
+            getMessageHandler ().print ( initialCrustalThickness );
+            getMessageHandler ().printLine ( "" );
          }
       }
+      crust->setInitialCrustalThickness( initialCrustalThickness );
  
       delete crustThicknesses;
 
       if( !createBasaltThicknessAndECT() ) {
          return false;
       }
-
-      
+     
    } else {
 
       const Interface::GridMap* thicknessMap = getCrustFormation ()->getInputThicknessMap ();
@@ -1728,10 +1804,9 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
 
             if( m_isALCMode ) {
                segmentThickness = getCrustThickness( i, j, age ) / double ( formation->getMaximumNumberOfElements ());
-            } else {
+             } else {
                segmentThickness = (*mapIter)->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap )->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
             }
-
             for ( segment = 0; segment < formation->getMaximumNumberOfElements (); ++segment ) {
                formation->getSolidThickness ( i, j, segment ).AddPoint ( age, segmentThickness );
                formation->getRealThickness  ( i, j, segment ).AddPoint ( age, segmentThickness );
@@ -1962,8 +2037,8 @@ double GeoPhysics::ProjectHandle::getCrustThickness ( const unsigned int i,
 double GeoPhysics::ProjectHandle::getContCrustThickness ( const unsigned int i,
                                                           const unsigned int j,
                                                           const double       age ) const {
-  if( m_isALCMode ) {                                                         
-      return m_contCrustThicknessHistory ( i, j ).F ( age );
+  if( m_isALCMode ) {  
+     return m_contCrustThicknessHistory ( i, j ).F ( age );
   } 
   return 0.0;
 }
@@ -1972,7 +2047,7 @@ double GeoPhysics::ProjectHandle::getContCrustThickness ( const unsigned int i,
 double GeoPhysics::ProjectHandle::getBasaltThickness ( const unsigned int i,
                                                        const unsigned int j,
                                                        const double       age ) const {
-   if( m_isALCMode ) {                                                         
+   if( m_isALCMode ) {  
       return m_basaltThicknessHistory ( i, j ).F ( age );
    } 
    return 0.0;

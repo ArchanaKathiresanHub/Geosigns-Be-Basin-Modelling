@@ -19,7 +19,7 @@ void parseLine(const string &theString, const string &theDelimiter, vector<strin
 
 BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* projectHandle, 
                                         database::Record*                     record ) : 
-   SimpleLithology( projectHandle, record ){
+  SimpleLithology( projectHandle, record ){ 
    
    setLithoType();
    
@@ -29,74 +29,47 @@ BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* pr
 bool BasementLithology::setThermalModel( const string& aThermalModel ) {
 
    if( aThermalModel == "Low Conductivity Crust" ) {
-      if( m_lithotype == CRUST ) {
-         m_thermalcondmodel = m_heatcapmodel = Interface::LOWCOND_MODEL;  
-       //  cout << "Crust LOW" << endl;
-      } else if ( m_lithotype == BASALT  ) {
+      if( m_lithotype == CRUST || m_lithotype == BASALT  ) {
          m_thermalcondmodel = m_heatcapmodel = Interface::LOWCOND_MODEL;
-       //  cout << "Basalt LOW" << endl;
       } else {
          cerr << "Wrong property model " << aThermalModel << " for Mantle" << endl;
          return false;
       }
          
    } else if( aThermalModel == "Standard Conductivity Crust") {
-      if ( m_lithotype == CRUST ) {
+      if ( m_lithotype == CRUST || m_lithotype == BASALT ) {
          m_thermalcondmodel =  m_heatcapmodel = Interface::STANDARD_MODEL;
-        // cout << "Crust Stand" << endl;
-      } else if( m_lithotype == BASALT ) {
-         m_thermalcondmodel =  m_heatcapmodel = Interface::STANDARD_MODEL;
-       //  cout << "Basaslt Stand" << endl;
       } else  {
          cerr << "Wrong property model " << aThermalModel << " for Mantle" << endl;
          return false;
       }
    } else if( aThermalModel == "Legacy Crust" ) {
-      if(  m_lithotype == CRUST ) {
-      //   cout << "Crust Table" << endl;
-      } else if ( m_lithotype == BASALT ) { 
-     //    cout << " basalt table" << endl;
-      } else {
+      if(  m_lithotype == MANTLE ) { 
          cerr << "Wrong property model " << aThermalModel << " for Mantle" << endl;
          return false;
       }
    } else if( aThermalModel == "Low Conductivity Mantle") {
-      if( m_lithotype == MANTLE ) {
+      if( m_lithotype == MANTLE || m_lithotype == BASALT ) {   
          m_thermalcondmodel = m_heatcapmodel = Interface::LOWCOND_MODEL;
-        // cout << "Mantle Low" << endl;
-      } else if( m_lithotype == BASALT ) {   
-         m_thermalcondmodel = m_heatcapmodel = Interface::LOWCOND_MODEL;
-       //  cout << "Basalt Low" << endl;
       } else {
          cerr << "Wrong property model " << aThermalModel << " for Crust" << endl;
          return false;
       }
    } else if( aThermalModel == "Standard Conductivity Mantle") {
-      if( m_lithotype == MANTLE ) {
-         m_thermalcondmodel = m_heatcapmodel = Interface::STANDARD_MODEL;
-      //   cout <<" MAntle Stand" << endl;
-      } else if( m_lithotype == BASALT ) {
+      if( m_lithotype == MANTLE || m_lithotype == BASALT ) {
          m_thermalcondmodel = m_heatcapmodel = Interface::STANDARD_MODEL;
       } else {
          cerr << "Wrong property model " << aThermalModel << " for Crust" << endl;
          return false;
       }
    } else if( aThermalModel == "Legacy Mantle" ) {
-      if ( m_lithotype == MANTLE ) {
-       //  cout << "Mantle table ";
-      } else if ( m_lithotype == BASALT ) { 
-      //   cout << "Basalt table" << endl;
-      } else {
+      if ( m_lithotype == CRUST ) { 
          cerr << "Wrong property model " << aThermalModel << " for Crust" << endl;
          return false;
       }
    } else if( aThermalModel == "High Conductivity Mantle") {
-      if( m_lithotype == MANTLE ) {
+      if( m_lithotype == MANTLE || m_lithotype == BASALT ){
          m_thermalcondmodel = m_heatcapmodel = Interface::HIGHCOND_MODEL;
-       //  cout << " mantle high" << endl;
-      } else if( m_lithotype == BASALT ){
-         m_thermalcondmodel = m_heatcapmodel = Interface::HIGHCOND_MODEL;
-      //   cout << " basalt high" << endl;
       } else {
          cerr << "Wrong property model " << aThermalModel << " for Crust" << endl;
          return false;
@@ -105,8 +78,6 @@ bool BasementLithology::setThermalModel( const string& aThermalModel ) {
       cerr << "Unknown property model: " << aThermalModel << endl;
       return false;
    }
-
-   //  m_constants = aBP;
 
    return true;
    
@@ -123,7 +94,7 @@ void  BasementLithology::setLithoType() {
       m_lithotype = CRUST;
    } else if( m_lithoname == "Litho. Mantle" ) {
       m_lithotype = MANTLE;
-   } else if( m_lithoname == "ALC Basalt" ) {
+   } else if( m_lithoname == DataAccess::Interface::ALCBasalt ) {
       m_lithotype = BASALT;
    } else {
       m_lithotype = UNKNOWN;
@@ -289,7 +260,10 @@ double BasementLithology::getDensity( double t, double p ) const
 
 double BasementLithology::crustThermCondStandard (const double  inTemperature) const   {
    // input T in C
-   double thermCond = 4.0 * pow( 273.15 / (inTemperature + 273.15), 0.5 ); // W/mK
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double thermCond = 4.0 * pow( 273.15 / value, 0.5 ); // W/mK
    /*
    if( inTemperature < 575 ) {
       thermCond = 3.972 - inTemperature * (0.005473 + 3.464e-06 * inTemperature);
@@ -303,7 +277,10 @@ double BasementLithology::crustThermCondStandard (const double  inTemperature) c
 
 double BasementLithology::mantleThermCondStandard (const double  inTemperature) const   {
    // input T in C, k in W/mK
-   double thermCond = 4.881 * pow( 273.15 / (inTemperature + 273.15), 0.4062 );
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double thermCond = 4.881 * pow( 273.15 / value, 0.4062 );
 
   return thermCond;
 } 
@@ -326,7 +303,10 @@ double BasementLithology::crustHeatCapStandard (const double inTemperature) cons
 //------------------------------------------------------------//
 double BasementLithology::mantleHeatCapStandard (const double inTemperature) const  {
    // input T in C, Cp in J/kgK
-   double heatCap = 920 * pow( 273.15 / (inTemperature + 273.15), - 0.23 );
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double heatCap = 920 * pow( 273.15 / value, - 0.23 );
 
    return heatCap;
 } 
@@ -351,7 +331,10 @@ double BasementLithology::mantleDensityStandard(const double  inTemperature, con
 
 double BasementLithology::mantleThermCondHigh (const double  inTemperature, const double inLithostaticPressure)  const {
    // input T in C, k in W/mK, P in Pa
-   double thermCond = 4.76861 * pow (273.15 / (inTemperature + 273.15), 0.3441) * (1 + 2.78482e-11 * inLithostaticPressure * MPa_To_Pa);
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double thermCond = 4.76861 * pow (273.15 / value, 0.3441) * (1 + 2.78482e-11 * inLithostaticPressure * MPa_To_Pa);
 
   return thermCond;
 } 
@@ -368,13 +351,19 @@ double BasementLithology::mantleDensityHigh(const double  inTemperature, const d
 //------------------------------------------------------------//
 double BasementLithology::crustThermCondLow (const double  inTemperature) const {
    // T in C, k in W/mK
-   double thermCond = 3.5 * pow( 273.15/(inTemperature + 273.15), 0.75 );
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double thermCond = 3.5 * pow( 273.15/value, 0.75 );
 
   return thermCond;
 } 
 double BasementLithology::mantleThermCondLow (const double  inTemperature, const double inLithostaticPressure) const {
    // T in C, k in W/mK, P in Pa
-   double thermCond = 4.2798 * pow( 273.15/(inTemperature + 273.15), 0.493 ) * (1 + 3.125e-11 * inLithostaticPressure * MPa_To_Pa);
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double thermCond = 4.2798 * pow( 273.15/value, 0.493 ) * (1 + 3.125e-11 * inLithostaticPressure * MPa_To_Pa);
 
   return thermCond;
 } 
@@ -382,7 +371,10 @@ double BasementLithology::mantleThermCondLow (const double  inTemperature, const
 //------------------------------------------------------------//
 double BasementLithology::crustHeatCapLow (const double inTemperature) const {
    // T in C, heatCap in  J/kgK
-   double heatCap = 768.81 * pow( 273.15/(inTemperature + 273.15), -0.33 );
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double heatCap = 768.81 * pow( 273.15/ value, -0.33 );
 
    return heatCap;
 }
@@ -413,7 +405,10 @@ double BasementLithology::densityBasalt(const double  inTemperature, const doubl
 //------------------------------------------------------------//
 double BasementLithology::heatCapBasalt (const double inTemperature) const {
    // T in C, heatCap in  J/kgK
-   double heatCap = 838.5 * pow( 273.15/(inTemperature + 273.15), -0.298 );
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
+
+   double heatCap = 838.5 * pow( 273.15/value, -0.298 );
 
    return heatCap;
 }
@@ -421,9 +416,12 @@ double BasementLithology::heatCapBasalt (const double inTemperature) const {
 //------------------------------------------------------------//
 double BasementLithology::thermCondBasalt (const double inTemperature) const {
    // T in C, k in W/mK
-   double termCond = 2.6 * pow( 273.15/(inTemperature + 273.15), 0.28 );
+   double value = inTemperature + 273.15;
+   assert( value >= 0 );
 
-  return termCond;
+   double termCond = 2.6 * pow( 273.15/value, 0.28 );
+
+   return termCond;
 } 
 
 //------------------------------------------------------------//
