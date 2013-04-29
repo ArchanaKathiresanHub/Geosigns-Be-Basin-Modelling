@@ -36,7 +36,7 @@ echo "Creating system directories"
 mkdir -p $mainSystemDirectory
 
 # system directory aliases
-set otherSystemDirectories = "Linux LinuxRHEL64_53AS LinuxRHEL64_53WS LinuxRHEL64_56AS LinuxRHEL64_56WS LinuxRHEL64_57AS LinuxRHEL64_57WS LinuxRHEL64_58AS LinuxRHEL64_58WS"
+set otherSystemDirectories = "Linux LinuxRHEL64_53AS LinuxRHEL64_53WS LinuxRHEL64_56AS LinuxRHEL64_56WS LinuxRHEL64_57AS LinuxRHEL64_57WS LinuxRHEL64_58AS LinuxRHEL64_58WS LinuxRHEL64_63AS LinuxRHEL64_63WS"
 echo "pwd = `pwd`"
 foreach otherSystemDirectory ($otherSystemDirectories)
    ln -s $mainSystemDirectory $otherSystemDirectory
