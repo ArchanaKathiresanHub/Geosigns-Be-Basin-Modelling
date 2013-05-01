@@ -707,15 +707,6 @@ bool ProjectHandle::loadSnapshots (void)
       createSnapshotsAtGeologicalEvents();
    }
 
-   Table * tbl = getTable ("BasementIoTbl");
-   assert (tbl);
-   Record *firstRecord = tbl->getRecord (0);
-   assert (firstRecord);
-
-   if( getBottomBoundaryModel( firstRecord ) == "Advanced Lithosphere Calculator" ) {
-      createSnapshotsAtRiftEvents();
-   }
-
    for (tblIter = snapshotTbl->begin (); tblIter != snapshotTbl->end (); ++tblIter)
    {
       Record * snapshotRecord = * tblIter;
@@ -724,7 +715,15 @@ bool ProjectHandle::loadSnapshots (void)
 
    std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
 
-   return true;
+   Table * tbl = getTable ("BasementIoTbl");
+   assert (tbl);
+   Record *firstRecord = tbl->getRecord (0);
+   assert (firstRecord);
+
+   if( getBottomBoundaryModel( firstRecord ) == "Advanced Lithosphere Calculator" ) {
+      createSnapshotsAtRiftEvents();
+   }
+  return true;
 }
 
 bool ProjectHandle::createSnapshotsAtRiftEvents()
@@ -790,8 +789,11 @@ bool ProjectHandle::createSnapshotsAtRiftEvents()
          setIsMinorSnapshot  ( record, 0);
          setTypeOfSnapshot   ( record, "System Generated");
          setSnapshotFileName ( record, "");
+
+         // m_snapshots.push_back (getFactory ()->produceSnapshot (this, record));
       }
    }
+   // std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
    
    return true;
 }

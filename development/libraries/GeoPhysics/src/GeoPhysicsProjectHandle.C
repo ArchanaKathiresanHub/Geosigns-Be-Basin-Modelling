@@ -1014,7 +1014,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
                         v_coeff = v_co - v_ct;  
                         
                         if( v_coeff != 0.0 ) {
-                           v_bt = v_pbt * ( v_co - HCt ) / v_coeff;
+                           v_bt = v_pbt * (( v_co - HCt ) / v_coeff );
                         } else {
                            //   cout << "Present day continental crustal thickness is equal to crust thickness at melt onset....";
                            //   cout << " age " << age << ", (" << i << "," << j << ") = " << v_co << ", rank " << getRank() << endl << flush;
