@@ -30,16 +30,18 @@ MantleFormation::MantleFormation ( Interface::ProjectHandle * projectHandle,
    Calculate_Chemical_Compaction = false;
 
    UpliftedOrigMantleDepth = NULL;
-   LithosphereThicknessMod   = NULL;
+   LithosphereThicknessMod = NULL;
 
    setBasementVectorList();
 }
 
+//------------------------------------------------------------//
 MantleFormation::~MantleFormation () {
    Destroy_Petsc_Vector ( LithosphereThicknessMod );
    Destroy_Petsc_Vector ( UpliftedOrigMantleDepth );
 }
 
+//------------------------------------------------------------//
 void MantleFormation::cleanVectors() {
 
    if(((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->isALC() ) {
@@ -48,6 +50,7 @@ void MantleFormation::cleanVectors() {
    }
 }
 
+//------------------------------------------------------------//
 void MantleFormation::initialise () {
 
    layername = Interface::MantleFormation::getName ();
@@ -57,15 +60,18 @@ void MantleFormation::initialise () {
 
 }
 
+//------------------------------------------------------------//
 void MantleFormation::setMaximumThicknessValue ( const double newThickness ) {
    m_maximumDepositedThickness = newThickness;
 }
 
+//------------------------------------------------------------//
 const CompoundLithology* MantleFormation::getBasaltLithology(const int iPosition, const int jPosition) const {
 
    return m_basaltLithology(iPosition, jPosition);
 }
 
+//------------------------------------------------------------//
 const CompoundLithology*  MantleFormation::getLithology(const int iPosition, const int jPosition, const int kPosition ) const {
    if( FastcauldronSimulator::getInstance ().getCauldron ()->isALC() ) {
       if( BasaltMap( iPosition, jPosition, kPosition ) ) {
@@ -78,7 +84,7 @@ const CompoundLithology*  MantleFormation::getLithology(const int iPosition, con
    }
 }
 
-
+//------------------------------------------------------------//
 bool MantleFormation::setLithologiesFromStratTable () {
    
    bool createdLithologies = true;
@@ -91,9 +97,7 @@ bool MantleFormation::setLithologiesFromStratTable () {
 
       m_basaltLithology.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
                 
-      std::string lithoName1 = "ALC Basalt";
-       
-      CompoundLithologyComposition lc ( lithoName1, "",  "",
+      CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt, "",  "",
                                         100.0, 0.0, 0.0,
                                         DataAccess::Interface::MantleFormation::getMixModelStr () );
 
@@ -110,6 +114,7 @@ bool MantleFormation::setLithologiesFromStratTable () {
    
 }
 
+//------------------------------------------------------------//
 const CompoundLithology* MantleFormation::getLithology( const double aTime, const int iPosition, const int jPosition, const double aOffset ) {
    // If offset from the top of the Mantle (aOffset) goes above the bottom of Basalt, then we are in Basalt
    const AppCtx* aBasinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
@@ -136,6 +141,7 @@ const CompoundLithology* MantleFormation::getLithology( const double aTime, cons
    }
 }
 
+//------------------------------------------------------------//
 void MantleFormation::allocateBasementVecs( ) {
  
    const AppCtx* basinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
@@ -159,16 +165,19 @@ void MantleFormation::allocateBasementVecs( ) {
   }
 }
 
+//------------------------------------------------------------//
 void MantleFormation::initialiseBasementVecs() {
    UpliftedOrigMantleDepth = NULL;
    LithosphereThicknessMod = NULL;
 }
 
+//------------------------------------------------------------//
 void MantleFormation::reInitialiseBasementVecs() {
    Destroy_Petsc_Vector ( UpliftedOrigMantleDepth );
    Destroy_Petsc_Vector ( LithosphereThicknessMod ); 
 }
 
+//------------------------------------------------------------//
 void MantleFormation::setBasementVectorList() {
    vectorList.VecArray[ALCORIGMANTLE] = &UpliftedOrigMantleDepth; UpliftedOrigMantleDepth = NULL;
    vectorList.VecArray[HLMOD]         = &LithosphereThicknessMod; LithosphereThicknessMod = NULL;

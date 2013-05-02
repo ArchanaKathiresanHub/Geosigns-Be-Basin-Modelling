@@ -36,7 +36,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
   // If the compound lithology could not be found on the 
   // list then it must be created and added to the list.
   // Basalt, as a part of mantle or Crust, can have differnent type of a thermal model 
-  if ( compoundIter == compoundLithologies.end() || ( composition.lithologyName( 3 ) == "ALC Basalt" )) {
+  if ( compoundIter == compoundLithologies.end() || ( composition.lithologyName( 3 ) == DataAccess::Interface::ALCBasalt )) {
     bool   mixedSuccessfully;
 
     compoundLithology = dynamic_cast<GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );

@@ -104,7 +104,7 @@ GeoPhysics::CompoundLithologyComposition GeoPhysics::CompoundLithology::getCompo
 bool GeoPhysics::CompoundLithology::isBasement() const {
 
    const string lithoname = m_lithoComponents [ 0 ]->getName();
-   if(( this->m_lithoComponents.size() == 1 ) && ( lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname == "ALC Basalt" )) {     
+   if(( this->m_lithoComponents.size() == 1 ) && ( lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname == DataAccess::Interface::ALCBasalt )) {     
       return true;
    }
    return false;
@@ -1885,7 +1885,7 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement ( const FluidTyp
   SimpleLithology * currentLitho =  m_lithoComponents [ 0 ];
 
   if(( currentLitho->getThermalCondModel() == Interface::TABLE_MODEL ||
-       currentLitho->getThermalCondModel() == Interface::CONSTANT_MODEL ) && m_lithoComponents [ 0 ]->getName() != "ALC Basalt" ) {
+       currentLitho->getThermalCondModel() == Interface::CONSTANT_MODEL ) && m_lithoComponents [ 0 ]->getName() != DataAccess::Interface::ALCBasalt ) {
      MatrixTHCondN = thermalconductivityN( Temperature );
      MatrixTHCondP = thermalconductivityP( Temperature );
      

@@ -165,6 +165,7 @@ namespace DataAccess
       /// list type for constrained overpressure intervals.
       typedef vector<const ConstrainedOverpressureInterval*> ConstrainedOverpressureIntervalList;
 
+      const string ALCBasalt = "ALC Basalt";
 
       // Shale-gas specific classes.
 

@@ -7,7 +7,7 @@ endif (BM_BUILD_SERIAL_APPS)
 if (UNIX)
 	# Tests
 	# add_subdirectory(PreferredDirectionUnitTest)
-	# add_subdirectory(TestDataAccess), Compilation error
+        # add_subdirectory(TestDataAccess), Compilation error
 	# add_subdirectory(TestDistributedDataAccess), Compilation error
 	# add_subdirectory(UnitTestGenex5), Compilation error
 	# add_subdirectory(UnitTestGenex6), Compilation error
@@ -21,6 +21,7 @@ if (UNIX)
 		add_subdirectory(fastctc)
 	endif()
 	if (BM_BUILD_SERIAL_APPS)
+                add_subdirectory(upcauldron)
 		add_subdirectory(cauldron2bhf)
 		add_subdirectory(cauldron2eclipse)
 		add_subdirectory(cauldron2voxet)

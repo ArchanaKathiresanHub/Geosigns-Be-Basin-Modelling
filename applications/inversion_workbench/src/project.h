@@ -26,8 +26,9 @@ public:
   typedef double Time; // in mA (million of years ago)
   typedef double Thickness; // in meters.
 
+  typedef std::pair<Time, Thickness> ThicknessAtTime;
 
-  void setCrustThickness( const std::vector< std::pair<Time, Thickness> > & series);
+  void setCrustThickness( const std::vector< ThicknessAtTime> & series);
 
   void clearSnapshotTable();
 

@@ -43,9 +43,11 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
    SmTopBasaltDepth = NULL;
    SmBottomBasaltDepth = NULL;
 
+   
    setBasementVectorList();
  }
 
+//------------------------------------------------------------//
 CrustFormation::~CrustFormation () {
 
    if ( m_heatProductionMap != 0 and not m_heatProductionMap->retrieved ()) {
@@ -65,6 +67,7 @@ CrustFormation::~CrustFormation () {
    Destroy_Petsc_Vector ( SmBottomBasaltDepth );
  }
 
+//------------------------------------------------------------//
 void CrustFormation::initialise () {
 
    layername = Interface::CrustFormation::getName ();
@@ -81,6 +84,7 @@ void CrustFormation::initialise () {
 
 }
 
+//------------------------------------------------------------//
 void CrustFormation::cleanVectors() {
 
    if(((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->isALC() ) {
@@ -92,9 +96,11 @@ void CrustFormation::cleanVectors() {
       
       previousBasaltMap = BasaltMap;
       BasaltMap.fill( false );
+
    }
 }
 
+//------------------------------------------------------------//
 void CrustFormation::allocateBasementVecs() {
 
    const AppCtx* basinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
@@ -144,7 +150,8 @@ void CrustFormation::allocateBasementVecs() {
       }
     }
 }
-
+  
+//------------------------------------------------------------//
 void CrustFormation::initialiseBasementVecs() {
    TopBasaltDepth           = NULL;
    BasaltThickness          = NULL;
@@ -155,7 +162,8 @@ void CrustFormation::initialiseBasementVecs() {
    SmTopBasaltDepth         = NULL;
    SmBottomBasaltDepth      = NULL;
 }
-
+    
+//------------------------------------------------------------//
 void CrustFormation::reInitialiseBasementVecs() {
 
    Destroy_Petsc_Vector ( TopBasaltDepth );
@@ -167,7 +175,8 @@ void CrustFormation::reInitialiseBasementVecs() {
    Destroy_Petsc_Vector ( SmTopBasaltDepth );
    Destroy_Petsc_Vector ( SmBottomBasaltDepth );
 }
-
+   
+//------------------------------------------------------------//
 void CrustFormation::setBasementVectorList() {
 
    vectorList.VecArray[TOPBASALTALC] = &TopBasaltDepth; TopBasaltDepth = NULL;
@@ -179,11 +188,14 @@ void CrustFormation::setBasementVectorList() {
    vectorList.VecArray[ALCSMTOPBASALT] = &SmTopBasaltDepth; SmTopBasaltDepth = NULL;
    vectorList.VecArray[ALCSMMOHO] = &SmBottomBasaltDepth; SmBottomBasaltDepth = NULL;
 }
-
+    
+//------------------------------------------------------------//
 const CompoundLithology* CrustFormation::getBasaltLithology(const int iPosition, const int jPosition) const {
 
    return m_basaltLithology(iPosition, jPosition);
 }
+    
+//------------------------------------------------------------//
 const CompoundLithology* CrustFormation::getLithology(const int iPosition, const int jPosition, const int kPosition ) const {
    if( FastcauldronSimulator::getInstance ().getCauldron ()->isALC() ) {
       if( BasaltMap( iPosition, jPosition, kPosition ) ) {
@@ -196,6 +208,8 @@ const CompoundLithology* CrustFormation::getLithology(const int iPosition, const
    }
    
 }
+    
+//------------------------------------------------------------//
 
 const CompoundLithology* CrustFormation::getLithology( const double aTime, const int iPosition, const int jPosition,  const double aOffset ) {
    // crustThickness shows a ContinentalCrustalThickness. If offset from the top of the Crust (aOffset) goes below it, than we are in Basalt
@@ -222,6 +236,8 @@ const CompoundLithology* CrustFormation::getLithology( const double aTime, const
       return LayerProps::getLithology(iPosition, jPosition);
    }
 }
+    
+//------------------------------------------------------------//
 
 bool CrustFormation::setLithologiesFromStratTable () {
 
@@ -234,10 +250,8 @@ bool CrustFormation::setLithologiesFromStratTable () {
      double formationStartDepositionAge = GeoPhysics::AgeOfEarth;
      
      m_basaltLithology.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
-
-     std::string  lithoName1 = "ALC Basalt";
      
-     CompoundLithologyComposition lc ( lithoName1,           "",  "",
+     CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt,           "",  "",
                                        100.0, 0.0, 0.0,
                                        DataAccess::Interface::CrustFormation::getMixModelStr ());
 
@@ -245,9 +259,6 @@ bool CrustFormation::setLithologiesFromStratTable () {
      CompoundLithology* pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
      createdLithologies = pMixedLitho != 0;
      m_basaltLithology.fillWithLithology ( formationStartDepositionAge, pMixedLitho );
-      //  if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() && m_projectHandle->getRank() == 0 ) {
-      //    cout << "Crust basalt property model = " << pMixedLitho->getThermalModel() << endl;
-      // }
 }
 
   return createdLithologies;

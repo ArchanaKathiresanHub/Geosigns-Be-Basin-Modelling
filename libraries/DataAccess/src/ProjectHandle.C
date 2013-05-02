@@ -706,6 +706,7 @@ bool ProjectHandle::loadSnapshots (void)
    {
       createSnapshotsAtGeologicalEvents();
    }
+
    for (tblIter = snapshotTbl->begin (); tblIter != snapshotTbl->end (); ++tblIter)
    {
       Record * snapshotRecord = * tblIter;
@@ -718,22 +719,15 @@ bool ProjectHandle::loadSnapshots (void)
    assert (tbl);
    Record *firstRecord = tbl->getRecord (0);
    assert (firstRecord);
+
    if( getBottomBoundaryModel( firstRecord ) == "Advanced Lithosphere Calculator" ) {
       createSnapshotsAtRiftEvents();
    }
-   return true;
+  return true;
 }
 
 bool ProjectHandle::createSnapshotsAtRiftEvents()
 {
-   database::Table *tbl = getTable ("BasementIoTbl");
-   assert (tbl);
-   Record *firstRecord = tbl->getRecord (0);
-   assert (firstRecord);
-   bool isALC = ( getBottomBoundaryModel( firstRecord ) == "Advanced Lithosphere Calculator");
-   if( not isALC ) {
-      return true;
-   }
    const string tableName = getCrustIoTableName();
    unsigned int  i;
 
@@ -742,7 +736,7 @@ bool ProjectHandle::createSnapshotsAtRiftEvents()
    std::list<double> geologicalEventAges;
    
    // Add events from the StratIoTbl
-   tbl = getTable ("StratIoTbl");
+   Table * tbl = getTable ("StratIoTbl");
    assert (tbl);
 
    for (i = 0; i < tbl->size (); i++)   
@@ -760,7 +754,7 @@ bool ProjectHandle::createSnapshotsAtRiftEvents()
    
    tbl = getTable (tableName);
    assert (tbl);
-   
+
    for ( i = 0; i < tbl->size (); i++)   
    {
       Record *record = tbl->getRecord (i);
@@ -795,8 +789,11 @@ bool ProjectHandle::createSnapshotsAtRiftEvents()
          setIsMinorSnapshot  ( record, 0);
          setTypeOfSnapshot   ( record, "System Generated");
          setSnapshotFileName ( record, "");
+
+         // m_snapshots.push_back (getFactory ()->produceSnapshot (this, record));
       }
    }
+   // std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
    
    return true;
 }
@@ -1993,7 +1990,7 @@ bool ProjectHandle::loadLithoTypes (void)
          record = new Record( lithoTypeTbl->getTableDefinition(), lithoTypeTbl );
          setPermMixModel( record, "None" );
       }
-      setLithotype( record, "ALC Basalt" );
+      setLithotype( record, DataAccess::Interface::ALCBasalt ); 
       m_lithoTypes.push_back (getFactory ()->produceLithoType (this, record));
    }
    return true;
@@ -2179,7 +2176,14 @@ bool ProjectHandle::addCrustThinningHistoryMaps (void) {
       const string tableName = getCrustIoTableName();
       Table * crustIoTbl = getTable( tableName );
       assert( crustIoTbl );
-
+ 
+       /*
+      cout << "CrustThickness maps in project file: " ;
+      for ( thicknessIter = m_crustPaleoThicknesses.begin (); thicknessIter != m_crustPaleoThicknesses.end (); ++ thicknessIter ) {
+         cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
+      }
+      cout << endl;
+      */
       for ( thicknessIter = m_crustPaleoThicknesses.begin (); thicknessIter != m_crustPaleoThicknesses.end (); ++ thicknessIter ) {
          const Interface::GridMap* map1 = (*thicknessIter)->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap );
          
@@ -2211,22 +2215,25 @@ bool ProjectHandle::addCrustThinningHistoryMaps (void) {
       }
       sort (crustIoTbl->begin (), crustIoTbl->end (), CrustIoTblSorter);
 
-      // cout << "New CrustThickness maps: " ;
-      // for ( thicknessIter = newCrustalThicknesses.begin (); thicknessIter != newCrustalThicknesses.end (); ++ thicknessIter ) {
-      //    cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
-      // }
-      // cout << endl;
-       
+      /*
+      cout << "New CrustThickness maps added: " ;
+      for ( thicknessIter = newCrustalThicknesses.begin (); thicknessIter != newCrustalThicknesses.end (); ++ thicknessIter ) {
+         cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
+      }
+      cout << endl;
+      */
       for ( thicknessIter = newCrustalThicknesses.begin (); thicknessIter != newCrustalThicknesses.end (); ++ thicknessIter ) {
          m_crustPaleoThicknesses.push_back( *thicknessIter );
       }
       sort( m_crustPaleoThicknesses.begin(),  m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan() );
 
-      // cout << "CrustThickness maps: " ;
-      // for ( thicknessIter = m_crustPaleoThicknesses.begin (); thicknessIter != m_crustPaleoThicknesses.end (); ++ thicknessIter ) {
-      //    cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
-      // }
-      // cout << endl;
+      /*
+      cout << "CrustThickness maps: " ;
+      for ( thicknessIter = m_crustPaleoThicknesses.begin (); thicknessIter != m_crustPaleoThicknesses.end (); ++ thicknessIter ) {
+         cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
+      }
+      cout << endl;
+      */
    }
 
    return true;
