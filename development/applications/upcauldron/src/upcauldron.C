@@ -265,6 +265,23 @@ int main (int argc, char ** argv)
          setXCoord (wellLocIoRecord, 0.01);
       if (getYCoord (wellLocIoRecord) == 0)
          setYCoord (wellLocIoRecord, 0.01);
+
+      database::Table * projectIoTbl = tables->getTable ("ProjectIoTbl");
+      if (!projectIoTbl)
+      {
+         if (!quiet)
+            cerr << "No ProjectIoTbl table was found in the project file" << endl;
+         return 2;
+      }
+
+      Record *projectIoRecord = projectIoTbl->getRecord (0);
+
+      // may be set to -1 sometimes
+      setWindowXMin (projectIoRecord, 0);
+      setWindowXMax (projectIoRecord, 1);
+      setWindowYMin (projectIoRecord, 0);
+      setWindowYMax (projectIoRecord, 1);
+
    }
 
    // Update the source rocks /////////////////////////////////////
@@ -423,10 +440,12 @@ int main (int argc, char ** argv)
    const double salinity_13 = 0.13; // ppm
    const double salinity_22 = 0.22; // ppm
 
+#if 0
    const double liquidusTemperature_0 = 0; // degC
    const double liquidusTemperature_13 = -9.03; // degC
    const double liquidusTemperature_22 = -19.19; // degC
    const double solidusTemperatureOffset = -2.146; // degC
+#endif
 
    database::Table * fluidTypeIoTbl = tables->getTable ("FluidtypeIoTbl");
    if (!fluidTypeIoTbl)
@@ -436,6 +455,7 @@ int main (int argc, char ** argv)
       return 2;
    }
 
+#if 0
    database::Table::iterator fluidTypeIoTblIter;
 
    for (fluidTypeIoTblIter = fluidTypeIoTbl->begin (); fluidTypeIoTblIter != fluidTypeIoTbl->end (); ++fluidTypeIoTblIter)
@@ -489,6 +509,7 @@ int main (int argc, char ** argv)
          }
       }
    }
+#endif
 
    // HDF5 output ///////////////////////////////////////////////////
 
