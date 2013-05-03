@@ -266,16 +266,6 @@ int main (int argc, char ** argv)
       if (getYCoord (wellLocIoRecord) == 0)
          setYCoord (wellLocIoRecord, 0.01);
 
-      database::Table * projectIoTbl = tables->getTable ("ProjectIoTbl");
-      if (!projectIoTbl)
-      {
-         if (!quiet)
-            cerr << "No ProjectIoTbl table was found in the project file" << endl;
-         return 2;
-      }
-
-      Record *projectIoRecord = projectIoTbl->getRecord (0);
-
       // may be set to -1 sometimes
       setWindowXMin (projectIoRecord, 0);
       setWindowXMax (projectIoRecord, 1);
@@ -284,16 +274,24 @@ int main (int argc, char ** argv)
 
    }
 
+   if (modellingMode == "Multiple 1d")
+   {
+      setModellingMode (projectIoRecord, "3d");
+   }
+
    // Update the source rocks /////////////////////////////////////
    database::Table * stratIoTbl = tables->getTable ("StratIoTbl");
    if (!stratIoTbl)
    {
       if (!quiet)
+      {
          cerr << "No StratIoTbl table was found in the project file" << endl;
+      }
       return 2;
    }
 
    database::Table::iterator stratIoTblIter;
+   bool firstLine = true;
    for (stratIoTblIter = stratIoTbl->begin (); stratIoTblIter != stratIoTbl->end (); ++stratIoTblIter)
    {
       Record *stratRecord = *stratIoTblIter;
@@ -301,6 +299,26 @@ int main (int argc, char ** argv)
       if (getChemicalCompaction (stratRecord) == UndefinedTableValue)
       {
          setChemicalCompaction (stratRecord, 0);
+      }
+
+      if (getHydroSand (stratRecord) == UndefinedTableValue)
+      {
+         setHydroSand (stratRecord, 0);
+      }
+
+      if (firstLine)
+      {
+	 if (getDepoAge (stratRecord) != 0)
+	 {
+	    if (!quiet)
+	    {
+	       cerr << inputFileName << ":" << endl;
+	       cerr << "  Changing DepoAge of top surface " << getSurfaceName (stratRecord)
+		  << " from " << getDepoAge (stratRecord) << " to 0" << endl << endl;
+	    }
+	    setDepoAge (stratRecord, 0);
+	 }
+	 firstLine = false;
       }
    }
 
