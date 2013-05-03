@@ -405,8 +405,15 @@ int main (int argc, char ** argv)
 	    {
 	       cerr << "  Did not recognize source rock type " << sourceRockTypeOld  << " of formation " << getLayerName (sourceRockLithoRecord) << endl << endl;
 	    }
-            sourceRockTypeNew = "Type_II_Paleozoic_MarineShale_kin";
          }
+	 setHCInputMode (sourceRockLithoRecord, "HC");
+
+	 double HC = getHcVRe05 (sourceRockLithoRecord);
+
+	 if (HC > 1.35)       sourceRockTypeNew = "Type_I_CenoMesozoic_Lacustrine_kin";
+	 else if (HC > 1.225) sourceRockTypeNew = "Type_II_Mesozoic_MarineShale_kin";
+	 else if (HC > 1.00)  sourceRockTypeNew = "Type_II_Paleozoic_MarineShale_kin";
+	 else                 sourceRockTypeNew = "Type_III_MesoPaleozoic_VitriniticCoal_kin";
       }
 
       if (sourceRockTypeOld != sourceRockTypeNew)

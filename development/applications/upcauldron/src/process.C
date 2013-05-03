@@ -14,12 +14,13 @@ using namespace std;
 #include <sys/wait.h>
 #include <fcntl.h>
 
-#include <stdio.h>
-#include <errno.h>
+#include <cstdio>
+#include <cerrno>
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
+
 #include <unistd.h>
-#include <strings.h>
 
 static int NumChildren = 0;
 static struct sigaction SignalActions;
@@ -197,7 +198,6 @@ void killChild (int pid)
 char * findExecutable (char * name)
 {
    struct stat statusbuffer;
-   extern int errno;
 
    char * ptrStart;
    char * ptrEnd;
