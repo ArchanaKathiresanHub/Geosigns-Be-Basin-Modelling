@@ -1156,7 +1156,7 @@ double PTDiagramCalculator::findAoverBTerm()
    double abMax = -1.0;
    if ( m_critT + m_eps < foundCritT ) // should decrease A/B term
    {
-      while( m_critT + m_eps < foundCritT )
+      while( m_critT + m_eps < foundCritT  && m_AoverB > m_eps )
       {
          m_AoverB *= 0.8;
          if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
@@ -1172,7 +1172,7 @@ double PTDiagramCalculator::findAoverBTerm()
    }
    else if ( m_critT > m_eps + foundCritT ) // should increase A/B term
    {
-      while( m_critT > m_eps + foundCritT )
+      while( m_critT > m_eps + foundCritT && m_AoverB < 10 + m_eps )
       {
          m_AoverB *= 1.2;
          if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
@@ -1192,6 +1192,13 @@ double PTDiagramCalculator::findAoverBTerm()
       m_critP = foundCritP;
       return m_AoverB;
    } 
+
+   // check if m_AoverB goues outside of the bounds
+   if ( m_AoverB < m_eps || m_AoverB > 10 )
+   {
+      m_AoverB = abSaved;
+      return m_AoverB;
+   }
 
    // do bisections by A/B term
    for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
