@@ -8,48 +8,45 @@ class DatadrillerProperty
 {
 
 public:
-  DatadrillerProperty(const std::string & RetrievedVariable, double SnapshotTime = 0.0, double PositionX = 460001, double PositionY = 6750001, double PositionBegZ = 0.0, double PositionEndZ = 1000.0, double StepZ = 0.0)
-    : m_RetrievedVariable(RetrievedVariable)
-    , m_SnapshotTime(SnapshotTime)
-    , m_PositionX(PositionX)
-    , m_PositionY(PositionY)
-    , m_PositionBegZ(PositionBegZ)
-    , m_PositionEndZ(PositionEndZ)
-    , m_StepZ(StepZ)
-  {}
+  DatadrillerProperty(const std::string & retrievedVariable, double snapshotTime = 0.0, double positionX = 460001, double positionY = 6750001, double positionBegZ = 0.0, double positionEndZ = 1000.0, double stepZ = 0.0)
+     : m_retrievedVariable(retrievedVariable)
+     , m_snapshotTime(snapshotTime)
+     , m_positionX(positionX)
+     , m_positionY(positionY)
+     , m_positionBegZ(positionBegZ)
+     , m_positionEndZ(positionEndZ)
+     , m_stepZ(stepZ)
+   {}
 
-  const std::string & getName() const
-  { return m_RetrievedVariable; }
+   const std::string & getName() const
+   { return m_retrievedVariable; }
 
-  double getTime() const
-  { return m_SnapshotTime; }
+   double getTime() const
+   { return m_snapshotTime; }
 
-  double getPositionX() const
-  { return m_PositionX; }
+   double getPositionX() const
+   { return m_positionX; }
 
-  double getPositionY() const
-  { return m_PositionY; }
+   double getPositionY() const
+   { return m_positionY; }
 
-  double getPositionBegZ() const
-  { return m_PositionBegZ; }
+   double getPositionBegZ() const
+   { return m_positionBegZ; }
 
-  double getPositionEndZ() const
-  { return m_PositionEndZ; }
+   double getPositionEndZ() const
+   { return m_positionEndZ; }
 
-  double getStepZ() const
-  { return m_StepZ; }
-
+   double getStepZ() const
+   { return m_stepZ; }
 
 private:
-  std::string m_RetrievedVariable;
-  double m_SnapshotTime;
-  double m_PositionX;
-  double m_PositionY;
-  double m_PositionBegZ;
-  double m_PositionEndZ;
-  double m_StepZ;
-
-
+   std::string m_retrievedVariable;
+   double m_snapshotTime;
+   double m_positionX;
+   double m_positionY;
+   double m_positionBegZ;
+   double m_positionEndZ;
+   double m_stepZ;
 };
 
 #endif

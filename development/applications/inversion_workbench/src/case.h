@@ -1,65 +1,38 @@
 #ifndef INVERSION_CASE_H
 #define INVERSION_CASE_H
 
-#include "parameter.h"
 #include <string>
 #include <vector>
-#include "project.h"
 
-#include "Interface/ProjectHandle.h"
-#include "DataMiningProjectHandle.h"
-#include "CauldronDomain.h"
-#include "DatadrillerProperty.h"
-
-/*class InlineVector
-{
-public:
-
-  InlineVector & add(double x)
-  {
-    m_vector.push_back(x);
-    return *this;
-  }
-
-  operator std::vector<double> () const
-  {
-    return m_vector;
-  }
-
-private:
-  std::vector<double> m_vector;
-};*/
-
-
+class Parameter;
+class DatadrillerProperty;
 
 class Case
 {
 public:
 
    Case();
-   Case(const std::vector< Parameter* > & values); //const std::string & templateProjectFilename,
+   Case(const std::vector< Parameter* > & values); 
 
    void addParameter(Parameter * parameter);
 
-   void addVariableToDrill(const DatadrillerProperty & OneVariableDef);
+   void addVariableToDrill(const DatadrillerProperty & oneVariableDef);
 
-   void set_ProjectFile(const std::string & filename1);
+   void setProjectFile(const std::string & filename1);
 
-   void set_ResultsFile(const std::string & filename2);
+   void setResultsFile(const std::string & filename2);
 
-   void create_project_file(const std::string & input, const std::string & output);
+   void createProjectFile(const std::string & input, const std::string & output);
 
-   void Define_location_to_drill(const DatadrillerProperty & PropertyDrilled);
+   void defineLocationToDrill(const DatadrillerProperty & propertyDrilled);
 
-   void readOnePropertyProjectFile(const std::string & propertyName = "Temperature", int Property_Iterator = 1, double snapshotTime = 0.0, double x = 460001, double y = 6750001);
+   void readOnePropertyProjectFile(const std::string & propertyName = "Temperature", int propertyIterator = 1, double snapshotTime = 0.0, double x = 460001, double y = 6750001);
 
    void readProjectFile();
 
-// InlineVector().add(0).add(500).add(1000));
+   void displayResults() const;
 
-   void display_results() const;
-
-   void display_Parameters() const;
+   void displayParameters() const;
 
 private:
 
@@ -69,16 +42,15 @@ private:
 private:
 
    std::string m_outputDataFile;
-   std::vector< vector<double> > results;
-   std::vector<double> zs;
-   double xs;
-   double ys;
-   double ts;
+   std::vector< std::vector<double> > m_results;
+   std::vector<double> m_zs;
+   double m_xs;
+   double m_ys;
+   double m_ts;
 
 private:
 
-   std::vector<string> m_VariablesToDrill;
-
+   std::vector< std::string > m_variablesToDrill;
 };
 
 #endif

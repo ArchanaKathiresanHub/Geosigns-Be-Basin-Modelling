@@ -3,35 +3,38 @@
 
 #include <string>
 #include <vector>
-#include "case.h"
-#include "DatadrillerProperty.h"
 #include <sstream>
+
+#include "case.h"
+#include "RuntimeConfiguration.h"
+
+class DatadrillerProperty;
+class Property;
 
 class Experiment
 {
 public:
 //  Experiment(const std::string & configurationFile);
-  Experiment(std::vector< Property * > params, std::vector<DatadrillerProperty> & DatadrillerDefinitions, RuntimeConfiguration & datainfo);
+   Experiment(std::vector< Property * > params, std::vector<DatadrillerProperty> & DatadrillerDefinitions, RuntimeConfiguration & datainfo);
 
-  void sample(std::vector<Property *> parameterDefinitions, std::vector< Case > & allProjects );
-//  void Case :: addCase(const Case & case);
+   void sample(std::vector<Property *> parameterDefinitions, std::vector< Case > & allProjects );
 
-  void define_datamining( std::vector<DatadrillerProperty> & DatadrillerDefinitions, std::vector< Case > & allProjects );
+   void defineDatamining( std::vector<DatadrillerProperty> & DatadrillerDefinitions, std::vector< Case > & allProjects );
 
-  std::vector<std::string> create_projects_set();
+   std::vector<std::string> createProjectsSet();
 
-  void runProjectSet( const std::vector< std::string > & fileList);
+   void runProjectSet( const std::vector< std::string > & fileList);
 
-  void ReadExperimentResults();
+   void readExperimentResults();
 
-  void ReadExperimentCases();
+   void readExperimentCases();
 
-  void display_Cases() const;
+   void displayCases() const;
 
 
 private:
-  std::vector< Case > m_cases;
-  RuntimeConfiguration m_experiment_info;
+   std::vector< Case > m_cases;
+   RuntimeConfiguration m_experimentInfo;
 };
 
 #endif

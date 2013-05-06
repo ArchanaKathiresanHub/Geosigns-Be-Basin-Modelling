@@ -67,12 +67,14 @@ set (generator_source_files
   )
 
 add_executable(parameter-space-exploration-tool 
-        src/parameter-space-exploration-tool.C
-        src/parameter.C
-        src/case.C
-        src/experiment.C
-        src/project.C
         src/BasementProperty.C
+        src/BasementParameter.C
+        src/case.C
+        src/CrustalThinningParameter.C
+        src/CrustalThinningProperty.C
+        src/experiment.C
+        src/parameter-space-exploration-tool.C
+        src/project.C
 	${generator_source_files}
 )
 

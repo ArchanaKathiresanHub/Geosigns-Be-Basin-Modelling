@@ -1,97 +1,88 @@
-#include "case.h"
-#include "DatadrillerProperty.h"
 #include <string>
 #include <iostream>
-#include "formattingexception.h"
 
-Case::Case(const std::vector<Parameter*> & values)// const std::string & templateProjectFilename,
-: m_values(values)
-, m_workingProjectFile("not defined")
-, m_outputDataFile("not defined")
-, results(0)
+#include "case.h"
+#include "DatadrillerProperty.h"
+#include "formattingexception.h"
+#include "parameter.h"
+#include "project.h"
+
+#include "Interface/ProjectHandle.h"
+#include "DataMiningProjectHandle.h"
+#include "CauldronDomain.h"
+
+Case::Case(const std::vector<Parameter*> & values)
+   : m_values(values)
+   , m_workingProjectFile("not defined")
+   , m_outputDataFile("not defined")
+   , m_results(0)
 {
 }
 
 
 Case::Case()
-: m_values()
-, m_workingProjectFile()
-, m_outputDataFile()
-, results()
+   : m_values()
+   , m_workingProjectFile()
+   , m_outputDataFile()
+   , m_results()
 {
 }
-
-/*
-Case::Case(const Case & C)
-: m_values()
-, m_workingProjectFile()
-, m_outputDataFile()
-, results()
-{
-}
-*/
 
 
 void Case::addParameter(Parameter * pt_parameter)
 {
-  m_values.push_back( pt_parameter);
+   m_values.push_back( pt_parameter);
 }
 
 
-void Case::addVariableToDrill(const DatadrillerProperty & OneVariableDef )
+void Case::addVariableToDrill(const DatadrillerProperty & oneVariableDef )
 {
-  m_VariablesToDrill.push_back( OneVariableDef.getName() );
+   m_variablesToDrill.push_back( oneVariableDef.getName() );
 }
 
 
-void Case::set_ProjectFile(const std::string & filename1)
+void Case::setProjectFile(const std::string & filename1)
 {
-  m_workingProjectFile = filename1;
+   m_workingProjectFile = filename1;
 }
 
-void Case::set_ResultsFile(const std::string & filename2)
+void Case::setResultsFile(const std::string & filename2)
 {
-  m_outputDataFile = filename2;
+   m_outputDataFile = filename2;
 }
 
-void Case::create_project_file(const std::string & input, const std::string & output)
+void Case::createProjectFile(const std::string & input, const std::string & output)
 {
-  Project project( input, output);
+   Project project( input, output);
 
-  for (unsigned i = 0; i < m_values.size(); ++i)
-  {
-    m_values[i]->Change_parameter(project);
-  }
+   for (unsigned i = 0; i < m_values.size(); ++i)
+   {
+      m_values[i]->changeParameter(project);
+   }
 
-  project.close();
-//  project.~Project();
-//  setBasementProperty(const std::string & parameter, double newValue);
-//  project.setBasementProperty(values[i], x2);
+   project.close();
 }
 
 
-
-void Case::Define_location_to_drill(const DatadrillerProperty & PropertyDrilled)
+void Case::defineLocationToDrill(const DatadrillerProperty & propertyDrilled)
 {
-  
-double Start = PropertyDrilled.getPositionBegZ();
-double End = PropertyDrilled.getPositionEndZ();
-double Step = PropertyDrilled.getStepZ();
+   double start = propertyDrilled.getPositionBegZ();
+   double end = propertyDrilled.getPositionEndZ();
+   double step = propertyDrilled.getStepZ();
 
-double current_depth = Start; 
+   double currentDepth = start; 
 
-zs.clear();
+   m_zs.clear();
 
-while(current_depth <= End)
-{
-  zs.push_back(current_depth);
-  current_depth += Step;
-}
+   while(currentDepth <= end)
+   {
+      m_zs.push_back(currentDepth);
+      currentDepth += step;
+   }
 
-xs=PropertyDrilled.getPositionX();
-ys=PropertyDrilled.getPositionY();
-ts=PropertyDrilled.getTime();
-
+   m_xs = propertyDrilled.getPositionX();
+   m_ys = propertyDrilled.getPositionY();
+   m_ts = propertyDrilled.getTime();
 }
 
 struct ReadPropertyException : formattingexception::BaseException<ReadPropertyException > {};
@@ -101,59 +92,55 @@ struct ReadPropertyException : formattingexception::BaseException<ReadPropertyEx
 ///  - a snapshot time,
 ///  - horizontal coordinates, x and y, and
 ///  - a series of depths, in zs,
-///  this function return the results from the simulation in the output vector 'results'.
+///  this function return the results from the simulation in the output vector 'm_results'.
 void Case::readOnePropertyProjectFile(const std::string & propertyName, int Property_Iterator, double snapshotTime, double x, double y)
 {
+   // clear the result vector
+   //  m_results.clear();
 
+   const std::string project = m_workingProjectFile;
 
-  // clear the result vector
+   // Open project file
+   DataAccess::Mining::DomainPropertyFactory factory;
+   DataAccess::Interface::ProjectHandle::UseFactory( &factory );
 
-//  results.clear();
+   DataAccess::Mining::ProjectHandle* projectHandle 
+     = dynamic_cast< DataAccess::Mining::ProjectHandle * >(
+ 	 DataAccess::Interface::OpenCauldronProject(project, "r")
+       );
 
-  const std::string project = m_workingProjectFile;
+   if (!projectHandle)
+      throw ReadPropertyException() << "Could not load project file '" << project << "'";
 
-  // Open project file
-  DataAccess::Mining::DomainPropertyFactory factory;
-  DataAccess::Interface::ProjectHandle::UseFactory( &factory );
+   // Load property
+   const DataAccess::Interface::Property* property = projectHandle->findProperty (propertyName);
+   if (!property) 
+      throw ReadPropertyException() << "Unknown PropertyName value: " << propertyName;
 
-  DataAccess::Mining::ProjectHandle* projectHandle 
-    = dynamic_cast< DataAccess::Mining::ProjectHandle * >(
-	DataAccess::Interface::OpenCauldronProject(project, "r")
-      );
-
-  if (!projectHandle)
-    throw ReadPropertyException() << "Could not load project file '" << project << "'";
-
-  // Load property
-  const DataAccess::Interface::Property* property = projectHandle->findProperty (propertyName);
-  if (!property) 
-    throw ReadPropertyException() << "Unknown PropertyName value: " << propertyName;
-
-  // Load snapshot
-  if (snapshotTime < 0) 
-    throw ReadPropertyException() << "Illegal snapshot time: " << snapshotTime;
-  const DataAccess::Interface::Snapshot * snapshot = projectHandle->findSnapshot (snapshotTime);
-  DataAccess::Mining::CauldronDomain domain ( projectHandle );
-  domain.setSnapshot (snapshot);
-  DataAccess::Mining::DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
-  domainProperties->setSnapshot (snapshot);
+   // Load snapshot
+   if (snapshotTime < 0) 
+      throw ReadPropertyException() << "Illegal snapshot time: " << snapshotTime;
+   const DataAccess::Interface::Snapshot * snapshot = projectHandle->findSnapshot (snapshotTime);
+   DataAccess::Mining::CauldronDomain domain ( projectHandle );
+   domain.setSnapshot (snapshot);
+   DataAccess::Mining::DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
+   domainProperties->setSnapshot (snapshot);
 	
-  // Check whether the x and y are in the grid
-  unsigned int a, b;
-  const DataAccess::Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid ();
-  if (!grid->getGridPoint (x, y, a, b)) 
-    throw ReadPropertyException() << "Illegal (XCoord, YCoord) pair: (" << x << ", " << y << ")";
+   // Check whether the x and y are in the grid
+   unsigned int a, b;
+   const DataAccess::Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid ();
+   if (!grid->getGridPoint (x, y, a, b)) 
+      throw ReadPropertyException() << "Illegal (XCoord, YCoord) pair: (" << x << ", " << y << ")";
        
-  // Retrieve the results
-  for (size_t i = 0; i < zs.size(); ++i)
-  {
-    DataAccess::Mining::ElementPosition element;
-    if (!domain.findLocation (x, y, zs[i], element))
-      throw ReadPropertyException() << "Illegal point coordinates: " << x << ", " << y << ", " << zs[i];
+   // Retrieve the results
+   for (size_t i = 0; i < m_zs.size(); ++i)
+   {
+      DataAccess::Mining::ElementPosition element;
+      if (!domain.findLocation (x, y, m_zs[i], element))
+         throw ReadPropertyException() << "Illegal point coordinates: " << x << ", " << y << ", " << m_zs[i];
 
-    results[Property_Iterator].push_back( domainProperties->getDomainProperty (property)->compute (element) );
-  }
-
+      m_results[Property_Iterator].push_back( domainProperties->getDomainProperty (property)->compute (element) );
+   }
 }
 
 
@@ -162,54 +149,52 @@ void Case::readProjectFile()
 {
 
 /*  for (int i = 0; i < 5; ++i )  // To be changed 
-  {
-    zs.push_back(double(i) * 100.0);
-  }*/
+   {
+     m_zs.push_back(double(i) * 100.0);
+   }*/
 
-  results.resize( m_VariablesToDrill.size() );
+   m_results.resize( m_variablesToDrill.size() );
 
-/*  for (int i = 0; i < m_VariablesToDrill.size(); ++i )
-  {
-    results[i].resize(zs.size());
-  }
+/*  for (int i = 0; i < m_variablesToDrill.size(); ++i )
+   {
+     m_results[i].resize(m_zs.size());
+   }
 */
 
-
-
-  for(size_t i = 0; i < m_VariablesToDrill.size(); ++i)
-  {
-    readOnePropertyProjectFile( m_VariablesToDrill[i], i, ts, xs, ys );
-  }
+   for(size_t i = 0; i < m_variablesToDrill.size(); ++i)
+   {
+      readOnePropertyProjectFile( m_variablesToDrill[i], i, m_ts, m_xs, m_ys );
+   }
 }
 
 
 
-void Case::display_results() const
+void Case::displayResults() const
 {
- std::cout << "Output data are being saved..." << std::endl;;
- std::ofstream ofs( (m_outputDataFile + ".dat").c_str(), ios_base::out | ios_base::trunc );
+   std::cout << "Output data are being saved..." << std::endl;;
+   std::ofstream ofs( (m_outputDataFile + ".dat").c_str(), ios_base::out | ios_base::trunc );
 
-  ofs << "Datamining from project " << m_workingProjectFile << " :"<< endl;
-  for (size_t i = 0; i < results.size(); ++i)
-  {
-    ofs << m_VariablesToDrill[i] << " ";
-    for (size_t j = 0; j < results[i].size(); ++j)
-    {
-      ofs << results[i][j] << " ";
-    }
-    ofs  << endl;
-  }
+   ofs << "Datamining from project " << m_workingProjectFile << " :"<< endl;
+   for (size_t i = 0; i < m_results.size(); ++i)
+   {
+      ofs << m_variablesToDrill[i] << " ";
+      for (size_t j = 0; j < m_results[i].size(); ++j)
+      {
+         ofs << m_results[i][j] << " ";
+      }
+      ofs  << endl;
+   }
 }
 
 
 
-void Case::display_Parameters() const
+void Case::displayParameters() const
 {
-  std::cout << "Displaying parameters: " << std::endl;
-  for (int i = 0; i < m_values.size(); ++i)
-  {
-    m_values[i]->print();
-  }
+   std::cout << "Displaying parameters: " << std::endl;
+   for (int i = 0; i < m_values.size(); ++i)
+   {
+      m_values[i]->print();
+   }
 }
 
 
