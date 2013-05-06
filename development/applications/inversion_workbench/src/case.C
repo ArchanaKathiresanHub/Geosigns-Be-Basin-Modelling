@@ -58,8 +58,6 @@ void Case::create_project_file(const std::string & input, const std::string & ou
 {
   Project project( input, output);
 
-  std::cout << output << std::endl;
-
   for (unsigned i = 0; i < m_values.size(); ++i)
   {
     m_values[i]->Change_parameter(project);

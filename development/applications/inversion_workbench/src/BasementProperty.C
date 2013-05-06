@@ -26,25 +26,12 @@ CrustalThinningProperty::CrustalThinningProperty(std::vector<InputParameterDataR
 //    m_step=1;
 //    m_end=1;
 
-   std::cout << "CrustalThinningData.size(): " << CrustalThinningData.size() << std::endl;
-
    for (int i=0; i<CrustalThinningData.size(); ++i )
     {
-
-     std::cout << "***CrustalThinningData[i].calculate_nb_cases(): " << CrustalThinningData[i].calculate_nb_cases() << std::endl;
      m_end = m_end * CrustalThinningData[i].calculate_nb_cases();
     }
 
-   std::cout << "m_end: " << m_end << std::endl;
-
    this->FromUserInputParameterToCrustalIoTable();
-
-   std::cout << "Constructor for CrustalThinningProperty..." << std::endl;
-
-   std::cout << "m_start: " << m_start << std::endl;
-   std::cout << "m_end: " << m_end << std::endl;
-   std::cout << "m_step: " << m_step << std::endl;
-
   }
 
 
@@ -57,8 +44,6 @@ std::vector< double > Lcrusti;
 std::vector< double > Beta;
 
 
-std::cout << "m_CrustalThinningData.size(): " << m_CrustalThinningData.size() << std::endl;
-
 for ( int i=0; i< m_CrustalThinningData.size(); ++i )
  {
 
@@ -67,11 +52,6 @@ for ( int i=0; i< m_CrustalThinningData.size(); ++i )
 
   for ( double value= m_CrustalThinningData[i].getStart(); value<= m_CrustalThinningData[i].getEnd(); value+= m_CrustalThinningData[i].getStep() )
    {
-
-     std::cout << "Value: " << value << " i: " << i << std::endl;
-
-     std::cout << "m_CrustalThinningData[i].getStart(): " << m_CrustalThinningData[i].getStart() << " m_CrustalThinningData[i].getEnd(): " << m_CrustalThinningData[i].getEnd() << std::endl;
-
      if (i==0) 
      {
        T0.push_back(value);
@@ -99,9 +79,6 @@ for ( int i=0; i< m_CrustalThinningData.size(); ++i )
 
   for ( double value= m_CrustalThinningData[i].getEnd(); value<= m_CrustalThinningData[i].getStart(); value+= m_CrustalThinningData[i].getStep() )
    {
-
-     std::cout << "Value: " << value << std::endl;
-
      if (i==0) 
      {
        T0.push_back(value);
@@ -131,8 +108,6 @@ for ( int i=0; i< m_CrustalThinningData.size(); ++i )
 
      size_t value= m_CrustalThinningData[i].getEnd();
 
-     std::cout << "Value: " << value << std::endl;
-
      if (i==0) 
      {
        T0.push_back(value);
@@ -158,15 +133,6 @@ for ( int i=0; i< m_CrustalThinningData.size(); ++i )
 
  }
 
-std::cout << "T0.size(): " << T0.size() << std::endl;
-std::cout << "DTime.size(): " << DTime.size() << std::endl;
-std::cout << "Lcrusti.size(): " << Lcrusti.size() << std::endl;
-std::cout << "Beta.size(): " << Beta.size() << std::endl;
-
-std::cout << "m_CrustalThinningData[i].getStart(): " << m_CrustalThinningData[0].getStart() << std::endl;
-std::cout << "m_CrustalThinningData[i].getEnd(): " << m_CrustalThinningData[0].getEnd() << std::endl;
-std::cout << "m_CrustalThinningData[i].getStep(): " << m_CrustalThinningData[0].getStep() << std::endl;
-
 std::vector< ThicknessAtTime > CrustIoTable(2);
 
 for ( int i=0; i<T0.size(); ++i )
@@ -183,8 +149,6 @@ for ( int i=0; i<T0.size(); ++i )
         double Lcrust1 = Lcrusti[k];
         double Lcrust2 = pow(Beta[l],-1.0) * Lcrust1;
 
-	std::cout << "Time1: " << Time1 << " Time2: " << Time2 << " Lcrust1: " << Lcrust1 << " Lcrust2: " << Lcrust2 << std::endl;
-
         CrustIoTable[0] = std::make_pair( Time2, Lcrust2 );
         CrustIoTable[1] = std::make_pair( Time1, Lcrust1 );
 
@@ -195,11 +159,6 @@ for ( int i=0; i<T0.size(); ++i )
      }
    }
  }
-
-
-std::cout << "m_CrustalThinningTableforProjectFile: " << m_CrustalThinningTableforProjectFile.size() << std::endl;
-
-
 
 /*  size_t j=0;
 
@@ -226,19 +185,11 @@ std::cout << "m_CrustalThinningTableforProjectFile: " << m_CrustalThinningTablef
 
 void CrustalThinningProperty::CreateParameter(Case & project, double value)
 {
-
 //std::vector< ThicknessAtTime > & series;
-
-  std::cout << int(value) << "****CrustalThinningProperty::CreateParameter " << m_CrustalThinningTableforProjectFile.size() << std::endl;
   project.addParameter( new CrustalThinningParameter(m_CrustalThinningTableforProjectFile[int(value)-1]) );
-
-
-
 
 /*  int index = static_cast<int>(value);
 
-  std::cout << index << "****CrustalThinningProperty::CreateParameter " << m_CrustalThinningTableforProjectFile.size() << std::endl;
-  
   assert( index >= 0 );
   assert( index <  m_CrustalThinningTableforProjectFile.size() );
 

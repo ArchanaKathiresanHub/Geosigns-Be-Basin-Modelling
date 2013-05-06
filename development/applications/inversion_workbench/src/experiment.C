@@ -14,8 +14,6 @@ Experiment :: Experiment( std::vector< Property *> params, std::vector<Datadrill
 {
 //m_cases.push_back( Case() );
 Experiment::sample( params, m_cases);
-std::cout << "m_cases: " << m_cases.size() << std::endl;
-std::cout << m_experiment_info.getTemplateProjectFile() << std::endl;
 Experiment::define_datamining(DatadrillerDefinitions , m_cases);
 }
 
@@ -32,23 +30,13 @@ void Experiment::sample( std::vector<Property *> parameterDefinitions, std::vect
 
   std::vector< Case > newOutput;
 
-  std::cout << "Property: " << lastParameterDefinition->getName() << std::endl;
-  std::cout << "allProjects.size(): " << allProjects.size() << std::endl;
-
   for (unsigned i = 0; i < allProjects.size(); ++i)
   {
- 
-      std::cout << "lastParameterDefinition->getEnd(): " << lastParameterDefinition->getEnd() << std::endl;
-      std::cout << "lastParameterDefinition->getStep(): " << lastParameterDefinition->getStep() << std::endl;
-      std::cout << "++value <= lastParameterDefinition->getEnd(): " << (lastParameterDefinition->getStart() <= lastParameterDefinition->getEnd()) << std::endl;
-
     for (double value = lastParameterDefinition->getStart() ; value <= lastParameterDefinition->getEnd(); value += lastParameterDefinition->getStep() )  
     {
 
       Case project = allProjects[i];
-      std::cout << "***Value experiment: " << value << std::endl;
       lastParameterDefinition->CreateParameter(project, value);
-      project.display_Parameters();
 
 /*    Case project = allProjects[i];
       pt_param = Parameter( lastParameterDefinition->getName(), value);
@@ -75,8 +63,6 @@ void Experiment::define_datamining( std::vector<DatadrillerProperty> & Datadrill
 
   std::vector< Case > newOutput;
 
-  std::cout << allProjects.size() << std::endl;
-
   for (unsigned i = 0; i < allProjects.size(); ++i)
   {
     Case project = allProjects[i];
@@ -102,7 +88,6 @@ std::vector<std::string> Experiment :: create_projects_set()
     outputProjectWithoutExtension.erase(dotPos, std::string::npos);
   }
 
-//  std::cout << inputProject << std::endl;
   std::ostringstream directory;
   directory << m_experiment_info.getOutputDirectoryAddress() << "./";
 
@@ -121,7 +106,6 @@ std::vector<std::string> Experiment :: create_projects_set()
     projects_list.push_back(directory.str() + outputProject.str());
 
   }
-//  std::cout << projects_list.str() << std::endl;
 
   return projects_list;
 }
@@ -131,7 +115,6 @@ std::vector<std::string> Experiment :: create_projects_set()
 {
   std::string command="./TEST_FOLDER/cauldron-datadriller-parallel.sh ";
   command=command+File_List;
-  std::cout << command << std::endl;
   system(command.c_str());
 
 }*/
@@ -151,7 +134,6 @@ void Experiment :: runProjectSet( const std::vector< std::string > & fileList)
             << " -project " << fileList[i]
             << ' ' << runtimeParams;
     
-  std::cout << command.str() << std::endl;
   system( command.str().c_str() );
   }
 }
@@ -180,9 +162,6 @@ void Experiment::ReadExperimentCases()
 
 void Experiment::display_Cases() const
 {
-  std::cout << "Experiment::display_Cases()" << std::endl;
-  std::cout << "m_cases.size() " << m_cases.size() <<std::endl;
-
   for (int i=0; i < m_cases.size(); ++i)
   {
     m_cases[i].display_Parameters();
