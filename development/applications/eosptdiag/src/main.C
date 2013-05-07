@@ -1034,42 +1034,42 @@ static void plotSpecialPoints( std::ofstream & ofs )
    ofs << "dT = (ax(2) - ax(1)) / 100;\n";
    ofs << "dP = (ax(4) - ax(3)) / 100;\n";
 
-   ofs << "text( TrapCond(1) + dT, TrapCond(2) - dP, 'Tcm = TrapCond(1) K',   'fontweight', 'bold' );\n";
-   ofs << "text( TrapCond(1) + dT, TrapCond(2) + dP, 'Pcm = TrapCond(2) MPa', 'fontweight', 'bold' );\n";
+   ofs << "text( TrapCond(1) + dT, TrapCond(2) - dP, sprintf( 'Tcm = %g K',   TrapCond(1) ), 'fontweight', 'bold' );\n";
+   ofs << "text( TrapCond(1) + dT, TrapCond(2) + dP, sprintf( 'Pcm = %g MPa', TrapCond(2) ), 'fontweight', 'bold' );\n";
    ofs << "\n";
 
    ofs << "%Point for surface conditions\n";
    ofs << "plot( [ SurfCond(1) ], [ SurfCond(2) ], 'ro', 'linewidth', 2 );\n";
-   ofs << "text( SurfCond(1) + dT, SurfCond(2) + dP,     'Tsrf = SurfCond(1) K',   'fontweight', 'bold' );\n";
-   ofs << "text( SurfCond(1) + dT, SurfCond(2) + 3 * dP, 'Psrf = SurfCond(2) MPa', 'fontweight', 'bold' );\n";
+   ofs << "text( SurfCond(1) + dT, SurfCond(2) + dP,     sprintf( 'Tsrf = %g K',   SurfCond(1) ), 'fontweight', 'bold' );\n";
+   ofs << "text( SurfCond(1) + dT, SurfCond(2) + 3 * dP, sprintf( 'Psrf = %g MPa', SurfCond(2) ), 'fontweight', 'bold' );\n";
    ofs << "\n";
 
    ofs << "%Critical point\n";
    ofs << "if ( CritPoint(1) > 0 && CritPoint(2) > 0 )\n";
    ofs << "   plot( [ CritPoint(1) ], [ CritPoint(2) ], 'ro', 'linewidth', 2 );\n";
-   ofs << "   text( CritPoint(1) + dT, CritPoint(2) - dP, 'Tcr = CritPoint(1) K',   'fontweight', 'bold' );\n";
-   ofs << "   text( CritPoint(1) + dT, CritPoint(2) + dP, 'Pcr = CritPoint(2) MPa', 'fontweight', 'bold' );\n";
+   ofs << "   text( CritPoint(1) + dT, CritPoint(2) - dP, sprintf( 'Tcr = %g K',   CritPoint(1) ), 'fontweight', 'bold' );\n";
+   ofs << "   text( CritPoint(1) + dT, CritPoint(2) + dP, sprintf( 'Pcr = %g MPs', CritPoint(2) ), 'fontweight', 'bold' );\n";
    ofs << "end\n";
    ofs << "\n";
 
    ofs << "%Bubble/dew point for temperature in trap\n";
    ofs << "if( BubblePoint(2) > 0 )\n";
    ofs << "   plot( [ BubblePoint(1) ], [ BubblePoint(2) ], 'go', 'linewidth', 2 );\n";
-   ofs << "   text( BubblePoint(1) + dT, BubblePoint(2) - dP, 'Tcm = BubblePoint(1) K',   'fontweight', 'bold' );\n";
-   ofs << "   text( BubblePoint(1) + dT, BubblePoint(2) + dP, 'Pbb = BubblePoint(2) MPa', 'fontweight', 'bold' );\n";
+   ofs << "   text( BubblePoint(1) + dT, BubblePoint(2) - dP, sprintf( 'Tcm = %g K',   BubblePoint(1) ), 'fontweight', 'bold' );\n";
+   ofs << "   text( BubblePoint(1) + dT, BubblePoint(2) + dP, sprintf( 'Pbb = %g MPa', BubblePoint(2) ), 'fontweight', 'bold' );\n";
    ofs << "end\n";
    ofs << "\n";
 
    ofs << "%Cricondentherm point\n";
    ofs << "plot( [ CricondthermPoint(1) ], [ CricondthermPoint(2) ], 'bo', 'linewidth', 2 );\n";
-   ofs << "text( CricondthermPoint(1) + dT, CricondthermPoint(2) - dP, 'Tct = CricondthermPoint(1) K',   'fontweight', 'bold' );\n";
-   ofs << "text( CricondthermPoint(1) + dT, CricondthermPoint(2) + dP, 'Pct = CricondthermPoint(2) MPa', 'fontweight', 'bold' );\n";
+   ofs << "text( CricondthermPoint(1) + dT, CricondthermPoint(2) - dP, sprintf( 'Tct = %g K',   CricondthermPoint(1) ), 'fontweight', 'bold' );\n";
+   ofs << "text( CricondthermPoint(1) + dT, CricondthermPoint(2) + dP, sprintf( 'Pct = %g MPa', CricondthermPoint(2) ), 'fontweight', 'bold' );\n";
    ofs << "\n";
 
    ofs << "%Cricondenbar point\n";
    ofs << "plot( [ CricondenbarPoint(1) ], [ CricondenbarPoint(2) ], 'bo', 'linewidth', 2 );\n";
-   ofs << "text( CricondenbarPoint(1) + dT, CricondenbarPoint(2) - dP, 'Tcp = CricondenbarPoint(1) K',   'fontweight', 'bold' );\n";
-   ofs << "text( CricondenbarPoint(1) + dT, CricondenbarPoint(2) + dP, 'Pcp = CricondenbarPoint(2) MPa', 'fontweight', 'bold' );\n";
+   ofs << "text( CricondenbarPoint(1) + dT, CricondenbarPoint(2) - dP, sprintf( 'Tcp = %g K',   CricondenbarPoint(1) ), 'fontweight', 'bold' );\n";
+   ofs << "text( CricondenbarPoint(1) + dT, CricondenbarPoint(2) + dP, sprintf( 'Pcp = %g MPa', CricondenbarPoint(2) ), 'fontweight', 'bold' );\n";
    ofs << "\n";
 }
 
