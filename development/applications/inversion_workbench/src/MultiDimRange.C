@@ -13,7 +13,7 @@ void
 MultiDimRange
    :: reset()
 { 
-   m_isPastEnd = false;
+   m_isPastEnd = m_ranges.empty();
 
    for (size_t i = 0; i < m_ranges.size(); ++i)
    {
