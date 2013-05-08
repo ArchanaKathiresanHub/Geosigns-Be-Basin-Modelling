@@ -3,7 +3,9 @@
 
 #include <string>
 #include <vector>
-#include <sstream>
+#include <iosfwd>
+
+#include <boost/shared_ptr.hpp>
 
 #include "case.h"
 #include "RuntimeConfiguration.h"
@@ -11,29 +13,33 @@
 class DatadrillerProperty;
 class Property;
 
+/// An Experiment consists of several cases (see Case) that are generated / sampled
+/// from a set of properties (see Property). This experiment can be executed and 
+/// the results can be collected.
 class Experiment
 {
 public:
-//  Experiment(const std::string & configurationFile);
-   Experiment(std::vector< Property * > params, std::vector<DatadrillerProperty> & DatadrillerDefinitions, RuntimeConfiguration & datainfo);
+   Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & DatadrillerDefinitions, const RuntimeConfiguration & datainfo);
 
-   void sample(std::vector<Property *> parameterDefinitions, std::vector< Case > & allProjects );
+   /// Generate the set of Cauldron project files from the cases: one for each case.
+   void createProjectsSet() const;
 
-   void defineDatamining( std::vector<DatadrillerProperty> & DatadrillerDefinitions, std::vector< Case > & allProjects );
+   /// Run fastcauldron on each generated project file
+   void runProjectSet();
 
-   std::vector<std::string> createProjectsSet();
+   /// Collect the results into .dat files.
+   void collectResults() const;
 
-   void runProjectSet( const std::vector< std::string > & fileList);
-
-   void readExperimentResults();
-
-   void readExperimentCases();
-
-   void displayCases() const;
-
+   /// For debugging purposes: show which cases have been generated.
+   void printCases(std::ostream & output) const;
 
 private:
+   void sample(std::vector< boost::shared_ptr<Property> > & parameterDefinitions, std::vector< Case > & allProjects );
+   std::string workingProjectFileName(unsigned caseNumber) const;
+   std::string resultsFileName(unsigned caseNumber) const;
+
    std::vector< Case > m_cases;
+   std::vector< DatadrillerProperty > m_probes;
    RuntimeConfiguration m_experimentInfo;
 };
 

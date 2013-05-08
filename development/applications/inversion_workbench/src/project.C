@@ -108,6 +108,21 @@ Project
    }
 }
 
+
+void
+Project
+   :: setCrustThicknessThinningEvent(double startTime, double duration, double thickness, double ratio)
+{
+   double endTime = startTime - duration;
+   double endThickness = std::pow(ratio,-1.0) * thickness;
+
+   std::vector< ThicknessAtTime > crustIoTable(2);
+   crustIoTable[0] = std::make_pair( endTime , endThickness );
+   crustIoTable[1] = std::make_pair( startTime, thickness );
+
+   setCrustThickness(crustIoTable);
+}
+
 void
 Project
    :: clearSnapshotTable()

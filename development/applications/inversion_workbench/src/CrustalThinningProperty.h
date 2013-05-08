@@ -4,25 +4,23 @@
 #include <vector>
 
 #include "Property.h"
-#include "InputParameterDataRow.h"
+#include "ScalarRange.h"
+#include "MultiDimRange.h"
 
 class Case;
 
 class CrustalThinningProperty : public Property
 {
 public:
-   typedef double Time; // in mA (million of years ago)
-   typedef double Thickness; // in meters.
-   typedef std::pair<Time, Thickness> ThicknessAtTime;
+   CrustalThinningProperty(ScalarRange t0, ScalarRange dt, ScalarRange dz, ScalarRange ratio);
 
-   CrustalThinningProperty(std::vector<InputParameterDataRow> crustalThinningData);
-   virtual void createParameter(Case & project, double value);
-
-   void fromUserInputParameterToCrustalIoTable();
+   virtual void reset();
+   virtual void createParameter(Case & project) const ;
+   virtual void nextValue() ;
+   virtual bool isPastEnd() const ;
 
 private:
-   std::vector<InputParameterDataRow> m_crustalThinningData;
-   std::vector< std::vector< ThicknessAtTime > > m_crustalThinningTableForProjectFile;
+   MultiDimRange m_range;
 };
 
 

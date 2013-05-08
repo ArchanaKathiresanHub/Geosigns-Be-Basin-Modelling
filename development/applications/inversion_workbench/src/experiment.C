@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <iomanip>
 
 #include "experiment.h"
 
@@ -12,125 +14,89 @@
 
 #include <unistd.h>
 
-Experiment :: Experiment( std::vector< Property *> params, std::vector<DatadrillerProperty> & datadrillerDefinitions, RuntimeConfiguration & dataInfo)
+Experiment :: Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & datadrillerDefinitions, const RuntimeConfiguration & dataInfo)
    : m_cases(1, Case() )
+   , m_probes(datadrillerDefinitions)
    , m_experimentInfo(dataInfo)
 {
-   //m_cases.push_back( Case() );
-   Experiment::sample( params, m_cases);
-   Experiment::defineDatamining(datadrillerDefinitions , m_cases);
+   std::vector< boost::shared_ptr<Property> > paramsCopy(params);
+   sample( paramsCopy, m_cases);
 }
 
-void Experiment::sample( std::vector<Property *> parameterDefinitions, std::vector< Case > & allProjects )
+void Experiment::sample( std::vector< boost::shared_ptr<Property> > & parameterDefinitions, std::vector< Case > & allCases )
 {
    if (parameterDefinitions.empty())
       return;
 
-   Property* lastParameterDefinition = parameterDefinitions.back();
+   boost::shared_ptr<Property> lastParameterDefinition = parameterDefinitions.back();
    parameterDefinitions.pop_back(); 
 
-   sample(parameterDefinitions, allProjects );
+   sample(parameterDefinitions, allCases);
 
    std::vector< Case > newOutput;
 
-   for (unsigned i = 0; i < allProjects.size(); ++i)
+   for (unsigned i = 0; i < allCases.size(); ++i)
    {
-      for (double value = lastParameterDefinition->getStart() ; value <= lastParameterDefinition->getEnd(); value += lastParameterDefinition->getStep() )  
+      lastParameterDefinition->reset();
+      while (! lastParameterDefinition->isPastEnd())
       {
-         Case project = allProjects[i];
-         lastParameterDefinition->createParameter(project, value);
-
-/*    Case project = allProjects[i];
-      pt_param = Parameter( lastParameterDefinition->getName(), value);
-      project.addParameter( pt_param );*/
-
-         newOutput.push_back( project );
+         Case newCase = allCases[i];
+         lastParameterDefinition->createParameter(newCase);
+         newOutput.push_back( newCase );
+         lastParameterDefinition->nextValue();
       }
    }
 
-   allProjects.swap( newOutput );
+   allCases.swap( newOutput );
 }
 
-
-void Experiment::defineDatamining( std::vector<DatadrillerProperty> & datadrillerDefinitions, std::vector< Case > & allProjects )
+std::string Experiment::workingProjectFileName(unsigned caseNumber) const
 {
-   if (datadrillerDefinitions.empty())
-     return;
-
-   DatadrillerProperty lastDatadrillerVariableDefinition = datadrillerDefinitions.back();
-   datadrillerDefinitions.pop_back(); 
-
-   defineDatamining(datadrillerDefinitions, allProjects );
-
-   std::vector< Case > newOutput;
-
-   for (unsigned i = 0; i < allProjects.size(); ++i)
-   {
-      Case project = allProjects[i];
-      project.addVariableToDrill( DatadrillerProperty( lastDatadrillerVariableDefinition.getName() ) );
-      project.defineLocationToDrill(lastDatadrillerVariableDefinition);
-      newOutput.push_back( project );
-   }
-
-   allProjects.swap( newOutput );
+   std::ostringstream fileName;
+   fileName 
+         << m_experimentInfo.getOutputDirectory()
+         << '/'
+         << m_experimentInfo.getOutputFileNamePrefix()
+         << "_" << caseNumber + 1 
+         << ".project3d";
+   return fileName.str();
 }
 
-
-
-std::vector<std::string> Experiment :: createProjectsSet()
+std::string Experiment::resultsFileName(unsigned caseNumber) const
 {
-   std::vector<std::string> projectsList;
-   std::string inputProject = m_experimentInfo.getTemplateProjectFile();
-   std::string outputProjectWithoutExtension = m_experimentInfo.getOutputFileNamePrefix();
-   std::string::size_type dotPos = outputProjectWithoutExtension.rfind (".project3d");
-   if (dotPos != std::string::npos)
-   {
-      outputProjectWithoutExtension.erase(dotPos, std::string::npos);
-   }
+   std::ostringstream fileName;
+   fileName 
+         << m_experimentInfo.getOutputDirectory()
+         << '/'
+         << "Datadriller_"
+         << m_experimentInfo.getOutputFileNamePrefix()
+         << "_" << caseNumber + 1 
+         << ".project3d.dat";
+   return fileName.str();
+}
 
-   std::ostringstream directory;
-   directory << m_experimentInfo.getOutputDirectoryAddress() << "./";
+void Experiment :: createProjectsSet() const
+{
+   // TODO: Remove old directory? Copy input maps of project file?
 
    for (unsigned i = 0; i < m_cases.size(); ++i)
-   {
-      std::ostringstream outputProject;
-      outputProject 
-         << outputProjectWithoutExtension
-         << "_" << i+1 
-         << ".project3d";
-
-      m_cases[i].createProjectFile(inputProject, directory.str() + outputProject.str());
-      m_cases[i].setProjectFile(directory.str() + outputProject.str());
-      m_cases[i].setResultsFile(directory.str() + "Datadriller_" + outputProject.str());
-
-      projectsList.push_back(directory.str() + outputProject.str());
-   }
-
-  return projectsList;
+      m_cases[i].createProjectFile( m_experimentInfo.getTemplateProjectFile(), workingProjectFileName(i));
 }
 
 
-/*  void Experiment :: run_projects_set(std::string File_List)
-{
-  std::string command="./TEST_FOLDER/cauldron-datadriller-parallel.sh ";
-  command=command+File_List;
-  system(command.c_str());
-
-}*/
-
-void Experiment :: runProjectSet( const std::vector< std::string > & fileList)
+void Experiment :: runProjectSet() 
 {
    const std::string version = "2012.1008";
    const std::string fastcauldronPath = "fastcauldron";
    const std::string runtimeParams = "-temperature";
 
 //  #pragma omp parallel for
-   for (unsigned i = 0; i < fileList.size(); ++i)
+   for (unsigned i = 0; i < m_cases.size(); ++i)
    {
       std::ostringstream command;
       command << fastcauldronPath 
               << " -v" << version
-              << " -project " << fileList[i]
+              << " -project " << workingProjectFileName(i)
               << ' ' << runtimeParams;
     
       system( command.str().c_str() );
@@ -138,30 +104,43 @@ void Experiment :: runProjectSet( const std::vector< std::string > & fileList)
 }
 
 
-void Experiment :: readExperimentResults()
+void Experiment :: collectResults() const
 {
    for (unsigned i=0; i < m_cases.size(); ++i)
    {
-      m_cases[i].readProjectFile();
-      m_cases[i].displayResults();
+      std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
+      ofs << "Datamining from project " << workingProjectFileName(i) << " :\n";
+
+      for (unsigned j = 0; j < m_probes.size(); ++j)
+      {
+         std::vector<double> results;
+         m_probes[j].readResults(workingProjectFileName(i), results );
+
+         ofs << m_probes[j].getName() << " ";
+         for (size_t k = 0; k < results.size(); ++k)
+            ofs << results[k] << " ";
+
+         ofs << '\n';
+      }
    }
 }
 
 
-void Experiment::readExperimentCases()
+
+void Experiment::printCases( std::ostream & output ) const
 {
-   for (int i=0; i < m_cases.size(); ++i)
+   if (m_cases.empty())
    {
-      m_cases[i].readProjectFile();
-      m_cases[i].displayResults();
+      output << "Experiment has no cases\n";
    }
-}
-
-
-void Experiment::displayCases() const
-{
-   for (int i=0; i < m_cases.size(); ++i)
+   else
    {
-      m_cases[i].displayParameters();
+      output << "Cases of experiment\n";
+      for (int i=0; i < m_cases.size(); ++i)
+      {
+         output << std::setw(3) << i+1 << ") ";
+         m_cases[i].printParameters(output);
+         output << '\n';
+      }
    }
 }

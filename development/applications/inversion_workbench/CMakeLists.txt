@@ -1,5 +1,6 @@
 add_executable(probe
     src/probe.C
+    src/ProjectResultsReader.C
 )
 
 add_executable(adjust
@@ -70,11 +71,14 @@ add_executable(parameter-space-exploration-tool
         src/BasementProperty.C
         src/BasementParameter.C
         src/case.C
+        src/MultiDimRange.C
         src/CrustalThinningParameter.C
         src/CrustalThinningProperty.C
+        src/DatadrillerProperty.C
         src/experiment.C
         src/parameter-space-exploration-tool.C
         src/project.C
+        src/ProjectResultsReader.C
 	${generator_source_files}
 )
 

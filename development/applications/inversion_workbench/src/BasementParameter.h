@@ -11,7 +11,7 @@ class BasementParameter : public Parameter
 {
 public:
    BasementParameter(const std::string & name, double value);
-   virtual void print();
+   virtual void print(std::ostream & output);
    virtual void changeParameter(Project & project);
 
 private:

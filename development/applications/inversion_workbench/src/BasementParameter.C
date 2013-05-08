@@ -9,9 +9,9 @@ BasementParameter::BasementParameter( const std::string & name, double value)
 {
 }
 
-void BasementParameter::print()
+void BasementParameter::print(std::ostream & output)
 { 
-   std::cout << "Basement property '" << m_name << "' = " << m_value << std::endl;
+   output << "Basement property '" << m_name << "' = " << m_value ;
 }
 
 void BasementParameter::changeParameter(Project & project)

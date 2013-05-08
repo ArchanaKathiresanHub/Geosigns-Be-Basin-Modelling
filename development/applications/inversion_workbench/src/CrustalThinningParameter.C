@@ -6,21 +6,25 @@
 #include "project.h"
 
 
-CrustalThinningParameter::CrustalThinningParameter( std::vector< ThicknessAtTime> & series)
-   : m_series(series)
+CrustalThinningParameter::CrustalThinningParameter(double startTime, double duration, double thickness, double ratio)
+   : m_startTime(startTime)
+   , m_duration(duration)
+   , m_thickness(thickness)
+   , m_ratio(ratio)                        
 {
 }
 
-void CrustalThinningParameter::print()
+void CrustalThinningParameter::print(std::ostream & output)
 { 
-   std::cout << "Crustal thinning time series : " ;
-   for (unsigned i = 0; i < m_series.size(); ++i)
-      std::cout << '(' << m_series[i].first << " Ma, " << m_series[i].second << " m) ";
-   std::cout << std::endl;
+   output << "Crustal thinning event: " 
+      << "start time = " << m_startTime << " Ma, "
+      << "duration = " << m_duration << " million years, "
+      << "thickness = " << m_thickness << " meters, "
+      << "ratio = " << m_ratio ;
 }
 
 void CrustalThinningParameter::changeParameter(Project & project)
 {
-   project.setCrustThickness(m_series);
+   project.setCrustThicknessThinningEvent(m_startTime, m_duration, m_thickness, m_ratio);
 }
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+/// Represents a probe for a specific Cauldron project file result property.
 class DatadrillerProperty
 {
 
@@ -21,23 +22,7 @@ public:
    const std::string & getName() const
    { return m_retrievedVariable; }
 
-   double getTime() const
-   { return m_snapshotTime; }
-
-   double getPositionX() const
-   { return m_positionX; }
-
-   double getPositionY() const
-   { return m_positionY; }
-
-   double getPositionBegZ() const
-   { return m_positionBegZ; }
-
-   double getPositionEndZ() const
-   { return m_positionEndZ; }
-
-   double getStepZ() const
-   { return m_stepZ; }
+   void readResults( const std::string & projectFile, std::vector<double> & results) const;
 
 private:
    std::string m_retrievedVariable;

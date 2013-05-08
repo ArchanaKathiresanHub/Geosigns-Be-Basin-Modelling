@@ -3,11 +3,7 @@
 #include <vector>
 #include <sstream>
 
-#include "formattingexception.h"
-#include "Interface/ProjectHandle.h"
-#include "DataMiningProjectHandle.h"
-#include "CauldronDomain.h"
-
+#include "ProjectResultsReader.h"
 
 void showUsage ( const char* command, const char* message ) 
 { 
@@ -27,66 +23,6 @@ void showUsage ( const char* command, const char* message )
       << "\t[-help]                           to print this message.\n"
       << std::endl;
 }
-
-struct ProbeException : formattingexception::BaseException< ProbeException >
-{ ProbeException() { *this << "Error while probing Cauldron project: "; } };
-
-/// Probes a Cauldron project3d file. Given:
-///  - a physical quantity, as 'propertyName',
-///  - a snapshot time,
-///  - horizontal coordinates, x and y, and
-///  - a series of depths, in zs,
-///  this function return the results from the simulation in the output vector 'results'.
-void probe( const std::string & project, const std::string & propertyName, double snapshotTime, double x, double y,
-      const std::vector<double> & zs, std::vector<double> & results )
-{
-   // clear the result vector
-   results.clear();
-
-   // Open project file
-   DataAccess::Mining::DomainPropertyFactory factory;
-   DataAccess::Interface::ProjectHandle::UseFactory( &factory );
-
-   DataAccess::Mining::ProjectHandle* projectHandle 
-      = dynamic_cast< DataAccess::Mining::ProjectHandle * >(
-            DataAccess::Interface::OpenCauldronProject(project, "r")
-            );
-
-   if (!projectHandle)
-      throw ProbeException() << "Could not load project file '" << project << "'";
-
-   // Load property
-   const DataAccess::Interface::Property* property = projectHandle->findProperty (propertyName);
-   if (!property) 
-      throw ProbeException() << "Unknown PropertyName value: " << propertyName;
-
-   // Load snapshot
-   if (snapshotTime < 0) 
-      throw ProbeException() << "Illegal snapshot time: " << snapshotTime;
-   const DataAccess::Interface::Snapshot * snapshot = projectHandle->findSnapshot (snapshotTime);
-   DataAccess::Mining::CauldronDomain domain ( projectHandle );
-   domain.setSnapshot (snapshot);
-   DataAccess::Mining::DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
-   domainProperties->setSnapshot (snapshot);
-
-   // Check whether the x and y are in the grid
-   unsigned int a, b;
-   const DataAccess::Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid ();
-   if (!grid->getGridPoint (x, y, a, b)) 
-      throw ProbeException() << "Illegal (XCoord, YCoord) pair: (" << x << ", " << y << ")";
-
-   // Retrieve the results
-   for (size_t i = 0; i < zs.size(); ++i)
-   {
-      DataAccess::Mining::ElementPosition element;
-      if (!domain.findLocation (x, y, zs[i], element))
-         throw ProbeException() << "Illegal point coordinates: " << x << ", " << y << ", " << zs[i];
-
-      results.push_back( domainProperties->getDomainProperty (property)->compute (element) );
-   }
-
-}
-
 
 int main (int argc, char ** argv)
 {
@@ -197,7 +133,7 @@ int main (int argc, char ** argv)
 
 
    std::vector<double> results;
-   probe( projectFileName, propertyName, age, x, y, zs, results);
+   ProjectResultsReader(projectFileName).read(propertyName, age, x, y, zs, results);
 
    for (size_t i = 0; i < results.size(); ++i)
    {

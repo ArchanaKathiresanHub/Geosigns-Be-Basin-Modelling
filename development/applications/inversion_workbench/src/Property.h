@@ -1,39 +1,29 @@
 #ifndef INVERSION_PROPERTY_H
 #define INVERSION_PROPERTY_H
 
-#include <string>
-
 class Case;
 
+/// A Property is a range of values for a specific (set of) field(s) in a Cauldron project file.
+/// To let the caller be agnostic of the types involved, an iteration interface (reset, 
+/// nextValue, isPastEnd) is published. 'createParameter' should be called to
+/// make a Parameter ( = an instantiation ) of the Property for the specific
+/// value in the range.
 class Property
 {
 public:
-   Property(const std::string & name, double start, double end, double step)
-      : m_name(name)
-      , m_start(start)
-      , m_end(end)
-      , m_step(step)
-   {};
-
    virtual ~Property() {}
 
-   virtual void createParameter(Case & project, double value)=0;
+   /// Resets the iteration to the start of the sequence
+   virtual void reset() = 0;
 
-   const std::string & getName() const
-   { return m_name; }
+   /// Adds a new Parameter setting to an existing case.
+   virtual void createParameter(Case & project) const = 0;
 
-   double getStart() const
-   { return m_start; }
+   /// Go to the next value of the sequence
+   virtual void nextValue() = 0;
 
-   double getEnd() const
-   { return m_end; }
-
-   double getStep() const
-   { return m_step; }
-
-protected:
-   std::string m_name;
-   double m_start, m_end, m_step;
+   /// Returns 'true' when there are no more values in the sequence.
+   virtual bool isPastEnd() const = 0;
 };
 
 

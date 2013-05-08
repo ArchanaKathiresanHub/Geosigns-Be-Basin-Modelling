@@ -2,8 +2,23 @@
 #include "BasementParameter.h"
 #include "case.h"
 
-void BasementProperty::createParameter(Case & project, double value)
+void BasementProperty::reset()
 {
-  project.addParameter( new BasementParameter( this->getName(), value) );
+   m_range.reset();
+}
+
+void BasementProperty::createParameter(Case & project) const
+{
+   project.addParameter( new BasementParameter( m_name, m_range.getValue()) );
+}
+
+void BasementProperty::nextValue()
+{
+   m_range.nextValue();
+}
+
+bool BasementProperty::isPastEnd() const
+{
+   return m_range.isPastEnd(); 
 }
 
