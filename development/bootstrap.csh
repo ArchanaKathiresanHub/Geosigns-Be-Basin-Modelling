@@ -51,18 +51,18 @@ setenv CC icc
 # by setting the enviornment variable CONFIGURATION, or
 # by naming of the build directory in a special way
 if ( ! $cmake_param_defines_config ) then
-   if ($CONFIGURATION) then
-      set configuration=$CONFIGURATION
+   if ( ${?CONFIGURATION} ) then
+      set configuration = $CONFIGURATION
    else
       switch(`basename $build_directory`)
       case "*Debug*"
       case "*debug*"
-          set configuration=Debug
+          set configuration = Debug
           breaksw
       case "*Release*"
       case "*release*"
       default:
-          set configuration=Release
+          set configuration = Release
       endsw
    endif
     
