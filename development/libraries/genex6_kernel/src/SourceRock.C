@@ -1895,7 +1895,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
    //first the mandatory
    int speciesIndex, specId, resultIndex;
 
-   SimulatorState& theSimulatorState = theNode->GetSimulatorStateForHistory();
+   SimulatorState& theSimulatorState = theNode->getPrincipleSimulatorState();
    m_theSimulator->setChemicalModel( m_theChemicalModel ); 
 
    for (speciesIndex = 0; speciesIndex < ComponentManager::NumberOfOutputSpecies; ++ speciesIndex) {
@@ -1918,8 +1918,8 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       }
 
    }
-   m_theSimulator->setChemicalModel( m_theChemicalModel1 );
 
+   m_theSimulator->setChemicalModel( m_theChemicalModel1 );
 
    // then the optional results 
    for(resultIndex = 0; resultIndex < GenexResultManager::NumberOfResults; ++ resultIndex) {
@@ -1928,13 +1928,20 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
          it = m_theSnapShotOutputMaps.find(theResultManager.GetResultName(resultIndex));
 
          if(it != snapshotMapContainerEnd ) { 
-            (it->second)->setValue(i, j, theSimulatorState.GetResult( resultIndex ));
+
+            if ( doOutputAdsorptionProperties ()) {
+               // If there is a shale-gas simulation then get the results that were computed after a shale-gas simulation.
+               (it->second)->setValue(i, j, theSimulatorState.getShaleGasResult ( resultIndex ));
+            } else {
+               // Otherwise the optional results are those computed by GenEx.
+               (it->second)->setValue(i, j, theSimulatorState.GetResult( resultIndex ));
+            }
+
          }
 
       }
 
    } 
-
 
    if( m_applySRMixing ) { 
       if ( m_sourceRockEndMember1 != 0 ) {
@@ -1967,7 +1974,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
 
       double thicknessScaling = ( nodeInputData == 0 ? 1.0 : nodeInputData->GetThicknessScaleFactor ());
 
-      //     SimulatorState& simulatorState = dynamic_cast<SimulatorState&>( theNode->GetSimulatorStateForHistory () ); // GetSimulatorState()
+      //     SimulatorState& simulatorState = dynamic_cast<SimulatorState&>( theNode->getPrincipleSimulatorState () ); // GetSimulatorState()
 
 
       double gasVolume;
@@ -2206,6 +2213,11 @@ bool SourceRock::computeSnapShot ( const double previousTime,
         
          if ( m_applySRMixing ) {
             (*itNode)->RequestMixing( m_theChemicalModel ); // we always use the chemicalModel with bigger number of Species - m_theChemicalModel - for mixing
+         }
+
+         if ( not isInitialTimeStep and doApplyAdsorption () ) {
+            (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time,
+                                                                                     (*itNode)->GetI() == 0 and (*itNode)->GetJ() == 0 );
          }
 
          if ( not isInitialTimeStep ) {

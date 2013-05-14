@@ -53,7 +53,9 @@ public:
    //  SimulatorState &GetSimulatorState() const;
    SimulatorState &GetSimulatorState( int id ) const;
    SimulatorState &GetMixedSimulatorState() const;
-   SimulatorState &GetSimulatorStateForHistory() const;
+
+   /// \brief Returns simulator state of the mixed source rocks in the case of source-rock mixing otherwise returns the state of the single source-rock.
+   SimulatorState& getPrincipleSimulatorState () const;
   
    double GetF1() const;
    double GetF2() const;

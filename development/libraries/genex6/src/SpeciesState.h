@@ -42,9 +42,17 @@ public:
 
    void UpdateConcentration(const double in_concentration);
 
+   /// \brief Set the mass that has been expelled from the source-rock over the course of the simulation.
    void setMassExpelledFromSourceRock ( const double expelledMass );
 
+   /// \brief Get the mass that has been expelled from the source-rock over the course of the simulation.
    double getMassExpelledFromSourceRock () const;
+
+   /// \brief Set the mass that was expelled from the source-rock over the last time-step.
+   void setMassExpelledTransientFromSourceRock ( const double expelledMassTransient );
+
+   /// \brief Get the mass that was expelled from the source-rock over the last time-step.
+   double getMassExpelledTransientFromSourceRock () const;
 
    /// Set the mass expelled during the last time-step.
    void setExpelledMassTransient ( const double expelled );
@@ -137,7 +145,6 @@ public:
    double getRetained () const;
 
 
-
 private:
 
    const Species* m_species;
@@ -153,6 +160,7 @@ private:
 
    double m_previousExpelledMass;
    double m_expelledMassSR;
+   double m_expelledMassTransientSR;
    double m_previousExpelledMassSR;
 
    double m_adsorpedMol;
@@ -209,6 +217,7 @@ inline SpeciesState::SpeciesState(const Species* species,const double &in_concen
    m_retained = 0.0;
    m_adsorptionCapacity = 0.0;
    m_expelledMassSR = 0.0;
+   m_expelledMassTransientSR = 0.0;
    m_previousExpelledMassSR = 0.0;
 
 }
@@ -239,6 +248,10 @@ inline double SpeciesState::getPreviousExpelledMass() const
 
 inline double SpeciesState::getMassExpelledFromSourceRock () const {
    return m_expelledMassSR;
+}
+
+inline double SpeciesState::getMassExpelledTransientFromSourceRock () const {
+   return m_expelledMassTransientSR;
 }
 
 inline double SpeciesState::getAdsorpedMol () const {

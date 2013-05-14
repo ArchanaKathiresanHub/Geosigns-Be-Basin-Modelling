@@ -17,6 +17,11 @@ void Genex6::SpeciesState::setMassExpelledFromSourceRock ( const double expelled
    m_expelledMassSR = expelledMass;   
 }
 
+void Genex6::SpeciesState::setMassExpelledTransientFromSourceRock ( const double expelledMassTransient ) {
+
+   m_expelledMassTransientSR = expelledMassTransient;
+}
+
 void Genex6::SpeciesState::setExpelledMassTransient ( const double expelled ) {
    m_expelledMassTransient = expelled;
 }

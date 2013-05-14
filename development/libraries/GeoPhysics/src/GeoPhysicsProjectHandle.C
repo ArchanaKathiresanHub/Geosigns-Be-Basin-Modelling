@@ -1646,7 +1646,7 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
       }
 
       if ( currentFormation->isMobileLayer ()) {
-         cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] is not permitted " << endl;
+         cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] at position (" << i << ", " << j << ") " << thickness <<  "  is not permitted " << endl;
          return false;
       }
 
@@ -1843,7 +1843,7 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
             ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
 
             if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
-               cout << " MeSsAgE ERROR negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ")." << endl;
+               cout << " MeSsAgE ERROR negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ").  " << formation->getInputThicknessMap ()->getValue ( i, j ) << endl;
             }
 
          }

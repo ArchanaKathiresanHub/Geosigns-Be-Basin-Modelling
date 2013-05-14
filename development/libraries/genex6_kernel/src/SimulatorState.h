@@ -72,6 +72,17 @@ public:
 
    void SetResult(const int theId, const double theResult);
    double GetResult(const int theId) const;
+
+   void computeShaleGasResults ();
+ 
+   /// \brief Sets the species value, indicated by the theId.
+   void setShaleGasResult( const int theId, const double theResult );
+
+   /// \brief Add to the current species value, indicated by the theId.
+   void addShaleGasResult( const int theId, const double theResult );
+
+   /// \brief Gets the species value, indicated by the theId.
+   double getShaleGasResult( const int theId ) const;
  
    void SetThickness( const double theThickness );
    void SetConcki( const double theConcki );
@@ -121,6 +132,11 @@ public:
    void PostProcessTimeStep(Species &theSpecies, const double in_dT);
    void PostProcessTimeStepComputation ( SimulatorState * subSimulatorState1 = 0, SimulatorState * subSimulatorState2 = 0,
                                          const double fraction1 = 0.0, const double fraction2 = 0.0);
+
+   /// \brief Update state after a shale-gas time-step.
+   ///
+   /// Computes the compound results.
+   void postProcessShaleGasTimeStep ( ChemicalModel *chemicalMode, const double in_dT, const bool printIt );
 
    void ComputeFirstTimeInstance(ChemicalModel *theChmod);
 
@@ -258,6 +274,7 @@ private:
    double m_InitialKerogenConcentration;
 
    double m_ResultsByResultId[CBMGenerics::GenexResultManager::NumberOfResults];
+   double m_shaleGasResultsByResultId[CBMGenerics::GenexResultManager::NumberOfResults];
   
    double m_CumQuantitiesById[NumberOfResults];
 
@@ -392,6 +409,20 @@ inline double SimulatorState::GetResult(const int theId) const
 {
    return m_ResultsByResultId[theId];
 }
+
+inline void SimulatorState::setShaleGasResult(const int theId, const double theResult)
+{
+   m_shaleGasResultsByResultId[theId] = theResult;
+}
+inline void SimulatorState::addShaleGasResult(const int theId, const double theResult)
+{
+   m_shaleGasResultsByResultId[theId] += theResult;
+}
+inline double SimulatorState::getShaleGasResult(const int theId) const
+{
+   return m_shaleGasResultsByResultId[theId];
+}
+
 inline double SimulatorState::GetGroupResult(const int theId)
 {
    return s_GroupResults[theId - FIRST_RESULT_ID];

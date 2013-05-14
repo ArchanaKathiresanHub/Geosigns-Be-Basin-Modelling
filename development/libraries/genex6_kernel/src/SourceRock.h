@@ -139,7 +139,7 @@ protected:
 
    /// Compute the new state and the results at a snapshot for all the valid source rock nodes 
    bool computeSnapShot ( const double previousTime,
-                          const Interface::Snapshot *theSnapshot);
+                          const Interface::Snapshot *theSnapshot );
    
    Interface::GridMap *createSnapshotResultPropertyValueMap(const std::string &propertyName, 
                                                                  const Interface::Snapshot *theSnapshot);

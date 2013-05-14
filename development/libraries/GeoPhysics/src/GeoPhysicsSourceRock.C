@@ -115,7 +115,7 @@ void GeoPhysics::GeoPhysicsSourceRock::collectIntervalResults ( Interface::GridM
 #endif
 
       for ( k = genexData->firstK (); k <= genexData->lastK (); ++k ) {
-         genexData->setValue ( i, j, k,  (*itNode)->GetSimulatorStateForHistory ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )));
+         genexData->setValue ( i, j, k,  (*itNode)->getPrincipleSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )));
          // genexData->setValue ( i, j, k,  (*itNode)->GetMixedSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )));
          // genexData->setValue ( i, j, k,  (*itNode)->GetSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )));
 
@@ -125,7 +125,7 @@ void GeoPhysics::GeoPhysicsSourceRock::collectIntervalResults ( Interface::GridM
                       << ComponentManager::getInstance ().GetSpeciesName ( k ) << "  " 
                       << k << "  " 
                       << genexData->getValue ( i, j, k ) << "  "
-                      << (*itNode)->GetSimulatorStateForHistory ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )) << "  "
+                      << (*itNode)->getPrincipleSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )) << "  "
                       << (*itNode)->GetMixedSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )) 
                       << std::endl;
          }
@@ -159,7 +159,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillResultMap ( const ComponentManager::S
       const int speciesId = speciesManager.mapComponentManagerSpeciesToId ( name );
 
       if ( speciesId > 0 ) {
-         const Genex6::SimulatorState& state = (*itNode)->GetSimulatorStateForHistory ();
+         const Genex6::SimulatorState& state = (*itNode)->getPrincipleSimulatorState ();
          const Genex6::SpeciesResult& result = state.GetSpeciesResult ( speciesId );
 
          map->setValue ( i, j, result.GetExpelledMass ());
@@ -187,7 +187,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillOptionalResultMap ( const GenexResult
       const unsigned int i = (*itNode)->GetI ();
       const unsigned int j = (*itNode)->GetJ ();
 
-      const Genex6::SimulatorState& state = (*itNode)->GetSimulatorStateForHistory ();
+      const Genex6::SimulatorState& state = (*itNode)->getPrincipleSimulatorState ();
 
       map->setValue ( i, j, state.GetResult ( int ( name )));
    }
