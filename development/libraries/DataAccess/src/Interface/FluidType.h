@@ -34,19 +34,6 @@ namespace DataAccess {
    
          /// @}
 
-         /// \name Fluid properties for Permafrost modelling
-         /// @{
-         
-         /// Return a liquidus temperature which specifies the maximum temperature at 
-         /// which crystals can co-exist with the melt in thermodynamic equilibrium.
-         virtual double getLiquidusTemperature () const;
-         
-         /// Return a solidus temperature wich is the locus of temperatures (a curve on a phase diagram)
-         /// below which a given substance is completely solid.
-         virtual double getSolidusTemperature () const;
-         
-         /// @}
-
          /// \name Heat-capacity attributes.
          /// @{
 
