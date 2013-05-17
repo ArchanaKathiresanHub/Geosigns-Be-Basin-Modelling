@@ -408,12 +408,12 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()) {
 
-     if ( FastcauldronSimulator::getInstance ().getMcfHandler ().outputDarcyMaps ()) {
+     if ( true or FastcauldronSimulator::getInstance ().getMcfHandler ().outputDarcyMaps ()) {
         mapOutputProperties.push_back ( GENEX_PROPERTY_CONCENTRATIONS );
         mapOutputProperties.push_back ( SATURATION );
-        mapOutputProperties.push_back ( AVERAGE_SATURATION );
-        mapOutputProperties.push_back ( CAPILLARY_PRESSURE );
-        mapOutputProperties.push_back ( FLUID_PROPERTIES );
+        // mapOutputProperties.push_back ( AVERAGE_SATURATION );
+        // mapOutputProperties.push_back ( CAPILLARY_PRESSURE );
+        // mapOutputProperties.push_back ( FLUID_PROPERTIES );
      }
 
 
