@@ -9,23 +9,34 @@
 
 void test_ScalarRange_singlePass()
 {
-   // test case 1: empty
+   // test case 1a: empty
    {  int count = 0;
-     for (ScalarRange r(0,-1,0); !r.isPastEnd(); r.nextValue())
+     for (ScalarRange r(0,-1,1); !r.isPastEnd(); r.nextValue())
         count++;
 
      assert( count == 0);
    }
 
-   // test case 2: one-element, step = 0, so infinite iterations
-   { 
-     ScalarRange r(0,0,0);
+   // test case 1b: empty
+   {  int count = 0;
+     for (ScalarRange r(0,1,-1); !r.isPastEnd(); r.nextValue())
+        count++;
 
-     for (int count = 0; count < 1000;  ++count, r.nextValue() )
-        assert( !r.isPastEnd() );
+     assert( count == 0);
    }
 
-   // test case 3: one-element, step > 0
+   // DISABLED test case 2: one-element, step = 0, so infinite iterations
+   // FIXME: Because ScalarRange uses 'assert' to check whether 
+   // step zero, this is difficult to test. Perhaps other Unit Test 
+   // framework can handle this.
+   //{ 
+   //  ScalarRange r(0,0,0);
+   //
+   //  for (int count = 0; count < 1000;  ++count, r.nextValue() )
+   //     assert( !r.isPastEnd() );
+   //}
+
+   // test case 3a: one-element, step > 0
    {
       int count = 0;
       for (ScalarRange r( 0, 0, 0.125); !r.isPastEnd(); r.nextValue())
@@ -36,7 +47,18 @@ void test_ScalarRange_singlePass()
       assert( count == 1 );
    }
 
-   // test case 4: multiple elements, inclusive at both ends
+   // test case 3b: one-element, step < 0
+   {
+      int count = 0;
+      for (ScalarRange r( 0, 0, -0.125); !r.isPastEnd(); r.nextValue())
+      {
+         assert( r.getValue() == static_cast<double>(count) / 8 );
+         count++;
+      }
+      assert( count == 1 );
+   }
+
+   // test case 4a: multiple elements, inclusive at both ends
    {
       int count = 0;
       for (ScalarRange r( 0, 1, 0.125); !r.isPastEnd(); r.nextValue())
@@ -45,6 +67,17 @@ void test_ScalarRange_singlePass()
          count++;
       }
       assert( count == 9 );
+   }
+
+   // test case 4b: multiple elements, inclusive at both ends
+   {
+      int count = 9;
+      for (ScalarRange r( 1, 0, -0.125); !r.isPastEnd(); r.nextValue())
+      {
+         count--;
+         assert( r.getValue() == static_cast<double>(count) / 8 );
+      }
+      assert( count == 0 );
    }
 
    // test case 5: multiple elements, exclusive at end.
@@ -57,13 +90,24 @@ void test_ScalarRange_singlePass()
       }
       assert( count == 4 );
    }
+
+   // test case 5: multiple elements, exclusive at end.
+   {
+      int count = 4;
+      for (ScalarRange r( 1 , 0.125, -0.25); !r.isPastEnd(); r.nextValue())
+      {
+         assert( r.getValue() == static_cast<double>(count) / 4 );
+         count--;
+      }
+      assert( count == 0);
+   }
 }
 
 void test_ScalarRange_multiPass()
 {
-   // test case 1: empty
+   // test case 1a: empty
    {  int count = 0;
-     ScalarRange r(0,-1,0);
+     ScalarRange r(0,-1, 1);
      for ( ; !r.isPastEnd(); r.nextValue())
         count++;
 
@@ -75,20 +119,36 @@ void test_ScalarRange_multiPass()
      assert( count == 0);
    }
 
-   // test case 2: one-element, step = 0, so infinite iterations
-   { 
-     ScalarRange r(0,0,0);
-
-     for (int count = 0; count < 1000;  ++count, r.nextValue() )
-        assert( !r.isPastEnd() );
+   // test case 1b: empty
+   {  int count = 0;
+     ScalarRange r(0,1, -1);
+     for ( ; !r.isPastEnd(); r.nextValue())
+        count++;
 
      r.reset();
 
-     for (int count = 0; count < 1000;  ++count, r.nextValue() )
-        assert( !r.isPastEnd() );
+     for ( ; !r.isPastEnd(); r.nextValue())
+        count++;
+
+     assert( count == 0);
    }
 
-   // test case 3: one-element, step > 0
+   // FIXME: Have unit test framework that can handle failing assertions 
+   // somewhere else in the code.
+   // DISABLED: test case 2: one-element, step = 0, so infinite iterations
+   //{ 
+   //  ScalarRange r(0,0,0);
+   //
+   //  for (int count = 0; count < 1000;  ++count, r.nextValue() )
+   //     assert( !r.isPastEnd() );
+   //
+   //  r.reset();
+   //
+   //  for (int count = 0; count < 1000;  ++count, r.nextValue() )
+   //     assert( !r.isPastEnd() );
+   // }
+
+   // test case 3a: one-element, step > 0
    {
       int count = 0;
       ScalarRange r( 0, 0, 0.125);
@@ -110,7 +170,29 @@ void test_ScalarRange_multiPass()
       assert( count == 1 );
    }
 
-   // test case 4: multiple elements, inclusive at both ends
+   // test case 3b: one-element, step < 0
+   {
+      int count = 0;
+      ScalarRange r( 0, 0, -0.125);
+      for (; !r.isPastEnd(); r.nextValue())
+      {
+         assert( r.getValue() == static_cast<double>(count) / 8 );
+         count++;
+      }
+      assert( count == 1 );
+
+      r.reset();
+
+      count = 0;
+      for (; !r.isPastEnd(); r.nextValue())
+      {
+         assert( r.getValue() == static_cast<double>(count) / 8 );
+         count++;
+      }
+      assert( count == 1 );
+   }
+
+   // test case 4a: multiple elements, inclusive at both ends
    {
       int count = 0;
       ScalarRange r( 0, 1, 0.125);
@@ -133,7 +215,30 @@ void test_ScalarRange_multiPass()
       assert( count == 9 );
    }
 
-   // test case 5: multiple elements, exclusive at end.
+   // test case 4b: multiple elements, inclusive at both ends
+   {
+      int count = 9;
+      ScalarRange r( 1, 0, -0.125);
+         
+      for (; !r.isPastEnd(); r.nextValue())
+      {
+         count--;
+         assert( r.getValue() == static_cast<double>(count) / 8 );
+      }
+      assert( count == 0 );
+
+      r.reset();
+      count = 9;
+
+      for (; !r.isPastEnd(); r.nextValue())
+      {
+         count--;
+         assert( r.getValue() == static_cast<double>(count) / 8 );
+      }
+      assert( count == 0 );
+   }
+
+   // test case 5a: multiple elements, exclusive at end.
    {
       int count = 0;
       ScalarRange r( 0, 0.875 , 0.25);
@@ -153,6 +258,28 @@ void test_ScalarRange_multiPass()
          count++;
       }
       assert( count == 4 );
+   }
+
+   // test case 5b: multiple elements, exclusive at end.
+   {
+      int count = 4;
+      ScalarRange r( 1, 0.125 , -0.25);
+      for (; !r.isPastEnd(); r.nextValue())
+      {
+         assert( r.getValue() == static_cast<double>(count) / 4 );
+         count--;
+      }
+      assert( count == 0 );
+
+      r.reset();
+      count = 4;
+
+      for (; !r.isPastEnd(); r.nextValue())
+      {
+         assert( r.getValue() == static_cast<double>(count) / 4 );
+         count--;
+      }
+      assert( count == 0 );
    }
 }
 

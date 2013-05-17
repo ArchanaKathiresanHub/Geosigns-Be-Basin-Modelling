@@ -23,7 +23,7 @@ void test_MultiDimRange_singlePass()
 
    // test case 2: one dimension: one empty range
    {  int count = 0;
-      std::vector<ScalarRange> oneDimension(1, ScalarRange(0, -1, 0));
+      std::vector<ScalarRange> oneDimension(1, ScalarRange(0, -1, 0.125));
       MultiDimRange r( oneDimension );
 
       for ( ; ! r.isPastEnd(); r.nextValue() )
@@ -109,7 +109,7 @@ void test_MultiDimRange_multiPass()
 
    // test case 2: one dimension: one empty range
    {  int count = 0;
-      std::vector<ScalarRange> oneDimension(1, ScalarRange(0, -1, 0));
+      std::vector<ScalarRange> oneDimension(1, ScalarRange(0, -1, 0.125));
       MultiDimRange r( oneDimension );
 
       for ( ; ! r.isPastEnd(); r.nextValue() )
