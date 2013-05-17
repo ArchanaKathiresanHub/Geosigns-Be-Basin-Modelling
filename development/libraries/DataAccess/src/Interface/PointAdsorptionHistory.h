@@ -28,6 +28,9 @@ namespace DataAccess {
          /// \brief Get the y-position of the point.
          virtual double getY () const;
 
+         /// \brief Get the name of the history file.
+         virtual const std::string& getFileName () const;
+
          /// \brief Get the formation name.
          virtual const std::string& getFormationName () const;
 
@@ -47,6 +50,9 @@ namespace DataAccess {
 
          /// \brief The formation name.
          std::string m_formationName;
+
+         /// \brief The name of the history file.
+         std::string m_fileName;
 
          /// \brief The mangled formation name.
          std::string m_mangledFormationName;

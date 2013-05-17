@@ -17,6 +17,7 @@ DataAccess::Interface::PointAdsorptionHistory::PointAdsorptionHistory (  Project
    //   m_formationName = database::getAdsorptionFormationName ( record );
    m_formationName = database::getFormationName ( record );
    m_mangledFormationName = utilities::mangle ( m_formationName );
+   m_fileName = database::getFilename ( record );
 }
 
 DataAccess::Interface::PointAdsorptionHistory::~PointAdsorptionHistory () {
@@ -30,6 +31,10 @@ double DataAccess::Interface::PointAdsorptionHistory::getX () const {
 double DataAccess::Interface::PointAdsorptionHistory::getY () const {
    return m_y;
 }
+
+const std::string& DataAccess::Interface::PointAdsorptionHistory::getFileName () const {
+   return m_fileName;
+} 
 
 const std::string& DataAccess::Interface::PointAdsorptionHistory::getFormationName () const {
    return m_formationName;

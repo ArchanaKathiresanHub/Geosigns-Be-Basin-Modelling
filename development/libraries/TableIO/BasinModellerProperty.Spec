@@ -10676,8 +10676,10 @@ START-property-tables
 
     Identification : GenexHistoryLocationIoTbl
     Column         : FormationName
+    Column         : WellName
     Column         : XPlanePosition
     Column         : YPlanePosition
+    Column         : Filename
     Header         : Node simulation history
 
 # Shale Gas Tables
