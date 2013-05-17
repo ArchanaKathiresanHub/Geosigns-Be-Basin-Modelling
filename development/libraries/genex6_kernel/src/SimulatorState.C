@@ -1019,16 +1019,6 @@ void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel,
          double transientExpelledMass    = GetSpeciesStateById ( speciesId )->getMassExpelledTransientFromSourceRock ();
          double transientExpelledVolume  = transientExpelledMass / speciesProps->GetDensity();
 
-         if ( printIt ) {
-            cout << " Species result: "  << setw ( 40 ) << chemicalModel->GetSpeciesById ( speciesId )->GetName () << "  "
-                 << setw ( 17 ) << deltaT << "  "
-                 << setw ( 17 ) << cumulativeExpelledMass << "  "
-                 << setw ( 17 ) << transientExpelledMass << "  "
-                 << setw ( 17 ) << speciesProps->GetDensity() << "  "
-               // <<  << "  "
-                 << endl;
-         }
-
          if ( speciesProps->IsOil ()) {
             addShaleGasResult ( GenexResultManager::OilExpelledCum,  cumulativeExpelledMass );
             addShaleGasResult ( GenexResultManager::OilExpelledRate, transientExpelledMass / deltaT );
