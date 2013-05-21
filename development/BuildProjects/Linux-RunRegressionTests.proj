@@ -3,6 +3,9 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+	<VersionNumberMajor Condition=" '$VersionNumberMajor)' == '' ">2013</VersionNumberMajor>
+	<VersionNumberMinor Condition=" '$VersionNumberMinor)' == '' ">05</VersionNumberMinor>
+	<VersionTag Condition=" '$VersionTag)' == '' ">nightly</VersionTag>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
@@ -13,7 +16,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <VWSCall>$(ssh_command) "/bin/sh -x bin/fastperformtests"  </VWSCall>
+    <VWSCall>$(ssh_command) "/bin/sh -x bin/fastperformtests v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)"  </VWSCall>
     <copy_script>$(scp_command) "$(MSBuildProjectDirectory)\..\..\scripts\fastperformtests" "$(AgentAccount)@$(AgentHost):bin" </copy_script>
     <copy_results_back>$(ssh_command) "set -e ; cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/$(AgentAccount)/RegressionTests ; find -maxdepth 2 -type f | cpio -o" | $(cpio_exe) -id </copy_results_back>
     <regression_test_dir>$(OutDir)/regression_tests</regression_test_dir>
