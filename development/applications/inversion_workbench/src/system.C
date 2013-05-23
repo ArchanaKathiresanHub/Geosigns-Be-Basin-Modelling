@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include <fstream>
+#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 
@@ -22,13 +23,20 @@ bool directoryExists( const std::string & path )
 
 bool directoryIsEmpty( const std::string & path )
 {
+   static const std::string currentDir = ".";
+   static const std::string parentDir = "..";
+
    boost::shared_ptr<DIR> dir( opendir(path.c_str()), closedir );
    
    if (!dir)
       throw SystemException() << "Cannot open directory '" << path 
          << "', because: " << std::strerror(errno);
 
-   return !readdir(dir.get());
+   while (struct dirent * d = readdir(dir.get()))
+      if ( d->d_name != currentDir && d->d_name != parentDir)
+         return false;
+
+   return true;
 }
 
 std::string describePath( const std::string & path)
