@@ -12,6 +12,7 @@ add_executable(adjust
 include_directories(
     ${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
     ${PROJECT_SOURCE_DIR}/libraries
+    ${PROJECT_SOURCE_DIR}/applications/xcauldron/src
     ${HDF5_serial_INCLUDE_DIRS}
     ${BLAS_INCLUDE_DIRS}
     ${PETSC_INCLUDE_DIRS}
@@ -79,6 +80,7 @@ add_executable(parameter-space-exploration-tool
         src/parameter-space-exploration-tool.C
         src/project.C
         src/ProjectResultsReader.C
+        src/system.C
 	${generator_source_files}
 )
 
@@ -103,6 +105,7 @@ target_link_libraries(parameter-space-exploration-tool
     Serial_Hdf5
     utilities
     EosPack
+    projectdependencies
 )
 
 get_target_property(PARSPEC_EXEC parspec LOCATION)
@@ -151,6 +154,7 @@ add_executable(Experiment
       src/experiment.C
       src/project.C
       src/ProjectResultsReader.C
+      src/system.C
     )
 
 target_link_libraries(Experiment
@@ -172,6 +176,7 @@ target_link_libraries(Experiment
     Serial_Hdf5
     utilities
     EosPack
+    projectdependencies
 )
 
 add_test(NAME Experiment::Experiment

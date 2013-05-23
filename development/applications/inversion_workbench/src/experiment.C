@@ -5,14 +5,19 @@
 #include <fstream>
 #include <iomanip>
 
+#include <memory>
+
 #include "experiment.h"
 
 #include "BasementProperty.h"
 #include "RuntimeConfiguration.h"
 #include "DatadrillerProperty.h"
 #include "case.h"
+#include "projectdependencies.h"
+#include "formattingexception.h"
+#include "system.h"
 
-#include <unistd.h>
+#include "Interface/ProjectHandle.h"
 
 Experiment :: Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & datadrillerDefinitions, const RuntimeConfiguration & dataInfo)
    : m_cases(1, Case() )
@@ -25,7 +30,7 @@ Experiment :: Experiment( const std::vector< boost::shared_ptr<Property> > & par
 
 void Experiment::sample( std::vector< boost::shared_ptr<Property> > & parameterDefinitions, std::vector< Case > & allCases )
 {
-   if (parameterDefinitions.empty())
+   if(parameterDefinitions.empty())
       return;
 
    boost::shared_ptr<Property> lastParameterDefinition = parameterDefinitions.back();
@@ -75,10 +80,31 @@ std::string Experiment::resultsFileName(unsigned caseNumber) const
    return fileName.str();
 }
 
+struct CreateProjectSetException : formattingexception :: BaseException< CreateProjectSetException > {};
+
 void Experiment :: createProjectsSet() const
 {
-   // TODO: Remove old directory? Copy input maps of project file?
+   // check whether directory exist and is empty
+   const std::string workingDir =  m_experimentInfo.getOutputDirectory();
+   if ( !directoryExists(workingDir) || !directoryIsEmpty(workingDir) )
+      throw CreateProjectSetException() << "Path '" << workingDir << "' must be an existing, empty directory";
 
+   // memorize the directory containing the template project
+   const std::string templateDir = getParentDirectory( m_experimentInfo.getTemplateProjectFile() );
+
+   // copy input maps that template project depends on
+   std::auto_ptr<DataAccess::Interface::ProjectHandle> templateProject(
+      DataAccess::Interface::OpenCauldronProject( m_experimentInfo.getTemplateProjectFile(), "r")
+   );
+   if (!templateProject.get())
+      throw CreateProjectSetException() << "Cannot load template project file '" 
+         << m_experimentInfo.getTemplateProjectFile() << "'";
+
+   ProjectDependencies deps = getProjectDependencies( templateProject->getDataBase() );
+   for (unsigned i = 0; i < deps.inputMaps.size(); ++i)
+      copyFile( templateDir + '/' + deps.inputMaps[i], workingDir + '/' + deps.inputMaps[i]);
+
+   // generate project3d files
    for (unsigned i = 0; i < m_cases.size(); ++i)
       m_cases[i].createProjectFile( m_experimentInfo.getTemplateProjectFile(), workingProjectFileName(i));
 }
