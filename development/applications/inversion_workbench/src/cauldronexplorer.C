@@ -18,7 +18,7 @@
 int main(int argc, char ** argv ) 
 {
    // parse command line parameters
-   std::string fileName = "parameter-space-exploration-tool.config";
+   std::string fileName = "cauldronexplorer.config";
    if (argc > 1)
       fileName = argv[1];
 

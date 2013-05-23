@@ -68,7 +68,7 @@ set (generator_source_files
   ${CMAKE_CURRENT_BINARY_DIR}/parameterspaceexplorationtoolfuncs.h
   )
 
-add_executable(parameter-space-exploration-tool 
+add_executable(cauldronexplorer
         src/BasementProperty.C
         src/BasementParameter.C
         src/case.C
@@ -77,7 +77,7 @@ add_executable(parameter-space-exploration-tool
         src/CrustalThinningProperty.C
         src/DatadrillerProperty.C
         src/experiment.C
-        src/parameter-space-exploration-tool.C
+        src/cauldronexplorer.C
         src/project.C
         src/ProjectResultsReader.C
         src/system.C
@@ -86,7 +86,7 @@ add_executable(parameter-space-exploration-tool
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(parameter-space-exploration-tool
+target_link_libraries(cauldronexplorer
     DataMining
     Interpolation
     LinearAlgebra
@@ -116,6 +116,10 @@ add_custom_command( OUTPUT ${generator_source_files}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMAND ${PARSPEC_EXEC} 
 	ARGS -schema ParameterSpaceExplorationTool -directory ${CMAKE_CURRENT_BINARY_DIR} -input ParameterSpaceExplorationTool.Spec 
+)
+
+install(TARGETS cauldronexplorer
+        RUNTIME DESTINATION bin
 )
 
 ########## UNIT TESTS ############
