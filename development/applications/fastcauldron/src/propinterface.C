@@ -1712,6 +1712,7 @@ Record * AppCtx::getRunStatusRecord (void)
 void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
 
   database::Table* localTimeIoTbl = database->getTable ("TimeIoTbl");
+  database::Table* local3DTimeIoTbl = database->getTable ("3DTimeIoTbl");
 
   if ( currentOperation == DecompactionRunStatusStr ||
        currentOperation == HydrostaticTemperatureRunStatusStr ||
@@ -1719,6 +1720,7 @@ void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
        currentOperation == CoupledPressureTemperatureRunStatusStr ) {
 
     localTimeIoTbl->clear ();
+    local3DTimeIoTbl->clear ();
 
   } else if ( currentOperation == HighResDecompactionRunStatusStr ||
               currentOperation == OverpressuredTemperatureRunStatusStr ) {
