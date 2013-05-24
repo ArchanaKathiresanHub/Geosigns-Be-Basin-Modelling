@@ -502,7 +502,7 @@ bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
 
    gridMap->restoreData();
 
-   mapWriter.writeVolumeToHDF (gridMap, getName (), getFormation ())->getMangledName ();
+   mapWriter.writeVolumeToHDF (gridMap, getName (), getFormation ()->getMangledName ());
    return true;
 }
 
