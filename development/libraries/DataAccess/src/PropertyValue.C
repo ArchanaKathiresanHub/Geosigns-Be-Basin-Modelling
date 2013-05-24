@@ -480,7 +480,7 @@ bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
 {
    database::setMapFileName (m_record, mapWriter.getFileName ());
    database::setGroupName (m_record, getName ());
-   database::setDataSetName (m_record, getFormation ())->getMangledName ();
+   database::setDataSetName (m_record, getFormation ()->getMangledName ());
 
    GridMap * gridMap = getGridMap ();
 
