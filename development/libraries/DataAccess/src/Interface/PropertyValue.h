@@ -76,6 +76,10 @@ namespace DataAccess
 	    /// create a TimeIoRecord for this newly created and not yet saved PropertyValue
 	    //bool createTimeIoRecord (database::Table * timeIoTbl);
             virtual database::Record* createTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
+
+	    /// create a 3DTimeIoRecord for this newly created and not yet saved PropertyValue
+            virtual database::Record* create3DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode);
+
 	    /// Link to a SnapshotIoRecord for this newly created and not yet saved PropertyValue
 	    bool linkToSnapshotIoRecord (void);
 

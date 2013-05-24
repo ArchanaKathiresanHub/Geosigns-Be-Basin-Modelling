@@ -2771,6 +2771,10 @@ bool ProjectHandle::saveCreatedVolumePropertyValues (void)
 /// and that the snapshot file can be re-created.
 bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D (void)
 {
+   database::Table * timeIoTbl = getTable ("3DTimeIoTbl");
+   if (!timeIoTbl)
+      return false;
+
    MutablePropertyValueList::iterator propertyValueIter;
    MapWriter* mapWriter = getFactory ()->produceMapWriter();
 
@@ -2812,7 +2816,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D (void)
 	    mapWriter->open (filePathName, snapshotUsed->getAppendFile ());
 	 }
 
-         propertyValue->linkToSnapshotIoRecord ();
+	 propertyValue->create3DTimeIoRecord (timeIoTbl, Interface::MODE3D);
 	 m_propertyValues.push_back (propertyValue);
 	 propertyValueIter = m_recordLessVolumePropertyValues.erase (propertyValueIter);
 	 increment = 0;
@@ -3043,7 +3047,7 @@ PropertyValue * ProjectHandle::addPropertyValue (database::Record * record, cons
    }
    else
    {
-      if (storage == SNAPSHOTIOTBL)
+      if (storage == THREEDTIMEIOTBL)
 	 m_recordLessVolumePropertyValues.push_back (propertyValue);
       else
 	 m_recordLessMapPropertyValues.push_back (propertyValue);
@@ -3093,7 +3097,7 @@ PropertyValue * ProjectHandle::createVolumePropertyValue (const string & propert
    if (reservoir && formation) return false;
    if (!reservoir && !formation) return false;
 
-   PropertyValue * propertyValue = addPropertyValue (0, propertyValueName, property, snapshot, reservoir, formation, 0, SNAPSHOTIOTBL);
+   PropertyValue * propertyValue = addPropertyValue (0, propertyValueName, property, snapshot, reservoir, formation, 0, THREEDTIMEIOTBL);
    propertyValue->createGridMap (getActivityOutputGrid (), depth);
 
    return propertyValue;
@@ -3163,9 +3167,56 @@ static herr_t ListVolumePropertyValues (hid_t groupId, const char * propertyValu
 /// Does not load the actual values of thr PropertyValues, this is done on demand only.
 bool ProjectHandle::loadVolumePropertyValues (void)
 {
-													//1DComponent	
    if (!wasProducedByFastCauldron () || Interface::MODE1D == getModellingMode()) return false;
 
+   database::Table* timeIoTbl = getTable ("3DTimeIoTbl");
+   if (timeIoTbl == 0 || timeIoTbl->size() == 0)
+   {
+      return loadVolumePropertyValuesViaSnapshotIoTbl();
+   }
+   else
+   {
+      return loadVolumePropertyValuesVia3DTimeIoTbl();
+   }
+}
+
+bool ProjectHandle::loadVolumePropertyValuesVia3DTimeIoTbl (void)
+{
+   database::Table * timeIoTbl = getTable ("3DTimeIoTbl");
+   database::Table::iterator tblIter;
+   for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++tblIter)
+   {
+      Record *timeIoRecord = *tblIter;
+      const string & propertyValueName = database::getPropertyName (timeIoRecord);
+
+      const Property *property = (const Property *) findProperty (propertyValueName);
+      if (property == 0)
+      {
+         PropertyType propertyType = Interface::FORMATIONPROPERTY;
+
+         cerr << "WARNING: loadVolumePropertyValuesVia3DTimeIoTbl: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
+         addProperty (getFactory ()->produceProperty (this, 0, propertyValueName, propertyValueName, "", propertyType));
+         property = (const Property *) findProperty (propertyValueName);
+      }
+
+      const string & formationName = database::getFormationName (timeIoRecord);
+      const Formation * formation = dynamic_cast<const Formation *>(findFormation (formationName));
+      assert (formation != 0);
+
+      double time = database::getTime (timeIoRecord);
+      const Snapshot * snapshot = (const Snapshot *)findSnapshot (time, MINOR | MAJOR);
+      assert (snapshot != 0);
+
+      addPropertyValue (timeIoRecord, propertyValueName,
+	    property, snapshot, 0, formation, 0, THREEDTIMEIOTBL);
+   }
+
+   return true;
+}
+
+
+bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl (void)
+{
    database::Table* snapshotIoTbl = getTable ("SnapshotIoTbl");
    database::Table::iterator tblIter;
    for (tblIter = snapshotIoTbl->begin (); tblIter != snapshotIoTbl->end (); ++tblIter)

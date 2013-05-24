@@ -699,6 +699,8 @@ namespace DataAccess
 	    bool loadProperties (void);
 	    bool loadMapPropertyValues (void);
 	    bool loadVolumePropertyValues (void);
+	    bool loadVolumePropertyValuesViaSnapshotIoTbl (void);
+	    bool loadVolumePropertyValuesVia3DTimeIoTbl (void);
 
             bool loadIgneousIntrusions ();
 

@@ -705,7 +705,7 @@ namespace DataAccess
 
       /// Used to specify whether a PropertyValue is stored in the TimeIoTbl (2D PropertyValues) or
       /// in the SnapshotIoTbl (3D PropertyValues).
-      enum PropertyStorage { SNAPSHOTIOTBL, TIMEIOTBL };
+      enum PropertyStorage { SNAPSHOTIOTBL, THREEDTIMEIOTBL, TIMEIOTBL };
 
       /// \var CrustBottomSurfaceName
       /// The name of the surface at the bottom of the crust.

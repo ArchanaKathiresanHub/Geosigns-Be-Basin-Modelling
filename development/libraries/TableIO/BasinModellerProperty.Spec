@@ -699,6 +699,15 @@ START-properties
     Property I/O        : No
     Default		: 2
     
+    Identification      : NumberZ
+    Description         : Number of nodes in the Z direction
+    Unit of measurement : 
+    Type                : smallint
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default		: 2
+    
     Identification      : ScaleX
     Description         : Division factor in the X direction (Easting)
     Unit of measurement : 
@@ -1006,6 +1015,22 @@ START-properties
 
     Identification      : HDF5FileName
     Description         : Filename of the grid map (with extension)
+    Unit of measurement : 
+    Type                : string
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+    Identification      : DataSetName
+    Description         : DataSet name in the file
+    Unit of measurement : 
+    Type                : string
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+    Identification      : GroupName
+    Description         : Group name in the file
     Unit of measurement : 
     Type                : string
     Error Field         : No
@@ -10504,6 +10529,27 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
+    Identification : 3DTimeIoTbl
+    Description    : Table listing for 3D property values
+    Column         : Time
+    Column         : PropertyName
+    Column         : FormationName
+    Column         : MapFileName
+    Column         : GroupName
+    Column         : DataSetName
+    Column         : NumberX
+    Column         : NumberY
+    Column         : NumberZ
+    Column         : Average
+    Column         : Minimum
+    Column         : Maximum
+    Column         : Sum
+    Column         : Sum2
+    Column         : NP
+    Header         : 3D output results
+    Time dependent : No
+    Property I/O   : Yes
+
     Identification : TimeMCResultIoTbl
     Description    : Table listing the property values
                      for all MC-runs and several time/surface combinations,
@@ -10827,6 +10873,7 @@ START-application-class-properties
     Property : DepthMCResultIoTbl
     Property : ExportDepthIoTbl
     Property : TimeIoTbl
+    Property : 3DTimeIoTbl
     Property : TimeMCResultIoTbl
     Property : TimeSensResultIoTbl
     Property : ExportTimeIoTbl
