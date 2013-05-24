@@ -3189,22 +3189,22 @@ bool ProjectHandle::loadVolumePropertyValuesVia3DTimeIoTbl (void)
       Record *timeIoRecord = *tblIter;
       const string & propertyValueName = database::getPropertyName (timeIoRecord);
 
-      const Property *property = (const Property *) findProperty (propertyValueName);
+      const Property *property = findProperty (propertyValueName);
       if (property == 0)
       {
          PropertyType propertyType = Interface::FORMATIONPROPERTY;
 
          cerr << "WARNING: loadVolumePropertyValuesVia3DTimeIoTbl: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
          addProperty (getFactory ()->produceProperty (this, 0, propertyValueName, propertyValueName, "", propertyType));
-         property = (const Property *) findProperty (propertyValueName);
+         property = findProperty (propertyValueName);
       }
 
       const string & formationName = database::getFormationName (timeIoRecord);
-      const Formation * formation = dynamic_cast<const Formation *>(findFormation (formationName));
+      const Formation * formation = findFormation (formationName);
       assert (formation != 0);
 
       double time = database::getTime (timeIoRecord);
-      const Snapshot * snapshot = (const Snapshot *)findSnapshot (time, MINOR | MAJOR);
+      const Snapshot * snapshot = findSnapshot (time, MINOR | MAJOR);
       assert (snapshot != 0);
 
       addPropertyValue (timeIoRecord, propertyValueName,

@@ -480,9 +480,9 @@ bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
 {
    database::setMapFileName (m_record, mapWriter.getFileName ());
    database::setGroupName (m_record, getName ());
-   database::setDataSetName (m_record, (dynamic_cast<const Formation *>(getFormation ()))->getMangledName ());
+   database::setDataSetName (m_record, getFormation ())->getMangledName ();
 
-   GridMap * gridMap = (GridMap *) getGridMap ();
+   GridMap * gridMap = getGridMap ();
 
    gridMap->retrieveData();
 
@@ -502,7 +502,7 @@ bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
 
    gridMap->restoreData();
 
-   mapWriter.writeVolumeToHDF (gridMap, getName (), (dynamic_cast<const Formation *>(getFormation ()))->getMangledName ());
+   mapWriter.writeVolumeToHDF (gridMap, getName (), getFormation ())->getMangledName ();
    return true;
 }
 
