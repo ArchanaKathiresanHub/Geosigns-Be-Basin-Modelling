@@ -186,7 +186,7 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
             {
                for ( int comp = 0; comp < iNc; ++comp )
                {  
-                  phaseMasses[phase][comp] /= totMass * pvtFlash::EosPack::getInstance().getMolWeightLumped( comp, gorm );
+                  phaseMasses[phase][comp] /= pvtFlash::EosPack::getInstance().getMolWeightLumped( comp, gorm );
                   total += phaseMasses[phase][comp];
                }
             }

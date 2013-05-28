@@ -16,7 +16,15 @@
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
 
-#define PTDIAG_VERSION "3.2"
+#define PTDIAG_VERSION "3.3"
+
+// Changes history
+//
+// Version 3.3 
+// - Added [-prop dens,visc] parameter which allows to calculate and save to .m file phase densities and viscosities
+// for each point on P/T grid. TotDensity, LiqDensity, VapDensity, LiqViscosity, VapViscosity matrices 
+// will be wirtten to .m file. For undefined values 0.0 value is used.
+
 
 /// Type of diagram: Mass, Mole of Volume
 PTDiagramCalculator::DiagramType g_DiagType     = PTDiagramCalculator::MoleMassFractionDiagram;
@@ -27,6 +35,9 @@ int  g_ColormapType     = 0;
 bool g_IsBatch          = false;
 bool g_LogCountourLines = false;
 int  g_CountourLinesNum = 11;
+
+bool g_DumpProperty = false;
+bool g_PropList[2] = {false, false}; // density, viscosity
 
 std::string g_mFilePrefix;
 
@@ -65,6 +76,7 @@ static void showUsage( const std::string & msg )
       << "\t[-colormap]                Add liquid fraction values grid and colored countour lines to the plot\n"
       << "\t[-logcolormap]             The same as colormap but use logarithmic scale for colormap\n"
       << "\t[-abterm <val>]            Set parmateres A/B term for EosPack. This paramters has influence how PVT library labeling phases in 1 phase region\n" 
+      << "\t[-prop <dens | visc>]      Save as matrix for each point P/T grid given property value for each phase\n"
       << "\t[-mfile <mFilePrefix>]     Use given name as file name for Matlab .m file.\n"
       << "                             Any negative value will set algorithm to the default behaviour (A/B doesn't be used)\n"
       << "\t[-tuneab [<filename>] ]    Do search for the value of A/B term in such way that single phases division line will go through the critical point\n"
@@ -163,6 +175,12 @@ int main( int argc, char ** argv )
       else if ( prm == "-logcolormap" ) { g_ColormapType     = 2; }
       else if ( prm == "-lines"       ) { g_CountourLinesNum = atol( val.c_str() ) + 2; ++i; }
       else if ( prm == "-log"         ) { g_LogCountourLines = true; }
+      else if ( prm == "-prop"        )
+      {
+         g_DumpProperty = true; 
+         if ( val == "dens" ) { g_PropList[0] = true; ++i; }
+         if ( val == "visc" ) { g_PropList[1] = true; ++i; }
+      }
       else if ( prm == "-diag" )
       {
          if (      val == "mole" ) { g_DiagType = PTDiagramCalculator::MoleMassFractionDiagram; ++i; }
@@ -339,6 +357,7 @@ int main( int argc, char ** argv )
 static void dumpPTGrids( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder );
 static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> & masses );
 static void dumpLiquidFractionArray( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
+static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> & masses );
 static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<int> & colors );
 static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder );
 static void dumpSpecialPoints( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
@@ -433,6 +452,9 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    // dump liquid fraction data for each P/T grid point and plot countour lines for this array
    if ( g_ColormapType ) dumpLiquidFractionArray( ofs, diagBuilder, data );
 
+   // dump density and/or viscosity if needed
+   if ( g_DumpProperty ) dumpPropertiesListArrays( ofs, diagBuilder, masses );
+
    // Create list of values to calculate isolines into PTDiagramCalculator
    std::vector<double> vals;
    std::vector<int>    colors;
@@ -469,7 +491,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
       {
          ofs << (i == 0 ? "hold on" : "" )<< "\n";
    
-         ofs << "plot( data_" << i << "(1,:), data_" << i << "(2,:), ";
+         ofs << "ph(" << i+1 << ") = plot( data_" << i << "(1,:), data_" << i << "(2,:), ";
       
          if ( vals.size() <= 11 )
          {
@@ -479,7 +501,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
          {
             ofs << "'color', colors( " << (vals[i] <= 0.5 ? i+1 : vals.size() - i) << ",:), ";
          }
-         ofs << "'linewidth', 2 )\n\n";
+         ofs << "'linewidth', 2 );\n\n";
       }
    }
    cEnd = clock();
@@ -784,6 +806,139 @@ static void dumpLiquidFractionArray( std::ofstream & ofs, std::auto_ptr<PTDiagra
    }
 }
 
+static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> & composition )
+{
+   const std::vector<double> & gridT = diagBuilder->getGridT();
+   const std::vector<double> & gridP = diagBuilder->getGridP();
+
+   std::vector<double> viscLiq( gridT.size() * gridP.size(), 0.0 );
+   std::vector<double> viscVap( gridT.size() * gridP.size(), 0.0 );
+
+   std::vector<double> densTot( gridT.size() * gridP.size(), 0.0 );
+   std::vector<double> densVap( gridT.size() * gridP.size(), 0.0 );
+   std::vector<double> densLiq( gridT.size() * gridP.size(), 0.0 );
+
+
+   // change the default behaviour for labeling phases for high temperature span
+   if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( g_ABTerm ); }
+
+   // increase precision for nonlinear solver
+   pvtFlash::EosPack::getInstance().setNonLinearSolverTolerance( g_MaxIters, g_StopTol ); 
+
+   // Do flashing once more for each point of the grid to collect density/viscosity values
+   for ( size_t i = 0; i < gridP.size(); ++i )
+   {
+      for ( size_t j = 0; j < gridT.size(); ++j )
+      {
+         const int iNc     = CBMGenerics::ComponentManager::NumberOfSpecies;
+         const int iNp     = CBMGenerics::ComponentManager::NumberOfPhases;
+         const int iLiquid = CBMGenerics::ComponentManager::Liquid;
+         const int iVapour = CBMGenerics::ComponentManager::Vapour;
+   
+         // arrays for passing to flasher
+         double masses[iNc];
+         double phaseMasses[iNp][iNc];
+         double phaseDens[iNp]   = {0.0, 0.0};
+         double phaseVisc[iNp] = {0.0, 0.0};
+
+         assert( composition.size() == iNc );
+         for ( int ic = 0; ic < iNc; ++ic )
+         {
+            masses[ic] = composition[ic];
+            for( int ip = 0; ip < iNp; ++ip )
+            {
+               phaseMasses[ip][ic] = 0.0;
+            }
+         }
+
+         // Call flasher to get compositions for phases
+         bool res = pvtFlash::EosPack::getInstance().computeWithLumping( gridT[j], gridP[i], masses, phaseMasses, phaseDens, phaseVisc );
+
+         if ( res )
+         {
+            double massFrac[2] = {0.0, 0.0};
+            for ( int ic = 0; ic < iNc; ++ic )
+            {
+               massFrac[0] += phaseMasses[0][ic];
+               massFrac[1] += phaseMasses[1][ic];
+            }
+            double vol[2];
+            vol[0] = massFrac[0] / phaseDens[0];
+            vol[1] = massFrac[1] / phaseDens[1];
+
+            densTot[i * gridT.size() + j] = (massFrac[0] + massFrac[1]) / (vol[0] + vol[1]);
+            densVap[i * gridT.size() + j] = phaseDens[0] == 1000 ? 0.0 : phaseDens[0];
+            densLiq[i * gridT.size() + j] = phaseDens[1] == 1000 ? 0.0 : phaseDens[1];
+            viscVap[i * gridT.size() + j] = phaseVisc[0] == 1000 ? 0.0 : phaseVisc[0];
+            viscLiq[i * gridT.size() + j] = phaseVisc[1] == 1000 ? 0.0 : phaseVisc[1];
+        }
+      }
+   }
+   // revert back flasher settings
+   if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm(); }
+   pvtFlash::EosPack::getInstance().resetToDefaulNonLinearSolverConvergencePrms();
+
+   // Dump density values for phases
+   if ( g_PropList[0] )
+   {
+      ofs << "\nTotDensity = [\n";
+      for ( size_t i = 0; i < gridP.size(); ++i )
+      {
+         for ( size_t j = 0; j < gridT.size(); ++j )
+         {
+            ofs << densTot[i * gridT.size() + j] << " ";
+         }
+         ofs << "\n";
+      }
+
+       ofs << "];\n\nVapDensity = [\n";
+      for ( size_t i = 0; i < gridP.size(); ++i )
+      {
+         for ( size_t j = 0; j < gridT.size(); ++j )
+         {
+            ofs << densVap[i * gridT.size() + j] << " ";
+         }
+         ofs << "\n";
+      }
+
+      ofs << "];\n\nLiqDensity = [\n";
+      for ( size_t i = 0; i < gridP.size(); ++i )
+      {
+         for ( size_t j = 0; j < gridT.size(); ++j )
+         {
+            ofs << densLiq[i * gridT.size() + j] << " ";
+         }
+         ofs << "\n";
+      }
+      ofs << "];\n\n";
+   }
+
+   // Dump viscosity values for phases
+   if ( g_PropList[1] )
+   {
+      ofs << "\nVapViscosity = [\n";
+      for ( size_t i = 0; i < gridP.size(); ++i )
+      {
+         for ( size_t j = 0; j < gridT.size(); ++j )
+         {
+            ofs << viscVap[i * gridT.size() + j] << " ";
+         }
+         ofs << "\n";
+      }
+   
+      ofs << "];\n\nLiqViscosity = [\n";
+      for ( size_t i = 0; i < gridP.size(); ++i )
+      {
+         for ( size_t j = 0; j < gridT.size(); ++j )
+         {
+            ofs << viscLiq[i * gridT.size() + j] << " ";
+         }
+         ofs << "\n";
+      }
+      ofs << "];\n\n";
+   }
+}
+
 static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<int> & colors )
 {
    if ( g_LogCountourLines ) // if countour lines should have logarithmic scale build sequence like this [0 0.001 0.01 0.1 0.5 0.9 0.99 0.999 1]
@@ -926,7 +1081,6 @@ static void generatePlotDescription( std::ofstream & ofs, const std::vector<doub
    ofs << "ylabel( '" << "Pressure, MPa" << "')\n";
    ofs << "\n";
    ofs << "%Plot legend\n";
-
    // Generate legend/colorbar
    if ( g_CountourLinesNum <= 11 )
    {  // simplest case - legend and colorbar separated
@@ -949,7 +1103,7 @@ static void generatePlotDescription( std::ofstream & ofs, const std::vector<doub
          }
       }
       // generate legend
-      ofs << "legend( ";
+      ofs << "legend( ph, ";
       if ( g_ColormapType ) ofs << "'',"; // for some reason octave shift legend by one line if contourf was called
 
       for ( size_t j = 0; j < vals.size() / 2 + 1; ++j )
@@ -1014,6 +1168,7 @@ static void generatePlotDescription( std::ofstream & ofs, const std::vector<doub
 
    ofs << "%Plot title\n";
    ofs << "title( 'Phase envelop PVT library. Cauldron-BPA 2013.1' );\n";
+   ofs << "grid on\n";
    ofs << "\n\n";
 }
 

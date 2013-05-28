@@ -72,6 +72,7 @@ int main (int nArg, char *pszArgs[])
    }
 
    cout << "Total mass: " << totMass << endl;
+   cout << "Temperature: " << temperature << ", Pressure: " << pressure <<  endl;
 
    if (pvtFlash::EosPack::getInstance ().computeWithLumping (temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm))
    {
@@ -88,6 +89,24 @@ int main (int nArg, char *pszArgs[])
          vapPhaseMass += phaseCompMasses[0][i];
       }
       cout << "Liquid phase mass: " << liqPhaseMass << ", Vapour phase masss: " << vapPhaseMass << endl;
+      cout << "Liquid mass phase fraction: " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ", Vapour mass phase fraction: " << vapPhaseMass/(liqPhaseMass+vapPhaseMass) << endl;
+
+      vector<double>compMassesVec(NUM_COMP_TOT);
+      for(int o = 0; o <NUM_COMP_TOT; ++ o ) compMassesVec[o] = compMasses[o];
+
+      double gorm = pvtFlash::gorm(compMassesVec);
+      cout << "Gorm = " << gorm << endl;
+
+
+      liqPhaseMass = 0;
+      vapPhaseMass = 0;
+      for ( i = 0; i < NUM_COMP_TOT; ++i )
+      {
+         double molW = pvtFlash::EosPack::getInstance().getMolWeightLumped( i, gorm );
+         liqPhaseMass += phaseCompMasses[1][i]/molW;
+         vapPhaseMass += phaseCompMasses[0][i]/molW;
+      }
+      cout << "Liquid mole phase fraction: " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ", Vapour mole phase fraction: " << vapPhaseMass/(liqPhaseMass+vapPhaseMass) << endl;
    }
 
    for (i = 0; i < NUM_COMP; ++i)
@@ -143,27 +162,19 @@ int main (int nArg, char *pszArgs[])
       }
 
       double testBuf[NUM_COMP_TOT + 2];
-      double testBuf1[NUM_COMP];
       
       for(int o = 0; o < NUM_COMP_TOT; ++ o ) {
          testBuf[o]  = compMasses[o];
       }
       testBuf[NUM_COMP_TOT]  = 131;
       testBuf[NUM_COMP_TOT + 1]  = 231;
- 
-      for(int o = 0; o < NUM_COMP; ++ o ) {
-         testBuf1[o] = compMasses[o];
-      }
      
       cout << "Size = " << sizeof(compMasses) / sizeof(double) << ", " << NUM_COMP_TOT << endl;
       double gorm1 = pvtFlash::EosPack::getInstance ().gorm(  compMasses );
       cout << "Gorm with normal buffer = " << gorm1 << endl;
       
       gorm1 = pvtFlash::EosPack::getInstance ().gorm( testBuf );
-      cout << "Gorm with bigger buffer = " << gorm1 << endl;
-      
-      gorm1 = pvtFlash::EosPack::getInstance ().gorm( testBuf1 );
-      cout << "Gorm with smaller buffer = " << gorm1 << endl;
+      cout << "Gorm with bigger buffer = " << gorm1 << endl; 
    }  
 #if 0
    if (pvtFlash::EosPack::getInstance ().computeWithLumping (temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm))
