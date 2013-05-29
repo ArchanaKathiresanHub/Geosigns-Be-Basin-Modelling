@@ -17,3 +17,18 @@ void DatadrillerProperty::readResults( const std::string & projectFile, std::vec
 
   project.read( m_retrievedVariable, m_snapshotTime, m_positionX, m_positionY, zs, results );
 }
+
+
+
+void DatadrillerProperty::readDepth( std::vector< double > & zs) const
+{
+
+  ScalarRange zRange( m_positionBegZ, m_positionEndZ, m_stepZ);
+
+  while (!zRange.isPastEnd())
+  {
+     zs.push_back( zRange.getValue() );
+     zRange.nextValue();
+  }
+
+}

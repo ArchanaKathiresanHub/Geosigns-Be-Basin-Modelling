@@ -116,33 +116,36 @@ void Experiment :: runProjectSet()
    const std::string fastcauldronPath = "fastcauldron";
    const std::string runtimeParams = "-temperature";
 
-   // Start an OpenMP thread pool
-   #pragma omp parallel
+//  #pragma omp parallel for
+   for (unsigned i = 0; i < m_cases.size(); ++i)
    {
-      // Execute the iterations of following for-loop in parallel
-      // The 'schedule(...)' bit says that each thread pulls 1 
-      // iteration at a time from the work-queue.
-      #pragma omp for schedule(dynamic, 1)
-      for (unsigned i = 0; i < m_cases.size(); ++i)
-      {
-         std::ostringstream command;
-         command << fastcauldronPath 
-                 << " -v" << version
-                 << " -project " << workingProjectFileName(i)
-                 << ' ' << runtimeParams;
-       
-         system( command.str().c_str() );
-      }
+      std::ostringstream command;
+      command << fastcauldronPath 
+              << " -v" << version
+              << " -project " << workingProjectFileName(i)
+              << ' ' << runtimeParams;
+    
+      system( command.str().c_str() );
    }
 }
 
 
 void Experiment :: collectResults() const
 {
+
    for (unsigned i=0; i < m_cases.size(); ++i)
    {
       std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
       ofs << "Datamining from project " << workingProjectFileName(i) << " :\n";
+
+      std::vector<double> zs;
+
+      m_probes[0].readDepth(zs);
+      ofs << "Depths " << " ";
+      for (size_t l = 0; l < zs.size(); ++l)
+         ofs << zs[l] << " ";
+
+      ofs << '\n';
 
       for (unsigned j = 0; j < m_probes.size(); ++j)
       {

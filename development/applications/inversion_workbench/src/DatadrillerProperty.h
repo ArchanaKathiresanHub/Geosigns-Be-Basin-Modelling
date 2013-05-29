@@ -23,6 +23,7 @@ public:
    { return m_retrievedVariable; }
 
    void readResults( const std::string & projectFile, std::vector<double> & results) const;
+   void readDepth( std::vector< double > & zs) const;
 
 private:
    std::string m_retrievedVariable;
