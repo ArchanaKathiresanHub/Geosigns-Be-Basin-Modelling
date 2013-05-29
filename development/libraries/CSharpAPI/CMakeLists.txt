@@ -25,58 +25,58 @@ set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
 #    that the value becomes space separated again, when the build script 
 #    is generated
 set_source_files_properties( src/Swig/DotNetAPI.i
-	PROPERTIES SWIG_FLAGS "-namespace;Shell.BasinModeling.CSharpAPI;-dllimport;CSharpAPI.dll"
+	PROPERTIES SWIG_FLAGS "-namespace;Shell.BasinModeling.Cauldron;-dllimport;Cauldron.dll"
 	CPLUSPLUS ON
 )
 
-swig_add_module( CSharpAPI csharp src/Swig/DotNetAPI.i
+swig_add_module( Cauldron csharp src/Swig/DotNetAPI.i
 	${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( CSharpAPI Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack)
+swig_link_libraries( Cauldron Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack)
 
 # Before C# generation, remove all existing files. The directory should be empty before generation	
-add_custom_command( TARGET CSharpAPI
+add_custom_command( TARGET Cauldron
    PRE_BUILD
    COMMAND ${CMAKE_COMMAND} ARGS "-E" "remove" "*.cs"
    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/csharp"
 )
 
 # Visual studio should reload the project after C# generation
-add_custom_command(TARGET CSharpAPI
+add_custom_command(TARGET Cauldron
 	PRE_LINK 
-	COMMAND ${CMAKE_COMMAND} ARGS "-E" "touch_nocreate" "Shell.BasinModeling.CSharpAPI.csproj"
+	COMMAND ${CMAKE_COMMAND} ARGS "-E" "touch_nocreate" "Shell.BasinModeling.Cauldron.csproj"
 	WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/csharp"
 )
 
 # Generate C# project to compile generated C# files. 
 new_guid(Guid)
-configure_file( Shell.BasinModeling.CSharpAPI.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/Shell.BasinModeling.CSharpAPI.csproj @ONLY)
+configure_file( Shell.BasinModeling.Cauldron.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/Shell.BasinModeling.Cauldron.csproj @ONLY)
 # TFS checksout files in 'Read only' mode. configure_file retains this mode, however we want to 'touch' the file when the C# files have been generated
 # So copy it, with the right permissions.
-file(COPY ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/Shell.BasinModeling.CSharpAPI.csproj
+file(COPY ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/Shell.BasinModeling.Cauldron.csproj
   DESTINATION  ${CMAKE_CURRENT_BINARY_DIR}/csharp
   FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ 
 )
-include_external_msproject(Shell.BasinModeling.CSharpAPI ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.CSharpAPI.csproj
+include_external_msproject(Shell.BasinModeling.Cauldron ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.Cauldron.csproj
 	TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
 	PLATFORM "${BM_WINDOWS_PLATFORM}"
 	GUID "${Guid}"
-	CSharpAPI
+	Cauldron
 )
 	
 ###### Installation
-install(TARGETS CSharpAPI
+install(TARGETS Cauldron
 	RUNTIME DESTINATION bin
 	LIBRARY	DESTINATION bin
 )
 	
-install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Debug/Shell.BasinModeling.CSharpAPI.dll
+install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Debug/Shell.BasinModeling.Cauldron.dll
    DESTINATION	bin
    CONFIGURATIONS Debug
 )
 
-install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Release/Shell.BasinModeling.CSharpAPI.dll
+install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Release/Shell.BasinModeling.Cauldron.dll
    DESTINATION	bin
    CONFIGURATIONS Release
 )
@@ -96,20 +96,20 @@ configure_file(test/Project.project3d csharp-test/Project.project3d)
 configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg)
 
 add_csharp_unittest( 
-  NAME Shell.BasinModeling.CSharpAPI.Test
+  NAME Shell.BasinModeling.Cauldron.Test
   PLATFORM ${BM_WINDOWS_PLATFORM}
   DIRECTORY csharp-test
   TEST_SOURCES ${CSHARP_UNIT_TESTS_SRC}
-  DEPENDS Shell.BasinModeling.CSharpAPI
+  DEPENDS Shell.BasinModeling.Cauldron
   TESTLIST "Test"
   TFS_SERVER_URL ${BM_TFS_SERVER_URL}
   TFS_BUILD_NUMBER ${BM_TFS_BUILD_NUMBER}
   TFS_PROJECT_NAME ${BM_TFS_PROJECT_NAME}
   DEPLOYMENT_ITEMS 
-	"Debug/CSharpAPI.dll" 
-	"Release/CSharpAPI.dll" 
+	"Debug/Cauldron.dll" 
+	"Release/Cauldron.dll" 
   PROJECT_REFERENCE
-    Shell.BasinModeling.CSharpAPI
+    Shell.BasinModeling.Cauldron
 	"${Guid}"
-	"${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.CSharpAPI.csproj"
+	"${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.Cauldron.csproj"
 )

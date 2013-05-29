@@ -16,7 +16,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-using Shell.BasinModeling.CSharpAPI;
+using Shell.BasinModeling.Cauldron;
 using Shell.Ocean.Petrel.BasinModeling.BPACauldronLink.Data;
 
 
@@ -87,7 +87,7 @@ namespace Shell.Ocean.Petrel.BasinModeling.BPACauldronLink.Util
             FileInfo cSharpAPIFileInfo = new FileInfo(
                 Path.Combine(
                     directory.FullName,
-                    @"CSharpAPI.dll"));
+                    @"Cauldron.dll"));
 
             FileInfo pvtPropertiesFileInfo = new FileInfo(
                 Path.Combine(

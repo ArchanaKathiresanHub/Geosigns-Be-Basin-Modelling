@@ -191,6 +191,14 @@
 
 
 %include <arrays_csharp.i>
+
+// EosPackCAPI.h:EosPackComputeWithLumpingArr()
+%apply double INPUT[]  { double * compMasses }
+%apply double OUTPUT[] { double * phaseCompMasses }
+%apply double OUTPUT[] { double * phaseDensity }
+%apply double OUTPUT[] { double * phaseViscosity }
+
+// EosPackCAPI.h:BuildPTDiagram()
 %apply double INPUT[]  { double * comp }
 %apply double OUTPUT[] { double * points }
 %apply int    INOUT[]  { int * szIso }

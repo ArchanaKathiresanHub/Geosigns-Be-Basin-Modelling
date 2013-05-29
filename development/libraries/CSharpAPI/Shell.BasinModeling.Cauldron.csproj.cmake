@@ -8,8 +8,8 @@
     <ProjectGuid>{@Guid@}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Shell.BasinModeling.CSharpAPI</RootNamespace>
-    <AssemblyName>Shell.BasinModeling.CSharpAPI</AssemblyName>
+    <RootNamespace>Shell.BasinModeling.Cauldron</RootNamespace>
+    <AssemblyName>Shell.BasinModeling.Cauldron</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -47,10 +47,10 @@
   
   <Target Name="BeforeBuild">
      <!-- Because Visual studio doesn't handle wildcards very well, a rebuild is forced each time by removing the resulting files -->
-     <Delete Files="obj/$(Platform)/$(Configuration)/Shell.BasinModeling.CSharpAPI.dll" Condition="Exists('obj/$(Platform)/$(Configuration)/Shell.BasinModeling.CSharpAPI.dll')" />
-	 <Delete Files="$(Configuration)/Shell.BasinModeling.CSharpAPI.dll" Condition="Exists('$(Configuration)/Shell.BasinModeling.CSharpAPI.dll')" />
+     <Delete Files="obj/$(Platform)/$(Configuration)/Shell.BasinModeling.Cauldron.dll" Condition="Exists('obj/$(Platform)/$(Configuration)/Shell.BasinModeling.Cauldron.dll')" />
+	 <Delete Files="$(Configuration)/Shell.BasinModeling.Cauldron.dll" Condition="Exists('$(Configuration)/Shell.BasinModeling.Cauldron.dll')" />
   </Target>
   <Target Name="AfterBuild">
-     <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.CSharpAPI.dll. Reload the project, and build the solution again"/>
+     <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.Cauldron.dll. Reload the project, and build the solution again"/>
   </Target>
 </Project>

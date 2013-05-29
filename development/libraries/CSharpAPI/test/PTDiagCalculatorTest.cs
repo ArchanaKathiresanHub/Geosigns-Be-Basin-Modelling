@@ -1,9 +1,9 @@
-﻿using Shell.BasinModeling.CSharpAPI;
+﻿using Shell.BasinModeling.Cauldron;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Runtime.InteropServices;
 
-namespace Shell.BasinModeling.CSharpAPI.Test
+namespace Shell.BasinModeling.Cauldron.Test
 {
     
     
