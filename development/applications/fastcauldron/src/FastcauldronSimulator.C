@@ -226,6 +226,19 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
 
 }
 
+void FastcauldronSimulator::clear1DTimeIoTbl () {
+   database::Table * timeIoTbl = getTable ("1DTimeIoTbl");
+   PETSC_ASSERT (timeIoTbl);
+   timeIoTbl->clear ();
+}
+
+void FastcauldronSimulator::clearDepthIoTbl () {
+   database::Table * depthIoTbl = getTable ("DepthIoTbl");
+   PETSC_ASSERT (depthIoTbl);
+   depthIoTbl->clear ();
+}
+
+
 //------------------------------------------------------------//
 
 void FastcauldronSimulator::initialiseFastcauldronLayers () {
@@ -1908,32 +1921,6 @@ void FastcauldronSimulator::readRelPermCommandLineParameters () {
 
 //------------------------------------------------------------//
 
-
-bool FastcauldronSimulator::savePropertiesOnSegmentNodes1D () {
-
-//    MutablePropertyValueList::iterator propertyValueIter;
-
-//    bool status = true;
-
-//    for (propertyValueIter = m_propertyValues.begin (); propertyValueIter != m_propertyValues.end (); ++propertyValueIter )
-//    {
-//       PropertyValue * propertyValue = * propertyValueIter;
-
-//       if (propertyValue->getStorage () != SNAPSHOTIOTBL || propertyValue->getRecord () != 0 || !propertyValue->toBeSaved ()) continue;
-
-//       propertyValue->linkToSnapshotIoRecord ();
-
-//       const string & fileName = ((Snapshot *) propertyValue->getSnapshot ())->getFileName ();
-//       string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
-
-//       savePropertiesonSegmentNodes1D ( propertyValue, propertyValue->getSnapshot ());
-//    }
-
-   return true;
-}
-
-
-//------------------------------------------------------------//
 
 bool FastcauldronSimulator::checkMobileLayerThicknesses () const {
 

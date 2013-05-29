@@ -5,10 +5,6 @@
 #include "snapshotdata.h"
 
 
-//output of 1D needle for DepthIoTbl
-void savePropertiesOnSegmentNodes1D( AppCtx*              Basin_Model,
-				     const SnapshotEntry* snapshot );
-
 double getPropValOfFirstNodeOnSurface(DA a_DA,
                                       Vec* a_vec,
                                       const SurfacePosition surfacePosition, 

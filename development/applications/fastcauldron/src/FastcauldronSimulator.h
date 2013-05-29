@@ -94,6 +94,9 @@ public :
    /// Get the calculation mode of the current run.
    CalculationMode getCalculationMode () const;
 
+   void clear1DTimeIoTbl ();
+   void clearDepthIoTbl ();
+
    void initialiseFastcauldronLayers ();
 
    // Here temporarily until element-array has been moved from propinterface.
@@ -295,9 +298,6 @@ private :
 
    /// \brief Prints the command if requested.
    void printCommandLine ( const int argc, char **argv );
-
-   bool savePropertiesOnSegmentNodes1D ();
-
 
    static FastcauldronSimulator* m_fastcauldronSimulator;
 

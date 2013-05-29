@@ -397,6 +397,26 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
    return timeIoRecord;
 }
 
+database::Record* PropertyValue::create1DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
+{
+   assert (timeIoTbl);
+   assert (MODE1D == theMode);
+
+   database::Record * timeIoRecord = timeIoTbl->createRecord ();
+	
+   database::setPropertyName (timeIoRecord, getName ());
+   database::setTime (timeIoRecord, m_snapshot->getTime ());
+   database::setFormationName (timeIoRecord, m_formation->getName ());
+   database::setNodeIndex (timeIoRecord, DefaultUndefinedScalarValue);
+
+   database::setSurfaceName (timeIoRecord, "");
+   database::setValue (timeIoRecord, DefaultUndefinedScalarValue);
+
+   setRecord (timeIoRecord);
+
+   return timeIoRecord;
+}
+
 database::Record* PropertyValue::create3DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
 {
    assert (timeIoTbl);

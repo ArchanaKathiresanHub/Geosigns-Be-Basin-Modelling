@@ -301,20 +301,6 @@ public:
    int getCrustThinningModel () const;
 
 
-   bool addTimeIoRecord (const string & propertyName, 
-			 const double time,
-                         const string & surfaceName,
-                         const string & formationName, 
-			 const string & propertyGrid, 
-			 const int depoSeq,
-			 const string & MapFileName,
-			 const double propValue1D=IBSNULLVALUE);
-
-   bool addDepthIoRecord (const string & propertyName, 
-			  const double time,
-			  const double depth,
-			  const double propValue);
-
   void deleteTimeIORecord ( const string& propertyName,
 			    const double  age );
 
@@ -356,7 +342,6 @@ public:
 
    database::Database * database;
    database::Table * timeIoTbl;
-   database::Table * depthIoTbl;
    database::Table * runStatusIoTbl;
 
    LayerList layers;

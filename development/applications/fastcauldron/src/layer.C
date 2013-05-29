@@ -408,10 +408,10 @@ void LayerProps::initialise () {
       double SomeLargeValue = 1.0e10;
 
       // The map could be filled with any value since it is over-written anyway with the correct "Boolean" value.
-      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, -1, 
+      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
                                                                                          m_projectHandle->getActivityOutputGrid (),
                                                                                          10.0 );
-      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, -1, 
+      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
                                                                                  m_projectHandle->getActivityOutputGrid (),
                                                                                  SomeLargeValue );
 
@@ -1052,10 +1052,10 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
       double SomeLargeValue = 1.0e10;
 
       // The map could be filled with any value since it is over-written anyway with the correct "Boolean" value.
-      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, -1, 
+      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
                                                                                          m_projectHandle->getActivityOutputGrid (),
                                                                                          10.0 );
-      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, -1, 
+      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
                                                                                  m_projectHandle->getActivityOutputGrid (),
                                                                                  SomeLargeValue );
 
