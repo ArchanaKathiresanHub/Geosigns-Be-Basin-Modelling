@@ -84,6 +84,11 @@ add_executable(cauldronexplorer
 	${generator_source_files}
 )
 
+set_target_properties(cauldronexplorer
+      PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
+                 LINK_FLAGS ${OpenMP_CXX_FLAGS}
+)
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(cauldronexplorer

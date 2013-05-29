@@ -234,6 +234,9 @@ if (Boost_FOUND)
      include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
+### OpennMP
+find_package(OpenMP)   
+
 ### Doxygen (for documentation generation)
 if(BM_BUILD_DOCS)
 	find_package(Doxygen)
