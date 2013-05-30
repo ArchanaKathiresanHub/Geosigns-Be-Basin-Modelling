@@ -1,6 +1,0 @@
-#!/bin/csh
-cd $1
-svn update
-cd applications
-make fastcauldron OPT=clean
-make fastcauldron OPT=optimized
