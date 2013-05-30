@@ -2883,6 +2883,12 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D (void)
       for (int k = gridMapDepth - 1; k >= 0; --k)
       {
 
+	 double value = gridMap->getValue (0, 0, (unsigned int) k);
+	 if (value == gridMap->getUndefinedValue ())
+	 {
+	    value = DefaultUndefinedScalarValue; // or, should we just not output?
+	 }
+
 	 Record * timeIoRecord = propertyValue->create1DTimeIoRecord (timeIoTbl, Interface::MODE1D); 
 
 	 if (k == 0)
@@ -2896,17 +2902,9 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D (void)
 
 	 database::setNodeIndex (timeIoRecord, k);
 
-	 double value = gridMap->getValue (0, 0, (unsigned int) k);
-	 if (value == gridMap->getUndefinedValue ())
-	 {
-	    database::setValue (timeIoRecord, DefaultUndefinedScalarValue);
-	 }
-	 else
-	 {
-	    database::setValue (timeIoRecord, value);
-	 }
-
+	 database::setValue (timeIoRecord, value);
       }
+
       gridMap->restoreData ();
 
       m_propertyValues.push_back (propertyValue);
@@ -2950,7 +2948,10 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
    {
       PropertyValue *propertyValue = *propertyValueIter;
 
-      if (propertyValue->getSnapshot () != zeroSnapshot || !propertyValue->toBeSaved ()) continue;
+      if (propertyValue->getSnapshot () != zeroSnapshot || !propertyValue->toBeSaved ())
+      {
+	 continue;
+      }
 
       selectedPropertyValues.push_back (propertyValue);
 
@@ -3003,7 +3004,9 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
 	 GridMap *gridMap = (GridMap *) propertyValue->getGridMap ();
 
 	 if (gridMap != depthGridMap)
+	 {
 	    gridMap->retrieveData ();
+	 }
 
 	 int gridMapDepth = gridMap->getDepth ();
 
@@ -3016,9 +3019,13 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
 
 	    double depthValue = depthGridMap->getValue (0, 0, (unsigned int) k);
 	    double value = gridMap->getValue (0, 0, (unsigned int) k);
-	    if (depthValue != depthGridMap->getUndefinedValue () &&
-		  value != gridMap->getUndefinedValue ())
+	    if (depthValue != depthGridMap->getUndefinedValue ())
 	    {
+	       if (value == gridMap->getUndefinedValue ())
+	       {
+		  cerr << "Undefined Value " << value << " at " << k << endl;
+		  value = DefaultUndefinedScalarValue;
+	       }
 	       for (int i = 0; i < nrOutputs; ++i)
 	       {
 		  if (depthValue != DefaultUndefinedScalarValue && depthValue > previousDepthValue[i] - 0.01 && depthValue < previousDepthValue[i] + 0.01) continue;
@@ -3063,6 +3070,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
       depthGridMap->restoreData ();
    }
 
+   // Remove all records that should not be there
    sort (depthIoTbl->begin (), depthIoTbl->end (), DepthIoTblSorter);
 
    int removalIncrement = 1;
@@ -3117,6 +3125,18 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
 	       removeNextOne = true;
 	    }
 	 }
+      }
+   }
+
+   // Remove properties with undefined value
+   for (database::Table::iterator removalIter = depthIoTbl->begin (); removalIter != depthIoTbl->end(); removalIter += removalIncrement)
+   {
+      removalIncrement = 1;
+      database::Record * currentRecord = * removalIter;
+      if (database::getAverage (currentRecord) == DefaultUndefinedScalarValue)
+      {
+	 removalIter = depthIoTbl->removeRecord (removalIter);
+	 removalIncrement = 0;
       }
    }
 
