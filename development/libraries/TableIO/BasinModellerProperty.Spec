@@ -1089,6 +1089,14 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
+    Identification      : NodeIndex
+    Description         : Index of the node in the formation
+    Type                : integer
+    Unit of measurement : 
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
     Identification      : DepoAge
     Description         : Age of deposition of a horizon/formation
     Unit of measurement : Ma
@@ -10550,6 +10558,18 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
+    Identification : 1DTimeIoTbl
+    Description    : Table listing for 1D property values
+    Column         : Time
+    Column         : PropertyName
+    Column         : FormationName
+    Column         : NodeIndex
+    Column         : SurfaceName
+    Column         : Value
+    Header         : 1D output results
+    Time dependent : No
+    Property I/O   : Yes
+
     Identification : TimeMCResultIoTbl
     Description    : Table listing the property values
                      for all MC-runs and several time/surface combinations,
@@ -10874,6 +10894,7 @@ START-application-class-properties
     Property : ExportDepthIoTbl
     Property : TimeIoTbl
     Property : 3DTimeIoTbl
+    Property : 1DTimeIoTbl
     Property : TimeMCResultIoTbl
     Property : TimeSensResultIoTbl
     Property : ExportTimeIoTbl
