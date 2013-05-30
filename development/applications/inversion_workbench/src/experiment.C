@@ -116,18 +116,26 @@ void Experiment :: runProjectSet()
    const std::string fastcauldronPath = "fastcauldron";
    const std::string runtimeParams = "-temperature";
 
-//  #pragma omp parallel for
-   for (unsigned i = 0; i < m_cases.size(); ++i)
+   // Start an OpenMP thread pool
+   #pragma omp parallel
    {
-      std::ostringstream command;
-      command << fastcauldronPath 
-              << " -v" << version
-              << " -project " << workingProjectFileName(i)
-              << ' ' << runtimeParams;
-    
-      system( command.str().c_str() );
+      // Execute the iterations of following for-loop in parallel
+      // The 'schedule(...)' bit says that each thread pulls 1 
+      // iteration at a time from the work-queue.
+      #pragma omp for schedule(dynamic, 1)
+      for (unsigned i = 0; i < m_cases.size(); ++i)
+      {
+         std::ostringstream command;
+         command << fastcauldronPath 
+                 << " -v" << version
+                 << " -project " << workingProjectFileName(i)
+                 << ' ' << runtimeParams;
+       
+         system( command.str().c_str() );
+      }
    }
 }
+
 
 
 void Experiment :: collectResults() const
