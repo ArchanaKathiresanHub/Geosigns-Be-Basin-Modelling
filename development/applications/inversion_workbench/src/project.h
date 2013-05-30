@@ -5,11 +5,15 @@
 #include <vector>
 #include <map>
 
+#include <boost/shared_ptr.hpp>
+
 namespace DataAccess { namespace Interface {
    class Formation;
    class ProjectHandle;
    class Surface;
 } } 
+
+class Crust;
 
 class Project
 {
@@ -29,7 +33,7 @@ public:
    typedef std::pair<Time, Thickness> ThicknessAtTime;
 
    void setCrustThickness( const std::vector< ThicknessAtTime> & series);
-   void setCrustThicknessThinningEvent(double startTime, double duration, double thickness, double ratio);
+   void addCrustThicknessThinningEvent(double startTime, double duration, double thickenss, double ratio);
 
    void clearSnapshotTable();
 
@@ -76,7 +80,8 @@ private:
    static SurfaceOrder compare( const DataAccess::Interface::Surface * a, const DataAccess::Interface::Surface * b );
 
    std::string m_inputFileName, m_outputFileName;
-   DataAccess::Interface::ProjectHandle * m_projectHandle;
+   boost::shared_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
+   boost::shared_ptr<Crust> m_crust;
 };
 
 

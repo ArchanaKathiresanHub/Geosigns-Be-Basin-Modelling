@@ -34,7 +34,7 @@ public:
    void printCases(std::ostream & output) const;
 
 private:
-   void sample(std::vector< boost::shared_ptr<Property> > & parameterDefinitions, std::vector< Case > & allProjects );
+   static std::vector< Case > sample(const std::vector< boost::shared_ptr<Property> > & parameterDefinitions );
    std::string workingProjectFileName(unsigned caseNumber) const;
    std::string resultsFileName(unsigned caseNumber) const;
 

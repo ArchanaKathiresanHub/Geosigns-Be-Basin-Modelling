@@ -1,5 +1,6 @@
 #include "project.h"
 #include "formattingexception.h"
+#include "Crust.h"
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Surface.h"
@@ -18,6 +19,7 @@ Project
    : m_inputFileName(input)
    , m_outputFileName(output)
    , m_projectHandle(DataAccess::Interface::OpenCauldronProject( m_inputFileName, "rw" ))
+   , m_crust()                                                                                      
 {
    if (!m_projectHandle)
       throw AdjustException() << "Could not load project file '" << m_inputFileName << "'";
@@ -41,17 +43,20 @@ void
 Project
    :: close()
 {
+   if (m_crust)
+      setCrustThickness( m_crust->getThicknessHistory() );
+
    if (m_projectHandle)
       m_projectHandle->saveToFile(m_outputFileName);
 
-   m_projectHandle = 0;
+   m_projectHandle.reset();
 }
 
 void
 Project
    :: discard()
 {
-   m_projectHandle = 0;
+   m_projectHandle.reset();
 }
 
 double
@@ -108,19 +113,16 @@ Project
    }
 }
 
-
 void
 Project
-   :: setCrustThicknessThinningEvent(double startTime, double duration, double thickness, double ratio)
+   :: addCrustThicknessThinningEvent(double startTime, double duration, double thickness, double ratio)
 {
-   double endTime = startTime - duration;
-   double endThickness = std::pow(ratio,-1.0) * thickness;
+   if (!m_crust)
+   {
+      m_crust.reset( new Crust(thickness) );
+   }
 
-   std::vector< ThicknessAtTime > crustIoTable(2);
-   crustIoTable[0] = std::make_pair( endTime , endThickness );
-   crustIoTable[1] = std::make_pair( startTime, thickness );
-
-   setCrustThickness(crustIoTable);
+   m_crust->addThinningEvent(startTime, duration, ratio);
 }
 
 void

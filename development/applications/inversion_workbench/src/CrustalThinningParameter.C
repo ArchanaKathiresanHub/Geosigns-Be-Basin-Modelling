@@ -25,6 +25,6 @@ void CrustalThinningParameter::print(std::ostream & output)
 
 void CrustalThinningParameter::changeParameter(Project & project)
 {
-   project.setCrustThicknessThinningEvent(m_startTime, m_duration, m_thickness, m_ratio);
+   project.addCrustThicknessThinningEvent(m_startTime, m_duration, m_thickness, m_ratio);
 }
 

@@ -13,7 +13,153 @@
 #include "DatadrillerProperty.h"
 #include "experiment.h"
 #include "project.h"
+#include "formattingexception.h"
 
+struct ConfigurationException : formattingexception :: BaseException< ConfigurationException > {};
+
+void readBasementProperties( database::Database & database, std::vector< boost::shared_ptr< Property > > & params)
+{
+   database::Table * table = database.getTable("BasementProperty");
+   if (!table)
+      return;
+   
+   for (int i = 0; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      std::string simpleParameter = database::getSimpleParameter ( record );
+      double startValue = database::getStartValue ( record );
+      double endValue = database::getEndValue ( record );
+      double stepValue = database::getStepValue ( record );
+    
+      params.push_back( boost::shared_ptr<Property>( 
+               new BasementProperty( simpleParameter, startValue, endValue, stepValue )
+               ) );
+   }
+}
+
+void readCrustalThinningProperties( database::Database & database,
+      std::vector< boost::shared_ptr< Property > > & params )
+{ 
+   database::Table* table = database.getTable("CrustalThinningProperty");
+   if (!table || table->size() == 0)
+      return;
+
+   double initialThicknessStart = 0.0;
+   double initialThicknessEnd = 0.0;
+   double initialThicknessStep = 0.0;
+   if (table->getRecord(0) &&
+       database::getSimpleParameter(table->getRecord(0)) == "InitialCrustalThinningThickness"
+      )
+   {
+      database::Record * record = table->getRecord(0);
+      initialThicknessStart= database::getStartValue(record);
+      initialThicknessEnd = database::getEndValue(record);
+      initialThicknessStep = database::getStepValue(record);
+   }
+   else
+   {
+      throw ConfigurationException() << "The CrustalThinningProperty table "
+         "should be empty or its first record should be a "
+         "InitialCrustalThinningThickness record.";
+   }
+   ScalarRange initialThickness(
+         initialThicknessStart, 
+         initialThicknessEnd,
+         initialThicknessStep
+         );
+
+   std::string paramNames[] 
+      = { "InitialCrustalThinningTime", "CrustalThinningDuration", "CrustalThinningRatio" };
+
+   std::vector< ScalarRange > ranges;
+   for (int i = 1; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      if (paramNames[ (i-1)%3 ] != database::getSimpleParameter(record) )
+         throw ConfigurationException() 
+            << "Expected in CrustalThinningProperty table on record " << i 
+            << "a " << paramNames[ (i-1)%3 ] << " property";
+
+      ranges.push_back( ScalarRange( database::getStartValue ( record),
+               database::getEndValue ( record),
+               database::getStepValue ( record)
+               ));
+
+      if (ranges.size() == 3)
+      {
+         params.push_back( boost::shared_ptr<Property>( 
+                  new CrustalThinningProperty( ranges[0] , ranges[1], initialThickness, ranges[2])
+               ));
+         ranges.clear();
+      }
+   }
+
+   if (!ranges.empty())
+      throw ConfigurationException() << "The last " << ranges.size() <<
+         " records in the CrustalThinningProperty table do no form a complete"
+         " thinning event range";
+}
+
+std::vector< DatadrillerProperty > readDatadrillerProperties( database::Database & database )
+{
+   database::Table* table = database.getTable("DatadrillerProperty");
+   if (!table || table->size() == 0)
+      throw ConfigurationException() << "There should be at least one entry "
+         "in the DatadrillerProperty table";
+
+   std::vector< DatadrillerProperty > result ;
+   for (int i = 0; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      std::string retrievedVariable = database::getRetrievedVariable ( record);
+      double snapshotTime = database::getSnapshotTime ( record);
+      double positionX = database::getPositionX ( record);
+      double positionY = database::getPositionY ( record);
+      double positionBegZ = database::getPositionBegZ ( record);
+      double positionEndZ = database::getPositionEndZ ( record);
+      double stepZ = database::getStepZ ( record);
+    
+      result.push_back( DatadrillerProperty( 
+               retrievedVariable, 
+               snapshotTime, 
+               positionX,
+               positionY,
+               positionBegZ,
+               positionEndZ,
+               stepZ )
+            );
+   }
+   return result;
+}
+
+RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
+{
+   database::Table* configuration = database.getTable("RuntimeConfiguration");
+
+   if (!configuration || configuration->size() != 1)
+      throw ConfigurationException() << "There must be exactly one entry in "
+         "the RuntimeConfiguration table";
+
+   database::Record* recordInfo = configuration->getRecord ( 0 );
+   assert( recordInfo );
+
+   std::string templateProjectFile = database::getProjectTemplatePath ( recordInfo );
+   std::string outputDirectoryAddress = database::getOutputDirectory ( recordInfo );
+   std::string outputFileName = database::getOutputFileName ( recordInfo );
+
+   // if the outputFileName has an extension ".project3d", remove it, because we only want the prefix.
+   std::string::size_type dotPos = outputFileName.rfind (".project3d");
+   if (dotPos != std::string::npos)
+   {
+      outputFileName.erase(dotPos, std::string::npos);
+   }
+
+   // Add it to the list
+   return RuntimeConfiguration( templateProjectFile, outputDirectoryAddress, outputFileName );
+}
 
 int main(int argc, char ** argv ) 
 {
@@ -37,122 +183,16 @@ int main(int argc, char ** argv )
       return EXIT_FAILURE;
    }
 
-   database::Table* configuration = database->getTable("RuntimeConfiguration");
-   database::Table* basementPropertyTable = database->getTable("BasementProperty");
-   database::Table* crustalThinningPropertyTable = database->getTable("CrustalThinningProperty");
-   database::Table* datadrillerPropertyTable = database->getTable("DatadrillerProperty");
-
-   assert( configuration );
-   assert( basementPropertyTable );
-   assert( crustalThinningPropertyTable );
-   assert( datadrillerPropertyTable );
-
-   // read runtime configuration parameters
-   std::vector< RuntimeConfiguration > info;
-   for (int i = 0; i < configuration->size (); ++i ) 
-   {
-      database::Record* recordInfo = configuration->getRecord ( i );
-      assert( recordInfo );
-
-      std::string templateProjectFile = database::getProjectTemplatePath ( recordInfo );
-      std::string outputDirectoryAddress = database::getOutputDirectory ( recordInfo );
-      std::string outputFileName = database::getOutputFileName ( recordInfo );
-
-      // if the outputFileName has an extension ".project3d", remove it, because we only want the prefix.
-      std::string::size_type dotPos = outputFileName.rfind (".project3d");
-      if (dotPos != std::string::npos)
-      {
-         outputFileName.erase(dotPos, std::string::npos);
-      }
-
-      // Add it to the list
-      info.push_back( RuntimeConfiguration( templateProjectFile, outputDirectoryAddress, outputFileName ));
-   }
-
-   if (info.empty())
-   {
-      std::cerr << "Error: no runtime configuration present in experiment "
-         << "set-up '" << fileName << "'" << std::endl;
-      return EXIT_FAILURE;
-   }
-
    // Read basement properties
    std::vector< boost::shared_ptr<Property> > params;
-   for (int i = 0; i < basementPropertyTable->size (); ++i ) 
-   {
-      database::Record* record = basementPropertyTable->getRecord ( i );
-
-      std::string simpleParameter = database::getSimpleParameter ( record );
-      double startValue = database::getStartValue ( record );
-      double endValue = database::getEndValue ( record );
-      double stepValue = database::getStepValue ( record );
-    
-      params.push_back( boost::shared_ptr<Property>( 
-               new BasementProperty( simpleParameter, startValue, endValue, stepValue )
-               ) );
-   }
-
-
-   { // Read crustal thinning properties
-      if (crustalThinningPropertyTable->size () % 4 != 0 || crustalThinningPropertyTable->size() > 4 )
-      {
-         std::cerr << "Error! The Crustal thinning table should contain none or exactly 4 records for the 4 following parameters: InitialCrustalThinningTime, CrustalThinningDuration, InitialCrustalThinningThickness, CrustalThinningRatio " << std::endl;
-         return EXIT_FAILURE;
-      }
-
-      std::string crustalThinningSimpleParamNames[] 
-         = { "InitialCrustalThinningTime", "CrustalThinningDuration", 
-            "InitialCrustalThinningThickness", "CrustalThinningRatio" };
-
-      std::vector< ScalarRange > crustalThinningRanges;
-      for (int i = 0; i < crustalThinningPropertyTable->size (); ++i ) 
-      {
-         database::Record* recordCrustalThin = crustalThinningPropertyTable->getRecord ( i );
-
-         if ( crustalThinningSimpleParamNames[i % 4 ] != database::getSimpleParameter ( recordCrustalThin ))
-         {
-            std::cerr << "Error in experiment set-up '" << fileName << "' in table 'CrustalThinningProperty': "
-                << "expected '" << crustalThinningSimpleParamNames[i % 4] << "' instead of '"
-                << database::getSimpleParameter ( recordCrustalThin ) << "'" << std::endl;
-            return EXIT_FAILURE;
-         }
-
-         crustalThinningRanges.push_back( ScalarRange( database::getStartValue ( recordCrustalThin ),
-                  database::getEndValue ( recordCrustalThin ),
-                  database::getStepValue ( recordCrustalThin )
-                  ));
-
-         if (crustalThinningRanges.size() == 4)
-         {
-            params.push_back( boost::shared_ptr<Property>( 
-                     new CrustalThinningProperty( crustalThinningRanges[0]
-                        , crustalThinningRanges[1], crustalThinningRanges[2], crustalThinningRanges[3]
-                        )
-                  ));
-            crustalThinningRanges.clear();
-         }
-      }
-   }
-
-   // Read in the locations where the measurements should be taken
-   std::vector< DatadrillerProperty > drillerInfo;
-   for (int i = 0; i < datadrillerPropertyTable->size (); ++i ) 
-   {
-      database::Record* recordDrillerInfo = datadrillerPropertyTable->getRecord ( i );
-
-      std::string retrievedVariable = database::getRetrievedVariable ( recordDrillerInfo );
-      double snapshotTime = database::getSnapshotTime ( recordDrillerInfo );
-      double positionX = database::getPositionX ( recordDrillerInfo );
-      double positionY = database::getPositionY ( recordDrillerInfo );
-      double positionBegZ = database::getPositionBegZ ( recordDrillerInfo );
-      double positionEndZ = database::getPositionEndZ ( recordDrillerInfo );
-      double stepZ = database::getStepZ ( recordDrillerInfo );
-    
-      drillerInfo.push_back( DatadrillerProperty( retrievedVariable, snapshotTime, positionX, positionY, positionBegZ, positionEndZ, stepZ ));
-   }
+   readBasementProperties(*database, params);
+   readCrustalThinningProperties(*database, params);
 
    // Run the experiment
-   Experiment experiment(params, drillerInfo, info[0]);
+   Experiment experiment(params, 
+         readDatadrillerProperties(*database), 
+         readRuntimeConfiguration(*database)
+         );
    experiment.createProjectsSet();
    experiment.runProjectSet();
    experiment.collectResults();

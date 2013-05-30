@@ -20,39 +20,34 @@
 #include "Interface/ProjectHandle.h"
 
 Experiment :: Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & datadrillerDefinitions, const RuntimeConfiguration & dataInfo)
-   : m_cases(1, Case() )
+   : m_cases( sample(params) )
    , m_probes(datadrillerDefinitions)
    , m_experimentInfo(dataInfo)
 {
-   std::vector< boost::shared_ptr<Property> > paramsCopy(params);
-   sample( paramsCopy, m_cases);
 }
 
-void Experiment::sample( std::vector< boost::shared_ptr<Property> > & parameterDefinitions, std::vector< Case > & allCases )
+std::vector< Case > Experiment::sample( const std::vector< boost::shared_ptr<Property> > & properties)
 {
-   if(parameterDefinitions.empty())
-      return;
-
-   boost::shared_ptr<Property> lastParameterDefinition = parameterDefinitions.back();
-   parameterDefinitions.pop_back(); 
-
-   sample(parameterDefinitions, allCases);
-
-   std::vector< Case > newOutput;
-
-   for (unsigned i = 0; i < allCases.size(); ++i)
+   std::vector< Case > cases(1);
+   std::vector< Case > newCases;
+   for (unsigned p = 0 ; p < properties.size(); ++p)
    {
-      lastParameterDefinition->reset();
-      while (! lastParameterDefinition->isPastEnd())
+      Property & property = *properties[p];
+
+      newCases.clear();
+      for (unsigned i = 0; i < cases.size(); ++i)
       {
-         Case newCase = allCases[i];
-         lastParameterDefinition->createParameter(newCase);
-         newOutput.push_back( newCase );
-         lastParameterDefinition->nextValue();
+         for( property.reset(); ! property.isPastEnd(); property.nextValue())
+         {
+            newCases.push_back( cases[i] );
+            property.createParameter( newCases.back() );
+         }
       }
+
+      newCases.swap( cases );
    }
 
-   allCases.swap( newOutput );
+   return cases;
 }
 
 std::string Experiment::workingProjectFileName(unsigned caseNumber) const

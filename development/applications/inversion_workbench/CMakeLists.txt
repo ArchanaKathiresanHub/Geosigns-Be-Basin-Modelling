@@ -7,6 +7,7 @@ add_executable(adjust
     src/adjust.C
     src/project.C
     src/optionparser.C
+    src/Crust.C
 )
 
 include_directories(
@@ -73,6 +74,7 @@ add_executable(cauldronexplorer
         src/BasementParameter.C
         src/case.C
         src/MultiDimRange.C
+        src/Crust.C
         src/CrustalThinningParameter.C
         src/CrustalThinningProperty.C
         src/DatadrillerProperty.C
@@ -164,6 +166,7 @@ add_executable(Experiment
       src/project.C
       src/ProjectResultsReader.C
       src/system.C
+      src/Crust.C
     )
 
 target_link_libraries(Experiment
