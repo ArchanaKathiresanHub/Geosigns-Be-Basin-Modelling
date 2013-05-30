@@ -1,3 +1,0 @@
-#!/bin/csh
-svn $retrievalcmd $SVNREPO/RegressionTests/$1/$2 $2
-
