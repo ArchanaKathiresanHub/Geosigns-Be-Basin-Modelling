@@ -1,2 +1,0 @@
-#!/bin/csh
-./CleanBuildAndInstall -development Trunk/development -3rdparty Trunk/3rdparty -version v2013.01nightly
