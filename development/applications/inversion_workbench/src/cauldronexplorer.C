@@ -17,7 +17,8 @@
 
 struct ConfigurationException : formattingexception :: BaseException< ConfigurationException > {};
 
-void readBasementProperties( database::Database & database, std::vector< boost::shared_ptr< Property > > & params)
+void readBasementProperties( database::Database & database,
+                             std::vector< boost::shared_ptr< Property > > & params)
 {
    database::Table * table = database.getTable("BasementProperty");
    if (!table)
@@ -39,7 +40,7 @@ void readBasementProperties( database::Database & database, std::vector< boost::
 }
 
 void readCrustalThinningProperties( database::Database & database,
-      std::vector< boost::shared_ptr< Property > > & params )
+                                    std::vector< boost::shared_ptr< Property > > & params )
 { 
    database::Table* table = database.getTable("CrustalThinningProperty");
    if (!table || table->size() == 0)
@@ -183,13 +184,13 @@ int main(int argc, char ** argv )
       return EXIT_FAILURE;
    }
 
-   // Read basement properties
-   std::vector< boost::shared_ptr<Property> > params;
-   readBasementProperties(*database, params);
-   readCrustalThinningProperties(*database, params);
+   // Read properties
+   std::vector< boost::shared_ptr<Property> > properties;
+   readBasementProperties(*database, properties);
+   readCrustalThinningProperties(*database, properties);
 
    // Run the experiment
-   Experiment experiment(params, 
+   Experiment experiment(properties, 
          readDatadrillerProperties(*database), 
          readRuntimeConfiguration(*database)
          );

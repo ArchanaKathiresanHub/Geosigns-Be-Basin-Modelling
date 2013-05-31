@@ -1,15 +1,15 @@
 #include "BasementProperty.h"
 #include "BasementParameter.h"
-#include "case.h"
+#include "Scenario.h"
 
 void BasementProperty::reset()
 {
    m_range.reset();
 }
 
-void BasementProperty::createParameter(Case & project) const
+void BasementProperty::createParameter(Scenario & scenario) const
 {
-   project.addParameter( new BasementParameter( m_name, m_range.getValue()) );
+   scenario.addParameter( new BasementParameter( m_name, m_range.getValue()) );
 }
 
 void BasementProperty::nextValue()

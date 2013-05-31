@@ -7,7 +7,7 @@
 #include "ScalarRange.h"
 #include "MultiDimRange.h"
 
-class Case;
+class Scenario;
 
 class CrustalThinningProperty : public Property
 {
@@ -15,7 +15,7 @@ public:
    CrustalThinningProperty(ScalarRange t0, ScalarRange dt, ScalarRange dz, ScalarRange ratio);
 
    virtual void reset();
-   virtual void createParameter(Case & project) const ;
+   virtual void createParameter(Scenario & scenario) const ;
    virtual void nextValue() ;
    virtual bool isPastEnd() const ;
 

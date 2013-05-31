@@ -2,7 +2,7 @@
 #include <vector>
 #include "CrustalThinningProperty.h"
 #include "CrustalThinningParameter.h"
-#include "case.h"
+#include "Scenario.h"
 
 #include <cmath>
 
@@ -35,6 +35,7 @@ void CrustalThinningProperty::reset()
    m_range.reset();
 }
 
+
 void CrustalThinningProperty::nextValue()
 {
    m_range.nextValue();
@@ -45,11 +46,11 @@ bool CrustalThinningProperty::isPastEnd() const
    return m_range.isPastEnd();
 }
 
-void CrustalThinningProperty::createParameter(Case & project) const
+void CrustalThinningProperty::createParameter(Scenario & scenario) const
 {
    std::vector< double > value;
    m_range.getValue(value);
 
    assert( value.size() == 4);
-   project.addParameter( new CrustalThinningParameter( value[0], value[1], value[2], value[3] ) );
+   scenario.addParameter( new CrustalThinningParameter( value[0], value[1], value[2], value[3] ) );
 }

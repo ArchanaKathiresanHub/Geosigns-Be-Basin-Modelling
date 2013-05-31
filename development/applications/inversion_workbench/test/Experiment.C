@@ -11,7 +11,7 @@ class Empty : public Property
 {
 public:
    virtual void reset() { } 
-   virtual void createParameter(Case & project) const { }
+   virtual void createParameter(Scenario & project) const { }
    virtual void nextValue() { }
    virtual bool isPastEnd() const { return true; }
 };
@@ -33,7 +33,7 @@ public:
 
    NonEmpty() : m_i(0) {}
    virtual void reset() { m_i = 0; } 
-   virtual void createParameter(Case & project) const 
+   virtual void createParameter(Scenario & project) const 
    { project.addParameter( new Param( m_i ) ) ;}
    virtual void nextValue() { m_i ++;  }
    virtual bool isPastEnd() const
@@ -61,9 +61,9 @@ void test_Experiment_Experiment()
       Experiment e(params, noDataDriller, noRTInfo );
 
       std::ostringstream s;
-      e.printCases(s);
+      e.printScenarios(s);
 
-      assert( s.str() == "Cases of experiment\n  1) NONE\n" );
+      assert( s.str() == "Scenarios of experiment\n  1) NONE\n" );
    }
 
 
@@ -75,7 +75,7 @@ void test_Experiment_Experiment()
       Experiment e(params, noDataDriller, noRTInfo );
 
       std::ostringstream s;
-      e.printCases(s);
+      e.printScenarios(s);
 
       assert( s.str() == "Experiment has no cases\n" );
    }
@@ -88,9 +88,9 @@ void test_Experiment_Experiment()
       Experiment e(params, noDataDriller, noRTInfo );
 
       std::ostringstream s;
-      e.printCases(s);
+      e.printScenarios(s);
 
-      assert( s.str() == "Cases of experiment\n"
+      assert( s.str() == "Scenarios of experiment\n"
                          "  1) 0\n"
                          "  2) 1\n"
                          "  3) 2\n"
@@ -106,7 +106,7 @@ void test_Experiment_Experiment()
       Experiment e(params, noDataDriller, noRTInfo );
 
       std::ostringstream s;
-      e.printCases(s);
+      e.printScenarios(s);
 
       assert( s.str() == "Experiment has no cases\n" );
    }
@@ -120,7 +120,7 @@ void test_Experiment_Experiment()
       Experiment e(params, noDataDriller, noRTInfo );
 
       std::ostringstream s;
-      e.printCases(s);
+      e.printScenarios(s);
 
       assert( s.str() == "Experiment has no cases\n" );
    }
@@ -135,7 +135,7 @@ void test_Experiment_Experiment()
       Experiment e(params, noDataDriller, noRTInfo );
 
       std::ostringstream s;
-      e.printCases(s);
+      e.printScenarios(s);
 
       assert( s.str() == "Experiment has no cases\n" );
    }
@@ -150,9 +150,9 @@ void test_Experiment_Experiment()
       Experiment e(params, noDataDriller, noRTInfo );
 
       std::ostringstream s;
-      e.printCases(s);
+      e.printScenarios(s);
 
-      assert( s.str() == "Cases of experiment\n"
+      assert( s.str() == "Scenarios of experiment\n"
                          "  1) 0; 0; 0\n"
                          "  2) 0; 0; 1\n"
                          "  3) 0; 0; 2\n"

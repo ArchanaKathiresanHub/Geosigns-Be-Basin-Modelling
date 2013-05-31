@@ -12,7 +12,7 @@
 #include "BasementProperty.h"
 #include "RuntimeConfiguration.h"
 #include "DatadrillerProperty.h"
-#include "case.h"
+#include "Scenario.h"
 #include "projectdependencies.h"
 #include "formattingexception.h"
 #include "system.h"
@@ -20,49 +20,49 @@
 #include "Interface/ProjectHandle.h"
 
 Experiment :: Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & datadrillerDefinitions, const RuntimeConfiguration & dataInfo)
-   : m_cases( sample(params) )
+   : m_scenarios( sample(params) )
    , m_probes(datadrillerDefinitions)
    , m_experimentInfo(dataInfo)
 {
 }
 
-std::vector< Case > Experiment::sample( const std::vector< boost::shared_ptr<Property> > & properties)
+std::vector< Scenario > Experiment::sample( const std::vector< boost::shared_ptr<Property> > & properties)
 {
-   std::vector< Case > cases(1);
-   std::vector< Case > newCases;
+   std::vector< Scenario > scenarios(1);
+   std::vector< Scenario > newScenarios;
    for (unsigned p = 0 ; p < properties.size(); ++p)
    {
       Property & property = *properties[p];
 
-      newCases.clear();
-      for (unsigned i = 0; i < cases.size(); ++i)
+      newScenarios.clear();
+      for (unsigned i = 0; i < scenarios.size(); ++i)
       {
          for( property.reset(); ! property.isPastEnd(); property.nextValue())
          {
-            newCases.push_back( cases[i] );
-            property.createParameter( newCases.back() );
+            newScenarios.push_back( scenarios[i] );
+            property.createParameter( newScenarios.back() );
          }
       }
 
-      newCases.swap( cases );
+      newScenarios.swap( scenarios );
    }
 
-   return cases;
+   return scenarios;
 }
 
-std::string Experiment::workingProjectFileName(unsigned caseNumber) const
+std::string Experiment::workingProjectFileName(unsigned scenarioNumber) const
 {
    std::ostringstream fileName;
    fileName 
          << m_experimentInfo.getOutputDirectory()
          << '/'
          << m_experimentInfo.getOutputFileNamePrefix()
-         << "_" << caseNumber + 1 
+         << "_" << scenarioNumber + 1 
          << ".project3d";
    return fileName.str();
 }
 
-std::string Experiment::resultsFileName(unsigned caseNumber) const
+std::string Experiment::resultsFileName(unsigned scenarioNumber) const
 {
    std::ostringstream fileName;
    fileName 
@@ -70,7 +70,7 @@ std::string Experiment::resultsFileName(unsigned caseNumber) const
          << '/'
          << "Datadriller_"
          << m_experimentInfo.getOutputFileNamePrefix()
-         << "_" << caseNumber + 1 
+         << "_" << scenarioNumber + 1 
          << ".project3d.dat";
    return fileName.str();
 }
@@ -100,8 +100,8 @@ void Experiment :: createProjectsSet() const
       copyFile( templateDir + '/' + deps.inputMaps[i], workingDir + '/' + deps.inputMaps[i]);
 
    // generate project3d files
-   for (unsigned i = 0; i < m_cases.size(); ++i)
-      m_cases[i].createProjectFile( m_experimentInfo.getTemplateProjectFile(), workingProjectFileName(i));
+   for (unsigned i = 0; i < m_scenarios.size(); ++i)
+      m_scenarios[i].createProjectFile( m_experimentInfo.getTemplateProjectFile(), workingProjectFileName(i));
 }
 
 
@@ -118,7 +118,7 @@ void Experiment :: runProjectSet()
       // The 'schedule(...)' bit says that each thread pulls 1 
       // iteration at a time from the work-queue.
       #pragma omp for schedule(dynamic, 1)
-      for (unsigned i = 0; i < m_cases.size(); ++i)
+      for (unsigned i = 0; i < m_scenarios.size(); ++i)
       {
          std::ostringstream command;
          command << fastcauldronPath 
@@ -136,7 +136,7 @@ void Experiment :: runProjectSet()
 void Experiment :: collectResults() const
 {
 
-   for (unsigned i=0; i < m_cases.size(); ++i)
+   for (unsigned i=0; i < m_scenarios.size(); ++i)
    {
       std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
       ofs << "Datamining from project " << workingProjectFileName(i) << " :\n";
@@ -166,19 +166,19 @@ void Experiment :: collectResults() const
 
 
 
-void Experiment::printCases( std::ostream & output ) const
+void Experiment::printScenarios( std::ostream & output ) const
 {
-   if (m_cases.empty())
+   if (m_scenarios.empty())
    {
-      output << "Experiment has no cases\n";
+      output << "Experiment has no scenarios\n";
    }
    else
    {
-      output << "Cases of experiment\n";
-      for (int i=0; i < m_cases.size(); ++i)
+      output << "Scenarios of experiment\n";
+      for (int i=0; i < m_scenarios.size(); ++i)
       {
          output << std::setw(3) << i+1 << ") ";
-         m_cases[i].printParameters(output);
+         m_scenarios[i].printParameters(output);
          output << '\n';
       }
    }

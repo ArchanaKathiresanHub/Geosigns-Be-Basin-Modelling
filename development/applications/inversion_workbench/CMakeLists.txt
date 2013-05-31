@@ -72,7 +72,7 @@ set (generator_source_files
 add_executable(cauldronexplorer
         src/BasementProperty.C
         src/BasementParameter.C
-        src/case.C
+        src/Scenario.C
         src/MultiDimRange.C
         src/Crust.C
         src/CrustalThinningParameter.C
@@ -160,7 +160,7 @@ add_test(NAME MultiDimRange.multiPass
 
 add_executable(Experiment
       test/Experiment.C
-      src/case.C
+      src/Scenario.C
       src/DatadrillerProperty.C
       src/experiment.C
       src/project.C

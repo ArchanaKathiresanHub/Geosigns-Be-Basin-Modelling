@@ -1,5 +1,5 @@
-#ifndef INVERSION_CASE_H
-#define INVERSION_CASE_H
+#ifndef INVERSION_SCENARIO_H
+#define INVERSION_SCENARIO_H
 
 #include <string>
 #include <vector>
@@ -10,11 +10,11 @@
 class Parameter;
 class DatadrillerProperty;
 
-/// A Case represents a set of several Parameter settings. These can be applied on a Cauldron project. 
-class Case
+/// A Scenario represents a set of several Parameter settings. These can be applied on a Cauldron project. 
+class Scenario
 {
 public:
-   /// Add a Parameter setting to this case.
+   /// Add a Parameter setting to this scenario.
    void addParameter(Parameter * parameter);
 
    /// Apply the Parameter settings on the template Cauldron project file 'originalProjectFile'
@@ -25,7 +25,7 @@ public:
    void printParameters(std::ostream & output) const;
 
 private:
-   std::vector< boost::shared_ptr<Parameter> > m_values;
+   std::vector< boost::shared_ptr<Parameter> > m_parameters;
 };
 
 #endif

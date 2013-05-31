@@ -1,7 +1,7 @@
 #ifndef INVERSION_PROPERTY_H
 #define INVERSION_PROPERTY_H
 
-class Case;
+class Scenario;
 
 /// A Property is a range of values for a specific (set of) field(s) in a Cauldron project file.
 /// To let the caller be agnostic of the types involved, an iteration interface (reset, 
@@ -16,8 +16,8 @@ public:
    /// Resets the iteration to the start of the sequence
    virtual void reset() = 0;
 
-   /// Adds a new Parameter setting to an existing case.
-   virtual void createParameter(Case & project) const = 0;
+   /// Adds a new Parameter setting to an existing scenario.
+   virtual void createParameter(Scenario & scenario) const = 0;
 
    /// Go to the next value of the sequence
    virtual void nextValue() = 0;
