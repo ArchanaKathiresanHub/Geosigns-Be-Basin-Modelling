@@ -77,7 +77,7 @@ void test_Experiment_Experiment()
       std::ostringstream s;
       e.printScenarios(s);
 
-      assert( s.str() == "Experiment has no cases\n" );
+      assert( s.str() == "Experiment has no scenarios\n" );
    }
 
    // test case 2: one property with non-empty range
@@ -108,7 +108,7 @@ void test_Experiment_Experiment()
       std::ostringstream s;
       e.printScenarios(s);
 
-      assert( s.str() == "Experiment has no cases\n" );
+      assert( s.str() == "Experiment has no scenarios\n" );
    }
 
    // test case 4: one property with empty range and one with non-empty range
@@ -122,7 +122,7 @@ void test_Experiment_Experiment()
       std::ostringstream s;
       e.printScenarios(s);
 
-      assert( s.str() == "Experiment has no cases\n" );
+      assert( s.str() == "Experiment has no scenarios\n" );
    }
 
    // test case 5: one empty range between two non-empty ranges
@@ -137,7 +137,7 @@ void test_Experiment_Experiment()
       std::ostringstream s;
       e.printScenarios(s);
 
-      assert( s.str() == "Experiment has no cases\n" );
+      assert( s.str() == "Experiment has no scenarios\n" );
    }
 
    // test case 5: three non-empty ranges
