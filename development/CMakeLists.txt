@@ -103,12 +103,12 @@ if (MSVC)
 endif ()
 
 if(UNIX)
-	# The library to be compiled with -O3 is EosPack, all others, 
-	# including the applications are to be compiled with -O2.
-	# Also we want assert(3) in Release configuration
+        # All excutables should be statically linked. Alls unit compiled wiht
 	set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-	# IMPORTANT: somehow -fPIC affects regression test results
-	add_definitions(-fPIC)
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-O2")
+
+        # set(CMAKE_CXX_FLAGS_DEBUG "-static")
+        # set(CMAKE_CXX_LINKER_FLAGS_DEBUG "-static")
 	if(BM_CODE_COVERAGE_ENABLE)
 		file(MAKE_DIRECTORY ${BM_CODE_COVERAGE_DIR})
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -prof-gen=srcpos -prof-dir \"${BM_CODE_COVERAGE_DIR}\"")
