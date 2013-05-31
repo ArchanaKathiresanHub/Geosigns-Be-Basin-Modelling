@@ -25,7 +25,7 @@
 
     <!-- Deploy to Houston -->
     <!-- FIXME: Move ReleaseToHouston script closer to .projc file, Simplify ReleaseToHouston, Don't rely on that 'unpackrelease' is present at remote site. -->
-    <script_deploy_to_houston>scripts/BuildAndInstall/ReleaseToHouston</script_deploy_to_houston>
+    <script_deploy_to_houston>developmentBuildProjects/ReleaseToHouston</script_deploy_to_houston>
     <deploy_to_houston>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_deploy_to_houston) v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)"</deploy_to_houston>
   </PropertyGroup>
 
