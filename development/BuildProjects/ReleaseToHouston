@@ -4,23 +4,18 @@ cd /apps/sssdev/ibs
 
 WHOAMI=`/usr/bin/whoami`
 REMOTEUSER=s_bpac00
-LOCALDIR=/scratch/$WHOAMI
-REMOTEDIR=/scratch/$REMOTEUSER
 REMOTECOMPUTER=houic-n-b01309.americas.shell.com
 REMOTEACCOUNT=$REMOTEUSER@$REMOTECOMPUTER
-SSHKEYFILE=${REMOTEUSER}-id_dsa
+SSHKEYFILE=${HOME}/${REMOTEUSER}-id_dsa
+IBSDIRECTORY=/apps/sssdev/ibs
 if [ $# -eq 0 ]
 then
-   VERSION=v2013.01nightly
+   VERSION=v2013.10nightly
 else
    VERSION=$1
 fi
-TARFILE=${VERSION}.tgz
+IBSVERSIONDIRECTORY=${IBSDIRECTORY}/${VERSION}
 
-mkdir -p $LOCALDIR
-tar czf $LOCALDIR/$TARFILE $VERSION
-cd
-ssh -i $SSHKEYFILE $REMOTEACCOUNT "mkdir -p $REMOTEDIR"
-scp -i $SSHKEYFILE $LOCALDIR/$TARFILE ${REMOTEACCOUNT}:$REMOTEDIR/$TARFILE
-ssh -i $SSHKEYFILE $REMOTEACCOUNT "bin/unpackrelease $REMOTEDIR/$TARFILE $VERSION"
-/bin/rm $LOCALDIR/$TARFILE
+ssh -q -i $SSHKEYFILE $REMOTEACCOUNT "rm -rf ${IBSVERSIONDIRECTORY}_a; mv ${IBSVERSIONDIRECTORY} ${IBSVERSIONDIRECTORY}_a"
+rsync -az -e "ssh -x -q -i $SSHKEYFILE" ${IBSVERSIONDIRECTORY}/  ${REMOTEACCOUNT}:${IBSVERSIONDIRECTORY}
+ssh -q -i $SSHKEYFILE $REMOTEACCOUNT "cd ${IBSVERSIONDIRECTORY}/misc/geocosm/3rdparty;/bin/rm -rf matlabmcr;echo '-P installLocation=${IBSVERSIONDIRECTORY}/misc/geocosm/3rdparty/matlabmcr/matlab' > MCRInstaller.in;./MCRInstaller.bin -silent -options MCRInstaller.in"
