@@ -1836,6 +1836,10 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
 
       double segmentThickness = formation->getInputThicknessMap ()->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
 
+      if ( NumericFunctions::inRange<double>( segmentThickness, -MobileLayerNegativeThicknessTolerance, 0.0 )) {
+        segmentThickness = 0.0;
+      }
+
       if ( segmentThickness < 0.0 ) {
          onlyPositiveThickness = false;
 

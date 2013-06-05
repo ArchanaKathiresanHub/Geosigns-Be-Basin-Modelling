@@ -97,6 +97,13 @@ namespace GeoPhysics {
    /// The tolerance for comparing thickness of layers.
    const double ThicknessTolerance = 0.1;
 
+   /// \var MobileLayerNegativeThicknessTolerance
+   /// \brief The cut-off tolerance value for negative thicknesses of mobile layers.
+   ///
+   /// if the thickness of a mobile layer < -MobileLayerNegativeThicknessTolerance then this is an error
+   /// if the thickness is in the range [-MobileLayerNegativeThicknessTolerance, 0] then the thickness is set to zero.
+   const double MobileLayerNegativeThicknessTolerance = 0.5;
+
    /// \var MaximumReasonableCrustThinningRatio
    /// \brief A reasonable maximum ratio of the crust thickness differences.
    ///
