@@ -126,17 +126,17 @@ namespace Basin_Modelling {
                                           Matrix3x3&          Fluid_Mobility,
                                           ThreeVector&        fluidVelocityDerivative );
 
-  void Compute_Fluid_Velocity
-     ( const bool                 imposeVelocityLimit,
-       const bool                 hasFractured,
-       const double               VES,
-       const double               maxVES,
-       const CompoundProperty&    porosity,
-       const double               fluidViscosity,
+  void computeFluidFlux
+     ( const bool                imposeFluxLimit,
+       const bool                hasFractured,
+       const double              VES,
+       const double              maxVES,
+       const CompoundProperty&   porosity,
+       const double              fluidViscosity,
        const Matrix3x3&          jacobian,
        const ThreeVector&        gradOverpressure,
-       const CompoundLithology*          lithology,
-             ThreeVector&        fluidVelocity );
+       const CompoundLithology*  lithology,
+             ThreeVector&        fluidFlux );
 
   /// Compute fluid velocity for output.
   ///
