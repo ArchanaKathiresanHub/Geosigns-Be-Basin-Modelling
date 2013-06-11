@@ -171,6 +171,11 @@ int main (int argc, char ** argv)
 
    Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (inputProjectFileName, "r"));
 
+   projectHandle->startActivity ( "deviatedwell", projectHandle->getLowResolutionOutputGrid ());
+   projectHandle->initialise ( true, false );
+
+   projectHandle->setFormationLithologies (false, false);
+
    CauldronDomain domain ( projectHandle );
 
    DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
@@ -230,7 +235,12 @@ int main (int argc, char ** argv)
 		  throw RecordException ("Illegal point coordinates:", x, y, z);
 
 
-	       value = domainProperties->getDomainProperty (property)->compute (element);
+	       DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
+	       if (domainProperty)
+	       {
+		  domainProperty->initialise ();
+		  value = domainProperty->compute (element);
+	       }
 	    }
 	    else if (surfaceName != "")
 	    {
@@ -250,7 +260,12 @@ int main (int argc, char ** argv)
 	       
 
 
-	       value = domainProperties->getDomainProperty (property)->compute (element);
+	       DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
+	       if (domainProperty)
+	       {
+		  domainProperty->initialise ();
+		  value = domainProperty->compute (element);
+	       }
 	    }
 	    else if (formationName != "")
 	    {
