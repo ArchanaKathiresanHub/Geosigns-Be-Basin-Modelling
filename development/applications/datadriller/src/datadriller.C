@@ -47,24 +47,10 @@ using namespace CBMGenerics;
 #include "DataMiningProjectHandle.h"
 #include "ElementPosition.h"
 #include "Point.h"
-#include "PropertyInterpolator2D.h"
-#include "PropertyInterpolator3D.h"
 #include "CauldronDomain.h"
-#include "InterpolatedPropertyValues.h"
 #include "DomainProperty.h"
 #include "DomainPropertyFactory.h"
 #include "DomainPropertyCollection.h"
-
-#include "DomainSurfaceProperty.h"
-#include "DomainFormationProperty.h"
-#include "DomainReservoirProperty.h"
-
-#include "PieceWiseInterpolator1D.h"
-
-#include "DeviatedWell.h"
-#include "DataMiner.h"
-
-#include "array.h"
 
 #include <string>
 #include <sstream>
@@ -171,7 +157,7 @@ int main (int argc, char ** argv)
 
    Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (inputProjectFileName, "r"));
 
-   projectHandle->startActivity ( "deviatedwell", projectHandle->getLowResolutionOutputGrid ());
+   projectHandle->startActivity ( "datadriller", projectHandle->getLowResolutionOutputGrid ());
    projectHandle->initialise ( true, false );
 
    projectHandle->setFormationLithologies (false, false);
