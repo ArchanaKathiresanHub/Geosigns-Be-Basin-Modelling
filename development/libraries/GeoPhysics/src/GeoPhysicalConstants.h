@@ -95,7 +95,7 @@ namespace GeoPhysics {
 
    /// \var ThicknessTolerance
    /// The tolerance for comparing thickness of layers.
-   const double ThicknessTolerance = 0.5;
+   const double ThicknessTolerance = 0.1;
 
    /// \var MobileLayerNegativeThicknessTolerance
    /// \brief The cut-off tolerance value for negative thicknesses of mobile layers.
