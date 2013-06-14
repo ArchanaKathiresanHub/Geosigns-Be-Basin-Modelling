@@ -117,6 +117,12 @@ Crust::ThicknessHistory Crust::getThicknessHistory() const
       result.push_back( ThicknessAtTime( time, thickness ));
    }
 
+   if  (m_thinningEvents.empty())
+   {
+      result.push_back( ThicknessAtTime( 0, thickness ));
+   }
+
+
    return result;
 }
 
