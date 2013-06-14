@@ -115,12 +115,19 @@ Project
 
 void
 Project
-   :: addCrustThicknessThinningEvent(double startTime, double duration, double thickness, double ratio)
+   :: setInitialCrustalThicknessProperty (double thickness)
 {
    if (!m_crust)
    {
       m_crust.reset( new Crust(thickness) );
    }
+}
+
+void
+Project
+   :: addCrustThicknessThinningEvent(double startTime, double duration, double ratio)
+{
+   assert (m_crust);
 
    m_crust->addThinningEvent(startTime, duration, ratio);
 }

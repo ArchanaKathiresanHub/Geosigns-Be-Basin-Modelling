@@ -32,8 +32,9 @@ public:
 
    typedef std::pair<Time, Thickness> ThicknessAtTime;
 
+   void setInitialCrustalThicknessProperty(double thickness);
    void setCrustThickness( const std::vector< ThicknessAtTime> & series);
-   void addCrustThicknessThinningEvent(double startTime, double duration, double thickenss, double ratio);
+   void addCrustThicknessThinningEvent(double startTime, double duration, double ratio);
 
    void clearSnapshotTable();
 

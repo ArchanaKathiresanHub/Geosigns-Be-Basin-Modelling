@@ -10,6 +10,7 @@
 #include "parameterspaceexplorationtool.h"
 #include "BasementProperty.h"
 #include "CrustalThinningProperty.h"
+#include "InitialCrustalThicknessProperty.h"
 #include "RuntimeConfiguration.h"
 #include "DatadrillerProperty.h"
 #include "experiment.h"
@@ -65,14 +66,10 @@ void readCrustalThinningProperties( database::Database & database,
             "should be empty or its first record should be a "
 	    "InitialCrustalThinningThickness record.";
    }
-   ScalarRange initialThickness (
-	 initialThicknessStart,
-	 initialThicknessEnd,
-	 initialThicknessStep
-	 );
 
-   std::string paramNames[] =
-   { "InitialCrustalThinningTime", "CrustalThinningDuration", "CrustalThinningRatio" };
+   params.push_back (boost::shared_ptr < Property > ( new InitialCrustalThicknessProperty (initialThicknessStart, initialThicknessEnd, initialThicknessStep)));
+
+   std::string paramNames[] = { "InitialCrustalThinningTime", "CrustalThinningDuration", "CrustalThinningRatio" };
 
    std::vector < ScalarRange > ranges;
    for (int i = 1; i < table->size (); ++i)
@@ -92,7 +89,7 @@ void readCrustalThinningProperties( database::Database & database,
       if (ranges.size () == 3)
       {
          params.push_back (boost::shared_ptr < Property > (
-		  new CrustalThinningProperty (ranges[0], ranges[1], initialThickness, ranges[2])
+		  new CrustalThinningProperty (ranges[0], ranges[1], ranges[2])
 		  ));
          ranges.clear ();
       }

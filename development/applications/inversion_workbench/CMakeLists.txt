@@ -72,6 +72,8 @@ set (generator_source_files
 add_executable(cauldronexplorer
         src/BasementProperty.C
         src/BasementParameter.C
+        src/InitialCrustalThicknessProperty.C
+        src/InitialCrustalThicknessParameter.C
         src/Scenario.C
         src/MultiDimRange.C
         src/Crust.C
