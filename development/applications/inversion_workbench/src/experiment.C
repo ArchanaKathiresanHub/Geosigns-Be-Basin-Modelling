@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "experiment.h"
+extern bool verbose;
 
 #include "BasementProperty.h"
 #include "RuntimeConfiguration.h"
@@ -59,6 +60,16 @@ std::string Experiment::workingProjectFileName(unsigned scenarioNumber) const
          << m_experimentInfo.getOutputFileNamePrefix()
          << "_" << scenarioNumber + 1 
          << ".project3d";
+   return fileName.str();
+}
+
+std::string Experiment::workingLogFileName(unsigned scenarioNumber) const
+{
+   std::ostringstream fileName;
+   fileName 
+         << m_experimentInfo.getOutputDirectory()
+         << "/Log_" << scenarioNumber + 1 
+         << ".txt";
    return fileName.str();
 }
 
@@ -120,13 +131,30 @@ void Experiment :: runProjectSet()
       #pragma omp for schedule(dynamic, 1)
       for (unsigned i = 0; i < m_scenarios.size(); ++i)
       {
+	 if (verbose)
+	 {
+	    #pragma omp critical(printing)
+	    {
+	       std::cout << "Starting scenario " << i << endl;
+	    }
+	 }
+
          std::ostringstream command;
          command << fastcauldronPath 
                  << " -v" << version
                  << " -project " << workingProjectFileName(i)
-                 << ' ' << runtimeParams;
+                 << ' ' << runtimeParams
+		 << " > " <<  workingLogFileName (i) << " 2>&1";
        
          system( command.str().c_str() );
+
+	 if (verbose)
+	 {
+	    #pragma omp critical(printing)
+	    {
+	       std::cout << "Finished scenario " << i << endl;
+	    }
+	 }
       }
    }
 }

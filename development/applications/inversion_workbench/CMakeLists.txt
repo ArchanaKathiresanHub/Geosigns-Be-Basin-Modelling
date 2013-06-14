@@ -201,3 +201,17 @@ add_test(NAME Experiment::Experiment
       COMMAND Experiment Experiment
       )      
 
+
+add_executable(Crust
+      src/Crust.C
+      test/Crust.C
+)
+
+set_target_properties(Crust
+      PROPERTIES COMPILE_FLAGS "-Dprivate=public"
+)
+
+add_test(NAME Crust::overlap
+   COMMAND Crust overlap
+)
+

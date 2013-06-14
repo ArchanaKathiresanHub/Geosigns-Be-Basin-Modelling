@@ -1,7 +1,11 @@
 #include "Crust.h"
+#include "formattingexception.h"
 #include <cassert>
 #include <limits>
 #include <cmath>
+
+struct CrustThinningException : formattingexception::BaseException< CrustThinningException > 
+{ CrustThinningException() { *this << "Ignoring crustal thinning event: "; } };
 
 Crust::Crust( double initialThickness)
    : m_initialThickness( initialThickness )
@@ -23,29 +27,54 @@ bool Crust :: overlap( double t0, double dt0, double t1, double dt1 )
    //   (t0) |------------|  (t0+dt0)
    //        (t1)  |-----------| (t1+dt1)
 
-   if (t1 < t0)
-      return t0 < t1 + dt1;
+   if (t1 > t0)
+      return t0 > t1 - dt1;
    else
-      return t1 < t0 + dt0;
+      return t1 > t0 - dt0;
 }
 
 bool Crust :: addThinningEvent( double startTime, double duration, double ratio)
 {
-   assert( ratio > 0.0 );
-   assert( duration > 0.0 );
-   assert( startTime >= duration );
+   assert (ratio > 0.0);
+   assert (duration > 0.0);
+   assert (startTime >= duration);
 
-   ThinningEvents :: iterator e = m_thinningEvents.lower_bound( startTime );
-  
-   if (e == m_thinningEvents.end() || !overlap( e->first, e->second.first, startTime, duration))
+   ThinningEvents::iterator te;
+
+   for (te = m_thinningEvents.begin (); te != m_thinningEvents.end(); ++te)
    {
-      m_thinningEvents.insert(e, std::make_pair( startTime, std::make_pair( duration, ratio)));
+      if (overlap(te->first, te->second.first, startTime, duration))
+	 throw CrustThinningException() << "Crustal thinning event (" << startTime << ", (" << duration << ", " << ratio << ")) overlaps "
+	    "with (" << te->first << ", (" << te->second.first << ", " << te->second.second << "))";
+
+      if (startTime > te->first) break;
+   }
+
+   m_thinningEvents.insert (te, std::make_pair (startTime, std::make_pair (duration, ratio)));
+
+   return true;
+
+#if 0 // Wijnand's code
+   // find the latest event that could collide
+   ThinningEvents::iterator lowerBound = m_thinningEvents.lower_bound (startTime - duration);
+
+   ThinningEvents::iterator e = lowerBound;
+   while (e != m_thinningEvents.end () && e->first - e->second.first < startTime)
+   {
+      if (overlap (e->first, e->second.first, startTime, duration))
+         return false;
+   }
+
+   if (e == m_thinningEvents.end ())
+   {
+      m_thinningEvents.insert (e, std::make_pair (startTime, std::make_pair (duration, ratio)));
       return true;
    }
    else
    {
       return false;
    }
+#endif
 }
 
 const double Crust::MinimumEventSeparation = 1.0e-6; // Ma

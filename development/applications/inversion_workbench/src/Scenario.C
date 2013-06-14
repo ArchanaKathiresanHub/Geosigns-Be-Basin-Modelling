@@ -1,6 +1,8 @@
 #include <string>
 #include <iostream>
 
+#include "formattingexception.h"
+
 #include "Scenario.h"
 #include "parameter.h"
 #include "project.h"
@@ -15,7 +17,19 @@ void Scenario::createProjectFile(const std::string & originalProjectFile, const 
    Project project( originalProjectFile, workingProjectFile);
    for (unsigned i = 0; i < m_parameters.size(); ++i)
    {
-      m_parameters[i]->changeParameter(project);
+      try
+      {
+	 m_parameters[i]->changeParameter(project);
+      }
+      catch (formattingexception::GeneralException & fe)
+      {
+	 std::cerr << std::endl;
+	 std::cerr << "Error in creation of project file " << workingProjectFile << ": ";
+	 std::cerr << fe.what () << std::endl;
+	 std::cerr << "Will still proceed to simulate the scenario" << std::endl;
+	 std::cerr << std::endl;
+      }
+	 
    }
    project.close();
 }

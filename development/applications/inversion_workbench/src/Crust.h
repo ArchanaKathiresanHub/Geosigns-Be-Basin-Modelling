@@ -28,7 +28,7 @@ private:
    typedef double Ratio;
    typedef std::map<Time, std::pair< Duration, Ratio> > ThinningEvents ;
 
-   static const double MinimumEventSeparation;
+   static const double MinimumEventSeparation; // Ma
 
    static bool overlap(double t0, double dt0, double t1, double dt1);
 

@@ -2,6 +2,7 @@
 #include <string>
 #include <cassert>
 #include <sstream>
+#include <algorithm>
 
 #include <boost/shared_ptr.hpp>
 
@@ -41,66 +42,66 @@ void readBasementProperties( database::Database & database,
 
 void readCrustalThinningProperties( database::Database & database,
                                     std::vector< boost::shared_ptr< Property > > & params )
-{ 
-   database::Table* table = database.getTable("CrustalThinningProperty");
-   if (!table || table->size() == 0)
+{
+   database::Table * table = database.getTable ("CrustalThinningProperty");
+   if (!table || table->size () == 0)
       return;
 
    double initialThicknessStart = 0.0;
    double initialThicknessEnd = 0.0;
    double initialThicknessStep = 0.0;
-   if (table->getRecord(0) &&
-       database::getSimpleParameter(table->getRecord(0)) == "InitialCrustalThinningThickness"
-      )
+
+   if (table->getRecord (0) &&
+	 database::getSimpleParameter (table->getRecord (0)) == "InitialCrustalThinningThickness")
    {
-      database::Record * record = table->getRecord(0);
-      initialThicknessStart= database::getStartValue(record);
-      initialThicknessEnd = database::getEndValue(record);
-      initialThicknessStep = database::getStepValue(record);
+      database::Record * record = table->getRecord (0);
+      initialThicknessStart = database::getStartValue (record);
+      initialThicknessEnd = database::getEndValue (record);
+      initialThicknessStep = database::getStepValue (record);
    }
    else
    {
-      throw ConfigurationException() << "The CrustalThinningProperty table "
-         "should be empty or its first record should be a "
-         "InitialCrustalThinningThickness record.";
+      throw ConfigurationException () << "The CrustalThinningProperty table "
+            "should be empty or its first record should be a "
+	    "InitialCrustalThinningThickness record.";
    }
-   ScalarRange initialThickness(
-         initialThicknessStart, 
-         initialThicknessEnd,
-         initialThicknessStep
-         );
+   ScalarRange initialThickness (
+	 initialThicknessStart,
+	 initialThicknessEnd,
+	 initialThicknessStep
+	 );
 
-   std::string paramNames[] 
-      = { "InitialCrustalThinningTime", "CrustalThinningDuration", "CrustalThinningRatio" };
+   std::string paramNames[] =
+   { "InitialCrustalThinningTime", "CrustalThinningDuration", "CrustalThinningRatio" };
 
-   std::vector< ScalarRange > ranges;
-   for (int i = 1; i < table->size (); ++i ) 
+   std::vector < ScalarRange > ranges;
+   for (int i = 1; i < table->size (); ++i)
    {
-      database::Record* record = table->getRecord ( i );
+      database::Record * record = table->getRecord (i);
 
-      if (paramNames[ (i-1)%3 ] != database::getSimpleParameter(record) )
-         throw ConfigurationException() 
-            << "Expected in CrustalThinningProperty table on record " << i 
-            << "a " << paramNames[ (i-1)%3 ] << " property";
+      if (paramNames[(i - 1) % 3] != database::getSimpleParameter (record))
+         throw ConfigurationException ()
+	    << "Expected in CrustalThinningProperty table on record " << i
+	    << "a " << paramNames[(i - 1) % 3] << " property";
 
-      ranges.push_back( ScalarRange( database::getStartValue ( record),
-               database::getEndValue ( record),
-               database::getStepValue ( record)
-               ));
+      ranges.push_back (ScalarRange (database::getStartValue (record),
+	       database::getEndValue (record),
+	       database::getStepValue (record)
+	       ));
 
-      if (ranges.size() == 3)
+      if (ranges.size () == 3)
       {
-         params.push_back( boost::shared_ptr<Property>( 
-                  new CrustalThinningProperty( ranges[0] , ranges[1], initialThickness, ranges[2])
-               ));
-         ranges.clear();
+         params.push_back (boost::shared_ptr < Property > (
+		  new CrustalThinningProperty (ranges[0], ranges[1], initialThickness, ranges[2])
+		  ));
+         ranges.clear ();
       }
    }
 
-   if (!ranges.empty())
-      throw ConfigurationException() << "The last " << ranges.size() <<
-         " records in the CrustalThinningProperty table do no form a complete"
-         " thinning event range";
+   if (!ranges.empty ())
+      throw ConfigurationException () << "The last " << ranges.size () <<
+            " records in the CrustalThinningProperty table do no form a complete"
+	    " thinning event range";
 }
 
 std::vector< DatadrillerProperty > readDatadrillerProperties( database::Database & database )
@@ -162,12 +163,27 @@ RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
    return RuntimeConfiguration( templateProjectFile, outputDirectoryAddress, outputFileName );
 }
 
+bool verbose = false;
+
 int main(int argc, char ** argv ) 
 {
-   // parse command line parameters
+   bool dryrun = false;
    std::string fileName = "cauldronexplorer.config";
-   if (argc > 1)
-      fileName = argv[1];
+
+   // parse command line parameters
+   for (int arg = 1; arg < argc; arg++)
+   {
+      if (strncmp (argv[arg], "-verbose", std::max((size_t) 2, strlen (argv[arg]))) == 0)
+      {
+	 verbose = true;
+      }
+      else if (strncmp (argv[arg], "-dryrun", std::max((size_t) 2, strlen (argv[arg]))) == 0)
+      {
+	 dryrun = true;
+      }
+      else
+	 fileName = argv[arg];
+   }
 
    // Read experiment set-up
    database::DataSchema* schema = database::createParameterSpaceExplorationTool ();
@@ -194,9 +210,17 @@ int main(int argc, char ** argv )
          readDatadrillerProperties(*database), 
          readRuntimeConfiguration(*database)
          );
+
+   if (verbose)
+      experiment.printScenarios(std::cout);
+
    experiment.createProjectsSet();
-   experiment.runProjectSet();
-   experiment.collectResults();
+
+   if (!dryrun)
+   {
+      experiment.runProjectSet();
+      experiment.collectResults();
+   }
 
    return EXIT_SUCCESS;
 }

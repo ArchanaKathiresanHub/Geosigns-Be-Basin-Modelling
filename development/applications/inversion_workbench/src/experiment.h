@@ -36,6 +36,7 @@ public:
 private:
    static std::vector< Scenario > sample(const std::vector< boost::shared_ptr<Property> > & parameterDefinitions );
    std::string workingProjectFileName(unsigned scenarioNumber) const;
+   std::string workingLogFileName(unsigned scenarioNumber) const;
    std::string resultsFileName(unsigned scenarioNumber) const;
 
    std::vector< Scenario > m_scenarios;
