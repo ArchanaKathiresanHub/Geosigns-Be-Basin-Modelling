@@ -16,9 +16,14 @@
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
 
-#define PTDIAG_VERSION "3.3"
+#define PTDIAG_VERSION "3.4"
 
 // Changes history
+//
+// Version 3.4
+// Added:
+//  -diagonly parameter which removes from plot info about composition
+//  -relcoef <value> parameter which could redefine relaxation coeff for Newton iterations in nonlinear solver in EosPack
 //
 // Version 3.3 
 // - Added [-prop dens,visc] parameter which allows to calculate and save to .m file phase densities and viscosities
@@ -29,9 +34,9 @@
 /// Type of diagram: Mass, Mole of Volume
 PTDiagramCalculator::DiagramType g_DiagType     = PTDiagramCalculator::MoleMassFractionDiagram;
 
-/// Draw colormap for liquid fraction in octave (0 - no colormap, 1 - linear colormap, 2 - logarithmic colormap)
 bool g_DataOnly         = false;
-int  g_ColormapType     = 0;
+bool g_DiagOnly         = false;
+int  g_ColormapType     = 0;     // Draw colormap for liquid fraction in octave (0 - no colormap, 1 - linear colormap, 2 - logarithmic colormap)
 bool g_IsBatch          = false;
 bool g_LogCountourLines = false;
 int  g_CountourLinesNum = 11;
@@ -53,6 +58,7 @@ std::string g_abFileName; // file name to store found A/B value
 double g_StopTol  = 1e-6;
 int    g_MaxIters = 400;
 double g_Tol      = 1e-4;
+double g_NewtonRelCoef = 0.2;
 bool   g_exportToPVTsim = false;
 
 
@@ -70,7 +76,8 @@ static void showUsage( const std::string & msg )
       << "\t-diag <mass | vol | mole*> Type of diagram, default is mass fraction diagram.\n"
       << "\t-dataonly                  Do not add plot commands to octave .m file.\n"
       << "\t-lines <linesNumber>       Set number of conotour lines to given number.\n"
-      << "\t-log                       Contour lines will be in logarithmic scale - like (0.001, 0.01, 0.1). Given lines number value must be odd number.\n"
+      << "\t-log                       Contour lines will be in logarithmic scale - like (0.001, 0.01, 0.1). Given lines number value must be odd number\n"
+      << "\t-diagonly                  Plot only diagram, do not show any info about composition\n"
       << "\t[-tol <smallValue> ]       Set small value which is used in bisection iterations for finding bubble/dew and coutour lines\n"
       << "\t[-dynamo]                  Create INC file to run with Dynamo\n\n"
       << "\t[-colormap]                Add liquid fraction values grid and colored countour lines to the plot\n"
@@ -84,6 +91,7 @@ static void showUsage( const std::string & msg )
       << "\t[-batch]                   Do not generate pause command in octave file to process bunch of compositions in one go\n"
       << "\t[-stoptol val]             Set stop tolerance for nonlinear solver of EosPack to the given value (default is 1e-6)\n"
       << "\t[-iters val]               Set max. iterations number for nonlinear solver of EosPack to the given value (default is 400)\n"
+      << "\t[-relcoef val]             Set relaxation coefficient for Newton nonlinear solver of EosPack to the given value (default is 1.0, must be 0 < RelCoef <= 1.0)\n"
       << "\t[-pvtsim]                  Dump composition into csv file in order of components suitable for importing into PVTsim\n"
       << ""                            << "\n"
       << "\t-project projectname       Name of the project file\n"
@@ -167,10 +175,12 @@ int main( int argc, char ** argv )
       else if ( prm == "-stoptol"     ) { g_StopTol          = atof( val.c_str() ); ++i; }
       else if ( prm == "-iters"       ) { g_MaxIters         = atol( val.c_str() ); ++i; }
       else if ( prm == "-tol"         ) { g_Tol              = atof( val.c_str() ); ++i; }
+      else if ( prm == "-relcoef"     ) { g_NewtonRelCoef    = atof( val.c_str() ); ++i; }
       else if ( prm == "-pvtsim"      ) { g_exportToPVTsim   = true; }
       else if ( prm == "-batch"       ) { g_IsBatch          = true; }
       else if ( prm == "-dynamo"      ) { genDynamo          = true; }
       else if ( prm == "-dataonly"    ) { g_DataOnly         = true; }
+      else if ( prm == "-diagonly"    ) { g_DiagOnly         = true; }
       else if ( prm == "-colormap"    ) { g_ColormapType     = 1; }
       else if ( prm == "-logcolormap" ) { g_ColormapType     = 2; }
       else if ( prm == "-lines"       ) { g_CountourLinesNum = atol( val.c_str() ) + 2; ++i; }
@@ -392,7 +402,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    {
       diagBuilder->setAoverBTerm( g_ABTerm );
    }
-   diagBuilder->setNonLinSolverConvPrms( g_StopTol, g_MaxIters );
+   diagBuilder->setNonLinSolverConvPrms( g_StopTol, g_MaxIters, g_NewtonRelCoef );
    diagBuilder->setTolValue( g_Tol );
    diagBuilder->findBubbleDewLines( data.temperature() + CBMGenerics::C2K, data.pressure() * CBMGenerics::MPa2Pa, std::vector<double>() );
    
@@ -447,7 +457,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
 
    if ( !g_DataOnly ) ofs << "grid on\n";
    if ( !g_DataOnly ) ofs << "hold off\n\n";
-   if ( !g_DataOnly ) ofs << "subplot( 3, 4, [ 1 2 3 5 6 7 9 10 11] );\n";
+   if ( !g_DataOnly && ! g_DiagOnly) ofs << "subplot( 3, 4, [ 1 2 3 5 6 7 9 10 11] );\n";
 
    // dump liquid fraction data for each P/T grid point and plot countour lines for this array
    if ( g_ColormapType ) dumpLiquidFractionArray( ofs, diagBuilder, data );
@@ -533,17 +543,20 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    plotSpecialPoints( ofs );
 
    // plot composition info as pie chart & table
-   ofs << "%Show composition info into the plot\n";
+   if ( !g_DiagOnly )
+   {
+      ofs << "%Show composition info into the plot\n";
 
-   ofs << "%Create a pie chart for nonzero components\n";
-   ofs << "subplot( 3, 4, [ 4 ] );\n\n";
+      ofs << "%Create a pie chart for nonzero components\n";
+      ofs << "subplot( 3, 4, [ 4 ] );\n\n";
 
-   plotPieChartForComposition( ofs );
+      plotPieChartForComposition( ofs );
 
-   ofs << "%Print composition info in text form\n";
-   ofs << "subplot( 3, 4, [8 12] );\n";
+      ofs << "%Print composition info in text form\n";
+      ofs << "subplot( 3, 4, [8 12] );\n";
    
-   plotCompositionAsTable( ofs );
+      plotCompositionAsTable( ofs );
+   }
 
    ofs << "print -djpg '-S2400,1800' " << plotName << ".jpg;\n"; 
    if ( !g_IsBatch ) { ofs << "pause;\n"; }
@@ -823,7 +836,7 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagr
    if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( g_ABTerm ); }
 
    // increase precision for nonlinear solver
-   pvtFlash::EosPack::getInstance().setNonLinearSolverTolerance( g_MaxIters, g_StopTol ); 
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( g_MaxIters, g_StopTol, g_NewtonRelCoef ); 
 
    // Do flashing once more for each point of the grid to collect density/viscosity values
    for ( size_t i = 0; i < gridP.size(); ++i )
@@ -876,7 +889,7 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagr
    }
    // revert back flasher settings
    if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm(); }
-   pvtFlash::EosPack::getInstance().resetToDefaulNonLinearSolverConvergencePrms();
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters(); // reset to default
 
    // Dump density values for phases
    if ( g_PropList[0] )

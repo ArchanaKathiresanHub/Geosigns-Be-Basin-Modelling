@@ -37,8 +37,8 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
    std::cout << "calling EosPack-constructor" << std::endl;
 #endif
 
-   resetToDefaultCritAoverBterm();                // init m_CritAoverB and m_phaseIdMethod
-   resetToDefaulNonLinearSolverConvergencePrms(); // init max iterations number and stop tolerance value for nonlinear solver
+   resetToDefaultCritAoverBterm();     // init m_CritAoverB and m_phaseIdMethod
+   setNonLinearSolverConvParameters(); // init max iterations number and stop tolerance value for nonlinear solver
 
    try
    {
@@ -672,7 +672,7 @@ bool pvtFlash::EosPack::compute( double temperature,
       
       /* Call the function */
       EosCauldron::EosGetProperties( iFlashes, iOil, iGas, pPressure, pTemperature, pAccumulation, pPhaseAcc, pMassFraction, pDensity, pViscosity, 
-                                     pvttable, m_maxItersNum, m_stopTolerance );
+                                     pvttable, m_maxItersNum, m_stopTolerance, m_NewtonRelaxCoeff );
 
 #ifdef EOSPACK_OUT
       //output 
@@ -1005,16 +1005,11 @@ void pvtFlash::EosPack::resetToDefaultCritAoverBterm()
    m_phaseIdMethod = EOS_SINGLE_PHASE_DEFAULT;
 }
 
-void pvtFlash::EosPack::setNonLinearSolverTolerance( int maxItersNum, double stopTol )
+void pvtFlash::EosPack::setNonLinearSolverConvParameters( int maxItersNum, double stopTol, double newtonRelCoeff  )
 {
    m_maxItersNum   = maxItersNum;
    m_stopTolerance = stopTol;
-}
-
-void pvtFlash::EosPack::resetToDefaulNonLinearSolverConvergencePrms()
-{
-   m_maxItersNum   = 50;
-   m_stopTolerance = 0.0001;
+   m_NewtonRelaxCoeff = newtonRelCoeff;
 }
 
 
