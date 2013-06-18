@@ -14,6 +14,11 @@ class DatadrillerProperty;
 class Scenario
 {
 public:
+   Scenario ();
+
+   /// Check whether scenario is valid
+   bool isValid() const;
+
    /// Add a Parameter setting to this scenario.
    void addParameter(Parameter * parameter);
 
@@ -26,6 +31,7 @@ public:
 
 private:
    std::vector< boost::shared_ptr<Parameter> > m_parameters;
+   mutable bool m_isValid;
 };
 
 #endif

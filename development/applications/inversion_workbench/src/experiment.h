@@ -25,7 +25,7 @@ public:
    void createProjectsSet() const;
 
    /// Run fastcauldron on each generated project file
-   void runProjectSet();
+   void runProjectSet(const std::string & cauldronVersion);
 
    /// Collect the results into .dat files.
    void collectResults() const;

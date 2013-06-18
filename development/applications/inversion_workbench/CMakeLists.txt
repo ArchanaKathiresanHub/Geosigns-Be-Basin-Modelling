@@ -79,6 +79,10 @@ add_executable(cauldronexplorer
         src/Crust.C
         src/CrustalThinningParameter.C
         src/CrustalThinningProperty.C
+        src/UnconformityLithologyProperty.C
+        src/UnconformityLithologyParameter.C
+        src/UnconformityProperty.C
+        src/UnconformityParameter.C
         src/DatadrillerProperty.C
         src/experiment.C
         src/cauldronexplorer.C

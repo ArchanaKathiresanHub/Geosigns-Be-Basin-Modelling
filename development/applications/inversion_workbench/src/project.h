@@ -13,6 +13,10 @@ namespace DataAccess { namespace Interface {
    class Surface;
 } } 
 
+namespace database {
+   class Record;
+}
+
 class Crust;
 
 class Project
@@ -35,6 +39,14 @@ public:
    void setInitialCrustalThicknessProperty(double thickness);
    void setCrustThickness( const std::vector< ThicknessAtTime> & series);
    void addCrustThicknessThinningEvent(double startTime, double duration, double ratio);
+
+   double getStartOfDeposition (database::Record * depositionRecord);
+   void getUnconformityRecords (const std::string & depoFormationName, database::Record * & depositionRecord, database::Record * & erosionRecord);
+   void insertSnapshot (double time);
+
+   void setUnconformityLithologyProperty(const std::string & depoFormationName, const std::string & lithology1, double percentage1, const std::string & lithology2, double percentage2, const std::string & lithology3, double percentage3);
+   void setUnconformityProperty(const std::string & depoFormationName, const std::string & parameter, double newValue);
+
 
    void clearSnapshotTable();
 

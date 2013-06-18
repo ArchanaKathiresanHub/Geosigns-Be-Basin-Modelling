@@ -82,46 +82,49 @@ const double Crust::MinimumEventSeparation = 1.0e-6; // Ma
 Crust::ThicknessHistory Crust::getThicknessHistory() const
 {
    ThicknessHistory result;
-   double thickness = m_initialThickness;
-   double time = std::numeric_limits<double>::infinity();
-   
-   // Play back the events in order of time (recall that the unit of Time is negative: million of years ago)
-   typedef ThinningEvents::const_reverse_iterator EventIt;
-   for (EventIt e = m_thinningEvents.rbegin(); e != m_thinningEvents.rend(); ++e)
-   {
-      assert( time >= e->first );
+   double time = std::numeric_limits < double >::infinity ();
 
-      if ( std::fabs(e->first - time ) < MinimumEventSeparation )
+   if (m_thinningEvents.empty ())
+   {
+      result.push_back (ThicknessAtTime (0, m_initialThickness));
+   }
+   else
+   {
+      // Play back the events in order of time (recall that the unit of Time is negative: million of years ago)
+
+      double thickness = m_initialThickness;
+      typedef ThinningEvents::const_reverse_iterator EventIt;
+
+      for (EventIt e = m_thinningEvents.rbegin (); e != m_thinningEvents.rend (); ++e)
       {
-         // previous event edges to the current event, so we can leave out a record for this.
-         time = e->first;
+         assert (time >= e->first);
+
+         if (std::fabs (e->first - time) < MinimumEventSeparation)
+         {
+            // previous event edges to the current event, so we can leave out a record for this.
+            time = e->first;
+         }
+         else
+         {                      // put in a new record at the start of the thinning event
+            time = e->first;
+            result.push_back (ThicknessAtTime (time, thickness));
+         }
+
+         double duration = e->second.first;
+         double ratio = e->second.second;
+
+         assert (duration > 0.0);
+         assert (ratio > 0.0);
+
+         time -= duration;
+         thickness /= ratio;
+
+         assert (time > 0.0);
+
+         // put in a new record at the end of the thinning event
+         result.push_back (ThicknessAtTime (time, thickness));
       }
-      else
-      {  // put in a new record at the start of the thinning event
-         time = e->first;
-         result.push_back( ThicknessAtTime( time, thickness ) );
-      }
-
-      double duration = e->second.first;
-      double ratio = e->second.second;
-
-      assert( duration > 0.0 );
-      assert( ratio > 0.0 );
-
-      time -= duration;
-      thickness /= ratio;
-      
-      assert( time > 0.0 );
-
-      // put in a new record at the end of the thinning event
-      result.push_back( ThicknessAtTime( time, thickness ));
    }
-
-   if  (m_thinningEvents.empty())
-   {
-      result.push_back( ThicknessAtTime( 0, thickness ));
-   }
-
 
    return result;
 }

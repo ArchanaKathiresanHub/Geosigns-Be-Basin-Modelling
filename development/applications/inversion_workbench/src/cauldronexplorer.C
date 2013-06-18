@@ -11,11 +11,16 @@
 #include "BasementProperty.h"
 #include "CrustalThinningProperty.h"
 #include "InitialCrustalThicknessProperty.h"
+#include "UnconformityLithologyProperty.h"
+#include "UnconformityProperty.h"
 #include "RuntimeConfiguration.h"
 #include "DatadrillerProperty.h"
 #include "experiment.h"
 #include "project.h"
 #include "formattingexception.h"
+
+static char * argv0 = 0;
+static void showUsage (const char * message = 0);
 
 struct ConfigurationException : formattingexception :: BaseException< ConfigurationException > {};
 
@@ -37,6 +42,58 @@ void readBasementProperties( database::Database & database,
     
       params.push_back( boost::shared_ptr<Property>( 
                new BasementProperty( simpleParameter, startValue, endValue, stepValue )
+               ) );
+   }
+}
+
+void readUnconformityLithologies( database::Database & database,
+                             std::vector< boost::shared_ptr< Property > > & params)
+{
+   database::Table * table = database.getTable("UnconformityLithology");
+   if (!table)
+      return;
+   
+   for (int i = 0; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      std::string depoFormationName = database::getDepoFormationName ( record );
+
+      std::string lithology1 = database::getLithology1 ( record );
+      double percentage1 = database::getPercentage1 ( record );
+    
+      std::string lithology2 = database::getLithology2 ( record );
+      double percentage2 = database::getPercentage2 ( record );
+
+      std::string lithology3 = database::getLithology3 ( record );
+      double percentage3 = database::getPercentage3 ( record );
+
+      params.push_back( boost::shared_ptr<Property>( 
+               new UnconformityLithologyProperty( depoFormationName, lithology1, percentage1, lithology2, percentage2, lithology3, percentage3 )
+               ) );
+   }
+}
+
+void readUnconformityProperties( database::Database & database,
+                             std::vector< boost::shared_ptr< Property > > & params)
+{
+   database::Table * table = database.getTable("UnconformityProperty");
+   if (!table)
+      return;
+   
+   for (int i = 0; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      std::string depoFormationName = database::getDepoFormationName ( record );
+
+      std::string simpleParameter = database::getSimpleParameter ( record );
+      double startValue = database::getStartValue ( record );
+      double endValue = database::getEndValue ( record );
+      double stepValue = database::getStepValue ( record );
+    
+      params.push_back( boost::shared_ptr<Property>( 
+               new UnconformityProperty( depoFormationName, simpleParameter, startValue, endValue, stepValue )
                ) );
    }
 }
@@ -166,17 +223,37 @@ int main(int argc, char ** argv )
 {
    bool dryrun = false;
    std::string fileName = "cauldronexplorer.config";
+   std::string cauldronVersion = "2012.1008";
+
+   if ((argv0 = strrchr (argv[0], '/')) != 0)
+      ++argv0;
+   else
+      argv0 = argv[0];
+
 
    // parse command line parameters
    for (int arg = 1; arg < argc; arg++)
    {
-      if (strncmp (argv[arg], "-verbose", std::max((size_t) 2, strlen (argv[arg]))) == 0)
+      if (strncmp (argv[arg], "-verbose", std::max((size_t) 5, strlen (argv[arg]))) == 0)
       {
 	 verbose = true;
       }
       else if (strncmp (argv[arg], "-dryrun", std::max((size_t) 2, strlen (argv[arg]))) == 0)
       {
 	 dryrun = true;
+      }
+      else if (strncmp (argv[arg], "-help", std::max((size_t) 2, strlen (argv[arg]))) == 0)
+      {
+	 showUsage ();
+      }
+      else if (strncmp (argv[arg], "-version", std::max ((size_t) 2, strlen (argv[arg]))) == 0)
+      {
+         if (arg + 1 >= argc)
+         {
+            showUsage ("Argument for '-version' is missing");
+            return -1;
+         }
+         cauldronVersion = argv[++arg];
       }
       else
 	 fileName = argv[arg];
@@ -201,6 +278,8 @@ int main(int argc, char ** argv )
    std::vector< boost::shared_ptr<Property> > properties;
    readBasementProperties(*database, properties);
    readCrustalThinningProperties(*database, properties);
+   readUnconformityLithologies(*database, properties);
+   readUnconformityProperties(*database, properties);
 
    // Run the experiment
    Experiment experiment(properties, 
@@ -215,10 +294,32 @@ int main(int argc, char ** argv )
 
    if (!dryrun)
    {
-      experiment.runProjectSet();
+      experiment.runProjectSet(cauldronVersion);
       experiment.collectResults();
    }
 
    return EXIT_SUCCESS;
+}
+
+void showUsage (const char * message)
+{
+   std::cerr << std::endl;
+   if (message)
+   {
+      std::cerr << argv0 << ": " << message << std::endl;
+   }
+
+   std::cerr << "Usage (Options may be abbreviated): " << std::endl
+         << argv0 << "        [-version <version>]" << std::endl
+         << "                        [verbose]" << std::endl
+         << "                        [-dryrun]" << std::endl
+         << "                        [-help]" << std::endl
+         << "                        [config-file]" << std::endl
+         << std::endl
+         << "    -version           The version of fastcauldron to use." << std::endl
+         << "    -verbose           Generate additional output on what is happening." << std::endl
+         << "    -dryrun            Do not actually perform the simulations and the data collection." << std::endl
+         << "    -help              Print this message and exit." << std::endl;
+   exit (-1);
 }
 

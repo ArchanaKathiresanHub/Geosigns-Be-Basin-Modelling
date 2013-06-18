@@ -7,6 +7,16 @@
 #include "parameter.h"
 #include "project.h"
 
+Scenario::Scenario () :
+      m_isValid (true)
+{
+}
+
+bool Scenario::isValid() const
+{
+   return m_isValid;
+}
+
 void Scenario::addParameter(Parameter * parameter)
 {
    m_parameters.push_back( boost::shared_ptr<Parameter>( parameter ));
@@ -23,13 +33,9 @@ void Scenario::createProjectFile(const std::string & originalProjectFile, const 
       }
       catch (formattingexception::GeneralException & fe)
       {
-	 std::cerr << std::endl;
-	 std::cerr << "Error in creation of project file " << workingProjectFile << ": ";
-	 std::cerr << fe.what () << std::endl;
-	 std::cerr << "Will still proceed to simulate the scenario" << std::endl;
-	 std::cerr << std::endl;
+         m_isValid = false;
+         throw (fe);
       }
-	 
    }
    project.close();
 }
