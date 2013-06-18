@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 
+int verbose = false;
 
 class Empty : public Property
 {
