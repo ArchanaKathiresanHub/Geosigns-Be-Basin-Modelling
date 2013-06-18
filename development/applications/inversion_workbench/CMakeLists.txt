@@ -213,6 +213,10 @@ add_executable(Crust
       test/Crust.C
 )
 
+target_link_libraries(Crust
+    utilities
+)
+
 set_target_properties(Crust
       PROPERTIES COMPILE_FLAGS "-Dprivate=public"
 )
