@@ -773,7 +773,7 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
                   }
                }
             }
-            PetscGetTime(&Element_Start_Time);
+            PetscTime(&Element_Start_Time);
             Assemble_Element_Temperature_System ( Current_Layer->kind() == Interface::BASEMENT_FORMATION,
                                                   Plane_Quadrature_Degree, Depth_Quadrature_Degree,
                                                   Current_Time, Time_Step, Is_Steady_State, 
@@ -801,7 +801,7 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
                                                   Element_Jacobian,
                                                   Element_Residual );
 
-            PetscGetTime(&Element_End_Time);
+            PetscTime(&Element_End_Time);
             Element_Contributions_Time = Element_Contributions_Time + Element_End_Time - Element_Start_Time;
 
 	  } else {
@@ -1208,7 +1208,7 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
                   }
                }
             }
-            PetscGetTime(&Element_Start_Time);
+            PetscTime(&Element_Start_Time);
 
             Assemble_Element_Temperature_Residual ( Current_Layer->kind() == Interface::BASEMENT_FORMATION,
                                                     Plane_Quadrature_Degree, Depth_Quadrature_Degree,
@@ -1236,7 +1236,7 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
                                                     Current_Chemical_Compaction,
                                                     Element_Residual );
 
-            PetscGetTime(&Element_End_Time);
+            PetscTime(&Element_End_Time);
             Element_Contributions_Time = Element_Contributions_Time + Element_End_Time - Element_Start_Time;
 
 	  } else {
@@ -2306,7 +2306,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
                   }
                }
             }
-            PetscGetTime(&Element_Start_Time);
+            PetscTime(&Element_Start_Time);
             Assemble_Element_Temperature_Stiffness_Matrix ( Current_Layer->kind() == Interface::BASEMENT_FORMATION,
                                                             Plane_Quadrature_Degree, Depth_Quadrature_Degree,
                                                             Current_Time, Time_Step, Is_Steady_State, 
@@ -2334,7 +2334,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
                                                             Element_Stiffness_Matrix,
                                                             Element_Load_Vector );
 
-            PetscGetTime(&Element_End_Time);
+            PetscTime(&Element_End_Time);
             Element_Contributions_Time = Element_Contributions_Time + Element_End_Time - Element_Start_Time;
 
 	  } else {

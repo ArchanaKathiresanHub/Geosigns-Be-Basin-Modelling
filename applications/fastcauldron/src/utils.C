@@ -150,7 +150,7 @@ void displayTime(const bool debug, const char* str)
    if (PetscGlobalRank != 0)
       return;
 
-  PetscGetTime(&EndTime);
+  PetscTime(&EndTime);
   CalculationTime = EndTime - StartTime; 
    long remainder = (long) CalculationTime;
 
@@ -187,7 +187,7 @@ void getElapsedTime(char* str)
    if (PetscGlobalRank != 0)
       return;
 
-   PetscGetTime(&EndTime);
+   PetscTime(&EndTime);
    CalculationTime = EndTime - StartTime; 
    long remainder = (long) CalculationTime;
 
@@ -712,7 +712,7 @@ int Convert_String_Argument_For_FORTRAN_Code ( int* Integer_Array, const char* I
 void StartTiming() {
 
   StartTime = 0.0;
-  PetscGetTime(&StartTime);
+  PetscTime(&StartTime);
 
 }
 

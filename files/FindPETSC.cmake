@@ -14,7 +14,7 @@ if(UNIX)
 	set (CSCE_FULL "LinuxRHEL64_x86_64_58WS")
 
 	# PETSc definitions
-	set(PETSC_VERSION "3.3.6" CACHE STRING "PETSC Version")
+	set(PETSC_VERSION "3.4.1" CACHE STRING "PETSC Version")
 
 	set(PETSC_ARCH linux-gnu-intel)
 	set(PETSC_RELEASE_HOME ${HPC_HOME}/petsc/${PETSC_VERSION}/${CSCE_FULL})
@@ -34,7 +34,16 @@ if(UNIX)
 		list(APPEND PETSC_LIBRARIES ${PETSC_DEBUG_LIBRARY})
 	endif()
 
+	set(HYPRE_VERSION "2.9.0b" CACHE STRING "HYPRE Version")
+	set(HYPRE_INCLUDE_DIR ${HPC_HOME}/hypre-${HYPRE_VERSION}/src/hypre/include)
+	set(HYPRE_LIBRARY ${HPC_HOME}/hypre-${HYPRE_VERSION}/src/hypre/lib/libHYPRE.a)
+	
+	list(APPEND PETSC_LIBRARIES ${HYPRE_LIBRARY})
+	list(APPEND PETSC_INCLUDE_DIRS ${HYPRE_INCLUDE_DIR})
+	list(APPEND PETSC_LIBRARIES -openmp)
+
 	set(PETSC_FOUND TRUE)
+
 endif()
 
 # Local Variables:

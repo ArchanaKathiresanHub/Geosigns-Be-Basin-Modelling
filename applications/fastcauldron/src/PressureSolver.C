@@ -280,7 +280,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
   PetscLogDouble Start_Time;
   PetscLogDouble End_Time;
 
-  PetscGetTime(&Start_Time);
+  PetscTime(&Start_Time);
 
   bool Include_Ghost_Values = true;
 
@@ -691,7 +691,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Previous_Element_Temperature );
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Previous_Chemical_Compaction );
 
-            PetscGetTime(&Element_Start_Time);
+            PetscTime(&Element_Start_Time);
 
             Assemble_Element_Pressure_System ( Plane_Quadrature_Degree,
                                                Depth_Quadrature_Degree,
@@ -730,7 +730,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
                                                Element_Jacobian,
                                                Element_Residual );
 
-            PetscGetTime(&Element_End_Time);
+            PetscTime(&Element_End_Time);
             elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
             MatSetValuesStencil( Jacobian, 8, row, 8, col, Element_Jacobian.C_Array (), ADD_VALUES);
 
@@ -790,7 +790,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
   MatAssemblyBegin ( Jacobian, MAT_FINAL_ASSEMBLY );
   MatAssemblyEnd   ( Jacobian, MAT_FINAL_ASSEMBLY );
 
-  PetscGetTime(&End_Time);
+  PetscTime(&End_Time);
 
   PetscLogStages::pop();
 }
@@ -814,7 +814,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
   PetscLogDouble Element_End_Time;
   PetscLogDouble Start_Time;
   PetscLogDouble End_Time;
-  PetscGetTime(&Start_Time);
+  PetscTime(&Start_Time);
 
   bool Include_Ghost_Values = true;
 
@@ -1120,7 +1120,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Previous_Element_Temperature );
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Previous_Chemical_Compaction );
 
-            PetscGetTime(&Element_Start_Time);
+            PetscTime(&Element_Start_Time);
 
             Assemble_Element_Pressure_Residual ( Plane_Quadrature_Degree,
                                                  Depth_Quadrature_Degree,
@@ -1154,7 +1154,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
                                                  Element_Residual );
 
 
-            PetscGetTime(&Element_End_Time);
+            PetscTime(&Element_End_Time);
             elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
 
             for (Inode = 0; Inode<8; Inode++) {
@@ -1184,7 +1184,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
   }
 
   residualVector.Restore_Global_Array ( Update_Including_Ghosts );  
-  PetscGetTime(&End_Time);
+  PetscTime(&End_Time);
 
 }
 #endif

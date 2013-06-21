@@ -1661,9 +1661,9 @@ void Basin_Modelling::FEM_Grid::Determine_CFL_Value ( double& CFL_Value ) {
 
   while ( ! Pressure_Layers.Iteration_Is_Done ()) {
 
-    PetscGetTime(&Start_Time);
+    PetscTime(&Start_Time);
     Pressure_Layers.Current_Layer () -> Determine_CFL_Value ( basinModel, Layer_CFL_Value );
-    PetscGetTime(&End_Time);
+    PetscTime(&End_Time);
 
     Accumulated_Time = Accumulated_Time + End_Time - Start_Time;
 
@@ -2203,33 +2203,33 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
     }
 
     while ( ! Converged && ! overpressureHasDiverged ) {
-      PetscGetTime(&Iteration_Start_Time);
+      PetscTime(&Iteration_Start_Time);
 
       VecSet ( Residual, Zero );
 
-      PetscGetTime(&Jacobian_Start_Time);
+      PetscTime(&Jacobian_Start_Time);
 
 
       // Compute the Jacobian and residual for the nonlinear solver (Newton).
       MatZeroEntries ( Jacobian ); 
-      PetscGetTime(&Assembly_Start_Time);
+      PetscTime(&Assembly_Start_Time);
       pressureSolver->assembleSystem ( Previous_Time, Current_Time, 
                                        Pressure_FEM_Grid, 
                                        Pressure_DOF_Numbers, 
                                        pressureNodeIncluded,
                                        Jacobian, Residual,
                                        Element_Contributions_Time );
-      PetscGetTime(&Assembly_End_Time);
+      PetscTime(&Assembly_End_Time);
 
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
 
-      PetscGetTime(&Start_Time);
+      PetscTime(&Start_Time);
       KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
       JacobianComputed = true;
       changedSolver = false;
 
-      PetscGetTime(&Jacobian_End_Time);
+      PetscTime(&Jacobian_End_Time);
       Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time; 
       Total_Jacobian_Time = Total_Jacobian_Time + Jacobian_Time; 
 
@@ -2279,7 +2279,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
       }
 
-      PetscGetTime(&End_Time);
+      PetscTime(&End_Time);
       timeStepCalculationTime = End_Time - Start_Time; 
       Total_Solve_Time = Total_Solve_Time + timeStepCalculationTime;
 
@@ -2324,7 +2324,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       // If the max iterations is exceeded then declare that the solver has diverged.
       // Perhaps we need an error code to indicate the range of errors that can occur.
       overpressureHasDiverged = isnan ( Po_Norm ) || isnan ( Solution_Length ) || isnan ( Residual_Solution_Length ) || isnan ( Residual_Length ) ||
-                                convergedReason == KSP_DIVERGED_DTOL || convergedReason == KSP_DIVERGED_NAN;
+                                convergedReason == KSP_DIVERGED_DTOL || convergedReason == KSP_DIVERGED_NANORINF;
 
       if ( Number_Of_Nonlinear_Iterations == 0 ) {
         First_Po_Norm = Solution_Length;
@@ -2336,7 +2336,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
         pressureSolver->computeDependantProperties ( Previous_Time, Current_Time, false );
       }
 
-      PetscGetTime(&Iteration_End_Time);
+      PetscTime(&Iteration_End_Time);
       Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
       Total_Iteration_Time = Total_Iteration_Time + Iteration_Time; 
       KSPGetResidualNorm ( Pressure_Linear_Solver, &linearSolverResidualNorm );
@@ -2598,26 +2598,26 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   temperatureHasDiverged = false;
 
   while ( ! Converged && ! temperatureHasDiverged ) {
-    PetscGetTime(&Iteration_Start_Time);
+    PetscTime(&Iteration_Start_Time);
 
     VecSet ( Residual, Zero );
 
-    PetscGetTime(&Jacobian_Start_Time);
+    PetscTime(&Jacobian_Start_Time);
 
     if ( Number_Of_Nonlinear_Iterations == 0 ) {
       MatZeroEntries ( Jacobian ); 
-      PetscGetTime(&Assembly_Start_Time);
+      PetscTime(&Assembly_Start_Time);
       Temperature_Calculator.Assemble_System ( Previous_Time, Current_Time, 
                                                Temperature_FEM_Grid, 
                                                Temperature_DOF_Numbers, 
                                                Jacobian, Residual,
                                                Element_Contributions_Time );
-      PetscGetTime(&Assembly_End_Time);
+      PetscTime(&Assembly_End_Time);
 
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
 
-      PetscGetTime(&Start_Time);
+      PetscTime(&Start_Time);
       KSPSetOperators ( Temperature_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN);
     } else {
 
@@ -2625,22 +2625,22 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
       // iteration is good enough. This saves some time not only because the Jacobian
       // is not computed but also the preconditioner remains the same as for the previous
       // iteration.
-      PetscGetTime(&Assembly_Start_Time);
+      PetscTime(&Assembly_Start_Time);
       Temperature_Calculator.Assemble_Residual ( Previous_Time, Current_Time, 
                                                  Temperature_FEM_Grid, 
                                                  Temperature_DOF_Numbers, 
                                                  Residual,
                                                  Element_Contributions_Time );
-      PetscGetTime(&Assembly_End_Time);
+      PetscTime(&Assembly_End_Time);
 
 
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
 
-      PetscGetTime(&Start_Time);
+      PetscTime(&Start_Time);
     }
 
-    PetscGetTime(&Jacobian_End_Time);
+    PetscTime(&Jacobian_End_Time);
     Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time; 
     Total_Jacobian_Time = Total_Jacobian_Time + Jacobian_Time; 
     
@@ -2650,9 +2650,9 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     KSPGetIterationNumber ( Temperature_Linear_Solver, &numberOfLinearIterations );
 
     KSPGetConvergedReason ( Temperature_Linear_Solver, &convergedReason );
-    temperatureHasDiverged = ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NAN;
+    temperatureHasDiverged = ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
 
-    PetscGetTime(&End_Time);
+    PetscTime(&End_Time);
 
     timeStepCalculationTime   = End_Time - Start_Time; 
     Total_Solve_Time  = Total_Solve_Time + timeStepCalculationTime;
@@ -2673,7 +2673,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     VecNorm ( Residual_Solution, NORM_2, &Residual_Solution_Length );
     VecNorm ( Residual, NORM_2, &Residual_Length );
 
-    PetscGetTime(&Iteration_End_Time);
+    PetscTime(&Iteration_End_Time);
     Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
     Total_Iteration_Time = Total_Iteration_Time + Iteration_Time; 
 
@@ -2787,7 +2787,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   KSPConvergedReason convergedReason;
 
   PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
-  PetscGetTime(&Iteration_Start_Time);
+  PetscTime(&Iteration_Start_Time);
 
   basinModel -> setTemperatureLinearSolver ( Temperature_Linear_Solver,
                                               Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
@@ -2797,7 +2797,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
 
 
 
-  PetscGetTime(&matrixStartTime);
+  PetscTime(&matrixStartTime);
 
 #if PETSc_MATRIX_BUG_FIXED
   cauldronCalculator->createMatrixStructure ( *basinModel -> mapDA,
@@ -2818,16 +2818,16 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   DMCreateMatrix ( Temperature_FEM_Grid, MATAIJ, &Stiffness_Matrix );
 #endif
 
-  PetscGetTime(&matrixEndTime);
+  PetscTime(&matrixEndTime);
   matrixCreationTime = matrixEndTime - matrixStartTime;
 
-  PetscGetTime(&dupStartTime);
+  PetscTime(&dupStartTime);
   DMCreateGlobalVector ( Temperature_FEM_Grid, &Temperature );
   VecDuplicate( Temperature, &Load_Vector );
-  PetscGetTime(&dupEndTime);
+  PetscTime(&dupEndTime);
   dupCreationTime = dupEndTime - dupStartTime;
 
-  PetscGetTime(&System_Assembly_Start_Time);
+  PetscTime(&System_Assembly_Start_Time);
   VecSet ( Load_Vector, Zero );
 
   MatZeroEntries ( Stiffness_Matrix ); 
@@ -2838,44 +2838,44 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
                                                      Element_Contributions_Time );
 
   KSPSetOperators ( Temperature_Linear_Solver, Stiffness_Matrix, Stiffness_Matrix, SAME_NONZERO_PATTERN );
-  PetscGetTime(&System_Assembly_End_Time);
+  PetscTime(&System_Assembly_End_Time);
   Total_System_Assembly_Time = System_Assembly_End_Time - System_Assembly_Start_Time;
 
   // Solve the linear system Temperature = Stiffness_Matrix^-1 * Load_Vector
-  PetscGetTime(&Start_Time);
+  PetscTime(&Start_Time);
 
-  PetscGetTime(&restoreStartTime);
+  PetscTime(&restoreStartTime);
 
   Temperature_Calculator.Restore_Temperature_Solution ( Temperature_FEM_Grid, Temperature_DOF_Numbers, 
 							Temperature );
 
-  PetscGetTime(&restoreEndTime);
+  PetscTime(&restoreEndTime);
   restoreCreationTime = restoreEndTime - restoreStartTime;
 
 //    VecSet ( &Zero, Temperature );
   KSPSolve ( Temperature_Linear_Solver, Load_Vector, Temperature );
   KSPGetIterationNumber ( Temperature_Linear_Solver, &numberOfLinearIterations );
-  PetscGetTime(&End_Time);
+  PetscTime(&End_Time);
 
   Solve_Time = End_Time - Start_Time;
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
   KSPGetConvergedReason ( Temperature_Linear_Solver, &convergedReason );
 
-  temperatureHasDiverged = isnan ( T_Norm ) || ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NAN;
+  temperatureHasDiverged = isnan ( T_Norm ) || ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
 
-  PetscGetTime(&storeStartTime);
+  PetscTime(&storeStartTime);
 
   Temperature_Calculator.Store_Temperature_Solution ( Temperature_FEM_Grid,
                                                       Temperature_DOF_Numbers, 
                                                       Temperature, Current_Time );
-  PetscGetTime(&storeEndTime);
+  PetscTime(&storeEndTime);
   storeCreationTime = storeEndTime - storeStartTime;
 
-  PetscGetTime(&Start_Time);
+  PetscTime(&Start_Time);
 
   Compute_Temperature_Dependant_Properties ( Previous_Time, Current_Time );
-  PetscGetTime(&End_Time);
+  PetscTime(&End_Time);
   Property_Time = End_Time - Start_Time;
 
   // if DEBUG3 set then call the script fastcauldron_performance 
@@ -2888,7 +2888,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   KSPDestroy ( &Temperature_Linear_Solver );
 
 
-  PetscGetTime(&Iteration_End_Time);
+  PetscTime(&Iteration_End_Time);
   Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
 
   if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
@@ -3064,7 +3064,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
   PetscLogDouble Start_Time;
   PetscLogDouble End_Time;
 
-  PetscGetTime(&Start_Time);
+  PetscTime(&Start_Time);
 
   if ( ! basinModel -> DoOverPressure && ! basinModel -> Do_Iteratively_Coupled ) {
     basinModel -> Calculate_Pressure ( Current_Time );
@@ -3168,7 +3168,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
     Layers++;
   }
 
-  PetscGetTime(&End_Time);
+  PetscTime(&End_Time);
   Property_Calculation_Time = Property_Calculation_Time + ( End_Time - Start_Time );
 
 }

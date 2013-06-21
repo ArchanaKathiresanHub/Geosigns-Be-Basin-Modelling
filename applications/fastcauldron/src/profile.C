@@ -15,7 +15,7 @@ void LogStageBegin(ProfileManager& pProfileManager, const string& EventName)
   } else {
     pStage = profile_it->second;
   }
-  PetscGetTime(&pStage->StartTime);
+  PetscTime(&pStage->StartTime);
   pProfileManager[EventName] = pStage; 
 }
 
@@ -68,7 +68,7 @@ void LogStageEnd(ProfileManager& pProfileManager, const string& EventName)
     exit(1);
   } else {
     pStage = profile_it->second;
-    PetscGetTime(&pStage->EndTime); 
+    PetscTime(&pStage->EndTime); 
     pStage->CalculationTime += pStage->EndTime - pStage->StartTime;
   }
 
