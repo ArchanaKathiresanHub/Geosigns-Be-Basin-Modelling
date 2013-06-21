@@ -2,15 +2,7 @@
 
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-#endif // sgi
+#include <iostream>
 
 #include <vector>
 
@@ -83,6 +75,8 @@ bool Reservoir::isActive (const Interface::Snapshot * snapshot) const
       const Interface::Snapshot * activeFromSnapshot = m_projectHandle->findSnapshot (getActivityStart ());
       return (activeFromSnapshot->getTime () > snapshot->getTime ());
    }
+
+   return false; // fixing warning for no return
 }
 
 const GridMap * Reservoir::getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot)

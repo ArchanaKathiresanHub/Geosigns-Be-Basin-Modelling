@@ -15,6 +15,8 @@ class CmdLineParameter;
 class ParameterSettings
 {
 public:
+   ParameterSettings(); // needed to be public for std::vector
+
    typedef std::string Name;
    typedef std::string Value;
    typedef std::map< Name, Value > Map;
@@ -24,7 +26,6 @@ public:
    { return m_map; }
 
 private:
-   ParameterSettings();
 
    Map m_map;
 };

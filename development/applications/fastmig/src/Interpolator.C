@@ -3,7 +3,7 @@
 #include "Interpolator.h"
 
 #include <assert.h>
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 
 #include <algorithm>

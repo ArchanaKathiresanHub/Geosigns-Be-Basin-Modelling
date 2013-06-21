@@ -98,7 +98,7 @@ namespace hpc
 
    MPICmdLineTools
       :: MPICmdLineTools()
-      : m_root("/apps/3rdparty/intel/ics2011/impi/4.0.1.007/intel64")
+      : m_root("/nfs/rvl/apps/3rdparty/intel/impi/4.1.0.030/intel64")
    { }
 
    std::string
