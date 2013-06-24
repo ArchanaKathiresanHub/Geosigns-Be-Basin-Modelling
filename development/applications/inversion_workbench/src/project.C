@@ -102,14 +102,19 @@ Project
       database::Record * newRecord = table->createRecord();
       assert( newRecord && "Could not allocate new record in Crust thickness table");
 
-      database::setAge( newRecord, series[i].first );
-      database::setThickness(newRecord, series[i].second);
+      const double age = series[i].first;
+      const double thickness = series[i].second;
+
+      database::setAge( newRecord, age );
+      database::setThickness(newRecord, thickness);
       database::setThicknessGrid(newRecord, "");
 
       using DataAccess::Interface::DefaultUndefinedScalarValue;
       database::setCalibThickness(newRecord, DefaultUndefinedScalarValue );
       database::setOptimThickness(newRecord, DefaultUndefinedScalarValue );
       database::setErrThickness(newRecord, DefaultUndefinedScalarValue );
+
+      insertSnapshot( age );
    }
 }
 
@@ -170,14 +175,16 @@ void Project::getUnconformityRecords (const std::string & depoFormationName, dat
    }
 }
 
-bool SnapshotIoTblSorter(database::Record * recordL,  database::Record * recordR)
-{
-  if (database::getTime (recordL) < database::getTime (recordR)) return true;
-  return false;
-}
 
 void Project::insertSnapshot (double time)
 {
+   struct SnapshotIoTbl 
+   {  static bool Sorter(database::Record * recordL,  database::Record * recordR)
+      {
+         if (database::getTime (recordL) < database::getTime (recordR)) return true;
+         return false;
+      }
+   };
    database::Table * table = m_projectHandle->getTable("SnapshotIoTbl");
    assert( table );
 
@@ -191,7 +198,7 @@ void Project::insertSnapshot (double time)
       database::setTypeOfSnapshot (record, "System Generated" );
       database::setSnapshotFileName (record, "" );
 
-      table->sort (SnapshotIoTblSorter);
+      table->sort (SnapshotIoTbl::Sorter);
    }
 }
 

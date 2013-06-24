@@ -26,22 +26,32 @@ START-properties
   Type       : string
 
   Identification : StartValue
-  Type       : double
+  Description    : Start value of a range (inclusive)
+  Type           : double
 
   Identification : EndValue
-  Type       : double
+  Description    : End value of a range (inclusive)
+  Type           : double
 
   Identification : StepValue
-  Type       : double
+  Description    : Step value of a range
+  Type           : double
 
   Identification : ProjectTemplatePath
+  Description    : Path to template project file.
   Type       : string
 
   Identification : OutputDirectory
-  Type       : string
+  Description    : Directory in which all generated Project3d files are saved, are processed by Cauldron, and calculated properties are saved.
+  Type           : string
 
   Identification : OutputFileName
-  Type       : string
+  Description    : Format of generated Project3d files names.
+  Type           : string
+
+  Identification : CauldronVersion
+  Description    : Version of Fastcauldron to use
+  Type           : string
 
   Identification : RetrievedVariable
   Type       : string
@@ -107,6 +117,7 @@ START-property-tables
   Column     : ProjectTemplatePath
   Column     : OutputDirectory
   Column     : OutputFileName
+  Column     : CauldronVersion
   Header     : Project Data
   Property I/O : Yes
 

@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "experiment.h"
-extern bool verbose;
 
 #include "BasementProperty.h"
 #include "RuntimeConfiguration.h"
@@ -127,10 +126,11 @@ void Experiment :: createProjectsSet() const
 }
 
 
-void Experiment :: runProjectSet(const std::string &cauldronVersion) 
+void Experiment :: runProjectSet( std::ostream * verboseOutput) 
 {
    const std::string fastcauldronPath = "fastcauldron";
-   const std::string runtimeParams = "-temperature";
+   const std::string runtimeParams = m_experimentInfo.getCauldronRuntimeParams();
+   const std::string cauldronVersion = m_experimentInfo.getCauldronVersion();
 
    int scenariosFinished = 0;
 
@@ -143,16 +143,16 @@ void Experiment :: runProjectSet(const std::string &cauldronVersion)
       #pragma omp for schedule(dynamic, 1)
       for (unsigned i = 0; i < m_scenarios.size(); ++i)
       {
-	 if (verbose)
+	 if (verboseOutput)
 	 {
 	    #pragma omp critical(printing)
             if (m_scenarios[i].isValid ())
 	    {
-	       std::cout << "Starting scenario " << i + 1 << endl;
+	       *verboseOutput << "Starting scenario " << i + 1 << endl;
 	    }
             else
             {
-	       std::cout << "Skipping scenario " << i + 1 << endl;
+	       *verboseOutput << "Skipping scenario " << i + 1 << endl;
 	    }
 	 }
 
@@ -167,19 +167,19 @@ void Experiment :: runProjectSet(const std::string &cauldronVersion)
        
          system( command.str().c_str() );
 
-	 if (verbose)
+	 if (verboseOutput)
 	 {
 	    #pragma omp critical(printing)
 	    {
-	       std::cout << "Finished scenario " << i + 1 << std::endl;
+	       *verboseOutput << "Finished scenario " << i + 1 << std::endl;
                ++scenariosFinished;
 	    }
 	 }
       }
    }
-   if (verbose)
+   if (verboseOutput)
    {
-      std::cout << std::endl << "Finished " << scenariosFinished << ", skipped " << m_scenarios.size () - scenariosFinished << " scenarios " << std::endl;
+      *verboseOutput << "\nFinished " << scenariosFinished << ", skipped " << m_scenarios.size () - scenariosFinished << " scenarios " << std::endl;
    }
 }
 

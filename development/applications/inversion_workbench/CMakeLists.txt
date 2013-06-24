@@ -225,3 +225,11 @@ add_test(NAME Crust::overlap
    COMMAND Crust overlap
 )
 
+add_test(NAME Crust::addThinningEvent
+   COMMAND Crust addThinningEvent
+)
+
+add_test(NAME Crust::getThicknessHistory
+   COMMAND Crust getThicknessHistory
+)
+

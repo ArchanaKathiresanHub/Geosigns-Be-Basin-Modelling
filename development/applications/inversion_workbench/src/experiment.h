@@ -24,8 +24,9 @@ public:
    /// Generate the set of Cauldron project files from the scenarios: one for each scenario.
    void createProjectsSet() const;
 
-   /// Run fastcauldron on each generated project file
-   void runProjectSet(const std::string & cauldronVersion);
+   /// Run fastcauldron on each generated project file. Optionally an output
+   /// stream can be given to which diagnostic information is written.
+   void runProjectSet(std::ostream * verboseOutput = 0);
 
    /// Collect the results into .dat files.
    void collectResults() const;
