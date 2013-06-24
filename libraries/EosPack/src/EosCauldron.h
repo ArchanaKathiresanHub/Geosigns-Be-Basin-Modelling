@@ -80,9 +80,10 @@ public:
    /// \param[in]  pvtTable       Pointer to a cached Pvt table
    /// \param[in]  iItersNum      Maximal number of iterations for nonlinear solver
    /// \param[in]  dStopTol       Convergence tolerance value for nonlinear solver
+   /// \param[in]  dNewtonRelCoef Relaxation coefficient for the Newton nonlinear solver
    static void EosGetProperties( int iFlashes, int iOil, int iGas, double *pPressure, double *pTemperature,
                                  double *pAccumulation, double *pPhaseAcc, double *pMassFraction, double *pDensity,
-                                 double *pViscosity, EosPvtTable *pvttable, int iItersNum, double dStopTol );
+                                 double *pViscosity, EosPvtTable *pvttable, int iItersNum, double dStopTol, double dNewtonRelCoef );
 
    /// \brief Default constructor
    EosCauldron();

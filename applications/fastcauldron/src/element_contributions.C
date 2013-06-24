@@ -435,21 +435,21 @@ bool Basin_Modelling::Degenerate_Element ( const ElementGeometryMatrix& geometry
 //------------------------------------------------------------//
 
 
-void Basin_Modelling::Compute_Fluid_Velocity ( const bool               imposeVelocityLimit,
-                                               const bool               hasFractured,
-                                               const double             VES,
-                                               const double             maxVES,
-                                               const CompoundProperty&  porosity,
-                                               const double             fluidViscosity,
-                                               const Matrix3x3&         jacobian,
-                                               const ThreeVector&       gradOverpressure,
-                                               const CompoundLithology* lithology,
-                                                     ThreeVector&       fluidVelocity ) {
+void Basin_Modelling::computeFluidFlux ( const bool               imposeFluxLimit,
+                                         const bool               hasFractured,
+                                         const double             VES,
+                                         const double             maxVES,
+                                         const CompoundProperty&  porosity,
+                                         const double             fluidViscosity,
+                                         const Matrix3x3&         jacobian,
+                                         const ThreeVector&       gradOverpressure,
+                                         const CompoundLithology* lithology,
+                                               ThreeVector&       fluidFlux ) {
 
-  /// Limit the water velocity to be within a reasonable range.
+  /// Limit the water flux to be within a reasonable range.
   /// This should be a depth related function, since it seems to be only
-  /// the shallower parts where the high fluid velocities cause a problem.
-  const double MaximumVelocity     = 1.0e-9;
+  /// the shallower parts where the high fluid fluxes cause a problem.
+  const double MaximumFlux     = 1.0e-9;
 
   /// This limits the permeability to be within a reasonable range. The soil mechanics sandstone
   /// has a particularly high permeability 10^8.6 milli-Darcy (almost 6 orders of magnitude higher
@@ -473,12 +473,12 @@ void Basin_Modelling::Compute_Fluid_Velocity ( const bool               imposeVe
   lithology->calcBulkPermeabilityNP ( VES, maxVES, porosity, permeabilityNormal, permeabilityPlane );
 
   // Limit the permeability to some maximum value.
-  if ( imposeVelocityLimit and permeabilityNormal > MaximumPermeability ) {
+  if ( imposeFluxLimit and permeabilityNormal > MaximumPermeability ) {
     permeabilityNormal = MaximumPermeability;
   }
 
   // Limit the permeability to some maximum value.
-  if ( imposeVelocityLimit and permeabilityPlane > MaximumPermeability ) {
+  if ( imposeFluxLimit and permeabilityPlane > MaximumPermeability ) {
     permeabilityPlane = MaximumPermeability;
   }
 
@@ -487,22 +487,22 @@ void Basin_Modelling::Compute_Fluid_Velocity ( const bool               imposeVe
 
   Set_Permeability_Tensor ( permeabilityNormal, permeabilityPlane, jacobian, permeabilityTensor );
 
-  matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidVelocity );
+  matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidFlux );
 
   // Since pressure properties are stored in MPa units, we must convert to Pa to use in calculation.
-  fluidVelocity ( 1 ) = -fluidVelocity ( 1 ) * MPa_To_Pa;
-  fluidVelocity ( 2 ) = -fluidVelocity ( 2 ) * MPa_To_Pa;
-  fluidVelocity ( 3 ) = -fluidVelocity ( 3 ) * MPa_To_Pa;
+  fluidFlux ( 1 ) = -fluidFlux ( 1 ) * MPa_To_Pa;
+  fluidFlux ( 2 ) = -fluidFlux ( 2 ) * MPa_To_Pa;
+  fluidFlux ( 3 ) = -fluidFlux ( 3 ) * MPa_To_Pa;
 
-  /// Limit the fluid velocity to some maximum value.
-  if ( imposeVelocityLimit ) {
+  // Limit the fluid flux to some maximum value, if requested.
+  if ( imposeFluxLimit ) {
 
     for ( I = 1; I <= 3; I++ ) {
 
-      if ( fluidVelocity ( I ) > MaximumVelocity ) {
-        fluidVelocity ( I ) = MaximumVelocity;
-      } else if ( fluidVelocity ( I ) < -MaximumVelocity ) {
-        fluidVelocity ( I ) = -MaximumVelocity;
+      if ( fluidFlux ( I ) > MaximumFlux ) {
+        fluidFlux ( I ) = MaximumFlux;
+      } else if ( fluidFlux ( I ) < -MaximumFlux ) {
+        fluidFlux ( I ) = -MaximumFlux;
       }
 
     }
@@ -571,6 +571,7 @@ void Basin_Modelling::computeFluidVelocity
 
   ThreeVector        gradOverpressure;
   ThreeVector        referenceGradOverpressure;
+  ThreeVector        fluidFlux;
 
   ThreeVector        gradHydrostaticPressure;
   ThreeVector        referenceGradHydrostaticPressure;
@@ -625,22 +626,22 @@ void Basin_Modelling::computeFluidVelocity
   gradOverpressure ( 1 ) += gradHydrostaticPressure ( 1 );
   gradOverpressure ( 2 ) += gradHydrostaticPressure ( 2 );
 
-  Compute_Fluid_Velocity ( false,
-                           hasFractured,
-                           VES,
-                           maxVES,
-                           currentCompoundPorosity,
-                           fluidViscosity,
-                           jacobian,
-                           gradOverpressure,
-                           lithology,
-                           fluidVelocity );
+  computeFluidFlux ( false,
+                     hasFractured,
+                     VES,
+                     maxVES,
+                     currentCompoundPorosity,
+                     fluidViscosity,
+                     jacobian,
+                     gradOverpressure,
+                     lithology,
+                     fluidFlux );
 
   // Convert to mm/year.
-  fluidVelocity ( 1 ) =  1000.0 * SecondsPerYear * fluidVelocity ( 1 ) / porosity;
-  fluidVelocity ( 2 ) =  1000.0 * SecondsPerYear * fluidVelocity ( 2 ) / porosity;
+  fluidVelocity ( 1 ) =  1000.0 * SecondsPerYear * fluidFlux ( 1 ) / porosity;
+  fluidVelocity ( 2 ) =  1000.0 * SecondsPerYear * fluidFlux ( 2 ) / porosity;
   // +ve to represent upwards, so scale by -1
-  fluidVelocity ( 3 ) = -1000.0 * SecondsPerYear * fluidVelocity ( 3 ) / porosity;
+  fluidVelocity ( 3 ) = -1000.0 * SecondsPerYear * fluidFlux ( 3 ) / porosity;
 
 }
 
@@ -662,7 +663,7 @@ double Basin_Modelling::CFL_Value
 
   ThreeVector Grad_Overpressure;
   ThreeVector Reference_Grad_Overpressure;
-  ThreeVector Fluid_Velocity;
+  ThreeVector fluidFlux;
 
   ThreeVector        gradSurfaceDepth;
   ThreeVector        referenceGradSurfaceDepth;
@@ -724,18 +725,18 @@ double Basin_Modelling::CFL_Value
     Grad_Overpressure ( 1 ) += gradHydrostaticPressure ( 1 );
     Grad_Overpressure ( 2 ) += gradHydrostaticPressure ( 2 );
 
-    Compute_Fluid_Velocity ( true,
-                             Has_Fractured,
-                             Current_VES,
-                             Current_Max_VES,
-                             Current_Porosity,
-                             Fluid_Viscosity,
-                             Jacobian,
-                             Grad_Overpressure,
-                             lithology,
-                             Fluid_Velocity );
+    computeFluidFlux ( true,
+                       Has_Fractured,
+                       Current_VES,
+                       Current_Max_VES,
+                       Current_Porosity,
+                       Fluid_Viscosity,
+                       Jacobian,
+                       Grad_Overpressure,
+                       lithology,
+                       fluidFlux );
 
-    return Maximum_Diameter ( geometryMatrix ) / sqrt ( FiniteElementMethod::innerProduct ( Fluid_Velocity, Fluid_Velocity ));
+    return Maximum_Diameter ( geometryMatrix ) / sqrt ( FiniteElementMethod::innerProduct ( fluidFlux, fluidFlux ));
   } // 
 
 }
@@ -904,7 +905,7 @@ void Basin_Modelling::computeHeatFlow
 
     ThreeVector referenceGradOverpressure;
     ThreeVector gradOverpressure;
-    ThreeVector fluidVelocity;
+    ThreeVector fluidFlux;
 
     matrixTransposeVectorProduct ( gradBasis, currentElementPo, referenceGradOverpressure );
     matrixTransposeVectorProduct ( jacobianInverse, referenceGradOverpressure, gradOverpressure );
@@ -916,22 +917,22 @@ void Basin_Modelling::computeHeatFlow
 
     bool hasFractured = false;
 
-    Compute_Fluid_Velocity ( true,
-                             hasFractured,
-                             VES,
-                             maxVES,
-                             currentCompoundPorosity,
-                             fluidViscosity,
-                             jacobian,
-                             gradOverpressure,
-                             lithology,
-                             fluidVelocity );
+    computeFluidFlux ( true,
+                       hasFractured,
+                       VES,
+                       maxVES,
+                       currentCompoundPorosity,
+                       fluidViscosity,
+                       jacobian,
+                       gradOverpressure,
+                       lithology,
+                       fluidFlux );
 
     advectionScaling = fluidDensity * heatCapacity * temperature;
 
-    heatFlow ( 1 ) = heatFlow ( 1 ) + advectionScaling * fluidVelocity ( 1 );
-    heatFlow ( 2 ) = heatFlow ( 2 ) + advectionScaling * fluidVelocity ( 2 );
-    heatFlow ( 3 ) = heatFlow ( 3 ) + advectionScaling * fluidVelocity ( 3 );
+    heatFlow ( 1 ) = heatFlow ( 1 ) + advectionScaling * fluidFlux ( 1 );
+    heatFlow ( 2 ) = heatFlow ( 2 ) + advectionScaling * fluidFlux ( 2 );
+    heatFlow ( 3 ) = heatFlow ( 3 ) + advectionScaling * fluidFlux ( 3 );
   }
 
   heatFlow ( 3 ) = -heatFlow ( 3 );
@@ -1962,8 +1963,8 @@ void Basin_Modelling::Assemble_Element_Temperature_System
   ThreeVector        referenceGradHydrostaticPressure;
 
   Matrix3x3          Fluid_Mobility;
-  ThreeVector        Fluid_Velocity;
-  ThreeVector        Fluid_Velocity_Intermediate;
+  ThreeVector        fluidFlux;
+  ThreeVector        fluidFluxIntermediate;
   BasisFunction basisFunction;
 
   double Fluid_Density_Heat_Capacity;
@@ -2144,24 +2145,24 @@ void Basin_Modelling::Assemble_Element_Temperature_System
           //
           bool Has_Fractured = false;
 
-          Compute_Fluid_Velocity ( true,
-                                   Has_Fractured,
-                                   Current_VES,
-                                   Current_Max_VES,
-                                   Current_Compound_Porosity,
-                                   Fluid_Viscosity,
-                                   Jacobian,
-                                   Grad_Overpressure,
-                                   lithology,
-                                   Fluid_Velocity );
+          computeFluidFlux ( true,
+                             Has_Fractured,
+                             Current_VES,
+                             Current_Max_VES,
+                             Current_Compound_Porosity,
+                             Fluid_Viscosity,
+                             Jacobian,
+                             Grad_Overpressure,
+                             lithology,
+                             fluidFlux );
 
-          Increment ( -integrationWeight * Fluid_Density_Heat_Capacity * FiniteElementMethod::innerProduct ( Grad_Temperature, Fluid_Velocity ), 
+          Increment ( -integrationWeight * Fluid_Density_Heat_Capacity * FiniteElementMethod::innerProduct ( Grad_Temperature, fluidFlux ), 
                       Basis,
                       Element_Residual );
 
 
-          matrixVectorProduct ( Jacobian_Inverse, Fluid_Velocity, Fluid_Velocity_Intermediate );
-          matrixVectorProduct ( Grad_Basis, Fluid_Velocity_Intermediate, Work_Space );
+          matrixVectorProduct ( Jacobian_Inverse, fluidFlux, fluidFluxIntermediate );
+          matrixVectorProduct ( Grad_Basis, fluidFluxIntermediate, Work_Space );
 
           scale ( Work_Space, -integrationWeight * Current_Porosity * Fluid_Density_Heat_Capacity );
           addOuterProduct ( Work_Space, Basis, Element_Jacobian );
@@ -2266,8 +2267,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Residual
   ThreeVector        Reference_Grad_Overpressure;
 
   Matrix3x3          Fluid_Mobility;
-  ThreeVector        Fluid_Velocity;
-  ThreeVector        Fluid_Velocity_Intermediate;
+  ThreeVector        fluidFlux;
   BasisFunction basisFunction;
 
   ThreeVector        gradHydrostaticPressure;
@@ -2443,18 +2443,18 @@ void Basin_Modelling::Assemble_Element_Temperature_Residual
           //
           bool Has_Fractured = false;
 
-          Compute_Fluid_Velocity ( true,
-                                   Has_Fractured,
-                                   Current_VES,
-                                   Current_Max_VES,
-                                   Current_Compound_Porosity,
-                                   Fluid_Viscosity,
-                                   Jacobian,
-                                   Grad_Overpressure,
-                                   lithology,
-                                   Fluid_Velocity );
+          computeFluidFlux ( true,
+                             Has_Fractured,
+                             Current_VES,
+                             Current_Max_VES,
+                             Current_Compound_Porosity,
+                             Fluid_Viscosity,
+                             Jacobian,
+                             Grad_Overpressure,
+                             lithology,
+                             fluidFlux );
 
-          Increment ( -integrationWeight * Fluid_Density_Heat_Capacity * FiniteElementMethod::innerProduct ( Grad_Temperature, Fluid_Velocity ), 
+          Increment ( -integrationWeight * Fluid_Density_Heat_Capacity * FiniteElementMethod::innerProduct ( Grad_Temperature, fluidFlux ), 
                       Basis,
                       Element_Residual );
         }
@@ -2555,8 +2555,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
   ThreeVector        referenceGradHydrostaticPressure;
 
   Matrix3x3          Fluid_Mobility;
-  ThreeVector        Fluid_Velocity;
-  ThreeVector        Fluid_Velocity_Intermediate;
+  ThreeVector        fluidFlux;
   ThreeVector        jacobianInverseFluidVelocity;
 
 
@@ -2755,22 +2754,22 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
           //
           bool Has_Fractured = false;
 
-          Compute_Fluid_Velocity ( true,
-                                   Has_Fractured,
-                                   Current_VES,
-                                   Current_Max_VES,
-                                   Current_Compound_Porosity,
-                                   Fluid_Viscosity,
-                                   Jacobian,
-                                   Grad_Overpressure,
-                                   lithology,
-                                   Fluid_Velocity );
+          computeFluidFlux ( true,
+                             Has_Fractured,
+                             Current_VES,
+                             Current_Max_VES,
+                             Current_Compound_Porosity,
+                             Fluid_Viscosity,
+                             Jacobian,
+                             Grad_Overpressure,
+                             lithology,
+                             fluidFlux );
 
-          Fluid_Velocity ( 1 ) = Fluid_Density_Heat_Capacity * integrationWeight * Fluid_Velocity ( 1 );
-          Fluid_Velocity ( 2 ) = Fluid_Density_Heat_Capacity * integrationWeight * Fluid_Velocity ( 2 );
-          Fluid_Velocity ( 3 ) = Fluid_Density_Heat_Capacity * integrationWeight * Fluid_Velocity ( 3 );
+          fluidFlux ( 1 ) = Fluid_Density_Heat_Capacity * integrationWeight * fluidFlux ( 1 );
+          fluidFlux ( 2 ) = Fluid_Density_Heat_Capacity * integrationWeight * fluidFlux ( 2 );
+          fluidFlux ( 3 ) = Fluid_Density_Heat_Capacity * integrationWeight * fluidFlux ( 3 );
 
-          matrixVectorProduct ( Jacobian_Inverse, Fluid_Velocity, jacobianInverseFluidVelocity );
+          matrixVectorProduct ( Jacobian_Inverse, fluidFlux, jacobianInverseFluidVelocity );
           matrixVectorProduct ( Grad_Basis, jacobianInverseFluidVelocity, Work_Space );
 
           addOuterProduct ( Basis, Work_Space, Element_Stiffness_Matrix );

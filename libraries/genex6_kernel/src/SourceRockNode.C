@@ -62,7 +62,7 @@ SimulatorState &SourceRockNode::GetMixedSimulatorState() const
 {
    return *m_mixedSimulatorState;
 }
-SimulatorState &SourceRockNode::GetSimulatorStateForHistory() const
+SimulatorState &SourceRockNode::getPrincipleSimulatorState () const
 {
    return ( m_mixedSimulatorState != 0 ? * m_mixedSimulatorState : * m_currentState );
 }
@@ -180,7 +180,7 @@ void SourceRockNode::updateAdsorptionOutput ( const Simulator&           genexSi
    }
    */
    
-   SimulatorState &theSimulatorState = GetSimulatorStateForHistory ();
+   SimulatorState &theSimulatorState = getPrincipleSimulatorState ();
    const SpeciesManager * speciesManager = theSimulatorState.getSpeciesManager ();
    using namespace CBMGenerics;
 
@@ -652,7 +652,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
 
    const Genex6::Input* lastInput = getLastInput ();
 
-   const Genex6::SimulatorState& state = GetSimulatorStateForHistory(); //GetSimulatorState ();
+   const Genex6::SimulatorState& state = getPrincipleSimulatorState(); //GetSimulatorState ();
 
    Genex6::PVTComponentMasses phaseMasses;
    Genex6::PVTPhaseValues     densities;
@@ -746,7 +746,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
 
 void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const {
 
-   Genex6::SimulatorState& state = GetSimulatorStateForHistory(); //GetSimulatorState ();
+   Genex6::SimulatorState& state = getPrincipleSimulatorState(); //GetSimulatorState ();
    const Genex6::SpeciesManager& speciesManager = *state.getSpeciesManager();
  
    Genex6::PVTComponentMasses phaseMasses;
@@ -813,7 +813,7 @@ void SourceRockNode::zeroTimeStepAccumulations () {
 }
 
 // const SimulatorState& SourceRockNode::getState () const {
-//    return GetSimulatorStateForHistory ();
+//    return getPrincipleSimulatorState ();
 //    // return *m_currentState;
 // }
 

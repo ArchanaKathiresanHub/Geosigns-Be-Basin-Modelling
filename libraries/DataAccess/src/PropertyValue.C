@@ -44,13 +44,6 @@ PropertyValue::PropertyValue (ProjectHandle * projectHandle, Record * record, co
    m_reservoir (reservoir), m_formation (formation), m_surface (surface),
    m_storage (storage)
 {
-#if 0
-   cerr << "Added " << (m_storage == SNAPSHOTIOTBL ? "3d" : "2d") << " PropertyValue for property " << m_name;
-   if (m_formation) cerr << " for formation " << m_formation->getName ();
-   if (m_surface) cerr << " for surface " << m_surface->getName ();
-   if (m_reservoir) cerr << " for reservoir " << m_reservoir->getName ();
-   cerr << " and snapshot " << m_snapshot->getTime () << endl;
-#endif
 }
 
 
@@ -70,6 +63,9 @@ bool PropertyValue::matchesConditions (int selectionFlags, const Property * prop
       return false;
 
    if (getStorage () == SNAPSHOTIOTBL && (propertyType & VOLUME) == 0)
+      return false;
+
+   if (getStorage () == THREEDTIMEIOTBL && (propertyType & VOLUME) == 0)
       return false;
 
    if (getStorage () == TIMEIOTBL && (propertyType & SURFACE) == 0)
@@ -167,21 +163,23 @@ GridMap * PropertyValue::getGridMap (void) const
       return (GridMap *) getChild (ValueMap);
    }
 
-   if (!getRecord ())
-      return 0;                 // this is a newly created PropertyValue, there really should be a GridMap
-//----------------------------------------
+   Record * record = getRecord();
+
+   if (!record) return 0;
+
    if (MODE3D == m_projectHandle->getModellingMode ())
    {
       // The GridMap is to be retrieved from file
       string fileName;
       string dataSetName;
 
+
       if (getStorage () == TIMEIOTBL)
       {
          // The record to refer to is a TimeIoTbl record
 
-         const string & mapFileName = getMapFileName (getRecord ());
-         const string & propertyId = getPropertyGrid (getRecord ());
+         const string & mapFileName = getMapFileName (record);
+         const string & propertyId = getPropertyGrid (record);
 
          if (mapFileName != "")
          {
@@ -194,10 +192,16 @@ GridMap * PropertyValue::getGridMap (void) const
             dataSetName = "/Layer=0";
          }
       }
+      else if (getStorage () == THREEDTIMEIOTBL)
+      {
+         // The record to refer to is SnapshotIoTbl record
+         fileName = getMapFileName (record);
+	 dataSetName = "/" + getGroupName (record) + "/" + getDataSetName(record);
+      }
       else if (getStorage () == SNAPSHOTIOTBL)
       {
          // The record to refer to is SnapshotIoTbl record
-         fileName = getSnapshotFileName (getRecord ());
+         fileName = getSnapshotFileName (record);
 	 dataSetName = "/" + getName () + "/" + ( dynamic_cast<const Formation *>(getFormation ())->getMangledName ());
       }
 
@@ -205,12 +209,12 @@ GridMap * PropertyValue::getGridMap (void) const
 
       return (GridMap *) getChild (ValueMap);
    }
-   else
+   else if (MODE1D == m_projectHandle->getModellingMode ())
    {
       if (getStorage () == TIMEIOTBL)
       {
          // The record to refer to is a TimeIoTbl record
-         const double &scalarValue = database::getAverage (getRecord ());
+         const double &scalarValue = database::getAverage (record);
 
          if (scalarValue != DefaultUndefinedScalarValue) //1D Mode...
          {
@@ -393,6 +397,58 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
    return timeIoRecord;
 }
 
+database::Record* PropertyValue::create1DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
+{
+   assert (timeIoTbl);
+   assert (MODE1D == theMode);
+
+   database::Record * timeIoRecord = timeIoTbl->createRecord ();
+	
+   database::setPropertyName (timeIoRecord, getName ());
+   database::setTime (timeIoRecord, m_snapshot->getTime ());
+   database::setFormationName (timeIoRecord, m_formation->getName ());
+   database::setNodeIndex (timeIoRecord, DefaultUndefinedScalarValue);
+
+   database::setSurfaceName (timeIoRecord, "");
+   database::setValue (timeIoRecord, DefaultUndefinedScalarValue);
+
+   setRecord (timeIoRecord);
+
+   return timeIoRecord;
+}
+
+database::Record* PropertyValue::create3DTimeIoRecord (database::Table * timeIoTbl, ModellingMode theMode)
+{
+   assert (timeIoTbl);
+   assert (MODE3D == theMode);
+
+   database::Record * timeIoRecord = timeIoTbl->createRecord ();
+	
+   database::setPropertyName (timeIoRecord, getName ());
+   database::setTime (timeIoRecord, m_snapshot->getTime ());
+
+   database::setFormationName (timeIoRecord, m_formation->getName ());
+   
+   database::setMapFileName (timeIoRecord, "");
+
+   database::setNumberX (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setNumberY (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setNumberZ (timeIoRecord, DefaultUndefinedScalarValue);
+
+   database::setAverage (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setMinimum (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setMaximum (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSum (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSum2 (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setNP (timeIoRecord, DefaultUndefinedScalarValue);
+
+
+
+   setRecord (timeIoRecord);
+
+   return timeIoRecord;
+}
+
 bool PropertyValue::linkToSnapshotIoRecord (void)
 {
 
@@ -442,7 +498,31 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter)
 
 bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
 {
-   mapWriter.writeVolumeToHDF ((GridMap *) getGridMap (), getName (), ( dynamic_cast<const Formation *>(getFormation ()))->getMangledName ());
+   database::setMapFileName (m_record, mapWriter.getFileName ());
+   database::setGroupName (m_record, getName ());
+   database::setDataSetName (m_record, getFormation ()->getMangledName ());
+
+   GridMap * gridMap = getGridMap ();
+
+   gridMap->retrieveData();
+
+   database::setNumberX (m_record, gridMap->numI ());
+   database::setNumberY (m_record, gridMap->numJ ());
+   database::setNumberZ (m_record, gridMap->getDepth ());
+
+   double min, max;
+   gridMap->getMinMaxValue (min, max);
+
+   database::setMinimum (m_record, min);
+   database::setMaximum (m_record, max);
+   database::setAverage (m_record, gridMap->getAverageValue ());
+   database::setSum (m_record, gridMap->getSumOfValues ());
+   database::setSum2 (m_record, gridMap->getSumOfSquaredValues ());
+   database::setNP (m_record, gridMap->getNumberOfDefinedValues ());
+
+   gridMap->restoreData();
+
+   mapWriter.writeVolumeToHDF (gridMap, getName (), getFormation ()->getMangledName ());
    return true;
 }
 

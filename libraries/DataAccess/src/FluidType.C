@@ -71,14 +71,6 @@ double FluidType::getConstantSeismicVelocity () const {
    return database::getSeisVelocity ( m_record );
 }
 
-double FluidType::getLiquidusTemperature () const {
-   return database::getLiquidusTemperature ( m_record );
-}
-
-double FluidType::getSolidusTemperature () const {
-   return database::getSolidusTemperature ( m_record );
-}
-
 const std::string& FluidType::getHeatCapacityFluidName () const {
    return database::getHeatCaptype ( m_record );
 }

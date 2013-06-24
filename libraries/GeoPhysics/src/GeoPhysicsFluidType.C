@@ -38,16 +38,10 @@ GeoPhysics::FluidType::FluidType ( Interface::ProjectHandle * projectHandle, dat
    m_precomputedViscosityTerm1 = 0.42 * term * term + 0.045;
    m_precomputedViscosityTerm2 = 1.65 + 91.9 * m_salinity * m_salinity * m_salinity;
 
-   /*
+   m_omega = 1.0;
    double solidFractionForFrozen = 0.01;
    m_liquidusTemperature = 0.0;
    m_solidusTemperature = m_liquidusTemperature - m_omega * std::sqrt ( -std::log ( solidFractionForFrozen ));
-   */
-
-   m_omega = 1.0;
-
-   m_solidusTemperature = getSolidusTemperature();
-   m_liquidusTemperature = getLiquidusTemperature();
 
    //cout.precision( 14);
    //cout << " Fluid props: " << m_liquidusTemperature << "  " << m_solidusTemperature << "  " << m_omega << endl;

@@ -4,6 +4,7 @@
 
 #include "EosPackCAPI.h"
 
+#include <cassert>
 #include <vector>
 #include <string>
 
@@ -41,31 +42,74 @@ namespace pvtFlash
          }
          return result;
       }
-      
+
+      // Calculate phase masses, phase density and phase viscosity using C arrays as parameters
+      // return true on success, false otherwise
+      bool EosPackComputeWithLumpingArr( double temperature,       // temperature of composition
+                                         double pressure,          // pressure of composition
+                                         double * compMasses,      // array of size 23 with mass for each component
+                                         bool isGormPrescribed,    // is gas/oil ration coeficient is given
+                                         double gorm,              // value of gas/oil ration coeficient 
+                                         double * phaseCompMasses, // aray of size 46 with masses for each phase for each component
+                                         double * phaseDensity,    // array of size 2 with densities for liquid/vapour phases
+                                         double * phaseViscosity   // array of size 2 with viscosities for liquid/vapour phases
+                                       ) 
+      {
+         assert( compMasses );
+         assert( phaseCompMasses );
+         assert( phaseDensity );
+         assert( phaseViscosity );
+
+         double phaseMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+         pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
+         
+         bool result = instance.computeWithLumping( temperature, 
+                                                    pressure, 
+                                                    compMasses,
+                                                    phaseMasses,
+                                                    phaseDensity, 
+                                                    phaseViscosity, 
+                                                    isGormPrescribed, 
+                                                    gorm
+                                                  );
+         
+         int index = 0;
+         for( int i = 0; i < CBMGenerics::ComponentManager::NumberOfPhases; i++ )
+         {
+            for( int j = 0; j < CBMGenerics::ComponentManager::NumberOfOutputSpecies; j++)
+            {
+               phaseCompMasses[index++] = phaseMasses[i][j];
+            }
+         }
+         return result;
+      }
+
       double GetMolWeight(int componentId, double gorm)
       {
          pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
          return instance.getMolWeightLumped(componentId, gorm);
       }
-      
-      double Gorm(ComputeStruct* computeInfo)
-      {
+
+      // Calculate gas/oil ratio
+      // compMasses must be array of size 23
+      double Gorm(double * compMasses)
+      {  
+         assert( compMasses );
          pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
-         computeInfo->gorm = instance.gorm(computeInfo->compMasses);
-         return computeInfo->gorm;
+         return instance.gorm(compMasses);
       }
 
-      /// \brief Create PT phase diagram
-      /// \param diagType - type of diagram, 0 - mass, 1 - mole, 2 - volume
-      /// \param T trap temperature
-      /// \param P trap pressure
-      /// \param[in] comp array of size 23 for composition mass fractions
-      /// \param[out] points array, size of 8 which will contain on return CriticalT, CriticalP, BubbleT, BubbleP, CricondenthermT, CricondenthermP, CricondenbarT, CricondenbarP
-      /// \param[in,out] szIso array sizeof 11 (number of isolines) for each isoline it contains on input maximum number of isoline points allocated in isoline array,
-      ///                      on output it contains real number of points for each isoline
-      /// \param[out] isolines 1D array which keeps T,P values for each isoline, number of points for each isoline keeps szIso array 
-      /// \return true on success, false otherwise
-      bool BuildPTDiagram( int diagType, double T, double P, double * comp, double * points, int * szIso, double * isolines )
+      // Create PT phase diagram
+      // return true on success, false otherwise
+      bool BuildPTDiagram( int diagType,     // type of diagram, 0 - mass, 1 - mole, 2 - volume
+                           double T,         // trap temperature
+                           double P,         // trap pressure
+                           double * comp,    // array of size 23 for composition masses
+                           double * points,  // points array, size of 8 which will contain on return CriticalT, CriticalP, BubbleT, BubbleP, CricondenthermT, CricondenthermP, CricondenbarT, CricondenbarP
+                           int * szIso,      // szIso array sizeof 11 (number of isolines) for each isoline it contains on input maximum number of isoline points allocated in isoline array,
+                                             // on output it contains real number of points for each isoline
+                           double * isolines // isolines 1D array which keeps T, P values for each isoline, number of points for each isoline keeps szIso array 
+                         )
       {
          const int iNc = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
 
@@ -86,7 +130,7 @@ namespace pvtFlash
             PTDiagramCalculator diagBuilder( dType, masses );
 
             diagBuilder.setAoverBTerm( 2 );
-            diagBuilder.setNonLinSolverConvPrms( 1e-6, 500 );
+            diagBuilder.setNonLinSolverConvPrms( 1e-6, 500, 0.3 );
 
             diagBuilder.findBubbleDewLines( T, P, std::vector<double>() );
 
@@ -102,9 +146,10 @@ namespace pvtFlash
             {
                points[3] = bubbleP;
             }
-            else
+            else // if not found - assign to 0.0
             {
-               points[3] = P;
+               points[2] = 0.0;
+               points[3] = 0.0;
             }
             // fill cricondentherm point values
             const std::pair<double, double> & tPt = diagBuilder.getCricondenthermPoint();

@@ -3,35 +3,45 @@
 
 #include <string>
 #include <vector>
-#include "case.h"
-#include "DatadrillerProperty.h"
-#include <sstream>
+#include <iosfwd>
 
+#include <boost/shared_ptr.hpp>
+
+#include "Scenario.h"
+#include "RuntimeConfiguration.h"
+
+class DatadrillerProperty;
+class Property;
+
+/// An Experiment consists of several scenarios (see Scenario) that are generated / sampled
+/// from a set of properties (see Property). This experiment can be executed and 
+/// the results can be collected.
 class Experiment
 {
 public:
-//  Experiment(const std::string & configurationFile);
-  Experiment(std::vector< Property * > params, std::vector<DatadrillerProperty> & DatadrillerDefinitions, RuntimeConfiguration & datainfo);
+   Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & DatadrillerDefinitions, const RuntimeConfiguration & datainfo);
 
-  void sample(std::vector<Property *> parameterDefinitions, std::vector< Case > & allProjects );
-//  void Case :: addCase(const Case & case);
+   /// Generate the set of Cauldron project files from the scenarios: one for each scenario.
+   void createProjectsSet() const;
 
-  void define_datamining( std::vector<DatadrillerProperty> & DatadrillerDefinitions, std::vector< Case > & allProjects );
+   /// Run fastcauldron on each generated project file
+   void runProjectSet(const std::string & cauldronVersion);
 
-  std::vector<std::string> create_projects_set();
+   /// Collect the results into .dat files.
+   void collectResults() const;
 
-  void runProjectSet( const std::vector< std::string > & fileList);
-
-  void ReadExperimentResults();
-
-  void ReadExperimentCases();
-
-  void display_Cases() const;
-
+   /// For debugging purposes: show which scenarios have been generated.
+   void printScenarios(std::ostream & output) const;
 
 private:
-  std::vector< Case > m_cases;
-  RuntimeConfiguration m_experiment_info;
+   static std::vector< Scenario > sample(const std::vector< boost::shared_ptr<Property> > & parameterDefinitions );
+   std::string workingProjectFileName(unsigned scenarioNumber) const;
+   std::string workingLogFileName(unsigned scenarioNumber) const;
+   std::string resultsFileName(unsigned scenarioNumber) const;
+
+   std::vector< Scenario > m_scenarios;
+   std::vector< DatadrillerProperty > m_probes;
+   RuntimeConfiguration m_experimentInfo;
 };
 
 #endif

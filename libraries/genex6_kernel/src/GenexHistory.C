@@ -87,7 +87,7 @@ void Genex6::GenexHistory::mapComponentManagerSpeciesIdToOutputOrder () {
 void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
 
    const Genex6::Input* nodeInput = node->getLastInput ();
-   Genex6::SimulatorState * simulatorState = & node->GetSimulatorStateForHistory ();
+   Genex6::SimulatorState * simulatorState = & node->getPrincipleSimulatorState ();
    
    HistoryItem* hist = new HistoryItem;
    Genex6::SpeciesState* speciesState;

@@ -19,6 +19,10 @@ SimulatorState::SimulatorState(const SpeciesManager * inSpeciesManager, const in
       m_lumpedOMConcentration[i] = 0.0;
    }
 
+   for(i = 0; i < CBMGenerics::GenexResultManager::NumberOfResults; ++ i) {
+      m_shaleGasResultsByResultId[i] = 0.0;
+   }
+
    SetCumQuantity(OilExpelledMassCum);
    SetCumQuantity(OilExpelledVolumeCum);
    SetCumQuantity(HcGasExpelledVolumeCum);
@@ -76,6 +80,9 @@ SimulatorState::SimulatorState(const SimulatorState& in_State) : SimulatorStateB
    memcpy(m_ResultsByResultId, in_State.m_ResultsByResultId, 
           CBMGenerics::GenexResultManager::NumberOfResults * sizeof(double));
    
+   memcpy(m_shaleGasResultsByResultId, in_State.m_shaleGasResultsByResultId, 
+          CBMGenerics::GenexResultManager::NumberOfResults * sizeof(double));
+   
    memcpy(m_CumQuantitiesById, in_State.m_CumQuantitiesById, 
            SimulatorState::NumberOfResults * sizeof(double));
 
@@ -120,7 +127,7 @@ void SimulatorState::SetSpeciesTimeStepVariablesToZero()
    for(i = FIRST_RESULT_ID, j = 0; i < LAST_RESULT_ID; ++i, ++j) {
       s_GroupResults[j] = 0.0;
    }
-   
+
    m_AtomHR = m_AtomCR = m_AtomOR = 0.0;
    m_HC = m_OC = 0.0;
 
@@ -166,6 +173,7 @@ void SimulatorState::SetLumpedConcentrationsToZero()
 }
 void SimulatorState::SetResultsToZero()
 {
+
    int i;
    for(i = 0; i <  m_numberOfSpecies; ++ i) {
       m_SpeciesResults[i].clean();
@@ -253,6 +261,9 @@ void SimulatorState::mixResults ( SimulatorState * inSimulatorState1, SimulatorS
    double adsorpedMol1, desorpedMol1, freeMol1, expelledMol1, retained1, adsorptionCapacity1, expelledMassSR1;
    double adsorpedMol2, desorpedMol2, freeMol2, expelledMol2, retained2, adsorptionCapacity2, expelledMassSR2;
 
+   double expelledMassTransientSR1;
+   double expelledMassTransientSR2;
+
    int i, id1, id2;
    const Species *curSpecies1, *curSpecies2;
    SpeciesState *curState1, *curState2, *curState;
@@ -276,6 +287,7 @@ void SimulatorState::mixResults ( SimulatorState * inSimulatorState1, SimulatorS
       retained1         = 0.0;
       adsorptionCapacity1 = 0.0;
       expelledMassSR1 = 0.0;
+      expelledMassTransientSR1 = 0.0;
 
       concentration2    = 0.0;
       generatedRate2    = 0.0;
@@ -293,6 +305,7 @@ void SimulatorState::mixResults ( SimulatorState * inSimulatorState1, SimulatorS
       retained2         = 0.0;
       adsorptionCapacity2 = 0.0;
       expelledMassSR2 = 0.0;
+      expelledMassTransientSR2 = 0.0;
 
       curSpecies1    = 0;
       curSpecies2    = 0;
@@ -324,6 +337,7 @@ void SimulatorState::mixResults ( SimulatorState * inSimulatorState1, SimulatorS
                retained1      = fraction1 * curState1->getRetained();
                adsorptionCapacity1 = fraction1 * curState1->getAdsorptionCapacity();
                expelledMassSR1     = fraction1 * curState1->getMassExpelledFromSourceRock();
+               expelledMassTransientSR1 = fraction1 * curState1->getMassExpelledTransientFromSourceRock();
             } 
          } 
       } 
@@ -344,7 +358,7 @@ void SimulatorState::mixResults ( SimulatorState * inSimulatorState1, SimulatorS
 
             if ( curState2 != 0 ) {
                expelledMass2  = fraction2 * curState2->GetExpelledMass();
-               generatedMass2 = fraction2 * curState1->getGeneratedMass ();
+               generatedMass2 = fraction2 * curState2->getGeneratedMass ();
                massTrans2     = fraction2 * curState2->getExpelledMassTransient();
                adsorpedMol2   = fraction2 * curState2->getAdsorpedMol();
                desorpedMol2   = fraction2 * curState2->getDesorpedMol();
@@ -353,6 +367,7 @@ void SimulatorState::mixResults ( SimulatorState * inSimulatorState1, SimulatorS
                retained2      = fraction2 * curState2->getRetained();
                adsorptionCapacity2 = fraction2 * curState2->getAdsorptionCapacity();
                expelledMassSR2     = fraction2 * curState2->getMassExpelledFromSourceRock();
+               expelledMassTransientSR2     = fraction2 * curState2->getMassExpelledTransientFromSourceRock();
             } 
          } 
       }
@@ -389,6 +404,7 @@ void SimulatorState::mixResults ( SimulatorState * inSimulatorState1, SimulatorS
       curState->setRetained(retained1 + retained2);
       curState->setAdsorptionCapacity(adsorptionCapacity1 + adsorptionCapacity2);
       curState->setMassExpelledFromSourceRock(expelledMassSR1 + expelledMassSR2);
+      curState->setMassExpelledTransientFromSourceRock(expelledMassTransientSR1 + expelledMassTransientSR2);
    }
    
    
@@ -559,10 +575,13 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    if( theResultManager.IsResultRequired(GenexResultManager::ExpulsionApiInst))
    {
       double ExpulsionApiInst = 0.001;
+      double DensOilInst = 0.0;
+
       if(OilExpelledVolumeInst > Genex6::Constants::FLXVOILZERO) {	
-         double DensOilInst   = OilExpelledMassInst / OilExpelledVolumeInst;
+         DensOilInst   = OilExpelledMassInst / OilExpelledVolumeInst;
          ExpulsionApiInst = Genex6::Constants::APIC1 / DensOilInst * Genex6::Constants::APIC2 - Genex6::Constants::APIC3; 
       }
+
       SetResult(GenexResultManager::ExpulsionApiInst, ExpulsionApiInst);
    }
 
@@ -583,13 +602,16 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    if(theResultManager.IsResultRequired(GenexResultManager::ExpulsionGasOilRatioInst)) {
       SetResult(GenexResultManager::ExpulsionGasOilRatioInst, ExpulsionGasOilRatioInst);
    }
+
    //ExpulsionApiCum
    if( theResultManager.IsResultRequired(GenexResultManager::ExpulsionApiCum)) {
       double ExpulsionApiCum = 0.001;
+
       if(OilExpelledVolumeCum1 > Genex6::Constants::FLXVOILZERO) {
-	      double DensOilCum  = OilExpelledMassCum1 / OilExpelledVolumeCum1;
+         double DensOilCum  = OilExpelledMassCum1 / OilExpelledVolumeCum1;
          ExpulsionApiCum = Genex6::Constants::APIC1 / DensOilCum * Genex6::Constants::APIC2 - Genex6::Constants::APIC3;
       }
+
       SetResult(GenexResultManager::ExpulsionApiCum, ExpulsionApiCum);
    }
 
@@ -599,7 +621,7 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    double ExpulsionGasOilRatioCum = Genex6::Constants::UNDEFINEDVALUE;
    if(OilExpelledVolumeCum1 > Genex6::Constants::CUMVOILZERO) {
       ExpulsionGasOilRatioCum = HcGasExpelledVolumeCum1 / OilExpelledVolumeCum1 ; 
-      
+
       if(ExpulsionGasOilRatioCum > Genex6::Constants::GOR_UPPERBOUND) {
           ExpulsionGasOilRatioCum = Genex6::Constants::GOR_UPPERBOUND; 
       }    
@@ -638,9 +660,12 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    //ExpulsionGasWetnessCum
    if( theResultManager.IsResultRequired(GenexResultManager::ExpulsionGasWetnessCum)) {
       double ExpulsionGasWetnessCum = Genex6::Constants::UNDEFINEDVALUE;
+
+
       if(HcGasExpelledVolumeCum1 > Genex6::Constants::CUMVOILZERO) {
 	      ExpulsionGasWetnessCum = WetGasExpelledVolumeCum1 / HcGasExpelledVolumeCum1;     
       }   
+
       SetResult(GenexResultManager::ExpulsionGasWetnessCum,  ExpulsionGasWetnessCum);
    }
 
@@ -949,6 +974,228 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
       m_AtomOR += cmol * theSpecies.GetCompositionByElement(speciesManager.getOxygenId ());
    }
 }
+
+void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel, const double deltaT, const bool printIt  ) {
+
+   // The methods for computing some of the various values in this function can be 
+   // found in the function called PostProcessTimeStepComputation in this class.
+
+   const SpeciesManager& speciesManager = chemicalModel->getSpeciesManager ();
+   const Species** theSpecies = chemicalModel->GetSpecies();
+   ComponentManager & theComponentManager = ComponentManager::getInstance();
+
+   double expelledGasVolume = 0.0;
+   double transientGasVolume = 0.0;
+   double expelledWetGasVolume = 0.0;
+   double transientWetGasVolume = 0.0;
+
+   double expelledOilVolume = 0.0;
+   double transientOilVolume = 0.0;
+   double transientOilMass = 0.0;
+   double cumulativeSaturatesVolume = 0.0;
+   double transientSaturatesVolume = 0.0;
+   double cumulativeAromaticsVolume = 0.0;
+   double transientAromaticsVolume = 0.0;
+
+
+   int i;
+   int speciesId;
+
+   // Set all values 
+   for(i = 0; i < CBMGenerics::GenexResultManager::NumberOfResults; ++ i) {
+      m_shaleGasResultsByResultId[i] = 0.0;
+   }
+
+   // First stage is to set the results that are sums of species.
+   // Also some intermediate values are computed here that will be used in the second stage.
+   for ( i = 0, speciesId = 1; i < speciesManager.getNumberOfSpecies (); ++i, ++speciesId ) {
+
+      if ( GetSpeciesStateById ( speciesId ) != 0 ) {
+
+         SpeciesProperties * speciesProps = chemicalModel->GetSpeciesById ( speciesId )->GetSpeciesProperties();
+
+         double cumulativeExpelledMass   = GetSpeciesStateById ( speciesId )->getMassExpelledFromSourceRock ();
+         double cumulativeExpelledVolume = cumulativeExpelledMass / speciesProps->GetDensity();
+         double transientExpelledMass    = GetSpeciesStateById ( speciesId )->getMassExpelledTransientFromSourceRock ();
+         double transientExpelledVolume  = transientExpelledMass / speciesProps->GetDensity();
+
+         if ( speciesProps->IsOil ()) {
+            addShaleGasResult ( GenexResultManager::OilExpelledCum,  cumulativeExpelledMass );
+            addShaleGasResult ( GenexResultManager::OilExpelledRate, transientExpelledMass / deltaT );
+
+            expelledOilVolume += cumulativeExpelledVolume;
+            transientOilVolume += transientExpelledVolume;
+            transientOilMass += transientExpelledMass;
+
+            if ( theComponentManager.isSbearingHCsComponent(speciesManager.mapIdToComponentManagerSpecies (speciesId))) {
+               addShaleGasResult ( GenexResultManager::SbearingHCsExpelledCum,  cumulativeExpelledMass );
+               addShaleGasResult ( GenexResultManager::SbearingHCsExpelledRate, transientExpelledMass / deltaT );
+            }
+
+            if ( speciesId == speciesManager.getC6to14SatId ()) {
+               cumulativeSaturatesVolume += cumulativeExpelledVolume;
+               transientSaturatesVolume += transientExpelledVolume;
+            } else if ( speciesId == speciesManager.getC6to14AroId ()) {
+               cumulativeAromaticsVolume += cumulativeExpelledVolume;
+               transientAromaticsVolume += transientExpelledVolume;
+            } else if ( speciesId == speciesManager.getC15plusSatId () or
+                        speciesId == speciesManager.getC15plusSatSId () or
+                        speciesId == speciesManager.getC6to14SatSId ()) {
+
+               cumulativeSaturatesVolume += cumulativeExpelledVolume;
+               transientSaturatesVolume += transientExpelledVolume;
+            } else if ( speciesId == speciesManager.getC15plusAroId () or
+                        speciesId == speciesManager.getC15plusAroSId () or
+                        speciesId == speciesManager.getC6to14AroSId ()){
+
+               cumulativeAromaticsVolume += cumulativeExpelledVolume;
+               transientAromaticsVolume += transientExpelledVolume;
+            }
+
+         }
+
+         if ( speciesProps->IsHCgas ()) {
+            addShaleGasResult ( GenexResultManager::HcGasExpelledCum,  cumulativeExpelledMass );
+            addShaleGasResult ( GenexResultManager::HcGasExpelledRate, transientExpelledMass / deltaT );
+
+
+            expelledGasVolume += cumulativeExpelledVolume;
+            transientGasVolume += transientExpelledVolume;
+
+            if ( speciesId == speciesManager.getC1Id ()) {
+               addShaleGasResult ( GenexResultManager::DryGasExpelledCum,  cumulativeExpelledMass );
+               addShaleGasResult ( GenexResultManager::DryGasExpelledRate, transientExpelledMass / deltaT );
+            } else {
+               addShaleGasResult ( GenexResultManager::WetGasExpelledCum,  cumulativeExpelledMass );
+               addShaleGasResult ( GenexResultManager::WetGasExpelledRate, transientExpelledMass / deltaT );
+
+               expelledWetGasVolume += cumulativeExpelledVolume;
+               transientWetGasVolume += transientExpelledVolume;
+
+            }
+
+         }
+
+      }
+
+   }
+
+   // The second stage is to compute the more complex results.
+
+   // Expulsion API cumulative.
+   if ( expelledOilVolume > Genex6::Constants::FLXVOILZERO ) {
+
+      double oilDensity = getShaleGasResult ( GenexResultManager::OilExpelledCum ) / expelledOilVolume;
+      double oilApi = Genex6::Constants::APIC1 / oilDensity * Genex6::Constants::APIC2 - Genex6::Constants::APIC3; 
+
+      setShaleGasResult ( GenexResultManager::ExpulsionApiCum, oilApi );
+   } else {
+      // Should the value be Genex6::Constants::UNDEFINEDVALUE here rather than 0.001?
+      setShaleGasResult ( GenexResultManager::ExpulsionApiCum, 0.001 );
+   }
+
+   if ( transientOilVolume > Genex6::Constants::FLXVOILZERO ) {
+
+      double oilDensity = transientOilMass / transientOilVolume;
+      double oilApi = Genex6::Constants::APIC1 / oilDensity * Genex6::Constants::APIC2 - Genex6::Constants::APIC3; 
+
+      setShaleGasResult ( GenexResultManager::ExpulsionApiInst, oilApi );
+   } else {
+      // Should the value be Genex6::Constants::UNDEFINEDVALUE here rather than 0.001?
+      setShaleGasResult ( GenexResultManager::ExpulsionApiInst, 0.001 );
+   }
+
+   if ( cumulativeSaturatesVolume > Genex6::Constants::CUMVOILZERO ) {
+      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityCum, cumulativeAromaticsVolume / cumulativeSaturatesVolume );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityCum, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   if ( transientSaturatesVolume > 0.0 ) { //Genex6::Constants::CUMVOILZERO ) {
+      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityInst, transientAromaticsVolume / transientSaturatesVolume );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityInst, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   if ( expelledOilVolume != 0.0 ) {
+      double gor = expelledGasVolume / expelledOilVolume;
+
+      if ( gor > Genex6::Constants::GOR_UPPERBOUND ) {
+         gor = Genex6::Constants::GOR_UPPERBOUND;
+      }
+
+      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum, gor );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   if ( transientOilVolume != 0.0 ) {
+      double gor = transientGasVolume / transientOilVolume;
+
+      if ( gor > Genex6::Constants::GOR_UPPERBOUND ) {
+         gor = Genex6::Constants::GOR_UPPERBOUND;
+      }
+
+      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst, gor );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum ) != 0.0 and
+        getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum ) != Genex6::Constants::UNDEFINEDVALUE ) {
+      double cgr = 0.0;
+
+      if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum ) > 10000.0 ) {
+         cgr = 1.0 / getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum );
+      }
+
+      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioCum, cgr );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioCum, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst ) != 0.0 and
+        getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst ) != Genex6::Constants::UNDEFINEDVALUE ) {
+      double cgr = 0.0;
+
+      if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst ) > 10000.0 ) {
+         cgr = 1.0 / getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst );
+      }
+
+      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioInst, cgr );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioInst, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   if ( expelledGasVolume > Genex6::Constants::CUMVOILZERO ) {
+      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessCum, expelledWetGasVolume / expelledGasVolume );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessCum, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   if ( transientGasVolume > Genex6::Constants::CUMVOILZERO ) {
+      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessInst, transientWetGasVolume / transientGasVolume );
+   } else {
+      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessInst, Genex6::Constants::UNDEFINEDVALUE );
+   }
+
+   // The third step
+   // Copy remaining values from list, mainly the generated values and the kerogen-conversion ratio.
+   // Having all the optional results here simplifies the copying of the results to the output maps.
+   setShaleGasResult ( GenexResultManager::KerogenConversionRatio, GetResult ( GenexResultManager::KerogenConversionRatio ));
+   setShaleGasResult ( GenexResultManager::OilGeneratedCum, GetResult ( GenexResultManager::OilGeneratedCum ));
+   setShaleGasResult ( GenexResultManager::OilGeneratedRate, GetResult ( GenexResultManager::OilGeneratedRate ));
+   setShaleGasResult ( GenexResultManager::HcGasGeneratedCum, GetResult ( GenexResultManager::HcGasGeneratedCum ));
+   setShaleGasResult ( GenexResultManager::HcGasGeneratedRate, GetResult ( GenexResultManager::HcGasGeneratedRate ));
+   setShaleGasResult ( GenexResultManager::DryGasGeneratedCum, GetResult ( GenexResultManager::DryGasGeneratedCum ));
+   setShaleGasResult ( GenexResultManager::DryGasGeneratedRate, GetResult ( GenexResultManager::DryGasGeneratedRate ));
+   setShaleGasResult ( GenexResultManager::WetGasGeneratedCum,  GetResult ( GenexResultManager::WetGasGeneratedCum ));
+   setShaleGasResult ( GenexResultManager::WetGasGeneratedRate, GetResult ( GenexResultManager::WetGasGeneratedRate ));
+   setShaleGasResult ( GenexResultManager::SbearingHCsGeneratedCum, GetResult ( GenexResultManager::SbearingHCsGeneratedCum ));
+   setShaleGasResult ( GenexResultManager::SbearingHCsGeneratedRate, GetResult ( GenexResultManager::SbearingHCsGeneratedRate ));
+
+}
+
 
 double SimulatorState::ComputeKerogenTransformatioRatio ( const SpeciesManager& speciesManager,
                                                           int aSimulationType) 

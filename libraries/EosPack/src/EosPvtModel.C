@@ -128,6 +128,7 @@ EosPvtModel::EosPvtModel( const EosPvtModel &self )
    m_dConverge         = self.m_dConverge;
    m_dThermalDiffusion = self.m_dThermalDiffusion;
    m_dBubbleReduce     = self.m_dBubbleReduce;
+   m_dNewtonRelaxCoeff = self.m_dNewtonRelaxCoeff;
    m_iMaxIterations    = self.m_iMaxIterations;
    m_iFlashLength      = self.m_iFlashLength;
    m_iMichelson        = self.m_iMichelson;
@@ -170,6 +171,7 @@ void EosPvtModel::Initialize( int iVersion, int *piFlasher, double *pdFlasher )
       m_dTiny             = DBL_EPSILON;
       m_dThermalDiffusion = 0.0;
       m_dBubbleReduce     = 0.5;
+      m_dNewtonRelaxCoeff = 1.0;
       m_dConverge         = 0.0001;
       m_iMichelson        = EOS_OPTION_ON;
       m_iBubbleDew        = EOS_OPTION_OFF;
@@ -604,6 +606,8 @@ void EosPvtModel::PrintInputData( int iSize )
    printf( "%e", m_dThermalDiffusion );
    printf( "\nEosPvtModel.dBubbleReduce: " );
    printf( "%e", m_dBubbleReduce );
+   printf( "\nEosPvtModel.dNewtonRelaxCoeff: " );
+   printf( "%e", m_dNewtonRelaxCoeff );
    printf( "\nEosPvtModel.iDebug: " );
    printf( "%i", m_iDebug );
    printf( "\nEosPvtModel.iDrv: " );
@@ -675,6 +679,7 @@ void EosPvtModel::ReadAllData( int iVersion, int *piFlasher, double *pdFlasher )
    m_dConverge         = pdFlasher[EOS_CONVERGENCE];
    m_dThermalDiffusion = pdFlasher[EOS_THERMALDIFFUSION];
    m_dBubbleReduce     = pdFlasher[EOS_BUBBLEREDUCE];
+   m_dNewtonRelaxCoeff = pdFlasher[EOS_NEWTON_RELAX_COEFF];
    m_iMaxIterations    = piFlasher[EOS_MAXITN];
    m_iFlashLength      = piFlasher[EOS_MAXFLASH];
    m_iMichelson        = piFlasher[EOS_MICHELSON];
@@ -1225,7 +1230,7 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
          ReadData( iM, iM, iNc, EOS_OPTION_OFF, EOS_GETK, &iThermal );
 
          /* Do the Newton iterations */
-         NewtonFlash( iM, iNc, EOS_NORESTORE, EOS_FL_2P_CV );
+         NewtonFlashMultipleObjects( iM, iNc, EOS_NORESTORE, EOS_FL_2P_CV );
 
          /* Store grid block values */
          m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_CV, EOS_NORESTORE, m_pSplit, m_pPhase, m_pKValue );
@@ -1299,7 +1304,7 @@ void EosPvtModel::FlashMultipleObjects( int iNc )
       ReadData( iM, iM, iNc, EOS_OPTION_OFF, EOS_GETK, &iThermal );
 
       /* Do the Newton iterations */
-      NewtonFlash( iM, iNc, iRestore, EOS_FL_2P_NCV );
+      NewtonFlashMultipleObjects( iM, iNc, iRestore, EOS_FL_2P_NCV );
 
       /* Store grid block values */
       m_pApplication->ReadFlashResults( iM, iM, EOS_FL_2P_NCV, iRestore, m_pSplit, m_pPhase, m_pKValue );
@@ -1437,7 +1442,7 @@ void EosPvtModel::FlashOneObject( int iNc )
       /* Newton iterations */
       if ( *m_pPhase == EOS_FL_2P_NCV )
       {
-         NewtonFlash( 1, iNc, EOS_NORESTORE, EOS_FL_2P_NCV );
+         NewtonFlashOneObject( iNc, EOS_NORESTORE, EOS_FL_2P_NCV );
       }
    }
 
@@ -1464,7 +1469,7 @@ void EosPvtModel::FlashOneObject( int iNc )
    /* Newton iterations */
    if ( *m_pPhase == EOS_FL_2P_NCV )
    {
-      NewtonFlash( 1, iNc, iRestore, EOS_FL_2P_NCV );
+      NewtonFlashOneObject( iNc, iRestore, EOS_FL_2P_NCV );
    }
 
    /* Bubble point initial guess */
@@ -1500,7 +1505,7 @@ void EosPvtModel::FlashOneObject( int iNc )
 
 
 /*
-// FlashEquations
+// FlashEquations OneObject/MultipleObjects
 //
 // Solve the flash equations
 //
@@ -1579,7 +1584,108 @@ void EosPvtModel::FlashOneObject( int iNc )
 //       tighter than usual to avoid rounding problems in
 //       other routines.  S is NOT well scaled
 */
-void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
+void EosPvtModel::FlashEquationsOneObject( int iNc, int iUpdate )
+{
+   double  dTerm1;
+   double  dTerm2;
+   double  dA;
+   double  dB;
+   double  dC;
+   double  dD;
+   double  dCnv;
+   double  dSplit;
+   double  dOSplit;
+   int     i;
+   int     iNi;
+   int     iter;
+   int     iTemp;
+   int     iConvrg;
+
+   /* Constant */
+   dA = 100.0 * m_dTiny;
+   dB = m_dConverge * m_dConverge;
+   dCnv = ( dA > dB ) ? dA : dB;
+
+   /* Set up the help vector and test for a solution */
+   dA = m_pKValue[0];
+   dB = ( dA - 1.0 ) * m_pComposition[0];
+   dTerm1 = dB;
+   dTerm2 = dB / dA;
+   for ( iNi = 1; iNi < iNc; iNi++ )
+   {
+      dA = m_pKValue[iNi];
+      dB = ( dA - 1.0 ) * m_pComposition[iNi];
+      dTerm1 += dB;
+      dTerm2 += dB / dA;
+   }
+
+   /* Check if root does not exist */
+   iTemp = ( ( dTerm1 > 0.0 && dTerm2 < 0.0 ) || ( dTerm1 < 0.0 && dTerm2 > 0.0 ) ) ? 1 : 0;
+   dTerm2 = iTemp ? 1.0 : 0.0;
+   dTerm1 = 1.0 - dTerm2;
+   *m_pPhase = iTemp ? *m_pPhase : EOS_FL_1P_NCV;
+   dSplit = iTemp ? *m_pSplit : 0.5;
+   dOSplit = 1.0 - dSplit;
+
+   /* Reset K values if root does not exist */
+#ifdef __INTEL_COMPILER
+   // With Intel 12.0.2.137 compiler without this pragma the compiler
+   // generate a faulty code, by specifying this pragma the generated
+   // code is corrected and the optimization working.
+   #pragma ivdep 
+#endif         
+ for ( iNi = 0; iNi < iNc; iNi++ )
+   {
+      m_pKValue[iNi] = dTerm2 * m_pKValue[iNi] + dTerm1;
+      m_pTermx[iNi] = m_pKValue[iNi] - 1.0;
+      m_pTermy[iNi] = m_pTermx[iNi] * m_pComposition[iNi];
+   }
+
+
+   /* Newton's method until convergence */
+   iConvrg = EOS_NOCONVERGE;
+   for ( iter = 0; iter < m_iMaxIterations && iConvrg == EOS_NOCONVERGE; iter++ )
+   {
+      /* Form the function */
+      dA = 1.0 / ( dOSplit + dSplit * m_pKValue[0] );
+      dB = m_pTermy[0] * dA;
+      dTerm1 = dB;
+      dTerm2 = -m_dTiny - m_pTermx[0] * dB * dA;
+      for ( iNi = 1; iNi < iNc; iNi++ )
+      {
+         dA = 1.0 / ( dOSplit + dSplit * m_pKValue[iNi] );
+         dB = m_pTermy[iNi] * dA;
+         dTerm1 += dB;
+         dTerm2 -= m_pTermx[iNi] * dB * dA;
+      }
+
+      /* New split and test for convergence */
+      dA = 0.99 * dSplit;
+      dB = dA - 0.99;
+      dC = dTerm1 / dTerm2;
+      dD = ( dC > dA ? dA : ( dC < dB ? dB : dC ) );
+      dSplit -= dD;
+      dOSplit = 1.0 - dSplit;
+      iConvrg = ( fabs( dD ) < dCnv ) ? EOS_CONVERGE : EOS_NOCONVERGE;
+   }
+
+   /* Set splits */
+   *m_pSplit = dSplit;
+   *m_pOSplit = dOSplit;
+
+   /* Get mole numbers */
+   if ( iUpdate )
+   {
+      for ( iNi = 0; iNi < iNc; iNi++ )
+      {
+         dA = m_pKValue[iNi];
+         m_pX[iNi] = m_pComposition[iNi] / ( dOSplit + dSplit * dA );
+         m_pY[iNi] = m_pX[iNi] * dA;
+      }
+   }
+}
+
+void EosPvtModel::FlashEquationsMultipleObjects( int iM, int i1, int i2, int iNc, int iUpdate )
 {
    double  dTerm1;
    double  dTerm2;
@@ -1608,209 +1714,137 @@ void EosPvtModel::FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate )
    dCnv = ( dA > dB ) ? dA : dB;
 
    /* Code for more than one grid block */
-   if ( iM > 1 )
+   /* Set up the help vector and test for a solution */
+   pTa = m_pKValue;
+   pTb = m_pComposition;
+   for ( i = i1; i < i2; i++ )
    {
-      /* Set up the help vector and test for a solution */
-      pTa = m_pKValue;
-      pTb = m_pComposition;
+      dA = pTa[i];
+      dB = ( dA - 1.0 ) * pTb[i];
+      m_pTerm1[i] = dB;
+      m_pTerm2[i] = dB / dA;
+   }
+
+   for ( iNi = 1; iNi < iNc; iNi++ )
+   {
+      pTa += iM;
+      pTb += iM;
       for ( i = i1; i < i2; i++ )
       {
          dA = pTa[i];
          dB = ( dA - 1.0 ) * pTb[i];
+         m_pTerm1[i] += dB;
+         m_pTerm2[i] += dB / dA;
+      }
+   }
+
+   /* Check if root does not exist */
+   for ( i = i1; i < i2; i++ )
+   {
+      dA = m_pTerm1[i];
+      dB = m_pTerm2[i];
+      iTemp = ( ( dA > 0.0 && dB < 0.0 ) || ( dA < 0.0 && dB > 0.0 ) ) ? 1 : 0;
+      dC = iTemp ? 1.0 : 0.0;
+      m_pPhase[i] = iTemp ? m_pPhase[i] : EOS_FL_1P_NCV;
+      m_pSplit[i] = iTemp ? m_pSplit[i] : 0.5;
+      m_pOSplit[i] = 1.0 - m_pSplit[i];
+      m_pTerm2[i] = dC;
+      m_pTerm1[i] = 1.0 - dC;
+   }
+
+   /* Reset K values if root does not exist */
+   pTa = m_pKValue;
+   pTb = m_pComposition;
+   pTc = m_pTermx;
+   pTd = m_pTermy;
+   for ( iNi = 0; iNi < iNc; iNi++ )
+   {
+ #ifdef __INTEL_COMPILER
+   // With Intel 12.0.2.137 compiler without this pragma the compiler
+   // generate a faulty code, by specifying this pragma the generated
+   // code is corrected and the optimization working.
+   #pragma ivdep 
+#endif         
+     for ( i = i1; i < i2; i++ )
+     {
+         pTa[i] = m_pTerm2[i] * pTa[i] + m_pTerm1[i];
+         pTc[i] = pTa[i] - 1.0;
+         pTd[i] = pTc[i] * pTb[i];
+      }
+
+      pTa += iM;
+      pTb += iM;
+      pTc += iM;
+      pTd += iM;
+   }
+
+   /* Newton's method until convergence */
+   iConvrg = EOS_NOCONVERGE;
+   for ( iter = 0; iter < m_iMaxIterations && iConvrg == EOS_NOCONVERGE; iter++ )
+   {
+      /* Form the function */
+      pTa = m_pKValue;
+      pTb = m_pTermx;
+      pTc = m_pTermy;
+      for ( i = i1; i < i2; i++ )
+      {
+         dA = 1.0 / ( m_pOSplit[i] + m_pSplit[i] * pTa[i] );
+         dB = pTc[i] * dA;
          m_pTerm1[i] = dB;
-         m_pTerm2[i] = dB / dA;
+         m_pTerm2[i] = -m_dTiny - pTb[i] * dB * dA;
       }
 
       for ( iNi = 1; iNi < iNc; iNi++ )
       {
          pTa += iM;
          pTb += iM;
+         pTc += iM;
          for ( i = i1; i < i2; i++ )
          {
-            dA = pTa[i];
-            dB = ( dA - 1.0 ) * pTb[i];
+            dA = 1.0 / ( m_pOSplit[i] + m_pSplit[i] * pTa[i] );
+            dB = pTc[i] * dA;
             m_pTerm1[i] += dB;
-            m_pTerm2[i] += dB / dA;
+            m_pTerm2[i] -= pTb[i] * dB * dA;
          }
       }
 
-      /* Check if root does not exist */
+      /* New split and test for convergence */
+      dF = 0.0;
       for ( i = i1; i < i2; i++ )
       {
-         dA = m_pTerm1[i];
-         dB = m_pTerm2[i];
-         iTemp = ( ( dA > 0.0 && dB < 0.0 ) || ( dA < 0.0 && dB > 0.0 ) ) ? 1 : 0;
-         dC = iTemp ? 1.0 : 0.0;
-         m_pPhase[i] = iTemp ? m_pPhase[i] : EOS_FL_1P_NCV;
-         m_pSplit[i] = iTemp ? m_pSplit[i] : 0.5;
+         dA = 0.99 * m_pSplit[i];
+         dB = dA - 0.99;
+         dC = m_pTerm1[i] / m_pTerm2[i];
+         dD = ( dC > dA ? dA : ( dC < dB ? dB : dC ) );
+         m_pSplit[i] -= dD;
          m_pOSplit[i] = 1.0 - m_pSplit[i];
-         m_pTerm2[i] = dC;
-         m_pTerm1[i] = 1.0 - dC;
+         dE = fabs( dD );
+         dF = ( dE > dF ) ? dE : dF;
       }
 
-      /* Reset K values if root does not exist */
+      iConvrg = ( dF < dCnv ) ? EOS_CONVERGE : EOS_NOCONVERGE;
+   }
+
+   /* Get mole numbers */
+   if ( iUpdate )
+   {
       pTa = m_pKValue;
       pTb = m_pComposition;
-      pTc = m_pTermx;
-      pTd = m_pTermy;
+      pTc = m_pX;
+      pTd = m_pY;
       for ( iNi = 0; iNi < iNc; iNi++ )
       {
          for ( i = i1; i < i2; i++ )
          {
-            pTa[i] = m_pTerm2[i] * pTa[i] + m_pTerm1[i];
-            pTc[i] = pTa[i] - 1.0;
-            pTd[i] = pTc[i] * pTb[i];
+            dA = pTa[i];
+            pTc[i] = pTb[i] / ( m_pOSplit[i] + m_pSplit[i] * dA );
+            pTd[i] = pTc[i] * dA;
          }
 
          pTa += iM;
          pTb += iM;
          pTc += iM;
          pTd += iM;
-      }
-
-      /* Newton's method until convergence */
-      iConvrg = EOS_NOCONVERGE;
-      for ( iter = 0; iter < m_iMaxIterations && iConvrg == EOS_NOCONVERGE; iter++ )
-      {
-         /* Form the function */
-         pTa = m_pKValue;
-         pTb = m_pTermx;
-         pTc = m_pTermy;
-         for ( i = i1; i < i2; i++ )
-         {
-            dA = 1.0 / ( m_pOSplit[i] + m_pSplit[i] * pTa[i] );
-            dB = pTc[i] * dA;
-            m_pTerm1[i] = dB;
-            m_pTerm2[i] = -m_dTiny - pTb[i] * dB * dA;
-         }
-
-         for ( iNi = 1; iNi < iNc; iNi++ )
-         {
-            pTa += iM;
-            pTb += iM;
-            pTc += iM;
-            for ( i = i1; i < i2; i++ )
-            {
-               dA = 1.0 / ( m_pOSplit[i] + m_pSplit[i] * pTa[i] );
-               dB = pTc[i] * dA;
-               m_pTerm1[i] += dB;
-               m_pTerm2[i] -= pTb[i] * dB * dA;
-            }
-         }
-
-         /* New split and test for convergence */
-         dF = 0.0;
-         for ( i = i1; i < i2; i++ )
-         {
-            dA = 0.99 * m_pSplit[i];
-            dB = dA - 0.99;
-            dC = m_pTerm1[i] / m_pTerm2[i];
-            dD = ( dC > dA ? dA : ( dC < dB ? dB : dC ) );
-            m_pSplit[i] -= dD;
-            m_pOSplit[i] = 1.0 - m_pSplit[i];
-            dE = fabs( dD );
-            dF = ( dE > dF ) ? dE : dF;
-         }
-
-         iConvrg = ( dF < dCnv ) ? EOS_CONVERGE : EOS_NOCONVERGE;
-      }
-
-      /* Get mole numbers */
-      if ( iUpdate )
-      {
-         pTa = m_pKValue;
-         pTb = m_pComposition;
-         pTc = m_pX;
-         pTd = m_pY;
-         for ( iNi = 0; iNi < iNc; iNi++ )
-         {
-            for ( i = i1; i < i2; i++ )
-            {
-               dA = pTa[i];
-               pTc[i] = pTb[i] / ( m_pOSplit[i] + m_pSplit[i] * dA );
-               pTd[i] = pTc[i] * dA;
-            }
-
-            pTa += iM;
-            pTb += iM;
-            pTc += iM;
-            pTd += iM;
-         }
-      }
-   }
-
-   /* Code for one grid block */
-   else
-   {
-      /* Set up the help vector and test for a solution */
-      dA = m_pKValue[0];
-      dB = ( dA - 1.0 ) * m_pComposition[0];
-      dTerm1 = dB;
-      dTerm2 = dB / dA;
-      for ( iNi = 1; iNi < iNc; iNi++ )
-      {
-         dA = m_pKValue[iNi];
-         dB = ( dA - 1.0 ) * m_pComposition[iNi];
-         dTerm1 += dB;
-         dTerm2 += dB / dA;
-      }
-
-      /* Check if root does not exist */
-      iTemp = ( ( dTerm1 > 0.0 && dTerm2 < 0.0 ) || ( dTerm1 < 0.0 && dTerm2 > 0.0 ) ) ? 1 : 0;
-      dTerm2 = iTemp ? 1.0 : 0.0;
-      dTerm1 = 1.0 - dTerm2;
-      *m_pPhase = iTemp ? *m_pPhase : EOS_FL_1P_NCV;
-      dSplit = iTemp ? *m_pSplit : 0.5;
-      dOSplit = 1.0 - dSplit;
-
-      /* Reset K values if root does not exist */
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         m_pKValue[iNi] = dTerm2 * m_pKValue[iNi] + dTerm1;
-         m_pTermx[iNi] = m_pKValue[iNi] - 1.0;
-         m_pTermy[iNi] = m_pTermx[iNi] * m_pComposition[iNi];
-      }
-
-      /* Newton's method until convergence */
-      iConvrg = EOS_NOCONVERGE;
-      for ( iter = 0; iter < m_iMaxIterations && iConvrg == EOS_NOCONVERGE; iter++ )
-      {
-         /* Form the function */
-         dA = 1.0 / ( dOSplit + dSplit * m_pKValue[0] );
-         dB = m_pTermy[0] * dA;
-         dTerm1 = dB;
-         dTerm2 = -m_dTiny - m_pTermx[0] * dB * dA;
-         for ( iNi = 1; iNi < iNc; iNi++ )
-         {
-            dA = 1.0 / ( dOSplit + dSplit * m_pKValue[iNi] );
-            dB = m_pTermy[iNi] * dA;
-            dTerm1 += dB;
-            dTerm2 -= m_pTermx[iNi] * dB * dA;
-         }
-
-         /* New split and test for convergence */
-         dA = 0.99 * dSplit;
-         dB = dA - 0.99;
-         dC = dTerm1 / dTerm2;
-         dD = ( dC > dA ? dA : ( dC < dB ? dB : dC ) );
-         dSplit -= dD;
-         dOSplit = 1.0 - dSplit;
-         iConvrg = ( fabs( dD ) < dCnv ) ? EOS_CONVERGE : EOS_NOCONVERGE;
-      }
-
-      /* Set splits */
-      *m_pSplit = dSplit;
-      *m_pOSplit = dOSplit;
-
-      /* Get mole numbers */
-      if ( iUpdate )
-      {
-         for ( iNi = 0; iNi < iNc; iNi++ )
-         {
-            dA = m_pKValue[iNi];
-            m_pX[iNi] = m_pComposition[iNi] / ( dOSplit + dSplit * dA );
-            m_pY[iNi] = m_pX[iNi] * dA;
-         }
       }
    }
 }
@@ -2708,6 +2742,9 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
          m_pSplit[i] = 0.5;
          m_pPhase[i] = EOS_FL_2P_NCV;
       }
+
+      /* Perform a single flash */
+      FlashEquationsMultipleObjects( iM, 0, iM, iNc, EOS_NONORMALIZE );
    }
 
    /* Reset K values for single grid block case */
@@ -2723,10 +2760,10 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
 
       *m_pSplit = 0.5;
       *m_pPhase = EOS_FL_2P_NCV;
-   }
 
-   /* Perform a single flash */
-   FlashEquations( iM, 0, iM, iNc, EOS_NONORMALIZE );
+      /* Perform a single flash */
+      FlashEquationsOneObject( iNc, EOS_NONORMALIZE );
+   }
 }
 
 
@@ -2777,7 +2814,14 @@ void EosPvtModel::Substitution( int iM, int iNc )
    for ( iter = 0; iter < m_iSubstitutions && iConvrg == EOS_NOCONVERGE; iter++ )
    {
       /* Solve the flash equations */
-      FlashEquations( iM, 0, iM, iNc, EOS_NORMALIZE );
+      if ( iM > 1 )
+      {
+         FlashEquationsMultipleObjects( iM, 0, iM, iNc, EOS_NORMALIZE );
+      }
+      else
+      {
+         FlashEquationsOneObject( iNc, EOS_NORMALIZE );
+      }
 
       /* Get the x phase properties */
       m_pEosPvtTable->SolveCubic(
@@ -2862,12 +2906,19 @@ void EosPvtModel::Substitution( int iM, int iNc )
    }
 
    /* Perform a single flash */
-   FlashEquations( iM, 0, iM, iNc, EOS_NONORMALIZE );
+   if ( iM > 1 )
+   {
+      FlashEquationsMultipleObjects( iM, 0, iM, iNc, EOS_NONORMALIZE );
+   }
+   else
+   {
+      FlashEquationsOneObject( iNc, EOS_NONORMALIZE );
+   }
 }
 
 
 /*
-// NewtonFlash
+// NewtonFlash OneObject/MultipleObjects
 //
 // Routine to perform Newton's method for a two phase flash
 //
@@ -3031,7 +3082,154 @@ void EosPvtModel::Substitution( int iM, int iNc )
 //     zero update.  Secondly, only the bottom half of
 //     the matrices are used during formation.
 */
-void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
+void EosPvtModel::NewtonFlashOneObject( int iNc, int iRestore, int iLevel )
+{
+   int     iter;
+   int     iNi;
+   int     iNj;
+   int     iNk;
+   int     iConvrg;
+   int     iThermal;
+   int     iAnyConvrg;
+   int     i;
+   double  dCnv;
+   double  dA;
+   double  dB;
+   double  dC;
+   double  dD;
+   double  dE;
+   double  dVeryTiny;
+   double *pTa;
+   double *pTb;
+   double  theta = m_dNewtonRelaxCoeff; // relax. coefficient to update solution in Newton
+
+   /* With a single element slice don't bother with next one */
+
+   /* Set terms */
+   dCnv = m_dConverge * m_dConverge;
+   dVeryTiny = 1.0 / m_dEnorm;
+   dE = 0.0;
+
+   /* Newton Loop */
+   iConvrg = EOS_NOCONVERGE;
+   for ( iter = 0; iter < m_iMaxIterations && iConvrg == EOS_NOCONVERGE; iter++ )
+   {
+      /* Solve the flah equations */
+      FlashEquationsOneObject( iNc, EOS_NORMALIZE );
+
+      /* Chemical potential for the x phase */
+      m_pEosPvtTable->SolveCubic(
+         1, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pX, m_pZx, m_pDZxdp, m_pDZxdt, m_pDZxda,
+         m_pFx, m_pDXdp, m_pDXdt, m_pDXda, m_pHx, m_pDHxdp, m_pDHxdt, m_pDHxda, m_pATable, m_pPhaseId
+         );
+
+      /* Chemical potential for the y phase */
+      m_pEosPvtTable->SolveCubic(
+         1, EOS_FUGACITY, EOS_NOHEAT, EOS_NOPOTENTIAL, EOS_DRV_N, EOS_NOPHASEID, m_iMultipleAbc, m_pAbcOffset,
+         m_pPressure, m_pTemperature, m_pY, m_pZy, m_pDZydp, m_pDZydt, m_pDZyda,
+         m_pFy, m_pDYdp, m_pDYdt, m_pDYda, m_pHy, m_pDHydp, m_pDHydt, m_pDHyda, m_pATable, m_pPhaseId
+         );
+
+      /* Scale terms for single grid block case */
+      dE = ( *m_pPhase != EOS_FL_1P_NCV ) ? 1.0 : 0.0;
+      dB = *m_pOSplit;
+      dC = *m_pSplit;
+      for ( iNi = 0; iNi < iNc; iNi++ )
+      {
+         dA = m_pKValue[iNi];
+         m_pDYdp[iNi] = sqrt( m_pComposition[iNi] * dA ) * dE / ( dB + dC * dA );
+      }
+
+      /* Assemble the matrix */
+      pTa = m_pDXda;
+      pTb = m_pDYda;
+      for ( iNi = 0; iNi < iNc; iNi++ )
+      {
+         for ( iNj = iNi; iNj < iNc; iNj++ )
+         {
+            pTa[iNj] = m_pDYdp[iNj] * m_pDYdp[iNi] * ( pTa[iNj] * dC + pTb[iNj] * dB - 1.0 );
+         }
+
+         pTa += iNc;
+         pTb += iNc;
+      }
+
+      /* Diagonal terms and right hand side */
+      pTa = m_pDXda;
+      EosUtils::VectorLog( iNc, m_pKValue, m_pKValue );
+      for ( iNi = 0; iNi < iNc; iNi++ )
+      {
+         *pTa += 1.0;
+         m_pFy[iNi] = dE * ( ( m_pFx[iNi] - m_pFy[iNi] ) - m_pKValue[iNi] );
+         m_pFx[iNi] = m_pDYdp[iNi] * m_pFy[iNi];
+         pTa += iNc + 1;
+      }
+
+      /* Factor the matrix */
+      EosLinAlg::Cholesky( 1, iNc, m_dTiny, m_pDXda, m_pTerm3, m_pTerm2 );
+
+      /* Perform back substitution */
+      EosLinAlg::BackSolve( 1, iNc, m_pDXda, m_pFx );
+
+      /* Transform solution with the matrix and get maximum residual */
+      dC = m_pFx[0] * m_pDYdp[0];
+      for ( iNi = 1; iNi < iNc; iNi++ )
+      {
+         dC += m_pFx[iNi] * m_pDYdp[iNi];
+      }
+
+      dC *= dE;
+      dB = m_pDYdp[0];
+      dA = ( m_pFx[0] - dB * dC ) / ( dB > dVeryTiny ? dB : dVeryTiny );
+      dB = ( m_pComposition[0] > 0.0 ? dA : m_pFy[0] );
+      dD = dB * dB;
+      m_pFx[0] = dB;
+      for ( iNi = 1; iNi < iNc; iNi++ )
+      {
+         dB = m_pDYdp[iNi];
+         dA = ( m_pFx[iNi] - dB * dC ) / ( dB > dVeryTiny ? dB : dVeryTiny );
+         dB = ( m_pComposition[iNi] > 0.0 ? dA : m_pFy[iNi] );
+         dD += dB * dB;
+         m_pFx[iNi] = dB;
+      }
+
+      /* Test for convergence */
+      iNk = *m_pPhase;
+      iNi = ( iNk == EOS_FL_2P_NCV ) ? 1 : 0;
+      iNj = ( dD > dCnv ) ? 1 : 0;
+      iConvrg = ( iNi && iNj ) ? EOS_NOCONVERGE : EOS_CONVERGE;
+      *m_pPhase = ( iNi && ( !iNj ) ) ? EOS_FL_2P_NCV : iNk;
+
+      /* Update K values */
+      dB = -m_dLnEnorm;
+      if ( theta < 1.0 )
+      {
+         for ( iNi = 0; iNi < iNc; iNi++ )
+         {
+            dC = m_pKValue[iNi] + m_pFx[iNi] * theta;
+            m_pKValue[iNi] = dC > m_dLnEnorm ? m_dLnEnorm : ( dC < dB ? dB : dC );               
+         }
+         theta *= 1.1; // increase relax coefficient on each Newton iteration till 1.0
+
+      }
+      else
+      {
+         for ( iNi = 0; iNi < iNc; iNi++ )
+         {
+            dC = m_pKValue[iNi] + m_pFx[iNi];
+            m_pKValue[iNi] = dC > m_dLnEnorm ? m_dLnEnorm : ( dC < dB ? dB : dC );
+         }
+      }
+
+      EosUtils::VectorExp( iNc, m_pKValue, m_pKValue );
+   }
+
+   /* Solve the flash equations once more before exiting */
+   FlashEquationsOneObject( iNc, EOS_NONORMALIZE );
+}
+
+void EosPvtModel::NewtonFlashMultipleObjects( int iM, int iNc, int iRestore, int iLevel )
 {
    int     iter;
    int     iNi;
@@ -3055,22 +3253,14 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
    double *pTc;
    double *pTd;
    double *pTe;
+   double  theta = m_dNewtonRelaxCoeff; // relax. coefficient to update solution in Newton
 
    /* Prepare for iterations for more than one block */
-   if ( iM > 1 )
+   iNextExists = m_pApplication->Aandebeurt( -1, EOS_FL_2P_NCV );
+   iNi = -m_iMaxIterations;
+   for ( i = 0; i < iM; i++ )
    {
-      iNextExists = m_pApplication->Aandebeurt( -1, EOS_FL_2P_NCV );
-      iNi = -m_iMaxIterations;
-      for ( i = 0; i < iM; i++ )
-      {
-         m_pPhase[i] = iNi;
-      }
-   }
-
-   /* With a single element slice don't bother with next one */
-   else
-   {
-      iNextExists = 0;
+      m_pPhase[i] = iNi;
    }
 
    /* Set terms */
@@ -3084,7 +3274,7 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
    for ( iter = 0; iter < m_iMaxIterations && iConvrg == EOS_NOCONVERGE; iter++ )
    {
       /* Solve the flash equations */
-      FlashEquations( iM, 0, iM, iNc, EOS_NORMALIZE );
+      FlashEquationsMultipleObjects( iM, 0, iM, iNc, EOS_NORMALIZE );
 
       /* Chemical potential for the x phase */
       m_pEosPvtTable->SolveCubic(
@@ -3101,116 +3291,75 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
          );
 
       /* Scale terms for multiple grid block case */
-      if ( iM > 1 )
+      for ( i = 0; i < iM; i++ )
+      {
+         m_pG[i] = ( m_pPhase[i] != EOS_FL_1P_NCV ) ? 1.0 : 0.0;
+      }
+
+      pTa = m_pKValue;
+      pTb = m_pComposition;
+      pTc = m_pDYdp;
+      for ( iNi = 0; iNi < iNc; iNi++ )
       {
          for ( i = 0; i < iM; i++ )
          {
-            m_pG[i] = ( m_pPhase[i] != EOS_FL_1P_NCV ) ? 1.0 : 0.0;
+            dA = pTa[i];
+            pTc[i] = sqrt( pTb[i] * dA ) * m_pG[i] / ( m_pOSplit[i] + m_pSplit[i] * dA );
          }
 
-         pTa = m_pKValue;
-         pTb = m_pComposition;
-         pTc = m_pDYdp;
-         for ( iNi = 0; iNi < iNc; iNi++ )
-         {
-            for ( i = 0; i < iM; i++ )
-            {
-               dA = pTa[i];
-               pTc[i] = sqrt( pTb[i] * dA ) * m_pG[i] / ( m_pOSplit[i] + m_pSplit[i] * dA );
-            }
-
-            pTa += iM;
-            pTb += iM;
-            pTc += iM;
-         }
-
-         /* Assemble the matrix */
-         pTa = m_pDXda;
-         pTb = m_pDYda;
-         pTc = m_pDYdp;
-         iNk = 0;
-         for ( iNi = 0; iNi < iNc; iNi++ )
-         {
-            pTd = pTc;
-            pTa += iNk;
-            pTb += iNk;
-            for ( iNj = iNi; iNj < iNc; iNj++ )
-            {
-               for ( i = 0; i < iM; i++ )
-               {
-                  pTa[i] = pTd[i] * pTc[i] * ( pTa[i] * m_pSplit[i] + pTb[i] * m_pOSplit[i] - 1.0 );
-               }
-
-               pTa += iM;
-               pTb += iM;
-               pTd += iM;
-            }
-
-            iNk += iM;
-            pTc += iM;
-         }
-
-         /* Diagonal terms and right hand side */
-         pTa = m_pKValue;
-         pTb = m_pFx;
-         pTc = m_pFy;
-         pTd = m_pDYdp;
-         pTe = m_pDXda;
-         EosUtils::VectorLog( iNc * iM, m_pKValue, m_pKValue );
-         for ( iNi = 0; iNi < iNc; iNi++ )
-         {
-            for ( i = 0; i < iM; i++ )
-            {
-               dA = m_pG[i] * ( ( pTb[i] - pTc[i] ) - pTa[i] );
-               pTc[i] = dA;
-               pTb[i] = pTd[i] * dA;
-               pTe[i] += 1.0;
-            }
-
-            pTa += iM;
-            pTb += iM;
-            pTc += iM;
-            pTd += iM;
-            pTe += iM + iNcm;
-         }
+         pTa += iM;
+         pTb += iM;
+         pTc += iM;
       }
 
-      /* Scale terms for single grid block case */
-      else
+      /* Assemble the matrix */
+      pTa = m_pDXda;
+      pTb = m_pDYda;
+      pTc = m_pDYdp;
+      iNk = 0;
+      for ( iNi = 0; iNi < iNc; iNi++ )
       {
-         dE = ( *m_pPhase != EOS_FL_1P_NCV ) ? 1.0 : 0.0;
-         dB = *m_pOSplit;
-         dC = *m_pSplit;
-         for ( iNi = 0; iNi < iNc; iNi++ )
+         pTd = pTc;
+         pTa += iNk;
+         pTb += iNk;
+         for ( iNj = iNi; iNj < iNc; iNj++ )
          {
-            dA = m_pKValue[iNi];
-            m_pDYdp[iNi] = sqrt( m_pComposition[iNi] * dA ) * dE / ( dB + dC * dA );
-         }
-
-         /* Assemble the matrix */
-         pTa = m_pDXda;
-         pTb = m_pDYda;
-         for ( iNi = 0; iNi < iNc; iNi++ )
-         {
-            for ( iNj = iNi; iNj < iNc; iNj++ )
+            for ( i = 0; i < iM; i++ )
             {
-               pTa[iNj] = m_pDYdp[iNj] * m_pDYdp[iNi] * ( pTa[iNj] * dC + pTb[iNj] * dB - 1.0 );
+               pTa[i] = pTd[i] * pTc[i] * ( pTa[i] * m_pSplit[i] + pTb[i] * m_pOSplit[i] - 1.0 );
             }
 
-            pTa += iNc;
-            pTb += iNc;
+            pTa += iM;
+            pTb += iM;
+            pTd += iM;
          }
 
-         /* Diagonal terms and right hand side */
-         pTa = m_pDXda;
-         EosUtils::VectorLog( iNc, m_pKValue, m_pKValue );
-         for ( iNi = 0; iNi < iNc; iNi++ )
+         iNk += iM;
+         pTc += iM;
+      }
+
+      /* Diagonal terms and right hand side */
+      pTa = m_pKValue;
+      pTb = m_pFx;
+      pTc = m_pFy;
+      pTd = m_pDYdp;
+      pTe = m_pDXda;
+      EosUtils::VectorLog( iNc * iM, m_pKValue, m_pKValue );
+      for ( iNi = 0; iNi < iNc; iNi++ )
+      {
+         for ( i = 0; i < iM; i++ )
          {
-            *pTa += 1.0;
-            m_pFy[iNi] = dE * ( ( m_pFx[iNi] - m_pFy[iNi] ) - m_pKValue[iNi] );
-            m_pFx[iNi] = m_pDYdp[iNi] * m_pFy[iNi];
-            pTa += iNc + 1;
+            dA = m_pG[i] * ( ( pTb[i] - pTc[i] ) - pTa[i] );
+            pTc[i] = dA;
+            pTb[i] = pTd[i] * dA;
+            pTe[i] += 1.0;
          }
+
+         pTa += iM;
+         pTb += iM;
+         pTc += iM;
+         pTd += iM;
+         pTe += iM + iNcm;
       }
 
       /* Factor the matrix */
@@ -3220,78 +3369,93 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
       EosLinAlg::BackSolve( iM, iNc, m_pDXda, m_pFx );
 
       /* Transform solution with the matrix and get maximum residual */
-      if ( iM > 1 )
+      pTa = m_pDYdp;
+      pTb = m_pFx;
+      for ( i = 0; i < iM; i++ )
       {
-         pTa = m_pDYdp;
-         pTb = m_pFx;
+         m_pOSplit[i] = pTb[i] * pTa[i];
+      }
+
+      for ( iNi = 1; iNi < iNc; iNi++ )
+      {
+         pTa += iM;
+         pTb += iM;
          for ( i = 0; i < iM; i++ )
          {
-            m_pOSplit[i] = pTb[i] * pTa[i];
+            m_pOSplit[i] += pTb[i] * pTa[i];
          }
+      }
 
-         for ( iNi = 1; iNi < iNc; iNi++ )
-         {
-            pTa += iM;
-            pTb += iM;
-            for ( i = 0; i < iM; i++ )
-            {
-               m_pOSplit[i] += pTb[i] * pTa[i];
-            }
-         }
+      for ( i = 0; i < iM; i++ )
+      {
+         m_pOSplit[i] *= m_pG[i];
+      }
 
-         for ( i = 0; i < iM; i++ )
-         {
-            m_pOSplit[i] *= m_pG[i];
-         }
+      pTa = m_pFx;
+      pTb = m_pFy;
+      pTc = m_pDYdp;
+      pTd = m_pComposition;
+      for ( i = 0; i < iM; i++ )
+      {
+         dB = pTc[i];
+         dA = ( pTa[i] - dB * m_pOSplit[i] ) / ( dB > dVeryTiny ? dB : dVeryTiny );
+         dC = ( pTd[i] > 0.0 ? dA : pTb[i] );
+         m_pDYdt[i] = dC * dC;
+         pTa[i] = dC;
+      }
 
-         pTa = m_pFx;
-         pTb = m_pFy;
-         pTc = m_pDYdp;
-         pTd = m_pComposition;
+      for ( iNi = 1; iNi < iNc; iNi++ )
+      {
+         pTa += iM;
+         pTb += iM;
+         pTc += iM;
+         pTd += iM;
          for ( i = 0; i < iM; i++ )
          {
             dB = pTc[i];
             dA = ( pTa[i] - dB * m_pOSplit[i] ) / ( dB > dVeryTiny ? dB : dVeryTiny );
             dC = ( pTd[i] > 0.0 ? dA : pTb[i] );
-            m_pDYdt[i] = dC * dC;
+            m_pDYdt[i] += dC * dC;
             pTa[i] = dC;
          }
+      }
 
-         for ( iNi = 1; iNi < iNc; iNi++ )
+      /* Test for convergence */
+      iConvrg = EOS_CONVERGE;
+      iAnyConvrg = EOS_NOCONVERGE;
+      for ( i = 0; i < iM; i++ )
+      {
+         iNk = m_pPhase[i];
+         iNj = ( iNk < 0 ) ? 1 : 0;
+         iNk += iNj;
+         iNi = ( m_pDYdt[i] > dCnv ) ? iNj : 0;
+         iConvrg = iNi ? EOS_NOCONVERGE : iConvrg;
+         iNj = ( iNj && ( !iNi ) ) ? EOS_FL_2P_CV : ( iNk ? iNk : EOS_FL_2P_NCV );
+         iAnyConvrg = iAnyConvrg || ( iNj > 0 );
+         m_pPhase[i] = iNj;
+      }
+
+      /* Update K values */
+      pTa = m_pKValue;
+      pTb = m_pFx;
+      dB = -m_dLnEnorm;
+      if ( theta < 1.0 )
+      {
+         for ( iNi = 0; iNi < iNc; iNi++ )
          {
-            pTa += iM;
-            pTb += iM;
-            pTc += iM;
-            pTd += iM;
             for ( i = 0; i < iM; i++ )
             {
-               dB = pTc[i];
-               dA = ( pTa[i] - dB * m_pOSplit[i] ) / ( dB > dVeryTiny ? dB : dVeryTiny );
-               dC = ( pTd[i] > 0.0 ? dA : pTb[i] );
-               m_pDYdt[i] += dC * dC;
-               pTa[i] = dC;
+               dC = pTa[i] + pTb[i] * theta;
+               pTa[i] = dC > m_dLnEnorm ? m_dLnEnorm : ( dC < dB ? dB : dC );
             }
-         }
 
-         /* Test for convergence */
-         iConvrg = EOS_CONVERGE;
-         iAnyConvrg = EOS_NOCONVERGE;
-         for ( i = 0; i < iM; i++ )
-         {
-            iNk = m_pPhase[i];
-            iNj = ( iNk < 0 ) ? 1 : 0;
-            iNk += iNj;
-            iNi = ( m_pDYdt[i] > dCnv ) ? iNj : 0;
-            iConvrg = iNi ? EOS_NOCONVERGE : iConvrg;
-            iNj = ( iNj && ( !iNi ) ) ? EOS_FL_2P_CV : ( iNk ? iNk : EOS_FL_2P_NCV );
-            iAnyConvrg = iAnyConvrg || ( iNj > 0 );
-            m_pPhase[i] = iNj;
+            pTa += iM;
+            pTb += iM;
          }
-
-         /* Update K values */
-         pTa = m_pKValue;
-         pTb = m_pFx;
-         dB = -m_dLnEnorm;
+         theta *= 1.1; // increase relax coefficient on each Newton iteration till 1.0
+      }
+      else
+      {
          for ( iNi = 0; iNi < iNc; iNi++ )
          {
             for ( i = 0; i < iM; i++ )
@@ -3303,80 +3467,38 @@ void EosPvtModel::NewtonFlash( int iM, int iNc, int iRestore, int iLevel )
             pTa += iM;
             pTb += iM;
          }
-
-         EosUtils::VectorExp( iM * iNc, m_pKValue, m_pKValue );
-
-         /* If anything "aan de beurt" */
-         iAnyConvrg = ( iConvrg ? 0 : iAnyConvrg ) ? iM : 0;
-         for ( i = 0; i < iNextExists * iAnyConvrg; i++ )
-         {
-            /* For converged blocks */
-            if ( m_pPhase[i] > 0 )
-            {
-               /* One more check with flash equations */
-               FlashEquations( iM, i, i + 1, iNc, EOS_NONORMALIZE );
-
-               /* Store grid block values */
-               m_pApplication->ReadFlashResults( i, iM, iLevel, iRestore, m_pSplit, m_pPhase, m_pKValue );
-
-               /* Set the indirection location */
-               iNextExists = m_pApplication->Aandebeurt( i, EOS_FL_2P_NCV );
-
-               /* Load the next location */
-               ReadData( i, iM, iNc, EOS_OPTION_OFF, EOS_GETK, &iThermal );
-
-               /* Reset iteration counters */
-               m_pPhase[i] = -m_iMaxIterations;
-               iter = -1;
-            }
-         }
       }
 
-      /* Transform solution with the matrix and get maximum residual */
-      else
+      EosUtils::VectorExp( iM * iNc, m_pKValue, m_pKValue );
+
+      /* If anything "aan de beurt" */
+      iAnyConvrg = ( iConvrg ? 0 : iAnyConvrg ) ? iM : 0;
+      for ( i = 0; i < iNextExists * iAnyConvrg; i++ )
       {
-         dC = m_pFx[0] * m_pDYdp[0];
-         for ( iNi = 1; iNi < iNc; iNi++ )
+         /* For converged blocks */
+         if ( m_pPhase[i] > 0 )
          {
-            dC += m_pFx[iNi] * m_pDYdp[iNi];
+            /* One more check with flash equations */
+            FlashEquationsMultipleObjects( iM, i, i + 1, iNc, EOS_NONORMALIZE );
+
+            /* Store grid block values */
+            m_pApplication->ReadFlashResults( i, iM, iLevel, iRestore, m_pSplit, m_pPhase, m_pKValue );
+
+            /* Set the indirection location */
+            iNextExists = m_pApplication->Aandebeurt( i, EOS_FL_2P_NCV );
+
+            /* Load the next location */
+            ReadData( i, iM, iNc, EOS_OPTION_OFF, EOS_GETK, &iThermal );
+
+            /* Reset iteration counters */
+            m_pPhase[i] = -m_iMaxIterations;
+            iter = -1;
          }
-
-         dC *= dE;
-         dB = m_pDYdp[0];
-         dA = ( m_pFx[0] - dB * dC ) / ( dB > dVeryTiny ? dB : dVeryTiny );
-         dB = ( m_pComposition[0] > 0.0 ? dA : m_pFy[0] );
-         dD = dB * dB;
-         m_pFx[0] = dB;
-         for ( iNi = 1; iNi < iNc; iNi++ )
-         {
-            dB = m_pDYdp[iNi];
-            dA = ( m_pFx[iNi] - dB * dC ) / ( dB > dVeryTiny ? dB : dVeryTiny );
-            dB = ( m_pComposition[iNi] > 0.0 ? dA : m_pFy[iNi] );
-            dD += dB * dB;
-            m_pFx[iNi] = dB;
-         }
-
-         /* Test for convergence */
-         iNk = *m_pPhase;
-         iNi = ( iNk == EOS_FL_2P_NCV ) ? 1 : 0;
-         iNj = ( dD > dCnv ) ? 1 : 0;
-         iConvrg = ( iNi && iNj ) ? EOS_NOCONVERGE : EOS_CONVERGE;
-         *m_pPhase = ( iNi && ( !iNj ) ) ? EOS_FL_2P_NCV : iNk;
-
-         /* Update K values */
-         dB = -m_dLnEnorm;
-         for ( iNi = 0; iNi < iNc; iNi++ )
-         {
-            dC = m_pKValue[iNi] + m_pFx[iNi];
-            m_pKValue[iNi] = dC > m_dLnEnorm ? m_dLnEnorm : ( dC < dB ? dB : dC );
-         }
-
-         EosUtils::VectorExp( iNc, m_pKValue, m_pKValue );
       }
    }
 
    /* Solve the flash equations once more before exiting */
-   FlashEquations( iM, 0, iM, iNc, EOS_NONORMALIZE );
+   FlashEquationsMultipleObjects( iM, 0, iM, iNc, EOS_NONORMALIZE );
 }
 
 
@@ -11337,7 +11459,7 @@ void EosPvtModel::GradingBubblePoint( int iNc, int iType, int iForceBP, int iRet
       /* Newton iterations */
       if ( *m_pPhase == EOS_FL_2P_NCV )
       {
-         NewtonFlash( 1, iNc, EOS_NORESTORE, EOS_FL_2P_NCV );
+         NewtonFlashOneObject( iNc, EOS_NORESTORE, EOS_FL_2P_NCV );
       }
 
       /* Reset phase indicator */

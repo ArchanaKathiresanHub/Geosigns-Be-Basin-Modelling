@@ -369,24 +369,6 @@ namespace DataAccess
 
 	    void printPropertyValues (PropertyValueList * propertyValues) const;
 
-	    void cleanUpPropertyValues (database::Table * timeIoTbl,
-		  database::Transaction * transaction,
-		  PropertyValueList * propertyValuesToRetain) const;
-
-
-	    /// Save a project to a directory in a format that the BPA server can handle
-	    virtual bool saveForBPA (const string & filePath, PropertyValueList * propertyValues,
-		  vector<string> & inputMapFileNames, vector<string> & outputMapFileNames) const;
-
-	    /// update the original project file with upload information
-	    virtual bool updateOriginal (const string & serverName, const string & serverProjectName,
-		  const string & ownerOrgName, const string & checksum, PropertyValueList * propertyValues) const;
-
-	    // virtual const string & getBPAServer (void) const;
-	    // virtual const string & getBPAName (void) const;
-	    // virtual const string & getBPAOwnerOrg (void) const;
-	    // virtual const string & getBPAChecksum (void) const;
-
 	    void computeInputChecksums (const string & rootDirectory, database::Transaction * transaction) const;
 
 	    void computeOutputChecksums (database::Transaction * transaction, const string & rootDirectory,
@@ -699,6 +681,8 @@ namespace DataAccess
 	    bool loadProperties (void);
 	    bool loadMapPropertyValues (void);
 	    bool loadVolumePropertyValues (void);
+	    bool loadVolumePropertyValuesViaSnapshotIoTbl (void);
+	    bool loadVolumePropertyValuesVia3DTimeIoTbl (void);
 
             bool loadIgneousIntrusions ();
 
@@ -752,6 +736,7 @@ namespace DataAccess
 	    virtual bool saveCreatedVolumePropertyValues (void);
 
 	    bool saveCreatedVolumePropertyValuesMode1D (void);
+	    bool saveCreatedVolumePropertyValuesMode1DOld (void);
 
 	    bool saveCreatedVolumePropertyValuesMode3D (void);
 
@@ -782,10 +767,7 @@ namespace DataAccess
 
 	    void numberInputValues (void);
 
-	    void convertInputValuesToBPA (database::Transaction * transaction) const;
 	    void saveInputValues (const string & directory, vector<string> & fileNames) const;
-	    void savePropertyValues (const string & rootDirectory, const string & subDirectory, PropertyValueList * propertyValues,
-		  vector<string> & fileNames) const;
 
 	    void loadInputGridMaps (void) const;
 	    void loadPropertyGridMaps (PropertyValueList * propertyValues) const;

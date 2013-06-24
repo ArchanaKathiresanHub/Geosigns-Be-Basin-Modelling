@@ -137,12 +137,12 @@ void showUsage ( const char* message, const char * parameter=0 )
 void terminateHandler()
 try
 {
-  throw;
+   throw;
 }
 catch( std::exception & e)
 {
-  showUsage( e.what() );
-  std::exit(1);
+     showUsage( e.what() );
+     std::exit(1);
 }
 
 struct ConversionException : formattingexception::BaseException< ConversionException > {};			     
@@ -150,14 +150,14 @@ struct ConversionException : formattingexception::BaseException< ConversionExcep
 template <typename T>
 T fromString(const std::string & x)
 {
-  T y;
-  std::istringstream s(x);
-  s >> y;
+   T y;
+   std::istringstream s(x);
+   s >> y;
 
-  if (!s)
-    throw ConversionException() << "Error while converting std::string '" << x << "' to type '" << typeid(y).name() << "'" ;
+   if (!s)
+      throw ConversionException() << "Error while converting std::string '" << x << "' to type '" << typeid(y).name() << "'" ;
 
-  return y;
+   return y;
 }
 
 
@@ -165,350 +165,350 @@ T fromString(const std::string & x)
 /// Retrieve and adjust the value of the parameter in the project file.
 int main( int argc, char ** argv)
 {
-  std::set_terminate( & terminateHandler );
+   std::set_terminate( & terminateHandler );
 
-  std::vector< std::pair< std::string, double > > basementParameters;
-  std::vector< std::pair< double, double > > crustThicnkessSeries;
-  double value = 0.0;
+   std::vector< std::pair< std::string, double > > basementParameters;
+   std::vector< std::pair< double, double > > crustThicnkessSeries;
+   double value = 0.0;
 
-  OptionParser options(argc, argv, "--", "=," );
+   OptionParser options(argc, argv, "--", "=," );
 
-  if (options.defined("help"))
-  {
-    showUsage(0);
-    return EXIT_SUCCESS;
-  }
-
-
-  // Determining Input and Output file
-  std::string inputProject, outputProject;
-  
-  outputProject = inputProject = options["project"][0];
-  options.erase( "project" );
-
-  try
-  { 
-    outputProject = options["output"][0];
-    options.erase("output");
-  }
-  catch (OptionException & e)
-  {
-    /* ignore */
-  }
+   if (options.defined("help"))
+   {
+      showUsage(0);
+      return EXIT_SUCCESS;
+   }
 
 
-  Project project( inputProject, outputProject);
+   // Determining Input and Output file
+   std::string inputProject, outputProject;
 
-  // Set basement property
-  if (options.defined("set-basement-property"))
-  {
-    OptionParser::OptionValues values = options["set-basement-property"];
-    if (values.size() % 3 != 0 )
-    {
-      throw OptionException() << "The parameter of --set-basement-property must be of the form NAME=VALUE";
-    }
+   outputProject = inputProject = options["project"][0];
+   options.erase( "project" );
 
-    for (int i = 0; i < values.size(); i+= 3)
-    {
-      if (values[i+1] != "=")
+   try
+   { 
+      outputProject = options["output"][0];
+      options.erase("output");
+   }
+   catch (OptionException & e)
+   {
+      /* ignore */
+   }
+
+
+   Project project( inputProject, outputProject);
+
+   // Set basement property
+   if (options.defined("set-basement-property"))
+   {
+      OptionParser::OptionValues values = options["set-basement-property"];
+      if (values.size() % 3 != 0 )
       {
-        throw OptionException() << "The parameter of --set-basement-property must be of the form NAME=VALUE";
+         throw OptionException() << "The parameter of --set-basement-property must be of the form NAME=VALUE";
       }
 
-      double x2 = 0.0;
-
-      try
+      for (int i = 0; i < values.size(); i+= 3)
       {
-	x2 = fromString<double>(values[i+2]);
-      }
-      catch (ConversionException & e)
-      {
-        throw OptionException() << "The value in the NAME=VALUE parameter of the --set-basement-property option must be real number.";
-      }
+         if (values[i+1] != "=")
+         {
+            throw OptionException() << "The parameter of --set-basement-property must be of the form NAME=VALUE";
+         }
 
-      double x1 = project.setBasementProperty(values[i], x2);
-    }
+         double x2 = 0.0;
 
-    options.erase("set-basement-property");
-  }
+         try
+         {
+            x2 = fromString<double>(values[i+2]);
+         }
+         catch (ConversionException & e)
+         {
+            throw OptionException() << "The value in the NAME=VALUE parameter of the --set-basement-property option must be real number.";
+         }
 
-  if (options.defined("set-crust-thickness"))
-  {
-    OptionParser::OptionValues values = options["set-crust-thickness"];
-
-    std::vector< double > timeSeries;
-
-    size_t N = 0;
-    for (; values[N] != ","; ++N)
-    {
-      timeSeries.push_back( fromString<double>( values[N] ) );
-      if (N > 0 && timeSeries[N-1] >= timeSeries[N])
-	throw OptionException() << "The age series in the --set-crust-thickness parameter must be strictly increasing: "
-	       << "age[" << N-2 << "] = " << timeSeries[N-1] << " should come after age[" << N << "] = " << timeSeries[N];
-
-    }
-
-    std::vector< double > thicknessSeries;
-    for (size_t i = 0; i < N; ++i)
-    {
-      thicknessSeries.push_back( fromString<double>( values[N+i+1] ));
-    }
-
-
-    std::vector< std::pair<double, double > > series(N);
-    for (size_t i = 0 ; i < N; ++i)
-    {
-      series[i] = std::make_pair( timeSeries[i], thicknessSeries[i]);
-    }
-
-    project.setCrustThickness( series );
-    project.clearSnapshotTable();
-
-    options.erase("set-crust-thickness");
-  }
-
-  if (options.defined("adjust-thermal-conductivity"))
-  {
-    OptionParser::OptionValues values = options["adjust-thermal-conductivity"];
-    if (values.size() % 3 != 0 )
-    {
-      throw OptionException() << "The parameter of --adjust-thermal-conductivity must be of the form LITHOTYPE=CORRECTION";
-    }
-
-    for (int i = 0; i < values.size(); i+= 3)
-    {
-      if (values[i+1] != "=")
-      {
-        throw OptionException() << "The parameter of --adjust-thermal-conductivity must be of the form LITHOTYPE=CORRECTION";
+         double x1 = project.setBasementProperty(values[i], x2);
       }
 
-      double x2 = 0.0;
+      options.erase("set-basement-property");
+   }
 
-      try
+   if (options.defined("set-crust-thickness"))
+   {
+      OptionParser::OptionValues values = options["set-crust-thickness"];
+
+      std::vector< double > timeSeries;
+
+      size_t N = 0;
+      for (; values[N] != ","; ++N)
       {
-	x2 = fromString<double>(values[i+2]);
-      }
-      catch (ConversionException & e)
-      {
-        throw OptionException() << "The correction in the LITHOTYPE=CORRECTION parameter of the --adjust-thermal-conductivity option must be real number.";
-      }
+         timeSeries.push_back( fromString<double>( values[N] ) );
+         if (N > 0 && timeSeries[N-1] >= timeSeries[N])
+            throw OptionException() << "The age series in the --set-crust-thickness parameter must be strictly increasing: "
+               << "age[" << N-2 << "] = " << timeSeries[N-1] << " should come after age[" << N << "] = " << timeSeries[N];
 
-      project.adjustThermalConductivity(values[i], x2);
-    }
-
-    options.erase("adjust-thermal-conductivity");
-  }
-
-  if (options.defined("set-lithology-property"))
-  {
-    OptionParser::OptionValues values = options["set-lithology-property"];
-    if (values.size() % 7 != 0 )
-    {
-      throw OptionException() << "The parameter of --set-lithology-property must be of the form PROPERTY,LITHOTYPE>=OFFSET,MULTIPLICATION_FACTOR";
-    }
-
-    for (int i = 0; i < values.size(); i+= 7)
-    {
-      if (values[i+1] != "," || values[i+3]!= "=" || values[i+5] != ",")
-      {
-  	throw OptionException() << "The parameter of --set-lithology-property must be of the form PROPERTY,LITHOTYPE>=OFFSET,MULTIPLICATION_FACTOR";
       }
 
-      std::string property = values[i];
-      std::string lithotype = values[i+2];
-
-      double offset = 0.0;
-
-      try
+      std::vector< double > thicknessSeries;
+      for (size_t i = 0; i < N; ++i)
       {
-	offset = fromString<double>(values[i+4]);
-      }
-      catch (ConversionException & e)
-      {
-        throw OptionException() << "The offset in the --set-lithology-property parameter  must be a real number.";
+         thicknessSeries.push_back( fromString<double>( values[N+i+1] ));
       }
 
-      double correctFactor = 0.0;
-      try
+
+      std::vector< std::pair<double, double > > series(N);
+      for (size_t i = 0 ; i < N; ++i)
       {
-	correctFactor = fromString<double>(values[i+6]);
-      }
-      catch (ConversionException & e)
-      {
-        throw OptionException() << "The multiplication factor in the --set-lithology-property parameter  must be a real number.";
+         series[i] = std::make_pair( timeSeries[i], thicknessSeries[i]);
       }
 
-      project.setLithotypeProperty(property, lithotype, offset, correctFactor);
-    }
+      project.setCrustThickness( series );
+      project.clearSnapshotTable();
 
-    options.erase("set-lithology-property");
-  }
+      options.erase("set-crust-thickness");
+   }
 
-  if (options.defined("show-erosion-formations"))
-  {
-    typedef std::map< Project::Formation, std::vector< Project::Formation > > Map;
-    Map formations = project.getErosionFormations();
-
-    std::cout << "Erosion formations are:\n";
-    for (Map::const_iterator formation = formations.begin(); formation != formations.end(); ++formation)
-    {
-      const Project::Formation & erosion = formation->first;
-      const std::vector< Project::Formation > & eroded = formation->second;
-
-      std::cout << '\'' << erosion << "' [" << erosion.m_minAge << " Ma - " << erosion.m_maxAge << " Ma] erodes ";
-      if (erosion.m_constant)
-	std::cout << erosion.m_minThickness;
-      else
-	std::cout << "between " << erosion.m_minThickness << " and " << erosion.m_maxThickness;
-      
-      std::cout << " meters from the following formation"
-	<< (eroded.size() > 1 ? "s" : "") << ": " ;
-
-      for (size_t i = 0; i < eroded.size(); ++i)
+   if (options.defined("adjust-thermal-conductivity"))
+   {
+      OptionParser::OptionValues values = options["adjust-thermal-conductivity"];
+      if (values.size() % 3 != 0 )
       {
-	if (i > 0)
-	{
-	  std::cout << ", ";
-
-	  if (i < eroded.size() - 1)
-	    std::cout << "and ";
-	}
-
-	std::cout << "'" << eroded[i] << "' [" << eroded[i].m_minAge << " Ma - " << eroded[i].m_maxAge 
-	  << " Ma] with thickness ";
-	
-	if (eroded[i].m_constant)
-	  std::cout << "of " << eroded[i].m_minThickness ;
-	else
-	  std::cout << "between " << eroded[i].m_minThickness << " and  " << eroded[i].m_maxThickness ;
-
-	std::cout << " meters";
+         throw OptionException() << "The parameter of --adjust-thermal-conductivity must be of the form LITHOTYPE=CORRECTION";
       }
 
-      // Mark all erosion formations that can be tweaked with a '*'
-      if (eroded.size() == 1 && erosion.m_constant && eroded[0].m_minThickness && erosion.m_minThickness == 0.0 - eroded[0].m_minThickness)
-	std::cout << " (*)";
-
-      std::cout << "\n";
-    }
-    std::cout << "Note: entries marked with a (*) can be changed with the --set-erosion parameter\n";
-    std::cout << std::endl;
-
-    options.erase("show-erosion-formations");
-  }
-
-  if (options.defined("set-erosion"))
-  {
-    OptionParser::OptionValues values = options["set-erosion"];
-
-    int i = 0;
-    while( i < values.size() )
-    {
-      std::string formation = values[i];
-
-      if (i +2 >= values.size() || values[i+1] !=  "=" )
-	throw OptionException() << "The parameter of --set-erosion must be of the form NAME=THICKNESS[,T0,T1,T2]";
-      
-      i+=2;
-
-      double thickness = fromString<double>(values[i]);
-      if (thickness < 0.0)
-        throw OptionException() << "The erosion thickness must be a positive real number.";
-
-      i+=1;
-
-      double t0 = NAN, t1 = NAN, t2 = NAN;
-
-      if (i < values.size() && values[i] == ",")
+      for (int i = 0; i < values.size(); i+= 3)
       {
-	++i;
-	if (i + 5 > values.size() || values[i+1] != "," || values[i+3] != ",")
-	  throw OptionException() << "The parameter of --set-erosion must be of the form NAME=THICKNESS[,T0,T1,T2]";
+         if (values[i+1] != "=")
+         {
+            throw OptionException() << "The parameter of --adjust-thermal-conductivity must be of the form LITHOTYPE=CORRECTION";
+         }
 
+         double x2 = 0.0;
 
-	t0 = fromString<double>(values[i]);
-	t1 = fromString<double>(values[i+2]);
-	t2 = fromString<double>(values[i+4]);
+         try
+         {
+            x2 = fromString<double>(values[i+2]);
+         }
+         catch (ConversionException & e)
+         {
+            throw OptionException() << "The correction in the LITHOTYPE=CORRECTION parameter of the --adjust-thermal-conductivity option must be real number.";
+         }
 
-	if (t0 <= t1 || t1 <= t2)
-	  throw OptionException() << "T0, T1, and T2 must be in Ma and in chronological order. In practice it means that T0 > T1 > T2 must be true.";
-	
-	i+=5;
+         project.adjustThermalConductivity(values[i], x2);
       }
 
-      project.setErosionThickness(formation, thickness, t0, t1, t2);
-    }
+      options.erase("adjust-thermal-conductivity");
+   }
 
-    // clear the snapshot table, because time of certain events change.
-    project.clearSnapshotTable();
-    options.erase("set-erosion");
-  }
-
-  // --add-erosion <thickness>,<erosion start>,<erosion length>
-  if (options.defined("add-erosion"))
-  {
-    OptionParser :: OptionValues values = options["add-erosion"];
-
-    if (values.size() % 5 != 0 )
-    {
-      throw OptionException() << "The parameter of --add-erosion must a triples of <thickness>, <erosion-start>, <erosion duration>";
-    }
-
-    for (int i = 0; i < values.size(); i+= 5)
-    {
-      if (values[i+1] != "," || values[i+3] != "," )
+   if (options.defined("set-lithology-property"))
+   {
+      OptionParser::OptionValues values = options["set-lithology-property"];
+      if (values.size() % 7 != 0 )
       {
-      	throw OptionException() << "The parameter of --add-erosion must a triples of <thickness>, <erosion-start>, <erosion duration>";
+         throw OptionException() << "The parameter of --set-lithology-property must be of the form PROPERTY,LITHOTYPE>=OFFSET,MULTIPLICATION_FACTOR";
       }
 
-      double thickness = 0.0;
-
-      try
+      for (int i = 0; i < values.size(); i+= 7)
       {
-	thickness = fromString<double>(values[i]);
+         if (values[i+1] != "," || values[i+3]!= "=" || values[i+5] != ",")
+         {
+            throw OptionException() << "The parameter of --set-lithology-property must be of the form PROPERTY,LITHOTYPE>=OFFSET,MULTIPLICATION_FACTOR";
+         }
+
+         std::string property = values[i];
+         std::string lithotype = values[i+2];
+
+         double offset = 0.0;
+
+         try
+         {
+            offset = fromString<double>(values[i+4]);
+         }
+         catch (ConversionException & e)
+         {
+            throw OptionException() << "The offset in the --set-lithology-property parameter  must be a real number.";
+         }
+
+         double correctFactor = 0.0;
+         try
+         {
+            correctFactor = fromString<double>(values[i+6]);
+         }
+         catch (ConversionException & e)
+         {
+            throw OptionException() << "The multiplication factor in the --set-lithology-property parameter  must be a real number.";
+         }
+
+         project.setLithotypeProperty(property, lithotype, offset, correctFactor);
       }
-      catch (ConversionException & e)
+
+      options.erase("set-lithology-property");
+   }
+
+   if (options.defined("show-erosion-formations"))
+   {
+      typedef std::map< Project::Formation, std::vector< Project::Formation > > Map;
+      Map formations = project.getErosionFormations();
+
+      std::cout << "Erosion formations are:\n";
+      for (Map::const_iterator formation = formations.begin(); formation != formations.end(); ++formation)
       {
-        throw OptionException() << "Thickness must be a positive real number";
+         const Project::Formation & erosion = formation->first;
+         const std::vector< Project::Formation > & eroded = formation->second;
+
+         std::cout << '\'' << erosion << "' [" << erosion.m_minAge << " Ma - " << erosion.m_maxAge << " Ma] erodes ";
+         if (erosion.m_constant)
+            std::cout << erosion.m_minThickness;
+         else
+            std::cout << "between " << erosion.m_minThickness << " and " << erosion.m_maxThickness;
+
+         std::cout << " meters from the following formation"
+            << (eroded.size() > 1 ? "s" : "") << ": " ;
+
+         for (size_t i = 0; i < eroded.size(); ++i)
+         {
+            if (i > 0)
+            {
+               std::cout << ", ";
+
+               if (i < eroded.size() - 1)
+                  std::cout << "and ";
+            }
+
+            std::cout << "'" << eroded[i] << "' [" << eroded[i].m_minAge << " Ma - " << eroded[i].m_maxAge 
+               << " Ma] with thickness ";
+
+            if (eroded[i].m_constant)
+               std::cout << "of " << eroded[i].m_minThickness ;
+            else
+               std::cout << "between " << eroded[i].m_minThickness << " and  " << eroded[i].m_maxThickness ;
+
+            std::cout << " meters";
+         }
+
+         // Mark all erosion formations that can be tweaked with a '*'
+         if (eroded.size() == 1 && erosion.m_constant && eroded[0].m_minThickness && erosion.m_minThickness == 0.0 - eroded[0].m_minThickness)
+            std::cout << " (*)";
+
+         std::cout << "\n";
       }
+      std::cout << "Note: entries marked with a (*) can be changed with the --set-erosion parameter\n";
+      std::cout << std::endl;
 
-      if (thickness < 0.0)
-        throw OptionException() << "Thickness must be a positive real number";
+      options.erase("show-erosion-formations");
+   }
 
-      double t0 = 0.0, duration = 0.0;
-      try
+   if (options.defined("set-erosion"))
+   {
+      OptionParser::OptionValues values = options["set-erosion"];
+
+      int i = 0;
+      while( i < values.size() )
       {
-	t0 = fromString<double>(values[i+2]);
-	duration = fromString<double>(values[i+4]);
+         std::string formation = values[i];
+
+         if (i +2 >= values.size() || values[i+1] !=  "=" )
+            throw OptionException() << "The parameter of --set-erosion must be of the form NAME=THICKNESS[,T0,T1,T2]";
+
+         i+=2;
+
+         double thickness = fromString<double>(values[i]);
+         if (thickness < 0.0)
+            throw OptionException() << "The erosion thickness must be a positive real number.";
+
+         i+=1;
+
+         double t0 = NAN, t1 = NAN, t2 = NAN;
+
+         if (i < values.size() && values[i] == ",")
+         {
+            ++i;
+            if (i + 5 > values.size() || values[i+1] != "," || values[i+3] != ",")
+               throw OptionException() << "The parameter of --set-erosion must be of the form NAME=THICKNESS[,T0,T1,T2]";
+
+
+            t0 = fromString<double>(values[i]);
+            t1 = fromString<double>(values[i+2]);
+            t2 = fromString<double>(values[i+4]);
+
+            if (t0 <= t1 || t1 <= t2)
+               throw OptionException() << "T0, T1, and T2 must be in Ma and in chronological order. In practice it means that T0 > T1 > T2 must be true.";
+
+            i+=5;
+         }
+
+         project.setErosionThickness(formation, thickness, t0, t1, t2);
       }
-      catch(ConversionException & e)
+
+      // clear the snapshot table, because time of certain events change.
+      project.clearSnapshotTable();
+      options.erase("set-erosion");
+   }
+
+   // --add-erosion <thickness>,<erosion start>,<erosion length>
+   if (options.defined("add-erosion"))
+   {
+      OptionParser :: OptionValues values = options["add-erosion"];
+
+      if (values.size() % 5 != 0 )
       {
-	throw OptionException() << "Start time and duration of erosion event must be real numbers";
+         throw OptionException() << "The parameter of --add-erosion must a triples of <thickness>, <erosion-start>, <erosion duration>";
       }
 
-      if (duration < 0.0)
-	throw OptionException() << "Duration of erosion event must be a positive real number.";
+      for (int i = 0; i < values.size(); i+= 5)
+      {
+         if (values[i+1] != "," || values[i+3] != "," )
+         {
+            throw OptionException() << "The parameter of --add-erosion must a triples of <thickness>, <erosion-start>, <erosion duration>";
+         }
 
-      project.addErosion(thickness, t0, duration);
-    }
+         double thickness = 0.0;
 
-    project.clearSnapshotTable();
-    options.erase("add-erosion");
-  }
+         try
+         {
+            thickness = fromString<double>(values[i]);
+         }
+         catch (ConversionException & e)
+         {
+            throw OptionException() << "Thickness must be a positive real number";
+         }
 
-  project.close();
+         if (thickness < 0.0)
+            throw OptionException() << "Thickness must be a positive real number";
 
-  if (! options.empty() )
-  {
-    std::vector< std::string > unusedParams = options.definedNames();
-    std::cerr << "WARNING: there " << (unusedParams.size() > 1 ? "are " : "is ") 
-       << unusedParams.size() << " parameter" << (unusedParams.size() > 1? "s" : "") << " ignored:\n";
+         double t0 = 0.0, duration = 0.0;
+         try
+         {
+            t0 = fromString<double>(values[i+2]);
+            duration = fromString<double>(values[i+4]);
+         }
+         catch(ConversionException & e)
+         {
+            throw OptionException() << "Start time and duration of erosion event must be real numbers";
+         }
 
-    for (size_t i = 0; i < unusedParams.size(); ++i)
-      std::cerr << "WARNING: --" << unusedParams[i] << '\n';
+         if (duration < 0.0)
+            throw OptionException() << "Duration of erosion event must be a positive real number.";
 
-    std::cerr << std::endl;
-  }
+         project.addErosion(thickness, t0, duration);
+      }
 
-  return EXIT_SUCCESS;
+      project.clearSnapshotTable();
+      options.erase("add-erosion");
+   }
+
+   project.close();
+
+   if (! options.empty() )
+   {
+      std::vector< std::string > unusedParams = options.definedNames();
+      std::cerr << "WARNING: there " << (unusedParams.size() > 1 ? "are " : "is ") 
+         << unusedParams.size() << " parameter" << (unusedParams.size() > 1? "s" : "") << " ignored:\n";
+
+      for (size_t i = 0; i < unusedParams.size(); ++i)
+         std::cerr << "WARNING: --" << unusedParams[i] << '\n';
+
+      std::cerr << std::endl;
+   }
+
+   return EXIT_SUCCESS;
 }

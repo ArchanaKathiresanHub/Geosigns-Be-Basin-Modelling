@@ -178,10 +178,8 @@ namespace pvtFlash
       /// \brief Change nonlinear solver maximal number of iteration and convergence tolerance
       /// \param maxItersNum new value for maximal iterations number (default is 50)
       /// \param stopTol new value for stop tolerance (default is 1e-4)
-      void setNonLinearSolverTolerance( int maxItersNum, double stopTol );
-
-      /// \brief Reset to default values max iterations number and stop tolerance vaule for nonlinear solver in PVT library
-      void resetToDefaulNonLinearSolverConvergencePrms();
+      /// \param newtonRelCoeff new value for relaxation coefficient (default is 1.0, possible values: 0 < RelCoeff <= 1.0 )
+      void setNonLinearSolverConvParameters( int maxItersNum = 50, double stopTol = 1.e-4, double newtonRelCoeff = 1.0 );
 
       ~EosPack();
 
@@ -209,7 +207,8 @@ namespace pvtFlash
                                  // be used for labeling single phase as liquid or vapor 
 
       int    m_maxItersNum;      // maximal iterations number for the nonlinear solver
-      double m_stopTolerance;   // convergence stop tolerance for nonliner solver
+      double m_stopTolerance;    // convergence stop tolerance for nonliner solver
+      double m_NewtonRelaxCoeff; // relaxation coefficient for Newton solver  min( 1.0, RelCoef * 1.1 * IterNum )
 
       int lumpedSpeciesIndex[NUM_COMPONENTS];
    };

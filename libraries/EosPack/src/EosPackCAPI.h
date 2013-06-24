@@ -24,9 +24,27 @@ namespace pvtFlash
    extern "C" 
    {
       void SetPvtPropertiesConfigFile(char* fileName);     
-      bool EosPackComputeWithLumping(ComputeStruct* computeInfo);    
+      bool EosPackComputeWithLumping(ComputeStruct* computeInfo);
+
+      /// \brief Calculate phase masses, phase density and phase viscosity using C arrays as parameters
+      /// \param temperature temperature of composition
+      /// \param pressure pressure of composition
+      /// \param[in] compMasses array of size 23 with mass for each component
+      /// \param isGormPrescribed is gas/oil ration coeficient is given
+      /// \param gorm value of gas/oil ration coeficient 
+      /// \param phaseCompMasses[out] aray of size 46 with masses for each phase for each component
+      /// \param phaseDensity array of size 2 with densities for liquid/vapour phases
+      /// \param phaseViscosity array of size 2 with viscosities for liquid/vapour phases
+      /// \return true if flashing was successfull, false otherwise
+      bool EosPackComputeWithLumpingArr( double temperature, double pressure, double * compMasses, bool isGormPrescribed, double gorm,
+                                         double * phaseCompMasses, double * phaseDensity, double * phaseViscosity );
+
       double GetMolWeight(int componentId, double gorm);     
-      double Gorm(ComputeStruct* computeInfo);
+
+      /// \brief Calculate gas/oil ratio for given composition
+      /// \param[in] compMasses array of size 23
+      /// \return calculated gas/oil ratio coefficient value
+      double Gorm(double * compMasses);
 
       /// \brief Create PT phase diagram
       /// \param diagType - type of diagram, 0 - mass, 1 - mole, 2 - volume

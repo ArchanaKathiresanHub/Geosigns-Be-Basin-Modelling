@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "petscvec.h"
 #include "petsc.h"
 
 #include <iostream>
@@ -37,7 +38,7 @@ static char help[] = "Parallel FastTouch \n\n";
 #undef __FUNCT__
 #define __FUNCT__ "main"
 
-#define EXIT(v)	{ if (debug) ReportProgress ("Exiting..."); exit(v); }
+#define EXIT(v)	{ if (debug) ReportProgress ("Exiting..."); _exit(v); }
 
 /** Start clock to measure time taken. */
 void StartProgress (void);
@@ -232,8 +233,8 @@ int main (int argc, char ** argv)
     ReportProgress ("Finished Simulation");
  
     if (debug) ReportProgress ("deleting Objects");
-    delete fastTouch;
-    delete objectFactory;
+    // delete fastTouch;
+    // delete objectFactory;
 
 #ifdef FLEXLM
     //FlexLM license check in only for node with rank = 0

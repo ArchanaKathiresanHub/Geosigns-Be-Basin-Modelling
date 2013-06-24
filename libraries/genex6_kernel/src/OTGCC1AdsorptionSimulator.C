@@ -550,6 +550,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          }
 
          speciesState->setMassExpelledFromSourceRock ( speciesState->getMassExpelledFromSourceRock () + expelled );
+         speciesState->setMassExpelledTransientFromSourceRock ( expelled );
 
          if ( output ) {
             cout << ", after: " << speciesState->getMassExpelledFromSourceRock () << "  " << expelled << endl;

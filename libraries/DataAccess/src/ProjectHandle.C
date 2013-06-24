@@ -141,6 +141,15 @@ DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProjec
    InitializeSerializedIO();
 
    DataSchema * cauldronSchema = database::createCauldronSchema ();
+   database::TableDefinition *tableDef = cauldronSchema->getTableDefinition ("DepthIoTbl");
+
+   if (tableDef)
+   {
+      // Adding (volatile, won't be output) definition for DepositionSequence field
+      // Required to properly sort the DepthIoTbl, not to be output
+      tableDef->addVolatileFieldDefinition ("DepositionSequence", datatype::Int, "", "0");
+   }
+
    Database * tables = Database::CreateFromFile (name, * cauldronSchema);
    delete cauldronSchema;
 
@@ -2762,6 +2771,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValues (void)
    }
    else
    {
+      saveCreatedVolumePropertyValuesMode1DOld ();
       return saveCreatedVolumePropertyValuesMode1D ();
    }
 }
@@ -2771,6 +2781,10 @@ bool ProjectHandle::saveCreatedVolumePropertyValues (void)
 /// and that the snapshot file can be re-created.
 bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D (void)
 {
+   database::Table * timeIoTbl = getTable ("3DTimeIoTbl");
+   if (!timeIoTbl)
+      return false;
+
    MutablePropertyValueList::iterator propertyValueIter;
    MapWriter* mapWriter = getFactory ()->produceMapWriter();
 
@@ -2812,7 +2826,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D (void)
 	    mapWriter->open (filePathName, snapshotUsed->getAppendFile ());
 	 }
 
-         propertyValue->linkToSnapshotIoRecord ();
+	 propertyValue->create3DTimeIoRecord (timeIoTbl, Interface::MODE3D);
 	 m_propertyValues.push_back (propertyValue);
 	 propertyValueIter = m_recordLessVolumePropertyValues.erase (propertyValueIter);
 	 increment = 0;
@@ -2831,30 +2845,90 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D (void)
 
 bool DepthIoTblSorter (database::Record * recordL,  database::Record * recordR)
 {
-   if (database::getTime (recordL) < database::getTime (recordR)) return true;
-   if (database::getTime (recordL) > database::getTime (recordR)) return false;
    if (database::getPropertyName (recordL) < database::getPropertyName (recordR)) return true;
    if (database::getPropertyName (recordL) > database::getPropertyName (recordR)) return false;
+   int leftIndex = recordL->getValue<int> ("DepositionSequence");
+   int rightIndex = recordR->getValue<int> ("DepositionSequence");
+   if (leftIndex > rightIndex) return true;
+   if (leftIndex < rightIndex) return false;
    if (database::getDepth_ (recordL) < database::getDepth_ (recordR)) return true;
    if (database::getDepth_ (recordL) > database::getDepth_ (recordR)) return false;
 
    return false;
 }
 
+bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D (void)
+{
+   database::Table * timeIoTbl = getTable ("1DTimeIoTbl");
+   if (!timeIoTbl) return false;
+
+   MutablePropertyValueList::iterator propertyValueIter;
+
+   bool status = true;
+
+   int index = 0;
+   for (propertyValueIter = m_recordLessVolumePropertyValues.begin ();
+	 propertyValueIter != m_recordLessVolumePropertyValues.end (); ++propertyValueIter, ++index)
+   {
+      PropertyValue *propertyValue = *propertyValueIter;
+
+      if (!propertyValue->toBeSaved ()) continue;
+
+      GridMap *gridMap = (GridMap *) propertyValue->getGridMap ();
+
+      gridMap->retrieveData ();
+
+      int gridMapDepth = gridMap->getDepth ();
+
+      for (int k = gridMapDepth - 1; k >= 0; --k)
+      {
+
+	 double value = gridMap->getValue (0, 0, (unsigned int) k);
+	 if (value == gridMap->getUndefinedValue ())
+	 {
+	    value = DefaultUndefinedScalarValue; // or, should we just not output?
+	 }
+
+	 Record * timeIoRecord = propertyValue->create1DTimeIoRecord (timeIoTbl, Interface::MODE1D); 
+
+	 if (k == 0)
+	 {
+	    database::setSurfaceName (timeIoRecord, propertyValue->getFormation()->getBottomSurfaceName ());
+	 }
+	 if (k == gridMapDepth - 1)
+	 {
+	    database::setSurfaceName (timeIoRecord, propertyValue->getFormation()->getTopSurfaceName ());
+	 }
+
+	 database::setNodeIndex (timeIoRecord, k);
+
+	 database::setValue (timeIoRecord, value);
+      }
+
+      gridMap->restoreData ();
+
+      m_propertyValues.push_back (propertyValue);
+   }
+   m_recordLessVolumePropertyValues.clear ();
+
+   return status;
+}
+
 /// Write newly created volume properties to depthiotbl file.
 /// This function assumes that all volume properties for a given snapshot are written in one go
-bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D (void)
+bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
 {
    char * scalarPostfixes[2] = { "", "" };
    char * vecPostfixes[2] = { "[0]", "[1]" };
 
    const Snapshot *zeroSnapshot = (const Snapshot *) findSnapshot (0);
-   bool zeroSnapshotUsed = false;
 
    database::Table * depthIoTbl = getTable ("DepthIoTbl");
    if (!depthIoTbl)
       return false;
 
+   if (m_recordLessVolumePropertyValues.size () == 0) return true;
+   
    MutablePropertyValueList::iterator depthPropertyValueIter;
    MutablePropertyValueList::iterator propertyValueIter;
 
@@ -2864,165 +2938,208 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D (void)
 
    bool status = true;
 
-   while (true)
+   MutablePropertyValueList selectedPropertyValues;
+   MutablePropertyValueList selectedDepthPropertyValues;
+
+
+   // first find the set of all property values with the same snapshot and formation and pinpoint the depth property value in that set.
+   for (propertyValueIter = m_recordLessVolumePropertyValues.begin ();
+	 propertyValueIter != m_recordLessVolumePropertyValues.end (); ++propertyValueIter)
    {
-      Snapshot *snapshotUsed = 0;
+      PropertyValue *propertyValue = *propertyValueIter;
 
-      MutablePropertyValueList selectedPropertyValues;
-      MutablePropertyValueList selectedDepthPropertyValues;
-
-      // first find the set of all property values with the same snapshot and formation and pinpoint the depth property value in that set.
-      int increment = 1;
-      for (propertyValueIter = m_recordLessVolumePropertyValues.begin ();
-           propertyValueIter != m_recordLessVolumePropertyValues.end (); propertyValueIter += increment)
+      if (propertyValue->getSnapshot () != zeroSnapshot || !propertyValue->toBeSaved ())
       {
-         PropertyValue *propertyValue = *propertyValueIter;
-
-         if ((snapshotUsed && propertyValue->getSnapshot () != snapshotUsed) ||
-	     propertyValue->getSnapshot () != zeroSnapshot ||
-             !propertyValue->toBeSaved ())
-         {
-	    increment = 1;
-            continue;
-         }
-
-         if (!snapshotUsed)
-            snapshotUsed = (Snapshot *) propertyValue->getSnapshot ();
-
-	 if (snapshotUsed == zeroSnapshot) zeroSnapshotUsed = true;
-
-         selectedPropertyValues.push_back (propertyValue);
-	 m_propertyValues.push_back (propertyValue);
-	 propertyValueIter = m_recordLessVolumePropertyValues.erase (propertyValueIter);
-	 increment = 0;
-
-         if (propertyValue->getProperty () == depthProperty)
-         {
-            selectedDepthPropertyValues.push_back (propertyValue);
-         }
+	 continue;
       }
 
-      if (!snapshotUsed)
-         break;                 // nothing was selected
+      selectedPropertyValues.push_back (propertyValue);
 
-      while (true)
+      if (propertyValue->getProperty () == depthProperty)
       {
-	 const Property *propertyUsed = 0;
+	 selectedDepthPropertyValues.push_back (propertyValue);
+      }
+   }
 
-	 double previousDepthValue[2] = { DefaultUndefinedScalarValue, DefaultUndefinedScalarValue };
+   const Property *property = 0;
 
-         for (depthPropertyValueIter = selectedDepthPropertyValues.begin ();
-              depthPropertyValueIter != selectedDepthPropertyValues.end (); ++depthPropertyValueIter)
-         {
-            PropertyValue *depthPropertyValue = *depthPropertyValueIter;
+   double previousDepthValue[2] = { DefaultUndefinedScalarValue, DefaultUndefinedScalarValue };
 
-            GridMap *depthGridMap = (GridMap *) depthPropertyValue->getGridMap ();
+   for (depthPropertyValueIter = selectedDepthPropertyValues.begin ();
+	 depthPropertyValueIter != selectedDepthPropertyValues.end (); ++depthPropertyValueIter)
+   {
+      PropertyValue *depthPropertyValue = *depthPropertyValueIter;
 
-            depthGridMap->retrieveData ();
+      GridMap *depthGridMap = (GridMap *) depthPropertyValue->getGridMap ();
 
-	    bool isZeroThickness = (depthGridMap->getValue (0, 0, (unsigned int) 0) == depthGridMap->getValue (0, 0, (unsigned int) depthGridMap->getDepth () - 1));
+      depthGridMap->retrieveData ();
 
-            for (propertyValueIter = selectedPropertyValues.begin ();
-                 propertyValueIter != selectedPropertyValues.end (); ++propertyValueIter)
-            {
-               PropertyValue *propertyValue = *propertyValueIter;
+      bool isZeroThickness = (depthGridMap->getValue (0, 0, (unsigned int) 0) == depthGridMap->getValue (0, 0, (unsigned int) depthGridMap->getDepth () - 1));
 
-               if (propertyValue->getRecord () != 0 ||
-		     (propertyUsed && propertyValue->getProperty () != propertyUsed) ||
-		     propertyValue->getFormation () != depthPropertyValue->getFormation ())
-               {
-                  continue;
-               }
+      for (propertyValueIter = selectedPropertyValues.begin ();
+	    propertyValueIter != selectedPropertyValues.end (); ++propertyValueIter)
+      {
+	 PropertyValue *propertyValue = *propertyValueIter;
 
-               propertyUsed = (const Property *) propertyValue->getProperty ();
-	       
-	       bool isVectorProperty = false;
-	       int nrOutputs = 1;
+	 if (propertyValue->getFormation () != depthPropertyValue->getFormation ())
+	 {
+	    continue;
+	 }
 
-	       char ** postFixes = scalarPostfixes;
 
-	       if (propertyUsed->getCauldronName ().rfind ("Vec2") != string::npos)
+	 property = (const Property *) propertyValue->getProperty ();
+
+	 int nrOutputs = 1;
+
+	 char ** postFixes = scalarPostfixes;
+
+	 if (property->getCauldronName ().rfind ("Vec2") != string::npos)
+	 {
+	    nrOutputs = 2;
+	    postFixes = vecPostfixes;
+	 }
+
+	 if (isZeroThickness) continue;
+
+	 GridMap *gridMap = (GridMap *) propertyValue->getGridMap ();
+
+	 if (gridMap != depthGridMap)
+	 {
+	    gridMap->retrieveData ();
+	 }
+
+	 int gridMapDepth = gridMap->getDepth ();
+
+	 assert (gridMapDepth == depthGridMap->getDepth ());
+
+	 for (int k = gridMapDepth - 1; k >= 0; --k)
+	 {
+	    assert (depthGridMap->firstI () == 0);
+	    assert (depthGridMap->firstJ () == 0);
+
+	    double depthValue = depthGridMap->getValue (0, 0, (unsigned int) k);
+	    double value = gridMap->getValue (0, 0, (unsigned int) k);
+	    if (depthValue != depthGridMap->getUndefinedValue ())
+	    {
+	       if (value == gridMap->getUndefinedValue ())
 	       {
-		  isVectorProperty = true;
-		  nrOutputs = 2;
-		  postFixes = vecPostfixes;
+		  cerr << "Undefined Value " << value << " at " << k << endl;
+		  value = DefaultUndefinedScalarValue;
 	       }
-
-	       propertyValue->linkToSnapshotIoRecord (); // this will prevent this propertyValue being selected a second time
-	       if (isZeroThickness) continue;
-
-	       GridMap *gridMap = (GridMap *) propertyValue->getGridMap ();
-
-	       if (gridMap != depthGridMap)
-		  gridMap->retrieveData ();
-
-	       int gridMapDepth = gridMap->getDepth ();
-
-	       assert (gridMapDepth == depthGridMap->getDepth ());
-
-	       for (int k = gridMapDepth - 1; k >= 0; --k)
+	       for (int i = 0; i < nrOutputs; ++i)
 	       {
-		  assert (depthGridMap->firstI () == 0);
-		  assert (depthGridMap->firstJ () == 0);
+		  if (depthValue != DefaultUndefinedScalarValue && depthValue > previousDepthValue[i] - 0.01 && depthValue < previousDepthValue[i] + 0.01) continue;
 
-		  double depthValue = depthGridMap->getValue (0, 0, (unsigned int) k);
-		  double value = gridMap->getValue (0, 0, (unsigned int) k);
-		  if (depthValue != depthGridMap->getUndefinedValue () &&
-			value != gridMap->getUndefinedValue ())
-		  {
-		     for (int i = 0; i < nrOutputs; ++i)
-		     {
-			if (isVectorProperty && i == 0 && k == 0) continue;
-			if (isVectorProperty && i == 1 && k == gridMapDepth - 1) continue;
-			if (depthValue != DefaultUndefinedScalarValue && depthValue > previousDepthValue[i] - 0.01 && depthValue < previousDepthValue[i] + 0.01) continue;
+		  previousDepthValue[i] = depthValue;
 
-			previousDepthValue[i] = depthValue;
+		  database::Record * depthIoRecord = depthIoTbl->createRecord ();
 
-			database::Record * depthIoRecord = depthIoTbl->createRecord ();
-
-			database::setPropertyName (depthIoRecord, propertyUsed->getCauldronName () + postFixes[i]);
-			database::setTime (depthIoRecord, snapshotUsed->getTime ());
-			database::setDepth_ (depthIoRecord, depthValue);
-			database::setAverage (depthIoRecord, value);
-			database::setStandardDev (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setMinimum (depthIoRecord, value);
-			database::setMaximum (depthIoRecord, value);
-			database::setSum (depthIoRecord, value);
-			database::setSum2 (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setNP (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setP15 (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setP50 (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setP85 (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setSumFirstPower (depthIoRecord, value);
-			database::setSumSecondPower (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setSumThirdPower (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setSumFourthPower (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setSkewness (depthIoRecord, DefaultUndefinedScalarValue);
-			database::setKurtosis (depthIoRecord, DefaultUndefinedScalarValue);
+		  depthIoRecord->setValue ("DepositionSequence", propertyValue->getFormation()->getDepositionSequence ());
+		  database::setPropertyName (depthIoRecord, property->getCauldronName () + postFixes[i]);
+		  database::setTime (depthIoRecord, zeroSnapshot->getTime ());
+		  database::setDepth_ (depthIoRecord, depthValue);
+		  database::setAverage (depthIoRecord, value);
+		  database::setStandardDev (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setMinimum (depthIoRecord, value);
+		  database::setMaximum (depthIoRecord, value);
+		  database::setSum (depthIoRecord, value);
+		  database::setSum2 (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setNP (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setP15 (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setP50 (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setP85 (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setSumFirstPower (depthIoRecord, value);
+		  database::setSumSecondPower (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setSumThirdPower (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setSumFourthPower (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setSkewness (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setKurtosis (depthIoRecord, DefaultUndefinedScalarValue);
 
 
 #if 0
-			cerr << "<< " << database::getPropertyName (depthIoRecord) << "(" << database::getDepth_ (depthIoRecord) << ", " << database::getAverage (depthIoRecord) <<
-			   ") of layer " << propertyValue->getFormation ()->getName () << endl;
+		  cerr << "<< " << database::getPropertyName (depthIoRecord) << "(" << database::getDepth_ (depthIoRecord) << ", " << database::getAverage (depthIoRecord) <<
+		     ") of layer " << propertyValue->getFormation ()->getName () << endl;
 #endif
-		     }
-		  }
 	       }
-
-	       if (gridMap != depthGridMap) gridMap->restoreData ();
 	    }
+	 }
 
-            depthGridMap->restoreData ();
-         }
+	 if (gridMap != depthGridMap) gridMap->restoreData ();
+      }
 
-	 if (!propertyUsed) break;
+      depthGridMap->restoreData ();
+   }
+
+   // Remove all records that should not be there
+   sort (depthIoTbl->begin (), depthIoTbl->end (), DepthIoTblSorter);
+
+   int removalIncrement = 1;
+   bool removeNextOne = false;
+   for (database::Table::iterator removalIter = depthIoTbl->begin (); removalIter != depthIoTbl->end(); removalIter += removalIncrement)
+   {
+      removalIncrement = 1;
+      database::Record * currentRecord = * removalIter;
+
+      if (removeNextOne)
+      {
+	 removalIter = depthIoTbl->removeRecord (removalIter);
+	 removalIncrement = 0;
+	 removeNextOne = false;
+	 continue;
+      }
+
+      if (removalIter + 1 != depthIoTbl->end ())
+      {
+	 database::Record * nextCurrentRecord = * (removalIter + 1);
+	 if (database::getPropertyName (currentRecord) != database::getPropertyName (nextCurrentRecord))
+	 {
+	    // removal of any last ...Vec2[0] property
+	    if (database::getPropertyName (currentRecord).find ("Vec2[0]") != string::npos)
+	    {
+	       removalIter = depthIoTbl->removeRecord (removalIter);
+	       removalIncrement = 0;
+	    }
+	    // removal of any first ...Vec2[1] property
+	    if (database::getPropertyName (nextCurrentRecord).find ("Vec2[1]") != string::npos)
+	    {
+	       removeNextOne = true;
+	    }
+	 }
+	 else
+	 {
+	    // removal of any second Vec2[1] property with the same depth
+	    if (database::getPropertyName (currentRecord).rfind ("Vec2[1]") != string::npos && database::getDepth_ (currentRecord) == database::getDepth_(nextCurrentRecord))
+	    {
+	       removeNextOne = true;
+	    }
+	    // removal of any first Vec2[0] property with the same depth
+	    else if (database::getPropertyName (currentRecord).rfind ("Vec2[0]") != string::npos && database::getDepth_ (currentRecord) == database::getDepth_(nextCurrentRecord))
+	    {
+	       removalIter = depthIoTbl->removeRecord (removalIter);
+	       removalIncrement = 0;
+	    }
+	    // removal of any second non-Vec2 properties with equal depth
+	    else if (database::getDepth_ (currentRecord) == database::getDepth_ (nextCurrentRecord) &&
+		  (database::getPropertyName (currentRecord).rfind ("Vec2") == string::npos))
+	    {
+	       removeNextOne = true;
+	    }
+	 }
       }
    }
 
-   if (zeroSnapshotUsed)
+   // Remove properties with undefined value
+   for (database::Table::iterator removalIter = depthIoTbl->begin (); removalIter != depthIoTbl->end(); removalIter += removalIncrement)
    {
-      sort (depthIoTbl->begin (), depthIoTbl->end (), DepthIoTblSorter);
+      removalIncrement = 1;
+      database::Record * currentRecord = * removalIter;
+      if (database::getAverage (currentRecord) == DefaultUndefinedScalarValue)
+      {
+	 removalIter = depthIoTbl->removeRecord (removalIter);
+	 removalIncrement = 0;
+      }
    }
+
    return status;
 }
 
@@ -3043,7 +3160,7 @@ PropertyValue * ProjectHandle::addPropertyValue (database::Record * record, cons
    }
    else
    {
-      if (storage == SNAPSHOTIOTBL)
+      if (storage == THREEDTIMEIOTBL)
 	 m_recordLessVolumePropertyValues.push_back (propertyValue);
       else
 	 m_recordLessMapPropertyValues.push_back (propertyValue);
@@ -3093,7 +3210,7 @@ PropertyValue * ProjectHandle::createVolumePropertyValue (const string & propert
    if (reservoir && formation) return false;
    if (!reservoir && !formation) return false;
 
-   PropertyValue * propertyValue = addPropertyValue (0, propertyValueName, property, snapshot, reservoir, formation, 0, SNAPSHOTIOTBL);
+   PropertyValue * propertyValue = addPropertyValue (0, propertyValueName, property, snapshot, reservoir, formation, 0, THREEDTIMEIOTBL);
    propertyValue->createGridMap (getActivityOutputGrid (), depth);
 
    return propertyValue;
@@ -3163,9 +3280,56 @@ static herr_t ListVolumePropertyValues (hid_t groupId, const char * propertyValu
 /// Does not load the actual values of thr PropertyValues, this is done on demand only.
 bool ProjectHandle::loadVolumePropertyValues (void)
 {
-													//1DComponent	
    if (!wasProducedByFastCauldron () || Interface::MODE1D == getModellingMode()) return false;
 
+   database::Table* timeIoTbl = getTable ("3DTimeIoTbl");
+   if (timeIoTbl == 0 || timeIoTbl->size() == 0)
+   {
+      return loadVolumePropertyValuesViaSnapshotIoTbl();
+   }
+   else
+   {
+      return loadVolumePropertyValuesVia3DTimeIoTbl();
+   }
+}
+
+bool ProjectHandle::loadVolumePropertyValuesVia3DTimeIoTbl (void)
+{
+   database::Table * timeIoTbl = getTable ("3DTimeIoTbl");
+   database::Table::iterator tblIter;
+   for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++tblIter)
+   {
+      Record *timeIoRecord = *tblIter;
+      const string & propertyValueName = database::getPropertyName (timeIoRecord);
+
+      const Property *property = findProperty (propertyValueName);
+      if (property == 0)
+      {
+         PropertyType propertyType = Interface::FORMATIONPROPERTY;
+
+         cerr << "WARNING: loadVolumePropertyValuesVia3DTimeIoTbl: Could not find property named: " << propertyValueName << ", creating it on the fly" << endl;
+         addProperty (getFactory ()->produceProperty (this, 0, propertyValueName, propertyValueName, "", propertyType));
+         property = findProperty (propertyValueName);
+      }
+
+      const string & formationName = database::getFormationName (timeIoRecord);
+      const Formation * formation = findFormation (formationName);
+      assert (formation != 0);
+
+      double time = database::getTime (timeIoRecord);
+      const Snapshot * snapshot = findSnapshot (time, MINOR | MAJOR);
+      assert (snapshot != 0);
+
+      addPropertyValue (timeIoRecord, propertyValueName,
+	    property, snapshot, 0, formation, 0, THREEDTIMEIOTBL);
+   }
+
+   return true;
+}
+
+
+bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl (void)
+{
    database::Table* snapshotIoTbl = getTable ("SnapshotIoTbl");
    database::Table::iterator tblIter;
    for (tblIter = snapshotIoTbl->begin (); tblIter != snapshotIoTbl->end (); ++tblIter)
@@ -3972,83 +4136,6 @@ void ProjectHandle::numberInputValues (void)
    }
 }
 
-void ProjectHandle::convertInputValuesToBPA (Transaction * transaction) const
-{
-   MutableInputValueList::const_iterator inputValueIter;
-
-   for (inputValueIter = m_inputValues.begin (); inputValueIter != m_inputValues.end (); ++inputValueIter)
-   {
-      InputValue * inputValue = * inputValueIter;
-      inputValue->convertToBPA (transaction);
-   }
-}
-
-void ProjectHandle::saveInputValues (const string & directory, vector<string> & fileNames) const
-{
-   MutableInputValueList::const_iterator inputValueIter;
-
-   for (inputValueIter = m_inputValues.begin (); inputValueIter != m_inputValues.end (); ++inputValueIter)
-   {
-      InputValue * inputValue = * inputValueIter;
-      string fileName = inputValue->saveToDirectory (directory);
-      // cerr << "saved input file: " << fileName << " to directory: " << directory << endl;
-      if (fileName != "") fileNames.push_back (fileName);
-   }
-}
-
-void ProjectHandle::savePropertyValues (const string & rootDirectory, const string & subdir, Interface::PropertyValueList * propertyValues,
-      vector<string> & fileNames) const
-{
-   Interface::PropertyValueList::iterator propertyValueIter;
-
-   for (propertyValueIter = propertyValues->begin (); propertyValueIter != propertyValues->end (); ++propertyValueIter)
-   {
-      PropertyValue * propertyValue = (PropertyValue *) (* propertyValueIter);
-      string fileName = propertyValue->saveToDirectory (rootDirectory + '/' + subdir);
-      // cerr << "saved output file: " << fileName << " to directory: " << rootDirectory + '/' + subdir << endl;
-      if (fileName != "") fileNames.push_back (subdir + '/' + fileName);
-   }
-}
-
-
-void ProjectHandle::cleanUpPropertyValues (database::Table * timeIoTbl,
-      database::Transaction * transaction,
-      Interface::PropertyValueList * propertyValues) const
-{
-   assert (false);
-#ifdef NOTCOMPILING
-   database::Table::iterator tblIter;
-   for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end ();)
-   {
-      Record * timeIoRecord = * tblIter;
-      Interface::PropertyValueList::iterator propertyValueIter;
-
-      bool foundRecord = false;
-      for (propertyValueIter = propertyValues->begin (); propertyValueIter != propertyValues->end (); ++propertyValueIter)
-      {
-	 const Interface::PropertyValue * propertyValue = (Interface::PropertyValue *) * propertyValueIter;
-	 if (propertyValue->getRecord () == timeIoRecord)
-	 {
-	    foundRecord = true;
-	    break;
-	 }
-      }
-
-      if (!foundRecord)
-      {
-	 // remove record from table
-	 timeIoTbl->deleteRecord (tblIter, transaction);
-      }
-      else
-      {
-	 timeIoRecord = timeIoRecord->edit (transaction);
-	 setMapFileName (timeIoRecord, "");
-	 ++tblIter;
-      }
-   }
-#endif
-}
-
 
 void ProjectHandle::loadPropertyGridMaps (Interface::PropertyValueList * propertyValues) const
 {
@@ -4231,167 +4318,6 @@ void splitFilePath (const string & filePath, string & directoryName, string & fi
    }
 }
 
-bool ProjectHandle::saveForBPA (const string & filePath, Interface::PropertyValueList * propertyValues,
-      vector<string> & inputMapFileNames, vector<string> & outputMapFileNames) const
-{
-   if (filePath.length () == 0)
-      return 0;
-
-
-   ofstream outFile;
-
-   string directoryName;
-   string fileName;
-
-   splitFilePath (filePath, directoryName, fileName);
-
-#if defined(_WIN32) || defined (_WIN64)
-   if (mkdir (directoryName.c_str ()) < 0 && errno != EEXIST)
-#else
-   if (mkdir (directoryName.c_str (), S_IRWXU | S_IRGRP | S_IXGRP) < 0 && errno != EEXIST)
-#endif
-   {
-      perror (directoryName.c_str ());
-      return 0;
-   }
-
-   outFile.open (filePath.c_str (), ios::out);
-
-   if (outFile.fail ())
-   {
-      cerr << "Error occurred during opening file " << filePath << endl;
-      return 0;
-   }
-
-   outFile << ";" << endl;
-   time_t secs = time (0);
-
-   outFile << "; START - " << fileName << " " << ctime (&secs) << ";" << endl;
-   Database::iterator dbIter;
-
-   loadInputGridMaps ();
-   loadPropertyGridMaps (propertyValues);
-
-   Transaction * transaction = m_database->createTransaction ();
-
-   convertInputValuesToBPA (transaction);
-
-   // remove the filenames from the snapshotiotbl
-   resetSnapshotIoTbl (transaction);
-
-   if (propertyValues && propertyValues->size () > 0)
-   {
-      // set the cauldron outputdir to match the filename
-      setOutputDir (transaction, fileName);
-
-      // now, create this output dir
-      string outputDirectoryName = directoryName + '/' + getOutputDir ();
-
-#if defined(_WIN32) || defined (_WIN64)
-      if (mkdir (outputDirectoryName.c_str ()) < 0 && errno != EEXIST)
-#else
-      if (mkdir (outputDirectoryName.c_str (), S_IRWXU | S_IRGRP | S_IXGRP) < 0 && errno != EEXIST)
-#endif
-      {
-	 perror (outputDirectoryName.c_str ());
-	 return 0;
-      }
-   }
-
-   saveInputValues (directoryName, inputMapFileNames);
-   computeInputChecksums (directoryName, transaction);
-
-   savePropertyValues (directoryName, getOutputDir (), propertyValues, outputMapFileNames);
-
-   Table * timeIoTbl = m_database->getTable ("TimeIoTbl");
-   assert (timeIoTbl != 0);
-   cleanUpPropertyValues (timeIoTbl, transaction, propertyValues);
-
-   computeOutputChecksums (transaction, directoryName, propertyValues);
-
-   for (dbIter = m_database->begin (); dbIter != m_database->end (); ++dbIter)
-   {
-      Table * table = * dbIter;
-
-      if (table->name () == "DepthIoTbl") continue;
-      if (table->name () == "DiffusionResultIoTbl") continue;
-      if (table->name () == "DepthMCIoTbl") continue;
-      if (table->name () == "TimeMCIoTbl") continue;
-
-      table->saveToStream (outFile);
-   }
-
-   outFile.close ();
-
-   transaction->rollBack ();
-
-   return true;
-}
-
-bool ProjectHandle::updateOriginal (const string & serverName, const string & serverProjectName,
-      const string & ownerOrgName, const string & checksum, Interface::PropertyValueList * propertyValues) const
-{
-   Table * timeIoTbl = getTable ("TimeIoTbl");
-   Table::iterator tblIter;
-   for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++tblIter)
-   {
-      Record * timeIoRecord = * tblIter;
-      setBPAPresence (timeIoRecord, false);
-   }
-
-   Interface::PropertyValueList::iterator propertyValueIter;
-
-   for (propertyValueIter = propertyValues->begin (); propertyValueIter != propertyValues->end (); ++propertyValueIter)
-   {
-      PropertyValue * propertyValue = (PropertyValue *) (* propertyValueIter);
-      Record * timeIoRecord = propertyValue->getRecord ();
-      setBPAPresence (timeIoRecord, true);
-   }
-
-   Table * projectIoTbl = m_database->getTable ("ProjectIoTbl");
-   Record * projectIoRecord = projectIoTbl->getRecord (0);
-   assert (projectIoRecord);
-   // setBPAServer (projectIoRecord, serverName);
-   // setBPAName (projectIoRecord, serverProjectName);
-   // setBPAOwnerOrg (projectIoRecord, ownerOrgName);
-   // setBPAChecksum (projectIoRecord, checksum);
-   m_database->resave ();
-
-   return true;
-}
-/*
-const string & ProjectHandle::getBPAServer (void) const
-{
-   Table * projectIoTbl = m_database->getTable ("ProjectIoTbl");
-   Record * projectIoRecord = projectIoTbl->getRecord (0);
-   assert (projectIoRecord);
-   return database::getBPAServer (projectIoRecord);
-}
-
-const string & ProjectHandle::getBPAName (void) const
-{
-   Table * projectIoTbl = m_database->getTable ("ProjectIoTbl");
-   Record * projectIoRecord = projectIoTbl->getRecord (0);
-   assert (projectIoRecord);
-   return database::getBPAName (projectIoRecord);
-}
-
-const string & ProjectHandle::getBPAOwnerOrg (void) const
-{
-   Table * projectIoTbl = m_database->getTable ("ProjectIoTbl");
-   Record * projectIoRecord = projectIoTbl->getRecord (0);
-   assert (projectIoRecord);
-   return database::getBPAOwnerOrg (projectIoRecord);
-}
-
-const string & ProjectHandle::getBPAChecksum (void) const
-{
-   Table * projectIoTbl = m_database->getTable ("ProjectIoTbl");
-   Record * projectIoRecord = projectIoTbl->getRecord (0);
-   assert (projectIoRecord);
-   return database::getBPAChecksum (projectIoRecord);
-}
-*/
 void ProjectHandle::computeInputChecksums (const string & directory, database::Transaction * transaction) const
 {
    MutableInputValueList::const_iterator inputValueIter;

@@ -82,6 +82,9 @@ namespace database
       /// print the record's content
       void printOn (ostream &);
 
+      /// Return the table name
+      inline const std::string & tableName (void);
+
       /// Find out if the record is locked but not by the specified Transaction
       inline bool isLocked (Transaction * transaction = 0);
 
@@ -727,6 +730,11 @@ namespace database
       TablePartitioning * tablePartitioning = getPartitioning (fieldName);
       assert (tablePartitioning);
       return tablePartitioning->getSubTable (value);
+   }
+
+   const std::string & Record::tableName (void)
+   {
+      return getTable()->name ();
    }
 
    void * Record::getField (int index)

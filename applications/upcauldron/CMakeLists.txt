@@ -1,4 +1,4 @@
-add_executable(upcauldron src/upcauldron.C)
+add_executable(upcauldron src/upcauldron.C src/process.C)
 
 bm_include_libraries(
 	TableIO

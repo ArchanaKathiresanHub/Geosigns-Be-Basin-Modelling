@@ -161,14 +161,14 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
    // change the default behaviour for labeling phases for high temperature span
    if ( m_ChangeAoverB ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( m_AoverB ); }
    // increase precision for nonlinear solver
-   pvtFlash::EosPack::getInstance().setNonLinearSolverTolerance( m_maxIters, m_stopTol ); 
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( m_maxIters, m_stopTol, m_newtonRelCoeff ); 
 
    // Call flasher to get compositions for phases
    bool res = pvtFlash::EosPack::getInstance().computeWithLumping( t, p, masses, phaseMasses, phaseDensities, NULL );  
 
    // revert back flasher settings
    if ( m_ChangeAoverB ) { pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm(); }
-   pvtFlash::EosPack::getInstance().resetToDefaulNonLinearSolverConvergencePrms();
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters();
 
    if ( !res ) return unknown;
 
@@ -186,7 +186,7 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
             {
                for ( int comp = 0; comp < iNc; ++comp )
                {  
-                  phaseMasses[phase][comp] /= totMass * pvtFlash::EosPack::getInstance().getMolWeightLumped( comp, gorm );
+                  phaseMasses[phase][comp] /= pvtFlash::EosPack::getInstance().getMolWeightLumped( comp, gorm );
                   total += phaseMasses[phase][comp];
                }
             }
@@ -209,7 +209,7 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
          break;
    }
 
-   // normalise fractions
+   // normalize fractions
    for ( int phase = 0; phase < iNp; ++phase )
    {
       for ( int comp = 0; comp < iNc; ++comp )
@@ -332,6 +332,7 @@ bool PTDiagramCalculator::doBisectionForContourLineSearch( size_t p1, size_t t1,
    assert( p1 < m_gridP.size() && p2 < m_gridP.size() && t1 < m_gridT.size() && t2 < m_gridT.size() );
 
    const int iLiquid = CBMGenerics::ComponentManager::Liquid;
+   const int iVapour = CBMGenerics::ComponentManager::Vapour;
 
    int phase1 = getPhase( p1, t1 );
    int phase2 = getPhase( p2, t2 );
@@ -366,33 +367,84 @@ bool PTDiagramCalculator::doBisectionForContourLineSearch( size_t p1, size_t t1,
 
    foundT = m_gridT[t1];
    foundP = m_gridP[p1];
- 
+
+   double dirConv = 0;
+   int    divergeSteps = -1;
+
    for ( int steps = 0; steps < g_MaxStepsNum && std::abs( V1 - V2 ) > m_eps; ++steps )
    {            
       double phaseFrac[2];
 
       // make the new guess
       double V = V1 + (frac - frac1)/(frac2 - frac1) * (V2 - V1);
+      
+      // can't find point
+      if ( V < 0.0 ) { return false; }
 
       int phase = getMassFractions( (bisectT ? foundP : V), (bisectT ? V : foundT), m_masses, phaseFrac );
       ++m_isoBisecIters;
+      
+      // we get fraction value outside of [ min(frac1,frac2), max(frac1, frac2)] span
+      // this means that function is not linear on given span
+      // use linear aproximation in this case
+      if ( std::min( frac1, frac2 ) > frac || std::max( frac1, frac2 ) < frac )
+      {
+         if ( bisectT ) foundT = V;
+         else           foundP = V;
+         return true;
+      }
 
+      if ( bothPhases == phase )
+      {
+         if( std::abs(phaseFrac[iLiquid] - frac) >= dirConv )
+         {
+            dirConv = std::abs(phaseFrac[iLiquid] - frac);
+            divergeSteps++;
+            if ( divergeSteps > 3 ) // algorithm diverged, just do linear interpolation
+            {
+              return false;
+            }
+         }
+         else if ( divergeSteps > 0 )
+         { 
+            divergeSteps--;
+         }
+      }
       if ( bothPhases != phase ) // outside of the bubble/dew curve
-      {
-         phaseFrac[iLiquid] = phase1 == phase ? 0.0 : 1.0;
+      {  
+         if ( phase == phase1 )
+         {
+            V1 = V;
+            frac1 = phaseFrac[iLiquid]; 
+         }
+         else if ( phase == phase2 )
+         {
+            V2 = V;
+            frac2 = phaseFrac[iLiquid];
+         }
+         else if ( bothPhases == phase1 && bothPhases == phase2 )
+         {
+            // use interpolation in this case
+            if ( bisectT ) foundT = V;
+            else           foundP = V;
+            return true;
+         }
+         else // there is another phase between 1 phase region and 2 phase region. It is looks like a problem of EosPack
+         {
+           return false;
+         }
       }
-
-      if ( phaseFrac[iLiquid] < frac )
-      {
-         V1 = V;
-         frac1 = phaseFrac[iLiquid]; 
-         phase1 = phase;
-      }
-      else if ( phaseFrac[iLiquid] > frac )
+      else if ( (frac - phaseFrac[iLiquid]) * (frac1 - frac2) > 0 )
       {
          V2 = V;
-         frac2 = phaseFrac[iLiquid];
+         frac2 = phaseFrac[iLiquid]; 
          phase2 = phase;
+      }
+      else if ( (frac - phaseFrac[iLiquid]) * (frac1 - frac2) < 0 )
+      {
+         V1 = V;
+         frac1 = phaseFrac[iLiquid];
+         phase1 = phase;
       }
       else // by some accident we found the value!
       {
@@ -1156,7 +1208,7 @@ double PTDiagramCalculator::findAoverBTerm()
    double abMax = -1.0;
    if ( m_critT + m_eps < foundCritT ) // should decrease A/B term
    {
-      while( m_critT + m_eps < foundCritT )
+      while( m_critT + m_eps < foundCritT  && m_AoverB > m_eps )
       {
          m_AoverB *= 0.8;
          if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
@@ -1172,7 +1224,7 @@ double PTDiagramCalculator::findAoverBTerm()
    }
    else if ( m_critT > m_eps + foundCritT ) // should increase A/B term
    {
-      while( m_critT > m_eps + foundCritT )
+      while( m_critT > m_eps + foundCritT && m_AoverB < 10 + m_eps )
       {
          m_AoverB *= 1.2;
          if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
@@ -1192,6 +1244,13 @@ double PTDiagramCalculator::findAoverBTerm()
       m_critP = foundCritP;
       return m_AoverB;
    } 
+
+   // check if m_AoverB goues outside of the bounds
+   if ( m_AoverB < m_eps || m_AoverB > 10 )
+   {
+      m_AoverB = abSaved;
+      return m_AoverB;
+   }
 
    // do bisections by A/B term
    for ( int steps = 0; steps < g_MaxStepsNum; ++steps )

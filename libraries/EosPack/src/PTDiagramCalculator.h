@@ -150,7 +150,8 @@ public:
    /// \brief Change the default value for nonlinear solver in PVT library
    /// \param stopTol stop tolerance for convergence of iterations, the default value for PTDiagramCalculator/EosPack 1e-6/1e-4
    /// \param maxItNum maximum iterations number, the default value for PTDiagramCalculator/EosPack 400/50
-   void setNonLinSolverConvPrms( double stopTol, int maxItNum ) { m_stopTol = stopTol; m_maxIters = maxItNum; }
+   /// \param newtonRelCoef relaxation coefficient for nonlinear Newton solver, the default value for PTDiagramCalculator/EosPack 0.2/1.0 
+   void setNonLinSolverConvPrms( double stopTol, int maxItNum, double newtonRelCoef ) { m_stopTol = stopTol; m_maxIters = maxItNum; m_newtonRelCoeff = newtonRelCoef; }
 
 private:
    DiagramType m_diagType;           ///< which type of diagram are calculating - Mass/Mole/Volume fraction
@@ -175,6 +176,7 @@ private:
    bool   m_ChangeAoverB;            ///< Should we use A/B term as EosPack parameter
    double m_stopTol;                 ///< Stop tolerance for nonlinear solver of EosPack
    int    m_maxIters;                ///< Max. iterations number for nonlinear solver of EosPack
+   double m_newtonRelCoeff;          ///< Rel. coefficient for Newton nonlinear solver of EosPack
 
    double m_critP;                   ///< critical point P
    double m_critT;                   ///< critical point T

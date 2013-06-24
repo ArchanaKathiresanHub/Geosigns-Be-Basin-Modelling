@@ -2,189 +2,238 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <iomanip>
+
+#include <memory>
+
+#include "experiment.h"
+extern bool verbose;
 
 #include "BasementProperty.h"
 #include "RuntimeConfiguration.h"
-#include "experiment.h"
-#include <unistd.h>
+#include "DatadrillerProperty.h"
+#include "Scenario.h"
+#include "projectdependencies.h"
+#include "formattingexception.h"
+#include "system.h"
 
-Experiment :: Experiment( std::vector< Property *> params, std::vector<DatadrillerProperty> & DatadrillerDefinitions, RuntimeConfiguration & datainfo)
-  : m_cases(1, Case() )
-  , m_experiment_info(datainfo)
+#include "Interface/ProjectHandle.h"
+
+Experiment :: Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & datadrillerDefinitions, const RuntimeConfiguration & dataInfo)
+   : m_scenarios( sample(params) )
+   , m_probes(datadrillerDefinitions)
+   , m_experimentInfo(dataInfo)
 {
-//m_cases.push_back( Case() );
-Experiment::sample( params, m_cases);
-std::cout << "m_cases: " << m_cases.size() << std::endl;
-std::cout << m_experiment_info.getTemplateProjectFile() << std::endl;
-Experiment::define_datamining(DatadrillerDefinitions , m_cases);
 }
 
-void Experiment::sample( std::vector<Property *> parameterDefinitions, std::vector< Case > & allProjects )
+std::vector< Scenario > Experiment::sample( const std::vector< boost::shared_ptr<Property> > & properties)
 {
+   std::vector< Scenario > scenarios(1);
+   std::vector< Scenario > newScenarios;
+   for (unsigned p = 0 ; p < properties.size(); ++p)
+   {
+      Property & property = *properties[p];
 
-  if (parameterDefinitions.empty())
-    return;
+      newScenarios.clear();
+      for (unsigned i = 0; i < scenarios.size(); ++i)
+      {
+         for( property.reset(); ! property.isPastEnd(); property.nextValue())
+         {
+            newScenarios.push_back( scenarios[i] );
+            property.createParameter( newScenarios.back() );
+         }
+      }
 
-  Property* lastParameterDefinition = parameterDefinitions.back();
-  parameterDefinitions.pop_back(); 
+      newScenarios.swap( scenarios );
+   }
 
-  sample(parameterDefinitions, allProjects );
-
-  std::vector< Case > newOutput;
-
-  std::cout << "Property: " << lastParameterDefinition->getName() << std::endl;
-  std::cout << "allProjects.size(): " << allProjects.size() << std::endl;
-
-  for (unsigned i = 0; i < allProjects.size(); ++i)
-  {
- 
-      std::cout << "lastParameterDefinition->getEnd(): " << lastParameterDefinition->getEnd() << std::endl;
-      std::cout << "lastParameterDefinition->getStep(): " << lastParameterDefinition->getStep() << std::endl;
-      std::cout << "++value <= lastParameterDefinition->getEnd(): " << (lastParameterDefinition->getStart() <= lastParameterDefinition->getEnd()) << std::endl;
-
-    for (double value = lastParameterDefinition->getStart() ; value <= lastParameterDefinition->getEnd(); value += lastParameterDefinition->getStep() )  
-    {
-
-      Case project = allProjects[i];
-      std::cout << "***Value experiment: " << value << std::endl;
-      lastParameterDefinition->CreateParameter(project, value);
-      project.display_Parameters();
-
-/*    Case project = allProjects[i];
-      pt_param = Parameter( lastParameterDefinition->getName(), value);
-      project.addParameter( pt_param );*/
-
-      newOutput.push_back( project );
-    }
-  }
-
-  allProjects.swap( newOutput );
+   return scenarios;
 }
 
-
-
-void Experiment::define_datamining( std::vector<DatadrillerProperty> & DatadrillerDefinitions, std::vector< Case > & allProjects )
+std::string Experiment::workingProjectFileName(unsigned scenarioNumber) const
 {
-  if (DatadrillerDefinitions.empty())
-    return;
-
-  DatadrillerProperty lastDatadrillerVariableDefinition = DatadrillerDefinitions.back();
-  DatadrillerDefinitions.pop_back(); 
-
-  define_datamining(DatadrillerDefinitions, allProjects );
-
-  std::vector< Case > newOutput;
-
-  std::cout << allProjects.size() << std::endl;
-
-  for (unsigned i = 0; i < allProjects.size(); ++i)
-  {
-    Case project = allProjects[i];
-    project.addVariableToDrill( DatadrillerProperty( lastDatadrillerVariableDefinition.getName() ) );
-    project.Define_location_to_drill(lastDatadrillerVariableDefinition);
-    newOutput.push_back( project );
-  }
-
-  allProjects.swap( newOutput );
-
+   std::ostringstream fileName;
+   fileName 
+         << m_experimentInfo.getOutputDirectory()
+         << '/'
+         << m_experimentInfo.getOutputFileNamePrefix()
+         << "_" << scenarioNumber + 1 
+         << ".project3d";
+   return fileName.str();
 }
 
-
-
-std::vector<std::string> Experiment :: create_projects_set()
+std::string Experiment::workingLogFileName(unsigned scenarioNumber) const
 {
-  std::vector<std::string> projects_list;
-  std::string inputProject = m_experiment_info.getTemplateProjectFile();
-  std::string outputProjectWithoutExtension = m_experiment_info.getOutputFileNamePrefix();
-  std::string::size_type dotPos = outputProjectWithoutExtension.rfind (".project3d");
-  if (dotPos != std::string::npos)
-  {
-    outputProjectWithoutExtension.erase(dotPos, std::string::npos);
-  }
+   std::ostringstream fileName;
+   fileName 
+         << m_experimentInfo.getOutputDirectory()
+         << "/Log_" << scenarioNumber + 1 
+         << ".txt";
+   return fileName.str();
+}
 
-//  std::cout << inputProject << std::endl;
-  std::ostringstream directory;
-  directory << m_experiment_info.getOutputDirectoryAddress() << "./";
+std::string Experiment::resultsFileName(unsigned scenarioNumber) const
+{
+   std::ostringstream fileName;
+   fileName 
+         << m_experimentInfo.getOutputDirectory()
+         << '/'
+         << "Datadriller_"
+         << m_experimentInfo.getOutputFileNamePrefix()
+         << "_" << scenarioNumber + 1 
+         << ".project3d.dat";
+   return fileName.str();
+}
 
-  for (unsigned i = 0; i < m_cases.size(); ++i)
-  {
-    std::ostringstream outputProject;
-    outputProject 
-      << outputProjectWithoutExtension
-      << "_" << i+1 
-      << ".project3d";
+struct CreateProjectSetException : formattingexception :: BaseException< CreateProjectSetException > {};
 
-    m_cases[i].create_project_file(inputProject, directory.str() + outputProject.str());
-    m_cases[i].set_ProjectFile(directory.str() + outputProject.str());
-    m_cases[i].set_ResultsFile(directory.str() + "Datadriller_" + outputProject.str());
+void Experiment :: createProjectsSet() const
+{
+   // check whether directory exist and is empty
+   const std::string workingDir =  m_experimentInfo.getOutputDirectory();
+   if ( !directoryExists(workingDir) || !directoryIsEmpty(workingDir) )
+      throw CreateProjectSetException() << "Path '" << workingDir << "' must be an existing, empty directory";
 
-    projects_list.push_back(directory.str() + outputProject.str());
+   // memorize the directory containing the template project
+   const std::string templateDir = getParentDirectory( m_experimentInfo.getTemplateProjectFile() );
 
-  }
-//  std::cout << projects_list.str() << std::endl;
+   // copy input maps that template project depends on
+   std::auto_ptr<DataAccess::Interface::ProjectHandle> templateProject(
+      DataAccess::Interface::OpenCauldronProject( m_experimentInfo.getTemplateProjectFile(), "r")
+   );
+   if (!templateProject.get())
+      throw CreateProjectSetException() << "Cannot load template project file '" 
+         << m_experimentInfo.getTemplateProjectFile() << "'";
 
-  return projects_list;
+   ProjectDependencies deps = getProjectDependencies( templateProject->getDataBase() );
+   for (unsigned i = 0; i < deps.inputMaps.size(); ++i)
+      copyFile( templateDir + '/' + deps.inputMaps[i], workingDir + '/' + deps.inputMaps[i]);
+
+   // generate project3d files
+   for (unsigned i = 0; i < m_scenarios.size(); ++i)
+      try
+      {
+         m_scenarios[i].createProjectFile( m_experimentInfo.getTemplateProjectFile(), workingProjectFileName(i));
+      }
+      catch (formattingexception::GeneralException & fe)
+      {
+	 std::cerr << std::endl;
+	 std::cerr << "Error in scenario " << i << ": ";
+	 std::cerr << fe.what () << std::endl;
+	 std::cerr << "Will ignore this scenario" << std::endl;
+	 std::cerr << std::endl;
+      }
 }
 
 
-/*  void Experiment :: run_projects_set(std::string File_List)
+void Experiment :: runProjectSet(const std::string &cauldronVersion) 
 {
-  std::string command="./TEST_FOLDER/cauldron-datadriller-parallel.sh ";
-  command=command+File_List;
-  std::cout << command << std::endl;
-  system(command.c_str());
+   const std::string fastcauldronPath = "fastcauldron";
+   const std::string runtimeParams = "-temperature";
 
-}*/
+   int scenariosFinished = 0;
 
-void Experiment :: runProjectSet( const std::vector< std::string > & fileList)
-{
-  const std::string version = "2012.1008";
-  const std::string fastcauldronPath = "fastcauldron";
-  const std::string runtimeParams = "-temperature";
+   // Start an OpenMP thread pool
+   #pragma omp parallel
+   {
+      // Execute the iterations of following for-loop in parallel
+      // The 'schedule(...)' bit says that each thread pulls 1 
+      // iteration at a time from the work-queue.
+      #pragma omp for schedule(dynamic, 1)
+      for (unsigned i = 0; i < m_scenarios.size(); ++i)
+      {
+	 if (verbose)
+	 {
+	    #pragma omp critical(printing)
+            if (m_scenarios[i].isValid ())
+	    {
+	       std::cout << "Starting scenario " << i + 1 << endl;
+	    }
+            else
+            {
+	       std::cout << "Skipping scenario " << i + 1 << endl;
+	    }
+	 }
 
-//  #pragma omp parallel for
-  for (unsigned i = 0; i < fileList.size(); ++i)
-  {
-    std::ostringstream command;
-    command << fastcauldronPath 
-            << " -v" << version
-            << " -project " << fileList[i]
-            << ' ' << runtimeParams;
-    
-  std::cout << command.str() << std::endl;
-  system( command.str().c_str() );
-  }
+         if (!m_scenarios[i].isValid ()) continue;
+
+         std::ostringstream command;
+         command << fastcauldronPath 
+                 << " -v" << cauldronVersion
+                 << " -project " << workingProjectFileName(i)
+                 << ' ' << runtimeParams
+		 << " > " <<  workingLogFileName (i) << " 2>&1";
+       
+         system( command.str().c_str() );
+
+	 if (verbose)
+	 {
+	    #pragma omp critical(printing)
+	    {
+	       std::cout << "Finished scenario " << i + 1 << std::endl;
+               ++scenariosFinished;
+	    }
+	 }
+      }
+   }
+   if (verbose)
+   {
+      std::cout << std::endl << "Finished " << scenariosFinished << ", skipped " << m_scenarios.size () - scenariosFinished << " scenarios " << std::endl;
+   }
 }
 
 
-void Experiment :: ReadExperimentResults()
+
+void Experiment :: collectResults() const
 {
-  for (unsigned i=0; i < m_cases.size(); ++i)
-  {
-    m_cases[i].readProjectFile();
-    m_cases[i].display_results();
-  }
+
+   for (unsigned i=0; i < m_scenarios.size(); ++i)
+   {
+      if (!m_scenarios[i].isValid ()) continue;
+
+      std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
+      ofs << "Datamining from project " << workingProjectFileName(i) << " :\n";
+
+      std::vector<double> zs;
+
+      m_probes[0].readDepth(zs);
+      ofs << "Depths " << " ";
+      for (size_t l = 0; l < zs.size(); ++l)
+         ofs << zs[l] << " ";
+
+      ofs << '\n';
+
+      for (unsigned j = 0; j < m_probes.size(); ++j)
+      {
+         std::vector<double> results;
+         m_probes[j].readResults(workingProjectFileName(i), results );
+
+         ofs << m_probes[j].getName() << " ";
+         for (size_t k = 0; k < results.size(); ++k)
+            ofs << results[k] << " ";
+
+         ofs << '\n';
+      }
+   }
 }
 
 
-void Experiment::ReadExperimentCases()
+
+void Experiment::printScenarios( std::ostream & output ) const
 {
-  for (int i=0; i < m_cases.size(); ++i)
-  {
-    m_cases[i].readProjectFile();
-    m_cases[i].display_results();
-  }
-
-}
-
-
-void Experiment::display_Cases() const
-{
-  std::cout << "Experiment::display_Cases()" << std::endl;
-  std::cout << "m_cases.size() " << m_cases.size() <<std::endl;
-
-  for (int i=0; i < m_cases.size(); ++i)
-  {
-    m_cases[i].display_Parameters();
-  }
+   if (m_scenarios.empty())
+   {
+      output << "Experiment has no scenarios\n";
+   }
+   else
+   {
+      output << "Scenarios of experiment\n";
+      for (int i=0; i < m_scenarios.size(); ++i)
+      {
+         output << std::setw(3) << i+1 << ") ";
+         m_scenarios[i].printParameters(output);
+         output << '\n';
+      }
+   }
 }

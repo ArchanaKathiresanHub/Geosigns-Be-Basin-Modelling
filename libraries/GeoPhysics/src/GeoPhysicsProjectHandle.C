@@ -1646,8 +1646,15 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
       }
 
       if ( currentFormation->isMobileLayer ()) {
-         cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] is not permitted " << endl;
-         return false;
+
+         if ( uncThickness <= MobileLayerNegativeThicknessTolerance ) {
+            uncThickness = 0.0;
+            continue;
+         } else {
+            cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] at position (" << i << ", " << j << ") " << thickness <<  "  is not permitted " << endl;
+            return false;
+         }
+
       }
 
       if ( currentFormation->getIsIgneousIntrusion ()) {
@@ -1836,6 +1843,10 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
 
       double segmentThickness = formation->getInputThicknessMap ()->getValue ( i, j ) / double ( formation->getMaximumNumberOfElements ());
 
+      if ( NumericFunctions::inRange<double>( segmentThickness, -MobileLayerNegativeThicknessTolerance, 0.0 )) {
+        segmentThickness = 0.0;
+      }
+
       if ( segmentThickness < 0.0 ) {
          onlyPositiveThickness = false;
 
@@ -1843,7 +1854,7 @@ bool GeoPhysics::ProjectHandle::setMobileLayerThicknessHistory ( const unsigned 
             ++numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ];
 
             if ( numberOfErrorsPerLayer [ formation->getDepositionSequence () - 1 ] <= MaximumNumberOfErrorsPerLayer ) {
-               cout << " MeSsAgE ERROR negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ")." << endl;
+               cout << " MeSsAgE ERROR negative mobile layer thickness detected in formation '" << formation->getName () << "' at position (" << i << ", " << j  << ").  " << formation->getInputThicknessMap ()->getValue ( i, j ) << endl;
             }
 
          }

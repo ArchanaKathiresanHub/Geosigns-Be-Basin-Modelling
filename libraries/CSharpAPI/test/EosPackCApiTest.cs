@@ -12,7 +12,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shell.BasinModeling.CSharpAPI;
+using Shell.BasinModeling.Cauldron;
 using Shell.Ocean.Petrel.BasinModeling.BPACauldronLink.Data;
 
 
@@ -104,34 +104,80 @@ namespace BasinModelingLinkTest
             Assert.IsTrue(Math.Abs(sumLiquid - 6575148.3435530625) < 0.00001, "Liquid mass not as expected");
         }
 
+        [TestMethod]
+        public void FlashVapourLiquidTestUsingArrays()
+        {
+           double[] masses        = new double[(int)ComponentId.NUM_COMPONENTS];
+           double[] phaseMasses   = new double[(int)ComponentId.NUM_COMPONENTS * (int)CauldronAPI.N_PHASES];
+           double[] phaseDensity  = new double[(int)CauldronAPI.N_PHASES];
+           double[] phaseViscosity = new double[(int)CauldronAPI.N_PHASES];
+
+           InitializeCompositionMasses(masses);
+
+           CauldronAPI.EosPackComputeWithLumpingArr(373.15, 1e6, masses, false, 0.0, phaseMasses, phaseDensity, phaseViscosity);
+
+           double[] totPhaseMass = new double[(int)CauldronAPI.N_PHASES];
+
+           for (int i = 0; i < (int)CauldronAPI.N_PHASES; ++i)
+           {
+              totPhaseMass[i] = 0.0;
+              for (int j = 0; j < (int)ComponentId.NUM_COMPONENTS; ++j)
+              {
+                 totPhaseMass[i] += phaseMasses[i * ((int)ComponentId.NUM_COMPONENTS) + j];
+              }
+           }
+           double sumVapour = totPhaseMass[(int)BpaPhase.Vapour];
+           Assert.IsTrue(Math.Abs(sumVapour - 851393.6564469377) < 0.00001, "Vapour mass not as expected");
+
+           double sumLiquid = totPhaseMass[(int)BpaPhase.Liquid];
+           Assert.IsTrue(Math.Abs(sumLiquid - 6575148.3435530625) < 0.00001, "Liquid mass not as expected");
+        }
+
+        [TestMethod]
+        public void GormCalculationTest()
+        {
+           double[] compos = new double[(int)ComponentId.NUM_COMPONENTS];
+           for (int i = 0; i < (int)ComponentId.NUM_COMPONENTS; ++i)
+           {
+              compos[i] = 1;
+           }
+           double gorm = CauldronAPI.Gorm(compos);
+           Assert.IsTrue(Math.Abs(gorm - 6.0/15.0) < 0.000001, "Gorm not as expected");
+        }
+
+
         #region Helper Methods
+        private static void InitializeCompositionMasses(double[] masses)
+        {
+           masses[(int)BpaComponent.Asphaltenes] = 1158F;
+           masses[(int)BpaComponent.Resins] = 21116F;
+           masses[(int)BpaComponent.C15Aro] = 2021F;
+           masses[(int)BpaComponent.C15Sat] = 19731F;
+           masses[(int)BpaComponent.C6_14Aro] = 339F;
+           masses[(int)BpaComponent.C6_14Sat] = 6328815F;
+           masses[(int)BpaComponent.C5] = 103238F;
+           masses[(int)BpaComponent.C4] = 187596F;
+           masses[(int)BpaComponent.C3] = 215881F;
+           masses[(int)BpaComponent.C2] = 232280F;
+           masses[(int)BpaComponent.C1] = 308969F;
+           masses[(int)BpaComponent.Cox] = 0F;
+           masses[(int)BpaComponent.N2] = 5398F;
+           masses[(int)BpaComponent.H2S] = 0F;
+           masses[(int)BpaComponent.LSC] = 0F;
+           masses[(int)BpaComponent.C15_AT] = 0F;
+           masses[(int)BpaComponent.C6_14BT] = 0F;
+           masses[(int)BpaComponent.C6_14DBT] = 0F;
+           masses[(int)BpaComponent.C6_14BP] = 0F;
+           masses[(int)BpaComponent.C15_AROS] = 0F;
+           masses[(int)BpaComponent.C15_SATS] = 0F;
+           masses[(int)BpaComponent.C6_14SATS] = 0F;
+           masses[(int)BpaComponent.C6_14AROS] = 0F;
+        }
+        
         private static void InitializeCompositionMasses(ComputeStruct computeStruct)
         {
             double[] masses = new double[(int) ComponentId.NUM_COMPONENTS];
-
-            masses[(int)BpaComponent.Asphaltenes] = 1158F;
-            masses[(int)BpaComponent.Resins] = 21116F;
-            masses[(int)BpaComponent.C15Aro] = 2021F;
-            masses[(int)BpaComponent.C15Sat] = 19731F;
-            masses[(int)BpaComponent.C6_14Aro] = 339F;
-            masses[(int)BpaComponent.C6_14Sat] = 6328815F;
-            masses[(int)BpaComponent.C5] = 103238F;
-            masses[(int)BpaComponent.C4] = 187596F;
-            masses[(int)BpaComponent.C3] = 215881F;
-            masses[(int)BpaComponent.C2] = 232280F;
-            masses[(int)BpaComponent.C1] = 308969F;
-            masses[(int)BpaComponent.Cox] = 0F;
-            masses[(int)BpaComponent.N2] = 5398F;
-            masses[(int)BpaComponent.H2S] = 0F;
-            masses[(int)BpaComponent.LSC] = 0F;
-            masses[(int)BpaComponent.C15_AT] = 0F;
-            masses[(int)BpaComponent.C6_14BT] = 0F;
-            masses[(int)BpaComponent.C6_14DBT] = 0F;
-            masses[(int)BpaComponent.C6_14BP] = 0F;
-            masses[(int)BpaComponent.C15_AROS] = 0F;
-            masses[(int)BpaComponent.C15_SATS] = 0F;
-            masses[(int)BpaComponent.C6_14SATS] = 0F;
-            masses[(int)BpaComponent.C6_14AROS] = 0F;
+            InitializeCompositionMasses(masses);
 
             Assert.AreEqual(masses.Length, (int) ComponentId.NUM_COMPONENTS);
 

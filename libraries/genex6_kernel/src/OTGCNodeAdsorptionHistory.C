@@ -75,7 +75,7 @@ Genex6::OTGCNodeAdsorptionHistory::HistoryItem::HistoryItem () {
 void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node ) {
 
    const Genex6::Input* nodeInput = node->getLastInput ();
-   Genex6::SimulatorState* simulatorState = &node->GetSimulatorStateForHistory ();
+   Genex6::SimulatorState* simulatorState = &node->getPrincipleSimulatorState ();
 
    if ( nodeInput != 0 and simulatorState != 0 ) {
       using namespace Constants;

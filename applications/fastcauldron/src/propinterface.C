@@ -71,7 +71,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 {
    database = 0;
    timeIoTbl = 0;
-   depthIoTbl = 0;
    runStatusIoTbl = 0;
    m_saveOnDarcyError = false;
 
@@ -778,8 +777,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetInt  ( PETSC_NULL, "-fcctmodel", &crustThinningModel, &crustThinningModelChanged ); 
    PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged ); 
 
-   // By default permafrost always available
-   //PetscOptionsHasName ( PETSC_NULL, "-latentheat", &petscLatentHeat ); 
+   PetscOptionsHasName ( PETSC_NULL, "-latentheat", &petscLatentHeat ); 
 
    PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
 
@@ -1244,10 +1242,6 @@ bool AppCtx::openProject ()
 
    timeIoTbl = database->getTable ("TimeIoTbl");
    PETSC_ASSERT (timeIoTbl);
-   //timeIoTbl->clear ();
-
-   depthIoTbl = database->getTable ("DepthIoTbl");
-   PETSC_ASSERT (depthIoTbl);
 
    runStatusIoTbl = database->getTable ("RunStatusIoTbl");
    PETSC_ASSERT (runStatusIoTbl);
@@ -1713,6 +1707,7 @@ Record * AppCtx::getRunStatusRecord (void)
 void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
 
   database::Table* localTimeIoTbl = database->getTable ("TimeIoTbl");
+  database::Table* local3DTimeIoTbl = database->getTable ("3DTimeIoTbl");
 
   if ( currentOperation == DecompactionRunStatusStr ||
        currentOperation == HydrostaticTemperatureRunStatusStr ||
@@ -1720,6 +1715,7 @@ void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
        currentOperation == CoupledPressureTemperatureRunStatusStr ) {
 
     localTimeIoTbl->clear ();
+    local3DTimeIoTbl->clear ();
 
   } else if ( currentOperation == HighResDecompactionRunStatusStr ||
               currentOperation == OverpressuredTemperatureRunStatusStr ) {
@@ -1858,86 +1854,6 @@ void AppCtx::deleteMinorSnapshotsFromTimeIOTable ( const snapshottimeContainer& 
 #endif
 
 }
-
-//------------------------------------------------------------//
-
-bool AppCtx::addTimeIoRecord( const string& propertyName,
-                              const double  time,
-                              const string& surfaceName, 
-                              const string& formationName, 
-                              const string& propertyGrid,
-                              const int     depoSeq,
-                              const string& MapFileName, 
-                              const double  propValue) {
-
-   PETSC_ASSERT (timeIoTbl);
-   Record *record = timeIoTbl->createRecord ();
-
-   if ( isModellingMode3D() )
-   {
-      deleteTimeIORecord ( propertyName, time, surfaceName, formationName );
-   }
-   setPropertyName (record, propertyName);
-   setTime (record, time);
-   setSurfaceName (record, surfaceName);
-   setFormationName (record, formationName);
-   setPropertyGrid (record, propertyGrid);
-   setDepoSequence (record, depoSeq);
-   setMapFileName (record, MapFileName);
-
-   setAverage (record, propValue);
-   setStandardDev (record, IBSNULLVALUE);
-   setMinimum (record, propValue);
-   setMaximum (record, propValue);
-   setSum (record, propValue);
-   setSum2 (record, (propValue == IBSNULLVALUE ? IBSNULLVALUE : propValue*propValue) );
-   setNP (record, int ( IBSNULLVALUE ));
-   setP15 (record, IBSNULLVALUE);
-   setP50 (record, IBSNULLVALUE);
-   setP85 (record, IBSNULLVALUE);
-   setSumFirstPower (record, propValue);
-   setSumSecondPower (record, IBSNULLVALUE);
-   setSumThirdPower (record, IBSNULLVALUE);
-   setSumFourthPower (record, IBSNULLVALUE);
-   setSkewness (record, IBSNULLVALUE);
-   setKurtosis (record, IBSNULLVALUE);
-   return true;
-}
-
-//------------------------------------------------------------//
-
-bool AppCtx::addDepthIoRecord (const string & propertyName, 
-                               const double time,
-                               const double depth,
-                               const double propValue)
-{
-
-   PETSC_ASSERT (depthIoTbl);
-   Record *record = depthIoTbl->createRecord ();
-
-   setPropertyName (record, propertyName);
-   setTime (record, time);
-   setDepth_ (record, depth);
-   setAverage (record, propValue);
-   setStandardDev (record, IBSNULLVALUE);
-   setMinimum (record, propValue);
-   setMaximum (record, propValue);
-   setSum (record, propValue);
-   setSum2 (record, (propValue == IBSNULLVALUE ? IBSNULLVALUE : propValue*propValue) );
-   setNP (record, int ( IBSNULLVALUE ));
-   setP15 (record, IBSNULLVALUE);
-   setP50 (record, IBSNULLVALUE);
-   setP85 (record, IBSNULLVALUE);
-   setSumFirstPower (record, propValue);
-   setSumSecondPower (record, IBSNULLVALUE);
-   setSumThirdPower (record, IBSNULLVALUE);
-   setSumFourthPower (record, IBSNULLVALUE);
-   setSkewness (record, IBSNULLVALUE);
-   setKurtosis (record, IBSNULLVALUE);
-
-   return true;
-}
-
 
 //------------------------------------------------------------//
 

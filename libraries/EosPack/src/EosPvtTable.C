@@ -11,7 +11,9 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <cassert>
 
+#define dSQ3 1.73205080756888  // square root of 3.0
 /*
 // New Cubic Method
 */
@@ -5776,8 +5778,6 @@ void EosPvtTable::ZFactor( int iM, int iDrv, int iEnergy, int iPhase, double *pP
    /* Set numerical terms */
 #ifdef EOS_NEW_CUBIC
    const double  dSmall = 1.0e-10;
-#else
-   const double  dS3 = sqrt( 3.0 );
 #endif
    const double  dThird = 1.0 / 3.0;
 
@@ -5819,7 +5819,8 @@ void EosPvtTable::ZFactor( int iM, int iDrv, int iEnergy, int iPhase, double *pP
       dT = dZ * dZ;
       dX = dT + dQ;
       dS = ( dZ * dX - dR ) / ( dX + dT + dT );
-      for ( int it = 0; ( ( dS > 0.0 ? dS : ( -dS ) ) > dSmall ) && ( it < 20 ); it++ )
+      int it;
+      for ( it = 0; ( ( dS > 0.0 ? dS : ( -dS ) ) > dSmall ) && ( it < 20 ); it++ )
       {
          dZ -= dS;
          dT = dZ * dZ;
@@ -5827,101 +5828,107 @@ void EosPvtTable::ZFactor( int iM, int iDrv, int iEnergy, int iPhase, double *pP
          dS = ( dZ * dX - dR ) / ( dX + dT + dT );
       }
 
-      /* Add the transformation */
-      dZ -= dS;
-
-      /* Get the other roots */
-      if ( dG < 0.0 )
+      if ( it < 20 && (dS > 0.0 ? dS : ( -dS )) < dSmall )
       {
-         dS = -3.0 * dZ * dZ - 4.0 * dQ;
-         dS = dS < 0.0 ? 0.0 : dS;
-         if ( dR < 0.0 )
+         /* Add the transformation */
+         dZ -= dS;
+
+         /* Get the other roots */
+         if ( dG < 0.0 )
          {
-            dT = dZ;
-            dZ = dY + 0.5 * ( sqrt( dS ) - dT );
-            dT += dY;
+            dS = -3.0 * dZ * dZ - 4.0 * dQ;
+            dS = dS < 0.0 ? 0.0 : dS;
+            if ( dR < 0.0 )
+            {
+               dT = dZ;
+               dZ = dY + 0.5 * ( sqrt( dS ) - dT );
+               dT += dY;
+            }
+            else
+            {
+               dT = dY - 0.5 * ( dZ + sqrt( dS ) );
+               dZ += dY;
+            }
+
+            /* Select the correct root */
+            if ( ( dT > dB ) && ( dE > 2.0 ) && ( dB <= m_dKb3 ) )
+            {
+               /* TODO: The next line is too long. Please rewrite to make it shorter. */
+               if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > 
+                      dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
+               {
+                  dZ = dT;
+                  dF = 1.0;
+               }
+            }
          }
          else
          {
-            dT = dY - 0.5 * ( dZ + sqrt( dS ) );
             dZ += dY;
          }
-
-         /* Select the correct root */
-         if ( ( dT > dB ) && ( dE > 2.0 ) && ( dB <= m_dKb3 ) )
-         {
-            /* TODO: The next line is too long. Please rewrite to make it shorter. */
-            if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
-            {
-               dZ = dT;
-               dF = 1.0;
-            }
-         }
       }
-      else
-      {
-         dZ += dY;
-      }
-
-#else
-      /* Single real root */
-      if ( dG > 0.0 )
-      {
-         dZ = sqrt( dG );
-         dX = dR + dZ;
-         dS = ( dX < 0.0 ) ? -1.0 : 1.0;
-         dX *= dS;
-         dS *= pow( dX, dThird );
-         dX = dR - dZ;
-         dT = ( dX < 0.0 ) ? -1.0 : 1.0;
-         dX *= dT;
-         dT *= pow( dX, dThird );
-         dZ = dY + dS + dT;
-      }
-
-      /* Inflection single root */
-      else if ( dG == 0.0 )
-      {
-         dZ = sqrt( -dQ );
-         dZ = dY + dZ + dZ;
-      }
-
-      /* Choose the correct root */
-      else if ( dA >= 2.0 * dB )
-      {
-         dZ = sqrt( -dQ );
-         dX = -dR / dQ / dZ;
-         dX = ( dX > 1.0 ) ? 1.0 : ( ( dX < -1.0 ) ? -1.0 : dX );
-         dT = dZ + dZ;
-         dS = acos( dX ) / 6.0;
-         dZ = cos( dS );
-         dS = dZ * ( dS3 * sin( dS ) + dZ ) - 0.5;
-         dZ = dY + dT * ( 2.0 * dZ * dZ - 1.0 );
-         dT = dY - dT * dS;
-         if ( dT > dB )
-         {
-            /* TODO: The next line is too long. Please rewrite to make it shorter. */
-            if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
-            {
-               dZ = dT;
-               dF = 1.0;
-            }
-         }
-      }
-
-      /* Two roots but one negative */
-      else
-      {
-         dZ = sqrt( -dQ );
-         dX = -dR / dQ / dZ;
-         dX = ( dX > 1.0 ) ? 1.0 : ( ( dX < -1.0 ) ? -1.0 : dX );
-         dS = cos( acos( dX ) / 6.0 );
-         dZ = dY + ( dZ + dZ ) * ( 2.0 * dS * dS - 1.0 );
-      }
-
-      /* Take one Newton iteration */
-      dZ = ( dZ * dZ * ( dZ + dZ - dW ) + dU ) / ( dZ * ( 3.0 * dZ - dW - dW ) + dV );
+      else // Newton doesn't converged, use old cubic solver
 #endif
+      {
+         /* Single real root */
+         if ( dG > 0.0 )
+         {
+            dZ = sqrt( dG );
+            dX = dR + dZ;
+            dS = ( dX < 0.0 ) ? -1.0 : 1.0;
+            dX *= dS;
+            dS *= pow( dX, dThird );
+            dX = dR - dZ;
+            dT = ( dX < 0.0 ) ? -1.0 : 1.0;
+            dX *= dT;
+            dT *= pow( dX, dThird );
+            dZ = dY + dS + dT;
+         }
+
+         /* Inflection single root */
+         else if ( dG == 0.0 )
+         {
+            dZ = sqrt( -dQ );
+            dZ = dY + dZ + dZ;
+         }
+
+         /* Choose the correct root */
+         else if ( dA >= 2.0 * dB )
+         {
+            dZ = sqrt( -dQ );
+            dX = -dR / dQ / dZ;
+            dX = ( dX > 1.0 ) ? 1.0 : ( ( dX < -1.0 ) ? -1.0 : dX );
+            dT = dZ + dZ;
+            dS = acos( dX ) / 6.0;
+            dZ = cos( dS );
+            dS = dZ * ( dSQ3 * sin( dS ) + dZ ) - 0.5;
+            dZ = dY + dT * ( 2.0 * dZ * dZ - 1.0 );
+            dT = dY - dT * dS;
+            if ( dT > dB )
+            {
+               /* TODO: The next line is too long. Please rewrite to make it shorter. */
+               if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > 
+                     dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
+               {
+                  dZ = dT;
+                  dF = 1.0;
+               }
+            }
+         }
+
+         /* Two roots but one negative */
+         else
+         {
+            dZ = sqrt( -dQ );
+            dX = -dR / dQ / dZ;
+            dX = ( dX > 1.0 ) ? 1.0 : ( ( dX < -1.0 ) ? -1.0 : dX );
+            dS = cos( acos( dX ) / 6.0 );
+            dZ = dY + ( dZ + dZ ) * ( 2.0 * dS * dS - 1.0 );
+         }
+
+         /* Take one Newton iteration */
+         dZ = ( dZ * dZ * ( dZ + dZ - dW ) + dU ) / ( dZ * ( 3.0 * dZ - dW - dW ) + dV );
+      }
       *pZ = dZ;
 
       /* Phase indicator for a single block */
@@ -6074,7 +6081,8 @@ void EosPvtTable::ZFactor( int iM, int iDrv, int iEnergy, int iPhase, double *pP
             if ( ( dT > dB ) && ( dE > 2.0 ) && ( dB <= m_dKb3 ) )
             {
                /* TODO: The next line is too long. Please rewrite to make it shorter. */
-               if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
+               if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > 
+                     dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
                {
                   dZ = dT;
                   dF = 1.0;
@@ -6118,13 +6126,14 @@ void EosPvtTable::ZFactor( int iM, int iDrv, int iEnergy, int iPhase, double *pP
             dT = dZ + dZ;
             dS = acos( dX ) / 6.0;
             dZ = cos( dS );
-            dS = dZ * ( dS3 * sin( dS ) + dZ ) - 0.5;
+            dS = dZ * ( dSQ3 * sin( dS ) + dZ ) - 0.5;
             dZ = dY + dT * ( 2.0 * dZ * dZ - 1.0 );
             dT = dY - dT * dS;
             if ( dT > dB )
             {
                /* TODO: The next line is too long. Please rewrite to make it shorter. */
-               if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
+               if ( ( dZ - dT ) - log( ( dZ - dB ) / ( dT - dB ) ) > 
+                     dE * ( m_dKb8 * log( ( ( dZ + dC ) / ( dZ + dD ) ) * ( ( dT + dD ) / ( dT + dC ) ) ) + m_dKb9 * ( dB / ( dZ + dC ) - dB / ( dT + dC ) ) ) )
                {
                   dZ = dT;
                   dF = 1.0;

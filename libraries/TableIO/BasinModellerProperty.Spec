@@ -699,6 +699,15 @@ START-properties
     Property I/O        : No
     Default		: 2
     
+    Identification      : NumberZ
+    Description         : Number of nodes in the Z direction
+    Unit of measurement : 
+    Type                : smallint
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default		: 2
+    
     Identification      : ScaleX
     Description         : Division factor in the X direction (Easting)
     Unit of measurement : 
@@ -1012,6 +1021,22 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
+    Identification      : DataSetName
+    Description         : DataSet name in the file
+    Unit of measurement : 
+    Type                : string
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+    Identification      : GroupName
+    Description         : Group name in the file
+    Unit of measurement : 
+    Type                : string
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
     Identification      : FileId
     Description         : inode number identifying the file
     Unit of measurement : 
@@ -1060,6 +1085,14 @@ START-properties
     Description         : Name of formation (input by user)
     Unit of measurement : 
     Type                : string
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+    Identification      : NodeIndex
+    Description         : Index of the node in the formation
+    Type                : integer
+    Unit of measurement : 
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -1187,35 +1220,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
    
-    Identification      : LiquidusTemperature
-    Description         : The liquidus temperature specifies the maximum 
-                          temperature at which crystals can co-exist with 
-                          the melt in thermodynamic equilibrium. The default
-                          liquidus temperature is defined for Std. Marine Water
-                          with 0.13 percent salininty
-
-    Unit of measurement : DegreesCelcius
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-    Default             :-9.03 
-
-    Identification      : SolidusTemperature  
-    Description         : The solidus is the locus of temperatures (a curve 
-                          on a phase diagram) below which a given substance
-                          is completely solid (crystallized). The default
-                          solidus temperature is defined for Std. Marine Water
-                          with 0.13 percent salininty
-
-
-    Unit of measurement : DegreesCelcius
-    Type                : double
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-    Default             : -11.1759660262894
-
     Identification      : FaultLithology
     Description         : name of lithology type used to model faults
     Unit of measurement :  
@@ -10278,8 +10282,6 @@ START-property-tables
     Column         : ThermCondtype
     Column         : Denstype
     Column         : Viscotype
-    Column         : LiquidusTemperature  
-    Column         : SolidusTemperature  
     Header         : Fluidtype Data
     Time dependent : No
     Property I/O   : Yes
@@ -10535,6 +10537,39 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
+    Identification : 3DTimeIoTbl
+    Description    : Table listing for 3D property values
+    Column         : Time
+    Column         : PropertyName
+    Column         : FormationName
+    Column         : MapFileName
+    Column         : GroupName
+    Column         : DataSetName
+    Column         : NumberX
+    Column         : NumberY
+    Column         : NumberZ
+    Column         : Average
+    Column         : Minimum
+    Column         : Maximum
+    Column         : Sum
+    Column         : Sum2
+    Column         : NP
+    Header         : 3D output results
+    Time dependent : No
+    Property I/O   : Yes
+
+    Identification : 1DTimeIoTbl
+    Description    : Table listing for 1D property values
+    Column         : Time
+    Column         : PropertyName
+    Column         : FormationName
+    Column         : NodeIndex
+    Column         : SurfaceName
+    Column         : Value
+    Header         : 1D output results
+    Time dependent : No
+    Property I/O   : Yes
+
     Identification : TimeMCResultIoTbl
     Description    : Table listing the property values
                      for all MC-runs and several time/surface combinations,
@@ -10707,8 +10742,10 @@ START-property-tables
 
     Identification : GenexHistoryLocationIoTbl
     Column         : FormationName
+    Column         : WellName
     Column         : XPlanePosition
     Column         : YPlanePosition
+    Column         : Filename
     Header         : Node simulation history
 
 # Shale Gas Tables
@@ -10856,6 +10893,8 @@ START-application-class-properties
     Property : DepthMCResultIoTbl
     Property : ExportDepthIoTbl
     Property : TimeIoTbl
+    Property : 3DTimeIoTbl
+    Property : 1DTimeIoTbl
     Property : TimeMCResultIoTbl
     Property : TimeSensResultIoTbl
     Property : ExportTimeIoTbl

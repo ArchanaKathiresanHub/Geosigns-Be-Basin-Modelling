@@ -11,7 +11,7 @@
  *******************************************************************/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shell.BasinModeling.CSharpAPI;
+using Shell.BasinModeling.Cauldron;
 
 
 namespace BasinModelingLinkTest

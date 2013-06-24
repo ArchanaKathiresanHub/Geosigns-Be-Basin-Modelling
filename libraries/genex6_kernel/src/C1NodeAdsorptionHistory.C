@@ -28,7 +28,7 @@ Genex6::C1NodeAdsorptionHistory::~C1NodeAdsorptionHistory () {
 void Genex6::C1NodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node ) {
 
    const Genex6::Input* nodeInput = node->getLastInput ();
-   Genex6::SimulatorState* simulatorState = &node->GetSimulatorStateForHistory ();
+   Genex6::SimulatorState* simulatorState = &node->getPrincipleSimulatorState ();
    // Genex6::SimulatorState& simulatorState = const_cast<Genex6::SimulatorState*>(node->GetSimulatorState ());
 
    if ( nodeInput != 0 and simulatorState != 0 ) {

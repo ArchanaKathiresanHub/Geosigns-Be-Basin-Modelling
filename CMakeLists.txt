@@ -12,7 +12,7 @@ Project(BasinModeling)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
 option( BM_PARALLEL "Build the parallel cauldron applications" ${UNIX} )
 option( BM_USE_OWN_MPICH_LOCK "Use our custom ADIOI_Set_lock functions in MPI library (Linux only)" ON )
-option( BM_BUILD_COMPLEMENTARY_APPS "Also build complementary apps" ON )
+option( BM_BUILD_COMPLEMENTARY_APPS "Also build complementary apps" OFF )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
@@ -233,6 +233,9 @@ find_package( Boost 1.33.0 )
 if (Boost_FOUND)
      include_directories(${Boost_INCLUDE_DIRS})
 endif()
+
+### OpennMP
+find_package(OpenMP)   
 
 ### Doxygen (for documentation generation)
 if(BM_BUILD_DOCS)
