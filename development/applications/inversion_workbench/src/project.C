@@ -142,6 +142,7 @@ double Project::getStartOfDeposition (database::Record * depositionRecord)
    database::Table * table = m_projectHandle->getTable("StratIoTbl");
    assert( table );
    database::Table::iterator iter = table->findRecordPosition (depositionRecord);
+   assert (iter != table-> end());
    ++iter;
    assert (iter != table-> end());
 
@@ -154,6 +155,9 @@ void Project::getUnconformityRecords (const std::string & depoFormationName, dat
 {
    database::Table * table = m_projectHandle->getTable("StratIoTbl");
    assert( table );
+
+   depositionRecord = 0;
+   erosionRecord = 0;
 
    for (database::Table::iterator tblIter = table->begin (); tblIter != table->end (); ++tblIter)
    {
@@ -254,8 +258,6 @@ void Project::setUnconformityLithologyProperty(const std::string & depoFormation
 void Project::setUnconformityProperty(const std::string & depoFormationName,
       const std::string & parameter, double value)
 {
-   const double UndefinedScalar = -9999;
-
    database::Record * erosionRecord = 0;
    database::Record * depositionRecord = 0;
 
@@ -263,8 +265,10 @@ void Project::setUnconformityProperty(const std::string & depoFormationName,
 
    if (parameter == "Thickness")
    {
-      database::setDepth (depositionRecord, UndefinedScalar);
-      database::setDepth (erosionRecord, UndefinedScalar);
+      using DataAccess::Interface::DefaultUndefinedScalarValue;
+
+      database::setDepth (depositionRecord, DefaultUndefinedScalarValue );
+      database::setDepth (erosionRecord, DefaultUndefinedScalarValue );
       database::setDepthGrid (depositionRecord, "");
       database::setDepthGrid (erosionRecord, "");
       database::setThicknessGrid (depositionRecord, "");
