@@ -77,10 +77,5 @@ add_test( NAME pvtFlash::GetMolWeight
    COMMAND EosPackTest gmw_capi
 )
 
-# Unit test for flasher
-#add_test( NAME EosPack::computeWithLumping
-#   COMMAND EosPackTest cwlmp
-#)
-
 
 
