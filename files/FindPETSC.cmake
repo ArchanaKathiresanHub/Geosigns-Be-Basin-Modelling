@@ -40,7 +40,8 @@ if(UNIX)
 	
 	list(APPEND PETSC_LIBRARIES ${HYPRE_LIBRARY})
 	list(APPEND PETSC_INCLUDE_DIRS ${HYPRE_INCLUDE_DIR})
-	list(APPEND PETSC_LIBRARIES -openmp)
+
+        set( PETSC_LINK_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static")
 
 	set(PETSC_FOUND TRUE)
 

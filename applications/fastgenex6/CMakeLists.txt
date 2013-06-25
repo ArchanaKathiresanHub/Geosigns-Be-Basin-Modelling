@@ -50,6 +50,11 @@ target_link_libraries( fastgenex6
 	${BM_MPI_LOCK_LIBRARIES}
 )
 
+set_target_properties(fastgenex6
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+
+
 install(TARGETS fastgenex6
 	RUNTIME DESTINATION bin
 )
