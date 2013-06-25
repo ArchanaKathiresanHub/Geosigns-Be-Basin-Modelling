@@ -864,18 +864,20 @@ double Float_Epsilon () {
 
   if ( First_Time ) {
     
-    double T     = 1.0;
-    double Delta = 0.5;
-    double TT    = T + Delta;
-    
+    float T     = 1.0;
+    float Delta = 0.5;
+    float TT    = T + Delta;
+    float half = 0.5; // Added to stop compiler from complaining about conversion from double to float
+    float four = 4.0; // Added to stop compiler from complaining about conversion from double to float
+
     while ( T != TT ) {
       Model_Epsilon_Value = Delta;
       T = TT;
-      Delta = 0.5 * Delta;
+      Delta = half * Delta;
       TT = T + Delta;
     } 
 
-    Model_Epsilon_Value = 4.0 * Model_Epsilon_Value;
+    Model_Epsilon_Value = four * Model_Epsilon_Value;
 
     First_Time = false;
   } 
