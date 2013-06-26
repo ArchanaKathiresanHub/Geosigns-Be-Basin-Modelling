@@ -89,6 +89,8 @@ add_executable(cauldronexplorer
         src/project.C
         src/ProjectResultsReader.C
         src/system.C
+        src/SurfaceTempProperty.C
+        src/SurfaceTempParameter.C
 	${generator_source_files}
 )
 

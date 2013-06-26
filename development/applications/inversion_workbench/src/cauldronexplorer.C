@@ -14,6 +14,7 @@
 #include "InitialCrustalThicknessProperty.h"
 #include "UnconformityLithologyProperty.h"
 #include "UnconformityProperty.h"
+#include "SurfaceTempProperty.h"
 #include "RuntimeConfiguration.h"
 #include "DatadrillerProperty.h"
 #include "experiment.h"
@@ -158,6 +159,30 @@ void readCrustalThinningProperties( database::Database & database,
       throw ConfigurationException () << "The last " << ranges.size () <<
             " records in the CrustalThinningProperty table do no form a complete"
 	    " thinning event range";
+}
+
+void readSurfaceTempProperties( database::Database & database,
+                             std::vector< boost::shared_ptr< Property > > & params)
+{
+   database::Table * table = database.getTable("SurfaceTemperatureProperty");
+   if (!table)
+      return;
+
+   if (table->size() > 1)
+      throw ConfigurationException() << "There cannot be multiple configurations for the surface temperature";
+   
+   for (int i = 0; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      double startValue = database::getStartValue ( record );
+      double endValue = database::getEndValue ( record );
+      double stepValue = database::getStepValue ( record );
+    
+      params.push_back( boost::shared_ptr<Property>( 
+               new SurfaceTempProperty( startValue, endValue, stepValue )
+               ) );
+   }
 }
 
 std::vector< DatadrillerProperty > readDatadrillerProperties( database::Database & database )
@@ -307,6 +332,7 @@ int main(int argc, char ** argv )
    readCrustalThinningProperties(*database, properties);
    readUnconformityLithologies(*database, properties);
    readUnconformityProperties(*database, properties);
+   readSurfaceTempProperties(*database,properties);
 
    // Run the experiment
    Experiment experiment(properties, 

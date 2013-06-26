@@ -122,6 +122,12 @@ START-property-tables
   Column     : StepValue
   Property I/O : Yes
 
+  Identification : SurfaceTemperatureProperty
+  Column     : StartValue
+  Column     : EndValue
+  Column     : StepValue
+  Property I/O: Yes
+
   Identification : RuntimeConfiguration
   Column     : ProjectTemplatePath
   Column     : OutputDirectory
