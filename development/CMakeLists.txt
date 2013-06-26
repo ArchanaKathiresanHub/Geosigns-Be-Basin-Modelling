@@ -261,12 +261,23 @@ add_definitions(-DSVNREVISION="${BM_SVNREVISION}")
 ### Add subdirs
 add_subdirectory(libraries)
 add_subdirectory(applications)
-if(BM_BUILD_REGRESSION_TESTS)
-	add_subdirectory(regression_tests)
-endif()
+
+### Add 'misc' folder
+install(DIRECTORY geocase/misc/ # last backslach is MANDATORY
+	DESTINATION misc
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
+    DIRECTORY_PERMISSIONS 
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+        GROUP_READ GROUP_WRITE GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+	PATTERN "geocase/misc/gempis/*"
+	    PERMISSIONS
+		    OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+		    GROUP_READ GROUP_WRITE GROUP_EXECUTE
+            WORLD_READ WORLD_EXECUTE
+    )
 
 ### Generate setup scripts
-
 if (WIN32)
    set(script_suffix ".bat")
 else ()
