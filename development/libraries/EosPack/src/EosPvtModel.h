@@ -245,6 +245,9 @@ enum
 // pdFlasher[EOS_BUBBLEREDUCE]
 // Factor for reduction in initial stage of bubble point calculations, usually set to 0.5.  Set to 0.1 if
 // convergence is an issue.
+// 
+// pdFlasher[EOS_NEWTON_RELAX_COEFF]
+// Used to scale update for solution on Newton iteration
 enum
 {
    EOS_ENORM                   = 0,
@@ -252,7 +255,8 @@ enum
    EOS_CONVERGENCE             = 2,
    EOS_THERMALDIFFUSION        = 3,
    EOS_BUBBLEREDUCE            = 4,
-   EOS_LAST_DOUBLE             = 5
+   EOS_NEWTON_RELAX_COEFF      = 5,
+   EOS_LAST_DOUBLE             = 6
 };
 
 // pdTables[EOS_METHOD_SALINITY] 
@@ -405,7 +409,8 @@ private:
    void FlashOneObject( int iNc );
 
    // Solve flash equations for mole fractions and splits
-   void FlashEquations( int iM, int i1, int i2, int iNc, int iUpdate );
+   void FlashEquationsOneObject( int iNc, int iUpdate );
+   void FlashEquationsMultipleObjects( int iM, int i1, int i2, int iNc, int iUpdate );
 
    // Perform on side of the Michelson stability analysis
    void OneSideStability( int iM, int iNc, double *pP, double *pT, double *pState, double *pFz );
@@ -420,7 +425,8 @@ private:
    void Substitution( int iM, int iNc );
 
    // Newton's method for two phase K values
-   void NewtonFlash( int iM, int iNc, int iRestore, int iLevel );
+   void NewtonFlashOneObject( int iNc, int iRestore, int iLevel );
+   void NewtonFlashMultipleObjects( int iM, int iNc, int iRestore, int iLevel );
 
    // Generate an initial guess for the bubble point pressure
    void BubblePointInit( int iM, int iNc, int iRetrograde );
@@ -891,6 +897,12 @@ private:
    // usually set to 0.5.  Set to 0.1 if convergence is an issue.
    // Controlled by pdFlasher[EOS_BUBBLEREDUCE]
    double m_dBubbleReduce;
+
+   // Factor for scaling update to solution on Newton iteration
+   // usually set to 1.0 (Newton convntional method) or between 0.0 and 1.0 to make method more stable
+   // On each Newton iteration it set as min( 1.0, RelCoef * 0.1 * IterNum)
+   // Controlled byt pdFlasher[EOS_NEWTON_RELAX_COEFF]
+   double m_dNewtonRelaxCoeff;
 
    // Indicator for derivative level obtained from class EosApplication
    // The values for derivatives returned by flasher are:

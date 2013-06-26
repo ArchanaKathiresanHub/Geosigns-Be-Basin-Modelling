@@ -161,7 +161,8 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
                                                            // Can be set to NULL if viscosities not required
                                     EosPvtTable *pvttable ,// Pointer to a cached Pvt table
                                     int iItersNum,         // Maximal number of iterations for nonlinear solver
-                                    double dStopTol        // Convergence tolerance value for nonlinear solver
+                                    double dStopTol,       // Convergence tolerance value for nonlinear solver
+                                    double dNewtonRelCoef  // Relaxation coefficient for the Newton nonlinear solver
                                  )
 {
    int          piApplication[EOS_APPLICATION_LAST_INTEGER];
@@ -222,6 +223,7 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
    pdFlasher[EOS_CONVERGENCE]      = dStopTol;
    pdFlasher[EOS_THERMALDIFFUSION] = 0.0;
    pdFlasher[EOS_BUBBLEREDUCE]     = 0.5;
+   pdFlasher[EOS_NEWTON_RELAX_COEFF] = dNewtonRelCoef;
 
    /* Read Cauldron data */
    program = new EosCauldron( 0, pointI, pointR );

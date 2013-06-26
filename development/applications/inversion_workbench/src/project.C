@@ -12,7 +12,7 @@
 #include <cmath>
 
 struct AdjustException : formattingexception::BaseException< AdjustException > 
-{ AdjustException() { *this << "Error adjusting parameter in project file: "; } };
+{ AdjustException() { *this << "Error adjusting parameter: "; } };
 
 Project
    ::  Project(const std::string & input, const std::string & output )
@@ -102,28 +102,203 @@ Project
       database::Record * newRecord = table->createRecord();
       assert( newRecord && "Could not allocate new record in Crust thickness table");
 
-      database::setAge( newRecord, series[i].first );
-      database::setThickness(newRecord, series[i].second);
+      const double age = series[i].first;
+      const double thickness = series[i].second;
+
+      database::setAge( newRecord, age );
+      database::setThickness(newRecord, thickness);
       database::setThicknessGrid(newRecord, "");
 
       using DataAccess::Interface::DefaultUndefinedScalarValue;
       database::setCalibThickness(newRecord, DefaultUndefinedScalarValue );
       database::setOptimThickness(newRecord, DefaultUndefinedScalarValue );
       database::setErrThickness(newRecord, DefaultUndefinedScalarValue );
+
+      insertSnapshot( age );
    }
 }
 
 void
 Project
-   :: addCrustThicknessThinningEvent(double startTime, double duration, double thickness, double ratio)
+   :: setInitialCrustalThicknessProperty (double thickness)
 {
    if (!m_crust)
    {
       m_crust.reset( new Crust(thickness) );
    }
+}
+
+void
+Project
+   :: addCrustThicknessThinningEvent(double startTime, double duration, double ratio)
+{
+   assert (m_crust);
 
    m_crust->addThinningEvent(startTime, duration, ratio);
 }
+
+double Project::getStartOfDeposition (database::Record * depositionRecord)
+{
+   database::Table * table = m_projectHandle->getTable("StratIoTbl");
+   assert( table );
+   database::Table::iterator iter = table->findRecordPosition (depositionRecord);
+   assert (iter != table-> end());
+   ++iter;
+   assert (iter != table-> end());
+
+   return database::getDepoAge (* iter);
+}
+
+
+
+void Project::getUnconformityRecords (const std::string & depoFormationName, database::Record * & depositionRecord, database::Record * & erosionRecord)
+{
+   database::Table * table = m_projectHandle->getTable("StratIoTbl");
+   assert( table );
+
+   depositionRecord = 0;
+   erosionRecord = 0;
+
+   for (database::Table::iterator tblIter = table->begin (); tblIter != table->end (); ++tblIter)
+   {
+      database::Record * record = *tblIter;
+      assert( record );
+      if (database::getLayerName (record) == depoFormationName)
+      {
+	 depositionRecord = record;
+	 break;
+      }
+
+      erosionRecord = record;
+   }
+
+   if (!erosionRecord || !depositionRecord)
+   {
+      throw AdjustException() << "Project file '" << m_inputFileName <<
+	 "' does not contain a valid unconformity with a deposition formation named '" << depoFormationName;
+   }
+}
+
+
+void Project::insertSnapshot (double time)
+{
+   struct SnapshotIoTbl 
+   {  static bool Sorter(database::Record * recordL,  database::Record * recordR)
+      {
+         if (database::getTime (recordL) < database::getTime (recordR)) return true;
+         return false;
+      }
+   };
+   database::Table * table = m_projectHandle->getTable("SnapshotIoTbl");
+   assert( table );
+
+   database::Record * record = table->findRecord ("Time", time);
+   if (!record)
+   {
+      record = table->createRecord ();
+      assert (record);
+      database::setTime (record, time);
+      database::setIsMinorSnapshot (record, (int) 0);
+      database::setTypeOfSnapshot (record, "System Generated" );
+      database::setSnapshotFileName (record, "" );
+
+      table->sort (SnapshotIoTbl::Sorter);
+   }
+}
+
+
+
+void Project::setUnconformityLithologyProperty(const std::string & depoFormationName,
+      const std::string & lithology1, double percentage1,
+      const std::string & lithology2, double percentage2,
+      const std::string & lithology3, double percentage3)
+{
+
+   database::Record * erosionRecord = 0;
+   database::Record * depositionRecord = 0;
+
+   getUnconformityRecords(depoFormationName, depositionRecord, erosionRecord);
+
+   double totalPercentage = 0;
+
+   if (lithology1 != "")
+   {
+      database::setLithotype1 (depositionRecord, lithology1);
+      database::setPercent1 (depositionRecord, percentage1);
+      database::setLithotype1 (erosionRecord, lithology1);
+      database::setPercent1 (erosionRecord, percentage1);
+      totalPercentage += percentage1;
+   }
+
+   if (lithology2 != "")
+   {
+      database::setLithotype2 (depositionRecord, lithology2);
+      database::setPercent2 (depositionRecord, percentage2);
+      database::setLithotype2 (erosionRecord, lithology2);
+      database::setPercent2 (erosionRecord, percentage2);
+      totalPercentage += percentage2;
+   }
+
+   if (lithology3 != "")
+   {
+      database::setLithotype3 (depositionRecord, lithology3);
+      database::setPercent3 (depositionRecord, percentage3);
+      database::setLithotype3 (erosionRecord, lithology3);
+      database::setPercent3 (erosionRecord, percentage3);
+      totalPercentage += percentage3;
+   }
+
+   if (totalPercentage != 100)
+   {
+      throw AdjustException() << "Percentages for lithology of formation '" << depoFormationName <<
+	 "' does not add up to 100 (" << totalPercentage << ")";
+   }
+}
+
+void Project::setUnconformityProperty(const std::string & depoFormationName,
+      const std::string & parameter, double value)
+{
+   database::Record * erosionRecord = 0;
+   database::Record * depositionRecord = 0;
+
+   getUnconformityRecords(depoFormationName, depositionRecord, erosionRecord);
+
+   if (parameter == "Thickness")
+   {
+      using DataAccess::Interface::DefaultUndefinedScalarValue;
+
+      database::setDepth (depositionRecord, DefaultUndefinedScalarValue );
+      database::setDepth (erosionRecord, DefaultUndefinedScalarValue );
+      database::setDepthGrid (depositionRecord, "");
+      database::setDepthGrid (erosionRecord, "");
+      database::setThicknessGrid (depositionRecord, "");
+      database::setThicknessGrid (erosionRecord, "");
+
+      database::setThickness (depositionRecord, value);
+      database::setThickness (erosionRecord, -value);
+   }
+   else if (parameter == "EndOfDeposition")
+   {
+      double startOfUnconformity = getStartOfDeposition (depositionRecord);
+      double endOfUnconformity = getDepoAge (erosionRecord);
+
+      if (value >= startOfUnconformity || value <= endOfUnconformity)
+      {
+	 throw AdjustException() << 
+	    "Proposed end of deposition (" << value << ") of unconformity '" << depoFormationName << "' does not lie between "
+	    "start of unconformity (" << startOfUnconformity << ") and "
+	    "end of unconformity (" << endOfUnconformity << ")";
+      }
+
+      database::setDepoAge (depositionRecord, value);
+      insertSnapshot (value);
+   }
+   else
+   {
+      throw AdjustException() << "Illegal unconformity property name: `" << parameter << "'";
+   }
+}
+
 
 void
 Project

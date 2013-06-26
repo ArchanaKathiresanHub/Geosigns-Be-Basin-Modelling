@@ -72,11 +72,17 @@ set (generator_source_files
 add_executable(cauldronexplorer
         src/BasementProperty.C
         src/BasementParameter.C
+        src/InitialCrustalThicknessProperty.C
+        src/InitialCrustalThicknessParameter.C
         src/Scenario.C
         src/MultiDimRange.C
         src/Crust.C
         src/CrustalThinningParameter.C
         src/CrustalThinningProperty.C
+        src/UnconformityLithologyProperty.C
+        src/UnconformityLithologyParameter.C
+        src/UnconformityProperty.C
+        src/UnconformityParameter.C
         src/DatadrillerProperty.C
         src/experiment.C
         src/cauldronexplorer.C
@@ -200,4 +206,30 @@ target_link_libraries(Experiment
 add_test(NAME Experiment::Experiment
       COMMAND Experiment Experiment
       )      
+
+
+add_executable(Crust
+      src/Crust.C
+      test/Crust.C
+)
+
+target_link_libraries(Crust
+    utilities
+)
+
+set_target_properties(Crust
+      PROPERTIES COMPILE_FLAGS "-Dprivate=public"
+)
+
+add_test(NAME Crust::overlap
+   COMMAND Crust overlap
+)
+
+add_test(NAME Crust::addThinningEvent
+   COMMAND Crust addThinningEvent
+)
+
+add_test(NAME Crust::getThicknessHistory
+   COMMAND Crust getThicknessHistory
+)
 

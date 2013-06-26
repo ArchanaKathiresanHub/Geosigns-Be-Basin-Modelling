@@ -62,6 +62,16 @@ std::string Experiment::workingProjectFileName(unsigned scenarioNumber) const
    return fileName.str();
 }
 
+std::string Experiment::workingLogFileName(unsigned scenarioNumber) const
+{
+   std::ostringstream fileName;
+   fileName 
+         << m_experimentInfo.getOutputDirectory()
+         << "/Log_" << scenarioNumber + 1 
+         << ".txt";
+   return fileName.str();
+}
+
 std::string Experiment::resultsFileName(unsigned scenarioNumber) const
 {
    std::ostringstream fileName;
@@ -101,15 +111,28 @@ void Experiment :: createProjectsSet() const
 
    // generate project3d files
    for (unsigned i = 0; i < m_scenarios.size(); ++i)
-      m_scenarios[i].createProjectFile( m_experimentInfo.getTemplateProjectFile(), workingProjectFileName(i));
+      try
+      {
+         m_scenarios[i].createProjectFile( m_experimentInfo.getTemplateProjectFile(), workingProjectFileName(i));
+      }
+      catch (formattingexception::GeneralException & fe)
+      {
+	 std::cerr << std::endl;
+	 std::cerr << "Error in scenario " << i << ": ";
+	 std::cerr << fe.what () << std::endl;
+	 std::cerr << "Will ignore this scenario" << std::endl;
+	 std::cerr << std::endl;
+      }
 }
 
 
-void Experiment :: runProjectSet() 
+void Experiment :: runProjectSet( std::ostream * verboseOutput) 
 {
-   const std::string version = "2012.1008";
    const std::string fastcauldronPath = "fastcauldron";
-   const std::string runtimeParams = "-temperature";
+   const std::string runtimeParams = m_experimentInfo.getCauldronRuntimeParams();
+   const std::string cauldronVersion = m_experimentInfo.getCauldronVersion();
+
+   int scenariosFinished = 0;
 
    // Start an OpenMP thread pool
    #pragma omp parallel
@@ -120,14 +143,43 @@ void Experiment :: runProjectSet()
       #pragma omp for schedule(dynamic, 1)
       for (unsigned i = 0; i < m_scenarios.size(); ++i)
       {
+	 if (verboseOutput)
+	 {
+	    #pragma omp critical(printing)
+            if (m_scenarios[i].isValid ())
+	    {
+	       *verboseOutput << "Starting scenario " << i + 1 << endl;
+	    }
+            else
+            {
+	       *verboseOutput << "Skipping scenario " << i + 1 << endl;
+	    }
+	 }
+
+         if (!m_scenarios[i].isValid ()) continue;
+
          std::ostringstream command;
          command << fastcauldronPath 
-                 << " -v" << version
+                 << " -v" << cauldronVersion
                  << " -project " << workingProjectFileName(i)
-                 << ' ' << runtimeParams;
+                 << ' ' << runtimeParams
+		 << " > " <<  workingLogFileName (i) << " 2>&1";
        
          system( command.str().c_str() );
+
+	 if (verboseOutput)
+	 {
+	    #pragma omp critical(printing)
+	    {
+	       *verboseOutput << "Finished scenario " << i + 1 << std::endl;
+               ++scenariosFinished;
+	    }
+	 }
       }
+   }
+   if (verboseOutput)
+   {
+      *verboseOutput << "\nFinished " << scenariosFinished << ", skipped " << m_scenarios.size () - scenariosFinished << " scenarios " << std::endl;
    }
 }
 
@@ -138,6 +190,8 @@ void Experiment :: collectResults() const
 
    for (unsigned i=0; i < m_scenarios.size(); ++i)
    {
+      if (!m_scenarios[i].isValid ()) continue;
+
       std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
       ofs << "Datamining from project " << workingProjectFileName(i) << " :\n";
 

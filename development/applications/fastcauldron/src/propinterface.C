@@ -2803,7 +2803,7 @@ void AppCtx::setMantleDepth ( const double basementThickness, //presentDayMantle
 
    int k;
 
-   int maximumMantleElementHeight = FastcauldronSimulator::getInstance ().getRunParameters ()->getBrickHeightMantle ();
+   double maximumMantleElementHeight = FastcauldronSimulator::getInstance ().getRunParameters ()->getBrickHeightMantle ();
 
   // double basementThickness = presentDayMantleThickness + FastcauldronSimulator::getInstance ().getCrustThickness ( i, j, 0.0 );
    double currentCrustThickness = FastcauldronSimulator::getInstance ().getCrustThickness ( i, j, time );
@@ -4386,7 +4386,7 @@ void AppCtx::Examine_Load_Balancing() {
   DAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
 	     PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
-  float Percentage_Of_Total_Number_Of_Nodes = float(xm*ym) / float(NNodeX*NNodeY) * 100.0;
+  double Percentage_Of_Total_Number_Of_Nodes = double(xm*ym) / double(NNodeX*NNodeY) * 100.0;
 
   int i,j;
   for ( i = xs; i < xs+xm; i++ ) {
@@ -4395,7 +4395,7 @@ void AppCtx::Examine_Load_Balancing() {
     }
   }
 
-  float Percentage_Of_Active_Nodes = float(Number_Of_Valid_Nodes) / float(xm*ym) * 100.0;
+  double Percentage_Of_Active_Nodes = double(Number_Of_Valid_Nodes) / double(xm*ym) * 100.0;
 
   PetscPrintf(PETSC_COMM_WORLD,
 	      "\n------------ Load Balancing Information ------------\n");

@@ -24,8 +24,9 @@ public:
    /// Generate the set of Cauldron project files from the scenarios: one for each scenario.
    void createProjectsSet() const;
 
-   /// Run fastcauldron on each generated project file
-   void runProjectSet();
+   /// Run fastcauldron on each generated project file. Optionally an output
+   /// stream can be given to which diagnostic information is written.
+   void runProjectSet(std::ostream * verboseOutput = 0);
 
    /// Collect the results into .dat files.
    void collectResults() const;
@@ -36,6 +37,7 @@ public:
 private:
    static std::vector< Scenario > sample(const std::vector< boost::shared_ptr<Property> > & parameterDefinitions );
    std::string workingProjectFileName(unsigned scenarioNumber) const;
+   std::string workingLogFileName(unsigned scenarioNumber) const;
    std::string resultsFileName(unsigned scenarioNumber) const;
 
    std::vector< Scenario > m_scenarios;

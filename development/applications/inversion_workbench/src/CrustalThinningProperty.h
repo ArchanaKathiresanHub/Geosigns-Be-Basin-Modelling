@@ -12,7 +12,7 @@ class Scenario;
 class CrustalThinningProperty : public Property
 {
 public:
-   CrustalThinningProperty(ScalarRange t0, ScalarRange dt, ScalarRange dz, ScalarRange ratio);
+   CrustalThinningProperty(ScalarRange t0, ScalarRange dt, ScalarRange ratio);
 
    virtual void reset();
    virtual void createParameter(Scenario & scenario) const ;

@@ -455,7 +455,7 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setInterval ( const Sn
               for ( i = propertyMap->firstI (), localI = 0; i <= propertyMap->lastI (); ++i, ++localI ) {
 
                  for ( j = propertyMap->firstJ (), localJ = 0; j <= propertyMap->lastJ (); ++j, ++localJ ) {
-                    savedProperties [ T ][ localI ][ localJ ][ localK ] = propertyMap->getValue ( i, j, k );
+                    savedProperties [ T ][ localI ][ localJ ][ localK ] = static_cast<float>(propertyMap->getValue ( i, j, k ));
                  }
 
               }
@@ -466,7 +466,7 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setInterval ( const Sn
         } else {
 
            for ( i = 0; i < (unsigned int)(dimensionInfo.xm * dimensionInfo.ym * dimensionInfo.zm); ++i ) {
-              savedProperties [ T ][ 0 ][ 0 ][ i ] = defaultValue;
+              savedProperties [ T ][ 0 ][ 0 ][ i ] = static_cast<float>(defaultValue);
            }
 
         }
@@ -474,7 +474,7 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setInterval ( const Sn
      } else {
 
         for ( i = 0; i < (unsigned int)(dimensionInfo.xm * dimensionInfo.ym * dimensionInfo.zm); ++i ) {
-           savedProperties [ T ][ 0 ][ 0 ][ i ] = defaultValue;
+           savedProperties [ T ][ 0 ][ 0 ][ i ] = static_cast<float>(defaultValue);
         }
 
      }

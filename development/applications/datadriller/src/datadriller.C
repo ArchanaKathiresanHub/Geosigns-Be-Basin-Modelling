@@ -47,24 +47,10 @@ using namespace CBMGenerics;
 #include "DataMiningProjectHandle.h"
 #include "ElementPosition.h"
 #include "Point.h"
-#include "PropertyInterpolator2D.h"
-#include "PropertyInterpolator3D.h"
 #include "CauldronDomain.h"
-#include "InterpolatedPropertyValues.h"
 #include "DomainProperty.h"
 #include "DomainPropertyFactory.h"
 #include "DomainPropertyCollection.h"
-
-#include "DomainSurfaceProperty.h"
-#include "DomainFormationProperty.h"
-#include "DomainReservoirProperty.h"
-
-#include "PieceWiseInterpolator1D.h"
-
-#include "DeviatedWell.h"
-#include "DataMiner.h"
-
-#include "array.h"
 
 #include <string>
 #include <sstream>
@@ -171,6 +157,11 @@ int main (int argc, char ** argv)
 
    Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (inputProjectFileName, "r"));
 
+   projectHandle->startActivity ( "datadriller", projectHandle->getLowResolutionOutputGrid ());
+   projectHandle->initialise ( true, false );
+
+   projectHandle->setFormationLithologies (false, false);
+
    CauldronDomain domain ( projectHandle );
 
    DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
@@ -230,7 +221,12 @@ int main (int argc, char ** argv)
 		  throw RecordException ("Illegal point coordinates:", x, y, z);
 
 
-	       value = domainProperties->getDomainProperty (property)->compute (element);
+	       DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
+	       if (domainProperty)
+	       {
+		  domainProperty->initialise ();
+		  value = domainProperty->compute (element);
+	       }
 	    }
 	    else if (surfaceName != "")
 	    {
@@ -250,7 +246,12 @@ int main (int argc, char ** argv)
 	       
 
 
-	       value = domainProperties->getDomainProperty (property)->compute (element);
+	       DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
+	       if (domainProperty)
+	       {
+		  domainProperty->initialise ();
+		  value = domainProperty->compute (element);
+	       }
 	    }
 	    else if (formationName != "")
 	    {

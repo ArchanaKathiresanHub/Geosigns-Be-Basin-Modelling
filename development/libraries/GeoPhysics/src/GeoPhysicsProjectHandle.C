@@ -1646,8 +1646,15 @@ bool GeoPhysics::ProjectHandle::setHistoriesForUnconformity ( const unsigned int
       }
 
       if ( currentFormation->isMobileLayer ()) {
-         cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] at position (" << i << ", " << j << ") " << thickness <<  "  is not permitted " << endl;
-         return false;
+
+         if ( uncThickness <= MobileLayerNegativeThicknessTolerance ) {
+            uncThickness = 0.0;
+            continue;
+         } else {
+            cout << "MeSsAgE ERROR Erosion of mobile layer [" << currentFormation->getName () << "] at position (" << i << ", " << j << ") " << thickness <<  "  is not permitted " << endl;
+            return false;
+         }
+
       }
 
       if ( currentFormation->getIsIgneousIntrusion ()) {

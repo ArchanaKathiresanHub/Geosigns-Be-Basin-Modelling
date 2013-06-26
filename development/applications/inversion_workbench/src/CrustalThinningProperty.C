@@ -25,8 +25,8 @@ namespace
    }
 }
 
-CrustalThinningProperty::CrustalThinningProperty( ScalarRange t0, ScalarRange dt, ScalarRange dz, ScalarRange ratio)
-    : m_range( t0 + dt + dz + ratio ) 
+CrustalThinningProperty::CrustalThinningProperty( ScalarRange t0, ScalarRange dt, ScalarRange ratio)
+    : m_range( t0 + dt + ratio ) 
 {
 }
 
@@ -51,6 +51,6 @@ void CrustalThinningProperty::createParameter(Scenario & scenario) const
    std::vector< double > value;
    m_range.getValue(value);
 
-   assert( value.size() == 4);
-   scenario.addParameter( new CrustalThinningParameter( value[0], value[1], value[2], value[3] ) );
+   assert( value.size() == 3);
+   scenario.addParameter( new CrustalThinningParameter( value[0], value[1], value[2] ) );
 }

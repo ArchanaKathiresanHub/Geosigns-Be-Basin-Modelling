@@ -130,7 +130,7 @@ namespace pvtFlash
             PTDiagramCalculator diagBuilder( dType, masses );
 
             diagBuilder.setAoverBTerm( 2 );
-            diagBuilder.setNonLinSolverConvPrms( 1e-6, 500 );
+            diagBuilder.setNonLinSolverConvPrms( 1e-6, 500, 0.3 );
 
             diagBuilder.findBubbleDewLines( T, P, std::vector<double>() );
 
@@ -146,9 +146,10 @@ namespace pvtFlash
             {
                points[3] = bubbleP;
             }
-            else
+            else // if not found - assign to 0.0
             {
-               points[3] = P;
+               points[2] = 0.0;
+               points[3] = 0.0;
             }
             // fill cricondentherm point values
             const std::pair<double, double> & tPt = diagBuilder.getCricondenthermPoint();

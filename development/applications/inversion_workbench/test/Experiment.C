@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 
+int verbose = false;
 
 class Empty : public Property
 {
@@ -54,7 +55,7 @@ void test_Experiment_Experiment()
    //  *  dataInfo = any
 
    std::vector< DatadrillerProperty > noDataDriller;
-   RuntimeConfiguration noRTInfo( "", "", "");
+   RuntimeConfiguration noRTInfo( "", "", "", "2012.1008", "-temperature");
 
    // test case 1: empty set of properties
    {  std::vector< boost::shared_ptr< Property > > params;

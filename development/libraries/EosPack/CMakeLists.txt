@@ -15,3 +15,67 @@ bm_include_libraries(CBMGenerics)
 target_link_libraries(EosPack CBMGenerics) 
 
 generate_dox( src/EosPack.cfg )
+
+
+#######################################
+### Unit Tests
+#######################################
+
+#######################################
+# Unit tests for PTDiagramCalculator
+
+add_executable( PTDiagramBuilderTest
+   test/PTDiagramBuilderTest.C
+)
+
+target_link_libraries( PTDiagramBuilderTest
+   EosPack
+)
+
+# Unit test for C like API
+add_test( NAME pvtFlash::BuildPTDiagram
+   COMMAND PTDiagramBuilderTest capi
+)
+
+# Unit test for search Bubble/Dew lines
+add_test( NAME PTDiagramCalculator::findBubbleDewLines
+   COMMAND PTDiagramBuilderTest bbdw
+)
+
+# Unit test for countour line calculation
+add_test( NAME PTDiagramCalculator::calcContourLine
+   COMMAND PTDiagramBuilderTest isol
+)
+
+# Unit test for set of countour line calculation
+add_test( NAME PTDiagramCalculator::calcContourLines
+   COMMAND PTDiagramBuilderTest ain1
+)
+
+######################################
+# Unit test for flasher
+add_executable( EosPackTest
+   test/EosPackTest.C
+)
+
+target_link_libraries( EosPackTest
+   EosPack
+)
+
+# Unit test for flasher
+add_test( NAME pvtFlash::EosPackComputeWithLumping
+   COMMAND EosPackTest cwlmp_capi
+)
+
+# Unit test for flasher
+add_test( NAME pvtFlash::Gorm
+   COMMAND EosPackTest gorm_capi
+)
+
+# Unit test for flasher
+add_test( NAME pvtFlash::GetMolWeight
+   COMMAND EosPackTest gmw_capi
+)
+
+
+

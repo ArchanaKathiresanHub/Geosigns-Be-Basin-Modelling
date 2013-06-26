@@ -1,9 +1,21 @@
 #include <string>
 #include <iostream>
 
+#include "formattingexception.h"
+
 #include "Scenario.h"
 #include "parameter.h"
 #include "project.h"
+
+Scenario::Scenario () :
+      m_isValid (true)
+{
+}
+
+bool Scenario::isValid() const
+{
+   return m_isValid;
+}
 
 void Scenario::addParameter(Parameter * parameter)
 {
@@ -15,7 +27,15 @@ void Scenario::createProjectFile(const std::string & originalProjectFile, const 
    Project project( originalProjectFile, workingProjectFile);
    for (unsigned i = 0; i < m_parameters.size(); ++i)
    {
-      m_parameters[i]->changeParameter(project);
+      try
+      {
+	 m_parameters[i]->changeParameter(project);
+      }
+      catch (formattingexception::GeneralException & fe)
+      {
+         m_isValid = false;
+         throw (fe);
+      }
    }
    project.close();
 }
