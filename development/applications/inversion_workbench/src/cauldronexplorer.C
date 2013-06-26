@@ -208,6 +208,8 @@ RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
    std::string outputDirectoryAddress = database::getOutputDirectory ( recordInfo );
    std::string outputFileName = database::getOutputFileName ( recordInfo );
    std::string cauldronVersion = database::getCauldronVersion ( recordInfo );
+   std::string fieldSeparator = database::getOutputTableFieldSeparator( recordInfo );
+   int fieldWidth = database::getOutputTableFieldWidth( recordInfo );
 
    // if the outputFileName has an extension ".project3d", remove it, because we only want the prefix.
    std::string::size_type dotPos = outputFileName.rfind (".project3d");
@@ -220,13 +222,23 @@ RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
    if (cauldronVersion.empty())
       cauldronVersion = "2012.1008";
 
+   // Init fieldSeparator with a default value
+   if (fieldSeparator.empty())
+      fieldSeparator = ',';
+
+   if (fieldSeparator.size() > 1)
+      throw ConfigurationException() << "The OutputTableFieldSeparator can only consist of 1 character";
+
+
    // Add it to the list
    return RuntimeConfiguration( 
             templateProjectFile, 
             outputDirectoryAddress, 
             outputFileName, 
             cauldronVersion, 
-            "-temperature"
+            "-temperature",
+            fieldSeparator[0],
+            fieldWidth
             );
 }
 

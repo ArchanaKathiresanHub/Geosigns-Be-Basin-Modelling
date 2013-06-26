@@ -2,13 +2,14 @@
 #include "ProjectResultsReader.h"
 #include "ScalarRange.h"
 
-void DatadrillerProperty::readResults( const std::string & projectFile, std::vector< double > & results) const
+void DatadrillerProperty::readResults( const std::string & projectFile, 
+      double & x, double & y,  std::vector<double> & zs, double & age, 
+      std::vector< double > & results) const
 {
   ProjectResultsReader project(projectFile);
 
-  std::vector<double> zs;
   ScalarRange zRange( m_positionBegZ, m_positionEndZ, m_stepZ);
-
+  zs.clear();
   while (!zRange.isPastEnd())
   {
      zs.push_back( zRange.getValue() );
@@ -16,19 +17,9 @@ void DatadrillerProperty::readResults( const std::string & projectFile, std::vec
   }
 
   project.read( m_retrievedVariable, m_snapshotTime, m_positionX, m_positionY, zs, results );
+  x = m_positionX;
+  y = m_positionY;
+  age = m_snapshotTime;
 }
 
 
-
-void DatadrillerProperty::readDepth( std::vector< double > & zs) const
-{
-
-  ScalarRange zRange( m_positionBegZ, m_positionEndZ, m_stepZ);
-
-  while (!zRange.isPastEnd())
-  {
-     zs.push_back( zRange.getValue() );
-     zRange.nextValue();
-  }
-
-}
