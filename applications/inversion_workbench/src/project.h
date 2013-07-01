@@ -47,6 +47,7 @@ public:
    void setUnconformityLithologyProperty(const std::string & depoFormationName, const std::string & lithology1, double percentage1, const std::string & lithology2, double percentage2, const std::string & lithology3, double percentage3);
    void setUnconformityProperty(const std::string & depoFormationName, const std::string & parameter, double newValue);
 
+   void setSurfaceTemperature( double temperature );
 
    void clearSnapshotTable();
 

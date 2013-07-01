@@ -102,14 +102,19 @@ Project
       database::Record * newRecord = table->createRecord();
       assert( newRecord && "Could not allocate new record in Crust thickness table");
 
-      database::setAge( newRecord, series[i].first );
-      database::setThickness(newRecord, series[i].second);
+      const double age = series[i].first;
+      const double thickness = series[i].second;
+
+      database::setAge( newRecord, age );
+      database::setThickness(newRecord, thickness);
       database::setThicknessGrid(newRecord, "");
 
       using DataAccess::Interface::DefaultUndefinedScalarValue;
       database::setCalibThickness(newRecord, DefaultUndefinedScalarValue );
       database::setOptimThickness(newRecord, DefaultUndefinedScalarValue );
       database::setErrThickness(newRecord, DefaultUndefinedScalarValue );
+
+      insertSnapshot( age );
    }
 }
 
@@ -137,6 +142,7 @@ double Project::getStartOfDeposition (database::Record * depositionRecord)
    database::Table * table = m_projectHandle->getTable("StratIoTbl");
    assert( table );
    database::Table::iterator iter = table->findRecordPosition (depositionRecord);
+   assert (iter != table-> end());
    ++iter;
    assert (iter != table-> end());
 
@@ -149,6 +155,9 @@ void Project::getUnconformityRecords (const std::string & depoFormationName, dat
 {
    database::Table * table = m_projectHandle->getTable("StratIoTbl");
    assert( table );
+
+   depositionRecord = 0;
+   erosionRecord = 0;
 
    for (database::Table::iterator tblIter = table->begin (); tblIter != table->end (); ++tblIter)
    {
@@ -170,14 +179,16 @@ void Project::getUnconformityRecords (const std::string & depoFormationName, dat
    }
 }
 
-bool SnapshotIoTblSorter(database::Record * recordL,  database::Record * recordR)
-{
-  if (database::getTime (recordL) < database::getTime (recordR)) return true;
-  return false;
-}
 
 void Project::insertSnapshot (double time)
 {
+   struct SnapshotIoTbl 
+   {  static bool Sorter(database::Record * recordL,  database::Record * recordR)
+      {
+         if (database::getTime (recordL) < database::getTime (recordR)) return true;
+         return false;
+      }
+   };
    database::Table * table = m_projectHandle->getTable("SnapshotIoTbl");
    assert( table );
 
@@ -191,7 +202,7 @@ void Project::insertSnapshot (double time)
       database::setTypeOfSnapshot (record, "System Generated" );
       database::setSnapshotFileName (record, "" );
 
-      table->sort (SnapshotIoTblSorter);
+      table->sort (SnapshotIoTbl::Sorter);
    }
 }
 
@@ -247,8 +258,6 @@ void Project::setUnconformityLithologyProperty(const std::string & depoFormation
 void Project::setUnconformityProperty(const std::string & depoFormationName,
       const std::string & parameter, double value)
 {
-   const double UndefinedScalar = -9999;
-
    database::Record * erosionRecord = 0;
    database::Record * depositionRecord = 0;
 
@@ -256,8 +265,10 @@ void Project::setUnconformityProperty(const std::string & depoFormationName,
 
    if (parameter == "Thickness")
    {
-      database::setDepth (depositionRecord, UndefinedScalar);
-      database::setDepth (erosionRecord, UndefinedScalar);
+      using DataAccess::Interface::DefaultUndefinedScalarValue;
+
+      database::setDepth (depositionRecord, DefaultUndefinedScalarValue );
+      database::setDepth (erosionRecord, DefaultUndefinedScalarValue );
       database::setDepthGrid (depositionRecord, "");
       database::setDepthGrid (erosionRecord, "");
       database::setThicknessGrid (depositionRecord, "");
@@ -286,6 +297,28 @@ void Project::setUnconformityProperty(const std::string & depoFormationName,
    {
       throw AdjustException() << "Illegal unconformity property name: `" << parameter << "'";
    }
+}
+
+void
+Project
+   :: setSurfaceTemperature( double temperature )
+{
+   database::Table * table = m_projectHandle->getTable("SurfaceTempIoTbl");
+   if (!table)
+      throw AdjustException() << "Project file '" << m_inputFileName << "' seems to be incompatible, "
+                              << "because the SurfaceTempIoTbl table could not be found.";
+
+   // remove all entries
+   table->clear();
+
+   // insert a single record with the specified temperature
+   database::Record * record = table->createRecord ();
+   assert (record);
+
+   database::setAge(record, 0.0);
+   database::setTemperature(record, temperature);
+   database::setErrTemperature(record, 0.0);
+   database::setTemperatureGrid(record, "");
 }
 
 

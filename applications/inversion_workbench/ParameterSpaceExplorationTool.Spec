@@ -26,22 +26,41 @@ START-properties
   Type       : string
 
   Identification : StartValue
-  Type       : double
+  Description    : Start value of a range (inclusive)
+  Type           : double
 
   Identification : EndValue
-  Type       : double
+  Description    : End value of a range (inclusive)
+  Type           : double
 
   Identification : StepValue
-  Type       : double
+  Description    : Step value of a range
+  Type           : double
 
   Identification : ProjectTemplatePath
+  Description    : Path to template project file.
   Type       : string
 
   Identification : OutputDirectory
-  Type       : string
+  Description    : Directory in which all generated Project3d files are saved, are processed by Cauldron, and calculated properties are saved.
+  Type           : string
 
   Identification : OutputFileName
-  Type       : string
+  Description    : Format of generated Project3d files names.
+  Type           : string
+
+  Identification : CauldronVersion
+  Description    : Version of Fastcauldron to use
+  Type           : string
+
+  Identification : OutputTableFieldSeparator
+  Description    : Field separator that is used when outputting table with resulting variables. The field separator can only consist of a single character
+  Type           : string
+
+  Identification : OutputTableFieldWidth
+  Description    : Field width that is used when outputting table with resulting variables. A field width of 0 disables it.
+  Default        : 0
+  Type           : integer
 
   Identification : RetrievedVariable
   Type       : string
@@ -103,10 +122,19 @@ START-property-tables
   Column     : StepValue
   Property I/O : Yes
 
+  Identification : SurfaceTemperatureProperty
+  Column     : StartValue
+  Column     : EndValue
+  Column     : StepValue
+  Property I/O: Yes
+
   Identification : RuntimeConfiguration
   Column     : ProjectTemplatePath
   Column     : OutputDirectory
   Column     : OutputFileName
+  Column     : CauldronVersion
+  Column     : OutputTableFieldSeparator
+  Column     : OutputTableFieldWidth
   Header     : Project Data
   Property I/O : Yes
 

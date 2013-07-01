@@ -22,8 +22,9 @@ public:
    const std::string & getName() const
    { return m_retrievedVariable; }
 
-   void readResults( const std::string & projectFile, std::vector<double> & results) const;
-   void readDepth( std::vector< double > & zs) const;
+   void readResults( const std::string & projectFile, 
+         double & x, double & y,  std::vector<double> & zs, double & age, 
+         std::vector<double> & results) const;
 
 private:
    std::string m_retrievedVariable;

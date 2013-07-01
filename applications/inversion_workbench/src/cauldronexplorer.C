@@ -3,6 +3,7 @@
 #include <cassert>
 #include <sstream>
 #include <algorithm>
+#include <iomanip>
 
 #include <boost/shared_ptr.hpp>
 
@@ -13,14 +14,16 @@
 #include "InitialCrustalThicknessProperty.h"
 #include "UnconformityLithologyProperty.h"
 #include "UnconformityProperty.h"
+#include "SurfaceTempProperty.h"
 #include "RuntimeConfiguration.h"
 #include "DatadrillerProperty.h"
 #include "experiment.h"
 #include "project.h"
 #include "formattingexception.h"
 
-static char * argv0 = 0;
-static void showUsage (const char * message = 0);
+const std::string DEFAULT_CONFIG_FILE = "cauldronexplorer.config";
+
+static void showUsage (const char *argv0, const char * message = 0);
 
 struct ConfigurationException : formattingexception :: BaseException< ConfigurationException > {};
 
@@ -158,6 +161,30 @@ void readCrustalThinningProperties( database::Database & database,
 	    " thinning event range";
 }
 
+void readSurfaceTempProperties( database::Database & database,
+                             std::vector< boost::shared_ptr< Property > > & params)
+{
+   database::Table * table = database.getTable("SurfaceTemperatureProperty");
+   if (!table)
+      return;
+
+   if (table->size() > 1)
+      throw ConfigurationException() << "There cannot be multiple configurations for the surface temperature";
+   
+   for (int i = 0; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      double startValue = database::getStartValue ( record );
+      double endValue = database::getEndValue ( record );
+      double stepValue = database::getStepValue ( record );
+    
+      params.push_back( boost::shared_ptr<Property>( 
+               new SurfaceTempProperty( startValue, endValue, stepValue )
+               ) );
+   }
+}
+
 std::vector< DatadrillerProperty > readDatadrillerProperties( database::Database & database )
 {
    database::Table* table = database.getTable("DatadrillerProperty");
@@ -205,6 +232,9 @@ RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
    std::string templateProjectFile = database::getProjectTemplatePath ( recordInfo );
    std::string outputDirectoryAddress = database::getOutputDirectory ( recordInfo );
    std::string outputFileName = database::getOutputFileName ( recordInfo );
+   std::string cauldronVersion = database::getCauldronVersion ( recordInfo );
+   std::string fieldSeparator = database::getOutputTableFieldSeparator( recordInfo );
+   int fieldWidth = database::getOutputTableFieldWidth( recordInfo );
 
    // if the outputFileName has an extension ".project3d", remove it, because we only want the prefix.
    std::string::size_type dotPos = outputFileName.rfind (".project3d");
@@ -213,30 +243,48 @@ RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
       outputFileName.erase(dotPos, std::string::npos);
    }
 
+   // Init cauldronVersion with a default value, if it wasn't defined
+   if (cauldronVersion.empty())
+      cauldronVersion = "2012.1008";
+
+   // Init fieldSeparator with a default value
+   if (fieldSeparator.empty())
+      fieldSeparator = ',';
+
+   if (fieldSeparator.size() > 1)
+      throw ConfigurationException() << "The OutputTableFieldSeparator can only consist of 1 character";
+
+
    // Add it to the list
-   return RuntimeConfiguration( templateProjectFile, outputDirectoryAddress, outputFileName );
+   return RuntimeConfiguration( 
+            templateProjectFile, 
+            outputDirectoryAddress, 
+            outputFileName, 
+            cauldronVersion, 
+            "-temperature",
+            fieldSeparator[0],
+            fieldWidth
+            );
 }
 
-bool verbose = false;
 
 int main(int argc, char ** argv ) 
 {
-   bool dryrun = false;
-   std::string fileName = "cauldronexplorer.config";
-   std::string cauldronVersion = "2012.1008";
-
-   if ((argv0 = strrchr (argv[0], '/')) != 0)
-      ++argv0;
+   const char * argv0 = strrchr (argv[0], '/');
+   if (argv0 != 0)
+      argv0++;
    else
       argv0 = argv[0];
 
-
    // parse command line parameters
+   bool dryrun = false;
+   std::string fileName = DEFAULT_CONFIG_FILE;
+   std::ostream * verbose = 0;
    for (int arg = 1; arg < argc; arg++)
    {
       if (strncmp (argv[arg], "-verbose", std::max((size_t) 5, strlen (argv[arg]))) == 0)
       {
-	 verbose = true;
+         verbose = &std::cout;
       }
       else if (strncmp (argv[arg], "-dryrun", std::max((size_t) 2, strlen (argv[arg]))) == 0)
       {
@@ -244,19 +292,23 @@ int main(int argc, char ** argv )
       }
       else if (strncmp (argv[arg], "-help", std::max((size_t) 2, strlen (argv[arg]))) == 0)
       {
-	 showUsage ();
+	 showUsage (argv0);
+         return EXIT_SUCCESS;
       }
-      else if (strncmp (argv[arg], "-version", std::max ((size_t) 2, strlen (argv[arg]))) == 0)
+      else if (strncmp (argv[arg], "-config", std::max ((size_t) 2, strlen (argv[arg]))) == 0)
       {
          if (arg + 1 >= argc)
          {
-            showUsage ("Argument for '-version' is missing");
-            return -1;
+            showUsage (argv0, "Parameter '-config' expects the name of the configuration file as an argument");
+            return EXIT_FAILURE;
          }
-         cauldronVersion = argv[++arg];
+	 fileName = argv[++arg];
       }
       else
-	 fileName = argv[arg];
+      {
+         fileName = argv[arg];
+      }
+
    }
 
    // Read experiment set-up
@@ -280,6 +332,7 @@ int main(int argc, char ** argv )
    readCrustalThinningProperties(*database, properties);
    readUnconformityLithologies(*database, properties);
    readUnconformityProperties(*database, properties);
+   readSurfaceTempProperties(*database,properties);
 
    // Run the experiment
    Experiment experiment(properties, 
@@ -288,20 +341,20 @@ int main(int argc, char ** argv )
          );
 
    if (verbose)
-      experiment.printScenarios(std::cout);
+      experiment.printScenarios(*verbose);
 
    experiment.createProjectsSet();
 
    if (!dryrun)
    {
-      experiment.runProjectSet(cauldronVersion);
+      experiment.runProjectSet(verbose);
       experiment.collectResults();
    }
 
    return EXIT_SUCCESS;
 }
 
-void showUsage (const char * message)
+void showUsage (const char * argv0, const char * message)
 {
    std::cerr << std::endl;
    if (message)
@@ -309,17 +362,18 @@ void showUsage (const char * message)
       std::cerr << argv0 << ": " << message << std::endl;
    }
 
-   std::cerr << "Usage (Options may be abbreviated): " << std::endl
-         << argv0 << "        [-version <version>]" << std::endl
-         << "                        [verbose]" << std::endl
-         << "                        [-dryrun]" << std::endl
-         << "                        [-help]" << std::endl
-         << "                        [config-file]" << std::endl
-         << std::endl
-         << "    -version           The version of fastcauldron to use." << std::endl
-         << "    -verbose           Generate additional output on what is happening." << std::endl
-         << "    -dryrun            Do not actually perform the simulations and the data collection." << std::endl
-         << "    -help              Print this message and exit." << std::endl;
-   exit (-1);
+   std::cerr << "Usage (Options may be abbreviated):\n "
+         << std::setw(13) 
+         << argv0         << "       [-config <file name>]\n"
+         << "                        [-verbose]\n"
+         << "                        [-dryrun]\n"
+         << "                        [-help]\n"
+         << "\n"                                               
+         << "    -config <file name>  The configuration file to use. By default the file it searches for is '" 
+                        << DEFAULT_CONFIG_FILE << "'.\n"
+         << "    -verbose             Generate additional output on what is happening.\n"
+         << "    -dryrun              Do not actually perform the simulations and the data collection.\n"
+         << "    -help                Print this message and exit.\n"
+         << std::endl;
 }
 

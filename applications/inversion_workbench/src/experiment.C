@@ -4,11 +4,11 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-
+#include <algorithm>
 #include <memory>
+#include <tr1/tuple>
 
 #include "experiment.h"
-extern bool verbose;
 
 #include "BasementProperty.h"
 #include "RuntimeConfiguration.h"
@@ -127,10 +127,11 @@ void Experiment :: createProjectsSet() const
 }
 
 
-void Experiment :: runProjectSet(const std::string &cauldronVersion) 
+void Experiment :: runProjectSet( std::ostream * verboseOutput) 
 {
    const std::string fastcauldronPath = "fastcauldron";
-   const std::string runtimeParams = "-temperature";
+   const std::string runtimeParams = m_experimentInfo.getCauldronRuntimeParams();
+   const std::string cauldronVersion = m_experimentInfo.getCauldronVersion();
 
    int scenariosFinished = 0;
 
@@ -143,16 +144,16 @@ void Experiment :: runProjectSet(const std::string &cauldronVersion)
       #pragma omp for schedule(dynamic, 1)
       for (unsigned i = 0; i < m_scenarios.size(); ++i)
       {
-	 if (verbose)
+	 if (verboseOutput)
 	 {
 	    #pragma omp critical(printing)
             if (m_scenarios[i].isValid ())
 	    {
-	       std::cout << "Starting scenario " << i + 1 << endl;
+	       *verboseOutput << "Starting scenario " << i + 1 << endl;
 	    }
             else
             {
-	       std::cout << "Skipping scenario " << i + 1 << endl;
+	       *verboseOutput << "Skipping scenario " << i + 1 << endl;
 	    }
 	 }
 
@@ -167,54 +168,141 @@ void Experiment :: runProjectSet(const std::string &cauldronVersion)
        
          system( command.str().c_str() );
 
-	 if (verbose)
+	 if (verboseOutput)
 	 {
 	    #pragma omp critical(printing)
 	    {
-	       std::cout << "Finished scenario " << i + 1 << std::endl;
+	       *verboseOutput << "Finished scenario " << i + 1 << std::endl;
                ++scenariosFinished;
 	    }
 	 }
       }
    }
-   if (verbose)
+   if (verboseOutput)
    {
-      std::cout << std::endl << "Finished " << scenariosFinished << ", skipped " << m_scenarios.size () - scenariosFinished << " scenarios " << std::endl;
+      *verboseOutput << "\nFinished " << scenariosFinished << ", skipped " << m_scenarios.size () - scenariosFinished << " scenarios " << std::endl;
    }
 }
 
+void Experiment :: printField( bool first, std::ostream & output) const
+{
+   if (!first)
+      output << m_experimentInfo.getOutputTableFieldSeparator();
 
+   if (m_experimentInfo.getOutputTableFixedWidth() > 0)
+   {
+      output << std::setw( m_experimentInfo.getOutputTableFixedWidth() );
+
+      if (m_experimentInfo.getOutputTableFixedWidth() > 3)
+         output << std::setprecision(m_experimentInfo.getOutputTableFixedWidth() - 2);
+   }
+}
+
+void Experiment :: printTable( ResultsTable & table, std::ostream & ofs ) const
+{
+   // sort the entries on position, time, and probe number
+   // Note: the whole idea is to print entries with the same position and time on the same record
+   std::sort( table.begin(), table.end() );
+
+   // print labels
+   printField(true, ofs);
+   ofs << "X";
+   printField(false, ofs);
+   ofs << "Y";
+   printField(false, ofs);
+   ofs << "Z";
+   printField(false, ofs);
+   ofs << "Age";
+   for (unsigned j = 0; j < m_probes.size(); ++j)
+   {
+      printField(false, ofs);
+      ofs << m_probes[j].getName();
+   }
+
+   // print the entries
+   PositionAndTime prevPos;
+   ProbeID prevLabel = m_probes.size();
+   for (unsigned k = 0; k < table.size(); ++k)
+   {
+      using std::tr1::get;
+      const PositionAndTime pos = get<0>(table[k]);
+      const ProbeID label = get<1>(table[k]);
+      const double value = get<2>(table[k]);
+
+      if (k == 0 || pos != prevPos || label <  prevLabel )
+      {  
+         // finish the last one whenever the position changes or the labels don't increase
+         for (ProbeID l = prevLabel; l < m_probes.size(); ++l)
+         {
+            printField(false, ofs);
+            ofs << ' ';
+         }
+         ofs << '\n';
+
+         // and start a new record 
+         printField(true, ofs);
+         ofs << get<0>(pos);
+         printField(false, ofs);
+         ofs << get<1>(pos);
+         printField(false, ofs);
+         ofs << get<2>(pos);
+         printField(false, ofs);
+         ofs << get<3>(pos);
+
+         prevLabel = 0;
+      }
+
+      // print empty fields from the previous label up to the current label
+      for (ProbeID l = prevLabel; l < label; ++l)
+      {
+         printField(false, ofs);
+         ofs << ' ';
+      }
+
+      // print the value
+      printField(false, ofs);
+      ofs << value;
+
+      // remember next iteration the position and label we've printed now
+      prevPos = pos;
+      prevLabel = label + 1;
+   }
+
+   // end the last record
+   for (ProbeID l = prevLabel; l < m_probes.size(); ++l)
+   {
+      printField(false, ofs);
+      ofs << ' ';
+   }
+   ofs << '\n';
+}
 
 void Experiment :: collectResults() const
 {
+   ResultsTable table;
+   std::vector< double > zs, values;
 
    for (unsigned i=0; i < m_scenarios.size(); ++i)
    {
       if (!m_scenarios[i].isValid ()) continue;
 
-      std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
-      ofs << "Datamining from project " << workingProjectFileName(i) << " :\n";
-
-      std::vector<double> zs;
-
-      m_probes[0].readDepth(zs);
-      ofs << "Depths " << " ";
-      for (size_t l = 0; l < zs.size(); ++l)
-         ofs << zs[l] << " ";
-
-      ofs << '\n';
-
+      // gather all data of all probes in one big table
+      table.clear();
       for (unsigned j = 0; j < m_probes.size(); ++j)
       {
-         std::vector<double> results;
-         m_probes[j].readResults(workingProjectFileName(i), results );
+         double x, y, age; 
+         m_probes[j].readResults( workingProjectFileName(i), x, y, zs, age, values);
 
-         ofs << m_probes[j].getName() << " ";
-         for (size_t k = 0; k < results.size(); ++k)
-            ofs << results[k] << " ";
+         assert( zs.size() == values.size() );
 
-         ofs << '\n';
+         for (unsigned k = 0; k < zs.size(); ++k)
+            table.push_back( Entry( PositionAndTime( x, y, zs[k], age), j, values[k]) );
       }
+
+      // output the table to file
+      std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
+      ofs << "# Results from project " << workingProjectFileName(i) << ":\n";
+      printTable( table, ofs );
    }
 }
 

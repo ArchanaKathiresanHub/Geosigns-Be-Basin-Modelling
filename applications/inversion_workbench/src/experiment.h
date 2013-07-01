@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iosfwd>
+#include <tr1/tuple>
 
 #include <boost/shared_ptr.hpp>
 
@@ -24,8 +25,9 @@ public:
    /// Generate the set of Cauldron project files from the scenarios: one for each scenario.
    void createProjectsSet() const;
 
-   /// Run fastcauldron on each generated project file
-   void runProjectSet(const std::string & cauldronVersion);
+   /// Run fastcauldron on each generated project file. Optionally an output
+   /// stream can be given to which diagnostic information is written.
+   void runProjectSet(std::ostream * verboseOutput = 0);
 
    /// Collect the results into .dat files.
    void collectResults() const;
@@ -38,6 +40,13 @@ private:
    std::string workingProjectFileName(unsigned scenarioNumber) const;
    std::string workingLogFileName(unsigned scenarioNumber) const;
    std::string resultsFileName(unsigned scenarioNumber) const;
+
+   typedef std::tr1::tuple< double, double, double, double > PositionAndTime;
+   typedef unsigned ProbeID;
+   typedef std::tr1::tuple< PositionAndTime, ProbeID, double > Entry;
+   typedef std::vector< Entry > ResultsTable;
+   void printTable( ResultsTable & table, std::ostream & output ) const;
+   void printField( bool first, std::ostream & output ) const;
 
    std::vector< Scenario > m_scenarios;
    std::vector< DatadrillerProperty > m_probes;

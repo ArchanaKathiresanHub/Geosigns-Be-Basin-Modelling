@@ -33,48 +33,48 @@ bool Crust :: overlap( double t0, double dt0, double t1, double dt1 )
       return t1 > t0 - dt0;
 }
 
-bool Crust :: addThinningEvent( double startTime, double duration, double ratio)
+void Crust :: addThinningEvent(double startTime, double duration, double ratio)
 {
-   assert (ratio > 0.0);
+   assert( ratio > 0.0 );
+   assert( duration > 0.0 );
+   assert( startTime >= duration);
+
+   if (collides(startTime, duration))
+      throw CrustThinningException() << "event overlaps with other event";
+   else
+      m_thinningEvents[startTime] = std::make_pair(duration, ratio);
+}
+
+bool Crust :: collides( double startTime, double duration) const
+{
    assert (duration > 0.0);
    assert (startTime >= duration);
 
-   ThinningEvents::iterator te;
+   // find the entry that might occur earlier than the new event
+   ThinningEvents::const_iterator earlier = m_thinningEvents.lower_bound(startTime);
 
-   for (te = m_thinningEvents.begin (); te != m_thinningEvents.end(); ++te)
-   {
-      if (overlap(te->first, te->second.first, startTime, duration))
-	 throw CrustThinningException() << "Crustal thinning event (" << startTime << ", (" << duration << ", " << ratio << ")) overlaps "
-	    "with (" << te->first << ", (" << te->second.first << ", " << te->second.second << "))";
+   if (earlier != m_thinningEvents.end())
+   { // there is indeed an event that occurs earlier
 
-      if (startTime > te->first) break;
+      double earlierStartTime = earlier->first;
+      double earlierDuration = earlier->second.first;
+
+      if (overlap( startTime, duration, earlierStartTime, earlierDuration ))
+         return true;
    }
 
-   m_thinningEvents.insert (te, std::make_pair (startTime, std::make_pair (duration, ratio)));
+   if (earlier != m_thinningEvents.begin())
+   {  // there is also an event taking place later
+      ThinningEvents::const_iterator later = earlier; --later;
 
-   return true;
+      double laterStartTime = later->first;
+      double laterDuration = later->second.first;
 
-#if 0 // Wijnand's code
-   // find the latest event that could collide
-   ThinningEvents::iterator lowerBound = m_thinningEvents.lower_bound (startTime - duration);
-
-   ThinningEvents::iterator e = lowerBound;
-   while (e != m_thinningEvents.end () && e->first - e->second.first < startTime)
-   {
-      if (overlap (e->first, e->second.first, startTime, duration))
-         return false;
+      if (overlap( startTime, duration, laterStartTime, laterDuration ))
+         return true;
    }
 
-   if (e == m_thinningEvents.end ())
-   {
-      m_thinningEvents.insert (e, std::make_pair (startTime, std::make_pair (duration, ratio)));
-      return true;
-   }
-   else
-   {
-      return false;
-   }
-#endif
+   return false;
 }
 
 const double Crust::MinimumEventSeparation = 1.0e-6; // Ma

@@ -55,7 +55,7 @@ void test_Experiment_Experiment()
    //  *  dataInfo = any
 
    std::vector< DatadrillerProperty > noDataDriller;
-   RuntimeConfiguration noRTInfo( "", "", "");
+   RuntimeConfiguration noRTInfo( "", "", "", "2012.1008", "-temperature");
 
    // test case 1: empty set of properties
    {  std::vector< boost::shared_ptr< Property > > params;
@@ -183,7 +183,97 @@ void test_Experiment_Experiment()
                          " 27) 2; 2; 2\n"
             );
    }
+}
 
+void test_Experiment_printField()
+{
+   std::vector< boost::shared_ptr<Property> > properties;
+   std::vector< DatadrillerProperty > probes;
+
+   // case 1: first field = true, comma is field separator, no fixed width
+   {  RuntimeConfiguration info("", "", "", "", "", ',' ,0);
+      std::ostringstream s;
+      Experiment( properties, probes, info).printField(true, s);
+      s << "x";
+      assert( s.str() == "x");
+   }
+
+   // case 2: first field = false, semi-colon is field separator, fixed width = 10
+   {  RuntimeConfiguration info("", "", "", "", "", ';' ,10);
+      std::ostringstream s;
+      Experiment( properties, probes, info).printField(false, s);
+      s << "y";
+      assert( s.str() == ";         y");
+   }
+}
+
+void test_Experiment_printTable()
+{
+   std::vector< boost::shared_ptr<Property> > properties;
+   { // case 1: no probes, no entries
+      std::vector< DatadrillerProperty > probes;
+      RuntimeConfiguration info("", "", "", "", "", ',', 0);
+
+      Experiment experiment(properties, probes, info);
+      Experiment::ResultsTable table;
+
+      std::ostringstream s;
+      experiment.printTable(table, s);
+      assert( s.str() == "X,Y,Z,Age\n");
+   }
+
+   { // case 1: one probe, one entry
+      std::vector< DatadrillerProperty > probes;
+      probes.push_back(DatadrillerProperty("A", 0.0, 0.0, 0.0, 0.0, 1.0, 0.1));
+      RuntimeConfiguration info("", "", "", "", "", ',', 0);
+
+      Experiment experiment(properties, probes, info);
+      Experiment::ResultsTable table;
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 0, 5.0));
+
+      std::ostringstream s;
+      experiment.printTable(table, s);
+      assert( s.str() == "X,Y,Z,Age,A\n0,1,2,3,5\n");
+   }
+
+   { // case 2: two probes, four entries on the same space coordinate. two of them can be coalesced. The other two
+      // cannot be merged with because the probe names collide
+      std::vector< DatadrillerProperty > probes;
+      probes.push_back(DatadrillerProperty("A", 0.0, 0.0, 0.0, 0.0, 1.0, 0.1));
+      probes.push_back(DatadrillerProperty("B", 0.0, 0.0, 0.0, 0.0, 1.0, 0.1));
+      RuntimeConfiguration info("", "", "", "", "", ',', 0);
+
+      Experiment experiment(properties, probes, info);
+      Experiment::ResultsTable table;
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 1, 5.0));
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 0, 6.0));
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 1, 7.0));
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 0, 8.0));
+
+      std::ostringstream s;
+      experiment.printTable(table, s);
+      assert( s.str() == "X,Y,Z,Age,A,B\n0,1,2,3,6, \n0,1,2,3,8,5\n0,1,2,3, ,7\n");
+   }
+
+   { // case 3: three probes, four entries on the same space coordinate. three of them can be coalesced. The fourth
+      // cannot be merged with another, because the position is different
+      std::vector< DatadrillerProperty > probes;
+      probes.push_back(DatadrillerProperty("A", 0.0, 0.0, 0.0, 0.0, 1.0, 0.1));
+      probes.push_back(DatadrillerProperty("B", 0.0, 0.0, 0.0, 0.0, 1.0, 0.1));
+      probes.push_back(DatadrillerProperty("C", 0.0, 0.0, 0.0, 0.0, 1.0, 0.1));
+      RuntimeConfiguration info("", "", "", "", "", ',', 0);
+
+      Experiment experiment(properties, probes, info);
+      Experiment::ResultsTable table;
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 0, 5.0));
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 1, 6.0));
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 2.0, 3.0, 3.0), 2, 7.0));
+      table.push_back( Experiment::Entry( Experiment::PositionAndTime(0.0, 1.0, 2.0, 3.0), 2, 8.0));
+
+      std::ostringstream s;
+      experiment.printTable(table, s);
+      assert( s.str() == "X,Y,Z,Age,A,B,C\n0,1,2,3,5,6,8\n0,2,3,3, , ,7\n");
+   }
 
 }
 
@@ -198,6 +288,10 @@ int main(int argc, char ** argv)
 
    if (std::strcmp(argv[1], "Experiment")==0)
       test_Experiment_Experiment();
+   else if (std::strcmp(argv[1], "printField")==0)
+      test_Experiment_printField();
+   else if (std::strcmp(argv[1], "printTable")==0)
+      test_Experiment_printTable();
    else
    {
       std::cerr << "Unknown test" << std::endl;
