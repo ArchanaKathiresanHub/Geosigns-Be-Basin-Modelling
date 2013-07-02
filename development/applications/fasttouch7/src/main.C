@@ -1,3 +1,4 @@
+#include "hdf5.h"
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -60,6 +61,10 @@ PetscTruth debug = PETSC_FALSE;
  * porosity of the rock based on the temperature and pressure history. */
 int main (int argc, char ** argv)
 {
+    // before we do anything else ..
+    // to make sure matlab is not calling this function with disastrous effects
+    H5open();
+
     PetscInitialize (&argc, &argv, (char *) 0, help);
 
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
