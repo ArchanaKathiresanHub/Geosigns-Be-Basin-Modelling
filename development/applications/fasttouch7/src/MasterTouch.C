@@ -26,7 +26,7 @@ extern int numProcessors;
 extern PetscTruth debug;
 
 void InitializeTimeComplete ();
-bool ReportTimeToComplete (int stepCompleted, int totalNumberOfSteps, int & afterSeconds, double &reportAfterFractionCompleted);
+bool ReportTimeToComplete (double fractionCompleted, int & afterSeconds, double &reportAfterFractionCompleted);
 bool AllHaveCompleted (bool completed);
 double MinimumAll (double myValue);
 
@@ -510,12 +510,14 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
                  writeResultsToGrids (i, j, numTimeSteps - 1);
             }
         }
-	ReportTimeToComplete (++step, totalNumberOfSteps, reportAfterTime, reportAfterFractionCompleted);
+	double fractionCompleted = MinimumAll ((double) ++step / (double) totalNumberOfSteps);
+	ReportTimeToComplete (fractionCompleted, reportAfterTime, reportAfterFractionCompleted);
     }
 
     if (debug) cerr << "Rank " << rank << " completed in " << step << " steps" << endl;
 
-    while (MinimumAll (10) < 10); // To be used here as it is also used in ReportTimeToComplete, required to use a value > any value used in ReportTimeToComplete here.
+
+    while (MinimumAll (10) < 10); // To be used here to make the number of calls to this collective function equal on all cores, 10 must be greater than 1
 
     delete burialHistory;
     return true;
@@ -577,10 +579,12 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
                 writeResultsToGridsOld (i, j, numTimeSteps - 1);
             }
         }
-	ReportTimeToComplete (++step, totalNumberOfSteps, reportAfterTime, reportAfterFractionCompleted);
+
+	double fractionCompleted = MinimumAll ((double) ++step / (double) totalNumberOfSteps);
+	ReportTimeToComplete (fractionCompleted, reportAfterTime, reportAfterFractionCompleted);
     }
 
-    while (MinimumAll (10) < 10); // To be used here as it is also used in ReportTimeToComplete, required to use a value > any value used in ReportTimeToComplete here.
+    while (MinimumAll (10) < 10); // To be used here to make the number of calls to this collective function equal on all cores, 10 must be greater than 1
  
     delete burialHistory;
     return true;

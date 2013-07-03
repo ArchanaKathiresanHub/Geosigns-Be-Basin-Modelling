@@ -338,7 +338,7 @@ void InitializeTimeComplete ()
    LapTime = WallTime::clock ();
 }
 
-bool ReportTimeToComplete (int stepsCompleted, int totalNumberOfSteps, int & reportAfterTime, double &reportAfterFractionCompleted)
+bool ReportTimeToComplete (double fractionCompleted, int & reportAfterTime, double &reportAfterFractionCompleted)
 {
    int hours;
    int minutes;
@@ -346,8 +346,6 @@ bool ReportTimeToComplete (int stepsCompleted, int totalNumberOfSteps, int & rep
 
    const int reportAfterTimeIncrement = 300;
    const double fractionIncrement = 0.1;
-
-   double fractionCompleted = MinimumAll ((double) stepsCompleted / (double) totalNumberOfSteps);
 
    WallTime::Time clockTime = WallTime::clock ();
    WallTime::Duration executionTime = clockTime - LapTime;
@@ -385,7 +383,6 @@ bool ReportTimeToComplete (int stepsCompleted, int totalNumberOfSteps, int & rep
    timeToComplete.separate (hours, minutes, seconds);
 
    buf2 << "percentage completed: " << fractionCompleted * 100;
-   if (debug) buf2 << " (" << stepsCompleted << " of " << totalNumberOfSteps << ")";
    buf2 << ", estimated time to complete: ";
    buf2 << setw (2) << setfill ('0') << hours << ":";
    buf2 << setw (2) << setfill ('0') << minutes << ":";
