@@ -65,11 +65,11 @@ void PressureSolver::initialiseFctCorrection () {
     Current_Layer = Layers.Current_Layer ();
 
     if ( ! cauldron->readFCTCorrectionFactor ) {
-      DACreateGlobalVector( *cauldron->mapDA, &Current_Layer -> FCTCorrection );
+      DMCreateGlobalVector( *cauldron->mapDA, &Current_Layer -> FCTCorrection );
       VecSet( Current_Layer -> FCTCorrection, One );
     }
 
-    DACreateGlobalVector( *cauldron->mapDA, &Current_Layer -> Thickness_Error );
+    DMCreateGlobalVector( *cauldron->mapDA, &Current_Layer -> Thickness_Error );
     VecSet( Current_Layer -> Thickness_Error, Zero );
   } 
 
@@ -77,7 +77,7 @@ void PressureSolver::initialiseFctCorrection () {
 
 //------------------------------------------------------------//
 
-void PressureSolver::restorePressureSolution ( const DA  pressureFEMGrid,
+void PressureSolver::restorePressureSolution ( const DM  pressureFEMGrid,
                                                const Vec Pressure_DOF_Numbers,
                                                      Vec Overpressure ) {
 
@@ -117,7 +117,7 @@ void PressureSolver::restorePressureSolution ( const DA  pressureFEMGrid,
 
     Z_Node_Count = Z_Node_Count - 1;
 
-    DAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     PETSC_3D_Array Layer_Po ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Overpressure ));
 
@@ -147,7 +147,7 @@ void PressureSolver::restorePressureSolution ( const DA  pressureFEMGrid,
 
 //------------------------------------------------------------//
 
-void PressureSolver::storePressureSolution ( const DA  pressureFEMGrid,
+void PressureSolver::storePressureSolution ( const DM  pressureFEMGrid,
                                              const Vec Pressure_DOF_Numbers,
                                              const Vec Overpressure ) {
 
@@ -180,7 +180,7 @@ void PressureSolver::storePressureSolution ( const DA  pressureFEMGrid,
   Layer_Iterator Layers ( cauldron->layers, Ascending, Sediments_Only, Active_Layers_Only );
   LayerProps_Ptr Current_Layer;
 
-  DAGetCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
 
   PETSC_3D_Array New_Overpressure ( pressureFEMGrid, Overpressure );
   PETSC_3D_Array DOFs             ( pressureFEMGrid, Pressure_DOF_Numbers );
@@ -198,7 +198,7 @@ void PressureSolver::storePressureSolution ( const DA  pressureFEMGrid,
     Z_Node_Count = Z_Node_Count - 1;
 
 
-    DAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Overpressure );
     Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Pore_Pressure );
@@ -259,7 +259,7 @@ void PressureSolver::storePressureSolution ( const DA  pressureFEMGrid,
 
 void PressureSolver::assembleSystem ( const double  previousTime,
                                       const double  currentTime,
-                                      const DA&     pressureFEMGrid,
+                                      const DM&     pressureFEMGrid,
                                       const Vec&    pressureDOFs,
                                       const Vec&    pressureNodeIncluded,
                                             Mat&    Jacobian,
@@ -280,7 +280,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
   PetscLogDouble Start_Time;
   PetscLogDouble End_Time;
 
-  PetscGetTime(&Start_Time);
+  PetscTime(&Start_Time);
 
   bool Include_Ghost_Values = true;
 
@@ -396,8 +396,8 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
   int Degenerate_Segments;
 
-  DAGetInfo ( pressureFEMGrid, PETSC_NULL,&globalXCount,&globalYCount,&globalZCount, 
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+  DMDAGetInfo ( pressureFEMGrid, PETSC_NULL,&globalXCount,&globalYCount,&globalZCount, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
   PETSC_3D_Array residualVector ( pressureFEMGrid, Residual, INSERT_VALUES, Include_Ghost_Values );
   PETSC_3D_Array dof  ( pressureFEMGrid, pressureDOFs, INSERT_VALUES, Include_Ghost_Values);
@@ -464,8 +464,8 @@ void PressureSolver::assembleSystem ( const double  previousTime,
     Current_Layer->Current_Properties.Activate_Properties  ( INSERT_VALUES, Include_Ghost_Values );
     Current_Layer->Previous_Properties.Activate_Properties ( INSERT_VALUES, Include_Ghost_Values );
 
-    DAGetInfo(Current_Layer->layerDA,0, &layerXCount, &layerYCount, &layerZCount,0,0,0,0,0,0,0);
-    DAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetInfo(Current_Layer->layerDA,0, &layerXCount, &layerYCount, &layerZCount,0,0,0,0,0,0,0,0,0);
+    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     for ( K = zStart; K < zStart + zCount; K++ ) {
 
@@ -691,7 +691,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Previous_Element_Temperature );
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Previous_Chemical_Compaction );
 
-            PetscGetTime(&Element_Start_Time);
+            PetscTime(&Element_Start_Time);
 
             Assemble_Element_Pressure_System ( Plane_Quadrature_Degree,
                                                Depth_Quadrature_Degree,
@@ -730,7 +730,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
                                                Element_Jacobian,
                                                Element_Residual );
 
-            PetscGetTime(&Element_End_Time);
+            PetscTime(&Element_End_Time);
             elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
             MatSetValuesStencil( Jacobian, 8, row, 8, col, Element_Jacobian.C_Array (), ADD_VALUES);
 
@@ -761,7 +761,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
   }
 
-  DAGetCorners ( pressureFEMGrid, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetCorners ( pressureFEMGrid, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   //
   // Now set the dummy nodes on the diagonal of the Jacobian matrix to 1.
@@ -790,7 +790,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
   MatAssemblyBegin ( Jacobian, MAT_FINAL_ASSEMBLY );
   MatAssemblyEnd   ( Jacobian, MAT_FINAL_ASSEMBLY );
 
-  PetscGetTime(&End_Time);
+  PetscTime(&End_Time);
 
   PetscLogStages::pop();
 }
@@ -800,7 +800,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 #if 0
 void PressureSolver::assembleResidual ( const double  previousTime,
                                         const double  currentTime,
-                                        const DA&     pressureFEMGrid,
+                                        const DM&     pressureFEMGrid,
                                         const Vec&    pressureDOFs,
                                               Vec&    Residual,
                                               double& elementContributionsTime ) {
@@ -814,7 +814,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
   PetscLogDouble Element_End_Time;
   PetscLogDouble Start_Time;
   PetscLogDouble End_Time;
-  PetscGetTime(&Start_Time);
+  PetscTime(&Start_Time);
 
   bool Include_Ghost_Values = true;
 
@@ -916,7 +916,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
 
   int Degenerate_Segments;
 
-  DAGetInfo ( pressureFEMGrid, PETSC_NULL,&globalXCount, &globalYCount, &globalZCount, 
+  DMDAGetInfo ( pressureFEMGrid, PETSC_NULL,&globalXCount, &globalYCount, &globalZCount, 
               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
 
@@ -958,8 +958,8 @@ void PressureSolver::assembleResidual ( const double  previousTime,
     Current_Layer->Current_Properties.Activate_Properties  ( INSERT_VALUES, Include_Ghost_Values );
     Current_Layer->Previous_Properties.Activate_Properties ( INSERT_VALUES, Include_Ghost_Values );
 
-    DAGetInfo(Current_Layer->layerDA,0,&layerXCount,&layerYCount,&layerZCount,0,0,0,0,0,0,0);
-    DAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetInfo(Current_Layer->layerDA,0,&layerXCount,&layerYCount,&layerZCount,0,0,0,0,0,0,0);
+    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     for ( K = zStart; K < zStart + zCount; K++ ) {
 
@@ -1120,7 +1120,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Previous_Element_Temperature );
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Previous_Chemical_Compaction );
 
-            PetscGetTime(&Element_Start_Time);
+            PetscTime(&Element_Start_Time);
 
             Assemble_Element_Pressure_Residual ( Plane_Quadrature_Degree,
                                                  Depth_Quadrature_Degree,
@@ -1154,7 +1154,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
                                                  Element_Residual );
 
 
-            PetscGetTime(&Element_End_Time);
+            PetscTime(&Element_End_Time);
             elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
 
             for (Inode = 0; Inode<8; Inode++) {
@@ -1184,7 +1184,7 @@ void PressureSolver::assembleResidual ( const double  previousTime,
   }
 
   residualVector.Restore_Global_Array ( Update_Including_Ghosts );  
-  PetscGetTime(&End_Time);
+  PetscTime(&End_Time);
 
 }
 #endif
@@ -1222,12 +1222,12 @@ PetscScalar PressureSolver::maximumPressureDifference () {
     //
     // Get the size of the layer DA.
     //
-    DAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     Current_Overpressure  = Current_Layer->Current_Properties  ( Basin_Modelling::Overpressure );
     Previous_Overpressure = Current_Layer->Previous_Properties ( Basin_Modelling::Overpressure );
 
-    DACreateGlobalVector ( Current_Layer->layerDA, & Pressure_Difference );
+    DMCreateGlobalVector ( Current_Layer->layerDA, & Pressure_Difference );
 
     // Check this!!
     // VecWAXPY(&NegOne, Previous_Overpressure, Current_Overpressure, Pressure_Difference );
@@ -1308,7 +1308,7 @@ PetscScalar PressureSolver::maximumPressureDifference2 () {
     //
     // Get the size of the layer DA.
     //
-    DAGetCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDAGetCorners ( currentLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
     PETSC_3D_Array currentPressure  ( currentLayer->layerDA, currentLayer->Current_Properties  ( Basin_Modelling::Overpressure ));
     PETSC_3D_Array previousPressure ( currentLayer->layerDA, currentLayer->Previous_Properties ( Basin_Modelling::Overpressure ));
@@ -1421,7 +1421,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 
   double mantleMaximumElementThickness = FastcauldronSimulator::getInstance ().getRunParameters ()->getBrickHeightMantle ();
 
-  DAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
   LayerProps_Ptr Crust_Layer  = cauldron->Crust ();
   LayerProps_Ptr Mantle_Layer = cauldron->Mantle ();
@@ -1432,7 +1432,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 //   PETSC_2D_Array maxCrustThickns ( *cauldron->mapDA, cauldron->Maximum_Crust_Thickness );
 
   // Get the size of the layer DA.
-  DAGetCorners ( Crust_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( Crust_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
   Z_Top = Z_Start + Z_Count - 1;
 
   Basin_Modelling::initialiseTopNodes ( X_Start, X_Count, Y_Start, Y_Count, Z_Top, Valid_Needle, Depth_Above, Crust_Depth );
@@ -1462,7 +1462,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
 
   Basin_Modelling::copyBottomNodes ( X_Start, X_Count, Y_Start, Y_Count, Valid_Needle, Depth_Above, Crust_Depth );
 
-  DAGetCorners ( Mantle_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( Mantle_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
   Z_Top = Z_Start + Z_Count - 1;
 
   Basin_Modelling::initialiseTopNodes ( X_Start, X_Count, Y_Start, Y_Count, Z_Top, Valid_Needle, Depth_Above, Mantle_Depth );
@@ -1644,7 +1644,7 @@ void PressureSolver::setIterationsForIluFillLevelIncrease ( const int newIluFill
 
 //------------------------------------------------------------//
 
-void PressureSolver::setLayerElements ( const DA  femGrid,
+void PressureSolver::setLayerElements ( const DM  femGrid,
                                         const Vec dofNumbers,
                                               LayerElementReferenceArray& elementRefs ) {
 
@@ -1684,7 +1684,7 @@ void PressureSolver::setLayerElements ( const DA  femGrid,
    int n7;
    int n8;
 
-   DAGetCorners ( femGrid, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount ); 
+   DMDAGetCorners ( femGrid, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount ); 
 
    // - 2 because the start (end?) point is 1 less than the count and 
    // the number of elements is 1 less than the number of nodes.

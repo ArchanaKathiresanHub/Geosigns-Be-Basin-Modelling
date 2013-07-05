@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdmda.h"
 #include "Polyfunction.h"//from CBM Generics
 using CBMGenerics::Polyfunction;
 
@@ -166,7 +166,7 @@ public:
   void Initialise();
   void reInitialise();
   void setVectorList();
-  void Create_FC_Thickness_Polyfunction ( const DA& Map_DA );
+  void Create_FC_Thickness_Polyfunction ( const DM& Map_DA );
 
   void setConstrainedOverpressureInterval ( const double startTime,
                                             const double endTime,
@@ -374,7 +374,7 @@ public:
 
 
 
-  DA               layerDA;
+  DM               layerDA;
 
   Vec Depth;
 
@@ -503,9 +503,9 @@ public:
 
 
   bool createVec(Vec& propertyVector);
-  bool destroyDA(DA& propertyDA);
+  bool destroyDA(DM& propertyDA);
   bool setVec(Vec& propertyVector, const double propertyValue);
-  bool propagateVec(DA from_da, DA to_da, Vec from_vec, Vec to_vec);
+  bool propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec);
 
 
   void Fill_Topmost_Segment_Array ( const double                  Required_Age,
@@ -558,7 +558,7 @@ public:
 
   void interpolateProperty (       AppCtx*         basinModel,
                              const double          currentTime,
-                             DA                    propertyDA,
+                             DM                    propertyDA,
                              SnapshotInterpolator& interpolator,
                              Vec                   propertyVector );
 

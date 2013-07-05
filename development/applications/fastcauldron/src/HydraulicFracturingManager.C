@@ -290,8 +290,8 @@ void HydraulicFracturingManager::checkForFracturing ( LayerProps*           theL
   // For output and debugging purposes only.
   double maxFractureValue = 0.0;
 
-  DAGetCorners ( theLayer->layerDA, &xLocalStart, &yLocalStart, PETSC_NULL, &xLocalCount, &yLocalCount, PETSC_NULL );
-  DAGetCorners ( theLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( theLayer->layerDA, &xLocalStart, &yLocalStart, PETSC_NULL, &xLocalCount, &yLocalCount, PETSC_NULL );
+  DMDAGetCorners ( theLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   theLayer->Current_Properties.Activate_Property ( Basin_Modelling::Depth );
   theLayer->Current_Properties.Activate_Property ( Basin_Modelling::Overpressure );
@@ -464,7 +464,7 @@ void HydraulicFracturingManager::resetFracturing ( LayerProps*           theLaye
   int j;
   int k;
 
-  DAGetCorners ( theLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetCorners ( theLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   for ( i = xStart; i < xStart + xCount; ++i ) {
 
@@ -554,7 +554,7 @@ void HydraulicFracturingManager::restrictPressure ( LayerProps*           theLay
     PetscPrintf ( PETSC_COMM_WORLD, " Restricting pressure for layer: %s \n", theLayer->layername.c_str ());
   }
 
-  DAGetCorners ( theLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+  DMDAGetCorners ( theLayer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   theLayer->Current_Properties.Activate_Property ( Basin_Modelling::Depth );
   theLayer->Current_Properties.Activate_Property ( Basin_Modelling::Overpressure );

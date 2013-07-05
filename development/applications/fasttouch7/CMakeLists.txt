@@ -59,6 +59,11 @@ target_link_libraries(${target_name}
 	${BM_MPI_LOCK_LIBRARIES}
 )
 
+set_target_properties(fasttouch7
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+
+
 install(TARGETS fasttouch7
 	RUNTIME DESTINATION bin
 )

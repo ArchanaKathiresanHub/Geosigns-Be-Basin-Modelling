@@ -44,6 +44,10 @@ if (BM_PARALLEL)
 		${MPI_C_INCLUDE_PATH}
 	)
 
+        set_target_properties(DistributedDataAccess
+            PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+        )
+
 
 	install(TARGETS DistributedDataAccess
 		RUNTIME DESTINATION bin

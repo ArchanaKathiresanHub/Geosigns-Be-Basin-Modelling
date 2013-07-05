@@ -71,20 +71,20 @@ bool VreCalc::CalcSnaptimeVr ( const double    time,
 
     LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
-    DAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+    DMDAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
-    DAVecGetArray(Current_Layer ->layerDA, 
+    DMDAVecGetArray(Current_Layer ->layerDA, 
 		  Current_Layer ->VreIntValue,  &vreintvalue);
 
-    DACreateGlobalVector(Current_Layer ->layerDA,
+    DMCreateGlobalVector(Current_Layer ->layerDA,
 			 &Current_Layer ->Vre);
     VecSet(Current_Layer ->Vre, CAULDRONIBSNULLVALUE);
     double ***vre;
-    DAVecGetArray(Current_Layer ->layerDA, Current_Layer ->Vre, 
+    DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->Vre, 
 		   &vre);
     double **presentdayvre;
     if ( (time == Present_Day) && Current_Layer -> isSourceRock() ) {
-      DAVecGetArray(*Basin_Model -> mapDA, Current_Layer->Present_Day_VRE, 
+      DMDAVecGetArray(*Basin_Model -> mapDA, Current_Layer->Present_Day_VRE, 
 		     &presentdayvre); 
     }
     
@@ -109,13 +109,13 @@ bool VreCalc::CalcSnaptimeVr ( const double    time,
       }
     }
 
-    DAVecRestoreArray(Current_Layer ->layerDA, 
+    DMDAVecRestoreArray(Current_Layer ->layerDA, 
 		      Current_Layer ->VreIntValue,  &vreintvalue);
-    DAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->Vre, 
+    DMDAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->Vre, 
 		       &vre);
 
     if ( (time == Present_Day) && Current_Layer -> isSourceRock() ) {
-      DAVecRestoreArray(*Basin_Model -> mapDA, Current_Layer->Present_Day_VRE, 
+      DMDAVecRestoreArray(*Basin_Model -> mapDA, Current_Layer->Present_Day_VRE, 
 		     &presentdayvre);      
     }
 
@@ -146,24 +146,24 @@ bool VreCalc::CalcStep (double time, double timeStep)
 
     LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
-    DAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+    DMDAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
-    DAVecGetArray(Current_Layer ->layerDA, 
-		  Current_Layer ->VreIntValue,  &vreintvalue);
-
-    DAVecGetArray(Current_Layer ->layerDA, 
-                  Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ),
-                   &endtemperature);
-
-    DAVecGetArray(Current_Layer ->layerDA, 
-                  Current_Layer -> Previous_Properties ( Basin_Modelling::Temperature ),
-		   &starttemperature);
-
+    DMDAVecGetArray(Current_Layer ->layerDA, 
+                    Current_Layer ->VreIntValue,  &vreintvalue);
+    
+    DMDAVecGetArray(Current_Layer ->layerDA, 
+                    Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ),
+                    &endtemperature);
+    
+    DMDAVecGetArray(Current_Layer ->layerDA, 
+                    Current_Layer -> Previous_Properties ( Basin_Modelling::Temperature ),
+                    &starttemperature);
+    
     double***depth;
-    DAVecGetArray(Current_Layer -> layerDA, 
-		  Current_Layer -> Current_Properties ( Basin_Modelling::Depth ), 
-		   &depth);
-
+    DMDAVecGetArray(Current_Layer -> layerDA, 
+                    Current_Layer -> Current_Properties ( Basin_Modelling::Depth ), 
+                    &depth);
+    
     for (i = xs; i < xs+xm; i++) {
       for (j = ys; j < ys+ym; j++) {
 	for (k = zs; k < zs+zm; k++) {
@@ -196,17 +196,17 @@ bool VreCalc::CalcStep (double time, double timeStep)
       }
     }
 
-    DAVecRestoreArray(Current_Layer ->layerDA, 
-		      Current_Layer ->VreIntValue,  &vreintvalue);
-    DAVecRestoreArray(Current_Layer ->layerDA, 
-                      Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ),
-                       &endtemperature);
-    DAVecRestoreArray(Current_Layer ->layerDA, 
-                      Current_Layer -> Previous_Properties ( Basin_Modelling::Temperature ),
-		       &starttemperature);
-    DAVecRestoreArray(Current_Layer ->layerDA, 
-                      Current_Layer -> Current_Properties ( Basin_Modelling::Depth ), 
-		       &depth);
+    DMDAVecRestoreArray(Current_Layer ->layerDA, 
+                        Current_Layer ->VreIntValue,  &vreintvalue);
+    DMDAVecRestoreArray(Current_Layer ->layerDA, 
+                        Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ),
+                        &endtemperature);
+    DMDAVecRestoreArray(Current_Layer ->layerDA, 
+                        Current_Layer -> Previous_Properties ( Basin_Modelling::Temperature ),
+                        &starttemperature);
+    DMDAVecRestoreArray(Current_Layer ->layerDA, 
+                        Current_Layer -> Current_Properties ( Basin_Modelling::Depth ), 
+                        &depth);
 
     Layers++;
   }
@@ -316,8 +316,8 @@ bool VreCalc::InitializeGINT ()
   if ( (ALGORITHMTYPE == SWEENEYMETHOD) || 
        (ALGORITHMTYPE == LARTERMETHOD) ) {
     int NNodeX, NNodeY,NNodeZ;
-    DAGetCorners ( *Basin_Model -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                   &NNodeX, &NNodeY, PETSC_NULL); 
+    DMDAGetCorners ( *Basin_Model -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                     &NNodeX, &NNodeY, PETSC_NULL); 
     
     Layer_Iterator Layers;
     Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, 
@@ -353,8 +353,8 @@ void VreCalc::initialiseVectors () {
     int size;
     int i;
 
-    DAGetCorners(*Basin_Model -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-                 &numberOfXNodes, &numberOfYNodes, PETSC_NULL); 
+    DMDAGetCorners(*Basin_Model -> mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                   &numberOfXNodes, &numberOfYNodes, PETSC_NULL); 
     
     Layer_Iterator Layers;
     Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, 

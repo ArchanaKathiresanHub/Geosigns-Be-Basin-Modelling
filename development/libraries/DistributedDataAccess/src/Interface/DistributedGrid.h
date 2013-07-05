@@ -3,7 +3,7 @@
 
 #include "petscsys.h"
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include <string>
 using namespace std;
@@ -141,7 +141,7 @@ public:
          double getDistance (unsigned int i1, unsigned int j1, unsigned int i2, unsigned int j2) const;
 
          /// return DALocalInfo;
-         const DALocalInfo & getLocalInfo (void) const;
+         const DMDALocalInfo & getLocalInfo (void) const;
 
 	 /// Return the Petsc Vec
 	 const Vec & getVec (void) const;
@@ -159,7 +159,7 @@ public:
 	
 private:
          GlobalGrid m_globalGrid;
-         DALocalInfo m_localInfo;
+         DMDALocalInfo m_localInfo;
 
          Vec m_vecGlobal;
 

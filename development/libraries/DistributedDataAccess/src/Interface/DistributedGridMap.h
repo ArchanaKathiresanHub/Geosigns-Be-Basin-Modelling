@@ -6,7 +6,7 @@
 using namespace std;
 
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include "Interface/Interface.h"
 #include "Interface/DistributedGrid.h"
@@ -65,7 +65,7 @@ public:
 	     /// Return the Petsc Vec
 	     Vec & getVec (void);
 	     /// Return the Petsc DA
-	     DA & getDA (void) const;
+	     DM & getDA (void) const;
 
          /// return the leftmost local grid coordinate value
          double minI (void) const;
@@ -211,7 +211,7 @@ private:
          /// The depth of the third dimension
          unsigned int m_depth;
 
-         mutable DALocalInfo m_localInfo;
+         mutable DMDALocalInfo m_localInfo;
 
          /// The PETSC Global VEC
          Vec m_vecGlobal;

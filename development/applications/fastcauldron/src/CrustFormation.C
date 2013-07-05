@@ -108,38 +108,38 @@ void CrustFormation::allocateBasementVecs() {
    if( basinModel->isALC()) {
       IBSASSERT(NULL == TopBasaltDepth);
       createCount++;
-      int ierr = DACreateGlobalVector( * basinModel->mapDA, &TopBasaltDepth );
+      int ierr = DMCreateGlobalVector( * basinModel->mapDA, &TopBasaltDepth );
       setVec ( TopBasaltDepth, CAULDRONIBSNULLVALUE );
 
       IBSASSERT(NULL == BasaltThickness);
       createCount++;
-      ierr = DACreateGlobalVector( * basinModel->mapDA, &BasaltThickness );
+      ierr = DMCreateGlobalVector( * basinModel->mapDA, &BasaltThickness );
 
       IBSASSERT(NULL == BottomBasaltDepth);
       createCount++;
-      ierr = DACreateGlobalVector( * basinModel->mapDA, &BottomBasaltDepth );
+      ierr = DMCreateGlobalVector( * basinModel->mapDA, &BottomBasaltDepth );
       setVec ( BottomBasaltDepth, CAULDRONIBSNULLVALUE );
 
       IBSASSERT( NULL == ThicknessBasaltALC );
       createCount++;
-      ierr = DACreateGlobalVector( * basinModel->mapDA, &ThicknessBasaltALC );
+      ierr = DMCreateGlobalVector( * basinModel->mapDA, &ThicknessBasaltALC );
       setVec ( ThicknessBasaltALC, Zero );
 	  
       IBSASSERT( NULL == ThicknessCCrustALC );
       createCount++;
-      ierr = DACreateGlobalVector( * basinModel->mapDA, &ThicknessCCrustALC );
+      ierr = DMCreateGlobalVector( * basinModel->mapDA, &ThicknessCCrustALC );
 	  
       IBSASSERT( NULL == SmCCrustThickness );
       createCount++;
-      ierr = DACreateGlobalVector( * basinModel->mapDA, &SmCCrustThickness );
+      ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmCCrustThickness );
 
       IBSASSERT( NULL == SmTopBasaltDepth );
       createCount++;
-      ierr = DACreateGlobalVector( * basinModel->mapDA, &SmTopBasaltDepth );
+      ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmTopBasaltDepth );
 
       IBSASSERT( NULL == SmBottomBasaltDepth );
       createCount++;
-      ierr = DACreateGlobalVector( * basinModel->mapDA, &SmBottomBasaltDepth );
+      ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmBottomBasaltDepth );
 
       if ( BasaltMap.isNull ()) {
          BasaltMap.create ( layerDA );

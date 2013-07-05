@@ -112,7 +112,7 @@ void Well::Locate_Well ( Location& needle ) {
   } 
 
 #if 0
-  DALocalInfo dainfo;
+  DMDALocalInfo dainfo;
   int xMin;
   int xMax;
   int gxMin;
@@ -124,7 +124,7 @@ void Well::Locate_Well ( Location& needle ) {
   int gyMax;
 
 
-  DAGetLocalInfo( *Basin_Model -> mapDA, &dainfo );
+  DMDAGetLocalInfo( *Basin_Model -> mapDA, &dainfo );
 
   gxMin = dainfo.gxs;
   gxMax = dainfo.gxs + ( dainfo.gxm - 1 );
@@ -166,13 +166,13 @@ void Well::Locate_Well ( Location& needle ) {
 
 }
 
-PETSC_3D_Array* Well::getPropertyVector ( DA  layerDA,
+PETSC_3D_Array* Well::getPropertyVector ( DM  layerDA,
                                           Vec propertyVector ) const {
 
   const bool IncludeGhosts = true;
   PETSC_3D_Array* array;
 
-  PetscTruth validVector;
+  PetscBool validVector;
 
   VecValid ( propertyVector, &validVector );
 
@@ -270,7 +270,7 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
     
     if ( Number_Of_Segment <= 0 ) continue;
 
-    DAGetCorners( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
 
     PETSC_3D_Array depth              ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Depth ),                INSERT_VALUES, IncludeGhosts );
     PETSC_3D_Array ves                ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::VES_FP ),               INSERT_VALUES, IncludeGhosts );

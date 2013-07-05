@@ -116,7 +116,7 @@ int main (int argc, char ** argv)
    }
 #endif 
 
-   PetscTruth myddd = PETSC_FALSE;
+   PetscBool myddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
    if (myddd)
    {
@@ -128,7 +128,7 @@ int main (int argc, char ** argv)
       sleep (20);
    }
 
-   PetscTruth isDefined = PETSC_FALSE;
+   PetscBool isDefined = PETSC_FALSE;
    
    PetscOptionsHasName (PETSC_NULL, "-help", &isDefined);
    if (isDefined) {

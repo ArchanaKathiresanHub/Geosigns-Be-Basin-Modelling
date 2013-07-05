@@ -7,7 +7,6 @@
 
 using namespace std;
 
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -151,7 +150,7 @@ void displayTime(const bool debug, const char* str)
    if (PetscGlobalRank != 0)
       return;
 
-  PetscGetTime(&EndTime);
+  PetscTime(&EndTime);
   CalculationTime = EndTime - StartTime; 
    long remainder = (long) CalculationTime;
 
@@ -188,7 +187,7 @@ void getElapsedTime(char* str)
    if (PetscGlobalRank != 0)
       return;
 
-   PetscGetTime(&EndTime);
+   PetscTime(&EndTime);
    CalculationTime = EndTime - StartTime; 
    long remainder = (long) CalculationTime;
 
@@ -713,7 +712,7 @@ int Convert_String_Argument_For_FORTRAN_Code ( int* Integer_Array, const char* I
 void StartTiming() {
 
   StartTime = 0.0;
-  PetscGetTime(&StartTime);
+  PetscTime(&StartTime);
 
 }
 
@@ -721,7 +720,9 @@ void monitorProcessMemorySize() {
 
   double LocalSize = GetResidentSetSize(); //Mbytes
   double TotalSize;
-  PetscGlobalSum(&LocalSize,&TotalSize,PETSC_COMM_WORLD);
+  // PetscGlobalSum(&LocalSize,&TotalSize,PETSC_COMM_WORLD);
+
+  MPI_Allreduce( &LocalSize, &TotalSize, 1, MPIU_SCALAR, MPIU_SUM, PETSC_COMM_WORLD);
 
   PetscPrintf(PETSC_COMM_WORLD,"  ~~Process Memory~~\n");
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"    [%d] %f\n",PetscGlobalRank,LocalSize);
@@ -864,20 +865,18 @@ double Float_Epsilon () {
 
   if ( First_Time ) {
     
-    float T     = 1.0;
-    float Delta = 0.5;
-    float TT    = T + Delta;
-    float half = 0.5; // Added to stop compiler from complaining about conversion from double to float
-    float four = 4.0; // Added to stop compiler from complaining about conversion from double to float
-
+    double T     = 1.0;
+    double Delta = 0.5;
+    double TT    = T + Delta;
+    
     while ( T != TT ) {
       Model_Epsilon_Value = Delta;
       T = TT;
-      Delta = half * Delta;
+      Delta = 0.5 * Delta;
       TT = T + Delta;
     } 
 
-    Model_Epsilon_Value = four * Model_Epsilon_Value;
+    Model_Epsilon_Value = 4.0 * Model_Epsilon_Value;
 
     First_Time = false;
   } 

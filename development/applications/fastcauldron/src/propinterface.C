@@ -131,7 +131,7 @@ bool AppCtx::readProjectName () {
    char dirExtension[MAXLINESIZE];
    dirExtension[0] = '\0';
 
-   PetscTruth hasProject   = PETSC_FALSE; 
+   PetscBool hasProject   = PETSC_FALSE; 
 
 
    PetscOptionsGetString (PETSC_NULL, "-project", fname, MAXLINESIZE, 0);
@@ -262,9 +262,9 @@ bool AppCtx::readProjectFile () {
 void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
 {
 
-  PetscTruth Start_In_CVD      = PETSC_FALSE;
-  PetscTruth Start_In_WORKSHOP = PETSC_FALSE;
-  PetscTruth Start_In_DDD      = PETSC_FALSE;
+  PetscBool Start_In_CVD      = PETSC_FALSE;
+  PetscBool Start_In_WORKSHOP = PETSC_FALSE;
+  PetscBool Start_In_DDD      = PETSC_FALSE;
 
   string Debug_Command;
   string Process_Id = IntegerToString( GetProcPID() );
@@ -499,19 +499,19 @@ bool AppCtx::getCommandLineOptions() {
 
   char Output_Level_Str [MAXLINESIZE];
 
-  PetscTruth Use_Non_Geometric_Loop = PETSC_FALSE;
+  PetscBool Use_Non_Geometric_Loop = PETSC_FALSE;
 
-  PetscTruth ShowHelp   = PETSC_FALSE; 
-  PetscTruth MapType    = PETSC_FALSE; 
-  PetscTruth VolumeType = PETSC_FALSE;
-  PetscTruth Dummy      = PETSC_FALSE;
-  PetscTruth outputNotRequired = PETSC_FALSE;
-  PetscTruth outputAgeChanged = PETSC_FALSE;
-  PetscTruth bbtemp = PETSC_FALSE;
-  PetscTruth Found;
+  PetscBool ShowHelp   = PETSC_FALSE; 
+  PetscBool MapType    = PETSC_FALSE; 
+  PetscBool VolumeType = PETSC_FALSE;
+  PetscBool Dummy      = PETSC_FALSE;
+  PetscBool outputNotRequired = PETSC_FALSE;
+  PetscBool outputAgeChanged = PETSC_FALSE;
+  PetscBool bbtemp = PETSC_FALSE;
+  PetscBool Found;
   double outputAge;
-  PetscTruth unitTestRequired;
-  PetscTruth saveResultsIfDarcyError = PETSC_FALSE;
+  PetscBool unitTestRequired;
+  PetscBool saveResultsIfDarcyError = PETSC_FALSE;
   int ierr;
 
 
@@ -562,7 +562,7 @@ bool AppCtx::getCommandLineOptions() {
      m_ageToOutput = outputAge;
   }
 
-  bottomBasaltTemp = PetscTruth ( bbtemp );
+  bottomBasaltTemp = PetscBool ( bbtemp );
   if( bottomBasaltTemp ) {
      PetscPrintf ( PETSC_COMM_WORLD, "Turning on basalt temperature in the lower elements only!" );
   }
@@ -591,7 +591,7 @@ bool AppCtx::getCommandLineOptions() {
 //   threeDoutputNotRequired = not threeDoutputNotRequired;
 //   twoDoutputNotRequired   = not twoDoutputNotRequired;
 
-  DoHDFOutput = PetscTruth ( ! outputNotRequired );
+  DoHDFOutput = PetscBool ( ! outputNotRequired );
 
   if ( DoDecompaction )
   {
@@ -695,62 +695,62 @@ bool AppCtx::getCommandLineOptions() {
 
 void AppCtx::setAdditionalCommandLineParameters () {
 
-   PetscTruth pressurePlaneDegreeChanged;
+   PetscBool pressurePlaneDegreeChanged;
    int        pressurePlaneDegree;
 
-   PetscTruth pressureDepthDegreeChanged;
+   PetscBool pressureDepthDegreeChanged;
    int        pressureDepthDegree;
 
-   PetscTruth temperaturePlaneDegreeChanged;
+   PetscBool temperaturePlaneDegreeChanged;
    int        temperaturePlaneDegree;
 
-   PetscTruth temperatureDepthDegreeChanged;
+   PetscBool temperatureDepthDegreeChanged;
    int        temperatureDepthDegree;
 
-   PetscTruth newtonToleranceChanged;
+   PetscBool newtonToleranceChanged;
    double     newtonTolerance;
 
-   PetscTruth newtonIterationsChanged;
+   PetscBool newtonIterationsChanged;
    int        newtonIterations;
 
-   PetscTruth fractureModelChanged;
+   PetscBool fractureModelChanged;
    int        fractureModel;
 
-   PetscTruth iterationsForIluFillLevelUpdateChanged;
+   PetscBool iterationsForIluFillLevelUpdateChanged;
    int        iterationsForIluFillLevelUpdate;
 
-   PetscTruth minimumTimeStepChanged;
+   PetscBool minimumTimeStepChanged;
    double newMinimumTimeStep;
 
-   PetscTruth maximumTimeStepChanged;
+   PetscBool maximumTimeStepChanged;
    double newMaximumTimeStep;
 
-   PetscTruth fixedTimeStepChanged;
+   PetscBool fixedTimeStepChanged;
    double newFixedTimeStep;
 
-   PetscTruth petscBurialRateTimeStepping = PETSC_FALSE;
-   PetscTruth petscCflTimeStepping = PETSC_FALSE;
-   PetscTruth petscLatentHeat = PETSC_FALSE;
+   PetscBool petscBurialRateTimeStepping = PETSC_FALSE;
+   PetscBool petscCflTimeStepping = PETSC_FALSE;
+   PetscBool petscLatentHeat = PETSC_TRUE;
 
-   PetscTruth petscBurialRateFraction = PETSC_FALSE;
+   PetscBool petscBurialRateFraction = PETSC_FALSE;
    double elementFraction;
 
-   PetscTruth petscErosionRateFraction = PETSC_FALSE;
+   PetscBool petscErosionRateFraction = PETSC_FALSE;
    double elementErosionFraction;
 
-   PetscTruth vesScaleChanged = PETSC_FALSE;
+   PetscBool vesScaleChanged = PETSC_FALSE;
    double vesScale;
 
-   PetscTruth hasLateralStressFile = PETSC_FALSE;
+   PetscBool hasLateralStressFile = PETSC_FALSE;
    char lateralStressFileName [ MAXLINESIZE ];
 
-   PetscTruth relPermMethodDescribed = PETSC_FALSE;
+   PetscBool relPermMethodDescribed = PETSC_FALSE;
    char relPermMethodName [ MAXLINESIZE ];
 
-   PetscTruth crustThinningModelChanged = PETSC_FALSE;
+   PetscBool crustThinningModelChanged = PETSC_FALSE;
    int        crustThinningModel;
 
-   PetscTruth mantleElementScalingChanged = PETSC_FALSE;
+   PetscBool mantleElementScalingChanged = PETSC_FALSE;
    double     mantleElementScaling;
 
  
@@ -1236,7 +1236,7 @@ bool AppCtx::openProject ()
 
    if (database == 0)
    {
-      SETERRQ (0, "unable to open project file\n");
+      SETERRQ (PETSC_COMM_SELF, 0, "unable to open project file\n");
       return false;
    }
 
@@ -1466,10 +1466,10 @@ void AppCtx::shareValidNeedleData () {
    int j;
 
    Vec definedNodeVec;
-   DALocalInfo dainfo;
+   DMDALocalInfo dainfo;
 
-   DAGetLocalInfo ( *mapDA, &dainfo );
-   DACreateGlobalVector ( *mapDA, &definedNodeVec );
+   DMDAGetLocalInfo ( *mapDA, &dainfo );
+   DMCreateGlobalVector ( *mapDA, &definedNodeVec );
    VecSet ( definedNodeVec, Zero );
 
    PETSC_2D_Array definedNode ( *mapDA, definedNodeVec, INSERT_VALUES, IncludeGhostValues );
@@ -1657,7 +1657,7 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
   int IX, IY, IZ;
   int XS, YS;
 
-  DAGetCorners( *mapDA, &XS, &YS, PETSC_NULL, &NX, &NY, PETSC_NULL );
+  DMDAGetCorners( *mapDA, &XS, &YS, PETSC_NULL, &NX, &NY, PETSC_NULL );
 
   LayerProps_Ptr Current_Layer;
   Layer_Iterator Layers;
@@ -1950,7 +1950,7 @@ bool AppCtx::calcNodeVes( const double time ) {
     
     Current_Layer = Layers.Current_Layer ();
     
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     int Top_Z_Index = zm - 1;
     
@@ -2054,7 +2054,7 @@ bool AppCtx::calcNodeMaxVes( const double time ) {
     
     Current_Layer = Layers.Current_Layer ();
     
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     PETSC_3D_Array ves     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
     PETSC_3D_Array max_ves ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Max_VES ));
@@ -2126,7 +2126,7 @@ bool AppCtx::calcPorosities( const double time ) {
 
     Include_Chemical_Compaction = Do_Chemical_Compaction && ( Current_Layer -> Get_Chemical_Compaction_Mode ());
 
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     PETSC_3D_Array porosity( Current_Layer -> layerDA, Current_Layer -> Porosity );
 
@@ -2214,7 +2214,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
        cout << "Lithology has no fluid..." << Current_Layer->layername << endl;
     }
 
-    DAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
     
     PETSC_3D_Array depth           ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
     PETSC_3D_Array temperature     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Temperature ));
@@ -2693,7 +2693,7 @@ bool AppCtx::setNodeDepths ( const double time ) {
        }
     }
 
-    DAGetCorners ( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
+    DMDAGetCorners ( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
     int numberOfNodes = zs + zm - 1;
 
     PETSC_3D_Array depth   ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Depth ));
@@ -2803,7 +2803,7 @@ void AppCtx::setMantleDepth ( const double basementThickness, //presentDayMantle
 
    int k;
 
-   double maximumMantleElementHeight = FastcauldronSimulator::getInstance ().getRunParameters ()->getBrickHeightMantle ();
+   int maximumMantleElementHeight = FastcauldronSimulator::getInstance ().getRunParameters ()->getBrickHeightMantle ();
 
   // double basementThickness = presentDayMantleThickness + FastcauldronSimulator::getInstance ().getCrustThickness ( i, j, 0.0 );
    double currentCrustThickness = FastcauldronSimulator::getInstance ().getCrustThickness ( i, j, time );
@@ -2919,7 +2919,7 @@ bool AppCtx::calcNodeDepths( const double time ) {
        }
     }
 
-    DAGetCorners(currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
+    DMDAGetCorners(currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
 
 
     int numberOfNodes = zs + zm - 1;
@@ -3064,9 +3064,9 @@ void AppCtx::Retrieve_Lithology_ID ()
     
     Current_Layer = Layers.Current_Layer ();
 
-    DAGetCorners( Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm );
+    DMDAGetCorners( Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm );
 
-    DACreateGlobalVector( Current_Layer -> layerDA, &Current_Layer -> Lithology_ID );
+    DMCreateGlobalVector( Current_Layer -> layerDA, &Current_Layer -> Lithology_ID );
 
     VecSet( Current_Layer -> Lithology_ID, CAULDRONIBSNULLVALUE );
 
@@ -3094,7 +3094,7 @@ void AppCtx::Retrieve_Lithology_ID ()
 
 void AppCtx::deleteLithologyIDs () {
 
-  PetscTruth validVector;
+  PetscBool validVector;
   LayerProps_Ptr currentLayer;
   Layer_Iterator Layers;
 
@@ -3291,7 +3291,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
       Current_Layer -> Current_Topmost_Segments.Fill ( -1 );
 
       int gxs,gys,gxm,gym;
-      DAGetGhostCorners(*mapDA,&gxs,&gys,PETSC_NULL,&gxm,&gym,PETSC_NULL);
+      DMDAGetGhostCorners(*mapDA,&gxs,&gys,PETSC_NULL,&gxm,&gym,PETSC_NULL);
 
       unsigned int i;
       unsigned int j;
@@ -3682,7 +3682,7 @@ bool AppCtx::inProcessorRange ( const int  globalIIndex,
                                 const bool includeLowerJGhostNodes,
                                 const bool includeUpperJGhostNodes ) const {
 
-  DALocalInfo dainfo;
+  DMDALocalInfo dainfo;
   int xMin;
   int xMax;
 
@@ -3690,7 +3690,7 @@ bool AppCtx::inProcessorRange ( const int  globalIIndex,
   int yMax;
 
 
-  DAGetLocalInfo( *mapDA, &dainfo );
+  DMDAGetLocalInfo( *mapDA, &dainfo );
 
   if ( includeLowerIGhostNodes ) {
     xMin = dainfo.gxs;
@@ -3726,14 +3726,14 @@ bool AppCtx::inProcessorRange ( const int  globalIIndex,
 bool AppCtx::In_Processor_Range ( const int globalIIndex, const int globalJIndex )
 {
 
-  DALocalInfo dainfo;
+  DMDALocalInfo dainfo;
   int xMin;
   int xMax;
 
   int yMin;
   int yMax;
 
-  DAGetLocalInfo( *mapDA, &dainfo );
+  DMDAGetLocalInfo( *mapDA, &dainfo );
 
   xMin = dainfo.xs;
   xMax = dainfo.xs + ( dainfo.xm - 1 );
@@ -4138,9 +4138,9 @@ void AppCtx::printFCT() {
 
   int xs, ys, xm, ym;
   size_t layer;
-  DAGetCorners(*mapDA, 
-               &xs, &ys, PETSC_NULL, 
-               &xm, &ym, PETSC_NULL); 
+  DMDAGetCorners(*mapDA, 
+                 &xs, &ys, PETSC_NULL, 
+                 &xm, &ym, PETSC_NULL); 
 
 
   for (layer=0; layer<layers.size(); layer++) {
@@ -4173,9 +4173,9 @@ void AppCtx::setUp2dEltMapping()
 
    int xs,ys,xm,ym,xdim,ydim;
 
-   DAGetInfo(*mapDA,PETSC_NULL,&xdim,&ydim,PETSC_NULL,PETSC_NULL,
-             PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
-   DAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);
+   DMDAGetInfo(*mapDA,PETSC_NULL,&xdim,&ydim,PETSC_NULL,PETSC_NULL,
+               PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+   DMDAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);
 
    int i, j;
 
@@ -4378,15 +4378,15 @@ void AppCtx::setUp2dEltMapping()
 void AppCtx::Examine_Load_Balancing() {
 
   int xs,ys,xm,ym;
-  DAGetCorners(*mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL); 
+  DMDAGetCorners(*mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL); 
 
   int Number_Of_Valid_Nodes = xm*ym;
 
   int NNodeX,NNodeY;
-  DAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-	     PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+  DMDAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
-  double Percentage_Of_Total_Number_Of_Nodes = double(xm*ym) / double(NNodeX*NNodeY) * 100.0;
+  float Percentage_Of_Total_Number_Of_Nodes = float(xm*ym) / float(NNodeX*NNodeY) * 100.0;
 
   int i,j;
   for ( i = xs; i < xs+xm; i++ ) {
@@ -4395,7 +4395,7 @@ void AppCtx::Examine_Load_Balancing() {
     }
   }
 
-  double Percentage_Of_Active_Nodes = double(Number_Of_Valid_Nodes) / double(xm*ym) * 100.0;
+  float Percentage_Of_Active_Nodes = float(Number_Of_Valid_Nodes) / float(xm*ym) * 100.0;
 
   PetscPrintf(PETSC_COMM_WORLD,
 	      "\n------------ Load Balancing Information ------------\n");
@@ -4431,8 +4431,8 @@ void AppCtx::Output_Number_Of_Geological_Events() {
 
 void AppCtx::Display_Grid_Description() {
 
-  DALocalInfo dainfo;
-  DAGetLocalInfo( *mapDA, &dainfo );
+  DMDALocalInfo dainfo;
+  DMDAGetLocalInfo( *mapDA, &dainfo );
 
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"rank            %3d \n",FastcauldronSimulator::getInstance ().getRank ());
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"mx , my, mz     %3d %3d %3d\n",dainfo.mx,dainfo.my,dainfo.mz);
@@ -4484,7 +4484,7 @@ AppCtx::~AppCtx(){
 
   Related_Projects.clear ();
 
-  if ( Reference_DA_For_Io_Maps != NULL ) DADestroy(Reference_DA_For_Io_Maps);
+  if ( Reference_DA_For_Io_Maps != NULL ) DMDestroy( &Reference_DA_For_Io_Maps );
 
   if ( xCoarseGridPartitioning == 0 ) {
     delete [] xCoarseGridPartitioning;
@@ -4598,7 +4598,7 @@ double AppCtx::Minimum_Permeability ( const LayerProps* Current_Layer ) const {
 
   int I, J;
 
-  DAGetCorners ( *mapDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( *mapDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
 
   for ( I = X_Start; I < X_Start + X_Count; I++ ) {
 
@@ -4893,7 +4893,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    ElementGeometryMatrix Geometry_Matrix;
    const CompoundLithology *  Element_Lithology;
    
-   DAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
+   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
    
    CrustFormation * crust = dynamic_cast<CrustFormation *>(layers [layers.size () - 2]);
    assert( crust != 0 );
@@ -4912,7 +4912,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    PETSC_2D_Array origMantleDepth       ( *mapDA, mantle->UpliftedOrigMantleDepth );
    PETSC_2D_Array hlmod                 ( *mapDA, mantle->LithosphereThicknessMod );
 
-   DAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
+   DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
 
    PETSC_3D_Array depth ( crust->layerDA, crust->Current_Properties ( Basin_Modelling::Depth ));
    PETSC_3D_Array mantleDepth ( mantle->layerDA, mantle->Current_Properties ( Basin_Modelling::Depth ));

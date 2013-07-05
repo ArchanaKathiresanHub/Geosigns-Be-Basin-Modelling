@@ -216,81 +216,81 @@ void MultiComponentFlowHandler::initialise () {
 
    const int MaximumNumberOfSubProcesses = 100;
 
-   PetscTruth iNodeWanted;
-   PetscTruth jNodeWanted;
-   PetscTruth kNodeWanted;
-   PetscTruth mcfDebugLevelSet = PETSC_FALSE;
+   PetscBool iNodeWanted;
+   PetscBool jNodeWanted;
+   PetscBool kNodeWanted;
+   PetscBool mcfDebugLevelSet = PETSC_FALSE;
 
-   PetscTruth formationRangeInput    = PETSC_FALSE;
+   PetscBool formationRangeInput    = PETSC_FALSE;
 
    PetscInt formationRangeArray [ MaximumNumberOfFormations ];
    PetscInt formationCount = MaximumNumberOfFormations;
 
-   PetscTruth subSamplingForSubProcessesRequired = PETSC_FALSE;
+   PetscBool subSamplingForSubProcessesRequired = PETSC_FALSE;
    char* subProcessNames [ MaximumNumberOfSubProcesses ];
    int numberOfSubProcesses = MaximumNumberOfSubProcesses;
 
-   PetscTruth maximumMcfTimeStepChanged = PETSC_FALSE;
+   PetscBool maximumMcfTimeStepChanged = PETSC_FALSE;
    double newMaximumMcfTimeStep;
 
    double newMaximumMcfHCFractionForFlux;
-   PetscTruth maximumMcfHCFractionForFluxChanged = PETSC_FALSE;
+   PetscBool maximumMcfHCFractionForFluxChanged = PETSC_FALSE;
 
    double newMcfCflTimeStepFraction;
-   PetscTruth mcfCflTimeStepFractionChanged = PETSC_FALSE;
+   PetscBool mcfCflTimeStepFractionChanged = PETSC_FALSE;
 
    double lowPermeability;
-   PetscTruth lowPermeabilityDefined = PETSC_FALSE;
-   PetscTruth doNotIncludeWaterSaturationInOp = PETSC_FALSE;
-   PetscTruth includeCapillaryPressureInDarcy = PETSC_FALSE;
-   PetscTruth includePvtAveraging = PETSC_FALSE;
+   PetscBool lowPermeabilityDefined = PETSC_FALSE;
+   PetscBool doNotIncludeWaterSaturationInOp = PETSC_FALSE;
+   PetscBool includeCapillaryPressureInDarcy = PETSC_FALSE;
+   PetscBool includePvtAveraging = PETSC_FALSE;
 
    double     ageToStopHCSource;
-   PetscTruth ageToStopHCSourceChanged;
+   PetscBool ageToStopHCSourceChanged;
 
    double     ageToStopHCTransport;
-   PetscTruth ageToStopHCTransportChanged;
+   PetscBool ageToStopHCTransportChanged;
 
    double     newGradPressureMaximum;
-   PetscTruth gradPressureMaximumChanged;
+   PetscBool gradPressureMaximumChanged;
 
    double     newFluxPermeabilityMaximum;
-   PetscTruth fluxPermeabilityMaximumChanged;
+   PetscBool fluxPermeabilityMaximumChanged;
 
    PetscInt   faceQuadDegree;
-   PetscTruth faceQuadDegreeSet;
+   PetscBool faceQuadDegreeSet;
    PetscInt   prevQuadDegree;
-   PetscTruth prevQuadDegreeSet;
+   PetscBool prevQuadDegreeSet;
    PetscInt   sourceQuadDegree;
-   PetscTruth sourceQuadDegreeSet;
+   PetscBool sourceQuadDegreeSet;
    PetscInt   massMatQuadDegree;
-   PetscTruth massMatQuadDegreeSet;
+   PetscBool massMatQuadDegreeSet;
    PetscInt   allQuadDegree;
-   PetscTruth allQuadDegreeSet;
+   PetscBool allQuadDegreeSet;
 
-   PetscTruth saveVolumeOutput;
-   PetscTruth saveTransportedVolumeOutput;
-   PetscTruth useImmobileSaturation;
+   PetscBool saveVolumeOutput;
+   PetscBool saveTransportedVolumeOutput;
+   PetscBool useImmobileSaturation;
 
-   PetscTruth changeTimeStepSubSampleStep;
+   PetscBool changeTimeStepSubSampleStep;
    int        newTimeStepSubSampleStep;
 
 
    double timeStepSmoothingValue;
-   PetscTruth timeStepSmoothgingSet;
+   PetscBool timeStepSmoothgingSet;
 
-   PetscTruth nonuniformTimeStepping;
-   PetscTruth uniformTimeStepping;
+   PetscBool nonuniformTimeStepping;
+   PetscBool uniformTimeStepping;
 
-   PetscTruth timeStepSmoothingUnset;
+   PetscBool timeStepSmoothingUnset;
 
-   PetscTruth doNotApplyOtgc;
-   PetscTruth applyOtgc;
-   PetscTruth doNotStopHCTransportChanged;
-   PetscTruth includeDarcyMaps = PETSC_FALSE;
-   PetscTruth includeElementMasses = PETSC_FALSE;
+   PetscBool doNotApplyOtgc;
+   PetscBool applyOtgc;
+   PetscBool doNotStopHCTransportChanged;
+   PetscBool includeDarcyMaps = PETSC_FALSE;
+   PetscBool includeElementMasses = PETSC_FALSE;
 
-   m_applyOtgc = static_cast<PetscTruth>(FastcauldronSimulator::getInstance ().getRunParameters ()->getApplyOtgcToDarcy ());
+   m_applyOtgc = static_cast<PetscBool>(FastcauldronSimulator::getInstance ().getRunParameters ()->getApplyOtgcToDarcy ());
    m_maximumTimeStepSize = static_cast<double>(FastcauldronSimulator::getInstance().getRunParameters ()->getDarcyMaxTimeStep());
 
    PetscOptionsHasName ( PETSC_NULL, "-mcfnootgc",  &doNotApplyOtgc );

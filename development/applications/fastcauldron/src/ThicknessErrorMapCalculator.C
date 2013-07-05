@@ -30,9 +30,9 @@ bool ThicknessErrorMapCalculator::operator ()( const OutputPropertyMap::OutputPr
    bool isSediment = m_formation->kind () == Interface::SEDIMENT_FORMATION;
 
    if ( isSediment ) {
-      DAVecGetArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
-                      m_formation->Thickness_Error,
-                      &propertyVector );
+      DMDAVecGetArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
+                        m_formation->Thickness_Error,
+                        &propertyVector );
    }
 
    thicknessErrorMap = propertyValues [ 0 ]->getGridMap ();
@@ -56,9 +56,9 @@ bool ThicknessErrorMapCalculator::operator ()( const OutputPropertyMap::OutputPr
    thicknessErrorMap->restoreData ();
 
    if ( isSediment ) {
-      DAVecRestoreArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
-                          m_formation->Thickness_Error,
-                          &propertyVector );
+      DMDAVecRestoreArray ( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
+                            m_formation->Thickness_Error,
+                            &propertyVector );
    }
 
    m_isCalculated = true;

@@ -56,7 +56,7 @@ bool SmectiteIlliteCalculator::computeSmectiteIlliteIncrement( double time, doub
    {
       LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
-      DAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+      DMDAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
       PETSC_3D_Array layerTemperature ( Current_Layer -> layerDA, Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ));
 
@@ -93,15 +93,15 @@ bool SmectiteIlliteCalculator::computeSnapShotSmectiteIllite ( const double time
    {
       LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
-      DAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+      DMDAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
       PETSC_3D_Array layerTemperature ( Current_Layer -> layerDA, Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ));
 
-      DACreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_IlliteFraction);
+      DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_IlliteFraction);
       VecSet(Current_Layer ->m_IlliteFraction, CAULDRONIBSNULLVALUE);
 
       double ***snapShotSmectiteIllite;
-      DAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_IlliteFraction, &snapShotSmectiteIllite);
+      DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_IlliteFraction, &snapShotSmectiteIllite);
     
       for (i = xs; i < xs+xm; i++) 
       {
@@ -121,7 +121,7 @@ bool SmectiteIlliteCalculator::computeSnapShotSmectiteIllite ( const double time
          }
       }
 
-      DAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_IlliteFraction,  &snapShotSmectiteIllite);
+      DMDAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_IlliteFraction,  &snapShotSmectiteIllite);
 
       Layers++;
    }

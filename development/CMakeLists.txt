@@ -165,6 +165,11 @@ if (HDF5_IS_PARALLEL)
 	list(APPEND HDF5_LIBRARIES "${MPI_C_LIBRARIES}")
 endif(HDF5_IS_PARALLEL)
 
+
+### OpennMP
+find_package(OpenMP)   
+
+
 # BLAS, LAPACK, and PetSC
 if(UNIX)
 	#Note to following line: the FindLAPACK modules dooes not provide
@@ -234,8 +239,6 @@ if (Boost_FOUND)
      include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
-### OpennMP
-find_package(OpenMP)   
 
 ### Doxygen (for documentation generation)
 if(BM_BUILD_DOCS)

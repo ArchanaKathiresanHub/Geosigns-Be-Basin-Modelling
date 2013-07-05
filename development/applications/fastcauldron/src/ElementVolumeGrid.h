@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "petsc.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include "ElementGrid.h"
 
@@ -89,17 +89,17 @@ public :
    int getNumberOfDofs () const;
 
    /// The DA object on which the element-grid is based.
-   DA getDa ();
+   DM getDa ();
 
    /// The DA object on which the element-grid is based.
-   DA getDa () const;
+   DM getDa () const;
 
    /// Return whether or not the object has been initialised.
    bool isInitialised () const;
 
 private :
 
-   DALocalInfo m_localInfo;
+   DMDALocalInfo m_localInfo;
 
    // Should this really point to the arrays in the element-map-grid?
    int* m_xPartitioning;
@@ -125,11 +125,11 @@ typedef std::vector<ElementVolumeGrid*> ElementVolumeGridArray;
 // Inline functions
 //------------------------------------------------------------//
 
-inline DA ElementVolumeGrid::getDa () {
+inline DM ElementVolumeGrid::getDa () {
    return m_localInfo.da;
 }
 
-inline DA ElementVolumeGrid::getDa () const {
+inline DM ElementVolumeGrid::getDa () const {
    return m_localInfo.da;
 }
 

@@ -114,11 +114,11 @@ void FastcauldronSimulator::setFormationElementHeightScalingFactors () {
 
    char* namedFormationScalingArray [ MaximumNumberOfFormationRefinementPairs ];
    PetscInt namedFormationCount = MaximumNumberOfFormationRefinementPairs;
-   PetscTruth namedFormationRangeInput = PETSC_FALSE;
+   PetscBool namedFormationRangeInput = PETSC_FALSE;
 
    int numberedFormationScalingArray [ MaximumNumberOfFormationRefinementPairs ];
    PetscInt numberedFormationCount = MaximumNumberOfFormationRefinementPairs;
-   PetscTruth numberedFormationRangeInput = PETSC_FALSE;
+   PetscBool numberedFormationRangeInput = PETSC_FALSE;
 
    // Array containing depth-refinement information for domain.
    int formationRefinement [ MaximumNumberOfFormations ];
@@ -282,7 +282,7 @@ void FastcauldronSimulator::initialiseElementGrid ( const bool printElementValid
 
 
    Vec activeElementsVec;
-   DACreateGlobalVector ( m_elementGrid.getDa (), &activeElementsVec );
+   DMCreateGlobalVector ( m_elementGrid.getDa (), &activeElementsVec );
 
    PETSC_2D_Array activeElements ( m_elementGrid.getDa (), activeElementsVec, INSERT_VALUES, true );
    bool isActive;
@@ -390,7 +390,7 @@ void FastcauldronSimulator::initialiseElementGrid ( const bool printElementValid
    }
 
    activeElements.Restore_Global_Array ( No_Update );
-   VecDestroy ( activeElementsVec );
+   VecDestroy ( &activeElementsVec );
 
    // Finally determine whether the elemenmt boundaries lie on the active domain boundary.
    //
@@ -1661,39 +1661,39 @@ LayerProps* FastcauldronSimulator::findLayer ( const std::string& layerName ) co
 
 //------------------------------------------------------------//
 
-int FastcauldronSimulator::DACreate2D ( DA& theDA ) {
+int FastcauldronSimulator::DACreate2D ( DM& theDA ) {
 
    int ierr;
 
-   ierr = DACreate2d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-                       getInstance ().getActivityOutputGrid ()->numIGlobal (),
-                       getInstance ().getActivityOutputGrid ()->numJGlobal (),
-                       getInstance ().getActivityOutputGrid ()->numProcsI (),
-                       getInstance ().getActivityOutputGrid ()->numProcsJ (),
-                       1, 1,
-                       getInstance ().getActivityOutputGrid ()->numsI (),
-                       getInstance ().getActivityOutputGrid ()->numsJ (),
-                       &theDA );
-
+   ierr = DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                         getInstance ().getActivityOutputGrid ()->numIGlobal (),
+                         getInstance ().getActivityOutputGrid ()->numJGlobal (),
+                         getInstance ().getActivityOutputGrid ()->numProcsI (),
+                         getInstance ().getActivityOutputGrid ()->numProcsJ (),
+                         1, 1,
+                         getInstance ().getActivityOutputGrid ()->numsI (),
+                         getInstance ().getActivityOutputGrid ()->numsJ (),
+                         &theDA );
+   
    return ierr;
 }
 
 int FastcauldronSimulator::DACreate3D ( const int numberOfZNodes,
-                                        DA& theDA ) {
+                                        DM& theDA ) {
 
    int ierr;
 
-   ierr = DACreate3d ( PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-                       getInstance ().getActivityOutputGrid ()->numIGlobal (),
-                       getInstance ().getActivityOutputGrid ()->numJGlobal (),
-                       numberOfZNodes,
-                       getInstance ().getActivityOutputGrid ()->numProcsI (),
-                       getInstance ().getActivityOutputGrid ()->numProcsJ (),
-                       1, 1, 1, 
-                       getInstance ().getActivityOutputGrid ()->numsI (),
-                       getInstance ().getActivityOutputGrid ()->numsJ (),
-                       PETSC_NULL,
-                       &theDA );
+   ierr = DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                         getInstance ().getActivityOutputGrid ()->numIGlobal (),
+                         getInstance ().getActivityOutputGrid ()->numJGlobal (),
+                         numberOfZNodes,
+                         getInstance ().getActivityOutputGrid ()->numProcsI (),
+                         getInstance ().getActivityOutputGrid ()->numProcsJ (),
+                         1, 1, 1, 
+                         getInstance ().getActivityOutputGrid ()->numsI (),
+                         getInstance ().getActivityOutputGrid ()->numsJ (),
+                         PETSC_NULL,
+                         &theDA );
 
    return ierr;
 }
@@ -1730,9 +1730,9 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
    // Should move all command line parameters from appctx to fastcauldron-simulator.
    m_cauldron->setAdditionalCommandLineParameters ();
 
-   PetscTruth fctScalingChanged;
+   PetscBool fctScalingChanged;
    double     fctScaling;
-   PetscTruth hasPrintCommandLine;
+   PetscBool hasPrintCommandLine;
 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
    PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
@@ -1754,11 +1754,11 @@ void FastcauldronSimulator::readCommandLineWells () {
 
    const int MaximumNumberOfPseudoWells = 200;
 
-   PetscTruth pseudoWellIndexInput = PETSC_FALSE;
+   PetscBool pseudoWellIndexInput = PETSC_FALSE;
    int pseudoWellIndices [ MaximumNumberOfPseudoWells ];
    int numberOfWellIndicesInput = MaximumNumberOfPseudoWells;
 
-   PetscTruth pseudoWellLocationInput = PETSC_FALSE;
+   PetscBool pseudoWellLocationInput = PETSC_FALSE;
    int pseudoWellLocations [ MaximumNumberOfPseudoWells ];
    int numberOfWellLocationsInput = MaximumNumberOfPseudoWells;
 
@@ -1840,28 +1840,28 @@ void FastcauldronSimulator::setBrineViscosities ( const Interface::ViscosityMode
 
 void FastcauldronSimulator::readRelPermCommandLineParameters () {
 
-   // PetscTruth relPermMethodDescribed = PETSC_FALSE;
+   // PetscBool relPermMethodDescribed = PETSC_FALSE;
    // char relPermMethodName [ MAXLINESIZE ];
 
-   PetscTruth minimumHcSaturationChanged;
+   PetscBool minimumHcSaturationChanged;
    double     minimumHcSaturation;
 
-   PetscTruth minimumWaterSaturationChanged;
+   PetscBool minimumWaterSaturationChanged;
    double     minimumWaterSaturation;
 
-   PetscTruth waterCurveExponentChanged;
+   PetscBool waterCurveExponentChanged;
    double     waterCurveExponent;
 
-   PetscTruth hcCurveExponentChanged;
+   PetscBool hcCurveExponentChanged;
    double     hcCurveExponent;
 
-   PetscTruth hcLiquidCurveExponentChanged;
+   PetscBool hcLiquidCurveExponentChanged;
    double     hcLiquidCurveExponent;
 
-   PetscTruth hcVapourCurveExponentChanged;
+   PetscBool hcVapourCurveExponentChanged;
    double     hcVapourCurveExponent;
 
-   PetscTruth useTemisPackViscosities;
+   PetscBool useTemisPackViscosities;
 
    // PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
    PetscOptionsGetReal   ( PETSC_NULL, "-minhcsat", &minimumHcSaturation, &minimumHcSaturationChanged );

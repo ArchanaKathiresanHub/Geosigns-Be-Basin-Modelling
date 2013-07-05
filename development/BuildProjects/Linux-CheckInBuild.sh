@@ -33,7 +33,7 @@ pushd $build
 csh -x <<EOF
 ${src}/development/bootstrap.csh || ( echo error: Configuration has failed; exit 1; ) || exit 1
 source envsetup.csh 
-make -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
+make VERBOSE=true -k || ( echo error: Build has failed; exit 1 ; ) || exit 1
 ${CTEST} || ( echo error: One or more unit tests have failed; exit 1; ) || exit 1
 make install || ( echo error: Installation has failed; exit 1 ;) || exit 1
 EOF

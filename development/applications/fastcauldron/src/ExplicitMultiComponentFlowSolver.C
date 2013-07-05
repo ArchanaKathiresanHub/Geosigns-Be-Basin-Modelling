@@ -326,17 +326,17 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
    int t;
 
-   DACreateGlobalVector ( fluxGrid.getDa (), &elementGasFluxTermsVec );
+   DMCreateGlobalVector ( fluxGrid.getDa (), &elementGasFluxTermsVec );
    elementGasFluxTerms.setVector ( fluxGrid, elementGasFluxTermsVec, INSERT_VALUES );
 
-   DACreateGlobalVector ( fluxGrid.getDa (), &elementOilFluxTermsVec );
+   DMCreateGlobalVector ( fluxGrid.getDa (), &elementOilFluxTermsVec );
    elementOilFluxTerms.setVector ( fluxGrid, elementOilFluxTermsVec, INSERT_VALUES );
 
-   DACreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityNVec );
-   DACreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityHVec );
+   DMCreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityNVec );
+   DMCreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityHVec );
 
-   DACreateGlobalVector ( simpleGrid.getDa (), &subdomainVapourPressureVec );
-   DACreateGlobalVector ( simpleGrid.getDa (), &subdomainLiquidPressureVec );
+   DMCreateGlobalVector ( simpleGrid.getDa (), &subdomainVapourPressureVec );
+   DMCreateGlobalVector ( simpleGrid.getDa (), &subdomainLiquidPressureVec );
 
    VecZeroEntries ( subdomainVapourPressureVec );
    VecZeroEntries ( subdomainLiquidPressureVec );
@@ -701,12 +701,12 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    // 'Deactivate' all those properties that we not already 'activated'.
    deactivateProperties ( subdomain, currentAlreadyActivatedProperties, previousAlreadyActivatedProperties );
 
-   VecDestroy ( subdomainPermeabilityNVec );
-   VecDestroy ( subdomainPermeabilityHVec );
-   VecDestroy ( subdomainVapourPressureVec );
-   VecDestroy ( subdomainLiquidPressureVec );
-   VecDestroy ( elementGasFluxTermsVec );
-   VecDestroy ( elementOilFluxTermsVec );
+   VecDestroy ( &subdomainPermeabilityNVec );
+   VecDestroy ( &subdomainPermeabilityHVec );
+   VecDestroy ( &subdomainVapourPressureVec );
+   VecDestroy ( &subdomainLiquidPressureVec );
+   VecDestroy ( &elementGasFluxTermsVec );
+   VecDestroy ( &elementOilFluxTermsVec );
 
    totalIntervalTime += WallTime::clock () - totalStart;
 
@@ -3643,8 +3643,8 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
    // The number of elements that contributed to the saturation at the node.
    Vec divisorVec;
 
-   DACreateGlobalVector ( saturationGrid.getDa (), &averagedSaturationsVec );
-   DACreateGlobalVector ( nodalGrid.getDa (), &divisorVec );
+   DMCreateGlobalVector ( saturationGrid.getDa (), &averagedSaturationsVec );
+   DMCreateGlobalVector ( nodalGrid.getDa (), &divisorVec );
 
    VecZeroEntries ( averagedSaturationsVec );
    VecZeroEntries ( divisorVec );
@@ -3678,8 +3678,8 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
    averagedSaturations.restoreVector ( NO_UPDATE );
    divisor.restoreVector ( NO_UPDATE );
 
-   VecDestroy ( averagedSaturationsVec );
-   VecDestroy ( divisorVec );
+   VecDestroy ( &averagedSaturationsVec );
+   VecDestroy ( &divisorVec );
 
 }
 
