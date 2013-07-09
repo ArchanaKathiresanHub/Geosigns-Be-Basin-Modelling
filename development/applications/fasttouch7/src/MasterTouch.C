@@ -2,12 +2,16 @@
 
 #include "petsc.h"
 
-#include "MasterTouch.h"
-
 // Touchstone Include files
+//
+#include "MasterTouch.h"
+#include "misc.h"
 
 #include "FastTouch.h"
+#include "TimeToComplete.h"
+
 using namespace fasttouch;
+
 #include <geocosmexception.h>
 using namespace Geocosm;
 
@@ -20,14 +24,6 @@ using namespace std;
 #include "Interface/GridMap.h"
 #include "Interface/PropertyValue.h"
 
-extern int rank;
-extern int numProcessors;
-
-extern PetscBool debug;
-
-void InitializeTimeComplete ();
-bool ReportTimeToComplete (double fractionCompleted, int & afterSeconds, double &reportAfterFractionCompleted);
-bool AllHaveCompleted (bool completed);
 double MinimumAll (double myValue);
 
 using namespace DataAccess;
@@ -53,7 +49,6 @@ char* iAbsolute_str       = {"Permeability Absolute"};
 char* iLog_str            = {"Permeability Log10"};
 char* iCement_Quartz_str  = {"Cement Quartz"};
 
-extern void ReportProgress (const string & message);
 //const int MasterTouch::numberOfTouchstoneProperties = 6;
 
 // PUBLIC METHODS
@@ -135,23 +130,27 @@ bool MasterTouch::run (void)
         {
             m_directAnalogRun = tcfInfo->IsDirectAnalogRun();
             
-            string starting;
+            string loaded;
+            string setup;
 
             if(!m_directAnalogRun) 
             {
                 m_nrOfRealizations = tcfInfo->Realizations();
                 stringstream ss; ss << m_nrOfRealizations;
-                starting = "Loaded TsLib 7.x Configuration file \"" 
-                         + filename + "\" and setting up for a monte carlo calculation with "
+                loaded = "Loaded TsLib 7.x Configuration file \"" 
+                         + filename + "\"";
+                setup = "Setting up for a monte carlo calculation with "
                          + ss.str() +" realizations"; 
             }
             else
             {
-                starting = "Loaded TsLib 7.x Configuration file \""
-                         + filename + "\" and setting up  for a direct analog calculation";
+                loaded = "Loaded TsLib 7.x Configuration file \""
+                         + filename + "\"";
+                setup = "Setting up  for a direct analog calculation";
             }
             
-            ReportProgress ( starting );
+            ReportProgress ( loaded );
+            ReportProgress ( setup );
             // set up timestep boundaries
     
             // for each TCF file
@@ -347,9 +346,8 @@ bool MasterTouch::addOutputFormat ( const string& filename, const Surface * surf
 bool MasterTouch::calculate ( const char *filename, const Surface * surface, 
                               const Formation * formation )
 {
-    int reportAfterTime = 30;
-    double reportAfterFractionCompleted = 0.1;
-    // if (debug) reportAfterTime = 1;
+
+   utilities::TimeToComplete timeToComplete (30, 300, 0.1, 0.1);
  
     // create burial history
     BurialHistory< Geocosm::TsLib::burHistTimestep >* burialHistory = new BurialHistory < Geocosm::TsLib::burHistTimestep > (surface, formation, m_fastTouch);
@@ -474,23 +472,7 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
     
     if(!m_directAnalogRun) tslibCalcContext->CreateRealizations(m_nrOfRealizations);
     
-    if (debug)
-    {
-       int r;
-       for (r = 0; r < rank; ++r)
-       {
-	  MPI_Barrier(PETSC_COMM_WORLD);
-       }
-
-       cerr << "Rank " << rank << ": # nodes = " <<  (lastI + 1 - firstI) << " * " << (lastJ + 1 - firstJ) <<  " = " << (lastI + 1 - firstI) * (lastJ + 1 - firstJ) << endl;
-
-       for (r = rank; r < numProcessors; ++r)
-       {
-	  MPI_Barrier(PETSC_COMM_WORLD);
-       }
-    }
-
-    InitializeTimeComplete ();
+    timeToComplete.start ();
     for (int i = firstI; i <= lastI; ++i)
     {
         int numJ = 0;
@@ -511,11 +493,12 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
             }
         }
 	double fractionCompleted = MinimumAll ((double) ++step / (double) totalNumberOfSteps);
-	ReportTimeToComplete (fractionCompleted, reportAfterTime, reportAfterFractionCompleted);
+	string reported = timeToComplete.report (fractionCompleted);
+	if (!reported.empty())
+	{
+	   ReportProgress (reported);
+	}
     }
-
-    if (debug) cerr << "Rank " << rank << " completed in " << step << " steps" << endl;
-
 
     while (MinimumAll (10) < 10); // To be used here to make the number of calls to this collective function equal on all cores, 10 must be greater than 1
 
@@ -534,9 +517,7 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
 bool MasterTouch::calculateOld ( const char *filename, const Surface * surface, 
                               const Formation * formation )
 {
-    int reportAfterTime = 30;
-    double reportAfterFractionCompleted = 0.1;
-    // if (debug) reportAfterTime = 1;
+   utilities::TimeToComplete timeToComplete (30, 300, 0.1, 0.1);
 
     // create burial history
     BurialHistory<tsLib_burHistTimestep> * burialHistory = new BurialHistory <tsLib_burHistTimestep> (surface, formation, m_fastTouch);
@@ -556,7 +537,7 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
     int totalNumberOfSteps = (lastI + 1 - firstI) /* * (lastJ + 1 - firstJ) */;
     int maxNumTimeSteps = 0;
  
-    InitializeTimeComplete ();
+    timeToComplete.start();
     bool allHaveCompleted = false;
 
     for (int i = firstI; i <= lastI; ++i)
@@ -581,7 +562,11 @@ bool MasterTouch::calculateOld ( const char *filename, const Surface * surface,
         }
 
 	double fractionCompleted = MinimumAll ((double) ++step / (double) totalNumberOfSteps);
-	ReportTimeToComplete (fractionCompleted, reportAfterTime, reportAfterFractionCompleted);
+	string reported = timeToComplete.report (fractionCompleted);
+	if (!reported.empty())
+	{
+	   ReportProgress (reported);
+	}
     }
 
     while (MinimumAll (10) < 10); // To be used here to make the number of calls to this collective function equal on all cores, 10 must be greater than 1

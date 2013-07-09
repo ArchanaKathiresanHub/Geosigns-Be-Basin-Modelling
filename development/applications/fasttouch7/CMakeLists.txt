@@ -3,6 +3,7 @@ set(target_name fasttouch7)
 
 add_executable(${target_name}
 	src/main.C
+        src/misc.C
 	src/FastTouch.C
 	src/MasterTouch.C
 	src/ObjectFactory.C

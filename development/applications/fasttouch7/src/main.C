@@ -15,10 +15,10 @@ using namespace std;
 #include <fcntl.h>
 
 #include "FastTouch.h"
+
 #include "ObjectFactory.h"
 
-#include "WallTime.h"
-using namespace WallTime;
+#include "misc.h"
 
 using namespace fasttouch;
 
@@ -41,20 +41,9 @@ static char help[] = "Parallel FastTouch \n\n";
 
 #define EXIT(v)	{ if (debug) ReportProgress ("Exiting..."); _exit(v); }
 
-/** Start clock to measure time taken. */
-void StartProgress (void);
-
-/** Stop clock and caluclate time taken. */
-void ReportProgress (const string & message);
-
 /** Print using Petsc print function. */
 void PrintUsage (char * argv0);
 
-/** Holds the argument for number of processors. */
-string NumProcessorsArg;
-
-int rank = -1;
-int numProcessors = -1;
 PetscBool debug = PETSC_FALSE;
 
 /** Fast Touch application: Touch stone 7.0 implementation calculating the
@@ -67,9 +56,6 @@ int main (int argc, char ** argv)
 
     PetscInitialize (&argc, &argv, (char *) 0, help);
 
-    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
-    MPI_Comm_size (PETSC_COMM_WORLD, &numProcessors);
-    
     char * argv0;
     if ((argv0 = strrchr (argv[0], '/')) == 0)
         argv0 = argv[0];
@@ -140,8 +126,7 @@ int main (int argc, char ** argv)
     char version[EPTFLEXLM_MAX_VER_LEN];
     char errmessage[EPTFLEXLM_MAX_MESS_LEN];
  
-    // FlexLM license handling only for node with rank = 0
-    if( rank == 0 )
+    if( GetRank() == 0 )
     {
         sprintf(feature, "ibs_cauldron_calc");
 #ifdef IBSFLEXLMVERSION
@@ -171,7 +156,7 @@ int main (int argc, char ** argv)
     if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN)
     {
         //FlexLM license check in only for node with rank = 0
-        if( rank == 0 )
+        if( GetRank() == 0 )
         {
             // FlexLm license check in, close down and enable logging
             EPTFlexLmCheckIn( feature );
@@ -194,7 +179,7 @@ int main (int argc, char ** argv)
  
     if (!status)
     {
-        ReportProgress (string ("ERROR: Could not start FastTouch7"));
+       ReportProgress (string ("ERROR: Could not start FastTouch7"));
         EXIT (-1);
     }
 
@@ -205,14 +190,14 @@ int main (int argc, char ** argv)
     
     if (!status)
     {
-        ReportProgress (string ("ERROR: Could not open Project File: ") + inputFileName);
+       ReportProgress (string ("ERROR: Could not open Project File: ") + inputFileName);
         EXIT (-1);
     }
     
     status = fastTouch->removeResqPropertyValues ();
     if (!status)
     {
-        ReportProgress ("ERROR: Failed to remove existing Resq property values: ");
+       ReportProgress ("ERROR: Failed to remove existing Resq property values: ");
         EXIT (-1);
     }
 
@@ -222,7 +207,7 @@ int main (int argc, char ** argv)
     status = fastTouch->compute ();
     if (!status)
     {
-        ReportProgress ("ERROR: Failed to complete simulation");
+       ReportProgress ("ERROR: Failed to complete simulation");
         EXIT (-1);
     }
  
@@ -230,8 +215,8 @@ int main (int argc, char ** argv)
     status = fastTouch->saveTo (outputFileName);
     if (!status)
     {
-        ReportProgress (string ("Did not save project file: ") + outputFileName);
-        ReportProgress ("Finished Simulation prematurely");
+       ReportProgress (string ("Did not save project file: ") + outputFileName);
+       ReportProgress ("Finished Simulation prematurely");
         EXIT (-1);
     }   
     ReportProgress (string ("Saved project file: ") + outputFileName);
@@ -243,7 +228,7 @@ int main (int argc, char ** argv)
 
 #ifdef FLEXLM
     //FlexLM license check in only for node with rank = 0
-    if( rank == 0 )
+    if( GetRank() == 0 )
     {
         // FlexLm license check in, close down and enable logging
         EPTFlexLmCheckIn( feature );
@@ -262,9 +247,6 @@ void PrintUsage (char * argv0)
 {
       PetscPrintf (PETSC_COMM_WORLD, "usage: %s -project fileName [-save fileName]\n", argv0);
 }
-
-WallTime::Time StartTime;
-WallTime::Time LapTime;
 
 int AndAll (int myValue)
 {
@@ -288,106 +270,3 @@ double MinimumAll (double myValue)
    return result;
 }
 
-/** Start clock to measure time taken. */
-void StartProgress (void)
-{
-   StartTime = WallTime::clock ();
-}
-
-/** Stop clock and calculate time taken. */
-void ReportProgress (const string & message)
-{
-   int hours;
-   int minutes;
-   double seconds;
-
-   WallTime::Time clockTime = WallTime::clock ();
-
-   WallTime::Duration executionTime = clockTime - StartTime;
-
-
-   executionTime.separate (hours, minutes, seconds);
-
-   int len = message.size ();
-
-   if (rank == 0)
-   {
-      cerr << message;
-      cerr << " ";
-      while (len < 80)
-      {
-         cerr << " ";
-         ++len;
-      }
-      cerr << "Time = ";
-      cerr << setw (2) << setfill ('0') << hours << ":";
-      cerr << setw (2) << setfill ('0') << minutes << ":";
-      cerr << setw (2) << setfill ('0') << (int) seconds << endl;
-      cerr.flush ();
-   }
-}
-
-bool AllHaveCompleted (bool completed)
-{
-   if (AndAll ((int) (completed))) return true;   // All have completed
-   else return false;
-}
-
-void InitializeTimeComplete ()
-{
-   LapTime = WallTime::clock ();
-}
-
-bool ReportTimeToComplete (double fractionCompleted, int & reportAfterTime, double &reportAfterFractionCompleted)
-{
-   int hours;
-   int minutes;
-   double seconds;
-
-   const int reportAfterTimeIncrement = 300;
-   const double fractionIncrement = 0.1;
-
-   WallTime::Time clockTime = WallTime::clock ();
-   WallTime::Duration executionTime = clockTime - LapTime;
-
-   if (fractionCompleted < reportAfterFractionCompleted && executionTime.floatValue () < reportAfterTime)
-   {
-      return false;
-   }
-
-   if (debug && rank == 0)
-   {
-      cerr << "executionTime = " << executionTime.floatValue () << endl;
-      cerr << "fractionCompleted = " << fractionCompleted << endl;
-   }
-
-   while (executionTime.floatValue () >= reportAfterTime)
-   {
-      if (debug && rank == 0) cerr << reportAfterTime << " -> ";
-      reportAfterTime += reportAfterTimeIncrement;
-      if (debug && rank == 0) cerr << "reportAfterTime -> " << reportAfterTime << endl;
-   }
-
-   while (fractionCompleted >= reportAfterFractionCompleted)
-   {
-      if (debug && rank == 0) cerr << reportAfterFractionCompleted << " -> ";
-      reportAfterFractionCompleted += fractionIncrement;
-      if (debug && rank == 0) cerr << "reportAfterFractionCompleted -> " << reportAfterFractionCompleted << endl;
-   }
-
-
-   double multiplicationFactor = (1 - fractionCompleted) / fractionCompleted;
-   WallTime::Duration timeToComplete = executionTime * multiplicationFactor;
-
-   ostringstream buf2;
-   timeToComplete.separate (hours, minutes, seconds);
-
-   buf2 << "percentage completed: " << fractionCompleted * 100;
-   buf2 << ", estimated time to complete: ";
-   buf2 << setw (2) << setfill ('0') << hours << ":";
-   buf2 << setw (2) << setfill ('0') << minutes << ":";
-   buf2 << setw (2) << setfill ('0') << (int) seconds;
-   ReportProgress (buf2.str ());
-
-   return false;
-}
