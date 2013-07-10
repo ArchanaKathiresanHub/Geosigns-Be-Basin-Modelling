@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include <iomanip>
+#include <limits>
 
 #include "petsc.h"
 

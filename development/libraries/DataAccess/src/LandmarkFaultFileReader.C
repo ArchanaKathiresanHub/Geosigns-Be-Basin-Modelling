@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "Interface/LandmarkFaultFileReader.h"
 
 using namespace DataAccess;
@@ -116,7 +119,7 @@ double LandmarkFaultFileReader::getDouble ( const char* buffer,
   }
 
   strncpy ( number, &buffer [ numberStart ], numberLength );
-  return std::atof ( number );
+  return atof ( number );
 }
 
 //------------------------------------------------------------//
@@ -136,7 +139,7 @@ int LandmarkFaultFileReader::getInteger ( const char* buffer,
   }
 
   strncpy ( number, &buffer [ numberStart ], numberLength );
-  return std::atoi ( number );
+  return atoi ( number );
 }
 
 //------------------------------------------------------------//

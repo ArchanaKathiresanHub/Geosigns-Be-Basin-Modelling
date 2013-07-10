@@ -4,6 +4,8 @@
 // from a hd5f file
 //
 
+#include <string.h>
+
 #include "buffer_readwrite.h"
 
 bool Buffer_ReadWrite::writeDataset (H5_Write_File *h5File, hid_t locId, 

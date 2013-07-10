@@ -3,7 +3,8 @@
 #endif
 #include "mpi.h"
 #include "PetscVectors.h"
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 
 //#include "globaldefs.h"
 

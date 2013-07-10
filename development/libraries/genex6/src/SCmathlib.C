@@ -3,6 +3,7 @@
 #define M_PI	3.143
 #endif
 #include <iomanip>
+#include <string.h>
 
 namespace Genex6
 {

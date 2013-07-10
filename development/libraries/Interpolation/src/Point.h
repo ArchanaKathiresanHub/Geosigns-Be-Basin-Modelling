@@ -104,6 +104,22 @@ namespace Numerics {
 
    };
 
+   /// \brief Displacement vector determining how to get from p1 to p2.
+   GeometryVector operator-( const Point& p1,
+	 const Point& p2 );
+
+   /// \brief Displace p by adding displacement vector.
+   Point operator+( const Point&          p,
+	 const GeometryVector& v );
+
+   /// \brief Displace p by subtracting displacement vector.
+   Point operator-( const Point&          p,
+	 const GeometryVector& v );
+
+   /// \brief Scale each co-ordinate in the point by the a value in the equivalent position in the vector.
+   Point operator*( const GeometryVector& v,
+	 const Point&          p );
+
 
    /// \brief The square of the distance between 2 points.
    ///

@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "ReactionRatio.h"
 #include "Constants.h"
 #include "GeneralParametersHandler.h"

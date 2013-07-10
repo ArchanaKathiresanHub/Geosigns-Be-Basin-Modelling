@@ -1,9 +1,11 @@
-#include "ChemicalModel.h"
 
+#include <string.h>
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <math.h>
+
+#include "ChemicalModel.h"
 
 #include "Element.h"
 #include "Species.h"

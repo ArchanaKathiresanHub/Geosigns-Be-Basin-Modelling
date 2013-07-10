@@ -2,6 +2,7 @@
 #define __Interface_OUTPUT_H__
 
 #include <sstream>
+#include <string.h>
 
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"

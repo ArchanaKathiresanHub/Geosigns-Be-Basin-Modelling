@@ -19,12 +19,13 @@
 
 #include <iostream>
 #include <sstream>
-using namespace std;
 
 #include <vector>
 #include <list>
 
 using namespace std;
+
+#include <string.h>
 
 #include "database.h"
 #include "cauldronschema.h"
@@ -3283,7 +3284,7 @@ bool ProjectHandle::loadVolumePropertyValues (void)
    if (!wasProducedByFastCauldron () || Interface::MODE1D == getModellingMode()) return false;
 
    database::Table* timeIoTbl = getTable ("3DTimeIoTbl");
-   if (timeIoTbl == 0 || timeIoTbl->size() == 0)
+   if (true || timeIoTbl == 0 || timeIoTbl->size() == 0)
    {
       return loadVolumePropertyValuesViaSnapshotIoTbl();
    }
