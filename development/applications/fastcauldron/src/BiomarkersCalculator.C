@@ -67,7 +67,7 @@ bool BiomarkersCalculator::computeBiomarkersIncrement( double time, double timeS
   {
     LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
-    DAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+    DMDAGetCorners( Current_Layer ->layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
 
     PETSC_3D_Array layerTemperature ( Current_Layer -> layerDA, Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ));
 
@@ -104,24 +104,24 @@ bool BiomarkersCalculator::computeSnapShotBiomarkers ( const double time, const 
 	{
 		LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
-		DAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+		DMDAGetCorners(Current_Layer ->layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
 
 		PETSC_3D_Array layerTemperature ( Current_Layer -> layerDA, Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ));
 
-		DACreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_SteraneAromatisation);
+		DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_SteraneAromatisation);
 		VecSet(Current_Layer ->m_SteraneAromatisation,CAULDRONIBSNULLVALUE);
-		DACreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_SteraneIsomerisation);
+		DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_SteraneIsomerisation);
 		VecSet(Current_Layer ->m_SteraneIsomerisation,CAULDRONIBSNULLVALUE);
-		DACreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_HopaneIsomerisation);
+		DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_HopaneIsomerisation);
 		VecSet(Current_Layer ->m_HopaneIsomerisation,CAULDRONIBSNULLVALUE);
 
 		double ***SteraneAromatisation;
-      double ***SteraneIsomerisation;
+                double ***SteraneIsomerisation;
 		double ***HopaneIsomerisation;
 
-		DAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneAromatisation, &SteraneAromatisation);
-		DAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneIsomerisation, &SteraneIsomerisation);
-		DAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_HopaneIsomerisation, &HopaneIsomerisation);
+		DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneAromatisation, &SteraneAromatisation);
+		DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneIsomerisation, &SteraneIsomerisation);
+		DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_HopaneIsomerisation, &HopaneIsomerisation);
 		
 		for (i = xs; i < xs+xm; i++) 
 		{
@@ -144,9 +144,9 @@ bool BiomarkersCalculator::computeSnapShotBiomarkers ( const double time, const 
 			}
 		}
 
-		DAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneAromatisation, &SteraneAromatisation);
-		DAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneIsomerisation, &SteraneIsomerisation);
-		DAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_HopaneIsomerisation, &HopaneIsomerisation);
+		DMDAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneAromatisation, &SteraneAromatisation);
+		DMDAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_SteraneIsomerisation, &SteraneIsomerisation);
+		DMDAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->m_HopaneIsomerisation, &HopaneIsomerisation);
 
 		Layers++;
 	}

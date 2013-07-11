@@ -178,6 +178,10 @@ target_link_libraries(fastcauldron
 	z
 )
 
+set_target_properties(fastcauldron
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+
 install(TARGETS fastcauldron
 	RUNTIME DESTINATION bin
 )

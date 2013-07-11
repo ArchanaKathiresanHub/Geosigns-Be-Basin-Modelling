@@ -44,10 +44,10 @@ double MapInterpolator::getReferenceValue ( const int     highResIndex,
 
 //------------------------------------------------------------//
 
-void MapInterpolator::interpolateFromLowResolutionMap ( DA    lowResDA,
+void MapInterpolator::interpolateFromLowResolutionMap ( DM    lowResDA,
                                                         Vec   lowResVec,
                                                         const CauldronGridDescription& lowResDescription,
-                                                        DA    highResDA,
+                                                        DM    highResDA,
                                                         Vec   highResVec,
                                                         const CauldronGridDescription& highResDescription ) const {
 
@@ -67,8 +67,8 @@ void MapInterpolator::interpolateFromLowResolutionMap ( DA    lowResDA,
   PETSC_3D_Array highResProperty ( highResDA, highResVec );
   PETSC_3D_Array lowResProperty  ( lowResDA,  lowResVec, INSERT_VALUES, true );
 
-  DALocalInfo highResInfo;
-  DALocalInfo lowResInfo;
+  DMDALocalInfo highResInfo;
+  DMDALocalInfo lowResInfo;
 
   double* xReferenceArray;
   double* yReferenceArray;
@@ -94,8 +94,8 @@ void MapInterpolator::interpolateFromLowResolutionMap ( DA    lowResDA,
 
   VecSet ( highResVec, CAULDRONIBSNULLVALUE );
 
-  DAGetLocalInfo ( highResDA, &highResInfo );
-  DAGetLocalInfo ( lowResDA,  &lowResInfo );
+  DMDAGetLocalInfo ( highResDA, &highResInfo );
+  DMDAGetLocalInfo ( lowResDA,  &lowResInfo );
 
   xHighResEnd = Integer_Min ( highResInfo.xs + highResInfo.xm, xHighResStartIncrement + xSubsamplingRatio * ( lowResInfo.mx - 1 ) + 1 );
   yHighResEnd = Integer_Min ( highResInfo.ys + highResInfo.ym, yHighResStartIncrement + ySubsamplingRatio * ( lowResInfo.my - 1 ) + 1 );
@@ -172,10 +172,10 @@ void MapInterpolator::interpolateFromLowResolutionMap ( DA    lowResDA,
 
 //------------------------------------------------------------//
 
-void MapInterpolator::interpolateFromHighResolutionMap ( DA    highResDA,
+void MapInterpolator::interpolateFromHighResolutionMap ( DM    highResDA,
                                                          Vec   highResVec,
                                                          const CauldronGridDescription& highResDescription,
-                                                         DA    lowResDA,
+                                                         DM    lowResDA,
                                                          Vec   lowResVec,
                                                          const CauldronGridDescription& lowResDescription ) const {
   /// TO DO
@@ -183,10 +183,10 @@ void MapInterpolator::interpolateFromHighResolutionMap ( DA    highResDA,
 
 //------------------------------------------------------------//
 
-void MapInterpolator::operator ()( DA    fromDA,
+void MapInterpolator::operator ()( DM    fromDA,
                                    Vec   fromVec,
                                    const CauldronGridDescription& fromDescription,
-                                   DA    toDA,
+                                   DM    toDA,
                                    Vec   toVec,
                                    const CauldronGridDescription& toDescription ) const {
 

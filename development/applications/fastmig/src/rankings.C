@@ -18,8 +18,6 @@
 #include <assert.h>
 #include <unistd.h>
 #include <time.h>
-#include "petscvec.h"
-#include "petscda.h"
 
 #include "rankings.h"
 #include "array.h"

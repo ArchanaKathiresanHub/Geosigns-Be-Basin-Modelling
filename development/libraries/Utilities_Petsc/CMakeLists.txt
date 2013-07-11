@@ -15,6 +15,11 @@ if (BM_PARALLEL)
 		${MPI_C_LIBRARIES}
 	)
 
+        set_target_properties(Utilities_Petsc
+            PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+        )
+
+
 	install(TARGETS Utilities_Petsc
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib

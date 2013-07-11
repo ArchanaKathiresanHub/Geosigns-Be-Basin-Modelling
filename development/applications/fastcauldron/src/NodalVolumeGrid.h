@@ -76,17 +76,17 @@ public :
    int getNumberOfDofs () const;
 
    /// The DA object on which the nodal-grid is based.
-   DA getDa ();
+   DM getDa ();
 
    /// The DA object on which the nodal-grid is based.
-   DA getDa () const;
+   DM getDa () const;
 
    /// Return whether or not the object has been initialised.
    bool isInitialised () const;
 
 private :
 
-   DALocalInfo m_localInfo;
+   DMDALocalInfo m_localInfo;
 
    // Should this really point to the arrays in the nodal-map-grid?
    int* m_xPartitioning;
@@ -108,11 +108,11 @@ typedef std::vector<NodalVolumeGrid*> NodalVolumeGridArray;
 // Inline functions
 //------------------------------------------------------------//
 
-inline DA NodalVolumeGrid::getDa () {
+inline DM NodalVolumeGrid::getDa () {
    return m_localInfo.da;
 }
 
-inline DA NodalVolumeGrid::getDa () const {
+inline DM NodalVolumeGrid::getDa () const {
    return m_localInfo.da;
 }
 

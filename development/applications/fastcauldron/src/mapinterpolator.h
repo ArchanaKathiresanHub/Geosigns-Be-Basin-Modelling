@@ -2,7 +2,7 @@
 #define _MAP_INTERPOLATOR_H_
 
 
-#include "petscda.h"
+#include "petscdmda.h"
 #include "petscvec.h"
 
 #include "CauldronGridDescription.h"
@@ -19,24 +19,24 @@ public :
   ~MapInterpolator ();
 
 
-  void operator ()( DA    fromDA,
+  void operator ()( DM    fromDA,
                     Vec   fromVec,
                     const CauldronGridDescription& fromDescription,
-                    DA    toDA,
+                    DM    toDA,
                     Vec   toVec,
                     const CauldronGridDescription& toDescription ) const;
 
-  void interpolateFromHighResolutionMap ( DA    highResDA,
+  void interpolateFromHighResolutionMap ( DM    highResDA,
                                           Vec   highResVec,
                                           const CauldronGridDescription& highResDescription,
-                                          DA    lowResDA,
+                                          DM    lowResDA,
                                           Vec   lowResVec,
                                           const CauldronGridDescription& lowResDescription ) const;
 
-  void interpolateFromLowResolutionMap ( DA    lowResDA,
+  void interpolateFromLowResolutionMap ( DM    lowResDA,
                                          Vec   lowResVec,
                                          const CauldronGridDescription& lowResDescription,
-                                         DA    highResDA,
+                                         DM    highResDA,
                                          Vec   highResVec,
                                          const CauldronGridDescription& highResDescription ) const;
 

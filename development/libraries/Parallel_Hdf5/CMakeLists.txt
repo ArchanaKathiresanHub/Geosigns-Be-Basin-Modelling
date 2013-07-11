@@ -25,6 +25,11 @@ if (BM_PARALLEL)
 		${MPI_C_LIBRARIES}
 	)
 	
+        set_target_properties(Parallel_Hdf5
+            PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+        )
+
+
 	
 	install(TARGETS Parallel_Hdf5
 		RUNTIME DESTINATION bin

@@ -93,7 +93,7 @@ bool DistributedMapWriter::writeMapToHDF (GridMap * gridMap, float time, double 
 	return writeMapToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA (), dynamic_cast<DistributedGridMap*>(gridMap)->getVec (), time, depoAge, propertyGrid, 
 	surfaceName); 
 }
-bool DistributedMapWriter::writeMapToHDF (DA & da, Vec & vec, float time, double depoAge,
+bool DistributedMapWriter::writeMapToHDF (DM & da, Vec & vec, float time, double depoAge,
                             const string & propertyGrid, const string& surfaceName )
 {
    bool returnVal = true;
@@ -101,12 +101,12 @@ bool DistributedMapWriter::writeMapToHDF (DA & da, Vec & vec, float time, double
    int start[2];
    int count[2];
 
-   DAGetCorners (da, &start[0], &start[1], PETSC_IGNORE, &count[0], &count[1], PETSC_IGNORE);
+   DMDAGetCorners (da, &start[0], &start[1], PETSC_IGNORE, &count[0], &count[1], PETSC_IGNORE);
    //*** get the info about the total model
    int size[2];
 
-   DAGetInfo (da, PETSC_IGNORE, &size[0], &size[1], PETSC_IGNORE,
-              PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE);
+   DMDAGetInfo (da, PETSC_IGNORE, &size[0], &size[1], PETSC_IGNORE,
+                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE);
 
    float *data = new float[count[0] * count[1]];
    int writeIndex;
@@ -130,9 +130,9 @@ bool DistributedMapWriter::writeMapToHDF (DA & da, Vec & vec, float time, double
    dataSetName = LAYER_DATASET_PREFIX + propertyGrid;
 
    // write the 2d data to file
-   DALocalInfo localVecInfo;
+   DMDALocalInfo localVecInfo;
 
-   DAGetLocalInfo (da, &localVecInfo);
+   DMDAGetLocalInfo (da, &localVecInfo);
    localVecInfo.dim = 2;
 
    returnVal = m_writer->writeRawData (m_outFile, m_outFile->fileId (), dataSetName.c_str (),
@@ -192,7 +192,7 @@ bool DistributedMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & p
 	return status;
 }
 
-bool DistributedMapWriter::writeVolumeToHDF (DA & da, Vec & vec, const string & propertyName, const string & layerName)
+bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & propertyName, const string & layerName)
 {
    if (!m_outFile) return false;
 

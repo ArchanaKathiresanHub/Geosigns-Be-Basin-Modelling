@@ -176,9 +176,9 @@ void History::Save_Property ( const string &   property_name,
   double       Property_Value = 0.0;
   
   if ( Current_Vector != Null ) {
-    PetscTruth validVector;
+     PetscBool validVector;
 
-    VecValid ( *Current_Vector, &validVector );
+     VecValid ( *Current_Vector, &validVector );
 
     if ( validVector && appctx->timefilter.propertyIsSelected ( propertyId )) {
       PETSC_3D_Array buffer( layer -> layerDA, *Current_Vector, INSERT_VALUES, IncludeGhosts );
@@ -707,7 +707,7 @@ double History::Interpolate_Depositional_Property( LayerProps * layer,
 
   int  XS, YS;
 
-  DAGetCorners( * appctx -> mapDA, &XS, &YS, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+  DMDAGetCorners( * appctx -> mapDA, &XS, &YS, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
   return Calculate_Surface_Property( layer,
                                      node -> I_Index,
@@ -739,7 +739,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
     
   case THCONDVEC:
 
-    DAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+    DMDAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
     sea_bottom_temperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, current_time );
     
@@ -780,7 +780,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
   case BULKDENSITYVEC :
 
     surfacePorosityScalar = layer->getLithology ( I,J ) -> surfacePorosity();
-    DAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+    DMDAGetCorners ( *appctx->mapDA, &xStart, &yStart, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
 
     sea_bottom_temperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, current_time );

@@ -149,11 +149,11 @@ void MantleFormation::allocateBasementVecs( ) {
    if( basinModel->isALC()) {
       IBSASSERT(NULL == UpliftedOrigMantleDepth);
       createCount++;    
-      DACreateGlobalVector( * basinModel->mapDA, &UpliftedOrigMantleDepth );
+      DMCreateGlobalVector( * basinModel->mapDA, &UpliftedOrigMantleDepth );
        
       IBSASSERT( NULL == LithosphereThicknessMod );
       createCount++;
-      DACreateGlobalVector( * basinModel->mapDA, &LithosphereThicknessMod );
+      DMCreateGlobalVector( * basinModel->mapDA, &LithosphereThicknessMod );
 
       if ( BasaltMap.isNull ()) {
          BasaltMap.create ( layerDA );

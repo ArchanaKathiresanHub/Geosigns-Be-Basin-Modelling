@@ -67,6 +67,8 @@ namespace WallTime {
     void separate ( int&    seconds,
                     int&    microSeconds ) const;
 
+    std::string asString() const;
+
 
   private:
 

@@ -299,6 +299,28 @@ void Project::setUnconformityProperty(const std::string & depoFormationName,
    }
 }
 
+void
+Project
+   :: setSurfaceTemperature( double temperature )
+{
+   database::Table * table = m_projectHandle->getTable("SurfaceTempIoTbl");
+   if (!table)
+      throw AdjustException() << "Project file '" << m_inputFileName << "' seems to be incompatible, "
+                              << "because the SurfaceTempIoTbl table could not be found.";
+
+   // remove all entries
+   table->clear();
+
+   // insert a single record with the specified temperature
+   database::Record * record = table->createRecord ();
+   assert (record);
+
+   database::setAge(record, 0.0);
+   database::setTemperature(record, temperature);
+   database::setErrTemperature(record, 0.0);
+   database::setTemperatureGrid(record, "");
+}
+
 
 void
 Project

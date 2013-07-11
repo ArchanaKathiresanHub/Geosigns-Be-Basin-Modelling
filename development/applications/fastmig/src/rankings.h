@@ -1,8 +1,7 @@
 #ifndef _MIGRATION_RANKINGS_H_
 #define _MIGRATION_RANKINGS_H_
 
-#include "petscvec.h"
-#include "petscda.h"
+#include "petsc.h"
 
 #include <string>
 using namespace std;

@@ -72,7 +72,7 @@ bool GenexSimulator::run()
    bool useFormationName = false;
 
    PetscLogDouble run_Start_Time;
-   PetscGetTime(&run_Start_Time);
+   PetscTime(&run_Start_Time);
 
    std::vector<Interface::SourceRock*>::iterator sourceRockIter;
    Interface::Formation * theFormation;
@@ -117,7 +117,7 @@ bool GenexSimulator::run()
    }
 
    PetscLogDouble run_End_Time;
-   PetscGetTime(&run_End_Time);
+   PetscTime(&run_End_Time);
 
    if(started) {
       if(getRank() == 0) {

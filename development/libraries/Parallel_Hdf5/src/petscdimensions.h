@@ -12,7 +12,7 @@
 //                                      //
 //////////////////////////////////////////
 
-#include "petscda.h"
+#include "petscdmda.h"
 #include "PetscVectors.h"
 #include "h5_types.h"
 
@@ -26,12 +26,12 @@ public:
   virtual ~PetscDimensions () {}
   
   // public methods
-  virtual void         createGlobalArray  (DA &globalArray, const PetscDimensionType &dims) = 0;
-  virtual int	       createGlobalVector (DA &globalArray, Vec &globalVec) = 0;
-  virtual Petsc_Array* createLocalVector  (DA &globalArray, Vec &globalVec) = 0;
+  virtual void         createGlobalArray  (DM &globalArray, const PetscDimensionType &dims) = 0;
+  virtual int	       createGlobalVector (DM &globalArray, Vec &globalVec) = 0;
+  virtual Petsc_Array* createLocalVector  (DM &globalArray, Vec &globalVec) = 0;
 
 protected:
-  void createAll (PetscDimensions *current, DA &globalArray, Vec &globalVec,
+  void createAll (PetscDimensions *current, DM &globalArray, Vec &globalVec,
                   Petsc_Array** localVec, const PetscDimensionType &dims) 
   {
      current->createGlobalArray (globalArray, dims);
@@ -51,30 +51,30 @@ class Petsc_1D : public PetscDimensions
 public:
    // ctor / dtor
    Petsc_1D () : PetscDimensions () {}
-   Petsc_1D (DA &globalArray, Vec &globalVec, Petsc_Array **localVec, const PetscDimensionType &dims)
+   Petsc_1D (DM &globalArray, Vec &globalVec, Petsc_Array **localVec, const PetscDimensionType &dims)
    { createAll (this, globalArray, globalVec, localVec, dims); }
 
    static Petsc_1D* create (Petsc_1D* petscPtr, 
-                            DA &globalArray, Vec &globalVec, 
+                            DM &globalArray, Vec &globalVec, 
                             Petsc_Array **localVec, const PetscDimensionType &dims)
    {
       return new Petsc_1D (globalArray, globalVec, localVec, dims);
    }
 
    // public methods
-   void createGlobalArray (DA &globalArray, const PetscDimensionType &dims)
+   void createGlobalArray (DM &globalArray, const PetscDimensionType &dims)
    { 
-      DACreate1d (PETSC_COMM_WORLD, DA_NONPERIODIC, 
-                  dims[0], 1, 1, PETSC_NULL, 
-                  &globalArray);
+      DMDACreate1d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, 
+                    dims[0], 1, 1, PETSC_NULL, 
+                    &globalArray);
    }
 
-   int createGlobalVector (DA& globalArray, Vec &globalVec)
+   int createGlobalVector (DM& globalArray, Vec &globalVec)
    {
-      return DACreateGlobalVector (globalArray, &globalVec);
+      return DMCreateGlobalVector (globalArray, &globalVec);
    }
 
-   Petsc_Array* createLocalVector (DA &globalArray, Vec &globalVec)
+   Petsc_Array* createLocalVector (DM &globalArray, Vec &globalVec)
    {
       return new PETSC_1D_Array (globalArray, globalVec);
    }
@@ -91,31 +91,31 @@ class Petsc_2D : public PetscDimensions
 public:
    // ctor / dtor
    Petsc_2D () : PetscDimensions () {}
-   Petsc_2D (DA &globalArray, Vec &globalVec, Petsc_Array **localVec, const PetscDimensionType &dims)
+   Petsc_2D (DM &globalArray, Vec &globalVec, Petsc_Array **localVec, const PetscDimensionType &dims)
    { createAll (this, globalArray, globalVec, localVec, dims); }
 
    static Petsc_2D* create (Petsc_2D* petscPtr, 
-                            DA &globalArray, Vec &globalVec, 
+                            DM &globalArray, Vec &globalVec, 
                             Petsc_Array **localVec, const PetscDimensionType &dims)
    {
       return new Petsc_2D (globalArray, globalVec, localVec, dims);
    }
 
    // public methods
-   void createGlobalArray (DA &globalArray, const PetscDimensionType &dims)
+   void createGlobalArray (DM &globalArray, const PetscDimensionType &dims)
    {
-      DACreate2d (PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-                  dims[0], dims[1], PETSC_DECIDE, PETSC_DECIDE, 
-                  1, 1, PETSC_NULL, 
-                  PETSC_NULL, &globalArray);
+      DMDACreate2d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                    dims[0], dims[1], PETSC_DECIDE, PETSC_DECIDE, 
+                    1, 1, PETSC_NULL, 
+                    PETSC_NULL, &globalArray);
    }
 
-   int createGlobalVector (DA& globalArray, Vec &globalVec)
+   int createGlobalVector (DM& globalArray, Vec &globalVec)
    {
-      return DACreateGlobalVector (globalArray, &globalVec);
+      return DMCreateGlobalVector (globalArray, &globalVec);
    }
 
-   Petsc_Array* createLocalVector (DA &globalArray, Vec &globalVec)
+   Petsc_Array* createLocalVector (DM &globalArray, Vec &globalVec)
    {
       return new PETSC_2D_Array (globalArray, globalVec);
    }
@@ -132,31 +132,31 @@ class Petsc_3D : public PetscDimensions
 public:
    // ctor / dtor
    Petsc_3D () : PetscDimensions () {}
-   Petsc_3D (DA &globalArray, Vec &globalVec, Petsc_Array **localVec, const PetscDimensionType &dims)
+   Petsc_3D (DM &globalArray, Vec &globalVec, Petsc_Array **localVec, const PetscDimensionType &dims)
    { createAll (this, globalArray, globalVec, localVec, dims); }
 
    static Petsc_3D* create (Petsc_3D* petscPtr, 
-                            DA &globalArray, Vec &globalVec, 
+                            DM &globalArray, Vec &globalVec, 
                             Petsc_Array **localVec, const PetscDimensionType &dims)
    {
       return new Petsc_3D (globalArray, globalVec, localVec, dims);
    }
 
    // public methods
-   void createGlobalArray (DA &globalArray, const PetscDimensionType &dims)
+   void createGlobalArray (DM &globalArray, const PetscDimensionType &dims)
    {
-      DACreate3d (PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-                  dims[0], dims[1], dims[2], PETSC_DECIDE, PETSC_DECIDE, 
-                  PETSC_DECIDE, 1, 1, PETSC_NULL, 
-                  PETSC_NULL, PETSC_NULL, &globalArray);
+      DMDACreate3d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                    dims[0], dims[1], dims[2], PETSC_DECIDE, PETSC_DECIDE, 
+                    PETSC_DECIDE, 1, 1, PETSC_NULL, 
+                    PETSC_NULL, PETSC_NULL, &globalArray);
    }
 
-   int createGlobalVector (DA& globalArray, Vec &globalVec)
+   int createGlobalVector (DM& globalArray, Vec &globalVec)
    {
-      return DACreateGlobalVector (globalArray, &globalVec);
+      return DMCreateGlobalVector (globalArray, &globalVec);
    }
 
-   Petsc_Array* createLocalVector (DA &globalArray, Vec &globalVec)
+   Petsc_Array* createLocalVector (DM &globalArray, Vec &globalVec)
    {
       return new PETSC_3D_Array (globalArray, globalVec);
    }

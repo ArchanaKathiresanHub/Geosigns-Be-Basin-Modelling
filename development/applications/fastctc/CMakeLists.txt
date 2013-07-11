@@ -48,6 +48,11 @@ target_link_libraries(fastctc
 	${BM_MPI_LOCK_LIBRARIES}
 )
 
+set_target_properties(fastctc
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+
+
 install(TARGETS fastctc
 	RUNTIME DESTINATION bin
 )

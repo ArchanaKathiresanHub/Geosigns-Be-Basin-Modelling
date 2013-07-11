@@ -143,7 +143,7 @@ public :
 private :
 
    /// DA from which vector was created.
-   DA                 m_da;
+   DM                 m_da;
 
    /// The array of values contained within the vector, this can be local or local+ghost values.
    ValueType*** m_values;
@@ -155,7 +155,7 @@ private :
    Vec          m_globalVector;
 
    /// Structure containing information.
-   DALocalInfo  m_localInfo;
+   DMDALocalInfo  m_localInfo;
 
    /// Indicates whether or not the array of values has been restored to its vector.
    bool         m_dataRestored;
@@ -186,10 +186,10 @@ template<typename BlockValueType>
 PetscBlockVector<BlockValueType>::~PetscBlockVector () {
 
    if ( not m_dataRestored ) {
-      DAVecRestoreArray ( m_da, m_localVector, &m_values );
+      DMDAVecRestoreArray ( m_da, m_localVector, &m_values );
 
       if ( m_globalVector != m_localVector ) {
-         DARestoreLocalVector ( m_da, &m_localVector );
+         DMRestoreLocalVector ( m_da, &m_localVector );
       }
 
    }
@@ -241,16 +241,16 @@ void PetscBlockVector<BlockValueType>::setVector ( const ElementVolumeGrid& grid
    m_globalVector = globalVector;
 
    if ( includeGhosts ) {
-      DAGetLocalVector     ( m_da, &m_localVector );
-      DAGlobalToLocalBegin ( m_da, m_globalVector, mode, m_localVector );
-      DAGlobalToLocalEnd   ( m_da, m_globalVector, mode, m_localVector );
+      DMGetLocalVector     ( m_da, &m_localVector );
+      DMGlobalToLocalBegin ( m_da, m_globalVector, mode, m_localVector );
+      DMGlobalToLocalEnd   ( m_da, m_globalVector, mode, m_localVector );
    } else {
       m_localVector = m_globalVector;
    }
 
-   DAVecGetArray ( m_da, m_localVector, &m_values );
+   DMDAVecGetArray ( m_da, m_localVector, &m_values );
    m_dataRestored = false;
-   DAGetLocalInfo ( m_da, &m_localInfo );   
+   DMDAGetLocalInfo ( m_da, &m_localInfo );   
 
    m_withGhosts = includeGhosts;
 }
@@ -272,16 +272,16 @@ void PetscBlockVector<BlockValueType>::setVector ( const NodalVolumeGrid& grid,
    m_globalVector = globalVector;
 
    if ( includeGhosts ) {
-      DAGetLocalVector     ( m_da, &m_localVector );
-      DAGlobalToLocalBegin ( m_da, m_globalVector, mode, m_localVector );
-      DAGlobalToLocalEnd   ( m_da, m_globalVector, mode, m_localVector );
+      DMGetLocalVector     ( m_da, &m_localVector );
+      DMGlobalToLocalBegin ( m_da, m_globalVector, mode, m_localVector );
+      DMGlobalToLocalEnd   ( m_da, m_globalVector, mode, m_localVector );
    } else {
       m_localVector = m_globalVector;
    }
 
-   DAVecGetArray ( m_da, m_localVector, &m_values );
+   DMDAVecGetArray ( m_da, m_localVector, &m_values );
    m_dataRestored = false;
-   DAGetLocalInfo ( m_da, &m_localInfo );   
+   DMDAGetLocalInfo ( m_da, &m_localInfo );   
 
    m_withGhosts = includeGhosts;
 }
@@ -291,7 +291,7 @@ void PetscBlockVector<BlockValueType>::setVector ( const NodalVolumeGrid& grid,
 template<typename BlockValueType>
 void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode updateMode ) {
 
-   DAVecRestoreArray ( m_da, m_localVector, &m_values );
+   DMDAVecRestoreArray ( m_da, m_localVector, &m_values );
 
    if ( m_withGhosts ) {
 
@@ -304,14 +304,19 @@ void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode upd
          case UPDATE_EXCLUDING_GHOSTS :
 
             // Should the mode here be the same as that used when setting the global vector?
-            DALocalToGlobal ( m_da, m_localVector, INSERT_VALUES, m_globalVector );
+            // DALocalToGlobal ( m_da, m_localVector, INSERT_VALUES, m_globalVector );
+            DMLocalToGlobalBegin ( m_da, m_localVector, INSERT_VALUES, m_globalVector );
+            DMLocalToGlobalEnd   ( m_da, m_localVector, INSERT_VALUES, m_globalVector );
             break;
 
            case UPDATE_INCLUDING_GHOSTS :
 
               // DAVecRestoreArray    ( m_da, m_localVector, &m_values );
-              DALocalToGlobalBegin ( m_da, m_localVector, m_globalVector );
-              DALocalToGlobalEnd   ( m_da, m_localVector, m_globalVector );
+              // DALocalToGlobalBegin ( m_da, m_localVector,  m_globalVector );
+
+              //  Petsc 3.3: Should the ghosted locations be zero in global vector????
+              DMLocalToGlobalBegin ( m_da, m_localVector, ADD_VALUES,  m_globalVector );
+              DMLocalToGlobalEnd   ( m_da, m_localVector, ADD_VALUES, m_globalVector );
               break;
 
          default :
@@ -324,7 +329,7 @@ void PetscBlockVector<BlockValueType>::restoreVector ( const PETScUpdateMode upd
    }
 
    if ( m_withGhosts ) {
-      DARestoreLocalVector ( m_da, &m_localVector );
+      DMRestoreLocalVector ( m_da, &m_localVector );
    }
 
    // if ( m_globalVector != m_localVector ) {

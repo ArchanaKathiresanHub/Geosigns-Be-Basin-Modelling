@@ -8,6 +8,8 @@ add_library( utilities
 	src/Quadrature.C
 	src/Quadrature3D.C
 	src/WallTime.C
+	src/TimeToComplete.C
+	src/ProgressManager.C
         src/formattingexception.C
 )
 

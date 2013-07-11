@@ -241,17 +241,17 @@ private :
    /// \brief Array of subdomains that are to be used in the multi-component flow solver.
    SubdomainArray m_subdomains;
 
-   PetscTruth m_solveFlowEquations;
+   PetscBool m_solveFlowEquations;
 
    int m_debugINode;
    int m_debugJNode;
    int m_debugKNode;
 
-   // PetscTruth m_userDefinedSubdomains;
+   // PetscBool m_userDefinedSubdomains;
    double     m_userDefinedMaximumPermeability;
 
-   PetscTruth m_uniformTimeStepping;
-   PetscTruth m_cflTimeStepping;
+   PetscBool m_uniformTimeStepping;
+   PetscBool m_cflTimeStepping;
    double     m_cflTimeStepFraction;
    double     m_maximumTimeStepSize;
    double     m_maximumHCFractionForFlux;
@@ -259,7 +259,7 @@ private :
 
 
    int        m_debugLevel;
-   PetscTruth m_applyOtgc;
+   PetscBool m_applyOtgc;
    bool       m_includeWaterSaturationInOp;
    bool       m_includeCapillaryPressureInDarcy;
  

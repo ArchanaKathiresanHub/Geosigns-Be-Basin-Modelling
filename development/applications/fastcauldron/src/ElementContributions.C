@@ -47,14 +47,15 @@ void getPreviousCoefficients ( const LayerElement&                         eleme
                                const Basin_Modelling::Fundamental_Property property,
                                      FiniteElementMethod::ElementVector&   coefficients ) {
 
-   PetscTruth isValid;
+   PetscBool isValid;
    int i;
 
    const LayerProps* layer = element.getFormation ();
 
    Vec propertyVector = const_cast<Vec>(layer->Previous_Properties ( property ));
 
-   VecValid ( propertyVector, &isValid );
+   // VecValid ( propertyVector, &isValid ); not in 3.3
+   isValid = ( propertyVector != 0 ? PETSC_TRUE : PETSC_FALSE );
    // VecValid ( layer->Previous_Properties ( property ), &isValid );
    
    if ( isValid ) {

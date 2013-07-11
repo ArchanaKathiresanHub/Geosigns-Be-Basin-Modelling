@@ -47,6 +47,8 @@ namespace fileIO
       void concatTable(const Table& table);
       friend std::ostream& operator<<(std::ostream& os, Table& table);
    };
+
+   std::ostream& operator<<(std::ostream& os, Table& table);
 	
 /*
 class ParseException : public std::exception

@@ -43,7 +43,7 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
 
   int Layer_Count = 0;
 
-  DAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+  DMDAGetGhostCorners ( *cauldron->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
 
   PETSc_Local_2D_Array<double> FCT_Scaling_Factors;
 
@@ -56,10 +56,10 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
     //
     // Get the size of the layer DA.
     //
-    DAGetGhostCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-    DALocalInfo Local_Info;
+    DMDAGetGhostCorners ( Current_Layer->layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+    DMDALocalInfo Local_Info;
 
-    DAGetLocalInfo ( *cauldron->mapDA, &Local_Info );
+    DMDAGetLocalInfo ( *cauldron->mapDA, &Local_Info );
 
     PETSC_2D_Array FCTCorrection;
     FCTCorrection.Set_Global_Array( *cauldron -> mapDA, Current_Layer -> FCTCorrection, 
@@ -361,7 +361,7 @@ void NonGeometricLoopPressureSolver::computeDependantPropertiesForLayer
   int needleTopActiveNode;
   bool  layerIsMobile = currentLayer->isMobile ();
 
-  DAGetCorners ( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+  DMDAGetCorners ( currentLayer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
   zTopIndex = Z_Start + Z_Count - 1;
 
   double lateralStressFactor = FastcauldronSimulator::getInstance ().lateralStressFactor ( currentTime );
@@ -603,7 +603,7 @@ void NonGeometricLoopPressureSolver::computeDependantProperties ( const double P
   int Z_Count;
   int Z_Top;
 
-  DAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
   const Boolean2DArray& Valid_Needle = cauldron->getValidNeedles ();
 
@@ -631,7 +631,7 @@ void NonGeometricLoopPressureSolver::computeDependantProperties ( const double P
     Current_Layer = FEM_Layers.Current_Layer ();
 
     // Get the size of the layer DA.
-    DAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+    DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
     Z_Top = Z_Start + Z_Count - 1;
 
     // Fundamental Properties
@@ -728,7 +728,7 @@ void NonGeometricLoopPressureSolver::initialisePressureProperties ( const double
   LayerProps_Ptr Current_Layer;
   const Boolean2DArray& Valid_Needle = cauldron->getValidNeedles ();
 
-  DAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
+  DMDAGetCorners ( *cauldron->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
   Double_Array_2D Top_Depth ( X_Count, Y_Count );
 
@@ -749,7 +749,7 @@ void NonGeometricLoopPressureSolver::initialisePressureProperties ( const double
     Current_Layer = Layers.Current_Layer ();
 
 
-    DAGetCorners( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count);
+    DMDAGetCorners( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count);
 
     PETSC_3D_Array Depth ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
 

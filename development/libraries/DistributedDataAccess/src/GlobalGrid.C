@@ -19,7 +19,7 @@
 
 #include "Interface/GlobalGrid.h"
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #define Square(a)  ((a)*(a))
 

@@ -3,6 +3,8 @@
 
 #include <list>
 #include <map>
+#include <string>
+
 
 namespace Calibration
 {

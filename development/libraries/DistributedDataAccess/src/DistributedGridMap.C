@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include <iomanip>
+#include <limits>
 
 #include "petsc.h"
 
@@ -24,11 +25,11 @@ DistributedGridMap::~DistributedGridMap (void)
 {
    restoreData (false, false);
 
-   VecDestroy (m_vecGlobal);
+   VecDestroy (&m_vecGlobal);
 
    if (m_depth != 1)
    {
-      DADestroy (m_localInfo.da);
+      DMDestroy (&m_localInfo.da);
    }
 }
 
@@ -253,14 +254,14 @@ void DistributedGridMap::initialize (void)
    }
    else
    {
-      DACreate3d (PETSC_COMM_WORLD, DA_NONPERIODIC, DA_STENCIL_BOX,
-	      dynamic_cast<const DistributedGrid * > (m_grid)->numIGlobal (), dynamic_cast<const DistributedGrid * > (m_grid)->numJGlobal (), m_depth,
-	      dynamic_cast<const DistributedGrid * > (m_grid)->numProcsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numProcsJ (), 1,
-	      1, 1,
-	      dynamic_cast<const DistributedGrid * > (m_grid)->numsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numsJ (), PETSC_NULL,
-	      &m_localInfo.da);
-      DAGetLocalInfo (m_localInfo.da, &m_localInfo);
-      DACreateGlobalVector (m_localInfo.da, &m_vecGlobal);
+      DMDACreate3d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+                    dynamic_cast<const DistributedGrid * > (m_grid)->numIGlobal (), dynamic_cast<const DistributedGrid * > (m_grid)->numJGlobal (), m_depth,
+                    dynamic_cast<const DistributedGrid * > (m_grid)->numProcsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numProcsJ (), 1,
+                    1, 1,
+                    dynamic_cast<const DistributedGrid * > (m_grid)->numsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numsJ (), PETSC_NULL,
+                    &m_localInfo.da);
+      DMDAGetLocalInfo (m_localInfo.da, &m_localInfo);
+      DMCreateGlobalVector (m_localInfo.da, &m_vecGlobal);
    }
 
 
@@ -280,20 +281,20 @@ bool DistributedGridMap::retrieveData (bool withGhosts) const
 
    if (m_withGhosts)
    {
-      DAGetLocalVector (m_localInfo.da, &m_vecLocal);
-      DAGlobalToLocalBegin (m_localInfo.da, m_vecGlobal, INSERT_VALUES, m_vecLocal);
-      DAGlobalToLocalEnd (m_localInfo.da, m_vecGlobal, INSERT_VALUES, m_vecLocal);
+      DMGetLocalVector (m_localInfo.da, &m_vecLocal);
+      DMGlobalToLocalBegin (m_localInfo.da, m_vecGlobal, INSERT_VALUES, m_vecLocal);
+      DMGlobalToLocalEnd (m_localInfo.da, m_vecGlobal, INSERT_VALUES, m_vecLocal);
    }
 
    if (m_depth > 1)
    {
-      DAVecGetArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
+      DMDAVecGetArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
    }
    else
    {
       m_values = Array < double **>::create1d (1);
 
-      DAVecGetArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
+      DMDAVecGetArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
    }
 
    m_retrieved = true;
@@ -310,11 +311,11 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
 
    if (m_depth > 1)
    {
-      DAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
+      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
    }
    else
    {
-      DAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
+      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
       Array < double **>::delete1d (m_values);
    }
 
@@ -324,19 +325,22 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
       {
          if (withGhosts)
          {
-            DALocalToGlobalBegin (m_localInfo.da, m_vecLocal, m_vecGlobal);
-            DALocalToGlobalEnd (m_localInfo.da, m_vecLocal, m_vecGlobal);
+            // Petsc 3.3: Should the ghosted locations be zero in global vector????
+            DMLocalToGlobalBegin (m_localInfo.da, m_vecLocal, ADD_VALUES, m_vecGlobal);
+            DMLocalToGlobalEnd (m_localInfo.da, m_vecLocal, ADD_VALUES, m_vecGlobal);
          }
          else
          {
-            DALocalToGlobal (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
+            // DALocalToGlobal (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
+            DMLocalToGlobalBegin (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
+            DMLocalToGlobalEnd (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
          }
       }
    }
 
    if (m_withGhosts)
    {
-      DARestoreLocalVector (m_localInfo.da, &m_vecLocal);
+      DMRestoreLocalVector (m_localInfo.da, &m_vecLocal);
    }
 
    m_retrieved = false;
@@ -350,7 +354,7 @@ Vec & DistributedGridMap::getVec (void)
    return m_vecGlobal;
 }
 
-DA & DistributedGridMap::getDA (void) const
+DM & DistributedGridMap::getDA (void) const
 {
    return m_localInfo.da;
 }

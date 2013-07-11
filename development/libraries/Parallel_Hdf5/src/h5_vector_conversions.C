@@ -9,7 +9,7 @@
 
 #include "h5_vector_conversions.h"
 
-H5_VectorBoundaries::H5_VectorBoundaries (DALocalInfo &vecInfo)
+H5_VectorBoundaries::H5_VectorBoundaries (DMDALocalInfo &vecInfo)
 {
    hGlobal = Size  (vecInfo.dim, vecInfo.mx, vecInfo.my, vecInfo.mz);
    hLocal  = Size  (vecInfo.dim, vecInfo.xm, vecInfo.ym, vecInfo.zm);

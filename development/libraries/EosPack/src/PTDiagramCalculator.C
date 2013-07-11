@@ -14,6 +14,7 @@
 #include <memory>
 #include <numeric>
 #include <set>
+#include <algorithm>
 
 /// \brief Definition of composition phases as enum, the main idea of this enum that liquidPhase + vaporPhase == bothPhases
 ///        this used in bisectioning algorithms, also unknown is used as sign of uninitialised data or in return if something failed

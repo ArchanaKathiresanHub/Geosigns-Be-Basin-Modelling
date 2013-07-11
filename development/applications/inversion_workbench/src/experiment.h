@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iosfwd>
+#include <tr1/tuple>
 
 #include <boost/shared_ptr.hpp>
 
@@ -39,6 +40,13 @@ private:
    std::string workingProjectFileName(unsigned scenarioNumber) const;
    std::string workingLogFileName(unsigned scenarioNumber) const;
    std::string resultsFileName(unsigned scenarioNumber) const;
+
+   typedef std::tr1::tuple< double, double, double, double > PositionAndTime;
+   typedef unsigned ProbeID;
+   typedef std::tr1::tuple< PositionAndTime, ProbeID, double > Entry;
+   typedef std::vector< Entry > ResultsTable;
+   void printTable( ResultsTable & table, std::ostream & output ) const;
+   void printField( bool first, std::ostream & output ) const;
 
    std::vector< Scenario > m_scenarios;
    std::vector< DatadrillerProperty > m_probes;

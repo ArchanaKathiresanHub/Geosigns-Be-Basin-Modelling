@@ -10,6 +10,8 @@
 #include <algorithm>
 using namespace std;
 
+#include <string.h>
+
 #include <sys/types.h>
 #include <time.h>
 

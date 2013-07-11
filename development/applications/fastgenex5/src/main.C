@@ -59,7 +59,7 @@ int main (int argc, char ** argv)
    unsigned int i;
 
    char inputFileName[FileNameLength+1];
-   PetscTruth inputFileSet;
+   PetscBool inputFileSet;
 
    PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, FileNameLength, &inputFileSet);
    if (!inputFileSet)
@@ -70,7 +70,7 @@ int main (int argc, char ** argv)
    }
 
    char outputFileName[FileNameLength];
-   PetscTruth outputFileSet;
+   PetscBool outputFileSet;
 
    PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, FileNameLength, &outputFileSet);
    if (!outputFileSet)
@@ -78,7 +78,7 @@ int main (int argc, char ** argv)
       strcpy (outputFileName, inputFileName);
    }
 
-   PetscTruth ddd = PETSC_FALSE;
+   PetscBool ddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
    if (ddd)
    {
@@ -95,7 +95,7 @@ int main (int argc, char ** argv)
       sleep (20);
    }
 
-   PetscTruth myddd = PETSC_FALSE;
+   PetscBool myddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
    if (myddd)
    {
@@ -107,7 +107,7 @@ int main (int argc, char ** argv)
       sleep (20);
    }
 
-   PetscTruth cvd = PETSC_FALSE;
+   PetscBool cvd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-cvd", &cvd);
    if (cvd)
    {

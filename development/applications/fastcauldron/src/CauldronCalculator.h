@@ -2,7 +2,7 @@
 #define _FASTCALDRON__CAULDRON_CALCULATOR_H_
 
 #include "petscts.h"
-#include "petscda.h"
+#include "petscdmda.h"
 #include "propinterface.h"
 #include "globaldefs.h"
 
@@ -14,25 +14,25 @@ public :
 
    virtual ~CauldronCalculator ();
 
-   int createMatrixStructure ( const DA   mapDA, 
-                               const DA   femGridDA,
+   int createMatrixStructure ( const DM   mapDA, 
+                               const DM   femGridDA,
                                const Boolean2DArray& validNeedle,
                                const Vec  dofs,
                                      Mat* jacobian,
                                const int  stencilWidth );
 
-   void setDOFs ( const DA   femGrid, 
+   void setDOFs ( const DM   femGrid, 
                   const Vec  depths, 
                         Vec  dofNumbers, 
                         int& stencilWidth );
 
-   void setDepths ( const DA   femGrid, 
+   void setDepths ( const DM   femGrid, 
                     const bool includeBasement,
                           Vec  depths );
 
    /// Fills the vector femRealNodes with false or true ( 0.0 or  x > 0.0 )
    /// if the node is is an active node in the finite element mesh.
-   void setRealNodes ( const DA  femGrid, 
+   void setRealNodes ( const DM  femGrid, 
                              Vec femDOFs, 
                              Vec femRealNodes );
 

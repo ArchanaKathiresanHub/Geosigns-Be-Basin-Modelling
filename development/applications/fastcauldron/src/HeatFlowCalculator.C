@@ -104,11 +104,11 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
    bool bottomOfMantleHeatFlow = ( m_formation->isMantle () and m_formation->getBottomSurface () == m_surface );
 
-   DAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
-              PETSC_NULL, &globalXNodes, &globalYNodes,
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
-
+   DMDAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
+                PETSC_NULL, &globalXNodes, &globalYNodes,
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+   
    if ( not m_depth->isCalculated ()) {
 
       if ( not m_depth->calculate ()) {
@@ -514,11 +514,11 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    ElementVector temperature;
    ElementVector chemCompaction;
 
-   DAGetInfo( m_formation->layerDA, 
-              PETSC_NULL,
-              &globalXNodes, &globalYNodes, &zCount,
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-              PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
+   DMDAGetInfo( m_formation->layerDA, 
+                PETSC_NULL,
+                &globalXNodes, &globalYNodes, &zCount,
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
    if ( not m_depth->isCalculated ()) {
 

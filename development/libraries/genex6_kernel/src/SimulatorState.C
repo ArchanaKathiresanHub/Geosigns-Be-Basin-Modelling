@@ -5,6 +5,8 @@
 #include "GeneralParametersHandler.h"
 #include <map>
 #include <math.h>
+#include <string.h>
+
 
 using namespace CBMGenerics;
 namespace Genex6

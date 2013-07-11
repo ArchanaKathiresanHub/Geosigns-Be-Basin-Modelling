@@ -18,7 +18,7 @@ void ElementTemporalPropertyInterpolator::set ( const double startValue,
 //------------------------------------------------------------//
 
 TemporalPropertyInterpolator::TemporalPropertyInterpolator ( Subdomain& sub ) : m_subdomain ( sub ), m_elementGrid ( sub.getVolumeGrid ( 2 )) {
-   DACreateGlobalVector ( m_elementGrid.getDa (), &m_propertyVector );
+   DMCreateGlobalVector ( m_elementGrid.getDa (), &m_propertyVector );
    VecZeroEntries ( m_propertyVector );
    m_vectorRetrieved = false;
 }
@@ -28,7 +28,7 @@ TemporalPropertyInterpolator::TemporalPropertyInterpolator ( Subdomain& sub ) : 
 TemporalPropertyInterpolator::TemporalPropertyInterpolator ( Subdomain& sub,
                                                              const Basin_Modelling::Fundamental_Property property ) : m_subdomain ( sub ), m_elementGrid ( sub.getVolumeGrid ( 2 )) {
 
-   DACreateGlobalVector ( m_elementGrid.getDa (), &m_propertyVector );
+   DMCreateGlobalVector ( m_elementGrid.getDa (), &m_propertyVector );
    VecZeroEntries ( m_propertyVector );
    m_vectorRetrieved = false;
    setProperty ( property );
@@ -42,7 +42,7 @@ TemporalPropertyInterpolator::~TemporalPropertyInterpolator () {
       m_propertyArray.restoreVector ( NO_UPDATE );
    }
 
-   VecDestroy ( m_propertyVector );
+   VecDestroy ( &m_propertyVector );
 }
 
 //------------------------------------------------------------//

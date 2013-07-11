@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "petscvec.h"
-#include "petscda.h"
+#include "petsc.h"
 
 #ifdef sgi
    #ifdef _STANDARD_C_PLUS_PLUS
@@ -50,7 +49,7 @@ int main (int argc, char ** argv)
       ++argv0;
 
    char inputFileName[128];
-   PetscTruth inputFileSet;
+   PetscBool inputFileSet;
 
    PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, 128, &inputFileSet);
    if (!inputFileSet)  {
@@ -60,14 +59,14 @@ int main (int argc, char ** argv)
    }
 
    char outputFileName[128];
-   PetscTruth outputFileSet;
+   PetscBool outputFileSet;
 
    PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &outputFileSet);
    if (!outputFileSet) {
       strcpy (outputFileName, inputFileName);
    }
 
-   PetscTruth ddd = PETSC_FALSE;
+   PetscBool ddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
    if (ddd)  {
       char cmd[150];
@@ -78,7 +77,7 @@ int main (int argc, char ** argv)
       sleep (20);
    }
 
-   PetscTruth myddd = PETSC_FALSE;
+   PetscBool myddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
    if (myddd)
    {
@@ -90,7 +89,7 @@ int main (int argc, char ** argv)
       sleep (20);
    }
 
-   PetscTruth idb = PETSC_FALSE;
+   PetscBool idb = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-idb", &idb);
    if (idb)
    {
@@ -101,7 +100,7 @@ int main (int argc, char ** argv)
       sleep (15);
    }
 
-   PetscTruth cvd = PETSC_FALSE;
+   PetscBool cvd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-cvd", &cvd);
    if (cvd) {
       char cmd[150];

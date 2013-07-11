@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "WallTime.h"
 
+#include <sstream>
+#include <iomanip>
+
 #include <cmath>
 
 #if defined(_WIN32) || defined (_WIN64)
@@ -138,6 +141,24 @@ void WallTime::Duration::separate ( int& seconds,
 
 //------------------------------------------------------------//
 
+std::string WallTime::Duration::asString () const
+{
+
+   int    hours;
+   int    minutes;
+   double seconds;
+
+   separate ( hours, minutes, seconds );
+   std::ostringstream oss;
+   oss << std::setw (2) << std::setfill ('0') << hours << ":";
+   oss << std::setw (2) << std::setfill ('0') << minutes << ":";
+   oss << std::setw (2) << std::setfill ('0') << (int) seconds;
+
+   return oss.str();
+}
+
+//------------------------------------------------------------//
+
 
 WallTime::Duration WallTime::operator*( const Duration & Left,
                                         double multiplier ) {
@@ -183,16 +204,11 @@ std::ostream& operator<< ( std::ostream& o, const Duration& D ) {
 
 //------------------------------------------------------------//
 
-void WallTime::print ( std::ostream& o, const Duration& d ) {
-
-   int    hours;
-   int    minutes;
-   double seconds;
-
-   d.separate ( hours, minutes, seconds );
-
-   o << hours << " hours, " << minutes << " minutes, " << seconds << " seconds ";
+void WallTime::print ( std::ostream& o, const Duration& d )
+{
+   o << d.asString();
 }
+
 
 //------------------------------------------------------------//
 

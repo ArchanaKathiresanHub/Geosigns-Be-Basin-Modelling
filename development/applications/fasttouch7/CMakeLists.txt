@@ -3,6 +3,7 @@ set(target_name fasttouch7)
 
 add_executable(${target_name}
 	src/main.C
+        src/misc.C
 	src/FastTouch.C
 	src/MasterTouch.C
 	src/ObjectFactory.C
@@ -58,6 +59,11 @@ target_link_libraries(${target_name}
 	${BLAS_LIBRARIES}
 	${BM_MPI_LOCK_LIBRARIES}
 )
+
+set_target_properties(fasttouch7
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+
 
 install(TARGETS fasttouch7
 	RUNTIME DESTINATION bin

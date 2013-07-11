@@ -93,6 +93,11 @@ target_link_libraries(fastmig
 	${BM_MPI_LOCK_LIBRARIES}
 )
 
+set_target_properties(fastmig
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+)
+
+
 install(TARGETS fastmig
 	RUNTIME DESTINATION bin
 )

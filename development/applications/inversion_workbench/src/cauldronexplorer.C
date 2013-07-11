@@ -14,6 +14,7 @@
 #include "InitialCrustalThicknessProperty.h"
 #include "UnconformityLithologyProperty.h"
 #include "UnconformityProperty.h"
+#include "SurfaceTempProperty.h"
 #include "RuntimeConfiguration.h"
 #include "DatadrillerProperty.h"
 #include "experiment.h"
@@ -160,6 +161,30 @@ void readCrustalThinningProperties( database::Database & database,
 	    " thinning event range";
 }
 
+void readSurfaceTempProperties( database::Database & database,
+                             std::vector< boost::shared_ptr< Property > > & params)
+{
+   database::Table * table = database.getTable("SurfaceTemperatureProperty");
+   if (!table)
+      return;
+
+   if (table->size() > 1)
+      throw ConfigurationException() << "There cannot be multiple configurations for the surface temperature";
+   
+   for (int i = 0; i < table->size (); ++i ) 
+   {
+      database::Record* record = table->getRecord ( i );
+
+      double startValue = database::getStartValue ( record );
+      double endValue = database::getEndValue ( record );
+      double stepValue = database::getStepValue ( record );
+    
+      params.push_back( boost::shared_ptr<Property>( 
+               new SurfaceTempProperty( startValue, endValue, stepValue )
+               ) );
+   }
+}
+
 std::vector< DatadrillerProperty > readDatadrillerProperties( database::Database & database )
 {
    database::Table* table = database.getTable("DatadrillerProperty");
@@ -208,6 +233,8 @@ RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
    std::string outputDirectoryAddress = database::getOutputDirectory ( recordInfo );
    std::string outputFileName = database::getOutputFileName ( recordInfo );
    std::string cauldronVersion = database::getCauldronVersion ( recordInfo );
+   std::string fieldSeparator = database::getOutputTableFieldSeparator( recordInfo );
+   int fieldWidth = database::getOutputTableFieldWidth( recordInfo );
 
    // if the outputFileName has an extension ".project3d", remove it, because we only want the prefix.
    std::string::size_type dotPos = outputFileName.rfind (".project3d");
@@ -220,13 +247,23 @@ RuntimeConfiguration readRuntimeConfiguration( database::Database & database)
    if (cauldronVersion.empty())
       cauldronVersion = "2012.1008";
 
+   // Init fieldSeparator with a default value
+   if (fieldSeparator.empty())
+      fieldSeparator = ',';
+
+   if (fieldSeparator.size() > 1)
+      throw ConfigurationException() << "The OutputTableFieldSeparator can only consist of 1 character";
+
+
    // Add it to the list
    return RuntimeConfiguration( 
             templateProjectFile, 
             outputDirectoryAddress, 
             outputFileName, 
             cauldronVersion, 
-            "-temperature"
+            "-temperature",
+            fieldSeparator[0],
+            fieldWidth
             );
 }
 
@@ -295,6 +332,7 @@ int main(int argc, char ** argv )
    readCrustalThinningProperties(*database, properties);
    readUnconformityLithologies(*database, properties);
    readUnconformityProperties(*database, properties);
+   readSurfaceTempProperties(*database,properties);
 
    // Run the experiment
    Experiment experiment(properties, 

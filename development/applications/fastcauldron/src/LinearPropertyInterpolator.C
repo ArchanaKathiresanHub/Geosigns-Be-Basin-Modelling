@@ -36,24 +36,24 @@ LinearPropertyInterpolator::LinearPropertyInterpolator () {
 }
 
 
-void LinearPropertyInterpolator::initialise ( DA da ) {
+void LinearPropertyInterpolator::initialise ( DM da ) {
    m_interpolators.create ( da );
 }
 
-void LinearPropertyInterpolator::compute ( DA                                             da,
+void LinearPropertyInterpolator::compute ( DM                                             da,
                                            const Basin_Modelling::Fundamental_Property    propertyTointerpolate,
                                            const double                                   startTime,
                                            Basin_Modelling::Fundamental_Property_Manager& startProperties,
                                            const double                                   endTime,
                                            Basin_Modelling::Fundamental_Property_Manager& endProperties ) {
 
-   DALocalInfo daInfo;
+   DMDALocalInfo daInfo;
 
    int i;
    int j;
    int kLast; 
 
-   DAGetLocalInfo ( da, &daInfo );
+   DMDAGetLocalInfo ( da, &daInfo );
    initialise ( da );
 
    kLast = daInfo.gzm - 1;
@@ -75,7 +75,7 @@ void LinearPropertyInterpolator::compute ( DA                                   
 
 }
 
-void LinearPropertyInterpolator::compute ( DA                                  da,
+void LinearPropertyInterpolator::compute ( DM                                  da,
                                            const double                        startTime,
                                            const PETSc_Local_2D_Array<double>& startProperty,
                                            const double                        endTime,
@@ -97,19 +97,19 @@ void LinearPropertyInterpolator::compute ( DA                                  d
 }
 
 
-void LinearPropertyInterpolator::compute ( DA                                             da,
+void LinearPropertyInterpolator::compute ( DM                                             da,
                                            const Basin_Modelling::Fundamental_Property    propertyTointerpolate,
                                            const double                                   time,
                                            Basin_Modelling::Fundamental_Property_Manager& properties ) {
 
-   DALocalInfo daInfo;
+   DMDALocalInfo daInfo;
    int i;
    int j;
    int kLast;
 
    initialise ( da );
 
-   DAGetLocalInfo ( da, &daInfo );
+   DMDAGetLocalInfo ( da, &daInfo );
    kLast = daInfo.gzm - 1;
 
    // for ( i = m_interpolators.First ( 1, Exclude_Ghost_Values ); i <= m_interpolators.Last ( 1, Exclude_Ghost_Values ); ++i ) {

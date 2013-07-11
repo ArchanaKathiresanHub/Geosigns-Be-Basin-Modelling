@@ -3,7 +3,7 @@
 
 #include "petscsys.h"
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include<iostream>
 #include<fstream>
@@ -47,7 +47,7 @@ public:
    virtual DimType  operator             ()(const int K, const int J=0, const int I=0 ) const = 0;
    virtual DimType& operator             ()(const int K, const int J=0, const int I=0) = 0; 
    virtual void     Restore_Global_Array   (const Update_Mode Update_Method = No_Update ) = 0;
-   virtual void     Set_Global_Array       (const DA         Global_Array,
+   virtual void     Set_Global_Array       (const DM         Global_Array,
 			                    const Vec        Global_Vector,
 			                    const InsertMode addv = INSERT_VALUES,
                                             const bool       Include_Ghost_Values = false ) = 0;
@@ -63,7 +63,7 @@ public :
 
   PETSC_3D_Array ();
 
-  PETSC_3D_Array ( const DA         Global_Array,
+  PETSC_3D_Array ( const DM         Global_Array,
                    const Vec        Global_Vector,
                    const InsertMode addv = INSERT_VALUES,
                    const bool       Include_Ghost_Values = false );
@@ -80,7 +80,7 @@ public :
      return Distributed_Data [ K ][ J ][ I ];
   } // end operator ()
 
-  void Set_Global_Array ( const DA         Global_Array,
+  void Set_Global_Array ( const DM         Global_Array,
 			  const Vec        Global_Vector,
 			  const InsertMode addv = INSERT_VALUES,
 			  const bool       Include_Ghost_Values = false );
@@ -107,7 +107,7 @@ private :
 
   
 
-  DA     Global_Distributed_Array;
+  DM     Global_Distributed_Array;
   Vec    Global_Distributed_Vector;
   Vec    Local_Distributed_Vector;
   double ***Distributed_Data;
@@ -128,7 +128,7 @@ public :
 
   PETSC_2D_Array ();
 
-  PETSC_2D_Array ( const DA         Global_Array,
+  PETSC_2D_Array ( const DM         Global_Array,
                    const Vec        Global_Vector,
                    const InsertMode addv = INSERT_VALUES,
                    const bool       Include_Ghost_Values = false );
@@ -145,7 +145,7 @@ public :
      return Distributed_Data [ J ][ I ];
   } // end operator ()
 
-  void Set_Global_Array ( const DA         Global_Array,
+  void Set_Global_Array ( const DM         Global_Array,
 			  const Vec        Global_Vector,
 			  const InsertMode addv = INSERT_VALUES,
 			  const bool       Include_Ghost_Values = false );
@@ -173,7 +173,7 @@ public :
   
 private :
 
-  DA     Global_Distributed_Array;
+  DM     Global_Distributed_Array;
   Vec    Global_Distributed_Vector;
   Vec    Local_Distributed_Vector;
   double **Distributed_Data;
@@ -191,7 +191,7 @@ public :
 
   PETSC_1D_Array ();
 
-  PETSC_1D_Array ( const DA         Global_Array,
+  PETSC_1D_Array ( const DM         Global_Array,
                    const Vec        Global_Vector,
                    const InsertMode addv = INSERT_VALUES,
                    const bool       Include_Ghost_Values = false );
@@ -208,7 +208,7 @@ public :
     return Distributed_Data [ I ];
   } // end operator ()
 
-  void Set_Global_Array ( const DA         Global_Array,
+  void Set_Global_Array ( const DM         Global_Array,
 			  const Vec        Global_Vector,
 			  const InsertMode addv = INSERT_VALUES,
 			  const bool       Include_Ghost_Values = false );
@@ -236,7 +236,7 @@ public :
   
 private :
 
-  DA     Global_Distributed_Array;
+  DM     Global_Distributed_Array;
   Vec    Global_Distributed_Vector;
   Vec    Local_Distributed_Vector;
   double *Distributed_Data;
@@ -249,7 +249,7 @@ private :
 
 void Destroy_Petsc_Vector ( Vec& vector );
 void View_Petsc_Vector ( Vec& vector );
-
+void VecValid( Vec& vector, PetscBool *isValid );
 //============================================================//
 
 

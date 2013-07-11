@@ -5,7 +5,7 @@
 using namespace std;
 
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdmda.h"
 
 #include "database.h"
 #include "cauldronschema.h"

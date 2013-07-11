@@ -1,31 +1,17 @@
 #include <algorithm> // contains std::sort
 #include <stdlib.h>
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-      #include <fstream>
-      #include <iomanip>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include <iostream.h>
-      #include <fstream.h>
-      #include <iomanip.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <fstream>
-   #include <iomanip>
-   using namespace std;
-#endif // sgi
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 
 #include <assert.h>
 #include <vector>
 #include <map>
 #include <string>
 #include <ctype.h>
-#ifdef linux
-#include <algo.h>
-#endif
+using namespace std;
+
+#include <string.h>
 
 #include "datautils.h"
 
@@ -292,20 +278,20 @@ int main (int argc, char **argv)
    int i;
    for (i = 1; i < argc; i++)
    {
-      if (strncmp (argv[i], "-directory", Max ((size_t) 2, strlen (argv[i]))) == 0)
+      if (strncmp (argv[i], "-directory", std::max ((size_t) 2, (size_t) strlen (argv[i]))) == 0)
       {
 	 schemaDir = argv[++i];
 	 schemaDir += "/";
       }
-      else if (strncmp (argv[i], "-input", Max ((size_t) 2, strlen (argv[i]))) == 0)
+      else if (strncmp (argv[i], "-input", std::max ((size_t) 2, (size_t) strlen (argv[i]))) == 0)
       {
 	 specFile = argv[++i];
       }
-      else if (strncmp (argv[i], "-schema", Max ((size_t) 2, strlen (argv[i]))) == 0)
+      else if (strncmp (argv[i], "-schema", std::max ((size_t) 2, (size_t) strlen (argv[i]))) == 0)
       {
 	 schemaName = argv[++i];
       }
-      else if (strncmp (argv[i], "-verbose", Max ((size_t) 2, strlen (argv[i]))) == 0)
+      else if (strncmp (argv[i], "-verbose", std::max ((size_t) 2, (size_t) strlen (argv[i]))) == 0)
       {
 	 verbose = true;
       }

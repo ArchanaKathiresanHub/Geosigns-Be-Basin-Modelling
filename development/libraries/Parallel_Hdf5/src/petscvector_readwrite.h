@@ -19,7 +19,7 @@ private:
 public:
    PetscVector_ReadWrite (void) : Buffer_ReadWrite () {}
 
-   bool write (H5_Write_File *h5File, hid_t locId, const char *dataset, DA& globalDa,
+   bool write (H5_Write_File *h5File, hid_t locId, const char *dataset, DM& globalDa,
                Vec &globalVector, PetscDimensions *petscD,
                hid_t dataType, H5_PropertyList *pList = NULL)
    {
@@ -32,8 +32,8 @@ public:
       Type *buffer = vecToBuff.convert (localVec);
 
       // get local info
-      DALocalInfo localVecInfo;
-      DAGetLocalInfo (globalDa, &localVecInfo);
+      DMDALocalInfo localVecInfo;
+      DMDAGetLocalInfo (globalDa, &localVecInfo);
      
       bool status = writeRawData (h5File, locId, dataset, dataType, localVecInfo, 
                                  (void*)buffer, pList);
@@ -51,7 +51,7 @@ public:
    }
   
    bool read (H5_ReadOnly_File *h5File, hid_t locId, const char *dataset,
-              DA& globalDa, Vec &globalVector, PetscDimensions *petscD, 
+              DM& globalDa, Vec &globalVector, PetscDimensions *petscD, 
               H5_PropertyList *pList = NULL)
    {
       // get data set from file
@@ -60,7 +60,7 @@ public:
 
       // get local info
       Petsc_Array *localVec;
-      DALocalInfo localVecInfo;
+      DMDALocalInfo localVecInfo;
       createLocalInfo (globalDa, globalVector, &localVec, localVecInfo, petscD);
 
       Type *buffer = 0;
@@ -79,7 +79,7 @@ public:
    }
   
    // collect raw data based on DA size and offsets
-   bool collectRawData (H5_ReadOnly_File *h5File, hid_t dataId, DALocalInfo &localVecInfo, 
+   bool collectRawData (H5_ReadOnly_File *h5File, hid_t dataId, DMDALocalInfo &localVecInfo, 
                         Type **buffer, int size, H5_PropertyList *pList = NULL,
 			bool allocateBuffer = true ) 
    {
@@ -108,8 +108,8 @@ public:
    }  
 
    // create local info based on global info
-   static void createLocalInfo (DA& globalDa, Vec &globalVector, Petsc_Array **localVec, 
-                                DALocalInfo &info, PetscDimensions *petscD)
+   static void createLocalInfo (DM& globalDa, Vec &globalVector, Petsc_Array **localVec, 
+                                DMDALocalInfo &info, PetscDimensions *petscD)
    {
       // create global vector
       petscD->createGlobalVector (globalDa, globalVector);
@@ -118,12 +118,12 @@ public:
       *localVec = petscD->createLocalVector (globalDa, globalVector);
     
       // get local info
-      DAGetLocalInfo (globalDa, &info);
+      DMDAGetLocalInfo (globalDa, &info);
    }
 
    // write raw data to file, given local DA info
    static bool writeRawData (H5_Write_File *h5File, hid_t locId, const char *dataset, 
-                             hid_t dataType, DALocalInfo &localVecInfo, void *buffer, 
+                             hid_t dataType, DMDALocalInfo &localVecInfo, void *buffer, 
                              H5_PropertyList *pList = NULL)
    {
       bool status = false;
@@ -150,7 +150,7 @@ public:
    } 
 
    static bool overWriteRawData (H5_Write_File *h5File, hid_t locId, const char *dataset, 
-                             hid_t dataType, DALocalInfo &localVecInfo, void *buffer, 
+                             hid_t dataType, DMDALocalInfo &localVecInfo, void *buffer, 
                              H5_PropertyList *pList = NULL)
    {
       bool status = false;
@@ -180,7 +180,7 @@ public:
       return status;
    } 
 
-   static DataSpace createHyperslabFilespace (DALocalInfo &localVecInfo)
+   static DataSpace createHyperslabFilespace (DMDALocalInfo &localVecInfo)
    {
      // create size and offset from Local Vec Info
      H5_VectorBoundaries dataBounds (localVecInfo);

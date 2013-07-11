@@ -2,14 +2,16 @@
 #define _GEMPIS_H_
 
 #include <string>
-using std::string;
 
-#include <iostream.h>
+#include <iostream>
 #include <assert.h>
-#include <iomanip.h>
+#include <iomanip>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
+using namespace std;
+
+#include <string.h>
 
 //#include <petscksp.h>
 //#include "petscts.h"

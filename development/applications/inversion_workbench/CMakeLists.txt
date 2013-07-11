@@ -89,6 +89,8 @@ add_executable(cauldronexplorer
         src/project.C
         src/ProjectResultsReader.C
         src/system.C
+        src/SurfaceTempProperty.C
+        src/SurfaceTempParameter.C
 	${generator_source_files}
 )
 
@@ -203,9 +205,22 @@ target_link_libraries(Experiment
     projectdependencies
 )
 
+set_target_properties(Experiment
+      PROPERTIES COMPILE_FLAGS "-Dprivate=public"
+)
+
 add_test(NAME Experiment::Experiment
       COMMAND Experiment Experiment
       )      
+
+add_test(NAME Experiment::printField
+      COMMAND Experiment printField
+      )      
+
+add_test(NAME Experiment::printTable
+      COMMAND Experiment printTable 
+      )      
+
 
 
 add_executable(Crust

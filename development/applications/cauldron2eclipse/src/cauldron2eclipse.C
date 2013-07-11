@@ -9,26 +9,13 @@
 
 #include <assert.h>
 
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <vector>
 using namespace std;
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#include <iomanip.h>
-#include <fstream.h>
-#include <strstream.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-using namespace std;
-#endif // sgi
 
 // DataAccess API includes
 #include "GridMap.h"
@@ -42,9 +29,8 @@ using namespace std;
 #include "Property.h"
 #include "PropertyValue.h"
 
-#include <string>
-#include <vector>
-using namespace std;
+#include <string.h>
+
 
 using namespace DataAccess;
 using namespace Interface;

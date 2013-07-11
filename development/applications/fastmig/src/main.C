@@ -65,7 +65,7 @@ int main (int argc, char ** argv)
       ++argv0;
 
    char inputFileName[128];
-   PetscTruth inputFileSet;
+   PetscBool inputFileSet;
 
    PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, 128, &inputFileSet);
    if (!inputFileSet)
@@ -76,7 +76,7 @@ int main (int argc, char ** argv)
    }
 
    char outputFileName[128];
-   PetscTruth outputFileSet;
+   PetscBool outputFileSet;
 
    PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &outputFileSet);
    if (!outputFileSet)
@@ -85,7 +85,7 @@ int main (int argc, char ** argv)
    }
 
    char numProcessors[128];
-   PetscTruth numProcessorsSet;
+   PetscBool numProcessorsSet;
 
    NumProcessorsArg = "";
    PetscOptionsGetString (PETSC_NULL, "-procs", numProcessors, 128, &numProcessorsSet);
@@ -95,7 +95,7 @@ int main (int argc, char ** argv)
       NumProcessorsArg += numProcessors;
    }
 
-   PetscTruth ddd = PETSC_FALSE;
+   PetscBool ddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
    if (ddd)
    {
@@ -106,7 +106,7 @@ int main (int argc, char ** argv)
       sleep (10);
    }
 
-   PetscTruth idb = PETSC_FALSE;
+   PetscBool idb = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-idb", &idb);
    if (idb)
    {
@@ -117,7 +117,7 @@ int main (int argc, char ** argv)
       sleep (15);
    }
 
-   PetscTruth cvd = PETSC_FALSE;
+   PetscBool cvd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-cvd", &cvd);
    if (cvd)
    {
@@ -128,7 +128,7 @@ int main (int argc, char ** argv)
       sleep (20);
    }
 
-   PetscTruth gdb = PETSC_FALSE;
+   PetscBool gdb = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-gdb", &gdb);
    if (gdb)
    {

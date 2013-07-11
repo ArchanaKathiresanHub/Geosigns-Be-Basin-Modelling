@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+#include <string.h>
+
 #ifdef linux
 extern int IBS_Use_ADIOI_Locking;
 extern bool IBS_SerializeIO;
