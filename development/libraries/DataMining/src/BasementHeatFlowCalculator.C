@@ -140,6 +140,21 @@ bool DataAccess::Mining::BasementHeatFlowCalculator::initialise () {
 
          delete propVals;
 
+         propVals = getProjectHandle ()->getPropertyValues ( Interface::FORMATION, getProjectHandle ()->findProperty ( "Pressure" ), getSnapshot (), 0, m_bottomSediment, 0, Interface::VOLUME );
+
+         if ( propVals->size () != 1 ) {
+            // // What to do
+            // delete propVals;
+            // m_initialised = false;
+            // return false;
+            m_fromCrust = true;
+         } else {
+            m_pressure = (*propVals)[ 0 ];
+            m_fromCrust = false;
+         }
+
+         delete propVals;
+
       }
 
       if ( m_crust != 0 ) {
@@ -164,6 +179,7 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
    const GeoPhysics::FluidType* fluid;
    double basementHeatFlow;
    double temperature;
+   double pressure;
    double porosity;
    double thermalConductivityN;
    double thermalConductivityH;
@@ -174,6 +190,7 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
    FiniteElementMethod::ThreeVector   gradTemperature;
 
    FiniteElementMethod::ElementVector temperatureCoeffs;
+   FiniteElementMethod::ElementVector pressureCoeffs;
    FiniteElementMethod::ElementVector depthCoeffs;
    FiniteElementMethod::ElementVector vesCoeffs;
    FiniteElementMethod::ElementVector maxVesCoeffs;
@@ -191,6 +208,7 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
 
    getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_depth->getGridMap (), depthCoeffs );
    getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_temperature->getGridMap (), temperatureCoeffs );
+   getElementCoefficients ( position.getI (), position.getJ (), mapKSize, m_pressure->getGridMap (), pressureCoeffs );
 
    getGeometryMatrix ( position,
                        dynamic_cast<const GeoPhysics::ProjectHandle*>(getProjectHandle ())->getCauldronGridDescription (),
@@ -218,7 +236,8 @@ double DataAccess::Mining::BasementHeatFlowCalculator::compute ( const ElementPo
    }
 
    temperature = finiteElement.interpolate ( temperatureCoeffs );
-   lithology->calcBulkThermCondNP ( fluid, porosity, temperature, thermalConductivityN, thermalConductivityH );
+   pressure    = finiteElement.interpolate ( pressureCoeffs );
+   lithology->calcBulkThermCondNP ( fluid, porosity, temperature, pressure, thermalConductivityN, thermalConductivityH );
 
    finiteElement.setTensor ( thermalConductivityN, thermalConductivityH, conductivityTensor );
 

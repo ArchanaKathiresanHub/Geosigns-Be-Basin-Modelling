@@ -36,6 +36,7 @@ namespace DataAccess {
       private :
 
          const Interface::PropertyValue* m_temperature;
+         const Interface::PropertyValue* m_pressure;
          const Interface::PropertyValue* m_depth;
          const Interface::PropertyValue* m_ves;
          const Interface::PropertyValue* m_maxVes;
