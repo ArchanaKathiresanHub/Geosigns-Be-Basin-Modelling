@@ -771,7 +771,7 @@ bool GeoPhysics::ProjectHandle::createSeaBottomTemperature () {
    Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
    Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter;
 
-   if ( surfaceTemperatureHistory != 0 ) {
+   if ( surfaceTemperatureHistory != 0 && surfaceTemperatureHistory->size() != 0 ) {
 
       for ( surfaceTemperatureIter = surfaceTemperatureHistory->begin (); surfaceTemperatureIter != surfaceTemperatureHistory->end (); ++surfaceTemperatureIter ) {
 
@@ -1383,6 +1383,49 @@ bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const
 
 
    return true;
+}
+
+
+//------------------------------------------------------------//
+
+bool GeoPhysics::ProjectHandle::determinePermafrost ( double & timeStep, double & permafrostAge ) {
+
+   // find minimum time interval in the Surface Temperature history table
+   double minimumInterval = 1e10;
+   permafrostAge   =  -1.0;
+   timeStep        =  0.001;
+
+   if( m_surfaceTemperatureHistory.size() > 1 ) {
+
+      Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
+      Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter = surfaceTemperatureHistory->begin();
+
+      double currentAge, age = ( * surfaceTemperatureIter )->getSnapshot ()->getTime ();
+      double min, max;
+
+      ++ surfaceTemperatureIter;
+ 
+      for ( ; surfaceTemperatureIter != surfaceTemperatureHistory->end (); ++ surfaceTemperatureIter ) {
+         const Interface::PaleoProperty* surfaceTemperatureInstance = *surfaceTemperatureIter;
+         const Interface::GridMap* surfaceTemperatureMap = dynamic_cast<const Interface::GridMap*>(surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap ));
+
+         currentAge = surfaceTemperatureInstance->getSnapshot ()->getTime ();
+         surfaceTemperatureMap->retrieveData ();
+         surfaceTemperatureMap->getMinMaxValue ( min, max );
+         if( min < 0.0 ) {
+            permafrostAge = currentAge;
+         }
+
+         if(( currentAge - age ) < minimumInterval ) {
+            minimumInterval = currentAge - age;
+         }
+         age = currentAge;
+         surfaceTemperatureMap->restoreData ();
+      }
+      
+      timeStep = minimumInterval * 0.5;
+   } 
+   return m_permafrost;
 }
 
 //------------------------------------------------------------//

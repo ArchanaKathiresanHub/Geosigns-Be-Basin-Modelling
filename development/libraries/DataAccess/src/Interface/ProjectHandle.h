@@ -503,11 +503,11 @@ namespace DataAccess
 
            const DataAccess::Interface::ApplicationGlobalOperations& getGlobalOperations () const;
          
-           /// Return whether or not the latent heat is applied
-           bool getLatentHeat() const;
+           /// Return whether or not to model permafrost
+           bool getPermafrost() const;
 
-           /// Set whether or not the latent heat is applied
-           void setLatentHeat( const bool aLatentHeat );
+           /// Set whether or not to model permafrost
+           void setPermafrost( const bool aPermafrost );
 
 	 protected:
 	    friend ProjectHandle * OpenCauldronProject (const string & name, const string & accessMode);
@@ -623,8 +623,8 @@ namespace DataAccess
 	    bool m_saveAsInputGrid; // whether to use the input grid to save the computed output
 
       
-             /// I.e. whether latent heat is included in the calculation.
-             bool m_latentHeat;
+        /// I.e. whether permafrost is being modelled
+        bool m_permafrost;
 
 	    MapWriter * m_mapPropertyValuesWriter;
 
@@ -718,6 +718,7 @@ namespace DataAccess
             bool loadFluidTypes ();
 
             bool loadCrustalThicknessData ();
+            void loadPermafrostData();
 
             void computeMantlePaleoThicknessHistory () const;
 

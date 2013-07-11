@@ -173,6 +173,7 @@ namespace GeoPhysics {
       void calcBulkThermCondNP ( const FluidType* fluid, 
                                  const double  Porosity,
                                  const double  Temperature, 
+                                 const double  PorePressue,
                                        double& BulkTHCondN,
                                        double& BulkTHCondP ) const;
 									   

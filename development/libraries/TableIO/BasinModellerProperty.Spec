@@ -4552,6 +4552,14 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
+    Identification      : PermafrostInd
+    Description         : Indicate whether or not include permafrost modelling (1 = yes, 0 = no)
+    Type                : boolean
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0
+
 ### Boundary conditions
 ###  Geological Boundary Io Tbl
 
@@ -9308,6 +9316,13 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
+    Identification : PermafrostIoTbl
+    Description    : Table of Permafrost simulation parameters 
+    Column         : PermafrostInd
+    Header         : Permafrost parameters
+    Time dependent : No
+    Property I/O   : Yes
+
     Identification : SurfaceDepthIoTbl
     Description    : Table of surface depths through time 
     Column         : Age
@@ -10838,6 +10853,7 @@ START-application-class-properties
     Property : FormTempIoTbl
     Property : DisplayContourIoTbl
     Property : SurfaceTempIoTbl
+    Property : PermafrostIoTbl
     Property : GeologicalBoundaryIoTbl
     Property : PropertyBoundaryIoTbl
     Property : BoundaryValuesIoTbl

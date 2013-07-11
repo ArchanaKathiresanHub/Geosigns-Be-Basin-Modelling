@@ -111,7 +111,7 @@ namespace GeoPhysics {
       double viscosity ( const double temperature ) const;
 
       /// Compute the thermal conductivity.
-      double thermalConductivity ( const double temperature ) const;
+      double thermalConductivity ( const double temperature, const double pressure ) const;
 
       /// Compute the heat-capacity.
       double heatCapacity ( const double temperature, const double pressure ) const;
@@ -138,6 +138,7 @@ namespace GeoPhysics {
 
       /// Compute the density using the Batzle and Wang function.
       double densityBatzleWang ( const double temperature, const double pressure ) const;
+      double densityBatzleWang ( const double temperature, const double pressure, const double salinity ) const;
 
       /// Compute the derivative, of the Batzle and Wang density function, w.r.t. pressure.
       double computeDensityDerivativeWRTPressureBatzleWang    ( const double temperature, const double pressure ) const;
@@ -152,6 +153,8 @@ namespace GeoPhysics {
       /// Compute the viscosity using the TemisPack type function.
       double viscosityTemisPack ( const double temperature ) const;
 
+      /// Compute relative premeability (for ice)
+      double relativePermeability ( const double temperature, const double pressure ) const;
    private :
 
       /// The interpolator for the fluid-thermal-conductivity table.
@@ -193,9 +196,14 @@ namespace GeoPhysics {
 
       double solidDensityTimesHeatCapacity ( const double temperature ) const;
 
-      double computeTheta ( const double temperature ) const;
+      double computeTheta ( const double temperature, const double liquidusTemperature ) const;
 
-      double computeThetaDerivative ( const double temperature ) const;
+      double getLiquidusTemperature ( const double temperature, const double pressure ) const;
+
+      double getSolidusTemperature ( const double liquidusTemperature ) const;
+
+      /// Compute the salinity.
+      double salinityConcentration ( const double temperature, const double pressure ) const;
 
       /// An interpolator for the density of water containing some fraction of ice ( t < 0.0 ).
       ///
@@ -212,8 +220,6 @@ namespace GeoPhysics {
       /// It depends only on temperature.
       mutable ibs::PiecewiseInterpolator     m_iceThermalConductivityInterpolator;
 
-      double m_liquidusTemperature;
-      double m_solidusTemperature;
       double m_omega;
 
    };

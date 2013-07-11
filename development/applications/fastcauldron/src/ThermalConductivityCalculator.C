@@ -18,6 +18,7 @@ ThermalConductivityCalculator::ThermalConductivityCalculator ( LayerProps* forma
 
    m_porosity = 0;
    m_temperature = 0;
+   m_porePressure = 0;
    m_lithopressure = 0;
    m_isCalculated = false;
 
@@ -58,6 +59,15 @@ bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::Output
       } 
 
    }
+
+   if ( not m_porePressure->isCalculated ()) {
+
+      if ( not m_porePressure->calculate ()) {
+         return false;
+      } 
+
+   }
+
    if ( m_isBasementFormationAndALC and not m_lithopressure->isCalculated ()) {
 
       if ( not m_lithopressure->calculate ()) {
@@ -83,7 +93,7 @@ bool ThermalConductivityCalculator::operator ()( const OutputPropertyMap::Output
                curLithology->calcBulkThermCondNPBasement ( m_fluid, 0.01 * (*m_porosity)( i, j ), (*m_temperature)( i, j ), 
                                                            (*m_lithopressure)( i, j ), thermalConductivityNorm, thermalConductivityPlane );
             } else {
-               (*m_lithologies)( i, j )->calcBulkThermCondNP ( m_fluid, 0.01 * (*m_porosity)( i, j ), (*m_temperature)( i, j ), 
+               (*m_lithologies)( i, j )->calcBulkThermCondNP ( m_fluid, 0.01 * (*m_porosity)( i, j ), (*m_temperature)( i, j ), (*m_porePressure)( i, j ),
                                                                thermalConductivityNorm, thermalConductivityPlane );
             }
             verticalThermalConductivityMap->setValue ( i, j, thermalConductivityNorm );
@@ -124,6 +134,7 @@ bool ThermalConductivityCalculator::initialise ( OutputPropertyMap::PropertyValu
 
    m_porosity = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
+   m_porePressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
    m_isBasementFormationAndALC = ( m_formation->kind() == Interface::BASEMENT_FORMATION ) && FastcauldronSimulator::getInstance().isALC();
 
    if( m_isBasementFormationAndALC ) {
@@ -146,7 +157,7 @@ bool ThermalConductivityCalculator::initialise ( OutputPropertyMap::PropertyValu
 //    m_lithologies = &m_formation->Lithology;
    m_fluid = m_formation->fluid;
 
-   return m_porosity != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and
+   return m_porosity != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and m_porePressure != 0 and
       ( m_isBasementFormationAndALC ? (m_lithopressure != 0) : true );
 }
 
@@ -158,6 +169,7 @@ ThermalConductivityVolumeCalculator::ThermalConductivityVolumeCalculator ( Layer
    m_porosity = 0;
    m_temperature = 0;
    m_lithopressure = 0;
+   m_porePressure = 0;
 
    m_isCalculated = false;
 
@@ -207,6 +219,14 @@ bool ThermalConductivityVolumeCalculator::operator ()( const OutputPropertyMap::
 
    }
 
+   if ( not m_porePressure->isCalculated ()) {
+
+      if ( not m_porePressure->calculate ()) {
+         return false;
+      } 
+
+   }
+
    verticalThermalConductivityMap = propertyValues [ 0 ]->getGridMap ();
    verticalThermalConductivityMap->retrieveData ();
    undefinedValue = verticalThermalConductivityMap->getUndefinedValue ();
@@ -231,6 +251,7 @@ bool ThermalConductivityVolumeCalculator::operator ()( const OutputPropertyMap::
                } else {
                   (*m_lithologies)( i, j )->calcBulkThermCondNP ( m_fluid, 0.01 * m_porosity->getVolumeValue ( i, j, k ),
                                                                   m_temperature->getVolumeValue ( i, j, k ),
+                                                                  m_porePressure->getVolumeValue ( i, j, k ),
                                                                   thermalConductivityNorm,
                                                                   thermalConductivityPlane );
                }
@@ -277,6 +298,7 @@ bool ThermalConductivityVolumeCalculator::initialise ( OutputPropertyMap::Proper
 
    m_porosity = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyVolume ( "Temperature", m_formation, m_snapshot );
+   m_porePressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
    m_isBasementFormationAndALC = ( m_formation->kind() == Interface::BASEMENT_FORMATION ) && FastcauldronSimulator::getInstance().isALC();
 
   if( m_isBasementFormationAndALC ) {
@@ -289,6 +311,6 @@ bool ThermalConductivityVolumeCalculator::initialise ( OutputPropertyMap::Proper
 //    m_lithologies = &m_formation->Lithology;
    m_fluid = m_formation->fluid;
 
-   return m_porosity != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and
+   return m_porosity != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and m_porePressure != 0 and
       (m_isBasementFormationAndALC ? m_lithopressure != 0 : true);
 }

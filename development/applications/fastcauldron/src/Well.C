@@ -346,6 +346,7 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
           currentLithology -> calcBulkThermCondNP ( currentLayer->fluid,
                                                     nodePorosity.mixedProperty (),
                                                     nodeTemperature,
+                                                    nodePorePressure,
                                                     nodeThermalConductivityNormal,
                                                     nodeThermalConductivityTangential );
 

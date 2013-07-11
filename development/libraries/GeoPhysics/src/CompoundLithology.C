@@ -882,7 +882,7 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType*
    
    if (LithoHasFluid) {
       
-      if( m_projectHandle->getLatentHeat() ) {
+      if( m_projectHandle->getPermafrost() ) {
          double FluidDensXHeatCap = fluid->densXheatCapacity ( Porosity, Temperature, Pressure );
          BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap;
       } else {
@@ -1012,6 +1012,7 @@ void GeoPhysics::CompoundLithology::calcVelocity ( const FluidType*        fluid
 void GeoPhysics::CompoundLithology::calcBulkThermCondNP ( const FluidType* fluid, 
                                                           const double     Porosity,
                                                           const double     Temperature, 
+                                                          const double     PorePressure, 
                                                                 double&    BulkTHCondN,
                                                                 double&    BulkTHCondP ) const {
 
@@ -1021,7 +1022,7 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNP ( const FluidType* fluid
   double FluidThCond = 1.0;
 
   if ( fluid != 0 ) {
-    FluidThCond = fluid->thermalConductivity(Temperature);
+     FluidThCond = fluid->thermalConductivity(Temperature, PorePressure);
   }
 
   BulkTHCondN = pow(MatrixTHCondN, 1.0 - Porosity) * pow(FluidThCond,Porosity);
@@ -1895,10 +1896,11 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement ( const FluidTyp
   }
   
   double FluidThCond = 1.0;
+  /* There is no fluid in the basement	
   if (LithoHasFluid) {
      FluidThCond = fluid->thermalConductivity(Temperature);
   }
-  
+  */
   BulkTHCondN = pow(MatrixTHCondN, 1.0 - Porosity) * pow(FluidThCond,Porosity);
   BulkTHCondP = pow(MatrixTHCondP, 1.0 - Porosity) * pow(FluidThCond,Porosity);
   

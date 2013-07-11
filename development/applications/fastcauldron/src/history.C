@@ -748,6 +748,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
     layer->getLithology ( I,J ) -> calcBulkThermCondNP( layer -> fluid,
                                                         surfacePorosityScalar,
                                                         sea_bottom_temperature,
+                                                        1.0,
                                                         Property_Value, 
                                                         Dummy_Value );
     
