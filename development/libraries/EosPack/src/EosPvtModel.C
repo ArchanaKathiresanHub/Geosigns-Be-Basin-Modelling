@@ -1628,13 +1628,13 @@ void EosPvtModel::FlashEquationsOneObject( int iNc, int iUpdate )
    dOSplit = 1.0 - dSplit;
 
    /* Reset K values if root does not exist */
-#ifdef __INTEL_COMPILER
+#if defined(__INTEL_COMPILER) && __INTEL_COMPILER < 1300 
    // With Intel 12.0.2.137 compiler without this pragma the compiler
    // generate a faulty code, by specifying this pragma the generated
    // code is corrected and the optimization working.
    #pragma ivdep 
 #endif         
- for ( iNi = 0; iNi < iNc; iNi++ )
+   for ( iNi = 0; iNi < iNc; iNi++ )
    {
       m_pKValue[iNi] = dTerm2 * m_pKValue[iNi] + dTerm1;
       m_pTermx[iNi] = m_pKValue[iNi] - 1.0;
@@ -1759,7 +1759,7 @@ void EosPvtModel::FlashEquationsMultipleObjects( int iM, int i1, int i2, int iNc
    pTd = m_pTermy;
    for ( iNi = 0; iNi < iNc; iNi++ )
    {
- #ifdef __INTEL_COMPILER
+#if defined(__INTEL_COMPILER) && __INTEL_COMPILER < 1300 
    // With Intel 12.0.2.137 compiler without this pragma the compiler
    // generate a faulty code, by specifying this pragma the generated
    // code is corrected and the optimization working.
@@ -4851,7 +4851,7 @@ void EosPvtModel::PhaseId( int iM, int iNc, int iMolar, int iGetPhase )
          m_pY[0] *= dC;
          dA = m_pX[0];
          dB = m_pY[0];
-#ifdef __INTEL_COMPILER
+#if defined(__INTEL_COMPILER) && __INTEL_COMPILER < 1300 
          // With Intel 12.0.2.137 compiler without this pragma the compiler
          // generate a faulty code, by specifying this pragma the generated
          // code is corrected and the optimization working.
@@ -7406,12 +7406,13 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
       m_pKValue[0] = iNj ? dA : ( 1.0 / dA );
       m_pY[0] = m_pComposition[0] * m_pKValue[0];
       dB = m_pY[0];
-#if __INTEL_COMPILER
+
+#if defined(__INTEL_COMPILER) && __INTEL_COMPILER < 1300 
       // With Intel 12.1.6.233 compiler and without this pragma the compiler
       // generate a poorly accurate code, by specifying this pragma the generated
       // code is more accurate and the optimization is still enabled.
       #pragma distribute_point
-#endif         
+#endif
       for ( iNi = 1; iNi < iNc; iNi++ )
       {
          dA = m_pKValue[iNi];
@@ -8925,7 +8926,8 @@ TwoPhaseDerivatives( int iM, int iNc, double *pDX, double *pDY, double *pDZx, do
          pDY[0] = dB;
          dDMxt = dC;
          dDMyt = dB;
-#ifdef __INTEL_COMPILER
+
+#if defined(__INTEL_COMPILER) && __INTEL_COMPILER < 1300 
          // with intel 11.1 this loop crashes the program when it's vectorized
          // it appears that the register which contains iNi is not properly
          // initilized to 1. That's should reflect a compiler issue.

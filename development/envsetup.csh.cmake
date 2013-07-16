@@ -6,6 +6,6 @@ setenv PATH ${MPI_ROOT}/bin:${HDF5_ROOT}/bin:/usr/bin:/bin:/usr/local/bin:${CMAK
 setenv IBS_FIELDWIDTH 24
 setenv IBS_LIMITEDBUILDANDINSTALL true
 
-source /apps/3rdparty/intel/ics2011/composerxe-2011.3.174/bin/compilervars.csh intel64
+source /nfs/rvl/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192/bin/compilervars.csh intel64
 source ${MPI_ROOT}/bin/mpivars.csh
-source /apps/3rdparty/intel/ics2011/itac/8.0.1.009/bin/itacvars.csh
+source /nfs/rvl/apps/3rdparty/intel/itac/8.0.3.007/bin/itacvars.csh

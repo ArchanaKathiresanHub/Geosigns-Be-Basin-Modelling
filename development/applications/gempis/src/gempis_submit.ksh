@@ -284,7 +284,7 @@ build_appwrapper()
     echo '    echo "AppWrap.`hostname`($$): Failed to run $GEMPIS_EXEDIR/gempis_utils"' >>$myfile
     echo 'fi' >>$myfile
 
-    # echo '. /apps/3rdparty/intel/ics2011/impi/4.0.1.007/bin/mpivars.sh' >> $myfile
+    # echo '. /apps/3rdparty/intel/impi/4.1.0.030/intel64/bin/mpivars.sh' >> $myfile
     # replaced by
     echo ". $INTELMPI_HOME/bin/mpivars.sh" >> $myfile
 

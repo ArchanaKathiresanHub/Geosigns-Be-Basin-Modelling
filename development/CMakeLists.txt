@@ -143,7 +143,7 @@ else(BUILD_SHARED_LIBS)
 	set(HDF5_USE_STATIC_LIBRARIES ON)
 endif(BUILD_SHARED_LIBS)
 
-set (HDF5_VERSION  "1.8.7" CACHE STRING "HDF5 version")
+set (HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version")
 include(files/FindHDF5.cmake)
 
 if(NOT BUILD_SHARED_LIBRARIES)
@@ -268,8 +268,22 @@ if(BM_BUILD_REGRESSION_TESTS)
 	add_subdirectory(regression_tests)
 endif()
 
-### Generate setup scripts
+### Add 'misc' folder
+install(DIRECTORY geocase/misc/ # last backslach is MANDATORY
+	DESTINATION misc
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
+    DIRECTORY_PERMISSIONS 
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+        GROUP_READ GROUP_WRITE GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+	PATTERN "geocase/misc/gempis/*"
+	    PERMISSIONS
+		    OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+		    GROUP_READ GROUP_WRITE GROUP_EXECUTE
+            WORLD_READ WORLD_EXECUTE
+    )
 
+### Generate setup scripts
 if (WIN32)
    set(script_suffix ".bat")
 else ()
