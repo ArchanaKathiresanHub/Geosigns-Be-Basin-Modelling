@@ -370,6 +370,13 @@ void AppCtx::setPermafrost ( const double timeStep, const double age ) {
    m_permafrostAge      = age;  
 }
 
+//------------------------------------------------------------//
+
+void AppCtx::setPermafrostTimeStep ( const double timeStep ) {
+
+   m_permafrostTimeStep = timeStep;
+}
+
 
 //------------------------------------------------------------//
 
@@ -763,7 +770,10 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
    PetscBool petscBurialRateTimeStepping = PETSC_FALSE;
    PetscBool petscCflTimeStepping = PETSC_FALSE;
+
    PetscBool petscPermafrost = PETSC_FALSE;
+   PetscBool petscPermafrostTimeStep = PETSC_FALSE;
+   double    permafrostFixedTimeStep;
 
    PetscBool petscBurialRateFraction = PETSC_FALSE;
    double elementFraction;
@@ -811,6 +821,8 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged ); 
 
    PetscOptionsHasName ( PETSC_NULL, "-permafrost", &petscPermafrost ); 
+   PetscOptionsGetReal ( PETSC_NULL, "-permafrost", &permafrostFixedTimeStep, &petscPermafrostTimeStep ); 
+   
 
    PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
 
@@ -1062,11 +1074,16 @@ void AppCtx::setAdditionalCommandLineParameters () {
         
         double timeStep, startAge;
 
-        if( FastcauldronSimulator::getInstance ().determinePermafrost(  timeStep, startAge ) ) {
+        if( FastcauldronSimulator::getInstance ().determinePermafrost(  timeStep, startAge )) {
 
            setPermafrost( timeStep, startAge );
            PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on. Time step = %lf, Start age = %lf\n", permafrostTimeStep(), permafrostAge() );
         }
+     }
+     if( petscPermafrostTimeStep && FastcauldronSimulator::getInstance ().getPermafrost() ) {
+        setPermafrostTimeStep( permafrostFixedTimeStep );
+        PetscPrintf ( PETSC_COMM_WORLD, "Overriding permafrost fixed time-step: %lf\n", permafrostTimeStep() );
+        
      }
   }
 }

@@ -493,10 +493,10 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
       if( temperature >= liquidusTemperature ) {
          return 1.0;
       } else if( temperature <= solidusTemperature ) {
-         return 1.0e-6;
+         return 10.0e-6;
       } else {
          if( solidusTemperature != 0.0 ) {
-            return ( - 0.999999 / solidusTemperature ) * temperature + 1.0;
+            return ( - 0.99999 / ( solidusTemperature - liquidusTemperature )) * ( temperature - liquidusTemperature ) + 1.0;
          } 
       }
    } 

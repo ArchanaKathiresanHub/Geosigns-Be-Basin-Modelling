@@ -256,9 +256,10 @@ public:
    bool useBurialRateTimeStepping () const;
 
 
-   double permafrostTimeStep () const;
    void   setPermafrost( const double timeStep, const double age );
+   void   setPermafrostTimeStep( const double timeStep );
    double permafrostAge () const;
+   double permafrostTimeStep () const;
    bool   permafrost() const;
 
    /// Initialises other minor layer data fields.
