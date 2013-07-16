@@ -485,7 +485,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
 Basin_Modelling::FEM_Grid::~FEM_Grid () {
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if ( basinModel->debug1 or basinModel->verbose) {
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Assembly_Time      %f \n", Accumulated_System_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total Element_Assembly_Time     %f \n", Accumulated_Element_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Solve_Time         %f \n", Accumulated_System_Solve_Time );
@@ -543,7 +543,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 
   Maximum_Number_Of_Geometric_Iterations = basinModel->MaxNumberOfRunOverpressure;
 
-  if ( basinModel->debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+  if ( basinModel->debug1 or basinModel->verbose) {
     PetscPrintf ( PETSC_COMM_WORLD, "o Maximum number of Geometric iterations: %d \n", Maximum_Number_Of_Geometric_Iterations );
     PetscPrintf ( PETSC_COMM_WORLD, " Optimisation level: %d \n", basinModel -> Optimisation_Level );
   }
@@ -571,7 +571,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
        basinModel->deleteIsoValues();
     }
 
-    if ( basinModel->debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+    if ( basinModel->debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, 
                     "o Starting iteration %d of %d (Maximum number of iterations)",
                     Number_Of_Geometric_Iterations,
@@ -608,7 +608,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     PetscPrintf ( PETSC_COMM_WORLD,
                   "MeSsAgE ERROR Calculation has diverged, see help for possible solutions. \n" );    
   } else {
-    displayTime(basinModel->debug1,"OverPressure Calculation: ");
+    displayTime(basinModel->debug1 or basinModel->verbose,"OverPressure Calculation: ");
 
     m_surfaceNodeHistory.Output_Properties ();
     //FTracks write to database
@@ -686,7 +686,7 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
   } else if ( errorInDarcy ) {
      //
   } else {
-    displayTime(basinModel->debug1,"Temperature Calculation: ");
+    displayTime(basinModel->debug1 or basinModel->verbose,"Temperature Calculation: ");
 
     m_surfaceNodeHistory.Output_Properties ();
 
@@ -729,7 +729,7 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
 
   Maximum_Number_Of_Geometric_Iterations = basinModel->MaxNumberOfRunOverpressure;
 
-  if ( basinModel->debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+  if ( basinModel->debug1 or basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, "o Maximum number of Geometric iterations: %d \n", Maximum_Number_Of_Geometric_Iterations );
     PetscPrintf ( PETSC_COMM_WORLD, " Optimisation level: %d \n", basinModel -> Optimisation_Level );
   }
@@ -771,7 +771,7 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     savedMinorSnapshotTimes.clear ();
     Temperature_Calculator.initialiseVReVectors ( basinModel );
 
-    if ( basinModel->debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+    if ( basinModel->debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, 
                     "o Starting iteration %d of %d (Maximum number of iterations)", 
                     Number_Of_Geometric_Iterations,
@@ -809,7 +809,7 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
   } else if ( errorInDarcy ) {
      // 
   } else {
-    displayTime(basinModel->debug1,"P/T Coupled Calculation: ");
+    displayTime(basinModel->debug1 or basinModel->verbose,"P/T Coupled Calculation: ");
 
     m_surfaceNodeHistory.Output_Properties ();
     //FTracks write to database
@@ -896,7 +896,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
 
   while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not overpressureHasDiverged and not errorInDarcy ) {
 
-    if ( basinModel -> debug1 ) {
+    if ( basinModel -> debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, "***************************************************************\n" );
     }
 
@@ -942,14 +942,14 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
        Number_Of_Timesteps = Number_Of_Timesteps + 1;
     }
 
-    if (( basinModel->debug1 or FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-       cout << " time for time-step: " << WallTime::clock () - startTime << endl;
+    if (( basinModel->debug1 or basinModel->verbose or FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) ) {
+       PetscPrintf(PETSC_COMM_WORLD, " time for time-step: %f\n", (WallTime::clock () - startTime).floatValue());
     }
 
   }
 
 
-  if (( basinModel->isGeometricLoop ()) && ( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (( basinModel->isGeometricLoop ()) && ( basinModel -> debug1 || basinModel->verbose ) ) {
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Assembly_Time      %f \n", System_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total Element_Assembly_Time     %f \n", Element_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Solve_Time         %f \n", System_Solve_Time );
@@ -1031,7 +1031,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
   while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not temperatureHasDiverged and not errorInDarcy ) {
 
-    if ( basinModel -> debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+    if ( basinModel -> debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, "***************************************************************\n" );
     }
 
@@ -1079,13 +1079,13 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
        postTimeStepOperations ( Current_Time );
     }
 
-    if (( basinModel->debug1 or FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-       cout << " time for time-step: " << WallTime::clock () - startTime << endl;
+    if (basinModel->debug1 or basinModel->verbose or FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
+       PetscPrintf(PETSC_COMM_WORLD, " time for time-step: %f\n", (WallTime::clock () - startTime).floatValue() );
     }
 
   }
 
-  if ( ( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if ( basinModel -> debug1 or basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Assembly_Time      %f \n", System_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total Element_Assembly_Time     %f \n", Element_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Solve_Time         %f \n", System_Solve_Time );
@@ -1170,7 +1170,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
   Initialise_Basin_Temperature ( hasDiverged );
   Save_Properties ( Current_Time );
 
-  if ( basinModel -> debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+  if ( basinModel -> debug1 or basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, "Solving Coupled for Time (Ma): %f \n", Current_Time );
   } 
 
@@ -1178,7 +1178,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
   // Now only need to do a single newton iteration (keep constant and Newton iterations for future use)
   while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not hasDiverged and not errorInDarcy ) {
 
-    if ( basinModel -> debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+    if ( basinModel -> debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, "***************************************************************\n" );
     }
 
@@ -1232,15 +1232,15 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
        Number_Of_Timesteps = Number_Of_Timesteps + 1;
     }
 
-    if (( basinModel->debug1 or FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-       cout << " time for time-step: " << WallTime::clock () - startTime << endl;
+    if (basinModel->debug1 or basinModel->verbose or FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
+       PetscPrintf(PETSC_COMM_WORLD, " time for time-step: %f\n", (WallTime::clock () - startTime).floatValue() );
     }
 
     // printElementNeedle ( 1, 1 );
   }
 
 
-  if (( basinModel->isGeometricLoop ()) && ( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (( basinModel->isGeometricLoop ()) && ( basinModel -> debug1 or basinModel->verbose )) {
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Assembly_Time      %f \n", System_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total Element_Assembly_Time     %f \n", Element_Assembly_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Solve_Time         %f \n", System_Solve_Time );
@@ -1515,7 +1515,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
   
       Maximum_Difference = Temperature_Calculator.Maximum_Temperature_Difference ();
 
-      if ( basinModel -> debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+      if ( basinModel -> debug1 or basinModel->verbose ) {
          PetscPrintf ( PETSC_COMM_WORLD, " Maximum temperature difference %f \n", Maximum_Difference );
       }
 
@@ -1531,7 +1531,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
 
       Maximum_Difference = Temperature_Calculator.Maximum_Temperature_Difference_In_Source_Rocks ();
 
-      if ( basinModel -> debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+      if ( basinModel -> debug1 or basinModel->verbose ) {
          PetscPrintf ( PETSC_COMM_WORLD, " Maximum source rock difference %f \n", Maximum_Difference );
       }
 
@@ -1593,7 +1593,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
 
      MPI_Barrier(PETSC_COMM_WORLD);
 
-     if ( basinModel -> debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+     if ( basinModel -> debug1 or basinModel->verbose ) {
         PetscPrintf ( PETSC_COMM_WORLD, " Maximum OVERPRESSURE difference %f \n", Maximum_Overpressure_Difference );
         PetscPrintf ( PETSC_COMM_WORLD, " Maximum TEMPERATURE  difference %f \n", Maximum_Temperature_Difference );
         PetscPrintf ( PETSC_COMM_WORLD, " Maximum SOURCE ROCK  difference %f \n", Maximum_Source_Rock_Difference );
@@ -1683,33 +1683,21 @@ void Basin_Modelling::FEM_Grid::Determine_CFL_Value ( double& CFL_Value ) {
     MPI_Allreduce ( &Layer_CFL_Value, &Global_CFL_Value, 1, 
                      MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD );
 
-    if ( basinModel -> debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-
-       ios::fmtflags Old_Flags = cout.flags ( ios::fixed );
-
-      int Old_Precision = cout.precision ( 6 );
-
-      cout << " CFL Value: " << setw ( 30 ) << Pressure_Layers.Current_Layer () -> layername << "  " << setw ( 14 ) << Global_CFL_Value 
-           << "  " << setw ( 15 ) << End_Time - Start_Time << endl;
-
-      cout.flags ( Old_Flags );
-      cout.precision ( Old_Precision );
+    if ( basinModel -> debug1 or basinModel->verbose ) {
+      PetscPrintf(PETSC_COMM_WORLD, " CFL Value: %30s  %14f  %15f\n", 
+           Pressure_Layers.Current_Layer () -> layername.c_str(),
+           Global_CFL_Value ,
+           End_Time - Start_Time
+        );
     }
 
     CFL_Value = NumericFunctions::Minimum ( CFL_Value, Global_CFL_Value );
     Pressure_Layers++;
   }
 
-  if ( FastcauldronSimulator::getInstance ().getRank () == 0 && basinModel -> debug1 ) {
-
-     ios::fmtflags Old_Flags = cout.flags ( ios::fixed );
-
-    int Old_Precision = cout.precision ( 6 );
+  if ( basinModel -> debug1 or basinModel->verbose) {
 
     PetscPrintf ( PETSC_COMM_WORLD, " Basin CFL Value:  %3.4f  %2.4f \n", CFL_Value, Accumulated_Time );
-
-    cout.flags ( Old_Flags );
-    cout.precision ( Old_Precision );
   }
 
 }
@@ -2079,7 +2067,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   Old_Flags     = cout.flags ( ios::scientific );
 
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (basinModel -> debug1 or basinModel->verbose) {
     PetscPrintf ( PETSC_COMM_WORLD, " Current time  %f \n", Current_Time );
   }
 
@@ -2180,14 +2168,14 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   VecNorm ( Overpressure, NORM_2, &Po_Norm );
   Previous_TS_Po_Norm = Po_Norm;
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (basinModel -> debug1 or basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " Number of DOFs  =  %d \n", Total_Number_Of_Pressure_Nodes );
     PetscPrintf ( PETSC_COMM_WORLD, " Initial Po norm =  %f \n", Po_Norm );
   }
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
-    cout << setw ( 193 ) << "    Jacobian      Linear solver     Iteration   " << endl;
-    cout << setw ( 193 ) << "  --------------  --------------  --------------" << endl;
+  if (basinModel -> debug1 or basinModel->verbose ) {
+    PetscPrintf(PETSC_COMM_WORLD, "%193s\n", "    Jacobian      Linear solver     Iteration   ");
+    PetscPrintf(PETSC_COMM_WORLD, "%193s\n", "  --------------  --------------  --------------");
   }
 
   bool hasFractured;
@@ -2208,7 +2196,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
     Number_Of_Nonlinear_Iterations = 0;
     Converged = false;
 
-    if ( basinModel -> debug1 ) {
+    if ( basinModel -> debug1 or basinModel->verbose) {
       PetscPrintf ( PETSC_COMM_WORLD,
                     "Starting fracture iteration  %i  of  %i \n",
                     fractureIterations,
@@ -2354,7 +2342,8 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       Total_Iteration_Time = Total_Iteration_Time + Iteration_Time; 
       KSPGetResidualNorm ( Pressure_Linear_Solver, &linearSolverResidualNorm );
 
-      if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+      if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) 
+      {
         cout << " Newton iteration (p): " 
              << setw (  5 ) << totalNumberOfNonlinearIterations + 1
              << setw ( 16 ) << Residual_Length / Element_Scaling
@@ -2369,12 +2358,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
              << setw ( 16 ) << timeStepCalculationTime
              << setw ( 16 ) << Iteration_Time
              << endl;
-      }
-
-      if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
-        cout << flush;
-        fflush (stdout);
-        fflush (stderr);
       }
 
       Previous_Po_Norm = Po_Norm;
@@ -2399,7 +2382,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
     if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and fractureIterations == MaximumNumberOfFractureIterations - 1 ) {
       applyNonConservativeModel = true;
 
-      if ( basinModel->debug1 ) {
+      if ( basinModel->debug1 or basinModel->verbose ) {
         PetscPrintf ( PETSC_COMM_WORLD, " Set applyNonConservativeModel = true\n" );
       }
 
@@ -2428,7 +2411,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
   PetscScalar Max_Difference = pressureSolver->maximumPressureDifference ();
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (( basinModel -> debug1 or basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << setw ( 193 ) << "  --------------  --------------  --------------" << endl;
     cout << setw ( 161 )
          << Total_Jacobian_Time 
@@ -2591,12 +2574,12 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (( basinModel -> debug1 || basinModel->verbose) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << " Number of DOFs  = " << Total_Number_Of_Temperature_Nodes << endl;
     cout << " Initial T norm = " << T_Norm << endl;
   }
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << setw ( 160 ) << "    Jacobian      Linear solver     Iteration   " << endl;
     cout << setw ( 160 ) << "  --------------  --------------  --------------" << endl;
   }
@@ -2690,7 +2673,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
     Total_Iteration_Time = Total_Iteration_Time + Iteration_Time; 
 
-    if ( FastcauldronSimulator::getInstance ().getRank () == 0 && basinModel -> debug1 ){
+    if ( FastcauldronSimulator::getInstance ().getRank () == 0 && ( basinModel -> debug1 || basinModel->verbose) ){
       cout << " Newton iteration (t): " 
            << setw (  4 ) << Number_Of_Nonlinear_Iterations + 1
            << setw ( 16 ) << Residual_Length / Element_Scaling
@@ -2717,7 +2700,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     Converged = Converged || ( Number_Of_Nonlinear_Iterations >= MaximumNumberOfNonlinearIterations );
   }
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << setw ( 160 ) << "  --------------  --------------  --------------" << endl;
     cout << setw ( 128 )
          << Total_Jacobian_Time 
@@ -2904,7 +2887,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   PetscTime(&Iteration_End_Time);
   Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
 
-  if (( basinModel -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << " Temperature solving: "  
          << Total_Number_Of_Temperature_Nodes << "  "
          << numberOfLinearIterations << "  " 
@@ -2961,7 +2944,7 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
 
   T_Norm = 1.0;
 
-  if ( basinModel -> debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+  if ( ( basinModel -> debug1 || basinModel->verbose) && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
     cout << "****************************************************************" << endl;
   }
 
@@ -2998,7 +2981,7 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
 
     hasDiverged = overpressureHasDiverged || temperatureHasDiverged;
 
-    if ( basinModel -> debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+    if ( (basinModel -> debug1 || basinModel->verbose) && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
       cout << " Norms" << setw ( 3 ) << I << " "
            << Po_Norm << "  " 
            << T_Norm << "  " 

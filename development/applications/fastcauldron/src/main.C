@@ -375,7 +375,7 @@ int main(int argc, char** argv)
 
    // Close PetSc
    PetscFinalize ();
-   displayTime(appctx->debug1,"End of simulation: ");
+   displayTime(appctx->debug1 or appctx->verbose,"End of simulation: ");
 
    #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0

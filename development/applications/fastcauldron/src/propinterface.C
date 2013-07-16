@@ -252,7 +252,7 @@ bool AppCtx::readProjectFile () {
       timestepdecr = 1.0;
       m_elementFraction = 1.0 / FastcauldronSimulator::getInstance ().getRunParameters ()->getSegmentFractionToBury ();
 
-      if ( debug1 ) {
+      if ( debug1 or verbose) {
          PetscPrintf ( PETSC_COMM_WORLD, " Using burial rate for time-stepping, element fraction: %f.\n", m_elementFraction );        
       }
 
@@ -560,6 +560,8 @@ bool AppCtx::getCommandLineOptions() {
   ierr = PetscOptionsHasName( PETSC_NULL, "-debug2",&debug2); CHKERRQ(ierr);
   ierr = PetscOptionsHasName( PETSC_NULL, "-debug3",&debug3); CHKERRQ(ierr);
 
+  ierr = PetscOptionsHasName( PETSC_NULL, "-verbose", &verbose); CHKERRQ(ierr);
+
   ierr = PetscOptionsHasName( PETSC_NULL, "-decompaction",&DoDecompaction); CHKERRQ(ierr);
   ierr = PetscOptionsHasName( PETSC_NULL, "-hrdecompaction", &DoHighResDecompaction); CHKERRQ (ierr);
   ierr = PetscOptionsHasName( PETSC_NULL, "-temperature",&DoTemperature); CHKERRQ(ierr);
@@ -667,7 +669,7 @@ bool AppCtx::getCommandLineOptions() {
   ierr = PetscOptionsHasName(PETSC_NULL,"-ngl",&Use_Non_Geometric_Loop); CHKERRQ(ierr);
   Use_Geometric_Loop = ! Use_Non_Geometric_Loop;
 
-  if ( debug1 ) {
+  if ( debug1 or verbose) {
     PetscPrintf( PETSC_COMM_WORLD, " Read FCT scaling factors %i \n", int ( readFCTCorrectionFactor ));
   }
 
@@ -844,7 +846,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
         m_elementErosionFraction = DefaultElementErosionFraction;
      }
 
-     if ( debug1 ) {
+     if ( debug1 || verbose ) {
         PetscPrintf ( PETSC_COMM_WORLD, " Using burial rate for time-stepping, element fraction: burial = %f, erosion = %f.\n", m_elementFraction, m_elementErosionFraction );
      }
 
@@ -859,7 +861,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
      if ( crustThinningModel == 1 or crustThinningModel == 2 or crustThinningModel == 3 ) {
         m_crustThinningModel = crustThinningModel;
 
-        if ( debug1 ) {
+        if ( debug1 || verbose ) {
            PetscPrintf ( PETSC_COMM_WORLD, " Using crust thinning model: %i\n", m_crustThinningModel );        
         }
 
@@ -886,11 +888,11 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
   m_cflTimeStepping = bool ( petscCflTimeStepping );
 
-  if ( m_cflTimeStepping and debug1 ) {
+  if ( m_cflTimeStepping and ( debug1 or verbose ) ) {
      PetscPrintf ( PETSC_COMM_WORLD, " Using the CFL condition to help determine the pressure time-step.\n" );
   }
 
-  if ( allowPressureJacobianReuse and debug1 ) {
+  if ( allowPressureJacobianReuse and ( debug1 or verbose ) ) {
      PetscPrintf ( PETSC_COMM_WORLD, " Allowing the pressure Jacobian to be re-used during the Newton solve.\n" );
   }
 
@@ -908,7 +910,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
     pressurePlaneDegree = NumericFunctions::Maximum ( 1, NumericFunctions::Minimum<int> ( pressurePlaneDegree, NumericFunctions::Quadrature::MaximumQuadratureDegree ));
     PressureSolver::setPlaneQuadratureDegree ( Optimisation_Level, pressurePlaneDegree );
 
-    if ( debug1 ) {
+    if ( debug1 || verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Setting pressure plane quadrature degree: %i\n", pressurePlaneDegree );
     }
 
@@ -917,7 +919,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
   if ( iterationsForIluFillLevelUpdateChanged ) {
     PressureSolver::setIterationsForIluFillLevelIncrease ( iterationsForIluFillLevelUpdate );
 
-    if ( debug1 ) {
+    if ( debug1 || verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Setting iterations to change the ilu fill-level: %i\n", iterationsForIluFillLevelUpdate );
     }
 
@@ -928,7 +930,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
     pressureDepthDegree = NumericFunctions::Maximum ( 1, NumericFunctions::Minimum<int> ( pressureDepthDegree, NumericFunctions::Quadrature::MaximumQuadratureDegree ));
     PressureSolver::setDepthQuadratureDegree ( Optimisation_Level, pressureDepthDegree );
 
-    if ( debug1 ) {
+    if ( debug1 || verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Setting pressure depth quadrature degree: %i\n", pressureDepthDegree );
     }
 
@@ -938,7 +940,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
     temperaturePlaneDegree = NumericFunctions::Maximum ( 1, NumericFunctions::Minimum<int> ( temperaturePlaneDegree, NumericFunctions::Quadrature::MaximumQuadratureDegree ));
     Temperature_Solver::setPlaneQuadratureDegree ( Optimisation_Level, temperaturePlaneDegree );
 
-    if ( debug1 ) {
+    if ( debug1 || verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Setting temperature plane quadrature degree: %i\n", temperaturePlaneDegree );
     }
 
@@ -948,7 +950,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
     temperatureDepthDegree = NumericFunctions::Maximum ( 1, NumericFunctions::Minimum<int> ( temperatureDepthDegree, NumericFunctions::Quadrature::MaximumQuadratureDegree ));
     Temperature_Solver::setDepthQuadratureDegree ( Optimisation_Level, temperatureDepthDegree );
 
-    if ( debug1 ) {
+    if ( debug1 || verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Setting temperature depth quadrature degree: %i\n", temperatureDepthDegree );
     }
 
@@ -957,7 +959,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
   if ( newtonToleranceChanged ) {
     PressureSolver::setNewtonSolverTolerance ( Optimisation_Level, newtonTolerance );
 
-    if ( debug1 ) {
+    if ( debug1 || verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Setting Newton solver tolerance: %e\n", newtonTolerance );
     }
 
@@ -966,7 +968,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
   if ( newtonIterationsChanged ) {
     PressureSolver::setMaximumNumberOfNonlinearIterations ( Optimisation_Level, newtonIterations );
 
-    if ( debug1 ) {
+    if ( debug1 || verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Setting maximum number of iterations in Newton solver : %i\n", newtonIterations );
     }
 
@@ -989,7 +991,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
      if ( newMinimumTimeStep > 0.0 ) {
         m_minimumTimeStep = newMinimumTimeStep;
 
-        if ( debug1 ) {
+        if ( debug1 || verbose ) {
            PetscPrintf ( PETSC_COMM_WORLD, " Overriding minimum time-step: %f\n", newMinimumTimeStep );
         }
 
@@ -1005,7 +1007,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
      if ( newMaximumTimeStep > 0.0 ) {
         m_maximumTimeStep = newMaximumTimeStep;
 
-        if ( debug1 ) {
+        if ( debug1 || verbose ) {
            PetscPrintf ( PETSC_COMM_WORLD, " Overriding maximum time-step: %f\n", newMaximumTimeStep );
         }
 
@@ -1022,7 +1024,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
         m_maximumTimeStep = newFixedTimeStep;
         m_minimumTimeStep = newFixedTimeStep;
 
-        if ( debug1 ) {
+        if ( debug1 || verbose ) {
            PetscPrintf ( PETSC_COMM_WORLD, " Fixied time-step size: %f\n", newFixedTimeStep );
         }
 
@@ -1039,7 +1041,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
     HydraulicFracturingManager::getInstance ().setModel ( fractureModel );
   }
 
-  if ( debug1 ) {
+  if ( debug1 || verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " Fracture model: %s \n",
                   fracturePressureModelStr ( HydraulicFracturingManager::getInstance ().getModel ()).c_str ());
   }
@@ -1411,8 +1413,8 @@ void AppCtx::addUndefinedAreas ( const Interface::GridMap* theMap ) {
 
 void AppCtx::setValidNodeArray () {
 
-   if ( debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-      cout << "o Setting-up value node array and element array...";
+   if ( debug1 ) {
+      PetscPrintf( PETSC_COMM_WORLD, "o Setting-up value node array and element array..." );
    }
 
    Layer_Iterator basinLayers;
@@ -1490,8 +1492,8 @@ void AppCtx::setValidNodeArray () {
   
    }
    
-   if ( debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-      cout << " DONE" << endl;
+   if ( debug1 ) {
+      PetscPrintf(PETSC_COMM_WORLD, " DONE\n");
    }
 
    shareValidNeedleData ();
@@ -2567,8 +2569,8 @@ void AppCtx::setInitialTimeStep () {
 
    int standardElementsEroded;
 
-
-   if ( debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+   const int rank = FastcauldronSimulator::getInstance ().getRank ()  ;
+   if ( (debug1 or verbose) and rank == 0) {
       cout << setw ( 20 ) << "Layer name";
       cout << setw ( 15 ) << "Start";
       cout << setw ( 15 ) << "End";
@@ -2618,7 +2620,7 @@ void AppCtx::setInitialTimeStep () {
 
          }
 
-         if ( debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+         if ( (debug1 or verbose) and rank == 0 ) {
             cout << std::setw ( 20 ) << layers [ i ]->layername
                  << std::setw ( 15 ) << layers [ i + 1 ]->depoage
                  << std::setw ( 15 ) << layers [ i ]->depoage
@@ -2642,7 +2644,7 @@ void AppCtx::setInitialTimeStep () {
   m_computedInitialPressureTimeStep = timestepsize;
 #endif
 
-  if ( debug1 ) {
+  if ( debug1 || verbose) {
     PetscPrintf(PETSC_COMM_WORLD, " Initial time step %f\n", m_computedInitialPressureTimeStep );
   }
 
@@ -2673,7 +2675,7 @@ double AppCtx::getInitialTimeStep ( const double currentTime ) const {
    LayerPreferredTimeStepSizeMap::const_iterator layerTs = m_layerPreferredTimeStepSize.find ( findDepositingLayer ( currentTime ));
    double deltaT;
 
-   if ( debug1 and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+   if ( (debug1 or verbose) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
       cout << " At time " << currentTime << " the layer " << layerTs->first->layername << " is being deposited, default time-step size: " << layerTs->second << endl;
    }
 

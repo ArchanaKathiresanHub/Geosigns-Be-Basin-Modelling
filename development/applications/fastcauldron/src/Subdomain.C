@@ -350,7 +350,7 @@ void Subdomain::numberNodeDofs ( const double age ) {
   
    m_stencilWidth = static_cast<int>(globalStencilWidth);
 
-   if (( fc.getCauldron ()->debug1 ) and ( fc.getRank () == 0 )) {
+   if ( fc.getCauldron ()->debug1 or fc.getCauldron()->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Maximum number of degenerate segments: %d \n", m_stencilWidth );
    }
 

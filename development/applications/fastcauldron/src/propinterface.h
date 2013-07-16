@@ -391,6 +391,10 @@ public:
    int Output_Level;
    PetscBool debug1, debug2, debug3;
 
+   /// \brief output information iteration behaviour of algorithms that are interesting for performance analyis;
+   PetscBool verbose;
+
+
    bool       Use_Geometric_Loop;
    bool       includeAdvectiveTerm;
    bool       Do_Chemical_Compaction;

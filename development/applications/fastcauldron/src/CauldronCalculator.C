@@ -70,7 +70,7 @@ void CauldronCalculator::setDOFs ( const DM   femGrid,
   MPI_Allreduce( &LocalStencilWidth, &GlobalStencilWidth, 1, MPIU_REAL, MPI_MAX, PETSC_COMM_WORLD);
   stencilWidth = (int) GlobalStencilWidth;
 
-  if (( cauldron -> debug1 ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
+  if ( cauldron->debug1 or cauldron->verbose) {
     PetscPrintf ( PETSC_COMM_WORLD, " Maximum number of degenerate segments: %d \n", stencilWidth );
   } 
 

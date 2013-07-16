@@ -119,22 +119,6 @@ void PrimaryOutputPropertyMap::finalise () {
 
 }
 
-bool PrimaryOutputPropertyMap::matches ( const LayerProps*          formation,
-                                         const Interface::Surface*  surface,
-                                         const Interface::Snapshot* snapshot,
-                                         const std::string&         propertyName ) const {
-
-   bool propertyMatches = false;
-   unsigned int i;
-
-   for ( i = 0; i < m_properties.size (); ++i ) {
-      propertyMatches = propertyMatches or m_properties [ i ]->getName () == propertyName;
-   }
-
-   // Since Primary properties are scalar values and for surfaces, the formation is not included in the comparison.
-   return propertyMatches and m_surface == surface and m_snapshot == snapshot;
-}
-
 OutputPropertyMap* allocatePrimaryPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new PrimaryOutputPropertyMap ( property, formation, surface, snapshot );
 }
