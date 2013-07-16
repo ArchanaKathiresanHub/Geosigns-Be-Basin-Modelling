@@ -198,7 +198,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
     FCTCorrection.Restore_Global_Array ( Update_Excluding_Ghosts );
     Thickness_Error.Restore_Global_Array ( Update_Excluding_Ghosts );
 
-    if ( cauldron -> debug1 ) {
+    if ( cauldron -> debug1 or cauldron->verbose) {
       MPI_Allreduce( &Layer_Max_Error, &Global_Layer_Max_Error, 1, 
                       MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD );
 
@@ -211,16 +211,14 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
       MPI_Allreduce( &sumAbsThicknessSquared, &globalSumAbsThicknessSquared, 1, 
                       MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD );
 
-      if ( FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-        PetscPrintf ( PETSC_COMM_WORLD, " Current layer %s has a maximum error of %3.4f%%  %e  %e  %e  %e %i  \n",
-                      currentLayer->layername.c_str (),
-                      100.0 * Global_Layer_Max_Error,
-                      sumErrorSquared,
-                      sumErrorSquared / double ( segmentCount ),
-                      globalSumAbsErrorSquared,
-                      globalSumAbsErrorSquared / globalSumAbsThicknessSquared,
-                      segmentCount );
-      }
+      PetscPrintf ( PETSC_COMM_WORLD, " Current layer %s has a maximum error of %3.4f%%  %e  %e  %e  %e %i  \n",
+                    currentLayer->layername.c_str (),
+                    100.0 * Global_Layer_Max_Error,
+                    sumErrorSquared,
+                    sumErrorSquared / double ( segmentCount ),
+                    globalSumAbsErrorSquared,
+                    globalSumAbsErrorSquared / globalSumAbsThicknessSquared,
+                    segmentCount );
 
     }
 
@@ -243,7 +241,7 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
 
 
 
-  if (( cauldron->debug1 or cauldron->Output_Level > 0 ) and FastcauldronSimulator::getInstance ().getRank () == 0 ) {
+  if ( cauldron->debug1 or cauldron->Output_Level > 0 or cauldron->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " Max Error: %3.4f %% \n", 100.0 * Global_Max_Error );
   }
 

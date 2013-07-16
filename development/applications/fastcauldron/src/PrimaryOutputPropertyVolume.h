@@ -28,12 +28,6 @@ public :
 
    void finalise ();
 
-   bool matches ( const LayerProps*          formation,
-                  const Interface::Surface*  surface,
-                  const Interface::Snapshot* snapshot,
-                  const std::string&         propertyName ) const;
-
-
 private :
 
    int m_kIndex;

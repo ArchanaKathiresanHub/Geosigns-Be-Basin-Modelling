@@ -2,7 +2,7 @@
 #include "variabledefinitions.h"
 #include "parameterdefinitions.h"
 #include "parametersettings.h"
-#include "system.h"
+#include "formattingexception.h"
 
 #include <fstream>
 #include <iomanip>
@@ -11,10 +11,9 @@ namespace hpc
 {
    
 std::ostream & 
-writeResultsTabulatorScript( std::ostream & output, const ParameterDefinitions & parameters, const VariableDefinitions & variables, const std::vector< ParameterSettings > & settings, const std::string & dirWithResults)
+writeResultsTabulatorScript( std::ostream & output, const ParameterDefinitions & parameters, const VariableDefinitions & variables, const std::vector< ParameterSettings > & settings, const std::string & canonicalDirWithResults)
 {
    const int fieldWidth = 20;
-   std::string canonicalDirWithResults = canonicalPath(dirWithResults);
 
    output 
       << "#!/bin/bash\n"

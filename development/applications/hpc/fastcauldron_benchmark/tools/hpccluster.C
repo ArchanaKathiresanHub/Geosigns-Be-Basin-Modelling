@@ -27,28 +27,26 @@ DelayedLsfCluster
 }
 
 DelayedLsfCluster
-   :: DelayedLsfCluster(const std::string & configFile, const std::string & workingDirectory)
+   :: DelayedLsfCluster(const Path & configFile, const Path & workingDirectory)
    : ConfigurationFile(configFile)
    , HPCCluster(ConfigurationFile::getInt("ProcessorsPerHost"))
    , m_clusterName(ConfigurationFile::getString("ClusterName"))
-   , m_directory()
+   , m_directory(workingDirectory.clone())
    , m_lsfProject(ConfigurationFile::getString("LSFProjectName"))
    , m_allBenchmarkId(randomAllBenchmarkId())
    , m_jobDir()                                          
    , m_estimatedJobDuration(ConfigurationFile::getInt("EstimatedJobDuration"))
 {
-   if (getFileType(workingDirectory) != FT_Directory)
-     mkdir( workingDirectory );
+   if (m_directory->getFileType() != Path::Directory)
+      m_directory->makeDirectory();
 
-   m_directory = canonicalPath(workingDirectory);
-
-   if (getFileType(m_directory + pathSeparator + m_clusterName + "_jobs") != FT_Directory)
-      mkdir( m_directory + pathSeparator +  m_clusterName + "_jobs");
+   if (m_directory->getDirectoryEntry(m_clusterName + "_jobs")->getFileType() != Path::Directory)
+      m_directory->getDirectoryEntry(m_clusterName + "_jobs")->makeDirectory();
          
-   m_jobDir = m_directory + pathSeparator + m_clusterName + "_jobs" + pathSeparator + m_allBenchmarkId;
+   m_jobDir = m_directory->getDirectoryEntry(m_clusterName + "_jobs")->getDirectoryEntry(m_allBenchmarkId);
+   m_jobDir->makeDirectory();
 
-   mkdir( m_jobDir );
-   std::cout << "Generating LSF scripts in directory: " << m_jobDir << std::endl;
+   std::cout << "Generating LSF scripts in directory: " << *m_jobDir << std::endl;
 }
 
 
@@ -66,18 +64,20 @@ DelayedLsfCluster
    int nHosts = (maxP + processorsPerHost() - 1)/ processorsPerHost();
 
    std::ostringstream scriptName;
-   scriptName << m_jobDir << pathSeparator << "lsf_submit_" << nHosts;
+   scriptName << "lsf_submit_" << nHosts;
+   boost::shared_ptr<Path> scriptPath = m_jobDir->getDirectoryEntry(scriptName.str());
 
-   std::ofstream lsfscript(scriptName.str().c_str());
-   lsfscript 
+   boost::shared_ptr<std::ostream> lsfscript = scriptPath->writeFile();
+
+   *lsfscript
       << "#!/bin/bash\n"
       << "#BSUB -P " << m_lsfProject << '\n'     // the project to bill it on
       << "#BSUB -We " << m_estimatedJobDuration << ":00\n"   // estimate that it will take three days
       << "#BSUB -J " << m_allBenchmarkId << '\n' // job id
       << "#BSUB -n " << maxP << '\n'             // number of processors 
       << "#BSUB -x\n"                            // exclusive mode, so that we get reliable measurements
-      << "#BSUB -cwd " << m_jobDir << '\n'       // working directory
-      << "#BSUB -o " << scriptName.str() << "_stdout"
+      << "#BSUB -cwd " << m_jobDir->getCanonicalPath() << '\n'       // working directory
+      << "#BSUB -o " << scriptPath->getCanonicalPath() << "_stdout"
       << "\n"
       << "function FAIL()\n"
       << "{\n"
@@ -100,17 +100,17 @@ DelayedLsfCluster
    for (unsigned job = 0; job < jobs.size(); ++job)
    {
       std::string command;
-      std::string workingDirectory;
-      FastCauldronEnvironment::commandToRunJob(m_directory, jobs[job].second, workingDirectory, command);
+      boost::shared_ptr<Path> workingDirectory;
+      FastCauldronEnvironment::commandToRunJob(* m_directory, jobs[job].second, workingDirectory, command);
 
-      lsfscript
+      * lsfscript
          << "echo --------- RUNNING " << std::setw(10) << jobs[job].second << " ----------\n"
-         << "pushd " << workingDirectory << '\n'
+         << "pushd " << workingDirectory->getCanonicalPath() << '\n'
          << command << '\n'
          << "popd\n";
    }
 
-   lsfscript
+   * lsfscript
       << "echo =======================================\n"
       << "echo EXITING\n"
       ;
@@ -120,20 +120,15 @@ void
 DelayedLsfCluster
    :: wait()
 {
-   std::ostringstream scriptName;
-   scriptName << m_jobDir << pathSeparator << "lsf_wait";
-
-   std::ofstream lsfscript(scriptName.str().c_str());
-   lsfscript
+   * m_jobDir->getDirectoryEntry("lsf_wait")->writeFile()
       << "#!/bin/bash\n"
       << "#BSUB -P " << m_lsfProject << '\n'     // the project to bill it on
       << "#BSUB -We 1\n"                       // the work done by the job is trivial (so 1 minute)
       << "#BSUB -J wait_on_" << m_allBenchmarkId << '\n' // job id
-      << "#BSUB -cwd " << m_jobDir << '\n' // working directory
+      << "#BSUB -cwd " << m_jobDir->getCanonicalPath() << '\n' // working directory
       << "#BSUB -w 'ended(" << m_allBenchmarkId << ")'\n" // dependency on all running jobs of this benchmark
       << "echo DONE\n"
       ;
-
 }
 
 

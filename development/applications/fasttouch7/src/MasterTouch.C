@@ -49,6 +49,43 @@ char* iAbsolute_str       = {"Permeability Absolute"};
 char* iLog_str            = {"Permeability Log10"};
 char* iCement_Quartz_str  = {"Cement Quartz"};
 
+
+static bool FD_HIDDEN = false;
+static int FD_COUT = -1;
+static int FD_CERR = -1;
+
+// functions to hide cout/stdout and cerr/stderr file descriptors during ResQ library execution to
+// prevent useless output
+static void HideCOutCErr()
+{
+   if (!FD_HIDDEN)
+   {
+      FD_COUT = dup(1);
+      FD_CERR = dup(2);
+
+      close (1);
+      close (2);
+
+      FD_HIDDEN = true;
+   }
+}
+
+static void ExposeCOutCErr()
+{
+   if (FD_HIDDEN)
+   {
+      dup2 (FD_COUT, 1);
+      close (FD_COUT);
+      FD_COUT = -1;
+
+      dup2 (FD_CERR, 2);
+      close (FD_CERR);
+      FD_CERR = -1;
+
+      FD_HIDDEN = false;
+   }
+}
+
 //const int MasterTouch::numberOfTouchstoneProperties = 6;
 
 // PUBLIC METHODS
@@ -61,8 +98,10 @@ MasterTouch::MasterTouch (FastTouch * fastTouch) : m_fastTouch (fastTouch)
     char* geocosmDir = getenv ( "GEOCOSMDIR" );
     
     std::string workingDirstr( geocosmDir );
-
+    
+    HideCOutCErr();
     Geocosm::TsLibPluginManager::LoadPluginLibraries( geocosmDir );
+    ExposeCOutCErr();
 
     // Initialize Touchstone library interface object.
     tslib = Geocosm::TsLibPluginManager::CreateTsLibPlugin();
@@ -368,6 +407,8 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
     int maxNumTimeSteps = 0;
     bool allHaveCompleted = false;   
 
+    
+    HideCOutCErr();
     // Create a Touchstone Calculation Context
     tslibCalcContext = tslib->CreateContext ( filename );
     
@@ -471,6 +512,8 @@ bool MasterTouch::calculate ( const char *filename, const Surface * surface,
     const TcfSchema::ResultHeadersType& statHeaders = tslibCalcContext->StatisticsResultHeaders();
     
     if(!m_directAnalogRun) tslibCalcContext->CreateRealizations(m_nrOfRealizations);
+    
+    ExposeCOutCErr();
     
     timeToComplete.start ();
     for (int i = firstI; i <= lastI; ++i)

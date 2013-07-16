@@ -20,8 +20,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <!-- Same variables based on alternative credentials -->
     <AgentAccountAlt Condition="'$(AgentAccountAlt)' == ''">s_bpac00</AgentAccountAlt>
     <AgentKeyAlt Condition="'$(AgentKeyAlt)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKeyAlt>
-    <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">/scratch/$(AgentAccountAlt)/mig-to-petsc3.3/src</RemoteSourceDirAlt>
-    <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">/scratch/$(AgentAccountAlt)/mig-to-petsc3.3/build</RemoteBuildDirAlt>
+    <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">/scratch/$(AgentAccountAlt)/src</RemoteSourceDirAlt>
+    <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">/scratch/$(AgentAccountAlt)/build</RemoteBuildDirAlt>
     
   </PropertyGroup>
  

@@ -6,6 +6,7 @@
 #include "hpccluster.h"
 #include "resultstabulator.h"
 #include "variabledefinitions.h"
+#include "system.h"
 
 #include <iostream>
 #include <fstream>
@@ -17,11 +18,8 @@
 namespace hpc
 {
 
-   void benchmark( const std::string & parameterDefinitionsFile, const std::string & settingsFile, const std::string & variableDefinitionsFile,  const std::string & workingDir, HPCCluster & cluster )
+   void benchmark( const Path & parameterDefinitionsFile, const Path & settingsFile, const Path & variableDefinitionsFile, const Path & environment, const Path & workingDir, HPCCluster & cluster )
    {
-      typedef ParameterDefinitions :: ProjectParamMap :: const_iterator P;
-      typedef ParameterDefinitions :: CmdLineParamMap :: const_iterator C;
-
       std::tr1::array<std::string, 4> mandatorySettings = { { "ID", "Project", "Processors", "CauldronVersion" } };
 
       struct MandatorySetting { static 
@@ -38,19 +36,24 @@ namespace hpc
             return s->second;
          }
       };
-
+ 
+      // read the Fastcauldron environment configuration
+      FastCauldronEnvironment::Configuration fcConfig(environment);
+      
+      // read parameter definitions
       ParameterDefinitions pd( parameterDefinitionsFile );
+
+      // read the parameter settings
       std::vector<ParameterSettings> settings = ParameterSettings::parse(settingsFile);
 
       // write the results tabulator script
-      {  std::ofstream resultsTabulator( (workingDir + "/tabulate_results.sh").c_str());
-         writeResultsTabulatorScript( resultsTabulator, 
-              pd, 
-              VariableDefinitions(variableDefinitionsFile),
-              settings, 
-              workingDir
-              );
-      }
+      writeResultsTabulatorScript( 
+           *workingDir.getDirectoryEntry("tabulate_results.sh")->writeFile(),
+           pd, 
+           VariableDefinitions(variableDefinitionsFile),
+           settings, 
+           workingDir.getCanonicalPath()
+           );
 
       // write the directory structure with project files, scripts, etc...
       typedef int         Processors;
@@ -82,7 +85,7 @@ namespace hpc
          try
          {
 
-            FastCauldronEnvironment env( settingID, projectFile, processors, version );
+            FastCauldronEnvironment env( fcConfig, settingID, projectFile, processors, version );
 
             typedef ParameterSettings::Map::const_iterator It;
             for (It s = settings[i].map().begin(); s != settings[i].map().end(); ++s)
@@ -92,6 +95,9 @@ namespace hpc
 
                if (std::find(mandatorySettings.begin(), mandatorySettings.end(), name) != mandatorySettings.end())
                   continue;
+
+               typedef ParameterDefinitions :: ProjectParamMap :: const_iterator P;
+               typedef ParameterDefinitions :: CmdLineParamMap :: const_iterator C;
 
                {
                   P p = pd.projectParameters().find( name );
@@ -117,7 +123,7 @@ namespace hpc
          }
          catch(std::exception & e)
          {
-            std::cerr << "Warning: Cannot generate benchmark for setting '" << settingID << "', because"
+            std::cerr << "Warning: Cannot generate benchmark for setting '" << settingID << "', because "
               << e.what() << std::endl;
          }
       }
@@ -151,14 +157,21 @@ namespace hpc
 int main(int argc, char ** argv)
 {
    using namespace hpc;
-   if (argc < 5)
+   if (argc < 6)
    {
-      std::cerr << "Usage: " << argv[0] << " PARAMETERDEFINITIONS SETTINGS VARIABLEDEFS CLUSTERCONF WORKDIR" << std::endl;
+      std::cerr << "Usage: " << argv[0] << " PARAMETERDEFINITIONS SETTINGS VARIABLEDEFS ENVIRONMENT CLUSTERCONF WORKDIR" << std::endl;
       return 1;
    }
 
-   DelayedLsfCluster cluster(argv[4], argv[5]);
-   benchmark( argv[1], argv[2], argv[3], argv[5], cluster);
+   Path parameterDefinitions(argv[1]);
+   Path parameterSettings(argv[2]);
+   Path variableDefinitions(argv[3]);
+   Path environment(argv[4]);
+   Path clusterConfiguration(argv[5]);
+   Path workingDirectory(argv[6]);
+
+   DelayedLsfCluster cluster(clusterConfiguration, workingDirectory );
+   benchmark( parameterDefinitions, parameterSettings, variableDefinitions, environment, workingDirectory, cluster);
 
    return 0;
 }

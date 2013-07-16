@@ -1749,7 +1749,7 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );
    }
 
-   m_printCommandLine = static_cast<bool>(hasPrintCommandLine) or static_cast<bool>(m_cauldron->debug1);
+   m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
 
    readRelPermCommandLineParameters ();
    readCommandLineWells ();

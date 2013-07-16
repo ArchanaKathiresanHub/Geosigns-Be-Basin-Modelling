@@ -9,6 +9,7 @@ namespace hpc
 {
 class Project3DParameter;
 class CmdLineParameter;
+class Path;
 
 class ParameterDefinitions
 {
@@ -18,7 +19,7 @@ public:
    typedef std::map< Name, boost::shared_ptr<const Project3DParameter> > ProjectParamMap;
    typedef std::map< Name, boost::shared_ptr<const CmdLineParameter> >   CmdLineParamMap;
 
-   ParameterDefinitions(const std::string & parameterDefinitionsFiles );
+   ParameterDefinitions(const Path & parameterDefinitionsFiles );
 
    const ProjectParamMap & projectParameters() const
    { return m_projectParams; }

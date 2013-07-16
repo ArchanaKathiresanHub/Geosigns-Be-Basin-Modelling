@@ -256,9 +256,10 @@ public:
    bool useBurialRateTimeStepping () const;
 
 
-   double permafrostTimeStep () const;
    void   setPermafrost( const double timeStep, const double age );
+   void   setPermafrostTimeStep( const double timeStep );
    double permafrostAge () const;
+   double permafrostTimeStep () const;
    bool   permafrost() const;
 
    /// Initialises other minor layer data fields.
@@ -390,6 +391,10 @@ public:
    //
    int Output_Level;
    PetscBool debug1, debug2, debug3;
+
+   /// \brief output information iteration behaviour of algorithms that are interesting for performance analyis;
+   PetscBool verbose;
+
 
    bool       Use_Geometric_Loop;
    bool       includeAdvectiveTerm;

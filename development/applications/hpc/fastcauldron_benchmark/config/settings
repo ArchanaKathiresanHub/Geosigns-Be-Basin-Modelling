@@ -257,3 +257,29 @@ GeometricLoop           Yes
 CauldronVersion         "2012.1008"
 MultipleMeasurements    { 1, 2, 3, 4, 5 }
 
+ID                      "marmul-02-scaling-procs"
+Project                 "input/marmul/02/Marmul.project3d"
+Processors              { 12, 24, 36, 48, 60, 72, 84, 96 }
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      3
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3 }
+
+ID                      "nvg-02-scaling-procs"
+Project                 "input/nvg/02/Project.project3d"
+Processors              { 12, 24, 36, 48, 60, 72, 84, 96 }
+ScaleX                  1
+ScaleY                  1
+BrickHeightSediment     400
+ElementRefinementZ      1
+TimeSteppingMethod      BurialRateTimeStepping
+SimulationMode          FullyCoupled
+GeometricLoop           Yes
+CauldronVersion         "2012.1008"
+MultipleMeasurements    { 1, 2, 3 }
+

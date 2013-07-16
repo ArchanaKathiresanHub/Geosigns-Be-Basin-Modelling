@@ -147,7 +147,7 @@ bool HydraulicFracturingManager::setSelectedFunction () {
 
   m_fractureModel = m_fracturePressureCalculator->getFracturePressureFunctionParameters ().getFractureModel ();
 
-  if ( m_basinModel->debug1 ) {
+  if ( m_basinModel->debug1 or m_basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " set selected function: %i  %s \n",
                   int ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type ()),
                   hydraulicFractureFunctionTypeStr ( m_fracturePressureCalculator->getFracturePressureFunctionParameters ().type ()).c_str ());
@@ -225,7 +225,7 @@ void HydraulicFracturingManager::checkForFracturing ( const double currentTime,
     Layers++;
   }
 
-  if ( FastcauldronSimulator::getInstance ().getRank () == 0 and m_basinModel->debug1 ) {
+  if (m_basinModel->debug1 || m_basinModel->verbose ) {
 
     if ( modelHasFractured ) {
       PetscPrintf ( PETSC_COMM_WORLD, " Model has fractured \n" );
@@ -398,11 +398,11 @@ void HydraulicFracturingManager::checkForFracturing ( LayerProps*           theL
   // If process section of the layer has fractured, then tell all processes.
   layerHasFractured = broadcastAnyTrueBooleanValue ( layerHasFractured );
 
-  if ( m_basinModel->debug1 and maxFractureValue > 0 ) {
+  if ( ( m_basinModel->debug1 or m_basinModel->verbose) and maxFractureValue > 0 ) {
     cout << theLayer->layername << " maxFractureValue " << maxFractureValue << endl;
   }
 
-  if ( m_basinModel->debug1 ) {
+  if ( m_basinModel->debug1 or m_basinModel->verbose ) {
     int globalFracturedNodeCount = 0;
     int globalScaledNodeCount = 0;
 
@@ -504,7 +504,7 @@ void HydraulicFracturingManager::restrictPressure ( const double currentTime ) {
     return;
   }
 
-  if ( m_basinModel->debug1 ) {
+  if ( m_basinModel->debug1 or m_basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " Restricting pressure \n" );
   }
 
@@ -550,7 +550,7 @@ void HydraulicFracturingManager::restrictPressure ( LayerProps*           theLay
   double surfaceDepth;
   double seaTemperature;
 
-  if ( m_basinModel->debug1 ) {
+  if ( m_basinModel->debug1 or m_basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, " Restricting pressure for layer: %s \n", theLayer->layername.c_str ());
   }
 
