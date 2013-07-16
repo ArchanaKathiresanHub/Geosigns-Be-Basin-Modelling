@@ -115,6 +115,9 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_inferiorMantleElementHeightScaling = 1.0;
    m_minCrustThicknessIsZero = false;
 
+   m_permafrostTimeStep = Minimum_Pressure_Time_Step;
+   m_permafrostAge = 0.0;
+   m_permafrost    = false;
 }
 
 
@@ -330,6 +333,12 @@ double AppCtx::maximumTimeStep () const {
 
 //------------------------------------------------------------//
 
+double AppCtx::permafrostTimeStep () const {
+   return m_permafrostTimeStep;
+}
+
+//------------------------------------------------------------//
+
 bool AppCtx::cflTimeStepping () const {
    return m_cflTimeStepping;
 }
@@ -339,6 +348,28 @@ bool AppCtx::cflTimeStepping () const {
 bool AppCtx::useBurialRateTimeStepping () const {
    return m_burialRateTimeStepping;
 }
+
+//------------------------------------------------------------//
+
+double AppCtx::permafrostAge () const {
+   return m_permafrostAge;
+}
+
+//------------------------------------------------------------//
+
+bool AppCtx::permafrost () const {
+   return m_permafrost;
+}
+
+//------------------------------------------------------------//
+
+void AppCtx::setPermafrost ( const double timeStep, const double age ) {
+
+   m_permafrost         = true;
+   m_permafrostTimeStep = timeStep;
+   m_permafrostAge      = age;  
+}
+
 
 //------------------------------------------------------------//
 
@@ -730,7 +761,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
    PetscBool petscBurialRateTimeStepping = PETSC_FALSE;
    PetscBool petscCflTimeStepping = PETSC_FALSE;
-   PetscBool petscLatentHeat = PETSC_TRUE;
+   PetscBool petscPermafrost = PETSC_FALSE;
 
    PetscBool petscBurialRateFraction = PETSC_FALSE;
    double elementFraction;
@@ -777,7 +808,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetInt  ( PETSC_NULL, "-fcctmodel", &crustThinningModel, &crustThinningModelChanged ); 
    PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged ); 
 
-   PetscOptionsHasName ( PETSC_NULL, "-latentheat", &petscLatentHeat ); 
+   PetscOptionsHasName ( PETSC_NULL, "-permafrost", &petscPermafrost ); 
 
    PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
 
@@ -1023,10 +1054,18 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
   }
 
-  FastcauldronSimulator::getInstance ().setLatentHeat ( bool( petscLatentHeat ));
+  if( petscPermafrost ) {
+     if( ! FastcauldronSimulator::getInstance ().getPermafrost() ) {
+        FastcauldronSimulator::getInstance ().setPermafrost ( bool( petscPermafrost ));
+        
+        double timeStep, startAge;
 
-  if (  bool( petscLatentHeat ) && debug1 ) {
-     PetscPrintf ( PETSC_COMM_WORLD, " Using latent heat associated with permafrost.\n" );
+        if( FastcauldronSimulator::getInstance ().determinePermafrost(  timeStep, startAge ) ) {
+
+           setPermafrost( timeStep, startAge );
+           PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on. Time step = %lf, Start age = %lf\n", permafrostTimeStep(), permafrostAge() );
+        }
+     }
   }
 }
 

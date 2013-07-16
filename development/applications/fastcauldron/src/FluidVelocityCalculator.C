@@ -2,8 +2,12 @@
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
+#include "MultiComponentFlowHandler.h"
 #include "element_contributions.h"
 #include "FiniteElementTypes.h"
+#include "Saturation.h"
+#include "Lithology.h"
+#include "PetscBlockVector.h"
 
 #include "Interface/RunParameters.h"
 
@@ -69,6 +73,8 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
    const bool IncludeGhosts = true;
    const ElementList& elements = FastcauldronSimulator::getInstance ().getCauldron ()->mapElementList;
 
+   const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
+
    unsigned int elementCount;
    unsigned int i;
    unsigned int j;
@@ -92,6 +98,7 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
    ElementVector maxVes;
    ElementVector temperature;
    ElementVector chemCompaction;
+   double        relativePermeability;
 
    DMDAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
                 PETSC_NULL, &globalXNodes, &globalYNodes,
@@ -154,6 +161,9 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
 
    }
 
+   PetscBlockVector<Saturation> saturations;
+   saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
+
    // Get all the properties required  for the calculation of the heat-flow.
    PETSC_3D_Array layerTemperature
       ( m_formation->layerDA,
@@ -200,6 +210,8 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
    fluidVelocityMapZ = propertyValues [ 2 ]->getGridMap ();
    fluidVelocityMapZ->retrieveData ();
 
+   bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp ();
+
    const double deltaX  = fluidVelocityMapX->deltaI ();
    const double deltaY  = fluidVelocityMapX->deltaJ ();
    const double originX = fluidVelocityMapX->minI ();
@@ -212,6 +224,7 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
          j = elements [ elementCount ].j [ 0 ];
 
          lithology = (*m_lithologies)( i, j );
+         const Lithology* litho = static_cast<const Lithology*>( lithology );
 
          if ( lithology != 0 ) {
             validElementFound = false;
@@ -252,6 +265,7 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
                   temperature         ( node ) = layerTemperature ( LidxZ, GidxY, GidxX );
                   chemCompaction      ( node ) = layerCurrentChemicalCompaction ( LidxZ, GidxY, GidxX );
                }
+               relativePermeability = ( includeWaterSaturation ? litho->relativePermeability ( Saturation::WATER, saturations (  k, j, i )) : 1.0 );
 
                computeFluidVelocity ( 0.0, 0.0, m_zPosition,
                                       lithology,
@@ -264,6 +278,7 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
                                       overpressure,
                                       temperature,
                                       chemCompaction,
+                                      relativePermeability,
                                       fluidVelocity );
             } else {
                fluidVelocity ( 1 ) = CAULDRONIBSNULLVALUE;
@@ -423,6 +438,7 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
    ElementVector maxVes;
    ElementVector temperature;
    ElementVector chemCompaction;
+   double        relativePermeability;
 
    DMDAGetInfo( m_formation->layerDA, 
                 PETSC_NULL,
@@ -522,6 +538,10 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
         m_formation->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure ),
         INSERT_VALUES, IncludeGhosts );
 
+   const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
+   PetscBlockVector<Saturation> saturations;
+   saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
+
    // Retrieve the heat-flow result maps.
    fluidVelocityMapX = propertyValues [ 0 ]->getGridMap ();
    fluidVelocityMapX->retrieveData ();
@@ -537,6 +557,8 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
    const double originX = fluidVelocityMapX->minI ();
    const double originY = fluidVelocityMapX->minJ ();
 
+   bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp ();
+   
    for ( k = fluidVelocityMapX->firstK (); k <= fluidVelocityMapX->lastK () - 1; ++k ) {
 
       for ( elementCount = 0; elementCount < elements.size(); elementCount++ ) {
@@ -546,6 +568,7 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
             j = elements [ elementCount ].j [ 0 ];
 
             lithology = (*m_lithologies)( i, j );
+            const Lithology* litho = static_cast<const Lithology*>( lithology );
 
             if ( lithology != 0 ) {
 
@@ -566,6 +589,7 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
                   temperature         ( node ) = layerTemperature ( LidxZ, GidxY, GidxX );
                   chemCompaction      ( node ) = layerCurrentChemicalCompaction ( LidxZ, GidxY, GidxX );
                }
+               relativePermeability = ( includeWaterSaturation ? litho->relativePermeability ( Saturation::WATER, saturations (  k, j, i )) : 1.0 );
 
                computeFluidVelocity ( lithology,
                                       m_fluid,
@@ -577,6 +601,7 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
                                       overpressure,
                                       temperature,
                                       chemCompaction,
+                                      relativePermeability,
                                       fluidVelocity );
 
                fluidVelocityMapX->setValue ( i, j, k, fluidVelocity ( 1 ));

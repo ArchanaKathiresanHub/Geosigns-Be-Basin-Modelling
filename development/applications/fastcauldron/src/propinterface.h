@@ -255,6 +255,12 @@ public:
 
    bool useBurialRateTimeStepping () const;
 
+
+   double permafrostTimeStep () const;
+   void   setPermafrost( const double timeStep, const double age );
+   double permafrostAge () const;
+   bool   permafrost() const;
+
    /// Initialises other minor layer data fields.
    void setLayerData ();
 
@@ -551,6 +557,10 @@ public:
    double m_elementErosionFraction;
    double m_elementHiatusFraction;
    double m_vesScaling;
+
+   double m_permafrostTimeStep;
+   double m_permafrostAge;
+   bool   m_permafrost;
 
    PetscBool m_useTemisRelPerm;
 

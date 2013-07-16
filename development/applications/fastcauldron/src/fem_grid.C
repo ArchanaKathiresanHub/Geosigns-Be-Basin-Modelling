@@ -1482,7 +1482,10 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
      Time_Step = NumericFunctions::Maximum ( Predicted_Time_Step, basinModel->minimumTimeStep ());
      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
   }
-
+  
+  if ( basinModel->permafrost () && ( Current_Time <= basinModel->permafrostAge() )) {
+     Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
+  }
 }
 
 
@@ -1544,11 +1547,15 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
  
       Time_Step = NumericFunctions::Minimum ( Predicted_Time_Step, Predicted_Time_Step_In_Source_Rocks );
       Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
-	  if ( basinModel -> isALC() ) {
-	      Time_Step = NumericFunctions::Maximum ( Time_Step, basinModel->minimumTimeStep ());
-	  }
-   }
 
+      if ( basinModel -> isALC() ) {
+         Time_Step = NumericFunctions::Maximum ( Time_Step, basinModel->minimumTimeStep ());
+      }
+   }
+   if ( basinModel->permafrost () && ( Current_Time <= basinModel->permafrostAge() )) {
+      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
+   }
+   
 }
 
 
@@ -1639,6 +1646,10 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
   }
 
+  if ( basinModel->permafrost () && ( Current_Time <= basinModel->permafrostAge() )) {
+     Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
+  }
+  
 }
 
 

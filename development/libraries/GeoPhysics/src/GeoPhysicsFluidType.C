@@ -39,13 +39,6 @@ GeoPhysics::FluidType::FluidType ( Interface::ProjectHandle * projectHandle, dat
    m_precomputedViscosityTerm2 = 1.65 + 91.9 * m_salinity * m_salinity * m_salinity;
 
    m_omega = 1.0;
-   double solidFractionForFrozen = 0.01;
-   m_liquidusTemperature = 0.0;
-   m_solidusTemperature = m_liquidusTemperature - m_omega * std::sqrt ( -std::log ( solidFractionForFrozen ));
-
-   //cout.precision( 14);
-   //cout << " Fluid props: " << m_liquidusTemperature << "  " << m_solidusTemperature << "  " << m_omega << endl;
-   //cout << "LatentHeat is " << (   m_projectHandle->getLatentHeat() ? "On" : "Off" ) << endl;
 
    double temperatureValues [ 5 ] = { -40.0, -30.0, -20.0, -10.0, 0.0 };
    double densityValues [ 5 ] = { 922.8, 921.6, 920.3, 918.7, 916.7 };
@@ -127,6 +120,16 @@ void GeoPhysics::FluidType::loadPropertyTables () {
    delete densitySamples;
 }
 
+double GeoPhysics::FluidType::getLiquidusTemperature ( const double temperature, const double pressure ) const {
+   return ( - 0.073 * pressure - 0.064 * salinityConcentration ( temperature, pressure ));
+}
+    
+double GeoPhysics::FluidType::getSolidusTemperature ( const double liquidusTemperature ) const {
+   
+   // Ts = Tl - omega * sqrt( - log( solidFractionForFrozen ))
+   // solidFractionForFrozen = 0.01; omega = 1
+   return liquidusTemperature - 2.14596603;
+}
 
 double GeoPhysics::FluidType::getConstantDensity () const {
    return m_densityVal;
@@ -139,6 +142,12 @@ void GeoPhysics::FluidType::setDensityToConstant () {
 // double GeoPhysics::FluidType::getSimpleSeismicVelocity () const {
 //    return m_seismicVelocityVal;
 // }
+
+double GeoPhysics::FluidType::salinityConcentration( const double temperature, const double pressure ) const {
+   
+   return densityBatzleWang ( temperature, pressure, m_salinity ) - densityBatzleWang ( temperature, pressure, 0.0 );
+
+}
 
 double GeoPhysics::FluidType::density ( const double temperature, const double pressure ) const {
 
@@ -216,18 +225,19 @@ double GeoPhysics::FluidType::viscosity ( const double temperature ) const {
    return 0.0;
 }
 
-double GeoPhysics::FluidType::thermalConductivity ( const double temperature ) const {
+double GeoPhysics::FluidType::thermalConductivity ( const double temperature, const double pressure ) const {
 
-   if ( m_projectHandle->getLatentHeat() && temperature < m_liquidusTemperature ) {
-      double theta = computeTheta ( temperature );
+   if( m_projectHandle->getPermafrost() ) {  
+      const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
+      
+      if ( temperature < liquidusTemperature ) {
+         const double theta = computeTheta ( temperature, liquidusTemperature );
          
-      return pow ( m_iceThermalConductivityInterpolator.evaluate ( temperature ), 1.0 - theta ) *
-             pow ( thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant ), theta );
-
-   } else {
-      return thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant );
+         return pow ( m_iceThermalConductivityInterpolator.evaluate ( temperature ), 1.0 - theta ) *
+            pow ( thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant ), theta );
+      } 
    }
-
+   return thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant );
 }
 
 double GeoPhysics::FluidType::heatCapacity ( const double temperature,
@@ -249,53 +259,35 @@ double GeoPhysics::FluidType::densXheatCapacity ( const double porosity,
                                                   const double temperature,
                                                   const double pressure ) const {
    double result;
+  
+   if( m_projectHandle->getPermafrost() ) {
 
-   if( m_projectHandle->getLatentHeat() &&  temperature <= m_liquidusTemperature ) {
+      const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
 
-      if ( temperature <= m_solidusTemperature ) {
-         result = porosity * solidDensityTimesHeatCapacity ( temperature );
-      } else {
-         static const double WaterSpecificLatentHeat = 333600.0; // J/kg
-         double theta = computeTheta ( temperature );
-         double thetaTL = computeTheta ( m_liquidusTemperature );
-         double thetaTS = computeTheta ( m_solidusTemperature );
-         double liquidFraction = porosity * theta;
-         double solidFraction = porosity * ( 1.0 - theta );
+      if( temperature <= liquidusTemperature ) {
+         const double solidusTemperature  = getSolidusTemperature( liquidusTemperature );
          
-         double liquidusDensityTimesHeatCapacity = densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
-         double solidusDensityTimesHeatCapacity = solidDensityTimesHeatCapacity ( temperature );
-         
-         double latentHeatTerm = m_iceDensityInterpolator.evaluate ( temperature ) * WaterSpecificLatentHeat * porosity * 
-            ( 1.0 - thetaTL - ( 1.0 -  thetaTS )) / ( m_liquidusTemperature - m_solidusTemperature );
-         // // double latentHeatTerm = m_iceDensityInterpolator.evaluate ( temperature ) * WaterSpecificLatentHeat * porosity * computeThetaDerivative ( temperature );
-         
-         //double latentHeatTerm = 916.0 * WaterSpecificLatentHeat * porosity * 
-         //   (( 1.0 - thetaTL ) - ( 1.0 - thetaTS )) / ( m_liquidusTemperature - m_solidusTemperature );
-         // double latentHeatTerm = m_iceDensityInterpolator.evaluate ( temperature ) * WaterSpecificLatentHeat * porosity * computeThetaDerivative ( temperature );
-         
-         result = liquidFraction * liquidusDensityTimesHeatCapacity + solidFraction * solidusDensityTimesHeatCapacity - latentHeatTerm;
-         
-         // cout << " heat cap:  "
-         //      << std::setw ( 20 ) << porosity << "  "
-         //      << std::setw ( 20 ) << temperature << "  "
-         //      << std::setw ( 20 ) << pressure << "  "
-         //      << std::setw ( 20 ) << result << "  "
-         //      << std::setw ( 20 ) << theta << "  "
-         //      << std::setw ( 20 ) << liquidFraction << "  "
-         //      << std::setw ( 20 ) << solidFraction << "  "
-         //      << std::setw ( 20 ) << liquidusDensityTimesHeatCapacity << "  "
-         //      << std::setw ( 20 ) << solidusDensityTimesHeatCapacity << "  "
-         //      << std::setw ( 20 ) << latentHeatTerm << "  "
-         //      // << std::setw ( 20 ) <<  << "  "
-         //      // << std::setw ( 20 ) <<  << "  "
-         //      << endl;
-         
+         if ( temperature <= solidusTemperature ) {
+            result = porosity * solidDensityTimesHeatCapacity ( temperature );
+         } else {
+            static const double WaterSpecificLatentHeat = 333600.0; // J/kg
+            const double theta = computeTheta ( temperature, liquidusTemperature );
+            const double thetaTL = 1.0; // computeTheta ( liquidusTemperature, liquidusTemperature );
+            const double thetaTS = computeTheta ( solidusTemperature, liquidusTemperature );
+            const double liquidFraction = porosity * theta;
+            const double solidFraction  = porosity * ( 1.0 - theta );
+            
+            const double liquidusDensityTimesHeatCapacity = densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
+            const double solidusDensityTimesHeatCapacity = solidDensityTimesHeatCapacity ( temperature );
+            
+            const double latentHeatTerm = m_iceDensityInterpolator.evaluate ( temperature ) * WaterSpecificLatentHeat * porosity * 
+               ( 1.0 - thetaTL - ( 1.0 -  thetaTS )) / ( liquidusTemperature - solidusTemperature );
+            result = liquidFraction * liquidusDensityTimesHeatCapacity + solidFraction * solidusDensityTimesHeatCapacity - latentHeatTerm;
+         }
+         return result;
       }
-      
-      return result;
-   } else {
-      result = porosity * densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
-   }
+   } 
+   result = porosity * densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
 
    return result;
 }
@@ -344,11 +336,11 @@ double GeoPhysics::FluidType::seismicVelocityBatzleWang ( const double temperatu
 }
 
 double GeoPhysics::FluidType::densityBatzleWang ( const double temperature,
-                                                  const double pressure ) const {
-
+                                                  const double pressure,
+                                                  const double salinity ) const {
    const double& t = temperature;
    const double& p = pressure;
-   const double& s = m_salinity;
+   const double& s = salinity;
 
    double dens;
 
@@ -359,6 +351,12 @@ double GeoPhysics::FluidType::densityBatzleWang ( const double temperature,
                      p * ( s * ( 0.0003 - 0.000013 * t ) + s * s * ( -0.0024 + 0.000047 * t )-
                            1.3e-11 * ( -1123.64 + t ) * ( 33476.2 - 107.125 * t + t * t )));
    return dens;
+
+}
+double GeoPhysics::FluidType::densityBatzleWang ( const double temperature,
+                                                  const double pressure ) const {
+
+   return densityBatzleWang( temperature, pressure, m_salinity );
 }
 
 double GeoPhysics::FluidType::computeDensityDerivativeWRTPressureBatzleWang ( const double temperature,
@@ -475,22 +473,33 @@ double GeoPhysics::FluidType::solidDensityTimesHeatCapacity ( const double tempe
    return m_iceDensityInterpolator.evaluate ( usedTemperature ) * m_iceHeatCapacityInterpolator.evaluate ( usedTemperature );
 }
 
-double GeoPhysics::FluidType::computeTheta ( const double temperature ) const {
+double GeoPhysics::FluidType::computeTheta ( const double temperature, const double liquidusTemperature ) const {
 
-   if ( temperature < m_liquidusTemperature ) { 
-      double temp = ( temperature - m_liquidusTemperature ) / m_omega;
-         return exp ( -temp * temp );
+   if ( temperature < liquidusTemperature ) { 
+      const double temp = ( temperature - liquidusTemperature ) / m_omega; // not necessarily divide by m_omega ( = 1.0 )
+      return exp ( -temp * temp );
    } else {
       return 1.0;
    }
 }
 
-double GeoPhysics::FluidType::computeThetaDerivative ( const double temperature ) const {
-
-   if ( temperature < m_liquidusTemperature ) {
-      return -2.0 * ( temperature - m_liquidusTemperature ) / ( m_omega * m_omega ) * computeTheta ( temperature );
-   } else {
-      return 0.0;
-   }
+double GeoPhysics::FluidType::relativePermeability ( const double temperature, const double pressure ) const {
+ 
+   if( m_projectHandle->getPermafrost() ) {
+      
+      const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
+      const double solidusTemperature  = getSolidusTemperature( liquidusTemperature );
+      
+      if( temperature >= liquidusTemperature ) {
+         return 1.0;
+      } else if( temperature <= solidusTemperature ) {
+         return 1.0e-6;
+      } else {
+         if( solidusTemperature != 0.0 ) {
+            return ( - 0.999999 / solidusTemperature ) * temperature + 1.0;
+         } 
+      }
+   } 
+   return 1.0;
 }
 

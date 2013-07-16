@@ -959,6 +959,7 @@ void Basin_Modelling::computeThermalConductivityVectors ( AppCtx*        Basin_M
     PETSC_3D_Array layerPorosity    ( currentLayer -> layerDA, currentLayer -> Porosity );
     PETSC_3D_Array layerTemperature ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Temperature ));
     PETSC_3D_Array layerLithoPressure ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
+    PETSC_3D_Array layerPorePressure ( currentLayer -> layerDA, currentLayer -> Current_Properties ( Basin_Modelling::Pore_Pressure ));
 
     DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
     DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> BulkTHCondN );
@@ -993,6 +994,7 @@ void Basin_Modelling::computeThermalConductivityVectors ( AppCtx*        Basin_M
                   currentLithology -> calcBulkThermCondNP ( currentLayer->fluid,
                                                             layerPorosity ( K, J, I ),
                                                             layerTemperature ( K, J, I ),
+                                                            layerPorePressure ( K, J, I ),
                                                             layerThermalConductivityNormal ( K, J, I ),
                                                             layerThermalConductivityTangential ( K, J, I ));
                }
@@ -1118,6 +1120,7 @@ void Basin_Modelling::computeDiffusivityVectors ( AppCtx*        Basin_Model ) {
                currentLithology->calcBulkThermCondNP ( currentLayer->fluid,
                                                        layerPorosity ( K, J, I ),
                                                        layerTemperature ( K, J, I ),
+                                                       layerPorePressure ( K, J, I ),
                                                        bulkThermalConductivityN,
                                                        bulkThermalConductivityP );
             }

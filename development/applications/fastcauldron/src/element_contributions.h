@@ -135,6 +135,7 @@ namespace Basin_Modelling {
        const double              fluidViscosity,
        const Matrix3x3&          jacobian,
        const ThreeVector&        gradOverpressure,
+       const double              relativePermeability,
        const CompoundLithology*  lithology,
              ThreeVector&        fluidFlux );
 
@@ -152,6 +153,7 @@ namespace Basin_Modelling {
        const ElementVector&          currentElementPo,
        const ElementVector&          currentElementTemperature,
        const ElementVector&          currentElementChemicalCompaction,
+       const double                  currentElementRelPerm,
              ThreeVector&            fluidVelocity );
 
   /// Compute fluid velocity for output.
@@ -171,6 +173,7 @@ namespace Basin_Modelling {
        const ElementVector&          currentElementPo,
        const ElementVector&          currentElementTemperature,
        const ElementVector&          currentElementChemicalCompaction,
+       const double                  currentElementRelPerm,
              ThreeVector&            fluidVelocity );
 
   bool Degenerate_Element ( const ElementGeometryMatrix& geometryMatrix );
@@ -373,6 +376,7 @@ namespace Basin_Modelling {
        const ElementVector&         Temperature_Vector,
        const double                 Temperature_Value,
        const double                 Porosity,
+       const double                 PorePressure,
        const double                 LithostaticPressure,
        const Matrix3x3&          Jacobian,
        const GradElementVector& Grad_Basis,

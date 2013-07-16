@@ -190,6 +190,10 @@ namespace GeoPhysics {
       double getConstrainedBasaltTemperature() const;
 
       BasementLithologyProps * getBasementLithologyProps() const;
+
+      /// Compute the age and time step that will be used in permafrost modeling
+      bool determinePermafrost( double & timeStep, double & permafrostAge );
+
    protected :
 
       /// Loads the fluid property tables into the fluids.

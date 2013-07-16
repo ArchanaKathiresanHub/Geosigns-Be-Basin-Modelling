@@ -105,7 +105,7 @@ bool ThermalDiffusivityCalculator::operator ()( const OutputPropertyMap::OutputP
             } else {
                curLithology = (*m_lithologies)( i, j );
                curLithology ->calcBulkDensXHeatCapacity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ), 0.0,  bulkDensityHeatCapacity );
-               curLithology->calcBulkThermCondNP ( m_fluid, porosity, (*m_temperature)( i, j ), thermalConductivityNormal, thermalConductivityPlane );
+               curLithology->calcBulkThermCondNP ( m_fluid, porosity, (*m_temperature)( i, j ), (*m_pressure)( i, j ), thermalConductivityNormal, thermalConductivityPlane );
             }
             
             //             (*m_lithologies)( i, j )->calcBulkDensXHeatCapacity ( m_fluid, porosity, (*m_pressure)( i, j ), (*m_temperature)( i, j ), bulkDensityHeatCapacity );
@@ -286,6 +286,7 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
                                                                                    0.0, bulkDensityHeatCapacity );
                    m_formation->getLithology ( i, j )->calcBulkThermCondNP ( m_fluid, porosity,
                                                                              m_temperature->getVolumeValue ( i, j, k ),
+                                                                             m_pressure->getVolumeValue ( i, j, k ),
                                                                              thermalConductivityNormal,
                                                                              thermalConductivityPlane );
                 }

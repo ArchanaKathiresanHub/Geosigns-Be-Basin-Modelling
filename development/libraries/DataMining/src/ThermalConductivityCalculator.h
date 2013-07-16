@@ -34,6 +34,7 @@ namespace DataAccess {
 
          const DomainProperty* m_temperature;
          const DomainProperty* m_porosity;
+         const DomainProperty* m_pressure;
          bool                  m_normalConductivity;
          bool                  m_initialised;
 

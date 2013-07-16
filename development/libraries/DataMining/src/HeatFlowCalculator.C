@@ -80,6 +80,10 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
    double heatCapacity;
    double thermalConductivityN;
    double thermalConductivityH;
+   double overpressure;
+   double hydrostaticPressure;
+   double porePressure;
+
    GeoPhysics::CompoundProperty porosity;
 
    FiniteElementMethod::ThreeVector   heatFlow;
@@ -108,6 +112,8 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
 
    dynamic_cast<const DomainFormationProperty*>(m_depth)->extractCoefficients ( position, depthCoeffs );
    dynamic_cast<const DomainFormationProperty*>(m_temperature)->extractCoefficients ( position, temperatureCoeffs );
+   dynamic_cast<const DomainFormationProperty*>(m_overpressure)->extractCoefficients ( position, overpressureCoeffs );
+   dynamic_cast<const DomainFormationProperty*>(m_hydrostaticPressure)->extractCoefficients ( position, hydrostaticPressureCoeffs );
 
    getGeometryMatrix ( position,
                        dynamic_cast<const GeoPhysics::ProjectHandle*>(getProjectHandle ())->getCauldronGridDescription (),
@@ -119,9 +125,12 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
    ves = m_ves->compute ( position );
    maxVes = m_maxVes->compute ( position );
    temperature = finiteElement.interpolate ( temperatureCoeffs );
-
+   overpressure = finiteElement.interpolate ( overpressureCoeffs );
+   hydrostaticPressure = finiteElement.interpolate ( hydrostaticPressureCoeffs ); 
+   porePressure = overpressure + hydrostaticPressure;
+   
    lithology->getPorosity ( ves, maxVes, false, 0.0, porosity );
-   lithology->calcBulkThermCondNP ( fluid, porosity.mixedProperty (), temperature, thermalConductivityN, thermalConductivityH );
+   lithology->calcBulkThermCondNP ( fluid, porosity.mixedProperty (), temperature, porePressure, thermalConductivityN, thermalConductivityH );
    finiteElement.setTensor ( thermalConductivityN, thermalConductivityH, conductivityTensor );
 
    gradTemperature = finiteElement.interpolateGrad ( temperatureCoeffs );

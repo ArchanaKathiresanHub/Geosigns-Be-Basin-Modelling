@@ -344,6 +344,7 @@ ProjectHandle::ProjectHandle (Database * tables, const string & name, const stri
    loadSGDensitySample ();
 
    loadCrustalThicknessData();
+   loadPermafrostData();
 }
 
 int ProjectHandle::getRank () const {
@@ -2187,13 +2188,6 @@ bool ProjectHandle::addCrustThinningHistoryMaps (void) {
       Table * crustIoTbl = getTable( tableName );
       assert( crustIoTbl );
  
-       /*
-      cout << "CrustThickness maps in project file: " ;
-      for ( thicknessIter = m_crustPaleoThicknesses.begin (); thicknessIter != m_crustPaleoThicknesses.end (); ++ thicknessIter ) {
-         cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
-      }
-      cout << endl;
-      */
       for ( thicknessIter = m_crustPaleoThicknesses.begin (); thicknessIter != m_crustPaleoThicknesses.end (); ++ thicknessIter ) {
          const Interface::GridMap* map1 = (*thicknessIter)->getMap ( Interface::CrustThinningHistoryInstanceThicknessMap );
          
@@ -2209,12 +2203,9 @@ bool ProjectHandle::addCrustThinningHistoryMaps (void) {
             if ( age1 < age3 && age2 != age3 && age3 <= oldestSnapshot->getTime () ) {  
                database::Record * record = new Record( * (* thicknessIter)->getRecord() );
                setAge( record, age3 );
-               //    cout << getAge( record ) << endl;
                PaleoFormationProperty* crustThicknessMap = getFactory()->producePaleoFormationProperty ( this, record, m_crustFormation );
-               // setTime( crustThicknessMap->getRecord(), age3 );
                Interface::InterpolateFunctor functor ( age1, age2, age3 ); 
                crustThicknessMap->computeMap( Interface::CrustThinningHistoryInstanceThicknessMap, map1, map2, functor );
-               //    pThicknessMap->thicknessGridMap = FastcauldronSimulator::getInstance ().getFactory()->produceGridMap ( 0, Interface::CrustThinningHistoryInstanceThicknessMap, map1, map2, functor );
 
                newCrustalThicknesses.push_back( crustThicknessMap );
                map1 = crustThicknessMap->getMap(Interface::CrustThinningHistoryInstanceThicknessMap);
@@ -2224,26 +2215,11 @@ bool ProjectHandle::addCrustThinningHistoryMaps (void) {
          }
       }
       sort (crustIoTbl->begin (), crustIoTbl->end (), CrustIoTblSorter);
-
-      /*
-      cout << "New CrustThickness maps added: " ;
-      for ( thicknessIter = newCrustalThicknesses.begin (); thicknessIter != newCrustalThicknesses.end (); ++ thicknessIter ) {
-         cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
-      }
-      cout << endl;
-      */
       for ( thicknessIter = newCrustalThicknesses.begin (); thicknessIter != newCrustalThicknesses.end (); ++ thicknessIter ) {
          m_crustPaleoThicknesses.push_back( *thicknessIter );
       }
       sort( m_crustPaleoThicknesses.begin(),  m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan() );
 
-      /*
-      cout << "CrustThickness maps: " ;
-      for ( thicknessIter = m_crustPaleoThicknesses.begin (); thicknessIter != m_crustPaleoThicknesses.end (); ++ thicknessIter ) {
-         cout << (*thicknessIter)->getSnapshot()->getTime() << "; " ;
-      }
-      cout << endl;
-      */
    }
 
    return true;
@@ -6099,13 +6075,27 @@ bool ProjectHandle::containsSulphur () const {
    return false;
 }
 
-void ProjectHandle::setLatentHeat( const bool aLatentHeat ) 
+void ProjectHandle::loadPermafrostData() {
+   
+   m_permafrost = false;
+
+   database::Table* permafrostIoTbl = getTable ("PermafrostIoTbl");
+
+   if( permafrostIoTbl != 0 ) {
+      Record *projectIoRecord = permafrostIoTbl->getRecord (0);
+      if( projectIoRecord != 0 ) {
+         m_permafrost = ( database::getPermafrostInd ( projectIoRecord ) == 1 );
+      }
+   }   
+}
+ 
+void ProjectHandle::setPermafrost( const bool aPermafrost ) 
 {
-   m_latentHeat = aLatentHeat;
+   m_permafrost = aPermafrost;
 }
 
-bool ProjectHandle::getLatentHeat() const {
-   return m_latentHeat;
+bool ProjectHandle::getPermafrost() const {
+   return m_permafrost;
 }
 
 void ProjectHandle::printOn (ostream & ostr) const

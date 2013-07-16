@@ -443,6 +443,7 @@ void Basin_Modelling::computeFluidFlux ( const bool               imposeFluxLimi
                                          const double             fluidViscosity,
                                          const Matrix3x3&         jacobian,
                                          const ThreeVector&       gradOverpressure,
+                                         const double             relativePermeability,
                                          const CompoundLithology* lithology,
                                                ThreeVector&       fluidFlux ) {
 
@@ -482,8 +483,8 @@ void Basin_Modelling::computeFluidFlux ( const bool               imposeFluxLimi
     permeabilityPlane = MaximumPermeability;
   }
 
-  permeabilityNormal = permeabilityScaling * permeabilityNormal / fluidViscosity;
-  permeabilityPlane  =                       permeabilityPlane  / fluidViscosity;
+  permeabilityNormal = permeabilityScaling * relativePermeability * permeabilityNormal / fluidViscosity;
+  permeabilityPlane  =                       relativePermeability * permeabilityPlane  / fluidViscosity;
 
   Set_Permeability_Tensor ( permeabilityNormal, permeabilityPlane, jacobian, permeabilityTensor );
 
@@ -524,6 +525,7 @@ void Basin_Modelling::computeFluidVelocity
      const ElementVector&          currentElementPo,
      const ElementVector&          currentElementTemperature,
      const ElementVector&          currentElementChemicalCompaction,
+     const double                  currentElementRelativePermeability,
            ThreeVector&            fluidVelocity ) {
 
    computeFluidVelocity ( 0.0, 0.0, 0.0,
@@ -537,6 +539,7 @@ void Basin_Modelling::computeFluidVelocity
                           currentElementPo,
                           currentElementTemperature,
                           currentElementChemicalCompaction,
+                          currentElementRelativePermeability,
                           fluidVelocity );
 }
 
@@ -556,6 +559,7 @@ void Basin_Modelling::computeFluidVelocity
      const ElementVector&          currentElementPo,
      const ElementVector&          currentElementTemperature,
      const ElementVector&          currentElementChemicalCompaction,
+     const double                  currentElementRelativePermeability,
            ThreeVector&            fluidVelocity ) {
 
   double temperature;
@@ -564,6 +568,11 @@ void Basin_Modelling::computeFluidVelocity
   double porosity;
   double fluidViscosity;
   double chemicalCompactionTerm;
+  double relativePermeability;
+  double porePressure;
+  double overpressure;
+  double hydrostaticPressure;
+
   CompoundProperty currentCompoundPorosity;
 
   ElementVector      basis;
@@ -611,11 +620,16 @@ void Basin_Modelling::computeFluidVelocity
   VES         = FiniteElementMethod::innerProduct ( currentElementVES, basis );
   maxVES      = FiniteElementMethod::innerProduct ( currentElementMaxVES, basis );
   chemicalCompactionTerm = FiniteElementMethod::innerProduct ( currentElementChemicalCompaction, basis );
+  hydrostaticPressure    = FiniteElementMethod::innerProduct ( currentElementPh,  basis ) * MPa_To_Pa;;
+  overpressure           = FiniteElementMethod::innerProduct ( currentElementPo, basis  ) * MPa_To_Pa;
 
   lithology->getPorosity ( VES, maxVES, includeChemicalCompaction, chemicalCompactionTerm, currentCompoundPorosity );
   porosity = currentCompoundPorosity.mixedProperty ();
 
   fluidViscosity = fluid->viscosity ( temperature );
+
+  porePressure = ( overpressure + hydrostaticPressure ) * Pa_To_MPa;
+  relativePermeability = fluid->relativePermeability ( temperature, porePressure ) * currentElementRelativePermeability;
 
   matrixTransposeVectorProduct ( gradBasis, currentElementPo, referenceGradOverpressure );
   matrixTransposeVectorProduct ( jacobianInverse, referenceGradOverpressure, gradOverpressure );
@@ -634,6 +648,7 @@ void Basin_Modelling::computeFluidVelocity
                      fluidViscosity,
                      jacobian,
                      gradOverpressure,
+                     relativePermeability,
                      lithology,
                      fluidFlux );
 
@@ -733,6 +748,7 @@ double Basin_Modelling::CFL_Value
                        Fluid_Viscosity,
                        Jacobian,
                        Grad_Overpressure,
+                       1.0,
                        lithology,
                        fluidFlux );
 
@@ -786,6 +802,7 @@ void Basin_Modelling::Compute_Heat_Flow ( const bool                 isBasementF
                                           const ElementVector&       Temperature_Vector,
                                           const double               Temperature_Value,
                                           const double               Porosity,
+                                          const double               PorePressure,
                                           const double               LithostaticPressure,
                                           const Matrix3x3&           Jacobian,
                                           const GradElementVector&   Grad_Basis,
@@ -798,7 +815,7 @@ void Basin_Modelling::Compute_Heat_Flow ( const bool                 isBasementF
   if(isBasementFormation) {
      lithology -> calcBulkThermCondNPBasement ( Fluid, Porosity, Temperature_Value, LithostaticPressure, Conductivity_Normal, Conductivity_Tangential );
   } else {
-     lithology -> calcBulkThermCondNP ( Fluid, Porosity, Temperature_Value, Conductivity_Normal, Conductivity_Tangential );
+     lithology -> calcBulkThermCondNP ( Fluid, Porosity, Temperature_Value, PorePressure, Conductivity_Normal, Conductivity_Tangential );
   }
   GradElementVector Grad_Basis2;
 
@@ -838,6 +855,7 @@ void Basin_Modelling::computeHeatFlow
   double porosity;
   double chemicalCompactionTerm;
   double lithostaticPressure;
+  double porePressure;
   CompoundProperty currentCompoundPorosity;
 
   ElementVector      basis;
@@ -878,13 +896,14 @@ void Basin_Modelling::computeHeatFlow
   maxVES      = FiniteElementMethod::innerProduct ( currentElementMaxVES, basis );
   chemicalCompactionTerm = FiniteElementMethod::innerProduct ( currentElementChemicalCompaction, basis );
   lithostaticPressure = FiniteElementMethod::innerProduct ( currentElementLp, basis );
+  porePressure = FiniteElementMethod::innerProduct ( currentElementPp, basis );
 
   lithology->getPorosity ( VES, maxVES, includeChemicalCompaction, chemicalCompactionTerm, currentCompoundPorosity );
   porosity = currentCompoundPorosity.mixedProperty ();
   if(isBasementFormation) {
      lithology -> calcBulkThermCondNPBasement ( fluid, porosity, temperature, lithostaticPressure, conductivityNormal, conductivityTangential );
   } else {
-     lithology -> calcBulkThermCondNP ( fluid, porosity, temperature, conductivityNormal, conductivityTangential );
+     lithology -> calcBulkThermCondNP ( fluid, porosity, temperature, porePressure, conductivityNormal, conductivityTangential );
   }     
   Set_Heat_Conductivity_Tensor ( conductivityNormal, conductivityTangential, jacobian, conductivityTensor );
   matrixMatrixProduct ( scaledGradBasis, conductivityTensor, gradBasis2 );
@@ -900,7 +919,6 @@ void Basin_Modelling::computeHeatFlow
     double fluidDensity;
     double fluidViscosity;
     double heatCapacity;
-    double porePressure;
     double advectionScaling;
 
     ThreeVector referenceGradOverpressure;
@@ -909,7 +927,7 @@ void Basin_Modelling::computeHeatFlow
 
     matrixTransposeVectorProduct ( gradBasis, currentElementPo, referenceGradOverpressure );
     matrixTransposeVectorProduct ( jacobianInverse, referenceGradOverpressure, gradOverpressure );
-    porePressure = FiniteElementMethod::innerProduct ( currentElementPp, basis );
+    //   porePressure = FiniteElementMethod::innerProduct ( currentElementPp, basis );
 
     fluidDensity   = fluid->density ( temperature, porePressure );
     heatCapacity   = fluid->heatCapacity ( temperature, porePressure );
@@ -925,6 +943,7 @@ void Basin_Modelling::computeHeatFlow
                        fluidViscosity,
                        jacobian,
                        gradOverpressure,
+                       1.0,
                        lithology,
                        fluidFlux );
 
@@ -1685,6 +1704,8 @@ void Basin_Modelling::Assemble_Element_Pressure_System
         currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
         fluidViscosity = Fluid->viscosity ( currentTemperature );
 
+        relativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
+
         currentFluidDensityDerivative = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
 
         //
@@ -2087,6 +2108,7 @@ void Basin_Modelling::Assemble_Element_Temperature_System
                             Current_Element_Temperature,
                             Current_Temperature,
                             Current_Porosity,
+                            Current_Pore_Pressure,
                             Current_LithostaticPressure,
                             Jacobian,
                             Scaled_Grad_Basis,
@@ -2153,6 +2175,7 @@ void Basin_Modelling::Assemble_Element_Temperature_System
                              Fluid_Viscosity,
                              Jacobian,
                              Grad_Overpressure,
+                             1.0,
                              lithology,
                              fluidFlux );
 
@@ -2401,6 +2424,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Residual
                             Current_Element_Temperature,
                             Current_Temperature,
                             Current_Porosity,
+                            Current_Pore_Pressure,
                             Current_LithostaticPressure,
                             Jacobian,
                             Scaled_Grad_Basis,
@@ -2451,6 +2475,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Residual
                              Fluid_Viscosity,
                              Jacobian,
                              Grad_Overpressure,
+                             1.0,
                              lithology,
                              fluidFlux );
 
@@ -2561,7 +2586,8 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
 
   double Fluid_Density_Heat_Capacity;
   double Fluid_Viscosity;
-
+  double Fluid_RelativePermeability;
+  
   ElementVector      Basis;
   ElementVector      Work_Space;
   GradElementVector Grad_Basis;
@@ -2720,7 +2746,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
                                                       Conductivity_Normal, Conductivity_Tangential );
         } else {
  
-           lithology -> calcBulkThermCondNP ( Fluid, Current_Porosity, Current_Temperature, Conductivity_Normal, Conductivity_Tangential );
+           lithology -> calcBulkThermCondNP ( Fluid, Current_Porosity, Current_Temperature, Current_Pore_Pressure, Conductivity_Normal, Conductivity_Tangential );
         }
 
         Set_Heat_Conductivity_Tensor ( Conductivity_Normal, Conductivity_Tangential, Jacobian, Conductivity_Tensor );
@@ -2738,6 +2764,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
 
           Fluid_Density_Heat_Capacity = Fluid->densXheatCapacity ( Current_Temperature, Current_Pore_Pressure );
           Fluid_Viscosity = Fluid->viscosity ( Current_Temperature );
+          Fluid_RelativePermeability = Fluid->relativePermeability ( Current_Temperature, Current_Pore_Pressure );
 
           matrixTransposeVectorProduct ( Grad_Basis, Current_Po, Reference_Grad_Overpressure );
           matrixTransposeVectorProduct ( Jacobian_Inverse, Reference_Grad_Overpressure, Grad_Overpressure );
@@ -2762,6 +2789,8 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
                              Fluid_Viscosity,
                              Jacobian,
                              Grad_Overpressure,
+                             // 1.0,
+                             Fluid_RelativePermeability,
                              lithology,
                              fluidFlux );
 

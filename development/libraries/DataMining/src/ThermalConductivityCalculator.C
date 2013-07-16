@@ -15,6 +15,7 @@ DataAccess::Mining::ThermalConductivityCalculator::ThermalConductivityCalculator
    m_normalConductivity ( normalConductivity )
 {
    m_temperature = 0;
+   m_pressure = 0;
    m_porosity = 0;
    m_initialised = false;
 }
@@ -23,9 +24,10 @@ bool DataAccess::Mining::ThermalConductivityCalculator::initialise () {
 
    if ( not m_initialised ) {
       m_temperature = getPropertyCollection ()->getDomainProperty ( "Temperature" );
+      m_pressure = getPropertyCollection ()->getDomainProperty ( "Pressure" );
       m_porosity = getPropertyCollection ()->getDomainProperty ( "Porosity" );
 
-      if ( m_temperature != 0 and m_porosity != 0 ) {
+      if ( m_temperature != 0 and m_porosity != 0 and m_pressure != 0 ) {
          m_initialised = true;
       } else {
          m_initialised = false;
@@ -51,18 +53,20 @@ double DataAccess::Mining::ThermalConductivityCalculator::compute ( const Elemen
 
    double porosity;
    double temperature;
+   double pressure;
    double conductivityN;
    double conductivityP;
 
    porosity = m_porosity->compute ( position );
    temperature = m_temperature->compute ( position );
+   pressure = m_pressure->compute ( position );
 
-   if ( temperature != Interface::DefaultUndefinedMapValue and porosity != Interface::DefaultUndefinedMapValue ) {
+   if ( temperature != Interface::DefaultUndefinedMapValue and porosity != Interface::DefaultUndefinedMapValue and pressure != Interface::DefaultUndefinedMapValue  ) {
       porosity = 0.01 * porosity;
 
       const GeoPhysics::CompoundLithology* lithology = geoForm->getCompoundLithology ( position.getI (), position.getJ ());
 
-      lithology->calcBulkThermCondNP ( fluid, porosity, temperature, conductivityN, conductivityP );
+      lithology->calcBulkThermCondNP ( fluid, porosity, temperature, pressure, conductivityN, conductivityP );
    } else {
       conductivityN = Interface::DefaultUndefinedMapValue;
       conductivityP = Interface::DefaultUndefinedMapValue;

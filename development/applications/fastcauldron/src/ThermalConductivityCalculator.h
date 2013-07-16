@@ -35,6 +35,7 @@ private :
    OutputPropertyMap* m_porosity;
    OutputPropertyMap* m_temperature;
    OutputPropertyMap* m_lithopressure;
+   OutputPropertyMap* m_porePressure;
 
    unsigned int m_kIndex;
 
@@ -68,6 +69,7 @@ private :
    OutputPropertyMap* m_porosity;
    OutputPropertyMap* m_temperature;
    OutputPropertyMap* m_lithopressure;
+   OutputPropertyMap* m_porePressure;
 
    bool m_isCalculated;
    bool m_isBasementFormationAndALC;
