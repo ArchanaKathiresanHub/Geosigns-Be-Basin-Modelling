@@ -1,5 +1,6 @@
 #include "parametersettings.h"
 #include "parser.h"
+#include "system.h"
 
 #include <fstream>
 
@@ -12,14 +13,14 @@ ParameterSettings
 
 std::vector<ParameterSettings>
 ParameterSettings
-   :: parse( const std::string & parameterSettingsFile )
+   :: parse( const Path & parameterSettingsFile )
 {
-  std::ifstream file(parameterSettingsFile.c_str());
+  boost::shared_ptr<std::istream> file = parameterSettingsFile.readFile();
 
   std::vector<ParameterSettings> result;
   std::vector< ParameterSettings > currentSettings(1);
   std::string line;
-  while (getline(file, line))
+  while (getline(*file, line))
   {
      // empty lines are record separators
      if (line.empty())

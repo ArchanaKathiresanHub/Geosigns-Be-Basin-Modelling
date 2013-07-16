@@ -6,8 +6,12 @@
 
 #include "configurationfile.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace hpc
 {
+ 
+class Path;
 
 class HPCCluster
 {
@@ -42,7 +46,7 @@ private:
 class DelayedLsfCluster : private ConfigurationFile, public HPCCluster
 {
 public:
-   DelayedLsfCluster(const std::string & configFile, const std::string & workingDirectory);
+   DelayedLsfCluster(const Path & configFile, const Path & workingDirectory);
 
    virtual void submitMpiJob(const std::vector< std::pair< Processors, ID > > & jobs);
    virtual void wait();
@@ -51,10 +55,10 @@ private:
    static std::string randomAllBenchmarkId() ;
 
    std::string m_clusterName;
-   std::string m_directory;
+   boost::shared_ptr<Path> m_directory;
    std::string m_lsfProject;
    std::string m_allBenchmarkId;
-   std::string m_jobDir;
+   boost::shared_ptr<Path> m_jobDir;
    int m_estimatedJobDuration;
 };
 

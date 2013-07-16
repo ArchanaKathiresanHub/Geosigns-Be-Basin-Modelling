@@ -9,10 +9,12 @@
 namespace hpc
 {
 
+class Path;
+
 class ConfigurationFile
 {
 public:
-   ConfigurationFile( const std::string & file );
+   ConfigurationFile( const Path & file );
 
    const std::string & getString(const std::string & name) const;
    int getInt(const std::string & name) const;

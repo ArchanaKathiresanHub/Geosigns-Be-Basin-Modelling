@@ -1,0 +1,40 @@
+[2012.1008]
+VERSION=2012.1008
+export SIEPRTS_LICENSE_FILE="3000@amsdc1-s-7225.europe.shell.com:3000@cbj-s-7018.asia-pac.shell.com:3000@houic-s-7050.americas.shell.com"
+MISC=/apps/sssdev/ibs/v$VERSION/misc
+FASTCAULDRON=/apps/sssdev/ibs/v$VERSION/`getos2 --ver --os`/bin/fastcauldron
+export EOSPACKDIR=$MISC/eospack
+export GENEXDIR=$MISC/genex40
+export GENEX5DIR=$MISC/genex50
+export GENEX6DIR=$MISC/genex60
+export OTGCDIR=$MISC/OTGC
+source /apps/3rdparty/intel/ics2011/impi/4.0.1.007/intel64/bin/mpivars.sh
+mpirun -np {PROCS} {MPI_PARAMS} $FASTCAULDRON -project {INPUT} -save {OUTPUT} -debug1 -log_summary {FC_PARAMS}
+
+[2013.0504]
+VERSION=2013.0504
+export SIEPRTS_LICENSE_FILE="3000@amsdc1-s-7225.europe.shell.com:3000@cbj-s-7018.asia-pac.shell.com:3000@houic-s-7050.americas.shell.com"
+MISC=/apps/sssdev/ibs/v$VERSION/misc
+FASTCAULDRON=/apps/sssdev/ibs/v$VERSION/`getos2 --ver --os`/bin/fastcauldron
+export EOSPACKDIR=$MISC/eospack
+export GENEXDIR=$MISC/genex40
+export GENEX5DIR=$MISC/genex50
+export GENEX6DIR=$MISC/genex60
+export OTGCDIR=$MISC/OTGC
+source /apps/3rdparty/intel/ics2011/impi/4.0.1.007/intel64/bin/mpivars.sh
+mpirun -np {PROCS} {MPI_PARAMS} $FASTCAULDRON -project {INPUT} -save {OUTPUT} -debug1 -log_summary {FC_PARAMS}
+
+[2013.10nightly]
+VERSION=2013.10nightly
+export SIEPRTS_LICENSE_FILE="3000@amsdc1-s-7225.europe.shell.com:3000@cbj-s-7018.asia-pac.shell.com:3000@houic-s-7050.americas.shell.com"
+MISC=/apps/sssdev/ibs/v$VERSION/misc
+FASTCAULDRON=/apps/sssdev/ibs/v$VERSION/`getos2 --ver --os`/bin/fastcauldron
+export EOSPACKDIR=$MISC/eospack
+export GENEXDIR=$MISC/genex40
+export GENEX5DIR=$MISC/genex50
+export GENEX6DIR=$MISC/genex60
+export OTGCDIR=$MISC/OTGC
+source /apps/3rdparty/intel/ics2011/impi/4.0.1.007/intel64/bin/mpivars.sh
+mpirun -np {PROCS} {MPI_PARAMS} $FASTCAULDRON -project {INPUT} -save {OUTPUT} -verbose -log_summary {FC_PARAMS}
+
+

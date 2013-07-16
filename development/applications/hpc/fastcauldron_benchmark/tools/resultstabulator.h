@@ -13,7 +13,7 @@ class VariableDefinitions;
 class ParameterSettings;
 
 std::ostream & 
-writeResultsTabulatorScript( std::ostream & output, const ParameterDefinitions & parameters, const VariableDefinitions & variables, const std::vector< ParameterSettings > & settings, const std::string & dirWithResults);
+writeResultsTabulatorScript( std::ostream & output, const ParameterDefinitions & parameters, const VariableDefinitions & variables, const std::vector< ParameterSettings > & settings, const std::string & canonicalDirWithResults);
 
 
 

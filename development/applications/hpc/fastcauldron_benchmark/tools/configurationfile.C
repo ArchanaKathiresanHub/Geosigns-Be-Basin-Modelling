@@ -1,5 +1,6 @@
 #include "configurationfile.h"
 #include "parser.h"
+#include "system.h"
 
 #include <fstream>
 #include <sstream>
@@ -8,13 +9,13 @@ namespace hpc
 {
 
 ConfigurationFile
-   :: ConfigurationFile( const std::string & file)
+   :: ConfigurationFile( const Path & file)
    : m_nameValueMap()
 {
-   std::ifstream input(file.c_str());
+   boost::shared_ptr<std::istream> input = file.readFile();
 
    std::string line;
-   while (getline( input, line ) )
+   while (getline( *input, line ) )
    {
       if (line.empty())
          continue;

@@ -5,20 +5,192 @@
 #include "system.h"
 
 #include <iostream>
+#include <fstream>
 
 #include "Interface/ProjectHandle.h"
 
 namespace hpc
 {
 
+FastCauldronEnvironment :: Configuration
+   :: Configuration( const Path & configFile)
+   : m_runTemplates()
+{
+   readTemplates( * configFile.readFile() );
+}
+
+FastCauldronEnvironment :: Configuration
+   :: Configuration()
+   : m_runTemplates()
+{
+}
+
+void
+FastCauldronEnvironment :: Configuration
+   :: readTemplates( std::istream & input )
+{
+   const std::string sepMarkerLeft = "[";
+   const std::string sepMarkerRight = "]";
+
+   std::string line, script; 
+   VersionID   version;
+
+   // read the configuration file line by line
+   while ( getline(input, line) )
+   {
+      std::string::size_type left = line.find( sepMarkerLeft );
+      std::string::size_type right = line.rfind( sepMarkerRight );
+
+      // if the line is a separator, like "[2012.1008]", then a new template script starts
+      if (left != std::string::npos && right != std::string::npos && left == 0 && left < right)
+      {
+         if (!version.empty())
+         {
+            m_runTemplates[version] = script;
+         }
+
+         script.clear();
+         version = line.substr( left + sepMarkerLeft.size(), right - left - sepMarkerRight.size() );
+      }
+      else // else the current script should be continued
+      {
+         script.append( line );
+         script.push_back( '\n' );
+      }
+   }
+
+   // add the final script
+   if (!version.empty())
+      m_runTemplates[version] = script;
+}     
+
+
+FastCauldronEnvironment :: Configuration :: Tokenizer
+   :: Tokenizer(const std::string & text)
+   : m_text(text)
+   , m_posLeft(0), m_posRight(0)
+{}
+
+void
+FastCauldronEnvironment ::  Configuration :: Tokenizer
+   :: next( std::string & token, std::string & marker )
+{
+   const std::string sepMarkerLeft = "{";
+   const std::string sepMarkerRight = "}";
+
+   // the next token is all text up to the next '{' or end of string
+   m_posLeft = m_text.find( sepMarkerLeft, m_posLeft );
+
+   std::string::size_type tokenLength = 0;
+   if (m_posLeft == std::string::npos)
+      tokenLength = std::string::npos;
+   else
+      tokenLength = m_posLeft - m_posRight;
+
+   token = m_text.substr( m_posRight, tokenLength );
+
+   if (m_posLeft == std::string::npos)
+   {  // we have reached the end of string
+      marker.clear();
+      return;
+   }
+
+   // otherwise, there is a marker
+   m_posRight = m_text.find(sepMarkerRight, m_posLeft);
+   if (m_posRight == std::string::npos)
+      throw Exception() << "Missing '" << sepMarkerRight << "' after '" << sepMarkerLeft << "'";
+
+   marker = m_text.substr(m_posLeft + sepMarkerLeft.size(), m_posRight - m_posLeft - sepMarkerLeft.size());
+
+   m_posRight += sepMarkerRight.size();
+   m_posLeft = m_posRight;
+}
+
+bool
+FastCauldronEnvironment :: Configuration :: Tokenizer
+   :: hasMore() const
+{
+   return m_posLeft < std::string::npos;
+}
+
+std::string
+FastCauldronEnvironment :: Configuration
+   :: getRunScript( const VersionID & version, int numberOfProcessors, 
+         const std::vector< std::string > & mpiCmdLineParams,
+         const std::string & inputProject, const std::string & outputProject,
+         const std::vector< std::string > & fcCmdLineParams) const
+{
+   typedef std::map< VersionID, std::string > :: const_iterator It;
+   It entry = m_runTemplates.find( version );
+
+   if (entry == m_runTemplates.end())
+      throw Exception() << "Could not find fastcauldron template run-script for version '" << version << "'";
+
+   std::ostringstream result;
+   
+   std::string token, marker;
+   Tokenizer tokens(entry->second);
+   
+   while ( tokens.hasMore())
+   {
+      tokens.next( token, marker );
+      result << token;
+
+      if (marker.empty())
+      {
+         // then there was no marker found, probably because end of string was reached
+         // anyway, we can just ignore it
+      }
+      else if (marker == "PROCS")
+      {
+         result << numberOfProcessors;
+      }
+      else if (marker == "MPI_PARAMS")
+      {
+         for (unsigned k = 0; k < mpiCmdLineParams.size(); ++k)
+         {
+            if (k) 
+               result << ' ';
+
+            result << mpiCmdLineParams[k] ;
+         }
+      }
+      else if (marker == "INPUT")
+      {
+         result << inputProject;
+      }
+      else if (marker == "OUTPUT")
+      {
+         result << outputProject;
+      }
+      else if (marker == "FC_PARAMS")
+      {
+         for (unsigned k = 0; k < fcCmdLineParams.size(); ++k)
+         {
+            if (k)
+               result << ' ';
+
+            result << fcCmdLineParams[k] ;
+         }
+      }
+      else
+      {
+         throw Exception() << "Unrecognized parameter '" << marker << "' in fastcauldron template run-script for version '" << version << "'";
+      }
+   }
+   return result.str();
+}
+
+
 FastCauldronEnvironment
-   :: FastCauldronEnvironment( const std::string & id, const std::string & projectFile, int processors, const std::string & version)
-   : m_id(id)
+   :: FastCauldronEnvironment( const Configuration & configuration, const std::string & id, const Path & projectFile, int processors, const std::string & version)
+   : m_configuration(configuration)
+   , m_id(id)
    , m_processors(processors)
    , m_mpiCmdLine()
    , m_cauldronCmdLine()
-   , m_project( DataAccess::Interface::OpenCauldronProject( projectFile, "r"))
-   , m_projectSourceDir( dirname(projectFile))
+   , m_project( DataAccess::Interface::OpenCauldronProject( projectFile.getCanonicalPath(), "r"))
+   , m_projectSourceDir( projectFile.getParentDirectory() )
    , m_version(version)                                             
 {
   if (!m_project)
@@ -72,7 +244,7 @@ FastCauldronEnvironment
          << "\n"
          << "   echo ::::::::::::: $host :::::::::::::::\n"
          << "   ssh -oStrictHostKeyChecking=no -oForwardX11=no $host '" 
-                     << MPICmdLineTools().cpuinfo() << "; "
+                     << "cat /proc/cpuinfo ; "
                      << "echo; "
                      << "echo ===== Memory Info =====; "
                      << "cat /proc/meminfo; "
@@ -90,62 +262,63 @@ FastCauldronEnvironment
 
 bool
 FastCauldronEnvironment
-   :: jobHasRanBefore(const std::string & directory, const std::string & id)
+   :: jobHasRanBefore(const Path & directory, const std::string & id)
 {
-   const std::string myDir = directory + pathSeparator + id;
-   const std::string outputFile = myDir + pathSeparator + "output";
+   const boost::shared_ptr<Path> myDir = directory.getDirectoryEntry(id);
+   const boost::shared_ptr<Path> outputFile = myDir->getDirectoryEntry("output");
 
-   if (getFileType(directory) == FT_NotExists)
+   if (directory.getFileType() == Path::NotExists)
       return false;
 
-   if (getFileType(directory) != FT_Directory)
+   if (directory.getFileType() != Path::Directory)
       throw Exception() << "'" << directory << "' exists but is not a directory.";
 
-   if (getFileType(myDir) == FT_NotExists)
+   if (myDir->getFileType() == Path::NotExists)
       return false;
 
-   if (getFileType(myDir) != FT_Directory)
-      throw Exception() << "'" << myDir << "' exists but is not a directory.";
+   if (myDir->getFileType() != Path::Directory)
+      throw Exception() << "'" << *myDir << "' exists but is not a directory.";
 
-   FileType fileType = getFileType(outputFile);
+   Path::FileType fileType = outputFile->getFileType();
 
-   if (fileType != FT_Regular && fileType != FT_NotExists)
+   if (fileType != Path::Regular && fileType != Path::NotExists)
       throw Exception() << "File '" << outputFile << "' exists and is not a regular file";
    
-   return fileType == FT_Regular;
+   return fileType == Path::Regular;
 }
 
 void 
 FastCauldronEnvironment
-   :: commandToRunJob( const std::string & directory, const std::string & id, std::string & workingDir, std::string & command)
+   :: commandToRunJob( const Path & directory, const std::string & id, 
+         boost::shared_ptr<Path> & workingDir, std::string & command )
 {
-  workingDir = directory + pathSeparator + id;
+  workingDir = directory.getDirectoryEntry(id);
   command = "bash runcauldron.sh > output";
 }
 
 bool
 FastCauldronEnvironment
-   :: generateJob( const std::string & directory )
+   :: generateJob( const Path & directory )
 {
-   const std::string myDir = directory + pathSeparator + m_id;
+   boost::shared_ptr<Path> myDir = directory.getDirectoryEntry( m_id );
 
-   if ( getFileType(directory) == FT_NotExists)
-      mkdir( directory );
+   if ( directory.getFileType() == Path::NotExists)
+      directory.makeDirectory();
 
-   if (getFileType(directory) != FT_Directory)
+   if ( directory.getFileType() != Path::Directory)
       throw Exception() << "'" << directory << "' exists but is not a directory.";
 
-   if (getFileType(myDir) == FT_NotExists)
-      mkdir( myDir );
+   if ( myDir->getFileType() == Path::NotExists)
+      myDir->makeDirectory();
 
-   if (getFileType(myDir) != FT_Directory)
-      throw Exception() << "'" << myDir << "' exists but is not a directory.";
+   if ( myDir->getFileType() != Path::Directory)
+      throw Exception() << "'" << *myDir << "' exists but is not a directory.";
 
    if (jobHasRanBefore(directory, m_id))
       return false;
 
    // save the project file
-   m_project->saveToFile(myDir + pathSeparator + "Project.project3d");
+   m_project->saveToFile( myDir->getDirectoryEntry( "Project.project3d")->getPath() );
 
    {  // copy files on which the project depends
       ProjectDependencies deps = getProjectDependencies(m_project->getDataBase());
@@ -155,13 +328,25 @@ FastCauldronEnvironment
          throw Exception() << "Insuitable project, because it already contains output.";
       }
 
+      // copy input maps
       for (unsigned i = 0; i < deps.inputMaps.size(); ++i)
-         copyFile( m_projectSourceDir + pathSeparator + deps.inputMaps[i], myDir + pathSeparator + deps.inputMaps[i]);
+      {
+         m_projectSourceDir->getDirectoryEntry(deps.inputMaps[i])->copyTo(
+               *myDir->getDirectoryEntry( deps.inputMaps[i]) 
+             );
+      }
+
+      // copy related projects
+      for (unsigned i = 0; i < deps.related.size(); ++i)
+      {
+         m_projectSourceDir->getDirectoryEntry(deps.related[i])->copyTo(
+               *myDir->getDirectoryEntry( deps.related[i]) 
+             );
+      }
    }
 
-   {  // construct the file that runs cauldron
-      std::ofstream commandFile( (myDir + pathSeparator + "runcauldron.sh").c_str() );
-      commandFile 
+   // construct the file that runs cauldron
+   * myDir->getDirectoryEntry("runcauldron.sh")->writeFile()
          << "#!/bin/bash\n"
          << '\n'
          // output host information
@@ -171,43 +356,14 @@ FastCauldronEnvironment
          << "echo\n"
          << "echo /////////////////// FASTCAULDRON OUTPUT //////////////////////////////\n"
          // setup the environment
-         << "export SIEPRTS_LICENSE_FILE"
-            << "=\"3000@amsdc1-s-7225.europe.shell.com"
-            << ":3000@cbj-s-7018.asia-pac.shell.com"
-            << ":3000@houic-s-7050.americas.shell.com\"\n"
-         << "MISC=/apps/sssdev/ibs/v" << m_version << "/misc\n"
-         << "FASTCAULDRON=/apps/sssdev/ibs/v" << m_version << "/`getos2 --ver --os`/bin/fastcauldron\n"
-         << "export EOSPACKDIR=$MISC/eospack\n"
-         << "export GENEXDIR=$MISC/genex40\n"
-         << "export GENEX5DIR=$MISC/genex50\n"
-         << "export GENEX6DIR=$MISC/genex60\n"
-         << "export OTGCDIR=$MISC/OTGC\n"
-         << MPICmdLineTools().loadEnv() << '\n'
-         << "\n"
-         // execute fastcauldron
-         << "mpirun -np " << m_processors << ' ' ;
-      
-      for (unsigned i = 0; i < m_mpiCmdLine.size(); ++i)
-         commandFile << m_mpiCmdLine[i] << ' ';
+         << m_configuration.getRunScript(m_version, m_processors, m_mpiCmdLine, "Project.project3d", "Project_output.project3d", m_cauldronCmdLine)
 
-      commandFile 
-         << "$FASTCAULDRON "
-         << "-project Project.project3d "  // the project file
-         << "-save Project_output.project3d " // the output project file
-         << "-debug1 -log_summary "       // flags to fastcauldron that print a lot of performance data
-         ;
-
-      for (unsigned i = 0 ; i < m_cauldronCmdLine.size(); ++i)
-         commandFile << m_cauldronCmdLine[i] << ' ';
-
-      commandFile
          << "\necho\n"
          << "echo /////////////////// HOST INFORMATION AFTER RUN //////////////////////\n"
          << hostInformationScript
-         << "\n";
-
-      commandFile << std::endl;
-   } 
+         << "\n"
+         << std::endl;
+    
 
    return true;
 }

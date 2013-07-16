@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "project3dparameter.h"
 #include "cmdlineparameter.h"
+#include "system.h"
 
 #include <fstream>
 #include <string>
@@ -11,16 +12,16 @@ namespace hpc
 {
 
 ParameterDefinitions
-   :: ParameterDefinitions(const std::string & parameterDefinitionFile )
+   :: ParameterDefinitions(const Path & parameterDefinitionFile )
    : m_projectParams()
    , m_mpiCmdLineParams()
    , m_cauldronCmdLineParams()
 {                              
    // parse parameter definition file
-   std::ifstream paramDefs(parameterDefinitionFile.c_str());
+   boost::shared_ptr<std::istream> paramDefs = parameterDefinitionFile.readFile();
    std::string line;
    int lineNr = 0;
-   while ( ++lineNr, getline(paramDefs, line) )
+   while ( ++lineNr, getline(*paramDefs, line) )
    {
       // skip lines that are empty, only contain white space and/or start with a #
       {  std::string::size_type i;

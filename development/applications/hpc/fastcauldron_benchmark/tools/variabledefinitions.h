@@ -8,6 +8,8 @@
 namespace hpc
 {
 
+class Path;
+
 class VariableDefinitions
 {
 public:
@@ -21,7 +23,7 @@ public:
       ShellScript script;
    };
 
-   VariableDefinitions(const std::string & variableDefinitionsFile );
+   VariableDefinitions(const Path & variableDefinitionsFile );
 
    const std::vector< Definition > & definitions() const
    { return m_definitions; }

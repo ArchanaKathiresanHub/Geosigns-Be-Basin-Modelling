@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include <boost/shared_ptr.hpp>
 #include <iosfwd>
 
@@ -17,13 +18,82 @@ namespace hpc
 
 class Project3DParameter;
 class CmdLineParameter;
+class Path;
 
+/// A 'FastCauldronEnvironment' object knows how to apply parameters to a project file and the command line 
+/// and how to start fastcauldron.
 class FastCauldronEnvironment 
 {
 public:
-   FastCauldronEnvironment(const std::string & id, const std::string & projectFile, int processors, const std::string & version);
+   typedef std::string VersionID;
 
-   struct Exception : formattingexception::BaseException< Exception > {};
+   struct Exception : formattingexception :: BaseException< Exception > {};
+
+   /// To create a FastcauldronEnvironment object, a configuration file 
+   /// has to be read first by constructing a Configuration object. 
+   /// The configuration file has a specific layout, e.g.:
+   /// 
+   /// [2012.1008]
+   /// mpiexec -np {PROCS} {MPI_PARAMS} fastcauldron -v2012.1008 -project {INPUT} -save {OUTPUT} {FC_PARAMS}
+   ///
+   /// [BUILD]
+   /// mpiexec -np {PROCS} {MPI_PARAMS} ../../fastcauldron/fastcauldron -project {INPUT} -save {OUTPUT} {FC_PARAMS}
+   ///
+   /// ...
+   ///
+   /// The entries which are bounded by right-angled brackets [] mark the
+   /// beginning of the script template for a specific version. It can be any
+   /// string, although it can't contain an angled bracket and it should fit
+   /// on one line.
+   ///
+   /// The parameters between curly braces {} are replaced with generated
+   /// values:
+   /// {PROCS}      - Number of processors
+   /// {MPI_PARAMS} - Extra parameters to mpirun
+   /// {INPUT}      - The input project file name
+   /// {OUTPUT}     - The output project file name
+   /// {FC_PARAMS}  - Extra parameters to fastcauldron
+   ///
+   class Configuration
+   { 
+   public:
+      explicit Configuration(const Path & configFile);
+
+      std::string getRunScript( const VersionID & version, 
+            int numberOfProcessors, const std::vector<std::string> & mpiCmdLineParams,
+            const std::string & inputProject, const std::string & outputProject,
+            const std::vector<std::string> & fcCmdLineParams
+            ) const ;
+
+   private:
+      Configuration();
+
+      /// reads the configuration file
+      void readTemplates(std::istream & );
+
+      /// Can tokenize one template in the configuration file
+      class Tokenizer
+      {
+      public:
+         Tokenizer(const std::string & text);
+
+         // returns the next token and next marker
+         void next( std::string & token, std::string & marker);
+
+         // returns true iff there are more tokens
+         bool hasMore() const;
+
+      private:
+         std::string m_text;
+         std::string::size_type m_posLeft, m_posRight; // position of (left or right side) of a marker 
+      };
+
+
+      std::map< VersionID, std::string > m_runTemplates;
+   };
+
+
+   FastCauldronEnvironment(const Configuration & configuration, const std::string & id, const Path & projectFile, int processors, const VersionID & version);
 
    void applyProjectParameter( const Project3DParameter & param, const std::string & value);
    void applyMpiCmdLineParameter( const CmdLineParameter & param, const std::vector<std::string> & values);
@@ -32,17 +102,17 @@ public:
    // outputs the fastcauldron environment (command line params, project settings) to the file system
    // while returning true iff any changes were made. Typically, no changes will be made if the
    // job has been ran before.
-   bool generateJob(const std::string & directory);
+   bool generateJob( const Path & directory);
 
    // returns which script has to be run where (working directory) to do the job
-   static void commandToRunJob(const std::string & directory, 
+   static void commandToRunJob(const Path & directory,
          const std::string & id, 
-         std::string & workingDir, 
+         boost::shared_ptr<Path> & workingDir, 
          std::string & command
          );
 
    // returns whether the job has been ran before
-   static bool jobHasRanBefore(const std::string & directory, const std::string & id);
+   static bool jobHasRanBefore(const Path & directory, const std::string & id);
 
 private:
    FastCauldronEnvironment( const FastCauldronEnvironment & ); // copying prohibited
@@ -50,13 +120,15 @@ private:
 
    static std::ostream & hostInformationScript( std::ostream & output);
 
+
+   Configuration m_configuration;
    std::string m_id;
    int m_processors;
    std::vector< std::string > m_mpiCmdLine;
    std::vector< std::string > m_cauldronCmdLine;
    boost::shared_ptr<DataAccess::Interface::ProjectHandle>  m_project;
-   std::string m_projectSourceDir;
-   std::string m_version;
+   boost::shared_ptr<Path> m_projectSourceDir;
+   VersionID m_version;
 };  
 
 }

@@ -46,5 +46,6 @@ TimeSteppingMethod - Project3D - RunOptionsIoTbl.TempDiffBasedStepping : int . 0
 ## Algorithm
 SimulationMode - CauldronCmdLine - { Hydrostatic : "-temperature", FullyCoupled : "-itcoupled" }
 GeometricLoop - Project3D - RunOptionsIoTbl . NonGeometricLoop : int . 0 { Yes = 0, No = 1 }
-#LinearSolve - CmdLine - # Use CG, GMRES, etc...
+LinearSolver - CauldronCmdLine - { PCG : "-ksp_type cg", PCGSingleReduction : "-ksp_type cg -ksp_cg_single_reduction" }
+LinearSolverNorm - CauldronCmdLine - { Natural : "-ksp_norm_type natural", Preconditioned : "-ksp_norm_type preconditioned", Unpreconditioned : "-ksp_norm_type unpreconditioned" }
 

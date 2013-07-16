@@ -1,5 +1,6 @@
 #include "variabledefinitions.h"
 #include "parser.h"
+#include "system.h"
 
 #include <fstream>
 
@@ -7,16 +8,13 @@ namespace hpc
 {
 
    VariableDefinitions
-      :: VariableDefinitions(const std::string & variableDefinitionsFile)
+      :: VariableDefinitions(const Path & variableDefinitionsFile)
       : m_definitions()
    {
-      std::ifstream input(variableDefinitionsFile.c_str());
-
-      if (!input)
-         throw ParseException() << "Cannot open variable definitions file '" << variableDefinitionsFile << "'";
+      boost::shared_ptr<std::istream> input = variableDefinitionsFile.readFile();
 
       std::string line;
-      while (getline(input, line))
+      while (getline(*input, line))
       {
          if (line.empty())
             continue;

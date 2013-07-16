@@ -3,39 +3,60 @@
 
 #include "formattingexception.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace hpc
-{  // wrapper around system calls
-
-   struct SystemException : formattingexception::BaseException<SystemException> {};
-
-   extern const std::string pathSeparator;
-
-   void mkdir(const std::string & directory);
-   std::string dirname( const std::string & path);
-
-   void copyFile(const std::string & src, const std::string & dest);
-
-   enum FileType { FT_Regular, FT_Directory, FT_Other, FT_NotExists };
-   FileType getFileType( const std::string & fileName);
-
-   std::string canonicalPath(const std::string & path);
-
-
-   // Access Intel MPI Command line Tools
-   class MPICmdLineTools
+{  
+   /// A Wrapper around system calls. All methods are virtual, so that they can be mocked in Unit Tests.
+   class Path
    {
    public:
-      MPICmdLineTools();
+      struct Exception : formattingexception::BaseException<Exception> {};
 
-      std::string cpuinfo() const;
-      std::string loadEnv() const;
-      std::string startEnv(const std::string & hostsFile, int numberOfHosts ) const;
-      std::string stopEnv() const;
+      Path( const std::string & path);
+      boost::shared_ptr<Path> clone() const;
+
+      virtual ~Path() {}
+
+      // the path separator
+      virtual const std::string & pathSeparator() const;
+      
+      /// Make a directory
+      virtual void makeDirectory() const ;
+
+      /// Returns the path of the parent directory
+      virtual boost::shared_ptr<Path> getParentDirectory() const;
+
+      /// Return a child of the current directory
+      virtual boost::shared_ptr<Path> getDirectoryEntry( const std::string & file ) const;
+
+      // Copy a file
+      virtual void copyTo(const Path & dst) const ;
+   
+      enum FileType { Regular, Directory, Other, NotExists };
+      // Returns the type (regular, directory, other, non-existant) of the file
+      virtual FileType getFileType() const;
+
+      /// Returns the canonical form of the path. Note: the file must exist 
+      virtual std::string getCanonicalPath() const ;
+
+      /// Return the path
+      virtual std::string getPath() const;
+
+      /// Start writing a file
+      virtual boost::shared_ptr<std::ostream> writeFile() const; 
+
+      /// Read a file
+      virtual boost::shared_ptr<std::istream> readFile() const; 
 
    private:
-      std::string m_root;
+      virtual Path * doClone() const;
+
+      std::string m_path;
    };
 
- }
+   std::ostream & operator<<( std::ostream & output, const Path & path);
+
+}
 
 #endif
