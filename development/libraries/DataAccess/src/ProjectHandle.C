@@ -3260,7 +3260,7 @@ bool ProjectHandle::loadVolumePropertyValues (void)
    if (!wasProducedByFastCauldron () || Interface::MODE1D == getModellingMode()) return false;
 
    database::Table* timeIoTbl = getTable ("3DTimeIoTbl");
-   if (true || timeIoTbl == 0 || timeIoTbl->size() == 0)
+   if (timeIoTbl == 0 || timeIoTbl->size() == 0)
    {
       return loadVolumePropertyValuesViaSnapshotIoTbl();
    }
