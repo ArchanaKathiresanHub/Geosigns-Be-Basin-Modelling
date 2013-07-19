@@ -4,9 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-	<VersionNumberMajor Condition=" '$VersionNumberMajor)' == '' ">2013</VersionNumberMajor>
-	<VersionNumberMinor Condition=" '$VersionNumberMinor)' == '' ">05</VersionNumberMinor>
-	<VersionTag Condition=" '$VersionTag)' == '' ">nightly</VersionTag>
+	<VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">2013</VersionNumberMajor>
+	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">05</VersionNumberMinor>
+	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
+	<OtherCMakeParams Condition=" '$(OtherCMakeParams)' == '' "></OtherCMakeParams>
+	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">True</DeployToHouston>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
@@ -21,7 +23,7 @@
 
     <!-- Execute remote build script -->
     <script_to_build>development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
-    <build>$(ssh_command_alt) "env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_to_build)"</build>
+    <build>$(ssh_command_alt) "env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_to_build) $(OtherCMakeParams)"</build>
 
     <!-- Deploy to Houston -->
     <script_deploy_to_houston>development/BuildProjects/ReleaseToHouston</script_deploy_to_houston>
@@ -32,6 +34,6 @@
     <Exec Command="$(init_remote_dirs)" />
     <Exec Command="$(copy_code)" />
     <Exec Command="$(build)" />
-    <Exec Command="$(deploy_to_houston)"/>
+    <Exec Command="$(deploy_to_houston)" Condition=" '$(DeployToHouston)' == 'True' "/>
  </Target>
 </Project>

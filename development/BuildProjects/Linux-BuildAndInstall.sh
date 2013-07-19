@@ -39,6 +39,7 @@ ${src}/development/bootstrap.csh \
       -DBM_VERSION_NUMBER_MAJOR=${version_number_major} \
       -DBM_VERSION_NUMBER_MINOR=${version_number_minor} \
       -DBM_VERSION_TAG=${version_tag} \
+	  "$@" \
   || ( echo error: Configuration has failed; exit 1; ) || exit 1
 source envsetup.csh 
 make -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
