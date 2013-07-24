@@ -459,14 +459,15 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][CBMGenerics
 }
 
 
-bool pvtFlash::EosPack::computeWithLumping( double temperature, 
-                                            double pressure, 
-                                            double in_compMasses[],                     
-                                            double out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies],
-                                            double phaseDensity [],
-                                            double phaseViscosity[],
-                                            bool   isGormPrescribed,
-                                            double gorm
+bool pvtFlash::EosPack::computeWithLumping( double  temperature, 
+                                            double  pressure, 
+                                            double  in_compMasses[],                     
+                                            double  out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies],
+                                            double  phaseDensity [],
+                                            double  phaseViscosity[],
+                                            bool    isGormPrescribed,
+                                            double  gorm,
+                                            double* pKValues
                                           )   
 {
    const int NUM_COMP     = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
@@ -478,7 +479,7 @@ bool pvtFlash::EosPack::computeWithLumping( double temperature,
 
    pvtFlash::EosPack::lumpComponents( in_compMasses, compMasses, unlump_fractions );
    
-   bool ret = pvtFlash::EosPack::compute( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm );
+   bool ret = pvtFlash::EosPack::compute( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, gorm, pKValues );
 
    pvtFlash::EosPack::unlumpComponents( phaseCompMasses, out_phaseCompMasses, unlump_fractions );
 
@@ -486,14 +487,15 @@ bool pvtFlash::EosPack::computeWithLumping( double temperature,
 } 
 
 
-bool pvtFlash::EosPack::compute( double temperature, 
-                                 double pressure, 
-                                 double compMasses[],                     
-                                 double phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash],
-                                 double phaseDensity[],
-                                 double phaseViscosity[],
-                                 bool   isGormPrescribed,
-                                 double gorm
+bool pvtFlash::EosPack::compute( double  temperature, 
+                                 double  pressure, 
+                                 double  compMasses[],                     
+                                 double  phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash],
+                                 double  phaseDensity[],
+                                 double  phaseViscosity[],
+                                 bool    isGormPrescribed,
+                                 double  gorm,
+                                 double* pKValues
                                )   
 {
    try
@@ -512,6 +514,7 @@ bool pvtFlash::EosPack::compute( double temperature,
       const int iNc = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; //CBMGenerics::ComponentManager::NumberOfOutputSpecies;
 
       double pLB[5];
+
 
       // double dCvm;
       // double dCvp, dCvt, dCvv;
@@ -669,9 +672,11 @@ bool pvtFlash::EosPack::compute( double temperature,
          std::cout << std::endl;
       }
 #endif
-      
+
+
       /* Call the function */
-      EosCauldron::EosGetProperties( iFlashes, iOil, iGas, pPressure, pTemperature, pAccumulation, pPhaseAcc, pMassFraction, pDensity, pViscosity, 
+      EosCauldron::EosGetProperties( iFlashes, iOil, iGas, pPressure, pTemperature, pAccumulation, pKValues,
+                                     pPhaseAcc, pMassFraction, pDensity, pViscosity, 
                                      pvttable, m_maxItersNum, m_stopTolerance, m_NewtonRelaxCoeff );
 
 #ifdef EOSPACK_OUT

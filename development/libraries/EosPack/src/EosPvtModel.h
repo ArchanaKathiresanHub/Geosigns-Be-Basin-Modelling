@@ -213,14 +213,14 @@ enum
 // Number of elements in integer data for class EosPvtModel. 
 enum
 {
-   PVTMETHOD         = 0,
-   EOS_MAXITN        = 1,
-   EOS_MAXFLASH      = 2,
-   EOS_MICHELSON     = 3,
-   EOS_SUBSTITUTIONS = 4,
-   EOS_OWNMEMORY     = 5,
-   EOS_DEBUG         = 6,
-   EOS_LAST_INTEGER  = 7
+   PVTMETHOD           = 0,
+   EOS_MAXITN          = 1,
+   EOS_MAXFLASH        = 2,
+   EOS_MICHELSON       = 3,
+   EOS_SUBSTITUTIONS   = 4,
+   EOS_OWNMEMORY       = 5,
+   EOS_DEBUG           = 6,
+   EOS_LAST_INTEGER    = 7
 };
 
 // Currently not used, but reserved for later use when multiple applications can access the flasher
@@ -919,6 +919,10 @@ private:
    // Indicates whether the flasher is to generate debug printing.
    // Controlled by piFlasher[EOS_DEBUG] = EOS_OPTION_OFF || EOS_OPTION_ON
    int m_iDebug;
+
+   // Indicates whether the flasher should use the k-values supplied by the user
+   // or initialise them internally.
+   int m_restoreKValues;
 
    // Indicator for what type of composition/densities will be returned.  
    // Obtained from class EosApplication.  Values are:

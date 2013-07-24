@@ -141,6 +141,8 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
                                     double *pAccumulation, // Pointer to array of mass accumulations (SI units). The array is over all objects and is of size 
                                                            // number of objects (varies first) 
                                                            // components (varies last)
+                                    double* pKValues,      // K-values used to initialise the Newton solver.
+                                                           // If this pointer is null then the can be no k-value initialisation.
                                     double *pPhaseAcc,     // Pointer to array of phase accumulations on a mass basis (SI units). The array is 
                                                            // over all objects and is of size number of 
                                                            // objects (varies first)
@@ -179,6 +181,15 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
    piApplication[EOS_APPLICATION_LIQUID]     = iOil;
    piApplication[EOS_APPLICATION_VAPOUR]     = iGas;
 
+   // Indicate whether to use the user supplied k-values or not.
+   if ( pKValues == 0 ) { // or ( pKValues != 0 and pKValues [ 0 ] == -1.0 )) {
+      piApplication[EOS_APPLICATION_RESTORE] = EOS_OPTION_OFF;
+   } else if ( pKValues [ 0 ] == -1.0 ) {
+      piApplication[EOS_APPLICATION_RESTORE] = EOS_OPTION_INITIALISE;
+   } else {
+      piApplication[EOS_APPLICATION_RESTORE] = EOS_OPTION_ON;
+   }
+
    /* Set integer pointers */
    pointI[INTEGERDATA]                 = piApplication;
    pointI[EOS_APPLICATION_EOSCOMPS]    = NULL;
@@ -202,20 +213,24 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
    pointR[EOS_APPLICATION_DFRACTION]     = NULL;
    pointR[EOS_APPLICATION_DEPTH]         = NULL;
    pointR[EOS_APPLICATION_SPLIT]         = NULL;
-   pointR[EOS_APPLICATION_KVALUES]       = NULL;
+
+   // Set the k-values array. 
+   // If this value is null then it will not be used by the solver.
+   pointR[EOS_APPLICATION_KVALUES]    = pKValues;
+
    pointR[EOS_APPLICATION_BPRESSURE]     = NULL;
    pointR[EOS_APPLICATION_DPRESSURE]     = NULL;
    pointR[EOS_APPLICATION_MW]            = NULL;
    pointR[EOS_APPLICATION_PHASEPRESSURE] = NULL;
 
    /* Flasher integer data */
-   piFlasher[PVTMETHOD]         = EOS_PVT_MODEL;
-   piFlasher[EOS_MAXITN]        = iItersNum;
-   piFlasher[EOS_MAXFLASH]      = 32;
-   piFlasher[EOS_MICHELSON]     = EOS_OPTION_OFF;
-   piFlasher[EOS_SUBSTITUTIONS] = 0;
-   piFlasher[EOS_OWNMEMORY]     = EOS_OPTION_ON;
-   piFlasher[EOS_DEBUG]         = EOS_OPTION_OFF;
+   piFlasher[PVTMETHOD]           = EOS_PVT_MODEL;
+   piFlasher[EOS_MAXITN]          = iItersNum;
+   piFlasher[EOS_MAXFLASH]        = 32;
+   piFlasher[EOS_MICHELSON]       = EOS_OPTION_OFF;
+   piFlasher[EOS_SUBSTITUTIONS]   = 0;
+   piFlasher[EOS_OWNMEMORY]       = EOS_OPTION_ON;
+   piFlasher[EOS_DEBUG]           = EOS_OPTION_OFF;
 
    /* Flasher real data */
    pdFlasher[EOS_ENORM]            = 1.0e80;
@@ -224,6 +239,7 @@ void EosCauldron::EosGetProperties( int iFlashes,          // Number of flashes
    pdFlasher[EOS_THERMALDIFFUSION] = 0.0;
    pdFlasher[EOS_BUBBLEREDUCE]     = 0.5;
    pdFlasher[EOS_NEWTON_RELAX_COEFF] = dNewtonRelCoef;
+
 
    /* Read Cauldron data */
    program = new EosCauldron( 0, pointI, pointR );
@@ -272,6 +288,7 @@ EosCauldron::EosCauldron( const EosCauldron & self )
    this->iLiquidPhase       = self.iLiquidPhase;
    this->iVapourPhase       = self.iVapourPhase;
    this->iComponents        = self.iComponents;
+   this->m_iRestore         = self.m_iRestore;
    this->pInd               = self.pInd;
    this->pInd1              = self.pInd1;
    this->pInd2              = self.pInd2;
@@ -305,6 +322,7 @@ void EosCauldron::Initialize( int iVersion, int **pointI, double **pointR )
       this->pInd = 0;
       this->iFlashes = 0;
       this->iComponents = 0;
+      this->m_iRestore  = EOS_OPTION_OFF;
       this->iLiquidPhase = EOS_SINGLE_PHASE_OIL;
       this->iVapourPhase = EOS_SINGLE_PHASE_GAS;
       this->dMinPressure = 1.0;
@@ -339,7 +357,12 @@ int EosCauldron::WriteWaterIndex( )
 // Returns value of iRestore
 int EosCauldron::WriteOldValues( )
 {
-   return( EOS_OPTION_OFF );
+   if ( m_iRestore != EOS_OPTION_ON ) {
+      return EOS_OPTION_OFF;
+   } else {
+      return EOS_OPTION_ON;
+   }
+
 }
 
 // Write out number of flashes 
@@ -432,7 +455,8 @@ void EosCauldron::WriteControlData( int *pType,            // Number of hydrocar
 {
    /* Set the control terms */
    *pType             = EOS_TOF_2P;
-   *pSaved            = EOS_OPTION_OFF;
+   *pSaved            = WriteOldValues ();
+   // *pSaved            = m_iRestore;
    *pNobj             = this->iFlashes;
    *pFlash            = EOS_OPTION_ON;
    *pProp             = EOS_OPTION_ON;
@@ -597,6 +621,7 @@ void EosCauldron::ReadAllData( int iVersion,    // Version number, currently 0
    this->iLiquidPhase = pITerms[EOS_APPLICATION_LIQUID];
    this->iComponents  = pITerms[EOS_APPLICATION_COMPONENTS];
    this->iFlashes     = pITerms[EOS_APPLICATION_FLASHES];
+   this->m_iRestore   = pITerms [EOS_APPLICATION_RESTORE];
 
    /* Initialization terms */
    this->dMinPressure = 1.0;
@@ -611,7 +636,8 @@ void EosCauldron::ReadAllData( int iVersion,    // Version number, currently 0
    this->pViscosity         = pointR[EOS_APPLICATION_VISCOSITIES];
    this->pSavedPhase        = NULL;
    this->pSavedSplit        = NULL;
-   this->pSavedKvalue       = NULL;
+   this->pSavedKvalue       = pointR[EOS_APPLICATION_KVALUES];
+
 }
 
 // ReadData
@@ -1055,13 +1081,18 @@ void EosCauldron::ModifyPhaseIdentification( double dEnorm )
       iK = i;
       dMass = dVeryTiny;
       dMaxMass = dVeryTiny;
+
       for ( iNi = 0; iNi < this->iComponents; iNi++ )
       {
          dA = this->pAccumulation[iK];
          dB = ( dA > 0.0 ? dA : 0.0 );
          dMass += dB;
          dMaxMass = ( dB > dMaxMass ? dB : dMaxMass );
-         this->pSavedKvalue[iK] = 0.0;
+
+         if ( m_iRestore != EOS_OPTION_ON ) {
+            this->pSavedKvalue[iK] = 0.0;
+         }
+
          iK += this->iFlashes;
       }
 
@@ -1222,16 +1253,21 @@ void EosCauldron::SetPointers( int iN,          // Length of calculations
                              )
 {
    /* Indirection terms */
-   this->pInd1 = (int *) *pFinal;
-   this->pInd2 = (int *)( ((double *)this->pInd1) + iN );
-   this->pInd = (int *)( ((double *)this->pInd2) + iN );
+   pInd1 = (int *) *pFinal;
+   pInd2 = (int *)( ((double *)this->pInd1) + iN );
+   pInd = (int *)( ((double *)this->pInd2) + iN );
    *pFinal = ( (double *)this->pInd ) + iN;
+   pSavedPhase = (int *) *pFinal;
+   pSavedSplit = ( ( double * ) pSavedPhase ) + iFlashes;
 
    /* Saved K values, etc. */
-   this->pSavedPhase = (int *) *pFinal;
-   this->pSavedSplit = ( ( double * ) this->pSavedPhase ) + this->iFlashes;
-   this->pSavedKvalue = this->pSavedSplit + this->iFlashes;
-   *pFinal = this->pSavedKvalue + this->iFlashes * this->iComponents;
+   if ( m_iRestore == EOS_OPTION_OFF ) {
+      pSavedKvalue = pSavedSplit + iFlashes;
+      *pFinal = pSavedKvalue + iFlashes * iComponents;
+   } else {
+      *pFinal =  pSavedSplit + iFlashes;
+   }
+
 }
 
 // Reset the slice back to the beginning of objects

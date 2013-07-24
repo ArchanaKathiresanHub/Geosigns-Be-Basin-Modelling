@@ -154,14 +154,15 @@ EosPvtModel::EosPvtModel( const EosPvtModel &self )
 void EosPvtModel::Initialize( int iVersion, int *piFlasher, double *pdFlasher )
 {
    /* Set general pointers */
-   m_pApplication = (EosApplication *)0;
-   m_pEosPvtTable = (EosPvtTable *)0;
-   m_pWorkArray   = (double *)0;
-   m_iDrv         = EOS_DRV_N;
-   m_iHeat        = EOS_OPTION_OFF;
-   m_iVolume      = EOS_OPTION_OFF;
-   m_iMolarFlash  = EOS_OPTION_OFF;
-   m_iWaterComp = -1;
+   m_pApplication   = (EosApplication *)0;
+   m_pEosPvtTable   = (EosPvtTable *)0;
+   m_pWorkArray     = (double *)0;
+   m_iDrv           = EOS_DRV_N;
+   m_iHeat          = EOS_OPTION_OFF;
+   m_iVolume        = EOS_OPTION_OFF;
+   m_iMolarFlash    = EOS_OPTION_OFF;
+   m_restoreKValues = EOS_OPTION_OFF;
+   m_iWaterComp     = -1;
 
    /* Set default terms */
    if ( piFlasher == (int *)0 )
@@ -227,7 +228,6 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
 {
    int iType;
    int iFlashIt;
-   int iSaved;
    int iNObj;
    int iSize;
    int iProps;
@@ -244,7 +244,7 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
    /* Set the application type */
    const int iNc = m_pEosPvtTable->GetNumberHydrocarbons();
 
-   m_pApplication->WriteControlData( &iType, &iSaved, &iNObj, &iFlash, &iProperties,
+   m_pApplication->WriteControlData( &iType, &m_restoreKValues, &iNObj, &iFlash, &iProperties,
                                   &m_iBubbleDewPoint, &iWater, &iInitialize, &m_iBubbleDew, &m_iPseudoProperties );
 
    /* Reset the maximum flash length */
@@ -272,7 +272,7 @@ void EosPvtModel::DoFlash( EosApplication *pTApplication, EosPvtTable **pTEosPvt
       }
 
       /* Need to flash anyway if nothing restored */
-      iFlashIt = ( ( iFlash || iSaved == EOS_OPTION_OFF ) && iNc > 0 ) ? 1 : 0;
+      iFlashIt = ( ( iFlash || m_restoreKValues == EOS_OPTION_OFF ) && iNc > 0 ) ? 1 : 0;
       m_iBubbleDewPoint = m_iBubbleDewPoint && ( iNc > 0 );
 
       /* Check grid blocks for maximum changes, etc. */
@@ -686,7 +686,6 @@ void EosPvtModel::ReadAllData( int iVersion, int *piFlasher, double *pdFlasher )
    m_iSubstitutions    = piFlasher[EOS_SUBSTITUTIONS];
    m_iDebug            = piFlasher[EOS_DEBUG];
 }
-
 
 /*
 // ReadData
@@ -1408,8 +1407,10 @@ void EosPvtModel::FlashOneObject( int iNc )
    /* Section for restored data */
    iTested = EOS_OPTION_OFF;
    iRestore = m_pApplication->WriteOldValues();
+
    if ( iRestore )
    {
+
       /* Reset bubble point terms */
       if ( m_iBubbleDew )
       {
@@ -1634,6 +1635,7 @@ void EosPvtModel::FlashEquationsOneObject( int iNc, int iUpdate )
    // code is corrected and the optimization working.
    #pragma ivdep 
 #endif         
+
    for ( iNi = 0; iNi < iNc; iNi++ )
    {
       m_pKValue[iNi] = dTerm2 * m_pKValue[iNi] + dTerm1;
@@ -1651,6 +1653,7 @@ void EosPvtModel::FlashEquationsOneObject( int iNc, int iUpdate )
       dB = m_pTermy[0] * dA;
       dTerm1 = dB;
       dTerm2 = -m_dTiny - m_pTermx[0] * dB * dA;
+
       for ( iNi = 1; iNi < iNc; iNi++ )
       {
          dA = 1.0 / ( dOSplit + dSplit * m_pKValue[iNi] );
@@ -2630,7 +2633,9 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
    int     iNi;
 
    /* Store ideal K values */
-   m_pEosPvtTable->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
+   if ( m_restoreKValues != EOS_OPTION_ON ) {
+      m_pEosPvtTable->WilsonKValues( iM, EOS_SCALEK, m_pTemperature, m_pKValue, m_pWork );
+   }
 
    /* Set and normalize compositions multiple grid block case */
    if ( iM > 1 )
@@ -2750,13 +2755,17 @@ void EosPvtModel::FastInitialization( int iM, int iNc )
    /* Reset K values for single grid block case */
    else
    {
-      for ( iNi = 0; iNi < iNc; iNi++ )
-      {
-         dC = m_pFx[iNi] - m_pFy[iNi];
-         m_pKValue[iNi] = dC > dB ? dB : ( dC < dA ? dA : dC );
-      }
 
-      EosUtils::VectorExp( iNc, m_pKValue, m_pKValue );
+      if ( m_restoreKValues != EOS_OPTION_ON ) {
+
+         for ( iNi = 0; iNi < iNc; iNi++ )
+         {
+            dC = m_pFx[iNi] - m_pFy[iNi];
+            m_pKValue[iNi] = dC > dB ? dB : ( dC < dA ? dA : dC );
+         }
+
+         EosUtils::VectorExp( iNc, m_pKValue, m_pKValue );
+      }
 
       *m_pSplit = 0.5;
       *m_pPhase = EOS_FL_2P_NCV;
@@ -7412,7 +7421,7 @@ void EosPvtModel::PseudoPhase( int iM, int iNc )
       // generate a poorly accurate code, by specifying this pragma the generated
       // code is more accurate and the optimization is still enabled.
       #pragma distribute_point
-#endif
+#endif         
       for ( iNi = 1; iNi < iNc; iNi++ )
       {
          dA = m_pKValue[iNi];

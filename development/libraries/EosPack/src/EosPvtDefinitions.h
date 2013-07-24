@@ -12,9 +12,10 @@
 #define EOS_FORTRAN 1            /*!< (0 || 1) Controls whether FORTRAN indicing used in indirection */
 
 /* Define an option on or off */
-#define EOS_OPTION_UNKNOWN (-1)  /*!< Only used internally */
-#define EOS_OPTION_OFF       0   /*!< Turn an option off.   */
-#define EOS_OPTION_ON        1   /*!< Turn and option on.   */
+#define EOS_OPTION_UNKNOWN  (-1)  /*!< Only used internally */
+#define EOS_OPTION_OFF        0   /*!< Turn an option off.   */
+#define EOS_OPTION_ON         1   /*!< Turn and option on.   */
+#define EOS_OPTION_INITIALISE 2   /*!< Turn on solver initalisation. */
 
 /* Debug printing */
 #define EOS_DEBUG_PRINTING   1  /*!< (0 || 1) Controls whether some debug printing will be generated. */

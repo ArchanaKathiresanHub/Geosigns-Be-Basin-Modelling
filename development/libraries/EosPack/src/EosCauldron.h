@@ -55,6 +55,10 @@ public:
    ///                            number of objects (varies first) 
    ///                            components (varies last)
    ///
+   /// \param[in out] pKValues    Pointer to array containing the k-values used to initialise the Newton flash solve.
+   ///                            The size of the array should be the number of components.
+   ///                            If the pointer is null then no such k-value initialisation will occur.
+   ///
    /// \param[out] pPhaseAcc      Pointer to array of phase accumulations on a mass basis (SI units). The array is 
    ///                            over all objects and is of size number of 
    ///                            objects (varies first)
@@ -82,7 +86,8 @@ public:
    /// \param[in]  dStopTol       Convergence tolerance value for nonlinear solver
    /// \param[in]  dNewtonRelCoef Relaxation coefficient for the Newton nonlinear solver
    static void EosGetProperties( int iFlashes, int iOil, int iGas, double *pPressure, double *pTemperature,
-                                 double *pAccumulation, double *pPhaseAcc, double *pMassFraction, double *pDensity,
+                                 double *pAccumulation, double* pKValues,
+                                 double *pPhaseAcc, double *pMassFraction, double *pDensity,
                                  double *pViscosity, EosPvtTable *pvttable, int iItersNum, double dStopTol, double dNewtonRelCoef );
 
    /// \brief Default constructor
@@ -313,6 +318,12 @@ private:
                             flashed within the equation of state flasher. When the flasher is called in the general rather than 
                             the Cauldron specific mode, should be set to the number of flash components. Controlled by
                             piApplication[EOS_APPLICATION_COMPONENTS] */
+
+   /// \brief Indicate whether the K-values are to be restored from the previous  K-values.
+   ///
+   /// Controlled by piApplication[EOS_APPLICATION_RESTORE] = EOS_OPTION_OFF || EOS_OPTION_ON
+   int m_iRestore;
+
    int *pInd;          /*!< This array gives the indirection indicator over each slice of the calculation and is dynamically allocated */
    int *pInd1;         /*!< This array is used in storing results in the interface and is dynamically allocated */
    int *pInd2;         /*!< This array is used in storing results in the interface and is dynamically allocated */
