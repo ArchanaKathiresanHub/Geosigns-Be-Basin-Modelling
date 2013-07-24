@@ -155,6 +155,9 @@ namespace GeoPhysics {
 
       /// Compute relative premeability (for ice)
       double relativePermeability ( const double temperature, const double pressure ) const;
+
+      double getPermafrost () const;
+
    private :
 
       /// The interpolator for the fluid-thermal-conductivity table.

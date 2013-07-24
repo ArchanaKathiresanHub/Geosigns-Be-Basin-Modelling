@@ -1614,7 +1614,35 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
     return;
   }
-  
+
+
+
+
+  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->getPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
+
+  ElementVector Dirichlet_Boundary_Values_Ice_Sheet;
+  Dirichlet_Boundary_Values_Ice_Sheet.zero();
+
+    for ( I = 1; I <= 8; I++ ) {
+
+      ///
+      /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
+      ///
+      if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
+        Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
+      }
+
+    }
+
+    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values_Ice_Sheet, Dirichlet_Scaling_Value,
+                                                 Current_Po, Element_Jacobian, Element_Residual );
+
+
+    return;
+  }
+
+
+
 
   for ( I = 1; I <= 8; I++ ) {
 

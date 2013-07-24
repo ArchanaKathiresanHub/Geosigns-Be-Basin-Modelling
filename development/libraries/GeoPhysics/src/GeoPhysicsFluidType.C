@@ -467,7 +467,7 @@ void GeoPhysics::FluidType::asString ( std::string& str ) const {
 double GeoPhysics::FluidType::solidDensityTimesHeatCapacity ( const double temperature ) const {
 
    assert ( temperature <= 0.0 );
-   double usedTemperature = temperature; //NumericFunctions::Maximum ( temperature, 40.0 );
+   double usedTemperature = temperature;  // NumericFunctions::Maximum ( temperature, 40.0 );
 
    // return 916.0 * 2110.0;
    return m_iceDensityInterpolator.evaluate ( usedTemperature ) * m_iceHeatCapacityInterpolator.evaluate ( usedTemperature );
@@ -503,3 +503,8 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
    return 1.0;
 }
 
+double GeoPhysics::FluidType::getPermafrost() const {
+
+return m_projectHandle->getPermafrost();
+
+}

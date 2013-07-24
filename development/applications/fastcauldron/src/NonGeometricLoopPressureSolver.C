@@ -235,7 +235,13 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
   Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
 
   while ( ! Converged ) {
+
+ //   Fluid_Density = Current_Layer->fluid->density ( Temperature_Bottom, Pore_Pressure_Predicted );
+ 
     Bulk_Density = Porosity_Bottom * Fluid_Density + ( 1.0 - Porosity_Bottom ) * Solid_Density;
+
+
+
 
     //
     // Integrate both hydrostatic and lithostatic pressures using a trapezoidal method.
@@ -278,6 +284,18 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
     Solid_Thickness = Solid_Thickness_New;
     Iteration_Count = Iteration_Count + 1;
   }
+
+//Pore_Pressure = Pore_Pressure_Predicted;
+
+
+
+    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->getPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+    {
+    Hydrostatic_Pressure = Hydrostatic_Pressure_Top
+                         + 0.5 * GRAVITY * Real_Thickness * ( Bulk_Density_Top + Bulk_Density ) * Pa_To_MPa;
+    Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
+    }
+
 
 }
 
