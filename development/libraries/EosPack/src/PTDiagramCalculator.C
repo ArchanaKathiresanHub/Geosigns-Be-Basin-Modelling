@@ -15,6 +15,7 @@
 #include <numeric>
 #include <set>
 #include <algorithm>
+#include <stack>
 
 /// \brief Definition of composition phases as enum, the main idea of this enum that liquidPhase + vaporPhase == bothPhases
 ///        this used in bisectioning algorithms, also unknown is used as sign of uninitialised data or in return if something failed
@@ -29,14 +30,16 @@ typedef enum
 static const double g_MinimalTemperature = 173.15;   // -100 C
 static const double g_MaximalTemperature = 1123;     // +850 C
 static const double g_MinimalPressure    = 101325.0; // stock tank pressure - 1 atm
-static const double g_MaximalPressure    = 30e6;     // default maximum Pressure value for diagram 15 MPa
-static const double g_MaximalDiagramPressure = g_MaximalPressure * 3; // absolute maximum pressure for diagram. Sometimes it could be more than 300 MPa 
+static const double g_MaximalPressure    = 30e6;     // default maximum Pressure value for diagram 30 MPa
+static const double g_MaximalDiagramPressure = g_MaximalPressure * 5; // absolute maximum pressure for diagram. Sometimes it could be more than 30 MPa 
 static const int    g_GridSize           = 100;      // number of points between Min/Max temperature and pressure
 static double       g_Tolerance          = 1e-4;     // stop tolerance for bisection iterations
 static const int    g_MaxStepsNum        = 200;      // maximum steps number in bisections iterations
 static const int    g_GridExtStep        = 5;        // extend T grid when needed for this number of points
 static const double g_DefaultAoverB      = 2.0;      // the default value for A/B term
+static const int    g_maxLGRLevel        = 3;        // max level of cell refinement during tracing isoline near bubble/dew line 
 
+inline bool Between( double val, double x1, double x2 ) { return val > std::min( x1, x2 ) && val < std::max( x1, x2 ); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Constructor. It also creates default grid for T from g_MinimalTemperature:g_MinimalTemperature
@@ -49,8 +52,10 @@ PTDiagramCalculator::PTDiagramCalculator( DiagramType typeOfDiagram, const std::
       m_critT( -1.0 ),
       m_bdBisecIters( 0 ),
       m_isoBisecIters( 0 ),
+      m_abTuneBisecIters( 0 ),
       m_AoverB( g_DefaultAoverB ),
       m_ChangeAoverB( false ),
+      m_newtonRelCoeff(1.0),
       m_stopTol( g_Tolerance * 1e-2 ),
       m_maxIters( g_MaxStepsNum * 2 )
 {
@@ -61,6 +66,9 @@ PTDiagramCalculator::PTDiagramCalculator( DiagramType typeOfDiagram, const std::
 
    // create default grid for temperature and pressure
    generatePTGrid( g_MinimalPressure, g_MaximalPressure, g_MinimalTemperature, g_MaximalTemperature );
+
+   m_epsT = m_eps * (m_gridT.back() - m_gridT.front())/static_cast<double>(m_gridT.size()); // epsT = eps * dT
+   m_epsP = m_eps * (m_gridP.back() - m_gridP.front())/static_cast<double>(m_gridP.size()); // epsP = eps * dP
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +92,29 @@ void PTDiagramCalculator::generatePTGrid( double minP, double maxP, double minT,
       // init 2D liquid fraction array
       m_liqFrac.push_back( std::vector<double>( m_gridT.size(), -1.0 ) );
       m_gridP[i] = minP + i * ( maxP - minP ) / ( m_gridP.size() - 1 );
+   }
+   
+   // check that on uper bound there is no 2 phase region
+   bool maxFound = false;
+   while( !maxFound && m_gridP.back() < (g_MaximalDiagramPressure - g_MaximalPressure/2)  )
+   {
+      maxFound = true;
+      for ( size_t i = 0; i < m_gridT.size(); i += m_gridT.size() / 10 )
+      {
+         double phaseFrac[2];
+         int phase = getMassFractions( m_gridP[m_gridP.size() - 1], m_gridT[i], m_masses, phaseFrac );
+         ++m_bdBisecIters;
+
+         if ( bothPhases == phase ) // two phase region
+         {
+            maxFound = false;
+            break;
+         }
+      }
+      if ( !maxFound )
+      {
+         extendPGrid( m_gridP.back() + 10e6 );
+      }
    }
 }
 
@@ -263,7 +294,7 @@ bool PTDiagramCalculator::doBisectionForBubbleDewSearch( size_t p1, size_t t1, s
 
    double V1 = bisectT ? m_gridT[t1] : m_gridP[p1];
    double V2 = bisectT ? m_gridT[t2] : m_gridP[p2];
-   
+
    foundP = m_gridP[p1];
    foundT = m_gridT[t1];
  
@@ -328,51 +359,71 @@ bool PTDiagramCalculator::doBisectionForBubbleDewSearch( size_t p1, size_t t1, s
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Do bisections for 2 given grid points to find contour line
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-bool PTDiagramCalculator::doBisectionForContourLineSearch( size_t p1, size_t t1, size_t p2, size_t t2, double frac, double & foundP, double & foundT )
+bool PTDiagramCalculator::doBisectionForContourLineSearch( int p1, int t1, int p2, int t2, double frac, double & foundP, double & foundT )
 {
+   assert( p1 > -1 && p2 > -1 && t1 > -1 && t2 > -1 );
    assert( p1 < m_gridP.size() && p2 < m_gridP.size() && t1 < m_gridT.size() && t2 < m_gridT.size() );
+   return doBisectionForContourLineSearch( m_gridP[p1], m_gridT[t1], m_gridP[p2], m_gridT[t2], getPhase( p1, t1 ), getPhase( p2, t2), 
+          m_liqFrac[p1][t1], m_liqFrac[p2][t2], frac, foundP, foundT );
+}
 
+bool PTDiagramCalculator::doBisectionForContourLineSearch( double p1, double t1, double p2, double t2, double frac, double & foundP, double & foundT )
+{
    const int iLiquid = CBMGenerics::ComponentManager::Liquid;
    const int iVapour = CBMGenerics::ComponentManager::Vapour;
 
-   int phase1 = getPhase( p1, t1 );
-   int phase2 = getPhase( p2, t2 );
- 
+   double phaseFrac[2];
+
+   int phase1 = getMassFractions( p1, t1, m_masses, phaseFrac );
+   double frac1 = phaseFrac[iLiquid];
+
+   int phase2 = getMassFractions( p2, t2, m_masses, phaseFrac );
+   double frac2 = phaseFrac[iLiquid];
+   m_isoBisecIters += 2;
+
+   return doBisectionForContourLineSearch( p1, t1, p2, t2, phase1, phase2, frac1, frac2, frac, foundP, foundT );
+}
+
+bool PTDiagramCalculator::doBisectionForContourLineSearch( double p1, double t1, double p2, double t2, int phase1, int phase2, double frac1, double frac2, 
+                                                           double frac, double & foundP, double & foundT )
+{
+   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
+   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+
    // flasher failed for some reason, can't calculate bubble/dew point, or we do not have phase transition for (P1,T1)->(P2,T2)
    if ( unknown == phase1 || unknown == phase2 ) { return false; } 
-
-   double frac1 = m_liqFrac[p1][t1];
-   double frac2 = m_liqFrac[p2][t2];
 
    // contour line comes outside of given segment
    if ( std::min( frac1, frac2 ) > frac || std::max( frac1, frac2 ) < frac || (phase1 == phase2 && bothPhases != phase1) )
    { 
       if ( std::abs( frac - frac1 ) < std::abs( frac - frac2 ) ) // chose nearest point
       {
-         foundT = m_gridT[t1];
-         foundP = m_gridP[p1];
+         foundT = t1;
+         foundP = p1;
       }
       else
       {
-         foundT = m_gridT[t2];
-         foundP = m_gridP[p2];
+         foundT = t2;
+         foundP = p2;
       }
       return false;
    }
 
-   bool bisectT = p1 == p2 && t1 != t2 ? true : false;
-   if ( !bisectT && (p1 == p2 || t1 != t2) ) assert(0);
- 
-   double V1 = bisectT ? m_gridT[t1] : m_gridP[p1];
-   double V2 = bisectT ? m_gridT[t2] : m_gridP[p2];
+   bool bisectT = std::abs( p1 - p2 ) < m_eps && std::abs( t1 - t2 ) > m_eps ? true : false;
+   if ( !bisectT && ( std::abs( p1 - p2 ) < m_eps || std::abs( t1 - t2 ) > m_eps ) ) assert(0);
 
-   foundT = m_gridT[t1];
-   foundP = m_gridP[p1];
+   double eps = bisectT ? m_epsT : m_epsP;
+
+   double V1 = bisectT ? t1 : p1;
+   double V2 = bisectT ? t2 : p2;
+
+   foundT = t1;
+   foundP = p1;
 
    double dirConv = 0;
    int    divergeSteps = -1;
 
-   for ( int steps = 0; steps < g_MaxStepsNum && std::abs( V1 - V2 ) > m_eps; ++steps )
+   for ( int steps = 0; steps < g_MaxStepsNum && std::abs( V1 - V2 ) > eps; ++steps )
    {            
       double phaseFrac[2];
 
@@ -482,6 +533,8 @@ bool PTDiagramCalculator::doBisectionForSinglePhaseSeparationLineSearch( size_t 
    bool bisectT = p1 == p2 && t1 != t2 ? true : false;
    if ( !bisectT && (p1 == p2 || t1 != t2) ) assert(0);
 
+   double eps = bisectT ? m_epsT : m_epsP;
+
    // flasher failed for some reason, can't separation point, or we do not have phase transition for (P1,T1)->(P2,T2)
    if ( unknown == phase1 || unknown == phase2 || phase1 == phase2 ) { return false; } 
 
@@ -519,7 +572,7 @@ bool PTDiagramCalculator::doBisectionForSinglePhaseSeparationLineSearch( size_t 
          V2 = V;
       }
 
-      if ( std::abs( V1 - V2 ) < m_eps * ( V1 + V2 ) ) // check convergence using relative tolerance
+      if ( std::abs( V1 - V2 ) < eps ) // check convergence using absolute tolerance
       {
          if ( bisectT ) foundT = 0.5 * ( V1 + V2 );
          else           foundP = 0.5 * ( V1 + V2 );
@@ -565,6 +618,7 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
 
    int    t1 = -1;
    int    p1 = -1;
+   int    lgrPos = -1;
    int    inEdge = -1;
 
    // as first step do fraction calculation on the grid T and P till we'll find bubble/dew line starting point
@@ -579,7 +633,7 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
                t1 = ti;
                p1 = pi;
                inEdge = 0;
-               m_bubbleDewLine.push_back( std::pair<double,double>( foundT, foundP ) );
+               m_bubbleDewLine.push_back( TPPoint( foundT, foundP ) );
             }
          }
          else if ( getPhase( pi, ti ) != getPhase( pi, ti+1 ) )
@@ -589,7 +643,7 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
                t1 = ti;
                p1 = pi;
                inEdge = 3;
-               m_bubbleDewLine.push_back( std::pair<double,double>( foundT, foundP ) );
+               m_bubbleDewLine.push_back( TPPoint( foundT, foundP ) );
             }
          }
       }
@@ -598,7 +652,7 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
    // scanned all grid by can't find bubble/dew line - can't build diagram
    if ( t1 >= 0 || p1 >= 0 )
    {
-      std::set<int>  trace; // for keeping cells through which isoline came across
+      std::set<size_t>  trace; // for keeping cells through which isoline came across
 
       // now we can trace bubble-dew line
       bool foundBDPt = true;
@@ -644,7 +698,7 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
 
                   if ( foundBDPt )
                   {
-                     m_bubbleDewLine.push_back( std::pair<double,double>( foundT, foundP ) );
+                     m_bubbleDewLine.push_back( TPPoint( foundT, foundP ) );
 
                      switch( i ) // choose next cell
                      {
@@ -690,7 +744,7 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
    // in this case we will try to find buble/dew line as part of phases separation line
    if ( !m_bubbleDewLine.size() && !m_c0p5Line.size() )
    {
-      const std::vector< std::pair<double,double> > & psl = getSinglePhaseSeparationLine();
+      const TPLine & psl = getSinglePhaseSeparationLine();
       if ( psl.size() )
       {
          size_t critPtPos = 1;
@@ -738,7 +792,7 @@ bool PTDiagramCalculator::findCriticalPointInContourBubbleDewLinesIntersection()
       double critT = ( m_c0p5Line.back().first  - m_gridT.front() ) * scaleT;
       double critP = ( m_c0p5Line.back().second - m_gridP.front() ) * scaleP;
 
-      for ( std::vector< std::pair<double,double> >::iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
+      for ( TPLine::iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
       {
          // convert to 0-1 segment
          double T = ( it->first  - m_gridT.front()) * scaleT;
@@ -760,12 +814,11 @@ bool PTDiagramCalculator::findCriticalPointInContourBubbleDewLinesIntersection()
             )
          {
             // and also it is not already on bubble dew curve
-            if ( (( m_critPointPos->first  - m_c0p5Line.back().first ) > m_eps) || (( m_critPointPos->second - m_c0p5Line.back().second ) > m_eps) )
+            if ( (( m_critPointPos->first  - m_c0p5Line.back().first ) > m_epsT) || (( m_critPointPos->second - m_c0p5Line.back().second ) > m_epsP) )
             {
                m_critT = m_c0p5Line.back().first;
                m_critP = m_c0p5Line.back().second;
-               m_critPointPos = m_bubbleDewLine.insert( (m_critPointPos->first > m_critT ? m_critPointPos : (m_critPointPos + 1)), 
-                                                     std::pair<double, double>( m_critT, m_critP ) );
+               m_critPointPos = m_bubbleDewLine.insert( (m_critPointPos->first > m_critT ? m_critPointPos : (m_critPointPos + 1)), TPPoint( m_critT, m_critP ) );
             }
             else
             {
@@ -799,10 +852,10 @@ bool PTDiagramCalculator::findCriticalPointInChangePhaseAlongBubbleDewLine( bool
    ++m_bdBisecIters;
 
    // save current position   
-   std::vector< std::pair<double,double> >::iterator  old_critPointPos = m_critPointPos;
+   TPLine::iterator  old_critPointPos = m_critPointPos;
 
    m_critPointPos = m_bubbleDewLine.begin();
-   for ( std::vector< std::pair<double,double> >::iterator it = m_critPointPos + 1; it != m_bubbleDewLine.end() && !foundCriticalPoint; ++it )
+   for ( TPLine::iterator it = m_critPointPos + 1; it != m_bubbleDewLine.end() && !foundCriticalPoint; ++it )
    {
       int phase2 = getMassFractions( it->second, it->first, m_masses, massFraction );
       ++m_bdBisecIters;
@@ -845,7 +898,7 @@ bool PTDiagramCalculator::findCriticalPointInChangePhaseAlongBubbleDewLine( bool
 
                if ( addToBubblDewLine )
                {
-                  m_critPointPos = m_bubbleDewLine.insert( it, std::pair<double, double>( m_critT, m_critP ) );
+                  m_critPointPos = m_bubbleDewLine.insert( it, TPPoint( m_critT, m_critP ) );
                }
                foundCriticalPoint = true;
                break;
@@ -889,9 +942,9 @@ bool PTDiagramCalculator::findCriticalPoint()
 // val Liquid fraction value for contour line. Must be between 0 and 1
 // returns array of (T,P) pair for each contour line point
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-std::vector< std::pair<double, double> > PTDiagramCalculator::calcContourLine( double val )
+PTDiagramCalculator::TPLine PTDiagramCalculator::calcContourLine( double val )
 {
-   std::vector< std::pair<double,double> > isoline;
+   TPLine isoline;
 
    if ( std::abs( val - 1.0 ) < m_eps ) // request for bubble curve
    {
@@ -916,231 +969,8 @@ std::vector< std::pair<double, double> > PTDiagramCalculator::calcContourLine( d
       return m_c0p5Line;
    }
 
-   // find starting point
-   int t1     = -1;
-   int p1     = -1;
-   int inEdge = -1;
-
-   double foundT;
-   double foundP;
-
-   for ( int pi = 0; pi < m_gridP.size()-1 && p1 < 0; ++pi )
-   {
-      for ( int ti = 0; ti < m_gridT.size()-1 && t1 < 0; ++ti )
-      {
-         int phase[2];
-         phase[0] = getPhase( pi,   ti );
-         phase[1] = getPhase( pi+1, ti );
-
-         if ( bothPhases == phase[0] && bothPhases == phase[1] &&
-              std::min( m_liqFrac[pi][ti], m_liqFrac[pi+1][ti] ) < val && val <= std::max( m_liqFrac[pi][ti], m_liqFrac[pi+1][ti] ) )
-         {
-            if ( doBisectionForContourLineSearch( pi, ti, pi+1, ti, val, foundP, foundT ) )
-            {
-               t1 = ti;
-               p1 = pi;
-               inEdge = 0;
-               isoline.push_back( std::pair<double,double>( foundT, foundP ) );
-            }
-         }
-         else
-         {
-            phase[1] = getPhase( pi, ti+1 );
-            if ( bothPhases == phase[0] && bothPhases == phase[1] &&
-                 std::min( m_liqFrac[pi][ti], m_liqFrac[pi][ti+1] ) < val && val <= std::max( m_liqFrac[pi][ti], m_liqFrac[pi][ti+1] ) )
-            {
-               if ( doBisectionForContourLineSearch( pi, ti, pi, ti+1, val, foundP, foundT ) )
-               {
-                  t1 = ti;
-                  p1 = pi;
-                  inEdge = 3;
-                  isoline.push_back( std::pair<double,double>( foundT, foundP ) );
-               }
-            }
-         }
-         if ( bothPhases == phase[0] && bothPhases != getPhase( pi, ti+1 ) ) break;
-      }
-   }
-   // scanned all grid by can't find bubble/dew line - can't build diagram
-   if ( t1 < 0 && p1 < 0 ) { return isoline; }
-
-   std::set<int>  trace; // for keeping cells through which isoline came across
-
-   // now we can trace bubble-dew line
-   bool foundPt = true;
-   while( foundPt )
-   {
-      if ( t1 + 1 == m_gridT.size() || p1 + 1 == m_gridP.size() ) { break; } //  can't trace outside grid
-      
-      int phase[4];
-      // check that all values for cell corners are exist
-      phase[0] = getPhase( p1,   t1   );
-      phase[1] = getPhase( p1+1, t1   );
-      phase[2] = getPhase( p1+1, t1+1 );
-      phase[3] = getPhase( p1,   t1+1 );
-      
-      double fracVals[4];
-      fracVals[0] = m_liqFrac[p1  ][t1  ]; 
-      fracVals[1] = m_liqFrac[p1+1][t1  ];
-      fracVals[2] = m_liqFrac[p1+1][t1+1];
-      fracVals[3] = m_liqFrac[p1  ][t1+1];
-
-      bool inters[4] = { false, false, false, false };
-
-      for ( int i = 0; i < 4; ++i )
-      {
-         if ( !inters[i] && std::min( fracVals[i], fracVals[(i+1)%4] ) < val && val < std::max( fracVals[i], fracVals[(i+1)%4] ) )
-         {
-            inters[i] = true;
-         }
-      }
-      //assert( inters[inEdge] );
-
-      foundPt = false;
-
-      for ( int i = 0; i < 4; ++i )
-      {
-         // try all intersected edges other than inEdge to find out point
-         if ( inters[i] && i != inEdge )
-         {
-            switch( i )
-            {
-               case 0: foundPt = doBisectionForContourLineSearch( p1,   t1,   p1+1, t1,   val, foundP, foundT ); break;
-               case 1: foundPt = doBisectionForContourLineSearch( p1+1, t1,   p1+1, t1+1, val, foundP, foundT ); break;
-               case 2: foundPt = doBisectionForContourLineSearch( p1,   t1+1, p1+1, t1+1, val, foundP, foundT ); break;
-               case 3: foundPt = doBisectionForContourLineSearch( p1,   t1,   p1,   t1+1, val, foundP, foundT ); break;
-            }
-
-            if ( foundPt )
-            {  
-               if ( isoline.size() > 2 ) 
-               {
-                  // check that angle between new segment and previous segment more than Pi/2. Contour line should be smooth
-                  // if angle is less then Pi/2 - good chance that we near the end of contour line
-                  size_t sz = isoline.size();
-                  // go to 0-1,0-1 coordinates
-                  double P1 = ( isoline[sz - 2].second - m_gridP.front() ) / ( m_gridP.back() - m_gridP.front() );
-                  double T1 = ( isoline[sz - 2].first  - m_gridT.front() ) / ( m_gridT.back() - m_gridT.front() );
-
-                  double P2 = ( isoline[sz - 1].second - m_gridP.front() ) / ( m_gridP.back() - m_gridP.front() );
-                  double T2 = ( isoline[sz - 1].first  - m_gridT.front() ) / ( m_gridT.back() - m_gridT.front() );
-
-                  double P3 = ( foundP - m_gridP.front() ) / ( m_gridP.back() - m_gridP.front() );
-                  double T3 = ( foundT - m_gridT.front() ) / ( m_gridT.back() - m_gridT.front() );
-
-                  double cosa = ((P2 - P1) * (P3 - P2) + (T2 - T1) * (T3 - T2)) / sqrt( (P2 - P1) * (P2 - P1) + (T2 - T1) * (T2 - T1) ) 
-                                                                                / sqrt( (P3 - P2) * (P3 - P2) + (T3 - T2) * (T3 - T2) );
-                  foundPt = cosa < -m_eps ? false : true;
-               }
-               
-               if ( foundPt ) isoline.push_back( std::pair<double,double>( foundT, foundP ) );
-
-               switch( i ) // choose next cell
-               {
-                  case 0: --t1; break;
-                  case 1: ++p1; break;
-                  case 2: ++t1; break;
-                  case 3: --p1; break;
-               }
-               if ( t1 < 0 || p1 < 0 ) foundPt = false;
-
-               // do checking is this cell was already in trace ? if yes - stop tracing
-               foundPt = foundPt && trace.insert( p1 * 10000 + t1 ).second ;
-
-               inEdge = (i + 2) %4;
-               break;
-            }
-         }
-      }
-   }
-
-   // finding critical point by finding bubble/dew point on extrapolation of contour line
-   if ( isoline.size() > 3 ) 
-   {
-      size_t lastPt = isoline.size() - 1;
-
-      double P1 = isoline[lastPt-1].second;
-      double T1 = isoline[lastPt-1].first;
-
-      double P2 = isoline[lastPt].second;
-      double T2 = isoline[lastPt].first;
-
-      double P3 = P2;
-      double T3 = T2;
-
-      // make an attempt to go out of 2 phase region
-      int phase3 = bothPhases;
-      
-      double P = P2;
-      double T = T2;
-
-      double phaseFrac[2];
-      
-      double dP = m_gridP[1] - m_gridP[0];
-      double dT = m_gridT[1] - m_gridT[0];
-
-      if ( std::abs( P2 - P1 ) / dP < std::abs( T2 - T1 ) / dT )
-      {
-         dT *= T1 > T2 ? -1 : 1;
-         dP = (P2 - P1 ) / (T2 - T1) * dT;
-      }
-      else
-      {
-         dP *= P1 > P2 ? -1 : 1;
-         dT = (T2 - T1 ) / (P2 - P1) * dP;
-      }
-
-      // do not make extrapolations more than 3 cells
-      for ( int steps = 0; phase3 == bothPhases && steps < 3; ++steps )
-      {
-         P3 += dP;
-         T3 += dT;
-
-         // check if we still inside grid
-         if ( P3 < m_gridP.front() || P3 > m_gridP.back() || T3 < m_gridT.front() || T3 > m_gridT.back()  ) break;
-
-         double phaseFrac[2];
-         phase3 = getMassFractions( P3, T3, m_masses, phaseFrac );
-         ++m_isoBisecIters;
-         
-         if ( bothPhases == phase3 ) // keep last point where we have 2 phase region
-         {
-            P = P3;
-            T = T3;
-         }
-      }
-
-      if ( bothPhases != phase3 )
-      {
-         // ok, P3,T3 now outside of 2 phase region, find exact point by doing bisections for P & T along line
-         // extrapolating last segment of contour line
-         for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
-         {
-            double newP = 0.5 * (P + P3);
-            double newT = 0.5 * (T + T3);
-
-            int newPhase = getMassFractions( newP, newT, m_masses, phaseFrac );
-            ++m_isoBisecIters;
-
-            if ( bothPhases == newPhase )
-            {
-               P = newP;
-               T = newT;
-            }
-            else
-            {
-               P3 = newP;
-               T3 = newT;
-            }
-            // check convergence
-            if ( std::max( std::abs( P - P3 ) / ( P + P3 ), std::abs( T - T3 ) / ( T + T3 ) ) < m_eps )
-            {
-               isoline.push_back( std::pair<double,double>( T3, P3 ) );
-               break;
-            }
-         }
-      }
-   }
+   // trace contour line using bisections
+   traceContourLine( val, isoline, false );
    return isoline;
 }
 
@@ -1155,8 +985,8 @@ std::vector<double> PTDiagramCalculator::calcContourLines( std::vector<double> &
    for ( std::vector<double>::iterator v = vals.begin(); v != vals.end(); ++v )
    {
       assert( (*v) >= 0.0 && (*v) <= 1.0 );
-      const std::vector< std::pair< double,double> > & isoline = calcContourLine( *v );
-      for ( std::vector< std::pair< double,double> >::const_iterator it = isoline.begin(); it != isoline.end(); ++it )
+      const TPLine & isoline = calcContourLine( *v );
+      for ( TPLine::const_iterator it = isoline.begin(); it != isoline.end(); ++it )
       {
          valsSet.push_back( it->first );
          valsSet.push_back( it->second );
@@ -1186,110 +1016,598 @@ double PTDiagramCalculator::getLiquidFraction( int p, int t )
    return val;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// This enum describes how given cell on P/T grid is located on phase diagram
+///////////////////////////////////////////////////////////////////////////////////////////////////
+typedef enum
+{
+   DontKnow                 = -1, // can't define position
+   AllInOnePhaseRegion      =  0, // all corners of cell in 1 phase region
+   AllInTwoPhaseRegionLess  =  1, // all corners of cell in 2 phase region and all values in corners smoller then given value
+   AllInTwoPhaseRegionMore  =  2, // all corners of cell in 2 phase region and all values in corners greater then given value
+   AllInTwoPhaseRegionCross =  3, // all corners of cell in 2 phase region and som values in corners less then given value and some greater
+   OneTwoPhaseRegionCross   =  4  // some cells corner in 1 phase region, some in 2 two phase region
+} CellPositionOnDiagram;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// After bubble/dew line & critical point search it is possible to find A/B term value in such way 
-// that liquid/vapour division line  will come through critical point
+// Find cell position on P/T phase diagram
+//
+// p1  low left cell corner P value
+// p2  upper right cell corner P value
+// t1  low left cell corner T value
+// t2  upper right cell corner T value
+// val countour line value
+//
+// return cell position on phase diagram (1/2 phase region) or DontKnow if it is not simple to find the position
+///////////////////////////////////////////////////////////////////////////////////////////////////
+int PTDiagramCalculator::checkCell( size_t p1, size_t p2, size_t t1, size_t t2, double val )
+{
+   int phase[4];
+   phase[0] = getPhase( p1, t1 );
+   phase[1] = getPhase( p2, t1 );
+   phase[2] = getPhase( p2, t2 );
+   phase[3] = getPhase( p1, t2 );
+   
+   double liqFrac[4];
+   liqFrac[0] = m_liqFrac[p1][t1];
+   liqFrac[1] = m_liqFrac[p2][t1];
+   liqFrac[2] = m_liqFrac[p2][t2];
+   liqFrac[3] = m_liqFrac[p1][t2];
+
+   int num1Phase = 0;
+   int numLiqPhase = 0;
+   int numVapPhase = 0;
+   int num2Phase = 0;
+   int num2PhaseLessVal = 0;
+   int num2PhaseMoreVal = 0;
+
+   for ( int i = 0; i < 4; ++i )
+   {
+      if ( bothPhases == phase[i] )
+      {
+         ++num2Phase;
+         if (      liqFrac[i] <= val ) ++num2PhaseLessVal;
+         else if ( liqFrac[i] >  val ) ++num2PhaseMoreVal;
+      }
+      else if ( liquidPhase == phase[i] ) { ++num1Phase; ++numLiqPhase; }
+      else if ( vaporPhase  == phase[i] ) { ++num1Phase; ++numVapPhase; }
+   }
+   
+   if ( 4 == num1Phase ) 
+   {
+      return std::max( p2 - p1, t2 - t1 ) > 20 ? DontKnow : AllInOnePhaseRegion; // 4 points in 1 phase region (for very big cell could be not right)
+   }
+   if ( 4 == num2Phase )
+   {
+      if ( 4 == num2PhaseLessVal ) return AllInTwoPhaseRegionLess; // 4 points in 2 phase region but all nodes have smaller value than given
+      if ( 4 == num2PhaseMoreVal ) return AllInTwoPhaseRegionMore; // 4 points in 2 phase return but all nodes have bigger value than given
+      return AllInTwoPhaseRegionCross;                             // some points smaller than given value some greater
+   }
+
+   if ( num2Phase > 0 && (numLiqPhase + numVapPhase) > 0 && 
+        num2PhaseLessVal > 0 && num2PhaseMoreVal > 0 ) return OneTwoPhaseRegionCross; // some points in  1 phase and some in 2 phases
+   
+   return DontKnow; // can't say something 
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Trace countour line for given liquid fraction value. If fast is true, trace only till intersection with bubble/dew line
+//
+/// val           liquid fraction value for contour line
+/// isoloine[out] on output contour line as array of (T,P) points
+/// fast          if true, trace isoline till intersection with bubble/dew line only (used for search of critical point)
+//
+/// return true on success, false otherwise
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct CellInds
+{
+   int t; // temperature grid pos
+   int p; // pressure grid pos
+   int l; // level of refinement
+   int c; // corner of refined cell 1-4
+
+   CellInds( int tt, int pp, int ll, int cc ) : t(tt), p(pp), l(ll), c(cc) {;}
+};
+
+bool operator < ( const CellInds & cp1, const CellInds & cp2 ) 
+{
+   if ( cp1.t < cp2.t ) return true;
+   if ( cp1.p < cp2.p ) return true;
+   if ( cp1.l < cp2.l ) return true;
+   if ( cp1.c < cp2.c ) return true;
+   return false;
+}
+
+
+bool PTDiagramCalculator::traceContourLine( double val, TPLine & isoline, bool fast )
+{
+   // corners ordering:    edges ordering:
+   //                           1
+   //  1 *------* 2         *-------*
+   //    |      |         0 |       | 2 
+   //  0 *------* 3         *-------*
+   //                          3
+
+   // find starting point
+   int t1     = -1;
+   int p1     = -1;
+   int lgrPos = -1;
+   int inEdge = -1;
+
+   double foundT = 0.0;
+   double foundP = 0.0;
+
+   // do search on coarse grid
+   std::stack<SuperCell> stack;
+
+   stack.push( SuperCell( 1, m_gridP.size() - 1, 1, m_gridT.size() - 1 ) );
+
+   SuperCell foundCl( 99999, 99999, 99999, 99999 );
+   SuperCell secondChanceCl( 99999, 99999, 99999, 99999 );
+
+   for ( bool found = false; !found && stack.size() > 0;  )
+   {
+      size_t ss = stack.size();
+      SuperCell cc = stack.top();
+      stack.pop();
+
+      CellPositionOnDiagram ret = static_cast<CellPositionOnDiagram>( checkCell( cc.p1, cc.p2, cc.t1, cc.t2, val ) );
+      switch( ret )
+      {
+         case OneTwoPhaseRegionCross:
+            if ( 2 == (cc.p2 - cc.p1 + cc.t2 - cc.t1 ) ) { secondChanceCl = cc; break; }
+         case DontKnow: // split cell and push to stack
+            {
+               size_t p = (cc.p2 - cc.p1) > 1 ? cc.p1 + (cc.p2 - cc.p1) / 2 : cc.p2;
+               size_t t = (cc.t2 - cc.t1) > 1 ? cc.t1 + (cc.t2 - cc.t1) / 2 : cc.t2;
+               if ( p != cc.p2 || t != cc.t2 )
+               {
+                  if ( (cc.p2 - p)     > 0 && (t     - cc.t1) > 0 ) stack.push( SuperCell( p,     cc.p2, cc.t1, t  ) );
+                  if ( (p     - cc.p1) > 0 && (cc.t2 - t)     > 0 ) stack.push( SuperCell( cc.p1, p,     t,     cc.t2 ) );
+                  if ( (cc.p2 - p)     > 0 && (cc.t2 - t)     > 0 ) stack.push( SuperCell( p,     cc.p2, t,     cc.t2 ) );
+                  if ( (p     - cc.p1) > 0 && (t     - cc.t1) > 0 ) stack.push( SuperCell( cc.p1, p,     cc.t1, t  ) );
+               }
+            }
+            break;
+
+         case AllInTwoPhaseRegionCross:
+            if ( 2 == (cc.p2 - cc.p1 + cc.t2 - cc.t1 ) )
+            {
+               foundCl = cc;
+               found = true;
+            }
+            else if ( (cc.p2 - cc.p1 + cc.t2 - cc.t1 ) > 2 ) // still many cells inside split by 2x2
+            {
+               size_t p = (cc.p2 - cc.p1) > 1 ? cc.p1 + (cc.p2 - cc.p1) / 2 : cc.p2;
+               size_t t = (cc.t2 - cc.t1) > 1 ? cc.t1 + (cc.t2 - cc.t1) / 2 : cc.t2;
+               if ( p != cc.p2 || t != cc.t2 )
+               {
+                  if ( (cc.p2 - p)     > 0 && (t     - cc.t1) > 0 ) stack.push( SuperCell( p,     cc.p2, cc.t1, t  ) );
+                  if ( (p     - cc.p1) > 0 && (cc.t2 - t)     > 0 ) stack.push( SuperCell( cc.p1, p,     t,     cc.t2 ) );
+                  if ( (cc.p2 - p)     > 0 && (cc.t2 - t)     > 0 ) stack.push( SuperCell( p,     cc.p2, t,     cc.t2 ) );
+                  if ( (p     - cc.p1) > 0 && (t     - cc.t1) > 0 ) stack.push( SuperCell( cc.p1, p,     cc.t1, t  ) );
+               }
+            }
+            break;
+
+         default:
+           break;
+      }
+   }
+   // if we found cell intersected by contour line, set it as start cell
+   if ( foundCl.p1 < m_gridP.size() && foundCl.t1 < m_gridT.size() )
+   {
+      t1 = foundCl.t1;
+      p1 = foundCl.p1;
+   }
+   else if ( secondChanceCl.p1 < m_gridP.size() && secondChanceCl.t1 < m_gridT.size() )
+   {  // if we can't find cell in two phase region which is crossed by isoline, try to use 1/2 phase cell crossed by isoline
+      t1 = secondChanceCl.t1;
+      p1 = secondChanceCl.p1;
+      foundCl = secondChanceCl;
+   }
+   
+   bool forward = true; // starting trace in one direction from found cell, then will try another side also
+   int  startEdge = -1; // remember from which edge tracing was started, to continue in another direction
+
+   // scanned all grid by can't find cell which was crossed by given countour line
+   if ( t1 < 0 && p1 < 0 ) { return false; }
+
+   isoline.clear();      // clear isoline, just in case
+
+   std::set<CellInds>  trace; // for keeping cells through which isoline came across
+
+   int    level = 0;      // level of grid refining
+
+   // will be used in cell refining near bubble/dew line
+   double minP;
+   double minT;
+   double maxP;
+   double maxT;
+
+   // main tracing cycle
+   bool   foundPt = true;
+   while( foundPt )
+   {
+      if ( p1 + 1 == m_gridP.size() && m_gridP.back() < g_MaximalDiagramPressure ) { extendPGrid( m_gridP[p1] + ( m_gridP[p1-1] - m_gridP[p1-2] ) * g_GridExtStep ); } 
+
+      if ( t1 + 1 == m_gridT.size() || p1 + 1 == m_gridP.size() ) // if we went to the grid limits, stop and try another side 
+      {
+         if ( forward && !fast ) // should we trace other side of the contour line?
+         {
+            p1 = foundCl.p1;
+            t1 = foundCl.t1;
+            forward = false;
+            inEdge = startEdge;
+            std::reverse( isoline.begin(), isoline.end() );
+            level = 0;
+            continue;
+         }
+         else { break; } // can't trace outside grid
+      } 
+      
+      int    phase[4];    // which phase for each cell corner
+      double fracVals[4]; // what is liquid fraction value for each cell corner
+
+      // check that all values for cell corners are exist
+      if ( !level ) // top level - get values from the grid
+      {
+         phase[0] = getPhase( p1,   t1   );
+         phase[1] = getPhase( p1+1, t1   );
+         phase[2] = getPhase( p1+1, t1+1 );
+         phase[3] = getPhase( p1,   t1+1 );          
+      
+         fracVals[0] = m_liqFrac[p1  ][t1  ]; 
+         fracVals[1] = m_liqFrac[p1+1][t1  ];
+         fracVals[2] = m_liqFrac[p1+1][t1+1];
+         fracVals[3] = m_liqFrac[p1  ][t1+1];
+
+         // initialise top level cell if we will need to refine it
+         minP = m_gridP[p1];
+         maxP = m_gridP[p1+1];
+         minT = m_gridT[t1];
+         maxT = m_gridT[t1+1];
+      }
+      else
+      {  // refined cell, calculate liquid fraction values for each corner
+         for ( int i = 0; i < 4; ++i )
+         {
+            double phaseFrac[2];
+            switch( i )
+            {
+               case 0: phase[i] = getMassFractions( minP, minT, m_masses, phaseFrac ); break;
+               case 1: phase[i] = getMassFractions( maxP, minT, m_masses, phaseFrac ); break;
+               case 2: phase[i] = getMassFractions( maxP, maxT, m_masses, phaseFrac ); break;
+               case 3: phase[i] = getMassFractions( minP, maxT, m_masses, phaseFrac ); break;
+            }
+            fracVals[i] = phaseFrac[CBMGenerics::ComponentManager::Liquid];
+            ++m_isoBisecIters;            
+         }
+      }
+
+      bool inters[4] = { false, false, false, false };
+      int intersNum = 0; // number of intersection by contour line
+
+      for ( int i = 0; i < 4; ++i )
+      {
+         if ( bothPhases == phase[i] && bothPhases == phase[(i+1)%4] )
+         {
+            if ( !inters[i] && Between( val, fracVals[i], fracVals[(i+1)%4] ) )
+            {
+               inters[i] = true;
+               intersNum++;
+            }
+         }
+      }
+
+      if ( startEdge < 0 ) // if first cell in trace set inEdge low and startEdge up to trace in direction of bubble/dew line
+      {
+         if ( intersNum > 1 )
+         {
+            if (      inters[1] ) startEdge = 1;
+            else if ( inters[2] ) startEdge = 2;
+            else if ( inters[0] ) startEdge = 0;
+            else assert(0);
+
+            for ( int i = 0; i < 4 && inEdge < 0; ++i ) if ( i != startEdge && inters[i] ) inEdge = i;
+            assert( inEdge != -1 );
+         }
+      }
+
+      if ( intersNum < 2 ) // only one intersection point with cell edges - stop or refine cell
+      {
+         if ( level >= g_maxLGRLevel && forward && !fast ) // no output edge, trace the second part of curve
+         {
+            p1 = foundCl.p1;
+            t1 = foundCl.t1;
+            forward = false;
+            inEdge = startEdge;
+            std::reverse( isoline.begin(), isoline.end() );
+            level = 0;
+            continue;
+         }
+
+         if ( level < g_maxLGRLevel ) // if maximum level of refinement wasn't reached, refine cell 2x2
+         {
+            level++;
+            // split cell on 4 parts. Use central point for splitting
+            double midP = 0.5 * ( minP + maxP );
+            double midT = 0.5 * ( minT + maxT );
+           
+            // check which subcell we shall chose
+            if ( foundT + m_epsT > minT && foundT - m_epsT < midT && foundP + m_epsP > minP && foundP - m_epsP < midP ) // low left cell
+            {
+               lgrPos = 1;
+               maxP = midP;
+               maxT = midT;
+            }
+            else if ( foundT + m_epsT > minT && foundT - m_epsT < midT && foundP + m_epsP > midP && foundP - m_epsP < maxP ) // upper left cell
+            {
+               lgrPos = 2;
+               minP = midP;
+               maxT = midT;
+            }
+            else if ( foundT + m_epsT > midT && foundT - m_epsT < maxT && foundP + m_epsP > midP && foundP - m_epsP < maxP ) // upper right cell
+            {
+               lgrPos = 3;
+               minP = midP;
+               minT = midT;
+            }
+            else // low right cell
+            {
+               lgrPos = 4;
+               maxP = midP;
+               minT = midT;
+            }
+            continue; // restart loop with new subcell
+         }
+      }
+
+      foundPt = false;
+      for ( int i = 0; i < 4; ++i ) // loop over cell edges to find out output edge and intersection point
+      {
+         // try all intersected edges other than inEdge to find out point
+         if ( inters[i] && i != inEdge )
+         {
+            if ( level ) // refined cell - using min/max P/T values for corners
+            {
+               switch( i )
+               {
+                  case 0: foundPt = doBisectionForContourLineSearch( minP, minT, maxP, minT, val, foundP, foundT ); break;
+                  case 1: foundPt = doBisectionForContourLineSearch( maxP, minT, maxP, maxT, val, foundP, foundT ); break;
+                  case 2: foundPt = doBisectionForContourLineSearch( minP, maxT, maxP, maxT, val, foundP, foundT ); break;
+                  case 3: foundPt = doBisectionForContourLineSearch( minP, minT, minP, maxT, val, foundP, foundT ); break;
+               }
+            }
+            else // top level cell - using cell corners on P/T grid
+            {
+               switch( i )
+               {
+                  case 0: foundPt = doBisectionForContourLineSearch( p1,   t1,   p1+1, t1,   val, foundP, foundT ); break;
+                  case 1: foundPt = doBisectionForContourLineSearch( p1+1, t1,   p1+1, t1+1, val, foundP, foundT ); break;
+                  case 2: foundPt = doBisectionForContourLineSearch( p1,   t1+1, p1+1, t1+1, val, foundP, foundT ); break;
+                  case 3: foundPt = doBisectionForContourLineSearch( p1,   t1,   p1,   t1+1, val, foundP, foundT ); break;
+               }
+            }
+            if ( foundPt ) isoline.push_back(  TPPoint( foundT, foundP ) ); // add output point to list
+
+            if ( !level ) // if top level cell - go to next cell 
+            {
+               switch( i ) // choose next cell
+               {
+                  case 0: --t1; break;
+                  case 1: ++p1; break;
+                  case 2: ++t1; break;
+                  case 3: --p1; break;
+               }
+            }
+            else // if refined cell shift to another subcell staying on the same level
+            {
+               double dT = maxT - minT;
+               double dP = maxP - minP;
+               switch( i ) //
+               {
+                  case 0: minT -= dT; maxT -= dT; break;
+                  case 1: minP += dP; maxP += dP; break;
+                  case 2: minT += dT; maxT += dT; break;
+                  case 3: minP -= dP; maxP -= dP; break;
+               }
+               // check if we went outside top level cell, in this case stop refining and go to next top level cell
+               if (      minT + m_epsT < m_gridT[t1  ] ) { level = 0; t1--; }
+               else if ( maxT - m_epsT > m_gridT[t1+1] ) { level = 0; t1++; }
+               else if ( minP + m_epsP < m_gridP[p1  ] ) { level = 0; p1--; }
+               else if ( maxP - m_epsP > m_gridP[p1+1] ) { level = 0; p1++; }
+            }
+            if ( !level && (t1 < 0 || p1 < 0) ) foundPt = false;
+            
+            // do checking is this cell was already in trace ? if yes - stop tracing
+            foundPt = foundPt && trace.insert( CellInds(t1, p1, level, lgrPos) ).second ;
+
+            inEdge = (i + 2) %4;
+            break;
+         }
+      }
+      if ( !foundPt && forward && !fast ) // if didn't find next cell to continue - try to trace from other side of the countour line
+      {
+         forward = false;
+         t1 = foundCl.t1;
+         p1 = foundCl.p1;
+         inEdge = startEdge;
+         std::reverse( isoline.begin(), isoline.end() );
+         level = 0;
+         foundPt = true;
+      }
+   }
+   
+   if ( isoline.size() && isoline.front().second > isoline.back().second ) reverse( isoline.begin(), isoline.end() ); // put isoline in order with high P last
+
+   // finding critical point by finding bubble/dew point on extrapolation of contour line
+   if ( isoline.size() > 1 ) 
+   {
+      size_t last = isoline.size()-1;
+      foundPt = extrapolateContourLineToOnePhaseRegion( isoline, isoline[last-1].second, isoline[last-1].first, isoline[last].second, isoline[last].first, foundP, foundT ); 
+      if ( foundPt )
+      {
+         isoline.push_back( TPPoint( foundT, foundP ) ); // if found 2/1 phase change point - add it to the curve
+      }
+   }
+   return foundPt;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Find A/B term value in such way that liquid/vapour division line  will come through critical point
 // 
 // return found value of A/B term if it was found or the default value if not found (0.5 countour 
 //        line doesn't cross bubble/dew line)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-double PTDiagramCalculator::findAoverBTerm()
+double PTDiagramCalculator::searchAoverBTerm()
 {
-   if ( !m_bubbleDewLine.size() ) return m_AoverB;
+   double critT = m_critT;
+   bool foundPt = true;
 
-   double foundCritT = m_critT;
-   double foundCritP = m_critP;
-   double abSaved = m_AoverB;
-
-   // look for the single phase change on buble/dew curve
-   if ( !findCriticalPointInChangePhaseAlongBubbleDewLine( false ) ) return m_AoverB;
-
-   double abMin = -1.0;
-   double abMax = -1.0;
-   if ( m_critT + m_eps < foundCritT ) // should decrease A/B term
+   if ( !m_c0p5Line.size() )
    {
-      while( m_critT + m_eps < foundCritT  && m_AoverB > m_eps )
+      TPLine c0p5Line;
+      foundPt = traceContourLine( 0.5, c0p5Line, true );
+      if ( foundPt )
       {
-         m_AoverB *= 0.8;
-         if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
-         {
-            if ( m_critT > m_eps + foundCritT )
+         critT = c0p5Line.back().first;
+         m_critT = critT;
+         m_critP = c0p5Line.back().second;
+      }
+      else // can't find 0.5 isoline, try another one
+      {
+         for ( double v = 0.9; !foundPt && v > 0.0; v -= 0.1 )
+         {  
+            if ( std::abs( v - 0.5 ) < m_eps ) continue; // ignore 0.5 isoline
+            TPLine isol;
+            foundPt = traceContourLine( v, isol, true );
+            if ( foundPt )
             {
-               abMin = m_AoverB;
-               abMax = m_AoverB / 0.8;
+               critT = isol.back().first;
+               m_critT = critT;
+               m_critP = isol.back().second;
             }
          }
-         else { break; }
       }
    }
-   else if ( m_critT > m_eps + foundCritT ) // should increase A/B term
+
+   if ( foundPt )
    {
-      while( m_critT > m_eps + foundCritT && m_AoverB < 10 + m_eps )
+      double oldAoverB = m_AoverB;
+
+     // get cell in which critical point exist
+      int critI = static_cast<int>( std::floor( (critT - m_gridT.front())/(m_gridT[1] - m_gridT[0] ) ) );
+
+      if ( 0 >= critI || critI >= m_gridT.size()-2 ) return m_AoverB;
+
+      double ltp = m_gridT[critI];
+      double rtp = m_gridT[critI+1];
+      double pp  = m_gridP.back();
+
+      double minAoverB = 1.0;
+      double maxAoverB = 10.0;
+
+      for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
       {
-         m_AoverB *= 1.2;
-         if ( findCriticalPointInChangePhaseAlongBubbleDewLine( false ) )
+         double massFraction[2];
+
+         int phase1 = getMassFractions( pp, ltp, m_masses, massFraction );
+         int phase2 = getMassFractions( pp, rtp, m_masses, massFraction );
+         m_abTuneBisecIters += 2;
+
+         if ( bothPhases == phase1 || bothPhases == phase2 ) // too low P needed go up
          {
-            if ( m_critT + m_eps < foundCritT )
+            pp *= 1.1;
+            steps--;
+            if ( pp > 200e6 ) // already come too far. stop iterations
             {
-               abMin = m_AoverB / 1.2;
-               abMax = m_AoverB;
+               m_AoverB = oldAoverB;
+               return m_AoverB;
             }
+            continue;
          }
-         else { break; }
-      }
-   }
-   else // critical point was found by phase change along bubble/dew curve
-   { 
-      m_critT = foundCritT;
-      m_critP = foundCritP;
-      return m_AoverB;
-   } 
+         if ( phase1 < liquidPhase || phase1 > vaporPhase || phase2 < liquidPhase || phase2 > vaporPhase ) // fail to search
+         {
+            m_AoverB = oldAoverB;
+            return m_AoverB;
+         }
 
-   // check if m_AoverB goues outside of the bounds
-   if ( m_AoverB < m_eps || m_AoverB > 10 )
+         if ( phase1 == phase2 )
+         {
+            if ( phase1 == liquidPhase ) { minAoverB = m_AoverB; }
+            else                         { maxAoverB = m_AoverB; }            
+
+            m_AoverB = (maxAoverB + minAoverB) * 0.5;
+         }
+         else
+         {
+            ltp += (critT - ltp) * 0.5;
+            rtp -= (rtp - critT) * 0.5;
+         }
+         // check for convergence
+         if ( std::abs( rtp - ltp ) < m_epsT || std::abs( maxAoverB - minAoverB )/(maxAoverB + minAoverB) < m_eps )
+         {
+            m_AoverB = oldAoverB;
+            return (maxAoverB + minAoverB) * 0.5;
+         }
+      }
+      m_AoverB = oldAoverB; // failed to find for g_MaxStepsNum iterations
+   }
+   return m_AoverB;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Find critical point Tc and Pc in fastest way is possible
+/// return found critical point (Tc,Pc) values if point was found or zero values if wasn't found
+///////////////////////////////////////////////////////////////////////////////////////////////////
+PTDiagramCalculator::TPPoint PTDiagramCalculator::searchCriticalPoint()
+{
+   TPPoint critPt( 0.0, 0.0 );
+
+   double critT;
+   double crtiP;
+   bool foundPt = true;
+
+   TPLine isoLine;
+   foundPt = traceContourLine( 0.5, isoLine, true );
+   if ( foundPt )
    {
-      m_AoverB = abSaved;
-      return m_AoverB;
+      critPt = TPPoint( isoLine.back().first, isoLine.back().second );
    }
-
-   // do bisections by A/B term
-   for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
+   else // can't find 0.5 isoline, try another one
    {
-      m_AoverB = 0.5 * ( abMin + abMax );
-
-      if ( !findCriticalPointInChangePhaseAlongBubbleDewLine( false ) ) break;
-     
-      if ( m_critT + m_eps < foundCritT )
-      {
-         abMax = m_AoverB;
-      }
-      else if ( m_critT > m_eps + foundCritT )
-      {
-         abMin = m_AoverB;
-      }
-      
-      if ( std::abs( m_critT - foundCritT ) / ( m_critT + foundCritT ) < m_eps )
-      {
-         break;
+      for ( double v = 0.9; !foundPt && v > 0.0; v -= 0.1 )
+      {  
+         if ( std::abs( v - 0.5 ) < m_eps ) continue; // ignore 0.5 isoline
+         isoLine.clear();
+         foundPt = traceContourLine( v, isoLine, true );
+         if ( foundPt )
+         {
+            critPt = TPPoint( isoLine.back().first, isoLine.back().second );
+         }
       }
    }
+   return critPt;
+}
 
-   abMin = m_AoverB;
-
-   // restore saved values
-   m_AoverB = abSaved;
-   m_critT = foundCritT;
-   m_critP = foundCritP;
-
-   return abMin;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Set tolerance value which used for bisection iterations and for cutting very small phase fractions (<eps^2)
+// tol new tolerance value
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void PTDiagramCalculator::setTolValue( double tol )
+{
+   m_eps = tol;
+   m_epsT = m_eps * (m_gridT.back() - m_gridT.front())/static_cast<double>(m_gridT.size()); // epsT = eps * dT
+   m_epsP = m_eps * (m_gridP.back() - m_gridP.front())/static_cast<double>(m_gridP.size()); // epsP = eps * dP
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Get single phase separation line for 1 phase region as EosPack calculates it
 // return separation line as set of points
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSeparationLine()
+PTDiagramCalculator::TPLine PTDiagramCalculator::getSinglePhaseSeparationLine()
 {
    // if done search before or there is no bubble/dew line just return m_spsLine
    if ( m_spsLine.size() ) return m_spsLine;
@@ -1342,7 +1660,7 @@ std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSepar
 
    if ( inEdge < 0 ) return m_spsLine; // doesn't find anything
 
-   if ( foundBDPt ) m_spsLine.push_back( std::pair<double,double>( foundT, foundP ) );
+   if ( foundBDPt ) m_spsLine.push_back( TPPoint( foundT, foundP ) );
 
    std::set<int>  trace; // for keeping cells through which line came across
 
@@ -1383,7 +1701,7 @@ std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSepar
 
             if ( foundBDPt )
             {
-               m_spsLine.push_back( std::pair<double,double>( foundT, foundP ) );
+               m_spsLine.push_back( TPPoint( foundT, foundP ) );
 
                switch( i ) // choose next cell
                {
@@ -1412,7 +1730,7 @@ std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSepar
    {
       double foundT = m_critT;
       double foundP = m_critP;
-      m_spsLine.push_back( std::pair<double,double>( foundT, foundP ) );
+      m_spsLine.push_back( TPPoint( foundT, foundP ) );
 
       m_critT = oldCritT;
       m_critP = oldCritP;
@@ -1421,18 +1739,158 @@ std::vector< std::pair<double,double> > PTDiagramCalculator::getSinglePhaseSepar
    return m_spsLine;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Extrapolate countour line last segment to one phase region and find phase change point on
+// this extrapolated line (critical point)
+//
+// isoline array of points for countour line, used to estimate lenght of line for extrapolation 
+// P1 first point of contour line interval pressure value
+// P2 second point of contour line interval pressure value
+// T1 first point of contour line interval temperature value
+// T2 second point of contour line interval temperature value
+//
+// return true if phase change point was found, false otherwise
+////////////////////////////////////////////////////////////////////////////////////////////////////
+bool PTDiagramCalculator::extrapolateContourLineToOnePhaseRegion( const TPLine & isoline, double P1, double T1, double P2, double T2, double & critP, double & critT )
+{
+   // get extrapolated point on grid boundary
+   double P3 = -1;
+   double T3 = -1;
+
+   bool found = false;
+   // scale point to [0:1,0:1] 
+   double scaleT = 1.0 / (m_gridT.back() - m_gridT.front());
+   double scaleP = 1.0 / (m_gridP.back() - m_gridP.front());
+
+   double isolLen = 0;
+   for ( size_t i = 1; i < isoline.size(); ++i )
+   {
+      double vx = ( isoline[i].first  - isoline[i-1].first  ) * scaleT;
+      double vy = ( isoline[i].second - isoline[i-1].second ) * scaleP;
+      isolLen += sqrt( vx * vx + vy * vy );
+   }
+
+   double x1 = (T1 - m_gridT.front() ) * scaleT;
+   double y1 = (P1 - m_gridP.front() ) * scaleP;
+   double x2 = (T2 - m_gridT.front() ) * scaleT;
+   double y2 = (P2 - m_gridP.front() ) * scaleP;
+
+   for ( int i = 0; !found && i < 4; ++i )
+   {
+      switch( i )
+      {
+         case 0: // upper boundary
+            if ( std::abs( P2 - P1 ) > m_eps )
+            {
+               P3 = m_gridP.back();
+               T3 = T1 + (P3 - P1) / (P2 - P1) * (T2 - T1);
+            }
+            break;
+
+         case 1: // right grid boundary
+            if ( std::abs( T2 - T1 ) > m_eps )
+            {
+               T3 = m_gridT.back();
+               P3 = P1 + (T3 - T1)/(T2 - T1) * (P2 - P1);
+            }
+            break;
+
+         case 2: // left grid boundary
+            if ( std::abs( T2 - T1 ) > m_epsT )
+            {
+               T3 = m_gridT.front();
+               P3 = P1 + (T3 - T1)/(T2 - T1) * (P2 - P1);
+            }
+            break;
+
+         case 3: // down boundary
+            if ( std::abs( P2 - P1 ) > m_epsP )
+            {
+               P3 = m_gridP.front();
+               T3 = T1 + (P3 - P1) / (P2 - P1) * (T2 - T1);
+            }
+            break;
+      }
+      double x3 = (T3 - m_gridT.front() ) * scaleT;
+      double y3 = (P3 - m_gridP.front() ) * scaleP;
+
+      if ( ((x2-x1)*(x3-x1) + (y2-y1)*(y3-y1)) >= 0.0 &&
+           (T3+m_epsT) > m_gridT.front() && (T3-m_epsT) < m_gridT.back() &&
+           (P3+m_epsP) > m_gridP.front() && (P3-m_epsP) < m_gridP.back() )
+      {
+         found = true;
+      }
+   }
+   if ( T3 < m_gridT.front() || T3 > m_gridT.back() || P3 < m_gridP.front() || P3 > m_gridP.back() ) return false;
+
+   double phaseFrac[2];
+
+   int phase3 = getMassFractions( P3, T3, m_masses, phaseFrac );
+   ++m_isoBisecIters;
+
+   // left boundary for the iteration along line
+   double LP = P2;
+   double LT = T2;
+
+   bool foundPt = false; //not found yet;
+   if ( bothPhases != phase3 )
+   {
+      // ok, P3,T3 now outside of 2 phase region, find exact point by doing bisections for P & T along line
+      // extrapolating last segment of contour line
+      for ( int steps = 0; steps < g_MaxStepsNum; ++steps )
+      {
+         double newP = 0.5 * (LP + P3);
+         double newT = 0.5 * (LT + T3);
+
+         int newPhase = getMassFractions( newP, newT, m_masses, phaseFrac );
+         ++m_isoBisecIters;
+
+         if ( bothPhases == newPhase )
+         {
+            LP = newP;
+            LT = newT;
+         }
+         else
+         {
+            P3 = newP;
+            T3 = newT;
+         }
+
+         x1 = (LT - m_gridT.front() ) * scaleT;
+         y1 = (LP - m_gridP.front() ) * scaleP;
+         x2 = (T3 - m_gridT.front() ) * scaleT;
+         y2 = (P3 - m_gridP.front() ) * scaleP;
  
+         // check convergence
+         if ( sqrt( (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) ) < m_eps ) // check convergence in [0:1,0:1] plane
+         {
+            x1 = (T2 - m_gridT.front() ) * scaleT;
+            y1 = (P2 - m_gridP.front() ) * scaleP;
+            if ( sqrt( (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) ) < 0.2 * isolLen ) // is it too far for extrapolation (crossed other side of 2 phase region)?
+            { 
+               critT = T3;
+               critP = P3;
+               foundPt = true;
+            }
+            break;
+         }
+      }
+   }
+   return foundPt;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Get cricondentherm point for defined in constructor composition. Must be called after bubble/dew lines calculation
 // return point on bubble/dew curve with maximum temperature
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-std::pair<double, double> PTDiagramCalculator::getCricondenthermPoint() const
+PTDiagramCalculator::TPPoint PTDiagramCalculator::getCricondenthermPoint() const
 {
-   std::pair<double, double> ret( 0.0, 0.0 );
+   TPPoint ret( 0.0, 0.0 );
    
-   std::vector< std::pair<double, double> >::const_iterator cct = m_bubbleDewLine.begin();
+   TPLine::const_iterator cct = m_bubbleDewLine.begin();
 
-   for ( std::vector< std::pair<double, double> >::const_iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
+   for ( TPLine::const_iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
    {
       if ( cct->first < it->first ) { cct = it; ret = *it; }
    }
@@ -1444,13 +1902,13 @@ std::pair<double, double> PTDiagramCalculator::getCricondenthermPoint() const
 // Get cricondenbar point for defined in constructor composition. Must be called after bubble/dew lines calculation
 // return point on bubble/dew curve with maximum pressure
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-std::pair<double, double> PTDiagramCalculator::getCricondenbarPoint() const
+PTDiagramCalculator::TPPoint PTDiagramCalculator::getCricondenbarPoint() const
 {
-   std::pair<double, double> ret( 0.0, 0.0 );
+   TPPoint ret( 0.0, 0.0 );
 
-   std::vector< std::pair<double, double> >::const_iterator cct = m_bubbleDewLine.begin();
+   TPLine::const_iterator cct = m_bubbleDewLine.begin();
 
-   for ( std::vector< std::pair<double, double> >::const_iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
+   for ( TPLine::const_iterator it = m_bubbleDewLine.begin(); it != m_bubbleDewLine.end(); ++it )
    {
       if ( cct->second < it->second ) { cct = it; ret = *it; }
    }

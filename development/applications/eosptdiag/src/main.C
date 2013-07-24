@@ -16,9 +16,19 @@
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
 
-#define PTDIAG_VERSION "3.4"
+#define PTDIAG_VERSION "3.5"
 
 // Changes history
+// Version 3.5
+// Updated:
+//    algorithm for tracing countour lines. It makes search for starting point as recursive dividing P/T rectangle
+//    on 4 equal parts (a la LGR) and using LGR near the bubble/dew line to allow more precise line reconstruction.
+//    Intersection point of contour line with bubble/dew line reconstructed now by bisectioning line of last
+//    contour line segment expanded till boundaries of P/T grid
+//
+//    tuning A/B parameter now does not reconstruct bubble/dew lines and contour lines other than 0.5 line, and much faster now
+//
+//    in code std::pair<double,double> and std::vector< std::pair<double, double> > were replaced with TPPoint and TPLine redefined types
 //
 // Version 3.4
 // Added:
@@ -356,7 +366,8 @@ int main( int argc, char ** argv )
          std::cout << "   Number of points along P axis - " << diagBuilder->getSizeGridP() << "\n";
          std::cout << "   Number of points along T axis - " << diagBuilder->getSizeGridT() << "\n";
          std::cout << "   Number of PVT library calls for bubble/dew points search - " << diagBuilder->getBubbleDewSearchIterationsNumber() << "\n";
-         std::cout << "   Number of PVT library calls for building isolines - " << diagBuilder->getContourLinesSearchIterationsNumber() << "\n";
+         std::cout << "   Number of PVT library calls for building isolines - "        << diagBuilder->getContourLinesSearchIterationsNumber() << "\n";
+         std::cout << "   Number of PVT library calls for tunning A/B - "              << diagBuilder->getTuneABIterationsNumber() << "\n";
 
       }
    }
@@ -404,20 +415,20 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    }
    diagBuilder->setNonLinSolverConvPrms( g_StopTol, g_MaxIters, g_NewtonRelCoef );
    diagBuilder->setTolValue( g_Tol );
-   diagBuilder->findBubbleDewLines( data.temperature() + CBMGenerics::C2K, data.pressure() * CBMGenerics::MPa2Pa, std::vector<double>() );
+   
+   if ( !g_tuneAB ) diagBuilder->findBubbleDewLines( data.temperature() + CBMGenerics::C2K, data.pressure() * CBMGenerics::MPa2Pa, std::vector<double>() );
    
    clock_t cEnd = clock();
    double bubleDewSearchTime = (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC);
 
    // If needed to tune AB do it here
-   int pvtBblDewCalls = diagBuilder->getBubbleDewSearchIterationsNumber();
    double tunnedAB = g_ABTerm;
    double tuneABTime = 0.0;
 
    if ( g_tuneAB )
    {
       cStart = clock();
-      tunnedAB = diagBuilder->findAoverBTerm();
+      tunnedAB = diagBuilder->searchAoverBTerm();
       cEnd = clock();
             
       tuneABTime = (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC);
@@ -450,14 +461,14 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    ofs << "cmdLine = '" << cmdStr << "';\n\n";
 
    // dump info about P/T grids
-   dumpPTGrids( ofs, diagBuilder );
+   if ( !g_tuneAB ) dumpPTGrids( ofs, diagBuilder );
 
    // dump data for composition
    dumpCompositionInfo( ofs, diagBuilder, masses );
 
-   if ( !g_DataOnly ) ofs << "grid on\n";
-   if ( !g_DataOnly ) ofs << "hold off\n\n";
-   if ( !g_DataOnly && ! g_DiagOnly) ofs << "subplot( 3, 4, [ 1 2 3 5 6 7 9 10 11] );\n";
+   if ( !g_DataOnly && !g_tuneAB ) ofs << "grid on\n";
+   if ( !g_DataOnly && !g_tuneAB ) ofs << "hold off\n\n";
+   if ( !g_DataOnly && ! g_DiagOnly && !g_tuneAB ) ofs << "subplot( 3, 4, [ 1 2 3 5 6 7 9 10 11] );\n";
 
    // dump liquid fraction data for each P/T grid point and plot countour lines for this array
    if ( g_ColormapType ) dumpLiquidFractionArray( ofs, diagBuilder, data );
@@ -470,16 +481,16 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    std::vector<int>    colors;
    
    // generate set of values for calculating isolines in PTDiagramCalculator and colors 
-   createListValuesForIsolinesCalculation( ofs, vals, colors );
+   if ( !g_tuneAB ) createListValuesForIsolinesCalculation( ofs, vals, colors );
 
    // draw Liquid/Vapor single phases separation line
-   generateLiquidVaporSeparationLine( ofs, diagBuilder );
+   if ( !g_tuneAB ) generateLiquidVaporSeparationLine( ofs, diagBuilder );
 
    cStart = clock();
    // Calculate and plot diagram isolines
-   for ( int i = 0; i < vals.size(); ++i )
+   for ( int i = 0; !g_tuneAB && i < vals.size(); ++i )
    {
-      const std::vector< std::pair<double,double> > & isoline = diagBuilder->calcContourLine( vals[i] );
+      const PTDiagramCalculator::TPLine & isoline = diagBuilder->calcContourLine( vals[i] );
       if ( !isoline.size() ) continue;
 
       ofs << "%Contourline for liquid fraction value: " << vals[i] << "\n";
@@ -528,13 +539,13 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    ofs << "TunnedAoverB = "             << tunnedAB <<  ";\n";
    ofs << "UsedAoverB = "               << (g_ABTerm > 0 ? g_ABTerm : 5.87736) <<  ";\n";
 
-   ofs << "BubbleDewLineSearchPVTCalls = " << pvtBblDewCalls <<  ";\n";
-   ofs << "TuneAoverBPVTCalls = "          << diagBuilder->getBubbleDewSearchIterationsNumber() - pvtBblDewCalls << ";\n";
-   ofs << "IsoLineSearchPVTCalls = "        <<  diagBuilder->getContourLinesSearchIterationsNumber() << ";\n";
+   ofs << "BubbleDewLineSearchPVTCalls = " << diagBuilder->getBubbleDewSearchIterationsNumber() <<  ";\n";
+   ofs << "TuneAoverBPVTCalls = "          << diagBuilder->getTuneABIterationsNumber() << ";\n";
+   ofs << "IsoLineSearchPVTCalls = "       << diagBuilder->getContourLinesSearchIterationsNumber() << ";\n";
    ofs << "\n";
 
    // if only data requested, stops here
-   if ( g_DataOnly ) return diagBuilder.release();
+   if ( g_DataOnly || g_tuneAB ) return diagBuilder.release();
 
    // Generate legend/colorbar, axis labels, plot title
    generatePlotDescription( ofs, vals, diagTypeStr );
@@ -629,7 +640,7 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
    ofs << "      VISCOSITY VISC_GAS, VISCOSITY VISC_OIL, REAL VMF) FlashOut;\n";
    ofs << "\n";
 
-   const std::vector< std::pair<double,double> > & isoline = diagBuilder.calcContourLine( 1.0 );
+   const PTDiagramCalculator::TPLine & isoline = diagBuilder.calcContourLine( 1.0 );
    for ( size_t j = 0; j < isoline.size(); ++j )
    {
       ofs << "   PTFLASH ( pvtmodel, " << isoline[j].second << "*PA, " << isoline[j].first << "*K, FlashIn, FlashOut );\n";
@@ -646,7 +657,7 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
    }
    ofs << "\n";
    
-   const std::vector< std::pair<double,double> > & isoline2 = diagBuilder.calcContourLine( 0.0 );
+   const PTDiagramCalculator::TPLine & isoline2 = diagBuilder.calcContourLine( 0.0 );
    for ( size_t j = 0; j < isoline2.size(); ++j )
    {
       ofs << "   PTFLASH ( pvtmodel, " << isoline2[j].second << "*PA, " << isoline2[j].first << "*K, FlashIn, FlashOut );\n";
@@ -1016,7 +1027,7 @@ static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::ve
 // Generate Liquid/Fraction separation line
 static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder )
 {
-   const std::vector< std::pair<double,double> > & spsline = diagBuilder->getSinglePhaseSeparationLine();
+   const PTDiagramCalculator::TPLine & spsline = diagBuilder->getSinglePhaseSeparationLine();
    if ( spsline.size() )
    {
       ofs << "%Vapor/Liquid single phase separation line\n";
@@ -1075,12 +1086,12 @@ static void dumpSpecialPoints( std::ofstream & ofs, std::auto_ptr<PTDiagramCalcu
    }
    ofs << "\n";
 
-   const std::pair<double,double> & cct = diagBuilder->getCricondenthermPoint();
+   const PTDiagramCalculator::TPPoint & cct = diagBuilder->getCricondenthermPoint();
    ofs << "%Cricondentherm point\n";
    ofs << "CricondthermPoint = [" << cct.first << ", " << cct.second * CBMGenerics::Pa2MPa << "];\n";
    ofs << "\n";
 
-   const std::pair<double,double> & ccp = diagBuilder->getCricondenbarPoint();
+   const PTDiagramCalculator::TPPoint & ccp = diagBuilder->getCricondenbarPoint();
    ofs << "%Cricondenbar point\n";
    ofs << "CricondenbarPoint = [" << ccp.first << ", " << ccp.second * CBMGenerics::Pa2MPa << "];\n";
    ofs << "\n";

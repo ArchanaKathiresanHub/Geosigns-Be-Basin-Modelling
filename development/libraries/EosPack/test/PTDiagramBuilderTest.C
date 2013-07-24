@@ -17,9 +17,36 @@ double Composition[] = { 4.63937e+10, 3.76229e+11, 7.53617e+10, 1.60934e+11, 7.0
                          5.4181e+08, 8.16853e+09, 2.68247e+10, 4.82603e+09, 5.65998e+07, 2.17633e+07,
                          0, 0, 0, 0 };
 
+double CompositionByOlivie[] = {  
+      46393676972.0415, // asphaltene
+      376228852155.787, // resin
+      75361672187.7905, // C15PlusAro
+      160933558529.36,  // C15PlusSat
+      70134580791.6047, // C6Minus14Aro
+      193473629375.084, // C6Minus14Sat 
+      6208020563.40107, // C5
+      6268552951.99726, // C4
+      6369301385.92029, // C3
+      7470802663.62787, // C2
+      7780993477.8834,  // C1
+      0.0,              // COx
+      2659345319.13799, // N2
+      541810267.726579, // H2S
+      8168527698.32282, // LSC
+      26824731512.8973, // C15PlusAT
+      4826027990.49316, // C6Minus14BT
+      56599766.62811,   // C6Minus14DBT
+      21763290.0290721, // C6Minus14BP
+      0.0,              // C15PlusAroS
+      0.0,              // C15PlusSatS
+      0.0,              // C6Minus14SatS
+      0.0               // C6Minus14AroS
+};
+ 
+
 double TrapCond[]      = { 588.15, 12665600};
-int    IsolinesSizes[] = { 66, 55, 55, 53, 56, 59, 68, 76, 86, 92, 124 };
-double CritPoint[]     = { 909.24357, 10955874.7425 };
+int    IsolinesSizes[] = { 66, 49, 55, 56, 58, 62, 70, 79, 89, 93, 124 };
+double CritPoint[]     = { 909.17673, 10959091.306859 };
 double BubblePoint[]   = { 588.15, 10057971.0253 };
 double eps             = 1.e-3;
 
@@ -58,6 +85,14 @@ static void test_PTDiagramCalculator_CAPI()
    assert( std::abs(points[1] - CritPoint[1])   < 1e-3    );// Wrong critical point pressure value
    assert( std::abs(points[2] - BubblePoint[0]) < 1e-3 );// Wrong bubble point temperature value
    assert( std::abs(points[3] - BubblePoint[1]) < 1e-3 );// Wrong bubble point pressure value
+
+   // search critical point
+   for ( int i = 0; i < 8; ++i ) points[i] = 0.0;
+
+   ret = FindCriticalPoint( 0, Composition, points );   
+   assert( ret ); // critical point search shouldn't failed here
+   assert( std::abs(points[0] - CritPoint[0])   < 1e-3 );// Wrong critical point temperature value
+   assert( std::abs(points[1] - CritPoint[1])   < 1e-3    );// Wrong critical point pressure value
 }
 
 static void test_PTDiagramCalculatorBubbleDew()
@@ -157,6 +192,46 @@ static void test_PTDiagramCalculatorObjectAllCountourLinesInOneGo()
    }
 }
 
+static void test_PTDiagramCalculatorTuneAB()
+{
+   // create EosPack config file
+   CreatePVTpropertiesCfgFile();
+   SetPvtPropertiesConfigFile( CfgFile );
+
+   std::vector<double> comp(CompositionByOlivie, CompositionByOlivie + sizeof( CompositionByOlivie )/sizeof(double) );
+
+   PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MoleMassFractionDiagram, comp );
+   diagramBuilder.setAoverBTerm( 2.0 );
+   diagramBuilder.setNonLinSolverConvPrms( 1e-6, 400, 0.2 );
+   double AB = diagramBuilder.searchAoverBTerm();
+
+   std::cout << "Found AB: "<< AB << std::endl;
+   assert( std::abs( AB - 3.76929 ) < eps );
+}
+
+static void test_PTDiagramCalculatorSearchCritPt()
+{
+   // create EosPack config file
+   CreatePVTpropertiesCfgFile();
+   SetPvtPropertiesConfigFile( CfgFile );
+
+   std::vector<double> comp(CompositionByOlivie, CompositionByOlivie + sizeof( CompositionByOlivie )/sizeof(double) );
+
+   PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MoleMassFractionDiagram, comp );
+   diagramBuilder.setAoverBTerm( 2.0 );
+   diagramBuilder.setNonLinSolverConvPrms( 1e-6, 400, 0.2 );
+
+   const PTDiagramCalculator::TPPoint & critPt = diagramBuilder.searchCriticalPoint();
+   double critT = critPt.first;
+   double critP = critPt.second;
+   std::cout << "Critical point: T = " << critT << ", P = " << critP << std::endl;
+   std::cout << "Critical point search iterations: " << diagramBuilder.getBubbleDewSearchIterationsNumber() + diagramBuilder.getContourLinesSearchIterationsNumber() << std::endl;
+   std::cout << "A/B tuning iterations: " << diagramBuilder.getTuneABIterationsNumber() << std::endl;
+
+   assert( std::abs( critT - 903.652 ) < eps );
+   assert( std::abs( critP - 11130482.494 ) < eps );
+}
+
 
 int main(int argc, char ** argv)
 {
@@ -166,10 +241,12 @@ int main(int argc, char ** argv)
       return 1;
    }
 
-   if (      !std::strcmp( argv[1], "capi" ) ) { test_PTDiagramCalculator_CAPI();                         }
-   else if ( !std::strcmp( argv[1], "bbdw" ) ) { test_PTDiagramCalculatorBubbleDew();                     }
-   else if ( !std::strcmp( argv[1], "isol" ) ) { test_PTDiagramCalculatorIsolines();                      }
-   else if ( !std::strcmp( argv[1], "ain1" ) ) { test_PTDiagramCalculatorObjectAllCountourLinesInOneGo(); }
+   if (      !std::strcmp( argv[1], "capi"   ) ) { test_PTDiagramCalculator_CAPI();                         }
+   else if ( !std::strcmp( argv[1], "bbdw"   ) ) { test_PTDiagramCalculatorBubbleDew();                     }
+   else if ( !std::strcmp( argv[1], "isol"   ) ) { test_PTDiagramCalculatorIsolines();                      }
+   else if ( !std::strcmp( argv[1], "ain1"   ) ) { test_PTDiagramCalculatorObjectAllCountourLinesInOneGo(); }
+   else if ( !std::strcmp( argv[1], "tuneab" ) ) { test_PTDiagramCalculatorTuneAB();                        }
+   else if ( !std::strcmp( argv[1], "critpt" ) ) { test_PTDiagramCalculatorSearchCritPt();                  }
    else
    {
       std::cerr << "Unknown test" << std::endl;

@@ -6,6 +6,7 @@
 #define PT_DIAGRAM_CALCULATOR_H
 
 #include <vector>
+#include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Class for calculating P/T phase diagram using PVT flasher
@@ -25,8 +26,9 @@
 //  PTDiagramCalculator diagramCalculator( typeOfDiagram, masses );
 //
 //  diagramCalculator.findBubleDewLines( CompTemperature, CompPressure, std::vector<double>() );
-//  double critT = diagramCalculator.getCriticalP();
-//  double critP = diagramCalculator.getCriticalT();
+//  const std::pair< double, double> & critPt = diagramCalculator.getCriticalPoint();
+//  double critT = critPt.first;
+//  double critP = critPt.second;
 // 
 //  if ( critT > 0.0 && crtiP > 0.0 ) // found criticla P & T
 //  {
@@ -48,7 +50,10 @@
 class PTDiagramCalculator
 {
 public:
-   /// Define type of PT phase diagram
+   typedef std::pair< double, double>  TPPoint;    // point on PT phase diagram (T,P)
+   typedef std::vector< TPPoint >      TPLine;     // array of TPPoints as std::vector
+
+      /// Define type of PT phase diagram
    typedef enum
    {
       MassFractionDiagram,         ///< mass fraction
@@ -58,7 +63,7 @@ public:
 
    /// \brief Constructor. It also creates default grid for T from g_MinimalTemperature:g_MinimalTemperature
    /// \param typeOfDiagram which type of diagram should be built - Mass/Mole/Volume fraction
-   /// \param massFraction array of component masses
+   /// \param massFraction array  of component masses
    PTDiagramCalculator( DiagramType typeOfDiagram, const std::vector<double> & massFraction );
 
    /// \brief Destructor, nothing to delete yet
@@ -74,7 +79,7 @@ public:
    /// \brief Calculate contour line for given value. Should be called after findBubleDewLines().
    /// \param val Liquid fraction value for contour line. Must be between 0 and 1
    /// \returns array of (T,P) pair for each contour line point
-   std::vector< std::pair<double, double> > calcContourLine( double val );
+   TPLine calcContourLine( double val );
    
    /// \brief Calculate set of contour lines for the given values set. Should be called after findBubleDewLines().
    /// \param vals the set of liquid fraction values for contour line. Must be between 0 and 1
@@ -83,19 +88,19 @@ public:
 
    /// \brief Get single phase separation line for 1 phase region as EosPack calculates it
    /// \return separation line as set of points
-   std::vector< std::pair<double,double> > getSinglePhaseSeparationLine();
+   TPLine getSinglePhaseSeparationLine();
 
    /// \brief Get critical point for defined in constructor composition. Must be called after bubble/dew lines calculation
    /// \return critical composition temperature,pressure
-   std::pair<double, double> getCriticalPoint() const { return std::pair<double,double>( m_critT, m_critP ); }
+   TPPoint getCriticalPoint() const { return TPPoint( m_critT, m_critP ); }
 
    /// \brief Get cricondentherm point for defined in constructor composition. Must be called after bubble/dew lines calculation
    /// \return point on bubble/dew curve with maximum temperature
-   std::pair<double, double> getCricondenthermPoint() const;
+   TPPoint getCricondenthermPoint() const;
 
    /// \brief Get cricondenbar point for defined in constructor composition. Must be called after bubble/dew lines calculation
    /// \return point on bubble/dew curve with maximum pressure
-   std::pair<double, double> getCricondenbarPoint() const;
+   TPPoint getCricondenbarPoint() const;
 
    /// \brief calculate bubble pressure for given Temperature
    /// \param T temperature value 
@@ -126,6 +131,10 @@ public:
    /// \return total number of flasher calls for contour lines search
    int getContourLinesSearchIterationsNumber() const { return m_isoBisecIters; }
 
+   /// \brief Get the total number of PVT flasher calls during search correct A/B parameter 
+   /// \return total number of flasher calls for A/B search
+    int getTuneABIterationsNumber() const { return m_abTuneBisecIters; }
+
    /// \brief Returns 1D grid values for Temperature (X) axis
    /// \return grid along T
    std::vector<double> getGridT() const { return m_gridT; }
@@ -136,16 +145,19 @@ public:
 
    /// \brief Set tolerance value which used for bisection iterations and for cutting very small phase fractions (<eps^2)
    /// \param tol new tolerance value
-   void setTolValue( double tol ) { m_eps = tol; }
-   
+   void setTolValue( double tol );   
+
    /// \brief Change the default value for A over B term in EosPack. Should be called before bubble/dew line search
    /// \param val new value for A over B term. Shold be more then 0 (at least)
    void setAoverBTerm( double val ) { m_AoverB = val; m_ChangeAoverB = true; }
 
-   /// \brief After bubble/dew line & critical point search it is possible to find A/B term value in such way that liquid/vapour division line 
-   ///        will come through critical point
+   /// \brief Find A/B term value in such way that liquid/vapour division line will come through critical point
    /// \return found value of A/B term if it was found or the default value if not found (0.5 countour line doesn't cross bubble/dew line)
-   double findAoverBTerm();
+   double searchAoverBTerm();
+
+   /// \brief Find critical point Tc and Pc in fastest way is possible
+   /// \return found critical point (Tc,Pc) values if point was found or zero values if wasn't found
+   TPPoint searchCriticalPoint();
 
    /// \brief Change the default value for nonlinear solver in PVT library
    /// \param stopTol stop tolerance for convergence of iterations, the default value for PTDiagramCalculator/EosPack 1e-6/1e-4
@@ -163,13 +175,15 @@ private:
 
    std::vector<double> m_masses;      ///< components mass fraction
 
-   std::vector< std::pair< double,double > > m_bubbleDewLine; ///< Bubble/Dew line
-   std::vector< std::pair< double,double > > m_c0p5Line;      ///< 0.5 contour line
-   std::vector< std::pair< double,double > > m_spsLine;       ///< single phase separation line outside of the 2 phase region
+   TPLine m_bubbleDewLine; ///< Bubble/Dew line
+   TPLine m_c0p5Line;      ///< 0.5 contour line
+   TPLine m_spsLine;       ///< single phase separation line outside of the 2 phase region
 
-   std::vector< std::pair<double,double> >::iterator  m_critPointPos; // position of critical point on bubble/dew line
+   TPLine::iterator  m_critPointPos; // position of critical point on bubble/dew line
 
    double m_eps;                     ///< some small number used in bisection iterations convergence and for mass fraction comparison
+   double m_epsT;                    ///< some small number used in bisection iterations convergence for Temperature 
+   double m_epsP;                    ///< some small number used in bisection iterations convergence for Pressure
 
    // PVT library parameters
    double m_AoverB;                  ///< A over B term EosPack parameter
@@ -183,6 +197,7 @@ private:
 
    int    m_bdBisecIters;            ///< total number of PVT flasher calls for bubble dew points search
    int    m_isoBisecIters;           ///< total number of PVT flasher calls contour line points search
+   int    m_abTuneBisecIters;        ///< total number of PVT flasher calls for tuning A/B
 
 
    /// \brief Call PVT library and calculate mole/volume or mass fraction for Liquid/Vapor phases for given composition for single set of P, T values
@@ -213,7 +228,9 @@ private:
    /// \param foundP[out] on return, if iterations were successful, it contains bubble or dew point pressure value
    /// \param foundT[out] on return, if iterations were successful, it contains bubble or dew point temperature value
    /// \return true if value was found, false otherwise
-   bool doBisectionForContourLineSearch( size_t p1, size_t t1, size_t p2, size_t t2, double frac, double & foundP, double & foundT );
+   bool doBisectionForContourLineSearch( int    p1, int    t1, int    p2, int    t2, double frac, double & foundP, double & foundT );
+   bool doBisectionForContourLineSearch( double p1, double t1, double p2, double t2, double frac, double & foundP, double & foundT );
+   bool doBisectionForContourLineSearch( double p1, double t1, double p2, double t2, int ph1, int ph2, double f1, double f2, double frac, double & foundP, double & foundT );
 
    /// \brief Search by doing bisection iterations for single phases separation line values. Bisections could be done by the Pressure or by the Temperature
    /// \param p1 lower P border for bisections
@@ -240,6 +257,15 @@ private:
    /// \return true on success, false otherwise
    bool findCriticalPoint();
 
+   /// \brief Extrapolate countour line last segment to one phase region and find phase change point on this extrapolated line (critical point)
+   /// \param isoline array of points for countour line, used to estimate lenght of line for extrapolation 
+   /// \param P1 first point of contour line interval pressure value
+   /// \param P2 second point of contour line interval pressure value
+   /// \param T1 first point of contour line interval temperature value
+   /// \param T2 second point of contour line interval temperature value
+   /// \return true if phase change point was found, false otherwise
+   bool extrapolateContourLineToOnePhaseRegion( const TPLine & isoline, double P1, double T1, double P2, double T2, double & critP, double & critT );
+
    /// \brief Create 1D grids along P and T
    /// \param minP lower bound for P grid
    /// \param maxP upper bound for P grid
@@ -260,6 +286,29 @@ private:
    /// \param t temperature
    /// \return phase ID
    int getPhase( size_t p, size_t t );
+
+   /// \brief Structure for describing rectangle area on P/T grid. Used for search starting point for tracing contour lines
+   struct SuperCell { 
+      size_t p1; size_t p2; size_t t1; size_t t2;
+      SuperCell( size_t pp1, size_t pp2, size_t tt1, size_t tt2 )
+      {
+         t1 = tt1; t2 = tt2; p1 = pp1; p2 = pp2;
+      }
+   }; 
+   /// \brief Trace countour line for given liquid fraction value. If fast is true, trace only till intersection with bubble/dew line
+   /// \param val liquid fraction value for contour line
+   /// \param isoloine[out] on output contour line as array of (T,P) points
+   /// \param fast if true, trace isoline till intersection with bubble/dew line only (used for search of critical point)
+   /// \return true on success, false otherwise
+   bool traceContourLine( double val, TPLine & isoline, bool fast );
+
+   /// \brief Search position of given rectangle area on P/T phase diagram (in which region - 1 or 2 phase or both)
+   /// \param p1 node index on pressure grid for low left corner of rectangle
+   /// \param p2 node index on pressure grid for upper right corner of rectangle
+   /// \param t1 node index on temperature grid for low left corner of rectangle
+   /// \param t2 node index on temperature grid for upper right corner of rectangle
+   /// \return position of the rectangle on P/T phase diagram as enum value
+   int checkCell( size_t p1, size_t p2, size_t t1, size_t t2, double val );
 };
 
 #endif

@@ -57,6 +57,13 @@ namespace pvtFlash
       /// \param[out] isolines 1D array which keeps T,P values for each isoline, number of points for each isoline keeps szIso array 
       /// \return true on success, false otherwise
       bool BuildPTDiagram( int diagType, double T, double P, double * comp, double * points, int * szIso, double * isolines );
+      
+      /// \brief Search critical point on PT phase diagram
+      /// \param diagType - type of diagram, 0 - mass, 1 - mole, 2 - volume
+      /// \param[in] comp array of size 23 for composition mass fractions
+      /// \param[out] critical point array, size of 2 which will contain on return CriticalT, CriticalP
+      /// \return true on success, false otherwise
+      bool FindCriticalPoint( int diagType, double * comp, double * critPt );
    }
 }
 

@@ -135,7 +135,7 @@ namespace pvtFlash
             diagBuilder.findBubbleDewLines( T, P, std::vector<double>() );
 
             // fill critical point values
-            const std::pair<double,double> & critPt = diagBuilder.getCriticalPoint();
+            const PTDiagramCalculator::TPPoint & critPt = diagBuilder.getCriticalPoint();
             points[0] = critPt.first;
             points[1] = critPt.second;
 
@@ -152,7 +152,7 @@ namespace pvtFlash
                points[3] = 0.0;
             }
             // fill cricondentherm point values
-            const std::pair<double, double> & tPt = diagBuilder.getCricondenthermPoint();
+            const PTDiagramCalculator::TPPoint & tPt = diagBuilder.getCricondenthermPoint();
             points[4] = tPt.first;
             points[5] = tPt.second;
 
@@ -167,7 +167,7 @@ namespace pvtFlash
             size_t is = 0;
             for ( int i = 0; i < sizeof(vals)/sizeof(double); ++i )
             {
-               const std::vector< std::pair<double,double> > & isoline = diagBuilder.calcContourLine( vals[i] );
+               const PTDiagramCalculator::TPLine & isoline = diagBuilder.calcContourLine( vals[i] );
                szIso[i] = std::min( static_cast<int>(isoline.size()), szIso[i] );
                for ( size_t it = 0; it < szIso[i]; ++it )
                {
@@ -184,4 +184,48 @@ namespace pvtFlash
          return true;
       }
    }
+   
+   //  Search critical point on PT phase diagram
+   // return true on success, false otherwise
+   bool FindCriticalPoint( int diagType,   // diagType - type of diagram, 0 - mass, 1 - mole, 2 - volume
+                           double * comp,  // array of size 23 for composition mass fractions
+                           double * critPt // critical point array, size of 2 which will contain on return CriticalT, CriticalP
+                         )
+   {
+      const int iNc = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+      bool ret = false;
+
+      std::vector<double> masses( iNc );
+      std::copy( comp, comp + iNc, masses.begin() );
+     
+      PTDiagramCalculator::DiagramType dType = PTDiagramCalculator::MoleMassFractionDiagram;
+      switch( diagType )
+      {
+         case 0:  dType = PTDiagramCalculator::MassFractionDiagram;     break;
+         case 1:  dType = PTDiagramCalculator::MoleMassFractionDiagram; break;
+         case 2:  dType = PTDiagramCalculator::VolumeFractionDiagram;   break;
+         default: break; // the default is MoleMassFraction diagram
+      }
+
+      try
+      {
+         PTDiagramCalculator diagBuilder( dType, masses );
+
+         diagBuilder.setAoverBTerm( 2 );
+         diagBuilder.setNonLinSolverConvPrms( 1e-6, 500, 0.3 );
+         const PTDiagramCalculator::TPPoint & pt = diagBuilder.searchCriticalPoint();
+         if ( pt.first > 0.0 && pt.second > 0.0 )
+         {
+            critPt[0] = pt.first;
+            critPt[1] = pt.second;
+            ret = true;
+         }
+      }
+      catch( ... )
+      {
+         return false;
+      }
+      return ret;
+   }
 }
+

@@ -52,6 +52,16 @@ add_test( NAME PTDiagramCalculator::calcContourLines
    COMMAND PTDiagramBuilderTest ain1
 )
 
+# Unit test for search correct A/B term
+add_test( NAME PTDiagramCalculator::searchAoverBTerm
+   COMMAND PTDiagramBuilderTest tuneab
+)
+
+# Unit test for the fast search of critical point
+add_test( NAME PTDiagramCalculator::searchCriticalPoint
+   COMMAND PTDiagramBuilderTest critpt
+)
+
 ######################################
 # Unit test for flasher
 add_executable( EosPackTest

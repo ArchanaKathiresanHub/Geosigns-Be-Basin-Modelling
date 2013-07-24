@@ -31,6 +31,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
                                m_propertyFunc( 0 ),
                                m_omegaA( 0 ),
                                m_omegaB( 0 ),
+                               m_NewtonRelaxCoeff( 1 ),
                                m_corrLBC( 0 )
 {
 #ifdef DEBUG_EXTENSIVE
