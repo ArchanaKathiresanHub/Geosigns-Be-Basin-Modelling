@@ -18,7 +18,7 @@ static void InitializeCompositionMasses( double masses[] );
 
 static void test_InitialisationOfKValues () {
 
-
+   const double ComparisonTolerance = 1.0e-10;
 
 
    double pressure    = 39958145.0;  // in Pa
@@ -93,7 +93,7 @@ static void test_InitialisationOfKValues () {
 
    // The kvalues computed should be equal to those in the expected array.
    for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i ) {
-      assert ( kValuesComputed [ i ] == kValuesExpected [ i ] );
+      assert (( std::fabs ( kValuesExpected [ i ] - kValuesComputed [ i ]) / kValuesExpected [ i ]) < ComparisonTolerance );
    }
 
 }
