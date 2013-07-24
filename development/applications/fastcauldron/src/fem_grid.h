@@ -139,6 +139,9 @@ namespace Basin_Modelling {
                                               const int     Number_Of_Overpressure_Newton_Iterations,
                                               const int     numberOfGeometricIterations );
 
+     /// \brief Compute the next time step for permafrost calculations.
+     void Determine_Permafrost_Time_Step ( const double  Current_Time, double & Time_Step );
+
      /// \brief Allocate the Finite element grids for overpressure and temperature. 
      ///
      /// The grids are different for both calculations so 2 are needed.

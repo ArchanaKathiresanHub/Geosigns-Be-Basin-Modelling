@@ -102,6 +102,7 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 
    m_minimumTimeStep = Minimum_Pressure_Time_Step;
    m_maximumTimeStep = DefaultMaximumTimeStep;
+   m_fixedTimeStep   = 0.0; // used from command-line to overwrite other settings
    m_cflTimeStepping = false;
    m_burialRateTimeStepping = false;
    m_elementFraction = DefaultElementBurialFraction;
@@ -330,6 +331,11 @@ double AppCtx::minimumTimeStep () const {
 double AppCtx::maximumTimeStep () const {
    return m_maximumTimeStep;
 }
+//------------------------------------------------------------//
+
+double AppCtx::fixedTimeStep () const {
+   return m_fixedTimeStep;
+}
 
 //------------------------------------------------------------//
 
@@ -514,6 +520,9 @@ void AppCtx::printHelp () const {
   helpBuffer << "  Multi-component multi-phase flow solver options:" << endl;
   helpBuffer << endl;
   helpBuffer << MultiComponentFlowHandler::getCommandLineOptions ();
+
+  helpBuffer << "  Permafrost modelling options:" << endl;
+  helpBuffer << "           -permafrost [ts]            Enable permafrost modelling and set a time-step size to be used (if defined), ts > 0.0." << endl;
 
   helpBuffer << endl;
   helpBuffer << endl;
@@ -1035,6 +1044,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
      if ( newFixedTimeStep > 0.0 ) {
         m_maximumTimeStep = newFixedTimeStep;
         m_minimumTimeStep = newFixedTimeStep;
+        m_fixedTimeStep   = newFixedTimeStep;
 
         if ( debug1 || verbose ) {
            PetscPrintf ( PETSC_COMM_WORLD, " Fixied time-step size: %f\n", newFixedTimeStep );

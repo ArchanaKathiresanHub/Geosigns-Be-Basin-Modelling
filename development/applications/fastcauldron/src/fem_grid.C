@@ -1427,6 +1427,14 @@ bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time,
   } else if ( Current_Time < (*majorSnapshots)->time ()) {
     Current_Time = (*majorSnapshots)->time ();
   } 
+  
+  if( basinModel->permafrost () && basinModel->fixedTimeStep() == 0.0 ) {
+     // we want to start permafrost time stepping when the first permafrost occurs, so change the current_time if it reaches the permafrost age already
+     // in order to start permafrost time-stepping exactly at the permafrost start age.
+     if( Current_Time <= basinModel->permafrostAge() && (( Previous_Time - Current_Time ) - basinModel->permafrostTimeStep() > 0.0001 )) { 
+        Current_Time = Current_Time + basinModel->permafrostTimeStep();      
+     }
+  }
 
   Time_Step = Previous_Time - Current_Time;
 
@@ -1482,10 +1490,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
      Time_Step = NumericFunctions::Maximum ( Predicted_Time_Step, basinModel->minimumTimeStep ());
      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
   }
-  
-  if ( basinModel->permafrost () && ( Current_Time <= basinModel->permafrostAge() )) {
-     Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
-  }
+  Determine_Permafrost_Time_Step ( Current_Time, Time_Step );
 }
 
 
@@ -1552,10 +1557,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
          Time_Step = NumericFunctions::Maximum ( Time_Step, basinModel->minimumTimeStep ());
       }
    }
-   if ( basinModel->permafrost () && ( Current_Time <= basinModel->permafrostAge() )) {
-      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
-   }
-   
+   Determine_Permafrost_Time_Step ( Current_Time, Time_Step );
 }
 
 
@@ -1646,10 +1648,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
      Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
   }
 
-  if ( basinModel->permafrost () && ( Current_Time <= basinModel->permafrostAge() )) {
-     Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
-  }
-  
+  Determine_Permafrost_Time_Step ( Current_Time, Time_Step );
 }
 
 
@@ -3942,3 +3941,15 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 }
 
 //------------------------------------------------------------//
+void Basin_Modelling::FEM_Grid::Determine_Permafrost_Time_Step ( const double  Current_Time, double & Time_Step ) {
+
+   if( basinModel->permafrost () ) {
+      if( basinModel->fixedTimeStep() > 0.0 ) {
+         // the fixed time step overwrites all other timesteps
+        Time_Step = basinModel->fixedTimeStep();
+      } else if( Current_Time <= basinModel->permafrostAge() ) {
+         Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
+     }
+   } 
+}
+

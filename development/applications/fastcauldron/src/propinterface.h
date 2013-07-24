@@ -251,6 +251,8 @@ public:
 
    double maximumTimeStep () const;
 
+   double fixedTimeStep () const;
+
    bool cflTimeStepping () const;
 
    bool useBurialRateTimeStepping () const;
@@ -556,6 +558,7 @@ public:
 
    double m_minimumTimeStep;
    double m_maximumTimeStep;
+   double m_fixedTimeStep;
    bool m_cflTimeStepping;
    bool m_burialRateTimeStepping;
    double m_elementFraction;
