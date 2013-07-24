@@ -203,6 +203,7 @@
 %apply double OUTPUT[] { double * points }
 %apply int    INOUT[]  { int * szIso }
 %apply double OUTPUT[] { double * isolines }
+%apply double OUTPUT[] { double * critPt }
 
 
 %include "../../../EosPack/src/EosPackCAPI.h"

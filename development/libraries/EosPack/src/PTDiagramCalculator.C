@@ -1111,11 +1111,19 @@ struct CellInds
 };
 
 bool operator < ( const CellInds & cp1, const CellInds & cp2 ) 
-{
-   if ( cp1.t < cp2.t ) return true;
-   if ( cp1.p < cp2.p ) return true;
-   if ( cp1.l < cp2.l ) return true;
-   if ( cp1.c < cp2.c ) return true;
+{  
+   if (      cp1.t < cp2.t ) return true;
+   else if ( cp1.t > cp2.t ) return false;
+   
+   if (      cp1.p < cp2.p ) return true;
+   else if ( cp1.p > cp2.p ) return false;
+
+   if (      cp1.l < cp2.l ) return true;
+   else if ( cp1.l > cp2.l ) return false;
+
+   if (      cp1.c < cp2.c ) return true;
+   else if ( cp1.c > cp2.c ) return false;
+
    return false;
 }
 
@@ -1198,13 +1206,13 @@ bool PTDiagramCalculator::traceContourLine( double val, TPLine & isoline, bool f
    // if we found cell intersected by contour line, set it as start cell
    if ( foundCl.p1 < m_gridP.size() && foundCl.t1 < m_gridT.size() )
    {
-      t1 = foundCl.t1;
-      p1 = foundCl.p1;
+      t1 = static_cast<int>(foundCl.t1);
+      p1 = static_cast<int>(foundCl.p1);
    }
    else if ( secondChanceCl.p1 < m_gridP.size() && secondChanceCl.t1 < m_gridT.size() )
    {  // if we can't find cell in two phase region which is crossed by isoline, try to use 1/2 phase cell crossed by isoline
-      t1 = secondChanceCl.t1;
-      p1 = secondChanceCl.p1;
+      t1 = static_cast<int>(secondChanceCl.t1);
+      p1 = static_cast<int>(secondChanceCl.p1);
       foundCl = secondChanceCl;
    }
    
@@ -1236,8 +1244,8 @@ bool PTDiagramCalculator::traceContourLine( double val, TPLine & isoline, bool f
       {
          if ( forward && !fast ) // should we trace other side of the contour line?
          {
-            p1 = foundCl.p1;
-            t1 = foundCl.t1;
+            p1 = static_cast<int>(foundCl.p1);
+            t1 = static_cast<int>(foundCl.t1);
             forward = false;
             inEdge = startEdge;
             std::reverse( isoline.begin(), isoline.end() );
@@ -1319,8 +1327,8 @@ bool PTDiagramCalculator::traceContourLine( double val, TPLine & isoline, bool f
       {
          if ( level >= g_maxLGRLevel && forward && !fast ) // no output edge, trace the second part of curve
          {
-            p1 = foundCl.p1;
-            t1 = foundCl.t1;
+            p1 = static_cast<int>(foundCl.p1);
+            t1 = static_cast<int>(foundCl.t1);
             forward = false;
             inEdge = startEdge;
             std::reverse( isoline.begin(), isoline.end() );
@@ -1431,8 +1439,8 @@ bool PTDiagramCalculator::traceContourLine( double val, TPLine & isoline, bool f
       if ( !foundPt && forward && !fast ) // if didn't find next cell to continue - try to trace from other side of the countour line
       {
          forward = false;
-         t1 = foundCl.t1;
-         p1 = foundCl.p1;
+         t1 = static_cast<int>( foundCl.t1 );
+         p1 = static_cast<int>( foundCl.p1 );
          inEdge = startEdge;
          std::reverse( isoline.begin(), isoline.end() );
          level = 0;
@@ -1566,8 +1574,6 @@ PTDiagramCalculator::TPPoint PTDiagramCalculator::searchCriticalPoint()
 {
    TPPoint critPt( 0.0, 0.0 );
 
-   double critT;
-   double crtiP;
    bool foundPt = true;
 
    TPLine isoLine;
