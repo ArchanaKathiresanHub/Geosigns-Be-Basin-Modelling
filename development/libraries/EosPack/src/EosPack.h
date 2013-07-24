@@ -110,7 +110,9 @@ namespace pvtFlash
       /// \param[out] phaseViscosity [gas==0, oil==1]:  viscosity per phase (in Pa*s)
       /// \param[in out] kValues. Initialise the flash newton solve with a set of k-values.
       ///                The array must have at least as many entries as there are species modelled in the flasher.
-      ///                If this array is null then no initialisation will occur.
+      ///                If this array is null then the normal initialisation will occur and the k-values will not be passed back to the calling procedure.
+      ///                If the array is not null and the first value is -1.0 then normal initialisation will occur
+      ///                and the k-values will be stored in the array.
       bool compute( double temperature, 
                     double pressure, 
                     double compMasses[],                                        
