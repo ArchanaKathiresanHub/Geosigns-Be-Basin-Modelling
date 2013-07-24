@@ -101,7 +101,7 @@ endif()
 
 
 set_target_properties(cauldronexplorer
-      PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
+      PROPERTIES COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
                  LINK_FLAGS "${CAULDRON_EXPLORER_LINK_FLAGS}"
 )
 
