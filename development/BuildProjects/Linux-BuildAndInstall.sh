@@ -33,14 +33,15 @@ CTEST=/apps/3rdparty/share/ctest
 # Build applications
 echo Building Cauldron applications
 pushd $build
-csh -x <<EOF
 ${src}/development/bootstrap.csh \
       -DCMAKE_BUILD_TYPE=${configuration} \
       -DBM_VERSION_NUMBER_MAJOR=${version_number_major} \
       -DBM_VERSION_NUMBER_MINOR=${version_number_minor} \
       -DBM_VERSION_TAG=${version_tag} \
 	  "$@" \
-  || ( echo error: Configuration has failed; exit 1; ) || exit 1
+  || { echo error: Configuration has failed; exit 1; } 
+
+csh -x <<EOF
 source envsetup.csh 
 make -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
 ${CTEST} || ( echo error: One or more unit tests have failed; exit 1; ) || exit 1
