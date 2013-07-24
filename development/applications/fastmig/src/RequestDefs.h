@@ -110,11 +110,11 @@ namespace migration
       int spilling;
       int spillid;
       int rank;
+      int spillPointI;
+      int spillPointJ;
       double capacity;
       double depth;
       double spillDepth;
-      int spillPointI;
-      int spillPointJ;
       double wcSurface;
       double temperature;
       double pressure;

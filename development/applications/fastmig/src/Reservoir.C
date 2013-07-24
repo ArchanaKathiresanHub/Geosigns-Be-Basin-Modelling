@@ -3232,9 +3232,9 @@ void Reservoir::processMigrationRequests (void)
 
    MigrationRequest * globalMigrationRequestArray = 0;
 
-   // Do not know why RootGatherFromAll crashes and only in case of cores on different nodes
-// #define ROOTGATHER_DOESNOTWORK
-#ifdef ROOTGATHER_DOESNOTWORK
+   // RootGather used to crash but no longer ...
+#define USEROOTGATHER
+#ifdef USEROOTGATHER
    bool useAllGather = false;
 #else
    bool useAllGather = true;

@@ -1,4 +1,5 @@
-#include "mpi.h"
+#include "petsc.h"
+#include <assert.h>
 
 using namespace std;
 
@@ -22,6 +23,8 @@ void InitializeRequestTypes (void)
    ColumnColumnRequest c2;
    ColumnCompositionRequest cc;
    TrapPropertiesRequest tp;
+
+   int ret = 0;
 
    MigrationRequest m;
 
@@ -72,12 +75,9 @@ void InitializeRequestTypes (void)
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index]= sizeof (cv);
-   types[index] = MPI_UB;
-   blockSizes[index] = 1;
-   ++index;
-
    MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnValueType);
+   ret = MPI_Type_create_resized (ColumnValueType, 0, sizeof(cv), &ColumnValueType);
+   assert (ret == 0);
    MPI_Type_commit (&ColumnValueType);
 
    //*****************************************
@@ -97,12 +97,9 @@ void InitializeRequestTypes (void)
    blockSizes[index] = ColumnValueArraySize;
    ++index;
 
-   offsets[index]= sizeof (cva);
-   types[index] = MPI_UB;
-   blockSizes[index] = 1;
-   ++index;
-
    MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnValueArrayType);
+   ret = MPI_Type_create_resized (ColumnValueArrayType, 0, sizeof(cva), &ColumnValueArrayType);
+   assert (ret == 0);
    MPI_Type_commit (&ColumnValueArrayType);
 
    //*****************************************
@@ -116,12 +113,9 @@ void InitializeRequestTypes (void)
    blockSizes[index] = 2;
    ++index;
 
-   offsets[index]= sizeof (c2);
-   types[index] = MPI_UB;
-   blockSizes[index] = 1;
-   ++index;
-
    MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnColumnType);
+   ret = MPI_Type_create_resized (ColumnColumnType, 0, sizeof(c2), &ColumnColumnType);
+   assert (ret == 0);
    MPI_Type_commit (&ColumnColumnType);
 
    //*****************************************
@@ -144,15 +138,18 @@ void InitializeRequestTypes (void)
    MPI_Get_address(&cc.composition.m_density, &offsetAddress);
    offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
-   blockSizes[index] = 2;
+   blockSizes[index] = 1;
    ++index;
 
-   offsets[index]= sizeof (cc);
-   types[index] = MPI_UB;
+   MPI_Get_address(&cc.composition.m_viscosity, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
+   types[index] = MPI_DOUBLE;
    blockSizes[index] = 1;
    ++index;
 
    MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnCompositionType);
+   ret = MPI_Type_create_resized (ColumnCompositionType, 0, sizeof(cc), &ColumnCompositionType);
+   assert (ret == 0);
    MPI_Type_commit (&ColumnCompositionType);
 
    //*****************************************
@@ -182,12 +179,21 @@ void InitializeRequestTypes (void)
    blockSizes[index] = NUM_COMPONENTS; // composition
    ++index;
 
-   offsets[index]= sizeof (tp);
-   types[index] = MPI_UB;
+   MPI_Get_address(&tp.composition.m_density, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
+   types[index] = MPI_DOUBLE;
+   blockSizes[index] = 1;
+   ++index;
+
+   MPI_Get_address(&tp.composition.m_viscosity, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
+   types[index] = MPI_DOUBLE;
    blockSizes[index] = 1;
    ++index;
 
    MPI_Type_create_struct (index, blockSizes, offsets, types, &TrapPropertiesType);
+   ret = MPI_Type_create_resized (TrapPropertiesType, 0, sizeof(tp), &TrapPropertiesType);
+   assert (ret == 0);
    MPI_Type_commit (&TrapPropertiesType);
 
    //*****************************************
@@ -244,12 +250,21 @@ void InitializeRequestTypes (void)
    blockSizes[index] = NUM_COMPONENTS;
    ++index;
 
-   offsets[index]= sizeof (m);
-   types[index] = MPI_UB;
+   MPI_Get_address(&m.composition.m_density, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
+   types[index] = MPI_DOUBLE;
+   blockSizes[index] = 1;
+   ++index;
+
+   MPI_Get_address(&m.composition.m_viscosity, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
+   types[index] = MPI_DOUBLE;
    blockSizes[index] = 1;
    ++index;
 
    MPI_Type_create_struct (index, blockSizes, offsets, types, &MigrationType);
+   ret = MPI_Type_create_resized (MigrationType, 0, sizeof(m), &MigrationType);
+   assert (ret == 0);
    MPI_Type_commit (&MigrationType);
 
    //*****************************************
