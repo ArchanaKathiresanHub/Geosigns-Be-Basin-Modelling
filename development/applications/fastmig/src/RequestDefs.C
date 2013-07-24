@@ -18,6 +18,7 @@ void InitializeRequestTypes (void)
 {
    Request req;
    ColumnValueRequest cv;
+   ColumnValueArrayRequest cva;
    ColumnColumnRequest c2;
    ColumnCompositionRequest cc;
    TrapPropertiesRequest tp;
@@ -27,6 +28,9 @@ void InitializeRequestTypes (void)
    int blockSizes[20];
    MPI_Datatype types[20];
    MPI_Aint offsets[20];
+
+   MPI_Aint baseAddress;
+   MPI_Aint offsetAddress;
 
    int baseIndex = 0;
    int index = 0;
@@ -38,9 +42,10 @@ void InitializeRequestTypes (void)
 
    //*****************************************
    // Request, base class
+   MPI_Get_address(&req, &baseAddress);
 
-   offsets[baseIndex] = (int) ((long) (&req.valueSpec) - (long) (&req));
-   offsets[baseIndex] = 0;
+   MPI_Get_address(&req.valueSpec, &offsetAddress);
+   offsets[baseIndex] = offsetAddress - baseAddress;
    types[baseIndex] = MPI_INT;
    blockSizes[baseIndex] = 1;
    ++baseIndex;
@@ -53,13 +58,16 @@ void InitializeRequestTypes (void)
    //*****************************************
    // ColumnValueRequest
    index = baseIndex;
+   MPI_Get_address(&cv, &baseAddress);
    
-   offsets[index] = (int) ((long) (&cv.phase) - (long) (&cv));
+   MPI_Get_address(&cv.phase, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&cv.value) - (long) (&cv));
+   MPI_Get_address(&cv.value, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = 1;
    ++index;
@@ -69,36 +77,41 @@ void InitializeRequestTypes (void)
    blockSizes[index] = 1;
    ++index;
 
-   MPI_Type_struct (index, blockSizes, offsets, types, &ColumnValueType);
+   MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnValueType);
    MPI_Type_commit (&ColumnValueType);
 
    //*****************************************
    // ColumnValueArrayRequest
    index = baseIndex;
+   MPI_Get_address(&cva, &baseAddress);
    
-   offsets[index] = (int) ((long) (&cv.phase) - (long) (&cv));
+   MPI_Get_address(&cva.phase, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&cv.value) - (long) (&cv));
+   MPI_Get_address(&cva.value, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = ColumnValueArraySize;
    ++index;
 
-   offsets[index]= sizeof (cv);
+   offsets[index]= sizeof (cva);
    types[index] = MPI_UB;
    blockSizes[index] = 1;
    ++index;
 
-   MPI_Type_struct (index, blockSizes, offsets, types, &ColumnValueArrayType);
+   MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnValueArrayType);
    MPI_Type_commit (&ColumnValueArrayType);
 
    //*****************************************
    // ColumnColumnRequest
    index = baseIndex;
+   MPI_Get_address(&c2, &baseAddress);
 
-   offsets[index] = (int) ((long) (&c2.valueI) - (long) (&c2));
+   MPI_Get_address(&c2.valueI, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 2;
    ++index;
@@ -108,24 +121,28 @@ void InitializeRequestTypes (void)
    blockSizes[index] = 1;
    ++index;
 
-   MPI_Type_struct (index, blockSizes, offsets, types, &ColumnColumnType);
+   MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnColumnType);
    MPI_Type_commit (&ColumnColumnType);
 
    //*****************************************
    // ColumnCompositionRequest
    index = baseIndex;
+   MPI_Get_address(&cc, &baseAddress);
 
-   offsets[index] = (int) ((long) (&cc.phase) - (long) (&cc));
+   MPI_Get_address(&cc.phase, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&cc.composition.m_components) - (long) (&cc));
+   MPI_Get_address(&cc.composition.m_components, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = NUM_COMPONENTS;
    ++index;
 
-   offsets[index] = (int) ((long) (&cc.composition.m_density) - (long) (&cc));
+   MPI_Get_address(&cc.composition.m_density, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = 2;
    ++index;
@@ -135,19 +152,23 @@ void InitializeRequestTypes (void)
    blockSizes[index] = 1;
    ++index;
 
-   MPI_Type_struct (index, blockSizes, offsets, types, &ColumnCompositionType);
+   MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnCompositionType);
    MPI_Type_commit (&ColumnCompositionType);
 
    //*****************************************
    // TrapPropertiesRequest
    index = baseIndex;
 
-   offsets[index] = (int) ((long) (&tp.id) - (long) (&tp));
+   MPI_Get_address(&tp, &baseAddress);
+
+   MPI_Get_address(&tp.id, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 6; // id, spilling, spillid, rank, spillPoint[IJ]
    ++index;
 
-   offsets[index] = (int) ((long) (&tp.capacity) - (long) (&tp));
+   MPI_Get_address(&tp.capacity, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = 13 + 4 * NumPhases; // capacity, depth, spillDepth, wcSurface, temperature, pressure,
                                            // permeability, sealPermeability, fracturePressure, netToGross,
@@ -155,7 +176,8 @@ void InitializeRequestTypes (void)
                                            // fractureSealStrength, goc, owc, volume (* 2)
    ++index;
 
-   offsets[index] = (int) ((long) (&tp.composition.m_components) - (long) (&tp));
+   MPI_Get_address(&tp.composition.m_components, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = NUM_COMPONENTS; // composition
    ++index;
@@ -165,49 +187,59 @@ void InitializeRequestTypes (void)
    blockSizes[index] = 1;
    ++index;
 
-   MPI_Type_struct (index, blockSizes, offsets, types, &TrapPropertiesType);
+   MPI_Type_create_struct (index, blockSizes, offsets, types, &TrapPropertiesType);
    MPI_Type_commit (&TrapPropertiesType);
 
    //*****************************************
    // MigrationRequest
    index = 0;
 
-   offsets[index] = (int) ((long) (&m.process) - (long) (&m));
+   MPI_Get_address(&m, &baseAddress);
+
+   MPI_Get_address(&m.process, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&m.source.age) - (long) (&m));
+   MPI_Get_address(&m.source.age, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&m.source.x) - (long) (&m));
+   MPI_Get_address(&m.source.x, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = 2;
    ++index;
 
-   offsets[index] = (int) ((long) (&m.source.trapId) - (long) (&m));
+   MPI_Get_address(&m.source.trapId, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&m.destination.age) - (long) (&m));
+   MPI_Get_address(&m.destination.age, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&m.destination.x) - (long) (&m));
+   MPI_Get_address(&m.destination.x, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = 2;
    ++index;
 
-   offsets[index] = (int) ((long) (&m.destination.trapId) - (long) (&m));
+   MPI_Get_address(&m.destination.trapId, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_INT;
    blockSizes[index] = 1;
    ++index;
 
-   offsets[index] = (int) ((long) (&m.composition.m_components) - (long) (&m));
+   MPI_Get_address(&m.composition.m_components, &offsetAddress);
+   offsets[index] = offsetAddress - baseAddress;
    types[index] = MPI_DOUBLE;
    blockSizes[index] = NUM_COMPONENTS;
    ++index;
@@ -217,7 +249,7 @@ void InitializeRequestTypes (void)
    blockSizes[index] = 1;
    ++index;
 
-   MPI_Type_struct (index, blockSizes, offsets, types, &MigrationType);
+   MPI_Type_create_struct (index, blockSizes, offsets, types, &MigrationType);
    MPI_Type_commit (&MigrationType);
 
    //*****************************************

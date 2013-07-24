@@ -3231,17 +3231,56 @@ void Reservoir::processMigrationRequests (void)
    }
 
    MigrationRequest * globalMigrationRequestArray = 0;
-   if (GetRank () == 0)
+
+   // Do not know why RootGatherFromAll crashes and only in case of cores on different nodes
+// #define ROOTGATHER_DOESNOTWORK
+#ifdef ROOTGATHER_DOESNOTWORK
+   bool useAllGather = false;
+#else
+   bool useAllGather = true;
+#endif
+
+// #define DEBUG_GATHER
+#ifdef DEBUG_GATHER
+   PetscPrintf (PETSC_COMM_WORLD, "%d: Collecting...\n", GetRank());
+   PetscSynchronizedFlush (PETSC_COMM_WORLD);
+#endif
+
+   if (useAllGather || GetRank () == 0)
    {
       globalMigrationRequestArray = new MigrationRequest [globalMaximumSize];
    }
 
+#ifdef DEBUG_GATHER
+   PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Gathering... %d (%d) elements\n", GetRank (), localSize, localMaximumSize);
+   PetscSynchronizedFlush (PETSC_COMM_WORLD);
+#endif
+
+   if (useAllGather)
+   {
+#ifdef DEBUG_GATHER
+      PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Using AllGatherFromAll...\n", GetRank());
+      PetscSynchronizedFlush (PETSC_COMM_WORLD);
+#endif
+      AllGatherFromAll (localMigrationRequestArray, localMaximumSize, MigrationType,
+	    globalMigrationRequestArray, localMaximumSize, MigrationType);
+   }
+   else
+   {
+#ifdef DEBUG_GATHER
+      PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Using RootGatherFromAll...\n", GetRank());
+      PetscSynchronizedFlush (PETSC_COMM_WORLD);
+#endif
    RootGatherFromAll (localMigrationRequestArray, localMaximumSize, MigrationType,
 	 globalMigrationRequestArray, localMaximumSize, MigrationType);
+   }
 
+#ifdef DEBUG_GATHER
+   PetscPrintf (PETSC_COMM_WORLD, "Processing...\n");
+#endif
    if (GetRank () == 0)
    {
-#if 0
+#ifdef DEBUG_GATHER
       ReportProgress ("exchanged migration requests");
 #endif
 
@@ -3254,7 +3293,6 @@ void Reservoir::processMigrationRequests (void)
 	 collectMigrationRequest (globalMigrationRequestArray[i]);
       }
 
-      delete [] globalMigrationRequestArray;
 
       for (mrIter = m_migrationRequests.begin (), i = 0; mrIter != m_migrationRequests.end (); ++mrIter, ++i)
       {
@@ -3267,10 +3305,17 @@ void Reservoir::processMigrationRequests (void)
       }
    }
 
+#ifdef DEBUG_GATHER
+   PetscPrintf (PETSC_COMM_WORLD, "Deleting...\n");
+#endif
+
+   if (useAllGather || GetRank () == 0)
+      delete [] globalMigrationRequestArray;
+
    m_migrationRequests.clear ();
    delete [] localMigrationRequestArray;
 
-#if 0
+#ifdef DEBUG_GATHER
    ReportProgress ("finished processing migration requests");
 #endif
 }
