@@ -87,5 +87,10 @@ add_test( NAME pvtFlash::GetMolWeight
    COMMAND EosPackTest gmw_capi
 )
 
+# Unit test for saving of k-values
+add_test( NAME pvtFlash::SaveKValues
+   COMMAND EosPackTest kvalues
+)
+
 
 
