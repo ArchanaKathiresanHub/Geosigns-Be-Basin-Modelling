@@ -24,73 +24,16 @@ generate_dox( src/EosPack.cfg )
 #######################################
 # Unit tests for PTDiagramCalculator
 
-add_executable( PTDiagramBuilderTest
-   test/PTDiagramBuilderTest.C
-)
-
-target_link_libraries( PTDiagramBuilderTest
-   EosPack
-)
-
-# Unit test for C like API
-add_test( NAME pvtFlash::BuildPTDiagram
-   COMMAND PTDiagramBuilderTest capi
-)
-
-# Unit test for search Bubble/Dew lines
-add_test( NAME PTDiagramCalculator::findBubbleDewLines
-   COMMAND PTDiagramBuilderTest bbdw
-)
-
-# Unit test for countour line calculation
-add_test( NAME PTDiagramCalculator::calcContourLine
-   COMMAND PTDiagramBuilderTest isol
-)
-
-# Unit test for set of countour line calculation
-add_test( NAME PTDiagramCalculator::calcContourLines
-   COMMAND PTDiagramBuilderTest ain1
-)
-
-# Unit test for search correct A/B term
-add_test( NAME PTDiagramCalculator::searchAoverBTerm
-   COMMAND PTDiagramBuilderTest tuneab
-)
-
-# Unit test for the fast search of critical point
-add_test( NAME PTDiagramCalculator::searchCriticalPoint
-   COMMAND PTDiagramBuilderTest critpt
+add_gtest( NAME PTDiagramCalculator
+   SOURCES test/PTDiagramBuilderTest.C
+   LIBRARIES EosPack
 )
 
 ######################################
 # Unit test for flasher
-add_executable( EosPackTest
-   test/EosPackTest.C
+add_gtest( NAME pvtFlash::CAPI
+   SOURCES test/EosPackTest.C
+   LIBRARIES EosPack
 )
-
-target_link_libraries( EosPackTest
-   EosPack
-)
-
-# Unit test for flasher
-add_test( NAME pvtFlash::EosPackComputeWithLumping
-   COMMAND EosPackTest cwlmp_capi
-)
-
-# Unit test for flasher
-add_test( NAME pvtFlash::Gorm
-   COMMAND EosPackTest gorm_capi
-)
-
-# Unit test for flasher
-add_test( NAME pvtFlash::GetMolWeight
-   COMMAND EosPackTest gmw_capi
-)
-
-# Unit test for saving of k-values
-add_test( NAME pvtFlash::SaveKValues
-   COMMAND EosPackTest kvalues
-)
-
 
 

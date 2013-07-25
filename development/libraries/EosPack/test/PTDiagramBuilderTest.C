@@ -1,3 +1,4 @@
+#include "../src/EosPack.h"
 #include "../src/EosPackCAPI.h"
 #include "../src/PTDiagramCalculator.h"
 
@@ -6,18 +7,19 @@
 #include <vector>
 
 #include <cstring>
-#include <cassert>
 #include <cmath>
 #include <cstdio>
 
+#include <gtest/gtest.h>
+
 using namespace pvtFlash;
 
-double Composition[] = { 4.63937e+10, 3.76229e+11, 7.53617e+10, 1.60934e+11, 7.01346e+10, 1.93474e+11,
-                         6.20802e+09, 6.26855e+09, 6.3693e+09,  7.4708e+09, 7.78099e+09, 0, 2.65935e+09,
-                         5.4181e+08, 8.16853e+09, 2.68247e+10, 4.82603e+09, 5.65998e+07, 2.17633e+07,
-                         0, 0, 0, 0 };
+const double Composition[] = { 4.63937e+10, 3.76229e+11, 7.53617e+10, 1.60934e+11, 7.01346e+10, 1.93474e+11,
+                               6.20802e+09, 6.26855e+09, 6.3693e+09,  7.4708e+09, 7.78099e+09, 0, 2.65935e+09,
+                               5.4181e+08, 8.16853e+09, 2.68247e+10, 4.82603e+09, 5.65998e+07, 2.17633e+07,
+                               0, 0, 0, 0 };
 
-double CompositionByOlivie[] = {  
+const double CompositionByOlivier[] = {  
       46393676972.0415, // asphaltene
       376228852155.787, // resin
       75361672187.7905, // C15PlusAro
@@ -44,22 +46,49 @@ double CompositionByOlivie[] = {
 };
  
 
-double TrapCond[]      = { 588.15, 12665600};
-int    IsolinesSizes[] = { 66, 49, 55, 56, 58, 62, 70, 79, 89, 93, 124 };
-double CritPoint[]     = { 909.17673, 10959091.306859 };
-double BubblePoint[]   = { 588.15, 10057971.0253 };
-double eps             = 1.e-3;
+const double TrapCond[]      = { 588.15, 12665600};
+const int    IsolinesSizes[] = { 66, 49, 55, 56, 58, 62, 70, 79, 89, 93, 124 };
+const double CritPoint[]     = { 909.17673, 10959091.306859 };
+const double BubblePoint[]   = { 588.15, 10057971.0253 };
+const double eps             = 1.e-3;
 
-char * CfgFile   = "./PVT_properties.cfg";
-
-static void CreatePVTpropertiesCfgFile();
-
-static void test_PTDiagramCalculator_CAPI()
+class PTDiagramCalculatorTest: public ::testing::Test
 {
-   // create EosPack config file
-   CreatePVTpropertiesCfgFile();
-   SetPvtPropertiesConfigFile( CfgFile );
+public:
+   PTDiagramCalculatorTest()
+   {
+      // Write configuration file
+      PVTPropertiesCfgFile::getInstance();
 
+      // Set configuration file name
+      pvtFlash::SetPvtPropertiesConfigFile( const_cast<char *>(s_CfgFile) );
+
+      // Create EosPack object
+      pvtFlash::EosPack::getInstance();
+   }
+
+private:
+   static const char *  const s_CfgFile ;
+   
+   class PVTPropertiesCfgFile
+   {
+   public:
+      static PVTPropertiesCfgFile & getInstance()
+      {
+         static PVTPropertiesCfgFile o;
+         return o;
+      }
+
+   private:
+      PVTPropertiesCfgFile();
+      ~PVTPropertiesCfgFile();
+   };
+};
+
+
+
+TEST_F( PTDiagramCalculatorTest, CAPI )
+{
    // composition is created as class member array in m_Composition
    // allocate space for special points
    double points[8]; // 4 points - Critical point, Bubble point, Cricondentherm point, Cricondenbar point
@@ -70,38 +99,34 @@ static void test_PTDiagramCalculator_CAPI()
    double isolines[11 * 400 * 2];
 
    // Call diagram builder
-   bool ret = BuildPTDiagram(0, TrapCond[0], TrapCond[1], Composition, points, szIso, isolines);
+   bool ret=BuildPTDiagram(0, TrapCond[0], TrapCond[1], const_cast<double *>(Composition), points, szIso, isolines);
 
-   // remove EosPack config file
-   remove( CfgFile );
    // check results
-   assert( ret ); //  PTDiagramBuilder failed to create diagram for unknown reason
+   ASSERT_TRUE( ret ); //  PTDiagramBuilder failed to create diagram for unknown reason
 
    for ( int i = 0; i < 11; ++i )
    {
-      assert( szIso[i] == IsolinesSizes[i] );
+      EXPECT_EQ( IsolinesSizes[i], szIso[i] );
    }
-   assert( std::abs(points[0] - CritPoint[0])   < 1e-3 );// Wrong critical point temperature value
-   assert( std::abs(points[1] - CritPoint[1])   < 1e-3    );// Wrong critical point pressure value
-   assert( std::abs(points[2] - BubblePoint[0]) < 1e-3 );// Wrong bubble point temperature value
-   assert( std::abs(points[3] - BubblePoint[1]) < 1e-3 );// Wrong bubble point pressure value
+
+   EXPECT_NEAR(points[0],  CritPoint[0], 1e-3 ) << "Wrong critical point temperature value";
+   EXPECT_NEAR(points[1] , CritPoint[1], 1e-3 ) << "Wrong critical point pressure value";
+   EXPECT_NEAR(points[2] , BubblePoint[0], 1e-3)<< "Wrong bubble point temperature value";
+   EXPECT_NEAR(points[3] , BubblePoint[1], 1e-3)<< "Wrong bubble point pressure value";
 
    // search critical point
    for ( int i = 0; i < 8; ++i ) points[i] = 0.0;
 
-   ret = FindCriticalPoint( 0, Composition, points );   
-   assert( ret ); // critical point search shouldn't failed here
-   assert( std::abs(points[0] - CritPoint[0])   < 1e-3 );// Wrong critical point temperature value
-   assert( std::abs(points[1] - CritPoint[1])   < 1e-3    );// Wrong critical point pressure value
+   ret = FindCriticalPoint( 0, const_cast<double *>(Composition), points );   
+   ASSERT_TRUE( ret ) << "critical point search shouldn't failed here";
+   EXPECT_NEAR( points[0], CritPoint[0], 1e-3 ) << "Wrong critical point temperature value";
+   EXPECT_NEAR( points[1], CritPoint[1], 1e-3 ) << "Wrong critical point pressure value";
 }
 
-static void test_PTDiagramCalculatorBubbleDew()
+TEST_F( PTDiagramCalculatorTest, BubbleDew)
 {
    // create EosPack config file
-   CreatePVTpropertiesCfgFile();
-   SetPvtPropertiesConfigFile( CfgFile );
-
-   std::vector<double> comp(Composition, Composition + sizeof( Composition )/sizeof(double) );
+   std::vector<double> comp(Composition, Composition + sizeof( Composition)/sizeof(Composition[0]) );
 
    PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MassFractionDiagram, comp );
    diagramBuilder.setAoverBTerm(2.0);
@@ -110,28 +135,21 @@ static void test_PTDiagramCalculatorBubbleDew()
 
    // Check special points
    const std::pair<double,double> & critPt = diagramBuilder.getCriticalPoint();
-   assert( std::abs(critPt.first  - CritPoint[0]) < eps );// Wrong critical point temperature value
-   assert( std::abs(critPt.second - CritPoint[1]) < eps );// Wrong critical point pressure value
+   EXPECT_NEAR(critPt.first  , CritPoint[0], eps ) << "Wrong critical point temperature value";
+   EXPECT_NEAR(critPt.second , CritPoint[1], eps ) << "Wrong critical point pressure value";
    double bubbleP;
-   assert( diagramBuilder.getBubblePressure( BubblePoint[0], &bubbleP ) );
-   assert( std::abs( bubbleP - BubblePoint[1]) < eps ); //"Wrong bubble point pressure value
-
+   bool ret = diagramBuilder.getBubblePressure( BubblePoint[0], &bubbleP ) ;
+   ASSERT_TRUE( ret );
+   EXPECT_NEAR(bubbleP , BubblePoint[1], eps ) << "Wrong bubble point pressure value";
    const std::vector< std::pair<double,double> > & dewLine = diagramBuilder.calcContourLine(0.0); // get dew line
-   assert( IsolinesSizes[0] == dewLine.size() );
+   EXPECT_EQ( IsolinesSizes[0], dewLine.size() );
 
    const std::vector< std::pair<double,double> > & bubbleLine = diagramBuilder.calcContourLine(1.0); // get dew line
-   assert( IsolinesSizes[10] == bubbleLine.size() );
-
-   // remove EosPack config file
-   remove( CfgFile );
+   EXPECT_EQ( IsolinesSizes[10], bubbleLine.size() );
 }
 
-static void test_PTDiagramCalculatorIsolines()
+TEST_F( PTDiagramCalculatorTest, Isolines )
 {
-   // create EosPack config file
-   CreatePVTpropertiesCfgFile();
-   SetPvtPropertiesConfigFile( CfgFile );
-
    std::vector<double> comp(Composition, Composition + sizeof( Composition )/sizeof(double) );
 
    PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MassFractionDiagram, comp );
@@ -142,20 +160,13 @@ static void test_PTDiagramCalculatorIsolines()
    for( int i = 0; i < 11; ++i )
    {
       const std::vector< std::pair<double,double> > & isoLine = diagramBuilder.calcContourLine(i * 0.1);
-   	assert( IsolinesSizes[i] == isoLine.size() );
+   	EXPECT_EQ( IsolinesSizes[i] , isoLine.size() );
    }
- 
-   // remove EosPack config file
-   remove( CfgFile );
 }
 
 
-static void test_PTDiagramCalculatorObjectAllCountourLinesInOneGo()
+TEST_F( PTDiagramCalculatorTest, ObjectAllCountourLinesInOneGo )
 {
-   // create EosPack config file
-   CreatePVTpropertiesCfgFile();
-   SetPvtPropertiesConfigFile( CfgFile );
-
    std::vector<double> comp(Composition, Composition + sizeof( Composition )/sizeof(double) );
 
    PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MassFractionDiagram, comp );
@@ -167,7 +178,7 @@ static void test_PTDiagramCalculatorObjectAllCountourLinesInOneGo()
    std::vector<double> values( 11, 0.0 );
    for (int i = 0; i < 11; ++i)
    {
-	   values[i] = 0.1 * i;
+      values[i] = 0.1 * i;
    }
 
    const std::vector<double> & isoLines = diagramBuilder.calcContourLines(values);
@@ -188,34 +199,25 @@ static void test_PTDiagramCalculatorObjectAllCountourLinesInOneGo()
 
    for (int i = 0; i < 11; ++i)
    {
-	   assert( realSz[i] == IsolinesSizes[i] );
+      EXPECT_EQ( IsolinesSizes[i], realSz[i] );
    }
 }
 
-static void test_PTDiagramCalculatorTuneAB()
+TEST_F( PTDiagramCalculatorTest, TuneAB )
 {
-   // create EosPack config file
-   CreatePVTpropertiesCfgFile();
-   SetPvtPropertiesConfigFile( CfgFile );
-
-   std::vector<double> comp(CompositionByOlivie, CompositionByOlivie + sizeof( CompositionByOlivie )/sizeof(double) );
+   std::vector<double> comp(CompositionByOlivier, CompositionByOlivier + sizeof( CompositionByOlivier )/sizeof(double) );
 
    PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MoleMassFractionDiagram, comp );
    diagramBuilder.setAoverBTerm( 2.0 );
    diagramBuilder.setNonLinSolverConvPrms( 1e-6, 400, 0.2 );
    double AB = diagramBuilder.searchAoverBTerm();
 
-   std::cout << "Found AB: "<< AB << std::endl;
-   assert( std::abs( AB - 3.76929 ) < eps );
+   EXPECT_NEAR( AB, 3.76929, eps );
 }
 
-static void test_PTDiagramCalculatorSearchCritPt()
+TEST_F( PTDiagramCalculatorTest, SearchCritPt )
 {
-   // create EosPack config file
-   CreatePVTpropertiesCfgFile();
-   SetPvtPropertiesConfigFile( CfgFile );
-
-   std::vector<double> comp(CompositionByOlivie, CompositionByOlivie + sizeof( CompositionByOlivie )/sizeof(double) );
+   std::vector<double> comp(CompositionByOlivier, CompositionByOlivier + sizeof( CompositionByOlivier )/sizeof(double) );
 
    PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MoleMassFractionDiagram, comp );
    diagramBuilder.setAoverBTerm( 2.0 );
@@ -224,40 +226,26 @@ static void test_PTDiagramCalculatorSearchCritPt()
    const PTDiagramCalculator::TPPoint & critPt = diagramBuilder.searchCriticalPoint();
    double critT = critPt.first;
    double critP = critPt.second;
-   std::cout << "Critical point: T = " << critT << ", P = " << critP << std::endl;
-   std::cout << "Critical point search iterations: " << diagramBuilder.getBubbleDewSearchIterationsNumber() + diagramBuilder.getContourLinesSearchIterationsNumber() << std::endl;
-   std::cout << "A/B tuning iterations: " << diagramBuilder.getTuneABIterationsNumber() << std::endl;
 
-   assert( std::abs( critT - 903.652 ) < eps );
-   assert( std::abs( critP - 11130482.494 ) < eps );
+   EXPECT_NEAR( critT, 903.652, eps );
+   EXPECT_NEAR( critP, 11130482.494, eps );
 }
 
 
-int main(int argc, char ** argv)
-{
-   if (argc < 2)
-   {
-      std::cerr << "Command line parameter is missing" << std::endl;
-      return 1;
-   }
+const char * const
+PTDiagramCalculatorTest
+   :: s_CfgFile = "./PVT_properties.cfg" ;
 
-   if (      !std::strcmp( argv[1], "capi"   ) ) { test_PTDiagramCalculator_CAPI();                         }
-   else if ( !std::strcmp( argv[1], "bbdw"   ) ) { test_PTDiagramCalculatorBubbleDew();                     }
-   else if ( !std::strcmp( argv[1], "isol"   ) ) { test_PTDiagramCalculatorIsolines();                      }
-   else if ( !std::strcmp( argv[1], "ain1"   ) ) { test_PTDiagramCalculatorObjectAllCountourLinesInOneGo(); }
-   else if ( !std::strcmp( argv[1], "tuneab" ) ) { test_PTDiagramCalculatorTuneAB();                        }
-   else if ( !std::strcmp( argv[1], "critpt" ) ) { test_PTDiagramCalculatorSearchCritPt();                  }
-   else
-   {
-      std::cerr << "Unknown test" << std::endl;
-      return 1;
-   }
-   return 0;
+PTDiagramCalculatorTest :: PVTPropertiesCfgFile
+   :: ~PVTPropertiesCfgFile()
+{
+   std::remove( s_CfgFile );
 }
 
-void CreatePVTpropertiesCfgFile()
+PTDiagramCalculatorTest :: PVTPropertiesCfgFile
+   :: PVTPropertiesCfgFile()
 {
-   std::ofstream ofs( "PVT_properties.cfg", std::ios_base::out | std::ios_base::trunc );
+   std::ofstream ofs( s_CfgFile, std::ios_base::out | std::ios_base::trunc );
    ofs << "///component based and general data for PVT" << "\n";
    ofs << "///" << "\n";
    ofs << "///This file contains tables describing 6 COMPONENT-based properties and additionally GENERAL properties " << "\n";
@@ -365,5 +353,7 @@ void CreatePVTpropertiesCfgFile()
    ofs << "PR,   4.57240000E-01,   7.77960000E-02,   1.02300000E-01,   2.33640000E-02,   5.85330000E-02,   -4.07580000E-02,   9.33240000E-03" << std::endl;
    ofs << "EndOfTable" << std::endl;
    ofs.close();
+
+   EXPECT_TRUE(ofs) << "Could not write configuration file '" << s_CfgFile << "'";
 }
 

@@ -1,11 +1,12 @@
 #include "../src/PermeabilityMultiPoint.h"
-#include "UnitTestUtils.h"
 
 #include <iostream>
 #include <iomanip>
 #include <cstring>
 #include <cassert>
 #include <cmath>
+
+#include <gtest/gtest.h>
 
 using namespace GeoPhysics;
 
@@ -30,113 +31,78 @@ const std::vector<double> permeabilitySamples( sm_sandstone_permeabilitySamples,
 const double surfacePorosity = sm_sandstone_surfacePorosity;
 
 
-void test_PermeabilityMultiPoint_permeability()
+TEST( PermeabilityMultiPoint, permeability )
 {
    //Input domain:
    // porosity and permeabitily samples - see above.
    // 0 <= calculatedPorosity < 1
    
-   double epsilon = std::numeric_limits<double>::epsilon();
+   EXPECT_DOUBLE_EQ(3.51119173421513053E-01, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.0 ));
+   
+   EXPECT_DOUBLE_EQ(1.99526231496887951, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.05 ));
+   
+   
+   EXPECT_DOUBLE_EQ(1.13382350121784938E+01, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.1 ));
+   
+   EXPECT_DOUBLE_EQ(1000, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.9999 ));
 
-   ASSERT_ALMOST_EQUAL( PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.0 ),
-                        3.51119173421513053E-01, epsilon );
-   
-   ASSERT_ALMOST_EQUAL( PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.05 ),
-                        1.99526231496887951, epsilon );
-   
-   
-   ASSERT_ALMOST_EQUAL( PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.1 ),
-                        1.13382350121784938E+01, epsilon );
-   
-   ASSERT_ALMOST_EQUAL( PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 0.9999 ),
-                        1000, epsilon );
-
-   ASSERT_ALMOST_EQUAL( PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 1.0 ),
-                        1000, epsilon );
+   EXPECT_DOUBLE_EQ(1000, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeability( 0, 0, 1.0 ));
 
 }
 
-void test_PermeabilityMultiPoint_permeabilityDerivative()
+TEST( PermeabilityMultiPoint, permeabilityDerivative)
 {
    //Input domain:
    // 0 <= calculatedPorosity < 1
 
-   double epsilon = std::numeric_limits<double>::epsilon();
-
    {
       double permeability = NAN, derivative = NAN;
       PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability, 3.51119173421513053E-01, epsilon );
-      ASSERT_ALMOST_EQUAL( derivative, 1.22007249619155775E+01, epsilon );
+      EXPECT_DOUBLE_EQ(3.51119173421513053E-01, permeability);
+      EXPECT_DOUBLE_EQ(1.22007249619155775E+01, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.05, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability, 1.99526231496887951E+00, epsilon );
-      ASSERT_ALMOST_EQUAL( derivative, 6.93315790607256304E+01, epsilon );
+      EXPECT_DOUBLE_EQ(1.99526231496887951E+00, permeability);
+      EXPECT_DOUBLE_EQ(6.93315790607256304E+01, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.1, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability, 1.13382350121784938E+01, epsilon );
-      ASSERT_ALMOST_EQUAL( derivative, 3.93982150245844593E+02, epsilon );
+      EXPECT_DOUBLE_EQ(1.13382350121784938E+01, permeability);
+      EXPECT_DOUBLE_EQ(3.93982150245844593E+02, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.9999, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability, 1000.0, epsilon );
-      ASSERT_ALMOST_EQUAL( derivative, 3.47481023124556013E+04, epsilon );
+      EXPECT_DOUBLE_EQ(1000.0, permeability);
+      EXPECT_DOUBLE_EQ(3.47481023124556013E+04, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
       PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 1.0, permeability, derivative);
-      ASSERT_ALMOST_EQUAL( permeability, 1000.0, epsilon );
-      ASSERT_ALMOST_EQUAL( derivative, 3.47481023124556013E+04, epsilon );
+      EXPECT_DOUBLE_EQ(1000.0, permeability);
+      EXPECT_DOUBLE_EQ(3.47481023124556013E+04, derivative);
    }
 }
 
-void test_PermeabilityMultiPoint_depoPerm()
-{
-   using namespace DataAccess::Interface;
-   double epsilon = std::numeric_limits<double>::epsilon();
-
-   ASSERT_ALMOST_EQUAL( PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).depoPerm(), 8.59999999999999787E+00, epsilon );
-}
-
-void test_PermeabilityMultiPoint_model()
+TEST( PermeabilityMultiPoint, depoPerm )
 {
    using namespace DataAccess::Interface;
 
-   assert( PermeabilityMultiPoint( 0.1, porositySamples, permeabilitySamples ).model() == MULTIPOINT_PERMEABILITY);
+   EXPECT_DOUBLE_EQ(8.59999999999999787E+00, PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).depoPerm());
 }
 
-int main(int argc, char ** argv)
+TEST( PermeabilityMultiPoint, model)
 {
-   if (argc < 2)
-   {
-      std::cerr << "Command line parameter is missing" << std::endl;
-      return 1;
-   }
+   using namespace DataAccess::Interface;
 
-   if (std::strcmp(argv[1], "permeability")==0)
-      test_PermeabilityMultiPoint_permeability();
-   else if (std::strcmp(argv[1], "permeabilityDerivative")==0)
-      test_PermeabilityMultiPoint_permeabilityDerivative();
-   else if (std::strcmp(argv[1], "depoPerm")==0)
-      test_PermeabilityMultiPoint_depoPerm();
-   else if (std::strcmp(argv[1], "model")==0)
-      test_PermeabilityMultiPoint_model();
-   else
-   {
-      std::cerr << "Unknown test" << std::endl;
-      return 1;
-   }
-
-
-
-   return 0;
+   EXPECT_EQ( MULTIPOINT_PERMEABILITY, PermeabilityMultiPoint( 0.1, porositySamples, permeabilitySamples ).model());
 }
+
+

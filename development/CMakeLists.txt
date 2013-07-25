@@ -55,6 +55,14 @@ endif()
 
 if(BM_BUILD_ENABLE_TESTING)
 	enable_testing()
+
+        # Include Google Testing Framework (which is itself a CMake project)
+        # and Google Mock (Google Mock contains Google Test)
+        add_subdirectory(../3rdparty/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
+        set(GTEST_INCLUDE_DIR "${gtest_SOURCE_DIR}/include")
+        set(GTEST_INCLUDE_DIRS "${GTEST_INCLUDE_DIR}")
+        set(GMOCK_INCLUDE_DIR "${gmock_SOURCE_DIR}/include")
+        set(GMOCK_INCLUDE_DIRS "${GMOCK_INCLUDE_DIR}")
 endif()
 
 include(files/PredefinedVariables.cmake)

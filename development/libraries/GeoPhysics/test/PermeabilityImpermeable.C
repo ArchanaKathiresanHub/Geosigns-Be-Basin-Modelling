@@ -5,96 +5,77 @@
 #include <cassert>
 #include <cmath>
 
+#include <gtest/gtest.h>
+
 using namespace GeoPhysics;
 
-void test_PermeabilityImpermeable_permeability()
+class PermeabilityImpermeableTest : public ::testing::Test
+{
+public:
+   PermeabilityImpermeableTest()
+      : m_p(0.0, DataAccess::Interface::IMPERMEABLE_PERMEABILITY)
+   {}
+
+   PermeabilityImpermeable m_p;
+};
+
+TEST_F( PermeabilityImpermeableTest, permeability )
 {
    //Input domain:
    // ves >= 1.0e+5
    // maxVes >= ves
    // 0 <= calculatedPorosity < 1
 
-   PermeabilityImpermeable p(0.0, DataAccess::Interface::IMPERMEABLE_PERMEABILITY);
-
-   assert( p.permeability( 1.0e+5, 1.0e+5, 0) == 1.0e-9);
-   assert( p.permeability( 1.0e+6, 1.0e+6, 0.2) == 1.0e-9);
-   assert( p.permeability( 1.0e+6, 2.0e+6, 0.3) == 1.0e-9);
+   EXPECT_FLOAT_EQ( 1.0e-9, m_p.permeability( 1.0e+5, 1.0e+5, 0) );
+   EXPECT_FLOAT_EQ( 1.0e-9, m_p.permeability( 1.0e+6, 1.0e+6, 0.2) );
+   EXPECT_FLOAT_EQ( 1.0e-9, m_p.permeability( 1.0e+6, 2.0e+6, 0.3) );
 }
 
-void test_PermeabilityImpermeable_permeabilityDerivative()
-{
-   //Input domain:
+  //Input domain:
    // ves >= 1.0e+5
    // maxVes >= ves
    // 0 <= calculatedPorosity < 1
 
-   PermeabilityImpermeable p(0.0, DataAccess::Interface::IMPERMEABLE_PERMEABILITY);
-
-   {
-      double permeability = NAN, derivative = NAN;
-      p.permeabilityDerivative( 1.0e+5, 1.0e+5, 0, permeability, derivative);
-      assert( permeability == 1e-9);
-      assert( derivative == 0.0);
-   }
-
-   {
-      double permeability = NAN, derivative = NAN;
-      p.permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, permeability, derivative);
-      assert( permeability == 1e-9);
-      assert( derivative == 0.0);
-   }
-
-   {
-      double permeability = NAN, derivative = NAN;
-      p.permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, permeability, derivative);
-      assert( permeability == 1e-9);
-      assert( derivative == 0.0);
-   }
+TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeAtmosphere )
+{
+   double permeability = NAN, derivative = NAN;
+   m_p.permeabilityDerivative( 1.0e+5, 1.0e+5, 0, permeability, derivative);
+   EXPECT_FLOAT_EQ( 1e-9,  permeability );
+   EXPECT_FLOAT_EQ( 0.0,  derivative );
 }
 
-void test_PermeabilityImpermeable_depoPerm()
+TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUnderground )
+{ 
+   double permeability = NAN, derivative = NAN;
+   m_p.permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, permeability, derivative);
+   EXPECT_FLOAT_EQ( 1e-9,  permeability );
+   EXPECT_FLOAT_EQ( 0.0,  derivative );
+}
+
+TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUndergroundAndHigherMaxVes)
+{  double permeability = NAN, derivative = NAN;
+   m_p.permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, permeability, derivative);
+   EXPECT_FLOAT_EQ( 1e-9,  permeability );
+   EXPECT_FLOAT_EQ( 0.0,  derivative );
+}
+
+TEST( PermeabilityImpermeable, depoPerm )
 {
    //Input domain:
    // depoPermeability = any value
    // model = any value
    using namespace DataAccess::Interface;
-   assert( PermeabilityImpermeable(0.0, IMPERMEABLE_PERMEABILITY).depoPerm() == 0.0);
-   assert( PermeabilityImpermeable(5.0, NONE_PERMEABILITY).depoPerm() == 5.0);
+   EXPECT_FLOAT_EQ( 0.0,  PermeabilityImpermeable(0.0, IMPERMEABLE_PERMEABILITY).depoPerm() );
+   EXPECT_FLOAT_EQ( 5.0,  PermeabilityImpermeable(5.0, NONE_PERMEABILITY).depoPerm() );
 }
 
-void test_PermeabilityImpermeable_model()
+TEST( PermeabilityImpermeable, model )
 {
    //Input domain:
    // depoPermeability = any value
    // model = any value
    using namespace DataAccess::Interface;
-   assert( PermeabilityImpermeable(0.0, IMPERMEABLE_PERMEABILITY).model() == IMPERMEABLE_PERMEABILITY );
-   assert( PermeabilityImpermeable(5.0, NONE_PERMEABILITY).model() == NONE_PERMEABILITY);
+   EXPECT_EQ( IMPERMEABLE_PERMEABILITY ,  PermeabilityImpermeable(0.0, IMPERMEABLE_PERMEABILITY).model() );
+   EXPECT_EQ( NONE_PERMEABILITY,  PermeabilityImpermeable(5.0, NONE_PERMEABILITY).model() );
 }
 
-int main(int argc, char ** argv)
-{
-   if (argc < 2)
-   {
-      std::cerr << "Command line parameter is missing" << std::endl;
-      return 1;
-   }
-
-   if (std::strcmp(argv[1], "permeability")==0)
-      test_PermeabilityImpermeable_permeability();
-   else if (std::strcmp(argv[1], "permeabilityDerivative")==0)
-      test_PermeabilityImpermeable_permeabilityDerivative();
-   else if (std::strcmp(argv[1], "depoPerm")==0)
-      test_PermeabilityImpermeable_depoPerm();
-   else if (std::strcmp(argv[1], "model")==0)
-      test_PermeabilityImpermeable_model();
-   else
-   {
-      std::cerr << "Unknown test" << std::endl;
-      return 1;
-   }
-
-
-
-   return 0;
-}

@@ -286,6 +286,52 @@ endmacro(add_csharp_unittest)
 
 ### 
 
+macro(add_gtest )
+
+   ### Parse parameters
+   set(testName)    # The name of the test
+   set(sources)     # The source files
+   set(libraries)   # The libraries that should be linked with it
+
+   set(parameterName)
+   foreach(param ${ARGN})
+      if (param STREQUAL NAME)
+         set(parameterName testName)
+      elseif(param STREQUAL SOURCES)
+         set(parameterName sources)
+      elseif(param STREQUAL LIBRARIES)
+         set(parameterName libraries)
+      else()
+         list(APPEND ${parameterName} ${param})
+      endif()
+   endforeach()
+
+   ### Add the test
+   # Make a suitable executable / target name by replacing funny charateres
+   # with an underscore
+   string( REGEX REPLACE "[^A-Za-z0-9]" "_" execName "Test${testName}")
+
+   # Add Google Mock (which includes Google Test also) to the list of
+   # libraries
+   list(APPEND libraries "gmock_main")
+
+   # Add the test executable with its sources
+   add_executable( ${execName} ${sources})
+
+   # Link with the necessary libraries
+   target_link_libraries( ${execName} ${libraries})
+   
+   # Add the Google Mock and Google Test include directories
+   get_property(incdirs TARGET ${execName} PROPERTY INCLUDE_DIRECTORIES)
+   set_target_properties( ${execName} 
+      PROPERTIES COMPILE_FLAGS "-Dprivate=public -Dprotected=public"
+                 INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS};${GMOCK_INCLUDE_DIRS};${incdirs}"
+   )
+
+   # Add the test to the CTest test  collection.
+   add_test(${testName} ${execName})
+endmacro(add_gtest)
+
 # Local Variables:
 # mode: cmake
 # cmake-tab-width: 4

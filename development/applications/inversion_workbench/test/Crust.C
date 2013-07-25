@@ -3,55 +3,90 @@
 #include <cassert>
 #include <iterator>
 
-void test_Crust_overlap()
+#include <gtest/gtest.h>
+
+// Test input domain of Crust::overlap
+//   0 == 1 == 2 == 3 == 4 == 5
+//   |-A--| 
+//             |-B--|
+TEST( CrustOverlap, DisjointRight)
 {
-   // input domain coverage
-   //   0 == 1 == 2 == 3 == 4 == 5
-   //   |-A--| 
-   //             |-B--|
-   assert( ! Crust::overlap(1, 1, 3, 1) );
+   EXPECT_FALSE( Crust::overlap(1, 1, 3, 1) );
+}
 
-   //   |-A--| 
-   //        |-B--|
-   assert( ! Crust::overlap(1, 1, 2, 1) );
+//   |-A--| 
+//        |-B--|
+TEST( CrustOverlap, AdjoiningRight)
+{
+   EXPECT_FALSE( Crust::overlap(1, 1, 2, 1) );
+}
 
-   //   |-A--| 
-   //     |-B--|
-   assert( Crust::overlap(1, 1, 1.5, 1 ) );
+//   |-A--| 
+//     |-B--|
+TEST( CrustOverlap, HalfOverlappingRight)
+{
+   EXPECT_TRUE( Crust::overlap(1, 1, 1.5, 1 ) );
+}
 
-   //   |-A--| 
-   //   |-B--|
-   assert( Crust::overlap(1, 1, 1, 1 ) );
+//   |-A--| 
+//   |-B--|
+TEST( CrustOverlap, TheSame) 
+{
+   EXPECT_TRUE( Crust::overlap(1, 1, 1, 1 ) );
+}
 
-   //   |---A----| 
-   //     |-B--|
-   assert( Crust::overlap(2, 2, 1.5, 1) );
+//   |---A----| 
+//     |-B--|
+TEST( CrustOverlap, Contains)
+{
+   EXPECT_TRUE( Crust::overlap(2, 2, 1.5, 1) );
+}
 
-   //             |-A--|
-   //   |-B--| 
-   assert( ! Crust::overlap(4, 1, 2, 1) );
+//             |-A--|
+//   |-B--| 
+TEST( CrustOverlap, DisjointLeft)
+{
+   EXPECT_FALSE( Crust::overlap(4, 1, 2, 1) );
+}
 
-   //        |-A--|
-   //   |-B--| 
-   assert( ! Crust::overlap(2, 1, 1, 1) );
+//        |-A--|
+//   |-B--| 
+TEST( CrustOverlap, AdjoiningLeft)
+{
+   EXPECT_FALSE( Crust::overlap(2, 1, 1, 1) );
+}
 
-   //     |-A--|
-   //   |-B--| 
-   assert( Crust::overlap(2, 1, 1.5, 1 ) );
+//     |-A--|
+//   |-B--| 
+TEST( CrustOverlap, HalfOverlappingLeft )
+{
+   EXPECT_TRUE( Crust::overlap(2, 1, 1.5, 1 ) );
+}
 
-   //        |-A--|
-   //      |---B----| 
-   assert( Crust::overlap(2, 1, 2.5, 2) );
+//        |-A--|
+//      |---B----| 
+TEST( CrustOverlap, FitsIn )
+{
+   EXPECT_TRUE( Crust::overlap(2, 1, 2.5, 2) );
+}
+
+// Error conditions: durations can't be negative
+TEST( CrustOverlap, NegativeDuration )
+{
+   EXPECT_DEATH( Crust::overlap(2, -1, 1, 1), "");
+   EXPECT_DEATH( Crust::overlap(2, 1, 1, -1), "");
 }
 
 #define CHECK(crust, series) \
    do { \
       std::vector< std::pair< double, double > > v = (crust).getThicknessHistory();\
-      assert( v.size() == (sizeof((series))/sizeof((series)[0]))); \
-      assert( std::equal( v.begin(), v.end(), (series)) ); \
+      const size_t expectedSize = sizeof((series))/sizeof(*(series));\
+      const size_t minSize = std::min( expectedSize, v.size() );\
+      EXPECT_EQ( expectedSize , v.size() ); \
+      EXPECT_TRUE( std::equal( v.begin(), v.begin() + minSize, (series)) ); \
    } while(0) 
 
-void test_Crust_addThinningEvent()
+TEST( Crust, addThinningEvent )
 {
    typedef std::pair< double, double > TT;
    typedef std::vector<TT> V;
@@ -94,61 +129,24 @@ void test_Crust_addThinningEvent()
 
    TT finalSeries[] = { TT(70, 100), TT(60, 20.0), TT(51, 20.0), TT(50, 10.0), TT(40, 5.0), TT(39, 1.0) };
    // test case 5: overlap with first event 
-   bool caught = false;
-   try
-   {
-      crust.addThinningEvent( 65, 10, 2.0);
-   }
-   catch(...)
-   {
-      caught = true;
-   }
+   EXPECT_ANY_THROW( crust.addThinningEvent( 65, 10, 2.0) );
    CHECK( crust, finalSeries );
-   assert(caught);
 
    // test case 6: overlap with second event
-   caught = false;
-   try
-   {
-      crust.addThinningEvent( 51.5, 1.0, 2.0 );
-   }
-   catch(...)
-   {
-      caught = true;
-   }
-   assert(caught);
+   EXPECT_ANY_THROW( crust.addThinningEvent( 51.5, 1.0, 2.0 ) );
    CHECK(crust, finalSeries);
 
    // test case 7: overlap with third event
-   caught = false;
-   try
-   {
-      crust.addThinningEvent(50, 10, 5.0);
-   }
-   catch(...)
-   {
-      caught = true;
-   }
-   assert(caught);
+   EXPECT_ANY_THROW(  crust.addThinningEvent(50, 10, 5.0) );
    CHECK(crust, finalSeries);
 
    // test case 8: overlap with all events
-   caught = false;
-   try
-   {
-      crust.addThinningEvent(200, 200, 5.0);
-   }
-   catch(...)
-   {
-      caught = true;
-   }
-   assert(caught);
+   EXPECT_ANY_THROW( crust.addThinningEvent(200, 200, 5.0) );
    CHECK(crust, finalSeries);
-
 }
 
 
-void test_Crust_getThicknessHistory()
+TEST( Crust, getThicknessHistory )
 {
    typedef std::pair< double, double > TT;
    typedef std::vector<TT> V;
@@ -193,26 +191,3 @@ void test_Crust_getThicknessHistory()
 }
 
 
-
-int main(int argc, char ** argv)
-{
-   if (argc < 2)
-   {
-      std::cerr << "Command line parameter is missing" << std::endl;
-      return 1;
-   }
-
-   if (std::strcmp(argv[1], "overlap")==0)
-      test_Crust_overlap();
-   else if (std::strcmp(argv[1], "addThinningEvent") == 0)
-      test_Crust_addThinningEvent();
-   else if (std::strcmp(argv[1], "getThicknessHistory") == 0)
-      test_Crust_getThicknessHistory();
-   else
-   {
-      std::cerr << "Unknown test" << std::endl;
-      return 1;
-   }
-
-   return 0;
-}

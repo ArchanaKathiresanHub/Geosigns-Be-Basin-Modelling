@@ -6,17 +6,52 @@
 #include <numeric>
 
 #include <cmath>
-#include <cassert>
+
+#include <gtest/gtest.h>
 
 using namespace CBMGenerics;
 using namespace pvtFlash;
 
-char * CfgFile   = "./PVT_properties.cfg";
-static void CreatePVTpropertiesCfgFile();
-static void InitializeCompositionMasses( double masses[] );
+class EosPackTest : public ::testing::Test
+{
+public:
+   EosPackTest()
+   {
+      // Write configuration file
+      PVTPropertiesCfgFile::getInstance();
+
+      // Set configuration file name
+      pvtFlash::SetPvtPropertiesConfigFile( const_cast<char *>(s_CfgFile) );
+
+      // Create EosPack object
+      pvtFlash::EosPack::getInstance();
+   }
+
+   void initializeCompositionMasses( double masses[] );
+
+private:
+   static const char *  const s_CfgFile ;
+   
+   class PVTPropertiesCfgFile
+   {
+   public:
+      static PVTPropertiesCfgFile & getInstance()
+      {
+         static PVTPropertiesCfgFile o;
+         return o;
+      }
+
+   private:
+      PVTPropertiesCfgFile();
+      ~PVTPropertiesCfgFile();
+   };
+};
+
+  
 
 
-static void test_InitialisationOfKValues () {
+TEST_F( EosPackTest, InitialisationOfKValues )
+{
 
    const double ComparisonTolerance = 1.0e-10;
 
@@ -93,19 +128,18 @@ static void test_InitialisationOfKValues () {
 
    // The kvalues computed should be equal to those in the expected array.
    for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i ) {
-      assert (( std::fabs ( kValuesExpected [ i ] - kValuesComputed [ i ]) / kValuesExpected [ i ]) < ComparisonTolerance );
+      EXPECT_NEAR( kValuesExpected [ i ], kValuesComputed [ i ],  kValuesExpected [ i ] * ComparisonTolerance );
    }
-
 }
       
-static void FlashVapourTest()
+TEST_F( EosPackTest, FlashVapour)
 {
     ComputeStruct computeStruct;
     // Cricondentherm point plus some delta must give pure vapour phase
     computeStruct.pressure    = 1e6 * 3.12139 ;  // in Pa
     computeStruct.temperature = 682.255 + 1;     // in K
 
-    InitializeCompositionMasses( computeStruct.compMasses );
+    initializeCompositionMasses( computeStruct.compMasses );
 
     computeStruct.isGormPrescribed = false;
     EosPackComputeWithLumping( &computeStruct );
@@ -116,18 +150,18 @@ static void FlashVapourTest()
     double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
                                         computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
                                         0.0 );
-    assert( std::abs(sumVapour - 7426542) < 0.00001 ); // Vapour mass not as expected
-    assert( std::abs(sumLiquid) < 0.00001 );           // Liquid mass not as expected
+    EXPECT_NEAR( sumVapour, 7426542, 1e-6 ); // Vapour mass not as expected
+    EXPECT_NEAR( sumLiquid, 0, 1e-6);        // Liquid mass not as expected
 }
 
-static void FlashLiquidTest()
+TEST_F( EosPackTest, FlashLiquid )
 {
     ComputeStruct computeStruct;
     // Cricondenbar point plus some delta must give pure liquid phase
     computeStruct.pressure    = 1e6 * (8.0467 + 0.001);  // in Pa
     computeStruct.temperature = 470.578;                 // in K
 
-    InitializeCompositionMasses( computeStruct.compMasses );
+    initializeCompositionMasses( computeStruct.compMasses );
 
     computeStruct.isGormPrescribed = false;
     EosPackComputeWithLumping( &computeStruct);
@@ -138,17 +172,17 @@ static void FlashLiquidTest()
     double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
                                         computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
                                         0.0 );
-    assert( std::abs(sumVapour) < 0.00001 );           // Vapour mass not as expected
-    assert( std::abs(sumLiquid - 7426542) < 0.00001 ); // Liquid mass not as expected
+    EXPECT_NEAR( sumVapour, 0, 1e-6 );       // Vapour mass not as expected
+    EXPECT_NEAR( sumLiquid, 7426542, 1e-6 ); // Liquid mass not as expected
 }
 
-static void FlashVapourLiquidWarmerTest()
+TEST_F( EosPackTest, FlashVapourLiquidWarmer)
 {
    ComputeStruct computeStruct;
    computeStruct.pressure    = 1e6 * 1;       // in Pa
    computeStruct.temperature = 273.15 + 290;  // in K
 
-   InitializeCompositionMasses( computeStruct.compMasses );
+   initializeCompositionMasses( computeStruct.compMasses );
 
    computeStruct.isGormPrescribed = false;
    EosPackComputeWithLumping( &computeStruct );
@@ -159,17 +193,17 @@ static void FlashVapourLiquidWarmerTest()
    double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
                                        computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
                                        0.0 );
-   assert( std::abs( sumVapour - 7400659.1 ) < 0.1 );   // Vapour mass not as expected
-   assert( std::abs( sumLiquid - 25882.915 ) < 0.001 ); // Liquid mass not as expected
+   EXPECT_NEAR( sumVapour,  7400659.1, 1e-1 );   // Vapour mass not as expected
+   EXPECT_NEAR( sumLiquid ,  25882.915, 1e-3 ); // Liquid mass not as expected
 }
 
-static void FlashVapourLiquidTest()
+TEST_F( EosPackTest, FlashVapourLiquid)
 {
    ComputeStruct computeStruct;
    computeStruct.pressure    = 1e6 * 1;       // in Pa
    computeStruct.temperature = 273.15 + 100;  // in K
 
-   InitializeCompositionMasses( computeStruct.compMasses );
+   initializeCompositionMasses( computeStruct.compMasses );
 
    computeStruct.isGormPrescribed = false;
    EosPackComputeWithLumping( &computeStruct );
@@ -180,18 +214,18 @@ static void FlashVapourLiquidTest()
    double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
                                        computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
                                        0.0 );
-    assert( std::abs( sumVapour - 851393.6564469377  ) < 0.00001 ); // Vapour mass not as expected
-    assert( std::abs( sumLiquid - 6575148.3435530625 ) < 0.00001 ); // Liquid mass not as expected
+   EXPECT_NEAR( sumVapour, 851393.6564469377, 1e-6  ); // Vapour mass not as expected
+   EXPECT_NEAR( sumLiquid, 6575148.3435530625, 1e-6 ); // Liquid mass not as expected
 }
 
-static void FlashVapourLiquidTestUsingArrays()
+TEST_F( EosPackTest, FlashVapourLiquidUsingArrays )
 {
    double masses[NUM_COMPONENTS];
    double phaseMasses[NUM_COMPONENTS * N_PHASES];
    double phaseDensity[N_PHASES];
    double phaseViscosity[N_PHASES];
 
-   InitializeCompositionMasses( masses );
+   initializeCompositionMasses( masses );
 
    EosPackComputeWithLumpingArr( 373.15, 1e6, masses, false, 0.0, phaseMasses, phaseDensity, phaseViscosity );
 
@@ -208,21 +242,11 @@ static void FlashVapourLiquidTestUsingArrays()
    double sumVapour = totPhaseMass[VAPOUR_PHASE];
    double sumLiquid = totPhaseMass[LIQUID_PHASE];
 
-   assert( std::abs(sumVapour - 851393.6564469377) < 0.00001 );  // Vapour mass not as expected
-   assert( std::abs(sumLiquid - 6575148.3435530625) < 0.00001 ); // Liquid mass not as expected
+   EXPECT_NEAR( sumVapour, 851393.6564469377, 1e-6 );  // Vapour mass not as expected
+   EXPECT_NEAR( sumLiquid, 6575148.3435530625, 1e-6 ); // Liquid mass not as expected
 }
 
-// set of test for checkin CAPI 
-void test_ComputeWithLumping_CAPI()
-{
-   FlashVapourTest();
-   FlashLiquidTest();
-   FlashVapourLiquidTest();
-   FlashVapourLiquidWarmerTest();
-   FlashVapourLiquidTestUsingArrays();
-}
-
-void test_GormCalculationTest()
+TEST_F( EosPackTest, GormCalculation)
 {
    double compos[NUM_COMPONENTS];
    for (int i = 0; i < NUM_COMPONENTS; ++i )
@@ -230,90 +254,67 @@ void test_GormCalculationTest()
       compos[i] = 1;
    }
    double gorm = Gorm(compos);
-   assert( std::abs(gorm - 6.0/15.0) < 0.000001 ); // Gorm not as expected
+   EXPECT_NEAR( gorm, 6.0/15.0, 1e-6 ); // Gorm not as expected
 }
 
 
-void test_GetMolWeight()
+TEST_F( EosPackTest, GetMolWeight  )
 {
-   assert( std::abs( GetMolWeight( ASPHALTENES, 0.0 ) -   795.12 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( RESINS     , 0.0 ) -   618.35 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_ARO    , 0.0 ) -   474.52 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_SAT    , 0.0 ) -   281.85 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14ARO   , 0.0 ) -   158.47 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14SAT   , 0.0 ) -   103.09 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C5         , 0.0 ) - 72.15064 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C4         , 0.0 ) -  58.1237 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C3         , 0.0 ) - 44.09676 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C2         , 0.0 ) - 30.06982 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C1         , 0.0 ) - 16.04288 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( COX        , 0.0 ) -  44.0098 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( N2         , 0.0 ) - 28.01352 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( H2S        , 0.0 ) -    34.08 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( LSC        , 0.0 ) -   281.85 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_AT     , 0.0 ) -   281.85 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14BT    , 0.0 ) -   158.47 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14DBT   , 0.0 ) -   158.47 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14BP    , 0.0 ) -   158.47 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_AROS   , 0.0 ) -   281.85 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_SATS   , 0.0 ) -   281.85 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14SATS  , 0.0 ) -   158.47 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14AROS  , 0.0 ) -   158.47 ) < 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ASPHALTENES, 0.0 ),   795.12, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( RESINS     , 0.0 ),   618.35, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_ARO    , 0.0 ),   474.52, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_SAT    , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14ARO   , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14SAT   , 0.0 ),   103.09, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C5         , 0.0 ), 72.15064, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C4         , 0.0 ),  58.1237, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C3         , 0.0 ), 44.09676, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C2         , 0.0 ), 30.06982, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C1         , 0.0 ), 16.04288, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( COX        , 0.0 ),  44.0098, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( N2         , 0.0 ), 28.01352, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( H2S        , 0.0 ),    34.08, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( LSC        , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_AT     , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14BT    , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14DBT   , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14BP    , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_AROS   , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_SATS   , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14SATS  , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14AROS  , 0.0 ),   158.47, 1.e-5 );
    
-   assert( std::abs( GetMolWeight( ASPHALTENES, 2.3 ) -  801.5255 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( RESINS     , 2.3 ) - 600.43116 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_ARO    , 2.3 ) -  448.9233 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_SAT    , 2.3 ) -  242.3038 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14ARO   , 2.3 ) - 153.74304 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14SAT   , 2.3 ) -   101.779 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C5         , 2.3 ) -  72.15064 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C4         , 2.3 ) -   58.1237 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C3         , 2.3 ) -  44.09676 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C2         , 2.3 ) -  30.06982 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C1         , 2.3 ) -  16.04288 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( COX        , 2.3 ) -   44.0098 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( N2         , 2.3 ) -  28.01352 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( H2S        , 2.3 ) -     34.08 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( LSC        , 2.3 ) -  242.3038 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_AT     , 2.3 ) -  242.3038 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14BT    , 2.3 ) - 153.74304 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14DBT   , 2.3 ) - 153.74304 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14BP    , 2.3 ) - 153.74304 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_AROS   , 2.3 ) -  242.3038 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C15_SATS   , 2.3 ) -  242.3038 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14SATS  , 2.3 ) - 153.74304 ) < 1.e-5 );
-   assert( std::abs( GetMolWeight( C6_14AROS  , 2.3 ) - 153.74304 ) < 1.e-5 );
-}
-
-int main(int argc, char ** argv)
-{
-   if (argc < 2)
-   {
-      std::cerr << "Command line parameter is missing" << std::endl;
-      return 1;
-   }
-
-   CreatePVTpropertiesCfgFile();
-   SetPvtPropertiesConfigFile( CfgFile );
-
-   if (      !std::strcmp( argv[1], "cwlmp_capi" ) ) { test_ComputeWithLumping_CAPI(); }
-   else if ( !std::strcmp( argv[1], "gorm_capi"  ) ) { test_GormCalculationTest();     }
-   else if ( !std::strcmp( argv[1], "gmw_capi"   ) ) { test_GetMolWeight();            }
-   else if ( !std::strcmp( argv[1], "kvalues"    ) ) { test_InitialisationOfKValues(); }
-   else
-   {
-      std::cerr << "Unknown test" << std::endl;
-      return 1;
-   }
-   
-   remove( CfgFile );
-   return 0;
+   EXPECT_NEAR( GetMolWeight( ASPHALTENES, 2.3 ),  801.5255, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( RESINS     , 2.3 ), 600.43116, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_ARO    , 2.3 ),  448.9233, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_SAT    , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14ARO   , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14SAT   , 2.3 ),   101.779, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C5         , 2.3 ),  72.15064, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C4         , 2.3 ),   58.1237, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C3         , 2.3 ),  44.09676, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C2         , 2.3 ),  30.06982, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C1         , 2.3 ),  16.04288, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( COX        , 2.3 ),   44.0098, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( N2         , 2.3 ),  28.01352, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( H2S        , 2.3 ),     34.08, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( LSC        , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_AT     , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14BT    , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14DBT   , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14BP    , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_AROS   , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C15_SATS   , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14SATS  , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( C6_14AROS  , 2.3 ), 153.74304, 1.e-5 );
 }
 
 ///////////////////////////////////////////////////////////
 // Axillary functions
 ///////////////////////////////////////////////////////////
-static void InitializeCompositionMasses( double masses[] )
+void
+EosPackTest
+   :: initializeCompositionMasses( double masses[] )
 {
    masses[ASPHALTENES] = 1158;
    masses[RESINS     ] = 21116;
@@ -341,9 +342,20 @@ static void InitializeCompositionMasses( double masses[] )
 }
 
 // Creates PVT_properties.cfg file in current folder
-void CreatePVTpropertiesCfgFile()
+const char * const
+EosPackTest
+   :: s_CfgFile = "./PVT_properties.cfg" ;
+
+EosPackTest :: PVTPropertiesCfgFile
+   :: ~PVTPropertiesCfgFile()
 {
-   std::ofstream ofs( "PVT_properties.cfg", std::ios_base::out | std::ios_base::trunc );
+   std::remove( s_CfgFile );
+}
+
+EosPackTest :: PVTPropertiesCfgFile
+   :: PVTPropertiesCfgFile()
+{
+   std::ofstream ofs( s_CfgFile, std::ios_base::out | std::ios_base::trunc );
    ofs << "///component based and general data for PVT" << "\n";
    ofs << "///" << "\n";
    ofs << "///This file contains tables describing 6 COMPONENT-based properties and additionally GENERAL properties " << "\n";
@@ -451,6 +463,8 @@ void CreatePVTpropertiesCfgFile()
    ofs << "PR,   4.57240000E-01,   7.77960000E-02,   1.02300000E-01,   2.33640000E-02,   5.85330000E-02,   -4.07580000E-02,   9.33240000E-03" << std::endl;
    ofs << "EndOfTable" << std::endl;
    ofs.close();
+
+   EXPECT_TRUE( ofs ) << "Could not write configuration file '" << s_CfgFile << "'";
 }
 
 

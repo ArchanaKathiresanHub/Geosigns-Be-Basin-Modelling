@@ -1,7 +1,39 @@
+include_directories(
+      tools
+      ${CMAKE_SOURCE_DIR}/applications/xcauldron/src
+      ${HDF5_serial_INCLUDE_DIRS}
+)
 
-add_subdirectory(tools)
+add_executable(benchmark
+  tools/benchmark.C
+  tools/fastcauldronenvironment.C
+  tools/cmdlineparameter.C
+  tools/project3dparameter.C
+  tools/parameterdefinitions.C
+  tools/parametersettings.C
+  tools/parser.C
+  tools/system.C
+  tools/hpccluster.C
+  tools/configurationfile.C
+  tools/resultstabulator.C
+  tools/variabledefinitions.C
+)
+
+target_link_libraries(benchmark
+  utilities
+  DataAccess
+  TableIO
+  SerialDataAccess
+  projectdependencies
+)
+
 
 if (BM_INSTALL_BENCHMARK_SUITE)
+   
+   install(TARGETS benchmark
+         RUNTIME DESTINATION fcbench
+   )
+
    install(DIRECTORY input 
        DESTINATION fcbench/
        USE_SOURCE_PERMISSIONS
@@ -21,45 +53,31 @@ bm_include_libraries(
       SerialDataAccess
 )
 
-include_directories(
-      tools
-      ${CMAKE_SOURCE_DIR}/applications/xcauldron/src
-      ${HDF5_serial_INCLUDE_DIRS}
+
+add_gtest(
+   NAME    hpc::FastCauldronEnvironment
+   SOURCES test/FastcauldronEnvironment.C
+           tools/fastcauldronenvironment.C
+           tools/system.C
+   LIBRARIES
+           utilities
+           projectdependencies
+           DataAccess
+           SerialDataAccess
 )
 
-add_executable(TestFastCauldronEnvironment
-   test/FastcauldronEnvironment.C
-   tools/fastcauldronenvironment.C
-   tools/system.C
-)
+add_gtest(
+   NAME    hpc::Project3DParameter
+   SOURCES test/Project3DParameter.C
+           tools/project3dparameter.C
+           tools/parser.C
+           test/test.project3d.C
+   LIBRARIES
+           utilities
+           DataAccess
+           SerialDataAccess
+)           
 
-target_link_libraries(TestFastCauldronEnvironment
-      utilities
-      projectdependencies
-      DataAccess
-      SerialDataAccess
-)      
-
-
-set_target_properties(TestFastCauldronEnvironment
-      PROPERTIES COMPILE_FLAGS "-Dprivate=public"
-)
-
-add_test(NAME hpc::FastCauldronEnvironment::Configuration::Tokenizer
-      COMMAND TestFastCauldronEnvironment FastCauldronEnvironment::Configuration::Tokenizer
-)
-
-add_test(NAME hpc::FastCauldronEnvironment::Configuration::readTemplates
-      COMMAND TestFastCauldronEnvironment FastCauldronEnvironment::Configuration::readTemplates
-)
-
-add_test(NAME hpc::FastCauldronEnvironment::Configuration::getRunScript
-      COMMAND TestFastCauldronEnvironment FastCauldronEnvironment::Configuration::getRunScript
-)
-
-add_test(NAME hpc::FastCauldronEnvironment::jobHasRanBefore
-      COMMAND TestFastCauldronEnvironment FastCauldronEnvironment::jobHasRanBefore
-)
 
 # Currently disabled, because this test takes 2 minutes, which is
 # uncomfortably long   

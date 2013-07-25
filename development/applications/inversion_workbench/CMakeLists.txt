@@ -145,106 +145,48 @@ install(TARGETS cauldronexplorer
 
 ########## UNIT TESTS ############
 include_directories(src)
-
-add_executable(ScalarRange
-      test/ScalarRange.C
+add_gtest(NAME ScalarRange
+          SOURCES test/ScalarRange.C
 )
 
-add_test(NAME ScalarRange.singlePass
-      COMMAND ScalarRange singlePass
-      )      
-
-add_test(NAME ScalarRange.multiPass
-      COMMAND ScalarRange multiPass
-      )      
-
-add_executable(MultiDimRange
-      test/MultiDimRange.C
-      src/MultiDimRange.C
+add_gtest(NAME MultiDimRange
+          SOURCES test/ScalarRange.C
 )
 
-add_test(NAME MultiDimRange.singlePass
-      COMMAND MultiDimRange singlePass
-      )      
-
-add_test(NAME MultiDimRange.multiPass
-      COMMAND MultiDimRange multiPass
-      )      
-
-
-add_executable(Experiment
-      test/Experiment.C
-      src/Scenario.C
-      src/DatadrillerProperty.C
-      src/experiment.C
-      src/project.C
-      src/ProjectResultsReader.C
-      src/system.C
-      src/Crust.C
-    )
-
-target_link_libraries(Experiment
-    DataMining
-    Interpolation
-    LinearAlgebra
-    FiniteElements
-    GeoPhysics
-    genex6_kernel
-    genex6
-    Interpolation
-    CrustalThickness
-    LinearAlgebra
-    OTGC_kernel6
-    DataAccess
-    SerialDataAccess
-    TableIO
-    CBMGenerics
-    Serial_Hdf5
-    utilities
-    EosPack
-    projectdependencies
+add_gtest(NAME Experiment
+          SOURCES test/Experiment.C
+                  src/Scenario.C
+                  src/DatadrillerProperty.C
+                  src/experiment.C
+                  src/project.C
+                  src/ProjectResultsReader.C
+                  src/system.C
+                  src/Crust.C
+          LIBRARIES
+                   DataMining
+                   Interpolation
+                   LinearAlgebra
+                   FiniteElements
+                   GeoPhysics
+                   genex6_kernel
+                   genex6
+                   Interpolation
+                   CrustalThickness
+                   LinearAlgebra
+                   OTGC_kernel6
+                   DataAccess
+                   SerialDataAccess
+                   TableIO
+                   CBMGenerics
+                   Serial_Hdf5
+                   utilities
+                   EosPack
+                   projectdependencies
 )
 
-set_target_properties(Experiment
-      PROPERTIES COMPILE_FLAGS "-Dprivate=public"
-)
-
-add_test(NAME Experiment::Experiment
-      COMMAND Experiment Experiment
-      )      
-
-add_test(NAME Experiment::printField
-      COMMAND Experiment printField
-      )      
-
-add_test(NAME Experiment::printTable
-      COMMAND Experiment printTable 
-      )      
-
-
-
-add_executable(Crust
-      src/Crust.C
-      test/Crust.C
-)
-
-target_link_libraries(Crust
-    utilities
-)
-
-set_target_properties(Crust
-      PROPERTIES COMPILE_FLAGS "-Dprivate=public"
-)
-
-add_test(NAME Crust::overlap
-   COMMAND Crust overlap
-)
-
-add_test(NAME Crust::addThinningEvent
-   COMMAND Crust addThinningEvent
-)
-
-add_test(NAME Crust::getThicknessHistory
-   COMMAND Crust getThicknessHistory
+add_gtest(NAME Crust 
+          SOURCES test/Crust.C
+                  src/Crust.C
+          LIBRARIES utilities
 )
 
