@@ -33,6 +33,10 @@ macro( bm_include_libraries )
     endforeach(library)
 endmacro( bm_include_libraries )
 
+macro( add_gtest )
+# Disable running Unit Tests
+endmacro( add_gtest )
+
 set(GEOCASE_BASE_DIR "/nfs/rvl/users/ibs/geocase_64/prod/v2.4")
 
 if(GEOCASE_HDF5_ENABLED)
