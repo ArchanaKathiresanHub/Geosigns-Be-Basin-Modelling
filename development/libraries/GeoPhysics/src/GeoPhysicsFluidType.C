@@ -503,7 +503,7 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
    return 1.0;
 }
 
-double GeoPhysics::FluidType::getPermafrost() const {
+bool GeoPhysics::FluidType::SwitchPermafrost() const {
 
 return m_projectHandle->getPermafrost();
 

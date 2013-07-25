@@ -1618,7 +1618,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
 
 
-  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->getPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
+  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
 
   ElementVector Dirichlet_Boundary_Values_Ice_Sheet;
   Dirichlet_Boundary_Values_Ice_Sheet.zero();
