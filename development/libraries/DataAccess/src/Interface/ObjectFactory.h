@@ -135,6 +135,9 @@ namespace DataAccess
             /// \brief Function for allocating igneous-intrusion events.
             virtual IgneousIntrusionEvent* produceIgneousIntrusionEvent (ProjectHandle * projectHandle, database::Record * record );
 
+            /// \brief Function for allocating permafrost events.
+            virtual PermafrostEvent* producePermafrostEvent (ProjectHandle * projectHandle, database::Record * record );
+
 	    virtual Property * produceProperty (ProjectHandle * projectHandle, database::Record * record,
                      const string & userName, const string & cauldronName,
                      const string & unit, PropertyType type);

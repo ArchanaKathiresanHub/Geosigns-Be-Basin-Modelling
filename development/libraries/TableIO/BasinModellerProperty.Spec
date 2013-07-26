@@ -4560,6 +4560,22 @@ START-properties
     Property I/O        : No
     Default             : 0
 
+    Identification      : PressureTerm
+    Description         : Indicate whether or not include pressure term in permafrost modelling (1 = yes, 0 = no)
+    Type                : boolean
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0
+
+    Identification      : SalinityTerm
+    Description         : Indicate whether or not include salinity term in permafrost modelling (1 = yes, 0 = no)
+    Type                : boolean
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0
+
 ### Boundary conditions
 ###  Geological Boundary Io Tbl
 
@@ -9319,6 +9335,8 @@ START-property-tables
     Identification : PermafrostIoTbl
     Description    : Table of Permafrost simulation parameters 
     Column         : PermafrostInd
+    Column         : PressureTerm
+    Column	   : SalinityTerm
     Header         : Permafrost parameters
     Time dependent : No
     Property I/O   : Yes

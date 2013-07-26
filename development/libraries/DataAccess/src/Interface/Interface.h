@@ -76,6 +76,7 @@ namespace DataAccess
       class PaleoFormationProperty;
       class PaleoProperty;
       class PaleoSurfaceProperty;
+      class PermafrostEvent;
       class Point;
       class PointAdsorptionHistory;
       class ProjectData;
@@ -667,6 +668,9 @@ namespace DataAccess
 
       /// \brief Mutable array of ingneous-intrusion events.
       typedef vector<IgneousIntrusionEvent*> MutableIgneousIntrusionEventList;
+
+      /// \brief Mutable array of permafrost events.
+      typedef vector<PermafrostEvent*> MutablePermafrostEventList;
 
       // Shale-gas specific classes.
 

@@ -75,6 +75,7 @@ using namespace std;
 #include "Interface/PaleoProperty.h"
 #include "Interface/PaleoFormationProperty.h"
 #include "Interface/PaleoSurfaceProperty.h"
+#include "Interface/PermafrostEvent.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
@@ -464,6 +465,7 @@ ProjectHandle::~ProjectHandle (void)
    deletePointHistories ();
    deleteIrreducibleWaterSaturationSample ();
    deleteSGDensitySample ();
+   deletePermafrost();
 
    if (m_database) delete m_database;
 }
@@ -5671,6 +5673,21 @@ void ProjectHandle::deleteInputValues (void)
    m_inputValues.clear ();
 }
 
+void ProjectHandle::deletePermafrost () {
+
+   MutablePermafrostEventList::iterator permafrostIter;
+
+   for ( permafrostIter = m_permafrostEvents.begin (); permafrostIter != m_permafrostEvents.end (); ++permafrostIter )
+   {
+      PermafrostEvent* permafrostEvent = *permafrostIter;
+
+      delete permafrostEvent;
+
+   }
+
+   m_permafrostEvents.clear ();
+}
+
 void ProjectHandle::deleteProperties (void)
 {
    MutablePropertyList::const_iterator propertyIter;
@@ -6077,25 +6094,44 @@ bool ProjectHandle::containsSulphur () const {
 
 void ProjectHandle::loadPermafrostData() {
    
-   m_permafrost = false;
-
    database::Table* permafrostIoTbl = getTable ("PermafrostIoTbl");
+
+   m_permafrostEvents.clear();
+   m_permafrost = false;
 
    if( permafrostIoTbl != 0 ) {
       Record *projectIoRecord = permafrostIoTbl->getRecord (0);
       if( projectIoRecord != 0 ) {
+         PermafrostEvent * permafrostRecord = getFactory ()->producePermafrostEvent( this, projectIoRecord );
+         m_permafrostEvents.push_back( permafrostRecord );
+
          m_permafrost = ( database::getPermafrostInd ( projectIoRecord ) == 1 );
       }
    }   
 }
- 
+
+DataAccess::Interface::PermafrostEvent * ProjectHandle::getPermafrostData() const {
+
+   if( m_permafrostEvents.size() != 0 ) {
+      return * m_permafrostEvents.begin ();
+   }
+   return 0;
+}
+
+bool  ProjectHandle::getPermafrost() const {
+
+   return m_permafrost;
+
+}
+
 void ProjectHandle::setPermafrost( const bool aPermafrost ) 
 {
    m_permafrost = aPermafrost;
-}
-
-bool ProjectHandle::getPermafrost() const {
-   return m_permafrost;
+   
+   DataAccess::Interface::PermafrostEvent * permafrostRecord = getPermafrostData();
+   if( permafrostRecord != 0 ) {
+      permafrostRecord->setPermafrost( aPermafrost );
+   }
 }
 
 void ProjectHandle::printOn (ostream & ostr) const

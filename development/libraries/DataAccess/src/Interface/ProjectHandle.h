@@ -503,12 +503,14 @@ namespace DataAccess
 
            const DataAccess::Interface::ApplicationGlobalOperations& getGlobalOperations () const;
          
+           DataAccess::Interface::PermafrostEvent * getPermafrostData() const;
+         
            /// Return whether or not to model permafrost
            bool getPermafrost() const;
-
-           /// Set whether or not to model permafrost
+          
+         /// Set whether or not to model permafrost
            void setPermafrost( const bool aPermafrost );
-
+         
 	 protected:
 	    friend ProjectHandle * OpenCauldronProject (const string & name, const string & accessMode);
 
@@ -580,6 +582,7 @@ namespace DataAccess
             MutableOutputPropertyList m_depthOutputProperties;
             MutableRelatedProjectList m_relatedProjects;
             MutableConstrainedOverpressureIntervalList m_constrainedOverpressureIntervals;
+            MutablePermafrostEventList m_permafrostEvents;
 
             /// \brief A set of all of the igneous intrusion contained within a project.
             MutableIgneousIntrusionEventList m_igneousIntrusionEvents;
@@ -800,7 +803,7 @@ namespace DataAccess
             void deleteFluidTypes ();
 
             void deleteIgneousIntrusions ();
-
+            void deletePermafrost();
 
             void deleteBiodegradationParameters (void);
             void deleteFracturePressureFunctionParameters (void);

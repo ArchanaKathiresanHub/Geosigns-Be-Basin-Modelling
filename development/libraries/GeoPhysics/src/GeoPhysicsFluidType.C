@@ -14,6 +14,7 @@
 #include "Interface/FluidDensitySample.h"
 #include "Interface/FluidType.h"
 #include "Interface/Interface.h"
+#include "Interface/PermafrostEvent.h"
 
 #include "NumericFunctions.h"
 
@@ -54,6 +55,8 @@ GeoPhysics::FluidType::FluidType ( Interface::ProjectHandle * projectHandle, dat
    m_iceThermalConductivityInterpolator.setInterpolation ( ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, 5, temperatureValues, thermalConductivityValues );
    m_iceThermalConductivityInterpolator.computeCoefficients ();
 
+   m_pressureTerm = 0.0;
+   m_salinityTerm = 0.0;
 }
 
 GeoPhysics::FluidType::~FluidType () {
@@ -115,13 +118,26 @@ void GeoPhysics::FluidType::loadPropertyTables () {
       densXheatCapacitytbl.addPoint ( temperature, pressure, sample->getHeatCapacity () * densityFromTable ( temperature, pressure ));
    }
 
+   // Load data for permafrost modelling
+   if( m_projectHandle->getPermafrostData() != 0 ) {
+      if( m_projectHandle->getPermafrostData()->getPressureTerm() ) {
+         m_pressureTerm = 0.073;
+      }
+      if(  m_projectHandle->getPermafrostData()->getSalinityTerm() ) {
+         m_salinityTerm = 0.064;
+      }
+    } 
+
    delete heatCapacitySamples;
    delete thermalConductivitySamples;
    delete densitySamples;
 }
 
 double GeoPhysics::FluidType::getLiquidusTemperature ( const double temperature, const double pressure ) const {
-   return ( - 0.073 * pressure - 0.064 * salinityConcentration ( temperature, pressure ));
+   
+    // return ( - 0.073 * pressure - 0.064 * salinityConcentration ( temperature, pressure ));
+  
+   return ( - m_pressureTerm * pressure - m_salinityTerm * salinityConcentration ( temperature, pressure ));
 }
     
 double GeoPhysics::FluidType::getSolidusTemperature ( const double liquidusTemperature ) const {
@@ -248,9 +264,6 @@ double GeoPhysics::FluidType::heatCapacity ( const double temperature,
 
 double GeoPhysics::FluidType::densXheatCapacity ( const double temperature,
                                                   const double pressure ) const {
-
-
-   
 
    return densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
 }
@@ -467,7 +480,7 @@ void GeoPhysics::FluidType::asString ( std::string& str ) const {
 double GeoPhysics::FluidType::solidDensityTimesHeatCapacity ( const double temperature ) const {
 
    assert ( temperature <= 0.0 );
-   double usedTemperature = temperature;  // NumericFunctions::Maximum ( temperature, 40.0 );
+   double usedTemperature = temperature; //NumericFunctions::Maximum ( temperature, 40.0 );
 
    // return 916.0 * 2110.0;
    return m_iceDensityInterpolator.evaluate ( usedTemperature ) * m_iceHeatCapacityInterpolator.evaluate ( usedTemperature );

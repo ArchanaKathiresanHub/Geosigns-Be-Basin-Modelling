@@ -1430,7 +1430,7 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( double & timeStep, double 
          timeStep = minimumInterval * 0.5;
          
       } 
-      m_permafrost = isPermafrost;
+      setPermafrost( isPermafrost );
    }
    return m_permafrost;
 }

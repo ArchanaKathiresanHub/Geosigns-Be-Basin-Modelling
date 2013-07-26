@@ -45,6 +45,7 @@
 #include "Interface/PaleoFormationProperty.h"
 #include "Interface/PaleoProperty.h"
 #include "Interface/PaleoSurfaceProperty.h"
+#include "Interface/PermafrostEvent.h"
 #include "Interface/PointAdsorptionHistory.h"
 #include "Interface/ProjectData.h"
 #include "Interface/ProjectHandle.h"
@@ -265,6 +266,11 @@ TrapPhase * ObjectFactory::produceTrapPhase (ProjectHandle * projectHandle, data
 IgneousIntrusionEvent* ObjectFactory::produceIgneousIntrusionEvent (ProjectHandle * projectHandle, database::Record * record )
 {
    return new IgneousIntrusionEvent ( projectHandle, record );
+}
+
+PermafrostEvent* ObjectFactory::producePermafrostEvent (ProjectHandle * projectHandle, database::Record * record )
+{
+   return new PermafrostEvent ( projectHandle, record );
 }
 
 InputValue * ObjectFactory::produceInputValue (ProjectHandle * projectHandle, database::Record * record)

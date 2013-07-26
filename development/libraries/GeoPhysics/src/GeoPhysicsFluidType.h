@@ -195,7 +195,9 @@ namespace GeoPhysics {
       double m_precomputedViscosityTerm1;
       double m_precomputedViscosityTerm2;
 
-      // For permeafrost.
+      // For permafrost.
+      double m_pressureTerm;
+      double m_salinityTerm;
 
       double solidDensityTimesHeatCapacity ( const double temperature ) const;
 
