@@ -79,8 +79,6 @@ namespace AllochMod {
     /// \brief Print some information on the stream.
     void printOn (std::ostream & ostr) const;
 
-    const std::string& getOutputDir () const;
-
     /// Determine if the global switch, in the run options io table, is on or off.
     bool allochthonousModellingRequired () const;
 
@@ -91,8 +89,6 @@ namespace AllochMod {
     void getAllochthonousLithologyDistributionList ( const Interface::AllochthonousLithology*     theAllochthonousLithology,
                                                            AllochthonousLithologyDistributionSequence& associatedLithologyDistributions );
 
-
-    mutable std::string outputDirectoryName;
 
   };
 

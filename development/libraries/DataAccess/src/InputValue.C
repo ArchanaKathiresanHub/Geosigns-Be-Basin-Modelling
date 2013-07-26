@@ -519,7 +519,7 @@ GridMap * InputValue::loadGridMap (void) const
    }
    else if (hdf5FileName != "")
    {
-      string mapFileName = m_projectHandle->getProjectPath () + "/" + m_projectHandle->getOutputDir () + "/" + hdf5FileName;
+      string mapFileName = m_projectHandle->getFullOutputDir () + "/" + hdf5FileName;
       return m_projectHandle->loadGridMap (this, ValueMap, mapFileName, HDF5::findLayerName (mapFileName, 0));
    }
    else

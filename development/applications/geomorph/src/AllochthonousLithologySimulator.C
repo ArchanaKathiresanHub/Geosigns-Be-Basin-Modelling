@@ -40,8 +40,6 @@ bool AllochMod::AllochthonousLithologySimulator::DistributionMapEarlierThan::ope
 AllochMod::AllochthonousLithologySimulator::AllochthonousLithologySimulator (database::Database * database, const std::string & name, const std::string & accessMode)
       : Interface::ProjectHandle (database, name, accessMode)
 {
-  outputDirectoryName = "";
-
   if ( allochthonousModellingRequired ()) {
      startActivity ( GeomorphRunStatus, getHighResolutionOutputGrid ());
   }
@@ -140,10 +138,10 @@ bool AllochMod::AllochthonousLithologySimulator::execute ( const int debugLevel 
   // Clear the interpolation results table, since they need to be recomputed.
   allochthonousInterpTbl->clear ();
 
-  std::string fullResultFileName = getOutputDir () + '/' + ResultsFileName;
+  std::string fullResultFileName = getFullOutputDir () + '/' + ResultsFileName;
 
   // Create directory, if it does not already exist.
-  mkdir ( getOutputDir ().c_str(), S_IRWXU | S_IRGRP | S_IXGRP);
+  makeOutputDir();
 
   cout << endl;
 
@@ -244,20 +242,3 @@ void AllochMod::AllochthonousLithologySimulator::getAllochthonousLithologyDistri
 
 
 //------------------------------------------------------------//
-
-const std::string& AllochMod::AllochthonousLithologySimulator::getOutputDir () const {
-
-   if ( outputDirectoryName == "" ) {
-     outputDirectoryName = m_projectName;
-     std::string::size_type dotPos = outputDirectoryName.rfind (".project");
-     
-     if (dotPos != std::string::npos) {
-       outputDirectoryName.erase (dotPos, std::string::npos);
-     }
-
-     outputDirectoryName += "_CauldronOutputDir";
-   }
-
-   return outputDirectoryName;
-
-}

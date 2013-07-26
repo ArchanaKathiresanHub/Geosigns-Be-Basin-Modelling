@@ -169,7 +169,7 @@ int main (int argc, char ** argv)
    if (tableDef)
    {
       // Adding (volatile, won't be output) definition for obsoleted field UserDefined" << endl;
-      tableDef->addFieldDefinition ("UserDefined", datatype::Int, "", "0");
+      tableDef->addVolatileFieldDefinition ("UserDefined", datatype::Int, "", "0");
    }
 
    Database *tables = Database::CreateFromFile (inputFileName, *cauldronSchema);

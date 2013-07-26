@@ -113,9 +113,9 @@ int main (int argc, char ** argv)
    int rank = 99999;
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
    
-   int rc = EPTFLEXLM_OK;
 
 #ifdef FLEXLM
+   int rc = EPTFLEXLM_OK;
   
    char feature[EPTFLEXLM_MAX_FEATURE_LEN];
    char version[EPTFLEXLM_MAX_VER_LEN];
@@ -147,20 +147,20 @@ int main (int argc, char ** argv)
    
 #endif
    
-   if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN) {
 #ifdef FLEXLM
+   if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN) {
       //FlexLM license check in only for node with rank = 0
       if( rank == 0 ) {
          // FlexLm license check in, close down and enable logging
          EPTFlexLmCheckIn( feature );
          EPTFlexLmTerminate();
       }
-#endif
       // Close PetSc
       PetscFinalize ();
       
       return -1;
    }
+#endif
    bool status = false;
    
    GenexSimulator        *theGenexSimulator = 0;

@@ -411,6 +411,8 @@ namespace DataAccess
 
             /// Get the name of the output directory
 	    virtual const string & getOutputDir (void) const;
+	    virtual const string  getFullOutputDir (void) const;
+	    virtual bool makeOutputDir () const;
 
 	    bool setOutputDir (database::Transaction * transaction, const string & fileOrDirName) const;
 

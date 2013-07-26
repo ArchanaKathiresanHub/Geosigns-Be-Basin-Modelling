@@ -186,9 +186,8 @@ public:
 
    bool setProjectFileName (const string & projectFileName);
 
-   bool setOutputDirExtension (const string & extension);
-
    string getOutputDirectory ();
+   bool makeOutputDirectory ();
 
    const string& getFastCauldronProjectFileName () const
    {
@@ -526,8 +525,6 @@ public:
 
    string m_FastCauldronProjectFileName;
    string m_ProjectFileName;
-   string m_dirExtension;
-   string m_OutputDirectory;
 
    double m_presentDayMantleThickness;
    double m_maximumBasementThickness;

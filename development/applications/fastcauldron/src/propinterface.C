@@ -152,9 +152,6 @@ bool AppCtx::readProjectName () {
    PetscOptionsGetString (PETSC_NULL, "-save", fname1, MAXLINESIZE, 0);
    setFastCauldronProjectFileName (fname1);
 
-   PetscOptionsGetString (PETSC_NULL, "-extension", dirExtension, MAXLINESIZE, 0);
-   projectFileReadOkay = projectFileReadOkay && setOutputDirExtension (dirExtension);
-
    return projectFileReadOkay;
 
 }
@@ -1243,22 +1240,6 @@ void AppCtx::setFastCauldronProjectFileName(string projectName)
    }
 }
 
-#undef __FUNCT__  
-#define __FUNCT__ "AppCtx::setOutputDirExtension"
-
-bool AppCtx::setOutputDirExtension(const string& extension) {
-  
-  PetscFunctionBegin;
-
-  m_dirExtension = extension;
-
-  if (m_dirExtension.length() == 0 ) {
-    m_dirExtension = "CauldronOutputDir";
-  }
-  
-  PetscFunctionReturn(NO_ERROR);
-}
-
 string AppCtx::Get_Project_Filename_Base ( )
 {
 
@@ -1270,29 +1251,22 @@ string AppCtx::Get_Project_Filename_Base ( )
 }
 
 
+#undef __FUNCT__  
+#define __FUNCT__ "AppCtx::getOutputDirectory"
+
 string AppCtx::getOutputDirectory ()
 {
-   if (m_OutputDirectory.length () == 0)
-   {
-      m_OutputDirectory += getProjectFileName ();
-      removeExtension (m_OutputDirectory);
-      if (m_dirExtension.length () == 0)
-      {
-         m_OutputDirectory += "_CauldronOutputDir/";
-      }
-      else
-      {
-         m_OutputDirectory += "_";
-         m_OutputDirectory += m_dirExtension;
-         m_OutputDirectory += "/";
-      }
-      if (isModellingMode3D ())
-      {
-	 checkOutputDirectory (m_OutputDirectory);
-      }
-   }
-   return m_OutputDirectory;
+   return FastcauldronSimulator::getInstance ().getFullOutputDir () + "/";
 }
+
+#undef __FUNCT__  
+#define __FUNCT__ "AppCtx::makeOutputDirectory"
+
+bool AppCtx::makeOutputDirectory ()
+{
+   return FastcauldronSimulator::getInstance ().makeOutputDir ();
+}
+
 
 #undef __FUNCT__  
 #define __FUNCT__ "AppCtx::openProject"

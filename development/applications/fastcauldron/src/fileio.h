@@ -4,8 +4,6 @@
 #include <string>
 using namespace std;
 
-void checkOutputDirectory( string& str );
-
 // void checkFileSystem( string& str );
 
 string generatePropertyFileName( const string&  outputDirectory, 

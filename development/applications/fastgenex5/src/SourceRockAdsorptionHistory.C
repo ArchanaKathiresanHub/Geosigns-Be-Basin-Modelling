@@ -27,7 +27,7 @@ void SourceRockAdsorptionHistory::save () {
    if ( m_historyRecord != 0 and m_adsorptionHistory != 0 ) {
       std::stringstream buffer;
 
-      buffer << m_projectHandle->getOutputDir () <<  "/History_" << m_projectHandle->getProjectName () << "_" << m_historyRecord->getMangledFormationName () << "_" << m_historyRecord->getX () << "_" << m_historyRecord->getY () << ".dat";
+      buffer << m_projectHandle->getFullOutputDir () <<  "/History_" << m_projectHandle->getProjectName () << "_" << m_historyRecord->getMangledFormationName () << "_" << m_historyRecord->getX () << "_" << m_historyRecord->getY () << ".dat";
 
       std::ofstream historyFile ( buffer.str ().c_str (), std::ios::out );
 

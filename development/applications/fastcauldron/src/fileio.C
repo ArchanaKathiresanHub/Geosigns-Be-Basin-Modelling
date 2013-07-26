@@ -14,12 +14,6 @@ using namespace std;
 #include "globaldefs.h"
 
 
-void checkOutputDirectory(string& str) {
-  
-  mkdir (str.c_str(), S_IRWXU | S_IRGRP | S_IXGRP);
-
-}
-
 // void checkFileSystem(string& str) {
  
 //   struct utsname buf;

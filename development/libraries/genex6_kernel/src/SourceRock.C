@@ -967,7 +967,8 @@ bool SourceRock::addHistoryToNodes () {
       const double x = (*historyIter)->getX ();
       const double y = (*historyIter)->getY ();
 
-      if ( NumericFunctions::inRange ( x, originX, northEastCornerX ) and NumericFunctions::inRange ( y, originY, northEastCornerY )) {
+      if ( m_projectHandle->getModellingMode () == Interface::MODE1D ||
+	    (NumericFunctions::inRange ( x, originX, northEastCornerX ) && NumericFunctions::inRange ( y, originY, northEastCornerY )) ){
 
 #if 0
          historyAssociatedWithNode = false;
@@ -981,7 +982,8 @@ bool SourceRock::addHistoryToNodes () {
             int i = int ( floor (( x - originX ) / deltaX + 0.5 ));
             int j = int ( floor (( y - originY ) / deltaY + 0.5 ));
 
-            if ( i == (int)(node->GetI ()) and j == (int)(node->GetJ ())) {
+            if ( m_projectHandle->getModellingMode () == Interface::MODE1D ||
+		  (i == (int)(node->GetI ()) && j == (int)(node->GetJ ()))) {
 
 #if 0
                historyAssociatedWithNode = true;

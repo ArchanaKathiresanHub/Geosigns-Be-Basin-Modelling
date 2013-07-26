@@ -274,9 +274,10 @@ void History::Output_Properties () {
       Current_Node = Current_Surface -> Nodes [ indx ];
 
       ofstream History_Data_File;
-      string   History_Data_File_Name = appctx->getOutputDirectory ();
+      string   History_Data_File_Name = appctx->getOutputDirectory();
+      appctx->makeOutputDirectory();
 
-      History_Data_File_Name = History_Data_File_Name + removeNonUsableCharacters ( surface_it -> second -> Name ) + "_"
+      History_Data_File_Name += removeNonUsableCharacters ( surface_it -> second -> Name ) + "_"
 	+ IntegerToString( int ( Current_Node->X_Coord ) ) + "_east_" + IntegerToString( int ( Current_Node->Y_Coord )) + "_north_"
         + calculationModeFileNameExtension + ".hist";
       History_Data_File.open( History_Data_File_Name.c_str() );

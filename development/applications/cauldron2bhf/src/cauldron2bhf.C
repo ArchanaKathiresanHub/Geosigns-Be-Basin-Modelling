@@ -252,7 +252,7 @@ static bool generateBHF (ProjectHandle * projectHandle, Record * record)
 
    if (is3D)
    {
-      outputFileName +=  "/" + projectHandle->getOutputDir ();
+      outputFileName =  projectHandle->getFullOutputDir ();
    }
 
    outputFileName += "/";

@@ -2596,6 +2596,25 @@ bool ProjectHandle::loadMapPropertyValues (void)
    return true;
 }
 
+const std::string ProjectHandle::getFullOutputDir() const
+{
+   return getProjectPath () + "/" + getOutputDir ();
+}
+
+bool ProjectHandle::makeOutputDir() const
+{
+   // Need to create output directory if it does not exist.
+#if defined(_WIN32) || defined (_WIN64)
+   int status = mkdir ( getFullOutputDir().c_str () );
+#else
+   int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
+#endif
+   if ( status != 0 and errno == ENOTDIR ) {
+      return false;
+   }
+   return true;
+}
+
 bool ProjectHandle::initializeMapPropertyValuesWriter (void)
 {
    if (Interface::MODE3D != getModellingMode ()) return true;
@@ -2604,22 +2623,10 @@ bool ProjectHandle::initializeMapPropertyValuesWriter (void)
    // create hdf file
    string fileName = getActivityName ();
 
-   const std::string& directoryName = getProjectPath () + "/" + getOutputDir ();
-
    fileName += "_Results.HDF";
-   string filePathName = directoryName + "/" + fileName;
+   string filePathName = getFullOutputDir() + "/" + fileName;
 
-   // Need to create output directory if it does not exist.
-#if defined(_WIN32) || defined (_WIN64)
-   int status = mkdir ( directoryName.c_str () );
-#else
-   int status = mkdir ( directoryName.c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
-#endif
-
-   // If an error occurred then check to see if the name in 'directoryName' is really a directory.
-   if ( status != 0 and errno == ENOTDIR ) {
-      return false;
-   }
+   if (!makeOutputDir ()) return false;
 
    m_mapPropertyValuesWriter = getFactory ()->produceMapWriter();
    m_mapPropertyValuesWriter->open (filePathName, false);

@@ -30,77 +30,60 @@ Genex6::NodeAdsorptionHistory* Genex6::SourceRockAdsorptionHistory::getNodeGenex
    return m_genexHistory;
 }
 
-void Genex6::SourceRockAdsorptionHistory::save () {
-
-   if ( m_historyRecord != 0 and m_adsorptionHistory != 0 ) {
+void Genex6::SourceRockAdsorptionHistory::save ()
+{
+   if (m_historyRecord != 0 and (m_adsorptionHistory != 0 || m_genexHistory != 0))
+   {
       std::string fileName;
 
-      if ( m_historyRecord->getFileName () == "" ) {
+      if (m_historyRecord->getFileName () == "")
+      {
          std::stringstream buffer;
          
-         buffer << m_projectHandle->getOutputDir () 
+         buffer << m_projectHandle->getFullOutputDir ()
                 <<  "/History_"
                 << m_projectHandle->getProjectName ()
                 << "_"
-                << "shalegas"
-                << "_"
-                << m_historyRecord->getMangledFormationName ()
-                << "_"
+	       << (m_adsorptionHistory != 0 ? "shalegas" : "genex")
+	       << "_" << m_historyRecord->getMangledFormationName ();
+
+         if (m_projectHandle->getModellingMode () == DataAccess::Interface::MODE3D)
+         {
+            buffer << "_"
                 << m_historyRecord->getX ()
                 << "_"
-                << m_historyRecord->getY ()
-                << ".dat";
+	       << m_historyRecord->getY ();
+         }
+         buffer << ".dat";
 
          fileName = buffer.str ();
 
-      } else {
-         fileName = m_projectHandle->getOutputDir () + "/" + m_historyRecord->getFileName ();
       }
-
-      std::ofstream historyFile ( fileName.c_str (), std::ios::out );
-
-      historyFile << m_historyRecord->getFormationName ()
-                  << "  "
-                  << m_historyRecord->getX ()
-                  << "  "
-                  << m_historyRecord->getY ()
-                  << std::endl;
-
-      m_adsorptionHistory->write ( historyFile );
-      historyFile.close ();
+      else
+      {
+         fileName = m_projectHandle->getFullOutputDir () + "/" + m_historyRecord->getFileName ();
    }
 
-   if ( m_historyRecord != 0 and m_genexHistory != 0 ) {
+      if (!m_projectHandle->makeOutputDir ())
+         return;
 
-      std::string fileName;
+      std::ofstream historyFile (fileName.c_str (), std::ios::out);
 
-      if ( m_historyRecord->getFileName () == "" ) {
-         std::stringstream buffer;
+      historyFile << m_historyRecord->getFormationName ();
 
-         buffer << m_projectHandle->getOutputDir () 
-                <<  "/History_"
-                << m_projectHandle->getProjectName ()
-                << "_"
-                << "genex"
-                << "_"
-                << m_historyRecord->getMangledFormationName ()
-                << "_"
+      if (m_projectHandle->getModellingMode () == DataAccess::Interface::MODE3D)
+      {
+         historyFile << "  "
                 << m_historyRecord->getX ()
-                << "_"
-                << m_historyRecord->getY ()
-                << ".dat";
-
-         fileName = buffer.str ();
-      } else {
-         fileName = m_projectHandle->getOutputDir () + "/" + m_historyRecord->getFileName ();
+	    << "  " << m_historyRecord->getY ()
+	    << std::endl;
       }
 
-      std::ofstream historyFile ( fileName.c_str (), std::ios::out );
-
+      if (m_adsorptionHistory != 0)
+         m_adsorptionHistory->write (historyFile);
+      else
       m_genexHistory->write ( historyFile );
+
       historyFile.close ();
-
    }
-
 }
-
