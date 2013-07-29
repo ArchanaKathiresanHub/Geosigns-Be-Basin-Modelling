@@ -55,14 +55,19 @@ endif()
 
 if(BM_BUILD_ENABLE_TESTING)
 	enable_testing()
-
-        # Include Google Testing Framework (which is itself a CMake project)
-        # and Google Mock (Google Mock contains Google Test)
-        add_subdirectory(../3rdparty/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
-        set(GTEST_INCLUDE_DIR "${gtest_SOURCE_DIR}/include")
-        set(GTEST_INCLUDE_DIRS "${GTEST_INCLUDE_DIR}")
-        set(GMOCK_INCLUDE_DIR "${gmock_SOURCE_DIR}/include")
-        set(GMOCK_INCLUDE_DIRS "${GMOCK_INCLUDE_DIR}")
+    # Include Google Testing Framework (which is itself a CMake project)
+    # and Google Mock (Google Mock contains Google Test)
+	
+	option( gtest_force_shared_crt
+       "Use shared (DLL) run-time lib even when Google Test is built as static lib."
+       ON
+	)
+	
+    add_subdirectory(../3rdparty/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
+    set(GTEST_INCLUDE_DIR "${gtest_SOURCE_DIR}/include")
+    set(GTEST_INCLUDE_DIRS "${GTEST_INCLUDE_DIR}")
+    set(GMOCK_INCLUDE_DIR "${gmock_SOURCE_DIR}/include")
+    set(GMOCK_INCLUDE_DIRS "${GMOCK_INCLUDE_DIR}")
 endif()
 
 include(files/PredefinedVariables.cmake)
@@ -142,6 +147,10 @@ if (BM_PARALLEL)
 		set(BM_MPI_LOCK_LIBRARIES)
 		list(APPEND BM_MPI_LOCK_LIBRARIES "-Wl,--whole-archive" mpich2_lock "-Wl,--no-whole-archive")
 	endif(BM_USE_OWN_MPICH_LOCK)
+	
+	if(NOT BUILD_SHARED_LIBRARIES)
+	   patch_mpi_libraries_to_use_static(MPI_C_LIBRARIES ${MPI_C_LIBRARIES})
+    endif()
 endif()
 
 ### HDF5
@@ -153,10 +162,6 @@ endif(BUILD_SHARED_LIBS)
 
 set (HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version")
 include(files/FindHDF5.cmake)
-
-if(NOT BUILD_SHARED_LIBRARIES)
-	patch_mpi_libraries_to_use_static(MPI_C_LIBRARIES ${MPI_C_LIBRARIES})
-endif()
 
 # Note on weird notation: HDF5_IS_PARALLEL has values "TRUE" and "FALSE" while
 # BM_PARALLEL can be "ON" and "OFF". By using 'NOT' operator these
@@ -174,7 +179,7 @@ if (HDF5_IS_PARALLEL)
 endif(HDF5_IS_PARALLEL)
 
 
-### OpennMP
+### OpenMP
 find_package(OpenMP)   
 
 
