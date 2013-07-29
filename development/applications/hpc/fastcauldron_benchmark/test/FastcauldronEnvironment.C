@@ -6,194 +6,89 @@
 
 typedef hpc::FastCauldronEnvironment FCE;
 typedef FCE::Configuration Configuration;
-typedef Configuration::Tokenizer Tok;
 typedef std::pair<const FCE::VersionID, std::string > Pair;
 
 struct Path : hpc::Path { Path() : hpc::Path("") {} };
-
-
-// case 1: empty string
-TEST(FastCauldronEnvironmentConfigurationTokenizer, EmptyString)
-{
-   Tok tok("");
-   EXPECT_TRUE( tok.hasMore());
-
-   std::string t1, m1;
-   tok.next(t1, m1);
-   
-   EXPECT_TRUE( t1.empty() );
-   EXPECT_TRUE( m1.empty() );
-
-   EXPECT_FALSE(tok.hasMore());
-}
-
-// case 2: one token
-TEST(FastCauldronEnvironmentConfigurationTokenizer, OneToken)
-{
-   Tok tok("one token");
-   EXPECT_TRUE( tok.hasMore());
-   std::string t1, m1;
-   tok.next( t1, m1);
-
-   EXPECT_EQ( "one token", t1 );
-   EXPECT_TRUE( m1.empty() );
-   EXPECT_FALSE(tok.hasMore() );
-}
-
-// case 3: one marker
-TEST(FastCauldronEnvironmentConfigurationTokenizer, OneMarker)
-{
-   Tok tok("{marker}");
-   EXPECT_TRUE( tok.hasMore() );
-   std::string t1, m1;
-   tok.next( t1, m1);
-
-   EXPECT_TRUE( t1.empty());
-   EXPECT_EQ( "marker", m1 );
-
-   EXPECT_TRUE( tok.hasMore() );
-
-   std::string t2, m2;
-   tok.next( t2, m2);
-   EXPECT_TRUE( t2.empty());
-   EXPECT_TRUE( m2.empty() );
-   EXPECT_FALSE(tok.hasMore() );
-}
-
-// case 4: token + marker + token
-TEST(FastCauldronEnvironmentConfigurationTokenizer, TokenMarkerToken)
-{
-   Tok tok("t1{m1}t2");
-   EXPECT_TRUE( tok.hasMore() );
-   std::string t1, m1;
-   tok.next( t1, m1);
-
-   EXPECT_EQ( "t1" , t1 );
-   EXPECT_EQ( "m1", m1 );
-
-   EXPECT_TRUE( tok.hasMore() );
-
-   std::string t2, m2;
-   tok.next( t2, m2);
-   EXPECT_EQ( "t2", t2 );
-   EXPECT_TRUE( m2.empty() );
-   EXPECT_FALSE(tok.hasMore() );
-}
-
-
-// case 5: tokens + marker + marker + token
-TEST(FastCauldronEnvironmentConfigurationTokenizer, TonerMarkerMarkerToken)
-{
-   Tok tok("t1{m1}{m2}t3");
-   EXPECT_TRUE( tok.hasMore() );
-   std::string t1, m1;
-   tok.next( t1, m1);
-
-   EXPECT_EQ( "t1" , t1 );
-   EXPECT_EQ( "m1", m1 );
-
-   EXPECT_TRUE( tok.hasMore() );
-
-   std::string t2, m2;
-   tok.next( t2, m2);
-   EXPECT_TRUE( t2.empty());
-   EXPECT_EQ( "m2" , m2 );
-   EXPECT_TRUE( tok.hasMore() );
-
-   std::string t3, m3;
-   tok.next( t3, m3);
-   EXPECT_EQ( "t3", t3 );
-   EXPECT_TRUE( m3.empty() );
-   EXPECT_FALSE( tok.hasMore() );
-}
 
 
 // case 1: Empty configuration file
 TEST(FastCauldronEnvironmentConfigurationReadTemplates, EmptyConfigurationFile)
 {  std::istringstream input("");
 
-   Configuration c;
-   c.readTemplates(input);
+   Configuration c(input);
 
-   ASSERT_TRUE( c.m_runTemplates.empty() );
+   EXPECT_THROW( c.getRunTemplate("VERSION_1"), FCE::Exception );
 }
 
 // case 2: One empty environment
 TEST(FastCauldronEnvironmentConfigurationReadTemplates, OneEmptyEnvironment)
 {  std::istringstream input("[VERSION_1]");
 
-   Configuration c;
-   c.readTemplates(input);
+   Configuration c(input);
 
-   ASSERT_EQ( 1 , c.m_runTemplates.size() );
-   Pair pairs[] = { Pair("VERSION_1", "") };
-   ASSERT_TRUE( std::equal( c.m_runTemplates.begin(), c.m_runTemplates.end(), pairs) );
+   EXPECT_EQ( "", c.getRunTemplate("VERSION_1") );
 }
 
 // case 3: Two empty environments
 TEST(FastCauldronEnvironmentConfigurationReadTemplates, TwoEmptyEnvironments )
 {  std::istringstream input("[VERSION_1]\n[VERSION_2]");
 
-   Configuration c;
-   c.readTemplates(input);
+   Configuration c(input);
 
-   ASSERT_EQ( 2 , c.m_runTemplates.size() );
-   Pair pairs[] = { Pair("VERSION_1", ""), Pair("VERSION_2", "") };
-   ASSERT_TRUE( std::equal( c.m_runTemplates.begin(), c.m_runTemplates.end(), pairs) );
+   EXPECT_EQ( "", c.getRunTemplate("VERSION_1") );
+   EXPECT_EQ( "", c.getRunTemplate("VERSION_2") );
 }
 
 // case 4: One non-empty environment
 TEST(FastCauldronEnvironmentConfigurationReadTemplates, OneNonEmptyEnvironment )
 {  std::istringstream input("[VERSION_1]\nA\nB\nC\n");
 
-   Configuration c;
-   c.readTemplates(input);
+   Configuration c(input);
 
-   ASSERT_EQ( 1 , c.m_runTemplates.size() );
-   Pair pairs[] = { Pair("VERSION_1", "A\nB\nC\n") };
-   ASSERT_TRUE( std::equal( c.m_runTemplates.begin(), c.m_runTemplates.end(), pairs) );
+   EXPECT_EQ( "A\nB\nC\n", c.getRunTemplate("VERSION_1") );
+   EXPECT_THROW( c.getRunTemplate("VERSION_2"), FCE::Exception);
 }
 
 // case 5: One non-empty environment with some garbage 
 TEST(FastCauldronEnvironmentConfigurationReadTemplates, OneNonEmptyEnvironmentPlusGarbage )
 {  std::istringstream input("Som\ne garbage\n[VERSION_1]and even more\nA\nB\nC\n");
 
-   Configuration c;
-   c.readTemplates(input);
+   Configuration c(input);
 
-   ASSERT_EQ( 1 , c.m_runTemplates.size() );
-   Pair pairs[] = { Pair("VERSION_1", "A\nB\nC\n") };
-   ASSERT_TRUE( std::equal( c.m_runTemplates.begin(), c.m_runTemplates.end(), pairs) );
+   EXPECT_EQ( "A\nB\nC\n", c.getRunTemplate("VERSION_1") );
+   EXPECT_THROW( c.getRunTemplate("VERSION_2"), FCE::Exception);
 }
 
 // case 6: Three non-empty environments
 TEST(FastCauldronEnvironmentConfigurationReadTemplates, ThreeNonEmptyEnvironments )
 {  std::istringstream input("[VERSION_1]\nA\nB\nC\n[VERSION_2]\nD\nE\n[VERSION_3]\nF\n");
 
-   Configuration c;
-   c.readTemplates(input);
+   Configuration c(input);
 
-   ASSERT_EQ( 3 , c.m_runTemplates.size() );
-   Pair pairs[] = { Pair("VERSION_1", "A\nB\nC\n"), Pair("VERSION_2", "D\nE\n"), Pair("VERSION_3", "F\n") };
-   ASSERT_TRUE( std::equal( c.m_runTemplates.begin(), c.m_runTemplates.end(), pairs) );
+   EXPECT_EQ( "A\nB\nC\n", c.getRunTemplate("VERSION_1") );
+   EXPECT_EQ( "D\nE\n", c.getRunTemplate("VERSION_2") );
+   EXPECT_EQ( "F\n", c.getRunTemplate("VERSION_3") );
 }
 
 
 class FastCauldronEnvironmentConfigurationTest : public ::testing::Test
 {
-public:
+protected:
    FastCauldronEnvironmentConfigurationTest()
-      : m_config()
+      : m_config(input())
    {
-      std::istringstream input(
-            "[VERSION_1]A\nB={PROCS}\n{FC_PARAMS} {INPUT}\n{OUTPUT}\n{MPI_PARAMS}\n{INPUT}\n"
-            "[VERSION_3]A\nB={BLA}\n"
-            );
-      m_config.readTemplates(input);
    }
 
 
-private:
+   static Configuration input()
+   {
+      std::istringstream stream(
+            "[VERSION_1]A\nB={PROCS}\n{FC_PARAMS} {INPUT}\n{OUTPUT}\n{MPI_PARAMS}\n{INPUT}\n"
+            "[VERSION_3]A\nB={BLA}\n"
+            );
+      return Configuration(stream);
+   }
+
    Configuration m_config;
    const std::vector< std::string > m_noParams; 
 };
@@ -202,7 +97,7 @@ private:
 TEST_F(FastCauldronEnvironmentConfigurationTest,GetRunScriptOfNonExistingVersion)
 {
    EXPECT_THROW( m_config.getRunScript( "VERSION_2", 3, m_noParams, "a", "b", m_noParams),
-      hpc::FastCauldronEnvironment::Exception 
+      FCE::Exception 
    );
 }
 
@@ -210,7 +105,7 @@ TEST_F(FastCauldronEnvironmentConfigurationTest,GetRunScriptOfNonExistingVersion
 TEST_F(FastCauldronEnvironmentConfigurationTest,GetRunScriptHavingUnrecognizedParameter)
 {
    EXPECT_THROW( m_config.getRunScript( "VERSION_3", 3, m_noParams, "a", "b", m_noParams),
-      hpc::FastCauldronEnvironment::Exception
+      FCE::Exception
    );
 }
 

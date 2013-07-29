@@ -98,14 +98,15 @@ Project3DParameter
    return param;
 }
 
+const std::tr1::array< std::string, 6 >
+Project3DParameter
+   :: typeStrings = { { "bool", "int", "long", "float", "double", "string" } };
+
 Project3DParameter :: Type
 Project3DParameter
   :: parseType(const std::string & type)
 {
-  const std::string types[]
-     = { "bool", "int", "long", "float", "double", "string" };
-
-  return Type( std::distance( types, std::find( types, types + sizeof(types)/sizeof(types[0]), type)));
+  return Type( std::distance( typeStrings.begin(), std::find( typeStrings.begin(), typeStrings.end(), type)) );
 }
 
 std::string
@@ -194,6 +195,25 @@ ExplicitProject3DParameter
    :: ExplicitProject3DParameter( const std::string & table, const std::string & field, Type type, int record)
    : m_table(table), m_field(field), m_recordNumber(record), m_type(type)
 {}
+
+bool
+ExplicitProject3DParameter
+   :: isEqual(const Project3DParameter & other) const
+{
+   const ExplicitProject3DParameter * o = dynamic_cast<const ExplicitProject3DParameter *>(&other);
+   return o && this->m_table == o->m_table && this->m_field == o->m_field &&
+      this->m_recordNumber == o->m_recordNumber && this->m_type == o->m_type;
+}
+
+void
+ExplicitProject3DParameter
+   :: print( std::ostream & output) const
+{
+   if (m_recordNumber < 0)
+     output << m_table << " . " << m_field << ":" << typeStrings[m_type] << " . *";
+   else
+     output << m_table << " . " << m_field << ":" << typeStrings[m_type] << " . " << m_recordNumber;
+}
 
 std::string
 ExplicitProject3DParameter
@@ -294,6 +314,24 @@ ImplicitProject3DParameter
    Project3DParameter::writeValue(m_type, record, m_field, value);
 }
 
+bool
+ImplicitProject3DParameter
+   :: isEqual(const Project3DParameter & other) const
+{
+   const ImplicitProject3DParameter * o = dynamic_cast<const ImplicitProject3DParameter *>(& other);
+   return o && this->m_table == o->m_table && this->m_field == o->m_field &&
+      this->m_type == o->m_type && this->m_conditionField == o->m_conditionField &&
+      this->m_conditionValue == o->m_conditionValue && this->m_conditionalType == o->m_conditionalType;
+}
+
+void
+ImplicitProject3DParameter
+   :: print( std::ostream & output) const
+{
+   output << m_table << " . " << m_field << ":" << typeStrings[m_type] << " . [ "
+      << m_conditionField << ":" << typeStrings[m_conditionalType] << " = " << m_conditionValue << " ]";
+}
+
 database::Record *
 ImplicitProject3DParameter
   :: findRecord(database::Table * table, Type type, const std::string & field, const std::string & value)
@@ -345,5 +383,29 @@ ChoiceProject3DParameter
   m_parameter->writeValue(project, m_values[i]);
 }
  
+bool
+ChoiceProject3DParameter
+   :: isEqual(const Project3DParameter & other) const
+{
+   const ChoiceProject3DParameter * o = dynamic_cast<const ChoiceProject3DParameter *>(&other);
+   return o && this->m_parameter->isEqual( *o->m_parameter ) && 
+      this->m_names == o->m_names && this->m_values == o->m_values;
+} 
+
+void
+ChoiceProject3DParameter
+   :: print( std::ostream & output ) const
+{
+   m_parameter->print(output);
+   output << " { ";
+   for (unsigned i = 0; i < m_names.size(); ++i)
+   {
+      if (output)
+         output << ", ";
+
+      output << m_names[i] << " = " << m_values[i];
+   }
+   output << " }";
+}
 
 }

@@ -3,6 +3,7 @@
 #include "project3dparameter.h"
 #include "projectdependencies.h"
 #include "system.h"
+#include "FastCauldronEnvironmentConfigurationTokenizer.h"
 
 #include <iostream>
 #include <fstream>
@@ -20,9 +21,10 @@ FastCauldronEnvironment :: Configuration
 }
 
 FastCauldronEnvironment :: Configuration
-   :: Configuration()
+   :: Configuration( std::istream & configFile )
    : m_runTemplates()
 {
+   readTemplates( configFile );
 }
 
 void
@@ -64,54 +66,19 @@ FastCauldronEnvironment :: Configuration
       m_runTemplates[version] = script;
 }     
 
-
-FastCauldronEnvironment :: Configuration :: Tokenizer
-   :: Tokenizer(const std::string & text)
-   : m_text(text)
-   , m_posLeft(0), m_posRight(0)
-{}
-
-void
-FastCauldronEnvironment ::  Configuration :: Tokenizer
-   :: next( std::string & token, std::string & marker )
+std::string
+FastCauldronEnvironment :: Configuration
+   :: getRunTemplate( const VersionID & version) const
 {
-   const std::string sepMarkerLeft = "{";
-   const std::string sepMarkerRight = "}";
+   typedef std::map< VersionID, std::string > :: const_iterator It;
+   It entry = m_runTemplates.find( version );
 
-   // the next token is all text up to the next '{' or end of string
-   m_posLeft = m_text.find( sepMarkerLeft, m_posLeft );
+   if (entry == m_runTemplates.end())
+      throw Exception() << "Could not find fastcauldron template run-script for version '" << version << "'";
 
-   std::string::size_type tokenLength = 0;
-   if (m_posLeft == std::string::npos)
-      tokenLength = std::string::npos;
-   else
-      tokenLength = m_posLeft - m_posRight;
-
-   token = m_text.substr( m_posRight, tokenLength );
-
-   if (m_posLeft == std::string::npos)
-   {  // we have reached the end of string
-      marker.clear();
-      return;
-   }
-
-   // otherwise, there is a marker
-   m_posRight = m_text.find(sepMarkerRight, m_posLeft);
-   if (m_posRight == std::string::npos)
-      throw Exception() << "Missing '" << sepMarkerRight << "' after '" << sepMarkerLeft << "'";
-
-   marker = m_text.substr(m_posLeft + sepMarkerLeft.size(), m_posRight - m_posLeft - sepMarkerLeft.size());
-
-   m_posRight += sepMarkerRight.size();
-   m_posLeft = m_posRight;
+   return entry->second;
 }
 
-bool
-FastCauldronEnvironment :: Configuration :: Tokenizer
-   :: hasMore() const
-{
-   return m_posLeft < std::string::npos;
-}
 
 std::string
 FastCauldronEnvironment :: Configuration
@@ -120,16 +87,10 @@ FastCauldronEnvironment :: Configuration
          const std::string & inputProject, const std::string & outputProject,
          const std::vector< std::string > & fcCmdLineParams) const
 {
-   typedef std::map< VersionID, std::string > :: const_iterator It;
-   It entry = m_runTemplates.find( version );
-
-   if (entry == m_runTemplates.end())
-      throw Exception() << "Could not find fastcauldron template run-script for version '" << version << "'";
-
    std::ostringstream result;
    
    std::string token, marker;
-   Tokenizer tokens(entry->second);
+   FastCauldronEnvironmentConfigurationTokenizer tokens(getRunTemplate(version));
    
    while ( tokens.hasMore())
    {

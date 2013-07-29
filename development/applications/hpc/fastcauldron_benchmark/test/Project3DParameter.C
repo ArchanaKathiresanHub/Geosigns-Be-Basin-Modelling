@@ -8,15 +8,17 @@
 
 TEST( Project3DParameterParse, explicitNumber)
 {
-   boost::shared_ptr<hpc::ExplicitProject3DParameter> param
-      = boost::dynamic_pointer_cast<hpc::ExplicitProject3DParameter>(
-            hpc::Project3DParameter::parse("RunOptionsIoTbl . CompactionAlgorithm : string . 0")
-          );
+   boost::shared_ptr<hpc::Project3DParameter> param = 
+            hpc::Project3DParameter::parse("RunOptionsIoTbl .  CompactionAlgorithm : string . 0");
 
-   EXPECT_EQ( "RunOptionsIoTbl", param->m_table);
-   EXPECT_EQ( "CompactionAlgorithm", param->m_field);
-   EXPECT_EQ( 0, param->m_recordNumber);
-   EXPECT_EQ( hpc::Project3DParameter::STRING, param->m_type);
+   EXPECT_EQ( hpc::ExplicitProject3DParameter( 
+                "RunOptionsIoTbl",
+                "CompactionAlgorithm", 
+                hpc::Project3DParameter::STRING, 
+                0
+                ),
+              *param
+            ) ;
 }
 
 
@@ -24,55 +26,68 @@ TEST( Project3DParameterParse, explicitNumber)
 
 TEST( Project3DParameterParse, explicitPattern)
 {
-   boost::shared_ptr<hpc::ExplicitProject3DParameter> param
-      = boost::dynamic_pointer_cast<hpc::ExplicitProject3DParameter>(
-            hpc::Project3DParameter::parse("StratIoTbl .  ElementRefinementZ : int . *")
-          );
+   boost::shared_ptr<hpc::Project3DParameter> param
+      = hpc::Project3DParameter::parse("StratIoTbl .  ElementRefinementZ : int . *");
 
-   EXPECT_EQ( "StratIoTbl", param->m_table);
-   EXPECT_EQ( "ElementRefinementZ", param->m_field);
-   EXPECT_EQ( -1, param->m_recordNumber);
-   EXPECT_EQ( hpc::Project3DParameter::INT, param->m_type);
+   EXPECT_EQ( hpc::ExplicitProject3DParameter(
+                "StratIoTbl",
+                "ElementRefinementZ",
+                hpc::Project3DParameter::INT,
+                -1
+                ),
+              *param
+            );
 }
 
 
 TEST( Project3DParameterParse, implicit)
 {
-   boost::shared_ptr<hpc::ImplicitProject3DParameter> param
-      = boost::dynamic_pointer_cast<hpc::ImplicitProject3DParameter>(
-            hpc::Project3DParameter::parse(
+   boost::shared_ptr<hpc::Project3DParameter> param
+      = hpc::Project3DParameter::parse(
               "LithotypeIoTbl . Lithotype : string .[Density : double = 3200]"
-         ) );
+         );
 
-   EXPECT_EQ( "LithotypeIoTbl", param->m_table);
-   EXPECT_EQ( "Lithotype", param->m_field);
-   EXPECT_EQ( hpc::Project3DParameter::STRING, param->m_type);
-   EXPECT_EQ( "Density", param->m_conditionField);
-   EXPECT_EQ( "3200", param->m_conditionValue);
-   EXPECT_EQ( hpc::Project3DParameter::DOUBLE, param->m_conditionalType); 
+   EXPECT_EQ( hpc::ImplicitProject3DParameter(
+                "LithotypeIoTbl", "Lithotype", hpc::Project3DParameter::STRING,
+                "Density", hpc::Project3DParameter::DOUBLE, "3200"
+                ),
+              *param
+            );
 }
 
 
 TEST( Project3DParameterParse, choice)
 {
+   using namespace hpc;
    using ::testing::ElementsAre;
 
-   boost::shared_ptr<hpc::ChoiceProject3DParameter> param
-      = boost::dynamic_pointer_cast<hpc::ChoiceProject3DParameter>(
-            hpc::Project3DParameter::parse(
+   boost::shared_ptr<Project3DParameter> param
+      = Project3DParameter::parse(
       "RunOptionsIoTbl . TempDiffBasedStepping : int . 0 { BurialRateTimeStepping = 0, TempDiffTimeStepping = 1 }"
-        ) );
+        );
 
-   boost::shared_ptr<hpc::ExplicitProject3DParameter> embeddedParam
-      = boost::dynamic_pointer_cast<hpc::ExplicitProject3DParameter>( param->m_parameter) ;
+   std::vector<std::string> names, values;
+   names.push_back("BurialRateTimeStepping");
+   names.push_back("TempDiffTimeStepping");
+   values.push_back("0");
+   values.push_back("1");
+   boost::shared_ptr<Project3DParameter> expectParameter(
+         new ChoiceProject3DParameter( 
+            boost::shared_ptr<Project3DParameter>(
+              new ExplicitProject3DParameter( 
+                 "RunOptionsIoTbl",
+                 "TempDiffBasedStepping",
+                 Project3DParameter::INT, 
+                 0
+                 )
+              ),
+            names,
+            values
+            )
+         );
+            
 
-   EXPECT_EQ( "RunOptionsIoTbl", embeddedParam->m_table );
-   EXPECT_EQ( "TempDiffBasedStepping", embeddedParam->m_field );
-   EXPECT_EQ( 0, embeddedParam->m_recordNumber);
-   EXPECT_EQ( hpc::Project3DParameter :: INT, embeddedParam->m_type);
-
-   EXPECT_THAT( param->m_names, ElementsAre( "BurialRateTimeStepping", "TempDiffTimeStepping") );
-   EXPECT_THAT( param->m_values, ElementsAre("0", "1"));
+   EXPECT_EQ( *expectParameter, *param);
 }
 
 TEST( Project3DParameterParse, recordSpecifierError)
@@ -88,39 +103,56 @@ TEST( Project3DParameterParse, choiceError)
    EXPECT_THROW( hpc::Project3DParameter::parse("Table.Field : int.1 { bla = 1 p"), hpc::ParseException);
 }
 
-TEST( Project3DParameterParseType, boolean)
+class Project3DParameterParseTypeTest : public hpc::Project3DParameter, public ::testing::Test
 {
-   EXPECT_EQ( hpc::Project3DParameter::BOOL, hpc::Project3DParameter::parseType("bool"));
+public:
+   virtual std::string readValue(const DataAccess::Interface::ProjectHandle *) const
+   { return ""; }
+
+   virtual void writeValue( DataAccess::Interface::ProjectHandle *, const std::string &) const
+   { }
+
+   virtual bool isEqual(const Project3DParameter & ) const
+   { return false; }
+
+   virtual void print( std::ostream & output) const
+   { }
+};
+
+
+TEST_F( Project3DParameterParseTypeTest, boolean)
+{
+   EXPECT_EQ( BOOL, parseType("bool"));
 }
 
-TEST( Project3DParameterParseType, integer)
+TEST_F( Project3DParameterParseTypeTest, integer)
 {
-   EXPECT_EQ( hpc::Project3DParameter::INT, hpc::Project3DParameter::parseType("int"));
+   EXPECT_EQ( INT, parseType("int"));
 }
 
-TEST( Project3DParameterParseType, longinteger)
+TEST_F( Project3DParameterParseTypeTest, longinteger)
 {
-   EXPECT_EQ( hpc::Project3DParameter::LONG, hpc::Project3DParameter::parseType("long"));
+   EXPECT_EQ( LONG, parseType("long"));
 }
 
-TEST( Project3DParameterParseType, singlePrecisionFloat)
+TEST_F( Project3DParameterParseTypeTest, singlePrecisionFloat)
 {
-   EXPECT_EQ( hpc::Project3DParameter::FLOAT, hpc::Project3DParameter::parseType("float"));
+   EXPECT_EQ( FLOAT, parseType("float"));
 }
 
-TEST( Project3DParameterParseType, doublePrecisionFloat)
+TEST_F( Project3DParameterParseTypeTest, doublePrecisionFloat)
 {
-   EXPECT_EQ( hpc::Project3DParameter::DOUBLE, hpc::Project3DParameter::parseType("double"));
+   EXPECT_EQ( DOUBLE, parseType("double"));
 }
 
-TEST( Project3DParameterParseType, string)
+TEST_F( Project3DParameterParseTypeTest, string)
 {
-   EXPECT_EQ( hpc::Project3DParameter::STRING, hpc::Project3DParameter::parseType("string"));
+   EXPECT_EQ( STRING, parseType("string"));
 }
 
-TEST( Project3DParameterParseType, error)
+TEST_F( Project3DParameterParseTypeTest, error)
 {
-   EXPECT_EQ( hpc::Project3DParameter::Type(6), hpc::Project3DParameter::parseType("error"));
+   EXPECT_EQ( Type(6), parseType("error"));
 }
 
 TEST( ExplicitProject3DParameterReadValue, explicitNumber)
@@ -283,6 +315,8 @@ class MockProject3DParameter : public hpc::Project3DParameter
 public:
    MOCK_CONST_METHOD1( readValue, std::string(const DataAccess::Interface::ProjectHandle *) );
    MOCK_CONST_METHOD2( writeValue, void( DataAccess::Interface::ProjectHandle *, const std::string &));
+   MOCK_CONST_METHOD1( isEqual, bool (const Project3DParameter &) );
+   MOCK_CONST_METHOD1( print, void ( std::ostream & ) );
 };
 
 TEST( ChoiceProject3DParameterReadValue, normal )

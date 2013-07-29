@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 #include <boost/shared_ptr.hpp>
+#include <iosfwd>
+#include <tr1/array>
 
 #include "formattingexception.h"
 
@@ -34,6 +36,8 @@ namespace hpc
     struct QueryException : formattingexception::BaseException< QueryException > {};
     virtual std::string readValue( const DataAccess::Interface::ProjectHandle * ) const = 0;
     virtual void writeValue( DataAccess::Interface::ProjectHandle *, const std::string & value) const = 0;
+    virtual bool isEqual( const Project3DParameter & ) const = 0;
+    virtual void print( std::ostream & out) const = 0;
   
     // input text can have several forms:
     // 1) Table . Field : Type . RecordNr            , i.e.: Explicit
@@ -46,8 +50,17 @@ namespace hpc
     static std::string readValue(Type type, database::Record * record, const std::string & field);
     static void writeValue(Type type, database::Record * record, const std::string & field, const std::string & value);
     static Type parseType(const std::string & type);
+    static const std::tr1::array< std::string, 6 > typeStrings;
   };
 
+  inline bool operator==( const Project3DParameter & a, const Project3DParameter & b)
+  { return a.isEqual(b); }
+
+  inline bool operator!=( const Project3DParameter & a, const Project3DParameter & b)
+  { return ! a.isEqual(b); }
+
+  inline std::ostream & operator<<( std::ostream & output, const Project3DParameter & p)
+  { p.print(output); return output; }
 
   class ImplicitProject3DParameter : public Project3DParameter
   {
@@ -58,6 +71,9 @@ namespace hpc
 
     virtual std::string readValue( const DataAccess::Interface::ProjectHandle * ) const ;
     virtual void writeValue( DataAccess::Interface::ProjectHandle *, const std::string & value) const ;
+
+    virtual bool isEqual(const Project3DParameter & other) const;
+    virtual void print( std::ostream & output) const;
 
   private:
     static database::Record * findRecord(database::Table * table, Type type, const std::string & field, const std::string & value);
@@ -76,6 +92,9 @@ namespace hpc
 
     virtual std::string readValue( const DataAccess::Interface::ProjectHandle * ) const ;
     virtual void writeValue( DataAccess::Interface::ProjectHandle *, const std::string & value) const ;
+
+    virtual bool isEqual(const Project3DParameter & other) const;
+    virtual void print( std::ostream & output) const;
 
   private:
 
@@ -97,6 +116,9 @@ namespace hpc
 
      virtual std::string readValue( const DataAccess::Interface::ProjectHandle * ) const ;
      virtual void writeValue( DataAccess::Interface::ProjectHandle *, const std::string & value) const ;
+
+     virtual bool isEqual(const Project3DParameter & other) const;
+     virtual void print( std::ostream & output) const;
 
   private:
      boost::shared_ptr< Project3DParameter > m_parameter;

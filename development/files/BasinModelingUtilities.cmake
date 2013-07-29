@@ -324,7 +324,7 @@ macro(add_gtest )
    # Add the Google Mock and Google Test include directories
    get_property(incdirs TARGET ${execName} PROPERTY INCLUDE_DIRECTORIES)
    set_target_properties( ${execName} 
-      PROPERTIES COMPILE_FLAGS "-Dprivate=public -Dprotected=public"
+      PROPERTIES 
                  INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS};${GMOCK_INCLUDE_DIRS};${incdirs}"
    )
 

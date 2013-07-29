@@ -58,7 +58,13 @@ public:
    { 
    public:
       explicit Configuration(const Path & configFile);
+      explicit Configuration( std::istream & configFile );
 
+      /// Returns the template script for a specific version
+      std::string getRunTemplate( const VersionID & version) const;
+
+      /// Returns the template script for a specific version and replaces the placeholders/markers
+      /// with their values.
       std::string getRunScript( const VersionID & version, 
             int numberOfProcessors, const std::vector<std::string> & mpiCmdLineParams,
             const std::string & inputProject, const std::string & outputProject,
@@ -66,28 +72,8 @@ public:
             ) const ;
 
    private:
-      Configuration();
-
       /// reads the configuration file
       void readTemplates(std::istream & );
-
-      /// Can tokenize one template in the configuration file
-      class Tokenizer
-      {
-      public:
-         Tokenizer(const std::string & text);
-
-         // returns the next token and next marker
-         void next( std::string & token, std::string & marker);
-
-         // returns true iff there are more tokens
-         bool hasMore() const;
-
-      private:
-         std::string m_text;
-         std::string::size_type m_posLeft, m_posRight; // position of (left or right side) of a marker 
-      };
-
 
       std::map< VersionID, std::string > m_runTemplates;
    };

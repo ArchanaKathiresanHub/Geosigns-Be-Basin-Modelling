@@ -7,6 +7,7 @@ include_directories(
 add_executable(benchmark
   tools/benchmark.C
   tools/fastcauldronenvironment.C
+  tools/FastCauldronEnvironmentConfigurationTokenizer.C
   tools/cmdlineparameter.C
   tools/project3dparameter.C
   tools/parameterdefinitions.C
@@ -53,11 +54,23 @@ bm_include_libraries(
       SerialDataAccess
 )
 
+add_gtest(
+   NAME    hpc::FastCauldronEnvironmentConfigurationTokenizer
+   SOURCES test/FastCauldronEnvironmentConfigurationTokenizer.C
+           tools/FastCauldronEnvironmentConfigurationTokenizer.C
+           tools/system.C
+   LIBRARIES
+           utilities
+           projectdependencies
+           DataAccess
+           SerialDataAccess
+)
 
 add_gtest(
    NAME    hpc::FastCauldronEnvironment
    SOURCES test/FastcauldronEnvironment.C
            tools/fastcauldronenvironment.C
+           tools/FastCauldronEnvironmentConfigurationTokenizer.C
            tools/system.C
    LIBRARIES
            utilities

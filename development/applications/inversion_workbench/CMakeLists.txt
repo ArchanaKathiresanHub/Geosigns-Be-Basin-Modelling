@@ -91,6 +91,8 @@ add_executable(cauldronexplorer
         src/system.C
         src/SurfaceTempProperty.C
         src/SurfaceTempParameter.C
+        src/ExperimentResultsTablePrinter.C
+        src/ExperimentResultsTable.C
 	${generator_source_files}
 )
 
@@ -153,6 +155,18 @@ add_gtest(NAME MultiDimRange
           SOURCES test/ScalarRange.C
 )
 
+add_gtest(NAME ExperimentResultsTablePrinter
+          SOURCES src/ExperimentResultsTablePrinter.C
+                  test/ExperimentResultsTablePrinter.C
+)
+
+add_gtest(NAME ExperimentResultsTable
+          SOURCES src/ExperimentResultsTable.C
+                  src/ExperimentResultsTablePrinter.C
+                  test/ExperimentResultsTable.C
+)
+
+
 add_gtest(NAME Experiment
           SOURCES test/Experiment.C
                   src/Scenario.C
@@ -162,6 +176,8 @@ add_gtest(NAME Experiment
                   src/ProjectResultsReader.C
                   src/system.C
                   src/Crust.C
+                  src/ExperimentResultsTablePrinter.C
+                  src/ExperimentResultsTable.C
           LIBRARIES
                    DataMining
                    Interpolation

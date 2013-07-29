@@ -6,7 +6,6 @@
 #include <iomanip>
 #include <algorithm>
 #include <memory>
-#include <tr1/tuple>
 
 #include "experiment.h"
 
@@ -17,6 +16,7 @@
 #include "projectdependencies.h"
 #include "formattingexception.h"
 #include "system.h"
+#include "ExperimentResultsTable.h"
 
 #include "Interface/ProjectHandle.h"
 
@@ -184,102 +184,17 @@ void Experiment :: runProjectSet( std::ostream * verboseOutput)
    }
 }
 
-void Experiment :: printField( bool first, std::ostream & output) const
-{
-   if (!first)
-      output << m_experimentInfo.getOutputTableFieldSeparator();
-
-   if (m_experimentInfo.getOutputTableFixedWidth() > 0)
-   {
-      output << std::setw( m_experimentInfo.getOutputTableFixedWidth() );
-
-      if (m_experimentInfo.getOutputTableFixedWidth() > 3)
-         output << std::setprecision(m_experimentInfo.getOutputTableFixedWidth() - 2);
-   }
-}
-
-void Experiment :: printTable( ResultsTable & table, std::ostream & ofs ) const
-{
-   // sort the entries on position, time, and probe number
-   // Note: the whole idea is to print entries with the same position and time on the same record
-   std::sort( table.begin(), table.end() );
-
-   // print labels
-   printField(true, ofs);
-   ofs << "X";
-   printField(false, ofs);
-   ofs << "Y";
-   printField(false, ofs);
-   ofs << "Z";
-   printField(false, ofs);
-   ofs << "Age";
-   for (unsigned j = 0; j < m_probes.size(); ++j)
-   {
-      printField(false, ofs);
-      ofs << m_probes[j].getName();
-   }
-
-   // print the entries
-   PositionAndTime prevPos;
-   ProbeID prevLabel = m_probes.size();
-   for (unsigned k = 0; k < table.size(); ++k)
-   {
-      using std::tr1::get;
-      const PositionAndTime pos = get<0>(table[k]);
-      const ProbeID label = get<1>(table[k]);
-      const double value = get<2>(table[k]);
-
-      if (k == 0 || pos != prevPos || label <  prevLabel )
-      {  
-         // finish the last one whenever the position changes or the labels don't increase
-         for (ProbeID l = prevLabel; l < m_probes.size(); ++l)
-         {
-            printField(false, ofs);
-            ofs << ' ';
-         }
-         ofs << '\n';
-
-         // and start a new record 
-         printField(true, ofs);
-         ofs << get<0>(pos);
-         printField(false, ofs);
-         ofs << get<1>(pos);
-         printField(false, ofs);
-         ofs << get<2>(pos);
-         printField(false, ofs);
-         ofs << get<3>(pos);
-
-         prevLabel = 0;
-      }
-
-      // print empty fields from the previous label up to the current label
-      for (ProbeID l = prevLabel; l < label; ++l)
-      {
-         printField(false, ofs);
-         ofs << ' ';
-      }
-
-      // print the value
-      printField(false, ofs);
-      ofs << value;
-
-      // remember next iteration the position and label we've printed now
-      prevPos = pos;
-      prevLabel = label + 1;
-   }
-
-   // end the last record
-   for (ProbeID l = prevLabel; l < m_probes.size(); ++l)
-   {
-      printField(false, ofs);
-      ofs << ' ';
-   }
-   ofs << '\n';
-}
 
 void Experiment :: collectResults() const
 {
-   ResultsTable table;
+   std::vector< std::string > probeNames(m_probes.size());
+   for (unsigned i = 0; i < m_probes.size(); ++i)
+      probeNames[i] = m_probes[i].getName();
+
+   ExperimentResultsTable table( probeNames,
+            m_experimentInfo.getOutputTableFieldSeparator(),
+            m_experimentInfo.getOutputTableFixedWidth() 
+         );
    std::vector< double > zs, values;
 
    for (unsigned i=0; i < m_scenarios.size(); ++i)
@@ -296,13 +211,17 @@ void Experiment :: collectResults() const
          assert( zs.size() == values.size() );
 
          for (unsigned k = 0; k < zs.size(); ++k)
-            table.push_back( Entry( PositionAndTime( x, y, zs[k], age), j, values[k]) );
+            table.add( ExperimentResultsTable::Entry( 
+                     ExperimentResultsTable::PositionAndTime( x, y, zs[k], age),
+                     j, 
+                     values[k]
+                     ) );
       }
 
       // output the table to file
       std::ofstream ofs( resultsFileName(i).c_str(), std::ios_base::out | std::ios_base::trunc );
       ofs << "# Results from project " << workingProjectFileName(i) << ":\n";
-      printTable( table, ofs );
+      table.print( ofs );
    }
 }
 
