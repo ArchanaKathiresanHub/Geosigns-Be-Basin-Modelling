@@ -10,6 +10,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!---------------- INFORMATION OF LINUX HOSTS TO BUILD ON ---------------->			
   <PropertyGroup Label="Identification">
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
@@ -24,7 +25,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">/scratch/$(AgentAccountAlt)/build</RemoteBuildDirAlt>
     
   </PropertyGroup>
- 
+
+  <!-- STANDARD UTILITIES -->
   <PropertyGroup Label="StandardUtilities" >
     <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('C:\cygwin\bin')" >C:\cygwin\bin\</cygwin_bin_dir>
     <cygwin_bin_dir  Condition="'$(cygwin_bin_dir)' == '' And Exists('D:\cygwin\bin')" >D:\cygwin\bin\</cygwin_bin_dir>
@@ -53,6 +55,52 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
   <PropertyGroup Label="Locations">
     <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
   </PropertyGroup>
+
+  <!------------------- JUNIT  --------------->
+  <!-- Import the PublishJUnit Task from Microsoft Team Foundation Build Extensions -->
+  <UsingTask Condition=" '$(TeamBuildExtensionsAssemblyFile)' != '' "
+             TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
+             AssemblyFile="$(TeamBuildExtensionsAssemblyFile)" />
+			 
+  <UsingTask Condition=" '$(TeamBuildExtensionsAssemblyFile)' == '' "
+             TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
+             AssemblyFile="$(TeamBuildExtensionsRefPath)\Microsoft.TeamFoundation.Build.Extensions.Tasks.dll"/>
+			 
+
+  <PropertyGroup>
+    <!-- Path to the stylesheet used to convert aggregated JUnit results into a Microsoft .trx file -->
+    <JUnitTrxConversionStyle Condition=" '$(JUnitTrxConversionStyle)'=='' and  '$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Net Framework Setup\NDP\V4\Client@TargetVersion)'=='4.0.0'">$(TeamBuildExtensionsRefPath)\xslt\tpaggregated_2010_trx.xslt</JUnitTrxConversionStyle>
+    <JUnitTrxConversionStyle Condition=" '$(JUnitTrxConversionStyle)'=='' ">$(TeamBuildExtensionsRefPath)\xslt\tpaggregated_trx.xslt</JUnitTrxConversionStyle>
+	
+	<TestResultsRoot>$(BinariesRoot)\TestResults</TestResultsRoot>
+  </PropertyGroup>  
+  
+  <Target Name="PublishJUnitFromLinux">
+
+    <!-- Make a directory to store JUnit results and other temporary files in -->
+    <MakeDir Condition="!Exists('$(TestResultsRoot)')" Directories="$(TestResultsRoot)" />
+	
+	<!-- Copy the JUnit results -->
+	<Exec Command="$(scp_command) $(AgentAccountAlt)@$(AgentHost):$(RemoteBuildDirAlt)/*-junit.xml $(TestResultsRoot)"/>
+
+	<ItemGroup>
+      <JUnitLogFiles Include="$(TestResultsRoot)\*-junit.xml" />
+    </ItemGroup>
+
+	<Warning Condition=" '@(JUnitLogFiles)' == '' " Text="There are no Unit Test results to upload"/>
+	
+	<!-- Publish the results -->
+    <PublishJUnit Condition=" '@(JUnitLogFiles)' != '' "
+                  BuildUri="$(BuildUri)"
+                  Files="@(JUnitLogFiles)"
+                  Flavor="$(Configuration)"
+                  Platform="$(Platform)"
+                  Style="$(JUnitTrxConversionStyle)"
+                  TeamProjectCollectionUrl="$(TfsServerUrl)"
+                  TestResultsRoot="$(TestResultsRoot)" />
+  </Target>
+	
+	
   
   <Target Name="DisplayStandardVariables">
     <Message Text="TeamProject=$(TeamProject)"/>

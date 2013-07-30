@@ -329,7 +329,7 @@ macro(add_gtest )
    )
 
    # Add the test to the CTest test  collection.
-   add_test(${testName} ${execName})
+   add_test(${testName} ${execName}  "--gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-junit.xml")
 endmacro(add_gtest)
 
 # Local Variables:
