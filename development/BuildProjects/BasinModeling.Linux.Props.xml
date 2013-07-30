@@ -100,7 +100,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
                   Flavor="$(Configuration)"
                   Platform="$(Platform)"
                   Style="$(JUnitTrxConversionStyle)"
-                  TeamProjectCollectionUrl="$(TfsServerUrl)"
+                  TeamProjectCollectionUrl="$(TeamFoundationServerUrl)"
                   TestResultsRoot="$(TestResultsRoot)" />
   </Target>
 	
