@@ -47,7 +47,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
          The 'y' answers yes to the question whether or not to trust the new host
      -->
     <scp_command>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKey)"</scp_command>
-
+    <scp_command_alt>echo y | $(putty_dir)\PSCP.EXE -i "$(AgentKeyAlt)"</scp_command_alt>
+	
     <printenv>cmd /c set</printenv>
 
   </PropertyGroup>
@@ -81,7 +82,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <MakeDir Condition="!Exists('$(TestResultsRoot)')" Directories="$(TestResultsRoot)" />
 	
 	<!-- Copy the JUnit results -->
-	<Exec Command="$(scp_command) $(AgentAccountAlt)@$(AgentHost):$(RemoteBuildDirAlt)/*-junit.xml $(TestResultsRoot)"/>
+	<Exec Command="$(scp_command_alt) $(AgentAccountAlt)@$(AgentHost):$(RemoteBuildDirAlt)/*-junit.xml $(TestResultsRoot)"/>
 
 	<ItemGroup>
       <JUnitLogFiles Include="$(TestResultsRoot)\*-junit.xml" />
