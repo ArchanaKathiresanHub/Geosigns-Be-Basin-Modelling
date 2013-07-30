@@ -69,7 +69,10 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 			 
 
   <PropertyGroup>
-    <!-- Path to the stylesheet used to convert aggregated JUnit results into a Microsoft .trx file -->
+    <!-- Defines the root path for locating assemblies and targets for the TFS Build extensions. -->
+    <TeamBuildExtensionsRefPath Condition=" '$(TeamBuildExtensionsRefPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\BuildExtensions</TeamBuildExtensionsRefPath>
+	
+	<!-- Path to the stylesheet used to convert aggregated JUnit results into a Microsoft .trx file -->
     <JUnitTrxConversionStyle Condition=" '$(JUnitTrxConversionStyle)'=='' and  '$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Net Framework Setup\NDP\V4\Client@TargetVersion)'=='4.0.0'">$(TeamBuildExtensionsRefPath)\xslt\tpaggregated_2010_trx.xslt</JUnitTrxConversionStyle>
     <JUnitTrxConversionStyle Condition=" '$(JUnitTrxConversionStyle)'=='' ">$(TeamBuildExtensionsRefPath)\xslt\tpaggregated_trx.xslt</JUnitTrxConversionStyle>
 	
