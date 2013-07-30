@@ -10,7 +10,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <!---------------- INFORMATION OF LINUX HOSTS TO BUILD ON ---------------->			
+  <!--  INFORMATION OF LINUX HOSTS TO BUILD ON -->			
   <PropertyGroup Label="Identification">
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
@@ -56,7 +56,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
   </PropertyGroup>
 
-  <!------------------- JUNIT  --------------->
+  <!-- JUNIT  -->
   <!-- Import the PublishJUnit Task from Microsoft Team Foundation Build Extensions -->
   <UsingTask Condition=" '$(TeamBuildExtensionsAssemblyFile)' != '' "
              TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
