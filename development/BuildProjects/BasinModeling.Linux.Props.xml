@@ -59,6 +59,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
   <!-- JUNIT  -->
   <!-- Import the PublishJUnit Task from Microsoft Team Foundation Build Extensions -->
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\TeamBuild\Microsoft.TeamFoundation.Build.targets" />
+  
   <UsingTask Condition=" '$(TeamBuildExtensionsAssemblyFile)' != '' "
              TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
              AssemblyFile="$(TeamBuildExtensionsAssemblyFile)" />
