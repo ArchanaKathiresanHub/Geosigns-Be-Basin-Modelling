@@ -57,10 +57,9 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
   </PropertyGroup>
 
-  <!-- JUNIT  -->
-  <!-- Import the PublishJUnit Task from Microsoft Team Foundation Build Extensions -->
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\TeamBuild\Microsoft.TeamFoundation.Build.targets" />
-  
+  <!-- PUBLISHING JUNIT TEST RESULTS -->
+  <!-- The stuff below is copied from Microsoft.TeamFoundation.Build.Extensions.Ant.targets that comes with the
+       Visual Studio Team Foundation Server 2012 Update 2 Build Extensions add-on -->
   <UsingTask Condition=" '$(TeamBuildExtensionsAssemblyFile)' != '' "
              TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
              AssemblyFile="$(TeamBuildExtensionsAssemblyFile)" />
@@ -68,14 +67,6 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
   <UsingTask Condition=" '$(TeamBuildExtensionsAssemblyFile)' == '' "
              TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
              AssemblyFile="$(TeamBuildExtensionsRefPath)\Microsoft.TeamFoundation.Build.Extensions.Tasks.dll"/>
-
-  <UsingTask Condition=" '$(TeamBuildAssemblyFile)' != '' "
-             TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
-             AssemblyFile="$(TeamBuildAssemblyFile)" />
-			 
-  <UsingTask Condition=" '$(TeamBuildAssemblyFile)' == '' "
-             TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
-             AssemblyFile="$(TeamBuildRefPath)\Microsoft.TeamFoundation.Build.ProcessComponents.dll" />			 
 
   <PropertyGroup>
     <!-- Defines the root path for locating assemblies and targets for the TFS Build extensions. -->
@@ -110,7 +101,20 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
                   Platform="$(Platform)"
                   Style="$(JUnitTrxConversionStyle)"
                   TeamProjectCollectionUrl="$(TeamFoundationServerUrl)"
-                  TestResultsRoot="$(TestResultsRoot)" />
+                  TestResultsRoot="$(TestResultsRoot)">
+	<!-- This Task comes from the Visual Studio Team Foundation Server 2012 Update 2 Build Extensions 
+	     (see http://visualstudiogallery.msdn.microsoft.com/45b4e378-5b81-4186-9b7f-21cc5c2f743d)
+		 which must be installed on the Build Server. I think this package is supposed to be used 
+		 combination with the "Upgrade Template" / TFSBuild.proj. Therefore it has a dependency on 
+		 the assembly Microsoft.TeamFoundation.Build.ProcessComponents.dll (v10.0). However, probably 
+		 because we don't use the "Upgrade Template", this assembly cannot be found automatically. 
+		 See http://msdn.microsoft.com/en-us/library/yx7xezcf.aspx for more information about "assembly binding".
+		 Therefore, if MSBuild complains about not finding a reference to ProcessComponents assembly, the 
+		 solution is to just copy the Microsoft.TeamFoundation.Build.ProcessComponents.dll to 
+		 the same directory as where the Microsoft.TeamFoundation.Build.Extensions.Tasks.dll is located.
+		 (see http://stackoverflow.com/questions/690432/how-to-solve-custom-msbuild-task-requires-assembly-outside-of-appbase )
+	-->
+	</PublishJUnit>
   </Target>
 	
 	
