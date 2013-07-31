@@ -68,7 +68,14 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
   <UsingTask Condition=" '$(TeamBuildExtensionsAssemblyFile)' == '' "
              TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
              AssemblyFile="$(TeamBuildExtensionsRefPath)\Microsoft.TeamFoundation.Build.Extensions.Tasks.dll"/>
+
+  <UsingTask Condition=" '$(TeamBuildAssemblyFile)' != '' "
+             TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
+             AssemblyFile="$(TeamBuildAssemblyFile)" />
 			 
+  <UsingTask Condition=" '$(TeamBuildAssemblyFile)' == '' "
+             TaskName="Microsoft.TeamFoundation.Build.Extensions.Tasks.PublishJUnit"
+             AssemblyFile="$(TeamBuildRefPath)\Microsoft.TeamFoundation.Build.ProcessComponents.dll" />			 
 
   <PropertyGroup>
     <!-- Defines the root path for locating assemblies and targets for the TFS Build extensions. -->
