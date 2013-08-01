@@ -138,6 +138,7 @@ double GeoPhysics::FluidType::getLiquidusTemperature ( const double temperature,
     // return ( - 0.073 * pressure - 0.064 * salinityConcentration ( temperature, pressure ));
   
    return ( - m_pressureTerm * pressure - m_salinityTerm * salinityConcentration ( temperature, pressure ));
+
 }
     
 double GeoPhysics::FluidType::getSolidusTemperature ( const double liquidusTemperature ) const {
@@ -506,7 +507,7 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
       if( temperature >= liquidusTemperature ) {
          return 1.0;
       } else if( temperature <= solidusTemperature ) {
-         return 10.0e-6;
+         return 10.0e-7;
       } else {
          if( solidusTemperature != 0.0 ) {
             return ( - 0.99999 / ( solidusTemperature - liquidusTemperature )) * ( temperature - liquidusTemperature ) + 1.0;
