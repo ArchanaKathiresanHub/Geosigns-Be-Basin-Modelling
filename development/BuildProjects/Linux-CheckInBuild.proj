@@ -1,33 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup>
+ <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+	<Deploy Condition=" '$(Deploy)' == '' ">False</Deploy>
+	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
 
-  <PropertyGroup>
-    
-    <!-- Clear remote build directory. Ensure existence of remote source directory -->
-    <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</init_remote_dirs>
-	
-	  <!-- Copy source with rsync -->
-    <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>
-    <copy_code>cd /d "$(solution_root)" &amp;&amp; $(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
-
-    <!-- Execute remote build script -->
-    <script_to_build>development/BuildProjects/Linux-CheckInBuild.sh</script_to_build>
-    <execute_script>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_to_build)"</execute_script>
-  </PropertyGroup>
-
-  <Target Name="Build" DependsOnTargets="DisplayStandardVariables">
-    <Message Text="Initialize directories on Shell Linux"/>
-    <Exec Command="$(init_remote_dirs)" />
-	<Message Text="Copying source to Shell Linux"/>
-	<Exec Command="$(copy_code)" />
-	<Message Text="Executing build script on Shell Linux"/>
-    <Exec Command="$(execute_script)" />
- </Target>
+  <Target Name="Build">
+    <CallTarget Targets="BuildOnLinux" ContinueOnError="true" />
+    <CallTarget Targets="PublishJUnitFromLinux" ContinueOnError="true"/>
+  </Target>  
+  
 </Project>

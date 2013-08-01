@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Exit immediately after a command exits with non-zero value
 set -e
 
 # Reading parameters
@@ -12,6 +13,7 @@ nprocs=${NUMBER_OF_CORES:-8}
 version_number_major=${VERSION_NUMBER_MAJOR:-2013}
 version_number_minor=${VERSION_NUMBER_MINOR:-01}
 version_tag=${VERSION_TAG:-nightly}
+deploy=${DEPLOY:-True}
 
 # set UMASK
 umask 0002
@@ -27,8 +29,8 @@ popd
 
 # Standard applications
 SVN=/glb/home/ksaho3/bin.Linux/svn
-CMAKE=/apps/3rdparty/share/cmake
-CTEST=/apps/3rdparty/share/ctest
+CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/cmake
+CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/ctest
 
 # Build applications
 echo Building Cauldron applications
@@ -43,7 +45,7 @@ ${src}/development/bootstrap.csh \
 
 csh -x <<EOF
 source envsetup.csh 
-make -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
+make -k -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
 ${CTEST} || ( echo error: One or more unit tests have failed; exit 1; ) || exit 1
 
 if ( ${configuration} =~ [Dd]ebug ) then
@@ -52,7 +54,6 @@ else
    make install/strip || ( echo error: Installation has failed; exit 1 ;) || exit 1
 endif
 EOF
-
 
 # Import (legacy) Geocase
 echo Building Cauldron Geocase applications
@@ -72,8 +73,13 @@ make install/strip
 popd
 
 # Install
-echo "Rotate installations"
-csh -x ./MoveInstalls.csh || { echo error: Deployment has failed; exit 1 ; }
-echo "Install fresh binaries"
-csh -x ./InstallAll.csh || { echo error: Deployment has failed; exit 1 ; }
+if [ x$deploy = xTrue ]; then
+   echo "Rotate installations"
+   csh -x ./MoveInstalls.csh || { echo error: Deployment has failed; exit 1 ; }
+   echo "Install fresh binaries"
+   csh -x ./InstallAll.csh || { echo error: Deployment has failed; exit 1 ; }
+else
+   echo Application deployement has not been requested.
+fi 
+  
 popd
