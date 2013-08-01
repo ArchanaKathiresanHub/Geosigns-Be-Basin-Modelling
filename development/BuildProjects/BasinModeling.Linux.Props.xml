@@ -66,6 +66,9 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
   </PropertyGroup>
   
   <PropertyGroup>
+  
+    <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
+	
     <!-- Clear remote build directory. Ensure existence of remote source directory -->
     <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</init_remote_dirs>
 
@@ -89,10 +92,6 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <Exec Command="$(deploy_to_houston)" Condition=" '$(DeployToHouston)' == 'True' "/>
   </Target>
  
-  <PropertyGroup Label="Locations">
-    <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
-  </PropertyGroup>
-
   <!-- PUBLISHING JUNIT TEST RESULTS -->
   <!-- The stuff below is copied from Microsoft.TeamFoundation.Build.Extensions.Ant.targets that comes with the
        Visual Studio Team Foundation Server 2012 Update 2 Build Extensions add-on -->
