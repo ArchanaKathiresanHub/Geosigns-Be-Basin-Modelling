@@ -532,13 +532,15 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::solvePressure"
 
 void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
-                                                bool& errorInDarcy ) {
+                                                bool& errorInDarcy,
+                                                bool& geometryHasConverged ) {
 
   int    Maximum_Number_Of_Geometric_Iterations;
   int    Number_Of_Geometric_Iterations = 1;
   bool   Geometry_Has_Converged;
   bool   overpressureHasDiverged;
 
+  geometryHasConverged = true;
   basinModel->initialiseTimeIOTable ( OverpressureRunStatusStr );
 
   Maximum_Number_Of_Geometric_Iterations = basinModel->MaxNumberOfRunOverpressure;
@@ -623,12 +625,13 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     }
 
     if ( Number_Of_Geometric_Iterations > Maximum_Number_Of_Geometric_Iterations && ! Geometry_Has_Converged ) {
-      PetscPrintf ( PETSC_COMM_WORLD,
-                    "MeSsAgE WARNING Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
-                    Maximum_Number_Of_Geometric_Iterations );
+       geometryHasConverged = false;
+       PetscPrintf ( PETSC_COMM_WORLD,
+                     "MeSsAgE WARNING Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
+                     Maximum_Number_Of_Geometric_Iterations );
       
-      PetscPrintf ( PETSC_COMM_WORLD,
-                    "MeSsAgE WARNING Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
+       PetscPrintf ( PETSC_COMM_WORLD,
+                     "MeSsAgE WARNING Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
     }
 
   }
@@ -718,13 +721,15 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::solveCoupled"
 
 void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
-                                               bool& errorInDarcy ) {
+                                               bool& errorInDarcy,
+                                               bool& geometryHasConverged ) {
 
   int    Maximum_Number_Of_Geometric_Iterations;
   int    Number_Of_Geometric_Iterations = 1;
   bool   Geometry_Has_Converged;
   bool   overpressureHasDiverged;
 
+  geometryHasConverged = true;
   basinModel->initialiseTimeIOTable ( CoupledPressureTemperatureRunStatusStr );
 
   Maximum_Number_Of_Geometric_Iterations = basinModel->MaxNumberOfRunOverpressure;
@@ -825,12 +830,13 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     }
 
     if ( Number_Of_Geometric_Iterations > Maximum_Number_Of_Geometric_Iterations && ! Geometry_Has_Converged ) {
-      PetscPrintf ( PETSC_COMM_WORLD,
-                    "MeSsAgE WARNING Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
-                    Maximum_Number_Of_Geometric_Iterations );
+       geometryHasConverged = false;
+       PetscPrintf ( PETSC_COMM_WORLD,
+                     "MeSsAgE WARNING Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
+                     Maximum_Number_Of_Geometric_Iterations );
 
-      PetscPrintf ( PETSC_COMM_WORLD,
-                    "MeSsAgE WARNING Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
+       PetscPrintf ( PETSC_COMM_WORLD,
+                     "MeSsAgE WARNING Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
     }
 
   }

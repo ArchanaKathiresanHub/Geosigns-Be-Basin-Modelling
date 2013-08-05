@@ -43,7 +43,8 @@ namespace Basin_Modelling {
      /// Solves the pressure equation for either geometric or non-geometric loop
      /// over the entire history of the basin specified in the project file.
      void solvePressure ( bool& solverHasConverged,
-                          bool& errorInDarcy );
+                          bool& errorInDarcy,
+                          bool& geometryHasConverged );
 
      /// \brief Solve for the temperature only.
      ///
@@ -58,7 +59,8 @@ namespace Basin_Modelling {
      /// entire history of the basin specified in the project file.
      /// The pressure can be either geometric or non-geometric loop.
      void solveCoupled ( bool& solverHasConverged,
-                         bool& errorInDarcy );
+                         bool& errorInDarcy,
+                         bool& geometryHasConverged );
 
      //----------------------------//
 

@@ -352,6 +352,17 @@ const string CoupledDarcyRunStatusStr = "CoupledDarcy";
 
 //------------------------------------------------------------//
 
+/// \name Exit status values
+/// @{
+
+/// \var GeometricLoopNonConvergence
+/// \brief If the input layer thicknesses do not converge in the geometric loop pressure/coupled simulation then return this error value.
+const int GeometricLoopNonConvergenceExitStatus = 2;
+
+/// @}
+
+//------------------------------------------------------------//
+
 /// \name Unit test data
 /// @{
 

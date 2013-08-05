@@ -8,6 +8,7 @@
 #include "readproperties.h"
 #include "System.h"
 #include "Quadrature.h"
+#include "globaldefs.h"
 
 #include "AllochthonousLithologyManager.h"
 #include "HydraulicFracturingManager.h"
@@ -77,6 +78,8 @@ int main(int argc, char** argv)
    int returnStatus = 0;
    bool solverHasConverged;
    bool errorInDarcy;
+   bool geometryHasConverged;
+
 
    // Initialise Petsc and get rank & size of MPI
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
@@ -292,6 +295,7 @@ int main(int argc, char** argv)
 
    solverHasConverged = true;
    errorInDarcy = false;
+   geometryHasConverged = true;
 
 #if 0
    if ( appctx->getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE or
@@ -337,7 +341,7 @@ int main(int argc, char** argv)
      Basin_Modelling::FEM_Grid basin ( appctx );
 
      // Do Pressure Calculation
-     basin.solvePressure ( solverHasConverged, errorInDarcy );
+     basin.solvePressure ( solverHasConverged, errorInDarcy, geometryHasConverged );
    }
 
    if ( appctx->DoTemperature && ! appctx -> Do_Iteratively_Coupled ) {
@@ -350,7 +354,7 @@ int main(int argc, char** argv)
    if ( appctx -> Do_Iteratively_Coupled ) {
      Basin_Modelling::FEM_Grid basin ( appctx );
      // Do Coupled Calculation
-     basin.solveCoupled ( solverHasConverged, errorInDarcy );
+     basin.solveCoupled ( solverHasConverged, errorInDarcy, geometryHasConverged );
    }
 
    if ( appctx->integrateGenexEquations ()) {
@@ -365,6 +369,8 @@ int main(int argc, char** argv)
 
    if (( not appctx->saveOnDarcyError () and errorInDarcy ) or not solverHasConverged ) {
      returnStatus = 1;
+   } else if ( not geometryHasConverged ) {
+     returnStatus = GeometricLoopNonConvergenceExitStatus;
    } else {
      returnStatus = 0;
    }
