@@ -14,6 +14,7 @@ InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, databas
    m_HLMuMap = 0;
    m_HBuMap  = 0;
    m_DeltaSLMap = 0;
+   m_smoothRadius = 0;
 
    m_baseRiftSurfaceName = "";
 } 
@@ -73,8 +74,6 @@ void InterfaceInput::clean() {
    m_WLS_crit = 0;
    m_WLS_onset = 0;
    m_WLS_exhume_serp = 0;  
-
-   m_densityDiff = 0;
 }
 //------------------------------------------------------------//
 void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) {
@@ -91,6 +90,7 @@ void InterfaceInput::loadInputData() {
    m_HBuMap  = getMap (Interface::HBu);
    m_DeltaSLMap = getMap (Interface::DeltaSL);
    m_baseRiftSurfaceName = getSurfaceName();
+   m_smoothRadius = getFilterHalfWidth();
    //cout << "Base of Rift = " << m_baseRiftSurfaceName << endl;
 }
 //------------------------------------------------------------//
@@ -270,12 +270,6 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
       theTokens.clear();
    }
 
-   if( m_backstrippingMantleDensity - m_waterDensity != 0 ) {
-      m_densityDiff = 1.0 / ( m_backstrippingMantleDensity - m_waterDensity );
-   } else {
-      string s = "BackstrippingMantleDensity = WaterDensity.";
-      throw s;
-   }
 }
 
 //------------------------------------------------------------//
@@ -554,14 +548,14 @@ void parseLine(const string &theString, const string &theDelimiter, vector<strin
 }
 
 //------------------------------------------------------------//
-void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &HLMEmax ) {
+void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &NLMEmax ) {
 
    string line;
    vector<string> theTokens;
    string delim = ",";
  
    HLmin = 100000.0;
-   HLMEmax = 100;
+   NLMEmax = 100;
    
    size_t firstNotSpace;
       
@@ -573,7 +567,8 @@ void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &HLMEmax
          
          if( line[firstNotSpace] != '#' ) {
             
-            if( line == CrustalThicknessInterface::TableLithoAndCrustProperties || line.find( CrustalThicknessInterface::TableLithoAndCrustProperties, 0) != string::npos ) {
+            if( line == CrustalThicknessInterface::TableLithoAndCrustProperties || 
+                line.find( CrustalThicknessInterface::TableLithoAndCrustProperties, 0) != string::npos ) {
                for(;;) {
                   getline (ConfigurationFile, line, '\n');
         
@@ -586,8 +581,9 @@ void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &HLMEmax
                   if( theTokens.size() == 2 ) {
                      if( theTokens[0] == CrustalThicknessInterface::lithosphereThicknessMin ) {
                         HLmin = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElements ) {
-                        HLMEmax = atoi( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElements ||
+                                theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElementsOld ) {
+                        NLMEmax = atoi( theTokens[1].c_str() );
                      }
                      
                   } else {

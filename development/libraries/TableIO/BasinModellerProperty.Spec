@@ -8531,6 +8531,15 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
+    Identification      : FilterHalfWidth
+    Description         : Half of the filter width for spatial smoothing of WLS
+    Type                : integer
+    Unit of measurement : 
+    Default             : 10
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
 #### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties 
 
     Identification      : Moho
@@ -9286,8 +9295,9 @@ START-property-tables
     Column         : HBuGrid
     Column         : DeltaSL
     Column         : DeltaSLGrid
+    Column	   : FilterHalfWidth
     Header         : Crustal Thickness Calculator input data  
-    Time dependent : No
+    Time dependent : No 
     Property I/O   : Yes
 
 # Boundary condition data -------------------------------------------------

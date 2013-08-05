@@ -40,12 +40,15 @@ public:
    void setValuesToMaps( unsigned int indI, unsigned int indJ );
    
    void setAllMapsUndefined( unsigned int indI, unsigned int indJ );   
+   bool updateIsoBathymetryMaps ( ProjectHandle * pHandle, std::vector<double> &snapshotsList );
 
    double getMapValue( outputMaps mapIndex, unsigned int i, unsigned int j ) const; 
    bool   getOutputMask( outputMaps mapIndex ) const; 
    void   deleteOutputMap( outputMaps mapIndex );
-   bool createSnapShotOutputMaps( ProjectHandle * pHandle, const Snapshot* theSnapshot );
-   GridMap * createSnapshotResultPropertyValueMap ( ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot );
+   bool   createSnapShotOutputMaps( ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface  = 0 );
+
+   GridMap * createSnapshotResultPropertyValueMap ( ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot, 
+                                                    const Interface::Surface *theSurface = 0 );
  
    void retrieveData();
    void restoreData();
@@ -55,8 +58,9 @@ public:
    // Return the map
    GridMap * getMap( const outputMaps &mapInd );
 
+   void debugOutput( ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot );
 private:
-   
+
    GridMap * m_outputMaps[numberOfOutputMaps];
    bool m_outputMapsMask[numberOfOutputMaps];
    double m_outputValues[numberOfOutputMaps];
@@ -75,6 +79,7 @@ inline void InterfaceOutput::setMapValue(outputMaps mapIndex, unsigned int i, un
       // throw ss.str();
    }
 }
+
 inline double InterfaceOutput::getMapValue(outputMaps mapIndex, unsigned int i, unsigned int j) const
 {
 

@@ -416,10 +416,9 @@ namespace GeoPhysics {
       /// ALC bottom boundary conditions mode
       bool m_isALCMode;   
       BasementLithologyProps *m_basementLithoProps;
-      double m_minimumLithosphereThickness; // defined in configuration file
-      int    m_maximumNumberOfMantleElements; // defined in configuration file
-      double m_constrainedBasaltTemperature; // defined in configuration file
-
+      double m_minimumLithosphereThickness;   // (m) defined in configuration file
+      int    m_maximumNumberOfMantleElements; //     defined in configuration file
+      double m_constrainedBasaltTemperature;  // (C) defined in configuration file
    }; 
 
 }

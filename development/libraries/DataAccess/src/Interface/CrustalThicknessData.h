@@ -29,6 +29,8 @@ namespace DataAccess
             virtual const double & getHBu(void) const;
             /// Return the Sealevel adjustment
             virtual const double & getDeltaSL(void) const;
+            /// Return the Filter width (half)
+            virtual const int & getFilterHalfWidth(void) const;
             /// Return the name of a base of syn-rift 
             virtual const string & getSurfaceName(void) const;
 

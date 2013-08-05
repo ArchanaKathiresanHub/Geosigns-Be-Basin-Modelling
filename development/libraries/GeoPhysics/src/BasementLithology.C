@@ -511,9 +511,8 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
                      if( theTokens[0] == CrustalThicknessInterface::lithosphereThicknessMin ) {
                         m_HLmin = atof( theTokens[1].c_str() );
                      } else if( theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElements ) {
-                        m_HLMEmax = atoi( theTokens[1].c_str() );
-                     }
-                     
+                        m_NLMEmax = atoi( theTokens[1].c_str() );
+                     }                     
                   } else {
                      theTokens.clear();
                      string s = "More or less arguments than expected.";
@@ -678,8 +677,7 @@ void BasementLithologyProps::clean() {
    m_bHeat = 0;
 
    m_HLmin = 0;
-   m_HLMEmax = 0;
-
+   m_NLMEmax = 0;
 }
 //------------------------------------------------------------//
 BasementLithologyProps& BasementLithologyProps::operator=( const BasementLithologyProps& aBP ) {
@@ -700,7 +698,7 @@ BasementLithologyProps& BasementLithologyProps::operator=( const BasementLitholo
    m_bHeat = aBP.m_bHeat;
    
    m_HLmin = aBP.m_HLmin;
-   m_HLMEmax = aBP.m_HLMEmax;
-   
+   m_NLMEmax = aBP.m_NLMEmax;
+
    return * this;
 }

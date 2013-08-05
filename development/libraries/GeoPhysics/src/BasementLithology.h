@@ -30,7 +30,7 @@ public:
    double m_bHeat;
 
    double m_HLmin;
-   double m_HLMEmax;
+   double m_NLMEmax;
 
    BasementLithologyProps& operator=( const BasementLithologyProps& newBP );
    bool loadConfigurationFile(ifstream &ConfigurationFile );

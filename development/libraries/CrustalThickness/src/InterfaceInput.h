@@ -70,7 +70,8 @@ namespace CrustalThicknessInterface {
    const string T = "T";
    const string decayConstant = "decayConstant";
    const string lithosphereThicknessMin = "HLmin";
-   const string maxNumberOfMantleElements = "HLMEmax";
+   const string maxNumberOfMantleElements = "NLMEmax";
+   const string maxNumberOfMantleElementsOld = "HLMEmax";
    const string Heat = "Heat";
    const string Rho  = "Rho";
 
@@ -138,6 +139,7 @@ private:
    const GridMap * m_HBuMap;
    const GridMap * m_DeltaSLMap;
 
+   int    m_smoothRadius;
    string m_baseRiftSurfaceName; 
    //-------------   
    double m_modelCrustDensity;
@@ -150,8 +152,6 @@ private:
    double m_WLS_crit;
    double m_WLS_exhume;
    double m_WLS_exhume_serp;
-
-   double m_densityDiff;
 
    void clean();
    
@@ -167,11 +167,13 @@ public:
    void LoadMagmaLayer( ifstream &ConfigurationFile );
    void LoadUserDefinedData( ifstream &ConfigurationFile );
 
+   int    getSmoothRadius() const;
    double getMidAge() const;
    double getDensityDifference() const;
    double getInitialCrustThickness() const;
    double getInitialLithosphereThickness() const;
    double getBackstrippingMantleDensity() const;
+   double getWaterDensity() const;
    double getEstimatedCrustDensity() const;
    double getTFOnset() const;
    double getTFOnsetLin() const;
@@ -193,8 +195,40 @@ public:
    unsigned firstJ() const;
    unsigned lastI() const;
    unsigned lastJ() const;
+
+   double getInitialSubsidence() const { return m_initialSubsidenceMax; }
+
+   const GridMap* getT0Map() const;
+   const GridMap* getTRMap() const;
+   const GridMap* getHCuMap() const;
+   const GridMap* getHLMuMap() const;
+   const GridMap* getDeltaSLMap() const;
 };
 
+
+inline const GridMap* InterfaceInput::getT0Map() const {
+   return m_T0Map;
+}
+
+inline const GridMap* InterfaceInput::getTRMap() const {
+   return m_TRMap;
+}
+
+inline const GridMap* InterfaceInput::getHCuMap() const {
+   return m_HCuMap;
+}
+
+inline const GridMap* InterfaceInput::getHLMuMap() const {
+   return m_HLMuMap;
+}
+
+inline const GridMap* InterfaceInput::getDeltaSLMap() const {
+   return m_DeltaSLMap;
+}
+
+inline int InterfaceInput::getSmoothRadius() const {
+   return m_smoothRadius;
+}
 
 inline double InterfaceInput::getDeltaSLValue( unsigned int i, unsigned int j ) const {
    
@@ -209,10 +243,6 @@ inline double InterfaceInput::getMidAge() const {
    return (m_t_r + m_t_0) / 2;
 }
 
-inline double InterfaceInput::getDensityDifference() const {
-
-   return m_densityDiff;
-}
 inline double InterfaceInput::getInitialCrustThickness() const {
    
    return m_initialCrustThickness;
@@ -226,6 +256,11 @@ inline double InterfaceInput::getInitialLithosphereThickness() const {
 inline double InterfaceInput::getBackstrippingMantleDensity() const {
    
    return m_backstrippingMantleDensity;
+}
+
+inline double InterfaceInput::getWaterDensity() const {
+   
+   return m_waterDensity;
 }
 
 inline double InterfaceInput::getEstimatedCrustDensity() const {

@@ -2634,9 +2634,9 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       //     CrustalThicknessInterface::LoadALCParameters( ConfigurationFile, 
       //                                            m_minimumLithosphereThickness, m_maximumNumberOfMantleElements );
       m_minimumLithosphereThickness   = m_basementLithoProps->m_HLmin;
-      m_maximumNumberOfMantleElements = m_basementLithoProps->m_HLMEmax;
+      m_maximumNumberOfMantleElements = m_basementLithoProps->m_NLMEmax;
       m_constrainedBasaltTemperature  = m_basementLithoProps->m_bT;
-       
+
       ConfigurationFile.close();
       return true;
    }

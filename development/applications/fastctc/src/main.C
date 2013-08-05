@@ -137,6 +137,9 @@ int main (int argc, char ** argv)
       return -1;
    }
 
+   PetscBool upgradeOnly = PETSC_FALSE;
+   PetscOptionsHasName (PETSC_NULL, "-upgrade", &upgradeOnly);
+
    const int lineSize = 128;
    char inputFileName[lineSize];
    inputFileName[0] = '\0';
@@ -161,19 +164,22 @@ int main (int argc, char ** argv)
       return -1;
    };
    
-   try {
-      CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
-
-      CrustalThicknessCalculator::getInstance().run();
-
-   } catch ( std::string& s ) {
-      finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
-      return 0;
-   }
-
-   catch (...) {
-      finaliseCrustalThicknessCalculator(feature, "", factory);
-      return 0;
+   if( !upgradeOnly ) {
+      try {
+         CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
+         
+         CrustalThicknessCalculator::getInstance().run();
+         
+      } catch ( std::string& s ) {
+         finaliseCrustalThicknessCalculator(feature, s.c_str(), factory);
+         return 0;
+      }
+      catch (...) {
+         finaliseCrustalThicknessCalculator(feature, "", factory);
+         return 0;
+      }
+   } else {
+      cout << "Upgrade only" << endl;
    }
 
 
