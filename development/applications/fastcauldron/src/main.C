@@ -32,7 +32,7 @@
 #undef FLEXLM
 #endif
 
-// #define FLEXLM  1
+#define FLEXLM  1
 
 #ifdef FLEXLM
 // FlexLM license handling
