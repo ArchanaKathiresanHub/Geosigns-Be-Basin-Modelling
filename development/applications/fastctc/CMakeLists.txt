@@ -12,6 +12,7 @@ bm_include_libraries(
 	DistributedDataAccess
 	TableIO
 	CBMGenerics
+	GeoPhysics
 	Serial_Hdf5
 	Parallel_Hdf5
 	utilities
@@ -35,6 +36,7 @@ target_link_libraries(fastctc
 	DistributedDataAccess
 	TableIO
 	CBMGenerics
+	GeoPhysics
 	Serial_Hdf5
 	Parallel_Hdf5
 	utilities
