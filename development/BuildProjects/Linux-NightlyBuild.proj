@@ -9,6 +9,7 @@
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
 	<OtherCMakeParams Condition=" '$(OtherCMakeParams)' == '' "></OtherCMakeParams>
 	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">True</DeployToHouston>
+	<Deploy Condition=" '$(Deploy)' == '' ">True</Deploy>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
