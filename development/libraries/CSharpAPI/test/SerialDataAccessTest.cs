@@ -35,7 +35,7 @@ namespace BasinModelingLinkTest
 
             // Get all possible properties
             PropertyList properties = projectHandle.getProperties(true);
-            Assert.IsTrue(properties.Count == 402, "Not all possible properties loaded");
+            Assert.IsTrue(properties.Count >= 402, "Not all possible properties loaded");
 
             // Get all defined properties
             properties = projectHandle.getProperties();
