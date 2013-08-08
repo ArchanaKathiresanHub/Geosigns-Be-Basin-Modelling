@@ -369,8 +369,10 @@ int main(int argc, char** argv)
 
    if (( not appctx->saveOnDarcyError () and errorInDarcy ) or not solverHasConverged ) {
      returnStatus = 1;
+#if 0
    } else if ( not geometryHasConverged ) {
      returnStatus = GeometricLoopNonConvergenceExitStatus;
+#endif
    } else {
      returnStatus = 0;
    }
