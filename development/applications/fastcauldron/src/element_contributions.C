@@ -1557,6 +1557,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
   double currentSolidThickness;
 
   double relativePermeability = litho->relativePermeability ( Saturation::WATER, currentSaturation );
+  double currentRelativePermeability;
   double usedWaterSaturation;
   double usedPreviousWaterSaturation;
 
@@ -1732,7 +1733,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
         currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
         fluidViscosity = Fluid->viscosity ( currentTemperature );
 
-        relativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
+        currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
 
         currentFluidDensityDerivative = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
 
@@ -1812,7 +1813,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
                                     currentFluidDensity,
                                     currentFluidDensityDerivative,
                                     fluidViscosity,
-                                    relativePermeability,
+                                    currentRelativePermeability,
                                     Jacobian,
                                     gradOverpressure,
                                     lithology,
