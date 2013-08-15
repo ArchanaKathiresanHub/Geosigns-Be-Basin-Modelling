@@ -46,7 +46,8 @@ public:
    void loadData( Interface::ProjectHandle* projectHandle, const string & baseSurfaceName );
    void loadDepthData( Interface::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName );
    void loadSnapshots( Interface::ProjectHandle* projectHandle );
-   void loadPressureData( Interface::ProjectHandle* projectHandle, const double snapshotAge );
+   void loadPressureData( Interface::ProjectHandle* projectHandle, const Interface::Property * pressureProperty, const double snapshotAge );
+   const Interface::Property * loadPressureProperty( Interface::ProjectHandle* projectHandle, const double snapshotAge );
   
    void retrieveData();
    void restoreData();

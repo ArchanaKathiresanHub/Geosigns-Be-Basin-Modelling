@@ -46,6 +46,10 @@ private :
 
    static string m_projectFileName;
    static string m_outputFileName;
+
+   LinearFunction m_LF;
+   DensityCalculator m_DensityCalculator;
+
    int    m_outputOptions; 
    bool   m_debug;
    bool   m_applySmoothing; // smooth the WLS map
@@ -68,7 +72,10 @@ private :
    void addUndefinedAreas ( BooleanLocal2DArray & validNodes, const Interface::GridMap* theMap );
 
    void initialiseValidNodes ( const InterfaceInput &theInterfaceData );
-   void initialiseCurrentValidNodes ( const DensityCalculator &theInterfaceData );
+   void initialiseCurrentValidNodes ();
+
+   GridMap * calculatePresentDayWLS( InterfaceInput & theInterfaceData );
+
 };
 
 inline CrustalThicknessCalculator& CrustalThicknessCalculator::getInstance () {

@@ -244,6 +244,7 @@ bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Sn
    int i;
    bool status = true;
    if( theSnapshot->getTime() == 0.0 ) {
+      // Output these properties for present-day only
       for( i = 0; i < WLSMap; ++ i ) {
          if( m_outputMapsMask[i] ) {
             m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
@@ -257,7 +258,8 @@ bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Sn
    if( status ) {
       for( i = WLSMap; i < numberOfOutputMaps; ++ i ) {
          if( m_outputMapsMask[i] ) {
-            if(( outputMaps ) i != isostaticBathymetry ) {
+            outputMaps id = ( outputMaps ) i;
+            if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
                m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
             } else {
                m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot, theSurface );
@@ -363,6 +365,38 @@ bool InterfaceOutput::updateIsoBathymetryMaps( ProjectHandle * pHandle, std::vec
    }
    return true;
 }
+//------------------------------------------------------------//
+GridMap * InterfaceOutput::getCurrentPropertyMap( ProjectHandle * pHandle, double aSnapshotId, const std::string& propertyName ) {
+
+   const Interface::Property * aMap = pHandle->findProperty( propertyName );
+    
+   if( aMap == 0 ) { return false; }
+   const Snapshot * theSnapshot = (const Snapshot *) pHandle->findSnapshot ( aSnapshotId );
+   
+   Interface::FormationList * myFormations = pHandle->getFormations (theSnapshot, true);
+   const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
+   
+   if (!formationWB) {
+      string s = "Could not find topformation.";
+      return false; //throw s;
+   } 
+   const Interface::Surface * topOfSedimentSurface = formationWB->getTopSurface();
+   
+   Interface::PropertyValueList * propertyValues = pHandle->getPropertyValues (SURFACE, aMap, theSnapshot, 0, 0, topOfSedimentSurface, MAP);
+   
+   if (propertyValues->size() != 1) {
+      stringstream ss;
+      ss << "Could not find property IncTectonicSubsidence for surface " << topOfSedimentSurface->getName() <<  
+         " at age " << theSnapshot->getTime() << "." << endl;
+      
+      return false; //throw ss.str();
+   }
+   const PropertyValue * thePropertyValue = (*propertyValues)[ 0 ];  
+   delete propertyValues;
+   
+   return ( thePropertyValue ? thePropertyValue->getGridMap() : 0 ); //  incTS
+}
+
 //------------------------------------------------------------//
 void InterfaceOutput::debugOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot ) {
 

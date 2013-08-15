@@ -12,13 +12,14 @@ namespace CrustalThicknessInterface {
       basaltDensityMap, RDAadjustedMap, TFMap, thicknessCrustMap, ECTMap, 
       estimatedCrustDensityMap, WLSOnsetMap, WLSCritMap, WLSExhumeMap, WLSExhumeSerpMap,
       slopePreMelt, slopePostMelt, interceptPostMelt, thicknessCrustMeltOnset, topBasaltMap,
-      WLSMap, cumSedimentBackstrip, cumSedimentThickness, isostaticBathymetry,
+      WLSMap, cumSedimentBackstrip, cumSedimentThickness, isostaticBathymetry, cumBasementCompensation,
+      incTectonicSubsidence,
       numberOfOutputMaps
    };
    const string outputMapsNames [CrustalThicknessInterface::numberOfOutputMaps] = {
       "Moho",             // present-day Moho depth (m)
       "BasaltThickness",  // present-day basalt thickness (m)
-      "SedimentDensity",  // present-day integrated sediment column density (kgm-3)
+      "IntegratedSedimentDensity",  // present-day integrated sediment column density (kgm-3)
       "AdjustedWaterLoadedSubsidence",      // present-day water loaded basin subsidence (m)
       "TFonset",          // crustal thinning, melt onset (accurate) 
       "TFonsetLin",       // crustal thinning, melt onset
@@ -42,7 +43,9 @@ namespace CrustalThicknessInterface {
       "CumTectonicSubsidence", // present-day water loaded basin subsidence (m) (former WLS)
       "CumSedimentBackstrip",  // cumulative sediment backstrip (m)
       "CumSedimentThickness",  // cumulative sediment thickness (m)
-      "IsostaticBathymetry"    // filling up of a basin in absence of any thermal subsidence (m)
+      "IsostaticBathymetry",   // filling up of a basin in absence of any thermal subsidence (m)
+      "CumBasementCompensation", // the amount the basement pushed down (or rebound) when sediment load is emplaced or removed 
+      "IncTectonicSubsidence"    // the change in total tectonic subsidence  
    };
    const string outputMapsUnits [CrustalThicknessInterface::numberOfOutputMaps] = {
       "m", "m", "kgm-3", "m",
@@ -50,7 +53,7 @@ namespace CrustalThicknessInterface {
       "kgm-3", "m", "", "m", "m",
       "kgm-3", "m", "m", "m", "m",
       "", "", "", "m", "m", "m",
-      "m", "m", "m"
+      "m", "m", "m", "m", "m"
    };
    outputMaps getPropertyId(const string & propertyName);
 }

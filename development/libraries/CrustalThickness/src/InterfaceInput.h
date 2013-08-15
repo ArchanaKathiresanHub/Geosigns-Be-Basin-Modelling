@@ -40,7 +40,7 @@ namespace CrustalThicknessInterface {
    const string TableStandardCrust = "Table:[StandardCrust]";
    const string TableLowCondCrust = "Table:[LowCondCrust]";
    const string TableBasalt = "Table:[Basalt]";
-   const string EndOfTable = "[EndOfTable]";
+   const string EndOfTable  = "[EndOfTable]";
 
    const string t_0 = "t_0";
    const string t_r = "t_r";
@@ -50,7 +50,6 @@ namespace CrustalThicknessInterface {
    const string seaLevelAdjustment = "seaLevelAdjustment";
    const string coeffThermExpansion = "coeffThermExpansion";
    const string initialSubsidenceMax = "initialSubsidenceMax";
-   const string thermalSubsidenceMax = "thermalSubsidenceMax";
    const string pi = "pi";
    const string E0 = "E0";
    const string tau = "tau";
@@ -68,12 +67,15 @@ namespace CrustalThicknessInterface {
    const string E = "E";
    const string F = "F";
    const string T = "T";
+   const string Heat = "Heat";
+   const string Rho  = "Rho";
    const string decayConstant = "decayConstant";
    const string lithosphereThicknessMin = "HLmin";
    const string maxNumberOfMantleElements = "NLMEmax";
    const string maxNumberOfMantleElementsOld = "HLMEmax";
-   const string Heat = "Heat";
-   const string Rho  = "Rho";
+   const string initNumberOfMantleElements = "NInitLMEmax";
+   const string minECT = "ECTmin";
+   const string minBoundaryLayer = "HCBLmin";
 
    void parseLine(const string &theString, const string &theDelimiter, vector<string> &theTokens);
    int GetRank ();
@@ -103,7 +105,6 @@ private:
    //-------------- Basic constants ---------------------
    double m_coeffThermExpansion;
    double m_initialSubsidenceMax;
-   double m_thermalSubsidenceMax;
    double m_pi;
    double m_E0;
    double m_tau;
@@ -116,7 +117,8 @@ private:
    double m_referenceCrustThickness;
    double m_referenceCrustDensity;
    double m_waterDensity;
-   
+   double m_minECT;
+
    //------------- Asthenosphere potential temperature data ---------------------
    double m_A;
    double m_B;
@@ -174,6 +176,7 @@ public:
    double getInitialLithosphereThickness() const;
    double getBackstrippingMantleDensity() const;
    double getWaterDensity() const;
+   double getECTmin() const;
    double getEstimatedCrustDensity() const;
    double getTFOnset() const;
    double getTFOnsetLin() const;
@@ -261,6 +264,11 @@ inline double InterfaceInput::getBackstrippingMantleDensity() const {
 inline double InterfaceInput::getWaterDensity() const {
    
    return m_waterDensity;
+}
+
+inline double InterfaceInput::getECTmin() const {
+   
+   return m_minECT;
 }
 
 inline double InterfaceInput::getEstimatedCrustDensity() const {

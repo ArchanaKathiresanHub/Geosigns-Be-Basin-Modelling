@@ -36,7 +36,6 @@ void InterfaceInput::clean() {
    //-------------- Basic constants ---------------------
    m_coeffThermExpansion = 0.0;
    m_initialSubsidenceMax = 0.0;
-   m_thermalSubsidenceMax = 0.0;
    m_pi = M_PI;
    m_E0 = 0.0;
    m_tau = 0.0;
@@ -49,7 +48,8 @@ void InterfaceInput::clean() {
    m_referenceCrustThickness = 0.0;
    m_referenceCrustDensity = 0.0;
    m_waterDensity = 0.0;
-   
+   m_minECT = 0.0;
+
    //------------- Asthenosphere potential temperature data ---------------------
    m_A = 0.0;
    m_B = 0.0;
@@ -126,7 +126,7 @@ void InterfaceInput::loadConfigurationFile( const string & inFile ) {
       
       getline ( ConfigurationFile, line, '\n' );
       if( line.size() != 0 ) { 
-         firstNotSpace = line.find_first_not_of(" "); 
+         firstNotSpace = line.find_first_not_of(" \t"); 
       
          if( line[firstNotSpace] != '#' ) {
             
@@ -167,6 +167,8 @@ void InterfaceInput::LoadBasicConstants( ifstream &ConfigurationFile ) {
    string line;
    vector<string> theTokens;
    string delim = ",";
+   size_t firstNotSpace;
+   int countParam = 0;
 
    for(;;) {
       getline (ConfigurationFile, line, '\n');
@@ -174,45 +176,46 @@ void InterfaceInput::LoadBasicConstants( ifstream &ConfigurationFile ) {
       if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
          break;
       }
+      firstNotSpace = line.find_first_not_of(" \t"); 
       
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      if( line[firstNotSpace] != '#' ) {
       
-      if( theTokens.size() == 2 ) {
-         if( theTokens[0] == CrustalThicknessInterface::coeffThermExpansion ) {
-            
-            m_coeffThermExpansion = atof( theTokens[1].c_str() );
+         CrustalThicknessInterface::parseLine( line, delim, theTokens );    
 
-         } else if( theTokens[0] == CrustalThicknessInterface::initialSubsidenceMax ) {
-            
-            m_initialSubsidenceMax = atof( theTokens[1].c_str() );
-            
-         } else if( theTokens[0] == CrustalThicknessInterface::thermalSubsidenceMax ) {
-            
-            m_thermalSubsidenceMax = atof( theTokens[1].c_str() );
-            
-         } 
-         // else if( theTokens[0] == CrustalThicknessInterface::pi ) {
-            
-         //    m_pi = atof( theTokens[1].c_str() );
-            
-         // } 
-         else if( theTokens[0] == CrustalThicknessInterface::E0 ) {
-            
-            m_E0 = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::tau ) {
-            
-            m_tau = atof( theTokens[1].c_str() );
-            
-         }  
-      } else {
+         if( theTokens.size() == 2 ) {
+            if( theTokens[0] == CrustalThicknessInterface::coeffThermExpansion ) {
+               
+               m_coeffThermExpansion = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::initialSubsidenceMax ) {
+               
+               m_initialSubsidenceMax = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::E0 ) {
+               
+               m_E0 = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::tau ) {
+               
+               m_tau = atof( theTokens[1].c_str() );
+               ++ countParam;
+            }  
+         } else {
+            theTokens.clear();
+            string s = "More or less arguments than expected.";
+            throw s;
+         }
          theTokens.clear();
-         string s = "More or less arguments than expected.";
-         throw s;
       }
-      theTokens.clear();
    }
- 
+   if( countParam != 4 ) {
+      string s = "BasicConstants table: More or less arguments than expected.";
+      throw s;
+   }
+      
 }
 
 //------------------------------------------------------------//
@@ -221,6 +224,8 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
    string line;
    vector<string> theTokens;
    string delim = ",";
+   size_t firstNotSpace;
+   int countParam = 0;
    
    for(;;) {
       getline (ConfigurationFile, line, '\n');
@@ -228,48 +233,65 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
       if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
          break;
       }
+      firstNotSpace = line.find_first_not_of(" \t"); 
       
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      if( line[firstNotSpace] != '#' ) {
       
-      if( theTokens.size() == 2 ) {
-         if( theTokens[0] == CrustalThicknessInterface::modelTotalLithoThickness ) {
-
-            m_modelTotalLithoThickness = atof( theTokens[1].c_str() );
-
-         }  else if( theTokens[0] == CrustalThicknessInterface::backstrippingMantleDensity ) {
-
-            m_backstrippingMantleDensity = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::lithoMantleDensity ) {
-
-            m_lithoMantleDensity = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::baseLithosphericTemperature ) {
-
-            m_baseLithosphericTemperature = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::referenceCrustThickness ) {
-
-            m_referenceCrustThickness = atof( theTokens[1].c_str() );
-
-         }  else if( theTokens[0] == CrustalThicknessInterface::referenceCrustDensity ) {
-
-            m_referenceCrustDensity = atof( theTokens[1].c_str() );
-
-         }  else if( theTokens[0] == CrustalThicknessInterface::waterDensity ) {
-
-            m_waterDensity = atof( theTokens[1].c_str() );
-
-         } 
+         CrustalThicknessInterface::parseLine( line, delim, theTokens );
          
-      } else {
+         if( theTokens.size() == 2 ) {
+            if( theTokens[0] == CrustalThicknessInterface::modelTotalLithoThickness ) {
+               
+               m_modelTotalLithoThickness = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            }  else if( theTokens[0] == CrustalThicknessInterface::backstrippingMantleDensity ) {
+               
+               m_backstrippingMantleDensity = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::lithoMantleDensity ) {
+               
+               m_lithoMantleDensity = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::baseLithosphericTemperature ) {
+               
+               ++ countParam;
+               m_baseLithosphericTemperature = atof( theTokens[1].c_str() );
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::referenceCrustThickness ) {
+               
+               m_referenceCrustThickness = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            }  else if( theTokens[0] == CrustalThicknessInterface::referenceCrustDensity ) {
+               
+               m_referenceCrustDensity = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            }  else if( theTokens[0] == CrustalThicknessInterface::waterDensity ) {
+               
+               m_waterDensity = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            }  else if( theTokens[0] == CrustalThicknessInterface::minECT ) {
+               
+               ++ countParam;
+               m_minECT = atof( theTokens[1].c_str() );
+            }
+         } else {
+            theTokens.clear();
+            string s = "More or less arguments than expected.";
+            throw s;
+         }
          theTokens.clear();
-         string s = "More or less arguments than expected.";
-         throw s;
       }
-      theTokens.clear();
    }
-
+   if( countParam != 8 ) {
+      string s = "LithoAndCrustProperties table: More or less arguments than expected.";
+      throw s;
+   }
 }
 
 //------------------------------------------------------------//
@@ -278,6 +300,8 @@ void InterfaceInput::LoadTemperatureData( ifstream &ConfigurationFile ) {
    string line;
    vector<string> theTokens;
    string delim = ",";
+   size_t firstNotSpace;
+   int countParam = 0;
    
    for(;;) {
       getline (ConfigurationFile, line, '\n');
@@ -286,25 +310,36 @@ void InterfaceInput::LoadTemperatureData( ifstream &ConfigurationFile ) {
          break;
       }
       
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      firstNotSpace = line.find_first_not_of(" \t"); 
       
-      if( theTokens.size() == 2 ) {
+      if( line[firstNotSpace] != '#' ) {
 
-         if( theTokens[0] == CrustalThicknessInterface::A ) {
-
-            m_A = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-
-            m_B = atof( theTokens[1].c_str() );
-
-         } 
-      } else {
+         CrustalThicknessInterface::parseLine( line, delim, theTokens );
+         
+         if( theTokens.size() == 2 ) {
+            
+            if( theTokens[0] == CrustalThicknessInterface::A ) {
+               
+               m_A = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::B ) {
+               
+               m_B = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } 
+         } else {
+            theTokens.clear();
+            string s = "More or less arguments than expected.";
+            throw s;
+         }
          theTokens.clear();
-         string s = "More or less arguments than expected.";
-         throw s;
       }
-      theTokens.clear();
+   }
+   if( countParam != 2 ) {
+      string s = "TemperatureData table: More or less arguments than expected.";
+      throw s;
    }
 }
 //------------------------------------------------------------//
@@ -313,33 +348,45 @@ void InterfaceInput::LoadSolidus( ifstream &ConfigurationFile ) {
    string line;
    vector<string> theTokens;
    string delim = ",";
-   
+   size_t firstNotSpace;
+   int countParam = 0;
+
    for(;;) {
       getline (ConfigurationFile, line, '\n');
-        
+      
       if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
          break;
       }
+      firstNotSpace = line.find_first_not_of(" \t"); 
       
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-      if( theTokens.size() == 2 ) {
+      if( line[firstNotSpace] != '#' ) {
+         
+         CrustalThicknessInterface::parseLine( line, delim, theTokens );
+         
+         if( theTokens.size() == 2 ) {
+            
+            if( theTokens[0] == CrustalThicknessInterface::C ) {
+               
+               m_C = atof( theTokens[1].c_str() );
+               ++ countParam;
 
-         if( theTokens[0] == CrustalThicknessInterface::C ) {
-
-            m_C = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::D ) {
-
-            m_D = atof( theTokens[1].c_str() );
-
-         } 
-      } else {
+            } else if( theTokens[0] == CrustalThicknessInterface::D ) {
+               
+               m_D = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } 
+         } else {
+            theTokens.clear();
+            string s = "More or less arguments than expected.";
+            throw s;
+         }
          theTokens.clear();
-         string s = "More or less arguments than expected.";
-         throw s;
       }
-      theTokens.clear();
+   }
+   if( countParam != 2 ) {
+      string s = "Solidus table: More or less arguments than expected.";
+      throw s;
    }
 }
 //------------------------------------------------------------//
@@ -348,7 +395,9 @@ void InterfaceInput::LoadMagmaLayer( ifstream &ConfigurationFile ) {
    string line;
    vector<string> theTokens;
    string delim = ",";
-   
+   size_t firstNotSpace;
+   int countParam = 0;
+
    for(;;) {
       getline (ConfigurationFile, line, '\n');
         
@@ -356,29 +405,39 @@ void InterfaceInput::LoadMagmaLayer( ifstream &ConfigurationFile ) {
          break;
       }
       
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      firstNotSpace = line.find_first_not_of(" \t"); 
       
-      if( theTokens.size() == 2 ) {
-
-         if( theTokens[0] == CrustalThicknessInterface::E ) {
-
-            m_E = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::F ) {
-
-            m_F = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::decayConstant ) {
-
-            m_decayConstant = atof( theTokens[1].c_str() );
-
-         } 
-      } else {
+      if( line[firstNotSpace] != '#' ) {
+         CrustalThicknessInterface::parseLine( line, delim, theTokens );
+         
+         if( theTokens.size() == 2 ) {
+            
+            if( theTokens[0] == CrustalThicknessInterface::E ) {
+               
+               m_E = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::F ) {
+               
+               m_F = atof( theTokens[1].c_str() );
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::decayConstant ) {
+               
+               m_decayConstant = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } 
+         } else {
+            theTokens.clear();
+            string s = "More or less arguments than expected.";
+            throw s;
+         }
          theTokens.clear();
-         string s = "More or less arguments than expected.";
-         throw s;
       }
-      theTokens.clear();
+   }
+   if( countParam != 2 ) {
+      string s = "MagmaLayer table: More or less arguments than expected.";
+      throw s;
    }
 }
 //------------------------------------------------------------//
@@ -387,6 +446,8 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
    string line;
    vector<string> theTokens;
    string delim = ",";
+   size_t firstNotSpace;
+   int countParam = 0;
    
    for(;;) {
       getline (ConfigurationFile, line, '\n');
@@ -394,42 +455,55 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
       if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
          break;
       }
+      firstNotSpace = line.find_first_not_of(" \t"); 
       
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-      if( theTokens.size() == 2 ) {
-
-         if( theTokens[0] == CrustalThicknessInterface::t_0 ) {
-
-            m_t_0 = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::t_r ) {
-
-            m_t_r = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::initialCrustThickness ) {
-
-            m_initialCrustThickness = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::maxBasalticCrustThickness ) {
-
-            m_maxBasalticCrustThickness = atof ( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::initialLithosphericThickness ) {
-
-            m_initialLithosphericThickness = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::seaLevelAdjustment ) {
-
-            m_seaLevelAdjustment = atof( theTokens[1].c_str() );
-
-         } 
-      } else {
+      if( line[firstNotSpace] != '#' ) {
+         
+         CrustalThicknessInterface::parseLine( line, delim, theTokens );
+         
+         if( theTokens.size() == 2 ) {
+            
+            if( theTokens[0] == CrustalThicknessInterface::t_0 ) {
+               
+               m_t_0 = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::t_r ) {
+               
+               m_t_r = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::initialCrustThickness ) {
+               
+               m_initialCrustThickness = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::maxBasalticCrustThickness ) {
+               
+               m_maxBasalticCrustThickness = atof ( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::initialLithosphericThickness ) {
+               
+               m_initialLithosphericThickness = atof( theTokens[1].c_str() );
+               ++ countParam;
+               
+            } else if( theTokens[0] == CrustalThicknessInterface::seaLevelAdjustment ) {
+               
+               m_seaLevelAdjustment = atof( theTokens[1].c_str() );
+               ++ countParam;
+            } 
+         } else {
+            theTokens.clear();
+            string s = "More or less arguments than expected.";
+            throw s;
+         }
          theTokens.clear();
-         string s = "More or less arguments than expected.";
-         throw s;
       }
-      theTokens.clear();
+   }
+   if( countParam != 6 ) {
+      string s = "UserDefinedData table: More or less arguments than expected.";
+      throw s;
    }
 }
 
@@ -546,9 +620,9 @@ void parseLine(const string &theString, const string &theDelimiter, vector<strin
       startPos += increment + 1;
    }
 }
-
+   /*
 //------------------------------------------------------------//
-void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &NLMEmax ) {
+void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &NLMEmax, int &ECTmin, int &HCBLmin, int & InitMEmax) {
 
    string line;
    vector<string> theTokens;
@@ -556,7 +630,10 @@ void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &NLMEmax
  
    HLmin = 100000.0;
    NLMEmax = 100;
-   
+   InitMEmax = 10;
+   ECTmin = 500;
+   HCBLmin = 250;
+
    size_t firstNotSpace;
       
    while( !ConfigurationFile.eof() ) {
@@ -584,6 +661,12 @@ void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &NLMEmax
                      } else if( theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElements ||
                                 theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElementsOld ) {
                         NLMEmax = atoi( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::initNumberOfMantleElements ) {
+                        InitMEmax = atoi( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::minECT ) {
+                        ECTmin = atoi( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::minBoundaryLayer ) {
+                        HCBLmin = atoi( theTokens[1].c_str() );
                      }
                      
                   } else {
@@ -598,5 +681,5 @@ void LoadALCParameters( ifstream &ConfigurationFile, double &HLmin, int &NLMEmax
       }
    }
 }
-
+   */
 }

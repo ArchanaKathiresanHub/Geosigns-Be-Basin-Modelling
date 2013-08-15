@@ -41,6 +41,7 @@ public:
    
    void setAllMapsUndefined( unsigned int indI, unsigned int indJ );   
    bool updateIsoBathymetryMaps ( ProjectHandle * pHandle, std::vector<double> &snapshotsList );
+   GridMap * getCurrentPropertyMap( ProjectHandle * pHandle, double aSnapshotId, const std::string& propertyName );
 
    double getMapValue( outputMaps mapIndex, unsigned int i, unsigned int j ) const; 
    bool   getOutputMask( outputMaps mapIndex ) const; 
@@ -100,7 +101,7 @@ inline void InterfaceOutput::setMapToOutput(outputMaps aMapIndex, bool aValue)
 inline void InterfaceOutput::setValuesToMaps( unsigned int indI, unsigned int indJ )
 {
    for(int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( m_outputMapsMask[i] ) {
+      if( m_outputMapsMask[i] && m_outputMaps[i] != 0 ) {
          m_outputMaps[i]->setValue( indI, indJ, m_outputValues[i] );
       }
    }
@@ -110,7 +111,7 @@ inline void InterfaceOutput::setValuesToMaps( unsigned int indI, unsigned int in
 inline void InterfaceOutput::setAllMapsUndefined( unsigned int indI, unsigned int indJ ) 
 {
    for(int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( m_outputMapsMask[i] ) {
+      if( m_outputMapsMask[i]  && m_outputMaps[i] != 0 ) {
          m_outputMaps[i]->setValue( indI, indJ, Interface::DefaultUndefinedMapValue );
       }
    }
