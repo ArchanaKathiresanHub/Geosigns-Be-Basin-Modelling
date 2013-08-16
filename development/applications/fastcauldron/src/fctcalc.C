@@ -64,6 +64,7 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
       m_mapOutputProperties.push_back ( THICKNESS );
       m_mapOutputProperties.push_back ( BULKDENSITYVEC );
       m_mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
+      m_mapOutputProperties.push_back ( HYDROSTATICPRESSURE );
    }
 
 }
