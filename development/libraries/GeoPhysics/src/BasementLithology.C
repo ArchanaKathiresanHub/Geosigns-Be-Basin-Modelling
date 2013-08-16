@@ -687,7 +687,7 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
        m_csB   == v || m_clB   == v || m_bB    == v || m_mB   == v ||
        m_bT    == v || m_bHeat == v || m_HLmin == v || m_NLMEmax == v ||
        m_InitMEmax == v || m_ECTmin == v || m_HCBLmin == v ) {
-      cerr << "Less paramenters than expected are found in ALCCTC configuraton file." << endl;
+      cerr << "Less paramenters than expected are found in ALC_CTC configuraton file." << endl;
       return false;
    }
    /*

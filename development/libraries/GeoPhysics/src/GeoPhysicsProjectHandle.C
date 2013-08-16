@@ -52,12 +52,16 @@ GeoPhysics::ProjectHandle::ProjectHandle ( database::Database * database, const 
 
    m_isALCMode = ( getBottomBoundaryConditions () == Interface::ADVANCED_LITHOSPHERE_CALCULATOR );
 
-   m_minimumLithosphereThickness = 100000;
-   m_maximumNumberOfMantleElements = 100;
-   m_constrainedBasaltTemperature = 1000;
 
-   if( !loadALCConfigurationFile( "InterfaceData.cfg" )) {
-      std::cout<< " MeSsAgE WARNING: Can't load ALC configuration file. Default values will be used."<< std::endl;
+   if( !loadALCConfigurationFile( Interface::CTC_ALC_configurationFile )) {
+      std::cout<< " MeSsAgE WARNING: Error when loading ALC configuration file "<< Interface::CTC_ALC_configurationFile <<". Default values will be used."<< std::endl;
+ 
+      m_basementLithoProps->m_HLmin   = 100000;
+      m_basementLithoProps->m_NLMEmax = 100;
+      m_basementLithoProps->m_bT      = 1000;
+      m_basementLithoProps->m_InitMEmax = 10;
+      m_basementLithoProps->m_ECTmin    = 500;
+      m_basementLithoProps->m_HCBLmin   = 250;
    } 
 
    // Now load anything that was not loaded by default in the constructor of the default project handle.
@@ -1039,8 +1043,8 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
                   v_ect = HCt + v_bt * mult_coeff;
 
-                  if( v_ect < 1000 ) {
-                     v_ect = 1000;
+                  if( v_ect < getMinimumECT() ) {
+                     v_ect = getMinimumECT();
                   }
                   m_crustThicknessHistory ( i, j ).AddPoint( age, v_ect );
                 } 
@@ -2123,7 +2127,8 @@ double GeoPhysics::ProjectHandle::getLithosphereThicknessMod ( const unsigned in
       double initLithoThickness = getMantleFormation ()->getInitialLithosphericMantleThickness () + 
                                   getCrustFormation()->getInitialCrustalThickness();
   
-      const double HLmod = 0.5 * ( ( initLithoThickness + m_minimumLithosphereThickness ) + ( initLithoThickness - m_minimumLithosphereThickness ) * cos ( M_PI * thinningFactor ));
+      const double HLmod = 0.5 * (( initLithoThickness + getMinimumLithosphereThickness() ) + 
+                                  ( initLithoThickness - getMinimumLithosphereThickness() ) * cos ( M_PI * thinningFactor ));
       return HLmod;
    }
    return 0.0;
@@ -2610,7 +2615,7 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
    if( m_isALCMode ) {
       char * ALC_ConfigurationFile     = getenv ( "CTCDIR" );
       char * ALC_UserConfigurationFile = getenv ( "MY_CTCDIR" );
-  
+      
       string fullpath;
    
       if( ALC_UserConfigurationFile != 0 ) {
@@ -2633,12 +2638,39 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
       
       //     CrustalThicknessInterface::LoadALCParameters( ConfigurationFile, 
       //                                            m_minimumLithosphereThickness, m_maximumNumberOfMantleElements );
-      m_minimumLithosphereThickness   = m_basementLithoProps->m_HLmin;
-      m_maximumNumberOfMantleElements = m_basementLithoProps->m_NLMEmax;
-      m_constrainedBasaltTemperature  = m_basementLithoProps->m_bT;
-
+      
       ConfigurationFile.close();
       return true;
    }
    return true;
+}
+
+//------------------------------------------------------------//
+int GeoPhysics::ProjectHandle::getMaximumNumberOfMantleElements() const {
+   return m_basementLithoProps->m_NLMEmax;
+}
+
+//------------------------------------------------------------//
+double GeoPhysics::ProjectHandle::getMinimumLithosphereThickness() const {
+   return m_basementLithoProps->m_HLmin;
+}
+
+//------------------------------------------------------------//
+double GeoPhysics::ProjectHandle::getConstrainedBasaltTemperature() const {
+   return m_basementLithoProps->m_bT;
+}
+
+//------------------------------------------------------------//
+double GeoPhysics::ProjectHandle::getMinimumECT() const {
+   return m_basementLithoProps->m_ECTmin;
+}
+
+//------------------------------------------------------------//
+double GeoPhysics::ProjectHandle::getInitialMaxNumberOfElements() const {
+   return m_basementLithoProps->m_InitMEmax;
+}
+
+//------------------------------------------------------------//
+ double GeoPhysics::ProjectHandle::getMinimumHCBL() const {
+   return m_basementLithoProps->m_HCBLmin;
 }

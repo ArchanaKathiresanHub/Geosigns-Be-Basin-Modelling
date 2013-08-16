@@ -134,7 +134,10 @@ void DensityCalculator::loadPressureData( Interface::ProjectHandle* projectHandl
 
    if (propertyValues->size() != 1) {
       stringstream ss;
-      ss << "WARNING: Could not find property LithoStaticPressure (" << propertyValues->size() << ") for bottom of sediment surface " << m_bottomOfSedimentSurface->getName() <<  " at age " << currentSnapshot->getTime() << "." << endl;
+      if( snapshotAge != 0.0 ) {
+         ss << "WARNING: ";
+      }
+      ss << "Could not find property LithoStaticPressure (" << propertyValues->size() << ") for bottom of sediment surface " << m_bottomOfSedimentSurface->getName() <<  " at age " << currentSnapshot->getTime() << "." << endl;
 
       throw ss.str();
    }
@@ -148,8 +151,11 @@ void DensityCalculator::loadPressureData( Interface::ProjectHandle* projectHandl
 
    if (propertyValues->size() != 1) {
       stringstream ss;
+      if( snapshotAge != 0.0 ) {
+         ss << "WARNING: ";
+      }
 
-      ss << "WARNING: Could not find property LithoStaticPressure (" << propertyValues->size() << ") for top of sediment surface." << m_topOfSedimentSurface->getName() << " at age " << currentSnapshot->getTime() << "."<< endl;
+      ss << "Could not find property LithoStaticPressure (" << propertyValues->size() << ") for top of sediment surface." << m_topOfSedimentSurface->getName() << " at age " << currentSnapshot->getTime() << "."<< endl;
 
       throw ss.str();
    }

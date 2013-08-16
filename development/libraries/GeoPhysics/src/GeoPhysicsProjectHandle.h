@@ -188,6 +188,9 @@ namespace GeoPhysics {
       double getMinimumLithosphereThickness() const;
       int    getMaximumNumberOfMantleElements() const;
       double getConstrainedBasaltTemperature() const;
+      double getMinimumECT() const;
+      double getInitialMaxNumberOfElements() const;
+      double getMinimumHCBL() const;
 
       BasementLithologyProps * getBasementLithologyProps() const;
 
@@ -416,9 +419,6 @@ namespace GeoPhysics {
       /// ALC bottom boundary conditions mode
       bool m_isALCMode;   
       BasementLithologyProps *m_basementLithoProps;
-      double m_minimumLithosphereThickness;   // (m) defined in configuration file
-      int    m_maximumNumberOfMantleElements; //     defined in configuration file
-      double m_constrainedBasaltTemperature;  // (C) defined in configuration file
    }; 
 
 }
@@ -477,17 +477,6 @@ inline bool GeoPhysics::ProjectHandle::isALC() const {
    return m_isALCMode;
 }
 
-inline double GeoPhysics::ProjectHandle::getMinimumLithosphereThickness() const {
-   return m_minimumLithosphereThickness;
-}
-
-inline int GeoPhysics::ProjectHandle::getMaximumNumberOfMantleElements() const {
-   return m_maximumNumberOfMantleElements;
-}
-
-inline double GeoPhysics::ProjectHandle::getConstrainedBasaltTemperature() const {
-   return m_constrainedBasaltTemperature;
-}
 
 //------------------------------------------------------------//
 

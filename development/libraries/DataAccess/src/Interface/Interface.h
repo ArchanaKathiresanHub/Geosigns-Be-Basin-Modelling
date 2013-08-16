@@ -167,7 +167,7 @@ namespace DataAccess
       typedef vector<const ConstrainedOverpressureInterval*> ConstrainedOverpressureIntervalList;
 
       const string ALCBasalt = "ALC Basalt";
-
+      const string CTC_ALC_configurationFile = "CTC_ALC.cfg";
       // Shale-gas specific classes.
 
       /// \typedef IrreducibleWaterSaturationSampleList

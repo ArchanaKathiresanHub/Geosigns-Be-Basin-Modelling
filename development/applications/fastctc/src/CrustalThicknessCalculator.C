@@ -5,6 +5,7 @@
 #include "cauldronschemafuncs.h"
 using namespace database;
 
+#include "Interface/Interface.h"
 #include "Interface/CrustalThicknessData.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
@@ -153,7 +154,7 @@ void CrustalThicknessCalculator::run() {
    }
 
    InterfaceInput &theInterfaceData = dynamic_cast<InterfaceInput &>( * m_crustalThicknessData[0] );
-   theInterfaceData.loadInputDataAndConfigurationFile( "InterfaceData.cfg" );
+   theInterfaceData.loadInputDataAndConfigurationFile( CTC_ALC_configurationFile );
 
    m_validNodes.allocate ( getActivityOutputGrid ());
    m_currentValidNodes.allocate ( getActivityOutputGrid ());
@@ -332,9 +333,10 @@ void CrustalThicknessCalculator::run() {
                   }
                }
 
-               theOutput[cumSedimentBackstrip] = theOutput.getMapValue(cumSedimentBackstrip, i, j);
-               theOutput[cumSedimentThickness] = theOutput.getMapValue(cumSedimentThickness, i, j);
-               theOutput[isostaticBathymetry]  = theOutput.getMapValue(isostaticBathymetry, i, j);
+               theOutput[cumSedimentBackstrip]     = theOutput.getMapValue(cumSedimentBackstrip, i, j);
+               theOutput[cumSedimentThickness]     = theOutput.getMapValue(cumSedimentThickness, i, j);
+               theOutput[cumBasementCompensation]  = theOutput.getMapValue(cumBasementCompensation, i, j);
+               theOutput[isostaticBathymetry]      = theOutput.getMapValue(isostaticBathymetry, i, j);
 
                if ( WLS != Interface::DefaultUndefinedMapValue ) { 
                   

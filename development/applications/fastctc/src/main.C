@@ -23,7 +23,8 @@ void showUsage () {
    cout << "Usage: " << endl
         << "\t-project projectname       Name of the project file" << endl
         << "\t[-debug]                   Output all map properties. Use in combination with -hdf or/and -xyz or/and -sur to output into individual files" << endl
-        << "\t[-nosmooth]                Don't smooth the WLS map" << endl
+        << "\t[-nosmooth]                Don't smooth the result maps" << endl
+        << "\t[-smooth <radius>]         Smooth the result maps using the defined <radius>. Default value: 5" << endl
         << "\t[-save filename]           Name of output project file" << endl
         << "\t[-xyz]                     Output selected maps also in XYZ format" << endl
         << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)" << endl
@@ -35,7 +36,7 @@ void showUsage () {
 void finaliseCrustalThicknessCalculator ( char* feature, const char* errorMessage = "" , CrustalThicknessCalculatorFactory* factory = 0 ) {
    
    if ( strlen ( errorMessage ) > 0 ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "\n %s \n\n", errorMessage );
+      PetscPrintf ( PETSC_COMM_WORLD, "\nMeSsAgE ERROR %s \n\n", errorMessage );
    }
 
  

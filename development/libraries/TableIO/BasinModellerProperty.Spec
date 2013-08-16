@@ -8535,7 +8535,7 @@ START-properties
     Description         : Half of the filter width for spatial smoothing of WLS
     Type                : integer
     Unit of measurement : 
-    Default             : 10
+    Default             : 5
     Error Field         : No
     Time dependent      : No
     Property I/O        : No

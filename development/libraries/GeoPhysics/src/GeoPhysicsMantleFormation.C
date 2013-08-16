@@ -133,9 +133,12 @@ unsigned int GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements (
    double layerMaximumThickness = getMaximumThickness ();
 
   if( project->isALC() ){
+
      int curNumberOfUniformElements0 = static_cast<int>( floor (  project->getMaximumNumberOfMantleElements() / crust->getCrustThinningRatio () ));
      // numberOfUniformElements0 = PetscMin( numberOfUniformElements0, 10.0 );
-     int numberOfUniformElements0 = ( curNumberOfUniformElements0 > 10 ? 10 : ( curNumberOfUniformElements0 < 4 ? 4 : curNumberOfUniformElements0 ));
+     int numberOfUniformElements0 = ( curNumberOfUniformElements0 > project->getInitialMaxNumberOfElements() ? project->getInitialMaxNumberOfElements() : 
+                                      ( curNumberOfUniformElements0 < 4 ? 4 : curNumberOfUniformElements0 ));
+
      double initLithoThickness = getInitialLithosphericMantleThickness () + crust->getInitialCrustalThickness();
      m_mantleElementHeight0 = getInitialLithosphericMantleThickness () / numberOfUniformElements0; 
      m_maximumNumberOfElements = static_cast<int>(ceil (( initLithoThickness - crust->getMinimumThickness()  ) /  ( m_mantleElementHeight0 / crust->getCrustThinningRatio () )));
