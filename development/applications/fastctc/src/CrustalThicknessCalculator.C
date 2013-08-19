@@ -202,9 +202,15 @@ void CrustalThicknessCalculator::run() {
    
       const double age = snapshots[k];
       
-      m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, age, theInterfaceData.getBaseRiftSurfaceName() );
-      const Interface::Property * pressureProperty = m_DensityCalculator.loadPressureProperty(  m_crustalThicknessCalculator, age );
-      
+      const Interface::Property * depthProperty = m_DensityCalculator.loadDepthProperty(  m_crustalThicknessCalculator, age, theInterfaceData.getBaseRiftSurfaceName() );
+      try {
+         m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, age );
+      } catch ( std::string& s ) {
+         PetscPrintf ( PETSC_COMM_WORLD, "\n %s \n\n", s.c_str() );
+         continue;
+      }
+
+      const Interface::Property * pressureProperty = m_DensityCalculator.loadPressureProperty(  m_crustalThicknessCalculator, age );    
       try {
          m_DensityCalculator.loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
       } catch ( std::string& s ) {
@@ -288,6 +294,19 @@ void CrustalThicknessCalculator::run() {
             throw s;
          }
       }
+      if( m_applySmoothing ) {
+
+         bool status = movingAverageSmoothing( theOutput.getMap( isostaticBathymetry ) );
+         if( !status ) {
+            string s = "Failed to smooth isostaticBathymetry map.";
+            throw s;
+         }
+         status = movingAverageSmoothing( theOutput.getMap( isostaticBathymetry ) );
+         if( !status ) {
+            string s = "Failed to smooth isostaticBathymetry map.";
+            throw s;
+         }
+      }
       
       for ( i = firstI; i <= lastI; ++ i ) {
          for ( j = firstJ; j <= lastJ; ++ j ) { 
@@ -327,7 +346,7 @@ void CrustalThicknessCalculator::run() {
 
                if( previousWLS != 0 ) {
                   if( previousWLS->getValue( i, j ) != Interface::DefaultUndefinedMapValue ) {
-                     theOutput[incTectonicSubsidence] = previousWLS->getValue( i, j ) - WLS;
+                     theOutput[incTectonicSubsidence] = WLS - previousWLS->getValue( i, j );
                   } else {
                      theOutput[incTectonicSubsidence] = Interface::DefaultUndefinedMapValue;
                   }
@@ -428,7 +447,8 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & t
                                                                                    DefaultUndefinedMapValue, 1);
 
    if( WLSmap != 0 ) {
-      m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, 0.0, theInterfaceData.getBaseRiftSurfaceName() );
+      const Interface::Property * depthProperty = m_DensityCalculator.loadDepthProperty(  m_crustalThicknessCalculator, 0.0, theInterfaceData.getBaseRiftSurfaceName() );
+      m_DensityCalculator.loadDepthData( m_crustalThicknessCalculator, depthProperty, 0.0 );
       const Interface::Property * pressureProperty = m_DensityCalculator.loadPressureProperty(  m_crustalThicknessCalculator, 0.0 );
       m_DensityCalculator.loadPressureData( m_crustalThicknessCalculator, pressureProperty, 0.0 );
      
@@ -462,7 +482,7 @@ GridMap * CrustalThicknessCalculator::calculatePresentDayWLS( InterfaceInput & t
       }
       bool status = true;
 
-      if( m_applySmoothing ) {       
+      if( false && m_applySmoothing ) {       
          status = movingAverageSmoothing( WLSmap );
          if( status ) {
             status = movingAverageSmoothing( WLSmap );

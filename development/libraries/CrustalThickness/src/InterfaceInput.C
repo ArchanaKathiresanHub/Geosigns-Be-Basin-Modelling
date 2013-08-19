@@ -83,7 +83,7 @@ void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) 
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {
    
-   m_T0Map   = getMap (Interface::T0Ini);
+   m_T0Map   = getMap (Interface::T0Ini);   
    m_TRMap   = getMap (Interface::TRIni);
    m_HCuMap  = getMap (Interface::HCuIni);
    m_HLMuMap = getMap (Interface::HLMuIni);
@@ -91,6 +91,12 @@ void InterfaceInput::loadInputData() {
    m_DeltaSLMap = getMap (Interface::DeltaSL);
    m_baseRiftSurfaceName = getSurfaceName();
    m_smoothRadius = getFilterHalfWidth();
+
+   if( m_T0Map == 0 || m_TRMap == 0 || m_HCuMap == 0 || m_HLMuMap == 0 || m_DeltaSLMap == 0 ) {
+      string s = "Cannot load input data... Aborting... ";
+      throw s;
+   }
+     
    //cout << "Base of Rift = " << m_baseRiftSurfaceName << endl;
 }
 //------------------------------------------------------------//
