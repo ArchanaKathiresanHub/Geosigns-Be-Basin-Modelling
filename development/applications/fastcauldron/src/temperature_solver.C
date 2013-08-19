@@ -513,7 +513,7 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
   bool Is_Steady_State = false; // remove this soon
   bool Include_Chemical_Compaction;
 
-  const double Constrained_Temp_Value = FastcauldronSimulator::getInstance ().getConstrainedBasaltTemperature();
+  const double Constrained_Temp_Value = ( Basin_Model -> isALC() ? FastcauldronSimulator::getInstance ().getConstrainedBasaltTemperature() : 0.0 );
 
   int NodeZDirCount = 0;
 
@@ -965,7 +965,7 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
   bool Is_Steady_State = false; // remove this soon
   bool Include_Chemical_Compaction;
 
-  const double Constrained_Temp_Value = FastcauldronSimulator::getInstance ().getConstrainedBasaltTemperature();
+  const double Constrained_Temp_Value = ( Basin_Model -> isALC() ? FastcauldronSimulator::getInstance ().getConstrainedBasaltTemperature() : 0.0 );
 
   int NodeZDirCount = 0;
   Layer_Iterator Layers;
@@ -2048,7 +2048,7 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
   bool Is_Steady_State = false; // remove this soon
   bool Include_Chemical_Compaction;
 
-  const double Constrained_Temp_Value = FastcauldronSimulator::getInstance ().getConstrainedBasaltTemperature();
+  const double Constrained_Temp_Value = ( Basin_Model -> isALC() ? FastcauldronSimulator::getInstance ().getConstrainedBasaltTemperature() : 0.0 );
 
   int NodeZDirCount = 0;
 
