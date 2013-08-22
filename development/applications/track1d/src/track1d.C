@@ -408,7 +408,7 @@ int main (int argc, char ** argv)
       cout << endl;
 
       cout << endl;
-      myProperties = projectHandle->getProperties (false, FORMATION, 0, 0, 0, 0, MAP);
+      myProperties = projectHandle->getProperties (false, SURFACE | FORMATION , 0, 0, 0, 0, MAP);
       cout << "Available 2D output properties are: ";
       for (propertyIter = myProperties->begin (); propertyIter != myProperties->end (); ++propertyIter)
       {
@@ -421,7 +421,7 @@ int main (int argc, char ** argv)
 
    if (all2Dproperties)
    {
-      PropertyList * myProperties = projectHandle->getProperties (false, FORMATION, 0, 0, 0, 0, MAP);
+      PropertyList * myProperties = projectHandle->getProperties (false, SURFACE | FORMATION, 0, 0, 0, 0, MAP);
       PropertyList::iterator propertyIter;
       for (propertyIter = myProperties->begin (); propertyIter != myProperties->end (); ++propertyIter)
       {
@@ -543,7 +543,7 @@ int main (int argc, char ** argv)
 		  property, snapshot, 0, formation, 0, VOLUME);
 	    if (propertyValues->size () != 1)
 	    {
-	       propertyValues = projectHandle->getPropertyValues (FORMATION,
+	       propertyValues = projectHandle->getPropertyValues (SURFACE | FORMATION,
 		  property, snapshot, 0, formation, 0, MAP);
 	       if (propertyValues->size () != 1) continue;
 	    }
