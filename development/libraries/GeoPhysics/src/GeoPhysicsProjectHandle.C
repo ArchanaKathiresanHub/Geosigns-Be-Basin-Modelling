@@ -1431,7 +1431,7 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( double & timeStep, double 
             age = currentAge;
             surfaceTemperatureMap->restoreData ();
          }
-         timeStep = minimumInterval * 0.25;
+         timeStep = minimumInterval * 0.5;
          
       } 
       setPermafrost( isPermafrost );
