@@ -292,6 +292,8 @@ macro(add_gtest )
    set(testName)    # The name of the test
    set(sources)     # The source files
    set(libraries)   # The libraries that should be linked with it
+   set(compileflags)# The set of compilator flags
+   set(linkflags)   # The set of linker flags
 
    set(parameterName)
    foreach(param ${ARGN})
@@ -301,6 +303,10 @@ macro(add_gtest )
          set(parameterName sources)
       elseif(param STREQUAL LIBRARIES)
          set(parameterName libraries)
+      elseif(param STREQUAL COMPILE_FLAGS)
+         set(parameterName compileflags)
+      elseif(param STREQUAL LINK_FLAGS)
+         set(parameterName linkflags)
       else()
          list(APPEND ${parameterName} ${param})
       endif()
@@ -326,7 +332,8 @@ macro(add_gtest )
    set_target_properties( ${execName} 
       PROPERTIES 
                  INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS};${GMOCK_INCLUDE_DIRS};${incdirs}"
-   )
+                 COMPILE_FLAGS "${compileflags}"
+                 LINK_FLAGS "${linkflags}"   )
 
    # Add the test to the CTest test  collection.
    add_test(${testName} ${execName}  "--gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-junit.xml")

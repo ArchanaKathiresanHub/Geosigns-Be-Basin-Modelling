@@ -59,6 +59,7 @@ PTDiagramCalculator::PTDiagramCalculator( DiagramType typeOfDiagram, const std::
       m_stopTol( g_Tolerance * 1e-2 ),
       m_maxIters( g_MaxStepsNum * 2 )
 {
+   m_flasher.reset( pvtFlash::EosPack::createNewInstance() );
    m_diagType = typeOfDiagram;
    m_masses   = massFraction;
 
@@ -191,16 +192,16 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
    }
 
    // change the default behaviour for labeling phases for high temperature span
-   if ( m_ChangeAoverB ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( m_AoverB ); }
+   if ( m_ChangeAoverB ) { m_flasher->setCritAoverBterm( m_AoverB ); }
    // increase precision for nonlinear solver
-   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( m_maxIters, m_stopTol, m_newtonRelCoeff ); 
+   m_flasher->setNonLinearSolverConvParameters( m_maxIters, m_stopTol, m_newtonRelCoeff ); 
 
    // Call flasher to get compositions for phases
-   bool res = pvtFlash::EosPack::getInstance().computeWithLumping( t, p, masses, phaseMasses, phaseDensities, NULL );  
+   bool res = m_flasher->computeWithLumping( t, p, masses, phaseMasses, phaseDensities, NULL );  
 
    // revert back flasher settings
-   if ( m_ChangeAoverB ) { pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm(); }
-   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters();
+   if ( m_ChangeAoverB ) { m_flasher->resetToDefaultCritAoverBterm(); }
+   m_flasher->setNonLinearSolverConvParameters();
 
    if ( !res ) return unknown;
 
@@ -213,12 +214,12 @@ int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector
    {
       case PTDiagramCalculator::MoleMassFractionDiagram: // convert to molar mass fraction
          {
-            double gorm = pvtFlash::EosPack::getInstance().gorm( masses );
+            double gorm = m_flasher->gorm( masses );
             for ( int phase = 0; phase < iNp; ++phase )
             {
                for ( int comp = 0; comp < iNc; ++comp )
                {  
-                  phaseMasses[phase][comp] /= pvtFlash::EosPack::getInstance().getMolWeightLumped( comp, gorm );
+                  phaseMasses[phase][comp] /= m_flasher->getMolWeightLumped( comp, gorm );
                   total += phaseMasses[phase][comp];
                }
             }

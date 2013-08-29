@@ -5,8 +5,10 @@
 #ifndef PT_DIAGRAM_CALCULATOR_H
 #define PT_DIAGRAM_CALCULATOR_H
 
+
 #include <vector>
 #include <utility>
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Class for calculating P/T phase diagram using PVT flasher
@@ -166,8 +168,9 @@ public:
    void setNonLinSolverConvPrms( double stopTol, int maxItNum, double newtonRelCoef ) { m_stopTol = stopTol; m_maxIters = maxItNum; m_newtonRelCoeff = newtonRelCoef; }
 
 private:
-   DiagramType m_diagType;           ///< which type of diagram are calculating - Mass/Mole/Volume fraction
+   std::auto_ptr<pvtFlash::EosPack> m_flasher;   ///< for multithreading purpouse keep own flasher
 
+   DiagramType         m_diagType;               ///< which type of diagram are calculating - Mass/Mole/Volume fraction
    std::vector<double> m_gridT;                  ///< 1D grid for Temperature values
    std::vector<double> m_gridP;                  ///< 1D grid for Pressure values
    

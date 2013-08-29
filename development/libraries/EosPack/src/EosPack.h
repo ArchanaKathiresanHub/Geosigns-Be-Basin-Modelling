@@ -93,6 +93,9 @@ namespace pvtFlash
    public:
       /// \brief returns the only instance of this (singleton) class
       static EosPack& getInstance();
+ 
+      /// \brief In multithreading cases we need separate instance for each thread. Creates such instance
+      static EosPack* createNewInstance() { return new EosPack(); }
        
       int    getLumpedIndex( int componentId ) const;
 
@@ -157,7 +160,7 @@ namespace pvtFlash
        
       /// \brief returns critical volume with weight lumped of componentId for a prescribed gorm
       double getCriticalVolumeLumped( int componentId, double gorm );
-       
+      
       /// \brief lumped/unlumped sulphur components before compute 
       /// \param[in] in_compMasses input array of size ComponentManager::NumberOfOutputSpecies with component masses
       /// \param[out] out_phaseCompMasses output array of size ComponentManager::NumberOfSpeciesToFlash with lumped component masses

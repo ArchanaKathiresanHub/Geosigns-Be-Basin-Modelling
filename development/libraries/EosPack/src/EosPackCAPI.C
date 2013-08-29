@@ -7,6 +7,7 @@
 #include <cassert>
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace pvtFlash
 {
@@ -20,17 +21,17 @@ namespace pvtFlash
       bool EosPackComputeWithLumping(ComputeStruct* computeInfo)
       {
          double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
-         pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
+         std::auto_ptr<EosPack> instance( EosPack::createNewInstance() );
          
-         bool result = instance.computeWithLumping( computeInfo->temperature, 
-                                                    computeInfo->pressure, 
-                                                    computeInfo->compMasses,
-                                                    phaseCompMasses,
-                                                    computeInfo->phaseDensity, 
-                                                    computeInfo->phaseViscosity, 
-                                                    computeInfo->isGormPrescribed, 
-                                                    computeInfo->gorm
-                                                  );
+         bool result = instance->computeWithLumping( computeInfo->temperature, 
+                                                     computeInfo->pressure, 
+                                                     computeInfo->compMasses,
+                                                     phaseCompMasses,
+                                                     computeInfo->phaseDensity, 
+                                                     computeInfo->phaseViscosity, 
+                                                     computeInfo->isGormPrescribed, 
+                                                     computeInfo->gorm
+                                                   );
          
          int index = 0;
          for( int i = 0; i < CBMGenerics::ComponentManager::NumberOfPhases; i++ )
@@ -61,17 +62,17 @@ namespace pvtFlash
          assert( phaseViscosity );
 
          double phaseMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
-         pvtFlash::EosPack& instance = pvtFlash::EosPack::getInstance();
+         std::auto_ptr<EosPack> instance( EosPack::createNewInstance() );
          
-         bool result = instance.computeWithLumping( temperature, 
-                                                    pressure, 
-                                                    compMasses,
-                                                    phaseMasses,
-                                                    phaseDensity, 
-                                                    phaseViscosity, 
-                                                    isGormPrescribed, 
-                                                    gorm
-                                                  );
+         bool result = instance->computeWithLumping( temperature, 
+                                                     pressure, 
+                                                     compMasses,
+                                                     phaseMasses,
+                                                     phaseDensity, 
+                                                     phaseViscosity, 
+                                                     isGormPrescribed, 
+                                                     gorm
+                                                   );
          
          int index = 0;
          for( int i = 0; i < CBMGenerics::ComponentManager::NumberOfPhases; i++ )

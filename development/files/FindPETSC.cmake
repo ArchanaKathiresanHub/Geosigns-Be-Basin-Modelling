@@ -14,7 +14,7 @@ if(UNIX)
 	set (CSCE_FULL "LinuxRHEL64_x86_64_58WS")
 
 	# PETSc definitions
-	set(PETSC_VERSION "3.4.1" CACHE STRING "PETSC Version")
+	set(PETSC_VERSION "3.4.1-intel13" CACHE STRING "PETSC Version")
 
 	set(PETSC_ARCH linux-gnu-intel)
 	set(PETSC_RELEASE_HOME ${HPC_HOME}/petsc/${PETSC_VERSION}/${CSCE_FULL})

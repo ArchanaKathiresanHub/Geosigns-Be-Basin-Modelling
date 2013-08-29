@@ -5,10 +5,13 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 #include <cstring>
 #include <cmath>
 #include <cstdio>
+
+#include <omp.h>
 
 #include <gtest/gtest.h>
 
@@ -52,183 +55,170 @@ const double CritPoint[]     = { 909.17673, 10959091.306859 };
 const double BubblePoint[]   = { 588.15, 10057971.0253 };
 const double eps             = 1.e-3;
 
-class PTDiagramCalculatorTest: public ::testing::Test
+char * const g_CfgFile = "./PVT_properties.cfg";
+static const    int g_NumOfThreads = 5;
+
+// Test of PTDiagramCalculator in multithred environments
+class PTDiagramCalculatorMTTest: public ::testing::Test
 {
 public:
-   PTDiagramCalculatorTest()
+   PTDiagramCalculatorMTTest()
    {
-      PVTPropertiesCfgFile::getInstance();                // Write configuration file      
-      pvtFlash::SetPvtPropertiesConfigFile( s_CfgFile ); // Set configuration file name
+      initCfgFile();                                     // Write configuration file
+      pvtFlash::SetPvtPropertiesConfigFile( g_CfgFile ); // Set configuration file name
    }
+   ~PTDiagramCalculatorMTTest() { std::remove( g_CfgFile ); }
 
 private:
-   static char * const s_CfgFile ;
-   
-   class PVTPropertiesCfgFile
-   {
-   public:
-      static PVTPropertiesCfgFile & getInstance()
-      {
-         static PVTPropertiesCfgFile o;
-         return o;
-      }
-
-   private:
-      PVTPropertiesCfgFile();
-      ~PVTPropertiesCfgFile() { std::remove( s_CfgFile ); }
-   };
+   void initCfgFile();
 };
 
-char * const PTDiagramCalculatorTest::s_CfgFile = "./PVT_properties.cfg" ;
-
-TEST_F( PTDiagramCalculatorTest, CAPI )
+TEST_F( PTDiagramCalculatorMTTest, CAPI )
 {
-   // composition is created as class member array in m_Composition
-   // allocate space for special points
-   double points[8]; // 4 points - Critical point, Bubble point, Cricondentherm point, Cricondenbar point
+   std::ostringstream msgs;
+   bool flag = true;
 
-   // allocate space for isolines. It will be 11 isolines 0 : 0.1 : 1, up to 400 points (2 double per point) per isoline
-   int szIso[] = { 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400 };
-
-   double isolines[11 * 400 * 2];
-
-   // Call diagram builder
-   bool ret=BuildPTDiagram(0, TrapCond[0], TrapCond[1], const_cast<double *>(Composition), points, szIso, isolines);
-
-   // check results
-   ASSERT_TRUE( ret ); //  PTDiagramBuilder failed to create diagram for unknown reason
-
-   for ( int i = 0; i < 11; ++i )
+   // Start an OpenMP thread pool
+   #pragma omp parallel num_threads(g_NumOfThreads) shared(msgs,flag)
    {
-      EXPECT_EQ( IsolinesSizes[i], szIso[i] );
-   }
+      std::ostringstream ofs; // error messages keeper for each thread
+      int tid = omp_get_thread_num();
 
-   EXPECT_NEAR(points[0],  CritPoint[0], 1e-3 ) << "Wrong critical point temperature value";
-   EXPECT_NEAR(points[1] , CritPoint[1], 1e-3 ) << "Wrong critical point pressure value";
-   EXPECT_NEAR(points[2] , BubblePoint[0], 1e-3)<< "Wrong bubble point temperature value";
-   EXPECT_NEAR(points[3] , BubblePoint[1], 1e-3)<< "Wrong bubble point pressure value";
+      // composition is created as class member array in m_Composition
+      // allocate space for special points
+      double points[8]; // 4 points - Critical point, Bubble point, Cricondentherm point, Cricondenbar point
 
-   // search critical point
-   for ( int i = 0; i < 8; ++i ) points[i] = 0.0;
+      // allocate space for isolines. It will be 11 isolines 0 : 0.1 : 1, up to 400 points (2 double per point) per isoline
+      int szIso[] = { 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400 };
 
-   ret = FindCriticalPoint( 0, const_cast<double *>(Composition), points );   
-   ASSERT_TRUE( ret ) << "critical point search shouldn't failed here";
-   EXPECT_NEAR( points[0], CritPoint[0], 1e-3 ) << "Wrong critical point temperature value";
-   EXPECT_NEAR( points[1], CritPoint[1], 1e-3 ) << "Wrong critical point pressure value";
-}
+      double isolines[11 * 400 * 2];
 
-TEST_F( PTDiagramCalculatorTest, BubbleDew)
-{
-   // create EosPack config file
-   std::vector<double> comp(Composition, Composition + sizeof( Composition)/sizeof(Composition[0]) );
+      // Call diagram builder
+      bool ret = BuildPTDiagram(0, TrapCond[0], TrapCond[1], const_cast<double *>(Composition), points, szIso, isolines);
 
-   PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MassFractionDiagram, comp );
-   diagramBuilder.setAoverBTerm(2.0);
-   diagramBuilder.setNonLinSolverConvPrms( 1e-6, 500, 0.3 );
-   diagramBuilder.findBubbleDewLines(TrapCond[0], TrapCond[1], std::vector<double>() );
+      // check results
+      if ( !ret ) ofs << "PTDiagramBuilder failed to create diagram for unknown reason for thread: " << tid << "\n";
 
-   // Check special points
-   const std::pair<double,double> & critPt = diagramBuilder.getCriticalPoint();
-   EXPECT_NEAR(critPt.first  , CritPoint[0], eps ) << "Wrong critical point temperature value";
-   EXPECT_NEAR(critPt.second , CritPoint[1], eps ) << "Wrong critical point pressure value";
-   double bubbleP;
-   bool ret = diagramBuilder.getBubblePressure( BubblePoint[0], &bubbleP ) ;
-   ASSERT_TRUE( ret );
-   EXPECT_NEAR(bubbleP , BubblePoint[1], eps ) << "Wrong bubble point pressure value";
-   const std::vector< std::pair<double,double> > & dewLine = diagramBuilder.calcContourLine(0.0); // get dew line
-   EXPECT_EQ( IsolinesSizes[0], dewLine.size() );
-
-   const std::vector< std::pair<double,double> > & bubbleLine = diagramBuilder.calcContourLine(1.0); // get dew line
-   EXPECT_EQ( IsolinesSizes[10], bubbleLine.size() );
-}
-
-TEST_F( PTDiagramCalculatorTest, Isolines )
-{
-   std::vector<double> comp(Composition, Composition + sizeof( Composition )/sizeof(double) );
-
-   PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MassFractionDiagram, comp );
-   diagramBuilder.setAoverBTerm(2.0);
-   diagramBuilder.setNonLinSolverConvPrms( 1e-6, 500, 0.3 );
-   diagramBuilder.findBubbleDewLines(TrapCond[0], TrapCond[1], std::vector<double>() );
-
-   for( int i = 0; i < 11; ++i )
-   {
-      const std::vector< std::pair<double,double> > & isoLine = diagramBuilder.calcContourLine(i * 0.1);
-   	EXPECT_EQ( IsolinesSizes[i] , isoLine.size() );
-   }
-}
-
-
-TEST_F( PTDiagramCalculatorTest, ObjectAllCountourLinesInOneGo )
-{
-   std::vector<double> comp(Composition, Composition + sizeof( Composition )/sizeof(double) );
-
-   PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MassFractionDiagram, comp );
-   diagramBuilder.setAoverBTerm( 2.0 );
-   diagramBuilder.setNonLinSolverConvPrms( 1e-6, 500, 0.3 );
-   diagramBuilder.findBubbleDewLines(TrapCond[0], TrapCond[1], std::vector<double>() );
-
-   int realSz[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-   std::vector<double> values( 11, 0.0 );
-   for (int i = 0; i < 11; ++i)
-   {
-      values[i] = 0.1 * i;
-   }
-
-   const std::vector<double> & isoLines = diagramBuilder.calcContourLines(values);
-
-   int isoline = 0;
-   for ( int i = 0; i < isoLines.size(); ++i )
-   {
-      if ( isoLines[i] < 0 && isoLines[i + 1] < 0)
+      if ( ret )
       {
-         isoline++;
-      }
-      else
-      {
-         realSz[isoline] += 1;
-      }
-      ++i;
-   }
+         // check isoline sizes
+         for ( int i = 0; i < 11; ++i )
+         {
+            if ( IsolinesSizes[i] != szIso[i] )
+            {
+               ofs << "Isoline " << i << " lenght " << szIso[i] << " does not match to " << IsolinesSizes[i] << " for thread " << tid << "\n";
+               ret = false;
+            }
+         }
 
-   for (int i = 0; i < 11; ++i)
+         // check critical points
+         if ( std::abs( points[0] - CritPoint[0] ) > 1e-3 )
+         {
+            ofs << "Wrong critical point temperature value for thread " << tid << "\n";
+            ret = false;
+         }
+
+         if ( std::abs( points[1] - CritPoint[1] ) > 1e-3 )
+         {
+            ofs << "Wrong critical point pressure value for thread " << tid << "\n";
+            ret = false;
+         }
+
+         if ( std::abs( points[2] - BubblePoint[0] ) > 1e-3 )
+         {
+            ofs << "Wrong bubble point temperature value for thread " << tid << "\n";
+            ret = false;
+         }
+
+         if ( std::abs( points[3] - BubblePoint[1] ) > 1e-3 )
+         {
+            ofs << "Wrong bubble point pressure value for thread " << tid << "\n";
+            ret = false;
+         }
+
+         // search critical point
+         for ( int i = 0; i < 8; ++i ) points[i] = 0.0;
+
+         bool ret2 = FindCriticalPoint( 0, const_cast<double *>(Composition), points );
+         if ( !ret2 )
+         {
+            ofs << "Fast critical point search failed for unknown reason for thread " << tid << "\n";
+            ret = false;
+         }
+         else
+         {
+            if ( std::abs( points[0] - CritPoint[0] ) > 1e-3 ) 
+            {
+               ofs << "Wrong critical point temperature value in fast critical point search for thread " << tid << "\n";
+               ret = false;
+            }
+            if ( std::abs( points[1] - CritPoint[1] ) > 1e-3 ) 
+            {
+               ofs << "Wrong critical point pressure value in fast critical point search for thread " << tid << "\n";
+               ret = false;
+            }
+         }
+         #pragma omp critical
+         {
+            if ( !ret ) // collect return codes for all threads
+            {
+               msgs << ofs.str();
+               flag = false;
+            }
+         } 
+      }
+   }
+   ASSERT_TRUE( flag ) << msgs.str();
+}
+
+TEST_F( PTDiagramCalculatorMTTest, Isolines )
+{
+
+   std::ostringstream msgs;
+   bool flag = true;
+
+   // Start an OpenMP thread pool
+   #pragma omp parallel num_threads(g_NumOfThreads) shared(msgs,flag)
    {
-      EXPECT_EQ( IsolinesSizes[i], realSz[i] );
+      std::ostringstream ofs; // error messages keeper for each thread
+      int tid = omp_get_thread_num();
+      bool ret = true;
+
+      std::vector<double> comp(Composition, Composition + sizeof( Composition )/sizeof(double) );
+
+      PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MassFractionDiagram, comp );
+      diagramBuilder.setAoverBTerm(2.0);
+      diagramBuilder.setNonLinSolverConvPrms( 1e-6, 500, 0.3 );
+      diagramBuilder.findBubbleDewLines(TrapCond[0], TrapCond[1], std::vector<double>() );
+
+      for( int i = 0; i < 11; ++i )
+      {
+         const std::vector< std::pair<double,double> > & isoLine = diagramBuilder.calcContourLine(i * 0.1);
+
+         if ( IsolinesSizes[i] != isoLine.size() )
+         {
+            ofs << "Isoline " << i << " lenght " << isoLine.size() << " does not match to " << IsolinesSizes[i] << " for thread " << tid << "\n";
+            ret = false;
+         }
+      }
+
+      #pragma omp critical
+      {
+         if ( !ret ) // collect return codes for all threads
+         {
+            msgs << ofs.str();
+            flag = false;
+         }
+      }
    }
-}
-
-TEST_F( PTDiagramCalculatorTest, TuneAB )
-{
-   std::vector<double> comp(CompositionByOlivier, CompositionByOlivier + sizeof( CompositionByOlivier )/sizeof(double) );
-
-   PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MoleMassFractionDiagram, comp );
-   diagramBuilder.setAoverBTerm( 2.0 );
-   diagramBuilder.setNonLinSolverConvPrms( 1e-6, 400, 0.2 );
-   double AB = diagramBuilder.searchAoverBTerm();
-
-   EXPECT_NEAR( AB, 3.76929, eps );
-}
-
-TEST_F( PTDiagramCalculatorTest, SearchCritPt )
-{
-   std::vector<double> comp(CompositionByOlivier, CompositionByOlivier + sizeof( CompositionByOlivier )/sizeof(double) );
-
-   PTDiagramCalculator diagramBuilder( PTDiagramCalculator::MoleMassFractionDiagram, comp );
-   diagramBuilder.setAoverBTerm( 2.0 );
-   diagramBuilder.setNonLinSolverConvPrms( 1e-6, 400, 0.2 );
-
-   const PTDiagramCalculator::TPPoint & critPt = diagramBuilder.searchCriticalPoint();
-   double critT = critPt.first;
-   double critP = critPt.second;
-
-   EXPECT_NEAR( critT, 903.652, eps );
-   EXPECT_NEAR( critP, 11130482.494, eps );
+   ASSERT_TRUE( flag ) << msgs.str(); // final check by gtest
 }
 
 
-PTDiagramCalculatorTest::PVTPropertiesCfgFile::PVTPropertiesCfgFile()
+// Creates PVT_properties .cfg file in current folder
+void PTDiagramCalculatorMTTest::initCfgFile()
 {
-   std::ofstream ofs( s_CfgFile, std::ios_base::out | std::ios_base::trunc );
+   std::ofstream ofs( g_CfgFile, std::ios_base::out | std::ios_base::trunc );
    ofs << "///component based and general data for PVT" << "\n";
    ofs << "///" << "\n";
    ofs << "///This file contains tables describing 6 COMPONENT-based properties and additionally GENERAL properties " << "\n";
@@ -337,6 +327,7 @@ PTDiagramCalculatorTest::PVTPropertiesCfgFile::PVTPropertiesCfgFile()
    ofs << "EndOfTable" << std::endl;
    ofs.close();
 
-   EXPECT_TRUE(ofs) << "Could not write configuration file '" << s_CfgFile << "'";
+   EXPECT_TRUE( ofs ) << "Could not write configuration file '" << g_CfgFile << "'";
 }
+
 

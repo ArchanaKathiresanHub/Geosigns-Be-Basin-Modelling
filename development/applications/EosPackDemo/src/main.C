@@ -1,35 +1,36 @@
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 using namespace std;
-#else                           // !_STANDARD_C_PLUS_PLUS
-#include <iostream.h>
-#include <fstream.h>
-#include <iomanip.h>
-#include<strstream.h>
-typedef strstream ostringstream;
-typedef istrstream istringstream;
-#endif                          // _STANDARD_C_PLUS_PLUS
-#else                           // !sgi
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-using namespace std;
-#endif                          // sgi
 
 #include "EosPack.h"
 
-void ReadComposition( int argc, char* argv[], double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies], double & pressure, double & temperature, double & gorm )
+const char * composFileName = NULL;
+
+bool calcGorm   = false;
+bool calcProp   = false;
+bool calcPhases = false;
+
+
+void ParseArgs( int argc, char * argv[] )
+{
+   for ( int i = 0; i < argc; ++i )
+   {
+      if (      !strcmp( argv[i], "-gorm"  ) ) calcGorm   = true;
+      else if ( !strcmp( argv[i], "-prop"  ) ) calcProp   = true;
+      else if ( !strcmp( argv[i], "-phases") ) calcPhases = true;
+      else  composFileName = argv[i];
+   }
+}
+
+void ReadComposition( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies], double & pressure, double & temperature, double & gorm )
 {
    const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
 
-   if ( argc > 1 )
+   if ( composFileName )
    {
-      std::ifstream ifc( argv[1], std::ifstream::in );
+      std::ifstream ifc( composFileName, std::ifstream::in );
 
       if ( ifc.good() )
       {
@@ -45,8 +46,8 @@ void ReadComposition( int argc, char* argv[], double compMasses[CBMGenerics::Com
          {
             cin >> gorm;
          }
+         return;
       }
-      return;
    }
    
    cin >> pressure >> temperature;
@@ -62,23 +63,18 @@ void ReadComposition( int argc, char* argv[], double compMasses[CBMGenerics::Com
    }
 }
 
-int main (int nArg, char *pszArgs[])
+int CalcAll( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies], double pressure, double temperature, double gorm )
 {
    CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
    const int NUM_COMP     = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
    const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
 
-   double pressure;             //[Pa]               
-   double temperature;          //[K]=[Celsius+273.15]
-   double compMasses[NUM_COMP_TOT];
-   double gorm = -1;
    bool   isGormPrescribed = false;
 
    double phaseCompMasses[pvtFlash::N_PHASES][NUM_COMP_TOT];
    double phaseDensity[pvtFlash::N_PHASES];
    double phaseViscosity[pvtFlash::N_PHASES];
 
-   ReadComposition( nArg, pszArgs, compMasses, pressure, temperature, gorm );
    isGormPrescribed = gorm < 0 ? false : true;
 
    cout.precision (8);
@@ -214,3 +210,85 @@ int main (int nArg, char *pszArgs[])
    return 0;
 }
 
+int main (int nArg, char *pszArgs[] )
+{
+   const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+
+   double pressure;             //[Pa]               
+   double temperature;          //[K]=[Celsius+273.15]
+   double gorm = -1;
+   double compMasses[NUM_COMP_TOT];
+
+   ParseArgs( nArg, pszArgs );
+   ReadComposition( compMasses, pressure, temperature, gorm );
+
+   if ( !calcGorm && !calcProp && !calcPhases )
+   {
+      CalcAll( compMasses, pressure, temperature, gorm );
+   }
+   else
+   {
+      double phaseCompMasses[pvtFlash::N_PHASES][NUM_COMP_TOT];
+      double phaseDensity[pvtFlash::N_PHASES];
+      double phaseViscosity[pvtFlash::N_PHASES];
+
+      if ( calcGorm )
+      {
+         vector<double> compMassesVec( compMasses, compMasses + NUM_COMP_TOT );
+         double gorm = pvtFlash::gorm( compMassesVec );
+         cout << "Gorm = " << gorm << ";\n";
+      }
+
+      if ( calcProp )
+      {
+         if ( pvtFlash::EosPack::getInstance().computeWithLumping ( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, 
+                                                                    phaseViscosity, (gorm < 0 ? false : true), gorm ) )
+         {
+            //cout.setf( std::ios_base::fixed, std::ios_base::floatfield );
+            cout << "DensityLiq = " << phaseDensity[1] << "\n;";
+            cout << "DensityVap = " << phaseDensity[0] << "\n;";
+
+            cout << "ViscosityLiq = " << phaseViscosity[1] << "\n;";
+            cout << "ViscosityVap = " << phaseViscosity[0] << "\n;";
+         }
+      }
+
+      if ( calcPhases )
+      {
+         if ( pvtFlash::EosPack::getInstance().computeWithLumping ( temperature, pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, 
+                                                                    (gorm < 0 ? false : true), gorm ) )
+         {
+            double liqPhaseMass = 0;
+            double vapPhaseMass = 0;
+
+            for ( int i = 0; i < NUM_COMP_TOT; ++i )
+            {
+               liqPhaseMass += phaseCompMasses[1][i];
+               vapPhaseMass += phaseCompMasses[0][i];
+            }
+         
+            cout << "PhaseMassLig = " << liqPhaseMass << ";\n";
+            cout << "PhaseMassVap = " << vapPhaseMass << ";\n";
+            cout << "PhaseMassFracLiq = " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+            cout << "PhaseMassFracVap = " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+
+            vector<double> compMassesVec( compMasses, compMasses + NUM_COMP_TOT );
+            double gorm = pvtFlash::gorm( compMassesVec );
+
+            liqPhaseMass = 0;
+            vapPhaseMass = 0;
+
+            for ( int i = 0; i < NUM_COMP_TOT; ++i )
+            {
+               double molW = pvtFlash::EosPack::getInstance().getMolWeightLumped( i, gorm );
+               liqPhaseMass += phaseCompMasses[1][i]/molW;
+               vapPhaseMass += phaseCompMasses[0][i]/molW;
+            }
+            cout << "MolePhaseFracLiq = " << liqPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+            cout << "MolePhaseFracVap = " << vapPhaseMass/(liqPhaseMass + vapPhaseMass) << ";\n";
+         }
+      }
+   }
+
+   return 0;
+}

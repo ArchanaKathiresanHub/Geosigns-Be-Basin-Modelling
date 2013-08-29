@@ -17,20 +17,14 @@ class EosPackTest : public ::testing::Test
 public:
    EosPackTest()
    {
-      // Write configuration file
-      PVTPropertiesCfgFile::getInstance();
-
-      // Set configuration file name
-      pvtFlash::SetPvtPropertiesConfigFile( const_cast<char *>(s_CfgFile) );
-
-      // Create EosPack object
-      pvtFlash::EosPack::getInstance();
+      PVTPropertiesCfgFile::getInstance();               // Write configuration file
+      pvtFlash::SetPvtPropertiesConfigFile( s_CfgFile ); // Set configuration file name
    }
 
    void initializeCompositionMasses( double masses[] );
 
 private:
-   static const char *  const s_CfgFile ;
+   static char * const s_CfgFile ;
    
    class PVTPropertiesCfgFile
    {
@@ -43,11 +37,11 @@ private:
 
    private:
       PVTPropertiesCfgFile();
-      ~PVTPropertiesCfgFile();
+      ~PVTPropertiesCfgFile(){ std::remove( s_CfgFile ); }
    };
 };
-
   
+char * const EosPackTest:: s_CfgFile = "./PVT_properties.cfg" ;
 
 
 TEST_F( EosPackTest, InitialisationOfKValues )
@@ -312,9 +306,7 @@ TEST_F( EosPackTest, GetMolWeight  )
 ///////////////////////////////////////////////////////////
 // Axillary functions
 ///////////////////////////////////////////////////////////
-void
-EosPackTest
-   :: initializeCompositionMasses( double masses[] )
+void EosPackTest::initializeCompositionMasses( double masses[] )
 {
    masses[ASPHALTENES] = 1158;
    masses[RESINS     ] = 21116;
@@ -342,18 +334,8 @@ EosPackTest
 }
 
 // Creates PVT_properties.cfg file in current folder
-const char * const
-EosPackTest
-   :: s_CfgFile = "./PVT_properties.cfg" ;
 
-EosPackTest :: PVTPropertiesCfgFile
-   :: ~PVTPropertiesCfgFile()
-{
-   std::remove( s_CfgFile );
-}
-
-EosPackTest :: PVTPropertiesCfgFile
-   :: PVTPropertiesCfgFile()
+EosPackTest::PVTPropertiesCfgFile::PVTPropertiesCfgFile()
 {
    std::ofstream ofs( s_CfgFile, std::ios_base::out | std::ios_base::trunc );
    ofs << "///component based and general data for PVT" << "\n";
@@ -466,5 +448,4 @@ EosPackTest :: PVTPropertiesCfgFile
 
    EXPECT_TRUE( ofs ) << "Could not write configuration file '" << s_CfgFile << "'";
 }
-
 
