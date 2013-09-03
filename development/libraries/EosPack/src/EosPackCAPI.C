@@ -13,7 +13,7 @@ namespace pvtFlash
 {
    extern "C" 
    {
-      void SetPvtPropertiesConfigFile(char* fileName)
+      void SetPvtPropertiesConfigFile(const char* fileName)
       {  
          pvtFlash::pvtPropertiesConfigFile = std::string(fileName);
       }

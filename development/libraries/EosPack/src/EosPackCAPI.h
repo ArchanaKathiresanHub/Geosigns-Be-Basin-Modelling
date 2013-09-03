@@ -23,7 +23,7 @@ namespace pvtFlash
 
    extern "C" 
    {
-      void SetPvtPropertiesConfigFile(char* fileName);     
+      void SetPvtPropertiesConfigFile(const char* fileName);     
       bool EosPackComputeWithLumping(ComputeStruct* computeInfo);
 
       /// \brief Calculate phase masses, phase density and phase viscosity using C arrays as parameters

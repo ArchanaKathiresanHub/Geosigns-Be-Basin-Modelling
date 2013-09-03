@@ -10,6 +10,11 @@
 #include <utility>
 #include <memory>
 
+namespace pvtFlash
+{
+   class EosPack;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Class for calculating P/T phase diagram using PVT flasher
 ///

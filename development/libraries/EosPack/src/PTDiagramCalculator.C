@@ -1,8 +1,3 @@
-// Copyright 2011, Shell Global Solutions International B.V.
-// All rights reserved. This document and the data and information contained herein is CONFIDENTIAL.
-// Neither the whole nor any part of this document may be copied, modified or distributed in any
-// form without the prior written consent of the copyright owner.
-
 #include "EosPack.h"
 #include "PTDiagramCalculator.h"
 #include "consts.h"
