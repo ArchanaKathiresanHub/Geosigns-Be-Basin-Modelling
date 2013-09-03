@@ -35,7 +35,7 @@ add_gtest( NAME PTDiagramCalculator_MT
    SOURCES test/PTDiagramBuilderMTTest.C test/PVTCfgFileMgr.C
    LIBRARIES EosPack
    COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
-   LINK_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static"
+   LINK_FLAGS "${OpenMP_CXX_FLAGS}"
 )
 
 ######################################
@@ -51,6 +51,6 @@ add_gtest( NAME pvtFlash::CAPI_MT
    SOURCES test/EosPackMTTest.C test/PVTCfgFileMgr.C
    LIBRARIES EosPack
    COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
-   LINK_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static"
+   LINK_FLAGS "${OpenMP_CXX_FLAGS}"
 )
 
