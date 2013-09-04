@@ -195,7 +195,7 @@ namespace GeoPhysics {
       BasementLithologyProps * getBasementLithologyProps() const;
 
       /// Compute the age and time step that will be used in permafrost modeling
-      bool determinePermafrost( double & timeStep, double & permafrostAge );
+      bool determinePermafrost( std::vector<double>& timeSteps, std::vector<double>& permafrostAges );
 
    protected :
 

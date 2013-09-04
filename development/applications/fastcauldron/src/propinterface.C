@@ -116,9 +116,9 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_inferiorMantleElementHeightScaling = 1.0;
    m_minCrustThicknessIsZero = false;
 
-   m_permafrostTimeStep = Minimum_Pressure_Time_Step;
-   m_permafrostAge = 0.0;
-   m_permafrost    = false;
+   m_fixedPermafrostTimeStep = 0.0;
+   m_permafrostTimeStep = 0.0;
+   m_permafrost = false;
 }
 
 
@@ -354,32 +354,46 @@ bool AppCtx::useBurialRateTimeStepping () const {
 
 //------------------------------------------------------------//
 
-double AppCtx::permafrostAge () const {
-   return m_permafrostAge;
-}
-
-//------------------------------------------------------------//
-
 bool AppCtx::permafrost () const {
+
    return m_permafrost;
 }
 
 //------------------------------------------------------------//
 
-void AppCtx::setPermafrost ( const double timeStep, const double age ) {
+void AppCtx::setPermafrost () {
 
-   m_permafrost         = true;
-   m_permafrostTimeStep = timeStep;
-   m_permafrostAge      = age;  
+   m_permafrost = true;
 }
 
 //------------------------------------------------------------//
 
-void AppCtx::setPermafrostTimeStep ( const double timeStep ) {
+bool AppCtx::switchPermafrostTimeStep ( const double Current_Time ) {
 
-   m_permafrostTimeStep = timeStep;
+   // for every permafrost age the correspondent time step is being activated
+   if( m_permafrostAges.size() != 0 ) {
+      if( Current_Time > m_permafrostAges.back() && m_permafrostTimeStep == 0 ) {
+         // permafrost is not activated yet
+         return false;
+      }
+      if( Current_Time <= m_permafrostAges.back() ) {
+         // the next (or the first) permafrost age is reached => activate the next time step 
+         m_permafrostTimeStep = ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep : m_permafrostTimeSteps.back() );
+         m_permafrostTimeSteps.pop_back();
+         m_permafrostAges.pop_back();
+      } 
+   } 
+   // if all permafrost ages have been reached (m_permafrostAges.size() = 0), then continue with the last calculated time step = m_permafrostTimeStep
+   return true;
 }
+//------------------------------------------------------------//
 
+double AppCtx::getNextPermafrostTimeStep () const {
+
+   return ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep : 
+            ( m_permafrostAges.size() != 0 ? m_permafrostTimeSteps.back() : 0.0 ));
+
+}
 
 //------------------------------------------------------------//
 
@@ -779,7 +793,6 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
    PetscBool petscPermafrost = PETSC_FALSE;
    PetscBool petscPermafrostTimeStep = PETSC_FALSE;
-   double    permafrostFixedTimeStep;
 
    PetscBool petscBurialRateFraction = PETSC_FALSE;
    double elementFraction;
@@ -827,7 +840,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged ); 
 
    PetscOptionsHasName ( PETSC_NULL, "-permafrost", &petscPermafrost ); 
-   PetscOptionsGetReal ( PETSC_NULL, "-permafrost", &permafrostFixedTimeStep, &petscPermafrostTimeStep ); 
+   PetscOptionsGetReal ( PETSC_NULL, "-permafrost", &m_fixedPermafrostTimeStep, &petscPermafrostTimeStep ); 
    
 
    PetscOptionsGetString ( PETSC_NULL, "-relperm", relPermMethodName, MAXLINESIZE, &relPermMethodDescribed );
@@ -1079,18 +1092,17 @@ void AppCtx::setAdditionalCommandLineParameters () {
      if( ! FastcauldronSimulator::getInstance ().getPermafrost() ) {
         FastcauldronSimulator::getInstance ().setPermafrost ( bool( petscPermafrost ));
         
-        double timeStep, startAge;
 
-        if( FastcauldronSimulator::getInstance ().determinePermafrost(  timeStep, startAge )) {
+        if( FastcauldronSimulator::getInstance ().determinePermafrost(  m_permafrostTimeSteps, m_permafrostAges )) {
 
-           setPermafrost( timeStep, startAge );
-           PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on. Time step = %lf, Start age = %lf\n", permafrostTimeStep(), permafrostAge() );
+           m_permafrost = true;
+           PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on.\n"); 
         }
      }
      if( petscPermafrostTimeStep && FastcauldronSimulator::getInstance ().getPermafrost() ) {
-        setPermafrostTimeStep( permafrostFixedTimeStep );
-        PetscPrintf ( PETSC_COMM_WORLD, "Overriding permafrost fixed time-step: %lf\n", permafrostTimeStep() );
-        
+        if( m_fixedPermafrostTimeStep > 0 ) {
+           PetscPrintf ( PETSC_COMM_WORLD, "Overriding permafrost fixed time-step: %lf\n", m_fixedPermafrostTimeStep );
+        }
      }
   }
 }

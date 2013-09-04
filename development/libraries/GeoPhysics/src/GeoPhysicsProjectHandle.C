@@ -1392,18 +1392,15 @@ bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::ProjectHandle::determinePermafrost ( double & timeStep, double & permafrostAge ) {
+bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeSteps, std::vector<double>& permafrostAges ) {
 
    if( m_permafrost ) {
       bool isPermafrost = false;
-      
+      // m_surfaceTemperatureHistory is sorted - youngest first on the list. 
+
       if( m_surfaceTemperatureHistory.size() > 1 ) {
 
-         // find minimum time interval in the Surface Temperature history table
-         permafrostAge = 0.0;
-         timeStep = 0.001;
-         
-         double minimumInterval = 1e10;
+         // find the negative temperature in the Surface Temperature history table and calculate the time interval.
          double min, max;
          
          Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
@@ -1420,19 +1417,15 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( double & timeStep, double 
             currentAge = surfaceTemperatureInstance->getSnapshot ()->getTime ();
             surfaceTemperatureMap->retrieveData ();
             surfaceTemperatureMap->getMinMaxValue ( min, max );
+
             if( min < 0.0 ) {
                isPermafrost = true;
-               permafrostAge = currentAge;
-            }
-            
-            if(( currentAge - age ) < minimumInterval ) {
-               minimumInterval = currentAge - age;
+               permafrostAges.push_back( currentAge );
+               timeSteps.push_back ( ( currentAge - age ) * 0.5 );
             }
             age = currentAge;
             surfaceTemperatureMap->restoreData ();
          }
-         timeStep = minimumInterval * 0.5;
-         
       } 
       setPermafrost( isPermafrost );
    }

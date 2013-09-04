@@ -587,12 +587,10 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
                                                                  getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE,
                                                                  true );
  
-   double permafrostTimeStep, permafrostStartAge;
+   if( GeoPhysics::ProjectHandle::determinePermafrost( m_cauldron->m_permafrostTimeSteps, m_cauldron->m_permafrostAges ) ) {
 
-   if( GeoPhysics::ProjectHandle::determinePermafrost(  permafrostTimeStep, permafrostStartAge ) ) {
-
-      m_cauldron->setPermafrost( permafrostTimeStep, permafrostStartAge );
-      PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on. Time step = %lf, Start age = %lf\n", m_cauldron->permafrostTimeStep(), m_cauldron->permafrostAge() );
+      m_cauldron->setPermafrost( );
+      PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on.\n");
    }
 
    m_elementGrid.construct ( getActivityOutputGrid (), getRank ());

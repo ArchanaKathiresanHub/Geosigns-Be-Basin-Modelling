@@ -256,12 +256,12 @@ public:
 
    bool useBurialRateTimeStepping () const;
 
-
-   void   setPermafrost( const double timeStep, const double age );
-   void   setPermafrostTimeStep( const double timeStep );
-   double permafrostAge () const;
+   //
+   void   setPermafrost();
    double permafrostTimeStep () const;
    bool   permafrost() const;
+   bool   switchPermafrostTimeStep ( const double Current_Time );
+   double getNextPermafrostTimeStep () const;
 
    /// Initialises other minor layer data fields.
    void setLayerData ();
@@ -434,6 +434,9 @@ public:
    PetscBool readFCTCorrectionFactor;
    OutputFormat fileOutput;
 
+   /// Arrays of permafrost time steps and correspondent ages, when those time steps are being activated
+   DoubleVector m_permafrostTimeSteps;
+   DoubleVector m_permafrostAges;
 
    // return true if bottomBoundaryCondition == ADVANCED_LITHOSPHERE_CALCULATOR
    bool isALC() const;
@@ -564,7 +567,7 @@ public:
    double m_vesScaling;
 
    double m_permafrostTimeStep;
-   double m_permafrostAge;
+   double m_fixedPermafrostTimeStep;
    bool   m_permafrost;
 
    PetscBool m_useTemisRelPerm;
