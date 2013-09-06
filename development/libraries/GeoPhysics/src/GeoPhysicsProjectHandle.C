@@ -16,6 +16,7 @@
 #include "Interface/MobileLayer.h"
 #include "Interface/PaleoFormationProperty.h"
 #include "Interface/PaleoSurfaceProperty.h"
+#include "Interface/PaleoProperty.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
@@ -1400,7 +1401,9 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
 
       if( m_surfaceTemperatureHistory.size() > 1 ) {
 
-         // find the negative temperature in the Surface Temperature history table and calculate the time interval.
+         std::sort ( m_surfaceTemperatureHistory.begin (), m_surfaceTemperatureHistory.end (), Interface::PaleoPropertyTimeThan ());
+
+     // find the negative temperature in the Surface Temperature history table and calculate the time interval.
          double min, max;
          
          Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
@@ -1418,14 +1421,22 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
             surfaceTemperatureMap->retrieveData ();
             surfaceTemperatureMap->getMinMaxValue ( min, max );
 
+            if( isPermafrost ) {
+               permafrostAges.push_back( age );
+               timeSteps.push_back ( ( age - currentAge ) * 0.5 );
+            }
             if( min < 0.0 ) {
                isPermafrost = true;
-               permafrostAges.push_back( currentAge );
-               timeSteps.push_back ( ( currentAge - age ) * 0.5 );
             }
+
             age = currentAge;
             surfaceTemperatureMap->restoreData ();
          }
+         if( permafrostAges.size() != 0 ) {
+            std::reverse( permafrostAges.begin(), permafrostAges.end() );
+            std::reverse( timeSteps.begin(), timeSteps.end() );
+         }
+         std::sort ( m_surfaceTemperatureHistory.begin (), m_surfaceTemperatureHistory.end (), Interface::PaleoPropertyTimeLessThan ());
       } 
       setPermafrost( isPermafrost );
    }

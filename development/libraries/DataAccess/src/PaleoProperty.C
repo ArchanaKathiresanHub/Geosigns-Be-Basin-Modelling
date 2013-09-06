@@ -142,6 +142,10 @@ bool DataAccess::Interface::PaleoPropertyTimeLessThan::operator ()( const PaleoP
    return s1->getSnapshot ()->getTime () < s2->getSnapshot ()->getTime ();
 }
 
+bool DataAccess::Interface::PaleoPropertyTimeThan::operator ()( const PaleoProperty* s1, const PaleoProperty* s2 ) const {
+   return s1->getSnapshot ()->getTime () > s2->getSnapshot ()->getTime ();
+}
+
 void PaleoProperty::printOn (ostream & ostr) const
 {
    string str;
