@@ -31,9 +31,6 @@ public:
 
    double m_HLmin;
    double m_HLMEmax;
-   double m_HCBLmin;
-   double m_InitMEmax;
-   double m_ECTmin;
 
    BasementLithologyProps& operator=( const BasementLithologyProps& newBP );
    bool loadConfigurationFile(ifstream &ConfigurationFile );

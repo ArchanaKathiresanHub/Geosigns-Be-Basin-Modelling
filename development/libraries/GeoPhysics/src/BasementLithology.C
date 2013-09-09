@@ -17,7 +17,6 @@ namespace CrustalThicknessInterface {
 void parseLine(const string &theString, const string &theDelimiter, vector<string> &theTokens);
 }
 
-//------------------------------------------------------------//
 BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* projectHandle, 
                                         database::Record*                     record ) : 
   SimpleLithology( projectHandle, record ){ 
@@ -27,7 +26,6 @@ BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* pr
 }
 
 
-//------------------------------------------------------------//
 bool BasementLithology::setThermalModel( const string& aThermalModel ) {
 
    if( aThermalModel == "Low Conductivity Crust" ) {
@@ -85,12 +83,11 @@ bool BasementLithology::setThermalModel( const string& aThermalModel ) {
    
 
 }
-//------------------------------------------------------------//
+
 void BasementLithology::setBasementLithoProperties( BasementLithologyProps & aBP ) {
     m_constants = aBP;
 }
 
-//------------------------------------------------------------//
 void  BasementLithology::setLithoType() {
 
    if ( m_lithoname == "Crust" ) {
@@ -105,7 +102,6 @@ void  BasementLithology::setLithoType() {
 }
 
 
-//------------------------------------------------------------//
 double BasementLithology::thermCondPointHofmeister (const double inTemperature, const double inPressure) const  {
    // Pa in GPa, K in Kelvin
 
@@ -122,7 +118,6 @@ double BasementLithology::thermCondPointHofmeister (const double inTemperature, 
   return klat + krad;
 }  
 
-//------------------------------------------------------------//
 double BasementLithology::thermCondPointXu (const double inTemperature, const double inPressure) const  {
    // Pa in GPa, K in Kelvin
 
@@ -133,7 +128,6 @@ double BasementLithology::thermCondPointXu (const double inTemperature, const do
   return termCond;
 } 
 
-//------------------------------------------------------------//
 double BasementLithology::thermCondPointWillis (const double inTemperature)  const {
    // Pa in GPa, K in Kelvin
 
@@ -143,7 +137,8 @@ double BasementLithology::thermCondPointWillis (const double inTemperature)  con
   return termCond;
 } 
 
-//------------------------------------------------------------//
+
+
 double BasementLithology::thermalconductivity(double t, double p) const 
 {
    double val;
@@ -202,7 +197,7 @@ double BasementLithology::thermalconductivity(double t, double p) const
    
 }
 
-//------------------------------------------------------------//
+
 double BasementLithology::getDensity( double t, double p ) const
 {
   double val;
@@ -305,7 +300,6 @@ double BasementLithology::crustHeatCapStandard (const double inTemperature) cons
 
    return heatCap;
 } 
-
 //------------------------------------------------------------//
 double BasementLithology::mantleHeatCapStandard (const double inTemperature) const  {
    // input T in C, Cp in J/kgK
@@ -316,7 +310,6 @@ double BasementLithology::mantleHeatCapStandard (const double inTemperature) con
 
    return heatCap;
 } 
-
 //------------------------------------------------------------//
 double BasementLithology::crustDensityStandard(const double  inTemperature, const double inLithostaticPressure) const {
    
@@ -325,7 +318,6 @@ double BasementLithology::crustDensityStandard(const double  inTemperature, cons
 
    return standardDensity;
 }
-
 //------------------------------------------------------------//
 double BasementLithology::mantleDensityStandard(const double  inTemperature, const double inLithostaticPressure) const {
    
@@ -334,9 +326,9 @@ double BasementLithology::mantleDensityStandard(const double  inTemperature, con
 
    return standardDensity;
 }
-
 // High conductivity properties
 //------------------------------------------------------------//
+
 double BasementLithology::mantleThermCondHigh (const double  inTemperature, const double inLithostaticPressure)  const {
    // input T in C, k in W/mK, P in Pa
    double value = inTemperature + 273.15;
@@ -351,12 +343,10 @@ double BasementLithology::mantleThermCondHigh (const double  inTemperature, cons
 double BasementLithology::mantleHeatCapHigh (const double inTemperature) const {
    return mantleHeatCapStandard( inTemperature );
 }
-
 //------------------------------------------------------------//
 double BasementLithology::mantleDensityHigh(const double  inTemperature, const double inLithostaticPressure)  const {
    return mantleDensityStandard( inTemperature, inLithostaticPressure  );
 }
-
 // Low conductivity properties
 //------------------------------------------------------------//
 double BasementLithology::crustThermCondLow (const double  inTemperature) const {
@@ -368,8 +358,6 @@ double BasementLithology::crustThermCondLow (const double  inTemperature) const 
 
   return thermCond;
 } 
-
-//------------------------------------------------------------//
 double BasementLithology::mantleThermCondLow (const double  inTemperature, const double inLithostaticPressure) const {
    // T in C, k in W/mK, P in Pa
    double value = inTemperature + 273.15;
@@ -390,7 +378,6 @@ double BasementLithology::crustHeatCapLow (const double inTemperature) const {
 
    return heatCap;
 }
-
 //------------------------------------------------------------//
 double BasementLithology::mantleHeatCapLow (const double inTemperature)  const {
    return  mantleHeatCapStandard( inTemperature );
@@ -401,7 +388,6 @@ double BasementLithology::crustDensityLow(const double  inTemperature, const dou
    
    return crustDensityStandard( inTemperature, inLithostaticPressure  ); 
 }
-
 //------------------------------------------------------------//
 double BasementLithology::mantleDensityLow(const double  inTemperature, const double inLithostaticPressure) const {
    return mantleDensityStandard( inTemperature, inLithostaticPressure  ); 
@@ -494,7 +480,6 @@ double BasementLithology::heatcapacity(double t) const
    return 0;
 }
 
-//------------------------------------------------------------//
 bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile ) {
    string line;
    vector<string> theTokens;
@@ -508,7 +493,7 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
          
       getline ( ConfigurationFile, line, '\n' );
       if( line.size() != 0 ) { 
-         firstNotSpace = line.find_first_not_of(" \t"); 
+         firstNotSpace = line.find_first_not_of(" "); 
          
          if( line[firstNotSpace] != '#' ) {
             
@@ -519,33 +504,23 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
                   if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
                      break;
                   }
-                  firstNotSpace = line.find_first_not_of(" \t"); 
-         
-                  if( line[firstNotSpace] != '#' ) {
       
-                     CrustalThicknessInterface::parseLine( line, delim, theTokens );
+                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
       
-                     if( theTokens.size() == 2 ) {
-                        if( theTokens[0] == CrustalThicknessInterface::lithosphereThicknessMin ) {
-                           m_HLmin = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElements ||
-                                   theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElementsOld ) {
-                           m_NLMEmax = atoi( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::initNumberOfMantleElements ) {
-                           m_InitMEmax = atoi( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::minECT ) {
-                           m_ECTmin = atoi( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::minBoundaryLayer ) {
-                           m_HCBLmin = atoi( theTokens[1].c_str() );
-                        }                    
-                     } else {
-                        theTokens.clear();
-                        string s = "More or less arguments than expected.";
-                        cerr << s << endl;
-                        return false;
+                  if( theTokens.size() == 2 ) {
+                     if( theTokens[0] == CrustalThicknessInterface::lithosphereThicknessMin ) {
+                        m_HLmin = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElements ) {
+                        m_HLMEmax = atoi( theTokens[1].c_str() );
                      }
+                     
+                  } else {
                      theTokens.clear();
+                     string s = "More or less arguments than expected.";
+                     cerr << s << endl;
+                     return false;
                   }
+                  theTokens.clear();
                }
             } else if( line == CrustalThicknessInterface::TableStandardCrust || line.find( CrustalThicknessInterface::TableStandardCrust, 0) != string::npos ) {
                for(;;) {
@@ -555,28 +530,24 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
                      break;
                   }
       
-                  firstNotSpace = line.find_first_not_of(" \t"); 
-         
-                  if( line[firstNotSpace] != '#' ) {
-                     CrustalThicknessInterface::parseLine( line, delim, theTokens );
-                     
-                     if( theTokens.size() == 2 ) {
-                        if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                           m_csRho = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                           m_csA = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                           m_csB = atof( theTokens[1].c_str() );
-                        }
-                        
-                     } else {
-                        theTokens.clear();
-                        string s = "More or less arguments than expected.";
-                        cerr << s << endl;
-                        return false;
+                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
+                  if( theTokens.size() == 2 ) {
+                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
+                        m_csRho = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
+                        m_csA = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
+                        m_csB = atof( theTokens[1].c_str() );
                      }
+                     
+                  } else {
                      theTokens.clear();
+                     string s = "More or less arguments than expected.";
+                     cerr << s << endl;
+                     return false;
                   }
+                  theTokens.clear();
                }
              } else if( line == CrustalThicknessInterface::TableLowCondCrust || line.find( CrustalThicknessInterface::TableLowCondCrust, 0) != string::npos ) {
                for(;;) {
@@ -585,29 +556,25 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
                   if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
                      break;
                   }
-                  firstNotSpace = line.find_first_not_of(" \t"); 
-         
-                  if( line[firstNotSpace] != '#' ) {
-     
-                     CrustalThicknessInterface::parseLine( line, delim, theTokens );
-                     
-                     if( theTokens.size() == 2 ) {
-                        if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                           m_clRho = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                           m_clA = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                           m_clB = atof( theTokens[1].c_str() );
-                        }
-                        
-                     } else {
-                        theTokens.clear();
-                        string s = "More or less arguments than expected.";
-                        cerr << s << endl;
-                        return false;
+      
+                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
+                  if( theTokens.size() == 2 ) {
+                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
+                        m_clRho = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
+                        m_clA = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
+                        m_clB = atof( theTokens[1].c_str() );
                      }
+                       
+                  } else {
                      theTokens.clear();
+                     string s = "More or less arguments than expected.";
+                     cerr << s << endl;
+                     return false;
                   }
+                  theTokens.clear();
                }
              } else if( line == CrustalThicknessInterface::TableBasalt || line.find( CrustalThicknessInterface::TableBasalt, 0) != string::npos ) {
                for(;;) {
@@ -617,32 +584,28 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
                      break;
                   }
       
-                  firstNotSpace = line.find_first_not_of(" \t"); 
-         
-                  if( line[firstNotSpace] != '#' ) {
-                     CrustalThicknessInterface::parseLine( line, delim, theTokens );
-                     
-                     if( theTokens.size() == 2 ) {
-                        if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                           m_bRho = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                           m_bA = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                           m_bB = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::T ) {
-                           m_bT = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::Heat ) {
-                           m_bHeat = atof( theTokens[1].c_str() );
-                        }
-                        
-                     } else {
-                        theTokens.clear();
-                        string s = "More or less arguments than expected.";
-                        cerr << s << endl;
-                        return false;
+                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
+                  if( theTokens.size() == 2 ) {
+                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
+                        m_bRho = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
+                        m_bA = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
+                        m_bB = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::T ) {
+                        m_bT = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::Heat ) {
+                        m_bHeat = atof( theTokens[1].c_str() );
                      }
+                       
+                  } else {
                      theTokens.clear();
+                     string s = "More or less arguments than expected.";
+                     cerr << s << endl;
+                     return false;
                   }
+                  theTokens.clear();
                }
              } else if( line == CrustalThicknessInterface::TableMantle || line.find( CrustalThicknessInterface::TableMantle, 0) != string::npos ) {
                for(;;) {
@@ -652,45 +615,38 @@ bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile 
                      break;
                   }
       
-                  firstNotSpace = line.find_first_not_of(" \t"); 
-         
-                  if( line[firstNotSpace] != '#' ) {
-                     CrustalThicknessInterface::parseLine( line, delim, theTokens );
-                     
-                     if( theTokens.size() == 2 ) {
-                        if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                           m_mRho = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                           m_mA = atof( theTokens[1].c_str() );
-                        } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                           m_mB = atof( theTokens[1].c_str() );
-                        } 
-                        
-                     } else {
-                        theTokens.clear();
-                        string s = "More or less arguments than expected.";
-                        cerr << s << endl;
-                        return false;
-                     }
+                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      
+                  if( theTokens.size() == 2 ) {
+                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
+                        m_mRho = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
+                        m_mA = atof( theTokens[1].c_str() );
+                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
+                        m_mB = atof( theTokens[1].c_str() );
+                     } 
+                      
+                  } else {
                      theTokens.clear();
+                     string s = "More or less arguments than expected.";
+                     cerr << s << endl;
+                     return false;
                   }
+                  theTokens.clear();
                }
-            }
+             }
          }
       }
    } 
 
-   const double v = Interface::DefaultUndefinedScalarValue;
-  
-   if( m_csRho == v || m_clRho == v || m_bRho  == v || m_mRho == v ||
-       m_csA   == v || m_clA   == v || m_bA    == v || m_mA   == v ||
-       m_csB   == v || m_clB   == v || m_bB    == v || m_mB   == v ||
-       m_bT    == v || m_bHeat == v || m_HLmin == v || m_NLMEmax == v ||
-       m_InitMEmax == v || m_ECTmin == v || m_HCBLmin == v ) {
-      cerr << "Less paramenters than expected are found in ALCCTC configuraton file." << endl;
+   /*
+   if( m_csRho == 0 || m_clRho == 0 ||  m_bRho == 0 || m_mRho == 0 ||
+       m_csA  == 0 || m_clA == 0 || m_bA == 0 || m_mA == 0 ||
+       m_csB  == 0 || m_clB == 0 || m_bB == 0 || m_mB == 0 ||
+       m_bT == 0|| m_bHeat == 0 || m_HLmin == 0 || m_HLMEmax == 0 ) {
+      cerr << "Less arguments than expected in CTC configuraton file." << endl;
       return false;
    }
-   /*
    cout << "m: " << m_mRho << "; " << m_mA << "; " << m_mB << "; " <<  endl;
    cout << "cl: " << m_clRho << "; " << m_clA << "; " << m_clB << "; " <<  endl;
    cout << "cs: " << m_csRho << "; " << m_csA << "; " << m_csB << "; " <<  endl;
@@ -706,28 +662,25 @@ BasementLithologyProps::BasementLithologyProps() {
 //------------------------------------------------------------//
 void BasementLithologyProps::clean() {
    
-   m_csRho = Interface::DefaultUndefinedScalarValue;
-   m_clRho = Interface::DefaultUndefinedScalarValue;
-   m_bRho  = Interface::DefaultUndefinedScalarValue;
-   m_mRho  = Interface::DefaultUndefinedScalarValue;
-   m_csA   = Interface::DefaultUndefinedScalarValue;
-   m_csB   = Interface::DefaultUndefinedScalarValue;
-   m_clA   = Interface::DefaultUndefinedScalarValue;
-   m_clB   = Interface::DefaultUndefinedScalarValue;
-   m_bA    = Interface::DefaultUndefinedScalarValue;
-   m_bB    = Interface::DefaultUndefinedScalarValue;
-   m_mA    = Interface::DefaultUndefinedScalarValue;
-   m_mB    = Interface::DefaultUndefinedScalarValue;
-   m_bT    = Interface::DefaultUndefinedScalarValue;
-   m_bHeat = Interface::DefaultUndefinedScalarValue;
+   m_csRho = 0;
+   m_clRho = 0;
+   m_bRho = 0;
+   m_mRho = 0;
+   m_csA = 0;
+   m_csB = 0;
+   m_clA = 0;
+   m_clB = 0;
+   m_bA = 0;
+   m_bB = 0;
+   m_mA = 0;
+   m_mB = 0;
+   m_bT = 0;
+   m_bHeat = 0;
 
-   m_HLmin     = Interface::DefaultUndefinedScalarValue;
-   m_NLMEmax   = Interface::DefaultUndefinedScalarValue;
-   m_InitMEmax = Interface::DefaultUndefinedScalarValue;
-   m_ECTmin    = Interface::DefaultUndefinedScalarValue;
-   m_HCBLmin   = Interface::DefaultUndefinedScalarValue;
+   m_HLmin = 0;
+   m_HLMEmax = 0;
+
 }
-
 //------------------------------------------------------------//
 BasementLithologyProps& BasementLithologyProps::operator=( const BasementLithologyProps& aBP ) {
    
@@ -747,10 +700,7 @@ BasementLithologyProps& BasementLithologyProps::operator=( const BasementLitholo
    m_bHeat = aBP.m_bHeat;
    
    m_HLmin = aBP.m_HLmin;
-   m_NLMEmax = aBP.m_NLMEmax;
-   m_InitMEmax = aBP.m_InitMEmax;
-   m_ECTmin = aBP.m_ECTmin;
-   m_HCBLmin = aBP.m_ECTmin;
+   m_HLMEmax = aBP.m_HLMEmax;
    
    return * this;
 }
