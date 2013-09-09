@@ -58,11 +58,6 @@ const double & CrustalThicknessData::getHBu(void) const
    return database::getHBu (m_record);
 }
 
-const int & CrustalThicknessData::getFilterHalfWidth(void) const
-{
-   return database::getFilterHalfWidth (m_record);
-}
-
 const double & CrustalThicknessData::getDeltaSL(void) const
 {
    return database::getDeltaSL (m_record);
