@@ -40,7 +40,7 @@ namespace CrustalThicknessInterface {
    const string TableStandardCrust = "Table:[StandardCrust]";
    const string TableLowCondCrust = "Table:[LowCondCrust]";
    const string TableBasalt = "Table:[Basalt]";
-   const string EndOfTable  = "[EndOfTable]";
+   const string EndOfTable = "[EndOfTable]";
 
    const string t_0 = "t_0";
    const string t_r = "t_r";
@@ -50,6 +50,7 @@ namespace CrustalThicknessInterface {
    const string seaLevelAdjustment = "seaLevelAdjustment";
    const string coeffThermExpansion = "coeffThermExpansion";
    const string initialSubsidenceMax = "initialSubsidenceMax";
+   const string thermalSubsidenceMax = "thermalSubsidenceMax";
    const string pi = "pi";
    const string E0 = "E0";
    const string tau = "tau";
@@ -67,15 +68,11 @@ namespace CrustalThicknessInterface {
    const string E = "E";
    const string F = "F";
    const string T = "T";
-   const string Heat = "Heat";
-   const string Rho  = "Rho";
    const string decayConstant = "decayConstant";
    const string lithosphereThicknessMin = "HLmin";
-   const string maxNumberOfMantleElements = "NLMEmax";
-   const string maxNumberOfMantleElementsOld = "HLMEmax";
-   const string initNumberOfMantleElements = "NInitLMEmax";
-   const string minECT = "ECTmin";
-   const string minBoundaryLayer = "HCBLmin";
+   const string maxNumberOfMantleElements = "HLMEmax";
+   const string Heat = "Heat";
+   const string Rho  = "Rho";
 
    void parseLine(const string &theString, const string &theDelimiter, vector<string> &theTokens);
    int GetRank ();
@@ -105,6 +102,7 @@ private:
    //-------------- Basic constants ---------------------
    double m_coeffThermExpansion;
    double m_initialSubsidenceMax;
+   double m_thermalSubsidenceMax;
    double m_pi;
    double m_E0;
    double m_tau;
@@ -117,8 +115,7 @@ private:
    double m_referenceCrustThickness;
    double m_referenceCrustDensity;
    double m_waterDensity;
-   double m_minECT;
-
+   
    //------------- Asthenosphere potential temperature data ---------------------
    double m_A;
    double m_B;
@@ -141,7 +138,6 @@ private:
    const GridMap * m_HBuMap;
    const GridMap * m_DeltaSLMap;
 
-   int    m_smoothRadius;
    string m_baseRiftSurfaceName; 
    //-------------   
    double m_modelCrustDensity;
@@ -154,6 +150,8 @@ private:
    double m_WLS_crit;
    double m_WLS_exhume;
    double m_WLS_exhume_serp;
+
+   double m_densityDiff;
 
    void clean();
    
@@ -169,14 +167,11 @@ public:
    void LoadMagmaLayer( ifstream &ConfigurationFile );
    void LoadUserDefinedData( ifstream &ConfigurationFile );
 
-   int    getSmoothRadius() const;
    double getMidAge() const;
    double getDensityDifference() const;
    double getInitialCrustThickness() const;
    double getInitialLithosphereThickness() const;
    double getBackstrippingMantleDensity() const;
-   double getWaterDensity() const;
-   double getECTmin() const;
    double getEstimatedCrustDensity() const;
    double getTFOnset() const;
    double getTFOnsetLin() const;
@@ -198,40 +193,8 @@ public:
    unsigned firstJ() const;
    unsigned lastI() const;
    unsigned lastJ() const;
-
-   double getInitialSubsidence() const { return m_initialSubsidenceMax; }
-
-   const GridMap* getT0Map() const;
-   const GridMap* getTRMap() const;
-   const GridMap* getHCuMap() const;
-   const GridMap* getHLMuMap() const;
-   const GridMap* getDeltaSLMap() const;
 };
 
-
-inline const GridMap* InterfaceInput::getT0Map() const {
-   return m_T0Map;
-}
-
-inline const GridMap* InterfaceInput::getTRMap() const {
-   return m_TRMap;
-}
-
-inline const GridMap* InterfaceInput::getHCuMap() const {
-   return m_HCuMap;
-}
-
-inline const GridMap* InterfaceInput::getHLMuMap() const {
-   return m_HLMuMap;
-}
-
-inline const GridMap* InterfaceInput::getDeltaSLMap() const {
-   return m_DeltaSLMap;
-}
-
-inline int InterfaceInput::getSmoothRadius() const {
-   return m_smoothRadius;
-}
 
 inline double InterfaceInput::getDeltaSLValue( unsigned int i, unsigned int j ) const {
    
@@ -246,6 +209,10 @@ inline double InterfaceInput::getMidAge() const {
    return (m_t_r + m_t_0) / 2;
 }
 
+inline double InterfaceInput::getDensityDifference() const {
+
+   return m_densityDiff;
+}
 inline double InterfaceInput::getInitialCrustThickness() const {
    
    return m_initialCrustThickness;
@@ -259,16 +226,6 @@ inline double InterfaceInput::getInitialLithosphereThickness() const {
 inline double InterfaceInput::getBackstrippingMantleDensity() const {
    
    return m_backstrippingMantleDensity;
-}
-
-inline double InterfaceInput::getWaterDensity() const {
-   
-   return m_waterDensity;
-}
-
-inline double InterfaceInput::getECTmin() const {
-   
-   return m_minECT;
 }
 
 inline double InterfaceInput::getEstimatedCrustDensity() const {

@@ -5,16 +5,15 @@
 #include "Interface/ProjectHandle.h"
 #include "InterfaceInput.h"
 #include "InterfaceOutput.h"
-#include "DensityCalculator.h"
-
-#include "Local2DArray.h"
 
 using namespace DataAccess;
 using namespace std;
 
-class CrustalThicknessCalculator : public Interface::ProjectHandle {
+const int XYZ = 0x0001;
+const int HDF = 0x0002;
+const int SUR = 0x0004;
 
-   typedef GeoPhysics::Local2DArray <bool>  BooleanLocal2DArray;
+class CrustalThicknessCalculator : public Interface::ProjectHandle {
 
 public :
    // Constructor / Destructor
@@ -46,44 +45,18 @@ private :
 
    static string m_projectFileName;
    static string m_outputFileName;
-
-   LinearFunction m_LF;
-   DensityCalculator m_DensityCalculator;
-
    int    m_outputOptions; 
    bool   m_debug;
    bool   m_applySmoothing; // smooth the WLS map
-   int    m_smoothRadius;
-
-   /// I.e. whether it is included in the calculation.
-   BooleanLocal2DArray m_validNodes;
-   BooleanLocal2DArray m_currentValidNodes;
 
    // Set requested output properties from the Project file
    void setRequestedOutputProperties( InterfaceOutput & theOutput);
 
    bool movingAverageSmoothing( GridMap * aMap );
-
-   void setAdditionalOptionsFromCommandLine();
-
-  /// Return whether or not the node is defined.
-   bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
-   
-   void addUndefinedAreas ( BooleanLocal2DArray & validNodes, const Interface::GridMap* theMap );
-
-   void initialiseValidNodes ( const InterfaceInput &theInterfaceData );
-   void initialiseCurrentValidNodes ();
-
-   GridMap * calculatePresentDayWLS( InterfaceInput & theInterfaceData );
-
 };
 
 inline CrustalThicknessCalculator& CrustalThicknessCalculator::getInstance () {
    return *m_crustalThicknessCalculator;
-}
-
-inline bool CrustalThicknessCalculator::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
-   return ( m_validNodes ( i, j ) && m_currentValidNodes ( i, j ));
 }
 
 #endif
