@@ -712,7 +712,6 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
               Previous_Chemical_Compaction ( Inode + 1 ) = Layer_Previous_Chemical_Compaction ( LidxZ, GidxY, GidxX );
               Current_Chemical_Compaction  ( Inode + 1 ) = Layer_Current_Chemical_Compaction  ( LidxZ, GidxY, GidxX );
 	    }
-
             if( Current_Layer -> isBasement() && Basin_Model -> isALC() ) {
                ElementGeometryMatrix Geometry_Matrix1;
                for ( Inode = 0; Inode < 8; Inode ++ ) {
@@ -750,17 +749,15 @@ void Temperature_Solver::Assemble_System ( const double  Previous_Time,
                         }
                         
                      } else {
-                        topBasaltDepth( GidxY, GidxX ) = depth( LidxZ, GidxY, GidxX );                       
+                        topBasaltDepth( GidxY, GidxX ) = depth( LidxZ, GidxY, GidxX ); 
+                        
                      }
 
                      if( ! Basin_Model->bottomBasaltTemp ) {
                         if( !Current_Layer->getPreviousBasaltLitho( GidxX, GidxY, LidxZ ) && 
-                            Current_Time > FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY )) {
-                           if( Current_Layer->isMantle() || 
-                               ( Current_Layer->isCrust() && ( Geometry_Matrix1 ( 3, Inode + 1 ) > FastcauldronSimulator::getInstance ().getMinimumHCBL() ))) {
-                              Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
-                              BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
-                           }
+                            Current_Time > FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY ) ) {
+                             Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
+                             BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
                         } 
                      } else {
                         // set constraied temperature only for the bottom basalt element
@@ -1155,7 +1152,6 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
               Previous_Chemical_Compaction ( Inode + 1 ) = Layer_Previous_Chemical_Compaction ( LidxZ, GidxY, GidxX );
               Current_Chemical_Compaction  ( Inode + 1 ) = Layer_Current_Chemical_Compaction  ( LidxZ, GidxY, GidxX );
 	    }
-
             if( Current_Layer -> isBasement() && Basin_Model -> isALC() ) {
                ElementGeometryMatrix Geometry_Matrix1;
                for ( Inode = 0; Inode < 8; Inode ++ ) {
@@ -1176,7 +1172,6 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
                int xY = Basin_Model -> mapElementList[EltCount].j[0];
                int xX = Basin_Model -> mapElementList[EltCount].i[0];
                Element_Lithology = Current_Layer -> getLithology( Current_Time, xX, xY, midPointDepth );
-
                if( Current_Layer->isBasalt() ) {
                   for ( Inode = 0; Inode < 8; Inode ++ ) {
                      int LidxZ = Layer_K + (Inode < 4 ? 1 : 0);
@@ -1197,11 +1192,8 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
                     if( ! Basin_Model->bottomBasaltTemp ) {
                         if( !Current_Layer->getPreviousBasaltLitho( GidxX, GidxY, LidxZ ) &&
                             Current_Time > FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY ) ) {
-                           if( Current_Layer->isMantle() || 
-                               ( Current_Layer->isCrust() && ( Geometry_Matrix1 ( 3, Inode + 1 ) >  FastcauldronSimulator::getInstance ().getMinimumHCBL() ))) {
-                              Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
-                              BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
-                           }
+                           Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
+                           BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
                         }
                      } else {
                         // set constraied temperature only for the bottom basalt element
@@ -2296,11 +2288,8 @@ void Temperature_Solver::Assemble_Stiffness_Matrix ( const double  Previous_Time
                      if( ! Basin_Model->bottomBasaltTemp ) {
                         if( !Current_Layer->getPreviousBasaltLitho( GidxX, GidxY, LidxZ ) && 
                             Current_Time > FastcauldronSimulator::getInstance ().getEndOfRiftEvent( xX, xY )) {
-                           if( Current_Layer->isMantle() || 
-                               ( Current_Layer->isCrust() && ( Geometry_Matrix1 ( 3, Inode + 1 ) > FastcauldronSimulator::getInstance ().getMinimumHCBL() ))) {
-                              Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
-                              BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
-                           } 
+                           Nodal_BCs [ Inode ] = Interior_Constrained_Temperature; 
+                           BC_Values ( Inode + 1 ) = Constrained_Temp_Value;
                         }
                      } else {
                         // set constraied temperature only for the bottom basalt element

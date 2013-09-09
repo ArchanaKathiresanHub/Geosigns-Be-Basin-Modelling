@@ -134,10 +134,12 @@ void BasementLithostaticPressureCalculator::allocatePropertyValues ( OutputPrope
                                                                                                                         m_surface ));
    properties.push_back ( lithostaticPressure );
                                                    
-   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ||
+   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ||
+        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ||
         FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE ) {
       lithostaticPressure->allowOutput ( false );
    }
+       
 }
 
 bool BasementLithostaticPressureCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
