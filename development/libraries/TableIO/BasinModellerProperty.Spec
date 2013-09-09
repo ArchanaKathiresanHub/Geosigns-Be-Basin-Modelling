@@ -8541,30 +8541,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-    Identification      : CumTectonicSubsidence
-    Description		: total tectonic subsidence
-    Unit of measurement : m
-    Type                : string
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : IncTectonicSubsidence
-    Description		: incremental tectonic subsidence
-    Unit of measurement : m
-    Type                : string
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : IsostaticBathymetry
-    Description		: isostatic bathymetry
-    Unit of measurement : m
-    Type                : string
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
     Identification      : AdjustedWaterLoadedSubsidence
     Description		: present-day water loaded subsidence
     Unit of measurement : m
