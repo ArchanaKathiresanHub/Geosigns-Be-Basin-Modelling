@@ -123,7 +123,7 @@ void GeoPhysics::FluidType::loadPropertyTables () {
       if( m_projectHandle->getPermafrostData()->getPressureTerm() ) {
          m_pressureTerm = 0.073;
       }
-      if(  m_projectHandle->getPermafrostData()->getSalinityTerm() ) {
+      if( m_projectHandle->getPermafrostData()->getSalinityTerm() ) {
          m_salinityTerm = 0.064;
       }
     } 
@@ -498,7 +498,7 @@ double GeoPhysics::FluidType::computeTheta ( const double temperature, const dou
 
 double GeoPhysics::FluidType::relativePermeability ( const double temperature, const double pressure ) const {
  
-   if( m_projectHandle->getPermafrost() ) {
+/*   if( m_projectHandle->getPermafrost() ) {
       
       const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
       const double solidusTemperature  = getSolidusTemperature( liquidusTemperature );
@@ -512,7 +512,7 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
             return ( - (1.0-1.0e-6) / ( solidusTemperature - liquidusTemperature )) * ( temperature - liquidusTemperature ) + 1.0;
          } 
       }
-   } 
+  } */ 
    return 1.0;
 }
 
