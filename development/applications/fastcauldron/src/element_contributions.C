@@ -376,6 +376,15 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
   Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
 
+  // NLSAY3: The permeability cannot reach lower value than 1.0e-9;
+  if ( Permeability_Normal < 1.0e-8 ) {
+    Permeability_Normal = 1.0e-8;
+  }
+
+  if ( Permeability_Plane < 1.0e-8 ) {
+    Permeability_Plane = 1.0e-8;
+  }
+
   Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
 
   matrixVectorProduct ( Fluid_Mobility, gradOverpressure, Fluid_Velocity );
