@@ -1,3 +1,12 @@
+#ifdef _WIN32
+#define _CRT_RAND_S 1
+#define RandData unsigned int
+#else
+#define RandData struct drand48_data
+#endif
+
+#include <stdlib.h>
+
 #include "../src/EosPackCAPI.h"
 #include "../src/EosPack.h"
 #include "PVTCfgFileMgr.h"
@@ -8,12 +17,14 @@
 
 #include <cmath>
 
+
 #include <gtest/gtest.h>
 
 using namespace CBMGenerics;
 using namespace pvtFlash;
 
-static const int g_NumOfThreads = 5;
+static const int g_NumOfThreads = 10;
+static const int g_NumFlashes = 100;
 
 // Test of EosPack CAPI in multithred environments
 class EosPackMTTest : public ::testing::Test
@@ -23,6 +34,7 @@ public:
    ~EosPackMTTest() {;}
 
    void initializeCompositionMasses( double masses[] );
+   double myRand( RandData * data );
 };
 
 TEST_F( EosPackMTTest, FlashVapour)
@@ -95,6 +107,27 @@ TEST_F( EosPackMTTest, FlashLiquid )
    EXPECT_TRUE( expVap && expLiq ); // check all resuts in one go
 }
 
+TEST_F( EosPackMTTest, StressTest )
+{
+   #pragma omp parallel num_threads(g_NumOfThreads)
+   {
+      ComputeStruct computeStruct;
+      RandData buff;
+
+      for ( int lp = 0; lp < g_NumFlashes; ++lp )
+      {
+         computeStruct.pressure    = 1.0e6 + myRand( &buff ) * 9.0e6;  // in Pa 1-10 MPa
+         computeStruct.temperature = 400   + myRand( &buff ) * 600 ;   // in K 400-1000
+
+         for ( size_t i = FIRST_COMPONENT; i < LAST_COMPONENT; ++i )
+         {
+            computeStruct.compMasses[i] = myRand( &buff );
+         }
+         EosPackComputeWithLumping( &computeStruct);
+      }
+   }
+}
+
 ///////////////////////////////////////////////////////////
 // Axillary functions
 ///////////////////////////////////////////////////////////
@@ -125,5 +158,16 @@ void EosPackMTTest::initializeCompositionMasses( double masses[] )
    masses[C6_14AROS  ] = 0;
 }
 
-
+double EosPackMTTest::myRand( RandData * data )
+{
+   double res;
+#ifdef _WIN32
+   unsigned int ddd = *data;
+   rand_s( &ddd );
+   res = static_cast<double>( *data )/static_cast<double>(UINT_MAX);
+#else
+   drand48_r( data, &res );
+#endif
+   return res;
+}
 
