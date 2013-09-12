@@ -356,7 +356,7 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   double dKnDPhi;
   double dKhDPhi;
 
-  const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
+  // const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
 
   Matrix3x3 fluidMobilityDerivative;
   Matrix3x3 permeabilityTensor;
@@ -378,14 +378,14 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
   Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
 
-  // NLSAY3: The permeability cannot reach lower value than 1.0e-7 mD;
+  /*// NLSAY3: The permeability cannot reach lower value than 1.0e-7 mD;
   if ( Permeability_Normal < PermeabilityLowerLimit ) {
     Permeability_Normal = PermeabilityLowerLimit;
   }
 
   if ( Permeability_Plane < PermeabilityLowerLimit ) {
     Permeability_Plane = PermeabilityLowerLimit;
-  }
+  }*/
 
   Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
 
