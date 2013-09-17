@@ -16,7 +16,7 @@ if(UNIX)
    set( HPC_HOME ${CBM_HOME}/hpc)
 
    execute_process(
-         COMMAND getos2
+         COMMAND /apps/sss/share/getos2
          OUTPUT_VARIABLE CSCE_FULL
          OUTPUT_STRIP_TRAILING_WHITESPACE
    )
@@ -27,6 +27,12 @@ endif(UNIX)
 
 if(WIN32)
    math(EXPR _64 "${CMAKE_SIZEOF_VOID_P} * 8")
+   
+   find_program( MSTEST "mstest.exe"
+	  PATHS "C:/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/IDE"
+	        "C:/Program Files (x86)/Microsoft Visual Studio 11.0/Common7/IDE"
+	  DOC "Location of MSTest unit test driver"
+	)
 endif()
 	
 set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/../3rdparty)
