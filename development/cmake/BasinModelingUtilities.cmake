@@ -197,7 +197,7 @@ macro(add_csharp_unittest )
 		    set(FileListForCompilation "*.cs")
 		endif(TestSourceFilesList)
 		
-        configure_file("${PROJECT_SOURCE_DIR}/files/CSharpTestProjectTemplate.csproj.cmake" "${Directory}/${TestProjectName}.csproj" @ONLY)
+        configure_file("${PROJECT_SOURCE_DIR}/cmake/CSharpTestProjectTemplate.csproj.cmake" "${Directory}/${TestProjectName}.csproj" @ONLY)
 				
 		## Write the local.testsettings file
 		set(TestSettings "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/local.testsettings")

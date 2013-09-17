@@ -164,9 +164,8 @@ if (UNIX)
    find_package(Touchstone REQUIRED CONFIG)
    find_package(QWT REQUIRED CONFIG)
    find_package(Qt3 REQUIRED CONFIG)
+   find_package(Boost REQUIRED CONFIG)
 endif(UNIX)
-
-find_package(Boost REQUIRED CONFIG)
 
 if(BM_BUILD_DOCS)
    find_package(Doxygen CONFIG)

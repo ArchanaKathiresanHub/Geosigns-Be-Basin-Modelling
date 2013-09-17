@@ -84,7 +84,7 @@ macro(add_environment_path path)
 endmacro(add_environment_path)
 
 macro(add_environment_variable varName varValue)
-   file(APPEND "${CMAKE_BINARY_DIR}/${BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE}" "setenv ${varName} = \"${varValue}\"\n")
+   file(APPEND "${CMAKE_BINARY_DIR}/${BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE}" "setenv ${varName} \"${varValue}\"\n")
    file(APPEND "${CMAKE_BINARY_DIR}/${BM_BOURNE_SHELL_ENVIRONMENT_SCRIPT_FILE}" "export ${varName}=\"${varValue}\"\n")
    file(APPEND "${CMAKE_BINARY_DIR}/${BM_WINCMD_SHELL_ENVIRONMENT_SCRIPT_FILE}" "set ${varName}=${varValue}\n")
 endmacro(add_environment_variable)

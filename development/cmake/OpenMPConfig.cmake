@@ -12,8 +12,9 @@
 
 find_package(OpenMP)   
 
-   
-set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static")
+if (UNIX)   
+   set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static")
+endif()
 # There is no need to include 3rdparty information, because in our case it is
 # a compiler extension
 

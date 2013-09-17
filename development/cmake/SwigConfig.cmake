@@ -10,17 +10,17 @@
 #                                                                       #
 #########################################################################
 
-include(files/AddPackage.cmake)
+include(cmake/AddPackage.cmake)
 
-set(SWIG_FOUND TRUE CACHE "Swig is found")
-set(SWIG_DIR "${THIRD_PARTY_DIR}/swigwin-2.0.0" CACHE "The directory where SWIG is installed")
-set(SWIG_EXECUTABLE "${SWIG_DIR}/swig.exe" CACHE "The path to the SWIG executable")
-set(SWIG_VERSION    "2.0.0" CACHE "The version number of the swig executable")
+set(SWIG_FOUND TRUE)
+set(SWIG_DIR "${THIRD_PARTY_DIR}/swigwin-2.0.0" CACHE PATH "The directory where SWIG is installed")
+set(SWIG_EXECUTABLE "${SWIG_DIR}/swig.exe" CACHE FILEPATH "The path to the SWIG executable")
+set(SWIG_VERSION    "2.0.0" CACHE STRING "The version number of the swig executable")
 
 add_external_package_info( 
        CAPABILITY Swig
        NAME     "Swig"
-       VENDOR   ""
+       VENDOR   "Swig"
        VERSION  "${SWIG_VERSION}"
        LICENSE_TYPE "GPL v3"
        LICENSE_FILE "${SWIG_DIR}/LICENSE"

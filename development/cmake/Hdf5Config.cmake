@@ -36,7 +36,7 @@ if(UNIX)
 endif()
 
 if(WIN32)
-	set (HDF5_serial_HOME ${BM_THIRD_PARTY_DIR}/hdf5.win${_64}/hdf5)
+	set (HDF5_serial_HOME ${THIRD_PARTY_DIR}/hdf5.win${_64}/hdf5)
 	# serial version
         set (HDF5_serial_FOUND TRUE)
 	set (HDF5_serial_INCLUDE_DIR ${HDF5_serial_HOME}/include)
