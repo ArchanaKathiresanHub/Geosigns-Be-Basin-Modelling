@@ -356,7 +356,7 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   double dKnDPhi;
   double dKhDPhi;
 
-  // const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
+  const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
 
   Matrix3x3 fluidMobilityDerivative;
   Matrix3x3 permeabilityTensor;
@@ -375,17 +375,22 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
   lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, dKnDPhi, dKhDPhi );
 
-  Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
-  Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
+  Permeability_Normal = relativePermeability * Permeability_Normal;
+  Permeability_Plane  = relativePermeability * Permeability_Plane;
 
-  /*// NLSAY3: The permeability cannot reach lower value than 1.0e-7 mD;
-  if ( Permeability_Normal < PermeabilityLowerLimit ) {
+
+  // NLSAY3: The permeability cannot reach lower value than 1.0e-7 mD;
+/*  if ( Permeability_Normal < PermeabilityLowerLimit ) {
     Permeability_Normal = PermeabilityLowerLimit;
   }
 
   if ( Permeability_Plane < PermeabilityLowerLimit ) {
     Permeability_Plane = PermeabilityLowerLimit;
   }*/
+
+  Permeability_Normal *= Permeability_Scaling * fluidDensity / fluidViscosity;
+  Permeability_Plane  *=                        fluidDensity / fluidViscosity;
+
 
   Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
 
@@ -1630,7 +1635,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
 
 
-  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
+/*  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
 
   ElementVector Dirichlet_Boundary_Values_Ice_Sheet;
   Dirichlet_Boundary_Values_Ice_Sheet.zero();
@@ -1652,7 +1657,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
     return;
   }
-
+*/
 
 
 
