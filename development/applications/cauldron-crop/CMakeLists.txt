@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 add_executable(cauldron-crop
 	src/crop.C
 )
@@ -20,7 +32,7 @@ target_link_libraries(cauldron-crop
       SerialDataAccess
       utilities
       ${HDF5_serial_LIBRARIES}
-      ${HDF5_HOME}/lib/libhdf5_hl.a
+      ${HDF5_serial_HOME}/lib/libhdf5_hl.a
 )
 
 install(TARGETS cauldron-crop

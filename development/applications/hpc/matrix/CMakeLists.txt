@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 cmake_minimum_required(VERSION 2.8)
 project(matrix)
 
@@ -13,7 +25,7 @@ set( MPI_ROOT "/nfs/rvl/apps/3rdparty/intel/impi/4.1.0.030/intel64" CACHE PATH "
 #set(MPI_ROOT "/glb/home/nlwsu2/projects/apps/openmpi-1.4.5")
 find_package(MPI REQUIRED)
 
-include_directories(${MPI_C_INCLUDE_PATH})
+include_directories(${MPI_INCLUDE_DIRS})
 add_definitions(-DHAVE_MPI=1)
 
 #BLAS
@@ -59,8 +71,7 @@ add_executable(bench
 
 target_link_libraries(bench
     matrix
-    ${MPI_C_LIBRARIES}
-    ${MPI_CXX_LIBRARIES}
+    ${MPI_LIBRARIES}
 )
 
 cuda_add_library(matrix

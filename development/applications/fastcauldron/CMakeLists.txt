@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 if (BM_PARALLEL)
 
 add_executable(fastcauldron
@@ -122,8 +134,7 @@ include_directories(
 	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
 	${PROJECT_SOURCE_DIR}/libraries
 	${HDF5_parallel_INCLUDE_DIRS}
-	${MPI_C_INCLUDE_PATH}
-	${BLAS_INCLUDE_DIRS}
+	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
 )
@@ -174,7 +185,7 @@ target_link_libraries(fastcauldron
 	${PETSC_LIBRARIES}
 	${BLAS_LIBRARIES}
 	${BM_MPI_LOCK_LIBRARIES}
-	${MPI_C_LIBRARIES}
+	${MPI_LIBRARIES}
 	z
 )
 

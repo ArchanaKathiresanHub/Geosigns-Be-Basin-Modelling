@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 if (BM_PARALLEL)
 	add_library( DistributedDataAccess
 		src/DistributedApplicationGlobalOperations.C
@@ -20,7 +32,7 @@ if (BM_PARALLEL)
 		utilities
 		CBMGenerics
 		${HDF5_parallel_LIBRARIES}
-		${MPI_C_LIBRARIES}
+		${MPI_LIBRARIES}
 		${PETSC_LIBRARIES}
 	)
 
@@ -41,7 +53,7 @@ if (BM_PARALLEL)
 		src
 		${PETSC_INCLUDE_DIRS}
 		${HDF5_parallel_INCLUDE_DIRS}
-		${MPI_C_INCLUDE_PATH}
+		${MPI_INCLUDE_DIRS}
 	)
 
         set_target_properties(DistributedDataAccess

@@ -1,14 +1,41 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 #
+# Determine minimum toolset: CMake & C++ Compiler
 #
+cmake_minimum_required(VERSION 2.8)
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}")
+include(cmake/EnvSetup.cmake)
+init_environment()
+find_package(Compiler CONFIG)
+
+# 
+# Start the project description
+#
+Project(BasinModeling)
+
+#
+# General Include files
 #
 
-cmake_minimum_required(VERSION 2.8)
-Project(BasinModeling)
+include(cmake/PredefinedVariables.cmake)
+include(cmake/BasinModelingUtilities.cmake)
+
+include(FeatureSummary)
 
 #
 # Configurable options
 #
-
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
 option( BM_PARALLEL "Build the parallel cauldron applications" ${UNIX} )
 option( BM_USE_OWN_MPICH_LOCK "Use our custom ADIOI_Set_lock functions in MPI library (Linux only)" ON )
@@ -24,7 +51,7 @@ if(BM_CODE_COVERAGE_ENABLE)
 endif()
 
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
-
+set( BM_THIRDY_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
 set(CMAKE_INSTALL_PREFIX "" CACHE PATH "Installation prefix" )
 set(CMAKE_BUILD_TYPE "" CACHE STRING "CMake build type ('Release' or 'Debug')")
 set(SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
@@ -53,218 +80,51 @@ if(NOT CMAKE_BUILD_TYPE)
 	set (CMAKE_BUILD_TYPE Release)
 endif()
 
-if(BM_BUILD_ENABLE_TESTING)
-	enable_testing()
-    # Include Google Testing Framework (which is itself a CMake project)
-    # and Google Mock (Google Mock contains Google Test)
-	
-	option( gtest_force_shared_crt
-       "Use shared (DLL) run-time lib even when Google Test is built as static lib."
-       ON
-	)
-	
-    add_subdirectory(../3rdparty/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
-    set(GTEST_INCLUDE_DIR "${gtest_SOURCE_DIR}/include")
-    set(GTEST_INCLUDE_DIRS "${GTEST_INCLUDE_DIR}")
-    set(GMOCK_INCLUDE_DIR "${gmock_SOURCE_DIR}/include")
-    set(GMOCK_INCLUDE_DIRS "${GMOCK_INCLUDE_DIR}")
+#
+# Setting compile flags
+#   
+
+if(MSVC)
+   if (CMAKE_CL_64)
+      set(BM_WINDOWS_PLATFORM "x64")
+   else (CMAKE_CL_64)
+      set(BM_WINDOWS_PLATFORM "Win32")
+   endif (CMAKE_CL_64)
+   # remove  /Zm1000 from command line options
+   string(REPLACE "/Zm1000" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+   string(REPLACE "/Zm1000" "" CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS})
+
+   message(STATUS "BM_WINDOWS_PLATFORM = ${BM_WINDOWS_PLATFORM}")
+
+   add_definitions( "-Dand=&&" "-Dor=||" "-Dnot=!" )
+   option( BM_USE_MSVC_DYNAMIC_LIBS "Use the dynamic C runtime" ON )
+#  if (BM_USE_MSVC_DYNAMIC_LIBS)
+#     configure_msvc_runtime("dynamic")
+#  else()
+#    configure_msvc_runtime("static")
+#  endif()
+
+   if (NOT BUILD_SHARED_LIBS)
+      add_definitions(-DCBMGENERICS_STATIC)
+      add_definitions(-DUTILITIES_STATIC)
+      add_definitions(-DSERIALHDF5_STATIC)
+      add_definitions(-DTABLEIO_STATIC)
+   endif()
 endif()
-
-include(files/PredefinedVariables.cmake)
-
-if(WIN32)
-	if (CMAKE_CL_64)
-		set(BM_WINDOWS_PLATFORM "x64")
-	else (CMAKE_CL_64)
-		set(BM_WINDOWS_PLATFORM "Win32")
-	endif (CMAKE_CL_64)
-	# remove  /Zm1000 from command line options
-	string(REPLACE "/Zm1000" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-	string(REPLACE "/Zm1000" "" CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS})
-endif()
-
-message(STATUS "BM_WINDOWS_PLATFORM = ${BM_WINDOWS_PLATFORM}")
-
-# Modules
-# include(GenerateExportHeader)
-include(FeatureSummary)
-
-include(files/BasinModelingUtilities.cmake)
-
-### Visual Studio 
-if (MSVC)
-	add_definitions( "-Dand=&&" "-Dor=||" "-Dnot=!" )
-	option( BM_USE_MSVC_DYNAMIC_LIBS "Use the dynamic C runtime" ON )
-#	if (BM_USE_MSVC_DYNAMIC_LIBS)
-#		configure_msvc_runtime("dynamic")
-#	else()
-#		configure_msvc_runtime("static")
-#	endif()
-
-    if (NOT BUILD_SHARED_LIBS)
-	   add_definitions(-DCBMGENERICS_STATIC)
-	   add_definitions(-DUTILITIES_STATIC)
-	   add_definitions(-DSERIALHDF5_STATIC)
-	   add_definitions(-DTABLEIO_STATIC)
-	endif()
-    
-	find_program( MSTEST "mstest.exe"
-	  PATHS "C:/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/IDE"
-	        "C:/Program Files (x86)/Microsoft Visual Studio 11.0/Common7/IDE"
-	  DOC "Location of MSTest unit test driver"
-	)
-endif ()
 
 if(UNIX)
-	# The library to be compiled with -O3 is EosPack, all others, 
-	# including the applications are to be compiled with -O2.
-	# Also we want assert(3) in Release configuration
-	set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-	# IMPORTANT: somehow -fPIC affects regression test results
-	add_definitions(-fPIC)
-	if(BM_CODE_COVERAGE_ENABLE)
-		file(MAKE_DIRECTORY ${BM_CODE_COVERAGE_DIR})
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -prof-gen=srcpos -prof-dir ${BM_CODE_COVERAGE_DIR}")
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
-	endif()
-endif()
-
-### SWIG
-if (BM_CSHARP_API)
-	find_package(SWIG REQUIRED)
-	include(UseSWIG)
-endif()
-
-### MPI
-
-if (BM_PARALLEL)
-	find_package(MPI REQUIRED)
-	# Note: We only need C bindings. The C++ bindings sometimes give trouble
-	# because of SEEK_SET, etc... already being defined in stdio.h or iostream
-	# add_definitions(-DMPICH_SKIP_MPICXX)
-	if (BM_USE_OWN_MPICH_LOCK)
-		add_subdirectory(libraries/mpich2_lock)
-		set(BM_MPI_LOCK_LIBRARIES)
-		list(APPEND BM_MPI_LOCK_LIBRARIES "-Wl,--whole-archive" mpich2_lock "-Wl,--no-whole-archive")
-	endif(BM_USE_OWN_MPICH_LOCK)
-	
-	if(NOT BUILD_SHARED_LIBRARIES)
-	   patch_mpi_libraries_to_use_static(MPI_C_LIBRARIES ${MPI_C_LIBRARIES})
+    # The library to be compiled with -O3 is EosPack, all others, 
+    # including the applications are to be compiled with -O2.
+    # Also we want assert(3) in Release configuration
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+    # IMPORTANT: somehow -fPIC affects regression test results
+    add_definitions(-fPIC)
+    if(BM_CODE_COVERAGE_ENABLE)
+       file(MAKE_DIRECTORY ${BM_CODE_COVERAGE_DIR})
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -prof-gen=srcpos -prof-dir ${BM_CODE_COVERAGE_DIR}")
+       set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
     endif()
 endif()
-
-### HDF5
-if (BUILD_SHARED_LIBS)
-	set(HDF5_USE_STATIC_LIBRARIES OFF)
-else(BUILD_SHARED_LIBS)
-	set(HDF5_USE_STATIC_LIBRARIES ON)
-endif(BUILD_SHARED_LIBS)
-
-set (HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version")
-include(files/FindHDF5.cmake)
-
-# Note on weird notation: HDF5_IS_PARALLEL has values "TRUE" and "FALSE" while
-# BM_PARALLEL can be "ON" and "OFF". By using 'NOT' operator these
-# values are converted to the same range.
-if ( NOT ( (NOT HDF5_IS_PARALLEL) EQUAL (NOT BM_PARALLEL) ) )
-	message(WARNING "The parallelism of the HDF5 library didn't match the build request")
-endif()
-
-add_definitions(${HDF5_DEFINITIONS})
-
-# include MPI libraries automaticaly when HDF5 library is parallel version
-if (HDF5_IS_PARALLEL)
-	list(APPEND HDF5_INCLUDE_DIRS "${MPI_C_INCLUDE_PATH}")
-	list(APPEND HDF5_LIBRARIES "${MPI_C_LIBRARIES}")
-endif(HDF5_IS_PARALLEL)
-
-
-### OpenMP
-find_package(OpenMP)   
-
-
-# BLAS, LAPACK, and PetSC
-if(UNIX)
-	#Note to following line: the FindLAPACK modules dooes not provide
-	# variables to specify search location, therefore I use here the general
-	# 'CMAKE_PREFIX_PATH' variable.
-	list(APPEND CMAKE_PREFIX_PATH ${BLAS_ROOT} ${LAPACK_ROOT})
-	set(BLA_STATIC ON)
-	find_package(BLAS)
-	#find_package(LAPACK)
-endif(UNIX)
-
-include(files/FindPETSC.cmake)
-
-### FLexLM
-set( FLEXLM_LIBRARIES "FLEXLM_LIBRARIES-NOTFOUND" CACHE PATH "Path of FlexLM libraries" )
-set( FLEXLM_INCLUDE_DIRS "FLEXLM_INCLUDE_DIRS-NOTFOUND" CACHE PATH "Path of FlexLM include files" )
-
-### Function Parser
-set( FP_ROOT "FP_ROOT-NOTFOUND" CACHE PATH "Path to Function Parser library (see also http://warp.povusers.org/FunctionParser/ )" )
-set( FP_LIBRARIES "FP_LIBRARIES-NOTFOUND" CACHE PATH "Path to Function Parser library" )
-set( FP_INCLUDE_DIRS "FP_INCLUDE_DIRS-NOTFOUND" CACHE PATH "to Function Parser library include directory" )
-
-
-### Touchstone
-set( TS_INCLUDE_DIRS "TS_INCLUDE_DIRS-NOTFOUND" CACHE PATH "" )
-set( TS_LIBRARIES "TS_LIBRARIES-NOTFOUND" CACHE PATH "" )
-
-### Touchstone 7.0
-set( TS7_ROOT "TS7_ROOT-NOTFOUND" CACHE PATH "")
-set( TS7_GEOCOSM_XML_INCLUDE "${TS7_ROOT}/geocosmxml" CACHE PATH "")
-set( TS7_INCLUDE_DIRS "${TS7_ROOT}/include" CACHE PATH "" )
-set( TS7_LIBRARY_DIR "${TS7_ROOT}/lib" CACHE PATH "" )
-set( TS7_LIBRARIES "-L${TS7_LIBRARY_DIR}  -lgeocosmxmllibbasecpp -lgeocosmexception" CACHE PATH "" )
-
-### XSD (see http://www.codesynthesis.com/projects/xsd/ )
-set( XSD_ROOT "XSD-NOTFOUND" CACHE PATH "")
-set( XSD_INCLUDE_DIRS "${XSD_ROOT}/libxsd" CACHE PATH "")
-
-### Xerces-C
-find_path( XERCES_INCLUDE_DIRS "xercesc/dom/DOM.hpp" 
-	HINTS "${XERCES_ROOT}/include"
-	DOC "Xerces-C include directory"
-)
-
-find_library( XERCES_LIBRARIES "xerces-c"
-	HINTS "${XERCES_ROOT}/lib"
-	DOC "Xerces-C libraries"
-)
-
-### QT3
-if(UNIX)
-	find_package(Qt3 REQUIRED)
-	include(files/Qt3Macros.cmake)
-endif(UNIX)
-
-### QWT
-find_path( QWT_INCLUDE_DIRS qwt.h
-	HINTS "${QWT_ROOT}/include"
-)
-find_library( QWT_LIBRARIES qwt
-	HINTS "${QWT_ROOT}/lib"
-)
-
-### Boost (boost.org)
-find_package( Boost 1.33.0 )
-if (Boost_FOUND)
-     include_directories(${Boost_INCLUDE_DIRS})
-endif()
-
-
-### Doxygen (for documentation generation)
-if(BM_BUILD_DOCS)
-	find_package(Doxygen)
-
-	if(DOXYGEN_FOUND)
-		add_custom_target(doc
-			COMMENT "Generating Doxygen documentation"
-		)
-	endif()
-endif()
-
-### More definitions ###
 
 add_definitions(-DIBSFLEXLMVERSION="2008.04")
 add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
@@ -272,16 +132,60 @@ add_definitions(-DIBSSHORTVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DSVNREVISION="${BM_SVNREVISION}")
 
-### 
 
-### Add subdirs
+#
+# Include 3rd party packages
+#
+
+if(BM_BUILD_ENABLE_TESTING)
+   enable_testing()
+   find_package(TestFramework REQUIRED CONFIG)
+endif()
+
+if (BM_CSHARP_API)
+   find_package(Swig REQUIRED CONFIG)
+endif()
+
+if (BM_PARALLEL)
+   find_package(MPI REQUIRED CONFIG)
+   if (BM_USE_OWN_MPICH_LOCK)
+      find_package(MpichLock REQUIRED CONFIG)
+   endif()
+endif()
+
+find_package(Hdf5 REQUIRED CONFIG)
+find_package(OpenMP REQUIRED CONFIG)   
+
+if (UNIX)
+   find_package(BLAS REQUIRED CONFIG)
+   find_package(PETSC REQUIRED CONFIG)
+   find_package(FlexLM REQUIRED CONFIG)
+   find_package(FunctionParser REQUIRED CONFIG)
+   find_package(Touchstone REQUIRED CONFIG)
+   find_package(QWT REQUIRED CONFIG)
+   find_package(Qt3 REQUIRED CONFIG)
+endif(UNIX)
+
+find_package(Boost REQUIRED CONFIG)
+
+if(BM_BUILD_DOCS)
+   find_package(Doxygen CONFIG)
+endif()
+
+#
+# Include the subdirectories that have to be built
+#
+
 add_subdirectory(libraries)
 add_subdirectory(applications)
 if(BM_BUILD_REGRESSION_TESTS)
 	add_subdirectory(regression_tests)
 endif()
 
-### Add 'misc' folder
+#
+# Install configuration files
+# 
+
 install(DIRECTORY geocase/misc/ # last backslach is MANDATORY
 	DESTINATION misc
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
@@ -296,21 +200,26 @@ install(DIRECTORY geocase/misc/ # last backslach is MANDATORY
             WORLD_READ WORLD_EXECUTE
     )
 
-### Generate setup scripts
+#
+# Generate scripts
+#
 if (WIN32)
    set(script_suffix ".bat")
 else ()
    set(script_suffix ".csh")
 endif()
 
-get_filename_component(CMAKE_COMMAND_PATH ${CMAKE_COMMAND} PATH)
-
-configure_file(envsetup${script_suffix}.cmake envsetup${script_suffix})
 configure_file(InstallAll${script_suffix}.cmake InstallAll${script_suffix} @ONLY)
 configure_file(MoveInstalls${script_suffix}.cmake MoveInstalls${script_suffix} @ONLY)
 
-### Feature reporting
+# generate environment set-up file
+include(cmake/GoCBM.cmake)
+
+#
+# Reporting
+#
 feature_summary(WHAT ALL)
+write_external_package_info_file(${CMAKE_BINARY_DIR}/${BM_THIRDY_PARTY_COMPONENT_LIST_FILE})
 
 # Local Variables:
 # mode: cmake

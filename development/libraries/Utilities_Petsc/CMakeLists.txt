@@ -1,18 +1,30 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 
 if (BM_PARALLEL)
 
-	add_library(Utilities_Petsc ${LIBRARY_TYPE}
+	add_library(Utilities_Petsc
 		src/PetscVectors.C
 	)
 
 	include_directories(
 		${PETSC_INCLUDE_DIRS}
-		${MPI_C_INCLUDE_PATH}
+		${MPI_INCLUDE_DIRS}
 	)
 
 	target_link_libraries(Utilities_Petsc 
 		${PETSC_LIBRARIES}
-		${MPI_C_LIBRARIES}
+		${MPI_LIBRARIES}
 	)
 
         set_target_properties(Utilities_Petsc

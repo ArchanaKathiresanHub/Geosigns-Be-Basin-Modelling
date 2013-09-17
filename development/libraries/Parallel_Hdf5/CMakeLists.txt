@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 if (BM_PARALLEL)
 
 	add_library( Parallel_Hdf5 
@@ -14,7 +26,7 @@ if (BM_PARALLEL)
 
 	include_directories(
 		${HDF5_parallel_INCLUDE_DIRS}
-		${MPI_C_INCLUDE_PATH}
+		${MPI_INCLUDE_DIRS}
 		${PETSC_INCLUDE_DIRS}
 	)
 
@@ -22,7 +34,7 @@ if (BM_PARALLEL)
 		Utilities_Petsc
 		Serial_Hdf5
 		${PETSC_LIBRARIES}
-		${MPI_C_LIBRARIES}
+		${MPI_LIBRARIES}
 	)
 	
         set_target_properties(Parallel_Hdf5

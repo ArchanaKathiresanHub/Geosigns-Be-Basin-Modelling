@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 if (BM_PARALLEL)
 set(target_name fasttouch7)
 
@@ -30,11 +42,10 @@ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
 include_directories(
 	${HDF5_parallel_INCLUDE_DIRS}
-	${MPI_C_INCLUDE_PATH}
+	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${XERCES_INCLUDE_DIRS}
 	${XSD_INCLUDE_DIRS}
-	${TS7_GEOCOSM_XML_INCLUDE}
 	${TS7_INCLUDE_DIRS}
 	${TS_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}

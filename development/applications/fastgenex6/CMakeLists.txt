@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 if (BM_PARALLEL)
 
 add_executable( fastgenex6
@@ -10,7 +22,7 @@ add_definitions(${HDF5_parallel_DEFINITIONS})
 
 include_directories(
 	${HDF5_parallel_INCLUDE_DIRS}
-	${MPI_C_INCLUDE_PATH}
+	${MPI_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 )

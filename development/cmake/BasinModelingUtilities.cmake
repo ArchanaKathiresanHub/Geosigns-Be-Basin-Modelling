@@ -1,16 +1,19 @@
-#
-#
-#
-
-if(BasinModelingUtilities_INCLUDED)
-  return()
-endif()
-set(BasinModelingUtilities_INCLUDED TRUE)
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
 
 # Basin Modeling Utilities & Functions
 
 #
-# WITH_BINARY_DIR instruct to include binary directory of the library as well
+# Add header files of a Basin Modeling library to the include path
 #
 macro( bm_include_libraries )
 	foreach(library ${ARGN})
@@ -20,14 +23,6 @@ macro( bm_include_libraries )
 		include_directories( ${PROJECT_SOURCE_DIR}/libraries/${library}/src )
 	endforeach(library)
 endmacro( bm_include_libraries )
-
-macro( bm_include_bin_libraries )
-	foreach(library ${ARGN})
-		include_directories( 
-			${PROJECT_BINARY_DIR}/libraries/${library}
-		)
-	endforeach(library)
-endmacro( bm_include_bin_libraries )
 
 # The following function is copied from 
 # http://stackoverflow.com/questions/10113017/setting-the-msvc-runtime-in-cmake
@@ -92,28 +87,6 @@ macro( generate_dox DOXYGEN_CONFIG_FILE )
 		add_dependencies(doc "doc_${id}")
 	endif()
 endmacro(generate_dox)
-
-macro (patch_mpi_libraries_to_use_static list_out)
-  if(MPI_FOUND)
-    set (_list)
-    foreach(item ${ARGN})
-      get_filename_component(_ext ${item} EXT)
-      get_filename_component(_we ${item} NAME_WE)
-      get_filename_component(_path ${item} PATH)
-
-      if( "${_ext}" STREQUAL ".so")
-		if (((${_we} STREQUAL "libmpigi") OR (${_we} STREQUAL "libmpigf") OR (${_we} STREQUAL "libmpi")))
-          set(_a_libname "${_path}/${_we}.a")
-	        if(EXISTS ${_a_libname})
-			set(item ${_a_libname})
-		  endif()
-	  endif()
-      endif()
-      list(APPEND _list ${item})
-    endforeach()
-    set (${list_out} ${_list})
-  endif()
-endmacro (patch_mpi_libraries_to_use_static)
 
 ### Generate GUID
 macro(new_guid Output)
@@ -286,58 +259,6 @@ endmacro(add_csharp_unittest)
 
 ### 
 
-macro(add_gtest )
-
-   ### Parse parameters
-   set(testName)    # The name of the test
-   set(sources)     # The source files
-   set(libraries)   # The libraries that should be linked with it
-   set(compileflags)# The set of compilator flags
-   set(linkflags)   # The set of linker flags
-
-   set(parameterName)
-   foreach(param ${ARGN})
-      if (param STREQUAL NAME)
-         set(parameterName testName)
-      elseif(param STREQUAL SOURCES)
-         set(parameterName sources)
-      elseif(param STREQUAL LIBRARIES)
-         set(parameterName libraries)
-      elseif(param STREQUAL COMPILE_FLAGS)
-         set(parameterName compileflags)
-      elseif(param STREQUAL LINK_FLAGS)
-         set(parameterName linkflags)
-      else()
-         list(APPEND ${parameterName} ${param})
-      endif()
-   endforeach()
-
-   ### Add the test
-   # Make a suitable executable / target name by replacing funny charateres
-   # with an underscore
-   string( REGEX REPLACE "[^A-Za-z0-9]" "_" execName "Test${testName}")
-
-   # Add Google Mock (which includes Google Test also) to the list of
-   # libraries
-   list(APPEND libraries "gmock_main")
-
-   # Add the test executable with its sources
-   add_executable( ${execName} ${sources})
-
-   # Link with the necessary libraries
-   target_link_libraries( ${execName} ${libraries})
-   
-   # Add the Google Mock and Google Test include directories
-   get_property(incdirs TARGET ${execName} PROPERTY INCLUDE_DIRECTORIES)
-   set_target_properties( ${execName} 
-      PROPERTIES 
-                 INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS};${GMOCK_INCLUDE_DIRS};${incdirs}"
-                 COMPILE_FLAGS "${compileflags}"
-                 LINK_FLAGS "${linkflags}"   )
-
-   # Add the test to the CTest test  collection.
-   add_test(${testName} ${execName}  "--gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-junit.xml")
-endmacro(add_gtest)
 
 # Local Variables:
 # mode: cmake

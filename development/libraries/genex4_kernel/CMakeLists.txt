@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 add_library(genex4_kernel
 	src/error.c src/gxhist.c src/gxlabexp.c src/gxnumer.c src/gxrdfile.c 
 	src/gxscanner.c src/list.c src/gxconfig.c src/gxhorizn.c src/gxlithol.c 
