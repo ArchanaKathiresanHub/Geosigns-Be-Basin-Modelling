@@ -39,7 +39,6 @@ include(FeatureSummary)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
 option( BM_PARALLEL "Build the parallel cauldron applications" ${UNIX} )
 option( BM_USE_OWN_MPICH_LOCK "Use our custom ADIOI_Set_lock functions in MPI library (Linux only)" ON )
-option( BM_BUILD_COMPLEMENTARY_APPS "Also build complementary apps" OFF )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
@@ -51,7 +50,7 @@ if(BM_CODE_COVERAGE_ENABLE)
 endif()
 
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
-set( BM_THIRDY_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
+set( BM_THIRD_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
 set(CMAKE_INSTALL_PREFIX "" CACHE PATH "Installation prefix" )
 set(CMAKE_BUILD_TYPE "" CACHE STRING "CMake build type ('Release' or 'Debug')")
 set(SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
@@ -162,7 +161,6 @@ if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(FunctionParser REQUIRED CONFIG)
    find_package(Touchstone REQUIRED CONFIG)
-   find_package(QWT REQUIRED CONFIG)
    find_package(Qt3 REQUIRED CONFIG)
    find_package(Boost REQUIRED CONFIG)
 endif(UNIX)
@@ -214,11 +212,22 @@ configure_file(MoveInstalls${script_suffix}.cmake MoveInstalls${script_suffix} @
 # generate environment set-up file
 include(cmake/GoCBM.cmake)
 
+
+#
+# Generate Thirdy Party Component List XML file
+# 
+write_external_package_info_file(${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE})
+
+install( FILES "${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE}"
+               "${CMAKE_BINARY_DIR}/ThirdPartyComponentsListStyle.xsl"
+	     DESTINATION share/doc
+)		 
+
 #
 # Reporting
 #
 feature_summary(WHAT ALL)
-write_external_package_info_file(${CMAKE_BINARY_DIR}/${BM_THIRDY_PARTY_COMPONENT_LIST_FILE})
+
 
 # Local Variables:
 # mode: cmake

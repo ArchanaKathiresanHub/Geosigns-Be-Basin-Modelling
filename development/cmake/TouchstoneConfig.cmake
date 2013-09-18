@@ -13,7 +13,7 @@
 include(cmake/AddPackage.cmake)
 
 #
-# Add Geocosm's Touchstone libraries + all it's 3rd party components
+# Add Geocosm's Touchstone libraries + all its 3rd party components
 #
 
 set( TS_ROOT "/glb/home/ksaho3/TsLib3.1.1_64" CACHE PATH "Location of Geocosm's Touchstone library")
@@ -83,3 +83,15 @@ add_external_package_info(
       DEPENDENCY "Runtime"
 )
 
+add_external_package_info(
+      CAPABILITY MatlabCompilerRuntime
+	  NAME       "Matlab Compiler Runtime"
+	  VENDOR     "The Mathworks, Inc."
+	  VERSION    "7.13"
+	  LICENSE_TYPE "Commercial"
+	  LICENSE_FILE  "${TS7_ROOT}/3rdparty/matlabmcr/matlab/v713/license.txt"
+	  URL        "http://www.mathworks.co.uk/products/matlab/"
+	  DESCRIPTION "High-level language and interactive environment for numerical computation, visualization, and programming"
+	  DEPENDENCY "Runtime"
+)
+	  

@@ -54,15 +54,6 @@ if (UNIX)
         add_subdirectory(cauldron-crop)
 	endif (BM_BUILD_SERIAL_APPS)
 
-
-	# Complementary build applications
-	if (BM_BUILD_COMPLEMENTARY_APPS)
-		if (BM_BUILD_SERIAL_APPS)
-			add_subdirectory(upgrade)
-			add_subdirectory(setupView4D)
-			add_subdirectory(trapper)
-		endif(BM_BUILD_SERIAL_APPS)
-	endif(BM_BUILD_COMPLEMENTARY_APPS)
 endif(UNIX)
 
 # Local Variables:

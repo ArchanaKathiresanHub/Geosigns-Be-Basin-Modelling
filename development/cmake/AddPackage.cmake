@@ -100,9 +100,13 @@ macro( add_to_external_package_listing name vendor version licenseType licenseFi
    xml_escape( licenseType "${licenseType}")
    
    set(license)
-   file(READ "${licenseFile}" license)
-   string(REGEX REPLACE "[^ -~\n]" " " license "${license}")
-   set(license "<![CDATA[${license}]]>")
+   if (EXISTS "${licenseFile}")
+      file(READ "${licenseFile}" license)
+      string(REGEX REPLACE "[^ -~\n]" " " license "${license}")
+      set(license "<![CDATA[${license}]]>")
+   else()
+      set(license "License is unavailable")
+   endif()
 
    xml_escape( url "${url}")
    xml_escape( description "${description}")

@@ -1,4 +1,0 @@
-#!/bin/csh
-xhost + localhost >& /dev/null
-chmod -f a+rw /dev/nvidia*
-echo `hostname -f`$DISPLAY

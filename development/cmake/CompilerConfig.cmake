@@ -58,23 +58,30 @@ if (UNIX)
        DEPENDENCY   "Build"
   )                      
 
-elseif (MSVC)
+else()
+   
+   # First detect the Compiler
+   enable_language(CXX)
 
-   #
-   # On Windows: Use Microsoft Visual C++ compiler
-   #
-
-   add_external_package_info( 
-       CAPABILITY   Compiler
-       NAME         "Visual C/C++"
-       VENDOR       "Microsoft"
-       VERSION      "${MSVC_VERSION}"
-       LICENSE_TYPE "Commercial"
-       LICENSE_FILE ""
-       URL          "http://www.microsoft.com/visualstudio"
-       DESCRIPTION  "Microsoft Visual Studio"
-       DEPENDENCY   "Build"
-  )                      
+   if (MSVC)
+       #
+       # On Windows: Use Microsoft Visual C++ compiler
+       #
+	   	   
+	   add_external_package_info( 
+          CAPABILITY   Compiler
+          NAME         "Visual C/C++"
+          VENDOR       "Microsoft"
+          VERSION      "${MSVC_VERSION}"
+          LICENSE_TYPE "Commercial"
+          LICENSE_FILE ""
+          URL          "http://www.microsoft.com/visualstudio"
+          DESCRIPTION  "Microsoft Visual Studio"
+          DEPENDENCY   "Build"
+       )                      
+	else()
+	   message(WARNING "Unknown compiler on unknown OS is used. It is not covered by the generated third party package list")
+	endif()
 
 endif()
 
