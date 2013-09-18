@@ -379,14 +379,15 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   Permeability_Plane  = relativePermeability * Permeability_Plane;
 
 
-  // NLSAY3: The permeability cannot reach lower value than 1.0e-7 mD;
-/*  if ( Permeability_Normal < PermeabilityLowerLimit ) {
+  // NLSAY3: The permeability cannot reach lower values than 1.0e-7 mD;
+  // The permeability must have a lower limit when the Permafrost relative permeability is activated
+  if ( Permeability_Normal < PermeabilityLowerLimit ) {
     Permeability_Normal = PermeabilityLowerLimit;
   }
 
   if ( Permeability_Plane < PermeabilityLowerLimit ) {
     Permeability_Plane = PermeabilityLowerLimit;
-  }*/
+  }
 
   Permeability_Normal *= Permeability_Scaling * fluidDensity / fluidViscosity;
   Permeability_Plane  *=                        fluidDensity / fluidViscosity;
@@ -1633,9 +1634,31 @@ void Basin_Modelling::Assemble_Element_Pressure_System
   }
 
 
+  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
+// We do noy want to "compute" the overpressure in the ice lithology
+
+    for ( I = 1; I <= 8; I++ ) {
+
+      ///
+      /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
+      ///
+      if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
+        Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
+      }
+
+    }
+
+    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
+                                                 Current_Po, Element_Jacobian, Element_Residual );
+
+
+    return;
+  }
+
 
 
 /*  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
+// To be removed at some point as it is replaced by the code just above.
 
   ElementVector Dirichlet_Boundary_Values_Ice_Sheet;
   Dirichlet_Boundary_Values_Ice_Sheet.zero();
@@ -1656,8 +1679,8 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
 
     return;
-  }
-*/
+  }*/
+
 
 
 

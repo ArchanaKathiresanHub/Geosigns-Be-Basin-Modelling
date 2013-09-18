@@ -135,9 +135,14 @@ void GeoPhysics::FluidType::loadPropertyTables () {
 
 double GeoPhysics::FluidType::getLiquidusTemperature ( const double temperature, const double pressure ) const {
    
-    // return ( - 0.073 * pressure - 0.064 * salinityConcentration ( temperature, pressure ));
-  
-   return ( - m_pressureTerm * pressure - m_salinityTerm * salinityConcentration ( temperature, pressure ));
+   // return ( - 0.073 * pressure - 0.064 * salinityConcentration ( temperature, pressure ));
+
+   double p = NumericFunctions::Maximum ( 0.0, pressure );
+
+   // NLSAY3: Debugging
+/*   if ( pressure<0 ) {std::cout << "Pressure: " << pressure << " LiquidusTemperature: " << - m_pressureTerm * pressure - m_salinityTerm * salinityConcentration ( temperature, pressure ) << std::endl;}*/
+
+   return ( - m_pressureTerm * p - m_salinityTerm * salinityConcentration ( temperature, p ));
 
 }
     
@@ -498,9 +503,9 @@ double GeoPhysics::FluidType::computeTheta ( const double temperature, const dou
 
 double GeoPhysics::FluidType::relativePermeability ( const double temperature, const double pressure ) const {
  
-/*   if( m_projectHandle->getPermafrost() ) {
+   if( m_projectHandle->getPermafrost() ) {
       
-      const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
+      const double liquidusTemperature = getLiquidusTemperature( temperature, NumericFunctions::Maximum ( 0.0, pressure ) );
       const double solidusTemperature  = getSolidusTemperature( liquidusTemperature );
       
       if( temperature >= liquidusTemperature ) {
@@ -508,11 +513,11 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
       } else if( temperature <= solidusTemperature ) {
          return 1.0e-6;
       } else {
-         if( solidusTemperature != 0.0 ) {
+         if( solidusTemperature != liquidusTemperature ) {
             return ( - (1.0-1.0e-6) / ( solidusTemperature - liquidusTemperature )) * ( temperature - liquidusTemperature ) + 1.0;
          } 
       }
-  } */ 
+  }
    return 1.0;
 }
 

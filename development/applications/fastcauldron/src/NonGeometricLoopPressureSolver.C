@@ -289,12 +289,12 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
 
 
 
-    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+/*    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
     {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top
                          + 0.5 * GRAVITY * Real_Thickness * ( Bulk_Density_Top + Bulk_Density ) * Pa_To_MPa;
     Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
-    }
+    }*/
 
 
 }

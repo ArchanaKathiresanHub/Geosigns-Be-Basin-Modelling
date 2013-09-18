@@ -1419,7 +1419,7 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
 
             if( isPermafrost ) {
                permafrostAges.push_back( age );
-               timeSteps.push_back ( ( age - currentAge ) * 0.5 );
+               timeSteps.push_back ( ( age - currentAge ) * 0.25 );
             }
             if( min < 0.0 ) {
                isPermafrost = true;
