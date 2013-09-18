@@ -22,13 +22,13 @@ set( TS_LIBRARIES "${TS_ROOT}/Lib/libTsLib.a" )
 
 add_external_package_info(
       CAPABILITY TsLib3
-      NAME    "TsLib3.1.1"
+      NAME    "TsLib"
       VENDOR  "Geocosm"
       VERSION "3.1.1"
       LICENSE_TYPE "Commercial"
       LICENSE_FILE ""
       URL "http://www.geocosm.net/consortia/touchstone.htm"
-      DESCRIPTION "software system for analysis of controls on reservoir quality in analog sandstones and for forward modeling of sandstone diagenesis and petrophysical properties"
+      DESCRIPTION "Touchstone Resq library: software system for analysis of controls on reservoir quality in analog sandstones and for forward modeling of sandstone diagenesis and petrophysical properties"
       DEPENDENCY "Runtime"
 )
  
@@ -42,13 +42,13 @@ endforeach()
      
 add_external_package_info(
       CAPABILITY TsLib7
-      NAME    "TsLib7"
+      NAME    "TsLib"
       VENDOR  "Geocosm"
       VERSION "7.3.0.3436"
       LICENSE_TYPE "Commercial"
       LICENSE_FILE ""
       URL "http://www.geocosm.net/consortia/touchstone.htm"
-      DESCRIPTION "software system for analysis of controls on reservoir quality in analog sandstones and for forward modeling of sandstone diagenesis and petrophysical properties"
+      DESCRIPTION "Touchstone Resq library: software system for analysis of controls on reservoir quality in analog sandstones and for forward modeling of sandstone diagenesis and petrophysical properties"
       DEPENDENCY "Runtime"
 )
  
