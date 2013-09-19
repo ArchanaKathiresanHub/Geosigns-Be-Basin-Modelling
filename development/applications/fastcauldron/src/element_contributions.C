@@ -1599,13 +1599,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System
   bool Is_At_Top     = false;
   ThreeVector        Outward_Normal;
 
-
-  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) { // NLSAY3: We assume the solid is ice in this case
-
-    subtract(Current_Pl, Current_Ph, Current_Po);
-
-  }
-
   fractureScaling = fractureScaling + maxValue ( preFractureScaling );
 
   if ( Degenerate_Element ( geometryMatrix )) {
@@ -1677,7 +1670,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
       ///
       /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
       ///
-      if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
+      if ( (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) { // to be checked
         Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
       }
 
@@ -1976,12 +1969,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
   }
 #endif
-
-  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) { // NLSAY3: We assume the solid is ice in this case
-
-    subtract(Current_Pl, Current_Ph, Current_Po);
-
-  }
 
   Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
                                                Current_Po, Element_Jacobian, Element_Residual );
