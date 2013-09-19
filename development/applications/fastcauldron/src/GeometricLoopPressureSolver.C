@@ -314,7 +314,7 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
 /*    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
     {
-      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Bulk_Density * GRAVITY * Pa_To_MPa - 5;
+      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Bulk_Density * GRAVITY * Pa_To_MPa;
     }
     else
     {
@@ -322,9 +322,18 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
     }*/
 
 
-    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+/*    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
     {
       Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Solid_Density * GRAVITY * Pa_To_MPa;
+    }
+    else
+    {
+      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * GRAVITY * Pa_To_MPa;
+    }*/
+
+    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+    {
+      Hydrostatic_Pressure = Hydrostatic_Pressure + H * Fluid_Density * GRAVITY * Pa_To_MPa; // Second term should be 0 to be consistant.
     }
     else
     {
