@@ -311,14 +311,26 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
     Bulk_Density = Porosity_Bottom * Fluid_Density + ( 1.0 - Porosity_Bottom ) * Solid_Density;
 
-//    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
-//    {
-//      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Bulk_Density * GRAVITY * Pa_To_MPa;
-//    }
-//    else
-//    {
+
+/*    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+    {
+      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Bulk_Density * GRAVITY * Pa_To_MPa - 5;
+    }
+    else
+    {
       Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * GRAVITY * Pa_To_MPa;
-//    }
+    }*/
+
+
+    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+    {
+      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Solid_Density * GRAVITY * Pa_To_MPa;
+    }
+    else
+    {
+      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * GRAVITY * Pa_To_MPa;
+    }
+
 
     Lithostatic_Pressure = Lithostatic_Pressure + Segment_Real_Thickness * Bulk_Density  * GRAVITY * Pa_To_MPa;
 
