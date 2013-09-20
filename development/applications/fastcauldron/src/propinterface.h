@@ -256,12 +256,15 @@ public:
 
    bool useBurialRateTimeStepping () const;
 
-   //
+   // Permafrost modelling
    void   setPermafrost();
+   void   restartPermafrost();
    double permafrostTimeStep () const;
    bool   permafrost() const;
    bool   switchPermafrostTimeStep ( const double Current_Time );
    double getNextPermafrostTimeStep () const;
+   double getNextPermafrostAge () const;
+   //
 
    /// Initialises other minor layer data fields.
    void setLayerData ();
@@ -437,6 +440,7 @@ public:
    /// Arrays of permafrost time steps and correspondent ages, when those time steps are being activated
    DoubleVector m_permafrostTimeSteps;
    DoubleVector m_permafrostAges;
+   int          m_permafrostCurrentInd;
 
    // return true if bottomBoundaryCondition == ADVANCED_LITHOSPHERE_CALCULATOR
    bool isALC() const;

@@ -20,7 +20,7 @@
 using namespace database;
 
 #include "layer_iterators.h"
-#include "milestones.h"
+#include "milestones.h"  
 #include "FissionTrackCalculator.h"
 
 #include "GeoPhysicalFunctions.h"
@@ -119,6 +119,7 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_fixedPermafrostTimeStep = 0.0;
    m_permafrostTimeStep = 0.0;
    m_permafrost = false;
+   m_permafrostCurrentInd = 0;
 }
 
 
@@ -364,26 +365,39 @@ bool AppCtx::permafrost () const {
 void AppCtx::setPermafrost () {
 
    m_permafrost = true;
+   restartPermafrost ();
+}
+
+//------------------------------------------------------------//
+void AppCtx::restartPermafrost () {
+
+  m_permafrostCurrentInd = ( m_permafrostAges.size() != 0 ? m_permafrostAges.size() - 1 : 0 );
+  m_permafrostTimeStep = 0.0;
 }
 
 //------------------------------------------------------------//
 
 bool AppCtx::switchPermafrostTimeStep ( const double Current_Time ) {
 
+  if( Current_Time == 0.0 ) {
+    // Restart permafrost index 
+    restartPermafrost();
+    return true;
+  }
    // for every permafrost age the correspondent time step is being activated
    if( m_permafrostAges.size() != 0 ) {
-      if( Current_Time > m_permafrostAges.back() && m_permafrostTimeStep == 0 ) {
+      if( Current_Time > m_permafrostAges[m_permafrostCurrentInd] && m_permafrostTimeStep == 0 ) {
          // permafrost is not activated yet
          return false;
       }
-      if( Current_Time <= m_permafrostAges.back() ) {
+      if( Current_Time <= m_permafrostAges[m_permafrostCurrentInd] ) {
          // the next (or the first) permafrost age is reached => activate the next time step 
-         m_permafrostTimeStep = ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep : m_permafrostTimeSteps.back() );
-         m_permafrostTimeSteps.pop_back();
-         m_permafrostAges.pop_back();
+         m_permafrostTimeStep = ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep : m_permafrostTimeSteps[m_permafrostCurrentInd] );
+         -- m_permafrostCurrentInd;
       } 
    } 
-   // if all permafrost ages have been reached (m_permafrostAges.size() = 0), then continue with the last calculated time step = m_permafrostTimeStep
+   // if all permafrost ages have been reached (m_permafrostAges[m_permafrostCurrentInd] = 0 (present day)), 
+   // then continue with the last calculated time step = m_permafrostTimeStep
    return true;
 }
 //------------------------------------------------------------//
@@ -391,7 +405,14 @@ bool AppCtx::switchPermafrostTimeStep ( const double Current_Time ) {
 double AppCtx::getNextPermafrostTimeStep () const {
 
    return ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep : 
-            ( m_permafrostAges.size() != 0 ? m_permafrostTimeSteps.back() : 0.0 ));
+            ( m_permafrostTimeSteps.size() != 0 ? m_permafrostTimeSteps[m_permafrostCurrentInd] : 0.0 ));
+
+}
+//------------------------------------------------------------//
+
+double AppCtx::getNextPermafrostAge () const {
+
+   return ( m_permafrostAges.size() != 0 ? m_permafrostAges[m_permafrostCurrentInd] : 0.0 );
 
 }
 
@@ -1095,7 +1116,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
 
         if( FastcauldronSimulator::getInstance ().determinePermafrost(  m_permafrostTimeSteps, m_permafrostAges )) {
 
-           m_permafrost = true;
+           setPermafrost();
            PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on.\n"); 
         }
      }
