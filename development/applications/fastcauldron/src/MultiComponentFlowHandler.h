@@ -10,10 +10,11 @@
 
 #include "ExplicitMultiComponentFlowSolver.h"
 
-class MultiComponentFlowHandler {
+/// \brief An array of subdomains.
+typedef std::vector<Subdomain*> DarcySubdomainArray;
 
-   /// \brief An array of subdomains.
-   typedef std::vector<Subdomain*> SubdomainArray;
+
+class MultiComponentFlowHandler {
 
 public :
 
@@ -40,18 +41,15 @@ public :
    bool useUniformTimeStepping () const;
 
    /// \brief Indicate that non-uniform time-stpeping is to be used.
-   bool useCflTimeStepping () const;
+   bool useAdaptiveTimeStepping () const;
 
-   /// \brief 
-   double cflTimeStepFraction () const;
+   /// \brief The fraction of the time-step size, computed by the adaptive time-stepping function, to be taken.
+   double adaptiveTimeStepFraction () const;
 
    /// \brief 
    double getMaximumTimeStepSize () const;
 
-   /// \brief The fraction of the time-step size given by the CFL value.
-   double cflimeStepFraction () const;
-
-   /// \brief Indicate whether or not to use time-step smooting when using CFL time-stepping in Darcy.
+   /// \brief Indicate whether or not to use time-step smooting when using adaptive time-stepping in Darcy.
    ///
    /// Applies only when the time-step size is increasing.
    bool applyTimeStepSmoothing () const;
@@ -63,6 +61,9 @@ public :
 
    /// \brief 
    double getMaximumHCFractionForFlux () const;
+
+   /// \brief Get the scaling factor for the Sor when estimating whether or not transport will occur.
+   double getResidualHcSaturationScaling () const;
 
    /// \brief Indicate whether or not OTGC should be applied to the HCs that are in the pore-space.
    bool applyOtgc () const;
@@ -156,6 +157,21 @@ public :
    /// \brief Inticate whether or not averaging of hc-density and hc-viscosity should be applied.
    bool getApplyPvtAveraging () const;
 
+   /// \brief Indicate whether or not the permeability for the element face should be interpolated.
+   bool getInterpolatePermeability () const;
+
+   /// \brief Indicate whether or not the pore-volume values for the element should be interpolated.
+   bool getInterpolatePoreVolume () const;
+
+   /// \brief Indicate whether or not part of the flux calculation should be interpolated or its value computed.
+   bool getInterpolateFaceArea () const;
+
+   /// \brief Indicate whether or not source term calculation should be interpolated or its value computed.
+   bool getInterpolateSourceTerm () const;
+
+   /// \brief Indicate whether or not the flash should be determined by the saturation estimate.
+   bool getUseEstimatedSaturation () const;
+
    /// \brief Indicate whether or not the source term should be included in the Darcy simulator.
    ///
    /// This is a testing parameter only.
@@ -200,10 +216,10 @@ public :
    static std::string getCommandLineOptions ();
 
    /// \brief Get reference to array of subdomains.
-   const SubdomainArray& getSubdomains () const;
+   const DarcySubdomainArray& getSubdomains () const;
 
    /// \brief Get reference to array of subdomains.
-   SubdomainArray& getSubdomains ();
+   DarcySubdomainArray& getSubdomains ();
 
    /// \brief Determine whether or not the formation is contained in a darcy subdomain.
    bool containsFormation ( const LayerProps* formation ) const;
@@ -239,7 +255,7 @@ private :
 
 
    /// \brief Array of subdomains that are to be used in the multi-component flow solver.
-   SubdomainArray m_subdomains;
+   DarcySubdomainArray m_subdomains;
 
    PetscBool m_solveFlowEquations;
 
@@ -251,11 +267,11 @@ private :
    double     m_userDefinedMaximumPermeability;
 
    PetscBool m_uniformTimeStepping;
-   PetscBool m_cflTimeStepping;
-   double     m_cflTimeStepFraction;
+   PetscBool m_adaptiveTimeStepping;
+   double     m_adaptiveTimeStepFraction;
    double     m_maximumTimeStepSize;
    double     m_maximumHCFractionForFlux;
-
+   double     m_residualHcSaturationScaling;
 
 
    int        m_debugLevel;
@@ -279,6 +295,11 @@ private :
    double m_stopHcTransportAge;
 
    bool   m_applyPvtAveraging;
+   bool   m_interpolatePermeability;
+   bool   m_interpolatePoreVolume;
+   bool   m_interpolateFaceArea;
+   bool   m_interpolateSourceTerm;
+   bool   m_useEstimatedSaturation;
 
    bool m_saveVolumeOutput;
    bool m_saveTransportedVolumeOutput;
@@ -345,12 +366,12 @@ inline bool MultiComponentFlowHandler::useUniformTimeStepping () const {
    return m_uniformTimeStepping;
 }
 
-inline bool MultiComponentFlowHandler::useCflTimeStepping () const {
+inline bool MultiComponentFlowHandler::useAdaptiveTimeStepping () const {
    return not m_uniformTimeStepping;
 }
 
-inline double MultiComponentFlowHandler::cflTimeStepFraction () const {
-   return m_cflTimeStepFraction;
+inline double MultiComponentFlowHandler::adaptiveTimeStepFraction () const {
+   return m_adaptiveTimeStepFraction;
 }
 
 inline bool MultiComponentFlowHandler::applyTimeStepSmoothing () const {
@@ -365,11 +386,15 @@ inline double MultiComponentFlowHandler::getMaximumHCFractionForFlux () const {
    return m_maximumHCFractionForFlux;
 }
 
-inline SubdomainArray& MultiComponentFlowHandler::getSubdomains () {
+inline double MultiComponentFlowHandler::getResidualHcSaturationScaling () const {
+   return m_residualHcSaturationScaling;
+}
+
+inline DarcySubdomainArray& MultiComponentFlowHandler::getSubdomains () {
    return m_subdomains;
 }
 
-inline const SubdomainArray& MultiComponentFlowHandler::getSubdomains () const {
+inline const DarcySubdomainArray& MultiComponentFlowHandler::getSubdomains () const {
    return m_subdomains;
 }
 
@@ -411,6 +436,26 @@ inline int MultiComponentFlowHandler::getMassMatrixQuadratureDegree () const {
 
 inline bool MultiComponentFlowHandler::getApplyPvtAveraging () const {
    return m_applyPvtAveraging;
+}
+
+inline bool MultiComponentFlowHandler::getInterpolatePermeability () const {
+   return m_interpolatePermeability;
+}
+
+inline bool MultiComponentFlowHandler::getInterpolatePoreVolume () const {
+   return m_interpolatePoreVolume;
+}
+
+inline bool MultiComponentFlowHandler::getInterpolateFaceArea () const {
+   return m_interpolateFaceArea;
+}
+
+inline bool MultiComponentFlowHandler::getInterpolateSourceTerm () const {
+   return m_interpolateSourceTerm;
+}
+
+inline bool MultiComponentFlowHandler::getUseEstimatedSaturation () const {
+   return m_useEstimatedSaturation;
 }
 
 inline bool MultiComponentFlowHandler::removeSourceTerm () const {

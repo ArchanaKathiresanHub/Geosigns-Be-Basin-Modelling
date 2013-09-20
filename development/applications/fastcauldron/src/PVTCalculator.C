@@ -2,17 +2,15 @@
 
 #include <sstream>
 #include <iomanip>
+#include <mkl.h>
 
 #include "NumericFunctions.h"
 #include "ComponentManager.h"
 
 PVTCalc* PVTCalc::m_theInstance = 0;
 
-
-
-PVTComponents::PVTComponents () {
-   zero ();
-}
+// #define USE_MKL_VML
+// #define USE_MKL_VML_2
 
 void PVTComponents::zero () {
    fill ( 0.0 );
@@ -38,35 +36,52 @@ PVTComponents& PVTComponents::operator=( const double value ) {
 
 PVTComponents& PVTComponents::operator=( const PVTComponents& values ) {
 
+#ifdef USE_MKL_VML
+   cblas_dcopy( NumberOfPVTComponents, values.m_components, 1, m_components, 1 );
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_components [ i ] = values.m_components [ i ];
    }
-
+#endif
    return *this;
 }
 
 double PVTComponents::sum () const {
 
-   double result = 0.0;
+   double result;
+
+#ifdef USE_MKL_VML
+   // sum of absolute (!) values
+   result = cblas_dasum( NumberOfPVTComponents, m_components, 1 );
+#else
    int i;
 
+   result = 0.0;
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       result += m_components [ i ];
    }
+#endif
 
    return result;
 }
 
 double PVTComponents::sumRatios ( const PVTComponents& divisors ) const {
 
-   double result = 0.0;
-   int i;
+   double result;
 
+#ifdef USE_MKL_VML_2
+   double results [ NumberOfPVTComponents ];
+   vdDiv( NumberOfPVTComponents, m_components, divisors.m_components, results );
+   result = cblas_dasum( NumberOfPVTComponents, results, 1 );
+#else
+   int i;
+   result = 0.0;
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       result += m_components [ i ] / divisors.m_components [ i ];
    }
+#endif
 
    return result;
 }
@@ -78,15 +93,23 @@ double PVTComponents::sum ( const pvtFlash::PVTPhase phase ) const {
 
    if ( phase == pvtFlash::VAPOUR_PHASE ) {
 
+#ifdef USE_MKL_VML
+      // sum of absolute (!) values
+      result = cblas_dasum( pvtFlash::C1 - pvtFlash::C5 + 1, &m_components[pvtFlash::C5], 1 );
+#else
       for ( i = pvtFlash::C5; i <= pvtFlash::C1; ++i ) {
          result += m_components [ i ];
       }
-
+#endif
    } else {
 
+#ifdef USE_MKL_VML
+      result = cblas_dasum( pvtFlash::C6_14SAT - pvtFlash::ASPHALTENES + 1, &m_components[pvtFlash::ASPHALTENES], 1 );
+#else
       for ( i = pvtFlash::ASPHALTENES; i <= pvtFlash::C6_14SAT; ++i ) {
          result += m_components [ i ];
       }
+#endif
 
    }
 
@@ -96,12 +119,18 @@ double PVTComponents::sum ( const pvtFlash::PVTPhase phase ) const {
 double dot ( const PVTComponents& components1,
              const PVTComponents& components2 ) {
 
-   double result = 0.0;
+   double result;
+
+#ifdef USE_MKL_VML
+   result = cblas_ddot( NumberOfPVTComponents, components1.m_components, 1, components2.m_components, 1 );
+#else
    int i;
+   result = 0.0;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       result += components1.m_components [ i ] * components2.m_components [ i ];
    }
+#endif
 
    return result;
 }
@@ -109,44 +138,65 @@ double dot ( const PVTComponents& components1,
 
 PVTComponents& PVTComponents::operator += ( const PVTComponents& components ) {
 
+#ifdef USE_MKL_VML
+   //cblas_daxpy( n, a, x, 1, y, 1 ) : y = a * x + y 
+   cblas_daxpy( NumberOfPVTComponents, 1.0, components.m_components, 1, m_components, 1 );
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_components [ i ] += components.m_components [ i ];
    }
+#endif
 
    return *this;
 }
 
 PVTComponents& PVTComponents::operator-= ( const PVTComponents& components ) {
 
+#ifdef USE_MKL_VML
+   cblas_daxpy( NumberOfPVTComponents, -1.0, components.m_components, 1, m_components, 1 );
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_components [ i ] -= components.m_components [ i ];
    }
-
+#endif
    return *this;
 }
 
 PVTComponents& PVTComponents::operator*= ( const PVTComponents& components ) {
 
+#ifdef USE_MKL_VML_2
+   double results [ NumberOfPVTComponents ];
+   vdMul( NumberOfPVTComponents, m_components, components.m_components, results );
+   cblas_dcopy( NumberOfPVTComponents, results, 1, m_components, 1 );
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_components [ i ] *= components.m_components [ i ];
    }
+#endif
 
    return *this;
 }
 
 PVTComponents& PVTComponents::operator/= ( const PVTComponents& components ) {
 
+#ifdef USE_MKL_VML_2
+   double results [ NumberOfPVTComponents ];
+   vdDiv( NumberOfPVTComponents, m_components, components.m_components, results );
+   cblas_dcopy( NumberOfPVTComponents, results, 1, m_components, 1 );
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_components [ i ] /= components.m_components [ i ];
    }
+#endif
+
 
    return *this;
 }
@@ -164,12 +214,15 @@ PVTComponents& PVTComponents::operator += ( const double value ) {
 
 PVTComponents& PVTComponents::operator *= ( const double scale ) {
 
+#ifdef USE_MKL_VML
+   cblas_dscal ( NumberOfPVTComponents, scale, m_components, 1 );
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_components [ i ] *= scale;
    }
-
+#endif
    return *this;
 }
 
@@ -217,10 +270,14 @@ std::string PVTComponents::image ( const bool reverseOrder ) const {
 
 PVTComponents operator+( const PVTComponents& left, const PVTComponents& right ) {
 
-   PVTComponents result = left;
+   PVTComponents result;
 
+#ifdef USE_MKL_VML
+   vdAdd( NumberOfPVTComponents, left.m_components, right.m_components, result.m_components );
+#else
+   result = left;
    result += right;
-
+#endif
    return result;
 }
 
@@ -228,10 +285,14 @@ PVTComponents operator+( const PVTComponents& left, const PVTComponents& right )
 
 PVTComponents operator-( const PVTComponents& left, const PVTComponents& right ) {
 
-   PVTComponents result = left;
+   PVTComponents result;
 
+#ifdef USE_MKL_VML
+   vdSub( NumberOfPVTComponents, left.m_components, right.m_components, result.m_components );
+#else
+   result = left;
    result -= right;
-
+#endif
    return result;
 }
 
@@ -241,7 +302,12 @@ PVTComponents operator*( const double left, const PVTComponents& right ) {
 
    PVTComponents result = right;
 
+#ifdef USE_MKL_VML
+   cblas_dscal ( NumberOfPVTComponents, left, result.m_components, 1 );
+#else
+   result = right;
    result *= left;
+#endif
 
    return result;
 }
@@ -252,7 +318,11 @@ PVTComponents operator*( const PVTComponents& left, const double right ) {
 
    PVTComponents result = left;
 
+#ifdef USE_MKL_VML
+   cblas_dscal ( NumberOfPVTComponents, right, result.m_components, 1 );
+#else
    result *= right;
+#endif
 
    return result;
 }
@@ -263,7 +333,11 @@ PVTComponents operator/( const PVTComponents& left, const double right ) {
 
    PVTComponents result = left;
 
+#ifdef USE_MKL_VML
+   cblas_dscal ( NumberOfPVTComponents, 1.0 / right, result.m_components, 1 );
+#else
    result *= 1.0 / right;
+#endif
 
    return result;
 }
@@ -272,9 +346,14 @@ PVTComponents operator/( const PVTComponents& left, const double right ) {
 
 PVTComponents operator*( const PVTComponents& left, const PVTComponents& right ) {
 
-   PVTComponents result = left;
+   PVTComponents result;
 
+#ifdef USE_MKL_VML
+   vdMul( NumberOfPVTComponents, left.m_components, right.m_components, result.m_components );
+#else
+   result = left;
    result *= right;
+#endif
 
    return result;
 }
@@ -283,9 +362,14 @@ PVTComponents operator*( const PVTComponents& left, const PVTComponents& right )
 
 PVTComponents operator/( const PVTComponents& left, const PVTComponents& right ) {
 
-   PVTComponents result = left;
+   PVTComponents result;
 
+#ifdef USE_MKL_VML
+   vdDiv( NumberOfPVTComponents, left.m_components, right.m_components, result.m_components );
+#else
+   result = left;
    result /= right;
+#endif
 
    return result;
 }
@@ -389,10 +473,6 @@ bool PVTComponents::isNonNegative () const {
 //------------------------------------------------------------//
 
 
-PVTPhaseComponents::PVTPhaseComponents () {
-   zero ();
-}
-
 void PVTPhaseComponents::zero () {
 
    int j;
@@ -406,129 +486,214 @@ void PVTPhaseComponents::zero () {
 
 double PVTPhaseComponents::sum ( const pvtFlash::PVTPhase phase ) const {
 
-   double result = 0.0;
+   double result;
+
+#ifdef USE_MKL_VML
+   // sum of absolute (!) values
+   result = cblas_dasum( NumberOfPVTComponents, &m_masses[ phase ][ 0 ], 1 );
+#else
    int j;
+   result = 0.0;
 
    for ( j = 0; j < NumberOfPVTComponents; ++j ) {
       result += m_masses [ phase ][ j ];
    }
+#endif
 
    return result;
 }
 
 PVTPhaseComponents& PVTPhaseComponents::operator=( const PVTPhaseComponents& components ) {
 
+
+#ifdef USE_MKL_VML
    int i;
-   int j;
 
    for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
+      cblas_dcopy( NumberOfPVTComponents, &components.m_masses[ i ][ 0 ], 1, &m_masses[ i ][ 0 ], 1 );
+   }
+#else
+   int j;
 
-      for ( j = 0; j < NumberOfPVTComponents; ++j ) {
-         m_masses [ i ][ j ] = components.m_masses [ i ][ j ];
-      }
-
+   for ( j = 0; j < NumberOfPVTComponents; ++j ) {
+      m_masses [ 0 ][ j ] = components.m_masses [ 0 ][ j ];
+      m_masses [ 1 ][ j ] = components.m_masses [ 1 ][ j ];
    }
 
+#endif
    return *this;
 }
 
 PVTPhaseComponents& PVTPhaseComponents::operator+=( const PVTPhaseComponents& components ) {
 
+#ifdef USE_MKL_VML
    int i;
+
+   //cblas_daxpy( n, a, x, 1, y, 1 ) : y = a * x + y 
+   for ( i = 0; i < pvtFlash::N_PHASES; ++ i ) {
+      cblas_daxpy( NumberOfPVTComponents, 1.0, &components.m_masses[ i ][ 0 ], 1, &m_masses[ i ][ 0 ], 1 );
+   }
+#else
+
    int j;
 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
-
-      for ( j = 0; j < NumberOfPVTComponents; ++j ) {
-         m_masses [ i ][ j ] += components ( pvtFlash::PVTPhase ( i ), pvtFlash::ComponentId ( j ));
-      }
-
+   for ( j = 0; j < NumberOfPVTComponents; ++j ) {
+      m_masses [ 0 ][ j ] += components.m_masses [ 0 ][ j ];
+      m_masses [ 1 ][ j ] += components.m_masses [ 1 ][ j ];
    }
+
+#endif
 
    return *this;
 }
 
 PVTPhaseComponents& PVTPhaseComponents::operator*= ( const PVTComponents& components ) {
 
+#ifdef USE_MKL_VML_2
+
+   double results [ NumberOfPVTComponents ];
+
+   vdMul( NumberOfPVTComponents, &m_masses[ 0 ][ 0 ], components.m_components, results );
+   cblas_dcopy( NumberOfPVTComponents, results, 1, &m_masses[ 0 ][ 0 ], 1 );
+
+   vdMul( NumberOfPVTComponents, &m_masses[ 1 ][ 0 ], components.m_components, results );
+   cblas_dcopy( NumberOfPVTComponents, results, 1, &m_masses[ 1 ][ 0 ], 1 );
+
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_masses [ 0 ][ i ] *= components ( pvtFlash::ComponentId ( i ));
       m_masses [ 1 ][ i ] *= components ( pvtFlash::ComponentId ( i ));
    }
-
+#endif
    return *this;
 }
 
 PVTPhaseComponents& PVTPhaseComponents::operator*= ( const double value ) {
 
+#ifdef USE_MKL_VML
+   cblas_dscal ( NumberOfPVTComponents, value, &m_masses[ 0 ][ 0 ], 1 );
+   cblas_dscal ( NumberOfPVTComponents, value, &m_masses[ 1 ][ 0 ], 1 );
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_masses [ 0 ][ i ] *= value;
       m_masses [ 1 ][ i ] *= value;
    }
-
+#endif
    return *this;
 }
 
 PVTPhaseComponents& PVTPhaseComponents::operator/= ( const PVTComponents& components ) {
 
+#ifdef USE_MKL_VML_2
+
+   double results [ NumberOfPVTComponents ];
+
+   vdDiv( NumberOfPVTComponents, &m_masses[ 0 ][ 0 ], components.m_components, results );
+   cblas_dcopy( NumberOfPVTComponents, results, 1, &m_masses[ 0 ][ 0 ], 1 );
+
+   vdDiv( NumberOfPVTComponents, &m_masses[ 1 ][ 0 ], components.m_components, results );
+   cblas_dcopy( NumberOfPVTComponents, results, 1, &m_masses[ 1 ][ 0 ], 1 );
+
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_masses [ 0 ][ i ] /= components ( pvtFlash::ComponentId ( i ));
       m_masses [ 1 ][ i ] /= components ( pvtFlash::ComponentId ( i ));
    }
+#endif
 
    return *this;
 }
 
 PVTPhaseComponents& PVTPhaseComponents::operator/= ( const PVTPhaseValues& phases ) {
 
+#ifdef USE_MKL_VML
+
+   const double vaporValue  = 1.0 / phases ( pvtFlash::VAPOUR_PHASE );
+   const double liquidValue = 1.0 / phases ( pvtFlash::LIQUID_PHASE );
+   
+   cblas_dscal ( NumberOfPVTComponents, vaporValue,  &m_masses[ pvtFlash::VAPOUR_PHASE ][ 0 ], 1 );
+   cblas_dscal ( NumberOfPVTComponents, liquidValue, &m_masses[ pvtFlash::LIQUID_PHASE ][ 0 ], 1 );
+
+#else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       m_masses [ pvtFlash::VAPOUR_PHASE ][ i ] /= phases ( pvtFlash::VAPOUR_PHASE );
       m_masses [ pvtFlash::LIQUID_PHASE ][ i ] /= phases ( pvtFlash::LIQUID_PHASE );
    }
+#endif
 
    return *this;
 }
 
 void PVTPhaseComponents::sum ( PVTPhaseValues& phases ) const {
 
+#ifdef USE_MKL_VML
+   // sum of absolute (!) values
+   phases ( pvtFlash::LIQUID_PHASE ) = cblas_dasum( NumberOfPVTComponents, & m_masses[ pvtFlash::LIQUID_PHASE ][0], 1 );
+   phases ( pvtFlash::VAPOUR_PHASE ) = cblas_dasum( NumberOfPVTComponents, & m_masses[ pvtFlash::VAPOUR_PHASE ][0], 1 );
+#else
    int j;
 
-   phases ( pvtFlash::LIQUID_PHASE ) = 0.0;
-   phases ( pvtFlash::VAPOUR_PHASE ) = 0.0;
+   phases ( pvtFlash::VAPOUR_PHASE ) = m_masses [ pvtFlash::VAPOUR_PHASE ][ 0 ];
+   phases ( pvtFlash::LIQUID_PHASE ) = m_masses [ pvtFlash::LIQUID_PHASE ][ 0 ];
 
-   for ( j = 0; j < NumberOfPVTComponents; ++j ) {
-      phases ( pvtFlash::LIQUID_PHASE ) += m_masses [ pvtFlash::LIQUID_PHASE ][ j ];
+   for ( j = 1; j < NumberOfPVTComponents; ++j ) {
       phases ( pvtFlash::VAPOUR_PHASE ) += m_masses [ pvtFlash::VAPOUR_PHASE ][ j ];
+      phases ( pvtFlash::LIQUID_PHASE ) += m_masses [ pvtFlash::LIQUID_PHASE ][ j ];
+   }
+#endif
+}
+
+void PVTPhaseComponents::sumProduct ( const PVTComponents&  scalars,
+                                            PVTPhaseValues& phases ) const {
+
+   int j;
+
+   phases ( pvtFlash::VAPOUR_PHASE ) = scalars.m_components [ 0 ] * m_masses [ pvtFlash::VAPOUR_PHASE ][ 0 ];
+   phases ( pvtFlash::LIQUID_PHASE ) = scalars.m_components [ 0 ] * m_masses [ pvtFlash::LIQUID_PHASE ][ 0 ];
+
+   for ( j = 1; j < NumberOfPVTComponents; ++j ) {
+      phases ( pvtFlash::VAPOUR_PHASE ) += scalars.m_components [ j ] * m_masses [ pvtFlash::VAPOUR_PHASE ][ j ];
+      phases ( pvtFlash::LIQUID_PHASE ) += scalars.m_components [ j ] * m_masses [ pvtFlash::LIQUID_PHASE ][ j ];
    }
 
 }
 
+
 void PVTPhaseComponents::sum ( PVTComponents& components ) const {
 
+#ifdef USE_MKL_VML
+
+   vdAdd( NumberOfPVTComponents, &m_masses [ 0 ][ 0 ], &m_masses [ 1 ][ 0 ], components.m_components );
+#else
    int j;
 
    for ( j = 0; j < NumberOfPVTComponents; ++j ) {
       components ( pvtFlash::ComponentId ( j )) = m_masses [ 0 ][ j ] + m_masses [ 1 ][ j ];
    }
-
+#endif
 }
 
 void PVTPhaseComponents::setPhaseComponents ( const pvtFlash::PVTPhase phase,
                                               const PVTComponents&    components ) {
 
 
+#ifdef USE_MKL_VML
+   cblas_dcopy( NumberOfPVTComponents, components.m_components, 1, &m_masses[ phase ][ 0 ], 1 );
+#else
    int j;
 
    for ( j = 0; j < NumberOfPVTComponents; ++j ) {
       m_masses [ phase ][ j ] = components ( pvtFlash::ComponentId ( j ));
    }
+#endif
 
 }
 
@@ -536,12 +701,15 @@ void PVTPhaseComponents::getPhaseComponents ( const pvtFlash::PVTPhase phase,
                                                     PVTComponents&    components ) const {
 
 
+#ifdef USE_MKL_VML
+   cblas_dcopy( NumberOfPVTComponents, &m_masses[ phase ][ 0 ], 1, components.m_components, 1 );
+#else
    int j;
 
    for ( j = 0; j < NumberOfPVTComponents; ++j ) {
       components ( pvtFlash::ComponentId ( j )) = m_masses [ phase ][ j ];
    }
-
+#endif
 }
 
 PVTComponents PVTPhaseComponents::getPhaseComponents ( const pvtFlash::PVTPhase phase ) const {
@@ -835,18 +1003,33 @@ bool PVTCalc::compute ( const double               temperature,
                               PVTPhaseComponents&  masses,
                               PVTPhaseValues&      densities,
                               PVTPhaseValues&      viscosities,
+                              PVTComponents&       kValues,
                         const bool                 gormIsPrescribed,
                         const double               gorm ) {
 
+   bool status;
 
-   return pvtFlash::EosPack::getInstance ().computeWithLumping ( temperature,
-                                                                 pressure,
-                                                                 components.m_components,
-                                                                 masses.m_masses,
-                                                                 densities.m_values,
-                                                                 viscosities.m_values,
-                                                                 gormIsPrescribed,
-                                                                 gorm );
+   status = pvtFlash::EosPack::getInstance ().computeWithLumping ( temperature,
+                                                                   pressure,
+                                                                   components.m_components,
+                                                                   masses.m_masses,
+                                                                   densities.m_values,
+                                                                   viscosities.m_values,
+                                                                   gormIsPrescribed,
+                                                                   gorm,
+                                                                   // 0 );
+                                                                   kValues.m_components );
+
+#if 0
+   int i;
+
+   for ( i = 0; i < NumberOfPVTComponents; ++i ) {
+      masses.m_masses [ 0 ][ i ] = NumericFunctions::Maximum<double> ( masses.m_masses [ 0 ][ i ], 0.0 );
+      masses.m_masses [ 1 ][ i ] = NumericFunctions::Maximum<double> ( masses.m_masses [ 1 ][ i ], 0.0 );
+   }
+#endif
+
+   return status;
 
 }
 

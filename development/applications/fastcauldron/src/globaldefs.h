@@ -94,6 +94,11 @@ const int DefaultSourceTermQuadratureDegree = 2;
 /// \brief Quadrature degree for mass-matrix integrals.
 const int DefaultMassMatrixQuadratureDegree = 3;
 
+/// \brief The quadrature degree that is used when computing the interpolators.
+const int DarcyInterpolatorQuadratureDegree = 3;
+
+
+
 /// \var DepositingThicknessTolerance
 /// \brief The minimum thickness.
 const double DepositingThicknessTolerance = 0.001;
@@ -139,9 +144,16 @@ const double DefaultMcfMaximumPermeability = 2.0e-4;
 /// \brief The fraction of total-HC that can be "fluxed" through the element.
 const double DefaultMaximumHCFractionForFlux = 1.0;
 
-/// \var DefaultMcfCflTimeStepFraction
+/// \var DefaultResidualHcSaturationScaling
+/// \brief The scaling to be used for the Sor when estimating whether or not transport has occurred in the Darcy simulator.
+const double DefaultResidualHcSaturationScaling = 0.75;
+
+/// \brief The lower limit of hc-cnocentration for which any calculation is performed in the Darcy simulator.
+const double HcConcentrationLowerLimit = 1.0e-20;
+
+/// \var DefaultMcfAdaptiveTimeStepFraction
 /// \brief The fraction of the time-step size gien by the CFL value.
-const double DefaultMcfCflTimeStepFraction = 0.05;
+const double DefaultMcfAdaptiveTimeStepFraction = 0.05;
 
 /// \var DefaultMaximumTimeStep
 const double DefaultMaximumTimeStep = 1.0e9;
@@ -594,6 +606,9 @@ typedef ibs::Array3D <double> Double_Array_3D;
 typedef ibs::Array2D <int> Integer_Array_2D;
 
 typedef PETSc_Local_2D_Array <bool> Boolean2DArray;
+
+typedef PETSc_Local_3D_Array <bool> Boolean3DArray;
+
 
 //------------------------------------------------------------//
 

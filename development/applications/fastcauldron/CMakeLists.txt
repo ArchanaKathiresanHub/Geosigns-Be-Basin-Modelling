@@ -24,6 +24,7 @@ add_executable(fastcauldron
 	src/CauldronCalculator.C
 	src/ComponentConcentrationCalculator.C
 	src/CrustFormation.C
+	src/DarcyCalculations.C
 	src/DerivedOutputPropertyMapFactory.C
 	src/ElementContributions.C
 	src/element_contributions.C
@@ -37,6 +38,8 @@ add_executable(fastcauldron
 	src/FaultElementMapCalculator.C
 	src/fctcalc.C
 	src/FCTCorrectionCalculator.C
+	src/FaceAreaInterpolatorCalculator.C
+	src/FacePermeabilityInterpolatorCalculator.C
 	src/fem_grid_auxiliary_functions.C
 	src/fem_grid.C
 	src/fileio.C
@@ -75,6 +78,7 @@ add_executable(fastcauldron
 	src/Output.C
 	src/OutputPropertyMap.C
 	src/PermeabilityCalculator.C
+	src/PoreVolumeInterpolatorCalculator.C
 	src/PorosityCalculator.C
 	src/PressureSolver.C
 	src/PrimaryOutputPropertyMap.C
@@ -101,6 +105,9 @@ add_executable(fastcauldron
 	src/SmectiteIlliteCalculator.C
 	src/snapshotdata.C
 	src/snapshotinterpolator.C
+	src/SourceRocksTemporalInterpolator.C
+	src/SourceTermInterpolatorCalculator.C
+	src/SourceTermTemporalInterpolator.C
 	src/SonicCalculator.C
 	src/Subdomain.C
 	src/SubdomainElement.C
@@ -197,7 +204,31 @@ install(TARGETS fastcauldron
 	RUNTIME DESTINATION bin
 )
 
+include_directories ( src )
+add_executable( interpolationTest
+	test/InterpolationTest.C )
+
+add_executable( matrixInterpolationTest
+	test/MatrixInterpolationTest.C )
+
+
+target_link_libraries(interpolationTest
+	LinearAlgebra
+	${BLAS_LIBRARIES} )
+	
+target_link_libraries(matrixInterpolationTest
+	LinearAlgebra
+	${BLAS_LIBRARIES} )
+	
+add_test ( NAME MultiInterpolator 
+	COMMAND interpolationTest)
+
+add_test ( NAME MatrixInterpolator 
+	COMMAND matrixInterpolationTest)
+
 endif(BM_PARALLEL)	
+
+
 
 generate_dox( src/fastcauldron.cfg )
 

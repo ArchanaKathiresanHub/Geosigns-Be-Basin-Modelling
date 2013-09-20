@@ -32,21 +32,17 @@ using namespace DataAccess;
 
 #include "Lithology.h"
 
-const double ExplicitMultiComponentFlowSolver::ConcentrationLowerLimit = 1.0e-20;
+#include "PoreVolumeInterpolatorCalculator.h"
 
-static const pvtFlash::PVTPhase RedundantPhase  = pvtFlash::VAPOUR_PHASE;
-static const pvtFlash::PVTPhase DesignatedPhase = pvtFlash::LIQUID_PHASE;
+#include "BrooksCorey.h"
 
-#define OUTPUT ( i == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugINode () and j == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugJNode () and ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugKNode () == - 1 or element.getK () == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugKNode ()))
-#define OUTPUTNOK ( i == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugINode () and j == FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugJNode ())
-
-#define NEW_OTGC_INTERFACE
 
 //------------------------------------------------------------//
 
 ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
 {
    m_defaultMolarMasses = PVTCalc::getInstance ().getMolarMass ();
+   // Kg/mol
    m_defaultMolarMasses *= 1.0e-3;
 
    m_otgcTime = 0.0;
@@ -60,14 +56,19 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
    m_massTime = 0.0;
    m_concTime = 0.0;
    m_satTime = 0.0;
+   m_sat2Time = 0.0;
+   m_estimatedSaturationTime = 0.0;
    m_totalTime = 0.0;
 
+   m_flashCount = 0;
+   m_transportInCount = 0;
+   m_transportOutCount = 0;
+   m_transportCount = 0;
 
    m_maximumHCFractionForFlux = FastcauldronSimulator::getInstance ().getMcfHandler ().getMaximumHCFractionForFlux ();
 
    m_faceQuadratureDegree                  = FastcauldronSimulator::getInstance ().getMcfHandler ().getFaceQuadratureDegree ();
    m_previousContributionsQuadratureDegree = FastcauldronSimulator::getInstance ().getMcfHandler ().getPreviousTermQuadratureDegree ();
-   m_sourceTermQuadratureDegree            = FastcauldronSimulator::getInstance ().getMcfHandler ().getSourceTermQuadratureDegree();
    m_massMatrixQuadratureDegree            = FastcauldronSimulator::getInstance ().getMcfHandler ().getMassMatrixQuadratureDegree ();
    m_limitGradPressure                     = FastcauldronSimulator::getInstance ().getMcfHandler ().limitGradPressure ();
    m_gradPressureMaximum                   = FastcauldronSimulator::getInstance ().getMcfHandler ().gradPressureMaximum ();
@@ -81,43 +82,11 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
    m_timeStepSubSamplePvt                  = FastcauldronSimulator::getInstance ().getMcfHandler ().timeStepSubSamplePvt ();
    m_timeStepSubSampleFlux                 = FastcauldronSimulator::getInstance ().getMcfHandler ().timeStepSubSampleFlux ();
 
-
-   char* otgc5Dir = getenv("OTGCDIR");
-   char* myOtgc5Dir = getenv("MY_OTGCDIR");
-
-   const char *OTGC5DIR = 0;
-
-   if ( myOtgc5Dir != 0 ) {
-      OTGC5DIR = myOtgc5Dir;
-   } else {
-      OTGC5DIR = otgc5Dir;
-   }
-
-   m_otgcSimulator = 0;
-
-   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().applyOtgc ()) {
-
-      if ( OTGC5DIR != 0 ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMcfHandler ().modelContainsSulphur ()) {
-            // H/C = 1.8, S/C = 0.035
-            m_otgcSimulator = new Genex6::Simulator(OTGC5DIR, Constants::SIMOTGC, "TypeII_GX6", 1.8, 0.035 );
-         } else {
-            m_otgcSimulator = new Genex6::Simulator(OTGC5DIR, Constants::SIMOTGC | Constants::SIMOTGC5);
-         }
-         
-      } else {
-         //should throw instead...
-         std::cout<<" MeSsAgE WARNING: OTGCDIR environment variable is not set. No OTGC functionality is available"<<std::endl;
-      }
-
-   }
-
-#ifdef NEW_OTGC_INTERFACE
-   if( m_otgcSimulator != 0 ) {
-      ImmobileSpeciesValues::setMappingToSpeciesManager ( m_otgcSimulator->getSpeciesManager() );
-   }
-#endif
+   m_interpolateFacePermeability           = FastcauldronSimulator::getInstance ().getMcfHandler ().getInterpolatePermeability ();
+   m_interpolatePoreVolume                 = FastcauldronSimulator::getInstance ().getMcfHandler ().getInterpolatePoreVolume ();
+   m_interpolateFaceArea                   = FastcauldronSimulator::getInstance ().getMcfHandler ().getInterpolateFaceArea ();
+   m_useSaturationEstimate                 = FastcauldronSimulator::getInstance ().getMcfHandler ().getUseEstimatedSaturation ();
+   m_residualHcSaturationScaling           = FastcauldronSimulator::getInstance ().getMcfHandler ().getResidualHcSaturationScaling ();
 
    if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
       bool doGenex = FastcauldronSimulator::getInstance ().getCauldron ()->integrateGenexEquations ();
@@ -127,7 +96,6 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcf            yes\n" );
       PetscPrintf ( PETSC_COMM_WORLD, "   -genex          %s\n", ( doGenex ? "yes" : "no" ));
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfotgc        %s\n", ( doOtgc  ? "yes" : "no" ));
-      PetscPrintf ( PETSC_COMM_WORLD, "    otgc simulator %s\n", ( m_otgcSimulator == 0 ? "is null." : "is not null." ));
       // This one looks odd, because the command line parameter switches off the use of water-saturation in the overpressure calculation.
       // but the function determines whether it should be used.
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfstopsource  %s  %f\n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().removeSourceTerm () ? "yes" : "no" ),
@@ -137,8 +105,8 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
                     FastcauldronSimulator::getInstance ().getMcfHandler ().removeHcTransportAge ());
 
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfnosatop     %s\n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp () ? "no" : "yes" ));
-      PetscPrintf ( PETSC_COMM_WORLD, "   -mcfclfts       %s\n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().useCflTimeStepping () ? "yes" : "no" ));
-      PetscPrintf ( PETSC_COMM_WORLD, "   -mcfcflfrac     %f \n", FastcauldronSimulator::getInstance ().getMcfHandler ().cflTimeStepFraction ());
+      PetscPrintf ( PETSC_COMM_WORLD, "   -mcfclfts       %s\n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().useAdaptiveTimeStepping () ? "yes" : "no" ));
+      PetscPrintf ( PETSC_COMM_WORLD, "   -mcfcflfrac     %f \n", FastcauldronSimulator::getInstance ().getMcfHandler ().adaptiveTimeStepFraction ());
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfmaxfluxfrac %f \n", m_maximumHCFractionForFlux );
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfinode       %i \n", FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugINode ());
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfjnode       %i \n", FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugJNode ());
@@ -153,6 +121,13 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfmaxgp       %s %f \n", ( m_limitGradPressure ? "set" : "not set" ), m_gradPressureMaximum );
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfmaxperm     %s %f \n", ( m_limitFluxPermeability ? "set" : "not set" ), m_fluxPermeabilityMaximum );
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfpvtaverage  %s \n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().getApplyPvtAveraging () ? "yes" : "no" ));
+      PetscPrintf ( PETSC_COMM_WORLD, "   -mcfperminterp  %s \n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().getInterpolatePermeability () ? "yes" : "no" ));
+      PetscPrintf ( PETSC_COMM_WORLD, "   -mcfpvinterp    %s \n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().getInterpolatePoreVolume () ? "yes" : "no" ));
+      PetscPrintf ( PETSC_COMM_WORLD, "   -mcffainterp    %s \n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().getInterpolateFaceArea () ? "yes" : "no" ));
+
+      PetscPrintf ( PETSC_COMM_WORLD, "   -mcfusesatest   %s \n", ( FastcauldronSimulator::getInstance ().getMcfHandler ().getUseEstimatedSaturation () ? "yes" : "no" ));
+      PetscPrintf ( PETSC_COMM_WORLD, "    Sor scaling    %f \n", ( FastcauldronSimulator::getInstance ().getMcfHandler (). getResidualHcSaturationScaling ()));
+
 
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcftssmooth    %s %e \n", 
                     ( FastcauldronSimulator::getInstance ().getMcfHandler ().applyTimeStepSmoothing () ? "yes" : "no" ),
@@ -161,17 +136,14 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
       PetscPrintf ( PETSC_COMM_WORLD, "   -mcfforms " );
 
       size_t i;
-      const SubdomainArray& subdomains = FastcauldronSimulator::getInstance ().getMcfHandler ().getSubdomains ();
+
+      const DarcySubdomainArray& subdomains = FastcauldronSimulator::getInstance ().getMcfHandler ().getSubdomains ();
 
       for ( i = 0; i < subdomains.size (); ++i ) {
          PetscPrintf ( PETSC_COMM_WORLD, "\nSubdomain %i:\n%s\n\n", i + 1, subdomains [ i ]->image ().c_str ());
       }
 
    }
-
-   // if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 and m_otgcSimulator != 0 ) {
-   //    PetscPrintf ( PETSC_COMM_WORLD, " OTGC time-step size: %f \n", m_otgcSimulator->getTimeStepSize ());      
-   // }
 
    // now scale the permeability maximum to SI units.
    m_fluxPermeabilityMaximum *= MILLIDARCYTOM2;
@@ -188,21 +160,30 @@ ExplicitMultiComponentFlowSolver::~ExplicitMultiComponentFlowSolver ()
    std::stringstream buffer;
 
    buffer << " Times for subdomain: " << FastcauldronSimulator::getInstance ().getRank ()  << std::endl;
-   buffer << " Operation                cumulative time  " << std::endl;
-   buffer << " OTGC time :          " << std::setw ( 20 ) << m_otgcTime << std::endl;
-   buffer << " Flash time :         " << std::setw ( 20 ) << m_flashTime << std::endl;
-   buffer << " Flux times :         " << std::setw ( 20 ) << m_fluxTime << std::endl;
-   buffer << " Pressure times :     " << std::setw ( 20 ) << m_pressureTime << std::endl;
-   buffer << " Permeability times : " << std::setw ( 20 ) << m_permeabilityTime << std::endl;
-   buffer << " Previous time :      " << std::setw ( 20 ) << m_previousTime << std::endl;
-   buffer << " Source time :        " << std::setw ( 20 ) << m_sourceTime << std::endl;
-   buffer << " Transport time :     " << std::setw ( 20 ) << m_transportTime << std::endl;
-   buffer << " Mass time :          " << std::setw ( 20 ) << m_massTime << std::endl;
-   buffer << " Concentration time : " << std::setw ( 20 ) << m_concTime << std::endl;
-   buffer << " Saturation time :    " << std::setw ( 20 ) << m_satTime << std::endl;
-   buffer << " Total time :         " << std::setw ( 20 ) << m_totalTime << std::endl;
+   buffer << " Operation             cumulative time   %-age of total " << std::endl;
+   buffer << " OTGC time :             " << std::setw ( 20 ) << m_otgcTime         << " " << std::setw ( 20 ) << m_otgcTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Flash time :            " << std::setw ( 20 ) << m_flashTime        << " " << std::setw ( 20 ) << m_flashTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Flux times :            " << std::setw ( 20 ) << m_fluxTime         << " " << std::setw ( 20 ) << m_fluxTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Pressure times :        " << std::setw ( 20 ) << m_pressureTime     << " " << std::setw ( 20 ) << m_pressureTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Permeability times :    " << std::setw ( 20 ) << m_permeabilityTime << " " << std::setw ( 20 ) << m_permeabilityTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Previous time :         " << std::setw ( 20 ) << m_previousTime     << " " << std::setw ( 20 ) << m_previousTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Source time :           " << std::setw ( 20 ) << m_sourceTime       << " " << std::setw ( 20 ) << m_sourceTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Transport time :        " << std::setw ( 20 ) << m_transportTime    << " " << std::setw ( 20 ) << m_transportTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Mass time :             " << std::setw ( 20 ) << m_massTime         << " " << std::setw ( 20 ) << m_massTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Concentration time :    " << std::setw ( 20 ) << m_concTime         << " " << std::setw ( 20 ) << m_concTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Saturation time :       " << std::setw ( 20 ) << m_satTime          << " " << std::setw ( 20 ) << m_satTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Inner saturation time : " << std::setw ( 20 ) << m_sat2Time         << " " << std::setw ( 20 ) << m_sat2Time / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Estd. saturation time : " << std::setw ( 20 ) << m_estimatedSaturationTime << " " << std::setw ( 20 ) << m_estimatedSaturationTime / m_totalTime.floatValue () * 100.0 << std::endl;
+   buffer << " Total time :            " << std::setw ( 20 ) << m_totalTime << std::endl;
 
-   PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
+   buffer << " Flashed and transported "
+          << std::setw ( 10 ) << m_flashCount << "  "
+          << std::setw ( 10 ) << m_transportInCount << "  " 
+          << std::setw ( 10 ) << m_transportOutCount << "  "
+          << std::setw ( 10 ) << m_transportCount << "  "
+          << endl;
+
+   PetscSynchronizedPrintf ( PETSC_COMM_WORLD, "%s", buffer.str ().c_str ());
 
 }
 
@@ -214,6 +195,12 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
                                                DarcyErrorIndicator& errorOccurred ) {
 
    const MultiComponentFlowHandler& mcfHandler = FastcauldronSimulator::getInstance ().getMcfHandler ();
+
+   PoreVolumeInterpolatorCalculator poreVolumeCalculator;
+   PoreVolumeTemporalInterpolator poreVolumeInterpolator ( subdomain, poreVolumeCalculator );
+
+   FaceAreaInterpolatorCalculator faceAreaCalculator;
+   FaceAreaTemporalInterpolator faceAreaInterpolator ( subdomain, faceAreaCalculator );
 
    // First set the error indicator to false.
    errorOccurred = NO_DARCY_ERROR;
@@ -244,6 +231,8 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    WallTime::Duration massIntervalTime = 0.0;
    WallTime::Duration concIntervalTime = 0.0;
    WallTime::Duration satIntervalTime = 0.0;
+   WallTime::Duration sat2IntervalTime = 0.0;
+   WallTime::Duration estimatedSaturationIntervalTime = 0.0;
    WallTime::Duration totalIntervalTime = 0.0;
 
 
@@ -295,10 +284,17 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    PhaseValueArray       phaseViscosities;
    CompositionArray      computedConcentrations;
    ScalarArray           transportedMasses;
+   Boolean3DArray        elementContainsHc;
+   Boolean3DArray        elementTransportsHc;
+   CompositionArray      kValues;
 
    // Holds the pressure at the centre of every element in the sub-domain.
    Vec                   subdomainLiquidPressureVec;
    Vec                   subdomainVapourPressureVec;
+
+
+   DarcyCalculations darcyCalculations;
+
 
 
    Vec                    elementGasFluxTermsVec;
@@ -318,6 +314,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    const ElementVolumeGrid& fluxGrid          = subdomain.getVolumeGrid ( ElementFaceValues::NumberOfFaces );
    const ElementVolumeGrid& permeabilityGrid  = subdomain.getVolumeGrid ( ElementFaceValues::NumberOfFaces );
 
+
    TemporalPropertyInterpolator porePressure ( subdomain );
    TemporalPropertyInterpolator temperature ( subdomain );
    TemporalPropertyInterpolator ves ( subdomain );
@@ -332,8 +329,10 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    DMCreateGlobalVector ( fluxGrid.getDa (), &elementOilFluxTermsVec );
    elementOilFluxTerms.setVector ( fluxGrid, elementOilFluxTermsVec, INSERT_VALUES );
 
-   DMCreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityNVec );
-   DMCreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityHVec );
+   if ( not m_interpolateFacePermeability ) {
+      DMCreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityNVec );
+      DMCreateGlobalVector ( permeabilityGrid.getDa (), &subdomainPermeabilityHVec );
+   }
 
    DMCreateGlobalVector ( simpleGrid.getDa (), &subdomainVapourPressureVec );
    DMCreateGlobalVector ( simpleGrid.getDa (), &subdomainLiquidPressureVec );
@@ -345,6 +344,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    ScalarPetscVector subdomainLiquidPressure;// ( simpleGrid, subdomainLiquidPressureVec, INSERT_VALUES, true );
 
    computedConcentrations.create ( concentrationGrid );
+   kValues.create ( concentrationGrid );
    transportedMasses.create ( simpleGrid );
 
    activateProperties ( subdomain, currentAlreadyActivatedProperties, previousAlreadyActivatedProperties );
@@ -355,6 +355,9 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    phaseComposition.create ( concentrationGrid );
 
    saturations.create ( concentrationGrid );
+
+   elementContainsHc.create ( concentrationGrid );
+   elementTransportsHc.create ( concentrationGrid );
 
    // kg/m^3
    phaseDensities.create   ( concentrationGrid );
@@ -368,9 +371,19 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    maxVes.setProperty ( Basin_Modelling::Max_VES );
    depth.setProperty ( Basin_Modelling::Depth );
 
-   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().useCflTimeStepping ()) {
-   // if ( subdomain.sourceRockIsActive () and FastcauldronSimulator::getInstance ().getMcfHandler ().useCflTimeStepping ()) {
-   } else {
+
+   if ( m_interpolateFacePermeability ) {
+      permeabilityStart = WallTime::clock ();
+   } 
+
+   FacePermeabilityInterpolatorCalculator facePermeabilityCalculator ( subdomain );
+   FacePermeabilityTemporalInterpolator facePermeabilityInterpolator ( subdomain, facePermeabilityCalculator );
+
+   if ( m_interpolateFacePermeability ) {
+      permeabilityIntervalTime += WallTime::clock () - permeabilityStart;
+   }
+
+   if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().useAdaptiveTimeStepping ()) {
 
       if ( subdomain.sourceRockIsActive () and ( startTime - endTime ) > FastcauldronSimulator::getInstance ().getMcfHandler ().getMaximumTimeStepSize ()) {
 
@@ -392,6 +405,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
    PVTPhaseComponents zeroPhaseComposition;
    PVTComponents zeroComposition;
+   PVTComponents initialKValues;
    PVTPhaseValues zeroPhase;
 
    bool errorInSaturation;
@@ -404,15 +418,22 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
    zeroPhaseComposition.zero ();
    zeroComposition.zero ();
+   initialKValues.fill ( -1.0 );
    zeroPhase.zero ();
 
    // Copy saturation values from current to previous, before they are overwritten.
    subdomain.initialiseLayerIterator ( layerIter );
 
+   SourceRocksTemporalInterpolator sourceRocksInterpolator ( subdomain );
+
    while ( not layerIter.isDone ()) {
       layerIter->getFormation ().copySaturations ();
       ++layerIter;
    }
+
+
+   int applyOtgcCount = 0;
+   double lastOtgcStartTime;
 
    timeStepStartMa = startTime;
    timeStepStartSec = startTime * GeoPhysics::SecondsPerMillionYears;
@@ -420,8 +441,24 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
    transportedMasses.fill ( 0.0 );
 
+   lastOtgcStartTime = timeStepStartMa;
+
+   int ii, j, k;
+
+   for ( ii = phaseComposition.firstI ( true ); ii <= phaseComposition.lastI ( true ); ++ii ) {
+         
+      for ( j = phaseComposition.firstJ ( true ); j <= phaseComposition.lastJ ( true ); ++j ) {
+
+         for ( k = phaseComposition.firstK (); k <= phaseComposition.lastK (); ++k ) {
+            kValues ( ii, j, k )( static_cast< pvtFlash::ComponentId >(0)) = -1.0;
+         }
+
+      }
+
+   }
+
    while ( not timeSteppingFinished ) {
-   // for ( t = 0; t < numberOfSubTimeSteps; ++t ) {
+
       ++iterationCount;
       iterationStart = WallTime::clock ();
 
@@ -435,13 +472,13 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       elementGasFluxTerms.setVector ( fluxGrid, elementGasFluxTermsVec, INSERT_VALUES, true );
       elementOilFluxTerms.setVector ( fluxGrid, elementOilFluxTermsVec, INSERT_VALUES, true );
 
-      VecZeroEntries ( subdomainPermeabilityNVec );
-      VecZeroEntries ( subdomainPermeabilityHVec );
+      if ( not m_interpolateFacePermeability ) {
+         VecZeroEntries ( subdomainPermeabilityNVec );
+         VecZeroEntries ( subdomainPermeabilityHVec );
+      }
 
-      // phaseComposition.fill ( zeroPhaseComposition );
-      // phaseDensities.fill ( zeroPhase );
-      // phaseViscosities.fill ( zeroPhase );
-      // computedConcentrations.fill ( zeroComposition );
+      elementContainsHc.fill ( false );
+      elementTransportsHc.fill ( false );
 
       int ii, j, k;
 
@@ -450,9 +487,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
          for ( j = phaseComposition.firstJ ( true ); j <= phaseComposition.lastJ ( true ); ++j ) {
 
             for ( k = phaseComposition.firstK (); k <= phaseComposition.lastK (); ++k ) {
-               phaseComposition ( ii, j, k ).zero ();
-               phaseDensities ( ii, j, k ).zero ();
-               phaseViscosities ( ii, j, k ).zero ();
                computedConcentrations ( ii, j, k ).zero ();
             }
 
@@ -460,28 +494,34 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
       }
 
+      satStart = WallTime::clock ();
+      estimateHcTransport ( subdomain, elementContainsHc, elementTransportsHc );
+      estimatedSaturationIntervalTime += WallTime::clock () - satStart;
+
       // Flash the (previous-) components for all the elements in the subdomain.
       flashStart = WallTime::clock ();
-      flashComponents ( subdomain, phaseComposition, phaseDensities, phaseViscosities, porePressure, temperature, lambdaStart );
+      m_flashCount += darcyCalculations.flashComponents ( subdomain, phaseComposition, phaseDensities, phaseViscosities, porePressure, temperature, lambdaStart, kValues, elementTransportsHc );
       flashIntervalTime += WallTime::clock () - flashStart;
 
       // now determine:
       //    i. flux
       //   ii. time-step size.
-      setSaturations ( subdomain, phaseComposition, phaseDensities, saturations, errorInSaturation );
+      satStart = WallTime::clock ();
+      darcyCalculations.setSaturations ( subdomain, phaseComposition, phaseDensities, elementTransportsHc, saturations, errorInSaturation );
+      sat2IntervalTime += WallTime::clock () - satStart;
 
       if ( errorInSaturation ) {
          errorOccurred = ERROR_CALCULATING_SATURATION;
          break;
       }
 
+      pressureStart = WallTime::clock ();
+
       // Compute the flux term for the boundary of each element.
       subdomainVapourPressure.setVector ( simpleGrid, subdomainVapourPressureVec, INSERT_VALUES );
       subdomainLiquidPressure.setVector ( simpleGrid, subdomainLiquidPressureVec, INSERT_VALUES );
 
-      pressureStart = WallTime::clock ();
-
-      computePressure ( subdomain, phaseComposition, phaseDensities, saturations,
+      computePressure ( subdomain, saturations,
                         porePressure, temperature, ves, maxVes, lambdaStart,
                         subdomainVapourPressure, subdomainLiquidPressure );
 
@@ -494,33 +534,35 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
       pressureIntervalTime += WallTime::clock () - pressureStart;
 
-      // Compute the flux term for the boundary of each element.
-      permeabilityStart = WallTime::clock ();
+      if ( not m_interpolateFacePermeability ) {
+         // Compute the flux term for the boundary of each element.
+         permeabilityStart = WallTime::clock ();
 
-      // Average permeabilities.
-      computeAveragePermeabilities ( subdomain, lambdaStart, subdomainPermeabilityNVec, subdomainPermeabilityHVec );
+         // Average permeabilities.
+         darcyCalculations.computeAveragePermeabilities ( subdomain, lambdaStart, lambdaEnd, subdomainPermeabilityNVec, subdomainPermeabilityHVec );
 
-      // Update permeability values from neighbouring processes.
-      subdomainPermeabilityN.setVector ( permeabilityGrid, subdomainPermeabilityNVec, INSERT_VALUES, true );
-      subdomainPermeabilityH.setVector ( permeabilityGrid, subdomainPermeabilityHVec, INSERT_VALUES, true );
+         // Update permeability values from neighbouring processes.
+         subdomainPermeabilityN.setVector ( permeabilityGrid, subdomainPermeabilityNVec, INSERT_VALUES, true );
+         subdomainPermeabilityH.setVector ( permeabilityGrid, subdomainPermeabilityHVec, INSERT_VALUES, true );
 
-      permeabilityIntervalTime += WallTime::clock () - permeabilityStart;
+         permeabilityIntervalTime += WallTime::clock () - permeabilityStart;
+      }
 
       // Compute the flux term for the boundary of each element.
       fluxStart = WallTime::clock ();
 
       // Compute the rate at which hc leaves the element.
       // At the same time compute the maximu time-step size so as to remain a positive concentration.
-      computeFluxTerms ( subdomain,
+      computeFluxTerms ( subdomain, elementTransportsHc,
                          phaseComposition, phaseDensities, phaseViscosities, 
-                         subdomainPermeabilityN, subdomainPermeabilityH,
+                         subdomainPermeabilityN, subdomainPermeabilityH, facePermeabilityInterpolator,
                          subdomainVapourPressure,
                          subdomainLiquidPressure,
-                         depth, porePressure, saturations, 
+                         depth, porePressure, faceAreaInterpolator, poreVolumeInterpolator, saturations,
                          elementGasFluxTerms, elementOilFluxTerms,
                          lambdaStart, calculatedTimeStepSize );
 
-      if ( mcfHandler.useCflTimeStepping ()) {
+      if ( mcfHandler.useAdaptiveTimeStepping ()) {
 
          if ( mcfHandler.applyTimeStepSmoothing () and calculatedTimeStepSize > previousTimeStepSize ) {
             calculatedTimeStepSize = NumericFunctions::Minimum ( mcfHandler.getTimeStepSmoothingFactor () * previousTimeStepSize,
@@ -562,7 +604,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
          timeSteppingFinished = ( iterationCount == uniformTimeStepCount );
       }
 
-      scaleFluxTermsByTimeStep ( subdomain, elementGasFluxTerms, elementOilFluxTerms, deltaTSec );
+      scaleFluxTermsByTimeStep ( subdomain, elementTransportsHc, elementGasFluxTerms, elementOilFluxTerms, deltaTSec );
       fluxIntervalTime += WallTime::clock () - fluxStart;
 
       if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
@@ -579,9 +621,11 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       elementOilFluxTerms.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
       elementOilFluxTerms.setVector ( fluxGrid, elementOilFluxTermsVec, INSERT_VALUES, true );
 
-      // Zero permeabilities, ready for new values.
-      subdomainPermeabilityN.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-      subdomainPermeabilityH.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+      if ( not m_interpolateFacePermeability ) {
+         // Zero permeabilities, ready for new values.
+         subdomainPermeabilityN.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+         subdomainPermeabilityH.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+      }
 
       subdomainVapourPressure.restoreVector ( NO_UPDATE );
       subdomainLiquidPressure.restoreVector ( NO_UPDATE );
@@ -589,33 +633,34 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       // Compute the contributions from previous time-step.
       // This is first function in the sequence to add to the computed-concentrations.
       previousStart = WallTime::clock ();
-      computeTemporalContributions ( subdomain, computedConcentrations, lambdaStart, lambdaEnd );
+      computeTemporalContributions ( subdomain, elementContainsHc, computedConcentrations, poreVolumeInterpolator, lambdaStart, lambdaEnd );
       previousIntervalTime += WallTime::clock () - previousStart;
 
       if ( not stopHcTransport or timeStepEndMa >= stopHcTransportAge ) {
-         // Since the flux terms may not added here should they be calculated?
+         // Since the flux terms may not added here, due to stopHcTransport, should they be calculated?
          // Now add the flux terms to the concentrations.
          transportStart = WallTime::clock ();
-         transportComponents ( subdomain, phaseComposition, elementGasFluxTerms, elementOilFluxTerms, computedConcentrations, transportedMasses );
+         // The elementContainsHc array may be updated here if there is transport of hc into an element that previously had none.
+         transportComponents ( subdomain, phaseComposition, elementGasFluxTerms, elementOilFluxTerms, elementContainsHc, computedConcentrations, transportedMasses );
          transportIntervalTime += WallTime::clock () - transportStart;
       }
 
       if ( not removeSourceTerm or timeStepEndMa >= sourceTermRemovalAge ) {
          // integrate over the element the hc generated in genex.
          sourceStart = WallTime::clock ();
-         computeSourceTerm ( subdomain, computedConcentrations, lambdaStart, fractionScaling, sourceMassAdded );
+         darcyCalculations.computeSourceTerm ( subdomain, computedConcentrations, elementContainsHc, sourceRocksInterpolator, lambdaStart, fractionScaling, sourceMassAdded );
          totalMassAddedForInterval += sourceMassAdded;
          sourceIntervalTime += WallTime::clock () - sourceStart;
       }
 
       // Divide the computed concentrations by the mass-matrix.
       massStart = WallTime::clock ();
-      divideByMassMatrix ( subdomain, computedConcentrations, lambdaStart, lambdaEnd );
+      divideByMassMatrix ( subdomain, elementContainsHc, poreVolumeInterpolator, computedConcentrations, lambdaStart, lambdaEnd );
       massIntervalTime += WallTime::clock () - massStart;
 
       // Assign the concentration to each element.
       concStart = WallTime::clock ();
-      setConcentrations ( subdomain, computedConcentrations, errorInConcentration );
+      darcyCalculations.setConcentrations ( subdomain, elementContainsHc, computedConcentrations, errorInConcentration );
       concIntervalTime += WallTime::clock () - concStart;
 
       if ( errorInConcentration ) {
@@ -625,53 +670,32 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
       // Apply OTGC to (previous-) components for all elements in the subdomain.
       otgcStart = WallTime::clock ();
-      applyOtgc ( subdomain, porePressure, temperature, timeStepStartMa, timeStepEndMa, lambdaStart, lambdaEnd );
-      otgcIntervalTime += WallTime::clock () - otgcStart;
 
+#if 0
+      ++applyOtgcCount;
+
+      if ( applyOtgcCount == 4 or lambdaEnd == 1.0 ) {
+         darcyCalculations.applyOtgc ( elementContainsHc, porePressure, temperature, lastOtgcStartTime, timeStepEndMa, lambdaStart, lambdaEnd );
+         lastOtgcStartTime = timeStepEndMa;
+         applyOtgcCount = 0;
+      }
+#else
+      darcyCalculations.applyOtgc ( subdomain, elementContainsHc, porePressure, temperature, timeStepStartMa, timeStepEndMa, lambdaStart, lambdaEnd );
+#endif
+
+      otgcIntervalTime += WallTime::clock () - otgcStart;
 
       // Set start values to end values of last time-step.
       timeStepStartSec = timeStepEndSec;
       timeStepStartMa  = timeStepEndMa;
       lambdaStart = lambdaEnd;
 
-
-#if 0
-      if ( t == 0 and FastcauldronSimulator::getInstance ().getRank () == 0 ) { //and numberOfSubTimeSteps > 10 
-         WallTime::Duration estimatedTimeStepTime = WallTime::clock () - iterationStart;
-         int    hours;
-         int    minutes;
-         int    seconds;
-         double fractionSeconds;
-
-         estimatedTimeStepTime = estimatedTimeStepTime * numberOfSubTimeSteps;
-
-         estimatedTimeStepTime.separate ( hours, minutes, seconds, fractionSeconds );
-
-         if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getSubdomains ().size () > 1 ) {
-            cout << " - Estimated time for Darcy subdomain " << setw ( 2 ) << subdomain.getId () << ": " 
-                 << setw ( 3 ) <<   hours << " hrs " 
-                 << setw ( 2 ) << minutes << " mins "
-                 << setw ( 2 ) << seconds << " secs"
-                 << endl << flush;
-         } else {
-            cout << " - Estimated time for Darcy subdomain: " 
-                 << setw ( 3 ) <<   hours << " hrs " 
-                 << setw ( 2 ) << minutes << " mins "
-                 << setw ( 2 ) << seconds << " secs"
-                 << endl << flush;
-         }
-
-      }
-#endif
-
    }
 
-
    if ( errorOccurred == NO_DARCY_ERROR ) {
-
       // Assign the saturations to each element.
       satStart = WallTime::clock ();
-      setSaturations ( subdomain, errorInSaturation );
+      darcyCalculations.setSaturations ( subdomain, kValues, errorInSaturation );
 
       if ( errorInSaturation ) {
          errorOccurred = ERROR_CALCULATING_SATURATION;
@@ -682,7 +706,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       satIntervalTime = WallTime::clock () - satStart;
 
       //set time of element invasion
-      setTimeOfElementInvasion ( subdomain, endTime );
+      darcyCalculations.setTimeOfElementInvasion ( subdomain, endTime );
       updateTransportedMasses ( subdomain, transportedMasses );
    }
 
@@ -691,8 +715,8 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    }
 
 
-   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
-      double totalMass = totalHcMass ( subdomain, 1.0 );
+   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 1 ) {
+      double totalMass = darcyCalculations.totalHcMass ( subdomain, 1.0 );
 
       PetscPrintf ( PETSC_COMM_WORLD, " Total mass in system           : %f \n", totalMass );
       PetscPrintf ( PETSC_COMM_WORLD, " Total mass added over interval : %f \n", totalMassAddedForInterval );
@@ -701,8 +725,11 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    // 'Deactivate' all those properties that we not already 'activated'.
    deactivateProperties ( subdomain, currentAlreadyActivatedProperties, previousAlreadyActivatedProperties );
 
-   VecDestroy ( &subdomainPermeabilityNVec );
-   VecDestroy ( &subdomainPermeabilityHVec );
+   if ( not m_interpolateFacePermeability ) {
+      VecDestroy ( &subdomainPermeabilityNVec );
+      VecDestroy ( &subdomainPermeabilityHVec );
+   }
+
    VecDestroy ( &subdomainVapourPressureVec );
    VecDestroy ( &subdomainLiquidPressureVec );
    VecDestroy ( &elementGasFluxTermsVec );
@@ -722,8 +749,10 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    m_concTime         += concIntervalTime;
    m_satTime          += satIntervalTime;
    m_totalTime        += totalIntervalTime;
+   m_sat2Time         += sat2IntervalTime;
+   m_estimatedSaturationTime += estimatedSaturationIntervalTime;
 
-   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 1 ) {
+   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
       std::stringstream buffer;
 
       buffer << " Operation                time-step time            cumulative time  " << std::endl;
@@ -737,8 +766,16 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       buffer << " Transport composition      " << std::setw ( 20 ) << transportIntervalTime    << "  " << std::setw ( 20 ) << m_transportTime    << std::endl;
       buffer << " Compute Mass matrix        " << std::setw ( 20 ) << massIntervalTime         << "  " << std::setw ( 20 ) << m_massTime         << std::endl;
       buffer << " Compute next concentration " << std::setw ( 20 ) << concIntervalTime         << "  " << std::setw ( 20 ) << m_concTime         << std::endl;
+      buffer << " Compute inner saturation   " << std::setw ( 20 ) << sat2IntervalTime         << "  " << std::setw ( 20 ) << m_sat2Time         << std::endl;
       buffer << " Compute next saturation    " << std::setw ( 20 ) << satIntervalTime          << "  " << std::setw ( 20 ) << m_satTime          << std::endl;
       buffer << " Total time :               " << std::setw ( 20 ) << totalIntervalTime        << "  " << std::setw ( 20 ) << m_totalTime        << std::endl;
+
+      buffer << " Flashed and transported "
+             << std::setw ( 10 ) << m_flashCount << "  "
+             << std::setw ( 10 ) << m_transportInCount << "  " 
+             << std::setw ( 10 ) << m_transportOutCount << "  "
+             << std::setw ( 10 ) << m_transportCount << "  "
+             << endl;
 
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
       PetscSynchronizedFlush ( PETSC_COMM_WORLD );
@@ -750,8 +787,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
 
 void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainElementGrid&      formationGrid,
-                                                         const PhaseCompositionArray&        phaseComposition,
-                                                         const PhaseValueArray&              phaseDensities,
                                                          const SaturationArray&              saturations,
                                                          const TemporalPropertyInterpolator& porePressure,
                                                          const TemporalPropertyInterpolator& temperature,
@@ -770,12 +805,8 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
    int j;
    int k;
 
-   // SaturationVector saturations;
-
    double elementPorePressure;
    double capillaryPressure;
-
-   // saturations.setVector ( saturationGrid, theLayer.getPhaseSaturationVec (), INSERT_VALUES );
 
    for ( i = concentrationGrid.firstI (); i <= concentrationGrid.lastI (); ++i ) {
 
@@ -790,18 +821,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                if ( layerElement.isActive ()) {
 
                   const Lithology* lithology = layerElement.getLithology ();
-
                   const Saturation& saturation = saturations ( element.getI (), element.getJ (), element.getK ());
-
-#if 0
-                  if ( isnan ( saturation ( Saturation::WATER )) or isinf ( saturation ( Saturation::WATER )) or 0.0 > saturation ( Saturation::WATER ) or saturation ( Saturation::WATER ) > 1.0 ) {
-                     cout << " sat is not finite " << element.getI () << "  " << element.getJ () << "  " << element.getK () << "  " 
-                          << saturation.image () 
-                          << endl;
-                  }
-#endif
-
-                  const PVTPhaseComponents& elementPhaseComposition = phaseComposition ( element.getI (), element.getJ (), element.getK ());
 
                   elementPorePressure = 1.0e6 * porePressure ( element, lambda );
 
@@ -827,8 +847,6 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::computePressure ( Subdomain&                          subdomain,
-                                                         const PhaseCompositionArray&        phaseComposition,
-                                                         const PhaseValueArray&              phaseDensities,
                                                          const SaturationArray&              saturations,
                                                          const TemporalPropertyInterpolator& porePressure,
                                                          const TemporalPropertyInterpolator& temperature,
@@ -844,7 +862,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( Subdomain&             
    subdomain.initialiseLayerIterator ( iter );
 
    while ( not iter.isDone ()) {
-      computePressure ( *iter, phaseComposition, phaseDensities, saturations, porePressure, temperature, ves, maxVes, lambda, vapourPressure, liquidPressure );
+      computePressure ( *iter, saturations, porePressure, temperature, ves, maxVes, lambda, vapourPressure, liquidPressure );
       ++iter;
    }
 
@@ -852,17 +870,16 @@ void ExplicitMultiComponentFlowSolver::computePressure ( Subdomain&             
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainElement& element,
-                                                              const double            elementFlux,
-                                                              const double            neighbourFlux,
-                                                              const PVTComponents&    elementComposition,
-                                                              const PVTComponents&    neighbourComposition,
-                                                                    PVTComponents&    flux,
-                                                                    double&           transportedMassesIn,
-                                                                    double&           transportedMassesOut ) {
-
-   PVTComponents ws;
-   double        sum;
+void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainElement&   element,
+                                                              const pvtFlash::PVTPhase  phase,
+                                                              const double              elementFlux,
+                                                              const double              neighbourFlux,
+                                                              const double              elementPhaseCompositionSum,
+                                                              const PVTPhaseComponents& elementComposition,
+                                                              const PVTPhaseComponents& neighbourComposition,
+                                                                    PVTComponents&      flux,
+                                                                    double&             transportedMassesIn,
+                                                                    double&             transportedMassesOut ) {
 
    //
    // Upwinding flux function.
@@ -872,34 +889,47 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
    //                    {   f(c-) . n x- if f(c-) . n < 0.0  inflow
    //
 
-   sum = elementComposition.sum ();
+   if ( elementFlux > 0.0 ) {
 
-   // Subtract outflow
-   if ( sum > ConcentrationLowerLimit ) {
-      ws = elementComposition;
-      ws *= 1.0 / sum;
-      ws *= -NumericFunctions::Maximum ( 0.0, elementFlux );
-      ws *= m_defaultMolarMasses;
-      flux = ws;
+      // Subtract outflow
+      if ( elementPhaseCompositionSum > HcConcentrationLowerLimit ) {
+         int c;
+         double scalar = -elementFlux / elementPhaseCompositionSum;
 
-      // Add mass transported out ot element.
-      transportedMassesOut += NumericFunctions::Maximum ( 0.0, elementFlux );
+         for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+            pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+            flux ( component ) = scalar * elementComposition ( phase, component ) * m_defaultMolarMasses  ( component );
+         }
+
+         // Add mass transported out of element.
+         transportedMassesOut += elementFlux;
+      } else {
+         flux.zero ();
+      }
+
    } else {
       flux.zero ();
    }
 
-   sum = neighbourComposition.sum ();
+   if ( neighbourFlux > 0.0 ) {
+      double sum;
+      sum = neighbourComposition.sum ( phase );
 
-   // Add in-flow from neighbour.
-   if ( sum > ConcentrationLowerLimit ) {
-      ws = neighbourComposition;
-      ws *= 1.0 / sum;
-      ws *= NumericFunctions::Maximum ( 0.0, neighbourFlux );
-      ws *= m_defaultMolarMasses;
+      // Add in-flow from neighbour.
+      if ( sum > HcConcentrationLowerLimit ) {
 
-      flux += ws;
-      // Add mass transported into element.
-      transportedMassesIn += NumericFunctions::Maximum ( 0.0, neighbourFlux );
+         int c;
+         double scalar = neighbourFlux / sum;
+
+         for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+            pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+            flux ( component ) += scalar * neighbourComposition ( phase, component ) * m_defaultMolarMasses  ( component );
+         }
+
+         // Add mass transported into element.
+         transportedMassesIn += neighbourFlux;
+      }
+
    }
 
 }
@@ -915,36 +945,67 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( const SubdomainElem
                                                                    double&                 transportedMassesIn,
                                                                    double&                 transportedMassesOut ) {
 
-   PVTComponents elementComponents;
-   PVTComponents neighbourComponents;
    PVTComponents transportedComponents;
    PVTComponents totalTransportedComponents;
-   PVTComponents zeroComponents;
+   PVTPhaseComponents zeroComponents;
+
+   // const SubdomainElement* activeNeighbours [ VolumeData::NumberOfBoundaries ] = { 0, 0, 0, 0, 0, 0 };
 
    int face;
 
+   bool hasInFlow = false;
+   bool hasOutFlow = false;
+
+   for ( face = VolumeData::GAMMA_1; face <= VolumeData::GAMMA_6; ++face ) {
+      const VolumeData::BoundaryId id = static_cast<VolumeData::BoundaryId>( face );
+      const VolumeData::BoundaryId opposite = VolumeData::opposite ( id );
+      const SubdomainElement* neighbour = element.getActiveNeighbour ( id );
+
+      // activeNeighbours [ face ] = neighbour;
+
+      if ( neighbour != 0 ) {
+
+         if ( elementFluxes ( neighbour->getK (), neighbour->getJ (), neighbour->getI ())( opposite ) > 0.0 ) {
+            hasInFlow = true;
+            break;
+         }
+
+      }
+
+      if ( elementFluxes ( element.getK (), element.getJ (), element.getI ())( id ) > 0.0 ) {
+         hasOutFlow = true;
+         break;
+      }
+
+   }
+
+   if ( not hasInFlow and not hasOutFlow ) {
+      return;
+   }
+
+   double elementPhaseCompositionSum = phaseComposition ( element.getI (), element.getJ (), element.getK ()).sum ( phase );
    transportedComponents.zero ();
    zeroComponents.zero ();
    totalTransportedComponents.zero ();
 
-   elementComponents = phaseComposition ( element.getI (), element.getJ (), element.getK ()).getPhaseComponents ( phase );
 
    for ( face = VolumeData::GAMMA_1; face <= VolumeData::GAMMA_6; ++face ) {
 
       const VolumeData::BoundaryId id = static_cast<VolumeData::BoundaryId>( face );
       const VolumeData::BoundaryId opposite = VolumeData::opposite ( id );
+      // const SubdomainElement* neighbour = activeNeighbours [ id ];
       const SubdomainElement* neighbour = element.getActiveNeighbour ( id );
 
       transportedComponents.zero ();
 
       if ( neighbour != 0 ) {
-         neighbourComponents = phaseComposition ( neighbour->getI (), neighbour->getJ (), neighbour->getK ()).getPhaseComponents ( phase );
-
          computeNumericalFlux ( element,
+                                phase,
                                 elementFluxes ( element.getK (), element.getJ (), element.getI ())( id ),
                                 elementFluxes ( neighbour->getK (), neighbour->getJ (), neighbour->getI ())( opposite ),
-                                elementComponents,
-                                neighbourComponents,
+                                elementPhaseCompositionSum,
+                                phaseComposition ( element.getI (), element.getJ (), element.getK ()),
+                                phaseComposition ( neighbour->getI (), neighbour->getJ (), neighbour->getK ()),
                                 transportedComponents,
                                 transportedMassesIn,
                                 transportedMassesOut );
@@ -952,38 +1013,18 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( const SubdomainElem
       } else {
 
          computeNumericalFlux ( element,
+                                phase,
                                 elementFluxes ( element.getK (), element.getJ (), element.getI ())( id ),
                                 0.0,
-                                elementComponents,
+                                elementPhaseCompositionSum,
+                                phaseComposition ( element.getI (), element.getJ (), element.getK ()),
                                 zeroComponents,
                                 transportedComponents,
                                 transportedMassesIn,
                                 transportedMassesOut );
-
-      // } else if ( faceIsBoundary ) {
-      //    neighbourComponents = boundaryValues;
-      //    computeNumericalFlux ( element,
-      //                           oilFluxes ( element.getK (), element.getJ (), element.getI ()),
-      //                           oilFluxes ( neighbour->getK (), neighbour->getJ (), neighbour->getI ()),
-      //                           elementComponents,
-      //                           neighbourComponents, transportedComponents );
-
       }
 
       computedConcentrations += transportedComponents;
-
-#if 0
-      if ( minimum ( computedConcentrations ) < 0.0 ) {
-         cout << " conc less " << element.getI () << "  " << element.getJ () << "  " << element.getK () << "  " 
-              << VolumeData::boundaryIdImage ( id ) << "  " << VolumeData::boundaryIdAliasImage ( id ) << "  " << ( phase == pvtFlash::VAPOUR_PHASE ? " VAPOUR " : " LIQUID " ) << endl
-              << elementFluxes ( element.getK (), element.getJ (), element.getI ()).image () << endl
-              << elementComponents.image () << endl
-              << computedConcentrations.image () << endl
-              << transportedComponents.image () << endl
-              << endl;
-      }
-#endif
-
    }
 
 }
@@ -995,6 +1036,7 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
                                                              const PhaseCompositionArray&     phaseComposition,
                                                              const ElementFaceValueVector&    gasFluxes,
                                                              const ElementFaceValueVector&    oilFluxes,
+                                                                   Boolean3DArray&            elementContainsHc,
                                                                    CompositionArray&          computedConcentrations,
                                                                    ScalarArray&               transportedMasses ) {
 
@@ -1032,29 +1074,40 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
                massTransportedIn = 0.0;
                massTransportedOut = 0.0;
 
-               transportComponents ( element, pvtFlash::VAPOUR_PHASE, gasFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), massTransportedIn, massTransportedOut );
-               transportComponents ( element, pvtFlash::LIQUID_PHASE, oilFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), massTransportedIn, massTransportedOut );
+               transportComponents ( element,
+                                     pvtFlash::VAPOUR_PHASE,
+                                     gasFluxes,
+                                     phaseComposition,
+                                     computedConcentrations ( i, j, elementK ),
+                                     massTransportedIn,
+                                     massTransportedOut );
+
+               transportComponents ( element,
+                                     pvtFlash::LIQUID_PHASE,
+                                     oilFluxes,
+                                     phaseComposition,
+                                     computedConcentrations ( i, j, elementK ),
+                                     massTransportedIn,
+                                     massTransportedOut );
 
                transportedMasses ( i, j, elementK ) += massTransportedIn + massTransportedOut;
 
-#if 0
-               if ( computedConcentrations ( i, j, elementK ).sum () > 1.0e-18 ) {
-                  ++elementCountWithHc;
+               if ( massTransportedIn > 0.0 ) {
+                  ++m_transportInCount;
                }
 
-               if ( massTransportedIn != 0.0 )  {
-                  ++elementCountWithTransportIn;
+               if ( massTransportedOut > 0.0 ) {
+                  ++m_transportOutCount;
                }
 
-               if ( massTransportedOut != 0.0 )  {
-                  ++elementCountWithTransportOut;
+               if ( massTransportedIn > 0.0 or massTransportedOut > 0.0 ) {
+                  ++m_transportCount;
                }
 
-               // transportComponents ( element, pvtFlash::VAPOUR_PHASE, gasFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), transportedMasses ( i, j, elementK ));
-               // transportComponents ( element, pvtFlash::LIQUID_PHASE, oilFluxes, phaseComposition, computedConcentrations ( i, j, elementK ), transportedMasses ( i, j, elementK ));
+               if ( massTransportedIn > 0.0 or massTransportedOut > 0.0 ) {
+                  elementContainsHc ( element.getI (), element.getJ (), element.getK ()) = true;
+               }
 
-               ++elementCount;
-#endif
             }
 
          }
@@ -1062,14 +1115,6 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
       }
 
    }
-
-#if 0
-   cout << " For layer: " << formationGrid.getFormation ().layername << "  " 
-        << elementCountWithHc << "  "
-        << elementCountWithTransportIn << " of "
-        << elementCountWithTransportOut << " of "
-        << elementCount << " had transported hc." << endl;
-#endif
 
 }
 
@@ -1079,6 +1124,7 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( Subdomain&         
                                                              const PhaseCompositionArray&     phaseComposition,
                                                              const ElementFaceValueVector&    gasFluxes,
                                                              const ElementFaceValueVector&    oilFluxes,
+                                                             Boolean3DArray&                  elementContainsHc,
                                                              CompositionArray&                computedConcentrations,
                                                              ScalarArray&                     transportedMasses ) {
 
@@ -1087,7 +1133,13 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( Subdomain&         
    subdomain.initialiseLayerIterator ( iter );
 
    while ( not iter.isDone ()) {
-      transportComponents ( *iter, subdomain.getVolumeGrid ( NumberOfPVTComponents ), phaseComposition, gasFluxes, oilFluxes, computedConcentrations, transportedMasses );
+      transportComponents ( *iter,
+                            subdomain.getVolumeGrid ( NumberOfPVTComponents ),
+                            phaseComposition,
+                            gasFluxes, oilFluxes,
+                            elementContainsHc,
+                            computedConcentrations,
+                            transportedMasses );
       ++iter;
    }
 
@@ -1096,6 +1148,7 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( Subdomain&         
 //------------------------------------------------------------//
 
 double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const SubdomainElement&                   element, 
+                                                                  const FaceAreaTemporalInterpolator&       faceAreaInterpolator,
                                                                   const VolumeData::BoundaryId              face,
                                                                   const Saturation::Phase                   phase,
                                                                   const double                              elementPressure,
@@ -1103,10 +1156,11 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
                                                                   const double                              deltaX,
                                                                   const double                              phaseDensity,
                                                                   const double                              phaseViscosity,
-                                                                  const Saturation&                         saturation,
+                                                                  const double                              relativePermeability,
                                                                         FiniteElementMethod::FiniteElement& finiteElement,
                                                                   const double                              permNormal,
                                                                   const double                              permPlane,
+                                                                  const double                              lambda,
                                                                   const bool                                print ) const {
 
    if ( not element.getLayerElement ().isActive () or not element.getLayerElement ().isActiveBoundary ( face )) {
@@ -1123,28 +1177,28 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
    ThreeVector      normal;
    ThreeVector      massFlux;
    double           faceFlux = 0.0;
-   double           relativePermeability = layerElement.getLithology ()->relativePermeability ( phase, saturation );
    double           weight;
    double           dsDt;
+
+   if ( relativePermeability == 0.0 ) {
+      // If the relative permeability is zero then there cannot be any flow.
+      return 0.0;
+   }
 
    double pressureGradient;
    double permeabilityValue;
 
-   NumericFunctions::Quadrature3D::Iterator quad;
-   NumericFunctions::Quadrature3D::getInstance ().get ( m_faceQuadratureDegree, face, quad );
-
-   // Can move this block of code out of the loop.
    pressureGradient = 0.0;
 
    switch ( face ) {
 
      case VolumeData::ShallowFace : 
-        pressureGradient = ((( elementPressure - neighbourPressure ) / deltaX - phaseDensity * GRAVITY ));
+        pressureGradient = (( elementPressure - neighbourPressure ) / deltaX - phaseDensity * GRAVITY );
         permeabilityValue = permNormal;
         break;
 
      case VolumeData::DeepFace : 
-        pressureGradient = -((( neighbourPressure - elementPressure ) / deltaX - phaseDensity * GRAVITY ));
+        pressureGradient = -(( neighbourPressure - elementPressure ) / deltaX - phaseDensity * GRAVITY );
         permeabilityValue = permNormal;
         break;
 
@@ -1181,49 +1235,22 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
       pressureGradient = NumericFunctions::Minimum ( pressureGradient, m_gradPressureMaximum );
    }
 
-   for ( quad.initialise (); not quad.isDone (); ++quad ) {
-      finiteElement.setQuadraturePoint ( quad.getX (), quad.getY (), quad.getZ ());
-      getElementBoundaryNormal ( layerElement, finiteElement.getJacobian (), face, normal, dsDt );
-      weight = dsDt * quad.getWeight ();
+   if ( m_interpolateFaceArea ) {
+      faceFlux = faceAreaInterpolator.access ( element ).evaluate ( face, lambda ) * relativePermeability * permeabilityValue * pressureGradient / phaseViscosity;
+   } else {
+      NumericFunctions::Quadrature3D::Iterator quad;
+      NumericFunctions::Quadrature3D::getInstance ().get ( m_faceQuadratureDegree, face, quad );
 
-      // The face-flux can be scaled by some of these values after the 
-      // end of the loop, since they are invariant within the loop.
-      faceFlux += weight * relativePermeability * permeabilityValue * pressureGradient / phaseViscosity;
+      for ( quad.initialise (); not quad.isDone (); ++quad ) {
+         finiteElement.setQuadraturePoint ( quad.getX (), quad.getY (), quad.getZ ());
+         getElementBoundaryNormal ( layerElement, finiteElement.getJacobian (), face, normal, dsDt );
+         weight = dsDt * quad.getWeight ();
 
-      if ( print ) {
-         Matrix3x3        permeability;
-
-         // Evaluate permeability tensor.
-         finiteElement.setTensor ( permNormal, permPlane, permeability );
-         // Scale by relative-permeability.
-         permeability *= relativePermeability;
-
-
-         double fluxTemp =  relativePermeability * permeabilityValue * pressureGradient / phaseViscosity;
-
-         cout << " element face fluxes: " 
-              << std::setw ( 3 ) << element.getI () << "  " << std::setw ( 3 ) << element.getJ () << "  " << std::setw ( 3 ) << element.getK () << "  "
-              << std::setw ( 5 ) << Saturation::PhaseImage ( phase ) << "  " << std::setw ( 12 ) << VolumeData::boundaryIdAliasImage ( face ) << "  "
-              // << "( " << std::setw ( 15 ) << massFlux ( 1 ) << "  " << std::setw ( 15 ) << massFlux ( 2 ) << "  " << std::setw ( 15 ) << massFlux ( 3 ) << " )  " 
-              << "( " << std::setw ( 15 ) << normal ( 1 ) << "  " << std::setw ( 15 ) << normal ( 2 ) << "  " << std::setw ( 15 ) << normal ( 3 ) << " )  " 
-              << std::setw ( 15 ) << phaseViscosity << "  " << std::setw ( 15 ) << phaseDensity << "  " 
-              << std::setw ( 15 ) << FiniteElementMethod::innerProduct ( normal, massFlux ) << "  " << std::setw ( 15 ) << dsDt << "  " 
-              << std::setw ( 15 ) << permeability ( 1, 1 ) << "  " << std::setw ( 15 ) << permeability ( 2, 2 ) << "  " << std::setw ( 15 ) << permeability ( 3, 3 ) << "  " 
-              << std::setw ( 15 ) << elementPressure << "  " << std::setw ( 15 ) << neighbourPressure << "  "
-              << std::setw ( 15 ) << fluxTemp << "  "
-              << std::setw ( 15 ) << pressureGradient << "  "
-              << std::setw ( 15 ) << permeabilityValue << "  "
-              << std::setw ( 15 ) << ( elementPressure - neighbourPressure ) / deltaX  << "  "
-              << std::setw ( 15 ) << relativePermeability << "  " 
-              << setw ( 15 ) << saturation.image () << "  "
-              << setw ( 15 ) << saturation ( Saturation::WATER ) << "  "
-              << std::endl;
+         // The face-flux can be scaled by some of these values after the 
+         // end of the loop, since they are invariant within the loop.
+         faceFlux += weight * relativePermeability * permeabilityValue * pressureGradient / phaseViscosity;
       }
 
-   }
-
-   if ( print ) {
-      cout << " computed face flux for face " << VolumeData::boundaryIdImage ( face ) << " = " << faceFlux << std::endl;
    }
 
    // Units: 
@@ -1234,6 +1261,7 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
 
 void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVTPhase                  phase,
                                                              const SubdomainElement&                   element,
+                                                             const FaceAreaTemporalInterpolator&       faceAreaInterpolator,
                                                                    FiniteElementMethod::FiniteElement& finiteElement,
                                                              const PVTPhaseValues&                     phases,
                                                              const ScalarPetscVector&                  subdomainPhasePressure,
@@ -1245,8 +1273,10 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVT
                                                              const PVTPhaseValues&                     phaseDensities,
                                                              const PVTPhaseValues&                     phaseViscosities,
                                                              const Saturation&                         elementSaturation,
+                                                             const double                              relativePermeability,
                                                              const ElementFaceValues&                  elementPermeabilityN,
                                                              const ElementFaceValues&                  elementPermeabilityH,
+                                                             const FacePermeabilityTemporalInterpolator& permeabilityInterpolator,
                                                                    ElementFaceValues&                  elementFlux ) {
 
    const CauldronGridDescription& gridDescription = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
@@ -1254,20 +1284,17 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVT
    static const int NumberOfFluxFaces = 6;
    static const VolumeData::BoundaryId fluxFaces [ NumberOfFluxFaces ] = { VolumeData::GAMMA_2, VolumeData::GAMMA_3, VolumeData::GAMMA_4,
                                                                            VolumeData::GAMMA_5, VolumeData::GAMMA_1, VolumeData::GAMMA_6 };
-
-   // const int NumberOfFluxFaces = 4;
-   // VolumeData::BoundaryId fluxFaces [ NumberOfFluxFaces ] = { VolumeData::GAMMA_2, VolumeData::GAMMA_3, VolumeData::GAMMA_4, VolumeData::GAMMA_5 };
-
-   // const int NumberOfFluxFaces = 2;
-   // VolumeData::BoundaryId fluxFaces [ NumberOfFluxFaces ] = { VolumeData::GAMMA_1, VolumeData::GAMMA_6 };
-
    double elementPressure;
    double neighbourPressure;
    double deltaX = 100.0;
+   double permeabilityNormal;
+   double permeabilityPlane;
+
+   Saturation::Phase whichPhase = Saturation::convert ( phase );
+
    int    face;
 
-   if ( phases ( phase ) > ConcentrationLowerLimit ) {
-   Saturation::Phase whichPhase = Saturation::convert ( phase );
+   if ( relativePermeability > 0.0 and phases ( phase ) > HcConcentrationLowerLimit ) {
 
       elementPressure = subdomainPhasePressure ( element.getK (), element.getJ (), element.getI ());
 
@@ -1324,16 +1351,27 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVT
                deltaX = gridDescription.deltaI;
             }
 
-            v3 = computeElementFaceFlux ( element, id, whichPhase, 
+            if ( m_interpolateFacePermeability ) {
+               permeabilityNormal = permeabilityInterpolator.access ( element ).evaluate ( id, 0, lambda );
+               permeabilityPlane  = permeabilityInterpolator.access ( element ).evaluate ( id, 1, lambda );
+            } else {
+               permeabilityNormal = elementPermeabilityN ( id );
+               permeabilityPlane  = elementPermeabilityH ( id );
+            }
+
+            v3 = computeElementFaceFlux ( element,
+                                          faceAreaInterpolator,
+                                          id, whichPhase, 
                                           elementPressure,
                                           neighbourPressure,
                                           deltaX,
                                           phaseDensities ( phase ),
                                           phaseViscosities ( phase ),
-                                          elementSaturation,
+                                          relativePermeability,
                                           finiteElement,
-                                          elementPermeabilityN ( id ),
-                                          elementPermeabilityH ( id ),
+                                          permeabilityNormal,
+                                          permeabilityPlane,
+                                          lambda,
                                           false );
 
             elementFlux ( id ) = phaseMassDensity * v3 / phaseMolarMass;
@@ -1352,15 +1390,19 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVT
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElementGrid&      formationGrid,
+                                                          const Boolean3DArray&               elementTransportsHc,
                                                           const PhaseCompositionArray&        phaseComposition,
                                                           const PhaseValueArray&              phaseDensities,
                                                           const PhaseValueArray&              phaseViscosities,
                                                           const ElementFaceValueVector&       subdomainPermeabilitiesN,
                                                           const ElementFaceValueVector&       subdomainPermeabilitiesH,
+                                                          const FacePermeabilityTemporalInterpolator& permeabilityInterpolator,
                                                           const ScalarPetscVector&            subdomainVapourPressure,
                                                           const ScalarPetscVector&            subdomainLiquidPressure,
                                                           const TemporalPropertyInterpolator& depth,
                                                           const TemporalPropertyInterpolator& porePressure,
+                                                          const FaceAreaTemporalInterpolator& faceAreaInterpolator,
+                                                          const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                                           const SaturationArray&              saturations,
                                                                 ElementFaceValueVector&       gasFluxes,
                                                                 ElementFaceValueVector&       oilFluxes,
@@ -1388,14 +1430,10 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
    FiniteElementMethod::ElementVector liquidSaturationCoefficients;
 
    PVTComponents  composition;
-   PVTComponents  molarMasses;
-   PVTComponents  temporary;
-   PVTPhaseValues phases;
-   PVTPhaseValues totalHc;
    PVTPhaseComponents phaseComponents;
    Saturation     elementSaturation;
+   PVTPhaseValues phaseMolarConcentrations;
 
-   double elementVolume;
    double sumGasMolarMassRatio;
    double sumOilMolarMassRatio;
    double vapourMolarMass;
@@ -1404,20 +1442,18 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
    double gasMassDensity;
    double elementTimeStep;
 
+   double vapourRelativePermeability;
+   double liquidRelativePermeability;
+
    calculatedTimeStep = m_maximumTimeStepSize;
 
-   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES, true );
-
-   // // kg/mol
-   // molarMasses *= 1.0e-3;
-   molarMasses = m_defaultMolarMasses;
+   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES );
 
    for ( i = elementGrid.firstI (); i <= elementGrid.lastI (); ++i ) {
 
       for ( j = elementGrid.firstJ (); j <= elementGrid.lastJ (); ++j ) {
 
          for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-
 
             const SubdomainElement& element = formationGrid ( i, j, k );
             const LayerElement& layerElement = element.getLayerElement ();
@@ -1427,166 +1463,186 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
             ElementFaceValues& elementGasFlux = gasFluxes ( elementK, j, i );
             ElementFaceValues& elementOilFlux = oilFluxes ( elementK, j, i );
 
-            // mol/m^3
-            PVTComponents& elementConcentrations = concentrations ( k, j, i );
+            elementGasFlux.zero ();
+            elementOilFlux.zero ();
 
-            if ( layerElement.isActive ()) {
+            if ( layerElement.isActive () and elementTransportsHc ( element.getI (), element.getJ (), element.getK ())) {
 
-               const ElementFaceValues& elementPermeabilityN = subdomainPermeabilitiesN ( element.getK (), j, i );
-               const ElementFaceValues& elementPermeabilityH = subdomainPermeabilitiesH ( element.getK (), j, i );
+               // mol/m^3
+               PVTComponents& elementConcentrations = concentrations ( k, j, i );
 
-               elementGasFlux.zero ();
-               elementOilFlux.zero ();
+               elementSaturation = saturations ( element.getI (), element.getJ (), element.getK ());
 
-               getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambda );
-               finiteElement.setGeometry ( geometryMatrix );
+               vapourRelativePermeability = element.getLayerElement ().getLithology ()->relativePermeability ( Saturation::VAPOUR, elementSaturation );
+               liquidRelativePermeability = element.getLayerElement ().getLithology ()->relativePermeability ( Saturation::LIQUID, elementSaturation );
 
-               elementVolume = poreVolumeOfElement ( element.getLayerElement (), geometryMatrix, m_massMatrixQuadratureDegree );
-               // elementVolume = volumeOfElement ( element.getLayerElement (), geometryMatrix );
+               if ( not m_interpolateFaceArea ) {
+                  getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambda );
+                  finiteElement.setGeometry ( geometryMatrix );
+               }
+
+               ElementFaceValues elementPermeabilityN;
+               ElementFaceValues elementPermeabilityH;
+
+               if ( not m_interpolateFacePermeability ) {
+                  elementPermeabilityN = subdomainPermeabilitiesN ( element.getK (), j, i );
+                  elementPermeabilityH = subdomainPermeabilitiesH ( element.getK (), j, i );
+               }
 
                // Composition now in same units as phase-composition (mol/m^3)
                composition = elementConcentrations;
 
-               phaseComposition ( i, j, elementK ).sum ( phases );
-
-               totalHc = phases;
-               totalHc *= elementVolume;
-
-               // // g/mol
-               // molarMasses = PVTCalc::getInstance ().computeMolarMass ( composition );
-
-               // fractions (phase-moles per total-phase-moles). INCORRECT COMMENT.
                // Units: mol/m^3
                phaseComponents = phaseComposition ( i, j, elementK );
+               phaseComponents.sum ( phaseMolarConcentrations );
 
-               sumGasMolarMassRatio = 0.0;
-               sumOilMolarMassRatio = 0.0;
+               if ( vapourRelativePermeability > 0.0 ) {
+                  gasMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::VAPOUR_PHASE );
 
-               for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                  if ( phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE ) != 0.0 ) {
 
-                  // mol/m^3
-                  sumGasMolarMassRatio += phaseComponents ( pvtFlash::VAPOUR_PHASE, component );
-                  sumOilMolarMassRatio += phaseComponents ( pvtFlash::LIQUID_PHASE, component );
-               }
+                     for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                        pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
 
-               gasMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::VAPOUR_PHASE );
-               oilMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::LIQUID_PHASE );
-
-               if ( sumGasMolarMassRatio != 0.0 ) {
-
-                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-                     // fractions (phase-component-moles per total-phase-component-moles).
-                     phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) /= sumGasMolarMassRatio;
-                  }
-
-               }
-
-               if ( sumOilMolarMassRatio != 0.0 ) {
-
-                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-                     // fractions (phase-component-moles per total-phase-component-moles).
-                     phaseComponents ( pvtFlash::LIQUID_PHASE, component ) /= sumOilMolarMassRatio;
-                  }
-
-               }
-
-               vapourMolarMass = 0.0;
-               liquidMolarMass = 0.0;
-
-               for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-                  // kg/mol
-                  vapourMolarMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * molarMasses ( component );
-                  liquidMolarMass += phaseComponents ( pvtFlash::LIQUID_PHASE, component ) * molarMasses ( component );
-               }
-
-               elementSaturation = saturations ( element.getI (), element.getJ (), element.getK ());
-
-               computeFluxForPhase ( pvtFlash::LIQUID_PHASE,
-                                     element,
-                                     finiteElement,
-                                     phases,
-                                     subdomainLiquidPressure,
-                                     depth,
-                                     porePressure,
-                                     lambda,
-                                     oilMassDensity,
-                                     liquidMolarMass,
-                                     phaseDensities ( i, j, elementK ),
-                                     phaseViscosities ( i, j, elementK ),
-                                     elementSaturation,
-                                     elementPermeabilityN,
-                                     elementPermeabilityH,
-                                     elementOilFlux );
-
-               computeFluxForPhase ( pvtFlash::VAPOUR_PHASE,
-                                     element,
-                                     finiteElement,
-                                     phases,
-                                     subdomainVapourPressure,
-                                     depth,
-                                     porePressure,
-                                     lambda,
-                                     gasMassDensity,
-                                     vapourMolarMass,
-                                     phaseDensities ( i, j, elementK ),
-                                     phaseViscosities ( i, j, elementK ),
-                                     elementSaturation,
-                                     elementPermeabilityN,
-                                     elementPermeabilityH,
-                                     elementGasFlux );
-
-               // now determine time step.
-               PVTComponents sumFluxes;
-               double vapourFluxOut = elementGasFlux.sumGt0 ();
-               double liquidFluxOut = elementOilFlux.sumGt0 ();
-
-               PVTPhaseValues fluxOut;
-
-               fluxOut ( pvtFlash::LIQUID_PHASE ) = liquidFluxOut;
-               fluxOut ( pvtFlash::VAPOUR_PHASE ) = vapourFluxOut;
-
-               if ( vapourFluxOut == 0.0 and liquidFluxOut == 0.0 ) {
-                  calculatedTimeStep = NumericFunctions::Minimum ( calculatedTimeStep, m_maximumTimeStepSize );
-               } else {
-
-                  // sumFluxes = phaseComponents * fluxOut;
-
-                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-                     // To be entirely correct we should multiply by the molar-masses here.
-                     // But then in the loop below (computing the time-step size) we also have to scale by the molar-masses, they cancel out.
-                     // So we do neither, to save on some flops.
-                     sumFluxes ( component ) = phaseComponents ( pvtFlash::LIQUID_PHASE, component ) * liquidFluxOut + phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * vapourFluxOut;
-                  }
-
-                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-                     if ( sumFluxes ( component ) > 0.0 ) {
-                        elementTimeStep = FastcauldronSimulator::getInstance ().getMcfHandler ().cflTimeStepFraction () * elementVolume * composition ( component ) / sumFluxes ( component );
-                        calculatedTimeStep = NumericFunctions::Minimum ( calculatedTimeStep, elementTimeStep  / GeoPhysics::SecondsPerMillionYears );
+                        // fractions (phase-component-moles per total-phase-component-moles).
+                        phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE );
                      }
 
                   }
 
+                  vapourMolarMass = 0.0;
+
+                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+
+                     vapourMolarMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * m_defaultMolarMasses ( component );
+                  }
+
+                  computeFluxForPhase ( pvtFlash::VAPOUR_PHASE,
+                                        element,
+                                        faceAreaInterpolator,
+                                        finiteElement,
+                                        phaseMolarConcentrations,
+                                        subdomainVapourPressure,
+                                        depth,
+                                        porePressure,
+                                        lambda,
+                                        gasMassDensity,
+                                        vapourMolarMass,
+                                        phaseDensities ( i, j, elementK ),
+                                        phaseViscosities ( i, j, elementK ),
+                                        elementSaturation,
+                                        vapourRelativePermeability,
+                                        elementPermeabilityN,
+                                        elementPermeabilityH,
+                                        permeabilityInterpolator,
+                                        elementGasFlux );
+
                }
 
-            } else {
 
-               if ( OUTPUT ) {
-                  cout << " fluxes are zero for element " << element.getI () << "  " << element.getJ () << "  " << element.getK () << std::endl;
+               if ( liquidRelativePermeability > 0.0 ) {
+                  oilMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::LIQUID_PHASE );
+
+                  if ( phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE ) != 0.0 ) {
+
+                     for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                        pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+
+                        // fractions (phase-component-moles per total-phase-component-moles).
+                        phaseComponents ( pvtFlash::LIQUID_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE );
+                     }
+
+                  }
+
+
+                  liquidMolarMass = 0.0;
+
+                  for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+
+                     liquidMolarMass += phaseComponents ( pvtFlash::LIQUID_PHASE, component ) * m_defaultMolarMasses ( component );
+                  }
+
+
+
+                  computeFluxForPhase ( pvtFlash::LIQUID_PHASE,
+                                        element,
+                                        faceAreaInterpolator,
+                                        finiteElement,
+                                        phaseMolarConcentrations,
+                                        subdomainLiquidPressure,
+                                        depth,
+                                        porePressure,
+                                        lambda,
+                                        oilMassDensity,
+                                        liquidMolarMass,
+                                        phaseDensities ( i, j, elementK ),
+                                        phaseViscosities ( i, j, elementK ),
+                                        elementSaturation,
+                                        liquidRelativePermeability,
+                                        elementPermeabilityN,
+                                        elementPermeabilityH,
+                                        permeabilityInterpolator,
+                                        elementOilFlux );
+
                }
 
-               elementGasFlux.zero ();
-               elementOilFlux.zero ();
-            }
+               // If any of <phase>-rel-perm > 0 then some transport will occur so the time-step size needs to be updated.
+               if ( vapourRelativePermeability > 0.0 or liquidRelativePermeability > 0.0 ) {
+
+                  // now determine time step.
+                  PVTComponents sumFluxes;
+                  double vapourFluxOut = elementGasFlux.sumGt0 ();
+                  double liquidFluxOut = elementOilFlux.sumGt0 ();
+
+#if 0
+                  PVTPhaseValues fluxOut;
+
+                  fluxOut ( pvtFlash::LIQUID_PHASE ) = liquidFluxOut;
+                  fluxOut ( pvtFlash::VAPOUR_PHASE ) = vapourFluxOut;
+#endif
+
+                  if ( vapourFluxOut == 0.0 and liquidFluxOut == 0.0 ) {
+                     calculatedTimeStep = NumericFunctions::Minimum ( calculatedTimeStep, m_maximumTimeStepSize );
+                  } else {
+                     double elementVolume;
+
+                     if ( m_interpolatePoreVolume ) {
+                        elementVolume = poreVolumeInterpolator.access ( element ).evaluate ( PoreVolumeIndex, lambda );
+                     } else {
+                        elementVolume = poreVolumeOfElement ( layerElement );
+                     }
+
+#if 0
+                     sumFluxes = phaseComponents * fluxOut;
+#endif
+
+                     for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                        pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                        // To be entirely correct we should multiply by the molar-masses here.
+                        // But then in the loop below (computing the time-step size) we also have to scale by the molar-masses, they cancel out.
+                        // So we do neither, to save on some flops.
+                        sumFluxes ( component ) = phaseComponents ( pvtFlash::LIQUID_PHASE, component ) * liquidFluxOut + phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * vapourFluxOut;
+                     }
+
+                     for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                        pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+
+                        if ( sumFluxes ( component ) > 0.0 ) {
+                           elementTimeStep = FastcauldronSimulator::getInstance ().getMcfHandler ().adaptiveTimeStepFraction () * elementVolume * composition ( component ) / sumFluxes ( component );
+                           calculatedTimeStep = NumericFunctions::Minimum ( calculatedTimeStep, elementTimeStep  / GeoPhysics::SecondsPerMillionYears );
+                        }
+
+                     }
+
+                  }
+
+               } else {
+                  calculatedTimeStep = NumericFunctions::Minimum ( calculatedTimeStep, m_maximumTimeStepSize );
+               }
+
+            } // end if layerElement.isActive ()
 
          }
 
@@ -1600,15 +1656,19 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::computeFluxTerms ( Subdomain&                          subdomain,
+                                                          const Boolean3DArray&               elementTransportsHc,
                                                           const PhaseCompositionArray&        phaseComposition,
                                                           const PhaseValueArray&              phaseDensities,
                                                           const PhaseValueArray&              phaseViscosities,
                                                           const ElementFaceValueVector&       subdomainPermeabilitiesN,
                                                           const ElementFaceValueVector&       subdomainPermeabilitiesH,
+                                                          const FacePermeabilityTemporalInterpolator& permeabilityInterpolator,
                                                           const ScalarPetscVector&            vapourPressure,
                                                           const ScalarPetscVector&            liquidPressure,
                                                           const TemporalPropertyInterpolator& depth,
                                                           const TemporalPropertyInterpolator& porePressure,
+                                                          const FaceAreaTemporalInterpolator& faceAreaInterpolator,
+                                                          const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                                           const SaturationArray&              saturations,
                                                                 ElementFaceValueVector&       gasFluxes,
                                                                 ElementFaceValueVector&       oilFluxes,
@@ -1623,10 +1683,10 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( Subdomain&            
    double subdomainCalculatedTimeStep;
 
    while ( not iter.isDone ()) {
-      computeFluxTerms ( *iter, phaseComposition,
+      computeFluxTerms ( *iter, elementTransportsHc, phaseComposition,
                          phaseDensities, phaseViscosities,
-                         subdomainPermeabilitiesN, subdomainPermeabilitiesH,
-                         vapourPressure, liquidPressure, depth, porePressure, saturations,
+                         subdomainPermeabilitiesN, subdomainPermeabilitiesH, permeabilityInterpolator,
+                         vapourPressure, liquidPressure, depth, porePressure, faceAreaInterpolator, poreVolumeInterpolator, saturations,
                          gasFluxes, oilFluxes,
                          lambda, subdomainCalculatedTimeStep );
       calculatedTimeStep = NumericFunctions::Minimum ( subdomainCalculatedTimeStep, calculatedTimeStep );
@@ -1640,6 +1700,7 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( Subdomain&            
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::scaleFluxTermsByTimeStep ( FormationSubdomainElementGrid& formationGrid,
+                                                                  const Boolean3DArray&          elementContainsHc,
                                                                   ElementFaceValueVector&        vapourFluxes,
                                                                   ElementFaceValueVector&        liquidFluxes,
                                                                   const double                   deltaTSec ) {
@@ -1657,10 +1718,13 @@ void ExplicitMultiComponentFlowSolver::scaleFluxTermsByTimeStep ( FormationSubdo
          for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
             const SubdomainElement& element = formationGrid ( i, j, k );
 
-            unsigned int elementK = element.getK ();
+            if ( elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
+               unsigned int elementK = element.getK ();
 
-            vapourFluxes ( elementK, j, i ) *= deltaTSec;
-            liquidFluxes ( elementK, j, i ) *= deltaTSec;
+               vapourFluxes ( elementK, j, i ) *= deltaTSec;
+               liquidFluxes ( elementK, j, i ) *= deltaTSec;
+            }
+
          }
 
       }
@@ -1672,6 +1736,7 @@ void ExplicitMultiComponentFlowSolver::scaleFluxTermsByTimeStep ( FormationSubdo
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::scaleFluxTermsByTimeStep ( Subdomain&              subdomain,
+                                                                  const Boolean3DArray&   elementContainsHc,
                                                                   ElementFaceValueVector& vapourFluxes,
                                                                   ElementFaceValueVector& liquidFluxes,
                                                                   const double            deltaTSec ) {
@@ -1682,144 +1747,7 @@ void ExplicitMultiComponentFlowSolver::scaleFluxTermsByTimeStep ( Subdomain&    
 
    // Now scale the initial flux-value by the time-step-size to get the amount of HC exiting the element across the boundary.
    while ( not iter.isDone ()) {
-      scaleFluxTermsByTimeStep ( *iter, vapourFluxes, liquidFluxes, deltaTSec );
-      ++iter;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::flashComponents ( FormationSubdomainElementGrid& formationGrid,
-                                                         PhaseCompositionArray&         phaseComposition,
-                                                         PhaseValueArray&               phaseDensities,
-                                                         PhaseValueArray&               phaseViscosities,
-                                                         const TemporalPropertyInterpolator& porePressure,
-                                                         const TemporalPropertyInterpolator& temperature,
-                                                         const double                   lambda ) {
-
-   const ElementVolumeGrid& concentrationGrid = formationGrid.getVolumeGrid ( NumberOfPVTComponents );
-   const ElementGrid& elementGrid = FastcauldronSimulator::getInstance ().getElementGrid ();
-
-   LayerProps& theLayer = formationGrid.getFormation ();
-
-   CompositionPetscVector concentrations;
-   PVTComponents elementConcentrations;
-   PVTComponents molarMasses;
-   PVTPhaseValues phaseSum;
-
-   // double temperature = 0.0;
-   // double porePressure = 0.0;
-   int i;
-   int j;
-   int k;
-
-   molarMasses = m_defaultMolarMasses;
-
-   // Should be previous concentrations.
-   concentrations.setVector ( concentrationGrid, theLayer.getPreviousComponentVec (), INSERT_VALUES, true );
-
-   for ( i = concentrationGrid.firstI ( true ); i <= concentrationGrid.lastI ( true ); ++i ) {
-
-      for ( j = concentrationGrid.firstJ ( true ); j <= concentrationGrid.lastJ ( true ); ++j ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-         // What is the problem with isPartOfStencil?
-         // if ( true or ( elementGrid.isPartOfStencil ( i, j ) and
-         //                FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ())) {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-
-               const SubdomainElement& element = formationGrid ( i, j, k );
-               unsigned int elementK = element.getK ();
-
-               if ( element.getLayerElement ().isActive ()) {
-
-                  // mol/m^3.
-                  elementConcentrations = concentrations ( k, j, i );
-
-                  if ( elementConcentrations.sum () > ConcentrationLowerLimit ) {
-
-                     // // g/mol
-                     // molarMasses = PVTCalc::getInstance ().computeMolarMass ( elementConcentrations );
-
-                     // Convert to kg/m^3
-                     elementConcentrations *= molarMasses;
-
-                     // Evluate both temperature and pore-pressure at the centre of the element.
-
-                     PVTCalc::getInstance ().compute ( temperature ( element, lambda ) + 273.15,
-                                                       NumericFunctions::Maximum ( 1.0e6 * porePressure ( element, lambda ), 1.0e5 ),
-                                                       elementConcentrations,
-                                                       phaseComposition ( element.getI (), element.getJ (), element.getK ()),
-                                                       phaseDensities ( element.getI (), element.getJ (), element.getK ()),
-                                                       phaseViscosities ( element.getI (), element.getJ (), element.getK ()));
-
-                     // Convert to SI units.
-                     phaseViscosities ( element.getI (), element.getJ (), element.getK ()) *= 0.001;
-
-                     averageComponents ( elementConcentrations, 
-                                         phaseComposition ( element.getI (), element.getJ (), element.getK ()),
-                                         phaseDensities ( element.getI (), element.getJ (), element.getK ()),
-                                         phaseViscosities ( element.getI (), element.getJ (), element.getK ()));
-
-                     // Convert to mol/m^3
-                     phaseComposition ( element.getI (), element.getJ (), element.getK ()) /= molarMasses;
-
-                  } else {
-                     phaseComposition ( element.getI (), element.getJ (), element.getK ()).zero ();
-                     // The values assigned here are the same as the ones assigned 
-                     // in PVT when no composition of a particular phase is present.
-                     phaseDensities ( element.getI (), element.getJ (), element.getK ())( pvtFlash::LIQUID_PHASE ) = 1000.0;
-                     phaseDensities ( element.getI (), element.getJ (), element.getK ())( pvtFlash::VAPOUR_PHASE ) = 1000.0;
-                     phaseViscosities ( element.getI (), element.getJ (), element.getK ())( pvtFlash::LIQUID_PHASE ) = 1.0;
-                     phaseViscosities ( element.getI (), element.getJ (), element.getK ())( pvtFlash::VAPOUR_PHASE ) = 1.0;
-                  }
-
-               }
-
-            }
-
-         } else {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               const SubdomainElement& element = formationGrid ( i, j, k );
-
-               phaseComposition ( element.getI (), element.getJ (), element.getK ()).zero ();
-               phaseDensities ( element.getI (), element.getJ (), element.getK ()).zero ();
-               phaseViscosities ( element.getI (), element.getJ (), element.getK ()).zero ();
-            }
-
-         }
-
-      }
-      
-   }
-
-   concentrations.restoreVector ( NO_UPDATE );
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::flashComponents ( Subdomain&             subdomain,
-                                                         PhaseCompositionArray& phaseComposition,
-                                                         PhaseValueArray&       phaseDensities,
-                                                         PhaseValueArray&       phaseViscosities,
-                                                         const TemporalPropertyInterpolator& porePressure,
-                                                         const TemporalPropertyInterpolator& temperature,
-                                                         const double           lambda ) {
-
-
-   Subdomain::ActiveLayerIterator iter;
-
-   subdomain.initialiseLayerIterator ( iter );
-
-   while ( not iter.isDone ()) {
-      flashComponents ( *iter,
-                        phaseComposition, phaseDensities, phaseViscosities,
-                        porePressure, temperature,
-                        lambda );
+      scaleFluxTermsByTimeStep ( *iter, elementContainsHc, vapourFluxes, liquidFluxes, deltaTSec );
       ++iter;
    }
 
@@ -1828,108 +1756,109 @@ void ExplicitMultiComponentFlowSolver::flashComponents ( Subdomain&             
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( const SubdomainElement&       element,
+                                                                      const Boolean3DArray&         elementContainsHc,
                                                                       const CompositionPetscVector& layerConcentration,
                                                                       PVTComponents&                previousTerm,
+                                                                      const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                                                       const double                  lambdaStart,
-                                                                      const double                  lambdaEnd,
-                                                                      const bool                    print ) const {
+                                                                      const double                  lambdaEnd ) const {
 
-   double bulkDensity = 0.0;
-   double elementVolume = 0.0;
    double poreVolume = 0.0;
    double porosityDerivativeTerm = 0.0;
-   double waterMass = 0.0;
 
    previousTerm.zero ();
 
    if ( element.getLayerElement ().isActive ()) {
-      PVTComponents molarMasses;
       PVTComponents speciesDensity;
 
-      ElementGeometryMatrix geometryMatrix;
-      ElementVector         previousVes;
-      ElementVector         currentVes;
-
-      ElementVector         previousMaxVes;
-      ElementVector         currentMaxVes;
-      FiniteElement         finiteElement;
-
-      double weight;
-      double currentPorosity;
-      double previousPorosity;
+      double lambdaFraction = lambdaEnd - lambdaStart;
 
       const LayerElement& layerElement = element.getLayerElement ();
 
-      const CompoundLithology* lithology = element.getLayerElement ().getLithology ();
 
-      const FluidType* fluid = element.getLayerElement ().getFormation ()->fluid;
 
-      // Get concentration (mol/m^3).
-      speciesDensity = layerConcentration ( layerElement.getLocalKPosition (), layerElement.getJPosition (), layerElement.getIPosition ());
-
-      if ( speciesDensity.sum () > ConcentrationLowerLimit ) {
-
-         // // g/mol.
-         // molarMasses = PVTCalc::getInstance ().computeMolarMass ( speciesDensity );
-
-         // // kg/mol.
-         // molarMasses *= 1.0e-3;
-         molarMasses = m_defaultMolarMasses;
+      if ( elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
+         // Get concentration (mol/m^3).
+         speciesDensity = layerConcentration ( layerElement.getLocalKPosition (), layerElement.getJPosition (), layerElement.getIPosition ());
+         // if ( speciesDensity.sum () > HcConcentrationLowerLimit ) {
 
          // Multiply concentration by molar-mass, kg/m^3.
-         speciesDensity *= molarMasses;
+         speciesDensity *= m_defaultMolarMasses;
 
-         NumericFunctions::Quadrature3D::Iterator quad;
-         NumericFunctions::Quadrature3D::getInstance ().get ( m_previousContributionsQuadratureDegree, quad );
+         if ( not m_interpolatePoreVolume ) {
 
-         getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambdaStart );
-         finiteElement.setGeometry ( geometryMatrix );
+            const CompoundLithology* lithology = element.getLayerElement ().getLithology ();
+            const FluidType* fluid = element.getLayerElement ().getFormation ()->fluid;
 
-         interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::VES_FP, previousVes, lambdaStart );
-         interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::VES_FP, currentVes,  lambdaEnd );
+            ElementGeometryMatrix geometryMatrix;
+            ElementVector         previousVes;
+            ElementVector         currentVes;
 
-         interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::Max_VES, previousMaxVes, lambdaStart );
-         interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::Max_VES, currentMaxVes,  lambdaEnd );
+            ElementVector         previousMaxVes;
+            ElementVector         currentMaxVes;
+            FiniteElement         finiteElement;
 
-         elementVolume = 0.0;
-         poreVolume = 0.0;
-         porosityDerivativeTerm = 0.0;
+            double weight;
+            double currentPorosity;
+            double currentPorosityDerivative;
+            double previousPorosity;
 
-         for ( quad.initialise (); not quad.isDone (); ++quad ) {
-            finiteElement.setQuadraturePoint ( quad.getX (), quad.getY (), quad.getZ ());
 
-            // porosity at previous time-step.
-            previousPorosity = lithology->porosity ( finiteElement.interpolate ( previousVes ),
-                                                     finiteElement.interpolate ( previousMaxVes ),
-                                                     false, 0.0 );
+            NumericFunctions::Quadrature3D::Iterator quad;
+            NumericFunctions::Quadrature3D::getInstance ().get ( m_previousContributionsQuadratureDegree, quad );
 
-            // porosity at current time-step.
-            currentPorosity = lithology->porosity ( finiteElement.interpolate ( currentVes ),
-                                                    finiteElement.interpolate ( currentMaxVes ),
-                                                    false, 0.0 );
+            getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambdaStart );
+            finiteElement.setGeometry ( geometryMatrix );
 
-            weight = determinant ( finiteElement.getJacobian ()) * quad.getWeight ();
+            interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::VES_FP, previousVes, lambdaStart );
+            interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::VES_FP, currentVes,  lambdaEnd );
 
-            elementVolume += weight;
+            interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::Max_VES, previousMaxVes, lambdaStart );
+            interpolateCoefficients ( element.getLayerElement (), Basin_Modelling::Max_VES, currentMaxVes,  lambdaEnd );
 
-            // Contrubution from previous time step.
-            //
-            //       DC
-            //  phi ----
-            //       Dt
-            //
-            poreVolume += weight * currentPorosity;
+            poreVolume = 0.0;
+            porosityDerivativeTerm = 0.0;
 
-            // Contribution from "rock/mesh compression" term.
-            //
-            //    C    Dphi
-            //  -----  ----
-            //  1-phi   Dt
-            //
-            porosityDerivativeTerm -= weight * ( currentPorosity - previousPorosity ) / ( 1.0 - currentPorosity );
+            for ( quad.initialise (); not quad.isDone (); ++quad ) {
+               finiteElement.setQuadraturePoint ( quad.getX (), quad.getY (), quad.getZ ());
 
-            bulkDensity += weight * ( currentPorosity * fluid->getConstantDensity () + ( 1.0 - currentPorosity ) * lithology->density ());
-            waterMass += weight * currentPorosity * fluid->getConstantDensity ();
+               // porosity at previous time-step.
+               previousPorosity = lithology->porosity ( finiteElement.interpolate ( previousVes ),
+                                                        finiteElement.interpolate ( previousMaxVes ),
+                                                        false, 0.0 );
+
+               // porosity at current time-step.
+               currentPorosity = lithology->porosity ( finiteElement.interpolate ( currentVes ),
+                                                       finiteElement.interpolate ( currentMaxVes ),
+                                                       false, 0.0 );
+
+               // currentPorosityDerivative = lithology->computePorosityDerivativeWrtVes ( finiteElement.interpolate ( currentVes ),
+               //                                                                          finiteElement.interpolate ( currentMaxVes ),
+               //                                                                          false, 0.0 );
+
+               weight = determinant ( finiteElement.getJacobian ()) * quad.getWeight ();
+
+               // Contrubution from previous time step.
+               //
+               //       DC
+               //  phi ----
+               //       Dt
+               //
+               poreVolume += weight * currentPorosity;
+
+               // Contribution from "rock/mesh compression" term.
+               //
+               //    C    Dphi    d phi d ves
+               //  -----  ---- =  ----- -----
+               //  1-phi   Dt     d ves   dt
+               //
+               // porosityDerivativeTerm -= weight * currentPorosityDerivative * ( finiteElement.interpolate ( currentVes ) - finiteElement.interpolate ( previousVes )) / ( 1.0 - currentPorosity );
+               porosityDerivativeTerm -= weight * ( currentPorosity - previousPorosity ) / ( 1.0 - currentPorosity );
+            }
+
+         } else {
+            poreVolume = poreVolumeInterpolator.access ( element ).evaluate ( PoreVolumeIndex, lambdaEnd );
+            porosityDerivativeTerm = poreVolumeInterpolator.access ( element ).evaluate ( RockCompressionIndex, lambdaEnd ) * lambdaFraction;
          }
 
          previousTerm = speciesDensity;
@@ -1939,29 +1868,17 @@ void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( const Subd
 
    }
 
-
-   if ( print ) {
-      // double molarMassWater = 18.0e-3; // kg/mol
-      cout << " total mass in element: " 
-           << setw ( 2 ) << element.getI () << "  "
-           << setw ( 2 ) << element.getJ () << "  "
-           << setw ( 2 ) << element.getK () << "  "
-           << bulkDensity << "  " << previousTerm.sum () << " kg  " << elementVolume << "  " << poreVolume << "  " <<  poreVolume / elementVolume 
-           << "  " << waterMass << "  " << waterMass / elementVolume << "  " << waterMass / poreVolume << std::endl
-           << previousTerm.image () << endl << endl;
-   }
-
 }
 
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( FormationSubdomainElementGrid& formationGrid,
+                                                                      const Boolean3DArray&          elementContainsHc,
                                                                       const ElementVolumeGrid&       concentrationGrid,
                                                                       CompositionArray&              previousTerm,
+                                                                      const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                                                       const double                   lambdaStart,
                                                                       const double                   lambda ) {
-
-   // const ElementVolumeGrid& concentrationGrid = theLayer.getVolumeGrid ( NumberOfPVTComponents );
 
    LayerProps& layer = formationGrid.getFormation ();
 
@@ -1981,13 +1898,7 @@ void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( FormationS
 
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
                SubdomainElement& element = formationGrid ( i, j, k );
-               computeTemporalContributions ( element, layerConcentration, previousTerm ( i, j, element.getK ()), lambdaStart, lambda, OUTPUT );
-
-               if ( OUTPUT ) {
-                  cout << " previous:  " << previousTerm ( i, j, element.getK ()).image () << std::endl
-                       << "            " << layerConcentration ( k, j, i ).image () << std::endl;
-               }
-
+               computeTemporalContributions ( element, elementContainsHc, layerConcentration, previousTerm ( i, j, element.getK ()), poreVolumeInterpolator, lambdaStart, lambda );
             }
 
          } else {
@@ -2007,10 +1918,12 @@ void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( FormationS
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( Subdomain&        subdomain,
-                                                                      CompositionArray& previousTerm,
-                                                                      const double      lambdaStart,
-                                                                      const double      lambda ) {
+void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( Subdomain&                            subdomain,
+                                                                      const Boolean3DArray&                 elementContainsHc,
+                                                                      CompositionArray&                     previousTerm,
+                                                                      const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
+                                                                      const double                          lambdaStart,
+                                                                      const double                          lambda ) {
 
 
    Subdomain::ActiveLayerIterator iter;
@@ -2018,179 +1931,10 @@ void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( Subdomain&
    subdomain.initialiseLayerIterator ( iter );
 
    while ( not iter.isDone ()) {
-      computeTemporalContributions ( *iter, iter->getVolumeGrid ( NumberOfPVTComponents ), previousTerm, lambdaStart, lambda );
+      computeTemporalContributions ( *iter, elementContainsHc, iter->getVolumeGrid ( NumberOfPVTComponents ), previousTerm, poreVolumeInterpolator, lambdaStart, lambda );
       ++iter;
    }
 
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::computeSourceTerm ( const SubdomainElement& element,
-                                                                 PVTComponents&    sourceTerm,
-                                                           const double            lambda,
-                                                           const double            fractionScaling,
-                                                                 double&           elementMassAdded,
-                                                           const bool              print ) const {
-
-   elementMassAdded = 0.0;
-
-   if ( element.getLayerElement ().isActive ()) {
-      MultiComponentVector<PVTComponents> generated;
-      FiniteElementMethod::ElementGeometryMatrix geometryMatrix;
-      FiniteElementMethod::FiniteElement finiteElement;
-      PVTComponents term;
-      PVTComponents computedSourceTerm;
-      NumericFunctions::Quadrature3D::Iterator quad;
-      NumericFunctions::Quadrature3D::getInstance ().get ( m_sourceTermQuadratureDegree, quad );
-      double elementVolume = 0.0;
-      double weight;
-      double layerThickness;
-      int i;
-
-      const LayerProps* srLayer = element.getLayerElement ().getFormation ();
-
-      getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambda );
-
-      finiteElement.setGeometry ( geometryMatrix );
-
-      for ( i = 1; i <= 4; ++i ) {
-         srLayer->getGenexGenerated ( element.getLayerElement ().getNodeIPosition ( i - 1 ),
-                                      element.getLayerElement ().getNodeJPosition ( i - 1 ),
-                                      generated ( i ));
-
-         generated ( i )( pvtFlash::COX ) = 0.0;
-         generated ( i )( pvtFlash::H2S ) = 0.0;
-
-         layerThickness = srLayer->getCurrentLayerThickness ( element.getLayerElement ().getNodeIPosition ( i - 1 ),
-                                                              element.getLayerElement ().getNodeJPosition ( i - 1 ));
-
-         if ( layerThickness > DepositingThicknessTolerance ) {
-            generated ( i ) *= 1.0 / layerThickness;
-         } else {
-            generated ( i ).zero ();
-         }
-
-         generated ( i + 4 ) = generated ( i );
-      }
-
-      computedSourceTerm.zero ();
-
-      for ( quad.initialise (); not quad.isDone (); ++quad ) {
-         finiteElement.setQuadraturePoint ( quad.getX (), quad.getY (), quad.getZ ());
-
-         weight = determinant ( finiteElement.getJacobian ()) * quad.getWeight ();
-
-         term = generated.dot ( finiteElement.getBasis ());
-         term *= fractionScaling * weight;
-
-         computedSourceTerm += term;
-         elementVolume += weight;
-      }
-
-      elementMassAdded = computedSourceTerm.sum ();
-
-      // Units are kg.
-      sourceTerm += computedSourceTerm;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::computeSourceTerm ( FormationSubdomainElementGrid& formationGrid,
-                                                           const ElementVolumeGrid&       concentrationGrid,
-                                                           const double                   lambda,
-                                                           const double                   fractionScaling,
-                                                           CompositionArray&              sourceTerm,
-                                                                 double&                  layerMassAdded ) {
-
-   LayerProps& srLayer = formationGrid.getFormation ();
-
-   int i;
-   int j;
-   int k;
-   bool depthRetrieved = srLayer.Current_Properties.propertyIsActivated ( Basin_Modelling::Depth );
-   bool genexRetrieved = srLayer.genexDataIsRetrieved ();
-
-   double elementMassAdded;
-
-   layerMassAdded = 0.0;
-
-   if ( not depthRetrieved ) {
-      srLayer.Current_Properties.Activate_Property ( Basin_Modelling::Depth, INSERT_VALUES, true );
-   }
-
-   if ( not genexRetrieved ) {
-      srLayer.retrieveGenexData ();
-   }
-
-   for ( i = concentrationGrid.firstI (); i <= concentrationGrid.lastI (); ++i ) {
-
-      for ( j = concentrationGrid.firstJ (); j <= concentrationGrid.lastJ (); ++j ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
-
-               computeSourceTerm ( element, sourceTerm ( i, j, element.getK ()), lambda, fractionScaling, elementMassAdded, OUTPUT );
-
-               layerMassAdded += elementMassAdded;
-
-               if ( OUTPUT ) {
-                  cout << " genex:     " << sourceTerm ( i, j, element.getK ()).image () << std::endl;
-               }
-
-            }
-
-         } else {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               sourceTerm ( i, j, formationGrid ( i, j, k ).getK ()).zero ();
-            }
-
-         }
-
-      }
-
-   }
-
-   if ( not genexRetrieved ) {
-      // Restore back to original state.
-      srLayer.restoreGenexData ();
-   }
-
-   if ( not depthRetrieved ) {
-      // Restore back to original state.
-      srLayer.Current_Properties.Restore_Property ( Basin_Modelling::Depth );
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::computeSourceTerm ( Subdomain&        subdomain,
-                                                           CompositionArray& sourceTerm,
-                                                           const double      lambda,
-                                                           const double      fractionScaling,
-                                                                 double&     massAdded ) {
-
-   Subdomain::ActiveSourceRockLayerIterator iter;
-
-   subdomain.initialiseLayerIterator ( iter );
-
-   double processorMassAdded = 0.0;
-   double layerMassAdded = 0.0;
-
-   while ( not iter.isDone ()) {
-      computeSourceTerm ( *iter, iter->getVolumeGrid ( NumberOfPVTComponents ), lambda, fractionScaling, sourceTerm, layerMassAdded );
-      ++iter;
-      processorMassAdded += layerMassAdded;
-   }
-
-   massAdded = MpiFunctions::Sum<double>( PETSC_COMM_WORLD, processorMassAdded );
 }
 
 //------------------------------------------------------------//
@@ -2210,12 +1954,7 @@ double ExplicitMultiComponentFlowSolver::computeElementMassMatrix ( const Subdom
    double massTerm = 0.0;
 
    NumericFunctions::Quadrature3D::Iterator quad;
-
-#if 1
    NumericFunctions::Quadrature3D::getInstance ().get ( m_previousContributionsQuadratureDegree, quad );
-#else
-   NumericFunctions::Quadrature3D::getInstance ().get ( 2, 2, m_massMatrixQuadratureDegree, quad );
-#endif
 
    getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambdaEnd );
    finiteElement.setGeometry ( geometryMatrix );
@@ -2240,14 +1979,15 @@ double ExplicitMultiComponentFlowSolver::computeElementMassMatrix ( const Subdom
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( FormationSubdomainElementGrid& formationGrid,
+                                                            const Boolean3DArray&          elementContainsHc,
                                                             const ElementVolumeGrid&       concentrationGrid,
+                                                            const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                                             CompositionArray&              computedConcentrations,
                                                             const double                   lambdaStart,
                                                             const double                   lambdaEnd ) {
 
    const ElementGrid& elementGrid = FastcauldronSimulator::getInstance ().getElementGrid ();
 
-   PVTComponents elementConcentration;
    double massTerm;
    int i;
    int j;
@@ -2264,14 +2004,15 @@ void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( FormationSubdomainEl
                const SubdomainElement& element = formationGrid ( i, j, k );
                unsigned int elementK = element.getK ();
 
-               if ( element.getLayerElement ().isActive ()) {
-                  massTerm = computeElementMassMatrix ( element, lambdaStart, lambdaEnd );
+               if ( element.getLayerElement ().isActive () and elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
+
+                  if ( m_interpolatePoreVolume ) {
+                     massTerm = poreVolumeInterpolator.access ( element ).evaluate ( PoreVolumeIndex, lambdaEnd );
+                  } else {
+                     massTerm = computeElementMassMatrix ( element, lambdaStart, lambdaEnd );
+                  }
 
                   computedConcentrations ( i, j, elementK ) *= 1.0 / massTerm;
-
-                  if ( OUTPUT ) {
-                     cout << " mass matrix " << massTerm << std::endl;
-                  }
 
                } else {
                   computedConcentrations ( i, j, elementK ).zero ();
@@ -2291,6 +2032,8 @@ void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( FormationSubdomainEl
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( Subdomain&        subdomain,
+                                                            const Boolean3DArray&                 elementContainsHc,
+                                                            const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                                             CompositionArray& computedConcentrations,
                                                             const double      lambdaStart,
                                                             const double      lambdaEnd ) {
@@ -2300,776 +2043,7 @@ void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( Subdomain&        su
    subdomain.initialiseLayerIterator ( iter );
 
    while ( not iter.isDone ()) {
-      divideByMassMatrix ( *iter, iter->getVolumeGrid ( NumberOfPVTComponents ), computedConcentrations, lambdaStart, lambdaEnd );
-      ++iter;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setConcentrations ( FormationSubdomainElementGrid& formationGrid,
-                                                           const CompositionArray&        computedConcentrations,
-                                                           bool&                          errorInConcentration ) {
-
-   LayerProps& theLayer = formationGrid.getFormation ();
-
-   PVTComponents          elementConcentration;
-   CompositionPetscVector concentrations;
-
-   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES );
-
-   PVTComponents molarMasses;
-   PVTComponents sum1;
-
-   int i;
-   int j;
-   int k;
-   bool allAreValid = true;
-
-   errorInConcentration = false;
-
-   for ( i = formationGrid.firstI (); i <= formationGrid.lastI (); ++i ) {
-
-      for ( j = formationGrid.firstJ (); j <= formationGrid.lastJ (); ++j ) {
-         sum1.zero ();
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-
-               const SubdomainElement& element = formationGrid ( i, j, k );
-               unsigned int elementK = element.getK ();
-
-               if ( element.getLayerElement ().isActive ()) {
-
-                  elementConcentration = computedConcentrations ( i, j, elementK );
-
-                  if ( minimum ( elementConcentration ) < 0.0 or not elementConcentration.isFinite ()) {
-
-                     std::stringstream buffer;
-
-                     buffer << " Location of error: " << theLayer.getName () << "  "
-                            << " layer position = { " << element.getI () << ", " << element.getJ () << ", " << element.getLayerElement ().getLocalKPosition () << "} " 
-                            << " subdomain position = { " << element.getI () << ", " << element.getJ () << ", " << element.getK () << "} " 
-                            << endl;
-
-                     cout << buffer.str () << flush;
-
-                     allAreValid = false;
-                  }
-
-                  // if ( elementConcentration.sum () > ConcentrationLowerLimit ) {
-
-                  // // g/mol
-                  // molarMasses = PVTCalc::getInstance ().computeMolarMass ( elementConcentration );
-
-                  // // kg/mol
-                  // molarMasses *= 1.0e-3;
-
-                  // Convert to mol/m^3
-                  elementConcentration /= m_defaultMolarMasses;
-
-                  // Should we iterate here?
-                  // 1. Re-compute the molar masses based on the predicted concentrations.
-                  // 2. Re-compute the element-concentrations based on the new molar-masses.
-                  // 3. Repeat until convergence (or a fixed (1) number of times).
-
-                  // molarMasses = PVTCalc::getInstance ().computeMolarMass ( elementConcentration );
-                  // molarMasses *= 1.0e-3;
-                  // elementConcentration = computedConcentrations ( i, j, k );
-                  // elementConcentration /= molarMasses;
-                     
-                  // molarMasses = PVTCalc::getInstance ().computeMolarMass ( elementConcentration );
-                  // molarMasses *= 1.0e-3;
-                  // elementConcentration = computedConcentrations ( i, j, k );
-                  // elementConcentration /= molarMasses;
-                     
-                  concentrations ( k, j, i ) = elementConcentration;
-
-               } else {
-                  concentrations ( k, j, i ).zero ();
-               }
-
-            }
-
-         } else {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               concentrations ( k, j, i ).zero ();
-            }
-
-         }
-
-         if ( OUTPUTNOK  ) {
-            cout << " total mass sum: " << sum1.image () << std::endl;
-         }
-
-
-      }
-
-   }
-
-   concentrations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-   errorInConcentration = not successfulExecution ( allAreValid );
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setConcentrations ( Subdomain&              subdomain,
-                                                           const CompositionArray& computedConcentrations,
-                                                           bool&                   errorInConcentration ) {
-
-   Subdomain::ActiveLayerIterator iter;
-   bool errorInLayerConcentration;
-
-   subdomain.initialiseLayerIterator ( iter );
-   errorInConcentration = false;
-
-   while ( not iter.isDone ()) {
-      setConcentrations ( *iter, computedConcentrations, errorInLayerConcentration );
-      errorInConcentration = errorInConcentration or errorInLayerConcentration;
-      ++iter;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::averageComponents ( PVTComponents&      masses,
-                                                           PVTPhaseComponents& phaseMasses,
-                                                           PVTPhaseValues&     density,
-                                                           PVTPhaseValues&     viscosity ) {
-
-   if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().getApplyPvtAveraging ()) {
-      return;
-   }
-
-   //------------------------------------------------------------//
-
-   if ( density ( DesignatedPhase ) == 1000.0 ) {
-      phaseMasses.zero ();
-      phaseMasses.setPhaseComponents ( DesignatedPhase, masses );
-
-      density ( DesignatedPhase ) = density ( RedundantPhase );
-      density ( RedundantPhase ) = 1000.0;
-      
-      viscosity ( DesignatedPhase ) = viscosity ( RedundantPhase );
-      viscosity ( RedundantPhase ) = 1.0;
-   } else if ( density ( RedundantPhase ) == 1000.0 ) {
-      // Do nothing.
-   } else {
-      double totalMass = masses.sum ();
-
-      if ( totalMass > 0.0 ) {
-         double massDesignated = phaseMasses.sum ( DesignatedPhase );
-         double massRedundant = phaseMasses.sum ( RedundantPhase );
-
-         density ( DesignatedPhase ) = (massDesignated / totalMass ) * density ( DesignatedPhase ) + massRedundant / totalMass * density ( RedundantPhase );
-         density ( RedundantPhase ) = 1000.0;
-
-         viscosity ( DesignatedPhase ) = (massDesignated / totalMass ) * viscosity ( DesignatedPhase ) + massRedundant / totalMass * viscosity ( RedundantPhase );
-         viscosity ( RedundantPhase ) = 1.0;
-      }
-
-      phaseMasses.zero ();
-      phaseMasses.setPhaseComponents ( DesignatedPhase, masses );
-   }
-
-}
-
-//------------------------------------------------------------//
-
-// Use the compute-saturation function that takes the already-flashed 
-// composition as parameters after flashing. This will save on some code.
-void ExplicitMultiComponentFlowSolver::computeSaturation ( const SubdomainElement&        element,
-                                                           const PVTComponents&           concentrations,
-                                                           const ImmobileSpeciesValues&   immobiles,
-                                                                 Saturation&              saturation,
-                                                           const bool                     print ) {
-
-   const double maximumHcSaturation = FastcauldronSimulator::getInstance ().getMaximumHcSaturation ();
-
-   PVTPhaseComponents phaseMasses;
-   PVTPhaseComponents phaseFractions;
-   PVTComponents      unitMasses;
-   PVTPhaseValues     density;
-   PVTPhaseValues     viscosity;
-   double             temperature;
-   double             porePressure;
-   double             sumGasMolarMassRatio;
-   double             sumOilMolarMassRatio;
-   double             vapourFraction;
-   double             concentrationSum = concentrations.sum ();
-   double             vapourMolarMass;
-   double             liquidMolarMass;
-   double             hcSaturation;
-   double             vapourSaturation;
-   double             liquidSaturation;
-   double             immobileSaturation;
-   int                c;
-
-#if 0
-   double             elementVolume;
-   double             elementPoreVolume;
-   double             volumeRatio;
-#endif
-
-#if 0
-   // Compute the volume of the element.
-   elementVolumeCalculations ( element.getLayerElement (), elementVolume, elementPoreVolume, 4 );
-   volumeRatio = elementVolume / elementPoreVolume;
-#endif
-
-   // Compute unit masses from concentrations. kg/m^3.
-   unitMasses = concentrations * m_defaultMolarMasses;
-
-   // Convert to kelvin.
-   temperature = computeProperty ( element.getLayerElement (), Basin_Modelling::Temperature ) + 273.15;
-
-   // Convert to pascals from mega-pascals.
-   porePressure = NumericFunctions::Maximum ( 1.0e6 * computeProperty ( element.getLayerElement (), Basin_Modelling::Pore_Pressure ), 1.0e5 );
-
-   pvtFlash::EosPack::getInstance ().computeWithLumping ( temperature, porePressure,
-                                                          unitMasses.m_components,
-                                                          phaseMasses.m_masses,
-                                                          density.m_values,
-                                                          viscosity.m_values );
-   
-   // Correct viscosity units.
-   viscosity *= 0.001;
-
-   averageComponents ( unitMasses, phaseMasses, density, viscosity );
-
-   sumGasMolarMassRatio = 0.0;
-   sumOilMolarMassRatio = 0.0;
-
-   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-      pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-      // First stage in calculation of phase-fractions.
-      phaseFractions ( pvtFlash::VAPOUR_PHASE, component ) = phaseMasses ( pvtFlash::VAPOUR_PHASE, component ) / m_defaultMolarMasses ( component );
-      phaseFractions ( pvtFlash::LIQUID_PHASE, component ) = phaseMasses ( pvtFlash::LIQUID_PHASE, component ) / m_defaultMolarMasses ( component );
-
-      // mol/m^3
-      sumGasMolarMassRatio += phaseMasses ( pvtFlash::VAPOUR_PHASE, component ) / m_defaultMolarMasses ( component );
-      sumOilMolarMassRatio += phaseMasses ( pvtFlash::LIQUID_PHASE, component ) / m_defaultMolarMasses ( component );
-   }
-
-   if ( sumGasMolarMassRatio + sumOilMolarMassRatio != 0.0 ) {
-      vapourFraction = sumGasMolarMassRatio / ( sumGasMolarMassRatio + sumOilMolarMassRatio );
-   } else {
-      // What value would be reasonable here?
-      vapourFraction = 0.0;
-   }
-
-   vapourMolarMass = 0.0;
-   liquidMolarMass = 0.0;
-
-   if ( sumGasMolarMassRatio != 0.0 ) {
-
-      for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-         pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-         // fractions (phase-component-moles per total-phase-component-moles).
-         phaseFractions ( pvtFlash::VAPOUR_PHASE, component ) /= sumGasMolarMassRatio;
-      }
-
-   }
-
-   if ( sumOilMolarMassRatio != 0.0 ) {
-
-      for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-         pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-         // fractions (phase-component-moles per total-phase-component-moles).
-         phaseFractions ( pvtFlash::LIQUID_PHASE, component ) /= sumOilMolarMassRatio;
-      }
-
-   }
-
-   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-      pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-      // kg/mol
-      vapourMolarMass += phaseFractions ( pvtFlash::VAPOUR_PHASE, component ) * m_defaultMolarMasses ( component );
-      liquidMolarMass += phaseFractions ( pvtFlash::LIQUID_PHASE, component ) * m_defaultMolarMasses ( component );
-   }
-
-   // Need to multiply by ratio of element-volume / element-pore-volume?
-   if ( phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) > ConcentrationLowerLimit ) {
-      vapourSaturation = concentrationSum * vapourFraction * vapourMolarMass / density ( pvtFlash::VAPOUR_PHASE );
-   } else {
-      vapourSaturation = 0.0;
-   }
-
-   if ( phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) > ConcentrationLowerLimit ) {
-      liquidSaturation = concentrationSum * ( 1.0 - vapourFraction ) * liquidMolarMass / density ( pvtFlash::LIQUID_PHASE );
-   } else {
-      liquidSaturation = 0.0;
-   }
-
-   if ( immobiles.sum () > ConcentrationLowerLimit ) {
-      immobileSaturation = immobiles.getRetainedVolume ();
-   } else {
-      immobileSaturation = 0.0;
-   }
-
-   if ( m_useImmobileSaturation ) {
-      hcSaturation = liquidSaturation + vapourSaturation + immobileSaturation;
-   } else {
-      hcSaturation = liquidSaturation + vapourSaturation;
-   }
-
-   if ( hcSaturation > maximumHcSaturation ) {
-      // Force the saturations to be a reasonable value.
-      liquidSaturation *= maximumHcSaturation / hcSaturation;
-      vapourSaturation *= maximumHcSaturation / hcSaturation;
-   }
-
-   if ( m_useImmobileSaturation ) {
-
-      if ( hcSaturation > maximumHcSaturation ) {
-         immobileSaturation *= maximumHcSaturation / hcSaturation;
-      }
-
-      saturation.set ( liquidSaturation, vapourSaturation, immobileSaturation );
-   } else {
-      saturation.set ( liquidSaturation, vapourSaturation );
-      // Set here so that the water-saturation is not affected by the immobile-species saturation.
-      saturation ( Saturation::IMMOBILE ) = immobileSaturation;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setSaturations ( FormationSubdomainElementGrid& formationGrid,
-                                                        bool&                          errorInSaturation ) {
-
-   LayerProps& theLayer = formationGrid.getFormation ();
-
-   CompositionPetscVector     concentrations;
-   SaturationVector           saturations;
-   ImmobileSpeciesPetscVector immobiles;
-
-   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES );
-   saturations.setVector ( theLayer.getVolumeGrid ( Saturation::NumberOfPhases ), theLayer.getPhaseSaturationVec (), INSERT_VALUES );
-   immobiles.setVector ( theLayer.getVolumeGrid ( ImmobileSpeciesValues::NumberOfImmobileSpecies ), theLayer.getImmobileComponentsVec (), INSERT_VALUES );
-
-
-   int i;
-   int j;
-   int k;
-   bool allAreFinite = true;
-   bool elementSaturationIsFinite;
-
-   for ( i = formationGrid.firstI (); i <= formationGrid.lastI (); ++i ) {
-
-      for ( j = formationGrid.firstJ (); j <= formationGrid.lastJ (); ++j ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-
-               const SubdomainElement& element = formationGrid ( i, j, k );
-               unsigned int elementK = element.getK ();
-
-               if ( element.getLayerElement ().isActive ()) {
-
-                  if ( concentrations ( k, j, i ).sum () > ConcentrationLowerLimit ) {
-                     computeSaturation ( element, concentrations ( k, j, i ), immobiles ( k, j, i ), saturations ( k, j, i ), OUTPUT );
-                     elementSaturationIsFinite = saturations ( k, j, i ).isFinite ();
-                     allAreFinite = allAreFinite and elementSaturationIsFinite;
-
-#if 0
-                     if ( not elementSaturationIsFinite ) {
-                        std::stringstream buffer;
-
-                        buffer << " Location of error: " 
-                               << " layer position = { " << element.getI () << ", " << element.getJ () << ", " << element.getLayerElement ().getLocalKPosition () << "} " 
-                               << " subdomain position = { " << element.getI () << ", " << element.getJ () << ", " << element.getK () << "} " 
-                               << endl;
-
-                        cout << buffer.str () << flush;
-                     }
-#endif
-
-                  } else {
-                     saturations ( k, j, i ).initialise ();
-                  }
-
-                  if ( OUTPUT ) {
-                     cout << " concentrations: " << std::setw ( 2 ) << i << "  " << std::setw ( 2 ) << j << "  " << std::setw ( 2 ) << elementK << "  " << concentrations ( k, j, i ).image () << std::endl
-                          << " saturations                 " << saturations ( k, j, i ).image ()
-                          << std::endl << std::endl;
-                  }
-
-               } else {
-                  saturations ( k, j, i ).initialise ();
-               }
-
-            }
-
-         } else {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               saturations ( k, j, i ).initialise ();
-            }
-
-         }
-
-      }
-
-   }
-
-   errorInSaturation = not successfulExecution ( allAreFinite );
-   concentrations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-   saturations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setSaturations ( Subdomain& subdomain,
-                                                        bool&      errorInSaturation ) {
-
-   Subdomain::ActiveLayerIterator iter;
-   bool errorInSaturationForLayer;
-
-   subdomain.initialiseLayerIterator ( iter );
-   errorInSaturation = false;
-
-   while ( not iter.isDone ()) {
-      setSaturations ( *iter, errorInSaturationForLayer );
-      errorInSaturation = errorInSaturation or errorInSaturationForLayer;
-      ++iter;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::computeSaturation ( const SubdomainElement&        element,
-                                                           const PVTPhaseComponents&      phaseComposition,
-                                                           const PVTPhaseValues           density,
-                                                           const ImmobileSpeciesValues&   immobiles,
-                                                                 Saturation&              saturation,
-                                                           const bool                     print ) {
-
-   const double maximumHcSaturation = FastcauldronSimulator::getInstance ().getMaximumHcSaturation ();
-
-   PVTPhaseComponents phaseFractions;
-   double             sumGasMolarMassRatio;
-   double             sumOilMolarMassRatio;
-   double             vapourFraction;
-   double             vapourCompositionSum = phaseComposition.sum ( pvtFlash::VAPOUR_PHASE );
-   double             liquidCompositionSum = phaseComposition.sum ( pvtFlash::LIQUID_PHASE );
-   double             concentrationSum = vapourCompositionSum + liquidCompositionSum;
-   double             vapourMolarMass;
-   double             liquidMolarMass;
-   double             hcSaturation;
-   double             vapourSaturation;
-   double             liquidSaturation;
-   double             immobileSaturation;
-   int                c;
-
-#if 0
-   double             elementVolume;
-   double             elementPoreVolume;
-   double             volumeRatio;
-#endif
-
-#if 0
-   // Compute the volume of the element.
-   elementVolumeCalculations ( element.getLayerElement (), elementVolume, elementPoreVolume, 4 );
-   volumeRatio = elementVolume / elementPoreVolume;
-#endif
-
-   sumGasMolarMassRatio = 0.0;
-   sumOilMolarMassRatio = 0.0;
-
-   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-      pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-      // First stage in calculation of phase-fractions.
-      phaseFractions ( pvtFlash::VAPOUR_PHASE, component ) = phaseComposition ( pvtFlash::VAPOUR_PHASE, component );
-      phaseFractions ( pvtFlash::LIQUID_PHASE, component ) = phaseComposition ( pvtFlash::LIQUID_PHASE, component );
-
-      // mol/m^3
-      sumGasMolarMassRatio += phaseComposition ( pvtFlash::VAPOUR_PHASE, component );
-      sumOilMolarMassRatio += phaseComposition ( pvtFlash::LIQUID_PHASE, component );
-   }
-
-   if ( sumGasMolarMassRatio + sumOilMolarMassRatio != 0.0 ) {
-      vapourFraction = sumGasMolarMassRatio / ( sumGasMolarMassRatio + sumOilMolarMassRatio );
-   } else {
-      // What value would be reasonable here?
-      vapourFraction = 0.0;
-   }
-
-   vapourMolarMass = 0.0;
-   liquidMolarMass = 0.0;
-
-   if ( sumGasMolarMassRatio != 0.0 ) {
-
-      for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-         pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-         // fractions (phase-component-moles per total-phase-component-moles).
-         phaseFractions ( pvtFlash::VAPOUR_PHASE, component ) /= sumGasMolarMassRatio;
-      }
-
-   }
-
-   if ( sumOilMolarMassRatio != 0.0 ) {
-
-      for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-         pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-         // fractions (phase-component-moles per total-phase-component-moles).
-         phaseFractions ( pvtFlash::LIQUID_PHASE, component ) /= sumOilMolarMassRatio;
-      }
-
-   }
-
-   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-      pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
-
-      // kg/mol
-      vapourMolarMass += phaseFractions ( pvtFlash::VAPOUR_PHASE, component ) * m_defaultMolarMasses ( component );
-      liquidMolarMass += phaseFractions ( pvtFlash::LIQUID_PHASE, component ) * m_defaultMolarMasses ( component );
-   }
-
-   // Need to multiply by ratio of element-volume / element-pore-volume?
-   if ( phaseComposition.sum ( pvtFlash::VAPOUR_PHASE ) > ConcentrationLowerLimit ) {
-      vapourSaturation = concentrationSum * vapourFraction * vapourMolarMass / density ( pvtFlash::VAPOUR_PHASE );
-   } else {
-      vapourSaturation = 0.0;
-   }
-
-   if ( phaseComposition.sum ( pvtFlash::LIQUID_PHASE ) > ConcentrationLowerLimit ) {
-      liquidSaturation = concentrationSum * ( 1.0 - vapourFraction ) * liquidMolarMass / density ( pvtFlash::LIQUID_PHASE );
-   } else {
-      liquidSaturation = 0.0;
-   }
-
-   if ( immobiles.sum () > ConcentrationLowerLimit ) {
-      immobileSaturation = immobiles.getRetainedVolume ();
-   } else {
-      immobileSaturation = 0.0;
-   }
-
-   if ( m_useImmobileSaturation ) {
-      hcSaturation = liquidSaturation + vapourSaturation + immobileSaturation;
-   } else {
-      hcSaturation = liquidSaturation + vapourSaturation;
-   }
-
-   if ( hcSaturation > maximumHcSaturation ) {
-      // Force the saturations to be a reasonable value.
-      liquidSaturation *= maximumHcSaturation / hcSaturation;
-      vapourSaturation *= maximumHcSaturation / hcSaturation;
-   }
-
-   if ( m_useImmobileSaturation ) {
-
-      if ( hcSaturation > maximumHcSaturation ) {
-         immobileSaturation *= maximumHcSaturation / hcSaturation;
-      }
-
-      saturation.set ( liquidSaturation, vapourSaturation, immobileSaturation );
-   } else {
-      saturation.set ( liquidSaturation, vapourSaturation );
-      // Set here so that the water-saturation is not affected by the immobile-species saturation.
-      saturation ( Saturation::IMMOBILE ) = immobileSaturation;
-   }
-
-   if ( isnan ( saturation ( Saturation::WATER  )) or isinf ( saturation ( Saturation::WATER  )) or
-        isnan ( saturation ( Saturation::VAPOUR )) or isinf ( saturation ( Saturation::VAPOUR )) or
-        isnan ( saturation ( Saturation::LIQUID )) or isinf ( saturation ( Saturation::LIQUID ))) {
-      cout << " incorrect inter saturation: " << element.getI ()  << "  " << element.getJ ()  << "  " << element.getK ()  << "  " << endl << flush;
-      cout << saturation.image () << endl << flush;
-      cout << density.image () << endl << flush;
-      cout << phaseComposition.image () << endl << flush;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setSaturations ( FormationSubdomainElementGrid& formationGrid,
-                                                        const PhaseCompositionArray&   phaseComposition,
-                                                        const PhaseValueArray&         phaseDensities,
-                                                        SaturationArray&               saturations,
-                                                        bool&                          errorInSaturation ) {
-
-   LayerProps& theLayer = formationGrid.getFormation ();
-
-   CompositionPetscVector     concentrations;
-   ImmobileSpeciesPetscVector immobiles;
-
-   int i;
-   int j;
-   int k;
-   int elementK;
-   bool allAreFinite = true;
-   bool elementSaturationIsFinite;
-
-   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES );
-   immobiles.setVector ( theLayer.getVolumeGrid ( ImmobileSpeciesValues::NumberOfImmobileSpecies ), theLayer.getImmobileComponentsVec (), INSERT_VALUES );
-
-   for ( i = formationGrid.firstI (); i <= formationGrid.lastI (); ++i ) {
-
-      for ( j = formationGrid.firstJ (); j <= formationGrid.lastJ (); ++j ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-
-               const SubdomainElement& element = formationGrid ( i, j, k );
-               elementK = element.getK ();
-
-               if ( element.getLayerElement ().isActive ()) {
-
-                  if ( concentrations ( k, j, i ).sum () > ConcentrationLowerLimit ) {
-                     // Index of immobiles is correct.
-                     computeSaturation ( element,
-                                         phaseComposition ( i, j, elementK ),
-                                         phaseDensities ( i, j, elementK ),
-                                         immobiles ( k, j, i ),
-                                         saturations ( i, j, elementK ), OUTPUT );
-                     elementSaturationIsFinite = saturations ( i, j, elementK ).isFinite ();
-                     allAreFinite = allAreFinite and elementSaturationIsFinite;
-
-#if 0
-                     if ( not elementSaturationIsFinite ) {
-                        std::stringstream buffer;
-
-                        buffer << " Location of error: " 
-                               << " layer position = { " << element.getI () << ", " << element.getJ () << ", " << element.getLayerElement ().getLocalKPosition () << "} " 
-                               << " subdomain position = { " << element.getI () << ", " << element.getJ () << ", " << element.getK () << "} " 
-                               << endl;
-
-                        cout << buffer.str () << flush;
-                     }
-#endif
-
-
-                  } else {
-                     saturations ( i, j, elementK ).initialise ();
-                  }
-
-               } else {
-                  saturations ( i, j, elementK ).initialise ();
-               }
-
-               if ( not allAreFinite ) {
-                  break;
-               }
-
-            }
-
-         } else {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               const SubdomainElement& element = formationGrid ( i, j, k );
-               saturations ( i, j, element.getK ()).initialise ();
-            }
-
-         }
-
-      }
-
-      if ( not allAreFinite ) {
-         break;
-      }
-
-   }
-
-   errorInSaturation = not successfulExecution ( allAreFinite );
-   concentrations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-   immobiles.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setSaturations ( Subdomain&                   subdomain,
-                                                        const PhaseCompositionArray& phaseComposition,
-                                                        const PhaseValueArray&       phaseDensities,
-                                                        SaturationArray&             saturations,
-                                                        bool&                        errorInSaturation ) {
-
-   Subdomain::ActiveLayerIterator iter;
-   bool errorInSaturationForLayer;
-
-   subdomain.initialiseLayerIterator ( iter );
-   errorInSaturation = false;
-
-   while ( not iter.isDone ()) {
-      setSaturations ( *iter, phaseComposition, phaseDensities, saturations, errorInSaturationForLayer );
-      errorInSaturation = errorInSaturation or errorInSaturationForLayer;
-      ++iter;
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setTimeOfElementInvasion ( FormationSubdomainElementGrid& formationGrid, double endTime ) {
-
-   LayerProps& theLayer = formationGrid.getFormation ();
-
-   CompositionPetscVector     concentrations;
-   PetscBlockVector<double>  timeOfInvasions;
-
-   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES );
-   timeOfInvasions.setVector ( theLayer.getVolumeGrid ( 1 ), theLayer.getTimeOfElementInvasionVec (), INSERT_VALUES );
-
-   int i;
-   int j;
-   int k;
-
-   for ( i = formationGrid.firstI (); i <= formationGrid.lastI (); ++i ) {
-
-      for ( j = formationGrid.firstJ (); j <= formationGrid.lastJ (); ++j ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-
-               const SubdomainElement& element = formationGrid ( i, j, k );
-               unsigned int elementK = element.getK ();
-
-               if ( element.getLayerElement ().isActive ()) {
-
-                  if ( concentrations ( k, j, i ).sum () > ConcentrationLowerLimit && timeOfInvasions ( k, j, i ) == CAULDRONIBSNULLVALUE ) {
-                     timeOfInvasions( k, j, i) =  endTime;
-                  }
-
-               }
-
-            }
-            
-         }
-         
-      }
-      
-   }
-   
-   concentrations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-   timeOfInvasions.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::setTimeOfElementInvasion ( Subdomain& subdomain, double endTime ) {
-
-   Subdomain::ActiveLayerIterator iter;
-
-   subdomain.initialiseLayerIterator ( iter );
-
-   while ( not iter.isDone ()) {
-      setTimeOfElementInvasion ( *iter, endTime );
+      divideByMassMatrix ( *iter, elementContainsHc, iter->getVolumeGrid ( NumberOfPVTComponents ), poreVolumeInterpolator, computedConcentrations, lambdaStart, lambdaEnd );
       ++iter;
    }
 
@@ -3090,10 +2064,6 @@ void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdom
    int j;
    int k;
 
-#if 0
-   double maximum = 0.0;
-#endif
-
    for ( i = formationGrid.firstI (); i <= formationGrid.lastI (); ++i ) {
 
       for ( j = formationGrid.firstJ (); j <= formationGrid.lastJ (); ++j ) {
@@ -3107,11 +2077,6 @@ void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdom
 
                if ( element.getLayerElement ().isActive ()) {
                   layerTransportedMasses ( k, j, i ) = transportedMasses ( i, j, elementK );
-
-#if 0
-                  maximum = NumericFunctions::Maximum ( maximum, transportedMasses ( i, j, elementK ));
-#endif
-
                }
 
             }
@@ -3121,10 +2086,6 @@ void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdom
       }
       
    }
-   
-#if 0
-   cout << " Maximum transported for layer " << theLayer.layername << "  " << maximum << endl;
-#endif
 
    layerTransportedMasses.restoreVector ( UPDATE_INCLUDING_GHOSTS );
 }
@@ -3140,241 +2101,6 @@ void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( Subdomain& subd
 
    while ( not iter.isDone ()) {
       updateTransportedMasses ( *iter, transportedMasses );
-      ++iter;
-   }
-
-}
-
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::applyOtgc ( SubdomainElement& element,
-                                                   PVTComponents&    concentration,
-                                                   ImmobileSpeciesValues& immobiles,
-                                                   const TemporalPropertyInterpolator& porePressure,
-                                                   const TemporalPropertyInterpolator& temperature,
-                                                   const double      timeStepStart,
-                                                   const double      timeStepEnd,
-                                                   const double      lambdaStart,
-                                                   const double      lambdaEnd ) {
-
-   if ( concentration.sum () < ConcentrationLowerLimit ) {
-      return;
-   }
-
-   const Genex6::SpeciesManager& speciesManager = m_otgcSimulator->getSpeciesManager ();
-   const Genex6::Species** allSpecies = m_otgcSimulator->getSpeciesInChemicalModel ();
-   // const std::vector<std::string>& speciesNames = m_otgcSimulator->getSpeciesInChemicalModel ();
-
-#ifndef NEW_OTGC_INTERFACE 
-   std::map<string, double> components;
-   std::map<string, double>::iterator componentsIter;
-#else
-   double components[Genex6::SpeciesManager::numberOfSpecies];
-#endif
-
-   double   concentrationSum;
-
-   unsigned int species;
-
-   double previousTemperature  = temperature ( element, lambdaStart );
-   double currentTemperature   = temperature ( element, lambdaEnd );
-
-   double previousPorePressure = NumericFunctions::Maximum ( 1.0e6 * porePressure ( element, lambdaStart ), 1.0e5 ); // Pascals
-   double currentPorePressure  = NumericFunctions::Maximum ( 1.0e6 * porePressure ( element, lambdaEnd   ), 1.0e5 ); // Pascals;
-
-   // double previousTemperature  = interpolateProperty ( element.getLayerElement (), Basin_Modelling::Temperature, lambdaStart );
-   // double currentTemperature   = interpolateProperty ( element.getLayerElement (), Basin_Modelling::Temperature, lambdaEnd );
-
-   // double previousPorePressure = NumericFunctions::Maximum ( 1.0e6 * interpolateProperty ( element.getLayerElement (), Basin_Modelling::Pore_Pressure, lambdaStart ), 1.0e5 ); // Pascals
-   // double currentPorePressure  = NumericFunctions::Maximum ( 1.0e6 * interpolateProperty ( element.getLayerElement (), Basin_Modelling::Pore_Pressure, lambdaEnd   ), 1.0e5 ); // Pascals;
-
-   // Convert to kg/m^3
-   concentration *= m_defaultMolarMasses;
-   concentrationSum = concentration.sum () + immobiles.sum ();
-
-   // Collect and normalise all modelled species for OTGC.
-   //
-   // First mobile ones.
-#ifndef NEW_OTGC_INTERFACE
-
-   for ( species = 0; species < Genex6::SpeciesManager::numberOfSpecies; ++species ) {
-
-      if ( allSpecies [ species ] != 0 ) {
-         const std::string& name = allSpecies [ species ]->GetName ();
-         pvtFlash::ComponentId id = speciesManager.mapIdToPvtComponents ( allSpecies [ species ]->GetId ());
-
-         if ( id != pvtFlash::UNKNOWN ) {
-            components [ name ] = concentration ( id ) / concentrationSum;
-         } 
-      }
-
-   }
-
-   // Then the immobiles.
-   for ( species = 0; species < ImmobileSpeciesValues::NumberOfImmobileSpecies; ++species ) {
-      ImmobileSpeciesValues::SpeciesId id = ImmobileSpeciesValues::SpeciesId ( species );
-      const string& name = ImmobileSpeciesValues::getName ( id );
-
-      components [ name ] = immobiles ( id ) / concentrationSum;
-   }
-#else
-   for ( species = 0; species < Genex6::SpeciesManager::numberOfSpecies; ++species ) {
-
-      if ( allSpecies [ species ] != 0 ) {
-
-         pvtFlash::ComponentId id = speciesManager.mapIdToPvtComponents ( species + 1 );
-         if ( id != pvtFlash::UNKNOWN ) { 
-            components [ species ] = concentration ( id ) / concentrationSum;
-         } else {
-            components[ species ] = 0.0;
-         }
-      }
-
-   } 
-
-   // Then the immobiles.
-   for ( species = 0; species < ImmobileSpeciesValues::NumberOfImmobileSpecies; ++species ) {
-      ImmobileSpeciesValues::SpeciesId id = ImmobileSpeciesValues::SpeciesId ( species );
-
-      int speciesManagerId = ImmobileSpeciesValues::getSpeciesManagerId( id );
-
-      if( speciesManagerId >= 0 ) {
-         components [ speciesManagerId - 1 ]  = immobiles ( id ) / concentrationSum;
-       }
-   }
-#endif
-
-   OTGC6::SimulatorState otgcState ( timeStepStart, allSpecies, components );
-
-   m_otgcSimulator->computeInterval ( otgcState,
-                                      previousTemperature, currentTemperature,
-                                      previousPorePressure, currentPorePressure,
-                                      timeStepStart, timeStepEnd );
-
-
-     
-#ifdef NEW_OTGC_INTERFACE
-   otgcState.GetSpeciesStateConcentrations ( components );
-#else
-   otgcState.GetSpeciesStateConcentrations ( &m_otgcSimulator->getChemicalModel (), components );
-#endif
-
-#ifndef NEW_OTGC_INTERFACE
-   // De-normalise the species and assign back to mobile and immobile objects.
-   for ( componentsIter = components.begin (); componentsIter != components.end (); ++componentsIter ) {
-      int speciesId = CBMGenerics::ComponentManager::getInstance ().GetSpeciedIdByName ( componentsIter->first );
- 
-      if ( speciesId != -1 ) {
-         pvtFlash::ComponentId id = static_cast<pvtFlash::ComponentId>( speciesId );
-         concentration ( id ) = componentsIter->second * concentrationSum;
-     } else {
-
-         ImmobileSpeciesValues::SpeciesId id = ImmobileSpeciesValues::getId ( componentsIter->first );
-
-         if ( id != ImmobileSpeciesValues::UNKNOWN ) {
-            // Keep the immobile species in kg/m^3 units.
-            immobiles ( id ) =  componentsIter->second * concentrationSum;
-         }
-      }
-   }
-#else
-
-   for ( species = 0; species < Genex6::SpeciesManager::numberOfSpecies; ++species ) {
-      
-      pvtFlash::ComponentId id = speciesManager.mapIdToPvtComponents( species + 1 );
-
-      if( id != pvtFlash::UNKNOWN ) {
-         concentration ( id ) = components[species] * concentrationSum;
-      } 
-   }
-
-   // Then the immobiles.
-   for ( species = 0; species < ImmobileSpeciesValues::NumberOfImmobileSpecies; ++species ) {
-      ImmobileSpeciesValues::SpeciesId id = ImmobileSpeciesValues::SpeciesId ( species );
-      int speciesManagerId = ImmobileSpeciesValues::getSpeciesManagerId( id );
-
-      if( speciesManagerId >= 0 ) {
-         immobiles ( id ) = components [ speciesManagerId - 1 ]  * concentrationSum;
-      }
-   }
- 
-#endif
-   // Convert back to mol/m^3.
-   concentration /= m_defaultMolarMasses;
-
-   // Remove any COx and H2S generated by OTGC.
-   concentration ( pvtFlash::COX ) = 0.0;
-   concentration ( pvtFlash::H2S ) = 0.0;
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::applyOtgc ( FormationSubdomainElementGrid&      formationGrid,
-                                                   const TemporalPropertyInterpolator& porePressure,
-                                                   const TemporalPropertyInterpolator& temperature,
-                                                   const double                        timeStepStart,
-                                                   const double                        timeStepEnd,
-                                                   const double                        lambdaStart,
-                                                   const double                        lambdaEnd ) {
-
-   LayerProps& theLayer = formationGrid.getFormation ();
-
-   const ElementVolumeGrid& concentrationGrid = theLayer.getVolumeGrid ( NumberOfPVTComponents );
-   const ElementVolumeGrid& immobileComponentsGrid = theLayer.getVolumeGrid ( ImmobileSpeciesValues::NumberOfImmobileSpecies );
-
-   int i;
-   int j;
-   int k;
-
-   CompositionPetscVector     layerConcentrations;
-   ImmobileSpeciesPetscVector layerImmobileComponents;
-
-   layerConcentrations.setVector ( concentrationGrid, theLayer.getPreviousComponentVec (), INSERT_VALUES );
-   layerImmobileComponents.setVector ( immobileComponentsGrid, theLayer.getImmobileComponentsVec (), INSERT_VALUES );
-
-   for ( i = concentrationGrid.firstI (); i <= concentrationGrid.lastI (); ++i ) {
-
-      for ( j = concentrationGrid.firstJ (); j <= concentrationGrid.lastJ (); ++j ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-            for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
-               PVTComponents& concentration = layerConcentrations ( k, j, i );
-               ImmobileSpeciesValues& immobiles = layerImmobileComponents ( k, j, i );
-
-               applyOtgc ( element, concentration, immobiles, porePressure, temperature, timeStepStart, timeStepEnd, lambdaStart, lambdaEnd );
-            }
-
-         }
-
-      }
-
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::applyOtgc ( Subdomain&                          subdomain, 
-                                                   const TemporalPropertyInterpolator& porePressure,
-                                                   const TemporalPropertyInterpolator& temperature,
-                                                   const double                        timeStepStart,
-                                                   const double                        timeStepEnd,
-                                                   const double                        lambdaStart,
-                                                   const double                        lambdaEnd ) {
-
-   if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().applyOtgc () or m_otgcSimulator == 0 ) {
-      return;
-   }
-
-   Subdomain::ActiveLayerIterator iter;
-
-   subdomain.initialiseLayerIterator ( iter );
-
-   while ( not iter.isDone ()) {
-      applyOtgc ( *iter, porePressure, temperature, timeStepStart, timeStepEnd, lambdaStart, lambdaEnd );
       ++iter;
    }
 
@@ -3486,7 +2212,7 @@ void ExplicitMultiComponentFlowSolver::deactivateProperties ( Subdomain&        
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::collectGlobalSaturation ( FormationSubdomainElementGrid& formationGrid,
-                                                                 SaturationVector&              averagedSaturations,
+                                                                 SaturationPetscVector&         averagedSaturations,
                                                                  ScalarPetscVector&             divisor ) {
 
    LayerProps& theLayer = formationGrid.getFormation ();
@@ -3498,7 +2224,7 @@ void ExplicitMultiComponentFlowSolver::collectGlobalSaturation ( FormationSubdom
    int k;
    int l;
 
-   SaturationVector layerSaturations;
+   SaturationPetscVector layerSaturations;
    layerSaturations.setVector ( theLayer.getVolumeGrid ( Saturation::NumberOfPhases ), theLayer.getPhaseSaturationVec (), INSERT_VALUES );
 
    for ( i = formationGrid.firstI (); i <= formationGrid.lastI (); ++i ) {
@@ -3539,9 +2265,9 @@ void ExplicitMultiComponentFlowSolver::collectGlobalSaturation ( FormationSubdom
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain&         subdomain,
-                                                                 SaturationVector&  averagedSaturations,
-                                                                 ScalarPetscVector& divisor ) {
+void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain&             subdomain,
+                                                                 SaturationPetscVector& averagedSaturations,
+                                                                 ScalarPetscVector&     divisor ) {
 
    // Get the grid only for the number of elements in each direction of the subdomain.
    const NodalVolumeGrid& grid = subdomain.getNodeGrid ( 1 );
@@ -3572,8 +2298,8 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain&     
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::assignGlobalSaturation ( Subdomain&        subdomain,
-                                                                SaturationVector& averagedSaturations ) {
+void ExplicitMultiComponentFlowSolver::assignGlobalSaturation ( Subdomain&             subdomain,
+                                                                SaturationPetscVector& averagedSaturations ) {
 
    const NodalVolumeGrid& grid = subdomain.getNodeGrid ( 1 );
    int i;
@@ -3595,7 +2321,7 @@ void ExplicitMultiComponentFlowSolver::assignGlobalSaturation ( Subdomain&      
 
       VecZeroEntries ( layer.getAveragedSaturations ());
 
-      SaturationVector layerAveragedSaturations ( layer.getNodalVolumeGrid ( Saturation::NumberOfPhases ), layer.getAveragedSaturations (), INSERT_VALUES );
+      SaturationPetscVector layerAveragedSaturations ( layer.getNodalVolumeGrid ( Saturation::NumberOfPhases ), layer.getAveragedSaturations (), INSERT_VALUES );
 
       // The +2 is not a mistake.
       // First 1 is added because: number = last - first + 1.
@@ -3649,8 +2375,8 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
    VecZeroEntries ( averagedSaturationsVec );
    VecZeroEntries ( divisorVec );
 
-   SaturationVector  averagedSaturations;
-   ScalarPetscVector divisor;
+   SaturationPetscVector averagedSaturations;
+   ScalarPetscVector     divisor;
 
    averagedSaturations.setVector ( saturationGrid, averagedSaturationsVec, INSERT_VALUES, true );
    divisor.setVector ( nodalGrid, divisorVec, INSERT_VALUES, true );
@@ -3685,339 +2411,78 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::getAveragedSaturationCoefficients ( const SubdomainElement&                   element, 
-                                                                           const SaturationVector&                   layerAveragedSaturations,
-                                                                                 FiniteElementMethod::ElementVector& vapourSaturationCoefficients, 
-                                                                                 FiniteElementMethod::ElementVector& liquidSaturationCoefficients,
-                                                                           const bool                                printIt ) {
+ void ExplicitMultiComponentFlowSolver::estimateSaturation ( const SubdomainElement& element,
+                                                             const PVTComponents&    composition,
+                                                                   bool&             elementContainsHc,
+                                                                   double&           estimatedSaturation ) {
 
-   const LayerElement& layerElement = element.getLayerElement ();
-   const LayerProps* layer = layerElement.getFormation ();
-   
-   FiniteElementMethod::ElementVector waterSaturationCoefficients;
+   double phaseMolarMass = 0.0;
+   double phaseDensity = 200.0;
 
-   int i;
-   bool isInconsistent = false;
+   elementContainsHc = composition.sum () > HcConcentrationLowerLimit;
 
-   for ( i = 0; i < 8; ++i ) {
-      const Saturation& sat = layerAveragedSaturations ( layerElement.getNodeLocalKPosition ( i ), layerElement.getNodeJPosition ( i ), layerElement.getNodeIPosition ( i ));
+   if ( elementContainsHc ) {
 
-      waterSaturationCoefficients ( i + 1 ) =  sat ( Saturation::WATER );
-      vapourSaturationCoefficients ( i + 1 ) = sat ( Saturation::VAPOUR );
-      liquidSaturationCoefficients ( i + 1 ) = sat ( Saturation::LIQUID );
+      for ( int c = 0; c < NumberOfPVTComponents; ++c ) {
+         pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+         phaseMolarMass += composition ( component ) * m_defaultMolarMasses ( component );
+      }
+
+      estimatedSaturation = phaseMolarMass / phaseDensity;
+   } else {
+      estimatedSaturation = 0.0;
    }
+
+#if 0
+   if ( elementContainsHc ) {
+      cout << " estimated saturation " << estimatedSaturation << endl;
+   }
+#endif
 
 }
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::collectElementPermeabilities ( const Subdomain&         subdomain,
-                                                                      const ElementVolumeGrid& elementGrid,
-                                                                      const double             lambda,
-                                                                      ElementFaceValueVector&  subdomainPermeabilityN, 
-                                                                      ElementFaceValueVector&  subdomainPermeabilityH ) const {
+void ExplicitMultiComponentFlowSolver::estimateHcTransport ( FormationSubdomainElementGrid& formationGrid,
+                                                             Boolean3DArray&                elementContainsHc,
+                                                             Boolean3DArray&                elementTransportsHc ) {
 
+   const ElementGrid& elementGrid = FastcauldronSimulator::getInstance ().getElementGrid ();
 
-   FiniteElementMethod::FiniteElement         finiteElement;
-   FiniteElementMethod::ElementGeometryMatrix geometryMatrix;
-   FiniteElementMethod::ElementVector         vesCoeffs;
-   FiniteElementMethod::ElementVector         maxVesCoeffs;
+   CompositionPetscVector concentrations;
 
-   CompoundProperty porosity;
-
-   double x;
-   double y;
-   double z;
-
-   double ves;
-   double maxVes;
-   double permNormal;
-   double permPlane;
-
+   double estimatedSaturation;
    int i;
    int j;
    int k;
-   int face;
 
-   for ( i = elementGrid.firstI (); i <= elementGrid.lastI (); ++i ) {
+   LayerProps& theLayer = formationGrid.getFormation ();
 
-      for ( j = elementGrid.firstJ (); j <= elementGrid.lastJ (); ++j ) {
+   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES, true );
 
-         for ( k = elementGrid.firstK (); k <= elementGrid.lastK (); ++k ) {
+   for ( i = elementGrid.firstI ( true ); i <= elementGrid.lastI ( true ); ++i ) {
 
-            const SubdomainElement& element = subdomain.getElement ( i, j, k );
+      for ( j = elementGrid.firstJ ( true ); j <= elementGrid.lastJ ( true ); ++j ) {
+
+         for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
+
+            const SubdomainElement& element = formationGrid ( i, j, k );
             const LayerElement& layerElement = element.getLayerElement ();
 
             unsigned int elementK = element.getK ();
 
-            ElementFaceValues& elementPermeabilityN = subdomainPermeabilityN ( elementK, j, i );
-            ElementFaceValues& elementPermeabilityH = subdomainPermeabilityH ( elementK, j, i );
-
             if ( layerElement.isActive ()) {
 
-               interpolateCoefficients ( layerElement, Basin_Modelling::VES_FP, vesCoeffs, lambda );
-               interpolateCoefficients ( layerElement, Basin_Modelling::Max_VES, maxVesCoeffs, lambda );
-
-               const Lithology* lithology = layerElement.getLithology ();
-               const LayerProps* layer = layerElement.getFormation ();
-
-               getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambda );
-
-               finiteElement.setGeometry ( geometryMatrix );
-
-               for ( face = VolumeData::GAMMA_1; face <= VolumeData::GAMMA_6; ++face ) {
-                  const VolumeData::BoundaryId id = static_cast<VolumeData::BoundaryId>( face );
-
-                  // Should we check for an active face?
-
-                  // compute permeability at centre of face.
-                  getCentreOfElementFace ( layerElement, id, x, y, z );
-                  finiteElement.setQuadraturePoint ( x, y, z );
-
-                  ves = finiteElement.interpolate ( vesCoeffs );
-                  maxVes = finiteElement.interpolate ( maxVesCoeffs );
-                  
-                  lithology->getPorosity ( ves, maxVes, false, 0.0, porosity );
-                  lithology->calcBulkPermeabilityNP ( ves, maxVes, porosity, permNormal, permPlane );
-
-                  elementPermeabilityN ( id ) = 1.0 / permNormal;
-                  elementPermeabilityH ( id ) = 1.0 / permPlane;
-               }
-
-            }
-
-         }
-
-      }
-
-   }   
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::addNeighbourPermeabilities ( const Subdomain&         subdomain,
-                                                                    const ElementVolumeGrid& elementGrid,
-                                                                    ElementFaceValueVector&  subdomainPermeabilityN, 
-                                                                    ElementFaceValueVector&  subdomainPermeabilityH,
-                                                                    ElementFaceValueArray&   intermediatePermeabilityN,
-                                                                    ElementFaceValueArray&   intermediatePermeabilityH ) const {
-
-   int i;
-   int j;
-   int k;
-   int face;
-
-   for ( i = elementGrid.firstI (); i <= elementGrid.lastI (); ++i ) {
-
-      for ( j = elementGrid.firstJ (); j <= elementGrid.lastJ (); ++j ) {
-
-         for ( k = elementGrid.firstK (); k <= elementGrid.lastK (); ++k ) {
-
-            const SubdomainElement& element = subdomain.getElement ( i, j, k );
-            const LayerElement& layerElement = element.getLayerElement ();
-
-            if ( layerElement.isActive ()) {
-
-               const ElementFaceValues& elementPermeabilityN = subdomainPermeabilityN ( element.getK (), j, i );
-               const ElementFaceValues& elementPermeabilityH = subdomainPermeabilityH ( element.getK (), j, i );
-
-               ElementFaceValues& intermediateElementPermeabilityN = intermediatePermeabilityN ( i, j, element.getK ());
-               ElementFaceValues& intermediateElementPermeabilityH = intermediatePermeabilityH ( i, j, element.getK ());
-
-               for ( face = VolumeData::GAMMA_1; face <= VolumeData::GAMMA_6; ++face ) {
-
-                  const VolumeData::BoundaryId id = static_cast<VolumeData::BoundaryId>( face );
-
-                  const SubdomainElement* neighbour = element.getActiveNeighbour ( id );
-
-                  if ( neighbour != 0 ) {
-                     const VolumeData::BoundaryId opposite = VolumeData::opposite ( id );
-
-                     const ElementFaceValues& neighbourPermeabilityN = subdomainPermeabilityN ( neighbour->getK (), neighbour->getJ (), neighbour->getI ());
-                     const ElementFaceValues& neighbourPermeabilityH = subdomainPermeabilityH ( neighbour->getK (), neighbour->getJ (), neighbour->getI ());
-
-                     intermediateElementPermeabilityN ( id ) = 0.5 * ( elementPermeabilityN ( id ) + neighbourPermeabilityN ( opposite ));
-                     intermediateElementPermeabilityH ( id ) = 0.5 * ( elementPermeabilityH ( id ) + neighbourPermeabilityH ( opposite ));
-
-                  } else {
-                     intermediateElementPermeabilityN ( id ) = elementPermeabilityN ( id );
-                     intermediateElementPermeabilityH ( id ) = elementPermeabilityH ( id );
-                  }
-
-               }
-
-            }
-
-         }
-
-      }
-
-   }   
-
-}
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::recoverAveragedPermeabilities ( const Subdomain&         subdomain,
-                                                                       const ElementVolumeGrid& elementGrid,
-                                                                       ElementFaceValueVector&  subdomainPermeabilityN, 
-                                                                       ElementFaceValueVector&  subdomainPermeabilityH,
-                                                                       ElementFaceValueArray&   intermediatePermeabilityN,
-                                                                       ElementFaceValueArray&   intermediatePermeabilityH ) const {
-
-   int i;
-   int j;
-   int k;
-   int face;
-
-   for ( i = elementGrid.firstI (); i <= elementGrid.lastI (); ++i ) {
-
-      for ( j = elementGrid.firstJ (); j <= elementGrid.lastJ (); ++j ) {
-
-         for ( k = elementGrid.firstK (); k <= elementGrid.lastK (); ++k ) {
-
-            const SubdomainElement& element = subdomain.getElement ( i, j, k );
-            const LayerElement& layerElement = element.getLayerElement ();
-
-            if ( layerElement.isActive ()) {
-
-               ElementFaceValues& elementPermeabilityN = subdomainPermeabilityN ( element.getK (), j, i );
-               ElementFaceValues& elementPermeabilityH = subdomainPermeabilityH ( element.getK (), j, i );
-
-               ElementFaceValues& intermediateElementPermeabilityN = intermediatePermeabilityN ( i, j, element.getK ());
-               ElementFaceValues& intermediateElementPermeabilityH = intermediatePermeabilityH ( i, j, element.getK ());
-
-               for ( face = VolumeData::GAMMA_1; face <= VolumeData::GAMMA_6; ++face ) {
-                  const VolumeData::BoundaryId id = static_cast<VolumeData::BoundaryId>( face );
-
-                  // If elementPermeabilityN ( id ) > 0.0 then elementPermeabilityH ( id ) will also be greater than zero.
-                  if ( elementPermeabilityN ( id ) > 0.0 ) {
-                     elementPermeabilityN ( id ) = 1.0 / intermediateElementPermeabilityN ( id );
-                     elementPermeabilityH ( id ) = 1.0 / intermediateElementPermeabilityH ( id );
-                  }
-
-               }
-
-            }
-
-         }
-
-      }
-
-   }   
-
-}
-
-
-//------------------------------------------------------------//
-
-void ExplicitMultiComponentFlowSolver::computeAveragePermeabilities ( const Subdomain& subdomain,
-                                                                      const double     lambda,
-                                                                      Vec subdomainPermeabilityNVec,
-                                                                      Vec subdomainPermeabilityHVec ) const {
-
-   const ElementVolumeGrid& elementGrid = subdomain.getVolumeGrid ();
-   const ElementVolumeGrid& permeabilityGrid = subdomain.getVolumeGrid ( ElementFaceValues::NumberOfFaces );
-
-   ElementFaceValueVector subdomainPermeabilityN;
-   ElementFaceValueVector subdomainPermeabilityH;
-   ElementFaceValueArray  intermediatePermeabilityH;
-   ElementFaceValueArray  intermediatePermeabilityN;
-
-   intermediatePermeabilityN.create ( permeabilityGrid );
-   intermediatePermeabilityH.create ( permeabilityGrid );
-
-   // The averaging is done in three steps:
-   //
-   //  1. Add permeability from every element local to processor;
-   //  2. Add permeability from adjacent face of neighbouring element, including ghost elements;
-   //  3. recover the averaged permeability for every element local to processor.
-   //
-
-   // The first step is to compute the permeability for each element local to processor.
-   subdomainPermeabilityN.setVector ( permeabilityGrid, subdomainPermeabilityNVec, INSERT_VALUES );
-   subdomainPermeabilityH.setVector ( permeabilityGrid, subdomainPermeabilityHVec, INSERT_VALUES );
-
-   collectElementPermeabilities ( subdomain, elementGrid, lambda, subdomainPermeabilityN, subdomainPermeabilityH );
-
-   subdomainPermeabilityN.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-   subdomainPermeabilityH.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-
-   // The second step is to update the element permeabilities with the neighbours permeability, including ghost elements.
-   subdomainPermeabilityN.setVector ( permeabilityGrid, subdomainPermeabilityNVec, INSERT_VALUES, true );
-   subdomainPermeabilityH.setVector ( permeabilityGrid, subdomainPermeabilityHVec, INSERT_VALUES, true );
-
-   addNeighbourPermeabilities ( subdomain, elementGrid, subdomainPermeabilityN, subdomainPermeabilityH,
-                                intermediatePermeabilityN, intermediatePermeabilityH );
-
-   // The third step is to compute the permeability by taking the reciprocal of the stored value.
-   // This is done because we are computing the harmonic average.
-   // This is done only on the values which are local to this processor.
-   recoverAveragedPermeabilities ( subdomain, elementGrid, subdomainPermeabilityN, subdomainPermeabilityH,
-                                   intermediatePermeabilityN, intermediatePermeabilityH);
-
-   // Update permeabilities on all processors.
-   subdomainPermeabilityN.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-   subdomainPermeabilityH.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-}
-
-//------------------------------------------------------------//
-
-double ExplicitMultiComponentFlowSolver::totalLayerHcMass ( FormationSubdomainElementGrid& formationGrid,
-                                                            const double                   lambda ) const {
-
-   const LayerProps& theLayer = formationGrid.getFormation ();
-
-   const ElementVolumeGrid& concentrationGrid = theLayer.getVolumeGrid ( NumberOfPVTComponents );
-   const ElementVolumeGrid& immobileComponentsGrid = theLayer.getVolumeGrid ( ImmobileSpeciesValues::NumberOfImmobileSpecies );
-
-   FiniteElementMethod::ElementGeometryMatrix geometryMatrix;
-   PVTComponents massConcentration;
-
-   double elementPorePressure;
-   double capillaryPressure;
-
-   int i;
-   int j;
-   int k;
-
-   CompositionPetscVector concentrations;
-   concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES, true );
-   ImmobileSpeciesPetscVector layerImmobileComponents;
-   layerImmobileComponents.setVector ( immobileComponentsGrid, theLayer.getImmobileComponentsVec (), INSERT_VALUES );
-
-   double layerMass = 0.0;
-   double elementMass;
-   double elementVolume;
-   double elementPoreVolume;
-
-   for ( i = concentrationGrid.firstI (); i <= concentrationGrid.lastI (); ++i ) {
-
-      for ( j = concentrationGrid.firstJ (); j <= concentrationGrid.lastJ (); ++j ) {
-
-         if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
-
-            for ( k = formationGrid.lastK (); k >= formationGrid.firstK (); --k ) {
-               SubdomainElement& element = formationGrid ( i, j, k );
-               const LayerElement& layerElement = element.getLayerElement ();
-
-               if ( layerElement.isActive ()) {
-                  massConcentration = m_defaultMolarMasses * concentrations ( k, j, i );
-
-                  getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambda );
-
-                  elementVolumeCalculations ( element.getLayerElement (),
-                                              geometryMatrix,
-                                              elementVolume,
-                                              elementPoreVolume, 
-                                              lambda,
-                                              m_massMatrixQuadratureDegree );
-
-                  elementMass = ( massConcentration.sum () + layerImmobileComponents ( k, j, i ).sum ()) * elementPoreVolume;
-
-                  layerMass += elementMass;
-
+               if ( m_useSaturationEstimate ) {
+                  estimateSaturation ( element,
+                                       concentrations ( k, j, i ),
+                                       elementContainsHc ( element.getI (), element.getJ (), element.getK ()),
+                                       estimatedSaturation );
+
+                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = estimatedSaturation > m_residualHcSaturationScaling * BrooksCorey::Sor;
+               } else {
+                  elementContainsHc   ( element.getI (), element.getJ (), element.getK ()) = concentrations ( k, j, i ).sum () > HcConcentrationLowerLimit;
+                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = elementContainsHc ( element.getI (), element.getJ (), element.getK ());
                }
 
             }
@@ -4028,37 +2493,24 @@ double ExplicitMultiComponentFlowSolver::totalLayerHcMass ( FormationSubdomainEl
 
    }
 
-   concentrations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-   layerImmobileComponents.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-
-   return layerMass;
+   concentrations.restoreVector ( NO_UPDATE );
 }
 
 //------------------------------------------------------------//
 
-double ExplicitMultiComponentFlowSolver::totalHcMass ( Subdomain&   subdomain,
-                                                       const double lambda ) const {
+void ExplicitMultiComponentFlowSolver::estimateHcTransport ( Subdomain&    subdomain,
+                                                             Boolean3DArray& elementContainsHc,
+                                                             Boolean3DArray& elementTransportsHc ) {
 
    Subdomain::ActiveLayerIterator iter;
 
    subdomain.initialiseLayerIterator ( iter );
-   double processorMass = 0.0;
-   double totalMass = 0.0;
-   double layerMass;
 
    while ( not iter.isDone ()) {
-      layerMass = totalLayerHcMass ( *iter, lambda );
-      processorMass += layerMass;
+      estimateHcTransport ( *iter, elementContainsHc, elementTransportsHc );
       ++iter;
    }
 
-   totalMass = MpiFunctions::Sum<double>( PETSC_COMM_WORLD, processorMass );
-
-#if 0
-   PetscPrintf ( PETSC_COMM_WORLD, " total hc mass in domain %e \n", totalMass );
-#endif
-
-   return totalMass;
 }
 
 //------------------------------------------------------------//

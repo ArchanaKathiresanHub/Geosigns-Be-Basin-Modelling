@@ -189,6 +189,14 @@ public :
    /// There are no ghost-elements in the k-direction.
    int lastK () const;
 
+   /// \brief The number of items in the I-dimension.
+   int lengthI ( const bool includeGhosts = false ) const;
+
+   /// \brief The number of items in the J-dimension.
+   int lengthJ ( const bool includeGhosts = false ) const;
+
+   /// \brief The number of items in the K-dimension.
+   int lengthK () const;
 
    /// \brief Get the formation associated with this object.
    LayerProps& getFormation ();
@@ -302,6 +310,24 @@ inline int FormationSubdomainElementGrid::lastJ ( const bool includeGhosts ) con
 inline int FormationSubdomainElementGrid::lastK () const {
    return m_elements.lastK ();
 }
+//------------------------------------------------------------//
+
+inline int FormationSubdomainElementGrid::lengthI ( const bool includeGhosts ) const {
+   return lastI ( includeGhosts ) - firstI ( includeGhosts ) + 1;
+}
+
+//------------------------------------------------------------//
+
+inline int FormationSubdomainElementGrid::lengthJ ( const bool includeGhosts ) const {
+   return lastJ ( includeGhosts ) - firstJ ( includeGhosts ) + 1;
+}
+//------------------------------------------------------------//
+
+
+inline int FormationSubdomainElementGrid::lengthK () const {
+   return lastK () - firstK () + 1;
+}
+
 
 // //------------------------------------------------------------//
 
