@@ -506,7 +506,8 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
    if( m_projectHandle->getPermafrost() ) {
       
       const double liquidusTemperature = getLiquidusTemperature( temperature, NumericFunctions::Maximum ( 0.0, pressure ) );
-      const double solidusTemperature  = getSolidusTemperature( liquidusTemperature );
+      const double solidusTemperature  = liquidusTemperature - 10;
+//getSolidusTemperature( liquidusTemperature ); // NLSAY3: improve stability by extending the temperature range
       
       if( temperature >= liquidusTemperature ) {
          return 1.0;
