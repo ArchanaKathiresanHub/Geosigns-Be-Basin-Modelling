@@ -16,11 +16,6 @@ namespace Numerics {
   /// \file FortranMatrixOperations.h
   /// \brief Provides Blas-Lapack operations for the fortran matrix.
 
-  /// \brief Compute the matrix-vector -product.
-  void mvp ( const FortranMatrix& mat,
-             const Vector&        vec,
-                   Vector&        result );
-
   /// \brief Factorise a general matrix.
   void luFactorise ( FortranMatrix& mat,
                      IntegerArray&  permutation );

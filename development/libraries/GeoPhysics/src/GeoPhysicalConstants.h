@@ -89,13 +89,6 @@ namespace GeoPhysics {
 
    //----------------------------//
 
-   /// \var PercentagePorosityReboundForSoilMechanics
-   /// \brief The percentage of porosity that can be increased on uplift.
-   /// only for soil-mechanice lithologies.
-   const double PercentagePorosityReboundForSoilMechanics = 0.02; // => %age porosity regain
-
-   //----------------------------//
-
    /// \var MaximumNumberOfLithologies
    /// The maximum number of simple lithologies that can be set in a compound lithology.
    const int MaximumNumberOfLithologies = 3;

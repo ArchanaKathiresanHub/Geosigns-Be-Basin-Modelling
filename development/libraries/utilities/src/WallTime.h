@@ -49,10 +49,6 @@ namespace WallTime {
     friend Duration operator*( const Duration & Left,
                                double multiplier );
 
-    /// \brief Divide a duration value by a scalar.
-    friend Duration operator/( const Duration & Left,
-                               const double divisor );
-
     /// \brief Output a duration value.
     friend std::ostream& operator<< ( std::ostream& o, const Duration& D );
 
@@ -152,9 +148,6 @@ namespace WallTime {
 
     Duration operator*( const Duration& Left,
                         double multiplier );
-
-    Duration operator/( const Duration& Left,
-                        const double divisor );
 
     /// \brief Addition operator of two Time values, returns a Time.
     Time     operator+( const Time& Left,

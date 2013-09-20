@@ -25,6 +25,8 @@ public :
    typedef pvtFlash::ComponentId IndexType;
 
 
+   PVTComponents ();
+
    /// Return the value for the component.
    double  operator ()( const pvtFlash::ComponentId id ) const;
 
@@ -178,6 +180,8 @@ class PVTPhaseComponents {
 
 public :
 
+   PVTPhaseComponents ();
+
    /// Return the value for the component in particular phase.
    double  operator ()( const pvtFlash::PVTPhase     phase,
                         const pvtFlash::ComponentId id ) const;
@@ -194,10 +198,6 @@ public :
 
    /// \brief Sum the components for each phase.
    void sum ( PVTPhaseValues& phases ) const;
-
-   /// \brief Sum the components for each phase scaled by a scalar.
-   void sumProduct ( const PVTComponents&  scalars,
-                           PVTPhaseValues& phases ) const;
 
    /// \brief Sum the phase components.
    void sum ( PVTComponents& components ) const;
@@ -249,6 +249,7 @@ public :
 
 };
 
+
 double minimum ( const PVTPhaseComponents& cmps );
 
 
@@ -265,7 +266,6 @@ public :
                         PVTPhaseComponents&  masses,
                         PVTPhaseValues&      densities,
                         PVTPhaseValues&      viscosities,
-                        PVTComponents&       kValues,
                   const bool                 gormIsPrescribed = false,
                   const double               gorm = 0.0 );
 

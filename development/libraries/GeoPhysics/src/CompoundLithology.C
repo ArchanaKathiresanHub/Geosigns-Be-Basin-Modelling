@@ -1466,6 +1466,8 @@ double GeoPhysics::CompoundLithology::soilMechanicsPorosityFunction ( const doub
   double phiMinVes;
   double vesUsed;
 
+  const double Percentage_Porosity_Rebound = 0.02; // => %age porosity regain
+
 
   if ( loadingPhase ) {
     
@@ -1497,10 +1499,10 @@ double GeoPhysics::CompoundLithology::soilMechanicsPorosityFunction ( const doub
 
     phiMinVes = smVoidRatio / ( 1.0 + smVoidRatio );
 
-    M = PercentagePorosityReboundForSoilMechanics * ( phiMaxVes - phiMinVes ) / ( maxVes - ves_0 );
+    M = Percentage_Porosity_Rebound * ( phiMaxVes - phiMinVes ) / ( maxVes - ves_0 );
 
-    C = ( ( 1.0 - PercentagePorosityReboundForSoilMechanics ) * phiMaxVes * maxVes - 
-	  phiMaxVes * ves_0 + PercentagePorosityReboundForSoilMechanics * phiMinVes * maxVes ) / 
+    C = ( ( 1.0 - Percentage_Porosity_Rebound ) * phiMaxVes * maxVes - 
+	  phiMaxVes * ves_0 + Percentage_Porosity_Rebound * phiMinVes * maxVes ) / 
           ( maxVes - ves_0 );
 
     Porosity = M * ves + C;
@@ -1710,70 +1712,6 @@ double GeoPhysics::CompoundLithology::soilMechanicsPorosityDerivative ( const do
   return porosityDerivative;
 }
 
-
-//------------------------------------------------------------//
-
-
-double GeoPhysics::CompoundLithology::exponentialPorosityDerivativeWrtVes ( const double               ves, 
-                                                                            const double               maxVes,
-                                                                            const bool                 includeChemicalCompaction,
-                                                                            const double               chemicalCompactionTerm ) const {
-
-   if ( ves >= maxVes ) {
-      return -m_compactionincr;
-   } else {
-      return -m_compactiondecr;
-   }
-
-}
-
-double GeoPhysics::CompoundLithology::soilMechanicsPorosityDerivativeWrtVes ( const double               ves, 
-                                                                              const double               maxVes,
-                                                                              const bool                 includeChemicalCompaction,
-                                                                              const double               chemicalCompactionTerm ) const {
-
-
-   if ( ves >= maxVes ) {
-      double ves0 = referenceEffectiveStress ();
-
-      if ( ves < ves0 ) {
-         return 0.0;
-      } else {
-         double denominator = 1.0 + soilMechanicsPorosityFunction ( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
-         return -m_soilMechanicsCompactionCoefficient / ves / ( denominator * denominator );
-      }
-
-   } else {
-
-      double surfaceVoidRatio = referenceVoidRatio ();
-      double porosityAtMinVes = surfaceVoidRatio / ( 1.0 + surfaceVoidRatio );
-      double porosityAtMaxVes = soilMechanicsPorosityFunction ( maxVes, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
-
-      double derivative = PercentagePorosityReboundForSoilMechanics * ( porosityAtMaxVes - porosityAtMinVes ) / ( maxVes - referenceEffectiveStress ());
-
-      return derivative;
-   }
-
-}
-
-
-//------------------------------------------------------------//
-
-double GeoPhysics::CompoundLithology::computePorosityDerivativeWrtVes ( const double ves, 
-                                                                        const double maxVes,
-                                                                        const bool   includeChemicalCompaction,
-                                                                        const double chemicalCompactionTerm ) const {
-
-  double porosityDerivative;
-
-  if ( m_porosityModel == DataAccess::Interface::EXPONENTIAL_POROSITY ) {
-    porosityDerivative = exponentialPorosityDerivativeWrtVes ( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
-  } else {
-    porosityDerivative = soilMechanicsPorosityDerivativeWrtVes ( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
-  }
-
-  return porosityDerivative;
-}
 
 //------------------------------------------------------------//
 

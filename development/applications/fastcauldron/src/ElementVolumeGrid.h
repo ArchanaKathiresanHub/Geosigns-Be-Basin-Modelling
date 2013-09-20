@@ -66,9 +66,6 @@ public :
    /// This is a closed interval.
    int lastI ( const bool includeGhosts = false ) const;
 
-   /// \brief The number of items in the I-dimension.
-   int lengthI ( const bool includeGhosts = false ) const;
-
    /// Get the local y-start position. 
    int firstJ ( const bool includeGhosts = false ) const;
 
@@ -76,9 +73,6 @@ public :
    ///
    /// This is a closed interval.
    int lastJ ( const bool includeGhosts = false ) const;
-
-   /// \brief The number of items in the J-dimension.
-   int lengthJ ( const bool includeGhosts = false ) const;
 
    /// Get the local z-start position. 
    ///
@@ -90,9 +84,6 @@ public :
    /// This is a closed interval.
    /// There is no partitioning in the z-direciton, so there can be no ghost nodes.
    int lastK () const;
-
-   /// \brief The number of items in the K-dimension.
-   int lengthK () const;
 
    /// Get the number of dofs per node.
    int getNumberOfDofs () const;
@@ -178,20 +169,12 @@ inline int ElementVolumeGrid::lastI ( const bool includeGhosts ) const {
    return ( includeGhosts ? m_ghostLast [ 0 ] : m_last [ 0 ]);
 }
 
-inline int ElementVolumeGrid::lengthI ( const bool includeGhosts ) const {
-   return lastI ( includeGhosts ) - firstI ( includeGhosts ) + 1;
-}
-
 inline int ElementVolumeGrid::firstJ ( const bool includeGhosts ) const {
    return ( includeGhosts ? m_ghostFirst [ 1 ] : m_first [ 1 ]);
 }
 
 inline int ElementVolumeGrid::lastJ ( const bool includeGhosts ) const {
    return ( includeGhosts ? m_ghostLast [ 1 ] : m_last [ 1 ]);
-}
-
-inline int ElementVolumeGrid::lengthJ ( const bool includeGhosts ) const {
-   return lastJ ( includeGhosts ) - firstJ ( includeGhosts ) + 1;
 }
 
 inline int ElementVolumeGrid::firstK () const {
@@ -201,10 +184,6 @@ inline int ElementVolumeGrid::firstK () const {
 
 inline int ElementVolumeGrid::lastK () const {
    return m_last [ 2 ];
-}
-
-inline int ElementVolumeGrid::lengthK () const {
-   return lastK () - firstK () + 1;
 }
 
 inline int ElementVolumeGrid::getNumberOfDofs () const {

@@ -77,9 +77,6 @@ public :
 
    //@}
 
-   /// \brief Return whether or not the subdomain-element is active.
-   bool isActive () const;
-
 
    /// \brief Set the layer element.
    ///
@@ -176,10 +173,6 @@ inline int SubdomainElement::getJ () const {
 
 inline int SubdomainElement::getK () const {
    return m_k;
-}
-
-inline bool SubdomainElement::isActive () const {
-   return getLayerElement ().isActive ();
 }
 
 inline int SubdomainElement::getNodeI ( const int node ) const {

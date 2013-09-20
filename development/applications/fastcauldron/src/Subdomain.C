@@ -105,7 +105,6 @@ Subdomain::Subdomain ( const LayerProps& theLayer ) {
 
    int elementCount = numberOfElements ();
    m_isActive = m_layers.size () > 0 and elementCount > 0;
-   m_containsSulphurSourceRock = determineContainsSulphur ();
 
    if ( m_isActive ) {
       m_sourceRockIsActive = determineSourceRockActivity ();

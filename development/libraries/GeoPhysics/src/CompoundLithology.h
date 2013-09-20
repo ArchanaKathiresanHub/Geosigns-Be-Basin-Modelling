@@ -235,12 +235,6 @@ namespace GeoPhysics {
                                                     const bool   includeChemicalCompaction,
                                                     const double chemicalCompactionTerm ) const;
 
-
-      double computePorosityDerivativeWrtVes ( const double ves, 
-                                               const double maxVes,
-                                               const bool   includeChemicalCompaction,
-                                               const double chemicalCompactionTerm ) const;
-
       double computeDVoidRatioDP ( const double ves, 
                                    const double maxVes,
                                    const bool   includeChemicalCompaction,
@@ -376,18 +370,6 @@ namespace GeoPhysics {
             const double               chemicalCompactionTerm ) const;
 
       double soilMechanicsPorosityDerivative
-          ( const double               ves, 
-            const double               maxVes,
-            const bool                 includeChemicalCompaction,
-            const double               chemicalCompactionTerm ) const;
-
-      double exponentialPorosityDerivativeWrtVes
-          ( const double               ves, 
-            const double               maxVes,
-            const bool                 includeChemicalCompaction,
-            const double               chemicalCompactionTerm ) const;
-
-      double soilMechanicsPorosityDerivativeWrtVes
           ( const double               ves, 
             const double               maxVes,
             const bool                 includeChemicalCompaction,

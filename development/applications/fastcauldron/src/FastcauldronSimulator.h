@@ -30,6 +30,7 @@
 // Forward declarations
 class AppCtx;
 class LayerProps;
+class Subdomain;
 class MultiComponentFlowHandler;
 
 using namespace DataAccess;
@@ -44,6 +45,11 @@ using namespace DataAccess;
 ///
 /// The size of the array is determined by the element-grid.
 typedef PETSc_Local_2D_Array<MapElement> MapElementArray;
+
+
+/// \brief An array of subdomains.
+typedef std::vector<Subdomain*> SubdomainArray;
+
 
 
 class FastcauldronSimulator : public GeoPhysics::ProjectHandle {
@@ -322,6 +328,9 @@ private :
    ElementGrid               m_elementGrid;
    NodalGrid                 m_nodalGrid;
    MapElementArray           m_mapElements;
+
+   // /// \brief Array of subdomains that are to be used in the multi-component flow solver.
+   // SubdomainArray            m_mcfSubdomains;
 
    ibs::Interpolator*        m_lateralStressInterpolator;
 

@@ -5,16 +5,6 @@
 
 //------------------------------------------------------------//
 
-void Numerics::mvp ( const FortranMatrix& mat,
-                     const Vector&        vec,
-                           Vector&        result ) {
-
-   BLAS::mvp ( false, mat.numberOfRows (), mat.numberOfColumns (), mat.data (), vec.data (), result.data ());
-
-}
-
-//------------------------------------------------------------//
-
 void Numerics::luFactorise ( FortranMatrix& mat,
                              IntegerArray&  permutation ) {
   LAPACK::luFactorise ( mat.numberOfRows (), mat.data (), &permutation [ 0 ]);
