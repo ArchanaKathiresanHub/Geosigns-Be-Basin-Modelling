@@ -1670,7 +1670,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
       ///
       /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
       ///
-      if ( (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) { // to be checked
+      if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
         Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
       }
 

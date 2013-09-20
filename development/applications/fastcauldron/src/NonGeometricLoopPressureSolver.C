@@ -307,8 +307,7 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
     {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top;
        //                  + 0.5 * GRAVITY * ( Real_Thickness - Solid_Thickness ) * ( Fluid_Density_Top + Fluid_Density ) * Pa_To_MPa; // Second term should be 0 to be consistant.
-    Pore_Pressure = Lithostatic_Pressure;
-// Hydrostatic_Pressure + Overpressure_Bottom;
+    Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
     }
 
 }
