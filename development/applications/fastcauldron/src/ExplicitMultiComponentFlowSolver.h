@@ -33,12 +33,17 @@
 #include "property_manager.h"
 
 #include "Simulator.h"
-// #include "OTGC_kernel/src/Simulator.h"
 
 #include "ImmobileSpeciesValues.h"
+#include "DarcyCalculations.h"
 
 
 #include "TemporalPropertyInterpolator.h"
+#include "PoreVolumeInterpolatorCalculator.h"
+#include "FaceAreaInterpolatorCalculator.h"
+#include "FacePermeabilityInterpolatorCalculator.h"
+#include "MultiPropertyTemporalInterpolator.h"
+#include "SourceRocksTemporalInterpolator.h"
 
 
 /// \brief Class for solving the multi-component multi-phase flow equations.
@@ -50,33 +55,38 @@ class ExplicitMultiComponentFlowSolver {
 
    typedef std::vector<ConstrainedBooleanArray> ConstrainedBooleanArrayMap;
 
-   typedef PETSc_Local_3D_Array <PVTComponents> CompositionArray;
+   typedef DarcyCalculations::CompositionArray CompositionArray;
 
-   typedef PETSc_Local_3D_Array <PVTPhaseComponents>  PhaseCompositionArray;
+   typedef DarcyCalculations::PhaseCompositionArray PhaseCompositionArray;
 
-   typedef PETSc_Local_3D_Array <PVTPhaseValues> PhaseValueArray;
+   typedef DarcyCalculations::PhaseValueArray PhaseValueArray;
 
-   typedef PETSc_Local_3D_Array <Saturation> SaturationArray;
+   typedef DarcyCalculations::SaturationArray SaturationArray;
 
    typedef PETSc_Local_3D_Array <double> ScalarArray;
 
-   typedef PETSc_Local_3D_Array <ElementFaceValues>  ElementFaceValueArray;
-
-
-
-   /// \brief A petsc-array of three-vectors.
-   typedef PetscBlockVector<FiniteElementMethod::ThreeVector> ThreeVectorArray;
 
    typedef PetscBlockVector<ElementFaceValues>  ElementFaceValueVector;
-
-   typedef PetscBlockVector<Saturation>  SaturationVector;
 
    typedef PetscBlockVector<double>  ScalarPetscVector;
 
 
-   typedef PetscBlockVector<PVTComponents> CompositionPetscVector;
+   typedef DarcyCalculations::CompositionPetscVector CompositionPetscVector;
 
-   typedef PetscBlockVector<ImmobileSpeciesValues> ImmobileSpeciesPetscVector;
+   typedef DarcyCalculations::SaturationPetscVector SaturationPetscVector;
+
+
+
+   typedef MultiPropertyTemporalInterpolator<PoreVolumeInterpolatorCalculator> PoreVolumeTemporalInterpolator;
+
+   typedef MultiPropertyTemporalInterpolator<FaceAreaInterpolatorCalculator> FaceAreaTemporalInterpolator;
+
+   typedef MultiPropertyTemporalInterpolator<FacePermeabilityInterpolatorCalculator> FacePermeabilityTemporalInterpolator;
+
+
+   static const unsigned int PoreVolumeIndex = PoreVolumeInterpolatorCalculator::PoreVolumeIndex;
+
+   static const unsigned int RockCompressionIndex = PoreVolumeInterpolatorCalculator::RockCompressionIndex;
 
 public :
 
@@ -86,8 +96,10 @@ public :
    /// Destructor.
    ~ExplicitMultiComponentFlowSolver ();
 
-   /// \brief Solve for the concentrations at the current-time.
-   void solve ( Subdomain&   subdomain,
+   /// \brief Solve for the concentrations over the interval from start-time until end-time.
+   ///
+   /// The time interval must correspond to a P/T time-step.
+   void solve ( Subdomain& subdomain,
                 const double startTime,
                 const double endTime,
                 DarcyErrorIndicator& errorOccurred );
@@ -95,22 +107,8 @@ public :
 
 private :
 
-   /// The lower limit of cnocentration for which any calculation is performed.
-   static const double ConcentrationLowerLimit;
-
-   /// \brief Return the toral mass of hydrocarbon within the system.
-   double totalHcMass ( Subdomain&   subdomain,
-                        const double lambda ) const;
-
-   /// \brief Return the toral mass of hydrocarbon within the layer.
-   ///
-   /// This returns the mass of hydro-carbon within elements of the formation that lie on the current processor.
-   double totalLayerHcMass ( FormationSubdomainElementGrid& formationGrid,
-                             const double                   lambda ) const;
 
    void computePressure ( FormationSubdomainElementGrid&      formationGrid,
-                          const PhaseCompositionArray&        phaseComposition,
-                          const PhaseValueArray&              phaseDensities,
                           const SaturationArray&              saturations,
                           const TemporalPropertyInterpolator& porePressure,
                           const TemporalPropertyInterpolator& temperature,
@@ -121,8 +119,6 @@ private :
                           ScalarPetscVector&                  liquidPressure );
 
    void computePressure ( Subdomain&                          subdomain,
-                          const PhaseCompositionArray&        phaseComposition,
-                          const PhaseValueArray&              phaseDensities,
                           const SaturationArray&              saturations,
                           const TemporalPropertyInterpolator& porePressure,
                           const TemporalPropertyInterpolator& temperature,
@@ -133,100 +129,18 @@ private :
                           ScalarPetscVector&                  liquidPressure );
 
    void collectGlobalSaturation ( FormationSubdomainElementGrid& formationGrid,
-                                  SaturationVector&              averagedSaturations,
+                                  SaturationPetscVector&         averagedSaturations,
                                   ScalarPetscVector&             divisor );
 
-   void averageGlobalSaturation ( Subdomain&         subdomain,
-                                  SaturationVector&  averagedSaturations,
-                                  ScalarPetscVector& divisor );
+   void averageGlobalSaturation ( Subdomain&             subdomain,
+                                  SaturationPetscVector& averagedSaturations,
+                                  ScalarPetscVector&     divisor );
 
-   void assignGlobalSaturation ( Subdomain&         subdomain,
-                                 SaturationVector& averagedSaturations );
+   void assignGlobalSaturation ( Subdomain&             subdomain,
+                                 SaturationPetscVector& averagedSaturations );
 
    void averageGlobalSaturation ( Subdomain& subdomain );
 
-
-   void averageComponents ( PVTComponents&      unitMasses,
-                            PVTPhaseComponents& phaseMasses,
-                            PVTPhaseValues&     density,
-                            PVTPhaseValues&     viscosity );
-
-
-   /// \brief Collect the permeabilities from the face of each element.
-   void collectElementPermeabilities ( const Subdomain&         subdomain,
-                                       const ElementVolumeGrid& elementGrid,
-                                       const double             lambda,
-                                       ElementFaceValueVector&  subdomainPermeabilityN, 
-                                       ElementFaceValueVector&  subdomainPermeabilityH ) const;
-
-   /// \brief Add permeability from the adjacent face of the neighbouring element.
-   void addNeighbourPermeabilities ( const Subdomain&         subdomain,
-                                     const ElementVolumeGrid& elementGrid,
-                                     ElementFaceValueVector&  subdomainPermeabilityN, 
-                                     ElementFaceValueVector&  subdomainPermeabilityH,
-                                     ElementFaceValueArray&   intermediatePermeabilityN,
-                                     ElementFaceValueArray&   intermediatePermeabilityH ) const;
-
-   /// \brief From the values stored in the arrays compute the average permeability for the element-face.
-   void recoverAveragedPermeabilities ( const Subdomain&         subdomain,
-                                        const ElementVolumeGrid& elementGrid,
-                                        ElementFaceValueVector&  subdomainPermeabilityN, 
-                                        ElementFaceValueVector&  subdomainPermeabilityH,
-                                        ElementFaceValueArray&   intermediatePermeabilityN,
-                                        ElementFaceValueArray&   intermediatePermeabilityH ) const;
-
-   /// \brief Average the permeability across the face of the element.
-   void computeAveragePermeabilities ( const Subdomain& subdomain,
-                                       const double     lambda,
-                                       Vec subdomainPermeabilityNVec, 
-                                       Vec subdomainPermeabilityHVec ) const;
-
-
-   void getAveragedSaturationCoefficients ( const SubdomainElement&                   element, 
-                                            const SaturationVector&                   layerAveragedSaturations,
-                                                  FiniteElementMethod::ElementVector& vapourSaturationCoefficients, 
-                                                  FiniteElementMethod::ElementVector& liquidSaturationCoefficients,
-                                            const bool                                printIt );
-
-   /// \brief Apply otgc simulator to the hc that remains in the pore-space for the duration of the time-step.
-   void applyOtgc ( SubdomainElement&                   element,
-                    PVTComponents&                      concentration,
-                    ImmobileSpeciesValues&              immobiles,
-                    const TemporalPropertyInterpolator& porePressure,
-                    const TemporalPropertyInterpolator& temperature,
-                    const double                        timeStepStart,
-                    const double                        timeStepEnd,
-                    const double                        lambdaStart,
-                    const double                        lambdaEnd );
-
-   /// \brief Apply otgc simulator to the hc that remains in the pore-space for the duration of the time-step.
-   void applyOtgc ( FormationSubdomainElementGrid&      formationGrid,
-                    const TemporalPropertyInterpolator& porePressure,
-                    const TemporalPropertyInterpolator& temperature,
-                    const double                        timeStepStart,
-                    const double                        timeStepEnd,
-                    const double                        lambdaStart,
-                    const double                        lambdaEnd );
-
-   /// \brief Apply otgc simulator to the hc that remains in the pore-space for the duration of the time-step.
-   void applyOtgc ( Subdomain&                          subdomain, 
-                    const TemporalPropertyInterpolator& porePressure,
-                    const TemporalPropertyInterpolator& temperature,
-                    const double                        timeStepStart,
-                    const double                        timeStepEnd,
-                    const double                        lambdaStart,
-                    const double                        lambdaEnd );
-
-
-   /// Compute numerical flux function across face.
-   void computeNumericalFlux ( const SubdomainElement& element,
-                               const double            elementFlux,
-                               const double            neighbourFlux,
-                               const PVTComponents&    elementComposition,
-                               const PVTComponents&    neighbourComposition,
-                                     PVTComponents&    flux,
-                                     double&           transportedMassesIn,
-                                     double&           transportedMassesOut );
 
    // Transport components for en element.
    void transportComponents ( const SubdomainElement&       element,
@@ -243,6 +157,7 @@ private :
                               const PhaseCompositionArray&     phaseComposition,
                               const ElementFaceValueVector&    gasFluxes,
                               const ElementFaceValueVector&    oilFluxes,
+                              Boolean3DArray&                  elementContainsHc,
                               CompositionArray&                computedConcentrations,
                               ScalarArray&                     transportedMasses );
 
@@ -251,13 +166,27 @@ private :
                               const PhaseCompositionArray&     phaseComposition,
                               const ElementFaceValueVector&    gasFluxes,
                               const ElementFaceValueVector&    oilFluxes,
+                              Boolean3DArray&                  elementContainsHc,
                               CompositionArray&                computedConcentrations,
                               ScalarArray&                     transportedMasses );
 
 
 
+   /// Compute numerical flux function across face.
+   void computeNumericalFlux ( const SubdomainElement&   element,
+                               const pvtFlash::PVTPhase  phase,
+                               const double              elementFlux,
+                               const double              neighbourFlux,
+                               const double              elementPhaseCompositionSum,
+                               const PVTPhaseComponents& elementComposition,
+                               const PVTPhaseComponents& neighbourComposition,
+                                     PVTComponents&      flux,
+                                     double&             transportedMassesIn,
+                                     double&             transportedMassesOut );
+
    /// \brief Compute the flux for a face of the element.
    double computeElementFaceFlux ( const SubdomainElement&                   element, 
+                                   const FaceAreaTemporalInterpolator&       faceAreaInterpolator,
                                    const VolumeData::BoundaryId              face,
                                    const Saturation::Phase                   phase,
                                    const double                              elementPressure,
@@ -265,14 +194,16 @@ private :
                                    const double                              deltaX,
                                    const double                              phaseDensity,
                                    const double                              phaseViscosity,
-                                   const Saturation&                         saturation,
+                                   const double                              relativePermeability,
                                          FiniteElementMethod::FiniteElement& finiteElement,
                                    const double                              permNormal,
                                    const double                              permPlane,
+                                   const double                              lambda,
                                    const bool                                print ) const;
 
    void computeFluxForPhase ( const pvtFlash::PVTPhase                  phase,
                               const SubdomainElement&                   element,
+                              const FaceAreaTemporalInterpolator&       faceAreaInterpolator,
                                     FiniteElementMethod::FiniteElement& finiteElement,
                               const PVTPhaseValues&                     phases,
                               const ScalarPetscVector&                  subdomainPhasePressure,
@@ -284,21 +215,27 @@ private :
                               const PVTPhaseValues&                     phaseDensities,
                               const PVTPhaseValues&                     phaseViscosities,
                               const Saturation&                         elementSaturation,
+                              const double                              relativePermeability,
                               const ElementFaceValues&                  elementPermeabilityN,
                               const ElementFaceValues&                  elementPermeabilityH,
+                              const FacePermeabilityTemporalInterpolator& permeabilityInterpolator,
                                     ElementFaceValues&                  elementFlux );
 
    /// \brief Compute the flux term for all elements in formation.
    void computeFluxTerms ( FormationSubdomainElementGrid&      formationGrid,
+                           const Boolean3DArray&               elementContainsHc,
                            const PhaseCompositionArray&        phaseComposition,
                            const PhaseValueArray&              phaseDensities,
                            const PhaseValueArray&              phaseViscosities,
                            const ElementFaceValueVector&       subdomainPermeabilitiesN,
                            const ElementFaceValueVector&       subdomainPermeabilitiesH,
+                           const FacePermeabilityTemporalInterpolator& permeabilityInterpolator,
                            const ScalarPetscVector&            subdomainVapourPressure,
                            const ScalarPetscVector&            subdomainliquidPressure,
                            const TemporalPropertyInterpolator& depth,
                            const TemporalPropertyInterpolator& porePressure,
+                           const FaceAreaTemporalInterpolator& faceAreaInterpolator,
+                           const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                            const SaturationArray&              saturations,
                                  ElementFaceValueVector&       gasFluxes,
                                  ElementFaceValueVector&       oilFluxes,
@@ -307,15 +244,19 @@ private :
 
    /// \brief Compute the flux term for all elements in subdomain.
    void computeFluxTerms ( Subdomain&                          subdomain,
+                           const Boolean3DArray&               elementContainsHc,
                            const PhaseCompositionArray&        phaseComposition,
                            const PhaseValueArray&              phaseDensities,
                            const PhaseValueArray&              phaseViscosities,
                            const ElementFaceValueVector&       subdomainPermeabilitiesN,
                            const ElementFaceValueVector&       subdomainPermeabilitiesH,
+                           const FacePermeabilityTemporalInterpolator& permeabilityInterpolator,
                            const ScalarPetscVector&            subdomainCurrentPressure,
                            const ScalarPetscVector&            subdomainPreviousPressure,
                            const TemporalPropertyInterpolator& depth,
                            const TemporalPropertyInterpolator& porePressure,
+                           const FaceAreaTemporalInterpolator& faceAreaInterpolator,
+                           const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                            const SaturationArray&              saturations,
                                  ElementFaceValueVector&       gasFluxes,
                                  ElementFaceValueVector&       oilFluxes,
@@ -325,84 +266,43 @@ private :
 
    /// \brief Scale the flux terms in a formation by the time-step size.
    void scaleFluxTermsByTimeStep ( FormationSubdomainElementGrid& formationGrid,
+                                   const Boolean3DArray&          elementContainsHc,
                                    ElementFaceValueVector&        vapourFluxes,
                                    ElementFaceValueVector&        liquidFluxes,
                                    const double                   deltaTSec );
 
    /// \brief Scale the flux terms in the subdomain by the time-step size.
    void scaleFluxTermsByTimeStep ( Subdomain&              subdomain,
+                                   const Boolean3DArray&   elementContainsHc,
                                    ElementFaceValueVector& vapourFluxes,
                                    ElementFaceValueVector& liquidFluxes,
                                    const double            deltaTSec );
 
-   /// \brief Flash the components in the layer.
-   void flashComponents ( FormationSubdomainElementGrid& formationGrid,
-                          PhaseCompositionArray&         phaseComposition,
-                          PhaseValueArray&               phaseDensities,
-                          PhaseValueArray&               phaseViscosities,
-                          const TemporalPropertyInterpolator& porePressure,
-                          const TemporalPropertyInterpolator& temperature,
-                          const double                   lambda );
-
-   /// \brief Flash the components for the subdomain.
-   void flashComponents ( Subdomain&             subdomain,
-                          PhaseCompositionArray& phaseComposition,
-                          PhaseValueArray&       phaseDensities,
-                          PhaseValueArray&       phaseViscosities,
-                          const TemporalPropertyInterpolator& porePressure,
-                          const TemporalPropertyInterpolator& temperature,
-                          const double           lambda );
-
-
-
    /// \brief Compute contributions from previous time-step for the element.
    void computeTemporalContributions ( const SubdomainElement&       element,
+                                       const Boolean3DArray&         elementContainsHc,
                                        const CompositionPetscVector& layerConcentration,
                                        PVTComponents&                previousTerm,
+                                       const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                        const double                  lambdaStart,
-                                       const double                  lambda,
-                                       const bool                    print ) const;
+                                       const double                  lambda ) const;
 
    /// \brief Compute contributions from previous time-step for the source-rock-layer.
    void computeTemporalContributions ( FormationSubdomainElementGrid& formationGrid,
+                                       const Boolean3DArray&          elementContainsHc,
                                        const ElementVolumeGrid&       concentrationGrid,
                                        CompositionArray&              previousTerm,
+                                       const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                        const double                   lambdaStart,
                                        const double                   lambda );
 
    /// \brief Compute contributions from previous time-step for the subdomain.
    void computeTemporalContributions ( Subdomain&        subdomain,
+                                       const Boolean3DArray& elementContainsHc,
                                        CompositionArray& previousTerm,
+                                       const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                                        const double      lambdaStart,
                                        const double      lambda );
-
-
-
-   /// \brief Compute source term for the element.
-   ///
-   /// The source term includes the time-step multiplier already.
-   /// Units are in kg/element.
-   void computeSourceTerm ( const SubdomainElement& element,
-                                  PVTComponents&    sourceTerm,
-                            const double            lambda,
-                            const double            fractionScaling,
-                                  double&           layerMassAdded,
-                            const bool              print ) const;
-
-   /// \brief Compute source term for the source-rock-layer.
-   void computeSourceTerm ( FormationSubdomainElementGrid& formationGrid,
-                            const ElementVolumeGrid&       concentrationGrid,
-                            const double                   lambda,
-                            const double                   fractionScaling,
-                            CompositionArray&              sourceTerm,
-                                  double&                  layerMassAdded );
-
-   /// \brief Compute source term for the subdomain.
-   void computeSourceTerm ( Subdomain&        subdomain,
-                            CompositionArray& sourceTerm,
-                            const double      lambda,
-                            const double      fractionScaling,
-                                  double&     layerMassAdded );
 
 
    /// \brief The mass matrix is, for this problem, a 1x1 matrix.
@@ -411,40 +311,19 @@ private :
                                      const double            lambdaEnd ) const;
 
    void divideByMassMatrix ( FormationSubdomainElementGrid& formationGrid,
+                             const Boolean3DArray&          elementContainsHc,
                              const ElementVolumeGrid&       concentrationGrid,
+                             const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                              CompositionArray&              sourceTerm,
                              const double                   lambdaStart,
                              const double                   lambdaEnd );
 
-   void divideByMassMatrix ( Subdomain&        subdomain,
+   void divideByMassMatrix ( Subdomain&                            subdomain,
+                             const Boolean3DArray&                 elementContainsHc,
+                             const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
                              CompositionArray& sourceTerm,
                              const double      lambdaStart,
                              const double      lambdaEnd );
-
-   /// \brief Set the concentrations for a formation.
-   void setConcentrations ( FormationSubdomainElementGrid& formationGrid,
-                            const CompositionArray&        sourceTerm,
-                            bool&                          errorInConcentration );
-
-   /// \brief Set the concentrations for the subdomain.
-   void setConcentrations ( Subdomain&              subdomain,
-                            const CompositionArray& sourceTerm,
-                            bool&                   errorInConcentration );
-
-   /// \brief Set the saturations for a formation.
-   void setSaturations ( FormationSubdomainElementGrid& formationGrid,
-                         bool&                          errorInSaturation );
-
-   /// \brief Set the saturations for the subdomain.
-   void setSaturations ( Subdomain& subdomain,
-                         bool&      errorInSaturation );
-
-   /// \brief Set the time of element invasion, the time when a cell has non-zero concentration
-   void setTimeOfElementInvasion ( FormationSubdomainElementGrid& formationGrid, double time );
-
-   /// \brief Set the time of element invasion, the time when a cell has non-zero concentration
-   void setTimeOfElementInvasion ( Subdomain& subdomain, double time );
-
 
    /// \brief Update the vector containing the masses that have been transported since the vector was zeroed.
    void updateTransportedMasses ( FormationSubdomainElementGrid& formationGrid, 
@@ -465,36 +344,25 @@ private :
                                const ConstrainedBooleanArrayMap& currentAlreadyActivatedProperties,
                                const ConstrainedBooleanArrayMap& previousAlreadyActivatedProperties );
 
-   /// \brief Compute vapour-, liquid- and immobile-saturation.
-   void computeSaturation ( const SubdomainElement&        element,
-                            const PVTComponents&           concentrations,
-                            const ImmobileSpeciesValues&   immobiles,
-                                  Saturation&              saturation,
-                            const bool                     print );
+   /// \brief Estimate the saturation for a single phase.
+   void estimateSaturation ( const SubdomainElement& element,
+                             const PVTComponents&    compostionn,
+                                   bool&             elementContainsHc,
+                                   double&           estimatedSaturation );
 
+   /// \brief Estimate if transport of hydrocarbon will occur.
+   void estimateHcTransport ( FormationSubdomainElementGrid& formationGrid,
+                              Boolean3DArray&                elementContainsHc,
+                              Boolean3DArray&                elementTransportsHc );
 
-   /// \brief Compute vapour-, liquid- and immobile-saturation.
-   void computeSaturation ( const SubdomainElement&        element,
-                            const PVTPhaseComponents&      phaseCompostion,
-                            const PVTPhaseValues           density,
-                            const ImmobileSpeciesValues&   immobiles,
-                                  Saturation&              saturation,
-                            const bool                     print );
+   /// \brief Estimate if transport of hydrocarbon will occur.
+   ///
+   /// If enabled use the estimated saturation to determine whether or not transport will occur.
+   /// Otherwise assume that transport is always possible is hc content > epsilon.
+   void estimateHcTransport ( Subdomain&      subdomain,
+                              Boolean3DArray& elementContainsHc,
+                              Boolean3DArray& elementTransportsHc );
 
-   void setSaturations ( FormationSubdomainElementGrid& formationGrid,
-                         const PhaseCompositionArray&   phaseComposition,
-                         const PhaseValueArray&         phaseDensities,
-                         SaturationArray&               saturations,
-                         bool&                          errorInSaturation );
-
-   void setSaturations ( Subdomain&                   subdomain,
-                         const PhaseCompositionArray& phaseComposition,
-                         const PhaseValueArray&       phaseDensities,
-                         SaturationArray&             saturations,
-                         bool&                        errorInSaturation );
-
-
-   Genex6::Simulator* m_otgcSimulator;
 
    double m_maximumHCFractionForFlux;
 
@@ -537,6 +405,12 @@ private :
    /// \brief Time spent computing the saturations.
    WallTime::Duration m_satTime;
 
+   /// \brief Time spent computing the inner saturations.
+   WallTime::Duration m_sat2Time;
+
+   /// \brief Time spent computing the estimated saturations.
+   WallTime::Duration m_estimatedSaturationTime;
+
    /// \brief Total time spent in the flow solver.
    WallTime::Duration m_totalTime;
 
@@ -545,9 +419,6 @@ private :
 
    /// \brief Degree of quadrature for contibutions from previous time-step.
    int m_previousContributionsQuadratureDegree;
-
-   /// \brief Degree of quadrature for source-term.
-   int m_sourceTermQuadratureDegree;
 
    /// \brief Degree of quadrature for mass-matrix.
    int m_massMatrixQuadratureDegree;
@@ -575,6 +446,28 @@ private :
    bool m_timeStepSubSamplePvt;
    bool m_timeStepSubSampleFlux;
 
+   /// \brief Indicate whether or not the permeability across each face should be interpolated or the value computed.
+   bool m_interpolateFacePermeability;
+
+   /// \brief Indicate whether or not the pore-volume terms should be interpolated or the values computed.
+   bool m_interpolatePoreVolume;
+
+   /// \brief Indicate whether or not part of the flux calculation should be interpolated or the values computed.
+   bool m_interpolateFaceArea;
+   
+   /// \brief Use the estimate of the saturation in order to initiate flash and transport.
+   ///
+   /// If the estimated saturation is less than the Sor then the flash will not be called
+   /// and there will be no subsequent transport.
+   bool m_useSaturationEstimate;
+
+   /// \brief The scaling of the Sor when estimating whether or not transport will occur.
+   double m_residualHcSaturationScaling;
+
+   int m_flashCount;
+   int m_transportInCount;
+   int m_transportOutCount;
+   int m_transportCount;
 
 };
 

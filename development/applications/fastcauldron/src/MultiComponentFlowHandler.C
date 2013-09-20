@@ -89,8 +89,8 @@ std::string MultiComponentFlowHandler::getCommandLineOptions () {
 
    commandLineOptions << "           -mcfmaxts <ts>              Set the maximum time-step to be used in the multi-component solver, this does not" << endl 
                       << "                                       affect time-stepping in the pressure/temperature solvers, ts > 0." << endl;
-   commandLineOptions << "           -mcfcflts                   Use the time-step size given by the CFL condition." << endl;
-   commandLineOptions << "           -mcfcflfrac <frac>          Scale the CFL value by this fraction, frac > 0." << endl;
+   commandLineOptions << "           -mcfcflts                   Use the time-step size given by the adaptive time-stepping function." << endl;
+   commandLineOptions << "           -mcfcflfrac <frac>          Scale the adaptive time-stepping value by this fraction, frac > 0." << endl;
    commandLineOptions << "           -mcfmaxfluxfrac <frac>      What is the max fraction of the total hc in the element that can be \"fluxed\" through the" << endl
                       << "                                       element (temporary testing parameter)." << endl;
    commandLineOptions << "           -mcfquad <deg>              Set the quadrature degree for all integrals (face-fluxes, 'previous term', source-term and" << endl
@@ -132,9 +132,10 @@ MultiComponentFlowHandler::MultiComponentFlowHandler () {
    // m_userDefinedSubdomains = false;
    m_userDefinedMaximumPermeability = DefaultMcfMaximumPermeability;
    m_uniformTimeStepping = PETSC_FALSE;
-   m_cflTimeStepFraction = DefaultMcfCflTimeStepFraction;
+   m_adaptiveTimeStepFraction = DefaultMcfAdaptiveTimeStepFraction;
    m_maximumTimeStepSize = DefaultMaximumTimeStep; //static_cast<double>(FastcauldronSimulator::getInstance().getRunParameters ()->getDarcyMaxTimeStep());//DefaultMaximumTimeStep;
    m_maximumHCFractionForFlux = DefaultMaximumHCFractionForFlux;
+   m_residualHcSaturationScaling = DefaultResidualHcSaturationScaling;
    m_debugLevel = 0;
    m_applyOtgc = PETSC_FALSE;
    m_includeWaterSaturationInOp = PETSC_FALSE;
@@ -174,6 +175,12 @@ MultiComponentFlowHandler::MultiComponentFlowHandler () {
    m_timeStepSubSamplePvt = false;
    m_timeStepSubSampleFlux = false;
    m_applyPvtAveraging = false;
+
+   m_interpolatePermeability = false;
+   m_interpolatePoreVolume = false;
+   m_interpolateFaceArea = false;
+   m_interpolateSourceTerm = false;
+   m_useEstimatedSaturation = false;
 
    m_timeStepSmoothingFactor = DefaultDarcyTimeStepSmoothingFactor;
    m_applyTimeStepSmoothing = true;
@@ -236,14 +243,23 @@ void MultiComponentFlowHandler::initialise () {
    double newMaximumMcfHCFractionForFlux;
    PetscBool maximumMcfHCFractionForFluxChanged = PETSC_FALSE;
 
-   double newMcfCflTimeStepFraction;
-   PetscBool mcfCflTimeStepFractionChanged = PETSC_FALSE;
+   double newResidualHcSaturationScaling;
+   PetscBool residualHcSaturationScalingChanged = PETSC_FALSE;
+
+   double newMcfAdaptiveTimeStepFraction;
+   PetscBool mcfAdaptiveTimeStepFractionChanged = PETSC_FALSE;
 
    double lowPermeability;
    PetscBool lowPermeabilityDefined = PETSC_FALSE;
    PetscBool doNotIncludeWaterSaturationInOp = PETSC_FALSE;
    PetscBool includeCapillaryPressureInDarcy = PETSC_FALSE;
    PetscBool includePvtAveraging = PETSC_FALSE;
+   PetscBool includePermeabilityInterpolation = PETSC_FALSE;
+   PetscBool includePoreVolumeInterpolation = PETSC_FALSE;
+   PetscBool includeFaceAreaInterpolation = PETSC_FALSE;
+   PetscBool includeSourceTermInterpolation = PETSC_FALSE;
+   PetscBool includeAllInterpolation = PETSC_FALSE;
+   PetscBool useSaturationEstimate = PETSC_FALSE;
 
    double     ageToStopHCSource;
    PetscBool ageToStopHCSourceChanged;
@@ -319,14 +335,21 @@ void MultiComponentFlowHandler::initialise () {
 
    PetscOptionsHasName ( PETSC_NULL, "-mcfpvtaverage",  &includePvtAveraging );
 
+   PetscOptionsHasName ( PETSC_NULL, "-mcfperminterp", &includePermeabilityInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfpvinterp", &includePoreVolumeInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcffainterp", &includeFaceAreaInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfsrterminterp",&includeSourceTermInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfallinterp",  &includeAllInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfusesatest", &useSaturationEstimate );
+   PetscOptionsGetReal ( PETSC_NULL, "-mcfsorscal", &newResidualHcSaturationScaling, &residualHcSaturationScalingChanged );
+
    PetscOptionsGetReal ( PETSC_NULL, "-mcfstopsource", &ageToStopHCSource, &ageToStopHCSourceChanged );
    PetscOptionsGetReal ( PETSC_NULL, "-mcfstoptrans", &ageToStopHCTransport, &ageToStopHCTransportChanged );
    PetscOptionsHasName ( PETSC_NULL, "-mcfnostoptrans", &doNotStopHCTransportChanged );
    PetscOptionsHasName ( PETSC_NULL, "-mcfmaps", &includeDarcyMaps );
    PetscOptionsHasName ( PETSC_NULL, "-mcfelemmasses", &includeElementMasses );
 
-
-   PetscOptionsGetReal ( PETSC_NULL, "-mcfcflfrac", &newMcfCflTimeStepFraction, &mcfCflTimeStepFractionChanged );
+   PetscOptionsGetReal ( PETSC_NULL, "-mcfcflfrac", &newMcfAdaptiveTimeStepFraction, &mcfAdaptiveTimeStepFractionChanged );
    PetscOptionsGetIntArray ( PETSC_NULL, "-mcfforms", formationRangeArray, &formationCount, &formationRangeInput );
 
    PetscOptionsGetInt  ( PETSC_NULL, "-mcffacequad", &faceQuadDegree, &faceQuadDegreeSet );
@@ -420,8 +443,12 @@ void MultiComponentFlowHandler::initialise () {
       m_maximumHCFractionForFlux = newMaximumMcfHCFractionForFlux;
    }
 
-   if ( mcfCflTimeStepFractionChanged ) {
-      m_cflTimeStepFraction = newMcfCflTimeStepFraction;
+   if ( residualHcSaturationScalingChanged ) {
+      m_residualHcSaturationScaling = newResidualHcSaturationScaling;
+   }
+
+   if ( mcfAdaptiveTimeStepFractionChanged ) {
+      m_adaptiveTimeStepFraction = newMcfAdaptiveTimeStepFraction;
    }
 
    if ( timeStepSmoothgingSet ) {
@@ -503,6 +530,28 @@ void MultiComponentFlowHandler::initialise () {
    m_includeCapillaryPressureInDarcy = static_cast<bool>(includeCapillaryPressureInDarcy);
    m_applyPvtAveraging = static_cast<bool>(includePvtAveraging);
 
+   if ( includeAllInterpolation ) {
+      m_interpolatePermeability = true;
+      m_interpolatePoreVolume = true;
+      m_interpolateFaceArea = true;
+      m_interpolateSourceTerm = true;
+   } else {
+      m_interpolatePermeability = static_cast<bool>(includePermeabilityInterpolation);
+      m_interpolatePoreVolume = static_cast<bool>(includePoreVolumeInterpolation);
+      m_interpolateFaceArea = static_cast<bool>(includeFaceAreaInterpolation);
+      m_interpolateSourceTerm = static_cast<bool>(includeSourceTermInterpolation);
+   }
+
+   m_useEstimatedSaturation = static_cast<bool>(useSaturationEstimate);
+
+#if 0
+   // Leave these here so that they can be enabled easily when running regression tests or other testing.
+   m_interpolatePermeability = true;
+   m_interpolatePoreVolume = true;
+   m_interpolateFaceArea = true;
+   m_interpolateSourceTerm = true;
+   m_useEstimatedSaturation = true;
+#endif
 
    if ( not iNodeWanted ) {
       m_debugINode = -1;
@@ -568,7 +617,7 @@ bool MultiComponentFlowHandler::addSubdomain ( Subdomain* subdomain ) {
       return false;
    }
 
-   SubdomainArray::const_iterator iter;
+   DarcySubdomainArray::const_iterator iter;
 
    for ( iter = m_subdomains.begin (); iter != m_subdomains.end (); ++iter ) {
 

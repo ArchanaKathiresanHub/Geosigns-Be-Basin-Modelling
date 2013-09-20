@@ -42,6 +42,7 @@
 *                                                                    *
 *********************************************************************/
 
+#include <iostream>
 #include "stdafx.h"
 
 #include "EosApplication.h"
@@ -3504,6 +3505,23 @@ void EosPvtModel::NewtonFlashMultipleObjects( int iM, int iNc, int iRestore, int
             iter = -1;
          }
       }
+   }
+
+
+   std::cout << " number of newton iterations: " << iter << std::endl;
+
+   if ( iter == 8 ) {
+
+      std::cout << *m_pPressure << std::endl << *m_pTemperature << std::endl << std::endl;
+
+      for ( iNi = 0; iNi < iNc; iNi++ ) {
+         std::cout << m_pComposition[iNi] << std::endl;
+      }
+
+      std::cout << " phase " << *m_pPhase << std::endl;
+
+      std::cout << std::endl;
+      std::cout << std::endl;
    }
 
    /* Solve the flash equations once more before exiting */

@@ -264,8 +264,8 @@ class Array {
 
   private :
 
-    Type** Entries;
-    int    Dimensions [ 3 ];
+    Type*** Entries;
+    int     Dimensions [ 3 ];
 
   }; // end class Array3D
 

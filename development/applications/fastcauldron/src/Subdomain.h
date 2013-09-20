@@ -266,7 +266,7 @@ public :
    Subdomain ( const LayerProps& theLayer );
 
    /// Destructor.
-   ~Subdomain ();
+   virtual ~Subdomain ();
 
 
    /// \brief Set the id of the sub-domain.

@@ -34,7 +34,6 @@
 #include "PVTCalculator.h"
 
 #include "MultiComponentFlowHandler.h"
-#include "Subdomain.h"
 
 
 //------------------------------------------------------------//

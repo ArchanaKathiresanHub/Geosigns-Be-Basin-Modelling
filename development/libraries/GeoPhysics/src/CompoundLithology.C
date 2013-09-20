@@ -1716,6 +1716,70 @@ double GeoPhysics::CompoundLithology::soilMechanicsPorosityDerivative ( const do
 //------------------------------------------------------------//
 
 
+double GeoPhysics::CompoundLithology::exponentialPorosityDerivativeWrtVes ( const double               ves, 
+                                                                            const double               maxVes,
+                                                                            const bool                 includeChemicalCompaction,
+                                                                            const double               chemicalCompactionTerm ) const {
+
+   if ( ves >= maxVes ) {
+      return -m_compactionincr;
+   } else {
+      return -m_compactiondecr;
+   }
+
+}
+
+double GeoPhysics::CompoundLithology::soilMechanicsPorosityDerivativeWrtVes ( const double               ves, 
+                                                                              const double               maxVes,
+                                                                              const bool                 includeChemicalCompaction,
+                                                                              const double               chemicalCompactionTerm ) const {
+
+
+   if ( ves >= maxVes ) {
+      double ves0 = referenceEffectiveStress ();
+
+      if ( ves < ves0 ) {
+         return 0.0;
+      } else {
+         double denominator = 1.0 + soilMechanicsPorosityFunction ( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+         return -m_soilMechanicsCompactionCoefficient / ves / ( denominator * denominator );
+      }
+
+   } else {
+
+      double surfaceVoidRatio = referenceVoidRatio ();
+      double porosityAtMinVes = surfaceVoidRatio / ( 1.0 + surfaceVoidRatio );
+      double porosityAtMaxVes = soilMechanicsPorosityFunction ( maxVes, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+
+      double derivative = PercentagePorosityReboundForSoilMechanics * ( porosityAtMaxVes - porosityAtMinVes ) / ( maxVes - referenceEffectiveStress ());
+
+      return derivative;
+   }
+
+}
+
+
+//------------------------------------------------------------//
+
+double GeoPhysics::CompoundLithology::computePorosityDerivativeWrtVes ( const double ves, 
+                                                                        const double maxVes,
+                                                                        const bool   includeChemicalCompaction,
+                                                                        const double chemicalCompactionTerm ) const {
+
+  double porosityDerivative;
+
+  if ( m_porosityModel == DataAccess::Interface::EXPONENTIAL_POROSITY ) {
+    porosityDerivative = exponentialPorosityDerivativeWrtVes ( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+  } else {
+    porosityDerivative = soilMechanicsPorosityDerivativeWrtVes ( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+  }
+
+  return porosityDerivative;
+}
+
+//------------------------------------------------------------//
+
+
 double GeoPhysics::CompoundLithology::computePorosityDerivativeWRTPressure ( const double ves, 
                                                                              const double maxVes,
                                                                              const bool   includeChemicalCompaction,

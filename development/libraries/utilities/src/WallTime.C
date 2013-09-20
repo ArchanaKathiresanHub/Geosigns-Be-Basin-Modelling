@@ -170,6 +170,16 @@ WallTime::Duration WallTime::operator*( const Duration & Left,
   return Result;
 }
 
+WallTime::Duration WallTime::operator/( const Duration & Left,
+                                        const double divisor ) {
+
+  Duration Result;
+
+  Result.durationValue = Left.durationValue / divisor;
+
+  return Result;
+}
+
 WallTime::Duration WallTime::operator+( const Duration Left,
                                         const Duration Right ) {
 
