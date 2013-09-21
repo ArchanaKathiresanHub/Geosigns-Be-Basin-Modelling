@@ -345,14 +345,14 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
     Max_VES      = ( Intermediate_Max_VES_Top * ( Number_Of_Segments - I ) + Intermediate_Max_VES_Bottom * I ) / Number_Of_Segments;
 
-//    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
-//    {
-//      Pore_Pressure_Bottom = Lithostatic_Pressure;
-//    }
-//    else
-//    {
+    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+    {
+      Pore_Pressure_Bottom = Lithostatic_Pressure;
+    }
+    else
+    {
       Pore_Pressure_Bottom = NumericFunctions::Minimum ( Hydrostatic_Pressure + Overpressure, Lithostatic_Pressure );
-//    }
+    }
 
     VES = ( Lithostatic_Pressure - Pore_Pressure_Bottom ) * MPa_To_Pa;
 

@@ -1636,7 +1636,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
 /*  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
 // We do noy want to "compute" the overpressure in the ice lithology
-// To be removed at some point as it is replaced by the code just above.
+// To be removed at some point as it is replaced by the code just below.
 
     for ( I = 1; I <= 8; I++ ) {
 
@@ -1657,13 +1657,13 @@ void Basin_Modelling::Assemble_Element_Pressure_System
   }*/
 
 
-  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) { // NLSAY3: We assume the solid is ice in this case
-// We do noy want to "compute" the overpressure in the ice lithology
+/*  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) { // NLSAY3: We assume the solid is ice in this case
+// We do noy want to "compute" the overpressure in the ice lithology - we want to impose it.
 
   ElementVector Dirichlet_Boundary_Values_Ice_Sheet;
 //  Dirichlet_Boundary_Values_Ice_Sheet.zero();
 
-  subtract(Current_Pl, Current_Ph, Dirichlet_Boundary_Values_Ice_Sheet);
+  subtract(Current_Pl, Current_Ph, Dirichlet_Boundary_Values_Ice_Sheet); // NLSAY3: redundant with PressureSolver.C ln 694.
 
     for ( I = 1; I <= 8; I++ ) {
 
@@ -1681,7 +1681,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System
 
 
     return;
-  }
+  }*/
 
 
   for ( I = 1; I <= 8; I++ ) {

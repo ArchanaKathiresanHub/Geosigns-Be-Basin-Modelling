@@ -1592,7 +1592,7 @@ void LayerProps::SetIncludedNodeArray ( const Boolean2DArray& Valid_Needle ) {
 
       if ( Valid_Needle ( I, J )) {
 
-        if ( getLithology ( I, J ) -> surfacePorosity () == 0.0 || ( fluid->SwitchPermafrost() && fluid->density ( 0,  0.1 ) > getLithology ( I, J )->density() ) ) { // NLSAY3: Ice sheet modeling
+        if ( getLithology ( I, J ) -> surfacePorosity () == 0.0 ) { //|| ( fluid->SwitchPermafrost() && fluid->density ( 0,  0.1 ) > getLithology ( I, J )->density() ) ) { // NLSAY3: Ice sheet modeling
 
           for ( K = zStart; K < zEnd; K++ ) {
             includedNodeArray ( K, J, I ) = 0.0;
