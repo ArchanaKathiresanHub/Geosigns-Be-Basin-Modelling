@@ -39,7 +39,7 @@ GeoPhysics::FluidType::FluidType ( Interface::ProjectHandle * projectHandle, dat
    m_precomputedViscosityTerm1 = 0.42 * term * term + 0.045;
    m_precomputedViscosityTerm2 = 1.65 + 91.9 * m_salinity * m_salinity * m_salinity;
 
-   m_omega = 1.0;
+   m_omega = 1.5;
 
    double temperatureValues [ 5 ] = { -40.0, -30.0, -20.0, -10.0, 0.0 };
    double densityValues [ 5 ] = { 922.8, 921.6, 920.3, 918.7, 916.7 };
@@ -150,7 +150,9 @@ double GeoPhysics::FluidType::getSolidusTemperature ( const double liquidusTempe
    
    // Ts = Tl - omega * sqrt( - log( solidFractionForFrozen ))
    // solidFractionForFrozen = 0.01; omega = 1
-   return liquidusTemperature - 2.14596603;
+   //return liquidusTemperature - 2.14596603; // omega = 1
+   //return liquidusTemperature - 4.29193205; // omega = 2
+   return liquidusTemperature - 3.21894904; // omega = 1.5
 }
 
 double GeoPhysics::FluidType::getConstantDensity () const {
@@ -506,8 +508,7 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
    if( m_projectHandle->getPermafrost() ) {
       
       const double liquidusTemperature = getLiquidusTemperature( temperature, NumericFunctions::Maximum ( 0.0, pressure ) );
-      const double solidusTemperature  = liquidusTemperature - 10;
-//getSolidusTemperature( liquidusTemperature ); // NLSAY3: improve stability by extending the temperature range
+      const double solidusTemperature  = liquidusTemperature - 10.0; // = getSolidusTemperature( liquidusTemperature ); // NLSAY3: improve stability by extending the temperature range
       
       if( temperature >= liquidusTemperature ) {
          return 1.0;
