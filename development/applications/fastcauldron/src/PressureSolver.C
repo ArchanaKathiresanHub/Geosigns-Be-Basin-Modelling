@@ -694,11 +694,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 	    if ( ( Current_Layer->fluid->density ( 0,  0.1 ) > Element_Lithology->density() ) && ( Current_Layer->fluid->SwitchPermafrost() ) ) { // NLSAY3:Po=Pl-Ph in an ice sheet (by definition).
 
             subtract(Current_Pl, Current_Ph, Current_Po);
-	    Current_Element_VES.zero();
-	    Current_Element_Max_VES.zero();
             subtract(Current_Pl, Previous_Ph, Previous_Po);
-            Previous_Element_VES.zero();
-            Previous_Element_Max_VES.zero();
 
             }
 
