@@ -28,3 +28,16 @@ add_external_package_info(
       DEPENDENCY "Runtime"
 )
 
+# Probably, this object file was built with help from /apps/3rdparty/flexlm/v9.2.3/root/machind
+add_external_package_info(
+      CAPABILITY FlexLM
+      NAME    "FlexLM"
+      VENDOR  "Flexera Software"
+      VERSION "9.2.3"
+      LICENSE_TYPE "Commercial"
+      LICENSE_FILE ""
+      URL "http://www.flexerasoftware.com/products/entitlement-management/flexnet-producer-suite-software-vendors/flexnet-licensing/"
+      DESCRIPTION ""
+      DEPENDENCY "Runtime"
+)
+
