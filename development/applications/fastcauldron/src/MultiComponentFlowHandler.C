@@ -176,10 +176,13 @@ MultiComponentFlowHandler::MultiComponentFlowHandler () {
    m_timeStepSubSampleFlux = false;
    m_applyPvtAveraging = false;
 
-   m_interpolatePermeability = false;
-   m_interpolatePoreVolume = false;
-   m_interpolateFaceArea = false;
-   m_interpolateSourceTerm = false;
+   m_interpolatePermeability = true;
+   m_interpolatePoreVolume = true;
+   m_interpolateFaceArea = true;
+   m_interpolateSourceTerm = true;
+
+   // Use of the estimated saturation is not enabled by default yet.
+   // More testing of this is needed.
    m_useEstimatedSaturation = false;
 
    m_timeStepSmoothingFactor = DefaultDarcyTimeStepSmoothingFactor;
@@ -254,11 +257,12 @@ void MultiComponentFlowHandler::initialise () {
    PetscBool doNotIncludeWaterSaturationInOp = PETSC_FALSE;
    PetscBool includeCapillaryPressureInDarcy = PETSC_FALSE;
    PetscBool includePvtAveraging = PETSC_FALSE;
-   PetscBool includePermeabilityInterpolation = PETSC_FALSE;
-   PetscBool includePoreVolumeInterpolation = PETSC_FALSE;
-   PetscBool includeFaceAreaInterpolation = PETSC_FALSE;
-   PetscBool includeSourceTermInterpolation = PETSC_FALSE;
-   PetscBool includeAllInterpolation = PETSC_FALSE;
+
+   PetscBool notIncludePermeabilityInterpolation = PETSC_FALSE;
+   PetscBool notIncludePoreVolumeInterpolation = PETSC_FALSE;
+   PetscBool notIncludeFaceAreaInterpolation = PETSC_FALSE;
+   PetscBool notIncludeSourceTermInterpolation = PETSC_FALSE;
+   PetscBool removeAllInterpolation = PETSC_FALSE;
    PetscBool useSaturationEstimate = PETSC_FALSE;
 
    double     ageToStopHCSource;
@@ -335,11 +339,12 @@ void MultiComponentFlowHandler::initialise () {
 
    PetscOptionsHasName ( PETSC_NULL, "-mcfpvtaverage",  &includePvtAveraging );
 
-   PetscOptionsHasName ( PETSC_NULL, "-mcfperminterp", &includePermeabilityInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfpvinterp", &includePoreVolumeInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcffainterp", &includeFaceAreaInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfsrterminterp",&includeSourceTermInterpolation );
-   PetscOptionsHasName ( PETSC_NULL, "-mcfallinterp",  &includeAllInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfnoperminterp", &notIncludePermeabilityInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfnopvinterp", &notIncludePoreVolumeInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfnofainterp", &notIncludeFaceAreaInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfnosrterminterp",&notIncludeSourceTermInterpolation );
+   PetscOptionsHasName ( PETSC_NULL, "-mcfnointerp",  &removeAllInterpolation );
+
    PetscOptionsHasName ( PETSC_NULL, "-mcfusesatest", &useSaturationEstimate );
    PetscOptionsGetReal ( PETSC_NULL, "-mcfsorscal", &newResidualHcSaturationScaling, &residualHcSaturationScalingChanged );
 
@@ -530,28 +535,19 @@ void MultiComponentFlowHandler::initialise () {
    m_includeCapillaryPressureInDarcy = static_cast<bool>(includeCapillaryPressureInDarcy);
    m_applyPvtAveraging = static_cast<bool>(includePvtAveraging);
 
-   if ( includeAllInterpolation ) {
-      m_interpolatePermeability = true;
-      m_interpolatePoreVolume = true;
-      m_interpolateFaceArea = true;
-      m_interpolateSourceTerm = true;
+   if ( removeAllInterpolation ) {
+      m_interpolatePermeability = false;
+      m_interpolatePoreVolume = false;
+      m_interpolateFaceArea = false;
+      m_interpolateSourceTerm = false;
    } else {
-      m_interpolatePermeability = static_cast<bool>(includePermeabilityInterpolation);
-      m_interpolatePoreVolume = static_cast<bool>(includePoreVolumeInterpolation);
-      m_interpolateFaceArea = static_cast<bool>(includeFaceAreaInterpolation);
-      m_interpolateSourceTerm = static_cast<bool>(includeSourceTermInterpolation);
+      m_interpolatePermeability = not static_cast<bool>(notIncludePermeabilityInterpolation);
+      m_interpolatePoreVolume = not static_cast<bool>(notIncludePoreVolumeInterpolation);
+      m_interpolateFaceArea = not static_cast<bool>(notIncludeFaceAreaInterpolation);
+      m_interpolateSourceTerm = not static_cast<bool>(notIncludeSourceTermInterpolation);
    }
 
    m_useEstimatedSaturation = static_cast<bool>(useSaturationEstimate);
-
-#if 0
-   // Leave these here so that they can be enabled easily when running regression tests or other testing.
-   m_interpolatePermeability = true;
-   m_interpolatePoreVolume = true;
-   m_interpolateFaceArea = true;
-   m_interpolateSourceTerm = true;
-   m_useEstimatedSaturation = true;
-#endif
 
    if ( not iNodeWanted ) {
       m_debugINode = -1;
