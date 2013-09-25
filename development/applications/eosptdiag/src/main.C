@@ -1,4 +1,4 @@
-/// Copyright 2011, Shell Global Solutions International B.V.
+// Copyright 2013, Shell Global Solutions International B.V.
 // All rights reserved. This document and the data and information contained herein is CONFIDENTIAL.
 // Neither the whole nor any part of this document may be copied, modified or distributed in any
 // form without the prior written consent of the copyright owner.
@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include <string>
 #include <time.h>
@@ -16,9 +17,16 @@
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
 
-#define PTDIAG_VERSION "3.5"
+#define PTDIAG_VERSION "3.6"
 
-// Changes history
+// Changes history:
+//
+// Version 3.6
+// Added:
+//   -pslice <Pressure val> [-pslice <Another pressure val>]
+//   -tslice <Temperature val> [-tslice <Another temperature val>]
+//   Creates file with 1D horisontal/vertical slices of PT phase diagram for density/viscosity values
+//
 // Version 3.5
 // Updated:
 //    algorithm for tracing countour lines. It makes search for starting point as recursive dividing P/T rectangle
@@ -36,7 +44,8 @@
 //  -relcoef <value> parameter which could redefine relaxation coeff for Newton iterations in nonlinear solver in EosPack
 //
 // Version 3.3 
-// - Added [-prop dens,visc] parameter which allows to calculate and save to .m file phase densities and viscosities
+// Added:
+// -prop dens,visc parameter which allows to calculate and save to .m file phase densities and viscosities values
 // for each point on P/T grid. TotDensity, LiqDensity, VapDensity, LiqViscosity, VapViscosity matrices 
 // will be wirtten to .m file. For undefined values 0.0 value is used.
 
@@ -53,6 +62,10 @@ int  g_CountourLinesNum = 11;
 
 bool g_DumpProperty = false;
 bool g_PropList[2] = {false, false}; // density, viscosity
+
+// Create 1D plot for horisontal/vertical line in PT diagram
+std::vector<double>  g_valPSlice;
+std::vector<double>  g_valTSlice;
 
 std::string g_mFilePrefix;
 
@@ -97,16 +110,18 @@ static void showUsage( const std::string & msg )
       << "\t[-mfile <mFilePrefix>]     Use given name as file name for Matlab .m file.\n"
       << "                             Any negative value will set algorithm to the default behaviour (A/B doesn't be used)\n"
       << "\t[-tuneab [<filename>] ]    Do search for the value of A/B term in such way that single phases division line will go through the critical point\n"
-      << "\t[-massthresh val]          Drop component if it mass fraction less then given value in percents\n"
+      << "\t[-massthresh <val>]        Drop component if it mass fraction less then given value in percents\n"
       << "\t[-batch]                   Do not generate pause command in octave file to process bunch of compositions in one go\n"
-      << "\t[-stoptol val]             Set stop tolerance for nonlinear solver of EosPack to the given value (default is 1e-6)\n"
-      << "\t[-iters val]               Set max. iterations number for nonlinear solver of EosPack to the given value (default is 400)\n"
-      << "\t[-relcoef val]             Set relaxation coefficient for Newton nonlinear solver of EosPack to the given value (default is 1.0, must be 0 < RelCoef <= 1.0)\n"
+      << "\t[-stoptol <val>]           Set stop tolerance for nonlinear solver of EosPack to the given value (default is 1e-6)\n"
+      << "\t[-iters <val>]             Set max. iterations number for nonlinear solver of EosPack to the given value (default is 400)\n"
+      << "\t[-relcoef <val>]           Set relaxation coefficient for Newton nonlinear solver of EosPack to the given value (default is 1.0, must be 0 < RelCoef <= 1.0)\n"
       << "\t[-pvtsim]                  Dump composition into csv file in order of components suitable for importing into PVTsim\n"
+      << "\t[-pslice <val MPa>]        Create 1D horisontal (constant P) slice of PT diagram for given pressure value and densit/viscosity/liquid fraction properties\n"
+      << "\t[-tslice <val K>]          Create 1D vertical (constant T) slice of PT diagram for given temperature and density/viscosity/liquide fraction  properties\n"
       << ""                            << "\n"
-      << "\t-project projectname       Name of the project file\n"
-      << "\t[-trap trapname]           Define trap for which diagram will be build\n"
-      << "\t[-age]                     Define for which trap age diagram will be build\n"
+      << "\t-project <projectname>     Name of the project file\n"
+      << "\t[-trap <trapname>]         Define trap for which diagram will be build\n"
+      << "\t[-age <val>]               Define for which trap age diagram will be build\n"
       << "\t  or:\n"
       << "\t-compos filename           Use composition from given file. Format of this file should be the same as for EosPackDemo\n"
       << "\t  or:\n"
@@ -141,7 +156,8 @@ int main( int argc, char ** argv )
    for ( int i = 1; i < argc; ++i )
    {  
       std::string prm( argv[i] );
-      std::string val( i < argc - 1 ? argv[i+1] : "" );
+      std::string val(  i < argc - 1 ? argv[i+1] : "" );
+      std::string val2( i < argc - 2 ? argv[i+2] : "" );
 
       if ( prm == "-project" )
       {
@@ -187,6 +203,8 @@ int main( int argc, char ** argv )
       else if ( prm == "-tol"         ) { g_Tol              = atof( val.c_str() ); ++i; }
       else if ( prm == "-relcoef"     ) { g_NewtonRelCoef    = atof( val.c_str() ); ++i; }
       else if ( prm == "-pvtsim"      ) { g_exportToPVTsim   = true; }
+      else if ( prm == "-pslice"      ) { g_valPSlice.push_back( atof( val.c_str() ) ); ++i; }
+      else if ( prm == "-tslice"      ) { g_valTSlice.push_back( atof( val.c_str() ) ); ++i; }
       else if ( prm == "-batch"       ) { g_IsBatch          = true; }
       else if ( prm == "-dynamo"      ) { genDynamo          = true; }
       else if ( prm == "-dataonly"    ) { g_DataOnly         = true; }
@@ -376,9 +394,10 @@ int main( int argc, char ** argv )
 
 // Set of auxillary functions to print in m file data from PTDiagramCalculator
 static void dumpPTGrids( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder );
-static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> & masses );
+static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> masses );
 static void dumpLiquidFractionArray( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
-static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> & masses );
+static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & masses );
+static void dumpPropertySlice( std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition );
 static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<int> & colors );
 static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder );
 static void dumpSpecialPoints( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
@@ -465,6 +484,8 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
 
    // dump data for composition
    dumpCompositionInfo( ofs, diagBuilder, masses );
+
+   if ( g_valPSlice.size() || g_valTSlice.size() ) dumpPropertySlice( diagBuilder, masses );
 
    if ( !g_DataOnly && !g_tuneAB ) ofs << "grid on\n";
    if ( !g_DataOnly && !g_tuneAB ) ofs << "hold off\n\n";
@@ -732,7 +753,7 @@ static void dumpPTGrids( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator>
 }
 
 // Dump info about composition
-static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> & masses )
+static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> masses )
 {
    ofs << "%Hydrocarbons composition masses\n";
    ofs << "Composition = [\n";
@@ -830,7 +851,7 @@ static void dumpLiquidFractionArray( std::ofstream & ofs, std::auto_ptr<PTDiagra
    }
 }
 
-static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, std::vector<double> & composition )
+static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition )
 {
    const std::vector<double> & gridT = diagBuilder->getGridT();
    const std::vector<double> & gridP = diagBuilder->getGridP();
@@ -961,6 +982,184 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagr
       }
       ofs << "];\n\n";
    }
+}
+
+static void dumpPropertySlice( std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition )
+{
+   const std::vector<double> & gridT = diagBuilder->getGridT();
+   const std::vector<double> & gridP = diagBuilder->getGridP();
+
+   // Allocate arrays to keep flasher results alon slice
+   std::vector<double> viscLiq( std::max( gridT.size(), gridP.size() ), 0.0 );
+   std::vector<double> viscVap( std::max( gridT.size(), gridP.size() ), 0.0 );
+
+   std::vector<double> densTot( std::max( gridT.size(), gridP.size() ), 0.0 );
+   std::vector<double> densVap( std::max( gridT.size(), gridP.size() ), 0.0 );
+   std::vector<double> densLiq( std::max( gridT.size(), gridP.size() ), 0.0 );
+   std::vector<double> liqFrac( std::max( gridT.size(), gridP.size() ), 0.0 );
+
+   const int iNc     = CBMGenerics::ComponentManager::NumberOfSpecies;
+   const int iNp     = CBMGenerics::ComponentManager::NumberOfPhases;
+   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
+   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+
+   assert( composition.size() == iNc );
+
+   // change the default behaviour for labeling phases for high temperature span
+   if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().setCritAoverBterm( g_ABTerm ); }
+
+   // increase precision for nonlinear solver
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters( g_MaxIters, g_StopTol, g_NewtonRelCoef ); 
+
+   std::ofstream ofs;
+   std::ostringstream oss;
+   if ( !g_mFilePrefix.empty() ) oss << g_mFilePrefix << "_"; 
+   oss << "PTSlicesSet.m";
+
+   // run over given values for P slices and generate 1D plots
+   for ( std::vector<double>::const_iterator pit = g_valPSlice.begin(); pit != g_valPSlice.end(); ++pit )
+   {
+      if ( !ofs.is_open() ) ofs.open( oss.str().c_str(), ios_base::out | ios_base::trunc );
+
+      for ( size_t j = 0; j < gridT.size(); ++j )
+      {
+         // arrays for passing to flasher
+         double masses[iNc];
+         double phaseMasses[iNp][iNc];
+         double phaseDens[iNp] = {1.0e-15, 1.0e-15};
+         double phaseVisc[iNp] = {0.0, 0.0};
+
+         for ( int ic = 0; ic < iNc; ++ic )
+         {
+            masses[ic] = composition[ic];
+            for( int ip = 0; ip < iNp; ++ip )
+            {
+               phaseMasses[ip][ic] = 0.0;
+            }
+         }
+         // Call flasher to get compositions for phases
+         pvtFlash::EosPack::getInstance().computeWithLumping( gridT[j], (*pit) * 1e6, masses, phaseMasses, phaseDens, phaseVisc );
+         
+         double massLiquid = std::accumulate( phaseMasses[iLiquid], phaseMasses[iLiquid] + iNc, 1.0e-15 );
+         double massVapour = std::accumulate( phaseMasses[iVapour], phaseMasses[iVapour] + iNc, 1.0e-15 );
+
+         double volLiquid = massLiquid / phaseDens[iLiquid];
+         double volVapour = massVapour / phaseDens[iVapour];
+
+         densTot[j] = (massVapour + massLiquid) / (volVapour + volLiquid);
+         densVap[j] = phaseDens[iVapour] == 1000.0 ? 0.0 : phaseDens[iVapour];
+         densLiq[j] = phaseDens[iLiquid] == 1000.0 ? 0.0 : phaseDens[iLiquid];
+         viscVap[j] = phaseVisc[iVapour] == 1000.0 ? 0.0 : phaseVisc[iVapour];
+         viscLiq[j] = phaseVisc[iLiquid] == 1000.0 ? 0.0 : phaseVisc[iLiquid];
+         liqFrac[j] = massLiquid / ( massLiquid + massVapour );
+      }
+
+      ofs << "\n%1D slice for P = " <<  *pit << " [MPa]\n";
+      ofs << "P_" << pit - g_valPSlice.begin() << "_val = " << (*pit) << ";\n\n";
+
+      ofs << "%Grid along T\n";
+      ofs << "sliceP_T_" << pit - g_valPSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridT.size(); ++j ) ofs << gridT[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Vapour density\n";
+      ofs << "sliceP_vapDens_" << pit - g_valPSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridT.size(); ++j ) ofs << densVap[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Liquid density\n";
+      ofs << "sliceP_liqDens_" << pit - g_valPSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridT.size(); ++j ) ofs << densLiq[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Total density\n";
+      ofs << "sliceP_totDens_" << pit - g_valPSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridT.size(); ++j ) ofs << densTot[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Vapour viscosity\n";
+      ofs << "sliceP_vapVisc_" << pit - g_valPSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridT.size(); ++j ) ofs << viscVap[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Liquid viscosity\n";
+      ofs << "sliceP_liqVisc_" << pit - g_valPSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridT.size(); ++j ) ofs << viscLiq[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Liquid fraction\n";
+      ofs << "sliceP_liqFrac_" << pit - g_valPSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridT.size(); ++j ) ofs << liqFrac[j] << " "; ofs << "];\n\n";
+   }
+   
+   // Do flashing once more for each point of the T grid to collect density/viscosity values
+   for ( std::vector<double>::const_iterator pit = g_valTSlice.begin(); pit != g_valTSlice.end(); ++pit )
+   {
+      if ( !ofs.is_open() ) ofs.open( oss.str().c_str(), ios_base::out | ios_base::trunc );
+
+      for ( size_t j = 0; j < gridP.size(); ++j )
+      {
+         // arrays for passing to flasher
+         double masses[iNc];
+         double phaseMasses[iNp][iNc];
+         double phaseDens[iNp] = {1.0e-15, 1.0e-15};
+         double phaseVisc[iNp] = {0.0, 0.0};
+
+         for ( int ic = 0; ic < iNc; ++ic )
+         {
+            masses[ic] = composition[ic];
+            for( int ip = 0; ip < iNp; ++ip )
+            {
+               phaseMasses[ip][ic] = 0.0;
+            }
+         }
+         // Call flasher to get compositions for phases
+         pvtFlash::EosPack::getInstance().computeWithLumping( (*pit), gridP[j], masses, phaseMasses, phaseDens, phaseVisc );
+         double massLiquid = std::accumulate( phaseMasses[iLiquid], phaseMasses[iLiquid] + iNc, 1.0e-15 );
+         double massVapour = std::accumulate( phaseMasses[iVapour], phaseMasses[iVapour] + iNc, 1.0e-15 );
+
+         double volLiquid = massLiquid / phaseDens[iLiquid];
+         double volVapour = massVapour / phaseDens[iVapour];
+
+         densTot[j] = (massVapour + massLiquid) / (volVapour + volLiquid);
+         densVap[j] = phaseDens[iVapour] == 1000.0 ? 0.0 : phaseDens[iVapour];
+         densLiq[j] = phaseDens[iLiquid] == 1000.0 ? 0.0 : phaseDens[iLiquid];
+         viscVap[j] = phaseVisc[iVapour] == 1000.0 ? 0.0 : phaseVisc[iVapour];
+         viscLiq[j] = phaseVisc[iLiquid] == 1000.0 ? 0.0 : phaseVisc[iLiquid];
+         liqFrac[j] = massLiquid / ( massLiquid + massVapour );
+      }
+
+      ofs << "\n%1D slice for T = " <<  *pit << " [K]\n";
+      ofs << "T_" << pit - g_valTSlice.begin() << "_val = " << (*pit) << ";\n\n";
+
+      ofs << "%Grid along P\n";
+      ofs << "sliceT_P_" << pit - g_valTSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridP.size(); ++j ) ofs << gridP[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Vapour density\n";
+      ofs << "sliceT_vapDens_" << pit - g_valTSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridP.size(); ++j ) ofs << densVap[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Liquid density\n";
+      ofs << "sliceT_liqDens_" << pit - g_valTSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridP.size(); ++j ) ofs << densLiq[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Total density\n";
+      ofs << "sliceT_totDens_" << pit - g_valTSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridP.size(); ++j ) ofs << densTot[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Vapour viscosity\n";
+      ofs << "sliceT_vapVisc_" << pit - g_valTSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridP.size(); ++j ) ofs << viscVap[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Liquid viscosity\n";
+      ofs << "sliceT_liqVisc_" << pit - g_valTSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridP.size(); ++j ) ofs << viscLiq[j] << " "; ofs << "];\n\n";
+
+      ofs << "\n%Liquid fraction\n";
+      ofs << "sliceT_liqFrac_" << pit - g_valTSlice.begin() << " = [ ";
+      for ( size_t j = 0; j < gridP.size(); ++j ) ofs << liqFrac[j] << " "; ofs << "];\n\n";
+   }
+
+   // revert back flasher settings
+   if ( g_ABTerm > 0 ) { pvtFlash::EosPack::getInstance().resetToDefaultCritAoverBterm(); }
+   pvtFlash::EosPack::getInstance().setNonLinearSolverConvParameters(); // reset to default
+
+   if ( ofs.is_open() ) ofs.close();
 }
 
 static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<int> & colors )
