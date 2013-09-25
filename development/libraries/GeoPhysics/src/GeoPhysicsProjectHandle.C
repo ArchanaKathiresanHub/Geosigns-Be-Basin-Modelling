@@ -916,8 +916,9 @@ bool GeoPhysics::ProjectHandle::createMantleHeatFlow () {
 
 bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
-   bool status = true;
    if ( m_isALCMode ) {
+      bool status = true;
+
       unsigned int i;
       unsigned int j;
 
@@ -1055,19 +1056,26 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
       crustMeltOnsetMap->restoreData( false, true );
       initialCrustalThickness = 0;
 
+      int globalStatus = true;
+
+      getMinValue( status, globalStatus );
+      
       if( not onsetStatus ) {
-         getMessageHandler ().printLine ( " MeSsAgE ERROR  Present day continental crustal thickness is equal to crust thickness at melt onset." );
+         getMessageHandler ().printLine ( " MeSsAgE WARNING  Present day continental crustal thickness is equal to crust thickness at melt onset." );
       }
       if( not basaltStatus ) {
-         getMessageHandler ().printLine ( " MeSsAgE ERROR  Calculated basalt has some non-positive values." );
+         getMessageHandler ().printLine ( " MeSsAgE WARNING  Calculated basalt has some non-positive values." );
       }
+      if( not globalStatus ) {
+         getMessageHandler ().printLine ( " MeSsAgE ERROR  Crust or basalt has some non-positive thickness values." );
+         getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive." );
+      }
+      return globalStatus;
    }
-   if( not status ) {
-      getMessageHandler ().printLine ( " MeSsAgE ERROR  Crust or basalt has some non-positive thickness values." );
-      getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive" );      
-   }
-   return status;
+   return true;
 }
+//------------------------------------------------------------//
+
 bool GeoPhysics::ProjectHandle::createCrustThickness () {
 
    unsigned int i;
@@ -1170,14 +1178,14 @@ bool GeoPhysics::ProjectHandle::createCrustThickness () {
       getMaxValue ( &localInitialCrustThickness, &initialCrustalThickness );
 
       if( initialCrustalThickness < 0 ) {
-         if( getRank() == 0 ) {
-            if( flag ) {
-               cout << " WARNING: Initial crustal thickness is negative!" << endl;
-            } else {
-               cout << " WARNING: Initial crustal thickness is not defined at the age of basin!" << endl;
-            }      
+         if( flag ) {
+            getMessageHandler ().printLine( " WARNING: Initial crustal thickness is negative!" );
+         } else {
+            getMessageHandler ().printLine( " WARNING: Initial crustal thickness is not defined at the age of basin!" );
          }
+
          getMaxValue ( &localMaximumCrustThickness, &initialCrustalThickness );
+
          if( initialCrustalThickness < 0 ) {
             getMessageHandler ().printLine (  " MeSsAgE ERROR  Could not determine the initial crustal thickness." );
             return false;
