@@ -87,6 +87,8 @@ public:
       if ( attributeId > -1 )
       {
          status = h5File->writeAttribute (attributeId, dataSpace.space_id(), array, pList); 
+      } else {
+         H5Eprint2 ( H5E_DEFAULT, 0 );
       }
 
       return status;

@@ -176,7 +176,8 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
 
    if (datasetId < 0)
    {
-      cerr << "creating dataset " << dataname <<  " failed" << endl;
+      H5Eprint2 ( H5E_DEFAULT, 0 );
+      cerr << "creating dataset " << dataname <<  " failed, with error code: " << datasetId << endl;
    }
 
    return datasetId;

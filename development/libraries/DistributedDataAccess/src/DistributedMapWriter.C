@@ -262,7 +262,8 @@ bool DistributedMapWriter::writeAttribute (const string & dataSetName,
    }
    else
    {
-      cout << endl << "DistributedMapWriter::writeAttribute Error: Cannot open or create dataset : " << dataSetName << endl;
+      H5Eprint2 ( H5E_DEFAULT, 0 );
+      cerr << endl << "DistributedMapWriter::writeAttribute Error: Cannot open dataset : " << dataSetName << endl;
       return false;
    }
 }
