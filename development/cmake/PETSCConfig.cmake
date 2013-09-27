@@ -36,7 +36,13 @@ add_external_package_info(
     LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.4.1.txt"
     URL          "http://www.mcs.anl.gov/petsc/"
     DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
-    DEPENDENCY   "Runtime"
+    REQUIRED_AT  "Runtime"
+    COUNTRY_OF_ORIGIN "USA"
+    SHIPPED      "Yes"
+    INCLUSION_TYPE "Static Link"
+    USEABLE_STAND_ALONE "No"
+    CONTAINS_CRYPTO "No"
+    ECCN         "EAR99"
 )                   
 
 

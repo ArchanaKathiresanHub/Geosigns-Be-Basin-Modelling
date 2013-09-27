@@ -27,7 +27,14 @@ if (Boost_FOUND)
       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.33.0.txt"
       URL "http://boost.org"
       DESCRIPTION "Free peer-reviewed portable C++ source libraries"
-      DEPENDENCY "Runtime"
+      REQUIRED_AT  "Runtime"
+      COUNTRY_OF_ORIGIN ""
+      SHIPPED      "Yes"
+      INCLUSION_TYPE "Static Link"
+      USEABLE_STAND_ALONE "No"
+      CONTAINS_CRYPTO "No"
+      ECCN         "EAR99"
+      ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/2013.10-ECCN_Discussion_with_George_Jolly.msg"
    )
 endif()
 

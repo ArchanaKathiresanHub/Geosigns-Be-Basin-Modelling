@@ -26,7 +26,13 @@ if(DOXYGEN_FOUND)
       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/gpl-2.0.txt"
       URL "http://www.doxygen.org"
       DESCRIPTION "Doxygen is the defacto standard tool for generating documentation from annotated C++ sources"
-      DEPENDENCY "Build"
+      REQUIRED_AT  "Build"
+      COUNTRY_OF_ORIGIN "The Netherlands"
+      SHIPPED      "No"
+      INCLUSION_TYPE "NA"
+      USEABLE_STAND_ALONE "No"
+      CONTAINS_CRYPTO "Unknown"
+      ECCN         "Unknown"
    )
 endif()
 

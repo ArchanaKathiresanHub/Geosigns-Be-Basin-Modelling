@@ -22,7 +22,13 @@ add_external_package_info(
       LICENSE_FILE "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/COPYRIGHT"
       URL "http://www.mcs.anl.gov/project/mpich-high-performance-portable-implementation-mpi"
       DESCRIPTION "A High performance Portable Implementation of MPI"
-      DEPENDENCY "Runtime"
+      REQUIRED_AT  "Runtime"
+      COUNTRY_OF_ORIGIN "USA"
+      SHIPPED      "Yes"
+      INCLUSION_TYPE "Static Link"
+      USEABLE_STAND_ALONE "No"
+      CONTAINS_CRYPTO "No"
+      ECCN         "Unknown"
 )
       
 

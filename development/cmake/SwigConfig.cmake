@@ -26,7 +26,13 @@ add_external_package_info(
        LICENSE_FILE "${SWIG_DIR}/LICENSE"
        URL      "http://www.swig.org/"
        DESCRIPTION "Connects C/C++/Objective C to some high-level programming languages."
-       DEPENDENCY "Build"
+       REQUIRED_AT  "Build"
+       COUNTRY_OF_ORIGIN "USA"
+       SHIPPED      "No"
+       INCLUSION_TYPE "NA"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
 )                   
 
 include(UseSWIG)

@@ -55,7 +55,13 @@ if (UNIX)
        LICENSE_FILE "${INTEL_CXX_ROOT}/Documentation/en_US/clicense"
        URL          "http://software.intel.com/en-us/intel-compilers"
        DESCRIPTION  "Intel Compilers"
-       DEPENDENCY   "Build"
+       REQUIRED_AT  "Build"
+       COUNTRY_OF_ORIGIN "USA"
+       SHIPPED      "No"
+       INCLUSION_TYPE "NA"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "Unknown"
+       ECCN         "Unknown"
   )                      
 
 else()
@@ -68,7 +74,7 @@ else()
        # On Windows: Use Microsoft Visual C++ compiler
        #
 	   	   
-	   add_external_package_info( 
+   add_external_package_info( 
           CAPABILITY   Compiler
           NAME         "Visual C/C++"
           VENDOR       "Microsoft"
@@ -77,7 +83,13 @@ else()
           LICENSE_FILE ""
           URL          "http://www.microsoft.com/visualstudio"
           DESCRIPTION  "Microsoft Visual Studio"
-          DEPENDENCY   "Build"
+          REQUIRED_AT  "Build"
+          COUNTRY_OF_ORIGIN "USA"
+          SHIPPED      "No"
+          INCLUSION_TYPE "NA"
+          USEABLE_STAND_ALONE "No"
+          CONTAINS_CRYPTO "Unknown"
+          ECCN         "Unknown"
        )                      
 	else()
 	   message(WARNING "Unknown compiler on unknown OS is used. It is not covered by the generated third party package list")

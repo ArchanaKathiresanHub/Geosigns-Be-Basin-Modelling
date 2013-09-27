@@ -54,7 +54,13 @@ add_external_package_info(
       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Hdf5-${HDF5_VERSION}.txt"
       URL "http://www.hdfgroup.org/HDF5/"
       DESCRIPTION "Data model, library, and file format for storing and managing data in scientific applications"
-      DEPENDENCY "Runtime"
+      REQUIRED_AT  "Runtime"
+      COUNTRY_OF_ORIGIN "USA"
+      SHIPPED      "Yes"
+      INCLUSION_TYPE "Static Link"
+      USEABLE_STAND_ALONE "No"
+      CONTAINS_CRYPTO "No"
+      ECCN         "EAR99"
 )
       
 add_environment_path("${HDF5_serial_HOME}/bin")

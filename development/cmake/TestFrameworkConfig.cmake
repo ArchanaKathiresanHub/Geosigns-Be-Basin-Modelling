@@ -32,7 +32,13 @@ add_external_package_info(
        LICENSE_FILE "${PROJECT_SOURCE_DIR}/../3rdparty/gmock-1.6.0/gtest/COPYING"
        URL      "https://code.google.com/p/googletest"
        DESCRIPTION "Google's Unit Testing framework"
-       DEPENDENCY "Test"
+       REQUIRED_AT  "Test"
+       COUNTRY_OF_ORIGIN "USA"
+       SHIPPED      "No"
+       INCLUSION_TYPE "NA"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
 )                   
 
 add_external_package_info( 
@@ -44,7 +50,13 @@ add_external_package_info(
        LICENSE_FILE "${PROJECT_SOURCE_DIR}/../3rdparty/gmock-1.6.0/COPYING"
        URL      "https://code.google.com/p/googlemock"
        DESCRIPTION "Google's Mocking framework"
-       DEPENDENCY "Test"
+       REQUIRED_AT  "Test"
+       COUNTRY_OF_ORIGIN "USA"
+       SHIPPED      "No"
+       INCLUSION_TYPE "NA"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
 )                   
                 
 set(TESTFRAMEWORK_FOUND TRUE)

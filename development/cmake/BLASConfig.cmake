@@ -39,6 +39,13 @@ add_external_package_info(
        LICENSE_FILE "${INTEL_CXX_ROOT}/Documentation/en_US/clicense"
        URL          "http://software.intel.com/en-us/intel-mkl"
        DESCRIPTION  "Intel Math Kernel Library"
-       DEPENDENCY "Runtime"
+       REQUIRED_AT  "Runtime"
+       COUNTRY_OF_ORIGIN "USA"
+       SHIPPED      "Yes"
+       INCLUSION_TYPE "Static Link"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "5D992"
+       ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/2013.10-ECCN_Discussion_with_George_Jolly.msg"
 )                   
 

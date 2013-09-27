@@ -25,6 +25,12 @@ add_external_package_info(
       LICENSE_FILE "/glb/home/ksaho3/FunctionParser/src/lgpl.txt"
       URL "http://warp.povusers.org/FunctionParser/"
       DESCRIPTION "Function Parser for C++"
-      DEPENDENCY "Runtime"
+      REQUIRED_AT  "Runtime"
+      COUNTRY_OF_ORIGIN "Finland"
+      SHIPPED      "Yes"
+      INCLUSION_TYPE "Static Link"
+      USEABLE_STAND_ALONE "No"
+      CONTAINS_CRYPTO "No"
+      ECCN         "Unknown"
 )
 

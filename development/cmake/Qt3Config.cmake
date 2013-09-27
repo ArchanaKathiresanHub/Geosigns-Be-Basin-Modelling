@@ -24,6 +24,12 @@ add_external_package_info(
    LICENSE_FILE ""
    URL "http://qt-project.org"
    DESCRIPTION "A cross-platform application and UI framework"
-   DEPENDENCY "Runtime"
+   REQUIRED_AT  "Runtime"
+   COUNTRY_OF_ORIGIN "Finland"
+   SHIPPED      "Yes"
+   INCLUSION_TYPE "Static Link"
+   USEABLE_STAND_ALONE "No"
+   CONTAINS_CRYPTO "No"
+   ECCN         "Unknown"
 )
 

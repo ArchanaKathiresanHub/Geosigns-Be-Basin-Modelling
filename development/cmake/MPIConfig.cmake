@@ -28,7 +28,13 @@ add_external_package_info(
        LICENSE_FILE "${MPI_ROOT}/mpiEULA.txt"
        URL          "http://software.intel.com/en-us/intel-mpi-library"
        DESCRIPTION  "Intel's MPI implementation"
-       DEPENDENCY "Runtime"
+       REQUIRED_AT  "Runtime"
+       COUNTRY_OF_ORIGIN "USA"
+       SHIPPED      "Yes"
+       INCLUSION_TYPE "Static Link"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
 )                   
 
 set(MPI_FOUND TRUE)
