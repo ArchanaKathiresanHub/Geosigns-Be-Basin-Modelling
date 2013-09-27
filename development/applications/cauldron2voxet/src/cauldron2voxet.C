@@ -36,12 +36,15 @@ using namespace std;
 #include "array.h"
 
 #include "CauldronProperty.h"
-#include "DerivedProperty.h"
-#include "DerivedPropertyFunction.h"
-#include "DerivedPropertyFormationFunction.h"
 #include "VoxetProjectHandle.h"
 #include "voxetschema.h"
 #include "voxetschemafuncs.h"
+
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
+   #include "DerivedProperty.h"
+   #include "DerivedPropertyFunction.h"
+   #include "DerivedPropertyFormationFunction.h"
+#endif
 
 #include <string>
 #include <vector>
@@ -329,10 +332,6 @@ int main (int argc, char ** argv)
       exit (-1);
    }
 
-   CauldronPropertyList::iterator cauldronPropIter;
-   DerivedPropertyList::iterator propIter;
-   DerivedPropertyFunctionList::iterator propFuncIter;
-   DerivedPropertyFormationFunctionList::iterator formIter;
 
    string asciiFileName = outputFileName + ".vo";
    string binaryFileName = outputFileName;
@@ -430,6 +429,7 @@ int main (int argc, char ** argv)
    asciiOutputFile << endl;
 
 
+   CauldronPropertyList::iterator cauldronPropIter;
    for (cauldronPropIter = voxetProject->cauldronPropertyBegin (); cauldronPropIter != voxetProject->cauldronPropertyEnd (); ++cauldronPropIter)
    {
       const Property *property = (*cauldronPropIter)->getProperty ();
@@ -798,6 +798,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, ostream
 
    //------------------------------------------------------------//
 
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
    if (derived)
    {
       table = database->getTable ( "DerivedPropertyIoTbl" );
@@ -856,6 +857,7 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, ostream
       database::setFunction (record, "pow (x * 1.0e-3 / coeff1, 1 / coeff2)");
       database::setFunctionParameters (record, "x, coeff1, coeff2");
    }
+#endif
 
    // Now write the stream to stdout.
    database->saveToStream ( outputStream );

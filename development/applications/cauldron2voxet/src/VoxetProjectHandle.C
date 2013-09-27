@@ -3,10 +3,13 @@
 #include "voxetschema.h"
 #include "database.h"
 
-#include "DerivedPropertyFunction.h"
 #include "CauldronProperty.h"
-#include "DerivedProperty.h"
-#include "DerivedPropertyFormationFunction.h"
+
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
+   #include "DerivedPropertyFunction.h"
+   #include "DerivedProperty.h"
+   #include "DerivedPropertyFormationFunction.h"
+#endif
 
 VoxetProjectHandle::VoxetProjectHandle ( const std::string& voxetProjectFileName,
                                          Interface::ProjectHandle*     projectHandle ) :
@@ -19,9 +22,12 @@ VoxetProjectHandle::VoxetProjectHandle ( const std::string& voxetProjectFileName
    loadSnapshotTime ();
    loadVoxetGrid ( m_cauldronProjectHandle->getLowResolutionOutputGrid ());
    loadCauldronProperties ();
+
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
    loadDerivedProperties ();
    loadDerivedPropertyFunctions ();
    loadDerivedPropertyFormationFunctions ();
+#endif
 
 }
 
@@ -104,9 +110,42 @@ void VoxetProjectHandle::loadSnapshotTime () {
    }
 }
 
+//------------------------------------------------------------//
 
+const GridDescription& VoxetProjectHandle::getGridDescription () const {
+   return *m_gridDescription;
+}
 
 //------------------------------------------------------------//
+
+CauldronPropertyList::iterator VoxetProjectHandle::cauldronPropertyBegin () {
+   return m_cauldronProperties.begin ();
+}
+
+//------------------------------------------------------------//
+
+CauldronPropertyList::iterator VoxetProjectHandle::cauldronPropertyEnd () {
+   return m_cauldronProperties.end ();
+}
+
+double VoxetProjectHandle::getSnapshotTime () const {
+   return m_snapshotTime;
+}
+
+//------------------------------------------------------------//
+
+bool VoxetProjectHandle::isConsistent () const {
+   // Perform checks on:
+   //     o input properties, do all properties exist;
+   //     o Formation names, are all formation mentioned and those that are, are they in the cauldron project file;
+   //     o Function names, that formations to not access a function that does not exist;
+   //     o anything else?
+   return true;
+}
+
+//------------------------------------------------------------//
+
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
 
 void VoxetProjectHandle::loadDerivedProperties () {
 
@@ -261,11 +300,6 @@ DerivedPropertyFunction* VoxetProjectHandle::getDerivedPropertyFunction ( const 
    return 0;
 }
 
-//------------------------------------------------------------//
-
-const GridDescription& VoxetProjectHandle::getGridDescription () const {
-   return *m_gridDescription;
-}
 
 //------------------------------------------------------------//
 
@@ -273,21 +307,6 @@ const DerivedPropertyList& VoxetProjectHandle::getDerivedProperties () const {
    return m_derivedProperties;
 }
 
-//------------------------------------------------------------//
-
-CauldronPropertyList::iterator VoxetProjectHandle::cauldronPropertyBegin () {
-   return m_cauldronProperties.begin ();
-}
-
-//------------------------------------------------------------//
-
-CauldronPropertyList::iterator VoxetProjectHandle::cauldronPropertyEnd () {
-   return m_cauldronProperties.end ();
-}
-
-double VoxetProjectHandle::getSnapshotTime () const {
-   return m_snapshotTime;
-}
 
 //------------------------------------------------------------//
 
@@ -326,14 +345,4 @@ DerivedPropertyFormationFunctionList::iterator VoxetProjectHandle::derivedProper
 }
 
 //------------------------------------------------------------//
-
-bool VoxetProjectHandle::isConsistent () const {
-   // Perform checks on:
-   //     o input properties, do all properties exist;
-   //     o Formation names, are all formation mentioned and those that are, are they in the cauldron project file;
-   //     o Function names, that formations to not access a function that does not exist;
-   //     o anything else?
-   return true;
-}
-
-//------------------------------------------------------------//
+#endif

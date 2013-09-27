@@ -11,27 +11,42 @@
 #########################################################################
 
 
-set (generated_files 
+set (voxetProjectFormatSources
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.h
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.C
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.h
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.C
 	)
 
-add_executable(cauldron2voxet
+set( mainSources
 	src/cauldron2voxet.C
 	src/CauldronProperty.C
 	src/DepthInterpolator.C
-	src/DerivedProperty.C
-	src/DerivedPropertyFormationFunction.C
-	src/DerivedPropertyFunction.C
 	src/GridDescription.C
 	src/LayerInterpolator.C
 	src/VoxetCalculator.C
 	src/VoxetDomainInterpolator.C
 	src/VoxetProjectHandle.C
 	src/VoxetPropertyGrid.C
-	${generated_files}
+    )
+
+if (BM_ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES)
+   set( derivedPropertySources
+           src/DerivedProperty.C
+           src/DerivedPropertyFormationFunction.C
+           src/DerivedPropertyFunction.C
+      )
+   set( derivedPropertyExtraLibs ${FP_LIBRARIES})
+   include_directories(	${FP_INCLUDE_DIRS} )
+else()
+   set( derivedPropertySources )
+   set( derivedPropertyExtraLibs )
+endif()
+
+add_executable( cauldron2voxet
+   ${mainSources}
+   ${derivedPropertySources}
+   ${voxetProjectFormatSources}
 )
 
 bm_include_libraries(
@@ -45,7 +60,6 @@ bm_include_libraries(
 include_directories(
 	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
 	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
-	${FP_INCLUDE_DIRS}
 	${HDF5_serial_INCLUDE_DIRS}
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet
 )
@@ -54,7 +68,7 @@ target_link_libraries(cauldron2voxet
 	DataAccess
 	SerialDataAccess
 	TableIO
-	${FP_LIBRARIES}
+	${derivedPropertyExtraLibs}
 	Serial_Hdf5
 	CBMGenerics
 	utilities
@@ -62,12 +76,16 @@ target_link_libraries(cauldron2voxet
 )
 
 get_target_property(PARSPEC_EXEC parspec LOCATION)
-add_custom_command(OUTPUT ${generated_files}
+add_custom_command(OUTPUT ${voxetProjectFormatSources}
 	DEPENDS parspec
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/applications/cauldron2voxet
 	COMMAND ${PARSPEC_EXEC}
 	ARGS -schema VoxetSchema -directory ${PROJECT_BINARY_DIR}/applications/cauldron2voxet -input src/VoxetProperty.Spec
 )
+
+if (BM_ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES)
+  add_definitions(-DENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES)
+endif()
 
 install(TARGETS cauldron2voxet
 	RUNTIME DESTINATION bin

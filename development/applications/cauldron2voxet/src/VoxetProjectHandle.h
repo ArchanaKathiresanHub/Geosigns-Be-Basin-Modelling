@@ -12,17 +12,17 @@ using namespace Interface;
 
 // Forward declarations.
 class CauldronProperty;
+typedef std::vector<CauldronProperty*> CauldronPropertyList;
+
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
 class DerivedProperty;
 class DerivedPropertyFunction;
 class DerivedPropertyFormationFunction;
 
-typedef std::vector<CauldronProperty*> CauldronPropertyList;
-
 typedef std::vector<DerivedProperty*> DerivedPropertyList;
-
 typedef std::vector<DerivedPropertyFunction*> DerivedPropertyFunctionList;
-
 typedef std::vector<DerivedPropertyFormationFunction*> DerivedPropertyFormationFunctionList;
+#endif
 
 /// \brief Name of the formation representing the water-column.
 ///
@@ -43,6 +43,7 @@ public :
 
    double getSnapshotTime () const;
 
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
 
    DerivedProperty* getDerivedProperty ( const std::string& propertyName ) const;
 
@@ -70,6 +71,7 @@ public :
    DerivedPropertyFormationFunctionList::iterator derivedPropertyFormationFunctionBegin ();
 
    DerivedPropertyFormationFunctionList::iterator derivedPropertyFormationFunctionEnd ();
+#endif
 
    inline Interface::ProjectHandle* getCauldronProjectHandle ();
 
@@ -82,10 +84,6 @@ private :
    void loadVoxetGrid ( const Interface::Grid* cauldronGrid );
    void loadSnapshotTime ();
    void loadCauldronProperties ();
-   void loadDerivedProperties ();
-   void loadDerivedPropertyFunctions ();
-   void loadDerivedPropertyFormationFunctions ();
-
 
    const std::string m_voxetProjectFileName;
 
@@ -94,17 +92,18 @@ private :
    double m_snapshotTime;
 
    database::DataSchema* m_voxetSchema;
-
    database::Database*   m_database;
-
-
    GridDescription* m_gridDescription;
-
    CauldronPropertyList        m_cauldronProperties;
+
+#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
+   void loadDerivedProperties ();
+   void loadDerivedPropertyFunctions ();
+   void loadDerivedPropertyFormationFunctions ();
    DerivedPropertyList         m_derivedProperties;
    DerivedPropertyFunctionList m_derivedPropertyFunctions;
    DerivedPropertyFormationFunctionList m_derivedPropertyFormationFunctions;
-
+#endif
 };
 
 Interface::ProjectHandle* VoxetProjectHandle::getCauldronProjectHandle ()
