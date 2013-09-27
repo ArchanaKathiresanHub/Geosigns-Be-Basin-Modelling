@@ -98,7 +98,7 @@ required at <strong><xsl:value-of select="required/at"/></strong>
 <tr><td>Does the component contain or perform encryption or decryption?</td><td><xsl:value-of select="export-control/crypto"/></td></tr>
 <tr><td>ECCN</td><td><xsl:value-of select="export-control/eccn"/></td></tr>
 <xsl:for-each select="export-control/eccn-evidence">
-    <tr><td>See also</td><td><a><xsl:attribute name="href"><xsl:value-of select="child::text()"/></xsl:attribute><xsl:value-of select="child::text()"/></a></td></tr>
+    <tr><td>Evidence</td><td><a><xsl:attribute name="href"><xsl:value-of select="child::text()"/></xsl:attribute><xsl:value-of select="child::text()"/></a></td></tr>
 </xsl:for-each>
 </table>
 </p>
