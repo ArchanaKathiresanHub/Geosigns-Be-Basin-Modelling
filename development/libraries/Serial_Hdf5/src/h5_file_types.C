@@ -176,7 +176,13 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
 
    if (datasetId < 0)
    {
-      H5Eprint2 ( H5E_DEFAULT, 0 );
+
+#if H5_VERS_MINOR == 6
+      H5Eprint ( 0 );
+#else
+      H5Eprint ( H5E_DEFAULT, 0 );
+#endif
+
       cerr << "creating dataset " << dataname <<  " failed, with error code: " << datasetId << endl;
    }
 

@@ -88,7 +88,13 @@ public:
       {
          status = h5File->writeAttribute (attributeId, dataSpace.space_id(), array, pList); 
       } else {
-         H5Eprint2 ( H5E_DEFAULT, 0 );
+
+#if H5_VERS_MINOR == 6
+      H5Eprint ( 0 );
+#else
+      H5Eprint ( H5E_DEFAULT, 0 );
+#endif
+
       }
 
       return status;
