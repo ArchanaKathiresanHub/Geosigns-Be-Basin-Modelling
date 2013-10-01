@@ -97,6 +97,7 @@ namespace Basin_Modelling {
              ThreeVector&        Fluid_Velocity,
              Matrix3x3&          Fluid_Mobility );
 
+
    void computePermGradPTerm ( const bool                debugParameter,
                                const bool                Has_Fractured,
                                const double              fractureScaling,
@@ -124,7 +125,8 @@ namespace Basin_Modelling {
                                     const CompoundLithology*  lithology,
                                           ThreeVector&        Fluid_Velocity,
                                           Matrix3x3&          Fluid_Mobility,
-                                          ThreeVector&        fluidVelocityDerivative );
+                                          ThreeVector&        fluidVelocityDerivative,
+                                    const bool                isPermafrost = false );
 
   void computeFluidFlux
      ( const bool                imposeFluxLimit,

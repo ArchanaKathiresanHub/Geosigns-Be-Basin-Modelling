@@ -525,6 +525,5 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
 
 bool GeoPhysics::FluidType::SwitchPermafrost() const {
 
-return m_projectHandle->getPermafrost();
-
+   return m_projectHandle->getPermafrost();
 }

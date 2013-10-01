@@ -347,7 +347,8 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
                                                   const CompoundLithology*  lithology,
                                                         ThreeVector&        Fluid_Velocity,
                                                         Matrix3x3&          Fluid_Mobility,
-                                                        ThreeVector&        fluidVelocityDerivative ) {
+                                                        ThreeVector&        fluidVelocityDerivative,
+                                                  const bool                isPermafrost ) {
 
   double Permeability_Normal;
   double Permeability_Plane;
@@ -371,27 +372,33 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
     Permeability_Scaling = 1.0;
   }
 
-
   lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
   lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, dKnDPhi, dKhDPhi );
 
-  Permeability_Normal = relativePermeability * Permeability_Normal;
-  Permeability_Plane  = relativePermeability * Permeability_Plane;
+  if ( isPermafrost )
+  {
+    // NLSAY3: The permeability cannot reach lower values than 1.0e-7 mD;
+    // The permeability must have a lower limit when the Permafrost relative permeability is activated
+    Permeability_Normal = relativePermeability * Permeability_Normal;
+    Permeability_Plane  = relativePermeability * Permeability_Plane;
 
 
-  // NLSAY3: The permeability cannot reach lower values than 1.0e-7 mD;
-  // The permeability must have a lower limit when the Permafrost relative permeability is activated
-  if ( Permeability_Normal < PermeabilityLowerLimit ) {
-    Permeability_Normal = PermeabilityLowerLimit;
+    if ( Permeability_Normal < PermeabilityLowerLimit ) {
+       Permeability_Normal = PermeabilityLowerLimit;
+    }
+
+    if ( Permeability_Plane < PermeabilityLowerLimit ) {
+      Permeability_Plane = PermeabilityLowerLimit;
+    }
+
+    Permeability_Normal *= Permeability_Scaling * fluidDensity / fluidViscosity;
+    Permeability_Plane  *=                        fluidDensity / fluidViscosity;
   }
-
-  if ( Permeability_Plane < PermeabilityLowerLimit ) {
-    Permeability_Plane = PermeabilityLowerLimit;
+  else
+  {
+    Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
+    Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
   }
-
-  Permeability_Normal *= Permeability_Scaling * fluidDensity / fluidViscosity;
-  Permeability_Plane  *=                        fluidDensity / fluidViscosity;
-
 
   Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
 
@@ -1858,7 +1865,9 @@ void Basin_Modelling::Assemble_Element_Pressure_System
                                     lithology,
                                     fluidVelocity,
                                     fluidMobility,
-                                    fluidVelocityDerivative );
+                                    fluidVelocityDerivative,
+                                    Fluid->SwitchPermafrost() ? true : false
+                                    );
 
         matrixVectorProduct ( scaledGradBasis, fluidVelocity, Term_3 );
 

@@ -691,11 +691,10 @@ void PressureSolver::assembleSystem ( const double  previousTime,
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Previous_Element_Temperature );
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Previous_Chemical_Compaction );
 
-	    if ( ( Current_Layer->fluid->density ( 0,  0.1 ) > Element_Lithology->density() ) && ( Current_Layer->fluid->SwitchPermafrost() ) ) { // NLSAY3:Po=Pl-Ph in an ice sheet (by definition).
+            if ( Current_Layer->fluid->SwitchPermafrost() && Current_Layer->fluid->density( 0,  0.1 ) > Element_Lithology->density() ) { // NLSAY3:Po=Pl-Ph in an ice sheet (by definition).
 
-            subtract(Current_Pl, Current_Ph, Current_Po);
-            subtract(Current_Pl, Previous_Ph, Previous_Po);
-
+              subtract(Current_Pl, Current_Ph, Current_Po);
+              subtract(Current_Pl, Previous_Ph, Previous_Po);
             }
 
 
