@@ -1433,15 +1433,9 @@ bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time,
   } else if ( Current_Time < (*majorSnapshots)->time ()) {
     Current_Time = (*majorSnapshots)->time ();
   } 
-  if( basinModel->permafrost () && basinModel->fixedTimeStep() == 0.0 ) {
-     // we want to start permafrost time stepping when the first permafrost occurs, so change the current_time if it reaches the permafrost age already
-     // in order to start permafrost time-stepping exactly at the permafrost start age.
-     if(  basinModel->m_permafrostAges.size() != 0 ) {
-        if( Current_Time <= basinModel->getNextPermafrostAge() && (( Previous_Time - Current_Time ) - basinModel->getNextPermafrostTimeStep() > 0.0001 )) { 
-           Current_Time = Current_Time + basinModel->getNextPermafrostTimeStep();      
-        }
-     }
-  }
+
+  basinModel->adjustTimeStepToPermafrost ( Previous_Time, Current_Time );
+  
   Time_Step = Previous_Time - Current_Time;
 
   return true;

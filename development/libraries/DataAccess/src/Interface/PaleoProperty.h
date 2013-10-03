@@ -70,16 +70,7 @@ namespace DataAccess
                            const PaleoProperty* s2 ) const;
          
       };
-      
-      class PaleoPropertyTimeThan {
-         
-      public :
-         
-         bool operator ()( const PaleoProperty* s1, 
-                           const PaleoProperty* s2 ) const;
-         
-      };
-      
+    
    }
 }
 

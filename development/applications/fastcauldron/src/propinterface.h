@@ -258,10 +258,14 @@ public:
 
    // Permafrost modelling
    void   setPermafrost();
-   void   restartPermafrost();
    double permafrostTimeStep () const;
    bool   permafrost() const;
+   /// Restart permafrost ages/timeSteps indexing
+   void   restartPermafrost();
+   /// Calculate time step for permafrost modelling
    bool   switchPermafrostTimeStep ( const double Current_Time );
+   /// Adjust the Current time and Permafrost time step  
+   void   adjustTimeStepToPermafrost ( const double Previous_Time, double & Current_Time );
    double getNextPermafrostTimeStep () const;
    double getNextPermafrostAge () const;
    //

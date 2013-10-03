@@ -1400,24 +1400,25 @@ bool GeoPhysics::ProjectHandle::determineMaximumNumberOfSegmentsPerLayer ( const
 bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeSteps, std::vector<double>& permafrostAges ) {
 
    if( m_permafrost ) {
-      bool isPermafrost = false;
+      bool isPermafrost = false; 
+      permafrostAges.clear();
+      timeSteps.clear();
+      
       // m_surfaceTemperatureHistory is sorted - youngest first on the list. 
 
       if( m_surfaceTemperatureHistory.size() > 1 ) {
-
-         std::sort ( m_surfaceTemperatureHistory.begin (), m_surfaceTemperatureHistory.end (), Interface::PaleoPropertyTimeThan ());
 
 	 // find the negative temperature in the Surface Temperature history table and calculate the time interval.
          double min, max;
          
          Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
-         Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter = surfaceTemperatureHistory->begin();
+         Interface::PaleoPropertyList::const_reverse_iterator surfaceTemperatureIter = surfaceTemperatureHistory->rbegin();
          
          double currentAge, age = ( * surfaceTemperatureIter )->getSnapshot ()->getTime ();
          
          ++ surfaceTemperatureIter;
          
-         for ( ; surfaceTemperatureIter != surfaceTemperatureHistory->end (); ++ surfaceTemperatureIter ) {
+         for ( ; surfaceTemperatureIter != surfaceTemperatureHistory->rend (); ++ surfaceTemperatureIter ) {
             const Interface::PaleoProperty* surfaceTemperatureInstance = *surfaceTemperatureIter;
             const Interface::GridMap* surfaceTemperatureMap = dynamic_cast<const Interface::GridMap*>(surfaceTemperatureInstance->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap ));
             
@@ -1425,28 +1426,27 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
             surfaceTemperatureMap->retrieveData ();
             surfaceTemperatureMap->getMinMaxValue ( min, max );
 
-            if( isPermafrost ) {
-	          if( age != currentAge ) {
-		        permafrostAges.push_back( age );
-		        timeSteps.push_back ( ( age - currentAge ) * 0.125 );
-	          }
-	        }
             if( min < 0.0 ) {
                isPermafrost = true;
+            }
+            if( isPermafrost ) {
+               if( age != currentAge ) {
+                  permafrostAges.push_back( age );
+                  timeSteps.push_back ( ( age - currentAge ) * 0.125 );
+               }
             }
 
             age = currentAge;
             surfaceTemperatureMap->restoreData ();
          }
-  	     if( permafrostAges.back() != 0.0 && isPermafrost ) {
-  	       permafrostAges.push_back( 0.0 );
-  	       timeSteps.push_back ( 0.0 );
-  	     }
+         if( isPermafrost && permafrostAges.back() != 0.0  ) {
+            permafrostAges.push_back( 0.0 );
+            timeSteps.push_back ( 0.0 );
+        }
          if( permafrostAges.size() != 0 ) {
             std::reverse( permafrostAges.begin(), permafrostAges.end() );
             std::reverse( timeSteps.begin(), timeSteps.end() );
          }
-         std::sort ( m_surfaceTemperatureHistory.begin (), m_surfaceTemperatureHistory.end (), Interface::PaleoPropertyTimeLessThan ());
       } 
       setPermafrost( isPermafrost );    
    }

@@ -397,9 +397,26 @@ bool AppCtx::switchPermafrostTimeStep ( const double Current_Time ) {
       } 
    } 
    // if all permafrost ages have been reached (m_permafrostAges[m_permafrostCurrentInd] = 0 (present day)), 
-   // then continue with the last calculated time step = m_permafrostTimeStep
+   // then continue with the last calculated time step = m_permafrostTimeStep until the present day
    return true;
 }
+//------------------------------------------------------------//
+
+void AppCtx::adjustTimeStepToPermafrost ( const double Previous_Time, double & Current_Time ) {
+
+  if( m_permafrost && fixedTimeStep() == 0.0 ) {
+     // we want to start permafrost time stepping when the first permafrost event occurs, so adjust (step back) the current_time if it reaches the permafrost age
+     // in order to start permafrost time-stepping exactly at the permafrost start age.
+     if( Current_Time <= getNextPermafrostAge()) {
+        const double nextPermafrostTimeStep = getNextPermafrostTimeStep();
+        const double timeStepBack = ( Previous_Time - Current_Time ) - nextPermafrostTimeStep;
+        if( timeStepBack > 0.0001 ) {  
+           Current_Time = Current_Time + NumericFunctions::Minimum ( timeStepBack, nextPermafrostTimeStep );
+       }
+     }
+  }
+}
+
 //------------------------------------------------------------//
 
 double AppCtx::getNextPermafrostTimeStep () const {
