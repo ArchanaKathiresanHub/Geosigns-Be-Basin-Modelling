@@ -61,16 +61,11 @@ START-properties
     Type                : double
     Default		: 100
 
-
     Identification      : CauldronPropertyName
     Type                : string
     Default             : ""
 
     Identification      : VoxetPropertyName
-    Type                : string
-    Default             : ""
-
-    Identification      : CauldronFormationName
     Type                : string
     Default             : ""
 
@@ -94,36 +89,9 @@ START-properties
     Type                : double
     Default             : 1.0
 
-    Identification      : FunctionName
-    Type                : string
-    Default             : ""
-
-    Identification      : Function
-    Type                : string
-    Default             : ""
-
-    Identification      : FunctionCallParameters
-    Type                : string
-    Default		: ""
-
-    Identification      : FunctionParameters
-    Type                : string
-
-    Identification      : DerivedPropertyName
-    Type                : string
-    Default             : ""
-
-    Identification      : DerivedPropertyUnits
-    Type                : string
-    Default             : "ft/s"
-
     Identification      : OutputPropertyUnits
     Type                : string
     Default             : ""
-
-
-
-
 
 END-properties
 
@@ -155,25 +123,5 @@ START-property-tables
     Column         : NumberOfVoxetNodesZ
     Header         : Grid
     Property I/O   : Yes
-
-    Identification : DerivedPropertyIoTbl
-    Column         : DerivedPropertyName
-    Column         : DerivedPropertyUnits
-
-    Identification : DerivedPropertyFormationFunctionIoTbl
-    Column         : CauldronFormationName
-    Column         : DerivedPropertyName
-    Column         : FunctionName
-    Column         : FunctionCallParameters
-    Header         : Formation functions
-    Property I/O   : Yes
-
-    Identification : DerivedPropertyFunctionIoTbl
-    Column         : FunctionName
-    Column         : FunctionParameters
-    Column         : Function
-    Header         : Function definitions
-    Property I/O   : Yes
-
 
 END-property-tables

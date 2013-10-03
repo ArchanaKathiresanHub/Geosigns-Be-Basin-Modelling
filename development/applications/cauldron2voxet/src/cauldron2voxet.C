@@ -40,12 +40,6 @@ using namespace std;
 #include "voxetschema.h"
 #include "voxetschemafuncs.h"
 
-#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
-   #include "DerivedProperty.h"
-   #include "DerivedPropertyFunction.h"
-   #include "DerivedPropertyFormationFunction.h"
-#endif
-
 #include <string>
 #include <vector>
 using namespace std;
@@ -82,7 +76,6 @@ void correctEndian ( VoxetPropertyGrid& values );
 bool splitString (char * string, char separator, char * & firstPart, char * & secondPart, char * & thirdPart);
 double selectDefined (double undefinedValue, double preferred, double alternative);
 
-bool derived = false;
 bool useBasement = true;
 bool verbose = false;
 bool debug = false;
@@ -227,10 +220,6 @@ int main (int argc, char ** argv)
       else if (strncmp (argv[arg], "-nobasement", Max (4, strlen (argv[arg]))) == 0)
       {
          useBasement = false;
-      }
-      else if (strncmp (argv[arg], "-derived", Max (4, strlen (argv[arg]))) == 0)
-      {
-         derived = true;
       }
       else if (strncmp (argv[arg], "-verbose", Max (4, strlen (argv[arg]))) == 0)
       {
@@ -537,7 +526,6 @@ void showUsage (const char * message)
 	 << "                  [-count <countX>,<countY>,<countZ>]" << endl
          << "                  [-output <output-file-name>]" << endl
          << "                  [-create-spec <spec-file>]" << endl
-         << "                  [-derived]" << endl
          << "                  [-nobasement]" << endl
          << "                  [-verbose]" << endl
          << "                  [-help]" << endl
@@ -553,8 +541,6 @@ void showUsage (const char * message)
          << "    -output            Output voxet file-name, MUST NOT contain the .vo extension, this will be added." << endl
          << "    -create-spec       Write a standard spec file into the specified file name," << endl
          << "                       the cauldron project file must also be specified." << endl
-         << "    -derived           Produce template for derived properties. Not valid in conjunction with '-spec'," << endl
-         << "                       to be used in conjunction with '-create-spec'" << endl
          << "    -nobasement        Ignore basement layers." << endl
          << "    -verbose           Generate some extra output." << endl
          << "    -help              Print this message." << endl
@@ -797,67 +783,6 @@ void createVoxetProjectFile ( Interface::ProjectHandle* cauldronProject, ostream
    database::setNumberOfVoxetNodesZ ( record, (int) selectDefined (MAXDOUBLE, countZ, ((maximumDepth - minimumDepth) / deltaK) + 3) );
 
    //------------------------------------------------------------//
-
-#ifdef ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES
-   if (derived)
-   {
-      table = database->getTable ( "DerivedPropertyIoTbl" );
-
-      record = table->createRecord ();
-      database::setDerivedPropertyName ( record, "Velocity" );
-      database::setDerivedPropertyUnits ( record, "ft/s" );
-
-      //------------------------------------------------------------//
-
-      table = database->getTable ( "DerivedPropertyFormationFunctionIoTbl" );
-      formations = cauldronProject->getFormations ();
-
-      bool shsa = false;
-      for ( formationIter = formations->begin (); formationIter != formations->end (); ++formationIter ) {
-         record = table->createRecord ();
-         database::setCauldronFormationName ( record, (*formationIter)->getName ());
-         database::setDerivedPropertyName ( record, "Velocity" );
-         if (shsa == false)
-         {
-            database::setFunctionName ( record, "ShaleVelocity" );
-            database::setFunctionCallParameters ( record, "Ves, 0, 0" );
-            shsa = true;
-         }
-         else
-         {
-            database::setFunctionName ( record, "SandVelocity" );
-            database::setFunctionCallParameters ( record, "BulkDensity, 0, 0" );
-            shsa = false;
-         }
-      }
-
-      //------------------------------------------------------------//
-
-      // database::Database::SetFieldWidth (60);
-
-      table = database->getTable ( "DerivedPropertyFunctionIoTbl" );
-
-      record = table->createRecord ();
-      database::setFunctionName ( record, "Pa2Psi" );
-      database::setFunction (record, "0.000145 * x");
-      database::setFunctionParameters (record, "x");
-
-      record = table->createRecord ();
-      database::setFunctionName ( record, "ShVterm" );
-      database::setFunction (record, "pow (Pa2Psi(x) / coeff1,(1 / coeff2))");
-      database::setFunctionParameters (record, "x, coeff1, coeff2");
-
-      record = table->createRecord ();
-      database::setFunctionName ( record, "ShaleVelocity" );
-      database::setFunction (record, "1.0e6 * (ShVterm (x, coeff1, coeff2) + 1.0) / (207.0 + 47.0 * ShVterm (x, coeff1, coeff2))");
-      database::setFunctionParameters (record, "x, coeff1, coeff2");
-
-      record = table->createRecord ();
-      database::setFunctionName ( record, "SandVelocity" );
-      database::setFunction (record, "pow (x * 1.0e-3 / coeff1, 1 / coeff2)");
-      database::setFunctionParameters (record, "x, coeff1, coeff2");
-   }
-#endif
 
    // Now write the stream to stdout.
    database->saveToStream ( outputStream );

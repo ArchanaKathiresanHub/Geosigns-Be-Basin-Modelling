@@ -30,22 +30,8 @@ set( mainSources
 	src/VoxetPropertyGrid.C
     )
 
-if (BM_ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES)
-   set( derivedPropertySources
-           src/DerivedProperty.C
-           src/DerivedPropertyFormationFunction.C
-           src/DerivedPropertyFunction.C
-      )
-   set( derivedPropertyExtraLibs ${FP_LIBRARIES})
-   include_directories(	${FP_INCLUDE_DIRS} )
-else()
-   set( derivedPropertySources )
-   set( derivedPropertyExtraLibs )
-endif()
-
 add_executable( cauldron2voxet
    ${mainSources}
-   ${derivedPropertySources}
    ${voxetProjectFormatSources}
 )
 
@@ -68,7 +54,6 @@ target_link_libraries(cauldron2voxet
 	DataAccess
 	SerialDataAccess
 	TableIO
-	${derivedPropertyExtraLibs}
 	Serial_Hdf5
 	CBMGenerics
 	utilities
@@ -82,10 +67,6 @@ add_custom_command(OUTPUT ${voxetProjectFormatSources}
 	COMMAND ${PARSPEC_EXEC}
 	ARGS -schema VoxetSchema -directory ${PROJECT_BINARY_DIR}/applications/cauldron2voxet -input src/VoxetProperty.Spec
 )
-
-if (BM_ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES)
-  add_definitions(-DENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES)
-endif()
 
 install(TARGETS cauldron2voxet
 	RUNTIME DESTINATION bin

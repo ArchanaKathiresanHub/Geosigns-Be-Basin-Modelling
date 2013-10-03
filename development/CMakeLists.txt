@@ -49,7 +49,6 @@ if(BM_CODE_COVERAGE_ENABLE)
 	set( BM_CODE_COVERAGE_DIR "${PROJECT_BINARY_DIR}/profiled" CACHE PATH "Code coverage directory" )
 endif()
 
-option( BM_ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES "Enable ability to compute derived properties. This adds a dependency FunctionParser which is an LGPL licensed open source package." OFF)
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
 set( BM_THIRD_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
 set(CMAKE_INSTALL_PREFIX "" CACHE PATH "Installation prefix" )
@@ -163,10 +162,6 @@ if (UNIX)
    find_package(Touchstone REQUIRED CONFIG)
    find_package(Qt3 REQUIRED CONFIG)
    find_package(Boost REQUIRED CONFIG)
-
-   if (BM_ENABLE_CAULDRON2VOXET_DERIVED_PROPERTIES)
-      find_package(FunctionParser REQUIRED CONFIG)
-   endif()
 endif(UNIX)
 
 if(BM_BUILD_DOCS)
