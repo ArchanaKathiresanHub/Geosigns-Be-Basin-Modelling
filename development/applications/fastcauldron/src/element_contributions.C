@@ -350,6 +350,75 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
                                                         ThreeVector&        fluidVelocityDerivative,
                                                   const bool                isPermafrost ) {
 
+#ifndef FULL_FLUID_MOBILITY_TERM
+
+   double Permeability_Normal;
+   double Permeability_Plane;
+   double Permeability_Scaling;
+
+   const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
+
+   Matrix3x3 permeabilityTensor;
+
+   // Why square-root ( 10 )?
+   static const double Sqrt10 = sqrt ( 10.0 );
+   
+   if ( Has_Fractured ) {
+      Permeability_Scaling = lithology->fracturedPermeabilityScaling () * pow ( Sqrt10, 0.25 * fractureScaling );
+   } else {
+      Permeability_Scaling = 1.0;
+   }
+   
+   lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
+
+   Permeability_Normal =  Permeability_Scaling * relativePermeability * Permeability_Normal;
+   Permeability_Plane  =                         relativePermeability * Permeability_Plane;
+     
+   // now compute the derivative terms
+   
+   Set_Permeability_Tensor (  Permeability_Normal, Permeability_Plane, Jacobian, permeabilityTensor );
+   permeabilityTensor *= fluidDensityDerivativeWrtPressure / fluidViscosity;
+   
+   matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidVelocityDerivative );
+   
+   // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
+   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
+   // of pressure in MPa)
+   fluidVelocityDerivative ( 1 ) *= MPa_To_Pa;
+   fluidVelocityDerivative ( 2 ) *= MPa_To_Pa;
+   fluidVelocityDerivative ( 3 ) *= MPa_To_Pa;
+   
+   // now compute the other term
+   if ( isPermafrost )
+   {
+      // NLSAY3: The permeability cannot reach lower values than 1.0e-7 mD;
+      // The permeability must have a lower limit when the Permafrost relative permeability is activated
+
+      if ( Permeability_Normal  < Permeability_Scaling * PermeabilityLowerLimit  ) {
+         Permeability_Normal = PermeabilityLowerLimit;
+      }
+      
+      if ( Permeability_Plane < PermeabilityLowerLimit ) {
+         Permeability_Plane = PermeabilityLowerLimit;
+      }
+   } 
+
+   Permeability_Normal = Permeability_Normal * fluidDensity / fluidViscosity;
+   Permeability_Plane  = Permeability_Plane  * fluidDensity / fluidViscosity;
+   
+   Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
+   
+   matrixVectorProduct ( Fluid_Mobility, gradOverpressure, Fluid_Velocity );
+   
+   // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
+   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
+   // of pressure in MPa)
+   Fluid_Velocity ( 1 ) *= MPa_To_Pa;
+   Fluid_Velocity ( 2 ) *= MPa_To_Pa;
+   Fluid_Velocity ( 3 ) *= MPa_To_Pa;
+   
+
+#else
   double Permeability_Normal;
   double Permeability_Plane;
   double Permeability_Scaling;
@@ -408,7 +477,7 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
   // of pressure in MPa)
   Fluid_Velocity ( 1 ) *= MPa_To_Pa;
-  Fluid_Velocity ( 2 ) *= MPa_To_Pa;
+  Fluid_Velocity ( 2 ) *= MPa_To_Pa; 
   Fluid_Velocity ( 3 ) *= MPa_To_Pa;
 
   // now compute the derivative terms
@@ -439,6 +508,8 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   fluidVelocityDerivative ( 1 ) *= MPa_To_Pa;
   fluidVelocityDerivative ( 2 ) *= MPa_To_Pa;
   fluidVelocityDerivative ( 3 ) *= MPa_To_Pa;
+
+#endif
 }
 
 //------------------------------------------------------------//
