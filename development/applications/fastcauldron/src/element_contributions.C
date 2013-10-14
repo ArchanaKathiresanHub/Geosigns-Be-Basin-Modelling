@@ -355,8 +355,10 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
    double Permeability_Normal;
    double Permeability_Plane;
    double Permeability_Scaling;
-
-   const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
+   
+   // The overpressure value has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
+   // of pressure in MPa)
+   const ThreeVector gradOverpressurePa = gradOverpressure * MPa_To_Pa;;
 
    Matrix3x3 permeabilityTensor;
 
@@ -378,19 +380,14 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
    
    Set_Permeability_Tensor (  Permeability_Normal, Permeability_Plane, Jacobian, permeabilityTensor );
    permeabilityTensor *= fluidDensityDerivativeWrtPressure / fluidViscosity;
-   
-   matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidVelocityDerivative );
-   
-   // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
-   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
-   // of pressure in MPa)
-   fluidVelocityDerivative ( 1 ) *= MPa_To_Pa;
-   fluidVelocityDerivative ( 2 ) *= MPa_To_Pa;
-   fluidVelocityDerivative ( 3 ) *= MPa_To_Pa;
-   
+
+   matrixVectorProduct ( permeabilityTensor, gradOverpressurePa, fluidVelocityDerivative );
+
    // now compute the other term
    if ( isPermafrost )
    {
+      const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
+
       // NLSAY3: The permeability cannot reach lower values than 1.0e-7 mD;
       // The permeability must have a lower limit when the Permafrost relative permeability is activated
 
@@ -408,16 +405,8 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
    
    Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
    
-   matrixVectorProduct ( Fluid_Mobility, gradOverpressure, Fluid_Velocity );
-   
-   // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
-   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
-   // of pressure in MPa)
-   Fluid_Velocity ( 1 ) *= MPa_To_Pa;
-   Fluid_Velocity ( 2 ) *= MPa_To_Pa;
-   Fluid_Velocity ( 3 ) *= MPa_To_Pa;
-   
-
+   matrixVectorProduct ( Fluid_Mobility, gradOverpressurePa, Fluid_Velocity );
+  
 #else
   double Permeability_Normal;
   double Permeability_Plane;
