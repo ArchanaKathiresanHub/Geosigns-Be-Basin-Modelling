@@ -38,7 +38,7 @@ include(FeatureSummary)
 #
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
 option( BM_PARALLEL "Build the parallel cauldron applications" ${UNIX} )
-option( BM_USE_OWN_MPICH_LOCK "Use our custom ADIOI_Set_lock functions in MPI library (Linux only)" ON )
+option( BM_USE_OWN_MPICH_LOCK "Use our custom ADIOI_Set_lock functions in MPI library (Linux only)" OFF )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
