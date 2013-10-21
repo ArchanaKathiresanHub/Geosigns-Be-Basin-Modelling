@@ -944,20 +944,18 @@ void LayerProps::setConstrainedOverpressureInterval ( const double startTime,
 
 void LayerProps::getConstrainedOverpressure ( const double Time, double& Value, bool& Is_Constrained )
 {
-
   size_t index;
 
   for ( index = 0; index < Constrained_Overpressure.size (); index++ )
   {
     
     if ( ( Time <= Constrained_Overpressure[ index ] -> Start_Time ) && 
-	 ( Time >= Constrained_Overpressure[ index ] -> End_Time ) )
+         ( Time >= Constrained_Overpressure[ index ] -> End_Time ) )
     {
       Value = Constrained_Overpressure[ index ] -> Boundary_Value;
       Is_Constrained = true;
       return;
     }
-    
   }
   
   Is_Constrained = false;
@@ -1592,7 +1590,8 @@ void LayerProps::SetIncludedNodeArray ( const Boolean2DArray& Valid_Needle ) {
 
       if ( Valid_Needle ( I, J )) {
 
-        if ( getLithology ( I, J ) -> surfacePorosity () == 0.0 ) { //|| ( fluid->SwitchPermafrost() && fluid->density ( 0,  0.1 ) > getLithology ( I, J )->density() ) ) { // NLSAY3: Ice sheet modeling
+        if ( getLithology ( I, J ) -> surfacePorosity () == 0.0 || // salt layer
+             ( fluid->SwitchPermafrost() && fluid->density( 0, 0.1 ) > getLithology( I, J )->density() ) ) { // NLSAY3: Ice sheet modeling
 
           for ( K = zStart; K < zEnd; K++ ) {
             includedNodeArray ( K, J, I ) = 0.0;
@@ -1606,13 +1605,9 @@ void LayerProps::SetIncludedNodeArray ( const Boolean2DArray& Valid_Needle ) {
             ///
             includedNodeArray ( K, J, I ) = 1.0; 
           }
-
         }
-
       }
-
     }
-
   }
 
   includedNodeArray.Restore_Global_Array( Update_Including_Ghosts );
