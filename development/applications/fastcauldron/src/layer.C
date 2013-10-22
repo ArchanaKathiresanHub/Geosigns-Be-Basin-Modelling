@@ -200,11 +200,15 @@ void LayerProps::setElementInvariants () {
 
 void LayerProps::initialise () {
 
-   bool darcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
+   bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
 
    if ( m_record != 0 ) {
 
       layername      = Interface::Formation::getName ();
+
+      // Crust and mantle layers are not include in the darcy domain.
+      includedInDarcySimulation = includedInDarcySimulation and ( not isCrust () and not isMantle ());
+
       TopSurfaceName = Interface::Formation::getTopSurfaceName ();
       Hydro_Sand     = Interface::Formation::hasConstrainedOverpressure ();
       IsSourceRock   = Interface::Formation::isSourceRock ();
@@ -228,93 +232,91 @@ void LayerProps::initialise () {
       fluid = (FluidType*)Interface::Formation::getFluidType ();
 
       // Set mobile component grid and vectors
+      // Does not allocate a vector here.
       m_componentLayerVolumes.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
                                           getMaximumNumberOfElements (),
                                           NumberOfPVTComponents );
 
-      DMCreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_flowComponents );
-      VecZeroEntries ( m_flowComponents );
-
-      DMCreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_previousFlowComponents );
-      VecZeroEntries ( m_previousFlowComponents );
+      m_elements.create ( m_componentLayerVolumes.getDa ());
+      setElementInvariants ();
 
 
-      // Set immobile component grid and vector
-      m_immobilesLayerGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
-                                       getMaximumNumberOfElements (),
-                                       ImmobileSpeciesValues::NumberOfImmobileSpecies );
+      if ( includedInDarcySimulation ) {
 
-      DMCreateGlobalVector ( m_immobilesLayerGrid.getDa (), &m_immobileComponents );
-      VecZeroEntries ( m_immobileComponents );
+         DMCreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_flowComponents );
+         VecZeroEntries ( m_flowComponents );
+
+         DMCreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_previousFlowComponents );
+         VecZeroEntries ( m_previousFlowComponents );
 
 
-      // Set saturation grid and vector
-      m_saturationGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
-                                   getMaximumNumberOfElements (),
-                                   Saturation::NumberOfPhases );
-      DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_saturations );
-      DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_previousSaturations );
+         // Set immobile component grid and vector
+         m_immobilesLayerGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
+                                          getMaximumNumberOfElements (),
+                                          ImmobileSpeciesValues::NumberOfImmobileSpecies );
 
-      VecZeroEntries ( m_saturations );
-      VecZeroEntries ( m_previousSaturations );
+         DMCreateGlobalVector ( m_immobilesLayerGrid.getDa (), &m_immobileComponents );
+         VecZeroEntries ( m_immobileComponents );
 
-      PetscBlockVector<Saturation> saturations;
-      PetscBlockVector<Saturation> previousSaturations;
+         // Set saturation grid and vector
+         m_saturationGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
+                                      getMaximumNumberOfElements (),
+                                      Saturation::NumberOfPhases );
+         DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_saturations );
+         DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_previousSaturations );
 
-      saturations.setVector ( m_saturationGrid, getPhaseSaturationVec (), INSERT_VALUES );
-      previousSaturations.setVector ( m_saturationGrid, getPreviousPhaseSaturationVec (), INSERT_VALUES );
+         VecZeroEntries ( m_saturations );
+         VecZeroEntries ( m_previousSaturations );
 
-      //for time of invasion
-      m_timeOfElementInvasionGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
-                                   getMaximumNumberOfElements (),
-                                   1 );
-      DMCreateGlobalVector ( m_timeOfElementInvasionGrid.getDa (), &m_timeOfElementInvasionVec );
-      VecSet ( m_timeOfElementInvasionVec, CAULDRONIBSNULLVALUE );
-      PetscBlockVector<double> timeOfElementInvasion;
-      timeOfElementInvasion.setVector (m_timeOfElementInvasionGrid, getTimeOfElementInvasionVec(), INSERT_VALUES );
+         PetscBlockVector<Saturation> saturations;
+         PetscBlockVector<Saturation> previousSaturations;
+
+         saturations.setVector ( m_saturationGrid, getPhaseSaturationVec (), INSERT_VALUES );
+         previousSaturations.setVector ( m_saturationGrid, getPreviousPhaseSaturationVec (), INSERT_VALUES );
+
+         //for time of invasion
+         m_timeOfElementInvasionGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
+                                                 getMaximumNumberOfElements (),
+                                                 1 );
+         DMCreateGlobalVector ( m_timeOfElementInvasionGrid.getDa (), &m_timeOfElementInvasionVec );
+         VecSet ( m_timeOfElementInvasionVec, CAULDRONIBSNULLVALUE );
+         PetscBlockVector<double> timeOfElementInvasion;
+         timeOfElementInvasion.setVector (m_timeOfElementInvasionGrid, getTimeOfElementInvasionVec(), INSERT_VALUES );
       
-      int i;
-      int j;
-      int k;
+         int i;
+         int j;
+         int k;
 
-      for ( i = m_saturationGrid.firstI (); i <= m_saturationGrid.lastI (); ++i ) {
+         for ( i = m_saturationGrid.firstI (); i <= m_saturationGrid.lastI (); ++i ) {
 
-         for ( j = m_saturationGrid.firstJ (); j <= m_saturationGrid.lastJ (); ++j ) {
+            for ( j = m_saturationGrid.firstJ (); j <= m_saturationGrid.lastJ (); ++j ) {
 
-            if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
+               if ( FastcauldronSimulator::getInstance ().getMapElement ( i, j ).isValid ()) {
 
-               for ( k = m_saturationGrid.firstK (); k <= m_saturationGrid.lastK (); ++k ) {
-                  saturations ( k, j, i ).initialise ();
-                  previousSaturations ( k, j, i ).initialise ();
+                  for ( k = m_saturationGrid.firstK (); k <= m_saturationGrid.lastK (); ++k ) {
+                     saturations ( k, j, i ).initialise ();
+                     previousSaturations ( k, j, i ).initialise ();
+                  }
+
                }
 
             }
 
          }
 
-      }
+         saturations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+         previousSaturations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
 
-      saturations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
-      previousSaturations.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+         m_averagedSaturationGrid.construct ( FastcauldronSimulator::getInstance ().getNodalGrid (),
+                                              getMaximumNumberOfElements () + 1,
+                                              Saturation::NumberOfPhases );
 
-      m_averagedSaturationGrid.construct ( FastcauldronSimulator::getInstance ().getNodalGrid (),
-                                           getMaximumNumberOfElements () + 1,
-                                           Saturation::NumberOfPhases );
-
-      DMCreateGlobalVector ( m_averagedSaturationGrid.getDa (), &m_averagedSaturation );
-      // DACreateGlobalVector ( layerDA, &m_numberOfContributingElements );
+         DMCreateGlobalVector ( m_averagedSaturationGrid.getDa (), &m_averagedSaturation );
 
 
-      // if ( IsSourceRock ) {
-      //    m_generatedMasses.create ( m_componentLayerVolumes.getDa ());
-      // }
-
-      m_elementFluxGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
-                                    getMaximumNumberOfElements (),
-                                    ElementFaceValues::NumberOfFaces );
-
-      m_elements.create ( m_componentLayerVolumes.getDa ());
-      setElementInvariants ();
+         m_elementFluxGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
+                                       getMaximumNumberOfElements (),
+                                       ElementFaceValues::NumberOfFaces );
 
       // if ( darcySimulation ) {
          // Allocate the vector containing the transported masses.
@@ -323,6 +325,8 @@ void LayerProps::initialise () {
          DMCreateGlobalVector ( elementGrid.getDa (), &m_transportedMasses );
          VecSet ( m_transportedMasses, 0.0 );
       // }
+
+      } // if includedInDarcySimulation
 
    } else {
       layername         = "";
@@ -506,7 +510,8 @@ void LayerProps::connectElements ( LayerProps* layerAbove ) {
 
 LayerProps::~LayerProps(){
 
-   bool darcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
+   bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()
+                                    and ( not isCrust () and not isMantle ());
 
    if ( depthvec != 0 ) {
       Destroy_Petsc_Vector(depthvec);
@@ -572,12 +577,16 @@ LayerProps::~LayerProps(){
 
   Destroy_Petsc_Vector ( m_averagedSaturation );
 
-  // if ( darcySimulation ) {
+  if ( includedInDarcySimulation ) {
      Destroy_Petsc_Vector ( m_transportedMasses );
-  // }
-
-  // Destroy_Petsc_Vector ( m_numberOfContributingElements );
-
+     Destroy_Petsc_Vector ( m_flowComponents );
+     Destroy_Petsc_Vector ( m_previousFlowComponents );
+     Destroy_Petsc_Vector ( m_immobileComponents );
+     Destroy_Petsc_Vector ( m_saturations );
+     Destroy_Petsc_Vector ( m_previousSaturations );
+     Destroy_Petsc_Vector ( m_timeOfElementInvasionVec );
+     Destroy_Petsc_Vector ( m_averagedSaturation );
+  }
 
   if ( vesInterpolator != 0 ) {
     delete vesInterpolator;
@@ -678,9 +687,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel ) {
     createVec ( Previous_VES );
     createVec ( Previous_Max_VES );
     createVec ( Previous_Temperature );
-
-    // createVec ( m_averagedSaturation );
-    // createVec ( m_numberOfContributingElements );
 
 
 //     setVec ( Previous_Real_Thickness_Vector, Zero );
@@ -1034,8 +1040,6 @@ void LayerProps::nullify (){
   m_saturations = NULL;
   m_timeOfElementInvasionVec=NULL;
 
-  // m_averagedSaturation = NULL;
-  // m_numberOfContributingElements = NULL;
    if( isBasement() ) {
      initialiseBasementVecs();
    }
@@ -1150,9 +1154,6 @@ void LayerProps::reInitialise (){
    Destroy_Petsc_Vector ( m_HopaneIsomerisation ); 
 
    Destroy_Petsc_Vector ( m_IlliteFraction );
-
-   // Destroy_Petsc_Vector ( m_averagedSaturation );
-   // Destroy_Petsc_Vector ( m_numberOfContributingElements );
 
    if( isBasement() ) {
      reInitialiseBasementVecs();

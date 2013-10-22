@@ -75,6 +75,10 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
 
    const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
 
+   bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp () and
+                                ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()
+                                    and ( not m_formation->isCrust () and not m_formation->isMantle ()));
+
    unsigned int elementCount;
    unsigned int i;
    unsigned int j;
@@ -162,7 +166,10 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
    }
 
    PetscBlockVector<Saturation> saturations;
-   saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
+
+   if ( includeWaterSaturation ) {
+      saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
+   }
 
    // Get all the properties required  for the calculation of the heat-flow.
    PETSC_3D_Array layerTemperature
@@ -210,7 +217,6 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
    fluidVelocityMapZ = propertyValues [ 2 ]->getGridMap ();
    fluidVelocityMapZ->retrieveData ();
 
-   bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp ();
 
    const double deltaX  = fluidVelocityMapX->deltaI ();
    const double deltaY  = fluidVelocityMapX->deltaJ ();
@@ -265,6 +271,7 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
                   temperature         ( node ) = layerTemperature ( LidxZ, GidxY, GidxX );
                   chemCompaction      ( node ) = layerCurrentChemicalCompaction ( LidxZ, GidxY, GidxX );
                }
+
                relativePermeability = ( includeWaterSaturation ? litho->relativePermeability ( Saturation::WATER, saturations (  k, j, i )) : 1.0 );
 
                computeFluidVelocity ( 0.0, 0.0, m_zPosition,
@@ -539,8 +546,16 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
         INSERT_VALUES, IncludeGhosts );
 
    const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
+
    PetscBlockVector<Saturation> saturations;
-   saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
+
+   bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp () and
+                                ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()
+                                    and ( not m_formation->isCrust () and not m_formation->isMantle ()));
+
+   if ( includeWaterSaturation ) {
+      saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
+   }
 
    // Retrieve the heat-flow result maps.
    fluidVelocityMapX = propertyValues [ 0 ]->getGridMap ();
@@ -557,7 +572,6 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
    const double originX = fluidVelocityMapX->minI ();
    const double originY = fluidVelocityMapX->minJ ();
 
-   bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp ();
    
    for ( k = fluidVelocityMapX->firstK (); k <= fluidVelocityMapX->lastK () - 1; ++k ) {
 
@@ -589,6 +603,7 @@ bool FluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Output
                   temperature         ( node ) = layerTemperature ( LidxZ, GidxY, GidxX );
                   chemCompaction      ( node ) = layerCurrentChemicalCompaction ( LidxZ, GidxY, GidxX );
                }
+
                relativePermeability = ( includeWaterSaturation ? litho->relativePermeability ( Saturation::WATER, saturations (  k, j, i )) : 1.0 );
 
                computeFluidVelocity ( lithology,

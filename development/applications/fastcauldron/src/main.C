@@ -186,8 +186,8 @@ int main(int argc, char** argv)
      return 0;
    }
 
-   FastcauldronSimulator::getInstance ().initialiseFastcauldronLayers ();
    FastcauldronSimulator::getInstance ().getMcfHandler ().determineUsage ();
+   FastcauldronSimulator::getInstance ().initialiseFastcauldronLayers ();
 
    if ( not appctx->readProjectFile ()) {
      finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR Error when reading the project file", factory );

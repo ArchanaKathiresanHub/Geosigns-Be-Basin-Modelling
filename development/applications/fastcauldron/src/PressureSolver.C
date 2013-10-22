@@ -421,6 +421,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
   bool includeWaterSaturation = FastcauldronSimulator::getInstance ().getMcfHandler ().includeWaterSaturationInOp ();
 
+  bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
 
 #if 0
   bool bottomOfModel = true;
@@ -442,8 +443,10 @@ void PressureSolver::assembleSystem ( const double  previousTime,
     PetscBlockVector<Saturation> layerSaturations;
     PetscBlockVector<Saturation> previousLayerSaturations;
 
-    layerSaturations.setVector ( Current_Layer->getVolumeGrid ( Saturation::NumberOfPhases ), Current_Layer->getPhaseSaturationVec (), INSERT_VALUES, false );
-    previousLayerSaturations.setVector ( Current_Layer->getVolumeGrid ( Saturation::NumberOfPhases ), Current_Layer->getPreviousPhaseSaturationVec (), INSERT_VALUES, false );
+    if ( includedInDarcySimulation ) {
+       layerSaturations.setVector ( Current_Layer->getVolumeGrid ( Saturation::NumberOfPhases ), Current_Layer->getPhaseSaturationVec (), INSERT_VALUES, false );
+       previousLayerSaturations.setVector ( Current_Layer->getVolumeGrid ( Saturation::NumberOfPhases ), Current_Layer->getPreviousPhaseSaturationVec (), INSERT_VALUES, false );
+    }
 
     Include_Chemical_Compaction = (( cauldron->Do_Chemical_Compaction ) && ( Current_Layer -> Get_Chemical_Compaction_Mode ()));
 
@@ -490,16 +493,14 @@ void PressureSolver::assembleSystem ( const double  previousTime,
             I_Position = cauldron->mapElementList [ Element_Index ].i [ 0 ];
             J_Position = cauldron->mapElementList [ Element_Index ].j [ 0 ];
 
-
-            currentSaturation = layerSaturations ( K, J_Position, I_Position );
-            previousSaturation = previousLayerSaturations ( K, J_Position, I_Position );
-
-            // waterSaturation = layerSaturations ( K, J_Position, I_Position )( Saturation::WATER );
-            // previousWaterSaturation = previousLayerSaturations ( K, J_Position, I_Position )( Saturation::WATER );
-
-            // if ( Current_Layer->isSourceRock ()) {
-            //    cout << " pressure saturations " << layerSaturations ( K, J_Position, I_Position ).image () << "  " << previousLayerSaturations ( K, J_Position, I_Position ).image () << endl;
-            // }
+            if ( includedInDarcySimulation ) {
+               currentSaturation = layerSaturations ( K, J_Position, I_Position );
+               previousSaturation = previousLayerSaturations ( K, J_Position, I_Position );
+            } else {
+               // If Darcy simulation has not been enabled then set the saturation to ( Water => 1, Vapour => 0, Liquid => 0 )
+               currentSaturation.initialise ();
+               previousSaturation.initialise ();
+            }
 
 #if 0
             // Assign Neumann type boundary conditions.

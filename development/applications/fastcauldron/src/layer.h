@@ -405,7 +405,6 @@ public:
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   Vec m_averagedSaturation;
-  Vec m_numberOfContributingElements;
   Vec m_timeOfElementInvasionVec;
 
   //~~~~~~~~~~~~~~~~Scalar Properties~~~~~~~~~~~~~~~~
