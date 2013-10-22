@@ -466,7 +466,7 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
   // of pressure in MPa)
   Fluid_Velocity ( 1 ) *= MPa_To_Pa;
-  Fluid_Velocity ( 2 ) *= MPa_To_Pa; 
+  Fluid_Velocity ( 2 ) *= MPa_To_Pa;
   Fluid_Velocity ( 3 ) *= MPa_To_Pa;
 
   // now compute the derivative terms
@@ -1290,26 +1290,27 @@ void Basin_Modelling::Apply_Dirichlet_Boundary_Conditions_Newton
 //------------------------------------------------------------//
 
 
-void Basin_Modelling::Apply_Dirichlet_Boundary_Conditions_Newton
-   ( const Boundary_Conditions*          BCs,
-     const ElementVector&               Dirichlet_Boundary_Values,
-     const double                        Dirichlet_Boundary_Scaling,
-     const ElementVector&               Current_Property_Values,
-           ElementVector&               Residual ) {
+void Basin_Modelling::Apply_Dirichlet_Boundary_Conditions_Newton(
+                              const Boundary_Conditions*         BCs,
+                              const ElementVector&               Dirichlet_Boundary_Values,
+                              const double                       Dirichlet_Boundary_Scaling,
+                              const ElementVector&               Current_Property_Values,
+                                    ElementVector&               Residual 
+                                                                )
+{
+   for ( int I = 1; I <= 8; I++ ) 
+   {
+      if ( BCs [ I - 1 ] == Surface_Boundary || BCs [ I - 1 ] == Interior_Constrained_Overpressure )
+      {
+         Residual ( I ) = Dirichlet_Boundary_Scaling * ( Dirichlet_Boundary_Values ( I ) - Current_Property_Values ( I ) ) * MPa_To_Pa;
+      }
+      else if (BCs [ I - 1 ] == Interior_Constrained_Temperature )
+      {
+         Residual ( I ) = Dirichlet_Boundary_Scaling * ( Dirichlet_Boundary_Values ( I ) - Current_Property_Values ( I ) );
+      }
+   }
 
-  int I;
-
-  for ( I = 1; I <= 8; I++ ) {
-
-    if ( BCs [ I - 1 ] == Surface_Boundary || BCs [ I - 1 ] == Interior_Constrained_Overpressure ) {
-      Residual ( I ) = Dirichlet_Boundary_Scaling * ( Dirichlet_Boundary_Values ( I ) - Current_Property_Values ( I )) * MPa_To_Pa;
-    } else if (BCs [ I - 1 ] == Interior_Constrained_Temperature ) {
-      Residual ( I ) = Dirichlet_Boundary_Scaling * ( Dirichlet_Boundary_Values ( I ) - Current_Property_Values ( I ));
-    }
-
-  }
-
-  scale ( Residual, Element_Scaling );
+   scale ( Residual, Element_Scaling );
 }
 
 //------------------------------------------------------------//
@@ -1498,550 +1499,345 @@ void Basin_Modelling::computeGradSurfaceDepth ( const PetscScalar          xi,
 
 //------------------------------------------------------------//
 
-void Basin_Modelling::Assemble_Element_Pressure_System
-   ( const int                      planeQuadratureDegree,
-     const int                      depthQuadratureDegree,
-     const double                   currentTime,
-     const double                   timeStep,
-     const Boundary_Conditions*     Element_BCs,
-     const Boundary_Conditions*     BCs,
-     const ElementVector&          Dirichlet_Boundary_Values,
-     const CompoundLithology*       lithology,
-     const GeoPhysics::FluidType*   Fluid,
-     const bool                     includeChemicalCompaction,
-     const Interface::FracturePressureModel    fractureModel,
-     const ElementGeometryMatrix& previousGeometryMatrix,
-     const ElementGeometryMatrix& geometryMatrix,
+void Basin_Modelling::Assemble_Element_Pressure_System (
+         const int                      planeQuadratureDegree,
+         const int                      depthQuadratureDegree,
+         const double                   currentTime,
+         const double                   timeStep,
+         const Boundary_Conditions*     Element_BCs,
+         const Boundary_Conditions*     BCs,
+         const ElementVector&           Dirichlet_Boundary_Values,
+         const bool                     isIceSheetLayer,
+         const CompoundLithology*       lithology,
+         const GeoPhysics::FluidType*   Fluid,
+         const bool                     includeChemicalCompaction,
 
-     const ElementVector&          Previous_Element_Solid_Thickness,
-     const ElementVector&          Current_Element_Solid_Thickness,
-     const ElementVector&          Previous_Ph,
-     const ElementVector&          Current_Ph,
-     const ElementVector&          Previous_Po,
-     const ElementVector&          Current_Po,
-     const ElementVector&          Current_Pl,
-     const ElementVector&          Previous_Element_VES,
-     const ElementVector&          Current_Element_VES,
-     const ElementVector&          Previous_Element_Max_VES,
-     const ElementVector&          Current_Element_Max_VES,
-     const ElementVector&          Previous_Element_Temperature,
-     const ElementVector&          Current_Element_Temperature,
+         const Interface::FracturePressureModel fractureModel,
 
-     const ElementVector&          Previous_Element_Chemical_Compaction,
-     const ElementVector&          Current_Element_Chemical_Compaction,
+         const ElementGeometryMatrix&  previousGeometryMatrix,
+         const ElementGeometryMatrix&  geometryMatrix,
 
-     const ElementVector&          Fracture_Pressure_Exceeded,
-     const ElementVector&          preFractureScaling,
-     const BooleanVector&          Included_Nodes,
+         const ElementVector&          Previous_Element_Solid_Thickness,
+         const ElementVector&          Current_Element_Solid_Thickness,
+         const ElementVector&          Previous_Ph,
+         const ElementVector&          Current_Ph,
+         const ElementVector&          Previous_Po,
+         const ElementVector&          Current_Po,
+         const ElementVector&          Current_Pl,
+         const ElementVector&          Previous_Element_VES,
+         const ElementVector&          Current_Element_VES,
+         const ElementVector&          Previous_Element_Max_VES,
+         const ElementVector&          Current_Element_Max_VES,
+         const ElementVector&          Previous_Element_Temperature,
+         const ElementVector&          Current_Element_Temperature,
 
-     const bool                    includeWaterSaturation,
-     const Saturation&             currentSaturation,
-     const Saturation&             previousSaturation,
+         const ElementVector&          Previous_Element_Chemical_Compaction,
+         const ElementVector&          Current_Element_Chemical_Compaction,
 
-           ElementMatrix&          Element_Jacobian,
-           ElementVector&          Element_Residual ) {
+         const ElementVector&          Fracture_Pressure_Exceeded,
+         const ElementVector&          preFractureScaling,
+         const BooleanVector&          Included_Nodes,
 
+         const bool                    includeWaterSaturation,
+         const Saturation&             currentSaturation,
+         const Saturation&             previousSaturation,
 
-   const Lithology* litho = static_cast<const Lithology*>( lithology );
-
-  const double Thickness_Tolerance = 1.0e-6;
-
-  // Would it be better to multiply the equation by the delta t rather than divide by it?
-  const double timeStepInv = 1.0 / ( timeStep * Secs_IN_MA );
-
-  NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Points;
-  NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Weights;
-
-  NumericFunctions::Quadrature::QuadratureArray Y_Quadrature_Points;
-  NumericFunctions::Quadrature::QuadratureArray Y_Quadrature_Weights;
-
-  NumericFunctions::Quadrature::QuadratureArray Z_Quadrature_Points;
-  NumericFunctions::Quadrature::QuadratureArray Z_Quadrature_Weights;
+               ElementMatrix&          Element_Jacobian,
+               ElementVector&          Element_Residual ) {
 
 
+   const double Thickness_Tolerance = 1.0e-6;
 
-  const int Number_Of_X_Points = planeQuadratureDegree;
-  const int Number_Of_Y_Points = planeQuadratureDegree;
-  const int Number_Of_Z_Points = depthQuadratureDegree;
+   // Would it be better to multiply the equation by the delta t rather than divide by it?
+   const double timeStepInv = 1.0 / ( timeStep * Secs_IN_MA );
 
-  NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_X_Points, X_Quadrature_Points, X_Quadrature_Weights );
-  NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_Y_Points, Y_Quadrature_Points, Y_Quadrature_Weights );
-  NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_Z_Points, Z_Quadrature_Points, Z_Quadrature_Weights );
+   NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Points;
+   NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Weights;
 
-  int I, J, K;
+   NumericFunctions::Quadrature::QuadratureArray Y_Quadrature_Points;
+   NumericFunctions::Quadrature::QuadratureArray Y_Quadrature_Weights;
 
-  double previousIntegrationWeight;
-  double integrationWeight;
+   NumericFunctions::Quadrature::QuadratureArray Z_Quadrature_Points;
+   NumericFunctions::Quadrature::QuadratureArray Z_Quadrature_Weights;
 
-  ElementVector      currentDepth;
-  ElementVector      previousDepth;
-  ThreeVector        gradSurfaceDepth;
-  ThreeVector        referenceGradSurfaceDepth;
+   const int Number_Of_X_Points = planeQuadratureDegree;
+   const int Number_Of_Y_Points = planeQuadratureDegree;
+   const int Number_Of_Z_Points = depthQuadratureDegree;
 
-  ThreeVector        gradHydrostaticPressure;
-  ThreeVector        referenceGradHydrostaticPressure;
-  BasisFunction basisFunction;
+   NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_X_Points, X_Quadrature_Points, X_Quadrature_Weights );
+   NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_Y_Points, Y_Quadrature_Points, Y_Quadrature_Weights );
+   NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_Z_Points, Z_Quadrature_Points, Z_Quadrature_Weights );
 
-  ElementVector      Basis;
-  ElementVector      Term_3;
-  GradElementVector gradBasis;
-  GradElementVector scaledGradBasis;
-  GradElementVector scaledGradBasis2;
+   int I, J, K;
 
-  Matrix3x3          Middle_Term;
-  Matrix3x3          Middle_Term2;
-  Matrix3x3          Jacobian;
-  Matrix3x3          jacobianInverse;
-  Matrix3x3          Previous_Jacobian;
+   ThreeVector        gradHydrostaticPressure;
+   ThreeVector        referenceGradHydrostaticPressure;
+   BasisFunction      basisFunction;
 
-  Matrix3x3          fluidMobility;
-  ThreeVector        gradOverpressure;
-  ThreeVector        referenceGradOverpressure;
-  ThreeVector        fluidVelocity;
-  ThreeVector        fluidVelocityDerivative;
-  ThreeVector        jacobianInverseFluidVelocity;
-  double              sourceTerm;
+   ElementVector      Basis;
+   ElementVector      Term_3;
+   GradElementVector  gradBasis;
+   GradElementVector  scaledGradBasis;
+   GradElementVector  scaledGradBasis2;
 
-  double bulkFluidDensityDerivative;
-  double previousFluidDensityTerm;
-  double currentFluidDensityTerm;
-  double currentFluidDensityDerivative;
+   Matrix3x3          Jacobian;
+   Matrix3x3          jacobianInverse;
 
-  double fluidViscosity;
+   Matrix3x3          fluidMobility;
+   ThreeVector        gradOverpressure;
+   ThreeVector        referenceGradOverpressure;
+   ThreeVector        fluidVelocity;
+   ThreeVector        fluidVelocityDerivative;
 
-  double previousVes;
-  double currentVes;
+   CompoundProperty currentCompoundPorosity;
 
-  double previousMaxVes;
-  double currentMaxVes;
+   Element_Jacobian.zero ();
+   Element_Residual.zero ();
 
-  double previousHydrostaticPressure;
-  double currentHydrostaticPressure;
+   double fractureScaling = maxValue ( Fracture_Pressure_Exceeded );
 
-  double previousOverpressure;
-  double currentOverpressure;
+   // If non-conservative fracturing has been switched-on then Has-Fractured constant will
+   // be assigned false because the permeabilities are not to be scaled in this fracturing model.
+   const bool   Has_Fractured = ( fractureModel == Interface::NON_CONSERVATIVE_TOTAL ? false : ( fractureScaling > 0.0 ) );
 
-  double previousPorePressure;
-  double currentPorePressure;
+   bool Is_At_Top     = false;
 
-  double previousTemperature;
-  double currentTemperature;
+   fractureScaling = fractureScaling + maxValue ( preFractureScaling );
 
-  double previousPorosity;
-  double currentPorosity;
-  CompoundProperty currentCompoundPorosity;
-
-  double Previous_Chemical_Compaction_Term;
-  double Current_Chemical_Compaction_Term;
-
-  double previousFluidDensity;
-  double currentFluidDensity;
-
-  double previousSolidThickness;
-  double currentSolidThickness;
-
-  double relativePermeability = litho->relativePermeability ( Saturation::WATER, currentSaturation );
-  double currentRelativePermeability;
-  double usedWaterSaturation;
-  double usedPreviousWaterSaturation;
-
-  double dPhiDP;
-  double dRhoDP;
-  double t1;
-  double t2;
-  double t3;
-  double t4;
-
-  ElementMatrix Grad_Term_3;
-
-  Element_Jacobian.zero ();
-  Element_Residual.zero ();
-
-  double fractureScaling = maxValue ( Fracture_Pressure_Exceeded );
-
-  // If non-conservative fracturing has been switched-on then Has-Fractured constant will
-  // be assigned false because the permeabilities are not to be scaled in this fracturing model.
-  const bool   Has_Fractured = ( fractureModel == Interface::NON_CONSERVATIVE_TOTAL ? false : ( fractureScaling > 0.0 ));
-
-  bool Is_At_Top     = false;
-  ThreeVector        Outward_Normal;
-
-  fractureScaling = fractureScaling + maxValue ( preFractureScaling );
-
-  if ( Degenerate_Element ( geometryMatrix )) {
-
-    ///
-    /// This is only temporary until I sort out the whole degenerate segment thing!
-    ///
-    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
-                                                 Current_Po, Element_Jacobian, Element_Residual );
-
-
-    return;
-  }
-
-  if ( lithology -> surfacePorosity () == 0.0 ) {
-
-    for ( I = 1; I <= 8; I++ ) {
-
+   if ( Degenerate_Element ( geometryMatrix ) ) {
       ///
-      /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
+      /// This is only temporary until I sort out the whole degenerate segment thing!
       ///
-      if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
-        Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
+      Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
+                                                   Current_Po, Element_Jacobian, Element_Residual );
+      return;
+   }
+
+   if ( lithology -> surfacePorosity () == 0.0 ) {
+
+      for ( I = 1; I <= 8; I++ ) {
+         ///
+         /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
+         ///
+         if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
+            Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
+         }
       }
 
-    }
-
-    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
+      Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
                                                  Current_Po, Element_Jacobian, Element_Residual );
+      return;
+   }
 
 
-    return;
-  }
+   // For the ice sheet with Permafrost taking in account, we do not want to "compute" the overpressure in the ice lithology - we want to impose it.
+   if ( isIceSheetLayer ) { 
 
-
-/*  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) {  // NLSAY3: We assume the solid is ice in this case
-// We do noy want to "compute" the overpressure in the ice lithology
-// To be removed at some point as it is replaced by the code just below.
-
-    for ( I = 1; I <= 8; I++ ) {
-
-      ///
-      /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
-      ///
-      if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
-        Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
+      for ( I = 1; I <= 8; I++ ) {
+         ///
+         /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
+         ///
+         if ( ! Included_Nodes ( I ) && ( fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 ) ) > 0.001 ) ) {
+            Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
+         }
       }
 
-    }
+      Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
+                                                   Current_Po, Element_Jacobian, Element_Residual );
+      return;
+   }
 
-    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
-                                                 Current_Po, Element_Jacobian, Element_Residual );
+   for ( I = 1; I <= 8; I++ ) {
 
-
-    return;
-  }*/
-
-
-/*  if ( ( Fluid->density ( 0,  0.1 ) > lithology->density() ) && ( Fluid->SwitchPermafrost() ) ) { // NLSAY3: We assume the solid is ice in this case
-// We do noy want to "compute" the overpressure in the ice lithology - we want to impose it.
-
-  ElementVector Dirichlet_Boundary_Values_Ice_Sheet;
-//  Dirichlet_Boundary_Values_Ice_Sheet.zero();
-
-  subtract(Current_Pl, Current_Ph, Dirichlet_Boundary_Values_Ice_Sheet); // NLSAY3: redundant with PressureSolver.C ln 694.
-
-    for ( I = 1; I <= 8; I++ ) {
-
-      ///
-      /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
-      ///
-      if ( ! Included_Nodes ( I ) && (  fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 )) > 0.001 )) {
-        Element_Jacobian ( I, I ) = Dirichlet_Scaling_Value;
+      if ( BCs [ I - 1 ] == Surface_Boundary ) {
+         Is_At_Top = true;
+         break;
       }
+   }
 
-    }
+   ElementVector      currentDepth;
+   ElementVector      previousDepth;
 
-    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values_Ice_Sheet, Dirichlet_Scaling_Value,
-                                                 Current_Po, Element_Jacobian, Element_Residual );
+   for ( I = 1; I <= 8; ++I ) {
+      currentDepth  ( I ) = geometryMatrix ( 3, I );
+      previousDepth ( I ) = previousGeometryMatrix ( 3, I );
+   }
 
+   basisFunction ( 0.0, 0.0, 0.0, Basis, gradBasis );
 
-    return;
-  }*/
+   double previousSolidThickness = Compute_Solid_Thickness ( Previous_Element_Solid_Thickness, Basis );
+   double currentSolidThickness  = Compute_Solid_Thickness ( Current_Element_Solid_Thickness,  Basis );
 
+   double usedWaterSaturation         = includeWaterSaturation ? currentSaturation ( Saturation::WATER )  : 1.0;
+   double usedPreviousWaterSaturation = includeWaterSaturation ? previousSaturation ( Saturation::WATER ) : 1.0;
+
+   double relativePermeability = includeWaterSaturation ? static_cast<const Lithology*>( lithology )->relativePermeability ( Saturation::WATER, currentSaturation ) : 1.0;
+
+   for ( I = 0; I < Number_Of_X_Points; I++ ) {
+
+      for ( J = 0; J < Number_Of_Y_Points; J++ ) {
+
+         for ( K = 0; K < Number_Of_Z_Points; K++ ) {
+
+            basisFunction ( X_Quadrature_Points [ I ],
+                            Y_Quadrature_Points [ J ],
+                            Z_Quadrature_Points [ K ],
+                            Basis, 
+                            gradBasis );
+
+            matrixMatrixProduct ( geometryMatrix, gradBasis, Jacobian );
+
+            invert ( Jacobian, jacobianInverse );
+
+            matrixMatrixProduct ( gradBasis, jacobianInverse, scaledGradBasis );
+
+            double integrationWeight = X_Quadrature_Weights [ I ] *
+                                       Y_Quadrature_Weights [ J ] * 
+                                       Z_Quadrature_Weights [ K ] * 
+                                       determinant ( Jacobian );
+
+            //----------------------------//
+
+            double previousVes    = FiniteElementMethod::innerProduct ( Basis, Previous_Element_VES );
+            double currentVes     = FiniteElementMethod::innerProduct ( Basis, Current_Element_VES );
+            double previousMaxVes = FiniteElementMethod::innerProduct ( Basis, Previous_Element_Max_VES );
+            double currentMaxVes  = FiniteElementMethod::innerProduct ( Basis, Current_Element_Max_VES );
+
+            double previousHydrostaticPressure = FiniteElementMethod::innerProduct ( Basis, Previous_Ph ) * MPa_To_Pa;
+            double currentHydrostaticPressure  = FiniteElementMethod::innerProduct ( Basis, Current_Ph ) * MPa_To_Pa;
+
+            double previousOverpressure = FiniteElementMethod::innerProduct ( Basis, Previous_Po ) * MPa_To_Pa;
+            double currentOverpressure  = FiniteElementMethod::innerProduct ( Basis, Current_Po ) * MPa_To_Pa;
+
+            double previousPorePressure = previousHydrostaticPressure + previousOverpressure;
+            double currentPorePressure  = currentHydrostaticPressure  + currentOverpressure;
+
+            double previousTemperature = FiniteElementMethod::innerProduct ( Basis, Previous_Element_Temperature );
+            double currentTemperature  = FiniteElementMethod::innerProduct ( Basis, Current_Element_Temperature );
+
+            double Previous_Chemical_Compaction_Term = FiniteElementMethod::innerProduct ( Basis, Previous_Element_Chemical_Compaction );
+            double Current_Chemical_Compaction_Term  = FiniteElementMethod::innerProduct ( Basis, Current_Element_Chemical_Compaction );
+
+            double previousPorosity = lithology->porosity ( previousVes, previousMaxVes, includeChemicalCompaction, Previous_Chemical_Compaction_Term );
+
+            lithology->getPorosity ( currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term, currentCompoundPorosity );
+            double currentPorosity = currentCompoundPorosity.mixedProperty ();
+
+            double previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
+            double currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
 
-  for ( I = 1; I <= 8; I++ ) {
+            double fluidViscosity       = Fluid->viscosity ( currentTemperature );
+
+            double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
 
-    if ( BCs [ I - 1 ] == Surface_Boundary ) {
-      Is_At_Top = true;
-      break;
-    }
-
-  }
-
-
-  for ( I = 1; I <= 8; ++I ) {
-    currentDepth  ( I ) = geometryMatrix ( 3, I );
-    previousDepth ( I ) = previousGeometryMatrix ( 3, I );
-  }
-
-  basisFunction ( 0.0, 0.0, 0.0, Basis, gradBasis );
-
-  previousSolidThickness = Compute_Solid_Thickness ( Previous_Element_Solid_Thickness, Basis );
-  currentSolidThickness  = Compute_Solid_Thickness ( Current_Element_Solid_Thickness,  Basis );
-
-  if ( includeWaterSaturation ) {
-     usedWaterSaturation = currentSaturation ( Saturation::WATER );
-     usedPreviousWaterSaturation = previousSaturation ( Saturation::WATER );
-  } else {
-     usedWaterSaturation = 1.0;
-     usedPreviousWaterSaturation = 1.0;
-  }
-
-  if ( includeWaterSaturation ) {
-     relativePermeability = litho->relativePermeability ( Saturation::WATER, currentSaturation );
-  } else {
-     relativePermeability = 1.0;
-  }
-
-  for ( I = 0; I < Number_Of_X_Points; I++ ) {
-
-    for ( J = 0; J < Number_Of_Y_Points; J++ ) {
-
-      for ( K = 0; K < Number_Of_Z_Points; K++ ) {
-
-        basisFunction ( X_Quadrature_Points [ I ],
-                        Y_Quadrature_Points [ J ],
-                        Z_Quadrature_Points [ K ],
-                        Basis, 
-                        gradBasis );
-
-        matrixMatrixProduct ( geometryMatrix, gradBasis, Jacobian );
-
-        invert ( Jacobian, jacobianInverse );
-
-        matrixMatrixProduct ( gradBasis, jacobianInverse, scaledGradBasis );
-
-        integrationWeight = X_Quadrature_Weights [ I ] *
-                             Y_Quadrature_Weights [ J ] * 
-                             Z_Quadrature_Weights [ K ] * 
-                             determinant ( Jacobian );
-
-        //----------------------------//
-
-        previousVes = FiniteElementMethod::innerProduct ( Basis, Previous_Element_VES );
-        currentVes  = FiniteElementMethod::innerProduct ( Basis, Current_Element_VES );
-        previousMaxVes = FiniteElementMethod::innerProduct ( Basis, Previous_Element_Max_VES );
-        currentMaxVes  = FiniteElementMethod::innerProduct ( Basis, Current_Element_Max_VES );
-
-        previousHydrostaticPressure = FiniteElementMethod::innerProduct ( Basis, Previous_Ph ) * MPa_To_Pa;
-        currentHydrostaticPressure  = FiniteElementMethod::innerProduct ( Basis, Current_Ph ) * MPa_To_Pa;
-
-        previousOverpressure = FiniteElementMethod::innerProduct ( Basis, Previous_Po ) * MPa_To_Pa;
-        currentOverpressure  = FiniteElementMethod::innerProduct ( Basis, Current_Po ) * MPa_To_Pa;
-
-        previousPorePressure = previousHydrostaticPressure + previousOverpressure;
-        currentPorePressure  = currentHydrostaticPressure  + currentOverpressure;
-
-        previousTemperature = FiniteElementMethod::innerProduct ( Basis, Previous_Element_Temperature );
-        currentTemperature  = FiniteElementMethod::innerProduct ( Basis, Current_Element_Temperature );
-
-        Previous_Chemical_Compaction_Term = FiniteElementMethod::innerProduct ( Basis, Previous_Element_Chemical_Compaction );
-        Current_Chemical_Compaction_Term  = FiniteElementMethod::innerProduct ( Basis, Current_Element_Chemical_Compaction );
-
-        previousPorosity = lithology->porosity ( previousVes, previousMaxVes, includeChemicalCompaction, Previous_Chemical_Compaction_Term );
-
-        lithology->getPorosity ( currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term, currentCompoundPorosity );
-        currentPorosity = currentCompoundPorosity.mixedProperty ();
-
-        previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
-        currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
-        fluidViscosity = Fluid->viscosity ( currentTemperature );
-
-        currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
-
-        currentFluidDensityDerivative = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
-
-        //
-        // Now compute each of the terms in the PDE
-        //
-
-        //
-        //        d\rho      \rho    d \phi
-        //   \phi ----- +  -------- ------- 
-        //          dt     1 - \phi    dt
-        //
-        //
-        //           d\rho     Sw \rho     d (\phi)
-        //   Sw \phi ----- +  ---------  ----------- 
-        //             dt      1 - \phi      dt
-        //
-        //
-        //
-        //
-        //           d\rho      \rho    d Sw \phi
-        //   Sw \phi ----- +  -------- ---------- 
-        //             dt     1 - \phi      dt
-        //
-        //
-        //           d\rho     Sw \rho     d (\phi)    \rho \phi d Sw
-        //   Sw \phi ----- +  ---------  ----------- + --------- ----
-        //             dt      1 - \phi      dt         1 - \phi  dt
-        //
-        //
-        // Term 1
-        //
-        currentFluidDensityTerm = integrationWeight * timeStepInv * (( usedWaterSaturation * currentFluidDensity * currentPorosity ) +
-                                                                       usedWaterSaturation * currentFluidDensity * currentPorosity / ( 1.0 - currentPorosity ));
-
-        //
-        // Term 2
-        //
-        previousFluidDensityTerm = integrationWeight * timeStepInv * ( usedWaterSaturation * previousFluidDensity * currentPorosity + 
-                                                                       usedWaterSaturation * currentFluidDensity * previousPorosity / ( 1.0 - currentPorosity ));
-
-        //
-        // Term 1
-        //
-        // currentFluidDensityTerm = integrationWeight * timeStepInv * (( usedWaterSaturation * currentFluidDensity * currentPorosity ) +
-        //                                                                usedWaterSaturation * currentFluidDensity * currentPorosity / ( 1.0 - currentPorosity ) + 
-        //                                                                currentFluidDensity * currentPorosity / ( 1.0 - currentPorosity ) * usedWaterSaturation );
-
-        // //
-        // // Term 2
-        // //
-        // previousFluidDensityTerm = integrationWeight * timeStepInv * ( usedWaterSaturation * previousFluidDensity * currentPorosity + 
-        //                                                                usedWaterSaturation * currentFluidDensity * previousPorosity / ( 1.0 - currentPorosity ) + 
-        //                                                                currentFluidDensity * currentPorosity / ( 1.0 - currentPorosity ) * usedPreviousWaterSaturation ));
-
-
-
-        //
-        // Term 3
-        //
-        matrixTransposeVectorProduct ( gradBasis, Current_Po, referenceGradOverpressure );
-        matrixTransposeVectorProduct ( jacobianInverse, referenceGradOverpressure, gradOverpressure );
-
-        matrixTransposeVectorProduct ( gradBasis, Current_Ph, referenceGradHydrostaticPressure );
-        matrixTransposeVectorProduct ( jacobianInverse, referenceGradHydrostaticPressure, gradHydrostaticPressure );
-
-        gradOverpressure ( 1 ) += gradHydrostaticPressure ( 1 );
-        gradOverpressure ( 2 ) += gradHydrostaticPressure ( 2 );
-
-
-        computeFluidMobilityTerms ( false,
-                                    Has_Fractured,
-                                    fractureScaling,
-                                    currentVes,
-                                    currentMaxVes,
-                                    currentCompoundPorosity, 
-                                    currentFluidDensity,
-                                    currentFluidDensityDerivative,
-                                    fluidViscosity,
-                                    currentRelativePermeability,
-                                    Jacobian,
-                                    gradOverpressure,
-                                    lithology,
-                                    fluidVelocity,
-                                    fluidMobility,
-                                    fluidVelocityDerivative,
-                                    Fluid->SwitchPermafrost() ? true : false
-                                    );
-
-        matrixVectorProduct ( scaledGradBasis, fluidVelocity, Term_3 );
-
-
-        double Scaling = -currentFluidDensityTerm + previousFluidDensityTerm;
-
-        Increment ( Scaling, Basis, Element_Residual );
-        Increment ( -integrationWeight, Term_3, Element_Residual );
-
-        //----------------------------//
-
-        //
-        // The fluid density derivative is scaled by Pa_To_MPa because the fluid density function 
-        // requires the pressure to be in MPa. The pressure that is computed here is in Pa.
-        //
-
-#if 1
-        dPhiDP = lithology -> computePorosityDerivativeWRTPressure ( currentVes, currentMaxVes,
-                                                                     includeChemicalCompaction,
-                                                                     Current_Chemical_Compaction_Term );
-
-        dRhoDP = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
-
-        // Bulk_Fluid_Density_Derivative = waterSaturation * dPhiDP * currentFluidDensity + waterSaturation * currentPorosity * dRhoDP - waterSaturation * dPhiDP * previousFluidDensity
-        //    + ( 1.0 / ( 1.0 - waterSaturation * currentPorosity )) * ( 2.0 * dRhoDP * waterSaturation * currentPorosity + 2.0 * currentFluidDensity * waterSaturation * dPhiDP - dRhoDP * waterSaturation * previousPorosity
-        //                                                               - dRhoDP * currentPorosity * previousWaterSaturation - currentFluidDensity * dRhoDP * previousWaterSaturation )
-        //    + ( 1.0 / (( 1.0 - waterSaturation * currentPorosity ) * ( 1.0 - waterSaturation * currentPorosity ))) * dPhiDP * ( currentFluidDensity * waterSaturation * currentPorosity - currentFluidDensity * waterSaturation * previousPorosity -
-        //                                                                                                                        currentFluidDensity * previousWaterSaturation * currentPorosity );
-           
-
-        bulkFluidDensityDerivative = dRhoDP * usedWaterSaturation * currentPorosity / ( 1.0 - currentPorosity ) +
-           currentFluidDensity * usedWaterSaturation / ( 1.0 - currentPorosity ) * dPhiDP +
-           currentFluidDensity * usedWaterSaturation * currentPorosity / pow ( 1.0 - currentPorosity, 2 ) * dPhiDP;
-
-        addOuterProduct ( integrationWeight * bulkFluidDensityDerivative * timeStepInv, Basis, Basis, Element_Jacobian );
-
-#else
-        // Need to add saturation to this section then remove "if 0" branch 
-
-        dPhiDP = lithology -> computePorosityDerivativeWRTPressure ( currentVes, currentMaxVes,
-                                                                     includeChemicalCompaction,
-                                                                     Current_Chemical_Compaction_Term );
-
-        dRhoDP = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
-
-
-        t1 = dRhoDP * currentPorosity / ( 1.0 - currentPorosity ) +
-             currentFluidDensity / ( 1.0 - currentPorosity ) * dPhiDP +
-             currentFluidDensity * currentPorosity / pow ( 1.0 - currentPorosity, 2 ) * dPhiDP;
-
-        t2 = dRhoDP * currentPorosity + currentFluidDensity * dPhiDP;
-
-        t3 = -dRhoDP * previousPorosity / ( 1.0 - currentPorosity ) - currentFluidDensity * previousPorosity / pow ( 1.0 - currentPorosity, 2 ) * dPhiDP;
-
-        t4 = -previousFluidDensity * dPhiDP;
-
-        bulkFluidDensityDerivative = t1 + t2 + t3 + t4;
-
-        addOuterProduct ( integrationWeight * bulkFluidDensityDerivative * timeStepInv, Basis, Basis, Element_Jacobian );
-#endif
-
-
-
-        // double dPhiDp = lithology -> computePorosityDerivativeWRTPressure ( Current_VES, Current_Max_VES,
-        //                                                                     includeChemicalCompaction,
-        //                                                                     Current_Chemical_Compaction_Term );
-
-        // double dRhoDp = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( Current_Temperature, Pa_To_MPa * Current_Pore_Pressure );
-
-        // T3a + T3b
-        matrixVectorProduct ( scaledGradBasis, fluidVelocityDerivative, Term_3 );
-        addOuterProduct ( integrationWeight, Term_3, Basis, Element_Jacobian );
-
-        // T3c
-        matrixMatrixProduct ( scaledGradBasis, fluidMobility, scaledGradBasis2 );
-        addOuterProduct ( integrationWeight, scaledGradBasis, scaledGradBasis2, Element_Jacobian );
+            double currentFluidDensityDerivative = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
+
+            //
+            // Now compute each of the terms in the PDE
+            //
+
+            //
+            //        d\rho      \rho    d \phi
+            //   \phi ----- +  -------- ------- 
+            //          dt     1 - \phi    dt
+            //
+            //
+            //           d\rho     Sw \rho     d (\phi)
+            //   Sw \phi ----- +  ---------  ----------- 
+            //             dt      1 - \phi      dt
+            //
+            //
+            //
+            //
+            //           d\rho      \rho    d Sw \phi
+            //   Sw \phi ----- +  -------- ---------- 
+            //             dt     1 - \phi      dt
+            //
+            //
+            //           d\rho     Sw \rho     d (\phi)    \rho \phi d Sw
+            //   Sw \phi ----- +  ---------  ----------- + --------- ----
+            //             dt      1 - \phi      dt         1 - \phi  dt
+            //
+            //
+            // Term 1
+            //
+            double currentFluidDensityTerm = integrationWeight * timeStepInv * (( usedWaterSaturation * currentFluidDensity * currentPorosity ) +
+                                                                                  usedWaterSaturation * currentFluidDensity * currentPorosity / ( 1.0 - currentPorosity ));
+            //
+            // Term 2
+            //
+            double previousFluidDensityTerm = integrationWeight * timeStepInv * ( usedWaterSaturation * previousFluidDensity * currentPorosity + 
+                                                                                  usedWaterSaturation * currentFluidDensity * previousPorosity / ( 1.0 - currentPorosity ));
+            //
+            // Term 3
+            //
+            matrixTransposeVectorProduct ( gradBasis, Current_Po, referenceGradOverpressure );
+            matrixTransposeVectorProduct ( jacobianInverse, referenceGradOverpressure, gradOverpressure );
+
+            matrixTransposeVectorProduct ( gradBasis, Current_Ph, referenceGradHydrostaticPressure );
+            matrixTransposeVectorProduct ( jacobianInverse, referenceGradHydrostaticPressure, gradHydrostaticPressure );
+
+            gradOverpressure ( 1 ) += gradHydrostaticPressure ( 1 );
+            gradOverpressure ( 2 ) += gradHydrostaticPressure ( 2 );
+
+            computeFluidMobilityTerms ( false,
+                                        Has_Fractured,
+                                        fractureScaling,
+                                        currentVes,
+                                        currentMaxVes,
+                                        currentCompoundPorosity, 
+                                        currentFluidDensity,
+                                        currentFluidDensityDerivative,
+                                        fluidViscosity,
+                                        currentRelativePermeability,
+                                        Jacobian,
+                                        gradOverpressure,
+                                        lithology,
+                                        fluidVelocity,
+                                        fluidMobility,
+                                        fluidVelocityDerivative,
+                                        Fluid->SwitchPermafrost() ? true : false
+                                       );
+
+            matrixVectorProduct ( scaledGradBasis, fluidVelocity, Term_3 );
+
+
+            double Scaling = -currentFluidDensityTerm + previousFluidDensityTerm;
+
+            Increment ( Scaling, Basis, Element_Residual );
+            Increment ( -integrationWeight, Term_3, Element_Residual );
+
+            //----------------------------//
+
+            //
+            // The fluid density derivative is scaled by Pa_To_MPa because the fluid density function 
+            // requires the pressure to be in MPa. The pressure that is computed here is in Pa.
+            //
+
+            double dPhiDP = lithology -> computePorosityDerivativeWRTPressure ( currentVes, currentMaxVes, includeChemicalCompaction,
+                                                                                Current_Chemical_Compaction_Term );
+
+            double dRhoDP = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
+
+            double bulkFluidDensityDerivative = dRhoDP * usedWaterSaturation * currentPorosity / ( 1.0 - currentPorosity ) +
+                                                currentFluidDensity * usedWaterSaturation / ( 1.0 - currentPorosity ) * dPhiDP +
+                                                currentFluidDensity * usedWaterSaturation * currentPorosity / pow ( 1.0 - currentPorosity, 2 ) * dPhiDP;
+
+            addOuterProduct ( integrationWeight * bulkFluidDensityDerivative * timeStepInv, Basis, Basis, Element_Jacobian );
+
+            // T3a + T3b
+            matrixVectorProduct ( scaledGradBasis, fluidVelocityDerivative, Term_3 );
+            addOuterProduct ( integrationWeight, Term_3, Basis, Element_Jacobian );
+
+            // T3c
+            matrixMatrixProduct ( scaledGradBasis, fluidMobility, scaledGradBasis2 );
+            addOuterProduct ( integrationWeight, scaledGradBasis, scaledGradBasis2, Element_Jacobian );
+         }
       }
+   }
 
-    }
-
-  }
-
-
-
-#if 0
-  if ( BCs [ 4 ] == Bottom_Boundary_Flux ) {
-     applyPressureNeumannBoundaryConditions ( geometryMatrix,
-                                              lithology,
-                                              Fluid,
-                                              includeChemicalCompaction,
-                                              BCs,
-                                              Current_Ph,
-                                              Current_Po,
-                                              Current_Element_VES,
-                                              Current_Element_Max_VES,
-                                              Current_Element_Temperature,
-                                              Current_Element_Chemical_Compaction,
-                                              Element_Residual );
-  }
-
-  for ( I = 0; I < 6; ++I ) {
-
-    static const double DomainNormals [] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-
-    if ( Element_BCs [ I ] == Side_Neumann_Boundary ) {
-      applyPressureNeumannBoundaryConditions ( Element_BCs [ I ], DomainNormals [ I ]);
-    }
-
-  }
-#endif
-
-  Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
-                                               Current_Po, Element_Jacobian, Element_Residual );
-
+   Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
+                                                Current_Po, Element_Jacobian, Element_Residual );
 }
 
 //------------------------------------------------------------//

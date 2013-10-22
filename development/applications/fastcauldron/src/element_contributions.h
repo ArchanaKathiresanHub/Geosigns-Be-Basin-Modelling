@@ -297,6 +297,7 @@ namespace Basin_Modelling {
        const Boundary_Conditions*          Element_BCs,
        const Boundary_Conditions*          BCs,
        const ElementVector&                Dirichlet_Boundary_Values,
+       const bool                          isIceSheetLayer,
        const CompoundLithology*            Lithology,
        const GeoPhysics::FluidType*        Fluid,
        const bool                          includeChemicalCompaction,

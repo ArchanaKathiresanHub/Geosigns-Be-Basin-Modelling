@@ -436,6 +436,8 @@ void PressureSolver::assembleSystem ( const double  previousTime,
     Current_Layer  = FEM_Layers.Current_Layer ();
     Previous_Layer = FEM_Layers.Layer_Above ();
 
+    double fluidDensityForP0_1andT0 = Current_Layer->fluid->density ( 0,  0.1 ); 
+
 
     PetscBlockVector<Saturation> layerSaturations;
     PetscBlockVector<Saturation> previousLayerSaturations;
@@ -535,6 +537,9 @@ void PressureSolver::assembleSystem ( const double  previousTime,
             // Copy segment lithology
             Element_Lithology = Current_Layer->getLithology ( I_Position, J_Position );
 
+            // if element hase fluid density more than matrix density, we assuming the solid is ice in this case. 
+            bool isIceSheetLayer = Current_Layer->fluid->SwitchPermafrost() && fluidDensityForP0_1andT0 > Element_Lithology->density();
+
             degenerateElement = true;
 
             for ( Inode = 0; Inode < 4; Inode++ ) {
@@ -560,9 +565,9 @@ void PressureSolver::assembleSystem ( const double  previousTime,
             }
 
 
-            for (Inode = 0; Inode<8; Inode++) {
-              int LidxZ = K + (Inode<4 ? 1 : 0);
-              int GidxZ = FEM_K_Index + (Inode<4 ? 1 : 0);
+            for ( Inode = 0; Inode < 8; Inode++ ) {
+              int LidxZ = K + ( Inode < 4 ? 1 : 0 );
+              int GidxZ = FEM_K_Index + ( Inode < 4 ? 1 : 0 );
               int GidxY = cauldron->mapElementList [ Element_Index ].j[Inode%4];
               int GidxX = cauldron->mapElementList [ Element_Index ].i[Inode%4];
 
@@ -571,12 +576,13 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
               Exceeded_Fracture_Pressure ( Inode + 1 ) = Current_Layer -> fracturedPermeabilityScaling ( GidxX, GidxY, LidxZ );
               preFractureScaling ( Inode + 1 ) = double ( Current_Layer -> preFractureScaling ( GidxX, GidxY, LidxZ ));
+
               Included_Nodes ( Inode + 1 ) = Current_Layer -> includedNodes ( GidxX, GidxY, LidxZ );
               Positions.Set_Node_Position ( Inode, LidxZ, GidxY, GidxX );
 
               Dirichlet_Boundary_Values ( Inode + 1 ) = 0.0;
 
-              if ( globalZCount-1 == int(dof(GidxZ,GidxY,GidxX))) {
+              if ( globalZCount-1 == int( dof(GidxZ,GidxY,GidxX) ) ) {
                 //
                 // A surface boundary node is any node having the same DOF number as the surface boundary node.
                 //
@@ -598,13 +604,14 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
                 Nodal_BCs[Inode] = Interior_Constrained_Overpressure; 
 
-                fracturePressure = HydraulicFracturingManager::getInstance ().fracturePressure ( Element_Lithology,
-                                                                                                 Current_Layer->fluid,
-                                                                                                 FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( GidxX, GidxY, currentTime ),
-                                                                                                 FastcauldronSimulator::getInstance ().getSeaBottomDepth ( GidxX, GidxY, currentTime ),
-                                                                                                 Current_Layer->Current_Properties ( Basin_Modelling::Depth, LidxZ, GidxY, GidxX ),
-                                                                                                 Current_Layer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ),
-                                                                                                 Current_Layer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX ));
+                fracturePressure = HydraulicFracturingManager::getInstance().fracturePressure( Element_Lithology,
+                                                                                               Current_Layer->fluid,
+                                                                                               FastcauldronSimulator::getInstance().getSeaBottomTemperature( GidxX, GidxY, currentTime ),
+                                                                                               FastcauldronSimulator::getInstance().getSeaBottomDepth( GidxX, GidxY, currentTime ),
+                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Depth, LidxZ, GidxY, GidxX ),
+                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ),
+                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX )
+                                                                                             );
 
                 // If the lithology above is a salt then scaling the permeabilities will not help.
                 // So the best method is to make the node a Dirichlet type boundary condition.
@@ -613,21 +620,30 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
                 Dirichlet_Boundary_Values ( Inode + 1 ) = NumericFunctions::Maximum ( Dirichlet_Boundary_Values ( Inode + 1 ), 0.0 );
 
-              } else if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and Current_Layer->nodeIsTemporarilyDirichlet ( GidxX, GidxY, LidxZ )) {
+              } else if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and Current_Layer->nodeIsTemporarilyDirichlet ( GidxX, GidxY, LidxZ ) ) {
 
-                fracturePressure = HydraulicFracturingManager::getInstance ().fracturePressure ( Element_Lithology,
-                                                                                                 Current_Layer->fluid,
-                                                                                                 FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( GidxX, GidxY, currentTime ),
-                                                                                                 FastcauldronSimulator::getInstance ().getSeaBottomDepth ( GidxX, GidxY, currentTime ),
-                                                                                                 Current_Layer->Current_Properties ( Basin_Modelling::Depth, LidxZ, GidxY, GidxX ),
-                                                                                                 Current_Layer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ),
-                                                                                                 Current_Layer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX ));
+                fracturePressure = HydraulicFracturingManager::getInstance().fracturePressure( Element_Lithology,
+                                                                                               Current_Layer->fluid,
+                                                                                               FastcauldronSimulator::getInstance().getSeaBottomTemperature( GidxX, GidxY, currentTime ),
+                                                                                               FastcauldronSimulator::getInstance().getSeaBottomDepth ( GidxX, GidxY, currentTime ),
+                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Depth, LidxZ, GidxY, GidxX ),
+                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ),
+                                                                                               Current_Layer->Current_Properties( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX )
+                                                                                             );
 
                 Nodal_BCs[Inode] = Interior_Constrained_Overpressure; 
                 Dirichlet_Boundary_Values ( Inode + 1 ) = NumericFunctions::Maximum ( fracturePressure - Current_Layer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX ), 0.0 );
               } else if ( GidxZ == 0 ) {
-                Nodal_BCs[Inode] = Bottom_Boundary_Flux;
-              } else {
+                
+                 Nodal_BCs[Inode] = Bottom_Boundary_Flux;
+
+              } else if ( isIceSheetLayer ) {
+                 // For the ice sheet with Permafrost taking in account, we do noy want to "compute" the overpressure in the ice lithology - we want to impose it.
+                 Nodal_BCs[Inode] = Interior_Constrained_Overpressure;
+                 Dirichlet_Boundary_Values ( Inode + 1 ) = Current_Layer->Current_Properties( Basin_Modelling::Lithostatic_Pressure, LidxZ, GidxY, GidxX ) - 
+                                                           Current_Layer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure, LidxZ, GidxY, GidxX );
+              }
+              else {
                 Nodal_BCs[Inode] = Interior_Boundary;
               }
 
@@ -654,7 +670,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
               Previous_Geometry_Matrix ( 1, Inode + 1 ) = Origin_X + (Delta_X * GidxX);
               Previous_Geometry_Matrix ( 2, Inode + 1 ) = Origin_Y + (Delta_Y * GidxY);
               Previous_Geometry_Matrix ( 3, Inode + 1 ) = Current_Layer->Previous_Properties ( Basin_Modelling::Depth, LidxZ, GidxY, GidxX );
-            } 
+            }
 
             int realI = cauldron->mapElementList [ Element_Index ].i[0];
             int realJ = cauldron->mapElementList [ Element_Index ].j[0];
@@ -691,13 +707,6 @@ void PressureSolver::assembleSystem ( const double  previousTime,
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Temperature,          Positions, Previous_Element_Temperature );
             Current_Layer->Previous_Properties.Extract_Property ( Basin_Modelling::Chemical_Compaction,  Positions, Previous_Chemical_Compaction );
 
-            if ( Current_Layer->fluid->SwitchPermafrost() && Current_Layer->fluid->density( 0,  0.1 ) > Element_Lithology->density() ) { // NLSAY3:Po=Pl-Ph in an ice sheet (by definition).
-
-              subtract(Current_Pl, Current_Ph, Current_Po);
-              subtract(Current_Pl, Previous_Ph, Previous_Po);
-            }
-
-
             PetscTime(&Element_Start_Time);
 
             Assemble_Element_Pressure_System ( Plane_Quadrature_Degree,
@@ -707,6 +716,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
                                                Element_BCs,
                                                Nodal_BCs,
                                                Dirichlet_Boundary_Values,
+                                               isIceSheetLayer,
                                                Element_Lithology,
                                                Current_Layer->fluid,
                                                Include_Chemical_Compaction,

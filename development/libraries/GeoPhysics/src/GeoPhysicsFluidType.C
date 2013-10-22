@@ -169,7 +169,9 @@ void GeoPhysics::FluidType::setDensityToConstant () {
 
 double GeoPhysics::FluidType::salinityConcentration( const double temperature, const double pressure ) const {
    
-   return densityBatzleWang ( temperature, pressure, m_salinity ) - densityBatzleWang ( temperature, pressure, 0.0 );
+   const double p = NumericFunctions::Maximum ( 0.0, pressure );
+  
+   return densityBatzleWang ( temperature, p, m_salinity ) - densityBatzleWang ( temperature, p, 0.0 );
 
 }
 
@@ -285,7 +287,7 @@ double GeoPhysics::FluidType::densXheatCapacity ( const double porosity,
 
       const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
 
-      if( temperature <= liquidusTemperature ) {
+      if( temperature < liquidusTemperature ) {
          const double solidusTemperature  = getSolidusTemperature( liquidusTemperature );
          
          if ( temperature <= solidusTemperature ) {
