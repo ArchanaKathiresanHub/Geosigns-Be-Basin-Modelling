@@ -507,7 +507,7 @@ double GeoPhysics::FluidType::computeTheta ( const double temperature, const dou
 
 double GeoPhysics::FluidType::relativePermeability ( const double temperature, const double pressure ) const {
  
-   if( m_projectHandle->getPermafrost() ) {
+/*   if( m_projectHandle->getPermafrost() ) {
       
       const double liquidusTemperature = getLiquidusTemperature( temperature, NumericFunctions::Maximum ( 0.0, pressure ) );
       const double solidusTemperature  = liquidusTemperature - 10.0; // = getSolidusTemperature( liquidusTemperature ); // NLSAY3: improve stability by extending the temperature range
@@ -521,7 +521,7 @@ double GeoPhysics::FluidType::relativePermeability ( const double temperature, c
             return ( - (1.0-1.0e-6) / ( solidusTemperature - liquidusTemperature )) * ( temperature - liquidusTemperature ) + 1.0;
          } 
       }
-  }
+  }*/
    return 1.0;
 }
 

@@ -375,7 +375,7 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
   lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, dKnDPhi, dKhDPhi );
 
-  if ( isPermafrost )
+  /*if ( isPermafrost )
   {
     // NLSAY3: The permeability cannot reach lower values than 1.0e-7 mD;
     // The permeability must have a lower limit when the Permafrost relative permeability is activated
@@ -398,7 +398,10 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   {
     Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
     Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
-  }
+  }*/
+
+  Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
+  Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
 
   Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
 
