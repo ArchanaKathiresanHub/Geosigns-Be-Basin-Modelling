@@ -3490,6 +3490,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
    m_defaultMolarMasses *= 1.0e-3;
 
 
+   bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
 
   // The Pressure_FEM_Grid MUST have been allocated at this point.
   int K;
@@ -3605,7 +3606,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
     PetscBlockVector<Saturation> saturations;
     PetscBlockVector<PVTComponents> concentrations;
 
-    if ( Current_Layer->kind () == Interface::SEDIMENT_FORMATION ) {
+    if ( includedInDarcySimulation and Current_Layer->kind () == Interface::SEDIMENT_FORMATION ) {
        saturations.setVector ( Current_Layer->getVolumeGrid ( Saturation::NumberOfPhases ), Current_Layer->getPhaseSaturationVec (), INSERT_VALUES );
        concentrations.setVector ( Current_Layer->getVolumeGrid ( NumberOfPVTComponents ), Current_Layer->getPreviousComponentVec (), INSERT_VALUES );
     }
@@ -3702,7 +3703,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
             buffer << setw (  4 ) << int ( DOFs ( GlobalK [ K ], J, I ));
             buffer << setw (  4 ) << includedDOF;
 
-            if ( Current_Layer->kind () == Interface::SEDIMENT_FORMATION ) {
+            if ( includedInDarcySimulation and Current_Layer->kind () == Interface::SEDIMENT_FORMATION ) {
 
                if ( K == Z_Start + Z_Count - 1 ) {
                   buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::WATER );
@@ -3741,22 +3742,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
                   buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::LIQUID );
                   buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::VAPOUR );
                   buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::IMMOBILE );
-
-                  // buffer << setw ( 14 ) << composition( pvtFlash::N2 );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::COX );
-
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C1 );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C2 );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C3 );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C4 );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C5 );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C6_14SAT );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C6_14ARO );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C15_SAT );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::C15_ARO );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::RESINS );
-                  // buffer << setw ( 14 ) << composition( pvtFlash::ASPHALTENES );
-
 
                   buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C1 );
                   buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C2 );
