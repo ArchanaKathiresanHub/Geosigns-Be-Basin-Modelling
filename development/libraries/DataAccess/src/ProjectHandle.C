@@ -3009,7 +3009,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
 	    {
 	       if (value == gridMap->getUndefinedValue ())
 	       {
-		  cerr << "Undefined Value " << value << " at " << k << endl;
 		  value = DefaultUndefinedScalarValue;
 	       }
 	       for (int i = 0; i < nrOutputs; ++i)
