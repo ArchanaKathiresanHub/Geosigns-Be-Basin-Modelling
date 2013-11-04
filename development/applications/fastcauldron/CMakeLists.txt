@@ -211,6 +211,9 @@ add_executable( interpolationTest
 add_executable( matrixInterpolationTest
 	test/MatrixInterpolationTest.C )
 
+add_executable( PceTest
+	test/PceTest.C )
+
 
 target_link_libraries(interpolationTest
 	LinearAlgebra
@@ -224,11 +227,18 @@ target_link_libraries(matrixInterpolationTest
         pthread
 )
 	
+target_link_libraries( PceTest
+)
+	
 add_test ( NAME MultiInterpolator 
 	COMMAND interpolationTest)
 
 add_test ( NAME MatrixInterpolator 
 	COMMAND matrixInterpolationTest)
+
+add_test ( NAME  PceTest
+	COMMAND PceTest)
+
 
 endif(BM_PARALLEL)	
 
