@@ -21,10 +21,10 @@ public :
 
    /// \brief Compute the capillary-pressure for the phase.
    ///
-   /// Temperature in C.
-   /// 
+   /// Permeability should be in m^2.
    double capillaryPressure ( const Saturation::Phase phase,
-                              const Saturation        saturation ) const;
+                              const Saturation        saturation,
+                              const double            permeability ) const;
 
 #if 0
    /// \brief Compute the capillary-pressure for the phase.

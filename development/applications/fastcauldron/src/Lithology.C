@@ -4,6 +4,7 @@
 #include <cmath>
 #include <sstream>
 
+#include "GeoPhysicalConstants.h"
 
 #include "NumericFunctions.h"
 #include "FastcauldronSimulator.h"
@@ -146,17 +147,27 @@ double Lithology::calculateTemisRelPerm ( const Saturation::Phase phase,
 //------------------------------------------------------------//
 
 double Lithology::capillaryPressure ( const Saturation::Phase phase,
-                                      const Saturation        saturation ) const {
+                                      const Saturation        saturation,
+                                      const double            permeability ) const {
 
    // two phase system: HCVapour-Brine and HCLiquid-Brine
    //Brine is wetting phase
    Saturation::Phase wettingPhase= Saturation::WATER;
 
+   double capillaryEntryPressure;
+
+   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
+      capillaryEntryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), capC2 ());
+   } else {
+      capillaryEntryPressure = BrooksCorey::Pe;
+   }
+
    if ( LambdaPc () == IBSNULLVALUE ) {
       // What should the correct values be here?
+      return capillaryEntryPressure;
       return BrooksCorey::Pe;
    } else {
-      return BrooksCorey::pc(saturation(wettingPhase), LambdaPc());
+      return BrooksCorey::pc ( saturation ( wettingPhase ), LambdaPc(), capillaryEntryPressure );
    }
 
 }

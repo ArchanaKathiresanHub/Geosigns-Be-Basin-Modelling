@@ -253,8 +253,12 @@ public :
    /// All mobile layers must have non-negative thicknesses.
    bool checkMobileLayerThicknesses () const;
 
-
    /// @}
+
+   /// \brief Indicate whether or not the capillary-entry pressure should be calculated or use the default.
+   ///
+   /// By default the constant 1.0e6 Pa is the capillary entry pressure.
+   bool useCalculatedCapillaryPressure () const;
 
 private :
 
@@ -335,6 +339,7 @@ private :
    double                     m_hcVapourCurveExponent;
    double                     m_fctCorrectionScalingWeight;
    bool                       m_printCommandLine;
+   bool                       m_computeCapillaryPressure;
 
 };
 
@@ -420,6 +425,13 @@ inline double FastcauldronSimulator::getHcVapourCurveExponent () const {
 
 inline double FastcauldronSimulator::getFctCorrectionScalingWeight () const {
    return m_fctCorrectionScalingWeight;
+}
+
+//------------------------------------------------------------//
+
+
+inline bool FastcauldronSimulator::useCalculatedCapillaryPressure () const {
+   return m_computeCapillaryPressure;
 }
 
 //------------------------------------------------------------//

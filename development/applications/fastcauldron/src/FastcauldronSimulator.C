@@ -65,6 +65,7 @@ FastcauldronSimulator::FastcauldronSimulator (database::Database * database, con
    m_hcVapourCurveExponent = DefaultHcCurveExponent;
    m_hcLiquidCurveExponent = DefaultHcCurveExponent;
    m_printCommandLine = false;
+   m_computeCapillaryPressure = false;
 
    m_fctCorrectionScalingWeight = 1.0;
 }
@@ -1736,17 +1737,20 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
    m_cauldron->setAdditionalCommandLineParameters ();
 
    PetscBool fctScalingChanged;
-   double     fctScaling;
+   double    fctScaling;
    PetscBool hasPrintCommandLine;
+   PetscBool computeCapillaryPressure;
 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
    PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
+   PetscOptionsHasName ( PETSC_NULL, "-fcpce", &computeCapillaryPressure );
 
    if ( fctScalingChanged ) {
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );
    }
 
    m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
+   m_computeCapillaryPressure = computeCapillaryPressure == PETSC_TRUE;
 
    readRelPermCommandLineParameters ();
    readCommandLineWells ();

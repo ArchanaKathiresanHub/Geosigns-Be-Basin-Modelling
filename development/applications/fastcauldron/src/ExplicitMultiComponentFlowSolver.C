@@ -472,8 +472,8 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       elementOilFluxTerms.setVector ( fluxGrid, elementOilFluxTermsVec, INSERT_VALUES, true );
 
       if ( not m_interpolateFacePermeability ) {
-      VecZeroEntries ( subdomainPermeabilityNVec );
-      VecZeroEntries ( subdomainPermeabilityHVec );
+         VecZeroEntries ( subdomainPermeabilityNVec );
+         VecZeroEntries ( subdomainPermeabilityHVec );
       }
 
       elementContainsHc.fill ( false );
@@ -534,17 +534,17 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       pressureIntervalTime += WallTime::clock () - pressureStart;
 
       if ( not m_interpolateFacePermeability ) {
-      // Compute the flux term for the boundary of each element.
-      permeabilityStart = WallTime::clock ();
+         // Compute the flux term for the boundary of each element.
+         permeabilityStart = WallTime::clock ();
 
-      // Average permeabilities.
+         // Average permeabilities.
          darcyCalculations.computeAveragePermeabilities ( subdomain, lambdaStart, lambdaEnd, subdomainPermeabilityNVec, subdomainPermeabilityHVec );
 
-      // Update permeability values from neighbouring processes.
-      subdomainPermeabilityN.setVector ( permeabilityGrid, subdomainPermeabilityNVec, INSERT_VALUES, true );
-      subdomainPermeabilityH.setVector ( permeabilityGrid, subdomainPermeabilityHVec, INSERT_VALUES, true );
+         // Update permeability values from neighbouring processes.
+         subdomainPermeabilityN.setVector ( permeabilityGrid, subdomainPermeabilityNVec, INSERT_VALUES, true );
+         subdomainPermeabilityH.setVector ( permeabilityGrid, subdomainPermeabilityHVec, INSERT_VALUES, true );
 
-      permeabilityIntervalTime += WallTime::clock () - permeabilityStart;
+         permeabilityIntervalTime += WallTime::clock () - permeabilityStart;
       }
 
       // Compute the flux term for the boundary of each element.
@@ -806,8 +806,13 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
    int j;
    int k;
 
+   CompoundProperty compoundPorosity;
    double elementPorePressure;
+   double elementVes;
+   double elementMaxVes;
    double capillaryPressure;
+   double permeabilityNormal;
+   double permeabilityPlane;
 
    for ( i = concentrationGrid.firstI (); i <= concentrationGrid.lastI (); ++i ) {
 
@@ -826,13 +831,22 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                   const Saturation& saturation = saturations ( element.getI (), element.getJ (), element.getK ());
 
                   elementPorePressure = 1.0e6 * porePressure ( element, lambda );
+                  elementVes = ves ( element, lambda );
+                  elementMaxVes = maxVes ( element, lambda );
+
+                  lithology->getPorosity ( elementVes,
+                                           elementMaxVes,
+                                           false, 0.0,
+                                           compoundPorosity );
+
+                  lithology->calcBulkPermeabilityNP ( elementVes, elementMaxVes, compoundPorosity, permeabilityNormal, permeabilityPlane );
 
                   // Compute liquid-pressure.
-                  capillaryPressure = lithology->capillaryPressure ( Saturation::LIQUID, saturation );
+                  capillaryPressure = lithology->capillaryPressure ( Saturation::LIQUID, saturation, permeabilityNormal );
                   liquidPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + capillaryPressure;
 
                   // Compute vapour-pressure.
-                  capillaryPressure = lithology->capillaryPressure ( Saturation::VAPOUR, saturation );
+                  capillaryPressure = lithology->capillaryPressure ( Saturation::VAPOUR, saturation, permeabilityNormal );
                   vapourPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + capillaryPressure;
                }
 

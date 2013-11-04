@@ -18,6 +18,7 @@
 #include "consts.h"
 
 #include "timefilter.h"
+#include "BrooksCorey.h"
 
 #define DEBUG
 
@@ -111,6 +112,13 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    double undefinedValue; 
    double lwcp;
    double vwcp;
+
+   CompoundProperty porosity;
+   double ves;
+   double maxVes;
+   double entryPressure;
+   double permeabilityNormal;
+   double permeabilityPlane;
  
    //get liquid phase pc
    liquidWaterCapPressureMap = propertyValues[0]->getGridMap ();
@@ -135,6 +143,18 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    molarMasses = PVTCalc::getInstance ().getMolarMass ();
    molarMasses *= 1.0e-3;
    
+   bool vesIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::VES_FP );
+   bool maxVesIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::Max_VES );
+
+
+   if ( not vesIsActive ) {
+      m_formation->Current_Properties.Activate_Property ( Basin_Modelling::VES_FP, INSERT_VALUES, true );
+   }
+
+   if ( not maxVesIsActive ) {
+      m_formation->Current_Properties.Activate_Property ( Basin_Modelling::Max_VES, INSERT_VALUES, true );
+   }
+
    const double ConcentrationLowerLimit = 1.0e-20;
    
    for ( i = grid.firstI (); i <= grid.lastI (); ++i ) {
@@ -151,12 +171,25 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
 
                   // get element saturation
                   saturation = saturations ( k, j, i );
+
+                  ves = computeProperty ( element, Basin_Modelling::VES_FP );
+                  maxVes = computeProperty ( element, Basin_Modelling::Max_VES );
+                  element.getLithology()->getPorosity ( ves, maxVes, false, 0.0, porosity );
+                  element.getLithology()->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityNormal, permeabilityPlane );
+
+                  if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
+                     entryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeabilityNormal, element.getLithology()->capC1 (), element.getLithology()->capC2 ());
+                  } else {
+                     entryPressure = BrooksCorey::Pe;
+                  }
 					   
                   lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
-                                                                     saturation );
+                                                                     saturation,
+                                                                     entryPressure );
 
                   vwcp = element.getLithology()->capillaryPressure ( Saturation::VAPOUR,
-                                                                     saturation );
+                                                                     saturation,
+                                                                     entryPressure );
 
                   liquidWaterCapPressureMap->setValue(i,j,k,lwcp);
                   vapourWaterCapPressureMap->setValue(i,j,k,vwcp);
@@ -217,6 +250,16 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
 
       }
 
+   }
+
+   // Restore the ves to its original state.
+   if ( not vesIsActive ) {
+      m_formation->Current_Properties.Restore_Property ( Basin_Modelling::VES_FP );
+   }
+
+   // Restore the max-ves to its original state.
+   if ( not maxVesIsActive ) {
+      m_formation->Current_Properties.Restore_Property ( Basin_Modelling::Max_VES );
    }
 
    liquidWaterCapPressureMap->restoreData ();

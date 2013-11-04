@@ -26,9 +26,22 @@ public:
       return Sor;
    }
 
+   /// \brief The capillary entry pressure.
+   ///
+   /// Capillary entry pressure is calculated in Pascals.
+   /// The permeability must be in milli-Darcy.
+   /// \f[
+   ///   log P_{ce} = -c1 log k - c2
+   /// \f]
+   static double computeCapillaryEntryPressure ( const double permeability,
+                                                 const double c1,
+                                                 const double c2 ) {
+      return 1.0e6 * pow ( 10.0, -c2 ) * pow ( permeability, -c1 );
+   }
+
    // =========== The Brooks-Corey capillary pressure function  ===========//
    // Params: wetting saturation, connate/irreducible saturation, entry pressure, lambda (exponent)
-   static double pc(double Sw, double lambda)
+   static double pc ( const double Sw, const double lambda, const double pce = Pe )
    {
 
       double Sr;
@@ -42,7 +55,7 @@ public:
       }
 
       if ( Sw == 1 ) {
-         return Pe; //  Pe = Pc(Sw==1) 
+         return pce; //  Pe = Pc(Sw==1) 
       }
 
 #if 0
@@ -55,7 +68,7 @@ public:
 
       assert(0 <= Sr && Sr <= 1);
 	
-      return Pe*pow(Sr, -lambda);
+      return pce*pow(Sr, -lambda);
     }
    // ===========The Brooks-Corey relative permeability function ===========//
    //Brine relative permeability
