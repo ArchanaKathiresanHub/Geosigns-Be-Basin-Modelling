@@ -38,7 +38,6 @@ public:
                                                  const double c1,
                                                  const double c2 ) {
       return 1.0e6 * c2 * pow ( permeability, -c1 );
-      // return 1.0e6 * pow ( 10.0, -c2 ) * pow ( permeability, -c1 );
    }
 
    // =========== The Brooks-Corey capillary pressure function  ===========//
