@@ -33,10 +33,12 @@ public:
    /// \f[
    ///   log P_{ce} = -c1 log k - c2
    /// \f]
+   /// Where $P_{ce}$ has units of MPa. and so must be scaled by 1e6 for Pascals.
    static double computeCapillaryEntryPressure ( const double permeability,
                                                  const double c1,
                                                  const double c2 ) {
-      return 1.0e6 * pow ( 10.0, -c2 ) * pow ( permeability, -c1 );
+      return 1.0e6 * c2 * pow ( permeability, -c1 );
+      // return 1.0e6 * pow ( 10.0, -c2 ) * pow ( permeability, -c1 );
    }
 
    // =========== The Brooks-Corey capillary pressure function  ===========//

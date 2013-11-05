@@ -1829,6 +1829,8 @@ void GeoPhysics::CompoundLithology::mixCapillaryEntryPressureCofficients()
          ++componentIter;
       }
    } 
+
+   m_tenPowerCapC2 = pow ( 10.0, -m_capC2 );
 }
 
 void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters() 

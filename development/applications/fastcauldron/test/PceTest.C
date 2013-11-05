@@ -6,7 +6,7 @@
 #include "BrooksCorey.h"
 
 static const double DefaultC1 = 0.33;
-static const double DefaultC2 = 0.2611;
+static const double DefaultC2 = pow ( 10.0, -0.2611 );
 
 bool isEqual ( const double x, const double y, const double tolerance = 1.0e-10 );
 

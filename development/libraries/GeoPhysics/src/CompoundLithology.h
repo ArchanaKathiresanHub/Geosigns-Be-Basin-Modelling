@@ -75,6 +75,12 @@ namespace GeoPhysics {
       /// Return the capillary entry pressure coefficient C2
       double capC2 () const;
 
+      /// \brief Return 10^-c2.
+      ///
+      /// This is required in order to evaluate the entry pressure.
+      /// It saves on a pow each time the entry pressure is computed.
+      double tenPowerCapC2 () const;
+
       /// Return the Brooks-Corey parameters
       string PcKrModel() const;
       double LambdaPc() const;
@@ -428,6 +434,7 @@ namespace GeoPhysics {
       double           m_geometricVariance;
       double           m_capC1;
       double           m_capC2;
+      double           m_tenPowerCapC2;
       //Brooks-Corey
       string           m_PcKrModel;
       double           m_LambdaKr;
@@ -547,6 +554,10 @@ inline double GeoPhysics::CompoundLithology::capC1 () const {
 
 inline double GeoPhysics::CompoundLithology::capC2 () const {
    return m_capC2;
+}
+
+inline double GeoPhysics::CompoundLithology::tenPowerCapC2 () const {
+   return m_tenPowerCapC2;
 }
 
 
