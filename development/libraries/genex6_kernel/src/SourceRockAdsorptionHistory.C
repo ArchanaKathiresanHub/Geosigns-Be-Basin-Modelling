@@ -44,46 +44,45 @@ void Genex6::SourceRockAdsorptionHistory::save ()
                 <<  "/History_"
                 << m_projectHandle->getProjectName ()
                 << "_"
-	       << (m_adsorptionHistory != 0 ? "shalegas" : "genex")
-	       << "_" << m_historyRecord->getMangledFormationName ();
-
+                << (m_adsorptionHistory != 0 ? "shalegas" : "genex")
+                << "_" << m_historyRecord->getMangledFormationName ();
+         
          if (m_projectHandle->getModellingMode () == DataAccess::Interface::MODE3D)
          {
             buffer << "_"
-                << m_historyRecord->getX ()
-                << "_"
-	       << m_historyRecord->getY ();
+                   << m_historyRecord->getX ()
+                   << "_"
+                   << m_historyRecord->getY ();
          }
          buffer << ".dat";
-
+         
          fileName = buffer.str ();
-
+         
       }
       else
       {
          fileName = m_projectHandle->getFullOutputDir () + "/" + m_historyRecord->getFileName ();
-   }
-
+      }
+      
       if (!m_projectHandle->makeOutputDir ())
          return;
 
       std::ofstream historyFile (fileName.c_str (), std::ios::out);
+      
+      if( m_adsorptionHistory != 0 ) {
+         historyFile << m_historyRecord->getFormationName ();
 
-      historyFile << m_historyRecord->getFormationName ();
-
-      if (m_projectHandle->getModellingMode () == DataAccess::Interface::MODE3D)
-      {
-         historyFile << "  "
-                << m_historyRecord->getX ()
-	    << "  " << m_historyRecord->getY ()
-	    << std::endl;
-      }
-
-      if (m_adsorptionHistory != 0)
+         if (m_projectHandle->getModellingMode () == DataAccess::Interface::MODE3D )
+         {
+            historyFile << "  "
+                        << m_historyRecord->getX ()
+                        << "  " << m_historyRecord->getY ()
+                        << std::endl;
+         }
          m_adsorptionHistory->write (historyFile);
-      else
-      m_genexHistory->write ( historyFile );
-
+      } else {
+         m_genexHistory->write ( historyFile );
+      }
       historyFile.close ();
    }
 }
