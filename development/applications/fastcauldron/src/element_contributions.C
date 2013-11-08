@@ -338,6 +338,7 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
                                                   const double              VES,
                                                   const double              Max_VES,
                                                   const CompoundProperty&   Porosity,
+                                                  const double              porosityDerivativeWrtVes,
                                                   const double              fluidDensity,
                                                   const double              fluidDensityDerivativeWrtPressure,
                                                   const double              fluidViscosity,
@@ -354,8 +355,8 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   double Permeability_Plane;
   double Permeability_Scaling;
 
-  double dKnDPhi;
-  double dKhDPhi;
+  double dKnDVes;
+  double dKhDVes;
 
   const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
 
@@ -373,7 +374,7 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   }
 
   lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
-  lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, dKnDPhi, dKhDPhi );
+  lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, porosityDerivativeWrtVes, dKnDVes, dKhDVes );
 
   /*if ( isPermafrost )
   {
@@ -425,12 +426,12 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
 
   //
 
-  lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, dKnDPhi, dKhDPhi );
-  Permeability_Normal = Permeability_Scaling * relativePermeability * dKnDPhi;
-  Permeability_Plane  =                        relativePermeability * dKhDPhi;
+  lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, porosityDerivativeWrtVes, dKnDVes, dKhDVes );
+  Permeability_Normal = Permeability_Scaling * relativePermeability * dKnDVes;
+  Permeability_Plane  =                        relativePermeability * dKhDVes;
 
   Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, permeabilityTensorDerivative );
-  permeabilityTensorDerivative *= fluidDensity / fluidViscosity * 0.0;
+  permeabilityTensorDerivative *= 0; //fluidDensity / fluidViscosity;
 
   add ( permeabilityTensor, permeabilityTensorDerivative, fluidMobilityDerivative );
 
@@ -1183,7 +1184,7 @@ void Basin_Modelling::applyPressureNeumannBoundaryConditions
                                     fractureScaling,
                                     Current_VES,
                                     Current_Max_VES,
-                                    Current_Compound_Porosity, 
+                                    Current_Compound_Porosity,
                                     Current_Fluid_Density,
                                     Fluid_Viscosity, 1.0, 
                                     Jacobian,
@@ -1665,6 +1666,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
 
             lithology->getPorosity ( currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term, currentCompoundPorosity );
             double currentPorosity = currentCompoundPorosity.mixedProperty ();
+            double currentPorosityDerivativeWrtVes = lithology->computePorosityDerivativeWrtVes(currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term);
 
             double previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
             double currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
@@ -1729,6 +1731,7 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
                                         currentVes,
                                         currentMaxVes,
                                         currentCompoundPorosity, 
+                                        currentPorosityDerivativeWrtVes,
                                         currentFluidDensity,
                                         currentFluidDensityDerivative,
                                         fluidViscosity,

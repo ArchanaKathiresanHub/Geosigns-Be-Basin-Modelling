@@ -23,6 +23,7 @@ public:
    virtual void permeabilityDerivative ( const double  ves,
                                          const double  maxVes,
                                          const double  calculatedPorosity, 
+                                         const double  porosityDerivativeWrtVes,
                                                double& permeability, 
                                                double& derivative ) const
    {

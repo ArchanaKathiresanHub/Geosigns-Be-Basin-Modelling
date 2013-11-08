@@ -39,7 +39,7 @@ TEST_F( PermeabilityImpermeableTest, permeability )
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeAtmosphere )
 {
    double permeability = NAN, derivative = NAN;
-   m_p.permeabilityDerivative( 1.0e+5, 1.0e+5, 0, permeability, derivative);
+   m_p.permeabilityDerivative( 1.0e+5, 1.0e+5, 0, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
    EXPECT_FLOAT_EQ( 0.0,  derivative );
 }
@@ -47,14 +47,14 @@ TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeAtmosphere )
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUnderground )
 { 
    double permeability = NAN, derivative = NAN;
-   m_p.permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, permeability, derivative);
+   m_p.permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
    EXPECT_FLOAT_EQ( 0.0,  derivative );
 }
 
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUndergroundAndHigherMaxVes)
 {  double permeability = NAN, derivative = NAN;
-   m_p.permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, permeability, derivative);
+   m_p.permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
    EXPECT_FLOAT_EQ( 0.0,  derivative );
 }

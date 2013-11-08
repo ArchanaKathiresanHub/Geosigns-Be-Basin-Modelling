@@ -36,7 +36,7 @@ PermeabilitySandStone
 void
 PermeabilitySandStone
    :: permeabilityDerivative( const double ves, const double maxVes, const double calculatedPorosity,
-                  double & permeability, double & derivative ) const
+		   const double porosityDerivativeWrtVes, double & permeability, double & derivative ) const
 {
    permeability = this->permeability( ves, maxVes, calculatedPorosity);
 
@@ -50,9 +50,8 @@ PermeabilitySandStone
       perm =  m_depoPermeability * exp( s_log10 * m * deltaphi * 100.0);
    }
   
-   // FIXME: Either it should be documented why the derivative is what it is now, or
-   // this derivative is wrong.
-   derivative = s_log10 * m * perm;  
+   // Use chainrule and multiply with derivative of porosity with respect to stress
+   derivative = s_log10 * m * perm * porosityDerivativeWrtVes;
 }
 
 double

@@ -122,6 +122,7 @@ namespace GeoPhysics {
       void permeabilityDerivative ( const double  ves,
                                     const double  maxVes,
                                     const double  calculatedPorosity, 
+                                    const double  porosityDerivativeWrtVes,
                                           double& Permeability, 
                                           double& Derivative ) const;
 
@@ -349,12 +350,13 @@ inline double GeoPhysics::SimpleLithology::permeability( const double ves, const
       /// Compte the derivative of the permeability function.
 inline void GeoPhysics::SimpleLithology::permeabilityDerivative( 
                                           const double ves, 
-                                          const double  maxVes, 
-                                          const double  calculatedPorosity, 
+                                          const double maxVes,
+                                          const double calculatedPorosity,
+                                          const double porosityDerivativeWrtVes,
                                           double& permeability, 
                                           double& derivative ) const
 {
-   m_permeability.permeabilityDerivative(ves, maxVes, calculatedPorosity, permeability, derivative);
+   m_permeability.permeabilityDerivative(ves, maxVes, calculatedPorosity, porosityDerivativeWrtVes, permeability, derivative);
 }
 
 

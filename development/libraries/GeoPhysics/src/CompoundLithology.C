@@ -1262,47 +1262,48 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP ( const double  ves,
 void GeoPhysics::CompoundLithology::calcBulkPermeabilityNPDerivative ( const double            ves, 
                                                                        const double            maxVes,
                                                                        const CompoundProperty& Porosity, 
+                                                                       const double            porosityDerivativeWrtVes,
                                                                              double&           Permeability_Derivative_Normal, 
                                                                              double&           Permeability_Derivative_Plane ) const {
 
   double Derivatives    [ MaximumNumberOfLithologies ];
   double Permeabilities [ MaximumNumberOfLithologies ];
-
   double fraction;
-  double minimumPermeability = 1.0e10;
-
-  // Only initialised to prevent compiler warning, the warning is erroneous since there will alway be a minimum value.
-  double minimumPermeabilityAnisotropy = 0.0;
   double derivativeTerm;
- 
-  // Only initialised to prevent compiler warning, the warning is erroneous since there will alway be a minimum value and position.
-  int minimumPosition = 0;
   int componentCount = 0;
 
   compContainer::const_iterator componentIter = m_lithoComponents.begin();
-
   while (m_lithoComponents.end() != componentIter) {
 
     (*componentIter)->permeabilityDerivative ( ves, maxVes, 
                                                NumericFunctions::Maximum ( Porosity ( componentCount ), minimumCompoundPorosity ( componentCount )),
+                                               porosityDerivativeWrtVes,
                                                Permeabilities [ componentCount ],
                                                Derivatives [ componentCount ]);
-
-    if ( Permeabilities [ componentCount ] < minimumPermeability ) {
-      minimumPermeability = Permeabilities [ componentCount ];
-      minimumPermeabilityAnisotropy = (*componentIter)->getPermAniso();
-      minimumPosition = componentCount;
-    }
-
     ++componentCount;
     ++componentIter;
   }
 
   componentIter = m_lithoComponents.begin();
 
-  if (m_mixmodeltype == LAYERED && ! m_isFaultLithology ) {
-    Permeability_Derivative_Normal = Derivatives [ minimumPosition ];
-    Permeability_Derivative_Plane  = Derivatives [ minimumPosition ] * minimumPermeabilityAnisotropy;
+  if (m_mixmodeltype == LAYERED && ! m_isFaultLithology )
+  {
+    // We should not take the minimum, but add with weight percentages
+    Permeability_Derivative_Normal = 0.0;
+    Permeability_Derivative_Plane  = 0.0;
+    componentCount = 0;
+    percentContainer::const_iterator percentIter = m_componentPercentage.begin();
+
+    while (m_lithoComponents.end() != componentIter && m_componentPercentage.end() !=  percentIter)
+    {
+    	fraction = (double)(*percentIter)*0.01;
+    	Permeability_Derivative_Normal += fraction * Derivatives [ componentCount ];
+    	Permeability_Derivative_Plane  += fraction * Derivatives [ componentCount ] * (*componentIter)->getPermAniso();
+
+    	++componentIter;
+        ++percentIter;
+        ++componentCount;
+    }
   } else {
     compContainer::const_iterator componentIter2;
     percentContainer::const_iterator percentIter = m_componentPercentage.begin();

@@ -320,7 +320,8 @@ namespace GeoPhysics {
       void calcBulkPermeabilityNPDerivative ( const double            ves, 
                                               const double            maxVes,
                                               const CompoundProperty& Porosity, 
-                                                    double&           Permeability_Derivative_Normal, 
+                                              const double            porosityDerivativeWrtVes,
+                                              double&           	  Permeability_Derivative_Normal,
                                                     double&           Permeability_Derivative_Plane ) const;
 
       /// Integrate the chemical-compaction terms.

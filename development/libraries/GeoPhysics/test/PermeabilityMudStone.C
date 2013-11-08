@@ -67,7 +67,7 @@ TEST( PermeabilityMudStonePermeability, validCases)
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidLargeNegativeVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 0.01, 1.5, 0.01).permeabilityDerivative( -1e+6, 1.0e+5, 0, permeability, derivative);
+   PermeabilityMudStone( 0.01, 1.5, 0.01).permeabilityDerivative( -1e+6, 1.0e+5, 0, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ(3.91613803789194782345e-03, permeability);
    EXPECT_TRUE( std::isnan( derivative ));
 }
@@ -76,7 +76,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidSmallNegativeVes)
 {
    double permeability = NAN, derivative = NAN;
 
-   PermeabilityMudStone( 0.05, 1.5, 0.01).permeabilityDerivative( -1e+5, 1.0e+5, 0.1, permeability, derivative);
+   PermeabilityMudStone( 0.05, 1.5, 0.01).permeabilityDerivative( -1e+5, 1.0e+5, 0.1, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 1.79786337194130368955e-02, permeability);
    EXPECT_TRUE( std::isinf( derivative) && derivative < 0.0 );
 }
@@ -84,7 +84,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidSmallNegativeVes)
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidLargeNegativeMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 0.1, 1.5, 0.01).permeabilityDerivative( 0, -1e+6, 1, permeability, derivative);
+   PermeabilityMudStone( 0.1, 1.5, 0.01).permeabilityDerivative( 0, -1e+6, 1, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 0.1, permeability );
    EXPECT_DOUBLE_EQ( -3.56012548899267987993e-09, derivative);
 }
@@ -92,7 +92,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidLargeNegativeMaxVes)
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidSmallVesSmallerMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 0.5, 1.5, 0.01).permeabilityDerivative( 1e+4, 0, 0, permeability, derivative);
+   PermeabilityMudStone( 0.5, 1.5, 0.01).permeabilityDerivative( 1e+4, 0, 0, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 4.33392086020723710238e-01, permeability );
    EXPECT_DOUBLE_EQ( -1.61669724704030024964e-08, derivative);
 }
@@ -100,7 +100,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidSmallVesSmallerMaxVes)
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidNormalVesSmallerMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 1, 1.5, 0.01).permeabilityDerivative( 1e+6, 1e+3, 0.3, permeability, derivative);
+   PermeabilityMudStone( 1, 1.5, 0.01).permeabilityDerivative( 1e+6, 1e+3, 0.3, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ(  2.74101222343421484229e-02, permeability );
    EXPECT_DOUBLE_EQ( -3.73774394104665633438e-08, derivative);
 }
@@ -108,7 +108,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidNormalVesSmallerMaxVes)
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidNegativePorosity)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 2, 1.5, 0.01).permeabilityDerivative( 0, 0, -5, permeability, derivative);
+   PermeabilityMudStone( 2, 1.5, 0.01).permeabilityDerivative( 0, 0, -5, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 2.0, permeability );
    EXPECT_DOUBLE_EQ( -7.12025097798535975986e-08, derivative);
 }
@@ -116,7 +116,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidNegativePorosity)
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidZeroPorosity)
 {       
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 10, 1.5, 0.01).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.0, permeability, derivative);
+   PermeabilityMudStone( 10, 1.5, 0.01).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.0, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 3.53553390593273775266, permeability );
    EXPECT_DOUBLE_EQ( -2.65165042944955344439e-05, derivative);
 }
@@ -127,7 +127,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidZeroPorosity)
 TEST( PermeabilityMudStonePermeabilityDerivative, lowVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 0.01, 1.5, 0.01).permeabilityDerivative( 1.0e+5, 1.0e+5, 0, permeability, derivative);
+   PermeabilityMudStone( 0.01, 1.5, 0.01).permeabilityDerivative( 1.0e+5, 1.0e+5, 0, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 3.53553390593273810655e-03, permeability );
    EXPECT_DOUBLE_EQ( -2.65165042944955341792e-08 , derivative );
 }
@@ -135,7 +135,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, lowVes)
 TEST( PermeabilityMudStonePermeabilityDerivative, highVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 0.1, 1.5, 0.01).permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, permeability, derivative);
+   PermeabilityMudStone( 0.1, 1.5, 0.01).permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 2.74101222343421484229e-03, permeability );
    EXPECT_DOUBLE_EQ( -3.73774394104665699612e-09 , derivative );
 }
@@ -143,7 +143,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, highVes)
 TEST( PermeabilityMudStonePermeabilityDerivative, higherMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 50, 1.5, 0.01).permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, permeability, derivative);
+   PermeabilityMudStone( 50, 1.5, 0.01).permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 5.22936948520120403749e-01, permeability );
    EXPECT_DOUBLE_EQ( -4.75397225927382145993e-09 , derivative );
 }
@@ -151,7 +151,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, higherMaxVes)
 TEST( PermeabilityMudStonePermeabilityDerivative, highPermeability)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilityMudStone( 6000, 1.5, 0.01).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.6, permeability, derivative);
+   PermeabilityMudStone( 6000, 1.5, 0.01).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.6, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 1000.0, permeability );
    EXPECT_DOUBLE_EQ( -1.59099025766973219131e-02 , derivative );
 }

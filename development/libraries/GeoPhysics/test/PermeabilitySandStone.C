@@ -70,7 +70,7 @@ TEST( PermeabilitySandStonePermeability, validCases )
 TEST( PermeabilitySandStonePermeabilityDerivative, invalidLargeNegativeVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( -1e+6, 1.0e+5, 0, permeability, derivative);
+   PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( -1e+6, 1.0e+5, 0, 1, permeability, derivative);
    EXPECT_NEAR(8.47522526773653202270e-03, permeability, 2e-17);
    EXPECT_NEAR(2.92723910418849148432e-03, derivative, 6e-18 );
 }
@@ -79,7 +79,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidSmallNegativeVes)
 {
    double permeability = NAN, derivative = NAN;
 
-   PermeabilitySandStone( 0.41, 6000, 1.5).permeabilityDerivative( -1e+5, 1.0e+5, 0.1, permeability, derivative);
+   PermeabilitySandStone( 0.41, 6000, 1.5).permeabilityDerivative( -1e+5, 1.0e+5, 0.1, 1, permeability, derivative);
    EXPECT_DOUBLE_EQ(1.34323268314100546794e-01, permeability);
    EXPECT_DOUBLE_EQ(4.63936132893431052437e-02, derivative);
 }
@@ -87,7 +87,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidSmallNegativeVes)
 TEST( PermeabilitySandStonePermeabilityDerivative, invalidLargeNegativeMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.48, 6000, 1.5).permeabilityDerivative( 0, -1e+6, 1, permeability, derivative);
+   PermeabilitySandStone( 0.48, 6000, 1.5).permeabilityDerivative( 0, -1e+6, 1, 1, permeability, derivative);
    EXPECT_DOUBLE_EQ(1000.0 , permeability );
    EXPECT_NEAR(1.30754967814368118286e+11, derivative, 1e-4);
 }
@@ -95,7 +95,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidLargeNegativeMaxVes)
 TEST( PermeabilitySandStonePermeabilityDerivative, invalidSmallerwMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 1e+4, 0, 0, permeability, derivative);
+   PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 1e+4, 0, 0, 1, permeability, derivative);
    EXPECT_DOUBLE_EQ(1.89736659610102758244e-04, permeability );
    EXPECT_DOUBLE_EQ(6.55327206019062116467e-05, derivative);
 }
@@ -103,7 +103,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidSmallerwMaxVes)
 TEST( PermeabilitySandStonePermeabilityDerivative, invalidNormalVesSmallerMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1e+6, 1e+3, 0.3, permeability, derivative);
+   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1e+6, 1e+3, 0.3, 1, permeability, derivative);
    EXPECT_DOUBLE_EQ(1.89736659610102775808e-01, permeability );
    EXPECT_DOUBLE_EQ(6.55327206019062219466e-02, derivative);
 }
@@ -111,7 +111,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidNormalVesSmallerMaxVes
 TEST( PermeabilitySandStonePermeabilityDerivative, invalidNegativePorosity)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 0, 0, -5, permeability, derivative);
+   PermeabilitySandStone( 0.50, 6000, 1.5).permeabilityDerivative( 0, 0, -5, 1, permeability, derivative);
    EXPECT_NEAR(1.89736659610102742578e-79, permeability, 2e-93 );
    EXPECT_NEAR(6.55327206019062006483e-80, derivative, 5e-94);
 }
@@ -119,7 +119,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidNegativePorosity)
 TEST( PermeabilitySandStonePermeabilityDerivative, invalidZeroPorosity)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.0, permeability, derivative);
+   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0.0, 1, permeability, derivative);
    EXPECT_NEAR(6.00000000000000015201e-06, permeability, 5e-21 );
    EXPECT_DOUBLE_EQ(2.07232658369464115328e-06, derivative);
 }
@@ -128,7 +128,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidZeroPorosity)
 TEST( PermeabilitySandStonePermeabilityDerivative, lowVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0, permeability, derivative);
+   PermeabilitySandStone( 0.39, 6000, 1.5).permeabilityDerivative( 1.0e+5, 1.0e+5, 0, 1, permeability, derivative);
    EXPECT_NEAR(8.47522526773653202270e-03, permeability, 2e-17 );
    EXPECT_NEAR(2.92723910418849148432e-03 , derivative, 1e-17 );
 }
@@ -136,7 +136,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, lowVes)
 TEST( PermeabilitySandStonePermeabilityDerivative, highVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.48, 6000, 1.5).permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, permeability, derivative);
+   PermeabilitySandStone( 0.48, 6000, 1.5).permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, 1, permeability, derivative);
    EXPECT_NEAR(3.78574406688116593678e-01, permeability, 5e-16 );
    EXPECT_DOUBLE_EQ(1.30754967814368405765e-01 , derivative );
 }
@@ -144,7 +144,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, highVes)
 TEST( PermeabilitySandStonePermeabilityDerivative, higherMaxVes)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, permeability, derivative);
+   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, 1, permeability, derivative);
    EXPECT_DOUBLE_EQ(1.89736659610102775808e-01, permeability );
    EXPECT_DOUBLE_EQ(6.55327206019062219466e-02 , derivative );
 }
@@ -152,7 +152,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, higherMaxVes)
 TEST( PermeabilitySandStonePermeabilityDerivative, highPermeability)
 {
    double permeability = NAN, derivative = NAN;
-   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+6, 2.0e+6, 0.6, permeability, derivative);
+   PermeabilitySandStone( 0.60, 6000, 1.5).permeabilityDerivative( 1.0e+6, 2.0e+6, 0.6, 1, permeability, derivative);
    EXPECT_DOUBLE_EQ(1000.0, permeability );
    EXPECT_DOUBLE_EQ(2.07232658369464115822e+03 , derivative );
 }

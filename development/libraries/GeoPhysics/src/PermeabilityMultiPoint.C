@@ -42,10 +42,11 @@ PermeabilityMultiPoint
 void
 PermeabilityMultiPoint
    :: permeabilityDerivative( const double ves, const double maxVes, const double calculatedPorosity,
-                  double & permeability, double & derivative ) const
+		   const double porosityDerivativeWrtVes, double & permeability, double & derivative ) const
 {
    permeability = this->permeability( ves, maxVes, calculatedPorosity);
    derivative = s_log10 * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity ) * permeability;
+   derivative *= porosityDerivativeWrtVes;
 }
 
 double

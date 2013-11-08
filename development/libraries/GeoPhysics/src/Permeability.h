@@ -43,6 +43,7 @@ namespace GeoPhysics
       void permeabilityDerivative ( const double  ves,
                                     const double  maxVes,
                                     const double  calculatedPorosityFraction, 
+                                    const double  porosityDerivativeWrtVes,
                                           double& permeability, 
                                           double& derivative ) const;
 
@@ -65,6 +66,7 @@ namespace GeoPhysics
          virtual void permeabilityDerivative ( const double  ves,
                                                const double  maxVes,
                                                const double  calculatedPorosityFraction, 
+                                               const double  porosityDerivativeWrtVes,
                                                      double& permeability, 
                                                      double& derivative ) const = 0;
 
@@ -120,9 +122,9 @@ namespace GeoPhysics
    inline void 
    Permeability
       :: permeabilityDerivative( const double ves, const double maxVes, const double calculatedPorosityFraction,
-            double & permeability, double & derivative) const
+    		const double porosityDerivativeWrtVes, double & permeability, double & derivative) const
    {
-      return m_algorithm->permeabilityDerivative(ves, maxVes, calculatedPorosityFraction, permeability, derivative);
+      return m_algorithm->permeabilityDerivative(ves, maxVes, calculatedPorosityFraction, porosityDerivativeWrtVes, permeability, derivative);
    }
 
 }

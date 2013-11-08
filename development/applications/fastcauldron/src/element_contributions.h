@@ -116,6 +116,7 @@ namespace Basin_Modelling {
                                     const double              VES,
                                     const double              Max_VES,
                                     const CompoundProperty&   Porosity,
+                                    const double              porosityDerivativeWrtVes,
                                     const double              fluidDensity,
                                     const double              fluidDensityDerivativeWrtPressure,
                                     const double              Fluid_Viscosity,

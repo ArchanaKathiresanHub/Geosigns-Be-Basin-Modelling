@@ -57,35 +57,35 @@ TEST( PermeabilityMultiPoint, permeabilityDerivative)
 
    {
       double permeability = NAN, derivative = NAN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0, permeability, derivative);
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(3.51119173421513053E-01, permeability);
       EXPECT_DOUBLE_EQ(1.22007249619155775E+01, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.05, permeability, derivative);
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.05, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1.99526231496887951E+00, permeability);
       EXPECT_DOUBLE_EQ(6.93315790607256304E+01, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.1, permeability, derivative);
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.1, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1.13382350121784938E+01, permeability);
       EXPECT_DOUBLE_EQ(3.93982150245844593E+02, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.9999, permeability, derivative);
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 0.9999, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1000.0, permeability);
       EXPECT_DOUBLE_EQ(3.47481023124556013E+04, derivative);
    }
 
    {
       double permeability = NAN, derivative = NAN;
-      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 1.0, permeability, derivative);
+      PermeabilityMultiPoint( surfacePorosity, porositySamples, permeabilitySamples ).permeabilityDerivative( 0, 0, 1.0, 1, permeability, derivative);
       EXPECT_DOUBLE_EQ(1000.0, permeability);
       EXPECT_DOUBLE_EQ(3.47481023124556013E+04, derivative);
    }

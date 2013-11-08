@@ -44,7 +44,7 @@ PermeabilityMudStone
 void
 PermeabilityMudStone
    :: permeabilityDerivative( const double ves, const double maxVes, const double calculatedPorosity,
-                  double & permeability, double & derivative ) const
+		   const double porosityDerivativeWrtVes, double & permeability, double & derivative ) const
 {
    const double cutOff = 0.0;
    const double maxPerm = 1000.0;
