@@ -93,8 +93,23 @@ if(GEOCASE_BUILD_GRID2GRID)
 endif()
 
 if(GEOCASE_BUILD_VIEW4D)
-	set(OPENINVENTOR_BASE_DIR "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6" CACHE PATH "OpenInventor base directory")
-	add_subdirectory(view4D)
+   set(OPENINVENTOR_BASE_DIR "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/OpenInventor/OpenInventor_6.1.2/Linux64_24_gcc3.4.6" CACHE PATH "OpenInventor base directory")
+   add_subdirectory(view4D)
+
+   file(GLOB openinventor_font_files 
+        ${OPENINVENTOR_BASE_DIR}/data/fonts/Utopia*
+        ${OPENINVENTOR_BASE_DIR}/data/fonts/Helvetica*
+       )
+
+   install(FILES ${openinventor_font_files} 
+           DESTINATION misc
+           )
+
+   file(GLOB openinventor_so_files  ${OPENINVENTOR_BASE_DIR}/lib/*.so)
+
+   install(FILES ${openinventor_so_files}
+           DESTINATION geocase64
+          )
 endif()
 
 if(GEOCASE_BUILD_PROJECT2HDF)
@@ -103,20 +118,6 @@ endif()
 
 # installation
 
-file(GLOB openinventor_font_files 
-	${OPENINVENTOR_BASE_DIR}/data/fonts/Utopia*
-	${OPENINVENTOR_BASE_DIR}/data/fonts/Helvetica*
-	)
-
-install(FILES ${openinventor_font_files} 
-	DESTINATION misc
-	)
-
-file(GLOB openinventor_so_files  ${OPENINVENTOR_BASE_DIR}/lib/*.so)
-
-install(FILES ${openinventor_so_files}
-	DESTINATION geocase64
-	)
 
 # Local Variables:
 # mode: cmake
