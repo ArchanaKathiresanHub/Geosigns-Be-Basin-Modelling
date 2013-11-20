@@ -27,3 +27,26 @@ install(TARGETS FiniteElements
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
+
+#######################################
+### Unit Tests
+#######################################
+
+#######################################
+# Unit tests for PTDiagramCalculator
+
+add_gtest( NAME FiniteElementMethod::ThreeVector
+   SOURCES test/ThreeVectorTest.C
+   LIBRARIES FiniteElements
+)
+
+add_gtest( NAME FiniteElementMethod::Matrix3x3
+   SOURCES test/Matrix3x3Test.C
+   LIBRARIES FiniteElements
+)
+
+add_gtest( NAME FiniteElementMethod::ElementVector 
+   SOURCES test/ElementVectorTest.C
+   LIBRARIES FiniteElements
+)
+

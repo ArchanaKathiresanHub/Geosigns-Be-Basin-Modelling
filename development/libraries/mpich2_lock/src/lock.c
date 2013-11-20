@@ -5,6 +5,10 @@
  *   See COPYRIGHT notice in top-level directory.
  */
 
+// switches to partially disable file locking optimisation
+#ifndef CLD_DISABLE_RDLOCK
+#define CLD_DISABLE_RDLOCK 1  // set it to 0 to enable read file locking
+#endif
 
 extern int gethostname(char *name, int len);
 extern int system (const char * command);
@@ -180,7 +184,8 @@ int ADIOI_Set_lock(FDTYPE fd, int cmd, int type, ADIO_Offset offset, int whence,
       return MPI_SUCCESS;
    }
 
-#if 1
+#if CLD_DISABLE_RDLOCK == 1
+//#if 1
    if (type == F_RDLCK)         // let's not do read locks
    {
       IgnoreNextRequest = true;
