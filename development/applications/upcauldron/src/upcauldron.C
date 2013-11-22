@@ -454,10 +454,7 @@ int main (int argc, char ** argv)
          setSourceRockType (sourceRockLithoRecord, sourceRockTypeNew);
       }
 
-      if (getSourceRockType1 (stratRecord) == "")
-      {
-         setSourceRockType1 (stratRecord, getSourceRockType (sourceRockLithoRecord));
-      }
+      setSourceRockType1 (stratRecord, getSourceRockType (sourceRockLithoRecord));
    }
 
    // Update the fluid types /////////////////////////////////////
