@@ -4755,11 +4755,9 @@ void AppCtx::setPressureLinearSolver ( KSP&        pressureLinearSolver,
                                        const double solverTolerance ) const {
 
   KSPCreate ( PETSC_COMM_WORLD, &pressureLinearSolver );
-  // KSPSetType ( pressureLinearSolver, KSPGMRES );
-  // KSPGMRESSetRestart ( pressureLinearSolver, GMRes_Restart_Value );
   KSPSetType ( pressureLinearSolver, KSPCG );
   setSolverTolerance ( pressureLinearSolver, solverTolerance );
-  setSolverMaxIterations ( pressureLinearSolver, PressureSolver::DefaultMaximumNumberOfPressureLinearSolverIterations );
+  setSolverMaxIterations ( pressureLinearSolver, PressureSolver::DefaultMaximumPressureLinearSolverIterations );
   KSPSetFromOptions ( pressureLinearSolver );
 }
 

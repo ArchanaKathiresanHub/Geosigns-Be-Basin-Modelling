@@ -2074,7 +2074,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
   int totalNumberOfNonlinearIterations = 0;
   int numberOfLinearIterations;
-  int maximumNumberOfLinearSolverIterations;
 
   Mat Jacobian;
   Vec Residual;
@@ -2107,8 +2106,12 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   // The default PETSc ILU-fill levels.
   int iluFillLevels = 0;
 
-  bool isDefaultSolver = true;
+  int gmresRestartValue = PressureSolver::DefaultGMResRestartValue;
+  int linearSolverIterationCount = PressureSolver::DefaultMaximumPressureLinearSolverIterations;
+  int linearSolverTotalIterationCount;
+  int linearSolveAttempts;
 
+  bool isDefaultSolver = true;
 
   PetscScalar Residual_Solution_Length;
 
@@ -2125,14 +2128,10 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   KSPConvergedReason convergedReason;
 
   bool JacobianComputed;
-  bool changedSolver = true;
+  bool changedSolver = false;
 
   basinModel -> setPressureLinearSolver ( Pressure_Linear_Solver,
                                            pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ));
-
-  maximumNumberOfLinearSolverIterations = getSolverMaxIterations ( Pressure_Linear_Solver );
-
-  // SLESGetKSP ( Pressure_Linear_Solver, &pressureLinearSolverKsp );
 
 #if PETSc_MATRIX_BUG_FIXED
   pressureSolver->createMatrixStructure ( *basinModel -> mapDA,
@@ -2227,9 +2226,18 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
 
       PetscTime(&Start_Time);
+
       KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
+
+#if 0
+      if ( Number_Of_Nonlinear_Iterations <= basinModel->pressureJacobianReuseCount ) {
+         KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
+      } else {
+         KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_PRECONDITIONER );
+      }
+#endif
+
       JacobianComputed = true;
-      changedSolver = false;
 
       PetscTime(&Jacobian_End_Time);
       Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time; 
@@ -2239,22 +2247,87 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
       // Solve the matrix equation (Jacobian^{-1} \times residual) to some acceptable tolerance.
       KSPSolve ( Pressure_Linear_Solver, Residual, Residual_Solution );
+
       KSPGetIterationNumber ( Pressure_Linear_Solver, &numberOfLinearIterations );
+      KSPGetConvergedReason ( Pressure_Linear_Solver, &convergedReason );
+      // First attempt to solve linear system of equations.
+      linearSolveAttempts = 1;
 
-      // if ( basinModel -> debug2 && numberOfLinearIterations == 0 ) {
-      //   PetscViewer    viewer;
-      //   PetscViewerCreate( PETSC_COMM_WORLD, &viewer);
-      //   PetscViewerSetType(viewer, PETSC_VIEWER_ASCII );
-      //   PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB );
-      //   MatView ( Jacobian, viewer );
-      //   VecView ( Residual, viewer );
-      // }
+      if ( basinModel->debug1 ) {
+         PetscPrintf ( PETSC_COMM_WORLD, " The pressure solver exit condition was: %s \n", getKspConvergedReasonImage ( convergedReason ).c_str ());
+      }
 
+      if ( convergedReason < 0 ) {
+         KSPGetIterationNumber ( Pressure_Linear_Solver, &numberOfLinearIterations );
+         linearSolverTotalIterationCount = numberOfLinearIterations;
+
+         // Now iterate several times until the linear system has been solved.
+         // If, however, the number of iterations exceeds the maximum then this will result in a simulation failure.
+         // On the first iteration the linear solver is switched to gmres.
+         // On subsequent iterations the restart level and the maximum number of iterations are both increased,
+         for ( int linearSolveLoop = 1; linearSolveLoop <= PressureSolver::MaximumLinearSolveAttempts and convergedReason < 0; ++linearSolveLoop, ++linearSolveAttempts ) {
+
+            if ( not changedSolver ) {
+               KSPType currentLinearSolverType;
+               KSPGetType ( Pressure_Linear_Solver, &currentLinearSolverType );
+
+               if ( strcmp ( currentLinearSolverType, KSPGMRES ) != 0 ) {
+                  // It is possible to select gmres from the command line then it is not necessary to change it.
+                  setLinearSolverType ( Pressure_Linear_Solver, KSPGMRES );
+               }
+
+               // If gmres has been selected frmo the command line or config file then
+               // use at least the restart value that has been selected.
+               int currentGMResRestart;
+               KSPGMRESGetRestart ( Pressure_Linear_Solver, &currentGMResRestart );
+               gmresRestartValue = std::max ( currentGMResRestart, PressureSolver::DefaultGMResRestartValue );
+
+               // Set at least the current number of iterations defined for the linear solver.
+               int currentMaximumNumberOfIterations = getSolverMaxIterations ( Pressure_Linear_Solver );
+               linearSolverIterationCount = std::max ( currentMaximumNumberOfIterations, PressureSolver::DefaultMaximumPressureLinearSolverIterations );
+
+               // Indicate that the linear solver has been changed.
+               changedSolver = true;
+            } else {
+               gmresRestartValue += PressureSolver::GMResRestartIncrementValue;
+               linearSolverIterationCount = ( 3 * linearSolverIterationCount ) / 2;
+            }
+
+            KSPGMRESSetRestart ( Pressure_Linear_Solver, gmresRestartValue );
+            setSolverMaxIterations ( Pressure_Linear_Solver, linearSolverIterationCount );
+
+            KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
+            KSPSolve ( Pressure_Linear_Solver, Residual, Residual_Solution );
+            KSPGetIterationNumber ( Pressure_Linear_Solver, &numberOfLinearIterations );
+            KSPGetConvergedReason ( Pressure_Linear_Solver, &convergedReason );
+
+            linearSolverTotalIterationCount += numberOfLinearIterations;
+
+            if ( basinModel->debug1 ) {
+               PetscPrintf ( PETSC_COMM_WORLD, " The re-tried (%i) pressure solver exit condition was: %s \n", linearSolveLoop, getKspConvergedReasonImage ( convergedReason ).c_str ());
+            }
+
+         }
+
+      }
+
+#if 0
+      if ( basinModel -> debug2 && numberOfLinearIterations == 0 ) {
+        PetscViewer    viewer;
+        PetscViewerCreate( PETSC_COMM_WORLD, &viewer);
+        PetscViewerSetType(viewer, PETSC_VIEWER_ASCII );
+        PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB );
+        MatView ( Jacobian, viewer );
+        VecView ( Residual, viewer );
+      }
+#endif
+
+#if 0
       if ( FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE3D ) {
          // Only update solver/preconditioner in 3d mode.
 
          if ( basinModel->allowSolverChange and 
-              ( numberOfLinearIterations <= 2 or numberOfLinearIterations == PressureSolver::DefaultMaximumNumberOfPressureLinearSolverIterations )
+              ( numberOfLinearIterations <= 2 or numberOfLinearIterations == PressureSolver::DefaultMaximumPressureLinearSolverIterations )
               and isDefaultSolver ) {
 
             // Change the linear solver to gmres (from cg). This sometimes helps (but is generally slower).
@@ -2280,6 +2353,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
          }
 
       }
+#endif
 
       PetscTime(&End_Time);
       timeStepCalculationTime = End_Time - Start_Time; 
@@ -2321,12 +2395,22 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       VecNorm ( Residual_Solution, NORM_2, &Residual_Solution_Length );
       VecNorm ( Residual, NORM_2, &Residual_Length );
 
-      KSPGetConvergedReason ( Pressure_Linear_Solver, &convergedReason );
+      if ( convergedReason < 0 ) {
+         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR pressure solver exit condition was: %s \n",
+                       getKspConvergedReasonImage ( convergedReason ).c_str ());
+         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR the linear solver could not converge to a solution after %i attempts and %i iterations. \n",
+                       linearSolveAttempts, 
+                       linearSolverTotalIterationCount );
+         overpressureHasDiverged = true;
+      } else {
+         // If solver has converged now check that none of the vectors contain a nan.
+         overpressureHasDiverged = isnan ( Po_Norm ) || isnan ( Solution_Length ) || isnan ( Residual_Solution_Length ) || isnan ( Residual_Length );
 
-      // If the max iterations is exceeded then declare that the solver has diverged.
-      // Perhaps we need an error code to indicate the range of errors that can occur.
-      overpressureHasDiverged = isnan ( Po_Norm ) || isnan ( Solution_Length ) || isnan ( Residual_Solution_Length ) || isnan ( Residual_Length ) ||
-                                convergedReason == KSP_DIVERGED_DTOL || convergedReason == KSP_DIVERGED_NANORINF;
+         if ( overpressureHasDiverged ) {
+            PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR pressure solution contains a NaN. \n");
+         }
+
+      }
 
       if ( Number_Of_Nonlinear_Iterations == 0 ) {
         First_Po_Norm = Solution_Length;
