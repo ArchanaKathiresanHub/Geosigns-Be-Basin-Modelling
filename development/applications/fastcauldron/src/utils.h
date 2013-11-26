@@ -131,6 +131,8 @@ double globalMinimum ( const double value );
 /// Get the maximum value from all processes.
 double globalMaximum ( const double value );
 
+const std::string& getKspConvergedReasonImage ( const KSPConvergedReason reason );
+
 //------------------------------------------------------------//
 
 inline bool streq ( const char* Left, const char* Right );

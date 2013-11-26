@@ -543,23 +543,7 @@ void setSolverMaxIterations (       KSP&  linearSolver,
 void setLinearSolverType (       KSP&        linearSolver,
                            const std::string& solverName ) {
 
-//    KSP ksp;
-
-//    SLESGetKSP ( linearSolver, &ksp );
-
    KSPSetType ( linearSolver, const_cast<char*>(solverName.c_str ()));
-
-   if ( solverName == KSPGMRES ) {
-      // In later version of PETSc there is an easier way of setting the restart value.
-      int (*SetGMResRestart)(KSP,int);
-      SetGMResRestart=0;
-      PetscObjectQueryFunction((PetscObject)linearSolver,"KSPGMRESSetRestart_C", (PetscVoidFunction*)&SetGMResRestart);
-
-      if ( SetGMResRestart != 0 ) {
-         (*SetGMResRestart)( linearSolver, 150 );
-      }
-
-   }
 
    // check the command line for any additional linear solver parameters.
    // This may also disregard the linear solver type that is indicated in the parameter list.
@@ -575,7 +559,6 @@ void setPreconditionerFillLevels (      KSP&  linearSolver,
   PC subpc;
   const char* pcType;
 
-//   SLESGetPC ( pressureLinearSolver, &pc );
   KSPGetPC ( linearSolver, &pc );
   PCGetType ( pc, &pcType );
 
@@ -632,6 +615,44 @@ int getSolverMaxIterations ( KSP& linearSolver ) {
   return maximumIterations;
 }
 
+const std::string& getKspConvergedReasonImage ( const KSPConvergedReason reason ) {
+
+   static std::map<KSPConvergedReason, std::string> stringReasons;
+   static std::string unknownReason = "Unknown Reason";
+   static bool stringsInitialised = false;
+
+   if ( not stringsInitialised ) {
+      stringReasons [ KSP_CONVERGED_RTOL_NORMAL ] = "KSP_CONVERGED_RTOL_NORMAL";
+      stringReasons [ KSP_CONVERGED_ATOL_NORMAL ] = "KSP_CONVERGED_ATOL_NORMAL";
+      stringReasons [ KSP_CONVERGED_RTOL ] = "KSP_CONVERGED_RTOL";
+      stringReasons [ KSP_CONVERGED_ATOL ] = "KSP_CONVERGED_ATOL";
+      stringReasons [ KSP_CONVERGED_ITS ] = "KSP_CONVERGED_ITS";
+      stringReasons [ KSP_CONVERGED_CG_NEG_CURVE ] = "KSP_CONVERGED_CG_NEG_CURVE";
+      stringReasons [ KSP_CONVERGED_CG_CONSTRAINED ] = "KSP_CONVERGED_CG_CONSTRAINED";
+      stringReasons [ KSP_CONVERGED_STEP_LENGTH ] = "KSP_CONVERGED_STEP_LENGTH";
+      stringReasons [ KSP_CONVERGED_HAPPY_BREAKDOWN ] = "KSP_CONVERGED_HAPPY_BREAKDOWN";
+      stringReasons [ KSP_DIVERGED_NULL ] = "KSP_DIVERGED_NULL";
+      stringReasons [ KSP_DIVERGED_ITS ] = "KSP_DIVERGED_ITS";
+      stringReasons [ KSP_DIVERGED_DTOL ] = "KSP_DIVERGED_DTOL";
+      stringReasons [ KSP_DIVERGED_BREAKDOWN ] = "KSP_DIVERGED_BREAKDOWN";
+      stringReasons [ KSP_DIVERGED_BREAKDOWN_BICG ] = "KSP_DIVERGED_BREAKDOWN_BICG";
+      stringReasons [ KSP_DIVERGED_NONSYMMETRIC ] = "KSP_DIVERGED_NONSYMMETRIC";
+      stringReasons [ KSP_DIVERGED_INDEFINITE_PC ] = "KSP_DIVERGED_INDEFINITE_PC";
+      stringReasons [ KSP_DIVERGED_NANORINF ] = "KSP_DIVERGED_NANORINF";
+      stringReasons [ KSP_DIVERGED_INDEFINITE_MAT ] = "KSP_DIVERGED_INDEFINITE_MAT";
+      stringReasons [ KSP_CONVERGED_ITERATING ] = "KSP_CONVERGED_ITERATING";
+      stringsInitialised = true;
+   }
+
+   std::map<KSPConvergedReason, std::string>::const_iterator imageItem = stringReasons.find ( reason );
+
+   if ( imageItem != stringReasons.end ()) {
+      return imageItem->second;
+   } else {
+      return unknownReason;
+   }
+
+}
 
 void getDateAndTime(char* str) {
 
