@@ -212,6 +212,10 @@ void InterfaceInput::LoadBasicConstants( ifstream &ConfigurationFile ) {
       }
       theTokens.clear();
    }
+   if( m_tau == 0 ) {
+      string s = "MeSsAgE ERROR  Tau = 0.";
+      throw s;
+   }
  
 }
 
@@ -274,6 +278,10 @@ void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) 
       m_densityDiff = 1.0 / ( m_backstrippingMantleDensity - m_waterDensity );
    } else {
       string s = "BackstrippingMantleDensity = WaterDensity.";
+      throw s;
+   }
+   if( m_modelTotalLithoThickness == 0 ) {
+      string s = "MeSsAgE ERROR  TotalLithoThickness of the Model = 0.";
       throw s;
    }
 }
@@ -450,6 +458,11 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    // average uppermost mantle density 
    if( m_HCuMap->getValue( i, j ) == m_HCuMap->getUndefinedValue() ) return false;
    m_initialCrustThickness = m_HCuMap->getValue( i, j );
+
+   if( m_initialCrustThickness == 0 ) {
+      string s = "MeSsAgE ERROR  initialCrustThickness = 0";
+      throw s;
+   }
    const double mantleDensityAV = m_lithoMantleDensity * (1 - (m_coeffThermExpansion * m_baseLithosphericTemperature / 2) * 
                                                           ((m_referenceCrustThickness + m_initialCrustThickness) / m_modelTotalLithoThickness));  
    // estimated continental crust density
@@ -468,7 +481,13 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    // liner approximation of thinning factor at melt onset
    m_TF_onset_lin = ( 1 + 2 * m_TF_onset ) / 3;
    // crustal thinning factor at threshold
-   m_TF_onset_mig = m_TF_onset + ((1 - m_TF_onset) * sqrt(2000 / m_maxBasalticCrustThickness));
+   if( m_maxBasalticCrustThickness == 0 ) {
+      m_TF_onset_mig = m_TF_onset;
+   } else {
+      m_TF_onset_mig = m_TF_onset + ((1 - m_TF_onset) * sqrt(2000 / m_maxBasalticCrustThickness));
+   }
+   if( m_decayConstant == 0 ) { m_decayConstant = 1; }
+      
    m_magmaticDensity = m_E + (m_F - m_E) * (1 - exp( -1 * m_maxBasalticCrustThickness / m_decayConstant));
    
    // Step 4.3
@@ -484,8 +503,8 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    
    theFunction.setWLS_crit( m_WLS_crit );
    
-   const double r = sin(m_pi * (1 - m_TF_onset_lin)) /(m_pi * (1 - m_TF_onset_lin));
-   m_WLS_onset = m_TF_onset_lin * m_initialSubsidenceMax + m_E0 * (r * (1 - exp(- t_mr /m_tau)) + (pi2_8 * m_TF_onset_lin - r) * expValue );
+   const double r = ( m_TF_onset_lin == 1.0 ? 1.0 : sin(m_pi * (1 - m_TF_onset_lin)) /(m_pi * (1 - m_TF_onset_lin)));
+   m_WLS_onset = m_TF_onset_lin * m_initialSubsidenceMax + m_E0 * (r * (1 - exp(- t_mr / m_tau)) + (pi2_8 * m_TF_onset_lin - r) * expValue );
    
    //  if( m_WLS_crit < m_WLS_onset )  return false;
 
@@ -497,6 +516,11 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
   const double m1 = m_TF_onset_lin / m_WLS_onset; // form Y = m1 * X
   const double m2 = ( m_WLS_crit == m_WLS_onset ? 0 : (1 -  m_TF_onset_lin) / ( m_WLS_crit - m_WLS_onset )); // form Y = m2 * X + c2
   const double c2 = m_TF_onset_lin - m_WLS_onset * m2;
+
+  if( m_maxBasalticCrustThickness != 0 && ( m_backstrippingMantleDensity - m_magmaticDensity ) == 0.0 ) {
+      string s = "MeSsAgE ERROR Backstripping Mantle density == magmatic density";
+      throw s;
+  }     
   const double magmaThicknessCoeff = (m_backstrippingMantleDensity - m_waterDensity) / (m_backstrippingMantleDensity - m_magmaticDensity);
 
   theFunction.setM1( m1 );

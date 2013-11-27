@@ -20,15 +20,18 @@ LinearFunction::LinearFunction() {
 double LinearFunction::getCrustTF( const double WLS ) {
 
    double TF = 1.0;
-
-   if( WLS < m_WLS_onset ) {
-      TF = m_m1 * WLS;
-   }else if( WLS > m_WLS_crit ) {
-      TF = 1.0;
-   } else {
-      TF =  m_m2 * WLS + m_c2;
-   }
    
+   if( m_maxBasalticCrustThickness == 0 ) {
+      TF = m_m1 * WLS;
+   } else {
+      if( WLS < m_WLS_onset ) {
+         TF = m_m1 * WLS;
+      }else if( WLS > m_WLS_crit ) {
+         TF = 1.0;
+      } else {
+         TF =  m_m2 * WLS + m_c2;
+      }
+   }
    return TF;
 }
 //------------------------------------------------------------//
@@ -36,16 +39,18 @@ double LinearFunction::getBasaltThickness( const double WLS ) {
 
    double thickness = 0.0;
 
-   if ( WLS < m_WLS_onset)  {
-      thickness = 0.0;
-   } else if( WLS >= m_WLS_crit ){
-      thickness = m_maxBasalticCrustThickness - (WLS - m_WLS_crit) * m_magmaThicknessCoeff;
-   } else {
-      thickness = m_maxBasalticCrustThickness * ((WLS - m_WLS_onset) / ( m_WLS_crit - m_WLS_onset));
-   }
-
-   if( thickness < 0 ) {
-      thickness = 0;
+   if( m_maxBasalticCrustThickness != 0 ) {
+      if ( WLS < m_WLS_onset)  {
+         thickness = 0.0;
+      } else if( WLS >= m_WLS_crit ){
+         thickness = m_maxBasalticCrustThickness - (WLS - m_WLS_crit) * m_magmaThicknessCoeff;
+      } else {
+         thickness = m_maxBasalticCrustThickness * ((WLS - m_WLS_onset) / ( m_WLS_crit - m_WLS_onset));
+      }
+      
+      if( thickness < 0 ) {
+         thickness = 0;
+      }
    }
    return thickness;
 }
