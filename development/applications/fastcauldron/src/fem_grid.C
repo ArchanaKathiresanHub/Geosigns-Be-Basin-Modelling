@@ -2253,13 +2253,13 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       // First attempt to solve linear system of equations.
       linearSolveAttempts = 1;
 
-      if ( basinModel->debug1 ) {
-         PetscPrintf ( PETSC_COMM_WORLD, " The pressure solver exit condition was: %s \n", getKspConvergedReasonImage ( convergedReason ).c_str ());
-      }
-
       if ( convergedReason < 0 ) {
          KSPGetIterationNumber ( Pressure_Linear_Solver, &numberOfLinearIterations );
          linearSolverTotalIterationCount = numberOfLinearIterations;
+
+         PetscPrintf ( PETSC_COMM_WORLD,
+                       " MeSsAgE WARNING The pressure solver exit condition was: %s. Retrying with another linear solver. \n",
+                       getKspConvergedReasonImage ( convergedReason ).c_str ());
 
          // Now iterate several times until the linear system has been solved.
          // If, however, the number of iterations exceeds the maximum then this will result in a simulation failure.
