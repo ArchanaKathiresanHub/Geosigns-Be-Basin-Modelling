@@ -40,11 +40,8 @@ inline void   dcopy( int n, double * x, int incx, double * y, int incy ) { dcopy
 inline void   dscal( int n, double a, double * x, int incx ) { dscal_( &n, &a, x, &incx ); }
 inline double ddot( int n, double * x, int incx, double * y, int incy ) { return ddot_( &n, x, &incx, y, &incy ); }
 
-
-Mkl::MklNewElementAssembly::MklNewElementAssembly( bool useCustomGEMM )
+Mkl::MklNewElementAssembly::MklNewElementAssembly()
 {
-   m_customGEMM = useCustomGEMM;
-
    // allocate memory for maximum size - 4x4x4 - 64
    N = 4 * 4 * 4;
 
@@ -169,70 +166,4 @@ void Mkl::MklNewElementAssembly::AssembleElement()
    dgemm( 'N', 'N', 8, 8, 3 * N, 1.0, GA, 8, G, 3 * N, 1.0, K, 8 );
 }
 
-/*
-// C = A * B'  cij = aik * bjk
-// A - 8 x N,  B - 8 x N, C - 8 x 8, all matrix are in column wise order
-void matmulSSE ( int N, double * a, double * b, double * c )
-{
-  __m128d* res = (__m128d*)(c);
 
-  int start;
-
-  if ( a.cols () % 2 == 0 )
-  {
-     for ( int j = 0; j < 8; ++j, res += 4 )
-     {
-        __m128d* as = (__m128d*)(a);
-
-        __m128d bj1 = _mm_set1_pd ( b ( j + 1, 1 ));
-        __m128d bj2 = _mm_set1_pd ( b ( j + 1, 2 ));
-
-        res [ 0 ] = _mm_add_pd ( _mm_mul_pd ( as[ 0 ], bj1 ), _mm_mul_pd ( as[ 4 ], bj2 ));
-        res [ 1 ] = _mm_add_pd ( _mm_mul_pd ( as[ 1 ], bj1 ), _mm_mul_pd ( as[ 5 ], bj2 ));
-        res [ 2 ] = _mm_add_pd ( _mm_mul_pd ( as[ 2 ], bj1 ), _mm_mul_pd ( as[ 6 ], bj2 ));
-        res [ 3 ] = _mm_add_pd ( _mm_mul_pd ( as[ 3 ], bj1 ), _mm_mul_pd ( as[ 7 ], bj2 ));
-     }
-     start = 2;
-  }
-  else
-  {
-     for ( int j = 0; j < 8; ++j, res += 4 ) {
-        __m128d* as = (__m128d*)(a);
-
-        __m128d bj1 = _mm_set1_pd ( b ( j + 1, 1 ));
-
-        res [ 0 ] = _mm_mul_pd ( as[ 0 ], bj1 );
-        res [ 1 ] = _mm_mul_pd ( as[ 1 ], bj1 );
-        res [ 2 ] = _mm_mul_pd ( as[ 2 ], bj1 );
-        res [ 3 ] = _mm_mul_pd ( as[ 3 ], bj1 );
-     }
-     start = 1;
-  }
-
-  res = (__m128d*)(c.allValues);
-
-  for ( int j = 0; j < 8; ++j, res += 4 )
-  {
-    __m128d* as = (__m128d*)(a + start * 8);
-
-    for ( int k = start; k < a.cols (); k += 2, as += 8 )
-    {
-      __m128d bj1 = _mm_set1_pd ( b ( j + 1, k + 1 ));
-      __m128d bj2 = _mm_set1_pd ( b ( j + 1, k + 2 ));
-
-
-      res [ 0 ] = _mm_add_pd ( res [ 0 ], 
-                               _mm_add_pd ( _mm_mul_pd ( as[ 0 ], bj1 ), _mm_mul_pd ( as [  4 ], bj2 )));
-
-      res [ 1 ] = _mm_add_pd ( res [ 1 ], 
-                               _mm_add_pd ( _mm_mul_pd ( as[ 1 ], bj1 ), _mm_mul_pd ( as [  5 ], bj2 )));
-
-      res [ 2 ] = _mm_add_pd ( res [ 2 ], 
-                               _mm_add_pd ( _mm_mul_pd ( as[  2 ], bj1 ), _mm_mul_pd ( as [  6 ], bj2 )));
-
-      res [ 3 ] = _mm_add_pd ( res [ 3 ], 
-                               _mm_add_pd ( _mm_mul_pd ( as[  3 ], bj1 ), _mm_mul_pd ( as [  7 ], bj2 )));
-    }
-  }
-}
-*/

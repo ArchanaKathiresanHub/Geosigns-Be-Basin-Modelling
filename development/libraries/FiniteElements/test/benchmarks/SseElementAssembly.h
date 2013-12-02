@@ -1,19 +1,18 @@
-#ifndef MKL_ELEMENT_ASSEMBLY_H
-#define MKL_ELEMENT_ASSEMBLY_H
-
+#ifndef SSE_ELEMENT_ASSEMBLY_H
+#define SSE_ELEMENT_ASSEMBLY_H
 
 #include <vector>
 
-namespace Mkl 
+namespace Sse 
 {
    ///////////////////////////////////////////////////////////////////////////////
    /// @brief Class which implements element matrix assembly using Aramdillo library
    ///////////////////////////////////////////////////////////////////////////////
-   class MklNewElementAssembly
+   class SseNewElementAssembly
    {
    public:
-      MklNewElementAssembly();
-      ~MklNewElementAssembly() { freeMatrices(); }
+      SseNewElementAssembly();
+      ~SseNewElementAssembly() { freeMatrices(); }
 
       // resize matrices/vectors for new numbers of quadrature points. 
       // Also init them random values
@@ -23,7 +22,8 @@ namespace Mkl
       double getK( int i, int j ) { return K ? K[i + j * 8]: 0.0; }
 
    private:
-      int      N;
+      int      numberOfPoints;
+
       // Zero order term for new implementation PCP'
       double * P;   // 8 x n P matrix
       double * C;   // n x n  C diagonal matrix

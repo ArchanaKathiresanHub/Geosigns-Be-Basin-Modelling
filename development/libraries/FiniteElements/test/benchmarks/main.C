@@ -1,16 +1,22 @@
+#include "ArmElementAssembly.h"
+#include "CldElementAssembly.h"
+#include "MklElementAssembly.h"
+#include "SseElementAssembly.h"
+#include "EgnElementAssembly.h"
+
 #include <time.h>
 #include <iostream>
 #include <string>
-
-#include "CldElementAssembly.h"
-#include "EgnElementAssembly.h"
-#include "ArmElementAssembly.h"
-#include "MklElementAssembly.h"
-
 #include <utility> 
 
-int  ElementsNumber = 50 * 50 * 20;
-//int  ElementsNumber = 100;
+#ifdef NDEBUG
+const int  ElementsNumber = 50 * 50 * 20;
+#else
+const int  ElementsNumber = 100;
+#endif
+
+const int maxQPtsXY = 4;
+const int maxQPtsZ = 4;
 
 std::string getCompilerName()
 {
@@ -88,9 +94,11 @@ int main( int argc, char ** argv )
    std::vector< std::pair<int, double> > egnTiming;
    std::vector< std::pair<int, double> > armTiming;
    std::vector< std::pair<int, double> > mklTiming;
+   std::vector< std::pair<int, double> > sseTiming;
 
    // generat random array for equal data initialisation for armadillo and eigen
-   std::vector<double> randData( 10000 );
+   int N = maxQPtsXY * maxQPtsXY * maxQPtsZ; 
+   std::vector<double> randData( ( 8*N /*P*/ + N*N /*C*/ + 8*3*N /*G*/ + 3*N*N /*B*/ + 3*N*3*N /*A*/ ) * 10 );
    for ( std::vector<double>::iterator it = randData.begin(); it != randData.end(); ++it ) *it = drand48();
 
    // do check:
@@ -106,20 +114,25 @@ int main( int argc, char ** argv )
       mmkl.InitAssembly( 2, 2, randData );
       mmkl.AssembleElement();
  
+      Sse::SseNewElementAssembly ssel;
+      ssel.InitAssembly( 2, 2, randData );
+      ssel.AssembleElement();
+ 
       for ( int i = 0; i < 8; ++i )
       {
          for ( int j = 0; j < 8; ++j )
          {
             assert( std::abs( egn8.K(i,j) - arm.K(i,j)     ) / std::abs( egn8.K(i,j) + arm.K(i,j)     )  < 1e-3 );
             assert( std::abs( egn8.K(i,j) - mmkl.getK(i,j) ) / std::abs( egn8.K(i,j) + mmkl.getK(i,j) )  < 1e-3 );
+            assert( std::abs( egn8.K(i,j) - ssel.getK(i,j) ) / std::abs( egn8.K(i,j) + ssel.getK(i,j) )  < 1e-3 );
          }
       }
    }
 
    // Eigen run
-   for ( int xyQuadPts = 2;  xyQuadPts < 5; ++xyQuadPts )
+   for ( int xyQuadPts = 2;  xyQuadPts <= maxQPtsXY ; ++xyQuadPts )
    {
-      for ( int zQuadPts = xyQuadPts; zQuadPts < 5; ++zQuadPts )
+      for ( int zQuadPts = xyQuadPts; zQuadPts <= maxQPtsZ; ++zQuadPts )
       {
          switch( xyQuadPts * xyQuadPts * zQuadPts )
          {
@@ -135,7 +148,7 @@ int main( int argc, char ** argv )
 
             case 12:
                {
-                  Eigen::EgnNewElementAssembly<12>  egn12;
+                  Eigen::EgnNewElementAssembly<12> egn12;
                   egn12.InitAssembly( randData );
                   t1 = clock();
                   for ( int el = 0; el < ElementsNumber; ++el ) { egn12.AssembleElement(); }
@@ -195,9 +208,9 @@ int main( int argc, char ** argv )
    std::cout << "];\n";
 
    // Armadillo run
-   for ( int xyQuadPts = 2;  xyQuadPts < 5; ++xyQuadPts )
+   for ( int xyQuadPts = 2;  xyQuadPts <= maxQPtsXY; ++xyQuadPts )
    {
-      for ( int zQuadPts = xyQuadPts; zQuadPts < 5; ++zQuadPts )
+      for ( int zQuadPts = xyQuadPts; zQuadPts <= maxQPtsZ; ++zQuadPts )
       {
          arm.InitNewImplementationOfAssembly( xyQuadPts, zQuadPts, randData );
 
@@ -212,13 +225,14 @@ int main( int argc, char ** argv )
    std::cout << "\nArmadilloNew" << getCompilerName() << " = [\n";
    for ( size_t i = 0; i < armTiming.size(); ++i ) std::cout << armTiming[i].first << ", " << armTiming[i].second << "; ";
    std::cout << "];\n";
-   
+ 
+  
    // MKL run
    Mkl::MklNewElementAssembly mmkl;
 
-   for ( int xyQuadPts = 2;  xyQuadPts < 5; ++xyQuadPts )
+   for ( int xyQuadPts = 2;  xyQuadPts <= maxQPtsXY; ++xyQuadPts )
    {
-      for ( int zQuadPts = xyQuadPts; zQuadPts < 5; ++zQuadPts )
+      for ( int zQuadPts = xyQuadPts; zQuadPts <= maxQPtsZ; ++zQuadPts )
       {
          mmkl.InitAssembly( xyQuadPts, zQuadPts, randData );
 
@@ -232,6 +246,26 @@ int main( int argc, char ** argv )
    }
    std::cout << "\nMklNew" << getCompilerName() << " = [\n";
    for ( size_t i = 0; i < mklTiming.size(); ++i ) std::cout << mklTiming[i].first << ", " << mklTiming[i].second << "; ";
+   std::cout << "];\n";
+
+   // Bill's SSE run
+   Sse::SseNewElementAssembly ssel;
+   for ( int xyQuadPts = 2;  xyQuadPts <= maxQPtsXY; ++xyQuadPts )
+   {
+      for ( int zQuadPts = xyQuadPts; zQuadPts <= maxQPtsZ; ++zQuadPts )
+      {
+         ssel.InitAssembly( xyQuadPts, zQuadPts, randData );
+
+         t1 = clock();
+         for ( int el = 0; el < ElementsNumber; ++el )
+         {
+            ssel.AssembleElement();
+         }
+         sseTiming.push_back( std::pair<int,double>( xyQuadPts * xyQuadPts * zQuadPts, static_cast<double>( (clock() - t1 ) ) / CPS ) ); 
+      }
+   }
+   std::cout << "\nSSENew" << getCompilerName() << " = [\n";
+   for ( size_t i = 0; i < sseTiming.size(); ++i ) std::cout << sseTiming[i].first << ", " << sseTiming[i].second << "; ";
    std::cout << "];\n";
 }
 

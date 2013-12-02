@@ -175,16 +175,31 @@ void arma::ArmaElementAssembly::AssembleElementNew()
 {
    // P * C * P'
    // C is diagornal matrix. Firs calc Q = C * P'
-   
-   K.zeros();
+   K = (P * diagmat(C)) * Pt;
 
-   K += (P * diagmat(C)) * Pt;
+#ifdef  DEBUG_PRINT
+      std::cout << "\n\nArmadillo: P  matrix:\n"; P.print();
+      std::cout << "\n\nArmadillo: C  matrix:\n"; C.print();
+      std::cout << "\n\nArmadillo: P' matrix:\n"; Pt.print();
+      std::cout << "\n\nArmadillo: K0 matrix:\n"; K.print();
+#endif
 
    // first order term
    K += (G * B) * Pt;
 
+#ifdef  DEBUG_PRINT
+      std::cout << "\n\nArmadillo: G  matrix:\n"; G.print();
+      std::cout << "\n\nArmadillo: B  matrix:\n"; B.print();
+      std::cout << "\n\nArmadillo: K1 matrix:\n"; K.print();
+#endif
+
    // second order term
    K += ( G * A ) * G.t();
+
+#ifdef  DEBUG_PRINT
+   std::cout << "\n\nArmadillo: A  matrix:\n"; A.print();
+   std::cout << "\n\nArmadillo: K2 matrix:\n"; K.print();
+#endif
 }
 
 void arma::ArmaElementAssembly::basisFunction( double xi, double eta, double zeta, vec & basis, mat & gradBasis )

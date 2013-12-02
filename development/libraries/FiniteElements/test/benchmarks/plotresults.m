@@ -4,10 +4,10 @@ hold off
 
 cmpl = { 'Intel', 'gcc412', 'gcc481' };
 
-libn = {'ArmadilloNew', 'EigenNew', 'MklNew', 'CauldronOld', 'ArmadilloOld', 'EigenOld' };
-liblegn = {'Armadillo (New)', 'Eigen (New)', 'Mkl (New)', 'Cauldron (Old)', 'Armadillo (Old)', 'Eigen (Old)' };
+libn = {'ArmadilloNew', 'EigenNew', 'MklNew', 'SSENew', 'CauldronOld', 'ArmadilloOld', 'EigenOld' };
+liblegn = {'Armadillo (New)', 'Eigen (New)', 'Mkl (New)', 'SSE (New)', 'Cauldron (Old)', 'Armadillo (Old)', 'Eigen (Old)' };
 
-stn = {'-xr', '-xb', '-xg', '-ok', '-or', '-ob' };
+stn = {'-xr', '-xb', '-xg', '-*m', '-ok', '-or', '-ob' };
 
 
 for l = 1: length( cmpl )

@@ -63,7 +63,7 @@ namespace Eigen
       Matrix< double, _N, 1 > C;
 
       // First order term
-#ifdef USE_SPARSE_MATRIX      
+#ifdef EIGEN_USE_SPARSE_MATRIX      
       Matrix<       double, 8, 3*_N >  G; // 8  x 3n
       SparseMatrix< double, ColMajor > B; // 3n x n
 #else
@@ -72,7 +72,7 @@ namespace Eigen
 #endif
 
       // Second order term 
-#ifdef USE_SPARSE_MATRIX      
+#ifdef EIGEN_USE_SPARSE_MATRIX      
       SparseMatrix<double, ColMajor>   A;  // 3n x 3n
       Matrix<double, 3*_N, 8>          Gt; // 3n x 8
 #else
@@ -93,7 +93,7 @@ namespace Eigen
       }
 
       // init first order term G and B
-#ifdef USE_SPARSE_MATRIX      
+#ifdef EIGEN_USE_SPARSE_MATRIX      
       B.resize( G.cols(), G.cols()/3 );
       B.reserve( G.cols() );
 
@@ -102,7 +102,7 @@ namespace Eigen
          for ( int j = 0; j < G.cols(); ++j ) Gt( j, i ) = G( i, j ) = randData[ir++];
 
       for (    int i = 0; i < B.cols(); ++i )
-         for ( int j = 0; j < 3;        ++j ) B.insert( i + j, i ) = randData[ir++];
+         for ( int j = 0; j < 3;        ++j ) B.insert( i * 3 + j, i ) = randData[ir++];
       
       B.makeCompressed();
 #else
@@ -122,13 +122,13 @@ namespace Eigen
 #endif
 
       // init second order term
-#ifdef USE_SPARSE_MATRIX      
+#ifdef EIGEN_USE_SPARSE_MATRIX      
       A.resize( G.cols(), G.cols() );
       A.reserve( 3 * G.cols() );
 
       for ( int i = 0; i < A.rows(); i += 3 )
-         for (    int lj = 0; lj < 3; ++lj )
-            for ( int li = 0; li < 3; ++li ) A.insert( i+li,   i+lj ) = randData[ir++];
+         for (    int li = 0; li < 3; ++li )
+            for ( int lj = 0; lj < 3; ++lj ) A.insert( i+li,   i+lj ) = randData[ir++];
    
 #else
       for ( int i = 0; i < G.rows(); ++i ) 
@@ -148,14 +148,16 @@ namespace Eigen
 
    template<int _N> void EgnNewElementAssembly<_N>::AssembleElement()
    {
-      K.Zero();
-
       // zero order term
       // P * C * P'
-      K += (P * C.asDiagonal()) * Pt;
-      
+      K = (P * C.asDiagonal()) * Pt;
+
+#ifdef  DEBUG_PRINT
+      std::cout << "\n\nEigen: P matrix:\n" << P << "\n\nEigen: C matrix:\n" << C << "\n\nEigen: P' matrix:\n" << Pt << "\n\nEigen: K0 matrix:\n" << K;
+#endif
+
       // first order term 
-#ifdef USE_SPARSE_MATRIX      
+#ifdef EIGEN_USE_SPARSE_MATRIX      
       K += (G * B) * Pt;
 #else
       MatrixXd mat( G.rows(), G.cols() );
@@ -168,8 +170,26 @@ namespace Eigen
 
 #endif
 
+#ifdef  DEBUG_PRINT
+#ifdef EIGEN_USE_SPARSE_MATRIX      
+      std::cout << "\n\nEigen: G matrix:\n" << G << "\n\nEigen: B matrix:\n" << B << "\n\nEigen: K1 matrix:\n" << K;
+#else
+   std::cout << "\n\nEigen: G matrix:\n";
+   for ( int i = 0; i < G.rows(); ++i )
+   {
+      for ( int j = 0; j < G.cols(); ++j ) std::cout << G(i,j) << " ";
+      std::cout << "\n";
+   }
+
+   std::cout << "\n\nEigen: B matrix:\n";
+   for ( int i = 0; i < B.rows(); ++i ) std::cout << B(i,0) << "\n";
+
+   std::cout << "\n\nEigen: K1 matrix:\n" << K;
+#endif
+#endif
+
       // second order term
-#ifdef USE_SPARSE_MATRIX      
+#ifdef EIGEN_USE_SPARSE_MATRIX      
       K += ( G * A ) * G.transpose();
 #else
       Matrix< Matrix<double, 1, 3>, 8, Dynamic > GA(8, G.cols());
@@ -183,6 +203,17 @@ namespace Eigen
             for ( int k = 0; k < Gt.rows(); ++k )
                K( i, j ) += GA( i, k ) * Gt( k, j );
 
+#endif
+
+#ifdef  DEBUG_PRINT
+#ifdef EIGEN_USE_SPARSE_MATRIX      
+      std::cout << "\n\nEigen: A matrix:\n" << A << "\n\nEigen: K2 matrix:\n" << K;
+#else
+      std::cout << "\n\nEigen: A matrix:\n";
+      for ( int i = 0; i < A.rows(); ++i ) std::cout << A(i,0) << "\n";
+
+      std::cout << "\n\nEigen: K2 matrix:\n" << K;
+#endif
 #endif
    }
 };
