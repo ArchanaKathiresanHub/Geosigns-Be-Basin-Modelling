@@ -520,7 +520,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       subdomainVapourPressure.setVector ( simpleGrid, subdomainVapourPressureVec, INSERT_VALUES );
       subdomainLiquidPressure.setVector ( simpleGrid, subdomainLiquidPressureVec, INSERT_VALUES );
 
-      computePressure ( subdomain, saturations,
+      computePressure ( subdomain, saturations, phaseDensities,
                         porePressure, temperature, ves, maxVes, lambdaStart,
                         subdomainVapourPressure, subdomainLiquidPressure );
 
@@ -789,6 +789,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
 void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainElementGrid&      formationGrid,
                                                          const SaturationArray&              saturations,
+                                                         const PhaseValueArray&              hcDensity,
                                                          const TemporalPropertyInterpolator& porePressure,
                                                          const TemporalPropertyInterpolator& temperature,
                                                          const TemporalPropertyInterpolator& ves,
@@ -802,17 +803,31 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
    const ElementVolumeGrid& concentrationGrid = theLayer.getVolumeGrid ( NumberOfPVTComponents );
    const ElementVolumeGrid& saturationGrid = theLayer.getVolumeGrid ( Saturation::NumberOfPhases );
 
+   CompositionPetscVector layerConcentrations;
+
+   layerConcentrations.setVector ( concentrationGrid, theLayer.getPreviousComponentVec (), INSERT_VALUES );
+
    int i;
    int j;
    int k;
 
    CompoundProperty compoundPorosity;
+
+   PVTPhaseComponents phaseComposition;
+   PVTPhaseValues     elementHcDensity;
+   PVTPhaseValues     elementHcViscosity;
+
    double elementPorePressure;
    double elementVes;
    double elementMaxVes;
-   double capillaryPressure;
+   double vapourCapillaryPressure;
+   double liquidCapillaryPressure;
    double permeabilityNormal;
    double permeabilityPlane;
+   double elementTemperature;
+   double criticalTemperature;
+   double brineDensity;
+
 
    for ( i = concentrationGrid.firstI (); i <= concentrationGrid.lastI (); ++i ) {
 
@@ -827,27 +842,86 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                if ( layerElement.isActive ()) {
 
                   const Lithology* lithology = layerElement.getLithology ();
-
                   const Saturation& saturation = saturations ( element.getI (), element.getJ (), element.getK ());
 
+                  PVTComponents elementConcentrations = layerConcentrations ( k, j, i );
+
                   elementPorePressure = 1.0e6 * porePressure ( element, lambda );
-                  elementVes = ves ( element, lambda );
-                  elementMaxVes = maxVes ( element, lambda );
+                  elementTemperature = temperature ( element, lambda );
 
-                  lithology->getPorosity ( elementVes,
-                                           elementMaxVes,
-                                           false, 0.0,
-                                           compoundPorosity );
+#if 0
+                  if ( elementConcentrations.sum () == 0.0 ) {
+                     // Sum the HC in all neighbouring elements.
+                     // 
+                     int face;
 
-                  lithology->calcBulkPermeabilityNP ( elementVes, elementMaxVes, compoundPorosity, permeabilityNormal, permeabilityPlane );
+                     for ( face = VolumeData::GAMMA_1; face <= VolumeData::GAMMA_6; ++face ) {
+                        const VolumeData::BoundaryId id = static_cast<VolumeData::BoundaryId>( face );
+                        const SubdomainElement* neighbour = element.getActiveNeighbour ( id );
 
-                  // Compute liquid-pressure.
-                  capillaryPressure = lithology->capillaryPressure ( Saturation::LIQUID, saturation, permeabilityNormal );
-                  liquidPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + capillaryPressure;
+                        if ( neighbour != 0 ) {
+                           const LayerElement& neighbourElement = neighbour->getLayerElement ();
+                           elementConcentrations += layerConcentrations ( neighbourElement.getK (), neighbourElement.getJ (), neighbourElement.getI ());
+                        }
 
-                  // Compute vapour-pressure.
-                  capillaryPressure = lithology->capillaryPressure ( Saturation::VAPOUR, saturation, permeabilityNormal );
-                  vapourPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + capillaryPressure;
+                     }
+
+                     if ( elementConcentrations.sum () > HcConcentrationLowerLimit ) {
+                        PVTCalc::getInstance ().compute ( elementTemperature + 273.15,
+                                                          NumericFunctions::Maximum ( elementPorePressure, 1.0e5 ),
+                                                          elementConcentrations,
+                                                          phaseComposition,
+                                                          elementHcDensity,
+                                                          elementHcViscosity );
+
+                     }
+
+
+                  } else {
+                     elementHcDensity = hcDensity ( i, j, k );
+                  }
+#endif
+
+
+                  if ( elementConcentrations.sum () > HcConcentrationLowerLimit ) {
+                     elementVes = ves ( element, lambda );
+                     elementMaxVes = maxVes ( element, lambda );
+                     elementHcDensity = hcDensity ( i, j, k );
+
+                     // Brine density reqire pressure in MPa.
+                     brineDensity = theLayer.fluid->density ( elementTemperature, 1.0e-6 * elementPorePressure );
+                     criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementConcentrations );
+
+                     lithology->getPorosity ( elementVes,
+                                              elementMaxVes,
+                                              false, 0.0,
+                                              compoundPorosity );
+
+                     lithology->calcBulkPermeabilityNP ( elementVes, elementMaxVes, compoundPorosity, permeabilityNormal, permeabilityPlane );
+
+                     liquidCapillaryPressure = lithology->capillaryPressure ( Saturation::LIQUID,
+                                                                              saturation,
+                                                                              elementTemperature,
+                                                                              permeabilityNormal,
+                                                                              brineDensity,
+                                                                              elementHcDensity ( pvtFlash::LIQUID_PHASE ),
+                                                                              criticalTemperature );
+
+                     vapourCapillaryPressure = lithology->capillaryPressure ( Saturation::VAPOUR,
+                                                                              saturation,
+                                                                              elementTemperature,
+                                                                              permeabilityNormal,
+                                                                              brineDensity,
+                                                                              elementHcDensity ( pvtFlash::VAPOUR_PHASE ),
+                                                                              criticalTemperature );
+
+                  } else {
+                     vapourCapillaryPressure = 0.0;
+                     liquidCapillaryPressure = 0.0;
+                  }
+
+                  liquidPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + liquidCapillaryPressure;
+                  vapourPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + vapourCapillaryPressure;
                }
 
             }
@@ -864,6 +938,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
 
 void ExplicitMultiComponentFlowSolver::computePressure ( Subdomain&                          subdomain,
                                                          const SaturationArray&              saturations,
+                                                         const PhaseValueArray&              hcDensity,
                                                          const TemporalPropertyInterpolator& porePressure,
                                                          const TemporalPropertyInterpolator& temperature,
                                                          const TemporalPropertyInterpolator& ves,
@@ -878,7 +953,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( Subdomain&             
    subdomain.initialiseLayerIterator ( iter );
 
    while ( not iter.isDone ()) {
-      computePressure ( *iter, saturations, porePressure, temperature, ves, maxVes, lambda, vapourPressure, liquidPressure );
+      computePressure ( *iter, saturations, hcDensity, porePressure, temperature, ves, maxVes, lambda, vapourPressure, liquidPressure );
       ++iter;
    }
 

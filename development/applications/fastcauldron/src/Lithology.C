@@ -19,6 +19,15 @@ Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::
 
    m_cosContactAngle ( pvtFlash::VAPOUR_PHASE ) = std::cos ( m_contactAngle ( pvtFlash::VAPOUR_PHASE ));
    m_cosContactAngle ( pvtFlash::LIQUID_PHASE ) = std::cos ( m_contactAngle ( pvtFlash::LIQUID_PHASE ));
+
+   // 180 Degrees
+   m_cosHcWaterContactAngle = std::cos ( M_PI );
+
+   // 140 Degrees
+   m_cosAirHgContactAngle = ( 140.0 / 180.0 * M_PI );
+
+   // 480 mN/metre = 0.48 N/m
+   m_airMercuryInterfacialTension = 0.48;
 }
 
 //------------------------------------------------------------//
@@ -148,6 +157,46 @@ double Lithology::calculateTemisRelPerm ( const Saturation::Phase phase,
 
 double Lithology::capillaryPressure ( const Saturation::Phase phase,
                                       const Saturation        saturation,
+                                      const double            temperature,
+                                      const double            permeability,
+                                      const double            brineDensity,
+                                      const double            hcPhaseDensity,
+                                      const double            criticalTemperature ) const {
+
+   double pce;
+
+   // if ( hcPhaseDensity > brineDensity ) {
+   //    cp = 0.0;
+   // } else {
+   // }
+
+   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
+
+      // Units of interfacial-tension are mN/M so they need to be scaled by 0.001 to get into N/M.
+      double interfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity, hcPhaseDensity, temperature + 273.15, criticalTemperature );
+      double cpeHgAir = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
+
+      // Convert to a hc-water entry pressure.
+      pce = interfacialTension * m_cosHcWaterContactAngle / ( m_cosAirHgContactAngle * m_airMercuryInterfacialTension ) * cpeHgAir;
+   } else {
+      pce = BrooksCorey::Pe;
+   }
+
+   if ( LambdaPc () == IBSNULLVALUE ) {
+      // What should the correct values be here?
+      return pce;
+   } else {
+      // Saturation::Phase wettingPhase = Saturation::WATER;
+      return BrooksCorey::pc ( saturation ( Saturation::WATER ), LambdaPc(), pce );
+   }
+
+}
+
+//------------------------------------------------------------//
+
+#if 0
+double Lithology::capillaryPressure ( const Saturation::Phase phase,
+                                      const Saturation        saturation,
                                       const double            permeability ) const {
 
    // two phase system: HCVapour-Brine and HCLiquid-Brine
@@ -165,12 +214,12 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
    if ( LambdaPc () == IBSNULLVALUE ) {
       // What should the correct values be here?
       return capillaryEntryPressure;
-      return BrooksCorey::Pe;
    } else {
       return BrooksCorey::pc ( saturation ( wettingPhase ), LambdaPc(), capillaryEntryPressure );
    }
 
 }
+#endif
 
 //------------------------------------------------------------//
 

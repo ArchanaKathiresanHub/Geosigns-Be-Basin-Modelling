@@ -87,6 +87,9 @@ bool CapillaryPressureVolumeCalculator::initialise ( OutputPropertyMap::Property
 bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
                                                      OutputPropertyMap::PropertyValueList&  propertyValues )
 {
+
+   const int HcVapourDensityIndex = 0;
+   const int HcLiquidDensityIndex = 1;
   
    using namespace CBMGenerics;
 
@@ -103,22 +106,21 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    Interface::GridMap * liquidWaterCapPressureMap;
    Interface::GridMap * vapourWaterCapPressureMap;
 
+   const ElementVolumeGrid& concentrationGrid = m_formation->getVolumeGrid ( NumberOfPVTComponents );
    const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
 
-   double hcVapourDensity = 0.0;
-   double hcLiquidDensity = 0.0;
-   double temperature = 0.0;
-   double pressure = 0.0;
-   double undefinedValue; 
-   double lwcp;
-   double vwcp;
-
    CompoundProperty porosity;
+   double temperature;
+   double undefinedValue; 
    double ves;
    double maxVes;
-   double entryPressure;
    double permeabilityNormal;
    double permeabilityPlane;
+   double brineDensity;
+   double brinePressure;
+   double criticalTemperature;
+   double lwcp;
+   double vwcp;
  
    //get liquid phase pc
    liquidWaterCapPressureMap = propertyValues[0]->getGridMap ();
@@ -128,24 +130,26 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    vapourWaterCapPressureMap->retrieveData ();
    
    undefinedValue = liquidWaterCapPressureMap->getUndefinedValue ();
-
    
    PetscBlockVector<Saturation> saturations;
+   PetscBlockVector<PVTComponents> concentrations;
    Saturation saturation;
-   saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
 
    PVTPhaseComponents phaseComposition;
    PVTComponents      molarMasses;
-   PVTComponents      massConcentration;
+   PVTComponents      elementComposition;
    PVTPhaseValues     phaseDensities;
    PVTPhaseValues     phaseViscosities;
+
+   OutputPropertyMap* pvtProperties = PropertyManager::getInstance().findOutputPropertyVolume ( "PVTProperties", m_formation, m_snapshot );
 
    molarMasses = PVTCalc::getInstance ().getMolarMass ();
    molarMasses *= 1.0e-3;
    
    bool vesIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::VES_FP );
    bool maxVesIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::Max_VES );
-
+   bool pressureIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::Pore_Pressure );
+   bool temperatureIsActive = m_formation->Current_Properties.propertyIsActivated ( Basin_Modelling::Temperature );
 
    if ( not vesIsActive ) {
       m_formation->Current_Properties.Activate_Property ( Basin_Modelling::VES_FP, INSERT_VALUES, true );
@@ -155,8 +159,26 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
       m_formation->Current_Properties.Activate_Property ( Basin_Modelling::Max_VES, INSERT_VALUES, true );
    }
 
-   const double ConcentrationLowerLimit = 1.0e-20;
-   
+   if ( not pressureIsActive ) {
+      m_formation->Current_Properties.Activate_Property ( Basin_Modelling::Pore_Pressure, INSERT_VALUES, true );
+   }
+
+   if ( not temperatureIsActive ) {
+      m_formation->Current_Properties.Activate_Property ( Basin_Modelling::Temperature, INSERT_VALUES, true );
+   }
+
+
+   saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
+   concentrations.setVector ( concentrationGrid, m_formation->getPreviousComponentVec (), INSERT_VALUES );
+
+   if ( not pvtProperties->isCalculated ()) {
+
+      if ( not pvtProperties->calculate ()) {
+         return false;
+      }
+
+   }
+
    for ( i = grid.firstI (); i <= grid.lastI (); ++i ) {
 
       for ( j = grid.firstJ (); j <= grid.lastJ (); ++j ) {
@@ -171,25 +193,50 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
 
                   // get element saturation
                   saturation = saturations ( k, j, i );
+                  elementComposition = concentrations ( k, j, i );
 
-                  ves = computeProperty ( element, Basin_Modelling::VES_FP );
-                  maxVes = computeProperty ( element, Basin_Modelling::Max_VES );
-                  element.getLithology()->getPorosity ( ves, maxVes, false, 0.0, porosity );
-                  element.getLithology()->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityNormal, permeabilityPlane );
+                  if ( elementComposition.sum () > HcConcentrationLowerLimit ) {
+                     elementComposition *= molarMasses;
 
-                  if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
-                     entryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeabilityNormal, element.getLithology()->capC1 (), element.getLithology()->capC2 ());
+                     ves = computeProperty ( element, Basin_Modelling::VES_FP );
+                     maxVes = computeProperty ( element, Basin_Modelling::Max_VES );
+                     brinePressure = computeProperty ( element, Basin_Modelling::Pore_Pressure );
+                     temperature = computeProperty ( element, Basin_Modelling::Temperature );
+
+                     element.getLithology()->getPorosity ( ves, maxVes, false, 0.0, porosity );
+                     element.getLithology()->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityNormal, permeabilityPlane );
+
+                     brineDensity = m_formation->fluid->density ( temperature, brinePressure );
+                     criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementComposition );
+
+                     if ( pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ) != CAULDRONIBSNULLVALUE ) {
+                        lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
+                                                                           saturation,
+                                                                           temperature,
+                                                                           permeabilityNormal,
+                                                                           brineDensity,
+                                                                           pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ),
+                                                                           criticalTemperature );
+                     } else {
+                        lwcp = 0.0;
+                     }
+
+                     if ( pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ) != CAULDRONIBSNULLVALUE ) {
+                        vwcp = element.getLithology()->capillaryPressure ( Saturation::VAPOUR,
+                                                                           saturation,
+                                                                           temperature,
+                                                                           permeabilityNormal,
+                                                                           brineDensity,
+                                                                           pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ),
+                                                                           criticalTemperature );
+                     } else {
+                        vwcp = 0.0;
+                     }
+
                   } else {
-                     entryPressure = BrooksCorey::Pe;
+                     lwcp = 0.0;
+                     vwcp = 0.0;
                   }
-					   
-                  lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
-                                                                     saturation,
-                                                                     entryPressure );
-
-                  vwcp = element.getLithology()->capillaryPressure ( Saturation::VAPOUR,
-                                                                     saturation,
-                                                                     entryPressure );
 
                   liquidWaterCapPressureMap->setValue(i,j,k,lwcp);
                   vapourWaterCapPressureMap->setValue(i,j,k,vwcp);
@@ -260,6 +307,16 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    // Restore the max-ves to its original state.
    if ( not maxVesIsActive ) {
       m_formation->Current_Properties.Restore_Property ( Basin_Modelling::Max_VES );
+   }
+
+   // Restore the pressure to its original state.
+   if ( not pressureIsActive ) {
+      m_formation->Current_Properties.Restore_Property ( Basin_Modelling::Pore_Pressure );
+   }
+
+   // Restore the temperature to its original state.
+   if ( not temperatureIsActive ) {
+      m_formation->Current_Properties.Restore_Property ( Basin_Modelling::Temperature );
    }
 
    liquidWaterCapPressureMap->restoreData ();
