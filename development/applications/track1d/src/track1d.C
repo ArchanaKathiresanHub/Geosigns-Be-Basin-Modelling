@@ -2,11 +2,14 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
+
 #include <cmath>
 
 #include <vector>
 #include <map>
 #include <string>
+#include <cstring>
 #include <cstdlib>
 
 #include <stdlib.h>

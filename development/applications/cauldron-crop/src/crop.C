@@ -9,6 +9,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <iomanip>
 #include <math.h>

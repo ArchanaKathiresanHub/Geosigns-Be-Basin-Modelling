@@ -43,6 +43,7 @@
 
 #include <string>
 #include <stdio.h>   // putenv
+#include <stdlib.h>   // putenv
 #include <unistd.h>  // sleep
 
 

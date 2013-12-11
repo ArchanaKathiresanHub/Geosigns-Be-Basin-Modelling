@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <math.h>
 #include <values.h>

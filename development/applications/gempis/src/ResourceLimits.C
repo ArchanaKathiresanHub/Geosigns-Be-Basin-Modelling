@@ -23,6 +23,7 @@
 #include <ResourceLimits.h>
 
 #include <string>
+#include <stdlib.h>       // getenv
 #include <stdio.h>        // putenv
 #include <unistd.h>       // sleep
 #include <sys/sysinfo.h>  // sysinfo and get_nprocs

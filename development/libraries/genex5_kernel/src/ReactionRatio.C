@@ -2,6 +2,9 @@
 #include "Species.h"
 #include "Constants.h"
 #include "GeneralParametersHandler.h"
+
+#include <stdlib.h>
+
 namespace Genex5
 {
 ReactionRatio::ReactionRatio(Species *const in_react1,Species *const in_react2,const std::string &functionCode):

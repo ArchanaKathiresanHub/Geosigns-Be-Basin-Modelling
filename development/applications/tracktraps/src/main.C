@@ -6,6 +6,7 @@
 
 #include <assert.h>
 
+#include <string.h>
 #include <string>
 
 #ifdef sgi

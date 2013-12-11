@@ -1,6 +1,7 @@
 #include "ExperimentResultsTable.h"
 
 #include <iostream>
+#include <algorithm>
 
 ExperimentResultsTable :: ExperimentResultsTable( 
       const std::vector< std::string > & probeNames, char fieldSeparator, int fieldWidth )

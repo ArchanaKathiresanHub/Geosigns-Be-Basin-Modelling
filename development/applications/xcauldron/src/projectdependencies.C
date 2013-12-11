@@ -4,6 +4,7 @@
 #include "cauldronschemafuncs.h"
 
 #include <cassert>
+#include <algorithm>
 
 #include <unistd.h>
 #include <sys/types.h>

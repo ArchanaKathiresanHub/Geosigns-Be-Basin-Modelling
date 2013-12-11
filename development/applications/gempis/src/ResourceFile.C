@@ -20,6 +20,7 @@
 
 #include <string>
 #include <stdio.h>
+#include <stdlib.h>
 
 // process info
 #include <sys/types.h>

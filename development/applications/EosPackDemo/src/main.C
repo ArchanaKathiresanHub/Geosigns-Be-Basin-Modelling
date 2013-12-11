@@ -4,6 +4,8 @@
 #include <sstream>
 using namespace std;
 
+#include <string.h>
+
 #include "EosPack.h"
 
 const char * composFileName = NULL;

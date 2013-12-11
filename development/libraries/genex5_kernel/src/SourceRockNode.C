@@ -13,6 +13,7 @@
 
 
 #include <math.h>
+#include <stdlib.h>
 
 
 namespace Genex5

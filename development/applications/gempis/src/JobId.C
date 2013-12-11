@@ -7,6 +7,7 @@
 
 #include <stdio.h>            // printf(), perror(), snprintf(), fopen(), ...
 #include <stdlib.h>           // exit()
+#include <string.h>           // strlen()
 #include <errno.h>            // errno, EEXIST
 
 #include <iostream>

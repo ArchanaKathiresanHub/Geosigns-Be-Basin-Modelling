@@ -46,6 +46,7 @@
 
 #include <string>
 #include <stdio.h>        // putenv
+#include <stdlib.h>        // putenv
 #include <unistd.h>       // sleep
 #include <sys/sysinfo.h>  // sysinfo and get_nprocs
 #include <errno.h>        // errno

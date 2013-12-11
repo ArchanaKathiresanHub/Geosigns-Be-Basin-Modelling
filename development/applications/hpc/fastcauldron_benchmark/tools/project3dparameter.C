@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cctype>
 #include <typeinfo>
+#include <algorithm>
+#include <limits>
 
 #include "Interface/ProjectHandle.h"
 

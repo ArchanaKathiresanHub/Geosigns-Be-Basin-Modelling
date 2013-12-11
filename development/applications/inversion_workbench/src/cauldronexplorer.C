@@ -2,6 +2,7 @@
 #include <string>
 #include <cassert>
 #include <sstream>
+#include <cstring>
 #include <algorithm>
 #include <iomanip>
 

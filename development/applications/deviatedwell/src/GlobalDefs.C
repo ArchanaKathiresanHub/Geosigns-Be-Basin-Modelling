@@ -1,5 +1,7 @@
 #include "GlobalDefs.h"
 
+#include <cstdlib>
+
 const std::string& unitImage ( const DistanceUnit unit ) {
 
    static std::string images [ 3 ] = { "Metre", "Foot", "Unknown" };

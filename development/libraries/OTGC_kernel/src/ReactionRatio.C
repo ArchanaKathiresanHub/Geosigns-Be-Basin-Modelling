@@ -2,6 +2,10 @@
 #include "Constants.h"
 #include "GeneralParametersHandler.h"
 #include "Species.h"
+
+#include <string.h>
+#include <stdlib.h>
+
 namespace OTGC
 {
 ReactionRatio::ReactionRatio(Species *const in_react1,Species *const in_react2,const std::string &functionCode):
