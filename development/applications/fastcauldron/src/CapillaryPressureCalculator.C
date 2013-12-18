@@ -167,7 +167,6 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
       m_formation->Current_Properties.Activate_Property ( Basin_Modelling::Temperature, INSERT_VALUES, true );
    }
 
-
    saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
    concentrations.setVector ( concentrationGrid, m_formation->getPreviousComponentVec (), INSERT_VALUES );
 
@@ -177,6 +176,14 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
          return false;
       }
 
+   }
+
+
+   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
+      temperature = CAULDRONIBSNULLVALUE;
+      permeabilityNormal = CAULDRONIBSNULLVALUE;
+      brineDensity = CAULDRONIBSNULLVALUE;
+      criticalTemperature = CAULDRONIBSNULLVALUE;
    }
 
    for ( i = grid.firstI (); i <= grid.lastI (); ++i ) {
@@ -195,7 +202,26 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                   saturation = saturations ( k, j, i );
                   elementComposition = concentrations ( k, j, i );
 
-                  if ( elementComposition.sum () > HcConcentrationLowerLimit ) {
+                  if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
+
+                     // Unused parameters, temperature, permeability, ..., have the null value.
+                     lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
+                                                                        saturation,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE );
+                     
+                     vwcp = element.getLithology()->capillaryPressure ( Saturation::VAPOUR,
+                                                                        saturation,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE );
+
+                  } else if ( elementComposition.sum () > HcConcentrationLowerLimit ) {
                      elementComposition *= molarMasses;
 
                      ves = computeProperty ( element, Basin_Modelling::VES_FP );

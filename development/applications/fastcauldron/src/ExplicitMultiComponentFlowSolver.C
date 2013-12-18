@@ -829,6 +829,15 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
    double brineDensity;
 
 
+   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
+      elementTemperature = CAULDRONIBSNULLVALUE;
+      permeabilityNormal = CAULDRONIBSNULLVALUE;
+      brineDensity = CAULDRONIBSNULLVALUE;
+      elementHcDensity ( pvtFlash::LIQUID_PHASE ) = CAULDRONIBSNULLVALUE;
+      elementHcDensity ( pvtFlash::VAPOUR_PHASE ) = CAULDRONIBSNULLVALUE;
+      criticalTemperature = CAULDRONIBSNULLVALUE;
+   }
+
    for ( i = concentrationGrid.firstI (); i <= concentrationGrid.lastI (); ++i ) {
 
       for ( j = concentrationGrid.firstJ (); j <= concentrationGrid.lastJ (); ++j ) {
@@ -883,7 +892,26 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
 #endif
 
 
-                  if ( elementConcentrations.sum () > HcConcentrationLowerLimit ) {
+                  if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
+
+                     // Unused parameters, temperature, permeability, ..., have the null value.
+                     liquidCapillaryPressure = lithology->capillaryPressure ( Saturation::LIQUID,
+                                                                              saturation,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE );
+
+                     vapourCapillaryPressure = lithology->capillaryPressure ( Saturation::VAPOUR,
+                                                                              saturation,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE,
+                                                                              CAULDRONIBSNULLVALUE );
+
+                  } else if ( elementConcentrations.sum () > HcConcentrationLowerLimit ) {
                      elementVes = ves ( element, lambda );
                      elementMaxVes = maxVes ( element, lambda );
                      elementHcDensity = hcDensity ( i, j, k );

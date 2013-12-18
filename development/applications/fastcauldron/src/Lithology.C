@@ -170,7 +170,7 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
    // } else {
    // }
 
-   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
+   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
 
       // Units of interfacial-tension are mN/M so they need to be scaled by 0.001 to get into N/M.
       double interfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity, hcPhaseDensity, temperature + 273.15, criticalTemperature );
@@ -205,7 +205,7 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
 
    double capillaryEntryPressure;
 
-   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
+   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
       capillaryEntryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
    } else {
       capillaryEntryPressure = BrooksCorey::Pe;
