@@ -249,7 +249,6 @@ void Genex6::SpeciesManager::setSpeciesNum ( const std::string& speciesName, int
       s_mappingFromPvtComponents [ pvtFlash::C6_14SATS ] = id;
       s_mappingFromComponentManagerSpecies [ CBMGenerics::ComponentManager::C6Minus14SatS ] = id;
    }else if( Genex6::toLower ( speciesName ) == "h2s" ) {
-      LC6to14SatS = id;
       s_mappingToPvtComponents [ id - START ] = pvtFlash::H2S;
       s_mappingToComponentManagerSpecies [ id - START ] = CBMGenerics::ComponentManager::H2S;
       s_mappingFromPvtComponents [ pvtFlash::H2S ] = id;
