@@ -2,6 +2,8 @@
 //Annette
 
 #include <memory>
+#include <iomanip>
+#include <memory>
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
@@ -118,14 +120,7 @@ bool BenchmarkTest::execute()
    theSimulator->PrintBenchmarkOutput(outputTestingSetFile);
    
    typedef std::vector<TestingOutputRecord *>::iterator itRes;
-   
-   outputTestingSetFile << "Time" << "," << "Temperature" << "," << "Pressure" << endl;
-   for(itRes it = TestingResults.begin() + 1, itEnd = TestingResults.end(); it != itEnd; ++it) {
-      TestingOutputRecord * theTestingOuputRecord = (*it);
-      outputTestingSetFile << theTestingOuputRecord->m_time << "," << theTestingOuputRecord->m_temperature << ","
-                           << theTestingOuputRecord->m_pressure << endl;
-   } 
-   
+
    outputTestingSetFile << "[Table:ModelConcentrationC++]" << endl;
    outputTestingSetFile << "temp" << "," << "VRE" << "," << "Time" << ",";
    
@@ -148,6 +143,14 @@ bool BenchmarkTest::execute()
       }		
       outputTestingSetFile << endl;				
    } 
+   
+   outputTestingSetFile << "Time" << "," << "Temperature" << "," << "Pressure" << endl;
+   for(itRes it = TestingResults.begin() + 1, itEnd = TestingResults.end(); it != itEnd; ++it) {
+      TestingOutputRecord * theTestingOuputRecord = (*it);
+      outputTestingSetFile << theTestingOuputRecord->m_time << "," << theTestingOuputRecord->m_temperature << ","
+                           << theTestingOuputRecord->m_pressure << endl;
+   } 
+   
    
    for(itRes it = TestingResults.begin(), itEnd = TestingResults.end(); it != itEnd; ++ it) {
       delete(*it);

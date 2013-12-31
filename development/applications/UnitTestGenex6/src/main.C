@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
       
       in_Emean = in_Emean * 1000;
       //------------------------------Create SourceRockNode ----------------------------------------------
-      theNode = new Genex6::SourceRockNode(thickness, in_TOCi, in_InorganicDensity);
+      theNode = new Genex6::SourceRockNode(thickness, in_TOCi, in_InorganicDensity, 1.0, 0.0);
       //--------------------------------Create Node History-----------------------------------------------
       theNode->CreateTestingPTHistory(fp);
       fclose(fp);
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
                                                          in_maximumPeff,
                                                          in_PfSpecGrad);
       //------------------------------Create SourceRockNode ----------------------------------------------
-      theNode = new Genex6::SourceRockNode(thickness, in_TOCi, in_InorganicDensity);
+      theNode = new Genex6::SourceRockNode(thickness, in_TOCi, in_InorganicDensity, 1.0, 0.0);
       //--------------------------------Create Node History-----------------------------------------------
       theNode->CreateTestingPTHistory(theUnitTestDataCreator);
    }

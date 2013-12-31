@@ -10,7 +10,8 @@
 #                                                                       #
 #########################################################################
 
-add_executable(UnitTestGenex6
+add_executable(UnitTestOTGC6
+	src/TestingCode.C
 	src/main.C
 )
 
@@ -27,25 +28,25 @@ bm_include_libraries(
 	EosPack	
 	CBMGenerics
 	genex6
-	genex6_kernel
+	OTGC_kernel6
 	TableIO
 	CBMGenerics
 	utilities
 )
 
-target_link_libraries(UnitTestGenex6
+target_link_libraries(UnitTestOTGC6
 	DataAccess
 	SerialDataAccess
 	EosPack	
 	CBMGenerics
 	genex6
-	genex6_kernel
+	OTGC_kernel6
 	TableIO
 	utilities
 	${HDF5_serial_LIBRARIES}
 )
 
-install(TARGETS UnitTestGenex6
+install(TARGETS UnitTestOTGC6
 	RUNTIME DESTINATION bin
 )
 
