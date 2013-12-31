@@ -53,6 +53,8 @@ if (UNIX)
 		add_subdirectory(hpc)
 		add_subdirectory(cauldron-crop)
 		add_subdirectory(TsLibDemo)
+		add_subdirectory(UnitTestGenex6)
+		add_subdirectory(UnitTestOTGC6)
 	endif (BM_BUILD_SERIAL_APPS)
 
 endif(UNIX)
