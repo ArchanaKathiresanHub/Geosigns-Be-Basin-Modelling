@@ -40,7 +40,8 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
    } else if ( pcKrModelStr == "Temis" ) {
       m_pcKrModel = TEMIS_PACK_MODEL;
    } else {
-      std::cout << " Error in Pc-Kr modelm unknown model type:" << pcKrModelStr << endl;
+      std::cout << " Error in Pc-Kr modelm unknown model type:" << pcKrModelStr << ". Using Brooks and Corey as default value." << endl;
+      m_pcKrModel = BROOKS_COREY_MODEL;
       // Error
    }
 
