@@ -192,6 +192,9 @@ public :
    /// This is a testing parameter only.
    double removeHcTransportAge () const;
 
+   /// \brief Indicate whether or not to save the capillary entry pressure.
+   bool saveCapillaryEntryPressure () const;
+
    /// \brief Indicate whether or not the volume calculations should be saved.
    ///
    /// This is a debug option.
@@ -301,6 +304,7 @@ private :
    bool   m_interpolateSourceTerm;
    bool   m_useEstimatedSaturation;
 
+   bool m_saveCapillaryEntryPressure;
    bool m_saveVolumeOutput;
    bool m_saveTransportedVolumeOutput;
 
@@ -472,6 +476,10 @@ inline bool MultiComponentFlowHandler::removeHcTransport () const {
 
 inline double MultiComponentFlowHandler::removeHcTransportAge () const {
    return m_stopHcTransportAge;
+}
+
+inline bool MultiComponentFlowHandler::saveCapillaryEntryPressure () const {
+   return m_saveCapillaryEntryPressure;
 }
 
 inline bool MultiComponentFlowHandler::saveVolumeOutput () const {

@@ -3,7 +3,6 @@
 #include "fem_grid.h"
 #include "fem_grid_auxiliary_functions.h"
 #include "FiniteElementTypes.h"
-// #include "preevaluated_basis_functions.h"
 #include "AllochthonousLithologyManager.h"
 #include "HydraulicFracturingManager.h"
 #include "PropertyManager.h"
@@ -428,6 +427,10 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( RELATIVE_PERMEABILITY );
      m_volumeOutputProperties.push_back ( CAPILLARY_PRESSURE );
      m_volumeOutputProperties.push_back ( FLUID_PROPERTIES );
+
+     if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveCapillaryEntryPressure ()) {
+        m_volumeOutputProperties.push_back ( CAPILLARY_ENTRY_PRESSURE );
+     }
 
      if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveVolumeOutput ()) {
         m_volumeOutputProperties.push_back ( VOLUME_CALCULATIONS );

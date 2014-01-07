@@ -121,6 +121,9 @@ enum PropertyList {
    //Capillary pressure
    CAPILLARY_PRESSURE,
 
+   //Capillary entry pressure
+   CAPILLARY_ENTRY_PRESSURE,
+
    //fluid properties such as GOR, COR, API,
    FLUID_PROPERTIES,
    //brine density and viscosity
@@ -357,6 +360,7 @@ const string PropertyName[] = {
   "Saturations",
   "AverageSaturations",
   "CapillaryPressures",
+  "CapillaryEntryPressures",
   "FluidProperties",
   "BrineProperties",
   "HcFluidVelocity",

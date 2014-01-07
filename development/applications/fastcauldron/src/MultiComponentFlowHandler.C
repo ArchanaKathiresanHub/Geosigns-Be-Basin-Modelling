@@ -159,6 +159,7 @@ MultiComponentFlowHandler::MultiComponentFlowHandler () {
    m_stopHcTransportAge = 5000.0;
 #endif
 
+   m_saveCapillaryEntryPressure = false;
    m_saveVolumeOutput = false;
    m_saveTransportedVolumeOutput = false;
 
@@ -288,6 +289,7 @@ void MultiComponentFlowHandler::initialise () {
    PetscInt   allQuadDegree;
    PetscBool allQuadDegreeSet;
 
+   PetscBool saveCapillaryEntryPressureOutput;
    PetscBool saveVolumeOutput;
    PetscBool saveTransportedVolumeOutput;
    PetscBool useImmobileSaturation;
@@ -331,6 +333,7 @@ void MultiComponentFlowHandler::initialise () {
 
    PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxformperm", &lowPermeability, &lowPermeabilityDefined );
 
+   PetscOptionsHasName ( PETSC_NULL, "-mcfsavepce",  &saveCapillaryEntryPressureOutput );
    PetscOptionsHasName ( PETSC_NULL, "-mcfsavevol",  &saveVolumeOutput );
    PetscOptionsHasName ( PETSC_NULL, "-mcfsavevoltrans",  &saveTransportedVolumeOutput );
 
@@ -420,6 +423,10 @@ void MultiComponentFlowHandler::initialise () {
 
    if ( changeTimeStepSubSampleStep ) {
       m_timeStepSubSample = newTimeStepSubSampleStep;
+   }
+
+   if ( saveCapillaryEntryPressureOutput ) {
+      m_saveCapillaryEntryPressure = true;
    }
 
    if ( saveVolumeOutput ) {

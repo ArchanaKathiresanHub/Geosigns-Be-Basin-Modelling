@@ -5857,6 +5857,23 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
+    Identification      : HcLiquidBrineCapillaryEntryPressure
+    Description         : PC between Hc liquid and brine
+    Type                : float
+    Unit of measurement : Pa
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+    Identification      : HcVapourBrineCapillaryEntryPressure
+    Description         : PC between Hc vapour and brine
+    Type                : float
+    Unit of measurement : Pa
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+
 ##
 ##
 ##

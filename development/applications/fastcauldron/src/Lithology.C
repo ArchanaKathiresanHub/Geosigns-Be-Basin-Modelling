@@ -14,7 +14,7 @@ Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::
 
    m_contactAngle.zero ();
 
-   m_contactAngle ( pvtFlash::VAPOUR_PHASE ) =  0.0;
+   m_contactAngle ( pvtFlash::VAPOUR_PHASE ) = 0.0;
    m_contactAngle ( pvtFlash::LIQUID_PHASE ) = 30.0 / 180.0 * M_PI;
 
    m_cosContactAngle ( pvtFlash::VAPOUR_PHASE ) = std::cos ( m_contactAngle ( pvtFlash::VAPOUR_PHASE ));
@@ -24,10 +24,11 @@ Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::
    m_cosHcWaterContactAngle = std::cos ( M_PI );
 
    // 140 Degrees
-   m_cosAirHgContactAngle = ( 140.0 / 180.0 * M_PI );
+   m_cosAirHgContactAngle = std::cos ( 140.0 / 180.0 * M_PI );
 
    // 480 mN/metre = 0.48 N/m
    m_airMercuryInterfacialTension = 0.48;
+
 }
 
 //------------------------------------------------------------//
@@ -155,6 +156,42 @@ double Lithology::calculateTemisRelPerm ( const Saturation::Phase phase,
 
 //------------------------------------------------------------//
 
+double Lithology::capillaryEntryPressure ( const double temperature,
+                                           const double permeability,
+                                           const double brineDensity,
+                                           const double hcPhaseDensity,
+                                           const double criticalTemperature ) const {
+
+   double pce;
+
+   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
+
+      double usedHcPhaseDensity;
+
+      if ( brineDensity <= hcPhaseDensity ) {
+         // Get the largest floating point number that is smaller than brineDensity.
+         // This is because the cap-tension function will return floating-point-max if the hc-densiy > h20-density.
+         usedHcPhaseDensity = nextafter ( brineDensity, 0.0 );
+      } else {
+         usedHcPhaseDensity = hcPhaseDensity;
+      }
+
+      // Units of interfacial-tension are mN/M so they need to be scaled by 0.001 to get into N/M.
+      double interfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity, usedHcPhaseDensity, temperature + 273.15, criticalTemperature );
+      double cpeHgAir = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
+
+      // Convert to a hc-water entry pressure.
+      pce = interfacialTension * m_cosHcWaterContactAngle / ( m_cosAirHgContactAngle * m_airMercuryInterfacialTension ) * cpeHgAir;
+
+   } else {
+      pce = BrooksCorey::Pe;
+   }
+
+   return pce;
+}
+
+//------------------------------------------------------------//
+
 double Lithology::capillaryPressure ( const Saturation::Phase phase,
                                       const Saturation        saturation,
                                       const double            temperature,
@@ -165,22 +202,7 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
 
    double pce;
 
-   // if ( hcPhaseDensity > brineDensity ) {
-   //    cp = 0.0;
-   // } else {
-   // }
-
-   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
-
-      // Units of interfacial-tension are mN/M so they need to be scaled by 0.001 to get into N/M.
-      double interfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity, hcPhaseDensity, temperature + 273.15, criticalTemperature );
-      double cpeHgAir = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
-
-      // Convert to a hc-water entry pressure.
-      pce = interfacialTension * m_cosHcWaterContactAngle / ( m_cosAirHgContactAngle * m_airMercuryInterfacialTension ) * cpeHgAir;
-   } else {
-      pce = BrooksCorey::Pe;
-   }
+   pce = capillaryEntryPressure ( temperature, permeability, brineDensity, hcPhaseDensity, criticalTemperature );
 
    if ( LambdaPc () == IBSNULLVALUE ) {
       // What should the correct values be here?

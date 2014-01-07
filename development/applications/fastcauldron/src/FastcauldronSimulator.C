@@ -1083,6 +1083,19 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
    newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
+                                                        "HcLiquidBrineCapillaryEntryPressure" );
+   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+   m_timeOutputProperties.push_back ( newProperty );
+
+   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
+                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
+                                                        "HcVapourBrineCapillaryEntryPressure" );
+   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+   m_timeOutputProperties.push_back ( newProperty );
+
+
+   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
+                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "GOR" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );

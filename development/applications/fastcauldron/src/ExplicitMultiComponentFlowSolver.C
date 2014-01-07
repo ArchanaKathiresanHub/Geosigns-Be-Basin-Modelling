@@ -914,7 +914,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                   } else if ( elementConcentrations.sum () > HcConcentrationLowerLimit ) {
                      elementVes = ves ( element, lambda );
                      elementMaxVes = maxVes ( element, lambda );
-                     elementHcDensity = hcDensity ( i, j, k );
+                     elementHcDensity = hcDensity ( element.getI (), element.getJ (), element.getK ());
 
                      // Brine density reqire pressure in MPa.
                      brineDensity = theLayer.fluid->density ( elementTemperature, 1.0e-6 * elementPorePressure );
@@ -927,21 +927,29 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
 
                      lithology->calcBulkPermeabilityNP ( elementVes, elementMaxVes, compoundPorosity, permeabilityNormal, permeabilityPlane );
 
-                     liquidCapillaryPressure = lithology->capillaryPressure ( Saturation::LIQUID,
-                                                                              saturation,
-                                                                              elementTemperature,
-                                                                              permeabilityNormal,
-                                                                              brineDensity,
-                                                                              elementHcDensity ( pvtFlash::LIQUID_PHASE ),
-                                                                              criticalTemperature );
+                     if ( elementHcDensity ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
+                        liquidCapillaryPressure = lithology->capillaryPressure ( Saturation::LIQUID,
+                                                                                 saturation,
+                                                                                 elementTemperature,
+                                                                                 permeabilityNormal,
+                                                                                 brineDensity,
+                                                                                 elementHcDensity ( pvtFlash::LIQUID_PHASE ),
+                                                                                 criticalTemperature );
+                     } else {
+                        liquidCapillaryPressure = 0.0;
+                     }
 
-                     vapourCapillaryPressure = lithology->capillaryPressure ( Saturation::VAPOUR,
-                                                                              saturation,
-                                                                              elementTemperature,
-                                                                              permeabilityNormal,
-                                                                              brineDensity,
-                                                                              elementHcDensity ( pvtFlash::VAPOUR_PHASE ),
-                                                                              criticalTemperature );
+                     if ( elementHcDensity ( pvtFlash::VAPOUR_PHASE ) != 1000.0 ) {
+                        vapourCapillaryPressure = lithology->capillaryPressure ( Saturation::VAPOUR,
+                                                                                 saturation,
+                                                                                 elementTemperature,
+                                                                                 permeabilityNormal,
+                                                                                 brineDensity,
+                                                                                 elementHcDensity ( pvtFlash::VAPOUR_PHASE ),
+                                                                                 criticalTemperature );
+                     } else {
+                        vapourCapillaryPressure = 0.0;
+                     }
 
                   } else {
                      vapourCapillaryPressure = 0.0;

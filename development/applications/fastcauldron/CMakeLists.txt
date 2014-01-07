@@ -20,6 +20,7 @@ add_executable(fastcauldron
 	src/BoundaryId.C
 	src/BrineProperties.C
 	src/BulkDensityCalculator.C
+	src/CapillaryEntryPressureCalculator.C
 	src/CapillaryPressureCalculator.C
 	src/CauldronCalculator.C
 	src/ComponentConcentrationCalculator.C

@@ -39,6 +39,15 @@ public :
                               const double            hcPhaseDensity,
                               const double            criticalTemperature ) const;
 
+   /// \brief Compute the capillary entry pressure for the phase.
+   ///
+   /// Units for permeability are m^2.
+   double capillaryEntryPressure ( const double            temperature,
+                                   const double            permeability,
+                                   const double            brineDensity,
+                                   const double            hcPhaseDensity,
+                                   const double            criticalTemperature ) const;
+
    void setLithologyID ( const int id );
 
    int  getLithologyID () const;
