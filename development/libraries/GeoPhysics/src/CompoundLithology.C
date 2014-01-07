@@ -1841,7 +1841,6 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    //TODO: what when equal percentage (50 - 50)?
    
    m_LambdaPc = m_LambdaKr=0;
-   m_PcKrModel = "Brooks_Corey";
    
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
@@ -1851,36 +1850,40 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    m_LambdaKr = (*componentIter)->getLambdaKr();
    //get pckrmodel
    //?? is the PcKrModel different for different lithology ? 
-   m_PcKrModel = (*componentIter)->getPcKrModel();
+   m_pcKrModel = (*componentIter)->getPcKrModel();
    
    ++componentIter;
    ++percentIter;
    
    while (m_lithoComponents.end() != componentIter)
+   {
+
+      if(percent < ((double)(*percentIter)/100))
       {
-         if(percent > ((double)(*percentIter)/100))
-            {
-               m_LambdaPc = (*componentIter)->getLambdaPc();
-               m_LambdaKr = (*componentIter)->getLambdaKr();
-               percent = (double)(*percentIter)/100;
-            }
-         //if percentage are equal, find smaller exponent
-         else if(percent == ((double)(*percentIter)/100))
-            {
-               
-               if((*componentIter)->getLambdaPc() < m_LambdaPc)
-                  {
-                     m_LambdaPc = (*componentIter)->getLambdaPc();
-                  }
-               if((*componentIter)->getLambdaKr() <  m_LambdaKr)
-                  {
-                     m_LambdaKr = (*componentIter)->getLambdaKr();
-                  }
-            }
-         
-         ++componentIter;
-         ++percentIter;
+         // Use exponents from the simple lithology with the maximum fraction.
+         m_LambdaPc = (*componentIter)->getLambdaPc();
+         m_LambdaKr = (*componentIter)->getLambdaKr();
+         percent = (double)(*percentIter)/100;
       }
+      else if(percent == ((double)(*percentIter)/100))
+      {
+         // if percentage are equal, find smaller exponent
+
+         if((*componentIter)->getLambdaPc() < m_LambdaPc)
+         {
+            m_LambdaPc = (*componentIter)->getLambdaPc();
+         }
+
+         if((*componentIter)->getLambdaKr() <  m_LambdaKr)
+         {
+            m_LambdaKr = (*componentIter)->getLambdaKr();
+         }
+
+      }
+         
+      ++componentIter;
+      ++percentIter;
+   }
 }
 
 //------------------------------------------------------------//

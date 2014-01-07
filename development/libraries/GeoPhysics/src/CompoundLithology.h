@@ -5,6 +5,7 @@
 #include <vector>
 #include "EosPack.h"
 
+#include "Interface/Interface.h"
 #include "GeoPhysicsFluidType.h"
 #include "SimpleLithology.h"
 #include "CompoundLithologyComposition.h"
@@ -82,7 +83,7 @@ namespace GeoPhysics {
       double tenPowerCapC2 () const;
 
       /// Return the Brooks-Corey parameters
-      string PcKrModel() const;
+      DataAccess::Interface::PcKrModel getPcKrModel() const;
       double LambdaPc() const;
       double LambdaKr() const;
       
@@ -437,7 +438,7 @@ namespace GeoPhysics {
       double           m_capC2;
       double           m_tenPowerCapC2;
       //Brooks-Corey
-      string           m_PcKrModel;
+      DataAccess::Interface::PcKrModel m_pcKrModel;
       double           m_LambdaKr;
       double           m_LambdaPc;
 
@@ -562,8 +563,8 @@ inline double GeoPhysics::CompoundLithology::tenPowerCapC2 () const {
 }
 
 
-inline string GeoPhysics::CompoundLithology::PcKrModel () const {
-   return m_PcKrModel;
+inline DataAccess::Interface::PcKrModel GeoPhysics::CompoundLithology::getPcKrModel () const {
+   return m_pcKrModel;
 }
 
 inline double GeoPhysics::CompoundLithology::LambdaPc () const {

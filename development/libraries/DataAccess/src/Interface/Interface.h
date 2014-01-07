@@ -378,7 +378,7 @@ namespace DataAccess
 
 
       /// Enumeration of Pc - Kr models (capillary pressure, relative permeability models such as Brooks-Corey, Leverett..)
-      enum PcKrModel {BROOKS_COREY};
+      enum PcKrModel {BROOKS_COREY_MODEL, TEMIS_PACK_MODEL};
     
       /// Enumeration of the fracture function type.
       enum FracturePressureFunctionType {
