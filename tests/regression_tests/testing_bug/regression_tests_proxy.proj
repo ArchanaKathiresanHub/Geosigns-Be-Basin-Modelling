@@ -68,12 +68,7 @@
     <Compile Include="basin_modeling_regression_tests_proxy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>
-      echo TargetDir=$(TargetDir)
-      echo regression_test_dir=$(regression_test_dir)
-      "$(TargetDir)bmtotrx.exe" "$(regression_test_dir)" "$(ProjectDir)\"</PreBuildEvent>
-  </PropertyGroup>
+  
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
