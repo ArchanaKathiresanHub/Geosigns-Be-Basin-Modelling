@@ -34,10 +34,13 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
 
    //for Pc - Kr models
    const std::string& pcKrModelStr = database::getPcKrModel(m_record);
-    if ( pcKrModelStr == "Brooks_Corey" ) {
-      m_pcKrModel = BROOKS_COREY;
+
+   if ( pcKrModelStr == "Brooks_Corey" ) {
+      m_pcKrModel = BROOKS_COREY_MODEL;
+   } else if ( pcKrModelStr == "Temis" ) {
+      m_pcKrModel = TEMIS_PACK_MODEL;
    } else {
-      std::cout << " Error in Pc-Kr model " << pcKrModelStr << endl;
+      std::cout << " Error in Pc-Kr modelm unknown model type:" << pcKrModelStr << endl;
       // Error
    }
 
