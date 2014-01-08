@@ -205,7 +205,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
 
                      // Unused parameters, temperature, permeability, ..., have the null value.
-                     lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
+                     lwcp = element.getLithology()->capillaryPressure ( pvtFlash::LIQUID_PHASE,
                                                                         saturation,
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
@@ -213,7 +213,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE );
                      
-                     vwcp = element.getLithology()->capillaryPressure ( Saturation::VAPOUR,
+                     vwcp = element.getLithology()->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
                                                                         saturation,
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
@@ -236,7 +236,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                      criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementComposition );
 
                      if ( pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ) != CAULDRONIBSNULLVALUE ) {
-                        lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
+                        lwcp = element.getLithology()->capillaryPressure ( pvtFlash::LIQUID_PHASE,
                                                                            saturation,
                                                                            temperature,
                                                                            permeabilityNormal,
@@ -248,7 +248,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                      }
 
                      if ( pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ) != CAULDRONIBSNULLVALUE ) {
-                        vwcp = element.getLithology()->capillaryPressure ( Saturation::VAPOUR,
+                        vwcp = element.getLithology()->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
                                                                            saturation,
                                                                            temperature,
                                                                            permeabilityNormal,

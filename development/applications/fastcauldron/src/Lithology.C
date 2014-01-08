@@ -24,10 +24,10 @@ Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::
    m_cosHcWaterContactAngle = std::cos ( M_PI );
 
    // 140 Degrees
-   m_cosAirHgContactAngle = std::cos ( 140.0 / 180.0 * M_PI );
+   m_cosHgAirContactAngle = std::cos ( 140.0 / 180.0 * M_PI );
 
    // 480 mN/metre = 0.48 N/m
-   m_airMercuryInterfacialTension = 0.48;
+   m_hgAirInterfacialTension = 0.48;
 
 }
 
@@ -61,6 +61,19 @@ std::string Lithology::getName () const {
 
 double Lithology::relativePermeability ( const Saturation::Phase phase,
                                          const Saturation&       saturation ) const {
+
+   if ( getPcKrModel () == DataAccess::Interface::BROOKS_COREY_MODEL ) {
+      return brooksAndCoreyRelativePermeability ( phase, saturation );
+   } else {
+      return temisRelativePermeability ( phase, saturation ( phase ));
+   }
+
+}
+
+//------------------------------------------------------------//
+
+double Lithology::brooksAndCoreyRelativePermeability ( const Saturation::Phase phase,
+                                                       const Saturation&       saturation ) const {
 
    //1)Brine or Water relative permeability
    //2)HCLiquid relative permeability
@@ -110,8 +123,8 @@ double Lithology::relativePermeability ( const Saturation::Phase phase,
 
 //------------------------------------------------------------//
 
-double Lithology::calculateTemisRelPerm ( const Saturation::Phase phase,
-                                          const double            saturation ) const {
+double Lithology::temisRelativePermeability ( const Saturation::Phase phase,
+                                              const double            saturation ) const {
 
    double minHcSaturation = FastcauldronSimulator::getInstance ().getMinimumHcSaturation ();
    double maxHcSaturation = FastcauldronSimulator::getInstance ().getMaximumHcSaturation ();
@@ -134,7 +147,7 @@ double Lithology::calculateTemisRelPerm ( const Saturation::Phase phase,
       if ( saturation > maxHcSaturation ) {
          relPerm = 1.0;
       } else if ( saturation < minHcSaturation ) {
-         relPerm = pow (( minHcSaturation - minHcSaturation ) / ( maxHcSaturation - minHcSaturation ), FastcauldronSimulator::getInstance ().getHcLiquidCurveExponent ());
+         relPerm = 0.0; // pow (( minHcSaturation - minHcSaturation ) / ( maxHcSaturation - minHcSaturation ), FastcauldronSimulator::getInstance ().getHcLiquidCurveExponent ());
       } else {
          relPerm = pow (( saturation - minHcSaturation ) / ( maxHcSaturation - minHcSaturation ), FastcauldronSimulator::getInstance ().getHcLiquidCurveExponent ());
       }
@@ -156,16 +169,18 @@ double Lithology::calculateTemisRelPerm ( const Saturation::Phase phase,
 
 //------------------------------------------------------------//
 
-double Lithology::capillaryEntryPressure ( const double temperature,
-                                           const double permeability,
-                                           const double brineDensity,
-                                           const double hcPhaseDensity,
-                                           const double criticalTemperature ) const {
+double Lithology::capillaryEntryPressure ( const pvtFlash::PVTPhase phase,
+                                           const double             temperature,
+                                           const double             permeability,
+                                           const double             brineDensity,
+                                           const double             hcPhaseDensity,
+                                           const double             criticalTemperature ) const {
 
    double pce;
 
    if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
 
+#if 0
       double usedHcPhaseDensity;
 
       if ( brineDensity <= hcPhaseDensity ) {
@@ -176,12 +191,26 @@ double Lithology::capillaryEntryPressure ( const double temperature,
          usedHcPhaseDensity = hcPhaseDensity;
       }
 
-      // Units of interfacial-tension are mN/M so they need to be scaled by 0.001 to get into N/M.
-      double interfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity, usedHcPhaseDensity, temperature + 273.15, criticalTemperature );
+      // Units of interfacial-tension are mN/M (or dynes/cm?) so they need to be scaled by 0.001 to get into N/M.
+      double hcWaterInterfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity,
+                                                                                                         usedHcPhaseDensity,
+                                                                                                         temperature + 273.15,
+                                                                                                         criticalTemperature );
+#endif
+
+      double hcWaterInterfacialTension;
+
+      // Values obtained from "Empirical_Capillary_Relationship.pdf", attached to 20528 TFS item.
+      if ( phase == pvtFlash::LIQUID_PHASE ) {
+         hcWaterInterfacialTension = 0.025;
+      } else {
+         hcWaterInterfacialTension = 0.05;
+      }
+
       double cpeHgAir = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
 
       // Convert to a hc-water entry pressure.
-      pce = interfacialTension * m_cosHcWaterContactAngle / ( m_cosAirHgContactAngle * m_airMercuryInterfacialTension ) * cpeHgAir;
+      pce = hcWaterInterfacialTension * m_cosHcWaterContactAngle / ( m_cosHgAirContactAngle * m_hgAirInterfacialTension ) * cpeHgAir;
 
    } else {
       pce = BrooksCorey::Pe;
@@ -192,24 +221,56 @@ double Lithology::capillaryEntryPressure ( const double temperature,
 
 //------------------------------------------------------------//
 
-double Lithology::capillaryPressure ( const Saturation::Phase phase,
-                                      const Saturation        saturation,
-                                      const double            temperature,
-                                      const double            permeability,
-                                      const double            brineDensity,
-                                      const double            hcPhaseDensity,
-                                      const double            criticalTemperature ) const {
+double Lithology::brooksAndCoreyCapillaryPressure ( const pvtFlash::PVTPhase phase,
+                                                    const Saturation         saturation,
+                                                    const double             temperature,
+                                                    const double             permeability,
+                                                    const double             brineDensity,
+                                                    const double             hcPhaseDensity,
+                                                    const double             criticalTemperature ) const {
 
    double pce;
 
-   pce = capillaryEntryPressure ( temperature, permeability, brineDensity, hcPhaseDensity, criticalTemperature );
+   pce = capillaryEntryPressure ( phase, temperature, permeability, brineDensity, hcPhaseDensity, criticalTemperature );
 
    if ( LambdaPc () == IBSNULLVALUE ) {
       // What should the correct values be here?
       return pce;
    } else {
-      // Saturation::Phase wettingPhase = Saturation::WATER;
       return BrooksCorey::pc ( saturation ( Saturation::WATER ), LambdaPc(), pce );
+   }
+
+}
+
+//------------------------------------------------------------//
+
+double Lithology::temisCapillaryPressure ( const pvtFlash::PVTPhase phase,
+                                           const double             saturation ) const {
+   assert ( false && "Temis capillary pressure has not yet been implemented. " );
+   return 0.0;
+}
+
+//------------------------------------------------------------//
+
+double Lithology::capillaryPressure ( const pvtFlash::PVTPhase phase,
+                                      const Saturation         saturation,
+                                      const double             temperature,
+                                      const double             permeability,
+                                      const double             brineDensity,
+                                      const double             hcPhaseDensity,
+                                      const double             criticalTemperature ) const {
+
+   if ( getPcKrModel () == DataAccess::Interface::BROOKS_COREY_MODEL ) {
+      return brooksAndCoreyCapillaryPressure ( phase,
+                                               saturation,
+                                               temperature,
+                                               permeability,
+                                               brineDensity,
+                                               hcPhaseDensity,
+                                               criticalTemperature );
+   } else {
+      return temisCapillaryPressure ( phase,
+                                      saturation ( Saturation::convert ( phase )));
    }
 
 }
