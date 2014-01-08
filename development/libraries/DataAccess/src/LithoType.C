@@ -53,8 +53,9 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
    } else if ( porosityModelStr == "Soil_Mechanics" ) {
       m_porosityModel = SOIL_MECHANICS_POROSITY;
    } else {
-      std::cout << " Error in porosity model " << porosityModelStr << endl;
+      std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosoty model as the default value." << endl;
       // Error
+      m_porosityModel = EXPONENTIAL_POROSITY;
    }
 
    if ( permeabilityModelStr == "Sands" ) {
@@ -68,8 +69,9 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
    } else if ( permeabilityModelStr == "Multipoint" ) {
       m_permeabilityModel = MULTIPOINT_PERMEABILITY;
    } else {
-      std::cout << " Error in permeability model " << permeabilityModelStr << endl;
+      std::cout << " Error in permeability model " << permeabilityModelStr << ". Using None as the default value." << endl;
       // Error
+      m_permeabilityModel = NONE_PERMEABILITY;
    }
 
 }
