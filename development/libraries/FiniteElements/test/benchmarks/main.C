@@ -3,6 +3,7 @@
 #include "MklElementAssembly.h"
 #include "SseElementAssembly.h"
 #include "EgnElementAssembly.h"
+#include "BoostElementAssembly.h"
 
 #include <time.h>
 #include <iostream>
@@ -32,6 +33,7 @@ int main( int argc, char ** argv )
    FiniteElementMethod::CldElementAssembly  cld;
    Eigen::EgnElementAssembly                egn;
    arma::ArmaElementAssembly                arm;
+   boost_namespace::BoostElementAssembly    bbs;
 
    double CPS = static_cast<double>( CLOCKS_PER_SEC );
 
@@ -95,6 +97,7 @@ int main( int argc, char ** argv )
    std::vector< std::pair<int, double> > armTiming;
    std::vector< std::pair<int, double> > mklTiming;
    std::vector< std::pair<int, double> > sseTiming;
+   std::vector< std::pair<int, double> > bbsTiming;
 
    // generat random array for equal data initialisation for armadillo and eigen
    int N = maxQPtsXY * maxQPtsXY * maxQPtsZ; 
@@ -117,7 +120,10 @@ int main( int argc, char ** argv )
       Sse::SseNewElementAssembly ssel;
       ssel.InitAssembly( 2, 2, randData );
       ssel.AssembleElement();
- 
+
+      bbs.InitNewImplementationOfAssembly( 2, 2, randData );
+      bbs.AssembleElementNew();
+
       for ( int i = 0; i < 8; ++i )
       {
          for ( int j = 0; j < 8; ++j )
@@ -125,6 +131,7 @@ int main( int argc, char ** argv )
             assert( std::abs( egn8.K(i,j) - arm.K(i,j)     ) / std::abs( egn8.K(i,j) + arm.K(i,j)     )  < 1e-3 );
             assert( std::abs( egn8.K(i,j) - mmkl.getK(i,j) ) / std::abs( egn8.K(i,j) + mmkl.getK(i,j) )  < 1e-3 );
             assert( std::abs( egn8.K(i,j) - ssel.getK(i,j) ) / std::abs( egn8.K(i,j) + ssel.getK(i,j) )  < 1e-3 );
+            assert( std::abs( egn8.K(i,j) - bbs.K(i,j) ) / std::abs( egn8.K(i,j) + bbs.K(i,j) )  < 1e-3 );
          }
       }
    }
@@ -225,8 +232,7 @@ int main( int argc, char ** argv )
    std::cout << "\nArmadilloNew" << getCompilerName() << " = [\n";
    for ( size_t i = 0; i < armTiming.size(); ++i ) std::cout << armTiming[i].first << ", " << armTiming[i].second << "; ";
    std::cout << "];\n";
- 
-  
+
    // MKL run
    Mkl::MklNewElementAssembly mmkl;
 
@@ -244,8 +250,30 @@ int main( int argc, char ** argv )
          mklTiming.push_back( std::pair<int,double>( xyQuadPts * xyQuadPts * zQuadPts, static_cast<double>( (clock() - t1 ) ) / CPS ) ); 
       }
    }
+
    std::cout << "\nMklNew" << getCompilerName() << " = [\n";
    for ( size_t i = 0; i < mklTiming.size(); ++i ) std::cout << mklTiming[i].first << ", " << mklTiming[i].second << "; ";
+   std::cout << "];\n";
+
+   
+    // Boost run
+   for ( int xyQuadPts = 2;  xyQuadPts <= maxQPtsXY; ++xyQuadPts )
+   {
+      for ( int zQuadPts = xyQuadPts; zQuadPts <= maxQPtsZ; ++zQuadPts )
+      {
+         bbs.InitNewImplementationOfAssembly( xyQuadPts, zQuadPts, randData );
+
+         t1 = clock();
+         for ( int el = 0; el < ElementsNumber; ++el )
+         {
+            bbs.AssembleElementNew();
+         }
+         bbsTiming.push_back( std::pair<int,double>( xyQuadPts * xyQuadPts * zQuadPts, static_cast<double>( (clock() - t1 ) ) / CPS ) ); 
+      }
+   }
+
+   std::cout << "\nBoostNew" << getCompilerName() << " = [\n";
+   for ( size_t i = 0; i < bbsTiming.size(); ++i ) std::cout << bbsTiming[i].first << ", " << bbsTiming[i].second << "; ";
    std::cout << "];\n";
 
    // Bill's SSE run
@@ -267,6 +295,7 @@ int main( int argc, char ** argv )
    std::cout << "\nSSENew" << getCompilerName() << " = [\n";
    for ( size_t i = 0; i < sseTiming.size(); ++i ) std::cout << sseTiming[i].first << ", " << sseTiming[i].second << "; ";
    std::cout << "];\n";
+ 
 }
 
 
