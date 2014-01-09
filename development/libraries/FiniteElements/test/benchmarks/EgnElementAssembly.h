@@ -86,11 +86,10 @@ namespace Eigen
       size_t ir = 0;
 
       // init zero order term P and C matrices with random values
-      for ( int i = 0; i < P.rows(); ++i ) {
-         C(i) = randData[ir++];
+      for ( int i = 0; i < C.rows(); ++i ) { C(i) = randData[ir++]; }
 
+      for (    int i = 0; i < P.rows(); ++i ) 
          for ( int j = 0; j < P.cols(); ++j )  Pt( j, i ) = P( i, j ) = randData[ir++];
-      }
 
       // init first order term G and B
 #ifdef EIGEN_USE_SPARSE_MATRIX      

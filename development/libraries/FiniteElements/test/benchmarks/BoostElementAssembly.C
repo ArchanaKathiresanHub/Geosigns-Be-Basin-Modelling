@@ -28,11 +28,12 @@ void BoostElementAssembly::InitNewImplementationOfAssembly( int xyQuadPts, int z
    A.resize( 3 * N,  3 * N, false  ); // diagonal 3x3
    GA.resize( 8, 3 * N, false  );
 
-   for ( int i = 0; i < N; ++i ) {
+   for ( int i = 0; i < N; ++i ) 
       C(i, i) = randData[ir++];
 
-      for ( int j = 0; j < 8; ++j ) {
-         P( j, i ) = randData[ir++];
+   for ( int i = 0; i < 8; ++i ) {
+      for ( int j = 0; j < N; ++j ) {
+         P( i, j ) = randData[ir++];
       }
    }
 

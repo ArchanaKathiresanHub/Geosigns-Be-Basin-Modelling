@@ -300,12 +300,11 @@ void Sse::SseNewElementAssembly::InitAssembly( int xyQuadPts, int zQuadPts, cons
 
    // column wise order!
    for (    int i = 0; i < numberOfPoints; ++i )
-   {
       C[i] = randData[ri++];
 
+   for (    int i = 0; i < numberOfPoints; ++i )
       for ( int j = 0; j < 8; ++j ) 
          P[i + j * 8] = randData[ri++];
-   }
 
    for (    int i = 0; i < 8; ++i ) 
       for ( int j = 0; j < 3 * numberOfPoints; ++j )

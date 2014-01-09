@@ -2,6 +2,7 @@
 
 #set -x #echo on
 
+export PATH=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin:$PATH
 export LD_LIBRARY_PATH=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/gcc/gcc-4.8.1/Linux64x_26/lib64:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/armadillo/armadillo-3.920.1-intel/LinuxRHEL64_x86_64_57WS/lib:$LD_LIBRARY_PATH
 
@@ -30,8 +31,9 @@ do
                                 -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/eigen/eigen-3.2-intel/LinuxRHEL64_x86_64_57WS/include/eigen3 \
                                 -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/armadillo/armadillo-3.920.1-intel/LinuxRHEL64_x86_64_57WS/include \
                                 -L/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/armadillo/armadillo-3.920.1-intel/LinuxRHEL64_x86_64_57WS/lib \
+                                -I/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/boost/boost_1_54_0/Linux64x_26/include \
                  ElementAssembly.C ArmElementAssembly.C CldElementAssembly.C EgnElementAssembly.C \
-                 MklElementAssembly.C SseElementAssembly.C main.C \
+                 MklElementAssembly.C SseElementAssembly.C BoostElementAssembly.C main.C \
                 ../../src/FiniteElementTypes.C ../../src/FiniteElement.C ../../src/BasisFunction.C -larmadillo -liomp5 >> compl.out 2>> compl.err
 
    ./StiffMatrixBench >> results.txt

@@ -125,15 +125,11 @@ void arma::ArmaElementAssembly::InitNewImplementationOfAssembly( int xyQuadPts, 
    Pt.set_size( N, 8 );
 
    // init zero order term P and C matrices with random values
-   for ( int i = 0; i < 8; ++i )
-   {
-      C(i) = randData[ir++];
+   for ( int i = 0; i < C.n_rows; ++i ) C(i) = randData[ir++];
 
-      for ( int j = 0; j < N; ++j )
-      {
+   for (    int i = 0; i < P.n_rows; ++i )
+      for ( int j = 0; j < P.n_cols; ++j )
          Pt( j, i ) = P( i, j ) = randData[ir++];
-      }
-   }
  
    // init first order term G and B
    G.reset();
@@ -145,7 +141,7 @@ void arma::ArmaElementAssembly::InitNewImplementationOfAssembly( int xyQuadPts, 
    B.reset();
    B.set_size( 3*N, N );
 
-   for ( int i = 0; i < G.n_rows; ++i )
+   for (    int i = 0; i < G.n_rows; ++i )
       for ( int j = 0; j < G.n_cols; ++j ) Gt( j, i ) = G( i, j ) = randData[ir++];
 
    for ( int i = 0; i < B.n_cols; ++i )

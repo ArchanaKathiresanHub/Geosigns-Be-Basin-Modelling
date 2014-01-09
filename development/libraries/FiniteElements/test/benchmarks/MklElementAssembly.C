@@ -100,13 +100,12 @@ void Mkl::MklNewElementAssembly::InitAssembly( int xyQuadPts, int zQuadPts, cons
    size_t ri = 0;
 
    // column wise order!
-   for (    int i = 0; i < N; ++i )
-   {
+   for ( int i = 0; i < N; ++i )
       C[i] = randData[ri++];
 
+   for (    int i = 0; i < N; ++i )
       for ( int j = 0; j < 8; ++j ) 
          P[i + j * 8] = randData[ri++];
-   }
 
    for (    int i = 0; i < 8; ++i ) 
       for ( int j = 0; j < 3 * N; ++j )
