@@ -1,0 +1,21 @@
+Study:            WCSB
+Organization:     Shell Canada Limited
+Project:          USGS Model
+Owner:            Meuric, Olivier FJ GSNL-PTT/SGEW
+Submitted by:     Suijlen, Wijnand GSNL-PTT/SGEW
+Coord Ref System: Alberta Canada  Albers Equal Area Conic USGS
+Transform:        WGS 1984 To WGS 1984
+Is Projected CRS: True
+Geographic CRS:   WGS 84 [4326]
+Used In Scenario: Scenario #1
+Run Parameters:   Run Parameters #1
+Stratigraphy:     Stratigraphy #1
+Pressure Model:   Pressure #1
+Thermal Model:    Thermal #1
+Resq Model:       <UNDEFINED>
+Genex Model:      Genex #1
+Migration Model:  Migration #1
+Simulation Type:  NONE
+Pressure Mode:    Hydrostatic
+Cauldron Version: v2013.1005
+Encoded Row:      CAULDRON_ALTERNATIVE:13697:11606:49:4
