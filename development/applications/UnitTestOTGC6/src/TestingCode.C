@@ -4,9 +4,10 @@
 #include <memory>
 #include <iomanip>
 #include <memory>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
+#include <cstdio>
+#include <cmath>
+#include <ctime>
+#include <cstdlib>
 
 #include "Simulator.h"
 #include "Input.h"

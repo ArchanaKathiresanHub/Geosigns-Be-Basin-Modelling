@@ -3,7 +3,8 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <math.h>
+#include <cmath>
+#include <cstring>
 using namespace std;
 
 #include "UnitTestDataCreator.h"

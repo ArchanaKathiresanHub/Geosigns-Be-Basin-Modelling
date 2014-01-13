@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 #include <memory>
+#include <cstring>
+#include <cstdlib>
 using namespace std;
 
 #include "TestingCode.h"
