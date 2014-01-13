@@ -14,6 +14,7 @@ version_number_major=${VERSION_NUMBER_MAJOR:-2013}
 version_number_minor=${VERSION_NUMBER_MINOR:-01}
 version_tag=${VERSION_TAG:-nightly}
 deploy=${DEPLOY:-True}
+geocase=${GEOCASE:-True}
 
 # set UMASK
 umask 0002
@@ -55,22 +56,27 @@ else
 endif
 EOF
 
+
+if [ x$geocase = xTrue ]; then
 # Import (legacy) Geocase
-echo Building Cauldron Geocase applications
-rm -rf $src/development/geocase/BB $src/development/geocase/misc/GospelScriptFiles
-${SVN} export -q ${svnRepository}/trunk/development/geocase/BB $src/development/geocase/BB
-${SVN} export -q ${svnRepository}/trunk/development/geocase/misc/GospelScriptFiles $src/development/geocase/misc/GospelScriptFiles
+   echo Building Cauldron Geocase applications
+   rm -rf $src/development/geocase/BB $src/development/geocase/misc/GospelScriptFiles
+   ${SVN} export -q ${svnRepository}/trunk/development/geocase/BB $src/development/geocase/BB
+   ${SVN} export -q ${svnRepository}/trunk/development/geocase/misc/GospelScriptFiles $src/development/geocase/misc/GospelScriptFiles
 
 # Build Geocase applications
-rm -rf geocase_build
-mkdir -p geocase_build
-pushd geocase_build
-CC=gcc34 CXX=g++34 ${CMAKE} ${src}/development/geocase/BB_Lists \
-    -DCMAKE_INSTALL_PREFIX=${build} \
-    -DCMAKE_BUILD_TYPE=${configuration}
-make -j${nprocs}
-make install/strip
-popd
+   rm -rf geocase_build
+   mkdir -p geocase_build
+   pushd geocase_build
+   CC=gcc34 CXX=g++34 ${CMAKE} ${src}/development/geocase/BB_Lists \
+       -DCMAKE_INSTALL_PREFIX=${build} \
+       -DCMAKE_BUILD_TYPE=${configuration}
+   make -j${nprocs}
+   make install/strip
+   popd
+else
+   echo Geocase applications have been excluded
+fi
 
 # Install
 if [ x$deploy = xTrue ]; then
