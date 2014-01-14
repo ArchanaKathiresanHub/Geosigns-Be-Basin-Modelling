@@ -154,6 +154,7 @@ endif()
 
 find_package(Hdf5 REQUIRED CONFIG)
 find_package(OpenMP REQUIRED CONFIG)   
+find_package(Eigen REQUIRED CONFIG)
 
 if (UNIX)
    find_package(BLAS REQUIRED CONFIG)
