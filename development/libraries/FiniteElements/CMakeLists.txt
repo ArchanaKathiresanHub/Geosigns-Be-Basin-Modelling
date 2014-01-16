@@ -12,11 +12,14 @@
 
 add_library(FiniteElements
 	src/BasisFunction.C 
+	src/BasisFunctionCache.C 
 	src/FiniteElement.C
 	src/FiniteElementTypes.C
 )
 
-bm_include_libraries(utilities)
+include_directories (${EIGEN_INCLUDE_DIRS})
+
+bm_include_libraries(utilities FiniteElements)
 
 target_link_libraries(FiniteElements
 	utilities
@@ -34,6 +37,12 @@ install(TARGETS FiniteElements
 
 #######################################
 # Unit tests for PTDiagramCalculator
+
+add_gtest ( NAME  BasisCacheTest
+   SOURCES test/BasisCacheTest.C
+   LIBRARIES FiniteElements 
+ )
+
 
 add_gtest( NAME FiniteElementMethod::ThreeVector
    SOURCES test/ThreeVectorTest.C
