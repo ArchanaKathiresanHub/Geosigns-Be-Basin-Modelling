@@ -145,6 +145,7 @@ include_directories(
 	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
+	${EIGEN_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
