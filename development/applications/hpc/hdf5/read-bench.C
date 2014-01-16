@@ -31,35 +31,6 @@ using namespace std;
 #endif
 
 
-
-static const int MAX_DIMENSION = 10;
-
-struct AppCtx {
-
-   int size;
-   int rank;
-   int valCount;
-
-   int spatialDimension;
-   int procs [ MAX_DIMENSION ];
-   int subranks [ MAX_DIMENSION ];
-
-   int* data;
-
-   hid_t file_id;
-
-   hsize_t dimensions [ MAX_DIMENSION ];
-   hsize_t count [ MAX_DIMENSION ];
-   hsize_t offset [ MAX_DIMENSION ];
-
-   // hsize_t chunk [ MAX_DIMENSION ];
-
-};
-
-static herr_t readDimension ( hid_t groupId, const char* name, void * voidReader);
-
-static herr_t readDataset ( hid_t groupId, const char* name, void * voidReader);
-
 static const int MAX_DIMENSION = 10;
 
 struct AppCtx {
