@@ -28,6 +28,9 @@ namespace FiniteElementMethod {
 
    public :
 
+      /// Constructor.
+      ///
+      /// The x-, y- and z-point-count are the number of quadrature points in each direction.
       BasisFunctionCache  ( const int xPointCount,
                             const int yPointCount,
                             const int zPointCount );
