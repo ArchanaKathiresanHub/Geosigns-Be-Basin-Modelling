@@ -1,5 +1,7 @@
 // TsLibCppTester.cpp : Defines the entry point for the console application.
 //
+#include <mpi.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -9,61 +11,87 @@
 #include <iostream>
 #include <vector>
 
+
 #include "tslibloader.h"
 #include "codetimer.h"
+
 
 using namespace Geocosm;
 using namespace std;
 
+
 #ifdef _WIN32
-    #include <direct.h>
-    #define GetCurrentDir _getcwd
+   #include <direct.h>
+   #define GetCurrentDir _getcwd
+   #define DIRSEPARATOR "\\"
 #else
-    #include <unistd.h>
-    #define GetCurrentDir getcwd
- #endif
+   #include <unistd.h>
+   #define GetCurrentDir getcwd
+   #define DIRSEPARATOR "/"
+   #include <ftw.h>
+#endif
 
-class TsLibCalcTask
+int mpiGetRank()
 {
-private:
-	bool m_ranOK;
+   static int rank = -1;
+   if ( rank < 0 )
+   {
+      MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+   }
+   return rank;
+}
 
-public:
-	Geocosm::TsLib::CalcContextInterface* m_tslibCalcContext;
+int mpiGetSize()
+{
+   static int size = -1;
+   if ( size < 0 )
+   {
+      MPI_Comm_size( MPI_COMM_WORLD, &size );
+   }
+   return size;
+}
 
-	bool Task()
-	{
-		try
-      {
-			m_tslibCalcContext->Calculate();//normally you would pass in burial histories here.
-			m_ranOK = true;
-			cout << " Calculate Done" << endl;
-		}
-		catch (std::exception& e)
-		{
-			cout << e.what() << endl;
-			m_ranOK = false;
-			return false;
-		}
-		return true;
-	}
+//////////////////////////////////////////////////////////////////
+// Set of aux. functions to set/clean up temporary folder to keep Matlab MCR files during CreateRealization call
+// it could be removed if there will be the only one call for CreateRealization()
+static void SetUpTempMCRFolder()
+{
+   std::stringstream oss;
+#ifdef _WIN32
+   const char * workingDir = GetCurrentDir( NULL, 0 );
+   oss << "MCR_CACHE_ROOT=" << workingDir << DIRDELIMCHAR << "mcrTemp_" << mpiGetRank();
+#else
+   const char * workingDir = "/tmp/TsLibDemo_";
+   oss << "MCR_CACHE_ROOT=" << workingDir << getpid();
+#endif
 
-	TsLibCalcTask( Geocosm::TsLib::CalcContextInterface* tslibCalcContext ) : m_tslibCalcContext( tslibCalcContext ) {;}
+   putenv( strdup( oss.str().c_str() ) );
 
-	~TsLibCalcTask()
-	{
-		if ( m_tslibCalcContext ) 
-		{
-			delete m_tslibCalcContext;
-			m_tslibCalcContext = NULL;
-		}
-	}
+#ifdef _WIN32
+   free( workingDir );
+#endif
+}
 
-   bool RanOK() { return m_ranOK; }
-};
+#ifndef _WIN32
+static int unlink_cb( const char * fpath, const struct stat * sb, int typeflag, struct FTW *ftwbuf )
+{
+    int rv = remove(fpath);
+    if ( rv ) perror( fpath );
+    return rv;
+}
+#endif
 
+static int CleanTempMCRFolder()
+{
+   const char * path = getenv( "MCR_CACHE_ROOT" );
+#ifndef _WIN32
+   return nftw( path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS );
+#endif
+}
 
-void writeResultsToFile( Geocosm::TsLib::CalcContextInterface* tslibCalcContext, int thread = 0 )
+//////////////////////////////////////////////////////////////////
+
+void writeResultsToFile( Geocosm::TsLib::CalcContextInterface* tslibCalcContext, int part = 0 )
 {
    cout << "Writing results to file..." << endl;
 
@@ -73,73 +101,69 @@ void writeResultsToFile( Geocosm::TsLib::CalcContextInterface* tslibCalcContext,
    GeoKernelDetailResultData detailedResults;
 	
    std::stringstream ofn;
-	ofn << "./statisticsResults" << thread << ".txt";
+	ofn << "./statisticsResults" << part << ".txt";
 
 	FILE * fp = fopen( ofn.str().c_str(), "wt" );
 	if ( fp != NULL )
    {
 		while ((more = tslibCalcContext->GetPredictionStatisticsResults( index, detailedResults)))
 		{
-			fprintf(fp,"%d,%d,",detailedResults.burialHistoryID, detailedResults.tstep);
-			for (unsigned int i = 0; i < detailedResults.burialHistoryResults.count; i++)
+			fprintf( fp,"%d,%d,",detailedResults.burialHistoryID, detailedResults.tstep );
+			for ( unsigned int i = 0; i < detailedResults.burialHistoryResults.count; i++ )
 			{	
-				fprintf(fp,"%.8f,",detailedResults.burialHistoryResults.results[i]);
+				fprintf( fp,"%.8f,",detailedResults.burialHistoryResults.results[i] );
 			}
-			for (unsigned int i = 0; i < detailedResults.modalResults.count; i++)
+			for ( unsigned int i = 0; i < detailedResults.modalResults.count; i++ )
 			{
-				fprintf(fp,"%.8f,",detailedResults.modalResults.results[i]);
+				fprintf( fp,"%.8f,",detailedResults.modalResults.results[i] );
 			}
-			for (unsigned int i = 0; i < detailedResults.modelResults.count; i++)
+			for ( unsigned int i = 0; i < detailedResults.modelResults.count; i++ )
 			{
 				fprintf(fp,"%.8f,",detailedResults.modelResults.results[i]);
 			}
-			fprintf(fp,"\n");
+			fprintf( fp,"\n" );
 			index++;
 		}
-		fclose(fp);
+		fclose( fp );
 	   cout << "Results written to file." << endl;
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// The thread example shown here uses a simple cross platform thread library.
-// The implementation is simplistic and is only meant to be used as an
-// example of how to use the CalcContextInterface in a threaded application.
+// The implementation is simplistic 
 ///////////////////////////////////////////////////////////////////////////////
-void RunTest( Geocosm::TsLib::CalcContextInterface* tslib, int realizations )
+void RunTest( Geocosm::TsLib::CalcContextInterface* tslib )
 {
-	int threadCount = 1;
+   bool ranOK = false;
+   CodeTimer ct;
+
 	cout << endl << "Tslib tests..." << endl;
+   cout << "Starting calculations..." << endl;  
+   ct.Start();
 
-	if (realizations < 10 || realizations > 5000) {
-		cout << "Invalid realization count specified: " << realizations << ". Must be from 10 till 5000." << endl;
-		return;
-	}
-	cout << "Creating realizations " << realizations<< " ..." << endl;
-	tslib->CreateRealizations( realizations );
-	cout << "Finished creating realizations." << endl;
+   try
+   {
+   	tslib->Calculate();//normally you would pass in burial histories here.
+      cout << " Calculate Done" << endl;
+      ranOK = true;
+   }
+   catch ( std::exception& e )
+   {
+      cout << " Calculate Failed" << endl;
+      cout << e.what() << endl;
+   }
 
-   cout << "Creating tslib calcuation context..." << endl;
-   Geocosm::TsLib::CalcContextInterface * pContext = tslib->Clone();
-   TsLibCalcTask* task = new TsLibCalcTask( pContext );//hmm I guess I could have created the context inside the task obj...
-
-   cout << endl << "Starting calculations..." << endl;
-	CodeTimer ct;
-
-	ct.Start();
-   task->Task();	
-	ct.Stop();
+   ct.Stop();
 
    cout << "Processing time:" << ct.GetElapseTimeMS() << endl;
 
-	if ( task->RanOK() )
+	if ( ranOK )
    {
-	   writeResultsToFile( task->m_tslibCalcContext );
+	   writeResultsToFile( tslib, mpiGetRank() );
 	}
-	delete task;
 }
 
-void TestTcfInfo(const std::string& workingDir)
+void TestTcfInfo( const std::string & workingDir )
 {
 	try {
 		std::auto_ptr<Geocosm::TsLib::TcfInfoInterface> tcfInfo (Geocosm::TsLibPluginManager::CreateTcfInfo());		
@@ -174,23 +198,35 @@ void TestTcfInfo(const std::string& workingDir)
 		cout << "blah.txt: Is Version 1 Tcf: " << tcfInfo->IsV1() << " Is Version 2 Tcf: " << tcfInfo->IsV2() << endl;
 
 	}
-	catch (Geocosm::GeocosmException& ex)
+	catch ( Geocosm::GeocosmException & ex )
 	{
 		cout << ex << endl;
 	}
 }
 
-int main(int argc, char* argv[])
+int main( int argc, char* argv[] )
 {
+
    if ( argc < 3 )
    {
       cout << "Usage: " << argv[0] << " <1 for tcf tests> <number of realisations>" << endl;
       return( 0 );
    }
+      
    int dotests              = atol( argv[1] );
    int numberOfRealisations = atol( argv[2] );
 
-   char * pluginDir  = getenv ( "GEOCOSMDIR" );
+   if ( numberOfRealisations < 10 || numberOfRealisations > 5000 ) {
+      cout << "Invalid realization count specified: " << numberOfRealisations << ". Must be from 10 till 5000." << endl;
+      return -1;
+   }
+
+   MPI_Init( &argc, &argv );
+
+   // set up /tmp/TsLibDemo_<pid> temp folder for each MPI process to keep MCR cache files
+   SetUpTempMCRFolder();
+
+   char * pluginDir  = getenv( "GEOCOSMDIR" );
 	char * workingDir = GetCurrentDir( NULL, 0 );
 
 	cout << "TsLibCppTester starting... loading tslib..." << endl << pluginDir << endl;
@@ -199,7 +235,7 @@ int main(int argc, char* argv[])
 	//without geocosmxmllibbasecpp.dll on the path (or renamed to something else)
 	//now rename it back and continue, it will be automatically loaded by the
 	//windows loader when it is needed.  
-	try {
+   try {
 #ifdef _WIN32
 		LibLoader::AddToLibSearchPath( pluginDirDir );
 #endif
@@ -207,7 +243,7 @@ int main(int argc, char* argv[])
 
 		//we don't delay load tslib.dll via the project settings, instead we explicitly delay load it
 		//using LoadLibrary/GetProcAdrress.
-		Geocosm::TsLibPluginManager::LoadPluginLibraries( pluginDir );//this path must be the path with tslib.dll in it, even if rpath and SetDllDirectory are used
+		Geocosm::TsLibPluginManager::LoadPluginLibraries( pluginDir ); //this path must be the path with tslib.dll in it, even if rpath and SetDllDirectory are used
       cout << "\nsuccess...\n" << endl;
 
 		if ( dotests == 1 ) {
@@ -215,19 +251,65 @@ int main(int argc, char* argv[])
 		}
 
 		//get me a TsLibInterface object...
-		std::auto_ptr<Geocosm::TsLib::TsLibInterface> tslib (Geocosm::TsLibPluginManager::CreateTsLibPlugin());
+		std::auto_ptr<Geocosm::TsLib::TsLibInterface> tslib( Geocosm::TsLibPluginManager::CreateTsLibPlugin() );
+
 		//verify the loaded plugin is for the same version that we compiled against.
-		if (tslib->GetInterfaceVersion() != Geocosm::TsLib::TSLIB_INTERFACE_VERSION) {
+		if ( tslib->GetInterfaceVersion() != Geocosm::TsLib::TSLIB_INTERFACE_VERSION ) {
 			//mismatch
 			throw GeocosmException("TsLib Interface mismatch");
 		}
 
-		// create a calc context, this creates a master context as the tcf is passed in.
-		std::auto_ptr<Geocosm::TsLib::CalcContextInterface> tslibCalcContext (tslib->CreateContext( string( workingDir ) + "/sampletestdata/RQCDataSet.tcf"));
-		//get a copy of the result headers
-		TcfSchema::ResultHeadersType savedResultHeaders(tslibCalcContext->ResultHeaders());
+      std::auto_ptr<Geocosm::TsLib::CalcContextInterface> tslibCalcContext;
+     
+#ifdef AsItShouldBe
+      if ( mpiGetRank() == 0 ) // master process
+      {
+         // create a calc context, this creates a master context as the tcf is passed in.
+   		tslibCalcContext.reset( tslib->CreateContext( string( workingDir ) + "/sampletestdata/RQCDataSet.tcf" ) );
+
+         cout << "Creating realizations " << numberOfRealisations << " ..." << endl;
+         tslibCalcContext->CreateRealizations( numberOfRealisations );
+         cout << "Finished creating realizations." << endl;
+
+         // serialise context to something simple - string or array
+         const string & cntxStr = tslibCalcContext->CloneToString();
+         int cntxStrSize = cntxStrSize.size() + 1;
+
+         // send to each slave process serialized to string context
+         for ( int p = 1; p < mpiGetSize(); ++p )
+         {
+            MPI_Send( &cntxStrSize,       1,           MPI_INT,  p, MSIZE, MPI_COMM_WORLD ); // sending string size
+            MPI_Send( &(cntxStr.c_str()), cntxStrSize, MPI_BYTE, p, MSEND, MPI_COMM_WORLD ); // sending string itself
+         }            
+      }
+      else
+      {
+         // get in slave from master serialized context and recreate it from string
+         int cntxStrSize = 0;
+         MPI_Recv( &cntxStrSize, 1, MPI_INT, 0, MSIZE, MPI_COMM_WORLD ); // get string length
+
+         // allocate buffer for string, length alredy includes trailing zero but just for safety ask for one more byte in buffer
+         char * str = new char[cntxStrSize+1];
+         MPI_Recv( &str, cntxStrSize, MPI_BYTE, 0, MSEND, MPI_COMM_WORLD );  // get string itself
+         tslibCalcContext = tslib->CreateContextFromString( string( str ) ); // recreate Context
+         delete [] str;
+      }
+#else // as it is now
+
+         // create a calc context, this creates a master context as the tcf is passed in.
+         tslibCalcContext.reset( tslib->CreateContext( string( workingDir ) + "/sampletestdata/RQCDataSet.tcf" ) );
+   
+         cout << "Creating realizations " << numberOfRealisations << " ..." << endl;
+         tslibCalcContext->CreateRealizations( numberOfRealisations );
+         cout << "Finished creating realizations." << endl;
+#endif
+
+      // get a copy of the result headers
+		TcfSchema::ResultHeadersType savedResultHeaders( tslibCalcContext->ResultHeaders() );
+
 		//do something with the headers
 		TcfSchema::DetailHeadersType::modalHeaders_const_iterator itor;
+
 		//modAls
 		for (itor = savedResultHeaders.detailedHeaders().get().modalHeaders().begin();
 			 itor != savedResultHeaders.detailedHeaders().get().modalHeaders().end();
@@ -246,7 +328,7 @@ int main(int argc, char* argv[])
 		//note this list should have all the same entries as the list returned above, just with the 
 		//saved field toggled.  Removing, reordering, adding, will have unintended consequences, and not
 		//desired ones.
-		tslibCalcContext->ResultHeaders(savedResultHeaders);
+		tslibCalcContext->ResultHeaders( savedResultHeaders );
 
 		//get the list of all the statistics
 		cout << "\nStatistic Info" << endl;
@@ -277,7 +359,7 @@ int main(int argc, char* argv[])
 		//Cat 1 Mean, Cat 1 Mode, Cat 1 stdve, Cat 5 Mean, Cat 5 Mode, Cat 5 stdev, Cat 10 Mean, Cat 10 Mode, Cat 10 stdev ...
 		const TcfSchema::ResultHeadersType& statHeaders = tslibCalcContext->StatisticsResultHeaders();
 
-		RunTest( tslibCalcContext.get(), numberOfRealisations );
+		RunTest( tslibCalcContext.get() );
 	}
 	catch (GeocosmException& ex)
 	{
@@ -287,10 +369,18 @@ int main(int argc, char* argv[])
 	{
 		cout << ex.what() << endl;
 	}
+   
+   MPI_Barrier( MPI_COMM_WORLD );
+   MPI_Finalize();
+
+   cout << "Unloading libraries..." << endl;
 	//done with tslib
 	Geocosm::TsLibPluginManager::UnloadPluginLibraries();
 	
 	free(workingDir);
+   
+   cout << "Cleaning MCR temp folder" << endl;
+   CleanTempMCRFolder();
 
 	return 0;
 }

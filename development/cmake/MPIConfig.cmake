@@ -13,13 +13,13 @@
 include(cmake/AddPackage.cmake)
 include(cmake/EnvSetup.cmake)
 
-set( MPI_ROOT "/nfs/rvl/apps/3rdparty/intel/impi/4.1.1.036" CACHE PATH "Path to MPI library" )
+set( MPI_ROOT "/apps/3rdparty/intel/impi/4.1.1.036" CACHE PATH "Path to MPI library" )
 set( MPI_ROOT64 "${MPI_ROOT}/intel64" )
 
 add_environment_source_script(CSHELL "${MPI_ROOT64}/bin/mpivars.csh")
 add_environment_source_script(BOURNE "${MPI_ROOT64}/bin/mpivars.sh")
 
-add_external_package_info( 
+add_external_package_info(
        CAPABILITY MPI
        NAME         "MPI"
        VENDOR       "Intel"
@@ -35,7 +35,7 @@ add_external_package_info(
        USEABLE_STAND_ALONE "No"
        CONTAINS_CRYPTO "No"
        ECCN         "Unknown"
-)                   
+)
 
 set(MPI_FOUND TRUE)
 

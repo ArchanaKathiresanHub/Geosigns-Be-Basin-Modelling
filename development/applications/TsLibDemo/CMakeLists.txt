@@ -34,6 +34,7 @@ include_directories(
 	${XSD_INCLUDE_DIRS}
 	${TS7_INCLUDE_DIRS}
 	${TS_INCLUDE_DIRS}
+	${MPI_INCLUDE_DIRS}
 )
 
 target_link_libraries(${target_name} 
@@ -41,6 +42,7 @@ target_link_libraries(${target_name}
 	${TS7_LIBRARIES}
 	${TS_LIBRARIES}
 	${XERCES_LIBRARIES}
+	${MPI_LIBRARIES}
 )
 
 install(TARGETS TouchLibDemo

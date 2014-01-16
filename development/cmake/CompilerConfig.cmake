@@ -18,8 +18,7 @@ if (UNIX)
    #
    # On Shell Global Linux: Choose the Intel compiler
    #
-   
-   set(INTEL_CXX_ROOT "/nfs/rvl/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
+   set(INTEL_CXX_ROOT "/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
 
    # Generate compiler wrapper that loads environment
    set(BM_COMPILER_ENVIRONMENT_SETUP "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
@@ -31,7 +30,7 @@ if (UNIX)
 
    file(COPY "${CMAKE_BINARY_DIR}/aux/cc_wrap.sh" "${CMAKE_BINARY_DIR}/aux/cxx_wrap.sh"
         DESTINATION "${CMAKE_BINARY_DIR}"
-        FILE_PERMISSIONS 
+        FILE_PERMISSIONS
            OWNER_READ OWNER_WRITE OWNER_EXECUTE
            GROUP_READ GROUP_WRITE GROUP_EXECUTE
            WORLD_READ WORLD_EXECUTE
@@ -44,9 +43,9 @@ if (UNIX)
    # Add environment set-up scripts to generated script
    add_environment_source_script(CSHELL "${INTEL_CXX_ROOT}/bin/compilervars.csh intel64")
    add_environment_source_script(BOURNE "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
-   
+
    # Add package info
-   add_external_package_info( 
+   add_external_package_info(
        CAPABILITY   Compiler
        NAME         "Compiler"
        VENDOR       "Intel"
@@ -62,10 +61,10 @@ if (UNIX)
        USEABLE_STAND_ALONE "No"
        CONTAINS_CRYPTO "Unknown"
        ECCN         "Unknown"
-  )                      
+  )
 
 else()
-   
+
    # First detect the Compiler
    enable_language(CXX)
 
@@ -73,8 +72,7 @@ else()
        #
        # On Windows: Use Microsoft Visual C++ compiler
        #
-	   	   
-   add_external_package_info( 
+   add_external_package_info(
           CAPABILITY   Compiler
           NAME         "Visual C/C++"
           VENDOR       "Microsoft"
@@ -90,10 +88,10 @@ else()
           USEABLE_STAND_ALONE "No"
           CONTAINS_CRYPTO "Unknown"
           ECCN         "Unknown"
-       )                      
-	else()
-	   message(WARNING "Unknown compiler on unknown OS is used. It is not covered by the generated third party package list")
-	endif()
+       )
+   else()
+      message(WARNING "Unknown compiler on unknown OS is used. It is not covered by the generated third party package list")
+   endif()
 
 endif()
 

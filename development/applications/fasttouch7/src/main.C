@@ -20,6 +20,21 @@ using namespace std;
 
 #include "misc.h"
 
+#ifdef _WIN32
+   #include <direct.h>
+   #define GetCurrentDir _getcwd
+   #define GetProcessID _getpid
+   #define DIRDELIMCHAR "\\"
+#else
+   #ifndef _XOPEN_SOURCE
+      #define _XOPEN_SOURCE 500
+   #endif
+   #include <ftw.h>
+   #define GetCurrentDir getcwd
+   #define GetProcessID getpid
+   #define DIRDELIMCHAR "/"
+#endif
+
 using namespace fasttouch;
 
 #ifdef FLEXLM
@@ -45,6 +60,42 @@ static char help[] = "Parallel FastTouch \n\n";
 void PrintUsage (char * argv0);
 
 PetscBool debug = PETSC_FALSE;
+
+//////////////////////////////////////////////////////////////////
+// Set of auxillar functions to set/clean up temporary folder per MPI process
+// to keep Matlab MCR cache files during CreateRealization call
+static void SetUpTempMCRFolder()
+{
+   std::stringstream oss;
+#ifdef _WIN32
+   const char * workingDir = GetCurrentDir( NULL, 0 );
+   oss << "MCR_CACHE_ROOT=" << workingDir << DIRDELIMCHAR << "mcrTemp_" << GetProcessID(); 
+#else
+   const char * workingDir = "/tmp/fasttouch7_";
+   oss << "MCR_CACHE_ROOT=" << workingDir << GetProcessID(); 
+#endif
+
+   putenv( strdup( oss.str().c_str() ) );
+
+#ifdef _WIN32
+   free( workingDir );
+#endif
+}
+
+static int unlink_cb( const char * fpath, const struct stat * sb, int typeflag, struct FTW *ftwbuf )
+{
+    int rv = remove(fpath);
+    if ( rv ) perror( fpath );
+    return rv;
+}
+
+static int CleanTempMCRFolder()
+{
+   const char * path = getenv( "MCR_CACHE_ROOT" );
+   return nftw( path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS );
+}
+//////////////////////////////////////////////////////////////////
+
 
 /** Fast Touch application: Touch stone 7.0 implementation calculating the
  * porosity of the rock based on the temperature and pressure history. */
@@ -167,7 +218,8 @@ int main (int argc, char ** argv)
         EXIT (-1);
    }
 #endif
- 
+    SetUpTempMCRFolder();
+
     bool status = true;
     FastTouch * fastTouch = 0;
 
@@ -236,6 +288,8 @@ int main (int argc, char ** argv)
     } 
 #endif
    
+    CleanTempMCRFolder();
+
     PetscFinalize ();
 
     // To prevent functions registered with atexit being called as they are causing crashes
