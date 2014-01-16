@@ -6,6 +6,7 @@
 //------------------------------------------------------------//
 
 #include "FiniteElementTypes.h"
+#include "BasisFunctionCache.h"
 #include "globaldefs.h"
 #include "Quadrature.h"
 #include "HydraulicFracturingManager.h"
@@ -291,8 +292,7 @@ namespace Basin_Modelling {
   ///
   ///
   void Assemble_Element_Pressure_System
-     ( const int                           planeQuadratureDegree,
-       const int                           depthQuadratureDegree,
+     ( const BasisFunctionCache&           basisFunctions,
        const double                        currentTime,
        const double                        timeStep,
        const Boundary_Conditions*          Element_BCs,

@@ -56,6 +56,16 @@ double PressureSolver::NewtonSolverTolerances [ NumberOfOptimisationLevels ][ 3 
 
 PressureSolver::PressureSolver(AppCtx *appl) : CauldronCalculator ( appl ) {
   initialiseFctCorrection();
+  basisFunctions = 0;
+}
+
+
+PressureSolver::~PressureSolver() {
+
+   if ( basisFunctions != 0 ) {
+      delete basisFunctions;
+   }
+
 }
 
 //------------------------------------------------------------//
@@ -446,6 +456,10 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
   elementContributionsTime = 0.0;
 
+  if ( basisFunctions == 0 ) {
+     basisFunctions = new FiniteElementMethod::BasisFunctionCache ( Plane_Quadrature_Degree, Plane_Quadrature_Degree, Depth_Quadrature_Degree );
+  }
+
   for ( FEM_Layers.Initialise_Iterator (); ! FEM_Layers.Iteration_Is_Done (); FEM_Layers++ ) {
     Current_Layer  = FEM_Layers.Current_Layer ();
     Previous_Layer = FEM_Layers.Layer_Above ();
@@ -723,8 +737,7 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
             PetscTime(&Element_Start_Time);
 
-            Assemble_Element_Pressure_System ( Plane_Quadrature_Degree,
-                                               Depth_Quadrature_Degree,
+            Assemble_Element_Pressure_System ( *basisFunctions,
                                                currentTime,
                                                previousTime - currentTime,
                                                Element_BCs,

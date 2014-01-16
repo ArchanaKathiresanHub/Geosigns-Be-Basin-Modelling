@@ -1490,8 +1490,7 @@ void Basin_Modelling::computeGradSurfaceDepth ( const PetscScalar          xi,
 //------------------------------------------------------------//
 
 void Basin_Modelling::Assemble_Element_Pressure_System (
-         const int                      planeQuadratureDegree,
-         const int                      depthQuadratureDegree,
+         const BasisFunctionCache&      basisFunctions,
          const double                   currentTime,
          const double                   timeStep,
          const Boundary_Conditions*     Element_BCs,
@@ -1550,9 +1549,9 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
    NumericFunctions::Quadrature::QuadratureArray Z_Quadrature_Points;
    NumericFunctions::Quadrature::QuadratureArray Z_Quadrature_Weights;
 
-   const int Number_Of_X_Points = planeQuadratureDegree;
-   const int Number_Of_Y_Points = planeQuadratureDegree;
-   const int Number_Of_Z_Points = depthQuadratureDegree;
+   const int Number_Of_X_Points = basisFunctions.getNumberOfPointsX ();
+   const int Number_Of_Y_Points = basisFunctions.getNumberOfPointsY ();
+   const int Number_Of_Z_Points = basisFunctions.getNumberOfPointsZ ();
 
    NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_X_Points, X_Quadrature_Points, X_Quadrature_Weights );
    NumericFunctions::Quadrature::getInstance ().getGaussLegendreQuadrature ( Number_Of_Y_Points, Y_Quadrature_Points, Y_Quadrature_Weights );

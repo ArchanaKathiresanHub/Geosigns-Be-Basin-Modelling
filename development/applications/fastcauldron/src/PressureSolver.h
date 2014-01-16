@@ -6,6 +6,7 @@
 #include "petscts.h"
 #include "petscdmda.h"
 
+#include "BasisFunctionCache.h"
 #include "CauldronCalculator.h"
 
 #include "propinterface.h"
@@ -41,6 +42,8 @@ public :
 
 
    PressureSolver(AppCtx *appl);
+
+   ~PressureSolver();
 
    virtual void adjustSolidThickness ( const double relativeThicknessTolerance,
                                        const double absoluteThicknessTolerance,
@@ -174,6 +177,8 @@ protected :
 
    void initialiseFctCorrection ();
 
+
+   FiniteElementMethod::BasisFunctionCache* basisFunctions;
 
 };
 
