@@ -1109,25 +1109,6 @@ void FiniteElementMethod::BooleanVector::put () const {
   std::cout << std::endl;
 
 }
-//------------------------------------------------------------//
-
-void FiniteElementMethod::scale (       Matrix8x8&   Result,
-                                        const double Factor ) {
-
-  int i;
-
-  for ( i = 0; i <  8 ; ++i ) {
-     Result ( 0, i ) *= Factor;
-     Result ( 1, i ) *= Factor;
-     Result ( 2, i ) *= Factor;
-     Result ( 3, i ) *= Factor;
-     Result ( 4, i ) *= Factor;
-     Result ( 5, i ) *= Factor;
-     Result ( 6, i ) *= Factor;
-     Result ( 7, i ) *= Factor;
-  }
-
-}
 
 
 //============================================================//
