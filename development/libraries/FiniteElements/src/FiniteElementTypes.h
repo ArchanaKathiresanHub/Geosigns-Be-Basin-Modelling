@@ -5,6 +5,7 @@
 
 #include <cmath>
 
+#include <eigen3/Eigen/SparseCore>
 
 #include "NumericFunctions.h"
 
@@ -512,8 +513,45 @@ namespace FiniteElementMethod {
 
   };
 
+  //------------------------------------------------------------//
+
+   class MatrixSparse : public Eigen::SparseMatrix<double, Eigen::ColMajor> {
+
+   public:
+      MatrixSparse( const int NumberOfPoint, const int BlockSize );
+      
+      double & operator ()( const int row, const int col );
+
+   };
+   
+   inline double& MatrixSparse::operator () ( const int row, const int col ) {
+     return insert( row,  col );
+   }
+ 
+   inline MatrixSparse::MatrixSparse ( const int NumberOfPoints, const int BlockSize )
+   {
+      resize( NumberOfPoints * 3, NumberOfPoints * BlockSize );
+      reserve( NumberOfPoints * 3 * BlockSize );
+      setZero();
+   }
 
   //------------------------------------------------------------//
+
+   class Matrix8N : public Eigen::Matrix<double, 8, Eigen::Dynamic, Eigen::RowMajor> {
+
+   public:
+      Matrix8N( const int NumberOfCols ) {
+         resize( Eigen::NoChange, NumberOfCols );
+         setZero();
+      } 
+   };
+
+  //------------------------------------------------------------//
+   typedef Eigen::Matrix<double, 8, 8, Eigen::RowMajor> Matrix8x8;
+   
+   void scale ( Matrix8x8& Mat, const double Factor );
+
+   //------------------------------------------------------------//
 
   ///
   /// ThreeVector inline functions

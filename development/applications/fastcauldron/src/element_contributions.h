@@ -216,6 +216,14 @@ namespace Basin_Modelling {
              ElementMatrix&               Jacobian,
              ElementVector&               Residual );
 
+  void Apply_Dirichlet_Boundary_Conditions_Newton
+     ( const Boundary_Conditions*          BCs,
+       const ElementVector&                Dirichlet_Boundary_Values,
+       const double                        Dirichlet_Boundary_Scaling,
+       const ElementVector&                Current_Property_Values,
+             Matrix8x8&                    Jacobian,
+             ElementVector&                Residual );
+
   ///
   /// Apply Dirichlet type boundary conditions to residual
   /// only for non-linear systems using the Newton solver.
@@ -333,6 +341,50 @@ namespace Basin_Modelling {
        const Saturation&                  previousSaturation,
 
              ElementMatrix&               Element_Jacobian,
+             ElementVector&               Element_Residual );
+			 
+  void Assemble_Element_Pressure_System
+     ( const BasisFunctionCache&           basisFunctions,
+       const double                        currentTime,
+       const double                        timeStep,
+       const Boundary_Conditions*          Element_BCs,
+       const Boundary_Conditions*          BCs,
+       const ElementVector&                Dirichlet_Boundary_Values,
+       const bool                          isIceSheetLayer,
+       const CompoundLithology*            Lithology,
+       const GeoPhysics::FluidType*        Fluid,
+       const bool                          includeChemicalCompaction,
+       const Interface::FracturePressureModel         fractureModel,
+
+       const ElementGeometryMatrix&      previousGeometryMatrix,
+       const ElementGeometryMatrix&      geometryMatrix,
+
+       const ElementVector&               Previous_Element_Solid_Thickness,
+       const ElementVector&               Current_Element_Solid_Thickness,
+       const ElementVector&               Previous_Ph,
+       const ElementVector&               Current_Ph,
+       const ElementVector&               Previous_Po,
+       const ElementVector&               Current_Po,
+       const ElementVector&               Current_Pl,
+       const ElementVector&               Previous_Element_VES,
+       const ElementVector&               Current_Element_VES,
+       const ElementVector&               Previous_Element_Max_VES,
+       const ElementVector&               Current_Element_Max_VES,
+       const ElementVector&               Previous_Element_Temperature,
+       const ElementVector&               Current_Element_Temperature,
+
+       const ElementVector&               Previous_Element_Chemical_Compaction,
+       const ElementVector&               Current_Element_Chemical_Compaction,
+
+       const ElementVector&               Fracture_Pressure_Exceeded,
+       const ElementVector&               preFractureScaling,
+       const BooleanVector&               Included_Nodes,
+
+       const bool                         includeWaterSaturation,
+       const Saturation&                  currentSaturation,
+       const Saturation&                  previousSaturation,
+
+             Matrix8x8&                   Element_Jacobian,
              ElementVector&               Element_Residual );
 
 
