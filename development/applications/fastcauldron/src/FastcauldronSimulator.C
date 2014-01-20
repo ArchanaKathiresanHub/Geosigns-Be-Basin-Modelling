@@ -1096,6 +1096,31 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
    newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
+                                                        "InvasionVapourCapillaryEntryPressureCift" );
+   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+   m_timeOutputProperties.push_back ( newProperty );
+
+   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
+                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
+                                                        "InvasionLiquidCapillaryEntryPressureCift" );
+   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+   m_timeOutputProperties.push_back ( newProperty );
+
+   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
+                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
+                                                        "InvasionVapourCapillaryEntryPressure" );
+   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+   m_timeOutputProperties.push_back ( newProperty );
+
+   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
+                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
+                                                        "InvasionLiquidCapillaryEntryPressure" );
+   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+   m_timeOutputProperties.push_back ( newProperty );
+
+
+   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
+                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "GOR" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );

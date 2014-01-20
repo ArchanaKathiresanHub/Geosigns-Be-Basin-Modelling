@@ -1545,15 +1545,49 @@ void DarcyCalculations::computeAveragePermeabilities ( Subdomain&       subdomai
 
 //------------------------------------------------------------//
 
-void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid& formationGrid, double endTime ) {
+void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid&      formationGrid, 
+                                                   const PhaseValueArray&              hcDensity,
+                                                   const TemporalPropertyInterpolator& porePressure,
+                                                   const TemporalPropertyInterpolator& temperature,
+                                                   const TemporalPropertyInterpolator& ves,
+                                                   const TemporalPropertyInterpolator& maxVes,
+                                                   const double                        endTime,
+                                                   const double                        lambda ) {
 
    LayerProps& theLayer = formationGrid.getFormation ();
 
    CompositionPetscVector     concentrations;
+
+   PhaseValuesPetscVector entryPressureBeforeInvastion;
+   PhaseValuesPetscVector entryPressureAfterInvastion;
+
    PetscBlockVector<double>  timeOfInvasions;
 
+   double elementVes;
+   double elementMaxVes;
+   double elementPorePressure;
+   double elementTemperature;
+   double criticalTemperature;
+   double brineDensity;
+   double pceVapourCift;
+   double pceLiquidCift;
+   double pceVapour;
+   double pceLiquid;
+   double permeabilityNormal;
+   double permeabilityPlane;
+   double vapourDensity;
+   double liquidDensity;
+
+   CompoundProperty compoundPorosity;
+
    concentrations.setVector ( theLayer.getVolumeGrid ( NumberOfPVTComponents ), theLayer.getPreviousComponentVec (), INSERT_VALUES );
+
    timeOfInvasions.setVector ( theLayer.getVolumeGrid ( 1 ), theLayer.getTimeOfElementInvasionVec (), INSERT_VALUES );
+
+   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveEntryPressureAtInvasion ()) {
+      entryPressureBeforeInvastion.setVector ( theLayer.getVolumeGrid ( pvtFlash::N_PHASES ), theLayer.getEntryPressureBeforeInvasionVec (), INSERT_VALUES );
+      entryPressureAfterInvastion.setVector  ( theLayer.getVolumeGrid ( pvtFlash::N_PHASES ), theLayer.getEntryPressureAfterInvasionVec  (), INSERT_VALUES );
+   }
 
    int i;
    int j;
@@ -1569,11 +1603,83 @@ void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid
 
                const SubdomainElement& element = formationGrid ( i, j, k );
                unsigned int elementK = element.getK ();
+               const LayerElement& layerElement = element.getLayerElement ();
 
-               if ( element.getLayerElement ().isActive ()) {
+
+               if ( layerElement.isActive ()) {
 
                   if ( concentrations ( k, j, i ).sum () > HcConcentrationLowerLimit && timeOfInvasions ( k, j, i ) == CAULDRONIBSNULLVALUE ) {
                      timeOfInvasions( k, j, i) =  endTime;
+
+
+                     if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveEntryPressureAtInvasion ()) {
+                        const Lithology* lithology = layerElement.getLithology ();
+
+                        PVTComponents elementConcentrations = concentrations ( k, j, i );
+
+                        elementConcentrations *= PVTCalc::getInstance ().getMolarMass ();
+                        // not sure if this is necessary since, I think, the concentrations are normalised anyway.
+                        elementConcentrations *= 1.0e-3;
+
+                        elementVes = ves ( element, lambda );
+                        elementMaxVes = maxVes ( element, lambda );
+                        elementPorePressure = porePressure ( element, lambda );
+                        elementTemperature = temperature ( element, lambda );
+
+                        lithology->getPorosity ( elementVes,
+                                                 elementMaxVes,
+                                                 false, 0.0,
+                                                 compoundPorosity );
+
+                        lithology->calcBulkPermeabilityNP ( elementVes, elementMaxVes, compoundPorosity, permeabilityNormal, permeabilityPlane );
+
+                        vapourDensity = hcDensity ( element.getI (), element.getJ (), element.getK ())( pvtFlash::VAPOUR_PHASE );
+                        liquidDensity = hcDensity ( element.getI (), element.getJ (), element.getK ())( pvtFlash::LIQUID_PHASE );
+
+                        // Brine density reqire pressure in MPa.
+                        brineDensity = theLayer.fluid->density ( elementTemperature, 1.0e-6 * elementPorePressure );
+
+                        criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementConcentrations );
+
+                        // Compute capillary entry pressure with constant ift.
+                        pceVapourCift = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
+                                                                                                             CAULDRONIBSNULLVALUE,
+                                                                                                             permeabilityNormal,
+                                                                                                             CAULDRONIBSNULLVALUE,
+                                                                                                             CAULDRONIBSNULLVALUE,
+                                                                                                             CAULDRONIBSNULLVALUE );
+
+                        pceLiquidCift = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
+                                                                                                             CAULDRONIBSNULLVALUE,
+                                                                                                             permeabilityNormal,
+                                                                                                             CAULDRONIBSNULLVALUE,
+                                                                                                             CAULDRONIBSNULLVALUE,
+                                                                                                             CAULDRONIBSNULLVALUE );
+
+                        
+                        entryPressureBeforeInvastion ( k, j, i )( pvtFlash::VAPOUR_PHASE ) = pceVapourCift;
+                        entryPressureBeforeInvastion ( k, j, i )( pvtFlash::LIQUID_PHASE ) = pceLiquidCift;
+
+                        // Compute capillary entry pressure with ift using critical temperature.
+                        pceVapour = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
+                                                                                                         elementTemperature,
+                                                                                                         permeabilityNormal,
+                                                                                                         brineDensity,
+                                                                                                         vapourDensity,
+                                                                                                         criticalTemperature );
+
+                        pceLiquid = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
+                                                                                                         elementTemperature,
+                                                                                                         permeabilityNormal,
+                                                                                                         brineDensity,
+                                                                                                         liquidDensity,
+                                                                                                         criticalTemperature );
+
+                        entryPressureAfterInvastion ( k, j, i )( pvtFlash::VAPOUR_PHASE ) = pceVapour;
+                        entryPressureAfterInvastion ( k, j, i )( pvtFlash::LIQUID_PHASE ) = pceLiquid;
+
+                     }
+
                   }
 
                }
@@ -1588,19 +1694,31 @@ void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid
    
    concentrations.restoreVector ( NO_UPDATE );
    timeOfInvasions.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+
+   if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveEntryPressureAtInvasion ()) {
+      entryPressureBeforeInvastion.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+      entryPressureAfterInvastion.restoreVector ( UPDATE_EXCLUDING_GHOSTS );
+   }
+
 }
 
 //------------------------------------------------------------//
 
-void DarcyCalculations::setTimeOfElementInvasion ( Subdomain&   subdomain,
-                                                   const double endTime ) {
+void DarcyCalculations::setTimeOfElementInvasion ( Subdomain&                          subdomain,
+                                                   const PhaseValueArray&              hcDensity,
+                                                   const TemporalPropertyInterpolator& porePressure,
+                                                   const TemporalPropertyInterpolator& temperature,
+                                                   const TemporalPropertyInterpolator& ves,
+                                                   const TemporalPropertyInterpolator& maxVes,
+                                                   const double                        endTime,
+                                                   const double                        lambda ) {
 
    Subdomain::ActiveLayerIterator iter;
 
    subdomain.initialiseLayerIterator ( iter );
 
    while ( not iter.isDone ()) {
-      setTimeOfElementInvasion ( *iter, endTime );
+      setTimeOfElementInvasion ( *iter, hcDensity, porePressure, temperature, ves, maxVes, endTime, lambda );
       ++iter;
    }
 

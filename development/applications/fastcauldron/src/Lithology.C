@@ -14,8 +14,11 @@ Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::
 
    m_contactAngle.zero ();
 
-   m_contactAngle ( pvtFlash::VAPOUR_PHASE ) = 0.0;
-   m_contactAngle ( pvtFlash::LIQUID_PHASE ) = 30.0 / 180.0 * M_PI;
+   m_contactAngle ( pvtFlash::VAPOUR_PHASE ) = M_PI;
+   m_contactAngle ( pvtFlash::LIQUID_PHASE ) = 150.0 / 180.0 * M_PI;
+
+   // m_contactAngle ( pvtFlash::VAPOUR_PHASE ) = 0.0;
+   // m_contactAngle ( pvtFlash::LIQUID_PHASE ) = 30.0 / 180.0 * M_PI;
 
    m_cosContactAngle ( pvtFlash::VAPOUR_PHASE ) = std::cos ( m_contactAngle ( pvtFlash::VAPOUR_PHASE ));
    m_cosContactAngle ( pvtFlash::LIQUID_PHASE ) = std::cos ( m_contactAngle ( pvtFlash::LIQUID_PHASE ));
@@ -180,37 +183,42 @@ double Lithology::capillaryEntryPressure ( const pvtFlash::PVTPhase phase,
 
    if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
 
-#if 0
-      double usedHcPhaseDensity;
+      if ( criticalTemperature != CAULDRONIBSNULLVALUE ) {
+         double usedHcPhaseDensity;
 
-      if ( brineDensity <= hcPhaseDensity ) {
-         // Get the largest floating point number that is smaller than brineDensity.
-         // This is because the cap-tension function will return floating-point-max if the hc-densiy > h20-density.
-         usedHcPhaseDensity = nextafter ( brineDensity, 0.0 );
+         if ( brineDensity <= hcPhaseDensity ) {
+            // Get the largest floating point number that is smaller than brineDensity.
+            // This is because the cap-tension function will return floating-point-max if the hc-densiy > h20-density.
+            usedHcPhaseDensity = nextafter ( brineDensity, 0.0 );
+         } else {
+            usedHcPhaseDensity = hcPhaseDensity;
+         }
+
+         // Units of interfacial-tension are mN/M (or dynes/cm?) so they need to be scaled by 0.001 to get into N/M.
+         double hcWaterInterfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity,
+                                                                                                            usedHcPhaseDensity,
+                                                                                                            temperature + 273.15,
+                                                                                                            criticalTemperature );
+         double cpeHgAir = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
+
+         // Convert to a hc-water entry pressure.
+         pce = hcWaterInterfacialTension * m_cosContactAngle ( phase ) / ( m_cosHgAirContactAngle * m_hgAirInterfacialTension ) * cpeHgAir;
       } else {
-         usedHcPhaseDensity = hcPhaseDensity;
+
+         double hcWaterInterfacialTension;
+
+         // Values obtained from "Empirical_Capillary_Relationship.pdf", attached to 20528 TFS item.
+         if ( phase == pvtFlash::LIQUID_PHASE ) {
+            hcWaterInterfacialTension = 0.025;
+         } else {
+            hcWaterInterfacialTension = 0.05;
+         }
+
+         double cpeHgAir = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
+
+         // Convert to a hc-water entry pressure.
+         pce = hcWaterInterfacialTension * m_cosContactAngle ( phase ) / ( m_cosHgAirContactAngle * m_hgAirInterfacialTension ) * cpeHgAir;
       }
-
-      // Units of interfacial-tension are mN/M (or dynes/cm?) so they need to be scaled by 0.001 to get into N/M.
-      double hcWaterInterfacialTension = 0.001 * CBMGenerics::capillarySealStrength::capTension_H2O_HC ( brineDensity,
-                                                                                                         usedHcPhaseDensity,
-                                                                                                         temperature + 273.15,
-                                                                                                         criticalTemperature );
-#endif
-
-      double hcWaterInterfacialTension;
-
-      // Values obtained from "Empirical_Capillary_Relationship.pdf", attached to 20528 TFS item.
-      if ( phase == pvtFlash::LIQUID_PHASE ) {
-         hcWaterInterfacialTension = 0.025;
-      } else {
-         hcWaterInterfacialTension = 0.05;
-      }
-
-      double cpeHgAir = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
-
-      // Convert to a hc-water entry pressure.
-      pce = hcWaterInterfacialTension * m_cosHcWaterContactAngle / ( m_cosHgAirContactAngle * m_hgAirInterfacialTension ) * cpeHgAir;
 
    } else {
       pce = BrooksCorey::Pe;

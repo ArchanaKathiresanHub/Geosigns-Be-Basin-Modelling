@@ -1230,6 +1230,26 @@ bool ProjectHandle::loadProperties (void)
                                                            "Pa", FORMATIONPROPERTY));
 
    m_properties.push_back (getFactory ()->produceProperty (this, 0,
+                                                           "InvasionVapourCapillaryEntryPressureCift",
+                                                           "InvasionVapourCapillaryEntryPressureCift",
+                                                           "Pa", FORMATIONPROPERTY));
+
+   m_properties.push_back (getFactory ()->produceProperty (this, 0,
+                                                           "InvasionLiquidCapillaryEntryPressureCift",
+                                                           "InvasionLiquidCapillaryEntryPressureCift",
+                                                           "Pa", FORMATIONPROPERTY));
+
+   m_properties.push_back (getFactory ()->produceProperty (this, 0,
+                                                           "InvasionVapourCapillaryEntryPressure",
+                                                           "InvasionVapourCapillaryEntryPressure",
+                                                           "Pa", FORMATIONPROPERTY));
+
+   m_properties.push_back (getFactory ()->produceProperty (this, 0,
+                                                           "InvasionLiquidCapillaryEntryPressure",
+                                                           "InvasionLiquidCapillaryEntryPressure",
+                                                           "Pa", FORMATIONPROPERTY));
+
+   m_properties.push_back (getFactory ()->produceProperty (this, 0,
                                                            "GOR",
                                                            "GOR",
                                                            "m3/m3", FORMATIONPROPERTY));

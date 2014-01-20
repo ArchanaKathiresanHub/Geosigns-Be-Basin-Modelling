@@ -440,6 +440,10 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
         m_volumeOutputProperties.push_back ( TRANSPORTED_VOLUME_CALCULATIONS );
      }
 
+     if ( FastcauldronSimulator::getInstance ().getMcfHandler ().saveEntryPressureAtInvasion ()) {
+        m_concludingVolumeOutputProperties.push_back ( INVASION_CAPILLARY_ENTRY_PRESSURE );
+     }
+
      // Time of invasion is needed only at present day.
      m_concludingVolumeOutputProperties.push_back ( TIME_OF_ELEMENT_INVASION );
   }

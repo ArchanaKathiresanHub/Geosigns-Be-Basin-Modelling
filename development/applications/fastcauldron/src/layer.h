@@ -475,6 +475,16 @@ public:
    /// If the corresponding nodal-volume-grid does not exist then one will be created.
    const NodalVolumeGrid& getNodalVolumeGrid ( const int numberOfDofs = 1 ) const;
 
+   // The idea of these two vectors is to compare the capillary entry pressure using
+   // the constant interfacial tension and the calculated value.
+
+   /// The capillary entry pressure at a time immediately before hc-invasion.
+   Vec& getEntryPressureBeforeInvasionVec ();
+
+   /// The capillary entry pressure at a time immediately after hc-invasion.
+   Vec& getEntryPressureAfterInvasionVec ();
+
+
  protected :
 
 
@@ -602,7 +612,18 @@ public:
 
    ElementVolumeGrid m_elementFluxGrid;
 
-    ElementVolumeGrid  m_timeOfElementInvasionGrid;
+   ElementVolumeGrid m_timeOfElementInvasionGrid;
+
+
+   // The idea of these two vectors is to compare the capillary entry pressure using
+   // the constant interfacial tension and the calculated value.
+   ElementVolumeGrid m_invasionEntryPressureGrid;
+
+   // The capillary entry pressure at a time immediately before hc-invasion.
+   Vec m_entryPressureBeforeInvasion;
+   // The capillary entry pressure at a time immediately after hc-invasion.
+   Vec m_entryPressureAfterInvasion;
+   
 
    /// Create a volume-grid with the number of dofs indicated and add it to the array of volume-grids.
    ///
@@ -771,6 +792,14 @@ inline const PVTComponents& LayerProps::getMolarMass () const {
    return m_molarMass;
 }
 
+
+inline Vec& LayerProps::getEntryPressureBeforeInvasionVec () {
+   return m_entryPressureBeforeInvasion;
+}
+
+inline Vec& LayerProps::getEntryPressureAfterInvasionVec () {
+   return m_entryPressureAfterInvasion;
+}
 
 typedef LayerProps* LayerProps_Ptr;
 

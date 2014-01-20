@@ -195,6 +195,11 @@ public :
    /// \brief Indicate whether or not to save the capillary entry pressure.
    bool saveCapillaryEntryPressure () const;
 
+   /// \brief Indicate whether of not the entry pressure at element invasion should be saved.
+   ///
+   /// Only used for testing.
+   bool saveEntryPressureAtInvasion () const;
+
    /// \brief Indicate whether or not the volume calculations should be saved.
    ///
    /// This is a debug option.
@@ -305,6 +310,7 @@ private :
    bool   m_useEstimatedSaturation;
 
    bool m_saveCapillaryEntryPressure;
+   bool m_saveEntryPressureAtInvasion;
    bool m_saveVolumeOutput;
    bool m_saveTransportedVolumeOutput;
 
@@ -480,6 +486,10 @@ inline double MultiComponentFlowHandler::removeHcTransportAge () const {
 
 inline bool MultiComponentFlowHandler::saveCapillaryEntryPressure () const {
    return m_saveCapillaryEntryPressure;
+}
+
+inline bool MultiComponentFlowHandler::saveEntryPressureAtInvasion () const {
+   return m_saveEntryPressureAtInvasion;
 }
 
 inline bool MultiComponentFlowHandler::saveVolumeOutput () const {

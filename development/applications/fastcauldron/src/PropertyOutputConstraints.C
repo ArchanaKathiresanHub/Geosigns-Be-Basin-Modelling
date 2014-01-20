@@ -128,6 +128,7 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* HC fluid velocity                         */
 															   ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryPressure                         */
 															   ApplicableOutputRegion::SEDIMENTS_ONLY,              /* CapillaryEntryPressure                    */
+															   ApplicableOutputRegion::SEDIMENTS_ONLY,              /* InvasionCapillaryEntryPressure            */
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Fluid Properties such as GOR, COR, OilAPI */
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Brine properties viscosity density        */
 															   ApplicableOutputRegion::SEDIMENTS_ONLY,               /* Time of invasion                          */				
@@ -285,9 +286,10 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
                                                                                                             { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HC fliud velocity                         */
 													    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* CapillaryPressure                         */
 													    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* CapillaryEntryPressure                    */
+													    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* InvasionCapillaryEntryPressure            */
 													    { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Fluid Properties such as GOR, COR, OilAPI */
                                                                                                             { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Brine Properties density and viscosity    */
-                                                                                                            { false, false,  true,  true,  true, false,  true,  true,  true, false },   /* Time of invasion                          */                                                                                                      
+                                                                                                            { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Time of invasion                          */
                                                                                                             {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmBasaltThickness   */
                                                                                                             {  true,  true,  true,  true, false,  true,  true, false },  /* ALCMaxAsthenoMantleDepth*/
                                                                                                             {  true,  true,  true,  true, false,  true,  true, false },  /* ALCStepTopBasaltDepth   */
@@ -297,7 +299,7 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
                                                                                                             {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmContCrustThickness  */
                                                                                                             {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmTopBasaltDepth      */
                                                                                                             {  true,  true,  true,  true, false,  true,  true, false },  /* ALCSmMohoDepth           */
-                                                                                                            {  true,  true,  true,  true, false,  true,  true, false }   /* ALCOrigMantle            */																								
+                                                                                                            {  true,  true,  true,  true, false,  true,  true, false }   /* ALCOrigMantle            */
 };
 
 
@@ -410,6 +412,7 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
                                                                                                            { false, false, false, false, false, false, false, false, false, false },  /* HC fluid velocity                         */
 													   { false, false, false, false, false, false, false, false, false, false },  /* CapillaryPressure                         */
 													   { false, false, false, false, false, false, false, false, false, false },  /* CapillaryEntryPressure                    */
+													   { false, false, false, false, false, false, false, false, false, false },  /* InvasionCapillaryEntryPressure            */
                                                                                                            { false, false, false, false, false, false, false, false, false, false },  /* Fluid Properties such as GOR, COR, OilAPI */
 													   { false, false, false, false, false, false, false, false, false, false },  /* Brine properties density viscosity        */
 													   { false, false, false, false, false, false, false, false, false, false },   /* Time of Invasion                          */

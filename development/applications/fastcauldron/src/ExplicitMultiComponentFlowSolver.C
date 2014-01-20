@@ -707,7 +707,15 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       satIntervalTime = WallTime::clock () - satStart;
 
       //set time of element invasion
-      darcyCalculations.setTimeOfElementInvasion ( subdomain, endTime );
+      darcyCalculations.setTimeOfElementInvasion ( subdomain,
+                                                   phaseDensities,
+                                                   porePressure,
+                                                   temperature,
+                                                   ves,
+                                                   maxVes,
+                                                   endTime,
+                                                   lambdaEnd );
+
       updateTransportedMasses ( subdomain, transportedMasses );
    }
 

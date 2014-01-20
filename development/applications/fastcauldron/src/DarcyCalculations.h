@@ -38,6 +38,11 @@ public :
    /// Each entry of the petsc vector will contain a object of type Saturation.
    typedef PetscBlockVector<Saturation>  SaturationPetscVector;
 
+   /// \brief An array of PVTPhaseComponents that has bounds defined by the number of elements (including ghosts) defined for the process.
+   /// \brief A petsc vector.
+   typedef PetscBlockVector<PVTPhaseValues> PhaseValuesPetscVector;
+
+
 
    /// \brief An array of PVTComponents that has bounds defined by the number of elements (including ghosts) defined for the process.
    typedef PETSc_Local_3D_Array <PVTComponents> CompositionArray;
@@ -130,8 +135,14 @@ public :
                         const double lambda );
 
    /// \brief Set the time of element invasion, the time when a cell has non-zero hc-concentration
-   void setTimeOfElementInvasion ( Subdomain&  subdomain,
-                                   const double time );
+   void setTimeOfElementInvasion ( Subdomain&                          subdomain,
+                                   const PhaseValueArray&              hcDensity,
+                                   const TemporalPropertyInterpolator& porePressure,
+                                   const TemporalPropertyInterpolator& temperature,
+                                   const TemporalPropertyInterpolator& ves,
+                                   const TemporalPropertyInterpolator& maxVes,
+                                   const double                        time,
+                                   const double                        lambda );
 
 private :
 
@@ -271,7 +282,14 @@ private :
 
 
    /// \brief Set the time of element invasion, the time when a cell has non-zero concentration
-   void setTimeOfElementInvasion ( FormationSubdomainElementGrid& formationGrid, double time );
+   void setTimeOfElementInvasion ( FormationSubdomainElementGrid&      formationGrid,
+                                   const PhaseValueArray&              hcDensity,
+                                   const TemporalPropertyInterpolator& porePressure,
+                                   const TemporalPropertyInterpolator& temperature,
+                                   const TemporalPropertyInterpolator& ves,
+                                   const TemporalPropertyInterpolator& maxVes,
+                                   const double                        time,
+                                   const double                        lambda );
 
 
 

@@ -125,6 +125,8 @@ LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
 
   m_molarMass.zero ();
 
+  m_entryPressureBeforeInvasion = 0;
+  m_entryPressureAfterInvasion = 0;
 
 }
 
@@ -262,6 +264,7 @@ void LayerProps::initialise () {
          m_saturationGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
                                       getMaximumNumberOfElements (),
                                       Saturation::NumberOfPhases );
+
          DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_saturations );
          DMCreateGlobalVector ( m_saturationGrid.getDa (), &m_previousSaturations );
 
@@ -282,6 +285,7 @@ void LayerProps::initialise () {
          VecSet ( m_timeOfElementInvasionVec, CAULDRONIBSNULLVALUE );
          PetscBlockVector<double> timeOfElementInvasion;
          timeOfElementInvasion.setVector (m_timeOfElementInvasionGrid, getTimeOfElementInvasionVec(), INSERT_VALUES );
+
       
          int i;
          int j;
@@ -325,6 +329,16 @@ void LayerProps::initialise () {
          DMCreateGlobalVector ( elementGrid.getDa (), &m_transportedMasses );
          VecSet ( m_transportedMasses, 0.0 );
       // }
+
+         m_invasionEntryPressureGrid.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
+                                                 getMaximumNumberOfElements (),
+                                                 pvtFlash::N_PHASES );
+
+         DMCreateGlobalVector ( m_invasionEntryPressureGrid.getDa (), &m_entryPressureBeforeInvasion );
+         VecSet ( m_entryPressureBeforeInvasion, 0.0 );
+
+         DMCreateGlobalVector ( m_invasionEntryPressureGrid.getDa (), &m_entryPressureAfterInvasion );
+         VecSet ( m_entryPressureAfterInvasion, 0.0 );
 
       } // if includedInDarcySimulation
 
@@ -586,6 +600,9 @@ LayerProps::~LayerProps(){
      Destroy_Petsc_Vector ( m_previousSaturations );
      Destroy_Petsc_Vector ( m_timeOfElementInvasionVec );
      Destroy_Petsc_Vector ( m_averagedSaturation );
+
+     Destroy_Petsc_Vector ( m_entryPressureBeforeInvasion );
+     Destroy_Petsc_Vector ( m_entryPressureAfterInvasion );
   }
 
   if ( vesInterpolator != 0 ) {

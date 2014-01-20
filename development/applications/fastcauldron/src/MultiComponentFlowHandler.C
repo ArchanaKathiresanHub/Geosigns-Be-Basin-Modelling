@@ -160,6 +160,7 @@ MultiComponentFlowHandler::MultiComponentFlowHandler () {
 #endif
 
    m_saveCapillaryEntryPressure = false;
+   m_saveEntryPressureAtInvasion = false;
    m_saveVolumeOutput = false;
    m_saveTransportedVolumeOutput = false;
 
@@ -290,6 +291,8 @@ void MultiComponentFlowHandler::initialise () {
    PetscBool allQuadDegreeSet;
 
    PetscBool saveCapillaryEntryPressureOutput;
+   PetscBool saveEntryPressureAtInvasionOutput;
+
    PetscBool saveVolumeOutput;
    PetscBool saveTransportedVolumeOutput;
    PetscBool useImmobileSaturation;
@@ -334,6 +337,9 @@ void MultiComponentFlowHandler::initialise () {
    PetscOptionsGetReal ( PETSC_NULL, "-mcfmaxformperm", &lowPermeability, &lowPermeabilityDefined );
 
    PetscOptionsHasName ( PETSC_NULL, "-mcfsavepce",  &saveCapillaryEntryPressureOutput );
+
+   PetscOptionsHasName ( PETSC_NULL, "-mcfsaveinvpce",  &saveEntryPressureAtInvasionOutput );
+
    PetscOptionsHasName ( PETSC_NULL, "-mcfsavevol",  &saveVolumeOutput );
    PetscOptionsHasName ( PETSC_NULL, "-mcfsavevoltrans",  &saveTransportedVolumeOutput );
 
@@ -427,6 +433,11 @@ void MultiComponentFlowHandler::initialise () {
 
    if ( saveCapillaryEntryPressureOutput ) {
       m_saveCapillaryEntryPressure = true;
+   }
+
+
+   if ( saveEntryPressureAtInvasionOutput ) {
+      m_saveEntryPressureAtInvasion = true;
    }
 
    if ( saveVolumeOutput ) {

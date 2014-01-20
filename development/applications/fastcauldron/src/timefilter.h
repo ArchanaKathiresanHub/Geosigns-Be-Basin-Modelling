@@ -124,6 +124,10 @@ enum PropertyList {
    //Capillary entry pressure
    CAPILLARY_ENTRY_PRESSURE,
 
+   // Invasion capillary entry pressure
+   // A test for the constant interfacial tension.
+   INVASION_CAPILLARY_ENTRY_PRESSURE,
+
    //fluid properties such as GOR, COR, API,
    FLUID_PROPERTIES,
    //brine density and viscosity
@@ -361,6 +365,7 @@ const string PropertyName[] = {
   "AverageSaturations",
   "CapillaryPressures",
   "CapillaryEntryPressures",
+  "InvasionCapillaryEntryPressure",
   "FluidProperties",
   "BrineProperties",
   "HcFluidVelocity",

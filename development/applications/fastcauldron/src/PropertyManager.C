@@ -185,6 +185,14 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "HcVapourBrineCapillaryPressure" ] = "HcVapourBrineCapillaryPressure";
    m_propertyName2OutputName [ "HcLiquidBrineCapillaryEntryPressure" ] = "HcLiquidBrineCapillaryEntryPressure";
    m_propertyName2OutputName [ "HcVapourBrineCapillaryEntryPressure" ] = "HcVapourBrineCapillaryEntryPressure";
+
+   m_propertyName2OutputName [ "InvasionVapourCapillaryEntryPressureCift" ] = "InvasionVapourCapillaryEntryPressureCift";
+   m_propertyName2OutputName [ "InvasionLiquidCapillaryEntryPressureCift" ] = "InvasionLiquidCapillaryEntryPressureCift";
+
+   m_propertyName2OutputName [ "InvasionVapourCapillaryEntryPressure" ] = "InvasionVapourCapillaryEntryPressure";
+   m_propertyName2OutputName [ "InvasionLiquidCapillaryEntryPressure" ] = "InvasionLiquidCapillaryEntryPressure";
+
+
    m_propertyName2OutputName [ "GOR" ] = "GOR";
    m_propertyName2OutputName [ "CGR" ] = "CGR";
    m_propertyName2OutputName [ "OilAPI" ] = "OilAPI";

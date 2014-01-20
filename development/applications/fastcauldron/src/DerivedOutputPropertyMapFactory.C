@@ -45,6 +45,7 @@
 
 #include "CapillaryPressureCalculator.h"
 #include "CapillaryEntryPressureCalculator.h"
+#include "InvasionCapillaryEntryPressureCalculator.h"
 #include "FluidPropertyCalculator.h"
 #include "BrineProperties.h"
 #include "TimeOfElementInvasionCalculator.h"
@@ -632,6 +633,11 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_propertyAllocator = allocateCapillaryEntryPressureVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ CAPILLARY_ENTRY_PRESSURE  ] = volumeTraits;
+
+   //Invasion capillary entry pressure
+   volumeTraits.m_propertyAllocator = allocateInvasionCapillaryEntryPressureVolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap [ INVASION_CAPILLARY_ENTRY_PRESSURE  ] = volumeTraits;
 
  //Fluid properties such as GOR, CGR, API
    // mapTraits.m_propertyAllocator = allocateFluidPropertyCalculator;

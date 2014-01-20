@@ -57,6 +57,7 @@ add_executable(fastcauldron
 	src/history.C
 	src/HydraulicFracturingManager.C
 	src/ImmobileSpeciesValues.C
+	src/InvasionCapillaryEntryPressureCalculator.C
 	src/layer.C
 	src/layer_iterators.C
 	src/LinearPropertyInterpolator.C
@@ -206,7 +207,7 @@ install(TARGETS fastcauldron
 	RUNTIME DESTINATION bin
 )
 
-include_directories ( src )
+include_directories ( src ${EIGEN_INCLUDE_DIRS} )
 add_executable( interpolationTest
 	test/InterpolationTest.C )
 
