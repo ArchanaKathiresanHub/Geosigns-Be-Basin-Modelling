@@ -354,7 +354,12 @@ void PressureSolver::assembleSystem ( const double  previousTime,
   MatStencil  a_diag[1];
   PetscScalar OneDiagonal[1] = {1.0};
 
+#ifdef USE_EIGEN  
+  Matrix8x8     Element_Jacobian;
+#else
   ElementMatrix Element_Jacobian;
+#endif
+
   ElementVector Element_Residual;
 
   ElementVector Element_Old_Po;
@@ -514,8 +519,12 @@ void PressureSolver::assembleSystem ( const double  previousTime,
           Degenerate_Segments = 0;
 
           Element_Residual.zero ();
-          Element_Jacobian.zero ();
 
+#ifndef USE_EIGEN
+          Element_Jacobian.zero ();
+#else
+          Element_Jacobian.setZero ();
+#endif
           if ( cauldron->mapElementList [ Element_Index ].exists ) {
             I_Position = cauldron->mapElementList [ Element_Index ].i [ 0 ];
             J_Position = cauldron->mapElementList [ Element_Index ].j [ 0 ];
@@ -776,8 +785,12 @@ void PressureSolver::assembleSystem ( const double  previousTime,
 
             PetscTime(&Element_End_Time);
             elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
-            MatSetValuesStencil( Jacobian, 8, row, 8, col, Element_Jacobian.C_Array (), ADD_VALUES);
 
+#ifdef USE_EIGEN
+            MatSetValuesStencil( Jacobian, 8, row, 8, col, Element_Jacobian.data(), ADD_VALUES);
+#else
+            MatSetValuesStencil( Jacobian, 8, row, 8, col, Element_Jacobian.C_Array (), ADD_VALUES);
+#endif
             for (Inode = 0; Inode<8; Inode++) {
               int irow = row[Inode].i;
               int jrow = row[Inode].j;

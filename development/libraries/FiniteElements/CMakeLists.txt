@@ -15,6 +15,7 @@ add_library(FiniteElements
 	src/BasisFunctionCache.C 
 	src/FiniteElement.C
 	src/FiniteElementTypes.C
+	src/Matrix8x8.C
 )
 
 include_directories (${EIGEN_INCLUDE_DIRS})

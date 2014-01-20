@@ -26,6 +26,10 @@
 
 //------------------------------------------------------------//
 
+#include "Matrix8x8.h"
+
+//------------------------------------------------------------//
+
 using namespace GeoPhysics;
 using namespace FiniteElementMethod;
 
