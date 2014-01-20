@@ -121,6 +121,7 @@ bool CapillaryEntryPressureVolumeCalculator::operator ()( const OutputPropertyMa
    double criticalTemperature;
    double lwcep;
    double vwcep;
+   bool   elementContainsHydrocarbon;
  
    //get liquid phase pc
    liquidWaterCapEntryPressureMap = propertyValues[0]->getGridMap ();
@@ -206,23 +207,28 @@ bool CapillaryEntryPressureVolumeCalculator::operator ()( const OutputPropertyMa
                      elementComposition = concentrations ( k, j, i );
                      elementComposition *= molarMasses;
 
+                     elementContainsHydrocarbon = elementComposition.sum () > HcConcentrationLowerLimit;
+
                      ves = computeProperty ( element, Basin_Modelling::VES_FP );
                      maxVes = computeProperty ( element, Basin_Modelling::Max_VES );
 
                      element.getLithology()->getPorosity ( ves, maxVes, false, 0.0, porosity );
                      element.getLithology()->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityNormal, permeabilityPlane );
 
-                     // The critical temperature is not used as yet, because it is not always possible to compute it.
-                     // This will be required to compute the interfacial tension. At the monent there are some default 
-                     // values assigned to this for each of the phases.
-#if 0
-                     brinePressure = computeProperty ( element, Basin_Modelling::Pore_Pressure );
-                     temperature = computeProperty ( element, Basin_Modelling::Temperature );
-                     brineDensity = m_formation->fluid->density ( temperature, brinePressure );
+                     if ( elementContainsHydrocarbon ) {
+                        brinePressure = computeProperty ( element, Basin_Modelling::Pore_Pressure );
+                        temperature = computeProperty ( element, Basin_Modelling::Temperature );
+                        brineDensity = m_formation->fluid->density ( temperature, brinePressure );
 
-                     criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementComposition );
+                        criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementComposition );
+                     } else {
+                        brinePressure = CAULDRONIBSNULLVALUE;
+                        temperature = CAULDRONIBSNULLVALUE;
+                        brineDensity = CAULDRONIBSNULLVALUE;
+                        criticalTemperature = CAULDRONIBSNULLVALUE;
+                     }
 
-                     if ( pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ) != CAULDRONIBSNULLVALUE ) {
+                     if ( elementContainsHydrocarbon and pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ) != CAULDRONIBSNULLVALUE ) {
                         lwcep = element.getLithology()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
                                                                                  temperature,
                                                                                  permeabilityNormal,
@@ -230,10 +236,15 @@ bool CapillaryEntryPressureVolumeCalculator::operator ()( const OutputPropertyMa
                                                                                  pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ),
                                                                                  criticalTemperature );
                      } else {
-                        lwcep = 0.0;
+                        lwcep = element.getLithology()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
+                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 permeabilityNormal,
+                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 CAULDRONIBSNULLVALUE );
                      }
 
-                     if ( pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ) != CAULDRONIBSNULLVALUE ) {
+                     if ( elementContainsHydrocarbon and pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ) != CAULDRONIBSNULLVALUE ) {
                         vwcep = element.getLithology()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
                                                                                  temperature,
                                                                                  permeabilityNormal,
@@ -241,24 +252,13 @@ bool CapillaryEntryPressureVolumeCalculator::operator ()( const OutputPropertyMa
                                                                                  pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ),
                                                                                  criticalTemperature );
                      } else {
-                        vwcep = 0.0;
+                        vwcep = element.getLithology()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
+                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 permeabilityNormal,
+                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 CAULDRONIBSNULLVALUE );
                      }
-#endif
-
-                     lwcep = element.getLithology()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
-                                                                              CAULDRONIBSNULLVALUE,
-                                                                              permeabilityNormal,
-                                                                              CAULDRONIBSNULLVALUE,
-                                                                              CAULDRONIBSNULLVALUE,
-                                                                              CAULDRONIBSNULLVALUE );
-
-                     vwcep = element.getLithology()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
-                                                                              CAULDRONIBSNULLVALUE,
-                                                                              permeabilityNormal,
-                                                                              CAULDRONIBSNULLVALUE,
-                                                                              CAULDRONIBSNULLVALUE,
-                                                                              CAULDRONIBSNULLVALUE );
-
 
                   }
 

@@ -1660,20 +1660,41 @@ void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid
                         entryPressureBeforeInvastion ( k, j, i )( pvtFlash::VAPOUR_PHASE ) = pceVapourCift;
                         entryPressureBeforeInvastion ( k, j, i )( pvtFlash::LIQUID_PHASE ) = pceLiquidCift;
 
-                        // Compute capillary entry pressure with ift using critical temperature.
-                        pceVapour = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
-                                                                                                         elementTemperature,
-                                                                                                         permeabilityNormal,
-                                                                                                         brineDensity,
-                                                                                                         vapourDensity,
-                                                                                                         criticalTemperature );
+                        if ( vapourDensity == 1000.0 ) {
+                           // Compute capillary entry pressure with constant ift.
+                           pceVapour = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
+                                                                                                            CAULDRONIBSNULLVALUE,
+                                                                                                            permeabilityNormal,
+                                                                                                            CAULDRONIBSNULLVALUE,
+                                                                                                            CAULDRONIBSNULLVALUE,
+                                                                                                            CAULDRONIBSNULLVALUE );
+                        } else {
+                           // Compute capillary entry pressure with ift using critical temperature.
+                           pceVapour = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::VAPOUR_PHASE,
+                                                                                                            elementTemperature,
+                                                                                                            permeabilityNormal,
+                                                                                                            brineDensity,
+                                                                                                            vapourDensity,
+                                                                                                            criticalTemperature );
+                        }
 
-                        pceLiquid = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
-                                                                                                         elementTemperature,
-                                                                                                         permeabilityNormal,
-                                                                                                         brineDensity,
-                                                                                                         liquidDensity,
-                                                                                                         criticalTemperature );
+                        if ( liquidDensity == 1000.0 ) {
+                           // Compute capillary entry pressure with constant ift.
+                           pceLiquid = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
+                                                                                                            CAULDRONIBSNULLVALUE,
+                                                                                                            permeabilityNormal,
+                                                                                                            CAULDRONIBSNULLVALUE,
+                                                                                                            CAULDRONIBSNULLVALUE,
+                                                                                                            CAULDRONIBSNULLVALUE );
+                        } else {
+                           // Compute capillary entry pressure with ift using critical temperature.
+                           pceLiquid = element.getLayerElement ().getLithology ()->capillaryEntryPressure ( pvtFlash::LIQUID_PHASE,
+                                                                                                            elementTemperature,
+                                                                                                            permeabilityNormal,
+                                                                                                            brineDensity,
+                                                                                                            liquidDensity,
+                                                                                                            criticalTemperature );
+                        }
 
                         entryPressureAfterInvastion ( k, j, i )( pvtFlash::VAPOUR_PHASE ) = pceVapour;
                         entryPressureAfterInvastion ( k, j, i )( pvtFlash::LIQUID_PHASE ) = pceLiquid;
