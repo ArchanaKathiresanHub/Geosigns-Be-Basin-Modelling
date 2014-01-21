@@ -142,6 +142,13 @@ namespace DataAccess
          virtual PcKrModel getPcKrModel () const;
 	 
 
+         /// Return the residual hc saturation, Sor.
+         virtual double getResidualHcSaturation () const;
+
+         /// Return the irreducible water saturation, Swi.
+         virtual double getIrreducibleWaterSaturation () const;
+
+
          /// Return the specific surface area.
          virtual double getSpecificSurfArea () const;
 

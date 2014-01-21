@@ -237,10 +237,19 @@ double  LithoType::getWaterCapPresExponent () const
    return database::getLambdaKrWater ( m_record ); 
 }
 
-double  LithoType::getHcCapPresExponent () const
+double LithoType::getHcCapPresExponent () const
 {
    return database::getLambdaKr ( m_record ); 
 }
+
+double LithoType::getResidualHcSaturation () const {
+   return database::getSor ( m_record );
+}
+
+double LithoType::getIrreducibleWaterSaturation () const {
+   return database::getSwi ( m_record );
+}
+
 
 double LithoType::getSpecificSurfArea () const {
    return database::getSpecSurfArea ( m_record );

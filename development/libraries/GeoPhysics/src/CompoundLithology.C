@@ -1844,6 +1844,8 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    m_hcRelPermExponent = 0.0;
    m_waterCapPresExponent = 0.0;
    m_hcCapPresExponent = 0.0;
+   m_residualHcSaturation = 0.0;
+   m_irreducibleWaterSaturation = 0.0;
 
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
@@ -1854,6 +1856,10 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
 
    m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
    m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
+
+   m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
+   m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
+
 
    //get pckrmodel
    //?? is the PcKrModel different for different lithology ? 
@@ -1874,6 +1880,9 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
          m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
          m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
 
+         m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
+         m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
+
          percent = (double)(*percentIter)/100;
       }
       else if(percent == ((double)(*percentIter)/100))
@@ -1890,14 +1899,22 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
             m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent ();
          }
 
-         if((*componentIter)->getWaterRelPermExponent() <  m_waterRelPermExponent)
+         if((*componentIter)->getWaterRelPermExponent() < m_waterRelPermExponent)
          {
             m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
          }
 
-         if((*componentIter)->getHcRelPermExponent() <  m_hcRelPermExponent)
+         if((*componentIter)->getHcRelPermExponent() < m_hcRelPermExponent)
          {
             m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
+         }
+
+         if ( m_residualHcSaturation > (*componentIter)->getResidualHcSaturation ()) {
+            m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
+         }
+
+         if ( m_irreducibleWaterSaturation > (*componentIter)->getIrreducibleWaterSaturation ()) {
+            m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
          }
 
       }
@@ -1914,6 +1931,14 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    // If the water relative permeability exponent is the scalar null value (-9999) then use the hc relative permeability exponent.
    if ( m_waterRelPermExponent == Interface::DefaultUndefinedScalarValue ) {
       m_waterRelPermExponent = m_hcRelPermExponent;
+   }
+
+   if ( m_residualHcSaturation == Interface::DefaultUndefinedScalarValue ) {
+      m_residualHcSaturation = ResidualHcSaturation;
+   }
+
+   if ( m_irreducibleWaterSaturation == Interface::DefaultUndefinedScalarValue ) {
+      m_irreducibleWaterSaturation = IrreducibleWaterSaturation;
    }
 
 }

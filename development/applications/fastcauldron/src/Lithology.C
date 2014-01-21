@@ -93,7 +93,10 @@ double Lithology::brooksAndCoreyRelativePermeability ( const Saturation::Phase p
          // 1.0 here because we would like the brine-pressure solver to run normally.
          return 1.0;
       } else {
-         return BrooksCorey::krw ( saturation ( Saturation::WATER ), getWaterRelPermExponent ()); // water relative permeability
+         return BrooksCorey::krw ( saturation ( Saturation::WATER ),
+                                   getWaterRelPermExponent (),
+                                   getIrreducibleWaterSaturation (),
+                                   getResidualHcSaturation ()); // water relative permeability
       }
 
    } else if ( phase == Saturation::LIQUID || phase == Saturation::VAPOUR ) {
@@ -106,12 +109,15 @@ double Lithology::brooksAndCoreyRelativePermeability ( const Saturation::Phase p
          // NOTE Sir (irreducible water) = 0.1 is fixed;
 
 #if 1
-         return BrooksCorey::kro ( saturation ( Saturation::WATER ), getHcRelPermExponent ()); // Liquid and Vapour relative permeability
+         return BrooksCorey::kro ( saturation ( Saturation::WATER ),
+                                   getHcRelPermExponent (),
+                                   getIrreducibleWaterSaturation (),
+                                   getResidualHcSaturation ()); // Liquid and Vapour hydrocarbon relative permeability
 #else
          if ( saturation ( phase ) < BrooksCorey::IrreducibleHcSaturation ) {
             return 0.0;
          } else {
-            return BrooksCorey::kro ( saturation ( Saturation::WATER ), getHcRelPermExponent ()); // Liquid and Vapour relative permeability
+            return BrooksCorey::kro ( saturation ( Saturation::WATER ), getHcRelPermExponent ()); // Liquid and Vapour hydrocarbon relative permeability
          }
 #endif
 
@@ -244,7 +250,10 @@ double Lithology::brooksAndCoreyCapillaryPressure ( const pvtFlash::PVTPhase pha
       // What should the correct values be here?
       return pce;
    } else {
-      return BrooksCorey::computeCapillaryPressure ( saturation ( Saturation::WATER ), getHcCapPresExponent (), pce );//, getIrreducibleWaterSaturation ());
+      return BrooksCorey::computeCapillaryPressure ( saturation ( Saturation::WATER ),
+                                                     getHcCapPresExponent (),
+                                                     getIrreducibleWaterSaturation (),
+                                                     pce );
    }
 
 }
@@ -305,7 +314,7 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
       // What should the correct values be here?
       return capillaryEntryPressure;
    } else {
-      return BrooksCorey::computeCapillaryPressure ( saturation ( wettingPhase ), lambdaPc(), capillaryEntryPressure );
+      return BrooksCorey::computeCapillaryPressure ( saturation ( wettingPhase ), lambdaPc (), getIrrdicubleWaterSaturation (), capillaryEntryPressure );
    }
 
 }

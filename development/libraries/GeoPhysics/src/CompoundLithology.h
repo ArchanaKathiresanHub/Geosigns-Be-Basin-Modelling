@@ -97,6 +97,14 @@ namespace GeoPhysics {
 
       /// Return exponent for Brooks and Corey capillary pressure function for hyrdocarbon.
       double getHcCapPresExponent () const;
+
+
+      /// Return the residual hc saturation, Sor.
+      double getResidualHcSaturation () const;
+
+      /// Return the irreducible water saturation, Swi.
+      double getIrreducibleWaterSaturation () const;
+
       
       /// Return the geometric variance of the grain size distribution
       double geometricVariance () const;
@@ -456,6 +464,11 @@ namespace GeoPhysics {
       double           m_waterCapPresExponent;
       double           m_hcCapPresExponent;
 
+      double           m_residualHcSaturation;
+      double           m_irreducibleWaterSaturation;
+
+
+
       // These are mutable because the compute function in the interpolator is not const.
       mutable ibs::Interpolator     m_thermcondntbl;
       mutable ibs::Interpolator     m_thermcondptbl;
@@ -595,6 +608,14 @@ inline double GeoPhysics::CompoundLithology::getWaterCapPresExponent () const {
 
 inline double GeoPhysics::CompoundLithology::getHcCapPresExponent () const {
   return m_hcCapPresExponent;
+}
+
+inline double GeoPhysics::CompoundLithology::getResidualHcSaturation () const {
+   return m_residualHcSaturation;
+}
+
+inline double GeoPhysics::CompoundLithology::getIrreducibleWaterSaturation () const {
+   return m_irreducibleWaterSaturation;
 }
 
 

@@ -2590,7 +2590,7 @@ void ExplicitMultiComponentFlowSolver::estimateHcTransport ( FormationSubdomainE
 
             unsigned int elementK = element.getK ();
 
-               if ( layerElement.isActive ()) {
+            if ( layerElement.isActive ()) {
 
                if ( m_useSaturationEstimate ) {
                   estimateSaturation ( element,
@@ -2598,7 +2598,8 @@ void ExplicitMultiComponentFlowSolver::estimateHcTransport ( FormationSubdomainE
                                        elementContainsHc ( element.getI (), element.getJ (), element.getK ()),
                                        estimatedSaturation );
 
-                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = estimatedSaturation > m_residualHcSaturationScaling * BrooksCorey::IrreducibleHcSaturation;
+                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = estimatedSaturation > m_residualHcSaturationScaling * 
+                                                                                             layerElement.getLithology ()->getResidualHcSaturation ();
                } else {
                   elementContainsHc   ( element.getI (), element.getJ (), element.getK ()) = concentrations ( k, j, i ).sum () > HcConcentrationLowerLimit;
                   elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = elementContainsHc ( element.getI (), element.getJ (), element.getK ());

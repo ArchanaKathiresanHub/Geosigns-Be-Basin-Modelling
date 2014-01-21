@@ -151,6 +151,16 @@ namespace GeoPhysics {
 
    //------------------------------------------------------------//
 
+   /// \var IrreducibleWaterSaturation
+   /// irreducible water saturaiton -- connnate water saturation -- Swi
+   const double IrreducibleWaterSaturation = 0.1;
+
+   /// \var IrreducibleHcSaturation
+   /// residual oil saturation -- Sor
+   const double ResidualHcSaturation = 0.3;
+
+   //------------------------------------------------------------//
+
    /// \var OneDHiatusLithologyName
    /// Name of the lithology that is to be used in a formation that has not lithologies defined.
    ///

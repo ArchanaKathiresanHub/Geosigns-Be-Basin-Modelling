@@ -2,6 +2,7 @@
 #define BROOKS_COREY_H
 
 #include <assert.h>
+#include "GeoPhysicalConstants.h"
 
 
 class BrooksCorey
@@ -9,20 +10,27 @@ class BrooksCorey
 public:
 
    //the following is assumed to be fixed at the moment
-   static const double IrreducibleWaterSaturation = 0.1; // connnate saturation -- irreducible water saturaiton -- Sir
-   static const double CapillaryEntryPressure = 1000000; // entry pressure = 1 MPa
-   static const double IrreducibleHcSaturation = 0.3;    // residual oil saturation -- Sor
 
-   static const double Krwor = 1.0; // end point relative permeability of Brine
-   static const double Krocw = 1.0; // end point relative permeability of HC
+   // connnate saturation -- irreducible water saturaiton -- Sir
+   static const double IrreducibleWaterSaturation = GeoPhysics::IrreducibleWaterSaturation;
+
+   // entry pressure = 1 MPa
+   static const double CapillaryEntryPressure = 1000000;
+
+   // residual oil saturation -- Sor
+   static const double ResidualHcSaturation = GeoPhysics::ResidualHcSaturation;
+
+   // end point relative permeability of Brine
+   static const double Krwor = 1.0;
+
+   // end point relative permeability of HC
+   static const double Krocw = 1.0;
 
    static const double Adjustment = 1.0e-4;
 
-   BrooksCorey() {}
 
-   static double getSor () {
-      return IrreducibleHcSaturation;
-   }
+
+   BrooksCorey() {}
 
    /// \brief The capillary entry pressure.
    ///
@@ -42,8 +50,8 @@ public:
    // Params: wetting saturation, connate/irreducible saturation, entry pressure, lambda (exponent)
    static double computeCapillaryPressure ( const double Sw,
                                             const double lambda,
-                                            const double pce = CapillaryEntryPressure,
-                                            const double sir = IrreducibleWaterSaturation )
+                                            const double sir = IrreducibleWaterSaturation,
+                                            const double pce = CapillaryEntryPressure )
    {
 
       double Sr;
@@ -69,8 +77,8 @@ public:
    //Brine relative permeability
    static double krw ( const double Sw, 
                        const double lambda,
-                       const double sir = IrreducibleWaterSaturation,
-                       const double sor = IrreducibleHcSaturation ) {
+                       const double sir,
+                       const double sor ) {
 
       double Swe;
 
@@ -90,8 +98,8 @@ public:
    //HC relative permeability as function of brine saturation
    static double kro ( const double Sw, 
                        const double lambda,
-                       const double sir = IrreducibleWaterSaturation,
-                       const double sor = IrreducibleHcSaturation ) {
+                       const double sir,
+                       const double sor ) {
 
       double Swe;
 
