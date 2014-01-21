@@ -2563,6 +2563,16 @@ START-properties
     Time dependent      : No 
     Property I/O        : No
     Default             : 1.0
+
+    Identification      : LambdaPcWater
+    Description         : Exponent in Brooks-Corey constitutive relation
+                          for capillary pressure
+    Unit of measurement : (unknown)
+    Type                : double 
+    Error Field         : No
+    Time dependent      : No 
+    Property I/O        : No
+    Default             : -9999
     
     Identification      : LambdaKr
     Description         : Exponent in Brooks-Corey constitutive relation
@@ -2573,6 +2583,16 @@ START-properties
     Time dependent      : No 
     Property I/O        : No
     Default             : 1.0
+
+    Identification      : LambdaKrWater
+    Description         : Exponent in Brooks-Corey constitutive relation
+                          for relative permeability
+    Unit of measurement : (unknown)
+    Type                : double 
+    Error Field         : No
+    Time dependent      : No 
+    Property I/O        : No
+    Default             : -9999
 
     Identification      : ThCondParallel
     Description         : Thermal conductivity parallel to bedding at a
@@ -10186,7 +10206,9 @@ START-property-tables
     Column         : CapC2
     Column         : PcKrModel
     Column         : LambdaPc
+    Column         : LambdaPcWater
     Column         : LambdaKr
+    Column         : LambdaKrWater
     Column         : Porosity_Model
     Column         : Compaction_Coefficient_SM
     Column         : Number_Of_Data_Points

@@ -88,17 +88,17 @@ double Lithology::brooksAndCoreyRelativePermeability ( const Saturation::Phase p
    
    if ( phase == Saturation::WATER ) {
 
-      if ( LambdaKr () == IBSNULLVALUE ) {
+      if ( getWaterRelPermExponent () == IBSNULLVALUE ) {
          // What should the correct values be here?
          // 1.0 here because we would like the brine-pressure solver to run normally.
          return 1.0;
       } else {
-         return BrooksCorey::krw ( saturation ( Saturation::WATER ), LambdaKr()); // water relative permeability
+         return BrooksCorey::krw ( saturation ( Saturation::WATER ), getWaterRelPermExponent ()); // water relative permeability
       }
 
    } else if ( phase == Saturation::LIQUID || phase == Saturation::VAPOUR ) {
 
-      if ( LambdaKr () == IBSNULLVALUE ) {
+      if ( getHcRelPermExponent () == IBSNULLVALUE ) {
          // What should the correct values be here?
          // 0.0 because we would like for there to be no transport in such lithologies (normally).
          return 0.0;
@@ -106,13 +106,12 @@ double Lithology::brooksAndCoreyRelativePermeability ( const Saturation::Phase p
          // NOTE Sir (irreducible water) = 0.1 is fixed;
 
 #if 1
-         return BrooksCorey::kro ( saturation ( Saturation::WATER ), LambdaKr()); // Liquid and Vapour relative permeability
+         return BrooksCorey::kro ( saturation ( Saturation::WATER ), getHcRelPermExponent ()); // Liquid and Vapour relative permeability
 #else
-
-         if ( saturation ( phase ) < BrooksCorey::Sor ) {
+         if ( saturation ( phase ) < BrooksCorey::IrreducibleHcSaturation ) {
             return 0.0;
          } else {
-            return BrooksCorey::kro ( saturation ( Saturation::WATER ), LambdaKr()); // Liquid and Vapour relative permeability
+            return BrooksCorey::kro ( saturation ( Saturation::WATER ), getHcRelPermExponent ()); // Liquid and Vapour relative permeability
          }
 #endif
 
@@ -221,7 +220,7 @@ double Lithology::capillaryEntryPressure ( const pvtFlash::PVTPhase phase,
       }
 
    } else {
-      pce = BrooksCorey::Pe;
+      pce = BrooksCorey::CapillaryEntryPressure;
    }
 
    return pce;
@@ -241,11 +240,11 @@ double Lithology::brooksAndCoreyCapillaryPressure ( const pvtFlash::PVTPhase pha
 
    pce = capillaryEntryPressure ( phase, temperature, permeability, brineDensity, hcPhaseDensity, criticalTemperature );
 
-   if ( LambdaPc () == IBSNULLVALUE ) {
+   if ( getHcCapPresExponent () == IBSNULLVALUE ) {
       // What should the correct values be here?
       return pce;
    } else {
-      return BrooksCorey::pc ( saturation ( Saturation::WATER ), LambdaPc(), pce );
+      return BrooksCorey::computeCapillaryPressure ( saturation ( Saturation::WATER ), getHcCapPresExponent (), pce );//, getIrreducibleWaterSaturation ());
    }
 
 }
@@ -299,14 +298,14 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
    if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
       capillaryEntryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
    } else {
-      capillaryEntryPressure = BrooksCorey::Pe;
+      capillaryEntryPressure = BrooksCorey::CapillaryEntryPressure;
    }
 
-   if ( LambdaPc () == IBSNULLVALUE ) {
+   if ( lambdaPc () == IBSNULLVALUE ) {
       // What should the correct values be here?
       return capillaryEntryPressure;
    } else {
-      return BrooksCorey::pc ( saturation ( wettingPhase ), LambdaPc(), capillaryEntryPressure );
+      return BrooksCorey::computeCapillaryPressure ( saturation ( wettingPhase ), lambdaPc(), capillaryEntryPressure );
    }
 
 }

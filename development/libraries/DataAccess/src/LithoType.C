@@ -222,12 +222,22 @@ PcKrModel  LithoType::getPcKrModel () const
    return m_pcKrModel;
 }
 
-double  LithoType::getExponentLambdaPc () const
+double  LithoType::getWaterRelPermExponent () const
+{
+   return database::getLambdaPcWater ( m_record );
+}
+
+double  LithoType::getHcRelPermExponent () const
 {
    return database::getLambdaPc ( m_record );
 }
 
-double  LithoType::getExponentLambdaKr () const
+double  LithoType::getWaterCapPresExponent () const
+{
+   return database::getLambdaKrWater ( m_record ); 
+}
+
+double  LithoType::getHcCapPresExponent () const
 {
    return database::getLambdaKr ( m_record ); 
 }

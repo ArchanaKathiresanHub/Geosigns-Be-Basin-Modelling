@@ -200,8 +200,8 @@ bool CapillaryEntryPressureVolumeCalculator::operator ()( const OutputPropertyMa
 
                   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
 
-                     lwcep = BrooksCorey::Pe;                     
-                     vwcep = BrooksCorey::Pe;
+                     lwcep = BrooksCorey::CapillaryEntryPressure;                     
+                     vwcep = BrooksCorey::CapillaryEntryPressure;
 
                   } else {
                      elementComposition = concentrations ( k, j, i );

@@ -1840,14 +1840,21 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    //Maximum percentage is considered
    //TODO: what when equal percentage (50 - 50)?
    
-   m_LambdaPc = m_LambdaKr=0;
-   
+   m_waterRelPermExponent = 0.0;
+   m_hcRelPermExponent = 0.0;
+   m_waterCapPresExponent = 0.0;
+   m_hcCapPresExponent = 0.0;
+
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
    
    double percent = (double)(*percentIter)/100;
-   m_LambdaPc = (*componentIter)->getLambdaPc();
-   m_LambdaKr = (*componentIter)->getLambdaKr();
+   m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent();
+   m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent();
+
+   m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
+   m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
+
    //get pckrmodel
    //?? is the PcKrModel different for different lithology ? 
    m_pcKrModel = (*componentIter)->getPcKrModel();
@@ -1861,22 +1868,36 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       if(percent < ((double)(*percentIter)/100))
       {
          // Use exponents from the simple lithology with the maximum fraction.
-         m_LambdaPc = (*componentIter)->getLambdaPc();
-         m_LambdaKr = (*componentIter)->getLambdaKr();
+         m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent();
+         m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent();
+
+         m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
+         m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
+
          percent = (double)(*percentIter)/100;
       }
       else if(percent == ((double)(*percentIter)/100))
       {
          // if percentage are equal, find smaller exponent
 
-         if((*componentIter)->getLambdaPc() < m_LambdaPc)
+         if((*componentIter)->getWaterCapPresExponent() < m_waterCapPresExponent)
          {
-            m_LambdaPc = (*componentIter)->getLambdaPc();
+            m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent ();
          }
 
-         if((*componentIter)->getLambdaKr() <  m_LambdaKr)
+         if((*componentIter)->getHcCapPresExponent() < m_hcCapPresExponent)
          {
-            m_LambdaKr = (*componentIter)->getLambdaKr();
+            m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent ();
+         }
+
+         if((*componentIter)->getWaterRelPermExponent() <  m_waterRelPermExponent)
+         {
+            m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
+         }
+
+         if((*componentIter)->getHcRelPermExponent() <  m_hcRelPermExponent)
+         {
+            m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
          }
 
       }
@@ -1884,6 +1905,17 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       ++componentIter;
       ++percentIter;
    }
+
+   // If the water capillary pressure exponent is the scalar null value (-9999) then use the hc capillary pressure exponent.
+   if ( m_waterCapPresExponent == Interface::DefaultUndefinedScalarValue ) {
+      m_waterCapPresExponent = m_hcCapPresExponent;
+   }
+
+   // If the water relative permeability exponent is the scalar null value (-9999) then use the hc relative permeability exponent.
+   if ( m_waterRelPermExponent == Interface::DefaultUndefinedScalarValue ) {
+      m_waterRelPermExponent = m_hcRelPermExponent;
+   }
+
 }
 
 //------------------------------------------------------------//

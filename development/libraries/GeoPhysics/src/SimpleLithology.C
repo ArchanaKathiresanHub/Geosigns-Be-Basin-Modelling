@@ -49,8 +49,6 @@ GeoPhysics::SimpleLithology::SimpleLithology ( Interface::ProjectHandle * projec
    //for Brooks-Corey capillary pressure function
    
    m_PcKrModel= Interface::LithoType::getPcKrModel();
-   m_LambdaPc= Interface::LithoType::getExponentLambdaPc();
-   m_LambdaKr= Interface::LithoType::getExponentLambdaKr();
 
    m_depoporosity = this->getSurfacePorosity () / 100.0;
    m_depositionVoidRatio = m_depoporosity / ( 1.0 - m_depoporosity );

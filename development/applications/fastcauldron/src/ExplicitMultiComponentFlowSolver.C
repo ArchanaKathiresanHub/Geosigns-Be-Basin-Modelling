@@ -2598,7 +2598,7 @@ void ExplicitMultiComponentFlowSolver::estimateHcTransport ( FormationSubdomainE
                                        elementContainsHc ( element.getI (), element.getJ (), element.getK ()),
                                        estimatedSaturation );
 
-                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = estimatedSaturation > m_residualHcSaturationScaling * BrooksCorey::Sor;
+                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = estimatedSaturation > m_residualHcSaturationScaling * BrooksCorey::IrreducibleHcSaturation;
                } else {
                   elementContainsHc   ( element.getI (), element.getJ (), element.getK ()) = concentrations ( k, j, i ).sum () > HcConcentrationLowerLimit;
                   elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = elementContainsHc ( element.getI (), element.getJ (), element.getK ());

@@ -84,8 +84,19 @@ namespace GeoPhysics {
 
       /// Return the Brooks-Corey parameters
       DataAccess::Interface::PcKrModel getPcKrModel() const;
-      double LambdaPc() const;
-      double LambdaKr() const;
+
+
+      /// Return exponent for Brooks and Corey relative permeability function for water.
+      double getWaterRelPermExponent () const;
+
+      /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon.
+      double getHcRelPermExponent () const;
+
+      /// Return exponent for Brooks and Corey capillary pressure function for water.
+      double getWaterCapPresExponent () const;
+
+      /// Return exponent for Brooks and Corey capillary pressure function for hyrdocarbon.
+      double getHcCapPresExponent () const;
       
       /// Return the geometric variance of the grain size distribution
       double geometricVariance () const;
@@ -439,8 +450,11 @@ namespace GeoPhysics {
       double           m_tenPowerCapC2;
       //Brooks-Corey
       DataAccess::Interface::PcKrModel m_pcKrModel;
-      double           m_LambdaKr;
-      double           m_LambdaPc;
+
+      double           m_waterRelPermExponent;
+      double           m_hcRelPermExponent;
+      double           m_waterCapPresExponent;
+      double           m_hcCapPresExponent;
 
       // These are mutable because the compute function in the interpolator is not const.
       mutable ibs::Interpolator     m_thermcondntbl;
@@ -567,12 +581,20 @@ inline DataAccess::Interface::PcKrModel GeoPhysics::CompoundLithology::getPcKrMo
    return m_pcKrModel;
 }
 
-inline double GeoPhysics::CompoundLithology::LambdaPc () const {
-  return m_LambdaPc;
+inline double GeoPhysics::CompoundLithology::getWaterRelPermExponent () const {
+  return m_waterRelPermExponent;
 }
 
-inline double GeoPhysics::CompoundLithology::LambdaKr () const {
-   return m_LambdaKr;
+inline double GeoPhysics::CompoundLithology::getHcRelPermExponent () const {
+  return m_hcRelPermExponent;
+}
+
+inline double GeoPhysics::CompoundLithology::getWaterCapPresExponent () const {
+  return m_waterCapPresExponent;
+}
+
+inline double GeoPhysics::CompoundLithology::getHcCapPresExponent () const {
+  return m_hcCapPresExponent;
 }
 
 
