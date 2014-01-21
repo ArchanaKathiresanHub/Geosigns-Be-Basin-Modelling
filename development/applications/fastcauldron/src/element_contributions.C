@@ -18,7 +18,6 @@
 #include "BasisFunction.h"
 #include "NumericFunctions.h"
 #include "Matrix8x8.h"
-#include "Matrix8xN.h"
 #include "MatrixSparse.h"
 
 using namespace FiniteElementMethod;
@@ -1616,8 +1615,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
 
    MatrixSparse matB ( NumberOfPoints, 1 ); // matrix 3N x N
    MatrixSparse matA ( NumberOfPoints, 3 ); // matrix 3N x 3N
-   Matrix8xN matP ( NumberOfPoints );       // matrix 8 x N
-   Matrix8xN matG ( NumberOfPoints * 3 );   // matrix 8 x 3N
    Eigen::VectorXd matC( NumberOfPoints );  // diagonal matrix N
  
    Eigen::Matrix3d eigenJacobian; 
@@ -1904,21 +1901,15 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
                   matA( abij + li, abij + lj ) = matAij( li, lj );
                }
             }
-            for ( int li = 0; li < 8; ++ li ) {
-               matP ( li,  cij ) = Basis ( li + 1 );
-
-               for ( int lj = 0; lj < 3; ++ lj ) {
-                  matG( li, abij + lj ) = gradBasis( li + 1, lj + 1 );
-               }
-            }
          }
       } 
    }
    matB.makeCompressed();
+
    
-   Element_Jacobian += matP * matC.asDiagonal() * matP.transpose();
-   Element_Jacobian += matG * matB * matP.transpose();
-   Element_Jacobian += matG * matA * matG.transpose();
+   Element_Jacobian += basisFunctions.getBasisFunctions() * matC.asDiagonal() * basisFunctions.getBasisFunctions().transpose();
+   Element_Jacobian += basisFunctions.getGradBasisFunctions() * matB *  basisFunctions.getBasisFunctions().transpose();
+   Element_Jacobian += basisFunctions.getGradBasisFunctions() * matA * basisFunctions.getGradBasisFunctions().transpose();
    
    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
                                                 Current_Po, Element_Jacobian, Element_Residual );
