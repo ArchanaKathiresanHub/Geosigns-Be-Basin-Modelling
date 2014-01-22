@@ -224,22 +224,22 @@ PcKrModel  LithoType::getPcKrModel () const
 
 double  LithoType::getWaterRelPermExponent () const
 {
-   return database::getLambdaPcWater ( m_record );
+   return database::getLambdaKrWater ( m_record );
 }
 
 double  LithoType::getHcRelPermExponent () const
 {
-   return database::getLambdaPc ( m_record );
+   return database::getLambdaKr ( m_record );
 }
 
 double  LithoType::getWaterCapPresExponent () const
 {
-   return database::getLambdaKrWater ( m_record ); 
+   return database::getLambdaPcWater ( m_record ); 
 }
 
 double LithoType::getHcCapPresExponent () const
 {
-   return database::getLambdaKr ( m_record ); 
+   return database::getLambdaPc ( m_record ); 
 }
 
 double LithoType::getResidualHcSaturation () const {
