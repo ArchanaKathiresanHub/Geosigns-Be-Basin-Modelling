@@ -39,6 +39,8 @@ include(FeatureSummary)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
 option( BM_PARALLEL "Build the parallel cauldron applications" ${UNIX} )
 option( BM_USE_OWN_MPICH_LOCK "Use our custom ADIOI_Set_lock functions in MPI library (Linux only)" OFF )
+option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
+option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
@@ -161,8 +163,16 @@ if (UNIX)
    find_package(PETSC REQUIRED CONFIG)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(Touchstone REQUIRED CONFIG)
-   find_package(Qt3 REQUIRED CONFIG)
    find_package(Boost REQUIRED CONFIG)
+   
+   if (BM_BUILD_QT3_APPS)
+      find_package(Qt3 REQUIRED CONFIG)
+   endif()
+
+   if (BM_BUILD_PARAVIEW_PLUGIN)
+      find_package(ParaView REQUIRED CONFIG)
+      include(${PARAVIEW_USE_FILE})
+   endif()
 endif(UNIX)
 
 if(BM_BUILD_DOCS)
@@ -211,7 +221,6 @@ configure_file(MoveInstalls${script_suffix}.cmake MoveInstalls${script_suffix} @
 
 # generate environment set-up file
 include(cmake/GoCBM.cmake)
-
 
 #
 # Generate Thirdy Party Component List XML file

@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <!-- ================================================================== -->
+    <SourceProxy name="CauldronReader" class="ParaViewReader" label="CauldronReader">
+      <Documentation
+         long_help="Read a Cauldron project3d file."
+         short_help="Read a Cauldron project3d file.">
+      </Documentation>
+      <StringVectorProperty
+            name="FileName"
+            animateable="0"
+            command="SetFileName"
+            number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the file name for the CauldronReader
+        </Documentation>
+      </StringVectorProperty>
+ 
+      <Hints>
+        <ReaderFactory extensions="project3d"
+                       file_description="Cauldron Project3D format" />
+     </Hints>
+    </SourceProxy>
+    <!-- End CauldronReader-->
+  </ProxyGroup>
+  <!-- End Filters Group -->
+</ServerManagerConfiguration>
