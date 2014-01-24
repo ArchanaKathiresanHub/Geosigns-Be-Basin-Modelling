@@ -10,7 +10,7 @@
 #                                                                       #
 #########################################################################
 
-if (QT_FOUND)
+if (QT_FOUND AND BM_BUILD_QT3_APPS)
 	include_directories(
 		src 
 		${CMAKE_CURRENT_BINARY_DIR} 
@@ -94,7 +94,7 @@ if (QT_FOUND)
 		RUNTIME DESTINATION bin
 	)
 
-endif(QT_FOUND)
+endif()
 
 # GEMPIS
 add_executable(pstree       src/pstree.c)
