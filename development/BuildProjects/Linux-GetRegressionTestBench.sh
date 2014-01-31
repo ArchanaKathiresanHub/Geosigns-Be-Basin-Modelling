@@ -8,7 +8,7 @@ COLLECTION=https://tfs.sede-coe.pds.nl/tfs/COE-II
 ROOTDIRECTORY=$HOME/RegressionTestBench
 
 # Creating and mapping the workspace
-if tf workspaces -collection:${COLLECTION} | grep -q ^${WORKSPACE} ; then
+if tf workspaces -collection:${COLLECTION} -computer:* | grep -q ^${WORKSPACE} ; then
     echo "- deleting existing workspace $WORKSPACE"
     tf workspace -noprompt -delete -collection:$COLLECTION $WORKSPACE
 fi
