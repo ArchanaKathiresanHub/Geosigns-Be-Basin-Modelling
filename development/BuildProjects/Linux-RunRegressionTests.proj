@@ -21,7 +21,7 @@
 	<CopyGetTestBench>$(scp_command) "$(MSBuildProjectDirectory)\Linux-GetRegressionTestBench.sh" "$(AgentAccount)@$(AgentHost):bin" </CopyGetTestBench>
 	<GetTestBench>$(ssh_command) "/bin/bash -x bin/Linux-GetRegressionTestBench.sh $(Version)"</GetTestBench>
 	<RewriteToLocalHost>$(ssh_command) "/bin/bash -x RegressionTestBench/perform_on_localhost"  </RewriteToLocalHost>
-	<PerformTests>$(ssh_command) "/bin/bash -x RegressionTestBench/fastperformtests $(Version)"  </PerformTests>
+	<PerformTests>$(ssh_command) "/bin/csh -x RegressionTestBench/fastperformtests $(Version)"  </PerformTests>
     
     <CopyBackResults>$(ssh_command) "set -e ; cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/$(AgentAccount)/RegressionTests ; find -maxdepth 2 -type f | cpio -o" | $(cpio_exe) -id </CopyBackResults>
     <RegressionTestDir>$(OutDir)/regression_tests</RegressionTestDir>
