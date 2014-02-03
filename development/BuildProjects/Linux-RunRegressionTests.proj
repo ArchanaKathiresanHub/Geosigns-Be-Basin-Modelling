@@ -48,7 +48,7 @@
     <!-- Publish results -->	  
     <Message Text="solution_root = $(solution_root)" />
     <MSBuild Projects="$(solution_root)\tests\regression_tests\bmtotrx.proj" />
-    <MSBuild Projects="$(solution_root)\tests\regression_tests\regression_tests_proxy.proj"  Properties="RegressionTestDir=$(RegressionTestDir)"/>
+    <MSBuild Projects="$(solution_root)\tests\regression_tests\regression_tests_proxy.proj"  Properties="regression_test_dir=$(RegressionTestDir)"/>
   </Target>
   
  </Project>
