@@ -34,10 +34,12 @@ public :
    /// The critical temperature is not used at present and so can be set to the IBSNULLVALUE
    double capillaryPressure ( const pvtFlash::PVTPhase phase,
                               const Saturation         saturation,
+                              const double             pressure,
                               const double             temperature,
                               const double             permeability,
                               const double             brineDensity,
-                              const double             hcPhaseDensity,
+                              // const double             hcPhaseDensity,
+                              const PVTPhaseValues&    hcPhaseDensity,
                               const double             criticalTemperature ) const;
 
    /// \brief Compute the capillary entry pressure for the phase.
@@ -51,6 +53,10 @@ public :
                                    const double             hcPhaseDensity,
                                    const double             criticalTemperature ) const;
 
+   /// Compute the capillary entry pressure for the oil-gas interface.
+   double capillaryEntryPressureOilGas ( const double permeability,
+                                         const double brinePressure ) const;
+
    void setLithologyID ( const int id );
 
    int  getLithologyID () const;
@@ -62,30 +68,18 @@ protected :
    double brooksAndCoreyRelativePermeability ( const Saturation::Phase phase,
                                                const Saturation&       saturation ) const;
 
-
-   double temisRelativePermeability ( const Saturation::Phase phase,
-                                      const double            saturation ) const;
-
-
    double brooksAndCoreyCapillaryPressure ( const pvtFlash::PVTPhase phase,
                                             const Saturation         saturation,
+                                            const double             pressure,
                                             const double             temperature,
                                             const double             permeability,
                                             const double             brineDensity,
-                                            const double             hcPhaseDensity,
+                                            // const double             hcPhaseDensity,
+                                            const PVTPhaseValues&    hcPhaseDensity,
                                             const double             criticalTemperature ) const;
 
-   double temisCapillaryPressure ( const pvtFlash::PVTPhase phase,
-                                   const double             saturation ) const;
-
-
-   PVTPhaseValues m_contactAngle;
    PVTPhaseValues m_cosContactAngle;
    int            m_lithologyId;
-
-   double         m_cosHcWaterContactAngle;
-   double         m_cosHgAirContactAngle;
-   double         m_hgAirInterfacialTension;
 
 };
 

@@ -184,6 +184,8 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
       permeabilityNormal = CAULDRONIBSNULLVALUE;
       brineDensity = CAULDRONIBSNULLVALUE;
       criticalTemperature = CAULDRONIBSNULLVALUE;
+      phaseDensities ( pvtFlash::VAPOUR_PHASE ) = CAULDRONIBSNULLVALUE;
+      phaseDensities ( pvtFlash::LIQUID_PHASE ) = CAULDRONIBSNULLVALUE;
    }
 
    for ( i = grid.firstI (); i <= grid.lastI (); ++i ) {
@@ -211,6 +213,8 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
+                                                                        phaseDensities,
+                                                                        // CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE );
                      
                      vwcp = element.getLithology()->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
@@ -219,6 +223,8 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
+                                                                        phaseDensities,
+                                                                        // CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE );
 
                   } else if ( elementComposition.sum () > HcConcentrationLowerLimit ) {
@@ -235,13 +241,18 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                      brineDensity = m_formation->fluid->density ( temperature, brinePressure );
                      criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementComposition );
 
+                     phaseDensities ( pvtFlash::VAPOUR_PHASE ) = pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex );
+                     phaseDensities ( pvtFlash::LIQUID_PHASE ) = pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex );
+
                      if ( pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ) != CAULDRONIBSNULLVALUE ) {
                         lwcp = element.getLithology()->capillaryPressure ( pvtFlash::LIQUID_PHASE,
                                                                            saturation,
+                                                                           brinePressure,
                                                                            temperature,
                                                                            permeabilityNormal,
                                                                            brineDensity,
-                                                                           pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ),
+                                                                           phaseDensities,
+                                                                           // pvtProperties->getVolumeValue ( i, j, k, HcLiquidDensityIndex ),
                                                                            criticalTemperature );
                      } else {
                         lwcp = 0.0;
@@ -250,10 +261,12 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                      if ( pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ) != CAULDRONIBSNULLVALUE ) {
                         vwcp = element.getLithology()->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
                                                                            saturation,
+                                                                           brinePressure,
                                                                            temperature,
                                                                            permeabilityNormal,
                                                                            brineDensity,
-                                                                           pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ),
+                                                                           phaseDensities,
+                                                                           // pvtProperties->getVolumeValue ( i, j, k, HcVapourDensityIndex ),
                                                                            criticalTemperature );
                      } else {
                         vwcp = 0.0;

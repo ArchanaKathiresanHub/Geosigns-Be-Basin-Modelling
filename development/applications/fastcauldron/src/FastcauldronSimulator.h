@@ -260,6 +260,9 @@ public :
    /// By default the constant 1.0e6 Pa is the capillary entry pressure.
    bool useCalculatedCapillaryEntryPressure () const;
 
+   /// Indicate whether or not the vapour-liquid capillary pressure is to calculated.
+   bool useGasPressure () const;
+
 private :
 
 
@@ -340,6 +343,7 @@ private :
    double                     m_fctCorrectionScalingWeight;
    bool                       m_printCommandLine;
    bool                       m_computeCapillaryEntryPressure;
+   bool                       m_useGasPressure;
 
 };
 
@@ -429,10 +433,14 @@ inline double FastcauldronSimulator::getFctCorrectionScalingWeight () const {
 
 //------------------------------------------------------------//
 
-
 inline bool FastcauldronSimulator::useCalculatedCapillaryEntryPressure () const {
    return m_computeCapillaryEntryPressure;
 }
+
+inline bool FastcauldronSimulator::useGasPressure () const {
+   return m_useGasPressure;
+}
+
 
 //------------------------------------------------------------//
 
