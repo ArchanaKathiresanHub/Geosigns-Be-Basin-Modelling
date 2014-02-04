@@ -103,12 +103,23 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
 
    bool scalingFound = DistributedGrid::CalculatePartitioning (M_, N_, m, n);
 
+   if ( M <= 1 or N <= 1 ) {
+      PetscPrintf (PETSC_COMM_WORLD,
+                   "\n MeSsAgE ERROR Unable to partition a %d x %d grid, please select a larger number of grid nodes.\nThere must be at least two nodes in each direction. \n", M, N );
+
+      PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
+      
+      MPI_Finalize ();
+      exit (-1);
+   }
+
 
    if (!scalingFound)
    {
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nUnable to partition a %d x %d grid using %d cores for activity %s, please select a different number of cores:\n", M, N, size, name.c_str());
       PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n", std::max (1, M_), std::max (1, N_));
+
       if (name == "Unknown")
       {
 	 PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n");

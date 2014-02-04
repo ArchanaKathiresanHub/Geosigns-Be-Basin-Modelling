@@ -86,6 +86,16 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
 
    // Calculate the core partitioning based on the low resolution output grid as that is the grid mostly used.
    // If there is no core partitioning for the low res grid, use the high res grid and hope the low res grid will not be used (checked elsewhere).
+
+   if ( lowResNumI <= 1 or lowResNumJ <= 1 ) {
+      PetscPrintf (PETSC_COMM_WORLD,
+                   "\nMeSsAgE ERROR Unable to partition a %d x %d grid, please increase the number of grid nodes.\nThere must be at least two nodes in each direction \n", lowResNumI, lowResNumJ );
+      PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
+      
+      MPI_Finalize ();
+      exit (-1);
+   }
+
    if (!CalculatePartitioning (lowResNumI, lowResNumJ, numICores, numJCores) &&
 	 !CalculatePartitioning (numIGlobal (), numJGlobal (), numICores, numJCores))
    {
