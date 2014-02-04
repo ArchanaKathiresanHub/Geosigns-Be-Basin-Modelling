@@ -155,7 +155,11 @@ public :
 
    PVTPhaseValues& operator*=( const double scalar );
 
+   PVTPhaseValues& operator+=( const PVTPhaseValues& divisor );
+
    PVTPhaseValues& operator/=( const PVTPhaseValues& divisor );
+
+   PVTPhaseValues& operator/=( const double divisor );
 
 // private :
 
@@ -269,6 +273,17 @@ public :
                   const bool                 gormIsPrescribed = false,
                   const double               gorm = 0.0 );
 
+   /// Call the pvt flash calculation.
+   bool compute ( const double               temperature,
+                  const double               pressure,
+                        PVTComponents&       components,
+                        PVTPhaseComponents&  masses,
+                        PVTPhaseValues&      densities,
+                        PVTPhaseValues&      viscosities,
+                  const bool                 gormIsPrescribed = false,
+                  const double               gorm = 0.0 );
+
+
    /// Compute the gorm.
    double computeGorm ( const PVTComponents& vapour,
                         const PVTComponents& liquid ) const;
@@ -331,9 +346,23 @@ inline double& PVTPhaseValues::operator ()( const pvtFlash::PVTPhase phase ) {
    return m_values [ phase ];
 }
 
+inline PVTPhaseValues& PVTPhaseValues::operator+=( const PVTPhaseValues& rhs ) {
+   m_values [ 0 ] += rhs ( pvtFlash::VAPOUR_PHASE );
+   m_values [ 1 ] += rhs ( pvtFlash::LIQUID_PHASE );
+
+   return *this;
+}
+
 inline PVTPhaseValues& PVTPhaseValues::operator/=( const PVTPhaseValues& divisor ) {
    m_values [ 0 ] /= divisor ( pvtFlash::VAPOUR_PHASE );
    m_values [ 1 ] /= divisor ( pvtFlash::LIQUID_PHASE );
+
+   return *this;
+}
+
+inline PVTPhaseValues& PVTPhaseValues::operator/=( const double divisor ) {
+   m_values [ 0 ] /= divisor;
+   m_values [ 1 ] /= divisor;
 
    return *this;
 }

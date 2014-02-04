@@ -33,10 +33,11 @@ void capParameters(const vector<LithoProp>& liths, const vector<double>& fracs,
 double capSealStrength_Air_Hg(const double& capC1, const double& capC2, const double& permeability);
 
 // Does this function return values in units mN/M?
-double capTension_H2O_HC ( const double& density_H2O,
-                           const double& density_HC,
-                           const double& T_K,
-                           const double& T_c_HC_K );
+// units for density or h20 and hc are kg/m^3
+double capTension_H2O_HC ( const double density_H2O,
+                           const double density_HC,
+                           const double T_K,
+                           const double T_c_HC_K );
 
 double capTension_H2O_HC_FR(const double& density_H2O, const double& density_HC, const double& T_K,
    const double& T_c_HC_K);

@@ -837,7 +837,6 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
    double brineDensity;
    bool   elementContainsHydrocarbon;
 
-
    if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
       elementTemperature = CAULDRONIBSNULLVALUE;
       permeabilityNormal = CAULDRONIBSNULLVALUE;
@@ -864,7 +863,8 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
 
                   PVTComponents elementConcentrations = layerConcentrations ( k, j, i );
 
-                  elementPorePressure = 1.0e6 * porePressure ( element, lambda );
+                  // Pore pressure in MPa.
+                  elementPorePressure = porePressure ( element, lambda );
                   elementTemperature = temperature ( element, lambda );
 
                   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
@@ -876,6 +876,8 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                               CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE,
+                                                                              elementHcDensity,
+                                                                              // CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE );
 
                      vapourCapillaryPressure = lithology->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
@@ -884,6 +886,8 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                               CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE,
+                                                                              elementHcDensity,
+                                                                              // CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE );
                   } else {
                      elementContainsHydrocarbon = elementConcentrations.sum () > HcConcentrationLowerLimit;
@@ -901,8 +905,8 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                      if ( elementContainsHydrocarbon ) {
                         elementHcDensity = hcDensity ( element.getI (), element.getJ (), element.getK ());
 
-                        // Brine density reqire pressure in MPa.
-                        brineDensity = theLayer.fluid->density ( elementTemperature, 1.0e-6 * elementPorePressure );
+                        // Brine density requires pressure in MPa.
+                        brineDensity = theLayer.fluid->density ( elementTemperature, elementPorePressure );
                         criticalTemperature = PVTCalc::getInstance ().computeCriticalTemperature ( elementConcentrations );
                      } else {
                         criticalTemperature = CAULDRONIBSNULLVALUE;
@@ -915,17 +919,20 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                         liquidCapillaryPressure = lithology->capillaryPressure ( pvtFlash::LIQUID_PHASE,
                                                                                  saturation,
                                                                                  CAULDRONIBSNULLVALUE,
+                                                                                 CAULDRONIBSNULLVALUE,
                                                                                  permeabilityNormal,
                                                                                  CAULDRONIBSNULLVALUE,
-                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 elementHcDensity,
+                                                                                 // CAULDRONIBSNULLVALUE,
                                                                                  CAULDRONIBSNULLVALUE );
                      } else {
                         liquidCapillaryPressure = lithology->capillaryPressure ( pvtFlash::LIQUID_PHASE,
                                                                                  saturation,
+                                                                                 elementPorePressure,
                                                                                  elementTemperature,
                                                                                  permeabilityNormal,
                                                                                  brineDensity,
-                                                                                 elementHcDensity ( pvtFlash::LIQUID_PHASE ),
+                                                                                 elementHcDensity, // ( pvtFlash::LIQUID_PHASE ),
                                                                                  criticalTemperature );
                      }
 
@@ -933,24 +940,27 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                         vapourCapillaryPressure = lithology->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
                                                                                  saturation,
                                                                                  CAULDRONIBSNULLVALUE,
+                                                                                 CAULDRONIBSNULLVALUE,
                                                                                  permeabilityNormal,
                                                                                  CAULDRONIBSNULLVALUE,
-                                                                                 CAULDRONIBSNULLVALUE,
+                                                                                 elementHcDensity,
+                                                                                 // CAULDRONIBSNULLVALUE,
                                                                                  CAULDRONIBSNULLVALUE );
                      } else {
                         vapourCapillaryPressure = lithology->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
                                                                                  saturation,
+                                                                                 elementPorePressure,
                                                                                  elementTemperature,
                                                                                  permeabilityNormal,
                                                                                  brineDensity,
-                                                                                 elementHcDensity ( pvtFlash::VAPOUR_PHASE ),
+                                                                                 elementHcDensity, // ( pvtFlash::VAPOUR_PHASE ),
                                                                                  criticalTemperature );
                      }
 
                   }
 
-                  liquidPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + liquidCapillaryPressure;
-                  vapourPressure ( element.getK (), element.getJ (), element.getI ()) = elementPorePressure + vapourCapillaryPressure;
+                  liquidPressure ( element.getK (), element.getJ (), element.getI ()) = 1.0e6 * elementPorePressure + liquidCapillaryPressure;
+                  vapourPressure ( element.getK (), element.getJ (), element.getI ()) = 1.0e6 * elementPorePressure + vapourCapillaryPressure;
                }
 
             }
@@ -1622,12 +1632,12 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
 
                   if ( phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE ) != 0.0 ) {
 
-               for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                     for ( c = 0; c < NumberOfPVTComponents; ++c ) {
+                        pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
 
                         // fractions (phase-component-moles per total-phase-component-moles).
                         phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE );
-               }
+                     }
 
                   }
 
@@ -2593,13 +2603,14 @@ void ExplicitMultiComponentFlowSolver::estimateHcTransport ( FormationSubdomainE
             if ( layerElement.isActive ()) {
 
                if ( m_useSaturationEstimate ) {
+                  double minimumResidualSaturation = NumericFunctions::Minimum ( layerElement.getLithology ()->getResidualVapourSaturation (),
+                                                                                 layerElement.getLithology ()->getResidualLiquidSaturation ());;
                   estimateSaturation ( element,
                                        concentrations ( k, j, i ),
                                        elementContainsHc ( element.getI (), element.getJ (), element.getK ()),
                                        estimatedSaturation );
 
-                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = estimatedSaturation > m_residualHcSaturationScaling * 
-                                                                                             layerElement.getLithology ()->getResidualHcSaturation ();
+                  elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = estimatedSaturation > m_residualHcSaturationScaling * minimumResidualSaturation;
                } else {
                   elementContainsHc   ( element.getI (), element.getJ (), element.getK ()) = concentrations ( k, j, i ).sum () > HcConcentrationLowerLimit;
                   elementTransportsHc ( element.getI (), element.getJ (), element.getK ()) = elementContainsHc ( element.getI (), element.getJ (), element.getK ());

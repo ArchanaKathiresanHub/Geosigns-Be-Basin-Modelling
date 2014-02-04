@@ -19,6 +19,7 @@ add_executable(fastcauldron
 	src/BiomarkersCalculator.C
 	src/BoundaryId.C
 	src/BrineProperties.C
+	src/BrooksCorey.C
 	src/BulkDensityCalculator.C
 	src/CapillaryEntryPressureCalculator.C
 	src/CapillaryPressureCalculator.C

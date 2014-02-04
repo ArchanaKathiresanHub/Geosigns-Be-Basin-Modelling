@@ -1832,6 +1832,8 @@ void GeoPhysics::CompoundLithology::mixCapillaryEntryPressureCofficients()
    } 
 
    m_tenPowerCapC2 = pow ( 10.0, -m_capC2 );
+
+   cout << " c1, c2:  "  << m_capC1 << "  " << m_capC2 << "  " << m_tenPowerCapC2 << endl;
 }
 
 void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters() 
@@ -1841,24 +1843,35 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    //TODO: what when equal percentage (50 - 50)?
    
    m_waterRelPermExponent = 0.0;
-   m_hcRelPermExponent = 0.0;
-   m_waterCapPresExponent = 0.0;
-   m_hcCapPresExponent = 0.0;
-   m_residualHcSaturation = 0.0;
+   m_vapourRelPermExponent = 0.0;
+   m_liquidRelPermExponent = 0.0;
+
+   m_liquidWaterCapPresExponent = 0.0;
+   m_vapourLiquidCapPresExponent = 0.0;
+
    m_irreducibleWaterSaturation = 0.0;
+   m_residualVapourSaturation = 0.0;
+   m_residualLiquidSaturation = 0.0;
 
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
    
    double percent = (double)(*percentIter)/100;
-   m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent();
-   m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent();
+
+   m_liquidWaterCapPresExponent = (*componentIter)->getCapPresExponent();
+   m_vapourLiquidCapPresExponent = (*componentIter)->getLiquidCapPresExponent();
 
    m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
-   m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
+   m_vapourRelPermExponent = (*componentIter)->getVapourRelPermExponent();
+   m_liquidRelPermExponent = (*componentIter)->getLiquidRelPermExponent();
 
-   m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
    m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
+   m_residualVapourSaturation = (*componentIter)->getResidualVapourSaturation ();
+   m_residualLiquidSaturation = (*componentIter)->getResidualLiquidSaturation ();
+
+   m_waterRelPermMax  = (*componentIter)->getWaterRelPermMax ();
+   m_vapourRelPermMax = (*componentIter)->getVapourRelPermMax ();
+   m_liquidRelPermMax = (*componentIter)->getLiquidRelPermMax ();
 
 
    //get pckrmodel
@@ -1874,14 +1887,20 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       if(percent < ((double)(*percentIter)/100))
       {
          // Use exponents from the simple lithology with the maximum fraction.
-         m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent();
-         m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent();
+         m_liquidWaterCapPresExponent = (*componentIter)->getCapPresExponent();
+         m_vapourLiquidCapPresExponent = (*componentIter)->getLiquidCapPresExponent();
 
          m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
-         m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
+         m_vapourRelPermExponent = (*componentIter)->getVapourRelPermExponent();
+         m_liquidRelPermExponent = (*componentIter)->getLiquidRelPermExponent();
 
-         m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
          m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
+         m_residualVapourSaturation = (*componentIter)->getResidualVapourSaturation ();
+         m_residualLiquidSaturation = (*componentIter)->getResidualLiquidSaturation ();
+
+         m_waterRelPermMax  = (*componentIter)->getWaterRelPermMax ();
+         m_vapourRelPermMax = (*componentIter)->getVapourRelPermMax ();
+         m_liquidRelPermMax = (*componentIter)->getLiquidRelPermMax ();
 
          percent = (double)(*percentIter)/100;
       }
@@ -1889,14 +1908,14 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       {
          // if percentage are equal, find smaller exponent
 
-         if((*componentIter)->getWaterCapPresExponent() < m_waterCapPresExponent)
+         if((*componentIter)->getCapPresExponent() < m_liquidWaterCapPresExponent)
          {
-            m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent ();
+            m_liquidWaterCapPresExponent = (*componentIter)->getCapPresExponent ();
          }
 
-         if((*componentIter)->getHcCapPresExponent() < m_hcCapPresExponent)
+         if((*componentIter)->getLiquidCapPresExponent() < m_vapourLiquidCapPresExponent)
          {
-            m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent ();
+            m_vapourLiquidCapPresExponent = (*componentIter)->getCapPresExponent ();
          }
 
          if((*componentIter)->getWaterRelPermExponent() < m_waterRelPermExponent)
@@ -1904,17 +1923,38 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
             m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
          }
 
-         if((*componentIter)->getHcRelPermExponent() < m_hcRelPermExponent)
+         if((*componentIter)->getVapourRelPermExponent() < m_vapourRelPermExponent)
          {
-            m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
+            m_vapourRelPermExponent = (*componentIter)->getVapourRelPermExponent();
          }
 
-         if ( m_residualHcSaturation > (*componentIter)->getResidualHcSaturation ()) {
-            m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
+         if((*componentIter)->getLiquidRelPermExponent() < m_liquidRelPermExponent)
+         {
+            m_liquidRelPermExponent = (*componentIter)->getLiquidRelPermExponent();
          }
 
          if ( m_irreducibleWaterSaturation > (*componentIter)->getIrreducibleWaterSaturation ()) {
             m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
+         }
+
+         if ( m_residualVapourSaturation > (*componentIter)->getResidualVapourSaturation ()) {
+            m_residualVapourSaturation = (*componentIter)->getResidualVapourSaturation ();
+         }
+
+         if ( m_residualLiquidSaturation > (*componentIter)->getResidualLiquidSaturation ()) {
+            m_residualLiquidSaturation = (*componentIter)->getResidualLiquidSaturation ();
+         }
+
+         if ( m_waterRelPermMax > (*componentIter)->getWaterRelPermMax ()) {
+            m_waterRelPermMax  = (*componentIter)->getWaterRelPermMax ();
+         }
+
+         if ( m_vapourRelPermMax > (*componentIter)->getVapourRelPermMax ()) {
+            m_vapourRelPermMax = (*componentIter)->getVapourRelPermMax ();
+         }
+
+         if ( m_liquidRelPermMax > (*componentIter)->getLiquidRelPermMax ()) {
+            m_liquidRelPermMax = (*componentIter)->getLiquidRelPermMax ();
          }
 
       }
@@ -1923,22 +1963,43 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       ++percentIter;
    }
 
-   // If the water capillary pressure exponent is the scalar null value (-9999) then use the hc capillary pressure exponent.
-   if ( m_waterCapPresExponent == Interface::DefaultUndefinedScalarValue ) {
-      m_waterCapPresExponent = m_hcCapPresExponent;
+
+   // If the vapour relative permeability exponent is the scalar null value (-9999) then use the water relative permeability exponent.
+   if ( m_vapourRelPermExponent == Interface::DefaultUndefinedScalarValue ) {
+      m_vapourRelPermExponent = m_waterRelPermExponent;
    }
 
-   // If the water relative permeability exponent is the scalar null value (-9999) then use the hc relative permeability exponent.
-   if ( m_waterRelPermExponent == Interface::DefaultUndefinedScalarValue ) {
-      m_waterRelPermExponent = m_hcRelPermExponent;
-   }
-
-   if ( m_residualHcSaturation == Interface::DefaultUndefinedScalarValue ) {
-      m_residualHcSaturation = ResidualHcSaturation;
+   // If the vapour relative permeability exponent is the scalar null value (-9999) then use the water relative permeability exponent.
+   if ( m_liquidRelPermExponent == Interface::DefaultUndefinedScalarValue ) {
+      m_liquidRelPermExponent = m_waterRelPermExponent;
    }
 
    if ( m_irreducibleWaterSaturation == Interface::DefaultUndefinedScalarValue ) {
       m_irreducibleWaterSaturation = IrreducibleWaterSaturation;
+   }
+
+   if ( m_residualVapourSaturation == Interface::DefaultUndefinedScalarValue ) {
+      m_residualVapourSaturation = ResidualVapourSaturation;
+   }
+
+   if ( m_residualLiquidSaturation == Interface::DefaultUndefinedScalarValue ) {
+      m_residualLiquidSaturation = ResidualLiquidSaturation;
+   }
+
+   if ( m_vapourLiquidCapPresExponent == Interface::DefaultUndefinedScalarValue ) {
+      m_vapourLiquidCapPresExponent = m_liquidWaterCapPresExponent;
+   }
+
+   if ( m_waterRelPermMax == Interface::DefaultUndefinedScalarValue ) {
+      m_waterRelPermMax = GeoPhysics::RelativePermDefaultMaximum;
+   }
+
+   if ( m_vapourRelPermMax == Interface::DefaultUndefinedScalarValue ) {
+      m_vapourRelPermMax = GeoPhysics::RelativePermDefaultMaximum;
+   }
+
+   if ( m_liquidRelPermMax == Interface::DefaultUndefinedScalarValue ) {
+      m_liquidRelPermMax = GeoPhysics::RelativePermDefaultMaximum;
    }
 
 }

@@ -129,24 +129,40 @@ namespace DataAccess
          /// Return exponent for Brooks and Corey relative permeability function for water.
          virtual double getWaterRelPermExponent () const;
 
-         /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon.
-         virtual double getHcRelPermExponent () const;
+         /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon vapour.
+         virtual double getVapourRelPermExponent () const;
 
-         /// Return exponent for Brooks and Corey capillary pressure function for water.
-         virtual double getWaterCapPresExponent () const;
+         /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon liquid.
+         virtual double getLiquidRelPermExponent () const;
 
-         /// Return exponent for Brooks and Corey capillary pressure function for hyrdocarbon.
-         virtual double getHcCapPresExponent () const;
+         /// Return exponent for Brooks and Corey capillary pressure function.
+         virtual double getCapPresExponent () const;
+
+         /// Return exponent for Brooks and Corey capillary pressure function for liquid-hc.
+         virtual double getLiquidCapPresExponent () const;
 
          /// Return the capillary entry pressure.
          virtual PcKrModel getPcKrModel () const;
 	 
 
-         /// Return the residual hc saturation, Sor.
-         virtual double getResidualHcSaturation () const;
+         /// Return the residual vapour saturation, Sor.
+         virtual double getResidualVapourSaturation () const;
+
+         /// Return the residual liquid saturation, Sor.
+         virtual double getResidualLiquidSaturation () const;
 
          /// Return the irreducible water saturation, Swi.
          virtual double getIrreducibleWaterSaturation () const;
+
+
+         /// Return the k_rw^max
+         virtual double getWaterRelPermMax () const;
+
+         /// Return the k_rw^max
+         virtual double getVapourRelPermMax () const;
+
+         /// Return the k_rw^max
+         virtual double getLiquidRelPermMax () const;
 
 
          /// Return the specific surface area.
