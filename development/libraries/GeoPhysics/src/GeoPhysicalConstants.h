@@ -157,11 +157,11 @@ namespace GeoPhysics {
 
    /// \var ResidualVapourSaturation
    /// residual gas saturation -- Sgr
-   const double ResidualVapourSaturation = 0.3;
+   const double ResidualVapourSaturation = 0.15;
 
    /// \var ResidualLiquidSaturation
    /// residual oil saturation -- Sor
-   const double ResidualLiquidSaturation = 0.3;
+   const double ResidualLiquidSaturation = 0.15;
 
    /// \var WaterLiquidHcInterfacialTension
    /// If the saturation of the liquid hc phase is zero then use this value for the interfacial tension.
