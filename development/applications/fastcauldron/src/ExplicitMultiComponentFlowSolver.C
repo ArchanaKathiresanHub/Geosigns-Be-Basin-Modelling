@@ -837,7 +837,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
    double brineDensity;
    bool   elementContainsHydrocarbon;
 
-   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
+   if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().useCalculatedCapillaryEntryPressure ()) {
       elementTemperature = CAULDRONIBSNULLVALUE;
       permeabilityNormal = CAULDRONIBSNULLVALUE;
       brineDensity = CAULDRONIBSNULLVALUE;
@@ -867,7 +867,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                   elementPorePressure = porePressure ( element, lambda );
                   elementTemperature = temperature ( element, lambda );
 
-                  if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
+                  if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().useCalculatedCapillaryEntryPressure ()) {
 
                      // Unused parameters, temperature, permeability, ..., have the null value.
                      liquidCapillaryPressure = lithology->capillaryPressure ( pvtFlash::LIQUID_PHASE,
@@ -877,7 +877,6 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                               CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE,
                                                                               elementHcDensity,
-                                                                              // CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE );
 
                      vapourCapillaryPressure = lithology->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
@@ -887,7 +886,6 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                               CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE,
                                                                               elementHcDensity,
-                                                                              // CAULDRONIBSNULLVALUE,
                                                                               CAULDRONIBSNULLVALUE );
                   } else {
                      elementContainsHydrocarbon = elementConcentrations.sum () > HcConcentrationLowerLimit;
@@ -923,7 +921,6 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                                  permeabilityNormal,
                                                                                  CAULDRONIBSNULLVALUE,
                                                                                  elementHcDensity,
-                                                                                 // CAULDRONIBSNULLVALUE,
                                                                                  CAULDRONIBSNULLVALUE );
                      } else {
                         liquidCapillaryPressure = lithology->capillaryPressure ( pvtFlash::LIQUID_PHASE,
@@ -932,7 +929,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                                  elementTemperature,
                                                                                  permeabilityNormal,
                                                                                  brineDensity,
-                                                                                 elementHcDensity, // ( pvtFlash::LIQUID_PHASE ),
+                                                                                 elementHcDensity,
                                                                                  criticalTemperature );
                      }
 
@@ -944,7 +941,6 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                                  permeabilityNormal,
                                                                                  CAULDRONIBSNULLVALUE,
                                                                                  elementHcDensity,
-                                                                                 // CAULDRONIBSNULLVALUE,
                                                                                  CAULDRONIBSNULLVALUE );
                      } else {
                         vapourCapillaryPressure = lithology->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
@@ -953,7 +949,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                                                                                  elementTemperature,
                                                                                  permeabilityNormal,
                                                                                  brineDensity,
-                                                                                 elementHcDensity, // ( pvtFlash::VAPOUR_PHASE ),
+                                                                                 elementHcDensity,
                                                                                  criticalTemperature );
                      }
 
