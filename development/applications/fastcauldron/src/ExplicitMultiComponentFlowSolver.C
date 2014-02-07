@@ -837,7 +837,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
    double brineDensity;
    bool   elementContainsHydrocarbon;
 
-   if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().useCalculatedCapillaryEntryPressure ()) {
+   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
       elementTemperature = CAULDRONIBSNULLVALUE;
       permeabilityNormal = CAULDRONIBSNULLVALUE;
       brineDensity = CAULDRONIBSNULLVALUE;

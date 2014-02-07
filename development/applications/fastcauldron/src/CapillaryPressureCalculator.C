@@ -221,6 +221,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
+                                                                        CAULDRONIBSNULLVALUE,
                                                                         phaseDensities,
                                                                         CAULDRONIBSNULLVALUE );
 
