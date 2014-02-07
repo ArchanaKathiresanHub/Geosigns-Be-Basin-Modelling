@@ -1,25 +1,39 @@
-#include <vtkStructuredGridAlgorithm.h>
+#include <vtkMultiBlockDataSetAlgorithm.h>
 #include <vtkFloatArray.h>
 #include <vtkPoints.h>
 #include <vtkPointData.h>
-#include <vtkStructuredGrid.h>
+#include <vtkTable.h>
+#include <vtkMultiBlockDataSet.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkMath.h>
 #include <vtkObjectFactory.h>
+#include <vtkSmartPointer.h>
+#include <vtkVariantArray.h>
+#include <vtkVariant.h>
+#include <vtkStdString.h>
+#include <vtkTypeInt8Array.h>
+#include <vtkIntArray.h>
+#include <vtkLongArray.h>
+#include <vtkFloatArray.h>
+#include <vtkDoubleArray.h>
+#include <vtkStringArray.h>
+#include <vtkAbstractArray.h>
 
 #include <iostream>
 
 #include "ParaViewReader.h"
+
+#include "Interface/ProjectHandle.h"
 
 vtkStandardNewMacro(ParaViewReader);
 
 ParaViewReader
   :: ParaViewReader()
    : FileName(0)
+   , m_project()
 {
-  std::cout << "ParaViewReader object created" << std::endl;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -37,37 +51,21 @@ ParaViewReader
   :: RequestInformation( vtkInformation * request, 
                           vtkInformationVector ** inputVector,
                           vtkInformationVector * outputVector)
-  {
-     std::cout << "Entered RequestInformation" << std::endl;
-     
-     request->PrintSelf(std::cout, vtkIndent(0));
-     std::cout << std::endl;
-
-     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-     int extent[6] = { 0, 12, 0, 10, 0, 10};
- 
- 
-     outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
-
-     std::cout << "Leaving RequestInformation" << std::endl;
-     return 1;
-  }
+{
+   std::cout << "Request information " << std::endl;
+   return 1;
+}
 
 int
 ParaViewReader
   :: RequestUpdateExtent( vtkInformation * request, 
                            vtkInformationVector ** inputVector,
                            vtkInformationVector * outputVector)
-  {
-     std::cout << "Entered RequestUpdateExtent" << std::endl;
+{
+   std::cout << "Request extent ... " << std::endl;
+   return 1;
+}
 
-     request->PrintSelf(std::cout, vtkIndent(0));
-     std::cout << std::endl;
-
-
-     std::cout << "Leaving RequestUpdateExtent" << std::endl;
-     return 1;
-  }
 
 
 int
@@ -75,73 +73,117 @@ ParaViewReader
   :: RequestData( vtkInformation * request, 
                    vtkInformationVector ** inputVector,
                    vtkInformationVector * outputVector)
+{
+   std::cout << "Reading data ... " << std::endl;
+  vtkInformation* outputInfo = outputVector->GetInformationObject(0);
+  if (!m_project)
+     m_project.reset( DataAccess::Interface::OpenCauldronProject( FileName, "r"));
+
+  database::Database * database = m_project->getDataBase();
+  int numberOfTables = std::distance( database->begin(), database->end() );
+
+  vtkSmartPointer< vtkMultiBlockDataSet > dataSets 
+     = vtkMultiBlockDataSet::GetData( outputVector, 0);
+
+  dataSets->SetNumberOfBlocks( numberOfTables );
+
+  for (int i = 0; i < numberOfTables; ++i)
   {
-     std::cout << "Entered RequestData" << std::endl;
-     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-     request->PrintSelf(std::cout, vtkIndent(0));
-     std::cout << std::endl;
-
-     std::cout << "Output Vector information" << std::endl;
-     outputInfo->PrintSelf(std::cout, vtkIndent(0));
-     std::cout << std::endl;
-
-     vtkStructuredGrid* sgrid = vtkStructuredGrid::SafeDownCast
-       (outputInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
-     static int dims[3]={13,11,11};
-
-     int extent[6] = { 0, -1, 0, -1, 0, -1};
-     outputInfo->Get
-       (vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
-    
-     std::cout << "Setting extent" << std::endl;
-     sgrid->SetExtent(extent);
-
-      // We also create the points and vectors. The points
-  // form a hemi-cylinder of data.
-     int volume = (extent[1] - extent[0]+1)*(extent[3]-extent[2]+1)*(extent[5]-extent[4]+1);
-     vtkFloatArray *vectors = vtkFloatArray::New();
-       vectors->SetNumberOfComponents(3);
-       vectors->SetNumberOfTuples(volume);
-     vtkPoints *points = vtkPoints::New();
-       points->Allocate(volume);
-
-     float x[3], v[3], rMin=0.5, rMax=1.0;
-     float deltaZ = 2.0 / (dims[2]-1);
-     float deltaRad = (rMax-rMin) / (dims[1]-1);
-     v[2]=0.0;
-     for ( int k=extent[4]; k<=extent[5]; k++)
-       {
-         std::cout << "Computing k: " << k << std::endl;
-       x[2] = -1.0 + k*deltaZ;
-       int kOffset = k * (extent[1]-extent[0]+1)*(extent[3]-extent[2]+1);
-       for (int j=extent[2]; j<=extent[3]; j++)
-         {
-         float radius = rMin + j*deltaRad;
-         int jOffset = j * (extent[1]-extent[0]+1);
-         for (int i=extent[0]; i<=extent[1]; i++)
-           {
-           float theta = i * vtkMath::RadiansFromDegrees(15.0);
-           x[0] = radius * cos(theta);
-           x[1] = radius * sin(theta);
-           v[0] = -x[1];
-           v[1] = x[0];
-           int offset = i + jOffset + kOffset;
-           points->InsertPoint(offset,x);
-           vectors->InsertTuple(offset,v);
-           }
-         }
-       }
-
-     std::cout << "Setting points" << std::endl;
-     sgrid->SetPoints(points);
-     points->Delete();
-     std::cout << "Setting vectors" << std::endl;
-     sgrid->GetPointData()->SetVectors(vectors);
-     vectors->Delete();
-
-     std::cout << "Leaving RequestData" << std::endl;
-     return 1;
+     vtkSmartPointer< vtkTable > table = vtkTable::New();
+     fillVtkTable( table, database->getTable(i) );
+     dataSets->SetBlock( i, table);
+     dataSets->GetMetaData(i)->Set( vtkMultiBlockDataSet::NAME(), vtkStdString( database->getTable(i)->name() ) );
   }
 
+  return 1;
+}
 
+void
+ParaViewReader
+   :: fillVtkTable( vtkTable * table, database::Table * cauldronTable )
+{
+  const database::TableDefinition & cauldronTableDef = cauldronTable->getTableDefinition();
+  const int nRows = cauldronTable->size();
+  const int nCols = cauldronTableDef.size();
+  for (int col = 0; col < nCols; ++col)
+  {
+     const database::FieldDefinition & field = *cauldronTableDef.getFieldDefinition(col);
+     datatype::DataType type = field.dataType();
+     std::string columnName = field.name(); 
+     if (! field.unit().empty() )
+        columnName +=  " (" + field.unit() + ")";
+
+     vtkSmartPointer< vtkAbstractArray > columnData = createVtkArray( type );
+     columnData->SetName( vtkStdString(columnName) );
+
+     for (int row = 0; row < nRows; ++row)
+        copyFieldFromRecord(columnData, type, cauldronTable->getRecord(row), col);
+     
+     table->AddColumn( columnData );
+  }
+}
+
+vtkAbstractArray *
+ParaViewReader
+   :: createVtkArray( datatype::DataType type)
+{
+   switch( type )
+   {
+      case datatype::Bool: 
+         return vtkTypeInt8Array::New();
+
+      case datatype::Int:
+         return vtkIntArray::New();
+
+      case datatype::Long:
+         return vtkLongArray::New();
+
+      case datatype::Float:
+         return vtkFloatArray::New();
+
+      case datatype::Double:
+         return vtkDoubleArray::New();
+
+      case datatype::String:
+         return vtkStringArray::New();
+
+      default:
+         return vtkStringArray::New();
+   }
+}
+
+void
+ParaViewReader
+   :: copyFieldFromRecord( vtkAbstractArray * array, datatype::DataType type, database::Record * record, int column)
+{
+   switch( type )
+   {
+      case datatype::Bool: 
+         vtkTypeInt8Array::SafeDownCast(array)->InsertNextValue( record->getValue< bool >( column ) );
+         break;
+
+      case datatype::Int:
+         vtkIntArray::SafeDownCast(array)->InsertNextValue( record->getValue< int >( column ) );
+         break;
+
+      case datatype::Long:
+         vtkLongArray::SafeDownCast(array)->InsertNextValue( record->getValue< long >( column ) );
+         break;
+
+      case datatype::Float:
+         vtkFloatArray::SafeDownCast(array)->InsertNextValue( record->getValue< float >( column ) );
+         break;
+
+      case datatype::Double:
+         vtkDoubleArray::SafeDownCast(array)->InsertNextValue( record->getValue< double >( column ) );
+         break;
+
+      case datatype::String:
+         vtkStringArray::SafeDownCast(array)->InsertNextValue( record->getValue< std::string >( column ) );
+         break;
+
+      default:
+         vtkStringArray::SafeDownCast(array)->InsertNextValue( "N/A" );
+         break;
+   }
+}

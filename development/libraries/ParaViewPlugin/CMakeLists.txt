@@ -11,10 +11,20 @@
 #########################################################################
 
 if (ParaView_FOUND)
-   include_directories(src)
+   include_directories(src ${HDF5_serial_INCLUDE_DIRS})
+   bm_include_libraries(DataAccess TableIO)
+
    add_paraview_plugin(ParaViewReader "1.0" 
           SERVER_MANAGER_XML ParaViewReader.xml
           SERVER_MANAGER_SOURCES src/ParaViewReader.C
           REQUIRED_ON_SERVER
       )
+
+   target_link_libraries( ParaViewReader
+         DataAccess
+         TableIO
+         SerialDataAccess
+         ${HDF5_serial_LIBRARIES}
+   )
+
 endif()

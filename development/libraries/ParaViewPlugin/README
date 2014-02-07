@@ -7,7 +7,5 @@ where you should substitute $srcdir with the path to your source directory.
 This will create the libParaViewReader.so file in the subdir
 libraries/ParaViewReader of your build directory. To use the plugin, go to menu
 Tools->Manage Plugins... Load the libParaViewReader.so file with 'Load New...'
-After closing that dialog, ppen a .project3d file via the File menu and click
-Apply to apply the changes in the VTK pipeline. This will show you a half
-cylinder in a 3D view.
-
+After closing that dialog, open a .project3d file via the File menu and click
+Apply to apply the changes in the VTK pipeline. 
