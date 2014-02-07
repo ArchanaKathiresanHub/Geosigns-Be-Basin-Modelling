@@ -179,7 +179,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    }
 
 
-   if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().useCalculatedCapillaryEntryPressure ()) {
+   if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
       temperature = CAULDRONIBSNULLVALUE;
       permeabilityNormal = CAULDRONIBSNULLVALUE;
       brineDensity = CAULDRONIBSNULLVALUE;
@@ -204,7 +204,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                   saturation = saturations ( k, j, i );
                   elementComposition = concentrations ( k, j, i );
 
-                  if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().useCalculatedCapillaryEntryPressure ()) {
+                  if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
 
                      // Unused parameters, temperature, permeability, ..., have the null value.
                      lwcp = element.getLithology()->capillaryPressure ( pvtFlash::LIQUID_PHASE,
@@ -218,7 +218,6 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                      
                      vwcp = element.getLithology()->capillaryPressure ( pvtFlash::VAPOUR_PHASE,
                                                                         saturation,
-                                                                        CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,
                                                                         CAULDRONIBSNULLVALUE,

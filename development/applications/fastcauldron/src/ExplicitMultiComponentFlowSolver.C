@@ -867,7 +867,7 @@ void ExplicitMultiComponentFlowSolver::computePressure ( FormationSubdomainEleme
                   elementPorePressure = porePressure ( element, lambda );
                   elementTemperature = temperature ( element, lambda );
 
-                  if ( not FastcauldronSimulator::getInstance ().getMcfHandler ().useCalculatedCapillaryEntryPressure ()) {
+                  if ( not FastcauldronSimulator::getInstance ().useCalculatedCapillaryEntryPressure ()) {
 
                      // Unused parameters, temperature, permeability, ..., have the null value.
                      liquidCapillaryPressure = lithology->capillaryPressure ( pvtFlash::LIQUID_PHASE,
