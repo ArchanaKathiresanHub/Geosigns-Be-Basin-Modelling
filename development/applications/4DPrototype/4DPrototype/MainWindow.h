@@ -11,6 +11,12 @@ class MainWindow : public QMainWindow
 
 	Ui::MainWindow m_ui;
 
+  void connectSignals();
+
+private slots:
+
+  void onActionOpenActivated();
+
 public:
 
 	MainWindow();

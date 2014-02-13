@@ -1,12 +1,14 @@
 #include "MainWindow.h"
 
+#include "Mesh.h"
+
 #include <MeshVizInterface/mapping/MoMeshviz.h>
 
 #include <QtGui/QApplication>
 
 int main(int argc, char** argv)
 {
-	MoMeshViz::init();
+  MoMeshViz::init();
 
 	QApplication app(argc, argv);
 

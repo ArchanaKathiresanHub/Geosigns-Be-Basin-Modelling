@@ -9,6 +9,18 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visualization", "Visualization\Visualization.vcxproj", "{5D7E3616-B024-414A-A027-294D19403E21}"
 EndProject
 Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.sede-coe.pds.nl/tfs/coe-ii
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = 4DPrototype\\4DPrototype.vcxproj
+		SccProjectName1 = 4DPrototype
+		SccLocalPath1 = 4DPrototype
+		SccProjectUniqueName2 = Visualization\\Visualization.vcxproj
+		SccProjectName2 = Visualization
+		SccLocalPath2 = Visualization
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
@@ -27,6 +39,7 @@ Global
 		{5D7E3616-B024-414A-A027-294D19403E21}.Debug|Win32.ActiveCfg = Debug|Win32
 		{5D7E3616-B024-414A-A027-294D19403E21}.Debug|Win32.Build.0 = Debug|Win32
 		{5D7E3616-B024-414A-A027-294D19403E21}.Debug|x64.ActiveCfg = Debug|x64
+		{5D7E3616-B024-414A-A027-294D19403E21}.Debug|x64.Build.0 = Debug|x64
 		{5D7E3616-B024-414A-A027-294D19403E21}.Release|Win32.ActiveCfg = Release|Win32
 		{5D7E3616-B024-414A-A027-294D19403E21}.Release|Win32.Build.0 = Release|Win32
 		{5D7E3616-B024-414A-A027-294D19403E21}.Release|x64.ActiveCfg = Release|x64

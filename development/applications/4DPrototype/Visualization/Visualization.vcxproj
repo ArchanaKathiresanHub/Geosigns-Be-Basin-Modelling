@@ -21,6 +21,10 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5D7E3616-B024-414A-A027-294D19403E21}</ProjectGuid>
     <RootNamespace>Visualization</RootNamespace>
+    <SccProjectName>SAK</SccProjectName>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -75,11 +79,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\..\3rdparty\hdf5.win64\hdf5\include;..\..\..\libraries\DataAccess\src\Interface;..\..\..\libraries\TableIO\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\3rdparty\hdf5.win64\hdf5\include;..\..\..\libraries\DataAccess\src;..\..\..\libraries\TableIO\src;$(OIVHOME)\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VISUALIZATIONDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\lib;E:\Source\BasinModeling\output\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OIVHOME)\arch-Windows-x86_64-msvc10-Debug\lib;E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\lib;E:\Source\BasinModeling\output\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DataAccess.lib;CBMGenerics.lib;Serial_Hdf5.lib;SerialDataAccess.lib;TableIO.lib;hdf5d.lib;utilities.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -105,6 +111,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\..\..\3rdparty\hdf5.win64\hdf5\include;..\..\..\libraries\DataAccess\src\Interface;..\..\..\libraries\TableIO\src</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VISUALIZATIONDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
