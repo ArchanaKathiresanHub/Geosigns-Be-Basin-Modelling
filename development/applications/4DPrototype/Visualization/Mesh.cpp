@@ -304,9 +304,9 @@ public:
 
 SoNode* createOIVTree()
 {
-  size_t numI = 100;
-  size_t numJ = 100;
-  size_t numK =  20;
+  size_t numI = 200;
+  size_t numJ = 200;
+  size_t numK =  40;
 
   MyMesh* myMesh = new MyMesh(numI, numJ, numK);
 
@@ -332,8 +332,8 @@ SoNode* createOIVTree()
 
   MoPredefinedColorMapping* colorMap = new MoPredefinedColorMapping;
   colorMap->predefColorMap = MoPredefinedColorMapping::STANDARD;
-  colorMap->minValue = scalarSet->getScalarSet()->getMin();
-  colorMap->maxValue = scalarSet->getScalarSet()->getMax();
+  colorMap->minValue = (float)scalarSet->getScalarSet()->getMin();
+  colorMap->maxValue = (float)scalarSet->getScalarSet()->getMax();
 
   MoMeshSkin* skin = new MoMeshSkin;
   skin->colorScalarSetId = 0;
