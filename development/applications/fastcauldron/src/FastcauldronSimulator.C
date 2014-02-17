@@ -274,10 +274,13 @@ void FastcauldronSimulator::initialiseFastcauldronLayers () {
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::initialiseElementGrid ( const bool printElementValidityMap ) {
+void FastcauldronSimulator::initialiseElementGrid ( const bool  printElementValidityMap,
+                                                          bool& hasActiveElements ) {
 
    int i;
    int j;
+   int localActiveElementCount = 0;
+   int globalActiveElementCount;
 
    m_mapElements.create ( m_elementGrid.getDa ());
 
@@ -325,9 +328,16 @@ void FastcauldronSimulator::initialiseElementGrid ( const bool printElementValid
 #endif
 
          activeElements ( j, i ) = ( isActive ? 1.0 : 0.0 );
+         // Count the number of elements that are active in this partition.
+         localActiveElementCount += ( isActive ? 1 : 0 );
       }
 
    }
+
+   // Sum all the locally active element counts.
+   MPI_Allreduce ( &localActiveElementCount, &globalActiveElementCount, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD );
+   // Are there are any active elements in the global 2d mesh.
+   hasActiveElements = globalActiveElementCount > 0;
 
    activeElements.Restore_Global_Array ( Update_Including_Ghosts );
    activeElements.Set_Global_Array ( m_elementGrid.getDa (), activeElementsVec, INSERT_VALUES, true );
@@ -525,6 +535,7 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
                                                  const bool            printElementValidityMap ) {
 
    bool started;
+   bool gridHasActiveElements;
 
    // if ( hasValidDimensions ()) {
    //    PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR there is not a sufficient nuber of nodes in one of the dimension.\n");
@@ -602,8 +613,13 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
    m_elementGrid.construct ( getActivityOutputGrid (), getRank ());
    m_nodalGrid.construct   ( getActivityOutputGrid (), getRank ());
 
-   initialiseElementGrid ( printElementValidityMap );
-   return started;
+   initialiseElementGrid ( printElementValidityMap, gridHasActiveElements );
+
+   if ( not gridHasActiveElements ) {
+      PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR there are no active elements in the mesh.\n");
+   }
+
+   return started and gridHasActiveElements;
 }
 
 //------------------------------------------------------------//

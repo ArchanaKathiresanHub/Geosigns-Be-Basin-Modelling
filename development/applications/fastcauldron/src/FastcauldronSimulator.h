@@ -94,7 +94,8 @@ public :
    void initialiseFastcauldronLayers ();
 
    // Here temporarily until element-array has been moved from propinterface.
-   void initialiseElementGrid ( const bool printElementValidityMap = false );
+   void initialiseElementGrid ( const bool  printElementValidityMap,
+                                      bool& hasActiveElements );
 
    /// Add properties that were not added.
    ///
