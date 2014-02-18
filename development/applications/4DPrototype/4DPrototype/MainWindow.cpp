@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "Mesh.h"
+#include "BpaMesh.h"
 
 #include <QtGui/QFileDialog>
 
@@ -12,8 +13,8 @@ void MainWindow::onActionOpenActivated()
 
   if(!filename.isNull())
   {
-    //foo(filename.toAscii().data());
-      m_ui.widget->getViewer()->setSceneGraph(createOIVTree());
+    foo(filename.toAscii().data());
+    m_ui.widget->getViewer()->setSceneGraph(createOIVTree(filename.toAscii().data()));
   }
 }
 
@@ -28,7 +29,7 @@ MainWindow::MainWindow()
 
 	// Remove all the ugly buttons and scroll wheels that 
 	// you always get for free with these OIV viewers
-	//m_ui.widget->setDecoration(false);
+	m_ui.widget->setDecoration(false);
   m_ui.widget->getViewer()->setBackgroundColor(SbColor(.1f, .1f, .3f));
 
   connectSignals();

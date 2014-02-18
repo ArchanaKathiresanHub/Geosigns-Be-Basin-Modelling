@@ -1,17 +1,11 @@
 #include "Mesh.h"
 
-#include "Interface/ProjectHandle.h"
-#include "Interface/Formation.h"
-#include "Interface/Grid.h"
-#include "Interface/Property.h"
-
 // OIV nodes
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSeparator.h>
 
 // meshviz interface
-#include <MeshVizInterface/mesh/MiVolumeMeshHexahedronIjk.h>
 #include <MeshVizInterface/mesh/topology/MiHexahedronTopologyExplicitIjk.h>
 #include <MeshVizInterface/mesh/data/MiDataSetIjk.h>
 
@@ -25,29 +19,12 @@
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 
 #include <string>
+#include <memory>
 
-void foo(const char* filename)
-{
-	const char* access = "r";
-	DataAccess::Interface::ProjectHandle* handle = DataAccess::Interface::OpenCauldronProject(filename, access);
-  
-  const DataAccess::Interface::Grid* grid = handle->getLowResolutionOutputGrid();
-  const DataAccess::Interface::PropertyList* properties = handle->getProperties();
 
-  DataAccess::Interface::FormationList* formations = handle->getFormations();
-  for(size_t i=0; i < formations->size(); ++i)
-  {
-    const DataAccess::Interface::Formation* formation = (*formations)[i];
-  }
-
-  DataAccess::Interface::SurfaceList* surfaces = handle->getSurfaces();
-  for(size_t i=0; i < surfaces->size(); ++i)
-  {
-    const DataAccess::Interface::Surface* surface = (*surfaces)[i];
-  }
-	//DataAccess::Interface::InitializeSerializedIO();
-}
-
+/**
+ *
+ */
 class MyTopology : public MiHexahedronTopologyExplicitIjk
 {
   size_t m_numI;
@@ -156,6 +133,9 @@ public:
   }
 };
 
+/**
+ *
+ */
 class MyGeometry : public MiGeometryI
 {
   size_t m_numI;
@@ -223,30 +203,34 @@ public:
   }
 };
 
-class MyMesh : public MiVolumeMeshHexahedronIjk
+/**
+ *
+ */
+MyMesh::MyMesh(size_t numI, size_t numJ, size_t numK)
+  : m_geometry(new MyGeometry(numI, numJ, numK))
+  , m_topology(new MyTopology(numI, numJ, numK))
 {
-  MyGeometry m_geometry;
-  MyTopology m_topology;
+}
 
-public:
+/**
+ *
+ */
+const MiHexahedronTopologyExplicitIjk& MyMesh::getTopology() const
+{
+  return *m_topology;
+}
 
-  MyMesh(size_t numI, size_t numJ, size_t numK)
-    : m_geometry(numI, numJ, numK)
-    , m_topology(numI, numJ, numK)
-  {
-  }
+/**
+ *
+ */
+const MiGeometryI& MyMesh::getGeometry() const
+{
+  return *m_geometry;
+}
 
-  virtual const MiHexahedronTopologyExplicitIjk& getTopology() const
-  {
-    return m_topology;
-  }
-
-  virtual const MiGeometryI& getGeometry() const
-  {
-    return m_geometry;
-  }
-};
-
+/**
+ *
+ */
 class MyDataSetIjk : public MiDataSetIjk<double>
 {
   size_t m_numI;
@@ -321,6 +305,7 @@ SoNode* createOIVTree()
   material->faceColor = SbColor(1.0f, 0.0f, 0.0f);
   material->lineColoring = MoMaterial::COLOR;
   material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
+  //material->transparency = .75f;
 
   MoDrawStyle* drawStyle = new MoDrawStyle;
   drawStyle->displayFaces = true;
