@@ -14,7 +14,6 @@ class SoNode;
 class BpaTopology;
 class BpaGeometry;
 
-VISUALIZATIONDLL_API void foo(const char* filename);
 VISUALIZATIONDLL_API SoNode* createOIVTree(const char* filename);
 
 namespace DataAccess
@@ -27,8 +26,6 @@ namespace DataAccess
 
 class BpaMesh : public MiVolumeMeshHexahedronIjk
 {
-  const DataAccess::Interface::Snapshot* m_snapshot;
-
   std::shared_ptr<BpaTopology> m_topology;
   std::shared_ptr<BpaGeometry> m_geometry;
 

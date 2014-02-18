@@ -13,7 +13,6 @@ void MainWindow::onActionOpenActivated()
 
   if(!filename.isNull())
   {
-    foo(filename.toAscii().data());
     m_ui.widget->getViewer()->setSceneGraph(createOIVTree(filename.toAscii().data()));
   }
 }

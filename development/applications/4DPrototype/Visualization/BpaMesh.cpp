@@ -1,5 +1,6 @@
 #include "BpaMesh.h"
 
+// DataAccess stuff
 #include "Interface/ProjectHandle.h"
 #include "Interface/Formation.h"
 #include "Interface/Surface.h"
@@ -12,6 +13,7 @@
 // OIV nodes
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoGroup.h>
+#include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>
 
 // meshviz interface
@@ -23,79 +25,11 @@
 #include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizInterface/mapping/nodes/MoMaterial.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
-#include <MeshVizInterface/mapping/nodes/MoScalarSetIjk.h>
+#include <MeshVizInterface/mapping/nodes/MoScalarSetI.h>
 #include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 
 namespace di = DataAccess::Interface; 
-
-void foo(const char* filename)
-{
-	const char* access = "r";
-	di::ProjectHandle* handle = di::OpenCauldronProject(filename, access);
-  
-  const di::Grid* grid = handle->getLowResolutionOutputGrid();
-
-  char buffer[128];
-  sprintf(buffer, "Grid: %d x %d\n", grid->numI(), grid->numJ());
-  OutputDebugString(buffer);
-
-  di::SnapshotList* snapshots = handle->getSnapshots(di::MAJOR);
-  for(size_t i=0; i < snapshots->size(); ++i)
-  {
-    const di::Snapshot* snapshot = (*snapshots)[i];
-    double t = snapshot->getTime();
-    char buffer[128];
-    sprintf(buffer, "snapshot %d: time = %f\n", i, t);
-    OutputDebugString(buffer);
-  }
-
-
-  int flags = di::FORMATION | di::SURFACE | di::FORMATIONSURFACE;
-  //int flags = di::FORMATION;
-  //int flags = di::RESERVOIR;
-  //int type  = di::MAP;
-  int type = di::VOLUME;
-  const di::Snapshot* presentDay = (*snapshots)[0];
-
-  // Handle depth property
-  const di::Property* depthProperty = handle->findProperty("Depth");
-
-  di::PropertyValueList* values = handle->getPropertyValues(flags, depthProperty, presentDay, 0, 0, 0, type);
-  for(size_t j=0; j < values->size(); ++j)
-  {
-    const di::PropertyValue* propValue = (*values)[j];
-    const di::GridMap* gridMap = propValue->getGridMap();
-
-    double v = gridMap->getValue((unsigned int)0, (unsigned int)0);
-  }
-
-  di::PropertyList* properties = handle->getProperties(true, flags, presentDay, 0, 0, 0, type);
-  for(size_t i=0; i < properties->size(); ++i)
-  {
-    const di::Property* prop = (*properties)[i];
-    char buffer[256];
-    sprintf(buffer, "Property %d: %s\n", i, prop->getName().c_str());
-    OutputDebugString(buffer);
-  }
-
-  const di::FormationList* formations = handle->getFormations(presentDay);
-  for(size_t i=0; i < formations->size(); ++i)
-  {
-    const di::Formation* formation = (*formations)[i];
-  }
-
-  di::SurfaceList* surfaces = handle->getSurfaces();
-  for(size_t i=0; i < surfaces->size(); ++i)
-  {
-    const di::Surface* surface = (*surfaces)[i];
-  }
-	//di::InitializeSerializedIO();
-}
-
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
 
 /**
  *
@@ -108,23 +42,11 @@ class BpaTopology : public MiHexahedronTopologyExplicitIjk
 
 public:
 
-  explicit BpaTopology(const di::Snapshot* snapshot)
+  explicit BpaTopology(size_t numI, size_t numJ, size_t numK)
+    : m_numI(numI)
+    , m_numJ(numJ)
+    , m_numK(numK)
   {
-    di::ProjectHandle* handle = snapshot->getProjectHandle();
-    
-    const di::Grid* grid = handle->getLowResolutionOutputGrid();
-
-    m_numI = grid->numI();
-    m_numJ = grid->numJ();
-
-    int flags = di::FORMATION | di::SURFACE | di::FORMATIONSURFACE;
-    int type  = di::VOLUME;
-
-    const di::Property* depthProperty = handle->findProperty("Depth");
-
-    const di::PropertyValueList* values = handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type);
-
-    m_numK = values->size();
   }
 
   /*
@@ -225,8 +147,6 @@ public:
  */
 class BpaGeometry : public MiGeometryI
 {
-  const di::Snapshot* m_snapshot;
-  
   std::shared_ptr<di::PropertyValueList> m_depthValues; 
 
   size_t m_numI;
@@ -243,22 +163,11 @@ class BpaGeometry : public MiGeometryI
 
 public:
 
-  explicit BpaGeometry(const di::Snapshot* snapshot)
-    : m_snapshot(snapshot)
+  explicit BpaGeometry(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
+    : m_depthValues(depthValues)
   {
-    di::ProjectHandle* handle = snapshot->getProjectHandle();
-    
-    const di::Grid* grid = handle->getLowResolutionOutputGrid();
-
     m_numI = grid->numI();
     m_numJ = grid->numJ();
-
-    int flags = di::FORMATION | di::SURFACE | di::FORMATIONSURFACE;
-    int type  = di::VOLUME;
-
-    const di::Property* depthProperty = handle->findProperty("Depth");
-    m_depthValues.reset(handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type));
-
     m_numK = m_depthValues->size();
 
     m_minX = grid->minI();
@@ -316,10 +225,19 @@ public:
 };
 
 BpaMesh::BpaMesh(const DataAccess::Interface::Snapshot* snapshot)
-  : m_snapshot(snapshot)
-  , m_topology(new BpaTopology(snapshot))
-  , m_geometry(new BpaGeometry(snapshot))
 {
+  di::ProjectHandle* handle = snapshot->getProjectHandle();
+  const di::Grid* grid = handle->getLowResolutionOutputGrid();
+
+  const di::Property* depthProperty = handle->findProperty("Depth");
+  int flags = di::FORMATION;// | di::SURFACE | di::FORMATIONSURFACE;
+  int type  = di::VOLUME;
+
+  std::shared_ptr<di::PropertyValueList> depthValues(handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type));
+
+  m_topology.reset(new BpaTopology(grid->numI(), grid->numJ(), depthValues->size()));
+  m_geometry.reset(new BpaGeometry(grid, depthValues));
+
 }
 
 const MiHexahedronTopologyExplicitIjk& BpaMesh::getTopology() const
@@ -332,43 +250,81 @@ const MiGeometryI& BpaMesh::getGeometry() const
   return *m_geometry;
 }
 
-class BpaProperty : public MiDataSetIjk<double>
+/**
+ *
+ */
+class BpaProperty : public MiDataSetI<double>
 {
+  std::shared_ptr<di::PropertyValueList> m_values;
+  
   size_t m_numI;
   size_t m_numJ;
   size_t m_numK;
 
+  double m_minValue;
+  double m_maxValue;
+
+  void initMinMaxValues()
+  {
+    if(m_values->empty())
+      return;
+
+    (*m_values)[0]->getGridMap()->getMinMaxValue(m_minValue, m_maxValue);
+
+    for(size_t i=1; i < m_values->size(); ++i)
+    {
+      double minValue, maxValue;
+      (*m_values)[i]->getGridMap()->getMinMaxValue(minValue, maxValue);
+      m_minValue = minValue < m_minValue ? minValue : m_minValue;
+      m_maxValue = maxValue > m_maxValue ? maxValue : m_maxValue;
+    }
+}
+
 public:
 
-  BpaProperty(size_t numI, size_t numJ, size_t numK)
-    : m_numI(numI)
+  BpaProperty(size_t numI, size_t numJ, std::shared_ptr<di::PropertyValueList> values)
+    : m_values(values)
+    , m_numI(numI)
     , m_numJ(numJ)
-    , m_numK(numK)
+    , m_numK(values->size())
+    , m_minValue(0.0)
+    , m_maxValue(0.0)
   {
+    initMinMaxValues();
   }
 
   virtual MiDataSet::DataBinding getBinding() const
   {
-    return MiDataSet::PER_CELL;
+    return MiDataSet::PER_NODE;
   }
 
-  virtual double get(size_t i, size_t j, size_t k) const
+  virtual double get(size_t index) const
   {
-    double x = i - .5 * m_numI;
-    double y = j - .5 * m_numJ;
-    double z = k - .5 * m_numK;
+    // TODO: this is not very nice, is it?
+    if(m_values->empty())
+      return 0.0;
 
-    return sqrt(x*x + y*y + z*z);
+    size_t rowStride = m_numI;
+    size_t sliceStride = m_numI * m_numJ;
+
+    size_t k = index / sliceStride;
+    size_t j = (index - k * sliceStride) / rowStride;
+    size_t i = index - k * sliceStride - j * rowStride;
+
+    if(k >= m_numK)
+      k = m_numK-1;
+
+    return (*m_values)[k]->getGridMap()->getValue((unsigned int)i, (unsigned int)j);
   }
 
   virtual double getMin() const
   {
-    return 0.0;
+    return m_minValue;
   }
 
   virtual double getMax() const
   {
-    return .5 * sqrt((double)(m_numI * m_numI + m_numJ * m_numJ + m_numK * m_numK));
+    return m_maxValue;
   }
 
   virtual MiMeshIjk::StorageLayout getStorageLayout() const
@@ -388,18 +344,18 @@ public:
 };
 
 
-SoNode* createOIVTree(const di::Snapshot* snapshot)
+SoNode* createOIVTree(const di::Snapshot* snapshot, BpaProperty* bpaProperty)
 {
   BpaMesh* bpaMesh = new BpaMesh(snapshot);
   
   MoMesh* mesh = new MoMesh;
   mesh->setMesh(bpaMesh);
 
-  //MoScalarSetIjk* scalarSet = new MoScalarSetIjk;
-  //scalarSet->setScalarSet(new MyDataSetIjk(numI, numJ, numK));
+  MoScalarSetI* scalarSet = new MoScalarSetI;
+  scalarSet->setScalarSet(bpaProperty);
 
   MoMaterial* material = new MoMaterial;
-  material->faceColoring = MoMaterial::COLOR;
+  material->faceColoring = MoMaterial::CONTOURING;
   material->faceColor = SbColor(1.0f, 0.0f, 0.0f);
   material->lineColoring = MoMaterial::COLOR;
   material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
@@ -411,23 +367,23 @@ SoNode* createOIVTree(const di::Snapshot* snapshot)
   drawStyle->displayPoints = false;
 
   MoDataBinding* binding = new MoDataBinding;
-  binding->dataBinding = MoDataBinding::PER_CELL;
+  binding->dataBinding = MoDataBinding::PER_NODE;
 
-  //MoPredefinedColorMapping* colorMap = new MoPredefinedColorMapping;
-  //colorMap->predefColorMap = MoPredefinedColorMapping::STANDARD;
-  //colorMap->minValue = (float)scalarSet->getScalarSet()->getMin();
-  //colorMap->maxValue = (float)scalarSet->getScalarSet()->getMax();
+  MoPredefinedColorMapping* colorMap = new MoPredefinedColorMapping;
+  colorMap->predefColorMap = MoPredefinedColorMapping::STANDARD;
+  colorMap->minValue = (float)scalarSet->getScalarSet()->getMin();
+  colorMap->maxValue = (float)scalarSet->getScalarSet()->getMax();
 
   MoMeshSkin* skin = new MoMeshSkin;
   skin->colorScalarSetId = 0;
 
   SoSeparator* group = new SoSeparator;
   group->addChild(mesh);
-  //group->addChild(scalarSet);
+  group->addChild(scalarSet);
   group->addChild(material);
   group->addChild(drawStyle);
   group->addChild(binding);
-  //group->addChild(colorMap);
+  group->addChild(colorMap);
   group->addChild(skin);
 
   return group;
@@ -437,7 +393,26 @@ SoNode* createOIVTree(const char* filename)
 {
 	const char* access = "r";
 	di::ProjectHandle* handle = di::OpenCauldronProject(filename, access);
-  di::SnapshotList* snapshots = handle->getSnapshots(di::MAJOR);
 
-  return createOIVTree((*snapshots)[0]);
+  int flags = di::FORMATION;// | di::SURFACE | di::FORMATIONSURFACE;
+  int type  = di::VOLUME;
+  const di::Property* prop = handle->findProperty("Temperature");
+  const di::Grid* grid = handle->getLowResolutionOutputGrid();
+
+  SoSwitch* snapshotSwitch = new SoSwitch;
+
+  di::SnapshotList* snapshots = handle->getSnapshots(di::MAJOR);
+  for(size_t i=0; i < snapshots->size(); ++i)
+  {
+    const di::Snapshot* snapshot = (*snapshots)[i];
+
+    std::shared_ptr<di::PropertyValueList> values(handle->getPropertyValues(flags, prop, snapshot, 0, 0, 0, type));
+    BpaProperty* bpaProperty = new BpaProperty(grid->numI(), grid->numJ(), values);
+
+    snapshotSwitch->addChild(createOIVTree(snapshot, bpaProperty));
+  }
+
+  snapshotSwitch->whichChild = 0;
+
+  return snapshotSwitch;
 }
