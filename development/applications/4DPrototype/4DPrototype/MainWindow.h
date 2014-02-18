@@ -15,7 +15,9 @@ class MainWindow : public QMainWindow
 
 private slots:
 
-  void onActionOpenActivated();
+  void onActionOpenTriggered();
+
+  void onSliderValueChanged(int value);
 
 public:
 

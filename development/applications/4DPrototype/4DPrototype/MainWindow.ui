@@ -14,11 +14,44 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="SoQtWrapper" name="widget" native="true"/>
-    </item>
-   </layout>
+   <widget class="SoQtWrapper" name="widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>9</y>
+      <width>571</width>
+      <height>541</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QSlider" name="snapshotSlider">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>530</y>
+      <width>160</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QTreeWidget" name="treeWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>11</y>
+      <width>201</width>
+      <height>301</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string notr="true">1</string>
+     </property>
+    </column>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

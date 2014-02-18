@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Thu 13. Feb 10:14:07 2014
+** Created: Tue 18. Feb 16:16:30 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -19,8 +19,9 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
+#include <QtGui/QSlider>
 #include <QtGui/QStatusBar>
-#include <QtGui/QVBoxLayout>
+#include <QtGui/QTreeWidget>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -31,8 +32,9 @@ public:
     QAction *action_Open;
     QAction *action_Quit;
     QWidget *centralwidget;
-    QVBoxLayout *verticalLayout;
     SoQtWrapper *widget;
+    QSlider *snapshotSlider;
+    QTreeWidget *treeWidget;
     QMenuBar *menubar;
     QMenu *menu_File;
     QStatusBar *statusbar;
@@ -48,13 +50,19 @@ public:
         action_Quit->setObjectName(QString::fromUtf8("action_Quit"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        verticalLayout = new QVBoxLayout(centralwidget);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         widget = new SoQtWrapper(centralwidget);
         widget->setObjectName(QString::fromUtf8("widget"));
-
-        verticalLayout->addWidget(widget);
-
+        widget->setGeometry(QRect(220, 9, 571, 541));
+        snapshotSlider = new QSlider(centralwidget);
+        snapshotSlider->setObjectName(QString::fromUtf8("snapshotSlider"));
+        snapshotSlider->setGeometry(QRect(20, 530, 160, 19));
+        snapshotSlider->setOrientation(Qt::Horizontal);
+        treeWidget = new QTreeWidget(centralwidget);
+        QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
+        __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
+        treeWidget->setHeaderItem(__qtreewidgetitem);
+        treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
+        treeWidget->setGeometry(QRect(10, 11, 201, 301));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));

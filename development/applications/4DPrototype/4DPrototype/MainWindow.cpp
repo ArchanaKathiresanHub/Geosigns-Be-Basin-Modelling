@@ -2,9 +2,11 @@
 #include "Mesh.h"
 #include "BpaMesh.h"
 
+#include <Inventor/nodes/SoSwitch.h>
+
 #include <QtGui/QFileDialog>
 
-void MainWindow::onActionOpenActivated()
+void MainWindow::onActionOpenTriggered()
 {
   QString caption = "Open file";
   QString dir;
@@ -13,13 +15,23 @@ void MainWindow::onActionOpenActivated()
 
   if(!filename.isNull())
   {
-    m_ui.widget->getViewer()->setSceneGraph(createOIVTree(filename.toAscii().data()));
+    SoSwitch* snapshotSwitch = (SoSwitch*)createOIVTree(filename.toAscii().data());
+    m_ui.widget->getViewer()->setSceneGraph(snapshotSwitch);
+    m_ui.snapshotSlider->setMinimum(0);
+    m_ui.snapshotSlider->setMaximum(snapshotSwitch->getNumChildren() - 1);
   }
+}
+
+void MainWindow::onSliderValueChanged(int value)
+{
+  SoSwitch* snapshotSwitch = (SoSwitch*)m_ui.widget->getViewer()->getSceneGraph();
+  snapshotSwitch->whichChild = value;
 }
 
 void MainWindow::connectSignals()
 {
-  connect(m_ui.action_Open, SIGNAL(activated()), this, SLOT(onActionOpenActivated()));
+  connect(m_ui.action_Open, SIGNAL(triggered()), this, SLOT(onActionOpenTriggered()));
+  connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
 }
 
 MainWindow::MainWindow()
