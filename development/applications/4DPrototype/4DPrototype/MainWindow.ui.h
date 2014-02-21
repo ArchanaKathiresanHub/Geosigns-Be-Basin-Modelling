@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Tue 18. Feb 16:16:30 2014
+** Created: Wed 19. Feb 10:23:10 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -15,6 +15,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
@@ -22,6 +23,7 @@
 #include <QtGui/QSlider>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTreeWidget>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -32,9 +34,11 @@ public:
     QAction *action_Open;
     QAction *action_Quit;
     QWidget *centralwidget;
-    SoQtWrapper *widget;
-    QSlider *snapshotSlider;
+    QHBoxLayout *horizontalLayout;
+    QVBoxLayout *verticalLayout;
     QTreeWidget *treeWidget;
+    QSlider *snapshotSlider;
+    SoQtWrapper *widget;
     QMenuBar *menubar;
     QMenu *menu_File;
     QStatusBar *statusbar;
@@ -43,30 +47,58 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(800, 600);
+        MainWindow->resize(857, 667);
         action_Open = new QAction(MainWindow);
         action_Open->setObjectName(QString::fromUtf8("action_Open"));
         action_Quit = new QAction(MainWindow);
         action_Quit->setObjectName(QString::fromUtf8("action_Quit"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        widget = new SoQtWrapper(centralwidget);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(220, 9, 571, 541));
-        snapshotSlider = new QSlider(centralwidget);
-        snapshotSlider->setObjectName(QString::fromUtf8("snapshotSlider"));
-        snapshotSlider->setGeometry(QRect(20, 530, 160, 19));
-        snapshotSlider->setOrientation(Qt::Horizontal);
+        horizontalLayout = new QHBoxLayout(centralwidget);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         treeWidget = new QTreeWidget(centralwidget);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
         treeWidget->setHeaderItem(__qtreewidgetitem);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
-        treeWidget->setGeometry(QRect(10, 11, 201, 301));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(treeWidget->sizePolicy().hasHeightForWidth());
+        treeWidget->setSizePolicy(sizePolicy);
+
+        verticalLayout->addWidget(treeWidget);
+
+        snapshotSlider = new QSlider(centralwidget);
+        snapshotSlider->setObjectName(QString::fromUtf8("snapshotSlider"));
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(snapshotSlider->sizePolicy().hasHeightForWidth());
+        snapshotSlider->setSizePolicy(sizePolicy1);
+        snapshotSlider->setOrientation(Qt::Horizontal);
+
+        verticalLayout->addWidget(snapshotSlider);
+
+
+        horizontalLayout->addLayout(verticalLayout);
+
+        widget = new SoQtWrapper(centralwidget);
+        widget->setObjectName(QString::fromUtf8("widget"));
+        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(widget->sizePolicy().hasHeightForWidth());
+        widget->setSizePolicy(sizePolicy2);
+
+        horizontalLayout->addWidget(widget);
+
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 800, 21));
+        menubar->setGeometry(QRect(0, 0, 857, 21));
         menu_File = new QMenu(menubar);
         menu_File->setObjectName(QString::fromUtf8("menu_File"));
         MainWindow->setMenuBar(menubar);

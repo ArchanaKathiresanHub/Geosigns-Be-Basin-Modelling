@@ -3,13 +3,37 @@
 
 #include "MainWindow.ui.h"
 
+#include "Interface/Interface.h"
+
+//#include "BpaMesh.h"
+//#include "SceneGraph.h"
+
 #include <QtGui/QMainWindow>
+
+class SceneGraph;
+class QLabel;
 
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT;
 
 	Ui::MainWindow m_ui;
+
+  QLabel* m_fpsLabel;
+
+  DataAccess::Interface::ProjectHandle* m_projectHandle;
+  
+  std::shared_ptr<SceneGraph> m_sceneGraph;
+
+  static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
+
+  void onFps(float fps);
+
+  void loadProject(const QString& filename);
+
+  void closeProject();
+
+  void updateUI();
 
   void connectSignals();
 
@@ -18,6 +42,8 @@ private slots:
   void onActionOpenTriggered();
 
   void onSliderValueChanged(int value);
+
+  void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
 public:
 

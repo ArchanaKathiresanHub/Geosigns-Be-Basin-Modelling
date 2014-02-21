@@ -2,37 +2,21 @@
 
 // DataAccess stuff
 #include "Interface/ProjectHandle.h"
-#include "Interface/Formation.h"
-#include "Interface/Surface.h"
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Snapshot.h"
 
-// OIV nodes
-#include <Inventor/nodes/SoNode.h>
-#include <Inventor/nodes/SoGroup.h>
-#include <Inventor/nodes/SoSwitch.h>
-#include <Inventor/nodes/SoSeparator.h>
-
 // meshviz interface
-#include <MeshVizInterface/mesh/topology/MiHexahedronTopologyExplicitIjk.h>
+#include <MeshVizInterface/MxTimeStamp.h>
 #include <MeshVizInterface/mesh/data/MiDataSetIjk.h>
-
-// meshviz nodes
-#include <MeshVizInterface/mapping/nodes/MoMesh.h>
-#include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
-#include <MeshVizInterface/mapping/nodes/MoMaterial.h>
-#include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
-#include <MeshVizInterface/mapping/nodes/MoScalarSetI.h>
-#include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
-#include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
+#include <MeshVizInterface/mesh/topology/MiHexahedronTopologyExplicitIjk.h>
 
 namespace di = DataAccess::Interface; 
 
 /**
- *
+ * Defines the cell topology for a BpaMesh
  */
 class BpaTopology : public MiHexahedronTopologyExplicitIjk
 {
@@ -40,12 +24,15 @@ class BpaTopology : public MiHexahedronTopologyExplicitIjk
   size_t m_numJ;
   size_t m_numK;
 
+  size_t m_timeStamp;
+
 public:
 
   explicit BpaTopology(size_t numI, size_t numJ, size_t numK)
     : m_numI(numI)
     , m_numJ(numJ)
     , m_numK(numK)
+    , m_timeStamp(MxTimeStamp::getTimeStamp())
   {
   }
 
@@ -128,7 +115,7 @@ public:
 
   virtual size_t getTimeStamp() const
   {
-    return 0;
+    return m_timeStamp;
   }
 
   virtual bool hasDeadCells() const
@@ -143,7 +130,7 @@ public:
 };
 
 /**
- *
+ * Stores the node coordinates for a BpaMesh
  */
 class BpaGeometry : public MiGeometryI
 {
@@ -161,10 +148,13 @@ class BpaGeometry : public MiGeometryI
   double m_deltaX;
   double m_deltaY;
 
+  size_t m_timeStamp;
+
 public:
 
   explicit BpaGeometry(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
     : m_depthValues(depthValues)
+    , m_timeStamp(MxTimeStamp::getTimeStamp())
   {
     m_numI = grid->numI();
     m_numJ = grid->numJ();
@@ -220,21 +210,12 @@ public:
 
   virtual size_t getTimeStamp() const
   {
-    return 0;
+    return m_timeStamp;
   }
 };
 
-BpaMesh::BpaMesh(const DataAccess::Interface::Snapshot* snapshot)
+BpaMesh::BpaMesh(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
 {
-  di::ProjectHandle* handle = snapshot->getProjectHandle();
-  const di::Grid* grid = handle->getLowResolutionOutputGrid();
-
-  const di::Property* depthProperty = handle->findProperty("Depth");
-  int flags = di::FORMATION;// | di::SURFACE | di::FORMATIONSURFACE;
-  int type  = di::VOLUME;
-
-  std::shared_ptr<di::PropertyValueList> depthValues(handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type));
-
   m_topology.reset(new BpaTopology(grid->numI(), grid->numJ(), depthValues->size()));
   m_geometry.reset(new BpaGeometry(grid, depthValues));
 
@@ -250,169 +231,90 @@ const MiGeometryI& BpaMesh::getGeometry() const
   return *m_geometry;
 }
 
+//------------------------------------------------------------------------------
+// BpaProperty implementation
+//------------------------------------------------------------------------------
+
 /**
  *
  */
-class BpaProperty : public MiDataSetI<double>
+void BpaProperty::initMinMaxValues()
 {
-  std::shared_ptr<di::PropertyValueList> m_values;
-  
-  size_t m_numI;
-  size_t m_numJ;
-  size_t m_numK;
+  if(m_values->empty())
+    return;
 
-  double m_minValue;
-  double m_maxValue;
+  (*m_values)[0]->getGridMap()->getMinMaxValue(m_minValue, m_maxValue);
 
-  void initMinMaxValues()
+  for(size_t i=1; i < m_values->size(); ++i)
   {
-    if(m_values->empty())
-      return;
-
-    (*m_values)[0]->getGridMap()->getMinMaxValue(m_minValue, m_maxValue);
-
-    for(size_t i=1; i < m_values->size(); ++i)
-    {
-      double minValue, maxValue;
-      (*m_values)[i]->getGridMap()->getMinMaxValue(minValue, maxValue);
-      m_minValue = minValue < m_minValue ? minValue : m_minValue;
-      m_maxValue = maxValue > m_maxValue ? maxValue : m_maxValue;
-    }
+    double minValue, maxValue;
+    (*m_values)[i]->getGridMap()->getMinMaxValue(minValue, maxValue);
+    m_minValue = minValue < m_minValue ? minValue : m_minValue;
+    m_maxValue = maxValue > m_maxValue ? maxValue : m_maxValue;
+  }
 }
 
-public:
-
-  BpaProperty(size_t numI, size_t numJ, std::shared_ptr<di::PropertyValueList> values)
-    : m_values(values)
-    , m_numI(numI)
-    , m_numJ(numJ)
-    , m_numK(values->size())
-    , m_minValue(0.0)
-    , m_maxValue(0.0)
-  {
-    initMinMaxValues();
-  }
-
-  virtual MiDataSet::DataBinding getBinding() const
-  {
-    return MiDataSet::PER_NODE;
-  }
-
-  virtual double get(size_t index) const
-  {
-    // TODO: this is not very nice, is it?
-    if(m_values->empty())
-      return 0.0;
-
-    size_t rowStride = m_numI;
-    size_t sliceStride = m_numI * m_numJ;
-
-    size_t k = index / sliceStride;
-    size_t j = (index - k * sliceStride) / rowStride;
-    size_t i = index - k * sliceStride - j * rowStride;
-
-    if(k >= m_numK)
-      k = m_numK-1;
-
-    return (*m_values)[k]->getGridMap()->getValue((unsigned int)i, (unsigned int)j);
-  }
-
-  virtual double getMin() const
-  {
-    return m_minValue;
-  }
-
-  virtual double getMax() const
-  {
-    return m_maxValue;
-  }
-
-  virtual MiMeshIjk::StorageLayout getStorageLayout() const
-  {
-    return MiMeshIjk::LAYOUT_KJI;
-  }
-
-  virtual size_t getTimeStamp() const
-  {
-    return 0;
-  }
-
-  virtual std::string getName() const
-  {
-    return "Dummy";
-  }
-};
-
-
-SoNode* createOIVTree(const di::Snapshot* snapshot, BpaProperty* bpaProperty)
+BpaProperty::BpaProperty(size_t numI, size_t numJ, std::shared_ptr<di::PropertyValueList> values)
+  : m_values(values)
+  , m_numI(numI)
+  , m_numJ(numJ)
+  , m_numK(values->size())
+  , m_minValue(0.0)
+  , m_maxValue(0.0)
+  , m_timeStamp(MxTimeStamp::getTimeStamp())
 {
-  BpaMesh* bpaMesh = new BpaMesh(snapshot);
-  
-  MoMesh* mesh = new MoMesh;
-  mesh->setMesh(bpaMesh);
-
-  MoScalarSetI* scalarSet = new MoScalarSetI;
-  scalarSet->setScalarSet(bpaProperty);
-
-  MoMaterial* material = new MoMaterial;
-  material->faceColoring = MoMaterial::CONTOURING;
-  material->faceColor = SbColor(1.0f, 0.0f, 0.0f);
-  material->lineColoring = MoMaterial::COLOR;
-  material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
-  //material->transparency = .75f;
-
-  MoDrawStyle* drawStyle = new MoDrawStyle;
-  drawStyle->displayFaces = true;
-  drawStyle->displayEdges = true;
-  drawStyle->displayPoints = false;
-
-  MoDataBinding* binding = new MoDataBinding;
-  binding->dataBinding = MoDataBinding::PER_NODE;
-
-  MoPredefinedColorMapping* colorMap = new MoPredefinedColorMapping;
-  colorMap->predefColorMap = MoPredefinedColorMapping::STANDARD;
-  colorMap->minValue = (float)scalarSet->getScalarSet()->getMin();
-  colorMap->maxValue = (float)scalarSet->getScalarSet()->getMax();
-
-  MoMeshSkin* skin = new MoMeshSkin;
-  skin->colorScalarSetId = 0;
-
-  SoSeparator* group = new SoSeparator;
-  group->addChild(mesh);
-  group->addChild(scalarSet);
-  group->addChild(material);
-  group->addChild(drawStyle);
-  group->addChild(binding);
-  group->addChild(colorMap);
-  group->addChild(skin);
-
-  return group;
+  initMinMaxValues();
 }
 
-SoNode* createOIVTree(const char* filename)
+MiDataSet::DataBinding BpaProperty::getBinding() const
 {
-	const char* access = "r";
-	di::ProjectHandle* handle = di::OpenCauldronProject(filename, access);
-
-  int flags = di::FORMATION;// | di::SURFACE | di::FORMATIONSURFACE;
-  int type  = di::VOLUME;
-  const di::Property* prop = handle->findProperty("Temperature");
-  const di::Grid* grid = handle->getLowResolutionOutputGrid();
-
-  SoSwitch* snapshotSwitch = new SoSwitch;
-
-  di::SnapshotList* snapshots = handle->getSnapshots(di::MAJOR);
-  for(size_t i=0; i < snapshots->size(); ++i)
-  {
-    const di::Snapshot* snapshot = (*snapshots)[i];
-
-    std::shared_ptr<di::PropertyValueList> values(handle->getPropertyValues(flags, prop, snapshot, 0, 0, 0, type));
-    BpaProperty* bpaProperty = new BpaProperty(grid->numI(), grid->numJ(), values);
-
-    snapshotSwitch->addChild(createOIVTree(snapshot, bpaProperty));
-  }
-
-  snapshotSwitch->whichChild = 0;
-
-  return snapshotSwitch;
+  return MiDataSet::PER_NODE;
 }
+
+double BpaProperty::get(size_t index) const
+{
+  // TODO: this is not very nice, is it?
+  if(m_values->empty())
+    return 0.0;
+
+  size_t rowStride = m_numI;
+  size_t sliceStride = m_numI * m_numJ;
+
+  size_t k = index / sliceStride;
+  size_t j = (index - k * sliceStride) / rowStride;
+  size_t i = index - k * sliceStride - j * rowStride;
+
+  // Some (or all?) properties not defined for crust and mantle
+  // TODO: handle this in a better way
+  if(k >= m_numK)
+    k = m_numK-1;
+
+  return (*m_values)[k]->getGridMap()->getValue((unsigned int)i, (unsigned int)j);
+}
+
+double BpaProperty::getMin() const
+{
+  return m_minValue;
+}
+
+double BpaProperty::getMax() const
+{
+  return m_maxValue;
+}
+
+MiMeshIjk::StorageLayout BpaProperty::getStorageLayout() const
+{
+  return MiMeshIjk::LAYOUT_KJI;
+}
+
+size_t BpaProperty::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+std::string BpaProperty::getName() const
+{
+  return "Dummy";
+}
+
+
