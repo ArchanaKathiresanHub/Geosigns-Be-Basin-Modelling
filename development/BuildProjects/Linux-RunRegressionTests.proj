@@ -7,6 +7,7 @@
 	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">05</VersionNumberMinor>
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
 	<PerformOnLocalHost Condition=" '$(PerformOnLocalHost)'=='' ">False</PerformOnLocalHost>
+    <RegressionTestsFolder Condition=" '$(RegressionTestsFolder)' == '' ">$/Basin Modeling/IBS/Tests/RegressionTests</RegressionTestsFolder>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
@@ -21,7 +22,7 @@
 	<CopyGetTestBench>$(scp_command) "$(MSBuildProjectDirectory)\Linux-GetRegressionTestBench.sh" "$(AgentAccount)@$(AgentHost):bin" </CopyGetTestBench>
 	<GetTestBench>$(ssh_command) "/bin/bash -x bin/Linux-GetRegressionTestBench.sh $(Version)"</GetTestBench>
 	<RewriteToLocalHost>$(ssh_command) "/bin/bash -x RegressionTestBench/perform_on_localhost"  </RewriteToLocalHost>
-	<PerformTests>$(ssh_command) "cd RegressionTestBench &amp;&amp; /bin/csh -x ./fastperformtests $(Version)"  </PerformTests>
+	<PerformTests>$(ssh_command) "cd RegressionTestBench &amp;&amp; TFSFOLDER='$(RegressionTestsFolder)' /bin/csh -x ./fastperformtests $(Version)"  </PerformTests>
     
     <CopyBackResults>$(ssh_command) "set -e ; cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/$(AgentAccount)/RegressionTests ; find -maxdepth 2 -type f | cpio -o" | $(cpio_exe) -id </CopyBackResults>
     <RegressionTestDir>$(OutDir)/regression_tests</RegressionTestDir>
