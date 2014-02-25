@@ -155,25 +155,9 @@ namespace GeoPhysics {
    /// irreducible water saturaiton -- connnate water saturation -- Swi
    const double IrreducibleWaterSaturation = 0.1;
 
-   /// \var ResidualVapourSaturation
-   /// residual gas saturation -- Sgr
-   const double ResidualVapourSaturation = 0.15;
-
-   /// \var ResidualLiquidSaturation
+   /// \var IrreducibleHcSaturation
    /// residual oil saturation -- Sor
-   const double ResidualLiquidSaturation = 0.15;
-
-   /// \var WaterLiquidHcInterfacialTension
-   /// If the saturation of the liquid hc phase is zero then use this value for the interfacial tension.
-   const double WaterLiquidHcInterfacialTension = 0.025;
-
-   /// \var WaterVapourHcInterfacialTension
-   /// If the saturation of the vapour hc phase is zero then use this value for the interfacial tension.
-   const double WaterVapourHcInterfacialTension = 0.05;
-
-   /// \var RelativePermDefaultMaximum
-   /// The end point of the rel perm curve.
-   const double RelativePermDefaultMaximum = 1.0;
+   const double ResidualHcSaturation = 0.3;
 
    //------------------------------------------------------------//
 

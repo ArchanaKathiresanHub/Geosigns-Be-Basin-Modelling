@@ -1003,32 +1003,6 @@ bool PVTCalc::compute ( const double               temperature,
                               PVTPhaseComponents&  masses,
                               PVTPhaseValues&      densities,
                               PVTPhaseValues&      viscosities,
-                        const bool                 gormIsPrescribed,
-                        const double               gorm ) {
-
-
-   bool status;
-
-   status = pvtFlash::EosPack::getInstance ().computeWithLumping ( temperature,
-                                                                   pressure,
-                                                                   components.m_components,
-                                                                   masses.m_masses,
-                                                                   densities.m_values,
-                                                                   viscosities.m_values,
-                                                                   gormIsPrescribed,
-                                                                   gorm,
-                                                                   0 );
-
-   return status;
-
-}
-
-bool PVTCalc::compute ( const double               temperature,
-                        const double               pressure,
-                              PVTComponents&       components,
-                              PVTPhaseComponents&  masses,
-                              PVTPhaseValues&      densities,
-                              PVTPhaseValues&      viscosities,
                               PVTComponents&       kValues,
                         const bool                 gormIsPrescribed,
                         const double               gorm ) {
@@ -1043,6 +1017,7 @@ bool PVTCalc::compute ( const double               temperature,
                                                                    viscosities.m_values,
                                                                    gormIsPrescribed,
                                                                    gorm,
+                                                                   // 0 );
                                                                    kValues.m_components );
 
 #if 0

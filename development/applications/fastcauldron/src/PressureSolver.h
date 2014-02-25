@@ -79,6 +79,18 @@ public :
                                double& elementContributionsTime );
 
 
+#if 0
+   /// Assemble just the residual for the Newton solver.
+   void assembleResidual ( const double  previousTime,
+                           const double  currentTime,
+                           const DM&     pressureFEMGrid,
+                           const Vec&    pressureDOFs,
+                                 Vec&    Residual,
+                                 double& elementContributionsTime );
+#endif
+
+
+
    ///
    /// Find the maximum difference between the overpressure solution at the 
    /// current and previous time steps.

@@ -106,10 +106,8 @@ double capTension_H2O_HC_FR(const double& density_H2O, const double& density_HC,
      pow ( T_K / T_c_HC_K, -1.25);
    return capTension_H2O_HC;
 }
-double capTension_H2O_HC(const double density_H2O,
-                         const double density_HC,
-                         const double T_K,
-                         const double T_c_HC_K )
+double capTension_H2O_HC(const double& density_H2O, const double& density_HC, const double& T_K,
+   const double& T_c_HC_K) 
 {
 
    static const int PolyDegree = 11;
@@ -134,7 +132,7 @@ double capTension_H2O_HC(const double density_H2O,
 
    // In the rather strange case of the density of HC larger than the density of H2O, 
    // HC's should sink.  So we can make capTension_H2O_HC infinite:
-   if (density_H2O <= density_HC ) 
+   if (density_H2O <= density_HC) 
    {
       return numeric_limits<double>::max();
    } else {
@@ -179,6 +177,13 @@ double capTension_H2O_HC(const double density_H2O,
       // Since, on most processors, there is a square-root function in hardware.
       // Also the sqrt, in software, is usually fewer flops to compute than an pow.
       capTen_H2O_HC = ( capTen_H2O_HC * capTen_H2O_HC ) * ( capTen_H2O_HC * capTen_H2O_HC ) * tempR * sqrt ( sqrt ( tempR ));
+
+//       capTen_H2O_HC *= capTen_H2O_HC *= capTen_H2O_HC;
+
+//    double capTen_H2O_HC = 111.0 *
+//    capTen_H2O_HC = 111.0 *
+//       pow ( (density_H2O - density_HC) / 1000.0, 1.024) *
+//       pow ( T_K / T_c_HC_K, -1.25);
 
       return capTen_H2O_HC;
 

@@ -2564,17 +2564,7 @@ START-properties
     Property I/O        : No
     Default             : 1.0
 
-    # Identification      : LambdaPcVapour
-    # Description         : Exponent in Brooks-Corey constitutive relation
-    #                       for capillary pressure
-    # Unit of measurement : (unknown)
-    # Type                : double 
-    # Error Field         : No
-    # Time dependent      : No 
-    # Property I/O        : No
-    # Default             : -9999
-    
-    Identification      : LambdaPcLiquid
+    Identification      : LambdaPcWater
     Description         : Exponent in Brooks-Corey constitutive relation
                           for capillary pressure
     Unit of measurement : (unknown)
@@ -2594,29 +2584,10 @@ START-properties
     Property I/O        : No
     Default             : 1.0
 
-    Identification      : LambdaKrVapour
+    Identification      : LambdaKrWater
     Description         : Exponent in Brooks-Corey constitutive relation
                           for relative permeability
     Unit of measurement : (unknown)
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : -9999
-
-    Identification      : LambdaKrLiquid
-    Description         : Exponent in Brooks-Corey constitutive relation
-                          for relative permeability
-    Unit of measurement : (unknown)
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : -9999
-
-    Identification      : Sgr
-    Description         : Residual gas (vapour) saturation,
-    Unit of measurement : frac
     Type                : double 
     Error Field         : No
     Time dependent      : No 
@@ -2624,7 +2595,7 @@ START-properties
     Default             : -9999
 
     Identification      : Sor
-    Description         : Residual oil (liquid) saturation,
+    Description         : Residual hc saturation,
     Unit of measurement : frac
     Type                : double 
     Error Field         : No
@@ -2640,35 +2611,6 @@ START-properties
     Time dependent      : No 
     Property I/O        : No
     Default             : -9999
-
-    Identification      : KrwMax
-    Description         : Maximum relative permeability for water
-    Unit of measurement : frac
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : 1
-
-    Identification      : KroMax
-    Description         : Maximum relative permeability for liquid/oil
-    Unit of measurement : frac
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : 1
-
-    Identification      : KrgMax
-    Description         : Maximum relative permeability for vapour/gas
-    Unit of measurement : frac
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : 1
-
-
 
 
     Identification      : ThCondParallel
@@ -10283,16 +10225,11 @@ START-property-tables
     Column         : CapC2
     Column         : PcKrModel
     Column         : LambdaPc
-    Column         : LambdaPcLiquid
+    Column         : LambdaPcWater
     Column         : LambdaKr
-    Column         : LambdaKrVapour
-    Column         : LambdaKrLiquid
-    Column         : KrwMax
-    Column         : KrgMax
-    Column         : KroMax
-    Column         : Swi
-    Column         : Sgr
+    Column         : LambdaKrWater
     Column         : Sor
+    Column         : Swi
     Column         : Porosity_Model
     Column         : Compaction_Coefficient_SM
     Column         : Number_Of_Data_Points

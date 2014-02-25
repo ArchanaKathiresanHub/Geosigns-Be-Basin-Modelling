@@ -66,7 +66,6 @@ FastcauldronSimulator::FastcauldronSimulator (database::Database * database, con
    m_hcLiquidCurveExponent = DefaultHcCurveExponent;
    m_printCommandLine = false;
    m_computeCapillaryEntryPressure = false;
-   m_useGasPressure = false;
 
    m_fctCorrectionScalingWeight = 1.0;
 }
@@ -536,11 +535,6 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
 
    bool started;
    bool gridHasActiveElements;
-
-   // if ( hasValidDimensions ()) {
-   //    PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR there is not a sufficient nuber of nodes in one of the dimension.\n");
-   //    return false;
-   // }
 
 #if 0
    cout << " calculation mode: " << CalculationModeImage [ mode ] << endl;
@@ -1800,12 +1794,10 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
    double    fctScaling;
    PetscBool hasPrintCommandLine;
    PetscBool computeCapillaryEntryPressure;
-   PetscBool useLiquidVapourCapillaryPressure;
 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
    PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
    PetscOptionsHasName ( PETSC_NULL, "-fcpce", &computeCapillaryEntryPressure );
-   PetscOptionsHasName ( PETSC_NULL, "-fcpcog", &useLiquidVapourCapillaryPressure );
 
    if ( fctScalingChanged ) {
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );
@@ -1813,7 +1805,6 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
 
    m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
    m_computeCapillaryEntryPressure = computeCapillaryEntryPressure == PETSC_TRUE;
-   m_useGasPressure = useLiquidVapourCapillaryPressure == PETSC_TRUE;
 
    readRelPermCommandLineParameters ();
    readCommandLineWells ();

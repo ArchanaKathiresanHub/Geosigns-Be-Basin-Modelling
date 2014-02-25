@@ -89,39 +89,21 @@ namespace GeoPhysics {
       /// Return exponent for Brooks and Corey relative permeability function for water.
       double getWaterRelPermExponent () const;
 
-      /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon vapour.
-      double getVapourRelPermExponent () const;
+      /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon.
+      double getHcRelPermExponent () const;
 
-      /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon liquid.
-      double getLiquidRelPermExponent () const;
+      /// Return exponent for Brooks and Corey capillary pressure function for water.
+      double getWaterCapPresExponent () const;
 
-
-      /// Return the maximum water relative permeability.
-      double getWaterRelPermMax () const;
-
-      /// Return the maximum vapour/gas relative permeability.
-      double getVapourRelPermMax () const;
-
-      /// Return the maximum liquid/oil relative permeability.
-      double getLiquidRelPermMax () const;
+      /// Return exponent for Brooks and Corey capillary pressure function for hyrdocarbon.
+      double getHcCapPresExponent () const;
 
 
-      /// Return exponent for Brooks and Corey capillary pressure function.
-      double getLiquidWaterCapPresExponent () const;
-
-      /// Return exponent for Brooks and Corey capillary pressure function.
-      double getVapourLiquidCapPresExponent () const;
-
-
-      /// Return the residual vapour saturation, Sgr.
-      double getResidualVapourSaturation () const;
-
-      /// Return the residual liquid saturation, Sor.
-      double getResidualLiquidSaturation () const;
+      /// Return the residual hc saturation, Sor.
+      double getResidualHcSaturation () const;
 
       /// Return the irreducible water saturation, Swi.
       double getIrreducibleWaterSaturation () const;
-
 
       
       /// Return the geometric variance of the grain size distribution
@@ -478,19 +460,13 @@ namespace GeoPhysics {
       DataAccess::Interface::PcKrModel m_pcKrModel;
 
       double           m_waterRelPermExponent;
-      double           m_vapourRelPermExponent;
-      double           m_liquidRelPermExponent;
+      double           m_hcRelPermExponent;
+      double           m_waterCapPresExponent;
+      double           m_hcCapPresExponent;
 
-      double           m_liquidWaterCapPresExponent;
-      double           m_vapourLiquidCapPresExponent;
-
+      double           m_residualHcSaturation;
       double           m_irreducibleWaterSaturation;
-      double           m_residualVapourSaturation;
-      double           m_residualLiquidSaturation;
 
-      double           m_waterRelPermMax;
-      double           m_vapourRelPermMax;
-      double           m_liquidRelPermMax;
 
 
       // These are mutable because the compute function in the interpolator is not const.
@@ -622,44 +598,24 @@ inline double GeoPhysics::CompoundLithology::getWaterRelPermExponent () const {
   return m_waterRelPermExponent;
 }
 
-inline double GeoPhysics::CompoundLithology::getVapourRelPermExponent () const {
-  return m_vapourRelPermExponent;
+inline double GeoPhysics::CompoundLithology::getHcRelPermExponent () const {
+  return m_hcRelPermExponent;
 }
 
-inline double GeoPhysics::CompoundLithology::getLiquidRelPermExponent () const {
-  return m_liquidRelPermExponent;
+inline double GeoPhysics::CompoundLithology::getWaterCapPresExponent () const {
+  return m_waterCapPresExponent;
 }
 
-inline double GeoPhysics::CompoundLithology::getLiquidWaterCapPresExponent () const {
-  return m_liquidWaterCapPresExponent;
+inline double GeoPhysics::CompoundLithology::getHcCapPresExponent () const {
+  return m_hcCapPresExponent;
 }
 
-inline double GeoPhysics::CompoundLithology::getVapourLiquidCapPresExponent () const {
-  return m_vapourLiquidCapPresExponent;
+inline double GeoPhysics::CompoundLithology::getResidualHcSaturation () const {
+   return m_residualHcSaturation;
 }
 
 inline double GeoPhysics::CompoundLithology::getIrreducibleWaterSaturation () const {
    return m_irreducibleWaterSaturation;
-}
-
-inline double GeoPhysics::CompoundLithology::getResidualVapourSaturation () const {
-   return m_residualVapourSaturation;
-}
-
-inline double GeoPhysics::CompoundLithology::getResidualLiquidSaturation () const {
-   return m_residualLiquidSaturation;
-}
-
-inline double GeoPhysics::CompoundLithology::getWaterRelPermMax () const {
-   return m_waterRelPermMax;
-}
-
-inline double GeoPhysics::CompoundLithology::getVapourRelPermMax () const {
-   return m_vapourRelPermMax;
-}
-
-inline double GeoPhysics::CompoundLithology::getLiquidRelPermMax () const {
-   return m_liquidRelPermMax;
 }
 
 

@@ -37,6 +37,8 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
 
    if ( pcKrModelStr == "Brooks_Corey" ) {
       m_pcKrModel = BROOKS_COREY_MODEL;
+   } else if ( pcKrModelStr == "Temis" ) {
+      m_pcKrModel = TEMIS_PACK_MODEL;
    } else {
       std::cout << " Error in Pc-Kr modelm unknown model type:" << pcKrModelStr << ". Using Brooks and Corey as default value." << endl;
       m_pcKrModel = BROOKS_COREY_MODEL;
@@ -222,52 +224,30 @@ PcKrModel  LithoType::getPcKrModel () const
 
 double  LithoType::getWaterRelPermExponent () const
 {
+   return database::getLambdaKrWater ( m_record );
+}
+
+double  LithoType::getHcRelPermExponent () const
+{
    return database::getLambdaKr ( m_record );
 }
 
-double  LithoType::getVapourRelPermExponent () const
+double  LithoType::getWaterCapPresExponent () const
 {
-   return database::getLambdaKrVapour ( m_record );
+   return database::getLambdaPcWater ( m_record ); 
 }
 
-double  LithoType::getLiquidRelPermExponent () const
-{
-   return database::getLambdaKrLiquid ( m_record );
-}
-
-double  LithoType::getCapPresExponent () const
+double LithoType::getHcCapPresExponent () const
 {
    return database::getLambdaPc ( m_record ); 
 }
 
-double  LithoType::getLiquidCapPresExponent () const
-{
-   return database::getLambdaPcLiquid ( m_record ); 
-}
-
-double LithoType::getResidualVapourSaturation () const {
-   return database::getSgr ( m_record );
-}
-
-double LithoType::getResidualLiquidSaturation () const {
+double LithoType::getResidualHcSaturation () const {
    return database::getSor ( m_record );
 }
 
 double LithoType::getIrreducibleWaterSaturation () const {
    return database::getSwi ( m_record );
-}
-
-
-double LithoType::getWaterRelPermMax () const {
-   return database::getKrwMax ( m_record );
-}
-
-double LithoType::getVapourRelPermMax () const {
-   return database::getKrgMax ( m_record );
-}
-
-double LithoType::getLiquidRelPermMax () const {
-   return database::getKroMax ( m_record );
 }
 
 
