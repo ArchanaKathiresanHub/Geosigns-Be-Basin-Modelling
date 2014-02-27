@@ -759,6 +759,7 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     
     if ( basinModel->isModellingMode3D() )
     {
+       basinModel->threeDTimeIoTbl->clear();
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
     
        //make sure that surfaceOutputPropterties is a superset of properties output in Output.C:savePropsOnSegmentNodes1D() 

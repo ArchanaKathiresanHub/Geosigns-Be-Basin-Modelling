@@ -1335,6 +1335,9 @@ bool AppCtx::openProject ()
    timeIoTbl = database->getTable ("TimeIoTbl");
    PETSC_ASSERT (timeIoTbl);
 
+   threeDTimeIoTbl = database->getTable ("3DTimeIoTbl");
+   PETSC_ASSERT (threeDTimeIoTbl);
+
    runStatusIoTbl = database->getTable ("RunStatusIoTbl");
    PETSC_ASSERT (runStatusIoTbl);
 

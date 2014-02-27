@@ -357,6 +357,7 @@ public:
 
    database::Database * database;
    database::Table * timeIoTbl;
+   database::Table * threeDTimeIoTbl;
    database::Table * runStatusIoTbl;
 
    LayerList layers;
