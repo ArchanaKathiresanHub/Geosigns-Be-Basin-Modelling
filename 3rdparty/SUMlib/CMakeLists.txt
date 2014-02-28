@@ -16,6 +16,8 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
+add_definitions(-DSUMLIB_EXPORT)
+
 include_directories(
       ${SUMPP_INCLUDE_DIR}
 )
