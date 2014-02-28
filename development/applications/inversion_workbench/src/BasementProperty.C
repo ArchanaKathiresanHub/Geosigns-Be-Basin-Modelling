@@ -17,8 +17,15 @@ void BasementProperty::nextValue()
    m_range.nextValue();
 }
 
+void BasementProperty::lastValue()
+{
+   m_range.lastValue();
+}
+
+
 bool BasementProperty::isPastEnd() const
 {
    return m_range.isPastEnd(); 
 }
+
 

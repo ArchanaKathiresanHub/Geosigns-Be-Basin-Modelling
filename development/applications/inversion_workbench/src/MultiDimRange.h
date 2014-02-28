@@ -13,6 +13,7 @@ public:
    void reset();
    void getValue(std::vector< double > & values) const;
    void nextValue();
+   void lastValue();
    bool isPastEnd() const ;
 
 private:

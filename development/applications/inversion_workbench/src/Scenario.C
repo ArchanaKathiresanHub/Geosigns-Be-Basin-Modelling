@@ -29,7 +29,7 @@ void Scenario::createProjectFile(const std::string & originalProjectFile, const 
    {
       try
       {
-	 m_parameters[i]->changeParameter(project);
+         m_parameters[i]->changeParameter(project);
       }
       catch (formattingexception::GeneralException & fe)
       {

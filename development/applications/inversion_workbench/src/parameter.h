@@ -2,6 +2,7 @@
 #define INVERSION_PARAMETER_H
 
 #include <iosfwd>
+#include <vector>
 
 class Project;
 
@@ -18,6 +19,16 @@ public:
 
    /// Updates a Cauldron project file with this specific parameter setting.
    virtual void changeParameter(Project & project)=0;
+
+   /// Returns true if parameter is continious (float)
+   virtual bool isContinuous() const = 0;
+
+   /// Return vector of values for parameter if it could be converted to vector of doubles
+   virtual std::vector<double> toDblVector() const = 0;
+
+   /// Set values for parameter if it could be set from vector of doubles
+   virtual void fromDblVector( const std::vector<double> & prms ) = 0;
+
 };
 
 #endif

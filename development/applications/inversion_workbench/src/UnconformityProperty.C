@@ -17,6 +17,12 @@ void UnconformityProperty::nextValue()
    m_range.nextValue();
 }
 
+void UnconformityProperty::lastValue()
+{
+   m_range.lastValue();
+}
+
+
 bool UnconformityProperty::isPastEnd() const
 {
    return m_range.isPastEnd(); 

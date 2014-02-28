@@ -21,6 +21,12 @@ void UnconformityLithologyProperty::nextValue()
    m_pastEnd = true;
 }
 
+void UnconformityLithologyProperty::lastValue()
+{
+   reset();
+   m_pastEnd = false;
+}
+
 bool UnconformityLithologyProperty::isPastEnd() const
 {
    return m_pastEnd;

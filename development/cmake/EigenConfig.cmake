@@ -12,7 +12,7 @@
 
 include( cmake/AddPackage.cmake)
 
-set(EIGEN_VERSION "3.2" CACHE STRING "PETSC Version")
+set(EIGEN_VERSION "3.2" CACHE STRING "Eigen Version")
 set(EIGEN_ROOT "${HPC_HOME}/eigen/${EIGEN_VERSION}/LinuxRHEL64" CACHE PATH "Path to the Eigen C++ Linear algebra library")
 set(EIGEN_INCLUDE_DIRS "${EIGEN_ROOT}/include")
 set(EIGEN_FOUND TRUE)

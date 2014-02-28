@@ -21,6 +21,7 @@ public:
    virtual void reset();
    virtual void createParameter(Scenario & scenario) const;
    virtual void nextValue();
+   virtual void lastValue();
    virtual bool isPastEnd() const;
 
 private:

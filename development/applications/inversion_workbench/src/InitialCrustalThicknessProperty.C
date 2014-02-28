@@ -17,6 +17,11 @@ void InitialCrustalThicknessProperty::nextValue()
    m_range.nextValue();
 }
 
+void InitialCrustalThicknessProperty::lastValue()
+{
+   m_range.lastValue();
+}
+
 bool InitialCrustalThicknessProperty::isPastEnd() const
 {
    return m_range.isPastEnd(); 

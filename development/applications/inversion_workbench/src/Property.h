@@ -17,10 +17,13 @@ public:
    virtual void reset() = 0;
 
    /// Adds a new Parameter setting to an existing scenario.
-   virtual void createParameter(Scenario & scenario) const = 0;
+   virtual void createParameter( Scenario & scenario ) const = 0;
 
    /// Go to the next value of the sequence
    virtual void nextValue() = 0;
+
+   /// for DoE we also need often the last value of the interval
+   virtual void lastValue() = 0;
 
    /// Returns 'true' when there are no more values in the sequence.
    virtual bool isPastEnd() const = 0;

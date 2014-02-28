@@ -2,6 +2,7 @@
 #define INVERSION_SCALAR_RANGE_H
 
 #include <cassert>
+#include <cmath>
 
 /// A one-dimensional range.
 class ScalarRange
@@ -19,14 +20,10 @@ public:
       assert( m_step < 0.0 || m_step > 0.0 );
    }
 
-   void reset()
-   { m_currentValue = m_start; }
-
-   double getValue() const
-   { return m_currentValue; }
-
-   void nextValue()
-   { m_currentValue += m_step; }
+   void   reset()          { m_currentValue = m_start; }
+   double getValue() const { return m_currentValue; }
+   void   nextValue()      { m_currentValue += m_step; }
+   void   lastValue()      { m_currentValue = m_end; }
 
    bool isPastEnd() const 
    { 

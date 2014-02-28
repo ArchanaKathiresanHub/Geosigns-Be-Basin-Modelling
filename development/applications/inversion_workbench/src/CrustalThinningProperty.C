@@ -9,7 +9,7 @@
 
 namespace 
 {
-   std::vector< ScalarRange > operator+( ScalarRange a, ScalarRange b)
+   std::vector< ScalarRange > operator+( ScalarRange a, ScalarRange b )
    {
       std::vector<ScalarRange > x;
       x.push_back(a);
@@ -17,7 +17,7 @@ namespace
       return x;
    }
 
-   std::vector< ScalarRange > operator+( const std::vector<ScalarRange> & xs, ScalarRange b)
+   std::vector< ScalarRange > operator+( const std::vector<ScalarRange> & xs, ScalarRange b )
    {
       std::vector<ScalarRange> ys(xs);
       ys.push_back(b);
@@ -25,7 +25,7 @@ namespace
    }
 }
 
-CrustalThinningProperty::CrustalThinningProperty( ScalarRange t0, ScalarRange dt, ScalarRange ratio)
+CrustalThinningProperty::CrustalThinningProperty( ScalarRange t0, ScalarRange dt, ScalarRange ratio )
     : m_range( t0 + dt + ratio ) 
 {
 }
@@ -35,11 +35,16 @@ void CrustalThinningProperty::reset()
    m_range.reset();
 }
 
-
 void CrustalThinningProperty::nextValue()
 {
    m_range.nextValue();
 }
+
+void CrustalThinningProperty::lastValue()
+{
+   m_range.lastValue();
+}
+
 
 bool CrustalThinningProperty::isPastEnd() const
 {
@@ -54,3 +59,4 @@ void CrustalThinningProperty::createParameter(Scenario & scenario) const
    assert( value.size() == 3);
    scenario.addParameter( new CrustalThinningParameter( value[0], value[1], value[2] ) );
 }
+

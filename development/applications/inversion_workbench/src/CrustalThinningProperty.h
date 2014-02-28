@@ -15,9 +15,10 @@ public:
    CrustalThinningProperty(ScalarRange t0, ScalarRange dt, ScalarRange ratio);
 
    virtual void reset();
-   virtual void createParameter(Scenario & scenario) const ;
-   virtual void nextValue() ;
-   virtual bool isPastEnd() const ;
+   virtual void createParameter(Scenario & scenario) const;
+   virtual void nextValue();
+   virtual void lastValue();
+   virtual bool isPastEnd() const;
 
 private:
    MultiDimRange m_range;

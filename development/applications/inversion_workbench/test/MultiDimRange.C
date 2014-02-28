@@ -217,5 +217,25 @@ TEST( MultiDimRangeMultiPass, TwoNonEmptyRanges )
    ASSERT_EQ( 9*17,  count );
 }
 
+// test case 5: two dimensions: two non-empty ranges
+TEST( MultiDimRangeMultiPass, TwoNonEmptyRanges )
+{  int count = 0;
+
+   std::vector<ScalarRange> twoDim;
+   twoDim.push_back( ScalarRange( 0, 1, 0.125 ) );
+   twoDim.push_back( ScalarRange( 0, 2, 0.125 ) );
+
+   MultiDimRange r( twoDim );
+   
+   r.lastValue();
+
+   std::vector<double> values;
+   r.getValue(values);
+
+   ASSERT_EQ( 2, values.size() );
+   ASSERT_EQ( 1.0,  values[0] );
+   ASSERT_EQ( 2.0,  values[1] );
+}
+
 
 

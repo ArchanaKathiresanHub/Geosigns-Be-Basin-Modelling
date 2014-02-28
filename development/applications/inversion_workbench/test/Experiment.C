@@ -2,6 +2,7 @@
 #include "DatadrillerProperty.h"
 #include "Property.h"
 #include "parameter.h"
+#include "SAUAParameters.h"
 
 #include <sstream>
 #include <iostream>
@@ -11,9 +12,10 @@
 class Empty : public Property
 {
 public:
-   virtual void reset() { } 
-   virtual void createParameter(Scenario & project) const { }
-   virtual void nextValue() { }
+   virtual void reset() {}
+   virtual void createParameter( Scenario & project ) const {}
+   virtual void nextValue() {}
+   virtual void lastValue() {}
    virtual bool isPastEnd() const { return true; }
 };
 
@@ -24,21 +26,29 @@ public:
    {
    public:
       Param(int n ) : m_n(n) {}
-      virtual void  print(std::ostream & output)
-      { output << m_n; }
+      virtual void  print( std::ostream & output ) { output << m_n; }
 
       virtual void changeParameter(Project & ) {}
+
+      /// Returns true if parameter is continious (float)
+      virtual bool isContinuous() const { return false; }
+
+      /// Return vector of values for parameter if it could be converted to vector of doubles
+      virtual std::vector<double> toDblVector() const { return std::vector<double>( 1, m_n ); }
+
+      /// Set values for parameter if it could be set from vector of doubles
+      virtual void fromDblVector( const std::vector<double> & prms ) { m_n = prms[0]; }
+
    private:
       int m_n;
    };
 
    NonEmpty() : m_i(0) {}
    virtual void reset() { m_i = 0; } 
-   virtual void createParameter(Scenario & project) const 
-   { project.addParameter( new Param( m_i ) ) ;}
-   virtual void nextValue() { m_i ++;  }
-   virtual bool isPastEnd() const
-   { return m_i >= 3; }
+   virtual void createParameter( Scenario & project ) const { project.addParameter( new Param( m_i ) ); }
+   virtual void nextValue() { m_i++; }
+   virtual void lastValue() { m_i = 2; }
+   virtual bool isPastEnd() const { return m_i >= 3; }
 
 private:
    int m_i;
@@ -61,15 +71,16 @@ public:
       , m_noRTInfo( "", "", "", "2012.1008", "-temperature")
    {}                                                            
 protected:
-   std::vector< boost::shared_ptr< Property > > m_params;
-   std::vector< DatadrillerProperty > m_noDataDriller;
-   RuntimeConfiguration m_noRTInfo;
+   std::vector< boost::shared_ptr<Property> > m_params;
+   std::vector<DatadrillerProperty>           m_noDataDriller;
+   RuntimeConfiguration                       m_noRTInfo;
+   SAUAParameters                             m_sauap;
 };
 
 // test case 1: empty set of properties
 TEST_F( ExperimentExperimentTest, NoProps )
 {  
-   Experiment e( m_params, m_noDataDriller, m_noRTInfo );
+   Experiment e( m_params, m_noDataDriller, m_noRTInfo, m_sauap );
 
    std::ostringstream s;
    e.printScenarios(s);
@@ -83,7 +94,7 @@ TEST_F( ExperimentExperimentTest, OnePropWithEmptyRange )
 {  
    m_params.push_back( boost::shared_ptr<Property>(new Empty));
 
-   Experiment e( m_params, m_noDataDriller, m_noRTInfo );
+   Experiment e( m_params, m_noDataDriller, m_noRTInfo, m_sauap );
 
    std::ostringstream s;
    e.printScenarios(s);
@@ -95,8 +106,9 @@ TEST_F( ExperimentExperimentTest, OnePropWithEmptyRange )
 TEST_F( ExperimentExperimentTest, OnePropWithNonEmptyRange )
 {  
    m_params.push_back( boost::shared_ptr<Property>(new NonEmpty));
+   SAUAParameters sauap;
 
-   Experiment e( m_params, m_noDataDriller, m_noRTInfo );
+   Experiment e( m_params, m_noDataDriller, m_noRTInfo, m_sauap );
 
    std::ostringstream s;
    e.printScenarios(s);
@@ -114,7 +126,7 @@ TEST_F( ExperimentExperimentTest, OnePropWithNonEmptyRangeAndOnePropWithEmptyRan
    m_params.push_back( boost::shared_ptr<Property>(new NonEmpty));
    m_params.push_back( boost::shared_ptr<Property>(new Empty));
 
-   Experiment e(m_params, m_noDataDriller, m_noRTInfo );
+   Experiment e(m_params, m_noDataDriller, m_noRTInfo, m_sauap );
 
    std::ostringstream s;
    e.printScenarios(s);
@@ -128,7 +140,7 @@ TEST_F( ExperimentExperimentTest, OnePropWithEmptyRangeAndOnePropWithNonEmptyRan
    m_params.push_back( boost::shared_ptr<Property>(new Empty));
    m_params.push_back( boost::shared_ptr<Property>(new NonEmpty));
 
-   Experiment e(m_params, m_noDataDriller, m_noRTInfo );
+   Experiment e( m_params, m_noDataDriller, m_noRTInfo, m_sauap );
 
    std::ostringstream s;
    e.printScenarios(s);
@@ -143,7 +155,7 @@ TEST_F( ExperimentExperimentTest, OnePropWithEmptyRangeBetweenTwoNonEmptyRanges 
    m_params.push_back( boost::shared_ptr<Property>(new Empty));
    m_params.push_back( boost::shared_ptr<Property>(new NonEmpty));
 
-   Experiment e(m_params, m_noDataDriller, m_noRTInfo );
+   Experiment e( m_params, m_noDataDriller, m_noRTInfo, m_sauap );
 
    std::ostringstream s;
    e.printScenarios(s);
@@ -158,7 +170,7 @@ TEST_F( ExperimentExperimentTest, ThreeNonEmptyRanges )
    m_params.push_back( boost::shared_ptr<Property>(new NonEmpty));
    m_params.push_back( boost::shared_ptr<Property>(new NonEmpty));
 
-   Experiment e(m_params, m_noDataDriller, m_noRTInfo );
+   Experiment e( m_params, m_noDataDriller, m_noRTInfo, m_sauap );
 
    std::ostringstream s;
    e.printScenarios(s);
@@ -193,5 +205,4 @@ TEST_F( ExperimentExperimentTest, ThreeNonEmptyRanges )
               " 27) 2; 2; 2\n", s.str()
          );
 }
-
 

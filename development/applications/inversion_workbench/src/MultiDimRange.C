@@ -1,17 +1,12 @@
 #include "MultiDimRange.h"
 #include <cassert>
 
-MultiDimRange
-   :: MultiDimRange( const std::vector< ScalarRange > & ranges)
-      : m_ranges(ranges)
-      , m_isPastEnd(false)
+MultiDimRange::MultiDimRange( const std::vector< ScalarRange > & ranges) : m_ranges(ranges), m_isPastEnd(false)
 {
    reset();
 }
 
-void
-MultiDimRange
-   :: reset()
+void MultiDimRange::reset()
 { 
    m_isPastEnd = m_ranges.empty();
 
@@ -23,9 +18,7 @@ MultiDimRange
    }
 }
 
-void
-MultiDimRange
-   :: getValue(std::vector< double > & values) const
+void MultiDimRange::getValue(std::vector< double > & values) const
 { 
    assert(!m_isPastEnd);
 
@@ -34,9 +27,7 @@ MultiDimRange
       values[i] = m_ranges[i].getValue();
 }
 
-void
-MultiDimRange
-   :: nextValue()
+void MultiDimRange::nextValue()
 {
    for (size_t i = 0; i < m_ranges.size(); ++i)
    {
@@ -51,9 +42,17 @@ MultiDimRange
    m_isPastEnd = true;
 }
 
-bool
-MultiDimRange
-   :: isPastEnd() const 
+void MultiDimRange::lastValue()
+{
+   reset();
+   for ( size_t i = 0; i < m_ranges.size(); ++i )
+   {
+      m_ranges[i].lastValue();
+   }
+}
+
+
+bool MultiDimRange::isPastEnd() const 
 { 
    return m_isPastEnd;
 }

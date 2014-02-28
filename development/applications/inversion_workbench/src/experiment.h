@@ -13,6 +13,7 @@
 
 class DatadrillerProperty;
 class Property;
+class SAUAParameters;
 
 /// An Experiment consists of several scenarios (see Scenario) that are generated / sampled
 /// from a set of properties (see Property). This experiment can be executed and 
@@ -20,7 +21,8 @@ class Property;
 class Experiment
 {
 public:
-   Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & DatadrillerDefinitions, const RuntimeConfiguration & datainfo);
+   Experiment( const std::vector< boost::shared_ptr<Property> > & params, const std::vector<DatadrillerProperty> & DatadrillerDefinitions, 
+               const RuntimeConfiguration & datainfo, const SAUAParameters & sauap );
 
    /// Generate the set of Cauldron project files from the scenarios: one for each scenario.
    void createProjectsSet() const;
@@ -36,14 +38,16 @@ public:
    void printScenarios(std::ostream & output) const;
 
 private:
-   static std::vector< Scenario > sample(const std::vector< boost::shared_ptr<Property> > & parameterDefinitions );
-   std::string workingProjectFileName(unsigned scenarioNumber) const;
-   std::string workingLogFileName(unsigned scenarioNumber) const;
-   std::string resultsFileName(unsigned scenarioNumber) const;
+   static std::vector<Scenario> sample(    const std::vector<boost::shared_ptr<Property> > & parameterDefinitions );
+   static std::vector<Scenario> createDoE( const std::vector<boost::shared_ptr<Property> > & parameterDefinitions, const SAUAParameters & sauap );
 
-   std::vector< Scenario > m_scenarios;
+   std::string workingProjectFileName( unsigned scenarioNumber ) const;
+   std::string workingLogFileName(     unsigned scenarioNumber ) const;
+   std::string resultsFileName(        unsigned scenarioNumber ) const;
+
+   std::vector< Scenario >            m_scenarios;
    std::vector< DatadrillerProperty > m_probes;
-   RuntimeConfiguration m_experimentInfo;
+   RuntimeConfiguration               m_experimentInfo;
 };
 
 #endif

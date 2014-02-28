@@ -23,6 +23,7 @@ add_executable(adjust
 )
 
 include_directories(
+    ${SUMPP_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
     ${PROJECT_SOURCE_DIR}/libraries
     ${PROJECT_SOURCE_DIR}/applications/xcauldron/src
@@ -113,9 +114,8 @@ if (UNIX)
 endif()
 
 
-set_target_properties(cauldronexplorer
-      PROPERTIES COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
-                 LINK_FLAGS "${CAULDRON_EXPLORER_LINK_FLAGS}"
+set_target_properties( cauldronexplorer
+      PROPERTIES COMPILE_FLAGS "${OpenMP_CXX_FLAGS}" LINK_FLAGS "${CAULDRON_EXPLORER_LINK_FLAGS}"
 )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -140,6 +140,7 @@ target_link_libraries(cauldronexplorer
     utilities
     EosPack
     projectdependencies
+    SUMlib
 )
 
 get_target_property(PARSPEC_EXEC parspec LOCATION)
@@ -153,6 +154,10 @@ add_custom_command( OUTPUT ${generator_source_files}
 )
 
 install(TARGETS cauldronexplorer
+        RUNTIME DESTINATION bin
+)
+
+install(TARGETS adjust
         RUNTIME DESTINATION bin
 )
 
@@ -208,6 +213,41 @@ add_gtest(NAME Experiment
                    Serial_Hdf5
                    utilities
                    EosPack
+                   SUMlib
+                   projectdependencies
+)
+
+add_gtest(NAME SUMPPDoE
+          SOURCES test/SUMPPDoE.C
+                  src/Scenario.C
+                  src/DatadrillerProperty.C
+                  src/experiment.C
+                  src/project.C
+                  src/ProjectResultsReader.C
+                  src/system.C
+                  src/Crust.C
+                  src/ExperimentResultsTablePrinter.C
+                  src/ExperimentResultsTable.C
+          LIBRARIES
+                   DataMining
+                   Interpolation
+                   LinearAlgebra
+                   FiniteElements
+                   GeoPhysics
+                   genex6_kernel
+                   genex6
+                   Interpolation
+                   CrustalThickness
+                   LinearAlgebra
+                   OTGC_kernel6
+                   DataAccess
+                   SerialDataAccess
+                   TableIO
+                   CBMGenerics
+                   Serial_Hdf5
+                   utilities
+                   EosPack
+                   SUMlib
                    projectdependencies
 )
 

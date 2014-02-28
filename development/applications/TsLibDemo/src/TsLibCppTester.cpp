@@ -176,7 +176,7 @@ void TestTcfInfo( const std::string & workingDir )
 			cout << "Realizations in Tcf: " << tcfInfo->Realizations() << endl;
 			cout << "Is Direct Analog Run: " << tcfInfo->IsDirectAnalogRun() << endl;
 		}
-		tcfInfo->Tcf(workingDir + "/sampletestdata/RQCDataSet - DirectAnalog.tcf");
+		tcfInfo->Tcf(workingDir + "/sampletestdata/RQCDataSet-DirectAnalog.tcf");
 		cout << "RQCDataSet - DirectAnalog.tcf: Is Version 1 Tcf: " << tcfInfo->IsV1() << " Is Version 2 Tcf: " << tcfInfo->IsV2() << endl;
 		if (tcfInfo->IsV2()) {
 			//do something with the header..

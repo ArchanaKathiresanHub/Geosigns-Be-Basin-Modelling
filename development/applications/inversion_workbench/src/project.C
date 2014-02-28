@@ -1,6 +1,7 @@
 #include "project.h"
 #include "formattingexception.h"
 #include "Crust.h"
+#include "Utils.h"
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Surface.h"
@@ -10,27 +11,23 @@
 #include "cauldronschemafuncs.h"
 
 #include <cmath>
+#include <string>
 
-struct AdjustException : formattingexception::BaseException< AdjustException > 
-{ AdjustException() { *this << "Error adjusting parameter: "; } };
+struct AdjustException : formattingexception::BaseException< AdjustException > { AdjustException() { *this << "Error adjusting parameter: "; } };
 
-Project
-   ::  Project(const std::string & input, const std::string & output )
-   : m_inputFileName(input)
-   , m_outputFileName(output)
+Project::Project(const std::string & input, const std::string & output )
+   : m_inputFileName( input )
+   , m_outputFileName( output )
    , m_projectHandle(DataAccess::Interface::OpenCauldronProject( m_inputFileName, "rw" ))
-   , m_crust()                                                                                      
 {
-   if (!m_projectHandle)
-      throw AdjustException() << "Could not load project file '" << m_inputFileName << "'";
+   if ( !m_projectHandle.get() )  throw AdjustException() << "Could not load project file '" << m_inputFileName << "'";
 }
 
-Project
-   :: ~Project()
+Project::~Project()
 {
    try
    {
-      discard();
+      m_projectHandle.reset();
    }
    catch(...)
    {
@@ -39,29 +36,17 @@ Project
 }
 
 
-void
-Project
-   :: close()
+void Project::close()
 {
-   if (m_crust)
-      setCrustThickness( m_crust->getThicknessHistory() );
+   if ( m_crust.get() ) setCrustThickness( m_crust->getThicknessHistory() );
 
-   if (m_projectHandle)
-      m_projectHandle->saveToFile(m_outputFileName);
+   if ( m_projectHandle.get() ) m_projectHandle->saveToFile(m_outputFileName);
 
    m_projectHandle.reset();
 }
 
-void
-Project
-   :: discard()
-{
-   m_projectHandle.reset();
-}
 
-double
-Project
-   :: setBasementProperty(const std::string & parameter, double newValue)
+double Project::setBasementProperty( const std::string & parameter, double newValue )
 {
    database::Table * table = m_projectHandle->getTable("BasementIoTbl");
    if (!table)
@@ -84,20 +69,17 @@ Project
    return oldValue;
 }
 
-void
-Project
-   :: setCrustThickness( const std::vector< std::pair<Time, Thickness> > & series)
+void Project::setCrustThickness( const std::vector< std::pair<Time, Thickness> > & series )
 {
    database::Table * table = m_projectHandle->getCrustIoTable();
-   if (!table)
-      throw AdjustException() << "Project file '" << m_inputFileName << "' seems to be incompatible, "
-                              << "because the CrustIoTbl tabel could not be found.";
+
+   if ( !table ) throw AdjustException() << "Project file '" << m_inputFileName << "' seems to be incompatible, because the CrustIoTbl tabel could not be found.";
 
    // remove all records from the table;
    table->clear();
 
    // add new records
-   for (size_t i = 0 ; i < series.size(); ++i)
+   for ( size_t i = 0 ; i < series.size(); ++i )
    {
       database::Record * newRecord = table->createRecord();
       assert( newRecord && "Could not allocate new record in Crust thickness table");
@@ -118,21 +100,14 @@ Project
    }
 }
 
-void
-Project
-   :: setInitialCrustalThicknessProperty (double thickness)
+void Project::setInitialCrustalThicknessProperty( double thickness )
 {
-   if (!m_crust)
-   {
-      m_crust.reset( new Crust(thickness) );
-   }
+   if ( !m_crust.get() )  m_crust.reset( new Crust(thickness) );
 }
 
-void
-Project
-   :: addCrustThicknessThinningEvent(double startTime, double duration, double ratio)
+void Project::addCrustThicknessThinningEvent( double startTime, double duration, double ratio )
 {
-   assert (m_crust);
+   assert( m_crust.get() );
 
    m_crust->addThinningEvent(startTime, duration, ratio);
 }
@@ -165,10 +140,9 @@ void Project::getUnconformityRecords (const std::string & depoFormationName, dat
       assert( record );
       if (database::getLayerName (record) == depoFormationName)
       {
-	 depositionRecord = record;
-	 break;
+	      depositionRecord = record;
+         break;
       }
-
       erosionRecord = record;
    }
 
@@ -180,7 +154,7 @@ void Project::getUnconformityRecords (const std::string & depoFormationName, dat
 }
 
 
-void Project::insertSnapshot (double time)
+void Project::insertSnapshot( double time )
 {
    struct SnapshotIoTbl 
    {  static bool Sorter(database::Record * recordL,  database::Record * recordR)
@@ -207,11 +181,10 @@ void Project::insertSnapshot (double time)
 }
 
 
-
-void Project::setUnconformityLithologyProperty(const std::string & depoFormationName,
-      const std::string & lithology1, double percentage1,
-      const std::string & lithology2, double percentage2,
-      const std::string & lithology3, double percentage3)
+void Project::setUnconformityLithologyProperty( const std::string & depoFormationName,
+                                                const std::string & lithology1, double percentage1,
+                                                const std::string & lithology2, double percentage2,
+                                                const std::string & lithology3, double percentage3)
 {
 
    database::Record * erosionRecord = 0;
@@ -255,15 +228,14 @@ void Project::setUnconformityLithologyProperty(const std::string & depoFormation
    }
 }
 
-void Project::setUnconformityProperty(const std::string & depoFormationName,
-      const std::string & parameter, double value)
+void Project::setUnconformityProperty(const std::string & depoFormationName, const std::string & parameter, double value)
 {
    database::Record * erosionRecord = 0;
    database::Record * depositionRecord = 0;
 
    getUnconformityRecords(depoFormationName, depositionRecord, erosionRecord);
 
-   if (parameter == "Thickness")
+   if ( parameter == "Thickness" )
    {
       using DataAccess::Interface::DefaultUndefinedScalarValue;
 
@@ -277,17 +249,16 @@ void Project::setUnconformityProperty(const std::string & depoFormationName,
       database::setThickness (depositionRecord, value);
       database::setThickness (erosionRecord, -value);
    }
-   else if (parameter == "EndOfDeposition")
+   else if ( parameter == "EndOfDeposition" )
    {
       double startOfUnconformity = getStartOfDeposition (depositionRecord);
       double endOfUnconformity = getDepoAge (erosionRecord);
 
       if (value >= startOfUnconformity || value <= endOfUnconformity)
       {
-	 throw AdjustException() << 
-	    "Proposed end of deposition (" << value << ") of unconformity '" << depoFormationName << "' does not lie between "
-	    "start of unconformity (" << startOfUnconformity << ") and "
-	    "end of unconformity (" << endOfUnconformity << ")";
+         throw AdjustException() << "Proposed end of deposition (" << value << ") of unconformity '" << depoFormationName << "' does not lie between "
+                                    "start of unconformity (" << startOfUnconformity << ") and "
+                                    "end of unconformity (" << endOfUnconformity << ")";
       }
 
       database::setDepoAge (depositionRecord, value);
@@ -299,12 +270,11 @@ void Project::setUnconformityProperty(const std::string & depoFormationName,
    }
 }
 
-void
-Project
-   :: setSurfaceTemperature( double temperature )
+void Project::setSurfaceTemperature( double temperature )
 {
-   database::Table * table = m_projectHandle->getTable("SurfaceTempIoTbl");
-   if (!table)
+   database::Table * table = m_projectHandle->getTable( "SurfaceTempIoTbl" );
+
+   if ( !table )
       throw AdjustException() << "Project file '" << m_inputFileName << "' seems to be incompatible, "
                               << "because the SurfaceTempIoTbl table could not be found.";
 
@@ -313,41 +283,71 @@ Project
 
    // insert a single record with the specified temperature
    database::Record * record = table->createRecord ();
-   assert (record);
+   assert( record );
 
-   database::setAge(record, 0.0);
-   database::setTemperature(record, temperature);
-   database::setErrTemperature(record, 0.0);
-   database::setTemperatureGrid(record, "");
+   database::setAge( record, 0.0 );
+   database::setTemperature( record, temperature );
+   database::setErrTemperature( record, 0.0 );
+   database::setTemperatureGrid( record, "" );
 }
 
 
-void
-Project
-   :: clearSnapshotTable()
+void Project::setSourceRockLithology( const std::string & layerName, const std::string & prmName, const std::string & newValue )
+{
+   database::Table * table = m_projectHandle->getTable( "SourceRockLithoIoTbl" );
+
+   if ( !table ) throw AdjustException() << "Project file '" << m_inputFileName << 
+                                            "' seems to be incompatible, because the SourceRockLithoIoTbl table could not be found.";
+   bool found = false;
+   for ( database::Table::iterator tit = table->begin (); tit != table->end (); ++tit )
+   {
+      database::Record * record = *tit;
+      assert( record );
+
+      if ( database::getLayerName( record ) == layerName )
+      {
+         if ( prmName == "TocIni" )
+         {
+            try 
+            {
+               database::setTocIni( record, fromString<double>( newValue ) );
+            }
+            catch ( ConversionException & e )
+            {
+               throw AdjustException() << "The value in the NAME=VALUE parameter of the --set-basement-property option must be real number.";
+            }
+         }
+         else
+         {
+            throw AdjustException() << "Changing SourceRockLithoIoTbl:" << prmName << " not implemented yet";
+         }
+         found = true;
+         break;
+      }
+   }
+   if ( !found ) throw AdjustException() << "SourceRockLithoIoTbl does not have record for layer: " << layerName << ". Can't change TocIni";
+}
+
+void Project::clearSnapshotTable()
 {
    // Clear the Snapshot table.
    // This is necessary, when the time of events change. These influence time stepping
    // which has a large effect on precision.
-   database::Table * snapshotTable = m_projectHandle->getTable("SnapshotIoTbl");
+   database::Table * snapshotTable = m_projectHandle->getTable( "SnapshotIoTbl" );
 
-   if (!snapshotTable)
+   if ( !snapshotTable )
       throw AdjustException() << "Project file '" << m_inputFileName << "' seems to be incompatible, "
                               << "because the SnapshotIoTbl tabel could not be found.";
 
    snapshotTable->clear();
 }
 
-void
-Project
-   :: adjustThermalConductivity( const std::string & lithotype, double correctionFactor)
+void Project::adjustThermalConductivity( const std::string & lithotype, double correctionFactor )
 {
-   setLithotypeProperty("StpThCond", lithotype, 0.0, correctionFactor);
+   setLithotypeProperty( "StpThCond", lithotype, 0.0, correctionFactor );
 }
 
-void
-Project
-   :: setLithotypeProperty( const std::string & property, const std::string & lithotype, double increment, double multiplicationFactor)
+void Project::setLithotypeProperty( const std::string & property, const std::string & lithotype, double increment, double multiplicationFactor )
 {
    database::Table * table = m_projectHandle->getTable("LithotypeIoTbl");
    if (!table)
@@ -366,8 +366,7 @@ Project
    }
 }
 
-Project :: Formation 
-   :: Formation( const DataAccess::Interface::Formation * formation)
+Project::Formation::Formation( const DataAccess::Interface::Formation * formation )
    : std::string( formation->getName() )
    , m_minThickness(0.0)
    , m_maxThickness(0.0)
@@ -380,10 +379,9 @@ Project :: Formation
    m_constant = thickness->isConstant();
 }
 
+
 // Returns which formations erode which other formations
-std::map< Project :: Formation, std::vector< Project :: Formation > >
-Project
-   :: getErosionFormations() const
+std::map<Project::Formation, std::vector<Project::Formation> > Project::getErosionFormations() const
 {
    // get all formations, but without the basement formation
    std::auto_ptr<DataAccess::Interface::SurfaceList> surfaces( m_projectHandle->getSurfaces(0,false) );
@@ -417,9 +415,7 @@ Project
    return result;
 }
 
-void
-Project
-   :: setErosionThickness(const std::string & formationName, double thickness, double t0, double t1, double t2 )
+void Project::setErosionThickness(const std::string & formationName, double thickness, double t0, double t1, double t2 )
 {
    assert( thickness >= 0.0 );
    assert( isnan(t0) || isnan(t1) || t0 > t1 );
@@ -498,9 +494,7 @@ Project
 } 
 
 
-void 
-Project
-   :: addErosion( double thickness, double t0, double duration )
+void Project::addErosion( double thickness, double t0, double duration )
 {
    assert( thickness > 0.0 );
 
@@ -603,9 +597,7 @@ Project
 }
 
 
-Project :: SurfaceOrder 
-Project
-   :: compare( const DataAccess::Interface::Surface * a, const DataAccess::Interface::Surface * b )
+Project::SurfaceOrder Project::compare( const DataAccess::Interface::Surface * a, const DataAccess::Interface::Surface * b )
 {
    const DataAccess::Interface::GridMap * gridA = a->getInputDepthMap(), * gridB = b->getInputDepthMap();
 

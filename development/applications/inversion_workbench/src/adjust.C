@@ -1,14 +1,13 @@
 #include <iostream>
-#include <string>
 #include <vector>
 #include <typeinfo>
 #include <iterator>
 #include <algorithm>
 #include <cmath>
 
-#include "formattingexception.h"
 #include "project.h"
 #include "optionparser.h"
+#include "Utils.h"
 
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
@@ -69,97 +68,81 @@ const std::string lithotypeProperties[]
     , "SurfacePorosity", "volumetric fraction of pore space in the rock/fluid mixture at the surface for a lithotype or a lithology"
   };
 
-void showUsage ( const char* message, const char * parameter=0 ) 
-{ 
-   std::cerr << '\n';
+void showUsage()
+{
+   std::cout << "NAME\n"
+      << "\tadjust - Let's you change input parameters in a Cauldron Project3d file from the command line"
+      << '\n'
+      << "SYNOPSIS\n"
+      << "\tUsage: adjust [OPTION] ... \n"
+	   << '\n'
+	   << "OPTIONS\n"
+           << "\t--project <cauldron-project-file>   Specify input file. (in which case you do not need to give a name as the last parameter)\n" 
+           << "\t--output <cauldron-project-file>    Specify output file (by default is equal to input file).\n" 
+	   << "\t--set-basement-property <parameter-name>=<new-value>\n"
+           << "\t                                    Set a specified property in the BasementIoTbl. See below for a list of parameter names\n"
+      << "\t--set-source-rock-lithology <layer-name>,<property>,<new value>\n"
+           << "\t                                    Set a specified property in the SourceRockLithoIoTbl for given layer name\n"
+	   << "\t--set-crust-thickness <series of ages, series of thickness >\n"
+	   << "\t                                    Specify the thicnkess of the crust at a specified moment in history, e.g.:\n"
+	   << "\t                                      $ adjust --set-crust-thickness 0 100 200 300, 30000 20000 25000 35000 MyProject.project3d\n"
+	   << "\t                                    Note: As a (necessary) side effect, it will also clear the snapshot table\n"
+	   << "\t--adjust-thermal-conductivity <lithotype>=<multiplication factor>\n"
+	   << "\t                                    Adjust the thermal conductity of one or all lithogies in them model. See below for a list of lithotype names.\n"
+	   << "\t--set-lithology-property <property>,<lithotype>=<offset>,<multiplication factor>\n"
+	   << "\t--show-erosion-formations           Outputs the names of the formations that are erosions.\n"
+	   << "\t--set-erosion <formation-name>=<thickness>[,<t0>,<t1>,<t2>]\n"
+	   << "\t                                    Specify the thickness and age of an erosion and coinciding eroded layer. t0 marks the beginning of\n"
+	   << "\t                                    the eroded formation, t1 the end of the eroded formation and the beginning of the erosion, and t2\n"
+	   << "\t                                    the end of the erosion.\n"
+         << "\t                                    Note: As a (necessary) side effect, it will also clear the snapshot table\n"
+	   << "\t--add-erosion <thickness>,<erosion start>,<erosion length>\n"
+	   << "\t--help                              to print this message.\n"
+         << std::endl;
 
-   if ( message ) {
-      std::cerr << "ERROR: "  << message ;
-      
-      if (parameter)
-	std::cerr << ' ' << parameter ;
-      
-      std::cerr << "\n\n";
-   }
-
-   std::cerr << "NAME\n"
-     	     << "\tadjust - Let's you change input parameters in a Cauldron Project3d file from the command line"
-	     << '\n'
-             << "SYNOPSIS\n"
-             << "\tUsage: adjust [OPTION] ... \n"
-	     << '\n'
-	     << "OPTIONS\n"
-             << "\t--project <cauldron-project-file>   Specify input file. (in which case you do not need to give a name as the last parameter)\n" 
-             << "\t--output <cauldron-project-file>    Specify output file (by default is equal to input file).\n" 
-	     << "\t--set-basement-property <parameter-name>=<new-value>\n"
-             << "\t                                    Set a specified property in the BasementIoTbl. See below for a list of parameter names\n"
-	     << "\t--set-crust-thickness <series of ages, series of thickness >\n"
-	     << "\t                                    Specify the thicnkess of the crust at a specified moment in history, e.g.:\n"
-	     << "\t                                      $ adjust --set-crust-thickness 0 100 200 300, 30000 20000 25000 35000 MyProject.project3d\n"
-	     << "\t                                    Note: As a (necessary) side effect, it will also clear the snapshot table\n"
-	     << "\t--adjust-thermal-conductivity <lithotype>=<multiplication factor>\n"
-	     << "\t                                    Adjust the thermal conductity of one or all lithogies in them model. See below for a list of lithotype names.\n"
-	     << "\t--set-lithology-property <property>,<lithotype>=<offset>,<multiplication factor>\n"
-	     << "\t--show-erosion-formations           Outputs the names of the formations that are erosions.\n"
-	     << "\t--set-erosion <formation-name>=<thickness>[,<t0>,<t1>,<t2>]\n"
-	     << "\t                                    Specify the thickness and age of an erosion and coinciding eroded layer. t0 marks the beginning of\n"
-	     << "\t                                    the eroded formation, t1 the end of the eroded formation and the beginning of the erosion, and t2\n"
-	     << "\t                                    the end of the erosion.\n"
-     	     << "\t                                    Note: As a (necessary) side effect, it will also clear the snapshot table\n"
-	     << "\t--add-erosion <thickness>,<erosion start>,<erosion length>\n"
-	     << "\t--help                              to print this message.\n"
-             << std::endl;
-
-   std::cerr << "BASEMENT PARAMETERS\n";
-   for (size_t i = 0 ; i < sizeof(basementParameters)/sizeof(basementParameters[0]) / 2; ++i)
+   std::cout << "BASEMENT PARAMETERS\n";
+   for ( size_t i = 0 ; i < sizeof(basementParameters)/sizeof(basementParameters[0]) / 2; ++i )
    {
-     std::cerr << "\t" << i << ". '" << basementParameters[2*i] << "' -> '" << basementParameters[2*i+1] << "'\n";
+     std::cout << "\t" << i << ". '" << basementParameters[2*i] << "' -> '" << basementParameters[2*i+1] << "'\n";
    }
-   std::cerr << "\n";
+   std::cout << std::endl;
 
-   std::cerr << "LITHOTYPE NAMES\n";
-   for (size_t i = 0 ; i < sizeof(lithotypes)/sizeof(lithotypes[0]) / 2; ++i)
-     std::cerr << "\t" << i << ". '" << lithotypes[2*i] << "' -> '" << lithotypes[2*i + 1] << "'\n";
+   std::cout << "LITHOTYPE NAMES\n";
+   for (size_t i = 0 ; i < sizeof( lithotypes ) / sizeof( lithotypes[0] ) / 2; ++i )
+   {
+     std::cout << "\t" << i << ". '" << lithotypes[2*i] << "' -> '" << lithotypes[2*i + 1] << "'\n";
+   }
    
-   std::cerr << "\n";
-   std::cerr << "LITHOLOGY PROPERTIES\n";
-   for (size_t i = 0 ; i < sizeof(lithotypeProperties)/sizeof(lithotypeProperties[0]) / 2; ++i)
-     std::cerr << "\t" << i << ". '" << lithotypeProperties[2*i] << "' -> '" << lithotypeProperties[2*i + 1] << "'\n";
+   std::cout << "\n";
+   std::cout << "LITHOLOGY PROPERTIES\n";
+   for ( size_t i = 0 ; i < sizeof(lithotypeProperties) / sizeof(lithotypeProperties[0]) / 2; ++i )
+   {
+     std::cout << "\t" << i << ". '" << lithotypeProperties[2*i] << "' -> '" << lithotypeProperties[2*i + 1] << "'\n";
+   }
 
-   std::cerr << std::endl;
+   std::cout << std::endl;
 }
-
-
-
-
 
 
 void terminateHandler()
-try
 {
-   throw;
+   try
+   {
+      throw;
+   }
+   catch( std::exception & e )
+   {
+      std::cerr << '\n';
+
+      std::cerr << "ERROR: "  << e.what() << endl;
+      std::exit(1);
+   }
+   catch(...)
+   {
+      std::cerr << "UNKNOWN ERROR" << endl;
+      std::exit(1);
+   }
 }
-catch( std::exception & e)
-{
-     showUsage( e.what() );
-     std::exit(1);
-}
-
-struct ConversionException : formattingexception::BaseException< ConversionException > {};			     
-
-template <typename T>
-T fromString(const std::string & x)
-{
-   T y;
-   std::istringstream s(x);
-   s >> y;
-
-   if (!s)
-      throw ConversionException() << "Error while converting std::string '" << x << "' to type '" << typeid(y).name() << "'" ;
-
-   return y;
-}
-
 
 
 /// Retrieve and adjust the value of the parameter in the project file.
@@ -175,7 +158,7 @@ int main( int argc, char ** argv)
 
    if (options.defined("help"))
    {
-      showUsage(0);
+      showUsage();
       return EXIT_SUCCESS;
    }
 
@@ -197,7 +180,7 @@ int main( int argc, char ** argv)
    }
 
 
-   Project project( inputProject, outputProject);
+   Project project( inputProject, outputProject );
 
    // Set basement property
    if (options.defined("set-basement-property"))
@@ -232,7 +215,34 @@ int main( int argc, char ** argv)
       options.erase("set-basement-property");
    }
 
-   if (options.defined("set-crust-thickness"))
+   if ( options.defined( "set-source-rock-lithology" ) )
+   {
+      const char * sourceRockLithErrMsg = "The parameter of --set-source-rock-lithology must be of the form LAYER_NAME,PROPERTY,VALUE";
+
+      OptionParser::OptionValues values = options["set-source-rock-lithology"];
+
+      if (values.size() % 5 != 0 )
+      {
+         throw OptionException() << sourceRockLithErrMsg;
+      }
+
+      for ( int i = 0; i < values.size(); i+= 5 )
+      {
+         const std::string & layerName = values[i];
+         if (values[i+1] != ",") throw OptionException() << sourceRockLithErrMsg;
+
+         const std::string & propName = values[i+2];
+         if (values[i+3] != ",") throw OptionException() << sourceRockLithErrMsg;
+
+         const std::string & propValue = values[i+4];
+         
+         project.setSourceRockLithology( layerName, propName, propValue );
+      }
+
+      options.erase("set-source-rock-lithology");
+   }
+
+   if ( options.defined( "set-crust-thickness" ) )
    {
       OptionParser::OptionValues values = options["set-crust-thickness"];
 
@@ -501,13 +511,13 @@ int main( int argc, char ** argv)
    if (! options.empty() )
    {
       std::vector< std::string > unusedParams = options.definedNames();
-      std::cerr << "WARNING: there " << (unusedParams.size() > 1 ? "are " : "is ") 
+      std::cout << "WARNING: there " << (unusedParams.size() > 1 ? "are " : "is ") 
          << unusedParams.size() << " parameter" << (unusedParams.size() > 1? "s" : "") << " ignored:\n";
 
       for (size_t i = 0; i < unusedParams.size(); ++i)
-         std::cerr << "WARNING: --" << unusedParams[i] << '\n';
+         std::cout << "WARNING: --" << unusedParams[i] << '\n';
 
-      std::cerr << std::endl;
+      std::cout << std::endl;
    }
 
    return EXIT_SUCCESS;

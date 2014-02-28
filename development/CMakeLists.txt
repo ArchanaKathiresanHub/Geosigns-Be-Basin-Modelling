@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2014 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -57,7 +57,7 @@ set(CMAKE_INSTALL_PREFIX "" CACHE PATH "Installation prefix" )
 set(CMAKE_BUILD_TYPE "" CACHE STRING "CMake build type ('Release' or 'Debug')")
 set(SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
 
-set(BM_VERSION_NUMBER_MAJOR "2013" CACHE STRING "Numerical version major string. Anything like 2013")
+set(BM_VERSION_NUMBER_MAJOR "2014" CACHE STRING "Numerical version major string. Anything like 2014")
 set(BM_VERSION_NUMBER_MINOR "01" CACHE STRING "Numerical version minor string. Anything like 01")
 set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
 set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
@@ -157,6 +157,7 @@ endif()
 find_package(Hdf5 REQUIRED CONFIG)
 find_package(OpenMP REQUIRED CONFIG)   
 find_package(Eigen REQUIRED CONFIG)
+find_package(SUMlib REQUIRED CONFIG)
 
 if (UNIX)
    find_package(BLAS REQUIRED CONFIG)

@@ -83,6 +83,17 @@ START-properties
   Identification : StepZ
   Type       : double
 
+  Identification : AlgoType 
+  Description    : Name of the stage in SA/UA
+  Type           : string
+
+  Identification : AlgoName
+  Description    : Name of the algorithm which will be used in corresponded stage of SA/UA
+  Type           : string
+
+  Identification : AlgoParameters
+  Description    : Set of parameters for algorith in SA/UA
+  Type           : string
 
 END-properties
 
@@ -148,6 +159,11 @@ START-property-tables
   Column     : StepZ
   Header     : Project Data
   Property I/O : Yes
+
+  Identification : SAUAParameters
+  Column         : AlgoType
+  Column         : AlgoName
+  Column         : AlgoParameters
 
 END-property-tables
 
