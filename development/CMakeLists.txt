@@ -110,6 +110,7 @@ if(MSVC)
       add_definitions(-DUTILITIES_STATIC)
       add_definitions(-DSERIALHDF5_STATIC)
       add_definitions(-DTABLEIO_STATIC)
+      add_definitions(-DSUMLIB_STATIC)
    endif()
 endif()
 

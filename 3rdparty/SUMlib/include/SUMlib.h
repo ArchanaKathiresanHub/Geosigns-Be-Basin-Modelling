@@ -7,7 +7,7 @@
 #define SUMLIB_SUMLIB_H
 
 // dll import/export only for windows
-#ifdef WIN32
+#if defined(WIN32) && !defined(SUMLIB_STATIC)
 
 // Make sure the interface definition doesn't mess up anything already defined.
 #ifdef INTERFACE_SUMLIB
