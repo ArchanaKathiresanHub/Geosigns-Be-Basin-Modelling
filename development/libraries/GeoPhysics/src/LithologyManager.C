@@ -141,10 +141,10 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleFaultLitholo
 
       std::vector<double> defaultPermeabilities(2);
       std::vector<double> defaultPorosities(2);
-      // defaultPorosities[0] = 70.0 ; // FIXME: Uncomment this line
-      // defaultPorositues[1] = 3.0  ; // FIXME: Uncomment this line
-      defaultPorosities[0] = 70.0 * 100.0; // FIXME: Remove this line
-      defaultPorosities[1] = 3.0 * 100.0; // FIXME: Remove this line
+
+      defaultPorosities[0] = 70.0 ; 
+      defaultPorosities[1] = 3.0  ; 
+
       double anisotropy;
 
       if ( verticalStatus == Interface::PASS_WATER ) {
