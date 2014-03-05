@@ -23,7 +23,7 @@ class MainWindow : public QMainWindow
 
   DataAccess::Interface::ProjectHandle* m_projectHandle;
   
-  std::shared_ptr<SceneGraph> m_sceneGraph;
+  SceneGraph* m_sceneGraph;
 
   static void fpsCallback(float fps, void* userData, SoQtViewer* viewer);
 
@@ -42,6 +42,12 @@ private slots:
   void onActionOpenTriggered();
 
   void onSliderValueChanged(int value);
+
+  void onSliceIValueChanged(int value);
+
+  void onSliceJValueChanged(int value);
+
+  void onRenderModeToggled(bool value);
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 

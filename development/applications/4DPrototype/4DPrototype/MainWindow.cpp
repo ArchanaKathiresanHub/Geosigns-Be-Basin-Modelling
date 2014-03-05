@@ -5,6 +5,7 @@
 #include "Interface/Property.h"
 #include "Interface/Formation.h"
 #include "Interface/Surface.h"
+#include "Interface/Grid.h"
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QTreeWidget>
@@ -36,12 +37,15 @@ void MainWindow::loadProject(const QString& filename)
 
   m_projectHandle = di::OpenCauldronProject(filename.toStdString(), "r");
 
-  m_sceneGraph.reset(new SceneGraph(m_projectHandle));
+  m_sceneGraph = new SceneGraph;
+  m_sceneGraph->setup(m_projectHandle);
+  m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Slices;
 
-  m_ui.widget->getViewer()->setSceneGraph(m_sceneGraph->root());
+  m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
   m_ui.snapshotSlider->setMinimum(0);
   m_ui.snapshotSlider->setMaximum(m_sceneGraph->snapshotCount() - 1);
-
+  m_ui.radioButtonSkin->setChecked(true);
+  
   updateUI();
 }
 
@@ -52,7 +56,7 @@ void MainWindow::closeProject()
     di::CloseCauldronProject(m_projectHandle);
     m_projectHandle = 0;
 
-    m_ui.widget->getViewer()->setSceneGraph(0);
+    m_ui.renderWidget->getViewer()->setSceneGraph(0);
     m_ui.treeWidget->clear();
   }
 }
@@ -98,6 +102,10 @@ void MainWindow::updateUI()
   m_ui.treeWidget->addTopLevelItem(formationsItem);
   m_ui.treeWidget->addTopLevelItem(surfacesItem);
   m_ui.treeWidget->addTopLevelItem(propertiesItem);
+
+  const di::Grid* grid = m_projectHandle->getLowResolutionOutputGrid();
+  m_ui.sliderSliceI->setMaximum(grid->numI() - 1);
+  m_ui.sliderSliceJ->setMaximum(grid->numJ() - 1);
 }
 
 void MainWindow::connectSignals()
@@ -105,6 +113,9 @@ void MainWindow::connectSignals()
   connect(m_ui.action_Open, SIGNAL(triggered()), this, SLOT(onActionOpenTriggered()));
   connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
   connect(m_ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
+  connect(m_ui.sliderSliceI, SIGNAL(valueChanged(int)), this, SLOT(onSliceIValueChanged(int)));
+  connect(m_ui.sliderSliceJ, SIGNAL(valueChanged(int)), this, SLOT(onSliceJValueChanged(int)));
+  connect(m_ui.radioButtonSkin, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
 }
 
 void MainWindow::onActionOpenTriggered()
@@ -123,6 +134,21 @@ void MainWindow::onActionOpenTriggered()
 void MainWindow::onSliderValueChanged(int value)
 {
   m_sceneGraph->setCurrentSnapshot(value);
+}
+
+void MainWindow::onSliceIValueChanged(int value)
+{
+  m_sceneGraph->SliceI = value;
+}
+
+void MainWindow::onSliceJValueChanged(int value)
+{
+  m_sceneGraph->SliceJ = value;
+}
+
+void MainWindow::onRenderModeToggled(bool value)
+{
+  m_sceneGraph->RenderMode = value ? 0 : 1;
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -146,10 +172,10 @@ MainWindow::MainWindow()
 
 	// Remove all the ugly buttons and scroll wheels that 
 	// you always get for free with these OIV viewers
-	m_ui.widget->setDecoration(false);
-  m_ui.widget->getViewer()->setBackgroundColor(SbColor(.1f, .1f, .2f));
+	m_ui.renderWidget->setDecoration(false);
+  m_ui.renderWidget->getViewer()->setBackgroundColor(SbColor(.1f, .1f, .2f));
   
-  SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.widget->getViewer());
+  SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.renderWidget->getViewer());
   if(viewer != 0)
   {
     m_fpsLabel = new QLabel;

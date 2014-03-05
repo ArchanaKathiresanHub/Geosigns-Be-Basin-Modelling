@@ -1,5 +1,5 @@
 #include "MainWindow.h"
-
+#include "SceneGraph.h"
 #include "Mesh.h"
 
 #include <MeshVizInterface/mapping/MoMeshviz.h>
@@ -9,6 +9,7 @@
 int main(int argc, char** argv)
 {
   MoMeshViz::init();
+  BpaVizInit();
 
 	QApplication app(argc, argv);
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'MainWindow.h'
 **
-** Created: Thu 20. Feb 14:06:48 2014
+** Created: Tue 4. Mar 14:52:45 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       6,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,7 +33,10 @@ static const uint qt_meta_data_MainWindow[] = {
  // slots: signature, parameters, type, tag, flags
       12,   11,   11,   11, 0x08,
       42,   36,   11,   11, 0x08,
-      80,   68,   11,   11, 0x08,
+      68,   36,   11,   11, 0x08,
+      94,   36,   11,   11, 0x08,
+     120,   36,   11,   11, 0x08,
+     158,  146,   11,   11, 0x08,
 
        0        // eod
 };
@@ -41,7 +44,10 @@ static const uint qt_meta_data_MainWindow[] = {
 static const char qt_meta_stringdata_MainWindow[] = {
     "MainWindow\0\0onActionOpenTriggered()\0"
     "value\0onSliderValueChanged(int)\0"
-    "item,column\0onItemDoubleClicked(QTreeWidgetItem*,int)\0"
+    "onSliceIValueChanged(int)\0"
+    "onSliceJValueChanged(int)\0"
+    "onRenderModeToggled(bool)\0item,column\0"
+    "onItemDoubleClicked(QTreeWidgetItem*,int)\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -52,7 +58,10 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->onActionOpenTriggered(); break;
         case 1: _t->onSliderValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 2: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 2: _t->onSliceIValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 3: _t->onSliceJValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 4: _t->onRenderModeToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 5: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -90,9 +99,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 6;
     }
     return _id;
 }

@@ -10,10 +10,13 @@
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoShapeHints.h>
 
 // meshviz nodes
 #include <MeshVizInterface/mapping/nodes/MoMesh.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSkin.h>
+#include <MeshVizInterface/mapping/nodes/MoMeshLogicalSlice.h>
+#include <MeshVizInterface/mapping/nodes/MoMeshPlaneSlice.h>
 #include <MeshVizInterface/mapping/nodes/MoMaterial.h>
 #include <MeshVizInterface/mapping/nodes/MoDrawStyle.h>
 #include <MeshVizInterface/mapping/nodes/MoScalarSetI.h>
@@ -22,21 +25,65 @@
 
 namespace di = DataAccess::Interface; 
 
-SnapshotNode::SnapshotNode(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues)
-  : m_snapshot(snapshot)
+SO_NODE_SOURCE(SnapshotNode);
+
+void SnapshotNode::initClass()
+{
+  SO_NODE_INIT_CLASS(SnapshotNode, SoSeparator, "Separator");
+}
+
+SnapshotNode::SnapshotNode()
+  : m_snapshot(0)
   , m_mesh(new MoMesh)
   , m_scalarSet(new MoScalarSetI)
   , m_skin(new MoMeshSkin)
+  , m_sliceI(new MoMeshLogicalSlice)
+  , m_sliceJ(new MoMeshLogicalSlice)
+  , m_planeSlice(new MoMeshPlaneSlice)
+  , m_sliceGroup(new SoGroup)
+  , m_renderSwitch(new SoSwitch)
 {
+  SO_NODE_CONSTRUCTOR(SnapshotNode);
+  SO_NODE_ADD_FIELD(RenderMode, (0));
+  SO_NODE_ADD_FIELD(SliceI, (0));
+  SO_NODE_ADD_FIELD(SliceJ, (0));
+
+  m_renderSwitch->whichChild.connectFrom(&RenderMode);
+  m_sliceI->sliceIndex.connectFrom(&SliceI);
+  m_sliceJ->sliceIndex.connectFrom(&SliceJ);
+  m_planeSlice->plane.connectFrom(&Plane);
+}
+
+void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues)
+{
+  m_snapshot = snapshot;
+
   di::ProjectHandle* handle = snapshot->getProjectHandle();
   const di::Grid* grid = handle->getLowResolutionOutputGrid();
 
   BpaMesh* bpaMesh = new BpaMesh(grid, depthValues);
   m_mesh->setMesh(bpaMesh);
 
+  // This is necessary to enable double-sided lighting on slices
+  SoShapeHints* shapeHints = new SoShapeHints;
+  shapeHints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+  shapeHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+
+  m_sliceI->sliceAxis = MoMeshLogicalSlice::SLICE_I;
+  m_sliceJ->sliceAxis = MoMeshLogicalSlice::SLICE_J;
+
   addChild(m_scalarSet);
   addChild(m_mesh);
-  addChild(m_skin);
+
+  m_sliceGroup->addChild(shapeHints);
+  m_sliceGroup->addChild(m_sliceI);
+  m_sliceGroup->addChild(m_sliceJ);
+
+  m_renderSwitch->addChild(m_skin);
+  m_renderSwitch->addChild(m_sliceGroup);
+  m_renderSwitch->whichChild = 0;
+
+  addChild(m_renderSwitch);
 }
 
 void SnapshotNode::setProperty(const di::Property* prop)
@@ -66,6 +113,12 @@ MoScalarSetI* SnapshotNode::scalarSet() const
   return m_scalarSet;
 }
 
+SO_NODE_SOURCE(SceneGraph);
+
+void SceneGraph::initClass()
+{
+  SO_NODE_INIT_CLASS(SceneGraph, SoGroup, "Group");
+}
 
 void SceneGraph::createAppearanceNode()
 {
@@ -84,6 +137,7 @@ void SceneGraph::createAppearanceNode()
   material->faceColor = SbColor(1.0f, 0.0f, 0.0f);
   material->lineColoring = MoMaterial::COLOR;
   material->lineColor = SbColor(0.0f, 0.0f, 0.0f);
+  //material->enhancedColoring = true;
   //material->transparency = .75f;
 
   MoDataBinding* binding = new MoDataBinding;
@@ -114,7 +168,14 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
     std::shared_ptr<di::PropertyValueList> depthValues(
       handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type));
 
-    SnapshotNode* snapshotNode = new SnapshotNode(snapshot, depthValues);
+    SnapshotNode* snapshotNode = new SnapshotNode;
+    snapshotNode->setup(snapshot, depthValues);
+    // connect fields from scenegraph
+    snapshotNode->RenderMode.connectFrom(&RenderMode);
+    snapshotNode->SliceI.connectFrom(&SliceI);
+    snapshotNode->SliceJ.connectFrom(&SliceJ);
+    snapshotNode->Plane.connectFrom(&Plane);
+
     m_snapshots->insertChild(snapshotNode, 0);
   }
 
@@ -123,25 +184,26 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 
 void SceneGraph::createRootNode()
 {
-  m_root = new SoGroup;
-  m_root->addChild(m_appearance);
-  m_root->addChild(m_snapshots);
+  addChild(m_appearance);
+  addChild(m_snapshots);
 }
 
-SceneGraph::SceneGraph(di::ProjectHandle* handle)
-  : m_root(0)
-  , m_appearance(0)
+SceneGraph::SceneGraph()
+  : m_appearance(0)
   , m_snapshots(0)
   , m_colorMap(0)
+{
+  SO_NODE_CONSTRUCTOR(SceneGraph);
+  SO_NODE_ADD_FIELD(RenderMode, (0));
+  SO_NODE_ADD_FIELD(SliceI, (0));
+  SO_NODE_ADD_FIELD(SliceJ, (0));
+}
+
+void SceneGraph::setup(di::ProjectHandle* handle)
 {
   createAppearanceNode();
   createSnapshotsNode(handle);
   createRootNode();
-}
-
-SoGroup* SceneGraph::root() const
-{
-  return m_root;
 }
 
 void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
@@ -176,4 +238,10 @@ int SceneGraph::snapshotCount() const
 void SceneGraph::setCurrentSnapshot(int index)
 {
   m_snapshots->whichChild = index;
+}
+
+void BpaVizInit()
+{
+  SnapshotNode::initClass();
+  SceneGraph::initClass();
 }
