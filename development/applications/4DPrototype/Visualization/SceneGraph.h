@@ -13,11 +13,13 @@ class MoMesh;
 class MoMeshSkin;
 class MoMeshLogicalSlice;
 class MoMeshPlaneSlice;
+class MoMeshOutline;
 class MoScalarSetI;
 class MoPredefinedColorMapping;
 
 class SoSwitch;
 class SoGroup;
+class SoClipPlaneManip;
 
 /**
  * Scenegraph for a mesh representing a single snapshot
@@ -33,8 +35,10 @@ class SnapshotNode : public SoSeparator
   MoMeshSkin*         m_skin;
   MoMeshLogicalSlice* m_sliceI;
   MoMeshLogicalSlice* m_sliceJ;
-  MoMeshPlaneSlice*   m_planeSlice;
   SoGroup*            m_sliceGroup;
+  MoMeshPlaneSlice*   m_planeSlice;
+  MoMeshOutline*      m_outline;
+  SoGroup*            m_planeGroup;
   SoSwitch*           m_renderSwitch;
 
 public:
@@ -74,16 +78,22 @@ class SceneGraph : public SoGroup
 {
   SO_NODE_HEADER(SceneGraph);
 
-  SoGroup*  m_appearance;
-  SoSwitch* m_snapshots;
+  SoGroup*          m_appearance;
+  SoSwitch*         m_snapshots;
 
   MoPredefinedColorMapping* m_colorMap;
+  
+  bool              m_planeManipInitialized;
+  SoSwitch*         m_planeManipSwitch;
+  SoClipPlaneManip* m_planeManip;
 
   void createAppearanceNode();
 
   void createSnapshotsNode(DataAccess::Interface::ProjectHandle* handle);
 
   void createRootNode();
+
+  void initializeManip();
 
 public:
 
@@ -98,6 +108,8 @@ public:
   VISUALIZATIONDLL_API int snapshotCount() const;
 
   VISUALIZATIONDLL_API void setCurrentSnapshot(int index);
+
+  VISUALIZATIONDLL_API void showPlaneManip(bool show);
 
   SoSFInt32 RenderMode;
 

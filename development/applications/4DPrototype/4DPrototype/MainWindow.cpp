@@ -39,7 +39,7 @@ void MainWindow::loadProject(const QString& filename)
 
   m_sceneGraph = new SceneGraph;
   m_sceneGraph->setup(m_projectHandle);
-  m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Slices;
+  m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
 
   m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
   m_ui.snapshotSlider->setMinimum(0);
@@ -116,6 +116,8 @@ void MainWindow::connectSignals()
   connect(m_ui.sliderSliceI, SIGNAL(valueChanged(int)), this, SLOT(onSliceIValueChanged(int)));
   connect(m_ui.sliderSliceJ, SIGNAL(valueChanged(int)), this, SLOT(onSliceJValueChanged(int)));
   connect(m_ui.radioButtonSkin, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
+  connect(m_ui.radioButtonSlices, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
+  connect(m_ui.radioButtonCrossSection, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
 }
 
 void MainWindow::onActionOpenTriggered()
@@ -148,7 +150,24 @@ void MainWindow::onSliceJValueChanged(int value)
 
 void MainWindow::onRenderModeToggled(bool value)
 {
-  m_sceneGraph->RenderMode = value ? 0 : 1;
+  if(!value)
+    return;
+
+  if(sender() == m_ui.radioButtonSkin)
+  {
+    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
+    m_sceneGraph->showPlaneManip(false);
+  }
+  else if(sender() == m_ui.radioButtonSlices)
+  {
+    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Slices;
+    m_sceneGraph->showPlaneManip(false);
+  }
+  else
+  {
+    m_sceneGraph->RenderMode = SnapshotNode::RenderMode_CrossSection;
+    m_sceneGraph->showPlaneManip(true);
+  }
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
