@@ -16,6 +16,8 @@ class MoMeshPlaneSlice;
 class MoMeshOutline;
 class MoScalarSetI;
 class MoPredefinedColorMapping;
+class MoCellFilter;
+class ROICellFilter;
 
 class SoSwitch;
 class SoGroup;
@@ -78,6 +80,10 @@ class SceneGraph : public SoGroup
 {
   SO_NODE_HEADER(SceneGraph);
 
+  SoSwitch*         m_cellFilterSwitch;
+  MoCellFilter*     m_cellFilter;
+  ROICellFilter*    m_roiFilter;
+
   SoGroup*          m_appearance;
   SoSwitch*         m_snapshots;
 
@@ -86,6 +92,8 @@ class SceneGraph : public SoGroup
   bool              m_planeManipInitialized;
   SoSwitch*         m_planeManipSwitch;
   SoClipPlaneManip* m_planeManip;
+
+  void createFilterNode();
 
   void createAppearanceNode();
 
@@ -110,6 +118,10 @@ public:
   VISUALIZATIONDLL_API void setCurrentSnapshot(int index);
 
   VISUALIZATIONDLL_API void showPlaneManip(bool show);
+
+  VISUALIZATIONDLL_API void enableROI(bool enable);
+
+  VISUALIZATIONDLL_API void setROI(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
 
   SoSFInt32 RenderMode;
 

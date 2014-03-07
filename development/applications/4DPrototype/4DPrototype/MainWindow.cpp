@@ -106,6 +106,20 @@ void MainWindow::updateUI()
   const di::Grid* grid = m_projectHandle->getLowResolutionOutputGrid();
   m_ui.sliderSliceI->setMaximum(grid->numI() - 1);
   m_ui.sliderSliceJ->setMaximum(grid->numJ() - 1);
+
+  m_ui.sliderMinI->setMaximum(grid->numI() - 1);
+  m_ui.sliderMaxI->setMaximum(grid->numI() - 1);
+  m_ui.sliderMinJ->setMaximum(grid->numJ() - 1);
+  m_ui.sliderMaxJ->setMaximum(grid->numJ() - 1);
+  m_ui.sliderMinK->setMaximum(10);
+  m_ui.sliderMaxK->setMaximum(10);
+
+  m_ui.sliderMinI->setValue(0);
+  m_ui.sliderMinJ->setValue(0);
+  m_ui.sliderMinK->setValue(0);
+  m_ui.sliderMaxI->setValue(grid->numI() - 1);
+  m_ui.sliderMaxJ->setValue(grid->numJ() - 1);
+  m_ui.sliderMaxK->setValue(10); //NOOOOOOO no hardcoded values !!!1!1
 }
 
 void MainWindow::connectSignals()
@@ -118,6 +132,15 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonSkin, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.radioButtonSlices, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.radioButtonCrossSection, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
+
+  // ROI
+  connect(m_ui.checkBoxROI, SIGNAL(toggled(bool)), this, SLOT(onROIToggled(bool)));
+  connect(m_ui.sliderMinI, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
+  connect(m_ui.sliderMaxI, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
+  connect(m_ui.sliderMinJ, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
+  connect(m_ui.sliderMaxJ, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
+  connect(m_ui.sliderMinK, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
+  connect(m_ui.sliderMaxK, SIGNAL(valueChanged(int)), this, SLOT(onROISliderValueChanged(int)));
 }
 
 void MainWindow::onActionOpenTriggered()
@@ -146,6 +169,41 @@ void MainWindow::onSliceIValueChanged(int value)
 void MainWindow::onSliceJValueChanged(int value)
 {
   m_sceneGraph->SliceJ = value;
+}
+
+void MainWindow::onROISliderValueChanged(int value)
+{
+  if(sender() == m_ui.sliderMinI)
+  {
+  }
+  else if(sender() == m_ui.sliderMaxI)
+  {
+  }
+  else if(sender() == m_ui.sliderMinJ)
+  {
+  }
+  else if(sender() == m_ui.sliderMaxJ)
+  {
+  }
+  else if(sender() == m_ui.sliderMinK)
+  {
+  }
+  else if(sender() == m_ui.sliderMaxK)
+  {
+  }
+
+  m_sceneGraph->setROI(
+    (size_t)m_ui.sliderMinI->value(),
+    (size_t)m_ui.sliderMinJ->value(),
+    (size_t)m_ui.sliderMinK->value(),
+    (size_t)m_ui.sliderMaxI->value(),
+    (size_t)m_ui.sliderMaxJ->value(),
+    (size_t)m_ui.sliderMaxK->value());
+}
+
+void MainWindow::onROIToggled(bool value)
+{
+  m_sceneGraph->enableROI(value);
 }
 
 void MainWindow::onRenderModeToggled(bool value)
@@ -197,6 +255,8 @@ MainWindow::MainWindow()
   SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.renderWidget->getViewer());
   if(viewer != 0)
   {
+    viewer->setSceneGraph(0); // avoids annoying 'Qt by Nokia' text in 3D view
+
     m_fpsLabel = new QLabel;
     m_fpsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 

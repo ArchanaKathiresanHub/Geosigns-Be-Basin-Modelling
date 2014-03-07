@@ -47,6 +47,10 @@ private slots:
 
   void onSliceJValueChanged(int value);
 
+  void onROISliderValueChanged(int value);
+
+  void onROIToggled(bool value);
+
   void onRenderModeToggled(bool value);
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);

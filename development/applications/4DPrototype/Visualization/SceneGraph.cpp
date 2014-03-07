@@ -1,5 +1,6 @@
 #include "SceneGraph.h"
 #include "BpaMesh.h"
+#include "ROICellFilter.h"
 
 // DataAccess
 #include "Interface/Grid.h"
@@ -25,6 +26,7 @@
 #include <MeshVizInterface/mapping/nodes/MoScalarSetI.h>
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 #include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
+#include <MeshVizInterface/mapping/nodes/MoCellFilter.h>
 
 namespace di = DataAccess::Interface; 
 
@@ -137,6 +139,17 @@ void SceneGraph::initClass()
   SO_NODE_INIT_CLASS(SceneGraph, SoGroup, "Group");
 }
 
+void SceneGraph::createFilterNode()
+{
+  m_cellFilterSwitch = new SoSwitch;
+  m_cellFilter = new MoCellFilter;
+  m_roiFilter = new ROICellFilter;
+
+  m_cellFilter->setCellFilter(m_roiFilter);
+  m_cellFilterSwitch->addChild(m_cellFilter);
+  m_cellFilterSwitch->whichChild = SO_SWITCH_NONE;
+}
+
 void SceneGraph::createAppearanceNode()
 {
   m_colorMap = new MoPredefinedColorMapping;
@@ -203,6 +216,7 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 
 void SceneGraph::createRootNode()
 {
+  addChild(m_cellFilterSwitch);
   addChild(m_appearance);
   addChild(m_snapshots);
 
@@ -211,6 +225,9 @@ void SceneGraph::createRootNode()
   addChild(m_planeManipSwitch);
 }
 
+/**
+ * Initializes the object that allows the user to manipulate (rotate / translate) the cross section 
+ */
 void SceneGraph::initializeManip()
 {
   // Get scene bounding box by sending an SoGetBoundingBoxAction down the tree. 
@@ -241,7 +258,10 @@ void SceneGraph::initializeManip()
 }
 
 SceneGraph::SceneGraph()
-  : m_appearance(0)
+  : m_cellFilterSwitch(0)
+  , m_cellFilter(0)
+  , m_roiFilter(0)
+  , m_appearance(0)
   , m_snapshots(0)
   , m_colorMap(0)
   , m_planeManipInitialized(false)
@@ -257,6 +277,7 @@ SceneGraph::SceneGraph()
 
 void SceneGraph::setup(di::ProjectHandle* handle)
 {
+  createFilterNode();
   createAppearanceNode();
   createSnapshotsNode(handle);
   createRootNode();
@@ -305,6 +326,17 @@ void SceneGraph::showPlaneManip(bool show)
   }
 
   m_planeManipSwitch->whichChild = show ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+}
+
+void SceneGraph::enableROI(bool enable)
+{
+  m_cellFilterSwitch->whichChild = enable ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+}
+
+void SceneGraph::setROI(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK)
+{
+  m_roiFilter->setROI(minI, minJ, minK, maxI, maxJ, maxK);
+  m_cellFilter->touch();
 }
 
 void BpaVizInit()
