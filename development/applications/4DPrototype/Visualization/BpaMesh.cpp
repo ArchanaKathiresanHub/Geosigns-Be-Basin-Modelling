@@ -26,13 +26,16 @@ class BpaTopology : public MiHexahedronTopologyExplicitIjk
 
   size_t m_timeStamp;
 
+  MiGeometryI& m_geometry;
+
 public:
 
-  explicit BpaTopology(size_t numI, size_t numJ, size_t numK)
+  explicit BpaTopology(size_t numI, size_t numJ, size_t numK, MiGeometryI& geometry)
     : m_numI(numI)
     , m_numJ(numJ)
     , m_numK(numK)
     , m_timeStamp(MxTimeStamp::getTimeStamp())
+    , m_geometry(geometry)
   {
   }
 
@@ -120,11 +123,29 @@ public:
 
   virtual bool hasDeadCells() const
   {
-    return false;
+    return true;
   }
 
   virtual bool isDead(size_t i, size_t j, size_t k) const
   {
+    size_t indices[8];
+    getCellNodeIndices(
+      i, j, k, 
+      indices[0], 
+      indices[1], 
+      indices[2], 
+      indices[3], 
+      indices[4], 
+      indices[5], 
+      indices[6], 
+      indices[7]);
+
+    for(size_t i=0; i < 8; ++i)
+    {
+      if(m_geometry.getCoord(indices[i])[2] == -di::DefaultUndefinedMapValue)
+        return true;
+    }
+
     return false;
   }
 };
@@ -216,9 +237,8 @@ public:
 
 BpaMesh::BpaMesh(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
 {
-  m_topology.reset(new BpaTopology(grid->numI(), grid->numJ(), depthValues->size()));
   m_geometry.reset(new BpaGeometry(grid, depthValues));
-
+  m_topology.reset(new BpaTopology(grid->numI(), grid->numJ(), depthValues->size(), *m_geometry));
 }
 
 const MiHexahedronTopologyExplicitIjk& BpaMesh::getTopology() const
@@ -289,7 +309,8 @@ double BpaProperty::get(size_t index) const
   if(k >= m_numK)
     k = m_numK-1;
 
-  return (*m_values)[k]->getGridMap()->getValue((unsigned int)i, (unsigned int)j);
+  di::GridMap* gridMap = (*m_values)[k]->getGridMap();
+  return gridMap->getValue((unsigned int)i, (unsigned int)j);
 }
 
 double BpaProperty::getMin() const
