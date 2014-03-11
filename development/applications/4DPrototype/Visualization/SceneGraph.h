@@ -60,6 +60,8 @@ public:
     const DataAccess::Interface::Snapshot* snapshot, 
     std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues);
 
+  VISUALIZATIONDLL_API const DataAccess::Interface::Snapshot* getSnapShot() const;
+
   VISUALIZATIONDLL_API void setProperty(const DataAccess::Interface::Property* prop);
 
   VISUALIZATIONDLL_API MoScalarSetI* scalarSet() const;
@@ -114,6 +116,8 @@ public:
   VISUALIZATIONDLL_API void setProperty(const DataAccess::Interface::Property* prop);
 
   VISUALIZATIONDLL_API int snapshotCount() const;
+
+  VISUALIZATIONDLL_API const DataAccess::Interface::Snapshot* getSnapshot(int index) const;
 
   VISUALIZATIONDLL_API void setCurrentSnapshot(int index);
 

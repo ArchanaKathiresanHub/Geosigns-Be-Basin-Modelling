@@ -19,6 +19,8 @@ class MainWindow : public QMainWindow
 
 	Ui::MainWindow m_ui;
 
+  QLabel* m_dimensionsLabel;
+  QLabel* m_timeLabel;
   QLabel* m_fpsLabel;
 
   DataAccess::Interface::ProjectHandle* m_projectHandle;

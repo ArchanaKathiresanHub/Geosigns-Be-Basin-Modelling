@@ -74,6 +74,7 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
 
   di::ProjectHandle* handle = snapshot->getProjectHandle();
   const di::Grid* grid = handle->getLowResolutionOutputGrid();
+  //const di::Grid* grid = handle->getHighResolutionOutputGrid();
 
   BpaMesh* bpaMesh = new BpaMesh(grid, depthValues);
   m_mesh->setMesh(bpaMesh);
@@ -103,6 +104,11 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   m_renderSwitch->whichChild = 0;
 
   addChild(m_renderSwitch);
+}
+
+const DataAccess::Interface::Snapshot* SnapshotNode::getSnapShot() const
+{
+  return m_snapshot;
 }
 
 void SnapshotNode::setProperty(const di::Property* prop)
@@ -180,19 +186,32 @@ void SceneGraph::createAppearanceNode()
   m_appearance->addChild(binding);
 }
 
+struct SnapshotCompare
+{
+  bool operator()(const di::Snapshot* s0, const di::Snapshot* s1) const
+  {
+    return s0->getTime() > s1->getTime();
+  }
+};
+
 void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 {
   int flags = di::FORMATION;
   int type  = di::VOLUME;
 
-  const di::Property* depthProperty = handle->findProperty("Depth");
+  std::string depthKey = "Depth";
+  const di::Property* depthProperty = handle->findProperty(depthKey);
 
   m_snapshots = new SoSwitch;
-  
+
   di::SnapshotList* snapshots = handle->getSnapshots(di::MAJOR);
-  for(size_t i=0; i < snapshots->size(); ++i)
+
+  std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
+  std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), SnapshotCompare());
+
+  for(size_t i=0; i < tmpSnapshotList.size(); ++i)
   {
-    const di::Snapshot* snapshot = (*snapshots)[i];
+    const di::Snapshot* snapshot = tmpSnapshotList[i];
 
     std::shared_ptr<di::PropertyValueList> depthValues(
       handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type));
@@ -206,7 +225,7 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
     snapshotNode->SliceJ.connectFrom(&SliceJ);
     snapshotNode->Plane.connectFrom(&Plane);
 
-    m_snapshots->insertChild(snapshotNode, 0);
+    m_snapshots->addChild(snapshotNode);
   }
 
   Plane.connectFrom(&m_planeManip->plane);
@@ -310,6 +329,11 @@ void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
 int SceneGraph::snapshotCount() const
 {
   return m_snapshots->getNumChildren();
+}
+
+const di::Snapshot* SceneGraph::getSnapshot(int index) const
+{
+  return ((SnapshotNode*)m_snapshots->getChild(index))->getSnapShot();
 }
 
 void SceneGraph::setCurrentSnapshot(int index)

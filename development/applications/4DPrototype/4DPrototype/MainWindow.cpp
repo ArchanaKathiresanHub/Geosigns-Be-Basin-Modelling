@@ -4,7 +4,9 @@
 #include "Interface/ProjectHandle.h"
 #include "Interface/Property.h"
 #include "Interface/Formation.h"
+#include "Interface/Reservoir.h"
 #include "Interface/Surface.h"
+#include "Interface/Snapshot.h"
 #include "Interface/Grid.h"
 
 #include <QtGui/QFileDialog>
@@ -18,6 +20,7 @@ namespace
   const int TreeWidgetItem_FormationType = QTreeWidgetItem::UserType + 1;
   const int TreeWidgetItem_SurfaceType   = QTreeWidgetItem::UserType + 2;
   const int TreeWidgetItem_PropertyType  = QTreeWidgetItem::UserType + 3;
+  const int TreeWidgetItem_ReservoirType = QTreeWidgetItem::UserType + 4;
 }
 
 void MainWindow::fpsCallback(float fps, void* userData, SoQtViewer* viewer)
@@ -44,6 +47,7 @@ void MainWindow::loadProject(const QString& filename)
   m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
   m_ui.snapshotSlider->setMinimum(0);
   m_ui.snapshotSlider->setMaximum(m_sceneGraph->snapshotCount() - 1);
+  m_ui.snapshotSlider->setValue(0);
   m_ui.radioButtonSkin->setChecked(true);
   
   updateUI();
@@ -74,24 +78,37 @@ void MainWindow::updateUI()
   QTreeWidgetItem* propertiesItem = new QTreeWidgetItem;
   propertiesItem->setText(0, "Properties");
 
+  QTreeWidgetItem* reservoirsItem = new QTreeWidgetItem;
+  reservoirsItem->setText(0, "Reservoirs");
+
   int flags = di::FORMATION;
   int type = di::VOLUME;
 
+  // Add properties to parent node
   std::shared_ptr<di::PropertyList> properties(m_projectHandle->getProperties(true, flags));
-
   for(size_t i=0; i < properties->size(); ++i)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(propertiesItem, TreeWidgetItem_PropertyType);
     item->setText(0, (*properties)[i]->getName().c_str());
   }
 
+  // Add formations to parent node
   std::shared_ptr<di::FormationList> formations(m_projectHandle->getFormations());
   for(size_t i=0; i < formations->size(); ++i)
   {
     QTreeWidgetItem* item = new QTreeWidgetItem(formationsItem, TreeWidgetItem_FormationType);
     item->setText(0, (*formations)[i]->getName().c_str());
+
+    // Add reservoirs to parent formation
+    di::ReservoirList* reservoirs = (*formations)[i]->getReservoirs();
+    for(size_t j=0; j < reservoirs->size(); ++j)
+    {
+      QTreeWidgetItem* resItem = new QTreeWidgetItem(item, TreeWidgetItem_ReservoirType);
+      resItem->setText(0, (*reservoirs)[j]->getName().c_str());
+    }
   }
 
+  // Add surfaces to parent node
   std::shared_ptr<di::SurfaceList> surfaces(m_projectHandle->getSurfaces());
   for(size_t i=0; i < surfaces->size(); ++i)
   {
@@ -99,13 +116,23 @@ void MainWindow::updateUI()
     item->setText(0, (*surfaces)[i]->getName().c_str());
   }
 
+  // Add reservoirs to parent node
+  std::shared_ptr<di::ReservoirList> reservoirs(m_projectHandle->getReservoirs());
+  for(size_t i=0; i < reservoirs->size(); ++i)
+  {
+    QTreeWidgetItem* item = new QTreeWidgetItem(reservoirsItem, TreeWidgetItem_ReservoirType);
+    item->setText(0, (*reservoirs)[i]->getName().c_str());
+  }
+
   m_ui.treeWidget->addTopLevelItem(formationsItem);
   m_ui.treeWidget->addTopLevelItem(surfacesItem);
+  m_ui.treeWidget->addTopLevelItem(reservoirsItem);
   m_ui.treeWidget->addTopLevelItem(propertiesItem);
 
   const di::Grid* grid = m_projectHandle->getLowResolutionOutputGrid();
   m_ui.sliderSliceI->setMaximum(grid->numI() - 1);
   m_ui.sliderSliceJ->setMaximum(grid->numJ() - 1);
+  m_dimensionsLabel->setText(QString("Dimensions: %1x%2").arg(grid->numI()).arg(grid->numJ()));
 
   m_ui.sliderMinI->setMaximum(grid->numI() - 1);
   m_ui.sliderMaxI->setMaximum(grid->numI() - 1);
@@ -158,6 +185,7 @@ void MainWindow::onActionOpenTriggered()
 
 void MainWindow::onSliderValueChanged(int value)
 {
+  m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
   m_sceneGraph->setCurrentSnapshot(value);
 }
 
@@ -260,7 +288,16 @@ MainWindow::MainWindow()
     m_fpsLabel = new QLabel;
     m_fpsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
+    m_dimensionsLabel = new QLabel;
+    m_dimensionsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+
+    m_timeLabel = new QLabel;
+    m_timeLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+
+    statusBar()->addPermanentWidget(m_dimensionsLabel);
+    statusBar()->addPermanentWidget(m_timeLabel);
     statusBar()->addPermanentWidget(m_fpsLabel);
+
     viewer->setFramesPerSecondCallback(fpsCallback, this);
   }
 
