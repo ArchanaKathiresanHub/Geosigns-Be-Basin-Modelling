@@ -1,9 +1,11 @@
 #include "FastcauldronSimulator.h"
 
 #include <algorithm>
-#include <unistd.h>
 #include <sstream>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <cerrno>
 
 #include "GenexResultManager.h"
 #include "ComponentManager.h"
@@ -1437,9 +1439,13 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
       }
 
       if ( getRank () == 0 ) {
-         const std::string fileName = getProjectPath () + (*snapshotIter)->getFileName ();
-         unlink ( fileName.c_str ());
-      }
+         const std::string fileName = getFullOutputDir () + "/" + (*snapshotIter)->getFileName ();
+         int status = std::remove( fileName.c_str ());
+
+         if (status == -1)
+      	    cerr << "MeSsAgE WARNING  Unable to remove minor snapshot file, because '" 
+               << std::strerror(errno) << "'" << endl;
+      }  
 
    }
 
