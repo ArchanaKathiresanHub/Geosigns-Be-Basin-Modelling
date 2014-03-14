@@ -129,10 +129,18 @@ void MainWindow::updateUI()
   m_ui.treeWidget->addTopLevelItem(reservoirsItem);
   m_ui.treeWidget->addTopLevelItem(propertiesItem);
 
-  const di::Grid* grid = m_projectHandle->getLowResolutionOutputGrid();
+  const di::Grid* loResGrid = m_projectHandle->getLowResolutionOutputGrid();
+  const di::Grid* hiResGrid = m_projectHandle->getHighResolutionOutputGrid();
+
+  m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
+    .arg(loResGrid->numI())
+    .arg(loResGrid->numJ())
+    .arg(hiResGrid->numI())
+    .arg(hiResGrid->numJ()));
+
+  const di::Grid* grid = loResGrid;
   m_ui.sliderSliceI->setMaximum(grid->numI() - 1);
   m_ui.sliderSliceJ->setMaximum(grid->numJ() - 1);
-  m_dimensionsLabel->setText(QString("Dimensions: %1x%2").arg(grid->numI()).arg(grid->numJ()));
 
   m_ui.sliderMinI->setMaximum(grid->numI() - 1);
   m_ui.sliderMaxI->setMaximum(grid->numI() - 1);
@@ -159,6 +167,9 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonSkin, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.radioButtonSlices, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.radioButtonCrossSection, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
+  connect(m_ui.sliderVerticalScale, SIGNAL(valueChanged(int)), this, SLOT(onVerticalScaleSliderValueChanged(int)));
+  connect(m_ui.radioButtonAll, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
+  connect(m_ui.radioButtonReservoirs, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
 
   // ROI
   connect(m_ui.checkBoxROI, SIGNAL(toggled(bool)), this, SLOT(onROIToggled(bool)));
@@ -185,7 +196,7 @@ void MainWindow::onActionOpenTriggered()
 
 void MainWindow::onSliderValueChanged(int value)
 {
-  m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
+  //m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
   m_sceneGraph->setCurrentSnapshot(value);
 }
 
@@ -199,27 +210,13 @@ void MainWindow::onSliceJValueChanged(int value)
   m_sceneGraph->SliceJ = value;
 }
 
+void MainWindow::onVerticalScaleSliderValueChanged(int value)
+{
+  m_sceneGraph->setVerticalScale((float)value);
+}
+
 void MainWindow::onROISliderValueChanged(int value)
 {
-  if(sender() == m_ui.sliderMinI)
-  {
-  }
-  else if(sender() == m_ui.sliderMaxI)
-  {
-  }
-  else if(sender() == m_ui.sliderMinJ)
-  {
-  }
-  else if(sender() == m_ui.sliderMaxJ)
-  {
-  }
-  else if(sender() == m_ui.sliderMinK)
-  {
-  }
-  else if(sender() == m_ui.sliderMaxK)
-  {
-  }
-
   m_sceneGraph->setROI(
     (size_t)m_ui.sliderMinI->value(),
     (size_t)m_ui.sliderMinJ->value(),
@@ -256,6 +253,17 @@ void MainWindow::onRenderModeToggled(bool value)
   }
 }
 
+void MainWindow::onMeshModeToggled(bool value)
+{
+  if(!value)
+    return;
+
+  if(sender() == m_ui.radioButtonAll)
+    m_sceneGraph->setMeshMode(SceneGraph::MeshMode_All);
+  else
+    m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Reservoirs);
+}
+
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
 {
   if(item->type() == TreeWidgetItem_PropertyType)
@@ -279,7 +287,7 @@ MainWindow::MainWindow()
 	// you always get for free with these OIV viewers
 	m_ui.renderWidget->setDecoration(false);
   m_ui.renderWidget->getViewer()->setBackgroundColor(SbColor(.1f, .1f, .2f));
-  
+
   SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.renderWidget->getViewer());
   if(viewer != 0)
   {

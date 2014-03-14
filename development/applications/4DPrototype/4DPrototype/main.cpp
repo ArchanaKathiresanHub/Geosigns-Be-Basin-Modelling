@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 #include "SceneGraph.h"
-#include "Mesh.h"
 
 #include <MeshVizInterface/mapping/MoMeshviz.h>
 

@@ -123,14 +123,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BpaMesh.cpp" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BpaMesh.h" />
     <ClInclude Include="defines.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraph.h" />
   </ItemGroup>

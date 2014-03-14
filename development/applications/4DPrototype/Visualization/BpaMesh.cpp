@@ -156,6 +156,7 @@ public:
 class BpaGeometry : public MiGeometryI
 {
   std::shared_ptr<di::PropertyValueList> m_depthValues; 
+  std::vector<GridMapKPair> m_gridMapKs;
 
   size_t m_numI;
   size_t m_numJ;
@@ -179,7 +180,19 @@ public:
   {
     m_numI = grid->numI();
     m_numJ = grid->numJ();
-    m_numK = m_depthValues->size();
+
+    m_numK = 0;
+    for(unsigned int i=0; i < depthValues->size(); ++i)
+    {
+      unsigned int depth = (*depthValues)[i]->getGridMap()->getDepth();
+      m_numK += depth;
+
+      for(unsigned int j=0; j < depth; ++j)
+      {
+        GridMapKPair gmpair = { i, j };
+        m_gridMapKs.push_back(gmpair);
+      }
+    }
 
     m_minX = grid->minI();
     m_minY = grid->minJ();
@@ -188,7 +201,7 @@ public:
     m_deltaY = grid->deltaJ();
 
     // Prep all gridmaps so multithreaded OIV access will be OK
-    for(size_t k=0; k < m_numK; ++k)
+    for(size_t k=0; k < m_depthValues->size(); ++k)
       (*m_depthValues)[k]->getGridMap();
 
     double minDepth0, maxDepth0, minDepth1, maxDepth1;
@@ -208,12 +221,13 @@ public:
     size_t j = (index - k * sliceStride) / rowStride;
     size_t i = index - k * sliceStride - j * rowStride;
 
-    const di::GridMap* gridMap = (*m_depthValues)[k]->getGridMap();
+    GridMapKPair gmpair = m_gridMapKs[k];
+    const di::GridMap* gridMap = (*m_depthValues)[gmpair.gridMapIndex]->getGridMap();
 
     return MbVec3d(
       m_minX + i * m_deltaX,
       m_minY + j * m_deltaY,
-      -gridMap->getValue((unsigned int)i, (unsigned int)j));
+      -gridMap->getValue((unsigned int)i, (unsigned int)j, gmpair.kIndex));
   }
 
   virtual MbVec3d getMin() const
@@ -238,7 +252,12 @@ public:
 BpaMesh::BpaMesh(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
 {
   m_geometry.reset(new BpaGeometry(grid, depthValues));
-  m_topology.reset(new BpaTopology(grid->numI(), grid->numJ(), depthValues->size(), *m_geometry));
+
+  unsigned int nK=0;
+  for(size_t i=0; i < depthValues->size(); ++i)
+    nK += (*depthValues)[i]->getGridMap()->getDepth();
+
+  m_topology.reset(new BpaTopology(grid->numI(), grid->numJ(), nK/*depthValues->size()*/, *m_geometry));
 }
 
 const MiHexahedronTopologyExplicitIjk& BpaMesh::getTopology() const
@@ -278,12 +297,26 @@ BpaProperty::BpaProperty(size_t numI, size_t numJ, std::shared_ptr<di::PropertyV
   : m_values(values)
   , m_numI(numI)
   , m_numJ(numJ)
-  , m_numK(values->size())
+  , m_numK(0)
   , m_minValue(0.0)
   , m_maxValue(0.0)
   , m_timeStamp(MxTimeStamp::getTimeStamp())
 {
   initMinMaxValues();
+
+  m_numK = 0;
+  for(unsigned int i=0; i < values->size(); ++i)
+  {
+    unsigned int depth = (*values)[i]->getGridMap()->getDepth();
+    m_numK += depth;
+
+    for(unsigned int j=0; j < depth; ++j)
+    {
+      GridMapKPair gmpair = { i, j };
+      m_gridMapKs.push_back(gmpair);
+    }
+  }
+
 }
 
 MiDataSet::DataBinding BpaProperty::getBinding() const
@@ -309,8 +342,9 @@ double BpaProperty::get(size_t index) const
   if(k >= m_numK)
     k = m_numK-1;
 
-  di::GridMap* gridMap = (*m_values)[k]->getGridMap();
-  return gridMap->getValue((unsigned int)i, (unsigned int)j);
+  GridMapKPair gmpair = m_gridMapKs[k];
+  di::GridMap* gridMap = (*m_values)[gmpair.gridMapIndex]->getGridMap();
+  return gridMap->getValue((unsigned int)i, (unsigned int)j, gmpair.kIndex);
 }
 
 double BpaProperty::getMin() const

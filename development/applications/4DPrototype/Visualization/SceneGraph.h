@@ -21,6 +21,7 @@ class ROICellFilter;
 
 class SoSwitch;
 class SoGroup;
+class SoScale;
 class SoClipPlaneManip;
 
 /**
@@ -58,7 +59,8 @@ public:
 
   void setup(
     const DataAccess::Interface::Snapshot* snapshot, 
-    std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues);
+    std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues,
+    bool hires);
 
   VISUALIZATIONDLL_API const DataAccess::Interface::Snapshot* getSnapShot() const;
 
@@ -80,14 +82,27 @@ public:
  */
 class SceneGraph : public SoGroup
 {
+public:
+
+  enum MeshMode
+  {
+    MeshMode_All,
+    MeshMode_Reservoirs
+  };
+
+private:
+
   SO_NODE_HEADER(SceneGraph);
 
+  SoScale*          m_verticalScale;
   SoSwitch*         m_cellFilterSwitch;
   MoCellFilter*     m_cellFilter;
   ROICellFilter*    m_roiFilter;
 
   SoGroup*          m_appearance;
   SoSwitch*         m_snapshots;
+  SoSwitch*         m_snapshotsHiRes;
+  SoSwitch*         m_resolutionSwitch;
 
   MoPredefinedColorMapping* m_colorMap;
   
@@ -99,11 +114,15 @@ class SceneGraph : public SoGroup
 
   void createAppearanceNode();
 
+  void createSnapshotsNodeHiRes(DataAccess::Interface::ProjectHandle* handle);
+
   void createSnapshotsNode(DataAccess::Interface::ProjectHandle* handle);
 
   void createRootNode();
 
   void initializeManip();
+
+  void setProperty(const DataAccess::Interface::Property* prop, SoSwitch* snapshots);
 
 public:
 
@@ -126,6 +145,10 @@ public:
   VISUALIZATIONDLL_API void enableROI(bool enable);
 
   VISUALIZATIONDLL_API void setROI(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
+
+  VISUALIZATIONDLL_API void setVerticalScale(float scale);
+
+  VISUALIZATIONDLL_API void setMeshMode(MeshMode mode);
 
   SoSFInt32 RenderMode;
 

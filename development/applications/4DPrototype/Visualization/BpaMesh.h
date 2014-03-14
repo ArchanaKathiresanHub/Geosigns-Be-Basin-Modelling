@@ -19,6 +19,16 @@ class BpaTopology;
 class BpaGeometry;
 
 /**
+ * Struct meant to quickly map a global k-index to a gridmap index and a 
+ * local k-index within that gridmap. 
+ */
+struct GridMapKPair
+{
+  unsigned int gridMapIndex;
+  unsigned int kIndex;
+};
+
+/**
  * Represents the mesh for a single snapshot
  */
 class BpaMesh : public MiVolumeMeshHexahedronIjk
@@ -44,6 +54,8 @@ class BpaProperty : public MiDataSetI<double>
 {
   std::shared_ptr<DataAccess::Interface::PropertyValueList> m_values;
   
+  std::vector<GridMapKPair> m_gridMapKs;
+
   size_t m_numI;
   size_t m_numJ;
   size_t m_numK;

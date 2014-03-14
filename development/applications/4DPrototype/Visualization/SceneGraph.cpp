@@ -4,12 +4,17 @@
 
 // DataAccess
 #include "Interface/Grid.h"
+#include "Interface/GridMap.h"
 #include "Interface/Snapshot.h"
+#include "Interface/Reservoir.h"
+#include "Interface/Property.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/PropertyValue.h"
 
 // OIV
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoGroup.h>
+#include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/manips/SoClipPlaneManip.h>
@@ -68,13 +73,17 @@ SnapshotNode::SnapshotNode()
   m_planeSlice->plane.connectFrom(&Plane);
 }
 
-void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues)
+void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues, bool hires)
 {
   m_snapshot = snapshot;
 
   di::ProjectHandle* handle = snapshot->getProjectHandle();
-  const di::Grid* grid = handle->getLowResolutionOutputGrid();
-  //const di::Grid* grid = handle->getHighResolutionOutputGrid();
+
+  const di::Grid* grid;
+  if(hires)
+    grid = handle->getHighResolutionOutputGrid();
+  else
+    grid = handle->getLowResolutionOutputGrid();
 
   BpaMesh* bpaMesh = new BpaMesh(grid, depthValues);
   m_mesh->setMesh(bpaMesh);
@@ -113,12 +122,27 @@ const DataAccess::Interface::Snapshot* SnapshotNode::getSnapShot() const
 
 void SnapshotNode::setProperty(const di::Property* prop)
 {
-  di::ProjectHandle* handle = m_snapshot->getProjectHandle();
-  const di::Grid* grid = handle->getLowResolutionOutputGrid();
+  di::PropertyType propType = prop->getType();
 
-  // Extract property values for this snapshot
-  int flags = di::FORMATION;
-  int type  = di::VOLUME;
+  di::ProjectHandle* handle = m_snapshot->getProjectHandle();
+
+  const di::Grid* grid;
+  int flags;
+  int type;
+
+  if(propType == di::RESERVOIRPROPERTY)
+  {
+    grid = handle->getHighResolutionOutputGrid();
+    flags = di::RESERVOIR;
+    type = di::MAP;
+  }
+  else
+  {
+    grid = handle->getLowResolutionOutputGrid();
+    flags = di::FORMATION;
+    type  = di::VOLUME;
+  }
+
   std::shared_ptr<di::PropertyValueList> values(
     handle->getPropertyValues(flags, prop, m_snapshot, 0, 0, 0, type));
 
@@ -194,9 +218,72 @@ struct SnapshotCompare
   }
 };
 
+void SceneGraph::createSnapshotsNodeHiRes(di::ProjectHandle* handle)
+{
+  int flags = di::RESERVOIR;
+  int type = di::MAP;
+
+  std::string depthTopKey = "ResRockTop";
+  std::string depthBottomKey = "ResRockBottom";
+
+  const di::Property* depthTopProperty = handle->findProperty(depthTopKey);
+  const di::Property* depthBottomProperty = handle->findProperty(depthBottomKey);
+
+  std::shared_ptr<di::ReservoirList> reservoirs(handle->getReservoirs());
+
+  m_snapshotsHiRes = new SoSwitch;
+
+  // Sort snapshots so oldest is first in list
+  std::shared_ptr<di::SnapshotList> snapshots(handle->getSnapshots(di::MAJOR));
+  std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
+  std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), SnapshotCompare());
+
+  for(size_t i=0; i < tmpSnapshotList.size(); ++i)
+  {
+    const di::Snapshot* snapshot = tmpSnapshotList[i];
+    
+    std::shared_ptr<di::PropertyValueList> depthValues(new di::PropertyValueList);
+
+    for(size_t j=0; j < reservoirs->size(); ++j)
+    {
+      std::shared_ptr<di::PropertyValueList> depthTopValues(
+        handle->getPropertyValues(flags, depthTopProperty, snapshot, (*reservoirs)[j], 0, 0, type));
+      
+      if(depthTopValues->size() == 1)
+        depthValues->push_back((*depthTopValues)[0]);
+
+      std::shared_ptr<di::PropertyValueList> depthBottomValues(
+        handle->getPropertyValues(flags, depthBottomProperty, snapshot, (*reservoirs)[j], 0, 0, type));
+
+      if(depthBottomValues->size() == 1)
+        depthValues->push_back((*depthBottomValues)[0]);
+    }
+
+    if(depthValues->empty())
+    {
+      m_snapshotsHiRes->addChild(new SoGroup);
+    }
+    else
+    {
+      SnapshotNode* snapshotNode = new SnapshotNode;
+      snapshotNode->setup(snapshot, depthValues, true);
+
+      // connect fields from scenegraph
+      snapshotNode->RenderMode.connectFrom(&RenderMode);
+      snapshotNode->SliceI.connectFrom(&SliceI);
+      snapshotNode->SliceJ.connectFrom(&SliceJ);
+      snapshotNode->Plane.connectFrom(&Plane);
+
+      m_snapshotsHiRes->addChild(snapshotNode);
+    }
+  }
+
+  m_snapshotsHiRes->whichChild = 0;
+}
+
 void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 {
-  int flags = di::FORMATION;
+  int flags = di::FORMATION | di::SURFACE | di::FORMATIONSURFACE;
   int type  = di::VOLUME;
 
   std::string depthKey = "Depth";
@@ -204,20 +291,24 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
 
   m_snapshots = new SoSwitch;
 
-  di::SnapshotList* snapshots = handle->getSnapshots(di::MAJOR);
+  std::shared_ptr<di::SnapshotList> snapshots(handle->getSnapshots(di::MAJOR));
 
+  // Sort snapshots so oldest is first in list
   std::vector<const di::Snapshot*> tmpSnapshotList(*snapshots);
   std::sort(tmpSnapshotList.begin(), tmpSnapshotList.end(), SnapshotCompare());
 
   for(size_t i=0; i < tmpSnapshotList.size(); ++i)
   {
     const di::Snapshot* snapshot = tmpSnapshotList[i];
-
+    
     std::shared_ptr<di::PropertyValueList> depthValues(
       handle->getPropertyValues(flags, depthProperty, snapshot, 0, 0, 0, type));
 
+    if(depthValues->empty())
+      continue;
+
     SnapshotNode* snapshotNode = new SnapshotNode;
-    snapshotNode->setup(snapshot, depthValues);
+    snapshotNode->setup(snapshot, depthValues, false);
 
     // connect fields from scenegraph
     snapshotNode->RenderMode.connectFrom(&RenderMode);
@@ -228,20 +319,29 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
     m_snapshots->addChild(snapshotNode);
   }
 
-  Plane.connectFrom(&m_planeManip->plane);
-
   m_snapshots->whichChild = 0;
 }
 
 void SceneGraph::createRootNode()
 {
+  m_verticalScale = new SoScale;
+  m_verticalScale->scaleFactor = SbVec3f(1.0f, 1.0f, 1.0f);
+
+  addChild(m_verticalScale);
   addChild(m_cellFilterSwitch);
   addChild(m_appearance);
-  addChild(m_snapshots);
+  
+  m_resolutionSwitch = new SoSwitch;
+  m_resolutionSwitch->addChild(m_snapshots);
+  m_resolutionSwitch->addChild(m_snapshotsHiRes);
+  m_resolutionSwitch->whichChild = 0;
+  addChild(m_resolutionSwitch);
 
   m_planeManipSwitch->addChild(m_planeManip);
   m_planeManipSwitch->whichChild = SO_SWITCH_NONE;
   addChild(m_planeManipSwitch);
+
+  Plane.connectFrom(&m_planeManip->plane);
 }
 
 /**
@@ -277,11 +377,14 @@ void SceneGraph::initializeManip()
 }
 
 SceneGraph::SceneGraph()
-  : m_cellFilterSwitch(0)
+  : m_verticalScale(0)
+  , m_cellFilterSwitch(0)
   , m_cellFilter(0)
   , m_roiFilter(0)
   , m_appearance(0)
   , m_snapshots(0)
+  , m_snapshotsHiRes(0)
+  , m_resolutionSwitch(0)
   , m_colorMap(0)
   , m_planeManipInitialized(false)
   , m_planeManipSwitch(new SoSwitch)
@@ -299,17 +402,22 @@ void SceneGraph::setup(di::ProjectHandle* handle)
   createFilterNode();
   createAppearanceNode();
   createSnapshotsNode(handle);
+  createSnapshotsNodeHiRes(handle);
+
+  m_snapshots->whichChild.connectFrom(&m_snapshotsHiRes->whichChild);
+  m_snapshotsHiRes->whichChild.connectFrom(&m_snapshots->whichChild);
+
   createRootNode();
 }
 
-void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
+void SceneGraph::setProperty(const DataAccess::Interface::Property* prop, SoSwitch* snapshots)
 {
   double globalMinVal = std::numeric_limits<double>::max();
   double globalMaxVal = -globalMinVal;
 
-  for(int i=0; i < m_snapshots->getNumChildren(); ++i)
+  for(int i=0; i < snapshots->getNumChildren(); ++i)
   {
-    SnapshotNode* node = dynamic_cast<SnapshotNode*>(m_snapshots->getChild(i));
+    SnapshotNode* node = dynamic_cast<SnapshotNode*>(snapshots->getChild(i));
     if(node != 0)
     {
       node->setProperty(prop);
@@ -324,6 +432,14 @@ void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
 
   m_colorMap->minValue = (float)globalMinVal;
   m_colorMap->maxValue = (float)globalMaxVal;
+}
+
+void SceneGraph::setProperty(const DataAccess::Interface::Property* prop)
+{
+  if(prop->getType() == di::RESERVOIRPROPERTY)
+    setProperty(prop, m_snapshotsHiRes);
+  else
+    setProperty(prop, m_snapshots);
 }
 
 int SceneGraph::snapshotCount() const
@@ -361,6 +477,16 @@ void SceneGraph::setROI(size_t minI, size_t minJ, size_t minK, size_t maxI, size
 {
   m_roiFilter->setROI(minI, minJ, minK, maxI, maxJ, maxK);
   m_cellFilter->touch();
+}
+
+void SceneGraph::setVerticalScale(float scale)
+{
+  m_verticalScale->scaleFactor = SbVec3f(1.0f, 1.0f, scale);
+}
+
+void SceneGraph::setMeshMode(MeshMode mode)
+{
+  m_resolutionSwitch->whichChild = (mode == MeshMode_All) ? 0 : 1;
 }
 
 void BpaVizInit()

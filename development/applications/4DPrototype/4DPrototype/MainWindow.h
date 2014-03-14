@@ -5,9 +5,6 @@
 
 #include "Interface/Interface.h"
 
-//#include "BpaMesh.h"
-//#include "SceneGraph.h"
-
 #include <QtGui/QMainWindow>
 
 class SceneGraph;
@@ -49,11 +46,15 @@ private slots:
 
   void onSliceJValueChanged(int value);
 
+  void onVerticalScaleSliderValueChanged(int value);
+
   void onROISliderValueChanged(int value);
 
   void onROIToggled(bool value);
 
   void onRenderModeToggled(bool value);
+
+  void onMeshModeToggled(bool value);
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
