@@ -7,15 +7,18 @@
 	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">05</VersionNumberMinor>
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
 	<PerformOnLocalHost Condition=" '$(PerformOnLocalHost)'=='' ">False</PerformOnLocalHost>
-	<TFSTestFolder Condition=" '$(TFSTestFolder)' == '' ">$/Basin Modeling/IBS/Tests/RegressionTests</TFSTestFolder>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
+
+  <PropertyGroup>
+  	<TFSTestFolder Condition=" '$(TFSTestFolder)' == '' ">$/Basin Modeling/IBS/Tests/RegressionTests</TFSTestFolder>
 	<TFSTestScriptFolder Condition=" '$(TFSTestScriptFolder)' == '' ">$/Basin Modeling/IBS/Tests/RegressionTestBench</TFSTestScriptFolder>
 	<TFSWorkSpace Condition=" '$(TFSWorkSpace)' == '' ">RegressionTests</TFSWorkSpace>
 	<LinuxWorkDir Condition=" '$(LinuxWorkDir)' == '' ">/glb/data/Finite-Scratch/$(AgentAccount)/$(TFSWorkSpace)</LinuxWorkDir>
 	<LinuxScriptDir Condition=" '$(LinuxScriptDir)' == '' ">/glb/home/$(AgentAccount)/RegressionTestBench</LinuxScriptDir>
   </PropertyGroup>
-
-  <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
-
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <OutputPath>x64\Release\</OutputPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -23,13 +26,7 @@
   
   <PropertyGroup>
     <Version>v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)</Version>
-	<Environment>COLLECTION='$(TeamFoundationServerUrl)' 
-	             SCRIPT_DIRECTORY='$(LinuxScriptDir)' 
-				 SCRIPT_TFSFOLDER='$(TFSTestScriptFolder)' 
-				 TFSFOLDER='$(TFSTestFolder)' 
-				 ROOTDIRECTORY='$(LinuxWorkDir)' 
-				 WORKSPACE='$(TFSWorkspace)'
-				 CAULDRON_VERSION='$(Version)'</Environment>
+	<Environment>COLLECTION='$(TeamFoundationServerUrl)' SCRIPT_DIRECTORY='$(LinuxScriptDir)' SCRIPT_TFSFOLDER='$(TFSTestScriptFolder)' TFSFOLDER='$(TFSTestFolder)' ROOTDIRECTORY='$(LinuxWorkDir)' WORKSPACE='$(TFSWorkspace)' CAULDRON_VERSION='$(Version)'</Environment>
 	<CopyGetTestBench>$(scp_command) "$(MSBuildProjectDirectory)\Linux-GetRegressionTestBench.sh" "$(AgentAccount)@$(AgentHost):bin"</CopyGetTestBench>
 	<GetTestBench>$(ssh_command) "$(Environment) /bin/bash -x bin/Linux-GetRegressionTestBench.sh"</GetTestBench>
 	<RewriteToLocalHost>$(ssh_command) "$(Environment) /bin/bash -x $(LinuxScriptDir)/perform_on_localhost"</RewriteToLocalHost>
