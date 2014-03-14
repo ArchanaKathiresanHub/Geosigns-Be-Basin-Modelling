@@ -7,7 +7,11 @@
 	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">05</VersionNumberMinor>
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
 	<PerformOnLocalHost Condition=" '$(PerformOnLocalHost)'=='' ">False</PerformOnLocalHost>
-    <RegressionTestsFolder Condition=" '$(RegressionTestsFolder)' == '' ">$/Basin Modeling/IBS/Tests/RegressionTests</RegressionTestsFolder>
+	<TFSTestFolder Condition=" '$(TFSTestFolder)' == '' ">$/Basin Modeling/IBS/Tests/RegressionTests</TFSTestFolder>
+	<TFSTestScriptFolder Condition=" '$(TFSTestScriptFolder)' == '' ">$/Basin Modeling/IBS/Tests/RegressionTestBench</TFSTestScriptFolder>
+	<TFSWorkSpace Condition=" '$(TFSWorkSpace)' == '' ">RegressionTests</TFSWorkSpace>
+	<LinuxWorkDir Condition=" '$(LinuxWorkDir)' == '' ">/glb/data/Finite-Scratch/$(AgentAccount)/$(TFSWorkSpace)</LinuxWorkDir>
+	<LinuxScriptDir Condition=" '$(LinuxScriptDir)' == '' ">/glb/home/$(AgentAccount)/RegressionTestBench</LinuxScriptDir>
   </PropertyGroup>
 
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
@@ -19,12 +23,19 @@
   
   <PropertyGroup>
     <Version>v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)</Version>
-	<CopyGetTestBench>$(scp_command) "$(MSBuildProjectDirectory)\Linux-GetRegressionTestBench.sh" "$(AgentAccount)@$(AgentHost):bin" </CopyGetTestBench>
-	<GetTestBench>$(ssh_command) "/bin/bash -x bin/Linux-GetRegressionTestBench.sh $(Version)"</GetTestBench>
-	<RewriteToLocalHost>$(ssh_command) "/bin/bash -x RegressionTestBench/perform_on_localhost"  </RewriteToLocalHost>
-	<PerformTests>$(ssh_command) "cd RegressionTestBench &amp;&amp; TFSFOLDER='$(RegressionTestsFolder)' /bin/csh -x ./fastperformtests $(Version)"  </PerformTests>
+	<Environment>COLLECTION='$(TeamFoundationServerUrl)' 
+	             SCRIPT_DIRECTORY='$(LinuxScriptDir)' 
+				 SCRIPT_TFSFOLDER='$(TFSTestScriptFolder)' 
+				 TFSFOLDER='$(TFSTestFolder)' 
+				 ROOTDIRECTORY='$(LinuxWorkDir)' 
+				 WORKSPACE='$(TFSWorkspace)'
+				 CAULDRON_VERSION='$(Version)'</Environment>
+	<CopyGetTestBench>$(scp_command) "$(MSBuildProjectDirectory)\Linux-GetRegressionTestBench.sh" "$(AgentAccount)@$(AgentHost):bin"</CopyGetTestBench>
+	<GetTestBench>$(ssh_command) "$(Environment) /bin/bash -x bin/Linux-GetRegressionTestBench.sh"</GetTestBench>
+	<RewriteToLocalHost>$(ssh_command) "$(Environment) /bin/bash -x $(LinuxScriptDir)/perform_on_localhost"</RewriteToLocalHost>
+	<PerformTests>$(ssh_command) "cd $(LinuxScriptDir) &amp;&amp; $(Environment) /bin/csh -x ./fastperformtests"</PerformTests>
     
-    <CopyBackResults>$(ssh_command) "set -e ; cd /nfs/rvl/groups/ept-sg/SWEast/Cauldron/$(AgentAccount)/RegressionTests ; find -maxdepth 2 -type f | cpio -o" | $(cpio_exe) -id </CopyBackResults>
+    <CopyBackResults>$(ssh_command) "set -e ; cd $(LinuxWorkDir); find -maxdepth 2 -type f | cpio -o" | $(cpio_exe) -id </CopyBackResults>
     <RegressionTestDir>$(OutDir)/regression_tests</RegressionTestDir>
   </PropertyGroup>
   
