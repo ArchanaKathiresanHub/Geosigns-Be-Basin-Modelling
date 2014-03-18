@@ -187,10 +187,10 @@ void SceneGraph::createAppearanceNode()
   m_colorMap->minValue = 0.0f;
   m_colorMap->maxValue = 100.0f;
 
-  MoDrawStyle* drawStyle = new MoDrawStyle;
-  drawStyle->displayFaces = true;
-  drawStyle->displayEdges = true;
-  drawStyle->displayPoints = false;
+  m_drawStyle = new MoDrawStyle;
+  m_drawStyle->displayFaces = true;
+  m_drawStyle->displayEdges = true;
+  m_drawStyle->displayPoints = false;
 
   MoMaterial* material = new MoMaterial;
   material->faceColoring = MoMaterial::CONTOURING;
@@ -205,7 +205,7 @@ void SceneGraph::createAppearanceNode()
 
   m_appearance = new SoGroup;
   m_appearance->addChild(m_colorMap);
-  m_appearance->addChild(drawStyle);
+  m_appearance->addChild(m_drawStyle);
   m_appearance->addChild(material);
   m_appearance->addChild(binding);
 }
@@ -382,6 +382,7 @@ SceneGraph::SceneGraph()
   , m_cellFilter(0)
   , m_roiFilter(0)
   , m_appearance(0)
+  , m_drawStyle(0)
   , m_snapshots(0)
   , m_snapshotsHiRes(0)
   , m_resolutionSwitch(0)
@@ -487,6 +488,12 @@ void SceneGraph::setVerticalScale(float scale)
 void SceneGraph::setMeshMode(MeshMode mode)
 {
   m_resolutionSwitch->whichChild = (mode == MeshMode_All) ? 0 : 1;
+}
+
+void SceneGraph::setRenderStyle(bool drawFaces, bool drawEdges)
+{
+  m_drawStyle->displayFaces = drawFaces;
+  m_drawStyle->displayEdges = drawEdges;
 }
 
 void BpaVizInit()

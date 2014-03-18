@@ -21,7 +21,7 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
          <widget class="QTreeWidget" name="treeWidget">
           <property name="sizePolicy">
@@ -77,9 +77,9 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="QRadioButton" name="radioButtonAll">
+            <widget class="QRadioButton" name="radioButtonFormations">
              <property name="text">
-              <string>All</string>
+              <string>Formations</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -87,9 +87,45 @@
             </widget>
            </item>
            <item>
+            <widget class="QRadioButton" name="radioButtonSurfaces">
+             <property name="text">
+              <string>Surfaces</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QRadioButton" name="radioButtonReservoirs">
              <property name="text">
               <string>Reservoirs</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Render style</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QCheckBox" name="checkBoxDrawFaces">
+             <property name="text">
+              <string>Faces</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxDrawEdges">
+             <property name="text">
+              <string>Edges</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -335,7 +371,14 @@
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
+   <widget class="QMenu" name="menuTest">
+    <property name="title">
+     <string>Test</string>
+    </property>
+    <addaction name="action_RenderAllSnapshots"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menuTest"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_Open">
@@ -346,6 +389,11 @@
   <action name="action_Quit">
    <property name="text">
     <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="action_RenderAllSnapshots">
+   <property name="text">
+    <string>Render all snapshots</string>
    </property>
   </action>
  </widget>

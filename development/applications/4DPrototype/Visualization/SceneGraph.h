@@ -17,6 +17,7 @@ class MoMeshOutline;
 class MoScalarSetI;
 class MoPredefinedColorMapping;
 class MoCellFilter;
+class MoDrawStyle;
 class ROICellFilter;
 
 class SoSwitch;
@@ -100,6 +101,7 @@ private:
   ROICellFilter*    m_roiFilter;
 
   SoGroup*          m_appearance;
+  MoDrawStyle*      m_drawStyle;
   SoSwitch*         m_snapshots;
   SoSwitch*         m_snapshotsHiRes;
   SoSwitch*         m_resolutionSwitch;
@@ -149,6 +151,8 @@ public:
   VISUALIZATIONDLL_API void setVerticalScale(float scale);
 
   VISUALIZATIONDLL_API void setMeshMode(MeshMode mode);
+
+  VISUALIZATIONDLL_API void setRenderStyle(bool drawFaces, bool drawEdges);
 
   SoSFInt32 RenderMode;
 

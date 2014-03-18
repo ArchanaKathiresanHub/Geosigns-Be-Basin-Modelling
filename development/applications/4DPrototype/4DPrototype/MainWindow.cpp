@@ -10,8 +10,10 @@
 #include "Interface/Grid.h"
 
 #include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLabel>
+#include <QtCore/QTime>
 
 namespace di = DataAccess::Interface;
 
@@ -160,6 +162,7 @@ void MainWindow::updateUI()
 void MainWindow::connectSignals()
 {
   connect(m_ui.action_Open, SIGNAL(triggered()), this, SLOT(onActionOpenTriggered()));
+  connect(m_ui.action_RenderAllSnapshots, SIGNAL(triggered()), this, SLOT(onActionRenderAllSnapshotsTriggered()));
   connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
   connect(m_ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
   connect(m_ui.sliderSliceI, SIGNAL(valueChanged(int)), this, SLOT(onSliceIValueChanged(int)));
@@ -168,8 +171,11 @@ void MainWindow::connectSignals()
   connect(m_ui.radioButtonSlices, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.radioButtonCrossSection, SIGNAL(toggled(bool)), this, SLOT(onRenderModeToggled(bool)));
   connect(m_ui.sliderVerticalScale, SIGNAL(valueChanged(int)), this, SLOT(onVerticalScaleSliderValueChanged(int)));
-  connect(m_ui.radioButtonAll, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
+  connect(m_ui.radioButtonFormations, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
+  connect(m_ui.radioButtonSurfaces, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
   connect(m_ui.radioButtonReservoirs, SIGNAL(toggled(bool)), this, SLOT(onMeshModeToggled(bool)));
+  connect(m_ui.checkBoxDrawFaces, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
+  connect(m_ui.checkBoxDrawEdges, SIGNAL(toggled(bool)), this, SLOT(onRenderStyleChanged()));
 
   // ROI
   connect(m_ui.checkBoxROI, SIGNAL(toggled(bool)), this, SLOT(onROIToggled(bool)));
@@ -192,6 +198,37 @@ void MainWindow::onActionOpenTriggered()
   {
     loadProject(filename);
   }
+}
+
+void MainWindow::onActionRenderAllSnapshotsTriggered()
+{
+  m_ui.renderWidget->getViewer()->setAutoRedraw(false);
+
+  QTime time;
+  time.start();
+
+  int maxTimeMs = 0;
+  for(int i=0; i <= m_ui.snapshotSlider->maximum(); ++i)
+  {
+    QTime snapshotTime;
+    snapshotTime.start();
+
+    m_ui.snapshotSlider->setValue(i);
+    qApp->processEvents();
+    m_ui.renderWidget->getViewer()->render();
+
+    int t = snapshotTime.elapsed();
+    if(t > maxTimeMs)
+      maxTimeMs = t;
+  }
+
+  m_ui.renderWidget->getViewer()->setAutoRedraw(true);
+
+  int ms = time.elapsed();
+  float avgTime = (.001f * ms) / (m_ui.snapshotSlider->maximum() + 1);
+  float maxTime = .001f * maxTimeMs;
+  QString msg = QString("Average time = %1 s per snapshot\nMax time = %2").arg(avgTime).arg(maxTime);
+  QMessageBox::information(this, "Result", msg);
 }
 
 void MainWindow::onSliderValueChanged(int value)
@@ -258,10 +295,18 @@ void MainWindow::onMeshModeToggled(bool value)
   if(!value)
     return;
 
-  if(sender() == m_ui.radioButtonAll)
+  if(sender() == m_ui.radioButtonFormations)
     m_sceneGraph->setMeshMode(SceneGraph::MeshMode_All);
   else
     m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Reservoirs);
+}
+
+void MainWindow::onRenderStyleChanged()
+{
+  bool drawFaces = m_ui.checkBoxDrawFaces->isChecked();
+  bool drawEdges = m_ui.checkBoxDrawEdges->isChecked();
+
+  m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
 }
 
 void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
@@ -286,7 +331,7 @@ MainWindow::MainWindow()
 	// Remove all the ugly buttons and scroll wheels that 
 	// you always get for free with these OIV viewers
 	m_ui.renderWidget->setDecoration(false);
-  m_ui.renderWidget->getViewer()->setBackgroundColor(SbColor(.1f, .1f, .2f));
+  m_ui.renderWidget->getViewer()->setBackgroundColor(SbColor(.2f, .2f, .3f));
 
   SoQtViewer* viewer = dynamic_cast<SoQtViewer*>(m_ui.renderWidget->getViewer());
   if(viewer != 0)

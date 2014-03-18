@@ -82,8 +82,8 @@ public:
 
   virtual MiMeshIjk::StorageLayout getStorageLayout() const
   {
-    // This means that I changes fastest, then J, then K
-    return MiMeshIjk::LAYOUT_KJI;
+    // This means that K changes fastest, then J, then I
+    return MiMeshIjk::LAYOUT_IJK;
   }
 
   virtual size_t getBeginNodeId() const
@@ -359,7 +359,8 @@ double BpaProperty::getMax() const
 
 MiMeshIjk::StorageLayout BpaProperty::getStorageLayout() const
 {
-  return MiMeshIjk::LAYOUT_KJI;
+    // This means that K changes fastest, then J, then I
+    return MiMeshIjk::LAYOUT_IJK;
 }
 
 size_t BpaProperty::getTimeStamp() const

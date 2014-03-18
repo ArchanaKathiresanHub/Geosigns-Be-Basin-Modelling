@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Thu 13. Mar 16:01:11 2014
+** Created: Mon 17. Mar 14:12:04 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -40,19 +40,25 @@ class Ui_MainWindow
 public:
     QAction *action_Open;
     QAction *action_Quit;
+    QAction *action_RenderAllSnapshots;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_3;
     QSplitter *splitter;
     QWidget *layoutWidget;
-    QVBoxLayout *verticalLayout_3;
+    QVBoxLayout *verticalLayout_4;
     QTreeWidget *treeWidget;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_7;
     QSlider *sliderVerticalScale;
     QGroupBox *groupBox_2;
     QVBoxLayout *verticalLayout;
-    QRadioButton *radioButtonAll;
+    QRadioButton *radioButtonFormations;
+    QRadioButton *radioButtonSurfaces;
     QRadioButton *radioButtonReservoirs;
+    QGroupBox *groupBox_3;
+    QVBoxLayout *verticalLayout_3;
+    QCheckBox *checkBoxDrawFaces;
+    QCheckBox *checkBoxDrawEdges;
     QGroupBox *groupBoxROI;
     QGridLayout *gridLayout_2;
     QCheckBox *checkBoxROI;
@@ -85,6 +91,7 @@ public:
     SoQtWrapper *renderWidget;
     QMenuBar *menubar;
     QMenu *menu_File;
+    QMenu *menuTest;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -96,6 +103,8 @@ public:
         action_Open->setObjectName(QString::fromUtf8("action_Open"));
         action_Quit = new QAction(MainWindow);
         action_Quit->setObjectName(QString::fromUtf8("action_Quit"));
+        action_RenderAllSnapshots = new QAction(MainWindow);
+        action_RenderAllSnapshots->setObjectName(QString::fromUtf8("action_RenderAllSnapshots"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_3 = new QHBoxLayout(centralwidget);
@@ -105,9 +114,9 @@ public:
         splitter->setOrientation(Qt::Horizontal);
         layoutWidget = new QWidget(splitter);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        verticalLayout_3 = new QVBoxLayout(layoutWidget);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        verticalLayout_3->setContentsMargins(0, 0, 0, 0);
+        verticalLayout_4 = new QVBoxLayout(layoutWidget);
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        verticalLayout_4->setContentsMargins(0, 0, 0, 0);
         treeWidget = new QTreeWidget(layoutWidget);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
@@ -119,7 +128,7 @@ public:
         sizePolicy.setHeightForWidth(treeWidget->sizePolicy().hasHeightForWidth());
         treeWidget->setSizePolicy(sizePolicy);
 
-        verticalLayout_3->addWidget(treeWidget);
+        verticalLayout_4->addWidget(treeWidget);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
@@ -140,17 +149,22 @@ public:
         horizontalLayout_2->addWidget(sliderVerticalScale);
 
 
-        verticalLayout_3->addLayout(horizontalLayout_2);
+        verticalLayout_4->addLayout(horizontalLayout_2);
 
         groupBox_2 = new QGroupBox(layoutWidget);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
         verticalLayout = new QVBoxLayout(groupBox_2);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        radioButtonAll = new QRadioButton(groupBox_2);
-        radioButtonAll->setObjectName(QString::fromUtf8("radioButtonAll"));
-        radioButtonAll->setChecked(true);
+        radioButtonFormations = new QRadioButton(groupBox_2);
+        radioButtonFormations->setObjectName(QString::fromUtf8("radioButtonFormations"));
+        radioButtonFormations->setChecked(true);
 
-        verticalLayout->addWidget(radioButtonAll);
+        verticalLayout->addWidget(radioButtonFormations);
+
+        radioButtonSurfaces = new QRadioButton(groupBox_2);
+        radioButtonSurfaces->setObjectName(QString::fromUtf8("radioButtonSurfaces"));
+
+        verticalLayout->addWidget(radioButtonSurfaces);
 
         radioButtonReservoirs = new QRadioButton(groupBox_2);
         radioButtonReservoirs->setObjectName(QString::fromUtf8("radioButtonReservoirs"));
@@ -158,7 +172,26 @@ public:
         verticalLayout->addWidget(radioButtonReservoirs);
 
 
-        verticalLayout_3->addWidget(groupBox_2);
+        verticalLayout_4->addWidget(groupBox_2);
+
+        groupBox_3 = new QGroupBox(layoutWidget);
+        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
+        verticalLayout_3 = new QVBoxLayout(groupBox_3);
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        checkBoxDrawFaces = new QCheckBox(groupBox_3);
+        checkBoxDrawFaces->setObjectName(QString::fromUtf8("checkBoxDrawFaces"));
+        checkBoxDrawFaces->setChecked(true);
+
+        verticalLayout_3->addWidget(checkBoxDrawFaces);
+
+        checkBoxDrawEdges = new QCheckBox(groupBox_3);
+        checkBoxDrawEdges->setObjectName(QString::fromUtf8("checkBoxDrawEdges"));
+        checkBoxDrawEdges->setChecked(true);
+
+        verticalLayout_3->addWidget(checkBoxDrawEdges);
+
+
+        verticalLayout_4->addWidget(groupBox_3);
 
         groupBoxROI = new QGroupBox(layoutWidget);
         groupBoxROI->setObjectName(QString::fromUtf8("groupBoxROI"));
@@ -236,7 +269,7 @@ public:
         gridLayout_2->addWidget(sliderMaxJ, 4, 1, 1, 1);
 
 
-        verticalLayout_3->addWidget(groupBoxROI);
+        verticalLayout_4->addWidget(groupBoxROI);
 
         groupBox = new QGroupBox(layoutWidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
@@ -295,12 +328,12 @@ public:
         verticalLayout_2->addWidget(radioButtonCrossSection);
 
 
-        verticalLayout_3->addWidget(groupBox);
+        verticalLayout_4->addWidget(groupBox);
 
         label_8 = new QLabel(layoutWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
 
-        verticalLayout_3->addWidget(label_8);
+        verticalLayout_4->addWidget(label_8);
 
         snapshotSlider = new QSlider(layoutWidget);
         snapshotSlider->setObjectName(QString::fromUtf8("snapshotSlider"));
@@ -312,7 +345,7 @@ public:
         snapshotSlider->setOrientation(Qt::Horizontal);
         snapshotSlider->setTickPosition(QSlider::TicksBelow);
 
-        verticalLayout_3->addWidget(snapshotSlider);
+        verticalLayout_4->addWidget(snapshotSlider);
 
         splitter->addWidget(layoutWidget);
         renderWidget = new SoQtWrapper(splitter);
@@ -332,15 +365,19 @@ public:
         menubar->setGeometry(QRect(0, 0, 857, 21));
         menu_File = new QMenu(menubar);
         menu_File->setObjectName(QString::fromUtf8("menu_File"));
+        menuTest = new QMenu(menubar);
+        menuTest->setObjectName(QString::fromUtf8("menuTest"));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);
 
         menubar->addAction(menu_File->menuAction());
+        menubar->addAction(menuTest->menuAction());
         menu_File->addAction(action_Open);
         menu_File->addSeparator();
         menu_File->addAction(action_Quit);
+        menuTest->addAction(action_RenderAllSnapshots);
 
         retranslateUi(MainWindow);
 
@@ -352,10 +389,15 @@ public:
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
         action_Open->setText(QApplication::translate("MainWindow", "&Open...", 0, QApplication::UnicodeUTF8));
         action_Quit->setText(QApplication::translate("MainWindow", "&Quit", 0, QApplication::UnicodeUTF8));
+        action_RenderAllSnapshots->setText(QApplication::translate("MainWindow", "Render all snapshots", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Mesh", 0, QApplication::UnicodeUTF8));
-        radioButtonAll->setText(QApplication::translate("MainWindow", "All", 0, QApplication::UnicodeUTF8));
+        radioButtonFormations->setText(QApplication::translate("MainWindow", "Formations", 0, QApplication::UnicodeUTF8));
+        radioButtonSurfaces->setText(QApplication::translate("MainWindow", "Surfaces", 0, QApplication::UnicodeUTF8));
         radioButtonReservoirs->setText(QApplication::translate("MainWindow", "Reservoirs", 0, QApplication::UnicodeUTF8));
+        groupBox_3->setTitle(QApplication::translate("MainWindow", "Render style", 0, QApplication::UnicodeUTF8));
+        checkBoxDrawFaces->setText(QApplication::translate("MainWindow", "Faces", 0, QApplication::UnicodeUTF8));
+        checkBoxDrawEdges->setText(QApplication::translate("MainWindow", "Edges", 0, QApplication::UnicodeUTF8));
         groupBoxROI->setTitle(QApplication::translate("MainWindow", "ROI", 0, QApplication::UnicodeUTF8));
         checkBoxROI->setText(QApplication::translate("MainWindow", "Enable", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("MainWindow", "minK", 0, QApplication::UnicodeUTF8));
@@ -372,6 +414,7 @@ public:
         radioButtonCrossSection->setText(QApplication::translate("MainWindow", "Cross section", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("MainWindow", "Time", 0, QApplication::UnicodeUTF8));
         menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
+        menuTest->setTitle(QApplication::translate("MainWindow", "Test", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

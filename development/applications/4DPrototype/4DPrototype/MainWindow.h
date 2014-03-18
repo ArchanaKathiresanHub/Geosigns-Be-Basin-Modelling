@@ -40,6 +40,8 @@ private slots:
 
   void onActionOpenTriggered();
 
+  void onActionRenderAllSnapshotsTriggered();
+
   void onSliderValueChanged(int value);
 
   void onSliceIValueChanged(int value);
@@ -55,6 +57,8 @@ private slots:
   void onRenderModeToggled(bool value);
 
   void onMeshModeToggled(bool value);
+
+  void onRenderStyleChanged();
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
