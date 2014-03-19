@@ -1,6 +1,7 @@
 #include "SceneGraph.h"
 #include "BpaMesh.h"
 #include "ROICellFilter.h"
+#include "SkinExtractor.h"
 
 // DataAccess
 #include "Interface/Grid.h"
@@ -32,6 +33,9 @@
 #include <MeshVizInterface/mapping/nodes/MoDataBinding.h>
 #include <MeshVizInterface/mapping/nodes/MoPredefinedColorMapping.h>
 #include <MeshVizInterface/mapping/nodes/MoCellFilter.h>
+#include <MeshVizInterface/mapping/nodes/MoMeshSurface.h>
+
+#include <algorithm>
 
 namespace di = DataAccess::Interface; 
 
@@ -103,7 +107,18 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   m_sliceGroup->addChild(m_sliceI);
   m_sliceGroup->addChild(m_sliceJ);
 
-  m_renderSwitch->addChild(m_skin);
+  //----------------------------------------------------------
+  //m_skinExtractor = new SkinExtractor(*bpaMesh);
+  //const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
+  //MoMesh* skinMesh = new MoMesh;
+  //skinMesh->setMesh(&surfaceMesh);
+  //MoMeshSurface* meshSurface = new MoMeshSurface;
+  //SoGroup* skinGroup = new SoGroup;
+  //skinGroup->addChild(skinMesh);
+  //skinGroup->addChild(meshSurface);
+  //----------------------------------------------------------
+
+  m_renderSwitch->addChild(m_skin);//skinGroup
   m_renderSwitch->addChild(m_sliceGroup);
 
   m_planeGroup->addChild(m_outline);

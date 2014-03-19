@@ -25,6 +25,8 @@ class SoGroup;
 class SoScale;
 class SoClipPlaneManip;
 
+class SkinExtractor;
+
 /**
  * Scenegraph for a mesh representing a single snapshot
  */
@@ -44,6 +46,8 @@ class SnapshotNode : public SoSeparator
   MoMeshOutline*      m_outline;
   SoGroup*            m_planeGroup;
   SoSwitch*           m_renderSwitch;
+
+  SkinExtractor*      m_skinExtractor;
 
 public:
 

@@ -125,12 +125,14 @@
     <ClCompile Include="BpaMesh.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
+    <ClCompile Include="SkinExtractor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BpaMesh.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraph.h" />
+    <ClInclude Include="SkinExtractor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

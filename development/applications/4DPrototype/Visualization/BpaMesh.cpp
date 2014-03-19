@@ -200,10 +200,6 @@ public:
     m_deltaX = grid->deltaI();
     m_deltaY = grid->deltaJ();
 
-    // Prep all gridmaps so multithreaded OIV access will be OK
-    for(size_t k=0; k < m_depthValues->size(); ++k)
-      (*m_depthValues)[k]->getGridMap();
-
     double minDepth0, maxDepth0, minDepth1, maxDepth1;
     (*m_depthValues)[0]->getGridMap()->getMinMaxValue(minDepth0, maxDepth0);
     (*m_depthValues)[m_depthValues->size()-1]->getGridMap()->getMinMaxValue(minDepth1, maxDepth1);
@@ -212,22 +208,27 @@ public:
     m_maxZ = -minDepth0;
   }
 
-  virtual MbVec3d getCoord(size_t index) const
+  MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const
   {
-    size_t rowStride = m_numI;
-    size_t sliceStride = m_numI * m_numJ;
-
-    size_t k = index / sliceStride;
-    size_t j = (index - k * sliceStride) / rowStride;
-    size_t i = index - k * sliceStride - j * rowStride;
-
     GridMapKPair gmpair = m_gridMapKs[k];
     const di::GridMap* gridMap = (*m_depthValues)[gmpair.gridMapIndex]->getGridMap();
 
     return MbVec3d(
       m_minX + i * m_deltaX,
       m_minY + j * m_deltaY,
-      -gridMap->getValue((unsigned int)i, (unsigned int)j, gmpair.kIndex));
+      -gridMap->getValue(i, j, gmpair.kIndex));
+  }
+
+  virtual MbVec3d getCoord(size_t index) const
+  {
+    size_t rowStride = m_numI;
+    size_t sliceStride = m_numI * m_numJ;
+
+    unsigned int k = (unsigned int)(index / sliceStride);
+    unsigned int j = (unsigned int)((index - k * sliceStride) / rowStride);
+    unsigned int i = (unsigned int)(index - k * sliceStride - j * rowStride);
+
+    return getCoord(i, j, k);
   }
 
   virtual MbVec3d getMin() const
