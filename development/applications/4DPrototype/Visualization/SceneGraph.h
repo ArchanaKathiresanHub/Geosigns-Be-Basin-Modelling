@@ -30,7 +30,7 @@ class SkinExtractor;
 /**
  * Scenegraph for a mesh representing a single snapshot
  */
-class SnapshotNode : public SoSeparator
+class VISUALIZATIONDLL_API SnapshotNode : public SoSeparator
 {
   SO_NODE_HEADER(SnapshotNode);
 
@@ -67,11 +67,11 @@ public:
     std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues,
     bool hires);
 
-  VISUALIZATIONDLL_API const DataAccess::Interface::Snapshot* getSnapShot() const;
+  const DataAccess::Interface::Snapshot* getSnapShot() const;
 
-  VISUALIZATIONDLL_API void setProperty(const DataAccess::Interface::Property* prop);
+  void setProperty(const DataAccess::Interface::Property* prop);
 
-  VISUALIZATIONDLL_API MoScalarSetI* scalarSet() const;
+  MoScalarSetI* scalarSet() const;
 
   SoSFInt32 RenderMode;
 
@@ -85,7 +85,7 @@ public:
 /**
  * Main scenegraph
  */
-class SceneGraph : public SoGroup
+class VISUALIZATIONDLL_API SceneGraph : public SoSeparator
 {
 public:
 
@@ -134,29 +134,29 @@ public:
 
   static void initClass();
 
-  VISUALIZATIONDLL_API SceneGraph();
+  SceneGraph();
     
-  VISUALIZATIONDLL_API void setup(DataAccess::Interface::ProjectHandle* handle);
+  void setup(DataAccess::Interface::ProjectHandle* handle);
 
-  VISUALIZATIONDLL_API void setProperty(const DataAccess::Interface::Property* prop);
+  void setProperty(const DataAccess::Interface::Property* prop);
 
-  VISUALIZATIONDLL_API int snapshotCount() const;
+  int snapshotCount() const;
 
-  VISUALIZATIONDLL_API const DataAccess::Interface::Snapshot* getSnapshot(int index) const;
+  const DataAccess::Interface::Snapshot* getSnapshot(int index) const;
 
-  VISUALIZATIONDLL_API void setCurrentSnapshot(int index);
+  void setCurrentSnapshot(int index);
 
-  VISUALIZATIONDLL_API void showPlaneManip(bool show);
+  void showPlaneManip(bool show);
 
-  VISUALIZATIONDLL_API void enableROI(bool enable);
+  void enableROI(bool enable);
 
-  VISUALIZATIONDLL_API void setROI(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
+  void setROI(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
 
-  VISUALIZATIONDLL_API void setVerticalScale(float scale);
+  void setVerticalScale(float scale);
 
-  VISUALIZATIONDLL_API void setMeshMode(MeshMode mode);
+  void setMeshMode(MeshMode mode);
 
-  VISUALIZATIONDLL_API void setRenderStyle(bool drawFaces, bool drawEdges);
+  void setRenderStyle(bool drawFaces, bool drawEdges);
 
   SoSFInt32 RenderMode;
 

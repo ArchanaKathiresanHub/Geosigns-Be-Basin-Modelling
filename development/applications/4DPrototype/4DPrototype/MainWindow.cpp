@@ -1,5 +1,5 @@
 #include "MainWindow.h"
-#include "SceneGraph.h"
+#include <Visualization/SceneGraph.h>
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Property.h"

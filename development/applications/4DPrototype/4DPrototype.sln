@@ -8,9 +8,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "4DPrototype", "4DPrototype\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visualization", "Visualization\Visualization.vcxproj", "{5D7E3616-B024-414A-A027-294D19403E21}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderService", "RenderService\RenderService.vcxproj", "{AF3495B6-F38C-4928-B2A2-331C3B16FB87}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs.sede-coe.pds.nl/tfs/coe-ii
 		SccLocalPath0 = .
@@ -20,6 +22,9 @@ Global
 		SccProjectUniqueName2 = Visualization\\Visualization.vcxproj
 		SccProjectName2 = Visualization
 		SccLocalPath2 = Visualization
+		SccProjectUniqueName3 = RenderService\\RenderService.vcxproj
+		SccProjectName3 = RenderService
+		SccLocalPath3 = RenderService
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -44,6 +49,14 @@ Global
 		{5D7E3616-B024-414A-A027-294D19403E21}.Release|Win32.Build.0 = Release|Win32
 		{5D7E3616-B024-414A-A027-294D19403E21}.Release|x64.ActiveCfg = Release|x64
 		{5D7E3616-B024-414A-A027-294D19403E21}.Release|x64.Build.0 = Release|x64
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Debug|Win32.Build.0 = Debug|Win32
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Debug|x64.ActiveCfg = Debug|x64
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Debug|x64.Build.0 = Debug|x64
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Release|Win32.ActiveCfg = Release|Win32
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Release|Win32.Build.0 = Release|Win32
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Release|x64.ActiveCfg = Release|x64
+		{AF3495B6-F38C-4928-B2A2-331C3B16FB87}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

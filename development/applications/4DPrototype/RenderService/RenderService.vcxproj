@@ -19,35 +19,36 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2A70DC34-66E2-4AA3-8006-288C815A1B3B}</ProjectGuid>
-    <RootNamespace>My4DPrototype</RootNamespace>
+    <ProjectGuid>{AF3495B6-F38C-4928-B2A2-331C3B16FB87}</ProjectGuid>
     <SccProjectName>SAK</SccProjectName>
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>
     <SccProvider>SAK</SccProvider>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>RenderService</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -65,68 +66,98 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OIVHOME)/include;$(REMOTEVIZHOME)/Services/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OIVHOME)\arch-Windows-x86_64-msvc10-Debug\lib;$(REMOTEVIZHOME)\Services\arch-windows-x86_64-msvc10-Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\libraries\TableIO\src;..\..\..\..\3rdparty\hdf5.win64\hdf5\include;..\..\..\libraries\DataAccess\src;..\;$(OIVHOME)/include;$(QTDIR)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>E:\Source\BasinModeling\development\applications\4DPrototype;E:\Source\BasinModeling\development\libraries\TableIO\src;E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\include;E:\Source\BasinModeling\development\libraries\DataAccess\src;$(OIVHOME)/include;$(REMOTEVIZHOME)/Services/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(OIVHOME)\arch-Windows-x86_64-msvc10-Debug\lib;E:\Source\BasinModeling\output\lib\debug;E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DataAccess.lib;CBMGenerics.lib;Serial_Hdf5.lib;SerialDataAccess.lib;TableIO.lib;utilities.lib;hdf5.lib;QtCored4.lib;QtGuid4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\lib;E:\Source\BasinModeling\output\lib\debug;$(OIVHOME)\arch-Windows-x86_64-msvc10-Debug\lib;$(REMOTEVIZHOME)\Services\arch-windows-x86_64-msvc10-Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DataAccess.lib;CBMGenerics.lib;Serial_Hdf5.lib;SerialDataAccess.lib;TableIO.lib;utilities.lib;hdf5.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OIVHOME)/include;$(REMOTEVIZHOME)/Services/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(REMOTEVIZHOME)\Services\arch-windows-x86_64-msvc10-Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\libraries\TableIO\src;..\..\..\..\3rdparty\hdf5.win64\hdf5\include;..\..\..\libraries\DataAccess\src;..\;$(OIVHOME)/include;$(QTDIR)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>E:\Source\BasinModeling\development\applications\4DPrototype;E:\Source\BasinModeling\development\libraries\TableIO\src;E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\include;E:\Source\BasinModeling\development\libraries\DataAccess\src;$(OIVHOME)/include;$(REMOTEVIZHOME)/Services/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(OIVHOME)\arch-Windows-x86_64-msvc10-Release\lib;E:\Source\BasinModeling\output\lib\release;E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DataAccess.lib;CBMGenerics.lib;Serial_Hdf5.lib;SerialDataAccess.lib;TableIO.lib;utilities.lib;hdf5.lib;QtCore4.lib;QtGui4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Source\BasinModeling\output\lib\release;E:\Source\BasinModeling\3rdparty\hdf5.win64\hdf5\lib;$(OIVHOME)\arch-Windows-x86_64-msvc10-Release\lib;$(REMOTEVIZHOME)\Services\arch-windows-x86_64-msvc10-Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DataAccess.lib;CBMGenerics.lib;Serial_Hdf5.lib;SerialDataAccess.lib;TableIO.lib;utilities.lib;hdf5.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BpaRenderAreaListener.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="MainWindow.moc.cpp" />
+    <ClCompile Include="SceneExaminer.cpp" />
+    <ClCompile Include="BpaServiceListener.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="MainWindow.ui.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="MainWindow.ui" />
+    <ClInclude Include="BpaRenderAreaListener.h" />
+    <ClInclude Include="SceneExaminer.h" />
+    <ClInclude Include="BpaServiceListener.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Visualization\Visualization.vcxproj">

@@ -35,6 +35,8 @@
 #include <MeshVizInterface/mapping/nodes/MoCellFilter.h>
 #include <MeshVizInterface/mapping/nodes/MoMeshSurface.h>
 
+#include <MeshVizInterface/extractors/MiSkinExtractUnstructuredIjk.h>
+
 #include <algorithm>
 
 namespace di = DataAccess::Interface; 
@@ -108,8 +110,11 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   m_sliceGroup->addChild(m_sliceJ);
 
   //----------------------------------------------------------
-  //m_skinExtractor = new SkinExtractor(*bpaMesh);
-  //const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
+  //std::cout << "Extracting skin" << std::endl;
+  //MiSkinExtractUnstructuredIjk* extractor = MiSkinExtractUnstructuredIjk::getNewInstance(*bpaMesh);
+  //const MeXSurfaceMeshUnstructured& surfaceMesh = extractor->extractSkin();
+  ////m_skinExtractor = new SkinExtractor(*bpaMesh);
+  ////const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
   //MoMesh* skinMesh = new MoMesh;
   //skinMesh->setMesh(&surfaceMesh);
   //MoMeshSurface* meshSurface = new MoMeshSurface;
