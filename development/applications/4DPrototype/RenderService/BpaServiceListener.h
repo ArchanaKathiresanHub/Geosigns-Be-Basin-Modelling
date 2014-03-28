@@ -11,11 +11,6 @@ using namespace RemoteViz::Rendering;
 
 class BpaServiceListener : public ServiceListener
 {
-  SceneGraph* m_sceneGraph;
-
-	BpaRenderAreaListener *m_renderAreaListener;
-
-  void createSceneGraph();
 
 public:
 

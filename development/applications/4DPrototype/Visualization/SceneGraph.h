@@ -116,6 +116,11 @@ private:
   SoSwitch*         m_planeManipSwitch;
   SoClipPlaneManip* m_planeManip;
 
+  int m_numI;
+  int m_numJ;
+  int m_numIHiRes;
+  int m_numJHiRes;
+
   void createFilterNode();
 
   void createAppearanceNode();
@@ -157,6 +162,14 @@ public:
   void setMeshMode(MeshMode mode);
 
   void setRenderStyle(bool drawFaces, bool drawEdges);
+
+  int numI() const;
+
+  int numJ() const;
+
+  int numIHiRes() const;
+
+  int numJHiRes() const;
 
   SoSFInt32 RenderMode;
 

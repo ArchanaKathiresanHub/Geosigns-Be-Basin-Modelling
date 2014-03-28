@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	ServiceSettings settings;
 	settings.setIP("127.0.0.1");
 	settings.setPort(8080);
-  settings.setUsedExtensions(ServiceSettings::MESHVIZXLM);
+  settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
 	BpaServiceListener serviceListener;
 	Service::instance()->addListener(&serviceListener);

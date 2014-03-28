@@ -420,6 +420,14 @@ SceneGraph::SceneGraph()
 
 void SceneGraph::setup(di::ProjectHandle* handle)
 {
+  const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();
+  const di::Grid* hiresGrid = handle->getHighResolutionOutputGrid();
+
+  m_numI = loresGrid->numI();
+  m_numJ = loresGrid->numJ();
+  m_numIHiRes = hiresGrid->numI();
+  m_numJHiRes = hiresGrid->numJ();
+
   createFilterNode();
   createAppearanceNode();
   createSnapshotsNode(handle);
@@ -514,6 +522,26 @@ void SceneGraph::setRenderStyle(bool drawFaces, bool drawEdges)
 {
   m_drawStyle->displayFaces = drawFaces;
   m_drawStyle->displayEdges = drawEdges;
+}
+
+int SceneGraph::numI() const
+{
+  return m_numI;
+}
+
+int SceneGraph::numJ() const
+{
+  return m_numJ;
+}
+
+int SceneGraph::numIHiRes() const
+{
+  return m_numIHiRes;
+}
+
+int SceneGraph::numJHiRes() const
+{
+  return m_numJHiRes;
 }
 
 void BpaVizInit()

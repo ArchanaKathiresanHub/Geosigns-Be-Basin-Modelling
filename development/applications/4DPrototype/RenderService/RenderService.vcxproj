@@ -153,6 +153,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SceneExaminer.cpp" />
     <ClCompile Include="BpaServiceListener.cpp" />
+    <ClCompile Include="TestMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BpaRenderAreaListener.h" />

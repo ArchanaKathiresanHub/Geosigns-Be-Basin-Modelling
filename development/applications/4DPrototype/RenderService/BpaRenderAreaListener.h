@@ -3,9 +3,30 @@
 
 using namespace RemoteViz::Rendering;
 
+namespace DataAccess
+{
+  namespace Interface
+  {
+    class ProjectHandle;
+  }
+}
+
+class SceneGraph;
+
 class BpaRenderAreaListener : public RenderAreaListener
 {
+  RenderArea* m_renderArea;
+  SceneGraph* m_sceneGraph;
+
+  DataAccess::Interface::ProjectHandle* m_handle;
+
+  void createSceneGraph();
+
 public:
+
+  explicit BpaRenderAreaListener(RenderArea* renderArea);
+
+  void sendProjectInfo() const;
 
   virtual void onOpenedConnection(RenderArea* renderArea, Connection* connection);
 
