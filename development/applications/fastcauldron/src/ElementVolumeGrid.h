@@ -15,6 +15,8 @@ public :
 
    ElementVolumeGrid ();
 
+   ElementVolumeGrid ( const ElementVolumeGrid& grid );
+
    ~ElementVolumeGrid ();
 
 

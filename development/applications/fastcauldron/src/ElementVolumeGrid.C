@@ -12,6 +12,46 @@ ElementVolumeGrid::ElementVolumeGrid () {
 
 //------------------------------------------------------------//
 
+ElementVolumeGrid::ElementVolumeGrid ( const ElementVolumeGrid& grid ) {
+
+   m_localInfo = grid.m_localInfo;
+
+   // Should this really point to the arrays in the element-map-grid?
+   m_numberOfXProcessors = grid.m_numberOfXProcessors;
+   m_xPartitioning = new int [ m_numberOfXProcessors ];
+
+   for ( int i = 0; i < m_numberOfXProcessors; ++i ) {
+      m_xPartitioning [ i ] = grid.m_xPartitioning [ i ];
+   }
+
+   // Should this really point to the arrays in the element-map-grid?
+   m_numberOfYProcessors = grid.m_numberOfYProcessors;
+   m_yPartitioning = new int [ m_numberOfYProcessors ];
+
+   for ( int i = 0; i < m_numberOfYProcessors; ++i ) {
+      m_yPartitioning [ i ] = grid.m_yPartitioning [ i ];
+   }
+
+   m_first [ 0 ] = grid.m_first [ 0 ];
+   m_first [ 1 ] = grid.m_first [ 1 ];
+   m_first [ 2 ] = grid.m_first [ 2 ];
+
+   m_last  [ 0 ] = grid.m_last  [ 0 ];
+   m_last  [ 1 ] = grid.m_last  [ 1 ];
+   m_last  [ 2 ] = grid.m_last  [ 2 ];
+
+   m_ghostFirst [ 0 ] = grid.m_ghostFirst [ 0 ];
+   m_ghostFirst [ 1 ] = grid.m_ghostFirst [ 1 ];
+   m_ghostFirst [ 2 ] = grid.m_ghostFirst [ 2 ];
+
+   m_ghostLast  [ 0 ] = grid.m_ghostLast  [ 0 ];
+   m_ghostLast  [ 1 ] = grid.m_ghostLast  [ 1 ];
+   m_ghostLast  [ 2 ] = grid.m_ghostLast  [ 2 ];
+
+}
+
+//------------------------------------------------------------//
+
 ElementVolumeGrid::~ElementVolumeGrid () {
 
    if ( m_xPartitioning != 0 ) {
