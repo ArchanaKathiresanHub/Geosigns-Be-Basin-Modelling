@@ -233,17 +233,15 @@ void LayerProps::initialise () {
 
       fluid = (FluidType*)Interface::Formation::getFluidType ();
 
-      // Set mobile component grid and vectors
-      // Does not allocate a vector here.
-      m_componentLayerVolumes.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
-                                          getMaximumNumberOfElements (),
-                                          NumberOfPVTComponents );
-
-      m_elements.create ( m_componentLayerVolumes.getDa ());
+      ElementVolumeGrid&  elementGrid = getVolumeGrid ( 1 );
+      m_elements.create ( elementGrid.getDa ());
       setElementInvariants ();
 
 
       if ( includedInDarcySimulation ) {
+         m_componentLayerVolumes.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
+                                             getMaximumNumberOfElements (),
+                                             NumberOfPVTComponents );
 
          DMCreateGlobalVector ( m_componentLayerVolumes.getDa (), &m_flowComponents );
          VecZeroEntries ( m_flowComponents );
