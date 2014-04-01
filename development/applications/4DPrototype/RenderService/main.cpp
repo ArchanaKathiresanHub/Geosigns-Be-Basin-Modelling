@@ -17,8 +17,8 @@ int main(int argc, char* argv[])
   BpaVizInit();
 
 	ServiceSettings settings;
-	settings.setIP("127.0.0.1");
-	settings.setPort(8080);
+	//settings.setIP("127.0.0.1");
+	settings.setPort(8081);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
 	BpaServiceListener serviceListener;

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ClientWorkbench</title>
+    <title>BPA 4D Viewer</title>
     <script type="text/javascript" src="RemoteVizClient.js"></script> <!-- include the RemoteViz javascript client -->
 	
 	<!-- jquery mobile http://jquerymobile.com -->
@@ -12,24 +12,9 @@
     <script src="client.js"></script>
 </head>
 <body onload="init()" bgcolor="silver">
-	<div style="display: table; width: 100%; height:100%">
+	<div style="height:100%">
 		<div style="width: 300px; float:left">
 			<div data-role="fieldcontain">
-				<!--
-				<h3>Settings</h3>
-				<b>SendMaxFPS :</b><br />
-					<input type="range" name="slider_maxfps" id="slider_maxfps" value="15" min="1" max="100" data-mini="true" />
-				<br />
-				<b>Still compression quality :</b><br />
-					<input type="range" name="slider_squality" id="slider_squality" value="0.9" step=".1" min="0.1" max="1" data-mini="true" />
-				<br />
-				<b>Interactive compression quality :</b><br />
-					<input type="range" name="slider_iquality" id="slider_iquality" value="0.5" step=".1" min="0.1" max="1" data-mini="true" />
-				<br />
-				<b>Scale factor :</b><br />
-					<input type="range" name="slider_scalefactor" id="slider_scalefactor" value="0.75" step=".1" min="0.1" max="1" data-mini="true" />
-				<br />
-			-->
 
 				<h3>Rendering</h3>
 
@@ -69,15 +54,30 @@
 					<input type="range" name="slider_snapshot" id="slider_snapshot" value="0" min="0" max="100" data-mini="true" />
 				<br />
 
+				<h3>Settings</h3>
+				<b>SendMaxFPS :</b><br />
+					<input type="range" name="slider_maxfps" id="slider_maxfps" value="15" min="1" max="100" data-mini="true" />
+				<br />
+				<b>Still compression quality :</b><br />
+					<input type="range" name="slider_squality" id="slider_squality" value="0.9" step=".1" min="0.1" max="1" data-mini="true" />
+				<br />
+				<b>Interactive compression quality :</b><br />
+					<input type="range" name="slider_iquality" id="slider_iquality" value="0.5" step=".1" min="0.1" max="1" data-mini="true" />
+				<br />
+				<b>Scale factor :</b><br />
+					<input type="range" name="slider_scalefactor" id="slider_scalefactor" value="0.75" step=".1" min="0.1" max="1" data-mini="true" />
+				<br />
+
 			</div>
 		</div>
-		<div><!-- style="display: table-cell; width: 100%; height:100%">-->
-		    <canvas id="TheCanvas" > <!-- canvas displaying the renderArea -->
-	        Your browser does not support the canvas element.
+
+		<div id="CanvasDiv" style="margin-left: 320px; width: 100%; height:100%; background-color: #aaaaff">
+		    <canvas id="TheCanvas"> <!-- style="width: 100%; height: 100%" > <!-- canvas displaying the renderArea -->
+	    	    Your browser does not support the canvas element.
 	    	</canvas>
 		</div>
 	</div>
-	<div id="messagelog"></div>
-	<div id="bandwidthfps"></div>
+	<!-- <div id="messagelog"></div> -->
+	<div style="float: bottom;" id="bandwidthfps"></div>
 </body>
 </html>

@@ -12,11 +12,13 @@ namespace DataAccess
 }
 
 class SceneGraph;
+class SceneExaminer;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
-  RenderArea* m_renderArea;
-  SceneGraph* m_sceneGraph;
+  RenderArea*    m_renderArea;
+  SceneGraph*    m_sceneGraph;
+  SceneExaminer* m_examiner;
 
   DataAccess::Interface::ProjectHandle* m_handle;
 

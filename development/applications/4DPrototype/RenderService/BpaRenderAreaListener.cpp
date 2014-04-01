@@ -9,7 +9,6 @@
 
 #include <Inventor/SoSceneManager.h>
 #include <Inventor/nodes/SoSeparator.h>
-//#include <Inventor/actions/SoAction.h>
 #include <Inventor/nodes/SoGradientBackground.h>
 
 #include <Interface/ProjectHandle.h>
@@ -49,15 +48,15 @@ void BpaRenderAreaListener::createSceneGraph()
   sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
   m_sceneGraph = sceneGraph;
 
-	SceneExaminer *examiner = new SceneExaminer();
-	examiner->addChild(new SoGradientBackground());
-	examiner->addChild(m_sceneGraph);
+	m_examiner = new SceneExaminer();
+	m_examiner->addChild(new SoGradientBackground());
+	m_examiner->addChild(m_sceneGraph);
 
 	// Apply the sceneExaminer node as renderArea scene graph
-	m_renderArea->getSceneManager()->setSceneGraph(examiner);
+	m_renderArea->getSceneManager()->setSceneGraph(m_examiner);
 
 	// viewall
-	examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
+	m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
 
   std::cout << "...done" << std::endl;
 }
@@ -104,13 +103,18 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
 {
   std::cout << "[BpaRenderAreaListener] onOpenedConnection(renderArea = " << renderArea->getId() << ", connection = " << connection->getId() << ")" << std::endl;
 
-  createSceneGraph();
+  if(m_sceneGraph == 0)
+    createSceneGraph();
   sendProjectInfo();
 }
 
 void BpaRenderAreaListener::onClosedConnection(RenderArea* renderArea, const std::string& connectionId)
 {
   std::cout << "[BpaRenderAreaListener] onClosedConnection(renderArea = " << renderArea->getId() << ", connection = " << connectionId << ")" << std::endl;
+  if(renderArea->getNumConnection() == 0)
+  {
+    renderArea->dispose();
+  }
 }
 
 void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection* sender, const string& message)
@@ -209,6 +213,8 @@ void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* 
     << ", connection = " << sender->getId() 
     << ", width = " << width 
     << ", height = " << height << ")" << std::endl;
+
+  renderArea->resize(width, height);
 }
 
 bool BpaRenderAreaListener::onMouseUp(int x, int y, int button)

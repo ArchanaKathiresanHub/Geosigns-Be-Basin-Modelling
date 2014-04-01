@@ -1,8 +1,28 @@
 var theRenderArea = null;
+var theCanvasDiv = null;
+var theCanvas = null;
 var node = null;
 var color = false;
 var dataSize = 0;
 var fps = 0;		
+var resizeTimer = null;
+var leftMargin = 300;
+var bottomMargin = 100;
+
+function resizeCanvas()
+{
+	var w = window.innerWidth - leftMargin;
+	var h = window.innerHeight - bottomMargin;
+	theRenderArea.requestRenderAreaSize(w, h);
+	theRenderArea.resizeRenderAreaContainer(w, h);
+}
+
+function onWindowResize()
+{
+	if(resizeTimer)
+		clearTimeout(resizeTimer);
+	resizeTimer = setTimeout(resizeCanvas, 1000);
+}
 
 function receivedImage(length){
 	// call when receiving a new image from the service
@@ -38,12 +58,45 @@ function measurebandwithandfps(){
 	}
 }
 
+function generateGUID()
+{
+	var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) 
+	{
+    	var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    	return v.toString(16);
+	});
+
+	return guid;
+}
+
+/**
+ * Construct the url for the websocket to connect to. Use localhost if the current
+ * page was loaded from file, otherwise connect to the same host that served the page
+ */
+function websocketURL()
+{
+	var loc = window.location, url;
+
+	if(loc.protocol === "file:")
+		url = "ws://localhost";
+	else
+		url = "ws://" + loc.hostname;
+
+	// add port
+	url += ":8081/";
+
+	return url;
+}
+
 function init() 
 { 
+	window.canvas = $("#TheCanvas");
+	$(window).resize(onWindowResize);
+
 	// This function is called immediately after the page is loaded. Initialization of 
 	// the renderArea. "TheCanvas" refers to the id of the canvas. "640" and "480" are 
 	// the requested width and the requested height of the renderArea managed by the service.
-    theRenderArea = new RemoteVizRenderArea("TheCanvas", 800, 512);
+    theRenderArea = new RemoteVizRenderArea("TheCanvas", window.innerWidth - leftMargin, window.innerHeight - bottomMargin);
 	// add a listener on the receivedImage event.
 	theRenderArea.addReceivedImageListener(receivedImage);
 	// add a listener for messages from the server
@@ -51,7 +104,8 @@ function init()
 
 	// Connects to the service. The IP address and the port refer to those of the service 
 	// (see main.cpp). "Model" refers to the name of the requested renderArea.
-    theRenderArea.connectTo("ws://127.0.0.1:8080/Model");      
+	var url = websocketURL() + generateGUID();
+    theRenderArea.connectTo(url);
 
 	// Bind an event handler to the "slidestop" JavaScript event, or trigger that event on an element.
 	$("#slider_maxfps").on('slidestop', maxfps);

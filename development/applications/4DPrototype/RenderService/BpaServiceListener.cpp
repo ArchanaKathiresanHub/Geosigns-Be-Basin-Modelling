@@ -46,6 +46,8 @@ bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Device
   
 void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
 {
+  std::cout << "onInstantiatedRenderArea(renderArea = " << renderArea->getId() << std::endl;
+
 	// Add recognizers for gesture events
   SoScaleGestureRecognizer *zoomRecognizer = new SoScaleGestureRecognizer();
   renderArea->getTouchManager()->addRecognizer(zoomRecognizer);
