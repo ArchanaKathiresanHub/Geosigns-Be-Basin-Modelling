@@ -67,6 +67,11 @@ public :
 
 protected :
 
+   // make class non-copyable
+   NodalGrid ( const NodalGrid& );
+
+   void operator= ( const NodalGrid& );
+
    DMDALocalInfo m_localInfo;
 
    int* m_xPartitioning;

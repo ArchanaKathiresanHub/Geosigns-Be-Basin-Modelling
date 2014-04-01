@@ -86,6 +86,11 @@ public :
 
 private :
 
+   // make class non-copyable
+   NodalVolumeGrid ( const NodalVolumeGrid& grid );
+
+   void  operator=( const NodalVolumeGrid& grid );
+
    DMDALocalInfo m_localInfo;
 
    // Should this really point to the arrays in the nodal-map-grid?

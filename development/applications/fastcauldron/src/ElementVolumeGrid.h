@@ -15,8 +15,6 @@ public :
 
    ElementVolumeGrid ();
 
-   ElementVolumeGrid ( const ElementVolumeGrid& grid );
-
    ~ElementVolumeGrid ();
 
 
@@ -109,6 +107,11 @@ public :
    bool isInitialised () const;
 
 private :
+
+   // make class non-copyable
+   ElementVolumeGrid ( const ElementVolumeGrid& grid );
+
+   void operator=( const ElementVolumeGrid& grid );
 
    DMDALocalInfo m_localInfo;
 

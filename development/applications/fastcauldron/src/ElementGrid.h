@@ -71,6 +71,12 @@ public :
 
 protected :
 
+   // make class non-copyable
+   ElementGrid ( const ElementGrid& grid );
+
+   void operator=( const ElementGrid& grid );
+
+
    DMDALocalInfo m_localInfo;
 
    int* m_xPartitioning;

@@ -18,11 +18,11 @@ ElementGrid::ElementGrid () {
 ElementGrid::~ElementGrid () {
 
    if ( m_xPartitioning != 0 ) {
+      DMDestroy ( &m_localInfo.da );
+
       delete [] m_xPartitioning;
       m_xPartitioning = 0;
-   }
 
-   if ( m_yPartitioning != 0 ) {
       delete [] m_yPartitioning;
       m_yPartitioning = 0;
    }
