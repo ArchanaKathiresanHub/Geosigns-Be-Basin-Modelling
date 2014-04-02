@@ -33,6 +33,9 @@ if(UNIX)
    list (APPEND HDF5_parallel_LIBRARIES ${HDF5_hdf5_parallel_LIBRARY})
    list (APPEND HDF5_parallel_LIBRARIES z)
    set(HDF5_parallel_DEFINITIONS "-DH5_HAVE_PARALLEL")
+
+# HDF5 Source
+   set(HDF5_SOURCE_DIR "${HPC_HOME}/hdf5-src/${HDF5_VERSION}" CACHE PATH "Source directory of HDF5")
 endif()
 
 if(WIN32)

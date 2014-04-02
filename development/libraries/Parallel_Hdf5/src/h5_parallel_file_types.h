@@ -50,8 +50,8 @@ public:
       }
 
       hid_t plist = H5Pcreate (H5P_FILE_ACCESS);
-      H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, info);  
-      
+      H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, info);
+
       return plist;
    }
 
