@@ -1874,7 +1874,7 @@ void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( App
       Double_Array_2D lithostaticPressureAbove ( xCount, yCount );
       
       // Initialise the top lithostatic-pressure values.
-      if ( age <= bottomLayer->depoage ) {
+      if ( age < basinModel->Crust()->depoage ) {
          PETSC_3D_Array sedimentLithostaticPressure ( bottomLayer->layerDA, 
                                                       bottomLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
          
@@ -1890,7 +1890,7 @@ void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( App
             for ( j = yStart; j < yStart + yCount; ++j ) {
                
                double hydrostaticPressureAtSeaBottom;
-               computeHydrostaticPressure ( bottomLayer->fluid,
+               computeHydrostaticPressure ( 0, // no fluid in the basement
                                             FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, age ),
                                             FastcauldronSimulator::getInstance ().getSeaBottomDepth ( i, j, age ),
                                             hydrostaticPressureAtSeaBottom );
@@ -1979,7 +1979,7 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
   Double_Array_2D lithostaticPressureAbove ( xCount, yCount );
 
   // Initialise the top lithostatic-pressure values.
-  if ( age <= bottomLayer->depoage ) {
+  if ( age < basinModel->Crust()->depoage ) {
     PETSC_3D_Array sedimentLithostaticPressure ( bottomLayer->layerDA, 
                                                  bottomLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
 
@@ -1995,7 +1995,7 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
        for ( j = yStart; j < yStart + yCount; ++j ) {
           
           double hydrostaticPressureAtSeaBottom;
-          computeHydrostaticPressure ( bottomLayer->fluid,
+          computeHydrostaticPressure ( 0, // no fluid in the basement
                                        FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, age ),
                                        FastcauldronSimulator::getInstance ().getSeaBottomDepth ( i, j, age ),
                                        hydrostaticPressureAtSeaBottom );

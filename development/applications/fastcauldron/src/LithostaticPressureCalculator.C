@@ -5,6 +5,7 @@
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
+#include "GeoPhysicalFunctions.h"
 
 OutputPropertyMap* allocateLithostaticPressureCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
 
@@ -54,6 +55,7 @@ bool BasementLithostaticPressureCalculator::operator ()( const OutputPropertyMap
    double segmentThickness;
    Interface::GridMap* lithostaticPressureMap;
    OutputPropertyMap* topPressure;
+   bool isFormationAge = false;
 
    lithostaticPressureMap = propertyValues [ 0 ]->getGridMap ();
 
@@ -61,19 +63,19 @@ bool BasementLithostaticPressureCalculator::operator ()( const OutputPropertyMap
 
    if ( m_snapshot->getTime () < m_formation->depoage ) {
       topPressure = PropertyManager::getInstance().findOutputPropertyMap ( "LithoStaticPressure", 0, surfaceAbove, m_snapshot );
+      if ( topPressure != 0 and not topPressure->isCalculated ()) {
+         
+         if ( not topPressure->calculate ()) {
+            
+            return false;
+         } 
+         
+      }
    } else {
-      topPressure = PropertyManager::getInstance().findOutputPropertyMap ( "HydroStaticPressure", 0, surfaceAbove, m_snapshot );
+      isFormationAge = true; // formation above is not deposited yet
    }
 
-   if ( topPressure != 0 and not topPressure->isCalculated ()) {
-
-      if ( not topPressure->calculate ()) {
-         return false;
-      } 
-
-   }
    lithostaticPressureMap->retrieveData ();
-
   
    // Set the lithostatic pressure at the top of the formation to the same as the bottom of the formation above.
    for ( i = lithostaticPressureMap->firstI (); i <= lithostaticPressureMap->lastI (); ++i ) {
@@ -81,7 +83,16 @@ bool BasementLithostaticPressureCalculator::operator ()( const OutputPropertyMap
       for ( j = lithostaticPressureMap->firstJ (); j <= lithostaticPressureMap->lastJ (); ++j ) {
          
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
-            lithostaticPressureMap->setValue ( i, j, (*topPressure)( i, j ));
+            double pressureAbove;
+            if( isFormationAge ) {
+               computeHydrostaticPressure ( 0, 
+                                            FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, m_snapshot->getTime () ),
+                                            FastcauldronSimulator::getInstance ().getSeaBottomDepth ( i, j, m_snapshot->getTime () ),
+                                            pressureAbove );
+            } else {
+               pressureAbove = (*topPressure)( i, j );
+            }
+            lithostaticPressureMap->setValue ( i, j, pressureAbove );
          } else {
             lithostaticPressureMap->setValue ( i, j, undefinedValue );
          }
@@ -187,6 +198,7 @@ bool BasementLithostaticPressureVolumeCalculator::operator ()( const OutputPrope
    double segmentThickness;
    Interface::GridMap* lithostaticPressureMap;
    OutputPropertyMap* topPressure;
+   bool isFormationAge = false;
 
    if ( not m_depth->isCalculated ()) {
 
@@ -202,16 +214,15 @@ bool BasementLithostaticPressureVolumeCalculator::operator ()( const OutputPrope
 
    if ( m_snapshot->getTime () < m_formation->depoage ) {
       topPressure = PropertyManager::getInstance().findOutputPropertyMap ( "LithoStaticPressure", 0, surfaceAbove, m_snapshot );
-   } else {
-      topPressure = PropertyManager::getInstance().findOutputPropertyMap ( "HydroStaticPressure", 0, surfaceAbove, m_snapshot );
-   }
-
-   if ( topPressure != 0 and not topPressure->isCalculated ()) {
-
-      if ( not topPressure->calculate ()) {
-         return false;
+      if ( topPressure != 0 and not topPressure->isCalculated ()) {
+         
+         if ( not topPressure->calculate ()) {
+            return false;
+         }
+         
       }
-
+   } else {
+      isFormationAge = true; // formation above is not deposited yet
    }
    PETSC_3D_Array layerTemperature
       ( m_formation->layerDA,
@@ -231,7 +242,17 @@ bool BasementLithostaticPressureVolumeCalculator::operator ()( const OutputPrope
       for ( j = lithostaticPressureMap->firstJ (); j <= lithostaticPressureMap->lastJ (); ++j ) {
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
-            lithostaticPressureMap->setValue ( i, j, k, (*topPressure)( i, j ));
+            double pressureAbove;
+            if( isFormationAge ) {
+               computeHydrostaticPressure ( 0, 
+                                            FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, m_snapshot->getTime () ),
+                                            FastcauldronSimulator::getInstance ().getSeaBottomDepth ( i, j, m_snapshot->getTime () ),
+                                            pressureAbove );
+            } else {
+               pressureAbove = (*topPressure)( i, j );
+            }
+            lithostaticPressureMap->setValue ( i, j, k, pressureAbove );
+
          } else {
             lithostaticPressureMap->setValue ( i, j, k, undefinedValue );
          }
