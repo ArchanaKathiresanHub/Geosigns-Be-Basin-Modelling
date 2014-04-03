@@ -2,7 +2,7 @@
 #define ONEFILEPERPROCESS_HDF5VIRTUALFILEDRIVER_H
 
 #include <mpi.h>
-#include <H5public.h>
+#include <hdf5.h>
 
 
 #define H5FD_OFPP      (OFPP_init())

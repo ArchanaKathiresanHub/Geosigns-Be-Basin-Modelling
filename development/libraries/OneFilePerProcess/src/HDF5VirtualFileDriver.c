@@ -1,8 +1,9 @@
 #define _GNU_SOURCE
 
-#include <string.h>
+#include <stdlib.h>
 #include <hdf5.h>
 
+#include "RewriteFileName.h"
 
 // Include the source file of the original POSIX-MPI virtual file driver from HDF5 library
 // We need a reference to the driver Id
@@ -67,7 +68,6 @@ static void * OFPP_fapl_copy( const void * other);
 static void * OFPP_fapl_get( H5FD_t * file);
 static herr_t OFPP_fapl_free( void * fapl);
 H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_t maxaddr);
-static int rewriteFileName( const char * pattern, const char *  fileName, int mpiRank, int mpiSize, char * restrict * generatedFileName );
 static herr_t OFPP_closeFile(H5FD_t * file);
 
 
@@ -291,9 +291,11 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    int mpiRank, mpiSize;
    MPI_Comm_rank( fa->m_comm, &mpiRank);
    MPI_Comm_size( fa->m_comm, &mpiSize);
-   if ( mpiSize > 1 && fa->m_fileNameRewritePattern)
+   if ( fa->m_fileNameRewritePattern)
    {
-      rewriteFileName( fa->m_fileNameRewritePattern, name, mpiRank, mpiSize, &generatedFileName);
+      size_t generatedFileNameSize = rewriteFileName( fa->m_fileNameRewritePattern, name, mpiRank, mpiSize, NULL, 0);
+      generatedFileName = malloc( generatedFileNameSize);
+      rewriteFileName( fa->m_fileNameRewritePattern, name, mpiRank, mpiSize, generatedFileName, generatedFileNameSize);
       fileName = generatedFileName ; 
    }
    else
@@ -339,94 +341,6 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
       free( generatedFileName );
 
    return (H5FD_t *) extendedFile;
-}
-
-
-static int rewriteFileName( const char * pattern, const char *  fileName, int mpiRank, int mpiSize, char * restrict * generatedFileName )
-{
-   // first count length of the output string
-   size_t patternLength = strlen( pattern );
-   size_t fileNameLength = strlen( fileName );
-
-   size_t pos = 0;
-   size_t generatedLength = 0;
-   do 
-   {
-      char * nextPos = strchr(pattern + pos, '{');
-
-      if (nextPos == NULL)
-      {
-         generatedLength += patternLength - pos;
-         pos = patternLength;
-      }
-      else
-      {
-         generatedLength += (nextPos - pattern) - pos;
-         pos = nextPos - pattern + 1;
-
-         if ( strncmp( pattern + pos , "MPI_RANK}", 9 ) == 0)
-         {
-            generatedLength += snprintf(NULL, 0, "%d", mpiRank);
-            pos+=9;
-         }
-         else if ( strncmp( pattern + pos , "MPI_SIZE}", 9 ) == 0)
-         {
-            generatedLength += snprintf(NULL, 0, "%d", mpiSize);
-            pos+=9;
-         }
-         else if ( strncmp( pattern + pos, "NAME}", 5) == 0)
-         {
-            generatedLength += fileNameLength;
-            pos+=5;
-         }
-      }
-   } while ( pos < patternLength );
-
-   // then allocate the buffer
-   generatedLength += 1;
-   *generatedFileName = malloc( generatedLength);
-
-   // and generate the string again
-   pos = 0;
-   size_t generatedPos = 0;
-   do 
-   {
-      char * nextPos = strchr(pattern + pos, '{');
-
-      if (nextPos == NULL)
-      {
-         strncpy( *generatedFileName + generatedPos, pattern + pos, patternLength - pos);
-         generatedPos += patternLength - pos;
-         pos = patternLength;
-      }
-      else
-      {
-         strncpy( *generatedFileName + generatedPos, pattern + pos, nextPos - pattern - pos );
-         generatedPos += nextPos - pattern - pos;
-         pos = nextPos - pattern + 1;
-
-         if ( strncmp( pattern + pos , "MPI_RANK}", 9 ) == 0)
-         {
-            generatedPos += 
-               snprintf( *generatedFileName + generatedPos, generatedLength - generatedPos, "%d", mpiRank);
-            pos+=9;
-         }
-         else if ( strncmp( pattern + pos , "MPI_SIZE}", 9 ) == 0)
-         {
-            generatedPos += 
-               snprintf( *generatedFileName + generatedPos, generatedLength - generatedPos, "%d", mpiSize);
-            pos+=9;
-         }
-         else if ( strncmp( pattern + pos , "NAME}", 5) == 0)
-         {
-            strncpy( *generatedFileName + generatedPos, fileName, fileNameLength);
-            generatedPos += fileNameLength;
-            pos+=5;
-         }
-      }
-   } while ( pos < patternLength );
-
-   return generatedLength - 1;
 }
 
 

@@ -10,8 +10,8 @@
 #                                                                       #
 #########################################################################
 
-set( all_srcs    src/HDF5VirtualFileDriver.c )
-set( all_headers src/HDF5VirtualFileDriver.h )
+set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c )
+set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h )
 
 add_definitions(-DH5_HAVE_PARALLEL -std=c99)
 add_library(OneFilePerProcess
@@ -27,6 +27,17 @@ include_directories(
 )
 
 target_link_libraries(OneFilePerProcess
+      ${HDF5_parallel_LIBRARIES}
       ${MPI_LIBRARIES}
+)
+
+add_gtest( NAME OneFilePerProcess::rewriteFileName
+           SOURCES test/RewriteFileName.C
+           LIBRARIES OneFilePerProcess
+)
+
+add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver
+           SOURCES test/HDF5VirtualFileDriver.C
+           LIBRARIES OneFilePerProcess
 )
 
