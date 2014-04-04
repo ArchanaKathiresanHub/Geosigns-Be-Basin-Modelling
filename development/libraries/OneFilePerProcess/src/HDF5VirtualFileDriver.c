@@ -1,9 +1,32 @@
+// This Virtual File Driver for HDF5 allows to output in one file per process, 
+// which will have better performance on non-parallel file systems.  Since its
+// functionality is very similar to HDF5's MPIPOSIX driver, this implementation
+// derives from it. Unfortunately, C doesn't have Object Orientated Programming
+// features like C++ has. Therefore this actual way of deriving looks like a
+// hack:
+//  - The structs that store File Access Property Lists and the actual File
+//    state store the MPIPOSIX data at the beginning. At the end they store 
+//    this implementation's specific data. That way there stay compatible with
+//    the original MPIPOSIX driver
+//  - The source of the MPIPOSIX driver is re-included with the MPIPOSIX driver ID
+//    redefined. This works because those functions are defined to to be 'static', which means
+//    they are invisible for other translation units (fancy word for .C file). There
+//    are few non-static functions in there, which will cause collission. These
+//    functions are given an other name with, again, help of the preprocessor.
+//
+// The functionality that this implementation adds on top of the MPIPOSIX
+// driver, is, that file names are differently formatted, so that each process
+// writes to a unique file, and knows from which file it has to read. Additionaly
+// it sets the MPI communicator in the MPIPOSIX driver to MPI_COMM_SELF, so that
+// that I/O becomes a sequential.
+
 #define _GNU_SOURCE
 
 #include <stdlib.h>
 #include <hdf5.h>
 
 #include "RewriteFileName.h"
+
 
 // Include the source file of the original POSIX-MPI virtual file driver from HDF5 library
 // We need a reference to the driver Id
@@ -39,6 +62,8 @@ static hid_t H5FD_mpiposix_init_disabled(void);
 #endif
 
 
+
+// A struct to store the file state. This derives from the MPIPOSIX equivalent.
 typedef struct OFPP_FileState
 {
    // Base data
@@ -51,6 +76,9 @@ typedef struct OFPP_FileState
    char *   m_fileNameRewritePattern;
 } OFPP_FileState;
 
+
+// A struct to store relevant driver details in a File Access Property List.
+// This derives from the MPIPOSIX equivalent.
 typedef struct OFPP_FAPL 
 {
    // Base data
@@ -64,14 +92,14 @@ typedef struct OFPP_FAPL
 } OFPP_FAPL;
 
 
+// Forward declarations of the overridden functions.
 static void * OFPP_fapl_copy( const void * other);
 static void * OFPP_fapl_get( H5FD_t * file);
 static herr_t OFPP_fapl_free( void * fapl);
 H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_t maxaddr);
 static herr_t OFPP_closeFile(H5FD_t * file);
 
-
- 
+// Definition of the driver interface
 static H5FD_class_mpi_t interface =
      { {
        "mpiposix",                     /* name             */
@@ -148,32 +176,7 @@ void H5Pset_fapl_ofpp( hid_t fapl, MPI_Comm comm, const char * fileNameRewritePa
   assert( status >= 0);
 }
 
-void H5Pget_fapl_ofpp( hid_t fapl, MPI_Comm * comm, const char * * fileNameRewritePattern, hbool_t * useGpfs )
-{
-  H5P_genplist_t * plist = H5P_object_verify( fapl, H5P_FILE_ACCESS);
-  assert( plist );
-  assert( OFPP_DriverID == H5P_get_driver(plist));
-  OFPP_init();
-
-  // get the file access property list
-  OFPP_FAPL * fa = H5P_get_driver_info(plist);
-  assert( fa );
-
-  // copy the communicator
-  if (comm != NULL)
-    MPI_Comm_dup(fa->m_comm, comm);
-
-  // copy the fileNameRewritePattern
-  if (fileNameRewritePattern != NULL)
-     *fileNameRewritePattern = strdup( fa->m_fileNameRewritePattern );
-
-  // copy the use_gpfs
-  if (useGpfs != NULL)
-     *useGpfs = fa->m_mpiPosixFAPL.use_gpfs;
-
-}
-
-
+// Copy an OFPP_FAPL object
 static void * OFPP_fapl_copy( const void * other)
 {
    int mpiError = MPI_SUCCESS;
@@ -209,6 +212,7 @@ static void * OFPP_fapl_copy( const void * other)
    return newFapl;
 }
 
+// Construct an OFPP_FAPL object from a file state
 static void * OFPP_fapl_get( H5FD_t * file)
 {
    int mpiError = MPI_SUCCESS;
@@ -239,6 +243,7 @@ static void * OFPP_fapl_get( H5FD_t * file)
    return newFapl;
 }
 
+// Destroy a OFPP_PAPL object
 static herr_t OFPP_fapl_free( void * fapl)
 {
    OFPP_FAPL * thisFapl = (OFPP_FAPL *) fapl;
@@ -257,6 +262,7 @@ static herr_t OFPP_fapl_free( void * fapl)
    return 0;
 }
 
+// Open a file
 H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
 {
    assert( name );
@@ -306,14 +312,29 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    // Open the file
    H5FD_mpiposix_t * file =(H5FD_mpiposix_t *) H5FD_mpiposix_open( fileName, flags, fapl_id, maxaddr ) ;
 
-   // if that fails and we're opening an existing file, try again wih the normal file name
-   if ( !file && (H5F_ACC_TRUNC & flags) == 0  && (H5F_ACC_CREAT & flags) == 0 && (H5F_ACC_EXCL & flags) == 0)
+   // if the file could not be opened with the extended file name, are we going to retry with the normal name?
+   int meWillRetry = 0;
+   if (file == NULL && (H5F_ACC_TRUNC & flags) == 0  && (H5F_ACC_CREAT & flags) == 0 && (H5F_ACC_EXCL & flags) == 0)
+      meWillRetry = 1;
+
+   int totalRetryCount = 0;
+   MPI_Allreduce( &meWillRetry, &totalRetryCount, 1, MPI_INT, MPI_SUM, fa->m_comm);
+   
+   if ( totalRetryCount == mpiSize )
    {
+      // All will retry opening the file with the normal name
       file = (H5FD_mpiposix_t *) H5FD_mpiposix_open( name, flags, fapl_id, maxaddr ) ;
+   }
+   else if (totalRetryCount > 0 )
+   {  // Only some cannot open the file. That's a weird condition. We should fail right-away.
+      return NULL;
    }
 
    // if the file could not be opened, return the null pointer
-   if (file == NULL)
+   int meCanOpenFile = file == NULL ? 0 : 1;
+   int allCanOpenFile = 0;
+   MPI_Allreduce( &meCanOpenFile, &allCanOpenFile, 1, MPI_INT, MPI_LAND, fa->m_comm);
+   if (! allCanOpenFile)
    {
       return NULL;
    }
@@ -343,7 +364,7 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    return (H5FD_t *) extendedFile;
 }
 
-
+// Close a file
 static herr_t OFPP_closeFile(H5FD_t * file)
 {
    OFPP_FileState * extendedFile = ( OFPP_FileState * ) file;

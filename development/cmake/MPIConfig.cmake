@@ -15,6 +15,7 @@ include(cmake/EnvSetup.cmake)
 
 set( MPI_ROOT "/apps/3rdparty/intel/impi/4.1.1.036" CACHE PATH "Path to MPI library" )
 set( MPI_ROOT64 "${MPI_ROOT}/intel64" )
+set( MPIRUN "${MPI_ROOT64}/bin/mpirun" CACHE FILEPATH "Location of mpirun command" )
 
 add_environment_source_script(CSHELL "${MPI_ROOT64}/bin/mpivars.csh")
 add_environment_source_script(BOURNE "${MPI_ROOT64}/bin/mpivars.sh")

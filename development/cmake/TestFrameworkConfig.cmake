@@ -70,6 +70,7 @@ macro(add_gtest )
    set(libraries)   # The libraries that should be linked with it
    set(compileflags)# The set of compilator flags
    set(linkflags)   # The set of linker flags
+   set(mpiSize)     # The number of MPI processes
 
    set(parameterName)
    foreach(param ${ARGN})
@@ -83,6 +84,8 @@ macro(add_gtest )
          set(parameterName compileflags)
       elseif(param STREQUAL LINK_FLAGS)
          set(parameterName linkflags)
+      elseif(param STREQUAL MPI_SIZE)
+         set(parameterName mpiSize)
       else()
          list(APPEND ${parameterName} ${param})
       endif()
@@ -112,6 +115,23 @@ macro(add_gtest )
                  LINK_FLAGS "${linkflags}"   )
 
    # Add the test to the CTest test  collection.
-   add_test(${testName} ${execName}  "--gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-junit.xml")
+   if (mpiSize)
+     set( mpiCommand "${MPIRUN}" )
+
+     math( EXPR maxProcValue "${mpiSize} - 1")
+     foreach( rank RANGE ${maxProcValue} )
+        if ( NOT rank EQUAL 0 )
+           set( mpiCommand ${mpiCommand} ":" )
+        endif()
+
+        set( mpiCommand ${mpiCommand} -n 1 $<TARGET_FILE:${execName}> --gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-${rank}-junit.xml )
+     endforeach()
+
+     message("add_test: COMMAND = ${mpiCommand}")
+
+     add_test(NAME ${testName} COMMAND ${mpiCommand} )
+   else ()
+     add_test(${testName} ${execName}  "--gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-junit.xml")
+   endif()
 endmacro(add_gtest)
 

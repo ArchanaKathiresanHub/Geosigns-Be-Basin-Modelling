@@ -41,3 +41,9 @@ add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver
            LIBRARIES OneFilePerProcess
 )
 
+add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver-MPIPROCS=2
+           SOURCES test/HDF5VirtualFileDriver.C
+           LIBRARIES OneFilePerProcess
+           MPI_SIZE 2
+)
+

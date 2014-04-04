@@ -18,9 +18,12 @@ extern "C" {
 // - '{NAME}'      The string given by fileName
 // - '{MPI_SIZE}'  A string representation of the number of MPI processes
 // - '{MPI_RANK}'  A string representation of the rank number of this MPI process.
-// The generated file name is returned via generateFileName in a memory buffer
-// that is 'malloc'ed. Therefore the result should be 'free'd again.
-size_t rewriteFileName( const char * pattern, const char *  fileName, int mpiRank, int mpiSize, char * buffer, size_t bufferSize );
+// The generated file name is written in the supplied buffer of bufferSize
+// length. It will not write outside the bounds of the buffer.
+// Return Value: Size of the generated file name as it would have been when the
+// buffer would have been large enough.
+size_t rewriteFileName( const char * pattern, const char *  fileName, int
+      mpiRank, int mpiSize, char * buffer, size_t bufferSize );
 
 
 #ifdef __cplusplus
