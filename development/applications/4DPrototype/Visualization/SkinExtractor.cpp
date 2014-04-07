@@ -72,6 +72,11 @@ public:
   {
   }
 
+  void reserve(size_t n)
+  {
+    m_cells.reserve(n);
+  }
+
   void setupBeginAndEndNodeId()
   {
     if(m_cells.empty())
@@ -82,11 +87,13 @@ public:
 
     for(size_t i=0; i < m_cells.size(); ++i)
     {
+      QuadSurfaceCell& cell = m_cells[i];
+
       for(size_t j=0; j < 4; ++j)
       {
-        size_t id = m_cells[i].getNodeIndex(j);
+        size_t id = cell.getNodeIndex(j);
         m_beginNodeId = (id < m_beginNodeId) ? id : m_beginNodeId;
-        m_endNodeId = (id > m_endNodeId) ? id : m_endNodeId;
+        m_endNodeId   = (id > m_endNodeId) ? id : m_endNodeId;
       }
     }
 
@@ -201,38 +208,89 @@ SkinExtractor::SkinExtractor(const BpaMesh& mesh)
 
 const MiSurfaceMeshUnstructured& SkinExtractor::extractSkin(const MiCellFilterIjk* cellFilter)
 {
-  std::cout << "Extracting skin..." << std::endl;
-
-  //const BpaGeometry& geometry = (const BpaGeometry&)m_mesh.getGeometry();
   const MiHexahedronTopologyExplicitIjk& topology = m_mesh.getTopology();
-
-  std::shared_ptr<SurfaceTopology> surfaceTopo(new SurfaceTopology);
+  const BpaGeometry& geometry = (const BpaGeometry&)m_mesh.getGeometry();
 
   size_t ni = topology.getNumCellsI();
   size_t nj = topology.getNumCellsJ();
   size_t nk = topology.getNumCellsK();
 
+  std::shared_ptr<SurfaceTopology> surfaceTopo(new SurfaceTopology);
+  surfaceTopo->reserve(ni * nj);
+
   size_t n[8]; // cellNodeIndices
 
+  bool hasDeadCells = topology.hasDeadCells();
+
+  bool* nodeState[2];
+  for(int i=0; i < 2; ++i)
+    nodeState[i] = new bool[(ni+1) * (nj+1)];
+
+  for(int k=0; k < 2; ++k)
+    for(size_t i=0; i <= ni; ++i)
+      for(size_t j=0; j <= nj; ++j)
+        nodeState[k][i * (nj+1) + j] = geometry.isUndefined(i, j, k);
+
+  bool* cellState[2];
+  for(int i=0; i < 2; ++i)
+    cellState[i] = new bool[ni * nj];
+
   for(size_t i=0; i < ni; ++i)
-  {
     for(size_t j=0; j < nj; ++j)
+      cellState[1][i * nj + j] = 
+        (hasDeadCells && (
+          nodeState[0][i * (nj + 1) + j] ||
+          nodeState[0][i * (nj + 1) + j + 1] ||
+          nodeState[0][(i + 1) * (nj + 1) + j] ||
+          nodeState[0][(i + 1) * (nj + 1) + j + 1] ||
+          nodeState[1][i * (nj + 1) + j] ||
+          nodeState[1][i * (nj + 1) + j + 1] ||
+          nodeState[1][(i + 1) * (nj + 1) + j] ||
+          nodeState[1][(i + 1) * (nj + 1) + j + 1])) ||
+        (cellFilter != 0 && !cellFilter->acceptCell(i, j, 0));
+
+  for(size_t k=0; k < nk; ++k)
+  {
+    std::swap(nodeState[0], nodeState[1]);
+    std::swap(cellState[0], cellState[1]);
+
+    if(k < nk-1)
     {
-      for(size_t k=0; k < nk; ++k)
+      // Get new node state layer
+      for(size_t i=0; i <= ni; ++i)
+        for(size_t j=0; j < nj; ++j)
+          nodeState[1][i * (nj+1) + j] = geometry.isUndefined(i, j, k+2);
+
+      for(size_t i=0; i < ni; ++i)
+        for(size_t j=0; j < nj; ++j)
+          cellState[1][i * nj + j] = 
+            (hasDeadCells && (
+              nodeState[0][i * (nj + 1) + j] ||
+              nodeState[0][i * (nj + 1) + j + 1] ||
+              nodeState[0][(i + 1) * (nj + 1) + j] ||
+              nodeState[0][(i + 1) * (nj + 1) + j + 1] ||
+              nodeState[1][i * (nj + 1) + j] ||
+              nodeState[1][i * (nj + 1) + j + 1] ||
+              nodeState[1][(i + 1) * (nj + 1) + j] ||
+              nodeState[1][(i + 1) * (nj + 1) + j + 1])) ||
+            (cellFilter != 0 && !cellFilter->acceptCell(i, j, k+1));
+    }
+
+    for(size_t i=0; i < ni; ++i)
+    {
+      for(size_t j=0; j < nj; ++j)
       {
         topology.getCellNodeIndices(i, j, k, n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]);
 
-        bool hasDeadCells = topology.hasDeadCells();
-
-        if((hasDeadCells && topology.isDead(i, j, k)) || (cellFilter != 0 && !cellFilter->acceptCell(i, j, k)))
+        if(cellState[0][i * nj + j])
         {
-          if((k < nk-1) && !topology.isDead(i, j, k+1) && (cellFilter == 0 || cellFilter->acceptCell(i, j, k+1)))
+          if((k < nk-1) && !cellState[1][i * nj + j])
             surfaceTopo->addQuad(n[4], n[5], n[6], n[7]); // add facet 1 (reverse)
 
-          if((j < nj-1) && !topology.isDead(i, j+1, k) && (cellFilter == 0 || cellFilter->acceptCell(i, j+1, k)))
+          if((j < nj-1) && !cellState[0][i * nj + j+1])
             surfaceTopo->addQuad(n[3], n[7], n[6], n[2]); // add facet 5 (reverse)
 
-          if((i < ni-1) && !topology.isDead(i+1, j, k) && (cellFilter == 0 || cellFilter->acceptCell(i+1, j, k)))
+          if((i < ni-1) && !cellState[0][(i+1) * nj + j])
             surfaceTopo->addQuad(n[1], n[2], n[6], n[5]); // add facet 3 (reverse)
         }
         else
@@ -244,18 +302,21 @@ const MiSurfaceMeshUnstructured& SkinExtractor::extractSkin(const MiCellFilterIj
           if(k == 0)
             surfaceTopo->addQuad(n[0], n[1], n[2], n[3]); // add facet 0
 
-          if((k == nk-1) || topology.isDead(i, j, k+1) || (cellFilter != 0 && !cellFilter->acceptCell(i, j, k+1)))
+          if((k == nk-1) || cellState[1][i * nj + j])
             surfaceTopo->addQuad(n[4], n[7], n[6], n[5]); // add facet 1
 
-          if((j == nj-1) || topology.isDead(i, j+1, k) || (cellFilter != 0 && !cellFilter->acceptCell(i, j+1, k)))
+          if((j == nj-1) || cellState[0][i * nj + j+1])
             surfaceTopo->addQuad(n[3], n[2], n[6], n[7]); // add facet 5
 
-          if((i == ni-1) || topology.isDead(i+1, j, k) || (cellFilter != 0 && !cellFilter->acceptCell(i+1, j, k)))
+          if((i == ni-1) || cellState[1][(i+1) * nj + j])
             surfaceTopo->addQuad(n[1], n[5], n[6], n[2]); // add facet 3
         }
       }
     }
   }
+
+  delete[] cellState[0];
+  delete[] cellState[1];
 
   surfaceTopo->setupBeginAndEndNodeId();
 

@@ -16,7 +16,6 @@ class MiHexahedronTopologyExplicitIjk;
 class MiGeometryI;
 
 class BpaTopology;
-class BpaGeometry;
 
 /**
  * Struct meant to quickly map a global k-index to a gridmap index and a 
@@ -26,6 +25,46 @@ struct GridMapKPair
 {
   unsigned int gridMapIndex;
   unsigned int kIndex;
+};
+
+/**
+ * Stores the node coordinates for a BpaMesh
+ */
+class BpaGeometry : public MiGeometryI
+{
+  std::shared_ptr<DataAccess::Interface::PropertyValueList> m_depthValues; 
+  std::vector<DataAccess::Interface::GridMap*> m_gridMaps;
+  std::vector<GridMapKPair> m_gridMapKs;
+
+  size_t m_numI;
+  size_t m_numJ;
+  size_t m_numK;
+
+  double m_minX;
+  double m_minY;
+  double m_minZ;
+  double m_maxZ;
+
+  double m_deltaX;
+  double m_deltaY;
+
+  size_t m_timeStamp;
+
+public:
+
+  BpaGeometry(const DataAccess::Interface::Grid* grid, std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues);
+
+  bool isUndefined(size_t i, size_t j, size_t k) const;
+
+  MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const;
+
+  virtual MbVec3d getCoord(size_t index) const;
+
+  virtual MbVec3d getMin() const;
+
+  virtual MbVec3d getMax() const;
+
+  virtual size_t getTimeStamp() const;
 };
 
 /**

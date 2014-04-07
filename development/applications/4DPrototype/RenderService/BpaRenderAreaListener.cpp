@@ -41,10 +41,12 @@ void BpaRenderAreaListener::createSceneGraph()
   std::cout << "Loading scenegraph..."<< std::endl;
 
   const char* filename = "C:/Users/Serge.Van-Der-Ree/Downloads/output_cauldron/Project.project3d";
-  m_handle = di::OpenCauldronProject(filename, "r");
+  //const char* filename = "V:/Data/output_cauldron/Project.project3d";
+
+  m_handle.reset(di::OpenCauldronProject(filename, "r"));
 
   SceneGraph* sceneGraph = new SceneGraph;
-  sceneGraph->setup(m_handle);
+  sceneGraph->setup(m_handle.get());
   sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
   m_sceneGraph = sceneGraph;
 
@@ -65,6 +67,10 @@ BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea)
   : m_renderArea(renderArea)
   , m_sceneGraph(0)
   , m_handle(0)
+{
+}
+
+BpaRenderAreaListener::~BpaRenderAreaListener()
 {
 }
 

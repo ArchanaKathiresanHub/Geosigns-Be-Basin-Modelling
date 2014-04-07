@@ -140,6 +140,8 @@ public:
   static void initClass();
 
   SceneGraph();
+
+  ~SceneGraph();
     
   void setup(DataAccess::Interface::ProjectHandle* handle);
 

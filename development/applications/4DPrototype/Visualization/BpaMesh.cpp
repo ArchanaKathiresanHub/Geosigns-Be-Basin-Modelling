@@ -15,6 +15,93 @@
 
 namespace di = DataAccess::Interface; 
 
+BpaGeometry::BpaGeometry(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
+  : m_depthValues(depthValues)
+  , m_timeStamp(MxTimeStamp::getTimeStamp())
+{
+  m_numI = grid->numI();
+  m_numJ = grid->numJ();
+
+  m_numK = 0;
+  for(unsigned int i=0; i < depthValues->size(); ++i)
+  {
+    di::GridMap* gridMap = (*depthValues)[i]->getGridMap();
+    m_gridMaps.push_back(gridMap);
+
+    unsigned int depth = gridMap->getDepth();
+    m_numK += depth;
+        
+    for(unsigned int j=0; j < depth; ++j)
+    {
+      GridMapKPair gmpair = { i, j };
+      m_gridMapKs.push_back(gmpair);
+    }
+  }
+
+  m_minX = grid->minI();
+  m_minY = grid->minJ();
+
+  m_deltaX = grid->deltaI();
+  m_deltaY = grid->deltaJ();
+
+  double minDepth0, maxDepth0, minDepth1, maxDepth1;
+  (*m_depthValues)[0]->getGridMap()->getMinMaxValue(minDepth0, maxDepth0);
+  (*m_depthValues)[m_depthValues->size()-1]->getGridMap()->getMinMaxValue(minDepth1, maxDepth1);
+
+  m_minZ = -maxDepth1;
+  m_maxZ = -minDepth0;
+}
+
+bool BpaGeometry::isUndefined(size_t i, size_t j, size_t k) const
+{
+  GridMapKPair gmpair = m_gridMapKs[k];
+  const di::GridMap* gridMap = m_gridMaps[gmpair.gridMapIndex];
+
+  return gridMap->getValue((unsigned int)i, (unsigned int)j, gmpair.kIndex) == di::DefaultUndefinedMapValue;
+}
+
+MbVec3d BpaGeometry::getCoord(unsigned int i, unsigned int j, unsigned int k) const
+{
+  GridMapKPair gmpair = m_gridMapKs[k];
+  const di::GridMap* gridMap = m_gridMaps[gmpair.gridMapIndex];
+
+  return MbVec3d(
+    m_minX + i * m_deltaX,
+    m_minY + j * m_deltaY,
+    -gridMap->getValue(i, j, gmpair.kIndex));
+}
+
+MbVec3d BpaGeometry::getCoord(size_t index) const
+{
+  size_t rowStride = m_numI;
+  size_t sliceStride = m_numI * m_numJ;
+
+  unsigned int k = (unsigned int)(index / sliceStride);
+  unsigned int j = (unsigned int)((index - k * sliceStride) / rowStride);
+  unsigned int i = (unsigned int)(index - k * sliceStride - j * rowStride);
+
+  return getCoord(i, j, k);
+}
+
+MbVec3d BpaGeometry::getMin() const
+{
+  return MbVec3d(m_minX, m_minY, m_minZ);
+}
+
+MbVec3d BpaGeometry::getMax() const
+{
+  return MbVec3d(
+    m_minX + (m_numI - 1) * m_deltaX,
+    m_minY + (m_numJ - 1) * m_deltaY,
+    m_maxZ);
+}
+
+size_t BpaGeometry::getTimeStamp() const
+{
+  return m_timeStamp;
+}
+
+
 /**
  * Defines the cell topology for a BpaMesh
  */
@@ -26,11 +113,11 @@ class BpaTopology : public MiHexahedronTopologyExplicitIjk
 
   size_t m_timeStamp;
 
-  MiGeometryI& m_geometry;
+  BpaGeometry& m_geometry;
 
 public:
 
-  explicit BpaTopology(size_t numI, size_t numJ, size_t numK, MiGeometryI& geometry)
+  explicit BpaTopology(size_t numI, size_t numJ, size_t numK, BpaGeometry& geometry)
     : m_numI(numI)
     , m_numJ(numJ)
     , m_numK(numK)
@@ -128,127 +215,23 @@ public:
 
   virtual bool isDead(size_t i, size_t j, size_t k) const
   {
-    size_t indices[8];
-    getCellNodeIndices(
-      i, j, k, 
-      indices[0], 
-      indices[1], 
-      indices[2], 
-      indices[3], 
-      indices[4], 
-      indices[5], 
-      indices[6], 
-      indices[7]);
-
-    for(size_t i=0; i < 8; ++i)
+    if(
+      m_geometry.isUndefined(i, j, k)     ||
+      m_geometry.isUndefined(i, j, k+1)   ||
+      m_geometry.isUndefined(i, j+1, k)   ||
+      m_geometry.isUndefined(i, j+1, k+1) ||
+      m_geometry.isUndefined(i+1, j, k)   ||
+      m_geometry.isUndefined(i+1, j, k+1) ||
+      m_geometry.isUndefined(i+1, j+1, k) ||
+      m_geometry.isUndefined(i+1, j+1, k+1))
     {
-      if(m_geometry.getCoord(indices[i])[2] == -di::DefaultUndefinedMapValue)
-        return true;
+      return true;
     }
 
     return false;
   }
 };
 
-/**
- * Stores the node coordinates for a BpaMesh
- */
-class BpaGeometry : public MiGeometryI
-{
-  std::shared_ptr<di::PropertyValueList> m_depthValues; 
-  std::vector<GridMapKPair> m_gridMapKs;
-
-  size_t m_numI;
-  size_t m_numJ;
-  size_t m_numK;
-
-  double m_minX;
-  double m_minY;
-  double m_minZ;
-  double m_maxZ;
-
-  double m_deltaX;
-  double m_deltaY;
-
-  size_t m_timeStamp;
-
-public:
-
-  explicit BpaGeometry(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
-    : m_depthValues(depthValues)
-    , m_timeStamp(MxTimeStamp::getTimeStamp())
-  {
-    m_numI = grid->numI();
-    m_numJ = grid->numJ();
-
-    m_numK = 0;
-    for(unsigned int i=0; i < depthValues->size(); ++i)
-    {
-      unsigned int depth = (*depthValues)[i]->getGridMap()->getDepth();
-      m_numK += depth;
-
-      for(unsigned int j=0; j < depth; ++j)
-      {
-        GridMapKPair gmpair = { i, j };
-        m_gridMapKs.push_back(gmpair);
-      }
-    }
-
-    m_minX = grid->minI();
-    m_minY = grid->minJ();
-
-    m_deltaX = grid->deltaI();
-    m_deltaY = grid->deltaJ();
-
-    double minDepth0, maxDepth0, minDepth1, maxDepth1;
-    (*m_depthValues)[0]->getGridMap()->getMinMaxValue(minDepth0, maxDepth0);
-    (*m_depthValues)[m_depthValues->size()-1]->getGridMap()->getMinMaxValue(minDepth1, maxDepth1);
-
-    m_minZ = -maxDepth1;
-    m_maxZ = -minDepth0;
-  }
-
-  MbVec3d getCoord(unsigned int i, unsigned int j, unsigned int k) const
-  {
-    GridMapKPair gmpair = m_gridMapKs[k];
-    const di::GridMap* gridMap = (*m_depthValues)[gmpair.gridMapIndex]->getGridMap();
-
-    return MbVec3d(
-      m_minX + i * m_deltaX,
-      m_minY + j * m_deltaY,
-      -gridMap->getValue(i, j, gmpair.kIndex));
-  }
-
-  virtual MbVec3d getCoord(size_t index) const
-  {
-    size_t rowStride = m_numI;
-    size_t sliceStride = m_numI * m_numJ;
-
-    unsigned int k = (unsigned int)(index / sliceStride);
-    unsigned int j = (unsigned int)((index - k * sliceStride) / rowStride);
-    unsigned int i = (unsigned int)(index - k * sliceStride - j * rowStride);
-
-    return getCoord(i, j, k);
-  }
-
-  virtual MbVec3d getMin() const
-  {
-    return MbVec3d(m_minX, m_minY, m_minZ);
-  }
-
-  virtual MbVec3d getMax() const
-  {
-    return MbVec3d(
-      m_minX + (m_numI - 1) * m_deltaX,
-      m_minY + (m_numJ - 1) * m_deltaY,
-      m_maxZ);
-  }
-
-  virtual size_t getTimeStamp() const
-  {
-    return m_timeStamp;
-  }
-};
 
 BpaMesh::BpaMesh(const di::Grid* grid, std::shared_ptr<di::PropertyValueList> depthValues)
 {

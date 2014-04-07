@@ -1,6 +1,8 @@
 #pragma once
 #include <RemoteViz/Rendering/RenderAreaListener.h>
 
+#include <memory>
+
 using namespace RemoteViz::Rendering;
 
 namespace DataAccess
@@ -20,13 +22,15 @@ class BpaRenderAreaListener : public RenderAreaListener
   SceneGraph*    m_sceneGraph;
   SceneExaminer* m_examiner;
 
-  DataAccess::Interface::ProjectHandle* m_handle;
+  std::shared_ptr<DataAccess::Interface::ProjectHandle> m_handle;
 
   void createSceneGraph();
 
 public:
 
   explicit BpaRenderAreaListener(RenderArea* renderArea);
+
+  ~BpaRenderAreaListener();
 
   void sendProjectInfo() const;
 

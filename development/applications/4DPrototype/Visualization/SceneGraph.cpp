@@ -41,6 +41,9 @@
 
 namespace di = DataAccess::Interface; 
 
+#define PRE_EXTRACT
+#define CUSTOM_EXTRACTION
+
 SbPlane getDefaultPlane()
 {
   SbPlane plane(SbVec3f(0.0f, 1.0f, 0.0f), -10.0f);
@@ -109,21 +112,30 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   m_sliceGroup->addChild(m_sliceI);
   m_sliceGroup->addChild(m_sliceJ);
 
-  //----------------------------------------------------------
-  //std::cout << "Extracting skin" << std::endl;
-  //MiSkinExtractUnstructuredIjk* extractor = MiSkinExtractUnstructuredIjk::getNewInstance(*bpaMesh);
-  //const MeXSurfaceMeshUnstructured& surfaceMesh = extractor->extractSkin();
-  ////m_skinExtractor = new SkinExtractor(*bpaMesh);
-  ////const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
-  //MoMesh* skinMesh = new MoMesh;
-  //skinMesh->setMesh(&surfaceMesh);
-  //MoMeshSurface* meshSurface = new MoMeshSurface;
-  //SoGroup* skinGroup = new SoGroup;
-  //skinGroup->addChild(skinMesh);
-  //skinGroup->addChild(meshSurface);
-  //----------------------------------------------------------
+#ifdef PRE_EXTRACT
+  std::cout << "Extracting skin" << std::endl;
+  
+  MoMesh* skinMesh = new MoMesh;
 
-  m_renderSwitch->addChild(m_skin);//skinGroup
+#ifndef CUSTOM_EXTRACTION
+  MiSkinExtractUnstructuredIjk* extractor = MiSkinExtractUnstructuredIjk::getNewInstance(*bpaMesh);
+  const MeXSurfaceMeshUnstructured& surfaceMesh = extractor->extractSkin();
+#else
+  m_skinExtractor = new SkinExtractor(*bpaMesh);
+  const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
+#endif
+
+  skinMesh->setMesh(&surfaceMesh);
+  MoMeshSurface* meshSurface = new MoMeshSurface;
+  SoGroup* skinGroup = new SoGroup;
+  skinGroup->addChild(skinMesh);
+  skinGroup->addChild(meshSurface);
+
+  m_renderSwitch->addChild(skinGroup);
+#else
+  m_renderSwitch->addChild(m_skin);
+#endif
+
   m_renderSwitch->addChild(m_sliceGroup);
 
   m_planeGroup->addChild(m_outline);
@@ -211,6 +223,7 @@ void SceneGraph::createAppearanceNode()
   m_drawStyle->displayFaces = true;
   m_drawStyle->displayEdges = true;
   m_drawStyle->displayPoints = false;
+  m_drawStyle->fadingThreshold = 5.0f;
 
   MoMaterial* material = new MoMaterial;
   material->faceColoring = MoMaterial::CONTOURING;
@@ -418,6 +431,11 @@ SceneGraph::SceneGraph()
   SO_NODE_ADD_FIELD(Plane, (getDefaultPlane()));
 }
 
+SceneGraph::~SceneGraph()
+{
+
+}
+
 void SceneGraph::setup(di::ProjectHandle* handle)
 {
   const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();
@@ -430,8 +448,11 @@ void SceneGraph::setup(di::ProjectHandle* handle)
 
   createFilterNode();
   createAppearanceNode();
+  std::cout << "Creating snapshots"<< std::endl;
   createSnapshotsNode(handle);
+  std::cout << "Creating hi-res snapshots"<< std::endl;
   createSnapshotsNodeHiRes(handle);
+  std::cout << "Done creating snapshots"<< std::endl;
 
   m_snapshots->whichChild.connectFrom(&m_snapshotsHiRes->whichChild);
   m_snapshotsHiRes->whichChild.connectFrom(&m_snapshots->whichChild);
