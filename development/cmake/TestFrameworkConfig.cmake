@@ -127,8 +127,6 @@ macro(add_gtest )
         set( mpiCommand ${mpiCommand} -n 1 $<TARGET_FILE:${execName}> --gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-${rank}-junit.xml )
      endforeach()
 
-     message("add_test: COMMAND = ${mpiCommand}")
-
      add_test(NAME ${testName} COMMAND ${mpiCommand} )
    else ()
      add_test(${testName} ${execName}  "--gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-junit.xml")
