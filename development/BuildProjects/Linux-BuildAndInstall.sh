@@ -1,20 +1,34 @@
 #!/bin/bash
 
-# Exit immediately after a command exits with non-zero value
-set -e
-
-# Reading parameters
+# Reading parameters with some defaults
 svnRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository
-src=${SRC_DIR:-.}
-build=${BUILD_DIR:-/scratch/cauldron_build}
+src=${SRC_DIR:-`dirname $0`/../..}
+build=${BUILD_DIR:-`mktemp -d`}
 platform=${PLATFORM:-Linux}
 configuration=${CONFIGURATION:-Release}
-nprocs=${NUMBER_OF_CORES:-8}
-version_number_major=${VERSION_NUMBER_MAJOR:-2013}
-version_number_minor=${VERSION_NUMBER_MINOR:-01}
-version_tag=${VERSION_TAG:-nightly}
+nprocs=${NUMBER_OF_CORES:-20}
 deploy=${DEPLOY:-True}
 geocase=${GEOCASE:-True}
+version_number_major=${VERSION_NUMBER_MAJOR:-`date +%Y`}  
+version_number_minor=${VERSION_NUMBER_MINOR:-`date +%m`}  
+version_tag=${VERSION_TAG:-`whoami`}
+
+# Set some code to execute when shell script exits
+function onExit()
+{
+  # remove the temporary directory made for the build directory
+  if [ "x${BUILD_DIR}" = x ]; then
+     rm -Rf $build
+  fi
+}
+
+trap onExit EXIT
+
+
+# Test the build directory
+test -d "$build" || { echo "Given build directory '$build' does not exist"; exit 1; }
+ls "$build"/* > /dev/null 2>&1 && { echo "Given build directory '$build' is not empty"; exit 1; }
+
 
 # set UMASK
 umask 0002
@@ -44,18 +58,15 @@ ${src}/development/bootstrap.csh \
 	  "$@" \
   || { echo error: Configuration has failed; exit 1; } 
 
-csh -x <<EOF
-source envsetup.csh 
-make -k -j${nprocs} || ( echo error: Build has failed; exit 1 ; ) || exit 1
-${CTEST} || ( echo error: One or more unit tests have failed; exit 1; ) || exit 1
+source envsetup.sh
 
-if ( ${configuration} =~ [Dd]ebug ) then
-   make install || ( echo error: Installation has failed; exit 1 ;) || exit 1
+make -k -j${nprocs} || { echo error: Build has failed; exit 1 ; } 
+
+if [[ ${configuration} =~ "[Dd]ebug" ]]; then
+   make install || { echo error: Installation has failed; exit 1 ; }
 else
-   make install/strip || ( echo error: Installation has failed; exit 1 ;) || exit 1
-endif
-EOF
-
+   make install/strip || { echo error: Installation has failed; exit 1 ; } 
+fi
 
 if [ x$geocase = xTrue ]; then
 # Import (legacy) Geocase
@@ -78,14 +89,24 @@ else
    echo Geocase applications have been excluded
 fi
 
-# Install
+# Install to SSSDEV
 if [ x$deploy = xTrue ]; then
    echo "Rotate installations"
    csh -x ./MoveInstalls.csh || { echo error: Deployment has failed; exit 1 ; }
    echo "Install fresh binaries"
    csh -x ./InstallAll.csh || { echo error: Deployment has failed; exit 1 ; }
+
+   echo 
+   echo "==============================================================="
+   echo "IBS/Cauldron v${version_number_major}.${version_number_minor}${version_tag} has been installed succefully on /apps/sssdev"
+   echo "==============================================================="
+   echo
 else
    echo Application deployement has not been requested.
 fi 
   
+# Run Unit Tests
+${CTEST} || { echo error: One or more unit tests have failed; exit 1 ; } 
+
 popd
+
