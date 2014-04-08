@@ -119,6 +119,7 @@ if(UNIX)
     # including the applications are to be compiled with -O2.
     # Also we want assert(3) in Release configuration
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+    set(CMAKE_C_FLAGS_RELEASE "-O2")
     # IMPORTANT: somehow -fPIC affects regression test results
     add_definitions(-fPIC)
     if(BM_CODE_COVERAGE_ENABLE)
