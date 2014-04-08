@@ -215,7 +215,7 @@ install(DIRECTORY geocase/misc/ # last backslach is MANDATORY
 if (WIN32)
    set(script_suffix ".bat")
 else ()
-   set(script_suffix ".csh")
+   set(script_suffix ".sh")
 endif()
 
 configure_file(InstallAll${script_suffix}.cmake InstallAll${script_suffix} @ONLY)

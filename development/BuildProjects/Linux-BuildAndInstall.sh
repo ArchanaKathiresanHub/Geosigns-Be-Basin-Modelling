@@ -92,9 +92,9 @@ fi
 # Install to SSSDEV
 if [ x$deploy = xTrue ]; then
    echo "Rotate installations"
-   csh -x ./MoveInstalls.csh || { echo error: Deployment has failed; exit 1 ; }
+   bash MoveInstalls.sh || { echo error: Deployment has failed; exit 1 ; }
    echo "Install fresh binaries"
-   csh -x ./InstallAll.csh || { echo error: Deployment has failed; exit 1 ; }
+   bash InstallAll.sh || { echo error: Deployment has failed; exit 1 ; }
 
    echo 
    echo "==============================================================="
