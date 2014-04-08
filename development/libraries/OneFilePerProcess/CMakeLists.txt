@@ -10,7 +10,7 @@
 #                                                                       #
 #########################################################################
 
-set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c )
+set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C )
 set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h )
 
 add_definitions(-DH5_HAVE_PARALLEL -std=c99)
