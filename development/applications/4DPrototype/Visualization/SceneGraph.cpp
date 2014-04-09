@@ -1,3 +1,4 @@
+
 #include "SceneGraph.h"
 #include "BpaMesh.h"
 #include "ROICellFilter.h"
@@ -69,6 +70,7 @@ SnapshotNode::SnapshotNode()
   , m_outline(new MoMeshOutline)
   , m_planeGroup(new SoGroup)
   , m_renderSwitch(new SoSwitch)
+  , m_skinExtractor(0)
 {
   SO_NODE_CONSTRUCTOR(SnapshotNode);
   SO_NODE_ADD_FIELD(RenderMode, (0));
@@ -82,7 +84,7 @@ SnapshotNode::SnapshotNode()
   m_planeSlice->plane.connectFrom(&Plane);
 }
 
-void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues, bool hires)
+void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues, bool hires, Extractor& extractor)
 {
   m_snapshot = snapshot;
 
@@ -113,25 +115,32 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   m_sliceGroup->addChild(m_sliceJ);
 
 #ifdef PRE_EXTRACT
-  std::cout << "Extracting skin" << std::endl;
+  //std::cout << "Extracting skin" << std::endl;
   
   MoMesh* skinMesh = new MoMesh;
+
+  MoMeshSurface* meshSurface = new MoMeshSurface;
+  meshSurface->colorScalarSetId = 0;
+
+  SoGroup* skinGroup = new SoGroup;
+  skinGroup->addChild(skinMesh);
+  skinGroup->addChild(meshSurface);
+  m_renderSwitch->addChild(skinGroup);
 
 #ifndef CUSTOM_EXTRACTION
   MiSkinExtractUnstructuredIjk* extractor = MiSkinExtractUnstructuredIjk::getNewInstance(*bpaMesh);
   const MeXSurfaceMeshUnstructured& surfaceMesh = extractor->extractSkin();
 #else
-  m_skinExtractor = new SkinExtractor(*bpaMesh);
-  const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
+  //m_skinExtractor = new SkinExtractor(*bpaMesh);
+  //const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
+  Extractor::WorkItem workItem;
+  workItem.bpaMesh = bpaMesh;
+  workItem.parentMesh = skinMesh;
+  extractor.put(workItem);
 #endif
 
-  skinMesh->setMesh(&surfaceMesh);
-  MoMeshSurface* meshSurface = new MoMeshSurface;
-  SoGroup* skinGroup = new SoGroup;
-  skinGroup->addChild(skinMesh);
-  skinGroup->addChild(meshSurface);
+  //skinMesh->setMesh(&surfaceMesh);
 
-  m_renderSwitch->addChild(skinGroup);
 #else
   m_renderSwitch->addChild(m_skin);
 #endif
@@ -299,7 +308,7 @@ void SceneGraph::createSnapshotsNodeHiRes(di::ProjectHandle* handle)
     else
     {
       SnapshotNode* snapshotNode = new SnapshotNode;
-      snapshotNode->setup(snapshot, depthValues, true);
+      snapshotNode->setup(snapshot, depthValues, true, m_extractor);
 
       // connect fields from scenegraph
       snapshotNode->RenderMode.connectFrom(&RenderMode);
@@ -341,7 +350,7 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
       continue;
 
     SnapshotNode* snapshotNode = new SnapshotNode;
-    snapshotNode->setup(snapshot, depthValues, false);
+    snapshotNode->setup(snapshot, depthValues, false, m_extractor);
 
     // connect fields from scenegraph
     snapshotNode->RenderMode.connectFrom(&RenderMode);
@@ -453,6 +462,8 @@ void SceneGraph::setup(di::ProjectHandle* handle)
   std::cout << "Creating hi-res snapshots"<< std::endl;
   createSnapshotsNodeHiRes(handle);
   std::cout << "Done creating snapshots"<< std::endl;
+
+  m_extractor.start();
 
   m_snapshots->whichChild.connectFrom(&m_snapshotsHiRes->whichChild);
   m_snapshotsHiRes->whichChild.connectFrom(&m_snapshots->whichChild);

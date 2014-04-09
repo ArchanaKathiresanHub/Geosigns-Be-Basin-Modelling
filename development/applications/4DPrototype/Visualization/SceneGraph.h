@@ -2,6 +2,7 @@
 #define SCENEGRAPH_H_INCLUDED
 
 #include "defines.h" 
+#include "Extractor.h"
 
 #include "Interface/Interface.h"
 
@@ -46,7 +47,6 @@ class VISUALIZATIONDLL_API SnapshotNode : public SoSeparator
   MoMeshOutline*      m_outline;
   SoGroup*            m_planeGroup;
   SoSwitch*           m_renderSwitch;
-
   SkinExtractor*      m_skinExtractor;
 
 public:
@@ -65,7 +65,8 @@ public:
   void setup(
     const DataAccess::Interface::Snapshot* snapshot, 
     std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues,
-    bool hires);
+    bool hires,
+    Extractor& extractor);
 
   const DataAccess::Interface::Snapshot* getSnapShot() const;
 
@@ -120,6 +121,8 @@ private:
   int m_numJ;
   int m_numIHiRes;
   int m_numJHiRes;
+
+  Extractor m_extractor;
 
   void createFilterNode();
 

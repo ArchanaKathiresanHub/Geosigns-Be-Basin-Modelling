@@ -208,8 +208,15 @@ SkinExtractor::SkinExtractor(const BpaMesh& mesh)
 
 const MiSurfaceMeshUnstructured& SkinExtractor::extractSkin(const MiCellFilterIjk* cellFilter)
 {
-  const MiHexahedronTopologyExplicitIjk& topology = m_mesh.getTopology();
-  const BpaGeometry& geometry = (const BpaGeometry&)m_mesh.getGeometry();
+  m_skin.reset(doSkinExtraction(m_mesh, cellFilter));
+
+  return *m_skin;
+}
+
+MiSurfaceMeshUnstructured* SkinExtractor::doSkinExtraction(const BpaMesh& mesh, const MiCellFilterIjk* cellFilter)
+{
+  const MiHexahedronTopologyExplicitIjk& topology = mesh.getTopology();
+  const BpaGeometry& geometry = (const BpaGeometry&)mesh.getGeometry();
 
   size_t ni = topology.getNumCellsI();
   size_t nj = topology.getNumCellsJ();
@@ -315,12 +322,13 @@ const MiSurfaceMeshUnstructured& SkinExtractor::extractSkin(const MiCellFilterIj
     }
   }
 
-  delete[] cellState[0];
-  delete[] cellState[1];
+  for(int i=0; i < 2; ++i)
+  {
+    delete[] nodeState[i];
+    delete[] cellState[i];
+  }
 
   surfaceTopo->setupBeginAndEndNodeId();
 
-  m_skin.reset(new SurfaceMeshUnstructured(surfaceTopo, m_mesh.getGeometry()));
-
-  return *m_skin;
+  return new SurfaceMeshUnstructured(surfaceTopo, mesh.getGeometry());
 }

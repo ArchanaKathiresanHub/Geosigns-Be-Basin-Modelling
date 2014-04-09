@@ -123,6 +123,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BpaMesh.cpp" />
+    <ClCompile Include="Extractor.cpp" />
     <ClCompile Include="ROICellFilter.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="SkinExtractor.cpp" />
@@ -130,6 +131,7 @@
   <ItemGroup>
     <ClInclude Include="BpaMesh.h" />
     <ClInclude Include="defines.h" />
+    <ClInclude Include="Extractor.h" />
     <ClInclude Include="ROICellFilter.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SkinExtractor.h" />
