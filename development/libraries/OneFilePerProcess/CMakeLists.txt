@@ -11,7 +11,7 @@
 #########################################################################
 
 set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C )
-set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h )
+set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h src/h5merge.h )
 
 add_definitions(-DH5_HAVE_PARALLEL -std=c99)
 add_library(OneFilePerProcess
@@ -43,6 +43,11 @@ add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver
 
 add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver-MPIPROCS=2
            SOURCES test/HDF5VirtualFileDriver.C
+           LIBRARIES OneFilePerProcess
+           MPI_SIZE 2
+)
+add_gtest( NAME OneFilePerProcess::h5mergeTest-MPIPROCS=2
+           SOURCES test/readDataset.C
            LIBRARIES OneFilePerProcess
            MPI_SIZE 2
 )
