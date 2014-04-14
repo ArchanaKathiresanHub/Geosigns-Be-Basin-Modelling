@@ -61,6 +61,10 @@ private :
 
 };
 
+template <const unsigned int RowCount, const unsigned int ColCount>
+const unsigned int MatrixInterpolator<RowCount, ColCount>::Degree;
+
+
 template<const unsigned int RowCount,
          const unsigned int ColCount>
 inline double MatrixInterpolator<RowCount, ColCount>::evaluate ( const unsigned int row,

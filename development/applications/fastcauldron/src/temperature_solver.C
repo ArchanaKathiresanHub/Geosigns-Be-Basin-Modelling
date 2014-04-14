@@ -1628,25 +1628,6 @@ void Temperature_Solver::computeSnapShotVRe (  AppCtx*         basinModel,
 
   using namespace Basin_Modelling;
 
-  if ( Current_Time == Present_Day ) {
-    
-    Layer_Iterator Layers;
-    Layers.Initialise_Iterator ( basinModel -> layers, Descending, Source_Rocks_Only, 
-                                 Active_Layers_Only );
-    
-    while ( ! Layers.Iteration_Is_Done () ) {
-      
-      LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
-      
-      DMCreateGlobalVector( *basinModel -> mapDA, 
-                            &Current_Layer->Present_Day_VRE );
-      VecSet ( Current_Layer->Present_Day_VRE, CAULDRONIBSNULLVALUE );
-
-      Layers++;
-    }
-    
-  }
-
   Vitrinite_Calculator.CalcSnaptimeVr ( Current_Time, basinModel->getValidNeedles ());
 }
 

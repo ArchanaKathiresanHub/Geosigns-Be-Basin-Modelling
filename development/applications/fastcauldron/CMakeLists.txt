@@ -208,41 +208,20 @@ install(TARGETS fastcauldron
 )
 
 include_directories ( src ${EIGEN_INCLUDE_DIRS} )
-add_executable( interpolationTest
-	test/InterpolationTest.C )
 
-add_executable( matrixInterpolationTest
-	test/MatrixInterpolationTest.C )
+add_gtest( NAME VectorInterpolator
+           SOURCES test/InterpolationTest.C 
+           LIBRARIES LinearAlgebra ${BLAS_LIBRARIES}
+           )
 
-add_executable( PceTest
-	test/PceTest.C )
+add_gtest( NAME MatrixInterpolator
+           SOURCES test/MatrixInterpolationTest.C
+           LIBRARIES LinearAlgebra ${BLAS_LIBRARIES} )
 
+add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
+	   SOURCES test/PceTest.C )
 
-target_link_libraries(interpolationTest
-	LinearAlgebra
-	${BLAS_LIBRARIES} 
-        pthread
-)
 	
-target_link_libraries(matrixInterpolationTest
-	LinearAlgebra
-	${BLAS_LIBRARIES} 
-        pthread
-)
-	
-target_link_libraries( PceTest
-)
-	
-add_test ( NAME MultiInterpolator 
-	COMMAND interpolationTest)
-
-add_test ( NAME MatrixInterpolator 
-	COMMAND matrixInterpolationTest)
-
-add_test ( NAME  PceTest
-	COMMAND PceTest)
-
-
 endif(BM_PARALLEL)	
 
 generate_dox( src/fastcauldron.cfg )

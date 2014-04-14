@@ -82,11 +82,7 @@ bool VreCalc::CalcSnaptimeVr ( const double    time,
     double ***vre;
     DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->Vre, 
 		   &vre);
-    double **presentdayvre;
-    if ( (time == Present_Day) && Current_Layer -> isSourceRock() ) {
-      DMDAVecGetArray(*Basin_Model -> mapDA, Current_Layer->Present_Day_VRE, 
-		     &presentdayvre); 
-    }
+ 
     
     for (i = xs; i < xs+xm; i++) {
       for (j = ys; j < ys+ym; j++) {
@@ -102,9 +98,7 @@ bool VreCalc::CalcSnaptimeVr ( const double    time,
 	  }
 	  vre[k][j][i] = Vr;
 
-	  if ( (time == Present_Day) && Current_Layer -> isSourceRock() && (k == zs+zm-1) ) {
-	    presentdayvre[j][i] = Vr;
-	  }
+	
 	}
       }
     }
@@ -114,11 +108,7 @@ bool VreCalc::CalcSnaptimeVr ( const double    time,
     DMDAVecRestoreArray(Current_Layer ->layerDA, Current_Layer ->Vre, 
 		       &vre);
 
-    if ( (time == Present_Day) && Current_Layer -> isSourceRock() ) {
-      DMDAVecRestoreArray(*Basin_Model -> mapDA, Current_Layer->Present_Day_VRE, 
-		     &presentdayvre);      
-    }
-
+   
     Layers++;
   }
  

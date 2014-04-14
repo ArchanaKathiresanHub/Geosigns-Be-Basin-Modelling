@@ -5,7 +5,7 @@
 
 #include "VectorInterpolator.h"
 
-bool isEqual ( const double x, const double y, const double tolerance = 1.0e-10 );
+#include <gtest/gtest.h>
 
 double constantFunction ( const double x );
 double linearFunction ( const double x );
@@ -27,9 +27,9 @@ void doTest ( const SimpleInterpolator::CoefficientArray xs,
               TestFunction func,
               ErrorFunction errorFunc );
 
-int main () {
-
-   assert ( SimpleInterpolator::Degree == 2 );
+TEST( SimpleInterpolator, InterpolatorDegree )
+{
+   ASSERT_EQ( 2, SimpleInterpolator::Degree );
 
    SimpleInterpolator::CoefficientArray xs;
 
@@ -45,27 +45,6 @@ int main () {
 
    // The cubic will have a non-zero error function.
    doTest ( xs, cubicFunction, cubicFunctionError );
-
-   return 0;
-}
-
-bool isEqual ( const double x, const double y, const double tolerance ) {
-
-   if ( x == y ) {
-      return true;
-   } else {
-
-      double absX = std::abs ( x );
-      double absY = std::abs ( y );
-
-      if ( absX > absY ) {
-         return std::abs ( x - y ) <= tolerance * absX;
-      } else {
-         return std::abs ( x - y ) <= tolerance * absY;
-      }
-
-   }
-
 }
 
 
@@ -112,18 +91,12 @@ void doTest ( const SimpleInterpolator::CoefficientArray xs,
    double h = ( xs [ 2 ] - xs [ 0 ]) / double ( numbeOfSteps - 1 );
    double x = 0.0;
 
-   std::cout.precision ( 18 );
-   std::cout.flags ( std::ios::scientific );
+   double relativeError = 1.0e-10; 
 
-   for ( int i = 1; i <= numbeOfSteps; ++i, x += h ) {
-
-      if ( not isEqual ( interp.evaluate ( 0, x ) + errorFunc ( x ), func ( x ))) {
-         std::cout << " aint equal " << x << "  " << interp.evaluate ( 1, x )  << "  " << errorFunc ( x ) << "  " << func ( x ) << std::endl;
-         std::exit ( 1 );
-      }
-      
-
+   for ( int i = 1; i <= numbeOfSteps; ++i, x += h )
+   {
+      double expectance = func ( x );
+      EXPECT_NEAR( interp.evaluate ( 0, x ) + errorFunc ( x ), expectance, std::abs(expectance * relativeError) );      
    }
-
 
 }

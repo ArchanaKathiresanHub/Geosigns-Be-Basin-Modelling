@@ -5,61 +5,60 @@
 
 #include "BrooksCorey.h"
 
+#include <gtest/gtest.h>
+
+
 static const double DefaultC1 = 0.33;
 static const double DefaultC2 = pow ( 10.0, -0.2611 );
 
-bool isEqual ( const double x, const double y, const double tolerance = 1.0e-10 );
+const double relativeError = 1.0e-10; 
 
+TEST( PceTest, CalculationOfPceValues10EMin8 )
+{
+   double permeability = 1.0e-8;
+   double pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
+   double expectance = 239276473.852775;
+   EXPECT_NEAR( pce, expectance, relativeError * expectance );
+}
 
-int main () {
+TEST( PceTest, CalculationOfPceValues10EMin6 )
+{
+   double permeability = 1.0e-6;
+   double pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
+   double expectance = 52347988.7009069;
+   EXPECT_NEAR( pce, expectance, relativeError * expectance );
+}
 
-   double permeability;
-   double pce;
+TEST( PceTest, CalculationOfPceValues10EMin4 )
+{
+   double permeability = 1.0e-4;
+   double pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
+   double expectance = 11452492.0770789;
+   EXPECT_NEAR( pce, expectance, relativeError * expectance );
+}
 
-   permeability = 1.0e-8;
-   pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
-   assert ( isEqual ( pce, 239276473.852775 ));
+TEST( PceTest, CalculationOfPceValues10EMin2 )
+{
+   double permeability = 1.0e-2;
+   double pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
+   double expectance = 2505532.26648195;
+   EXPECT_NEAR( pce, expectance, relativeError * expectance );
+}
 
-   permeability = 1.0e-6;
-   pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
-   assert ( isEqual ( pce, 52347988.7009069 ));
+TEST( PceTest, CalculationOfPceValues1 )
+{
+   double permeability = 1.0;
+   double pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
+   double expectance = 548150.734017655;
+   EXPECT_NEAR( pce, expectance, relativeError * expectance );
+}
 
-   permeability = 1.0e-4;
-   pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
-   assert ( isEqual ( pce, 11452492.0770789 ));
-
-   permeability = 1.0e-2;
-   pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
-   assert ( isEqual ( pce, 2505532.26648195 ));
-
-   permeability = 1.0;
-   pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
-   assert ( isEqual ( pce, 548150.734017655 ));
-
-   permeability = 1.0e2;
-   pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
-   assert ( isEqual ( pce, 119922.314002360 ));
-
-   return 0;
+TEST( PceTest, CalculationOfPceValues100 )
+{
+   double permeability = 1.0e2;
+   double pce = BrooksCorey::computeCapillaryEntryPressure ( permeability, DefaultC1, DefaultC2 );
+   double expectance = 119922.314002360;
+   EXPECT_NEAR( pce, expectance, relativeError * expectance );
 }
 
 
-
-bool isEqual ( const double x, const double y, const double tolerance ) {
-
-   if ( x == y ) {
-      return true;
-   } else {
-
-      double absX = std::abs ( x );
-      double absY = std::abs ( y );
-
-      if ( absX > absY ) {
-         return std::abs ( x - y ) <= tolerance * absX;
-      } else {
-         return std::abs ( x - y ) <= tolerance * absY;
-      }
-
-   }
-
-}

@@ -381,7 +381,6 @@ public:
   Vec              Lithology_ID;
   Vec              NodeHeatProd;
   Vec              VreIntValue;
-  Vec              Present_Day_VRE;
   Vec              BulkDensXHeatCapacity;
   Vec              BulkTHCondN;
   Vec              BulkTHCondP;

@@ -5,7 +5,7 @@
 
 #include "MatrixInterpolator.h"
 
-bool isEqual ( const double x, const double y, const double tolerance = 1.0e-10 );
+#include <gtest/gtest.h>
 
 double constantFunction ( const double x );
 double linearFunction ( const double x );
@@ -33,9 +33,9 @@ void doTest ( const Interpolator& interp,
               TestFunction func,
               ErrorFunction errorFunc );
 
-int main () {
-
-   assert ( Interpolator::Degree == 2 );
+TEST( MatrixInterpolationTest, InterpolatorDegree )
+{
+   ASSERT_EQ( 2, Interpolator::Degree );
 
    Interpolator interp;
    Interpolator::CoefficientArray xs;
@@ -54,29 +54,8 @@ int main () {
 
    doTest ( interp, xs, 1, 0, quadraticFunction, zeroFunction );
    doTest ( interp, xs, 1, 1, cubicFunction, cubicFunctionError );
-
-
-   return 0;
 }
 
-bool isEqual ( const double x, const double y, const double tolerance ) {
-
-   if ( x == y ) {
-      return true;
-   } else {
-
-      double absX = std::abs ( x );
-      double absY = std::abs ( y );
-
-      if ( absX > absY ) {
-         return std::abs ( x - y ) <= tolerance * absX;
-      } else {
-         return std::abs ( x - y ) <= tolerance * absY;
-      }
-
-   }
-
-}
 
 
 double zeroFunction ( const double x ) {
@@ -142,18 +121,12 @@ void doTest ( const Interpolator& interp,
    double h = ( xs [ 2 ] - xs [ 0 ]) / double ( numbeOfSteps - 1 );
    double x = 0.0;
 
-   std::cout.precision ( 18 );
-   std::cout.flags ( std::ios::scientific );
+   double relativeError = 1.0e-10; 
 
-   for ( int i = 1; i <= numbeOfSteps; ++i, x += h ) {
-
-      if ( not isEqual ( interp.evaluate ( row, col, x ) + errorFunc ( x ), func ( x ))) {
-         std::cout << " aint equal " << x << "  " << interp.evaluate ( row, col, x )  << "  " << errorFunc ( x ) << "  " << func ( x ) << std::endl;
-         std::exit ( 1 );
-      }
-      
-
+   for ( int i = 1; i <= numbeOfSteps; ++i, x += h )
+   {
+      double expectance = func ( x );
+      EXPECT_NEAR( interp.evaluate ( row, col, x ) + errorFunc ( x ), expectance, std::abs(expectance * relativeError ));
    }
-
 
 }

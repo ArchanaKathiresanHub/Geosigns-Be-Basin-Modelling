@@ -544,8 +544,6 @@ LayerProps::~LayerProps(){
 
   if ( layerDA != NULL )  DMDestroy(&layerDA);
 
-  Destroy_Petsc_Vector ( Present_Day_VRE );
-
   Destroy_Petsc_Vector ( Real_Thickness_Vector );
   Destroy_Petsc_Vector ( Solid_Thickness );
   Destroy_Petsc_Vector ( Depth );
@@ -672,8 +670,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel ) {
       }
 
     }
-
-    createVec ( Present_Day_VRE );
 
     createVec ( Real_Thickness_Vector );
     createVec ( Solid_Thickness );
@@ -1020,8 +1016,6 @@ void LayerProps::nullify (){
   Previous_Temperature  = NULL;
   Previous_Depth        = NULL;
 
-  Present_Day_VRE = 0;
-
   Real_Thickness_Vector          = 0;
   Previous_Real_Thickness_Vector = 0;
 
@@ -1123,8 +1117,6 @@ void LayerProps::reInitialise (){
    }
 
    initialiseSourceRockProperties ( false );
-
-   Destroy_Petsc_Vector ( Present_Day_VRE );
 
    Destroy_Petsc_Vector ( Real_Thickness_Vector );
    Destroy_Petsc_Vector ( Solid_Thickness );

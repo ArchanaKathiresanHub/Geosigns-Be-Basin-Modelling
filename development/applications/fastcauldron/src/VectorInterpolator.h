@@ -60,6 +60,9 @@ private :
 };
 
 template<const unsigned int Size>
+const unsigned int VectorInterpolator<Size> :: Degree ;
+
+template<const unsigned int Size>
 inline double VectorInterpolator<Size>::evaluate ( const unsigned int equation,
                                                    const double       x ) const {
 
