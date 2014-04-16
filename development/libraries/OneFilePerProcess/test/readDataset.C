@@ -296,7 +296,7 @@ TEST( h5mergeTest, MergeExistingFiles1 )
       File a( name, true );
 
       int status = a.open( File::Create, 5, false );
-      ASSERT_FALSE( -3 == status ) << "Local file can't be created." << std::endl;
+      ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
 
       EXPECT_EQ( 5, status );
 
@@ -304,7 +304,7 @@ TEST( h5mergeTest, MergeExistingFiles1 )
       if (MPI::rank() == 0)
       {
          status = b.open( File::Create, 0, true );
-         ASSERT_FALSE( -3 == status ) << "Global file can't be created." << std::endl;
+         ASSERT_FALSE( File::CannotCreateFile == status ) << "Global file can't be created." << std::endl;
 
          EXPECT_EQ( 0, status );
       }
@@ -331,7 +331,7 @@ TEST( h5mergeTest, MergeExistingFiles2 )
       File a( name, true );
 
       int status = a.open( File::CreateWithAttr, 5, false );
-      ASSERT_FALSE( -3 == status ) << "Local file can't be created." << std::endl;
+      ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
   
       EXPECT_EQ( 5, status );
 
@@ -339,7 +339,7 @@ TEST( h5mergeTest, MergeExistingFiles2 )
       if (MPI::rank() == 0)
       {
          status = b.open( File::CreateWithAttr, 0, true );
-         ASSERT_FALSE( -3 == status ) << "Global file can't be created." << std::endl;
+         ASSERT_FALSE( File::CannotCreateFile == status ) << "Global file can't be created." << std::endl;
 
          EXPECT_EQ( 0, status );
       }
@@ -378,7 +378,7 @@ TEST( h5mergeTest, MergeExistingFiles4 )
       File a( name, true );
 
       int status = a.open( File::Create, 5, false );
-      ASSERT_FALSE( -3 == status ) << "Local file can't be created." << std::endl;
+      ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
   
       EXPECT_EQ( 5, status );
 
@@ -386,7 +386,7 @@ TEST( h5mergeTest, MergeExistingFiles4 )
       if (MPI::rank() == 0)
       {
          status = b.open( File::Create, 0, true );
-         ASSERT_FALSE( -3 == status ) << "Global file can't be created." << std::endl;
+         ASSERT_FALSE( File::CannotCreateFile == status ) << "Global file can't be created." << std::endl;
 
          EXPECT_EQ( 0, status );
       }

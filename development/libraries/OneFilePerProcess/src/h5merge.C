@@ -113,7 +113,7 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
 
    if( groupId == NULL ) return -1;
 
-   FileHandler* reader = (FileHandler*)( voidReader );
+   FileHandler* reader = static_cast<FileHandler *>( voidReader );
 
    hid_t memspace, filespace;
    hid_t local_dset_id;
@@ -260,12 +260,7 @@ bool mergeFiles( MPI_Comm comm, const std::string &fileName ) {
    }
   
    if( reader.m_rank == 0 ) {
-      // What to use? H5F_ACC_EXCL or H5F_ACC_TRUNC?
-      // HDF5 is not able to detect if the file with the same name is already open by H5Fopen when uses H5F_ACC_TRUNC.
-      // If the VFD failed to output "one file per processor", then a file with the same name will be created at this point.
-      // This should not happen.
-      
-      reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT ); 
+      reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT ); 
 
       if( reader.m_globalFileId < 0 ) {
          status = 1; 
