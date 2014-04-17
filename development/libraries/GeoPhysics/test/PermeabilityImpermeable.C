@@ -10,7 +10,9 @@
 
 using namespace GeoPhysics;
 
-static const double nan = std::numeric_limits<double>::quiet_NaN();
+namespace {
+  const double NaN = std::numeric_limits<double>::quiet_NaN();
+}
 
 class PermeabilityImpermeableTest : public ::testing::Test
 {
@@ -41,7 +43,7 @@ TEST_F( PermeabilityImpermeableTest, permeability )
 
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeAtmosphere )
 {
-   double permeability = nan, derivative = nan;
+   double permeability = NaN, derivative = NaN;
    m_p.permeabilityDerivative( 1.0e+5, 1.0e+5, 0, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
    EXPECT_FLOAT_EQ( 0.0,  derivative );
@@ -49,14 +51,14 @@ TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeAtmosphere )
 
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUnderground )
 { 
-   double permeability = nan, derivative = nan;
+   double permeability = NaN, derivative = NaN;
    m_p.permeabilityDerivative( 1.0e+6, 1.0e+6, 0.2, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
    EXPECT_FLOAT_EQ( 0.0,  derivative );
 }
 
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUndergroundAndHigherMaxVes)
-{  double permeability = nan, derivative = nan;
+{  double permeability = NaN, derivative = NaN;
    m_p.permeabilityDerivative( 1.0e+6, 2.0e+6, 0.3, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
    EXPECT_FLOAT_EQ( 0.0,  derivative );
