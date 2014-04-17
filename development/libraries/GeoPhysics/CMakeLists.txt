@@ -10,10 +10,104 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
+set(cross_platform_headers
+      src/Permeability.h
+      src/PermeabilityImpermeable.h
+      src/PermeabilityMudStone.h
+      src/PermeabilityMultiPoint.h
+      src/PermeabilitySandStone.h
+)
 
-FILE( GLOB all_srcs src/*.C)
+set(unix_only_headers
+      src/AllochthonousLithologyInterpolator.h
+      src/AllochthonousLithologyManager.h
+      src/BasementLithology.h
+      src/CauldronGridDescription.h
+      src/CompoundLithologyArray.h
+      src/CompoundLithologyComposition.h
+      src/CompoundLithology.h
+      src/CompoundProperty.h
+      src/FracturePressureCalculator.h
+      src/GeoPhysicalConstants.h
+      src/GeoPhysicalFunctions.h
+      src/GeoPhysicsCrustFormation.h
+      src/GeoPhysicsFluidType.h
+      src/GeoPhysicsFormation.h
+      src/GeoPhysicsMantleFormation.h
+      src/GeoPhysicsObjectFactory.h
+      src/GeoPhysicsProjectHandle.h
+      src/GeoPhysicsSourceRock.h
+      src/HCDensity.h
+      src/LithologyManager.h
+      src/Local2DArray.h
+      src/Local3DArray.h
+      src/SimpleLithology.h
+      src/TimeDependantLithology.h
+   )
+
+set(cross_platform_srcs 
+      src/Permeability.C
+      src/PermeabilityMudStone.C
+      src/PermeabilityMultiPoint.C
+      src/PermeabilitySandStone.C
+)
+
+set(unix_only_srcs
+      src/AllochthonousLithologyInterpolator.C
+      src/AllochthonousLithologyManager.C
+      src/BasementLithology.C
+      src/CauldronGridDescription.C
+      src/CompoundLithologyArray.C
+      src/CompoundLithology.C
+      src/CompoundLithologyComposition.C
+      src/CompoundProperty.C
+      src/FracturePressureCalculator.C
+      src/GeoPhysicalFunctions.C
+      src/GeoPhysicsCrustFormation.C
+      src/GeoPhysicsFluidType.C
+      src/GeoPhysicsFormation.C
+      src/GeoPhysicsMantleFormation.C
+      src/GeoPhysicsObjectFactory.C
+      src/GeoPhysicsProjectHandle.C
+      src/GeoPhysicsSourceRock.C
+      src/HCDensity.C
+      src/LithologyManager.C
+      src/SimpleLithology.C
+      src/TimeDependantLithology.C
+   )
+
+set(unix_only_libs
+      LinearAlgebra 
+      Interpolation 
+      genex6 
+      genex6_kernel 
+      CrustalThickness
+)
+
+set(cross_platform_libs
+      utilities 
+      DataAccess
+      TableIO
+      CBMGenerics
+      EosPack
+)
+
+
+set(all_srcs)
+set(all_headers)
+set(all_dependent_libs)
+
+if (UNIX)
+   set(all_srcs ${cross_platform_srcs} ${unix_only_srcs})
+   set(all_headers ${cross_platform_headers} ${unix_only_headers})
+   set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs} )
+elseif( WIN32 )
+   set(all_srcs ${cross_platform_srcs})
+   set(all_headers ${cross_platform_headers})
+   set(all_dependent_libs ${cross_platform_libs} )
+endif()
+
+source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
 
@@ -22,36 +116,16 @@ add_library( GeoPhysics STATIC
 	${all_headers}
 )
 
-bm_include_libraries(
-	utilities 
-	LinearAlgebra 
-	Interpolation 
-	DataAccess
-	genex6 
-	genex6_kernel 
-	TableIO
-	CBMGenerics
-	EosPack
-	CrustalThickness
+bm_include_libraries( 
+        ${all_dependent_libs}
 )
-
 include_directories(
 	${HDF5_serial_INCLUDE_DIRS}
 )
 
 target_link_libraries(GeoPhysics
-	utilities
-	LinearAlgebra
-	Interpolation
-	DataAccess
-	genex6
-	genex6_kernel
-	TableIO
-	CBMGenerics
-	EosPack
-	CrustalThickness
+      ${all_dependent_libs}
 )
-	
 	
 install(TARGETS GeoPhysics	
 	RUNTIME DESTINATION bin
@@ -81,8 +155,6 @@ add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
       SOURCES test/PermeabilityMultiPoint.C
       LIBRARIES GeoPhysics
 )
-
-
 
 
 # Local Variables:

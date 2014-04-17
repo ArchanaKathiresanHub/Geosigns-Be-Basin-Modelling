@@ -160,13 +160,14 @@ find_package(Hdf5 REQUIRED CONFIG)
 find_package(OpenMP REQUIRED CONFIG)   
 find_package(Eigen REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
-
+find_package(Boost REQUIRED CONFIG)
+   
 if (UNIX)
    find_package(BLAS REQUIRED CONFIG)
    find_package(PETSC REQUIRED CONFIG)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(Touchstone REQUIRED CONFIG)
-   find_package(Boost REQUIRED CONFIG)
+
    
    if (BM_BUILD_QT3_APPS)
       find_package(Qt3 REQUIRED CONFIG)
