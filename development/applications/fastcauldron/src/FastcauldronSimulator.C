@@ -67,7 +67,7 @@ FastcauldronSimulator::FastcauldronSimulator (database::Database * database, con
    m_hcVapourCurveExponent = DefaultHcCurveExponent;
    m_hcLiquidCurveExponent = DefaultHcCurveExponent;
    m_printCommandLine = false;
-   m_computeCapillaryEntryPressure = false;
+   m_computeCapillaryPressure = false;
 
    m_fctCorrectionScalingWeight = 1.0;
 }
@@ -1101,44 +1101,6 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
    newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
                                                         Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                        "HcLiquidBrineCapillaryEntryPressure" );
-   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
-   m_timeOutputProperties.push_back ( newProperty );
-
-   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
-                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                        "HcVapourBrineCapillaryEntryPressure" );
-   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
-   m_timeOutputProperties.push_back ( newProperty );
-
-
-   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
-                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                        "InvasionVapourCapillaryEntryPressureCift" );
-   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
-   m_timeOutputProperties.push_back ( newProperty );
-
-   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
-                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                        "InvasionLiquidCapillaryEntryPressureCift" );
-   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
-   m_timeOutputProperties.push_back ( newProperty );
-
-   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
-                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                        "InvasionVapourCapillaryEntryPressure" );
-   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
-   m_timeOutputProperties.push_back ( newProperty );
-
-   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
-                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                        "InvasionLiquidCapillaryEntryPressure" );
-   newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
-   m_timeOutputProperties.push_back ( newProperty );
-
-
-   newProperty = getFactory ()->produceOutputProperty ( this, getModellingMode (),
-                                                        Interface::SEDIMENTS_ONLY_OUTPUT,
                                                         "GOR" );
    newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
    m_timeOutputProperties.push_back ( newProperty );
@@ -1799,18 +1761,18 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
    PetscBool fctScalingChanged;
    double    fctScaling;
    PetscBool hasPrintCommandLine;
-   PetscBool computeCapillaryEntryPressure;
+   PetscBool computeCapillaryPressure;
 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );
    PetscOptionsGetReal  ( PETSC_NULL, "-glfctweight", &fctScaling, &fctScalingChanged );
-   PetscOptionsHasName ( PETSC_NULL, "-fcpce", &computeCapillaryEntryPressure );
+   PetscOptionsHasName ( PETSC_NULL, "-fcpce", &computeCapillaryPressure );
 
    if ( fctScalingChanged ) {
       m_fctCorrectionScalingWeight = NumericFunctions::clipValueToRange ( fctScaling, 0.0, 1.0 );
    }
 
    m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
-   m_computeCapillaryEntryPressure = computeCapillaryEntryPressure == PETSC_TRUE;
+   m_computeCapillaryPressure = computeCapillaryPressure == PETSC_TRUE;
 
    readRelPermCommandLineParameters ();
    readCommandLineWells ();

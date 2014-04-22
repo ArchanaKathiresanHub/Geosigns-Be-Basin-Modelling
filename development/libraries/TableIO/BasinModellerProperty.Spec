@@ -2563,16 +2563,6 @@ START-properties
     Time dependent      : No 
     Property I/O        : No
     Default             : 1.0
-
-    Identification      : LambdaPcWater
-    Description         : Exponent in Brooks-Corey constitutive relation
-                          for capillary pressure
-    Unit of measurement : (unknown)
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : -9999
     
     Identification      : LambdaKr
     Description         : Exponent in Brooks-Corey constitutive relation
@@ -2583,35 +2573,6 @@ START-properties
     Time dependent      : No 
     Property I/O        : No
     Default             : 1.0
-
-    Identification      : LambdaKrWater
-    Description         : Exponent in Brooks-Corey constitutive relation
-                          for relative permeability
-    Unit of measurement : (unknown)
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : -9999
-
-    Identification      : Sor
-    Description         : Residual hc saturation,
-    Unit of measurement : frac
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : -9999
-
-    Identification      : Swi
-    Description         : Irreducible water saturation
-    Unit of measurement : frac
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-    Default             : -9999
-
 
     Identification      : ThCondParallel
     Description         : Thermal conductivity parallel to bedding at a
@@ -5895,23 +5856,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
-    Identification      : HcLiquidBrineCapillaryEntryPressure
-    Description         : PC between Hc liquid and brine
-    Type                : float
-    Unit of measurement : Pa
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : HcVapourBrineCapillaryEntryPressure
-    Description         : PC between Hc vapour and brine
-    Type                : float
-    Unit of measurement : Pa
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
 
 ##
 ##
@@ -10225,11 +10169,7 @@ START-property-tables
     Column         : CapC2
     Column         : PcKrModel
     Column         : LambdaPc
-    Column         : LambdaPcWater
     Column         : LambdaKr
-    Column         : LambdaKrWater
-    Column         : Sor
-    Column         : Swi
     Column         : Porosity_Model
     Column         : Compaction_Coefficient_SM
     Column         : Number_Of_Data_Points

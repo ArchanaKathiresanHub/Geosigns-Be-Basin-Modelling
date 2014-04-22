@@ -110,7 +110,6 @@ private :
 
    void computePressure ( FormationSubdomainElementGrid&      formationGrid,
                           const SaturationArray&              saturations,
-                          const PhaseValueArray&              phaseDensities,
                           const TemporalPropertyInterpolator& porePressure,
                           const TemporalPropertyInterpolator& temperature,
                           const TemporalPropertyInterpolator& ves,
@@ -121,7 +120,6 @@ private :
 
    void computePressure ( Subdomain&                          subdomain,
                           const SaturationArray&              saturations,
-                          const PhaseValueArray&              phaseDensities,
                           const TemporalPropertyInterpolator& porePressure,
                           const TemporalPropertyInterpolator& temperature,
                           const TemporalPropertyInterpolator& ves,

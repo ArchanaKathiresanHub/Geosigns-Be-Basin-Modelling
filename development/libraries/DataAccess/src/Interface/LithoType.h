@@ -123,31 +123,17 @@ namespace DataAccess
          /// Return the capillary entry pressure c2.
          virtual double getCapillaryEntryPressureC2 () const;
 
-
 	 //==Brooks-Corey capillary function parameters
 	 
-         /// Return exponent for Brooks and Corey relative permeability function for water.
-         virtual double getWaterRelPermExponent () const;
+         /// Return residual saturation.
+         virtual double getExponentLambdaKr () const;
 
-         /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon.
-         virtual double getHcRelPermExponent () const;
-
-         /// Return exponent for Brooks and Corey capillary pressure function for water.
-         virtual double getWaterCapPresExponent () const;
-
-         /// Return exponent for Brooks and Corey capillary pressure function for hyrdocarbon.
-         virtual double getHcCapPresExponent () const;
+	 /// Return the exponent lambda.
+         virtual double getExponentLambdaPc () const;
 
          /// Return the capillary entry pressure.
          virtual PcKrModel getPcKrModel () const;
 	 
-
-         /// Return the residual hc saturation, Sor.
-         virtual double getResidualHcSaturation () const;
-
-         /// Return the irreducible water saturation, Swi.
-         virtual double getIrreducibleWaterSaturation () const;
-
 
          /// Return the specific surface area.
          virtual double getSpecificSurfArea () const;

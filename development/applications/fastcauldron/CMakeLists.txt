@@ -20,7 +20,6 @@ add_executable(fastcauldron
 	src/BoundaryId.C
 	src/BrineProperties.C
 	src/BulkDensityCalculator.C
-	src/CapillaryEntryPressureCalculator.C
 	src/CapillaryPressureCalculator.C
 	src/CauldronCalculator.C
 	src/ComponentConcentrationCalculator.C
@@ -57,7 +56,6 @@ add_executable(fastcauldron
 	src/history.C
 	src/HydraulicFracturingManager.C
 	src/ImmobileSpeciesValues.C
-	src/InvasionCapillaryEntryPressureCalculator.C
 	src/layer.C
 	src/layer_iterators.C
 	src/LinearPropertyInterpolator.C

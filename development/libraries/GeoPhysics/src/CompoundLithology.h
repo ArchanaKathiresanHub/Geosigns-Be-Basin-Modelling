@@ -5,7 +5,6 @@
 #include <vector>
 #include "EosPack.h"
 
-#include "Interface/Interface.h"
 #include "GeoPhysicsFluidType.h"
 #include "SimpleLithology.h"
 #include "CompoundLithologyComposition.h"
@@ -83,28 +82,9 @@ namespace GeoPhysics {
       double tenPowerCapC2 () const;
 
       /// Return the Brooks-Corey parameters
-      DataAccess::Interface::PcKrModel getPcKrModel() const;
-
-
-      /// Return exponent for Brooks and Corey relative permeability function for water.
-      double getWaterRelPermExponent () const;
-
-      /// Return exponent for Brooks and Corey relative permeability function for hydrocarbon.
-      double getHcRelPermExponent () const;
-
-      /// Return exponent for Brooks and Corey capillary pressure function for water.
-      double getWaterCapPresExponent () const;
-
-      /// Return exponent for Brooks and Corey capillary pressure function for hyrdocarbon.
-      double getHcCapPresExponent () const;
-
-
-      /// Return the residual hc saturation, Sor.
-      double getResidualHcSaturation () const;
-
-      /// Return the irreducible water saturation, Swi.
-      double getIrreducibleWaterSaturation () const;
-
+      string PcKrModel() const;
+      double LambdaPc() const;
+      double LambdaKr() const;
       
       /// Return the geometric variance of the grain size distribution
       double geometricVariance () const;
@@ -457,17 +437,9 @@ namespace GeoPhysics {
       double           m_capC2;
       double           m_tenPowerCapC2;
       //Brooks-Corey
-      DataAccess::Interface::PcKrModel m_pcKrModel;
-
-      double           m_waterRelPermExponent;
-      double           m_hcRelPermExponent;
-      double           m_waterCapPresExponent;
-      double           m_hcCapPresExponent;
-
-      double           m_residualHcSaturation;
-      double           m_irreducibleWaterSaturation;
-
-
+      string           m_PcKrModel;
+      double           m_LambdaKr;
+      double           m_LambdaPc;
 
       // These are mutable because the compute function in the interpolator is not const.
       mutable ibs::Interpolator     m_thermcondntbl;
@@ -590,32 +562,16 @@ inline double GeoPhysics::CompoundLithology::tenPowerCapC2 () const {
 }
 
 
-inline DataAccess::Interface::PcKrModel GeoPhysics::CompoundLithology::getPcKrModel () const {
-   return m_pcKrModel;
+inline string GeoPhysics::CompoundLithology::PcKrModel () const {
+   return m_PcKrModel;
 }
 
-inline double GeoPhysics::CompoundLithology::getWaterRelPermExponent () const {
-  return m_waterRelPermExponent;
+inline double GeoPhysics::CompoundLithology::LambdaPc () const {
+  return m_LambdaPc;
 }
 
-inline double GeoPhysics::CompoundLithology::getHcRelPermExponent () const {
-  return m_hcRelPermExponent;
-}
-
-inline double GeoPhysics::CompoundLithology::getWaterCapPresExponent () const {
-  return m_waterCapPresExponent;
-}
-
-inline double GeoPhysics::CompoundLithology::getHcCapPresExponent () const {
-  return m_hcCapPresExponent;
-}
-
-inline double GeoPhysics::CompoundLithology::getResidualHcSaturation () const {
-   return m_residualHcSaturation;
-}
-
-inline double GeoPhysics::CompoundLithology::getIrreducibleWaterSaturation () const {
-   return m_irreducibleWaterSaturation;
+inline double GeoPhysics::CompoundLithology::LambdaKr () const {
+   return m_LambdaKr;
 }
 
 

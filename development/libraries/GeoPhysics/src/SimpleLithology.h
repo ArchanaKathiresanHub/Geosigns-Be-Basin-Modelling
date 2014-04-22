@@ -100,7 +100,9 @@ namespace GeoPhysics {
 
       //Brooks-Corey parameters
       DataAccess::Interface::PcKrModel getPcKrModel() const;
-
+      double getLambdaPc() const;
+      double getLambdaKr() const;
+      
 
       /// Compute the heat-capacity from the heat-capacity table.
       virtual double heatcapacity ( const double t ) const;
@@ -208,6 +210,9 @@ namespace GeoPhysics {
       //Brooks-Corey parameters
       
       DataAccess::Interface::PcKrModel m_PcKrModel;
+      double m_LambdaPc;
+      double m_LambdaKr;
+
 	
 
       mutable ibs::Interpolator m_thermalconductivitytbl;
@@ -327,6 +332,14 @@ inline double GeoPhysics::SimpleLithology::getCapC2 () const {
 
 inline DataAccess::Interface::PcKrModel GeoPhysics::SimpleLithology::getPcKrModel () const {
    return  m_PcKrModel;
+}
+
+inline double GeoPhysics::SimpleLithology::getLambdaPc () const {
+   return  m_LambdaPc;
+}
+
+inline double GeoPhysics::SimpleLithology::getLambdaKr () const {
+   return  m_LambdaKr;
 }
 
 inline double GeoPhysics::SimpleLithology::permeability( const double ves, const double maxVes, const double calculatedPorosity) const

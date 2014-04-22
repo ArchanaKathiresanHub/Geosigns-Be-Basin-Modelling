@@ -1840,107 +1840,47 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    //Maximum percentage is considered
    //TODO: what when equal percentage (50 - 50)?
    
-   m_waterRelPermExponent = 0.0;
-   m_hcRelPermExponent = 0.0;
-   m_waterCapPresExponent = 0.0;
-   m_hcCapPresExponent = 0.0;
-   m_residualHcSaturation = 0.0;
-   m_irreducibleWaterSaturation = 0.0;
-
+   m_LambdaPc = m_LambdaKr=0;
+   m_PcKrModel = "Brooks_Corey";
+   
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
    
    double percent = (double)(*percentIter)/100;
-   m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent();
-   m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent();
-
-   m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
-   m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
-
-   m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
-   m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
-
-
+   m_LambdaPc = (*componentIter)->getLambdaPc();
+   m_LambdaKr = (*componentIter)->getLambdaKr();
    //get pckrmodel
    //?? is the PcKrModel different for different lithology ? 
-   m_pcKrModel = (*componentIter)->getPcKrModel();
+   m_PcKrModel = (*componentIter)->getPcKrModel();
    
    ++componentIter;
    ++percentIter;
    
    while (m_lithoComponents.end() != componentIter)
-   {
-
-      if(percent < ((double)(*percentIter)/100))
       {
-         // Use exponents from the simple lithology with the maximum fraction.
-         m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent();
-         m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent();
-
-         m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
-         m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
-
-         m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
-         m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
-
-         percent = (double)(*percentIter)/100;
-      }
-      else if(percent == ((double)(*percentIter)/100))
-      {
-         // if percentage are equal, find smaller exponent
-
-         if((*componentIter)->getWaterCapPresExponent() < m_waterCapPresExponent)
-         {
-            m_waterCapPresExponent = (*componentIter)->getWaterCapPresExponent ();
-         }
-
-         if((*componentIter)->getHcCapPresExponent() < m_hcCapPresExponent)
-         {
-            m_hcCapPresExponent = (*componentIter)->getHcCapPresExponent ();
-         }
-
-         if((*componentIter)->getWaterRelPermExponent() < m_waterRelPermExponent)
-         {
-            m_waterRelPermExponent = (*componentIter)->getWaterRelPermExponent();
-         }
-
-         if((*componentIter)->getHcRelPermExponent() < m_hcRelPermExponent)
-         {
-            m_hcRelPermExponent = (*componentIter)->getHcRelPermExponent();
-         }
-
-         if ( m_residualHcSaturation > (*componentIter)->getResidualHcSaturation ()) {
-            m_residualHcSaturation = (*componentIter)->getResidualHcSaturation ();
-         }
-
-         if ( m_irreducibleWaterSaturation > (*componentIter)->getIrreducibleWaterSaturation ()) {
-            m_irreducibleWaterSaturation = (*componentIter)->getIrreducibleWaterSaturation ();
-         }
-
-      }
+         if(percent > ((double)(*percentIter)/100))
+            {
+               m_LambdaPc = (*componentIter)->getLambdaPc();
+               m_LambdaKr = (*componentIter)->getLambdaKr();
+               percent = (double)(*percentIter)/100;
+            }
+         //if percentage are equal, find smaller exponent
+         else if(percent == ((double)(*percentIter)/100))
+            {
+               
+               if((*componentIter)->getLambdaPc() < m_LambdaPc)
+                  {
+                     m_LambdaPc = (*componentIter)->getLambdaPc();
+                  }
+               if((*componentIter)->getLambdaKr() <  m_LambdaKr)
+                  {
+                     m_LambdaKr = (*componentIter)->getLambdaKr();
+                  }
+            }
          
-      ++componentIter;
-      ++percentIter;
-   }
-
-   // If the water capillary pressure exponent is the scalar null value (-9999) then use the hc capillary pressure exponent.
-   if ( m_waterCapPresExponent == Interface::DefaultUndefinedScalarValue ) {
-      m_waterCapPresExponent = m_hcCapPresExponent;
-   }
-
-   // If the water relative permeability exponent is the scalar null value (-9999) then use the hc relative permeability exponent.
-   if ( m_waterRelPermExponent == Interface::DefaultUndefinedScalarValue ) {
-      m_waterRelPermExponent = m_hcRelPermExponent;
-   }
-
-   if ( m_residualHcSaturation == Interface::DefaultUndefinedScalarValue ) {
-      m_residualHcSaturation = ResidualHcSaturation;
-   }
-
-   if ( m_irreducibleWaterSaturation == Interface::DefaultUndefinedScalarValue ) {
-      m_irreducibleWaterSaturation = IrreducibleWaterSaturation;
-   }
-
+         ++componentIter;
+         ++percentIter;
+      }
 }
 
 //------------------------------------------------------------//

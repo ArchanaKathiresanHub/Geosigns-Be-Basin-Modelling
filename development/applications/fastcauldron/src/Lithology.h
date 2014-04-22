@@ -19,37 +19,27 @@ public :
    double relativePermeability ( const Saturation::Phase phase,
                                  const Saturation&       saturation ) const;
 
-#if 0
    /// \brief Compute the capillary-pressure for the phase.
    ///
    /// Permeability should be in m^2.
    double capillaryPressure ( const Saturation::Phase phase,
                               const Saturation        saturation,
                               const double            permeability ) const;
+
+#if 0
+   /// \brief Compute the capillary-pressure for the phase.
+   ///
+   /// Temperature in C.
+   /// 
+   double capillaryPressure ( const pvtFlash::PVTPhase phase,
+                              const double             temperature,
+                              const double             criticalTemperature,
+                              const double             hcPhaseSaturation,
+                              const double             hcPhaseDensity,
+                              const double             brineDensity,
+                              const double             porosity ) const;
 #endif
 
-   /// \brief Compute the capillary pressure for the phase.
-   ///
-   /// Units for permeability are m^2.
-   /// The critical temperature is not used at present and so can be set to the IBSNULLVALUE
-   double capillaryPressure ( const pvtFlash::PVTPhase phase,
-                              const Saturation         saturation,
-                              const double             temperature,
-                              const double             permeability,
-                              const double             brineDensity,
-                              const double             hcPhaseDensity,
-                              const double             criticalTemperature ) const;
-
-   /// \brief Compute the capillary entry pressure for the phase.
-   ///
-   /// Units for permeability are m^2.
-   /// The critical temperature is not used at present and so can be set to the IBSNULLVALUE.
-   double capillaryEntryPressure ( const pvtFlash::PVTPhase phase,
-                                   const double             temperature,
-                                   const double             permeability,
-                                   const double             brineDensity,
-                                   const double             hcPhaseDensity,
-                                   const double             criticalTemperature ) const;
 
    void setLithologyID ( const int id );
 
@@ -59,33 +49,13 @@ public :
    
 protected :
 
-   double brooksAndCoreyRelativePermeability ( const Saturation::Phase phase,
-                                               const Saturation&       saturation ) const;
-
-
-   double temisRelativePermeability ( const Saturation::Phase phase,
-                                      const double            saturation ) const;
-
-
-   double brooksAndCoreyCapillaryPressure ( const pvtFlash::PVTPhase phase,
-                                            const Saturation         saturation,
-                                            const double             temperature,
-                                            const double             permeability,
-                                            const double             brineDensity,
-                                            const double             hcPhaseDensity,
-                                            const double             criticalTemperature ) const;
-
-   double temisCapillaryPressure ( const pvtFlash::PVTPhase phase,
-                                   const double             saturation ) const;
+   double calculateTemisRelPerm ( const Saturation::Phase phase,
+                                  const double            saturation ) const;
 
 
    PVTPhaseValues m_contactAngle;
    PVTPhaseValues m_cosContactAngle;
    int            m_lithologyId;
-
-   double         m_cosHcWaterContactAngle;
-   double         m_cosHgAirContactAngle;
-   double         m_hgAirInterfacialTension;
 
 };
 

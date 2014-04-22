@@ -34,14 +34,10 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
 
    //for Pc - Kr models
    const std::string& pcKrModelStr = database::getPcKrModel(m_record);
-
-   if ( pcKrModelStr == "Brooks_Corey" ) {
-      m_pcKrModel = BROOKS_COREY_MODEL;
-   } else if ( pcKrModelStr == "Temis" ) {
-      m_pcKrModel = TEMIS_PACK_MODEL;
+    if ( pcKrModelStr == "Brooks_Corey" ) {
+      m_pcKrModel = BROOKS_COREY;
    } else {
-      std::cout << " Error in Pc-Kr modelm unknown model type:" << pcKrModelStr << ". Using Brooks and Corey as default value." << endl;
-      m_pcKrModel = BROOKS_COREY_MODEL;
+      std::cout << " Error in Pc-Kr model " << pcKrModelStr << endl;
       // Error
    }
 
@@ -222,34 +218,15 @@ PcKrModel  LithoType::getPcKrModel () const
    return m_pcKrModel;
 }
 
-double  LithoType::getWaterRelPermExponent () const
+double  LithoType::getExponentLambdaPc () const
 {
-   return database::getLambdaKrWater ( m_record );
+   return database::getLambdaPc ( m_record );
 }
 
-double  LithoType::getHcRelPermExponent () const
+double  LithoType::getExponentLambdaKr () const
 {
-   return database::getLambdaKr ( m_record );
+   return database::getLambdaKr ( m_record ); 
 }
-
-double  LithoType::getWaterCapPresExponent () const
-{
-   return database::getLambdaPcWater ( m_record ); 
-}
-
-double LithoType::getHcCapPresExponent () const
-{
-   return database::getLambdaPc ( m_record ); 
-}
-
-double LithoType::getResidualHcSaturation () const {
-   return database::getSor ( m_record );
-}
-
-double LithoType::getIrreducibleWaterSaturation () const {
-   return database::getSwi ( m_record );
-}
-
 
 double LithoType::getSpecificSurfArea () const {
    return database::getSpecSurfArea ( m_record );
