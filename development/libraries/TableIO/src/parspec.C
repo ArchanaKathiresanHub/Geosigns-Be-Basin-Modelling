@@ -654,16 +654,15 @@ int main (int argc, char **argv)
       {
          string fieldName = *fieldIter;
 
-         while (FieldIndices[fieldName] != 999 && index < FieldIndices[fieldName])
+         while (FieldIndices[fieldName] != 999 && index < FieldIndices[fieldName] && fieldList.end() - fieldIter > 1)
          {
             string lastName = fieldList.back ();
 
 #if DEBUG
             cerr << " ++++++ " << lastName << " (" << FieldIndices[lastName] << ")" << endl;
 #endif
-            fieldList.pop_back ();
-
-            fieldList.insert (fieldIter, lastName);
+            std::copy( fieldIter, fieldList.end() - 1, fieldIter + 1);
+            *fieldIter = lastName;
             index++;
             ++fieldIter;
          }
