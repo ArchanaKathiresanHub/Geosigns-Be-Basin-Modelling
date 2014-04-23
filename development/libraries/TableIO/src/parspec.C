@@ -661,7 +661,7 @@ int main (int argc, char **argv)
 #if DEBUG
             cerr << " ++++++ " << lastName << " (" << FieldIndices[lastName] << ")" << endl;
 #endif
-            std::copy( fieldIter, fieldList.end() - 1, fieldIter + 1);
+            std::copy_backward( fieldIter, fieldList.end() - 1, fieldList.end() );
             *fieldIter = lastName;
             index++;
             ++fieldIter;
