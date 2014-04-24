@@ -95,7 +95,9 @@ public:
 
    void destroyGINT ();
 
-   bool allocateNewVecs ( AppCtx* basinModel );
+   bool allocateNewVecs ( AppCtx* basinModel, const double Current_Time );
+
+   void initialiseTemperature( AppCtx* basinModel, const double Current_Time );
 
    double calcDiffDensity ( const unsigned int i, const unsigned int j ) const;
 

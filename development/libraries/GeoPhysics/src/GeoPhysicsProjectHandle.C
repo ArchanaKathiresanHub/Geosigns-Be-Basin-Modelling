@@ -1439,10 +1439,13 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
             age = currentAge;
             surfaceTemperatureMap->restoreData ();
          }
+         if( permafrostAges.empty() ) {
+            isPermafrost = false;
+         }
          if( isPermafrost && permafrostAges.back() != 0.0  ) {
-            permafrostAges.push_back( 0.0 );
+            permafrostAges.push_back( 0.0 ); 
             timeSteps.push_back ( 0.0 );
-        }
+         }
          if( permafrostAges.size() != 0 ) {
             std::reverse( permafrostAges.begin(), permafrostAges.end() );
             std::reverse( timeSteps.begin(), timeSteps.end() );

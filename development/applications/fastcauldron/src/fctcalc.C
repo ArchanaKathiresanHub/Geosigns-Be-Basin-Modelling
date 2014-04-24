@@ -212,7 +212,7 @@ bool FCTCalc::getGrid ( const double                    currentTime,
                 &M, &N, &P, &m, &n, &p,
                 PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
 
-    status &= Current_Layer -> allocateNewVecs ( cauldron );
+    status &= Current_Layer -> allocateNewVecs ( cauldron, currentTime );
 
     Layers++;
   }

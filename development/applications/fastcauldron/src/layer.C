@@ -616,9 +616,49 @@ void LayerProps::destroyGINT()
 //------------------------------------------------------------//
 
 #undef __FUNCT__  
+#define __FUNCT__ "LayerProps::initialiseTemperature"
+
+void LayerProps::initialiseTemperature ( AppCtx* basinModel, const double Current_Time ) {
+
+    int I, J, K;
+    int X_Start;
+    int Y_Start;
+    int Z_Start;
+    int X_Count;
+    int Y_Count;
+    int Z_Count;
+    
+    Previous_Properties.Activate_Property ( Basin_Modelling::Temperature );
+    Current_Properties.Activate_Property  ( Basin_Modelling::Temperature );
+
+    const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
+
+    DMDAGetCorners ( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+
+    for ( I = X_Start; I < X_Start + X_Count; I++ ) {
+       for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
+          if ( Valid_Needle ( I, J )) {
+             double Estimated_Temperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, Current_Time );
+             
+             for ( K = Z_Start + Z_Count - 1; K >=  Z_Start; K-- ) {
+                
+                Current_Properties ( Basin_Modelling::Temperature, K, J, I ) = Estimated_Temperature;
+                Previous_Properties ( Basin_Modelling::Temperature, K, J, I ) = Estimated_Temperature;
+             }
+          }
+       }
+    }
+   Previous_Properties.Restore_Property ( Basin_Modelling::Temperature );
+   Current_Properties.Restore_Property  ( Basin_Modelling::Temperature );
+
+}
+
+//------------------------------------------------------------//
+
+#undef __FUNCT__  
 #define __FUNCT__ "LayerProps::allocateNewVecs"
 
-bool LayerProps::allocateNewVecs ( AppCtx* basinModel ) {
+bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time ) {
 
   int ierr;
   int numberOfZNodes = getNrOfActiveElements() + 1;
@@ -666,8 +706,9 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel ) {
     createVec ( Ves );
     createVec ( Max_VES );
     createVec ( Temperature );
-    setVec(Temperature, Zero );
-    //    setVec(Temperature,CAULDRONIBSNULLVALUE);
+    //setVec(Temperature,CAULDRONIBSNULLVALUE);
+   
+
     setVec(Max_VES,Zero);
     setVec(Ves,Zero);
 
@@ -682,6 +723,7 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel ) {
     createVec ( Previous_Max_VES );
     createVec ( Previous_Temperature );
 
+    initialiseTemperature( basinModel, Current_Time );
 
 //     setVec ( Previous_Real_Thickness_Vector, Zero );
 //     setVec ( Previous_Solid_Thickness, Zero );

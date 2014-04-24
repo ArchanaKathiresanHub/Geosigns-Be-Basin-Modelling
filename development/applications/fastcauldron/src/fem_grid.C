@@ -1722,7 +1722,7 @@ void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previ
 
   while ( ! Pressure_Layers.Iteration_Is_Done ()) {
 
-    Pressure_Layers.Current_Layer ()->allocateNewVecs ( basinModel );
+     Pressure_Layers.Current_Layer ()->allocateNewVecs ( basinModel, Current_Time );
 
     Pressure_Layers++;
   }
@@ -1786,7 +1786,7 @@ void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double   
 
   while ( ! Layers.Iteration_Is_Done () ) 
   {
-    Layers.Current_Layer ()->allocateNewVecs ( basinModel );
+     Layers.Current_Layer ()->allocateNewVecs ( basinModel, Current_Time );
 
     Layers++;
   } 

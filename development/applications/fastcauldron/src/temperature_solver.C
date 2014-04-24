@@ -276,11 +276,15 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
 			      Crust_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
   PETSC_3D_Array Crust_Temperature( Crust_Layer -> layerDA, 
 				    Crust_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
+  PETSC_3D_Array Crust_Previous_Temperature( Crust_Layer -> layerDA, 
+                                             Crust_Layer -> Previous_Properties ( Basin_Modelling::Temperature ) );
 
   PETSC_3D_Array Mantle_Depth( Mantle_Layer -> layerDA, 
 			       Mantle_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
   PETSC_3D_Array Mantle_Temperature( Mantle_Layer -> layerDA, 
 				     Mantle_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
+  PETSC_3D_Array Mantle_Previous_Temperature( Mantle_Layer -> layerDA, 
+                                              Mantle_Layer -> Previous_Properties ( Basin_Modelling::Temperature ) );
 
 
   for ( I = X_Start; I < X_Start + X_Count; I++ ) {
@@ -297,11 +301,15 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
       Temperature_Polyfunction.AddPoint( Mantle_Depth( 0,J,I ), Top_Asthenospheric_Temperature );
 
       for ( K = 0; K < Crust_Z_Nodes; K++ ) {
-	Crust_Temperature( K,J,I ) = Temperature_Polyfunction.F( Crust_Depth( K,J,I ) );
+         const double estimatedTemperature =  Temperature_Polyfunction.F( Crust_Depth( K,J,I ) );
+         Crust_Temperature( K,J,I ) = estimatedTemperature;
+         Crust_Previous_Temperature( K,J,I ) = estimatedTemperature;
       }
 
       for ( K = 0; K < Mantle_Z_Nodes; K++ ) {
-	Mantle_Temperature( K,J,I ) = Temperature_Polyfunction.F( Mantle_Depth( K,J,I ) );
+         const double estimatedTemperature = Temperature_Polyfunction.F( Mantle_Depth( K,J,I ) );
+         Mantle_Temperature( K,J,I ) = estimatedTemperature;
+         Mantle_Previous_Temperature( K,J,I ) = estimatedTemperature;
       }
 
     }
@@ -1012,8 +1020,8 @@ void Temperature_Solver::Assemble_Residual ( const double  Previous_Time,
 				 INSERT_VALUES, IncludeGhosts );
 
     PETSC_3D_Array oldtemp (Current_Layer -> layerDA, 
-				 Current_Layer -> Previous_Properties ( Basin_Modelling::Temperature ),
-				 INSERT_VALUES, IncludeGhosts);
+                            Current_Layer -> Previous_Properties ( Basin_Modelling::Temperature ),
+                            INSERT_VALUES, IncludeGhosts);
 
 
     PETSC_3D_Array Layer_Previous_Ph ( Current_Layer -> layerDA, 

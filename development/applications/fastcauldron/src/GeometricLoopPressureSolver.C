@@ -547,6 +547,7 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
           layerPorosity       ( K, J, I ) = porosityTop;
           VES                 ( K, J, I ) = VESTop;
           intermediateMaxVES  ( K, J, I ) = maxVESTop;
+          layerTemperature    ( K, J, I ) = temperatureTop;
         }
 
         // Now compute the properties at the bottom of all active segments

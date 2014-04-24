@@ -506,7 +506,9 @@ void NonGeometricLoopPressureSolver::computeDependantPropertiesForLayer
           layerPorosity            ( K, J, I ) = porosityTop;
           layerVES                 ( K, J, I ) = VESValue;
           layerIntermediateMaxVES  ( K, J, I ) = maxVESTop;
-        }
+ 
+          layerTemperature    ( K, J, I ) = temperatureTop;
+       }
 
         for ( K = currentTopmostActiveSegment; K >= 0; K-- ) {
 
