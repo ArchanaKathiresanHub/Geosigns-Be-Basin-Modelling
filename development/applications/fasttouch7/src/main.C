@@ -67,19 +67,22 @@ PetscBool debug = PETSC_FALSE;
 static void SetUpTempMCRFolder()
 {
    std::stringstream oss;
-#ifdef _WIN32
-   const char * workingDir = GetCurrentDir( NULL, 0 );
-   oss << "MCR_CACHE_ROOT=" << workingDir << DIRDELIMCHAR << "mcrTemp_" << GetProcessID(); 
-#else
-   const char * workingDir = "/tmp/fasttouch7_";
-   oss << "MCR_CACHE_ROOT=" << workingDir << GetProcessID(); 
-#endif
+   oss << "MCR_CACHE_ROOT=";
 
+   const char * tmpDir = getenv( "TMPDIR" );
+   if ( tmpDir )
+   {
+      oss << tmpDir;
+   }
+   else
+   {
+      char * workingDir = GetCurrentDir( NULL, 0 );
+      oss << workingDir;
+      free( workingDir );
+   }
+
+   oss << DIRDELIMCHAR << "mcrTemp_" << GetProcessID(); 
    putenv( strdup( oss.str().c_str() ) );
-
-#ifdef _WIN32
-   free( workingDir );
-#endif
 }
 
 static int unlink_cb( const char * fpath, const struct stat * sb, int typeflag, struct FTW *ftwbuf )
@@ -89,10 +92,14 @@ static int unlink_cb( const char * fpath, const struct stat * sb, int typeflag, 
     return rv;
 }
 
-static int CleanTempMCRFolder()
+static void CleanTempMCRFolder()
 {
-   const char * path = getenv( "MCR_CACHE_ROOT" );
-   return nftw( path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS );
+   const char * tmpDir = getenv( "TMPDIR" );
+   if ( !tmpDir ) // clean MCR cache folder only in case if it is in current folder (no TMPDIR variable defined)
+   {
+      const char * path = getenv( "MCR_CACHE_ROOT" );
+      nftw( path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS );
+   }
 }
 //////////////////////////////////////////////////////////////////
 
