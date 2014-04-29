@@ -18,8 +18,6 @@
 #include "CauldronCalculator.h"
 #include "PressureSolver.h"
 
-#include "MatrixUnitTest.h"
-
 #include "LayerElement.h"
 #include "BoundaryId.h"
 #include "Subdomain.h"
@@ -395,9 +393,6 @@ namespace Basin_Modelling {
      /// These properties are recorded for each time step as soon as the node comes into existence.
      ///
      History     m_surfaceNodeHistory;
-
-     ElementVolumeGrid          m_domainElements;
-     LayerElementReferenceArray m_elementRefs;
 
   }; // end class FEM_Grid
 

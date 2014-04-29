@@ -1702,8 +1702,7 @@ void PressureSolver::setIterationsForIluFillLevelIncrease ( const int newIluFill
 //------------------------------------------------------------//
 
 void PressureSolver::setLayerElements ( const DM  femGrid,
-                                        const Vec dofNumbers,
-                                              LayerElementReferenceArray& elementRefs ) {
+                                        const Vec dofNumbers ) {
 
    const FastcauldronSimulator& fastcauldron = FastcauldronSimulator::getInstance ();
    const ElementGrid&           grid         = fastcauldron.getElementGrid ();
@@ -1754,8 +1753,6 @@ void PressureSolver::setLayerElements ( const DM  femGrid,
 
    topDof = zCount - 1;
 
-   elementRefs.fill ( 0 );
-
    while ( ! Layers.Iteration_Is_Done ()) {
 
       LayerProps* layer = Layers.Current_Layer ();
@@ -1775,7 +1772,6 @@ void PressureSolver::setLayerElements ( const DM  femGrid,
 
                   LayerElement& volumeElement = layer->getLayerElement ( i, j, k );
 
-                  elementRefs ( i, j, globalK ) = &layer->getLayerElement ( i, j, k );
                   volumeElement.setPosition ( globalK );
 
                   if ( mapElement.isOnProcessor ()) {
@@ -1844,7 +1840,6 @@ void PressureSolver::setLayerElements ( const DM  femGrid,
                for ( k = layer->getMaximumNumberOfElements () - 1; k >= 0; --k, --globalK ) {
                   LayerElement& volumeElement = layer->getLayerElement ( i, j, k );
 
-                  elementRefs ( i, j, globalK ) = &layer->getLayerElement ( i, j, k );
                   volumeElement.setIsActive ( false );
                   volumeElement.setPosition ( globalK );
                }

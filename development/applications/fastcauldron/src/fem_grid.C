@@ -95,10 +95,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   cauldronCalculator = new CauldronCalculator ( basinModel );
 
-  if ( basinModel->getUnitTestNumber () == 3 ) {
-     MatrixUnitTest::initialise ( Application_Context );
-  }
-
   if ( FastcauldronSimulator::getInstance ().getRunParameters ()->getNonGeometricLoop ()) {
      pressureSolver = new NonGeometricLoopPressureSolver ( basinModel );
   } else {
@@ -515,10 +511,6 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
   PetscPrintf ( PETSC_COMM_WORLD, "</statistics>\n");
   PetscSynchronizedFlush ( PETSC_COMM_WORLD );
 #endif
-
-  if ( basinModel->getUnitTestNumber () == 3 ) {
-     MatrixUnitTest::finalise ();
-  }
 
   delete cauldronCalculator;
   delete pressureSolver;
@@ -1750,14 +1742,6 @@ void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previ
 
   FastcauldronSimulator::DACreate3D ( Number_Of_Pressure_Z_Nodes, Pressure_FEM_Grid );
 
-  m_domainElements.construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
-                               Number_Of_Segments,
-                               NumberOfPVTComponents );
-
-#if 1
-  m_elementRefs.create ( m_domainElements.getDa ());
-#endif
-
   DMCreateGlobalVector ( Pressure_FEM_Grid, &Pressure_Depths );
   DMCreateGlobalVector ( Pressure_FEM_Grid, &Pressure_DOF_Numbers );
   DMCreateGlobalVector ( Pressure_FEM_Grid, &pressureNodeIncluded );
@@ -1874,8 +1858,7 @@ void Basin_Modelling::FEM_Grid::Construct_FEM_Grid ( const double               
 
   if ( basinModel -> DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
      pressureSolver->setLayerElements ( Pressure_FEM_Grid,
-                                        Pressure_DOF_Numbers,
-                                        m_elementRefs );
+                                        Pressure_DOF_Numbers );
   } 
 
 }
@@ -3081,18 +3064,6 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
     if ( hasDiverged ) {
       // One of the solvers has diverged and so we should exit the soupled solver as soon as possible.
       break;
-    }
-
-#if 0
-    // Try to get the matrix-unit test working with the subdomain.
-    // the problem is related to the element-activity and on-domain-boundary of neighbour elements.
-    if ( basinModel->getUnitTestNumber () == 3 ) {
-       MatrixUnitTest::getInstance ().solveForTimeStep ( Previous_Time, Current_Time );
-    }
-#endif
-
-    if ( basinModel->getUnitTestNumber () == 3 ) {
-       MatrixUnitTest::getInstance ().solveForTimeStep ( Previous_Time, Current_Time, m_domainElements, m_elementRefs );
     }
 
     if ( fabs (( Po_Norm - Previous_Po_Norm ) / Po_Norm ) < Pressure_Newton_Solver_Tolerance || 

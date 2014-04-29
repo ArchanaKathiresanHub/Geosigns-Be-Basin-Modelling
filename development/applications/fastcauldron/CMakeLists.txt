@@ -66,7 +66,6 @@ add_executable(fastcauldron
 	src/MantleFormation.C
 	src/mapinterpolator.C
 	src/MapElement.C
-	src/MatrixUnitTest.C
 	src/MaxVesCalculator.C
 	src/Mesh3DIndex.C
 	src/milestones.C

@@ -158,8 +158,7 @@ public :
                             const Boolean2DArray&  Valid_Needle );
 
    void setLayerElements ( const DM  femGrid,
-                           const Vec dofNumbers,
-                                 LayerElementReferenceArray& elementRefs );
+                           const Vec dofNumbers );
 
 
 protected :
