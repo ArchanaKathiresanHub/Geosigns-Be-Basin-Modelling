@@ -27,8 +27,17 @@ PermeabilityMudStone
    const double cutOff = 0.0;
    const double maxPerm = 1000.0;
    double val = 0.0;
-   
-   if ( ves > cutOff) 
+
+   // The reason for the check (ves > cutoff) is to prevent the possibility of a nan or an inf 
+   // being returned from this permeability function.
+   //
+   // It does not appear in the other permeability functions (e.g Sandstone permeability)
+   // because they do not depend directly on the ves. They are either a constant value
+   // (None or Impermeable) or depend on the porosity (Sandstone or Multipoint).
+   //
+   // The ves can be negative during the Newton solve for the pressure 
+   // this is a temporary occurence.
+   if ( ves >= cutOff) 
    {
      return std::min( maxPerm, shalePermeability (ves, maxVes) );
    } 
@@ -49,6 +58,15 @@ PermeabilityMudStone
    const double cutOff = 0.0;
    const double maxPerm = 1000.0;
 
+   // The reason for the check (ves >= cutoff) is to prevent the possibility of a nan or an inf 
+   // being returned from this permeability function.
+   //
+   // It does not appear in the other permeability functions (e.g Sandstone permeability)
+   // because they do not depend directly on the ves. They are either a constant value
+   // (None or Impermeable) or depend on the porosity (Sandstone or Multipoint).
+   //
+   // The ves can be negative during the Newton solve for the pressure 
+   // this is a temporary occurence.
    if (ves >= cutOff && ves0 <= maxVes )
    {
       shalePermeabilityAndDerivative(ves, maxVes, permeability, derivative);
