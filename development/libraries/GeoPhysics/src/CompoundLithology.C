@@ -1857,30 +1857,35 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    ++percentIter;
    
    while (m_lithoComponents.end() != componentIter)
+   {
+
+      // If the volume fraction of the current lithology is greater than
+      // the maximum volume fraction so far then use the exponents of the 
+      // current lithology.
+      if(percent < ((double)(*percentIter)/100))
       {
-         if(percent > ((double)(*percentIter)/100))
-            {
-               m_LambdaPc = (*componentIter)->getLambdaPc();
-               m_LambdaKr = (*componentIter)->getLambdaKr();
-               percent = (double)(*percentIter)/100;
-            }
-         //if percentage are equal, find smaller exponent
-         else if(percent == ((double)(*percentIter)/100))
-            {
-               
-               if((*componentIter)->getLambdaPc() < m_LambdaPc)
-                  {
-                     m_LambdaPc = (*componentIter)->getLambdaPc();
-                  }
-               if((*componentIter)->getLambdaKr() <  m_LambdaKr)
-                  {
-                     m_LambdaKr = (*componentIter)->getLambdaKr();
-                  }
-            }
-         
-         ++componentIter;
-         ++percentIter;
+         m_LambdaPc = (*componentIter)->getLambdaPc();
+         m_LambdaKr = (*componentIter)->getLambdaKr();
+         percent = (double)(*percentIter)/100;
       }
+      //if percentage are equal, find smaller exponent
+      else if(percent == ((double)(*percentIter)/100))
+      {
+               
+         if((*componentIter)->getLambdaPc() < m_LambdaPc)
+         {
+            m_LambdaPc = (*componentIter)->getLambdaPc();
+         }
+         if((*componentIter)->getLambdaKr() <  m_LambdaKr)
+         {
+            m_LambdaKr = (*componentIter)->getLambdaKr();
+         }
+
+      }
+         
+      ++componentIter;
+      ++percentIter;
+   }
 }
 
 //------------------------------------------------------------//
