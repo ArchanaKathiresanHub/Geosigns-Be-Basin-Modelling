@@ -35,8 +35,6 @@ using namespace DataAccess;
 #include "GenexResultManager.h"
 using namespace Genex6;
 
-bool H5_Parallel_PropertyList::s_oneFilePerProcess = false;
-std::string H5_Parallel_PropertyList::s_temporaryDirName = "";
 bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWriteOption );
 
 GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)

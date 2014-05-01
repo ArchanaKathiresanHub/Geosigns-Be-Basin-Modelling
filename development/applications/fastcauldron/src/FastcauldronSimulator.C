@@ -40,9 +40,6 @@
 
 bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWrite );
 
-bool H5_Parallel_PropertyList::s_oneFilePerProcess = false;
-std::string H5_Parallel_PropertyList::s_temporaryDirName = "";
-
 //------------------------------------------------------------//
 
 bool SnapshotRecordLess ( database::Record* left,
