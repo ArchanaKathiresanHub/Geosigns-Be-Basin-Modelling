@@ -1,4 +1,5 @@
 #include "FastcauldronSimulator.h"
+#include <sys/stat.h>
 
 #include <algorithm>
 #include <sstream>
@@ -37,6 +38,10 @@
 
 #include "MultiComponentFlowHandler.h"
 
+bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWrite );
+
+bool H5_Parallel_PropertyList::s_oneFilePerProcess = false;
+std::string H5_Parallel_PropertyList::s_temporaryDirName = "";
 
 //------------------------------------------------------------//
 
@@ -538,6 +543,8 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
    bool started;
    bool gridHasActiveElements;
 
+   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+ 
 #if 0
    cout << " calculation mode: " << CalculationModeImage [ mode ] << endl;
 #endif
@@ -591,6 +598,10 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
 
    }
 
+   if( not started ) {
+      PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR Could not open the output file.\n");    
+      return started;
+   }
    m_fastcauldronSimulator->setToConstantDensity ();
 
    // now that we have the calculation mode, we can initialise the property-constraints.
@@ -783,6 +794,51 @@ void FastcauldronSimulator::printSnapshotProperties () const {
 
 bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
    return m_cauldron->nodeIsDefined ( i, j );
+}
+
+//------------------------------------------------------------//
+
+bool FastcauldronSimulator::mergeOutputFiles ( ) {
+
+   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ) return true;
+ 
+   bool status = true;
+   PetscBool hasOption;
+   PetscOptionsHasName ( PETSC_NULL, "-overwrite", &hasOption );
+
+   const std::string& directoryName = getOutputDir ();
+   
+   if( m_calculationMode != HYDROSTATIC_DECOMPACTION_MODE && m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE &&
+       m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != NO_CALCULATION_MODE ) {
+
+      
+      database::Table::iterator timeTableIter;
+      database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
+      
+      assert ( snapshotTable != 0 );
+      
+      for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
+         
+         string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
+         
+         if ( snapshotFileName != "" ) {
+            string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
+            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::s_temporaryDirName, hasOption )) {
+               status = false;
+               PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+            }
+         }
+      }
+   }
+   string fileName = getActivityName () + "_Results.HDF" ; 
+   string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
+     
+   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::s_temporaryDirName, hasOption ) ) {
+      status = false;
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+   }
+   
+   return status;
 }
 
 //------------------------------------------------------------//
@@ -1400,15 +1456,16 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
       }
 
-      if ( getRank () == 0 ) {
-         const std::string fileName = getFullOutputDir () + "/" + (*snapshotIter)->getFileName ();
-         int status = std::remove( fileName.c_str ());
-
-         if (status == -1)
-      	    cerr << "MeSsAgE WARNING  Unable to remove minor snapshot file, because '" 
-               << std::strerror(errno) << "'" << endl;
-      }  
-
+      if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ) {
+         if ( getRank () == 0 ) {
+            const std::string fileName = getFullOutputDir () + "/" + (*snapshotIter)->getFileName ();
+            int status = std::remove( fileName.c_str ());
+            
+            if (status == -1)
+               cerr << "MeSsAgE WARNING  Unable to remove minor snapshot file, because '" 
+                    << std::strerror(errno) << "'" << endl;
+         }  
+      }
    }
 
    for ( recordsForDeletionIter = recordsForDeletion.begin (); recordsForDeletionIter != recordsForDeletion.end (); ++recordsForDeletionIter ) {
@@ -2020,4 +2077,25 @@ void FastcauldronSimulator::updateSourceRocksForDarcy () {
 
 }
 
+//------------------------------------------------------------//
+bool FastcauldronSimulator::makeOutputDir() const
+{
+   // Need to create output directory if it does not exist.
+
+   if( H5_Parallel_PropertyList::s_oneFilePerProcess ) {
+      
+      string temp_outputDir = H5_Parallel_PropertyList::s_temporaryDirName + "/" + ProjectHandle::getOutputDir();
+      
+#if defined(_WIN32) || defined (_WIN64)
+      int status = mkdir ( temp_outputDir.c_str() );
+#else
+      int status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
+#endif
+      if ( status != 0 and errno == ENOTDIR ) {
+         return false;
+      }
+   }
+   
+   return ProjectHandle::makeOutputDir();
+}
 //------------------------------------------------------------//

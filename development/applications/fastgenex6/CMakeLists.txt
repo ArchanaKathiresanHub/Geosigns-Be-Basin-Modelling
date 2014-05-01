@@ -32,6 +32,7 @@ bm_include_libraries(
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	genex6
 	genex6_kernel
@@ -47,6 +48,7 @@ target_link_libraries( fastgenex6
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	genex6
 	genex6_kernel

@@ -19,6 +19,8 @@ using namespace DataAccess;
 
 namespace GenexSimulation
 {
+   const string GenexActivityName = "Genex5";
+
    //! GenexSimulator Controls the execution of Generation and Expulsion simulation.
    /*! 
       Derives from Interface::ProjectHandle
@@ -47,6 +49,8 @@ namespace GenexSimulation
       /// Delete property values associated with generation and expulsion simulation
       void deleteSourceRockPropertyValues();
 
+      /// megre separate opuput files into a one
+      bool mergeOutputFiles ();
    protected:
 
       /// Sets the requested output properties according to Filter Time IO and fastmig requirements 
@@ -63,6 +67,7 @@ namespace GenexSimulation
       bool isPropertyRegistered(const string & propertyName);
 
    private:
+
       vector<string> m_registeredProperties;
       vector<string> m_shaleProperties;
       vector<string> m_requestedProperties;

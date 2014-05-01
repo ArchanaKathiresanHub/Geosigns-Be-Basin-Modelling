@@ -549,9 +549,9 @@ bool ProjectHandle::startActivity (const string & name, const Interface::Grid * 
    setActivityName (name);
    m_saveAsInputGrid = saveAsInputGrid;
 
-   initializeMapPropertyValuesWriter ();
+   bool status = initializeMapPropertyValuesWriter ();
 
-   return true;
+   return status;
 }
 
 bool ProjectHandle::abortActivity (void)
@@ -2629,11 +2629,11 @@ bool ProjectHandle::initializeMapPropertyValuesWriter (void)
    if (!makeOutputDir ()) return false;
 
    m_mapPropertyValuesWriter = getFactory ()->produceMapWriter();
-   m_mapPropertyValuesWriter->open (filePathName, false);
-
-   m_mapPropertyValuesWriter->saveDescription (saveAsInputGrid() ? getInputGrid () : getActivityOutputGrid ());
-
-   return true;
+   bool status = m_mapPropertyValuesWriter->open (filePathName, false);
+   if( status ) {
+     status = m_mapPropertyValuesWriter->saveDescription (saveAsInputGrid() ? getInputGrid () : getActivityOutputGrid ());
+   }
+   return status;
 }
 
 bool TimeIoTblSorter (database::Record * recordL,  database::Record * recordR);

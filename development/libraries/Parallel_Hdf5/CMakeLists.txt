@@ -19,6 +19,7 @@ if (BM_PARALLEL)
 
 	bm_include_libraries(
 		Serial_Hdf5
+		OneFilePerProcess
 		Utilities_Petsc
 	)
 
@@ -33,6 +34,7 @@ if (BM_PARALLEL)
 	target_link_libraries(Parallel_Hdf5 
 		Utilities_Petsc
 		Serial_Hdf5
+		OneFilePerProcess
 		${PETSC_LIBRARIES}
 		${MPI_LIBRARIES}
 	)

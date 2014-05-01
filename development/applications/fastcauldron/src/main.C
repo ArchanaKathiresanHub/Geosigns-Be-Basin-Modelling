@@ -376,7 +376,13 @@ int main(int argc, char** argv)
    } else {
      returnStatus = 0;
    }
+   
+    if( ! FastcauldronSimulator::getInstance ().mergeOutputFiles ()) {
+       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to merge output files\n");
 
+       returnStatus = 1;
+    }
+   
    StatisticsHandler::print ();
    FastcauldronSimulator::finalise ( solverHasConverged and ( appctx->saveOnDarcyError () or not errorInDarcy ));
    delete appctx;

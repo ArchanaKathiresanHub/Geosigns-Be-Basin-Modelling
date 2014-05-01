@@ -15,6 +15,8 @@
    using namespace std;
 #endif // sgi
 
+#include "h5_parallel_file_types.h"
+
 #include "GenexSimulator.h"
 #include "GenexSimulatorFactory.h"
 using namespace GenexSimulation;
@@ -178,6 +180,9 @@ int main (int argc, char ** argv)
       theGenexSimulator = GenexSimulator::CreateFrom (inputFileName);
       status = (theGenexSimulator != 0);
    }
+
+   H5_Parallel_PropertyList::setOneFilePerProcessOption();
+
    //delete existent properties
    if (status) {
       theGenexSimulator->deleteSourceRockPropertyValues();
@@ -202,7 +207,7 @@ int main (int argc, char ** argv)
    catch (...) {
       exit (1);
    }
-
+ 
    //save results
    if (status) status = theGenexSimulator->saveTo(outputFileName);
    

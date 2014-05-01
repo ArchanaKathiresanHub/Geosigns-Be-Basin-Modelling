@@ -17,7 +17,7 @@ class  FileHandler {
    friend herr_t readDataset ( hid_t groupId, const char* name, void * voidReader);
 
    // megre all files with the given name
-   friend bool mergeFiles( MPI_Comm comm, const std::string &fileName );
+   friend bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, const bool overWrite );
 
 public:
    FileHandler( MPI_Comm comm );

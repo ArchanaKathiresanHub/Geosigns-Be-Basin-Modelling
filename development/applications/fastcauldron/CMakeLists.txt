@@ -152,6 +152,7 @@ bm_include_libraries(
 	utilities
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack
 	Gempis_Utilities	
@@ -173,6 +174,7 @@ target_link_libraries(fastcauldron
 	utilities
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack
 	Gempis_Utilities	

@@ -22,6 +22,8 @@ using namespace database;
 #include "SourceRock.h"
 using namespace GenexSimulation;
 
+#include "h5_parallel_file_types.h"
+
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/SourceRock.h"
@@ -33,6 +35,9 @@ using namespace DataAccess;
 #include "GenexResultManager.h"
 using namespace Genex6;
 
+bool H5_Parallel_PropertyList::s_oneFilePerProcess = false;
+std::string H5_Parallel_PropertyList::s_temporaryDirName = "";
+bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWriteOption );
 
 GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)
    : Interface::ProjectHandle (database, name, accessMode)
@@ -63,7 +68,7 @@ bool GenexSimulator::saveTo(const std::string & outputFileName)
 
 bool GenexSimulator::run()
 {
-   bool started = startActivity ("Genex5", getLowResolutionOutputGrid ());
+   bool started = startActivity ( GenexActivityName, getLowResolutionOutputGrid () );
    
    if (!started) return false;
    
@@ -133,8 +138,15 @@ bool GenexSimulator::run()
          cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
       }
    }
-   
+
    finishActivity (); 
+
+   if( !mergeOutputFiles ()) {
+      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
+      
+      started = 0;
+   }   
+   
 
    if(started) {
       if(getRank() == 0) {    
@@ -338,3 +350,20 @@ void GenexSimulator::deleteSourceRockPropertyValues()
    }
 
 }
+
+bool GenexSimulator::mergeOutputFiles ( ) {
+
+   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ) return true;
+
+   string fileName = GenexActivityName + "_Results.HDF" ; 
+   string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
+
+   PetscBool hasOption;
+   PetscOptionsHasName ( PETSC_NULL, "-overwrite", &hasOption );
+   
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::s_temporaryDirName, hasOption );
+   
+   return status;
+}
+
+

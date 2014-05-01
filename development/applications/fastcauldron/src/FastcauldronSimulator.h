@@ -75,6 +75,11 @@ public :
    /// \b Must be called at end of calculation.
    static void finalise ( const bool saveResults );
 
+   /// Merge output files if nessecary
+   ///
+   /// \b Must be called at end of calculation.
+   bool mergeOutputFiles ( );
+
    /// \brief If required, the number of 
    void setFormationElementHeightScalingFactors ();
 
@@ -261,6 +266,10 @@ public :
    /// By default the constant 1.0e6 Pa is the capillary entry pressure.
    bool useCalculatedCapillaryPressure () const;
 
+   /// \brief Make temporary output directory (if defined)
+   ///
+   /// By default, use the current directory
+   bool makeOutputDir() const;
 private :
 
 

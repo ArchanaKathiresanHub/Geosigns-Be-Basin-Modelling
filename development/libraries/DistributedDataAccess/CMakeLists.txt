@@ -27,6 +27,7 @@ if (BM_PARALLEL)
 		DataAccess
 		Utilities_Petsc
 		Serial_Hdf5
+		OneFilePerProcess
 		Parallel_Hdf5
 		TableIO
 		utilities
@@ -40,6 +41,7 @@ if (BM_PARALLEL)
 		DataAccess 
 		Utilities_Petsc 
 		Serial_Hdf5 
+		OneFilePerProcess
 		Parallel_Hdf5
 		TableIO
 		utilities 

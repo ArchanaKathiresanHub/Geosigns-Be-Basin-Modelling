@@ -241,7 +241,7 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    return 0;
 }
 
-bool mergeFiles( MPI_Comm comm, const std::string &fileName ) {
+bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, const bool overWrite ) {
  
    FileHandler reader ( comm );
  
@@ -249,7 +249,10 @@ bool mergeFiles( MPI_Comm comm, const std::string &fileName ) {
  
    hid_t fileAccessPList = H5Pcreate(H5P_FILE_ACCESS);
 
-   H5Pset_fapl_ofpp ( fileAccessPList, comm, "{NAME}_{MPI_RANK}", 0 );  
+   std::stringstream tmpName;
+   tmpName << tempDirName << "/{NAME}_{MPI_RANK}";
+
+   H5Pset_fapl_ofpp ( fileAccessPList, comm, tmpName.str().c_str(), 0 );  
    
    reader.m_localFileId = H5Fopen( fileName.c_str(), H5F_ACC_RDONLY, fileAccessPList );
 
@@ -260,7 +263,11 @@ bool mergeFiles( MPI_Comm comm, const std::string &fileName ) {
    }
   
    if( reader.m_rank == 0 ) {
-      reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT ); 
+      if( overWrite ) {
+         reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT ); 
+      } else {
+         reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT ); 
+      }
 
       if( reader.m_globalFileId < 0 ) {
          status = 1; 
@@ -294,7 +301,7 @@ bool mergeFiles( MPI_Comm comm, const std::string &fileName ) {
    
    return true;
 }
-
+ 
 void FileHandler::setGlobalId( hid_t id ) {
    m_globalFileId = id;
 
