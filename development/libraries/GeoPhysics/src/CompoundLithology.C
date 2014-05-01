@@ -881,14 +881,10 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType*
    double MatrixDensXHeatCap = densityXheatcapacity(Temperature, LithoPressure);
    
    if (LithoHasFluid) {
-      
-      if( m_projectHandle->getPermafrost() ) {
-         double FluidDensXHeatCap = fluid->densXheatCapacity ( Porosity, Temperature, Pressure );
-         BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap;
-      } else {
-         double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature,Pressure);
-         BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
-      }        
+
+      double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature,Pressure, m_projectHandle->getPermafrost());
+      BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
+
    } else {
       //
       //

@@ -83,7 +83,7 @@ void GeoPhysics::FluidType::loadPropertyTables () {
 
       const Interface::FluidHeatCapacitySample * sample = *heatCapacitySampleIter;
 
-      heatCapacitytbl.addPoint ( sample->getTemperature (), sample->getPressure (), sample->getHeatCapacity ());
+      m_heatCapacitytbl.addPoint ( sample->getTemperature (), sample->getPressure (), sample->getHeatCapacity ());
    }
 
    for ( thermalConductivitySampleIter = thermalConductivitySamples->begin ();
@@ -92,7 +92,7 @@ void GeoPhysics::FluidType::loadPropertyTables () {
 
       const Interface::FluidThermalConductivitySample * sample = *thermalConductivitySampleIter;
 
-      thermalConductivitytbl.addPoint ( sample->getTemperature (), sample->getThermalConductivity ());
+      m_thermalConductivitytbl.addPoint ( sample->getTemperature (), sample->getThermalConductivity ());
    }
 
    // This table must be loaded before the density-x-heat-capacity is computed since it may be used in this calculation.
@@ -102,7 +102,7 @@ void GeoPhysics::FluidType::loadPropertyTables () {
 
       const Interface::FluidDensitySample * sample = *densitySampleIter;
 
-      densitytbl.addPoint ( sample->getTemperature (), sample->getPressure (), sample->getDensity ());
+      m_densitytbl.addPoint ( sample->getTemperature (), sample->getPressure (), sample->getDensity ());
    }
 
    // Would it be better to use the density that will used in the computation?
@@ -115,7 +115,7 @@ void GeoPhysics::FluidType::loadPropertyTables () {
       const double temperature = sample->getTemperature ();
       const double pressure    = sample->getPressure ();
 
-      densXheatCapacitytbl.addPoint ( temperature, pressure, sample->getHeatCapacity () * densityFromTable ( temperature, pressure ));
+      m_densXheatCapacitytbl.addPoint ( temperature, pressure, sample->getHeatCapacity () * densityFromTable ( temperature, pressure ));
    }
 
    // Load data for permafrost modelling
@@ -188,7 +188,7 @@ double GeoPhysics::FluidType::density ( const double temperature, const double p
 }
 
 double GeoPhysics::FluidType::densityFromTable ( const double temperature, const double pressure ) const {
-   return densitytbl.compute ( temperature, pressure );
+   return m_densitytbl.compute ( temperature, pressure );
 }
 
 void GeoPhysics::FluidType::correctSimpleDensity ( const double standardDepth,
@@ -260,59 +260,62 @@ double GeoPhysics::FluidType::thermalConductivity ( const double temperature, co
          const double theta = computeTheta ( temperature, liquidusTemperature );
          
          return pow ( m_iceThermalConductivityInterpolator.evaluate ( temperature ), 1.0 - theta ) *
-            pow ( thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant ), theta );
+            pow ( m_thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant ), theta );
       } 
    }
-   return thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant );
+   return m_thermalConductivitytbl.compute ( temperature, ibs::Interpolator::constant );
 }
 
 double GeoPhysics::FluidType::heatCapacity ( const double temperature,
                                              const double pressure ) const {
 
-   return heatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
+   return m_heatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
 }
 
 double GeoPhysics::FluidType::densXheatCapacity ( const double temperature,
-                                                  const double pressure ) const {
+                                                  const double pressure,
+                                                  bool includePermafrost ) const {
 
-   return densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
-}
+   // Lookup the volumetric heat capacity (VHC) of water. 
+   const double waterVHC = m_densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
+ 
+   if( includePermafrost ) {
 
-double GeoPhysics::FluidType::densXheatCapacity ( const double porosity,
-                                                  const double temperature,
-                                                  const double pressure ) const {
-   double result;
-  
-   if( m_projectHandle->getPermafrost() ) {
-
+      // Determine the freezing temperature
       const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
+      
+      // When there is no ice, there is only water: return the VHC of water
+      if (temperature > liquidusTemperature)
+         return waterVHC;
 
-      if( temperature < liquidusTemperature ) {
-         const double solidusTemperature  = getSolidusTemperature( liquidusTemperature );
-         
-         if ( temperature <= solidusTemperature ) {
-            result = porosity * solidDensityTimesHeatCapacity ( temperature );
-         } else {
-            static const double WaterSpecificLatentHeat = 333600.0; // J/kg
-            const double theta = computeTheta ( temperature, liquidusTemperature );
-            const double thetaTL = 1.0; // computeTheta ( liquidusTemperature, liquidusTemperature );
-            const double thetaTS = computeTheta ( solidusTemperature, liquidusTemperature );
-            const double liquidFraction = porosity * theta;
-            const double solidFraction  = porosity * ( 1.0 - theta );
-            
-            const double liquidusDensityTimesHeatCapacity = densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
-            const double solidusDensityTimesHeatCapacity = solidDensityTimesHeatCapacity ( temperature );
-            
-            const double latentHeatTerm = m_iceDensityInterpolator.evaluate ( temperature ) * WaterSpecificLatentHeat * porosity * 
-               ( 1.0 - thetaTL - ( 1.0 -  thetaTS )) / ( liquidusTemperature - solidusTemperature );
-            result = liquidFraction * liquidusDensityTimesHeatCapacity + solidFraction * solidusDensityTimesHeatCapacity - latentHeatTerm;
-         }
-         return result;
-      }
+      assert( temperature <= liquidusTemperature );
+
+      // Compute the volumetric heat capacity  of ice
+      const double iceVHC = solidDensityTimesHeatCapacity ( temperature );
+
+      // Compute theta: the fraction of the water that is in liquid phase
+      const double theta = computeTheta ( temperature, liquidusTemperature );
+      const double waterFraction = theta;
+      const double iceFraction  = 1.0 - theta;
+
+      // compute the derivative of the ice fraction w.r.t. to temperature
+      const double dThetaDT = computeThetaDerivative ( temperature, liquidusTemperature );
+      const double iceFractionDerivative = - dThetaDT;
+
+      // now we can compute the latent heat term
+      static const double WaterSpecificLatentHeat = 333600.0; // J/kg
+      const double iceDensity = m_iceDensityInterpolator.evaluate ( temperature ) ;
+      const double latentHeatTerm = iceDensity * WaterSpecificLatentHeat * iceFractionDerivative;
+      assert( latentHeatTerm <= 0.0 );
+
+      // return the volumetric heat capacity of the mixture minus the latent heat term
+      return waterFraction * waterVHC + iceFraction * iceVHC - latentHeatTerm;
    } 
-   result = porosity * densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
-
-   return result;
+   else
+   {
+      // return just the volumetric heat capacity of water
+      return  waterVHC;
+   }
 }
 
 double GeoPhysics::FluidType::seismicVelocity ( const double temperature,
@@ -502,6 +505,16 @@ double GeoPhysics::FluidType::computeTheta ( const double temperature, const dou
       return exp ( -temp * temp );
    } else {
       return 1.0;
+   }
+}
+
+double GeoPhysics::FluidType::computeThetaDerivative ( const double temperature, const double liquidusTemperature ) const {
+
+   if ( temperature < liquidusTemperature ) { 
+      const double temp = ( temperature - liquidusTemperature ) / m_omega; // not necessarily divide by m_omega ( = 1.0 )
+      return -2.0 * temp / m_omega * exp ( -temp * temp );
+   } else {
+      return 0;
    }
 }
 

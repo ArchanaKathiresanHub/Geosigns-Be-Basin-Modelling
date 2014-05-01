@@ -116,13 +116,8 @@ namespace GeoPhysics {
       /// Compute the heat-capacity.
       double heatCapacity ( const double temperature, const double pressure ) const;
 
-      /// Compute the density x heat-capacity.
-      double densXheatCapacity ( const double temperature, const double pressure ) const;
-
-      /// Compute the density x heat-capacity.
-      double densXheatCapacity ( const double porosity,
-                                 const double temperature,
-                                 const double pressure ) const;
+      /// Compute the density x heat-capacity, also known as the Volumetric Heat Capacity.
+      double densXheatCapacity ( const double temperature, const double pressure, bool includePermafrost = false ) const;
 
       /// Compute the seismic velocity.
       double seismicVelocity ( const double temperature, const double pressure ) const;
@@ -163,23 +158,23 @@ namespace GeoPhysics {
       /// The interpolator for the fluid-thermal-conductivity table.
       ///
       /// It depends only on temperature.
-      mutable ibs::Interpolator     thermalConductivitytbl;
+      mutable ibs::Interpolator     m_thermalConductivitytbl;
 
       /// The interpolator for the fluid-density table.
       ///
       /// It depends on both temperature and pressure.
-      mutable ibs::Interpolator2d   densitytbl;
+      mutable ibs::Interpolator2d   m_densitytbl;
 
       /// The interpolator for the fluid-heat-capacity table.
       ///
       /// It depends on both temperature and pressure.
-      mutable ibs::Interpolator2d   heatCapacitytbl;
+      mutable ibs::Interpolator2d   m_heatCapacitytbl;
 
       /// The interpolator for the fluid-density-x-heat-capacity table.
       ///
       /// It depends on both temperature and pressure. It is computed from the 
       /// heat-capacity-table and the fluid-density table NOT the fluid-density function.
-      mutable ibs::Interpolator2d   densXheatCapacitytbl;
+      mutable ibs::Interpolator2d   m_densXheatCapacitytbl;
 
       /// Which calculation model to use for the seismic velocity.
       DataAccess::Interface::CalculationModel m_seismicVelocityCalculationModel;
@@ -201,10 +196,17 @@ namespace GeoPhysics {
 
       double solidDensityTimesHeatCapacity ( const double temperature ) const;
 
+      /// Compute the fraction of water as opposed to ice in the pore space.
       double computeTheta ( const double temperature, const double liquidusTemperature ) const;
 
+      /// Compute the derivate of the Theta with respect to Temperature. Theta is the fraction of water
+      /// as opposed to ice in the pore space.
+      double computeThetaDerivative ( const double temperature, const double liquidusTemperature ) const;
+
+      /// Compute the temperature below which water starts to freeze.
       double getLiquidusTemperature ( const double temperature, const double pressure ) const;
 
+      /// Compute the temperature at which 99% of the water has turned into ice.
       double getSolidusTemperature ( const double liquidusTemperature ) const;
 
       /// Compute the salinity.
