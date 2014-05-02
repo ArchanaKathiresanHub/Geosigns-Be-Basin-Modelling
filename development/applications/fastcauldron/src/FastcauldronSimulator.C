@@ -797,7 +797,7 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 
 bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ) return true;
+   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ||  m_fastcauldronSimulator->getModellingMode () == Interface::MODE1D ) return true;
  
    bool status = true;
    PetscBool hasOption;
@@ -818,7 +818,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          
          string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
          
-         if ( snapshotFileName != "" ) {
+         if ( !snapshotFileName.empty() ) {
             string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
             if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::s_temporaryDirName, hasOption )) {
                status = false;
