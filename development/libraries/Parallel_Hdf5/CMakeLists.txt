@@ -14,6 +14,7 @@ if (BM_PARALLEL)
 
 	add_library( Parallel_Hdf5 
 		src/h5_vector_conversions.C
+		src/h5_parallel_file_types.C
 		src/petscvector_readwrite.C
 	)
 

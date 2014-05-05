@@ -797,7 +797,11 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 
 bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ||  m_fastcauldronSimulator->getModellingMode () == Interface::MODE1D ) return true;
+   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ||  m_fastcauldronSimulator->getModellingMode () == Interface::MODE1D  ||
+       m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
+
+      return true;
+   }
  
    bool status = true;
    PetscBool hasOption;
@@ -805,8 +809,8 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
    const std::string& directoryName = getOutputDir ();
    
-   if( m_calculationMode != HYDROSTATIC_DECOMPACTION_MODE && m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE &&
-       m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != NO_CALCULATION_MODE ) {
+   if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
+        m_calculationMode != NO_CALCULATION_MODE ) {
 
       
       database::Table::iterator timeTableIter;

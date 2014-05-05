@@ -59,9 +59,6 @@ struct MapFileCache {
     int depth;
 };
 
-bool H5_Parallel_PropertyList::s_oneFilePerProcess = false;
-std::string H5_Parallel_PropertyList::s_temporaryDirName = "";
-
 void ProjectHandle::mapFileCacheConstructor (void)
 {
     m_mapFileCache = new struct MapFileCache [4];
