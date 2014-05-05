@@ -15,36 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="qtservice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SceneExaminer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BpaServiceListener.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BpaRenderAreaListener.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TestMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderService.cpp">
+    <ClCompile Include="qtservice_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SceneExaminer.h">
+    <ClInclude Include="qtservice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BpaServiceListener.h">
+    <ClInclude Include="qtservice_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BpaRenderAreaListener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderService.h">
+    <ClInclude Include="qtservice.moc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

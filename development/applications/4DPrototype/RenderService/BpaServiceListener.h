@@ -6,15 +6,18 @@
 
 class BpaRenderAreaListener;
 class SceneGraph;
+//class Device;
+class RenderService;
 
 using namespace RemoteViz::Rendering;
 
 class BpaServiceListener : public ServiceListener
 {
+  RenderService* m_renderService;
 
 public:
 
-	BpaServiceListener();
+	explicit BpaServiceListener(RenderService* renderService=0);
 
 	~BpaServiceListener();
 

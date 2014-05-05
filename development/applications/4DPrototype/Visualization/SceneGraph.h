@@ -59,6 +59,7 @@ public:
   };
 
   static void initClass();
+  static void exitClass();
 
   SnapshotNode();
 
@@ -142,6 +143,8 @@ public:
 
   static void initClass();
 
+  static void exitClass();
+
   SceneGraph();
 
   ~SceneGraph();
@@ -186,5 +189,6 @@ public:
 };
 
 VISUALIZATIONDLL_API void BpaVizInit();
+VISUALIZATIONDLL_API void BpaVizFinish();
 
 #endif

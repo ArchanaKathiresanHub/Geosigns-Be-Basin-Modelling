@@ -8,20 +8,9 @@
 #include <RemoteViz/Rendering/Service.h>
 #include <RemoteViz/Rendering/ServiceSettings.h>
 
-#include <iostream>
-
-using namespace RemoteViz::Rendering;
-
-//#define COMPILE_AS_SERVICE
-
-int main(int argc, char* argv[])
+void RenderService::start()
 {
-#ifdef COMPILE_AS_SERVICE
-
-  RenderService service(argc, argv);
-  return service.exec();
-
-#else
+  logMessage("Starting RenderService", QtServiceBase::Information);
 
   MoMeshViz::init();
   BpaVizInit();
@@ -31,26 +20,43 @@ int main(int argc, char* argv[])
 	settings.setPort(8081);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
-	BpaServiceListener serviceListener;
-	Service::instance()->addListener(&serviceListener);
+	BpaServiceListener* serviceListener = new BpaServiceListener(this);
+	Service::instance()->addListener(serviceListener);
 
 	// Open the service by using the settings
 	Service::instance()->open(&settings);
 
-	std::cout << "The BPA RenderService is running. Press Enter to stop." << std::endl;
+  logMessage("RenderService started", QtServiceBase::Information);
+}
 
-	//wait, until 'Enter' is pressed.
-	std::string line;
-	std::getline(std::cin, line);
+void RenderService::stop()
+{
+  logMessage("Stopping RenderService", QtServiceBase::Information);
 
 	// Close the service
 	Service::instance()->close();
 
   BpaVizFinish();
   MoMeshViz::finish();
-
-	return 0;
-
-#endif
 }
 
+void RenderService::pause()
+{
+}
+
+void RenderService::resume()
+{
+}
+
+void RenderService::processCommand(int code)
+{
+}
+
+RenderService::RenderService(int argc, char** argv)
+  : QtService(argc, argv, "RenderService")
+{
+}
+
+RenderService::~RenderService()
+{
+}

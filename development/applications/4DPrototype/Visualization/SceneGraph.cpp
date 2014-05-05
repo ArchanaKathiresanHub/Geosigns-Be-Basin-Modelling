@@ -42,8 +42,8 @@
 
 namespace di = DataAccess::Interface; 
 
-#define PRE_EXTRACT
-#define CUSTOM_EXTRACTION
+//#define PRE_EXTRACT
+//#define CUSTOM_EXTRACTION
 
 SbPlane getDefaultPlane()
 {
@@ -56,6 +56,11 @@ SO_NODE_SOURCE(SnapshotNode);
 void SnapshotNode::initClass()
 {
   SO_NODE_INIT_CLASS(SnapshotNode, SoSeparator, "Separator");
+}
+
+void SnapshotNode::exitClass()
+{
+  SO__NODE_EXIT_CLASS(SnapshotNode);
 }
 
 SnapshotNode::SnapshotNode()
@@ -208,6 +213,11 @@ SO_NODE_SOURCE(SceneGraph);
 void SceneGraph::initClass()
 {
   SO_NODE_INIT_CLASS(SceneGraph, SoGroup, "Group");
+}
+
+void SceneGraph::exitClass()
+{
+  SO__NODE_EXIT_CLASS(SceneGraph);
 }
 
 void SceneGraph::createFilterNode()
@@ -580,4 +590,10 @@ void BpaVizInit()
 {
   SnapshotNode::initClass();
   SceneGraph::initClass();
+}
+
+void BpaVizFinish()
+{
+  SnapshotNode::exitClass();
+  SceneGraph::exitClass();
 }

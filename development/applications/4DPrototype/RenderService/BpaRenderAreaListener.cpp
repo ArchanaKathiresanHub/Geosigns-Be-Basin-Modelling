@@ -42,7 +42,7 @@ void BpaRenderAreaListener::createSceneGraph()
 
   const char* filename = "C:/Users/Serge.Van-Der-Ree/Downloads/output_cauldron/Project.project3d";
   //const char* filename = "V:/Data/output_cauldron/Project.project3d";
-
+  //const char* filename = "C:\\bpa\\data\\output_cauldron\\Project.project3d";
   m_handle.reset(di::OpenCauldronProject(filename, "r"));
 
   SceneGraph* sceneGraph = new SceneGraph;
@@ -50,8 +50,12 @@ void BpaRenderAreaListener::createSceneGraph()
   sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
   m_sceneGraph = sceneGraph;
 
-	m_examiner = new SceneExaminer();
-	m_examiner->addChild(new SoGradientBackground());
+  SoGradientBackground* background = new SoGradientBackground;
+  background->color0 = SbColor(.1f, .1f, .2f);
+  background->color1 = SbColor(.2f, .2f, .5f);
+
+  m_examiner = new SceneExaminer();
+  m_examiner->addChild(background);
 	m_examiner->addChild(m_sceneGraph);
 
 	// Apply the sceneExaminer node as renderArea scene graph
