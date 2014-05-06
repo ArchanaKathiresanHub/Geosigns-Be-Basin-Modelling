@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "GLInfoDialog.h"
 #include <Visualization/SceneGraph.h>
 
 #include "Interface/ProjectHandle.h"
@@ -163,6 +164,8 @@ void MainWindow::connectSignals()
 {
   connect(m_ui.action_Open, SIGNAL(triggered()), this, SLOT(onActionOpenTriggered()));
   connect(m_ui.action_RenderAllSnapshots, SIGNAL(triggered()), this, SLOT(onActionRenderAllSnapshotsTriggered()));
+  connect(m_ui.action_OpenGLInfo, SIGNAL(triggered()), this, SLOT(onShowGLInfo()));
+
   connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
   connect(m_ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
   connect(m_ui.sliderSliceI, SIGNAL(valueChanged(int)), this, SLOT(onSliceIValueChanged(int)));
@@ -320,6 +323,12 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
       m_sceneGraph->setProperty(prop);
     }
   }
+}
+
+void MainWindow::onShowGLInfo()
+{
+  GLInfoDialog dlg(this);
+  dlg.exec();
 }
 
 MainWindow::MainWindow()

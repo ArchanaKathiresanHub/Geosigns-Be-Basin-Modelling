@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Mon 17. Mar 14:12:04 2014
+** Created: Tue 6. May 10:42:39 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -41,6 +41,7 @@ public:
     QAction *action_Open;
     QAction *action_Quit;
     QAction *action_RenderAllSnapshots;
+    QAction *action_OpenGLInfo;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_3;
     QSplitter *splitter;
@@ -92,6 +93,7 @@ public:
     QMenuBar *menubar;
     QMenu *menu_File;
     QMenu *menuTest;
+    QMenu *menuHelp;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -105,6 +107,8 @@ public:
         action_Quit->setObjectName(QString::fromUtf8("action_Quit"));
         action_RenderAllSnapshots = new QAction(MainWindow);
         action_RenderAllSnapshots->setObjectName(QString::fromUtf8("action_RenderAllSnapshots"));
+        action_OpenGLInfo = new QAction(MainWindow);
+        action_OpenGLInfo->setObjectName(QString::fromUtf8("action_OpenGLInfo"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_3 = new QHBoxLayout(centralwidget);
@@ -367,6 +371,8 @@ public:
         menu_File->setObjectName(QString::fromUtf8("menu_File"));
         menuTest = new QMenu(menubar);
         menuTest->setObjectName(QString::fromUtf8("menuTest"));
+        menuHelp = new QMenu(menubar);
+        menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -374,10 +380,12 @@ public:
 
         menubar->addAction(menu_File->menuAction());
         menubar->addAction(menuTest->menuAction());
+        menubar->addAction(menuHelp->menuAction());
         menu_File->addAction(action_Open);
         menu_File->addSeparator();
         menu_File->addAction(action_Quit);
         menuTest->addAction(action_RenderAllSnapshots);
+        menuHelp->addAction(action_OpenGLInfo);
 
         retranslateUi(MainWindow);
 
@@ -390,6 +398,7 @@ public:
         action_Open->setText(QApplication::translate("MainWindow", "&Open...", 0, QApplication::UnicodeUTF8));
         action_Quit->setText(QApplication::translate("MainWindow", "&Quit", 0, QApplication::UnicodeUTF8));
         action_RenderAllSnapshots->setText(QApplication::translate("MainWindow", "Render all snapshots", 0, QApplication::UnicodeUTF8));
+        action_OpenGLInfo->setText(QApplication::translate("MainWindow", "OpenGL Info", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Mesh", 0, QApplication::UnicodeUTF8));
         radioButtonFormations->setText(QApplication::translate("MainWindow", "Formations", 0, QApplication::UnicodeUTF8));
@@ -415,6 +424,7 @@ public:
         label_8->setText(QApplication::translate("MainWindow", "Time", 0, QApplication::UnicodeUTF8));
         menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         menuTest->setTitle(QApplication::translate("MainWindow", "Test", 0, QApplication::UnicodeUTF8));
+        menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

@@ -62,6 +62,8 @@ private slots:
 
   void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 
+  void onShowGLInfo();
+
 public:
 
 	MainWindow();

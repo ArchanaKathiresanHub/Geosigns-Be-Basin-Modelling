@@ -117,11 +117,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GLInfoDialog.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MainWindow.moc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GLInfoDialog.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="MainWindow.ui.h" />
   </ItemGroup>

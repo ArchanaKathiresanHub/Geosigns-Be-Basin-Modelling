@@ -455,8 +455,10 @@ SceneGraph::~SceneGraph()
 
 }
 
-void SceneGraph::setup(di::ProjectHandle* handle)
+void SceneGraph::setup(di::ProjectHandle* handle, int subdivision)
 {
+  m_subdivision = subdivision;
+
   const di::Grid* loresGrid = handle->getLowResolutionOutputGrid();
   const di::Grid* hiresGrid = handle->getHighResolutionOutputGrid();
 

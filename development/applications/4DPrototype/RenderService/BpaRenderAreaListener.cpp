@@ -40,9 +40,9 @@ void BpaRenderAreaListener::createSceneGraph()
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  const char* filename = "C:/Users/Serge.Van-Der-Ree/Downloads/output_cauldron/Project.project3d";
+  //const char* filename = "C:/Users/Serge.Van-Der-Ree/Downloads/output_cauldron/Project.project3d";
   //const char* filename = "V:/Data/output_cauldron/Project.project3d";
-  //const char* filename = "C:\\bpa\\data\\output_cauldron\\Project.project3d";
+  const char* filename = "C:\\bpa\\data\\output_cauldron\\Project.project3d";
   m_handle.reset(di::OpenCauldronProject(filename, "r"));
 
   SceneGraph* sceneGraph = new SceneGraph;

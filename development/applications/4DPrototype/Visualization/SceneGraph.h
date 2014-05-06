@@ -101,6 +101,8 @@ private:
 
   SO_NODE_HEADER(SceneGraph);
 
+  int               m_subdivision;
+
   SoScale*          m_verticalScale;
   SoSwitch*         m_cellFilterSwitch;
   MoCellFilter*     m_cellFilter;
@@ -149,7 +151,7 @@ public:
 
   ~SceneGraph();
     
-  void setup(DataAccess::Interface::ProjectHandle* handle);
+  void setup(DataAccess::Interface::ProjectHandle* handle, int subdivision=1);
 
   void setProperty(const DataAccess::Interface::Property* prop);
 
