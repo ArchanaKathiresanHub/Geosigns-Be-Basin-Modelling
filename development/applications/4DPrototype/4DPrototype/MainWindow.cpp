@@ -43,8 +43,9 @@ void MainWindow::loadProject(const QString& filename)
 
   m_projectHandle = di::OpenCauldronProject(filename.toStdString(), "r");
 
+  const size_t subdiv = 2;
   m_sceneGraph = new SceneGraph;
-  m_sceneGraph->setup(m_projectHandle);
+  m_sceneGraph->setup(m_projectHandle, subdiv);
   m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;
 
   m_ui.renderWidget->getViewer()->setSceneGraph(m_sceneGraph);
@@ -132,31 +133,28 @@ void MainWindow::updateUI()
   m_ui.treeWidget->addTopLevelItem(reservoirsItem);
   m_ui.treeWidget->addTopLevelItem(propertiesItem);
 
-  const di::Grid* loResGrid = m_projectHandle->getLowResolutionOutputGrid();
-  const di::Grid* hiResGrid = m_projectHandle->getHighResolutionOutputGrid();
-
   m_dimensionsLabel->setText(QString("Dimensions: %1x%2 / %3x%4")
-    .arg(loResGrid->numI())
-    .arg(loResGrid->numJ())
-    .arg(hiResGrid->numI())
-    .arg(hiResGrid->numJ()));
+    .arg(m_sceneGraph->numI())
+    .arg(m_sceneGraph->numJ())
+    .arg(m_sceneGraph->numIHiRes())
+    .arg(m_sceneGraph->numJHiRes()));
 
-  const di::Grid* grid = loResGrid;
-  m_ui.sliderSliceI->setMaximum(grid->numI() - 1);
-  m_ui.sliderSliceJ->setMaximum(grid->numJ() - 1);
+  //const di::Grid* grid = loResGrid;
+  m_ui.sliderSliceI->setMaximum(m_sceneGraph->numI() - 1);
+  m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJ() - 1);
 
-  m_ui.sliderMinI->setMaximum(grid->numI() - 1);
-  m_ui.sliderMaxI->setMaximum(grid->numI() - 1);
-  m_ui.sliderMinJ->setMaximum(grid->numJ() - 1);
-  m_ui.sliderMaxJ->setMaximum(grid->numJ() - 1);
+  m_ui.sliderMinI->setMaximum(m_sceneGraph->numI() - 1);
+  m_ui.sliderMaxI->setMaximum(m_sceneGraph->numI() - 1);
+  m_ui.sliderMinJ->setMaximum(m_sceneGraph->numJ() - 1);
+  m_ui.sliderMaxJ->setMaximum(m_sceneGraph->numJ() - 1);
   m_ui.sliderMinK->setMaximum(10);
   m_ui.sliderMaxK->setMaximum(10);
 
   m_ui.sliderMinI->setValue(0);
   m_ui.sliderMinJ->setValue(0);
   m_ui.sliderMinK->setValue(0);
-  m_ui.sliderMaxI->setValue(grid->numI() - 1);
-  m_ui.sliderMaxJ->setValue(grid->numJ() - 1);
+  m_ui.sliderMaxI->setValue(m_sceneGraph->numI() - 1);
+  m_ui.sliderMaxJ->setValue(m_sceneGraph->numJ() - 1);
   m_ui.sliderMaxK->setValue(10); //NOOOOOOO no hardcoded values !!!1!1
 }
 

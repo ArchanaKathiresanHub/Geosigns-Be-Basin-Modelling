@@ -37,6 +37,8 @@ class VISUALIZATIONDLL_API SnapshotNode : public SoSeparator
 
   const DataAccess::Interface::Snapshot* m_snapshot;
 
+  size_t m_subdivision;
+
   MoMesh*             m_mesh;
   MoScalarSetI*       m_scalarSet;
   MoMeshSkin*         m_skin;
@@ -67,7 +69,8 @@ public:
     const DataAccess::Interface::Snapshot* snapshot, 
     std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues,
     bool hires,
-    Extractor& extractor);
+    Extractor& extractor,
+    size_t subdivision=1);
 
   const DataAccess::Interface::Snapshot* getSnapShot() const;
 
@@ -101,7 +104,7 @@ private:
 
   SO_NODE_HEADER(SceneGraph);
 
-  int               m_subdivision;
+  size_t            m_subdivision;
 
   SoScale*          m_verticalScale;
   SoSwitch*         m_cellFilterSwitch;
@@ -151,7 +154,7 @@ public:
 
   ~SceneGraph();
     
-  void setup(DataAccess::Interface::ProjectHandle* handle, int subdivision=1);
+  void setup(DataAccess::Interface::ProjectHandle* handle, size_t subdivision=1);
 
   void setProperty(const DataAccess::Interface::Property* prop);
 

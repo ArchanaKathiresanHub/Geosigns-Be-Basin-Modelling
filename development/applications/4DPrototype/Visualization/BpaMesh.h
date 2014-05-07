@@ -36,6 +36,8 @@ class BpaGeometry : public MiGeometryI
   std::vector<DataAccess::Interface::GridMap*> m_gridMaps;
   std::vector<GridMapKPair> m_gridMapKs;
 
+  size_t m_subdivision;
+
   size_t m_numI;
   size_t m_numJ;
   size_t m_numK;
@@ -52,7 +54,7 @@ class BpaGeometry : public MiGeometryI
 
 public:
 
-  BpaGeometry(const DataAccess::Interface::Grid* grid, std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues);
+  BpaGeometry(const DataAccess::Interface::Grid* grid, std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues, size_t subdivision);
 
   bool isUndefined(size_t i, size_t j, size_t k) const;
 
@@ -65,6 +67,8 @@ public:
   virtual MbVec3d getMax() const;
 
   virtual size_t getTimeStamp() const;
+
+  size_t getSubdivision() const;
 };
 
 /**
@@ -75,11 +79,14 @@ class BpaMesh : public MiVolumeMeshHexahedronIjk
   std::shared_ptr<BpaTopology> m_topology;
   std::shared_ptr<BpaGeometry> m_geometry;
 
+  size_t m_subdivision;
+
 public:
 
   BpaMesh(
     const DataAccess::Interface::Grid* grid, 
-    std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues);
+    std::shared_ptr<DataAccess::Interface::PropertyValueList> depthValues,
+    size_t subdivision=1);
 
   virtual const MiHexahedronTopologyExplicitIjk& getTopology() const;
 
@@ -98,6 +105,7 @@ class BpaProperty : public MiDataSetI<double>
   size_t m_numI;
   size_t m_numJ;
   size_t m_numK;
+  size_t m_subdivision;
 
   double m_minValue;
   double m_maxValue;
@@ -108,7 +116,7 @@ class BpaProperty : public MiDataSetI<double>
 
 public:
 
-  BpaProperty(size_t numI, size_t numJ, std::shared_ptr<DataAccess::Interface::PropertyValueList> values);
+  BpaProperty(size_t numI, size_t numJ, std::shared_ptr<DataAccess::Interface::PropertyValueList> values, size_t subdivision);
 
   virtual MiDataSet::DataBinding getBinding() const;
 

@@ -89,9 +89,10 @@ SnapshotNode::SnapshotNode()
   m_planeSlice->plane.connectFrom(&Plane);
 }
 
-void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues, bool hires, Extractor& extractor)
+void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::PropertyValueList> depthValues, bool hires, Extractor& extractor, size_t subdivision)
 {
   m_snapshot = snapshot;
+  m_subdivision = subdivision;
 
   di::ProjectHandle* handle = snapshot->getProjectHandle();
 
@@ -101,7 +102,7 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   else
     grid = handle->getLowResolutionOutputGrid();
 
-  BpaMesh* bpaMesh = new BpaMesh(grid, depthValues);
+  BpaMesh* bpaMesh = new BpaMesh(grid, depthValues, m_subdivision);
   m_mesh->setMesh(bpaMesh);
 
   // This is necessary to enable double-sided lighting on slices
@@ -192,7 +193,7 @@ void SnapshotNode::setProperty(const di::Property* prop)
   std::shared_ptr<di::PropertyValueList> values(
     handle->getPropertyValues(flags, prop, m_snapshot, 0, 0, 0, type));
 
-  BpaProperty* bpaProperty = new BpaProperty(grid->numI(), grid->numJ(), values);
+  BpaProperty* bpaProperty = new BpaProperty(grid->numI(), grid->numJ(), values, m_subdivision);
 
   const MiScalardSetI* scalarSet = m_scalarSet->getScalarSet();
   delete scalarSet; // not reference counted, so delete it ourselves!!
@@ -318,7 +319,7 @@ void SceneGraph::createSnapshotsNodeHiRes(di::ProjectHandle* handle)
     else
     {
       SnapshotNode* snapshotNode = new SnapshotNode;
-      snapshotNode->setup(snapshot, depthValues, true, m_extractor);
+      snapshotNode->setup(snapshot, depthValues, true, m_extractor, m_subdivision);
 
       // connect fields from scenegraph
       snapshotNode->RenderMode.connectFrom(&RenderMode);
@@ -360,7 +361,7 @@ void SceneGraph::createSnapshotsNode(di::ProjectHandle* handle)
       continue;
 
     SnapshotNode* snapshotNode = new SnapshotNode;
-    snapshotNode->setup(snapshot, depthValues, false, m_extractor);
+    snapshotNode->setup(snapshot, depthValues, false, m_extractor, m_subdivision);
 
     // connect fields from scenegraph
     snapshotNode->RenderMode.connectFrom(&RenderMode);
@@ -455,7 +456,7 @@ SceneGraph::~SceneGraph()
 
 }
 
-void SceneGraph::setup(di::ProjectHandle* handle, int subdivision)
+void SceneGraph::setup(di::ProjectHandle* handle, size_t subdivision)
 {
   m_subdivision = subdivision;
 
@@ -570,22 +571,22 @@ void SceneGraph::setRenderStyle(bool drawFaces, bool drawEdges)
 
 int SceneGraph::numI() const
 {
-  return m_numI;
+  return (int)(m_numI * m_subdivision);
 }
 
 int SceneGraph::numJ() const
 {
-  return m_numJ;
+  return (int)(m_numJ * m_subdivision);
 }
 
 int SceneGraph::numIHiRes() const
 {
-  return m_numIHiRes;
+  return (int)(m_numIHiRes * m_subdivision);
 }
 
 int SceneGraph::numJHiRes() const
 {
-  return m_numJHiRes;
+  return (int)(m_numJHiRes * m_subdivision);
 }
 
 void BpaVizInit()
