@@ -473,22 +473,6 @@ namespace Basin_Modelling {
   ///
   void computePermeabilityVectors ( AppCtx* basinModel );
 
-  ///
-  /// Delete the Permeability vectors stored in the layers
-  ///
-/*    void deletePermeabilityVectors ( AppCtx* basinModel ); */
-
-
-  ///
-  /// Compute the Porosity and fill layer vectors 
-  ///
-  void computePorosityVectors ( AppCtx* basinModel );
-
-  ///
-  /// Delete the Porosity vectors stored in the layers
-  ///
-/*    void deletePorosityVectors ( AppCtx* basinModel ); */
-
 
   ///
   /// Compute the maps for each layer of which elements contains a fault lithology
