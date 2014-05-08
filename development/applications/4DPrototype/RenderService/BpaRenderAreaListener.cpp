@@ -40,9 +40,9 @@ void BpaRenderAreaListener::createSceneGraph()
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  //const char* filename = "C:/Users/Serge.Van-Der-Ree/Downloads/output_cauldron/Project.project3d";
-  //const char* filename = "V:/Data/output_cauldron/Project.project3d";
-  const char* filename = "C:\\bpa\\data\\output_cauldron\\Project.project3d";
+  const char* filename = "E:/Data/output_cauldron/Project.project3d";
+  //const char* filename = "C:/bpa/data/output_cauldron/Project.project3d";
+
   m_handle.reset(di::OpenCauldronProject(filename, "r"));
 
   SceneGraph* sceneGraph = new SceneGraph;
@@ -137,7 +137,9 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
 
   string command = elems.front();
   elems.pop_front();
-  string argument = elems.front();
+  string argument;
+  if(!elems.empty())
+    argument = elems.front();
 
   // parse the commands
   if (command == "FPS")
@@ -203,6 +205,11 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     const di::Property* prop = m_handle->findProperty(argument);
     if(prop != 0)
       m_sceneGraph->setProperty(prop);
+  }
+  else if(command == "VIEWALL")
+  {
+    SbViewportRegion vpregion = m_renderArea->getSceneManager()->getViewportRegion();
+    m_examiner->viewAll(vpregion);
   }
 }
 

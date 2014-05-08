@@ -43,7 +43,7 @@ void MainWindow::loadProject(const QString& filename)
 
   m_projectHandle = di::OpenCauldronProject(filename.toStdString(), "r");
 
-  const size_t subdiv = 2;
+  const size_t subdiv = 1;
   m_sceneGraph = new SceneGraph;
   m_sceneGraph->setup(m_projectHandle, subdiv);
   m_sceneGraph->RenderMode = SnapshotNode::RenderMode_Skin;

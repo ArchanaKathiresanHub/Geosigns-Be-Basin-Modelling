@@ -42,8 +42,8 @@
 
 namespace di = DataAccess::Interface; 
 
-//#define PRE_EXTRACT
-//#define CUSTOM_EXTRACTION
+#define PRE_EXTRACT
+#define CUSTOM_EXTRACTION
 
 SbPlane getDefaultPlane()
 {

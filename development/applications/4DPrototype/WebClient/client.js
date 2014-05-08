@@ -119,7 +119,7 @@ function init()
 	$("[name='rendermode']").change(renderModeChanged);
 	$("[name='meshmode']").change(meshModeChanged);
 	$("#properties").change(propertyChanged);
-
+	$("#button_viewall").click(function() { theRenderArea.sendMessage("VIEWALL") });
 	// Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps
 	window.setInterval("measurebandwithandfps()",1000);
 	
