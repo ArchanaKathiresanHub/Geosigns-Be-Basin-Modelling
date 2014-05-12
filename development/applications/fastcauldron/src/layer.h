@@ -93,8 +93,6 @@ public:
 
    void switchLithologies ( const double age );
 
-   void destroyGINT ();
-
    bool allocateNewVecs ( AppCtx* basinModel, const double Current_Time );
 
    void initialiseTemperature( AppCtx* basinModel, const double Current_Time );
@@ -382,12 +380,10 @@ public:
 
   Vec              Lithology_ID;
   Vec              NodeHeatProd;
-  Vec              VreIntValue;
   Vec              BulkDensXHeatCapacity;
   Vec              BulkTHCondN;
   Vec              BulkTHCondP;
   Vec              BulkHeatProd;
-  double****       gint;
 
   PETSc_Local_3D_Array<Calibration::SmectiteIlliteSimulatorState> m_SmectiteIlliteState;
   PETSc_Local_3D_Array<Calibration::BiomarkersSimulatorState> m_BiomarkersState;

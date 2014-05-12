@@ -117,7 +117,6 @@ add_executable(fastcauldron
 	src/TemporalPropertyInterpolator.C
 	src/ThermalConductivityCalculator.C
 	src/ThermalDiffusivityCalculator.C
-	src/thermalindicator.C
 	src/ThicknessCalculator.C
 	src/ThicknessErrorMapCalculator.C
 	src/TimeOfElementInvasionCalculator.C
@@ -128,9 +127,11 @@ add_executable(fastcauldron
 	src/VitriniteReflectanceCalculator.C
 	src/VolumeCalculator.C
 	src/LayerElement.C
-	src/vrecalc.C
 	src/Well.C
         src/PetscLogStages.C
+        src/TemperatureForVreInputGrid.C
+        src/VreGrid.C
+        src/VreOutputGrid.C
 )
 
 add_definitions(${HDF5_parallel_DEFINITIONS})

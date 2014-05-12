@@ -69,6 +69,10 @@
 
 #include "PetscLogStages.h"
 
+#include "VitriniteReflectance.h"
+#include "TemperatureForVreInputGrid.h"
+#include "VreOutputGrid.h"
+
 using namespace GeoPhysics;
 
 //------------------------------------------------------------//
@@ -88,7 +92,10 @@ using namespace FiniteElementMethod;
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::contructor"
 
 Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context ) 
-   : Temperature_Calculator ( Application_Context ), m_surfaceNodeHistory ( Application_Context )
+   : m_vreOutputGrid(Application_Context->mapDA, Application_Context->layers),
+     m_vreAlgorithm(GeoPhysics::VitriniteReflectance::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getVreAlgorithm () ) ),
+     Temperature_Calculator ( Application_Context ), 
+     m_surfaceNodeHistory ( Application_Context )
 {
 
   basinModel = Application_Context;
@@ -514,7 +521,6 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
 
   delete cauldronCalculator;
   delete pressureSolver;
-
 }
 
 
@@ -554,8 +560,6 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
     savedMinorSnapshotTimes.clear ();
-
-    Temperature_Calculator.initialiseVReVectors ( basinModel );
 
     if( basinModel->isModellingMode1D () ) 
     {
@@ -767,7 +771,6 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     }
 
     savedMinorSnapshotTimes.clear ();
-    Temperature_Calculator.initialiseVReVectors ( basinModel );
 
     if ( basinModel->debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, 
@@ -1021,6 +1024,8 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
   Initialise_Basin_Temperature ( temperatureHasDiverged );
 
+  m_vreAlgorithm->reset();
+
   Save_Properties ( Current_Time );
   Number_Of_Timesteps++;
 
@@ -1052,7 +1057,25 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
     if ( ! temperatureHasDiverged ) {
        Integrate_Chemical_Compaction ( Previous_Time, Current_Time );
        integrateGenex ( Previous_Time, Current_Time );
-       Temperature_Calculator.computeVReIncrement ( basinModel, Previous_Time, Current_Time );
+
+       // Do a time step in the Vre algorithm
+       m_vreAlgorithm->doTimestep (
+          TemperatureForVreInputGrid( 
+             basinModel->mapDA, 
+             basinModel->layers, 
+             basinModel->getValidNeedles(),
+             Previous_Time,
+             true // use previous temperature
+             ),
+          TemperatureForVreInputGrid(
+             basinModel->mapDA, 
+             basinModel->layers, 
+             basinModel->getValidNeedles(),
+             Current_Time,
+             false // use current temperature
+             )
+          );
+       //
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( Previous_Time, Current_Time, errorInDarcy );
 
@@ -1166,7 +1189,11 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
                                     true );
 
   FastcauldronSimulator::getInstance ().getAllochthonousLithologyManager ().reset ();
+  
   Initialise_Basin_Temperature ( hasDiverged );
+  
+  m_vreAlgorithm->reset();
+  
   Save_Properties ( Current_Time );
 
   if ( basinModel -> debug1 or basinModel->verbose ) {
@@ -1209,7 +1236,25 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
        Integrate_Chemical_Compaction ( Previous_Time, Current_Time );
        integrateGenex ( Previous_Time, Current_Time );
-       Temperature_Calculator.computeVReIncrement ( basinModel, Previous_Time, Current_Time );
+       
+      // Do a time step in the Vre algorithm
+       m_vreAlgorithm->doTimestep (
+          TemperatureForVreInputGrid( 
+             basinModel->mapDA, 
+             basinModel->layers, 
+             basinModel->getValidNeedles(),
+             Previous_Time,
+             true // use previous temperature
+             ),
+          TemperatureForVreInputGrid(
+             basinModel->mapDA, 
+             basinModel->layers, 
+             basinModel->getValidNeedles(),
+             Current_Time,
+             false // use current temperature
+             )
+          );
+       //
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( Previous_Time, Current_Time, errorInDarcy );
 
@@ -1283,7 +1328,8 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
     assert ( snapshot != 0 );
 
     // Compute the derived properties that are to be output.
-    Temperature_Calculator.computeSnapShotVRe ( basinModel, Current_Time );
+    m_vreAlgorithm->getResults( m_vreOutputGrid );
+    m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
 
     if(  basinModel->isModellingMode1D() )
     {
@@ -1324,7 +1370,6 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
     m_surfaceNodeHistory.Add_Time ( Current_Time );
 
     // Delete the vectors for derived properties as they are no longer required.
-    Temperature_Calculator.deleteVReVectors ( basinModel );
 
     if(  basinModel->isModellingMode1D() )
     {
@@ -1351,17 +1396,18 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
         savedMinorSnapshotTimes.insert ( Current_Time );
       }
 
-      Temperature_Calculator.computeSnapShotVRe ( basinModel, Current_Time );
-      computeErosionFactorMaps ( basinModel, Current_Time );
+       m_vreAlgorithm->getResults( m_vreOutputGrid );
+       m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+       computeErosionFactorMaps ( basinModel, Current_Time );
 
        FastcauldronSimulator::getInstance ().saveMapProperties ( genexOutputProperties, snapshot, Interface::SEDIMENTS_ONLY_OUTPUT );
-       Temperature_Calculator.deleteVReVectors ( basinModel );
        deleteErosionFactorMaps ( basinModel );
     }
 
     if ( m_surfaceNodeHistory.IsDefined ()) {
 
-      Temperature_Calculator.computeSnapShotVRe ( basinModel, Current_Time );
+       m_vreAlgorithm->getResults( m_vreOutputGrid );
+       m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
       computePermeabilityVectors ( basinModel );
       computeThermalConductivityVectors ( basinModel );
       computeBulkDensityVectors ( basinModel );
@@ -1370,7 +1416,6 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
       m_surfaceNodeHistory.Add_Time ( Current_Time );
 
       deleteThermalConductivityVectors ( basinModel );
-      Temperature_Calculator.deleteVReVectors ( basinModel );
       deleteBulkDensityVectors ( basinModel );
     }
 

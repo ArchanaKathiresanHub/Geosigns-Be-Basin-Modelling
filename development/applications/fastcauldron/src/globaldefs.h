@@ -188,43 +188,6 @@ const double DefaultHcCurveExponent = 2.0;
 
 //------------------------------------------------------------//
 
-/// \name VRe names and constants.
-/// @{
-
-const double LOPATINREFTEMP         = 105.0;
-const double LOPATINTEMPINC         = 10.0;
-const double LOPATINFACTOR          = 2.0;
-const double INITIALVRE             = 0.2;
-const double MODIFIEDLOPATINFACTOR  = 5.1;
-const double MODIFIEDLOPATINP       = 0.0821;
-const double MODIFIEDLOPATINQ       = 0.6250;
-const double LOPATINGOFFP           = 0.20799;
-const double LOPATINGOFFQ           = 1.08680;
-const double LOPATINHOODP           = 0.17340;
-const double LOPATINHOODQ           = 0.98875;
-const double LOPATINISSLERP         = 0.16171;
-const double LOPATINISSLERQ         = 0.98882;
-const double LOPATINROYDENP         = 0.17300;
-const double LOPATINROYDENQ         = 0.80360;
-const double LOPATINWAPPLESP        = 0.24300;
-const double LOPATINWAPPLESQ        = 1.01772;
-const double LOPATINDYKSTRAP        = 0.23697;
-const double LOPATINDYKSTRAQ        = 1.04431;
-
-const string VRALGBURNHAMSWEENEY    = "Burnham & Sweeney";
-const string VRALGLOPATINMODIFIED   = "Modified Lopatin";
-const string VRALGLARTER            = "Larter";
-const string VRALGLOPATINDYKSTRA    = "Lopatin & Dykstra";
-const string VRALGLOPATINWAPPLES    = "Lopatin & Wapples";
-const string VRALGLOPATINROYDEN     = "Lopatin & Royden";
-const string VRALGLOPATINISSLER     = "Lopatin & Issler";
-const string VRALGLOPATINHOOD       = "Lopatin & Hood";
-const string VRALGLOPATINGOFF       = "Lopatin & Goff";
-
-/// @}
-
-//------------------------------------------------------------//
-
 /// \var GardnerVelocityConstant
 /// Constant used in computation of the Gardner velocity-density velocity algorithm.
 const double GardnerVelocityConstant = 309.4;

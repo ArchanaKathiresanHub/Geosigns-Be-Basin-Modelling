@@ -69,10 +69,6 @@ LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
    GeoPhysics::Formation ( projectHandle, record )
 {
 
-
-  gint = NULL;
-
-
   m_nrOfActiveElements = 0;
   depthgridfilename    = "";
   depthgridfileseqnr   = -2;
@@ -560,7 +556,6 @@ LayerProps::~LayerProps(){
   Destroy_Petsc_Vector ( BulkTHCondN );
   Destroy_Petsc_Vector ( BulkTHCondP );
   Destroy_Petsc_Vector ( BulkHeatProd );
-  Destroy_Petsc_Vector ( VreIntValue );
 
 
   Destroy_Petsc_Vector ( m_SteraneAromatisation );
@@ -600,16 +595,6 @@ LayerProps::~LayerProps(){
       }
 
    }
-
-}
-
-void LayerProps::destroyGINT()
-{
-
-  if (gint != NULL) {
-     Array<double>::delete4d(gint);
-     gint = 0;
-  }
 
 }
 
@@ -755,7 +740,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     createVec ( BulkTHCondN );
     createVec ( BulkTHCondP );
     createVec ( BulkHeatProd );
-    createVec ( VreIntValue );
 
     if(  basinModel->isModellingMode1D()  )
     {
@@ -772,10 +756,6 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     }
 
    createVec ( m_IlliteFraction );
-
-    if ( basinModel->filterwizard.IsVreCalculationNeeded()) {
-      setVec(VreIntValue,Zero);
-    }
 
     if ( includedNodes.isNull ()) {
       includedNodes.create ( layerDA );
@@ -1063,7 +1043,6 @@ void LayerProps::nullify (){
   BulkTHCondP           = NULL;
   BulkHeatProd          = NULL;
   Lithology_ID          = NULL;
-  VreIntValue           = NULL;
 
   m_IlliteFraction = NULL;
   m_SteraneAromatisation = NULL;
@@ -1179,7 +1158,6 @@ void LayerProps::reInitialise (){
    Destroy_Petsc_Vector ( BulkTHCondN );
    Destroy_Petsc_Vector ( BulkTHCondP );
    Destroy_Petsc_Vector ( BulkHeatProd );
-   Destroy_Petsc_Vector ( VreIntValue );
 
    Destroy_Petsc_Vector ( m_SteraneAromatisation );
    Destroy_Petsc_Vector ( m_SteraneIsomerisation );

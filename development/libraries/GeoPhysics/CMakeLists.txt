@@ -16,6 +16,9 @@ set(cross_platform_headers
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
+      src/VreTtiMethod.h
+      src/VreArrheniusMethod.h
+      src/VitriniteReflectance.h
 )
 
 set(unix_only_headers
@@ -50,6 +53,9 @@ set(cross_platform_srcs
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
+      src/VreTtiMethod.C
+      src/VreArrheniusMethod.C
+      src/VitriniteReflectance.C
 )
 
 set(unix_only_srcs
@@ -156,6 +162,21 @@ add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
       LIBRARIES GeoPhysics
 )
 
+add_gtest( NAME GeoPhysics::VitriniteReflectance
+      SOURCES test/VitriniteReflectance.C test/InputGrid.C test/OutputGrid.C
+      LIBRARIES GeoPhysics
+)
+
+add_gtest( NAME GeoPhysics::VreTtiMethod
+      SOURCES test/VreTtiMethod.C test/InputGrid.C test/OutputGrid.C
+
+      LIBRARIES GeoPhysics
+)
+
+add_gtest( NAME GeoPhysics::VreArrheniusMethod
+      SOURCES test/VreArrheniusMethod.C test/InputGrid.C test/OutputGrid.C
+      LIBRARIES GeoPhysics
+)
 
 # Local Variables:
 # mode: cmake

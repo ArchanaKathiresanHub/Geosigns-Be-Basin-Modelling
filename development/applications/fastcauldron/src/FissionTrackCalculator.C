@@ -1,4 +1,3 @@
-#include   "thermalindicator.h"
 #include   "globaldefs.h"
 #include   "petscvec.h"
 #include   "PetscVectors.h"
@@ -20,10 +19,6 @@
 #include "ftsampleprediction.h"
 #include "ftsampleobservation.h"
 #include "ftanalysis.h"
-
-#include "database.h"
-#include "cauldronschema.h"
-#include "cauldronschemafuncs.h"
 
 #include "Output.h"
 

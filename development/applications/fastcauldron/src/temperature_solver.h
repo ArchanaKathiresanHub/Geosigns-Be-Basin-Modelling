@@ -2,10 +2,12 @@
 #define _TEMPERATURESOLVER_H_
 
 #include "propinterface.h"
-#include "vrecalc.h"
 #include "SmectiteIlliteCalculator.h"
 #include "BiomarkersCalculator.h"
 #include "FissionTrackCalculator.h"
+#include "VitriniteReflectance.h"
+
+
 class Temperature_Solver {
 
 public:
@@ -48,23 +50,6 @@ public:
                                            Mat&    Stiffness_Matrix,
                                            Vec&    Load_Vector,
                                            double& Element_Contributions_Time );
-
-  /// Zero the intermediate vre calculation vectors.
-  void initialiseVReVectors ( AppCtx* basinModel );
-
-  ///
-  /// Compute the VRe, if required, over the time step
-  ///
-  void computeVReIncrement ( AppCtx*      basinModel,
-                             const double Previous_Time,
-                             const double Current_Time );
-
-  ///
-  /// Compute the VRe at the snapshot time
-  ///
-  void computeSnapShotVRe ( AppCtx*         basinModel,
-                            const double    Current_Time );
-
   ///
   /// Update the Smectite-Illite calculation state, 
   ///
@@ -105,10 +90,6 @@ public:
   void deleteBiomarkersVectors ( );
   void resetSmectiteIlliteStateVectors( );
   void resetBiomarkerStateVectors();  
-
-  void deleteVReVectors ( AppCtx* Basin_Model );
-
-
 
   ///
   /// Set the surface temperature for the temperature vector in the topmost layer.
@@ -166,16 +147,16 @@ public:
   void writeFissionTrackResultsToDatabase(void);
 private:
 
+  Temperature_Solver( const Temperature_Solver & ); // prohibit copying
+  Temperature_Solver & operator=(const Temperature_Solver & ); // prohibit assignment
+
 
   static int PlaneQuadratureDegrees [ NumberOfOptimisationLevels ];
 
   static int DepthQuadratureDegrees [ NumberOfOptimisationLevels ];
 
 
-
   AppCtx*        Basin_Model;
-
-  VreCalc        Vitrinite_Calculator;
 
   SmectiteIlliteCalculator m_SmectiteIlliteCalculator;
   BiomarkersCalculator m_BiomarkersCalculator;

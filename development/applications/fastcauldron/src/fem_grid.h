@@ -22,6 +22,11 @@
 #include "BoundaryId.h"
 #include "Subdomain.h"
 
+#include "VreOutputGrid.h"
+
+class TemperatureForVreInputGrid;
+class VitriniteReflectance;
+
 //------------------------------------------------------------//
 
 namespace Basin_Modelling {
@@ -368,6 +373,12 @@ namespace Basin_Modelling {
      PetscLogDouble Accumulated_Element_Assembly_Time;
      PetscLogDouble Accumulated_Property_Calculation_Time;
      //*}
+
+     /// Wrapper grid that saves computed Vre data to the grid
+     VreOutputGrid                              m_vreOutputGrid;
+
+     /// The vitrinte reflectance algorithm
+     std::auto_ptr<GeoPhysics::VitriniteReflectance> m_vreAlgorithm;
 
      //
      //
