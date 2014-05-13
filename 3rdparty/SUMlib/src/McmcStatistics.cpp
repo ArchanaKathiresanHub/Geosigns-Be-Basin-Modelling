@@ -3,9 +3,10 @@
 // Neither the whole nor any part of this document may be copied, modified or distributed in any
 // form without the prior written consent of the copyright owner.
 
+#include <algorithm>
 #include <cmath>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "BaseTypes.h"
 #include "McmcProxy.h"
@@ -19,11 +20,11 @@ using std::endl;
 namespace SUMlib {
 
 McmcStatistics::McmcStatistics() :
-   m_numDegFreedom(0),
    m_chi2(0.0),
-   m_chi2Red(0.0),
    m_gof(0.0),
-   m_gofRed(0.0)
+   m_chi2Red(0.0),
+   m_gofRed(0.0),
+   m_numDegFreedom(0)
 {
    // empty
 }
@@ -51,7 +52,7 @@ void McmcStatistics::update(
 
    // Calulate the averages per categorical combination
    calcCatAverages( pSample, catIndexOfSample );
- 
+
    // Calculate the convariance matricec per categorical combination
    calcCatCovariances( pSample, catIndexOfSample );
 
@@ -250,7 +251,7 @@ void McmcStatistics::calcCatAverages( const RealMatrix& pSample, const std::vect
          pCatSamples[ catIdx[i] ].push_back( pSample[i] );
       }
    }
-   else 
+   else
    {
       pCatSamples[0] = pSample;
    }
@@ -279,11 +280,11 @@ void McmcStatistics::calcCatCovariances( const RealMatrix& pSample, const std::v
          pCatSamples[ catIdx[i] ].push_back( pSample[i] );
       }
    }
-   else 
+   else
    {
       pCatSamples[0] = pSample;
    }
-   
+
    // Calculate the different cov matrices
    for ( unsigned int i = 0; i < pCatSamples.size(); ++i )
    {

@@ -19,9 +19,9 @@ namespace SUMlib {
 ExpDesignBase::ExpDesignBase( vector<bool> const& selectedFactors, unsigned int numOrdinalFactors ) :
    m_numFactors( selectedFactors.size() ),
    m_numOrdFactors( numOrdinalFactors ),
-   m_numSelOrdFactors( 0 ),
    m_selFactors( selectedFactors ),
-   m_numSelFactors( unsigned( std::count( selectedFactors.begin(), selectedFactors.end(), true )) )
+   m_numSelFactors( unsigned( std::count( selectedFactors.begin(), selectedFactors.end(), true )) ),
+   m_numSelOrdFactors( 0 )
 {
    if ( numOrdFactors() > numFactors() )
    {

@@ -12,8 +12,8 @@
 namespace SUMlib {
 
 KrigingWeights::KrigingWeights() :
-   m_indexes(),
    m_weights(),
+   m_indexes(),
    m_sumOfWeights( 0.0 )
 {
    // empty

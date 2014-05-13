@@ -152,10 +152,10 @@ void CompoundProxy::calcKrigingWeights( Parameter const& p, KrigingType krigingT
 double CompoundProxy::getProxyValue( Parameter const& p, KrigingType krigingType ) const
 {
    // call the appropriate proxies with the real-valued part of the parameter
-   double value = cubicProxy() ? cubicProxy()->getProxyValue ( p ) : 0.0;
+   double value = cubicProxy() ? cubicProxy()->getValue( p ) : 0.0;
    if ( krigingType != NoKriging && krigingProxy() )
    {
-      value += krigingProxy()->getProxyValue ( p, krigingType );
+      value += krigingProxy()->getValue( p, krigingType );
    }
 
    return value;
@@ -164,10 +164,10 @@ double CompoundProxy::getProxyValue( Parameter const& p, KrigingType krigingType
 double CompoundProxy::getProxyValue( KrigingWeights const& krigingWeights, Parameter const& p, KrigingType krigingType ) const
 {
    // call the appropriate proxies as above
-   double value = cubicProxy() ? cubicProxy()->getProxyValue ( p ) : 0.0;
+   double value = cubicProxy() ? cubicProxy()->getValue( p ) : 0.0;
    if ( krigingType != NoKriging && krigingProxy() )
    {
-      value += krigingProxy()->getProxyValue( krigingWeights, p, krigingType ); //now with the already calculated (relevant) weights!
+      value += krigingProxy()->getValue( krigingWeights, p, krigingType ); //now with the already calculated (relevant) weights!
    }
    return value;
 }

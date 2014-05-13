@@ -97,13 +97,7 @@ A proxy is a mathematical model (a polynomial up to 3rd order with or without Kr
 \li SUMlib::McmcProxy Abstract base class defining shared functions for proxies wrapped with reference data.
 \li SUMlib::ReferenceProxy A proxy wrapper class that combines proxies with corresponding reference (measurement) data if available.
 
-\li SUMlib::PolynomialProxyModel a 2nd order polynomial proxy used in the old SUM v2 (obsolete).
-
-\warning CompoundProxyCollection destructor is empty and must be implemented if SUMlib is re-used outside Dynamo to avoid memory leaks!!!
-\warning The pointer auto_ptr (to KrigingData) defined in CompoundProxyCollection will be deprecated!!!
-
 \todo Rename ProxyBuilder to CubicProxyBuilder?
-\todo Remove PolynomialProxyModel?
 
 \section Sec_ParameterSensitivity Parameter Sensitivity Analysis
 
@@ -114,10 +108,10 @@ Pareto sensitivities can be based on multiple observables whereas Tornado sensit
 
 \section Sec_MCMC Mcmc Process Execution
 
-All SUMlib classes that derive from mcmcBase make use of a (wrapped) proxy response to do the sampling in a scaled parameter space.
+All SUMlib classes that derive from McmcBase make use of a (wrapped) proxy response to do the sampling in a scaled parameter space.
 Contrary to MC, MCMC and MCSolver are algorithms constrained by reference data.
 
-\li SUMlib::mcmcBase Base class for a sampling algorithm.
+\li SUMlib::McmcBase Base class for a sampling algorithm.
 \li SUMlib::MC Monte Carlo algorithm that creates a sample of cases based on prior PDF's.
 \li SUMlib::MCMC Markov Chain Monte Carlo algorithm that creates a sample of cases approximating the posterior PDF.
 \li SUMlib::MCSolver Monte Carlo based solver searching for the cases that best honor the supplied reference data.

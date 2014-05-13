@@ -13,6 +13,8 @@
 #include "ParameterBounds.h"
 #include "RandomGenerator.h"
 
+using std::vector;
+
 namespace {
    // Initialisation of default values
    const unsigned int nrOfRandomStarts       = 5; //integer > 0
@@ -111,12 +113,12 @@ void OptimisedLHD::generate()
 }
 
 void OptimisedLHD::getCaseSetImpl( ParameterBounds const& bounds, Case const& center,
-                        bool replicate, vector<Case>& caseSet ) const
+                        bool, vector<Case>& caseSet ) const
 {
    fillCaseSet( bounds, center, caseSet );
 }
 
-unsigned int OptimisedLHD::getNbOfCases( ParameterBounds const& bounds, bool replicate ) const
+unsigned int OptimisedLHD::getNbOfCases( ParameterBounds const&, bool ) const
 {
    return m_design.size();
 }

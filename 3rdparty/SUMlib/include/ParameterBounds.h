@@ -14,8 +14,6 @@
 
 #include "ISerializer.h"
 
-using std::vector;
-
 namespace SUMlib {
 
 /// @class ParameterBounds defines the parameter bounds (low and high values).
@@ -36,14 +34,14 @@ public:
    /// @param [in] low         case containing low values
    /// @param [in] high        case containing high values
    /// @param [in] catValues   available values for each categorical parameter, ordered from low to high
-   ParameterBounds( Case const& low, Case const& high, vector<IndexList> const& catValues );
+   ParameterBounds( Case const& low, Case const& high, std::vector<IndexList> const& catValues );
 
    /// Constructor;
    /// for a categorical parameter the following convention holds:
    /// low >= 0 is the lowest categorical value occuring in caseSet,
    /// high <= number of categorical values - 1 is the highest categorical value in caseSet.
    /// @param [in] caseSet     Case set to deduce bounds from
-   explicit ParameterBounds( vector<Case> const& caseSet );
+   explicit ParameterBounds( std::vector<Case> const& caseSet );
 
    /// Destructor
    virtual ~ParameterBounds();
@@ -52,7 +50,7 @@ public:
    /// @param [in] low         case containing low values
    /// @param [in] high        case containing high values
    /// @param [in] catValues   available values for each categorical parameter, ordered from low to high
-   void initialise( Case const& low, Case const& high, vector<IndexList> const& catValues );
+   void initialise( Case const& low, Case const& high, std::vector<IndexList> const& catValues );
 
    /// Returns whether the bounds of a specific parameter are equal
    /// @param [in] idx  parameter index
@@ -114,7 +112,7 @@ public:
 
    /// Getter for the available values of each categorical parameter
    /// @returns the available values of each categorical parameter
-   const vector<IndexList>& catValues() const { return m_catValues; }
+   const std::vector<IndexList>& catValues() const { return m_catValues; }
 
    // made deliberately private so that calling load/save directly on this class is more difficult
    // the preferred way is to call save/load on the ISerializer.
@@ -130,7 +128,7 @@ private:
 
    /// Check whether supplied categorical parameter values are valid
    /// @param [in]   catValues   supplied values for each categorical parameter
-   bool validCatValues( vector<IndexList> const& catValues ) const;
+   bool validCatValues( std::vector<IndexList> const& catValues ) const;
 
    /// Set default values for each categorical parameter (limited by the bounds)
    void setDefaultCatValues();
@@ -147,7 +145,7 @@ private:
    /// then m_catValues[i] is an ordered vector (from low to high) of size 2:
    /// m_catValues[i][0] = 0 and m_catValues[i][1] = 2.
    /// Note that a categorical value can be regarded as a simple index.
-   vector<IndexList> m_catValues;
+   std::vector<IndexList> m_catValues;
 };
 
 } // namespace SUMlib

@@ -25,13 +25,13 @@ KrigingProxy::KrigingProxy( KrigingData *kr )
 {
 }
 
-KrigingProxy::KrigingProxy( Proxy *proxyModel, KrigingData *kr, ParameterSet const& parSet,
+KrigingProxy::KrigingProxy( CubicProxy *proxyModel, KrigingData *kr, ParameterSet const& parSet,
                             std::vector<bool> const& caseValid, TargetSet const& target, unsigned int nbOfOrdPars )
 {
    initialise( proxyModel, kr, parSet, caseValid, target, nbOfOrdPars );
 }
 
-void KrigingProxy::initialise( Proxy *proxyModel, KrigingData *kr, ParameterSet const& parSet,
+void KrigingProxy::initialise( CubicProxy *proxyModel, KrigingData *kr, ParameterSet const& parSet,
                                std::vector<bool> const& caseValid, TargetSet const& target, unsigned int nbOfOrdPars )
 {
    m_parSize = parSet.front().size();
@@ -52,7 +52,7 @@ void KrigingProxy::initialise( Proxy *proxyModel, KrigingData *kr, ParameterSet 
    m_proxyError.reserve( parSet.size() );
    for ( ParameterSet::const_iterator it = parSet.begin(); it != parSet.end(); ++it )
    {
-      m_proxyError.push_back( proxyModel->getProxyValue( *it ) );
+      m_proxyError.push_back( proxyModel->getValue( *it ) );
    }
    assert( m_proxyError.size() == caseValid.size() );
 
@@ -77,14 +77,14 @@ unsigned int KrigingProxy::size() const
    return m_parSize;
 }
 
-double KrigingProxy::getProxyValue( Parameter const& p, KrigingType krigingType ) const
+double KrigingProxy::getValue( Parameter const& p, KrigingType krigingType ) const
 {
    KrigingWeights krigingWeights;
    calcKrigingWeights( p, krigingType, krigingWeights );
-   return getProxyValue( krigingWeights, p, krigingType );
+   return getValue( krigingWeights, p, krigingType );
 }
 
-double KrigingProxy::getProxyValue( KrigingWeights const& krigingWeights, Parameter const& p, KrigingType ) const
+double KrigingProxy::getValue( KrigingWeights const& krigingWeights, Parameter const& p, KrigingType ) const
 {
    assert( size() == p.size() );
    assert( m_parSet.size() == krigingWeights.weights().size() );

@@ -6,19 +6,19 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdio>
+#include <functional>
+#include <limits>
 #include <map>
 #include <vector>
-#include <cstdio>
-#include <limits>
 
 #include "Exception.h"
 #include "KrigingWeights.h"
-#include "mcmcBase.h"
+#include "McmcBase.h"
 #include "MarginalProbDistr.h"
 #include "McmcStatistics.h"
 #include "MVNormalProbDistr.h"
 #include "NumericUtils.h"
-#include "PolynomialProxyModel.h"
 #include "McmcProxy.h"
 #include "RandomGenerator.h"
 #include "StepProposer.h"
@@ -33,7 +33,7 @@ namespace SUMlib {
 /// for example.
 /// @param ascs The list of activeset cells to count the set use flag for.
 /// @return The number of measurement included.
-unsigned int mcmcBase::CountUsed( vector<McmcProxy*> const & ascs )
+unsigned int McmcBase::CountUsed( vector<McmcProxy*> const & ascs )
 {
    unsigned int count (0);
    for ( vector<McmcProxy*>::const_iterator it = ascs.begin(); it != ascs.end(); ++it )
@@ -47,12 +47,12 @@ unsigned int mcmcBase::CountUsed( vector<McmcProxy*> const & ascs )
 }
 
 /// Calculates minus log( posterior P )
-double mcmcBase::GetMinusLogPosteriorProb( bool usePrior, double logP_lh, double logP_prior )
+double McmcBase::GetMinusLogPosteriorProb( bool usePrior, double logP_lh, double logP_prior )
 {
    return usePrior ? -logP_lh - logP_prior : -logP_lh;
 }
 
-void mcmcBase::CopySampleAndResponse( ParameterSet const& sample, vector<RealVector> const& y,
+void McmcBase::CopySampleAndResponse( ParameterSet const& sample, vector<RealVector> const& y,
    vector<std::pair<Parameter, RealVector> > &out )
 {
    // Store the pairs {p[i], y[i]}
@@ -71,9 +71,9 @@ const unsigned int nbOfSteps = 5; //about 5 steps per cycle to avoid correlation
 const unsigned int maxNbOfRandomTrials = 10; //maximum of 10 random propositions per step per chain
 
 /// Number of best matches to collect
-const unsigned int mcmcBase::numBestMatches = 100000;
+const unsigned int McmcBase::numBestMatches = 100000;
 
-mcmcBase::mcmcBase(
+McmcBase::McmcBase(
       RandomGenerator &rg,
       vector<McmcProxy*> const& proxies,
       unsigned int sampleSize,
@@ -81,34 +81,34 @@ mcmcBase::mcmcBase(
       const ParameterBounds & constraints,
       McmcStatistics &statistics,
       unsigned int maxNbOfIterations ) :
+   m_maxNbOfIterations( maxNbOfIterations ),
    m_proxies( proxies ),
-   m_userSampleSize( sampleSize ),
+   m_krigingType( DefaultKriging ),
    m_pdf( parameterPdf ),
    m_constraints( constraints ),
+   m_userSampleSize( sampleSize ),
    m_measurementDistribution( NormalDistribution ),
    m_parameterDistribution( NoPrior ),
+   m_krigingUsage( NoMcmcKriging ),
    m_marginalDistribution( m_pdf.sizeCon(), MarginalProbDistr::Normal ),
+   m_statistics( statistics ),
    m_stddevfac(1),
    m_acceptanceRate(0),
    m_rg( rg ),
    m_stepProposer( new StepProposer(rg, m_constraints.sizeOrd(), m_constraints.low().ordinalPart(), m_constraints.high().ordinalPart(), 4 ) ),
-   m_mvNormalDistr( new MVNormalProbDistr( m_pdf ) ),
    m_margDistr(new MarginalProbDistr( m_pdf ) ),
+   m_mvNormalDistr( new MVNormalProbDistr( m_pdf ) ),
    m_stepMethod(MetropolisHasting),
    m_pSample_avg( m_pdf.sizeOrd() ),
    m_pSample_cov( m_pdf.sizeOrd(), vector<double>( m_pdf.sizeOrd() ) ),
    m_ySample_avg( m_proxies.size() ),
-   m_bestMatches(),
-   m_statistics( statistics ),
-   m_KrigingUsage( NoMcmcKriging ),
-   m_krigingType( DefaultKriging ),
-   m_maxNbOfIterations( maxNbOfIterations )
+   m_bestMatches()
 {
    fillCatValuesAndWeights();
    doCatInit();
 }
 
-void mcmcBase::fillCatValuesAndWeights()
+void McmcBase::fillCatValuesAndWeights()
 {
    m_catValuesWeights.clear();
 
@@ -121,7 +121,7 @@ void mcmcBase::fillCatValuesAndWeights()
    m_catLikelihoods.assign( m_catValuesWeights.size(), 1.0 );
 }
 
-void mcmcBase::doCatInit()
+void McmcBase::doCatInit()
 {
    // Prepare the initializion of the sample size if categorical parameters are involved
    m_CatIndexOfSample.clear();
@@ -184,7 +184,7 @@ void mcmcBase::doCatInit()
    reset();
 }
 
-void mcmcBase::addCatValuesAndWeights( const vector< unsigned int >& usedValues,
+void McmcBase::addCatValuesAndWeights( const vector< unsigned int >& usedValues,
      const vector< unsigned int >& values, const RealVector& weights )
 {
    assert( values.size() == weights.size() );
@@ -222,19 +222,19 @@ void mcmcBase::addCatValuesAndWeights( const vector< unsigned int >& usedValues,
    m_catValuesWeights = newCatValuesWeights;
 }
 
-mcmcBase::~mcmcBase()
+McmcBase::~McmcBase()
 {
    delete m_stepProposer;
    delete m_margDistr;
    delete m_mvNormalDistr;
 }
 
-void mcmcBase::setMeasurementDistributionType( MeasurementDistributionType method )
+void McmcBase::setMeasurementDistributionType( MeasurementDistributionType method )
 {
    m_measurementDistribution = method;
 }
 
-void mcmcBase::setParameterDistributionType( ParameterDistributionType parameterDistribution )
+void McmcBase::setParameterDistributionType( ParameterDistributionType parameterDistribution )
 {
    if ( m_parameterDistribution != parameterDistribution )
    {
@@ -243,7 +243,7 @@ void mcmcBase::setParameterDistributionType( ParameterDistributionType parameter
    }
 }
 
-void mcmcBase::setMarginalDistributionType( size_t parameterSeqnb, MarginalProbDistr::Type marginalDistributionType )
+void McmcBase::setMarginalDistributionType( size_t parameterSeqnb, MarginalProbDistr::Type marginalDistributionType )
 {
    const size_t nbVarConPars = m_pdf.sizeCon();
    assert( m_marginalDistribution.size() == nbVarConPars );
@@ -259,7 +259,7 @@ void mcmcBase::setMarginalDistributionType( size_t parameterSeqnb, MarginalProbD
    m_margDistr->setTypes( m_marginalDistribution );
 }
 
-void mcmcBase::setMarginalDistributionType( const vector<MarginalProbDistr::Type> &marginalDistribution )
+void McmcBase::setMarginalDistributionType( const vector<MarginalProbDistr::Type> &marginalDistribution )
 {
    const size_t nbVarConPars = m_pdf.sizeCon();
    const size_t nbConPars = marginalDistribution.size();
@@ -277,17 +277,17 @@ void mcmcBase::setMarginalDistributionType( const vector<MarginalProbDistr::Type
    m_margDistr->setTypes( m_marginalDistribution );
 }
 
-void mcmcBase::setKrigingType( KrigingType krigingType )
+void McmcBase::setKrigingType( KrigingType krigingType )
 {
    m_krigingType = krigingType;
 }
 
-KrigingType mcmcBase::getKrigingType( ) const
+KrigingType McmcBase::getKrigingType( ) const
 {
    return m_krigingType;
 }
 
-ParameterSet mcmcBase::extendSampleToProxyCase( ParameterSet const& parset )
+ParameterSet McmcBase::extendSampleToProxyCase( ParameterSet const& parset ) const
 {
    if ( m_CatIndexOfSample.size() > 0 )
    {
@@ -307,7 +307,7 @@ ParameterSet mcmcBase::extendSampleToProxyCase( ParameterSet const& parset )
    }
 }
 
-ParameterSet mcmcBase::extendSubSampleToProxyCase( ParameterSet const& parset )
+ParameterSet McmcBase::extendSubSampleToProxyCase( ParameterSet const& parset ) const
 {
    if ( m_CatIndexOfSubSample.size() > 0 )
    {
@@ -327,7 +327,7 @@ ParameterSet mcmcBase::extendSubSampleToProxyCase( ParameterSet const& parset )
    }
 }
 
-Parameter mcmcBase::extendSampleToProxyCase( Parameter const& p, unsigned int i )
+Parameter McmcBase::extendSampleToProxyCase( Parameter const& p, unsigned int i ) const
 {
    if ( m_CatIndexOfSample.size() > 0 )
    {
@@ -344,7 +344,7 @@ Parameter mcmcBase::extendSampleToProxyCase( Parameter const& p, unsigned int i 
    }
 }
 
-Parameter mcmcBase::extendSubSampleToProxyCase( Parameter const& p, unsigned int i )
+Parameter McmcBase::extendSubSampleToProxyCase( Parameter const& p, unsigned int i ) const
 {
    if ( m_CatIndexOfSubSample.size() > 0 )
    {
@@ -362,31 +362,31 @@ Parameter mcmcBase::extendSubSampleToProxyCase( Parameter const& p, unsigned int
 }
 
 
-void mcmcBase::calcModel( ParameterSet const & parset, vector<vector<double> >& y ) const
+void McmcBase::calcModel( ParameterSet const & parset, vector<vector<double> >& y, KrigingType proxyKriging ) const
 {
    // For all samples calculate the model results
    for ( size_t i = 0; i < parset.size(); ++i )
    {
-      calcModel( parset[i], y[i] );
+      calcModel( parset[i], y[i], proxyKriging );
    }
 }
 
-void mcmcBase::calcModel( Parameter const& p, vector<double>& y ) const
+void McmcBase::calcModel( Parameter const& p, vector<double>& y, KrigingType proxyKriging ) const
 {
    assert( p.size() == m_proxies[0]->size() );
 
    // Prepare Kriging stuff
    KrigingWeights krigingWeights;
-   m_proxies[0]->calcKrigingWeights( p, m_krigingType, krigingWeights );
+   m_proxies[0]->calcKrigingWeights( p, proxyKriging, krigingWeights );
 
    // For all selected models
    for ( size_t j = 0; j < m_proxies.size(); ++j )
    {
-      y[j] = m_proxies[j]->getProxyValue( krigingWeights, p, m_krigingType );
+      y[j] = m_proxies[j]->getProxyValue( krigingWeights, p, proxyKriging );
    }
 }
 
-void mcmcBase::calcLh( const vector<vector<double> >& y, vector<double>& lh ) const
+void McmcBase::calcLh( const vector<vector<double> >& y, vector<double>& lh ) const
 {
    assert( y.size() == lh.size() );
    for ( size_t i = 0; i < y.size(); ++i )
@@ -397,7 +397,7 @@ void mcmcBase::calcLh( const vector<vector<double> >& y, vector<double>& lh ) co
 
 
 // only MCSolver && MCMC
-double mcmcBase::calcLh( const vector<double>& y ) const
+double McmcBase::calcLh( const vector<double>& y ) const
 {
    double log_lh = 0;
    for ( size_t j = 0; j < m_proxies.size(); ++j )
@@ -434,12 +434,12 @@ double mcmcBase::calcLh( const vector<double>& y ) const
 }
 
 
-void mcmcBase::adaptStepSize()
+void McmcBase::adaptStepSize()
 {
    m_stepProposer->adaptStepSize( m_acceptanceRate );
 }
 
-void mcmcBase::setStdDevFactor( double factor )
+void McmcBase::setStdDevFactor( double factor )
 {
    // Don't allow the factor to go below 1e-9
    static const double minStdDevFactor = 1e-9;
@@ -448,12 +448,12 @@ void mcmcBase::setStdDevFactor( double factor )
    if ( m_iterationCount > 0 )
    {
       calcLh( m_yImpr, m_logLh_impr );
-      if ( m_KrigingUsage == SmartMcmcKriging ) calcLh( m_y, m_logLh );
+      if ( m_krigingUsage == SmartMcmcKriging ) calcLh( m_y, m_logLh );
       else m_logLh = m_logLh_impr;
    }
 }
 
-void mcmcBase::adaptStdDevFactor()
+void McmcBase::adaptStdDevFactor()
 {
    assert( m_iterationCount > 0 );
 
@@ -472,7 +472,7 @@ void mcmcBase::adaptStdDevFactor()
    m_iterationCount = 1;
 }
 
-void mcmcBase::updateStatistics()
+void McmcBase::updateStatistics()
 {
    // Calculate chi2 characteristics, sample average and correlation matrix. Use current std. dev. factor
    m_statistics.update( m_pSample, m_ySample, getNumActiveMeasurements(), getStdDevFactor(), m_proxies, m_CatIndexOfSample );
@@ -489,14 +489,14 @@ void mcmcBase::updateStatistics()
    CalcAverages( m_rSample, m_rSample_avg );
 }
 
-void mcmcBase::printStatistics( std::ostream &out ) const
+void McmcBase::printStatistics( std::ostream &out ) const
 {
    out << "acceptanceRate " << getAcceptanceRate() << endl;
 
    m_statistics.print( out, getStdDevFactor(), m_proxies );
 }
 
-void mcmcBase::normalPriorSample( )
+void McmcBase::normalPriorSample( )
 {
    RealMatrix const& varmat = m_pdf.covariance();
 
@@ -521,23 +521,15 @@ void mcmcBase::normalPriorSample( )
    // Get the model results m_yImpr for the new subsample.
    // In addition, calculate the corresponding log likelihoods.
    m_yImpr.assign( m_subSampleSize, vector<double>( m_proxies.size(), 0 ) );
-   if ( m_KrigingUsage == NoMcmcKriging )
-   {
-      setKrigingType( NoKriging ); //use cheap proxies (no Kriging)!
-   }
-   else
-   {
-      setKrigingType( m_proxyKrigingType ); // use proxy setting for Kriging
-   }
-   calcModel( extendSubSampleToProxyCase( m_pSubSample ), m_yImpr );
+   KrigingType proxyKriging = m_krigingUsage == NoMcmcKriging ? NoKriging : m_proxyKrigingType;
+   calcModel( extendSubSampleToProxyCase( m_pSubSample ), m_yImpr, proxyKriging );
    calcLh( m_yImpr, m_logLh_impr );
 
    // As above but then for m_y and m_logLh.
-   if ( m_KrigingUsage == SmartMcmcKriging )
+   if ( m_krigingUsage == SmartMcmcKriging )
    {
       m_y.assign( m_subSampleSize, vector<double>( m_proxies.size(), 0 ) );
-      setKrigingType( NoKriging );
-      calcModel( extendSubSampleToProxyCase( m_pSubSample ), m_y );
+      calcModel( extendSubSampleToProxyCase( m_pSubSample ), m_y, NoKriging );
       calcLh( m_y, m_logLh );
    }
    else //copy if Kriging is either always or never applied
@@ -559,24 +551,24 @@ void mcmcBase::normalPriorSample( )
    CalcAverages( m_fSubSample, m_sampleEntropy_old );
 }
 
-void mcmcBase::initialSample()
+void McmcBase::initialSample()
 {
    m_searchStatus.assign( m_subSampleSize, Random );
    m_lastTornadoStep.assign( m_subSampleSize, 0 );
    normalPriorSample();
 }
 
-void mcmcBase::setStepMethodType( StepMethod stepMethod )
+void McmcBase::setStepMethodType( StepMethod stepMethod )
 {
    m_stepMethod = stepMethod;
 }
 
-mcmcBase::StepMethod mcmcBase::getStepMethod() const
+McmcBase::StepMethod McmcBase::getStepMethod() const
 {
    return m_stepMethod;
 }
 
-bool mcmcBase::convergenceImpl_MCMC_MC( vector<vector<double> >& sampleVar, double& stddev, const double lambda )
+bool McmcBase::convergenceImpl_MCMC_MC( vector<vector<double> >& sampleVar, double& stddev, const double lambda )
 {
    if ( m_tooBigAccRatio )
    {
@@ -594,7 +586,7 @@ bool mcmcBase::convergenceImpl_MCMC_MC( vector<vector<double> >& sampleVar, doub
    return true;
 }
 
-bool mcmcBase::convergence()
+bool McmcBase::convergence()
 {
    // Test whether maximal number of iterations have been performed
    if ( m_iterationCount > 0 && ( m_iterationCount % m_maxNbOfIterations ) == 0 ) return true;
@@ -627,13 +619,13 @@ bool mcmcBase::convergence()
    return convergenceImpl( sampleVar, stddev, lambda, maxNbOfTrialsPerCycle );
 }
 
-unsigned int mcmcBase::execute()
+unsigned int McmcBase::execute()
 {
    while ( iterateOnce() ){ /* nothing */ }
    return m_iterationCount;
 }
 
-unsigned int mcmcBase::iterateOnce()
+unsigned int McmcBase::iterateOnce()
 {
    // In the first iteration an initial sample needs to be drawn
    if ( m_iterationCount == 0 )
@@ -687,7 +679,7 @@ unsigned int mcmcBase::iterateOnce()
    return ++m_iterationCount;
 }
 
-void mcmcBase::doCycle( vector<vector<double> >& accRatios )
+void McmcBase::doCycle( vector<vector<double> >& accRatios )
 {
    double sumOfRates = 0.0;
    for ( unsigned int i = 1; i <= nbOfSteps; ++i )
@@ -699,7 +691,7 @@ void mcmcBase::doCycle( vector<vector<double> >& accRatios )
    adaptStepSize(); //adapt step size based on the cycle-averaged acceptance rate
 }
 
-void mcmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios )
+void McmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios )
 {
    unsigned int nbOfAcceptedProposals = 0; //counts number of accepted proposals for this step
    unsigned int nbOfNewProposals = m_subSampleSize; //counts total number of new proposals
@@ -710,23 +702,13 @@ void mcmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios 
    vector<double> oldPriorProb = m_priorProb;
    vector<double> oldLogLh = m_logLh;
 
-   // Before creating many proposals, first set proxy type
-   if ( m_KrigingUsage == FullMcmcKriging )
-   {
-      setKrigingType( m_proxyKrigingType ); //use proxy setting for Kriging
-   }
-   else
-   {
-      setKrigingType( NoKriging ); //cheap but "poor" proxy (up to 3rd order polynomial trend)
-   }
-
    // Propose a new step, i.e. propose a new case being a new "dot" in the subsample
    vector<bool> foundNewParProp( m_subSampleSize, false ); //new parameter proposal not found yet
    proposeStep( accRatios, foundNewParProp );
 
    // A new step has been proposed now but pNew (= m_pSubSample) has not been accepted yet if
    // smart Kriging has been used (in which case yNew has been generated by "poor" proxies).
-   if ( m_KrigingUsage == SmartMcmcKriging )
+   if ( m_krigingUsage == SmartMcmcKriging )
    {
       setKrigingType( m_proxyKrigingType ); //use proxy setting for Kriging
    }
@@ -759,7 +741,7 @@ void mcmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios 
       // Final acceptance test
       double logTransRatio = oldLogLh[i] - m_logLh[i] + oldPriorProb[i] - m_priorProb[i];
       double logAccRatio = logLhNew - m_logLh_impr[i] + m_priorProb[i] - oldPriorProb[i];
-      if ( acceptProposal( logTransRatio, logAccRatio ) || ( m_KrigingUsage != SmartMcmcKriging ) )
+      if ( acceptProposal( logTransRatio, logAccRatio ) || ( m_krigingUsage != SmartMcmcKriging ) )
       {
          m_yImpr[i] = yNew;
          m_logLh_impr[i] = logLhNew;
@@ -799,7 +781,7 @@ void mcmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios 
    }
 }
 
-void mcmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& newPar )
+void McmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& newPar )
 {
    unsigned int nbOfNewPar = 0; //counts all proposals that are not (yet) rejected
    unsigned int nbOfProp = 0; //counts the total number of parameter proposals
@@ -879,7 +861,7 @@ void mcmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& ne
    else m_acceptanceRate = 0.0;
 }
 
-RealVector mcmcBase::calcPriorProb( ParameterSet const& parSet ) const
+RealVector McmcBase::calcPriorProb( ParameterSet const& parSet ) const
 {
    const unsigned int size( parSet.size() );
    RealVector priorProbVect( size );
@@ -890,7 +872,7 @@ RealVector mcmcBase::calcPriorProb( ParameterSet const& parSet ) const
    return priorProbVect;
 }
 
-double mcmcBase::calcPriorProb( Parameter const& p ) const
+double McmcBase::calcPriorProb( Parameter const& p ) const
 {
    double priorProb = 0.0;
    if ( getUsePrior() )
@@ -917,7 +899,7 @@ double mcmcBase::calcPriorProb( Parameter const& p ) const
 }
 
 
-bool mcmcBase::acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccRatio ) const
+bool McmcBase::acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccRatio ) const
 {
    // Add logarithm of transition probability ratio
    logAccRatio += logTransRatio;
@@ -936,7 +918,7 @@ bool mcmcBase::acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccR
    return accept;
 }
 
-void mcmcBase::getP10toP90( P10ToP90Values &values, P10ToP90Parameters &parameters )
+void McmcBase::getP10toP90( P10ToP90Values &values, P10ToP90Parameters &parameters )
 {
    if ( m_sample_copy.empty() )
    {
@@ -978,7 +960,7 @@ void mcmcBase::getP10toP90( P10ToP90Values &values, P10ToP90Parameters &paramete
    } // for all mcmcProxy
 }
 
-std::vector< vector< unsigned int > > mcmcBase::getCatCombi()
+std::vector< vector< unsigned int > > McmcBase::getCatCombi()
 {
    std::vector< vector< unsigned int > > catCombis;
    for (size_t i = 0; i < m_catValuesWeights.size(); ++i )
@@ -988,7 +970,7 @@ std::vector< vector< unsigned int > > mcmcBase::getCatCombi()
    return catCombis;
 }
 
-double mcmcBase::sumOfSquaredErrors(const vector<double>& proxyResult) const
+double McmcBase::sumOfSquaredErrors(const vector<double>& proxyResult) const
 {
    double sumOfSquares = 0.0;
    for ( size_t i = 0; i < m_proxies.size(); ++i )
@@ -1020,7 +1002,7 @@ void CalculateTolerance( ParameterPdf const& pdf, vector<double> &eps )
 } // anon. namespace
 
 
-void mcmcBase::updateBestMatches( double key, Parameter const& p )
+void McmcBase::updateBestMatches( double key, Parameter const& p )
 {
    updateBestMatchesImpl( key, p );
 
@@ -1060,7 +1042,7 @@ struct ParameterIsClose
 
 } // anon. namespace
 
-bool mcmcBase::uniqueMatch( const vector<double>& match ) const
+bool McmcBase::uniqueMatch( const vector<double>& match ) const
 {
    bool unique(true);
 
@@ -1075,32 +1057,46 @@ bool mcmcBase::uniqueMatch( const vector<double>& match ) const
    return unique;
 }
 
-const std::vector<std::vector<double> > mcmcBase::getSortedYSample() const
-{ 
+bool McmcBase::isSameCase( const std::vector<double>& case1, const std::vector<double>& case2 ) const
+{
+   if ( case1.size() != case2.size() ) { return false; }
+   for ( size_t i = 0; i < case1.size(); ++i )
+   {
+      if ( !IsEqualTo(case1[i], case2[i]) )
+         return false;
+   }
+   return true;
+}
+
+const std::vector<std::vector<double> > McmcBase::getSortedYSample() const
+{
    std::vector< std::vector< double > > sortedYSample;
    ParameterRanking::const_iterator paramIter;
    for ( paramIter = m_bestMatches.begin(); paramIter != m_bestMatches.end(); ++paramIter )
    {
       std::vector<std::pair<Parameter, RealVector> >::const_iterator copyIter;
+      unsigned int key = 0;
       for ( copyIter = m_sample_copy.begin(); copyIter != m_sample_copy.end(); ++copyIter )
       {
-         if ( (*paramIter).second == (*copyIter).first )
+         const Parameter& extendedSampleCopy = extendSampleToProxyCase( (*copyIter).first, key );
+         if ( isSameCase( (*paramIter).second, extendedSampleCopy ) )
          {
             sortedYSample.push_back( (*copyIter).second );
             break;
          }
+         key = key + 1;
       }
    }
    if ( sortedYSample.size() < m_bestMatches.size() )
    {
       // Precaution: Because floating point comparison may be inaccurate, we need
       // to clear this vector so ProxyResponse will still evaluate the Proxy to fill the caseResults.
-      sortedYSample.clear(); 
+      sortedYSample.clear();
    }
    return sortedYSample;
 }
 
-double mcmcBase::getRMSEkey( double logP_lh) const
+double McmcBase::getRMSEkey( double logP_lh) const
 {
    unsigned int n = getNumActiveMeasurements();
    if ( n == 0 )
@@ -1113,7 +1109,7 @@ double mcmcBase::getRMSEkey( double logP_lh) const
    }
 }
 
-void mcmcBase::reset()
+void McmcBase::reset()
 {
    m_iterationCount = 0;
    m_continueOnConvergence = false;

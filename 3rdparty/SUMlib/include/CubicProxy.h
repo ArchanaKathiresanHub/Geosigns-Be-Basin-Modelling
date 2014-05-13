@@ -11,19 +11,28 @@
 
 // SUMlib
 #include "BaseTypes.h"
-#include "Proxy.h"
+#include "ISerializer.h"
 #include "SUMlib.h"
 
 namespace SUMlib {
 
 /// @class CubicProxy holds proxy model coefficients for a cubic polynomial model.
 /// The class assumes parameters to be scaled to the [-1:1] domain.
-class INTERFACE_SUMLIB CubicProxy : public Proxy
+class CubicProxy : public ISerializable
 {
    public:
 
       /// CubicProxy monomials and their coefficients
       typedef std::map< IndexList, double > CoefficientsMap;
+
+      /// Calculate coefficients for a proxy model based on SVD data (a, w, and v) and target values
+      /// @param [in] stat    integer status of SVD (0 = success)
+      /// @param [in] a       m x n orthonormal matrix
+      /// @param [in] w       n x 1 vector of singular values
+      /// @param [in] v       n x n orthonormal matrix
+      /// @param [in] b       m x 1 vector of target values
+      /// @param [out] coef   n x 1 vector of coefficients corresponding to the model monomials
+      static void calculateCoefficients( int stat, std::vector<std::vector<double> > const& a, std::vector<double> const& w, std::vector<std::vector<double> > const& v, std::vector<double> const& b, std::vector<double> & coef );
 
       /// Calculates the index list corresponding to the initial
       /// monomials (none, linear, or up to second order) contained in the proxy
@@ -164,7 +173,7 @@ class INTERFACE_SUMLIB CubicProxy : public Proxy
       /// The size of the cases of this proxy model
       /// Implements the Proxy abstract base class
       /// @returns the size (number of elements of the cases)
-      virtual unsigned int size( void ) const;
+      unsigned int size() const;
 
       /// Get a map of monomials and their cubic proxy coefficient.
       /// @param [out] cubic proxy monomials and coefficients map
@@ -172,15 +181,9 @@ class INTERFACE_SUMLIB CubicProxy : public Proxy
 
       /// Calculate the value for given (prepared) case
       /// Implements the Proxy abstract base class
-      /// @param [in] c             case
-      /// @param [in] krigingType   kriging type (unused)
+      /// @param [in] p             case
       /// @returns the proxy response value
-      virtual double getProxyValue(
-            Parameter const&              p,
-            KrigingType                   krigingType = DefaultKriging ) const;
-
-      /// Use the default implementation of the getProxyValue call with kriging weights
-      using Proxy::getProxyValue;
+      double getValue( Parameter const& p ) const;
 
       /// Get the active variables
       /// @param [out] p_varList a copy of the internal active variables list
@@ -200,6 +203,9 @@ class INTERFACE_SUMLIB CubicProxy : public Proxy
 
    private: // data
 
+      /// the size of parameter vectors
+      unsigned int            m_size;
+
       /// The active variables list stored as a vector of indices
       IndexList               m_vars;
 
@@ -209,14 +215,11 @@ class INTERFACE_SUMLIB CubicProxy : public Proxy
       /// mean of m_proxyData for statistical scaling
       RealVector              m_proxyMean;
 
-      // mean of targetSet for statistical scaling
+      /// mean of targetSet for statistical scaling
       double                  m_targetMean;
 
-      // The proxy coefficients
+      /// The proxy coefficients
       RealVector              m_coefficients;
-
-      // the size of parameter vectors
-      unsigned int            m_size;
 };
 
 // Inlined to increase performance.

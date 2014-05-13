@@ -11,6 +11,8 @@
 #include "ParameterBounds.h"
 #include "SUMlib.h"
 
+using std::vector;
+
 namespace SUMlib {
 
 BoxBehnken::BoxBehnken( vector<bool> const& selPar, unsigned int nbOfOrdPar ) :

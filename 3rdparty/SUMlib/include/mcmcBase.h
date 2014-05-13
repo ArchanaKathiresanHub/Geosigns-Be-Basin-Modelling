@@ -27,12 +27,12 @@ class MVNormalProbDistr;
 class RandomGenerator;
 class StepProposer;
 
-/// @class mcmcBase implements the base of all MC (Markov Chain) to obtain a sample
+/// @class McmcBase implements the base of all MC (Markov Chain) to obtain a sample
 /// of the posterior probability distribution using the experimental design
 /// response model and the active set data.
 ///
 /// The parameter samples are ranked (best matches) according to the RMSE
-class INTERFACE_SUMLIB mcmcBase {
+class INTERFACE_SUMLIB McmcBase {
 
 public:
 
@@ -108,7 +108,7 @@ protected:
 
    /// Vector containing the historical data and the ED response model to be
    /// used by a statistical analysis.
-   /// Note: the McmcProxys are not owned by mcmcBase, and hence are not destroyed.
+   /// Note: the McmcProxys are not owned by McmcBase, and hence are not destroyed.
    std::vector<McmcProxy*> m_proxies;
 
    /// The kriging type to use when evaluating proxies.
@@ -143,7 +143,7 @@ protected:
    /**
     * Indicator to specify how Kriging must be used: not, smartly, or always.
     */
-   KrigingUsage m_KrigingUsage;
+   KrigingUsage m_krigingUsage;
 
    /**
     * When m_parameterDistribution is MarginalDistribution, specifies which parameter marginal
@@ -204,7 +204,7 @@ protected:
    bool uniqueMatch(const std::vector<double>& p ) const;
 
    /**
-    * The parameter vector corresponding to a subsample of a single step.
+    * The parameter vector corresponding to a subsample of a single Markov step.
     * Dimension: [nbOfMarkovChains][pSize]
     */
    std::vector<std::vector<double> > m_pSubSample;
@@ -314,6 +314,7 @@ protected:
    std::vector<std::vector<double> > m_pSample_cov;
 
    /**
+   m_ySample_avg( m_proxies.size() ),
     * Sample parameter covariance matrix per categorical combination.
     *
     * This is calculated when the updateStatistics() method is called.
@@ -356,17 +357,17 @@ public:
 
    /// Constructor
    ///
-   /// @param[in,out] ascs                list of proxies to use for mcmcBase
+   /// @param[in,out] ascs                list of proxies to use for McmcBase
    /// @param[in]     sampleSize          number of "dots" in the sample
    /// @param[in]     pdf                 most likely prior, if available (parameterpdf mean)
    /// @param[in]     constraints         constraints on the parameter space
    /// @param[in]     statistics          statistics calculator
    /// @param[in]     maxNbOfIterations   maximum number of iterations to prevent an infinite execute loop
-   mcmcBase( RandomGenerator &rg, std::vector<McmcProxy*> const& ascs, unsigned int sampleSize, const ParameterPdf & pdf,
+   McmcBase( RandomGenerator &rg, std::vector<McmcProxy*> const& ascs, unsigned int sampleSize, const ParameterPdf & pdf,
          const ParameterBounds & constraints, McmcStatistics &statistics, unsigned int maxNbOfIterations = 100 );
 
    /// Destructor
-   virtual ~mcmcBase();
+   virtual ~McmcBase();
 
    /// Set the measurement error distristribution to be used when calculating
    /// the likelihood of a simulated result.
@@ -427,7 +428,7 @@ public:
    /// Set Kriging usage: NoMcmcKriging, SmartMcmcKriging, or FullMcmcKriging.
    ///
    /// @param krUsage The indicator specifying Kriging usage.
-   void setKrigingUsage( KrigingUsage krUsage ) { m_KrigingUsage = krUsage; }
+   void setKrigingUsage( KrigingUsage krUsage ) { m_krigingUsage = krUsage; }
 
    /// Setter for the kriging type to apply.
    /// @param [in] krigingType the new kriging type value
@@ -556,7 +557,7 @@ public:
 
    /// Get the categorical combinations
    /// @return the categorical combination
-   std::vector< vector< unsigned int > > getCatCombi();
+   std::vector< std::vector< unsigned int > > getCatCombi();
 
    typedef std::vector< std::pair< std::vector< unsigned int >, double > > CatValuesWeights;
    CatValuesWeights m_catValuesWeights;
@@ -580,22 +581,22 @@ protected:
    virtual double calcLh( const std::vector<double>& y ) const;
 
    // Impl functions (TODO: Rename to usefull names)
-   virtual bool convergenceImpl( vector<vector<double> >& sampleVar, double& stddev, const double lambda, const unsigned int maxNbOfTrialsPerCycle ) = 0;
+   virtual bool convergenceImpl( std::vector<std::vector<double> >& sampleVar, double& stddev, const double lambda, const unsigned int maxNbOfTrialsPerCycle ) = 0;
 
-   virtual void iterateOnceImpl(){};
+   virtual void iterateOnceImpl(){}
 
-   virtual void stepImpl( vector<double>& yNew, double& logLhNew, const size_t i ) = 0;
+   virtual void stepImpl( std::vector<double>& yNew, double& logLhNew, const size_t i ) = 0;
 
-   virtual double proposeStepImpl1( const vector<double>&, vector<double>&, unsigned int ){ return 0.0; }
+   virtual double proposeStepImpl1( const std::vector<double>&, std::vector<double>&, unsigned int ){ return 0.0; }
 
    virtual double proposeStepImpl2( const double, const size_t ){ return 0.0; }
 
-   virtual void proposeStepImpl3( const size_t ){};
+   virtual void proposeStepImpl3( const size_t ){}
 
    virtual void updateBestMatchesImpl( double key, Parameter const& p ){ m_bestMatches.insert( std::pair<double, const std::vector<double> > ( key, p ) ); }
 
    // Helper Impl functions (only used by MCMC and MC classes) to avoid code duplication
-   bool convergenceImpl_MCMC_MC( vector<vector<double> >& sampleVar, double& stddev, const double lambda );
+   bool convergenceImpl_MCMC_MC( std::vector<std::vector<double> >& sampleVar, double& stddev, const double lambda );
 
    bool acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccRatio ) const;
 
@@ -672,7 +673,7 @@ protected:
    ///
    /// @param[in]     p parameter set for which to calculate responses
    /// @param[out]    y responses of all proxies for all parameters
-   void calcModel( ParameterSet const& parset, std::vector<std::vector<double> >& y ) const;
+   void calcModel( ParameterSet const& parset, std::vector<std::vector<double> >& y, KrigingType proxyKriging ) const;
 
    /// Calculate (ED) simulated results for given parameters.
    ///
@@ -680,20 +681,21 @@ protected:
    ///
    /// @param[in]     p parameter for which to calculate responses
    /// @param[out]    y responses of all proxies
-   void calcModel( Parameter const& p, std::vector<double>& y ) const;
+   void calcModel( Parameter const& p, std::vector<double>& y, KrigingType proxyKriging ) const;
 
    /// Calculate RMSE key for the best matches multimap from the log likelihood
    /// @param[in]     logP_lh log likelihood
    double getRMSEkey( double logP_lh ) const;
 
+   bool isSameCase( const std::vector<double>&, const std::vector<double>& ) const;
 
-   ParameterSet extendSampleToProxyCase( ParameterSet const& parset );
+   ParameterSet extendSampleToProxyCase( ParameterSet const& parset ) const;
 
-   ParameterSet extendSubSampleToProxyCase( ParameterSet const& parset );
+   ParameterSet extendSubSampleToProxyCase( ParameterSet const& parset ) const;
 
-   Parameter extendSampleToProxyCase( Parameter const& p, unsigned int i );
+   Parameter extendSampleToProxyCase( Parameter const& p, unsigned int i ) const;
 
-   Parameter extendSubSampleToProxyCase( Parameter const& p, unsigned int i );
+   Parameter extendSubSampleToProxyCase( Parameter const& p, unsigned int i ) const;
 
 
 public:
@@ -768,7 +770,7 @@ public:
    double sumOfSquaredErrors(const std::vector<double>& proxyResult) const;
 
    /**
-    * Resets the mcmcBase execution by setting the iteration counter to 0.
+    * Resets the McmcBase execution by setting the iteration counter to 0.
     */
    void reset();
 };

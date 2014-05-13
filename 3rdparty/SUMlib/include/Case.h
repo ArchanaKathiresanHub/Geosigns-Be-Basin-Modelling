@@ -12,8 +12,6 @@
 
 #include "ISerializer.h"
 
-using std::vector;
-
 namespace SUMlib {
 
 /// @class Case defines a case, i.e. a combination of parameter values
@@ -29,14 +27,14 @@ public:
 
    /// Constructor for continuous parameters only
    /// @param [in] vCon         vector with continuous parameter values
-   explicit Case( vector<double> const& vCon );
+   explicit Case( std::vector<double> const& vCon );
 
    /// Constructor
    /// @param [in] vCon         vector with continuous parameter values
    /// @param [in] vDis         vector with discrete parameter values
    /// @param [in] vCat         vector with categorical parameter values
-   Case( vector<double> const& vCon,
-         vector<int> const& vDis, vector<unsigned int> const& vCat );
+   Case( std::vector<double> const& vCon,
+         std::vector<int> const& vDis, std::vector<unsigned int> const& vCat );
 
    /// Constructor
    /// @param [in] nCon         number of continuous parameters
@@ -73,7 +71,7 @@ public:
 
    /// Getter for the vector of continuous parameters
    /// @returns the vector of continuous parameter values
-   vector<double> const& continuousPart() const { return m_continuous; }
+   std::vector<double> const& continuousPart() const { return m_continuous; }
 
    /// Getter for a specific continuous parameter
    /// @param [in]   i        continuous parameter index
@@ -82,7 +80,7 @@ public:
 
    /// Getter for the vector of discrete parameters
    /// @returns the vector of discrete parameter values
-   vector<int> const& discretePart() const { return m_discrete; }
+   std::vector<int> const& discretePart() const { return m_discrete; }
 
    /// Getter for a specific discrete parameter
    /// @param [in]   i        discrete parameter index
@@ -91,7 +89,7 @@ public:
 
    /// Getter for the vector of categorical parameters
    /// @returns the vector of categorical parameter values
-   vector<unsigned int> const& categoricalPart() const { return m_categorical; }
+   std::vector<unsigned int> const& categoricalPart() const { return m_categorical; }
 
    /// Getter for a specific categorical parameter
    /// @param [in]   i        categorical parameter index
@@ -100,7 +98,7 @@ public:
 
    /// Get vector of ordinal parameters by concatenating vectors of continuous and discrete parameters
    /// @returns the vector of ordinal parameter values
-   vector<double> ordinalPart() const;
+   std::vector<double> ordinalPart() const;
 
    /// Getter for a specific ordinal parameter; enumeration order: 1.continuous, 2.discrete
    /// @param [in]   i        ordinal parameter index
@@ -114,7 +112,7 @@ public:
 
    /// Setter for the vector of continuous parameters
    /// @param [in]   vCon     vector of continuous parameter values
-   void setContinuousPart( vector<double> const& vCon ) { m_continuous = vCon; }
+   void setContinuousPart( std::vector<double> const& vCon ) { m_continuous = vCon; }
 
    /// Setter for a specific continuous parameter
    /// @param [in]   i        continuous parameter index
@@ -123,7 +121,7 @@ public:
 
    /// Setter for the vector of discrete parameters
    /// @param [in]   vDis     vector of discrete parameter values
-   void setDiscretePart( vector<int> const& vDis ) { m_discrete = vDis; }
+   void setDiscretePart( std::vector<int> const& vDis ) { m_discrete = vDis; }
 
    /// Setter for a specific discrete parameter
    /// @param [in]   i        discrete parameter index
@@ -132,7 +130,7 @@ public:
 
    /// Setter for the vector of categorical parameters
    /// @param [in]   vCat     vector of categorical parameter values
-   void setCategoricalPart( vector<unsigned int> const& vCat ) { m_categorical = vCat; }
+   void setCategoricalPart( std::vector<unsigned int> const& vCat ) { m_categorical = vCat; }
 
    /// Setter for a specific categorical parameter
    /// @param [in]   i        categorical parameter index
@@ -190,13 +188,13 @@ private:
 
 private:
    /// Continuous parameter values
-   vector<double> m_continuous;
+   std::vector<double> m_continuous;
 
    /// Discrete parameter values
-   vector<int> m_discrete;
+   std::vector<int> m_discrete;
 
    /// Categorical parameter values
-   vector<unsigned int> m_categorical;
+   std::vector<unsigned int> m_categorical;
 };
 
 } // namespace SUMlib

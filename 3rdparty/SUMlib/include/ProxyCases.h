@@ -69,19 +69,19 @@ class INTERFACE_SUMLIB ProxyCases
       /// @param [in]  par       the parameter set to calculate the response for
       /// @param [in]  target    the target values to compare the response with
       /// @returns the mean-square-error
-      static double calculateMSE( Proxy const * proxy, ParameterSet const& par, TargetSet const& target );
+      static double calculateMSE( CubicProxy const * proxy, ParameterSet const& par, TargetSet const& target );
 
       /// Determine the mean square error w.r.t. tune targets of the
       /// proxy response to tune parameters
       /// @param [in]  proxy     the proxy model to evaluate
       /// @returns the MSE of the tune set
-      double tuneMSE( Proxy const * proxy ) const;
+      double tuneMSE( CubicProxy const * proxy ) const;
 
       /// Determine the mean square error w.r.t. test targets of the
       /// proxy response to test parameters
       /// @param [in]  proxy     the proxy model to evaluate
       /// @returns the MSE of the tune set
-      double testMSE( Proxy const * proxy ) const;
+      double testMSE( CubicProxy const * proxy ) const;
 
       /// Determine the quality of the proxy by evaluating the
       /// proxy against the test set of inactive cases
@@ -91,7 +91,7 @@ class INTERFACE_SUMLIB ProxyCases
       /// @param [out] testRMSE     the RMSE of the test set
       /// @param [out] totalRMSE    the RMSE of the full set
       /// @param [out] adjustedR2   the adjusted R^2 of the full set
-      void test( Proxy const * proxy, unsigned int nrOfUsedVars, double & tuneRMSE,
+      void test( CubicProxy const * proxy, unsigned int nrOfUsedVars, double & tuneRMSE,
                  double & testRMSE, double & totalRMSE, double & adjustedR2 ) const;
 
       /// Get the total number of cases
@@ -107,24 +107,6 @@ class INTERFACE_SUMLIB ProxyCases
       static void RNGseed( int seed );
 
    private:
-
-#if 0 // Never called
-      /// The set of parameters in the tune set
-      /// @returns a subset of cases
-      ParameterSet const & tuneParameters() const;
-
-      /// The set of parameters in the test set
-      /// @returns a subset of cases
-      ParameterSet const & testParameters() const;
-
-      /// The target values for the  parameters in the tune set
-      /// @returns a subset of target values
-      TargetSet const & tuneTargets() const;
-
-      /// The target values for the  parameters in the test set
-      /// @returns a subset of target values
-      TargetSet const & testTargets() const;
-#endif
 
       ParameterSet   m_tunePars;
       TargetSet      m_tuneTargets;

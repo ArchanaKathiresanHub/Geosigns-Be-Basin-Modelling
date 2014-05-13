@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <utility>
 #include <vector>
 
 #include "BaseTypes.h"
@@ -14,7 +15,6 @@
 #include "Exception.h"
 #include "Proxy.h"
 #include "NumericUtils.h"
-#include "PolynomialProxyModel.h"
 #include "ProxyEstimator.h"
 #include "ProxyCases.h"
 
@@ -43,13 +43,13 @@ ProxyEstimator::ProxyEstimator (
       bool                  doReduce            // true
       )
    :
+      m_nrCasesForTest( 0 ),
+      m_setNrCasesForTest( false ),
       m_nrCV_Max( nrCV_Max ),
       m_nrCV_Min( nrCV_Min ),
       m_maxNrDeclines( maxNrDeclines ),
-      m_nrCasesForTest( 0 ),
-      m_doAugment( doAugment ),
       m_doReduce( doReduce ),
-      m_setNrCasesForTest( false )
+      m_doAugment( doAugment )
 {
    // make sure internals are properly bounded
    m_nrCV_Min = std::min( m_nrCV_Min, m_nrCV_Max );
@@ -150,7 +150,7 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
    assert( Nord2 < Ncrit ); //number of all 3rd order terms excl. 3-way interaction terms > number of all 2nd order terms
    assert( order < 3 );
    assert( iCandidate < code.size() );
-   
+
    if ( ( nrOrdPars == nrPars ) && ( order == 0 ) ) //no categorical parameter(s) present
    {
       if ( N <= 1 + nrPars )
@@ -171,7 +171,7 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
    else if ( nrOrdPars < nrPars ) //other logic if categorical parameter(s) are present
    {
       unsigned int ao = ( order == 1 ? order : 2 ); //locally applied order
-      
+
       // Reject higher order terms that makes no sense from a user perspective
       if ( code[iCandidate].size() == 2 )
       {
@@ -187,7 +187,7 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
             return false;
          }
       }
-      
+
       // If the auto search is intentional AND the order = 0 AND the number of cases is limited
       if ( order == 0 ) //intentional auto search otherwise order would have been equal to -1
       {
@@ -213,7 +213,7 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
             }
          }
       }
-      
+
       // If the user just asks for intercepts (order = 0) with auto-search = OFF, then reject any other term
       if ( order == -1 ) //-1 is special flag indicating user order = 0 without auto search
       {
@@ -237,7 +237,7 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
          }
       }
    }
-   
+
    return true;
 }
 
@@ -248,10 +248,10 @@ void ProxyEstimator::updateCandidates( ProxyCases const& proxycases, VarList con
    const unsigned int nrTuneCases = proxycases.numTuneCases();
    const unsigned int nrPars = proxycases.caseSize();
    const unsigned int N = getNrCases();
-   
+
    // Number of all potential terms up to second order
    const unsigned int Nord2 = 1 + CubicProxy::numVars( nrPars, 2 );
-   
+
    // Number of all potential terms except 3-way interaction terms
    const unsigned int Ncrit = Nord2 + nrPars * nrPars;
 
@@ -280,7 +280,7 @@ void ProxyEstimator::rankCandidates( CandidateList const& candidates, CandidateR
    ranking.resize(candidates.size());
    for ( unsigned int k = 0; k < ranking.size(); ++k )
    {
-      ranking[k] = std::make_pair<double,unsigned int>( candidates[k].rmseTotal, k );
+      ranking[k] = std::make_pair( candidates[k].rmseTotal, k );
    }
 
    // Sort the candidates (actually array indices into candidates) wrt. RMSE of total parameter set
@@ -338,7 +338,7 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
 
    // The number of parameters = the number of entries in each case
    const unsigned int numPar = m_parSet.front().size();
-   
+
    // The code containing all potential monomials/variables up to 3rd order
    MonomialKeyList code;
    CubicProxy::monomial_code( numPar, code );
@@ -607,7 +607,7 @@ bool ProxyEstimator::betterProxyExists( ProxyCandidate const& candidate, ProxyCa
    {
       return false;
    }
-   
+
    std::vector<unsigned int> vars;
    candidate.proxy->getVarList( vars );
    int nAddedVars = vars.size();
@@ -624,7 +624,7 @@ bool ProxyEstimator::betterProxyExists( ProxyCandidate const& candidate, ProxyCa
    {
       return true; //reject the null hypothesis that candidate ~ best
    }
-   
+
    const double candidateMSE = candidate.rmseTotal * candidate.rmseTotal;
    const double bestMSE = best.rmseTotal * best.rmseTotal;
    if ( candidateMSE < eps * bestMSE )
@@ -635,17 +635,16 @@ bool ProxyEstimator::betterProxyExists( ProxyCandidate const& candidate, ProxyCa
    statistic += ( degreesOfFreedom + nAddedVars ) * bestMSE / candidateMSE;
    assert( statistic > ( nAddedVars - eps ) ); //by construction
    statistic = sqrt( statistic ); //converts PDF from F(1,df) to Student-t(df)
-   
+
    return ( statistic > CriticalValue( degreesOfFreedom, confLevel * 100.0 ) );
 }
 
-ProxyCandidate::ProxyCandidate()
-   :
-      adjustedR2( -Infinity ),
-      rmseTotal( Infinity ),
-      rmseTune( Infinity ),
-      rmseTest( Infinity ),
-      proxy( NULL )
+ProxyCandidate::ProxyCandidate() :
+   proxy( NULL ),
+   rmseTune( Infinity ),
+   rmseTest( Infinity ),
+   rmseTotal( Infinity ),
+   adjustedR2( -Infinity )
 {
    // empty
 }

@@ -38,13 +38,13 @@ ProxyBuilder::ProxyBuilder(
    m_orthonormalU = m_proxyData;
 
    // Calculate the monomial coefficients by applying SVD
-   int stat = Proxy::calculateSVD( m_orthonormalU, m_singularValues, m_orthonormalV );
+   int stat = calculateSVD( m_orthonormalU, m_singularValues, m_orthonormalV );
 
    // Statistical scaling of estimation data (allProxyData is assumed to be scaled to [-1:1])
    VectorScaleToMean( m_scaledTargets, m_targetMean );
 
    // Calculate the coefficients for the specified target set
-   Proxy::calculateCoefficients( stat, m_orthonormalU, m_singularValues, m_orthonormalV, m_scaledTargets, m_coefficients );
+   CubicProxy::calculateCoefficients( stat, m_orthonormalU, m_singularValues, m_orthonormalV, m_scaledTargets, m_coefficients );
 }
 
 
@@ -73,10 +73,10 @@ CubicProxy *ProxyBuilder::create( unsigned int varIndx ) const
    RealVector        coefficients;
 
    VarList::iterator varIt = std::find( vars.begin(), vars.end(), varIndx );
-   unsigned int varPos = std::distance( vars.begin(), varIt );
 
    if ( varIt != vars.end() )
    {
+      const unsigned int varPos = std::distance( vars.begin(), varIt );
       // Reduce model by removing column that corresponds to the supplied var
       vars.erase( varIt );
       const unsigned int nrOfVars = vars.size();
@@ -115,7 +115,7 @@ CubicProxy *ProxyBuilder::create( unsigned int varIndx ) const
       proxyMean.resize( nrOfVars );
       coefficients.resize( nrOfVars );
       varIt = std::find( vars.begin(), vars.end(), varIndx );
-      varPos = std::distance( vars.begin(), varIt );
+      const int varPos = std::distance( vars.begin(), varIt );
       for ( int i = nrOfVars - 1; i >= 0 ; --i )
       {
          if ( i > varPos )
@@ -189,7 +189,7 @@ void ProxyBuilder::calcAugmentedCoeff( RealVector const& c, RealVector& r, doubl
    // column c can be written as proxyData*p + q, where p is the projection vector
    // and q is the innovation vector such that transpose(proxyData)*q = 0.
    RealVector p( nVar ), q( nPar );
-   Proxy::calculateCoefficients( 0, orthonormalU(), singularValues(), orthonormalV(), c, p );
+   CubicProxy::calculateCoefficients( 0, orthonormalU(), singularValues(), orthonormalV(), c, p );
    if ( nVar > 0 )
    {
       MatrixVectorProduct( proxyData(), p, q );
@@ -247,8 +247,8 @@ RealVector ProxyBuilder::calcReducedCoeff( unsigned int nVars, unsigned int pos 
       }
       RealMatrix orthV;
       RealVector singVal;
-      int stat = Proxy::calculateSVD( orthU, singVal, orthV );
-      Proxy::calculateCoefficients( stat, orthU, singVal, orthV, targets(), coef );
+      int stat = calculateSVD( orthU, singVal, orthV );
+      CubicProxy::calculateCoefficients( stat, orthU, singVal, orthV, targets(), coef );
    }
    else
    {

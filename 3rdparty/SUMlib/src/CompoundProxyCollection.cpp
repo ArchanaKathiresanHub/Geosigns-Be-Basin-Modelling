@@ -31,10 +31,7 @@ CompoundProxyCollection::CompoundProxyCollection(
 
 CompoundProxyCollection::~CompoundProxyCollection()
 {
-   // Warning 1: CompoundProxy memory is not released here (neither in SUMlib) but somewhere in src/multirun!!!
-   // This is highly undesired, even wrong if the SUMlib code is re-used somewhere else!!!
-   
-   // Warning 2: The pointer auto_ptr (to KrigingData) will be deprecated!!!
+   deleteProxies();
 }
 
 void CompoundProxyCollection::calculate(
@@ -52,7 +49,7 @@ void CompoundProxyCollection::calculate(
    {
       assert( case2Obs2Valid[i].size() == targets.size() );
    }
-   m_proxies.clear();
+   deleteProxies();
 
    Partition part( partition );
    m_parameterSpace.prepare( part);
@@ -91,9 +88,9 @@ ProxyValueList CompoundProxyCollection::getProxyValueList( Case const& c, Krigin
    return values;
 }
 
-ProxyValue CompoundProxyCollection::getProxyValue( int index, Case const& c, KrigingType krigingType ) const
+ProxyValue CompoundProxyCollection::getProxyValue( size_t index, Case const& c, KrigingType krigingType ) const
 {
-   assert( index >= 0 && index < m_proxies.size() );
+   assert( index < m_proxies.size() );
 
    RealVector preparedCase;
    m_parameterSpace.prepare( c, preparedCase );
@@ -142,6 +139,15 @@ void CompoundProxyCollection::provideCaseValidity(
    assert( nbOfObsValues == nbOfValidCases );
 }
 
+void CompoundProxyCollection::deleteProxies()
+{
+   for ( CompoundProxyList::iterator pp = m_proxies.begin(); pp != m_proxies.end(); ++pp )
+   {
+      delete( *pp );
+   }
+   m_proxies.clear();
+}
+
 bool CompoundProxyCollection::load( IDeserializer* deserializer, unsigned int )
 {
    bool ok = true;
@@ -152,6 +158,7 @@ bool CompoundProxyCollection::load( IDeserializer* deserializer, unsigned int )
 
    if (ok)
    {
+      deleteProxies();
       m_proxies.resize(nrOfProxies);
 
       // for all proxies

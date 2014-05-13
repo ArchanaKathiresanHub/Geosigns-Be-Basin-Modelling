@@ -82,7 +82,7 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
       /// @param [in] krigingType   the kriging type to apply
       /// @returns the proxy value
       ProxyValue                 getProxyValue(
-            int                                 index,
+            size_t                              index,
             Case const&                         c,
             KrigingType                         krigingType = DefaultKriging ) const;
 
@@ -122,6 +122,8 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
             unsigned int                           nbOfObsValues,
             unsigned int                           obsIndex,
             std::vector<bool>&                     caseValid ) const;
+
+      void deleteProxies();
 
       // data
       std::auto_ptr<KrigingData>    m_krigingData;

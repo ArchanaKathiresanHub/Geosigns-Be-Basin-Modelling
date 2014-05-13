@@ -14,6 +14,7 @@
 #include "ParameterBounds.h"
 #include "SUMlib.h"
 
+using std::vector;
 
 namespace SUMlib {
 
@@ -189,9 +190,13 @@ void FactDesign::checkDesignGenerators()
       }
 
       // Last element corresponds to the factor that must be aliased
-      if ( m_designGenerators[i].back() > numSelOrdFactors() )
+      if ( m_designGenerators[i].back() >= 0 )
       {
-         THROW2( IndexOutOfBounds, "Parameter index out of bounds." );
+         size_t lastElement = m_designGenerators[i].back();
+         if ( lastElement > numSelOrdFactors() )
+         {
+            THROW2( IndexOutOfBounds, "Parameter index out of bounds." );
+         }
       }
 
       // Generator index 1 corresponds to a positive parameter index

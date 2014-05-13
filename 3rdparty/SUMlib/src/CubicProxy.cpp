@@ -3,6 +3,8 @@
 // Neither the whole nor any part of this document may be copied, modified or distributed in any
 // form without the prior written consent of the copyright owner.
 
+#include "CubicProxy.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -12,13 +14,71 @@
 #include "DataStructureUtils.h"
 #include "Exception.h"
 #include "NumericUtils.h"
-#include "CubicProxy.h"
 #include "ProxyBuilder.h"
 #include "SerializerUtils.h"
 
 using std::vector;
 
 namespace SUMlib {
+
+namespace
+{
+
+struct AbsoluteLessThan
+{
+   AbsoluteLessThan( double const& t) :
+      value( t )
+   {
+      // empty
+   }
+   bool operator()( double const& val )
+   {
+      return fabs( val ) < value;
+   }
+   double value;
+};
+
+}
+
+void CubicProxy::calculateCoefficients( int stat, vector<vector<double> > const& a,
+                                        vector<double> const& w,
+                                        vector<vector<double> > const& v,
+                                        vector<double> const& b,
+                                        vector<double> & coef )
+{
+   const size_t nRows( a.size() );
+   const size_t nCols( nRows ? a.front().size() : 0 );
+   if ( nRows == 0 || nCols == 0 )
+   {
+      coef.clear();
+      return;
+   }
+   assert( w.size() == nCols );
+   assert( v.size() == nCols );
+   assert( v.front().size() == nCols );
+   assert( b.size() == nRows );
+
+   // Singular values w smaller than tolerance*wmax are discarded
+   const double tolerance = nRows * MachineEpsilon();
+   const double wmax(*(std::max_element( w.begin(), w.end() ) ) );
+   const double threshold( wmax*tolerance );
+
+   // Set diagonal terms to zero for insensitive elements
+   vector<double> SV( w );
+   std::replace_if( SV.begin(), SV.end(), AbsoluteLessThan(threshold), 0.0 );
+
+   // Backsubstitution to obtain the coefficients
+   // coef does not have to be cleared
+   coef.resize( nCols );
+   if ( stat == 0 )
+   {
+      svbksb( a, SV, v, b, coef, threshold );
+   }
+   else
+   {
+      coef.assign( nCols, 0.0 );
+   }
+}
 
 unsigned int CubicProxy::numVars( unsigned int nPar, unsigned int maxOrder /* 3 */ )
 {
@@ -181,7 +241,7 @@ void CubicProxy::initialise(
    m_coefficients = coefficients;
 }
 
-unsigned int CubicProxy::size( void ) const
+unsigned int CubicProxy::size() const
 {
    return m_size;
 }
@@ -214,7 +274,7 @@ double CubicProxy::getIntercept( void ) const
    return value;
 }
 
-double CubicProxy::getProxyValue( Parameter const& par, KrigingType ) const
+double CubicProxy::getValue( Parameter const& par ) const
 {
    double value( m_targetMean );
 

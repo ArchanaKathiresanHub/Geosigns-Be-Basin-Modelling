@@ -11,6 +11,8 @@
 #include "ParameterBounds.h"
 #include "ScreenDesign.h"
 
+using std::vector;
+
 namespace SUMlib {
 
 ScreenDesign::ScreenDesign( vector<bool> const& selPar, unsigned int nbOfOrdPar,

@@ -227,7 +227,7 @@ void ParameterPdf::removeRedundantWeights()
       int lowestValue = m_minLow.discretePar( i );
       int nbOfWeights = 1 + high().discretePar( i ) - lowValue;
       vector<double> weights( nbOfWeights );
-      for ( unsigned int j = 0; j < nbOfWeights; ++j )
+      for ( int j = 0; j < nbOfWeights; ++j )
       {
          weights[j] = m_disWeights[i][j + lowValue - lowestValue];
       }

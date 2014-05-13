@@ -1376,5 +1376,27 @@ double CriticalValue( unsigned int const& df, double const& p )
    return fInf * ( 1.0 - w ) + f1 * w;
 }
 
+int calculateSVD( vector<vector<double> >& a, vector<double>& w, vector<vector<double> >& v )
+{
+   const size_t nRows( a.size() );
+   const size_t nCols( nRows ? a.front().size() : 0 );
+   if (  nRows == 0 || nCols == 0 )
+   {
+      return 0;
+   }
+   // Clearing not necessary
+   w.resize( nCols );
+   v.resize( nCols, RealVector( nCols ) );
+
+   // Do the singular value decomposition by calling svdcmp of which the current implementation
+   // does not fully support underdetermined (nRows < nCols) systems of equations.
+   // Note: In the context of polynomial proxies, nRows = nCols also refers to an underdetermined
+   // system as the column that corresponds to the intercept has been eliminated from matrix a.
+   assert( nRows > nCols );
+   int stat = svdcmp( a, w, v );
+   assert( a.size() == nRows );
+   assert( a.front().size() == nCols );
+   return stat;
+}
 
 } // namespace SUMlib

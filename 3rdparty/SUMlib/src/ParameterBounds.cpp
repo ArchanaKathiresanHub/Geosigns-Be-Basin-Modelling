@@ -19,6 +19,8 @@
 
 #include "SerializerUtils.h"
 
+using std::vector;
+
 namespace SUMlib {
 
 ParameterBounds::ParameterBounds()

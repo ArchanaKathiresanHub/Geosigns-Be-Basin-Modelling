@@ -361,9 +361,21 @@ void CalcCovariances( std::vector<RealVector> const& m, RealVector const& avg, R
 /// degrees of freedom at a confidence level of p % (i.e. at a significance level of 100 - p %)
 /// In this function p is a percentage, 50 <= p <= 99.9.
 /// @param [in]  df   degrees of freedom
-/// @param [in]  p    percentage/// @returns the critical value
+/// @param [in]  p    percentage
+/// @returns the critical value
 INTERFACE_SUMLIB_DEBUG
 double CriticalValue( unsigned int const& df, double const& p );
+
+/// Calculate singular value decomposition (SVD) of original matrix a
+/// The SVD calculation changes matrix a but not its dimensions: m rows and n columns
+/// Requirement: m >= n
+/// @param [in,out] a   matrix of proxy model monomials (in) -> orthonormal matrix (out)
+/// @param [out] w      n x 1 vector of singular values
+/// @param [out] v      n x n orthonormal matrix
+/// @returns the status of the SVD operation (0 = success)
+int calculateSVD( std::vector<std::vector<double> >& a,
+                  std::vector<double>& w,
+                  std::vector<std::vector<double> >& v );
 
 } // namespace SUMlib
 

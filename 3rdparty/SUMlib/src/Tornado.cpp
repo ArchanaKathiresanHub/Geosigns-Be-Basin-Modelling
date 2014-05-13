@@ -11,6 +11,7 @@
 #include "Tornado.h"
 #include "SUMlib.h"
 
+using std::vector;
 
 namespace SUMlib {
 

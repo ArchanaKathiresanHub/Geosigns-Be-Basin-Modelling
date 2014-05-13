@@ -9,24 +9,12 @@
 #include <vector>
 
 #include "BaseTypes.h"
+#include "KrigingProxy.h"
 #include "SUMlib.h"
 
 #include "ISerializer.h"
 
 namespace SUMlib {
-
-/// @typedef KrigingType   defines the Kriging type to use
-///
-/// Use GlobalKriging for highest accuracy
-/// LocalKriging (fast) compromises between GlobalKriging and None
-/// Recommended: GlobalKriging
-typedef enum {
-   NoKriging,
-   LocalKriging,
-   GlobalKriging
-} KrigingType;
-
-static const KrigingType DefaultKriging = GlobalKriging;
 
 class KrigingWeights;
 
@@ -36,25 +24,6 @@ class INTERFACE_SUMLIB Proxy : public ISerializable
 
       virtual ~Proxy()
       {}
-
-      /// Calculate singular value decomposition (SVD) of original matrix a
-      /// The SVD calculation changes matrix a but not its dimensions: m rows and n columns
-      /// Requirement: m >= n
-      /// @param [in,out] a   matrix of proxy model monomials (in) -> orthonormal matrix (out)
-      /// @param [out] w      n x 1 vector of singular values
-      /// @param [out] v      n x n orthonormal matrix
-      /// @returns the status of the SVD operation (0 = success)
-      static int calculateSVD( std::vector<std::vector<double> >& a, std::vector<double>& w,
-      std::vector<std::vector<double> >& v );
-
-      /// Calculate coefficients for a proxy model based on SVD data (a, w, and v) and target values
-      /// @param [in] stat    integer status of SVD (0 = success)
-      /// @param [in] a       m x n orthonormal matrix
-      /// @param [in] w       n x 1 vector of singular values
-      /// @param [in] v       n x n orthonormal matrix
-      /// @param [in] b       m x 1 vector of target values
-      /// @param [out] coef   n x 1 vector of coefficients corresponding to the model monomials
-      static void calculateCoefficients( int stat, std::vector<std::vector<double> > const& a, std::vector<double> const& w, std::vector<std::vector<double> > const& v, std::vector<double> const& b, std::vector<double> & coef );
 
       /// Get the allowed size of parameter vectors
       /// @returns the size of parameter vectors for which this proxy model is calculated

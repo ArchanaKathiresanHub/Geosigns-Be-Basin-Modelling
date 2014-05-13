@@ -53,7 +53,7 @@ class INTERFACE_SUMLIB ExpDesignBase : public ExpDesign
       void createOrdDesign( ParameterBounds const& bounds, Case const& center,
                             DesignMatrix& conDes, std::vector<std::vector<int> >& disDes ) const;
 
-      // Create categorical design from m_design; only used by HybridMC and FaureDesign.
+      // Create categorical design from m_design; only used by HybridMC.
       void createCatDesign( ParameterBounds const& bounds,
                             std::vector<std::vector<unsigned int> >& catDes ) const;
 

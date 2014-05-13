@@ -11,8 +11,6 @@
 #include "DesignGenerator.h"
 #include "SUMlib.h"
 
-using SUMlib::DesignGenerator;
-
 namespace SUMlib {
 
 class INTERFACE_SUMLIB_DEBUG DesignGeneratorCatalog

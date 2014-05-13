@@ -12,7 +12,6 @@
 #include "DataStructureUtils.h"
 #include "Exception.h"
 #include "NumericUtils.h"
-#include "Proxy.h"
 #include "ProxyCases.h"
 #include "ProxyBuilder.h"
 #include "RandomGenerator.h"
@@ -225,28 +224,6 @@ unsigned int ProxyCases::caseSize() const
    return m_tunePars.front().size();
 }
 
-#if 0 // Never called
-ParameterSet const & ProxyCases::tuneParameters() const
-{
-   return m_tunePars;
-}
-
-ParameterSet const & ProxyCases::testParameters() const
-{
-   return m_testPars;
-}
-
-TargetSet const & ProxyCases::tuneTargets() const
-{
-   return m_tuneTargets;
-}
-
-TargetSet const & ProxyCases::testTargets() const
-{
-   return m_testTargets;
-}
-#endif
-
 void ProxyCases::createProxyBuilder( VarList const& vars )
 {
    if ( m_builder )
@@ -274,7 +251,7 @@ CubicProxy *ProxyCases::createProxy( unsigned int varIndx ) const
    return m_builder->create( varIndx );
 }
 
-double ProxyCases::calculateMSE( Proxy const *proxy, ParameterSet const& par, TargetSet const& target )
+double ProxyCases::calculateMSE( CubicProxy const *proxy, ParameterSet const& par, TargetSet const& target )
 {
    if ( par.empty() )
    {
@@ -288,22 +265,22 @@ double ProxyCases::calculateMSE( Proxy const *proxy, ParameterSet const& par, Ta
    response.reserve( par.size() );
    for ( unsigned i = 0; i < N; ++i )
    {
-      response.push_back( proxy->getProxyValue( par[i] ) );
+      response.push_back( proxy->getValue( par[i] ) );
    }
    return MeanSquaredError( target, response );
 }
 
-double ProxyCases::testMSE( Proxy const * proxy ) const
+double ProxyCases::testMSE( CubicProxy const * proxy ) const
 {
    return calculateMSE( proxy, m_testPars, m_testTargets );
 }
 
-double ProxyCases::tuneMSE( Proxy const * proxy ) const
+double ProxyCases::tuneMSE( CubicProxy const * proxy ) const
 {
    return calculateMSE( proxy, m_tunePars, m_tuneTargets );
 }
 
-void ProxyCases::test( Proxy const * proxy, unsigned int nrOfUsedVars, double& tuneRMSE,
+void ProxyCases::test( CubicProxy const * proxy, unsigned int nrOfUsedVars, double& tuneRMSE,
                        double& testRMSE, double& totalRMSE, double& adjustedR2 ) const
 {
    if ( proxy == NULL )

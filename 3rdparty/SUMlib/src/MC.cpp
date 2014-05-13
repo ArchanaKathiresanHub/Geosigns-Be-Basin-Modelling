@@ -5,17 +5,20 @@
 
 #include "MC.h"
 
+#include <algorithm>
+
+using std::vector;
+
 namespace SUMlib {
 
 bool MC::convergenceImpl( vector<vector<double> >& sampleVar, double& stddev, const double lambda, const unsigned int)
 {
-   return mcmcBase::convergenceImpl_MCMC_MC( sampleVar, stddev, lambda );
+   return McmcBase::convergenceImpl_MCMC_MC( sampleVar, stddev, lambda );
 }
 
 void MC::iterateOnceImpl()
 {
-   setKrigingType( m_proxyKrigingType ); //proxy setting
-   calcModel( extendSampleToProxyCase( m_pSample ), m_ySample );
+   calcModel( extendSampleToProxyCase( m_pSample ), m_ySample, m_proxyKrigingType );
    CopySampleAndResponse( m_pSample, m_ySample, m_sample_copy );
    updateStatistics();
    m_bestMatches.clear();

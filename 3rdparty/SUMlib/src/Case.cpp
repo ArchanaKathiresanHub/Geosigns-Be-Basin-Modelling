@@ -9,6 +9,8 @@
 #include "NumericUtils.h"
 #include "SerializerUtils.h"
 
+using std::vector;
+
 namespace SUMlib {
 
 Case::Case()

@@ -47,9 +47,9 @@ class INTERFACE_SUMLIB McmcProxy : public Proxy
       // the preferred way is to call save/load on the ISerializer.
    private:
       // ISerializable
-      virtual bool load( IDeserializer*, unsigned int version )
+      virtual bool load( IDeserializer*, unsigned int /*version*/ )
       {return false;}
-      virtual bool save( ISerializer*, unsigned int version ) const
+      virtual bool save( ISerializer*, unsigned int /*version*/ ) const
       {return false;}
 
 };

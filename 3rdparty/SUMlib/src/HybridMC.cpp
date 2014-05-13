@@ -12,6 +12,8 @@
 #include "ParameterBounds.h"
 #include "RandomGenerator.h"
 
+using std::vector;
+
 namespace SUMlib {
 
 HybridMC::HybridMC( vector<bool> const& selPar, unsigned int numOrdFactors,
@@ -121,12 +123,12 @@ void HybridMC::generate()
 }
 
 void HybridMC::getCaseSetImpl( ParameterBounds const& bounds, Case const& center,
-                               bool replicate, vector<Case>& caseSet ) const
+                               bool, vector<Case>& caseSet ) const
 {
    fillCaseSet( bounds, center, caseSet );
 }
 
-unsigned int HybridMC::getNbOfCases( ParameterBounds const& bounds, bool replicate ) const
+unsigned int HybridMC::getNbOfCases( ParameterBounds const&, bool ) const
 {
    return m_design.size();
 }

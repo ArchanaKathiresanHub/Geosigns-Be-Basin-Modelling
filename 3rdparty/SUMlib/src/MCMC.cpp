@@ -9,6 +9,8 @@
 
 #include "MCMC.h"
 
+using std::vector;
+
 namespace SUMlib {
 
 
@@ -67,15 +69,15 @@ void MCMC::calcCatLikelihoods()
 
 bool MCMC::convergenceImpl( vector<vector<double> >& sampleVar, double& stddev, const double lambda, const unsigned int )
 {
-   return mcmcBase::convergenceImpl_MCMC_MC( sampleVar, stddev, lambda );
+   return McmcBase::convergenceImpl_MCMC_MC( sampleVar, stddev, lambda );
 }
 
 
 void MCMC::stepImpl( vector<double>& yNew, double& logLhNew, const size_t i )
 {
-   if ( m_KrigingUsage == SmartMcmcKriging )
+   if ( m_krigingUsage == SmartMcmcKriging )
    {
-      calcModel( extendSubSampleToProxyCase( m_pSubSample[i], i ), yNew ); //calculate expensive yNew
+      calcModel( extendSubSampleToProxyCase( m_pSubSample[i], i ), yNew, m_krigingType ); //calculate expensive yNew
       logLhNew = calcLh( yNew ); //calculate corresponding log likelihood
    }
    else
@@ -87,7 +89,9 @@ void MCMC::stepImpl( vector<double>& yNew, double& logLhNew, const size_t i )
 
 double MCMC::proposeStepImpl1( const vector<double>& pStar, vector<double>& yStar, unsigned int i )
 {
-   calcModel( extendSubSampleToProxyCase( pStar, i ), yStar ); // not needed for MC
+   KrigingType proxyKriging = m_krigingUsage == FullMcmcKriging ? m_proxyKrigingType : NoKriging;
+
+   calcModel( extendSubSampleToProxyCase( pStar, i ), yStar, proxyKriging ); // not needed for MC
    return calcLh( yStar ); // not needed for MC
 }
 

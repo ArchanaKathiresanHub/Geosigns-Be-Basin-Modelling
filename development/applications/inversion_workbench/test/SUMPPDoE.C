@@ -155,39 +155,6 @@ TEST_F( ExperimentExperimentTest, ThreeNonEmptyRangesBxBehnDoE )
          );
 }
 
-// test case 4: three non-empty ranges,  Basic LHD design
-TEST_F( ExperimentExperimentTest, ThreeNonEmptyRangesBasicLHDDoE )
-{  
-   m_sauap.setDoE( "Basic LHD", "13" );
-
-   m_params.push_back( boost::shared_ptr<Property>(new NonEmpty(1,3)));
-   m_params.push_back( boost::shared_ptr<Property>(new NonEmpty(5,9)));
-   m_params.push_back( boost::shared_ptr<Property>(new NonEmpty(10,16)));
-
-   Experiment e( m_params, m_noDataDriller, m_noRTInfo, m_sauap );
-
-   std::ostringstream s;
-   e.printScenarios(s);
-
-   std::cout << s << std::endl;
-
-   ASSERT_EQ( "Scenarios of experiment\n"               
-              "  1) 1; 5; 10\n"
-              "  2) 1; 6; 10\n"
-              "  3) 1; 7; 11\n"
-              "  4) 1; 6; 13\n"
-              "  5) 1; 7; 11\n"
-              "  6) 1; 8; 13\n"
-              "  7) 2; 7; 15\n"
-              "  8) 2; 5; 14\n"
-              "  9) 2; 7; 12\n"
-              " 10) 2; 5; 12\n"
-              " 11) 2; 8; 15\n"
-              " 12) 2; 6; 13\n"
-              " 13) 2; 8; 14\n", s.str()
-         );
-}
-
 // test case 5: three non-empty ranges,  Optimised LHD design
 TEST_F( ExperimentExperimentTest, ThreeNonEmptyRangesOptimisedLHDDoE )
 {  

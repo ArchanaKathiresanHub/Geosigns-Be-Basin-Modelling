@@ -27,7 +27,6 @@
 #include <BoxBehnken.h>
 #include <Tornado.h>
 #include <ScreenDesign.h>
-#include <BasicLHD.h>
 #include <OptimisedLHD.h>
 #include <ParameterBounds.h>
 
@@ -133,7 +132,6 @@ std::vector< Scenario > Experiment::createDoE( const std::vector< boost::shared_
    if (      doeName == "Box Behnken"     ) { doe.reset( new SUMlib::BoxBehnken(   pSelected, pSelected.size() ) ); }
    else if ( doeName == "Tornado"         ) { doe.reset( new SUMlib::Tornado(      pSelected, pSelected.size() ) ); }
    else if ( doeName == "Plackett-Burman" ) { doe.reset( new SUMlib::ScreenDesign( pSelected, pSelected.size() ) ); }
-   else if ( doeName == "Basic LHD"       ) { doe.reset( new SUMlib::BasicLHD(     pSelected, pSelected.size(), atoi( sauap.getDoEPrms().c_str() ) ) ); }
    else if ( doeName == "Optimised LHD"   ) { doe.reset( new SUMlib::OptimisedLHD( pSelected, pSelected.size(), atoi( sauap.getDoEPrms().c_str() ) ) ); }
    else
    {
