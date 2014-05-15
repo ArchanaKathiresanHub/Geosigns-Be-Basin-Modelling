@@ -13,7 +13,7 @@
 
 #include "SourceRockManagerImpl.h"
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 namespace mbapi

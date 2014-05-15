@@ -22,7 +22,7 @@
 // DataAccess library
 #include "Interface/ProjectHandle.h"
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 

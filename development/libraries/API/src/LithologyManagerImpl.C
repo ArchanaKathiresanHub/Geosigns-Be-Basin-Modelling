@@ -13,7 +13,7 @@
 
 #include "LithologyManagerImpl.h"
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 namespace mbapi

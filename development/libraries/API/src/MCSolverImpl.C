@@ -14,6 +14,8 @@
 
 #include "MCSolverImpl.h"
 
+#include <stdexcept>
+
 namespace casa
 {
 

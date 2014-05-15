@@ -21,7 +21,7 @@
 #include "RunManagerImpl.h"
 #include "VarSpaceImpl.h"
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 #include <cassert>
 
