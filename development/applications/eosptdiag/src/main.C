@@ -5,6 +5,7 @@
 
 #define NOMINMAX
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <sstream>

@@ -462,13 +462,13 @@ public:
    /// \param pProp   Get properties
    /// \param pBubble Do a bubble dew point calculation instead of a flash
    /// \param pWater  Do water phase calculations
-   /// \parm pInit    Do initialization or separator calculations; values are
+   /// \param pInit   Do initialization or separator calculations; values are
    ///                EOS_FLASH_CALCULATIONS    - Indicates that the flasher will be used for flash 
    ///                EOS_COMPOSITIONAL_GRADING - Indicates that the flasher will be used for compositional grading calculations.
    ///                EOS_SEPARATOR_FLASH       - Indicates that the flasher will be used for separator calculations.
    ///
    /// \param pBubbleDew Indicates whether bubble point tracking to be used for a single phase mixture
-   /// \param pPseudoPropertiesIndicates whether pseudo phase properties to be generated for Application
+   /// \param pPseudoProperties Indicates whether pseudo phase properties to be generated for Application
    ///
    // 1) Access and return data
    virtual void WriteControlData( int *pType, int *pSaved, int *pNobj, int *pFlash, int *pProp, int *pBubble, int *pWater, int *pInit, int *pBubbleDew, int *pPseudoProperties )
@@ -567,7 +567,7 @@ public:
    ///
    /// \param iM     Total number of feed streams
    /// \param iFeed  Index of the feed stream
-   /// \param iInlet (constant) Inlet for this flash
+   /// \param pInlet (constant) Inlet for this flash
    /// \param pFeed  (constant) The actual feeds
    virtual void WriteSeparatorData( int iM, int iFeed, int *pInlet, double *pFeed )
    {
@@ -625,7 +625,7 @@ public:
    ///                 EOS_WATER            - Aqueous phase
    /// \param iM       Number of objects to read
    /// \param iNc      Number of components used in the flasher
-   /// \parm pPhases  (constant) Indentifier for phases
+   /// \param pPhases (constant) Indentifier for phases
    ///                EOS_SINGLE_PHASE_OIL - Phase is a liquid
    ///                EOS_SINGLE_PHASE_GAS - Phase is a gas
    ///                Not used for an aqueous phase load
@@ -643,7 +643,7 @@ public:
    /// \param pDHx    (constant) Pointer to derivatives of pHx
    /// \param pP      (constant) Pointer to bubble or dew point from flasher
    /// \param pDP     (constant) Pointer to derivatives of pP
-   /// \parm pMW      (constant) Pointer to molecular weight from flasher
+   /// \param pMwx    (constant) Pointer to molecular weight from flasher
    virtual void ReadData( int iPhaseId, int iM, int iNc, int *pPhases, double *pX, double *pDX, double *pMx, double *pDMx, 
                           double *pZx, double *pDZx, double *pMux, double *pDMux, double *pIfx, double *pDIfx, double *pHx, 
                           double *pDHx, double *pP, double *pDP, double *pMwx )
@@ -703,7 +703,7 @@ public:
    ///                If iReset is on then the current compositions and pressures are saved in order to be used later to see
    ///                if we need to do the stability testing again.
    /// \param pSplit  (constant) Phase split from the flasher.  Overloaded with bubble or dew point for a bubble point calculation
-   /// \parm pPhases  (constant) Current phase indicator from flasher; see above
+   /// \param pPhases (constant) Current phase indicator from flasher; see above
    /// \param pValueK (constant) Current estimate of K values
    virtual void ReadFlashResults( int iS, int iM, int iSet, int iReset, double *pSplit, int *pPhases, double *pValueK )
    {
@@ -833,7 +833,7 @@ public:
    /// \brief See if any more objects present to compute
    /// 
    /// \param iM         Set the indirection "aan de beurt" to this value if greater than zero
-   /// \parm iTestPhase Phase indicator for which to check if anything more present for calculations
+   /// \param iTestPhase Phase indicator for which to check if anything more present for calculations
    ///
    /// \return 1 if anything aan de beurt, 0 otherwise
    virtual int Aandebeurt( int iM, int iTestPhase )
@@ -877,7 +877,7 @@ public:
 
    /// \brief Set the pointers to temporary memory
    ///
-   /// \full The memory will actually be allocated from within the
+   /// \brief The memory will actually be allocated from within the
    /// EosPvtModel class.  This routine gets two passes; the
    /// first calculates the memory assuming that the pointers
    /// start at null to get the length, the second after the

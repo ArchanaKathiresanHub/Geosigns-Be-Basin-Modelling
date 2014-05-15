@@ -297,9 +297,9 @@ public:
 
    /// \brief Write out information contained in this class to the flasher class, e.g., molecular weights
    ///
-   //  \param iM            Number of objects in slice
-   /// \param i1
-   /// \param i2
+   /// \param iM            Number of objects in slice
+   /// \param i1            TODO: Add description
+   /// \param i2            TODO: Add description
    /// \param isothermal    Indicator as to whether this is an isothermal system or there are temperature dependencies
    /// \param isSalt        Indicator as to whether this is for aqueous phase computations (1) or hydrocarbon phases
    /// \param iWaterComp    Indicator for the index of the water component within the aqueous phase components
@@ -340,14 +340,14 @@ public:
 
    /// \brief Set the pointers for temporary memory
    ///
-   /// \param iN      Maximum number of flashes to perform in any slice
-   /// \param pTCubic Pointer to use as start of work array when calling cubic equation of state routine 
-   /// \param pTMu    Pointer to use as start of work array when calling viscosity routine 
-   /// \param pTWork  Pointer to use as start of work array when calling other routines 
-   /// \param pAT     Pointer to use as start of work array when calling cubic equation of state routine 
-   /// \param pSumT   Pointer to use as start of work array when calling viscosity routine 
-   /// \param pFinal  On input represents the end of the work array. Updated in this call to get a possible 
-   ///                new end of the work array
+   /// \param iN        Maximum number of flashes to perform in any slice
+   /// \param pTCubic   Pointer to use as start of work array when calling cubic equation of state routine 
+   /// \param pTMu      Pointer to use as start of work array when calling viscosity routine 
+   /// \param pTWork    Pointer to use as start of work array when calling other routines 
+   /// \param pATable   Pointer to use as start of work array when calling cubic equation of state routine 
+   /// \param pSumTable Pointer to use as start of work array when calling viscosity routine 
+   /// \param pFinal    On input represents the end of the work array. Updated in this call to get a possible 
+   ///                  new end of the work array
    ///
    // This array is needed to ensure that there are no memory
    // crashes between the flasher and the pvt tables, as they

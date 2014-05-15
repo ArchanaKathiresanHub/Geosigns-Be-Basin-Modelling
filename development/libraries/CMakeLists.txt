@@ -18,6 +18,7 @@ add_subdirectory(EosPack)
 add_subdirectory(DataAccess)
 add_subdirectory(SerialDataAccess)
 add_subdirectory(GeoPhysics)
+add_subdirectory(API)
 
 if(UNIX)
 	# Libraries that can only be built on Unix at the moment.

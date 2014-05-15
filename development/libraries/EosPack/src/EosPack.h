@@ -78,8 +78,7 @@ namespace pvtFlash
    extern std::string pvtPropertiesConfigFile;
 
    /// \brief provides interface to PVT-flash functionality of the EosCauldron implementation
-   ///
-   /// \full The class EosPack class encapsulates the EosCauldron functionality for PVT-flash
+   /// The class EosPack class encapsulates the EosCauldron functionality for PVT-flash
    /// in the member function compute(), which computes from pressure, temperature and
    /// component masses the corresponding phase component masses, densities and viscosities.
    /// In order to get the (only) instance of this class, call member getInstance(), which calls the
@@ -111,7 +110,7 @@ namespace pvtFlash
       /// \param[out] phaseCompMasses [gas==0, oil==1][number of components]: masses of components per phase (in kg)
       /// \param[out] phaseDensity [gas==0, oil==1]:   density per phase (in kg/m3)
       /// \param[out] phaseViscosity [gas==0, oil==1]:  viscosity per phase (in Pa*s)
-      /// \param[in out] kValues. Initialise the flash newton solve with a set of k-values.
+      /// \param[in,out] kValues Initialise the flash newton solve with a set of k-values.
       ///                The array must have at least as many entries as there are species modelled in the flasher.
       ///                If this array is null then the normal initialisation will occur and the k-values will not be passed back to the calling procedure.
       ///                If the array is not null and the first value is -1.0 then normal initialisation will occur
@@ -161,17 +160,19 @@ namespace pvtFlash
       /// \brief returns critical volume with weight lumped of componentId for a prescribed gorm
       double getCriticalVolumeLumped( int componentId, double gorm );
       
-      /// \brief lumped/unlumped sulphur components before compute 
+      /// \brief lump/unlump sulphur components before compute 
       /// \param[in] in_compMasses input array of size ComponentManager::NumberOfOutputSpecies with component masses
-      /// \param[out] out_phaseCompMasses output array of size ComponentManager::NumberOfSpeciesToFlash with lumped component masses
+      /// \param[out] out_compMasses output array of size ComponentManager::NumberOfSpeciesToFlash with lumped component masses
       /// \param unlump_fraction array of size ComponentManager::NumberOfOutputSpecies with components fractions
       void lumpComponents( const double in_compMasses[], double out_compMasses[], double unlump_fraction[] );
        
       /// \brief calculate unlumping fractions. 
-      /// \paramr[in] weights array of size ComponentManager::NumberOfOutputSpecies
+      /// \param[in] weights array of size ComponentManager::NumberOfOutputSpecies
       /// \param[out] unlump_fraction array of size ComponentManager::NumberOfOutputSpecies
       void getLumpingFractions( const vector<double>& weights, double unlump_fraction[] );
        
+      /// \param[in] in_paseCompMasses masses for each lumped component for each phase
+      /// \param[out] out_phaseCompMasses masses for each unlumped component for each phase
       /// \param unlump_fraction array of size ComponentManager::NumberOfOutputSpecies
       void  unlumpComponents( double in_paseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash], 
                               double out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies], 

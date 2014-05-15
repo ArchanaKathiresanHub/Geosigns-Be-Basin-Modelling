@@ -3,7 +3,7 @@
 
 #include "ComponentManager.h"
 
-/// \File EosPackCAPI.h
+/// \file EosPackCAPI.h
 /// \brief Provides backward compatibility with C like API to EosPack library
 ///        The new implementation of API use swig
 namespace pvtFlash
@@ -32,7 +32,7 @@ namespace pvtFlash
       /// \param[in] compMasses array of size 23 with mass for each component
       /// \param isGormPrescribed is gas/oil ration coeficient is given
       /// \param gorm value of gas/oil ration coeficient 
-      /// \param phaseCompMasses[out] aray of size 46 with masses for each phase for each component
+      /// \param[out] phaseCompMasses aray of size 46 with masses for each phase for each component
       /// \param phaseDensity array of size 2 with densities for liquid/vapour phases
       /// \param phaseViscosity array of size 2 with viscosities for liquid/vapour phases
       /// \return true if flashing was successfull, false otherwise
@@ -61,7 +61,7 @@ namespace pvtFlash
       /// \brief Search critical point on PT phase diagram
       /// \param diagType - type of diagram, 0 - mass, 1 - mole, 2 - volume
       /// \param[in] comp array of size 23 for composition mass fractions
-      /// \param[out] critical point array, size of 2 which will contain on return CriticalT, CriticalP
+      /// \param[out] critPt critical point array, size of 2 which will contain on return CriticalT, CriticalP
       /// \return true on success, false otherwise
       bool FindCriticalPoint( int diagType, double * comp, double * critPt );
    }

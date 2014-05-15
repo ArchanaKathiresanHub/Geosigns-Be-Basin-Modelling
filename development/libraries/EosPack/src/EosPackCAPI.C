@@ -4,6 +4,7 @@
 
 #include "EosPackCAPI.h"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 #include <string>

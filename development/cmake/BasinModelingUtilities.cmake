@@ -64,7 +64,7 @@ endmacro()
 
 macro( generate_dox DOXYGEN_CONFIG_FILE )
 	if (BM_BUILD_DOCS AND DOXYGEN_FOUND)
-		message(STATUS "We are here")
+		message(STATUS "Configure doxygen...")
 		# generate an identifier
 		string(RANDOM LENGTH 10 id)
 		file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
@@ -77,9 +77,11 @@ macro( generate_dox DOXYGEN_CONFIG_FILE )
 			)
 		endif(UNIX)
 		if (WIN32)
+			file(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYGEN_CONFIG_FILE} DOXY_CFG_PATH)
+			file(TO_NATIVE_PATH ${DOXYGEN_EXECUTABLE} DOXY_EXE_PATH)
 			add_custom_target( doc_${id}
 				# Override the OUTPUT_DIRECTORY config variable with a trick described in the doxygen FAQ
-				COMMAND cmd.exe /c \"( type ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYGEN_CONFIG_FILE} & echo OUTPUT_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/doc; ) | ${DOXYGEN_EXECUTABLE} -\"
+				COMMAND cmd.exe /c \"( type ${DOXY_CFG_PATH} & echo OUTPUT_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/doc; ) | ${DOXY_EXE_PATH} -\"
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
 				COMMENT "Generating Doxygen documentation with ${DOXYGEN_CONFIG_FILE}"
 			)

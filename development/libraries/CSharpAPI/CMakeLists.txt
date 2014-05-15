@@ -20,6 +20,7 @@ endif()
 
 include_directories(
    src/Swig
+   ${SUMPP_INCLUDE_DIR}
    ${HDF5_serial_INCLUDE_DIRS}
 )
 
@@ -28,6 +29,7 @@ bm_include_libraries(
    Serial_Hdf5
    TableIO
    DataAccess
+   API
 )
 
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
@@ -45,7 +47,7 @@ swig_add_module( Cauldron csharp src/Swig/DotNetAPI.i
 	${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( Cauldron Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack)
+swig_link_libraries( Cauldron api Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack)
 
 # Before C# generation, remove all existing files. The directory should be empty before generation	
 add_custom_command( TARGET Cauldron
@@ -101,6 +103,8 @@ set( CSHARP_UNIT_TESTS_SRC
 	test/EospackCApiTest.cs
 	test/BpaComponent.cs
 	test/BpaPhase.cs
+	test/cmbAPITest.cs
+	test/casaAPITest.cs
 )
 
 configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)

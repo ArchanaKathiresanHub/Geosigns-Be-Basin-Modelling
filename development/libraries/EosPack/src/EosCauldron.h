@@ -55,7 +55,7 @@ public:
    ///                            number of objects (varies first) 
    ///                            components (varies last)
    ///
-   /// \param[in out] pKValues    Pointer to array containing the k-values used to initialise the Newton flash solve.
+   /// \param[in,out] pKValues    Pointer to array containing the k-values used to initialise the Newton flash solve.
    ///                            The size of the array should be the number of components.
    ///                            If the pointer is null then no such k-value initialisation will occur.
    ///
@@ -88,7 +88,7 @@ public:
    static void EosGetProperties( int iFlashes, int iOil, int iGas, double *pPressure, double *pTemperature,
                                  double *pAccumulation, double* pKValues,
                                  double *pPhaseAcc, double *pMassFraction, double *pDensity,
-                                 double *pViscosity, EosPvtTable *pvttable, int iItersNum, double dStopTol, double dNewtonRelCoef );
+                                 double *pViscosity, EosPvtTable *pvtTable, int iItersNum, double dStopTol, double dNewtonRelCoef );
 
    /// \brief Default constructor
    EosCauldron();
@@ -96,10 +96,10 @@ public:
    /// \brief Constructor application object
    /// 
    /// \param          iVersion Version of flasher (set to zero)
-   /// \param[in][out] pointI   On input, array of pointers to integer arrays as is described above when using external memory
+   /// \param[in,out] pointI   On input, array of pointers to integer arrays as is described above when using external memory
    ///                          On output, except for the first integer array, array of pointers to integer arrays
    ///                          as is described above when using internal memory
-   /// \param[in][out] pointR   On input array of pointers to double precision arrays as is described above.
+   /// \param[in,out] pointR   On input array of pointers to double precision arrays as is described above.
    ///                          On ooutput, except for the first double array, array of pointers to double arrays
    ///                          as is described above when using internal memory
    EosCauldron( int iVersion, int **pointI, double **pointR );
@@ -153,7 +153,7 @@ public:
    /// \param pProp   Get properties
    /// \param pBubble Do a bubble dew point calculation instead of a flash
    /// \param pWater  Do water phase calculations
-   /// \parm pInit    Do initialization or separator calculations; values are
+   /// \param pInit   Do initialization or separator calculations; values are
    ///                EOS_FLASH_CALCULATIONS    - Indicates that the flasher will be used for flash 
    ///                EOS_COMPOSITIONAL_GRADING - Indicates that the flasher will be used for compositional grading calculations.
    ///                EOS_SEPARATOR_FLASH       - Indicates that the flasher will be used for separator calculations.
@@ -195,7 +195,7 @@ public:
    ///                 EOS_WATER            - Aqueous phase
    /// \param iM       Number of objects to read
    /// \param iNc      Number of components used in the flasher
-   /// \parm pPhases  (constant) Indentifier for phases
+   /// \param pPhases (constant) Indentifier for phases
    ///                EOS_SINGLE_PHASE_OIL - Phase is a liquid
    ///                EOS_SINGLE_PHASE_GAS - Phase is a gas
    ///                Not used for an aqueous phase load
@@ -213,7 +213,7 @@ public:
    /// \param pDHx    (constant) Pointer to derivatives of pHx
    /// \param pP      (constant) Pointer to bubble or dew point from flasher
    /// \param pDP     (constant) Pointer to derivatives of pP
-   /// \parm pMW      (constant) Pointer to molecular weight from flasher
+   /// \param pMwx    (constant) Pointer to molecular weight from flasher
    virtual void ReadData( int iPhaseId, int iM, int iNc, int *pPhases, double *pX, double *pDX,
                           double *pMx, double *pDMx, double *pZx, double *pDZx, double *pMux, double *pDMux,
                           double *pIfx, double *pDIfx, double *pHx, double *pDHx, double *pP, double *pDP,
@@ -302,7 +302,7 @@ private:
    /// \brief Read all data from the constructor
    /// \param iVersion  Version number, currently 0
    /// \param pointI    Pointer to integer arrays. See EosPvtModel.h for a description 
-   /// \parm pointR     Pointer to double arrays.  See EosPvtModel.h for a description
+   /// \param pointR    Pointer to double arrays.  See EosPvtModel.h for a description
    void ReadAllData( int iVersion, int **pointI, double **pointR );
 
 

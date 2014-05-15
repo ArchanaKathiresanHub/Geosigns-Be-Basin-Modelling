@@ -96,6 +96,34 @@
 #include "../../../EosPack/src/EosPackCAPI.h"
 #include "../../../EosPack/src/EosPack.h"
 #include "../../../EosPack/src/PTDiagramCalculator.h"
+
+// Interface for APIs library
+// CMB API
+#include "../../../API/src/ErrorHandler.h"
+#include "../../../API/src/LithologyManager.h"
+#include "../../../API/src/FluidManager.h"
+#include "../../../API/src/SourceRockManager.h"
+#include "../../../API/src/StratigraphyManager.h"
+#include "../../../API/src/FluidManagerImpl.h"
+#include "../../../API/src/LithologyManagerImpl.h"
+#include "../../../API/src/SourceRockManagerImpl.h"
+#include "../../../API/src/StratigraphyManagerImpl.h"
+#include "../../../API/src/cmbAPI.h"
+// CASA API
+#include "../../../API/src/Parameter.h"
+#include "../../../API/src/ContinuousParameter.h"
+#include "../../../API/src/PrmTopCrustHeatProduction.h"
+#include "../../../API/src/PrmSourceRockTOC.h"
+#include "../../../API/src/VarPrmTopCrustHeatProduction.h"
+#include "../../../API/src/VarPrmSourceRockTOC.h"
+#include "../../../API/src/DoEGenerator.h"
+#include "../../../API/src/DoEGeneratorImpl.h"
+#include "../../../API/src/RunCase.h"
+#include "../../../API/src/RunCaseImpl.h"
+#include "../../../API/src/VarSpace.h"
+#include "../../../API/src/VarSpaceImpl.h"
+#include "../../../API/src/casaAPI.h"
+using namespace casa;
 %}
 
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
@@ -185,6 +213,34 @@
 
 // Interface for EosPack library
 %include "../../../EosPack/src/EosPack.h"
+
+// Interface for APIs library
+// CMB API
+%include "../../../API/src/ErrorHandler.h"
+%include "../../../API/src/LithologyManager.h"
+%include "../../../API/src/FluidManager.h"
+%include "../../../API/src/SourceRockManager.h"
+%include "../../../API/src/StratigraphyManager.h"
+%include "../../../API/src/FluidManagerImpl.h"
+%include "../../../API/src/LithologyManagerImpl.h"
+%include "../../../API/src/SourceRockManagerImpl.h"
+%include "../../../API/src/StratigraphyManagerImpl.h"
+%include "../../../API/src/cmbAPI.h"
+// CASA API
+%include "../../../API/src/Parameter.h"
+%include "../../../API/src/ContinuousParameter.h"
+%include "../../../API/src/PrmTopCrustHeatProduction.h"
+%include "../../../API/src/PrmSourceRockTOC.h"
+%include "../../../API/src/VarPrmTopCrustHeatProduction.h"
+%include "../../../API/src/VarPrmSourceRockTOC.h"
+%include "../../../API/src/DoEGenerator.h"
+%include "../../../API/src/DoEGeneratorImpl.h"
+%include "../../../API/src/RunCase.h"
+%include "../../../API/src/RunCaseImpl.h"
+%include "../../../API/src/VarSpace.h"
+%include "../../../API/src/VarSpaceImpl.h"
+%include "../../../API/src/casaAPI.h"
+
 
 %include <carrays.i>
 %array_functions(double, doubleArray);
@@ -277,4 +333,8 @@
 %template(FaultCollectionList)      std::vector<const DataAccess::Interface::FaultCollection *>;
 %template(FaultList)      std::vector<const DataAccess::Interface::Fault *>;
 %template(PointList)      std::vector<const DataAccess::Interface::Point *>;
+
+/// CASA API
+%template(CasesList) std::vector<casa::RunCase*>;
+%template(ParametersList) std::vector<casa::Parameter*>;
 

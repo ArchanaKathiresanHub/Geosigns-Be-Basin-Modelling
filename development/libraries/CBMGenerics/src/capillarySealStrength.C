@@ -2,6 +2,7 @@
 
 #include "capillarySealStrength.h"
 
+#include <algorithm>
 #include <math.h>
 #include <limits>
 #include <assert.h>

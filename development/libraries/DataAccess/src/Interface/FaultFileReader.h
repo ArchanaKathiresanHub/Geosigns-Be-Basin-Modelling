@@ -24,30 +24,14 @@ namespace DataAccess
    namespace Interface
    {
       class FaultFileReader {
-
-         private :
-
+         public :
             struct FaultDataItem {
                std::string   faultName;
                PointSequence faultLine;
             };
 
             typedef std::vector <FaultDataItem> FaultDataSet;
-
-
-            FaultDataSet faultData;
-
-
-         protected :
-
-            void addFault ( const std::string&   newFaultName,
-                  const PointSequence& newFaultLine );
-
-
-         public :
-
             typedef FaultDataSet::const_iterator FaultDataSetIterator;
-
 
             FaultFileReader ();
 
@@ -78,6 +62,15 @@ namespace DataAccess
             /// Return an iterator pointing to the end of the fault sequence
             ///
             FaultDataSetIterator end   () const;
+
+      private:
+         FaultDataSet faultData;
+
+
+      protected:
+
+         void addFault(const std::string&   newFaultName,
+            const PointSequence& newFaultLine);
 
       };
 
