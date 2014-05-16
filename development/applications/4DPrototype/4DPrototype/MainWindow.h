@@ -42,6 +42,10 @@ private slots:
 
   void onActionRenderAllSnapshotsTriggered();
 
+  void onActionRenderAllSlicesTriggered();
+
+  void onActionSwitchPropertiesTriggered();
+
   void onSliderValueChanged(int value);
 
   void onSliceIValueChanged(int value);

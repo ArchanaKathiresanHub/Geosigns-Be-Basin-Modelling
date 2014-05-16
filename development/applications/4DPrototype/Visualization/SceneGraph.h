@@ -176,6 +176,8 @@ public:
 
   void setRenderStyle(bool drawFaces, bool drawEdges);
 
+  void getRenderStyle(bool& drawFaces, bool& drawEdges);
+
   int numI() const;
 
   int numJ() const;

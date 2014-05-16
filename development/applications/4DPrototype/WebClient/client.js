@@ -93,10 +93,14 @@ function init()
 	window.canvas = $("#TheCanvas");
 	$(window).resize(onWindowResize);
 
+	//var defaultWidth  = 2560;
+	//var defaultHeight = 1440;
 	// This function is called immediately after the page is loaded. Initialization of 
-	// the renderArea. "TheCanvas" refers to the id of the canvas. "640" and "480" are 
-	// the requested width and the requested height of the renderArea managed by the service.
-    theRenderArea = new RemoteVizRenderArea("TheCanvas", window.innerWidth - leftMargin, window.innerHeight - bottomMargin);
+	// the renderArea. "TheCanvas" refers to the id of the canvas. 
+    theRenderArea = new RemoteVizRenderArea("TheCanvas", //defaultWidth, defaultHeight);
+    	window.innerWidth - leftMargin, 
+    	window.innerHeight - bottomMargin);
+
 	// add a listener on the receivedImage event.
 	theRenderArea.addReceivedImageListener(receivedImage);
 	// add a listener for messages from the server
@@ -119,6 +123,8 @@ function init()
 	$("[name='rendermode']").change(renderModeChanged);
 	$("[name='meshmode']").change(meshModeChanged);
 	$("#properties").change(propertyChanged);
+	$('#checkbox_faces').change(drawFacesChanged);
+	$('#checkbox_edges').change(drawEdgesChanged);
 	$("#button_viewall").click(function() { theRenderArea.sendMessage("VIEWALL") });
 	// Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps
 	window.setInterval("measurebandwithandfps()",1000);
@@ -172,6 +178,18 @@ function propertyChanged()
 {
 	var prop = $("#properties").prop("value");
 	theRenderArea.sendMessage("SETPROPERTY " + prop);
+}
+
+function drawFacesChanged() 
+{
+	var arg = $(this).prop('checked') ? "TRUE":"FALSE";
+	theRenderArea.sendMessage("DRAWFACES " + arg);
+}
+
+function drawEdgesChanged()
+{
+	var arg = $(this).prop('checked') ? "TRUE":"FALSE";
+	theRenderArea.sendMessage("DRAWEDGES " + arg);
 }
 
 function cwidth(){

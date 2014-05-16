@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created: Tue 6. May 10:42:39 2014
+** Created: Tue 13. May 13:25:36 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -42,6 +42,8 @@ public:
     QAction *action_Quit;
     QAction *action_RenderAllSnapshots;
     QAction *action_OpenGLInfo;
+    QAction *action_RenderAllSlices;
+    QAction *action_SwitchProperties;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_3;
     QSplitter *splitter;
@@ -109,6 +111,10 @@ public:
         action_RenderAllSnapshots->setObjectName(QString::fromUtf8("action_RenderAllSnapshots"));
         action_OpenGLInfo = new QAction(MainWindow);
         action_OpenGLInfo->setObjectName(QString::fromUtf8("action_OpenGLInfo"));
+        action_RenderAllSlices = new QAction(MainWindow);
+        action_RenderAllSlices->setObjectName(QString::fromUtf8("action_RenderAllSlices"));
+        action_SwitchProperties = new QAction(MainWindow);
+        action_SwitchProperties->setObjectName(QString::fromUtf8("action_SwitchProperties"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_3 = new QHBoxLayout(centralwidget);
@@ -385,6 +391,8 @@ public:
         menu_File->addSeparator();
         menu_File->addAction(action_Quit);
         menuTest->addAction(action_RenderAllSnapshots);
+        menuTest->addAction(action_RenderAllSlices);
+        menuTest->addAction(action_SwitchProperties);
         menuHelp->addAction(action_OpenGLInfo);
 
         retranslateUi(MainWindow);
@@ -399,6 +407,8 @@ public:
         action_Quit->setText(QApplication::translate("MainWindow", "&Quit", 0, QApplication::UnicodeUTF8));
         action_RenderAllSnapshots->setText(QApplication::translate("MainWindow", "Render all snapshots", 0, QApplication::UnicodeUTF8));
         action_OpenGLInfo->setText(QApplication::translate("MainWindow", "OpenGL Info", 0, QApplication::UnicodeUTF8));
+        action_RenderAllSlices->setText(QApplication::translate("MainWindow", "Render all slices", 0, QApplication::UnicodeUTF8));
+        action_SwitchProperties->setText(QApplication::translate("MainWindow", "Switch properties", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Vertical scale", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Mesh", 0, QApplication::UnicodeUTF8));
         radioButtonFormations->setText(QApplication::translate("MainWindow", "Formations", 0, QApplication::UnicodeUTF8));

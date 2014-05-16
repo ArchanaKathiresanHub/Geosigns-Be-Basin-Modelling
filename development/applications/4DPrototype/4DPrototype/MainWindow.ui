@@ -376,6 +376,8 @@
      <string>Test</string>
     </property>
     <addaction name="action_RenderAllSnapshots"/>
+    <addaction name="action_RenderAllSlices"/>
+    <addaction name="action_SwitchProperties"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -406,6 +408,16 @@
   <action name="action_OpenGLInfo">
    <property name="text">
     <string>OpenGL Info</string>
+   </property>
+  </action>
+  <action name="action_RenderAllSlices">
+   <property name="text">
+    <string>Render all slices</string>
+   </property>
+  </action>
+  <action name="action_SwitchProperties">
+   <property name="text">
+    <string>Switch properties</string>
    </property>
   </action>
  </widget>

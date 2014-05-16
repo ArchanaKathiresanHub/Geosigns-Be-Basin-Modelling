@@ -40,7 +40,7 @@ void BpaRenderAreaListener::createSceneGraph()
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  const char* filename = "E:/Data/output_cauldron/Project.project3d";
+  const char* filename = "E:/Data/large/Project.project3d";
   //const char* filename = "C:/bpa/data/output_cauldron/Project.project3d";
 
   m_handle.reset(di::OpenCauldronProject(filename, "r"));
@@ -205,6 +205,22 @@ void BpaRenderAreaListener::onReceivedMessage(RenderArea* renderArea, Connection
     const di::Property* prop = m_handle->findProperty(argument);
     if(prop != 0)
       m_sceneGraph->setProperty(prop);
+  }
+  else if(command == "DRAWFACES")
+  {
+    bool drawFaces, drawEdges;
+    m_sceneGraph->getRenderStyle(drawFaces, drawEdges);
+    drawFaces = (argument == "TRUE");
+
+    m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
+  }
+  else if(command == "DRAWEDGES")
+  {
+    bool drawFaces, drawEdges;
+    m_sceneGraph->getRenderStyle(drawFaces, drawEdges);
+    drawEdges = (argument == "TRUE");
+
+    m_sceneGraph->setRenderStyle(drawFaces, drawEdges);
   }
   else if(command == "VIEWALL")
   {

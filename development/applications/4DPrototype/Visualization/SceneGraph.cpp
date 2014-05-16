@@ -42,8 +42,8 @@
 
 namespace di = DataAccess::Interface; 
 
-#define PRE_EXTRACT
-#define CUSTOM_EXTRACTION
+//#define PRE_EXTRACT
+//#define CUSTOM_EXTRACTION
 
 SbPlane getDefaultPlane()
 {
@@ -134,8 +134,10 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   m_renderSwitch->addChild(skinGroup);
 
 #ifndef CUSTOM_EXTRACTION
-  MiSkinExtractUnstructuredIjk* extractor = MiSkinExtractUnstructuredIjk::getNewInstance(*bpaMesh);
-  const MeXSurfaceMeshUnstructured& surfaceMesh = extractor->extractSkin();
+  MiSkinExtractUnstructuredIjk* oivExtractor = MiSkinExtractUnstructuredIjk::getNewInstance(*bpaMesh);
+  const MeXSurfaceMeshUnstructured& surfaceMesh = oivExtractor->extractSkin();
+  skinMesh->setMesh(&surfaceMesh);
+  std::cout << '.'<< std::flush;
 #else
   //m_skinExtractor = new SkinExtractor(*bpaMesh);
   //const MiSurfaceMeshUnstructured& surfaceMesh = m_skinExtractor->extractSkin(0);
@@ -144,8 +146,6 @@ void SnapshotNode::setup(const di::Snapshot* snapshot, std::shared_ptr<di::Prope
   workItem.parentMesh = skinMesh;
   extractor.put(workItem);
 #endif
-
-  //skinMesh->setMesh(&surfaceMesh);
 
 #else
   m_renderSwitch->addChild(m_skin);
@@ -243,7 +243,7 @@ void SceneGraph::createAppearanceNode()
   m_drawStyle->displayFaces = true;
   m_drawStyle->displayEdges = true;
   m_drawStyle->displayPoints = false;
-  m_drawStyle->fadingThreshold = 5.0f;
+  //m_drawStyle->fadingThreshold = 5.0f;
 
   MoMaterial* material = new MoMaterial;
   material->faceColoring = MoMaterial::CONTOURING;
@@ -490,6 +490,7 @@ void SceneGraph::setProperty(const DataAccess::Interface::Property* prop, SoSwit
   double globalMaxVal = -globalMinVal;
 
   for(int i=0; i < snapshots->getNumChildren(); ++i)
+  //int i = snapshots->whichChild.getValue();
   {
     SnapshotNode* node = dynamic_cast<SnapshotNode*>(snapshots->getChild(i));
     if(node != 0)
@@ -567,6 +568,12 @@ void SceneGraph::setRenderStyle(bool drawFaces, bool drawEdges)
 {
   m_drawStyle->displayFaces = drawFaces;
   m_drawStyle->displayEdges = drawEdges;
+}
+
+void SceneGraph::getRenderStyle(bool& drawFaces, bool& drawEdges)
+{
+  drawFaces = m_drawStyle->displayFaces.getValue();
+  drawEdges = m_drawStyle->displayEdges.getValue();
 }
 
 int SceneGraph::numI() const

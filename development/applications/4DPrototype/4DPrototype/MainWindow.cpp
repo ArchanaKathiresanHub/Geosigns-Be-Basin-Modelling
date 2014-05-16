@@ -162,6 +162,9 @@ void MainWindow::connectSignals()
 {
   connect(m_ui.action_Open, SIGNAL(triggered()), this, SLOT(onActionOpenTriggered()));
   connect(m_ui.action_RenderAllSnapshots, SIGNAL(triggered()), this, SLOT(onActionRenderAllSnapshotsTriggered()));
+  connect(m_ui.action_RenderAllSlices, SIGNAL(triggered()), this, SLOT(onActionRenderAllSlicesTriggered()));
+  connect(m_ui.action_SwitchProperties, SIGNAL(triggered()), this, SLOT(onActionSwitchPropertiesTriggered()));
+
   connect(m_ui.action_OpenGLInfo, SIGNAL(triggered()), this, SLOT(onShowGLInfo()));
 
   connect(m_ui.snapshotSlider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
@@ -232,6 +235,92 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
   QMessageBox::information(this, "Result", msg);
 }
 
+void MainWindow::onActionRenderAllSlicesTriggered()
+{
+  m_ui.renderWidget->getViewer()->setAutoRedraw(false);
+
+  QTime time;
+  time.start();
+
+  int maxTimeMs = 0;
+  for(int i=0; i <= m_ui.sliderSliceI->maximum(); ++i)
+  {
+    QTime snapshotTime;
+    snapshotTime.start();
+
+    m_ui.sliderSliceI->setValue(i);
+    qApp->processEvents();
+    m_ui.renderWidget->getViewer()->render();
+
+    int t = snapshotTime.elapsed();
+    if(t > maxTimeMs)
+      maxTimeMs = t;
+  }
+
+  for(int i=0; i <= m_ui.sliderSliceJ->maximum(); ++i)
+  {
+    QTime snapshotTime;
+    snapshotTime.start();
+
+    m_ui.sliderSliceJ->setValue(i);
+    qApp->processEvents();
+    m_ui.renderWidget->getViewer()->render();
+
+    int t = snapshotTime.elapsed();
+    if(t > maxTimeMs)
+      maxTimeMs = t;
+  }
+
+  m_ui.renderWidget->getViewer()->setAutoRedraw(true);
+
+  int ms = time.elapsed();
+  float avgTime = (.001f * ms) / (m_ui.sliderSliceI->maximum() + m_ui.sliderSliceJ->maximum() + 2);
+  float maxTime = .001f * maxTimeMs;
+  QString msg = QString("Average time = %1 s per slice\nMax time = %2").arg(avgTime).arg(maxTime);
+  QMessageBox::information(this, "Result", msg);
+}
+
+void MainWindow::onActionSwitchPropertiesTriggered()
+{
+  m_ui.renderWidget->getViewer()->setAutoRedraw(false);
+
+  const char* propertyNames[] = 
+  {
+    "BulkDensity", 
+    "Depth",
+    "LithoStaticPressure",
+    "Permeability",
+    "Porosity",
+    "Pressure",
+    "Reflectivity",
+    "Temperature",
+    "ThCond",
+    "Velocity",
+    "Ves",
+    "Vr"
+  };
+
+  QTime time;
+  time.start();
+
+  int n = sizeof(propertyNames) / sizeof(const char*);
+  for(int i=0; i < n; ++i)
+  {
+    const di::Property* prop = m_projectHandle->findProperty(propertyNames[i]);
+    m_sceneGraph->setProperty(prop);
+    qApp->processEvents();
+    m_ui.renderWidget->getViewer()->render();
+  }
+
+  m_ui.renderWidget->getViewer()->setAutoRedraw(true);
+
+  int ms = time.elapsed();
+  float avgTime = (.001f * ms) / n;
+
+  QString msg = QString("Average time = %1 s per property").arg(avgTime);
+  QMessageBox::information(this, "Result", msg);
+}
+
 void MainWindow::onSliderValueChanged(int value)
 {
   //m_timeLabel->setText(QString("Time: %1").arg(m_sceneGraph->getSnapshot(value)->getTime()));
@@ -296,10 +385,31 @@ void MainWindow::onMeshModeToggled(bool value)
   if(!value)
     return;
 
+  int nih = m_sceneGraph->numIHiRes();
+  int nil = m_sceneGraph->numI();
+  int njh = m_sceneGraph->numJHiRes();
+  int njl = m_sceneGraph->numJ();
+
   if(sender() == m_ui.radioButtonFormations)
+  {
     m_sceneGraph->setMeshMode(SceneGraph::MeshMode_All);
+
+    m_ui.sliderSliceI->setValue((m_ui.sliderSliceI->value() * nil) / nih);
+    m_ui.sliderSliceJ->setValue((m_ui.sliderSliceJ->value() * njl) / njh);
+
+    m_ui.sliderSliceI->setMaximum(m_sceneGraph->numI() - 1);
+    m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJ() - 1);
+  }
   else
+  {
     m_sceneGraph->setMeshMode(SceneGraph::MeshMode_Reservoirs);
+
+    m_ui.sliderSliceI->setMaximum(m_sceneGraph->numIHiRes() - 1);
+    m_ui.sliderSliceJ->setMaximum(m_sceneGraph->numJHiRes() - 1);
+
+    m_ui.sliderSliceI->setValue((m_ui.sliderSliceI->value() * nih) / nil);
+    m_ui.sliderSliceJ->setValue((m_ui.sliderSliceJ->value() * njh) / njl);
+  }
 }
 
 void MainWindow::onRenderStyleChanged()
