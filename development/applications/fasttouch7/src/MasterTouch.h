@@ -1,7 +1,18 @@
 #ifndef __MASTERTOUCH__
 #define __MASTERTOUCH__
 
+
+#ifdef __INTEL_COMPILER // disable warning "type qualifier on return type is meaningless" in tslibI.h
+#pragma warning push
+#pragma warning(disable:858)
+#endif
+
 #include "tslibI.h"
+
+#ifdef __INTEL_COMPILER
+#pragma warning pop
+#endif
+
 #include "TsLibLoader.h"
 
 #include "TsLib.h"

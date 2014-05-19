@@ -5,7 +5,18 @@
 
 //-- Touchstone Library Header Files --//
 //-- =============================== --//
+
+#ifdef __INTEL_COMPILER // disable warning "type qualifier on return type is meaningless" in tslibI.h
+#pragma warning push
+#pragma warning(disable:858)
+#endif
+
 #include <TsLibf.h>
+
+#ifdef __INTEL_COMPILER
+#pragma warning pop
+#endif
+
 #include <libloader.h>
 
 using namespace std;
