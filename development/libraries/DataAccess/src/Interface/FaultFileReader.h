@@ -1,18 +1,7 @@
 #ifndef _FAULT_FILE_READER_H
 #define _FAULT_FILE_READER_H
 
-#ifdef sgi
-  #ifdef _STANDARD_C_PLUS_PLUS
-    #include<fstream>
-    using std::ifstream;
-  #else // !_STANDARD_C_PLUS_PLUS
-    #include<fstream.h>
-  #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-  #include <fstream>
-  using std::ifstream;
-#endif // sgi
-
+#include <fstream>
 #include <string>
 #include <vector>
 

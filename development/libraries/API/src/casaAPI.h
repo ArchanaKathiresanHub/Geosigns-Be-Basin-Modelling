@@ -68,15 +68,21 @@
 ///   - casa::MCSolver - for performing Monte Carlo/Markov Chain Monte Carlo calculations
 ///
 ///  The set of data classes includes:
-///   - casa::VarSpace - variable parameters manager. Keep and allows to manipulate parameters with range
+///   - casa::VarSpace - variable parameters manager. Keep and allows to manipulate variable parameters with range. VarSpace keeps:
+///     -# casa::ContinuousParameter continuous variable parameters set
+///     -# casa::CategoricalParameter categorical variable parameters set
 ///   - casa::RunCase - main class for keeping a single set of variable parameters value and observables from the simulation results
-///   - casa::Parameter - base class for keeping a single parameter value. Parameters could be different types which is reflected\n
-///                           in following hierarchy:
-///      -# casa::ContinuousParameter
-///      -# casa::CategoricalParameter
+///   - casa::Parameter - base class for keeping a single parameter value. The following set of parameters is implemented now:
+///     -# case::PrmSourceRockTOC - \subpage CASA_SourceRockTOCPage
+///     -# case::PrmTopCrustHeatProduction - \subpage CASA_TopCrustHeatProductionPage
 ///   - CASAPI::Observable - base class for keeping a target value from simulation results. It also could include reference value from measurements
 ///      -# casa::PropertyValueIJK
 ///      -# casa::PropertyValueXYZ
+/// 
+///   The UML class diagram of CASA API is here:
+///   @image html CASA-class-dagram.png "UML class diagram Cauldron CASA API library"
+///   The green blocks show API user interface classes, red blocks show the implementation of API.
+
 
 /// @page CASA_VarParametersAndObservablesPage Variable Parameters and Observables
 ///

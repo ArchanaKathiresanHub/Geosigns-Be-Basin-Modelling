@@ -5,19 +5,8 @@
 #include <unistd.h>
 #endif
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#define USESTANDARD
 
 #include "mangle.h"
 

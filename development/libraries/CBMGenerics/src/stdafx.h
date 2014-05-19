@@ -18,6 +18,8 @@
 #include <iostream>
 #include <limits>
 
+#pragma warning(disable : 4996)
+
 #endif
 
 #include "DllExport.h"

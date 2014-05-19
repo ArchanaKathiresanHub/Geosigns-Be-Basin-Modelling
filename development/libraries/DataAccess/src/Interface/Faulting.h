@@ -1,23 +1,8 @@
 #ifndef _INTERFACE_FAULTING_H_
 #define _INTERFACE_FAULTING_H_
 
-#ifdef sgi
-  #ifdef _STANDARD_C_PLUS_PLUS
-    #include<iostream>
-    #include<fstream>
-    using std::ostream;
-    using std::ifstream;
-  #else // !_STANDARD_C_PLUS_PLUS
-    #include<iostream.h>
-    #include<fstream.h>
-  #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-  #include <iostream>
-  #include<fstream>
-  using std::ostream;
-  using std::ifstream;
-#endif // sgi
-
+#include <iostream>
+#include<fstream>
 #include <vector>
 #include <string>
 #include <map>

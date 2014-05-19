@@ -24,7 +24,8 @@ add_library(CBMGenerics
 	src/Polyfunction.C
 )
 
-generate_dox( src/CBMGenerics.cfg )
+#Doc. generation is commented because most of the classes in CBMGeneric have no doxygen documentation and generate warnings
+#generate_dox( src/CBMGenerics.cfg )
 
 install(TARGETS CBMGenerics
 	RUNTIME DESTINATION bin

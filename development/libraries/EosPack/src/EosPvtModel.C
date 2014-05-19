@@ -1597,7 +1597,6 @@ void EosPvtModel::FlashEquationsOneObject( int iNc, int iUpdate )
    double  dCnv;
    double  dSplit;
    double  dOSplit;
-   int     i;
    int     iNi;
    int     iter;
    int     iTemp;
@@ -1691,8 +1690,6 @@ void EosPvtModel::FlashEquationsOneObject( int iNc, int iUpdate )
 
 void EosPvtModel::FlashEquationsMultipleObjects( int iM, int i1, int i2, int iNc, int iUpdate )
 {
-   double  dTerm1;
-   double  dTerm2;
    double  dA;
    double  dB;
    double  dC;
@@ -1700,8 +1697,6 @@ void EosPvtModel::FlashEquationsMultipleObjects( int iM, int i1, int i2, int iNc
    double  dE;
    double  dF;
    double  dCnv;
-   double  dSplit;
-   double  dOSplit;
    double *pTa;
    double *pTb;
    double *pTc;
@@ -3099,9 +3094,6 @@ void EosPvtModel::NewtonFlashOneObject( int iNc, int iRestore, int iLevel )
    int     iNj;
    int     iNk;
    int     iConvrg;
-   int     iThermal;
-   int     iAnyConvrg;
-   int     i;
    double  dCnv;
    double  dA;
    double  dB;
@@ -3255,7 +3247,6 @@ void EosPvtModel::NewtonFlashMultipleObjects( int iM, int iNc, int iRestore, int
    double  dA;
    double  dB;
    double  dC;
-   double  dD;
    double  dE;
    double  dVeryTiny;
    double *pTa;

@@ -399,7 +399,7 @@ static void dumpCompositionInfo( std::ofstream & ofs, std::auto_ptr<PTDiagramCal
 static void dumpLiquidFractionArray( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
 static void dumpPropertiesListArrays( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & masses );
 static void dumpPropertySlice( std::auto_ptr<PTDiagramCalculator> & diagBuilder, const std::vector<double> & composition );
-static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<int> & colors );
+static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<size_t> & colors );
 static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder );
 static void dumpSpecialPoints( std::ofstream & ofs, std::auto_ptr<PTDiagramCalculator> & diagBuilder, TrapperIoTableRec & data );
 static void generatePlotDescription( std::ofstream & ofs, const std::vector<double> & vals, const std::string& diagTypeStr );
@@ -500,7 +500,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
 
    // Create list of values to calculate isolines into PTDiagramCalculator
    std::vector<double> vals;
-   std::vector<int>    colors;
+   std::vector<size_t>    colors;
    
    // generate set of values for calculating isolines in PTDiagramCalculator and colors 
    if ( !g_tuneAB ) createListValuesForIsolinesCalculation( ofs, vals, colors );
@@ -1163,7 +1163,7 @@ static void dumpPropertySlice( std::auto_ptr<PTDiagramCalculator> & diagBuilder,
    if ( ofs.is_open() ) ofs.close();
 }
 
-static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<int> & colors )
+static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::vector<double> & vals, std::vector<size_t> & colors )
 {
    if ( g_LogCountourLines ) // if countour lines should have logarithmic scale build sequence like this [0 0.001 0.01 0.1 0.5 0.9 0.99 0.999 1]
    {
@@ -1204,7 +1204,7 @@ static void createListValuesForIsolinesCalculation( std::ofstream & ofs, std::ve
       {
          colors.push_back( i );
       }
-      for ( int i = vals.size() / 2 +vals.size() % 2; i < vals.size(); ++i )
+      for ( size_t i = vals.size() / 2 +vals.size() % 2; i < vals.size(); ++i )
       {
          colors.push_back( vals.size() - 1 - i );
       }
@@ -1378,7 +1378,7 @@ static void generatePlotDescription( std::ofstream & ofs, const std::vector<doub
          }
          else
          {
-            double minV = static_cast<int>( std::floor( (std::log10( vals[1] ) + 0.5 ) ) );
+            int minV = static_cast<int>( std::floor( (std::log10( vals[1] ) + 0.5 ) ) );
             ofs<< "[ 0 ";
             for ( int i = minV; i <= 0; ++i ) ofs << (minV-i)/minV << " ";
             ofs << "], 'xticklabel', {";

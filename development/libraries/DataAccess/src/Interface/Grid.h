@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-using std::ostream;
 
 namespace DataAccess
 {
@@ -116,7 +115,7 @@ namespace DataAccess
 	    /// get the real-world distance between the two given gridpoints
 	    virtual double getDistance (unsigned int i1, unsigned int j1, unsigned int i2, unsigned int j2) const = 0;
 
-	    virtual void printOn (ostream &) const = 0;
+	    virtual void printOn (std::ostream &) const = 0;
 		   virtual void asString (std::string&) const = 0;
 
 	 private:

@@ -1,20 +1,7 @@
 #ifndef _INTERFACE_AUXILIARY_FAULT_TYPES_H
 #define _INTERFACE_AUXILIARY_FAULT_TYPES_H
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      using std::ostream;
-      using std::endl;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using std::ostream;
-   using std::endl;
-#endif // sgi
-
+#include <iostream>
 #include <string>
 #include <vector>
 #include <set>
@@ -85,9 +72,9 @@ namespace DataAccess
 
       Point operator+( const Point& P1, const Point& P2 );
 
-      Point operator*( const double X, const Point& P1 );
+      Point operator * ( const double X, const Point& P1 );
 
-      Point operator/( const Point& P1, const double X );
+      Point operator / ( const Point& P1, const double X );
 
       double separationDistance ( const Point& P1, const Point& P2 );
 

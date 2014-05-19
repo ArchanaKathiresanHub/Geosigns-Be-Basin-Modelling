@@ -1,23 +1,8 @@
 #ifndef _FAULT_ELEMENT_CALCULATOR_H
 #define _FAULT_ELEMENT_CALCULATOR_H
 
-#ifdef sgi
-  #ifdef _STANDARD_C_PLUS_PLUS
-    #include<iostream>
-    #include<fstream>
-    using std::ostream;
-    using std::ifstream;
-  #else // !_STANDARD_C_PLUS_PLUS
-    #include<iostream.h>
-    #include<fstream.h>
-  #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-  #include <iostream>
-  #include<fstream>
-  using std::ostream;
-  using std::ifstream;
-#endif // sgi
-
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <map>
