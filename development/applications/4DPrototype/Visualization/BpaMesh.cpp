@@ -39,7 +39,6 @@ BpaGeometry::BpaGeometry(const di::Grid* grid, std::shared_ptr<di::PropertyValue
     }
   }
 
-  std::cout << "numK = " << m_numK << std::endl;
   m_minX = grid->minI();
   m_minY = grid->minJ();
 

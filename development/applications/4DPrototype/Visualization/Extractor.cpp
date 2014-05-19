@@ -34,8 +34,6 @@ void* Extractor::threadFunc(void* userData)
     SoDB::writelock();
     item.parentMesh->setMesh(surfaceMesh);
     SoDB::writeunlock();
-
-    std::cout << '.' << std::flush;
   }
 
   SoDB::threadFinish();
