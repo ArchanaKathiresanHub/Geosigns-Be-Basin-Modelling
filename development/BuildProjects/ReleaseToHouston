@@ -4,7 +4,7 @@ cd /apps/sssdev/ibs
 
 WHOAMI=`/usr/bin/whoami`
 REMOTEUSER=s_bpac00
-REMOTECOMPUTER=houic-n-b01309.americas.shell.com
+REMOTECOMPUTER=houcy1-n-sp030b01.americas.shell.com
 REMOTEACCOUNT=$REMOTEUSER@$REMOTECOMPUTER
 SSHKEYFILE=${HOME}/${REMOTEUSER}-id_dsa
 IBSDIRECTORY=/apps/sssdev/ibs
