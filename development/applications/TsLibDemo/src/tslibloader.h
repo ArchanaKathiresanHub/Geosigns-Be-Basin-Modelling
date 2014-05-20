@@ -1,7 +1,19 @@
 #ifndef TSLIBLOADER_H
 #define TSLIBLOADER_H
 
+
+#ifdef __INTEL_COMPILER // disable warning "type qualifier on return type is meaningless" in tslibI.h
+#pragma warning push
+#pragma warning(disable:858)
+#endif
+
 #include <TsLibf.h>
+
+#ifdef __INTEL_COMPILER
+#pragma warning pop
+#endif
+
+
 #include <vector>
 #include <libloader.h>
 using namespace std;
