@@ -5,8 +5,11 @@
 //
 
 #include <string.h>
+#include <iostream>
 
 #include "buffer_readwrite.h"
+
+using namespace std;
 
 bool Buffer_ReadWrite::writeDataset (H5_Write_File *h5File, hid_t locId, 
                                      const char *dataset, const void *array, 

@@ -1,9 +1,12 @@
 #include "stdafx.h"
+#include <iostream>
+
 // 
 // function object to handle read/write of H5 Files
 // 
 
 #include "readwriteobject.h"
+using namespace std;
 
 #ifdef linux
 extern int IBS_Use_ADIOI_Locking;

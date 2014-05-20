@@ -13,7 +13,6 @@
 set(SERIALHDF5_SOURCES
 	src/buffer_readwrite.C
 	src/h5_file_types.C
-	src/h5_struct_types.C
 	src/h5_types.C
 	src/readwriteobject.C
 )
