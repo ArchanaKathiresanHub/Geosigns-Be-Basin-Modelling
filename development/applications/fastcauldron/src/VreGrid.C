@@ -3,7 +3,7 @@
 #include "layer_iterators.h"
 
 
-int VreGrid::getNumberOfVreGridNodes( DM * mapDA, const LayerList & layerList )
+int VreGrid::getNumberOfNodes( DM * mapDA, const LayerList & layerList )
 {
    int xs, ys, zs, xm, ym, zm;
    DMDAGetCorners( *mapDA, PETSC_NULL, PETSC_NULL, PETSC_NULL ,&xm, &ym, PETSC_NULL);

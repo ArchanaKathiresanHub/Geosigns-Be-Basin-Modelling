@@ -4,7 +4,7 @@
 
    
 VreOutputGrid::VreOutputGrid( DM * mapViewOfDomain, const LayerList & allLayers )
-   : m_vitriniteReflectance( getNumberOfVreGridNodes( mapViewOfDomain, allLayers) )
+   : m_vitriniteReflectance( getNumberOfNodes( mapViewOfDomain, allLayers) )
 {
 }
 

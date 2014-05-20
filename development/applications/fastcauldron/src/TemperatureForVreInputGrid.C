@@ -9,7 +9,7 @@ TemperatureForVreInputGrid::TemperatureForVreInputGrid(
       double time,
       bool withPreviousTemperature 
    )
-   : m_temperature( getNumberOfVreGridNodes( mapViewOfDomain, allLayers) )
+   : m_temperature( getNumberOfNodes( mapViewOfDomain, allLayers) )
    , m_activeNodes()
    , m_time(time)
 {
