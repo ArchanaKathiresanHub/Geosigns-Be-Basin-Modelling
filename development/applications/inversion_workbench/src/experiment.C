@@ -281,17 +281,23 @@ void Experiment :: runProjectSet( std::ostream * verboseOutput)
    int scenariosFinished = 0;
 
    // Start an OpenMP thread pool
-   #pragma omp parallel
+   #ifdef _OPENMP
+      #pragma omp parallel
+   #endif 
    {
       // Execute the iterations of following for-loop in parallel
       // The 'schedule(...)' bit says that each thread pulls 1 
       // iteration at a time from the work-queue.
-      #pragma omp for schedule(dynamic, 1)
+      #ifdef _OPENMP
+         #pragma omp for schedule(dynamic, 1)
+      #endif
       for (unsigned i = 0; i < m_scenarios.size(); ++i)
       {
          if (verboseOutput)
          {
-            #pragma omp critical(printing)
+            #ifdef _OPENMP
+               #pragma omp critical(printing)
+            #endif
             if (m_scenarios[i].isValid ())
             {
                *verboseOutput << "Starting scenario " << i + 1 << endl;
@@ -315,7 +321,9 @@ void Experiment :: runProjectSet( std::ostream * verboseOutput)
 
          if (verboseOutput)
          {
-            #pragma omp critical(printing)
+            #ifdef _OPENMP
+               #pragma omp critical(printing)
+            #endif
             {
                *verboseOutput << "Finished scenario " << i + 1 << std::endl;
                ++scenariosFinished;

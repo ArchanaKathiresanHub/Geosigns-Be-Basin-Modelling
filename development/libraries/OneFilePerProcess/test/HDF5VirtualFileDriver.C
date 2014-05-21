@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <cstdlib>
 
 // This is not really a unit test but more an integration test: Testing the
 // integration of the virtual file driver within HDF5. 
@@ -240,17 +241,11 @@ public:
    {
       int rank =  MPI::rank();
       char * name = 0;
-      int nameLength = 0;
-      std::vector<char> buffer;
+      std::vector<char> buffer(8);
       if ( rank == 0)
       {
-         name = tempnam(0, 0);
-         nameLength = std::strlen( name );
-         buffer.insert(buffer.begin(), name, name + nameLength);
-         std::free( name );
+         std::generate( buffer.begin(), buffer.end(), randomChar);
       } 
-      MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD);
-      buffer.resize(nameLength);
       MPI_Bcast( &buffer[0], buffer.size(), MPI_CHAR, 0, MPI_COMM_WORLD);
       
       return std::string( buffer.begin(), buffer.end());
@@ -264,6 +259,19 @@ public:
 private:
    File & operator=(File & );
    File( const File & );
+
+   static char randomChar()
+   {
+      static const char characters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklnmnopqrstuvwxyz0123456789";
+      static bool seeded = false;
+      if (!seeded)
+      {
+         srand( time(0) );
+         seeded = true;
+      }
+      size_t index = (sizeof(characters) - 1) * ( rand() / (double) RAND_MAX );
+      return characters[ index ];
+   }
 
    std::string m_file;
    bool m_exists;

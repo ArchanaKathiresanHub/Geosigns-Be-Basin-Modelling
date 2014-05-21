@@ -2048,15 +2048,9 @@ void ProxyColumn::setDiffusionStartTime (double diffusionStartTime)
 
 const double * ProxyColumn::getPenetrationDistances ()
 {
-   assert (false); // This does not work, cannot return a pointer to a variable on the stack.
-   ColumnValueArrayRequest valueArrayRequest;
-   ColumnValueArrayRequest valueArrayResponse;
-
-   valueArrayRequest.i = getI ();
-   valueArrayRequest.j = getJ ();
-   valueArrayRequest.valueSpec = PENETRATIONDISTANCE;
-   RequestHandling::SendRequest (valueArrayRequest, valueArrayResponse);
-   return (const double *) valueArrayResponse.value;
+   // this function is not implemented
+   assert (false); 
+   return 0; 
 }
 
 void ProxyColumn::setPenetrationDistances (const double * penetrationDistances)

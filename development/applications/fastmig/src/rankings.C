@@ -144,7 +144,7 @@ string & migration::GetRankString (void)
    clock_gettime(CLOCK_REALTIME, &tp);
 
    char timestr[32];
-   sprintf (timestr, "%9d.%9d\t", tp.tv_sec, tp.tv_nsec);
+   sprintf (timestr, "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
 
    static string rankString = "";
    if (rankString == "")

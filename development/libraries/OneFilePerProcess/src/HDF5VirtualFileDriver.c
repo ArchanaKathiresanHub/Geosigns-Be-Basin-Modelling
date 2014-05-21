@@ -55,7 +55,16 @@ static hid_t H5FD_mpiposix_init_disabled(void);
   #define NDEBUG
 #endif
 
+#ifdef __INTEL_COMPILER // disable warning in the original HDF5 source file
+#pragma warning push
+#pragma warning(disable:2330)
+#endif
+
 #include "H5FDmpiposix.c"
+
+#ifdef __INTEL_COMPILER 
+#pragma warning pop
+#endif
 
 #if RESET_NDEBUG
   #undef NDEBUG
