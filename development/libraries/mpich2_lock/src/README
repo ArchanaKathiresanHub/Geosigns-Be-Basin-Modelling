@@ -1,4 +1,0 @@
-lock.c was copied over from /nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/mpich2-1.4.1p1/src/mpi/romio/adio/common.
-The functions in lock.c (ADIOI_setlock) overrule the functions with the same name in the intel mpi library.
-lock.o must be linked in directly (do not use the library),
-as we require the functions of lock.o to be present [in the executable] before they are actually required and linking in the library won't do this!

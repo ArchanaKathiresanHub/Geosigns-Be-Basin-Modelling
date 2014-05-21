@@ -3,12 +3,6 @@
 // Classes with specific H5 file properties
 //
 
-#ifdef linux
-int IBS_Use_ADIOI_Locking = 1;
-
-bool IBS_SerializeIO = false;
-#endif
-
 #include "h5_file_types.h"
 
 #include <iostream>
@@ -71,20 +65,12 @@ hid_t H5_Base_File::createDatasetPropertyList (H5_PropertyList *propertyType)
 
 hid_t H5_Base_File::openGroup (const char *name)
 {
-# if H5_VERS_MINOR == 6
-   return H5Gopen (hFileId, name);
-#else
    return H5Gopen (hFileId, name, NULL);
-#endif
 }
 
 hid_t H5_Base_File::openGroup (const char *name, hid_t locId)
 {
-# if H5_VERS_MINOR == 6
-   return H5Gopen (locId, name);
-#else
    return H5Gopen (locId, name, NULL);
-#endif
 }
 
 void H5_Base_File::closeGroup (hid_t grp)
@@ -94,20 +80,12 @@ void H5_Base_File::closeGroup (hid_t grp)
 
 hid_t H5_Base_File::openDataset (const char *dataname)
 {
-# if H5_VERS_MINOR == 6
-   return H5Dopen (hFileId, dataname);
-#else
    return H5Dopen (hFileId, dataname, NULL);
-#endif
 }
 
 hid_t H5_Base_File::openDataset (const char *dataname, hid_t locId)
 {
-# if H5_VERS_MINOR == 6
-   return H5Dopen (locId, dataname);
-#else
    return H5Dopen (locId, dataname, NULL);
-#endif
 }
 
 void H5_Base_File::closeDataset (hid_t dset)
@@ -148,40 +126,24 @@ bool H5_Base_File::safeReadWrite (ReadWriteObject &fileOp, ostream &os)
 hid_t H5_Write_File::addDataset (const char *dataname, hid_t type, 
                                  H5_FixedSpace& space, hid_t propertyList)
 {
-# if H5_VERS_MINOR == 6
-   return H5Dcreate (hFileId, dataname, type, space.space_id(), propertyList);
-#else
    return H5Dcreate (hFileId, dataname, type, space.space_id(), propertyList, H5P_DEFAULT, H5P_DEFAULT);
-#endif
 }
 
 hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type, 
                                  H5_FixedSpace& space, hid_t propertyList)
 {
-# if H5_VERS_MINOR == 6
-   hid_t datasetId = H5Dopen (locId, dataname);
-#else
    hid_t datasetId = H5Dopen (locId, dataname, NULL);
-#endif
    if (datasetId >= 0)
    {
       H5Dclose (datasetId);
       H5Gunlink (locId, dataname);
    }
-# if H5_VERS_MINOR == 6
-   datasetId = H5Dcreate (locId, dataname, type, space.space_id(), propertyList);
-#else
    datasetId = H5Dcreate (locId, dataname, type, space.space_id(), propertyList, H5P_DEFAULT, H5P_DEFAULT);
-#endif
 
    if (datasetId < 0)
    {
 
-#if H5_VERS_MINOR == 6
-      H5Eprint ( 0 );
-#else
       H5Eprint ( H5E_DEFAULT, 0 );
-#endif
 
       cerr << "creating dataset " << dataname <<  " failed, with error code: " << datasetId << endl;
    }
@@ -191,30 +153,18 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
 
 hid_t H5_Write_File::addGroup (const char *groupname)
 {
-# if H5_VERS_MINOR == 6
-   return H5Gcreate (hFileId, groupname, 0);
-#else
    return H5Gcreate (hFileId, groupname, 0, H5P_DEFAULT, H5P_DEFAULT);
-#endif
 }
 
 hid_t H5_Write_File::addGroup (const char *groupname, hid_t locId)
 {
-# if H5_VERS_MINOR == 6
-   return H5Gcreate (locId, groupname, 0);
-#else
    return H5Gcreate (locId, groupname, 0, H5P_DEFAULT, H5P_DEFAULT);
-#endif
 }
 
 hid_t H5_Write_File::addAttribute (const char *attributeName, hid_t locId, hid_t type, 
                                     H5_FixedSpace &space)
 {
-# if H5_VERS_MINOR == 6
-   return H5Acreate (locId, attributeName, type, space.space_id(), H5P_DEFAULT);
-#else
    return H5Acreate (locId, attributeName, type, space.space_id(), H5P_DEFAULT, NULL);
-#endif
 }
 
 bool H5_Write_File::writeDataset (hid_t dataId, const void *buffer, H5_PropertyList *pList,
@@ -260,13 +210,7 @@ void H5_New_File::openInMode (const char *filename)
 void H5_Append_File::openInMode (const char *filename)
 {
    // open file for appending
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = false;
-#endif
    hFileId = H5Fopen (filename, H5F_ACC_RDWR, hPropertyListId);
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = true;
-#endif
 }
 
 void H5_Unique_File::openInMode (const char *filename)
@@ -281,13 +225,7 @@ void H5_Unique_File::openInMode (const char *filename)
 void H5_ReadOnly_File::openInMode (const char *filename)
 {
    // open file for reading
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = false;
-#endif
    hFileId = H5Fopen (filename, H5F_ACC_RDONLY, hPropertyListId);
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = true;
-#endif
 }
 
 hid_t H5_ReadOnly_File::openAttribute (const char *attributeName, hid_t locId)
@@ -331,11 +269,5 @@ bool H5_ReadOnly_File::readAttribute (hid_t attributeId, hid_t spaceId, void *bu
 void H5_ReadWrite_File::openInMode (const char *filename)
 {
    // open file for reading and writing
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = false;
-#endif
    hFileId = H5Fopen (filename, H5F_ACC_RDWR, hPropertyListId);
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = true;
-#endif
 }

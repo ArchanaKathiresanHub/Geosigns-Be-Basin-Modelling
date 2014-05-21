@@ -351,7 +351,7 @@ void GenexSimulator::deleteSourceRockPropertyValues()
 
 bool GenexSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ) return true;
+   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
 
    string fileName = GenexActivityName + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
@@ -359,7 +359,7 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    PetscBool hasOption;
    PetscOptionsHasName ( PETSC_NULL, "-overwrite", &hasOption );
    
-   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::s_temporaryDirName, hasOption );
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption );
    
    return status;
 }

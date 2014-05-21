@@ -55,8 +55,6 @@ namespace DataAccess
       /// return the associated ProjectHandle
       ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode );
 
-      void InitializeSerializedIO();
-
       /// Close the project associated with the given ProjectHandle
       void CloseCauldronProject( ProjectHandle * projectHandle );
 
@@ -426,10 +424,6 @@ namespace DataAccess
 
          /// return the Grid that is used to produce new PropertyValues
          const Grid * getActivityOutputGrid( void ) const;
-
-         virtual void printOn( ostream & ostr ) const;
-
-         virtual void asString( string & ) const;
 
          virtual const BiodegradationParameters* getBiodegradationParameters() const;
 
@@ -834,26 +828,6 @@ namespace DataAccess
          bool wasProducedByFastCauldron( void ) const;
          /// Check whether the output maps are in HDF5 format.
          bool containsHDF5OutputMaps( void ) const;
-
-         /*
-         ///Mapping from a Grid to another with different resolution
-         bool mapGridMapAtoGridMapB( GridMap *mapA, const Grid *GridA, GridMap *mapB, const Grid *GridB);
-
-         ///Transforms a high res local grid map to a low res local grid map
-         bool transformHighRes2LowRes( GridMap *mapA, const Grid *GridA,  GridMap *mapB, const Grid *GridB);
-         ///Transforms a low res local grid map to a high res local grid map
-         bool transformLowRes2HighRes( GridMap *mapA, const Grid *GridA,  GridMap *mapB, const Grid *GridB);
-         //utility for transformLowRes2HighRes
-         bool findLowResElementCoordinates(const int HighResI, const int HighResJ, const int depth,
-         const GridMap *lowResMap,  const Grid *lowResGrid,
-         const Grid *HighResGrid,
-         int lowResElementCoordinates[], int lowResElementCoordinatesInHighRes[],
-         double nodalValuesInLowResElement[], bool useGhostNodesInLowRes);
-         //utility for findLowResElementCoordinates
-         bool isHighResNodeInLowResElement(const int &HighResI, const int &HighResJ, int lowResElementCoordinatesInHighRes[]);
-         //utility for transformLowRes2HighRes
-         bool isHighResNodeInLowResGrid(const int &HighResI, const int &HighResJ, const GridMap *lowResMap, const Grid *lowResGrid, const Grid *highResGrid);
-         */
 
 
          MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;

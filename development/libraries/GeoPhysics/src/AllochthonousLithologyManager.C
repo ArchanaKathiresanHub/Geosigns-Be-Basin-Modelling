@@ -1,21 +1,11 @@
 #include <iostream>
-using namespace std;
 #include "AllochthonousLithologyManager.h"
-
-// Data access
-// #include "Interface/Interface.h"
-// #include "Interface/AllochthonousLithology.h"
-// #include "Interface/AllochthonousLithologyDistribution.h"
-// #include "Interface/AllochthonousLithologyInterpolation.h"
 
 #include "RBFGeneralOperations.h"
 
-
 using namespace DataAccess;
+using namespace std;
 
-#if 0
-AllochthonousLithologyManager* GeoPhysics::AllochthonousLithologyManager::s_allochthonousLithologyManagerInstance = 0;
-#endif
 
 const std::string GeoPhysics::AllochthonousLithologyManager::ScalingDataSetName = "Scaling";
 const std::string GeoPhysics::AllochthonousLithologyManager::TranslationDataSetName = "Translation";
@@ -23,25 +13,6 @@ const std::string GeoPhysics::AllochthonousLithologyManager::PointsDataSetName =
 const std::string GeoPhysics::AllochthonousLithologyManager::CoefficientsDataSetName = "Coefficients";
 const std::string GeoPhysics::AllochthonousLithologyManager::RHSDataSetName = "RHS";
 
-//------------------------------------------------------------//
-#if 0
-AllochthonousLithologyManager& GeoPhysics::AllochthonousLithologyManager::getInstance () {
-
-  if ( s_allochthonousLithologyManagerInstance == 0 ) {
-    s_allochthonousLithologyManagerInstance = new AllochthonousLithologyManager;
-  }
-
-  return *s_allochthonousLithologyManagerInstance;
-}
-#endif
-//------------------------------------------------------------//
-#if 0
-void GeoPhysics::AllochthonousLithologyManager::destoryInstance () {
-
-  delete s_allochthonousLithologyManagerInstance;
-  s_allochthonousLithologyManagerInstance = 0;
-}
-#endif
 //------------------------------------------------------------//
 
 GeoPhysics::AllochthonousLithologyManager::AllochthonousLithologyManager ( ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
@@ -267,26 +238,13 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
 
   std::string formationGroupStr = "/Formation=" + database::getLayerName ( interpRecord );
 
-#if H5_VERS_MINOR == 6
-  formationGroupId = H5Gopen ( fileId, formationGroupStr.c_str ());
-#else
   formationGroupId = H5Gopen ( fileId, formationGroupStr.c_str (), NULL );
-#endif
-
-#if H5_VERS_MINOR == 6
-  interpolationGroupId = H5Gopen ( formationGroupId, interpolationGroupName.c_str ());
-#else
   interpolationGroupId = H5Gopen ( formationGroupId, interpolationGroupName.c_str (), NULL );
-#endif
 
   // Read-in data from HDF file.
 
   // Read interpolation point data.
-#if H5_VERS_MINOR == 6
-  dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::PointsDataSetName.c_str ());
-#else
   dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::PointsDataSetName.c_str (), NULL );
-#endif
 
   status = H5Dread ( dataSetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer );
   H5Dclose ( dataSetId );
@@ -306,11 +264,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
   }
 
   // Read interpolation coefficients.
-#if H5_VERS_MINOR == 6
-  dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::CoefficientsDataSetName.c_str ());
-#else
   dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::CoefficientsDataSetName.c_str (), NULL );
-#endif
 
   // The buffer here will be more than large enough to hold all of the coefficients.
   status = H5Dread ( dataSetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer );
@@ -329,13 +283,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
   // Read transformation data.
   //
   // Scaling
-
-
-#if H5_VERS_MINOR == 6
-  dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::ScalingDataSetName.c_str ());
-#else
   dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::ScalingDataSetName.c_str (), NULL );
-#endif
 
   status = H5Dread ( dataSetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer );
   H5Dclose ( dataSetId );
@@ -350,11 +298,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
   }
 
   // Translation
-#if H5_VERS_MINOR == 6
-  dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::TranslationDataSetName.c_str ());
-#else
   dataSetId = H5Dopen ( interpolationGroupId, GeoPhysics::AllochthonousLithologyManager::TranslationDataSetName.c_str (), NULL );
-#endif
 
   status = H5Dread ( dataSetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer );
   H5Dclose ( dataSetId );

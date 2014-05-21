@@ -4,14 +4,13 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <time.h>
-
-using namespace DataAccess;
-using namespace Interface;
+#include <ctime>
 
 #include "database.h"
 #include "cauldronschema.h"
 
+using namespace DataAccess;
+using namespace Interface;
 using namespace database;
 
 const char *DistributedMapWriter::VERSION_DATASET_NAME = "/gioHDFfile version";
@@ -70,11 +69,7 @@ bool DistributedMapWriter::open (const string & fileName, bool append)
    bool opened = m_outFile->open (fileName.c_str (), &pList);
 
    // switch off hdf5 errors
-# if H5_VERS_MINOR == 6
-   H5Eset_auto (NULL, NULL);
-#else   
    H5Eset_auto (NULL, NULL, NULL);
-#endif
 
    // set up writer for parallel and serial
    m_writer = new PetscVector_ReadWrite<float> ();
@@ -262,12 +257,7 @@ bool DistributedMapWriter::writeAttribute (const string & dataSetName,
    }
    else
    {
-
-#if H5_VERS_MINOR == 6
-      H5Eprint ( 0 );
-#else
       H5Eprint ( H5E_DEFAULT, 0 );
-#endif
 
       cerr << endl << "DistributedMapWriter::writeAttribute Error: Cannot open dataset : " << dataSetName << endl;
       return false;

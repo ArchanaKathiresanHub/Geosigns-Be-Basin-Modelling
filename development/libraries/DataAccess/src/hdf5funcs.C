@@ -1,17 +1,10 @@
 #include <iostream>
-using namespace std;
-
-#include <string.h>
-
-#ifdef linux
-extern int IBS_Use_ADIOI_Locking;
-extern bool IBS_SerializeIO;
-#endif
-
-#include <assert.h>
+#include <cstring>
+#include <cassert>
 
 #include "hdf5funcs.h"
 
+using namespace std;
 
 bool HDF5::writeData1D (hid_t fileHandle, long size, const char * datasetName, hid_t dataType, const void * data)
 {
@@ -30,22 +23,14 @@ bool HDF5::writeData1D (hid_t fileHandle, long size, const char * datasetName, h
                               datasetName,
                               dataType,
                               dataspace,
-# if H5_VERS_MINOR != 6
-								H5P_DEFAULT,
-								H5P_DEFAULT,
-#endif
+                              H5P_DEFAULT,
+                              H5P_DEFAULT,
                               H5P_DEFAULT);
 
 
    if (dataset != -1)
    {
-#ifdef linux
-      if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = false;
-#endif
       status = H5Dwrite (dataset, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-#ifdef linux
-      if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = true;
-#endif
    }
 
    // close the dataset/dataspace we just created
@@ -83,22 +68,14 @@ bool HDF5::writeData2D (hid_t fileHandle, long sizeI, long sizeJ, const char * d
                               datasetName,
                               dataType,
                               dataspace,
-# if H5_VERS_MINOR != 6
-								H5P_DEFAULT,
-								H5P_DEFAULT,
-#endif
+                              H5P_DEFAULT,
+                              H5P_DEFAULT,
                               H5P_DEFAULT);
 
 
    if (dataset != -1)
    {
-#ifdef linux
-      if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = false;
-#endif
       status = H5Dwrite (dataset, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-#ifdef linux
-      if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = true;
-#endif
    }
 
    // close the dataset/dataspace we just created
@@ -119,11 +96,7 @@ bool HDF5::writeAttribute(hid_t fileHandle,
       const hsize_t dims, void* data)
 {
    // get the dataset from the file
-   hid_t datasetId = H5Dopen (fileHandle, datasetName
-# if H5_VERS_MINOR != 6
-								, H5P_DEFAULT
-#endif
-	   );
+   hid_t datasetId = H5Dopen (fileHandle, datasetName , H5P_DEFAULT);
 
    if (datasetId < 0)
    {
@@ -144,9 +117,7 @@ bool HDF5::writeAttribute(hid_t fileHandle,
                                    attributeName,
                                    attributeType,
                                    dataspaceId,
-# if H5_VERS_MINOR != 6
-								 H5P_DEFAULT,
-#endif
+                                   H5P_DEFAULT,
                                    H5P_DEFAULT);
 
    if (attributeId < 0)
@@ -173,11 +144,7 @@ bool HDF5::writeAttribute(hid_t fileHandle,
 int HDF5::readData (hid_t fileHandle, const char * datasetName, hsize_t * dimensions, void * data)
 {
    // get the dataset from the file
-   hid_t dataset = H5Dopen (fileHandle, datasetName
-# if H5_VERS_MINOR != 6
-								, H5P_DEFAULT
-#endif
-	   );
+   hid_t dataset = H5Dopen (fileHandle, datasetName , H5P_DEFAULT);
 
    if (dataset < 0)
    {

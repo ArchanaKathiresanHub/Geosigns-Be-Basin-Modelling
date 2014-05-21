@@ -15,11 +15,7 @@ public:
    // public typedefs
    typedef H5_Dimensions<hsize_t>  Size; 
 
-#if H5_VERS_MAJOR > 1 || H5_VERS_MINOR > 4
    typedef H5_Dimensions<hsize_t> Start;
-#else
-   typedef H5_Dimensions<hssize_t> Start;
-#endif
 
    // ctor / dtor
    H5_VectorBoundaries (DMDALocalInfo &vecInfo);

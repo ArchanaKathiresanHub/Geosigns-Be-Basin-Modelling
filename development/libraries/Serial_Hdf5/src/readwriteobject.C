@@ -8,10 +8,6 @@
 #include "readwriteobject.h"
 using namespace std;
 
-#ifdef linux
-extern int IBS_Use_ADIOI_Locking;
-extern bool IBS_SerializeIO;
-#endif
 //
 // Read/Write Methods
 //
@@ -64,14 +60,8 @@ hid_t ReadWriteObject::openType (hid_t datasetId)
 bool  WriteObject::operator() (void)
 {
    hid_t typeId = openType (rDataId);
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = false;
-#endif
    herr_t status = H5Dwrite (rDataId, typeId, rMemSpaceId, rFileSpaceId, 
                              rPropertyListId, rBuffer);
-#ifdef linux
-   if (IBS_SerializeIO) IBS_Use_ADIOI_Locking = true;
-#endif
    closeType (typeId);
    return status > -1;
 }

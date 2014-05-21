@@ -540,8 +540,6 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
    bool started;
    bool gridHasActiveElements;
 
-   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
- 
 #if 0
    cout << " calculation mode: " << CalculationModeImage [ mode ] << endl;
 #endif
@@ -797,7 +795,8 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 
 bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ||  m_fastcauldronSimulator->getModellingMode () == Interface::MODE1D  ||
+   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
+       getModellingMode () == Interface::MODE1D  ||
        m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
 
       return true;
@@ -824,7 +823,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          
          if ( !snapshotFileName.empty() ) {
             string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
-            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::s_temporaryDirName, hasOption )) {
+            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption )) {
                status = false;
                PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
             }
@@ -834,7 +833,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    string fileName = getActivityName () + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
      
-   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::s_temporaryDirName, hasOption ) ) {
+   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption ) ) {
       status = false;
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }
@@ -1457,7 +1456,7 @@ void FastcauldronSimulator::deleteMinorSnapshots () {
 
       }
 
-      if( ! H5_Parallel_PropertyList::s_oneFilePerProcess ) {
+      if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
          if ( getRank () == 0 ) {
             const std::string fileName = getFullOutputDir () + "/" + (*snapshotIter)->getFileName ();
             int status = std::remove( fileName.c_str ());
@@ -1834,6 +1833,8 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
 
    readRelPermCommandLineParameters ();
    readCommandLineWells ();
+   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+   H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
    printCommandLine ( argc, argv );
 }
 
@@ -2083,15 +2084,11 @@ bool FastcauldronSimulator::makeOutputDir() const
 {
    // Need to create output directory if it does not exist.
 
-   if( H5_Parallel_PropertyList::s_oneFilePerProcess ) {
+   if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
       
-      string temp_outputDir = H5_Parallel_PropertyList::s_temporaryDirName + "/" + ProjectHandle::getOutputDir();
+      string temp_outputDir = H5_Parallel_PropertyList::getTempDirName() + "/" + ProjectHandle::getOutputDir();
       
-#if defined(_WIN32) || defined (_WIN64)
-      int status = mkdir ( temp_outputDir.c_str() );
-#else
       int status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
-#endif
       if ( status != 0 and errno == ENOTDIR ) {
          return false;
       }

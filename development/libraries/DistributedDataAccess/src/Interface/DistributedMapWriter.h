@@ -1,16 +1,15 @@
 #ifndef _DISTRIBUTEDMAPWRITER_H_
 #define _DISTRIBUTEDMAPWRITER_H_
 
-#include <string>
-using std::string;
-
-class H5_Write_File;
-
 #include "petscvector_readwrite.h"
 #include "PetscVectors.h"
 
 #include "Interface/Interface.h"
 #include "Interface/MapWriter.h"
+
+#include <string>
+
+class H5_Write_File;
 
 namespace DataAccess
 {
@@ -22,36 +21,36 @@ namespace DataAccess
 	 public:
 	    DistributedMapWriter (void);
 	    /// open a file
-	    bool open (const string & fileName, bool append = false);
+	    bool open (const std::string & fileName, bool append = false);
 	    /// close a file
 	    bool close ();
 	    ~DistributedMapWriter ();
 
 	    /// return the filename without the leading directories
-	    const string & getFileName (void);
+	    const std::string & getFileName (void);
 
 	    /// write a 2D gridmap to a file
 	    bool writeMapToHDF (GridMap * gridMap, float time, double depoAge,
-                                const string & propertyGrid, const string& surfaceName );
+                                const std::string & propertyGrid, const std::string& surfaceName );
 	    
 		//bool writeMapToHDF (GridMap * gridMap, float time, double depoAge,
-        //                        const string & propertyGrid, const string& surfaceName );
+        //                        const std::string & propertyGrid, const std::string& surfaceName );
 
 	    /// write a 2D gridmap to a file
 	    bool writeMapToHDF (DM & da, Vec & vec, float time, double depoAge,
-                                const string & propertyGrid, const string& surfaceName );
+                                const std::string & propertyGrid, const std::string& surfaceName );
 
 	    /// write a 3D gridmap to a file; generic implementation (V.R.Ambati, 13/07/2011).
-	    bool writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName);
+	    bool writeVolumeToHDF (GridMap * gridMap, const std::string & propertyName, const std::string & layerName);
 	    
 		/// write a 3D gridmap to a file; originally implemented.
-	    bool writeVolumeToHDF (DM & da, Vec & vec, const string & propertyName, const string & layerName);
+	    bool writeVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, const std::string & layerName);
 
-	    bool write2DDataSet (const string & dataSetName, float *data, int *start, int *count, int *size);
+	    bool write2DDataSet (const std::string & dataSetName, float *data, int *start, int *count, int *size);
 
-	    bool Write1DDataSet (const long size, const string & dataSetName, const hid_t dataType, const void *data);
+	    bool Write1DDataSet (const long size, const std::string & dataSetName, const hid_t dataType, const void *data);
 
-	    bool writeAttribute (const string & dataSetName, const char *attributeName,
+	    bool writeAttribute (const std::string & dataSetName, const char *attributeName,
 		  const hid_t attributeType, const hsize_t dims, void *data);
 
 	    /// save a grid description to file
@@ -84,7 +83,7 @@ namespace DataAccess
 
 	    H5_Write_File *m_outFile;
 
-	    string m_fileName;
+	    std::string m_fileName;
 
 	    typedef PetscVector_ReadWrite<float> *WriterType;
 	    WriterType m_writer;

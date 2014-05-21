@@ -23,13 +23,8 @@ public:
    // returns property list (default: serial)
    virtual hid_t createFilePropertyList (void) const
    { 
-#ifdef THISSOMEHOWDOESNOTWORKBUTIDONTKNOWWHY_AJH
-      // does not seem to work in hdf5 1.6.6
-      return H5Pcreate (H5P_FILE_ACCESS);
-#else
       // hope this works across the board
       return H5P_DEFAULT; 
-#endif
    }
 
    // returns data property list
@@ -65,11 +60,7 @@ public:
    void  closeDataspace (hid_t space) { H5Sclose (space); }
    bool  getDimensions  (hid_t datasetId, SpaceDimensions &dims);
 
-# if H5_VERS_MINOR == 6
-   void  suppressErrors (void) { H5Eset_auto (NULL, NULL); }
-#else
    void  suppressErrors (void) { H5Eset_auto (NULL, NULL, NULL); }
-#endif
 
 protected:
    virtual void  openInMode (const char *filename) = 0;

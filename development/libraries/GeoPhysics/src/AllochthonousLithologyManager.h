@@ -66,11 +66,6 @@ namespace GeoPhysics {
 
       virtual ~AllochthonousLithologyManager ();
 
-//       static AllochthonousLithologyManager& getInstance ();
-
-//       static void destoryInstance ();
-
-
       /// Initialise the allochthonous lithology manager, returns false if an error has occurred.
       bool initialiseInterpolators ( database::Database* projectDatabase,
                                      const std::string&  directoryName );

@@ -13,19 +13,13 @@
 #endif
 
 #include <algorithm>
-
-#include <errno.h>
-#include <assert.h>
-
+#include <cerrno>
+#include <cassert>
 #include <iostream>
 #include <sstream>
-
 #include <vector>
 #include <list>
-
-using namespace std;
-
-#include <string.h>
+#include <cstring>
 
 #include "database.h"
 #include "cauldronschema.h"
@@ -102,24 +96,16 @@ using namespace std;
 
 
 #include "errorhandling.h"
-
-
 #include "wildMatch.h"
-
-using namespace DataAccess;
-using namespace Interface;
-
-
 #include "array.h"
-
-#define Abs(a) ((a) < 0 ? -(a) : (a))
-
-
 #include "GenexResultManager.h"
 #include "ComponentManager.h"
 #include "InterfaceDefs.h"
 
-const double DefaultUndefinedValue = 99999;
+
+using namespace DataAccess;
+using namespace Interface;
+using namespace std;
 
 using database::Database;
 using database::DataSchema;
@@ -127,9 +113,7 @@ using database::Table;
 using database::Record;
 using database::Transaction;
 
-#ifdef linux
-extern bool IBS_SerializeIO; // defined in h5_file_types.C
-#endif
+const double DefaultUndefinedValue = 99999;
 
 /// ObjectFactory used in the creation of ProjectHandles
 static ObjectFactory * s_factoryToUse = 0;
@@ -139,8 +123,6 @@ DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProjec
    FaultFileReaderFactory::getInstance ().registerReader ( IBSFaultFileReaderID, allocateIBSFaultFileReader );
    FaultFileReaderFactory::getInstance ().registerReader ( LandmarkFaultFileReaderID, allocateLandmarkFaultFileReader );
    FaultFileReaderFactory::getInstance ().registerReader ( ZyCorFaultFileReaderID, allocateZyCorFaultFileReader );
-
-   InitializeSerializedIO();
 
    DataSchema * cauldronSchema = database::createCauldronSchema ();
    database::TableDefinition *tableDef = cauldronSchema->getTableDefinition ("DepthIoTbl");
@@ -168,29 +150,6 @@ DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProjec
 void DataAccess::Interface::CloseCauldronProject (DataAccess::Interface::ProjectHandle * projectHandle)
 {
    if (projectHandle) delete projectHandle;
-}
-
-void DataAccess::Interface::InitializeSerializedIO ()
-{
-#if defined(__linux__)
-   static bool initialized = false;
-
-   if (!initialized)
-   {
-      if (getenv ("IBS_DONOTSERIALIZEIO"))
-      {
-	 IBS_SerializeIO = false;
-	 // Always perform file locking for non-serialized I/O
-	 setenv ("IBS_USEFILELOCKING", "true", 1);
-      }
-      else
-      {
-	 IBS_SerializeIO = true;
-      }
-
-      initialized = true;
-   }
-#endif
 }
 
 int Interface::ProjectHandle::GetNumberOfSpecies (void)
@@ -3400,11 +3359,7 @@ float ProjectHandle::GetUndefinedValue (hid_t fileId)
    hid_t dataSetId = -1;
    hid_t dataTypeId = -1;
    hid_t dataSpaceId = -1;
-# if H5_VERS_MINOR != 6
-      if ((dataSetId = H5Dopen (fileId, NULL_VALUE_NAME, H5P_DEFAULT)) >= 0)
-#else   
-      if ((dataSetId = H5Dopen (fileId, NULL_VALUE_NAME)) >= 0)
-#endif 
+   if ((dataSetId = H5Dopen (fileId, NULL_VALUE_NAME, H5P_DEFAULT)) >= 0)
    {
       dataTypeId = H5Tcopy (H5T_NATIVE_FLOAT);
       H5T_class_t storageTypeId = H5Tget_class (dataTypeId);
@@ -4566,8 +4521,7 @@ const Interface::Snapshot * ProjectHandle::findSnapshot (double time, int type) 
       const Snapshot * snapshot = * snapshotIter;
       if ((snapshot->getType () & type))
       {
-	 double difference = time - snapshot->getTime ();
-	 difference = Abs (difference);
+	 double difference = std::abs( time - snapshot->getTime () );
 	 if (difference < nearestDifference)
 	 {
 	    nearestDifference = difference;
@@ -6138,23 +6092,5 @@ void ProjectHandle::setPermafrost( const bool aPermafrost )
    if( permafrostRecord != 0 ) {
       permafrostRecord->setPermafrost( aPermafrost );
    }
-}
-
-void ProjectHandle::printOn (ostream & ostr) const
-{
-   string str;
-   asString (str);
-   ostr << str;
-}
-
-void ProjectHandle::asString (string & str) const
-{
-   ostringstream buf;
-
-   buf << "ProjectHandle: ";
-   buf << "name = " << getName ();
-   buf << endl;
-
-   str = buf.str ();
 }
 

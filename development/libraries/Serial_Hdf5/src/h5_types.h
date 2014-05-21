@@ -8,7 +8,7 @@
 #include "DllExport.h"
 #include "hdf5.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <string>
 using namespace std;
@@ -110,11 +110,7 @@ class SERIALHDF5_DLL_EXPORT H5_FixedSpace
 public:
    typedef H5_Dimensions<hsize_t>  Dimensions;
 
-#if H5_VERS_MAJOR > 1 || H5_VERS_MINOR > 4
    typedef H5_Dimensions<hsize_t> OffsetSize;
-#else
-   typedef H5_Dimensions<hssize_t> OffsetSize;
-#endif
 
    // ctor / dtor
    H5_FixedSpace  (int numDims, hsize_t d1, hsize_t d2=0, hsize_t d3=0, hsize_t d4=0);

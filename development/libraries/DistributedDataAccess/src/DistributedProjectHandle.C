@@ -3,41 +3,21 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <cmath>
-
 #if defined(_WIN32) || defined (_WIN64)
 #include <direct.h>
 #endif
 
+#include <cmath>
 #include <algorithm>
-
-#include <errno.h>
-#include <assert.h>
-
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
-
+#include <cerrno>
+#include <cassert>
+#include <iostream>
+#include <sstream>
 #include <vector>
 #include <list>
 
-using namespace std;
-
-#include "h5_parallel_file_types.h"
-#include "petscvector_readwrite.h"
+#include <petsc.h>
+#include <mpi.h>
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Grid.h"
@@ -46,8 +26,12 @@ using namespace std;
 #include "Interface/DistributedMessageHandler.h"
 #include "Interface/DistributedApplicationGlobalOperations.h"
 
+#include "h5_parallel_file_types.h"
+#include "petscvector_readwrite.h"
+
 using namespace DataAccess;
 using namespace Interface;
+using namespace std;
 
 const double DefaultUndefinedValue = 99999;
 struct MapFileCache {
@@ -143,11 +127,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    cerr << ddd::GetRankString () << ": loadGridMap (" << dataSetName << ") started" << endl;
 #endif
 
-# if H5_VERS_MINOR == 6
-   H5Eset_auto (NULL, NULL);
-#else   
    H5Eset_auto (NULL, NULL, NULL);
-#endif
 
    hid_t dataSetId = -1;
    hid_t dataSpaceId = -1;
@@ -229,11 +209,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    {
       // at least dimensions[2] is out of date.
 
-# if H5_VERS_MINOR != 6
       dataSetId = H5Dopen (fileId, dataSetName.c_str (), H5P_DEFAULT);
-#else   
-      dataSetId = H5Dopen (fileId, dataSetName.c_str ());
-#endif
 
       if (dataSetId < 0)
       {
@@ -356,20 +332,8 @@ void ProjectHandle::getMaxValue ( int localValue, int& globalValue ) const {
 }
 
 
-#include <time.h>
-
 namespace ddd
 {
-   int NumProcessors (void)
-   {
-      static int numProcessors = -1;
-      if (numProcessors  < 0)
-      {
-         MPI_Comm_size (PETSC_COMM_WORLD, &numProcessors);
-      }
-      return numProcessors;
-   }
-
    int GetRank (void)
    {
       static int rank = -1;
@@ -395,31 +359,4 @@ namespace ddd
       return size;
    }
 
-   string & GetRankString (void)
-   {
-      static string fullRankString;
-
-      timespec tp;
-      clock_gettime(CLOCK_REALTIME, &tp);
-
-      char timestr[32];
-      sprintf (timestr, "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
-
-      static string rankString = "";
-      if (rankString == "")
-      {
-        for (int rank = GetRank () - 1; rank >=0; --rank)
-        {
-            rankString += "    ";
-        }
-        char tmp[4];
-        sprintf (tmp, "%d", GetRank ());
-        rankString += tmp;
-      }
-
-      fullRankString = "";
-      fullRankString += timestr;
-      fullRankString += rankString;
-      return fullRankString;
-   }
 }

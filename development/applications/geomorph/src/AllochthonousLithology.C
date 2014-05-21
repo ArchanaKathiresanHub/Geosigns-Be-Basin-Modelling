@@ -1,12 +1,11 @@
 #include "AllochthonousLithology.h"
 
-#include <fstream>
+#include <iostream>
 #include <iomanip>
 #include <cstdlib>
 #include <sstream>
 
 #include <algorithm>
-#include <vector>
 
 #include "AllochthonousLithologyDistribution.h"
 
@@ -188,17 +187,8 @@ void AllochMod::AllochthonousLithology::saveInterpolant ( hid_t& fileId,
 
   formationGroupName = "/Formation=" + (dynamic_cast<const Interface::Formation*>(m_formation))->getName ();
 
-#if 0
-  // Why was mangled formation name used here?
-  formationGroupName = "/Formation=" + (dynamic_cast<const Interface::Formation*>(m_formation))->getMangledName ();
-#endif
-
   // Create a group named /MyFormation in the file.
-# if H5_VERS_MINOR == 6
-  hid_t formationGroupId = H5Gcreate(fileId, formationGroupName.c_str (), 0);
-#else   
   hid_t formationGroupId = H5Gcreate(fileId, formationGroupName.c_str (), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-#endif
 
   hid_t interpolationGroupId;
 
@@ -209,24 +199,14 @@ void AllochMod::AllochthonousLithology::saveInterpolant ( hid_t& fileId,
 
     allochthonousLithologyInterpolationRecord = allochTbl->createRecord ();
 
-
     interpolationGroupName.str ( "" );
     interpolationGroupName << "Interpolant=" << i + 1;
 
     // Create a group named /Interpolation='some-number' in the file.
-# if H5_VERS_MINOR == 6
-    interpolationGroupId = H5Gcreate ( formationGroupId, interpolationGroupName.str ().c_str (), 0 );
-#else   
     interpolationGroupId = H5Gcreate ( formationGroupId, interpolationGroupName.str ().c_str (), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
-#endif
 
     // Set the allochthonous lithology results table.
     database::setLayerName ( allochthonousLithologyInterpolationRecord, (dynamic_cast<const Interface::Formation*>(m_formation))->getName ());
-
-#if 0
-    // Why was mangled formation name used here?
-    database::setLayerName ( allochthonousLithologyInterpolationRecord, (dynamic_cast<const Interface::Formation*>(m_formation))->getMangledName ());
-#endif
 
     database::setInterpFileName ( allochthonousLithologyInterpolationRecord, fileName );
     database::setNumberOfPoints ( allochthonousLithologyInterpolationRecord, interpolationPoints.size ());

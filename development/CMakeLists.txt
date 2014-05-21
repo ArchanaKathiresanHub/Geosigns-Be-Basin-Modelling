@@ -38,7 +38,6 @@ include(FeatureSummary)
 #
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
 option( BM_PARALLEL "Build the parallel cauldron applications" ${UNIX} )
-option( BM_USE_OWN_MPICH_LOCK "Use our custom ADIOI_Set_lock functions in MPI library (Linux only)" OFF )
 option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
 option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
@@ -151,9 +150,6 @@ endif()
 
 if (BM_PARALLEL)
    find_package(MPI REQUIRED CONFIG)
-   if (BM_USE_OWN_MPICH_LOCK)
-      find_package(MpichLock REQUIRED CONFIG)
-   endif()
 endif()
 
 find_package(Hdf5 REQUIRED CONFIG)

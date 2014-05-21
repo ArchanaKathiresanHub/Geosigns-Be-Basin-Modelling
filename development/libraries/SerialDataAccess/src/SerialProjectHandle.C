@@ -3,38 +3,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <cmath>
 
 #if defined(_WIN32) || defined (_WIN64)
 #include <direct.h>
 #endif
 
 #include <algorithm>
-
-#include <errno.h>
-#include <assert.h>
-
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
-
-#include <vector>
-#include <list>
-
-using namespace std;
+#include <cassert>
+#include <iostream>
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Grid.h"
@@ -47,6 +23,7 @@ using namespace std;
 
 using namespace DataAccess;
 using namespace Interface;
+using namespace std;
 
 //float GetUndefinedValue (hid_t fileId);
 
@@ -74,12 +51,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 
    if ((fileId = H5Fopen (filePathName.c_str (), H5F_ACC_RDONLY, H5P_DEFAULT)) >= 0)
    {
-
-# if H5_VERS_MINOR != 6
       if ((dataSetId = H5Dopen (fileId, dataSetName.c_str (), H5P_DEFAULT)) >= 0)
-#else 
-      if ((dataSetId = H5Dopen (fileId, dataSetName.c_str ())) >= 0)
-#endif      
       {
 	 dataTypeId = H5Tcopy (H5T_NATIVE_FLOAT);
 	 H5T_class_t HDFclass = H5Tget_class (dataTypeId);
@@ -193,15 +165,8 @@ void ProjectHandle::getMaxValue ( int localValue, int& globalValue ) const {
 }
 
 
-#include<time.h>
-
 namespace ddd
 {
-   int NumProcessors (void)
-   {
-      return 1;
-   }
-
    int GetRank (void)
    {
       return 0;
@@ -210,26 +175,5 @@ namespace ddd
    int GetSize (void)
    {
       return 1;
-   }
-
-   string & GetRankString (void)
-   {
-      static string fullRankString;
-
-#if defined(_WIN32) || defined (_WIN64)
-	  fullRankString = "no time";
-#else
-
-      timespec tp;
-      clock_gettime(CLOCK_REALTIME, &tp);
-
-      char timestr[32];
-      sprintf (timestr, "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
-
-      fullRankString = "";
-      fullRankString += timestr;      
-#endif
-
-	  return fullRankString;
    }
 }
