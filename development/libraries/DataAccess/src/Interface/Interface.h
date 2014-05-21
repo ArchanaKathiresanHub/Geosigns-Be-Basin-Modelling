@@ -22,8 +22,6 @@ namespace ddd
    ///
    /// Will return 1 for serial programmes and the actual size for mpi-distributed programmes.
    int GetSize (void);
-
-   string & GetRankString (void);
 }
 
 
