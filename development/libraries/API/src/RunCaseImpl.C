@@ -32,6 +32,8 @@ RunCaseImpl::RunCaseImpl( const mbapi::Model & baseCase )
 // Destructor
 RunCaseImpl::~RunCaseImpl()
 {
+   for ( std::vector<Parameter*>::iterator it = m_prmsSet.begin(); it != m_prmsSet.end(); ++it ) delete *it;
+   for ( std::vector<Observable*>::iterator it = m_results.begin(); it != m_results.end(); ++it ) delete *it;
    m_prmsSet.clear(); 
    m_results.clear();
 }
@@ -39,27 +41,25 @@ RunCaseImpl::~RunCaseImpl()
 // Get i-th parameter
 Parameter * RunCaseImpl::parameter( size_t i ) const
 {
-   return i < m_prmsSet.size() ? m_prmsSet[ i ].get() : NULL;
+   return i < m_prmsSet.size() ? m_prmsSet[ i ] : NULL;
 }
 
 // Add new parameter to the list
 void RunCaseImpl::addParameter( Parameter * prm )
 {
-   m_prmsSet.resize( m_prmsSet.size() + 1 );
-   m_prmsSet.back().reset( prm );
+   m_prmsSet.push_back( prm );
 }
 
 // Get i-th observable
 Observable * RunCaseImpl::observable( size_t i ) const
 {
-   return i < m_results.size( ) ? m_results[ i ].get() : NULL;
+   return i < m_results.size( ) ? m_results[ i ] : NULL;
 }
 
 // Add new observable to the list
 void RunCaseImpl::addObservable( Observable * obs )
 {
-   m_results.resize( m_results.size() + 1 );
-   m_results.back().reset( obs );
+   m_results.push_back( obs );
 }
 
 }

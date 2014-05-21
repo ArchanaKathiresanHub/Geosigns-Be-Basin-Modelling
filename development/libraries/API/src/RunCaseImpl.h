@@ -69,8 +69,8 @@ namespace casa
       std::auto_ptr<mbapi::Model> m_model;
       std::string                 m_modelProjectFileName;
 
-      std::vector< std::auto_ptr<Parameter> >     m_prmsSet;
-      std::vector< std::auto_ptr<Observable> >    m_results;
+      std::vector<Parameter*>     m_prmsSet;
+      std::vector<Observable*>    m_results;
    };
 }
 

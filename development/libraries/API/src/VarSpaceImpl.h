@@ -19,7 +19,6 @@
 #include "CategoricalParameter.h"
 #include "ContinuousParameter.h"
 
-#include <memory>
 #include <vector>
 
 namespace casa
@@ -39,15 +38,8 @@ public:
    // Add a new continuous parameter
    virtual ErrorHandler::ReturnCode addParameter( ContinuousParameter * prm )
    {
-      if ( prm )
-      {
-         m_cntPrms.resize( m_cntPrms.size() + 1 );
-         m_cntPrms.back().reset( prm );
-      }
-      else
-      {
-         return ReportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" );
-      }
+      if ( prm ) { m_cntPrms.push_back( prm ); }
+      else       { return ReportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
       return NoError;
    }
 
@@ -64,19 +56,25 @@ public:
    
    // Constructor/Destructor
    VarSpaceImpl() { ; }
-   virtual ~VarSpaceImpl() { ; }
+   virtual ~VarSpaceImpl()
+   {
+      for ( size_t i = 0; i < m_catPrms.size(); ++i ) delete m_catPrms[i];
+      for ( size_t i = 0; i < m_cntPrms.size(); ++i ) delete m_cntPrms[i];
+      m_catPrms.clear();
+      m_cntPrms.clear();
+   }
 
    // Get continuous parameters list
 
-   const ContinuousParameter * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[i].get() : NULL; }
+   const ContinuousParameter * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
 
    // Get categorical parameters list
-   const CategoricalParameter * categoricalParameter( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ].get() : NULL; }
+   const CategoricalParameter * categoricalParameter( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ] : NULL; }
 
 
 private:
-   std::vector< std::auto_ptr< CategoricalParameter> > m_catPrms;
-   std::vector< std::auto_ptr< ContinuousParameter> >  m_cntPrms;
+   std::vector< CategoricalParameter*> m_catPrms;
+   std::vector< ContinuousParameter*>  m_cntPrms;
 };
 
 }

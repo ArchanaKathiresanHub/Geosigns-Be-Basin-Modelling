@@ -52,7 +52,7 @@ namespace casa
       void addNewCases( std::vector<RunCase*> & newCases, const std::string & expName );
 
    protected:
-      std::vector< std::auto_ptr<RunCase> >        m_caseSet;    // keeps all RunCases
+      std::vector< RunCase* >                      m_caseSet;    // keeps all RunCases
       
       std::map< std::string, std::vector<size_t> > m_expSet;     // keeps set of indexes for each experiment
       std::string                                  m_filter;     // keeps filter value
