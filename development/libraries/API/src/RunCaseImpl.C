@@ -18,11 +18,10 @@
 namespace casa
 {
 
-RunCaseImpl::RunCaseImpl()
-{
-   ;
-}
+// Constructor
+RunCaseImpl::RunCaseImpl() {;}
 
+// Constructor
 RunCaseImpl::RunCaseImpl( const mbapi::Model & baseCase )
 {
    m_model.reset( new mbapi::Model( ) );
@@ -30,14 +29,37 @@ RunCaseImpl::RunCaseImpl( const mbapi::Model & baseCase )
    *( m_model.get( ) ) = baseCase; // create a deep copy of given model
 }
 
+// Destructor
 RunCaseImpl::~RunCaseImpl()
 {
-   for ( size_t i = 0; i < m_prmsSet.size( ); ++i ) delete m_prmsSet[i];
-   m_prmsSet.clear();
-  
-   for ( size_t i = 0; i < m_results.size(); ++i ) delete m_results[ i ];
+   m_prmsSet.clear(); 
    m_results.clear();
 }
 
+// Get i-th parameter
+Parameter * RunCaseImpl::parameter( size_t i ) const
+{
+   return i < m_prmsSet.size() ? m_prmsSet[ i ].get() : NULL;
+}
+
+// Add new parameter to the list
+void RunCaseImpl::addParameter( Parameter * prm )
+{
+   m_prmsSet.resize( m_prmsSet.size() + 1 );
+   m_prmsSet.back().reset( prm );
+}
+
+// Get i-th observable
+Observable * RunCaseImpl::observable( size_t i ) const
+{
+   return i < m_results.size( ) ? m_results[ i ].get() : NULL;
+}
+
+// Add new observable to the list
+void RunCaseImpl::addObservable( Observable * obs )
+{
+   m_results.resize( m_results.size() + 1 );
+   m_results.back().reset( obs );
+}
 
 }

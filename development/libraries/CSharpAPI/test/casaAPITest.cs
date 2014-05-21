@@ -79,14 +79,12 @@ namespace Shell.BasinModeling.Cauldron.Test
          for ( int i = 0; i < 5; ++i )
          {
             RunCase rc = expSet[i];
-            ParametersList prmsList = rc.parametersSet();
+            Assert.IsTrue( 2 == rc.parametersNumber() );
 
-            Assert.IsTrue( 2 == prmsList.Count );
-
-            Assert.IsTrue( prmsList[0].isDouble() );
-            Assert.IsTrue( prmsList[1].isDouble() );
-            double val1 = prmsList[0].doubleValue();
-            double val2 = prmsList[1].doubleValue();
+            Assert.IsTrue( rc.parameter(0).isDouble() );
+            Assert.IsTrue( rc.parameter(1).isDouble() );
+            double val1 = rc.parameter(0).doubleValue();
+            double val2 = rc.parameter(1).doubleValue();
             
             double eps = 1.0e-6;
             

@@ -336,5 +336,4 @@ using namespace casa;
 
 /// CASA API
 %template(CasesList) std::vector<casa::RunCase*>;
-%template(ParametersList) std::vector<casa::Parameter*>;
 

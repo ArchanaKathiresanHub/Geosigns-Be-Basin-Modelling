@@ -18,6 +18,7 @@
 #include "Enumeration.h"
 
 #include <memory>
+#include <vector>
 
 /// @page CASA_CategoricalParameterPage Variable parameter for categorical values
 ///
@@ -35,18 +36,18 @@ namespace casa
       virtual ~CategoricalParameter() {;}
 
       /// @brief Get list of categorical parameter values as sorted list of unsigned integers
-      virtual std::vector< unsigned int> valuesAsUnsignedIntSortedSet() = 0;
+      virtual std::vector< unsigned int> valuesAsUnsignedIntSortedSet() const = 0;
 
       /// @brief Create a copy of the parameter and assign to the given value. If value is not in var. parameter values set,\n
       ///        the method will return a zero pointer
       /// @param val new value for parameter
       /// @return the new parameter object which should be deleted by the caller itself
-      virtual Parameter * createNewParameterFromUnsignedInt( unsigned int val ) = 0;
+      virtual Parameter * createNewParameterFromUnsignedInt( unsigned int val ) const = 0;
 
    protected:
       CategoricalParameter() {;}
 
-      std::auto_ptr<Enumeration*> m_valueSet;
+      std::auto_ptr<Enumeration> m_valueSet;
    };
 
 }

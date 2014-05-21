@@ -33,9 +33,9 @@ namespace casa
      
       /// @brief Get base value for the variable parameter as double
       /// @return base value
-      virtual double baseValueAsDouble();
+      virtual double baseValueAsDouble() const;
 
-      virtual Parameter * createNewParameterFromDouble( double val );
+      virtual Parameter * createNewParameterFromDouble( double val ) const;
 
    protected:
       std::string m_srLithoType; ///< source rock lithology name

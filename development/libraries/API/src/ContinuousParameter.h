@@ -48,21 +48,21 @@ namespace casa
 
       /// @brief Get minimal variable parameter value as double
       /// @return minimal value for variable parameter
-      double minValueAsDouble() { return m_valueRange->minRangeValueAsDouble(); }
+      double minValueAsDouble() const { return m_valueRange->minRangeValueAsDouble(); }
 
       /// @brief Get maximal variable parameter value as double
       /// @return maximal value for variable parameter
-      double maxValueAsDouble() { return m_valueRange->maxRangeValueAsDouble(); }
+      double maxValueAsDouble() const { return m_valueRange->maxRangeValueAsDouble(); }
 
       /// @brief Get base value for the variable parameter as double
       /// @return base value
-      virtual double baseValueAsDouble() = 0;
+      virtual double baseValueAsDouble() const = 0;
 
       /// @brief Create a copy of the parameter and assign to the given value. If value is outside of the parameter range,\n
       ///        the method will return a zero pointer
       /// @param val new value for parameter
       /// @return the new parameter object which should be deleted by the caller itself
-      virtual Parameter * createNewParameterFromDouble( double val ) = 0;
+      virtual Parameter * createNewParameterFromDouble( double val ) const = 0;
 
    protected:
       ContinuousParameter() : m_pdf(Block) {;}

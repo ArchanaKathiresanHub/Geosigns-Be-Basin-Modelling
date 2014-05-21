@@ -75,7 +75,8 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
       // create SUMlib object for DoE generation
       if ( SpaceFilling == m_typeOfDoE ) // special case, can extend already existed set of cases
       {
-         const SUMlib::HybridMC doe( selectedPrms, varPrmsSet.numberOfContPrms(), expSet.size(), runsNum );
+         const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ),
+            static_cast<unsigned int>( expSet.size() ), static_cast<unsigned int>( runsNum ) );
          const bool replicate = false;
          doe.getCaseSet( pBounds, baseCase, replicate, sumCases );
       }
@@ -91,12 +92,31 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
          
          switch (  m_typeOfDoE )
          {
-         case BoxBehnken:           doe.reset( new SUMlib::BoxBehnken(   selectedPrms, varPrmsSet.numberOfContPrms()               ) ); break;
-         case Tornado:              doe.reset( new SUMlib::Tornado(      selectedPrms, varPrmsSet.numberOfContPrms()               ) ); break;
-         case PlackettBurman:       doe.reset( new SUMlib::ScreenDesign( selectedPrms, varPrmsSet.numberOfContPrms(), false, false ) ); break;
-         case PlackettBurmanMirror: doe.reset( new SUMlib::ScreenDesign( selectedPrms, varPrmsSet.numberOfContPrms(), false, true  ) ); break;
-         case LatinHypercube:       doe.reset( new SUMlib::OptimisedLHD( selectedPrms, varPrmsSet.numberOfContPrms(), runsNum      ) ); break;
-         case FullFactorial:        doe.reset( new SUMlib::FactDesign(   selectedPrms, varPrmsSet.numberOfContPrms()               ) ); break;
+         case BoxBehnken:
+            doe.reset( new SUMlib::BoxBehnken( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ) ) );
+            break;
+
+         case Tornado:
+            doe.reset( new SUMlib::Tornado( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ) ) );
+            break;
+
+         case PlackettBurman:
+            doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ), false, false ) );
+            break;
+
+         case PlackettBurmanMirror:
+            doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ), false, true ) );
+            break;
+
+         case LatinHypercube:
+            doe.reset( new SUMlib::OptimisedLHD( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms( ) ),
+               static_cast<unsigned int>( runsNum ) ) );
+            break;
+
+         case FullFactorial:
+            doe.reset( new SUMlib::FactDesign( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ) ) );
+            break;
+
          default:
             std::ostringstream oss;
             oss << "Unknown DoE algorithm: " << m_typeOfDoE;
@@ -129,29 +149,25 @@ void DoEGeneratorImpl::createBounds( const VarSpace & varSp, SUMlib::Case & lowC
 {
    const VarSpaceImpl & varSpace = dynamic_cast<const VarSpaceImpl &>( varSp );
    
-   // process continuous parameters set
-   const std::vector<ContinuousParameter*> cntPrms = varSpace.continuousParameters();
-   
-   std::vector<double> minCntPrms( cntPrms.size() );
-   std::vector<double> maxCntPrms( cntPrms.size() );
+   // process continuous parameters set  
+   std::vector<double> minCntPrms( varSpace.numberOfContPrms() );
+   std::vector<double> maxCntPrms( varSpace.numberOfContPrms() );
 
-   for ( size_t i = 0; i < cntPrms.size(); ++i )
+   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      minCntPrms[i] = cntPrms[i]->minValueAsDouble();
-      maxCntPrms[i] = cntPrms[i]->maxValueAsDouble();
+      minCntPrms[ i ] = varSpace.continuousParameter( i )->minValueAsDouble();
+      maxCntPrms[ i ] = varSpace.continuousParameter( i )->maxValueAsDouble();
    }
    lowCs.setContinuousPart( minCntPrms );
    highCs.setContinuousPart( maxCntPrms );
 
-   // process categorical parameters set
-   const std::vector<CategoricalParameter*> catPrms = varSpace.categoricalParameters();
-   
+   // process categorical parameters set  
    // clean container for categorical values
    catIndices.clear();
 
-   for ( size_t i = 0; i < catPrms.size(); ++i )
+   for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
    {
-      const std::vector<unsigned int> & valsSet = catPrms[i]->valuesAsUnsignedIntSortedSet();
+      const std::vector<unsigned int> & valsSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet( ); 
       catIndices.push_back( SUMlib::IndexList( valsSet.begin(), valsSet.end() ) );
    }
 }
@@ -164,13 +180,11 @@ void DoEGeneratorImpl::setBaseCase( const VarSpace & varSp, SUMlib::Case & baseC
    const VarSpaceImpl & varSpace = dynamic_cast<const VarSpaceImpl &>( varSp );
 
    // process continuous parameters set
-   const std::vector<ContinuousParameter*> cntPrms = varSpace.continuousParameters( );
+   std::vector<double> baseCntPrms( varSpace.numberOfContPrms() );
 
-   std::vector<double> baseCntPrms( cntPrms.size( ) );
-
-   for ( size_t i = 0; i < cntPrms.size( ); ++i )
+   for ( size_t i = 0; i < baseCntPrms.size( ); ++i )
    {
-      baseCntPrms[ i ] = cntPrms[ i ]->baseValueAsDouble( );
+      baseCntPrms[ i ] = varSpace.continuousParameter( i )->baseValueAsDouble();
    }
    baseCs.setContinuousPart( baseCntPrms );
 }
@@ -187,22 +201,17 @@ void DoEGeneratorImpl::addCase( const VarSpace & varSp, std::vector<RunCase*> & 
    // std::auto_ptr<RunCaseImpl> newCase( new RunCaseImpl( m_baseModel ) );
    std::auto_ptr<RunCaseImpl> newCase( new RunCaseImpl() );
 
-   std::vector<Parameter*>  & newCasePrms = newCase->parametersSet();
-
    const std::vector<double>       & sumCntArray = cs.continuousPart();
    const std::vector<unsigned int> & sumCatArray = cs.categoricalPart();
 
    // go over all parameters in scenario and set up DoE calculated parameters
-   const std::vector<ContinuousParameter*>  cntPrms = varSpace.continuousParameters();
-   const std::vector<CategoricalParameter*> catPrms = varSpace.categoricalParameters();
-
-   for ( size_t i = 0; i < cntPrms.size(); ++i )
+   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      newCasePrms.push_back( cntPrms[ i ]->createNewParameterFromDouble( sumCntArray[ i ] ) );
+      newCase->addParameter( varSpace.continuousParameter( i )->createNewParameterFromDouble( sumCntArray[ i ] ) );
    }
-   for ( size_t i = 0; i < catPrms.size(); ++i )
+   for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
    {
-      newCasePrms.push_back( catPrms[ i ]->createNewParameterFromUnsignedInt( sumCatArray[ i ] ) );
+      newCase->addParameter( varSpace.categoricalParameter( i )->createNewParameterFromUnsignedInt( sumCatArray[ i ] ) );
    }
    
    expSet.push_back( newCase.release() );

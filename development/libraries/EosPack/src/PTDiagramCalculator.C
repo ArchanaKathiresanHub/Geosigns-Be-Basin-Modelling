@@ -1,4 +1,3 @@
-#include "EosPack.h"
 #include "PTDiagramCalculator.h"
 #include "consts.h"
 

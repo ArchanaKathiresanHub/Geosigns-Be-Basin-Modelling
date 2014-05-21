@@ -30,17 +30,27 @@ namespace casa
       /// @brief Destructor
       virtual ~RunCase() { ; }
 
-      /// @brief Get a set of the case parameters
-      /// @return vector of parameter objects
-      virtual std::vector<Parameter*>  & parametersSet() = 0;
-      
-      /// @brief Get a set of observables for the case
-      /// @return vector of observable objects
-      virtual std::vector<Observable*> & observablesSet() = 0;
+      /// @brief Get number of parameters 
+      /// @return parameters number
+      virtual size_t parametersNumber() const = 0;
+
+      /// @brief Get i-th parameter
+      /// @param i position of requested parameter
+      /// @return i-th parameter or null pointer if there is no such parameter
+      virtual Parameter * parameter( size_t i ) const = 0;
+
+      /// @brief Get number of observables 
+      /// @return observables number
+      virtual size_t observablesNumber( ) const = 0;
+
+      /// @brief Get i-th observable
+      /// @param i position of requested observable
+      /// @return i-th observable or null pointer if there is no such observable
+      virtual Observable * observable( size_t i ) const = 0;
 
       /// @brief Get a model associated with this Case
       /// @return pointer to the model
-      virtual mbapi::Model * caseModel() = 0;
+      virtual mbapi::Model * caseModel() const = 0;
 
    protected:
       RunCase() { ; }

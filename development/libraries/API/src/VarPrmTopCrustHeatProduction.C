@@ -36,12 +36,12 @@ VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
 {
 }
 
-double VarPrmTopCrustHeatProduction::baseValueAsDouble( )
+double VarPrmTopCrustHeatProduction::baseValueAsDouble() const
 {
    return dynamic_cast<PrmTopCrustHeatProduction*>( m_baseValue.get() )->value( );
 }
 
-Parameter * VarPrmTopCrustHeatProduction::createNewParameterFromDouble( double val )
+Parameter * VarPrmTopCrustHeatProduction::createNewParameterFromDouble( double val ) const
 {
    return m_valueRange->isValInRange( val ) ? new PrmTopCrustHeatProduction( val ) : 0;
 }

@@ -38,12 +38,12 @@ VarPrmSourceRockTOC::~VarPrmSourceRockTOC()
 {
 }
 
-double VarPrmSourceRockTOC::baseValueAsDouble()
+double VarPrmSourceRockTOC::baseValueAsDouble() const
 {
    return dynamic_cast<PrmSourceRockTOC*>( m_baseValue.get() )->value();
 }
 
-Parameter * VarPrmSourceRockTOC::createNewParameterFromDouble( double val )
+Parameter * VarPrmSourceRockTOC::createNewParameterFromDouble( double val ) const
 {
    return m_valueRange->isValInRange( val ) ? (new PrmSourceRockTOC( val, m_srLithoType.c_str() )) : 0;
 }

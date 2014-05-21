@@ -1927,7 +1927,7 @@ bool ProjectHandle::loadFaultEvents (void)
          const string & fcName = database::getFaultcutsMap (record);
          const string & faultName = database::getFaultName (record);
          const string & faultLithology = database::getFaultLithology (record);
-         bool usedInOverpressure = database::getUsedInOverpressure ( record );
+         bool usedInOverpressure = database::getUsedInOverpressure ( record ) ? true : false;
 
 	 FaultCollection * fc = (FaultCollection *) findFaultCollection (fcName);
 	 if (!fc) continue;
@@ -2988,7 +2988,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld (void)
 		  database::setMaximum (depthIoRecord, value);
 		  database::setSum (depthIoRecord, value);
 		  database::setSum2 (depthIoRecord, DefaultUndefinedScalarValue);
-		  database::setNP (depthIoRecord, DefaultUndefinedScalarValue);
+		  database::setNP (depthIoRecord, static_cast<int>(DefaultUndefinedScalarValue));
 		  database::setP15 (depthIoRecord, DefaultUndefinedScalarValue);
 		  database::setP50 (depthIoRecord, DefaultUndefinedScalarValue);
 		  database::setP85 (depthIoRecord, DefaultUndefinedScalarValue);
@@ -3354,7 +3354,7 @@ const char* ORIGIN_J_DATASET_NAME = "/origin in J dimension";
 /// Retrieve the undefined value from a HDF5 file
 float ProjectHandle::GetUndefinedValue (hid_t fileId)
 {
-   float undefinedValue = DefaultUndefinedMapValue;
+   float undefinedValue = static_cast<float>( DefaultUndefinedMapValue );
 
    hid_t dataSetId = -1;
    hid_t dataTypeId = -1;
@@ -4400,7 +4400,6 @@ const Interface::Grid * ProjectHandle::getLowResolutionOutputGrid (void) const
       assert (projectIoRecord);
 
       int numI, numJ;
-      int lowResNumI, lowResNumJ;
       double deltaI, deltaJ;
       double minI, minJ;
       double maxI, maxJ;
@@ -5896,7 +5895,7 @@ void ProjectHandle::resetSnapshotIoTbl (Transaction * transaction) const
    Table * table = getTable ("SnapshotIoTbl");
    if (!table) return;
 
-   for (size_t i = 0; i < table->size (); ++i)
+   for ( int i = 0; i < table->size (); ++i )
    {
       Record * record = table->getRecord (i);
       record = record->edit (transaction);

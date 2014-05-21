@@ -20,9 +20,11 @@ namespace casa
    class Enumeration
    {
    public:
+      /// @brief Destructor
+      virtual ~Enumeration( ) { ; }
+
    protected:
       Enumeration() {;}
-      virtual ~Enumeration() {;}
    };
 }
 
