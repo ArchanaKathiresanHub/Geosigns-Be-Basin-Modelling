@@ -277,8 +277,7 @@ void FastcauldronSimulator::initialiseFastcauldronLayers () {
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::initialiseElementGrid ( const bool  printElementValidityMap,
-                                                          bool& hasActiveElements ) {
+void FastcauldronSimulator::initialiseElementGrid ( bool& hasActiveElements ) {
 
    int i;
    int j;
@@ -424,106 +423,101 @@ void FastcauldronSimulator::initialiseElementGrid ( const bool  printElementVali
       }
 
    }
+}
 
-   if ( printElementValidityMap ) {
+void FastcauldronSimulator::printElementValidityMap(const std::string & fileName ) const
+{
+   char chars [2][2][2][2] = {{{{ '.', '.' }, { '.', '.' }}, {{ '.', '.' }, { '.', '.' }}},
+                              {{{ '.', '.' }, { '.', '.' }}, {{ '.', '.' }, { '.', '.' }}}};
 
-      char chars [2][2][2][2] = {{{{ '.', '.' }, { '.', '.' }}, {{ '.', '.' }, { '.', '.' }}},
-                                 {{{ '.', '.' }, { '.', '.' }}, {{ '.', '.' }, { '.', '.' }}}};
+   // Top 
+   chars [ 0 ][ 0 ][ 1 ][ 0 ] = '-';
 
-      // Top 
-      chars [ 0 ][ 0 ][ 1 ][ 0 ] = '-';
+   // Bottom
+   chars [ 1 ][ 0 ][ 0 ][ 0 ] = '-';
 
-      // Bottom
-      chars [ 1 ][ 0 ][ 0 ][ 0 ] = '-';
+   // Right
+   chars [ 0 ][ 1 ][ 0 ][ 0 ] = '|';
 
-      // Right
-      chars [ 0 ][ 1 ][ 0 ][ 0 ] = '|';
+   // Left
+   chars [ 0 ][ 0 ][ 0 ][ 1 ] = '|';
 
-      // Left
-      chars [ 0 ][ 0 ][ 0 ][ 1 ] = '|';
+   // Corners
+   chars [ 1 ][ 1 ][ 0 ][ 0 ] = '+';
+   chars [ 0 ][ 1 ][ 1 ][ 0 ] = '+';
+   chars [ 0 ][ 0 ][ 1 ][ 1 ] = '+';
+   chars [ 1 ][ 0 ][ 0 ][ 1 ] = '+';
 
-      // Corners
-      chars [ 1 ][ 1 ][ 0 ][ 0 ] = '+';
-      chars [ 0 ][ 1 ][ 1 ][ 0 ] = '+';
-      chars [ 0 ][ 0 ][ 1 ][ 1 ] = '+';
-      chars [ 1 ][ 0 ][ 0 ][ 1 ] = '+';
 
-      std::stringstream fileNameBuffer;
-      fileNameBuffer << getProjectName () << "_" << getSize () << "_" << UnitTest1FileName;
+   std::stringstream buffer;
+   std::string line ( m_elementGrid.getNumberOfXElements (), '.' );
+   std::string line2 ( m_elementGrid.getNumberOfXElements (), '.' );
 
-      std::string fileName = fileNameBuffer.str ();
-
-      std::stringstream buffer;
-      std::string line ( m_elementGrid.getNumberOfXElements (), '.' );
-      std::string line2 ( m_elementGrid.getNumberOfXElements (), '.' );
-
-      if ( getRank () == 0 ) {
-         buffer << endl;
-         buffer << " Map partitioning for project: " << getProjectName () << endl;
-         buffer << " Number of processes         : " << getSize () << endl;
-         buffer << endl;
-      }
-
-      buffer << " process " << getRank () << " element validity map "<< endl << endl;
-      buffer << "     * - active element"  << endl
-             << "     x - active ghost element " << endl
-             << "     # - domain boundary element" << endl
-             << "  +--+ - partition boundary " << endl
-             << "     . - inactive element or on other partition" << endl << endl;
-
-      for ( j = m_elementGrid.lastJ () + 1; j < m_elementGrid.getNumberOfYElements (); ++j ) {
-         buffer << line2 << endl;
-      }
-
-      for ( j = m_elementGrid.lastJ ( true ); j >= m_elementGrid.firstJ ( true ); --j ) {
-
-         for ( i = m_elementGrid.firstI ( true ); i <= m_elementGrid.lastI ( true ); ++i ) {
-
-            isActive = m_mapElements ( i, j ).isValid ();
-
-            if ( not m_mapElements ( i, j ).isOnProcessor ()) {
-               line.at ( i ) = ( isActive ? 'x' : '.' );
-            } else {
-               line.at ( i ) = ( isActive ? '*' : '.' );
-            }
-
-            if ( m_mapElements ( i, j ).isValid () and 
-                 ( m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Front ) or m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Right ) or
-                   m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Back  ) or m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Left ))) {
-               line.at ( i ) = '#';
-            } else if (( not m_mapElements ( i, j ).isValid ()) and m_mapElements ( i, j ).isOnProcessor ()) {
-               line.at ( i ) = chars [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Front )]
-                                     [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Right )]
-                                     [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Back  )]
-                                     [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Left  )];
-            }
-
-         }
-
-         buffer << line;
-         buffer << endl;
-      }
-
-      for ( j = 0; j < m_elementGrid.firstJ () - 1; ++j ) {
-         buffer << line2 << endl;
-      }
-
+   if ( getRank () == 0 ) {
       buffer << endl;
+      buffer << " Map partitioning for project: " << getProjectName () << endl;
+      buffer << " Number of processes         : " << getSize () << endl;
       buffer << endl;
-
-
-      FILE* unitTestFile;
-
-      PetscFOpen ( PETSC_COMM_WORLD, fileName.c_str (), "w", &unitTestFile );
-      PetscSynchronizedFPrintf ( PETSC_COMM_WORLD, unitTestFile, buffer.str ().c_str ());
-      PetscSynchronizedFlush ( PETSC_COMM_WORLD );
-      PetscFClose ( PETSC_COMM_WORLD, unitTestFile );
-
-      PetscPrintf ( PETSC_COMM_WORLD, " Saved unit test data in file: %s \n ", fileName.c_str ());
    }
 
+   buffer << " process " << getRank () << " element validity map "<< endl << endl;
+   buffer << "     * - active element"  << endl
+          << "     x - active ghost element " << endl
+          << "     # - domain boundary element" << endl
+          << "  +--+ - partition boundary " << endl
+          << "     . - inactive element or on other partition" << endl << endl;
 
+   for ( int j = m_elementGrid.lastJ () + 1; j < m_elementGrid.getNumberOfYElements (); ++j ) {
+      buffer << line2 << endl;
+   }
+
+   for ( int j = m_elementGrid.lastJ ( true ); j >= m_elementGrid.firstJ ( true ); --j ) {
+
+      for ( int i = m_elementGrid.firstI ( true ); i <= m_elementGrid.lastI ( true ); ++i ) {
+
+         bool isActive = m_mapElements ( i, j ).isValid ();
+
+         if ( not m_mapElements ( i, j ).isOnProcessor ()) {
+            line.at ( i ) = ( isActive ? 'x' : '.' );
+         } else {
+            line.at ( i ) = ( isActive ? '*' : '.' );
+         }
+
+         if ( m_mapElements ( i, j ).isValid () and 
+              ( m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Front ) or m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Right ) or
+                m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Back  ) or m_mapElements ( i, j ).isOnDomainBoundary ( MapElement::Left ))) {
+            line.at ( i ) = '#';
+         } else if (( not m_mapElements ( i, j ).isValid ()) and m_mapElements ( i, j ).isOnProcessor ()) {
+            line.at ( i ) = chars [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Front )]
+                                  [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Right )]
+                                  [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Back  )]
+                                  [ m_mapElements ( i, j ).isOnProcessorBoundary ( MapElement::Left  )];
+         }
+
+      }
+
+      buffer << line;
+      buffer << endl;
+   }
+
+   for ( int j = 0; j < m_elementGrid.firstJ () - 1; ++j ) {
+      buffer << line2 << endl;
+   }
+
+   buffer << endl;
+   buffer << endl;
+
+
+   FILE* outputFile= 0;
+
+   PetscFOpen ( PETSC_COMM_WORLD, fileName.c_str (), "w", &outputFile);
+   PetscSynchronizedFPrintf ( PETSC_COMM_WORLD, outputFile, buffer.str ().c_str ());
+   PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+   PetscFClose ( PETSC_COMM_WORLD, outputFile );
+
+   PetscPrintf ( PETSC_COMM_WORLD, " Saved unit test data in file: %s \n ", fileName.c_str ());
 }
+
 
 //------------------------------------------------------------//
 
@@ -534,11 +528,10 @@ const AppCtx* FastcauldronSimulator::getCauldron () const
 
 //------------------------------------------------------------//
 
-bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
-                                                 const bool            printElementValidityMap ) {
+bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
+{
 
-   bool started;
-   bool gridHasActiveElements;
+   bool started = false;
 
 #if 0
    cout << " calculation mode: " << CalculationModeImage [ mode ] << endl;
@@ -597,7 +590,7 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
       PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR Could not open the output file.\n");    
       return started;
    }
-   m_fastcauldronSimulator->setToConstantDensity ();
+   setToConstantDensity ();
 
    // now that we have the calculation mode, we can initialise the property-constraints.
    m_propertyConstraints.initialise ( getCalculationMode (), getModellingMode ());
@@ -615,7 +608,15 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode,
    m_elementGrid.construct ( getActivityOutputGrid (), getRank ());
    m_nodalGrid.construct   ( getActivityOutputGrid (), getRank ());
 
-   initialiseElementGrid ( printElementValidityMap, gridHasActiveElements );
+   bool gridHasActiveElements = false;
+   initialiseElementGrid ( gridHasActiveElements );
+
+   if (m_cauldron->debug2)
+   {
+      std::stringstream fileNameBuffer;
+      fileNameBuffer << getProjectName () << "_" << getSize () << "_element_activity_map.txt";
+      printElementValidityMap( fileNameBuffer.str() );
+   }
 
    if ( not gridHasActiveElements ) {
       PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR there are no active elements in the mesh.\n");
@@ -1810,10 +1811,9 @@ void FastcauldronSimulator::setRelativePermeabilityType ( const RelativePermeabi
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **argv ) {
+void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc, char **argv ) {
 
    // Should move all command line parameters from appctx to fastcauldron-simulator.
-   m_cauldron->setAdditionalCommandLineParameters ();
 
    PetscBool fctScalingChanged;
    double    fctScaling;
@@ -1831,10 +1831,15 @@ void FastcauldronSimulator::readCommandLineParameters ( const int argc, char **a
    m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
    m_computeCapillaryPressure = computeCapillaryPressure == PETSC_TRUE;
 
-   readRelPermCommandLineParameters ();
-   readCommandLineWells ();
    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
+}
+
+void FastcauldronSimulator::readCommandLineParametersLateStage( const int argc, char ** argv)
+{
+   m_cauldron->setAdditionalCommandLineParameters ();
+   readRelPermCommandLineParameters ();
+   readCommandLineWells ();
    printCommandLine ( argc, argv );
 }
 

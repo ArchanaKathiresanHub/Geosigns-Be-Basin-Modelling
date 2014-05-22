@@ -338,28 +338,6 @@ const int GeometricLoopNonConvergenceExitStatus = 2;
 
 //------------------------------------------------------------//
 
-/// \name Unit test data
-/// @{
-
-/// \var UnitTest1FileName
-/// Part of the name of the file that will contain the result of unit test 1.
-///
-/// The whole name is intended to be 'project-file-name'_'#-procs'_UnitTest1FileName.
-const std::string UnitTest1FileName = "unit_test_1.txt";
-
-/// \var UnitTest3FileName
-/// Part of the name of the file that will contain the result of unit test 3.
-const std::string UnitTest3FileName = "unit_test_3_residuals.txt";
-
-/// \var UnitTest3MatrixFileName
-/// Part of the name of the file that will contain the result of unit test 3.
-const std::string UnitTest3MatrixFileName = "unit_test_3_matrix.txt";
-
-
-/// @}
-
-//------------------------------------------------------------//
-
 /// \var FixedHeatFlowStr
 /// Value  stored in project file indicating heat flow boundary conditions.
 const string FixedHeatFlowStr = "Fixed HeatFlow";

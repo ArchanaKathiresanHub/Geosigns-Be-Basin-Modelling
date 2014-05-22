@@ -85,7 +85,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    CheckForStartInDebugger (&argc, &argv);
 
    m_computeComponentFlow = false;
-   m_unitTestNumber = 0;
 
 #if 0
    PetscLogEventRegister (&Vec_Allocate, "Vec_Allocate", 0);
@@ -575,14 +574,6 @@ void AppCtx::printHelp () const {
 
   helpBuffer << endl;
   helpBuffer << endl;
-  helpBuffer << "  Unit test options:" << endl;
-  helpBuffer << endl;
-  helpBuffer << "    -unittest <n>             Run one of the unit-test procedures." << endl;
-  helpBuffer << "        i)  n = 1 => 2D Element boundary arrays." << endl;
-  helpBuffer << "       ii)  n = 2 => 3D Element connectivity." << endl;
-  helpBuffer << "      iii)  n = 3 => ." << endl;
-  helpBuffer << endl;
-  helpBuffer << endl;
 
   PetscPrintf ( PETSC_COMM_WORLD, helpBuffer.str ().c_str ());
 
@@ -606,7 +597,6 @@ bool AppCtx::getCommandLineOptions() {
   PetscBool bbtemp = PETSC_FALSE;
   PetscBool Found;
   double outputAge;
-  PetscBool unitTestRequired;
   PetscBool saveResultsIfDarcyError = PETSC_FALSE;
   int ierr;
 
@@ -665,23 +655,6 @@ bool AppCtx::getCommandLineOptions() {
      PetscPrintf ( PETSC_COMM_WORLD, "Turning on basalt temperature in the lower elements only!" );
   }
  
-  PetscOptionsGetInt  ( PETSC_NULL, "-unittest", &m_unitTestNumber, &unitTestRequired ); 
-
-
-  if ( unitTestRequired ) {
-
-     if ( m_unitTestNumber <= 0 ) {
-        PetscPrintf ( PETSC_COMM_WORLD, " No such unit-test number: %i.\n", m_unitTestNumber );
-        m_unitTestNumber = 0;
-     } else {
-        PetscPrintf ( PETSC_COMM_WORLD, " Running unit test: %i.\n", m_unitTestNumber );
-     }
-
-  } else {
-     m_unitTestNumber = 0;
-  }
-
-
 //   PetscOptionsHasName ( PETSC_NULL, "-no3doutput",&threeDoutputNotRequired ); CHKERRQ(ierr);
 //   PetscOptionsHasName ( PETSC_NULL, "-no2doutput",&twoDoutputNotRequired ); CHKERRQ(ierr);
 
@@ -4307,166 +4280,6 @@ void AppCtx::setUp2dEltMapping()
       }
 
    }
-
-#if 0
-   numberOfXElements = xNodeEnd - xNodeStart;
-   numberOfYElements = yNodeEnd - yNodeStart;
-
-   int numberOfXPartitions = FastcauldronSimulator::getInstance ().getActivityOutputGrid ()->numProcsI ();
-   int numberOfYPartitions = FastcauldronSimulator::getInstance ().getActivityOutputGrid ()->numProcsJ ();
-
-   int* xElementPartitioning = new int [ numberOfXPartitions ];
-   int* yElementPartitioning = new int [ numberOfYPartitions ];
-   int* buffer = new int [ NumericFunctions::Maximum<int>( numberOfXPartitions, numberOfYPartitions )];
-
-   int myXProc = FastcauldronSimulator::getInstance ().getRank () % FastcauldronSimulator::getInstance ().getActivityOutputGrid ()->numProcsI ();
-   int myYProc = FastcauldronSimulator::getInstance ().getRank () / FastcauldronSimulator::getInstance ().getActivityOutputGrid ()->numProcsI ();
-
-   for ( i = 0; i < numberOfXPartitions; ++i ) {
-      buffer [ i ] = 0;
-      xElementPartitioning [ i ] = 0;
-   }
-
-   buffer [ myXProc ] = numberOfXElements;
-
-   MPI_Allreduce ( buffer, xElementPartitioning, numberOfXPartitions, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
-
-   for ( i = 0; i < numberOfYPartitions; ++i ) {
-      buffer [ i ] = 0;
-      yElementPartitioning [ i ] = 0;
-   }
-
-   buffer [ myYProc ] = numberOfYElements;
-
-   MPI_Allreduce ( buffer, yElementPartitioning, numberOfYPartitions, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
-
-   FastcauldronSimulator::getInstance ().initialiseElementGrid ( FastcauldronSimulator::getInstance ().getActivityOutputGrid ()->numIGlobal () - 1,
-                                                                 FastcauldronSimulator::getInstance ().getActivityOutputGrid ()->numJGlobal () - 1,
-                                                                 numberOfXPartitions,
-                                                                 numberOfYPartitions,
-                                                                 xElementPartitioning,
-                                                                 yElementPartitioning );
-
-
-   int r;
-   vector < Elt2dIndices >::const_iterator elementIter;
-
-   for ( r = 0; r < FastcauldronSimulator::getInstance ().getSize (); ++r ) {
-
-      if ( r == FastcauldronSimulator::getInstance ().getRank ()) {
-         cout << " process " << r << "  " << myXProc << "  " << numberOfXPartitions << "  " << xNodeEnd << "  " << xNodeStart << ":   ";
-
-         for ( i = 0; i < numberOfXPartitions; ++i ) {
-            cout << xElementPartitioning [ i ] << "  ";
-         }
-
-         cout << endl << flush;
-         cout << " process " << r << "  " << myYProc << "  " << numberOfYPartitions << "  " << yNodeEnd << "  " << yNodeStart << ":  ";
-
-         for ( i = 0; i < numberOfYPartitions; ++i ) {
-            cout << yElementPartitioning [ i ] << "  ";
-         }
-
-         cout << endl << flush;
-
-         // for ( elementIter = mapElementList.begin (); elementIter != mapElementList.end (); ++elementIter ) {
-         //    const Elt2dIndices& element = *elementIter;
-
-         //    cout << " Element for proc " << r << "  " << setw ( 8 ) << ( element.exists ? " IS " : " AINT " ) << "  "
-         //         << setw ( 4 ) << element.i [ 0 ] << " " 
-         //         << setw ( 4 ) << element.i [ 1 ] << " " 
-         //         << setw ( 4 ) << element.i [ 2 ] << " "
-         //         << setw ( 4 ) << element.i [ 3 ] << " " 
-         //         << setw ( 4 ) << element.j [ 0 ] << " "
-         //         << setw ( 4 ) << element.j [ 1 ] << " "
-         //         << setw ( 4 ) << element.j [ 2 ] << " "
-         //         << setw ( 4 ) << element.j [ 3 ] << " " << endl << flush;
-
-         // }
-
-      }
-
-      MPI_Barrier ( PETSC_COMM_WORLD );
-   }
-
-   xNodeStart2 = xs;
-   xNodeEnd2   = xs + xm;
-
-   if ( xNodeEnd2 == xdim ) {
-      xNodeEnd2 = xs + xm - 1;
-   }
-
-   yNodeStart2 = ys;
-   yNodeEnd2   = ys + ym;
-
-   if ( yNodeEnd2 == ydim ) {
-      yNodeEnd2 = ys + ym - 1;
-   }
-
-   numberOfXElements = xNodeEnd2 - xNodeStart2;
-   numberOfYElements = yNodeEnd2 - yNodeStart2;
-
-   for ( i = 0; i < numberOfXPartitions; ++i ) {
-      buffer [ i ] = 0;
-      xElementPartitioning [ i ] = 0;
-   }
-
-   buffer [ myXProc ] = numberOfXElements;
-
-   MPI_Allreduce ( buffer, xElementPartitioning, numberOfXPartitions, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
-
-   for ( i = 0; i < numberOfYPartitions; ++i ) {
-      buffer [ i ] = 0;
-      yElementPartitioning [ i ] = 0;
-   }
-
-   buffer [ myYProc ] = numberOfYElements;
-
-   MPI_Allreduce ( buffer, yElementPartitioning, numberOfYPartitions, MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
-
-
-   for ( r = 0; r < FastcauldronSimulator::getInstance ().getSize (); ++r ) {
-
-      if ( r == FastcauldronSimulator::getInstance ().getRank ()) {
-         cout << " process part2 " << r << "  " << myXProc << "  " << numberOfXPartitions << "  " << xNodeEnd2 << "  " << xNodeStart2 << ":   ";
-
-         for ( i = 0; i < numberOfXPartitions; ++i ) {
-            cout << xElementPartitioning [ i ] << "  ";
-         }
-
-         cout << endl << flush;
-         cout << " process part2 " << r << "  " << myYProc << "  " << numberOfYPartitions << "  " << yNodeEnd2 << "  " << yNodeStart2 << ":  ";
-
-         for ( i = 0; i < numberOfYPartitions; ++i ) {
-            cout << yElementPartitioning [ i ] << "  ";
-         }
-
-         cout << endl << flush;
-
-         // for ( elementIter = mapElementList.begin (); elementIter != mapElementList.end (); ++elementIter ) {
-         //    const Elt2dIndices& element = *elementIter;
-
-         //    cout << " Element for proc " << r << "  " << setw ( 8 ) << ( element.exists ? " IS " : " AINT " ) << "  "
-         //         << setw ( 4 ) << element.i [ 0 ] << " " 
-         //         << setw ( 4 ) << element.i [ 1 ] << " " 
-         //         << setw ( 4 ) << element.i [ 2 ] << " "
-         //         << setw ( 4 ) << element.i [ 3 ] << " " 
-         //         << setw ( 4 ) << element.j [ 0 ] << " "
-         //         << setw ( 4 ) << element.j [ 1 ] << " "
-         //         << setw ( 4 ) << element.j [ 2 ] << " "
-         //         << setw ( 4 ) << element.j [ 3 ] << " " << endl << flush;
-
-         // }
-
-      }
-
-      MPI_Barrier ( PETSC_COMM_WORLD );
-   }
-
-   delete [] xElementPartitioning;
-   delete [] yElementPartitioning;
-   delete [] buffer;
-#endif
 
 }
 

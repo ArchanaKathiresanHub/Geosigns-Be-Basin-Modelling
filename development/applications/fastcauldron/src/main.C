@@ -172,18 +172,13 @@ int main(int argc, char** argv)
 
    StatisticsHandler::initialise ();
    FastcauldronSimulator::CreateFrom ( appctx );
+   FastcauldronSimulator::getInstance() . readCommandLineParametersEarlyStage( argc, argv );
 
    FastcauldronSimulator::getInstance ().setFormationElementHeightScalingFactors ();
 
-   if ( not FastcauldronSimulator::getInstance ().setCalculationMode ( appctx->getCalculationMode (),
-                                                                       appctx->getUnitTestNumber () == 1 )) {
+   if ( not FastcauldronSimulator::getInstance ().setCalculationMode ( appctx->getCalculationMode () )) {
      finaliseFastcauldron ( appctx, feature, "MeSsAgE ERROR Error when setting calculation mode", factory );
      return 1;
-   }
-
-   if ( appctx->getUnitTestNumber () == 1 ) {
-     finaliseFastcauldron ( appctx, feature, "MeSsAgE INFO Completed unit test 1.", factory );
-     return 0;
    }
 
    FastcauldronSimulator::getInstance ().getMcfHandler ().determineUsage ();
@@ -195,7 +190,7 @@ int main(int argc, char** argv)
    }
 
    // There are several command line parameters that can be set only after the project file has been read.
-   FastcauldronSimulator::getInstance ().readCommandLineParameters ( argc, argv );
+   FastcauldronSimulator::getInstance ().readCommandLineParametersLateStage ( argc, argv );
 
    // Initialise anything that is to be set from the environment.
    appctx->setParametersFromEnvironment ();
@@ -212,10 +207,6 @@ int main(int argc, char** argv)
 
    // Process Data Map and Assess Valid Nodes
    appctx->setValidNodeArray ();
-
-#if 0
-   FastcauldronSimulator::getInstance ().initialiseElementGrid ( appctx->debug2 );
-#endif
 
    appctx->Examine_Load_Balancing ();
    appctx->Output_Number_Of_Geological_Events();

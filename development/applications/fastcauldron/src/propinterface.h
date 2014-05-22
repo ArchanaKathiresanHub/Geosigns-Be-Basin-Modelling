@@ -222,8 +222,6 @@ public:
 
    void setParametersFromEnvironment ();
 
-   int getUnitTestNumber () const;
-
    void selectLayers ( const PropertyList currentProperty,
                        const OutputOption range,
                              LayerStack&  selectedLayers );
@@ -580,8 +578,6 @@ public:
    bool   m_permafrost;
 
    PetscBool m_useTemisRelPerm;
-
-   int m_unitTestNumber;
 };
 
 /*  template <class Type> */
@@ -615,11 +611,6 @@ inline CrustFormation* AppCtx::Crust () const {
 inline MantleFormation* AppCtx::Mantle () const { 
    return Mantle_Layer;
 }
-
-inline int AppCtx::getUnitTestNumber () const {
-   return m_unitTestNumber;
-}
-
 
 inline bool AppCtx::isGeometricLoop () const {
    return Use_Geometric_Loop;

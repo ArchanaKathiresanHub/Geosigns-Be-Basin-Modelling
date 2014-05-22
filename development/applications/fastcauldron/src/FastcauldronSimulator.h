@@ -87,8 +87,7 @@ public :
    ///
    /// Now the the calculation mode is known, the activity grid and sizes are set.
    // Perhaps should re-name this to some-thing else, since it now does much more than just set calculation mode.
-   bool setCalculationMode ( const CalculationMode mode,
-                             const bool            printElementValidityMap = false );
+   bool setCalculationMode ( const CalculationMode mode );
 
    /// Get the calculation mode of the current run.
    CalculationMode getCalculationMode () const;
@@ -98,9 +97,13 @@ public :
 
    void initialiseFastcauldronLayers ();
 
-   // Here temporarily until element-array has been moved from propinterface.
-   void initialiseElementGrid ( const bool  printElementValidityMap,
-                                      bool& hasActiveElements );
+   /// Determines which element pillars are active. A pillar is a stack of elements through all layers.
+   /// \param hasActiveElements This is an output parameter by which the
+   //         function returns whether there are any active elements at all.
+   void initialiseElementGrid ( bool& hasActiveElements );
+
+   /// Prints a 2D map of active elements in a text file with ASCII art.
+   void printElementValidityMap( const std::string & fileName ) const;
 
    /// Add properties that were not added.
    ///
@@ -220,9 +223,11 @@ public :
    const Interface::OutputProperty* findOutputProperty ( const Interface::Property* property ) const;
 
 
-   /// \brief Read the command-line parameters.
-   void readCommandLineParameters ( const int argc, char **argv );
+   /// \brief Read the command-line parameters that can be processed during early stage
+   void readCommandLineParametersEarlyStage( const int argc, char **argv );
 
+   /// \brief Read the command-line parameters that can only be processed in a later stage
+   void readCommandLineParametersLateStage( const int argc, char **argv );
 
    /// \brief Set the lateral-stress-factor interpolator.
    void addLateralStressInterpolator ( ibs::Interpolator* interp );
