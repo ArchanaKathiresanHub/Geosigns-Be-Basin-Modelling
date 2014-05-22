@@ -79,7 +79,7 @@
 
 namespace casa
 {
-   class RunCase;
+   class RunCaseSet;
    class VarSpace;
 
    /// @class DoEGenerator DoEGenerator.h "DoEGenerator.h"
@@ -105,10 +105,15 @@ namespace casa
 
       /// @brief Generate set of cases for DoE
       /// @param[in]  varPrmsSet list of variable parameters
-      /// @param[out] expSet list of cases for DoE
+      /// @param[out] rcSet container to keep the set of cases for DoE
       /// @param[in]  runsNum number of runs for DoE algorithms which support this parameter
       /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, std::vector<RunCase*> & expSet, size_t runsNum = 0 ) = 0;
+      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, RunCaseSet & rcSet, size_t runsNum = 0 ) = 0;
+      
+      /// @brief Convert algorithm enumeration to the string with DoE name
+      /// @param algo DoE type
+      /// @return DoE type name as string
+      static std::string DoEName( DoEAlgorithm algo );
 
    protected:
       DoEGenerator( ) {;}

@@ -18,8 +18,8 @@
 #include <memory>
 #include <vector>
 
-#include "RunCaseSet.h"
 #include "DoEGenerator.h"
+#include "RunCaseSet.h"
 
 namespace casa
 {

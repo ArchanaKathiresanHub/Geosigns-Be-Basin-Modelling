@@ -19,6 +19,7 @@
 
 #include "cmbAPI.h"
 #include "RunCaseImpl.h"
+#include "RunCaseSetImpl.h"
 #include "ContinuousParameter.h"
 #include "CategoricalParameter.h"
 #include "VarSpaceImpl.h"
@@ -37,6 +38,21 @@
 namespace casa
 {
 
+std::string DoEGenerator::DoEName( DoEAlgorithm algo )
+{
+   switch( algo )
+   {
+      case BoxBehnken:           return "BoxBehnken";
+      case Tornado:              return "Tornado";
+      case PlackettBurman:       return "PlackettBurman";
+      case PlackettBurmanMirror: return "PlackettBurmanMirror";
+      case FullFactorial:        return "FullFactorial";
+      case LatinHypercube:       return "LatinHypercube";
+      case SpaceFilling:         return "SpaceFilling";
+      default:                   return "Unkown";
+   }
+}
+
 DoEGeneratorImpl::DoEGeneratorImpl( mbapi::Model & baseModel, DoEGenerator::DoEAlgorithm algo ) : 
                   m_baseModel( baseModel )
                 , m_typeOfDoE( algo )
@@ -52,9 +68,10 @@ DoEGeneratorImpl::~DoEGeneratorImpl()
 // [out] expSet list of cases for DoE
 // [in]  runsNum number of runs for DoE algorithms which support this parameter
 // return ErrorHandler::NoError on success, error code otherwise
-ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrmsSet, std::vector<RunCase*> & expSet, size_t runsNum )
+ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrmsSet, RunCaseSet & doeCaseSet, size_t runsNum )
 {
    const std::vector< bool > selectedPrms( varPrmsSet.size(), true );
+   std::vector<RunCase *> expSet;
 
    try
    {
@@ -129,6 +146,9 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
       {
          addCase( varPrmsSet, expSet, *c );
       }
+
+      RunCaseSetImpl & doeCases = dynamic_cast<RunCaseSetImpl &>( doeCaseSet );
+      doeCases.addNewCases( expSet, DoEGenerator::DoEName( m_typeOfDoE ) );
    }
    catch ( const Exception & e )
    {

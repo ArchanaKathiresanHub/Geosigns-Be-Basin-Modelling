@@ -36,6 +36,8 @@ namespace SUMlib
 
 namespace casa
 {
+   class RunCase;
+
    // Class DoEGenerator allows to generate various types of "Design of Experiments"
    class DoEGeneratorImpl : public DoEGenerator
    {
@@ -45,10 +47,10 @@ namespace casa
 
       // Generate set of cases for DoE
       // [in]  varPrmsSet list of variable parameters
-      // [out] expSet list of cases for DoE
+      // [out] rcSet list of cases for DoE
       // [in]  runsNum number of runs for DoE algorithms which support this parameter
       // return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, std::vector<RunCase*> & expSet, size_t runsNum = 0 );
+      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, RunCaseSet & rcSet, size_t runsNum = 0 );
       
    private:
       mbapi::Model                       & m_baseModel;   
