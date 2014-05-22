@@ -32,10 +32,15 @@ namespace casa
       /// @return size of the set
       virtual size_t size() const = 0;
 
-      /// @brief Access ot i-th element
-      /// @param i position element in the collection
-      /// @return pointer to RunCase object on success, or null pointer otherwise. User should not delete this pointer
+      /// @brief Access to i-th element
+      /// @param i position element in the list
+      /// @return pointer to RunCase object on success, or null pointer otherwise. User should not delete this object
       virtual const RunCase * operator[] ( size_t i ) const = 0;
+
+      /// @brief Another way to access to i-th element. C# doesn't support operator[] through swig
+      /// @param i position of the element in the list
+      /// @return pointer to RunCase object on success, or null pointer otherwise. User should not delete this object
+      const RunCase * runCase( size_t i ) const { return (*this)[ i ]; }
 
       /// @brief Filter RunCases which are correspond given experiment name. After applying filter size() and [] operator\n
       ///        will return only expName related RunCases. Such filter allows to keep different DoE & MC runs in one container.

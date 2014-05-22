@@ -139,6 +139,19 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VariateTopCrustHeatProduction( const mbapi::Model & theModel, double minVal, double maxVal, 
                                                               ContinuousParameter::PDF rangeShape, VarSpace & varPrmsSet );
+
+      /// @brief Add a parameter to variate source rock lithology TOC value @f$ [\%] @f$ in given range
+      /// @param[in] theModel a base case Cauldron model
+      /// @param[in] srLithoType name of the source rock lithology
+      /// @param[in] minVal the minimal range value 
+      /// @param[in] maxVal the maximal range value 
+      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
+      ///            taken from the base case model
+      /// @param[in,out] varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep\n
+      ///                an error message
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VariateSourceRockTOC( const mbapi::Model & theModel, const char * srLithoType, double minVal,
+                                                     double maxVal, ContinuousParameter::PDF rangeShape, VarSpace & varPrmsSet );
    };
 
    /// @brief ScenarioAnalysis keeps all objects which are necessary for UA/SA of single workflow
@@ -160,6 +173,10 @@ namespace casa
       /// @param projectFileName name of the Cauldron project file. File will be loaded to memory as mbapi::Model
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode defineBaseCase( const char * projectFileName );
+
+      /// @brief Get base case model
+      /// @return pointer to the base case model if it was set before, empty model otherwise
+      mbapi::Model & baseCase();
 
       /// @brief Provide variable parameters set manager
       /// @return reference to the instance of VarSpace class

@@ -21,6 +21,8 @@
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
 #include "VarSpaceImpl.h"
+#include "VarPrmTopCrustHeatProduction.h"
+#include "VarPrmSourceRockTOC.h"
 
 #include <stdexcept>
 #include <string>
@@ -67,9 +69,34 @@ ErrorHandler::ReturnCode VariateTopCrustHeatProduction( const mbapi::Model & the
                                                       , VarSpace & varPrmsSet
                                                       )
 {
-   return ErrorHandler::NotImplementedAPI;
+   /// TODO - get base value of parameter from the Model
+   return varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( 0.5*( minVal + maxVal ), minVal, maxVal, rangeShape ) );
 }
+
+// Add a parameter to variate source rock lithology TOC value @f$ [%%] @f$ in given range
+// theModel a base case Cauldron model
+// minVal the minimal range value 
+// maxVal the maximal range value 
+// rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
+// taken from the base case model
+// varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep\n an error message
+// @return ErrorHandler::NoError on success or error code otherwise
+ErrorHandler::ReturnCode VariateSourceRockTOC( const mbapi::Model & theModel
+                                             , const char * srLithoType
+                                             , double minVal
+                                             , double maxVal
+                                             , ContinuousParameter::PDF rangeShape
+                                             , VarSpace & varPrmsSet
+                                             )
+{
+   /// TODO - get base value of parameter from the Model
+   return varPrmsSet.addParameter( new VarPrmSourceRockTOC( srLithoType, 0.5*( minVal + maxVal ), minVal, maxVal, rangeShape ) );
 }
+
+}
+
+
+
 
 
 // Class which hides all ScenarioAnalysis implementation
@@ -86,6 +113,9 @@ public:
    
    // Define a base case for scenario analysis from file.
    void defineBaseCase( const char * projectFileName ); 
+
+   // Get base case model if it was set, empty model otherwise
+   mbapi::Model & baseCase();
 
    // Provide variable parameters set manager
    VarSpace & varSpace() { return *(m_varSpace.get()); }
@@ -188,6 +218,7 @@ ErrorHandler::ReturnCode ScenarioAnalysis::defineBaseCase( const char * projectF
    return NoError;
 }
 
+mbapi::Model & ScenarioAnalysis::baseCase() { return m_pimpl->baseCase(); }
 VarSpace   & ScenarioAnalysis::varSpace()   { return m_pimpl->varSpace(); }
 RunCaseSet & ScenarioAnalysis::doeCaseSet() { return m_pimpl->doeCaseSet(); }
 RunCaseSet & ScenarioAnalysis::mcCaseSet()  { return m_pimpl->mcCaseSet( ); }
@@ -280,6 +311,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::defineBaseCase( const char * projec
    {
       throw std::runtime_error( std::string( "defineBaseCase() can not load model from " ) + projectFileName );
    }
+}
+
+mbapi::Model & ScenarioAnalysis::ScenarioAnalysisImpl::baseCase()
+{
+   if ( !m_baseCase.get() ) m_baseCase.reset( new mbapi::Model() );
+   return *( m_baseCase.get() );
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo )

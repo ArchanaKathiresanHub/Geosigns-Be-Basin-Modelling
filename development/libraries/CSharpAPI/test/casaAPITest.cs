@@ -68,23 +68,27 @@ namespace Shell.BasinModeling.Cauldron.Test
       
          DoEGenerator doe     = sa.doeGenerator();
          VarSpace     varPrms = sa.varSpace();
-         CasesList    expSet = new CasesList();
 
-         Assert.IsTrue( ErrorHandler.ReturnCode.NoError == varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, ContinuousParameter.PDF.Block ) ) );
-         Assert.IsTrue( ErrorHandler.ReturnCode.NoError == varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, ContinuousParameter.PDF.Block ) ) );
+         Assert.IsTrue( ErrorHandler.ReturnCode.NoError == 
+                        CauldronAPI.VariateSourceRockTOC(sa.baseCase(), "Layer1", 10, 40, ContinuousParameter.PDF.Block, varPrms) );
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
+                        CauldronAPI.VariateTopCrustHeatProduction(sa.baseCase(), 0.1, 4.0, ContinuousParameter.PDF.Block, varPrms));
+
+         Assert.IsTrue( 2 == varPrms.size() );
+
+         RunCaseSet expSet = sa.doeCaseSet();
 
          doe.generateDoE( varPrms, expSet );
+         Assert.IsTrue( 5 == expSet.size() );
 
-         Assert.IsTrue( 5 == expSet.Count );
-         for ( int i = 0; i < 5; ++i )
+         for ( uint i = 0; i < 5; ++i )
          {
-            RunCase rc = expSet[i];
-            Assert.IsTrue( 2 == rc.parametersNumber() );
+            Assert.IsTrue( 2 == expSet.runCase(i).parametersNumber() );
 
-            Assert.IsTrue( rc.parameter(0).isDouble() );
-            Assert.IsTrue( rc.parameter(1).isDouble() );
-            double val1 = rc.parameter(0).doubleValue();
-            double val2 = rc.parameter(1).doubleValue();
+            Assert.IsTrue( expSet.runCase(i).parameter(0).isDouble() );
+            Assert.IsTrue( expSet.runCase(i).parameter(1).isDouble() );
+            double val1 = expSet.runCase(i).parameter(0).doubleValue();
+            double val2 = expSet.runCase(i).parameter(1).doubleValue();
             
             double eps = 1.0e-6;
             

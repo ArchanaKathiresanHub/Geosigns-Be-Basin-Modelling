@@ -1,5 +1,5 @@
 /* File : DotNetAPI.i */
-
+ 
 %module CauldronAPI
 
 #define USEINTERFACE 
@@ -120,6 +120,8 @@
 #include "../../../API/src/DoEGeneratorImpl.h"
 #include "../../../API/src/RunCase.h"
 #include "../../../API/src/RunCaseImpl.h"
+#include "../../../API/src/RunCaseSet.h"
+#include "../../../API/src/RunCaseSetImpl.h"
 #include "../../../API/src/VarSpace.h"
 #include "../../../API/src/VarSpaceImpl.h"
 #include "../../../API/src/casaAPI.h"
@@ -237,6 +239,8 @@ using namespace casa;
 %include "../../../API/src/DoEGeneratorImpl.h"
 %include "../../../API/src/RunCase.h"
 %include "../../../API/src/RunCaseImpl.h"
+%include "../../../API/src/RunCaseSet.h"
+%include "../../../API/src/RunCaseSetImpl.h"
 %include "../../../API/src/VarSpace.h"
 %include "../../../API/src/VarSpaceImpl.h"
 %include "../../../API/src/casaAPI.h"
