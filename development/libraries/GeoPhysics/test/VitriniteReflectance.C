@@ -75,7 +75,7 @@ TEST( VitriniteReflectance, testing_create )
    EXPECT_TRUE(my_Object15 == NULL);
 
 
-   /// Testing that giberrish calls willalso return NULL pointers
+   /// Testing that giberrish calls will also return NULL pointers
    
    VreTtiMethod * my_Object16 = dynamic_cast<VreTtiMethod*>(VitriniteReflectance::create("randomGibberish1"));
    EXPECT_TRUE(my_Object16 == NULL);

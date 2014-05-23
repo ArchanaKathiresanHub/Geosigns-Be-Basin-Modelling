@@ -229,16 +229,31 @@ double VreFromDeltas( double * deltaI )
 }
 
 
-/** First test of doTimestep() and getResults().
-    T = 150, dT = 0, dt = 1 Myr, timestep = 1                  */
-TEST(  VreArrheniusMethod, testing_VR_Calculations1 )
+/// Value-parametrized tests follow.
+
+/// Struct containing the parameters that define the value of VR in 1 timestep
+struct ParameterSet
 {
-   double time1 = 100.0;
-   double time2 = 99.0;
-   double temp1 = 150.0;
-   double temp2 = 150.0;
+   double time1, time2;
+   double temperature1, temperature2;
+};
+
+/** Fixture class (empty), necessary to relate the type (ParameterSet)
+    with the GetParam() function of gtest */
+class VreArrheniusMethodTest : public ::testing::TestWithParam< ParameterSet >
+{
+
+};
+
+/// Test to be repeated for a number of different parameter sets
+TEST_P(  VreArrheniusMethodTest, OneTimeStep )
+{
+   double time1 = GetParam().time1;
+   double time2 = GetParam().time2;
+   double temp1 = GetParam().temperature1;
+   double temp2 = GetParam().temperature2;
    int gridSize = 10;
-   
+
    InputGrid PreviousInput( time1, temp1, gridSize );
    InputGrid CurrentInput( time2, temp2, gridSize );
 
@@ -250,131 +265,89 @@ TEST(  VreArrheniusMethod, testing_VR_Calculations1 )
    methodObject1.getResults( CurrentOutput );
 
    double expected = quickCalculationSweeney( time1, time2, temp1, temp2 );
-   EXPECT_NEAR( expected, CurrentOutput.printVR(), expected * 1.0e-6);
-}
-
-/** Second test of doTimestep() and getResults().
-    T = 200, dT = 20, dt = 2 Myr, timestep = 1                  */
-TEST( VreArrheniusMethod, testing_VR_Calculations2 )
-{
-   double time1 = 100.0;
-   double time2 = 98.0;
-   double temp1 = 200.0;
-   double temp2 = 220.0;
-   int gridSize = 10;
-   
-   InputGrid PreviousInput( time1, temp1, gridSize );
-   InputGrid CurrentInput( time2, temp2, gridSize );
-
-   OutputGrid CurrentOutput( gridSize );
-
-   SweeneyBurnham methodObject2;
-   
-   methodObject2.doTimestep( PreviousInput, CurrentInput );
-   methodObject2.getResults( CurrentOutput );
-
-   double expected = quickCalculationSweeney( time1, time2, temp1, temp2 );
-   EXPECT_NEAR( expected, CurrentOutput.printVR(), expected * 1.0e-6);
-}
-
-/** Third test of doTimestep() and getResults().
-    T = 200, dT = 100, dt = 0.01 Myr, timestep = 1                  */
-TEST( VreArrheniusMethod, testing_VR_Calculations3 )
-{
-   double time1 = 100.0;
-   double time2 = 99.99;
-   double temp1 = 200.0;
-   double temp2 = 100.0;
-   int gridSize = 10;
-   
-   InputGrid PreviousInput( time1, temp1, gridSize );
-   InputGrid CurrentInput( time2, temp2, gridSize );
-
-   OutputGrid CurrentOutput( gridSize );
-
-   SweeneyBurnham methodObject3;
-   
-   methodObject3.doTimestep( PreviousInput, CurrentInput );
-   methodObject3.getResults( CurrentOutput );
-
-   double expected = quickCalculationSweeney( time1, time2, temp1, temp2 );
-   EXPECT_NEAR( expected, CurrentOutput.printVR(), expected * 1.0e-6);
-}
-
-/** Fourth test of doTimestep() and getResults().
-    T = 100, dT = 0.01, dt = 50 Myr, timestep = 1                  */
-TEST( VreArrheniusMethod, testing_VR_Calculations4 )
-{
-   double time1 = 100.0;
-   double time2 = 50.0;
-   double temp1 = 100.0;
-   double temp2 = 100.01;
-   int gridSize = 10;
-   
-   InputGrid PreviousInput( time1, temp1, gridSize );
-   InputGrid CurrentInput( time2, temp2, gridSize );
-
-   OutputGrid CurrentOutput( gridSize );
-
-   SweeneyBurnham methodObject4;
-   
-   methodObject4.doTimestep( PreviousInput, CurrentInput );
-   methodObject4.getResults( CurrentOutput );
-
-   double expected = quickCalculationSweeney( time1, time2, temp1, temp2 );
    EXPECT_NEAR( expected, CurrentOutput.printVR(), expected * 1.0e-5);
-}  /// Had to tweek this one, rel. error was just above 1e-6
-
-/** Fifth test of doTimestep() and getResults().
-    T = -200, dT = 0, dt = 1e-5 Myr, timestep = 1                  */
-TEST( VreArrheniusMethod, testing_VR_Calculations5 )
-{
-   double time1 = 100.0;
-   double time2 = 99.9999;
-   double temp1 = -200.0;
-   double temp2 = -200.0;
-   int gridSize = 10;
-   
-   InputGrid PreviousInput( time1, temp1, gridSize );
-   InputGrid CurrentInput( time2, temp2, gridSize );
-
-   OutputGrid CurrentOutput( gridSize );
-
-   SweeneyBurnham methodObject5;
-   
-   methodObject5.doTimestep( PreviousInput, CurrentInput );
-   methodObject5.getResults( CurrentOutput );
-
-   double expected = quickCalculationSweeney( time1, time2, temp1, temp2 );
-   EXPECT_NEAR( expected, CurrentOutput.printVR(), expected * 1.0e-6);
 }
 
-/** Sixth test of doTimestep() and getResults().
-    T = 0, dT = 300, dt = 99 Myr, timestep = 1                  */
-TEST( VreArrheniusMethod, testing_VR_Calculations6 )
+ParameterSet oneTimeStepTestCases[] = 
+{// time1  time2 temperature1 temperature2
+   { 100.0, 99.0, 150.0, 150.0 },
+   { 100.0, 98.0, 200.0, 220.0 },
+   { 100.0, 99.99, 200.0, 100.0 },
+   { 100.0, 50.0, 100.0, 100.01 },
+   { 100.0, 99.9999, -200.0, -200.0 },
+   { 100.0, 1.0, 0.0, 300.0 },
+   { 100.0, 99.99, 0.0, 2000.0 },
+   { 100.0, 1.0, 1.0e-13, 0.0 },
+   { 100.0, 99.0, 4000.0, 4000.0 }
+};
+
+INSTANTIATE_TEST_CASE_P( SingleTimestep,
+                        VreArrheniusMethodTest,
+                        ::testing::ValuesIn(oneTimeStepTestCases));
+
+
+/** Following tests checks continuity of VR values across temperature
+differences that the Arrhenius algorithms use to decide how the calculation
+will proceed */
+TEST(  VreArrheniusMethodTest, OneTimeStepContinuity1 )
 {
-   double time1 = 100.0;
-   double time2 = 1.0;
-   double temp1 = 0.0;
-   double temp2 = 300.0;
+   double time1 = 10;
+   double time2 = 9;
+   double temp1 = 0;
+   double temp2a = 0.001 - 1e-12;
+   double temp2b = 0.001 + 1e-12;
    int gridSize = 10;
-   
+
    InputGrid PreviousInput( time1, temp1, gridSize );
-   InputGrid CurrentInput( time2, temp2, gridSize );
+   InputGrid CurrentInputA( time2, temp2a, gridSize );
+   InputGrid CurrentInputB( time2, temp2b, gridSize );
 
-   OutputGrid CurrentOutput( gridSize );
+   OutputGrid CurrentOutputA( gridSize );
+   OutputGrid CurrentOutputB( gridSize );
 
-   SweeneyBurnham methodObject6;
+   SweeneyBurnham methodObjectA;
+   SweeneyBurnham methodObjectB;
    
-   methodObject6.doTimestep( PreviousInput, CurrentInput );
-   methodObject6.getResults( CurrentOutput );
+   methodObjectA.doTimestep( PreviousInput, CurrentInputA );
+   methodObjectB.doTimestep( PreviousInput, CurrentInputB );
+   methodObjectA.getResults( CurrentOutputA );
+   methodObjectB.getResults( CurrentOutputB );
 
-   double expected = quickCalculationSweeney( time1, time2, temp1, temp2 );
-   EXPECT_NEAR( expected, CurrentOutput.printVR(), expected * 1.0e-6);
+   EXPECT_NEAR( CurrentOutputA.printVR(), CurrentOutputB.printVR(), CurrentOutputA.printVR() * 1.0e-6);
 }
 
-/** First death test.
-    Asserts death if one of the temperatures < 0 (in Kelvin)                  */
+TEST(  VreArrheniusMethodTest, OneTimeStepContinuity2 )
+{
+   double time1 = 10;
+   double time2 = 9;
+   double temp1 = 0;
+   double temp2a = 0.001 - 1e-12;
+   double temp2b = 0.001 + 1e-12;
+   int gridSize = 10;
+
+   InputGrid PreviousInput( time1, temp1, gridSize );
+   InputGrid CurrentInputA( time2, temp2a, gridSize );
+   InputGrid CurrentInputB( time2, temp2b, gridSize );
+
+   OutputGrid CurrentOutputA( gridSize );
+   OutputGrid CurrentOutputB( gridSize );
+
+   Larter methodObjectA;
+   Larter methodObjectB;
+   
+   methodObjectA.doTimestep( PreviousInput, CurrentInputA );
+   methodObjectB.doTimestep( PreviousInput, CurrentInputB );
+   methodObjectA.getResults( CurrentOutputA );
+   methodObjectB.getResults( CurrentOutputB );
+
+   EXPECT_NEAR( CurrentOutputA.printVR(), CurrentOutputB.printVR(), CurrentOutputA.printVR() * 1.0e-6);
+}
+
+
+/** First death test. Asserts death if one of the two Temperature
+    is < 0 Kelvin */
+
+#ifndef NDEBUG
 TEST( VreArrheniusMethod, DeathTest1 )
 {
    ::testing::FLAGS_gtest_death_test_style="threadsafe";
@@ -394,9 +367,12 @@ TEST( VreArrheniusMethod, DeathTest1 )
    
    ASSERT_DEATH( methodObject7.doTimestep( PreviousInput, CurrentInput ), "Assertion.*currentTemperature > 0.0" );
 }
+#endif /// NDEBUG
 
 /** Second death test
     Asserts death if sizes if time1 < time2 ( => timestep < 0 )               */
+
+#ifndef NDEBUG
 TEST( VreArrheniusMethod, DeathTest2 )
 {
    ::testing::FLAGS_gtest_death_test_style="threadsafe";
@@ -416,6 +392,8 @@ TEST( VreArrheniusMethod, DeathTest2 )
    
    ASSERT_DEATH( methodObject8.doTimestep( PreviousInput, CurrentInput ), "Assertion.*timeStep > 0.0" );
 }
+#endif /// NDEBUG
+
 
 /// First test of >1 timesteps
 TEST( VreArrheniusMethod, timestep_test1 )
@@ -553,3 +531,4 @@ TEST( VreArrheniusMethod, timestep_test3 )
    double expected = VreFromDeltas( tempDelta1 );
    EXPECT_NEAR( expected, AfterNextOutput.printVR(), expected * 1.0e-6);
 }
+

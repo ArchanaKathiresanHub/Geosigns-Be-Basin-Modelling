@@ -141,15 +141,15 @@ void VreArrheniusMethod :: doTimestep( const InputGrid & previousGrid, const Inp
       const double b2 = 1.681534;
 
       /** Constant temperature not allowed so check */
-      if ( NumericFunctions::isEqual ( previousTemperature, currentTemperature, 0.001 ))
+      if ( NumericFunctions::isEqual ( previousTemperature, currentTemperature, 1.0e-3 ))
       {
          if ( currentTemperature > previousTemperature ) 
          {
-            currentTemperature = currentTemperature + 0.001;
+            currentTemperature = currentTemperature + 1.0e-3;
          }
          else 
          {
-            previousTemperature = previousTemperature + 0.001;
+            previousTemperature = previousTemperature + 1.0e-3;
          }
       }
       const double numberOfSecondsInMillionYears = 3.15576e13;

@@ -73,7 +73,7 @@ void VreTtiMethod::doTimestep( const InputGrid & previousGrid, const InputGrid &
       double currentRate  = std::exp( a * (currentTemperature - s_referenceTemperature) );
 
       /** Determine increase in tti between t1 and t2 */
-      if (temperatureRate == 0.0) 
+	  if ( std::abs( temperatureRate ) < 1.0e-3 ) 
          m_tti[node] += previousRate * timeStep;
       else 
          m_tti[node] += (currentRate - previousRate) / (temperatureRate * a);

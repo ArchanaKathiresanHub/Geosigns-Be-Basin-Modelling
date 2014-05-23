@@ -20,7 +20,12 @@ option( gtest_force_shared_crt
    "Use shared (DLL) run-time lib even when Google Test is built as static lib."
    ON
 )
-     
+
+# MS Visual Studio 2012 doesnt support variadic templates
+if (MSVC11)
+  add_definitions(-D_VARIADIC_MAX=10)
+endif()
+    
 add_subdirectory(${PROJECT_SOURCE_DIR}/../3rdparty/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
 
 add_external_package_info( 
@@ -105,6 +110,11 @@ macro(add_gtest )
 
    # Link with the necessary libraries
    target_link_libraries( ${execName} ${libraries})
+   
+   # MS Visual Studio 2012 doesnt support variadic templates
+   if (MSVC11)
+      add_definitions(-D_VARIADIC_MAX=10)
+   endif()
    
    # Add the Google Mock and Google Test include directories
    get_property(incdirs TARGET ${execName} PROPERTY INCLUDE_DIRECTORIES)
