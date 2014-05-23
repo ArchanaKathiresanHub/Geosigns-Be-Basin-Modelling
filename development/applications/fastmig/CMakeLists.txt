@@ -75,6 +75,7 @@ bm_include_libraries(
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack	
 	CBMGenerics
@@ -90,6 +91,7 @@ target_link_libraries(fastmig
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack	
 	CBMGenerics

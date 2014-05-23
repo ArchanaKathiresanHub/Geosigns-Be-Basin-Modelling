@@ -45,6 +45,8 @@ namespace migration
 #ifdef USEOTGC
    class OilToGasCracker;
 #endif
+   const string MigrationActivityName = "HighResMigration";
+
 
    /// Top class of the Migration class hierarchy.
    /// Inherits from the DataAccess::Migrator class to provide easy access to Formations, Reservoirs, etc.
@@ -126,6 +128,8 @@ namespace migration
 
 	 database::Table * m_trapIoTbl;
 	 database::Table * m_migrationIoTbl;
+
+      bool mergeOutputFiles ();
 
 #ifdef USEOTGC
 	 OilToGasCracker * m_otgc;

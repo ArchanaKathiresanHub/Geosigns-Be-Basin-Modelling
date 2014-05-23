@@ -361,6 +361,11 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    
    bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption );
    
+   if( status ) {
+      if(getRank() == 0) {    
+         cout << "Merging of output files." << endl;
+      }      
+   }
    return status;
 }
 

@@ -839,6 +839,9 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }
    
+   if( status ) {
+      displayTime(m_cauldron->debug1 or m_cauldron->verbose,"Merging of output files: ");
+   }
    return status;
 }
 

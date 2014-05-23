@@ -36,8 +36,10 @@ using namespace migration;
 #include "MassBalance.h"
 #include "utils.h"
 
+#include "h5_parallel_file_types.h"
 using namespace DataAccess;
 
+bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWriteOption );
 static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
 
 extern string NumProcessorsArg;
@@ -91,8 +93,9 @@ bool Migrator::saveTo (const string & outputFileName)
 
 bool Migrator::compute (void)
 {
-   string activityName = "HighResMigration";
+   string activityName = MigrationActivityName;
    activityName += NumProcessorsArg;
+   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
 
    // let's first clean out the mess from a previous run
    if (GetRank () == 0)
@@ -172,11 +175,33 @@ bool Migrator::compute (void)
    cerr << GetRankString () << ": " << "Finishing activity" << endl;
 #endif
    finishActivity ();
+   bool status = true;
+   if( !mergeOutputFiles ()) {
+      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
+      status = false;
+   }
 #if 0
    cerr << GetRankString () << ": " << "Finished activity" << endl;
 #endif
 
-   return true;
+   return status;
+}
+bool Migrator::mergeOutputFiles ( ) {
+
+   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ){
+      return true;
+   }
+
+   string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + MigrationActivityName + "_Results.HDF";
+   PetscBool hasOption;
+
+   PetscOptionsHasName ( PETSC_NULL, "-overwrite", &hasOption );
+
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption );
+   if( status ) {
+      ReportProgress ("Merged Output Maps");
+   }
+   return status;
 }
 
 /// compute the positions of the reservoirs within the formations
