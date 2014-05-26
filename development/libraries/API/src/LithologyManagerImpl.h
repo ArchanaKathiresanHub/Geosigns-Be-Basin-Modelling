@@ -11,8 +11,8 @@
 /// @file LithologyManagerImpl.h
 /// @brief This file keeps API implementation for manipulating Lithologies in Cauldron model
 
-#ifndef CMB_LYTHOLOGY_MANAGER_IMPL_API
-#define CMB_LYTHOLOGY_MANAGER_IMPL_API
+#ifndef CMB_LITHOLOGY_MANAGER_IMPL_API
+#define CMB_LITHOLOGY_MANAGER_IMPL_API
 
 #include "LithologyManager.h"
 
@@ -30,7 +30,7 @@ namespace mbapi {
       virtual ~LithologyManagerImpl() {;}
 
       // Copy operator
-      LithologyManagerImpl & operator = ( const LithologyManagerImpl & otherLythMgr );
+      LithologyManagerImpl & operator = ( const LithologyManagerImpl & otherLithMgr );
 
       // Set of interfaces for interacting with a Cauldron model
 
@@ -44,9 +44,9 @@ namespace mbapi {
 
       // Get lithology name for
       // [in] id lithology ID
-      // [out] lythName on success has a lithology name, or empty string otherwise
+      // [out] lithName on success has a lithology name, or empty string otherwise
       // return NoError on success or NonexistingID on error
-      virtual ReturnCode getLithologyName( LithologyID id, std::string & lythName );
+      virtual ReturnCode getLithologyName( LithologyID id, std::string & lithName );
       
       /////////////////////////////////////////////////////////////////////////
       // Porosity models
@@ -108,4 +108,4 @@ namespace mbapi {
    };
 }
 
-#endif // CMB_LYTHOLOGY_MANAGER_IMPL_API
+#endif // CMB_LITHOLOGY_MANAGER_IMPL_API

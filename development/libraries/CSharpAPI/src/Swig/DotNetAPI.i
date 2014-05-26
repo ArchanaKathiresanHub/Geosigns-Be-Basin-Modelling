@@ -111,7 +111,7 @@
 #include "../../../API/src/cmbAPI.h"
 // CASA API
 #include "../../../API/src/Parameter.h"
-#include "../../../API/src/ContinuousParameter.h"
+#include "../../../API/src/VarPrmContinuous.h"
 #include "../../../API/src/PrmTopCrustHeatProduction.h"
 #include "../../../API/src/PrmSourceRockTOC.h"
 #include "../../../API/src/VarPrmTopCrustHeatProduction.h"
@@ -230,7 +230,7 @@ using namespace casa;
 %include "../../../API/src/cmbAPI.h"
 // CASA API
 %include "../../../API/src/Parameter.h"
-%include "../../../API/src/ContinuousParameter.h"
+%include "../../../API/src/VarPrmContinuous.h"
 %include "../../../API/src/PrmTopCrustHeatProduction.h"
 %include "../../../API/src/PrmSourceRockTOC.h"
 %include "../../../API/src/VarPrmTopCrustHeatProduction.h"

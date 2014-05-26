@@ -57,3 +57,8 @@ add_gtest( NAME DoETest
    SOURCES test/DoETest.C
    LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_serial_LIBRARIES}
 )
+
+add_gtest( NAME mbapiModelTest
+   SOURCES test/mbapiModelTest.C
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_serial_LIBRARIES}
+)

@@ -16,8 +16,8 @@
 
 #include "VarSpace.h"
 
-#include "CategoricalParameter.h"
-#include "ContinuousParameter.h"
+#include "VarPrmCategorical.h"
+#include "VarPrmContinuous.h"
 
 #include <vector>
 
@@ -30,13 +30,13 @@ public:
    // VarSpace interface implementation
    
    // Add a new categorical parameter
-   virtual ErrorHandler::ReturnCode addParameter( CategoricalParameter * prm )
+   virtual ErrorHandler::ReturnCode addParameter( VarPrmCategorical * prm )
    {
       return ReportError( ErrorHandler::NotImplementedAPI, "VarSpaceImpl::addParameter() not implemented yet" );
    }
 
    // Add a new continuous parameter
-   virtual ErrorHandler::ReturnCode addParameter( ContinuousParameter * prm )
+   virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm )
    {
       if ( prm ) { m_cntPrms.push_back( prm ); }
       else       { return ReportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
@@ -65,16 +65,15 @@ public:
    }
 
    // Get continuous parameters list
-
-   const ContinuousParameter * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
+   const VarPrmContinuous * continuousParameters( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
 
    // Get categorical parameters list
-   const CategoricalParameter * categoricalParameter( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ] : NULL; }
+   const VarPrmCategorical * categoricalParameters( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ] : NULL; }
 
 
 private:
-   std::vector< CategoricalParameter*> m_catPrms;
-   std::vector< ContinuousParameter*>  m_cntPrms;
+   std::vector< VarPrmCategorical*> m_catPrms;
+   std::vector< VarPrmContinuous*>  m_cntPrms;
 };
 
 }

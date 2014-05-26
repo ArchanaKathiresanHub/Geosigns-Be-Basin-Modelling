@@ -26,7 +26,7 @@ StratigraphyManagerImpl::StratigraphyManagerImpl()
 }
 
 // Copy operator
-StratigraphyManagerImpl & StratigraphyManagerImpl::operator = ( const StratigraphyManagerImpl & otherLythMgr )
+StratigraphyManagerImpl & StratigraphyManagerImpl::operator = ( const StratigraphyManagerImpl & otherLithMgr )
 {
    throw std::runtime_error( "Not implemented yet" );
    return *this;

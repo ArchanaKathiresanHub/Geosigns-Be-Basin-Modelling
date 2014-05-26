@@ -78,7 +78,7 @@ std::vector< std::string > RunCaseSetImpl::experimentNames( )
 }
 
 // Access to i-th element
-RunCase * RunCaseSetImpl::operator() ( size_t i ) const
+RunCase * RunCaseSetImpl::at( size_t i )
 {
    if ( !m_filter.empty( ) )
    {

@@ -21,8 +21,8 @@
 
 namespace casa
 {
-   class CategoricalParameter;
-   class ContinuousParameter;
+   class VarPrmCategorical;
+   class VarPrmContinuous;
 
    /// @class VarSpace VarSpace.h "VarSpace.h"
    /// @brief Variable parameters set manager. It keeps a unique set of variable parameters
@@ -32,12 +32,12 @@ namespace casa
       /// @brief Add a new categorical parameter
       /// @param prm a new parameter to be added to the set
       /// @return NoError on success or error code if such parameter is already added to the set
-      virtual ErrorHandler::ReturnCode addParameter( CategoricalParameter * prm ) = 0;
+      virtual ErrorHandler::ReturnCode addParameter( VarPrmCategorical * prm ) = 0;
 
       /// @brief Add a new continuous parameter
       /// @param prm a new parameter to be added to the set
       /// @return NoError on success or error code if such parameter is already added to the set
-      virtual ErrorHandler::ReturnCode addParameter( ContinuousParameter * prm ) = 0;
+      virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm ) = 0;
 
       /// @brief Get number of variable parameters defined in VarSpace
       /// @return total number of parameters in set

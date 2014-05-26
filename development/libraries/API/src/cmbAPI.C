@@ -45,7 +45,7 @@ public:
    void saveModelToProjectFile(   const char * projectFileName );
 
    // Lithology
-   LithologyManager    & getLithologyManager() { return m_lythMgr; }
+   LithologyManager    & getLithologyManager() { return m_lithMgr; }
    // Stratigraphy
    StratigraphyManager & getStratigraphyManager() { return m_stratMgr; }
    // Fluid
@@ -54,7 +54,7 @@ public:
    SourceRockManager   & getSourceRockManager() { return m_srkMgr; }
 
    // data members
-   LithologyManagerImpl    m_lythMgr;
+   LithologyManagerImpl    m_lithMgr;
    StratigraphyManagerImpl m_stratMgr;
    FluidManagerImpl        m_fluidMgr;
    SourceRockManagerImpl   m_srkMgr;

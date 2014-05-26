@@ -14,12 +14,12 @@
 #ifndef CASA_API_VAR_PARAMETER_TOP_CRUST_HEAT_PRODUCTION_H
 #define CASA_API_VAR_PARAMETER_TOP_CRUST_HEAT_PRODUCTION_H
 
-#include "ContinuousParameter.h"
+#include "VarPrmContinuous.h"
 
 namespace casa
 {
    /// @brief Variation for casa::PrmTopCrustHeatProduction parameter
-   class VarPrmTopCrustHeatProduction : public ContinuousParameter
+   class VarPrmTopCrustHeatProduction : public VarPrmContinuous
    {
    public:
       VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType );

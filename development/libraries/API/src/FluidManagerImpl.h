@@ -56,4 +56,4 @@ namespace mbapi {
    };
 }
 
-#endif // CMB_LYTHOLOGY_MANAGER_IMPL_API
+#endif // CMB_FLUID_MANAGER_IMPL_API

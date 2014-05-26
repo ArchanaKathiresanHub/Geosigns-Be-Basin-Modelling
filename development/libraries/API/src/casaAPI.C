@@ -47,7 +47,7 @@ ErrorHandler::ReturnCode VariateLayerThickness( const mbapi::Model & theModel
                                               , const char * layerName
                                               , double minVal
                                               , double maxVal
-                                              , ContinuousParameter::PDF rangeShape
+                                              , VarPrmContinuous::PDF rangeShape
                                               , VarSpace & varPrmsSet
                                               )
 {
@@ -65,7 +65,7 @@ ErrorHandler::ReturnCode VariateLayerThickness( const mbapi::Model & theModel
 ErrorHandler::ReturnCode VariateTopCrustHeatProduction( const mbapi::Model & theModel
                                                       , double minVal
                                                       , double maxVal
-                                                      , ContinuousParameter::PDF rangeShape
+                                                      , VarPrmContinuous::PDF rangeShape
                                                       , VarSpace & varPrmsSet
                                                       )
 {
@@ -85,7 +85,7 @@ ErrorHandler::ReturnCode VariateSourceRockTOC( const mbapi::Model & theModel
                                              , const char * srLithoType
                                              , double minVal
                                              , double maxVal
-                                             , ContinuousParameter::PDF rangeShape
+                                             , VarPrmContinuous::PDF rangeShape
                                              , VarSpace & varPrmsSet
                                              )
 {

@@ -70,9 +70,9 @@ namespace Shell.BasinModeling.Cauldron.Test
          VarSpace     varPrms = sa.varSpace();
 
          Assert.IsTrue( ErrorHandler.ReturnCode.NoError == 
-                        CauldronAPI.VariateSourceRockTOC(sa.baseCase(), "Layer1", 10, 40, ContinuousParameter.PDF.Block, varPrms) );
+                        CauldronAPI.VariateSourceRockTOC(sa.baseCase(), "Layer1", 10, 40, VarPrmContinuous.PDF.Block, varPrms) );
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                        CauldronAPI.VariateTopCrustHeatProduction(sa.baseCase(), 0.1, 4.0, ContinuousParameter.PDF.Block, varPrms));
+                        CauldronAPI.VariateTopCrustHeatProduction(sa.baseCase(), 0.1, 4.0, VarPrmContinuous.PDF.Block, varPrms));
 
          Assert.IsTrue( 2 == varPrms.size() );
 

@@ -20,8 +20,8 @@
 #include "cmbAPI.h"
 #include "RunCaseImpl.h"
 #include "RunCaseSetImpl.h"
-#include "ContinuousParameter.h"
-#include "CategoricalParameter.h"
+#include "VarPrmContinuous.h"
+#include "VarPrmCategorical.h"
 #include "VarSpaceImpl.h"
 
 // SUMLib includes
@@ -175,8 +175,8 @@ void DoEGeneratorImpl::createBounds( const VarSpace & varSp, SUMlib::Case & lowC
 
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      minCntPrms[ i ] = varSpace.continuousParameter( i )->minValueAsDouble();
-      maxCntPrms[ i ] = varSpace.continuousParameter( i )->maxValueAsDouble();
+      minCntPrms[ i ] = varSpace.continuousParameters( i )->minValueAsDouble();
+      maxCntPrms[ i ] = varSpace.continuousParameters( i )->maxValueAsDouble();
    }
    lowCs.setContinuousPart( minCntPrms );
    highCs.setContinuousPart( maxCntPrms );
@@ -187,7 +187,7 @@ void DoEGeneratorImpl::createBounds( const VarSpace & varSp, SUMlib::Case & lowC
 
    for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
    {
-      const std::vector<unsigned int> & valsSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet( ); 
+      const std::vector<unsigned int> & valsSet = varSpace.categoricalParameters( i )->valuesAsUnsignedIntSortedSet( ); 
       catIndices.push_back( SUMlib::IndexList( valsSet.begin(), valsSet.end() ) );
    }
 }
@@ -204,7 +204,7 @@ void DoEGeneratorImpl::setBaseCase( const VarSpace & varSp, SUMlib::Case & baseC
 
    for ( size_t i = 0; i < baseCntPrms.size( ); ++i )
    {
-      baseCntPrms[ i ] = varSpace.continuousParameter( i )->baseValueAsDouble();
+      baseCntPrms[ i ] = varSpace.continuousParameters( i )->baseValueAsDouble();
    }
    baseCs.setContinuousPart( baseCntPrms );
 }
@@ -227,11 +227,11 @@ void DoEGeneratorImpl::addCase( const VarSpace & varSp, std::vector<RunCase*> & 
    // go over all parameters in scenario and set up DoE calculated parameters
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      newCase->addParameter( varSpace.continuousParameter( i )->createNewParameterFromDouble( sumCntArray[ i ] ) );
+      newCase->addParameter( varSpace.continuousParameters( i )->createNewParameterFromDouble( sumCntArray[ i ] ) );
    }
    for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
    {
-      newCase->addParameter( varSpace.categoricalParameter( i )->createNewParameterFromUnsignedInt( sumCatArray[ i ] ) );
+      newCase->addParameter( varSpace.categoricalParameters( i )->createNewParameterFromUnsignedInt( sumCatArray[ i ] ) );
    }
    
    expSet.push_back( newCase.release() );

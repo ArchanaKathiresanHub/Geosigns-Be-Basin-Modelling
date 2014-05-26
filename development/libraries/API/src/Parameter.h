@@ -27,8 +27,8 @@ namespace mbapi
 /// a Case set for building a response surface proxy.
 /// 
 /// CASA API supports the following types of variable parameters:
-/// - \subpage CASA_ContinuousParameterPage
-/// - \subpage CASA_CategoricalParameterPage
+/// - \subpage CASA_VarPrmContinuousPage
+/// - \subpage CASA_VarPrmCategoricalPage
 ///
 /// Set of variable parameters for scenario analysis is managed by a @ref CASA_VarSpacePage "VarSpace manager"
 

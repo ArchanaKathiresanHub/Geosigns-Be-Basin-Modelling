@@ -8,11 +8,11 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file CategoricalParameter.h
+/// @file VarPrmCategorical.h
 /// @brief This file keeps API declaration for handling categorical parameters. 
 
-#ifndef CASA_API_CATEGORICAL_PARAMETER_H
-#define CASA_API_CATEGORICAL_PARAMETER_H
+#ifndef CASA_API_VAR_PRM_CATEGORICAL_H
+#define CASA_API_VAR_PRM_CATEGORICAL_H
 
 #include "Parameter.h"
 #include "Enumeration.h"
@@ -20,7 +20,7 @@
 #include <memory>
 #include <vector>
 
-/// @page CASA_CategoricalParameterPage Variable parameter for categorical values
+/// @page CASA_VarPrmCategoricalPage Variable parameter for categorical values
 ///
 /// Categorical parameter - a parameter that can take some unordered discrete values each of which referring to a
 /// different category (for instance, a PVT parameter that can distinguish between a few, non related PVT models)
@@ -29,11 +29,11 @@ namespace casa
 {
 
    /// @brief Class to manage categorical variable parameter type
-   class CategoricalParameter : public Parameter
+   class VarPrmCategorical
    {
    public:
       /// @brief Destructor
-      virtual ~CategoricalParameter() {;}
+      virtual ~VarPrmCategorical() {;}
 
       /// @brief Get list of categorical parameter values as sorted list of unsigned integers
       virtual std::vector< unsigned int> valuesAsUnsignedIntSortedSet() const = 0;
@@ -45,11 +45,11 @@ namespace casa
       virtual Parameter * createNewParameterFromUnsignedInt( unsigned int val ) const = 0;
 
    protected:
-      CategoricalParameter() {;}
+      VarPrmCategorical() {;}
 
       std::auto_ptr<Enumeration> m_valueSet;
    };
 
 }
 
-#endif // CASA_API_CATEGORICAL_PARAMETER_H
+#endif // CASA_API_VAR_PRM_CATEGORICAL_H

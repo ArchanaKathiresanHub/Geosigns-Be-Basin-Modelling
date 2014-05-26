@@ -11,8 +11,8 @@
 /// @file LithologyManager.h
 /// @brief This file keeps API declaration for manipulating lithologies in Cauldron model
 
-#ifndef CMB_LYTHOLOGY_MANAGER_API
-#define CMB_LYTHOLOGY_MANAGER_API
+#ifndef CMB_LITHOLOGY_MANAGER_API
+#define CMB_LITHOLOGY_MANAGER_API
 
 #include <vector>
 #include "ErrorHandler.h"
@@ -70,9 +70,9 @@ namespace mbapi {
 
       /// @brief Get lithology name for
       /// @param[in] id lithology ID
-      /// @param[out] lythName on success has a lithology name, or empty string otherwise
+      /// @param[out] lithName on success has a lithology name, or empty string otherwise
       /// @return NoError on success or NonexistingID on error
-      virtual ReturnCode getLithologyName( LithologyID id, std::string & lythName ) = 0;
+      virtual ReturnCode getLithologyName( LithologyID id, std::string & lithName ) = 0;
 
       /// @{
       /// Porosity model definition
@@ -151,4 +151,4 @@ namespace mbapi {
    };
 }
 
-#endif // CMB_LYTHOLOGY_MANAGER_API
+#endif // CMB_LITHOLOGY_MANAGER_API

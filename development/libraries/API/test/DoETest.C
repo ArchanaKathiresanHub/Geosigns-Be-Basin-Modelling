@@ -33,8 +33,8 @@ TEST_F( DoETest, Tornado2Prms )
    casa::VarSpace     & varPrms = sc->varSpace();
    casa::RunCaseSet   & doeCaseSet = sc->doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, ContinuousParameter::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, ContinuousParameter::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
@@ -73,8 +73,8 @@ TEST_F( DoETest, BoxBehnken2Prms )
    casa::VarSpace     & varPrms = sc.varSpace( );
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
    
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, ContinuousParameter::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, ContinuousParameter::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
    
    doe.generateDoE( varPrms, doeCaseSet );
    
@@ -115,8 +115,8 @@ TEST_F( DoETest, FullFactorial2Prms )
    casa::VarSpace     & varPrms = sc.varSpace( );
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, ContinuousParameter::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, ContinuousParameter::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
@@ -157,8 +157,8 @@ TEST_F( DoETest, PlackettBurman2Prms )
    casa::VarSpace     & varPrms = sc.varSpace( );
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, ContinuousParameter::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, ContinuousParameter::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 

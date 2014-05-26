@@ -8,17 +8,17 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ContinuousParameter.h
+/// @file VarPrmContinuous.h
 /// @brief This file keeps API declaration for handling continuous parameters. 
 
-#ifndef CASA_API_CONTINOUS_PARAMETER_H
-#define CASA_API_CONTINOUS_PARAMETER_H
+#ifndef CASA_API_VAR_PRM_CONTINOUS_H
+#define CASA_API_VAR_PRM_CONTINOUS_H
 
 #include "Range.h"
 
 #include <memory>
 
-/// @page CASA_ContinuousParameterPage Continuous variable parameter
+/// @page CASA_VarPrmContinuousPage Continuous variable parameter
 ///
 /// Continuous parameter - a parameter that can take any value between certain bounds
 /// (for instance, a fault-sealing factor that varies in the [0, 1] range)
@@ -32,7 +32,7 @@ namespace casa
    class Parameter;
 
    /// @brief Variable parameter with continuous value range
-   class ContinuousParameter
+   class VarPrmContinuous
    {
    public:
       /// @brief Probability Density Function (PDF) shape for the parameter. It is used in casa::MCSolver
@@ -44,7 +44,7 @@ namespace casa
       };
 
       /// @brief Destructor
-      virtual ~ContinuousParameter() {;}
+      virtual ~VarPrmContinuous() {;}
 
       /// @brief Get minimal variable parameter value as double
       /// @return minimal value for variable parameter
@@ -65,7 +65,7 @@ namespace casa
       virtual Parameter * createNewParameterFromDouble( double val ) const = 0;
 
    protected:
-      ContinuousParameter() : m_pdf(Block) {;}
+      VarPrmContinuous() : m_pdf(Block) {;}
 
       std::auto_ptr<Parameter> m_baseValue;    ///< Base parameter value, used also as object factory for concrete parameter value
       std::auto_ptr<Range>     m_valueRange;   ///< Range for the parameter (min,max) or (left,right) values
@@ -77,4 +77,4 @@ namespace casa
 
 }
 
-#endif // CASA_API_CONTINOUS_PARAMETER_H
+#endif // CASA_API_VAR_PRM_CONTINOUS_H

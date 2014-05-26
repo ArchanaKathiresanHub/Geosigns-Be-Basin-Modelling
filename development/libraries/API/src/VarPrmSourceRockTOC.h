@@ -14,12 +14,12 @@
 #ifndef CASA_API_VAR_PARAMETER_SOURCE_ROCK_TOC_H
 #define CASA_API_VAR_PARAMETER_SOURCE_ROCK_TOC_H
 
-#include "ContinuousParameter.h"
+#include "VarPrmContinuous.h"
 
 namespace casa
 {
    /// @brief Variation for casa::PrmTopCrustHeatProduction parameter
-   class VarPrmSourceRockTOC : public ContinuousParameter
+   class VarPrmSourceRockTOC : public VarPrmContinuous
    {
    public:
       /// @brief Create a new initial source rock TOC variable parameter

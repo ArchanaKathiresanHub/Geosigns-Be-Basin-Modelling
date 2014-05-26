@@ -26,7 +26,7 @@ LithologyManagerImpl::LithologyManagerImpl()
 }
 
 // Copy operator
-LithologyManagerImpl & LithologyManagerImpl::operator = ( const LithologyManagerImpl & otherLythMgr )
+LithologyManagerImpl & LithologyManagerImpl::operator = ( const LithologyManagerImpl & otherLithMgr )
 {
    throw std::runtime_error( "Not implemented yet" );
    return *this;
@@ -48,7 +48,7 @@ LithologyManager::LithologyID LithologyManagerImpl::createNewLithology()
 
 // Get lithology name
 ErrorHandler::ReturnCode LithologyManagerImpl::getLithologyName( LithologyID id         // [in]  lithology ID
-                                                               , std::string & lythName // [out] on succes - lithology name, or empty string otherwise
+                                                               , std::string & lithName // [out] on succes - lithology name, or empty string otherwise
                                                                )
 {
    throw std::runtime_error( "Not implemented yet" );

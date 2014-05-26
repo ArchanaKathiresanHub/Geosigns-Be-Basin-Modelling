@@ -15,8 +15,8 @@
 #define CASA_API
 
 #include "RunCaseSet.h"
-#include "ContinuousParameter.h"
-#include "CategoricalParameter.h"
+#include "VarPrmContinuous.h"
+#include "VarPrmCategorical.h"
 #include "DataDigger.h"
 #include "DoEGenerator.h"
 #include "ErrorHandler.h"
@@ -69,8 +69,8 @@
 ///
 ///  The set of data classes includes:
 ///   - casa::VarSpace - variable parameters manager. Keep and allows to manipulate variable parameters with range. VarSpace keeps:
-///     -# casa::ContinuousParameter continuous variable parameters set
-///     -# casa::CategoricalParameter categorical variable parameters set
+///     -# casa::VarPrmContinuous continuous variable parameters set
+///     -# casa::VarPrmCategorical categorical variable parameters set
 ///   - casa::RunCase - main class for keeping a single set of variable parameters value and observables from the simulation results
 ///   - casa::RunCaseSet - container to keep a collection of casa::RunCases objects
 ///   - casa::Parameter - base class for keeping a single parameter value. The following set of parameters is implemented now:
@@ -126,7 +126,7 @@ namespace casa
       ///                an error message
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VariateLayerThickness( const mbapi::Model & theModel, const char * layerName, double minVal, double maxVal,
-                                                      ContinuousParameter::PDF rangeShape, VarSpace & varPrmsSet );
+                                                      VarPrmContinuous::PDF rangeShape, VarSpace & varPrmsSet );
 
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
       /// @param[in] theModel a base case Cauldron model
@@ -138,7 +138,7 @@ namespace casa
       ///                an error message
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VariateTopCrustHeatProduction( const mbapi::Model & theModel, double minVal, double maxVal, 
-                                                              ContinuousParameter::PDF rangeShape, VarSpace & varPrmsSet );
+                                                              VarPrmContinuous::PDF rangeShape, VarSpace & varPrmsSet );
 
       /// @brief Add a parameter to variate source rock lithology TOC value @f$ [\%] @f$ in given range
       /// @param[in] theModel a base case Cauldron model
@@ -151,7 +151,7 @@ namespace casa
       ///                an error message
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VariateSourceRockTOC( const mbapi::Model & theModel, const char * srLithoType, double minVal,
-                                                     double maxVal, ContinuousParameter::PDF rangeShape, VarSpace & varPrmsSet );
+                                                     double maxVal, VarPrmContinuous::PDF rangeShape, VarSpace & varPrmsSet );
    };
 
    /// @brief ScenarioAnalysis keeps all objects which are necessary for UA/SA of single workflow

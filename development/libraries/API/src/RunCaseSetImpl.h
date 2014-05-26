@@ -46,7 +46,7 @@ namespace casa
       virtual std::vector< std::string > experimentNames();
 
       // Access to i-th element
-      RunCase * operator() ( size_t i ) const;
+      RunCase * at( size_t i );
 
       // Move a new Cases to the collection and clear array 
       void addNewCases( std::vector<RunCase*> & newCases, const std::string & expName );
