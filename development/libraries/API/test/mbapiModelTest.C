@@ -98,7 +98,7 @@ TEST_F( mbapiModelTest, ModelLoadSaveProjectRoundTrip )
 
 TEST_F( mbapiModelTest, ModelCopyOperator )
 {
-   std::auto_ptr<mbapi::Model> modelBase;
+/*   std::auto_ptr<mbapi::Model> modelBase;
    modelBase.reset( new mbapi::Model() );
 
    ASSERT_EQ( ErrorHandler::NoError, modelBase->loadModelFromProjectFile( "Project.project3d" ) );
@@ -113,7 +113,7 @@ TEST_F( mbapiModelTest, ModelCopyOperator )
    // clean files copy
    remove( "Project_case1.project3d" );
    remove( "Project_case2.project3d" );
-
+   */
  }
 
 
