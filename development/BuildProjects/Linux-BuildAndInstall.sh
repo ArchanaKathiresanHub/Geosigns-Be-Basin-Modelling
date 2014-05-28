@@ -79,7 +79,7 @@ if [ x$geocase = xTrue ]; then
    rm -rf geocase_build
    mkdir -p geocase_build
    pushd geocase_build
-   CC=gcc34 CXX=g++34 ${CMAKE} ${src}/development/geocase/BB_Lists \
+   ${CMAKE} ${src}/development/geocase/BB_Lists \
        -DCMAKE_INSTALL_PREFIX=${build} \
        -DCMAKE_BUILD_TYPE=${configuration}
    make -j${nprocs}

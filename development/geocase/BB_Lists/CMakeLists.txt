@@ -52,7 +52,7 @@ endmacro( add_gtest )
 set(GEOCASE_BASE_DIR "/nfs/rvl/users/ibs/geocase_64/prod/v2.4")
 
 if(GEOCASE_HDF5_ENABLED)
-	set(HDF5_VERSION "1.6.6" CACHE STRING "HDF5 Version")
+	set(HDF5_VERSION "1.8.6" CACHE STRING "HDF5 Version")
 	set(HDF5_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5/${HDF5_VERSION}/LinuxRHEL64_x86_64_57WS")
 	set(HDF5_INCLUDE_DIRS ${HDF5_ROOT}/include)
 	set(HDF5_serial_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})

@@ -30,7 +30,7 @@ bool H5_Base_File::open (const char *filename, H5_PropertyList *propertyType)
 //   }
 
    // turn off errors by default
-   suppressErrors ();
+   H5Eset_auto( H5E_DEFAULT, 0, 0);
 
    return hFileId > 0;
 }

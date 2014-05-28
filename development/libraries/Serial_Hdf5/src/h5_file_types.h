@@ -60,8 +60,6 @@ public:
    void  closeDataspace (hid_t space) { H5Sclose (space); }
    bool  getDimensions  (hid_t datasetId, SpaceDimensions &dims);
 
-   void  suppressErrors (void) { H5Eset_auto (NULL, NULL, NULL); }
-
 protected:
    virtual void  openInMode (const char *filename) = 0;
    

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2014 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -18,10 +18,10 @@ set(target_name RubyGeneralIO)
 file(GLOB SOURCE_FILES "${BB_ROOT}/${target_name}/src/*.[Ch]")
 
 include_directories(${BB_ROOT}/RubyUtilities/src)
-include_directories("/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5/1.6.6/LinuxRHEL64_x86_64_57WS/include")
-include_directories("/nfs/rvl/users/ibs/geocase_64/prod/v2.4/include/dds")
-include_directories("/nfs/rvl/users/ibs/geocase_64/prod/v2.4/include/gospel")
+include_directories("${HDF5_serial_INCLUDE_DIRS}")
+include_directories("${GEOCASE_BASE_DIR}/include/dds")
+include_directories("${GEOCASE_BASE_DIR}/include/gospel")
 
-add_definitions(-DHDF5_ENABLED)
+add_definitions(-DHDF5_ENABLED -DH5_USE_16_API)
 
 add_library(${target_name} STATIC ${SOURCE_FILES})

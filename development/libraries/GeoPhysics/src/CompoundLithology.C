@@ -886,10 +886,8 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const FluidType*
       BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
 
    } else {
-      //
-      //
-      // Should this be scaled by ( 1.0 - Porosity ) ?
-      //
+      // The only layers that have no fluid are the crust and mantle. Since they don't have
+      // a porosity, the volumetric heat capacity is the same as that of the lithology.
       BulkDensXHeatCapacity = MatrixDensXHeatCap;
       
    }
