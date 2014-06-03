@@ -61,7 +61,7 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption()
       }
    
       if( tmpDir == NULL ) {
-         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING $TMPDIR is not set, 'one file per process' option cannot be used.\n");    
+         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING $CAULDRON_TMPDIR is not set, 'one file per process' option cannot be used.\n");    
          oneFilePerProcess = PETSC_FALSE;
       } else {
          setTempDirName ( tmpDir );
