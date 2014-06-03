@@ -55,7 +55,7 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption()
         
    if( oneFilePerProcess ) {
       if( temporaryDirName[0] == '\0' ) {
-         tmpDir = getenv( "TMPDIR" );
+         tmpDir = getenv( "CAULDRON_TMPDIR" );
       } else {
          tmpDir = temporaryDirName;
       }
@@ -65,7 +65,7 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption()
          oneFilePerProcess = PETSC_FALSE;
       } else {
          setTempDirName ( tmpDir );
-         PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output\n", tmpDir );    
+         PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir ); 
       }
    }
    setOneFilePerProcess ( oneFilePerProcess );

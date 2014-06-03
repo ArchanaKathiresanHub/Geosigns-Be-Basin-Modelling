@@ -2094,9 +2094,16 @@ bool FastcauldronSimulator::makeOutputDir() const
 
    if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
       
+      int status = mkdir ( H5_Parallel_PropertyList::getTempDirName().c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
+
+      if( status != 0 and errno == ENOTDIR ) {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR TMPDIR couldn't be created. \n");
+         return false;
+      }
       string temp_outputDir = H5_Parallel_PropertyList::getTempDirName() + "/" + ProjectHandle::getOutputDir();
       
-      int status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
+      status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
+
       if ( status != 0 and errno == ENOTDIR ) {
          return false;
       }
