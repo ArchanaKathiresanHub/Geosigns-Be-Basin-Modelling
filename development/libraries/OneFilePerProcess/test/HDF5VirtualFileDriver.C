@@ -359,8 +359,9 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile5 )
 
       File c( name, false );
 
+    
       EXPECT_EQ( 6, c.open( File::Open, false, -1));
-      EXPECT_EQ( File::CannotOpenFile, c.open( File::Open, true, -1) );
+      EXPECT_EQ( 6, c.open( File::Open, true, -1) );
    }
 }
 
