@@ -308,6 +308,38 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 
    return gridMap;
 }
+//------------------------------------------------------------//
+bool ProjectHandle::makeOutputDir() const
+{
+   // Need to create output directory if it does not exist.
+   if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
+      
+      int status = mkdir ( H5_Parallel_PropertyList::getTempDirName().c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
+      
+      if( status != 0 and errno == ENOTDIR ) {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR TMPDIR couldn't be created. \n");
+         return false;
+      }
+      string temp_outputDir = H5_Parallel_PropertyList::getTempDirName() + "/" + ProjectHandle::getOutputDir();
+      
+      status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
+      
+      if ( status != 0 and errno == ENOTDIR ) {
+         return false;
+      }
+   }
+#if defined(_WIN32) || defined (_WIN64)
+   int status = mkdir ( getFullOutputDir().c_str () );
+#else
+   int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
+#endif
+   if ( status != 0 and errno == ENOTDIR ) {
+      return false;
+   }
+   return true;
+}
+
+//------------------------------------------------------------//
 
 void ProjectHandle::barrier () const {
    MPI_Barrier ( PETSC_COMM_WORLD );

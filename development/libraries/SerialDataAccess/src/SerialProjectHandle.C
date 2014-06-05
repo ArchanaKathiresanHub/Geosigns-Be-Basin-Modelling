@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <cerrno>
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Grid.h"
@@ -138,6 +139,20 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       cerr << "ERROR: Could not open " << filePathName << endl;
    }
    return gridMap;
+}
+
+bool ProjectHandle::makeOutputDir() const
+{
+   // Need to create output directory if it does not exist.
+#if defined(_WIN32) || defined (_WIN64)
+   int status = mkdir ( getFullOutputDir().c_str () );
+#else
+   int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
+#endif
+   if ( status != 0 and errno == ENOTDIR ) {
+      return false;
+   }
+   return true;
 }
 
 void ProjectHandle::barrier () const {

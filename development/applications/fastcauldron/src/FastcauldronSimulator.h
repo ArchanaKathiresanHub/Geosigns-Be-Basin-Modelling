@@ -271,10 +271,6 @@ public :
    /// By default the constant 1.0e6 Pa is the capillary entry pressure.
    bool useCalculatedCapillaryPressure () const;
 
-   /// \brief Make temporary output directory (if defined)
-   ///
-   /// By default, use the current directory
-   bool makeOutputDir() const;
 private :
 
 

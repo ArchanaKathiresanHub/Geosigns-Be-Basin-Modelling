@@ -329,14 +329,10 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    int totalRetryCount = 0;
    MPI_Allreduce( &meWillRetry, &totalRetryCount, 1, MPI_INT, MPI_SUM, fa->m_comm);
    
-   if ( totalRetryCount == mpiSize )
+   if ( totalRetryCount > 0 )
    {
       // All will retry opening the file with the normal name
       file = (H5FD_mpiposix_t *) H5FD_mpiposix_open( name, flags, fapl_id, maxaddr ) ;
-   }
-   else if (totalRetryCount > 0 )
-   {  // Only some cannot open the file. That's a weird condition. We should fail right-away.
-      return NULL;
    }
 
    // if the file could not be opened, return the null pointer

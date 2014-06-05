@@ -2560,19 +2560,6 @@ const std::string ProjectHandle::getFullOutputDir() const
    return getProjectPath () + "/" + getOutputDir ();
 }
 
-bool ProjectHandle::makeOutputDir() const
-{
-   // Need to create output directory if it does not exist.
-#if defined(_WIN32) || defined (_WIN64)
-   int status = mkdir ( getFullOutputDir().c_str () );
-#else
-   int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
-#endif
-   if ( status != 0 and errno == ENOTDIR ) {
-      return false;
-   }
-   return true;
-}
 
 bool ProjectHandle::initializeMapPropertyValuesWriter (void)
 {
