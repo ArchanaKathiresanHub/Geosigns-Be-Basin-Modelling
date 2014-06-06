@@ -48,6 +48,10 @@ namespace casa
       /// @return i-th observable or null pointer if there is no such observable
       virtual Observable * observable( size_t i ) const = 0;
 
+      /// @brief Mutate case to given project file
+      /// @param newProjectName the name of the mutated project
+      virtual void mutateCaseTo( const char * newProjectName ) = 0;
+
       /// @brief Get a model associated with this Case
       /// @return pointer to the model
       virtual mbapi::Model * caseModel() const = 0;

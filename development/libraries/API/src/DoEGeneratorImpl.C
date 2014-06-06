@@ -137,7 +137,7 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
          default:
             std::ostringstream oss;
             oss << "Unknown DoE algorithm: " << m_typeOfDoE;
-            return ReportError( UndefinedValue, oss.str() );
+            return reportError( UndefinedValue, oss.str() );
          }
          doe->getCaseSet( pBounds, baseCase, replicate, sumCases );
       }
@@ -154,7 +154,7 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
    {
          std::ostringstream oss;
          oss << "SUMlib exception caught on DoE case generation: " << e.what();
-         return ReportError( SUMLibException, oss.str() );
+         return reportError( SUMLibException, oss.str() );
    }
 
    return NoError;
@@ -175,8 +175,8 @@ void DoEGeneratorImpl::createBounds( const VarSpace & varSp, SUMlib::Case & lowC
 
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      minCntPrms[ i ] = varSpace.continuousParameters( i )->minValueAsDouble();
-      maxCntPrms[ i ] = varSpace.continuousParameters( i )->maxValueAsDouble();
+      minCntPrms[ i ] = varSpace.continuousParameter( i )->minValueAsDouble();
+      maxCntPrms[ i ] = varSpace.continuousParameter( i )->maxValueAsDouble();
    }
    lowCs.setContinuousPart( minCntPrms );
    highCs.setContinuousPart( maxCntPrms );
@@ -187,7 +187,7 @@ void DoEGeneratorImpl::createBounds( const VarSpace & varSp, SUMlib::Case & lowC
 
    for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
    {
-      const std::vector<unsigned int> & valsSet = varSpace.categoricalParameters( i )->valuesAsUnsignedIntSortedSet( ); 
+      const std::vector<unsigned int> & valsSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet( ); 
       catIndices.push_back( SUMlib::IndexList( valsSet.begin(), valsSet.end() ) );
    }
 }
@@ -204,7 +204,7 @@ void DoEGeneratorImpl::setBaseCase( const VarSpace & varSp, SUMlib::Case & baseC
 
    for ( size_t i = 0; i < baseCntPrms.size( ); ++i )
    {
-      baseCntPrms[ i ] = varSpace.continuousParameters( i )->baseValueAsDouble();
+      baseCntPrms[ i ] = varSpace.continuousParameter( i )->baseValueAsDouble();
    }
    baseCs.setContinuousPart( baseCntPrms );
 }
@@ -227,11 +227,11 @@ void DoEGeneratorImpl::addCase( const VarSpace & varSp, std::vector<RunCase*> & 
    // go over all parameters in scenario and set up DoE calculated parameters
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      newCase->addParameter( varSpace.continuousParameters( i )->createNewParameterFromDouble( sumCntArray[ i ] ) );
+      newCase->addParameter( varSpace.continuousParameter( i )->createNewParameterFromDouble( sumCntArray[ i ] ) );
    }
    for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
    {
-      newCase->addParameter( varSpace.categoricalParameters( i )->createNewParameterFromUnsignedInt( sumCatArray[ i ] ) );
+      newCase->addParameter( varSpace.categoricalParameter( i )->createNewParameterFromUnsignedInt( sumCatArray[ i ] ) );
    }
    
    expSet.push_back( newCase.release() );

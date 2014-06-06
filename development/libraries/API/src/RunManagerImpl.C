@@ -30,13 +30,13 @@ RunManagerImpl::~RunManagerImpl()
 // Add Case to set
 ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun )
 {
-   return ReportError( ErrorHandler::NotImplementedAPI, "scheduleCase() not implemented yet" );
+   return reportError( ErrorHandler::NotImplementedAPI, "scheduleCase() not implemented yet" );
 }
 
 // Execute all scheduled cases
 ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
 {
-   return ReportError( ErrorHandler::NotImplementedAPI, "runScheduledCases() not implemented yet" );
+   return reportError( ErrorHandler::NotImplementedAPI, "runScheduledCases() not implemented yet" );
 }
 
 }

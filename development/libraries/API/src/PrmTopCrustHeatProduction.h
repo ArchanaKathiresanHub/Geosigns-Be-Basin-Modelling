@@ -31,7 +31,11 @@ namespace casa
       /// @brief Constructor 
       /// @param val value of top crust heat production rate
       PrmTopCrustHeatProduction( double val );
-      
+
+      /// @brief Constructor from cauldron model
+      /// @param mdl get value of parameter from cauldron model
+      PrmTopCrustHeatProduction( mbapi::Model & mdl );
+
       /// @brief Destructor
       virtual ~PrmTopCrustHeatProduction();
      

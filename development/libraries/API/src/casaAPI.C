@@ -17,12 +17,19 @@
 #include "DataDiggerImpl.h"
 #include "DoEGeneratorImpl.h"
 #include "MCSolverImpl.h"
+#include "PrmTopCrustHeatProduction.h"
+#include "PrmSourceRockTOC.h"
 #include "RSProxyImpl.h"
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
 #include "VarSpaceImpl.h"
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <fstream>
 
 #include <stdexcept>
 #include <string>
@@ -35,69 +42,68 @@ namespace casa {
 namespace BusinessLogicRulesSet
 {
 // Add a parameter to variate layer thickness value [m] in given range
-// theModel a base case Cauldron model
-// layerName name of the layer in base case model to variate it thickness
-// minVal the minimal range value 
-// maxVal the maximal range value 
-// rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be 
-// taken from the base case model
-// varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep an error message
-// return ErrorHandler::NoError on success or error code otherwise
-ErrorHandler::ReturnCode VariateLayerThickness( const mbapi::Model & theModel
+ErrorHandler::ReturnCode VariateLayerThickness( ScenarioAnalysis & sa
                                               , const char * layerName
                                               , double minVal
                                               , double maxVal
                                               , VarPrmContinuous::PDF rangeShape
-                                              , VarSpace & varPrmsSet
                                               )
 {
    return ErrorHandler::NotImplementedAPI;
 }
 
 // Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
-// theModel a base case Cauldron model
-// minVal the minimal range value 
-// maxVal the maximal range value 
-// rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be 
-// taken from the base case model
-// varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep an error message
-// @return ErrorHandler::NoError on success or error code otherwise
-ErrorHandler::ReturnCode VariateTopCrustHeatProduction( const mbapi::Model & theModel
+ErrorHandler::ReturnCode VariateTopCrustHeatProduction( ScenarioAnalysis & sa
                                                       , double minVal
                                                       , double maxVal
                                                       , VarPrmContinuous::PDF rangeShape
-                                                      , VarSpace & varPrmsSet
                                                       )
 {
-   /// TODO - get base value of parameter from the Model
-   return varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( 0.5*( minVal + maxVal ), minVal, maxVal, rangeShape ) );
+   VarSpace & varPrmsSet = sa.varSpace();
+
+   // Get base value of parameter from the Model
+   mbapi::Model & mdl = sa.baseCase();
+   
+   casa::PrmTopCrustHeatProduction prm( mdl );
+   if ( mdl.errorCode() != ErrorHandler::NoError ) return mdl.errorCode();
+
+   double baseValue = prm.doubleValue( );
+
+   if ( baseValue < minVal || baseValue > maxVal )
+   {
+      return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of parameter in base case is outside of the given range" );
+   }
+
+   return varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( prm.doubleValue(), minVal, maxVal, rangeShape ) );
 }
 
 // Add a parameter to variate source rock lithology TOC value @f$ [%%] @f$ in given range
-// theModel a base case Cauldron model
-// minVal the minimal range value 
-// maxVal the maximal range value 
-// rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
-// taken from the base case model
-// varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep\n an error message
-// @return ErrorHandler::NoError on success or error code otherwise
-ErrorHandler::ReturnCode VariateSourceRockTOC( const mbapi::Model & theModel
-                                             , const char * srLithoType
+ErrorHandler::ReturnCode VariateSourceRockTOC( ScenarioAnalysis & sa
+                                             , const char * layerName
                                              , double minVal
                                              , double maxVal
                                              , VarPrmContinuous::PDF rangeShape
-                                             , VarSpace & varPrmsSet
                                              )
 {
-   /// TODO - get base value of parameter from the Model
-   return varPrmsSet.addParameter( new VarPrmSourceRockTOC( srLithoType, 0.5*( minVal + maxVal ), minVal, maxVal, rangeShape ) );
+   VarSpace & varPrmsSet = sa.varSpace();
+
+   // Get base value of parameter from the Model
+   mbapi::Model & mdl = sa.baseCase();
+
+   casa::PrmSourceRockTOC prm( mdl, layerName );
+   if ( mdl.errorCode() != ErrorHandler::NoError ) return mdl.errorCode();
+
+   double baseValue = prm.doubleValue();
+
+   if ( baseValue < minVal || baseValue > maxVal )
+   {
+      return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of parameter in base case is outside of the given range" );
+   }
+
+   return varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue, minVal, maxVal, rangeShape ) );
 }
 
 }
-
-
-
-
 
 // Class which hides all ScenarioAnalysis implementation
 class ScenarioAnalysis::ScenarioAnalysisImpl
@@ -116,6 +122,10 @@ public:
 
    // Get base case model if it was set, empty model otherwise
    mbapi::Model & baseCase();
+
+   // Set path where SA will generate a bunch of cases
+   void setScenarioLocation( const char * pathToCaseSet );
+
 
    // Provide variable parameters set manager
    VarSpace & varSpace() { return *(m_varSpace.get()); }
@@ -179,6 +189,9 @@ public:
    MCSolver & mcSolver()  { return *(m_mcSolver.get()); }
       
 private:
+   std::string                     m_caseSetPath;  // path to folder which will be the root folder for all scenario cases
+   int                             m_iterationNum; // Scenario analysis iteration number
+
    std::auto_ptr<mbapi::Model>     m_baseCase;
    std::auto_ptr<VarSpaceImpl>     m_varSpace;
    std::auto_ptr<DoEGeneratorImpl> m_doe;
@@ -203,8 +216,8 @@ ScenarioAnalysis::~ScenarioAnalysis() { m_pimpl.reset( 0 ); }
 ErrorHandler::ReturnCode ScenarioAnalysis::defineBaseCase( const mbapi::Model & bcModel )
 {
    try { m_pimpl->defineBaseCase( bcModel ); }
-   catch( std::exception & ex ) { return this->ErrorHandler::ReportError( IoError, ex.what() ); }
-   catch( ...                 ) { return this->ErrorHandler::ReportError( UnknownError, "Unknown error" ); }
+   catch( std::exception & ex ) { return this->ErrorHandler::reportError( IoError, ex.what() ); }
+   catch( ...                 ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -212,13 +225,23 @@ ErrorHandler::ReturnCode ScenarioAnalysis::defineBaseCase( const mbapi::Model & 
 ErrorHandler::ReturnCode ScenarioAnalysis::defineBaseCase( const char * projectFileName )
 {
    try { m_pimpl->defineBaseCase( projectFileName ); }
-   catch( std::exception & ex ) { return this->ErrorHandler::ReportError( IoError, ex.what() ); }
-   catch( ...                 ) { return this->ErrorHandler::ReportError( UnknownError, "Unknown error" ); }
+   catch( std::exception & ex ) { return reportError( IoError, ex.what() ); }
+   catch( ...                 ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
 
 mbapi::Model & ScenarioAnalysis::baseCase() { return m_pimpl->baseCase(); }
+
+ErrorHandler::ReturnCode ScenarioAnalysis::setScenarioLocation( const char * pathToCaseSet )
+{
+   try { m_pimpl->setScenarioLocation( pathToCaseSet ); }
+   catch ( std::exception & ex ) { return reportError( WrongPath, ex.what() ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
 VarSpace   & ScenarioAnalysis::varSpace()   { return m_pimpl->varSpace(); }
 RunCaseSet & ScenarioAnalysis::doeCaseSet() { return m_pimpl->doeCaseSet(); }
 RunCaseSet & ScenarioAnalysis::mcCaseSet()  { return m_pimpl->mcCaseSet( ); }
@@ -226,8 +249,8 @@ RunCaseSet & ScenarioAnalysis::mcCaseSet()  { return m_pimpl->mcCaseSet( ); }
 ErrorHandler::ReturnCode ScenarioAnalysis::setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo )
 {
    try { m_pimpl->setDoEAlgorithm( algo ); }
-   catch( std::exception & ex ) { return this->ErrorHandler::ReportError( AlreadyDefined, ex.what() ); }
-   catch( ...                 ) { return this->ErrorHandler::ReportError( UnknownError, "Unknown error" ); }
+   catch( std::exception & ex ) { return reportError( AlreadyDefined, ex.what() ); }
+   catch( ...                 ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -237,8 +260,8 @@ DoEGenerator & ScenarioAnalysis::doeGenerator() { return m_pimpl->doeGenerator()
 ErrorHandler::ReturnCode ScenarioAnalysis::applyMutation( RunCase & cs )
 {
    try { m_pimpl->applyMutation( cs ); }
-   catch( std::exception & ex ) { return this->ErrorHandler::ReportError( MutationError, ex.what() ); }
-   catch( ...                 ) { return this->ErrorHandler::ReportError( UnknownError, "Unknown error" ); }
+   catch( std::exception & ex ) { return reportError( MutationError, ex.what() ); }
+   catch( ...                 ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -246,8 +269,8 @@ ErrorHandler::ReturnCode ScenarioAnalysis::applyMutation( RunCase & cs )
 ErrorHandler::ReturnCode ScenarioAnalysis::validateCase( RunCase & cs )
 {
    try { m_pimpl->validateCase( cs ); }
-   catch( std::exception & ex ) { return this->ErrorHandler::ReportError( ValidationError, ex.what() ); }
-   catch( ...                 ) { return this->ErrorHandler::ReportError( UnknownError, "Unknown error" ); }
+   catch( std::exception & ex ) { return reportError( ValidationError, ex.what() ); }
+   catch( ...                 ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -260,8 +283,8 @@ RSProxy & ScenarioAnalysis::responseSurfaceProxy() { return m_pimpl->responseSur
 ErrorHandler::ReturnCode ScenarioAnalysis::setRSAlgorithm( int order, RSProxy::RSKrigingType krType )
 {
    try { m_pimpl->setRSAlgorithm( order, krType ); }
-   catch( std::exception & ex ) { return this->ErrorHandler::ReportError( MCSolverError, ex.what() ); }
-   catch( ...                 ) { return this->ErrorHandler::ReportError( UnknownError, "Unknown error" ); }
+   catch( std::exception & ex ) { return reportError( MCSolverError, ex.what() ); }
+   catch( ...                 ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -271,8 +294,8 @@ MCSolver & ScenarioAnalysis::mcSolver()  { return m_pimpl->mcSolver(); }
 ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MCSolver::MCAlgorithm algo, MCSolver::MCKrigingType interp )
 {
    try { m_pimpl->setMCAlgorithm( algo, interp ); }
-   catch( std::exception & ex ) { return this->ErrorHandler::ReportError( RSProxyError, ex.what() ); }
-   catch( ...                 ) { return this->ErrorHandler::ReportError( UnknownError, "Unknown error" ); }
+   catch( std::exception & ex ) { return reportError( RSProxyError, ex.what() ); }
+   catch( ...                 ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
 }
@@ -282,6 +305,9 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MCSolver::MCAlgorithm
 
 ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
 {
+   m_iterationNum = 1;
+   m_caseSetPath = ".";
+
    m_varSpace.reset(   new VarSpaceImpl()   );
 
    m_doeCases.reset(   new RunCaseSetImpl() );
@@ -317,6 +343,11 @@ mbapi::Model & ScenarioAnalysis::ScenarioAnalysisImpl::baseCase()
 {
    if ( !m_baseCase.get() ) m_baseCase.reset( new mbapi::Model() );
    return *( m_baseCase.get() );
+}
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * pathToCaseSet )
+{
+   std::ofstream ofs;
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo )

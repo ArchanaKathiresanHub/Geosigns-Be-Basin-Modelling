@@ -23,12 +23,12 @@ namespace casa
    {
    public:
       /// @brief Create a new initial source rock TOC variable parameter
-      /// @param srLithoType source rock lithology name in project
+      /// @param layerName name of the layer for TOC variation. If layer has mix of source rocks litho-types, TOC will be changed for all of them
       /// @param baseValue base value of parameter
       /// @param minValue minimal value for the variable parameter range
       /// @param maxValue maximal value for the variable parameter range
       /// @param pdfType type of PDF shape for the variable parameter
-      VarPrmSourceRockTOC( const char * srLithoType, double baseValue, double minValue, double maxValue, PDF pdfType = Block );
+      VarPrmSourceRockTOC( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType = Block );
       virtual ~VarPrmSourceRockTOC();
      
       /// @brief Get base value for the variable parameter as double
@@ -38,7 +38,7 @@ namespace casa
       virtual Parameter * createNewParameterFromDouble( double val ) const;
 
    protected:
-      std::string m_srLithoType; ///< source rock lithology name
+      std::string m_layerName; ///< source rock lithology name
    };
 
 }

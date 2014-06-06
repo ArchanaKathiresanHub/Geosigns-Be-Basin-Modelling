@@ -5,6 +5,7 @@
 #define USEINTERFACE 
  
 %include "Base/Common.i"
+%include "std_string.i"
 
 %{
 

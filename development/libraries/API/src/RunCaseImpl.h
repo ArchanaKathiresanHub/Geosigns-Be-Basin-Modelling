@@ -33,7 +33,7 @@ namespace casa
       RunCaseImpl();
 
       // Constructor if we building case to run simulation
-      RunCaseImpl( const mbapi::Model & baseCase );
+      RunCaseImpl( mbapi::Model & baseCase );
 
       virtual ~RunCaseImpl();
 
@@ -61,12 +61,18 @@ namespace casa
       // Add new observable to the list
       void addObservable( Observable * obs );
 
+      // Mutate case to given project file
+      // newProjectName name of the mutated project
+      virtual void mutateCaseTo( const char * newProjectName );
+
       // Get a model associated with this Case
       // return pointer to the model
       virtual mbapi::Model * caseModel() const { return m_model.get(); }
 
+
    private:
-      std::auto_ptr<mbapi::Model> m_model;
+      mbapi::Model              * m_baseCaseModel;        // Base case model from ScenarioAnalysis
+      std::auto_ptr<mbapi::Model> m_model;                // Mutated model, available after mutateCaseTo call
       std::string                 m_modelProjectFileName;
 
       std::vector<Parameter*>     m_prmsSet;

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file RunCase.C
+/// @file RunCaseImpl.C
 /// @brief This file keeps API implementation to keep a single run of Cauldron or a single Monte Carlo point
 
 #include "RunCaseImpl.h"
@@ -19,14 +19,11 @@ namespace casa
 {
 
 // Constructor
-RunCaseImpl::RunCaseImpl() {;}
+RunCaseImpl::RunCaseImpl() : m_baseCaseModel( NULL ) {;}
 
 // Constructor
-RunCaseImpl::RunCaseImpl( const mbapi::Model & baseCase )
+RunCaseImpl::RunCaseImpl( mbapi::Model & baseCase ) : m_baseCaseModel( &baseCase )
 {
-   m_model.reset( new mbapi::Model( ) );
-
-   *( m_model.get( ) ) = baseCase; // create a deep copy of given model
 }
 
 // Destructor
@@ -61,5 +58,38 @@ void RunCaseImpl::addObservable( Observable * obs )
 {
    m_results.push_back( obs );
 }
+
+// Mutate case to given project file
+void RunCaseImpl::mutateCaseTo( const char * newProjectName )
+{
+   if ( !newProjectName || !strlen( newProjectName ) ) throw std::runtime_error( "Mutated project file name undefined" );
+
+   // save base case as a new project with given name
+   if ( !m_baseCaseModel ) throw std::runtime_error( "Base case wasn't defined" );
+   if ( ErrorHandler::NoError != m_baseCaseModel->saveModelToProjectFile( newProjectName ) )
+   {
+      throw std::runtime_error( std::string( "Can't write mutated project: " ) + newProjectName );
+   }
+
+   // create the new one
+   m_model.reset( new mbapi::Model() );
+   if ( ErrorHandler::NoError != m_model->loadModelFromProjectFile( newProjectName ) )
+   {
+      throw std::runtime_error( std::string( "Can't read mutated project: " ) + newProjectName );
+   }
+
+   // apply mutations
+   for ( size_t i = 0; i < m_prmsSet.size(); ++i )
+   {
+      m_prmsSet[ i ]->setInModel( *(m_model.get()) );
+   }
+
+   // write mutated project to the file
+   if ( ErrorHandler::NoError != m_model->saveModelToProjectFile( newProjectName ) )
+   {
+      throw std::runtime_error( std::string( "Can't write mutated project: " ) + newProjectName );
+   }
+}
+
 
 }

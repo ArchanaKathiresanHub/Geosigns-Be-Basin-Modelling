@@ -30,13 +30,13 @@ RSProxyImpl::~RSProxyImpl()
 // Calculate polynomial coefficients for the given cases set
 ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<RunCase*> & caseSet )
 {
-   return ReportError( ErrorHandler::NotImplementedAPI, "calculateRSProxy() not implemented yet" );
+   return reportError( ErrorHandler::NotImplementedAPI, "calculateRSProxy() not implemented yet" );
 }
 
 // Calculate values of observables for given set of parameters
 ErrorHandler::ReturnCode RSProxyImpl::evaluateRSProxy( RunCase & cs )
 {
-   return ReportError( ErrorHandler::NotImplementedAPI, "evaluateRSProxy() not implemented yet" );
+   return reportError( ErrorHandler::NotImplementedAPI, "evaluateRSProxy() not implemented yet" );
 }
 
 }

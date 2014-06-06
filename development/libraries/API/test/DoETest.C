@@ -26,15 +26,23 @@ TEST_F( DoETest, Tornado2Prms )
    std::auto_ptr<casa::ScenarioAnalysis> sc;
    sc.reset( new ScenarioAnalysis() );
 
-   ASSERT_EQ( ErrorHandler::NoError, sc->defineBaseCase( "Project.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc->defineBaseCase( "Ottoland.project3d" ) );
    ASSERT_EQ( ErrorHandler::NoError, sc->setDoEAlgorithm( DoEGenerator::Tornado ) );
+
+   // extract base case parameters values
+   mbapi::Model & bsCase = sc->baseCase();
+   double tchp = bsCase.tableValueAsDouble( "BasementIoTbl", 0, "TopCrustHeatProd" ); // 2.5
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.errorCode() );
+   
+   double tocLowJur = bsCase.sourceRockManager().tocIni( 1 ); // 10%
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.sourceRockManager().errorCode() );
 
    casa::DoEGenerator & doe = sc->doeGenerator();
    casa::VarSpace     & varPrms = sc->varSpace();
    casa::RunCaseSet   & doeCaseSet = sc->doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, 5, 15, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, 0.1, 4.9, VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
@@ -53,11 +61,11 @@ TEST_F( DoETest, Tornado2Prms )
 
       switch ( i )
       {
-      case 0: EXPECT_NEAR( val1, 25.0, eps ); EXPECT_NEAR( val2, 2.05, eps ); break;
-      case 1: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 2.05, eps ); break;
-      case 2: EXPECT_NEAR( val1, 40.0, eps ); EXPECT_NEAR( val2, 2.05, eps ); break;
-      case 3: EXPECT_NEAR( val1, 25.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
-      case 4: EXPECT_NEAR( val1, 25.0, eps ); EXPECT_NEAR( val2, 4.0, eps ); break;
+      case 0: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 2.5, eps ); break;
+      case 1: EXPECT_NEAR( val1,  5.0, eps ); EXPECT_NEAR( val2, 2.5, eps ); break;
+      case 2: EXPECT_NEAR( val1, 15.0, eps ); EXPECT_NEAR( val2, 2.5, eps ); break;
+      case 3: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
+      case 4: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 4.9, eps ); break;
       }
    }
 }
@@ -66,16 +74,24 @@ TEST_F( DoETest, BoxBehnken2Prms )
 {
    casa::ScenarioAnalysis sc;
    
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Project.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::BoxBehnken ) );
    
-   casa::DoEGenerator & doe = sc.doeGenerator( );
-   casa::VarSpace     & varPrms = sc.varSpace( );
+   // extract base case parameters values
+   mbapi::Model & bsCase = sc.baseCase();
+   double tchp = bsCase.tableValueAsDouble( "BasementIoTbl", 0, "TopCrustHeatProd" ); // 2.5
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.errorCode() );
+
+   double tocLowJur = bsCase.sourceRockManager().tocIni( 1 ); // 10%
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.sourceRockManager().errorCode() );
+
+   casa::DoEGenerator & doe = sc.doeGenerator();
+   casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
-   
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
-   
+
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, 5, 15, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, 0.1, 4.9, VarPrmContinuous::Block ) ) );
+
    doe.generateDoE( varPrms, doeCaseSet );
    
    ASSERT_EQ( 5, doeCaseSet.size( ) );
@@ -93,11 +109,11 @@ TEST_F( DoETest, BoxBehnken2Prms )
    
       switch ( i )
       {
-      case 0: EXPECT_NEAR( val1, 25.0, eps ); EXPECT_NEAR( val2, 2.05, eps ); break;
-      case 1: EXPECT_NEAR( val1, 40.0, eps ); EXPECT_NEAR( val2,  4.0, eps ); break;
-      case 2: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2,  4.0, eps ); break;
-      case 3: EXPECT_NEAR( val1, 40.0, eps ); EXPECT_NEAR( val2,  0.1, eps ); break;
-      case 4: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2,  0.1, eps ); break;
+      case 0: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2,  2.5, eps ); break;
+      case 1: EXPECT_NEAR( val1, 15.0, eps ); EXPECT_NEAR( val2,  4.9, eps ); break;
+      case 2: EXPECT_NEAR( val1,  5.0, eps ); EXPECT_NEAR( val2,  4.9, eps ); break;
+      case 3: EXPECT_NEAR( val1, 15.0, eps ); EXPECT_NEAR( val2,  0.1, eps ); break;
+      case 4: EXPECT_NEAR( val1,  5.0, eps ); EXPECT_NEAR( val2,  0.1, eps ); break;
       }
    }
 }
@@ -108,15 +124,23 @@ TEST_F( DoETest, FullFactorial2Prms )
    
    casa::ScenarioAnalysis sc;
 
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Project.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::FullFactorial ) );
 
-   casa::DoEGenerator & doe = sc.doeGenerator( );
-   casa::VarSpace     & varPrms = sc.varSpace( );
+   // extract base case parameters values
+   mbapi::Model & bsCase = sc.baseCase();
+   double tchp = bsCase.tableValueAsDouble( "BasementIoTbl", 0, "TopCrustHeatProd" ); // 2.5
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.errorCode() );
+
+   double tocLowJur = bsCase.sourceRockManager().tocIni( 1 ); // 10%
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.sourceRockManager().errorCode() );
+
+   casa::DoEGenerator & doe = sc.doeGenerator();
+   casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, 5, 15, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, 0.1, 4.9, VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
@@ -135,30 +159,36 @@ TEST_F( DoETest, FullFactorial2Prms )
 
       switch ( i )
       {
-      case 0: EXPECT_NEAR( val1, 25.0, eps ); EXPECT_NEAR( val2, 2.05, eps ); break;
-      case 1: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
-      case 2: EXPECT_NEAR( val1, 40.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
-      case 3: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 4.0, eps ); break;
-      case 4: EXPECT_NEAR( val1, 40.0, eps ); EXPECT_NEAR( val2, 4.0, eps ); break;
+      case 0: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 2.5, eps ); break;
+      case 1: EXPECT_NEAR( val1,  5.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
+      case 2: EXPECT_NEAR( val1, 15.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
+      case 3: EXPECT_NEAR( val1,  5.0, eps ); EXPECT_NEAR( val2, 4.9, eps ); break;
+      case 4: EXPECT_NEAR( val1, 15.0, eps ); EXPECT_NEAR( val2, 4.9, eps ); break;
       }
    }
 }
 
 TEST_F( DoETest, PlackettBurman2Prms )
 {
-   
-   
    casa::ScenarioAnalysis sc;
 
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Project.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::PlackettBurman ) );
 
-   casa::DoEGenerator & doe = sc.doeGenerator( );
-   casa::VarSpace     & varPrms = sc.varSpace( );
+   // extract base case parameters values
+   mbapi::Model & bsCase = sc.baseCase();
+   double tchp = bsCase.tableValueAsDouble( "BasementIoTbl", 0, "TopCrustHeatProd" ); // 2.5
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.errorCode() );
+
+   double tocLowJur = bsCase.sourceRockManager().tocIni( 1 ); // 10%
+   ASSERT_EQ( ErrorHandler::NoError, bsCase.sourceRockManager().errorCode() );
+
+   casa::DoEGenerator & doe = sc.doeGenerator();
+   casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Layer1", 25, 10, 40, VarPrmContinuous::Block ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( 2.05, 0.1, 4.0, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, 5, 15, VarPrmContinuous::Block ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( tchp, 0.1, 4.9, VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
 
@@ -177,10 +207,10 @@ TEST_F( DoETest, PlackettBurman2Prms )
 
       switch ( i )
       {
-      case 0: EXPECT_NEAR( val1, 40.0, eps ); EXPECT_NEAR( val2, 4.0, eps ); break;
-      case 1: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 4.0, eps ); break;
-      case 2: EXPECT_NEAR( val1, 40.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
-      case 3: EXPECT_NEAR( val1, 10.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
+      case 0: EXPECT_NEAR( val1, 15.0, eps ); EXPECT_NEAR( val2, 4.9, eps ); break;
+      case 1: EXPECT_NEAR( val1,  5.0, eps ); EXPECT_NEAR( val2, 4.9, eps ); break;
+      case 2: EXPECT_NEAR( val1, 15.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
+      case 3: EXPECT_NEAR( val1,  5.0, eps ); EXPECT_NEAR( val2, 0.1, eps ); break;
       }
    }
 }

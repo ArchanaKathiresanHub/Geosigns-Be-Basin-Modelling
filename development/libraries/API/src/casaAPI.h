@@ -112,46 +112,42 @@
 /// @brief Namespace which keeps API for performing uncertainty/sensitivity scenario analysis
 namespace casa
 {
+   class ScenarioAnalysis;
+   
    /// @brief Namespace which keeps set of high level functions for variable parameters definitions
    namespace BusinessLogicRulesSet
    {
       /// @brief Add a parameter to variate layer thickness value [m] in given range
-      /// @param[in] theModel a base case Cauldron model
+      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
       /// @param[in] layerName name of the layer in base case model to variate it thickness
       /// @param[in] minVal the minimal range value 
       /// @param[in] maxVal the maximal range value 
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
-      /// @param[in,out] varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep\n
-      ///                an error message
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VariateLayerThickness( const mbapi::Model & theModel, const char * layerName, double minVal, double maxVal,
-                                                      VarPrmContinuous::PDF rangeShape, VarSpace & varPrmsSet );
+      ErrorHandler::ReturnCode VariateLayerThickness( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
+                                                      VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
-      /// @param[in] theModel a base case Cauldron model
+      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
       /// @param[in] minVal the minimal range value 
       /// @param[in] maxVal the maximal range value 
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
-      /// @param[in,out] varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep\n
-      ///                an error message
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VariateTopCrustHeatProduction( const mbapi::Model & theModel, double minVal, double maxVal, 
-                                                              VarPrmContinuous::PDF rangeShape, VarSpace & varPrmsSet );
+      ErrorHandler::ReturnCode VariateTopCrustHeatProduction( casa::ScenarioAnalysis & sa, double minVal, double maxVal,
+                                                              VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add a parameter to variate source rock lithology TOC value @f$ [\%] @f$ in given range
-      /// @param[in] theModel a base case Cauldron model
-      /// @param[in] srLithoType name of the source rock lithology
+      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+      /// @param[in] layerName name. If layer has mixing of source rocks, for all of them TOC will be changed
       /// @param[in] minVal the minimal range value 
       /// @param[in] maxVal the maximal range value 
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
-      /// @param[in,out] varPrmsSet VarSpace manager where the new variable parameter will be placed. In case of an error this object will keep\n
-      ///                an error message
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VariateSourceRockTOC( const mbapi::Model & theModel, const char * srLithoType, double minVal,
-                                                     double maxVal, VarPrmContinuous::PDF rangeShape, VarSpace & varPrmsSet );
+      ErrorHandler::ReturnCode VariateSourceRockTOC( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
+                                                     VarPrmContinuous::PDF rangeShape );
    };
 
    /// @brief ScenarioAnalysis keeps all objects which are necessary for UA/SA of single workflow
@@ -177,6 +173,11 @@ namespace casa
       /// @brief Get base case model
       /// @return pointer to the base case model if it was set before, empty model otherwise
       mbapi::Model & baseCase();
+
+      /// @brief Set path where SA will generate a bunch of cases. By default it is the current folder
+      /// @param pathToCaseSet
+      /// @return ErrorHandler::NoError on success, or ErrorHandler::WrongPath if SA can't create folders/files using this path
+      ErrorHandler::ReturnCode setScenarioLocation( const char * pathToCaseSet );
 
       /// @brief Provide variable parameters set manager
       /// @return reference to the instance of VarSpace class

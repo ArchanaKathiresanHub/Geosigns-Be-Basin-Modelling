@@ -32,14 +32,14 @@ public:
    // Add a new categorical parameter
    virtual ErrorHandler::ReturnCode addParameter( VarPrmCategorical * prm )
    {
-      return ReportError( ErrorHandler::NotImplementedAPI, "VarSpaceImpl::addParameter() not implemented yet" );
+      return reportError( ErrorHandler::NotImplementedAPI, "VarSpaceImpl::addParameter() not implemented yet" );
    }
 
    // Add a new continuous parameter
    virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm )
    {
       if ( prm ) { m_cntPrms.push_back( prm ); }
-      else       { return ReportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
+      else       { return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
       return NoError;
    }
 
@@ -64,11 +64,11 @@ public:
       m_cntPrms.clear();
    }
 
-   // Get continuous parameters list
-   const VarPrmContinuous * continuousParameters( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
+   // Get i-th continuous parameter from the list
+   const VarPrmContinuous * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
 
-   // Get categorical parameters list
-   const VarPrmCategorical * categoricalParameters( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ] : NULL; }
+   // Get i-th categorical parameter from the list
+   const VarPrmCategorical * categoricalParameter( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ] : NULL; }
 
 
 private:

@@ -62,17 +62,15 @@ namespace Shell.BasinModeling.Cauldron.Test
       public void DoE_Tornado_Test()
       {
          ScenarioAnalysis sa = new ScenarioAnalysis();
-         sa.defineBaseCase( @"Project.project3d" );
+         Assert.AreEqual( ErrorHandler.ReturnCode.NoError, sa.defineBaseCase( @"..\..\..\csharp-test\Ottoland.project3d") );
          
          Assert.IsTrue( ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm( DoEGenerator.DoEAlgorithm.Tornado ) );
       
          DoEGenerator doe     = sa.doeGenerator();
          VarSpace     varPrms = sa.varSpace();
-
-         Assert.IsTrue( ErrorHandler.ReturnCode.NoError == 
-                        CauldronAPI.VariateSourceRockTOC(sa.baseCase(), "Layer1", 10, 40, VarPrmContinuous.PDF.Block, varPrms) );
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                        CauldronAPI.VariateTopCrustHeatProduction(sa.baseCase(), 0.1, 4.0, VarPrmContinuous.PDF.Block, varPrms));
+         // base case is 2.5
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VariateSourceRockTOC(sa, "Lower Jurassic", 5, 15, VarPrmContinuous.PDF.Block));
+         Assert.IsTrue( ErrorHandler.ReturnCode.NoError ==  CauldronAPI.VariateTopCrustHeatProduction(sa, 0.1, 4.9, VarPrmContinuous.PDF.Block ) );
 
          Assert.IsTrue( 2 == varPrms.size() );
 
@@ -95,24 +93,24 @@ namespace Shell.BasinModeling.Cauldron.Test
             switch ( i )
             {
                case 0: 
-                  Assert.IsTrue( Math.Abs( val1 - 25.0 ) < eps ); 
-                  Assert.IsTrue( Math.Abs( val2 - 2.05 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val1 - 10.0 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val2 - 2.5 ) < eps ); 
                   break;
                case 1: 
-                  Assert.IsTrue( Math.Abs( val1 - 10.0 ) < eps ); 
-                  Assert.IsTrue( Math.Abs( val2 - 2.05 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val1 - 5.0 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val2 - 2.5 ) < eps ); 
                   break;
                case 2: 
-                  Assert.IsTrue( Math.Abs( val1 - 40.0 ) < eps ); 
-                  Assert.IsTrue( Math.Abs( val2 - 2.05 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val1 - 15.0 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val2 - 2.5 ) < eps ); 
                   break;
                case 3: 
-                  Assert.IsTrue( Math.Abs( val1 - 25.0 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val1 - 10.0 ) < eps ); 
                   Assert.IsTrue( Math.Abs( val2 - 0.1  ) < eps ); 
                   break;
                case 4: 
-                  Assert.IsTrue( Math.Abs( val1 - 25.0 ) < eps ); 
-                  Assert.IsTrue( Math.Abs( val2 - 4.0  ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val1 - 10.0 ) < eps ); 
+                  Assert.IsTrue( Math.Abs( val2 - 4.9  ) < eps ); 
                   break;
             }
          }

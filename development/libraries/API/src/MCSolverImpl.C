@@ -32,7 +32,7 @@ MCSolverImpl::~MCSolverImpl()
 // Add Case to set
 ErrorHandler::ReturnCode MCSolverImpl::runSimulation( int numerOfSampl, const RSProxy & proxy, const VarSpace & varPrmsSet )
 {
-   return ReportError( MCSolverError, "scheduleCase() not implemented yet" );
+   return reportError( MCSolverError, "scheduleCase() not implemented yet" );
 }
 
 // Execute all scheduled cases

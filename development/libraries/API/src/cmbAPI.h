@@ -64,6 +64,11 @@
 
 /// @brief Namespace which keeps API to manipulate Cauldron model
 namespace mbapi {
+
+#define UndefinedDoubleValue  -9999      ///< Undefined value for floating point numbers
+#define UndefinedIntegerValue -1         ///< Undefined value for integer numbers
+#define UndefinedStringValue  "undef"    ///< Undefined value for strings
+
    /// @class Model cmbAPI.h "cmbAPI.h"
    /// @brief Class Model keeps the Cauldron data model insides and provides a set of interfaces to work with the model
    class Model : public ErrorHandler
@@ -84,11 +89,55 @@ namespace mbapi {
       /// @}
       
       /// @{
-      /// Set of interfaces for interacting with a Cauldron model
+      /// Set of interfaces for interacting with a Cauldron model.\n
+      /// Interfaces were simplified to allow easy access from C# using Swig.\n
+      /// For interfaces which returns double or string values, user can request error code
+      /// and error message from the model itself, after the interface call.
 
       /// @brief Copy model, creates a deep copy of the model
       /// @param[in] otherModel - model to copy
       Model & operator = ( const Model & otherModel );
+
+      // Set of universal access interfaces. Project file level
+
+      /// @brief Get size of the given table
+      /// @param[in] tableName name of the table in project file
+      /// @return number of rows in table or UndefinedIntegerValue if any error happened.
+      int tableSize( const std::string & tableName );
+
+      /// @brief Get value from the table
+      /// @param tableName name of the table in project file
+      /// @param rowNumber row number in the table
+      /// @param propName name of the column
+      /// @return requested value from the table or  UndefinedDoubleValue if any error happened 
+      double tableValueAsDouble( const std::string & tableName, size_t rowNumber, const std::string & propName );
+
+      /// @brief Get value from the table
+      /// @param tableName name of the table in project file
+      /// @param rowNumber row number in the table
+      /// @param propName name of the column
+      /// @return requested value from the table. or UndefinedStringValue if any error happened
+      std::string tableValueAsString( const std::string & tableName, size_t rowNumber, const std::string & propName );
+
+      /// @brief Set value in the table
+      /// @param tableName name of the table in project file
+      /// @param rowNumber row number in the table
+      /// @param propName name of the column
+      /// @param propValue value to be set in the table
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
+
+      /// @brief Set value in the table
+      /// @param tableName name of the table in project file
+      /// @param rowNumber row number in the table
+      /// @param propName name of the column
+      /// @param propValue value to be set in the table
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
+
+
+
+      // IO file load/save methods
 
       /// @brief Clean all parameters of the model and load the new model parameters from the given project file
       ///        If file can't be opened, red or not valid it return error
@@ -107,20 +156,20 @@ namespace mbapi {
 
       /// @brief Get model stratigraphy manager. It allows manipulate model startigraphy
       /// @return reference to the model stratigraphy. It created/deleted by the Model itself.
-      StratigraphyManager & getStratigraphyManager();
+      StratigraphyManager & stratigraphyManager();
 
       /// @brief Get lithology manager. It keeps list of the model lithologies and allows to manipulate them
       /// @return reference to the lithologies manager. It created/deleted by the model itself.
-      LithologyManager & getLithologyManager();
+      LithologyManager & lithologyManager();
 
       /// @brief Get fluid manager. It keeps a list of fluids in the model and allows to manipulate them
       /// @return reference to the fluids manager. It created/deleted by the model itself.
-      FluidManager & getFluidManager();
+      FluidManager & fluidManager();
 
       /// @brief Get source rock manager. It keeps a list of source rocks in the model and allows to manipulate them
       /// @return reference to the source rock manager. It created/deleted by the model itself.
-      SourceRockManager & getSourceRockManager();
-
+      SourceRockManager & sourceRockManager();
+     
       /// @}
 
    private:

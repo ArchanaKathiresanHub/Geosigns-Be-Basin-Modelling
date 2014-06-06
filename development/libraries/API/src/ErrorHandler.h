@@ -24,7 +24,7 @@ public:
    /// @name Types definitions
    /// @{
    /// @brief Set of return codes for API functions
-   typedef enum 
+   typedef enum
    {
       NoError = 0,       ///< Call was successful
       IoError,           ///< Error related to IO operations
@@ -39,28 +39,47 @@ public:
       MCSolverError,     ///< Error happened in MC solver
       RSProxyError,      ///< Error happened in response surface builder
       SUMLibException,   ///< Exception was caught during SUMLib call
+      WrongPath,         ///< 
       UnknownError       ///< Unknown error
    } ReturnCode;
    /// @}
-   
+
    /// @name Error handling functions
    /// @{
    /// @brief If any error is happened during interface call this function will return error message
-   /// @return pointer to error message which is valid till next interface call. User should not delete it.
-   const char * getErrorMessage() { return m_lastErrorMsg.c_str(); }
+   /// @return error message which is valid till next interface call.
+   std::string errorMessage() { return m_lastErrorMsg; }
+
+   /// @brief If any error is happened during interface call this function will return error code
+   /// @return error code
+   ReturnCode  errorCode() { return m_retCode; }
    /// @}
 
    /// @brief Report error and setup message and error code. Also used by an API objects which has no its own ErrorHandler
    /// @param rc Error code
    /// @param msg Error message with error description
    /// @return Error code
-   ReturnCode ReportError( ReturnCode rc, const std::string & msg )  { m_retCode = rc; m_lastErrorMsg = msg; return rc; }
+   ReturnCode reportError( ReturnCode rc, const std::string & msg )  { m_retCode = rc; m_lastErrorMsg = msg; return rc; }
+
+   /// @brief Clean error code and error message
+   void resetError() { m_retCode = NoError; m_lastErrorMsg.clear(); }
+
+   /// @brief Move error message and error code from the given ErrorHandler to the current
+   /// @param otherErrHandler other error handler from which error must be moved to the current
+   /// @return error code
+   ReturnCode moveError( ErrorHandler & otherErrHandler )
+   {
+      m_lastErrorMsg = otherErrHandler.errorMessage();
+      m_retCode = otherErrHandler.errorCode();
+      otherErrHandler.resetError();
+      return m_retCode;
+   }
 
 protected:
    /// @name Constructors/destructor
    /// @{
    /// @brief Constructor which creates empty model
-   ErrorHandler() {;}
+   ErrorHandler() : m_retCode( NoError ) {;}
    /// @brief Destructor, no any actual work is needed here, all is done in implementation part
    ~ErrorHandler() {;}
    /// @}

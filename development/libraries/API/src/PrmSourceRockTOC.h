@@ -16,6 +16,11 @@
 
 #include "Parameter.h"
 
+namespace mbapi
+{
+   class Model;
+}
+
 /// @page CASA_SourceRockTOCPage Source rock initial Total Organic Contents (TOC) parameter
 /// 
 /// This parameter defines the initial total organic content in source rock.
@@ -29,10 +34,17 @@ namespace casa
    {
    public:
       /// @brief Constructor 
+      /// @param mdl Cauldron model interface object to get value for TOC for given layer from\n
+      ///            if model has more than one source rock lithology for the same layer, the TOC\n
+      ///            value will be equal the first one
+      /// @param layerName layer name
+      PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName );
+
+      /// @brief Constructor 
       /// @param val value of top crust heat production rate
-      /// @param srLithoType source rock lithotype name
-      PrmSourceRockTOC( double val, const char * srLithoType );
-      
+      /// @param layerName layer name
+      PrmSourceRockTOC( double val, const char * layerName );
+
       /// @brief Destructor
       virtual ~PrmSourceRockTOC();
      
@@ -50,7 +62,7 @@ namespace casa
       virtual double doubleValue() { return value(); }
 
    protected:
-      std::string m_srLithoType; ///< source rock lithology name
+      std::string m_layerName;   ///< layer name with source rock
       double      m_toc;         ///< TOC value
    };
 

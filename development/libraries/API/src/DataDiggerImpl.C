@@ -30,7 +30,7 @@ DataDiggerImpl::~DataDiggerImpl()
 // Add Case to set
 ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( RunCase & cs )
 {
-   return ReportError( ErrorHandler::NotImplementedAPI, "collectRunResults() not implemented yet" );
+   return reportError( ErrorHandler::NotImplementedAPI, "collectRunResults() not implemented yet" );
 }
 
 }

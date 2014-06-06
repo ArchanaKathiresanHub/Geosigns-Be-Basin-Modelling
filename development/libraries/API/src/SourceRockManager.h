@@ -30,23 +30,50 @@ namespace mbapi {
    public:
       
       /// @{
-      /// Set of interfaces for interacting with a Cauldron model
+      /// Set of interfaces for interacting with a source rock lithologies
 
       typedef size_t SourceRockID;  ///< unique ID for source rock
 
       /// @brief Get list of source rocks in the model
       /// @return array with IDs of different source rocks defined in the model
-      virtual std::vector<SourceRockID> getSourceRocksID() const = 0; 
+      virtual std::vector<SourceRockID> sourceRockIDs() const = 0; 
 
-      /// @brief Create new source rock
-      /// @return ID of the new SourceRock
-      virtual SourceRockID createNewSourceRock() = 0;
+      /// @brief Create new source rock lithology record
+      /// @return ID of the new source rock lithology
+      virtual SourceRockID createNewSourceRockLithology() = 0;
 
-      /// @brief Get source rock name for
+      /// @brief Get layer name for given ID
+      /// @param id source rock ID
+      /// @return layer name for given source rock lithology ID or empty string in case of error
+      virtual std::string layerName( SourceRockID id ) = 0;
+
+      /// @brief Get source rock type name for the given ID
+      /// @param id source rock ID
+      /// @return source rock type name for the given source rock lithology ID or empty string in case of error
+      virtual std::string sourceRockType( SourceRockID id ) = 0;
+
+      /// @}
+
+      /// @{
+      /// Source rock TOC (total organic content) API 
+      ///
+      /// @brief Get total organic contents value ( must be in range 0-100 percent) for the given source rock lithology
       /// @param[in] id source rock ID
-      /// @param[out] srName on success has a source rock name, or empty string otherwise
-      /// @return NoError on success or NonexistingID on error
-      virtual ReturnCode getSourceRockName( SourceRockID id, std::string & srName ) const = 0;
+      /// @return TOC value for given source rock lithology ID or UndefinedDoubleValue in case of error
+      virtual double tocIni( SourceRockID id ) = 0;
+
+      /// @brief Get TOC map name for the given source rock lithology
+      /// @param id source rock ID
+      /// @return on success TOC map name (if it was defined or empty string otherwise)
+      virtual std::string tocInitMapName( SourceRockID id ) = 0;
+
+      /// @brief Set total organic contents value ( must be in range 0-100 percent) for all source\n
+      ///        rock lithologies associated with the given layer
+      /// @param layerName name of the layer
+      /// @param newTOC new TOC value
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setTOCIni( const std::string & layerName, double newTOC ) = 0;
+   
       /// @}
 
 

@@ -22,8 +22,8 @@
 namespace casa
 {
 
-VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char * srLithoType, double baseValue, double minValue, double maxValue, PDF pdfType ) : 
-   m_srLithoType( srLithoType )
+VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType ) : 
+   m_layerName( layerName )
 {
    m_pdf = pdfType;
    m_valueRange.reset( new SimpleRange( minValue, maxValue ) );
@@ -31,7 +31,7 @@ VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char * srLithoType, double baseV
    
    assert( m_valueRange->isValInRange( baseValue ) );
 
-   m_baseValue.reset( new PrmSourceRockTOC( baseValue, srLithoType ) );
+   m_baseValue.reset( new PrmSourceRockTOC( baseValue, layerName ) );
 }
 
 VarPrmSourceRockTOC::~VarPrmSourceRockTOC()
@@ -45,7 +45,7 @@ double VarPrmSourceRockTOC::baseValueAsDouble() const
 
 Parameter * VarPrmSourceRockTOC::createNewParameterFromDouble( double val ) const
 {
-   return m_valueRange->isValInRange( val ) ? (new PrmSourceRockTOC( val, m_srLithoType.c_str() )) : 0;
+   return m_valueRange->isValInRange( val ) ? (new PrmSourceRockTOC( val, m_layerName.c_str() )) : 0;
 }
 
 }
