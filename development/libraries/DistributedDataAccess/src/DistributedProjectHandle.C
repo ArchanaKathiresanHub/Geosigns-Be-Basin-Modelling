@@ -324,7 +324,7 @@ bool ProjectHandle::makeOutputDir() const
       
       status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
       
-      if ( status != 0 ) {
+      if ( status != 0 and errno == ENOTDIR ) {
          return false;
       }
    }
@@ -333,7 +333,7 @@ bool ProjectHandle::makeOutputDir() const
 #else
    int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
 #endif
-   if ( status != 0 ) {
+   if ( status != 0 and errno == ENOTDIR ) {
       return false;
    }
    return true;
