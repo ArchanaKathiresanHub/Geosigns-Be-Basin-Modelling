@@ -14,6 +14,7 @@
 #include "RunCaseImpl.h"
 
 #include <vector>
+#include <stdexcept>
 
 namespace casa
 {
