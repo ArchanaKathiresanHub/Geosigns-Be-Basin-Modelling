@@ -316,7 +316,7 @@ bool ProjectHandle::makeOutputDir() const
       
       int status = mkdir ( H5_Parallel_PropertyList::getTempDirName().c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
       
-      if( status != 0 and errno == ENOTDIR ) {
+      if( status != 0 ) {
          PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR TMPDIR couldn't be created. \n");
          return false;
       }
@@ -324,7 +324,7 @@ bool ProjectHandle::makeOutputDir() const
       
       status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
       
-      if ( status != 0 and errno == ENOTDIR ) {
+      if ( status != 0 ) {
          return false;
       }
    }
@@ -333,7 +333,7 @@ bool ProjectHandle::makeOutputDir() const
 #else
    int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
 #endif
-   if ( status != 0 and errno == ENOTDIR ) {
+   if ( status != 0 ) {
       return false;
    }
    return true;

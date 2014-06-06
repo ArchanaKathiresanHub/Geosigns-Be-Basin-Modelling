@@ -38,7 +38,7 @@
 
 #include "MultiComponentFlowHandler.h"
 
-bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWrite );
+bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName );
 
 //------------------------------------------------------------//
 
@@ -804,8 +804,6 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    }
  
    bool status = true;
-   PetscBool hasOption;
-   PetscOptionsHasName ( PETSC_NULL, "-overwrite", &hasOption );
 
    const std::string& directoryName = getOutputDir ();
    
@@ -824,7 +822,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          
          if ( !snapshotFileName.empty() ) {
             string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
-            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption )) {
+            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() )) {
                status = false;
                PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
             }
@@ -834,7 +832,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    string fileName = getActivityName () + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
      
-   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption ) ) {
+   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() )) {
       status = false;
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }

@@ -35,7 +35,7 @@ using namespace DataAccess;
 #include "GenexResultManager.h"
 using namespace Genex6;
 
-bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWriteOption );
+bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName );
 
 GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)
    : Interface::ProjectHandle (database, name, accessMode)
@@ -144,11 +144,19 @@ bool GenexSimulator::run()
       
       started = 0;
    }   
-   
 
    if(started) {
-      if(getRank() == 0) {    
-         cout << "Results saved sucessfully." << endl;
+      PetscLogDouble sim_End_Time;
+      PetscTime(&sim_End_Time);
+      
+      if(getRank() == 0) {
+         PetscLogDouble totalSimulationTime = (sim_End_Time - run_Start_Time);
+         
+         int hours   = (int)( totalSimulationTime / 3600.0 );
+         int minutes = (int)( ( totalSimulationTime - (hours * 3600.0) ) / 60.0 );
+         int seconds = (int) ( totalSimulationTime - hours * 3600.0 - minutes * 60.0 );
+
+         cout << "Results saved sucessfully: " << hours <<" hours " << minutes << " minutes " << seconds << " seconds " << endl;
          cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
       }
    }
@@ -356,10 +364,7 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    string fileName = GenexActivityName + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
 
-   PetscBool hasOption;
-   PetscOptionsHasName ( PETSC_NULL, "-overwrite", &hasOption );
-   
-   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption );
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() );
    
    if( status ) {
       if(getRank() == 0) {    

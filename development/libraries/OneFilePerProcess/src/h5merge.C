@@ -241,7 +241,7 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    return 0;
 }
 
-bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, const bool overWrite ) {
+bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName ) {
  
    FileHandler reader ( comm );
  
@@ -263,11 +263,7 @@ bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string 
    }
   
    if( reader.m_rank == 0 ) {
-      if( overWrite ) {
-         reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT ); 
-      } else {
-         reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT ); 
-      }
+      reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT ); 
 
       if( reader.m_globalFileId < 0 ) {
          status = 1; 

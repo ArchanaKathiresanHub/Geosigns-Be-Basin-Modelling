@@ -331,6 +331,10 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    
    if ( totalRetryCount > 0 )
    {
+      if( file != NULL ) {
+         herr_t status = H5FD_mpiposix_close( (H5FD_t *) file );
+         assert( status >= 0 );      
+      }
       // All will retry opening the file with the normal name
       file = (H5FD_mpiposix_t *) H5FD_mpiposix_open( name, flags, fapl_id, maxaddr ) ;
    }
@@ -338,9 +342,13 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
    // if the file could not be opened, return the null pointer
    int meCanOpenFile = file == NULL ? 0 : 1;
    int allCanOpenFile = 0;
-   MPI_Allreduce( &meCanOpenFile, &allCanOpenFile, 1, MPI_INT, MPI_LAND, fa->m_comm);
+   MPI_Allreduce( &meCanOpenFile, &allCanOpenFile, 1, MPI_INT, MPI_LAND, fa->m_comm );
    if (! allCanOpenFile)
    {
+      if( file != NULL ) {
+         herr_t status = H5FD_mpiposix_close( (H5FD_t *) file );
+         assert( status >= 0 );      
+      }
       return NULL;
    }
 

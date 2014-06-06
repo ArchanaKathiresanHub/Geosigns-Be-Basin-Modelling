@@ -39,7 +39,7 @@ using namespace migration;
 #include "h5_parallel_file_types.h"
 using namespace DataAccess;
 
-bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool overWriteOption );
+bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName );
 static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
 
 extern string NumProcessorsArg;
@@ -193,11 +193,8 @@ bool Migrator::mergeOutputFiles ( ) {
    }
 
    string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + MigrationActivityName + "_Results.HDF";
-   PetscBool hasOption;
 
-   PetscOptionsHasName ( PETSC_NULL, "-overwrite", &hasOption );
-
-   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), hasOption );
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() );
    if( status ) {
       ReportProgress ("Merged Output Maps");
    }
