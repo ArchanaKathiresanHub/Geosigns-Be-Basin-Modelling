@@ -16,12 +16,12 @@ namespace ddd
    /// \brief Rank of process.
    ///
    /// Will return 0 for serial programmes and the actual rank for mpi-distributed programmes.
-   int GetRank (void);
+   int GetRank( void );
 
    /// \brief Number of processes.
    ///
    /// Will return 1 for serial programmes and the actual size for mpi-distributed programmes.
-   int GetSize (void);
+   int GetSize( void );
 }
 
 
@@ -191,16 +191,16 @@ namespace DataAccess
 
       /// Used to select Surface PropertyValues whose Properties are continuous across Formation boundaries
       /// Used to indicate 2D PropertyValues
-      const int SURFACE		= 0x1;
+      const int SURFACE = 0x1;
       /// Used to select Formation PropertyValues
-      const int FORMATION		= 0x2;
+      const int FORMATION = 0x2;
       /// Used to select Reservoir PropertyValues
-      const int RESERVOIR		= 0x4;
+      const int RESERVOIR = 0x4;
       /// Used to select Surface PropertyValues whose Properties are discontinuous across Formation boundaries
-      const int FORMATIONSURFACE	= 0x8;
+      const int FORMATIONSURFACE = 0x8;
 
       /// Used to indicate 2D PropertyValues
-      const int MAP    = 0x1;
+      const int MAP = 0x1;
       /// Used to indicate 3D PropertyValues
       const int VOLUME = 0x2;
 
@@ -212,41 +212,41 @@ namespace DataAccess
 
       /// Ids for the gas and oil phase
       enum PhaseId {
-	 Gas = 0, Oil, NumPhases
+         Gas = 0, Oil, NumPhases
       };
 
       /// Ids for all the hydrocarbon components used.
-	  enum ComponentId
-		{
-		  FIRST_COMPONENT = 0,
-		  ASPHALTENES = 0,
-		  RESINS = 1,
-		  C15_ARO = 2,
-		  C15_SAT = 3,
-		  C6_14ARO = 4,
-		  C6_14SAT = 5,
-		  C5 = 6,
-		  C4 = 7,
-		  C3 = 8,
-		  C2 = 9,
-		  C1 = 10,
-		  COX = 11,
-		  N2 = 12,
-		  H2S = 13,
-		  LSC = 14,
-		  C15_AT = 15,
-		  C6_14BT = 16,
-		  C6_14DBT = 17,
-		  C6_14BP = 18,
-		  C15_AROS = 19,
-		  C15_SATS = 20,
-		  C6_14SATS = 21,
-		  C6_14AROS = 22,
-		  LAST_COMPONENT = 22,
-		  UNKNOWN = 23,
-		  NUM_COMPONENTS = 23
-      
-		};
+      enum ComponentId
+      {
+         FIRST_COMPONENT = 0,
+         ASPHALTENES = 0,
+         RESINS = 1,
+         C15_ARO = 2,
+         C15_SAT = 3,
+         C6_14ARO = 4,
+         C6_14SAT = 5,
+         C5 = 6,
+         C4 = 7,
+         C3 = 8,
+         C2 = 9,
+         C1 = 10,
+         COX = 11,
+         N2 = 12,
+         H2S = 13,
+         LSC = 14,
+         C15_AT = 15,
+         C6_14BT = 16,
+         C6_14DBT = 17,
+         C6_14BP = 18,
+         C15_AROS = 19,
+         C15_SATS = 20,
+         C6_14SATS = 21,
+         C6_14AROS = 22,
+         LAST_COMPONENT = 22,
+         UNKNOWN = 23,
+         NUM_COMPONENTS = 23
+
+      };
 
 
       /// Specifies whether a Property applies to Formations or Reservoirs
@@ -300,7 +300,7 @@ namespace DataAccess
       /// Attributes for which a (GridMap) value can be requested via getMap ().
       enum ReservoirMapAttributeId {
          DepthOffset = 0, ReservoirThickness, NetToGross, LayerFrequency
-      } ;
+      };
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().
       enum MobileLayerMapAttributeId {
@@ -315,7 +315,7 @@ namespace DataAccess
          MantleThicknessHistoryInstanceThicknessMap, ///< Thickness of mantle.
          SurfaceTemperatureHistoryInstanceMap,       ///< Temperature of top surface.
          SurfaceDepthHistoryInstanceMap//,             ///< Depth of top surface.
-//          AllochthonousLithologyDistributionMap       ///< Distribution of allochthonous salt.
+         //          AllochthonousLithologyDistributionMap       ///< Distribution of allochthonous salt.
       };
 
 
@@ -353,7 +353,7 @@ namespace DataAccess
       };
 
       /// Used to distinguish between 1D/3D functionality.
-      enum ModellingMode {MODE1D, MODE3D};
+      enum ModellingMode { MODE1D, MODE3D };
 
       /// Used to indicate the caldulation type of some property.
       ///
@@ -361,23 +361,27 @@ namespace DataAccess
       enum CalculationModel { CONSTANT_MODEL, CALCULATED_MODEL, TABLE_MODEL, STANDARD_MODEL, LOWCOND_MODEL, HIGHCOND_MODEL };
 
       /// The function describing the porosity.
-      enum PorosityModel { EXPONENTIAL_POROSITY,
-                           SOIL_MECHANICS_POROSITY };
+      enum PorosityModel {
+         EXPONENTIAL_POROSITY,
+         SOIL_MECHANICS_POROSITY
+      };
 
       /// The model describing the permeability.
-      enum PermeabilityModel { SANDSTONE_PERMEABILITY,
-                               MUDSTONE_PERMEABILITY,
-                               IMPERMEABLE_PERMEABILITY,
-                               NONE_PERMEABILITY,
-                               MULTIPOINT_PERMEABILITY };
+      enum PermeabilityModel {
+         SANDSTONE_PERMEABILITY,
+         MUDSTONE_PERMEABILITY,
+         IMPERMEABLE_PERMEABILITY,
+         NONE_PERMEABILITY,
+         MULTIPOINT_PERMEABILITY
+      };
 
       /// \brief The model used for the brine viscosity.
       enum ViscosityModel { BATTZLE_WANG_VISCOSITY, TEMIS_PACK_VISCOSITY };
 
 
       /// Enumeration of Pc - Kr models (capillary pressure, relative permeability models such as Brooks-Corey, Leverett..)
-      enum PcKrModel {BROOKS_COREY};
-    
+      enum PcKrModel { BROOKS_COREY };
+
       /// Enumeration of the fracture function type.
       enum FracturePressureFunctionType {
          ///< Do not apply any hydraulic fracturing.
@@ -410,21 +414,22 @@ namespace DataAccess
          CONSERVATIVE_1,
 
          ///< Conservative model, try (a bit harder) to restrict the pressure using the conservative method.
-         CONSERVATIVE_2 };
+         CONSERVATIVE_2
+      };
 
 
       enum CoordinateAxis { X_COORD, Y_COORD };
 
 
       /// operator type definition used in the computation of GridMaps from other GridMaps
-      typedef double (*BinaryOperator) (double, double);
+      typedef double( *BinaryOperator ) ( double, double );
       /// operator type definition used in the computation of GridMaps from other GridMaps
-      typedef double (*UnaryOperator) (double);
+      typedef double( *UnaryOperator ) ( double );
 
       class BinaryFunctor {
-      public :
+      public:
 
-         virtual ~BinaryFunctor () {}
+         virtual ~BinaryFunctor() {}
 
          virtual double operator ()( const double left, const double right ) const = 0;
 
@@ -432,7 +437,7 @@ namespace DataAccess
 
       class SubtractionFunctor : public BinaryFunctor {
 
-      public :
+      public:
 
          double operator ()( const double left, const double right ) const;
 
@@ -440,7 +445,7 @@ namespace DataAccess
 
       class AdditionFunctor : public BinaryFunctor {
 
-      public :
+      public:
 
          double operator ()( const double left, const double right ) const;
 
@@ -448,13 +453,13 @@ namespace DataAccess
 
       class InterpolateFunctor : public BinaryFunctor {
 
-      public :
-         InterpolateFunctor ( const double value1, const double value2, const double value3 ) :
-            m_value1 ( value1 ), m_value2 ( value2 ), m_value3 ( value3 ) {};
+      public:
+         InterpolateFunctor( const double value1, const double value2, const double value3 ) :
+            m_value1( value1 ), m_value2( value2 ), m_value3( value3 ) {};
 
          double operator ()( const double left, const double right ) const;
 
-      private :
+      private:
 
          const double m_value1;
          const double m_value2;
@@ -463,9 +468,9 @@ namespace DataAccess
 
 
       class UnaryFunctor {
-      public :
+      public:
 
-         virtual ~UnaryFunctor () {}
+         virtual ~UnaryFunctor() {}
 
          virtual double operator ()( const double operand ) const = 0;
 
@@ -473,48 +478,48 @@ namespace DataAccess
 
 
       class IdentityFunctor : public UnaryFunctor {
-      public :
+      public:
 
          double operator ()( const double operand ) const;
 
-      private :
+      private:
 
       };
 
       class SubtractConstant : public UnaryFunctor {
-      public :
+      public:
 
-         SubtractConstant ( const double value ) : m_value ( value ) {};
+         SubtractConstant( const double value ) : m_value( value ) {};
 
          double operator ()( const double operand ) const;
 
-      private :
+      private:
 
          const double m_value;
 
       };
 
       class SubtractFromConstant : public UnaryFunctor {
-      public :
+      public:
 
-         SubtractFromConstant ( const double value ) : m_value ( value ) {};
+         SubtractFromConstant( const double value ) : m_value( value ) {};
 
          double operator ()( const double operand ) const;
 
-      private :
+      private:
 
          const double m_value;
 
       };
 
       class AddConstant : public UnaryFunctor {
-      public :
+      public:
 
-         AddConstant ( const double value ) : m_value ( value ) {};
+         AddConstant( const double value ) : m_value( value ) {};
 
          double operator ()( const double operand ) const;
 
-      private :
+      private:
 
          const double m_value;
 
@@ -711,7 +716,7 @@ namespace DataAccess
 
       /// \var CrustBottomSurfaceName
       /// The name of the surface at the bottom of the crust.
-      static const std::string CrustBottomSurfaceName  = "Bottom of Crust";
+      static const std::string CrustBottomSurfaceName = "Bottom of Crust";
 
       /// \var MantleBottomSurfaceName
       /// The name of the surface at the bottom of the mantle.
@@ -751,7 +756,7 @@ inline double DataAccess::Interface::SubtractionFunctor::operator ()( const doub
 }
 
 inline double DataAccess::Interface::InterpolateFunctor::operator ()( const double op1, const double op2 ) const {
-   return op1 - (( op1 - op2 ) * ( m_value1 - m_value3 )) / ( m_value1 - m_value2 );
+   return op1 - ( ( op1 - op2 ) * ( m_value1 - m_value3 ) ) / ( m_value1 - m_value2 );
 }
 
 inline double DataAccess::Interface::AdditionFunctor::operator ()( const double op1, const double op2 ) const {

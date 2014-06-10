@@ -69,8 +69,8 @@ namespace Shell.BasinModeling.Cauldron.Test
          DoEGenerator doe     = sa.doeGenerator();
          VarSpace     varPrms = sa.varSpace();
          // base case is 2.5
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VariateSourceRockTOC(sa, "Lower Jurassic", 5, 15, VarPrmContinuous.PDF.Block));
-         Assert.IsTrue( ErrorHandler.ReturnCode.NoError ==  CauldronAPI.VariateTopCrustHeatProduction(sa, 0.1, 4.9, VarPrmContinuous.PDF.Block ) );
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VarySourceRockTOC(sa, "Lower Jurassic", 5, 15, VarPrmContinuous.PDF.Block));
+         Assert.IsTrue( ErrorHandler.ReturnCode.NoError ==  CauldronAPI.VaryTopCrustHeatProduction(sa, 0.1, 4.9, VarPrmContinuous.PDF.Block ) );
 
          Assert.IsTrue( 2 == varPrms.size() );
 

@@ -91,13 +91,15 @@ namespace casa
       /// @brief List of implemented DoE algorithms
       enum DoEAlgorithm
       {
-         BoxBehnken,            ///< Box-Behnken design
-         Tornado,               ///< Tornado design. The default algorithm
-         PlackettBurman,        ///< Placket-Buurman design
-         PlackettBurmanMirror,  ///< Placket-Buurman with mirror design
-         FullFactorial,         ///< Full factorial design
-         LatinHypercube,        ///< Optimized latin hypercube design
-         SpaceFilling           ///< Space filling design
+         TheFirstDoEAlgo,              ///< The first DoE Algorithm (used in loops and for validation)
+         BoxBehnken = TheFirstDoEAlgo, ///< Box-Behnken design
+         Tornado,                      ///< Tornado design. The default algorithm
+         PlackettBurman,               ///< Placket-Buurman design
+         PlackettBurmanMirror,         ///< Placket-Buurman with mirror design
+         FullFactorial,                ///< Full factorial design
+         LatinHypercube,               ///< Optimized latin hypercube design
+         SpaceFilling,                 ///< Space filling design
+         TheLastDoEAlgo = SpaceFilling ///< The last DoE algorithm (used in loops and for validation)
       };
 
       /// @brief Destructor

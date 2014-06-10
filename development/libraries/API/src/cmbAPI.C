@@ -20,9 +20,9 @@
 #include "SourceRockManagerImpl.h"
 
 // DataAccess library
-#include "database.h"
-#include "cauldronschema.h"
-#include "cauldronschemafuncs.h"
+#include "Interface/ProjectHandle.h"
+//#include "cauldronschema.h"
+//#include "cauldronschemafuncs.h"
 
 #include <stdexcept>
 #include <string>
@@ -320,18 +320,7 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & other
 
 void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 {
-   database::DataSchema      * cauldronSchema = database::createCauldronSchema();
-   database::TableDefinition * tableDef       = cauldronSchema->getTableDefinition( "DepthIoTbl" );
-
-   if ( tableDef )
-   {
-      // Adding (volatile, won't be output) definition for DepositionSequence field
-      // Required to properly sort the DepthIoTbl, not to be output
-      tableDef->addVolatileFieldDefinition( "DepositionSequence", datatype::Int, "", "0" );
-   }
-
-   m_projDatabase.reset( database::Database::CreateFromFile( projectFileName, *cauldronSchema ) );
-   delete cauldronSchema;
+   m_projDatabase.reset( DataAccess::Interface::CreateDatabaseFromCauldronProject( projectFileName ) );
 
    if ( !m_projDatabase.get() )
    {

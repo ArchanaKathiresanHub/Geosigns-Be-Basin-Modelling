@@ -57,6 +57,8 @@ DoEGeneratorImpl::DoEGeneratorImpl( mbapi::Model & baseModel, DoEGenerator::DoEA
                   m_baseModel( baseModel )
                 , m_typeOfDoE( algo )
 {
+   // throwing exception from constructor is bad idea
+   if ( algo < TheFirstDoEAlgo || algo > TheLastDoEAlgo ) reportError( ErrorHandler::OutOfRangeValue, "Unknown DoE algorithm was given" );
 }
 
 DoEGeneratorImpl::~DoEGeneratorImpl()

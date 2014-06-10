@@ -45,9 +45,6 @@ SourceRockManagerImpl & SourceRockManagerImpl::operator = ( const SourceRockMana
 // Set project database. Reset all
 void SourceRockManagerImpl::setDatabase( database::Database * db )
 {
-   if ( m_db )
-   {
-   }
    m_db = db;
 }
 

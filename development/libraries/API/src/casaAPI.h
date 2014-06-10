@@ -114,7 +114,8 @@ namespace casa
 {
    class ScenarioAnalysis;
    
-   /// @brief Namespace which keeps set of high level functions for variable parameters definitions
+   /// @brief Name space which keeps set of high level functions for variable parameters definitions.\n
+   ///        This set of functions provides an easy way to add variable parameters to casa::ScenarioAnalysis
    namespace BusinessLogicRulesSet
    {
       /// @brief Add a parameter to variate layer thickness value [m] in given range
@@ -125,8 +126,8 @@ namespace casa
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VariateLayerThickness( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
-                                                      VarPrmContinuous::PDF rangeShape );
+      ErrorHandler::ReturnCode VaryLayerThickness( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
+                                                   VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
       /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
@@ -135,8 +136,8 @@ namespace casa
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VariateTopCrustHeatProduction( casa::ScenarioAnalysis & sa, double minVal, double maxVal,
-                                                              VarPrmContinuous::PDF rangeShape );
+      ErrorHandler::ReturnCode VaryTopCrustHeatProduction( casa::ScenarioAnalysis & sa, double minVal, double maxVal,
+                                                           VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add a parameter to variate source rock lithology TOC value @f$ [\%] @f$ in given range
       /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
@@ -146,8 +147,8 @@ namespace casa
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VariateSourceRockTOC( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
-                                                     VarPrmContinuous::PDF rangeShape );
+      ErrorHandler::ReturnCode VarySourceRockTOC( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
+                                                  VarPrmContinuous::PDF rangeShape );
    };
 
    /// @brief ScenarioAnalysis keeps all objects which are necessary for UA/SA of single workflow

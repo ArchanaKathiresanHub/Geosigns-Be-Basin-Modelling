@@ -55,6 +55,11 @@ namespace DataAccess
       /// return the associated ProjectHandle
       ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode );
 
+      /// @brief Create TableIO database object from project file. This function is used by OpenCauldronProject()
+      /// @param name project file name
+      /// @return Database object pointer which must be deleted by the caller
+      database::Database * CreateDatabaseFromCauldronProject( const string & name );
+
       /// Close the project associated with the given ProjectHandle
       void CloseCauldronProject( ProjectHandle * projectHandle );
 

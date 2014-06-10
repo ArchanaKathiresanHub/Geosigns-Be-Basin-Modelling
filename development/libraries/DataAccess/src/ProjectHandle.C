@@ -120,6 +120,19 @@ static ObjectFactory * s_factoryToUse = 0;
 
 DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode )
 {
+   Database * tables = CreateDatabaseFromCauldronProject( name );
+   if ( tables )
+   {
+      return Interface::ProjectHandle::GetFactoryToUse()->produceProjectHandle( tables, name, accessMode );
+   }
+   else
+   {
+      return 0;
+   }
+}
+
+Database * DataAccess::Interface::CreateDatabaseFromCauldronProject( const string & name )
+{
    FaultFileReaderFactory::getInstance().registerReader( IBSFaultFileReaderID, allocateIBSFaultFileReader );
    FaultFileReaderFactory::getInstance().registerReader( LandmarkFaultFileReaderID, allocateLandmarkFaultFileReader );
    FaultFileReaderFactory::getInstance().registerReader( ZyCorFaultFileReaderID, allocateZyCorFaultFileReader );
@@ -136,15 +149,7 @@ DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProjec
 
    Database * tables = Database::CreateFromFile( name, *cauldronSchema );
    delete cauldronSchema;
-
-   if ( tables )
-   {
-      return Interface::ProjectHandle::GetFactoryToUse()->produceProjectHandle( tables, name, accessMode );
-   }
-   else
-   {
-      return 0;
-   }
+   return tables;
 }
 
 void DataAccess::Interface::CloseCauldronProject( DataAccess::Interface::ProjectHandle * projectHandle )
