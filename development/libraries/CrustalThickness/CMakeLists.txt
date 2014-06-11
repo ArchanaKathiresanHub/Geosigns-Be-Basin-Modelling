@@ -34,10 +34,9 @@ include_directories(
 )
 
 target_link_libraries(CrustalThickness
-	DistributedDataAccess
+	SerialDataAccess
 	DataAccess
 	TableIO
-	Utilities_Petsc
 	Serial_Hdf5
 	${HDF5_serial_LIBRARIES}
 )

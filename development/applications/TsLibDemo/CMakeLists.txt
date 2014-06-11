@@ -38,11 +38,14 @@ include_directories(
 )
 
 target_link_libraries(${target_name} 
-
 	${TS7_LIBRARIES}
 	${TS_LIBRARIES}
 	${XERCES_LIBRARIES}
 	${MPI_LIBRARIES}
+)
+
+set_target_properties(${target_name}
+      PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}"
 )
 
 install(TARGETS TouchLibDemo

@@ -40,27 +40,35 @@ add_external_package_info(
 
 set(MPI_FOUND TRUE)
 
+# Now figure out the compiler options to add
+# of course, this depends on whether we want to links statically (default) or
+# dynamically
+option(MPI_LINKS_STATIC "Whether to link statically with the MPI" ON)
+
 # The options that Intel MPI uses, can be found by doing 'mpiicpc -show' on
 # the command line
+set(MPI_LINK_FLAGS)
+if (MPI_LINKS_STATIC)
+  list(APPEND MPI_LINK_FLAGS "-static-intel")
+else()
+  list(APPEND MPI_LINK_FLAGS "-Xlinker" "-rpath")
+  list(APPEND MPI_LINK_FLAGS "-Xlinker" "${MPI_ROOT64}/lib")
+endif()
+list(APPEND MPI_LINK_FLAGS "-Xlinker" "--enable-new-dtags")
+list(APPEND MPI_LINK_FLAGS "-L${MPI_ROOT64}/lib")
+
+string(REPLACE ";" " " MPI_LINK_FLAGS "${MPI_LINK_FLAGS}")
+
 set(MPI_INCLUDE_DIRS "${MPI_ROOT64}/include")
-set(MPI_LIBRARIES)
-foreach(LIB mpigc4 mpigf mpi mpigi)
-   list(APPEND MPI_LIBRARIES "${MPI_ROOT64}/lib/lib${LIB}.a")
-endforeach()
 
 find_library(MPI_DL_LIBRARY dl)
 find_library(MPI_RT_LIBRARY rt)
 find_library(MPI_PTHREAD_LIBRARY pthread)
 
-list(APPEND MPI_LIBRARIES ${MPI_DL_LIBRARY} ${MPI_RT_LIBRARY} ${MPI_PTHREAD_LIBRARY})
-
-# Uncomment the following if linked with dynamic libraries
-#set(MPI_LINK_FLAGS)
-#  list(APPEND MPI_LINK_FLAGS "--enable-new-dtags")
-#  list(APPEND MPI_LINK_FLAGS "-rpath")
-#  list(APPEND MPI_LINK_FLAGS "${MPI_ROOT64}/lib")
+set(MPI_LIBRARIES)
+list(APPEND MPI_LIBRARIES "mpigc4" "mpigf" "mpi" "mpigi" ${MPI_DL_LIBRARY} ${MPI_RT_LIBRARY} ${MPI_PTHREAD_LIBRARY})
 
 # Note: We only need C bindings. The C++ bindings sometimes give trouble
 # because of SEEK_SET, etc... already being defined in stdio.h or iostream
-# add_definitions(-DMPICH_SKIP_MPICXX)
+add_definitions(-DMPICH_SKIP_MPICXX)
 
