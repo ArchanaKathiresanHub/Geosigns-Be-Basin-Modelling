@@ -121,6 +121,18 @@ if(UNIX)
     set(CMAKE_C_FLAGS_RELEASE "-O2")
     # IMPORTANT: somehow -fPIC affects regression test results
     add_definitions(-fPIC)
+
+    # Depending on whether we want to link statically or dynamicaly, ...
+    if (BUILD_SHARED_LIBS)
+       # Then we want the search paths for the SOs to be included in the
+       # binaries
+       set( CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+    else()
+       # Search for static libraries only
+       set( CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".so")
+    endif()
+
+    # Extra stuff if want code coverage instrumentation in the build
     if(BM_CODE_COVERAGE_ENABLE)
        file(MAKE_DIRECTORY ${BM_CODE_COVERAGE_DIR})
        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -prof-gen=srcpos -prof-dir ${BM_CODE_COVERAGE_DIR}")
@@ -148,12 +160,13 @@ if (BM_CSHARP_API)
    find_package(Swig REQUIRED CONFIG)
 endif()
 
+
 if (BM_PARALLEL)
    find_package(MPI REQUIRED CONFIG)
 endif()
 
-find_package(Hdf5 REQUIRED CONFIG)
 find_package(OpenMP REQUIRED CONFIG)   
+find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)

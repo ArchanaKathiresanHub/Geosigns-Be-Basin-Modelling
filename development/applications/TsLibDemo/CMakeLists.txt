@@ -44,10 +44,6 @@ target_link_libraries(${target_name}
 	${MPI_LIBRARIES}
 )
 
-set_target_properties(${target_name}
-      PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}"
-)
-
 install(TARGETS TouchLibDemo
 	RUNTIME DESTINATION bin
 )

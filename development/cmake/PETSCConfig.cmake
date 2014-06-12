@@ -25,7 +25,7 @@ set(PETSC_FOUND TRUE)
 set(PETSC_ROOT "${PETSC_HOME}" CACHE PATH "Installation directory of PETSc")
 set(PETSC_INCLUDE_DIRS "${PETSC_ROOT}/include")
 set(PETSC_LIBRARIES "${PETSC_ROOT}/lib/libpetsc.a")
-set(PETSC_LINK_FLAGS "${MPI_LINK_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(PETSC_LINK_FLAGS "${OpenMP_CXX_FLAGS}")
 
 add_external_package_info( 
     CAPABILITY  PETScLib

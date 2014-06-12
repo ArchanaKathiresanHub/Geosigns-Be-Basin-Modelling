@@ -31,31 +31,23 @@ target_link_libraries(OneFilePerProcess
       ${MPI_LIBRARIES}
 )
 
-set_target_properties(OneFilePerProcess
-      PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}"
-)
-
 add_gtest( NAME OneFilePerProcess::rewriteFileName
            SOURCES test/RewriteFileName.C
-           LINK_FLAGS "${MPI_LINK_FLAGS}"
            LIBRARIES OneFilePerProcess
 )
 
 add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver
            SOURCES test/HDF5VirtualFileDriver.C
-           LINK_FLAGS "${MPI_LINK_FLAGS}"
            LIBRARIES OneFilePerProcess
 )
 
 add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver-MPIPROCS=2
            SOURCES test/HDF5VirtualFileDriver.C
-           LINK_FLAGS "${MPI_LINK_FLAGS}"
            LIBRARIES OneFilePerProcess
            MPI_SIZE 2
 )
 add_gtest( NAME OneFilePerProcess::h5mergeTest-MPIPROCS=2
            SOURCES test/readDataset.C
-           LINK_FLAGS "${MPI_LINK_FLAGS}"
            LIBRARIES OneFilePerProcess
            MPI_SIZE 2
 )

@@ -13,7 +13,7 @@
 
 if (BM_PARALLEL)
 
-	add_library(Utilities_Petsc
+	add_library(Utilities_Petsc STATIC
 		src/PetscVectors.C
 	)
 

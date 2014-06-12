@@ -13,7 +13,11 @@
 find_package(OpenMP)   
 
 if (UNIX)   
-   set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static")
+   if (NOT BUILD_SHARED_LIBS)
+     set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static")
+   else()
+     set(OpenMP_CXX_FLAGS)
+   endif()
 endif()
 # There is no need to include 3rdparty information, because in our case it is
 # a compiler extension

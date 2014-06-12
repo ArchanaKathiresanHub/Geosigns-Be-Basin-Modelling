@@ -18,7 +18,7 @@ include(cmake/AddPackage.cmake)
 
 set( TS_ROOT "/glb/home/ksaho3/TsLib3.1.1_64" CACHE PATH "Location of Geocosm's Touchstone library")
 set( TS_INCLUDE_DIRS "${TS_ROOT}/Lib" )
-set( TS_LIBRARIES "${TS_ROOT}/Lib/libTsLib.a" )
+find_library( TS_LIBRARIES "TsLib" PATHS "${TS_ROOT}/Lib" NO_DEFAULT_PATH)
 
 add_external_package_info(
       CAPABILITY TsLib3
@@ -41,10 +41,10 @@ add_external_package_info(
 set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/opt/tslib3.2" CACHE PATH "Path to Geocosm's TsLib 7.0" )
 set( TS7_LIBRARY_DIR "${TS7_ROOT}/bin/x86_64_linux/Release")
 set( TS7_INCLUDE_DIRS "${TS7_ROOT}/include;${TS7_ROOT}/geocosmxml" )
-set( TS7_LIBRARIES)
-foreach (LIB geocosmxmllibbasecpp geocosmexception )
-   list(APPEND TS7_LIBRARIES "${TS7_LIBRARY_DIR}/lib${LIB}.so")
-endforeach()
+find_library( GeocosmBaseCpp "geocosmxmllibbasecpp" PATHS "${TS7_LIBRARY_DIR}" NO_DEFAULT_PATH)
+find_library( GeocosmException "geocosmexception"   PATHS "${TS7_LIBRARY_DIR}" NO_DEFAULT_PATH)
+set( TS7_LIBRARIES )
+list(APPEND TS7_LIBRARIES "${GeocosmBaseCpp}" "${GeocosmException}")
      
 add_external_package_info(
       CAPABILITY TsLib7
@@ -66,8 +66,7 @@ add_external_package_info(
  
 set( XERCES_ROOT "${TS7_ROOT}/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
 set( XERCES_INCLUDE_DIRS "${XERCES_ROOT}/include")
-set( XERCES_LIBRARIES "${XERCES_ROOT}/lib/libxerces-c-3.1.so")
-
+find_library( XERCES_LIBRARIES "xerces-c-3.1" PATHS "${XERCES_ROOT}/lib" NO_DEFAULT_PATH)
 
 add_external_package_info(
       CAPABILITY XercesC

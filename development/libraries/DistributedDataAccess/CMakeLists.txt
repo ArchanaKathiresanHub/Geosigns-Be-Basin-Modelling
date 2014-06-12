@@ -11,7 +11,7 @@
 #########################################################################
 
 if (BM_PARALLEL)
-	add_library( DistributedDataAccess
+	add_library( DistributedDataAccess STATIC
 		src/DistributedApplicationGlobalOperations.C
 		src/DistributedMapWriter.C
 		src/DistributedGridMap.C
