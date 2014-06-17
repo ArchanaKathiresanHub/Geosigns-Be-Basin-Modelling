@@ -39,7 +39,9 @@ CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x
 CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/ctest
 HDF5=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-parallel-valgrind/1.8.11/LinuxRHEL64
 PETSC=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/petsc/3.4.1-gcc-4.1.2/LinuxRHEL64
-VALGRIND_MPI=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/Valgrind/valgrind-3.9.0-impi-4.1.1.036/Linux/lib/valgrind/libmpiwrap-amd64-linux.so
+VALGRIND_ROOT=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/Valgrind/valgrind-3.9.0-impi-4.1.1.036/Linux
+VALGRIND=${VALGRIND_ROOT}/bin/valgrind
+VALGRIND_MPI=${VALGRIND_ROOT}/lib/valgrind/libmpiwrap-amd64-linux.so
 INTEL_COMPILER_VARS=/nfs/rvl/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192/bin/compilervars.sh
 
 ### Build applications
@@ -74,5 +76,5 @@ export LD_PRELOAD=$VALGRIND_MPI
 #                          a memory error 
 #       --run-libc-freeres=no is necessary, because glibc versions
 #                          until 2.12.90-14 have a bug that triggers an error in Valgrind
-valgrind --error-exitcode=1 --run-libc-freeres=no --tool=memcheck applications/fastcauldron/fastcauldron -project MemCheck.project3d -itcoupled 
+$VALGRIND --error-exitcode=1 --run-libc-freeres=no --tool=memcheck applications/fastcauldron/fastcauldron -project MemCheck.project3d -itcoupled 
 
