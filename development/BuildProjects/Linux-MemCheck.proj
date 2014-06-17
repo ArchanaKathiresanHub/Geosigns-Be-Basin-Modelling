@@ -9,7 +9,7 @@
   <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
 
   <PropertyGroup>
-     <memcheck>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/development/BuildProjects/Linux-MemCheck.sh $(OtherCMakeParams)"</memcheck>
+     <memcheck>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -l -x $(RemoteSourceDirAlt)/development/BuildProjects/Linux-MemCheck.sh $(OtherCMakeParams)"</memcheck>
   </PropertyGroup>
 
   <Target Name="Build">
