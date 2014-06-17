@@ -32,7 +32,6 @@ bm_include_libraries(
 	utilities
 	Serial_Hdf5
 	TableIO
-	ThreadUtilities
 	LinearAlgebra
 	Interpolation
 	FiniteElements
@@ -41,7 +40,7 @@ bm_include_libraries(
 )
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(deviatedwell
@@ -53,13 +52,12 @@ target_link_libraries(deviatedwell
 	utilities
 	Serial_Hdf5
 	TableIO
-	ThreadUtilities
 	LinearAlgebra
 	Interpolation
 	FiniteElements
 	CBMGenerics
 	calibration_kernel
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 	${BLAS_LIBRARIES}
 )
 

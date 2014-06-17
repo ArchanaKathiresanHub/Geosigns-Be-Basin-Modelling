@@ -14,10 +14,8 @@ add_executable(isosurface
 	src/isosurface.C
 )
 
-add_definitions(-DUSEINTERFACE)
-
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries(

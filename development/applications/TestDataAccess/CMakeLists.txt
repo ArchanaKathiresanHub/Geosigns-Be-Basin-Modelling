@@ -13,9 +13,7 @@
 add_executable(TestDataAccess src/TestDataAccess.C)
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
-	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
+	${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
@@ -29,7 +27,7 @@ target_link_libraries(TestDataAccess
 	DataAccess
 	SerialDataAccess
 	TableIO
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS TestDataAccess

@@ -117,7 +117,7 @@ source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
 
-add_library( GeoPhysics STATIC
+add_library( GeoPhysics 
 	${all_srcs}
 	${all_headers}
 )
@@ -126,7 +126,7 @@ bm_include_libraries(
         ${all_dependent_libs}
 )
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(GeoPhysics
@@ -144,38 +144,37 @@ install(TARGETS GeoPhysics
 
 add_gtest(NAME GeoPhysics::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.C
-   LIBRARIES GeoPhysics
+   LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::PermeabilitySandStone
    SOURCES test/PermeabilitySandStone.C
-   LIBRARIES GeoPhysics
+   LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::PermeabilityMudStone
       SOURCES test/PermeabilityMudStone.C
-      LIBRARIES GeoPhysics
+      LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
       SOURCES test/PermeabilityMultiPoint.C
-      LIBRARIES GeoPhysics
+      LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::VitriniteReflectance
       SOURCES test/VitriniteReflectance.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics
+      LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::VreTtiMethod
       SOURCES test/VreTtiMethod.C test/InputGrid.C test/OutputGrid.C
-
-      LIBRARIES GeoPhysics
+      LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::VreArrheniusMethod
       SOURCES test/VreArrheniusMethod.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics
+      LIBRARIES GeoPhysics SerialDataAccess
 )
 
 # Local Variables:

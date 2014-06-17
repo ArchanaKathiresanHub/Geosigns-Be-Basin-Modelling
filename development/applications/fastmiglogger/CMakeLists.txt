@@ -23,8 +23,7 @@ bm_include_libraries(
 )
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(fastmiglogger
@@ -33,7 +32,7 @@ target_link_libraries(fastmiglogger
 	DataAccess
 	SerialDataAccess
 	TableIO
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS fastmiglogger

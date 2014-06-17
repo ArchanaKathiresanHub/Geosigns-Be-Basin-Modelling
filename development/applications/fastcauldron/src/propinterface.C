@@ -752,13 +752,6 @@ bool AppCtx::getCommandLineOptions() {
     Output_Level = 0;
   }
 
-  // check if Gempis output is requested
-  //  ierr = PetscOptionsHasName (PETSC_NULL, "-gempis", &DoGempis ); CHKERRQ(ierr);
-  //if ( DoGempis )
-  //  {
-  //    Gempis::instance()->activate();
-  //  }
-
   PetscFunctionReturn(NO_ERROR);
 }
 

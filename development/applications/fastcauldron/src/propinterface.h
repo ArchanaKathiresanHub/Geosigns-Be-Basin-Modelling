@@ -425,7 +425,6 @@ public:
    PetscBool DoDecompaction;
    PetscBool DoHighResDecompaction;
    PetscBool DoTemperature;
-   PetscBool DoGempis;
    PetscBool DoHDFOutput;
    PetscBool doGenex;
    PetscBool m_doOutputAtAge;

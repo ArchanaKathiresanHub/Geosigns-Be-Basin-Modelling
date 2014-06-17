@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+ <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildProjectDirectory)\BasinModeling.Linux.Props.xml" />
+
+  <PropertyGroup>
+     <memcheck>SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/development/BuildProjects/Linux-MemCheck.sh $(OtherCMakeParams)</memcheck>
+  </PropertyGroup>
+
+  <Target Name="Build">
+    <Exec Command="$(init_remote_dirs)" />
+    <Exec Command="$(copy_code)" WorkingDirectory="$(solution_root)"/>
+    <Exec Command="$(memcheck)" />
+
+    <CallTarget Targets="PublishJUnitFromLinux" ContinueOnError="true"/>
+  </Target>  
+  
+</Project>

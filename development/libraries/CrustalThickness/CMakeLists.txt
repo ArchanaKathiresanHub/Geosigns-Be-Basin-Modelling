@@ -30,15 +30,14 @@ bm_include_libraries(
 remove_definitions(-fPIC)
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(CrustalThickness
-	SerialDataAccess
 	DataAccess
 	TableIO
 	Serial_Hdf5
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS CrustalThickness

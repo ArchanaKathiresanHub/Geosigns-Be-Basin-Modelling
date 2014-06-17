@@ -16,7 +16,6 @@ using namespace std;
 
 #include "System.h"
 #include "globaldefs.h"
-//#include "Gempis.h"
 
 PetscLogDouble StartTime, EndTime;
 PetscLogDouble CalculationTime;
@@ -174,13 +173,6 @@ void displayTime(const bool debug, const char* str)
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
   cout << str << hrs << " Hrs. " << mins << " Mins. " << secs << " Sec." << endl;
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-
-  // send Gempis time as well
-  //  {
-  //  char buffer[ 256 ];
-  //  sprintf( buffer, "2 %02ld:%02ld:%02ld\n", hrs, mins, secs );
-  //  Gempis::instance()->send( LOG, buffer );
-  //  }
 }
 
 void getElapsedTime(char* str)

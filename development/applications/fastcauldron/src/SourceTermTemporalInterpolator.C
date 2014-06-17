@@ -12,7 +12,7 @@ SourceTermTemporalInterpolator::SourceTermTemporalInterpolator ( const Formation
 SourceTermTemporalInterpolator::~SourceTermTemporalInterpolator () {
 }
 
-const typename SourceTermInterpolatorCalculator::MultiInterpolator& SourceTermTemporalInterpolator::access ( const LayerElement& element ) const {
+const SourceTermInterpolatorCalculator::MultiInterpolator& SourceTermTemporalInterpolator::access ( const LayerElement& element ) const {
 
 
 
@@ -27,7 +27,7 @@ void SourceTermTemporalInterpolator::initialize ( const LayerElement& element ) 
                               element.getJPosition ()      - m_indexTransformation [ 1 ],
                               element.getLocalKPosition () - m_indexTransformation [ 2 ]).m_isComputed ) {
 
-      typename MultiInterpolator::CoefficientArray allLambdas;
+      MultiInterpolator::CoefficientArray allLambdas;
       
       double x = 0.0;
       // Check for Degree = 0.

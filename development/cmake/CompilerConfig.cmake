@@ -13,12 +13,20 @@
 include(cmake/AddPackage.cmake)
 include(cmake/EnvSetup.cmake)
 
-if (UNIX)
+
+set(INTEL_CXX_ROOT "/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
+
+if (DEFINED ENV{CXX} )
+    
+   # Then just autodetect
+   enable_language(CXX)
+
+elseif(UNIX)
 
    #
    # On Shell Global Linux: Choose the Intel compiler
    #
-   set(INTEL_CXX_ROOT "/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
+   set(INTEL_COMPILER)
 
    # Generate compiler wrapper that loads environment
    set(BM_COMPILER_ENVIRONMENT_SETUP "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")

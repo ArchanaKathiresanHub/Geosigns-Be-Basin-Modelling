@@ -16,10 +16,7 @@ add_executable(UnitTestOTGC6
 )
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries
-	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
-	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
+	${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
@@ -43,7 +40,7 @@ target_link_libraries(UnitTestOTGC6
 	OTGC_kernel6
 	TableIO
 	utilities
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS UnitTestOTGC6

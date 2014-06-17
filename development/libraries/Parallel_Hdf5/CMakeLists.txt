@@ -12,7 +12,7 @@
 
 if (BM_PARALLEL)
 
-	add_library( Parallel_Hdf5 STATIC
+	add_library( Parallel_Hdf5
 		src/h5_vector_conversions.C
 		src/h5_parallel_file_types.C
 		src/petscvector_readwrite.C
@@ -24,10 +24,8 @@ if (BM_PARALLEL)
 		Utilities_Petsc
 	)
 
-	add_definitions(${HDF5_parallel_DEFINITIONS})
-
 	include_directories(
-		${HDF5_parallel_INCLUDE_DIRS}
+		${HDF5_INCLUDE_DIRS}
 		${MPI_INCLUDE_DIRS}
 		${PETSC_INCLUDE_DIRS}
 	)

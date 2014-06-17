@@ -44,9 +44,7 @@ bm_include_libraries(
 )
 
 include_directories(
-	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
-	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet
 )
 
@@ -57,7 +55,7 @@ target_link_libraries(cauldron2voxet
 	Serial_Hdf5
 	CBMGenerics
 	utilities
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 get_target_property(PARSPEC_EXEC parspec LOCATION)

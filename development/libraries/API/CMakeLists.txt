@@ -16,7 +16,7 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(api STATIC
+add_library(api
 	${all_srcs}
 	${all_headers}
 )
@@ -30,7 +30,7 @@ bm_include_libraries(
 
 include_directories(
 	${SUMPP_INCLUDE_DIR}
-	${HDF5_serial_INCLUDE_DIRS} 
+	${HDF5_INCLUDE_DIRS} 
 	src
 )
 
@@ -56,15 +56,15 @@ configure_file(test/Ottoland.project3d Ottoland.project3d)
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.C
-   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_serial_LIBRARIES}
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
 )
 
 add_gtest( NAME DoETest
    SOURCES test/DoETest.C
-   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_serial_LIBRARIES}
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
 )
 
 add_gtest( NAME mbapiModelTest
    SOURCES test/mbapiModelTest.C
-   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_serial_LIBRARIES}
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
 )

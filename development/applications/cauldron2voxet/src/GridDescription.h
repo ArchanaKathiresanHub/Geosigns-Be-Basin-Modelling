@@ -3,9 +3,13 @@
 
 #include <istream>
 
-#include "database.h"
-#include "Grid.h"
+namespace database {
+   class Record;
+}
 
+namespace DataAccess { namespace Interface { 
+   class Grid;
+} }
 
 using namespace DataAccess;
 using namespace Interface;

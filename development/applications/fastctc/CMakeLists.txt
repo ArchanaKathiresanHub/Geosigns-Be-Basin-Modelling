@@ -19,7 +19,6 @@ add_executable(fastctc
 )
 
 bm_include_libraries(
-	DataMining
 	DataAccess
 	DistributedDataAccess
 	TableIO
@@ -34,15 +33,13 @@ bm_include_libraries(
 )
 
 include_directories(
-	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
-	${HDF5_parallel_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
 )
 
 target_link_libraries(fastctc
-	DataMining
 	DataAccess
 	DistributedDataAccess
 	TableIO
@@ -54,7 +51,7 @@ target_link_libraries(fastctc
 	LinearAlgebra
 	Interpolation
 	CrustalThickness
-	${HDF5_parallel_LIBRARIES}
+	${HDF5_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${FLEXLM_LIBRARIES}
 	${BM_MPI_LOCK_LIBRARIES}

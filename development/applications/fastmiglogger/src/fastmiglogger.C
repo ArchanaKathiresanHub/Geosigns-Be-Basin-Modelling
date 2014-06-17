@@ -9,36 +9,20 @@
 
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-      #include <iomanip>
-      #include <fstream>
-      #include <sstream>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include <iomanip.h>
-      #include <fstream.h>
-      #include <strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <iomanip>
-   #include <fstream>
-   #include <sstream>
-   using namespace std;
-#endif // sgi
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 
 // DataAccess API includes
-#include "Interface.h"
-#include "ProjectHandle.h"
-#include "Snapshot.h"
-#include "Trap.h"
-#include "Surface.h"
-#include "Formation.h"
-#include "Reservoir.h"
-#include "Grid.h"
+#include "Interface/Interface.h"
+#include "Interface/ProjectHandle.h"
+#include "Interface/Snapshot.h"
+#include "Interface/Trap.h"
+#include "Interface/Surface.h"
+#include "Interface/Formation.h"
+#include "Interface/Reservoir.h"
+#include "Interface/Grid.h"
 
 #include "EosPack.h"
 

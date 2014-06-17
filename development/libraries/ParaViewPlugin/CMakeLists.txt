@@ -11,7 +11,7 @@
 #########################################################################
 
 if (ParaView_FOUND)
-   include_directories(src ${HDF5_serial_INCLUDE_DIRS})
+   include_directories(src ${HDF5_INCLUDE_DIRS})
    bm_include_libraries(DataAccess TableIO)
 
    add_paraview_plugin(ParaViewReader "1.0" 
@@ -24,7 +24,7 @@ if (ParaView_FOUND)
          DataAccess
          TableIO
          SerialDataAccess
-         ${HDF5_serial_LIBRARIES}
+         ${HDF5_LIBRARIES}
    )
 
 endif()

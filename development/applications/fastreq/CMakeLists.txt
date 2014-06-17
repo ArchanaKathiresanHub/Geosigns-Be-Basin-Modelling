@@ -16,10 +16,8 @@ add_executable(fastreq
 	src/FastReqObjectFactory.C
 )
 
-add_definitions(-DUSEINTERFACE)
-
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
@@ -38,7 +36,7 @@ target_link_libraries( fastreq
 	Serial_Hdf5
 	CBMGenerics
 	utilities
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS fastreq

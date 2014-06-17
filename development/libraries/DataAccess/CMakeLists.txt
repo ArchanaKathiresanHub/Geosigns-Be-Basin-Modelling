@@ -16,7 +16,7 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(DataAccess STATIC
+add_library(DataAccess 
 	${all_srcs}
 	${all_headers}
 )
@@ -32,7 +32,7 @@ bm_include_libraries(
 
 include_directories( 
 	src
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(DataAccess 

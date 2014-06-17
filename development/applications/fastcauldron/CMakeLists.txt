@@ -134,17 +134,16 @@ add_executable(fastcauldron
         src/VreOutputGrid.C
 )
 
-add_definitions(${HDF5_parallel_DEFINITIONS})
 remove_definitions(-fPIC)
 
 include_directories(
-	${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
-	${PROJECT_SOURCE_DIR}/libraries
-	${HDF5_parallel_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/libraries
+	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
 	${EIGEN_INCLUDE_DIRS}
+        ${BLAS_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
@@ -156,9 +155,7 @@ bm_include_libraries(
 	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack
-	Gempis_Utilities	
 	TableIO
-	ThreadUtilities
 	LinearAlgebra
 	Interpolation
 	FiniteElements
@@ -178,9 +175,7 @@ target_link_libraries(fastcauldron
 	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack
-	Gempis_Utilities	
 	TableIO
-	ThreadUtilities
 	LinearAlgebra
 	Interpolation
 	FiniteElements
@@ -190,7 +185,7 @@ target_link_libraries(fastcauldron
 	GeoPhysics
 	calibration_kernel	
 	OTGC_kernel6
-	${HDF5_parallel_LIBRARIES}
+	${HDF5_LIBRARIES}
 	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${BLAS_LIBRARIES}
@@ -211,12 +206,12 @@ include_directories ( src ${EIGEN_INCLUDE_DIRS} )
 
 add_gtest( NAME VectorInterpolator
            SOURCES test/InterpolationTest.C 
-           LIBRARIES LinearAlgebra ${BLAS_LIBRARIES}
+           LIBRARIES LinearAlgebra ${BLAS_LIBRARIES} dl
            )
 
 add_gtest( NAME MatrixInterpolator
            SOURCES test/MatrixInterpolationTest.C
-           LIBRARIES LinearAlgebra ${BLAS_LIBRARIES} )
+           LIBRARIES LinearAlgebra ${BLAS_LIBRARIES} dl )
 
 add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
 	   SOURCES test/PceTest.C )

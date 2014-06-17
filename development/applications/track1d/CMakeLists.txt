@@ -14,8 +14,6 @@ add_executable(track1d
 	src/track1d.C
 )
 
-add_definitions(-DUSEINTERFACE)
-
 bm_include_libraries(
 	DataMining
 	DataAccess
@@ -32,7 +30,7 @@ bm_include_libraries(
 )
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(track1d
@@ -48,7 +46,7 @@ target_link_libraries(track1d
 	LinearAlgebra
 	Interpolation
 	FiniteElements
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS track1d

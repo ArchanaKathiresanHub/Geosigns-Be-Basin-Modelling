@@ -18,10 +18,8 @@ add_executable( fastgenex6
 	src/GenexSimulatorFactory.C
 )
 
-add_definitions(${HDF5_parallel_DEFINITIONS})
-
 include_directories(
-	${HDF5_parallel_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
@@ -57,7 +55,7 @@ target_link_libraries( fastgenex6
 	OTGC_kernel6
 	utilities
 	TableIO
-	${HDF5_parallel_LIBRARIES}
+	${HDF5_LIBRARIES}
 	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${BLAS_LIBRARIES}

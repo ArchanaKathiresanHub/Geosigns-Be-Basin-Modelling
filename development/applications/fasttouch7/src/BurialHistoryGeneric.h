@@ -126,7 +126,7 @@ namespace fasttouch
 /// instructs the relevant I/O operations to be carried out
 /// so that all necessary I/O is done one time. 
 template < class BurHistTimeStep >
-BurialHistory< BurHistTimeStep >::BurialHistory < BurHistTimeStep> (const Surface * surface, const Formation * formation,  
+BurialHistory< BurHistTimeStep >::BurialHistory(const Surface * surface, const Formation * formation,  
                               FastTouch * ft)
 : m_formation        (formation), 
   m_surface          (surface), 
@@ -153,7 +153,7 @@ BurialHistory< BurHistTimeStep >::BurialHistory < BurHistTimeStep> (const Surfac
 }
 
 template < class BurHistTimeStep >
-BurialHistory< BurHistTimeStep >::~BurialHistory< BurHistTimeStep > (void)
+BurialHistory< BurHistTimeStep >::~BurialHistory(void)
 {
    clearSnapshotMapMemory ();
    if ( m_burialHistoryTimestep )
@@ -170,7 +170,7 @@ BurialHistory< BurHistTimeStep >::~BurialHistory< BurHistTimeStep > (void)
 }
 
 template < class BurHistTimeStep >
-const BurialHistory< BurHistTimeStep >::BurialHistoryMap* BurialHistory< BurHistTimeStep >::returnAsMap (void)
+const typename BurialHistory< BurHistTimeStep >::BurialHistoryMap * BurialHistory< BurHistTimeStep >::returnAsMap (void)
 {
     return &m_burialHistoryMap;
 }

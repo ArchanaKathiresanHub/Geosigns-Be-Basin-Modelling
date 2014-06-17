@@ -13,7 +13,7 @@
 include_directories(
       tools
       ${CMAKE_SOURCE_DIR}/applications/xcauldron/src
-      ${HDF5_serial_INCLUDE_DIRS}
+      ${HDF5_INCLUDE_DIRS}
 )
 
 add_executable(benchmark

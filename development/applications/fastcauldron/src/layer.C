@@ -504,9 +504,6 @@ void LayerProps::connectElements ( LayerProps* layerAbove ) {
 
 LayerProps::~LayerProps(){
 
-   bool includedInDarcySimulation = FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()
-                                    and ( not isCrust () and not isMantle ());
-
    if ( depthvec != 0 ) {
       Destroy_Petsc_Vector(depthvec);
    }
@@ -568,6 +565,9 @@ LayerProps::~LayerProps(){
 
   Destroy_Petsc_Vector ( m_averagedSaturation );
 
+
+  PetscBool includedInDarcySimulation;
+  VecValid ( m_flowComponents, &includedInDarcySimulation);
   if ( includedInDarcySimulation ) {
      Destroy_Petsc_Vector ( m_transportedMasses );
      Destroy_Petsc_Vector ( m_flowComponents );

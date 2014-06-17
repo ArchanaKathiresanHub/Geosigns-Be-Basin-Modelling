@@ -22,12 +22,12 @@ add_library(OneFilePerProcess
 include_directories( 
 	src
         ${MPI_INCLUDE_DIRS}
-        ${HDF5_parallel_INCLUDE_DIRS}
+        ${HDF5_INCLUDE_DIRS}
         ${HDF5_SOURCE_DIR}/src
 )
 
 target_link_libraries(OneFilePerProcess
-      ${HDF5_parallel_LIBRARIES}
+      ${HDF5_LIBRARIES}
       ${MPI_LIBRARIES}
 )
 

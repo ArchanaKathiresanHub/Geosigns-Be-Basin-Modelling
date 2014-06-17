@@ -31,7 +31,7 @@ bm_include_libraries(
 )
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 
@@ -42,7 +42,7 @@ target_link_libraries(tracktraps
 	TableIO
 	utilities
 	CBMGenerics
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS tracktraps

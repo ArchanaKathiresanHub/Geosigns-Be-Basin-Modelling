@@ -61,11 +61,10 @@ add_executable( fastmig
 add_definitions(-DUSEOTGC)
 
 include_directories(
-	${PROJECT_SOURCE_DIR}/libraries
-	${PROJECT_SOURCE_DIR}/libraries/DataAccess/src/Interface
+        ${PROJECT_SOURCE_DIR}/libraries
 	${FLEXLM_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
-	${HDF5_parallel_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 )
 	
@@ -102,7 +101,7 @@ target_link_libraries(fastmig
 	functions
 	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
-	${HDF5_parallel_LIBRARIES}
+	${HDF5_LIBRARIES}
 	${BLAS_LIBRARIES}
 	${BM_MPI_LOCK_LIBRARIES}
 )

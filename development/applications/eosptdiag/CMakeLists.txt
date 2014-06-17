@@ -24,7 +24,7 @@ bm_include_libraries(
 )
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(eosptdiag
@@ -33,7 +33,7 @@ target_link_libraries(eosptdiag
 	TableIO
 	CBMGenerics
 	EosPack
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS eosptdiag

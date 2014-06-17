@@ -2,6 +2,8 @@
 #include "voxetschemafuncs.h"
 #include "cauldronschemafuncs.h"
 
+#include "Interface/Grid.h"
+
 
 GridDescription::GridDescription (       database::Record* cauldronRecord,
                                          database::Record* voxetRecord,

@@ -50,7 +50,7 @@ bm_include_libraries(
 include_directories(
 	..
 	src
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(genex6_kernel

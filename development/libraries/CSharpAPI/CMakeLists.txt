@@ -21,7 +21,7 @@ endif()
 include_directories(
    src/Swig
    ${SUMPP_INCLUDE_DIR}
-   ${HDF5_serial_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries( 

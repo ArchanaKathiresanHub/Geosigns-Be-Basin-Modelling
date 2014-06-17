@@ -4,7 +4,12 @@
 #include "array.h"
 
 // Data Access
-#include "Formation.h"
+#include "Interface/Formation.h"
+#include "Interface/PropertyValue.h"
+#include "Interface/GridMap.h"
+#include "Interface/Property.h"
+#include "Interface/Grid.h"
+#include "Interface/ProjectHandle.h"
 
 #undef Min
 #define Min(a,b)  ((a) < (b) ? (a) : (b))

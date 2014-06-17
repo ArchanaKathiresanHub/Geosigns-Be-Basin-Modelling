@@ -26,6 +26,13 @@ add_environment_variable( GENEX5DIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex50"
 add_environment_variable( GENEX6DIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex60")
 add_environment_variable( OTGCDIR "${PROJECT_SOURCE_DIR}/geocase/misc/OTGC")
 add_environment_variable( CTCDIR "${PROJECT_SOURCE_DIR}/geocase/misc")
+add_environment_variable( GEOCOSMBASEDIR "${TS7_ROOT}" )
+add_environment_variable( GEOCOSMDIR "${TS7_LIBRARY_DIR}")
+set(MatlabMCR "${TS7_ROOT}/3rdparty/matlabmcr/matlab/v713" )
+add_environment_variable( MATLABMCR "${MatlabMCR}" )
+add_environment_variable( XAPPLRESDIR "${MatlabMCR}/X11/app-defaults" )
+add_environment_variable( LD_LIBRARY_PATH "${MatlabMCR}/runtime/glnxa64:${MatlabMCR}/sys/os/glnxa64:${MatlabMCR}/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:${MatlabMCR}/sys/java/jre/glnxa64/jre/lib/amd64/server:${MatlabMCR}/sys/java/jre/glnxa64/jre/lib/amd64:${TS7_LIBRARY_DIR}:\$LD_LIBRARY_PATH")
+add_environment_variable( LANG "en_US.UTF-8" )
 
 # Setting the PATH variable to /apps/sssdev
 add_environment_path( "/apps/sssdev/share" )

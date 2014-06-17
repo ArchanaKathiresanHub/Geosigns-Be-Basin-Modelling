@@ -376,11 +376,12 @@ int main(int argc, char** argv)
    
    StatisticsHandler::print ();
    FastcauldronSimulator::finalise ( solverHasConverged and ( appctx->saveOnDarcyError () or not errorInDarcy ));
+   bool displayEndTime = appctx->debug1 or appctx->verbose;
    delete appctx;
 
    // Close PetSc
    PetscFinalize ();
-   displayTime(appctx->debug1 or appctx->verbose,"End of simulation: ");
+   displayTime( displayEndTime, "End of simulation: ");
 
    #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0

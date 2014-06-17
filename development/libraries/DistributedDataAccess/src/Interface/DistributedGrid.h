@@ -17,7 +17,6 @@ namespace DataAccess
 {
    namespace Interface
    {
-      typedef int PetscInt;
       typedef int PetscMPIInt;
       bool operator==(const Grid & Grid1, const Grid & Grid2);
  

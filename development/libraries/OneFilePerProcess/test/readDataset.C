@@ -161,19 +161,26 @@ public:
          EXPECT_GE(status, 0);
 
          if( access == OpenWithAttr ) {
+            // initialize character buffer with nonsense data
             char attrData [64];
+            memset( attrData, 'X', sizeof(attrData) );
+
             hid_t attrId = H5Aopen_idx(dataset, 0 );   
             EXPECT_GE(attrId, 0);
     
+            // get the name of the attribute
             status = H5Aget_name( attrId, 64, attrData );   
             EXPECT_EQ(status, strlen( AttributeName ));
+            attrData[status] = '\0';
             
-            EXPECT_EQ ( 0, strcmp( AttributeName, attrData )  );
+            EXPECT_STREQ (  AttributeName, attrData );
 
+            // Read the attribute data (start with a buffer full of zeros)
+            memset( attrData, 0, sizeof(attrData) );
             status = H5Aread( attrId, H5T_C_S1, attrData );
             EXPECT_GE(status, 0);
             
-            EXPECT_EQ (  0, strcmp( attrData, AttributeData ));
+            EXPECT_STREQ (  AttributeData, attrData );
             
             status = H5Aclose( attrId );
             EXPECT_GE(status, 0);

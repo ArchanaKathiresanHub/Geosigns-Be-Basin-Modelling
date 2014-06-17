@@ -15,37 +15,31 @@ include(cmake/AddPackage.cmake)
 set (HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version")
 
 if(UNIX)
-# serial version
-   set (HDF5_serial_HOME ${HPC_HOME}/hdf5-intel/${HDF5_VERSION}/LinuxRHEL64_x86_64_53WS CACHE PATH "Home for serial HDF5")
-   set (HDF5_serial_FOUND TRUE)
-   set (HDF5_serial_INCLUDE_DIR ${HDF5_serial_HOME}/include) 
-   set (HDF5_serial_INCLUDE_DIRS ${HDF5_serial_INCLUDE_DIR}) 
-   find_library(HDF5_hdf5_serial_LIBRARY hdf5 PATHS "${HDF5_serial_HOME}/lib" NO_DEFAULT_PATH)
-   list (APPEND HDF5_serial_LIBRARIES ${HDF5_hdf5_serial_LIBRARY})
-   list (APPEND HDF5_serial_LIBRARIES z)
 
 # parallel version
-   set (HDF5_parallel_HOME ${HPC_HOME}/hdf5-intel-parallel/${HDF5_VERSION}/LinuxRHEL64_x86_64_53WS CACHE PATH "Home dir for parallel HDF5")
-   set (HDF5_parallel_FOUND TRUE)
-   set (HDF5_parallel_INCLUDE_DIR ${HDF5_parallel_HOME}/include)
-   set (HDF5_parallel_INCLUDE_DIRS ${HDF5_parallel_INCLUDE_DIR})
-   find_library(HDF5_hdf5_parallel_LIBRARY hdf5 PATHS "${HDF5_parallel_HOME}/lib" NO_DEFAULT_PATH)
-   list (APPEND HDF5_parallel_LIBRARIES ${HDF5_hdf5_parallel_LIBRARY})
-   list (APPEND HDF5_parallel_LIBRARIES z)
-   set(HDF5_parallel_DEFINITIONS "-DH5_HAVE_PARALLEL")
+   set (HDF5_HOME ${HPC_HOME}/hdf5-intel-parallel/${HDF5_VERSION}/LinuxRHEL64_x86_64_53WS CACHE PATH "Home dir for parallel HDF5")
+   set (HDF5_FOUND TRUE)
+
+   set (HDF5_INCLUDE_DIR ${HDF5_HOME}/include)
+   set (HDF5_INCLUDE_DIRS)
+   list (APPEND HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
+
+   find_library(HDF5_BASE_LIBRARY hdf5 PATHS "${HDF5_HOME}/lib" NO_DEFAULT_PATH)
+   find_library(HDF5_HL_LIBRARY hdf5_hl PATHS "${HDF5_HOME}/lib" NO_DEFAULT_PATH)
+   list (APPEND HDF5_LIBRARIES ${HDF5_HL_LIBRARY} ${HDF5_BASE_LIBRARY} z ${MPI_LIBRARIES})
 
 # HDF5 Source
    set(HDF5_SOURCE_DIR "${HPC_HOME}/hdf5-src/${HDF5_VERSION}" CACHE PATH "Source directory of HDF5")
 endif()
 
 if(WIN32)
-	set (HDF5_serial_HOME ${THIRD_PARTY_DIR}/hdf5.win${_64}/hdf5)
+	set (HDF5_HOME ${THIRD_PARTY_DIR}/hdf5.win${_64}/hdf5)
 	# serial version
-        set (HDF5_serial_FOUND TRUE)
-	set (HDF5_serial_INCLUDE_DIR ${HDF5_serial_HOME}/include)
-	set (HDF5_serial_INCLUDE_DIRS ${HDF5_serial_INCLUDE_DIR})
-	set (HDF5_hdf5_serial_LIBRARY ${HDF5_serial_HOME}/lib/hdf5.lib )
-	list (APPEND HDF5_serial_LIBRARIES ${HDF5_hdf5_serial_LIBRARY})
+        set (HDF5_FOUND TRUE)
+	set (HDF5_INCLUDE_DIR ${HDF5_HOME}/include)
+	set (HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR})
+	set (HDF5_LIBRARY ${HDF5_HOME}/lib/hdf5.lib )
+	list (APPEND HDF5_LIBRARIES ${HDF5_LIBRARY})
 endif()
 
 add_external_package_info(
@@ -66,5 +60,5 @@ add_external_package_info(
       ECCN         "EAR99"
 )
       
-add_environment_path("${HDF5_serial_HOME}/bin")
+add_environment_path("${HDF5_HOME}/bin")
 

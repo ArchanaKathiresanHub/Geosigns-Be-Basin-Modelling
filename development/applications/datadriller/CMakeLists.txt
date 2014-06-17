@@ -31,7 +31,7 @@ bm_include_libraries(
 )
 
 include_directories(
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(datadriller
@@ -47,7 +47,7 @@ target_link_libraries(datadriller
 	LinearAlgebra
 	Interpolation
 	FiniteElements
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS datadriller

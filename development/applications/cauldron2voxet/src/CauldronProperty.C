@@ -1,6 +1,8 @@
 #include "CauldronProperty.h"
 #include "voxetschemafuncs.h"
 
+#include "Interface/ProjectHandle.h"
+
 CauldronProperty::CauldronProperty ( Interface::ProjectHandle* cauldronProjectHandle,
                                      VoxetProjectHandle*       voxetHandle,
                                      database::Record*         record ) :

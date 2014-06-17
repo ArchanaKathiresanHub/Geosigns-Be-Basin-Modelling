@@ -2,6 +2,8 @@
 #define FASTCAULDRON__VECTOR_INTERPOLATOR_H
 
 #include <tr1/array>
+#include <iostream>
+#include <iomanip>
 
 #include "Numerics.h"
 #include "Vector.h"
@@ -163,11 +165,11 @@ void VectorInterpolator<Size>::compute ( const CoefficientArray& xs,
 
 template<const unsigned int Size>
 void VectorInterpolator<Size>::print ( const unsigned int equation ) const {
-   cout << " coefficients " 
+   std::cout << " coefficients " 
         << std::setw ( 20 ) << m_coefficients [ equation ][ 2 ] << "  "
         << std::setw ( 20 ) << m_coefficients [ equation ][ 1 ] << "  "
         << std::setw ( 20 ) << m_coefficients [ equation ][ 0 ]
-        << endl;
+        << std::endl;
 }
 
 

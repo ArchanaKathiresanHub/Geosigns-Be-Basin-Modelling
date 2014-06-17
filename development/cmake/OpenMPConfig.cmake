@@ -13,10 +13,10 @@
 find_package(OpenMP)   
 
 if (UNIX)   
-   if (NOT BUILD_SHARED_LIBS)
+   if (NOT BUILD_SHARED_LIBS AND (DEFINED INTEL_COMPILER))
      set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} -openmp-link static")
    else()
-     set(OpenMP_CXX_FLAGS)
+     set(OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS})
    endif()
 endif()
 # There is no need to include 3rdparty information, because in our case it is

@@ -11,7 +11,7 @@
 #########################################################################
 
 if (BM_PARALLEL)
-	add_library( DistributedDataAccess STATIC
+	add_library( DistributedDataAccess
 		src/DistributedApplicationGlobalOperations.C
 		src/DistributedMapWriter.C
 		src/DistributedGridMap.C
@@ -32,7 +32,7 @@ if (BM_PARALLEL)
 		TableIO
 		utilities
 		CBMGenerics
-		${HDF5_parallel_LIBRARIES}
+		${HDF5_LIBRARIES}
 		${MPI_LIBRARIES}
 		${PETSC_LIBRARIES}
 	)
@@ -48,13 +48,10 @@ if (BM_PARALLEL)
 		CBMGenerics
 		)
 	
-	remove_definitions(-fPIC)
-	add_definitions(${HDF5_parallel_DEFINITIONS})
-
 	include_directories( 
 		src
 		${PETSC_INCLUDE_DIRS}
-		${HDF5_parallel_INCLUDE_DIRS}
+		${HDF5_INCLUDE_DIRS}
 		${MPI_INCLUDE_DIRS}
 	)
 

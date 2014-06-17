@@ -5,13 +5,17 @@
 #include <istream>
 #include <sstream>
 
-#include "Interface.h"
-#include "GridMap.h"
-#include "Grid.h"
-#include "../Interface/ProjectHandle.h"
-#include "Snapshot.h"
-#include "Property.h"
-#include "PropertyValue.h"
+#include "Interface/Interface.h"
+
+namespace DataAccess { namespace Interface {
+   class Property;
+   class Snapshot;
+   class PropertyValue;
+   class ProjectHandle;
+   class Grid;
+   class GridMap;
+} }
+
 
 using namespace DataAccess;
 using namespace Interface;

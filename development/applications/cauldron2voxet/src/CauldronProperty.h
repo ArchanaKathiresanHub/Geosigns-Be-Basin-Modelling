@@ -4,14 +4,19 @@
 #include <string>
 
 // Data-access
-#include "../Interface/ProjectHandle.h"
-#include "Property.h"
+namespace DataAccess { namespace Interface {
+   class ProjectHandle;
+   class Property;
+} }
 
 using namespace DataAccess;
 using namespace Interface;
 
 // Table-io
-#include "database.h"
+namespace database {
+   class Record;
+}
+
 
 // // Voxet-project
 // #include "VoxetProjectHandle.h"

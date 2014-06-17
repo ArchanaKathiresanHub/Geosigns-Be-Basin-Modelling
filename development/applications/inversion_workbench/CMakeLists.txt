@@ -24,16 +24,15 @@ add_executable(adjust
 
 include_directories(
     ${SUMPP_INCLUDE_DIR}
-    ${PROJECT_SOURCE_DIR}/libraries/SerialDataAccess/src/Interface
-    ${PROJECT_SOURCE_DIR}/libraries
     ${PROJECT_SOURCE_DIR}/applications/xcauldron/src
-    ${HDF5_serial_INCLUDE_DIRS}
+    ${HDF5_INCLUDE_DIRS}
     ${PETSC_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
     DataMining
     DataAccess
+    SerialDataAccess
     TableIO
     Interpolation
     LinearAlgebra
@@ -52,7 +51,6 @@ target_link_libraries(probe
     genex6_kernel
     genex6
     Interpolation
-    CrustalThickness
     LinearAlgebra
     OTGC_kernel6
     DataAccess
@@ -109,10 +107,6 @@ add_executable(cauldronexplorer
 )
 
 set( CAULDRON_EXPLORER_LINK_FLAGS "${OpenMP_CXX_FLAGS}")
-if (UNIX)
-   set( CAULDRON_EXPLORER_LINK_FLAGS "${CAULDRON_EXPLORER_LINK_FLAGS} -openmp-link static")
-endif()
-
 
 set_target_properties( cauldronexplorer
       PROPERTIES COMPILE_FLAGS "${OpenMP_CXX_FLAGS}" LINK_FLAGS "${CAULDRON_EXPLORER_LINK_FLAGS}"
@@ -129,7 +123,6 @@ target_link_libraries(cauldronexplorer
     genex6_kernel
     genex6
     Interpolation
-    CrustalThickness
     LinearAlgebra
     OTGC_kernel6
     DataAccess
@@ -203,7 +196,6 @@ add_gtest(NAME Experiment
                    genex6_kernel
                    genex6
                    Interpolation
-                   CrustalThickness
                    LinearAlgebra
                    OTGC_kernel6
                    DataAccess
@@ -237,7 +229,6 @@ add_gtest(NAME SUMPPDoE
                    genex6_kernel
                    genex6
                    Interpolation
-                   CrustalThickness
                    LinearAlgebra
                    OTGC_kernel6
                    DataAccess

@@ -22,9 +22,9 @@ add_library(Serial_Hdf5
 )
 
 
-include_directories(${HDF5_serial_INCLUDE_DIRS})
+include_directories(${HDF5_INCLUDE_DIRS})
 
-target_link_libraries(Serial_Hdf5 ${HDF5_serial_LIBRARIES})
+target_link_libraries(Serial_Hdf5 ${HDF5_LIBRARIES})
 
 	
 install(TARGETS Serial_Hdf5

@@ -30,7 +30,7 @@ bm_include_libraries(
 )
 
 include_directories(
-   ${HDF5_serial_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 generate_dox( src/SerialDataAccess.cfg )

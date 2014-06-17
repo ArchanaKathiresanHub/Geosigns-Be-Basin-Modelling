@@ -49,12 +49,10 @@ add_library(DataMining
 bm_include_libraries( 
 	FiniteElements 
 	utilities 
-	ThreadUtilities
 	Interpolation 
 	LinearAlgebra 
 	TableIO 
 	EosPack 
-	SerialDataAccess
 	DataAccess 
 	GeoPhysics 
 	CBMGenerics
@@ -62,24 +60,20 @@ bm_include_libraries(
 
 include_directories(
 	src
-	../SerialDataAccess/src/Interface
-	../DataAccess/src/Interface
-	${HDF5_serial_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(DataMining
 	FiniteElements
 	utilities
-	ThreadUtilities
 	Interpolation
 	LinearAlgebra
 	TableIO
 	EosPack
-	SerialDataAccess
 	DataAccess
 	GeoPhysics
 	CBMGenerics
-	${HDF5_serial_LIBRARIES}
+	${HDF5_LIBRARIES}
 )
 
 install(TARGETS DataMining

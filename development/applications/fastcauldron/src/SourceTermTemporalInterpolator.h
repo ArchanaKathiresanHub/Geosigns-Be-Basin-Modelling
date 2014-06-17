@@ -15,7 +15,7 @@ class SourceTermTemporalInterpolator {
 
 public :
 
-   typedef typename  SourceTermInterpolatorCalculator::MultiInterpolator MultiInterpolator;
+   typedef SourceTermInterpolatorCalculator::MultiInterpolator MultiInterpolator;
 
    SourceTermTemporalInterpolator ( const FormationSubdomainElementGrid&  subdomainGrid );
 
