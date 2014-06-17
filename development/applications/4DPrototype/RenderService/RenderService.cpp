@@ -20,7 +20,7 @@ void RenderService::start()
 	settings.setPort(8081);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
-	BpaServiceListener* serviceListener = new BpaServiceListener(this);
+	std::tr1::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener(this));
 	Service::instance()->addListener(serviceListener);
 
 	// Open the service by using the settings

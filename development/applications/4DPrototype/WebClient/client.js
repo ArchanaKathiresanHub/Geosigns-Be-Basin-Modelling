@@ -8,6 +8,7 @@ var fps = 0;
 var resizeTimer = null;
 var leftMargin = 300;
 var bottomMargin = 100;
+var timestamp = 0;
 
 function resizeCanvas()
 {
@@ -28,6 +29,12 @@ function receivedImage(length){
 	// call when receiving a new image from the service
 	dataSize += length;
 	fps += 1;
+	if(timestamp != 0)
+	{
+		var newtimestamp = window.performance.now();
+		console.log("latency: " + (newtimestamp - timestamp));
+		timestamp = 0;
+	}
 }
 
 function receivedMessage(message)
@@ -241,5 +248,6 @@ function scalefactor(){
 }
 	
 function snapshot(){
+	timestamp = window.performance.now();
 	theRenderArea.sendMessage("SNAPSHOT " + $("#slider_snapshot").val());
 }

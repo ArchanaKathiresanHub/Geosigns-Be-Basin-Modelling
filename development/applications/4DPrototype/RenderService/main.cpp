@@ -1,6 +1,9 @@
 #include "RenderService.h"
 #include "BpaServiceListener.h"
 
+#include <windows.h>
+#include <signal.h>
+
 #include <Visualization/SceneGraph.h>
 
 #include <MeshVizInterface/mapping/MoMeshviz.h>
@@ -12,6 +15,21 @@
 
 using namespace RemoteViz::Rendering;
 
+bool running; 
+
+void sleep(unsigned int time) // milliseconds
+{ 
+#if defined(_WIN32)
+  Sleep(time);
+#else
+  usleep(time * 1000);
+#endif
+}
+
+void sighandler(int sig)
+{
+  running = false;
+}
 //#define COMPILE_AS_SERVICE
 
 int main(int argc, char* argv[])
@@ -31,20 +49,34 @@ int main(int argc, char* argv[])
 	settings.setPort(8081);
   settings.setUsedExtensions(ServiceSettings::MESHVIZXLM | ServiceSettings::MESHVIZ);
 
-	BpaServiceListener serviceListener;
-	Service::instance()->addListener(&serviceListener);
+	std::tr1::shared_ptr<ServiceListener> serviceListener(new BpaServiceListener);
+	Service::instance()->addListener(serviceListener);
 
 	// Open the service by using the settings
-	Service::instance()->open(&settings);
+	if(Service::instance()->open(&settings))
+  {
+	  std::cout << "The BPA RenderService is running. Press Ctrl+C to stop." << std::endl;
 
-	std::cout << "The BPA RenderService is running. Press Enter to stop." << std::endl;
+    signal(SIGABRT, &sighandler);
+    signal(SIGTERM, &sighandler);
+    signal(SIGINT, &sighandler);
 
-	//wait, until 'Enter' is pressed.
-	std::string line;
-	std::getline(std::cin, line);
+    running = true;
 
-	// Close the service
-	Service::instance()->close();
+    while (running)
+    {
+      Service::instance()->dispatch();
+      sleep(1);
+    }
+
+	  // Close the service
+	  Service::instance()->close();
+  }
+  else
+  {
+    std::cout << "Error starting service" << std::endl;
+    sleep(5000);
+  }
 
   BpaVizFinish();
   MoMeshViz::finish();

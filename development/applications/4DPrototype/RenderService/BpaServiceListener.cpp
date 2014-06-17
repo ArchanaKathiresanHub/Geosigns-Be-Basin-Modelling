@@ -72,7 +72,7 @@ void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
   renderArea->getTouchManager()->addRecognizer(longTapRecognizer);
 	
 	// Add the renderAreaListener instance as renderArea listener
-  BpaRenderAreaListener* renderAreaListener = new BpaRenderAreaListener(renderArea);
+  std::tr1::shared_ptr<RenderAreaListener> renderAreaListener(new BpaRenderAreaListener(renderArea));
 	renderArea->addListener(renderAreaListener);
 }
 

@@ -6,7 +6,7 @@
 
 class BpaRenderAreaListener;
 class SceneGraph;
-//class Device;
+class Device;
 class RenderService;
 
 using namespace RemoteViz::Rendering;

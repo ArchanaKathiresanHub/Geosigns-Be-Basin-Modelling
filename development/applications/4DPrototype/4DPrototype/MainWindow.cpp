@@ -41,7 +41,12 @@ void MainWindow::loadProject(const QString& filename)
 {
   closeProject();
 
-  m_projectHandle = di::OpenCauldronProject(filename.toStdString(), "r");
+  {
+    //std::string file = filename.toStdString();
+    QByteArray barray = filename.toAscii();
+    const char* str = barray.data();
+    m_projectHandle = di::OpenCauldronProject(str, "r");
+  }
 
   const size_t subdiv = 1;
   m_sceneGraph = new SceneGraph;

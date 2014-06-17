@@ -40,10 +40,13 @@ void BpaRenderAreaListener::createSceneGraph()
 {
   std::cout << "Loading scenegraph..."<< std::endl;
 
-  const char* filename = "E:/Data/large/Project.project3d";
+  //const char* filename = "C:/bpa/data/small/Project.project3d";
+  const char* filename = "E:/Data/small/Project.project3d";
   //const char* filename = "C:/bpa/data/output_cauldron/Project.project3d";
 
   m_handle.reset(di::OpenCauldronProject(filename, "r"));
+
+  std::cout << "Project loaded!" << std::endl;
 
   SceneGraph* sceneGraph = new SceneGraph;
   sceneGraph->setup(m_handle.get());
@@ -121,7 +124,7 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
 void BpaRenderAreaListener::onClosedConnection(RenderArea* renderArea, const std::string& connectionId)
 {
   std::cout << "[BpaRenderAreaListener] onClosedConnection(renderArea = " << renderArea->getId() << ", connection = " << connectionId << ")" << std::endl;
-  if(renderArea->getNumConnection() == 0)
+  if(renderArea->getNumConnections() == 0)
   {
     renderArea->dispose();
   }
