@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <cstring>
 
 namespace casa
 {
@@ -63,7 +64,7 @@ void RunCaseImpl::addObservable( Observable * obs )
 // Mutate case to given project file
 void RunCaseImpl::mutateCaseTo( const char * newProjectName )
 {
-   if ( !newProjectName || !strlen( newProjectName ) ) throw std::runtime_error( "Mutated project file name undefined" );
+   if ( !newProjectName || !std::strlen( newProjectName ) ) throw std::runtime_error( "Mutated project file name undefined" );
 
    // save base case as a new project with given name
    if ( !m_baseCaseModel ) throw std::runtime_error( "Base case wasn't defined" );

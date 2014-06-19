@@ -8,6 +8,8 @@
 
 #include <string>
 #include <cstdlib>
+#include <cstdio>
+#include <algorithm>
 
 // This is not really a unit test but more an integration test: Testing the
 // integration of the virtual file driver within HDF5. 

@@ -7,6 +7,8 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <cstdio>
+#include <algorithm>
 
 // Tesing of the merging of "one file per process" output files into a one hdf file
 //

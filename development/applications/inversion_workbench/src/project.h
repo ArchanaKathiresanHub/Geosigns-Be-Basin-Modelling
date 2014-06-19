@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
+#include <typeinfo>
 
 namespace DataAccess { namespace Interface {
    class Formation;
