@@ -106,7 +106,7 @@ add_executable(cauldronexplorer
 	${generator_source_files}
 )
 
-set( CAULDRON_EXPLORER_LINK_FLAGS "${OpenMP_CXX_FLAGS}")
+set( CAULDRON_EXPLORER_LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}")
 
 set_target_properties( cauldronexplorer
       PROPERTIES COMPILE_FLAGS "${OpenMP_CXX_FLAGS}" LINK_FLAGS "${CAULDRON_EXPLORER_LINK_FLAGS}"

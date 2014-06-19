@@ -17,16 +17,20 @@ include(cmake/EnvSetup.cmake)
 set(INTEL_CXX_ROOT "/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
 
 if (DEFINED ENV{CXX} )
-    
-   # Then just autodetect
-   enable_language(CXX)
-
+   set(intel_compiler "OFF")
 elseif(UNIX)
+   set(intel_compiler "ON")
+else()
+   set(intel_compiler "OFF")
+endif()
+
+option(USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ${intel_compiler})
+   
+if (USE_INTEL_COMPILER AND UNIX)
 
    #
    # On Shell Global Linux: Choose the Intel compiler
    #
-   set(INTEL_COMPILER)
 
    # Generate compiler wrapper that loads environment
    set(BM_COMPILER_ENVIRONMENT_SETUP "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
@@ -97,8 +101,6 @@ else()
           CONTAINS_CRYPTO "Unknown"
           ECCN         "Unknown"
        )
-   else()
-      message(WARNING "Unknown compiler on unknown OS is used. It is not covered by the generated third party package list")
    endif()
 
 endif()
