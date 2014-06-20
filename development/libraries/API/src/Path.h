@@ -27,7 +27,9 @@ namespace ibs
 
    template <typename T> std::string to_string( const T & prm )
    {
-      return ( dynamic_cast<std::ostringstream &>( std::ostringstream() << prm ) ).str();
+      std::ostringstream oss;
+      oss << prm;
+      return oss.str();
    }
 
    /// @brief Parent class for ibs::File & ibs::Folder which keeps common functionality

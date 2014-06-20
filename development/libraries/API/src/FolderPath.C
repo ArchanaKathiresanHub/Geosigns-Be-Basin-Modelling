@@ -13,10 +13,40 @@
 
 #include "FolderPath.h"
 
+#include "boost/version.hpp"
+
 #include "boost/filesystem/operations.hpp"
+
+#if BOOST_VERSION < 103400
+
+#include "boost/filesystem/convenience.hpp"
+#include "boost/filesystem/exception.hpp"
+#include "boost/filesystem/path.hpp"
+
+#endif
 
 namespace ibs {
 
+static void convertBoostException( const boost::filesystem::filesystem_error & ex, const std::string & fnName, const std::string & pth )
+{
+#if BOOST_VERSION < 103400
+   int errCode = ex.error();
+   std::string msg = ex.what();
+
+   if ( errCode == boost::filesystem::security_error )
+#else         
+   std::string msg = ex.code.message();
+   if ( ex.code() == boost::system::errc::permission_denied )
+#endif
+   {
+      throw PathException() << "Permission is denied for one of the sub folders of files in the path " << pth <<
+                               ", the error message is " << msg;
+   }
+   else
+   {
+      throw PathException() << "FolderPath::" << fnName << "( " << pth << " ) failed with " << msg;
+   }
+}
 
 // Create folder
 void FolderPath::create()
@@ -28,18 +58,7 @@ void FolderPath::create()
          boost::filesystem::create_directories( m_path );
       }
    }
-   catch ( const boost::filesystem::filesystem_error & ex )
-   {
-      if ( ex.code() == boost::system::errc::permission_denied )
-      {
-         throw PathException() << "Permission is denied for one of the sub folders of files in the path " << m_path <<
-            ", the error message is " << ex.code().message();
-      }
-      else
-      {
-         throw PathException() << "Folder::create( " << m_path << " ) failed with " << ex.code().message();
-      }
-   }   
+   catch ( const boost::filesystem::filesystem_error & ex ) { convertBoostException( ex, "create", m_path ); }   
 }
 
 
@@ -53,18 +72,7 @@ void FolderPath::remove( )
          boost::filesystem::remove_all( m_path );
       }
    }
-   catch ( const boost::filesystem::filesystem_error & ex )
-   {
-      if ( ex.code() == boost::system::errc::permission_denied )
-      {
-         throw PathException() << "Permission is denied for one of the sub folders of files in the path " << m_path <<
-            ", the error message is " << ex.code().message();
-      }
-      else
-      {
-         throw PathException() << "Folder::remove( " << m_path << " ) failed with " << ex.code().message();
-      }
-   }
+   catch ( const boost::filesystem::filesystem_error & ex ) { convertBoostException( ex, "remove", m_path  ); }   
 }
 
 // Check if folder is empty
@@ -74,23 +82,13 @@ bool FolderPath::empty( ) const
    {
       return exists() ? boost::filesystem::is_empty( m_path ) : true;
    }
-   catch ( const boost::filesystem::filesystem_error & ex )
-   {
-      if ( ex.code() == boost::system::errc::permission_denied )
-      {
-         throw PathException() << "Permission is denied for one of the sub folders of files in the path " << m_path <<
-            ", the error message is " << ex.code().message();
-      }
-      else
-      {
-         throw PathException() << "Folder::is_empty( " << m_path << " ) failed with " << ex.code().message();
-      }
-   }
+   catch ( const boost::filesystem::filesystem_error & ex ) { convertBoostException( ex, "is_empty", m_path  ); }   
+
    return true;
 }
 
 // Delete all folder contents
-void FolderPath::clean( )
+void FolderPath::clean()
 {
    if ( exists() )
    {
@@ -98,25 +96,19 @@ void FolderPath::clean( )
       {
          for ( boost::filesystem::directory_iterator it( m_path ); it != boost::filesystem::directory_iterator(); ++it )
          {
-            if ( boost::filesystem::is_directory( it->path() ) )
+#if BOOST_VERSION < 103400
+            std::string pth = (*it).string();
+#else
+            std::string pth = it->path();
+#endif
+            if ( boost::filesystem::is_directory( pth ) )
             {
-               boost::filesystem::remove_all( it->path() );
+               boost::filesystem::remove_all( pth );
             }
-            else boost::filesystem::remove( it->path() );
+            else boost::filesystem::remove( pth );
          }
       }
-      catch ( const boost::filesystem::filesystem_error & ex )
-      {
-         if ( ex.code() == boost::system::errc::permission_denied )
-         {
-            throw PathException() << "Permission is denied for one of the sub folders of files in the path " << m_path <<
-                                     ", the error message is " << ex.code().message();
-         }
-         else
-         {
-            throw PathException() << "Folder::clean( " << m_path << " ) failed with " << ex.code().message();
-         }
-      }
+      catch ( const boost::filesystem::filesystem_error & ex ) { convertBoostException( ex, "clean", m_path  ); }   
    }
 }
 

@@ -16,6 +16,7 @@
 #include <stdio.h>
 
 #include "boost/filesystem/path.hpp"
+#include "boost/version.hpp"
 
 namespace ibs
 {
@@ -40,7 +41,12 @@ void FilePath::remove( )
 std::string FilePath::fileName() const
 {
    boost::filesystem::path bp( m_path );
+
+#if BOOST_VERSION < 103400
+   return bp.leaf();
+#else
    return bp.filename().string();
+#endif
 }
 
 }

@@ -15,8 +15,8 @@ include( cmake/AddPackage.cmake)
 
 if (UNIX)
 # On the Unix platform use the Boost C++ library that is available on Red Hat EL 5.x 
-   find_package( Boost 1.33.0 REQUIRED)
-   
+   find_package( Boost 1.33.0 REQUIRED COMPONENTS filesystem system)
+
    add_external_package_info(
       CAPABILITY BoostLib
       NAME    "Boost"
@@ -55,9 +55,8 @@ elseif(WIN32)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
 
-  
     find_package( Boost 1.55.0 REQUIRED COMPONENTS filesystem system )
-   
+
     add_external_package_info(
       CAPABILITY BoostLib
       NAME    "Boost"
