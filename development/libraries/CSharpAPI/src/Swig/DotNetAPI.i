@@ -124,6 +124,11 @@
 #include "../../../API/src/VarSpace.h"
 #include "../../../API/src/VarSpaceImpl.h"
 #include "../../../API/src/casaAPI.h"
+
+#include "../../../API/src/Path.h"
+#include "../../../API/src/FilePath.h"
+#include "../../../API/src/FolderPath.h"
+
 using namespace casa;
 %}
 
@@ -244,6 +249,10 @@ using namespace casa;
 %include "../../../API/src/VarSpaceImpl.h"
 %include "../../../API/src/casaAPI.h"
 
+%include "../../../API/src/Path.h"
+%include "../../../API/src/FilePath.h"
+%include "../../../API/src/FolderPath.h"
+
 
 %include <carrays.i>
 %array_functions(double, doubleArray);
@@ -339,4 +348,3 @@ using namespace casa;
 
 /// CASA API
 %template(CasesList) std::vector<casa::RunCase*>;
-

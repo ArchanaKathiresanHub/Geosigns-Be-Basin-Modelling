@@ -13,20 +13,15 @@
 
 #include "RunCaseImpl.h"
 
-#include <vector>
-#include <stdexcept>
 #include <cstring>
+#include <sstream>
+#include <vector>
 
 namespace casa
 {
 
 // Constructor
-RunCaseImpl::RunCaseImpl() : m_baseCaseModel( NULL ) {;}
-
-// Constructor
-RunCaseImpl::RunCaseImpl( mbapi::Model & baseCase ) : m_baseCaseModel( &baseCase )
-{
-}
+RunCaseImpl::RunCaseImpl() {;}
 
 // Destructor
 RunCaseImpl::~RunCaseImpl()
@@ -62,36 +57,55 @@ void RunCaseImpl::addObservable( Observable * obs )
 }
 
 // Mutate case to given project file
-void RunCaseImpl::mutateCaseTo( const char * newProjectName )
+void RunCaseImpl::mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName )
 {
-   if ( !newProjectName || !std::strlen( newProjectName ) ) throw std::runtime_error( "Mutated project file name undefined" );
+   if ( !newProjectName || !strlen( newProjectName ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::MutationError ) << "Mutated project file name is undefined";
+   }
 
    // save base case as a new project with given name
-   if ( !m_baseCaseModel ) throw std::runtime_error( "Base case wasn't defined" );
-   if ( ErrorHandler::NoError != m_baseCaseModel->saveModelToProjectFile( newProjectName ) )
+   if ( ErrorHandler::NoError != baseCase.saveModelToProjectFile( newProjectName ) )
    {
-      throw std::runtime_error( std::string( "Can't write mutated project: " ) + newProjectName );
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't write mutated project: " << newProjectName;
    }
 
    // create the new one
    m_model.reset( new mbapi::Model() );
    if ( ErrorHandler::NoError != m_model->loadModelFromProjectFile( newProjectName ) )
    {
-      throw std::runtime_error( std::string( "Can't read mutated project: " ) + newProjectName );
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't read mutated project: " << newProjectName;
    }
+
+   // store the project file name
+   m_modelProjectFileName = newProjectName;
 
    // apply mutations
    for ( size_t i = 0; i < m_prmsSet.size(); ++i )
    {
-      m_prmsSet[ i ]->setInModel( *(m_model.get()) );
+      m_prmsSet[ i ]->setInModel( *( m_model.get() ) );
    }
 
    // write mutated project to the file
    if ( ErrorHandler::NoError != m_model->saveModelToProjectFile( newProjectName ) )
    {
-      throw std::runtime_error( std::string( "Can't write mutated project: " ) + newProjectName );
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't write mutated project: " << newProjectName;
    }
 }
 
+/// Do checking, are all variable parameters case value in their ranges
+std::string RunCaseImpl::validateCase()
+{
+   if ( !m_model.get() ) return "Case can not be validated because cauldron model was not defined for this case";
+
+   std::ostringstream oss;
+   for ( size_t i = 0; i < m_prmsSet.size(); ++i )
+   {
+      // simple validation for the range
+      oss << m_prmsSet[ i ]->validate( *( m_model.get() ) );
+   }
+
+   return oss.str();
+}
 
 }

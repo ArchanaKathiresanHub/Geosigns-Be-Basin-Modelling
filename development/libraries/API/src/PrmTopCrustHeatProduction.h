@@ -44,6 +44,12 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
+      /// @brief Validate top crust heat production rate value if it is in positive range\n
+      ///        also it checks does the given model has the same value for this parameter.
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string on success or error message with current parameter value
+      virtual std::string validate( mbapi::Model & caldModel );
+
       /// @brief Get value for the parameter as double
       /// @return parameter value
       double value() const { return m_heatProdRateValue; }

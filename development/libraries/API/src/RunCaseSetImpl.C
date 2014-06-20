@@ -15,7 +15,6 @@
 #include "RunCaseImpl.h"
 
 #include <utility>
-#include <stdexcept>
 
 namespace casa
 {
@@ -94,7 +93,7 @@ void RunCaseSetImpl::addNewCases( std::vector<RunCase*> & newCases, const std::s
 
    if ( m_expSet.count( expLabel ) > 0 )
    {
-      throw std::runtime_error( std::string( "Experiment with name:" ) + expLabel + "already exist in the set" );
+      throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Experiment with name:" << expLabel << "already exist in the set";
    }
    else
    {

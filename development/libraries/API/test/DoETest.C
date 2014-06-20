@@ -376,8 +376,9 @@ TEST_F( DoETest, SetAlgorithmAgain )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
 
-   // set algorithm one more time - must be and error
-   ASSERT_NE( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::BoxBehnken ) );
+   // set algorithm one more time - should not be any error, RunCaseSet now can keep
+   // several set of experiments
+   ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::BoxBehnken ) );
 }
 
 TEST_F( DoETest, CheckAlgoNames )

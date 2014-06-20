@@ -32,9 +32,6 @@ namespace casa
       // Default constructor, used with Monte Carol cases
       RunCaseImpl();
 
-      // Constructor if we building case to run simulation
-      RunCaseImpl( mbapi::Model & baseCase );
-
       virtual ~RunCaseImpl();
 
       // Get number of parameters 
@@ -63,17 +60,20 @@ namespace casa
 
       // Mutate case to given project file
       // newProjectName name of the mutated project
-      virtual void mutateCaseTo( const char * newProjectName );
+      virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName );
+
+      /// Do checking, are all variable parameters case value in their ranges
+      /// if validation is OK, return empty string. otherwise - the list of validation\n
+      ///         failed parameters with theirs values
+      virtual std::string validateCase();
 
       // Get a model associated with this Case
       // return pointer to the model
       virtual mbapi::Model * caseModel() const { return m_model.get(); }
 
-
    private:
-      mbapi::Model              * m_baseCaseModel;        // Base case model from ScenarioAnalysis
       std::auto_ptr<mbapi::Model> m_model;                // Mutated model, available after mutateCaseTo call
-      std::string                 m_modelProjectFileName;
+      std::string                 m_modelProjectFileName; // full path to the project file
 
       std::vector<Parameter*>     m_prmsSet;
       std::vector<Observable*>    m_results;

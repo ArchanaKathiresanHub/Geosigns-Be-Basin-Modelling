@@ -22,13 +22,6 @@
 // SUMLib includes
 #include <BaseTypes.h>
 
-#include <memory>
-
-namespace mbapi
-{
-   class Model;
-}
-
 namespace SUMlib
 {
    class Case;
@@ -42,7 +35,7 @@ namespace casa
    class DoEGeneratorImpl : public DoEGenerator
    {
    public:
-      DoEGeneratorImpl( mbapi::Model & model, DoEGenerator::DoEAlgorithm algo );
+      DoEGeneratorImpl( DoEGenerator::DoEAlgorithm algo );
       virtual ~DoEGeneratorImpl();
 
       // Generate set of cases for DoE
@@ -51,9 +44,13 @@ namespace casa
       // [in]  runsNum number of runs for DoE algorithms which support this parameter
       // return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, RunCaseSet & rcSet, size_t runsNum = 0 );
+
+      // Get DoE type
+      // return DoE algorithm type
+      virtual DoEAlgorithm algorithm() { return m_typeOfDoE; }
+
       
    private:
-      mbapi::Model                       & m_baseModel;   
       DoEAlgorithm                         m_typeOfDoE;
 
       // Create SUMlib bounds.

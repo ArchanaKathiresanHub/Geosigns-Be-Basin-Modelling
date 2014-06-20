@@ -42,6 +42,10 @@ namespace casa
       // Set filter for experiments by experiment name
       virtual void filterByExperimentName( const std::string expName );
 
+      // Returns experiment name which was set as a filter
+      // return filter as a string, or empty string if it wasn't set
+      virtual std::string filter() const { return m_filter; }
+
       // Get all experiment names for this case set as an array
       virtual std::vector< std::string > experimentNames();
 

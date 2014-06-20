@@ -117,6 +117,10 @@ namespace casa
       /// @return DoE type name as string
       static std::string DoEName( DoEAlgorithm algo );
 
+      /// @brief Get DoE type
+      /// @return DoE algorithm type
+      virtual DoEAlgorithm algorithm() = 0;
+
    protected:
       DoEGenerator( ) {;}
    };

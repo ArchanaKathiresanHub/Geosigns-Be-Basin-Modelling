@@ -49,8 +49,14 @@ namespace casa
       virtual Observable * observable( size_t i ) const = 0;
 
       /// @brief Mutate case to given project file
+      /// @param baseCase base case of the scenario which will be mutated to a new case
       /// @param newProjectName the name of the mutated project
-      virtual void mutateCaseTo( const char * newProjectName ) = 0;
+      virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName ) = 0;
+
+      /// @brief Do checking, are all variable parameters case value in their ranges
+      /// @return if validation is OK, empty string. otherwise - the list of validation\n
+      ///         failed parameters with theirs values
+      virtual std::string validateCase() = 0;
 
       /// @brief Get a model associated with this Case
       /// @return pointer to the model

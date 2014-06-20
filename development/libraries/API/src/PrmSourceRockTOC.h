@@ -53,6 +53,13 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
+      /// @brief Validate TOC value if it is in [0:100] range, also it check are any source rock  \n
+      ///        lithology in the model with the same layer name, does the parameter value is the \n
+      ///        same as in source rock lithology.
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string on success or error message with current parameter value
+      virtual std::string validate( mbapi::Model & caldModel );
+
       /// @brief Get value for the parameter as double
       /// @return parameter value
       double value() const { return m_toc;  }

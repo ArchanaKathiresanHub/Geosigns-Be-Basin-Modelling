@@ -42,10 +42,14 @@ namespace casa
       /// @return pointer to RunCase object on success, or null pointer otherwise. User should not delete this object
       const RunCase * runCase( size_t i ) const { return (*this)[ i ]; }
 
-      /// @brief Filter RunCases which are correspond given experiment name. After applying filter size() and [] operator\n
-      ///        will return only expName related RunCases. Such filter allows to keep different DoE & MC runs in one container.
+      /// @brief Filtering run cases which are correspond to the given experiment name. After applying filter, the size() and [] operator\n
+      ///        will return only expName related run cases. Such filtering allows to keep different DoE & MC runs in one container.
       /// @param expName experiment name
       virtual void filterByExperimentName( const std::string expName ) = 0;
+
+      /// @brief Returns experiment name which was set as a filter
+      /// @return filter as a string, or empty string if it wasn't set
+      virtual std::string filter() const = 0;
 
       /// @brief Get all experiment names for this case set as an array
       /// @return list of experiment names as an array

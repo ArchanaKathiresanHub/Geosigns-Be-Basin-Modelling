@@ -18,6 +18,7 @@
 #include "cmbAPI.h"
 
 #include <cassert>
+#include <cmath>
 #include <sstream>
 #include <vector>
 
@@ -81,6 +82,45 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel 
    if ( ErrorHandler::NoError != ret ) return caldModel.moveError( mgr );
    
    return ErrorHandler::NoError;
+}
+
+// Validate TOC value if it is in [0:100] range
+std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
+{
+   std::ostringstream oss;
+
+   if (      m_toc < 0   ) oss << "TOC value for the layer " << m_layerName << ", can not be negative: " << m_toc << std::endl;
+   else if ( m_toc > 100 ) oss << "TOC value for the layer " << m_layerName << ", can not be more than 100%: " << m_toc << std::endl;
+
+   mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
+
+   bool layerFound = false;
+
+   // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
+   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
+   for ( std::vector<mbapi::SourceRockManager::SourceRockID>::const_iterator it = srIDs.begin(); it != srIDs.end(); ++it )
+   {
+      if ( mgr.layerName( *it ) == m_layerName )
+      {
+         layerFound = true;
+
+         const std::string & mapName = mgr.tocInitMapName( *it );
+         if ( !mapName.empty() )
+         {
+            oss << "Source rock lithology with ID " << *it << "for the layer " << m_layerName <<
+                   " has TOC already defined as a map" << std::endl;
+         }
+         else if ( ErrorHandler::NoError != mgr.errorCode() ) oss << mgr.errorCode() << std::endl;
+         
+         double mdlTOC = mgr.tocIni( *it );
+         if ( std::fabs( mdlTOC - m_toc ) > 1.e-8 ) oss << "Value of TOC in the model (" << mdlTOC <<
+                                                  ") is different from the parameter value (" << m_toc << ")" << std::endl;
+      }
+   }
+
+   if ( !layerFound ) oss << "There is no such layer in the model: " << m_layerName << std::endl;
+
+   return oss.str();
 }
 
 }

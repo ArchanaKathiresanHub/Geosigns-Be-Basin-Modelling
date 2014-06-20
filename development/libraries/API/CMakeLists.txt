@@ -26,6 +26,7 @@ bm_include_libraries(
    Serial_Hdf5
    TableIO
    DataAccess
+   utilities
 )
 
 include_directories(
@@ -39,6 +40,7 @@ target_link_libraries(api
    Serial_Hdf5
    TableIO
    DataAccess
+   utilities
    SUMlib
 )
 
@@ -56,15 +58,26 @@ configure_file(test/Ottoland.project3d Ottoland.project3d)
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.C
-   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME DoETest
    SOURCES test/DoETest.C
-   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME MutatorTest
+   SOURCES test/MutatorTest.C
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME ValidatorTest
+   SOURCES test/ValidatorTest.C
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 add_gtest( NAME mbapiModelTest
    SOURCES test/mbapiModelTest.C
-   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES}
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
+

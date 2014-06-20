@@ -14,6 +14,7 @@
 #ifndef ERROR_HANDLER_API
 #define ERROR_HANDLER_API
 
+#include "formattingexception.h"
 #include <string>
 
 /// @brief Class ErrorHandler keeps handling of error codes, error messages and is a base class for 
@@ -44,15 +45,23 @@ public:
    } ReturnCode;
    /// @}
 
+   struct Exception : formattingexception::BaseException<Exception>
+   {
+      Exception( ReturnCode errCode ) : m_errCode( errCode ) { ; }
+
+      ReturnCode errorCode() const { return m_errCode; }
+      ReturnCode m_errCode;
+   };
+
    /// @name Error handling functions
    /// @{
    /// @brief If any error is happened during interface call this function will return error message
    /// @return error message which is valid till next interface call.
-   std::string errorMessage() { return m_lastErrorMsg; }
+   std::string errorMessage() const { return m_lastErrorMsg; }
 
    /// @brief If any error is happened during interface call this function will return error code
    /// @return error code
-   ReturnCode  errorCode() { return m_retCode; }
+   ReturnCode  errorCode() const { return m_retCode; }
    /// @}
 
    /// @brief Report error and setup message and error code. Also used by an API objects which has no its own ErrorHandler

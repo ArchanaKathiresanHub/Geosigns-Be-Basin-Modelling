@@ -46,6 +46,11 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel ) = 0;
       
+      /// @brief Validate parameter value if it is in range of allowed values
+      /// @param caldModel reference to Cauldron model
+      /// @return empty string on success, or error message if validation fail
+      virtual std::string validate( mbapi::Model & caldModel ) = 0;
+
       // The following methods are used for testing  
       virtual bool isDouble() = 0;
       virtual double doubleValue() = 0;

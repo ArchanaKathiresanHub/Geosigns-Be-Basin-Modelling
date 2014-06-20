@@ -53,12 +53,10 @@ std::string DoEGenerator::DoEName( DoEAlgorithm algo )
    }
 }
 
-DoEGeneratorImpl::DoEGeneratorImpl( mbapi::Model & baseModel, DoEGenerator::DoEAlgorithm algo ) : 
-                  m_baseModel( baseModel )
-                , m_typeOfDoE( algo )
+DoEGeneratorImpl::DoEGeneratorImpl( DoEGenerator::DoEAlgorithm algo ) : m_typeOfDoE( algo )
 {
    // throwing exception from constructor is bad idea
-   if ( algo < TheFirstDoEAlgo || algo > TheLastDoEAlgo ) reportError( ErrorHandler::OutOfRangeValue, "Unknown DoE algorithm was given" );
+   if ( algo < TheFirstDoEAlgo || algo > TheLastDoEAlgo ) throw Exception( ErrorHandler::OutOfRangeValue ) << "Unknown DoE algorithm type was given";
 }
 
 DoEGeneratorImpl::~DoEGeneratorImpl()
@@ -152,7 +150,7 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
       RunCaseSetImpl & doeCases = dynamic_cast<RunCaseSetImpl &>( doeCaseSet );
       doeCases.addNewCases( expSet, DoEGenerator::DoEName( m_typeOfDoE ) );
    }
-   catch ( const Exception & e )
+   catch ( const ::Exception & e )
    {
          std::ostringstream oss;
          oss << "SUMlib exception caught on DoE case generation: " << e.what();
@@ -219,8 +217,6 @@ void DoEGeneratorImpl::addCase( const VarSpace & varSp, std::vector<RunCase*> & 
    const VarSpaceImpl & varSpace = dynamic_cast<const VarSpaceImpl &>( varSp );
 
    // create new CASA case
-   /// TODO: create here case with copy of base case model
-   // std::auto_ptr<RunCaseImpl> newCase( new RunCaseImpl( m_baseModel ) );
    std::auto_ptr<RunCaseImpl> newCase( new RunCaseImpl() );
 
    const std::vector<double>       & sumCntArray = cs.continuousPart();
