@@ -35,7 +35,7 @@ static void convertBoostException( const boost::filesystem::filesystem_error & e
 
    if ( errCode == boost::filesystem::security_error )
 #else         
-   std::string msg = ex.code.message();
+   std::string msg = ex.code().message();
    if ( ex.code() == boost::system::errc::permission_denied )
 #endif
    {
@@ -99,7 +99,7 @@ void FolderPath::clean()
 #if BOOST_VERSION < 103400
             std::string pth = (*it).string();
 #else
-            std::string pth = it->path();
+            std::string pth = it->path().string();
 #endif
             if ( boost::filesystem::is_directory( pth ) )
             {
