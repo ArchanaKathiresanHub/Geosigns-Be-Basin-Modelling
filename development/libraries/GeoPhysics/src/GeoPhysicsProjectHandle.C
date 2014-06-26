@@ -2403,7 +2403,7 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
 
          //cout << "calcFullCompactedThickness for " << Basin_Model -> layers[layerNr]->layername 
          //   << "[" << segmentNr << "]" << endl;
-         result &= calcFullCompactedThickness (i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness);
+         result &= calcFullCompactedThickness ( i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness, (*endOfEvent)->getX () );
 
          if (!result)
          {
@@ -2443,7 +2443,7 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
       bool added = newPolyf->AddPoint ((*endOfEvent)->getX (), 0.0);
 
       compThickness = (*endOfEvent)->getY ();
-      result &= calcFullCompactedThickness (i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness);
+      result &= calcFullCompactedThickness (i, j, overpressureCalculation, formation, compThickness, uncMaxVes.front (), fullCompThickness, (*endOfEvent)->getX() );
       if (!result)
       {
          cout << "Could not compute FCT (2)" << endl;
@@ -2505,13 +2505,14 @@ bool GeoPhysics::ProjectHandle::calcFullCompactedThickness ( const unsigned int 
                                                                    GeoPhysics::Formation* formation,
                                                              const double compThickness,
                                                                    double &uncMaxVes,
-                                                                   double &fullCompThickness ) {
+                                                             double &fullCompThickness,
+                                                             double age ) {
 
   bool result = true;
 
   double diffdensity;
 
-  const CompoundLithology* lithology = formation->getCompoundLithology ( i, j );
+  const CompoundLithology* lithology = formation->getCompoundLithologyArray ()( i, j, age ); 
   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
 
   if ( fluid != 0 and lithology->surfacePorosity () != 0.0 ) {

@@ -364,7 +364,8 @@ namespace GeoPhysics {
                                               GeoPhysics::Formation* formation,
                                         const double compThickness,
                                               double &uncMaxVes,
-                                              double &fullCompThickness );
+                                        double &fullCompThickness,
+                                        double age );
 
       /// Load constants from configuration file ( ALC mode )
       bool loadALCConfigurationFile( const string & cfgFileName );
