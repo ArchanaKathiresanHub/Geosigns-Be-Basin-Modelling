@@ -49,7 +49,7 @@ elseif(WIN32)
         set(BOOST_LIB_POSTFIX "")
     endif()
 
-    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64${BOOST_LIB_POSTFIX}")
+    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib${_64}${BOOST_LIB_POSTFIX}")
     
     if (NOT BUILD_SHARED_LIBS)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs

@@ -9,7 +9,7 @@
 // 
 
 /// @file RunCaseSet.h
-/// @brief This file keeps class declaration to manage the set of RunCases.
+/// @brief This file keeps class declaration to manage the set of run cases.
 
 #ifndef CASA_API_RUN_CASE_SET_H
 #define CASA_API_RUN_CASE_SET_H
@@ -21,7 +21,8 @@ namespace casa
 {
    class RunCase;
 
-   /// @brief 
+   /// @brief RunCaseSet class keep list of casa::RunCase objects and allows to manage them.
+   ///        Also it can filter objects in set depending on experiment name.
    class RunCaseSet
    {
    public:

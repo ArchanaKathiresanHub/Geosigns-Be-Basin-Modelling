@@ -72,7 +72,7 @@
 ///     -# casa::VarPrmContinuous continuous variable parameters set
 ///     -# casa::VarPrmCategorical categorical variable parameters set
 ///   - casa::RunCase - main class for keeping a single set of variable parameters value and observables from the simulation results
-///   - casa::RunCaseSet - container to keep a collection of casa::RunCases objects
+///   - casa::RunCaseSet - container to keep a collection of casa::RunCase objects
 ///   - casa::Parameter - base class for keeping a single parameter value. The following set of parameters is implemented now:
 ///     -# case::PrmSourceRockTOC - \subpage CASA_SourceRockTOCPage
 ///     -# case::PrmTopCrustHeatProduction - \subpage CASA_TopCrustHeatProductionPage
