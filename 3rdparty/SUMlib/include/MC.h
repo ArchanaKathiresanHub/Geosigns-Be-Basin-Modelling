@@ -32,7 +32,7 @@ public:
    // Virtual functions
    virtual double calcLh( const std::vector<double>& ) const { return 0; }
 
-   virtual bool acceptProposal( double logTransRatio, double& logAccRatio ) const { return McmcBase::acceptProposalImpl_MCMC_MC( logTransRatio, logAccRatio ); }
+   virtual bool acceptProposal( double logTransRatio, double& logAccRatio, RandomGenerator& rg ) const { return McmcBase::acceptProposalImpl_MCMC_MC( logTransRatio, logAccRatio, rg ); }
 
    virtual void calcRMSE(std::vector<double>&, std::vector<double>&, double&) const {}
 

@@ -35,13 +35,14 @@ CompoundProxyCollection::~CompoundProxyCollection()
 }
 
 void CompoundProxyCollection::calculate(
-               TargetCollection const&                targets,
-               std::vector<std::vector<bool> > const& case2Obs2Valid,
-               unsigned int                           order,
-               bool                                   modelSearch,
-               double                                 targetR2,
-               double                                 confLevel,
-               Partition const&                       partition
+               TargetCollection const&                                                 targets,
+               std::vector< std::vector< bool > > const&                               case2Obs2Valid,
+               unsigned int                                                            order,
+               bool                                                                    modelSearch,
+               double                                                                  targetR2,
+               double                                                                  confLevel,
+               Partition const&                                                        partition,
+               const std::vector< std::vector< ParameterTransforms::TransformType > >& parTransformsDef
                )
 {
    assert( case2Obs2Valid.size() == m_preparedCaseSet.size() );
@@ -52,16 +53,33 @@ void CompoundProxyCollection::calculate(
    deleteProxies();
 
    Partition part( partition );
-   m_parameterSpace.prepare( part);
+   m_parameterSpace.prepare( part );
    unsigned int n = m_parameterSpace.nbOfNonFixedOrdinalPars();
    unsigned int iObs = 0;
+
+   const size_t nContinuousPar = m_parameterSpace.nbOfNonFixedContinuousPars();
+
+   /// Copy needed in order to ensure that the parameter definitions are initialised.
+   std::vector< std::vector< ParameterTransforms::TransformType > > parTransformsDefCopy( parTransformsDef );
+
+   if ( parTransformsDefCopy.size() == 0 )
+   {
+      parTransformsDefCopy.assign( targets.size(), std::vector< ParameterTransforms::TransformType >( nContinuousPar, ParameterTransforms::transformNone ) );
+   }
+
+   assert( parTransformsDefCopy.size() == targets.size() );
 
    for ( TargetCollection::const_iterator t = targets.begin(); t != targets.end(); ++t )
    {
       std::vector<bool> caseValid;
       provideCaseValidity( case2Obs2Valid, (*t).size(), iObs, caseValid );
+
+      assert( parTransformsDefCopy[ iObs ].size() == nContinuousPar );
+      ParameterTransforms::ptr parTransforms( new ParameterTransforms( parTransformsDefCopy[ iObs ], m_parameterSpace ) );
+
+      m_proxies.push_back( new CompoundProxy( m_preparedCaseSet, caseValid, m_krigingData.get(), *t, n, order, modelSearch, targetR2, confLevel, part,  parTransforms ) );
+
       iObs++;
-      m_proxies.push_back( new CompoundProxy( m_preparedCaseSet, caseValid, m_krigingData.get(), *t, n, order, modelSearch, targetR2, confLevel, part ) );
    }
 }
 

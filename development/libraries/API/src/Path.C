@@ -18,6 +18,7 @@
 
 namespace ibs {
 
+// Check if given path is exist
 bool Path::exists() const
 {
    bool ret = false;
@@ -29,6 +30,7 @@ bool Path::exists() const
    return ret;
 }
 
+// Strip last element from the path (postfix operator)
 Path & Path::operator -- ( int unused )
 {
    if ( !m_path.empty() )
@@ -36,6 +38,31 @@ Path & Path::operator -- ( int unused )
       m_path = boost::filesystem::path( m_path ).branch_path().string();
    }
    return *this;
+}
+
+// Split path by path separator and return the number of elements in path
+size_t Path::size()
+{
+   int sz = 0;
+   boost::filesystem::path thePath( m_path );
+
+   for ( boost::filesystem::path::iterator it = thePath.begin(); it != thePath.end(); ++it )
+   {
+      if ( !(*it).empty() ) ++sz;
+   }
+   return sz;
+}
+
+// Path element accessor
+std::string Path::operator [] ( size_t i )
+{
+   boost::filesystem::path thePath( m_path );
+
+   boost::filesystem::path::iterator it = thePath.begin();
+
+   while( i > 0 && it != thePath.end() ) { ++it; --i; }
+   
+   return it != thePath.end() ? *it : "";
 }
 
 }

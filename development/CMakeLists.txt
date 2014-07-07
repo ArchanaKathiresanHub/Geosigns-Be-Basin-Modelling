@@ -176,7 +176,7 @@ if (UNIX)
    find_package(PETSC REQUIRED CONFIG)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(Touchstone REQUIRED CONFIG)
-
+   find_package(LSF REQUIRED CONFIG)
    
    if (BM_BUILD_QT3_APPS)
       find_package(Qt3 REQUIRED CONFIG)

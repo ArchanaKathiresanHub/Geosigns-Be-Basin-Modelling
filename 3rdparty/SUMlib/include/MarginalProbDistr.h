@@ -30,8 +30,6 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
 
   public:
 
-     using ProbDistr::calcLogPriorProb;
-
      /// Enumerates the types of parameter marginal distributions.
      enum Type {
         LogNormal,

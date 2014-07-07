@@ -49,4 +49,52 @@ std::string FilePath::fileName() const
 #endif
 }
 
+// Cut from the path filen name with extension and return back
+std::string FilePath::filePath() const
+{
+   boost::filesystem::path bp( m_path );
+
+#if BOOST_VERSION < 103400
+   return bp.branch_path().string();
+#else
+   return bp.parent_path().string();
+#endif
 }
+      
+// Extract from the path file name without extension
+std::string FilePath::fileNameNoExtension() const
+{
+   std::string fnne = fileName();
+
+   if ( !fnne.empty() )
+   {
+      size_t pp = fnne.rfind( '.' );
+      if ( pp != std::string::npos )
+      {
+         fnne = fnne.substr( 0, pp );
+      }
+   }
+
+   return fnne;
+}
+
+// Extract from the path file name extension
+std::string FilePath::fileNameExtension() const
+{
+   std::string fnne = fileName();
+
+   if ( !fnne.empty() )
+   {
+      size_t pp = fnne.rfind( '.' );
+      if ( pp != std::string::npos )
+      {
+         fnne = fnne.substr( pp+1 );
+      }
+      else fnne.clear();
+   }
+
+   return fnne;
+}
+
+}
+

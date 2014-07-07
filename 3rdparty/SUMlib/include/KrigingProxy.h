@@ -29,6 +29,7 @@ static const KrigingType DefaultKriging = GlobalKriging;
 
 class KrigingData;
 class KrigingWeights;
+class ParameterTransforms;
 
 class KrigingProxy : public ISerializable
 {
@@ -36,14 +37,16 @@ class KrigingProxy : public ISerializable
       KrigingProxy(KrigingData *kr = 0);
 
       /// Constructor.
-      /// @param [in] *proxyModel   pointer to polynomial proxy model
-      /// @param [in] *kr           pointer to Kriging data model
-      /// @param [in] parSet        the prepared cases
-      /// @param [in] caseValid     case validity indicator
-      /// @param [in] target        the target values corresponding to the cases
-      /// @param [in] nbOfOrdPars   number of prepared ordinal parameters
+      /// @param [in] *proxyModel         pointer to polynomial proxy model
+      /// @param [in] parameterTransforms parameter transforms to be applied on the cubic proxy.
+      /// @param [in] *kr                 pointer to Kriging data model
+      /// @param [in] parSet              the prepared cases
+      /// @param [in] caseValid           case validity indicator
+      /// @param [in] target              the target values corresponding to the cases
+      /// @param [in] nbOfOrdPars         number of prepared ordinal parameters
       KrigingProxy(
             CubicProxy *               proxyModel,
+            const ParameterTransforms& parameterTransforms,
             KrigingData *              kr,
             ParameterSet const&        parSet,
             std::vector<bool> const&   caseValid,
@@ -51,14 +54,16 @@ class KrigingProxy : public ISerializable
             unsigned int               nbOfOrdPars );
 
       /// Initialises all internal data structures from parSet, target, proxyModel and kr.
-      /// @param [in] *proxyModel   pointer to polynomial proxy model
-      /// @param [in] *kr           pointer to Kriging data model
-      /// @param [in] parSet        the scaled cases
-      /// @param [in] caseValid     case validity indicator
-      /// @param [in] target        the target values corresponding to the cases
-      /// @param [in] nbOfOrdPars   number of prepared ordinal parameters
+      /// @param [in] *proxyModel         pointer to polynomial proxy model
+      /// @param [in] parameterTransforms parameter transforms to be applied on the cubic proxy.
+      /// @param [in] *kr                 pointer to Kriging data model
+      /// @param [in] parSet              the prepared cases
+      /// @param [in] caseValid           case validity indicator
+      /// @param [in] target              the target values corresponding to the cases
+      /// @param [in] nbOfOrdPars         number of prepared ordinal parameters
       void initialise(
             CubicProxy *               proxyModel,
+            const ParameterTransforms& parameterTransforms,
             KrigingData *              kr,
             ParameterSet const&        parSet,
             std::vector<bool> const&   caseValid,

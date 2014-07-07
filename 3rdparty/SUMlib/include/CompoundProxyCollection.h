@@ -10,7 +10,7 @@
 #include "CompoundProxy.h"
 #include "Case.h"
 #include "ParameterSpace.h"
-
+#include "ParameterTransforms.h"
 
 namespace SUMlib {
 
@@ -58,14 +58,20 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
       /// @param [in] confLevel        needed for significance test of model increments
       /// @param [in] partition        list of flags, one for each parameter, to indicate
       ///                              whether the element should be included.
+      /// @param [in] parTransformsDef definition of observable dependent parameter transforms.
+      ///                              first index is observable index, second index is the SUMlib
+      ///                              parameter index. Vector can be empty, in that case no
+      ///                              transforms will be applied. Transforms are only applied on the
+      ///                              continuous, unfrozen, scalar parameters. @see SUMlib::ParameterTransforms.
       void calculate(
-            TargetCollection const&                targets,
-            std::vector<std::vector<bool> > const& case2Obs2Valid,
-            unsigned int                           order,
-            bool                                   modelSearch,
-            double                                 targetR2,
-            double                                 confLevel,
-            Partition const&                       partition
+            TargetCollection const&                                                 targets,
+            std::vector<std::vector<bool> > const&                                  case2Obs2Valid,
+            unsigned int                                                            order,
+            bool                                                                    modelSearch,
+            double                                                                  targetR2,
+            double                                                                  confLevel,
+            Partition const&                                                        partition,
+            const std::vector< std::vector< ParameterTransforms::TransformType > >& parTransformsDef = std::vector< std::vector< ParameterTransforms::TransformType > >()
             );
 
       /// Getter for the list of proxies

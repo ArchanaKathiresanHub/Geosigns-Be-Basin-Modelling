@@ -62,6 +62,12 @@ namespace casa
       /// @return pointer to the model
       virtual mbapi::Model * caseModel() const = 0;
 
+      /// @brief Get full path to the project path (including project file \n
+      ///        name. If this case has no project associated with it, it will return \n
+      ///        null pointer
+      /// @return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
+      virtual const char * projectPath() const = 0;
+
    protected:
       RunCase() { ; }
    };

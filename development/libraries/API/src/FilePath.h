@@ -32,9 +32,21 @@ namespace ibs {
       /// @brief delete file
       void remove();
 
-      /// @brief extract from the path file name
+      /// @brief Extract from the path file name
       /// @return file name which is usually the last part of the path
       std::string fileName() const;
+   
+      /// @brief Cut from the path a file name with extension and return back the rest
+      /// @return path to the file without file name
+      std::string filePath() const;
+      
+      /// @brief Extract from the path file name without extension
+      /// @return file name without extension
+      std::string fileNameNoExtension() const;
+
+      /// @brief Extract from the path file name extension
+      /// @return file name extension. If file has no extension, return empty string
+      std::string fileNameExtension() const;
 
    private:
    };

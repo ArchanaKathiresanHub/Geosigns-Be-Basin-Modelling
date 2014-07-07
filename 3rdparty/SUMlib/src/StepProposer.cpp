@@ -93,7 +93,7 @@ void StepProposer::proposeStep(
    // and return log( tr ) = 0.
    for ( size_t i = 0; i < p.size(); ++i )
    {
-      proposeRandomStep( p[i], tr[i] );
+      proposeRandomStep( m_rg, p[i], tr[i] );
    }
 }
 
@@ -104,6 +104,7 @@ void StepProposer::proposeStep(
  */
 
 void StepProposer::proposeRandomStep(
+            RandomGenerator& rg,
             std::vector<double>& p,    // In: p1, Out: p2
             double& tr ) const
 {
@@ -115,7 +116,7 @@ void StepProposer::proposeRandomStep(
       {
          // Propose a new value by drawing a random number within
          // a step size dp of the current p[i] value.
-         p[i] = p[i] - m_dp[i] + m_rg.uniformRandom() * ( 2 * m_dp[i] );
+         p[i] = p[i] - m_dp[i] + rg.uniformRandom() * ( 2 * m_dp[i] );
          if ( p[i] < m_min[i] )
          {
             p[i] = m_min[i] + ( m_min[i] - p[i] ); //bounce back
@@ -174,20 +175,17 @@ unsigned int StepProposer::proposeTornadoStep( std::vector<double>& p, unsigned 
    return proposedStep;
 }
 
-void StepProposer::adaptStepSize( double acceptanceRate )
+void StepProposer::adaptStepSize( std::vector<double>& acceptanceRate )
 {
    // The acceptance rate should be between 23 and 45 %
    // After: Roberts, Gelman and Gilks 1994
-   if ( acceptanceRate < 23.0 )
+   for ( size_t j = 0; j < m_dp.size(); ++j )
    {
-      for ( size_t j = 0; j < m_dp.size(); ++j )
+      if ( acceptanceRate[j] < 23.0 )
       {
          m_dp[j] = std::max<double>( 0.9 * m_dp[j], m_minDp[j] );
       }
-   }
-   if ( acceptanceRate > 45.0 )
-   {
-      for ( size_t j = 0; j < m_dp.size(); ++j )
+      else if ( acceptanceRate[j] > 45.0 )
       {
          m_dp[j] = std::min<double>( 1.1 * m_dp[j], m_maxDp[j] );
       }

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "BaseTypes.h"
+#include "ParameterTransforms.h"
 #include "Proxy.h"
 #include "SUMlib.h"
 
@@ -55,6 +56,8 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       /// @param [in]  targetR2       adjusted R^2 value above which we accept the model
       /// @param [in]  confLevel      needed for significance test of model increments
       /// @param [in]  partition      Parameters to include in initial polynomial
+      /// @param [in]  parTransforms  Transforms for parameters (@see ParameterTransforms). Zero pointer is not accepted.
+      ///                             Instantiate a default, trivial, transform instead.
       CompoundProxy(
             ParameterSet const&        parSet,
             std::vector<bool> const&   caseValid,
@@ -65,7 +68,8 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
             bool                       modelSearch,
             double                     targetR2,
             double                     confLevel,
-            Partition const&           partition
+            Partition const&           partition,
+            ParameterTransforms::ptr   parTransforms
            );
 
       /// Initialiser for the CompoundProxy.
@@ -79,6 +83,8 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       /// @param [in]  targetR2       adjusted R^2 value above which we accept the model
       /// @param [in]  confLevel      needed for significance test of model increments
       /// @param [in]  partition      Parameters to include in initial polynomial
+      /// @param [in]  parTransforms  Transforms for parameters (@see ParameterTransforms). Zero pointer is not accepted.
+      ///                             Instantiate a default, trivial, transform instead.
       void initialise(
             ParameterSet const&        parSet,
             std::vector<bool> const&   caseValid,
@@ -89,7 +95,8 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
             bool                       modelSearch,
             double                     targetR2,
             double                     confLevel,
-            Partition const&           partition
+            Partition const&           partition,
+            ParameterTransforms::ptr   parTransforms
             );
 
 
@@ -150,6 +157,10 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       // this way if the base changes all subclasses will get an increase of version
       virtual unsigned int getSerializationVersion() const;
 
+   private: // noncopyable
+      CompoundProxy( const CompoundProxy& );
+      CompoundProxy& operator=( const CompoundProxy& );
+
    private: // methods
 
       /// A pair of polynomial and kriging proxies
@@ -203,6 +214,8 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
 
       /// Adjusted R^2 of the CubicProxy
       double            m_adjustedR2;
+
+      ParameterTransforms::ptr m_parTransforms;
 
 };
 

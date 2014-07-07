@@ -336,6 +336,7 @@ ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
    m_mcCases.reset(    new RunCaseSetImpl() );
 
    m_runManager.reset( new RunManagerImpl() );
+
    m_dataDigger.reset( new DataDiggerImpl() );
    m_rsProxy.reset(    new RSProxyImpl()    );
    m_mcSolver.reset(   new MCSolverImpl()   );

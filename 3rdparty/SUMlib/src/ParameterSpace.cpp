@@ -396,6 +396,19 @@ unsigned int ParameterSpace::nbOfNonFixedOrdinalPars() const
    return nbOfPreparedOrdinals;
 }
 
+unsigned int ParameterSpace::nbOfNonFixedContinuousPars() const
+{
+   unsigned int nbOfPreparedConPars = 0;
+   for ( unsigned int i = 0; i < sizeCon(); ++i )
+   {
+      if ( ! isFixed( i ) )
+      {
+         nbOfPreparedConPars++;
+      }
+   }
+   return nbOfPreparedConPars;
+}
+
 void ParameterSpace::convert2origProxyIdx( IndexList& indexes ) const
 {
    // Shift the supplied local indices to the right places

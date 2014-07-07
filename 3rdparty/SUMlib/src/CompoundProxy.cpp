@@ -21,7 +21,7 @@ using std::vector;
 
 namespace SUMlib {
 
-static unsigned int  g_version(1);
+static unsigned int  g_version(2);
 
 CompoundProxy::CompoundProxy(
    KrigingData *krigingData)
@@ -41,13 +41,14 @@ CompoundProxy::CompoundProxy(
          bool                       modelSearch,
          double                     targetR2,
          double                     confLevel,
-         Partition const&           partition
+         Partition const&           partition,
+         ParameterTransforms::ptr   parTransforms
          )
 :
    m_krigingData(krigingData),
    m_adjustedR2(-1)
 {
-   initialise( parSet, caseValid, krigingData, targetSet, nbOfOrdPars, order, modelSearch, targetR2, confLevel, partition );
+   initialise( parSet, caseValid, krigingData, targetSet, nbOfOrdPars, order, modelSearch, targetR2, confLevel, partition, parTransforms );
 }
 
 CompoundProxy::~CompoundProxy()
@@ -65,7 +66,8 @@ void CompoundProxy::initialise(
          bool                       modelSearch,
          double                     targetR2,
          double                     confLevel,
-         Partition const&           partition
+         Partition const&           partition,
+         ParameterTransforms::ptr   parTransforms
          )
 {
    if ( parSet.empty() )
@@ -74,6 +76,9 @@ void CompoundProxy::initialise(
    }
    m_size = parSet.front().size();
    assert( nbOfOrdPars <= size() );
+
+   m_parTransforms = parTransforms;
+   assert( m_parTransforms.get() );
 
    Partition part( partition );
    if ( part.empty() )
@@ -116,8 +121,23 @@ bool CompoundProxy::calculateProxyPair(
       }
    }
    assert( validParSet.size() == targetSet.size() );
+
    ProxyEstimator estimator;
-   estimator.setParameterSet( validParSet );
+
+   if ( m_parTransforms->isTrivial() )
+   {
+      estimator.setParameterSet( validParSet );
+   }
+   else
+   {
+      ParameterSet transformedParSet( validParSet.size() );
+      for ( size_t i = 0; i < validParSet.size(); ++i )
+      {
+         transformedParSet[ i ] = m_parTransforms->apply( validParSet[ i ] );
+      }
+      estimator.setParameterSet( transformedParSet );
+   }
+
    estimator.setTargetSet( targetSet );
 
    // Compute Cubic proxy
@@ -128,7 +148,7 @@ bool CompoundProxy::calculateProxyPair(
    if ( candidate.proxy )
    {
       proxyPair.first.reset( candidate.proxy );
-      proxyPair.second.reset( new KrigingProxy( candidate.proxy, krigingData, parSet, caseValid, targetSet, nbOfOrdPars ) );
+      proxyPair.second.reset( new KrigingProxy( candidate.proxy, *m_parTransforms, krigingData, parSet, caseValid, targetSet, nbOfOrdPars ) );
       adjustedR2 = candidate.adjustedR2;
    }
 
@@ -152,7 +172,19 @@ void CompoundProxy::calcKrigingWeights( Parameter const& p, KrigingType krigingT
 double CompoundProxy::getProxyValue( Parameter const& p, KrigingType krigingType ) const
 {
    // call the appropriate proxies with the real-valued part of the parameter
-   double value = cubicProxy() ? cubicProxy()->getValue( p ) : 0.0;
+   double value = 0;
+   if ( cubicProxy() )
+   {
+      if ( m_parTransforms->isTrivial() )
+      {
+         value = cubicProxy()->getValue( p );
+      }
+      else
+      {
+         const Parameter& pTransformed = m_parTransforms->apply( p );
+         value = cubicProxy()->getValue( pTransformed );
+      }
+   }
    if ( krigingType != NoKriging && krigingProxy() )
    {
       value += krigingProxy()->getValue( p, krigingType );
@@ -164,7 +196,19 @@ double CompoundProxy::getProxyValue( Parameter const& p, KrigingType krigingType
 double CompoundProxy::getProxyValue( KrigingWeights const& krigingWeights, Parameter const& p, KrigingType krigingType ) const
 {
    // call the appropriate proxies as above
-   double value = cubicProxy() ? cubicProxy()->getValue( p ) : 0.0;
+   double value = 0;
+   if ( cubicProxy() )
+   {
+      if ( m_parTransforms->isTrivial() )
+      {
+         value = cubicProxy()->getValue( p );
+      }
+      else
+      {
+         const Parameter& pTransformed = m_parTransforms->apply( p );
+         value = cubicProxy()->getValue( pTransformed );
+      }
+   }
    if ( krigingType != NoKriging && krigingProxy() )
    {
       value += krigingProxy()->getValue( krigingWeights, p, krigingType ); //now with the already calculated (relevant) weights!
@@ -215,6 +259,16 @@ bool CompoundProxy::load( IDeserializer* deserializer, unsigned int version )
       m_adjustedR2 = -1;
    }
 
+   if ( version >= 2 )
+   {
+      m_parTransforms.reset( new ParameterTransforms() );
+      ok = ok && deserialize( deserializer, *m_parTransforms );
+   }
+   else
+   {
+      m_parTransforms.reset( new ParameterTransforms() );
+   }
+
    return ok;
 } // CompoundProxy::load()
 
@@ -243,6 +297,8 @@ bool CompoundProxy::save( ISerializer* serializer, unsigned int version ) const
    ok = ok && serialize( serializer, m_size);
 
    ok = ok && serialize( serializer, m_adjustedR2);
+
+   ok = ok && serialize( serializer, *m_parTransforms );
 
    return ok;
 } // CompoundProxy::save()

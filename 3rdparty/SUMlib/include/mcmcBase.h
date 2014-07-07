@@ -164,9 +164,19 @@ protected:
    double m_stddevfac;
 
    /**
-    * Percentage of proposals accepted in last MCMC iteration.
+    * Percentage of proposals accepted in last MCMC iteration of all chains
     */
    double m_acceptanceRate;
+
+   /**
+    * Number of proposals accepted in last MCMC iteration.
+    */
+   std::vector<int> m_nAccepted;
+
+   /**
+    * Number of proposals in last MCMC iteration.
+    */
+   std::vector<int> m_nProposed;
 
    /**
     * Log of maximum acceptance ratio above which MCMC convergence cannot occur.
@@ -180,6 +190,9 @@ protected:
 
    /// Reference to a random number generator used to accept/reject proposals.
    RandomGenerator &m_rg;
+
+   /// Private radom number generators for each Markov chain
+   std::vector<RandomGenerator> m_rngs;
 
    /**
     * Transition distribution manager to create proposals.
@@ -572,7 +585,7 @@ protected:
    /// @param[in]       logTransRatio  logarithm of the transition pdf ratio
    /// @param[in,out]   logAccRatio    logarithm of the acceptance ratio
    /// @returns true if parameter proposal is accepted, and false otherwise
-   virtual bool acceptProposal( double logTransRatio, double& logAccRatio ) const = 0;
+   virtual bool acceptProposal( double logTransRatio, double& logAccRatio, RandomGenerator& rg ) const = 0;
 
    /// Calcutate (log of) likelihoods for simulated results y.
    ///
@@ -598,7 +611,7 @@ protected:
    // Helper Impl functions (only used by MCMC and MC classes) to avoid code duplication
    bool convergenceImpl_MCMC_MC( std::vector<std::vector<double> >& sampleVar, double& stddev, const double lambda );
 
-   bool acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccRatio ) const;
+   bool acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccRatio, RandomGenerator& rg ) const;
 
    void doCatInit();
    

@@ -28,7 +28,7 @@ public:
    virtual ~MCMC(){}
 
    // Virtual functions
-   virtual bool acceptProposal( double logTransRatio, double& logAccRatio ) const { return McmcBase::acceptProposalImpl_MCMC_MC( logTransRatio, logAccRatio ); }
+   virtual bool acceptProposal( double logTransRatio, double& logAccRatio, RandomGenerator& rg ) const { return McmcBase::acceptProposalImpl_MCMC_MC( logTransRatio, logAccRatio, rg ); }
 
    // Impl functions
    virtual bool convergenceImpl( std::vector<std::vector<double> >& sampleVar, double& stddev, const double lambda, const unsigned int maxNbOfTrialsPerCycle );

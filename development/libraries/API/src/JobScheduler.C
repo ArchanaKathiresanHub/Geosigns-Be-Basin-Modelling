@@ -1,0 +1,446 @@
+//                                                                      
+// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+#include "ErrorHandler.h"
+#include "JobScheduler.h"
+
+#include <lsf/lsbatch.h>
+#include <iostream>
+#include <fstream>
+
+namespace casa
+{
+
+#ifdef WITH_LSF_SCHEDULER
+
+static char * s_lsfProjectName = "cldrn";
+
+class JobScheduler::Job
+{
+public:
+   Job() : m_lsfJobID( -1 ), m_isFinished( false )
+   {
+      // clean LSF structures
+      memset( &m_submit,     0, sizeof( m_submit ) ); 
+      memset( &m_submitRepl, 0, sizeof( m_submitRepl ) ); 
+
+      // Initialize LSF submit structure
+
+      // resource limits are initialized to default
+      for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
+
+      m_submit.numProcessors    = 1; // initial number of processors needed by a (parallel) job
+      m_submit.maxNumProcessors = 1; // max num of processors required to run the (parallel) job
+
+      // add project name (must be the same for all cauldron app)
+      m_submit.projectName = s_lsfProjectName;
+
+      m_submit.options = SUB_PROJECT_NAME;
+   }
+
+   ~Job()
+   {  // allocated by strdup
+      if ( m_submit.command ) free( m_submit.command );
+      if ( m_submit.jobName ) free( m_submit.jobName ); 
+      if ( m_submit.cwd )     free( m_submit.cwd     ); 
+      if ( m_submit.outFile ) free( m_submit.outFile ); 
+      if ( m_submit.errFile ) free( m_submit.errFile ); 
+   }
+
+   bool            m_isFinished;  // was this job finished?
+
+   // fields related to interaction with LSF
+   struct submit      m_submit;     //
+   struct submitReply m_submitRepl;  //
+   
+   LS_LONG_INT    m_lsfJobID;       // job ID in LSF
+};
+
+
+JobScheduler::JobScheduler( const std::string & clusterName )
+{
+   if ( !clusterName.empty() )
+   {
+      m_clusterName = clusterName;
+   }
+   else
+   {
+      // get cluster name
+      char * clusterName = ls_getclustername();
+      m_clusterName = clusterName ? clusterName : "Undefined";
+   }
+
+   // TODO make usage of cluster name
+
+   // initialize LSFBat library
+   if ( lsb_init( NULL ) < 0 ) throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "LSF Bat library initialization failed: " << ls_sysmsg();
+}
+
+
+JobScheduler::~JobScheduler()
+{
+   for ( std::vector<Job*>::iterator it = m_jobs.begin(); it != m_jobs.end(); ++it )
+   {
+      delete *it;     // clean array of scheduled jobs
+   }
+}
+
+// Add job to the list
+JobScheduler::JobID JobScheduler::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
+{
+   std::auto_ptr<Job> newJob;
+   newJob.reset( new Job() );
+   
+   ////////////////////////////////////////
+   /// Prepare job to submit through LSF
+   newJob->m_submit.cwd     = strdup( cwd.c_str() );
+   newJob->m_submit.command = strdup( scriptName.c_str() );
+   newJob->m_submit.jobName = strdup( jobName.c_str() );
+
+   // stdout/stderr 
+   newJob->m_submit.outFile = strdup( (jobName + ".out" ).c_str() );
+   newJob->m_submit.errFile = strdup( (jobName + ".err" ).c_str() );
+
+   newJob->m_submit.options  |= SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
+   newJob->m_submit.options3 |= SUB3_CWD;
+
+   newJob->m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
+   newJob->m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
+
+   m_jobs.push_back( newJob.release() );
+
+   return m_jobs.size() - 1; // the position of the new job in the list is it JobID
+}
+
+// run job
+void JobScheduler::runJob( JobID job )
+{
+   if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no such job in the queue";
+
+   if ( m_jobs[job]->m_lsfJobID < 0 )
+   {
+      // spawn job to the cluster
+      m_jobs[job]->m_lsfJobID = lsb_submit( &(m_jobs[job]->m_submit), &(m_jobs[job]->m_submitRepl) );
+      if ( m_jobs[job]->m_lsfJobID < 0 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Submition job " << m_jobs[job]->m_submit.command << " to the cluster failed," 
+                                                      << "LSF error: " << lsberrno << ", message: " << lsb_sysmsg();
+      } 
+   }
+}
+
+// get job state
+JobScheduler::JobState JobScheduler::jobState( JobID id )
+{
+   if ( id >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
+
+   Job * job = m_jobs[id];
+   if ( job->m_lsfJobID < 0 ) return NotSubmittedYet;  // job wasn't submitted yet
+
+   if ( job->m_isFinished ) return JobFinished; // if job was finished already for some reason, do not check again
+
+   // something still on the cluster, check status
+   if ( lsb_openjobinfo( job->m_lsfJobID, NULL, NULL, NULL, NULL, ALL_JOB ) < 0 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
+   }
+
+   int more;                   /* number of remaining jobs unread */
+   struct jobInfoEnt * jobInfo = lsb_readjobinfo( &more ); // detailed job info
+
+   if ( !jobInfo )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
+   }
+
+   lsb_closejobinfo();
+   
+   if ( jobInfo->status & JOB_STAT_DONE )
+   {
+      job->m_isFinished = true;
+      return JobSucceeded;   // job is completed successfully
+   }
+
+   if ( jobInfo->status & JOB_STAT_RUN    ) return JobRunning;     // job is running
+   
+   if ( jobInfo->status & JOB_STAT_WAIT  || // chunk job waiting its execution turn
+        jobInfo->status & JOB_STAT_PEND  || // job is pending
+        jobInfo->status & JOB_STAT_PSUSP || // job is held                          
+        jobInfo->status & JOB_STAT_SSUSP || // job is suspended by LSF batch system
+        jobInfo->status & JOB_STAT_USUSP ) // job is suspended by user
+   {
+      return JobPending;
+   }
+   
+   if ( jobInfo->status & JOB_STAT_EXIT   )
+   {
+      job->m_isFinished = true;
+      return JobFailed; // job exited
+   }
+
+   return Unknown;   // unknown status
+}
+
+void JobScheduler::printLSFBParametersInfo()
+{
+   struct parameterInfo * lsfbPrms = lsb_parameterinfo( NULL, NULL, 0 );
+   if ( !lsfbPrms )
+   {
+      return throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << ls_sysmsg();
+   }
+   
+   std::cout << lsfbPrms->defaultQueues                << ": DEFAULT_QUEUE: A blank_separated list of queue names for automatic queue selection. " << std::endl;
+   std::cout << lsfbPrms->defaultHostSpec              << ": DEFAULT_HOST_SPEC: The host name or host model name used as the system default for scaling CPULIMIT and RUNLIMIT. " << std::endl;
+   std::cout << lsfbPrms->mbatchdInterval              << ": MBD_SLEEP_TIME: The interval in seconds at which the mbatchd dispatches jobs. " << std::endl;
+   std::cout << lsfbPrms->sbatchdInterval              << ": SBD_SLEEP_TIME: The interval in seconds at which the sbatchd suspends or resumes jobs. " << std::endl;
+   std::cout << lsfbPrms->jobAcceptInterval            << ": JOB_ACCEPT_INTERVAL: The interval at which. a host accepts two successive jobs. (In units of SBD_SLEEP_TIME.) " << std::endl;
+   std::cout << lsfbPrms->maxDispRetries               << ": MAX_RETRY: The maximum number of retries for dispatching a job. " << std::endl;
+   std::cout << lsfbPrms->maxSbdRetries                << ": MAX_SBD_FAIL: The maximum number of retries for reaching an sbatchd. " << std::endl;
+   std::cout << lsfbPrms->preemptPeriod                << ": PREEM_PERIOD: The interval in seconds for preempting jobs running on the same host. " << std::endl;
+   std::cout << lsfbPrms->cleanPeriod                  << ": CLEAN_PERIOD: The interval in seconds during which finished jobs are kept in core. " << std::endl;
+   std::cout << lsfbPrms->maxNumJobs                   << ": MAX_JOB_NUM: The maximum number of finished jobs that are logged in the current event file. " << std::endl;
+   std::cout << lsfbPrms->historyHours                 << ": HIST_HOURS: The number of hours of resource consumption history used for fair share scheduling and scheduling within a host partition. " << std::endl;
+   std::cout << lsfbPrms->pgSuspendIt                  << ": PG_SUSP_IT: The interval a host must be idle before resuming a job suspended for excessive paging. " << std::endl;
+   std::cout << lsfbPrms->defaultProject               << ": The default project assigned to jobs. " << std::endl;
+   std::cout << lsfbPrms->retryIntvl                   << ": Job submission retry interval " << std::endl;
+   std::cout << lsfbPrms->nqsQueuesFlags               << ": For Cray NQS compatiblilty only. Used by LSF to get the NQS queue information " << std::endl;
+   std::cout << lsfbPrms->nqsRequestsFlags             << ": nqsRequestsFlags " << std::endl;
+   std::cout << lsfbPrms->maxPreExecRetry              << ": The maximum number of times to attempt the preexecution command of a job from a remote cluster (MultiCluster only) " << std::endl;
+   std::cout << lsfbPrms->localMaxPreExecRetry         << ": Maximum number of pre-exec retry times for local cluster" << std::endl;
+   std::cout << lsfbPrms->eventWatchTime               << ": Event watching Interval in seconds" << std::endl;
+   std::cout << lsfbPrms->runTimeFactor                << ": Run time weighting factor for fairshare scheduling " << std::endl;
+   std::cout << lsfbPrms->waitTimeFactor               << ": Used for calcultion of the fairshare scheduling formula " << std::endl;
+   std::cout << lsfbPrms->runJobFactor                 << ": Job slots weighting factor for fairshare scheduling " << std::endl;
+   std::cout << lsfbPrms->eEventCheckIntvl             << ": Default check interval " << std::endl;
+   std::cout << lsfbPrms->rusageUpdateRate             << ": sbatchd report every sbd_sleep_time " << std::endl;
+   std::cout << lsfbPrms->rusageUpdatePercent          << ": sbatchd updates jobs jRusage in mbatchd if more than 10% changes " << std::endl;
+   std::cout << lsfbPrms->condCheckTime                << ": Time period to check for reconfig " << std::endl;
+   std::cout << lsfbPrms->maxSbdConnections            << ": The maximum number of connections between master and slave batch daemons " << std::endl;
+   std::cout << lsfbPrms->rschedInterval               << ": The interval for rescheduling jobs " << std::endl;
+   std::cout << lsfbPrms->maxSchedStay                 << ": Max time mbatchd stays in scheduling routine, after which take a breather " << std::endl;
+   std::cout << lsfbPrms->freshPeriod                  << ": During which load remains fresh " << std::endl;
+   std::cout << lsfbPrms->preemptFor                   << ": The preemption behavior, GROUP_MAX, GROUP_JLP, USER_JLP, HOST_JLU,MINI_JOB, LEAST_RUN_TIME " << std::endl;
+   std::cout << lsfbPrms->adminSuspend                 << ": Flags whether users can resume their jobs when suspended by the LSF administrator " << std::endl;
+   std::cout << lsfbPrms->userReservation              << ": Flags to enable/disable normal user to create advance reservation " << std::endl;
+   std::cout << lsfbPrms->cpuTimeFactor                << ": CPU time weighting factor for fairshare scheduling " << std::endl;
+   std::cout << lsfbPrms->fyStart                      << ": The starting month for a fiscal year " << std::endl;
+   std::cout << lsfbPrms->maxJobArraySize              << ": The maximum number of jobs in a job array " << std::endl;
+   std::cout << lsfbPrms->exceptReplayPeriod           << ": Replay period for exceptions, in seconds " << std::endl;
+   std::cout << lsfbPrms->jobTerminateInterval         << ": The interval to terminate a job " << std::endl;
+   std::cout << lsfbPrms->disableUAcctMap              << ": User level account mapping for remote jobs is disabled " << std::endl;
+   std::cout << lsfbPrms->enforceFSProj                << ": If set to TRUE, Project name for a job will be considerred when doing fairshare scheduling, i.e., as if user has submitted jobs using -G " << std::endl;
+   std::cout << lsfbPrms->enforceProjCheck             << ": Enforces the check to see if the invoker of bsub is in the specifed group when the -P option is used " << std::endl;
+   std::cout << lsfbPrms->jobRunTimes                  << ": Run time for a job " << std::endl;
+   std::cout << lsfbPrms->dbDefaultIntval              << ": Event table Job default interval " << std::endl;
+   std::cout << lsfbPrms->dbHjobCountIntval            << ": Event table Job Host Count " << std::endl;
+   std::cout << lsfbPrms->dbQjobCountIntval            << ": Event table Job Queue Count " << std::endl;
+   std::cout << lsfbPrms->dbUjobCountIntval            << ": Event table Job User Count " << std::endl;
+   std::cout << lsfbPrms->dbJobResUsageIntval          << ": Event table Job Resource Interval " << std::endl;
+   std::cout << lsfbPrms->dbLoadIntval                 << ": Event table Resource Load Interval " << std::endl;
+   std::cout << lsfbPrms->dbJobInfoIntval              << ": Event table Job Info " << std::endl;
+   std::cout << lsfbPrms->jobDepLastSub                << ": Used with job dependency scheduling" << std::endl;
+//   std::cout << lsfbPrms->dbSelectLoad                 << ": Select resources to be logged " << std::endl;
+   std::cout << lsfbPrms->jobSynJgrp                   << ": Job synchronizes its group status " << std::endl;
+   std::cout << lsfbPrms->pjobSpoolDir                 << ": The batch jobs' temporary output directory " << std::endl;
+   std::cout << lsfbPrms->maxUserPriority              << ": Maximal job priority defined for all users " << std::endl;
+   std::cout << lsfbPrms->jobPriorityValue             << ": Job priority is increased by the system dynamically based on waiting time " << std::endl;
+   std::cout << lsfbPrms->jobPriorityTime              << ": Waiting time to increase Job priority by the system dynamically " << std::endl;
+   std::cout << lsfbPrms->enableAutoAdjust             << ": Enable internal statistical adjustment " << std::endl;
+   std::cout << lsfbPrms->autoAdjustAtNumPend          << ": Start to autoadjust when the user has this number of pending jobs " << std::endl;
+   std::cout << lsfbPrms->autoAdjustAtPercent          << ": If this number of jobs has been visited skip the user " << std::endl;
+   std::cout << lsfbPrms->sharedResourceUpdFactor      << ":  Static shared resource update interval for the cluster actor " << std::endl;
+   std::cout << lsfbPrms->scheRawLoad                  << ": Schedule job based on raw load info " << std::endl;
+   std::cout << lsfbPrms->jobAttaDir                   << ":  The batch jobs' external storage for attached data " << std::endl;
+   std::cout << lsfbPrms->maxJobMsgNum                 << ": Maximum message number for each job " << std::endl;
+   std::cout << lsfbPrms->maxJobAttaSize               << ": Maximum attached data size to be transferred for each message " << std::endl;
+   std::cout << lsfbPrms->mbdRefreshTime               << ": The life time of a child MBD to serve queries in the MT way " << std::endl;
+   std::cout << lsfbPrms->updJobRusageInterval         << ": The interval of the execution cluster updating the job's resource usage " << std::endl;
+   std::cout << lsfbPrms->sysMapAcct                   << ": The account to which all windows workgroup users are to be mapped" << std::endl;
+   std::cout << lsfbPrms->preExecDelay                 << ": Dispatch delay internal " << std::endl;
+   std::cout << lsfbPrms->updEventUpdateInterval       << ": Update duplicate event interval  " << std::endl;
+   std::cout << lsfbPrms->resourceReservePerSlot       << ": Resources are reserved for parallel jobs on a per-slot basis " << std::endl;
+   std::cout << lsfbPrms->maxJobId                     << ": Maximum job id --- read from the lsb.params " << std::endl;
+   std::cout << lsfbPrms->preemptResourceList          << ": Define a list of preemptable resource. names " << std::endl;
+   std::cout << lsfbPrms->preemptionWaitTime           << ": The preemption wait time " << std::endl;
+   std::cout << lsfbPrms->maxAcctArchiveNum            << ": Maximum number of rollover lsb.acct files kept by mbatchd. " << std::endl;
+   std::cout << lsfbPrms->acctArchiveInDays            << ": mbatchd Archive Interval " << std::endl;
+   std::cout << lsfbPrms->acctArchiveInSize            << ": mbatchd Archive threshold " << std::endl;
+   std::cout << lsfbPrms->committedRunTimeFactor       << ": Committed run time weighting factor " << std::endl;
+   std::cout << lsfbPrms->enableHistRunTime            << ": Enable the use of historical run time in the calculation of fairshare scheduling priority, Disable the use of historical run time in the calculation of fairshare scheduling priority " << std::endl;
+   std::cout << lsfbPrms->mcbOlmReclaimTimeDelay       << ": Open lease reclaim time " << std::endl;
+   std::cout << lsfbPrms->chunkJobDuration             << ": Enable chunk job dispatch for jobs with CPU limit or run limits " << std::endl;
+   std::cout << lsfbPrms->sessionInterval              << ": The interval for scheduling jobs by scheduler daemon " << std::endl;
+   std::cout << lsfbPrms->publishReasonJobNum          << ": The number of jobs per user per queue whose pending reason is published at the PEND_REASON_UPDATE_INTERVAL interval " << std::endl;
+   std::cout << lsfbPrms->publishReasonInterval        << ": The interval for publishing job pending reason by scheduler daemon " << std::endl;
+   std::cout << lsfbPrms->publishReason4AllJobInterval << ": Interval(in seconds) of pending reason. publish for all jobs " << std::endl;
+   std::cout << lsfbPrms->mcUpdPendingReasonInterval   << ": MC pending reason update interval (0 means no updates) " << std::endl;
+   std::cout << lsfbPrms->mcUpdPendingReasonPkgSize    << ": MC pending reason update package size (0 means no limit) " << std::endl;
+   std::cout << lsfbPrms->noPreemptRunTime             << ": No preemption if the run time is greater. than the value defined in here. " << std::endl;
+   std::cout << lsfbPrms->noPreemptFinishTime          << ": No preemption if the finish time is less than the value defined in here. " << std::endl;
+   std::cout << lsfbPrms->acctArchiveAt                << ": mbatchd Archive Time " << std::endl;
+   std::cout << lsfbPrms->absoluteRunLimit             << ": Absolute run limit for job " << std::endl;
+   std::cout << lsfbPrms->lsbExitRateDuration          << ": The job exit rate duration" << std::endl;
+   std::cout << lsfbPrms->lsbTriggerDuration           << ":  The duration to trigger eadmin " << std::endl;
+   std::cout << lsfbPrms->maxJobinfoQueryPeriod        << ": Maximum time for job information query commands (for example,with bjobs) to wait " << std::endl;
+   std::cout << lsfbPrms->jobSubRetryInterval          << ": Job submission retrial interval for client " << std::endl;
+   std::cout << lsfbPrms->pendingJobThreshold          << ": System wide max pending jobs " << std::endl;
+   std::cout << lsfbPrms->maxConcurrentJobQuery        << ": Max number of concurrent job query " << std::endl;
+   std::cout << lsfbPrms->minSwitchPeriod              << ": Min event switch time period " << std::endl;
+   std::cout << lsfbPrms->condensePendingReasons       << ": Condense pending reasons enabled " << std::endl;
+   std::cout << lsfbPrms->slotBasedParallelSched       << ": Schedule Parallel jobs based on slots instead of CPUs " << std::endl;
+   std::cout << lsfbPrms->disableUserJobMovement       << ": Disable user job movement operations, like btop/bbot. " << std::endl;
+   std::cout << lsfbPrms->detectIdleJobAfter           << ": Detect and report idle jobs only after specified minutes. " << std::endl;
+   std::cout << lsfbPrms->useSymbolPriority            << ": Use symbolic when specifing priority of symphony jobs " << std::endl;
+   std::cout << lsfbPrms->JobPriorityRound             << ": Priority rounding for symphony jobs " << std::endl;
+   //std::cout << lsfbPrms->priorityMapping              << ": The mapping of the symbolic priority.for symphony jobs " << std::endl;
+   std::cout << lsfbPrms->maxInfoDirs                  << ": Maximum number of subdirectories under LSB_SHAREDIR/cluster/logdir/info " << std::endl;
+   std::cout << lsfbPrms->minMbdRefreshTime            << ": The minimum period of a child MBD to serve queries in the MT way " << std::endl;
+   std::cout << lsfbPrms->enableStopAskingLicenses2LS  << ": Stop asking license to LS not due to lack license " << std::endl;
+   std::cout << lsfbPrms->expiredTime                  << ": Expire time for finished job which will not taken into account when calculating queue fairshare priority " << std::endl;
+   std::cout << lsfbPrms->mbdQueryCPUs                 << ": MBD child query processes will only run on the following CPUs " << std::endl;
+   std::cout << lsfbPrms->defaultApp                   << ": The default application profile assigned to jobs " << std::endl;
+   std::cout << lsfbPrms->enableStream                 << ": Enable or disable data streaming " << std::endl;
+   std::cout << lsfbPrms->streamFile                   << ": File to which lsbatch data is streamed " << std::endl;
+   std::cout << lsfbPrms->streamSize                   << ": File size in MB to which lsbatch data is streamed " << std::endl;
+   std::cout << lsfbPrms->syncUpHostStatusWithLIM      << ": Sync up host status with master LIM is enabled " << std::endl;
+   std::cout << lsfbPrms->defaultSLA                   << ": Project schedulign default SLA " << std::endl;
+   std::cout << lsfbPrms->slaTimer                     << ": EGO Enabled SLA scheduling timer period " << std::endl;
+   std::cout << lsfbPrms->mbdEgoTtl                    << ": EGO Enabled SLA scheduling time to live " << std::endl;
+   std::cout << lsfbPrms->mbdEgoConnTimeout            << ": EGO Enabled SLA scheduling connection timeout " << std::endl;
+   std::cout << lsfbPrms->mbdEgoReadTimeout            << ": EGO Enabled SLA scheduling read timeout " << std::endl;
+   std::cout << lsfbPrms->mbdUseEgoMXJ                 << ": EGO Enabled SLA scheduling use MXJ flag " << std::endl;
+   std::cout << lsfbPrms->mbdEgoReclaimByQueue         << ": EGO Enabled SLA scheduling reclaim by queue " << std::endl;
+   std::cout << lsfbPrms->defaultSLAvelocity           << ": EGO Enabled SLA scheduling default velocity" << std::endl;
+   std::cout << lsfbPrms->exitRateTypes                << ": Type of host exit rate exception handling types: EXIT_RATE_TYPE " << std::endl;
+   std::cout << lsfbPrms->globalJobExitRate            << ": Type of host exit rate exception handling types: GLOBAL_EXIT_RATE " << std::endl;
+   std::cout << lsfbPrms->enableJobExitRatePerSlot     << ": Type of host exit rate exception handling types ENABLE_EXIT_RATE_PER_SLOT " << std::endl;
+   std::cout << lsfbPrms->enableMetric                 << ": Performance metrics monitor is enabled. flag " << std::endl;
+   std::cout << lsfbPrms->schMetricsSample             << ": Performance metrics monitor sample period flag " << std::endl;
+   std::cout << lsfbPrms->maxApsValue                  << ": Used to bound: (1) factors, (2) weights, and (3) APS values " << std::endl;
+   std::cout << lsfbPrms->newjobRefresh                << ": Child mbatchd gets updated information about new jobs from the parent mbatchd " << std::endl;
+   std::cout << lsfbPrms->preemptJobType               << ": Job type to preempt, PREEMPT_JOBTYPE_BACKFILL, PREEMPT_JOBTYPE_EXCLUSIVE " << std::endl;
+   std::cout << lsfbPrms->defaultJgrp                  << ": The default job group assigned to jobs " << std::endl;
+   std::cout << lsfbPrms->jobRunlimitRatio             << ": Max ratio between run limit and runtime estimation " << std::endl;
+   std::cout << lsfbPrms->jobIncludePostproc           << ": Enable the post-execution processing of the job to be included as part of the job flag" << std::endl;
+   std::cout << lsfbPrms->jobPostprocTimeout           << ": Timeout of post-execution processing " << std::endl;
+   std::cout << lsfbPrms->sschedUpdateSummaryInterval  << ": The interval, in seconds, for updating the session scheduler status summary " << std::endl;
+   std::cout << lsfbPrms->sschedUpdateSummaryByTask    << ": The number of completed tasks for updating the session scheduler status summary " << std::endl;
+   std::cout << lsfbPrms->sschedRequeueLimit           << ": The maximum number of times a task can be requeued via requeue exit values " << std::endl;
+   std::cout << lsfbPrms->sschedRetryLimit             << ": The maximum number of times a task can be retried after a dispatch error " << std::endl;
+   std::cout << lsfbPrms->sschedMaxTasks               << ": The maximum number of tasks that can be submitted in one session " << std::endl;
+   std::cout << lsfbPrms->sschedMaxRuntime             << ": The maximum run time of a single task " << std::endl;
+   std::cout << lsfbPrms->sschedAcctDir                << ": The output directory for task accounting files " << std::endl;
+   std::cout << lsfbPrms->jgrpAutoDel                  << ": If TRUE enable the job group automatic deletion functionality (default is FALSE). " << std::endl;
+   std::cout << lsfbPrms->maxJobPreempt                << ": Maximum number of job preempted times " << std::endl;
+   std::cout << lsfbPrms->maxJobRequeue                << ": Maximum number of job re-queue times " << std::endl;
+   std::cout << lsfbPrms->noPreemptRunTimePercent      << ": No preempt run time percent " << std::endl;
+   std::cout << lsfbPrms->noPreemptFinishTimePercent   << ": No preempt finish time percent " << std::endl;
+   std::cout << lsfbPrms->slotReserveQueueLimit        << ": The reservation request being within JL/U. " << std::endl;
+   std::cout << lsfbPrms->maxJobPercentagePerSession   << ": Job accept limit percentage. " << std::endl;
+   std::cout << lsfbPrms->useSuspSlots                 << ": The low priority job will use the slots freed by preempted jobs. " << std::endl;
+   std::cout << lsfbPrms->maxStreamFileNum             << ": Maximum number of the backup stream.utc files " << std::endl;
+   std::cout << lsfbPrms->privilegedUserForceBkill     << ": If enforced only admin can use bkill -r option " << std::endl;
+   std::cout << lsfbPrms->mcSchedulingEnhance          << ": It controls the remote queue selection flow. " << std::endl;
+   std::cout << lsfbPrms->mcUpdateInterval             << ": It controls update interval of the counters and other original data in MC implementation " << std::endl;
+   std::cout << lsfbPrms->intersectCandidateHosts      << ": Jobs run on only on hosts belonging to the intersection of the queue the job was submitted to, advance reservation hosts, and any hosts specified by bsub -m at the time of submission. " << std::endl;
+   std::cout << lsfbPrms->enforceOneUGLimit            << ": Enforces the limitations of a single specified user group. " << std::endl;
+   std::cout << lsfbPrms->logRuntimeESTExceeded        << ": Enable or disable logging runtime estimation exceeded event " << std::endl;
+   std::cout << lsfbPrms->computeUnitTypes             << ": Compute unit types." << std::endl;
+   std::cout << lsfbPrms->fairAdjustFactor             << ": Fairshare adjustment weighting factor " << std::endl;
+   std::cout << lsfbPrms->simEnableCpuFactor           << ": abs runtime and cputime for LSF simulator " << std::endl;
+   std::cout << lsfbPrms->extendJobException           << ": switch for job exception enhancement " << std::endl;
+   std::cout << lsfbPrms->preExecExitValues            << ": If the pre_exec script of a job in the cluster exits with an exit code specified in preExecExitValues, the job will be re-dispatched to a different host. " << std::endl;
+   std::cout << lsfbPrms->enableRunTimeDecay           << ": Enable the decay of run time in the calculation of fairshare scheduling priority " << std::endl;
+   std::cout << lsfbPrms->advResUserLimit              << ": The maximum number of advanced reservations. For each user or user group. " << std::endl;
+   std::cout << lsfbPrms->noPreemptInterval            << ": Uninterrupted running time (minutes) before job can be preempted. " << std::endl;
+   std::cout << lsfbPrms->maxTotalTimePreempt          << ": Maximum accumulated preemption time (minutes). " << std::endl;
+   std::cout << lsfbPrms->strictUGCtrl                 << ": enable or disable strict user group control " << std::endl;
+   std::cout << lsfbPrms->defaultUserGroup             << ": enable or disable job's default user group " << std::endl;
+   std::cout << lsfbPrms->enforceUGTree                << ": enable or disable enforce user group tree " << std::endl;
+   std::cout << lsfbPrms->preemptDelayTime             << ": The grace period before preemption " << std::endl;
+   std::cout << lsfbPrms->jobPreprocTimeout            << ": Timeout of pre-execution processing " << std::endl;
+   std::cout << lsfbPrms->allowEventType               << ": Log specified events into stream file " << std::endl;
+   std::cout << lsfbPrms->runtimeLogInterval           << ": Interval between runtime status log " << std::endl;
+   std::cout << lsfbPrms->groupPendJobsBy              << ": Group pending jobs by these key fields " << std::endl;
+   std::cout << lsfbPrms->pendingReasonsExclude        << ": Don't log the defined pending reason " << std::endl;
+   std::cout << lsfbPrms->pendingTimeRanking           << ": Group pending jobs by pending time " << std::endl;
+   std::cout << lsfbPrms->includeDetailReasons         << ": Disable to stop log detailed pending reasons " << std::endl;
+   std::cout << lsfbPrms->pendingReasonDir             << ": Full path to the pending reasons cache file directory " << std::endl;
+   std::cout << lsfbPrms->forceKillRunLimit            << ": Force kill the job exceeding RUNLIMIT " << std::endl;
+   std::cout << lsfbPrms->forwSlotFactor               << ": GridBroker slot factor " << std::endl;
+   std::cout << lsfbPrms->gbResUpdateInterval          << ": Resource update interval to GridBroker " << std::endl;
+   std::cout << lsfbPrms->depJobsEval                  << ": Number of jobs threshold of mbatchd to evaluate jobs with dependency " << std::endl;
+   std::cout << lsfbPrms->rmtPendJobFactor             << ": LSF/XL remote pending factor " << std::endl;
+   std::cout << lsfbPrms->numSchedMatchThreads         << ": number scheduler matching threads " << std::endl;
+   std::cout << lsfbPrms->bjobsResReqDisplay           << ": control how many levels resreq bjobs can display " << std::endl;
+   std::cout << lsfbPrms->jobSwitch2Event              << ": Enable/Disable 'JOB_SWITCH2' event log " << std::endl;
+   std::cout << lsfbPrms->enableDiagnose               << ": Enable diagnose class types: query " << std::endl;
+   std::cout << lsfbPrms->diagnoseLogdir               << ": The log directory for query diagnosis " << std::endl;
+   std::cout << lsfbPrms->mcResourceMatchingCriteria   << ": The MC scheduling resource criterion " << std::endl;
+   std::cout << lsfbPrms->lsbEgroupUpdateInterval      << ": Interval to dynamically update egroup managed usergroups " << std::endl;
+   std::cout << lsfbPrms->isPerJobSortEnableFlg        << ": TURE if SCHED_PER_JOB_SORT=Y/y " << std::endl;
+   std::cout << lsfbPrms->defaultJobCwd                << ": default job cwd " << std::endl;
+   std::cout << lsfbPrms->jobCwdTtl                    << ": job cwd TTL " << std::endl;
+   std::cout << lsfbPrms->ac_def_job_memsize           << ": Default memory requirement for a VM job (MB) " << std::endl;
+   std::cout << lsfbPrms->ac_job_memsize_round_up_unit << ": The round-up unit of the memory size for a VM job (MB) " << std::endl;
+   std::cout << lsfbPrms->ac_job_dispatch_retry_num    << ": The number of times that a Dynamic Cluster job can be retried after a dispatch failure " << std::endl;
+   std::cout << lsfbPrms->ac_jobvm_restore_delay_time  << ": The job vm restore delay time " << std::endl;
+   std::cout << lsfbPrms->ac_permit_alternative_resreq << ": Dynamic Cluster alternative resource requirement (logical OR between hardware-specific " << std::endl;
+   std::cout << lsfbPrms->defaultJobOutdir             << ": default job outdir " << std::endl;
+   std::cout << lsfbPrms->bswitchModifyRusage          << ":  bswitch modify job resource usage " << std::endl;
+   std::cout << lsfbPrms->resizableJobs                << ": Enable or disable the resizable job feature " << std::endl;
+   std::cout << lsfbPrms->slotBasedSla                 << ": Enable or disable slots based request for EGO-enabled SLA " << std::endl;
+   std::cout << lsfbPrms->releaseMemForSuspJobs        << ": Do not reserve memory when a job is suspended " << std::endl;
+   std::cout << lsfbPrms->stripWithMinimumNetwork      << ": strip with minimum network " << std::endl;
+   std::cout << lsfbPrms->maxProtocolInstance          << ": maximum allowed window instances for pe job " << std::endl;
+   std::cout << lsfbPrms->jobDistributeOnHost          << ": how to distribute tasks for different jobs on same host " << std::endl;
+   std::cout << lsfbPrms->defaultResReqOrder           << ": batch part default order " << std::endl;
+   std::cout << lsfbPrms->ac_timeout_waiting_sbd_start << ": Dynamic Cluster timeout waiting for sbatchd to start " << std::endl;
+   std::cout << lsfbPrms->maxConcurrentQuery           << ": Max number of concurrent query " << std::endl;
+}
+
+#else
+
+JobScheduler::JobScheduler( const std::string & clusterName )
+{
+   if ( !clusterName.empty() )
+   {
+      m_clusterName = clusterName;
+   }
+}
+
+
+JobScheduler::~JobScheduler() {;}
+
+// Add job to the list
+JobScheduler::JobID JobScheduler::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
+{
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Job scheduling without LSF not iplemented yet";
+   return 0; // the position of the new job in the list is it JobID
+}
+
+// run job
+void JobScheduler::runJob( JobID job )
+{
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Job scheduling without LSF not iplemented yet";
+}
+
+// get job state
+JobScheduler::JobState JobScheduler::jobState( JobID id )
+{
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Job scheduling without LSF not iplemented yet";
+   return Unknown;   // unknown status
+}
+
+void JobScheduler::printLSFBParametersInfo() {;}
+
+#endif
+
+}

@@ -28,7 +28,7 @@ public:
    virtual ~MCSolver(){}
 
    // Virtual function
-   virtual bool acceptProposal( double, double& logAccRatio ) const { return logAccRatio > 1e-18; } //reject negligible improvements!
+   virtual bool acceptProposal( double, double& logAccRatio, RandomGenerator& ) const { return logAccRatio > 1e-18; } //reject negligible improvements!
 
 
    // Impl functions

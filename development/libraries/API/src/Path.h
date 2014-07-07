@@ -54,6 +54,15 @@ namespace ibs
       /// @return Path object itself
       Path & operator -- ( int unused );
 
+      /// @brief Split path by path separator and return the number of elements in path
+      /// @return number path elements
+      size_t size();
+
+      /// @brief Path element accessor
+      /// @param i access to i-th path element
+      /// @return i-th path element as a string or empty string if i is out of bounds
+      std::string operator [] ( size_t i );
+
       /// @brief Add to path new element divided by path separator
       /// @param pathEl the new element of the path to be added
       /// @return Path object itself

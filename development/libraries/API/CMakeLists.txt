@@ -30,9 +30,10 @@ bm_include_libraries(
 )
 
 include_directories(
-	${SUMPP_INCLUDE_DIR}
-	${HDF5_INCLUDE_DIRS} 
-	src
+   ${SUMPP_INCLUDE_DIR}
+   ${HDF5_INCLUDE_DIRS} 
+   ${LSF_INCLUDE_DIR}
+   src
 )
 
 target_link_libraries(api 
@@ -42,6 +43,7 @@ target_link_libraries(api
    DataAccess
    utilities
    SUMlib
+   ${LSF_LIBS}
 )
 
 generate_dox( src/API.cfg )
@@ -81,3 +83,13 @@ add_gtest( NAME mbapiModelTest
    LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
+if (UNIX AND LSF_FOUND)
+
+add_gtest( NAME RunManagerTest
+   SOURCES test/RunManagerTest.C
+   INCLUDE_DIRS ${LSF_INCLUDE_DIR}
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
+)
+
+
+endif (UNIX AND LSF_FOUND)

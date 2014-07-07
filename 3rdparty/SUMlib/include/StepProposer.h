@@ -60,12 +60,14 @@ class INTERFACE_SUMLIB_DEBUG StepProposer
        *  For an existing parameters, randomly generate a new
        *  proposed parameter using several steps of small rectangular
        *  distribution shifts.
+       *  @param rg Random number generator.
        *  @param p On input the existing parameter, on output
        *     the proposed parameter.
        *  @param tr The ratio of the probabilities of the transition
        *     to and from.
        */
       void proposeRandomStep(
+            RandomGenerator& rg,
             std::vector<double>& p,    // In: p1, Out: p2
             double& tr ) const;
 
@@ -86,7 +88,7 @@ class INTERFACE_SUMLIB_DEBUG StepProposer
        *  should be between 23% and 45% according to Roberts,
        *  Gelman and Gilks (1994).
        */
-      void adaptStepSize( double acceptanceRate );
+      void adaptStepSize( std::vector<double>& acceptanceRate );
 
       const std::vector<double>& min() const { return m_min; }
       const std::vector<double>& max() const { return m_max; }

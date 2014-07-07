@@ -11,32 +11,387 @@
 /// @file RunManagerImpl.C
 /// @brief This file keeps API implementation of Run Manager
 
-
+#include "FilePath.h"
+#include "CauldronApp.h"
+#include "RunCase.h"
 #include "RunManagerImpl.h"
+
+#include <fstream>
+#include <iostream>
+
+#include <unistd.h>
+#include <sys/stat.h>
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Definition the set of cauldron applications
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+namespace casa
+{
+
+   // fastcauldron application wrapper
+   class FastCauldronApp : public CauldronApp
+   {
+   public:
+      /// Constructor of fastcauldron app
+      FastCauldronApp( ShellType sh = bash ) : CauldronApp( sh, "fastcauldron", true )
+      {
+         m_cpus = 1;
+         
+         // set up needed for simulators environment vars
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
+         
+      }
+   };
+   
+   // fastgenex6 application wrapper
+   class FastGenex6App : public CauldronApp
+   {
+   public:
+      // Constructor of fastgenex6 app
+      FastGenex6App( ShellType sh = bash ) : CauldronApp( sh, "fastgenex6", true )
+      {
+         m_cpus = 1;
+         
+         // set up environment vars
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg60").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
+      }
+   };
+   
+   // track1d application wrapper
+   class Track1DApp : public CauldronApp
+   {
+   public:
+      /// Constructor of track1d app
+      Track1DApp( ShellType sh = bash ) : CauldronApp( sh, "track1d", false ) {;}
+      
+      // Generates script file which contains environment set up and application run for given input/output project file
+      virtual std::string generateScript( const std::string & inProjectFile, const std::string & outProjectFile )
+      {
+         // dump script top line with shell preference
+         std::ostringstream oss;
+         switch ( m_sh )
+         {
+            case bash: oss << "#!/bin/bash\n"; break;
+            case csh:  oss << "#!/bin/csh\n";  break;
+            case cmd:                          break;
+         }
+         oss << "\n";
+         
+         // dump all neccessary environment variables to the script
+         dumpEnv( oss );
+         oss << "\n";
+         
+         // dump application name with full path
+         oss << ( ibs::FilePath( m_rootPath ) << m_version << "Linux" << "bin" << m_appName ).path();
+         
+         // dump app options list
+         for ( size_t i = 0; i < m_optionsList.size(); ++i ) { oss << " " << m_optionsList[i]; }
+         
+         // dump input/output project name
+         oss << " -project " << inProjectFile << " | sed '1,4d' > " << ( outProjectFile.empty() ? (inProjectFile + "_track1d.csv") : outProjectFile ) << "\n";
+         
+         return oss.str();
+      }
+   };
+   
+   // Some generic app. Script command line, passed as a parameter of constructor
+   class GenericApp : public CauldronApp
+   {
+   public:
+      // Constructor
+      GenericApp( const std::string & cmdLine ) : CauldronApp( bash, "unknown", false ) { m_cmdLine = cmdLine; }
+      
+      // Destructor
+      virtual ~GenericApp() {;}
+      
+      // Generates script file which contains the given to constructor script body
+      virtual std::string generateScript( const std::string & /*inFile*/, const std::string & /*outFile*/ ) { return m_cmdLine; }
+      
+   private:
+      std::string m_cmdLine;  ///< script body
+   };
+   
+  
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // CauldronApp methods definition
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+   // get environment variable
+   const char * CauldronApp::env( const char * varName ) { return getenv( varName ); }
+   
+   // add the default value of environment variable to the list if it does not set up in environment
+   bool CauldronApp::pushDefaultEnv( const std::string & varName, const std::string & varValue )
+   {
+      const char * envValue = env( varName.c_str() );
+      m_env[ varName ] = envValue ? envValue : varValue;
+      return envValue ? false : true;
+   }
+
+   void CauldronApp::dumpEnv( std::ostream & oss )
+   {
+      for ( std::map< std::string, std::string >::const_iterator it = m_env.begin(); it != m_env.end(); ++it )
+      {
+         switch( m_sh )
+         {
+            case bash:  oss << "export " << it->first << "="   << it->second << "\n";   break;
+            case csh:   oss << "setenv " << it->first << " "   << it->second << "\n";   break;
+            case cmd:   oss << "set "    << it->first << "=\"" << it->second << "\"\n"; break;
+         }
+      }
+   }
+   
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // CauldronApp methods definition
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   CauldronApp::CauldronApp( ShellType sh, const std::string & appName, bool isParallel ) :
+                             m_appName( appName ), m_parallel( isParallel )
+   {
+      setShellType( sh );
+
+      if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] =
+      "3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com:3000@ams1-s-07489.europe.shell.com";
+    
+      m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : "v2014.0703";        // the default version is the latest available release for now
+      m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : "/apps/sssdev/ibs";  // path to IBS folder where the different versions are
+      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";
+      
+      if ( m_mpirunCmd.empty() )
+      {
+         m_mpirunCmd =  "mpirun -env I_MPI_FABRICS shm:tcp -env I_MPI_DEBUG 5";
+      }
+      
+      switch( m_sh )
+      {
+         case bash:  m_mpiEnv = "source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh\n\n";  break;
+         case csh:   m_mpiEnv = "source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.csh\n\n"; break;
+         case cmd:   break;
+      }
+   }
+
+   std::string CauldronApp::generateScript( const std::string & inProjectFile, const std::string & outProjectFile )
+   {
+      // dump script top line with shell preference
+      std::ostringstream oss;
+      switch ( m_sh )
+      {
+         case bash: oss << "#!/bin/bash\n\n"; break;
+         case csh:  oss << "#!/bin/csh\n\n";  break;
+         case cmd:                          break;
+      }
+      
+      // dump all neccessary environment variables to the script
+      dumpEnv( oss );
+      
+      oss << "\n";
+      
+      // if application is parallel, add mpirun dirrective with options
+      if ( m_parallel )
+      {
+         oss << m_mpiEnv << m_mpirunCmd;
+         oss << " -outfile-pattern '" + m_appName + "-output-rank-%r.log' ";
+         if ( m_cpus > 0 ) { oss << "-np " << m_cpus << " "; }
+      }
+      
+      // dump application name with full path
+      oss << ( ibs::FilePath( m_rootPath ) << m_version << "Linux" << "bin" << m_appName ).path();
+      
+      // dump app options list
+      for ( size_t i = 0; i < m_optionsList.size(); ++i ) { oss << " " << m_optionsList[i]; }
+      
+      // dump input/output project name
+      oss << " -project " << inProjectFile;
+      if ( !outProjectFile.empty() ) oss << " -save " << outProjectFile;
+      oss << "\n\n";
+      
+      return oss.str();
+   }
+}
 
 namespace casa
 {
 
-RunManagerImpl::RunManagerImpl()
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RunManager / RunManagerImpl methods definition
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, std::string cmdLine )
 {
-   ;
+   CauldronApp * app = NULL;
+
+   switch ( appType ) {
+         
+      case fastcauldron: app = new FastCauldronApp( CauldronApp::bash ); break;
+      case fastgenex6:   app = new FastGenex6App(   CauldronApp::bash ); break;
+      case track1d:      app = new Track1DApp(      CauldronApp::bash ); break;
+      case generic:      app = new GenericApp(      cmdLine ); break;
+         
+      default: break;
+   }
+   if ( app ) app->setCPUs( cpus );
+
+   return app;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+RunManagerImpl::RunManagerImpl( const std::string & clusterName )
+{
+   // create instance of job scheduler
+   m_jobSched.reset( new JobScheduler( clusterName ) );
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
 RunManagerImpl::~RunManagerImpl()
 {
-   ;
 }
 
-// Add Case to set
-ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun )
+// Add application to the list of simulators for pipeline calculation definitions
+ErrorHandler::ReturnCode RunManagerImpl::addApplication( CauldronApp * app )
 {
-   return reportError( ErrorHandler::NotImplementedAPI, "scheduleCase() not implemented yet" );
+   if ( app ) 
+   {
+      m_appList.push_back( app );
+      return NoError;
+   }
+   return reportError( ValidationError, "RunManager::addApplication(): No app object was given" );
 }
 
-// Execute all scheduled cases
+
+///////////////////////////////////////////////////////////////////////////////
+// Add Case to set
+ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( const RunCase & newRun )
+{
+   // do not add cases which has no project file
+   if ( !newRun.projectPath() ) return reportError( WrongPath, "Case with empty path to project file was given" );
+
+   // get project file path
+   ibs::FilePath pfp( newRun.projectPath() );
+
+   if ( !pfp.exists() ) return reportError( WrongPath, "Project file does not exist, can't schedule given case" );
+
+   // if no project defined - report error
+   if ( !pfp.exists() ) return reportError( WrongPath, "Wrong path to case project file was given" );
+
+   // add new empty row to jobs list
+   m_jobs.push_back( std::vector< JobScheduler::JobID >() );
+
+   // construct case name, use name of the directory where project is located or just Case_N
+   size_t sz = pfp.size();
+   std::string caseName = sz > 2 ? pfp[sz - 2 ] : (std::string( "Case_" ) + ibs::to_string( m_jobs.size() ) );
+
+   // go through pipelines and populate jobs list/generate scripts for cases
+   for ( size_t i = 0; i < m_appList.size(); ++i )
+   {
+      // generate script
+      int cpus = m_appList[i]->cpus(); // save cpus for the application 
+      m_appList[i]->setCPUs( 0 );      // number of cpus is defined by the scheduler, exclude it from the script
+
+      if ( !m_cldVersion.empty() ) m_appList[i]->setCauldronVersion( m_cldVersion ); // if another version is defined by user, set up it
+
+      const std::string appScript = m_appList[i]->generateScript( pfp.fileName(), "" );
+      m_appList[i]->setCPUs( cpus ); // restore number of cpus back
+
+      // generate script file name
+      ibs::FilePath scriptFile( pfp.filePath() );
+      scriptFile << (std::string( "Stage_" ) + ibs::to_string( i ) + ".sh");
+      
+      // save script to file
+      std::ofstream ofs( scriptFile.path().c_str(), std::ios_base::out | std::ios_base::trunc );
+      ofs << appScript;
+      ofs.close();
+
+      // make script executable
+#ifndef _WIN32
+      chmod( scriptFile.path().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
+#endif
+      // construct job name 
+      std::ostringstream oss;
+      oss << caseName << "_stage_" << ibs::to_string( i );
+
+      ////////////////////////////////////////
+      /// put job to the queue through job scheduler
+      JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str(),  // cwd
+                                                   scriptFile.path(),       // script name
+                                                   oss.str(),               // job name
+                                                   m_appList[i]->cpus()     // number of CPUs for this job
+                                                 );
+
+      // put job to the queue for the current case
+      m_jobs.back().push_back( id );
+   }
+
+   return NoError;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Execute all scheduled cases. Very loooong cycle
 ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
 {
-   return reportError( ErrorHandler::NotImplementedAPI, "runScheduledCases() not implemented yet" );
+   bool allFinished = false;
+   
+   // just for info
+   int finished  = 0;
+   int submitted = 0;
+   int crashed   = 0;
+
+   while ( !allFinished )
+   {
+      int running   = 0;
+      int pending   = 0;
+
+      // loop over all cases
+      for ( size_t i = 0; i < m_jobs.size(); ++i )
+      {
+         for ( size_t j = 0; j < m_jobs[i].size(); ++j )
+         {
+            JobScheduler::JobID job = m_jobs[i][j];
+
+            JobScheduler::JobState jobState = m_jobSched->jobState( job );
+
+            if ( JobScheduler::JobFinished == jobState ) continue; // skip finished jobs
+
+            if ( JobScheduler::NotSubmittedYet == jobState ) // not submitted yet
+            {
+               try                     { m_jobSched->runJob( job ); }
+               catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+               submitted++;
+               break;
+            }
+            else // something could be still on the cluster, check status
+            {
+               switch( jobState )
+               {
+                  case JobScheduler::JobFailed: // job failed!!! should not run others in a queue! 
+                     ++crashed;
+                     m_jobs[i].resize( j+1 ); // drop all other jobs for this case
+                     break;
+                  case JobScheduler::JobSucceeded: ++finished; break; // job succeeded
+                  case JobScheduler::JobPending:   ++pending;  break; // job pending
+                  case JobScheduler::JobRunning:   ++running;  break; // job is running on cluster
+                  default: break;
+               }
+               if ( jobState == JobScheduler::JobSucceeded ) continue; // start another job
+            }
+            break;
+         }
+      }
+      // run over all cases, make a pause, get a twix
+      std::cout << "submitted: " << submitted << ", finished: " << finished << ", failed: " << crashed << ", pending: " << pending << ", running: " << running << std::endl;
+      sleep( 2 );
+      if ( submitted == finished ) allFinished = true;
+   }
+   return NoError;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Get cluster name from job scheduler
+std::string RunManagerImpl::clusterName() { return m_jobSched->clusterName(); }
+
 }
+

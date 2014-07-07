@@ -190,6 +190,10 @@ class INTERFACE_SUMLIB ParameterSpace : public ISerializable
       /// @returns the number of "non-fixed" ordinal parameters
       unsigned int nbOfNonFixedOrdinalPars() const;
 
+      /// Getter for the number of "non-fixed" continuous parameters
+      /// @returns the number of "non-fixed" continuous parameters
+      unsigned int nbOfNonFixedContinuousPars() const;
+
       /// Getter for the categorical parameter values from a prepared case
       /// @param [in] v    a prepared case
       /// @returns the categorical parameter values converted to doubles

@@ -40,7 +40,8 @@ public:
       MCSolverError,     ///< Error happened in MC solver
       RSProxyError,      ///< Error happened in response surface builder
       SUMLibException,   ///< Exception was caught during SUMLib call
-      WrongPath,         ///< 
+      LSFLibError,       ///< Error happened in RunManager when it interracts with LSF
+      WrongPath,         ///< Wrong path given
       UnknownError       ///< Unknown error
    } ReturnCode;
    /// @}

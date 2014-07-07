@@ -189,7 +189,6 @@ target_link_libraries(fastcauldron
 	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${BLAS_LIBRARIES}
-	${BM_MPI_LOCK_LIBRARIES}
 	${MPI_LIBRARIES}
 	z
 )

@@ -76,6 +76,7 @@ macro(add_gtest )
    set(compileflags)# The set of compilator flags
    set(linkflags)   # The set of linker flags
    set(mpiSize)     # The number of MPI processes
+   set(include_dirs)# Additional include directories
 
    set(parameterName)
    foreach(param ${ARGN})
@@ -91,6 +92,8 @@ macro(add_gtest )
          set(parameterName linkflags)
       elseif(param STREQUAL MPI_SIZE)
          set(parameterName mpiSize)
+      elseif(param STREQUAL INCLUDE_DIRS)
+         set(parameterName include_dirs)
       else()
          list(APPEND ${parameterName} ${param})
       endif()
@@ -120,7 +123,7 @@ macro(add_gtest )
    get_property(incdirs TARGET ${execName} PROPERTY INCLUDE_DIRECTORIES)
    set_target_properties( ${execName} 
       PROPERTIES 
-                 INCLUDE_DIRECTORIES "${TESTFRAMEWORK_INCLUDE_DIRS};${incdirs}"
+                 INCLUDE_DIRECTORIES "${TESTFRAMEWORK_INCLUDE_DIRS};${incdirs};${include_dirs}"
                  COMPILE_FLAGS "${compileflags}"
                  LINK_FLAGS "${linkflags}"   )
 

@@ -11,6 +11,7 @@
 #include "KrigingData.h"
 #include "KrigingProxy.h"
 #include "KrigingWeights.h"
+#include "ParameterTransforms.h"
 #include "SerializerUtils.h"
 
 using std::vector;
@@ -25,13 +26,13 @@ KrigingProxy::KrigingProxy( KrigingData *kr )
 {
 }
 
-KrigingProxy::KrigingProxy( CubicProxy *proxyModel, KrigingData *kr, ParameterSet const& parSet,
+KrigingProxy::KrigingProxy( CubicProxy *proxyModel, const ParameterTransforms& parameterTransforms, KrigingData *kr, ParameterSet const& parSet,
                             std::vector<bool> const& caseValid, TargetSet const& target, unsigned int nbOfOrdPars )
 {
-   initialise( proxyModel, kr, parSet, caseValid, target, nbOfOrdPars );
+   initialise( proxyModel, parameterTransforms, kr, parSet, caseValid, target, nbOfOrdPars );
 }
 
-void KrigingProxy::initialise( CubicProxy *proxyModel, KrigingData *kr, ParameterSet const& parSet,
+void KrigingProxy::initialise( CubicProxy *proxyModel, const ParameterTransforms& parameterTransforms, KrigingData *kr, ParameterSet const& parSet,
                                std::vector<bool> const& caseValid, TargetSet const& target, unsigned int nbOfOrdPars )
 {
    m_parSize = parSet.front().size();
@@ -52,7 +53,17 @@ void KrigingProxy::initialise( CubicProxy *proxyModel, KrigingData *kr, Paramete
    m_proxyError.reserve( parSet.size() );
    for ( ParameterSet::const_iterator it = parSet.begin(); it != parSet.end(); ++it )
    {
-      m_proxyError.push_back( proxyModel->getValue( *it ) );
+      double proxyValue;
+      if ( parameterTransforms.isTrivial() )
+      {
+         proxyValue = proxyModel->getValue( *it );
+      }
+      else
+      {
+         const Parameter& p = parameterTransforms.apply( *it );
+         proxyValue = proxyModel->getValue( p );
+      }
+      m_proxyError.push_back( proxyValue );
    }
    assert( m_proxyError.size() == caseValid.size() );
 

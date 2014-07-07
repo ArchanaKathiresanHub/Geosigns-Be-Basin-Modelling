@@ -71,6 +71,13 @@ namespace casa
       // return pointer to the model
       virtual mbapi::Model * caseModel() const { return m_model.get(); }
 
+      /// @brief Get full path to the project path (including project file \n
+      ///        name. If this case has no project associated with it, it will return \n
+      ///        null pointer
+      /// @return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
+      virtual const char * projectPath() const { return m_modelProjectFileName.empty() ? NULL : m_modelProjectFileName.c_str(); }
+
+
    private:
       std::auto_ptr<mbapi::Model> m_model;                // Mutated model, available after mutateCaseTo call
       std::string                 m_modelProjectFileName; // full path to the project file

@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdio>
 #include <functional>
@@ -180,6 +181,9 @@ void McmcBase::doCatInit()
    m_priorProb = RealVector( m_subSampleSize, 0.0 );
    m_logLh = RealVector( m_subSampleSize, 0.0 );
    m_logLh_impr = RealVector( m_subSampleSize, 0.0 );
+
+   m_nAccepted.resize( m_subSampleSize, 0 );
+   m_nProposed.resize( m_subSampleSize, 0 );
 
    reset();
 }
@@ -436,7 +440,29 @@ double McmcBase::calcLh( const vector<double>& y ) const
 
 void McmcBase::adaptStepSize()
 {
-   m_stepProposer->adaptStepSize( m_acceptanceRate );
+   double totNom = 0.0;
+   double totDenom = 0.0;
+   std::vector<double> acceptanceRate( m_subSampleSize, 0.0 );
+
+   for ( size_t i = 0; i < m_subSampleSize; ++i )
+   {
+      if ( m_nProposed[i] > 0 )
+      {
+         acceptanceRate[i] = (100.0 * m_nAccepted[i]) / m_nProposed[i];
+      }
+      else
+      {
+         acceptanceRate[i] = 0.0;
+      }
+      totNom += m_nAccepted[i];
+      totDenom += m_nProposed[i];
+   }
+
+   m_acceptanceRate = 100 * totNom / totDenom;
+
+   m_stepProposer->adaptStepSize( acceptanceRate );
+   std::fill( m_nAccepted.begin(), m_nAccepted.end(), 0 );
+   std::fill( m_nProposed.begin(), m_nProposed.end(), 0 );
 }
 
 void McmcBase::setStdDevFactor( double factor )
@@ -549,6 +575,14 @@ void McmcBase::normalPriorSample( )
    // in order to initialise m_pSample_oldAvg and m_sampleEntropy_old.
    CalcAverages( m_pSubSample, m_pSample_oldAvg );
    CalcAverages( m_fSubSample, m_sampleEntropy_old );
+
+   // Initialise the random number generators
+   for ( unsigned int i = 0; i < m_subSampleSize; ++i )
+   {
+      int seed = INT_MAX * m_rg.uniformRandom();
+      RandomGenerator* rng = new RandomGenerator( seed );
+      m_rngs.push_back( *rng );
+   }
 }
 
 void McmcBase::initialSample()
@@ -570,20 +604,22 @@ McmcBase::StepMethod McmcBase::getStepMethod() const
 
 bool McmcBase::convergenceImpl_MCMC_MC( vector<vector<double> >& sampleVar, double& stddev, const double lambda )
 {
-   if ( m_tooBigAccRatio )
-   {
-      return false;
-   }
-   else
+   bool isConverged = false;
+   if ( !m_tooBigAccRatio )
    {
       CalcCovariances( m_rSample, m_rSample_avg, sampleVar );
       stddev = sqrt( sampleVar[0][0] / m_sampleSize ); //stddev of mean acceptance ratio
-      if ( fabs( m_rSample_avg[0] - 1.0 ) > lambda*stddev ) return false;
+      if ( fabs( m_rSample_avg[0] - 1.0 ) <= lambda*stddev )
+      {
+         // Mimimum acceptance rate of 23 % required.
+         // After: Roberts, Gelman and Gilks 1994
+         if ( m_acceptanceRate >= 23.0 )
+         {
+            isConverged = true;
+         }
+      }
    }
-   // Mimimum acceptance rate of 23 % required.
-   // After: Roberts, Gelman and Gilks 1994
-   if ( m_acceptanceRate < 23.0 ) return false;
-   return true;
+   return isConverged;
 }
 
 bool McmcBase::convergence()
@@ -653,6 +689,10 @@ unsigned int McmcBase::iterateOnce()
    // Clear the best matches prior to each iteration
    m_bestMatches.clear();
 
+   // Set the number of accepted proposals in this iteration
+   std::fill( m_nAccepted.begin(), m_nAccepted.end(), 0 );
+   std::fill( m_nProposed.begin(), m_nProposed.end(), 0 );
+
    // Construct sample results from subsample results
    m_tooBigAccRatio = false; //no acceptance ratios calculated yet in this iteration
    for ( unsigned int i = 0; i < nbOfCycles; ++i )
@@ -670,6 +710,8 @@ unsigned int McmcBase::iterateOnce()
       }
    }
 
+   adaptStepSize(); //adapt step size based on the cycle-averaged acceptance rate
+
    // Store the pairs {p[i], y[i]}
    CopySampleAndResponse( m_pSample, m_ySample, m_sample_copy );
 
@@ -681,21 +723,14 @@ unsigned int McmcBase::iterateOnce()
 
 void McmcBase::doCycle( vector<vector<double> >& accRatios )
 {
-   double sumOfRates = 0.0;
    for ( unsigned int i = 1; i <= nbOfSteps; ++i )
    {
       step( i, accRatios );
-      sumOfRates += m_acceptanceRate;
    }
-   m_acceptanceRate = sumOfRates / nbOfSteps;
-   adaptStepSize(); //adapt step size based on the cycle-averaged acceptance rate
 }
 
 void McmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios )
 {
-   unsigned int nbOfAcceptedProposals = 0; //counts number of accepted proposals for this step
-   unsigned int nbOfNewProposals = m_subSampleSize; //counts total number of new proposals
-
    // Remember subsample data before proposing a new step (p = pOld)
    vector<vector<double> > pOldSubSample = m_pSubSample;
    vector<vector<double> > yOld = m_y;
@@ -724,7 +759,6 @@ void McmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios 
             updateBestMatches( RMSEkey, extendSubSampleToProxyCase( m_pSubSample[i], i ) );
             accRatios[i][0] = 1.0; //by definition
          }
-         nbOfNewProposals--;
          continue;
       }
 
@@ -741,12 +775,12 @@ void McmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios 
       // Final acceptance test
       double logTransRatio = oldLogLh[i] - m_logLh[i] + oldPriorProb[i] - m_priorProb[i];
       double logAccRatio = logLhNew - m_logLh_impr[i] + m_priorProb[i] - oldPriorProb[i];
-      if ( acceptProposal( logTransRatio, logAccRatio ) || ( m_krigingUsage != SmartMcmcKriging ) )
+      if ( acceptProposal( logTransRatio, logAccRatio, m_rngs[i] ) || ( m_krigingUsage != SmartMcmcKriging ) )
       {
          m_yImpr[i] = yNew;
          m_logLh_impr[i] = logLhNew;
          m_fSubSample[i][0] = GetMinusLogPosteriorProb( getUsePrior(), logLhNew, m_priorProb[i] );
-         nbOfAcceptedProposals++;
+         m_nAccepted[i] += 1;
       }
       else
       {
@@ -773,18 +807,10 @@ void McmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios 
          accRatios[i][0] = exp( accRatios[i][0] );
       }
    }
-
-   // Update the acceptance rate for this step
-   if ( nbOfNewProposals > 0 )
-   {
-      m_acceptanceRate *= ( double(nbOfAcceptedProposals) / nbOfNewProposals );
-   }
 }
 
 void McmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& newPar )
 {
-   unsigned int nbOfNewPar = 0; //counts all proposals that are not (yet) rejected
-   unsigned int nbOfProp = 0; //counts the total number of parameter proposals
    // For each Markov chain, create proposals until one of them is no longer rejected
    for ( size_t i = 0; i < m_subSampleSize; ++i )
    {
@@ -801,7 +827,7 @@ void McmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& ne
          unsigned int proposedTornadoStep = 0;
          if ( m_searchStatus[i] == Random )
          {
-            m_stepProposer->proposeRandomStep( pStar, logTransRatio );
+            m_stepProposer->proposeRandomStep( m_rngs[i], pStar, logTransRatio );
          }
          else
          {
@@ -831,11 +857,10 @@ void McmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& ne
          // in which case the final test based on expensive proxies occurs in step().
          // Without smart Kriging, the below test is already decisive such that the
          // test in step() is always passed.
-         if ( acceptProposal( logTransRatio, logAccRatio ) )
+         if ( acceptProposal( logTransRatio, logAccRatio, m_rngs[i] ) )
          {
             newPar[i] = true;
             m_lastTornadoStep[i] = proposedTornadoStep;
-            nbOfNewPar++;
 
             // Copy calculated properties
             m_pSubSample[i] = pStar;
@@ -854,11 +879,9 @@ void McmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& ne
             proposeStepImpl3( i );
          }
       }
-      nbOfProp += count;
+
+      m_nProposed[i] += count;
    }
-   // Calculate the preliminary acceptance rate
-   if ( nbOfProp > 0 ) m_acceptanceRate = (100.0 * nbOfNewPar) / nbOfProp;
-   else m_acceptanceRate = 0.0;
 }
 
 RealVector McmcBase::calcPriorProb( ParameterSet const& parSet ) const
@@ -899,7 +922,7 @@ double McmcBase::calcPriorProb( Parameter const& p ) const
 }
 
 
-bool McmcBase::acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccRatio ) const
+bool McmcBase::acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccRatio, RandomGenerator& rg ) const
 {
    // Add logarithm of transition probability ratio
    logAccRatio += logTransRatio;
@@ -912,7 +935,7 @@ bool McmcBase::acceptProposalImpl_MCMC_MC( double logTransRatio, double& logAccR
       // Still accept when ratio larger than random number from U[0,1].
       // Only done when logAccRatio less than zero to avoid
       // unnecessary random number generation.
-      double rand = m_rg.uniformRandom();
+      double rand = rg.uniformRandom();
       accept = logAccRatio > log(rand);
    }
    return accept;
