@@ -11,7 +11,10 @@
 #include "ErrorHandler.h"
 #include "JobScheduler.h"
 
+#ifdef WITH_LSF_SCHEDULER
 #include <lsf/lsbatch.h>
+#endif
+
 #include <iostream>
 #include <fstream>
 

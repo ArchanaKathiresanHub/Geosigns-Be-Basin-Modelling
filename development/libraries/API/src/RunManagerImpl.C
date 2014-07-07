@@ -19,8 +19,14 @@
 #include <fstream>
 #include <iostream>
 
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/stat.h>
+#define Wait(a) sleep(a)
+#else
+#include <windows.h>
+#define Wait(a) Sleep( a * 1000 )
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +389,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
       }
       // run over all cases, make a pause, get a twix
       std::cout << "submitted: " << submitted << ", finished: " << finished << ", failed: " << crashed << ", pending: " << pending << ", running: " << running << std::endl;
-      sleep( 2 );
+      Wait( 2 );
       if ( submitted == finished ) allFinished = true;
    }
    return NoError;

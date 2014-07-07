@@ -8,10 +8,8 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file RunMangerLSFImpl.h
+/// @file RunMangerImpl.h
 /// @brief This file keeps API implementation declaration for creating and managing jobs on HPC cluster for DoE generated cases using LSF
-
-#ifdef WITH_LSF_SCHEDULER
 
 #ifndef CASA_API_RUN_MANAGER_LSF_IMPL_H
 #define CASA_API_RUN_MANAGER_LSF_IMPL_H
@@ -71,5 +69,3 @@ namespace casa
 }
 
 #endif // CASA_API_RUN_MANAGER_H
-
-#endif // WITH_LSF_SCHEDULER

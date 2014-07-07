@@ -37,8 +37,8 @@
 ///   - fastcauldron (To model deposition and erosion of sedimentary layers, pressure and temperature in these layers).
 ///   - fastgenex6   (To model Generation and expulsion of hydrocarbon from source rocks).
 ///   - fastmig      (To model migration of hydrocarbon from source rock to reservoir layers).
-///   - fastctc      (To calculate crust thickness history. Not implemented yet in casa) @TODO: implement as CauldronApp
-///   - fasttouch7   (To calculate reservoir quality using Geocosm ResQ library. Not implemented yet in casa) @TODO: implement as CauldronApp
+///   - fastctc      (To calculate crust thickness history. Not implemented yet in casa) @todo: implement as CauldronApp
+///   - fasttouch7   (To calculate reservoir quality using Geocosm ResQ library. Not implemented yet in casa) @todo: implement as CauldronApp
 ///   - general      (Any other application)
 ///
 /// casa::CauldronApp object should be created using static function casa::RunManager::createApplication(). User could add one by one options,

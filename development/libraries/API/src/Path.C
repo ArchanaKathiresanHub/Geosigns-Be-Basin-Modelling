@@ -62,7 +62,7 @@ std::string Path::operator [] ( size_t i )
 
    while( i > 0 && it != thePath.end() ) { ++it; --i; }
    
-   return it != thePath.end() ? *it : "";
+   return it != thePath.end() ? (*it).string() : "";
 }
 
 }

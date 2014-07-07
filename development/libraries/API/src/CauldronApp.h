@@ -38,6 +38,7 @@ namespace casa
       } ShellType;
 
       /// @brief Constructor
+      /// @param sh shell which will be used for scripts
       /// @param appName name of an application like fastcauldron/fasttouch7/fastgenex6/...
       /// @param isParallel is this application will be run as a parallel app (requires mpirun in command line)
       CauldronApp( ShellType sh, const std::string & appName, bool isParallel = true );
