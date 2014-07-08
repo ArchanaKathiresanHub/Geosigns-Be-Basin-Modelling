@@ -50,9 +50,9 @@
 /// - \subpage CASA_ClassHierachyPage
 /// - \subpage CASA_VarParametersAndObservablesPage
 /// - \subpage CASA_DoEGeneratorPage
+/// - \subpage CASA_RunManagerPage
 /// - \subpage CASA_DataDiggerPage
 /// - \subpage CASA_RSProxyPage
-/// - \subpage CASA_RunManagerPage
 /// - \subpage CASA_MCSolverPage
 ///
 /// The block diagram which describes an interaction between different parts of CASA API could be seen here:

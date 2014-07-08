@@ -24,30 +24,41 @@
 /// last case is completed, it returns the run status for each case in terms of succeeded/failed.
 ///
 /// RunManager configuration could be changed by the following environment variables:
-/// - \b SIEPRTS_LICENSE_FILE - the default value is: 3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com:3000@ams1-s-07489.europe.shell.com
+/// - \b SIEPRTS_LICENSE_FILE - Defines the list of license servers for cauldron applications. The default value is: \n
+///      @code 3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com:3000@ams1-s-07489.europe.shell.com @endcode
 /// - \b CAULDRON_MPIRUN_CMD  - Defines which mpirun command will be used and it parameters. The default value is:\n
-///    "source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh \n mpirun -outfile-pattern 'output-rank-%r.log' -env I_MPI_FABRICS shm:tcp -env I_MPI_DEBUG 5 ";
-/// - \b CAULDRON_VERSION     - Version of Cauldron which will be used for submitting jobs to the cluster. The default value is: \b v2014.0703 
-/// - \b IBS_ROOT             - Path to IBS folder where the different versions of the Cauldron could be found. The default value is: /apps/sssdev/ibs
+///      @code source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh \n mpirun -outfile-pattern 'output-rank-%r.log' -env I_MPI_FABRICS shm:tcp -env I_MPI_DEBUG 5 @endcode
+/// - \b CAULDRON_VERSION - Defines the version of Cauldron which will be used for submitting jobs to the cluster. The default value is: @code v2014.0703 @endcode
+/// - \b IBS_ROOT - Defines a path to IBS folder where the different versions of the Cauldron could be found. The default value is: @code /apps/sssdev/ibs @endcode
 /// RunManager API has a priority over these environment variables.
 ///
-/// CASA::RunCase keeps information about project file only, it has no any information which simulator should be run with this project. To create
-/// the list of cauldron applications like fastcauldron, fastgenex, etc, user should add to casa::RunManager the set of casa::CauldronApp objects.
-/// Each CauldronApp object represents one of the Cauldron simulator applications. The current list of available now cauldron applications is following:
-///   - fastcauldron (To model deposition and erosion of sedimentary layers, pressure and temperature in these layers).
-///   - fastgenex6   (To model Generation and expulsion of hydrocarbon from source rocks).
-///   - fastmig      (To model migration of hydrocarbon from source rock to reservoir layers).
-///   - fastctc      (To calculate crust thickness history. Not implemented yet in casa) @todo: implement as CauldronApp
-///   - fasttouch7   (To calculate reservoir quality using Geocosm ResQ library. Not implemented yet in casa) @todo: implement as CauldronApp
-///   - general      (Any other application)
+/// casa::RunCase keeps information about project file only, it has no any information which simulator should be run with this project. To create
+/// a list of cauldron applications like fastcauldron, fastgenex, etc, user should add to casa::RunManager the set of casa::CauldronApp objects.
+/// Each CauldronApp object represents one of the Cauldron simulator applications. The list of available now Cauldron applications is following:
+///   - \b fastcauldron - To model deposition and erosion of sedimentary layers, pressure and temperature in these layers.
+///   - \b fastgenex6 - To model Generation and expulsion of hydrocarbon from source rocks.
+///   - fastmig - To model migration of hydrocarbon from source rock to reservoir layers.
+///   - fastctc - To calculate crust thickness history.
+///   - fasttouch7 - To calculate reservoir quality using Geocosm ResQ library.
+///   - \b track1d - To extract data along vertical well for given position
+///   - \b general - Any other application defined by given script body.
 ///
-/// casa::CauldronApp object should be created using static function casa::RunManager::createApplication(). User could add one by one options,
+/// casa::CauldronApp object should be created using static function casa::RunManager::createApplication(). User then could add one by one options,
 /// to the application through casa::CauldronApp::addOption( std::string ). And then add to calculation pipeline using 
-/// RunManager::addApplication() method.
-
+/// RunManager::addApplication() method. Here is an example:
+/// @code
+///    CauldronApp * app = RunManager::createApplication( RunManager::fastcauldron );
+///    app->addOption( "-itcoupled" );
+///    runManager.addApplication( app );
 ///
-/// @todo Work in 2015 could add an extra analysis of simulation failures, input to output matching, possible input duplications\n
-/// (e.g. using one P/T run to feed many G/M runs). 
+///    app = RunManager::createApplication( RunManager::fastgenex6 );
+///    runManager.addApplication( app );
+/// @endcode
+/// @todo implement \b fastmig, \b fastctc, \b fasttouch7 as casa::CauldronApp
+///
+///
+/// <b> Work in 2015 </b> could add an extra analysis of simulation failures, input to output matching, possible input duplications\n
+/// (e.g. using one P/T run to feed many G/M runs).
 
 namespace casa
 {
@@ -89,20 +100,21 @@ namespace casa
       /// @return NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode setCauldronVersion( const char * verString ) = 0;
 
-      // TODO add methods to set up IBS_ROOT
+      /// @todo Add interface for casa::RunManager to set up IBS_ROOT
 
       /// @brief Add application to the list of simulators for pipeline calculation definitions
       /// @param app casa::CauldronApp object pointer
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode addApplication( CauldronApp * app ) = 0;
 
-      /// @brief add Case to set
+      /// @brief Add a Case to the scheduled cases set
       /// @param newRun new Case to be scheduled for run
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode scheduleCase( const RunCase & newRun ) = 0;
 
       /// @brief Execute all scheduled cases
       /// @param asyncRun
+      /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun ) = 0;
 
       /// @brief Return cluster name for which will be used for spawning jobs

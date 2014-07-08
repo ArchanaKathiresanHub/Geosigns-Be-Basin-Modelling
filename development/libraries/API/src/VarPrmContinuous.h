@@ -26,7 +26,11 @@
 ///   - \subpage CASA_SimpleRangePage
 ///   - \subpage CASA_MapRangePage
 ///   - \subpage CASA_CurveRangePage
-
+///
+/// The following list of simple range variable parameters is implemented in CASA API
+/// - @link CASA_SourceRockTOCPage Source rock initial Total Organic Contents (TOC) parameter @endlink
+/// - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
+///
 namespace casa
 {
    class Parameter;
