@@ -16,6 +16,8 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
+configure_file(src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
+
 add_library(api
 	${all_srcs}
 	${all_headers}
@@ -33,6 +35,7 @@ include_directories(
    ${SUMPP_INCLUDE_DIR}
    ${HDF5_INCLUDE_DIRS} 
    ${LSF_INCLUDE_DIR}
+   ${CMAKE_CURRENT_BINARY_DIR}
    src
 )
 

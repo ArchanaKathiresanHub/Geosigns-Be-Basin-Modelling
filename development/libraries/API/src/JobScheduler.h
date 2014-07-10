@@ -41,6 +41,11 @@ namespace casa
       JobScheduler( const std::string & clusterName = "" );
       ~JobScheduler();
 
+
+      // get cluster name
+      void setClusterName( const char * clusterName ) { m_clusterName = clusterName; }
+
+ 
       // get cluster name
       std::string clusterName() { return m_clusterName; }
 
@@ -61,6 +66,9 @@ namespace casa
 
       std::vector<Job*> m_jobs;        // array of scheduled jobs
       std::string       m_clusterName; // name of the cluster. If not set obtained automaticly through LSF API
+      
+      JobScheduler( const JobScheduler & jbS );
+      JobScheduler & operator = ( const JobScheduler & jbS );
    };
 }
 

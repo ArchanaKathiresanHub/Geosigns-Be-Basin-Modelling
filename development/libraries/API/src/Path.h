@@ -52,7 +52,7 @@ namespace ibs
 
       /// @brief Strip last element from the path (postfix operator)
       /// @return Path object itself
-      Path & operator -- ( int unused );
+      Path & cutLast();
 
       /// @brief Split path by path separator and return the number of elements in path
       /// @return number path elements

@@ -26,8 +26,8 @@ RunCaseImpl::RunCaseImpl() {;}
 // Destructor
 RunCaseImpl::~RunCaseImpl()
 {
-   for ( std::vector<Parameter*>::iterator it = m_prmsSet.begin(); it != m_prmsSet.end(); ++it ) delete *it;
-   for ( std::vector<Observable*>::iterator it = m_results.begin(); it != m_results.end(); ++it ) delete *it;
+   for ( size_t i = 0; i < m_prmsSet.size(); ++i ) delete m_prmsSet[i];
+   for ( size_t i = 0; i < m_results.size(); ++i ) delete m_results[i];
    m_prmsSet.clear(); 
    m_results.clear();
 }

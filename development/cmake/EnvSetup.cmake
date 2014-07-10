@@ -38,7 +38,7 @@
 #        Adds the <path> to the PATH environment variable
 #
 # add_environment_variable
-#        Adds a variable to the environment
+#        Adds a variable to the environment and defines the same cmake variable
 #
 #          add_environment_variable( <name> <value> )
 #
@@ -87,4 +87,5 @@ macro(add_environment_variable varName varValue)
    file(APPEND "${CMAKE_BINARY_DIR}/${BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE}" "setenv ${varName} \"${varValue}\"\n")
    file(APPEND "${CMAKE_BINARY_DIR}/${BM_BOURNE_SHELL_ENVIRONMENT_SCRIPT_FILE}" "export ${varName}=\"${varValue}\"\n")
    file(APPEND "${CMAKE_BINARY_DIR}/${BM_WINCMD_SHELL_ENVIRONMENT_SCRIPT_FILE}" "set ${varName}=${varValue}\n")
+   set( ${varName} ${varValue} CACHE STRING "Environment variable" )
 endmacro(add_environment_variable)

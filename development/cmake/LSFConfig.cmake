@@ -19,27 +19,22 @@ set(LSF_INCLUDE_DIR)
 
 if(UNIX)
 
-   set (LSF_HOME /apps/3rdparty/lsfnubo/lsf/9.1 CACHE PATH "Home dir for LSF")
-
+   set (LSF_HOME /glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64 CACHE PATH "Home dir for LSF binary files")
+   set (LSF_CAULDRON_PROJECT_NAME "cldrn" CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
+   
    find_path(LSF_INCLUDE_DIR lsf/lsbatch.h
       PATHS
-         $ENV{LSF_BINDIR}../../include
-         ${LSF_HOME}/include
-         $ENV{LSF_HOME}/include
+         ${LSF_HOME}/../include
    )
 
    find_library(LSBATCH_LIB NAMES bat
       PATHS 
-         $ENV{LSF_LIBDIR}
          ${LSF_HOME}/lib
-         $ENV{LSF_HOME}/lib
    )
 
    find_library(LSF_LIB NAMES lsf
       PATHS 
-         $ENV{LSF_LIBDIR}
          ${LSF_HOME}/lib
-         $ENV{LSF_HOME}/lib
    )
 
    find_library(NSL_LIB nsl)
@@ -78,8 +73,6 @@ if(UNIX)
          CONTAINS_CRYPTO "No"
          ECCN         "Unknown"
       )
-
-      add_environment_path("$ENV{LSF_BINDIR}")
    endif(LSF_FOUND)
 
    #Print status of LSF

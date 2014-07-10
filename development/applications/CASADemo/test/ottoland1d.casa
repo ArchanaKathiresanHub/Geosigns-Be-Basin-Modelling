@@ -1,0 +1,9 @@
+app fastcauldron "-itcoupled"
+app fastgenex6
+app track1d "-coordinates 460001,6750001" "-age 0.0" "-properties Temperature,Vr,OilExpelledCumulative,HcGasExpelledCumulative,TOC"
+base_project "Ottoland.project3d"
+varprm "TopCrustHeatProduction" 0.1 4.9 "Block"
+varprm "SourceRockTOC" "Lower Jurassic" 5.0 15.0 "Block"
+doe "Tornado"
+location "/glb/home/nlskon/CasaDemo_CaseSet"
+run "AMSGDC" "v2014.0703"

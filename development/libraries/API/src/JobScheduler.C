@@ -11,6 +11,8 @@
 #include "ErrorHandler.h"
 #include "JobScheduler.h"
 
+#include "CauldronEnvConfig.h"
+
 #ifdef WITH_LSF_SCHEDULER
 #include <lsf/lsbatch.h>
 #endif
@@ -18,52 +20,66 @@
 #include <iostream>
 #include <fstream>
 
+#include <cstdlib>
+#include <cstring>
+
 namespace casa
 {
 
 #ifdef WITH_LSF_SCHEDULER
 
-static char * s_lsfProjectName = "cldrn";
-
 class JobScheduler::Job
 {
 public:
-   Job() : m_lsfJobID( -1 ), m_isFinished( false )
+   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus ) : m_lsfJobID( -1 ), m_isFinished( false )
    {
       // clean LSF structures
       memset( &m_submit,     0, sizeof( m_submit ) ); 
       memset( &m_submitRepl, 0, sizeof( m_submitRepl ) ); 
 
-      // Initialize LSF submit structure
-
       // resource limits are initialized to default
       for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
 
-      m_submit.numProcessors    = 1; // initial number of processors needed by a (parallel) job
-      m_submit.maxNumProcessors = 1; // max num of processors required to run the (parallel) job
+      /// Prepare job to submit through LSF
+      m_submit.projectName      = strdup( s_LSF_CAULDRON_PROJECT_NAME ); // add project name (must be the same for all cauldron app)
+      m_submit.command          = strdup( scriptName.c_str() );
+      m_submit.jobName          = strdup( jobName.c_str() );
 
-      // add project name (must be the same for all cauldron app)
-      m_submit.projectName = s_lsfProjectName;
+      // stdout/stderr 
+      m_submit.outFile          = strdup( (jobName + ".out" ).c_str() );
+      m_submit.errFile          = strdup( (jobName + ".err" ).c_str() );
+      
+      m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
+      
+      m_submit.cwd              = strdup( cwd.c_str() );
+      m_submit.options3         = SUB3_CWD;
 
-      m_submit.options = SUB_PROJECT_NAME;
+      m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
+      m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
    }
 
    ~Job()
    {  // allocated by strdup
-      if ( m_submit.command ) free( m_submit.command );
-      if ( m_submit.jobName ) free( m_submit.jobName ); 
-      if ( m_submit.cwd )     free( m_submit.cwd     ); 
-      if ( m_submit.outFile ) free( m_submit.outFile ); 
-      if ( m_submit.errFile ) free( m_submit.errFile ); 
+      if ( m_submit.projectName ) free( m_submit.projectName );
+      if ( m_submit.command )     free( m_submit.command );
+      if ( m_submit.jobName )     free( m_submit.jobName ); 
+      if ( m_submit.cwd )         free( m_submit.cwd     ); 
+      if ( m_submit.outFile )     free( m_submit.outFile ); 
+      if ( m_submit.errFile )     free( m_submit.errFile ); 
    }
 
-   bool            m_isFinished;  // was this job finished?
+   bool               m_isFinished; // was this job finished?
 
    // fields related to interaction with LSF
-   struct submit      m_submit;     //
-   struct submitReply m_submitRepl;  //
+   struct submit      m_submit;     // lsf_submit use values from this structure to submit job
+   struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
    
-   LS_LONG_INT    m_lsfJobID;       // job ID in LSF
+   LS_LONG_INT        m_lsfJobID;   // job ID in LSF
+
+private:
+   // disable copy constructor/operator
+   Job( const Job & jb );
+   Job & operator = ( const Job & jb );
 };
 
 
@@ -89,35 +105,16 @@ JobScheduler::JobScheduler( const std::string & clusterName )
 
 JobScheduler::~JobScheduler()
 {
-   for ( std::vector<Job*>::iterator it = m_jobs.begin(); it != m_jobs.end(); ++it )
+   for ( size_t i = 0; i < m_jobs.size(); ++i )
    {
-      delete *it;     // clean array of scheduled jobs
+      delete m_jobs[i];     // clean array of scheduled jobs
    }
 }
 
 // Add job to the list
 JobScheduler::JobID JobScheduler::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
 {
-   std::auto_ptr<Job> newJob;
-   newJob.reset( new Job() );
-   
-   ////////////////////////////////////////
-   /// Prepare job to submit through LSF
-   newJob->m_submit.cwd     = strdup( cwd.c_str() );
-   newJob->m_submit.command = strdup( scriptName.c_str() );
-   newJob->m_submit.jobName = strdup( jobName.c_str() );
-
-   // stdout/stderr 
-   newJob->m_submit.outFile = strdup( (jobName + ".out" ).c_str() );
-   newJob->m_submit.errFile = strdup( (jobName + ".err" ).c_str() );
-
-   newJob->m_submit.options  |= SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
-   newJob->m_submit.options3 |= SUB3_CWD;
-
-   newJob->m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
-   newJob->m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
-
-   m_jobs.push_back( newJob.release() );
+   m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus ) );
 
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }

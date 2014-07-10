@@ -31,7 +31,7 @@ bool Path::exists() const
 }
 
 // Strip last element from the path (postfix operator)
-Path & Path::operator -- ( int unused )
+Path & Path::cutLast()
 {
    if ( !m_path.empty() )
    {

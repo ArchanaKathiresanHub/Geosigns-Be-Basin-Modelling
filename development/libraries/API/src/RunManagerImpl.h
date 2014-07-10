@@ -53,6 +53,10 @@ namespace casa
       /// @param asyncRun
       virtual ErrorHandler::ReturnCode runScheduledCases( bool asyncRun );
 
+      /// @brief Set HPC cluster name
+      /// @param clusterName name of the HPC cluster
+      virtual ErrorHandler::ReturnCode setClusterName( const char * clusterName );
+
       /// @brief Return cluster name for which will be used for spawning jobs
       /// @return cluster name as a string
       virtual std::string clusterName();

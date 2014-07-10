@@ -111,7 +111,7 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
  
    // cleaning files/folders
    pathToCaseSet.clean();  // clean folder ./CaseSet/Iteration_1
-   pathToCaseSet--;       
+   pathToCaseSet.cutLast();       
    pathToCaseSet.remove(); // delete folder ./CaseSet
    
    ASSERT_FALSE( pathToCaseSet.exists() );

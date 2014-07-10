@@ -35,11 +35,11 @@ namespace casa
 
     // go over all source rock lithologies and look for the first lithology with the same layer name as given
     const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-    for ( std::vector<mbapi::SourceRockManager::SourceRockID>::const_iterator it = srIDs.begin(); it != srIDs.end(); ++it )
+    for ( size_t i = 0; i < srIDs.size(); ++i )
     {
-       if ( mgr.layerName( *it ) == m_layerName )
+       if ( mgr.layerName( srIDs[i] ) == m_layerName )
        {
-          m_toc = mgr.tocIni( *it );
+          m_toc = mgr.tocIni( srIDs[i] );
           if ( ErrorHandler::NoError != mgr.errorCode() ) mdl.moveError( mgr );
           isFound = true;
           break;
@@ -62,15 +62,15 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel 
    
    // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
    const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( std::vector<mbapi::SourceRockManager::SourceRockID>::const_iterator it = srIDs.begin(); it != srIDs.end(); ++it )
+   for ( size_t i = 0; i < srIDs.size(); ++i )
    {
-      if ( mgr.layerName( *it ) == m_layerName )
+      if ( mgr.layerName( srIDs[i] ) == m_layerName )
       {
-         const std::string & mapName = mgr.tocInitMapName( *it );
+         const std::string & mapName = mgr.tocInitMapName( srIDs[i] );
          if ( !mapName.empty() )
          {
             std::ostringstream oss;
-            oss << "Source rock lithology with ID " << *it << " has TOC already defined as a map";
+            oss << "Source rock lithology with ID " << srIDs[i] << " has TOC already defined as a map";
             return caldModel.reportError( ErrorHandler::AlreadyDefined, oss.str() );
          }
          else if ( ErrorHandler::NoError != mgr.errorCode() ) return caldModel.moveError( mgr );
@@ -98,21 +98,21 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
 
    // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
    const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( std::vector<mbapi::SourceRockManager::SourceRockID>::const_iterator it = srIDs.begin(); it != srIDs.end(); ++it )
+   for ( size_t i = 0; i < srIDs.size(); ++i )
    {
-      if ( mgr.layerName( *it ) == m_layerName )
+      if ( mgr.layerName( srIDs[i] ) == m_layerName )
       {
          layerFound = true;
 
-         const std::string & mapName = mgr.tocInitMapName( *it );
+         const std::string & mapName = mgr.tocInitMapName( srIDs[i] );
          if ( !mapName.empty() )
          {
-            oss << "Source rock lithology with ID " << *it << "for the layer " << m_layerName <<
+            oss << "Source rock lithology with ID " << srIDs[i] << "for the layer " << m_layerName <<
                    " has TOC already defined as a map" << std::endl;
          }
          else if ( ErrorHandler::NoError != mgr.errorCode() ) oss << mgr.errorCode() << std::endl;
          
-         double mdlTOC = mgr.tocIni( *it );
+         double mdlTOC = mgr.tocIni( srIDs[i] );
          if ( std::fabs( mdlTOC - m_toc ) > 1.e-8 ) oss << "Value of TOC in the model (" << mdlTOC <<
                                                   ") is different from the parameter value (" << m_toc << ")" << std::endl;
       }

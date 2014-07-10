@@ -142,9 +142,9 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
          doe->getCaseSet( pBounds, baseCase, replicate, sumCases );
       }
 
-      for ( std::vector<SUMlib::Case>::const_iterator c = sumCases.begin(); c != sumCases.end(); ++c )
+      for ( size_t c = 0; c < sumCases.size(); ++c )
       {
-         addCase( varPrmsSet, expSet, *c );
+         addCase( varPrmsSet, expSet, sumCases[c] );
       }
 
       RunCaseSetImpl & doeCases = dynamic_cast<RunCaseSetImpl &>( doeCaseSet );

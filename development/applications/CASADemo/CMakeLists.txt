@@ -10,7 +10,7 @@
 #                                                                       #
 #########################################################################
 
-add_executable(CASADemo src/main.C)
+add_executable(CASADemo src/main.C src/CfgFileParser.C)
 
 bm_include_libraries(
 	API

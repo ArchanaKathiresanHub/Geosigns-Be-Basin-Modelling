@@ -22,7 +22,7 @@ namespace casa
 // Destructor
 RunCaseSetImpl::~RunCaseSetImpl()
 {
-   for ( std::vector<RunCase*>::iterator it = m_caseSet.begin(); it != m_caseSet.end(); ++it ) delete *it;
+   for ( size_t i = 0; i < m_caseSet.size(); ++i ) delete m_caseSet[i];
    m_caseSet.clear();
 }
 

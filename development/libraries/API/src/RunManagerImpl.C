@@ -16,16 +16,18 @@
 #include "RunCase.h"
 #include "RunManagerImpl.h"
 
+#include "CauldronEnvConfig.h"
+
 #include <fstream>
 #include <iostream>
 
 #ifndef _WIN32
 #include <unistd.h>
 #include <sys/stat.h>
-#define Wait(a) sleep(a)
+void Wait( int sec ) { sleep( sec ); }
 #else
 #include <windows.h>
-#define Wait(a) Sleep( a * 1000 )
+void Wait( int milsec ) { Sleep( milsec * 1000 ); }
 #endif
 
 
@@ -45,6 +47,10 @@ namespace casa
          m_cpus = 1;
          
          // set up needed for simulators environment vars
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
          
@@ -62,19 +68,54 @@ namespace casa
          
          // set up environment vars
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
          pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg60").path() );
          pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
       }
    };
+ 
+   // fastmig application wrapper
+   class FastMigApp : public CauldronApp
+   {
+   public:
+      // Constructor of fastgenex6 app
+      FastMigApp( ShellType sh = bash ) : CauldronApp( sh, "fastmig", true )
+      {
+         m_cpus = 1;
+         
+         // set up environment vars
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg50").path() );
+      }
+   };
    
+   // fastctc application wrapper
+   class FastCtcApp : public CauldronApp
+   {
+   public:
+      // Constructor of fastgenex6 app
+      FastCtcApp( ShellType sh = bash ) : CauldronApp( sh, "fastctc", true )
+      {
+         m_cpus = 1;
+         
+         // set up environment vars
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
+      }
+   };
+
+   // fasttouch7 application wrapper
+
    // track1d application wrapper
    class Track1DApp : public CauldronApp
    {
    public:
       /// Constructor of track1d app
-      Track1DApp( ShellType sh = bash ) : CauldronApp( sh, "track1d", false ) {;}
+      Track1DApp( ShellType sh = bash ) : CauldronApp( sh, "track1d", false )
+      {
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
+      }
       
       // Generates script file which contains environment set up and application run for given input/output project file
       virtual std::string generateScript( const std::string & inProjectFile, const std::string & outProjectFile )
@@ -160,23 +201,24 @@ namespace casa
    {
       setShellType( sh );
 
-      if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] =
-      "3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com:3000@ams1-s-07489.europe.shell.com";
+      if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] = s_LICENSE_SERVER;
     
       m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : "v2014.0703";        // the default version is the latest available release for now
       m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : "/apps/sssdev/ibs";  // path to IBS folder where the different versions are
-      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";
+      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                  // 
       
       if ( m_mpirunCmd.empty() )
       {
-         m_mpirunCmd =  "mpirun -env I_MPI_FABRICS shm:tcp -env I_MPI_DEBUG 5";
-      }
-      
-      switch( m_sh )
-      {
-         case bash:  m_mpiEnv = "source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh\n\n";  break;
-         case csh:   m_mpiEnv = "source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.csh\n\n"; break;
-         case cmd:   break;
+         m_mpirunCmd =  std::string( s_MPIRUN_CMD ) + " -env I_MPI_DEBUG 5";
+
+         m_mpiEnv = std::string( "source " ) + s_MPI_ROOT;
+
+         switch( m_sh )
+         {
+            case bash: m_mpiEnv += "/bin/mpivars.sh\n\n";  break;
+            case csh:  m_mpiEnv += "/bin/mpivars.csh\n\n"; break;
+            case cmd:  break;
+         }
       }
    }
 
@@ -188,7 +230,7 @@ namespace casa
       {
          case bash: oss << "#!/bin/bash\n\n"; break;
          case csh:  oss << "#!/bin/csh\n\n";  break;
-         case cmd:                          break;
+         case cmd:                            break;
       }
       
       // dump all neccessary environment variables to the script
@@ -233,6 +275,8 @@ CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, 
          
       case fastcauldron: app = new FastCauldronApp( CauldronApp::bash ); break;
       case fastgenex6:   app = new FastGenex6App(   CauldronApp::bash ); break;
+      case fastmig:      app = new FastMigApp(      CauldronApp::bash ); break;
+      case fastctc:      app = new FastCtcApp(      CauldronApp::bash ); break;
       case track1d:      app = new Track1DApp(      CauldronApp::bash ); break;
       case generic:      app = new GenericApp(      cmdLine ); break;
          
@@ -242,6 +286,7 @@ CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, 
 
    return app;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 RunManagerImpl::RunManagerImpl( const std::string & clusterName )
@@ -389,11 +434,16 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
       }
       // run over all cases, make a pause, get a twix
       std::cout << "submitted: " << submitted << ", finished: " << finished << ", failed: " << crashed << ", pending: " << pending << ", running: " << running << std::endl;
-      Wait( 2 );
+      Wait( 10 );
       if ( submitted == finished ) allFinished = true;
    }
    return NoError;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Set cluster name from job scheduler
+ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterName ) { m_jobSched->setClusterName( clusterName ); return NoError; }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Get cluster name from job scheduler
