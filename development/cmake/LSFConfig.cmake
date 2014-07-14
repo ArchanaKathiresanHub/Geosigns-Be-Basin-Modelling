@@ -50,6 +50,8 @@ if(UNIX)
 
       add_definitions(-DWITH_LSF_SCHEDULER)
 
+      set (LSF_ENVDIR ${LSF_HOME}/../../conf )
+
    endif (LSF_INCLUDE_DIR AND LSF_LIB AND LSBATCH_LIB)
 
    # Set up LSF
@@ -62,7 +64,7 @@ if(UNIX)
          VENDOR  "IBM"
          VERSION "9.1.1"
          LICENSE_TYPE "Commercial"
-         LICENSE_FILE "${LSF_HOME}/license/English.txt"
+         LICENSE_FILE "${LSF_HOME}/../license/English.txt"
          URL "http://www-03.ibm.com/systems/platformcomputing/products/lsf/index.html"
          DESCRIPTION "Load Sharing Facility (LSF) is a workload management platform, job scheduler, for distributed HPC environments"
          REQUIRED_AT  "Runtime"

@@ -85,6 +85,12 @@ private:
 
 JobScheduler::JobScheduler( const std::string & clusterName )
 {
+   const char * lsfConfDir = getenv( "LSF_ENVDIR" );
+   if ( !lsfConfDir )
+   {
+      setenv( "LSF_ENVDIR", s_LSF_CONFIG_DIR, 0 ); // LSF_ENVDIR is needed to make LSF API calls
+   }
+
    if ( !clusterName.empty() )
    {
       m_clusterName = clusterName;

@@ -62,16 +62,16 @@ source envsetup.sh
 
 make -k -j${nprocs} || { echo error: Build has failed; exit 1 ; } 
 
-#Give access for the group g_psaz00 to build folder
-chgrp -R $build
-chmod -R g+rw $build
-find $build -type d | xargs chmod g+x
-
 if [[ ${configuration} =~ "[Dd]ebug" ]]; then
    make install || { echo error: Installation has failed; exit 1 ; }
 else
    make install/strip || { echo error: Installation has failed; exit 1 ; } 
 fi
+
+#Give access for the group g_psaz00 to build folder
+chgrp -R g_psaz00 $build
+chmod -R g+rw $build
+find $build -type d | xargs chmod g+x
 
 if [ x$geocase = xTrue ]; then
 # Import (legacy) Geocase
