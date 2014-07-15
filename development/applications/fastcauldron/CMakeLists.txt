@@ -61,7 +61,6 @@ add_executable(fastcauldron
 	src/LinearPropertyInterpolator.C
 	src/Lithology.C
 	src/LithologyIdCalculator.C
-	src/LithostaticPressureCalculator.C
 	src/main.C
 	src/MantleFormation.C
 	src/mapinterpolator.C

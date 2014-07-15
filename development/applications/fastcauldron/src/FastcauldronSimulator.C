@@ -940,6 +940,12 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
          biomarkersOption = property->getOption ();
       }
 
+      if ( getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE and
+           name == "LithoStaticPressure" and 
+           property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
+         property->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+      }
+
       if ( CBMGenerics::ComponentManager::getInstance ().GetSpeciesIdByName ( name ) != -1 ) {
          property->setOption ( Interface::SOURCE_ROCK_ONLY_OUTPUT );
       }

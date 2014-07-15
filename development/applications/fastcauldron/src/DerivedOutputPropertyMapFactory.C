@@ -23,7 +23,6 @@
 #include "SmectiteIlliteAdapter.h"
 #include "BiomarkersAdapter.h"
 #include "LithologyIdCalculator.h"
-#include "LithostaticPressureCalculator.h"
 
 #include "ComponentConcentrationCalculator.h"
 #include "SaturationCalculator.h"
@@ -73,7 +72,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ HYDROSTATICPRESSURE ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocateLithostaticPressureCalculator;
+   mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ LITHOSTATICPRESSURE ] = mapTraits;
@@ -464,7 +463,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ HYDROSTATICPRESSURE ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocateLithostaticPressureVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocatePrimaryPropertyVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ LITHOSTATICPRESSURE ] = volumeTraits;
 

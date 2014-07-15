@@ -1673,7 +1673,7 @@ void Basin_Modelling::deleteErosionFactorMaps ( AppCtx* basinModel ) {
 void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( AppCtx* basinModel,
                                                                              const double age ) {
 
-   if ( basinModel->isALC() ) {
+   if ( true or basinModel->isALC() ) {
  
       int i, j, k;
 
@@ -1732,7 +1732,7 @@ void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( App
          
          currentLayer = basinModel->layers [ layer ];
            
-         if(( currentLayer -> isCrust()  && FastcauldronSimulator::getInstance ().getCrustPropertyModel()  != "Legacy Crust" ) ||
+         if( true or ( currentLayer -> isCrust()  && FastcauldronSimulator::getInstance ().getCrustPropertyModel()  != "Legacy Crust" ) ||
             ( currentLayer -> isMantle() && FastcauldronSimulator::getInstance ().getMantlePropertyModel() != "Legacy Mantle" )) {
             // Get the lithostatic pressure and depth of the current layer.
             PETSC_3D_Array lithostaticPressure ( currentLayer->layerDA,
@@ -1839,7 +1839,7 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
            
            currentLayer = basinModel->layers [ layer ];
 
-           if ( age == FastcauldronSimulator::getInstance ().getAgeOfBasin () ||
+           if ( true or age == FastcauldronSimulator::getInstance ().getAgeOfBasin () ||
                 ( currentLayer -> isCrust()  && FastcauldronSimulator::getInstance ().getCrustPropertyModel()  == "Legacy Crust" ) ||
                 ( currentLayer -> isMantle() && FastcauldronSimulator::getInstance ().getMantlePropertyModel() == "Legacy Mantle" )) {
               // initialize lithostatic pressure for the first timestep

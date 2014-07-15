@@ -3513,6 +3513,7 @@ void Basin_Modelling::FEM_Grid::Initialise_Basin_Temperature ( bool& temperature
 		          		      Number_Of_Newton_Iterations,
                                               T_Norm );
 
+  computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time );
   printRelatedProjects ( Current_Time );
   Copy_Current_Properties ();
 
