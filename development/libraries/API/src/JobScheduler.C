@@ -100,17 +100,17 @@ public:
    bool submit()
    {
 #ifdef WITH_LSF_SCHEDULER
-      m_lsfJobID = lsb_submit( &m_submit ), &m_submitRepl );
+      m_lsfJobID = lsb_submit( &m_submit, &m_submitRepl );
 #endif
       return isSubmitted( );
    }
 
    // check job status
-   JobScheduler::JobState status( )
+   JobScheduler::JobState status()
    {
 #ifdef WITH_LSF_SCHEDULER
       // something still on the cluster, check status
-      if ( lsb_openjobinfo( job->m_lsfJobID, NULL, NULL, NULL, NULL, ALL_JOB ) < 0 )
+      if ( lsb_openjobinfo( m_lsfJobID, NULL, NULL, NULL, NULL, ALL_JOB ) < 0 )
       {
          throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
       }
@@ -127,7 +127,7 @@ public:
 
       if ( jobInfo->status & JOB_STAT_DONE )
       {
-         job->m_isFinished = true;
+         m_isFinished = true;
          return JobSucceeded;   // job is completed successfully
       }
 
@@ -144,7 +144,7 @@ public:
 
       if ( jobInfo->status & JOB_STAT_EXIT )
       {
-         job->m_isFinished = true;
+         m_isFinished = true;
          return JobFailed; // job exited
       }
 #endif
