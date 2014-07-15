@@ -26,13 +26,15 @@
 namespace casa
 {
 
-#ifdef WITH_LSF_SCHEDULER
-
 class JobScheduler::Job
 {
 public:
-   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus ) : m_lsfJobID( -1 ), m_isFinished( false )
+   Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
    {
+#ifdef WITH_LSF_SCHEDULER
+      m_lsfJobID = -1;
+      m_isFinished = false;
+
       // clean LSF structures
       memset( &m_submit,     0, sizeof( m_submit ) ); 
       memset( &m_submitRepl, 0, sizeof( m_submitRepl ) ); 
@@ -56,27 +58,112 @@ public:
 
       m_submit.numProcessors    = cpus; // initial number of processors needed by a (parallel) job
       m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
+#else
+      m_command = scriptName;
+      m_isFinished = false;   // without job scheduler all jobs considered as finished immediately
+#endif
    }
 
    ~Job()
    {  // allocated by strdup
+#ifdef WITH_LSF_SCHEDULER
       if ( m_submit.projectName ) free( m_submit.projectName );
       if ( m_submit.command )     free( m_submit.command );
       if ( m_submit.jobName )     free( m_submit.jobName ); 
       if ( m_submit.cwd )         free( m_submit.cwd     ); 
       if ( m_submit.outFile )     free( m_submit.outFile ); 
       if ( m_submit.errFile )     free( m_submit.errFile ); 
+#endif
    }
 
+   const char * command() const { 
+#ifdef WITH_LSF_SCHEDULER
+      return m_submit.command;
+#else
+      return m_command.c_str();
+#endif
+   }
+
+   // check is job was submitted already
+   bool isSubmitted( ) const
+   {
+#ifdef WITH_LSF_SCHEDULER
+      return m_lsfJobID < 0 ? false : true;
+#else
+      return true;
+#endif
+   }
+
+   // check is job finished?
+   bool isFinished() const { return m_isFinished; }
+
+   bool submit()
+   {
+#ifdef WITH_LSF_SCHEDULER
+      m_lsfJobID = lsb_submit( &m_submit ), &m_submitRepl );
+#endif
+      return isSubmitted( );
+   }
+
+   // check job status
+   JobScheduler::JobState status( )
+   {
+#ifdef WITH_LSF_SCHEDULER
+      // something still on the cluster, check status
+      if ( lsb_openjobinfo( job->m_lsfJobID, NULL, NULL, NULL, NULL, ALL_JOB ) < 0 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
+      }
+
+      int more;                   /* number of remaining jobs unread */
+      struct jobInfoEnt * jobInfo = lsb_readjobinfo( &more ); // detailed job info
+
+      if ( !jobInfo )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
+      }
+
+      lsb_closejobinfo();
+
+      if ( jobInfo->status & JOB_STAT_DONE )
+      {
+         job->m_isFinished = true;
+         return JobSucceeded;   // job is completed successfully
+      }
+
+      if ( jobInfo->status & JOB_STAT_RUN ) return JobRunning;     // job is running
+
+      if ( jobInfo->status & JOB_STAT_WAIT || // chunk job waiting its execution turn
+         jobInfo->status & JOB_STAT_PEND || // job is pending
+         jobInfo->status & JOB_STAT_PSUSP || // job is held                          
+         jobInfo->status & JOB_STAT_SSUSP || // job is suspended by LSF batch system
+         jobInfo->status & JOB_STAT_USUSP ) // job is suspended by user
+      {
+         return JobPending;
+      }
+
+      if ( jobInfo->status & JOB_STAT_EXIT )
+      {
+         job->m_isFinished = true;
+         return JobFailed; // job exited
+      }
+#endif
+      return Unknown;   // unknown status
+   }
+
+ private:
    bool               m_isFinished; // was this job finished?
 
+#ifdef WITH_LSF_SCHEDULER
    // fields related to interaction with LSF
    struct submit      m_submit;     // lsf_submit use values from this structure to submit job
    struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
    
    LS_LONG_INT        m_lsfJobID;   // job ID in LSF
+#else
+   std::string        m_command;    // command to execute
+#endif
 
-private:
    // disable copy constructor/operator
    Job( const Job & jb );
    Job & operator = ( const Job & jb );
@@ -85,16 +172,19 @@ private:
 
 JobScheduler::JobScheduler( const std::string & clusterName )
 {
+#ifdef WITH_LSF_SCHEDULER
    const char * lsfConfDir = getenv( "LSF_ENVDIR" );
    if ( !lsfConfDir )
    {
       setenv( "LSF_ENVDIR", s_LSF_CONFIG_DIR, 0 ); // LSF_ENVDIR is needed to make LSF API calls
    }
+#endif
 
    if ( !clusterName.empty() )
    {
       m_clusterName = clusterName;
    }
+#ifdef WITH_LSF_SCHEDULER
    else
    {
       // get cluster name
@@ -106,8 +196,8 @@ JobScheduler::JobScheduler( const std::string & clusterName )
 
    // initialize LSFBat library
    if ( lsb_init( NULL ) < 0 ) throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "LSF Bat library initialization failed: " << ls_sysmsg();
+#endif
 }
-
 
 JobScheduler::~JobScheduler()
 {
@@ -121,7 +211,6 @@ JobScheduler::~JobScheduler()
 JobScheduler::JobID JobScheduler::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
 {
    m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus ) );
-
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
 
@@ -130,14 +219,16 @@ void JobScheduler::runJob( JobID job )
 {
    if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no such job in the queue";
 
-   if ( m_jobs[job]->m_lsfJobID < 0 )
+   if ( !m_jobs[job]->isSubmitted() )
    {
       // spawn job to the cluster
-      m_jobs[job]->m_lsfJobID = lsb_submit( &(m_jobs[job]->m_submit), &(m_jobs[job]->m_submitRepl) );
-      if ( m_jobs[job]->m_lsfJobID < 0 )
+      if ( !m_jobs[job]->submit() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Submition job " << m_jobs[job]->m_submit.command << " to the cluster failed," 
-                                                      << "LSF error: " << lsberrno << ", message: " << lsb_sysmsg();
+         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Submitting job " << m_jobs[ job ]->command() << " to the cluster failed"
+#ifdef WITH_LSF_SCHEDULER
+            << ", LSF error: " << lsberrno << ", message: " << lsb_sysmsg()
+#endif
+         ;
       } 
    }
 }
@@ -148,54 +239,15 @@ JobScheduler::JobState JobScheduler::jobState( JobID id )
    if ( id >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
 
    Job * job = m_jobs[id];
-   if ( job->m_lsfJobID < 0 ) return NotSubmittedYet;  // job wasn't submitted yet
+   if ( job->isFinished()   ) return JobFinished;      // if job was finished already for some reason, do not check again
+   if ( !job->isSubmitted() ) return NotSubmittedYet;  // job wasn't submitted yet
 
-   if ( job->m_isFinished ) return JobFinished; // if job was finished already for some reason, do not check again
-
-   // something still on the cluster, check status
-   if ( lsb_openjobinfo( job->m_lsfJobID, NULL, NULL, NULL, NULL, ALL_JOB ) < 0 )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
-   }
-
-   int more;                   /* number of remaining jobs unread */
-   struct jobInfoEnt * jobInfo = lsb_readjobinfo( &more ); // detailed job info
-
-   if ( !jobInfo )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Reading job status error code: " << lsberrno << ", message: " << lsb_sysmsg();
-   }
-
-   lsb_closejobinfo();
-   
-   if ( jobInfo->status & JOB_STAT_DONE )
-   {
-      job->m_isFinished = true;
-      return JobSucceeded;   // job is completed successfully
-   }
-
-   if ( jobInfo->status & JOB_STAT_RUN    ) return JobRunning;     // job is running
-   
-   if ( jobInfo->status & JOB_STAT_WAIT  || // chunk job waiting its execution turn
-        jobInfo->status & JOB_STAT_PEND  || // job is pending
-        jobInfo->status & JOB_STAT_PSUSP || // job is held                          
-        jobInfo->status & JOB_STAT_SSUSP || // job is suspended by LSF batch system
-        jobInfo->status & JOB_STAT_USUSP ) // job is suspended by user
-   {
-      return JobPending;
-   }
-   
-   if ( jobInfo->status & JOB_STAT_EXIT   )
-   {
-      job->m_isFinished = true;
-      return JobFailed; // job exited
-   }
-
-   return Unknown;   // unknown status
+   return job->status();   // unknown status
 }
 
 void JobScheduler::printLSFBParametersInfo()
 {
+#ifdef WITH_LSF_SCHEDULER
    struct parameterInfo * lsfbPrms = lsb_parameterinfo( NULL, NULL, 0 );
    if ( !lsfbPrms )
    {
@@ -410,43 +462,7 @@ void JobScheduler::printLSFBParametersInfo()
    std::cout << lsfbPrms->defaultResReqOrder           << ": batch part default order " << std::endl;
    std::cout << lsfbPrms->ac_timeout_waiting_sbd_start << ": Dynamic Cluster timeout waiting for sbatchd to start " << std::endl;
    std::cout << lsfbPrms->maxConcurrentQuery           << ": Max number of concurrent query " << std::endl;
-}
-
-#else
-
-JobScheduler::JobScheduler( const std::string & clusterName )
-{
-   if ( !clusterName.empty() )
-   {
-      m_clusterName = clusterName;
-   }
-}
-
-
-JobScheduler::~JobScheduler() {;}
-
-// Add job to the list
-JobScheduler::JobID JobScheduler::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
-{
-   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Job scheduling without LSF not iplemented yet";
-   return 0; // the position of the new job in the list is it JobID
-}
-
-// run job
-void JobScheduler::runJob( JobID job )
-{
-   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Job scheduling without LSF not iplemented yet";
-}
-
-// get job state
-JobScheduler::JobState JobScheduler::jobState( JobID id )
-{
-   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Job scheduling without LSF not iplemented yet";
-   return Unknown;   // unknown status
-}
-
-void JobScheduler::printLSFBParametersInfo() {;}
-
 #endif
+}
 
 }

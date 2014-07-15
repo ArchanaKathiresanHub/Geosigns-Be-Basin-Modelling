@@ -123,11 +123,16 @@
 #include "../../../API/src/RunCaseSetImpl.h"
 #include "../../../API/src/VarSpace.h"
 #include "../../../API/src/VarSpaceImpl.h"
-#include "../../../API/src/casaAPI.h"
+#include "../../../API/src/CauldronApp.h"
+#include "../../../API/src/RunManager.h"
+#include "../../../API/src/RunManagerImpl.h"
+#include "../../../API/src/JobScheduler.h"
 
 #include "../../../API/src/Path.h"
 #include "../../../API/src/FilePath.h"
 #include "../../../API/src/FolderPath.h"
+
+#include "../../../API/src/casaAPI.h"
 
 using namespace casa;
 %}
@@ -247,11 +252,16 @@ using namespace casa;
 %include "../../../API/src/RunCaseSetImpl.h"
 %include "../../../API/src/VarSpace.h"
 %include "../../../API/src/VarSpaceImpl.h"
-%include "../../../API/src/casaAPI.h"
+%include "../../../API/src/CauldronApp.h"
+%include "../../../API/src/RunManager.h"
+%include "../../../API/src/RunManagerImpl.h"
+%include "../../../API/src/JobScheduler.h"
 
 %include "../../../API/src/Path.h"
 %include "../../../API/src/FilePath.h"
 %include "../../../API/src/FolderPath.h"
+
+%include "../../../API/src/casaAPI.h"
 
 
 %include <carrays.i>

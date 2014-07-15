@@ -195,5 +195,78 @@ namespace Shell.BasinModeling.Cauldron.Test
          Directory.Delete(pathToCaseSet,true); // delete folder ./CaseSet
          Assert.IsFalse(Directory.Exists(pathToCaseSet));
       }
+
+      [TestMethod]
+      public void RunManager_Test() // analog of API/test/RunManagerTest.C
+      {
+         // create new scenario analysis
+         ScenarioAnalysis sa = new ScenarioAnalysis();
+
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.defineBaseCase(m_projectFileName));
+   
+         // vary 2 parameters
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+
+         // set up and generate DoE
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
+
+         VarSpace   varPrms = sa.varSpace();
+         RunCaseSet expSet  = sa.doeCaseSet();
+         DoEGenerator doe   = sa.doeGenerator();
+
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == doe.generateDoE(varPrms, expSet));
+
+         Assert.IsTrue(5 == expSet.size());
+
+         string  pathToCaseSet = @".\CaseSet";
+
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setScenarioLocation(pathToCaseSet));
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.applyMutations(sa.doeCaseSet()));
+
+         RunManager rm = sa.runManager();
+ 
+         // set up simulation pipeline, the first is fastcauldron
+         CauldronApp app = RunManager.createApplication( RunManager.ApplicationType.fastcauldron );
+         app.addOption( "-itcoupled" );
+         rm.addApplication( app );
+
+         // then set up fastgenex6
+         app = RunManager.createApplication( RunManager.ApplicationType.fastgenex6 );
+         rm.addApplication( app );
+
+         // and at the end set up track1d
+         app = RunManager.createApplication( RunManager.ApplicationType.track1d );
+         app.addOption( "-coordinates 460001,6750001" );
+         app.addOption( "-age 0.0" );
+         app.addOption( "-properties Temperature,Vr,OilExpelledCumulative,HcGasExpelledCumulative,TOC" );
+         rm.addApplication( app );
+
+         RunCaseSet caseSet = sa.doeCaseSet();
+         for ( uint i = 0; i < sa.doeCaseSet().size(); ++i )
+         {
+            rm.scheduleCase( caseSet.runCase( i ) );
+         }
+
+         // check generated scripts
+         pathToCaseSet += @"\Iteration_1";
+
+         for ( uint i = 0; i < sa.doeCaseSet().size(); ++i )
+         {
+            string casePath = pathToCaseSet;
+            
+            casePath += @"\Case_" + (i+1).ToString() + @"\";
+
+            for ( int j = 0; j < 3; ++j )
+            { 
+               string stageFile = casePath + @"Stage_" + j.ToString() + @".sh";
+               Assert.IsTrue( File.Exists( stageFile ) );
+            }
+         }
+ 
+         // cleaning files/folders
+         Directory.Delete( pathToCaseSet, true ); // delete folder ./CaseSet
+         Assert.IsFalse(Directory.Exists(pathToCaseSet));  
+      }
    }
 }
