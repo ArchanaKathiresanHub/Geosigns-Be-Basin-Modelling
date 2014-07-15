@@ -1673,100 +1673,96 @@ void Basin_Modelling::deleteErosionFactorMaps ( AppCtx* basinModel ) {
 void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( AppCtx* basinModel,
                                                                              const double age ) {
 
-   if ( true or basinModel->isALC() ) {
- 
-      int i, j, k;
+   int i, j, k;
 
-      size_t layer;
-      int xStart;
-      int yStart;
-      int zStart;
-      int xCount;
-      int yCount;
-      int zCount;
+   size_t layer;
+   int xStart;
+   int yStart;
+   int zStart;
+   int xCount;
+   int yCount;
+   int zCount;
 
-
-      // The bottom of the sediment pile. The layer that lies directly above the crust.
-      int bottomSedimentIndex =  basinModel->layers.size () - 3;
-      LayerProps_Ptr bottomLayer = basinModel->layers [ bottomSedimentIndex ];
-      LayerProps_Ptr currentLayer;
+   // The bottom of the sediment pile. The layer that lies directly above the crust.
+   int bottomSedimentIndex =  basinModel->layers.size () - 3;
+   LayerProps_Ptr bottomLayer = basinModel->layers [ bottomSedimentIndex ];
+   LayerProps_Ptr currentLayer;
       
-      double segmentThickness;
+   double segmentThickness;
       
-      DMDAGetCorners ( *basinModel->mapDA,
-                       &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
+   DMDAGetCorners ( *basinModel->mapDA,
+                    &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
       
-      Double_Array_2D lithostaticPressureAbove ( xCount, yCount );
+   Double_Array_2D lithostaticPressureAbove ( xCount, yCount );
       
-      // Initialise the top lithostatic-pressure values.
-      if ( age < basinModel->Crust()->depoage ) {
-         PETSC_3D_Array sedimentLithostaticPressure ( bottomLayer->layerDA, 
-                                                      bottomLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
+   // Initialise the top lithostatic-pressure values.
+   if ( age < basinModel->Crust()->depoage ) {
+      PETSC_3D_Array sedimentLithostaticPressure ( bottomLayer->layerDA, 
+                                                   bottomLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
          
-         DMDAGetCorners ( bottomLayer->layerDA,
-                          PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
+      DMDAGetCorners ( bottomLayer->layerDA,
+                       PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
          
-         // Copy lithostatic pressure from the layer array to the local 2D array, for the top of the crust.
-         copyBottomNodes ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, sedimentLithostaticPressure );
-      } else {
-         //global indexing
-         for ( i = xStart; i < xStart + xCount; ++i ) {
+      // Copy lithostatic pressure from the layer array to the local 2D array, for the top of the crust.
+      copyBottomNodes ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, sedimentLithostaticPressure );
+   } else {
+      //global indexing
+      for ( i = xStart; i < xStart + xCount; ++i ) {
             
-            for ( j = yStart; j < yStart + yCount; ++j ) {
+         for ( j = yStart; j < yStart + yCount; ++j ) {
                
-               double hydrostaticPressureAtSeaBottom;
-               computeHydrostaticPressure ( 0, // no fluid in the basement
-                                            FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, age ),
-                                            FastcauldronSimulator::getInstance ().getSeaBottomDepth ( i, j, age ),
-                                            hydrostaticPressureAtSeaBottom );
+            double hydrostaticPressureAtSeaBottom;
+            computeHydrostaticPressure ( 0, // no fluid in the basement
+                                         FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, age ),
+                                         FastcauldronSimulator::getInstance ().getSeaBottomDepth ( i, j, age ),
+                                         hydrostaticPressureAtSeaBottom );
                
-               lithostaticPressureAbove ( i - xStart, j - yStart ) = hydrostaticPressureAtSeaBottom; 
-            }
-            
+            lithostaticPressureAbove ( i - xStart, j - yStart ) = hydrostaticPressureAtSeaBottom; 
          }
-         
+            
       }
-      double density;
+         
+   }
+   double density;
       
-      for ( layer = basinModel->layers.size () - 2; layer < basinModel->layers.size (); ++layer ) {
+   for ( layer = basinModel->layers.size () - 2; layer < basinModel->layers.size (); ++layer ) {
          
-         currentLayer = basinModel->layers [ layer ];
+      currentLayer = basinModel->layers [ layer ];
            
-         if( true or ( currentLayer -> isCrust()  && FastcauldronSimulator::getInstance ().getCrustPropertyModel()  != "Legacy Crust" ) ||
-            ( currentLayer -> isMantle() && FastcauldronSimulator::getInstance ().getMantlePropertyModel() != "Legacy Mantle" )) {
-            // Get the lithostatic pressure and depth of the current layer.
-            PETSC_3D_Array lithostaticPressure ( currentLayer->layerDA,
-                                                 currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
+      // Get the lithostatic pressure and depth of the current layer.
+      PETSC_3D_Array lithostaticPressure ( currentLayer->layerDA,
+                                           currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
             
-            PETSC_3D_Array temp ( currentLayer->layerDA,
-                                  currentLayer->Current_Properties ( Basin_Modelling::Temperature ));
+      PETSC_3D_Array temp ( currentLayer->layerDA,
+                            currentLayer->Current_Properties ( Basin_Modelling::Temperature ));
+         
+      PETSC_3D_Array depth ( currentLayer->layerDA,
+                             currentLayer->Current_Properties ( Basin_Modelling::Depth ));
             
-            PETSC_3D_Array depth ( currentLayer->layerDA,
-                                   currentLayer->Current_Properties ( Basin_Modelling::Depth ));
-            
-            DMDAGetCorners ( currentLayer->layerDA,
-                             &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
+      DMDAGetCorners ( currentLayer->layerDA,
+                       &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
            
-            initialiseTopNodes ( xStart, xCount, yStart, yCount, zCount - 1, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
+      initialiseTopNodes ( xStart, xCount, yStart, yCount, zCount - 1, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
             
-            for ( i = xStart; i < xStart + xCount; ++i ) {
+      for ( i = xStart; i < xStart + xCount; ++i ) {
                
-               for ( j = yStart; j < yStart + yCount; ++j ) {
+         for ( j = yStart; j < yStart + yCount; ++j ) {
                   
-                  if ( basinModel->nodeIsDefined ( i, j )) {
-                     for (k = zCount-2; k >= 0 ; --k  ) {
-                        density = currentLayer->getLithology ( i, j, k )->getSimpleLithology()->getDensity ( temp( k, j, i ), lithostaticPressure ( k + 1, j, i ) );
-                        segmentThickness = depth ( k, j, i ) - depth  ( k + 1, j, i );
-                        lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * GRAVITY * Pa_To_MPa * segmentThickness;
-                     }
-                  }
-                  
+            if ( basinModel->nodeIsDefined ( i, j )) {
+
+               for (k = zCount-2; k >= 0 ; --k  ) {
+                  density = currentLayer->getLithology ( i, j, k )->getSimpleLithology()->getDensity ( temp( k, j, i ), lithostaticPressure ( k + 1, j, i ) );
+                  segmentThickness = depth ( k, j, i ) - depth  ( k + 1, j, i );
+                  lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * GRAVITY * Pa_To_MPa * segmentThickness;
                }
+
+            }
+                  
+         }
                
-            }         
-            copyBottomNodes   ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
-         } 
-      }
+      }         
+
+      copyBottomNodes   ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
    } 
 }
 
@@ -1833,75 +1829,49 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
   }
 
   if( basinModel->isALC() ) {
-        double density;
+     double density;
         
-        for ( layer = basinModel->layers.size () - 2; layer < basinModel->layers.size (); ++layer ) {
+     for ( layer = basinModel->layers.size () - 2; layer < basinModel->layers.size (); ++layer ) {
            
-           currentLayer = basinModel->layers [ layer ];
+        currentLayer = basinModel->layers [ layer ];
 
-           if ( true or age == FastcauldronSimulator::getInstance ().getAgeOfBasin () ||
-                ( currentLayer -> isCrust()  && FastcauldronSimulator::getInstance ().getCrustPropertyModel()  == "Legacy Crust" ) ||
-                ( currentLayer -> isMantle() && FastcauldronSimulator::getInstance ().getMantlePropertyModel() == "Legacy Mantle" )) {
-              // initialize lithostatic pressure for the first timestep
+        // initialize lithostatic pressure for the first timestep
               
-              // Get the lithostatic pressure and depth of the current layer.
-              PETSC_3D_Array lithostaticPressure ( currentLayer->layerDA,
-                                                   currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
+        // Get the lithostatic pressure and depth of the current layer.
+        PETSC_3D_Array lithostaticPressure ( currentLayer->layerDA,
+                                             currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
+           
+        PETSC_3D_Array temp ( currentLayer->layerDA,
+                              currentLayer->Current_Properties ( Basin_Modelling::Temperature ));
+           
+        PETSC_3D_Array depth ( currentLayer->layerDA,
+                               currentLayer->Current_Properties ( Basin_Modelling::Depth ));
               
-              PETSC_3D_Array temp ( currentLayer->layerDA,
-                                    currentLayer->Current_Properties ( Basin_Modelling::Temperature ));
+        DMDAGetCorners ( currentLayer->layerDA,
+                         &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
               
-              PETSC_3D_Array depth ( currentLayer->layerDA,
-                                     currentLayer->Current_Properties ( Basin_Modelling::Depth ));
+        initialiseTopNodes ( xStart, xCount, yStart, yCount, zCount - 1, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
+        
+        for ( i = xStart; i < xStart + xCount; ++i ) {
+           
+           for ( j = yStart; j < yStart + yCount; ++j ) {
               
-              DMDAGetCorners ( currentLayer->layerDA,
-                               &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-              
-              initialiseTopNodes ( xStart, xCount, yStart, yCount, zCount - 1, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
-              
-              for ( i = xStart; i < xStart + xCount; ++i ) {
-                 
-                 for ( j = yStart; j < yStart + yCount; ++j ) {
-                    
-                    if ( basinModel->nodeIsDefined ( i, j )) {
-                       for (k = zCount-2; k >= 0 ; --k  ) {
-                          density = currentLayer->getLithology ( i, j, k )->getSimpleLithology()->getDensity ( temp( k, j, i ), lithostaticPressure ( k + 1, j, i ) );
-                          segmentThickness = depth ( k, j, i ) - depth  ( k + 1, j, i );
-                          lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * GRAVITY * Pa_To_MPa * segmentThickness;
-                       }
-                    }
-                    
+              if ( basinModel->nodeIsDefined ( i, j )) {
+
+                 for (k = zCount-2; k >= 0 ; --k  ) {
+                    density = currentLayer->getLithology ( i, j, k )->getSimpleLithology()->getDensity ( temp( k, j, i ), lithostaticPressure ( k + 1, j, i ) );
+                    segmentThickness = depth ( k, j, i ) - depth  ( k + 1, j, i );
+                    lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * GRAVITY * Pa_To_MPa * segmentThickness;
                  }
-                 
-              }         
-              copyBottomNodes   ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
-           } else { 
-              // take the lithostatic pressure from the previous time step
-              PETSC_3D_Array lithostaticPressure ( currentLayer->layerDA,
-                                                   currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ));
+
+              }
               
-              PETSC_3D_Array previousLithostaticPressure ( currentLayer->layerDA,
-                                                           currentLayer->Previous_Properties ( Basin_Modelling::Lithostatic_Pressure ));
-              
-              DMDAGetCorners ( currentLayer->layerDA,
-                               &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
-              
-              for ( i = xStart; i < xStart + xCount; ++i ) {
-                 
-                 for ( j = yStart; j < yStart + yCount; ++j ) {
-                    
-                    if ( basinModel->nodeIsDefined ( i, j )) {
-                       
-                       for ( k = zCount-1; k >= 0 ; --k  ) {
-                          
-                          lithostaticPressure ( k, j, i ) = previousLithostaticPressure ( k, j, i );
-                       }
-                    }
-                 }
-              }         
-              copyBottomNodes   ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
            }
-        }
+           
+        }         
+
+        copyBottomNodes   ( xStart, xCount, yStart, yCount, basinModel->getValidNeedles (), lithostaticPressureAbove, lithostaticPressure );
+     }
   } else {
      for ( layer = basinModel->layers.size () - 2; layer < basinModel->layers.size (); ++layer ) {
         
