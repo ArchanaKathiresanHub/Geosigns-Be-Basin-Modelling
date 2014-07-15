@@ -13,8 +13,8 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
   <!--  INFORMATION OF LINUX HOSTS TO BUILD ON -->			
   <PropertyGroup Label="Identification">
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost>
-    <AgentAccount Condition="'$(AgentAccount)' == ''">ksaho3</AgentAccount>
-    <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\private_id.ppk</AgentKey>
+    <AgentAccount Condition="'$(AgentAccount)' == ''">s_bpac00</AgentAccount>
+    <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
     <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">/scratch/$(AgentAccount)/src</RemoteSourceDir>
     <RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccount)/build</RemoteBuildDir>
 
