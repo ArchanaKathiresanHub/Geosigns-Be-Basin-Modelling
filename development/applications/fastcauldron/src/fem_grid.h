@@ -362,6 +362,7 @@ namespace Basin_Modelling {
      PetscLogDouble System_Solve_Time;
      PetscLogDouble Element_Assembly_Time;
      PetscLogDouble Property_Calculation_Time;
+     PetscLogDouble Property_Saving_Time;
      //*}
 
      //*{
@@ -372,6 +373,7 @@ namespace Basin_Modelling {
      PetscLogDouble Accumulated_System_Solve_Time;
      PetscLogDouble Accumulated_Element_Assembly_Time;
      PetscLogDouble Accumulated_Property_Calculation_Time;
+     PetscLogDouble Accumulated_Property_Saving_Time;
      //*}
 
      /// Wrapper grid that saves computed Vre data to the grid

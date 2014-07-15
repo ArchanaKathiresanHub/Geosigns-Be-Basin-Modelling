@@ -133,12 +133,13 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   System_Assembly_Time = 0.0;
   System_Solve_Time = 0.0;
   Property_Calculation_Time = 0.0;
+  Property_Saving_Time = 0.0;
 
   Accumulated_Element_Assembly_Time = 0.0;
   Accumulated_System_Assembly_Time = 0.0;
   Accumulated_System_Solve_Time = 0.0;
   Accumulated_Property_Calculation_Time = 0.0;
-
+  Accumulated_Property_Saving_Time = 0.0;
 
   // Set properties that may be required for the calculation
   // Formation properties
@@ -191,7 +192,15 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   looselyCoupledOutputProperties.push_back ( VES );
   looselyCoupledOutputProperties.push_back ( MAXVES );
-
+/*
+  looselyCoupledOutputProperties.push_back ( PRESSURE );
+  looselyCoupledOutputProperties.push_back ( HYDROSTATICPRESSURE );
+  looselyCoupledOutputProperties.push_back ( LITHOSTATICPRESSURE );
+  looselyCoupledOutputProperties.push_back ( POROSITYVEC );
+  looselyCoupledOutputProperties.push_back ( PERMEABILITYVEC );
+  looselyCoupledOutputProperties.push_back ( TEMPERATURE );
+  looselyCoupledOutputProperties.push_back ( DEPTH );
+ */ 
   // Surface properties
   basinModel->timefilter.setFilter ( "AllochthonousLithology", "SedimentsOnly" );
 
@@ -456,6 +465,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 #endif
 
   // Properties required by GenEx.
+  //genexOutputProperties.push_back ( DEPTH );
   genexOutputProperties.push_back ( TEMPERATURE );
   genexOutputProperties.push_back ( VES );
 
@@ -494,6 +504,7 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
     PetscPrintf ( PETSC_COMM_WORLD, " total System_Solve_Time         %f \n", Accumulated_System_Solve_Time );
     PetscPrintf ( PETSC_COMM_WORLD, " total Property_Calculation_Time %f \n", Accumulated_Property_Calculation_Time );
   }
+  PetscPrintf ( PETSC_COMM_WORLD, "Total Property_Saving_Time %f \n", Accumulated_Property_Saving_Time );
 
 #if 0
   // PetscSynchronizedPrintf ( PETSC_COMM_WORLD, " Memory usage %f, %f for rank %d \n", m_virtualMemoryUsage, m_residentMemoryUsage, FastcauldronSimulator::getInstance ().getRank ());
@@ -523,7 +534,7 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
   delete pressureSolver;
 }
 
-
+ 
 //------------------------------------------------------------//
 
 #undef  __FUNCT__  
@@ -867,6 +878,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
   Element_Assembly_Time     = 0.0;
   System_Solve_Time         = 0.0;
   Property_Calculation_Time = 0.0;
+  Property_Saving_Time      = 0.0;
 
   majorSnapshots = basinModel->projectSnapshots.majorSnapshotsBegin();
   minorSnapshots = basinModel->projectSnapshots.minorSnapshotsBegin ();
@@ -965,7 +977,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
   Accumulated_Element_Assembly_Time     = Accumulated_Element_Assembly_Time     + Element_Assembly_Time;
   Accumulated_System_Solve_Time         = Accumulated_System_Solve_Time         + System_Solve_Time;
   Accumulated_Property_Calculation_Time = Accumulated_Property_Calculation_Time + Property_Calculation_Time;
-
+  Accumulated_Property_Saving_Time      = Accumulated_Property_Saving_Time      + Property_Saving_Time;
 }
 
 
@@ -995,6 +1007,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
   Element_Assembly_Time     = 0.0;
   System_Solve_Time         = 0.0;
   Property_Calculation_Time = 0.0;
+  Property_Saving_Time      = 0.0;
 
   majorSnapshots = basinModel->projectSnapshots.majorSnapshotsBegin ();
   minorSnapshots = basinModel->projectSnapshots.minorSnapshotsBegin ();
@@ -1121,6 +1134,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
   Accumulated_Element_Assembly_Time     = Accumulated_Element_Assembly_Time     + Element_Assembly_Time;
   Accumulated_System_Solve_Time         = Accumulated_System_Solve_Time         + System_Solve_Time;
   Accumulated_Property_Calculation_Time = Accumulated_Property_Calculation_Time + Property_Calculation_Time;
+  Accumulated_Property_Saving_Time      = Accumulated_Property_Saving_Time      + Property_Saving_Time;
 
 }
 
@@ -1154,6 +1168,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
   Element_Assembly_Time     = 0.0;
   System_Solve_Time         = 0.0;
   Property_Calculation_Time = 0.0;
+  Property_Saving_Time      = 0.0;
 
   majorSnapshots = basinModel->projectSnapshots.majorSnapshotsBegin ();
   minorSnapshots = basinModel->projectSnapshots.minorSnapshotsBegin ();
@@ -1297,6 +1312,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
   Accumulated_Element_Assembly_Time     = Accumulated_Element_Assembly_Time     + Element_Assembly_Time;
   Accumulated_System_Solve_Time         = Accumulated_System_Solve_Time         + System_Solve_Time;
   Accumulated_Property_Calculation_Time = Accumulated_Property_Calculation_Time + Property_Calculation_Time;
+  Accumulated_Property_Saving_Time      = Accumulated_Property_Saving_Time      + Property_Saving_Time;
 }
 
 //------------------------------------------------------------//
@@ -1319,6 +1335,10 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
       return;
    }
     
+  PetscLogDouble Start_Time;
+  PetscLogDouble End_Time;
+
+  PetscTime(&Start_Time);
   if (   ( Current_Time == (*majorSnapshots)->time ()  )
       || (    basinModel->isModellingMode1D()  
            && basinModel->projectSnapshots.isMinorSnapshot ( Current_Time, minorSnapshots ) ) ) // 1D model: save minor AND major timesteps
@@ -1420,6 +1440,8 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
     }
 
   }
+  PetscTime(&End_Time);
+  Property_Saving_Time = Property_Saving_Time + ( End_Time - Start_Time );
 
 }
 

@@ -38,6 +38,8 @@
 
 #include "MultiComponentFlowHandler.h"
 
+#include "h5merge.h"
+
 bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName );
 
 //------------------------------------------------------------//
@@ -793,7 +795,6 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 }
 
 //------------------------------------------------------------//
-
 bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
    if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
@@ -803,6 +804,9 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       return true;
    }
  
+   PetscLogDouble StartTime;
+     
+   PetscTime(&StartTime);
    bool status = true;
 
    const std::string& directoryName = getOutputDir ();
@@ -810,7 +814,6 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
         m_calculationMode != NO_CALCULATION_MODE ) {
 
-      
       database::Table::iterator timeTableIter;
       database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
       
@@ -822,6 +825,10 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          
          if ( !snapshotFileName.empty() ) {
             string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
+            if ( m_fastcauldronSimulator->getRank () == 0 ) {
+               string s = "Merging of " + filePathName + " ";
+               displayTime ( s, StartTime, 0 );          
+            }
             if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() )) {
                status = false;
                PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
@@ -832,13 +839,40 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    string fileName = getActivityName () + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
      
+   if ( m_fastcauldronSimulator->getRank () == 0 ) {
+      string s = "Merging of " + filePathName + " ";
+
+      displayTime ( s, StartTime, 0 );
+   }
+
    if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() )) {
       status = false;
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }
    
+   if ( m_fastcauldronSimulator->getRank () == 0 ) {
+      string s = "End of merging ";
+      displayTime ( s, StartTime, 0 );
+   }
    if( status ) {
       displayTime(m_cauldron->debug1 or m_cauldron->verbose,"Merging of output files: ");
+
+      if( m_fastcauldronSimulator->getRank () == 0 ) {
+         displayTime( " Reading datasets time    ", 0, & FileHandler::s_readingDTime );
+         displayTime( " Reading attributes time  ", 0, & FileHandler::s_readingATime );
+         displayTime( " Writing datasets time    ", 0, & FileHandler::s_writingDTime );
+         displayTime( " Writing attributes time  ", 0, & FileHandler::s_writingATime );
+         cout << endl;
+
+         displayTime( " Total Reading time       ", 0, & FileHandler::s_readDTime );
+         displayTime( " Total Collecting time    ", 0, & FileHandler::s_collectingTime );
+         displayTime( " Total Writing time       ", 0, & FileHandler::s_writeDTime );
+         displayTime( " Total Attribute time     ", 0, & FileHandler::s_attributeTime );
+         cout << endl;
+         
+         displayTime( " Total merging time       ", 0, & FileHandler::s_totalTime );
+         cout << endl;
+      }
    }
    return status;
 }
@@ -1824,7 +1858,7 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
 
    PetscBool fctScalingChanged;
    double    fctScaling;
-   PetscBool hasPrintCommandLine;
+   PetscBool hasPrintCommandLine; 
    PetscBool computeCapillaryPressure;
 
    PetscOptionsHasName ( PETSC_NULL, "-printcl", &hasPrintCommandLine );

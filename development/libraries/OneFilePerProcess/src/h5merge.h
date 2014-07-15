@@ -33,6 +33,18 @@ public:
    void setGlobalId( hid_t id );
    void setSpatialDimension ( int dimension );
 
+
+   static double s_collectingTime;
+   static double s_readingDTime;
+   static double s_writingDTime;
+   static double s_readingATime;
+   static double s_writingATime;
+   static double s_attributeTime;
+   static double s_writeDTime;
+   static double s_readDTime;
+   static double s_totalTime;
+   static double s_attrTime;
+
 private:
    int m_rank; // rank of the processor
 

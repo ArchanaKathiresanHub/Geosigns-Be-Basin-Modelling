@@ -44,6 +44,8 @@ void displayProgress(const bool debug,
 		     const char* str,
 		     const double& Age);
 
+void displayTime( const string & str, PetscLogDouble StartTime, double * timeToDisplay );
+
 char* currentTimeStr ();
 
 

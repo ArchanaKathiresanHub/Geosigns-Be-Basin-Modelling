@@ -175,6 +175,34 @@ void displayTime(const bool debug, const char* str)
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
 
+void displayTime(const string & str, PetscLogDouble StartTime, double * timeToDisplay )
+{
+   PetscLogDouble EndTime;
+
+   PetscTime(&EndTime);
+   double CalculationTime = ( timeToDisplay ? * timeToDisplay : EndTime - StartTime ); 
+   long remainder = (long) CalculationTime;
+   
+   long secs = remainder % 60;
+   remainder -= secs;
+   long mins = (remainder / 60) % 60;
+   remainder -= mins * 60;
+   long hrs = remainder / (60 * 60);
+
+   std::stringstream sstart;
+   std::stringstream send;
+
+   if( timeToDisplay != 0 ) {
+      sstart << " Time: " << * timeToDisplay << " (";
+      send   << ")";
+   } else {
+      sstart << "";
+      send   << "";
+   } 
+   cout << str << sstart.str() << hrs << " Hrs. " << mins << " Mins. " << secs << " Sec." << send.str() << endl;
+
+}
+
 void getElapsedTime(char* str)
 {
    if (PetscGlobalRank != 0)
