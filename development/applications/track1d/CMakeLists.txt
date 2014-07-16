@@ -24,9 +24,6 @@ bm_include_libraries(
 	Serial_Hdf5
 	EosPack
 	utilities
-	LinearAlgebra
-	Interpolation
-	FiniteElements
 )
 
 include_directories(
@@ -43,9 +40,6 @@ target_link_libraries(track1d
 	Serial_Hdf5
 	EosPack
 	utilities
-	LinearAlgebra
-	Interpolation
-	FiniteElements
 	${HDF5_LIBRARIES}
 )
 

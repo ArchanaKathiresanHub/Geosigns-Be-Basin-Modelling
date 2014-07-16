@@ -45,7 +45,11 @@ namespace Numerics {
 //------------------------------------------------------------//
 
 inline Numerics::FloatingPoint Numerics::UniformRandomGenerator::operator ()() {
-  return drand48 ();
+#ifdef _WIN32
+   return (double)rand( ) / RAND_MAX;
+#else
+   return drand48( );
+#endif
 }
 
 //------------------------------------------------------------//
