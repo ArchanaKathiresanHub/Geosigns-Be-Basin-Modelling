@@ -527,7 +527,7 @@ int main( int argc, char ** argv )
       for ( formationIter = formations->begin(); formationIter != formations->end(); ++formationIter )
       {
          const Formation * formation = *formationIter;
-         formationSurfacePairs.push_back( FormationSurface( formation, SubSurface( 0, -1 ) ) );
+         formationSurfacePairs.push_back( FormationSurface( formation, SubSurface( static_cast<const Surface *>(0), -1 ) ) );
       }
    }
 
@@ -956,7 +956,7 @@ bool acquireFormations( ProjectHandle * projectHandle, FormationSurfaceVector & 
             continue;
          }
 
-         formationSurfacePairs.push_back( FormationSurface( formation, SubSurface( 0, -1 ) ) );
+         formationSurfacePairs.push_back( FormationSurface( formation, SubSurface( static_cast<const Surface *>(0), -1 ) ) );
       }
    }
 
@@ -999,7 +999,7 @@ bool acquireSurfaces( ProjectHandle * projectHandle, FormationSurfaceVector & fo
          }
          else
          {
-            formationSurfacePairs.push_back( FormationSurface( formation, SubSurface( 0, atoi( formationSurfaceName ) ) ) );
+            formationSurfacePairs.push_back( FormationSurface( formation, SubSurface( static_cast<const Surface *>(0), atoi( formationSurfaceName ) ) ) );
          }
       }
    }
