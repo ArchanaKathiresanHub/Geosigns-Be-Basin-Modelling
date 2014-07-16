@@ -17,6 +17,8 @@
 double FileHandler::s_collectingTime = 0.0;
 double FileHandler::s_readingDTime = 0.0;
 double FileHandler::s_writingDTime = 0.0;
+double FileHandler::s_creatingDTime = 0.0;
+double FileHandler::s_creatingGTime = 0.0;
 double FileHandler::s_readingATime = 0.0;
 double FileHandler::s_writingATime = 0.0;
 double FileHandler::s_attributeTime = 0.0;
@@ -157,6 +159,7 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
             startTime = MPI_Wtime();
             reader->m_groupId = H5Gcreate( reader->m_globalFileId, name,  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ); 
             FileHandler::s_writeDTime += MPI_Wtime() - startTime;
+            FileHandler::s_creatingGTime += MPI_Wtime() - startTime;
          }
          // Iterate over the members of the group
          H5Giterate ( reader-> m_localFileId, groupName.str().c_str(), 0, readDataset, voidReader );
@@ -235,6 +238,8 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
       hid_t global_dset_id;
       // Write the global data into the global file
       memspace = H5Screate_simple( reader->m_spatialDimension, reader->m_count, NULL ); 
+
+      startTime = MPI_Wtime();
       if( reader->m_groupId != H5P_DEFAULT ) {
          // Dataset is under the sub-group
          global_dset_id = H5Dcreate( reader->m_groupId, name, dtype, memspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
@@ -242,6 +247,8 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
          // Dataset is under the main group
          global_dset_id = H5Dcreate( reader->m_globalFileId, name, dtype, memspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
       }
+      FileHandler::s_creatingDTime +=  MPI_Wtime() - startTime;
+
       filespace = H5Dget_space( global_dset_id );
       H5Sselect_hyperslab( filespace, H5S_SELECT_SET, reader->m_offset, NULL, reader->m_count, NULL );
  

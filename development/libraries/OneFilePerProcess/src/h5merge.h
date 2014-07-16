@@ -43,7 +43,8 @@ public:
    static double s_writeDTime;
    static double s_readDTime;
    static double s_totalTime;
-   static double s_attrTime;
+   static double s_creatingGTime;
+   static double s_creatingDTime;
 
 private:
    int m_rank; // rank of the processor

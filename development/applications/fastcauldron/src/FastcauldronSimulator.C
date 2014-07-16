@@ -862,6 +862,8 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          displayTime( " Reading attributes time  ", 0, & FileHandler::s_readingATime );
          displayTime( " Writing datasets time    ", 0, & FileHandler::s_writingDTime );
          displayTime( " Writing attributes time  ", 0, & FileHandler::s_writingATime );
+         displayTime( " Creating datasets time   ", 0, & FileHandler::s_creatingDTime );
+         displayTime( " Creating groups time     ", 0, & FileHandler::s_creatingGTime );
          cout << endl;
 
          displayTime( " Total Reading time       ", 0, & FileHandler::s_readDTime );
