@@ -9,7 +9,6 @@
 
 #include "AllochthonousLithologySimulator.h"
 #include "AllochthonousModellingFactory.h"
-#include "PThreadsAllochthonousModellingFactory.h"
 
 
 #ifdef FLEXLM
@@ -45,9 +44,7 @@ int main ( int argc, char* argv []) {
 
   int i;
   int debugLevel = 0;
-  int  numberOfThreads = 0;
   bool error = false;
-  bool parallelRequired = false;
   bool mapOutputOnly = false;
 
   string projectFileName;
@@ -145,24 +142,6 @@ int main ( int argc, char* argv []) {
       printUsage ( argv [ 0 ]);
       return 1;
 
-    } else if ( strcmp ( argv [ i ], "-smp" ) == 0 ) {
-      parallelRequired = true;
-
-      if ( i < argc - 1 ) {
-        stringToInt ( argv [ i + 1 ], numberOfThreads, error );
-      } else {
-        std::cout << " MeSsAgE  ERROR No thread count given " << std::endl;
-        printUsage ( argv [ 0 ]);
-        return 1;
-      }
-
-      if ( error ) {
-        std::cout << " MeSsAgE  ERROR Could not convert '" << argv [ i + 1 ] << "' to an integer " << std::endl;
-        printUsage ( argv [ 0 ]);
-        return 1;
-      }
-
-      i++;
     } else if ( strcmp ( argv [ i ], "-debug" ) == 0 ) {
 
       if ( i < argc - 1 ) {
@@ -196,11 +175,7 @@ int main ( int argc, char* argv []) {
     outputProjectFileName = projectFileName;
   }
 
-  if ( parallelRequired && numberOfThreads > 1 ) {
-    factory = new PThreadsAllochthonousModellingFactory ( numberOfThreads );
-  } else {
-    factory = new AllochthonousModellingFactory;
-  }
+  factory = new AllochthonousModellingFactory;
 
   AllochthonousLithologySimulator* allochthonousSimulator;
 

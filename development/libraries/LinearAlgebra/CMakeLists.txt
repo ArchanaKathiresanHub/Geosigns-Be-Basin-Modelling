@@ -20,18 +20,15 @@ add_library(LinearAlgebra
 	src/GMResRestart.C
 	src/LinearSolver.C
 	src/Preconditioner.C
-	src/PThreadsDenseRowMatrix.C
 	src/RichardsonIteration.C
 	src/Vector.C
 )
 
 bm_include_libraries(
 	utilities
-	ThreadUtilities
 )
 
 target_link_libraries(LinearAlgebra
-	ThreadUtilities
 	utilities
 )
 

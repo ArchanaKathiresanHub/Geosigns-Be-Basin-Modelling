@@ -13,12 +13,10 @@
 // Include matrix type
 #include "DenseRowMatrix.h"
 #include "FortranMatrix.h"
-#include "PThreadsDenseRowMatrix.h"
 
 // Include Preconditioner type
 #include "Preconditioner.h"
 #include "ApproximateCardinalPreconditioner.h"
-#include "PThreadsApproximateCardinalPreconditioner.h"
 
 // Include linear solver type
 #include "LinearSolver.h"

@@ -20,9 +20,6 @@ add_executable(geomorph
 	src/MapIntervalInterpolator.C
 	src/MapProcessingOperations.C
 	src/PrescribedGridPointCondenser.C
-	src/PThreadsAllochthonousLithology.C
-	src/PThreadsAllochthonousModellingFactory.C
-	src/PThreadsMapIntervalInterpolator.C
 	src/SubsampledGridPointCondenser.C
 )
 
@@ -35,7 +32,6 @@ bm_include_libraries(
 	utilities
 	LinearAlgebra
 	Interpolation
-	ThreadUtilities
 )
 
 include_directories(
@@ -52,7 +48,6 @@ target_link_libraries(geomorph
 	utilities
 	LinearAlgebra
 	Interpolation
-	ThreadUtilities
 	${HDF5_LIBRARIES}
 	${FLEXLM_LIBRARIES}
 )
