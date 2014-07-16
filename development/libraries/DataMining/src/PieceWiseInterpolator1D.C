@@ -1,5 +1,7 @@
 #include "PieceWiseInterpolator1D.h"
 
+const double Numerics::PieceWiseInterpolator1D::NullValue = 99999.0;
+
 const std::string& Numerics::PieceWiseInterpolator1D::InterpolationKindImage ( const InterpolationKind kind ) {
 
    static std::string images [ 3 ] = { "PIECEWISE_LINEAR", "CUBIC_SPLINE", "UNKNOWN" };

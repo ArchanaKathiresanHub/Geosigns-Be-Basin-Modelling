@@ -14,7 +14,13 @@ include( cmake/AddPackage.cmake)
 
 set(EIGEN_VERSION "3.2" CACHE STRING "Eigen Version")
 set(EIGEN_ROOT "${HPC_HOME}/eigen/${EIGEN_VERSION}/LinuxRHEL64" CACHE PATH "Path to the Eigen C++ Linear algebra library")
-set(EIGEN_INCLUDE_DIRS "${EIGEN_ROOT}/include")
+
+if(UNIX)
+	set(EIGEN_INCLUDE_DIRS "${EIGEN_ROOT}/include")
+else(UNIX)
+	set(EIGEN_INCLUDE_DIRS "${THIRD_PARTY_DIR}/Eigen-3.2.1")
+endif(UNIX)
+
 set(EIGEN_FOUND TRUE)
 
 # Definining EIGEN_MPL2_ONLY is crucial for use within Shell, because this

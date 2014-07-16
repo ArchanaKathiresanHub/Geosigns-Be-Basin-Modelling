@@ -10,18 +10,15 @@
 #                                                                       #
 #########################################################################
 
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
 add_library(LinearAlgebra
-	src/BiCG.C
-	src/DenseMatrix.C
-	src/DenseRowMatrix.C
-	src/FortranMatrix.C
-	src/FortranMatrixOperations.C
-	src/GMRes.C
-	src/GMResRestart.C
-	src/LinearSolver.C
-	src/Preconditioner.C
-	src/RichardsonIteration.C
-	src/Vector.C
+	${all_srcs}
+	${all_headers}
 )
 
 bm_include_libraries(

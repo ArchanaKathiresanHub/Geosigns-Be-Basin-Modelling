@@ -14,7 +14,7 @@ namespace Numerics {
    public :
 
       /// The null-value.
-      static const double NullValue = 99999.0;
+      static const double NullValue;
 
       /// \enum Which piecewise-interpolation scheme is to be used.
       enum InterpolationKind { PIECEWISE_LINEAR, CUBIC_SPLINE };

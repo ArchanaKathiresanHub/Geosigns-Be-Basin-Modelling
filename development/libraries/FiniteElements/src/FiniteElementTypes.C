@@ -6,6 +6,15 @@
 #include "NumericFunctions.h"
 #include "FiniteElement.h"
 
+static double GetRandomValue()
+{
+#ifdef _WIN32
+   return ( double )rand( ) / RAND_MAX;
+#else
+   return drand48( );
+#endif
+}
+
 void FiniteElementMethod::ThreeVector::put ( const std::string& name,
                                              std::ostream&      o  ) const {
 
@@ -292,7 +301,7 @@ void FiniteElementMethod::ElementVector::Randomise () {
   int I;
 
   for ( I = 0; I < 8; I++ ) {
-    m_entries [ I ] = drand48 ();
+     m_entries[ I ] = GetRandomValue();
   }
 
 }
@@ -723,7 +732,7 @@ void FiniteElementMethod::ElementMatrix::Randomise () {
   int I;
 
   for ( I = 0; I < 64; I++ ) {
-    m_allEntries [ I ] = drand48 ();
+     m_allEntries[ I ] = GetRandomValue();
   }
 
 }

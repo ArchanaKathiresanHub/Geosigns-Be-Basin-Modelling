@@ -9,12 +9,15 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
 
 add_library(Interpolation
-	src/ApproximateCardinalFunction.C
-	src/IntervalInterpolator.C
-	src/Point.C
-	src/RBFGeneralOperations.C
+	${all_srcs}
+	${all_headers}
 )
 
 bm_include_libraries(

@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <string>
 
 //------------------------------------------------------------//
 
@@ -260,8 +261,6 @@ void Numerics::vectorXMY ( const Vector& X,
 void Numerics::vectorScale ( const FloatingPoint a,
                                    Vector&       x ) {
 
-  int i;
-
   if ( a != 1.0 ) {
     BLAS::scale ( x.dimension (), a, x.data());
   }
@@ -287,10 +286,6 @@ void Numerics::vectorScale ( const FloatingPoint a,
 void Numerics::vectorScale ( const FloatingPoint a,
                              const Vector&       x,
                                    Vector&       y ) {
-
-  int i;
-
-
   y = x;
 
   if ( a != 1.0 ) {
