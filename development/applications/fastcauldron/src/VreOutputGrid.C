@@ -46,8 +46,9 @@ void VreOutputGrid :: exportToModel( const LayerList & allLayers, const Boolean2
 
       // Create a property vector for VR. This vector doesn't need to be a
       // global vector since it doesn't need to know about ghost points
-      if (!currentLayer->Vre)
-         DMCreateLocalVector(currentLayer ->layerDA, &currentLayer ->Vre);
+      if (!currentLayer->Vre) {
+         DMCreateGlobalVector(currentLayer ->layerDA, &currentLayer ->Vre);
+      }
 
       // Set the default value on the entire vector
       VecSet(currentLayer ->Vre, CAULDRONIBSNULLVALUE);
