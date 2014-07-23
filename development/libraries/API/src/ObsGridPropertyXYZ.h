@@ -16,6 +16,8 @@
 
 #include "Observable.h"
 
+#include <memory>
+
 /// @page CASA_ObservableGridPropXYZPage Grid property at XYZ point
 /// This observable could retrieve grid property value for given position in a grid
 /// 
