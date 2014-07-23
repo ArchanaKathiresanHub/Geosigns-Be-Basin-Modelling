@@ -22,6 +22,7 @@
 #include "ErrorHandler.h"
 #include "MCSolver.h"
 #include "RSProxy.h"
+#include "ObsSpace.h"
 #include "RunManager.h"
 #include "VarSpace.h"
 
@@ -90,15 +91,19 @@
 /// @b Variable @b Parameter - a parameter in Cauldron project file which exact value is unknown. 
 /// There are only some estimations on it value range. For example - source rock TOC - [5:20]%.
 ///
-/// Variable parameters are kept by \subpage CASA_VarSpacePage
+/// Variable parameters are kept by @subpage CASA_VarSpacePage
 /// Types of variable parameters implemented in API are described here: \subpage CASA_VarParameterPage
 ///
-/// @link CASA_ObservablePage @b Observable @endlink - a simulator output value. Could be any data value from the simulation results. Usually, modelers\n
-/// have some measurements for the basin from wells. Some of observables could correspond those measurements.\n
+/// @link CASA_ObservablePage @b Observable @endlink - a simulator output value. Could be any data value from the simulation results.\n
+/// Usually, modeler have some measurements for the basin from wells. Some of observables could correspond those measurements.\n
 /// For example temperature or VRe at some position and depth for current time. Some observables could be used\n
 /// for risk assessment - for example total amount of HC in a trap.
 /// 
-/// Each RunCase object keeps a copy of the same set of observables for one ScenarioAnalysis object
+/// Observables are kept by @subpage CASA_ObsSpacePage
+///
+/// casa::DataDigger for each observable from the set, creates for each casa::RunCase casa::ObsValue object, extracting
+/// data from the case simulation results.
+///
 /// Types of observables implemented in API are described here: \subpage CASA_ObservablePage
 
 
@@ -216,7 +221,11 @@ namespace casa
       /// @brief Get data digger associated with this scenario analysis
       /// @return reference to the instance of data digger
       DataDigger & dataDigger();
-      
+
+      /// @brief Get list of observables for this scenario
+      /// @return Observables set manager
+      ObsSpace & obsSpace();
+
       /// @brief Define which order of response surface polynomial approximation of  will be used in this scenario analysis
       /// @param order order of polynomial approximation
       /// @param krType do we need Kriging interpolation, and which one?

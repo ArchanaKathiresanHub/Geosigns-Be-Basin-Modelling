@@ -9,12 +9,13 @@
 // 
 
 /// @file JobScheduler.h
-/// @brief This file keeps declaration the job scheduler which hides all system dependent implementation.\n
+/// @brief This file keeps declaration the base class for job scheduler\n
 ///        It is used by casa::RunManager and is not intended be exposed through CASA API
 #ifndef CASA_CASE_SCHEDULER_H
 #define CASA_CASE_SCHEDULER_H
 
-#include <vector>
+#include "ErrorHandler.h"
+
 #include <string>
 
 namespace casa
@@ -38,35 +39,37 @@ namespace casa
       typedef size_t JobID ;
 
       // Constructor/Destructor
-      JobScheduler( const std::string & clusterName = "" );
-      ~JobScheduler();
+      virtual ~JobScheduler() { ; }
 
 
       // get cluster name
-      void setClusterName( const char * clusterName ) { m_clusterName = clusterName; }
-
+      virtual void setClusterName( const char * clusterName ) = 0;
  
       // get cluster name
       std::string clusterName() { return m_clusterName; }
 
       // Add job to the list
-      JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus );
+      virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus ) = 0;
       
       // run job
-      void runJob( JobID job );
+      virtual void runJob( JobID job ) = 0;
 
       // get job state
-      JobState jobState( JobID job );
+      virtual JobState jobState( JobID job ) = 0;
 
-      // Print all parameters of LSF batch system
-      void printLSFBParametersInfo();
+      // should mpirun command contains -np CPUS or number of cpus will be requested by the job scheduler
+      virtual bool cpusNumberByScheduler() = 0;
 
-   private:
-      class Job;                       // job OS dependent description
+      // Wait a bit (~10 sec) before asking about job state again
+      // for the LOCAL cluster - do nothing
+      virtual void sleep() = 0;
 
-      std::vector<Job*> m_jobs;        // array of scheduled jobs
-      std::string       m_clusterName; // name of the cluster. If not set obtained automaticly through LSF API
-      
+   protected:
+      JobScheduler() { ; }
+
+      std::string m_clusterName; // name of the cluster. If not set obtained automatically through LSF API
+
+   private:      
       JobScheduler( const JobScheduler & jbS );
       JobScheduler & operator = ( const JobScheduler & jbS );
    };

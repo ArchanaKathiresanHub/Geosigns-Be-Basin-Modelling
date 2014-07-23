@@ -37,7 +37,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode addApplication( CauldronApp * app );
 
-      /// @brief Set up Cauldron version. Verions should be defined as "v2014.1007" (which is the default)\n
+      /// @brief Set up Cauldron version. Versions should be defined as "v2014.1007" (which is the default)\n
       ///        Version also could be defined by the environment variable CAULDRON_VERSION. This interface\n
       ///        has a priority over the environment variable.
       /// @param verString Cauldron version which will be used for submit jobs to HPC cluster.
@@ -62,11 +62,11 @@ namespace casa
       virtual std::string clusterName();
 
    protected:
-      std::string                           m_cldVersion;  ///< version of the cauldron to be used in calculations
-      std::string                           m_ibsRoot;     ///< full path to cauldron installation
+      std::string                     m_cldVersion;  ///< version of the cauldron to be used in calculations
+      std::string                     m_ibsRoot;     ///< full path to cauldron installation
 
-      std::vector< CauldronApp* >           m_appList;     ///< pipeline of cauldron applications to perform simualtion
-      std::auto_ptr< JobScheduler >         m_jobSched;    ///< OS independent wrapper for the job scheduler
+      std::vector< CauldronApp* >     m_appList;     ///< pipeline of cauldron applications to perform simulation
+      std::auto_ptr<JobScheduler>     m_jobSched;    ///< OS dependent wrapper for the job scheduler
 
       std::vector< std::vector< JobScheduler::JobID > >   m_jobs; ///< queue of jobs for each case
    };

@@ -135,8 +135,6 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, error code otherwise
       ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
 
-
-
       // IO file load/save methods
 
       /// @brief Clean all parameters of the model and load the new model parameters from the given project file

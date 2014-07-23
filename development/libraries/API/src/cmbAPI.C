@@ -21,8 +21,7 @@
 
 // DataAccess library
 #include "Interface/ProjectHandle.h"
-//#include "cauldronschema.h"
-//#include "cauldronschemafuncs.h"
+#include "Interface/ObjectFactory.h"
 
 #include <string>
 
@@ -67,8 +66,9 @@ public:
    FluidManagerImpl                  m_fluidMgr;
    SourceRockManagerImpl             m_srkMgr;
 
-   std::auto_ptr<database::Database> m_projDatabase;
-   std::string                       m_projFileName;
+   std::auto_ptr<database::Database>                    m_projDatabase;  // project file database (set of tables)
+   std::auto_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;    // project handle - constructed on first request of grid data
+   std::string                                          m_projFileName;  // project files name with path
 };
 
 
@@ -319,7 +319,8 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & other
 
 void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 {
-   m_projDatabase.reset( DataAccess::Interface::CreateDatabaseFromCauldronProject( projectFileName ) );
+   m_projHandle.reset(NULL); // delete old project if it exists
+   m_projDatabase.reset(DataAccess::Interface::CreateDatabaseFromCauldronProject(projectFileName));
 
    if ( !m_projDatabase.get() )
    {

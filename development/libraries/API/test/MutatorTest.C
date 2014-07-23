@@ -4,6 +4,7 @@
 #include "../src/FolderPath.h"
 #include "../src/PrmSourceRockTOC.h"
 #include "../src/PrmTopCrustHeatProduction.h"
+#include "../src/RunCase.h"
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
 

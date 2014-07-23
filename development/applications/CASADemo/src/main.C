@@ -4,6 +4,8 @@
 #include "FolderPath.h"
 #include "PrmSourceRockTOC.h"
 #include "PrmTopCrustHeatProduction.h"
+#include "RunCase.h"
+#include "RunCaseSet.h"
 #include "RunManagerImpl.h"
 #include "VarPrmSourceRockTOC.h"
 #include "VarPrmTopCrustHeatProduction.h"

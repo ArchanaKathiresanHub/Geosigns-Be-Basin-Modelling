@@ -18,46 +18,69 @@
 
 /// @page CASA_ObservablePage Observables
 ///
-/// The following list of of Observable types is implemented in CASA API:
+/// <b><em> Observable (or Target) </em></b> – any simulator output value. It could be any data value from the \n
+/// simulation results. For example temperature or VRe at some position and depth for current time. \n
+/// Some observables could be used for risk assessment – for example the total amount of HC in a trap.\n
+/// The set of observables also could be denote as an output vector:  @f$ \vec{O} = \vec{(o_1,o_2,…,o_m)} @f$ .
+///
+/// <b><em> Observable reference value </em></b> – usually it is a measurement of corresponded observable value \n
+/// from the real well.Observables with reference value could be used for calibration workflow.
+///
+/// <b><em> Standard deviation value of observable reference value </em></b> - contains the standard deviations \n
+/// of the measurement noise. Standard deviation (SD) (represented by the Greek letter sigma, @f$ \sigma @f$) \n
+/// measures the amount of variation or dispersion from the average. A low standard deviation indicates that \n
+/// the data points tend to be very close to the mean (also called expected value); a high standard deviation \n
+/// indicates that the data points are spread out over a large range of values. 
+/// In science, researchers commonly report the standard deviation of experimental data, and only effects that \n
+/// fall much farther than two standard deviations away from what would have been expected are considered \n
+/// statistically significant—normal random error or variation in the measurements is in this way distinguished \n
+/// from causal variation.
+/// @image html Standard_deviation_diagram.png "A plot of a normal distribution (or bell-shaped curve) where each band has a width of 1 standard deviation (68–95–99.7 rule)"
+///
+///The following list of of Observable types is implemented in CASA API:
 ///
 /// - Any Cauldron property value at the grid IJK position
-/// - Any Cauldron property value at XYZ model position
+/// - @todo Any Cauldron property value at XYZ model position
 ///
 /// A new observable object could be created by one of the static functions from @link casa::DataDigger Data Digger @endlink
 
+namespace mbapi
+{
+   class Model;
+}
+
 namespace casa
 {
-   /// @brief Base class for keeping some value from Cauldron simulation results
+   class ObsValue; // class which will keep the real value from the results which corresponds this observable
+
+   /// @brief Base class for keeping description of some value (not the value itself) from Cauldron simulation results\n
+   /// Also this class keeps observable reference value and observable weights for Sensitivity and Uncertainty analysis
    class Observable
    {
    public:
       /// @brief Destructor
-      virtual ~Observable();
-
-      /// @brief Copy operator. Creates deep copy of given Observable. Observables type\n
-      ///        should be the same
-      /// @param otherObs observable to be copied
-      /// @return refernce to the current observable
-      virtual Observable & operator = ( const Observable & otherObs ) = 0;
+      virtual ~Observable() { ; }
 
       /// @brief Get name of the observable
       /// @return observable name
       virtual const char * name() = 0;
-      
-      /// @brief Get observable value
-      /// @return value for observable
-      virtual double value() = 0;
 
-      /// @brief Does observable has a reference value (mesurement)
+      /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise
       virtual bool hasReferenceValue() = 0;
+
       /// @brief Get reference value
       /// @return reference value
-      virtual double referenceValue() = 0;
-      
+      virtual ObsValue * referenceValue() = 0;
+
       /// @brief Get standard deviations for the reference value
-      /// @return a standart deviation for reference value
+      /// @return a standard deviation for reference value
       virtual double stdDeviationForRefValue() = 0;
+
+      /// @brief Set reference value
+      /// @param refVal reference value itself
+      /// @param stdDevVal standard deviation value for the reference value
+      virtual void setReferenceValue( ObsValue * refVal, double stdDevVal ) = 0;
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
@@ -66,10 +89,27 @@ namespace casa
       /// @brief Get weighting coefficient for uncertainty analysis
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight() = 0;
-   
+
+      /// @brief Set weight coefficient for Sensitivity analysis
+      /// @param w weight coefficient value
+      virtual void setSAWeight(double w) = 0;
+
+      /// @brief Set weight coefficient for Uncertainty analysis
+      /// @param w weight coefficient value
+      virtual void setUAWeight(double w) = 0;
+
+      /// @brief Get this observable value from Cauldron model
+      /// @param caldModel reference to Cauldron model
+      /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
+      virtual ObsValue * getFromModel(mbapi::Model & caldModel) = 0;
+
    protected:
-      Observable();
-   }; 
+      Observable() { ; }
+
+   private:
+      Observable(const Observable &);
+      Observable & operator = ( const Observable & );
+   };
 }
 
 #endif // CASA_API_OBSERVABLE_H

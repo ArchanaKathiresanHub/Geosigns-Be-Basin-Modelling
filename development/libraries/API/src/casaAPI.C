@@ -17,6 +17,7 @@
 #include "DataDiggerImpl.h"
 #include "DoEGeneratorImpl.h"
 #include "MCSolverImpl.h"
+#include "ObsSpaceImpl.h"
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmSourceRockTOC.h"
 #include "RSProxyImpl.h"
@@ -151,12 +152,16 @@ public:
 
    // Get run manager associated with this scenario analysis
    // return reference to the instance of run manager
-   RunManager & runManager() { return *(m_runManager.get()); }
+   RunManager & runManager() { return *( m_runManager.get() ); }
 
    // Get data digger associated with this scenario analysis
    // return reference to the instance of data digger
-   DataDigger & dataDigger() { return *(m_dataDigger.get()); }
+   DataDigger & dataDigger() { return *( m_dataDigger.get() ); }
    
+   // Get list of observables for this scenario
+   // return Observables set manager
+   ObsSpace & obsSpace() { return *( m_obsSpace.get() ); }
+
    // Define which order of response surface polynomial approximation of  will be used in this scenario analysis
    // order order of polynomial approximation
    // krType do we need Kriging interpolation, and which one?
@@ -193,7 +198,8 @@ private:
    int                             m_caseNum;             // counter for the cases, used in folder name of the case
 
    std::auto_ptr<mbapi::Model>     m_baseCase;
-   std::auto_ptr<VarSpaceImpl>     m_varSpace;
+   std::auto_ptr<ObsSpaceImpl>     m_obsSpace;           // observables manager
+   std::auto_ptr<VarSpaceImpl>     m_varSpace;           // variable parameters manager
    std::auto_ptr<DoEGeneratorImpl> m_doe;
    
    std::auto_ptr<RunCaseSetImpl>   m_doeCases;
@@ -249,7 +255,10 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setScenarioLocation( const char * pat
 }
 
 // Get set of variable parameters for the scenario 
-VarSpace   & ScenarioAnalysis::varSpace()   { return m_pimpl->varSpace(); }
+VarSpace   & ScenarioAnalysis::varSpace() { return m_pimpl->varSpace(); }
+
+// Get set of observables for the scenario
+ObsSpace   & ScenarioAnalysis::obsSpace() { return m_pimpl->obsSpace(); }
 
 // Define DoE algorithm
 ErrorHandler::ReturnCode ScenarioAnalysis::setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo )
@@ -331,6 +340,7 @@ ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
    m_caseSetPath = ".";
 
    m_varSpace.reset(   new VarSpaceImpl()   );
+   m_obsSpace.reset(   new ObsSpaceImpl()   );
 
    m_doeCases.reset(   new RunCaseSetImpl() );
    m_mcCases.reset(    new RunCaseSetImpl() );
@@ -451,7 +461,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
          casePath.create();
          casePath << projectFileName;
          // do mutation
-         cs->mutateCaseTo( *(m_baseCase.get()), casePath.path( ).c_str( ) );
+         cs->mutateCaseTo( *(m_baseCase.get()), casePath.path().c_str() );
 
          ++m_caseNum;
       }

@@ -79,6 +79,7 @@ namespace casa
          fasttouch7,   ///< ResQ reservoir quality
          fastmig,      ///< Hydrocarbons primary migration
          track1d,      ///< Extract data along vertical well for given position
+         datadriller,  ///< Extract data from the simulation results using DataMiningIoTbl as a requests set
          generic       ///< Allows to define any application not mentioned over
       } ApplicationType;
       /// @}

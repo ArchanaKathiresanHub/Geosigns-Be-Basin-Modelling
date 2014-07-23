@@ -16,7 +16,8 @@
 
 #include "Parameter.h"
 #include "cmbAPI.h"
-#include "Observable.h"
+#include "ObsValue.h"
+
 
 #include <vector>
 
@@ -39,14 +40,14 @@ namespace casa
       /// @return i-th parameter or null pointer if there is no such parameter
       virtual Parameter * parameter( size_t i ) const = 0;
 
-      /// @brief Get number of observables 
-      /// @return observables number
-      virtual size_t observablesNumber( ) const = 0;
+      /// @brief Get number of observables value 
+      /// @return observables value number
+      virtual size_t observablesNumber() const = 0;
 
-      /// @brief Get i-th observable
-      /// @param i position of requested observable
-      /// @return i-th observable or null pointer if there is no such observable
-      virtual Observable * observable( size_t i ) const = 0;
+      /// @brief Get i-th observable value
+      /// @param i position of requested observable value
+      /// @return i-th observable value or null pointer if there is no such observable
+      virtual ObsValue * observableValue( size_t i ) const = 0;
 
       /// @brief Mutate case to given project file
       /// @param baseCase base case of the scenario which will be mutated to a new case

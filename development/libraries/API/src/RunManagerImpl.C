@@ -18,17 +18,15 @@
 
 #include "CauldronEnvConfig.h"
 
-#include <fstream>
-#include <iostream>
+#include "JobSchedulerLocal.h"
+#include "JobSchedulerLSF.h"
 
 #ifndef _WIN32
-#include <unistd.h>
 #include <sys/stat.h>
-void Wait( int sec ) { sleep( sec ); }
-#else
-#include <windows.h>
-void Wait( int milsec ) { Sleep( milsec * 1000 ); }
 #endif
+
+#include <fstream>
+#include <iostream>
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,8 +45,8 @@ namespace casa
          m_cpus = 1;
          
          // set up needed for simulators environment vars
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg50").path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
          pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
@@ -69,7 +67,7 @@ namespace casa
          // set up environment vars
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg50").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
          pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
       }
    };
@@ -86,8 +84,8 @@ namespace casa
          // set up environment vars
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "geneg50").path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
       }
    };
    
@@ -102,6 +100,23 @@ namespace casa
          
          // set up environment vars
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
+      }
+   };
+
+   // datadriller application wrapper
+   class DataDrillerApp : public CauldronApp
+   {
+   public:
+      // Constructor of fastgenex6 app
+      DataDrillerApp( ShellType sh = bash ) : CauldronApp( sh, "datadriller", true )
+      {
+         m_cpus = 1;
+
+         // set up environment vars
+         pushDefaultEnv( "EOSPACKDIR", ( ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack" ).path() );
+         pushDefaultEnv( "OTGCDIR",    ( ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"    ).path() );
+         pushDefaultEnv( "GENEX6DIR",  ( ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex60" ).path() );
+         pushDefaultEnv( "CTCDIR",     ( ibs::FolderPath( m_rootPath ) << m_version << "misc"              ).path() );
       }
    };
 
@@ -130,7 +145,7 @@ namespace casa
          }
          oss << "\n";
          
-         // dump all neccessary environment variables to the script
+         // dump all necessary environment variables to the script
          dumpEnv( oss );
          oss << "\n";
          
@@ -217,7 +232,7 @@ namespace casa
          {
             case bash: m_mpiEnv += "/bin/mpivars.sh\n\n";  break;
             case csh:  m_mpiEnv += "/bin/mpivars.csh\n\n"; break;
-            case cmd:  break;
+            case cmd:  m_mpiEnv = ""; break;
          }
       }
    }
@@ -233,7 +248,7 @@ namespace casa
          case cmd:                            break;
       }
       
-      // dump all neccessary environment variables to the script
+      // dump all necessary environment variables to the script
       dumpEnv( oss );
       
       oss << "\n";
@@ -292,8 +307,19 @@ CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, 
 RunManagerImpl::RunManagerImpl( const std::string & clusterName )
 {
    // create instance of job scheduler
-   m_jobSched.reset( new JobScheduler( clusterName ) );
-
+#if defined (_WIN32) || !defined (WITH_LSF_SCHEDULER)
+   m_jobSched.reset( new JobSchedulerLocal() );
+#else
+   if ( clusterName == "LOCAL" )
+   {
+      m_jobSched.reset( new JobSchedulerLocal() );
+   }
+   else
+   {
+      m_jobSched.reset( new JobSchedulerLSF( clusterName ) );
+   }
+#endif
+   addApplication( new DataDrillerApp() ); // insert datadriller application to extract data results
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -304,9 +330,10 @@ RunManagerImpl::~RunManagerImpl()
 // Add application to the list of simulators for pipeline calculation definitions
 ErrorHandler::ReturnCode RunManagerImpl::addApplication( CauldronApp * app )
 {
-   if ( app ) 
+   if ( app )
    {
-      m_appList.push_back( app );
+      if ( m_appList.empty() ) m_appList.push_back( app );
+      else m_appList.insert( (m_appList.end() - 1), app ); // always have at least 1 element (datadriller app)
       return NoError;
    }
    return reportError( ValidationError, "RunManager::addApplication(): No app object was given" );
@@ -335,17 +362,26 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( const RunCase & newRun )
    size_t sz = pfp.size();
    std::string caseName = sz > 2 ? pfp[sz - 2 ] : (std::string( "Case_" ) + ibs::to_string( m_jobs.size() ) );
 
-   // go through pipelines and populate jobs list/generate scripts for cases
+   // go through pipelines and populate jobs list/generate scripts for all cases
    for ( size_t i = 0; i < m_appList.size(); ++i )
    {
       // generate script
-      int cpus = m_appList[i]->cpus(); // save cpus for the application 
-      m_appList[i]->setCPUs( 0 );      // number of cpus is defined by the scheduler, exclude it from the script
+      int cpus = m_appList[i]->cpus(); // save cpus for the application
+
+      // if cpus number will be defined by scheduler itself do not put -np CPUS in mpirun command
+      if ( m_jobSched->cpusNumberByScheduler() )
+      {
+         m_appList[ i ]->setCPUs( 0 );      // number of cpus is defined by the scheduler, exclude it from the script
+      }
 
       if ( !m_cldVersion.empty() ) m_appList[i]->setCauldronVersion( m_cldVersion ); // if another version is defined by user, set up it
 
       const std::string appScript = m_appList[i]->generateScript( pfp.fileName(), "" );
-      m_appList[i]->setCPUs( cpus ); // restore number of cpus back
+      
+      if ( m_jobSched->cpusNumberByScheduler() )
+      {
+         m_appList[ i ]->setCPUs( cpus ); // restore number of cpus back
+      }
 
       // generate script file name
       ibs::FilePath scriptFile( pfp.filePath() );
@@ -432,9 +468,11 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
             break;
          }
       }
-      // run over all cases, make a pause, get a twix
+      // run over all cases, make a pause, get a Twix
       std::cout << "submitted: " << submitted << ", finished: " << finished << ", failed: " << crashed << ", pending: " << pending << ", running: " << running << std::endl;
-      Wait( 10 );
+      
+      m_jobSched->sleep(); // wait a bit till go to the next loop
+
       if ( submitted == finished ) allFinished = true;
    }
    return NoError;
@@ -443,7 +481,25 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Set cluster name from job scheduler
-ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterName ) { m_jobSched->setClusterName( clusterName ); return NoError; }
+ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterName ) 
+{ 
+   if ( !clusterName || !strlen( clusterName ) ) return reportError( OutOfRangeValue, "Wrong cluster name" );
+
+   if ( m_jobSched->clusterName() == clusterName ) return NoError;
+
+#if defined (_WIN32) || !defined (WITH_LSF_SCHEDULER)
+   m_jobSched.reset( new JobSchedulerLocal() );
+#else
+   if ( clusterName == "LOCAL" )
+   {
+      m_jobSched.reset( new JobSchedulerLocal( ) );
+   }
+   else
+   {
+      m_jobSched.reset( new JobSchedulerLSF( clusterName ) );
+   }
+#endif
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Get cluster name from job scheduler

@@ -46,17 +46,17 @@ namespace casa
       // Add new parameter to the list
       void addParameter( Parameter * prm );
 
-      // Get number of observables 
-      // return observables number
+      // Get number of observables value
+      // return observables value number
       virtual size_t observablesNumber() const { return m_results.size(); }
 
-      // Get i-th observable
-      // i position of requested observable
-      // return i-th observable or null pointer if there is no such observable
-      virtual Observable * observable( size_t i ) const;
+      // Get i-th observable value
+      // i position of requested observable value
+      // return i-th observable value or null pointer if there is no such observable
+      virtual ObsValue * observableValue( size_t i ) const;
 
-      // Add new observable to the list
-      void addObservable( Observable * obs );
+      // Add new observable value to the list
+      void addObservableValue( ObsValue * obs );
 
       // Mutate case to given project file
       // newProjectName name of the mutated project
@@ -71,19 +71,27 @@ namespace casa
       // return pointer to the model
       virtual mbapi::Model * caseModel() const { return m_model.get(); }
 
+      // Load associated with this case project file into mbapi::Model object
+      // return loaded model. If any error happened during loading, Model object will contain error description
+      mbapi::Model * loadProject();
+
       /// @brief Get full path to the project path (including project file \n
-      ///        name. If this case has no project associated with it, it will return \n
+      ///        name). If this case has no project associated with it, it will return \n
       ///        null pointer
       /// @return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
       virtual const char * projectPath() const { return m_modelProjectFileName.empty() ? NULL : m_modelProjectFileName.c_str(); }
+
+      /// @brief Set full path to the project path (including project file name).
+      /// @param pth full path to the project file
+      virtual void setProjectPath( const char * pth ) { m_modelProjectFileName = pth; }
 
 
    private:
       std::auto_ptr<mbapi::Model> m_model;                // Mutated model, available after mutateCaseTo call
       std::string                 m_modelProjectFileName; // full path to the project file
 
-      std::vector<Parameter*>     m_prmsSet;
-      std::vector<Observable*>    m_results;
+      std::vector<Parameter*>     m_prmsSet;              // list of parameters for this case
+      std::vector<ObsValue*>      m_results;              // list of observables values
    };
 }
 

@@ -12,6 +12,7 @@
 /// @brief This file keeps API implementation to keep a single run of Cauldron or a single Monte Carlo point
 
 #include "RunCaseImpl.h"
+#include "ObsValue.h"
 
 #include <cstring>
 #include <sstream>
@@ -45,13 +46,13 @@ void RunCaseImpl::addParameter( Parameter * prm )
 }
 
 // Get i-th observable
-Observable * RunCaseImpl::observable( size_t i ) const
+ObsValue * RunCaseImpl::observableValue( size_t i ) const
 {
    return i < m_results.size( ) ? m_results[ i ] : NULL;
 }
 
 // Add new observable to the list
-void RunCaseImpl::addObservable( Observable * obs )
+void RunCaseImpl::addObservableValue( ObsValue * obs )
 {
    m_results.push_back( obs );
 }
@@ -93,7 +94,7 @@ void RunCaseImpl::mutateCaseTo( mbapi::Model & baseCase, const char * newProject
    }
 }
 
-/// Do checking, are all variable parameters case value in their ranges
+// Do checking, are all variable parameters case value in their ranges
 std::string RunCaseImpl::validateCase()
 {
    if ( !m_model.get() ) return "Case can not be validated because cauldron model was not defined for this case";
@@ -106,6 +107,15 @@ std::string RunCaseImpl::validateCase()
    }
 
    return oss.str();
+}
+
+// Load project file into mbapi::Model object
+mbapi::Model * RunCaseImpl::loadProject()
+{
+   m_model.reset( new mbapi::Model( ) ); // if already having some model, drop it
+   m_model->loadModelFromProjectFile( m_modelProjectFileName.c_str() );
+
+   return m_model.get();
 }
 
 }

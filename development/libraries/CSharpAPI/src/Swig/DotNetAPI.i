@@ -127,6 +127,8 @@
 #include "../../../API/src/RunManager.h"
 #include "../../../API/src/RunManagerImpl.h"
 #include "../../../API/src/JobScheduler.h"
+#include "../../../API/src/JobSchedulerLocal.h"
+#include "../../../API/src/JobSchedulerLSF.h"
 
 #include "../../../API/src/Path.h"
 #include "../../../API/src/FilePath.h"
@@ -256,6 +258,8 @@ using namespace casa;
 %include "../../../API/src/RunManager.h"
 %include "../../../API/src/RunManagerImpl.h"
 %include "../../../API/src/JobScheduler.h"
+%include "../../../API/src/JobSchedulerLocal.h"
+%include "../../../API/src/JobSchedulerLSF.h"
 
 %include "../../../API/src/Path.h"
 %include "../../../API/src/FilePath.h"

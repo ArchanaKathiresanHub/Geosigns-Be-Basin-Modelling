@@ -58,8 +58,15 @@ generate_dox( src/API.cfg )
 #######################################
 # Unit tests for DoEGeneratorTest
 
+#Various cauldron projects which are used in unit tests
 configure_file(test/Project.project3d Project.project3d) 
 configure_file(test/Ottoland.project3d Ottoland.project3d) 
+
+#Cauldron project with results for DataDigger unit testing
+configure_file(test/OttolandWithGenex.project3d OttolandWithGenex.project3d) 
+configure_file(test/OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5) 
+configure_file(test/OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF) 
+configure_file(test/OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF) 
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.C
@@ -86,13 +93,13 @@ add_gtest( NAME mbapiModelTest
    LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
-if (UNIX AND LSF_FOUND)
-
 add_gtest( NAME RunManagerTest
    SOURCES test/RunManagerTest.C
    INCLUDE_DIRS ${LSF_INCLUDE_DIR}
    LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
 )
 
-
-endif (UNIX AND LSF_FOUND)
+add_gtest( NAME DataDiggerTest
+   SOURCES test/DataDiggerTest.C
+   LIBRARIES api DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)

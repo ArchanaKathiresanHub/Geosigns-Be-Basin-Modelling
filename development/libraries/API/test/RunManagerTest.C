@@ -116,6 +116,3 @@ TEST_F( RunManagerTest, Tornado2PrmsMutations )
    
    ASSERT_FALSE( pathToCaseSet.exists() );
 }
-
-
-

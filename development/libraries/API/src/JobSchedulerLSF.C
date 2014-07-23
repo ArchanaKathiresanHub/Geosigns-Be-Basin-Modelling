@@ -9,7 +9,7 @@
 // 
 
 #include "ErrorHandler.h"
-#include "JobScheduler.h"
+#include "JobSchedulerLSF.h"
 
 #include "CauldronEnvConfig.h"
 
@@ -23,10 +23,20 @@
 #include <cstdlib>
 #include <cstring>
 
+#ifndef _WIN32
+#include <unistd.h>
+#include <sys/stat.h>
+static void Wait( int sec ) { sleep( sec ); }
+#else
+#include <windows.h>
+static void Wait( int milsec ) { Sleep( milsec * 1000 ); }
+#endif
+
+
 namespace casa
 {
 
-class JobScheduler::Job
+class JobSchedulerLSF::Job
 {
 public:
    Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
@@ -60,7 +70,7 @@ public:
       m_submit.maxNumProcessors = cpus; // max num of processors required to run the (parallel) job
 #else
       m_command = scriptName;
-      m_isFinished = false;   // without job scheduler all jobs considered as finished immediately
+      m_isFinished = true;   // without job scheduler all jobs considered as finished immediately
 #endif
    }
 
@@ -102,7 +112,7 @@ public:
 #ifdef WITH_LSF_SCHEDULER
       m_lsfJobID = lsb_submit( &m_submit, &m_submitRepl );
 #endif
-      return isSubmitted( );
+      return isSubmitted();
    }
 
    // check job status
@@ -170,7 +180,7 @@ public:
 };
 
 
-JobScheduler::JobScheduler( const std::string & clusterName )
+JobSchedulerLSF::JobSchedulerLSF( const std::string & clusterName )
 {
 #ifdef WITH_LSF_SCHEDULER
    const char * lsfConfDir = getenv( "LSF_ENVDIR" );
@@ -199,7 +209,7 @@ JobScheduler::JobScheduler( const std::string & clusterName )
 #endif
 }
 
-JobScheduler::~JobScheduler()
+JobSchedulerLSF::~JobSchedulerLSF()
 {
    for ( size_t i = 0; i < m_jobs.size(); ++i )
    {
@@ -208,14 +218,14 @@ JobScheduler::~JobScheduler()
 }
 
 // Add job to the list
-JobScheduler::JobID JobScheduler::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
+JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
 {
    m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus ) );
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
 
 // run job
-void JobScheduler::runJob( JobID job )
+void JobSchedulerLSF::runJob( JobID job )
 {
    if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no such job in the queue";
 
@@ -234,7 +244,7 @@ void JobScheduler::runJob( JobID job )
 }
 
 // get job state
-JobScheduler::JobState JobScheduler::jobState( JobID id )
+JobScheduler::JobState JobSchedulerLSF::jobState( JobID id )
 {
    if ( id >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
 
@@ -245,7 +255,13 @@ JobScheduler::JobState JobScheduler::jobState( JobID id )
    return job->status();   // unknown status
 }
 
-void JobScheduler::printLSFBParametersInfo()
+void JobSchedulerLSF::sleep()
+{
+   Wait( 10 );
+}
+
+
+void JobSchedulerLSF::printLSFBParametersInfo()
 {
 #ifdef WITH_LSF_SCHEDULER
    struct parameterInfo * lsfbPrms = lsb_parameterinfo( NULL, NULL, 0 );
