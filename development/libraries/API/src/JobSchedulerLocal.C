@@ -27,8 +27,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <sstream>
 #include <iterator>
+#include <memory>
+#include <sstream>
 
 #ifndef _WIN32
 #include <sys/stat.h>

@@ -27,7 +27,7 @@
 
 #include <fstream>
 #include <iostream>
-
+#include <cstring>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Definition the set of cauldron applications
@@ -108,7 +108,7 @@ namespace casa
    {
    public:
       // Constructor of fastgenex6 app
-      DataDrillerApp( ShellType sh = bash ) : CauldronApp( sh, "datadriller", true )
+      DataDrillerApp( ShellType sh = bash ) : CauldronApp( sh, "datadriller", false )
       {
          m_cpus = 1;
 
@@ -499,6 +499,7 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
       m_jobSched.reset( new JobSchedulerLSF( clusterName ) );
    }
 #endif
+   return NoError;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
