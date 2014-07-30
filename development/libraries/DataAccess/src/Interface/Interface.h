@@ -341,6 +341,7 @@ namespace DataAccess
       enum PropertyOutputOption {
          NO_OUTPUT,                     ///< No output selected.
          SOURCE_ROCK_ONLY_OUTPUT,       ///< Output property only when formation is a source rock.
+         SHALE_GAS_ONLY_OUTPUT,         ///< Output property only when formation is a source rock and adsorption is on.
          SEDIMENTS_ONLY_OUTPUT,         ///< Output property only when formation is a sediment.
          SEDIMENTS_AND_BASEMENT_OUTPUT  ///< Output property when formation is a sediment or part of the basement.
       };

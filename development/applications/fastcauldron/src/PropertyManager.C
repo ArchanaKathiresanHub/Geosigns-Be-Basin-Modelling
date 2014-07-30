@@ -355,6 +355,8 @@ void PropertyManager::computePropertyMaps ( AppCtx*                    cauldron,
       layers.Initialise_Iterator ( cauldron->layers, Descending, Sediments_Only, Active_Layers_Only );
    } else if ( maximumOutputOption == Interface::SOURCE_ROCK_ONLY_OUTPUT ) {
       layers.Initialise_Iterator ( cauldron->layers, Descending, Source_Rocks_Only, Active_Layers_Only );
+   } else if ( maximumOutputOption == Interface::SHALE_GAS_ONLY_OUTPUT ) {
+      layers.Initialise_Iterator ( cauldron->layers, Descending, Shale_Gas_Only, Active_Layers_Only );
    } else {
       return;
    }

@@ -395,6 +395,7 @@ namespace Basin_Modelling {
      PropListVec mapOutputProperties;
      PropListVec m_volumeOutputProperties;
      PropListVec genexOutputProperties;
+     PropListVec shaleGasOutputProperties;
      PropListVec looselyCoupledOutputProperties;
      PropListVec concludingOutputProperties;
      PropListVec m_concludingVolumeOutputProperties;

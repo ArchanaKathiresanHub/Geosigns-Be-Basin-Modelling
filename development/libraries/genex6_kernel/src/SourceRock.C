@@ -1175,15 +1175,13 @@ bool SourceRock::process()
    LinearGridInterpolator *VESInterpolator  = new LinearGridInterpolator;
    LinearGridInterpolator *TempInterpolator = new LinearGridInterpolator;
    LinearGridInterpolator *ThicknessScalingInterpolator = new LinearGridInterpolator;
-
-   LinearGridInterpolator *lithostaticPressureInterpolator = new LinearGridInterpolator;
-   LinearGridInterpolator *hydrostaticPressureInterpolator = new LinearGridInterpolator;
-   LinearGridInterpolator *porePressureInterpolator = new LinearGridInterpolator;
-   LinearGridInterpolator *porosityInterpolator = new LinearGridInterpolator;
-   LinearGridInterpolator *permeabilityInterpolator = new LinearGridInterpolator;
-
    LinearGridInterpolator *vreInterpolator  = new LinearGridInterpolator;
 
+   LinearGridInterpolator *lithostaticPressureInterpolator = 0;
+   LinearGridInterpolator *hydrostaticPressureInterpolator = 0;
+   LinearGridInterpolator *porePressureInterpolator        = 0;
+   LinearGridInterpolator *porosityInterpolator            = 0;
+   LinearGridInterpolator *permeabilityInterpolator        = 0;
 
    const Snapshot *intervalStart, *intervalEnd = 0;
 
@@ -1229,25 +1227,80 @@ bool SourceRock::process()
       const GridMap *vreAtStart = getSurfaceFormationPropertyGridMap ("Vr", intervalStart );
       const GridMap *vreAtEnd   = getSurfaceFormationPropertyGridMap ("Vr", intervalEnd );
 
-      if ( VESmapAtStart && VESmapAtEnd && TempmapAtStart && TempmapAtEnd and
-           lithostaticPressureMapAtStart != 0 and lithostaticPressureMapAtEnd != 0 and
-           hydrostaticPressureMapAtStart != 0 and hydrostaticPressureMapAtEnd != 0 and
-           porePressureMapAtStart != 0 and porePressureMapAtEnd != 0 and 
-           porosityMapAtStart != 0 and porosityMapAtEnd != 0 and
-           permeabilityMapAtStart != 0 and permeabilityMapAtEnd != 0 and
-           vreAtStart != 0 and vreAtEnd != 0 ) {
+      if ( VESmapAtStart && VESmapAtEnd && TempmapAtStart && TempmapAtEnd and vreAtStart != 0 and vreAtEnd != 0 ) {
+
+         if( doApplyAdsorption () ) {
+            if( lithostaticPressureMapAtStart == 0 or lithostaticPressureMapAtEnd == 0 or
+                hydrostaticPressureMapAtStart == 0 or hydrostaticPressureMapAtEnd == 0 or
+                porePressureMapAtStart == 0 or porePressureMapAtEnd == 0 or
+                porosityMapAtStart == 0 or porosityMapAtEnd == 0 or
+                permeabilityMapAtStart == 0 or permeabilityMapAtEnd == 0 ) {
+
+               status = false;
+
+               if ( m_projectHandle->getRank () == 0 ) {
+
+                  if ( lithostaticPressureMapAtStart == 0 ) {
+                     cout << " Missing litho-static pressure map for snapshot " << intervalStart->getTime () << endl;
+                  }
+                  
+                  if ( lithostaticPressureMapAtEnd == 0 ) {
+                     cout << " Missing litho-static pressure map for snapshot " << intervalEnd->getTime () << endl;
+                  }
+                  
+                  if ( hydrostaticPressureMapAtStart == 0 ) {
+                     cout << " Missing hydro-static pressure map for snapshot " << intervalStart->getTime () << endl;
+                  }
+                  
+                  if ( hydrostaticPressureMapAtEnd == 0 ) {
+                     cout << " Missing hydro-static pressure map for snapshot " << intervalEnd->getTime () << endl;
+                  }
+                  
+                  if ( porePressureMapAtStart == 0 ) {
+                     cout << " Missing pore-pressure map for snapshot " << intervalStart->getTime () << endl;
+                  }
+                  
+                  if ( porePressureMapAtEnd == 0 ) {
+                     cout << " Missing pore-pressure map for snapshot " << intervalEnd->getTime () << endl;
+                  }
+                  
+                  if ( porosityMapAtStart == 0 ) {
+                     cout << " Missing porosity map for snapshot " << intervalStart->getTime () << endl;
+                  }
+                  
+                  if ( porosityMapAtEnd == 0 ) {
+                     cout << " Missing porosity map for snapshot " << intervalEnd->getTime () << endl;
+                  }
+                  
+                  if ( permeabilityMapAtStart == 0 ) {
+                     cout << " Missing permeability map for snapshot " << intervalStart->getTime () << endl;
+                  }
+                  
+                  if ( permeabilityMapAtEnd == 0 ) {
+                     cout << " Missing permeability map for snapshot " << intervalEnd->getTime () << endl;
+                  }
+                  
+               }
+
+               break;
+            }
+            lithostaticPressureInterpolator = new LinearGridInterpolator;
+            hydrostaticPressureInterpolator = new LinearGridInterpolator;
+            porePressureInterpolator = new LinearGridInterpolator;
+            porosityInterpolator = new LinearGridInterpolator;
+            permeabilityInterpolator = new LinearGridInterpolator;
+ 
+            lithostaticPressureInterpolator->compute(intervalStart, lithostaticPressureMapAtStart, intervalEnd, lithostaticPressureMapAtEnd ); 
+            hydrostaticPressureInterpolator->compute(intervalStart, hydrostaticPressureMapAtStart, intervalEnd, hydrostaticPressureMapAtEnd ); 
+            porePressureInterpolator->compute(intervalStart, porePressureMapAtStart, intervalEnd, porePressureMapAtEnd ); 
+            porosityInterpolator->compute(intervalStart, porosityMapAtStart, intervalEnd, porosityMapAtEnd ); 
+            permeabilityInterpolator->compute(intervalStart, permeabilityMapAtStart, intervalEnd, permeabilityMapAtEnd ); 
+        }
 
          VESInterpolator ->compute(intervalStart, VESmapAtStart,  intervalEnd, VESmapAtEnd);
          TempInterpolator->compute(intervalStart, TempmapAtStart, intervalEnd, TempmapAtEnd); 
-         vreInterpolator->compute  ( intervalStart, vreAtStart,     intervalEnd, vreAtEnd );
-
-         lithostaticPressureInterpolator->compute(intervalStart, lithostaticPressureMapAtStart, intervalEnd, lithostaticPressureMapAtEnd ); 
-         hydrostaticPressureInterpolator->compute(intervalStart, hydrostaticPressureMapAtStart, intervalEnd, hydrostaticPressureMapAtEnd ); 
-         porePressureInterpolator->compute(intervalStart, porePressureMapAtStart, intervalEnd, porePressureMapAtEnd ); 
-         porosityInterpolator->compute(intervalStart, porosityMapAtStart, intervalEnd, porosityMapAtEnd ); 
-         permeabilityInterpolator->compute(intervalStart, permeabilityMapAtStart, intervalEnd, permeabilityMapAtEnd ); 
-
-
+         vreInterpolator->compute (intervalStart, vreAtStart,     intervalEnd, vreAtEnd );
+                
          //erosion 
          const GridMap *thicknessScalingAtStart = getFormationPropertyGridMap("ErosionFactor", intervalStart);
          const GridMap *thicknessScalingAtEnd   = getFormationPropertyGridMap("ErosionFactor", intervalEnd);
@@ -1318,46 +1371,6 @@ bool SourceRock::process()
 #endif
 
          if ( m_projectHandle->getRank () == 0 ) {
-
-            if ( lithostaticPressureMapAtStart == 0 ) {
-               cout << " Missing litho-static pressure map for snapshot " << intervalStart->getTime () << endl;
-            }
-
-            if ( lithostaticPressureMapAtEnd == 0 ) {
-               cout << " Missing litho-static pressure map for snapshot " << intervalEnd->getTime () << endl;
-            }
-
-            if ( hydrostaticPressureMapAtStart == 0 ) {
-               cout << " Missing hydro-static pressure map for snapshot " << intervalStart->getTime () << endl;
-            }
-
-            if ( hydrostaticPressureMapAtEnd == 0 ) {
-               cout << " Missing hydro-static pressure map for snapshot " << intervalEnd->getTime () << endl;
-            }
-
-            if ( porePressureMapAtStart == 0 ) {
-               cout << " Missing pore-pressure map for snapshot " << intervalStart->getTime () << endl;
-            }
-
-            if ( porePressureMapAtEnd == 0 ) {
-               cout << " Missing pore-pressure map for snapshot " << intervalEnd->getTime () << endl;
-            }
-
-            if ( porosityMapAtStart == 0 ) {
-               cout << " Missing porosity map for snapshot " << intervalStart->getTime () << endl;
-            }
-
-            if ( porosityMapAtEnd == 0 ) {
-               cout << " Missing porosity map for snapshot " << intervalEnd->getTime () << endl;
-            }
-
-            if ( permeabilityMapAtStart == 0 ) {
-               cout << " Missing permeability map for snapshot " << intervalStart->getTime () << endl;
-            }
-
-            if ( permeabilityMapAtEnd == 0 ) {
-               cout << " Missing permeability map for snapshot " << intervalEnd->getTime () << endl;
-            }
 
             if ( vreAtStart == 0 ) {
                cout << " Missing vitirinite-reflectance map for snapshot " << intervalStart->getTime () << endl;
@@ -2171,11 +2184,11 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          double in_thicknessScaling = thicknessScaling ? 
             thicknessScaling->getValue(( *itNode)->GetI(), (*itNode)->GetJ(), depthThicknessScaling - 1 ) : 1.0;
 
-         double nodeLithostaticPressure = 1.0e6 * lithostaticPressure->getValue ( (*itNode)->GetI(), (*itNode)->GetJ());
-         double nodeHydrostaticPressure = 1.0e6 * hydrostaticPressure->getValue ( (*itNode)->GetI(), (*itNode)->GetJ());
-         double nodePorePressure = 1.0e6 * porePressure->getValue ( (*itNode)->GetI(), (*itNode)->GetJ());
-         double nodePorosity = 0.01 * porosity->getValue ( (*itNode)->GetI(), (*itNode)->GetJ());
-         double nodePermeability = permeability->getValue ( (*itNode)->GetI(), (*itNode)->GetJ());
+         double nodeLithostaticPressure = lithostaticPressure ? 1.0e6 * lithostaticPressure->getValue ( (*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE;
+         double nodeHydrostaticPressure = hydrostaticPressure ? 1.0e6 * hydrostaticPressure->getValue ( (*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE;
+         double nodePorePressure = porePressure ? 1.0e6 * porePressure->getValue ( (*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE;
+         double nodePorosity = porosity ? 0.01 * porosity->getValue ( (*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE;
+         double nodePermeability = permeability ? permeability->getValue ( (*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE;
          double nodeVre = vre->getValue ( (*itNode)->GetI(), (*itNode)->GetJ());
 
          Genex6::Input *theInput = new Genex6::Input( previousTime, time,
@@ -2321,13 +2334,13 @@ void SourceRock::computeTimeInstance ( const double &startTime,
       double in_startTemp = temperature->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime );
       double in_endTemp = temperature->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
 
-      double nodeLithostaticPressure = 1.0e6 * lithostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
-      double nodeHydrostaticPressure = 1.0e6 * hydrostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
-      double startNodePorePressure = 1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime );
-      double endNodePorePressure = 1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
-      double nodePorosity = 0.01 * porosity->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
-      double nodePermeability = permeability->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
-      double nodeVre          = vre->evaluateProperty ( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
+      double nodeLithostaticPressure = lithostaticPressure ? 1.0e6 * lithostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
+      double nodeHydrostaticPressure = hydrostaticPressure ? 1.0e6 * hydrostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
+      double startNodePorePressure = porePressure ? 1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime ) : Constants::UNDEFINEDVALUE;
+      double endNodePorePressure = porePressure ?  1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
+      double nodePorosity = porosity ? 0.01 * porosity->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
+      double nodePermeability = permeability ? permeability->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
+      double nodeVre = vre->evaluateProperty ( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
 
       double in_thicknessScaling = thicknessScaling ? thicknessScaling->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : 1.0;
 

@@ -65,6 +65,11 @@ namespace Basin_Modelling {
     Source_Rocks_Only,
     ///
     ///
+    /// Only layers that contain source rocks and adsorption on
+    ///
+    Shale_Gas_Only,
+    ///
+    ///
     /// Only layers that contain reservoirs
     ///
     Reservoirs_Only };

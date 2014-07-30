@@ -471,14 +471,19 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   genexOutputProperties.push_back ( VR );
   genexOutputProperties.push_back ( MAXVES );
-  genexOutputProperties.push_back ( PRESSURE );
-  genexOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
-  genexOutputProperties.push_back ( HYDROSTATICPRESSURE );
-  genexOutputProperties.push_back ( LITHOSTATICPRESSURE );
-  genexOutputProperties.push_back ( POROSITYVEC );
-  genexOutputProperties.push_back ( PERMEABILITYVEC );
-
   genexOutputProperties.push_back ( EROSIONFACTOR );
+  
+  shaleGasOutputProperties.push_back ( TEMPERATURE );
+  shaleGasOutputProperties.push_back ( VES );
+  shaleGasOutputProperties.push_back ( VR );
+  shaleGasOutputProperties.push_back ( EROSIONFACTOR );
+  shaleGasOutputProperties.push_back ( MAXVES );
+  shaleGasOutputProperties.push_back ( PRESSURE );
+  shaleGasOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
+  shaleGasOutputProperties.push_back ( HYDROSTATICPRESSURE );
+  shaleGasOutputProperties.push_back ( LITHOSTATICPRESSURE );
+  shaleGasOutputProperties.push_back ( POROSITYVEC );
+  shaleGasOutputProperties.push_back ( PERMEABILITYVEC );
 
   // Preevaluated_Basis_Functions::Get_Instance ()->Preevaluate ( pressureSolver->getPlaneQuadratureDegree ( basinModel -> Optimisation_Level ),
   //                                                              pressureSolver->getDepthQuadratureDegree ( basinModel -> Optimisation_Level ));
@@ -565,6 +570,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 //     basinModel->projectSnapshots.deleteIntermediateMinorSnapshotFiles ( savedMinorSnapshotTimes, basinModel->getOutputDirectory ());
 
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
 
     FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
@@ -658,6 +664,7 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
 
   m_surfaceNodeHistory.clearProperties ();
   basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
+  basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
   savedMinorSnapshotTimes.clear ();
 
 
@@ -665,6 +672,7 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
   {
     basinModel->initialiseTimeIOTable ( HydrostaticTemperatureRunStatusStr );
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
     
     //make sure that surfaceOutputPropterties is a superset of properties output in Output.C:savePropsOnSegmentNodes1D() 
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties ); 
@@ -761,6 +769,7 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     {
        basinModel->threeDTimeIoTbl->clear();
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
+       basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
     
        //make sure that surfaceOutputPropterties is a superset of properties output in Output.C:savePropsOnSegmentNodes1D() 
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties ); 
@@ -1420,7 +1429,8 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
        computeErosionFactorMaps ( basinModel, Current_Time );
 
-       FastcauldronSimulator::getInstance ().saveMapProperties ( genexOutputProperties, snapshot, Interface::SEDIMENTS_ONLY_OUTPUT );
+       FastcauldronSimulator::getInstance ().saveMapProperties ( genexOutputProperties, snapshot, Interface::SOURCE_ROCK_ONLY_OUTPUT );
+       FastcauldronSimulator::getInstance ().saveMapProperties ( shaleGasOutputProperties, snapshot, Interface::SHALE_GAS_ONLY_OUTPUT );
        deleteErosionFactorMaps ( basinModel );
     }
 
