@@ -44,8 +44,10 @@ void VreOutputGrid :: exportToModel( const LayerList & allLayers, const Boolean2
       // determine its size
       const int layerGridSize = xm * ym * zm;
 
-      // Create a property vector for VR. This vector doesn't need to be a
-      // global vector since it doesn't need to know about ghost points
+      // Create a property vector for VR. In essence this vector doesn't need
+      // to be global because no values from ghost nodes are needed, but if the
+      // project contains related projects then there will be a petsc error
+      // when creating the well file.
       if (!currentLayer->Vre) {
          DMCreateGlobalVector(currentLayer ->layerDA, &currentLayer ->Vre);
       }
