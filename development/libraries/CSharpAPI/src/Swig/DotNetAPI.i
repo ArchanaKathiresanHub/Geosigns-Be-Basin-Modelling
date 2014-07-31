@@ -107,6 +107,10 @@
 #include "../../../cmbAPI/src/LithologyManagerImpl.h"
 #include "../../../cmbAPI/src/SourceRockManagerImpl.h"
 #include "../../../cmbAPI/src/StratigraphyManagerImpl.h"
+#include "../../../cmbAPI/src/SnapshotManager.h"
+#include "../../../cmbAPI/src/SnapshotManagerImpl.h"
+#include "../../../cmbAPI/src/PropertyManager.h"
+#include "../../../cmbAPI/src/PropertyManagerImpl.h"
 #include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 #include "../../../casaAPI/src/Parameter.h"
@@ -238,6 +242,10 @@ using namespace casa;
 %include "../../../cmbAPI/src/LithologyManagerImpl.h"
 %include "../../../cmbAPI/src/SourceRockManagerImpl.h"
 %include "../../../cmbAPI/src/StratigraphyManagerImpl.h"
+%include "../../../cmbAPI/src/SnapshotManager.h"
+%include "../../../cmbAPI/src/SnapshotManagerImpl.h"
+%include "../../../cmbAPI/src/PropertyManager.h"
+%include "../../../cmbAPI/src/PropertyManagerImpl.h"
 %include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 %include "../../../casaAPI/src/Parameter.h"
