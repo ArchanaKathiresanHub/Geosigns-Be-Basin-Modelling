@@ -2,6 +2,7 @@
 #include "casaAPI.h"
 #include "FilePath.h"
 #include "FolderPath.h"
+#include "ObsValueDoubleScalar.h"
 #include "PrmSourceRockTOC.h"
 #include "PrmTopCrustHeatProduction.h"
 #include "RunCase.h"
@@ -67,6 +68,62 @@ ErrorHandler::ReturnCode AddVarParameter( casa::ScenarioAnalysis & sc, const std
    }
    
    return sc.reportError( ErrorHandler::UndefinedValue, std::string( "Unknown variable parameter name: ") + prms[0] );
+}
+
+
+ErrorHandler::ReturnCode AddObservable( casa::ScenarioAnalysis & sc, const std::vector< std::string > & prms )
+{
+   if ( prms[0] == "XYZPoint" )
+   {
+      assert( prms.size() == 10 );
+
+      double x      = atof( prms[2].c_str() );
+      double y      = atof( prms[3].c_str() );
+      double z      = atof( prms[4].c_str() );
+      double age    = atof( prms[5].c_str() );
+      double refVal = atof( prms[6].c_str() );
+      double stdDev = atof( prms[7].c_str() );
+      double wgtSA  = atof( prms[8].c_str() );
+      double wgtUA  = atof( prms[9].c_str() );
+
+      casa::Observable * xyzVal = DataDigger::newObsPropertyXYZ( x, y, z, prms[1].c_str(), age );
+      xyzVal->setReferenceValue( new ObsValueDoubleScalar( xyzVal, refVal ), stdDev );
+      xyzVal->setSAWeight( wgtSA );
+      xyzVal->setUAWeight( wgtUA );
+  
+      if ( sc.obsSpace().addObservable( xyzVal ) != ErrorHandler::NoError ) return sc.moveError( sc.obsSpace() );
+
+      return ErrorHandler::NoError;
+   }
+   
+   return sc.reportError( ErrorHandler::UndefinedValue, std::string( "Unknown variable parameter name: ") + prms[0] );
+}
+               
+void PrintObsValues( casa::ScenarioAnalysis & sc )
+{
+  
+   ObsSpace   & obSpace = sc.obsSpace();
+   RunCaseSet & rcSet   = sc.doeCaseSet();
+
+   for ( size_t rc = 0; rc < rcSet.size(); ++rc )
+   {
+      // go through all run cases
+      const RunCase * cs = rcSet[rc];
+      
+      if ( !cs ) continue;
+
+      std::cout << "    " << cs->projectPath() << std::endl;
+      std::cout << "    Observable values:" << std::endl;
+
+      for ( size_t i = 0; i < cs->observablesNumber(); ++i )
+      {
+         casa::ObsValue * ov = cs->observableValue( i );
+         if ( ov && ov->observable() && ov->isDouble() ) 
+         {
+            std::cout << "      " << ov->observable()->name() << " = " << ov->doubleValue() << std::endl;
+         }
+      }
+   }
 }
 
 
@@ -154,6 +211,7 @@ int main( int argc, char ** argv )
                std::cout << "Generating the set of case in folder: " << prms[0] << std::endl;
                if ( ErrorHandler::NoError != sc.setScenarioLocation( prms[0].c_str() ) ) return ReportError( sc );
                if ( ErrorHandler::NoError != sc.applyMutations(      sc.doeCaseSet() ) ) return ReportError( sc );
+               if ( ErrorHandler::NoError != sc.dataDigger().requestObservables( sc.obsSpace(), sc.doeCaseSet() ) ) return ReportError( sc );
             }
             break;
 
@@ -168,6 +226,18 @@ int main( int argc, char ** argv )
             if ( ErrorHandler::NoError != AddVarParameter( sc, prms ) ) { return ReportError( sc ); }
             break;
 
+         case CfgFileParser::target:
+            std::cout << "Add observable: " << prms[0] << "(";
+            for ( size_t i = 1; i < prms.size(); ++i )
+            { 
+               std::cout << prms[i] << ((i == prms.size()-1) ? "" : "," );
+            }
+            std::cout << ")" << std::endl;
+
+            if ( ErrorHandler::NoError != AddObservable( sc, prms ) ) { return ReportError( sc ); }
+            break;
+
+
          case CfgFileParser::run:
             {
                assert( prms.size() == 2 );
@@ -176,6 +246,7 @@ int main( int argc, char ** argv )
                
                casa::RunManager & rm = sc.runManager();
                rm.setCauldronVersion( prms[1].c_str() ); 
+               rm.setClusterName( prms[0].c_str() );
 
                for ( size_t i = 0; i < sc.doeCaseSet().size(); ++i )
                {
@@ -184,6 +255,9 @@ int main( int argc, char ** argv )
                }
                std::cout << "Submitting jobs to the cluster " << prms[0] << " using Cauldron: " << prms[1] << std::endl;
                if ( ErrorHandler::NoError != rm.runScheduledCases( false ) ) { return ReportError( rm ); }
+               
+               if( sc.dataDigger().collectRunResults( sc.obsSpace(), sc.doeCaseSet() ) != ErrorHandler::NoError ) return ReportError( sc );
+               PrintObsValues( sc );
             }
             break;
       }

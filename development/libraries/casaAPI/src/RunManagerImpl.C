@@ -47,7 +47,7 @@ namespace casa
          // set up needed for simulators environment vars
          pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex40").path() );
          pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex60"   ).path() );
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
@@ -68,7 +68,7 @@ namespace casa
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
          pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex60"   ).path() );
       }
    };
  
@@ -118,6 +118,9 @@ namespace casa
          pushDefaultEnv( "GENEX6DIR",  ( ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex60" ).path() );
          pushDefaultEnv( "CTCDIR",     ( ibs::FolderPath( m_rootPath ) << m_version << "misc"              ).path() );
       }
+   protected:
+      virtual std::string inputProjectOption() { return "-input"; }
+      virtual std::string outputProjectOption() { return "-output"; }
    };
 
    // fasttouch7 application wrapper
@@ -268,8 +271,8 @@ namespace casa
       for ( size_t i = 0; i < m_optionsList.size(); ++i ) { oss << " " << m_optionsList[i]; }
       
       // dump input/output project name
-      oss << " -project " << inProjectFile;
-      if ( !outProjectFile.empty() ) oss << " -save " << outProjectFile;
+      oss                                << " " << inputProjectOption()  << " " << inProjectFile;
+      if ( !outProjectFile.empty() ) oss << " " << outputProjectOption() << " " << outProjectFile;
       oss << "\n\n";
       
       return oss.str();
@@ -319,7 +322,9 @@ RunManagerImpl::RunManagerImpl( const std::string & clusterName )
       m_jobSched.reset( new JobSchedulerLSF( clusterName ) );
    }
 #endif
-   addApplication( new DataDrillerApp() ); // insert datadriller application to extract data results
+
+   CauldronApp * dda = new DataDrillerApp();
+   addApplication( dda ); // insert datadriller application to extract data results
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -490,7 +495,7 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
 #if defined (_WIN32) || !defined (WITH_LSF_SCHEDULER)
    m_jobSched.reset( new JobSchedulerLocal() );
 #else
-   if ( clusterName == "LOCAL" )
+   if ( !strcmp( clusterName, "LOCAL" ) )
    {
       m_jobSched.reset( new JobSchedulerLocal( ) );
    }

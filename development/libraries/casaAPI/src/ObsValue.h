@@ -29,6 +29,9 @@ namespace casa
       /// @brief Get parent observable which define type of observable
       virtual Observable * observable() const = 0;
 
+      // The following methods are used for testing  
+      virtual bool isDouble() = 0;
+      virtual double doubleValue() = 0;
 
    protected:
       ObsValue() { ; }

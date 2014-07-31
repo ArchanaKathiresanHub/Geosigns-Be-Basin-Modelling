@@ -23,6 +23,7 @@ public:
       app,          // add cauldron application to pipeline
       base_project, // set scenario base case 
       varprm,       // create variable parameter
+      target,       // create observable
       doe,          // create doe
       location,     // where cases will be generated, run mutator
       run

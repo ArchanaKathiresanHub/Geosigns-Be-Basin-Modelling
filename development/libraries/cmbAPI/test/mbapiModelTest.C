@@ -1,5 +1,4 @@
 #include "../src/cmbAPI.h"
-#include "../src/PrmTopCrustHeatProduction.h"
 
 #include <memory>
 #include <sys/types.h>
@@ -185,6 +184,24 @@ TEST_F( mbapiModelTest, SourceRockTOCSettings )
    // delete temporary project file
    remove( "Ottoland_changedTOC.project3d" );
 }
+
+TEST_F (mbapiModelTest, SnapshotManager )
+{
+   mbapi::Model testModel;
+   // load project file
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( "Project.project3d" ) );
+
+   // check that SnapshotIoTable has only 5 records
+   ASSERT_EQ( testModel.snapshotManager().snapshotsNumber(), 5 );
+   
+   // add snapshot
+   ASSERT_EQ( ErrorHandler::NoError, testModel.snapshotManager().requestMajorSnapshot( 10.0 ) );
+   ASSERT_EQ( testModel.snapshotManager().snapshotsNumber(), 6 );
+
+   ASSERT_NEAR( testModel.snapshotManager().time( 1 ), 10.0, eps );
+   ASSERT_EQ( testModel.snapshotManager().isMinor( 1 ), false );
+}
+
 
 TEST_F( mbapiModelTest, ModelCopyOperator )
 {

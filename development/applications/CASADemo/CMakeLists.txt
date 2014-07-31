@@ -13,13 +13,15 @@
 add_executable(CASADemo src/main.C src/CfgFileParser.C)
 
 bm_include_libraries(
-	API
-	CBMGenerics
-	utilities
+   casaAPI
+   cmbAPI
+   CBMGenerics
+   utilities
 )
 
 target_link_libraries( CASADemo
-   api
+   casaapi
+   cmbapi
    CBMGenerics
    DataAccess
    SerialDataAccess

@@ -18,12 +18,17 @@
 #include "StratigraphyManagerImpl.h"
 #include "FluidManagerImpl.h"
 #include "SourceRockManagerImpl.h"
+#include "SnapshotManagerImpl.h"
+#include "PropertyManagerImpl.h"
 
 // DataAccess library
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 
+#include "cauldronschemafuncs.h"
+
 #include <string>
+#include <cmath>
 
 namespace mbapi {
 
@@ -41,12 +46,16 @@ public:
    // methods
 
    // Set of universal access interfaces. Project file level
-   int         tableSize( const std::string & tableName );
+   int         tableSize(           const std::string & tableName );
+   void        clearTable(          const std::string & tableName );
+   void        addRowToTable(       const std::string & tableName );
+
    double      tableValueAsDouble(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    std::string tableValueAsString(  const std::string & tableName, size_t rowNumber, const std::string & propName );
+   
    void        setTableDoubleValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
    void        setTableStringValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
-
+   
    // IO methods
    void loadModelFromProjectFile( const char * projectFileName );
    void saveModelToProjectFile(   const char * projectFileName );
@@ -59,15 +68,20 @@ public:
    FluidManager        & fluidManager() { return m_fluidMgr; }
    // Source Rock
    SourceRockManager   & sourceRockManager() { return m_srkMgr; }
-   
+   // Snapshots manager
+   SnapshotManager     & snapshotManager()  { return m_snpMgr;  }
+   // Properties manager
+   PropertyManager     & propertyManager()  { return m_prpMgr;  }
+  
    // data members
    LithologyManagerImpl              m_lithMgr;
    StratigraphyManagerImpl           m_stratMgr;
    FluidManagerImpl                  m_fluidMgr;
    SourceRockManagerImpl             m_srkMgr;
+   SnapshotManagerImpl               m_snpMgr;
+   PropertyManagerImpl               m_prpMgr;
 
    std::auto_ptr<database::Database>                    m_projDatabase;  // project file database (set of tables)
-   std::auto_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;    // project handle - constructed on first request of grid data
    std::string                                          m_projFileName;  // project files name with path
 };
 
@@ -147,6 +161,30 @@ ErrorHandler::ReturnCode Model::setTableValue( const std::string & tableName, si
    return NoError;
 }
 
+// Delete all rows in given table
+ErrorHandler::ReturnCode Model::clearTable( const std::string & tableName )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->clearTable( tableName ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+// Add new row to the table
+ErrorHandler::ReturnCode Model::addRowToTable( const std::string & tableName )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->addRowToTable( tableName ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
 
 Model::ReturnCode Model::loadModelFromProjectFile( const char * projectFileName )
 {
@@ -174,12 +212,14 @@ LithologyManager    & Model::lithologyManager(   ) { return m_pimpl->lithologyMa
 StratigraphyManager & Model::stratigraphyManager() { return m_pimpl->stratigraphyManager(); }
 FluidManager        & Model::fluidManager(       ) { return m_pimpl->fluidManager(       ); }
 SourceRockManager   & Model::sourceRockManager(  ) { return m_pimpl->sourceRockManager(  ); }
+SnapshotManager     & Model::snapshotManager(    ) { return m_pimpl->snapshotManager(    ); }
+PropertyManager     & Model::propertyManager(    ) { return m_pimpl->propertyManager(    ); }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Actual implementation of CMB API
 
-Model::ModelImpl::ModelImpl()
+Model::ModelImpl::ModelImpl() 
 {
 }
 
@@ -197,6 +237,30 @@ int Model::ModelImpl::tableSize( const std::string & tableName )
 
    // return table size
    return static_cast<int>( table->size() );
+}
+
+void Model::ModelImpl::clearTable( const std::string & tableName )
+{
+   // get pointer to the table
+   database::Table * table = m_projDatabase->getTable( tableName.c_str() );
+
+   // if table does not exist - report error
+   if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
+
+   table->clear();
+}
+
+// add empty record to the end of the table
+void Model::ModelImpl::addRowToTable( const std::string & tableName )
+{
+   // get pointer to the table
+   database::Table * table = m_projDatabase->getTable( tableName.c_str() );
+
+   // if table does not exist - report error
+   if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
+
+   // add empty record to the end of the table
+   table->createRecord();
 }
 
 double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size_t rowNumber, const std::string & propName )
@@ -302,11 +366,12 @@ void Model::ModelImpl::setTableStringValue( const std::string & tableName, size_
    datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
    switch ( dt )
    {
-   case datatype::String: record->setValue<std::string>( ind, propName );
+   case datatype::String: record->setValue<std::string>( ind, propValue ); break;
    default:
       throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to string";
    }
 }
+
 
 // Load model from the project file
 Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & otherModel )
@@ -319,7 +384,6 @@ Model::ModelImpl & Model::ModelImpl::operator = ( const Model::ModelImpl & other
 
 void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 {
-   m_projHandle.reset(NULL); // delete old project if it exists
    m_projDatabase.reset(DataAccess::Interface::CreateDatabaseFromCauldronProject(projectFileName));
 
    if ( !m_projDatabase.get() )
@@ -330,6 +394,8 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    m_projFileName = projectFileName;
    
    m_srkMgr.setDatabase( m_projDatabase.get() ); // set database in source rock manager
+   m_snpMgr.setDatabase( m_projDatabase.get(), m_projFileName ); // set database in snapshot manager
+   m_prpMgr.setDatabase( m_projDatabase.get(), m_projFileName ); // set database in property manager
 }
 
 // Save model to the project file

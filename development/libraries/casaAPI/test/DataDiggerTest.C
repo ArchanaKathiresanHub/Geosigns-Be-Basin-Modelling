@@ -29,16 +29,23 @@ TEST_F( DataDiggerTest, GetIJKObservable )
    casa::DataDigger     & dd = sc.dataDigger();
    casa::RunCaseSetImpl & rcs = dynamic_cast<casa::RunCaseSetImpl&>( sc.doeCaseSet() );
 
-   obs.addObservable( dd.newObsPropertyXYZ( 460001.0, 6750001.0, 2751.0, "Temperature" ) );
-   obs.addObservable( dd.newObsPropertyXYZ( 460001.0, 6750001.0, 2730.0, "Vr" ) );
+   obs.addObservable( dd.newObsPropertyXYZ( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) );
+   obs.addObservable( dd.newObsPropertyXYZ( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) );
 
    // add new case and set case project path
    std::vector<RunCase*> rcv;
    RunCaseImpl * rc = new RunCaseImpl();
    rcv.push_back( rc );
    rc->setProjectPath( "./OttolandWithGenex.project3d" );
+   rc->loadProject();
 
    rcs.addNewCases( rcv, "DataDiggerTest" );
 
+   // test itself
+   dd.requestObservables( obs, rcs ); // update SnapshotIoTable and Property table
+
+   rc->caseModel()->saveModelToProjectFile( "./OttolandWithGenextDD.project3d" );
+
    dd.collectRunResults( obs, rcs );
 }
+

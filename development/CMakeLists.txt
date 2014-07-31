@@ -43,7 +43,7 @@ option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldro
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
-option( BM_BUILD_DOCS "Build documentation" OFF )
+option( BM_BUILD_DOCS "Build documentation" ON )
 option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 if(BM_CODE_COVERAGE_ENABLE)

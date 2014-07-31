@@ -18,6 +18,8 @@
 
 #include "ErrorHandler.h"
 #include "LithologyManager.h"
+#include "PropertyManager.h"
+#include "SnapshotManager.h"
 #include "SourceRockManager.h"
 #include "StratigraphyManager.h"
 #include "FluidManager.h"
@@ -135,6 +137,15 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, error code otherwise
       ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
 
+      /// @brief Delete all rows in given table
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode clearTable( const std::string & tableName );
+
+      /// @brief Add a new row
+      /// @param tableName name of the table in project file
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode addRowToTable( const std::string & tableName );
+
       // IO file load/save methods
 
       /// @brief Clean all parameters of the model and load the new model parameters from the given project file
@@ -168,7 +179,15 @@ namespace mbapi {
       /// @return reference to the source rock manager. It created/deleted by the model itself.
       SourceRockManager & sourceRockManager();
      
-      /// @}
+      /// @brief Get snapshot manager. It provides access to the snapshot table in project file
+      /// @return reference to snapshot manager
+      SnapshotManager & snapshotManager();
+ 
+      /// @brief Get property manager. It provides access to the FilterTimeIoTable in project file
+      /// @return reference to property manager
+      PropertyManager & propertyManager();
+    
+      ///@}
 
    private:
       /// @{

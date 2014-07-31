@@ -75,7 +75,7 @@ static double GetTrapPropertyValue (Mining::ProjectHandle* projectHandle, const 
 static double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Interface::Trap * trap, const Interface::Property * property, const Interface::Snapshot * snapshot, const Interface::Reservoir * reservoir, unsigned int i, unsigned int j);
 static const Interface::GridMap * GetPropertyGridMap (Mining::ProjectHandle* projectHandle, const Interface::Property * property, const Interface::Snapshot * snapshot, const Interface::Reservoir * reservoir);
 static bool performPVT (double masses[ComponentManager::NumberOfOutputSpecies], double temperature, double pressure,
-      double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies], double phaseDensities[ComponentManager::NumberOfPhases], double phaseViscosities[ComponentManager::NumberOfPhases]);
+                        double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies], double phaseDensities[ComponentManager::NumberOfPhases], double phaseViscosities[ComponentManager::NumberOfPhases]);
 static double Accumulate (double values[], int numberOfValues);
 static double ComputeVolume (double * masses, double density, int numberOfSpecies);
 
@@ -174,111 +174,111 @@ int main (int argc, char ** argv)
    {
       database::Table::iterator tableIter;
       int recordIndex;
-      
+
       for (recordIndex = 1, tableIter = table->begin (); tableIter != table->end (); ++tableIter, ++recordIndex)
       {
-	 double value = Interface::DefaultUndefinedScalarValue;
-	 database::Record * record = * tableIter;
-	 const Interface::Property* property = 0;
+         double value = Interface::DefaultUndefinedScalarValue;
+         database::Record * record = * tableIter;
+         const Interface::Property* property = 0;
 
-	 try
-	 {
-	    double snapshotTime = database::getTime (record);
-	    if (snapshotTime == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined Time value %:", snapshotTime);
+         try
+         {
+            double snapshotTime = database::getTime (record);
+            if (snapshotTime == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined Time value %:", snapshotTime);
 
-	    if (snapshotTime < 0) throw RecordException ("Illegal snapshot time: %", snapshotTime);
-	    
-	    const Interface::Snapshot * snapshot = projectHandle->findSnapshot (snapshotTime);
+            if (snapshotTime < 0) throw RecordException ("Illegal snapshot time: %", snapshotTime);
 
-	    double x = database::getXCoord (record);
-	    double y = database::getYCoord (record);
-	    double z = database::getZCoord (record);
+            const Interface::Snapshot * snapshot = projectHandle->findSnapshot (snapshotTime);
 
-	    if (x == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined XCoord value: %", x);
-	    if (y == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined YCoord value: %", y);
+            double x = database::getXCoord (record);
+            double y = database::getYCoord (record);
+            double z = database::getZCoord (record);
 
-
-	    const string & propertyName = database::getPropertyName (record);
+            if (x == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined XCoord value: %", x);
+            if (y == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined YCoord value: %", y);
 
 
-	    const string & reservoirName = database::getReservoirName (record);
-	    const string & formationName = database::getFormationName (record);
-	    const string & surfaceName = database::getSurfaceName (record);
-
-	    property = projectHandle->findProperty (propertyName);
-	    if (!property) throw RecordException ("Unknown PropertyName value: %", propertyName);
-
-	    if (z != Interface::DefaultUndefinedScalarValue)
-	    {
-	       domain.setSnapshot (snapshot);
-	       domainProperties->setSnapshot (snapshot);
-	       
-	       unsigned int i, j;
-	       if (!grid->getGridPoint (x, y, i, j)) throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
-
-	       ElementPosition element;
-	       if (!domain.findLocation (x, y, z, element))
-		  throw RecordException ("Illegal point coordinates:", x, y, z);
+            const string & propertyName = database::getPropertyName (record);
 
 
-	       DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
-	       if (domainProperty)
-	       {
-		  domainProperty->initialise ();
-		  value = domainProperty->compute (element);
-	       }
-	    }
-	    else if (surfaceName != "")
-	    {
+            const string & reservoirName = database::getReservoirName (record);
+            const string & formationName = database::getFormationName (record);
+            const string & surfaceName = database::getSurfaceName (record);
 
-	       domain.setSnapshot (snapshot);
-	       domainProperties->setSnapshot (snapshot);
+            property = projectHandle->findProperty (propertyName);
+            if (!property) throw RecordException ("Unknown PropertyName value: %", propertyName);
 
-	       const Interface::Surface * surface = projectHandle->findSurface (surfaceName);
-	       if (!surface) throw RecordException ("Unknown SurfaceName value: %", surfaceName);
+            if (z != Interface::DefaultUndefinedScalarValue)
+            {
+               domain.setSnapshot (snapshot);
+               domainProperties->setSnapshot (snapshot);
 
-	       unsigned int i, j;
-	       if (!grid->getGridPoint (x, y, i, j)) throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
+               unsigned int i, j;
+               if (!grid->getGridPoint (x, y, i, j)) throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
 
-	       ElementPosition element;
-	       if (!domain.findLocation (x, y, surface, element))
-		  throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
-	       
+               ElementPosition element;
+               if (!domain.findLocation (x, y, z, element))
+                  throw RecordException ("Illegal point coordinates:", x, y, z);
 
 
-	       DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
-	       if (domainProperty)
-	       {
-		  domainProperty->initialise ();
-		  value = domainProperty->compute (element);
-	       }
-	    }
-	    else if (formationName != "")
-	    {
-	       throw (RecordException ("Use of FormationName not yet implemented:"));
-	    }
-	    else if (reservoirName != "")
-	    {
-	       const Interface::Reservoir * reservoir = projectHandle->findReservoir (reservoirName);
-	       if (!reservoir) throw RecordException ("Unknown ReservoirName value: %", reservoirName);
-	       value = GetTrapPropertyValue (projectHandle, property, snapshot, reservoir, x, y);
-	    }
-	    else
-	    {
-	       throw RecordException ("Illegal specification");
-	    }
-	 }
-	 catch (RecordException & recordException)
-	 {
-	    cerr << "Error in row " << recordIndex << " of DataMiningIoTbl: " << recordException.what () << endl;
-	 }
+               DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
+               if (domainProperty)
+               {
+                  domainProperty->initialise ();
+                  value = domainProperty->compute (element);
+               }
+            }
+            else if (surfaceName != "")
+            {
+
+               domain.setSnapshot (snapshot);
+               domainProperties->setSnapshot (snapshot);
+
+               const Interface::Surface * surface = projectHandle->findSurface (surfaceName);
+               if (!surface) throw RecordException ("Unknown SurfaceName value: %", surfaceName);
+
+               unsigned int i, j;
+               if (!grid->getGridPoint (x, y, i, j)) throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
+
+               ElementPosition element;
+               if (!domain.findLocation (x, y, surface, element))
+                  throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
 
 
-	 database::setValue (record, value);
-	 if (property)
-	 {
-	    database::setPropertyUnit (record, property->getUnit ());
-	 }
+
+               DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
+               if (domainProperty)
+               {
+                  domainProperty->initialise ();
+                  value = domainProperty->compute (element);
+               }
+            }
+            else if (formationName != "")
+            {
+               throw (RecordException ("Use of FormationName not yet implemented:"));
+            }
+            else if (reservoirName != "")
+            {
+               const Interface::Reservoir * reservoir = projectHandle->findReservoir (reservoirName);
+               if (!reservoir) throw RecordException ("Unknown ReservoirName value: %", reservoirName);
+               value = GetTrapPropertyValue (projectHandle, property, snapshot, reservoir, x, y);
+            }
+            else
+            {
+               throw RecordException ("Illegal specification");
+            }
+         }
+         catch (RecordException & recordException)
+         {
+            cerr << "Error in row " << recordIndex << " of DataMiningIoTbl: " << recordException.what () << endl;
+         }
+
+
+         database::setValue (record, value);
+         if (property)
+         {
+            database::setPropertyUnit (record, property->getUnit ());
+         }
       }
    }
 
@@ -303,7 +303,7 @@ double GetTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Interfa
    int trapId = (int) trapIdGridMap->getValue (i, j);
 
    if (trapId <= 0) throw RecordException ("No trap at (XCoord, YCoord) pair: (%, %)", x, y);
-   
+
    if (debug) cerr << "Found trap id " << trapId << " at (" << i << ", " << j << ")" << endl;
 
    const Interface::Trap * trap = (const Interface::Trap *) projectHandle->findTrap (reservoir, snapshot, (unsigned int) trapId);
@@ -339,14 +339,14 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
 
    // perform PVT under reservoir conditions
    performPVT (masses, trap->getTemperature (), trap->getPressure (),
-	 massesRC, densitiesRC, viscositiesRC);
+               massesRC, densitiesRC, viscositiesRC);
 
    // perform PVT's of reservoir condition phases under stock tank conditions
    performPVT (massesRC[ComponentManager::Vapour], StockTankTemperature, StockTankPressure,
-	 massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour]);
+               massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour]);
 
    performPVT (massesRC[ComponentManager::Liquid], StockTankTemperature, StockTankPressure,
-	 massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid]);
+               massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid]);
 
    bool stPhaseFound = false;
    bool rcPhaseFound = false;
@@ -409,7 +409,7 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
       value = Accumulate (massesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies);
       if (value < 1)
       {
-	 value = 0;
+         value = 0;
       }
    }
    // Volume, Density, Viscosity, and Mass properties for reservoir conditions
@@ -430,7 +430,7 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
       value = Accumulate (massesRC[rcPhase], ComponentManager::NumberOfOutputSpecies);
       if (value < 1)
       {
-	 value = 0;
+         value = 0;
       }
    }
 
@@ -441,17 +441,17 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
 
       rcPhase = ComponentManager::Vapour;
       stPhase = ComponentManager::Liquid;
-      
+
       double volumeCIIP = ComputeVolume (massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies);
 
       rcPhase = ComponentManager::Vapour;
       stPhase = ComponentManager::Vapour;
-      
+
       double volumeFGIIP = ComputeVolume (massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies);
 
       if (volumeFGIIP != 0)
       {
-	 value = volumeCIIP / volumeFGIIP;
+         value = volumeCIIP / volumeFGIIP;
       }
    }
    else if (propertyName == "GOR")
@@ -461,31 +461,31 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
 
       rcPhase = ComponentManager::Liquid;
       stPhase = ComponentManager::Liquid;
-      
+
       double volumeSTOIIP = ComputeVolume (massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies);
 
       rcPhase = ComponentManager::Liquid;
       stPhase = ComponentManager::Vapour;
-      
+
       double volumeSGIIP = ComputeVolume (massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies);
 
       if (volumeSTOIIP != 0)
       {
-	 value = volumeSGIIP / volumeSTOIIP;
+         value = volumeSGIIP / volumeSTOIIP;
       }
    }
    else if (propertyName == "OilAPI")
    {
       if (densitiesST[ComponentManager::Liquid][ComponentManager::Liquid] != 0)
       {
-	 value = 141.5/(0.001*densitiesST[ComponentManager::Liquid][ComponentManager::Liquid]) -131.5;
+         value = 141.5/(0.001*densitiesST[ComponentManager::Liquid][ComponentManager::Liquid]) -131.5;
       }
    }
    else if (propertyName == "CondensateAPI")
    {
       if (densitiesST[ComponentManager::Vapour][ComponentManager::Liquid] != 0)
       {
-	 value = 141.5/(0.001*densitiesST[ComponentManager::Vapour][ComponentManager::Liquid]) -131.5;
+         value = 141.5/(0.001*densitiesST[ComponentManager::Vapour][ComponentManager::Liquid]) -131.5;
       }
    }
    // GasWetnessFGIIP and GasWetnessSGIIP
@@ -503,7 +503,7 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
 
       if (moleC2_C5 != 0)
       {
-	 value = moleC1 / moleC2_C5;
+         value = moleC1 / moleC2_C5;
       }
    }
    else if (propertyName == "CEPVapour")
@@ -511,7 +511,7 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
       value = database::getCEPGas (trap->getRecord ());
       if (value < 0)
       {
-	 value = Interface::DefaultUndefinedScalarValue;
+         value = Interface::DefaultUndefinedScalarValue;
       }
    }
    else if (propertyName == "CEPLiquid")
@@ -519,7 +519,7 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
       value = database::getCEPOil (trap->getRecord ());
       if (value < 0)
       {
-	 value = Interface::DefaultUndefinedScalarValue;
+         value = Interface::DefaultUndefinedScalarValue;
       }
    }
    else if (propertyName == "FracturePressure")
@@ -569,7 +569,7 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
       ElementPosition element;
       if (!domain.findLocation (x, y, z, element))
       {
-	 assert (false);
+         assert (false);
       }
 
 
@@ -592,9 +592,9 @@ double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Int
       const Interface::Property * reservoirProperty = projectHandle->findProperty ( "ResRockPorosity" );
       if (property)
       {
-	 const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap (projectHandle, reservoirProperty, snapshot, reservoir);
-	 if (reservoirPropertyGridMap) value = reservoirPropertyGridMap->getValue (i, j);
-	 reservoirPropertyGridMap->release ();
+         const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap (projectHandle, reservoirProperty, snapshot, reservoir);
+         if (reservoirPropertyGridMap) value = reservoirPropertyGridMap->getValue (i, j);
+         reservoirPropertyGridMap->release ();
       }
    }
    else
@@ -626,7 +626,7 @@ const Interface::GridMap * GetPropertyGridMap (Mining::ProjectHandle* projectHan
 }
 
 bool performPVT (double masses[ComponentManager::NumberOfOutputSpecies], double temperature, double pressure,
-      double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies], double phaseDensities[ComponentManager::NumberOfPhases], double phaseViscosities[ComponentManager::NumberOfPhases])
+                 double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies], double phaseDensities[ComponentManager::NumberOfPhases], double phaseViscosities[ComponentManager::NumberOfPhases])
 {
    bool performedPVT = false;
    double massTotal = 0;
@@ -639,7 +639,7 @@ bool performPVT (double masses[ComponentManager::NumberOfOutputSpecies], double 
 
       for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
       {
-	 phaseMasses[phase][comp] = 0;
+         phaseMasses[phase][comp] = 0;
       }
    }
 
@@ -691,11 +691,13 @@ double ComputeVolume (double * masses, double density, int numberOfSpecies)
 }
 
 void showUsage ( const char* command,
-                 const char* message ) {
+                 const char* message )
+{
 
    std::cerr << std::endl;
 
-   if ( message != 0 ) {
+   if ( message != 0 )
+   {
       std::cerr << command << ": "  << message << std::endl;
    }
 
@@ -706,4 +708,5 @@ void showUsage ( const char* command,
              << std::endl;
 
 }
+
 

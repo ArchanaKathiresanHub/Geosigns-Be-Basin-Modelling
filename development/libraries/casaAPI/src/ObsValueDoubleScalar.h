@@ -57,6 +57,10 @@ namespace casa
       /// @return observable value
       double value() { return m_value; }
 
+      // The following methods are used for testing  
+      virtual bool isDouble() { return true; }
+      virtual double doubleValue() { return value(); }
+
    protected:
       double       m_value;    // value itself
       Observable * m_parent;   // pointer to the observable description object

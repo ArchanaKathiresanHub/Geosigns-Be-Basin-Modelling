@@ -25,6 +25,8 @@ void CfgFileParser::parseFile( const std::string & fileName )
    // process command
    while( std::getline( file, line ) )
    {
+      if ( line[0] == '#' ) continue;
+
       std::istringstream iss( line );
 
       std::string result;
@@ -41,10 +43,11 @@ void CfgFileParser::parseFile( const std::string & fileName )
             if (      result == "app"          ) m_cmdList.push_back( app );
             else if ( result == "base_project" ) m_cmdList.push_back( base_project );
             else if ( result == "varprm"       ) m_cmdList.push_back( varprm ); 
+            else if ( result == "target"       ) m_cmdList.push_back( target );
             else if ( result == "doe"          ) m_cmdList.push_back( doe );
             else if ( result == "run"          ) m_cmdList.push_back( run );
             else if ( result == "location"     ) m_cmdList.push_back( location );
-            else throw std::runtime_error( std::string( "Unkown command: " ) + result );
+            else throw std::runtime_error( std::string( "Unknown command: " ) + result );
             m_cmdPrms.push_back( std::vector<std::string>() );
          }
          else
@@ -96,6 +99,7 @@ std::ostream & operator << ( std::ostream & ost, const CfgFileParser & cfg )
          case CfgFileParser::app:            ost << "app         "; break;
          case CfgFileParser::base_project:   ost << "base_project"; break;
          case CfgFileParser::varprm:         ost << "varprm      "; break;
+         case CfgFileParser::target:         ost << "target      "; break;
          case CfgFileParser::doe:            ost << "doe         "; break;
          case CfgFileParser::run:            ost << "run         "; break;
          case CfgFileParser::location:       ost << "location    "; break;

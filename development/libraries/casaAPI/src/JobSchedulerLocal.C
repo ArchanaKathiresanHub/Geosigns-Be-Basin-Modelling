@@ -90,7 +90,6 @@ SystemProcess::SystemProcess( const std::string & cwd, const std::string & comma
    if ( pid < 0 )
    {
       // fork() failed!
-      DEBUG( 1, "fork() failed\n" );
       throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "SystemProcess: fork failed";
    }
    else if ( pid == 0 ) // child
@@ -108,12 +107,6 @@ SystemProcess::SystemProcess( const std::string & cwd, const std::string & comma
       }
       args[ argsV.size() ] = NULL;
 
-      DEBUG( 2, "Starting process %s\n", location.c_str( ) );
-      for ( size_t n = 0; n < argsV.size( ); n++ )
-      {
-         DEBUG( 2, "  Arg %d: %s\n", (int)n, args[ n ] ? args[ n ] : "(null)" );
-      }
-
       // change current dir to the script dir
       chdir( cwd.c_str() );
 
@@ -127,7 +120,6 @@ SystemProcess::SystemProcess( const std::string & cwd, const std::string & comma
       execvp( location.c_str( ), const_cast<char* const*>( args ) );
 
       // Execution failed - quit the child process
-      DEBUG( 0, "Couldn't exec process!\n" );
       _exit( 1 );  // This is exit of the child process!
    }
    else // parent
@@ -192,16 +184,14 @@ void SystemProcess::updateProcessStatus()
    pid_t result = waitpid( m_pid, &status, WNOHANG );
    switch ( result )
    {
-   case 0: // Child is still running
-      m_isOk = true;
-      break;
+   case 0:  m_isOk = true;  break; // Child is still running
    case -1:
       DEBUG( 0, "Error getting status of the child process!\n" );
       m_isOk = false;
       break;
-   default: // Child has exited
+   default:
       m_isOk = false;
-      break;
+      break; // Child has exited
    }
 #else // Windows implementation
    DWORD exitCode = 0;
@@ -255,8 +245,9 @@ public:
       }
       else
       {
+         if ( m_isFinished ) return JobScheduler::JobFinished;
          m_isFinished = true;
-         return JobScheduler::JobFinished;
+         return JobScheduler::JobSucceeded;
       }
 
       return JobScheduler::Unknown;

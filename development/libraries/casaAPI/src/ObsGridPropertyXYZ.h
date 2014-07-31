@@ -81,6 +81,11 @@ namespace casa
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight( ) { return m_uaWeight; }
    
+      /// @brief Update Model to be sure that requested property will be saved at requested time
+      /// @param caldModel Cauldron model
+      /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
+      virtual ErrorHandler::ReturnCode requestObservableInModel( mbapi::Model & caldModel );
+
       /// @brief Get this observable value from Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
@@ -95,6 +100,8 @@ namespace casa
       double      m_simTime;   ///< simulator time
 
       std::string m_name;      ///< name of the observable
+
+      size_t      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
       std::auto_ptr<ObsValue> m_refValue;  ///< reference value
       double                  m_devValue;  ///< standard deviation for reference value

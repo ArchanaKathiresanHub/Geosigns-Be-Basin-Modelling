@@ -58,6 +58,8 @@ namespace casa
    class Observable
    {
    public:
+      static const std::string s_dataMinerTable; ///< name of the table which keeps observable values after simulations
+
       /// @brief Destructor
       virtual ~Observable() { ; }
 
@@ -98,6 +100,11 @@ namespace casa
       /// @param w weight coefficient value
       virtual void setUAWeight(double w) = 0;
 
+      /// @brief Update Model to be sure that requested property will be saved at requested time
+      /// @param caldModel Cauldron model
+      /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
+      virtual ErrorHandler::ReturnCode requestObservableInModel( mbapi::Model & caldModel ) = 0;
+
       /// @brief Get this observable value from Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
@@ -105,7 +112,7 @@ namespace casa
 
    protected:
       Observable() { ; }
-
+      
    private:
       Observable(const Observable &);
       Observable & operator = ( const Observable & );

@@ -12,6 +12,11 @@
 
 include(cmake/AddPackage.cmake)
 
+if(UNIX)
+   set(DOXYGEN_EXECUTABLE "${CBM_HOME}/Tools/bin/doxygen" CACHE PATH "Path to doxygen executable")
+   set(DOT_EXECUTABLE "${CBM_HOME}/Tools/bin/dot" CACHE PATH "Path to dot executable")
+endif(UNIX)
+
 find_package(Doxygen)
 
 if(DOXYGEN_FOUND)

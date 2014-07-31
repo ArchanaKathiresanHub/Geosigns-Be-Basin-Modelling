@@ -106,6 +106,14 @@ namespace casa
       /// @return true if given varValue was used, false otherwise
       bool pushDefaultEnv( const std::string & varName, const std::string & varValue );
 
+      /// @brief Get option to specify input project name
+      /// @return input project option as a string
+      virtual std::string inputProjectOption() { return "-project"; } // in different applications this parameter could be different
+
+      /// @brief Get option to specify output project name
+      /// @return output project option as a string
+      virtual std::string outputProjectOption() { return "-save"; } // in different applications this parameter could be different
+
       CauldronApp( const CauldronApp & anotherApp );
       CauldronApp & operator = ( const CauldronApp & anotherApp );
    };
