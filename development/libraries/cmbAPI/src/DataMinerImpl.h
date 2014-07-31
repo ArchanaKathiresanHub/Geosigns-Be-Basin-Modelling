@@ -16,6 +16,8 @@
 
 #include "DataMiner.h"
 
+#include <memory>
+
 namespace DataAccess
 {
    namespace Mining

@@ -20,26 +20,5 @@ namespace mbapi
    }
 
 
-
 }
-
-Mining::DomainPropertyFactory* factory = new DataAccess::Mining::DomainPropertyFactory;
-
-   Interface::ProjectHandle::UseFactory ( factory );
-
-   Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (inputProjectFileName, "r"));
-
-   projectHandle->startActivity ( "datadriller", projectHandle->getLowResolutionOutputGrid ());
-   projectHandle->initialise ( true, false );
-
-   projectHandle->setFormationLithologies (false, false);
-
-   CauldronDomain domain ( projectHandle );
-
-   DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
-
-   database::Table * table = projectHandle->getTable ("DataMiningIoTbl");
-
-   const Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid ();
-
 

@@ -29,8 +29,9 @@ bm_include_libraries(
    Serial_Hdf5
    TableIO
    DataAccess
+   cmbAPI
+   casaAPI
    utilities
-   API
 )
 
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
