@@ -49,7 +49,7 @@ swig_add_module( Cauldron csharp src/Swig/DotNetAPI.i
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( Cauldron api Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES} )
+swig_link_libraries( Cauldron casaapi cmbapi Serial_Hdf5 TableIO SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES} )
 
 # Before C# generation, remove all existing files. The directory should be empty before generation	
 add_custom_command( TARGET Cauldron
