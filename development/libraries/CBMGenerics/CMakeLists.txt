@@ -33,3 +33,8 @@ install(TARGETS CBMGenerics
 	ARCHIVE DESTINATION lib
 )
 
+### Unit Tests
+
+add_gtest( NAME CBMGenerics::Polyfunction 
+			SOURCES test/Polyfunction.C
+			LIBRARIES CBMGenerics)

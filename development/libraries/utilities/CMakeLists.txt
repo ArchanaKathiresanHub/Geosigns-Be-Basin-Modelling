@@ -22,7 +22,7 @@ add_library( utilities
 	src/WallTime.C
 	src/TimeToComplete.C
 	src/ProgressManager.C
-        src/formattingexception.C
+    src/formattingexception.C
 )
 
 #generate_export_header( utilities )
@@ -37,3 +37,13 @@ install(TARGETS utilities
 	LIBRARY	DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
+
+### Unit Tests
+
+add_gtest( NAME utilities::IBSinterpolator 
+			SOURCES test/IBSinterpolator.C
+			LIBRARIES utilities)
+ 			
+add_gtest( NAME utilities::IBSinterpolator2d 
+			SOURCES test/IBSinterpolator2d.C
+			LIBRARIES utilities)
