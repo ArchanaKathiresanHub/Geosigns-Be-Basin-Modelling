@@ -35,7 +35,7 @@ using namespace DataAccess;
 #include "GenexResultManager.h"
 using namespace Genex6;
 
-bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName );
+bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool reuse );
 
 GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)
    : Interface::ProjectHandle (database, name, accessMode)
@@ -364,7 +364,7 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    string fileName = GenexActivityName + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
 
-   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() );
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), false );
    
    if( status ) {
       if(getRank() == 0) {    
