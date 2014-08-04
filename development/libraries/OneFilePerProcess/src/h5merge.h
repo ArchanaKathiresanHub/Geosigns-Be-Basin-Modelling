@@ -11,13 +11,15 @@
 const int MAX_FILE_DIMENSION = 3;
 const int MAX_ATTRIBUTE_NAME_SIZE = 64;
 
+bool copyTo( std::string & dstPath, std::string & currentPath );
+
 class  FileHandler {
 
    // iterate over the local file and write data to the global file
    friend herr_t readDataset ( hid_t groupId, const char* name, void * voidReader);
 
    // megre all files with the given name
-   friend bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );
+   friend bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, const bool reuse = false);
 
 public:
    FileHandler( MPI_Comm comm );
@@ -47,7 +49,8 @@ public:
    static double s_creatingDTime;
 
 private:
-   int m_rank; // rank of the processor
+   int m_rank;   // rank of the processor
+   bool m_reuse; // master process overwrites the local file with a global file  
 
    size_t m_valCount;    // size of allocated local buffer
    size_t m_attrCount;   // size of the attribute buffer

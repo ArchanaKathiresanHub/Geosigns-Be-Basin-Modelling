@@ -5,6 +5,7 @@
 #include "stdlib.h"
 #include <vector>
 #include <sstream>
+#include <fstream>
 #include <iostream>
 
 #include "hdf5.h"
@@ -26,6 +27,8 @@ double FileHandler::s_readDTime = 0.0;
 double FileHandler::s_writeDTime = 0.0;
 double FileHandler::s_totalTime = 0.0;
  
+bool copyTo( std::string & dstPath, std::string & currentPath );
+
 FileHandler:: FileHandler ( MPI_Comm comm ) {
 
    m_comm = comm;
@@ -44,6 +47,7 @@ FileHandler:: FileHandler ( MPI_Comm comm ) {
       m_dimensions [d] = 0;
    }
    m_spatialDimension = 0;
+   m_reuse = false;
 
 }
 
@@ -78,7 +82,8 @@ herr_t FileHandler::readAttributes( hid_t localDataSetId, hid_t globalDataSetId 
          // read Attribute
          hid_t localAttrId = H5Aopen_idx(localDataSetId, indx );   
          
-         H5Aget_name( localAttrId, MAX_ATTRIBUTE_NAME_SIZE, attrName );   
+         status = H5Aget_name( localAttrId, MAX_ATTRIBUTE_NAME_SIZE, attrName );   
+         attrName[status] = '\0';
          
          hid_t dataTypeId = H5Aget_type( localAttrId );
          
@@ -129,9 +134,16 @@ herr_t FileHandler::readAttributes( hid_t localDataSetId, hid_t globalDataSetId 
 
 herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
 
-   if( groupId == NULL ) return -1;
 
    FileHandler* reader = static_cast<FileHandler *>( voidReader );
+
+   if( groupId == NULL ) {
+      
+      if( reader->m_rank == 0 ) {       
+         std::cout << " ERROR Cannot iterate the group or dataset " << name << std::endl;
+      }
+      return -1;
+   }
 
    hid_t memspace, filespace;
    hid_t local_dset_id;
@@ -145,6 +157,9 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    FileHandler::s_readDTime += MPI_Wtime() - startTime;
 
    if( reader->checkError( status ) < 0 ) {
+      if( reader->m_rank == 0 ) {       
+         std::cout << " ERROR Cannot get the object " <<  name << " info" << std::endl;
+      }
       return -1;
    }
 
@@ -157,7 +172,12 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
          if( reader->m_rank == 0 ) {       
             // Greate a group in the global file
             startTime = MPI_Wtime();
-            reader->m_groupId = H5Gcreate( reader->m_globalFileId, name,  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ); 
+            if( !reader->m_reuse ) {
+               reader->m_groupId = H5Gcreate( reader->m_globalFileId, name,  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ); 
+            } 
+            if( reader->m_groupId < 0 ) {
+               std::cout << " ERROR Cannot open or create the group " << name << std::endl;
+            }
             FileHandler::s_writeDTime += MPI_Wtime() - startTime;
             FileHandler::s_creatingGTime += MPI_Wtime() - startTime;
          }
@@ -217,9 +237,10 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    FileHandler::s_readingDTime += MPI_Wtime() - startTime1;
    FileHandler::s_readDTime += MPI_Wtime() - startTime;
 
-   H5Sclose( filespace );
-   H5Sclose( memspace );
-
+   if( !reader->m_reuse ) {
+      H5Sclose( filespace );
+      H5Sclose( memspace );
+   }
    
    // Summarize all local data in a global array
    if( reader->m_spatialDimension == 1 ) {
@@ -236,22 +257,31 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
       startTime1 = MPI_Wtime();
 
       hid_t global_dset_id;
-      // Write the global data into the global file
-      memspace = H5Screate_simple( reader->m_spatialDimension, reader->m_count, NULL ); 
-
-      startTime = MPI_Wtime();
-      if( reader->m_groupId != H5P_DEFAULT ) {
-         // Dataset is under the sub-group
-         global_dset_id = H5Dcreate( reader->m_groupId, name, dtype, memspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+      if( !reader->m_reuse ) {
+         // Write the global data into the global file
+         memspace = H5Screate_simple( reader->m_spatialDimension, reader->m_count, NULL ); 
+         
+         startTime = MPI_Wtime();
+         if( reader->m_groupId != H5P_DEFAULT ) {
+            // Dataset is under the sub-group
+            global_dset_id = H5Dcreate( reader->m_groupId, name, dtype, memspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+         } else {
+            // Dataset is under the main group
+            global_dset_id = H5Dcreate( reader->m_globalFileId, name, dtype, memspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+         }
+         FileHandler::s_creatingDTime +=  MPI_Wtime() - startTime;
+         
+         if( global_dset_id < 0 ) {
+            std::cout << " ERROR Cannot create the group" << name << std::endl;
+         }
       } else {
-         // Dataset is under the main group
-         global_dset_id = H5Dcreate( reader->m_globalFileId, name, dtype, memspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+         global_dset_id = local_dset_id;
       }
-      FileHandler::s_creatingDTime +=  MPI_Wtime() - startTime;
 
-      filespace = H5Dget_space( global_dset_id );
-      H5Sselect_hyperslab( filespace, H5S_SELECT_SET, reader->m_offset, NULL, reader->m_count, NULL );
- 
+      if( !reader->m_reuse ) {
+         filespace = H5Dget_space( global_dset_id );
+         H5Sselect_hyperslab( filespace, H5S_SELECT_SET, reader->m_offset, NULL, reader->m_count, NULL );
+      }
       startTime = MPI_Wtime();
       status = H5Dwrite( global_dset_id, dtype, memspace, filespace, H5P_DEFAULT, reader->m_sumData.data() );
       FileHandler::s_writingDTime +=  MPI_Wtime() - startTime;
@@ -260,16 +290,27 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
       if( status >= 0 ) {
          
          startTime = MPI_Wtime();
-         status = reader->readAttributes( local_dset_id, global_dset_id ); 
-         FileHandler::s_attributeTime +=  MPI_Wtime() - startTime;
-        
+         if( !reader->m_reuse ) {
+            status = reader->readAttributes( local_dset_id, global_dset_id ); 
+            if( status < 0 ) {
+               std::cout << " ERROR Cannot write attributes" << std::endl;
+            }
+            FileHandler::s_attributeTime +=  MPI_Wtime() - startTime;
+         }
+      } else {
+         if( reader->m_rank == 0 ) {       
+            std::cout << " ERROR Cannot write the dataset" << name << std::endl;
+         }
       }
 
       startTime = MPI_Wtime();
 
       H5Sclose( filespace );
       H5Sclose( memspace );
-      H5Dclose( global_dset_id );
+
+      if( !reader->m_reuse ) {
+         H5Dclose( global_dset_id );
+      }
       FileHandler::s_writeDTime +=  MPI_Wtime() - startTime;
    }
  
@@ -287,13 +328,15 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    return 0;
 }
 
-bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName ) {
+bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, const bool reuse ) {
  
    double totalStart = MPI_Wtime();
    FileHandler reader ( comm );
  
    hid_t status = 0, close_status = 0, iteration_status = 0;
- 
+
+   reader.m_reuse = reuse;
+
    hid_t fileAccessPList = H5Pcreate(H5P_FILE_ACCESS);
 
    std::stringstream tmpName;
@@ -302,21 +345,34 @@ bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string 
    double startTime = MPI_Wtime();
    H5Pset_fapl_ofpp ( fileAccessPList, comm, tmpName.str().c_str(), 0 );  
    
-   reader.m_localFileId = H5Fopen( fileName.c_str(), H5F_ACC_RDONLY, fileAccessPList );
+   if( reader.m_reuse ) {
+      reader.m_localFileId = H5Fopen( fileName.c_str(), H5F_ACC_RDWR, fileAccessPList );
+   } else {
+      reader.m_localFileId = H5Fopen( fileName.c_str(), H5F_ACC_RDONLY, fileAccessPList );
+   }
 
    H5Pclose( fileAccessPList );
    FileHandler::s_readDTime += MPI_Wtime() - startTime;
    
    if( reader.checkError( reader.m_localFileId ) < 0 ) {
+      if( reader.m_rank == 0 ) {       
+         std::cout << " ERROR Cannot open the local file " << fileName << std::endl;
+      }
       return false;
    }
   
    if( reader.m_rank == 0 ) {
       startTime = MPI_Wtime();   
-      reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT ); 
+
+      if( reader.m_reuse ) {
+         reader.m_globalFileId = reader.m_localFileId; 
+      } else {
+         reader.m_globalFileId = H5Fcreate( fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT ); 
+      }
       FileHandler::s_writeDTime += MPI_Wtime() - startTime;
 
       if( reader.m_globalFileId < 0 ) {
+         std::cout << " ERROR Cannot open or create the global file " << fileName << std::endl;
          status = 1; 
       }
    }
@@ -328,6 +384,9 @@ bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string 
    if( status > 0 ) {
       // global file cannot be created
       H5Fclose( reader.m_localFileId ); 
+      if( reader.m_rank == 0 ) {       
+         std::cout << " ERROR Cannot close the local file " << fileName << std::endl;
+      }
       return false;
    }
    // Iterate over the memebers of the local file
@@ -341,9 +400,11 @@ bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string 
    close_status = reader.checkError( status ); 
     
    if( reader.m_rank == 0 ) {
-      startTime = MPI_Wtime();   
-      status = H5Fclose( reader.m_globalFileId );  
-      FileHandler::s_writeDTime += MPI_Wtime() - startTime;
+      if( !reader.m_reuse ) {
+         startTime = MPI_Wtime();   
+         status = H5Fclose( reader.m_globalFileId );  
+         FileHandler::s_writeDTime += MPI_Wtime() - startTime;
+      }
    }
  
    startTime = MPI_Wtime();   
@@ -353,6 +414,9 @@ bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string 
    FileHandler::s_totalTime += MPI_Wtime() - totalStart;
    
    if( status < 0 || close_status < 0 || iteration_status < 0 ) {
+      if( reader.m_rank == 0 ) {       
+         std::cout << " ERROR Cannot exit while merging the file " << fileName << std::endl;
+      }
       return false;
    }
    
@@ -389,4 +453,15 @@ int FileHandler::checkError ( hid_t value ) {
 
 }
 
-
+bool copyTo( std::string & dstPath, std::string & curPath )    
+{
+   std::ifstream source( curPath.c_str(), std::ios::binary );
+   std::ofstream dest( dstPath.c_str(), std::ios::binary );
+   
+   dest << source.rdbuf();
+   
+   source.close();
+   dest.close();
+   
+   return true;
+}
