@@ -804,8 +804,11 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       return true;
    }
  
+   PetscBool noFileCopy = PETSC_FALSE;
    PetscLogDouble StartTime;
-     
+
+   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+
    PetscTime(&StartTime);
    bool status = true;
 
@@ -845,13 +848,15 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       displayTime ( s, StartTime, 0 );
    }
 
-   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), true )) {
+   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy )) {
       status = false;
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    } else {
-      std::string curPath = H5_Parallel_PropertyList::getTempDirName() + "/" +  filePathName + "_0";
-      PetscPrintf ( PETSC_COMM_WORLD, " Copy %s to %s\n", curPath.c_str(), filePathName.c_str() );
-      copyTo ( filePathName, curPath );
+      if( !noFileCopy ) {
+         std::string curPath = H5_Parallel_PropertyList::getTempDirName() + "/" +  filePathName + "_0";
+         PetscPrintf ( PETSC_COMM_WORLD, " Copy %s to %s\n", curPath.c_str(), filePathName.c_str() );
+         copyTo ( filePathName, curPath );
+      }
    }
    
    if ( m_fastcauldronSimulator->getRank () == 0 ) {
