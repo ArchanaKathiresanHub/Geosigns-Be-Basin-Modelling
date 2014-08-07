@@ -33,9 +33,11 @@ using namespace DataAccess;
 
 #include "ComponentManager.h"
 #include "GenexResultManager.h"
+
+#include "h5merge.h"
+
 using namespace Genex6;
 
-bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool reuse );
 
 GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)
    : Interface::ProjectHandle (database, name, accessMode)

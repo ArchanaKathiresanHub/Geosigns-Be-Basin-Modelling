@@ -8,6 +8,10 @@
 #include <fstream>
 #include <iostream>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include "hdf5.h"
 #include "H5FDmpio.h"
 #include "HDF5VirtualFileDriver.h"
@@ -455,13 +459,31 @@ int FileHandler::checkError ( hid_t value ) {
 
 bool copyTo( std::string & dstPath, std::string & curPath )    
 {
-   std::ifstream source( curPath.c_str(), std::ios::binary );
-   std::ofstream dest( dstPath.c_str(), std::ios::binary );
+   bool status = true;
+   const size_t bufSize = 8 * 1024 * 1024;
+   char buf[ bufSize ];
+   size_t size;
    
-   dest << source.rdbuf();
+   int source = open( curPath.c_str(), O_RDONLY, 0 );
+   int dest = open( dstPath.c_str(),  O_CREAT | O_WRONLY | O_TRUNC, 0644 );
    
-   source.close();
-   dest.close();
+   if( source < 0 || dest < 0 ) {
+      perror(" CopyFile: ");
+
+      status = false;
+   }
+   if( status ) {
+      while (( size = read(source, buf, bufSize )) > 0) {
+         if( write(dest, buf, size) < 0 ) {
+            perror(" CopyFile: ");
+            status = false;
+            break;  
+         }
+      }
+   }
    
-   return true;
+   close(source);
+   close(dest);
+
+   return status;;
 }

@@ -40,7 +40,6 @@
 
 #include "h5merge.h"
 
-bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool reuse );
 
 //------------------------------------------------------------//
 
@@ -853,9 +852,14 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    } else {
       if( !noFileCopy ) {
-         std::string curPath = H5_Parallel_PropertyList::getTempDirName() + "/" +  filePathName + "_0";
-         PetscPrintf ( PETSC_COMM_WORLD, " Copy %s to %s\n", curPath.c_str(), filePathName.c_str() );
-         copyTo ( filePathName, curPath );
+         if( m_fastcauldronSimulator->getRank () == 0  ) {
+            std::string curPath = H5_Parallel_PropertyList::getTempDirName() + "/" +  filePathName + "_0";
+            PetscPrintf ( PETSC_COMM_WORLD, " Copy %s to %s\n", curPath.c_str(), filePathName.c_str() );
+            status = copyTo ( filePathName, curPath );
+            if( !status ) {
+               PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
+            }
+         }
       }
    }
    

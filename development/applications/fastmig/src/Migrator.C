@@ -37,9 +37,10 @@ using namespace migration;
 #include "utils.h"
 
 #include "h5_parallel_file_types.h"
+#include "h5merge.h"
+
 using namespace DataAccess;
 
-bool mergeFiles( MPI_Comm comm, const string& fileName, const std::string &tempDirName, const bool reuse );
 static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
 
 extern string NumProcessorsArg;

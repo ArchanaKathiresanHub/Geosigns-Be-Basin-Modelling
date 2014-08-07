@@ -12,6 +12,7 @@ const int MAX_FILE_DIMENSION = 3;
 const int MAX_ATTRIBUTE_NAME_SIZE = 64;
 
 bool copyTo( std::string & dstPath, std::string & currentPath );
+bool mergeFiles( MPI_Comm comm, const std::string& fileName, const std::string &tempDirName, const bool reuse );
 
 class  FileHandler {
 
