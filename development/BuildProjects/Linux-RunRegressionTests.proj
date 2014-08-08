@@ -17,6 +17,7 @@
 	<TFSWorkSpace Condition=" '$(TFSWorkSpace)' == '' ">RegressionTests</TFSWorkSpace>
 	<LinuxWorkDir Condition=" '$(LinuxWorkDir)' == '' ">/glb/data/Finite-Scratch/$(AgentAccount)/$(TFSWorkSpace)</LinuxWorkDir>
 	<LinuxScriptDir Condition=" '$(LinuxScriptDir)' == '' ">/glb/home/$(AgentAccount)/RegressionTestBench</LinuxScriptDir>
+        <Cluster Condition=" '$(Cluster)' == '' ">AMSGDC</Cluster>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
@@ -26,7 +27,7 @@
   
   <PropertyGroup>
     <Version>v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)</Version>
-	<Environment>COLLECTION='$(TeamFoundationServerUrl)' SCRIPT_DIRECTORY='$(LinuxScriptDir)' SCRIPT_TFSFOLDER='$(TFSTestScriptFolder)' TFSFOLDER='$(TFSTestFolder)' ROOTDIRECTORY='$(LinuxWorkDir)' WORKSPACE='$(TFSWorkspace)' CAULDRON_VERSION='$(Version)'</Environment>
+	<Environment>COLLECTION='$(TeamFoundationServerUrl)' SCRIPT_DIRECTORY='$(LinuxScriptDir)' SCRIPT_TFSFOLDER='$(TFSTestScriptFolder)' TFSFOLDER='$(TFSTestFolder)' ROOTDIRECTORY='$(LinuxWorkDir)' WORKSPACE='$(TFSWorkspace)' CAULDRON_VERSION='$(Version)' CLUSTER='$(Cluster)'</Environment>
 	<CopyGetTestBench>$(scp_command) "$(MSBuildProjectDirectory)\Linux-GetRegressionTestBench.sh" "$(AgentAccount)@$(AgentHost):bin"</CopyGetTestBench>
 	<GetTestBench>$(ssh_command) "$(Environment) /bin/bash -x bin/Linux-GetRegressionTestBench.sh"</GetTestBench>
 	<RewriteToLocalHost>$(ssh_command) "$(Environment) /bin/bash -x $(LinuxScriptDir)/perform_on_localhost"</RewriteToLocalHost>
