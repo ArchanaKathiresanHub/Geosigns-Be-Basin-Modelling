@@ -200,10 +200,6 @@ public:
 
    const PVTComponents& getMolarMass () const;
 
-  void Integrate_Chemical_Compaction ( const double          Previous_Time,
-                                       const double          Current_Time,
-                                       const Boolean2DArray& validNeedle );
-
   void Fill_Topmost_Segment_Arrays ( const double          Previous_Time, 
                                      const double          Current_Time,
                                      const bool            Use_Solid_Thickness,
@@ -472,9 +468,14 @@ public:
    /// If the corresponding nodal-volume-grid does not exist then one will be created.
    const NodalVolumeGrid& getNodalVolumeGrid ( const int numberOfDofs = 1 ) const;
 
+
+   bool isChemicalCompactionVesValueIsDefined() const;
+
+   double getChemicalCompactionVesValue() const;
+
  protected :
 
-
+   bool Calculate_Chemical_Compaction;
    void extractGenexDataInterval ( const double startTime,
                                    const double endTime,
                                    LinearPropertyInterpolator& ves,
@@ -548,7 +549,7 @@ public:
   Vec Previous_Temperature;
   Vec Previous_Chemical_Compaction;
 
-  bool Calculate_Chemical_Compaction;
+
 
   Vec  includedNodeVec;
 
@@ -768,6 +769,13 @@ inline const PVTComponents& LayerProps::getMolarMass () const {
    return m_molarMass;
 }
 
+inline  bool LayerProps::isChemicalCompactionVesValueIsDefined() const{
+	return chemicalCompactionVesValueIsDefined;
+}
+
+inline  double LayerProps::getChemicalCompactionVesValue() const{
+	return chemicalCompactionVesValue;
+}
 
 typedef LayerProps* LayerProps_Ptr;
 

@@ -60,6 +60,10 @@ const std::string& RunParameters::getVelAlgorithm () const {
    return database::getVelAlgorithm ( m_record );
 }
 
+const std::string& RunParameters::getChemicalCompactionAlgorithm () const{
+   return database::getChemicalCompactionAlgorithm ( m_record );
+}
+
 double RunParameters::getPrefReconstep () const {
    return database::getPrefReconstep ( m_record );
 }

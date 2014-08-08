@@ -95,7 +95,9 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
    : m_vreOutputGrid(Application_Context->mapDA, Application_Context->layers),
      m_vreAlgorithm(GeoPhysics::VitriniteReflectance::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getVreAlgorithm () ) ),
      Temperature_Calculator ( Application_Context ), 
-     m_surfaceNodeHistory ( Application_Context )
+     m_surfaceNodeHistory ( Application_Context ),
+     m_chemicalCompactionGrid ( ChemicalCompactionGrid::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompactionAlgorithm (), (Application_Context -> mapDA), (Application_Context -> layers) )),
+     m_chemicalCompactionCalculator ( m_chemicalCompactionGrid -> createChemicalCompaction() )
 {
 
   basinModel = Application_Context;
@@ -917,6 +919,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
   FastcauldronSimulator::getInstance ().getAllochthonousLithologyManager ().reset ();
   overpressureHasDiverged = false;
 
+  m_chemicalCompactionGrid->emptyGrid();
   while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not overpressureHasDiverged and not errorInDarcy ) {
 
     if ( basinModel -> debug1 or basinModel->verbose ) {
@@ -947,7 +950,10 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
 
     if ( ! overpressureHasDiverged ) {
        Store_Computed_Deposition_Thickness ( Current_Time );
-       Integrate_Chemical_Compaction ( Previous_Time, Current_Time );
+
+       //Do chemical compaction computation on time step
+       integrateChemicalCompaction ( Previous_Time, Current_Time );
+
        integrateGenex ( Previous_Time, Current_Time );
 
        FastcauldronSimulator::getInstance ().getMcfHandler ().solve ( Previous_Time, Current_Time, errorInDarcy );
@@ -1046,6 +1052,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
   Initialise_Basin_Temperature ( temperatureHasDiverged );
 
+  m_chemicalCompactionGrid->emptyGrid();
   m_vreAlgorithm->reset();
 
   Save_Properties ( Current_Time );
@@ -1053,7 +1060,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
   cout.precision ( 8 );
   cout.flags ( ios::scientific );
-
 
   while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not temperatureHasDiverged and not errorInDarcy ) {
 
@@ -1077,7 +1083,9 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
                                       T_Norm );
 
     if ( ! temperatureHasDiverged ) {
-       Integrate_Chemical_Compaction ( Previous_Time, Current_Time );
+
+       //Do chemical computation on time step
+       integrateChemicalCompaction ( Previous_Time, Current_Time );
        integrateGenex ( Previous_Time, Current_Time );
 
        // Do a time step in the Vre algorithm
@@ -1216,6 +1224,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
   
   Initialise_Basin_Temperature ( hasDiverged );
   
+  m_chemicalCompactionGrid->emptyGrid();
   m_vreAlgorithm->reset();
   
   Save_Properties ( Current_Time );
@@ -1257,8 +1266,8 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
        printRelatedProjects ( Current_Time );
        Store_Computed_Deposition_Thickness ( Current_Time );
 
-
-       Integrate_Chemical_Compaction ( Previous_Time, Current_Time );
+       // Do chemical compaction computation on time step
+       integrateChemicalCompaction ( Previous_Time, Current_Time );
        integrateGenex ( Previous_Time, Current_Time );
        
       // Do a time step in the Vre algorithm
@@ -1958,27 +1967,29 @@ void Basin_Modelling::FEM_Grid::setLayerElements ( const double age ) {
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
-#define __FUNCT__ "Basin_Modelling::FEM_Grid::Integrate_Chemical_Compaction"
+void Basin_Modelling::FEM_Grid::integrateChemicalCompaction( const double PreviousTime, const double CurrentTime )
+{
+	//The chemical compaction is computed only if the global boolean is true
+	if ( basinModel -> Do_Chemical_Compaction ) {
+		//Get the data from the fem_grid objects
+		m_chemicalCompactionGrid       -> addLayers(
+				basinModel->mapDA,
+				basinModel->layers,
+				basinModel->getValidNeedles(),
+				PreviousTime,
+				CurrentTime
+		);
 
-void Basin_Modelling::FEM_Grid::Integrate_Chemical_Compaction ( const double Previous_Time,
-                                                                const double Current_Time ) {
+		m_chemicalCompactionCalculator -> computeOnTimeStep(
+				*m_chemicalCompactionGrid
+		);
 
-  if ( ! basinModel -> Do_Chemical_Compaction ) {
-    return;
-  }
-
-  Layer_Iterator Basin_Layers ( basinModel->layers, Descending, Sediments_Only, Active_Layers_Only );
-  LayerProps_Ptr Current_Layer;
-
-  while ( ! Basin_Layers.Iteration_Is_Done ()) {
-    Current_Layer = Basin_Layers.Current_Layer ();
-    Current_Layer -> Integrate_Chemical_Compaction ( Previous_Time, Current_Time, basinModel->getValidNeedles ());
-    Basin_Layers++;
-  }
-
+		m_chemicalCompactionGrid       -> exportToModel(
+				basinModel->layers,
+				basinModel->getValidNeedles()
+		);
+	}
 }
-
 
 //------------------------------------------------------------//
 

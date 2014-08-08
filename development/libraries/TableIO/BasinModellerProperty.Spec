@@ -2757,6 +2757,33 @@ START-properties
     Property I/O        : No
     Default             : 0.06
 
+	Identification      : QuartzGrainSize
+    Description         : Size of the grains of quartz, for example average diameter
+    Unit of measurement : cm
+    Type                : double 
+    Error Field         : No
+    Time dependent      : No 
+    Property I/O        : No
+    Default             : 0.03
+
+	Identification      : QuartzFraction
+    Description         : Volume fraction of quartz in the facies
+    Unit of measurement : fraction of total volume - without unit
+    Type                : double 
+    Error Field         : No
+    Time dependent      : No 
+    Property I/O        : No
+    Default             : 0.0
+
+	Identification      : CoatingClayFactor
+    Description         : Fraction of quartz grain surface area coated by clay
+    Unit of measurement : fraction of total area of quartz grain - without unit
+    Type                : double 
+    Error Field         : No
+    Time dependent      : No 
+    Property I/O        : No
+    Default             : 0.0
+
     Identification      : GeoVariance
     Description         : Geometric variance, factor in a formula to determine
                           the capillary pressure from the porosity
@@ -4098,6 +4125,15 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
+
+    Identification      : ChemicalCompactionAlgorithm
+    Description         : Chemical Compaction model name
+    Type                : string
+    Unit of measurement :
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : "Schneider"
 
     Identification      : ConvectiveTerm
     Description         : Whether or not using Convective Term
@@ -8941,6 +8977,7 @@ START-property-tables
     Column         : PTCouplingMode
     Column         : CoupledMode
     Column         : ChemicalCompaction
+	Column         : ChemicalCompactionAlgorithm
     Column         : ConvectiveTerm
     Column         : NonGeometricLoop
     Column         : AllochthonousModelling
@@ -10181,6 +10218,9 @@ START-property-tables
     Column         : MinimumPorosity
     Column         : SpecSurfArea
     Column         : GeoVariance
+	Column		   : QuartzGrainSize
+	Column         : QuartzFraction
+	Column         : CoatingClayFactor
 
     Header         : Lithotype Data
     Time dependent : No

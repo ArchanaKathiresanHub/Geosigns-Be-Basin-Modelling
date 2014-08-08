@@ -81,7 +81,15 @@ namespace GeoPhysics {
 
    /// \var RockViscosityReferenceTemperature
    /// The temperature used in the reference rock viscosity, units Celsius.
-   const double RockViscosityReferenceTemperature = 15.0; 
+   const double RockViscosityReferenceTemperature = 15.0;
+
+   /// \var MolarMassQuartz
+   /// The molar mass of quartz, units is g . mol^-1.
+   const double MolarMassQuartz = 60.09;
+
+   /// \var DensityQuartz
+   /// The density of quartz, units is g . cm^-3.
+   const double DensityQuartz = 2.65;
 
    /// \var GasConstant
    /// Units are J . K^-1 . mol^-1.

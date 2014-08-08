@@ -22,6 +22,9 @@ add_executable(fastcauldron
 	src/BulkDensityCalculator.C
 	src/CapillaryPressureCalculator.C
 	src/CauldronCalculator.C
+        src/ChemicalCompactionGrid.C
+        src/ChemicalCompactionSchneiderGrid.C
+        src/ChemicalCompactionWalderhaugGrid.C
 	src/ComponentConcentrationCalculator.C
 	src/CrustFormation.C
 	src/DarcyCalculations.C

@@ -470,7 +470,6 @@ double GeoPhysics::CompoundLithology::porosity ( const double sigma,
   } else {
     Porosity = soilMechanicsPorosityFunction ( sigma, sigma_max, loadingPhase, includeChemicalCompaction );
   }
-
   if ( includeChemicalCompaction ) {
     Porosity = Porosity + chemicalCompactionTerm;
     Porosity = NumericFunctions::Maximum ( Porosity, MinimumPorosity );
@@ -580,6 +579,9 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
   m_lithologyActivationEnergy = 0.0;
   m_lithologyFractureGradient = 0.0;
   m_minimumMechanicalPorosity = 0.0;
+  m_quartzGrainSize           = 0.0;
+  m_quartzFraction            = 0.0;
+  m_coatingClayFactor         = 0.0;
 
   while (m_lithoComponents.end() != componentIter) {
     double pcMult = (double)(*percentIter)/100;
@@ -594,6 +596,8 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
     m_lithologyActivationEnergy += (*componentIter)->getLithologyActivationEnergy () * pcMult;
     m_minimumMechanicalPorosity += (*componentIter)->getMinimumMechanicalPorosity () * pcMult;
     m_lithologyFractureGradient += (*componentIter)->getLithologyFractureGradient () * pcMult;
+    m_quartzFraction            += (*componentIter)->getQuartzFraction () * pcMult;
+    m_coatingClayFactor         += (*componentIter)->getCoatingClayFactor () * pcMult;
 
     // Matrix Property calculated using the geometric mean
     m_thermalConductivityAnisotropy *= pow ((*componentIter)->getThCondAn(),pcMult);
@@ -601,9 +605,14 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
     m_specificSurfaceArea *=  pow ((*componentIter)->getSpecificSurfArea(),pcMult);
     m_geometricVariance   *=  pow ((*componentIter)->getGeometricVariance(),pcMult);
 
+    //Matrix Property calculated using the algebraic mean
+    m_quartzGrainSize     += pcMult * pow ((*componentIter)->getQuartzGrainSize(),3.0);
+
     ++componentIter;
     ++percentIter;
   }
+  
+  m_quartzGrainSize = pow( m_quartzGrainSize, 1.0/3.0 );
 
   mixPorosityModel();
   mixSurfacePorosity ();
@@ -1359,33 +1368,6 @@ void GeoPhysics::CompoundLithology::setChemicalCompactionTerms
 
 }
 
-
-//------------------------------------------------------------//
-
-
-double GeoPhysics::CompoundLithology::integrateChemicalCompaction 
-   ( const double timeStep,
-     const double ves,
-     const double Porosity,
-     const double Temperature ) const {
-
-  if ( Porosity > MinimumPorosity ) {
-
-    double solidViscosity;
-    double temperatureTerm = 1.0 / ( NumericFunctions::Maximum ( Temperature, RockViscosityReferenceTemperature ) + 273.15 ) - 1.0 / ( RockViscosityReferenceTemperature + 273.15 );
-
-    // 1.0e9 = results should be in Giga Pascals . Million years.
-    solidViscosity = 1.0e9 * m_referenceSolidViscosity * Secs_IN_MA * exp ( m_lithologyActivationEnergy * temperatureTerm / GasConstant );
-
-    return -timeStep * Secs_IN_MA * ( 1.0 - Porosity ) * ves / solidViscosity;
-
-  } else {
-    return 0.0;
-  }
-
-}
-
-
 //------------------------------------------------------------//
 
 
@@ -1414,7 +1396,6 @@ double GeoPhysics::CompoundLithology::exponentialPorosityFunction ( const double
                                                                     const bool   includeChemicalCompaction ) const {
 
   double Exponential_Porosity;
-
   if ( includeChemicalCompaction ) {
 
     if ( loadingPhase ) {
@@ -1425,7 +1406,6 @@ double GeoPhysics::CompoundLithology::exponentialPorosityFunction ( const double
     }
 
   } else {
-
      if ( loadingPhase ) {
       Exponential_Porosity = m_depositionalPorosity * exp( -m_compactionincr * ves );
     } else {
@@ -1505,8 +1485,8 @@ double GeoPhysics::CompoundLithology::soilMechanicsPorosityFunction ( const doub
   } 
 
   /* Force porosity to be in range 0.03 .. Surface_Porosity */
-
-  if ( includeChemicalCompaction ) {
+  
+    if ( includeChemicalCompaction ) {
     Porosity = NumericFunctions::Maximum ( Porosity, m_minimumMechanicalPorosity );
   }
 

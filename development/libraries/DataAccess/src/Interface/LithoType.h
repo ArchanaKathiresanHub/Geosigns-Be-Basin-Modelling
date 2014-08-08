@@ -75,6 +75,14 @@ namespace DataAccess
          /// This is defined inthe project file, but is not used.
          virtual double getCompacCoefFM () const;
 
+         /// Return the size of the grain of quartz for chemical compaction
+         virtual double getQuartzGrainSize () const;
+
+         ///Return the volume fraction of quartz in the facies
+         virtual double getQuartzFraction () const;
+
+         ///Return the fraction of quartz surface area coated by clay
+         virtual double getCoatingClayFactor () const;
 
          /// Return the permeability model.
          virtual PermeabilityModel getPermeabilityModel () const;

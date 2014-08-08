@@ -11,14 +11,17 @@
 #########################################################################
 
 set(cross_platform_headers
+	  src/ChemicalCompactionCalculator.h
       src/Permeability.h
       src/PermeabilityImpermeable.h
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
+      src/SchneiderCompactionCalculator.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
+      src/WalderhaugCompactionCalculator.h
 )
 
 set(unix_only_headers
@@ -48,14 +51,17 @@ set(unix_only_headers
       src/TimeDependantLithology.h
    )
 
-set(cross_platform_srcs 
+set(cross_platform_srcs
+	  src/ChemicalCompactionCalculator.C
       src/Permeability.C
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
+      src/SchneiderCompactionCalculator.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
+      src/WalderhaugCompactionCalculator.C
 )
 
 set(unix_only_srcs
@@ -117,7 +123,7 @@ source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
 
-add_library( GeoPhysics 
+add_library( GeoPhysics
 	${all_srcs}
 	${all_headers}
 )
@@ -142,6 +148,11 @@ install(TARGETS GeoPhysics
 
 ### Unit Tests
 
+add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
+      SOURCES test/ChemicalCompactionCalculatorTest.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
 add_gtest(NAME GeoPhysics::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.C
    LIBRARIES GeoPhysics SerialDataAccess
@@ -162,6 +173,11 @@ add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
+add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
+      SOURCES test/SchneiderCompactionCalculatorTest.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
 add_gtest( NAME GeoPhysics::VitriniteReflectance
       SOURCES test/VitriniteReflectance.C test/InputGrid.C test/OutputGrid.C
       LIBRARIES GeoPhysics SerialDataAccess
@@ -174,6 +190,11 @@ add_gtest( NAME GeoPhysics::VreTtiMethod
 
 add_gtest( NAME GeoPhysics::VreArrheniusMethod
       SOURCES test/VreArrheniusMethod.C test/InputGrid.C test/OutputGrid.C
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
+      SOURCES test/WalderhaugCompactionCalculatorTest.C 
       LIBRARIES GeoPhysics SerialDataAccess
 )
 

@@ -170,6 +170,19 @@ double LithoType::getCompacCoefFM () const {
    return database::getCompacCoefFM ( m_record );
 }
 
+double LithoType::getQuartzGrainSize () const {
+	double bla = database::getQuartzGrainSize( m_record );
+   return bla;
+}
+
+double LithoType::getQuartzFraction () const {
+   return database::getQuartzFraction( m_record );
+}
+
+double LithoType::getCoatingClayFactor () const {
+   return database::getCoatingClayFactor( m_record );
+}
+
 PermeabilityModel LithoType::getPermeabilityModel () const {
    return m_permeabilityModel;
 }

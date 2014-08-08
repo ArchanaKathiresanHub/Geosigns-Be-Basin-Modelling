@@ -36,6 +36,9 @@ namespace DataAccess
          /// Return name of velocity algorithm.
          virtual const std::string& getVelAlgorithm () const;
 
+         /// Return name of chemical compaction algorithm.
+         virtual const std::string& getChemicalCompactionAlgorithm () const;
+
          /// @}
 
          /// \name Dynamic time stepping parameters.

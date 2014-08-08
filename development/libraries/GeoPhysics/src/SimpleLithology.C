@@ -276,8 +276,9 @@ double GeoPhysics::SimpleLithology::exponentialPorosity ( const double ves,
    double calculatedPorosity;
    bool   loadingPhase = ( ves >= maxVes );
 
+   //to delete at the end of debug
+   //   if(false){
    if ( includeChemicalCompaction ) {
-
       if ( loadingPhase ) {
          calculatedPorosity = ( m_depoporosity - m_minimumMechanicalPorosity ) * exp( -m_compactionincr * maxVes ) + m_minimumMechanicalPorosity;
       } else {
@@ -354,6 +355,8 @@ double GeoPhysics::SimpleLithology::soilMechanicsPorosity ( const double ves,
 
    // Force porosity to be in range 0.03 .. Surface_Porosity
 
+   //to delete at the end of debug
+   //      if(false){
    if ( includeChemicalCompaction ) {
       calculatedPorosity = NumericFunctions::Maximum ( calculatedPorosity, m_minimumMechanicalPorosity );
    }
@@ -389,6 +392,8 @@ double GeoPhysics::SimpleLithology::porosity ( const double ves,
   }
 #endif
 
+  //to delete at the end of debug
+  //  if(false){
   if ( includeChemicalCompaction ) {
     calculatedPorosity = calculatedPorosity + chemicalCompaction;
     calculatedPorosity = NumericFunctions::Maximum ( calculatedPorosity, GeoPhysics::MinimumPorosity );

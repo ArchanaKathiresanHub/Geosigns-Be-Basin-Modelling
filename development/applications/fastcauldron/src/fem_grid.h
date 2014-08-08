@@ -23,6 +23,7 @@
 #include "Subdomain.h"
 
 #include "VreOutputGrid.h"
+#include "ChemicalCompactionGrid.h"
 
 class TemperatureForVreInputGrid;
 class VitriniteReflectance;
@@ -271,8 +272,8 @@ namespace Basin_Modelling {
      void printElementNeedle ( const int i, const int j ) const;
 
      /// \brief Integrate the chemical-compaction equation.
-     void Integrate_Chemical_Compaction ( const double Previous_Time,
-                                          const double Current_Time );
+     void integrateChemicalCompaction ( const double previousTime,
+                                          const double currentTime );
 
      /// \brief Integrate the Genex5 equations over the time interval.
      void integrateGenex ( const double previousTime,
@@ -381,6 +382,11 @@ namespace Basin_Modelling {
 
      /// The vitrinte reflectance algorithm
      std::auto_ptr<GeoPhysics::VitriniteReflectance> m_vreAlgorithm;
+
+     /// Grid that links computation of chemical compaction and grid
+     std::auto_ptr<ChemicalCompactionGrid>  m_chemicalCompactionGrid;
+     ///and corresponding chemical compaction calculator   
+     std::auto_ptr<ChemicalCompactionCalculator>  m_chemicalCompactionCalculator;
 
      //
      //

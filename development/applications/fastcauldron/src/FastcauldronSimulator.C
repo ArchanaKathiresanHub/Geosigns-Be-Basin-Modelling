@@ -1041,7 +1041,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       }
           
       if ( name == "ChemicalCompaction" ) {
-         containsChemicalCompaction = true;
+	containsChemicalCompaction = true;
          property->setOption ( Interface::NO_OUTPUT );
       }
 
