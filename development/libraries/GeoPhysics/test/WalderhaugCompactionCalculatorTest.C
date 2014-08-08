@@ -31,10 +31,11 @@ public:
          double temp0,
          double temp1 )
    {
+      static const double ln10 = std::log(10);
       double result = - ( ( 1 - coatingClay ) * 6 * fractionQuartz / grainSize );
       result *= ( time0 - time1 ) * Secs_IN_MA * MolarMassQuartz * 1.98e-22 / DensityQuartz;
-      result *= (exp( 0.022 * ( temp1 ) * M_LN10 ) - exp( 0.022 * ( temp0 ) * M_LN10 ) );
-      result /= ( 0.022 * M_LN10 * ( temp1 - temp0 ) );
+      result *= (exp( 0.022 * ( temp1 ) * ln10 ) - exp( 0.022 * ( temp0 ) * ln10 ) );
+      result /= ( 0.022 * ln10 * ( temp1 - temp0 ) );
       return result;
    }
 };
@@ -112,8 +113,8 @@ TEST_F( testWalderhaugCompactionCalculator, test_extreme_parameters_values )
    double chemicalCompaction2[size]; //[fraction of unit volume]
    double porosity           [size]; //[fraction of unit volume]
 
-   std::fill_n( chemicalCompaction1,      size,      0.0  );
-   std::fill_n( chemicalCompaction2,      size,      0.0  );
+   std::fill_n( chemicalCompaction1,  size,  0.0 );
+   std::fill_n( chemicalCompaction2,  size,  0.0 );
 
    std::fill_n( porosity,      12,      0.03 );
    std::fill_n( porosity + 12, 12,      0.25 );

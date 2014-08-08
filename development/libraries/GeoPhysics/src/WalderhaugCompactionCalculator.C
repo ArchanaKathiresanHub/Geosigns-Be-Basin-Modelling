@@ -11,9 +11,13 @@
 
 #include "WalderhaugCompactionCalculator.h"
 #include "GeoPhysicalConstants.h"
-#include "NumericFunctions.h"
 #include <cmath>
 #include <cassert>
+
+#ifdef _MSC_VER
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#endif /** _MSC_VER */
 
 namespace GeoPhysics{
 
@@ -96,16 +100,17 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
          //with f the proportion of quartz in the rock, V the unit volume = 1 [cm3], C the coating factor, D the size of grains [cm]
          double cementedFraction = m_lithologyList[lithoID] * currentPorosity / initialPorosity;
 
+         static const double ln10 = std::log(10);
          //If the temperatures are very close or equal, in order to avoid to divide by a nul number
          if ( abs( currentTemperature - previousTemperature ) < 1e-10 )
          {
-            cementedFraction *= m_constantCoef * timeStep * Secs_IN_MA * exp( m_coefB * currentTemperature * M_LN10 );
+            cementedFraction *= m_constantCoef * timeStep * Secs_IN_MA * exp( m_coefB * currentTemperature * ln10 );
          }
          else
          {
             cementedFraction *= m_constantCoef * timeStep * Secs_IN_MA;
-            cementedFraction *= ( exp( m_coefB * currentTemperature * M_LN10 ) - exp( m_coefB * previousTemperature * M_LN10 ) );
-            cementedFraction /= m_coefB * M_LN10 * ( currentTemperature - previousTemperature );
+            cementedFraction *= ( exp( m_coefB * currentTemperature * ln10 ) - exp( m_coefB * previousTemperature * ln10 ) );
+            cementedFraction /= m_coefB * ln10 * ( currentTemperature - previousTemperature );
          }
          assert( ("The cemented fraction is not a number, one of the parameters is wrong.>", !isnan( cementedFraction ) ) );
          
