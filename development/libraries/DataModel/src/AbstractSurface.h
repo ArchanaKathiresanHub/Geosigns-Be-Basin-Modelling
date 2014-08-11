@@ -5,12 +5,14 @@
 
 namespace DataModel {
 
+   /// \brief 
    class AbstractSurface {
 
    public :
 
       virtual ~AbstractSurface () {}
 
+      /// \brief Get the name of the surface.
       virtual const std::string& getName () const = 0;
 
    };

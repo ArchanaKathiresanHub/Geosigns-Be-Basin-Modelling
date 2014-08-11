@@ -5,12 +5,14 @@
 
 namespace DataModel {
 
+   /// \brief A formation.
    class AbstractFormation {
 
    public :
 
       virtual ~AbstractFormation () {}
 
+      /// \brief Get the name of the formation.
       virtual const std::string& getName () const = 0;
 
    };

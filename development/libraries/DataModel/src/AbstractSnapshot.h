@@ -3,12 +3,14 @@
 
 namespace DataModel {
 
+   /// \brief The age at which.
    class AbstractSnapshot {
 
    public :
 
       virtual ~AbstractSnapshot () {}
 
+      /// \brief Get the age at which the snapshot is defined.
       virtual double getTime () const = 0;
 
    };

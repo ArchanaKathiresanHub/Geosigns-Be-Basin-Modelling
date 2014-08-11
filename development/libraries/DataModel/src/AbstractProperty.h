@@ -5,12 +5,14 @@
 
 namespace DataModel {
 
+   /// \brief Describes a property defined in the cauldron model.
    class AbstractProperty {
 
    public :
 
       virtual ~AbstractProperty () {}
 
+      /// \brief Get the name of the property.
       virtual const std::string& getName () const = 0;
 
    };
