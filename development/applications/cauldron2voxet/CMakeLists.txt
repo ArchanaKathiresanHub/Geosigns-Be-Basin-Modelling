@@ -46,6 +46,7 @@ bm_include_libraries(
 include_directories(
 	${HDF5_INCLUDE_DIRS}
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet
+	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(cauldron2voxet

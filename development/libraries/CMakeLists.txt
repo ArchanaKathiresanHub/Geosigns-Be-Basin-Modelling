@@ -12,6 +12,7 @@
 
 add_subdirectory(TableIO)
 add_subdirectory(utilities)
+add_subdirectory(DataModel)
 add_subdirectory(CBMGenerics)
 add_subdirectory(Serial_Hdf5)
 add_subdirectory(EosPack)

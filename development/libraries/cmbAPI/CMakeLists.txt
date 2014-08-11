@@ -35,6 +35,7 @@ bm_include_libraries(
 )
 
 include_directories(
+   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
    ${HDF5_INCLUDE_DIRS}
    src
 )

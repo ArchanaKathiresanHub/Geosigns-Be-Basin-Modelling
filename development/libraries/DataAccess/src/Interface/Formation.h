@@ -1,6 +1,8 @@
 #ifndef _INTERFACE_FORMATION_H_
 #define _INTERFACE_FORMATION_H_
 
+#include "AbstractFormation.h"
+
 
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
@@ -14,7 +16,7 @@ namespace DataAccess
       /// A Formation object in the Cauldron model describes a deposition or an erosion or a hiatus.
       /// As such it has a top Surface and a bottom Surface.
       /// It also has a number (>=1 && <= 3) of LithoType objects, together with percentage maps.
-      class Formation : public DAObject
+      class Formation : public DataModel::AbstractFormation, public DAObject
       {
 	 public:
 	    /// constructor

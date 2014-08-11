@@ -2,7 +2,7 @@
 #define _INTERFACE_SURFACE_H_
 
 
-#include "Interface/Surface.h"
+#include "AbstractSurface.h"
 
 #include "Interface/DAObject.h"
 #include "Interface.h"
@@ -13,7 +13,7 @@ namespace DataAccess
    {
       /// A Surface object forms the upper and/or lower boundary of a Formation.
       /// It also has a geological event time associated to it in the form of a Snapshot
-      class Surface : public DAObject
+      class Surface : public DataModel::AbstractSurface, public DAObject
       {
 	 public:
 	    Surface (ProjectHandle * projectHandle, database::Record * record);

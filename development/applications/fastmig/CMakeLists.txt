@@ -66,6 +66,7 @@ include_directories(
 	${PETSC_INCLUDE_DIRS}
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 	
 

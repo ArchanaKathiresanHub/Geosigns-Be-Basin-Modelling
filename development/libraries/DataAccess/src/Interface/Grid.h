@@ -4,13 +4,15 @@
 #include <iostream>
 #include <string>
 
+#include "AbstractGrid.h"
+
 namespace DataAccess
 {
    namespace Interface
    {
       /// Class describing regular grids.
       /// Objects of this class describe the input and output grids of a Cauldron project.
-      class Grid
+      class Grid : public DataModel::AbstractGrid
       {
       public:
          /// create a new grid

@@ -1,6 +1,7 @@
 #ifndef _INTERFACE_SNAPSHOT_H_
 #define _INTERFACE_SNAPSHOT_H_
 
+#include "AbstractSnapshot.h"
 #include "Interface/DAObject.h"
 
 namespace DataAccess
@@ -10,7 +11,7 @@ namespace DataAccess
       /// A Snapshot object contains a time for which PropertyValue objects were computed.
       /// These times have been system-generated or user-generated. System-generated times are
       /// all times of geological events captured by the basin model.
-      class Snapshot : public DAObject
+      class Snapshot : public DataModel::AbstractSnapshot, public DAObject
       {
 	 public:
 	    Snapshot (ProjectHandle * projectHandle, database::Record * record);

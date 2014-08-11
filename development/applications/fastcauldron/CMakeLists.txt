@@ -139,6 +139,7 @@ add_executable(fastcauldron
 remove_definitions(-fPIC)
 
 include_directories(
+	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
         ${PROJECT_SOURCE_DIR}/libraries
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}

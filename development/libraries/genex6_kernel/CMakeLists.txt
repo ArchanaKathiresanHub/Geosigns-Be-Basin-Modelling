@@ -45,12 +45,14 @@ bm_include_libraries(
 	OTGC_kernel6
 	TableIO 
 	DataAccess 
+	DataAccessInterface
 )
 
 include_directories(
 	..
 	src
 	${HDF5_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(genex6_kernel

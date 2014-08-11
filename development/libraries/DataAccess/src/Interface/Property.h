@@ -6,6 +6,8 @@
 #include <string>
 using namespace std;
 
+#include "AbstractProperty.h"
+
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
 
@@ -19,7 +21,7 @@ namespace DataAccess
       /// A Property describes a property that can be found in the model.
       /// A Property either applies to Formation objects, in which case its type is FORMATIONPROPERTY
       /// or it applies to Reservoir objects, in which case its type is RESERVOIRPROPERTY.
-      class Property : public DAObject
+      class Property : public DataModel::AbstractProperty, public DAObject
       {
 	 public:
 	    Property (ProjectHandle * projectHandle, database::Record * record,

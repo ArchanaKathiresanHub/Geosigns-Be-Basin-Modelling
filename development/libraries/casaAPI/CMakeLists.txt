@@ -33,6 +33,7 @@ include_directories(
    ${SUMPP_INCLUDE_DIR}
    ${LSF_INCLUDE_DIR}
    ${CMAKE_CURRENT_BINARY_DIR}
+   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
    src
 )
 
