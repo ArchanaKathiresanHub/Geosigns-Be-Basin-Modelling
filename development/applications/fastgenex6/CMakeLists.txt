@@ -23,10 +23,10 @@ include_directories(
 	${MPI_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 bm_include_libraries(
+	DataModel
 	DataAccess
 	DistributedDataAccess
 	Utilities_Petsc

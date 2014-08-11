@@ -20,9 +20,9 @@ add_library(FiniteElements
 	${all_headers}
 )
 
-include_directories (${EIGEN_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/libraries/DataModel/src )
+include_directories (${EIGEN_INCLUDE_DIRS} )
 
-bm_include_libraries(utilities FiniteElements)
+bm_include_libraries(DataModel utilities FiniteElements)
 
 target_link_libraries(FiniteElements
 	utilities

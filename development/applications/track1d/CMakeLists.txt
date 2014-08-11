@@ -15,6 +15,7 @@ add_executable(track1d
 )
 
 bm_include_libraries(
+	DataModel
 	DataMining
 	DataAccess
 	SerialDataAccess
@@ -28,7 +29,6 @@ bm_include_libraries(
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(track1d

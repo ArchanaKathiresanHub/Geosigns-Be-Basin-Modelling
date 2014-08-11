@@ -13,6 +13,7 @@
 add_executable(TestDistributedDataAccess src/TestDataAccess.C)
 
 bm_include_libraries(
+	DataModel
 	DataAccess
 	DistributedDataAccess
 	Utilities_Petsc
@@ -28,7 +29,6 @@ include_directories(
 	${HDF5_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(TestDistributedDataAccess

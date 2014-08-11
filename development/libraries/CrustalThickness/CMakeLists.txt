@@ -22,6 +22,7 @@ add_library(CrustalThickness
 )
 
 bm_include_libraries(
+	DataModel
 	DataAccess
 	TableIO
 	Serial_Hdf5
@@ -30,7 +31,6 @@ bm_include_libraries(
 remove_definitions(-fPIC)
 
 include_directories(
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 	${HDF5_INCLUDE_DIRS}
 )
 

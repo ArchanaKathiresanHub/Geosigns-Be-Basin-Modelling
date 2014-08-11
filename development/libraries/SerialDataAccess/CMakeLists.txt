@@ -22,6 +22,7 @@ add_library( SerialDataAccess
 )
 
 bm_include_libraries(
+   DataModel
    Serial_Hdf5
    utilities
    TableIO
@@ -31,7 +32,6 @@ bm_include_libraries(
 
 include_directories(
    ${HDF5_INCLUDE_DIRS}
-   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 generate_dox( src/SerialDataAccess.cfg )

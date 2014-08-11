@@ -38,6 +38,7 @@ if (BM_PARALLEL)
 	)
 
 	bm_include_libraries(
+		DataModel
 		DataAccessInterface 
 		DataAccess 
 		Utilities_Petsc 
@@ -50,7 +51,6 @@ if (BM_PARALLEL)
 		)
 	
 	include_directories( 
-        ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 		src
 		${PETSC_INCLUDE_DIRS}
 		${HDF5_INCLUDE_DIRS}

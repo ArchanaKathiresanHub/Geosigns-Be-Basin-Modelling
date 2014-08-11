@@ -21,6 +21,7 @@ add_library(DataMining
 )
 
 bm_include_libraries( 
+	DataModel
 	FiniteElements 
 	utilities 
 	Interpolation 
@@ -35,7 +36,6 @@ bm_include_libraries(
 include_directories(
 	src
 	${HDF5_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(DataMining

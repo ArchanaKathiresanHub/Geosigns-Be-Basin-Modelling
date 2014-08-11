@@ -129,11 +129,11 @@ add_library( GeoPhysics
 )
 
 bm_include_libraries( 
-        ${all_dependent_libs}
+	DataModel
+    ${all_dependent_libs}
 )
 include_directories(
 	${HDF5_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(GeoPhysics

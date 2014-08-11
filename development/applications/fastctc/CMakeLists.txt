@@ -19,6 +19,7 @@ add_executable(fastctc
 )
 
 bm_include_libraries(
+	DataModel
 	DataAccess
 	DistributedDataAccess
 	TableIO
@@ -37,7 +38,6 @@ include_directories(
 	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(fastctc

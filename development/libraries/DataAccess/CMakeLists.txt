@@ -22,6 +22,7 @@ add_library(DataAccess
 )
 
 bm_include_libraries(
+    DataModel
 	Serial_Hdf5
 	CBMGenerics
 	utilities 
@@ -31,7 +32,6 @@ bm_include_libraries(
 )
 
 include_directories( 
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 	src
 	${HDF5_INCLUDE_DIRS}
 )

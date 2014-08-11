@@ -22,6 +22,7 @@ add_library(cmbapi
 )
 
 bm_include_libraries(
+   DataModel
    CBMGenerics
    Serial_Hdf5
    DataMining
@@ -35,7 +36,6 @@ bm_include_libraries(
 )
 
 include_directories(
-   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
    ${HDF5_INCLUDE_DIRS}
    src
 )

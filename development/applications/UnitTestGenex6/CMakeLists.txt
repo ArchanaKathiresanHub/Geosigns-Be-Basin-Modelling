@@ -16,10 +16,10 @@ add_executable(UnitTestGenex6
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 bm_include_libraries(
+	DataModel
 	SerialDataAccess
 	DataAccess
 	EosPack	

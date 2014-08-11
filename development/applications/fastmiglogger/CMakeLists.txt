@@ -15,6 +15,7 @@ add_executable(fastmiglogger
 )
 
 bm_include_libraries(
+	DataModel
 	EosPack	
 	CBMGenerics
 	SerialDataAccess
@@ -24,7 +25,6 @@ bm_include_libraries(
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
-	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(fastmiglogger

@@ -27,10 +27,10 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/applications/xcauldron/src
     ${HDF5_INCLUDE_DIRS}
     ${PETSC_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 bm_include_libraries(
+    DataModel
     DataMining
     DataAccess
     SerialDataAccess
