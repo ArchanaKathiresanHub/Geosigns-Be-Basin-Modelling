@@ -12,6 +12,7 @@
 #include "MockGrid.h"
 #include <gtest/gtest.h>
 #include <iostream>
+#include <cmath>
 
 using namespace GeoPhysics;
 
