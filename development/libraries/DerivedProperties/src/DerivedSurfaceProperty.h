@@ -21,7 +21,7 @@ namespace DerivedProperties {
                                const DataModel::AbstractSurface*  surf,
                                const DataModel::AbstractGrid*     g );
 
-      virtual ~DerivedSurfaceProperty ();
+      virtual ~DerivedSurfaceProperty () {};
 
 
       virtual double get ( unsigned int i,

@@ -31,3 +31,7 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
+add_gtest( NAME DerivedProperties::DerivedSurfaceProperty
+           SOURCES test/DerivedSurfaceProperty.C
+           LIBRARIES DerivedProperties
+)
