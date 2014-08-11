@@ -100,9 +100,9 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
          //with f the proportion of quartz in the rock, V the unit volume = 1 [cm3], C the coating factor, D the size of grains [cm]
          double cementedFraction = m_lithologyList[lithoID] * currentPorosity / initialPorosity;
 
-         static const double ln10 = std::log(10);
+         static const double ln10 = std::log( 10.0 );
          //If the temperatures are very close or equal, in order to avoid to divide by a nul number
-         if ( abs( currentTemperature - previousTemperature ) < 1e-10 )
+         if ( std::fabs( currentTemperature - previousTemperature ) < 1e-10 )
          {
             cementedFraction *= m_constantCoef * timeStep * Secs_IN_MA * exp( m_coefB * currentTemperature * ln10 );
          }

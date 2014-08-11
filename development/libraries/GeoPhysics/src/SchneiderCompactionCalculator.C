@@ -56,7 +56,6 @@ void SchneiderCompactionCalculator::computeOnTimeStep( Grid & grid )
 		const double currentPorosity            = currentPorosityGrid[refNode];
 
 		// In case the porosity already reached the minimum porosity
-		double scale;
 		if( currentPorosity > MinimumPorosity ) {
 		      
 		const double chemicalCompaction         = chemicalCompactionGrid[refNode];

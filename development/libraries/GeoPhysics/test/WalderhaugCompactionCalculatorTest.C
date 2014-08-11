@@ -31,7 +31,7 @@ public:
          double temp0,
          double temp1 )
    {
-      static const double ln10 = std::log(10);
+      static const double ln10 = std::log( 10.0 );
       double result = - ( ( 1 - coatingClay ) * 6 * fractionQuartz / grainSize );
       result *= ( time0 - time1 ) * Secs_IN_MA * MolarMassQuartz * 1.98e-22 / DensityQuartz;
       result *= (exp( 0.022 * ( temp1 ) * ln10 ) - exp( 0.022 * ( temp0 ) * ln10 ) );
