@@ -49,6 +49,7 @@ include_directories(
 	${TS7_INCLUDE_DIRS}
 	${TS_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 target_link_libraries(${target_name} 

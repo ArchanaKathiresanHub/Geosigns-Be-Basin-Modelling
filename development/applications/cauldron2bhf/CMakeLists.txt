@@ -16,6 +16,7 @@ add_executable(cauldron2bhf
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/libraries/DataModel/src
 )
 
 bm_include_libraries(
