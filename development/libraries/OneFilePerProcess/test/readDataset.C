@@ -2,6 +2,7 @@
 #include <hdf5.h>
 #include <stdio.h>
 #include "h5merge.h"
+#include "fileHandler.h"
 #include "../src/RewriteFileName.h"
 
 #include <gtest/gtest.h>
@@ -21,6 +22,7 @@
 //  4: DataSet name is empty (doesn't exist)
 //  5: Reallocation of buffers
 //  6: Collective check of an error
+//  7: Dataset and attribute are written correctly. Reuse of the file structure.
 
 namespace
 {
@@ -440,3 +442,30 @@ TEST( h5mergeTest, MergeExistingFiles6 )
    }
 }
 
+TEST( h5mergeTest, MergeExistingFiles7 )
+{
+   if (MPI::size() > 1)
+   {
+      FileHandler reader(  MPI_COMM_WORLD );
+ 
+      std::string name  = File::tempName();
+      File a( name, true );
+
+      int status = a.open( File::CreateWithAttr, 5, true );
+      ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
+  
+      EXPECT_EQ( 5, status );
+
+      reader.setReuseOption( true );
+      reader.setGlobalId ( a.fileId () );
+ 
+      EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
+
+      if (MPI::rank() == 0)
+      {      
+         a.close();
+         EXPECT_EQ( MPI::size() * 5, a.open( File::OpenWithAttr, -1, true ));
+      }
+   }
+                 
+}

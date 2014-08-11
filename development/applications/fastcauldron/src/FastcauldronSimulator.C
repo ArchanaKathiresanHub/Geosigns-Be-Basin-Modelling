@@ -38,8 +38,8 @@
 
 #include "MultiComponentFlowHandler.h"
 
+#include "fileHandler.h"
 #include "h5merge.h"
-
 
 //------------------------------------------------------------//
 
@@ -831,10 +831,10 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
                string s = "Merging of " + filePathName + " ";
                displayTime ( s, StartTime, 0 );          
             }
-            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() )) {
+            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), false )) {
                status = false;
                PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
-            }
+            } 
          }
       }
    }
@@ -855,7 +855,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          if( m_fastcauldronSimulator->getRank () == 0  ) {
             std::string curPath = H5_Parallel_PropertyList::getTempDirName() + "/" +  filePathName + "_0";
             PetscPrintf ( PETSC_COMM_WORLD, " Copy %s to %s\n", curPath.c_str(), filePathName.c_str() );
-            status = copyTo ( filePathName, curPath );
+            status = copyFile ( filePathName, curPath );
             if( !status ) {
                PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
             }

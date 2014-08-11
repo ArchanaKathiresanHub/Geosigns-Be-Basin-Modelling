@@ -10,8 +10,8 @@
 #                                                                       #
 #########################################################################
 
-set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C )
-set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h src/h5merge.h )
+set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C src/fileHandler.C )
+set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h src/h5merge.h src/fileHandler.h )
 
 add_definitions(-DH5_HAVE_PARALLEL -std=c99)
 add_library(OneFilePerProcess
