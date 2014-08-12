@@ -210,7 +210,9 @@ public:
 	 */
 	void emptyGrid();
 
-
+private:
+	// To define here, before m_chemicalCompaction in order to avoid uninitialized values 
+        int m_size;     /*!< number of nodes in the grid */	
 
 
 protected:
@@ -288,7 +290,6 @@ private:
 			int ys,
 			int xs );
 
-	int m_size;                                             /*!< number of nodes in the grid */
 	int m_numberLithologies;                                /*!< number of different lithologies in the grid */
 	std::vector< const CompoundLithology * > m_listOfLitho; /*!< vector of pointers of lithologies in the basin */
 	std::vector < int > m_lithoMap;                          /*!< vector of lithology index of nodes */
