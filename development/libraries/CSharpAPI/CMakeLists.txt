@@ -25,6 +25,7 @@ include_directories(
 )
 
 bm_include_libraries( 
+   DataModel
    CBMGenerics
    Serial_Hdf5
    TableIO
