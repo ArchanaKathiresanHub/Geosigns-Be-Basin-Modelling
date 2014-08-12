@@ -12,15 +12,19 @@
 
 set(all_headers
   src/SurfaceProperty.h
+  src/FormationSurfaceProperty.h
   src/FormationProperty.h
   src/DerivedSurfaceProperty.h
+  src/DerivedFormationSurfaceProperty.h
   src/DerivedFormationProperty.h
 )
 
 set(all_srcs
   src/SurfaceProperty.C
+  src/FormationSurfaceProperty.C
   src/FormationProperty.C
   src/DerivedSurfaceProperty.C
+  src/DerivedFormationSurfaceProperty.C
   src/DerivedFormationProperty.C
 )
 
