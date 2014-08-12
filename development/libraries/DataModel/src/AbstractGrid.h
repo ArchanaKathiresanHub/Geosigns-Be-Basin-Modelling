@@ -14,19 +14,15 @@ namespace DataModel {
       virtual ~AbstractGrid () {}
 
       /// return the first local horizontal index
-      virtual int firstI () const = 0;
       virtual int firstI (bool includeGhosts) const = 0;
 
       /// return the first local vertical index
-      virtual int firstJ () const = 0;
       virtual int firstJ (bool includeGhosts) const = 0;
 
       /// return the last local horizontal index
-      virtual int lastI () const = 0;
       virtual int lastI (bool includeGhosts) const = 0;
 
       /// return the last local vertical index
-      virtual int lastJ () const = 0;
       virtual int lastJ (bool includeGhosts) const = 0;
 
    };

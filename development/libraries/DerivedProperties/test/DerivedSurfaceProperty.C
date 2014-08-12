@@ -1,6 +1,9 @@
 #include "../src/DerivedSurfaceProperty.h"
 #include <gtest/gtest.h>
 
+#include <iostream>
+using namespace std;
+
 using namespace DataModel;
 
 namespace
@@ -22,20 +25,49 @@ namespace
 class TestAbstractGrid : public AbstractGrid {
 
 public:
-   int firstI (void) const { return FirstI; }; 
-   int firstI (bool withGhosts) const { return FirstGhostI; };
+
+   int firstI (bool withGhosts) const {
+
+      if ( withGhosts ) {
+         return FirstGhostI;
+      } else {
+         return FirstI;
+      }
+
+   }
    
    /// return the first local vertical index
-   int firstJ (void) const { return FirstJ; };
-   int firstJ (bool withGhosts) const { return FirstGhostJ; };
+   int firstJ (bool withGhosts) const { 
+
+      if ( withGhosts ) {
+         return FirstGhostJ;
+      } else {
+         return FirstJ;
+      }
+
+   }
    
    /// return the last local horizontal index
-   int lastI (void) const { return LastI; };
-   int lastI (bool withGhosts) const { return LastJ; };
+   int lastI (bool withGhosts) const { 
+
+      if ( withGhosts ) {
+         return LastGhostI;
+      } else {
+         return LastI;
+      }
+
+   }
    
    /// return the last local vertical index
-   int lastJ (void) const { return LastGhostI; };
-   int lastJ (bool withGhosts) const { return LastGhostJ ;};
+   int lastJ (bool withGhosts) const { 
+
+      if ( withGhosts ) {
+         return LastGhostJ;
+      } else {
+         return LastJ;
+      }
+
+   }
    
 };
 
@@ -66,12 +98,14 @@ public:
                          const TestAbstractGrid*     g ) : DerivedSurfaceProperty ( prop, ss, surf, g ) { 
 
       double value = 0.0;
+
       for( int i = g->firstI( true); i < g->lastI (true ) + 1; ++ i ) {
+
          for( int j = g->firstJ(true); j < g->lastJ(true) + 1; ++j ) {
             set( i, j, value ++ );
          }
       }
-   };
+   }
 
 };
 

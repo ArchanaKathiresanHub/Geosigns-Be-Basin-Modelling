@@ -1,5 +1,5 @@
-#ifndef _DERIVED_PROPERTIES__SURFACE_POROSITY_H_
-#define _DERIVED_PROPERTIES__SURFACE_POROSITY_H_
+#ifndef _DERIVED_PROPERTIES__SURFACE_PROPERTY_H_
+#define _DERIVED_PROPERTIES__SURFACE_PROPERTY_H_
 
 #include <boost/shared_ptr.hpp>
 
@@ -40,24 +40,16 @@ namespace DerivedProperties {
       const DataModel::AbstractProperty* getProperty () const;
 
 
-      /// \brief The first index on the local grid.
-      unsigned int firstI () const;
-
-      /// \brief The first index on the grid 
+      /// \brief The first index on the grid in the x-direction.
       unsigned int firstI ( const bool includeGhostNodes ) const;
 
-      /// \brief The last index on the local grid.
-      unsigned int lastI () const;
-
-      /// \brief The last index on the local grid.
-      unsigned int lastI ( const bool includeGhostNodes ) const;
-
-      unsigned int firstJ () const;
-
+      /// \brief The first index on the grid in the y-direction.
       unsigned int firstJ ( const bool includeGhostNodes ) const;
 
-      unsigned int lastJ () const;
+      /// \brief The last index on the local grid in the x-direciton.
+      unsigned int lastI ( const bool includeGhostNodes ) const;
 
+      /// \brief The last index on the local grid in the y-direciton.
       unsigned int lastJ ( const bool includeGhostNodes ) const;
 
 
@@ -100,36 +92,20 @@ inline const DataModel::AbstractProperty* DerivedProperties::SurfaceProperty::ge
    return m_property;
 }
 
-inline unsigned int DerivedProperties::SurfaceProperty::firstI () const {
-   return static_cast<unsigned int>(m_grid->firstI ());
-}
-
 inline unsigned int DerivedProperties::SurfaceProperty::firstI ( const bool includeGhostNodes ) const {
    return static_cast<unsigned int>(m_grid->firstI ( includeGhostNodes ));
-}
-
-inline unsigned int DerivedProperties::SurfaceProperty::lastI () const {
-   return static_cast<unsigned int>(m_grid->lastI ());
-}
-
-inline unsigned int DerivedProperties::SurfaceProperty::lastI ( const bool includeGhostNodes ) const {
-   return static_cast<unsigned int>(m_grid->lastI ( includeGhostNodes ));
-}
-
-inline unsigned int DerivedProperties::SurfaceProperty::firstJ () const {
-   return static_cast<unsigned int>(m_grid->firstJ ());
 }
 
 inline unsigned int DerivedProperties::SurfaceProperty::firstJ ( const bool includeGhostNodes ) const {
    return static_cast<unsigned int>(m_grid->firstJ ( includeGhostNodes ));
 }
 
-inline unsigned int DerivedProperties::SurfaceProperty::lastJ () const {
-   return static_cast<unsigned int>(m_grid->lastJ ());
+inline unsigned int DerivedProperties::SurfaceProperty::lastI ( const bool includeGhostNodes ) const {
+   return static_cast<unsigned int>(m_grid->lastI ( includeGhostNodes ));
 }
 
 inline unsigned int DerivedProperties::SurfaceProperty::lastJ ( const bool includeGhostNodes ) const {
    return static_cast<unsigned int>(m_grid->lastJ ( includeGhostNodes ));
 }
 
-#endif // _DERIVED_PROPERTIES__SURFACE_POROSITY_H_
+#endif // _DERIVED_PROPERTIES__SURFACE_PROPERTY_H_
