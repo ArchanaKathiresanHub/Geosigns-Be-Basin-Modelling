@@ -11,13 +11,17 @@
 #########################################################################
 
 set(all_headers
-  src/DerivedSurfaceProperty.h
   src/SurfaceProperty.h
+  src/FormationProperty.h
+  src/DerivedSurfaceProperty.h
+  src/DerivedFormationProperty.h
 )
 
 set(all_srcs
-  src/DerivedSurfaceProperty.C
   src/SurfaceProperty.C
+  src/FormationProperty.C
+  src/DerivedSurfaceProperty.C
+  src/DerivedFormationProperty.C
 )
 
 
