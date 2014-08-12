@@ -1,14 +1,14 @@
 #include "SurfaceProperty.h"
 
 
-DerivedProperties::SurfaceProperty::SurfaceProperty ( const DataModel::AbstractProperty* prop,
-                                                      const DataModel::AbstractSnapshot* ss,
-                                                      const DataModel::AbstractSurface*  surf,
-                                                      const DataModel::AbstractGrid*     g ) :
-   m_property ( prop ),
-   m_snapshot ( ss ),
-   m_surface ( surf ),
-   m_grid ( g )
+DerivedProperties::SurfaceProperty::SurfaceProperty ( const DataModel::AbstractProperty* property,
+                                                      const DataModel::AbstractSnapshot* snapshot,
+                                                      const DataModel::AbstractSurface*  surface,
+                                                      const DataModel::AbstractGrid*     grid ) :
+   m_property ( property ),
+   m_snapshot ( snapshot ),
+   m_surface ( surface ),
+   m_grid ( grid )
 {
    // Should check that they aint null.
 }

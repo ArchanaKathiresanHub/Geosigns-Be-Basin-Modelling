@@ -1,11 +1,11 @@
 #include "DerivedSurfaceProperty.h"
 
-DerivedProperties::DerivedSurfaceProperty::DerivedSurfaceProperty ( const DataModel::AbstractProperty* prop,
-                                                                    const DataModel::AbstractSnapshot* ss,
-                                                                    const DataModel::AbstractSurface*  surf,
-                                                                    const DataModel::AbstractGrid*     g ) :
-   SurfaceProperty  ( prop, ss, surf, g ),
-   m_values ( boost::extents [g->lastI(true) - g->firstI(true) + 1][g->lastJ(true) - g->firstJ(true) + 1])
+DerivedProperties::DerivedSurfaceProperty::DerivedSurfaceProperty ( const DataModel::AbstractProperty* property,
+                                                                    const DataModel::AbstractSnapshot* snapshot,
+                                                                    const DataModel::AbstractSurface*  surface,
+                                                                    const DataModel::AbstractGrid*     grid ) :
+   SurfaceProperty  ( property, snapshot, surface, grid ),
+   m_values ( boost::extents [grid->lastI(true) - grid->firstI(true) + 1][grid->lastJ(true) - grid->firstJ(true) + 1])
 {
 }
 

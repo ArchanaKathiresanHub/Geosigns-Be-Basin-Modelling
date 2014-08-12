@@ -16,10 +16,10 @@ namespace DerivedProperties {
 
    public :
 
-      DerivedSurfaceProperty ( const DataModel::AbstractProperty* prop,
-                               const DataModel::AbstractSnapshot* ss,
-                               const DataModel::AbstractSurface*  surf,
-                               const DataModel::AbstractGrid*     g );
+      DerivedSurfaceProperty ( const DataModel::AbstractProperty* property,
+                               const DataModel::AbstractSnapshot* snapshot,
+                               const DataModel::AbstractSurface*  surface,
+                               const DataModel::AbstractGrid*     grid );
 
       virtual ~DerivedSurfaceProperty () {};
 
