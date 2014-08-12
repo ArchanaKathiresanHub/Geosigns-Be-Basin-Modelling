@@ -473,6 +473,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   genexOutputProperties.push_back ( VR );
   genexOutputProperties.push_back ( MAXVES );
+  genexOutputProperties.push_back ( PRESSURE );
   genexOutputProperties.push_back ( EROSIONFACTOR );
   
   shaleGasOutputProperties.push_back ( TEMPERATURE );

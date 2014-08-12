@@ -1176,10 +1176,10 @@ bool SourceRock::process()
    LinearGridInterpolator *TempInterpolator = new LinearGridInterpolator;
    LinearGridInterpolator *ThicknessScalingInterpolator = new LinearGridInterpolator;
    LinearGridInterpolator *vreInterpolator  = new LinearGridInterpolator;
+   LinearGridInterpolator *porePressureInterpolator = new LinearGridInterpolator;
 
    LinearGridInterpolator *lithostaticPressureInterpolator = 0;
    LinearGridInterpolator *hydrostaticPressureInterpolator = 0;
-   LinearGridInterpolator *porePressureInterpolator        = 0;
    LinearGridInterpolator *porosityInterpolator            = 0;
    LinearGridInterpolator *permeabilityInterpolator        = 0;
 
@@ -1227,12 +1227,12 @@ bool SourceRock::process()
       const GridMap *vreAtStart = getSurfaceFormationPropertyGridMap ("Vr", intervalStart );
       const GridMap *vreAtEnd   = getSurfaceFormationPropertyGridMap ("Vr", intervalEnd );
 
-      if ( VESmapAtStart && VESmapAtEnd && TempmapAtStart && TempmapAtEnd and vreAtStart != 0 and vreAtEnd != 0 ) {
+      if ( VESmapAtStart && VESmapAtEnd && TempmapAtStart && TempmapAtEnd and vreAtStart != 0 and vreAtEnd != 0 and 
+           porePressureMapAtStart and porePressureMapAtEnd ) {
 
          if( doApplyAdsorption () ) {
             if( lithostaticPressureMapAtStart == 0 or lithostaticPressureMapAtEnd == 0 or
                 hydrostaticPressureMapAtStart == 0 or hydrostaticPressureMapAtEnd == 0 or
-                porePressureMapAtStart == 0 or porePressureMapAtEnd == 0 or
                 porosityMapAtStart == 0 or porosityMapAtEnd == 0 or
                 permeabilityMapAtStart == 0 or permeabilityMapAtEnd == 0 ) {
 
@@ -1254,14 +1254,6 @@ bool SourceRock::process()
                   
                   if ( hydrostaticPressureMapAtEnd == 0 ) {
                      cout << " Missing hydro-static pressure map for snapshot " << intervalEnd->getTime () << endl;
-                  }
-                  
-                  if ( porePressureMapAtStart == 0 ) {
-                     cout << " Missing pore-pressure map for snapshot " << intervalStart->getTime () << endl;
-                  }
-                  
-                  if ( porePressureMapAtEnd == 0 ) {
-                     cout << " Missing pore-pressure map for snapshot " << intervalEnd->getTime () << endl;
                   }
                   
                   if ( porosityMapAtStart == 0 ) {
@@ -1286,13 +1278,11 @@ bool SourceRock::process()
             }
             lithostaticPressureInterpolator = new LinearGridInterpolator;
             hydrostaticPressureInterpolator = new LinearGridInterpolator;
-            porePressureInterpolator = new LinearGridInterpolator;
             porosityInterpolator = new LinearGridInterpolator;
             permeabilityInterpolator = new LinearGridInterpolator;
  
             lithostaticPressureInterpolator->compute(intervalStart, lithostaticPressureMapAtStart, intervalEnd, lithostaticPressureMapAtEnd ); 
             hydrostaticPressureInterpolator->compute(intervalStart, hydrostaticPressureMapAtStart, intervalEnd, hydrostaticPressureMapAtEnd ); 
-            porePressureInterpolator->compute(intervalStart, porePressureMapAtStart, intervalEnd, porePressureMapAtEnd ); 
             porosityInterpolator->compute(intervalStart, porosityMapAtStart, intervalEnd, porosityMapAtEnd ); 
             permeabilityInterpolator->compute(intervalStart, permeabilityMapAtStart, intervalEnd, permeabilityMapAtEnd ); 
         }
@@ -1300,6 +1290,7 @@ bool SourceRock::process()
          VESInterpolator ->compute(intervalStart, VESmapAtStart,  intervalEnd, VESmapAtEnd);
          TempInterpolator->compute(intervalStart, TempmapAtStart, intervalEnd, TempmapAtEnd); 
          vreInterpolator->compute (intervalStart, vreAtStart,     intervalEnd, vreAtEnd );
+         porePressureInterpolator->compute(intervalStart, porePressureMapAtStart, intervalEnd, porePressureMapAtEnd ); 
                 
          //erosion 
          const GridMap *thicknessScalingAtStart = getFormationPropertyGridMap("ErosionFactor", intervalStart);
@@ -1395,6 +1386,15 @@ bool SourceRock::process()
             if ( TempmapAtEnd == 0 ) {
                cout << " Missing temperature map for snapshot " << intervalEnd->getTime () << endl;
             }
+
+            if ( porePressureMapAtStart == 0 ) {
+               cout << " Missing pore-pressure map for snapshot " << intervalStart->getTime () << endl;
+            }
+                  
+            if ( porePressureMapAtEnd == 0 ) {
+               cout << " Missing pore-pressure map for snapshot " << intervalEnd->getTime () << endl;
+            }
+                  
 
             cout << "-------------------------------------" << endl;
          }
