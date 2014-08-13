@@ -28,7 +28,7 @@ namespace DataModel {
 inline DataModel::MockProperty::MockProperty ( const std::string& name ) : m_name ( name ) {
 }
 
-inline const std::string& DataModel::DerivedProperty::getName () const {
+inline const std::string& DataModel::MockProperty::getName () const {
    return m_name;
 }
 
