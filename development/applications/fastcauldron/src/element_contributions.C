@@ -423,31 +423,6 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
   lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
   lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, porosityDerivativeWrtVes, dKnDVes, dKhDVes );
 
-  /*if ( isPermafrost )
-  {
-    // NLSAY3: The permeability cannot reach lower values than 1.0e-7 mD;
-    // The permeability must have a lower limit when the Permafrost relative permeability is activated
-    Permeability_Normal = relativePermeability * Permeability_Normal;
-    Permeability_Plane  = relativePermeability * Permeability_Plane;
-
-
-    if ( Permeability_Normal < PermeabilityLowerLimit ) {
-       Permeability_Normal = PermeabilityLowerLimit;
-    }
-
-    if ( Permeability_Plane < PermeabilityLowerLimit ) {
-      Permeability_Plane = PermeabilityLowerLimit;
-    }
-
-    Permeability_Normal *= Permeability_Scaling * fluidDensity / fluidViscosity;
-    Permeability_Plane  *=                        fluidDensity / fluidViscosity;
-  }
-  else
-  {
-    Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
-    Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
-  }*/
-
   Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
   Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
 
@@ -2219,7 +2194,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
 
             matrixVectorProduct ( scaledGradBasis, fluidVelocity, Term_3 );
 
-
             double Scaling = -currentFluidDensityTerm + previousFluidDensityTerm;
 
             Increment ( Scaling, Basis, Element_Residual );
@@ -2242,10 +2216,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
                                                 currentFluidDensity * usedWaterSaturation * currentPorosity / pow ( 1.0 - currentPorosity, 2 ) * dPhiDP;
 
             addOuterProduct ( integrationWeight * bulkFluidDensityDerivative * timeStepInv, Basis, Basis, Element_Jacobian );
-
-            // T3a + T3b
-            matrixVectorProduct ( scaledGradBasis, fluidVelocityDerivative, Term_3 );
-            addOuterProduct ( integrationWeight, Term_3, Basis, Element_Jacobian );
 
             // T3c
             matrixMatrixProduct ( scaledGradBasis, fluidMobility, scaledGradBasis2 );
