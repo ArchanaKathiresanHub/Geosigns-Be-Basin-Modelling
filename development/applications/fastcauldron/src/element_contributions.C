@@ -286,84 +286,24 @@ void Basin_Modelling::computePermGradPTerm ( const bool                debugPara
 
 //------------------------------------------------------------//
 
-void Basin_Modelling::computeFluidMobilityTerms ( const bool                debugParameter,
-                                                  const bool                Has_Fractured,
+void Basin_Modelling::computeFluidMobilityTerms ( const bool                Has_Fractured,
                                                   const double              fractureScaling,
                                                   const double              VES,
                                                   const double              Max_VES,
                                                   const CompoundProperty&   Porosity,
-                                                  const double              Fluid_Density,
-                                                  const double              Fluid_Viscosity,
-                                                  const double              relativePermeability,
-                                                  const Matrix3x3&          Jacobian,
-                                                  const ThreeVector&        Grad_Overpressure,
-                                                  const CompoundLithology*  lithology,
-                                                        ThreeVector&        Fluid_Velocity,
-                                                        Matrix3x3&          Fluid_Mobility ) {
-
-  double Permeability_Normal;
-  double Permeability_Plane;
-  double Permeability_Scaling;
-
-  // Why square-root ( 10 )?
-  static const double Sqrt10 = sqrt ( 10.0 );
-
-  if ( Has_Fractured ) {
-    Permeability_Scaling = lithology->fracturedPermeabilityScaling () * pow ( Sqrt10, 0.25 * fractureScaling );
-  } else {
-    Permeability_Scaling = 1.0;
-  }
-
-
-  lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
-
-  Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * Fluid_Density / Fluid_Viscosity;
-  Permeability_Plane  =                        relativePermeability * Permeability_Plane  * Fluid_Density / Fluid_Viscosity;
-
-  Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
-
-  matrixVectorProduct ( Fluid_Mobility, Grad_Overpressure, Fluid_Velocity );
-
-  // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
-  // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
-  // of pressure in MPa)
-  Fluid_Velocity ( 1 ) = Fluid_Velocity ( 1 ) * MPa_To_Pa;
-  Fluid_Velocity ( 2 ) = Fluid_Velocity ( 2 ) * MPa_To_Pa;
-  Fluid_Velocity ( 3 ) = Fluid_Velocity ( 3 ) * MPa_To_Pa;
-
-}
-
-//------------------------------------------------------------//
-
-void Basin_Modelling::computeFluidMobilityTerms ( const bool                debugParameter,
-                                                  const bool                Has_Fractured,
-                                                  const double              fractureScaling,
-                                                  const double              VES,
-                                                  const double              Max_VES,
-                                                  const CompoundProperty&   Porosity,
-                                                  const double              porosityDerivativeWrtVes,
                                                   const double              fluidDensity,
-                                                  const double              fluidDensityDerivativeWrtPressure,
                                                   const double              fluidViscosity,
                                                   const double              relativePermeability,
                                                   const Matrix3x3&          Jacobian,
                                                   const ThreeVector&        gradOverpressure,
                                                   const CompoundLithology*  lithology,
                                                         ThreeVector&        Fluid_Velocity,
-                                                        Matrix3x3&          Fluid_Mobility,
-                                                        ThreeVector&        fluidVelocityDerivative,
-                                                  const bool                isPermafrost ) {
+                                                        Matrix3x3&          Fluid_Mobility ) {
 
-#ifndef FULL_FLUID_MOBILITY_TERM
- 
    double Permeability_Normal;
    double Permeability_Plane;
    double Permeability_Scaling;
    
-   // The overpressure value has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
-   // of pressure in MPa)
-   Matrix3x3 permeabilityTensor;
-
    // Why square-root ( 10 )?
    static const double Sqrt10 = sqrt ( 10.0 );
    
@@ -375,98 +315,16 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                debu
    
    lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
 
-   Permeability_Normal =  Permeability_Scaling * relativePermeability * Permeability_Normal;
-   Permeability_Plane  =                         relativePermeability * Permeability_Plane;
-     
-   // now compute the derivative terms
-   
-   Set_Permeability_Tensor (  Permeability_Normal, Permeability_Plane, Jacobian, permeabilityTensor );
-   permeabilityTensor *= fluidDensityDerivativeWrtPressure / fluidViscosity;
+   Permeability_Normal *=  Permeability_Scaling * relativePermeability * fluidDensity / fluidViscosity;
+   Permeability_Plane  *=                         relativePermeability * fluidDensity / fluidViscosity;
 
-   matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidVelocityDerivative );
-
-   // now compute the other term
-
-   Permeability_Normal = Permeability_Normal * fluidDensity / fluidViscosity;
-   Permeability_Plane  = Permeability_Plane  * fluidDensity / fluidViscosity;
-   
    Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
-   
    matrixVectorProduct ( Fluid_Mobility, gradOverpressure, Fluid_Velocity );
 
-   Fluid_Velocity          *= MPa_To_Pa;
-   fluidVelocityDerivative *= MPa_To_Pa;
-
-#else
-  double Permeability_Normal;
-  double Permeability_Plane;
-  double Permeability_Scaling;
-
-  double dKnDVes;
-  double dKhDVes;
-
-  const double PermeabilityLowerLimit = 1.0e-7 * GeoPhysics::MILLIDARCYTOM2; //NLSAY3
-
-  Matrix3x3 fluidMobilityDerivative;
-  Matrix3x3 permeabilityTensor;
-  Matrix3x3 permeabilityTensorDerivative;
-
-  // Why square-root ( 10 )?
-  static const double Sqrt10 = sqrt ( 10.0 );
-
-  if ( Has_Fractured ) {
-    Permeability_Scaling = lithology->fracturedPermeabilityScaling () * pow ( Sqrt10, 0.25 * fractureScaling );
-  } else {
-    Permeability_Scaling = 1.0;
-  }
-
-  lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
-  lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, porosityDerivativeWrtVes, dKnDVes, dKhDVes );
-
-  Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal * fluidDensity / fluidViscosity;
-  Permeability_Plane  =                        relativePermeability * Permeability_Plane  * fluidDensity / fluidViscosity;
-
-  Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
-
-  matrixVectorProduct ( Fluid_Mobility, gradOverpressure, Fluid_Velocity );
-
-  // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
-  // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
-  // of pressure in MPa)
-  Fluid_Velocity ( 1 ) *= MPa_To_Pa;
-  Fluid_Velocity ( 2 ) *= MPa_To_Pa;
-  Fluid_Velocity ( 3 ) *= MPa_To_Pa;
-
-  // now compute the derivative terms
-
-  lithology->calcBulkPermeabilityNP ( VES, Max_VES, Porosity, Permeability_Normal, Permeability_Plane );
-  Permeability_Normal = Permeability_Scaling * relativePermeability * Permeability_Normal;
-  Permeability_Plane  =                        relativePermeability * Permeability_Plane;
-
-  Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, permeabilityTensor );
-  permeabilityTensor *= fluidDensityDerivativeWrtPressure / fluidViscosity;
-
-  //
-
-  lithology->calcBulkPermeabilityNPDerivative ( VES, Max_VES, Porosity, porosityDerivativeWrtVes, dKnDVes, dKhDVes );
-  Permeability_Normal = Permeability_Scaling * relativePermeability * dKnDVes;
-  Permeability_Plane  =                        relativePermeability * dKhDVes;
-
-  Set_Permeability_Tensor ( Permeability_Normal, Permeability_Plane, Jacobian, permeabilityTensorDerivative );
-  permeabilityTensorDerivative *= 0; //fluidDensity / fluidViscosity;
-
-  add ( permeabilityTensor, permeabilityTensorDerivative, fluidMobilityDerivative );
-
-  matrixVectorProduct ( fluidMobilityDerivative, gradOverpressure, fluidVelocityDerivative );
-
-  // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
-  // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
-  // of pressure in MPa)
-  fluidVelocityDerivative ( 1 ) *= MPa_To_Pa;
-  fluidVelocityDerivative ( 2 ) *= MPa_To_Pa;
-  fluidVelocityDerivative ( 3 ) *= MPa_To_Pa;
-
-#endif
+   // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
+   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
+   // of pressure in MPa)
+   Fluid_Velocity *= MPa_To_Pa;
 }
 
 //------------------------------------------------------------//
@@ -1203,8 +1061,7 @@ void Basin_Modelling::applyPressureNeumannBoundaryConditions
         matrixTransposeVectorProduct ( Grad_Basis, Current_Po, Reference_Grad_Overpressure );
         matrixTransposeVectorProduct ( Jacobian_Inverse, Reference_Grad_Overpressure, Grad_Overpressure );
 
-        computeFluidMobilityTerms ( false,
-                                    Has_Fractured,
+        computeFluidMobilityTerms ( Has_Fractured,
                                     fractureScaling,
                                     Current_VES,
                                     Current_Max_VES,
@@ -1582,7 +1439,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
    ThreeVector        gradOverpressure;
    ThreeVector        referenceGradOverpressure;
    ThreeVector        fluidVelocity;
-   ThreeVector        fluidVelocityDerivative;
 
    CompoundProperty currentCompoundPorosity;
 
@@ -1735,7 +1591,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
 
             lithology->getPorosity ( currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term, currentCompoundPorosity );
             double currentPorosity = currentCompoundPorosity.mixedProperty ();
-            double currentPorosityDerivativeWrtVes = lithology->computePorosityDerivativeWrtVes(currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term);
 
             double previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
             double currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
@@ -1743,8 +1598,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
             double fluidViscosity       = Fluid->viscosity ( currentTemperature );
 
             double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
-
-            double currentFluidDensityDerivative = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
 
             //
             // Now compute each of the terms in the PDE
@@ -1796,25 +1649,19 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
             gradOverpressure ( 1 ) += gradHydrostaticPressure ( 1 );
             gradOverpressure ( 2 ) += gradHydrostaticPressure ( 2 );
 
-            computeFluidMobilityTerms ( false,
-                                        Has_Fractured,
+            computeFluidMobilityTerms ( Has_Fractured,
                                         fractureScaling,
                                         currentVes,
                                         currentMaxVes,
                                         currentCompoundPorosity, 
-                                        currentPorosityDerivativeWrtVes,
                                         currentFluidDensity,
-                                        currentFluidDensityDerivative,
                                         fluidViscosity,
                                         currentRelativePermeability,
                                         Jacobian,
                                         gradOverpressure,
                                         lithology,
                                         fluidVelocity,
-                                        fluidMobility,
-                                        fluidVelocityDerivative,
-                                        Fluid->SwitchPermafrost() ? true : false
-                                       );
+                                        fluidMobility );
 
             matrixVectorProduct ( scaledGradBasis, fluidVelocity, Term_3 );
 
@@ -1846,18 +1693,8 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
 
             // T3a + T3b
             
-            Eigen::Vector3d termFluidDerivative;
 
-            termFluidDerivative( 0 ) = fluidVelocityDerivative ( 1 );
-            termFluidDerivative( 1 ) = fluidVelocityDerivative ( 2 );
-            termFluidDerivative( 2 ) = fluidVelocityDerivative ( 3 );
-
-            Eigen::Vector3d matBi = eigenJacobianInverse * termFluidDerivative * integrationWeight;
             const int abij = cij * 3;
-
-            matB( abij,      cij ) = matBi( 0 );
-            matB( abij + 1,  cij ) = matBi( 1 );
-            matB( abij + 2,  cij ) = matBi( 2 );
 
             // T3c
           
@@ -1879,11 +1716,9 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
          }
       } 
    }
-   matB.makeCompressed();
 
    
    Element_Jacobian += basisFunctions.getBasisFunctions() * matC.asDiagonal() * basisFunctions.getBasisFunctions().transpose();
-   Element_Jacobian += basisFunctions.getGradBasisFunctions() * matB *  basisFunctions.getBasisFunctions().transpose();
    Element_Jacobian += basisFunctions.getGradBasisFunctions() * matA * basisFunctions.getGradBasisFunctions().transpose();
    
    Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
@@ -1978,7 +1813,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
    ThreeVector        gradOverpressure;
    ThreeVector        referenceGradOverpressure;
    ThreeVector        fluidVelocity;
-   ThreeVector        fluidVelocityDerivative;
 
    CompoundProperty currentCompoundPorosity;
 
@@ -2113,7 +1947,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
 
             lithology->getPorosity ( currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term, currentCompoundPorosity );
             double currentPorosity = currentCompoundPorosity.mixedProperty ();
-            double currentPorosityDerivativeWrtVes = lithology->computePorosityDerivativeWrtVes(currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term);
 
             double previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
             double currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
@@ -2121,8 +1954,6 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
             double fluidViscosity       = Fluid->viscosity ( currentTemperature );
 
             double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
-
-            double currentFluidDensityDerivative = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
 
             //
             // Now compute each of the terms in the PDE
@@ -2172,25 +2003,19 @@ void Basin_Modelling::Assemble_Element_Pressure_System (
             gradOverpressure ( 1 ) += gradHydrostaticPressure ( 1 );
             gradOverpressure ( 2 ) += gradHydrostaticPressure ( 2 );
 
-            computeFluidMobilityTerms ( false,
-                                        Has_Fractured,
+            computeFluidMobilityTerms ( Has_Fractured,
                                         fractureScaling,
                                         currentVes,
                                         currentMaxVes,
                                         currentCompoundPorosity, 
-                                        currentPorosityDerivativeWrtVes,
                                         currentFluidDensity,
-                                        currentFluidDensityDerivative,
                                         fluidViscosity,
                                         currentRelativePermeability,
                                         Jacobian,
                                         gradOverpressure,
                                         lithology,
                                         fluidVelocity,
-                                        fluidMobility,
-                                        fluidVelocityDerivative,
-                                        Fluid->SwitchPermafrost() ? true : false
-                                       );
+                                        fluidMobility );
 
             matrixVectorProduct ( scaledGradBasis, fluidVelocity, Term_3 );
 

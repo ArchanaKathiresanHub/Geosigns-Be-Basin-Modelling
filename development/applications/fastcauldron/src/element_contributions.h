@@ -86,22 +86,6 @@ namespace Basin_Modelling {
        const ElementVector&               Current_Element_Chemical_Compaction,
        const ElementVector&               Fracture_Pressure_Exceeded );
 
-  void computeFluidMobilityTerms
-     ( const bool                debugParameter,
-       const bool                Has_Fractured,
-       const double              fractureScaling,
-       const double              VES,
-       const double              Max_VES,
-       const CompoundProperty&   Porosity,
-       const double              Fluid_Density,
-       const double              Fluid_Viscosity,
-       const double              relativePermeability,
-       const Matrix3x3&          Jacobian,
-       const ThreeVector&        Grad_Overpressure,
-       const CompoundLithology*  Lithology,
-             ThreeVector&        Fluid_Velocity,
-             Matrix3x3&          Fluid_Mobility );
-
 
    void computePermGradPTerm ( const bool                debugParameter,
                                const bool                Has_Fractured,
@@ -115,24 +99,19 @@ namespace Basin_Modelling {
                                const CompoundLithology*  lithology,
                                      ThreeVector&        permGradP );
 
-   void computeFluidMobilityTerms ( const bool                debugParameter,
-                                    const bool                Has_Fractured,
+   void computeFluidMobilityTerms ( const bool                Has_Fractured,
                                     const double              fractureScaling,
                                     const double              VES,
                                     const double              Max_VES,
                                     const CompoundProperty&   Porosity,
-                                    const double              porosityDerivativeWrtVes,
                                     const double              fluidDensity,
-                                    const double              fluidDensityDerivativeWrtPressure,
                                     const double              Fluid_Viscosity,
                                     const double              relativePermeability,
                                     const Matrix3x3&          Jacobian,
                                     const ThreeVector&        Grad_Overpressure,
                                     const CompoundLithology*  lithology,
                                           ThreeVector&        Fluid_Velocity,
-                                          Matrix3x3&          Fluid_Mobility,
-                                          ThreeVector&        fluidVelocityDerivative,
-                                    const bool                isPermafrost = false );
+                                          Matrix3x3&          Fluid_Mobility );
 
   void computeFluidFlux
      ( const bool                imposeFluxLimit,
