@@ -13,6 +13,7 @@
 #include "GeoPhysicalConstants.h"
 #include <cmath>
 #include <cassert>
+#include <algorithm>
 
 #ifdef _MSC_VER
 #include <float.h>  // for _isnan() on VC++

@@ -13,6 +13,7 @@
 #include "SchneiderCompactionCalculator.h"
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 #include "GeoPhysicalConstants.h"
 
 #ifdef _MSC_VER
