@@ -802,7 +802,8 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
       return true;
    }
- 
+   PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
+
    PetscBool noFileCopy = PETSC_FALSE;
    PetscLogDouble StartTime;
 
@@ -810,7 +811,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
    PetscTime(&StartTime);
    bool status = true;
-
+   
    const std::string& directoryName = getOutputDir ();
    
    if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
@@ -827,7 +828,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          
          if ( !snapshotFileName.empty() ) {
             string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
-            if ( m_fastcauldronSimulator->getRank () == 0 ) {
+            if ( false && m_fastcauldronSimulator->getRank () == 0 ) {
                string s = "Merging of " + filePathName + " ";
                displayTime ( s, StartTime, 0 );          
             }
@@ -841,36 +842,24 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    string fileName = getActivityName () + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
      
-   if ( m_fastcauldronSimulator->getRank () == 0 ) {
+   if ( false &&  m_fastcauldronSimulator->getRank () == 0 ) {
       string s = "Merging of " + filePathName + " ";
 
       displayTime ( s, StartTime, 0 );
    }
 
-   if ( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy )) {
-      status = false;
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
-   } else {
-      if( !noFileCopy ) {
-         if( m_fastcauldronSimulator->getRank () == 0  ) {
-            std::string curPath = H5_Parallel_PropertyList::getTempDirName() + "/" +  filePathName + "_0";
-            PetscPrintf ( PETSC_COMM_WORLD, " Copy %s to %s\n", curPath.c_str(), filePathName.c_str() );
-            status = copyFile ( filePathName, curPath );
-            if( !status ) {
-               PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
-            }
-         }
-      }
-   }
-   
-   if ( m_fastcauldronSimulator->getRank () == 0 ) {
-      string s = "End of merging ";
-      displayTime ( s, StartTime, 0 );
+   status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy );
+
+   if( status ) {
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
    }
    if( status ) {
-      displayTime(m_cauldron->debug1 or m_cauldron->verbose,"Merging of output files: ");
-
-      if( m_fastcauldronSimulator->getRank () == 0 ) {
+      if( false &&  m_fastcauldronSimulator->getRank () == 0 ) {
+         string s = "End of merging ";
+         displayTime ( s, StartTime, 0 );
+         
+         displayTime(m_cauldron->debug1 or m_cauldron->verbose,"Merging of output files: ");
+         
          displayTime( " Reading datasets time    ", 0, & FileHandler::s_readingDTime );
          displayTime( " Reading attributes time  ", 0, & FileHandler::s_readingATime );
          displayTime( " Writing datasets time    ", 0, & FileHandler::s_writingDTime );
@@ -878,16 +867,19 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          displayTime( " Creating datasets time   ", 0, & FileHandler::s_creatingDTime );
          displayTime( " Creating groups time     ", 0, & FileHandler::s_creatingGTime );
          cout << endl;
-
+         
          displayTime( " Total Reading time       ", 0, & FileHandler::s_readDTime );
          displayTime( " Total Collecting time    ", 0, & FileHandler::s_collectingTime );
          displayTime( " Total Writing time       ", 0, & FileHandler::s_writeDTime );
          displayTime( " Total Attribute time     ", 0, & FileHandler::s_attributeTime );
          cout << endl;
-         
-         displayTime( " Total merging time       ", 0, & FileHandler::s_totalTime );
+      }
+      if( m_fastcauldronSimulator->getRank () == 0 ) {   
+         displayTime( "Total merging ", 0, & FileHandler::s_totalTime );
          cout << endl;
       }
+    } else {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }
    return status;
 }

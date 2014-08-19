@@ -149,6 +149,9 @@ int main (int argc, char ** argv)
       PetscFinalize ();
       return -1;
    } 
+   PetscLogDouble sim_Start_Time;
+   PetscTime( &sim_Start_Time );   
+
    if(!CrustalThicknessCalculator::CreateFrom( inputFileName )) {
       fprintf(stderr, "MeSsAgE ERROR Can not open the project file\n");
       showUsage ();
@@ -175,7 +178,10 @@ int main (int argc, char ** argv)
       finaliseCrustalThicknessCalculator(feature, "", factory);
       return 0;
    }
+   PetscLogDouble sim_End_Time;
+   PetscTime( &sim_End_Time );   
 
+   displayTime( sim_End_Time - sim_Start_Time, "End of simulation" );
 
 #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0
@@ -186,6 +192,10 @@ int main (int argc, char ** argv)
    }
 #endif
    CrustalThicknessCalculator::finalise(true);
+
+   PetscTime( &sim_End_Time );   
+   displayTime( sim_End_Time - sim_Start_Time, "Total time" );
+     
    delete factory;
 
    PetscFinalize ();

@@ -25,6 +25,7 @@ bm_include_libraries(
 	TableIO
 	CBMGenerics
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	utilities
 	Utilities_Petsc
@@ -46,6 +47,7 @@ target_link_libraries(fastctc
 	TableIO
 	CBMGenerics
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	utilities
 	Utilities_Petsc

@@ -13,6 +13,8 @@ using namespace database;
 #include "DensityCalculator.h"
 #include "LinearFunction.h"
 
+#include "h5_parallel_file_types.h"
+#include "h5merge.h"
 
 //------------------------------------------------------------//
 
@@ -20,6 +22,17 @@ CrustalThicknessCalculator* CrustalThicknessCalculator::m_crustalThicknessCalcul
 string CrustalThicknessCalculator::m_projectFileName = "";
 string CrustalThicknessCalculator::m_outputFileName = "";
 
+//------------------------------------------------------------//
+void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
+
+   int hours   = (int)(  timeToDisplay / 3600.0 );
+   int minutes = (int)(( timeToDisplay - (hours * 3600.0) ) / 60.0 );
+   int seconds = (int)(  timeToDisplay - hours * 3600.0 - minutes * 60.0 );
+   
+   PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
+   PetscPrintf ( PETSC_COMM_WORLD, "%s: %d hours %d minutes %d seconds\n", msgToDisplay, hours, minutes, seconds );
+
+}
 //------------------------------------------------------------//
 
 CrustalThicknessCalculator::CrustalThicknessCalculator (database::Database * database, const std::string & name, const std::string & accessMode) 
@@ -57,6 +70,11 @@ void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
 
    m_crustalThicknessCalculator->finishActivity ();
 
+   if( saveResults ) {
+      if( ! CrustalThicknessCalculator::getInstance ().mergeOutputFiles ()) {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to merge output files\n");
+      }
+   }
    if ( saveResults && m_crustalThicknessCalculator->getRank() == 0 ) {
       if( m_outputFileName.length() == 0 ) {
          m_crustalThicknessCalculator->saveToFile(m_projectFileName);
@@ -128,7 +146,7 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
 //------------------------------------------------------------//
 void CrustalThicknessCalculator::run() {
 
-   bool started = CrustalThicknessCalculator::getInstance().startActivity ( "CrustalThicknessCalculator", 
+   bool started = CrustalThicknessCalculator::getInstance().startActivity (  CrustalThicknessCalculatorActivityName, 
                                                                              CrustalThicknessCalculator::getInstance().getHighResolutionOutputGrid (),
 									     true);
 
@@ -373,7 +391,6 @@ void CrustalThicknessCalculator::run() {
    if( !toOutputWLS && m_applySmoothing ) {
       theOutput.deleteOutputMap( WLSMap );      
    }
-   
 }
 
 //
@@ -619,8 +636,8 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aMap) {
 
 
   // needs to add average across the borders
-   sumMap->restoreData();
-   numberMap->restoreData();
+  sumMap->restoreData();
+  numberMap->restoreData();
   // aMap->restoreData(); will be restored at the end
 
   delete columnMap;
@@ -630,12 +647,44 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aMap) {
 
   return status;
 }
+//------------------------------------------------------------//
+bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
+
+   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
+  
+   PetscBool noFileCopy = PETSC_FALSE;
+
+   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+
+   PetscLogDouble merge_Start_Time;
+   PetscTime( &merge_Start_Time );
+
+   string fileName = CrustalThicknessCalculatorActivityName + "_Results.HDF" ; 
+   string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
+
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy );
+   
+   if( status ) {
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+   }
+   if( status ) {
+      PetscLogDouble merge_End_Time;
+      PetscTime( &merge_End_Time );
+      
+      displayTime( merge_End_Time - merge_Start_Time, "Merging of output files" );
+   } else {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );
+   }
+   return status;
+}
 
 //------------------------------------------------------------//
 bool CrustalThicknessCalculator::parseCommandLine() {
 
    PetscBool isDefined = PETSC_FALSE;
-   
+ 
+   H5_Parallel_PropertyList::setOneFilePerProcessOption();
+  
    PetscOptionsHasName (PETSC_NULL, "-xyz", &isDefined);
    if (isDefined) {
       m_outputOptions |= XYZ;

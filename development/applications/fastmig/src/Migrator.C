@@ -192,11 +192,19 @@ bool Migrator::mergeOutputFiles ( ) {
    if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ){
       return true;
    }
+   PetscBool noFileCopy = PETSC_FALSE;
+
+   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
    string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + MigrationActivityName + "_Results.HDF";
 
-   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), false );
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy );
    if( status ) {
+     status = H5_Parallel_PropertyList::copyMergedFile( filePathName ); 
+   }
+   if( ! status ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+   } else {
       ReportProgress ("Merged Output Maps");
    }
    return status;

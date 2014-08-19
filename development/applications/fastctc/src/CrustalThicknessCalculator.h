@@ -9,9 +9,13 @@
 using namespace DataAccess;
 using namespace std;
 
+const string CrustalThicknessCalculatorActivityName = "CrustalThicknessCalculator";
+
 const int XYZ = 0x0001;
 const int HDF = 0x0002;
 const int SUR = 0x0004;
+
+void displayTime ( const double timeToDisplay, const char * msgToDisplay );
 
 class CrustalThicknessCalculator : public Interface::ProjectHandle {
 
@@ -39,6 +43,11 @@ public :
    /// Delete property values associated with crustal thickness calculator
    void deleteCTCPropertyValues();
 
+
+   /// Merge output files if nessecary
+   ///
+   /// \b Must be called at end of calculation.
+   bool mergeOutputFiles ();
 private :
 
    static CrustalThicknessCalculator* m_crustalThicknessCalculator;

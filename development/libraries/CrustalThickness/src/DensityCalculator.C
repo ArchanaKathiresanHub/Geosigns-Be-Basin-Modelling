@@ -18,7 +18,6 @@
 const double GRAVITY = 9.81;
 
 //------------------------------------------------------------//
-//------------------------------------------------------------//
 DensityCalculator::DensityCalculator() {
 
    m_depthBasementMap = 0; 
@@ -74,8 +73,9 @@ void DensityCalculator::loadData( Interface::ProjectHandle* projectHandle, const
          ss << "Could not find user defined base surface of the rift event: " << baseSurfaceName;
          throw ss.str();
       } else {
-
-         cout << "Take surface " << bottomOfSedimentSurface->getName() << " as the base of syn-rift" << endl;
+         if( projectHandle->getRank() == 0 ) {
+            cout << "Take surface " << bottomOfSedimentSurface->getName() << " as the base of syn-rift" << endl;
+         }
       }
     }
 

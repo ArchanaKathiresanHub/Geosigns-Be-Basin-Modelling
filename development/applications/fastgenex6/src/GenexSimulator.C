@@ -38,6 +38,17 @@ using namespace DataAccess;
 
 using namespace Genex6;
 
+void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
+
+   int hours   = (int)(  timeToDisplay / 3600.0 );
+   int minutes = (int)(( timeToDisplay - (hours * 3600.0) ) / 60.0 );
+   int seconds = (int)(  timeToDisplay - hours * 3600.0 - minutes * 60.0 );
+   
+   PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
+   PetscPrintf ( PETSC_COMM_WORLD, "%s: %d hours %d minutes %d seconds\n", msgToDisplay, hours, minutes, seconds );
+   PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
+
+}
 
 GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode)
    : Interface::ProjectHandle (database, name, accessMode)
@@ -125,18 +136,9 @@ bool GenexSimulator::run()
    PetscTime(&run_End_Time);
 
    if(started) {
-      if(getRank() == 0) {
-         PetscLogDouble totalSimulationTime = (run_End_Time - run_Start_Time);
-         
-         int hours   = (int)( totalSimulationTime / 3600.0 );
-         int minutes = (int)( ( totalSimulationTime - (hours * 3600.0) ) / 60.0 );
-         int seconds = (int) ( totalSimulationTime - hours * 3600.0 - minutes * 60.0 );
-         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
-         cout << "Simulation Time: " << hours <<" hours " << minutes << " minutes " << seconds << " seconds " << endl;
-         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;	 
-         cout << "Saving Genex6results to disk. Please wait... " << endl;
-         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
-      }
+      displayTime ( run_End_Time - run_Start_Time, "Simulation Time" );
+      PetscPrintf ( PETSC_COMM_WORLD, "Saving Genex6results to disk. Please wait... \n" );
+      PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
    }
 
    finishActivity (); 
@@ -151,16 +153,7 @@ bool GenexSimulator::run()
       PetscLogDouble sim_End_Time;
       PetscTime(&sim_End_Time);
       
-      if(getRank() == 0) {
-         PetscLogDouble totalSimulationTime = (sim_End_Time - run_Start_Time);
-         
-         int hours   = (int)( totalSimulationTime / 3600.0 );
-         int minutes = (int)( ( totalSimulationTime - (hours * 3600.0) ) / 60.0 );
-         int seconds = (int) ( totalSimulationTime - hours * 3600.0 - minutes * 60.0 );
-
-         cout << "Results saved sucessfully: " << hours <<" hours " << minutes << " minutes " << seconds << " seconds " << endl;
-         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
-      }
+      displayTime ( sim_End_Time - run_Start_Time, "Results saved sucessfully" );
    }
    
    return started; 
@@ -363,16 +356,23 @@ bool GenexSimulator::mergeOutputFiles ( ) {
 
    if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
 
+   PetscBool noFileCopy = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+
    string fileName = GenexActivityName + "_Results.HDF" ; 
    string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + fileName;
 
-   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), false );
-   
+   PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );
+  
+   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy );
    if( status ) {
-      if(getRank() == 0) {    
-         cout << "Merging of output files." << endl;
-      }      
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+   } 
+   
+   if( !status ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }
+
    return status;
 }
 
