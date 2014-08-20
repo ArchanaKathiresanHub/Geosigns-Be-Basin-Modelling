@@ -31,6 +31,8 @@ namespace fasttouch
 {
     
     class MasterTouch;
+
+    const string FastTouchActivityName = "FastTouch";
     
     /** Top class of the FastTouch class hierarchy.
      *  Inherits from the DataAccess::Migrator class to provide easy access to Formations, Reservoirs, etc.
@@ -50,6 +52,7 @@ namespace fasttouch
             /// The top migration routine
             bool compute (void);
             
+            bool mergeOutputFiles ( );
         private:
           
             bool addToComputationList (const Interface::TouchstoneMap * touchstoneMap);

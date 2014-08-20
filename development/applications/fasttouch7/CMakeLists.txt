@@ -29,6 +29,7 @@ bm_include_libraries(
 	DataAccess
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	TableIO
 	utilities
@@ -57,6 +58,7 @@ target_link_libraries(${target_name}
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
+	OneFilePerProcess
 	Parallel_Hdf5
 	TableIO
 	utilities
