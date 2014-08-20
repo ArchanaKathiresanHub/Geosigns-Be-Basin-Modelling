@@ -12,9 +12,10 @@
 
 include(cmake/AddPackage.cmake)
 
+set( BM_UNIT_TEST_OUTPUT_DIR "${PROJECT_BINARY_DIR}" CACHE PATH "Directory where XML results of the Unit Tests go")
+
 # Include Google Testing Framework (which is itself a CMake project)
 # and Google Mock (Google Mock contains Google Test)
-
 
 option( gtest_force_shared_crt
    "Use shared (DLL) run-time lib even when Google Test is built as static lib."
@@ -28,6 +29,7 @@ endif()
     
 add_subdirectory(${PROJECT_SOURCE_DIR}/../3rdparty/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
 
+# General pacakage information
 add_external_package_info( 
        CAPABILITY TestFramework
        NAME     "Google Test"
@@ -137,12 +139,12 @@ macro(add_gtest )
            set( mpiCommand ${mpiCommand} ":" )
         endif()
 
-        set( mpiCommand ${mpiCommand} -n 1 $<TARGET_FILE:${execName}> --gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-${rank}-junit.xml )
+        set( mpiCommand ${mpiCommand} -n 1 $<TARGET_FILE:${execName}> --gtest_output=xml:${BM_UNIT_TEST_OUTPUT_DIR}/${execName}-${rank}-junit.xml )
      endforeach()
 
      add_test(NAME ${testName} COMMAND ${mpiCommand} )
    else ()
-     add_test(${testName} ${execName}  "--gtest_output=xml:${PROJECT_BINARY_DIR}/${execName}-junit.xml")
+     add_test(${testName} ${execName}  "--gtest_output=xml:${BM_UNIT_TEST_OUTPUT_DIR}/${execName}-junit.xml")
    endif()
 endmacro(add_gtest)
 

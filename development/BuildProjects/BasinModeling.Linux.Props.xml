@@ -17,13 +17,13 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
     <SWEast>/nfs/rvl/groups/ept-sg/SWEast/Cauldron</SWEast>
     <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">$(SWEast)/$(AgentAccount)/src</RemoteSourceDir>
-    <RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccount)/build$(BuildNumber)</RemoteBuildDir>
+    <RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">$(SWEast)/$(AgentAccount)/builds/$(BuildNumber)</RemoteBuildDir>
 
     <!-- Same variables based on alternative credentials -->
     <AgentAccountAlt Condition="'$(AgentAccountAlt)' == ''">s_bpac00</AgentAccountAlt>
     <AgentKeyAlt Condition="'$(AgentKeyAlt)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKeyAlt>
     <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/src</RemoteSourceDirAlt>
-    <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">/scratch/$(AgentAccountAlt)/build$(BuildNumber)</RemoteBuildDirAlt>
+    <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/builds/$(BuildNumber)</RemoteBuildDirAlt>
     
   </PropertyGroup>
 
@@ -82,7 +82,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <!-- Execute remote build script -->
     <run_on_platform>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-DoOnCluster.sh -R 'select[ostype==$(Platform)]' -W 1:00 </run_on_platform>
     <script_to_build>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
-    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase)</build_env_vars>
+    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) UNIT_TEST_OUTPUT_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase)</build_env_vars>
     <build>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash $(script_to_build) $(OtherCMakeParams)"</build>
 
     <!-- Deploy to Houston -->

@@ -4,6 +4,8 @@
 svnRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository
 src=${SRC_DIR:-`dirname $0`/../..}
 build=${BUILD_DIR:-`mktemp -d`}
+installdir=${INSTALL_DIR:-"${build}"}
+unit_test_output=${UNIT_TEST_OUTPUT_DIR:-"${build}"}
 platform=${PLATFORM:-Linux}
 configuration=${CONFIGURATION:-Release}
 nprocs=${NUMBER_OF_CORES:-20}
@@ -55,6 +57,8 @@ ${src}/development/bootstrap.csh \
       -DBM_VERSION_NUMBER_MAJOR=${version_number_major} \
       -DBM_VERSION_NUMBER_MINOR=${version_number_minor} \
       -DBM_VERSION_TAG=${version_tag} \
+      -DBM_UNIT_TEST_OUTPUT_DIR=${unit_test_output} \
+      -DCMAKE_INSTALL_PREFIX=${installdir} \
 	  "$@" \
   || { echo error: Configuration has failed; exit 1; } 
 
@@ -85,7 +89,7 @@ if [ x$geocase = xTrue ]; then
    mkdir -p geocase_build
    pushd geocase_build
    ${CMAKE} ${src}/development/geocase/BB_Lists \
-       -DCMAKE_INSTALL_PREFIX=${build} \
+       -DCMAKE_INSTALL_PREFIX=${installdir} \
        -DCMAKE_BUILD_TYPE=${configuration}
    make -j${nprocs}
    make install/strip
