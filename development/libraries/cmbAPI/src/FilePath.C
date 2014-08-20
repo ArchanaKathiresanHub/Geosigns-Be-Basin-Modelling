@@ -42,8 +42,13 @@ std::string FilePath::fileName() const
 {
    boost::filesystem::path bp( m_path );
 
+// Boost Filesystem interface version 1
 #if BOOST_VERSION < 103400
    return bp.leaf();
+// Boost Filesystem interface version 2
+#elif BOOST_VERSION <= 104900
+   return bp.filename();
+// Boost Filesystem interface version 3
 #else
    return bp.filename().string();
 #endif
@@ -54,8 +59,10 @@ std::string FilePath::filePath() const
 {
    boost::filesystem::path bp( m_path );
 
+// Boost Filesystem interface version 1 
 #if BOOST_VERSION < 103400
    return bp.branch_path().string();
+// Boost Filesystem interface version 2 & 3
 #else
    return bp.parent_path().string();
 #endif

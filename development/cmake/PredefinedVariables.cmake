@@ -17,11 +17,17 @@ if(UNIX)
 
    execute_process(
          COMMAND /apps/sss/share/getos2
-         OUTPUT_VARIABLE CSCE_FULL
+         OUTPUT_VARIABLE CSCE_PLATFORM
          OUTPUT_STRIP_TRAILING_WHITESPACE
    )
 
-   message(STATUS "CSCE OS Version identifier = ${CSCE_FULL}")
+   execute_process(
+         COMMAND /apps/sss/share/getos2 --os
+         OUTPUT_VARIABLE CSCE_OS
+         OUTPUT_STRIP_TRAILING_WHITESPACE
+   )
+
+   message(STATUS "CSCE OS Version identifier = ${CSCE_PLATFORM}")
       
 endif(UNIX)
 

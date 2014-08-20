@@ -17,7 +17,7 @@
 
 #include "boost/filesystem/operations.hpp"
 
-#if BOOST_VERSION < 103400
+#if BOOST_VERSION <= 104900
 
 #include "boost/filesystem/convenience.hpp"
 #include "boost/filesystem/exception.hpp"

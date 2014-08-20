@@ -96,11 +96,17 @@ fi
 
 # Install to SSSDEV
 if [ x$deploy = xTrue ]; then
-   echo "Rotate installations"
-   bash MoveInstalls.sh || { echo error: Deployment has failed; exit 1 ; }
    echo "Install fresh binaries"
-   bash InstallAll.sh || { echo error: Deployment has failed; exit 1 ; }
-
+   if bash InstallAll.sh ; then
+     echo "Installation complete at the first attempt"
+   else
+     echo "Let's try to rotate the installation first..."
+     bash MoveInstalls.sh || { echo error: Deployment has failed; exit 1 ; }
+     echo "Again, trying to install fresh binaries..."
+     bash InstallAll.sh || { echo error: Deployment has failed; exit 1 ; }
+     echo "Installation succeeded at the second attempy."
+   fi 
+ 
    echo 
    echo "==============================================================="
    echo "IBS/Cauldron v${version_number_major}.${version_number_minor}${version_tag} has been installed succefully on /apps/sssdev"
