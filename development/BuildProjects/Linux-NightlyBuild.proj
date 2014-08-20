@@ -3,12 +3,12 @@
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-	<VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">2013</VersionNumberMajor>
-	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">05</VersionNumberMinor>
+    <Platform Condition=" '$(Platform)' == '' ">RHEL6.4</Platform>
+	<VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">9999</VersionNumberMajor>
+	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">99</VersionNumberMinor>
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
 	<OtherCMakeParams Condition=" '$(OtherCMakeParams)' == '' "></OtherCMakeParams>
-	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">True</DeployToHouston>
+	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
 	<Deploy Condition=" '$(Deploy)' == '' ">True</Deploy>
   </PropertyGroup>
 
@@ -17,5 +17,6 @@
   <Target Name="Build">
     <CallTarget Targets="BuildOnLinux" ContinueOnError="true" />
     <CallTarget Targets="PublishJUnitFromLinux" ContinueOnError="true"/>
+    <CallTarget Targets="CleanOnLinux" ContinueOnError="true"/>
   </Target>
 </Project>

@@ -13,6 +13,7 @@
   <Target Name="Build">
     <CallTarget Targets="BuildOnLinux" ContinueOnError="true" />
     <CallTarget Targets="PublishJUnitFromLinux" ContinueOnError="true"/>
+    <CallTarget Targets="CleanOnLinux" ContinueOnError="true" />
   </Target>  
   
 </Project>

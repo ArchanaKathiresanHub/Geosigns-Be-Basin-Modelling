@@ -15,14 +15,15 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">s_bpac00</AgentAccount>
     <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
-    <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">/scratch/$(AgentAccount)/src</RemoteSourceDir>
-    <RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccount)/build</RemoteBuildDir>
+    <SWEast>/nfs/rvl/groups/ept-sg/SWEast/Cauldron</SWEast>
+    <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">$(SWEast)/$(AgentAccount)/src</RemoteSourceDir>
+    <RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">/scratch/$(AgentAccount)/build$(BuildNumber)</RemoteBuildDir>
 
     <!-- Same variables based on alternative credentials -->
     <AgentAccountAlt Condition="'$(AgentAccountAlt)' == ''">s_bpac00</AgentAccountAlt>
     <AgentKeyAlt Condition="'$(AgentKeyAlt)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKeyAlt>
-    <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">/scratch/$(AgentAccountAlt)/src</RemoteSourceDirAlt>
-    <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">/scratch/$(AgentAccountAlt)/build</RemoteBuildDirAlt>
+    <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/src</RemoteSourceDirAlt>
+    <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">/scratch/$(AgentAccountAlt)/build$(BuildNumber)</RemoteBuildDirAlt>
     
   </PropertyGroup>
 
@@ -56,14 +57,14 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
   <!-- BUILD ON LINUX -->
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-	<VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">2013</VersionNumberMajor>
-	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">05</VersionNumberMinor>
+    <Platform Condition=" '$(Platform)' == '' ">RHEL6.4</Platform>
+	<VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">9999</VersionNumberMajor>
+	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">99</VersionNumberMinor>
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
 	<OtherCMakeParams Condition=" '$(OtherCMakeParams)' == '' "></OtherCMakeParams>
 	<Deploy Condition=" '$(Deploy)' == '' ">False</Deploy>
 	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
-	<Geocase Condition=" '$(Geocase)' == '' ">True</Geocase>
+	<Geocase Condition=" '$(Geocase)' == '' ">False</Geocase>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -71,30 +72,37 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
 	
     <!-- Clear remote build directory. Ensure existence of remote source directory -->
-    <init_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</init_remote_dirs>
+    <remove_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt)"</remove_remote_dirs>
+    <make_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</make_remote_dirs>
 
     <!-- Copy source with rsync -->
     <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>
     <copy_code>$(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
 
     <!-- Execute remote build script -->
-    <script_to_build>development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
-    <build>$(ssh_command_alt) "env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase) /bin/bash -x $(RemoteSourceDirAlt)/$(script_to_build) $(OtherCMakeParams)"</build>
+    <run_on_platform>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-DoOnCluster.sh -R 'select[ostype==$(Platform)]' -W 1:00 </run_on_platform>
+    <script_to_build>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
+    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase)</build_env_vars>
+    <build>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash $(script_to_build) $(OtherCMakeParams)"</build>
 
     <!-- Deploy to Houston -->
-    <script_deploy_to_houston>development/BuildProjects/ReleaseToHouston</script_deploy_to_houston>
-    <deploy_to_houston>$(ssh_command_alt) "env SRC_DIR=$(RemoteSourceDirAlt) BUILD_DIR=$(RemoteBuildDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) /bin/bash -x $(RemoteSourceDirAlt)/$(script_deploy_to_houston) v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)"</deploy_to_houston>
+    <script_deploy_to_houston>$(RemoteSourceDirAlt)/development/BuildProjects/ReleaseToHouston</script_deploy_to_houston>
+    <deploy_to_houston>$(ssh_command_alt) "$(build_env_vars) /bin/bash -x $(script_deploy_to_houston) v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)"</deploy_to_houston>
 	
 	<!-- Copy generated documentation to drop folder -->
 	<copy_docs>$(scp_command_alt) -r $(AgentAccountAlt)@$(AgentHost):$(RemoteBuildDirAlt)/share/doc .</copy_docs>
   </PropertyGroup>
   
   <Target Name="BuildOnLinux">
-    <Exec Command="$(init_remote_dirs)" />
+    <Exec Command="$(make_remote_dirs)" />
     <Exec Command="$(copy_code)" WorkingDirectory="$(solution_root)"/>
     <Exec Command="$(build)" />
     <Exec Command="$(deploy_to_houston)" Condition=" '$(DeployToHouston)' == 'True' "/>
-	<Exec Command="$(copy_docs)" WorkingDirectory="$(OutDir)"/>
+	  <Exec Command="$(copy_docs)" WorkingDirectory="$(OutDir)"/>
+  </Target>
+
+  <Target Name="CleanOnLinux">
+    <Exec Command="$(remove_remote_dirs)" />
   </Target>
  
   <!-- PUBLISHING JUNIT TEST RESULTS -->
