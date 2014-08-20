@@ -45,13 +45,16 @@ hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
   return pList;
 }
          
-bool H5_Parallel_PropertyList :: setOneFilePerProcessOption()
+bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool flag )
 {
    PetscBool oneFilePerProcess = PETSC_FALSE;
    char      temporaryDirName [ PETSC_MAX_PATH_LEN ];
    const char * tmpDir = 0; 
         
    PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+   if( flag ) {
+      oneFilePerProcess = PETSC_TRUE;
+   }
         
    if( oneFilePerProcess ) {
       if( temporaryDirName[0] == '\0' ) {

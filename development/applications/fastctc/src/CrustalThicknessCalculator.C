@@ -683,7 +683,7 @@ bool CrustalThicknessCalculator::parseCommandLine() {
 
    PetscBool isDefined = PETSC_FALSE;
  
-   H5_Parallel_PropertyList::setOneFilePerProcessOption();
+   H5_Parallel_PropertyList::setOneFilePerProcessOption( true );
   
    PetscOptionsHasName (PETSC_NULL, "-xyz", &isDefined);
    if (isDefined) {

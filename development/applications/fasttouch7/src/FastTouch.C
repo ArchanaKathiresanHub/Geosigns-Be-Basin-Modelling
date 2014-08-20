@@ -70,9 +70,9 @@ bool FastTouch::removeResqPropertyValues (void)
 bool FastTouch::compute (void)
 {
 
-    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+    H5_Parallel_PropertyList::setOneFilePerProcessOption ( true );
  
-   bool started = startActivity (FastTouchActivityName, getLowResolutionOutputGrid ());
+    bool started = startActivity (FastTouchActivityName, getLowResolutionOutputGrid ());
  
     if (!started) return false;
  
