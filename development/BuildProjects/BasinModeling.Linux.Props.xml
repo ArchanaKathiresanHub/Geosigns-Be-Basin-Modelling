@@ -12,17 +12,18 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
   <!--  INFORMATION OF LINUX HOSTS TO BUILD ON -->			
   <PropertyGroup Label="Identification">
+    <AgentName Condition="'$(AgentName)' == ''">LinuxBuild</AgentName>
     <AgentHost Condition="'$(AgentHost)' == ''">amsd2a-n-b02303</AgentHost>
     <AgentAccount Condition="'$(AgentAccount)' == ''">s_bpac00</AgentAccount>
     <AgentKey Condition="'$(AgentKey)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKey>
     <SWEast>/nfs/rvl/groups/ept-sg/SWEast/Cauldron</SWEast>
-    <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">$(SWEast)/$(AgentAccount)/src</RemoteSourceDir>
+    <RemoteSourceDir Condition="'$(RemoteSourceDir)' == ''">$(SWEast)/$(AgentAccount)/$(AgentName)/src</RemoteSourceDir>
     <RemoteBuildDir Condition="'$(RemoteBuildDir)' == ''">$(SWEast)/$(AgentAccount)/builds/$(BuildNumber)</RemoteBuildDir>
 
     <!-- Same variables based on alternative credentials -->
     <AgentAccountAlt Condition="'$(AgentAccountAlt)' == ''">s_bpac00</AgentAccountAlt>
     <AgentKeyAlt Condition="'$(AgentKeyAlt)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKeyAlt>
-    <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/src</RemoteSourceDirAlt>
+    <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/$(AgentName)/src</RemoteSourceDirAlt>
     <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/builds/$(BuildNumber)</RemoteBuildDirAlt>
     
   </PropertyGroup>
