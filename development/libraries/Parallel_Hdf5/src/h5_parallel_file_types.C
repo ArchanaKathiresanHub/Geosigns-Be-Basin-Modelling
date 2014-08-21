@@ -51,13 +51,16 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool flag )
    char      temporaryDirName [ PETSC_MAX_PATH_LEN ];
    const char * tmpDir = 0; 
         
+   memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
+   
    PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+
    if( flag ) {
       oneFilePerProcess = PETSC_TRUE;
    }
         
    if( oneFilePerProcess ) {
-      if( temporaryDirName[0] == '\0' ) {
+      if( temporaryDirName[0] == 0 ) {
          tmpDir = getenv( "TMPDIR" );
       } else {
          tmpDir = temporaryDirName;
@@ -67,7 +70,7 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool flag )
          PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING $TMPDIR is not set, 'one file per process' option cannot be used.\n");    
          oneFilePerProcess = PETSC_FALSE;
       } else {
-         setTempDirName ( (char *)tmpDir );
+         setTempDirName ( tmpDir );
          PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir ); 
       }
    }

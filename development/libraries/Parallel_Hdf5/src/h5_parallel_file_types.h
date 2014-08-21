@@ -34,7 +34,7 @@ private:
    static void setOneFilePerProcess ( bool oneFilePerProcess )
    {  s_oneFilePerProcess = oneFilePerProcess; }
 
-   static void setTempDirName ( char * temporaryDirName )
+   static void setTempDirName ( const char * temporaryDirName )
    {  s_temporaryDirName = temporaryDirName; }
 };
 
