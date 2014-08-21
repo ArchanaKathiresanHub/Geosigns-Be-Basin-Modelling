@@ -2,6 +2,8 @@
 
 src=${SRC_DIR:-`dirname $0`/../..}
 build=${BUILD_DIR:-`mktemp -d`}
+installdir=${INSTALL_DIR:-"${build}"}
+unit_test_output=${UNIT_TEST_OUTPUT_DIR:-"${build}"}
 platform=${PLATFORM:-Linux}
 configuration=${CONFIGURATION:-Debug}
 nprocs=${NUMBER_OF_CORES:-12}
@@ -16,6 +18,7 @@ function onExit()
 }
 
 trap onExit EXIT
+
 
 # Test the build directory
 test -d "$build" || { echo "Given build directory '$build' does not exist"; exit 1; }
@@ -49,11 +52,13 @@ echo Building Cauldron
 pushd $build
 
 CXX=g++ CC=gcc ${CMAKE} ${src}/development \
-    -DBUILD_SHARED_LIBS=ON  \
-    -DHDF5_HOME=$HDF5 \
-    -DPETSC_ROOT=$PETSC \
-    -DCMAKE_BUILD_TYPE=${configuration} \
-     "$@" \
+      -DCMAKE_BUILD_TYPE=${configuration} \
+      -DBM_UNIT_TEST_OUTPUT_DIR=${unit_test_output} \
+      -DCMAKE_INSTALL_PREFIX=${installdir} \
+      -DBUILD_SHARED_LIBS=ON  \
+      -DHDF5_HOME=$HDF5 \
+      -DPETSC_ROOT=$PETSC \
+	  "$@" \
   || { echo error: Configuration has failed; exit 1; } 
 
 source envsetup.sh
