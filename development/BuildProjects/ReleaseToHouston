@@ -1,21 +1,37 @@
 #!/bin/sh
+# verbose mode
 set -x
-cd /apps/sssdev/ibs
+# exit whenever a command returns with a non-zero exit status
+set -e
 
+# Constants
 WHOAMI=`/usr/bin/whoami`
 REMOTEUSER=s_bpac00
 REMOTECOMPUTER=houcy1-n-sp030b01.americas.shell.com
 REMOTEACCOUNT=$REMOTEUSER@$REMOTECOMPUTER
 SSHKEYFILE=${HOME}/${REMOTEUSER}-id_dsa
 IBSDIRECTORY=/apps/sssdev/ibs
-if [ $# -eq 0 ]
-then
-   VERSION=v2013.10nightly
+
+# Version number
+if [ $# -eq 0 ]; then
+  echo "Usage: ReleaseToHouston VERSION"
+  echo "  where VERSION is the version number of the build you want to copy"
 else
    VERSION=$1
 fi
-IBSVERSIONDIRECTORY=${IBSDIRECTORY}/${VERSION}
 
-ssh -q -i $SSHKEYFILE $REMOTEACCOUNT "rm -rf ${IBSVERSIONDIRECTORY}_a; mv ${IBSVERSIONDIRECTORY} ${IBSVERSIONDIRECTORY}_a"
-rsync -az -e "ssh -x -q -i $SSHKEYFILE" ${IBSVERSIONDIRECTORY}/  ${REMOTEACCOUNT}:${IBSVERSIONDIRECTORY}
-ssh -q -i $SSHKEYFILE $REMOTEACCOUNT "cd ${IBSVERSIONDIRECTORY}/misc/geocosm/3rdparty;/bin/rm -rf matlabmcr;echo '-P installLocation=${IBSVERSIONDIRECTORY}/misc/geocosm/3rdparty/matlabmcr/matlab' > MCRInstaller.in;./MCRInstaller.bin -silent -options MCRInstaller.in"
+IBSVERSIONDIRECTORY=${IBSDIRECTORY}/${VERSION}
+RSH="ssh -x -q -i $SSHKEYFILE"
+
+# Go to the SSSDEV folder
+cd /apps/sssdev/ibs
+
+# Remove the old backup directory
+${RSH} $REMOTEACCOUNT "rm -rf ${IBSVERSIONDIRECTORY}_a;"
+
+# Make a copy of the previous installation
+${RSH} $REMOTEACCOUNT "test -d ${IBSVERSIONDIRECTORY} && cp -R ${IBSVERSIONDIRECTORY} ${IBSVERSIONDIRECTORY}_a"
+
+# Copy the new installation over the current installation
+rsync --recursive --links --perms --group --rsh="${RSH}" ${IBSVERSIONDIRECTORY}/  ${REMOTEACCOUNT}:${IBSVERSIONDIRECTORY}
+

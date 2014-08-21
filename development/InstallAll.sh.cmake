@@ -49,6 +49,10 @@ echo "Installing binaries"
 install -d $mainBinaryDirectory
 install @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
 
+# BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL6 binaries
+if getos2 | grep -q LinuxRHEL64_x86_64_6 ; then
+  ln -s $mainBinaryDirectory $targetDirectory/LinuxRHEL64
+fi
 
 # Install platform independent files
 if [ -d $miscDirectory ]; then
