@@ -13,16 +13,15 @@ SSHKEYFILE=${HOME}/${REMOTEUSER}-id_dsa
 IBSDIRECTORY=/apps/sssdev/ibs
 
 # Version number
-if [ $# -lt 2 ]; then
-  echo "Usage: ReleaseToHouston VERSION PLATFORM"
+if [ $# -lt 1 ]; then
+  echo "Usage: ReleaseToHouston VERSION"
   echo "  where VERSION is the version number of the build you want to copy"
-  echo "        PLATFORM is the 'getos2' identifier for the platform"
   exit 1
 else
    VERSION=$1
-   PLATFORM=$2
 fi
 
+PLATFORM=`getos2`
 MAIN=${IBSDIRECTORY}/${VERSION}
 BINARIES=${MAIN}/${PLATFORM}
 PLATFORM_INDEPENDENT=${MAIN}/misc

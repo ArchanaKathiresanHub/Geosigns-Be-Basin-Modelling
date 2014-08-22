@@ -88,7 +88,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 
     <!-- Deploy to Houston -->
     <script_deploy_to_houston>$(RemoteSourceDirAlt)/development/BuildProjects/ReleaseToHouston</script_deploy_to_houston>
-    <deploy_to_houston>$(ssh_command_alt) "$(build_env_vars) /bin/bash -x $(script_deploy_to_houston) v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)"</deploy_to_houston>
+    <deploy_to_houston>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash -x $(script_deploy_to_houston) v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)"</deploy_to_houston>
 	
 	<!-- Copy generated documentation to drop folder -->
 	<copy_docs>$(scp_command_alt) -r $(AgentAccountAlt)@$(AgentHost):$(RemoteBuildDirAlt)/share/doc .</copy_docs>
