@@ -13,25 +13,29 @@ SSHKEYFILE=${HOME}/${REMOTEUSER}-id_dsa
 IBSDIRECTORY=/apps/sssdev/ibs
 
 # Version number
-if [ $# -eq 0 ]; then
-  echo "Usage: ReleaseToHouston VERSION"
+if [ $# -lt 2 ]; then
+  echo "Usage: ReleaseToHouston VERSION PLATFORM"
   echo "  where VERSION is the version number of the build you want to copy"
+  echo "        PLATFORM is the 'getos2' identifier for the platform"
 else
    VERSION=$1
+   PLATFORM=$2
 fi
 
-IBSVERSIONDIRECTORY=${IBSDIRECTORY}/${VERSION}
+MAIN=${IBSDIRECTORY}/${VERSION}
+BINARIES=${MAIN}/${PLATFORM}
+PLATFORM_INDEPENDENT=${MAIN}/misc
 RSH="ssh -x -q -i $SSHKEYFILE"
 
-# Go to the SSSDEV folder
-cd /apps/sssdev/ibs
+# Create destination directory
+${RSH} ${REMOTEACCOUNT} mkdir -p ${MAIN}
 
-# Remove the old backup directory
-${RSH} $REMOTEACCOUNT "rm -rf ${IBSVERSIONDIRECTORY}_a;"
+# Copy the binaries
+rsync --recursive --delete --links --perms --group --rsh="${RSH}" ${BINARIES}/  ${REMOTEACCOUNT}:${BINARIES}
 
-# Make a copy of the previous installation
-${RSH} $REMOTEACCOUNT "test -d ${IBSVERSIONDIRECTORY} && cp -R ${IBSVERSIONDIRECTORY} ${IBSVERSIONDIRECTORY}_a"
+# Copy the platform independent files
+rsync --recursive --delete --links --perms --group --rsh="${RSH}" ${PLATFORM_INDEPENDENT}/  ${REMOTEACCOUNT}:${PLATFORM_INDEPENDENT}
 
-# Copy the new installation over the current installation
-rsync --recursive --links --perms --group --rsh="${RSH}" ${IBSVERSIONDIRECTORY}/  ${REMOTEACCOUNT}:${IBSVERSIONDIRECTORY}
+# Copy files in the main group
+rsync --links --perms --group --rsh="${RSH}" ${MAIN}/  ${REMOTEACCOUNT}:${MAIN}
 
