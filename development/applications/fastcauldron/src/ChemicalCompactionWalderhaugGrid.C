@@ -116,7 +116,7 @@ const double * ChemicalCompactionWalderhaugGrid::getQuartzGrainSize() const
 	return &m_grainSize[0];
 }
 
-const double * ChemicalCompactionWalderhaugGrid::getCoatingClayFactor() const
+const double * ChemicalCompactionWalderhaugGrid::getClayCoatingFactor() const
 {
 	return &m_coatingClay[0];
 }

@@ -1,6 +1,6 @@
 /**
  * \file ChemicalCompactionSchneiderGrid.h
- * \brief ChemicalCompactionSchneiderGrid class which link SchneiderCompactionCalculator class to fem_grid objects
+ * \brief ChemicalCompactionSchneiderGrid class which links SchneiderCompactionCalculator class to fem_grid objects.
  * \author Magali Cougnenc magali.cougnenc@pds.nl
  * \date August 2014
  *
@@ -15,9 +15,9 @@
 
 
 /*! \class ChemicalCompactionSchneiderGrid
- * \brief Get and set data between  SchneiderCompactionCalculator class and main code in order to compute chemical compaction
+ * \brief Get and set data between SchneiderCompactionCalculator class and fem_grid objects in order to compute chemical compaction.
  *
- * Class derived from ChemicalCompactionGrid class
+ * Class derived from ChemicalCompactionGrid class.
  * Provide data in order to compute chemical compaction to SchneiderCompactionCalculator class and set computed data in main code
  *
  */
@@ -35,46 +35,45 @@ public:
 			const LayerList & layerList );
 
 	/*!
-	 * \brief Destructor
-	 * Destructor of the ChemicalCompactionSchneiderGrid class
+	 * \brief Destructor of the ChemicalCompactionSchneiderGrid class
 	 */
 	~ ChemicalCompactionSchneiderGrid();
 
 	/*!
-	 * \brief Create a chemical compaction calculator (SchneiderCompactionCalculator) object
-	 * Call the chemical compaction algorithm corresponding to the grid
+	 * \brief Create a chemical compaction calculator (SchneiderCompactionCalculator) object.
+	 * Call the chemical compaction algorithm corresponding to the grid.
 	 */
 	virtual ChemicalCompactionCalculator* createChemicalCompaction();
 
 	/*!
-	 * \brief Get the array of current temperature
+	 * \brief Get the array of current temperature.
 	 */
 	virtual const double *getCurrentTemperature() const;
 
 	/*!
-	 * \brief Get the array of current porosity
+	 * \brief Get the array of current porosity.
 	 */
 	virtual const double *getPorosity() const ;
 
 	/*!
-	 * \brief Get the array of current vertical effective stress
+	 * \brief Get the array of current vertical effective stress.
 	 */
 	virtual const double *getVES() const;
 
 	/*!
-	 * \brief Empty the grid in order to load new parameters
+	 * \brief Empty the grid in order to load new parameters.
 	 */
 	virtual void emptyDerivedGrid();
 
 	/*!
-	 * \brief Get the activation energy [kJ/mol]
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * \brief Get the activation energy [kJ/mol].
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin.
 	 */
 	const double * getActivationEnergy() const;
 
 	/*!
-	 * \brief Get the reference viscosity [Pa.s]
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * \brief Get the reference viscosity [Pa.s].
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin.
 	 */
 	const double * getReferenceViscosity() const;
 
@@ -82,30 +81,30 @@ public:
 private:
 
 	/*! \class ChemicalCompactionSchneiderGrid::Properties
-	 * \brief Allocate and desallocate the grid properties
+	 * \brief Allocate and desallocate the grid properties.
 	 *
 	 * Class allowing the allocation of the grid properties during the creation of the object
-	 * and the desallocation of the same properties with the object destruction
+	 * and the desallocation of the same properties with the object destruction.
 	 */
 	class Properties : public ChemicalCompactionGrid::Properties
 	{
 	public:
 
 		/*!
-		 * \brief Constructor of the class Properties
-		 * Allocate the grid properties
+		 * \brief Constructor of the class Properties.
+		 * Allocate the grid properties.
 		 */
 		Properties( const LayerProps & layer );
 
 		/*!
-		 * \brief Destructor of the class Properties
-		 * Desallocate the grid properties
+		 * \brief Destructor of the class Properties.
+		 * Desallocate the grid properties.
 		 */
 		virtual ~Properties();
 
 		/*!
-		 * \brief  Storage of the properties
-		 * Copy the grid properties for one node
+		 * \brief  Storage of the properties.
+		 * Copy the grid properties for one node.
 		 * 
 		 * \param i, j, k: coordinates of the node in the regular grid
 		 * \param node: index of the node in the created grid
@@ -131,7 +130,7 @@ private:
 	virtual Properties * getProperties( const LayerProps& layer );
 
 	/*!
-	 * \brief Store the lithology parameters needed for the Schneider chemical compaction computation
+	 * \brief Store the lithology parameters needed for the Schneider chemical compaction computation.
 	 * \param lithology: CompoundLithology the current lithology
 	 */
 	virtual void storeParameters( const CompoundLithology* lithology );

@@ -2775,7 +2775,7 @@ START-properties
     Property I/O        : No
     Default             : 0.0
 
-	Identification      : CoatingClayFactor
+	Identification      : ClayCoatingFactor
     Description         : Fraction of quartz grain surface area coated by clay
     Unit of measurement : fraction of total area of quartz grain - without unit
     Type                : double 
@@ -10220,7 +10220,7 @@ START-property-tables
     Column         : GeoVariance
 	Column		   : QuartzGrainSize
 	Column         : QuartzFraction
-	Column         : CoatingClayFactor
+	Column         : ClayCoatingFactor
 
     Header         : Lithotype Data
     Time dependent : No

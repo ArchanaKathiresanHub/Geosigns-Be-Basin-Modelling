@@ -131,30 +131,30 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_parameters_values )
 		switch( index % 15 )
 		{
 		case 0:
-			temperature [index    ] = 0.0;
-			temperature [index + 1] = 0.0;
-			temperature [index + 2] = 0.0;
+			temperature [index    ] = -273.15;
+			temperature [index + 1] = -273.15;
+			temperature [index + 2] = -273.15;
 			ves         [index    ] = 0.0;
 			ves         [index+1  ] = 50.0e6;
-			ves         [index + 2] = 100.0e6;
+			ves         [index + 2] = 500.0e6;
 			break;
 
 		case 3:
-			temperature [index    ] = 250.0;
-			temperature [index + 1] = 250.0;
-			temperature [index + 2] = 250.0;
+			temperature [index    ] = 15.0;
+			temperature [index + 1] = 15.0;
+			temperature [index + 2] = 15.0;
 			ves         [index    ] = 0.0;
 			ves         [index+1  ] = 50.0e6;
-			ves         [index + 2] = 100.0e6;
+			ves         [index + 2] = 500.0e6;
 			break;
 
 		case 6:
-			temperature [index    ] = 320.0;
-			temperature [index + 1] = 320.0;
-			temperature [index + 2] = 320.0;
+			temperature [index    ] = 100.0;
+			temperature [index + 1] = 100.0;
+			temperature [index + 2] = 100.0;
 			ves         [index    ] = 0.0;
 			ves         [index+1  ] = 50.0e6;
-			ves         [index + 2] = 100.0e6;
+			ves         [index + 2] = 500.0e6;
 			break;
 
 		case 9:
@@ -163,7 +163,7 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_parameters_values )
 			temperature [index + 2] = 500.0;
 			ves         [index    ] = 0.0;
 			ves         [index+1  ] = 50.0e6;
-			ves         [index + 2] = 100.0e6;
+			ves         [index + 2] = 500.0e6;
 			break;
 
 		case 12:
@@ -172,7 +172,7 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_parameters_values )
 			temperature [index + 2] = 10000.0;
 			ves         [index    ] = 0.0;
 			ves         [index+1  ] = 50.0e6;
-			ves         [index + 2] = 100.0e6;
+			ves         [index + 2] = 500.0e6;
 			break;
 		}
 	}
@@ -231,7 +231,7 @@ TEST_F( testSchneiderCompactionCalculator, no_valid_nodes )
 	double chemicalCompaction1 [size] = { 0.0, 0.0 }; //[fraction of unit volume]
 	const double porosity      [size] = { 0.3, 0.3 }; //[fraction of unit volume]
 
-	const double temperature [size] = { 300, 300 };       //[celsius]
+	const double temperature [size] = { 100, 100 };       //[celsius]
 	const double ves         [size] = { 50.0e6, 50.0e6 }; //[Pa]
 
 	int validNodes    [sizeValidNodes] = { 0 };
@@ -239,21 +239,21 @@ TEST_F( testSchneiderCompactionCalculator, no_valid_nodes )
 	const int numberLithologies        = 1;
 
 	const double activationEnergy              [numberLithologies] = { 15.0e3 };               //[J/mol]
-	const double referenceViscosity            [numberLithologies] = { 100.0 };              //[GPa.my]
+	const double referenceViscosity            [numberLithologies] = { 100.0 };                //[GPa.my]
 
 	MockGrid grid( size, previousTime, currentTime, chemicalCompaction1, porosity, temperature, ves, sizeValidNodes, validNodes,
 			lithoId, numberLithologies, activationEnergy, referenceViscosity );
 
 	my_Object -> computeOnTimeStep ( grid );
 
-	ASSERT_GE( chemicalCompaction1[0], grid.setChemicalCompaction()[0] ); // If valid node => compaction
-	ASSERT_EQ( chemicalCompaction1[1], grid.setChemicalCompaction()[1] ); //If not valid node => no compaction
+	ASSERT_GT( 0.0, grid.setChemicalCompaction()[0] ); // If valid node => compaction
+	ASSERT_EQ( 0.0, grid.setChemicalCompaction()[1] ); //If non valid node => no compaction
 }
 
 /*!
  * \brief Test input temperature close to reference temperature
  */
-TEST_F( testSchneiderCompactionCalculator, low_temperature )
+TEST_F( testSchneiderCompactionCalculator, reference_temperature )
 {
 	SchneiderCompactionCalculator * my_Object = dynamic_cast < SchneiderCompactionCalculator* > ( ChemicalCompactionCalculator::create ( "Schneider" ) );
 
@@ -293,14 +293,14 @@ TEST_F( testSchneiderCompactionCalculator, low_temperature )
 /*!
  * \brief Test that different lithologies lead to different results
  */
-TEST_F( testSchneiderCompactionCalculator, different_lithologies )
+TEST_F( testSchneiderCompactionCalculator, extreme_lithology_values )
 {
 	SchneiderCompactionCalculator * my_Object = dynamic_cast < SchneiderCompactionCalculator* > ( ChemicalCompactionCalculator::create ( "Schneider" ) );
 
 	const int numberLithologies = 9;
 
-	const double activationEnergy              [numberLithologies] = { 0.0,15.0e3,100.0e3,0.0,15.0e3,100.0e3,0.0,15.0e3,100.0e3 };       //[J/mol]
-	double referenceViscosity                  [numberLithologies] = { 0.3,100.0,300.0,0.3,100.0,300.0,0.3,100.0,300.0 };                //[GPa.my]
+	const double activationEnergy [numberLithologies] = { 0.0,15.0e3,100.0e3,0.0,15.0e3,100.0e3,0.0,15.0e3,100.0e3 };       //[J/mol]
+	double referenceViscosity     [numberLithologies] = { 0.3,100.0,300.0,0.3,100.0,300.0,0.3,100.0,300.0 };                //[GPa.my]
 
 	const int size           = 9;
 	const int sizeValidNodes = size;
@@ -313,7 +313,7 @@ TEST_F( testSchneiderCompactionCalculator, different_lithologies )
 	double chemicalCompaction2 [size] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; //[fraction of unit volume]
 	const double porosity      [size] = { 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 }; //[fraction of unit volume]
 
-	const double temperature [size] = { 500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0 };          //[C]
+	const double temperature [size] = { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };          //[C]
 	const double ves         [size] = { 50.0e6, 50.0e6, 50.0e6, 50.0e6, 50.0e6, 50.0e6, 50.0e6, 50.0e6, 50.0e6 }; //[Pa]
 
 	int validNodes    [sizeValidNodes] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -339,7 +339,7 @@ TEST_F( testSchneiderCompactionCalculator, different_lithologies )
 	}
 }
 
-TEST_F( testSchneiderCompactionCalculator, test_reset_functions )
+TEST_F( testSchneiderCompactionCalculator, test_change_lithology )
 {
 	SchneiderCompactionCalculator * my_Object = dynamic_cast < SchneiderCompactionCalculator* > ( ChemicalCompactionCalculator::create ( "Schneider" ) );
 
@@ -364,11 +364,11 @@ TEST_F( testSchneiderCompactionCalculator, test_reset_functions )
 	int lithoId         [size]           = {0};
 	const int numberLithologies          = 1;
 
-	const double activationEnergy1              [numberLithologies] = { 15.0e3 };                //[J/mol]
-	const double referenceViscosity1            [numberLithologies] = { 1000.0 };                //[GPa.my]
+	const double activationEnergy1    [numberLithologies] = { 15.0e3 };                //[J/mol]
+	const double referenceViscosity1  [numberLithologies] = { 1000.0 };                //[GPa.my]
 
-	const double activationEnergy2              [numberLithologies] = { 15.0e3 };                //[J/mol]
-	const double referenceViscosity2            [numberLithologies] = { 10000.0 };                //[GPa.my]
+	const double activationEnergy2    [numberLithologies] = { 15.0e3 };                //[J/mol]
+	const double referenceViscosity2  [numberLithologies] = { 10000.0 };               //[GPa.my]
 
 
 	MockGrid previousGrid( size, previousTime, currentTime1, chemicalCompaction1, porosity1, temperature1, ves, sizeValidNodes, validNodes,

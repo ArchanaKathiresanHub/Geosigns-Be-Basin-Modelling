@@ -1,11 +1,11 @@
 /**
  * \file WalderhaugCompactionCalculator.C
- * \brief WalderhaugCompactionCalculator derived class which compute quartz cementation on a basin with Walderhaug model
+ * \brief WalderhaugCompactionCalculator derived class which computes quartz cementation on a basin with Walderhaug model
  * \author Magali Cougnenc magali.cougnenc@pds.nl
  * \date August 2014
  * 
- * The chemical compaction is processed on each valid node of the whole basin
- * The abstract class is in ChemicalCompactionCalculator.h
+ * The chemical compaction is processed on each valid node of the whole basin.
+ * The abstract class is described in ChemicalCompactionCalculator.h.
  * The equation used is described in [Walderhaug, 1996]
  */
 
@@ -126,7 +126,7 @@ void WalderhaugCompactionCalculator::setLithologies( const Grid & grid )
    //Store the lithology parameters in structures and store the structures in a vector
    const double *  grainSize     = grid.getQuartzGrainSize();
    const double * fractionQuartz = grid.getQuartzFraction();
-   const double * coatingClay    = grid.getCoatingClayFactor();
+   const double * coatingClay    = grid.getClayCoatingFactor();
    const int numberLithologies   = grid.getNumberOfLithologies();
    m_lithologyList.resize( numberLithologies );
 

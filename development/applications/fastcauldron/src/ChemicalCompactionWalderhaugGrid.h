@@ -1,6 +1,6 @@
 /**
  * \file ChemicalCompactionWalderhaugGrid.h
- * \brief ChemicalCompactionWalderhaugGrid class which link WalderhaugCompactionCalculator class to fem_grid objects
+ * \brief ChemicalCompactionWalderhaugGrid class which links WalderhaugCompactionCalculator class to fem_grid objects
  * \author Magali Cougnenc magali.cougnenc@pds.nl
  * \date August 2014
  *
@@ -16,11 +16,10 @@
 
 
 /*! \class ChemicalCompactionWalderhaugGrid
- * \brief Get and set data between WalderhaugCompactionCalculator class and main code in order to compute chemical compaction
+ * \brief Get and set data between WalderhaugCompactionCalculator class and main code in order to compute chemical compaction.
  *
- * Class derived from ChemicalCompactionGrid class
- * Provide data in order to compute chemical compaction to WalderhaugCompactionCalculator class and set computed data in main code
- *
+ * Class derived from ChemicalCompactionGrid class.
+ * Provide data in order to compute chemical compaction to WalderhaugCompactionCalculator class and set computed data in main code.
  */
 class ChemicalCompactionWalderhaugGrid : public ChemicalCompactionGrid
 {
@@ -28,7 +27,10 @@ public:
 
 	/*!
 	 * \brief Constructor of the class ChemicalCompactionWalderhaugGrid
+	 * 
 	 * Class derived from ChemicalCompactionGrid
+	 * \param mapViewOfDomain: DM* the maps of the basin
+	 * \param layerList: cont LayerList& the list of the layers in the basin
 	 */
 	ChemicalCompactionWalderhaugGrid( DM* mapViewOfDomain,
 			const LayerList & layerList );
@@ -40,11 +42,15 @@ public:
 
 	/*!
 	 * \brief Get the array of previous temperature
+	 * 
+	 * Get the array of the temperature in the grid at the previous snapshot
 	 */
 	virtual const double *getPreviousTemperature() const;
 
 	/*!
 	 * \brief Get the array of current temperature
+	 * 
+	 * Get the array of the temperature in the grid at the next snapshot
 	 */
 	virtual const double * getCurrentTemperature() const;
 
@@ -65,17 +71,20 @@ public:
 
 	/*!
 	 * \brief Get the quartz grain size [cm]
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * 
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the grid
 	 */
 	virtual const double * getQuartzGrainSize() const;
 	/*!
 	 * \brief Get the coating clay factor [fraction of surface]
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * 
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the grid
 	 */
-	virtual const double * getCoatingClayFactor() const;
+	virtual const double * getClayCoatingFactor() const;
 	/*!
 	 * \brief Get the quartz fraction [fraction of volume]
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * 
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the grid
 	 */
 	virtual const double * getQuartzFraction() const;
 
@@ -83,34 +92,36 @@ public:
 private:
 
 	/*! \class Properties
-	 * \brief Allocate and desallocate the grid properties
+	 * \brief Allocate and desallocate the grid properties.
 	 *
 	 * Class allowing the allocation of the grid properties during the creation of the object
-	 * and the desallocation of the same properties with the object destruction
+	 * and the desallocation of the same properties with the object destruction.
 	 */
 	class Properties : public ChemicalCompactionGrid::Properties
 	{
 	public:
 
 		/*!
-		 * \brief Constructor of the class Properties
-		 * Allocate the layer properties needed for the Walderhaug computation of chemical compaction
+		 * \brief Constructor of the class Properties.
+		 * 
+		 * Allocate the layer properties needed for the Walderhaug computation of chemical compaction.
 		 */
 		Properties( const LayerProps & layer );
 
 		/*!
-		 * \brief Destructor of the class Properties
-		 * Desallocate the layer properties needed for the Walderhaug computation of chemical compaction
+		 * \brief Destructor of the class Properties.
+		 * 
+		 * Desallocate the layer properties needed for the Walderhaug computation of chemical compaction.
 		 */
 		virtual ~Properties();
 
 		/*!
 		 * \brief Store the values of the porosity, the current and previous temperature and the chemical compaction
-		 *  in order to compute chemical compaction
+		 *  in order to compute chemical compaction.
 		 *
-		 * \param i, j, k: int the coordinates of the node
-		 * \param node: int the index of the node in the arrays
-		 * \param grid: ChemicalCompactionGrid* the pointer to the grid where to store the properties
+		 * \param i, j, k: int The coordinates of the node
+		 * \param node: int The index of the node in the arrays
+		 * \param grid: ChemicalCompactionGrid* The pointer to the grid where to store the properties
 		 */
 		virtual void storeProperties( int i, int j, int k, int node, ChemicalCompactionGrid* grid );
 
@@ -118,7 +129,6 @@ private:
 	private:
 		Properties ( const Properties& properties );
 		Properties * operator=( const Properties& properties );
-		
 		const LayerProps* m_layer;        /*!< current layer */
 		double *** m_previousTemperature; /*!< array of the temperature of the previous snapshot */
 		double *** m_currentTemperature;  /*!< array of the temperature of the current snapshot */
@@ -128,12 +138,13 @@ private:
 
 	/*!
 	 * \brief Create an instance of Properties
-	 * \param layer: LayerProps& the current layer
+	 * \param layer: LayerProps& The current layer
 	 */
 	virtual Properties * getProperties( const LayerProps& layer );
 
 	/*!
-	 * \brief Store the needed parameters of the lithology
+	 * \brief Store the needed parameters of the lithology.
+	 * 
 	 * Here store the grain size, the coating clay factor and the fraction of quartz of each lithology
 	 * \param currentLithology: CompoundLithology* the current lithology
 	 */

@@ -1,6 +1,6 @@
 /**
  * \file WalderhaugCompactionCalculator.h
- * \brief WalderhaugCompactionCalculator class which compute quartz cementation in a sedimentary basin
+ * \brief WalderhaugCompactionCalculator class which computes quartz cementation in a sedimentary basin
  * \author Magali Cougnenc magali.cougnenc@pds.nl
  * \date August 2014
  *
@@ -18,8 +18,8 @@ namespace GeoPhysics{
 /*! \class WalderhaugCompactionCalculator
  * \brief Class computing quartz cementation in the whole basin
  *
- * Class derived from ChemicalCompactionCalculator class
- * Compute chemical compaction thanks to logarithmic type equation 
+ * Class derived from ChemicalCompactionCalculator class.
+ * Computes chemical compaction thanks to logarithmic type equation 
  * described in [Walderhaug, 1996, Kinetic modeling of quartz cementation and porosity loss in deeply buried sandstones reservoirs]
  *
  */
@@ -28,25 +28,27 @@ class WalderhaugCompactionCalculator : public ChemicalCompactionCalculator
 public:
 
    /*!
-    * \brief Constructor 
+    * \brief Constructor
+    * 
     * Constructor of the WalderhaugCompactionCalculator class
     */
    WalderhaugCompactionCalculator();
 
    /*!
-    * \brief Desctructor 
+    * \brief Desctructor
+    * 
     * Destructor of the WalderhaugCompactionCalculator class
     */
    virtual ~WalderhaugCompactionCalculator();
 
    /*!
-    * \brief Compute chemical compaction on the basin
+    * \brief Computes chemical compaction on the basin
     *
-    * Compute the quartz cementation on every valid needle of every valid layer of the basin
-    * between two snapshots ie between two times
+    * Computes the quartz cementation on every valid needle of every valid layer of the basin
+    * between two snapshots ie between two times.
     *
-    * \param previousGrid: Grid &  grid contains all (and only) the needed information
-    * in order to compute the chemical compaction according to Walderhaug model
+    * \param previousGrid: Grid & grid contains all (and only) the needed information
+    * in order to compute the chemical compaction according to Walderhaug model.
     */
    virtual void computeOnTimeStep( Grid & grid );
 
@@ -54,9 +56,9 @@ public:
 private:
 
    /*!
-    * \brief get the list of lithologies and the lithoMap which is a vecto of the lithologies ID for each node of the basin
-    * Create container and store all the needed information about lithologies
+    * \brief Get the list of lithologies and the lithoMap which is a vector of the lithology IDs for every node of the basin
     * 
+    * Creates container and store all the needed data about lithologies
     * \param grid: const Grid &  3D grid
     */
    void setLithologies( const Grid & grid );

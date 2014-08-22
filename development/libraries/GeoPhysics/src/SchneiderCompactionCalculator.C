@@ -1,6 +1,6 @@
 /**
  * \file SchneiderCompactionCalculator.C
- * \brief SchneiderCompactionCalculator class which compute quartz cementation on a basin with Schneider model
+ * \brief SchneiderCompactionCalculator class which computes quartz cementation on a basin with Schneider model
  * \author Magali Cougnenc magali.cougnenc@pds.nl
  * \date August 2014
  *

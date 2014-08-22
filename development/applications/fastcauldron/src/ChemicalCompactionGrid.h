@@ -14,9 +14,9 @@
 
 
 /*! \class ChemicalCompactionGrid
- * \brief Abstract class allowing exchange between fem_grid data and the chemical compaction algorithms
+ * \brief Abstract class allowing exchange between fem_grid data and the chemical compaction algorithms.
  *
- * For each algorithm corresponds a grid, which is a derived class of the ChemicalCompactionGrid abstract class
+ * For each algorithm corresponds a grid, which is a derived class of the ChemicalCompactionGrid abstract class.
  * For now, ChemicalCompactionSchneiderGrid and ChemicalCompactionWalderhaugGrid are the derived classes
  *
  */
@@ -39,14 +39,14 @@ public:
 
 	/*!
 	 * \brief Compute number of grid nodes where chemical compaction is relevant to be processed.
-	 * That means the sum of the number of nodes through the compactable layers
-	 * Typically if the chemical compaction is disable in the basin, this number should be 0
+	 * That means the sum of the number of nodes through the compactable layers.
+	 * Typically if the chemical compaction is disable in the basin, this number should be 0.
 	 * But in this case, the method wouldn't be called
 	 */
 	static int getNumberOfNodes( DM * mapViewOfDomain, const LayerList & layerList);
 
 	/*!
-	 * \brief Compute a locally unique node number on the basis of grid coordinates
+	 * \brief Compute a locally unique node number on the basis of grid coordinates.
 	 *  
 	 * \param offset The offset for the current layer ie the sum of nodes for the compactable layers above the current one
 	 * \param maxK   The number of local nodes in the Z = depth direction in the current layer 
@@ -62,9 +62,9 @@ public:
 	}
 
 	/*!
-	 * \brief Create a grid according to the name of the algorithm
+	 * \brief Create a grid according to the name of the algorithm.
 	 *
-	 * Return an error if not a valid algorithm name
+	 * Return an error if not a valid algorithm name.
 	 * Are valid names: "Walderhaug", "Schneider" (July 2014)
 	 *
 	 * \param algorithmName: const std::string &  Name of the algorithm
@@ -74,43 +74,43 @@ public:
 			const LayerList & layerList );
 
 	/*!
-	 * \brief Get the time of the previous snapshot in million years [Ma]
+	 * \brief Get the time of the previous snapshot in million years [Ma].
 	 */
 	virtual double getPreviousTime() const { return m_previousTime; }
 
 	/*!
-	 * \brief Get the time of the current snapshot in million years [Ma]
+	 * \brief Get the time of the current snapshot in million years [Ma].
 	 */
 	virtual double getCurrentTime() const { return m_currentTime; }
 
 	/*!
-	 * \brief Get the number of nodes of the grid
+	 * \brief Get the number of nodes of the grid.
 	 */
 	virtual int getSize() const { return m_size; }
 
 	/*!
-	 * \brief Get the array of actives nodes of the grid
+	 * \brief Get the array of actives nodes of the grid.
 	 */
 	virtual const int * getActiveNodes() const;
 
 	/*!
-	 * \brief Get the number of actives nodes of the grid
+	 * \brief Get the number of actives nodes of the grid.
 	 */
 	virtual int getNumberOfActiveNodes() const;
 
 	/*!
-	 * \brief Get the array of previous temperature
+	 * \brief Get the array of previous temperature.
 	 * Overload in the Walderhaug Grid
 	 */
 	virtual const double * getPreviousTemperature() const;
 
 	/*!
-	 * \brief Get the array of current temperature
+	 * \brief Get the array of current temperature.
 	 */
 	virtual const double * getCurrentTemperature() const = 0;
 
 	/*!
-	 * \brief Get the array of the current porosity
+	 * \brief Get the array of the current porosity.
 	 */
 	virtual const double * getPorosity() const = 0;
 
@@ -121,62 +121,62 @@ public:
 	virtual const double * getVES() const;
 
 	/*!
-	 * \brief Get the array of the previous chemical compaction
+	 * \brief Get the array of the previous chemical compaction.
 	 */
 	virtual double *setChemicalCompaction();
 
 	/*!
-	 * \brief Get the number of different lithologies
-	 * Used by Schneider chemical compaction
+	 * \brief Get the number of different lithologies.
+	 * Used by Schneider chemical compaction.
 	 */
 	virtual int getNumberOfLithologies() const;
 
 	/*!
-	 * \brief Get the array of the reference lithology number of all nodes in the basin
-	 * The size is the one returned by getSize() ie the number of nodes
+	 * \brief Get the array of the reference lithology number of all nodes in the basin.
+	 * The size is the one returned by getSize() ie the number of nodes.
 	 *
 	 * \param lithoMap: std::vector<int>& array of int corresponding to lithologies
 	 */
 	virtual void getLithologyMap( std::vector<int>& lithoMap ) const;
 
 	/*!
-	 * \brief Get the activation energy [kJ/mol]
-	 * Used by Schneider chemical compaction
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * \brief Get the activation energy [kJ/mol].
+	 * Used by Schneider chemical compaction.
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin.
 	 */
 	virtual const double * getActivationEnergy() const { return 0; }
 
 	/*!
-	 * \brief Get the reference viscosity [Pa.s]
-	 * Used by Schneider chemical compaction
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * \brief Get the reference viscosity [Pa.s].
+	 * Used by Schneider chemical compaction.
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin.
 	 */
 	virtual const double * getReferenceViscosity() const { return 0; }
 
 	/*!
-	 * \brief Get the size of the grain of quartz [cm]
-	 * Used by Walderhaug chemical compaction
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * \brief Get the size of the grain of quartz [cm].
+	 * Used by Walderhaug chemical compaction.
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin.
 	 */
 	virtual const double * getQuartzGrainSize() const { return 0; }
 
 	/*!
-	 * \brief Get the fraction of quartz [fraction of total volume]
-	 * Used by Walderhaug chemical compaction
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * \brief Get the fraction of quartz [fraction of total volume].
+	 * Used by Walderhaug chemical compaction.
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin.
 	 */
 	virtual const double * getQuartzFraction() const { return 0; }
 
 	/*!
-	 * \brief Get the coating clay factor [fraction of quartz surface area]
-	 * Used by Walderhaug chemical compaction
-	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin
+	 * \brief Get the coating clay factor [fraction of quartz surface area].
+	 * Used by Walderhaug chemical compaction.
+	 * The size is the one returned by getNumberOfLithologies() ie the number of different lithologies through the basin.
 	 */
-	virtual const double * getCoatingClayFactor() const { return 0; }
+	virtual const double * getClayCoatingFactor() const { return 0; }
 
 	/*!
-	 * \brief Go through the basin and get all the needed data
-	 * The differences between the algorithms are averload in each derived class through the class Properties
+	 * \brief Go through the basin and get all the needed data.
+	 * The differences between the algorithms are averload in each derived class through the class Properties.
 	 *
 	 * \param layerList: LayerList& the list of Layers in the basin
 	 * \param isValisNeedle: Boolean2DArray& the array giving if a node is active or not
@@ -190,7 +190,7 @@ public:
 	);
 
 	/*!
-	 * \brief Go through the basin and set the computed chemical compaction in the Chemical Compaction property of the basin layers
+	 * \brief Go through the basin and set the computed chemical compaction in the Chemical Compaction property of the basin layers.
 	 *
 	 * \param layerList: LayerList& the list of Layers in the basin
 	 * \param isValisNeedle: Boolean2DArray& the array giving if a node is active or not
@@ -200,7 +200,7 @@ public:
 	);
 
 	/*!
-	 * \brief Create a chemical compaction calculator object
+	 * \brief Create a chemical compaction calculator object.
 	 * Call the chemical compaction algorithm corresponding to the grid
 	 */
 	virtual ChemicalCompactionCalculator* createChemicalCompaction() = 0;
@@ -218,7 +218,7 @@ private:
 protected:
 
 	/*! \class Properties
-	 * \brief Abstract class - Allocate and desallocate the grid properties
+	 * \brief Abstract class - Allocate and desallocate the grid properties.
 	 *
 	 * Class allowing the allocation of the grid properties during the creation of the object
 	 * and the desallocation of the same properties with the object destruction
@@ -227,8 +227,8 @@ protected:
 	{
 	public:
 		/*!
-		 * \brief Destructor of the class Properties
-		 * Desallocate the grid properties
+		 * \brief Destructor of the class Properties.
+		 * Desallocate the grid properties.
 		 */
 		virtual ~Properties(){};
 
@@ -243,9 +243,9 @@ protected:
 	};
 
 	/*!
-	 * \brief Create an instance of Properties
-	 * Properties is overload for Schneider and Walderhaug models
-	 * Different properties are loaded according to what is needed
+	 * \brief Create an instance of Properties.
+	 * Properties is overload for Schneider and Walderhaug models.
+	 * Different properties are loaded according to what is needed.
 	 *
 	 * \param layer: LayerProps& the current layer
 	 */

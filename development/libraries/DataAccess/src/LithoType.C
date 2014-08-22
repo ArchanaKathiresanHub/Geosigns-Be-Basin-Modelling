@@ -179,8 +179,8 @@ double LithoType::getQuartzFraction () const {
    return database::getQuartzFraction( m_record );
 }
 
-double LithoType::getCoatingClayFactor () const {
-   return database::getCoatingClayFactor( m_record );
+double LithoType::getClayCoatingFactor () const {
+   return database::getClayCoatingFactor( m_record );
 }
 
 PermeabilityModel LithoType::getPermeabilityModel () const {

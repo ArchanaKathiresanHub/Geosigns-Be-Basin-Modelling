@@ -597,7 +597,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
     m_minimumMechanicalPorosity += (*componentIter)->getMinimumMechanicalPorosity () * pcMult;
     m_lithologyFractureGradient += (*componentIter)->getLithologyFractureGradient () * pcMult;
     m_quartzFraction            += (*componentIter)->getQuartzFraction () * pcMult;
-    m_coatingClayFactor         += (*componentIter)->getCoatingClayFactor () * pcMult;
+    m_coatingClayFactor         += (*componentIter)->getClayCoatingFactor () * pcMult;
 
     // Matrix Property calculated using the geometric mean
     m_thermalConductivityAnisotropy *= pow ((*componentIter)->getThCondAn(),pcMult);

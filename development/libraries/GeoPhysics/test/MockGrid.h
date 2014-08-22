@@ -140,7 +140,7 @@ public:
    /*!
     * \brief get the fraction of surface quartz area coated by clay of the lithology
     */
-   inline const double * getCoatingClayFactor() const { return m_coatingClay; }
+   inline const double * getClayCoatingFactor() const { return m_coatingClay; }
 
 
 

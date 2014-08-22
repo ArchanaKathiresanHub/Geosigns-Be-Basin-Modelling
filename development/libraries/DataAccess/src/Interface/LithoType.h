@@ -82,7 +82,7 @@ namespace DataAccess
          virtual double getQuartzFraction () const;
 
          ///Return the fraction of quartz surface area coated by clay
-         virtual double getCoatingClayFactor () const;
+         virtual double getClayCoatingFactor () const;
 
          /// Return the permeability model.
          virtual PermeabilityModel getPermeabilityModel () const;
