@@ -67,7 +67,7 @@ FtSampleObservation::~FtSampleObservation()
 
 void FtSampleObservation::addLengthsClIndexIfNotYetExists(size_t indexCl)
 {
-   if ( ( ! m_trackLengths[indexCl] ) && ( indexCl < m_trackLengths.size() ) )
+   if (( indexCl < m_trackLengths.size() ) && ( ! m_trackLengths[indexCl] ))
    {
       m_trackLengths[indexCl] = new Histogram;
 
@@ -80,7 +80,7 @@ void FtSampleObservation::addLengthsClIndexIfNotYetExists(size_t indexCl)
 
 void FtSampleObservation::addAgesClIndexIfNotYetExists(size_t indexCl)
 {
-   if ( ( ! m_grainAges[indexCl] ) && ( indexCl < m_grainAges.size() ) )
+   if (( indexCl < m_grainAges.size() ) && ( ! m_grainAges[indexCl] ))
    {
       m_grainAges[indexCl] = new Histogram;
 
@@ -138,7 +138,7 @@ void FtSampleObservation::binTrackLengths()
       list<double>::const_iterator iLength;
       for (iLength = lengths.begin(); iLength != lengths.end(); ++iLength)
       {
-         if ( m_trackLengths[ indexCl ] )
+         if (( indexCl < m_trackLengths.size() ) && m_trackLengths[ indexCl ] )
          {
             m_trackLengths[ indexCl ] -> FindAndIncrementBin (*iLength); 
             //return value could be checked: false->throw exception("invalid track length"); 
@@ -158,11 +158,11 @@ void FtSampleObservation::binGrainAges()
    {
       size_t indexCl =  params.indexFromClWeightPercent( (*iGrain)->getClWeightPercent() );
       double age = (*iGrain)->getGrainAge();
-      if ( m_grainAges[ indexCl ] )
+      if (( indexCl < m_grainAges.size() ) && m_grainAges[ indexCl ] )
       {
          m_grainAges[ indexCl ] -> FindAndIncrementBin(age); 
          //return value could be checked: false->throw exception("invalid track length"); 
-      }
+      } 
       //else throw exception("invalid Cl-Index");
    }
 }
@@ -729,7 +729,11 @@ const std::string& FtSampleObservation::getApatiteYield() const
 
 Histogram* FtSampleObservation::getTrackLengths(int indexCl)
 {
-   return m_trackLengths[indexCl];
+   if ( indexCl < m_trackLengths.size() ) {
+      return m_trackLengths[indexCl];
+   } else {
+      return 0;
+   }
 }
 
 double calcAge(double ratioNsNi, double zeta, double UStdGlassTrackDensity )

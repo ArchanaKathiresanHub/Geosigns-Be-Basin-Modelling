@@ -49,10 +49,12 @@ FtSamplePrediction::~FtSamplePrediction()
 }
 
 
-void FtSamplePrediction::addClIndexIfNotYetExists(size_t indexCl)
+bool FtSamplePrediction::addClIndexIfNotYetExists(size_t indexCl)
 {
-   if ( ( ! m_trackLengths[indexCl] ) && ( indexCl < m_trackLengths.size() ) )
-   {
+   if ( indexCl >= m_trackLengths.size() ) {
+      return false;
+   }
+   if ( ! m_trackLengths[indexCl] )   {
       m_trackLengths[indexCl] = new Histogram;
 
       FtParameters& params = FtParameters::getInstance();
@@ -60,6 +62,7 @@ void FtSamplePrediction::addClIndexIfNotYetExists(size_t indexCl)
                                            params.getStepBinTrackLengths(), 
                                            params.getNumBinTrackLengths() );
    }
+   return true;
 }
 
 void FtSamplePrediction::advanceState (double timestep, double temperature)

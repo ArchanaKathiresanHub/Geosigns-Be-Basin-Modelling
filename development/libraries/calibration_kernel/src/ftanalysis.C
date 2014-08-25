@@ -62,7 +62,10 @@ void FtAnalysis::addGrain( const std::string& sampleId, int grainId, int spontTr
    FtParameters& params = FtParameters::getInstance();
    int indexCl = params.indexFromClWeightPercent( grain->getClWeightPercent() );
 
-   m_predSamples[ grain -> getSampleId() ] -> addClIndexIfNotYetExists( indexCl );
+   if( !m_predSamples[ grain -> getSampleId() ] -> addClIndexIfNotYetExists( indexCl )) {
+      std::cout << " ERROR: Invalid Fission track chlorine weight percentage: " << clWeightPercent << std::endl;
+      return;
+   };
 
    //add grain to total grain list and to corresponding observed sample, and add age histogram if 
    //numbers of spontaneous/induced lenghts are available
@@ -84,8 +87,10 @@ void FtAnalysis::addGrain( const std::string& sampleId, int grainId, int spontTr
 
 void FtAnalysis::addTrackLength(const std::string& sampleId, const int grainId, const double length)
 {
-    FtGrain* grain = m_obsSamples[sampleId ] -> getGrain(grainId);
-    grain->addTrackLength(length);
+   FtGrain* grain = m_obsSamples[sampleId ] -> getGrain(grainId);
+   if( grain != 0 ) {
+      grain->addTrackLength(length);
+   }
 }
 
 FtSamplePrediction* FtAnalysis::getPredSample(const std::string& sampleId)

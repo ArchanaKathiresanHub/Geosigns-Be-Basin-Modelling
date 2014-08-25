@@ -40,7 +40,7 @@ class FtSamplePrediction
  
   void advanceState(double timestep, double temperature);
 
-  void addClIndexIfNotYetExists(size_t indexCl);
+  bool addClIndexIfNotYetExists(size_t indexCl);
 
   void calcPredAge();
 
