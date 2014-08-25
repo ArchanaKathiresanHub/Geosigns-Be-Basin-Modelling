@@ -21,7 +21,7 @@ else
    VERSION=$1
 fi
 
-PLATFORM=`getos2`
+PLATFORM=`/apps/sss/share/getos2`
 MAIN=${IBSDIRECTORY}/${VERSION}
 BINARIES=${MAIN}/${PLATFORM}
 PLATFORM_INDEPENDENT=${MAIN}/misc
