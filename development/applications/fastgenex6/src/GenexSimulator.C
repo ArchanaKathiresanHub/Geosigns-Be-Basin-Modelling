@@ -354,7 +354,8 @@ void GenexSimulator::deleteSourceRockPropertyValues()
 
 bool GenexSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
+   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
+       getModellingMode () == Interface::MODE1D ) return true;
 
    PetscBool noFileCopy = PETSC_FALSE;
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );

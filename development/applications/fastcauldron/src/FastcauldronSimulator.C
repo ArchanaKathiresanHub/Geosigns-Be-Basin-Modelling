@@ -874,10 +874,8 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          displayTime( " Total Attribute time     ", 0, & FileHandler::s_attributeTime );
          cout << endl;
       }
-      if( m_fastcauldronSimulator->getRank () == 0 ) {   
-         displayTime( "Total merging ", 0, & FileHandler::s_totalTime );
-         cout << endl;
-      }
+      displayTime( true, "Merging of output files: " );
+
     } else {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }

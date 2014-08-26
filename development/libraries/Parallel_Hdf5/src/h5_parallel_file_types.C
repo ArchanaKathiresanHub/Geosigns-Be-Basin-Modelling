@@ -45,38 +45,37 @@ hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
   return pList;
 }
          
-bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool flag )
+bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
 {
-   PetscBool oneFilePerProcess = PETSC_FALSE;
-   char      temporaryDirName [ PETSC_MAX_PATH_LEN ];
-   const char * tmpDir = 0; 
-        
-   memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
-   
-   PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+   PetscBool noOfpp = PETSC_FALSE;
+   PetscOptionsHasName ( PETSC_NULL, "-noofpp", &noOfpp );
 
-   if( flag ) {
-      oneFilePerProcess = PETSC_TRUE;
-   }
-        
-   if( oneFilePerProcess ) {
+   if( !noOfpp ) {
+      const char * tmpDir = 0; 
+      
+      char temporaryDirName [ PETSC_MAX_PATH_LEN ];
+      memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
+            
+      PetscBool oneFilePerProcess;
+      PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+      
       if( temporaryDirName[0] == 0 ) {
          tmpDir = getenv( "TMPDIR" );
       } else {
          tmpDir = temporaryDirName;
       }
-   
+      
       if( tmpDir == NULL ) {
          PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING $TMPDIR is not set, 'one file per process' option cannot be used.\n");    
-         oneFilePerProcess = PETSC_FALSE;
+         noOfpp = PETSC_TRUE;
       } else {
          setTempDirName ( tmpDir );
          PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir ); 
       }
    }
-   setOneFilePerProcess ( oneFilePerProcess );
+   setOneFilePerProcess ( !noOfpp );
 
-   return oneFilePerProcess;
+   return !noOfpp;
 }
 
 bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )

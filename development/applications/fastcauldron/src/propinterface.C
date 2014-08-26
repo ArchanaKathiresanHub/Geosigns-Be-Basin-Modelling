@@ -573,6 +573,12 @@ void AppCtx::printHelp () const {
   helpBuffer << "           -permafrost [ts]            Enable permafrost modelling and set a time-step size to be used (if defined), ts > 0.0." << endl;
 
   helpBuffer << endl;
+
+  helpBuffer << "  Parallel I/O options:" << endl;
+  helpBuffer << "           -onefileperprocess [dir]    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
+  helpBuffer << "           -noofpp                     Do not use one-file-perprocess I/O." << endl;
+
+  helpBuffer << endl;
   helpBuffer << endl;
 
   PetscPrintf ( PETSC_COMM_WORLD, helpBuffer.str ().c_str ());
