@@ -12,6 +12,9 @@
 
 namespace DerivedProperties {
 
+   /// \brief Contains the values of the property at the snapshot time for the surface.
+   ///
+   /// The values are stored in a two dimensional array.
    class DerivedSurfaceProperty : public SurfaceProperty {
 
    public :
@@ -24,9 +27,11 @@ namespace DerivedProperties {
       virtual ~DerivedSurfaceProperty () {};
 
 
+      /// \brief Get the value at the position.
       virtual double get ( unsigned int i,
                            unsigned int j ) const;
 
+      /// \brief Set a value at the position.
       virtual void set ( unsigned int i,
                          unsigned int j,
                          double   value );

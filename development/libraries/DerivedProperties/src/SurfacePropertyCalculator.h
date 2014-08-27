@@ -21,7 +21,7 @@ namespace DerivedProperties {
 
       virtual ~SurfacePropertyCalculator () {}
 
-      virtual void calculate ( PropertyManager& propManager,
+      virtual void calculate ( DerivedPropertyManager&            propManager,
                                const DataModel::AbstractProperty* property,
                                const DataModel::AbstractSnapshot* snapshot,
                                const DataModel::AbstractSurface*  surface,

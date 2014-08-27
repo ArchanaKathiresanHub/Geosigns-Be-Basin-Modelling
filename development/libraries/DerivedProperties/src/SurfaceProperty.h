@@ -1,5 +1,7 @@
-#ifndef _DERIVED_PROPERTIES__SURFACE_PROPERTY_H_
-#define _DERIVED_PROPERTIES__SURFACE_PROPERTY_H_
+#ifndef DERIVED_PROPERTIES__SURFACE_PROPERTY_H
+#define DERIVED_PROPERTIES__SURFACE_PROPERTY_H
+
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -70,6 +72,8 @@ namespace DerivedProperties {
 
    typedef boost::shared_ptr<const SurfaceProperty> SurfacePropertyPtr;
 
+   typedef std::vector<SurfacePropertyPtr> SurfacePropertyList;
+
 } // namespace DerivedProperties
 
 //--------------------------------
@@ -108,4 +112,4 @@ inline unsigned int DerivedProperties::SurfaceProperty::lastJ ( const bool inclu
    return static_cast<unsigned int>(m_grid->lastJ ( includeGhostNodes ));
 }
 
-#endif // _DERIVED_PROPERTIES__SURFACE_PROPERTY_H_
+#endif // DERIVED_PROPERTIES__SURFACE_PROPERTY_H

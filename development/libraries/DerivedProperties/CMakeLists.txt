@@ -17,6 +17,7 @@ set(all_headers
   src/DerivedSurfaceProperty.h
   src/DerivedFormationSurfaceProperty.h
   src/DerivedFormationProperty.h
+  src/DerivedPropertyManager.h
 )
 
 set(all_srcs
@@ -26,6 +27,7 @@ set(all_srcs
   src/DerivedSurfaceProperty.C
   src/DerivedFormationSurfaceProperty.C
   src/DerivedFormationProperty.C
+  src/DerivedPropertyManager.C
 )
 
 
@@ -41,5 +43,10 @@ include_directories(
 
 add_gtest( NAME DerivedProperties::DerivedProperties
            SOURCES test/DerivedProperties.C
+           LIBRARIES DerivedProperties
+)
+
+add_gtest( NAME DerivedProperties::DerivedPropertyManagerTest
+           SOURCES test/PropertyManagerTest.C
            LIBRARIES DerivedProperties
 )
