@@ -91,6 +91,7 @@ private :
 // so they must also be calculated.
 TEST ( DerivedPropertyManagerTest,  Test1 )
 {
+
    TestPropertyManager propertyManager;
 
    const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
@@ -99,13 +100,21 @@ TEST ( DerivedPropertyManagerTest,  Test1 )
    const DataModel::AbstractProperty* property4 = propertyManager.getProperty ( "Property4" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
+   const DataModel::AbstractSnapshot*  anotherSnapshot = new MockSnapshot ( 10.0 );
    const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
    const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
+
+   const DataModel::AbstractSurface*   bottomSurface = new MockSurface ( "BottomSurface" );
+
 
    SurfacePropertyPtr surfaceProperty4 = propertyManager.getSurfaceProperty ( property4, snapshot, surface );
    SurfacePropertyPtr surfaceProperty2 = propertyManager.getSurfaceProperty ( property2, snapshot, surface );
    SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
    SurfacePropertyPtr surfaceProperty3 = propertyManager.getSurfaceProperty ( property3, snapshot, surface );
+
+   // These following 2 surface properties should be null after the get surface property call.
+   SurfacePropertyPtr surfaceProperty5 = propertyManager.getSurfaceProperty ( property3, snapshot, bottomSurface );
+   SurfacePropertyPtr surfaceProperty6 = propertyManager.getSurfaceProperty ( property3, anotherSnapshot, bottomSurface );
 
 
    EXPECT_EQ ( property4, surfaceProperty4->getProperty ());
@@ -119,6 +128,9 @@ TEST ( DerivedPropertyManagerTest,  Test1 )
       }
 
    }
+
+   EXPECT_EQ ( true, surfaceProperty5 == 0 );
+   EXPECT_EQ ( true, surfaceProperty6 == 0 );
 
    delete snapshot;
    delete surface;
@@ -170,21 +182,24 @@ void Property1Calculator::calculate ( DerivedProperties::DerivedPropertyManager&
                                       const DataModel::AbstractSurface*         surface,
                                       SurfacePropertyList&                derivedProperties ) const {
 
-   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
+   if ( surface->getName () == "TopSurface" ) {
+      const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
 
-   DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
-   double value = 0.0;
+      DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
+      double value = 0.0;
 
-   for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
+      for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
 
-      for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
-         derivedProp->set ( i, j, value );
-         value += 1.0;
+         for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
+            derivedProp->set ( i, j, value );
+            value += 1.0;
+         }
+
       }
 
+      derivedProperties.push_back ( derivedProp );
    }
 
-   derivedProperties.push_back ( derivedProp );
 }
 
 Property2Calculator::Property2Calculator ( const double value ) : m_value ( value ) {
@@ -201,22 +216,25 @@ void Property2Calculator::calculate ( DerivedProperties::DerivedPropertyManager&
 
    const SurfacePropertyPtr prop1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
 
-   DerivedSurfacePropertyPtr derivedProp2 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property2, snapshot, surface, propertyManager.getMapGrid ()));
-   DerivedSurfacePropertyPtr derivedProp3 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property3, snapshot, surface, propertyManager.getMapGrid ()));
+   if ( prop1 != 0 ) {
+      DerivedSurfacePropertyPtr derivedProp2 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property2, snapshot, surface, propertyManager.getMapGrid ()));
+      DerivedSurfacePropertyPtr derivedProp3 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property3, snapshot, surface, propertyManager.getMapGrid ()));
 
-   double value = 0.0;
+      double value = 0.0;
 
-   for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
+      for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
 
-      for ( unsigned int j = derivedProp2->firstJ ( true ); j <= derivedProp2->lastJ ( true ); ++j ) {
-         derivedProp2->set ( i, j, prop1->get ( i, j ) + m_value );
-         derivedProp3->set ( i, j, prop1->get ( i, j ) + m_value * m_value );
+         for ( unsigned int j = derivedProp2->firstJ ( true ); j <= derivedProp2->lastJ ( true ); ++j ) {
+            derivedProp2->set ( i, j, prop1->get ( i, j ) + m_value );
+            derivedProp3->set ( i, j, prop1->get ( i, j ) + m_value * m_value );
+         }
+
       }
 
+      derivedProperties.push_back ( derivedProp2 );
+      derivedProperties.push_back ( derivedProp3 );
    }
 
-   derivedProperties.push_back ( derivedProp2 );
-   derivedProperties.push_back ( derivedProp3 );
 }
 
 
@@ -232,17 +250,20 @@ void Property4Calculator::calculate ( DerivedProperties::DerivedPropertyManager&
    const SurfacePropertyPtr prop2 = propertyManager.getSurfaceProperty ( property2, snapshot, surface );
    const SurfacePropertyPtr prop1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
 
-   DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property4, snapshot, surface, propertyManager.getMapGrid ()));
+   if ( prop1 != 0 and prop2 != 0 ) {
+      DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property4, snapshot, surface, propertyManager.getMapGrid ()));
 
-   for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
+      for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
 
-      for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
-         derivedProp->set ( i, j, prop2->get ( i, j ) - prop1->get ( i, j ));
+         for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
+            derivedProp->set ( i, j, prop2->get ( i, j ) - prop1->get ( i, j ));
+         }
+
       }
 
+      derivedProperties.push_back ( derivedProp );
    }
 
-   derivedProperties.push_back ( derivedProp );
 }
 
 
