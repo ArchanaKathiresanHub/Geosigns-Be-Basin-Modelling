@@ -46,7 +46,7 @@ public :
 
 // Tests whether properties are retrieved correctly from the property-manager.
 //
-// Tests whether surface property values are correctly retrieved from the property-manager.
+// Tests whether surface property values are retrieved correctly from the property-manager.
 TEST ( DerivedPropertyManagerTest,  Test1 )
 {
    TestPropertyManager propertyManager;
@@ -75,6 +75,9 @@ TEST ( DerivedPropertyManagerTest,  Test1 )
 
    }
 
+   delete snapshot;
+   delete surface;
+   delete formation;
 }
 
 

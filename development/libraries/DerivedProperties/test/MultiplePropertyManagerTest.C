@@ -80,7 +80,7 @@ private :
 
 // Tests whether properties are retrieved correctly from the property-manager.
 //
-// Tests whether compound surface property values are correctly retrieved from the property-manager.
+// Tests whether compound surface property values are retrieved correctly from the property-manager.
 //
 // A compound property is a property that has more than one set of values, 
 // e.g. heat-flow is made up of heat-flow-x, -y and -z.
@@ -120,6 +120,9 @@ TEST ( DerivedPropertyManagerTest,  Test1 )
 
    }
 
+   delete snapshot;
+   delete surface;
+   delete formation;
 }
 
 
@@ -135,9 +138,8 @@ TestPropertyManager::TestPropertyManager () {
       addProperty ( m_mockProperties [ i ]);
    }
 
-   // This will come frmo the project handle.
-   // m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
-   m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 4, 4, 4, 4 );
+   // This will come from the project handle.
+   m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
 
    addCalculator ( m_mockProperties [ 0 ], SurfacePropertyCalculatorPtr ( new Property1Calculator ));
 
