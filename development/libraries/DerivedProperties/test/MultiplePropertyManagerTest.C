@@ -99,17 +99,17 @@ TEST ( DerivedPropertyManagerTest,  Test1 )
    const DataModel::AbstractProperty* property4 = propertyManager.getProperty ( "Property4" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractSurface*   surface1 = new MockSurface ( "TopSurface" );
-   const DataModel::AbstractFormation* formation1 = new MockFormation ( "Formation1" );
+   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
+   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
 
-   SurfacePropertyPtr surfaceProperty4 = propertyManager.getSurfaceProperty ( property4, snapshot, surface1 );
-   SurfacePropertyPtr surfaceProperty2 = propertyManager.getSurfaceProperty ( property2, snapshot, surface1 );
-   SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface1 );
-   SurfacePropertyPtr surfaceProperty3 = propertyManager.getSurfaceProperty ( property3, snapshot, surface1 );
+   SurfacePropertyPtr surfaceProperty4 = propertyManager.getSurfaceProperty ( property4, snapshot, surface );
+   SurfacePropertyPtr surfaceProperty2 = propertyManager.getSurfaceProperty ( property2, snapshot, surface );
+   SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
+   SurfacePropertyPtr surfaceProperty3 = propertyManager.getSurfaceProperty ( property3, snapshot, surface );
 
 
    EXPECT_EQ ( property4, surfaceProperty4->getProperty ());
-   EXPECT_EQ ( surface1, surfaceProperty4->getSurface ());
+   EXPECT_EQ ( surface, surfaceProperty4->getSurface ());
    EXPECT_EQ ( snapshot, surfaceProperty4->getSnapshot ());
 
    for ( unsigned int i = surfaceProperty1->firstI ( true ); i <= surfaceProperty1->lastI ( true ); ++i ) {
