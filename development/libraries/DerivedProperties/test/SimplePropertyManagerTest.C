@@ -58,6 +58,7 @@ TEST ( DerivedPropertyManagerTest,  Test1 )
 
    double value = 0.0;
 
+   EXPECT_EQ ( property->getName (), "Property1" );
    EXPECT_EQ ( property, surfaceProperty1->getProperty ());
    EXPECT_EQ ( surface, surfaceProperty1->getSurface ());
    EXPECT_EQ ( snapshot, surfaceProperty1->getSnapshot ());
