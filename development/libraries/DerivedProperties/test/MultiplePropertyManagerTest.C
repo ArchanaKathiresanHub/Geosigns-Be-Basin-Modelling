@@ -78,6 +78,17 @@ private :
 
 };
 
+// Tests whether properties are retrieved correctly from the property-manager.
+//
+// Tests whether compound surface property values are correctly retrieved from the property-manager.
+//
+// A compound property is a property that has more than one set of values, 
+// e.g. heat-flow is made up of heat-flow-x, -y and -z.
+//
+// Tests whether the dependencies are computed correctly. In this case property2 and proerty3 both
+// depend on property1 and property4 depends on both property1 and property2. However, at the time
+// of the request of property4, none of property1, property2 and property3 have been calculated
+// so they must also be calculated.
 TEST ( DerivedPropertyManagerTest,  Test1 )
 {
    TestPropertyManager propertyManager;
@@ -216,8 +227,8 @@ void Property4Calculator::calculate ( DerivedProperties::DerivedPropertyManager&
    const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
    const DataModel::AbstractProperty* property4 = propertyManager.getProperty ( "Property4" );
 
-   const SurfacePropertyPtr prop1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
    const SurfacePropertyPtr prop2 = propertyManager.getSurfaceProperty ( property2, snapshot, surface );
+   const SurfacePropertyPtr prop1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
 
    DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property4, snapshot, surface, propertyManager.getMapGrid ()));
 
