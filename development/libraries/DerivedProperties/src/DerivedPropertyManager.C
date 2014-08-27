@@ -2,19 +2,27 @@
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager () {}
 
-void DerivedProperties::DerivedPropertyManager::addCalculator ( const DataModel::AbstractProperty* property,
-                                                                const SurfacePropertyCalculatorPtr calculator ) {
+void DerivedProperties::DerivedPropertyManager::addCalculator ( const SurfacePropertyCalculatorPtr calculator ) {
 
-   if ( std::find ( m_properties.begin (), m_properties.end (), property ) == m_properties.end ()) {
-      // What to do?
-      // Error
-      // Add new property
-   }
+   const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
-   if ( m_surfacePropertyCalculators.find ( property ) == m_surfacePropertyCalculators.end ()) {
-      m_surfacePropertyCalculators [ property ] = calculator;
-   } else {
-      // What to do?
+   assert ( propertyNames.size () > 0 );
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+      const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
+
+      if ( computedProperty != 0 ) {
+
+         if ( m_surfacePropertyCalculators.find ( computedProperty ) == m_surfacePropertyCalculators.end ()) {
+            m_surfacePropertyCalculators [ computedProperty ] = calculator;
+         } else {
+            // What to do?
+         }
+
+      } else {
+         // Error
+      }
+
    }
 
 }
@@ -40,27 +48,6 @@ const DataModel::AbstractProperty* DerivedProperties::DerivedPropertyManager::ge
 
    return 0;
 }
-
-const DataModel::AbstractProperty* DerivedProperties::DerivedPropertyManager::getEncompassingProperty ( const DataModel::AbstractProperty* property ) const {
-
-   EncompassingPropertyMap::const_iterator propertyIter = m_encompassingProperties.find ( property );
-
-   if ( propertyIter != m_encompassingProperties.end ()) {
-      return propertyIter->second;
-   }
-
-   return property;
-}
-
-void DerivedProperties::DerivedPropertyManager::addEncompassingProperty ( const DataModel::AbstractProperty* encompassedProperty,
-                                                                          const DataModel::AbstractProperty* encompassingProperty ) {
-
-   if ( encompassingProperty != encompassedProperty and m_encompassingProperties.find ( encompassedProperty ) == m_encompassingProperties.end ()) {
-      m_encompassingProperties [ encompassedProperty ] = encompassingProperty;
-   }
-
-}
-
 
 DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::DerivedPropertyManager::getCalculator ( const DataModel::AbstractProperty* property ) const {
 
@@ -108,8 +95,8 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager:
    result = findPropertyValues ( property, snapshot, surface );
 
    if ( result == 0 ) {
-      SurfacePropertyList  calculatedProperties;
       const SurfacePropertyCalculatorPtr calculator = getCalculator ( property );
+      SurfacePropertyList  calculatedProperties;
 
       if ( calculator != 0 ) {
          calculator->calculate ( *this, snapshot, surface, calculatedProperties );

@@ -31,7 +31,7 @@ namespace DerivedProperties {
       /// \brief Get the surface property values.
       ///
       /// If the surface property values have not been computed and there is an associated calculator
-      /// then the values will be calculated as required.
+      /// then the values will be calculated as required. Additional properties may also be calculated.
       SurfacePropertyPtr getSurfaceProperty ( const DataModel::AbstractProperty* property,
                                               const DataModel::AbstractSnapshot* snapshot,
                                               const DataModel::AbstractSurface*  surface );
@@ -43,9 +43,8 @@ namespace DerivedProperties {
 
    protected :
 
-      /// \brief Add a calculator for the property defined on a surface.
-      void addCalculator ( const DataModel::AbstractProperty* property,
-                           const SurfacePropertyCalculatorPtr calculator );
+      /// \brief Add a calculator for a property or set of properties defined on a surface.
+      void addCalculator ( const SurfacePropertyCalculatorPtr calculator );
 
       /// \brief Add an abstract property to the list of available properties.
       ///
@@ -54,18 +53,6 @@ namespace DerivedProperties {
 
       /// \brief Add a set of property values to the availble property values.
       void addSurfaceProperty ( const SurfacePropertyPtr surfaceProperty );
-
-      /// \brief Get the property 
-      ///
-      /// E.g. For the HeatFlow encompasses three properties: HeatFlowX, HeatFlowY and HeatFlowZ.
-      /// Most properties this will be an identity operation.
-      const DataModel::AbstractProperty* getEncompassingProperty ( const DataModel::AbstractProperty* property ) const;
-
-      /// \brief Set up an encompassing property relationship.
-      ///
-      /// E.g. set up the relationship between HeatFlowX and HeatFlow.
-      void addEncompassingProperty ( const DataModel::AbstractProperty* encompassedProperty,
-                                     const DataModel::AbstractProperty* encompassingProperty );
 
       /// \brief Get the calculator for the property.
       ///
@@ -85,15 +72,16 @@ namespace DerivedProperties {
       /// \brief List of all available properties.
       typedef std::vector <const DataModel::AbstractProperty*> PropertyList;
 
-      /// \brief Maps the property to its encompassing property.
-      typedef std::map<const DataModel::AbstractProperty*, const DataModel::AbstractProperty*> EncompassingPropertyMap;
-
       /// \brief Mapping from property to is associated surface property calculator.
       typedef std::map<const DataModel::AbstractProperty*,SurfacePropertyCalculatorPtr> SurfacePropertyCalculatorMap;
 
+      /// \brief Contains list of all known properties.
       PropertyList                 m_properties;
-      EncompassingPropertyMap      m_encompassingProperties;
+
+      /// \brief Map of property to surface-property calculator.
       SurfacePropertyCalculatorMap m_surfacePropertyCalculators;
+
+      /// \brief List of all surface-properties that have been stored.
       SurfacePropertyList          m_surfaceProperties;
 
    };

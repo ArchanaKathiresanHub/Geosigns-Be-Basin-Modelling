@@ -35,14 +35,23 @@ private :
 
 };
 
+
 class Property1Calculator : public DerivedProperties::SurfacePropertyCalculator {
 
 public :
+
+   Property1Calculator ();
 
    void calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
                     const DataModel::AbstractSurface*         surface,
                           SurfacePropertyList&                derivedProperties ) const;
+
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
 
 };
 
@@ -57,8 +66,11 @@ public :
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
 private :
 
+   std::vector<std::string> m_propertyNames;
    double m_value;
 
 };
@@ -138,12 +150,8 @@ TestPropertyManager::TestPropertyManager () {
    // This will come frmo the project handle.
    m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
 
-   addCalculator ( m_mockProperties [ 0 ], SurfacePropertyCalculatorPtr ( new Property1Calculator ));
-
-   SurfacePropertyCalculatorPtr calc = SurfacePropertyCalculatorPtr ( new Property2Calculator ( ValueToAdd ));
-
-   addCalculator ( m_mockProperties [ 1 ], calc );
-   addCalculator ( m_mockProperties [ 2 ], calc );
+   addCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator ));
+   addCalculator ( SurfacePropertyCalculatorPtr ( new Property2Calculator ( ValueToAdd )));
 
 
 }
@@ -162,6 +170,15 @@ const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
    return m_mapGrid;
 }
 
+Property1Calculator::Property1Calculator () {
+   m_propertyNames.push_back ( "Property1" );
+}
+
+const std::vector<std::string>& Property1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
+
 void Property1Calculator::calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*        snapshot,
                                       const DataModel::AbstractSurface*         surface,
@@ -171,6 +188,8 @@ void Property1Calculator::calculate ( DerivedProperties::DerivedPropertyManager&
 
    DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
    double value = 0.0;
+
+   derivedProperties.clear ();
 
    for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
 
@@ -185,7 +204,14 @@ void Property1Calculator::calculate ( DerivedProperties::DerivedPropertyManager&
 }
 
 Property2Calculator::Property2Calculator ( const double value ) : m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
 }
+
+const std::vector<std::string>& Property2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void Property2Calculator::calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*        snapshot,
@@ -202,6 +228,8 @@ void Property2Calculator::calculate ( DerivedProperties::DerivedPropertyManager&
    DerivedSurfacePropertyPtr derivedProp3 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property3, snapshot, surface, propertyManager.getMapGrid ()));
 
    double value = 0.0;
+
+   derivedProperties.clear ();
 
    for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
 
