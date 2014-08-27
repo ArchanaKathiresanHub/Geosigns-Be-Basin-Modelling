@@ -46,11 +46,6 @@ add_gtest( NAME DerivedProperties::DerivedProperties
            LIBRARIES DerivedProperties
 )
 
-add_gtest( NAME DerivedProperties::DerivedPropertyManagerTest
-           SOURCES test/PropertyManagerTest.C
-           LIBRARIES DerivedProperties
-)
-
 add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
            SOURCES test/SimplePropertyManagerTest.C
            LIBRARIES DerivedProperties
