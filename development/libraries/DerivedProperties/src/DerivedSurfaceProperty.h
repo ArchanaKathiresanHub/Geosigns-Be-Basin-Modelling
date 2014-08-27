@@ -1,6 +1,7 @@
-#ifndef _DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H_
-#define _DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H_
+#ifndef DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H
+#define DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H
 
+#include <boost/shared_ptr.hpp>
 #include <boost/multi_array.hpp>
 
 #include "AbstractProperty.h"
@@ -38,11 +39,14 @@ namespace DerivedProperties {
 
    private :
 
+      /// \brief 2 dimensional array containing the surface property values.
       boost::multi_array<double,2> m_values;
 
    };
 
+   typedef boost::shared_ptr<DerivedSurfaceProperty> DerivedSurfacePropertyPtr;
+
 }
 
 
-#endif // _DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H_
+#endif // DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H

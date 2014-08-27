@@ -50,3 +50,18 @@ add_gtest( NAME DerivedProperties::DerivedPropertyManagerTest
            SOURCES test/PropertyManagerTest.C
            LIBRARIES DerivedProperties
 )
+
+add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
+           SOURCES test/SimplePropertyManagerTest.C
+           LIBRARIES DerivedProperties
+)
+
+add_gtest( NAME DerivedProperties::CompoundPropertyManagerTest
+           SOURCES test/CompoundPropertyManagerTest.C
+           LIBRARIES DerivedProperties
+)
+
+add_gtest( NAME DerivedProperties::MultiplePropertyManagerTest
+           SOURCES test/MultiplePropertyManagerTest.C
+           LIBRARIES DerivedProperties
+)

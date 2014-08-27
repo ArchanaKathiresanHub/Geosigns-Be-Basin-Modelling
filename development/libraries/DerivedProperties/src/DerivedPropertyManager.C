@@ -83,7 +83,6 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager:
                                                                                                       const DataModel::AbstractSnapshot* snapshot,
                                                                                                       const DataModel::AbstractSurface*  surface ) const {
 
-
    SurfacePropertyPtr result;
 
    for ( size_t i = 0; i < m_surfaceProperties.size (); ++i ) {
@@ -110,12 +109,11 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager:
 
    if ( result == 0 ) {
       SurfacePropertyList  calculatedProperties;
-      const DataModel::AbstractProperty* parentProperty = getEncompassingProperty ( property );
-      const SurfacePropertyCalculatorPtr calculator = getCalculator ( parentProperty );
+      const SurfacePropertyCalculatorPtr calculator = getCalculator ( property );
 
       if ( calculator != 0 ) {
-         calculator->calculate ( *this, parentProperty, snapshot, surface, calculatedProperties );
-            
+         calculator->calculate ( *this, snapshot, surface, calculatedProperties );
+
          for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
             addSurfaceProperty ( calculatedProperties [ i ]);
 
