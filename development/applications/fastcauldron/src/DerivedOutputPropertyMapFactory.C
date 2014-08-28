@@ -46,6 +46,7 @@
 #include "FluidPropertyCalculator.h"
 #include "BrineProperties.h"
 #include "TimeOfElementInvasionCalculator.h"
+#include "FracturePressureVolumeCalculator.h"
 
 DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
@@ -474,6 +475,10 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_propertyAllocator = allocatePrimaryPropertyVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ PRESSURE ] = volumeTraits;
+
+   volumeTraits.m_propertyAllocator = allocateFracturePressureVolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = true;
+   m_volumePropertyTraitsMap [ FRACTURE_PRESSURE ] = volumeTraits;
 
    volumeTraits.m_propertyAllocator = allocatePrimaryPropertyVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = true;

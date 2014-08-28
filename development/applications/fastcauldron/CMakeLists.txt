@@ -51,6 +51,7 @@ add_executable(fastcauldron
 	src/FluidPropertyCalculator.C
 	src/FluidVelocityCalculator.C
 	src/FormationMapping.C
+	src/FracturePressureVolumeCalculator.C
 	src/GeometricLoopPressureSolver.C
 	src/ghost_array.C
 	src/globaldefs.C

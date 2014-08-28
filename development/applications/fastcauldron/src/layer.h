@@ -99,6 +99,7 @@ public:
 
    double calcDiffDensity ( const unsigned int i, const unsigned int j ) const;
 
+   const GeoPhysics::FluidType* getFluid () const;
 
   int  getNrOfActiveElements () const;
 
@@ -648,6 +649,10 @@ inline bool LayerProps::isSourceRock () const {
 
 inline bool LayerProps::isMobile () const {
    return IsMobile;
+}
+
+inline const GeoPhysics::FluidType* LayerProps::getFluid () const {
+   return fluid;
 }
 
 inline bool LayerProps::Is_Overpressure_Constrained () const {

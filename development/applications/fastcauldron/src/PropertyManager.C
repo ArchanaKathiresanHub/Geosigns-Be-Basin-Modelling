@@ -59,6 +59,7 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "Permeability" ] = "PermeabilityVec"; 
    m_propertyName2OutputName [ "Porosity" ] = "PorosityVec"; 
    m_propertyName2OutputName [ "Pressure" ] = "Pressure"; 
+   m_propertyName2OutputName [ "FracturePressure" ] = "FracturePressure"; 
    m_propertyName2OutputName [ "Reflectivity" ] = "ReflectivityVec"; 
    m_propertyName2OutputName [ "SonicVelocity" ] = "SonicVec"; 
    m_propertyName2OutputName [ "SteraneAromatisation" ] = "Biomarkers"; 

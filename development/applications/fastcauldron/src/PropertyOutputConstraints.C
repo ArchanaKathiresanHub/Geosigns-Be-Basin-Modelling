@@ -49,6 +49,7 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* HydroStaticPressure    */
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* LithoStaticPressure    */
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* OverPressure           */
+                                                                                                                           ApplicableOutputRegion::SEDIMENTS_ONLY,              /* FracturePressure       */
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Ves                    */
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Biomarkers             */
                                                                                                                            ApplicableOutputRegion::SEDIMENTS_ONLY,              /* SteraneAromatisation   */
@@ -205,6 +206,7 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
                                                                                                             { false, false,  true,  true, false, false,  true,  true,  true, false },  /* HydroStaticPressure    */
                                                                                                             {  true, true,   true,  true, false,  true,  true,  true,  true, false },  /* LithoStaticPressure    */
                                                                                                             { false, false,  true,  true, false, false,  true,  true,  true, false },  /* OverPressure           */
+                                                                                                            { false, false, false,  true, false, false,  true, false,  true, false },  /* FracturePressure       */
                                                                                                             {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Ves                    */
                                                                                                             { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Biomarkers             */
                                                                                                             { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* SteraneAromatisation   */
@@ -329,6 +331,7 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
                                                                                                            { false, false,  true,  true, false, false,  true,  true,  true, false },  /* HydroStaticPressure                       */
                                                                                                            { true,   true,  true,  true, false,  true,  true,  true,  true, false },  /* LithoStaticPressure                       */
                                                                                                            { false, false,  true,  true, false, false,  true,  true,  true, false },  /* OverPressure                              */
+                                                                                                           { false, false, false, false, false, false, false, false, false, false },  /* FracturePressure                          */
                                                                                                            {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Ves                                       */
                                                                                                            { false, false, false, false, false, false, false, false, false, false },  /* Biomarkers                                */
                                                                                                            { false, false, false, false, false, false, false, false, false, false },  /* SteraneAromatisation                      */
@@ -500,11 +503,6 @@ void PropertyOutputConstraints::applyOutputPermittedConstraints ( const Calculat
       if ( not s_outputPermitted [ property ][ calculationMode ]) {
          m_maximumOutputOption [ property ] = Interface::NO_OUTPUT;
          m_minimumOutputOption [ property ] = Interface::NO_OUTPUT;
-      }
-
-      if ( property == OVERPRESSURE ) {
-         int var;
-         var = 1;
       }
 
       if ( s_outputRequired [ property ][ calculationMode ]) {

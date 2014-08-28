@@ -226,6 +226,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
   m_volumeOutputProperties.push_back ( OVERPRESSURE );
   m_volumeOutputProperties.push_back ( PRESSURE );
+  m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
   m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
   m_volumeOutputProperties.push_back ( VES );
   m_volumeOutputProperties.push_back ( MAXVES );
