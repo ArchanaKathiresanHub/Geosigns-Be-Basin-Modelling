@@ -27,6 +27,56 @@ void DerivedProperties::DerivedPropertyManager::addCalculator ( const SurfacePro
 
 }
 
+void DerivedProperties::DerivedPropertyManager::addCalculator ( const FormationPropertyCalculatorPtr calculator ) {
+
+   const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
+
+   assert ( propertyNames.size () > 0 );
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+      const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
+
+      if ( computedProperty != 0 ) {
+
+         if ( m_formationPropertyCalculators.find ( computedProperty ) == m_formationPropertyCalculators.end ()) {
+            m_formationPropertyCalculators [ computedProperty ] = calculator;
+         } else {
+            // What to do?
+         }
+
+      } else {
+         // Error
+      }
+
+   }
+
+}
+
+void DerivedProperties::DerivedPropertyManager::addCalculator ( const FormationSurfacePropertyCalculatorPtr calculator ) {
+
+   const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
+
+   assert ( propertyNames.size () > 0 );
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+      const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
+
+      if ( computedProperty != 0 ) {
+
+         if ( m_formationSurfacePropertyCalculators.find ( computedProperty ) == m_formationSurfacePropertyCalculators.end ()) {
+            m_formationSurfacePropertyCalculators [ computedProperty ] = calculator;
+         } else {
+            // What to do?
+         }
+
+      } else {
+         // Error
+      }
+
+   }
+
+}
+
 void DerivedProperties::DerivedPropertyManager::addProperty ( const DataModel::AbstractProperty* property ) {
    
    if ( std::find ( m_properties.begin (), m_properties.end (), property ) == m_properties.end ()) {
@@ -61,8 +111,40 @@ DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::DerivedProper
 
 }
 
+DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::DerivedPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property ) const {
+
+   FormationPropertyCalculatorMap::const_iterator formationMapiter = m_formationPropertyCalculators.find ( property );
+
+   if ( formationMapiter != m_formationPropertyCalculators.end ()) {
+      return formationMapiter->second;
+   } else {
+      return FormationPropertyCalculatorPtr ();
+   }
+
+}
+
+DerivedProperties::FormationSurfacePropertyCalculatorPtr DerivedProperties::DerivedPropertyManager::getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property ) const {
+
+   FormationSurfacePropertyCalculatorMap::const_iterator formationSurfaceMapiter = m_formationSurfacePropertyCalculators.find ( property );
+
+   if ( formationSurfaceMapiter != m_formationSurfacePropertyCalculators.end ()) {
+      return formationSurfaceMapiter->second;
+   } else {
+      return FormationSurfacePropertyCalculatorPtr ();
+   }
+
+}
+
 void DerivedProperties::DerivedPropertyManager::addSurfaceProperty ( const SurfacePropertyPtr surfaceProperty ) {
    m_surfaceProperties.push_back ( surfaceProperty );
+}
+
+void DerivedProperties::DerivedPropertyManager::addFormationProperty ( const FormationPropertyPtr formationProperty ) {
+   m_formationProperties.push_back ( formationProperty );
+}
+
+void DerivedProperties::DerivedPropertyManager::addFormationSurfaceProperty ( const FormationSurfacePropertyPtr formationSurfaceProperty ) {
+   m_formationSurfaceProperties.push_back ( formationSurfaceProperty );
 }
 
 
@@ -85,6 +167,47 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager:
    return SurfacePropertyPtr ();
 }
 
+DerivedProperties::FormationPropertyPtr DerivedProperties::DerivedPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                        const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                        const DataModel::AbstractFormation* formation ) const {
+
+   SurfacePropertyPtr result;
+
+   for ( size_t i = 0; i < m_formationProperties.size (); ++i ) {
+
+      if ( m_formationProperties [ i ]->getProperty () == property and
+           m_formationProperties [ i ]->getSnapshot () == snapshot and
+           m_formationProperties [ i ]->getFormation() == formation ) {
+         return m_formationProperties [ i ];
+      }
+
+   }
+
+   return FormationPropertyPtr ();
+}
+
+
+DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::DerivedPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                               const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                               const DataModel::AbstractFormation* formation,
+                                                                                                               const DataModel::AbstractSurface*  surface ) const {
+
+   SurfacePropertyPtr result;
+
+   for ( size_t i = 0; i < m_formationSurfaceProperties.size (); ++i ) {
+
+      if ( m_formationSurfaceProperties [ i ]->getProperty () == property and
+           m_formationSurfaceProperties [ i ]->getSnapshot () == snapshot and
+           m_formationSurfaceProperties [ i ]->getFormation() == formation and
+           m_formationSurfaceProperties [ i ]->getSurface()   == surface ) {
+         return m_formationSurfaceProperties [ i ];
+      }
+
+   }
+
+   return FormationSurfacePropertyPtr ();
+}
+
 
 DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager::getSurfaceProperty ( const DataModel::AbstractProperty* property,
                                                                                                       const DataModel::AbstractSnapshot* snapshot,
@@ -97,12 +220,87 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager:
    if ( result == 0 ) {
       const SurfacePropertyCalculatorPtr calculator = getCalculator ( property );
       SurfacePropertyList  calculatedProperties;
-
+ 
       if ( calculator != 0 ) {
          calculator->calculate ( *this, snapshot, surface, calculatedProperties );
 
          for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
             addSurfaceProperty ( calculatedProperties [ i ]);
+
+            if ( calculatedProperties [ i ]->getProperty () == property ) {
+               result = calculatedProperties [ i ];
+            }
+
+         }
+
+         if ( result == 0 ) {
+            // Error.
+         }
+
+      } else {
+         // Error.
+      }
+
+   }
+
+   return result;
+}
+
+DerivedProperties::FormationPropertyPtr DerivedProperties::DerivedPropertyManager::getFormationProperty ( const DataModel::AbstractProperty*  property,
+                                                                                                          const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                          const DataModel::AbstractFormation* formation ) {
+   
+   FormationPropertyPtr result;
+
+   result = findPropertyValues ( property, snapshot, formation );
+
+   if ( result == 0 ) {
+      const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property );
+      FormationPropertyList  calculatedProperties;
+ 
+      if ( calculator != 0 ) {
+         calculator->calculate ( *this, snapshot, formation, calculatedProperties );
+
+         for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+            addFormationProperty ( calculatedProperties [ i ]);
+
+            if ( calculatedProperties [ i ]->getProperty () == property ) {
+               result = calculatedProperties [ i ];
+            }
+
+         }
+
+         if ( result == 0 ) {
+            // Error.
+         }
+
+      } else {
+         // Error.
+      }
+
+   }
+
+   return result;
+}
+
+DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::DerivedPropertyManager::getFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
+                                                                                                                        const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                        const DataModel::AbstractFormation* formation,
+                                                                                                                        const DataModel::AbstractSurface*   surface ) {
+   
+   FormationSurfacePropertyPtr result;
+
+   result = findPropertyValues ( property, snapshot, formation, surface );
+
+   if ( result == 0 ) {
+      const FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property );
+      FormationSurfacePropertyList  calculatedProperties;
+ 
+      if ( calculator != 0 ) {
+         calculator->calculate ( *this, snapshot, formation, surface, calculatedProperties );
+
+         for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+            addFormationSurfaceProperty ( calculatedProperties [ i ]);
 
             if ( calculatedProperties [ i ]->getProperty () == property ) {
                result = calculatedProperties [ i ];

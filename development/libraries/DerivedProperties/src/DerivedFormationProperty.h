@@ -25,6 +25,7 @@ namespace DerivedProperties {
                                  const DataModel::AbstractGrid*      grid,
                                  const unsigned int                  nk );
 
+      virtual ~DerivedFormationProperty () {};
 
       /// \brief Get the value of the property at the position i,j,k.
       virtual double get ( unsigned int i,
@@ -46,6 +47,8 @@ namespace DerivedProperties {
       boost::multi_array<double,3> m_values;
 
    };
+
+   typedef boost::shared_ptr<DerivedFormationProperty> DerivedFormationPropertyPtr;
 
 } // namespace DerivedProperties
 

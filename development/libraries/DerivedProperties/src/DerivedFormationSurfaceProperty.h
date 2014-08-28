@@ -26,6 +26,8 @@ namespace DerivedProperties {
                                         const DataModel::AbstractSurface*   surface,
                                         const DataModel::AbstractGrid*      grid );
 
+      virtual ~DerivedFormationSurfaceProperty () {};
+
       /// \brief Get the value of the property at the position i,j.
       virtual double get ( unsigned int i,
                            unsigned int j ) const;
@@ -41,6 +43,7 @@ namespace DerivedProperties {
 
    };
 
+   typedef boost::shared_ptr<DerivedFormationSurfaceProperty> DerivedFormationSurfacePropertyPtr;
 
 }
 

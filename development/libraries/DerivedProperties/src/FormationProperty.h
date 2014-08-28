@@ -1,6 +1,8 @@
 #ifndef _DERIVED_PROPERTIES__FORMATION_PROPERTY_H_
 #define _DERIVED_PROPERTIES__FORMATION_PROPERTY_H_
 
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractProperty.h"
@@ -91,6 +93,8 @@ namespace DerivedProperties {
 
 
    typedef boost::shared_ptr<const FormationProperty> FormationPropertyPtr;
+
+   typedef std::vector<FormationPropertyPtr> FormationPropertyList;
 
 } // namespace DerivedProperties
 
