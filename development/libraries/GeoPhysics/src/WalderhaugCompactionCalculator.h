@@ -66,6 +66,7 @@ private:
    static const double m_coefA;              /*!< double pre-exponential factor */
    static const double m_coefB;              /*!< double exponential factor */
    static const double m_startTemperature;   /*!< double temperature when the compaction starts */
+   static const double m_limitTemp;          /*!< double maximal temperature, higher temperature will lead to defect */
 
    std::vector < int > m_lithologyMap;        /*!< vector of int giving the lithology ID for each pillar of the grid */
    std::vector < double > m_lithologyList;   /*!< vector where all the lithologies of the basin are stored */

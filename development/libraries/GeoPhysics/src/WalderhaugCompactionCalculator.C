@@ -24,17 +24,20 @@ namespace GeoPhysics{
 
 const double WalderhaugCompactionCalculator::m_coefA = 1.98e-22;       //[mol/s/cm2]
 const double WalderhaugCompactionCalculator::m_coefB = 0.022;          //[1/degree Celsius]
-const double WalderhaugCompactionCalculator::m_startTemperature = 80 ; //[degree Celsius]
-
+const double WalderhaugCompactionCalculator::m_startTemperature = 80.0 ; //[degree Celsius]
+// m_limitTemp = (log(1.7)+308*M_LN10) / (m_coefB * M_LN10);
+// Approximation at 14010 celsius degree
+const double WalderhaugCompactionCalculator::m_limitTemp = 14010.0;
+  
 
 WalderhaugCompactionCalculator::WalderhaugCompactionCalculator() :
   ChemicalCompactionCalculator(),
   m_constantCoef( MolarMassQuartz * m_coefA / DensityQuartz )
 {
+
    //----------Computation of the constant factor of the equation----------------------
    //constantCoef = M*a/V/rho
    //with M the molar mass of quartz [g/mol], a a constant coefficient [mol/s/cm2], V the unit volume = 1 [cm3], rho the density of quartz [g/cm3]
-   //m_constantCoef = MolarMassQuartz * m_coefA / DensityQuartz;
 }
 
 WalderhaugCompactionCalculator::~WalderhaugCompactionCalculator()
@@ -78,13 +81,21 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
       const int lithoID = m_lithologyMap[refNode];
 
       // Get the previous temperature in [degree Celsius] for the formula
-      const double currentTemperature = currentTemperatureGrid[refNode];// [degree Celsius]
+      double currentTemperature = currentTemperatureGrid[refNode];// [degree Celsius]
+      if( currentTemperature > m_limitTemp )
+      {
+	currentTemperature = m_limitTemp;
+      }
 
       //Cementation doesn't start before m_startTemperature = 80 degree Celsius
       if ( currentTemperature > m_startTemperature )
       {
          // Get the previous temperature and chemical comapction and the current porosity
-         const double previousTemperature        = previousTemperatureGrid[refNode];                   // [degree Celsius]
+         double previousTemperature              = previousTemperatureGrid[refNode];                   // [degree Celsius]
+	 if( previousTemperature > m_limitTemp )	 
+	 {
+	    previousTemperature = m_limitTemp;
+	 }
          const double chemicalCompaction         = chemicalCompactionGrid[refNode];                    //[fraction of the unit volume]
          const double currentPorosity            = currentPorosityGrid[refNode];                       //[fraction of the unit volume] 
         
