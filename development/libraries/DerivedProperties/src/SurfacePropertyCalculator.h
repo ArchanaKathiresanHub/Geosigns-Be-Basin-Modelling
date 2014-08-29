@@ -15,7 +15,7 @@
 namespace DerivedProperties {
 
    // Forward declaration of PropertyManager
-   class DerivedPropertyManager;
+   class AbstractPropertyManager;
 
    /// \brief Calculates a derived property or set of properties.
    class SurfacePropertyCalculator {
@@ -25,7 +25,7 @@ namespace DerivedProperties {
       virtual ~SurfacePropertyCalculator () {}
 
       /// \brief Calculate the property values and add the property values to the list.
-      virtual void calculate ( DerivedPropertyManager&            propManager,
+      virtual void calculate ( AbstractPropertyManager&           propManager,
                                const DataModel::AbstractSnapshot* snapshot,
                                const DataModel::AbstractSurface*  surface,
                                      SurfacePropertyList&         derivedProperties ) const = 0;

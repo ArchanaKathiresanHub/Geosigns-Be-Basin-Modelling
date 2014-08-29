@@ -17,7 +17,7 @@ set(all_headers
   src/DerivedSurfaceProperty.h
   src/DerivedFormationSurfaceProperty.h
   src/DerivedFormationProperty.h
-  src/DerivedPropertyManager.h
+  src/AbstractPropertyManager.h
 )
 
 set(all_srcs
@@ -27,7 +27,7 @@ set(all_srcs
   src/DerivedSurfaceProperty.C
   src/DerivedFormationSurfaceProperty.C
   src/DerivedFormationProperty.C
-  src/DerivedPropertyManager.C
+  src/AbstractPropertyManager.C
 )
 
 

@@ -1,5 +1,5 @@
-#ifndef DERIVED_PROPERTIES__PROPERTY_MANAGER_H
-#define DERIVED_PROPERTIES__PROPERTY_MANAGER_H
+#ifndef DERIVED_PROPERTIES__ABSTRACT_PROPERTY_MANAGER_H
+#define DERIVED_PROPERTIES__ABSTRACT_PROPERTY_MANAGER_H
 
 #include <vector>
 #include <map>
@@ -16,19 +16,19 @@
 namespace DerivedProperties {
 
    /// \brief Handles derived properties and their calculation.
-   class DerivedPropertyManager {
+   class AbstractPropertyManager {
 
    public :
 
-      DerivedPropertyManager ();
+      AbstractPropertyManager ();
 
-      virtual ~DerivedPropertyManager () {}
+      virtual ~AbstractPropertyManager () {}
 
 
       /// \brief Get the property given the property-name.
       ///
       /// If the name is not found then a null pointer will be returned.
-      const DataModel::AbstractProperty* getProperty ( const std::string& name ) const;
+      virtual const DataModel::AbstractProperty* getProperty ( const std::string& name ) const = 0;
 
       /// \brief Get the surface property values.
       ///
@@ -58,8 +58,6 @@ namespace DerivedProperties {
        /// \brief Get the grid for the map.
       virtual const DataModel::AbstractGrid* getMapGrid () const = 0;
 
-      // virtual const DataModel::AbstractGrid* getFormationGrid ( const DataModel::AbstractFormation* formation ) const = 0;
-
    protected :
 
       /// \brief Add a calculator for a property or set of properties defined on a surface.
@@ -70,11 +68,6 @@ namespace DerivedProperties {
  
      /// \brief Add a calculator for a property or set of properties defined on a surface and formation.
       void addCalculator ( const FormationSurfacePropertyCalculatorPtr calculator );
-
-      /// \brief Add an abstract property to the list of available properties.
-      ///
-      /// If a property has been added already then it will not be added a second time.
-      void addProperty ( const DataModel::AbstractProperty* property );
 
       /// \brief Add a set of property values to the availble property values.
       void addSurfaceProperty ( const SurfacePropertyPtr surfaceProperty );
@@ -124,9 +117,6 @@ namespace DerivedProperties {
 
    private :
 
-      /// \brief List of all available properties.
-      typedef std::vector <const DataModel::AbstractProperty*> PropertyList;
-
       /// \brief Mapping from property to is associated surface property calculator.
       typedef std::map<const DataModel::AbstractProperty*,SurfacePropertyCalculatorPtr> SurfacePropertyCalculatorMap;
 
@@ -135,9 +125,6 @@ namespace DerivedProperties {
 
       /// \brief Mapping from property to is associated formation and surface property calculator.
       typedef std::map<const DataModel::AbstractProperty*, FormationSurfacePropertyCalculatorPtr> FormationSurfacePropertyCalculatorMap;
-
-       /// \brief Contains list of all known properties.
-      PropertyList                 m_properties;
 
       /// \brief Map of property to surface-property calculator.
       SurfacePropertyCalculatorMap m_surfacePropertyCalculators;
@@ -162,4 +149,4 @@ namespace DerivedProperties {
 } // namespace DerivedProperties
 
 
-#endif // DERIVED_PROPERTIES__PROPERTY_MANAGER_H
+#endif // DERIVED_PROPERTIES__ABSTRACT_PROPERTY_MANAGER_H

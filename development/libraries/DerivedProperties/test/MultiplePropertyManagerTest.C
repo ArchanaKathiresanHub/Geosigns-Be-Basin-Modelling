@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "../src/DerivedPropertyManager.h"
+#include "../src/AbstractPropertyManager.h"
 #include "../src/SurfacePropertyCalculator.h"
 #include "../src/DerivedSurfaceProperty.h"
 
@@ -18,7 +18,7 @@ using namespace DerivedProperties;
 
 static const double ValueToAdd = 10.0;
 
-class TestPropertyManager : public DerivedProperties::DerivedPropertyManager {
+class TestPropertyManager : public DerivedProperties::AbstractPropertyManager {
 
 public :
 
@@ -26,9 +26,24 @@ public :
 
    ~TestPropertyManager ();
 
+   const DataModel::AbstractProperty* getProperty ( const std::string& name ) const;
+
    const DataModel::AbstractGrid* getMapGrid () const;
 
 private :
+
+   /// \brief List of all available properties.
+   typedef std::vector <const DataModel::AbstractProperty*> PropertyList;
+
+
+   /// \brief Add an abstract property to the list of available properties.
+   ///
+   /// If a property has been added already then it will not be added a second time.
+   void addProperty ( const DataModel::AbstractProperty* property );
+
+
+   /// \brief Contains list of all known properties.
+   PropertyList                 m_properties;
 
    std::vector<MockProperty*> m_mockProperties;
    const DataModel::AbstractGrid* m_mapGrid;
@@ -42,7 +57,7 @@ public :
 
    Property1Calculator ();
 
-   void calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
                     const DataModel::AbstractSurface*         surface,
                           SurfacePropertyList&                derivedProperties ) const;
@@ -61,7 +76,7 @@ public :
 
    Property2Calculator ( const double value );
 
-   void calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
@@ -81,7 +96,7 @@ public :
 
    Property4Calculator ();
 
-   void calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
@@ -106,7 +121,7 @@ private :
 // depend on property1 and property4 depends on both property1 and property2. However, at the time
 // of the request of property4, none of property1, property2 and property3 have been calculated
 // so they must also be calculated.
-TEST ( DerivedPropertyManagerTest,  Test1 )
+TEST ( AbstractPropertyManagerTest,  Test1 )
 {
 
    TestPropertyManager propertyManager;
@@ -185,6 +200,29 @@ TestPropertyManager::~TestPropertyManager () {
    delete m_mapGrid;
 }
 
+
+void TestPropertyManager::addProperty ( const DataModel::AbstractProperty* property ) {
+   
+   if ( std::find ( m_properties.begin (), m_properties.end (), property ) == m_properties.end ()) {
+      m_properties.push_back ( property );
+   }
+
+}
+
+
+const DataModel::AbstractProperty* TestPropertyManager::getProperty ( const std::string& name ) const {
+
+   for ( size_t i = 0; i < m_properties.size (); ++i ) {
+
+      if ( m_properties [ i ]->getName () == name ) {
+         return m_properties [ i ];
+      }
+
+   }
+
+   return 0;
+}
+
 const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
    return m_mapGrid;
 }
@@ -198,7 +236,7 @@ const std::vector<std::string>& Property1Calculator::getPropertyNames () const {
 }
 
 
-void Property1Calculator::calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
+void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*        snapshot,
                                       const DataModel::AbstractSurface*         surface,
                                       SurfacePropertyList&                derivedProperties ) const {
@@ -234,7 +272,7 @@ const std::vector<std::string>& Property2Calculator::getPropertyNames () const {
    return m_propertyNames;
 }
 
-void Property2Calculator::calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
+void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*        snapshot,
                                       const DataModel::AbstractSurface*         surface,
                                       SurfacePropertyList&                derivedProperties ) const {
@@ -277,10 +315,10 @@ const std::vector<std::string>& Property4Calculator::getPropertyNames () const {
 }
 
 
-void Property4Calculator::calculate ( DerivedProperties::DerivedPropertyManager& propertyManager,
-                                      const DataModel::AbstractSnapshot*        snapshot,
-                                      const DataModel::AbstractSurface*         surface,
-                                      SurfacePropertyList&                derivedProperties ) const {
+void Property4Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                      const DataModel::AbstractSnapshot*          snapshot,
+                                      const DataModel::AbstractSurface*           surface,
+                                            SurfacePropertyList&                  derivedProperties ) const {
 
    const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
    const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );

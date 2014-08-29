@@ -1,8 +1,8 @@
-#include "DerivedPropertyManager.h"
+#include "AbstractPropertyManager.h"
 
-DerivedProperties::DerivedPropertyManager::DerivedPropertyManager () {}
+DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
-void DerivedProperties::DerivedPropertyManager::addCalculator ( const SurfacePropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addCalculator ( const SurfacePropertyCalculatorPtr calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -27,7 +27,7 @@ void DerivedProperties::DerivedPropertyManager::addCalculator ( const SurfacePro
 
 }
 
-void DerivedProperties::DerivedPropertyManager::addCalculator ( const FormationPropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addCalculator ( const FormationPropertyCalculatorPtr calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -52,7 +52,7 @@ void DerivedProperties::DerivedPropertyManager::addCalculator ( const FormationP
 
 }
 
-void DerivedProperties::DerivedPropertyManager::addCalculator ( const FormationSurfacePropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addCalculator ( const FormationSurfacePropertyCalculatorPtr calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -77,29 +77,7 @@ void DerivedProperties::DerivedPropertyManager::addCalculator ( const FormationS
 
 }
 
-void DerivedProperties::DerivedPropertyManager::addProperty ( const DataModel::AbstractProperty* property ) {
-   
-   if ( std::find ( m_properties.begin (), m_properties.end (), property ) == m_properties.end ()) {
-      m_properties.push_back ( property );
-   }
-
-}
-
-
-const DataModel::AbstractProperty* DerivedProperties::DerivedPropertyManager::getProperty ( const std::string& name ) const {
-
-   for ( size_t i = 0; i < m_properties.size (); ++i ) {
-
-      if ( m_properties [ i ]->getName () == name ) {
-         return m_properties [ i ];
-      }
-
-   }
-
-   return 0;
-}
-
-DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::DerivedPropertyManager::getCalculator ( const DataModel::AbstractProperty* property ) const {
+DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getCalculator ( const DataModel::AbstractProperty* property ) const {
 
    SurfacePropertyCalculatorMap::const_iterator surfaceMapiter = m_surfacePropertyCalculators.find ( property );
 
@@ -111,7 +89,7 @@ DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::DerivedProper
 
 }
 
-DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::DerivedPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property ) const {
+DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property ) const {
 
    FormationPropertyCalculatorMap::const_iterator formationMapiter = m_formationPropertyCalculators.find ( property );
 
@@ -123,7 +101,7 @@ DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::DerivedProp
 
 }
 
-DerivedProperties::FormationSurfacePropertyCalculatorPtr DerivedProperties::DerivedPropertyManager::getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property ) const {
+DerivedProperties::FormationSurfacePropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property ) const {
 
    FormationSurfacePropertyCalculatorMap::const_iterator formationSurfaceMapiter = m_formationSurfacePropertyCalculators.find ( property );
 
@@ -135,22 +113,22 @@ DerivedProperties::FormationSurfacePropertyCalculatorPtr DerivedProperties::Deri
 
 }
 
-void DerivedProperties::DerivedPropertyManager::addSurfaceProperty ( const SurfacePropertyPtr surfaceProperty ) {
+void DerivedProperties::AbstractPropertyManager::addSurfaceProperty ( const SurfacePropertyPtr surfaceProperty ) {
    m_surfaceProperties.push_back ( surfaceProperty );
 }
 
-void DerivedProperties::DerivedPropertyManager::addFormationProperty ( const FormationPropertyPtr formationProperty ) {
+void DerivedProperties::AbstractPropertyManager::addFormationProperty ( const FormationPropertyPtr formationProperty ) {
    m_formationProperties.push_back ( formationProperty );
 }
 
-void DerivedProperties::DerivedPropertyManager::addFormationSurfaceProperty ( const FormationSurfacePropertyPtr formationSurfaceProperty ) {
+void DerivedProperties::AbstractPropertyManager::addFormationSurfaceProperty ( const FormationSurfacePropertyPtr formationSurfaceProperty ) {
    m_formationSurfaceProperties.push_back ( formationSurfaceProperty );
 }
 
 
-DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager::findPropertyValues ( const DataModel::AbstractProperty* property,
-                                                                                                      const DataModel::AbstractSnapshot* snapshot,
-                                                                                                      const DataModel::AbstractSurface*  surface ) const {
+DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager::findPropertyValues ( const DataModel::AbstractProperty* property,
+                                                                                                       const DataModel::AbstractSnapshot* snapshot,
+                                                                                                       const DataModel::AbstractSurface*  surface ) const {
 
    SurfacePropertyPtr result;
 
@@ -167,9 +145,9 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager:
    return SurfacePropertyPtr ();
 }
 
-DerivedProperties::FormationPropertyPtr DerivedProperties::DerivedPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
-                                                                                                        const DataModel::AbstractSnapshot*  snapshot,
-                                                                                                        const DataModel::AbstractFormation* formation ) const {
+DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                         const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                         const DataModel::AbstractFormation* formation ) const {
 
    SurfacePropertyPtr result;
 
@@ -187,10 +165,10 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::DerivedPropertyManage
 }
 
 
-DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::DerivedPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
-                                                                                                               const DataModel::AbstractSnapshot*  snapshot,
-                                                                                                               const DataModel::AbstractFormation* formation,
-                                                                                                               const DataModel::AbstractSurface*  surface ) const {
+DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                                const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                const DataModel::AbstractFormation* formation,
+                                                                                                                const DataModel::AbstractSurface*  surface ) const {
 
    SurfacePropertyPtr result;
 
@@ -209,9 +187,9 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::DerivedPropert
 }
 
 
-DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager::getSurfaceProperty ( const DataModel::AbstractProperty* property,
-                                                                                                      const DataModel::AbstractSnapshot* snapshot,
-                                                                                                      const DataModel::AbstractSurface*  surface ) {
+DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager::getSurfaceProperty ( const DataModel::AbstractProperty* property,
+                                                                                                       const DataModel::AbstractSnapshot* snapshot,
+                                                                                                       const DataModel::AbstractSurface*  surface ) {
 
    SurfacePropertyPtr result;
 
@@ -246,9 +224,9 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager:
    return result;
 }
 
-DerivedProperties::FormationPropertyPtr DerivedProperties::DerivedPropertyManager::getFormationProperty ( const DataModel::AbstractProperty*  property,
-                                                                                                          const DataModel::AbstractSnapshot*  snapshot,
-                                                                                                          const DataModel::AbstractFormation* formation ) {
+DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManager::getFormationProperty ( const DataModel::AbstractProperty*  property,
+                                                                                                           const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                           const DataModel::AbstractFormation* formation ) {
    
    FormationPropertyPtr result;
 
@@ -283,10 +261,10 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::DerivedPropertyManage
    return result;
 }
 
-DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::DerivedPropertyManager::getFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
-                                                                                                                        const DataModel::AbstractSnapshot*  snapshot,
-                                                                                                                        const DataModel::AbstractFormation* formation,
-                                                                                                                        const DataModel::AbstractSurface*   surface ) {
+DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractPropertyManager::getFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
+                                                                                                                         const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                         const DataModel::AbstractFormation* formation,
+                                                                                                                         const DataModel::AbstractSurface*   surface ) {
    
    FormationSurfacePropertyPtr result;
 
