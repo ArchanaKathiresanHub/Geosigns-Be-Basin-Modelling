@@ -3,9 +3,6 @@
 #ifndef __FEM_Grid_Auxiliary_Functions_HH__
 #define __FEM_Grid_Auxiliary_Functions_HH__
 
-//------------------------------------------------------------//
-
-#include "fem_grid.h"
 
 //------------------------------------------------------------//
 

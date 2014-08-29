@@ -9,10 +9,9 @@ namespace Calibration
 class AromatizationFunction
 {
 public:
-	AromatizationFunction(const double &frequencyFactor):
-	m_frequencyFactor(frequencyFactor * s_SECS_IN_MA)
+	AromatizationFunction(const double &frequencyFactor)
 	{
-
+		m_frequencyFactor = frequencyFactor * s_SECS_IN_MA;
 	}
 	~AromatizationFunction(){}
 	double operator()(const double &integral) const
@@ -21,16 +20,15 @@ public:
 	}
 private:
 	double m_frequencyFactor;
-	static const double s_SECS_IN_MA = 3.15576e13;
+	static const double s_SECS_IN_MA;
 };
 class IsomerizationFunction
 {
 public:
 	IsomerizationFunction(const double &gamma, const double &frequencyFactor):
-	m_gamma(gamma),
-	m_frequencyFactor(frequencyFactor * s_SECS_IN_MA)
+	m_gamma(gamma)
 	{
-
+		m_frequencyFactor = frequencyFactor * s_SECS_IN_MA;
 	}
 	~IsomerizationFunction(){}
 	double operator()(const double &integral) const
@@ -40,7 +38,7 @@ public:
 private:
 	double m_gamma;
 	double m_frequencyFactor;
-	static const double s_SECS_IN_MA = 3.15576e13;
+	static const double s_SECS_IN_MA;
 };
 class BiomarkerKineticsFunction
 {
@@ -48,7 +46,6 @@ public:
 	BiomarkerKineticsFunction(const double &inActivationEnergy):
 	m_activationEnergy(inActivationEnergy)
 	{
-
 	}
 	~BiomarkerKineticsFunction(){}
 	double operator()(const double &temperature) const
@@ -56,7 +53,7 @@ public:
 		return std::exp (-m_activationEnergy / (GASCONSTANT * temperature));
 	}
 private:
-	static const double GASCONSTANT = 8.3144;
+	static const double GASCONSTANT;
 	double m_activationEnergy;
 };
 class TrapezoidalIntegrator

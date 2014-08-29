@@ -1,7 +1,9 @@
 #include "GeoPhysicsProjectHandle.h"
 
 #include <iomanip>
-#include <cmath>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "Interface/Interface.h"
 
@@ -310,7 +312,8 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
    m_basinHasActiveFaults = false;
 
    // Set the fault lithologies.
-   if ( includeFaults ) {
+   if ( includeFaults ) 
+   {
       bool layerHasFaults;
 
       for ( formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter ) {
@@ -325,7 +328,6 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
          }
 
       }
-
    }
 
    return createdLithologies;

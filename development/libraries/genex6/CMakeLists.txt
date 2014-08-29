@@ -10,22 +10,15 @@
 #                                                                       #
 #########################################################################
 
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
 
-add_library(genex6
-	src/Utilities.C
-	src/SpeciesManager.C
-	src/SpeciesProperties.C
-	src/Species.C
-	src/SpeciesState.C
-	src/GeneralParametersHandler.C
-	src/ImmobileSpecies.C
-	src/Input.C
-	src/SimulatorStateBase.C
-	src/Simulator.C
-	src/SCmathlib.C
-	src/ReactionRatio.C
-	src/Reaction.C
-	src/ChemicalModel.C
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_library(genex6 
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(

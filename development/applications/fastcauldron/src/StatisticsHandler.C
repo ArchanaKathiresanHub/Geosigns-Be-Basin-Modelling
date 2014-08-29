@@ -1,7 +1,6 @@
 #include "StatisticsHandler.h"
 
 #include <sstream>
-#include <unistd.h>
 
 #include "NumericFunctions.h"
 #include "FastcauldronSimulator.h"
@@ -17,12 +16,16 @@ void StatisticsHandler::initialise () {
 
 void StatisticsHandler::update () {
 
+#ifdef _MSC_VER // TODO_SK
+   s_virtualMemoryUsage = 0;  
+   s_residentMemoryUsage = 0;
+#else
    StatM stat;
 
    getStatM ( stat );
    s_virtualMemoryUsage = NumericFunctions::Maximum ( s_virtualMemoryUsage, double ( stat.size ) * double ( getpagesize ()));
    s_residentMemoryUsage = NumericFunctions::Maximum ( s_residentMemoryUsage, double ( stat.resident ) * double ( getpagesize ()));
-
+#endif
 }
 
 void StatisticsHandler::print () {

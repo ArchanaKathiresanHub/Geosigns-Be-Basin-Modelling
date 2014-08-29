@@ -10,17 +10,16 @@
 #                                                                       #
 #########################################################################
 
-set(SERIALHDF5_SOURCES
-	src/buffer_readwrite.C
-	src/h5_file_types.C
-	src/h5_types.C
-	src/readwriteobject.C
-)
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
 
 add_library(Serial_Hdf5 
-   ${SERIALHDF5_SOURCES}
+	${all_srcs}
+	${all_headers}
 )
-
 
 include_directories(${HDF5_INCLUDE_DIRS})
 

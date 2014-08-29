@@ -1,4 +1,4 @@
-#include <values.h>
+//#include <values.h>
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
@@ -34,7 +34,6 @@ using Interface::AttributeValue;
 using Interface::LithoType;
 
 #include "SourceRock.h"
-#include "GenexSimulation.h"
 #include "LocalGridInterpolator.h"
 #include "LinearGridInterpolator.h"
 #include "SnapshotInterval.h"
@@ -370,7 +369,7 @@ ChemicalModel * SourceRock::loadChemicalModel( const Interface::SourceRock * the
       if(m_projectHandle->getRank() == 0) {
          cout << "Environment Variable " << (runType & Genex6::Constants::SIMGENEX5 ? "GENEX5DIR" : "GENEX6DIR") << " not set. Aborting..." << endl;
       } 
-      return false;
+      exit(1); //TODO_SK: gracefully exit. Note: this statement used to be: return false; which crashes the application as a pointer should be returned.
    }
 
    double theHcIni = theSourceRock->getHcVRe05();  

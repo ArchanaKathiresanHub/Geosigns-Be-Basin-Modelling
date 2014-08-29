@@ -102,7 +102,7 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
    {
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nUnable to partition a %d x %d grid using %d cores for activity %s, please select a different number of cores:\n", M, N, size, name.c_str());
-      PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n", std::max (1, M_), std::max (1, N_));
+      PetscPrintf(PETSC_COMM_WORLD, "\tSelect either 1 core or M * N cores where M <= %d and N <= %d.\n", max (1, M_), max (1, N_));
 
       if (name == "Unknown")
       {
@@ -311,6 +311,9 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 //------------------------------------------------------------//
 bool ProjectHandle::makeOutputDir() const
 {
+#ifdef _MSC_VER
+   int status = mkdir ( getFullOutputDir().c_str () );
+#else
    // Need to create output directory if it does not exist.
    if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
       
@@ -328,11 +331,9 @@ bool ProjectHandle::makeOutputDir() const
          return false;
       }
    }
-#if defined(_WIN32) || defined (_WIN64)
-   int status = mkdir ( getFullOutputDir().c_str () );
-#else
    int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
 #endif
+   
    if ( status != 0 and errno == ENOTDIR ) {
       return false;
    }

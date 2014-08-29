@@ -1,9 +1,14 @@
 #include <petsc.h>
 #include <hdf5.h>
 
+#include <H5FDmpio.h>
 #include "h5_parallel_file_types.h"
+
+#ifndef _MSC_VER
 #include "HDF5VirtualFileDriver.h"
 #include "h5merge.h"
+#endif
+
 
 bool        H5_Parallel_PropertyList :: s_oneFilePerProcess = false;
 
@@ -16,6 +21,7 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
 {
    hid_t plist = H5Pcreate (H5P_FILE_ACCESS);
    
+#ifndef _MSC_VER
    if( s_oneFilePerProcess ) 
    {
       std::stringstream fileName;
@@ -27,7 +33,9 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
    {
       H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
    }
-
+#else
+	  H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
+#endif
    return plist;
 }
 
@@ -48,23 +56,25 @@ hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
 bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
 {
    PetscBool noOfpp = PETSC_FALSE;
+
+#ifndef _MSC_VER
    PetscOptionsHasName ( PETSC_NULL, "-noofpp", &noOfpp );
 
    if( !noOfpp ) {
-      const char * tmpDir = 0; 
-      
+   const char * tmpDir = 0; 
+        
       char temporaryDirName [ PETSC_MAX_PATH_LEN ];
-      memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
-            
+   memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
+   
       PetscBool oneFilePerProcess;
-      PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
-      
+   PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+
       if( temporaryDirName[0] == 0 ) {
          tmpDir = getenv( "TMPDIR" );
       } else {
          tmpDir = temporaryDirName;
       }
-      
+   
       if( tmpDir == NULL ) {
          PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING $TMPDIR is not set, 'one file per process' option cannot be used.\n");    
          noOfpp = PETSC_TRUE;
@@ -73,6 +83,8 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
          PetscPrintf ( PETSC_COMM_WORLD, "Set %s for output or/and input\n", tmpDir ); 
       }
    }
+#endif
+
    setOneFilePerProcess ( !noOfpp );
 
    return !noOfpp;
@@ -80,6 +92,10 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
 
 bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )
 {
+#ifdef _MSC_VER
+	return false;
+#else
+	
    int rank;
    bool status = true;
 
@@ -99,7 +115,9 @@ bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )
       }
    }
    return status;
+#endif
 }
+
 void H5_Parallel_PropertyList ::  setOneNodeCollectiveBufferingOption()
 {
    PetscBool useAllNodesForCollectiveBuffering = PETSC_FALSE;

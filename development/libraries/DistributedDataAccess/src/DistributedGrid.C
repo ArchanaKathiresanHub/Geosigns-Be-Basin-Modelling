@@ -1,5 +1,5 @@
 #include <math.h>
-#include <values.h>
+#include <limits.h>
 #include <assert.h>
 
 #ifdef sgi
@@ -523,12 +523,12 @@ bool DistributedGrid::convertToGrid (const Grid & toGrid,
 
 	 m_conversionsToI = new unsigned int [numI ()];
 	 for (int i = numI () - 1; i >= 0; i--)
-	    m_conversionsToI[i] = MAXINT;
+	    m_conversionsToI[i] = INT_MAX;
 
 	 if (m_conversionsToJ) delete [] m_conversionsToJ;
 	 m_conversionsToJ = new unsigned int [numJ ()];
 	 for (int j = numJ () - 1; j >= 0; j--)
-	    m_conversionsToJ[j] = MAXINT;
+	    m_conversionsToJ[j] = INT_MAX;
 
 	 if (m_returnsI) delete [] m_returnsI;
 	 m_returnsI = new bool [numI ()];
@@ -543,7 +543,7 @@ bool DistributedGrid::convertToGrid (const Grid & toGrid,
       int arrayJ = fromJ - firstJ ();
       if (arrayI >= 0 && arrayI < numI () && arrayJ >= 0 && fromJ < numJ ())
       {
-	 if (m_conversionsToI[arrayI] == MAXINT || m_conversionsToJ[arrayJ] == MAXINT)
+	 if (m_conversionsToI[arrayI] == INT_MAX || m_conversionsToJ[arrayJ] == INT_MAX)
 	 {
 	    m_returnsI[arrayI] = m_returnsJ[arrayJ] =
 	       m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ,
@@ -571,12 +571,12 @@ bool DistributedGrid::convertToGrid (const Grid & toGrid,
 
 	 m_conversionsToI = new unsigned int [numI ()];
 	 for (int i = numI () - 1; i >= 0; i--)
-	    m_conversionsToI[i] = MAXINT;
+	    m_conversionsToI[i] = INT_MAX;
 
 	 if (m_conversionsToJ) delete [] m_conversionsToJ;
 	 m_conversionsToJ = new unsigned int [numJ ()];
 	 for (int j = numJ () - 1; j >= 0; j--)
-	    m_conversionsToJ[j] = MAXINT;
+	    m_conversionsToJ[j] = INT_MAX;
 
 	 if (m_returnsI) delete [] m_returnsI;
 	 m_returnsI = new bool [numI ()];
@@ -591,7 +591,7 @@ bool DistributedGrid::convertToGrid (const Grid & toGrid,
       int arrayJ = fromJ - firstJ ();
       if (arrayI >= 0 && arrayI < numI () && arrayJ >= 0 && fromJ < numJ ())
       {
-	 if (m_conversionsToI[arrayI] == MAXINT || m_conversionsToJ[arrayJ] == MAXINT)
+	 if (m_conversionsToI[arrayI] == INT_MAX || m_conversionsToJ[arrayJ] == INT_MAX)
 	 {
 	    m_returnsI[arrayI] = m_returnsJ[arrayJ] =
 	       m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ,

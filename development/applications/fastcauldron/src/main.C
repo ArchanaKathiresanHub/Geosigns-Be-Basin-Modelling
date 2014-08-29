@@ -13,8 +13,6 @@
 #include "AllochthonousLithologyManager.h"
 #include "HydraulicFracturingManager.h"
 
-#include <sys/resource.h>
-
 #include "FastcauldronFactory.h"
 #include "FastcauldronSimulator.h"
 #include "MultiComponentFlowHandler.h"
@@ -26,13 +24,15 @@
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
 
-#include <sched.h>
-
 #ifdef FLEXLM
 #undef FLEXLM
 #endif
 
-#define FLEXLM  1
+#ifdef _MSC_VER // FlexLM disabled on Windows for now
+#undef FLEXLM
+#else
+#define FLEXLM 1
+#endif
 
 #ifdef FLEXLM
 // FlexLM license handling
@@ -40,7 +40,7 @@
 #endif
 
 
-int rank ();
+int ourRank ();
 
 void finaliseFastcauldron ( AppCtx* appctx, 
                             char* feature,
@@ -61,12 +61,11 @@ void finaliseFastcauldron ( AppCtx* appctx,
    PetscFinalize ();
 
 #ifdef FLEXLM
-   if ( rank () == 0 ) {
+   if ( ourRank () == 0 ) {
       EPTFlexLmCheckIn( feature );
       EPTFlexLmTerminate();
    }
 #endif
-
 }
 
 
@@ -111,7 +110,7 @@ int main(int argc, char** argv)
    char errmessage[EPTFLEXLM_MAX_MESS_LEN];
    
    // FlexLM license handling only for node with rank = 0
-   if ( rank () == 0 )
+   if ( ourRank () == 0 )
    {
       sprintf(feature, "ibs_cauldron_calc");
 #ifdef IBSFLEXLMVERSION
@@ -148,7 +147,7 @@ int main(int argc, char** argv)
 
      #ifdef FLEXLM
      //FlexLM license check in only for node with rank = 0
-     if ( rank () == 0 )
+     if ( ourRank () == 0 )
      {
        // FlexLm license check in, close down and enable logging
        EPTFlexLmCheckIn( feature );
@@ -230,15 +229,15 @@ int main(int argc, char** argv)
      // Close PetSc
      PetscFinalize ();
 
-     #ifdef FLEXLM
+#ifdef FLEXLM
      //FlexLM license check in only for node with rank = 0
-     if ( rank () == 0 )
+     if ( ourRank () == 0 )
      {
        // FlexLm license check in, close down and enable logging
        EPTFlexLmCheckIn( feature );
        EPTFlexLmTerminate();
      }
-     #endif
+#endif
 
      return 1;
    }
@@ -287,42 +286,6 @@ int main(int argc, char** argv)
    solverHasConverged = true;
    errorInDarcy = false;
    geometryHasConverged = true;
-
-#if 0
-   if ( appctx->getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE or
-        appctx->getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
-        appctx->getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ) {
-     fctCtx.decompact ();
-   }
-
-   if ( appctx->getCalculationMode () == HYDROSTATIC_TEMPERATURE_MODE or
-        appctx->getCalculationMode () == OVERPRESSURE_MODE or
-        appctx->getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or
-        appctx->getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE or
-        appctx->getCalculationMode () == PRESSURE_AND_TEMPERATURE_MODE ) {
-
-      Basin_Modelling::FEM_Grid basin ( appctx );
-
-      switch ( appctx->getCalculationMode ()) {
-
-        case OVERPRESSURE_MODE:
-           basin.solvePressure ( solverHasConverged, errorInDarcy );
-           break;
-
-        case HYDROSTATIC_TEMPERATURE_MODE:
-        case OVERPRESSURED_TEMPERATURE_MODE:
-           basin.solveTemperature ( solverHasConverged, errorInDarcy );
-           break;
-
-        case PRESSURE_AND_TEMPERATURE_MODE:
-           basin.solveCoupled ( solverHasConverged, errorInDarcy );
-           break;
-
-      }
-
-
-   }
-#endif
 
    if ( appctx->DoHighResDecompaction || appctx->DoDecompaction ) {
      fctCtx.decompact ();
@@ -383,15 +346,15 @@ int main(int argc, char** argv)
    PetscFinalize ();
    displayTime( displayEndTime, "End of simulation: ");
 
-   #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0
-   if ( rank () == 0 )
+#ifdef FLEXLM
+   if ( ourRank () == 0 )
    {
       // FlexLm license check in, close down and enable logging
       EPTFlexLmCheckIn( feature );
       EPTFlexLmTerminate();
    }
-   #endif
+#endif
 
    return returnStatus;
 }
@@ -402,8 +365,7 @@ bool determineSaltModellingCapability ( const AppCtx* appctx ) {
 
   int capable = 1;
 
-
-  #ifdef FLEXLM
+#ifdef FLEXLM
 
   int rc = EPTFLEXLM_OK;
 
@@ -412,7 +374,7 @@ bool determineSaltModellingCapability ( const AppCtx* appctx ) {
   char errmessage[EPTFLEXLM_MAX_MESS_LEN];
    
   // FlexLM license handling only for node with rank = 0
-  if ( rank () == 0 ) {
+  if ( ourRank () == 0 ) {
     sprintf(feature, "ibs_cauldron_halo");
 #ifdef IBSFLEXLMVERSION
     sprintf(version, IBSFLEXLMVERSION);
@@ -447,7 +409,7 @@ bool determineSaltModellingCapability ( const AppCtx* appctx ) {
 
   MPI_Bcast ( &capable, 1, MPI_INT, 0, PETSC_COMM_WORLD);
 
-  if ( rank () == 0 && rc != EPTFLEXLM_WARN && rc != EPTFLEXLM_OK ) {
+  if ( ourRank () == 0 && rc != EPTFLEXLM_WARN && rc != EPTFLEXLM_OK ) {
     EPTFlexLmCheckIn( feature );
     EPTFlexLmTerminate();
   }
@@ -458,7 +420,7 @@ bool determineSaltModellingCapability ( const AppCtx* appctx ) {
   return capable == 1;
 }
 
-int rank () {
+int ourRank () {
 
    static int myRank;
    static bool haveRank = false;

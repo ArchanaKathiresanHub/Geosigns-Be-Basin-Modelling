@@ -1,7 +1,6 @@
 #include   "BiomarkersCalculator.h"
 
 #include   "BiomarkersSimulator.h"
-#include   "BiomarkersSimulator.h"
 #include   "BiomarkersOutput.h"
 
 #include   "globaldefs.h"

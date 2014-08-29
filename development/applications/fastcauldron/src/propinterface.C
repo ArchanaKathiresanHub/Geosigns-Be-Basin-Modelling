@@ -4,9 +4,9 @@
 #include "propinterface.h"
 #include "readproperties.h"
 #include "ghost_array.h"
-#include "error.h"
+//#include "error.h"
 #include "utils.h"
-#include <unistd.h>
+//#include <unistd.h>
 #include "AllochthonousLithologyManager.h"
 #include "temperature_solver.h"
 #include "HydraulicFracturingManager.h"
@@ -58,6 +58,13 @@ using namespace Basin_Modelling;
 #include "MultiComponentFlowHandler.h"
 #include "FastcauldronSimulator.h"
 
+#ifdef _MSC_VER
+#include <Windows.h>
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#define isinf(x) !_finite(x) 
+#define sleep(x) Sleep(1000 * x) // convert from to milliseconds
+#endif /** _MSC_VER */
 
 //------------------------------------------------------------//
 

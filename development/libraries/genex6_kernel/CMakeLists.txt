@@ -10,30 +10,15 @@
 #                                                                       #
 #########################################################################
 
-add_library(genex6_kernel
-	src/AdsorptionFunction.C
-	src/AdsorptionFunctionFactory.C
-	src/AdsorptionSimulator.C
-	src/AdsorptionSimulatorFactory.C
-	src/C1AdsorptionSimulator.C
-	src/C1NodeAdsorptionHistory.C
-	src/IrreducibleWaterSaturationFunction.C
-	src/LangmuirAdsorptionFunction.C
-	src/LangmuirAdsorptionIsothermInterval.C
-	src/LangmuirAdsorptionTOCFunction.C
-	src/LinearGridInterpolator.C
-	src/ConstantGridInterpolator.C
-	src/OTGCC1AdsorptionSimulator.C
-	src/OTGCNodeAdsorptionHistory.C
-	src/PVTCalculator.C
-	src/SpeciesResult.C
-	src/SourceRock.C
-	src/SourceRockAdsorptionHistory.C
-	src/SourceRockNode.C
-	src/SimulatorState.C
-	src/SnapshotInterval.C
-	src/UnitTestDataCreator.C
-	src/GenexHistory.C
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_library(genex6_kernel 
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(

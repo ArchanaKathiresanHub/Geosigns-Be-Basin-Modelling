@@ -10,6 +10,8 @@ namespace Calibration
 
 namespace FissionTracks
 {
+	// Declare some static variable
+	const double Histogram::IBSNULLVALUE = -9999;
 
 /// add to each bin value a fraction of corresponding source
 void Histogram::AddBinFractions (Histogram* source, float fraction)

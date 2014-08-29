@@ -10,7 +10,6 @@ namespace database
 }
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
-#include "GenexSimulation.h"
 
 #include "SourceRock.h"
 

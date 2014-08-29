@@ -11,7 +11,9 @@ using std::string;
 #include <assert.h>
 #include "array.h"
 
+#ifndef WIN32
 const bool   NO_ERROR              = true;
+#endif
 
 const string BLANKQUOTE            = "";
 
@@ -492,7 +494,7 @@ typedef enum {EXPONENTIAL, SOIL_MECHANICS} PorosityModelType;
 const std::string PorosityModelTypeImage [ 2 ] = { "Exponential",
                                                    "Soil Mechanics"};
 
-typedef enum {CONST = 1, CALC, TABLE, UNSPECIFIED} ModelType;
+typedef enum {CONSTmodel = 1, CALC, TABLE, UNSPECIFIED} ModelType;
 
 // typedef enum {HEATFLOW , FIXED_TEMPERATURE} BottomBoundaryType;
 

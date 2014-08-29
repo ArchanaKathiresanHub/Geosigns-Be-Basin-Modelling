@@ -14,14 +14,15 @@
 # ATTENTION: The file is used in Basin Modeling and GEOCASE projects
 #
 
-add_library(CBMGenerics
-	src/ComponentManager.C
-	src/GenexResultManager.C
-	src/capillarySealStrength.C
-	src/fracturePressure.C
-	src/waterDensity.C
-	src/methaneSolubility.C
-	src/Polyfunction.C
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_library(CBMGenerics 
+   ${all_srcs}
+   ${all_headers}
 )
 
 #Doc. generation is commented because most of the classes in CBMGeneric have no doxygen documentation and generate warnings

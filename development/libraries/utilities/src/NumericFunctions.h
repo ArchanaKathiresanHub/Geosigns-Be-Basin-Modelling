@@ -50,7 +50,7 @@ namespace NumericFunctions {
                   const Number& upperBound );
 
    template<class Number>
-   bool isEqual ( const Number& x, const Number& y, const Number& tolerance = std::numeric_limits<Number>::epsilon ());
+   bool isEqual ( const Number& x, const Number& y, const Number& tolerance); 
 
    /// \brief Clips a value so that it lies within the desired range.
    ///

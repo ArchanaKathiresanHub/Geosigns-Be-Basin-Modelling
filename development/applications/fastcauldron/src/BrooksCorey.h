@@ -2,25 +2,21 @@
 #define BROOKS_COREY_H
 
 #include <assert.h>
-
+#include <math.h>
 
 class BrooksCorey
 {
 public:
 
    //the following is assumed to be fixed at the moment
-   static const double Sir = 0.1; //connnate saturation -- irreducible saturaiton
-   static const double Pe = 1000000;//entry pressure = 1 MPa
-   static const double Sor = 0.3; //residual oil saturation
-   static const double Krwor = 1.0; // end point relative permeability of Brine
-   static const double Krocw = 1.0; // end point relative permeability of HC
+   static const double Sir; //connnate saturation -- irreducible saturaiton
+   static const double Pe;//entry pressure = 1 MPa
+   static const double Sor; //residual oil saturation
+   static const double Krwor; // end point relative permeability of Brine
+   static const double Krocw; // end point relative permeability of HC
+   static const double Adjustment;
 
-   static const double Adjustment = 1.0e-4;
-
-   BrooksCorey()
-    {
-      
-    }
+   BrooksCorey();
 
    static double getSor () {
       return Sor;

@@ -14,11 +14,15 @@ if (NOT BM_PARALLEL)
 	return()
 endif()
 
-add_library(CrustalThickness
-	src/LinearFunction.C
-	src/DensityCalculator.C
-	src/InterfaceInput.C
-	src/InterfaceOutput.C
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_library(CrustalThickness 
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(

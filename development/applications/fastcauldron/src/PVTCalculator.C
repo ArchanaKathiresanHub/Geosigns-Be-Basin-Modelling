@@ -2,10 +2,15 @@
 
 #include <sstream>
 #include <iomanip>
-#include <mkl.h>
+//#include <mkl.h>
 
 #include "NumericFunctions.h"
 #include "ComponentManager.h"
+
+#ifdef _MSC_VER
+#include <float.h>  
+#define isfinite(x) _finite(x) 
+#endif /** _MSC_VER */
 
 PVTCalc* PVTCalc::m_theInstance = 0;
 

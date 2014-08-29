@@ -12,15 +12,25 @@
 
 if (BM_PARALLEL)
 
-	add_library( Parallel_Hdf5
-		src/h5_vector_conversions.C
-		src/h5_parallel_file_types.C
-		src/petscvector_readwrite.C
+	FILE( GLOB all_headers src/*.h )
+	source_group(include FILES ${all_headers})
+
+	FILE( GLOB all_srcs src/*.C)
+	source_group(source FILES ${all_srcs})
+
+	add_library(Parallel_Hdf5 
+	   ${all_srcs}
+	   ${all_headers}
 	)
+
+	set (OFPP "")
+	if (UNIX)
+		set (OFPP OneFilePerProcess)
+		bm_include_libraries( OneFilePerProcess )
+	endif ()
 
 	bm_include_libraries(
 		Serial_Hdf5
-		OneFilePerProcess
 		Utilities_Petsc
 	)
 
@@ -33,7 +43,7 @@ if (BM_PARALLEL)
 	target_link_libraries(Parallel_Hdf5 
 		Utilities_Petsc
 		Serial_Hdf5
-		OneFilePerProcess
+		${OFPP}
 		${PETSC_LIBRARIES}
 		${MPI_LIBRARIES}
 	)

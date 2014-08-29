@@ -9,6 +9,9 @@
 #include "layer.h"
 #include "Interface/RunParameters.h"
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
 //------------------------------------------------------------//
 
 const std::string& MultiComponentFlowHandler::getErrorString ( const DarcyErrorIndicator id ) {

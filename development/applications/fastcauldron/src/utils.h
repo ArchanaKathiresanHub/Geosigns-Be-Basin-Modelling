@@ -193,7 +193,7 @@ class EqualityTest :public std::binary_function<Number,Number,bool> {
 public:
    bool operator ()( const Number &X, const Number &Y )
    {
-      return NumericFunctions::isEqual ( X, Y );
+      return NumericFunctions::isEqual ( X, Y, std::numeric_limits<Number>::epsilon() );
    }
 };
 

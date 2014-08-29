@@ -15,14 +15,14 @@ class BiomarkersSimulator
 public:
 
    BiomarkersSimulator( const double &HopIsoactenergy  = 168000.000000,
-								const double &SteIsoactenergy  = 169000.000000,
-								const double &SteAroactenergy  = 181400.000000,
-								const double &HopIsofreqfactor = 810000000.000000,
-								const double &SteIsofreqfactor = 486000000.000000,
-								const double &SteArofreqfactor = 48499998720.000000,
-								const double &HopIsogamma  	 = 1.564000,
-								const double &SteIsogamma  	 = 1.174000,
-								const double &in_timeStepSize  = 0.5):
+						const double &SteIsoactenergy  = 169000.000000,
+						const double &SteAroactenergy  = 181400.000000,
+						const double &HopIsofreqfactor = 810000000.000000,
+						const double &SteIsofreqfactor = 486000000.000000,
+						const double &SteArofreqfactor = 48499998720.000000,
+						const double &HopIsogamma  	 = 1.564000,
+						const double &SteIsogamma  	 = 1.174000,
+						const double &in_timeStepSize  = 0.5):
 	m_Integrator(),
 	m_HopaneIsoKineticsFunction(HopIsoactenergy),
 	m_SteraneIsoKineticsFunction(SteIsoactenergy),
@@ -31,10 +31,8 @@ public:
 	m_SteraneIsomerizationFunction(SteIsogamma, SteIsofreqfactor),
 	m_HopaneIsomerizationFunction(HopIsogamma, HopIsofreqfactor),
 	m_timeStepSize(in_timeStepSize)
-	{
+	{ }
 
-
-	}				
    ~BiomarkersSimulator()
 	{
 
@@ -58,8 +56,8 @@ private:
 	const IsomerizationFunction 	  m_HopaneIsomerizationFunction;
 	const double m_timeStepSize;
 
-	static const double s_GASCONSTANT = 8.3144;
-	static const double s_SECS_IN_MA  = 3.15576e13; // sec/MA 
+	static const double s_GASCONSTANT;
+	static const double s_SECS_IN_MA; // sec/MA 
 };
 
 }

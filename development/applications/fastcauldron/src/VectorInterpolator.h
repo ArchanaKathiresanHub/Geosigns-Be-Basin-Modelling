@@ -1,7 +1,11 @@
 #ifndef FASTCAULDRON__VECTOR_INTERPOLATOR_H
 #define FASTCAULDRON__VECTOR_INTERPOLATOR_H
 
+#ifdef _MSC_VER
+#include <array>
+#else
 #include <tr1/array>
+#endif
 #include <iostream>
 #include <iomanip>
 

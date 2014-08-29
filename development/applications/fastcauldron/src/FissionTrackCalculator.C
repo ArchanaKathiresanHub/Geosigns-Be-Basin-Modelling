@@ -637,7 +637,7 @@ bool FissionTrackCalculator::compute(void)
          //get the next one
          ++itInputNode;
 
-         Calibration::FissionTracks::FtParameters::FtParameters& params = Calibration::FissionTracks::FtParameters::getInstance();
+         Calibration::FissionTracks::FtParameters& params = Calibration::FissionTracks::FtParameters::getInstance();
 
          for(;itInputNode != itInputNodesEnd; ++itInputNode)
          {

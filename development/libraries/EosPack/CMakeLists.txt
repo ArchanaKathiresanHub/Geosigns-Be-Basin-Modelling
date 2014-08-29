@@ -16,7 +16,6 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-
 add_library(EosPack 
    ${all_srcs}
    ${all_headers}

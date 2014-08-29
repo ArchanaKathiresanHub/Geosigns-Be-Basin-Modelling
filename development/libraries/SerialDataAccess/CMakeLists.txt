@@ -10,15 +10,15 @@
 #                                                                       #
 #########################################################################
 
-add_library( SerialDataAccess 
-   src/SerialApplicationGlobalOperations.C
-   src/SerialGrid.C
-   src/SerialGridMap.C
-   src/SerialMapWriter.C
-   src/SerialMessageHandler.C
-   src/SerialObjectFactory.C
-   src/SerialProjectHandle.C
-   src/Serialhdf5funcs.C
+FILE( GLOB all_headers src/Interface/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_library(SerialDataAccess 
+	${all_srcs}
+	${all_headers}
 )
 
 bm_include_libraries(

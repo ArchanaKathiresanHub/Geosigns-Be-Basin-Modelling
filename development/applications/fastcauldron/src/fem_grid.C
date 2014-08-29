@@ -73,6 +73,12 @@
 #include "TemperatureForVreInputGrid.h"
 #include "VreOutputGrid.h"
 
+#ifdef _MSC_VER
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#define isinf(x) !_finite(x) 
+#endif /** _MSC_VER */
+
 using namespace GeoPhysics;
 
 //------------------------------------------------------------//
@@ -2354,11 +2360,11 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
                // use at least the restart value that has been selected.
                int currentGMResRestart;
                KSPGMRESGetRestart ( Pressure_Linear_Solver, &currentGMResRestart );
-               gmresRestartValue = std::max ( currentGMResRestart, PressureSolver::DefaultGMResRestartValue );
+               gmresRestartValue = max ( currentGMResRestart, PressureSolver::DefaultGMResRestartValue );
 
                // Set at least the current number of iterations defined for the linear solver.
                int currentMaximumNumberOfIterations = getSolverMaxIterations ( Pressure_Linear_Solver );
-               linearSolverIterationCount = std::max ( currentMaximumNumberOfIterations, PressureSolver::DefaultMaximumPressureLinearSolverIterations );
+               linearSolverIterationCount = max ( currentMaximumNumberOfIterations, PressureSolver::DefaultMaximumPressureLinearSolverIterations );
 
                // Indicate that the linear solver has been changed.
                changedSolver = true;

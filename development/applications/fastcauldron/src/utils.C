@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <map>
 
 using namespace std;
 
@@ -396,29 +397,21 @@ void Display_Temperature_Solver_Progress( const double Age,
 
   if ( PetscGlobalRank != 0 ) return;
 
-  #if defined (sgi)
-     unsigned long Old_Flags = cout.setf ( ios::fixed );
-  #else
-     ios::fmtflags Old_Flags = cout.setf ( ios::fixed );
-  #endif
-
-  int Old_Precision = cout.precision ( 4 );
-
   char time[124];
   getElapsedTime (time);
-  cout << "o Solving Temperature... Age: " << setw( 8 ) << Age << " (Ma) - TimeStep: " 
-       << setw( 8 ) << Time_Step << " (Ma) " << "Elapsed: " << time;
 
+  ostringstream buf;
+  buf.precision(4);
+  buf.setf(ios::fixed);
 
+  buf << "o Solving Temperature... Age: " << setw( 8 ) << Age << " (Ma) - TimeStep: " 
+      << setw( 8 ) << Time_Step << " (Ma) " << "Elapsed: " << time;
+
+  cout << buf.str();
   if ( newLine ) {
      cout << endl;
   }
-
   cout << flush;
-
-  cout.setf ( Old_Flags );
-  cout.precision ( Old_Precision );
-
 }
 
 void Display_Pressure_Solver_Progress( const int    Iteration_Number,
@@ -430,28 +423,22 @@ void Display_Pressure_Solver_Progress( const int    Iteration_Number,
 
   if ( PetscGlobalRank != 0 ) return;
 
-  #if defined (sgi)
-     unsigned long Old_Flags = cout.setf ( ios::fixed );
-  #else
-     ios::fmtflags Old_Flags = cout.setf ( ios::fixed );
-  #endif
-
-  int Old_Precision = cout.precision ( 4 );
-
   char time[124];
   getElapsedTime (time);
-  cout << "o Solving Pressure [" << setw( 2 ) << Iteration_Number << " / " << setw( 2 ) 
-       << Maximum_Number_Iterations << "]... Age: " << setw( 8 ) << Age << " (Ma) - TimeStep: " 
-       << setw( 8 ) << Time_Step << " (Ma) " << "Elapsed: " << time;
 
+  ostringstream buf;
+  buf.precision(4);
+  buf.setf(ios::fixed);
 
+  buf << "o Solving Pressure [" << setw( 2 ) << Iteration_Number << " / " << setw( 2 ) 
+      << Maximum_Number_Iterations << "]... Age: " << setw( 8 ) << Age << " (Ma) - TimeStep: " 
+      << setw( 8 ) << Time_Step << " (Ma) " << "Elapsed: " << time;
+
+  cout << buf.str();
   if ( newLine ) {
      cout << endl;
   }
-
   cout << flush;
-  cout.setf ( Old_Flags );
-  cout.precision ( Old_Precision );
 
 }
 
@@ -463,28 +450,23 @@ void Display_Coupled_Solver_Progress ( const int    Iteration_Number,
 
   if ( PetscGlobalRank != 0 ) return;
 
-  #if defined (sgi)
-     unsigned long Old_Flags = cout.setf ( ios::fixed );
-  #else
-     ios::fmtflags Old_Flags = cout.setf ( ios::fixed );
-  #endif
-
-  int Old_Precision = cout.precision ( 4 );
-
   char time[124];
   getElapsedTime (time);
-  cout << "o Solving Coupled [" << setw( 2 ) << Iteration_Number << " / " << setw( 2 ) 
+
+  ostringstream buf;
+  buf.precision(4);
+  buf.setf(ios::fixed);
+
+  buf << "o Solving Coupled [" << setw( 2 ) << Iteration_Number << " / " << setw( 2 ) 
        << Maximum_Number_Iterations << "]... Age: " << setw( 8 ) << Age << " (Ma) - TimeStep: " 
        << setw( 8 ) << Time_Step << " (Ma) " << "Elapsed: " << time;
 
-
+  cout << buf.str();
   if ( newLine ) {
      cout << endl;
   }
-
   cout << flush;
-  cout.setf ( Old_Flags );
-  cout.precision ( Old_Precision );
+
 
 }
 

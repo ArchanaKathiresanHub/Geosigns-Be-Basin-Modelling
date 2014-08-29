@@ -34,7 +34,6 @@ namespace Genex6
    class SourceRockNode;
 }
 
-#include "GenexSimulation.h"
 #include "SourceRockAdsorptionHistory.h"
 
 #include <string>

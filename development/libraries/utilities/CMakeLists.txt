@@ -10,23 +10,16 @@
 #                                                                       #
 #########################################################################
 
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
 
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
 
-add_library( utilities
-	src/IBSinterpolator2d.C
-	src/IBSinterpolator.C
-	src/mangle.C
-	src/PiecewiseInterpolator.C
-	src/Quadrature.C
-	src/Quadrature3D.C
-	src/WallTime.C
-	src/TimeToComplete.C
-	src/ProgressManager.C
-    src/formattingexception.C
+add_library(utilities 
+	${all_srcs}
+	${all_headers}
 )
-
-#generate_export_header( utilities )
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (MSVC)
 	add_definitions( "-D_USE_MATH_DEFINES" )

@@ -28,11 +28,8 @@ const double PressureSolver::GeometricLoopThicknessTolerance = 0.001;
 
 
 const int PressureSolver::DefaultMaximumPressureLinearSolverIterations;
-
 const int PressureSolver::MaximumGMResRestartValue;
-
 const int PressureSolver::GMResRestartIncrementValue;
-
 const int PressureSolver::DefaultGMResRestartValue;
 
 

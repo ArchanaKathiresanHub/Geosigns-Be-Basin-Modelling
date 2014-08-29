@@ -867,10 +867,10 @@ double computeElementCflNumber ( const LayerElement&  element,
    
    ThreeVector flux = computeMassFlux ( element, finiteElement, phasePressure, permeability, phaseDensity, phaseViscosity );
 
-   if ( NumericFunctions::isEqual<double>( maximumAbs ( flux ), 0.0 ) or 
+   if ( NumericFunctions::isEqual<double>( maximumAbs ( flux ), 0.0, std::numeric_limits<double>::epsilon() ) or 
         phaseSaturation < 0.001 or
-        NumericFunctions::isEqual<double>( phaseSaturation, 0.0 ) or
-        NumericFunctions::isEqual<double>( porosity, 0.0 )) {
+        NumericFunctions::isEqual<double>( phaseSaturation, 0.0, std::numeric_limits<double>::epsilon() ) or
+        NumericFunctions::isEqual<double>( porosity, 0.0, std::numeric_limits<double>::epsilon() )) {
       // What else should be returned?
       return DefaultMaximumTimeStep * SecondsPerYear;
    } else {

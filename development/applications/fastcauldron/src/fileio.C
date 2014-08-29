@@ -5,30 +5,11 @@
 #include <sstream>
 using namespace std;
 
-
-#include <sys/utsname.h>
 #include <sys/types.h>
 #include <sys/stat.h>  
 
 #include "utils.h"
 #include "globaldefs.h"
-
-
-// void checkFileSystem(string& str) {
- 
-//   struct utsname buf;
-//   uname(&buf);
-//   if (0 == strcmp(buf.sysname, "Linux")) {
-//   } else if (0 == strcmp(buf.sysname, "IRIX64")) {
-//     //cout << "This is an IRIX64 operating system" << endl;
-//   } else if (0 == strcmp(buf.sysname, "SunOS")) {
-//     //cout << "This is a Sun operating system" << endl;
-//   } else {
-//     cout << buf.sysname << " " << buf.nodename << " ";
-//     cout << buf.release << " " << buf.version << " " << buf.machine << endl;
-//   }
-
-// }
 
 string generatePropertyFileName ( const string& outputDirectory, 
                                   const bool    isMinorSnapshot, 

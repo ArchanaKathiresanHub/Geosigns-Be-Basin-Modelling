@@ -1,6 +1,4 @@
 #include "snapshotdata.h"
-#include <unistd.h>
-
 #include "petscts.h"
 
 #include "globaldefs.h"

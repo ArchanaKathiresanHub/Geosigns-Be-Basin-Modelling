@@ -37,7 +37,6 @@ include(FeatureSummary)
 # Configurable options
 #
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
-option( BM_PARALLEL "Build the parallel cauldron applications" ${UNIX} )
 option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
 option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
@@ -170,11 +169,11 @@ find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
+find_package(PETSC REQUIRED CONFIG)
    
 if (UNIX)
-   find_package(BLAS REQUIRED CONFIG)
-   find_package(PETSC REQUIRED CONFIG)
    find_package(FlexLM REQUIRED CONFIG)
+   find_package(BLAS REQUIRED CONFIG)
    find_package(Touchstone REQUIRED CONFIG)
    find_package(LSF REQUIRED CONFIG)
    

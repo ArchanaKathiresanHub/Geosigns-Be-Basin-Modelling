@@ -10,20 +10,24 @@
 
 namespace Calibration
 {
+
+	// Declare some static variables
+	const double SmectiteIlliteSimulator::s_GASCONSTANT = 8.3144;
+	const double SmectiteIlliteSimulator::s_SECS_IN_MA = 3.15576e13; 
+
 SmectiteIlliteSimulator:: SmectiteIlliteSimulator( const double &in_ActEnergy1,  
 												const double &in_FreqFactor1,
 												const double &in_ActEnergy2,  
 												const double &in_FreqFactor2,	
 												const double in_InitIlliteFraction,  
 												const double &in_timeStepSize):
-m_ActEnergy1(in_ActEnergy1),  
-m_FreqFactor1(in_FreqFactor1),
-m_ActEnergy2(in_ActEnergy2),  
-m_FreqFactor2(in_FreqFactor2),	
-m_InitIlliteFraction(in_InitIlliteFraction),	 
-m_timeStepSize(in_timeStepSize)
+   m_ActEnergy1(in_ActEnergy1),  
+   m_FreqFactor1(in_FreqFactor1),
+   m_ActEnergy2(in_ActEnergy2),  
+   m_FreqFactor2(in_FreqFactor2),	
+   m_InitIlliteFraction(in_InitIlliteFraction),	 
+   m_timeStepSize(in_timeStepSize)
 {
-                
 }
 SmectiteIlliteSimulator::~SmectiteIlliteSimulator()
 {

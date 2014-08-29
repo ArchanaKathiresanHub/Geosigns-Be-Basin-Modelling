@@ -13,8 +13,15 @@
 
 if (BM_PARALLEL)
 
-	add_library(Utilities_Petsc
-		src/PetscVectors.C
+	FILE( GLOB all_headers src/*.h )
+	source_group(include FILES ${all_headers})
+
+	FILE( GLOB all_srcs src/*.C)
+	source_group(source FILES ${all_srcs})
+
+	add_library(Utilities_Petsc 
+		${all_srcs}
+		${all_headers}
 	)
 
 	include_directories(

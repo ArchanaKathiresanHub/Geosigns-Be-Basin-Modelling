@@ -3,6 +3,11 @@
 #include <iomanip>
 #include <cmath>
 
+#ifdef _MSC_VER
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#define isinf(x) !_finite(x) 
+#endif /** _MSC_VER */
 
 const std::string& Saturation::PhaseImage ( const Phase p ) {
 
@@ -107,10 +112,10 @@ void Saturation::set ( const double liquidSaturation,
 }
 
 bool Saturation::isFinite () const {
-   return not ( std::isinf ( m_values [ WATER ])    or std::isnan ( m_values [ WATER ]) or
-                std::isinf ( m_values [ LIQUID ])   or std::isnan ( m_values [ LIQUID ]) or
-                std::isinf ( m_values [ VAPOUR ])   or std::isnan ( m_values [ VAPOUR ]) or
-                std::isinf ( m_values [ IMMOBILE ]) or std::isnan ( m_values [ IMMOBILE ]));
+   return not ( isinf ( m_values [ WATER ])    or isnan ( m_values [ WATER ]) or
+                isinf ( m_values [ LIQUID ])   or isnan ( m_values [ LIQUID ]) or
+                isinf ( m_values [ VAPOUR ])   or isnan ( m_values [ VAPOUR ]) or
+                isinf ( m_values [ IMMOBILE ]) or isnan ( m_values [ IMMOBILE ]));
 }
 
 

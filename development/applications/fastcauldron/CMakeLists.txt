@@ -12,130 +12,13 @@
 
 if (BM_PARALLEL)
 
-add_executable(fastcauldron
-	src/AllochthonousLithologyMapCalculator.C
-	src/BasementPropertyCalculator.C
-	src/BiomarkersAdapter.C
-	src/BiomarkersCalculator.C
-	src/BoundaryId.C
-	src/BrineProperties.C
-	src/BulkDensityCalculator.C
-	src/CapillaryPressureCalculator.C
-	src/CauldronCalculator.C
-        src/ChemicalCompactionGrid.C
-        src/ChemicalCompactionSchneiderGrid.C
-        src/ChemicalCompactionWalderhaugGrid.C
-	src/ComponentConcentrationCalculator.C
-	src/CrustFormation.C
-	src/DarcyCalculations.C
-	src/DerivedOutputPropertyMapFactory.C
-	src/ElementContributions.C
-	src/element_contributions.C
-	src/ElementFaceValues.C
-	src/ElementGrid.C
-	src/ElementVolumeGrid.C
-	src/ErosionFactorCalculator.C
-	src/ExplicitMultiComponentFlowSolver.C
-	src/FastcauldronFactory.C
-	src/FastcauldronSimulator.C
-	src/FaultElementMapCalculator.C
-	src/fctcalc.C
-	src/FCTCorrectionCalculator.C
-	src/FaceAreaInterpolatorCalculator.C
-	src/FacePermeabilityInterpolatorCalculator.C
-	src/fem_grid_auxiliary_functions.C
-	src/fem_grid.C
-	src/fileio.C
-	src/filterwizard.C
-	src/FissionTrackCalculator.C
-	src/FluidPropertyCalculator.C
-	src/FluidVelocityCalculator.C
-	src/FormationMapping.C
-	src/FracturePressureVolumeCalculator.C
-	src/GeometricLoopPressureSolver.C
-	src/ghost_array.C
-	src/globaldefs.C
-	src/HcFluidVelocityCalculator.C
-	src/HeatFlowCalculator.C
-	src/history.C
-	src/HydraulicFracturingManager.C
-	src/ImmobileSpeciesValues.C
-	src/layer.C
-	src/layer_iterators.C
-	src/LinearPropertyInterpolator.C
-	src/Lithology.C
-	src/LithologyIdCalculator.C
-	src/main.C
-	src/MantleFormation.C
-	src/mapinterpolator.C
-	src/MapElement.C
-	src/MaxVesCalculator.C
-	src/Mesh3DIndex.C
-	src/milestones.C
-	src/MultiComponentFlowHandler.C
-	src/NodalGrid.C
-	src/NodalVolumeGrid.C
-	src/NonGeometricLoopPressureSolver.C
-	src/OptionalGenexPropertyCalculator.C
-	src/Output.C
-	src/OutputPropertyMap.C
-	src/PermeabilityCalculator.C
-	src/PoreVolumeInterpolatorCalculator.C
-	src/PorosityCalculator.C
-	src/PressureSolver.C
-	src/PrimaryOutputPropertyMap.C
-	src/PrimaryOutputPropertyVolume.C
-	src/profile.C
-	src/PropertiesIoTbl.C
-	src/Property.C
-	src/property_manager.C
-	src/PropertyManager.C
-	src/PropertyOutputConstraints.C
-	src/PropertyValue.C
-	src/propinterface.C
-	src/PVTCalculator.C
-	src/PvtHcProperties.C
-	src/readproperties.C
-	src/ReflectivityCalculator.C
-	src/RelatedProject.C
-	src/RelativePermeabilityCalculator.C
-	src/RequiredGenex5PropertyCalculator.C
-	src/RunParameters.C
-	src/Saturation.C
-	src/SaturationCalculator.C
-	src/SmectiteIlliteAdapter.C
-	src/SmectiteIlliteCalculator.C
-	src/snapshotdata.C
-	src/snapshotinterpolator.C
-	src/SourceRocksTemporalInterpolator.C
-	src/SourceTermInterpolatorCalculator.C
-	src/SourceTermTemporalInterpolator.C
-	src/SonicCalculator.C
-	src/Subdomain.C
-	src/SubdomainElement.C
-	src/StatisticsHandler.C
-	src/FormationSubdomainElementGrid.C
-	src/System.C
-	src/temperature_solver.C
-	src/TemporalPropertyInterpolator.C
-	src/ThermalConductivityCalculator.C
-	src/ThermalDiffusivityCalculator.C
-	src/ThicknessCalculator.C
-	src/ThicknessErrorMapCalculator.C
-	src/TimeOfElementInvasionCalculator.C
-	src/timefilter.C
-	src/TransportedVolumeCalculator.C
-	src/utils.C
-	src/VelocityCalculator.C
-	src/VitriniteReflectanceCalculator.C
-	src/VolumeCalculator.C
-	src/LayerElement.C
-	src/Well.C
-        src/PetscLogStages.C
-        src/TemperatureForVreInputGrid.C
-        src/VreGrid.C
-        src/VreOutputGrid.C
-)
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_executable(fastcauldron ${all_srcs} ${all_headers})
 
 remove_definitions(-fPIC)
 
@@ -156,7 +39,6 @@ bm_include_libraries(
 	utilities
 	Utilities_Petsc
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack
 	TableIO
@@ -170,13 +52,38 @@ bm_include_libraries(
 	calibration_kernel	
 )
 
+# OFPP only for Linux
+if (UNIX)
+	bm_include_libraries( OneFilePerProcess )
+endif (UNIX)
+
+set (targetLibraries
+	${HDF5_LIBRARIES}
+	${PETSC_LIBRARIES}
+	${BLAS_LIBRARIES}
+	${MPI_LIBRARIES}
+)
+
+#only add flexlm for Linux
+if (UNIX)
+	set (targetLibraries
+		${targetLibraries}
+		${FLEXLM_LIBRARIES}
+		OneFilePerProcess
+	)
+else ()
+	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
+	set( CMAKE_EXE_LINKER_FLAGS  
+		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
+	)
+endif (UNIX)
+
 target_link_libraries(fastcauldron
 	DataAccess
 	DistributedDataAccess
 	utilities
 	Utilities_Petsc
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack
 	TableIO
@@ -189,12 +96,7 @@ target_link_libraries(fastcauldron
 	GeoPhysics
 	calibration_kernel	
 	OTGC_kernel6
-	${HDF5_LIBRARIES}
-	${FLEXLM_LIBRARIES}
-	${PETSC_LIBRARIES}
-	${BLAS_LIBRARIES}
-	${MPI_LIBRARIES}
-	z
+	${targetLibraries}
 )
 
 set_target_properties(fastcauldron
@@ -207,6 +109,8 @@ install(TARGETS fastcauldron
 
 include_directories ( src ${EIGEN_INCLUDE_DIRS} )
 
+# no 'dl' library on Windows
+if (UNIX)
 add_gtest( NAME VectorInterpolator
            SOURCES test/InterpolationTest.C 
            LIBRARIES LinearAlgebra ${BLAS_LIBRARIES} dl
@@ -215,6 +119,7 @@ add_gtest( NAME VectorInterpolator
 add_gtest( NAME MatrixInterpolator
            SOURCES test/MatrixInterpolationTest.C
            LIBRARIES LinearAlgebra ${BLAS_LIBRARIES} dl )
+endif (UNIX)
 
 add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
 	   SOURCES test/PceTest.C )

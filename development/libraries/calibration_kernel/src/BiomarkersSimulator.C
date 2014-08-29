@@ -6,20 +6,26 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-
-//#include <string>
-//#include <vector>
 #include <cmath>
-
 
 namespace Calibration
 {
+	// Declare some static variables
+	const double BiomarkersSimulator::s_GASCONSTANT = 8.3144;
+	const double BiomarkerKineticsFunction::GASCONSTANT = 8.3144;
+
+	// Little silly since all these variables are constants and the same
+	const double AromatizationFunction::s_SECS_IN_MA = 3.15576e13; // sec/MA 
+	const double BiomarkersSimulator::s_SECS_IN_MA = 3.15576e13; // sec/MA 
+	const double IsomerizationFunction::s_SECS_IN_MA = 3.15576e13; // sec/MA 
+
 void BiomarkersSimulator::initializeState(const NodeInput &theInput, BiomarkersSimulatorState &NodeSimulatorState) const
 {
 	NodeSimulatorState.setReferenceTime(theInput.getReferenceTime());
 	NodeSimulatorState.setReferenceTemperature(theInput.getTemperatureKelvin());
 	NodeSimulatorState.setAsInitialized();
 }
+
 void BiomarkersSimulator::computeStateVariables(const double &temperatureEnd, const double &timeEnd, BiomarkersSimulatorState &NodeSimulatorState ) const
 {
 	static double StateVariableIncrement[BiomarkersSimulatorState::NUMOFSTATEVARIABLES];

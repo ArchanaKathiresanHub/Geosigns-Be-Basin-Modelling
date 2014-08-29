@@ -1792,7 +1792,10 @@ void GeoPhysics::CompoundLithology::mixCapillaryEntryPressureCofficients()
          ++percentIter;
       }
    } else { // if (m_mixmodeltype == LAYERED){
-      double depoPerm,  minDepoPerm = numeric_limits<double>::max();
+#ifdef _MSC_VER
+#undef max	// To make sure the next statement is using the correct max() function
+#endif
+	   double depoPerm,  minDepoPerm = numeric_limits<double>::max();
 
       while (m_lithoComponents.end() != componentIter) {
          depoPerm = (*componentIter)->getDepoPerm();

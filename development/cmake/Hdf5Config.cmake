@@ -28,18 +28,31 @@ if(UNIX)
    find_library(HDF5_HL_LIBRARY hdf5_hl PATHS "${HDF5_HOME}/lib" NO_DEFAULT_PATH)
    list (APPEND HDF5_LIBRARIES ${HDF5_HL_LIBRARY} ${HDF5_BASE_LIBRARY} z ${MPI_LIBRARIES})
 
-# HDF5 Source
+   # HDF5 Source
    set(HDF5_SOURCE_DIR "${HPC_HOME}/hdf5-src/${HDF5_VERSION}" CACHE PATH "Source directory of HDF5")
-endif()
 
-if(WIN32)
-	set (HDF5_HOME ${THIRD_PARTY_DIR}/hdf5.win${_64}/hdf5)
-	# serial version
-        set (HDF5_FOUND TRUE)
-	set (HDF5_INCLUDE_DIR ${HDF5_HOME}/include)
-	set (HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR})
-	set (HDF5_LIBRARY ${HDF5_HOME}/lib/hdf5.lib )
-	list (APPEND HDF5_LIBRARIES ${HDF5_LIBRARY})
+   add_environment_path("${HDF5_HOME}/bin")
+
+else() # WIN32
+
+   set (HDF5_HOME ${THIRD_PARTY_DIR}/hdf5.win64-1.8.11/hdf5)
+      set (HDF5_FOUND TRUE)
+   set (HDF5_INCLUDE_DIR ${HDF5_HOME}/include)
+   set (HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
+   
+   set(HDF5_LIB_ROOT "${HDF5_HOME}/lib")
+      if ( MSVC10 )
+          set(HDF5_postfix "-msvc10")
+      elseif(MSVC11)
+          set(HDF5_postfix "-msvc11")
+      else()
+          #TODO: signal failure here
+      endif()
+   set (HDF5_LIBRARY ${HDF5_LIB_ROOT}${HDF5_postfix}/libhdf5.lib )
+   
+   list (APPEND HDF5_LIBRARIES ${HDF5_LIBRARY} ${MPI_LIBRARIES})
+      set(HDF5_SOURCE_DIR ${HDF5_HOME} CACHE PATH "Source directory of HDF5")
+
 endif()
 
 add_external_package_info(
@@ -60,5 +73,4 @@ add_external_package_info(
       ECCN         "EAR99"
 )
       
-add_environment_path("${HDF5_HOME}/bin")
 

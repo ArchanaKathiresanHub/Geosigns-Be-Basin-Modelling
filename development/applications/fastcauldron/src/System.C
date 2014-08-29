@@ -1,5 +1,7 @@
 #include "System.h"
 
+#ifndef _MSC_VER  //TODO_SK: this does not compile on Windows
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -45,3 +47,11 @@ int GetProcPID()
   return (int)getpid();
 
 }
+#else
+
+double GetResidentSetSize() { return 0; }
+int GetCurrentLimit() { return 0; }
+long GetPageSize() { return 0; }
+int GetProcPID() { return 0; }
+
+#endif

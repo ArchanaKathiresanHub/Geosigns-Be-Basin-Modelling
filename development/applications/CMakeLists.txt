@@ -54,7 +54,9 @@ if (UNIX)
 		add_subdirectory(UnitTestOTGC6)
 	endif (BM_BUILD_SERIAL_APPS)
 
-endif(UNIX)
+else ()
+	add_subdirectory(fastcauldron)
+endif ()
 
 # Local Variables:
 # mode: cmake

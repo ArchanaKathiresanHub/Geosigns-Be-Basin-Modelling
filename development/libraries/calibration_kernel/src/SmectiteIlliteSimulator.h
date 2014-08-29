@@ -33,15 +33,15 @@ protected:
 
 private:
 
-   const double m_ActEnergy1;  
+    const double m_ActEnergy1;  
 	const double m_FreqFactor1;
 	const double m_ActEnergy2;  
 	const double m_FreqFactor2;
 	const double m_InitIlliteFraction;	  
 	const double m_timeStepSize;
 
-	static const double s_GASCONSTANT = 8.3144;
-	static const double s_SECS_IN_MA  = 3.15576e13; // sec/MA 
+	static const double s_GASCONSTANT;
+	static const double s_SECS_IN_MA; 
 };
 }
 #endif

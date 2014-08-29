@@ -10,8 +10,15 @@
 #                                                                       #
 #########################################################################
 
-add_executable(track1d
-	src/track1d.C
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_executable(track1d 
+	${all_srcs}
+	${all_headers}
 )
 
 bm_include_libraries(

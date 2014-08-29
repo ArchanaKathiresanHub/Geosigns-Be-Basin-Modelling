@@ -13,10 +13,8 @@ class NodeInput
 public:
    NodeInput(const double &in_currentTime = 0.0,  const double &in_temperature = 0.0):
 	m_referenceTime(in_currentTime),
-	m_temperature(in_temperature)
-	{
-	
-	}
+	m_temperature(in_temperature) {} 
+
    ~NodeInput()
 	{
 
@@ -49,12 +47,9 @@ private:
    double m_referenceTime;             
    double m_temperature;
 
-	static const double s_KelvinConst = 273.15;
-
-	//friend ostream &
-	//operator<<(ostream & os, NodeInput &theInput);
-
+   static const double s_KelvinConst;
 };
+
 inline void NodeInput::setTemperature(const double &in_temp)
 {
    m_temperature = in_temp;

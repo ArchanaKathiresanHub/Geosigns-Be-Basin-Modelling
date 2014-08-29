@@ -20,7 +20,7 @@ class Histogram
    
  public:
    //public constants
-   static const double IBSNULLVALUE = -9999;
+   static const double IBSNULLVALUE;
 
 
 public:

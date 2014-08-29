@@ -38,8 +38,10 @@
 
 #include "MultiComponentFlowHandler.h"
 
+#ifndef _MSC_VER
 #include "fileHandler.h"
 #include "h5merge.h"
+#endif
 
 //------------------------------------------------------------//
 
@@ -802,6 +804,8 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
       return true;
    }
+
+#ifndef _MSC_VER
    PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
 
    PetscBool noFileCopy = PETSC_FALSE;
@@ -880,6 +884,9 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
    }
    return status;
+#else
+   return true;
+#endif
 }
 
 //------------------------------------------------------------//

@@ -1,16 +1,5 @@
 #ifndef _GENEXSIMULATION_SNAPSHOTINTERVAL_H_
 #define _GENEXSIMULATION_SNAPSHOTINTERVAL_H
-/*
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-#endif // sgi
-*/
 
 #include <vector>
 
@@ -21,7 +10,6 @@ namespace DataAccess
       class Snapshot;
    }
 }
-#include "GenexSimulation.h"
 
 namespace Genex6
 {

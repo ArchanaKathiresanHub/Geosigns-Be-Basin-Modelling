@@ -11,23 +11,27 @@
 #########################################################################
 
 if (BM_PARALLEL)
-	add_library( DistributedDataAccess
-		src/DistributedApplicationGlobalOperations.C
-		src/DistributedMapWriter.C
-		src/DistributedGridMap.C
-		src/DistributedGrid.C
-		src/DistributedMessageHandler.C
-		src/DistributedObjectFactory.C
-		src/DistributedProjectHandle.C
-		src/GlobalGrid.C
-		src/Distributedhdf5funcs.C
-	)	
+
+	FILE( GLOB all_headers src/Interface/*.h )
+	source_group(include FILES ${all_headers})
+
+	FILE( GLOB all_srcs src/*.C)
+	source_group(source FILES ${all_srcs})
+
+	add_library(DistributedDataAccess 
+	   ${all_srcs}
+	   ${all_headers}
+	)
+
+	set (OFPP "")
+	if (UNIX)
+		set (OFPP OneFilePerProcess)
+	endif ()
 
 	target_link_libraries( DistributedDataAccess 
 		DataAccess
 		Utilities_Petsc
 		Serial_Hdf5
-		OneFilePerProcess
 		Parallel_Hdf5
 		TableIO
 		utilities
@@ -35,6 +39,7 @@ if (BM_PARALLEL)
 		${HDF5_LIBRARIES}
 		${MPI_LIBRARIES}
 		${PETSC_LIBRARIES}
+		${OFPP}
 	)
 
 	bm_include_libraries(
@@ -43,13 +48,18 @@ if (BM_PARALLEL)
 		DataAccess 
 		Utilities_Petsc 
 		Serial_Hdf5 
-		OneFilePerProcess
 		Parallel_Hdf5
 		TableIO
 		utilities 
 		CBMGenerics
 		)
-	
+
+	if (UNIX)
+	bm_include_libraries(
+		OneFilePerProcess
+		)
+	endif (UNIX)
+
 	include_directories( 
 		src
 		${PETSC_INCLUDE_DIRS}
