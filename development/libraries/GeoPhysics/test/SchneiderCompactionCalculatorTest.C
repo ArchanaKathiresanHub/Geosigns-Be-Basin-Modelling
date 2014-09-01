@@ -13,6 +13,7 @@
 #include "../src/GeoPhysicalConstants.h"
 #include "MockGrid.h"
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -120,7 +121,7 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_parameters_values )
 	std::fill_n( chemicalCompaction1, size, 0.0 );
 	std::fill_n( chemicalCompaction2, size, 0.0 );
 	std::fill_n( porosity,       15,      0.0  );
-	std::fill_n( porosity + 15,  30,      0.3  );
+	std::fill_n( porosity + 15,  15,      0.3  );
 	std::fill_n( porosity + 30,  size-30, 1.0  );
 
 	double temperature [size]; //[celcius]

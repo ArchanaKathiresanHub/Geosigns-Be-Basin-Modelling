@@ -27,10 +27,10 @@ using namespace FiniteElementMethod;
 const double PressureSolver::GeometricLoopThicknessTolerance = 0.001;
 
 
-const int PressureSolver::DefaultMaximumPressureLinearSolverIterations;
-const int PressureSolver::MaximumGMResRestartValue;
-const int PressureSolver::GMResRestartIncrementValue;
-const int PressureSolver::DefaultGMResRestartValue;
+const int PressureSolver::DefaultMaximumPressureLinearSolverIterations = 1000;
+const int PressureSolver::MaximumGMResRestartValue = 200;
+const int PressureSolver::GMResRestartIncrementValue = 20;
+const int PressureSolver::DefaultGMResRestartValue = 80;
 
 
 

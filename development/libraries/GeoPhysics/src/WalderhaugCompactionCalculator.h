@@ -47,7 +47,7 @@ public:
     * Computes the quartz cementation on every valid needle of every valid layer of the basin
     * between two snapshots ie between two times.
     *
-    * \param previousGrid: Grid & grid contains all (and only) the needed information
+    * \param grid: Grid & grid contains all (and only) the needed information
     * in order to compute the chemical compaction according to Walderhaug model.
     */
    virtual void computeOnTimeStep( Grid & grid );

@@ -36,7 +36,7 @@ private:
    const std::vector<double> m_activationEnergies;
 
 
-   /// \Delta I_{ij}, see eq. (9) from Appendix of Sweeney & Burnham (1990)
+   /// \f$ \delta I_{ij} \f$, see eq. (9) from Appendix of Sweeney & Burnham (1990)
    std::vector< double > m_deltaI; 
 
    /// Fraction of reactant converted

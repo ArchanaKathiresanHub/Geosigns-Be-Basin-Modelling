@@ -426,7 +426,7 @@ double BasementLithology::thermCondBasalt (const double inTemperature) const {
 
 //------------------------------------------------------------//
 
-double BasementLithology::heatcapacity(double t) const
+double BasementLithology::heatcapacity(const double t) const
 {
    switch (m_heatcapmodel)
     {

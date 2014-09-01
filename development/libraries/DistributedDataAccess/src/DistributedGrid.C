@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
@@ -46,19 +47,19 @@ bool DistributedGrid::CalculatePartitioning (int M, int N, int & mSelected, int 
       n = size / m;
       if (m * n == size && m <= M && n <= N)
       {
-	 scalingFound = true;
-	 double mScaling = double(M) / double (m);
-	 double nScaling = double(N) / double (n);
+    scalingFound = true;
+    double mScaling = double(M) / double (m);
+    double nScaling = double(N) / double (n);
 
-	 double scalingRatio = std::max (mScaling, nScaling) / std::min (mScaling, nScaling);
-	 if (scalingRatio < minimumScalingRatio)
-	 {
-	    mSelected = m, nSelected = n;
-	    minimumScalingRatio = scalingRatio;
-	 }
+    double scalingRatio = std::max (mScaling, nScaling) / std::min (mScaling, nScaling);
+    if (scalingRatio < minimumScalingRatio)
+    {
+       mSelected = m, nSelected = n;
+       minimumScalingRatio = scalingRatio;
+    }
 #if 0
-	 PetscPrintf (PETSC_COMM_WORLD, "m = %d, n = %d, mScaling = %lf, nScaling = %lf, scalingRatio = %lf, mSelected = %d, nSelected = %d\n",
-	       m, n, mScaling, nScaling, scalingRatio, mSelected, nSelected);
+    PetscPrintf (PETSC_COMM_WORLD, "m = %d, n = %d, mScaling = %lf, nScaling = %lf, scalingRatio = %lf, mSelected = %d, nSelected = %d\n",
+          m, n, mScaling, nScaling, scalingRatio, mSelected, nSelected);
 #endif
 
       }
@@ -68,7 +69,7 @@ bool DistributedGrid::CalculatePartitioning (int M, int N, int & mSelected, int 
    if (scalingFound)
    {
       PetscPrintf (PETSC_COMM_WORLD,
-	    "\nPartitioning %d x %d grid using %d cores into %d x %d cores\n", M, N, size, mSelected, nSelected);
+       "\nPartitioning %d x %d grid using %d cores into %d x %d cores\n", M, N, size, mSelected, nSelected);
    }
 #endif
    return scalingFound;
@@ -97,7 +98,7 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
    }
 
    if (!CalculatePartitioning (lowResNumI, lowResNumJ, numICores, numJCores) &&
-	 !CalculatePartitioning (numIGlobal (), numJGlobal (), numICores, numJCores))
+    !CalculatePartitioning (numIGlobal (), numJGlobal (), numICores, numJCores))
    {
       PetscPrintf (PETSC_COMM_WORLD,
                    "\nUnable to partition a %d (%d) x %d (%d) grid using %d cores, please select a different number of cores:\n", lowResNumI, numIGlobal (),  lowResNumJ, numJGlobal (), size);
@@ -137,9 +138,9 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
 
 #if 0
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank %d: xs = %d, xm = %d, ys = %d, ym = %d\n",
-	 ddd::GetRank (), m_localInfo.xs, m_localInfo.xm, m_localInfo.ys, m_localInfo.ym);
+    ddd::GetRank (), m_localInfo.xs, m_localInfo.xm, m_localInfo.ys, m_localInfo.ym);
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank %d: gxs = %d, gxm = %d, gys = %d, gym = %d\n",
-	 ddd::GetRank (), m_localInfo.gxs, m_localInfo.gxm, m_localInfo.gys, m_localInfo.gym);
+    ddd::GetRank (), m_localInfo.gxs, m_localInfo.gxm, m_localInfo.gys, m_localInfo.gym);
    PetscSynchronizedFlush (PETSC_COMM_WORLD);
 #endif
 
@@ -180,21 +181,21 @@ void DistributedGrid::calculateNums(const Grid * referenceGrid)
       PetscPrintf (PETSC_COMM_WORLD, "I: %d ==> %d\n", i, refI);
 #endif
       if ((referenceGrid->onLowISide () || int (refI) >= referenceGrid->firstI ()) &&
-	  (referenceGrid->onHighISide () || int (refI) <= referenceGrid->lastI ()))
+     (referenceGrid->onHighISide () || int (refI) <= referenceGrid->lastI ()))
       {
 #if 0
-	 fprintf (stderr, "Rank %d: onLowISide = %d, onHighISide = %d\n",
-	       rank,
-	       referenceGrid->onLowISide (),  referenceGrid->onHighISide ());
+    fprintf (stderr, "Rank %d: onLowISide = %d, onHighISide = %d\n",
+          rank,
+          referenceGrid->onLowISide (),  referenceGrid->onHighISide ());
 
-	 fprintf (stderr, "Rank %d: (refI (%d) >= firstI (%d)) = %d\n",
-	       rank, refI,  referenceGrid->firstI (), refI >= referenceGrid->firstI ());
-	 fprintf (stderr, "Rank %d: (refI (%d) >= lastI (%d)) = %d\n",
-	       rank, refI,  referenceGrid->lastI (), refI >= referenceGrid->lastI ());
+    fprintf (stderr, "Rank %d: (refI (%d) >= firstI (%d)) = %d\n",
+          rank, refI,  referenceGrid->firstI (), refI >= referenceGrid->firstI ());
+    fprintf (stderr, "Rank %d: (refI (%d) >= lastI (%d)) = %d\n",
+          rank, refI,  referenceGrid->lastI (), refI >= referenceGrid->lastI ());
 
-	 fprintf (stderr, "Rank %d, I (refI): %d (%d) -> %d\n", rank, j, refI, rank / referenceGrid->numProcsI ());
+    fprintf (stderr, "Rank %d, I (refI): %d (%d) -> %d\n", rank, j, refI, rank / referenceGrid->numProcsI ());
 #endif
-	 m_numsI[rank % referenceGrid->numProcsI ()]++;
+    m_numsI[rank % referenceGrid->numProcsI ()]++;
       }
    }
 
@@ -206,21 +207,21 @@ void DistributedGrid::calculateNums(const Grid * referenceGrid)
       PetscPrintf (PETSC_COMM_WORLD, "J: %d ==> %d\n", j, refJ);
 #endif
       if ((referenceGrid->onLowJSide () || int (refJ) >= referenceGrid->firstJ ()) &&
-	  (referenceGrid->onHighJSide () || int (refJ) <= referenceGrid->lastJ ()))
+     (referenceGrid->onHighJSide () || int (refJ) <= referenceGrid->lastJ ()))
       {
 #if 0
-	 fprintf (stderr, "Rank %d: onLowJSide = %d, onHighJSide = %d\n",
-	       rank,
-	       referenceGrid->onLowJSide (),  referenceGrid->onHighJSide ());
+    fprintf (stderr, "Rank %d: onLowJSide = %d, onHighJSide = %d\n",
+          rank,
+          referenceGrid->onLowJSide (),  referenceGrid->onHighJSide ());
 
-	 fprintf (stderr, "Rank %d: (refJ (%d) >= firstJ (%d)) = %d\n",
-	       rank, refJ,  referenceGrid->firstJ (), refJ >= referenceGrid->firstJ ());
-	 fprintf (stderr, "Rank %d: (refJ (%d) >= lastJ (%d)) = %d\n",
-	       rank, refJ,  referenceGrid->lastJ (), refJ >= referenceGrid->lastJ ());
+    fprintf (stderr, "Rank %d: (refJ (%d) >= firstJ (%d)) = %d\n",
+          rank, refJ,  referenceGrid->firstJ (), refJ >= referenceGrid->firstJ ());
+    fprintf (stderr, "Rank %d: (refJ (%d) >= lastJ (%d)) = %d\n",
+          rank, refJ,  referenceGrid->lastJ (), refJ >= referenceGrid->lastJ ());
 
-	 fprintf (stderr, "Rank %d, J (refJ): %d (%d) -> %d\n", rank, j, refJ, rank / referenceGrid->numProcsI ());
+    fprintf (stderr, "Rank %d, J (refJ): %d (%d) -> %d\n", rank, j, refJ, rank / referenceGrid->numProcsI ());
 #endif
-	 m_numsJ[rank / referenceGrid->numProcsI ()]++;
+    m_numsJ[rank / referenceGrid->numProcsI ()]++;
       }
    }
 
@@ -519,41 +520,41 @@ bool DistributedGrid::convertToGrid (const Grid & toGrid,
    {
       if (m_convertingTo != & toGrid)
       {
-	 if (m_conversionsToI) delete [] m_conversionsToI;
+    if (m_conversionsToI) delete [] m_conversionsToI;
 
-	 m_conversionsToI = new unsigned int [numI ()];
-	 for (int i = numI () - 1; i >= 0; i--)
-	    m_conversionsToI[i] = INT_MAX;
+    m_conversionsToI = new unsigned int [numI ()];
+    for (int i = numI () - 1; i >= 0; i--)
+       m_conversionsToI[i] = INT_MAX;
 
-	 if (m_conversionsToJ) delete [] m_conversionsToJ;
-	 m_conversionsToJ = new unsigned int [numJ ()];
-	 for (int j = numJ () - 1; j >= 0; j--)
-	    m_conversionsToJ[j] = INT_MAX;
+    if (m_conversionsToJ) delete [] m_conversionsToJ;
+    m_conversionsToJ = new unsigned int [numJ ()];
+    for (int j = numJ () - 1; j >= 0; j--)
+       m_conversionsToJ[j] = INT_MAX;
 
-	 if (m_returnsI) delete [] m_returnsI;
-	 m_returnsI = new bool [numI ()];
+    if (m_returnsI) delete [] m_returnsI;
+    m_returnsI = new bool [numI ()];
 
-	 if (m_returnsJ) delete [] m_returnsJ;
-	 m_returnsJ = new bool [numJ ()];
+    if (m_returnsJ) delete [] m_returnsJ;
+    m_returnsJ = new bool [numJ ()];
 
-	 m_convertingTo = & toGrid;
+    m_convertingTo = & toGrid;
       }
 
       int arrayI = fromI - firstI ();
       int arrayJ = fromJ - firstJ ();
       if (arrayI >= 0 && arrayI < numI () && arrayJ >= 0 && fromJ < numJ ())
       {
-	 if (m_conversionsToI[arrayI] == INT_MAX || m_conversionsToJ[arrayJ] == INT_MAX)
-	 {
-	    m_returnsI[arrayI] = m_returnsJ[arrayJ] =
-	       m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ,
-		     m_conversionsToI[arrayI], m_conversionsToJ[arrayJ]);
-	 }
+    if (m_conversionsToI[arrayI] == INT_MAX || m_conversionsToJ[arrayJ] == INT_MAX)
+    {
+       m_returnsI[arrayI] = m_returnsJ[arrayJ] =
+          m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ,
+           m_conversionsToI[arrayI], m_conversionsToJ[arrayJ]);
+    }
 
-	 toI = m_conversionsToI[arrayI];
-	 toJ = m_conversionsToJ[arrayJ];
+    toI = m_conversionsToI[arrayI];
+    toJ = m_conversionsToJ[arrayJ];
 
-	 return (m_returnsI[arrayI] && m_returnsJ[arrayJ]);
+    return (m_returnsI[arrayI] && m_returnsJ[arrayJ]);
       }
    }
    return m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ, toI, toJ);
@@ -567,41 +568,41 @@ bool DistributedGrid::convertToGrid (const Grid & toGrid,
    {
       if (m_convertingTo != & toGrid)
       {
-	 if (m_conversionsToI) delete [] m_conversionsToI;
+    if (m_conversionsToI) delete [] m_conversionsToI;
 
-	 m_conversionsToI = new unsigned int [numI ()];
-	 for (int i = numI () - 1; i >= 0; i--)
-	    m_conversionsToI[i] = INT_MAX;
+    m_conversionsToI = new unsigned int [numI ()];
+    for (int i = numI () - 1; i >= 0; i--)
+       m_conversionsToI[i] = INT_MAX;
 
-	 if (m_conversionsToJ) delete [] m_conversionsToJ;
-	 m_conversionsToJ = new unsigned int [numJ ()];
-	 for (int j = numJ () - 1; j >= 0; j--)
-	    m_conversionsToJ[j] = INT_MAX;
+    if (m_conversionsToJ) delete [] m_conversionsToJ;
+    m_conversionsToJ = new unsigned int [numJ ()];
+    for (int j = numJ () - 1; j >= 0; j--)
+       m_conversionsToJ[j] = INT_MAX;
 
-	 if (m_returnsI) delete [] m_returnsI;
-	 m_returnsI = new bool [numI ()];
+    if (m_returnsI) delete [] m_returnsI;
+    m_returnsI = new bool [numI ()];
 
-	 if (m_returnsJ) delete [] m_returnsJ;
-	 m_returnsJ = new bool [numJ ()];
+    if (m_returnsJ) delete [] m_returnsJ;
+    m_returnsJ = new bool [numJ ()];
 
-	 m_convertingTo = & toGrid;
+    m_convertingTo = & toGrid;
       }
 
       int arrayI = fromI - firstI ();
       int arrayJ = fromJ - firstJ ();
       if (arrayI >= 0 && arrayI < numI () && arrayJ >= 0 && fromJ < numJ ())
       {
-	 if (m_conversionsToI[arrayI] == INT_MAX || m_conversionsToJ[arrayJ] == INT_MAX)
-	 {
-	    m_returnsI[arrayI] = m_returnsJ[arrayJ] =
-	       m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ,
-		     m_conversionsToI[arrayI], m_conversionsToJ[arrayJ]);
-	 }
+    if (m_conversionsToI[arrayI] == INT_MAX || m_conversionsToJ[arrayJ] == INT_MAX)
+    {
+       m_returnsI[arrayI] = m_returnsJ[arrayJ] =
+          m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ,
+           m_conversionsToI[arrayI], m_conversionsToJ[arrayJ]);
+    }
 
-	 toI = m_conversionsToI[arrayI];
-	 toJ = m_conversionsToJ[arrayJ];
+    toI = m_conversionsToI[arrayI];
+    toJ = m_conversionsToJ[arrayJ];
 
-	 return (m_returnsI[arrayI] && m_returnsJ[arrayJ]);
+    return (m_returnsI[arrayI] && m_returnsJ[arrayJ]);
       }
    }
    return m_globalGrid.convertToGrid (dynamic_cast<const DistributedGrid &>(toGrid).getGlobalGrid (), fromI, fromJ, toI, toJ);
@@ -616,7 +617,7 @@ unsigned int DistributedGrid::getRank (unsigned int i, unsigned int j) const
    MPI_Comm_rank (PETSC_COMM_WORLD, &rank);
 
    if (i >= firstI () && i <= lastI () &&
-	 j >= firstJ () && j <= lastJ ())
+    j >= firstJ () && j <= lastJ ())
    {
       rankLocal = rank;
    }
@@ -704,10 +705,10 @@ void DistributedGrid::printDistributionOn (MPI_Comm comm) const
 
       for (i = 0; i < numIGlobal (); i++)
       {
-	 // int pointRank = 0;
-	 int pointRank = getRank (i, j);
+    // int pointRank = 0;
+    int pointRank = getRank (i, j);
 
-	 PetscPrintf (comm, "%4d", pointRank);
+    PetscPrintf (comm, "%4d", pointRank);
       }
       PetscPrintf (comm, "\n");
    } 
@@ -721,10 +722,10 @@ bool DataAccess::Interface::operator==(const Grid & Grid1, const Grid & Grid2)
             Grid1.numJ()  == Grid2.numJ()   &&
             Grid1.firstI()== Grid2.firstI() && 
             Grid1.firstJ()== Grid2.firstJ() &&
-	    Grid1.lastI() == Grid2.lastI()  && 
+       Grid1.lastI() == Grid2.lastI()  && 
             Grid1.lastJ() == Grid2.lastJ() 
           );
-	
+   
 }
 /*bool Grid::operator==(const Grid & Grid1) const
 {
@@ -733,9 +734,9 @@ bool DataAccess::Interface::operator==(const Grid & Grid1, const Grid & Grid2)
              numJ()  == Grid1.numJ()   &&
              firstI()== Grid1.firstI() && 
              firstJ()== Grid1.firstJ() &&
-	     lastI() == Grid1.lastI()  && 
+        lastI() == Grid1.lastI()  && 
              lastJ() == Grid1.lastJ() 
           );
-	
+   
 }*/
-		
+      

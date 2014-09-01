@@ -436,7 +436,7 @@ GeoPhysics::AllochthonousLithologyManager& GeoPhysics::ProjectHandle::getAllocht
 
 //------------------------------------------------------------//
 
-void GeoPhysics::ProjectHandle::addUndefinedAreas ( const Interface::GridMap* theMap ) {
+void GeoPhysics::ProjectHandle::addUndefinedAreas( const DataAccess::Interface::GridMap* theMap ) {
 
    if ( theMap == 0 ) {
       return;
@@ -1410,7 +1410,7 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
 
       if( m_surfaceTemperatureHistory.size() > 1 ) {
 
-	 // find the negative temperature in the Surface Temperature history table and calculate the time interval.
+    // find the negative temperature in the Surface Temperature history table and calculate the time interval.
          double min, max;
          
          Interface::PaleoPropertyList* surfaceTemperatureHistory = getSurfaceTemperatureHistory ();
@@ -2375,12 +2375,12 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
          if ((*endOfPrevEvent)->getY () == (*startOfErosion)->getY ())
          {
             endOfEvent = ++oldPolyfIter;
-	    if (endOfEvent == oldPolyf->getREnd ())
-	    {
-	       // There is a start of erosion but not and end of it.
-	       // exit the loop if we have got to the end of the function
-	       break;
-	    }
+       if (endOfEvent == oldPolyf->getREnd ())
+       {
+          // There is a start of erosion but not and end of it.
+          // exit the loop if we have got to the end of the function
+          break;
+       }
             assert ((*endOfEvent)->getX () <= (*startOfErosion)->getX ());
          }
          else

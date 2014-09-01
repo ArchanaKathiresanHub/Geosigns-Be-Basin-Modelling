@@ -79,7 +79,7 @@ class BasementLithology : public SimpleLithology
    double thermalconductivity(double t, double p) const;
    bool   setThermalModel( const string& aThermalModel );
 
-   double heatcapacity( double t ) const;
+   virtual double heatcapacity( const double t ) const;
    double getDensity( double t, double p ) const;
    double getDensity( ) const;
 

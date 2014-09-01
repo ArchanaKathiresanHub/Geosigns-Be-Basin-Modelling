@@ -61,7 +61,7 @@ DataAccess::Interface::SourceRock* GeoPhysics::ObjectFactory::produceSourceRock 
    return result;
 }
 
-Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType ( Interface::ProjectHandle * projectHandle, 
+Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType( DataAccess::Interface::ProjectHandle * projectHandle,
                                                                     database::Record *         record ) {
 
    const string lithoname = database::getLithotype (record);

@@ -173,8 +173,8 @@ void VreArrheniusMethod :: doTimestep( const InputGrid & previousGrid, const Inp
          double edPrevious = 1.0 - (etPrevious * etPrevious + a1 * etPrevious + a2)
                                    / (etPrevious * etPrevious + b1 * etPrevious + b2);
 
-	  
-         /** deltaI is \Delta I_{ij}, see eq. (9) */
+     
+         /** deltaI is \f$ \delta I_{ij} \f$, see eq. (9) */
          double & deltaI = m_deltaI[reaction + node * m_numberOfReactions];
          deltaI += delt * ( currentTemperature * edCurrent * std::exp(- etCurrent ) -
                             previousTemperature * edPrevious * std::exp(- etPrevious ) );

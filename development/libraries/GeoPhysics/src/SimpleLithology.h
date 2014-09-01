@@ -90,7 +90,7 @@ namespace GeoPhysics {
       double getGeometricVariance () const;
   
       virtual double getDensity( double t, double p ) const { return m_density; }
-	   
+      
       /// Return the C1 - capillary entry pressure coefficient
       double getCapC1 () const;
 
@@ -213,7 +213,7 @@ namespace GeoPhysics {
       double m_LambdaPc;
       double m_LambdaKr;
 
-	
+   
 
       mutable ibs::Interpolator m_thermalconductivitytbl;
       mutable ibs::Interpolator m_heatcapacitytbl;

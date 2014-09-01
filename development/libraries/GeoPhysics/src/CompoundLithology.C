@@ -1439,7 +1439,6 @@ double GeoPhysics::CompoundLithology::soilMechanicsPorosityFunction ( const doub
   double C;
   double phiMaxVes;
   double phiMinVes;
-  double vesUsed;
 
   const double Percentage_Porosity_Rebound = 0.02; // => %age porosity regain
 

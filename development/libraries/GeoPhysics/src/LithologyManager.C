@@ -190,8 +190,8 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleFaultLitholo
 //------------------------------------------------------------//
 
 GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLithology ( const CompoundLithologyComposition&       composition,
-                                                                                         const Interface::PressureFaultStatus verticalStatus,
-                                                                                         const Interface::PressureFaultStatus lateralStatus ) {
+                                                                                         const  DataAccess::Interface::PressureFaultStatus verticalStatus,
+                                                                                         const  DataAccess::Interface::PressureFaultStatus lateralStatus ) {
 
   CompoundLithology* faultLithology;
   SimpleLithology*   simpleFaultLithology;
@@ -318,8 +318,8 @@ GeoPhysics::SimpleLithology* GeoPhysics::LithologyManager::getSimpleLithology ( 
 //------------------------------------------------------------//
 
 std::string GeoPhysics::LithologyManager::generateSimpleFaultLithologyName ( const std::string&                   simpleLithologyName,
-                                                                             const Interface::PressureFaultStatus verticalStatus,
-                                                                             const Interface::PressureFaultStatus lateralStatus ) const {
+                                                                             const DataAccess::Interface::PressureFaultStatus verticalStatus,
+                                                                             const DataAccess::Interface::PressureFaultStatus lateralStatus ) const {
 
   std::string simpleFaultLithologyName;
 

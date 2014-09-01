@@ -22,22 +22,22 @@ public :
    static const double GeometricLoopThicknessTolerance;
 
    /// \brief The default value for the maximum number of linear solver iterations.
-   static const int DefaultMaximumPressureLinearSolverIterations = 1000;
+   static const int DefaultMaximumPressureLinearSolverIterations;
 
 
    /// \brief The maximum number of attempts that can be made when 
    static const int MaximumLinearSolveAttempts = 6;
 
    /// \brief 
-   static const int MaximumGMResRestartValue = 200;
+   static const int MaximumGMResRestartValue;
 
    /// \brief The amount by which the restart values is increased for each failure in the linear solver.
-   static const int GMResRestartIncrementValue = 20;
+   static const int GMResRestartIncrementValue;
 
    /// \brief The default value for the gmres restart value.
    ///
    /// This is used only when the default solver fails 
-   static const int DefaultGMResRestartValue = 80;
+   static const int DefaultGMResRestartValue;
 
 
 

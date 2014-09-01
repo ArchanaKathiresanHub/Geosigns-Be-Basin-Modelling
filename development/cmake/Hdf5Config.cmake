@@ -45,8 +45,10 @@ else() # WIN32
           set(HDF5_postfix "-msvc10")
       elseif(MSVC11)
           set(HDF5_postfix "-msvc11")
+      elseif(MSVC12)
+          set(HDF5_postfix "-msvc12")
       else()
-          #TODO: signal failure here
+          message( FATAL_ERROR "No sutitable version of HDF5 binaries were found." )
       endif()
    set (HDF5_LIBRARY ${HDF5_LIB_ROOT}${HDF5_postfix}/libhdf5.lib )
    

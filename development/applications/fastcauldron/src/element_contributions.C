@@ -706,18 +706,18 @@ void Basin_Modelling::Set_Heat_Conductivity_Tensor ( const double      Conductiv
 //------------------------------------------------------------//
 
 
-void Basin_Modelling::Compute_Heat_Flow ( const bool                 isBasementFormation,      
-                                          const CompoundLithology*   lithology,
-                                          const FluidType*           Fluid,
-                                          const ElementVector&       Temperature_Vector,
-                                          const double               Temperature_Value,
-                                          const double               Porosity,
-                                          const double               PorePressure,
-                                          const double               LithostaticPressure,
-                                          const Matrix3x3&           Jacobian,
-                                          const GradElementVector&   Grad_Basis,
-                                                ThreeVector&         Heat_Flow,
-                                                Matrix3x3&           Conductivity_Tensor ) {
+void Basin_Modelling::Compute_Heat_Flow ( const bool                   isBasementFormation,      
+                                          const CompoundLithology*     lithology,
+                                          const GeoPhysics::FluidType* Fluid,
+                                          const ElementVector&         Temperature_Vector,
+                                          const double                 Temperature_Value,
+                                          const double                 Porosity,
+                                          const double                 PorePressure,
+                                          const double                 LithostaticPressure,
+                                          const Matrix3x3&             Jacobian,
+                                          const GradElementVector&     Grad_Basis,
+                                                ThreeVector&           Heat_Flow,
+                                                Matrix3x3&             Conductivity_Tensor ) {
 
   double Conductivity_Normal;
   double Conductivity_Tangential;
