@@ -18,6 +18,8 @@ set(all_headers
   src/DerivedFormationSurfaceProperty.h
   src/DerivedFormationProperty.h
   src/AbstractPropertyManager.h
+  src/DerivedPropertyManager.h
+  src/PrimarySurfaceProperty.h
 )
 
 set(all_srcs
@@ -28,6 +30,8 @@ set(all_srcs
   src/DerivedFormationSurfaceProperty.C
   src/DerivedFormationProperty.C
   src/AbstractPropertyManager.C
+  src/DerivedPropertyManager.C
+  src/PrimarySurfaceProperty.C
 )
 
 
@@ -39,6 +43,15 @@ add_library(DerivedProperties
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
+  ${PROJECT_SOURCE_DIR}/libraries/TableIO/src
+  ${PROJECT_SOURCE_DIR}/libraries/DataAccess/src
+  ${PROJECT_SOURCE_DIR}/libraries/CBMGenerics/src
+  ${PROJECT_SOURCE_DIR}/libraries/utilities/src
+  ${PROJECT_SOURCE_DIR}/libraries/EosPack/src
+  ${PROJECT_SOURCE_DIR}/libraries/GeoPhysics/src
+  ${PROJECT_SOURCE_DIR}/libraries/LinearAlgebra/src
+  ${PROJECT_SOURCE_DIR}/libraries/Interpolation/src
+  ${HDF5_INCLUDE_DIRS}
 )
 
 add_gtest( NAME DerivedProperties::DerivedProperties
