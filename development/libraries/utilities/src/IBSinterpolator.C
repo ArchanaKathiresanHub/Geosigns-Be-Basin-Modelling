@@ -90,6 +90,13 @@ ibs::Interpolator::Interpolator (ibs::Interpolator::SorterType sorterType) : d_s
    }
 }
 
+ibs::Interpolator::Interpolator ( const Interpolator& interp ) :
+   d_sorted ( interp.d_sorted ),
+   d_vectorXF ( interp.d_vectorXF )
+
+{
+}
+
 // Destructor
 ibs::Interpolator::~Interpolator(void)
 { 

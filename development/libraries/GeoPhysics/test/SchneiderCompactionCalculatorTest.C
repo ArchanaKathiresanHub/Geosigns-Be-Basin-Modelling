@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 
 
 using namespace GeoPhysics;

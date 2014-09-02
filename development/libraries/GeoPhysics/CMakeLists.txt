@@ -11,21 +11,20 @@
 #########################################################################
 
 set(cross_platform_headers
-      #src/BrinePhases.h
-      #src/BrineDensity.h
-      #src/BrineVelocity.h
-      #src/BrineViscosity.h
       src/ChemicalCompactionCalculator.h
       src/Permeability.h
+      src/Porosity.h
+      src/ExponentialPorosity.h
+      src/SoilMechanicsPorosity.h
       src/PermeabilityImpermeable.h
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
-      src/SchneiderCompactionCalculator.h
+	  src/SchneiderCompactionCalculator.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
-      src/WalderhaugCompactionCalculator.h
+	  src/WalderhaugCompactionCalculator.h
 )
 
 set(unix_only_headers
@@ -56,20 +55,19 @@ set(unix_only_headers
    )
 
 set(cross_platform_srcs
-      #src/BrinePhases.C
-      #src/BrineDensity.C
-      #src/BrineVelocity.C
-      #src/BrineViscosity.C
       src/ChemicalCompactionCalculator.C
       src/Permeability.C
+      src/Porosity.C
+      src/ExponentialPorosity.C
+      src/SoilMechanicsPorosity.C
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
-      src/SchneiderCompactionCalculator.C
+	  src/SchneiderCompactionCalculator.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
-      src/WalderhaugCompactionCalculator.C
+	  src/WalderhaugCompactionCalculator.C
 )
 
 set(unix_only_srcs
@@ -131,14 +129,14 @@ source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
 
-add_library( GeoPhysics
+add_library( GeoPhysics 
 	${all_srcs}
 	${all_headers}
 )
 
 bm_include_libraries( 
-	DataModel
-    ${all_dependent_libs}
+        DataModel
+        ${all_dependent_libs}
 )
 include_directories(
 	${HDF5_INCLUDE_DIRS}
@@ -221,6 +219,17 @@ add_gtest( NAME GeoPhysics::VreArrheniusMethod
 
 add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
       SOURCES test/WalderhaugCompactionCalculatorTest.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+
+add_gtest( NAME GeoPhysics::ExponentialPorosity
+      SOURCES test/ExponentialPorosity.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::SoilMechanicsPorosity
+      SOURCES test/SoilMechanicsPorosity.C 
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
