@@ -48,7 +48,6 @@ include_directories(
 	${XERCES_INCLUDE_DIRS}
 	${XSD_INCLUDE_DIRS}
 	${TS7_INCLUDE_DIRS}
-	${TS_INCLUDE_DIRS}
 	${FLEXLM_INCLUDE_DIRS}
 )
 
@@ -64,7 +63,6 @@ target_link_libraries(${target_name}
 	CBMGenerics
 
 	${TS7_LIBRARIES}
-	${TS_LIBRARIES}
 	${HDF5_LIBRARIES}
 	${FLEXLM_LIBRARIES}
 	${XERCES_LIBRARIES}

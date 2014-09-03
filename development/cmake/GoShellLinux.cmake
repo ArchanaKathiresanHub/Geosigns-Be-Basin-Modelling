@@ -32,6 +32,5 @@ set( FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE
 
 set( LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
 
-set( TS_ROOT "/glb/home/ksaho3/TsLib3.1.1_64" CACHE PATH "Location of Geocosm's Touchstone library")
-set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/opt/tslib3.2" CACHE PATH "Path to Geocosm's TsLib 7.0" )
+set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/tslib/tslib-7.3" CACHE PATH "Path to Geocosm's TsLib 7.3" )
 

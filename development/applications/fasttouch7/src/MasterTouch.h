@@ -15,8 +15,6 @@
 
 #include "TsLibLoader.h"
 
-#include "TsLib.h"
-
 #include "hdf5.h"
 
 #include <list>
@@ -121,7 +119,6 @@ namespace fasttouch
          map <int, int> m_categoriesMappingOrder;
          int m_percentPercentileMapping [101];
          map < string, int > m_categoriesMapping;
-         map < string, int > m_categoriesMappingOld;
          FastTouch * m_fastTouch;
 
          // display values
@@ -161,11 +158,6 @@ namespace fasttouch
                          const DataAccess::Interface::Surface * surface,
                          const DataAccess::Interface::Formation * formation );
 
-         /** collect cauldron output and call the old ts calculate */
-         bool calculateOld( const char *filename,
-                            const DataAccess::Interface::Surface * surface,
-                            const DataAccess::Interface::Formation * formation );
-
          bool retrieveGridMaps();
          bool restoreGridMaps();
          
@@ -173,10 +165,6 @@ namespace fasttouch
 
          // save ts results to ts output directory
          void writeResultsToGrids(    int east, int north, int timestepIndex );
-         void writeResultsToGridsOld( int east, int north, int timestepIndex );
-         void writeSummaryResults(      DataAccess::Interface::GridMap * gridMap, short category, short format,   int east, int north, int timestepIndex );
-         void writePercentileResults(   DataAccess::Interface::GridMap * gridMap, short percent,  short category, int east, int north, int timestepIndex );
-         void writeDistributionResults( DataAccess::Interface::GridMap * gridMap, short category,                 int east, int north, int timestepIndex );
          
          void setFormatsMapping();
          void setCategoriesMapping();
