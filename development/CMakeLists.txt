@@ -11,6 +11,40 @@
 #########################################################################
 
 #
+# Load system-dependent configuration
+#
+if (UNIX)
+   set(defaultPreset "ShellLinux")
+elseif(WIN32)
+   set(defaultPreset "Windows")
+else()
+   set(defaultPreset OFF)
+endif()
+
+set( BM_CONFIG_PRESET "${defaultPreset}" CACHE STRING "Reference to CMake file containing configuration presets. You can choose from: ShellLinux, Windows, and OFF") 
+if ( BM_CONFIG_PRESET )
+   include("cmake/Go${BM_CONFIG_PRESET}.cmake")
+endif()
+
+#
+# Set location to third party components that are included in TFS
+#
+set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/../3rdparty")
+
+#
+# Options whether to build certain parts
+#
+option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
+option( BM_PARALLEL "Build the parallel cauldron applications" ON )
+option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
+option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
+option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
+option( BM_BUILD_DOCS "Build documentation" ON )
+option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
+option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
+option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
+
+#
 # Determine minimum toolset: CMake & C++ Compiler
 #
 cmake_minimum_required(VERSION 2.8)
@@ -20,7 +54,7 @@ init_environment()
 find_package(Compiler CONFIG)
 
 # 
-# Start the project description
+# Start the project description & enable the compiler
 #
 Project(BasinModeling)
 
@@ -28,56 +62,44 @@ Project(BasinModeling)
 # General Include files
 #
 
-include(cmake/PredefinedVariables.cmake)
 include(cmake/BasinModelingUtilities.cmake)
+include(cmake/ExternalProject.cmake)
 
 include(FeatureSummary)
 
 #
-# Configurable options
+# Variables concerning version numbers
 #
-option( BM_CSHARP_API "Build the C sharp interface (Windows only)" ${WIN32} )
-option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
-option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
-option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
-option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
-option( BM_PARALLEL "Build the parallel basin modeling applications" ON )
-option( BM_BUILD_DOCS "Build documentation" ON )
-option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
-option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
-if(BM_CODE_COVERAGE_ENABLE)
-	set( BM_CODE_COVERAGE_DIR "${PROJECT_BINARY_DIR}/profiled" CACHE PATH "Code coverage directory" )
-endif()
-
-option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
-set( BM_THIRD_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
-set(CMAKE_INSTALL_PREFIX "" CACHE PATH "Installation prefix" )
-set(CMAKE_BUILD_TYPE "" CACHE STRING "CMake build type ('Release' or 'Debug')")
-set(SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
-
 set(BM_VERSION_NUMBER_MAJOR "2014" CACHE STRING "Numerical version major string. Anything like 2014")
 set(BM_VERSION_NUMBER_MINOR "01" CACHE STRING "Numerical version minor string. Anything like 01")
 set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
 set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
+set(BM_VERSION_STRING "v${BM_VERSION_NUMBER}${BM_VERSION_TAG}")
 set(BM_SVNREVISION "-9999" CACHE STRING "Source control revision number (TFS or SVN)")
+set(BM_BUILD_NUMBER "0" CACHE STRING "Build number (Used to number Windows DLLs)")
+set(BM_REVISION "0" CACHE STRING "Revision number (Used to number Windows DLLs)")
 
+#
+# Various configurable variables
+#
+
+set( BM_THIRD_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
+
+set(BM_SSSDEV_INSTALL_DIR "${PROJECT_BINARY_DIR}/sssdev" CACHE PATH "sssdev installation path")
 set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.BuildNumber)")
 set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
 set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
 
-if(NOT BM_BUILD_NUMBER)
-    set(BM_BUILD_NUMBER 0)
-endif()
 
-if(NOT BM_REVISION)
-	set(BM_REVISION 0)
-endif()
+#
+# Common CMake configuration flags
+# 
 
-set(BM_VERSION_STRING "v${BM_VERSION_NUMBER}${BM_VERSION_TAG}")
+option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
+set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}" CACHE PATH "Installation prefix" )
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug')")
 
-if(NOT CMAKE_BUILD_TYPE)
-	set (CMAKE_BUILD_TYPE Release)
-endif()
+configure_external_projects()
 
 #
 # Setting compile flags
@@ -118,8 +140,6 @@ if(UNIX)
     # Also we want assert(3) in Release configuration
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
     set(CMAKE_C_FLAGS_RELEASE "-O2")
-    # IMPORTANT: somehow -fPIC affects regression test results
-    add_definitions(-fPIC)
 
     # Depending on whether we want to link statically or dynamicaly, ...
     if (BUILD_SHARED_LIBS)
@@ -133,6 +153,8 @@ if(UNIX)
 
     # Extra stuff if want code coverage instrumentation in the build
     if(BM_CODE_COVERAGE_ENABLE)
+       set( BM_CODE_COVERAGE_DIR "${PROJECT_BINARY_DIR}/profiled" CACHE PATH "Code coverage directory" )
+       mark_as_advanced( BM_CODE_COVERAGE_DIR )
        file(MAKE_DIRECTORY ${BM_CODE_COVERAGE_DIR})
        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -prof-gen=srcpos -prof-dir ${BM_CODE_COVERAGE_DIR}")
        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
@@ -157,11 +179,6 @@ endif()
 
 if (BM_CSHARP_API)
    find_package(Swig REQUIRED CONFIG)
-endif()
-
-
-if (BM_PARALLEL)
-   find_package(MPI REQUIRED CONFIG)
 endif()
 
 find_package(OpenMP REQUIRED CONFIG)   
@@ -231,8 +248,11 @@ endif()
 configure_file(InstallAll${script_suffix}.cmake InstallAll${script_suffix} @ONLY)
 configure_file(MoveInstalls${script_suffix}.cmake MoveInstalls${script_suffix} @ONLY)
 
-# generate environment set-up file
-include(cmake/GoCBM.cmake)
+#
+# Write additional environment variables to build environment set-up file
+#
+include(cmake/BuildEnvironment.cmake)
+
 
 #
 # Generate Thirdy Party Component List XML file

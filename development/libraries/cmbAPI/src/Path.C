@@ -61,11 +61,11 @@ std::string Path::operator [] ( size_t i )
    boost::filesystem::path::iterator it = thePath.begin();
 
    while( i > 0 && it != thePath.end() ) { ++it; --i; }
-#if BOOST_VERSION < 103400
-   return it != thePath.end() ? *it : "";
-#else
-   return it != thePath.end() ? (*it).string() : "";
-#endif
+
+   if (it != thePath.end())
+      return it->string();
+   else
+      return "";
 }
 
 }

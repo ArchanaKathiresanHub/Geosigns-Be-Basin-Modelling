@@ -16,7 +16,7 @@ include(cmake/AddPackage.cmake)
 # Add Geocosm's Touchstone libraries + all its 3rd party components
 #
 
-set( TS_ROOT "/glb/home/ksaho3/TsLib3.1.1_64" CACHE PATH "Location of Geocosm's Touchstone library")
+set( TS_ROOT "TS-NOTFOUND" CACHE PATH "Location of Geocosm's Touchstone library")
 set( TS_INCLUDE_DIRS "${TS_ROOT}/Lib" )
 find_library( TS_LIBRARIES "TsLib" PATHS "${TS_ROOT}/Lib" NO_DEFAULT_PATH)
 
@@ -38,13 +38,14 @@ add_external_package_info(
       ECCN         "EAR99"
 )
  
-set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/ksaho3/opt/tslib3.2" CACHE PATH "Path to Geocosm's TsLib 7.0" )
+set( TS7_ROOT "TS7-NOTFOUND" CACHE PATH "Path to Geocosm's TsLib 7.0" )
 set( TS7_LIBRARY_DIR "${TS7_ROOT}/bin/x86_64_linux/Release")
 set( TS7_INCLUDE_DIRS "${TS7_ROOT}/include;${TS7_ROOT}/geocosmxml" )
 find_library( GeocosmBaseCpp "geocosmxmllibbasecpp" PATHS "${TS7_LIBRARY_DIR}" NO_DEFAULT_PATH)
 find_library( GeocosmException "geocosmexception"   PATHS "${TS7_LIBRARY_DIR}" NO_DEFAULT_PATH)
 set( TS7_LIBRARIES )
 list(APPEND TS7_LIBRARIES "${GeocosmBaseCpp}" "${GeocosmException}")
+mark_as_advanced( GeocosmBaseCpp GeocosmException )
      
 add_external_package_info(
       CAPABILITY TsLib7

@@ -27,7 +27,16 @@ if (MSVC11)
   add_definitions(-D_VARIADIC_MAX=10)
 endif()
     
-add_subdirectory(${PROJECT_SOURCE_DIR}/../3rdparty/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
+add_subdirectory(${THIRD_PARTY_DIR}/gmock-1.6.0 gmock EXCLUDE_FROM_ALL)
+
+# Mark internal Google test variables as advanced
+mark_as_advanced( 
+      gmock_build_tests
+      gtest_build_samples
+      gtest_build_tests
+      gtest_disable_pthreads
+      gtest_force_shared_crt
+)
 
 # General pacakage information
 add_external_package_info( 
@@ -36,7 +45,7 @@ add_external_package_info(
        VENDOR   "Google, Inc."
        VERSION  "1.6.0"
        LICENSE_TYPE "BSD 3-Clause"
-       LICENSE_FILE "${PROJECT_SOURCE_DIR}/../3rdparty/gmock-1.6.0/gtest/COPYING"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/gmock-1.6.0/gtest/COPYING"
        URL      "https://code.google.com/p/googletest"
        DESCRIPTION "Google's Unit Testing framework"
        REQUIRED_AT  "Test"
@@ -54,7 +63,7 @@ add_external_package_info(
        VENDOR   "Google, Inc."
        VERSION  "1.6.0"
        LICENSE_TYPE "BSD 3-Clause"
-       LICENSE_FILE "${PROJECT_SOURCE_DIR}/../3rdparty/gmock-1.6.0/COPYING"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/gmock-1.6.0/COPYING"
        URL      "https://code.google.com/p/googlemock"
        DESCRIPTION "Google's Mocking framework"
        REQUIRED_AT  "Test"

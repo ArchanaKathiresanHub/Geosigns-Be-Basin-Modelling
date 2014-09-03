@@ -14,16 +14,56 @@ include( cmake/AddPackage.cmake)
 
 
 if (UNIX)
-# On the Unix platform use the Boost C++ library that is available on Red Hat EL 5.x 
-   find_package( Boost 1.33.0 REQUIRED COMPONENTS filesystem system)
+   # Convert the compiler name that CMake has to a toolset name that the Boost
+   # build system can understand
+   string(TOLOWER "${CMAKE_CXX_COMPILER_ID}" toolset)
+
+   # Instruct boost to use our compiler
+   add_environment_variable( BOOST_BUILD_PATH "${PROJECT_BINARY_DIR}" )
+   file( WRITE "${PROJECT_BINARY_DIR}/user-config.jam" 
+         "using ${toolset} : ${CMAKE_CXX_COMPILER_VERSION} : ${CMAKE_CXX_COMPILER} ;\n"
+   )
+
+   # Add Boost as an external project
+   add_external_project_to_repository(
+         NAME Boost
+         VERSION 1.56.0
+         ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_56_0.tar.gz"
+         ARCHIVE_MD5 "8c54705c424513fa2be0042696a3a162"
+         PATCH_COMMAND 
+            "./bootstrap.sh" 
+            "--with-libraries=filesystem,system"
+            "--prefix={ROOT}" 
+         CONFIGURE_COMMAND "./b2" "install"
+         BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Boost has been built."
+         INSTALL_COMMAND  "${CMAKE_COMMAND}" "-E" "echo" "Boost has already been installed."
+         CONFIGURE_OPTIONS 
+           COMPILER "{CurrentCompiler}" "toolset=${toolset}"
+           MPI      "{CurrentMPI}"
+           SPEED    "Release" "variant=release"
+           SPEED    "Debug"   "variant=release"
+           SPEED    "DebugAll" "variant=debug"
+           SPEED    "MemCheck" "variant=debug"
+           OS       "{CurrentPlatform}"
+           LINK     "Dynamic" "link=dynamic" 
+           LINK     "Static"  "link=static" 
+
+         YIELD_LIBRARIES  "boost_filesystem" "boost_system"
+   )
+
+   # Use boost in our project
+   set(BOOST_ROOT "${Boost_ROOT}")
+   set(Boost_FOUND TRUE)
+   set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
+   set(Boost_LIBRARIES "boost_filesystem" "boost_system")
 
    add_external_package_info(
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.33.0"
+      VERSION "1.56.0"
       LICENSE_TYPE "Boost v1"
-      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.33.0.txt"
+      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.56.0.txt"
       URL "http://boost.org"
       DESCRIPTION "Free peer-reviewed portable C++ source libraries"
       REQUIRED_AT  "Runtime"
@@ -38,7 +78,7 @@ if (UNIX)
    
 elseif(WIN32)
 
-    set(BOOST_ROOT "c:/opt/boost_1_55_0")
+    set(BOOST_ROOT "Boost-NOTFOUND" CACHE PATH "Location of the Boost C++ libraries")
     if ( MSVC10 )
         set(BOOST_LIB_POSTFIX "-msvc-10.0")
     elseif(MSVC11)
@@ -49,6 +89,7 @@ elseif(WIN32)
         set(BOOST_LIB_POSTFIX "")
     endif()
 
+    math(EXPR _64 "${CMAKE_SIZEOF_VOID_P} * 8")
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib${_64}${BOOST_LIB_POSTFIX}")
     
     if (NOT BUILD_SHARED_LIBS)

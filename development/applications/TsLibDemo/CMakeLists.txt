@@ -23,7 +23,6 @@ add_executable(${target_name}
 bm_include_libraries(
 )
 
-remove_definitions(-fPIC)
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 # IMPORTANT: remove -rdynamic from CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS

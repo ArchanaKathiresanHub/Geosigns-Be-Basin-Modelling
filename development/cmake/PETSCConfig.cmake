@@ -12,93 +12,113 @@
 
 if (UNIX)
 
-	set(PETSC_VERSION "3.4.1-intel13" CACHE STRING "PETSC Version")
-	set(PETSC_RELEASE_HOME ${HPC_HOME}/petsc/${PETSC_VERSION}/LinuxRHEL64_x86_64_58WS)
-	set(PETSC_DEBUG_HOME ${HPC_HOME}/petsc-debug/${PETSC_VERSION}/LinuxRHEL64_x86_64_58WS)
-	set(PETSC_HOME)
-	if(CMAKE_BUILD_TYPE STREQUAL "Release")
-	   set(PETSC_HOME "${PETSC_RELEASE_HOME}")
-	else()
-	   set(PETSC_HOME "${PETSC_DEBUG_HOME}")
-	endif()
+add_external_project_to_repository(
+      NAME PETSC
+      VERSION 3.4.1
+      ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-3.4.1.tar.gz"
+      ARCHIVE_MD5 "45f45bd9e2af5b52c9b61ef211c18de2"
+      CONFIGURE_COMMAND 
+         "./configure" 
+            "--prefix={ROOT}" 
+            "--with-clanguage=cxx" 
+            "--with-fortran=0"
+            "--with-large-file-io=1"
+            "--with-precision=double"
+            "--with-x=0"
+            "--with-blas-lapack-dir=${BLAS_ROOT}"
+            "--with-petsc-arch=${CMAKE_SYSTEM_NAME}"
 
-	set(PETSC_FOUND TRUE)
-	set(PETSC_ROOT "${PETSC_HOME}" CACHE PATH "Installation directory of PETSc")
-	set(PETSC_INCLUDE_DIRS "${PETSC_ROOT}/include")
-	find_library(PETSC_LIBRARIES "petsc" PATHS "${PETSC_ROOT}/lib" NO_DEFAULT_PATH )
-	set(PETSC_LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}" )
+      BUILD_COMMAND   "make"
+      INSTALL_COMMAND "make" "install"
+      CONFIGURE_OPTIONS 
+        COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
+        MPI      "{CurrentMPI}"  "--with-mpi=1"
+        SPEED    "Release"   "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--CXXFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--with-debugging=no"
+        SPEED    "Debug"      "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--CXXFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--with-debugging=no"
+        SPEED    "DebugAll"   "--with-debugging"
+        SPEED    "MemCheck"   "--with-debugging"
+        OS       "{CurrentPlatform}"     
+        LINK     "Dynamic"    "--with-shared-libraries=1"
+        LINK     "Static"     "--with-shared-libraries=0"
+      YIELD_LIBRARIES "petsc"
+)
 
-	add_external_package_info( 
-		CAPABILITY  PETScLib
-		NAME         "PETSc"
-		VENDOR       "Argonne National Laboratory"
-		VERSION      "3.4.1"
-		LICENSE_TYPE "Simplified BSD"
-		LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.4.1.txt"
-		URL          "http://www.mcs.anl.gov/petsc/"
-		DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
-		REQUIRED_AT  "Runtime"
-		COUNTRY_OF_ORIGIN "USA"
-		SHIPPED      "Yes"
-		INCLUSION_TYPE "Static Link"
-		USEABLE_STAND_ALONE "No"
-		CONTAINS_CRYPTO "No"
-		ECCN         "EAR99"
-	)                   
+# Set the path to the include directory
+set(PETSC_INCLUDE_DIRS "${PETSC_ROOT}/include")
+set(PETSC_LIBRARIES "petsc")
+
+
+add_external_package_info( 
+    CAPABILITY  PETScLib
+    NAME         "PETSc"
+    VENDOR       "Argonne National Laboratory"
+    VERSION      "3.4.1"
+    LICENSE_TYPE "Simplified BSD"
+    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.4.1.txt"
+    URL          "http://www.mcs.anl.gov/petsc/"
+    DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
+    REQUIRED_AT  "Runtime"
+    COUNTRY_OF_ORIGIN "USA"
+    SHIPPED      "Yes"
+    INCLUSION_TYPE "Static Link"
+    USEABLE_STAND_ALONE "No"
+    CONTAINS_CRYPTO "No"
+    ECCN         "EAR99"
+)                   
 
 else () # windows
 
-	set(PETSC_VERSION "3.4.4" CACHE STRING "PETSC Version")
-	set(PETSC_HOME "${THIRD_PARTY_DIR}/PETSc_Windows-3.4.4" CACHE PATH "PETSc home path") 
-	set(PETSC_DEBUG "${PETSC_HOME}/PETSc/c-debug_icl_mkl" CACHE PATH "Debug path")
-	set(PETSC_RELEASE "${PETSC_HOME}/PETSc/c-opt_icl_mkl" CACHE PATH "Release path")
-	set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")
-	set(PETSC_LIBRARIES 
-		"${PETSC_HOME}/lib/intel64/libiomp5md.lib"
-		"${PETSC_HOME}/lib/intel64/libmmt.lib"
-		"${PETSC_HOME}/lib/intel64/libdecimal.lib"
-		"${PETSC_HOME}/lib/intel64/libirc.lib"
-		"${PETSC_HOME}/lib/intel64/svml_dispmt.lib"
-		"${PETSC_HOME}/lib/intel64/mkl_core.lib"
-		"${PETSC_HOME}/lib/intel64/mkl_intel_lp64.lib"
-		"${PETSC_HOME}/lib/intel64/mkl_intel_lp64.lib"
-		"${PETSC_HOME}/lib/intel64/mkl_intel_thread.lib"
-		"${PETSC_HOME}/lib/intel64/mkl_scalapack_lp64.lib"
-		"${PETSC_HOME}/PETSc/externalpackages/lib/HYPRE.lib"
-		"${PETSC_HOME}/PETSc/externalpackages/lib/metis.lib"
-		"${PETSC_HOME}/PETSc/externalpackages/lib/parmetis.lib"
-	)
+   set(PETSC_VERSION "3.4.4" CACHE STRING "PETSC Version")
+   set(PETSC_HOME "${THIRD_PARTY_DIR}/PETSc_Windows-3.4.4" CACHE PATH "PETSc home path") 
+   set(PETSC_DEBUG "${PETSC_HOME}/PETSc/c-debug_icl_mkl" CACHE PATH "Debug path")
+   set(PETSC_RELEASE "${PETSC_HOME}/PETSc/c-opt_icl_mkl" CACHE PATH "Release path")
+   set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")
+   set(PETSC_LIBRARIES 
+          "${PETSC_HOME}/lib/intel64/libiomp5md.lib"
+          "${PETSC_HOME}/lib/intel64/libmmt.lib"
+          "${PETSC_HOME}/lib/intel64/libdecimal.lib"
+          "${PETSC_HOME}/lib/intel64/libirc.lib"
+          "${PETSC_HOME}/lib/intel64/svml_dispmt.lib"
+          "${PETSC_HOME}/lib/intel64/mkl_core.lib"
+          "${PETSC_HOME}/lib/intel64/mkl_intel_lp64.lib"
+          "${PETSC_HOME}/lib/intel64/mkl_intel_lp64.lib"
+          "${PETSC_HOME}/lib/intel64/mkl_intel_thread.lib"
+          "${PETSC_HOME}/lib/intel64/mkl_scalapack_lp64.lib"
+          "${PETSC_HOME}/PETSc/externalpackages/lib/HYPRE.lib"
+          "${PETSC_HOME}/PETSc/externalpackages/lib/metis.lib"
+          "${PETSC_HOME}/PETSc/externalpackages/lib/parmetis.lib"
+   )
 
-	if(CMAKE_BUILD_TYPE STREQUAL "Release")
-	   set(PETSC_INCLUDE_DIRS "${PETSC_INCLUDE_DIRS}" "${PETSC_RELEASE}/include")
-	   set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${PETSC_RELEASE}/lib/libpetsc.lib")
-	else() # Debug
-	   set(PETSC_INCLUDE_DIRS "${PETSC_INCLUDE_DIRS}" "${PETSC_DEBUG}/include")
-	   set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${PETSC_DEBUG}/lib/libpetsc.lib")
-	endif()
+   if(CMAKE_BUILD_TYPE STREQUAL "Release")
+      set(PETSC_INCLUDE_DIRS "${PETSC_INCLUDE_DIRS}" "${PETSC_RELEASE}/include")
+      set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${PETSC_RELEASE}/lib/libpetsc.lib")
+   else() # Debug
+      set(PETSC_INCLUDE_DIRS "${PETSC_INCLUDE_DIRS}" "${PETSC_DEBUG}/include")
+      set(PETSC_LIBRARIES "${PETSC_LIBRARIES}" "${PETSC_DEBUG}/lib/libpetsc.lib")
+   endif()
 
-	set(PETSC_FOUND TRUE)
-	set(PETSC_ROOT "${PETSC_HOME}" CACHE PATH "Installation directory of PETSc")
-	#find_library(PETSC_LIBRARIES "petsc" PATHS "${PETSC_LIBRARIES}" NO_DEFAULT_PATH )
-	set(PETSC_LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}")
+   set(PETSC_FOUND TRUE)
+   set(PETSC_ROOT "${PETSC_HOME}" CACHE PATH "Installation directory of PETSc")
+   #find_library(PETSC_LIBRARIES "petsc" PATHS "${PETSC_LIBRARIES}" NO_DEFAULT_PATH )
+   set(PETSC_LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}")
 
-	add_external_package_info( 
-		CAPABILITY  PETScLib
-		NAME         "PETSc for Windows"
-		VENDOR       "Microsoft Innovation Center Rapperswil"
-		VERSION      "3.4.4"
-		LICENSE_TYPE ""
-		LICENSE_FILE ""
-		URL          "http://www.msic.ch/Software"
-		DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
-		REQUIRED_AT  "Runtime"
-		COUNTRY_OF_ORIGIN "USA"
-		SHIPPED      "Yes"
-		INCLUSION_TYPE "Static Link"
-		USEABLE_STAND_ALONE "No"
-		CONTAINS_CRYPTO "No"
-		ECCN         "EAR99"
-	)                   
+   add_external_package_info( 
+          CAPABILITY  PETScLib
+          NAME         "PETSc for Windows"
+          VENDOR       "Microsoft Innovation Center Rapperswil"
+          VERSION      "3.4.4"
+          LICENSE_TYPE "Simplified BSD"
+          LICENSE_FILE ""
+          URL          "http://www.msic.ch/Software"
+          DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
+          REQUIRED_AT  "Runtime"
+          COUNTRY_OF_ORIGIN "USA"
+          SHIPPED      "Yes"
+          INCLUSION_TYPE "Static Link"
+          USEABLE_STAND_ALONE "No"
+          CONTAINS_CRYPTO "No"
+          ECCN         "EAR99"
+   )                   
 	
 
 endif (UNIX)

@@ -32,8 +32,6 @@ bm_include_libraries(
 	Serial_Hdf5
 )
 
-remove_definitions(-fPIC)
-
 include_directories(
 	${HDF5_INCLUDE_DIRS}
 )

@@ -14,12 +14,12 @@ include(cmake/AddPackage.cmake)
 
 # Include SUM++ library. Shell library for SA/UA 
 
-set( SUMPP_ROOT "${PROJECT_SOURCE_DIR}/../3rdparty/SUMlib" CACHE PATH "Path to SUM++ sources" )
+set( SUMPP_ROOT "${THIRD_PARTY_DIR}/SUMlib" CACHE PATH "Path to SUM++ sources" )
 set( SUMPP_INCLUDE_DIR "${SUMPP_ROOT}/include")
 
 set( SUMPP_FOUND TRUE )
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/../3rdparty/SUMlib SUMlib)
+add_subdirectory(${THIRD_PARTY_DIR}/SUMlib SUMlib)
 
 add_external_package_info(
        CAPABILITY SUMlib
@@ -27,7 +27,7 @@ add_external_package_info(
        VENDOR   "Shell"
        VERSION  "18.02.2014"
        LICENSE_TYPE "Shell propriety package. Confidential"
-       LICENSE_FILE "${PROJECT_SOURCE_DIR}/../3rdparty/SUMlib/COPYING"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/SUMlib/COPYING"
        URL      ""
        DESCRIPTION "Stochastic Uncertainty Manager library"
        REQUIRED_AT  "Runtime"

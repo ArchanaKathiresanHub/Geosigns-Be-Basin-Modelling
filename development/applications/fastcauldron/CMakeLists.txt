@@ -20,8 +20,6 @@ source_group(source FILES ${all_srcs})
 
 add_executable(fastcauldron ${all_srcs} ${all_headers})
 
-remove_definitions(-fPIC)
-
 include_directories(
         ${PROJECT_SOURCE_DIR}/libraries
 	${HDF5_INCLUDE_DIRS}

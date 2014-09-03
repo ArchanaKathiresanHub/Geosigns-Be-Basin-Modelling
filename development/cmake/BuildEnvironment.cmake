@@ -35,7 +35,7 @@ add_environment_variable( LD_LIBRARY_PATH "${MatlabMCR}/runtime/glnxa64:${Matlab
 add_environment_variable( LANG "en_US.UTF-8" )
 
 # Setting the PATH variable to /apps/sssdev
-add_environment_path( "/apps/sssdev/share" )
+add_environment_path( "${BM_SSSDEV_INSTALL_DIR}" )
 
 # Add current CMake executable to the path
 get_filename_component(CMAKE_COMMAND_PATH "${CMAKE_COMMAND}" PATH CACHE)

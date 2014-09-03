@@ -17,30 +17,42 @@ set (HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version")
 if(UNIX)
 
 # parallel version
-   set (HDF5_HOME ${HPC_HOME}/hdf5-intel-parallel/${HDF5_VERSION}/LinuxRHEL64_x86_64_53WS CACHE PATH "Home dir for parallel HDF5")
-   set (HDF5_FOUND TRUE)
+   add_external_project_to_repository(
+         NAME HDF5
+         VERSION ${HDF5_VERSION}
+         ARCHIVE "${THIRD_PARTY_DIR}/sources/hdf5-1.8.11.tar.gz"
+         ARCHIVE_MD5 "1a4cc04f7dbe34e072ddcf3325717504"
+         CONFIGURE_COMMAND "./configure" "--prefix={ROOT}"
+         BUILD_COMMAND   "make"
+         INSTALL_COMMAND "make" "install"
+         CONFIGURE_OPTIONS 
+           COMPILER "{CurrentCompiler}"  "CC={CC}" "CXX={CXX}"
+           MPI      "{CurrentMPI}"  "--enable-parallel"
+           SPEED    "Release"    "--enable-production"
+           SPEED    "Debug"      "--enable-production"
+           SPEED    "DebugAll"   "--enable-debug"
+           SPEED    "MemCheck"   "--enable-debug" "--enable-using-memchecker"
+           OS       "{CurrentPlatform}"     
+           LINK     "Dynamic"    "--enable-shared" "--disable-static"
+           LINK     "Static"     "--disable-shared" "--enable-static"
+         YIELD_LIBRARIES "hdf5" "hdf5_hl"
+   )
+        
+   set(HDF5_SOURCE_DIR "${HDF5_ROOT}/src/HDF5" CACHE PATH "Source directory of HDF5")
 
-   set (HDF5_INCLUDE_DIR ${HDF5_HOME}/include)
-   set (HDF5_INCLUDE_DIRS)
-   list (APPEND HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
-
-   find_library(HDF5_BASE_LIBRARY hdf5 PATHS "${HDF5_HOME}/lib" NO_DEFAULT_PATH)
-   find_library(HDF5_HL_LIBRARY hdf5_hl PATHS "${HDF5_HOME}/lib" NO_DEFAULT_PATH)
-   list (APPEND HDF5_LIBRARIES ${HDF5_HL_LIBRARY} ${HDF5_BASE_LIBRARY} z ${MPI_LIBRARIES})
-
-   # HDF5 Source
-   set(HDF5_SOURCE_DIR "${HPC_HOME}/hdf5-src/${HDF5_VERSION}" CACHE PATH "Source directory of HDF5")
-
-   add_environment_path("${HDF5_HOME}/bin")
-
+   set(HDF5_INCLUDE_DIR ${HDF5_ROOT}/include)
+   set(HDF5_INCLUDE_DIRS)
+   list(APPEND HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
+   set(HDF5_LIBRARIES "hdf5" "hdf5_hl" "z")
+  
 else() # WIN32
 
-   set (HDF5_HOME ${THIRD_PARTY_DIR}/hdf5.win64-1.8.11/hdf5)
-      set (HDF5_FOUND TRUE)
-   set (HDF5_INCLUDE_DIR ${HDF5_HOME}/include)
+   set (HDF5_ROOT "${THIRD_PARTY_DIR}/hdf5.win64-1.8.11/hdf5" CACHE PATH "Path to the HDF5 library")
+   set (HDF5_FOUND TRUE)
+   set (HDF5_INCLUDE_DIR ${HDF5_ROOT}/include)
    set (HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
    
-   set(HDF5_LIB_ROOT "${HDF5_HOME}/lib")
+   set(HDF5_LIB_ROOT "${HDF5_ROOT}/lib")
       if ( MSVC10 )
           set(HDF5_postfix "-msvc10")
       elseif(MSVC11)
@@ -48,13 +60,12 @@ else() # WIN32
       elseif(MSVC12)
           set(HDF5_postfix "-msvc12")
       else()
-          message( FATAL_ERROR "No sutitable version of HDF5 binaries were found." )
+          message(WARNING "Your Visual Studio version is not yet supported.")
       endif()
-   set (HDF5_LIBRARY ${HDF5_LIB_ROOT}${HDF5_postfix}/libhdf5.lib )
+   set (HDF5_LIBRARY ${HDF5_LIB_ROOT}${HDF5_postfix}/libhdf5.lib CACHE FILEPATH "Location of HDF5 library")
    
    list (APPEND HDF5_LIBRARIES ${HDF5_LIBRARY} ${MPI_LIBRARIES})
-      set(HDF5_SOURCE_DIR ${HDF5_HOME} CACHE PATH "Source directory of HDF5")
-
+   set(HDF5_SOURCE_DIR ${HDF5_ROOT} CACHE PATH "Source directory of HDF5")
 endif()
 
 add_external_package_info(
@@ -74,5 +85,4 @@ add_external_package_info(
       CONTAINS_CRYPTO "No"
       ECCN         "EAR99"
 )
-      
-
+    

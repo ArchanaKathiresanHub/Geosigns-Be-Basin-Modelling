@@ -11,7 +11,7 @@ version=@BM_VERSION_STRING@
 if [ "x$1" != x ]; then
    version="$1"
 fi
-installDirectory=@SSSDEV_INSTALL_DIR@
+installDirectory=@BM_SSSDEV_INSTALL_DIR@
 installsToMove="${version}_b ${version}_a ${version}"
 installToRemove="${version}_c"
 installToMoveTo=$installToRemove

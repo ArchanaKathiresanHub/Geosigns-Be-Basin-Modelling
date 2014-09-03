@@ -13,17 +13,12 @@
 include(cmake/AddPackage.cmake)
 
 if (UNIX)
-	set( FLEXLM_ROOT "/apps/3rdparty/EPTFlexLm/v9.2" CACHE PATH "Path to FlexLM directory" )
-	set( FLEXLM_LIBRARIES "/apps/3rdparty/EPTFlexLm/v9.2/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE PATH "Path of FlexLM libraries" )
-	set( FLEXLM_INCLUDE_DIRS "/apps/3rdparty/EPTFlexLm/v9.2/include" CACHE PATH "Path of FlexLM include files" )
-else ()
-	set( FLEXLM_ROOT "${THIRD_PARTY_DIR}/EPTFlexLM-v9.2-Windows" CACHE PATH "Path to FlexLM directory" )
-	set( FLEXLM_LIBRARIES 
-		"${FLEXLM_ROOT}/lib64/EPTFlexLM.lib" 
-		"${FLEXLM_ROOT}/lib64/EPTFlexLm_MT.lib" 
-		"${FLEXLM_ROOT}/lib64/EPTFlexLm_MD.lib" 
-		CACHE PATH "Path of FlexLM libraries" ) 
-	set( FLEXLM_INCLUDE_DIRS "${FLEXLM_ROOT}/include" CACHE PATH "Path of FlexLM include files" )
+	set( FLEXLM_ROOT "FLEXLM-NOTFOUND" CACHE PATH "Path to FlexLM directory" )
+	set( FLEXLM_LIBRARY "${FLEXLM_ROOT}/lib/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM library" )
+	set( FLEXLM_INCLUDE_DIR "${FLEXLM_ROOT}/include" CACHE PATH "Path to FlexLM include files" )
+
+        set( FLEXLM_LIBRARIES "${FLEXLM_LIBRARY}")
+	set( FLEXLM_INCLUDE_DIRS "${FLEXLM_INCLUDE_DIR}")
 endif (UNIX)
 
 # EPTFlexLM is an API to FlexLM for SSS applications. It is supplied by the Global

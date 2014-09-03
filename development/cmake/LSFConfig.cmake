@@ -19,9 +19,8 @@ set(LSF_INCLUDE_DIR)
 
 if(UNIX)
 
-   set (LSF_HOME /glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64 CACHE PATH "Home dir for LSF binary files")
+   set (LSF_HOME "LSF-NOTFOUND" CACHE PATH "Home dir for LSF binary files")
    set (LSF_CAULDRON_PROJECT_NAME "cldrn" CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
-   
    find_path(LSF_INCLUDE_DIR lsf/lsbatch.h
       PATHS
          ${LSF_HOME}/../include
@@ -54,7 +53,7 @@ if(UNIX)
 
    endif (LSF_INCLUDE_DIR AND LSF_LIB AND LSBATCH_LIB)
 
-   # Set up LSF
+   # Add licensen and ECCN information 
    include(cmake/AddPackage.cmake)
 
    if (LSF_FOUND)

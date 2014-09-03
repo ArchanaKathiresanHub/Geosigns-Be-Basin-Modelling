@@ -12,16 +12,29 @@
 
 include( cmake/AddPackage.cmake)
 
-set(EIGEN_VERSION "3.2" CACHE STRING "Eigen Version")
-set(EIGEN_ROOT "${HPC_HOME}/eigen/${EIGEN_VERSION}/LinuxRHEL64" CACHE PATH "Path to the Eigen C++ Linear algebra library")
 
-if(UNIX)
-	set(EIGEN_INCLUDE_DIRS "${EIGEN_ROOT}/include")
-else(UNIX)
-	set(EIGEN_INCLUDE_DIRS "${THIRD_PARTY_DIR}/Eigen-3.2.1")
-endif(UNIX)
+# Add Boost as an external project
+add_external_project_to_repository(
+      NAME Eigen
+      VERSION 3.2.1
+      ARCHIVE "${THIRD_PARTY_DIR}/sources/eigen-3.2.1.tar.gz"
+      ARCHIVE_MD5 "a0e0a32d62028218b1c1848ad7121476"
+      CONFIGURE_COMMAND "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be configured."
+      BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be built."
+      INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "copy_directory" "{ROOT}/src/Eigen/Eigen" "{ROOT}/include/eigen3/Eigen"
+      CONFIGURE_OPTIONS 
+        COMPILER "{CurrentCompiler}" 
+        MPI      "{CurrentMPI}"
+        SPEED    "Release"
+        SPEED    "Debug"
+        SPEED    "DebugAll"
+        SPEED    "MemCheck"
+        OS       "{CurrentPlatform}"
+        LINK     "Dynamic"
+        LINK     "Static"
+)
 
-set(EIGEN_FOUND TRUE)
+set(EIGEN_INCLUDE_DIRS "${Eigen_ROOT}/include")
 
 # Definining EIGEN_MPL2_ONLY is crucial for use within Shell, because this
 # ensures that only codes is used with MPL2 and possible more permissive

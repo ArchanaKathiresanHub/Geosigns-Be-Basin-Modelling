@@ -15,16 +15,16 @@ set -e
 # Check whether we don't add too many versions. 
 # The SSSLauncher (which many people still use) has a problem when the sum of
 # all version string lengths is more than a 1000.
-pushd @SSSDEV_INSTALL_DIR@ > /dev/null
+pushd @BM_SSSDEV_INSTALL_DIR@ > /dev/null
 stringLength=$( echo @BM_VERSION_STRING@ v[0-9][0-9.]* | wc -c )
 if [ $stringLength -gt 1000 ]; then
-  echo "@SSSDEV_INSTALL_DIR@ would have too many versions. Aborting installation"
+  echo "@BM_SSSDEV_INSTALL_DIR@ would have too many versions. Aborting installation"
   exit 1
 fi
 popd > /dev/null
 
 # directory to put the release in
-targetDirectory=@SSSDEV_INSTALL_DIR@/@BM_VERSION_STRING@
+targetDirectory=@BM_SSSDEV_INSTALL_DIR@/@BM_VERSION_STRING@
 
 # main system directory
 mainSystemDirectory=@CSCE_PLATFORM@
@@ -65,7 +65,7 @@ else
 
    # installing 3rdparty stuff
    echo " - Geocosm's TsLib"
-   tar xf @CMAKE_CURRENT_SOURCE_DIR@/../3rdparty/geocosm.tar -C $miscDirectory
+   tar xf @CMAKE_CURRENT_SOURCE_DIR@/../3rdparty/sources/geocosm.tar -C $miscDirectory
    pushd $miscDirectory > /dev/null
       echo " - Geocosm's 3rd party components:"
       pushd geocosm/3rdparty > /dev/null

@@ -49,6 +49,12 @@ set(BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE "envsetup.csh" CACHE FILEPATH "C-shell sc
 set(BM_BOURNE_SHELL_ENVIRONMENT_SCRIPT_FILE "envsetup.sh" CACHE FILEPATH "Bourne-shell script to set-up environment")
 set(BM_WINCMD_SHELL_ENVIRONMENT_SCRIPT_FILE "envsetup.bat" CACHE FILEPATH "Windows Cmd script to set-up environment")
 
+mark_as_advanced( 
+      BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE
+      BM_BOURNE_SHELL_ENVIRONMENT_SCRIPT_FILE
+      BM_WINCMD_SHELL_ENVIRONMENT_SCRIPT_FILE
+)
+
 macro(init_environment)
    file(WRITE "${CMAKE_BINARY_DIR}/${BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE}" 
 "#!/bin/csh
@@ -84,8 +90,64 @@ macro(add_environment_path path)
 endmacro(add_environment_path)
 
 macro(add_environment_variable varName varValue)
-   file(APPEND "${CMAKE_BINARY_DIR}/${BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE}" "setenv ${varName} \"${varValue}\"\n")
-   file(APPEND "${CMAKE_BINARY_DIR}/${BM_BOURNE_SHELL_ENVIRONMENT_SCRIPT_FILE}" "export ${varName}=\"${varValue}\"\n")
-   file(APPEND "${CMAKE_BINARY_DIR}/${BM_WINCMD_SHELL_ENVIRONMENT_SCRIPT_FILE}" "set ${varName}=${varValue}\n")
-   set( ${varName} ${varValue} CACHE STRING "Environment variable" )
+   set( BM_ENV_${varName} "${varValue}" CACHE STRING "Environment variable" )
+   set( value "${BM_ENV_${varName}}" )
+   file(APPEND "${CMAKE_BINARY_DIR}/${BM_C_SHELL_ENVIRONMENT_SCRIPT_FILE}" "setenv ${varName} \"${value}\"\n")
+   file(APPEND "${CMAKE_BINARY_DIR}/${BM_BOURNE_SHELL_ENVIRONMENT_SCRIPT_FILE}" "export ${varName}=\"${value}\"\n")
+   file(APPEND "${CMAKE_BINARY_DIR}/${BM_WINCMD_SHELL_ENVIRONMENT_SCRIPT_FILE}" "set ${varName}=${value}\n")
 endmacro(add_environment_variable)
+
+# - Write a shell script that can wraps an executable
+# Some executables that are necessary to build this project, need a special
+# environment. The following functions create a wrapper for such an executable
+# by first setting-up this special environment and then calling the executable.
+#
+# add_environment_source_script_to_wrapper
+#        Adds a line to the script that sources a specified script.
+# 
+#          add_environment_source_script( <wrapper-name> <script-name> )
+#
+#
+# finish_wrapper
+#        Writes the wrapper and makes it executable
+#
+#           finish_wrapper( <wrapper-name> <executable> <variable-name> )
+#        
+#        Appends the a call to <executable> and forwards all positional
+#        paraemeters. The file name of the resulting wrapper is written
+#        to variable <variable-name>.
+
+macro(add_environment_source_script_to_wrapper name scriptName)
+   file(APPEND "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh" "source ${scriptName}\n")
+endmacro(add_environment_source_script_to_wrapper)
+
+macro(finish_wrapper name executable wrapper)
+   # First read the set of scripts to be sourced
+   file(READ "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh" compilerEnvironment)
+
+   # Now write the wrapper
+   file(WRITE "${CMAKE_BINARY_DIR}/aux/${name}_wrap.sh" 
+"#!/bin/bash
+# Compiler wrapper for the ${compiler} compiler
+# This file has been automatically generated -- Do not edit!
+
+# Mark all variables list below to be exported to the environment
+${compilerEnvironment}
+
+# Run the tool
+${executable} \"$@\"
+"
+       )
+
+   file(COPY "${CMAKE_BINARY_DIR}/aux/${name}_wrap.sh"
+        DESTINATION "${CMAKE_BINARY_DIR}"
+        FILE_PERMISSIONS
+           OWNER_READ OWNER_WRITE OWNER_EXECUTE
+           GROUP_READ GROUP_WRITE GROUP_EXECUTE
+           WORLD_READ WORLD_EXECUTE
+        )
+
+   set(${wrapper} "${CMAKE_BINARY_DIR}/${name}_wrap.sh")
+endmacro(finish_wrapper)
+
+

@@ -290,6 +290,7 @@ set(capability "${paramValue_CAPABILITY}")
 #Store values in Cache
 foreach( paramName ${allParameterNames})
    set( ${capability}_${paramName} "${paramValue_${paramName}}" CACHE STRING "${paramDescription_${paramName}}")
+   mark_as_advanced( ${capability}_${paramName} )
 endforeach()
 
 #Write entry in the external components file

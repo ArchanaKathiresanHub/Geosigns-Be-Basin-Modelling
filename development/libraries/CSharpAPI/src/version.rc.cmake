@@ -20,13 +20,13 @@ BEGIN
             VALUE "FileDescription", "Serial Data Access\0"
             VALUE "ProductVersion", "${BM_VERSION_STRING} Build ${BM_BUILD_NUMBER}\0"
             VALUE "FileVersion", "${BM_VERSION_NUMBER} Build ${BM_BUILD_NUMBER}\0"
-            VALUE "InternalName", "${BM_VERSIONINFO_NAME}\0"
-            VALUE "OriginalFilename", "${BM_VERSIONINFO_NAME}\0"
-            VALUE "CompanyName", "PDC...\0"
-            VALUE "LegalCopyright", "Copyright (C) Project contributors 1998-2012\0"
+            VALUE "InternalName", "Cauldron\0"
+            VALUE "OriginalFilename", "Cauldron.dll\0"
+            VALUE "CompanyName", "Shell International Exploration & Production\0"
+            VALUE "LegalCopyright", "Copyright (C) Shell International Exploration & Production 2012-2014\0"
             VALUE "Licence", "Shell\0"
             VALUE "ProductName", "Basin Modeling\0"
-	    VALUE "Comment", "Si post fata venit gloria non propero\0"
+	    VALUE "Comment", "\0"
         END
     END
     BLOCK "VarFileInfo"
