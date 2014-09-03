@@ -24,8 +24,6 @@
     <cmake_variables  Condition="'$(BM_BUILD_NUMBER)' != ''" >$(cmake_variables) -DBM_BUILD_NUMBER=$(BM_BUILD_NUMBER)</cmake_variables>
     <cmake_variables  Condition="'$(BM_REVISION)' != ''" >$(cmake_variables) -DBM_REVISION=$(BM_REVISION)</cmake_variables>
 	-->
-	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win64/hdf5"' Condition=" '$(Platform)' == 'x64' "/>
-	<cmake_options Include='-DHDF5_ROOT="$(solution_root_cmake)/3rdparty/hdf5.win32/hdf5"' Condition=" '$(Platform)' == 'Win32' " />
   </ItemGroup>
   
   <Target Name="DebugInfo">
