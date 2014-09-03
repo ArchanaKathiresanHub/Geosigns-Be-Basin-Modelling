@@ -20,6 +20,8 @@ set(all_headers
   src/AbstractPropertyManager.h
   src/DerivedPropertyManager.h
   src/PrimarySurfaceProperty.h
+  src/PrimaryFormationSurfaceProperty.h
+  src/PrimaryFormationProperty.h
 )
 
 set(all_srcs
@@ -32,6 +34,8 @@ set(all_srcs
   src/AbstractPropertyManager.C
   src/DerivedPropertyManager.C
   src/PrimarySurfaceProperty.C
+  src/PrimaryFormationSurfaceProperty.C
+  src/PrimaryFormationProperty.C
 )
 
 

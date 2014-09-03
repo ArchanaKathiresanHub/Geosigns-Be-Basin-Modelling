@@ -30,11 +30,20 @@ namespace DerivedProperties {
 
    private :
 
+      /// \brief Load primary properties that are associated with surface only.
+      ///
+      /// These are map properties loaded from the property-values in the project-handle.
       void loadSurfaceProperties ();
 
-      // void loadFormationSurfaceProperties ();
+      /// \brief Load primary properties that are associated with formation and surface.
+      ///
+      /// These are map properties loaded from the property-values in the project-handle.
+      void loadFormationSurfaceProperties ();
 
-      // void loadFormationProperties ();
+      /// \brief Load primary properties that are associated with formation only.
+      ///
+      /// These are volume properties loaded from the property-values in the project-handle.
+      void loadFormationProperties ();
 
       GeoPhysics::ProjectHandle* m_projectHandle;
 

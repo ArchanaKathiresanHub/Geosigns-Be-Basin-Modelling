@@ -55,7 +55,7 @@ namespace DerivedProperties {
                                                                 const DataModel::AbstractFormation* formation,
                                                                 const DataModel::AbstractSurface*   surface );
 
-       /// \brief Get the grid for the map.
+      /// \brief Get the grid for the map.
       virtual const DataModel::AbstractGrid* getMapGrid () const = 0;
 
    protected :
