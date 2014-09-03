@@ -82,6 +82,7 @@ namespace DerivedProperties {
       ///
       /// If no calculator has been added then a null will be returned.
       SurfacePropertyCalculatorPtr getCalculator ( const DataModel::AbstractProperty* property ) const;
+
       /// \brief Search the list of available property values for a specific set of values.
       ///
       /// If the values are not found then a null will be returned.

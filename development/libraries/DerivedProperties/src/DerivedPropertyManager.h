@@ -14,6 +14,9 @@
 
 namespace DerivedProperties {
 
+   /// \brief Handles derived properties and their calculation.
+   ///
+   /// First all properties are loaded from disk.
    class DerivedPropertyManager : public AbstractPropertyManager {
 
    public :

@@ -58,6 +58,8 @@ include_directories(
   ${HDF5_INCLUDE_DIRS}
 )
 
+generate_dox( DerivedProperties.cfg )
+
 add_gtest( NAME DerivedProperties::DerivedProperties
            SOURCES test/DerivedProperties.C
            LIBRARIES DerivedProperties
