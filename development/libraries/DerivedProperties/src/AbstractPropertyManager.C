@@ -2,7 +2,7 @@
 
 DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
-void DerivedProperties::AbstractPropertyManager::addCalculator ( const SurfacePropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -27,7 +27,7 @@ void DerivedProperties::AbstractPropertyManager::addCalculator ( const SurfacePr
 
 }
 
-void DerivedProperties::AbstractPropertyManager::addCalculator ( const FormationPropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -52,7 +52,7 @@ void DerivedProperties::AbstractPropertyManager::addCalculator ( const Formation
 
 }
 
-void DerivedProperties::AbstractPropertyManager::addCalculator ( const FormationSurfacePropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -77,7 +77,7 @@ void DerivedProperties::AbstractPropertyManager::addCalculator ( const Formation
 
 }
 
-DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getCalculator ( const DataModel::AbstractProperty* property ) const {
+DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getSurfaceCalculator ( const DataModel::AbstractProperty* property ) const {
 
    SurfacePropertyCalculatorMap::const_iterator surfaceMapiter = m_surfacePropertyCalculators.find ( property );
 
@@ -196,7 +196,7 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager
    result = findPropertyValues ( property, snapshot, surface );
 
    if ( result == 0 ) {
-      const SurfacePropertyCalculatorPtr calculator = getCalculator ( property );
+      const SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property );
       SurfacePropertyList  calculatedProperties;
  
       if ( calculator != 0 ) {

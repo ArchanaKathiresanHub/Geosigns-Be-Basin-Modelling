@@ -26,6 +26,7 @@ namespace DerivedProperties {
       /// \brief Get the property given the property-name.
       ///
       /// If the name is not found then a null pointer will be returned.
+      /// \param [in] name The name of the required property.
       virtual const DataModel::AbstractProperty* getProperty ( const std::string& name ) const;
 
       /// \brief Get the grid for the map.
@@ -33,21 +34,22 @@ namespace DerivedProperties {
 
    private :
 
-      /// \brief Load primary properties that are associated with surface only.
+      /// \brief Load primary property calculators that are associated with surface only.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadSurfaceProperties ();
+      void loadSurfacePropertyCalculators ();
 
-      /// \brief Load primary properties that are associated with formation and surface.
+      /// \brief Load primary property calculators that are associated with formation and surface.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadFormationSurfaceProperties ();
+      void loadFormationSurfacePropertyCalculators ();
 
-      /// \brief Load primary properties that are associated with formation only.
+      /// \brief Load primary property calculators that are associated with formation only.
       ///
       /// These are volume properties loaded from the property-values in the project-handle.
-      void loadFormationProperties ();
+      void loadFormationPropertyCalculators ();
 
+      /// \brief The geophysics project handle
       GeoPhysics::ProjectHandle* m_projectHandle;
 
    }; 

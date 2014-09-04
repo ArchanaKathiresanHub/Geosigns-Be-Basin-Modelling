@@ -11,31 +11,40 @@
 #########################################################################
 
 set(all_headers
-  src/SurfaceProperty.h
-  src/FormationSurfaceProperty.h
-  src/FormationProperty.h
-  src/DerivedSurfaceProperty.h
-  src/DerivedFormationSurfaceProperty.h
-  src/DerivedFormationProperty.h
   src/AbstractPropertyManager.h
+  src/DerivedFormationProperty.h
+  src/DerivedFormationSurfaceProperty.h
   src/DerivedPropertyManager.h
-  src/PrimarySurfaceProperty.h
-  src/PrimaryFormationSurfaceProperty.h
+  src/DerivedSurfaceProperty.h
+  src/FormationPropertyCalculator.h
+  src/FormationProperty.h
+  src/FormationSurfacePropertyCalculator.h
+  src/FormationSurfaceProperty.h
+  src/PrimaryFormationPropertyCalculator.h
   src/PrimaryFormationProperty.h
+  src/PrimaryFormationSurfacePropertyCalculator.h
+  src/PrimaryFormationSurfaceProperty.h
+  src/PrimarySurfacePropertyCalculator.h
+  src/PrimarySurfaceProperty.h
+  src/SurfacePropertyCalculator.h
+  src/SurfaceProperty.h
 )
 
 set(all_srcs
-  src/SurfaceProperty.C
-  src/FormationSurfaceProperty.C
-  src/FormationProperty.C
-  src/DerivedSurfaceProperty.C
-  src/DerivedFormationSurfaceProperty.C
-  src/DerivedFormationProperty.C
   src/AbstractPropertyManager.C
+  src/DerivedFormationProperty.C
+  src/DerivedFormationSurfaceProperty.C
   src/DerivedPropertyManager.C
-  src/PrimarySurfaceProperty.C
-  src/PrimaryFormationSurfaceProperty.C
+  src/DerivedSurfaceProperty.C
+  src/FormationProperty.C
+  src/FormationSurfaceProperty.C
   src/PrimaryFormationProperty.C
+  src/PrimaryFormationPropertyCalculator.C
+  src/PrimaryFormationSurfaceProperty.C
+  src/PrimaryFormationSurfacePropertyCalculator.C
+  src/PrimarySurfaceProperty.C
+  src/PrimarySurfacePropertyCalculator.C
+  src/SurfaceProperty.C
 )
 
 

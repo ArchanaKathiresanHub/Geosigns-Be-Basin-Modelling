@@ -9,62 +9,59 @@
 #include "PrimaryFormationSurfaceProperty.h"
 #include "PrimaryFormationProperty.h"
 
+#include "PrimarySurfacePropertyCalculator.h"
+#include "PrimaryFormationPropertyCalculator.h"
+#include "PrimaryFormationSurfacePropertyCalculator.h"
+
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
-   loadSurfaceProperties ();
-   loadFormationSurfaceProperties ();
-   loadFormationProperties ();
+   loadSurfacePropertyCalculators ();
+   loadFormationSurfacePropertyCalculators ();
+   loadFormationPropertyCalculators ();
 }
 
 const DataModel::AbstractProperty* DerivedProperties::DerivedPropertyManager::getProperty ( const std::string& name ) const {
    return m_projectHandle->findProperty ( name );
 }
 
-void DerivedProperties::DerivedPropertyManager::loadSurfaceProperties () {
+void DerivedProperties::DerivedPropertyManager::loadSurfacePropertyCalculators () {
 
-   DataAccess::Interface::PropertyValueList* surfaceProperties = m_projectHandle->getPropertyValues ( DataAccess::SURFACE, 0, 0, 0, 0, 0, DataAccess::MAP );
+   // Get a list of properties that have been saved.
+   DataAccess::Interface::PropertyList* allSurfaceProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::SURFACE, 0, 0, 0, 0, DataAccess::Interface::MAP );
 
-   for ( size_t i = 0; i < surfaceProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*surfaceProperties)[ i ];
+   for ( size_t i = 0; i < allSurfaceProperties->size (); ++i ) {
+      const DataAccess::Interface::Property* property = (*allSurfaceProperties)[ i ];
 
-      // Only add those property-values that are strictly for the surface only, i.e. not surface-formation and not formation only.
-      if ( propVal->getSurface () != 0 and propVal->getFormation () == 0 ) {
-         addSurfaceProperty ( SurfacePropertyPtr ( new PrimarySurfaceProperty ( propVal )));
-      }
+      addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new PrimarySurfacePropertyCalculator ( m_projectHandle, property )));
+   } 
 
-   }
-
-   delete surfaceProperties;
+   delete allSurfaceProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadFormationSurfaceProperties () {
+void DerivedProperties::DerivedPropertyManager::loadFormationSurfacePropertyCalculators () {
 
-   DataAccess::Interface::PropertyValueList* formationSurfaceProperties = m_projectHandle->getPropertyValues ( DataAccess::SURFACE | DataAccess::FORMATION, 0, 0, 0, 0, 0, DataAccess::MAP );
+   // Get a list of properties that have been saved.
+   DataAccess::Interface::PropertyList* allFormationSurfaceProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATIONSURFACE, 0, 0, 0, 0, DataAccess::Interface::MAP );
 
-   for ( size_t i = 0; i < formationSurfaceProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*formationSurfaceProperties)[ i ];
+   for ( size_t i = 0; i < allFormationSurfaceProperties->size (); ++i ) {
+      const DataAccess::Interface::Property* property = (*allFormationSurfaceProperties)[ i ];
 
-      // Only add those property-values that are strictly for the surface-formation, i.e. not surface only and not formation only.
-      if ( propVal->getSurface () != 0 and propVal->getFormation () != 0 ) {
-         addFormationSurfaceProperty ( FormationSurfacePropertyPtr ( new PrimaryFormationSurfaceProperty ( propVal )));
-      }
+      addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new PrimaryFormationSurfacePropertyCalculator ( m_projectHandle, property )));
+   } 
 
-   }
-
-   delete formationSurfaceProperties;
+   delete allFormationSurfaceProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadFormationProperties () {
+void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators () {
 
-   DataAccess::Interface::PropertyValueList* formationProperties = m_projectHandle->getPropertyValues ( DataAccess::FORMATION, 0, 0, 0, 0, 0, DataAccess::VOLUME );
+   // Get a list of properties that have been saved.
+   DataAccess::Interface::PropertyList* allFormationProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATION, 0, 0, 0, 0, DataAccess::Interface::VOLUME );
 
-   for ( size_t i = 0; i < formationProperties->size (); ++i ) {
-      const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
+   for ( size_t i = 0; i < allFormationProperties->size (); ++i ) {
+      const DataAccess::Interface::Property* property = (*allFormationProperties)[ i ];
 
-      if ( propVal->getFormation () != 0 ) {
-         addFormationProperty ( FormationPropertyPtr ( new PrimaryFormationProperty ( propVal )));
-      }
+      addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property )));
 
-   }
+   } 
 
-   delete formationProperties;
+   delete allFormationProperties;
 }

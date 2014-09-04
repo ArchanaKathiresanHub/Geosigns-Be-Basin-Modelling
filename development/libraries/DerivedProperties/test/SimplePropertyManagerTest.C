@@ -222,9 +222,9 @@ TestPropertyManager::TestPropertyManager () {
    // This will come frmo the project handle.
    m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
 
-   addCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator ));
-   addCalculator ( FormationPropertyCalculatorPtr ( new FormationProperty1Calculator ));
-   addCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty1Calculator ));
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator ));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new FormationProperty1Calculator ));
+   addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty1Calculator ));
 }
 
 
