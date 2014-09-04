@@ -28,7 +28,7 @@
 #undef FLEXLM
 #endif
 
-#ifdef _MSC_VER // FlexLM disabled on Windows for now
+#ifdef DISABLE_FLEXLM
 #undef FLEXLM
 #else
 #define FLEXLM 1

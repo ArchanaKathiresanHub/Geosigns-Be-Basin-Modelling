@@ -9,7 +9,12 @@
 #undef FLEXLM
 #endif
 
-#define FLEXLM	1
+#ifdef DISABLE_FLEXLM
+#undef FLEXLM
+#else
+#define FLEXLM 1
+#endif
+
 
 #ifdef FLEXLM
 // FlexLM license handling

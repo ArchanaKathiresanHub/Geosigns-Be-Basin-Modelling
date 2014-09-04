@@ -43,6 +43,7 @@ option( BM_BUILD_DOCS "Build documentation" ON )
 option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
+option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 
 #
 # Determine minimum toolset: CMake & C++ Compiler
@@ -104,6 +105,10 @@ configure_external_projects()
 #
 # Setting compile flags
 #   
+
+if (NOT BM_USE_FLEXLM)
+   add_definitions(-DDISABLE_FLEXLM=1)
+endif()
 
 if(MSVC)
    if (CMAKE_CL_64)

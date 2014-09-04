@@ -6,7 +6,8 @@ find_program( MSTEST "mstest.exe"
 
 set( BOOST_ROOT "c:/opt/boost_1_55_0" CACHE PATH "Location of the Boost C++ libraries")
 
-set( BM_PLATFORM_ID "MSWindows" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
+set( BM_PLATFORM_ID "MSWindows_Amd64" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
 
 option( BM_CSHARP_API "Build the C sharp interface" ON)
+option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 

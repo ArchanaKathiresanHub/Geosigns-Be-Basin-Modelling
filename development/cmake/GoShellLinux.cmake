@@ -17,6 +17,7 @@ set( BM_PLATFORM_ID "${platformId}" CACHE STRING "An identifier for the platform
 set(CBM_HOME "/nfs/rvl/groups/ept-sg/SWEast/Cauldron" CACHE PATH "The path the shared drive of the development team")
 
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
+option( BM_USE_FLEXLM "Whether to require a license via FlexLM" ON)
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
 set(BM_EXTERNAL_COMPONENTS_DIR "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
 set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
