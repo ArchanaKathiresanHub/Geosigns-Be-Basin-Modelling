@@ -12,8 +12,6 @@
 /// @brief This file keeps API implementation for handling variation of Top Crust Heat Production Rate parameter. 
 
 
-#include "SimpleRange.h"
-
 #include "PrmTopCrustHeatProduction.h"
 #include "VarPrmTopCrustHeatProduction.h"
 
@@ -25,25 +23,28 @@ namespace casa
 VarPrmTopCrustHeatProduction::VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType )
 {
    m_pdf = pdfType;
-   m_valueRange.reset( new SimpleRange( minValue, maxValue ) );
+  
+   m_minValue.reset( new PrmTopCrustHeatProduction( minValue ) );
+   m_maxValue.reset( new PrmTopCrustHeatProduction( maxValue ) );
    
-   assert( m_valueRange->isValInRange( baseValue ) );
+   assert( minValue <= baseValue && maxValue >= baseValue );
 
    m_baseValue.reset( new PrmTopCrustHeatProduction( baseValue ) );
 }
 
 VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
 {
+   ;
 }
 
-double VarPrmTopCrustHeatProduction::baseValueAsDouble() const
+Parameter * VarPrmTopCrustHeatProduction::createNewParameterFromDouble( const std::vector<double> & vals ) const
 {
-   return dynamic_cast<PrmTopCrustHeatProduction*>( m_baseValue.get() )->value( );
-}
+   assert( vals.size() == 1 );
 
-Parameter * VarPrmTopCrustHeatProduction::createNewParameterFromDouble( double val ) const
-{
-   return m_valueRange->isValInRange( val ) ? new PrmTopCrustHeatProduction( val ) : 0;
+   double minV = dynamic_cast<PrmTopCrustHeatProduction*>( m_minValue.get() )->value();
+   double maxV = dynamic_cast<PrmTopCrustHeatProduction*>( m_maxValue.get() )->value();
+
+   return (minV <= vals[0] && vals[0] <= maxV) ? new PrmTopCrustHeatProduction( vals[0] ) : 0;
 }
 
 }

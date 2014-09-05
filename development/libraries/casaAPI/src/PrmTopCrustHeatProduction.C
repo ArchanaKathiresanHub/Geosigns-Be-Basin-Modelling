@@ -12,8 +12,6 @@
 /// @brief This file keeps API implementation for handling Top Crust Heat Production Rate basement parameter. 
 
 
-#include "SimpleRange.h"
-
 #include "PrmTopCrustHeatProduction.h"
 #include "cmbAPI.h"
 #include "ErrorHandler.h"
@@ -31,7 +29,10 @@ static const char * s_topCrushHeatProd     = "TopCrustHeatProd";
 static const char * s_topCrushHeatProdGrid = "TopCrustHeatProdGrid";
 
 // Constructor
-PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( double val )  : m_heatProdRateValue( val ) {;}
+PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( double val )  : m_heatProdRateValue( val )
+{
+   ;
+}
 
 PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( mbapi::Model & mdl )
 {

@@ -70,7 +70,6 @@ DoEGeneratorImpl::~DoEGeneratorImpl()
 // return ErrorHandler::NoError on success, error code otherwise
 ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrmsSet, RunCaseSet & doeCaseSet, size_t runsNum )
 {
-   const std::vector< bool > selectedPrms( varPrmsSet.size(), true );
    std::vector<RunCase *> expSet;
 
    try
@@ -79,9 +78,13 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
       SUMlib::Case maxCase;
       SUMlib::Case baseCase;
       std::vector< SUMlib::IndexList > pCatIndices;
-   
+      
+      unsigned int numRuns = static_cast<unsigned int>( runsNum );
+
       createBounds( varPrmsSet, minCase, maxCase, pCatIndices );
       setBaseCase( varPrmsSet, baseCase );
+
+      const std::vector< bool > selectedPrms( minCase.sizeCon(), true );
 
       // create bounds. No categorical values for current implementation
       const SUMlib::ParameterBounds pBounds( minCase, maxCase, std::vector<SUMlib::IndexList>() );
@@ -92,7 +95,7 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
       // create SUMlib object for DoE generation
       if ( SpaceFilling == m_typeOfDoE ) // special case, can extend already existed set of cases
       {
-         const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ),
+         const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( selectedPrms.size() ),
             static_cast<unsigned int>( expSet.size() ), static_cast<unsigned int>( runsNum ) );
          const bool replicate = false;
          doe.getCaseSet( pBounds, baseCase, replicate, sumCases );
@@ -109,31 +112,12 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
          
          switch (  m_typeOfDoE )
          {
-         case BoxBehnken:
-            doe.reset( new SUMlib::BoxBehnken( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ) ) );
-            break;
-
-         case Tornado:
-            doe.reset( new SUMlib::Tornado( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ) ) );
-            break;
-
-         case PlackettBurman:
-            doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ), false, false ) );
-            break;
-
-         case PlackettBurmanMirror:
-            doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ), false, true ) );
-            break;
-
-         case LatinHypercube:
-            doe.reset( new SUMlib::OptimisedLHD( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms( ) ),
-               static_cast<unsigned int>( runsNum ) ) );
-            break;
-
-         case FullFactorial:
-            doe.reset( new SUMlib::FactDesign( selectedPrms, static_cast<unsigned int>( varPrmsSet.numberOfContPrms() ) ) );
-            break;
-
+         case BoxBehnken:           doe.reset( new SUMlib::BoxBehnken(   selectedPrms, static_cast<unsigned int>( selectedPrms.size() )               ) ); break;
+         case Tornado:              doe.reset( new SUMlib::Tornado(      selectedPrms, static_cast<unsigned int>( selectedPrms.size() )               ) ); break;
+         case PlackettBurman:       doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>( selectedPrms.size() ), false, false ) ); break;
+         case PlackettBurmanMirror: doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>( selectedPrms.size() ), false, true  ) ); break;
+         case LatinHypercube:       doe.reset( new SUMlib::OptimisedLHD( selectedPrms, static_cast<unsigned int>( selectedPrms.size() ), numRuns      ) ); break;
+         case FullFactorial:        doe.reset( new SUMlib::FactDesign(   selectedPrms, static_cast<unsigned int>( selectedPrms.size() )               ) ); break;
          default:
             std::ostringstream oss;
             oss << "Unknown DoE algorithm: " << m_typeOfDoE;
@@ -152,9 +136,9 @@ ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrms
    }
    catch ( const ::Exception & e )
    {
-         std::ostringstream oss;
-         oss << "SUMlib exception caught on DoE case generation: " << e.what();
-         return reportError( SUMLibException, oss.str() );
+      std::ostringstream oss;
+      oss << "SUMlib exception caught on DoE case generation: " << e.what();
+      return reportError( SUMLibException, oss.str() );
    }
 
    return NoError;
@@ -170,14 +154,18 @@ void DoEGeneratorImpl::createBounds( const VarSpace & varSp, SUMlib::Case & lowC
    const VarSpaceImpl & varSpace = dynamic_cast<const VarSpaceImpl &>( varSp );
    
    // process continuous parameters set  
-   std::vector<double> minCntPrms( varSpace.numberOfContPrms() );
-   std::vector<double> maxCntPrms( varSpace.numberOfContPrms() );
+   std::vector<double> minCntPrms;
+   std::vector<double> maxCntPrms;
 
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      minCntPrms[ i ] = varSpace.continuousParameter( i )->minValueAsDouble();
-      maxCntPrms[ i ] = varSpace.continuousParameter( i )->maxValueAsDouble();
+      const std::vector<double> & minV = varSpace.continuousParameter( i )->minValue()->asDoubleArray();
+      const std::vector<double> & maxV = varSpace.continuousParameter( i )->maxValue()->asDoubleArray();
+
+      minCntPrms.insert( minCntPrms.end(), minV.begin(), minV.end() );
+      maxCntPrms.insert( maxCntPrms.end(), maxV.begin(), maxV.end() );
    }
+
    lowCs.setContinuousPart( minCntPrms );
    highCs.setContinuousPart( maxCntPrms );
 
@@ -200,12 +188,14 @@ void DoEGeneratorImpl::setBaseCase( const VarSpace & varSp, SUMlib::Case & baseC
    const VarSpaceImpl & varSpace = dynamic_cast<const VarSpaceImpl &>( varSp );
 
    // process continuous parameters set
-   std::vector<double> baseCntPrms( varSpace.numberOfContPrms() );
+   std::vector<double> baseCntPrms;
 
-   for ( size_t i = 0; i < baseCntPrms.size( ); ++i )
+   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      baseCntPrms[ i ] = varSpace.continuousParameter( i )->baseValueAsDouble();
+      const std::vector<double> & baseV = varSpace.continuousParameter( i )->baseValue()->asDoubleArray();
+      baseCntPrms.insert( baseCntPrms.end(), baseV.begin(), baseV.end() );
    }
+   
    baseCs.setContinuousPart( baseCntPrms );
 }
 
@@ -222,10 +212,17 @@ void DoEGeneratorImpl::addCase( const VarSpace & varSp, std::vector<RunCase*> & 
    const std::vector<double>       & sumCntArray = cs.continuousPart();
    const std::vector<unsigned int> & sumCatArray = cs.categoricalPart();
 
+   std::vector<double>::const_iterator cit = sumCntArray.begin();
    // go over all parameters in scenario and set up DoE calculated parameters
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
-      newCase->addParameter( varSpace.continuousParameter( i )->createNewParameterFromDouble( sumCntArray[ i ] ) );
+      // extract set of parameters
+      size_t prmDim = varSpace.continuousParameter( i )->minValue()->asDoubleArray().size();
+      std::vector<double> prmsVec( cit, cit + prmDim );
+
+      newCase->addParameter( varSpace.continuousParameter( i )->createNewParameterFromDouble( prmsVec ) );
+
+      cit += prmDim;
    }
    for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
    {

@@ -57,10 +57,10 @@ generate_dox( src/API.cfg )
 configure_file(test/Ottoland.project3d Ottoland.project3d) 
 
 #Cauldron project with results for DataDigger unit testing
-configure_file(test/OttolandWithGenex.project3d OttolandWithGenex.project3d) 
-configure_file(test/OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5) 
-configure_file(test/OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF) 
-configure_file(test/OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF) 
+configure_file(test/OttolandWithGenex.project3d OttolandWithGenex.project3d COPYONLY ) 
+configure_file(test/OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 COPYONLY ) 
+configure_file(test/OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF COPYONLY ) 
+configure_file(test/OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF COPYONLY ) 
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.C

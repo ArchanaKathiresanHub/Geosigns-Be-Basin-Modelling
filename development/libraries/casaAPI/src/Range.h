@@ -15,6 +15,8 @@
 #ifndef CASA_API_RANGE_H
 #define CASA_API_RANGE_H
 
+#include <vector>
+
 namespace casa
 {
    /// @brief Base class handling ranges of variable continuous parameters
@@ -26,20 +28,19 @@ namespace casa
        
       /// @brief Get minimal range value as double
       /// @return left (min) range boundary value as double
-      virtual double minRangeValueAsDouble() const = 0;
+      virtual std::vector<double> minRangeValue() const = 0;
  
       /// @brief Get maximal range value as double
       /// @return right (max) range boundary value as double
-      virtual double maxRangeValueAsDouble() const = 0;
+      virtual std::vector<double> maxRangeValue() const = 0;
       
       /// @brief Check if given value inside the range
       /// @param val value for checking
       /// @return true if given value between range boundaries, false otherwise
-      virtual bool isValInRange( double val ) const = 0;
+      virtual bool isValInRange( const std::vector<double> & val ) const = 0;
 
    protected:
       Range() {;}
    };
 }
-
 #endif // CASA_API_RANGE_H

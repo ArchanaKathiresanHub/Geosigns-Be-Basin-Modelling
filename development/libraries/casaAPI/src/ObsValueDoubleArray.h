@@ -8,42 +8,45 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ObsValueDoubleScalar.h
-/// @brief This file keeps definition of the interface class for handling observables value which could be represented\n
-/// as float point scalar
+/// @file ObsValueDoubleArray.h
+/// @brief This file keeps definition of the interface class for handling array of observable values which could be represented\n
+/// as float point array
 
-#ifndef CASA_API_OBS_VALUE_DOUBLE_SCALAR_H
-#define CASA_API_OBS_VALUE_DOUBLE_SCALAR_H
+#ifndef CASA_API_OBS_VALUE_DOUBLE_ARRAY_H
+#define CASA_API_OBS_VALUE_DOUBLE_ARRAY_H
 
 #include "ObsValue.h"
 
 namespace casa
 {
-   /// @brief Class for keeping observable value as float point scalar value
-   class ObsValueDoubleScalar : public ObsValue
+   /// @brief Class for keeping observable value as an array of float point values
+   class ObsValueDoubleArray : public ObsValue
    {
    public:
       
       /// @brief Constructor
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
-      ObsValueDoubleScalar( Observable * parent, double val ) : m_parent( parent ), m_value( val ) { ; }
+      ObsValueDoubleArray( Observable * parent, const std::vector<double> & val ) : 
+         m_parent( parent ), 
+         m_value( val.begin(), val.end() )
+      { ; }
 
       /// @brief Copy constructor
       /// @param ov another observable value to be copying
-      ObsValueDoubleScalar( const ObsValueDoubleScalar & ov )
+      ObsValueDoubleArray( const ObsValueDoubleArray & ov )
       {
          m_value  = ov.m_value;
          m_parent = ov.m_parent;
       }
 
       /// @brief Destructor
-      virtual ~ObsValueDoubleScalar() { ; }
+      virtual ~ObsValueDoubleArray() { ; }
 
       /// @brief Copy operator
       /// @param otherObs another observable value to be copying
       /// @return reference to the object itself
-      ObsValueDoubleScalar & operator = ( const ObsValueDoubleScalar & otherObs )
+      ObsValueDoubleArray & operator = ( const ObsValueDoubleArray & otherObs )
       {
          m_parent = otherObs.m_parent;
          m_value  = otherObs.m_value;
@@ -52,23 +55,20 @@ namespace casa
 
       /// @brief Get parent observable which define type of observable
       virtual const Observable * observable() const { return m_parent; }
-      
+ 
       /// @brief Calculate Mean Squared Error for the observable value if reference value was specified
       /// @return Mean Squared Error
       virtual double MSE() const;
-
-      /// @brief Get value of the observable as float point scalar
-      /// @return observable value
-      double value() const { return m_value; }
-
+     
       // The following methods are used for testing  
       virtual bool isDouble() const { return true; }
-      virtual std::vector<double> doubleValue() const { return std::vector<double>( 1, value() ); }
+      virtual std::vector<double> doubleValue() const { return m_value; }
 
    protected:
-      double       m_value;    // value itself
-      Observable * m_parent;   // pointer to the observable description object
+      std::vector<double>   m_value;    // value itself
+      Observable          * m_parent;   // pointer to the observable description object
    };
+
 }
 
-#endif // CASA_API_OBS_VALUE_DOUBLE_SCALAR_H
+#endif // CASA_API_OBS_VALUE_DOUBLE_ARRAY_H

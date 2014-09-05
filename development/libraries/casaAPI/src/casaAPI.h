@@ -154,6 +154,23 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockTOC( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
                                                   VarPrmContinuous::PDF rangeShape );
+
+      /// @brief Add 4 parameters to variate one crust thinning event.
+      /// @param[in] minThickIni minimal range value for the initial crust thickness
+      /// @param[in] maxThickIni maximal range value for the initial crust thickness
+      /// @param[in] minT0 minimal range value for the start time of crust thinning
+      /// @param[in] maxT0 maximal range value for the start time of crust thinning
+      /// @param[in] minDeltaT minimal range value for the duration of crust thinning
+      /// @param[in] maxDeltaT maximal range value for the duration of crust thinning
+      /// @param[in] minThingFct minimal range value for the crust thickness factor (final crust thickness is equal the initial thickness multiplied by this factor)
+      /// @param[in] maxThingFct maximal range value for the crust thickness factor 
+      /// @param[in] pdfType probability function type for the variable parameter. If PDF needs some middle parameter value it will be\n
+      ///            taken from the base case model
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni, double maxThickIni, 
+                                                                                       double minT0,       double maxT0,       
+                                                                                       double minDeltaT,   double maxDeltaT,   
+                                                                                       double minThingFct, double maxThingFct, VarPrmContinuous::PDF pdfType );
    };
 
    /// @brief ScenarioAnalysis keeps all objects which are necessary for UA/SA of single workflow

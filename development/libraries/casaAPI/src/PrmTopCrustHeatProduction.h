@@ -39,6 +39,10 @@ namespace casa
       /// @brief Destructor
       virtual ~PrmTopCrustHeatProduction();
      
+      /// @brief Get name of the parameter
+      /// @return parameter name
+      virtual const char * name() const { return "TopCrustHeatProdRate"; }
+
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @return ErrorHandler::NoError in success, or error code otherwise     
@@ -55,11 +59,10 @@ namespace casa
       double value() const { return m_heatProdRateValue; }
 
       // The following methods are used for testing  
-      virtual bool isDouble( ) { return true; }
-      virtual double doubleValue( ) { return value(); }
+      virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
 
    protected:
-      double m_heatProdRateValue;
+      double      m_heatProdRateValue; ///< top crust heat production rate value
    };
 
 }

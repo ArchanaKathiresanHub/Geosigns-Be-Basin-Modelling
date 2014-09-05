@@ -42,6 +42,13 @@ public:
    // access to command parameters
    const std::vector< std::string > & parameters( size_t i ) { return m_cmdPrms[i]; }
 
+   // read well trajectory file with reference values
+   static void readTrajectoryFile( const std::string fileName, 
+                                   std::vector<double> & x,
+                                   std::vector<double> & y,
+                                   std::vector<double> & z,
+                                   std::vector<double> & ref );
+
    // printing parsed file
    friend std::ostream & operator << ( std::ostream & ost, const CfgFileParser & cfg );
 

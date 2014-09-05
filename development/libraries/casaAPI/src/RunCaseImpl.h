@@ -51,20 +51,18 @@ namespace casa
       virtual size_t observablesNumber() const { return m_results.size(); }
 
       // Get i-th observable value
-      // i position of requested observable value
       // return i-th observable value or null pointer if there is no such observable
       virtual ObsValue * observableValue( size_t i ) const;
 
       // Add new observable value to the list
       void addObservableValue( ObsValue * obs );
 
-      // Mutate case to given project file
-      // newProjectName name of the mutated project
+      // Mutate give case to the given project file
       virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName );
 
-      /// Do checking, are all variable parameters case value in their ranges
-      /// if validation is OK, return empty string. otherwise - the list of validation\n
-      ///         failed parameters with theirs values
+      // Do checking, are all variable parameters case value in their ranges
+      // if validation is OK, return empty string. otherwise - the list of validation\n
+      //         failed parameters with theirs values
       virtual std::string validateCase();
 
       // Get a model associated with this Case
@@ -75,14 +73,12 @@ namespace casa
       // return loaded model. If any error happened during loading, Model object will contain error description
       mbapi::Model * loadProject();
 
-      /// @brief Get full path to the project path (including project file \n
-      ///        name). If this case has no project associated with it, it will return \n
-      ///        null pointer
-      /// @return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
+      // Get full path to the project path (including project file name). If this case has no project associated with 
+      // it, it will return null pointer
+      // return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
       virtual const char * projectPath() const { return m_modelProjectFileName.empty() ? NULL : m_modelProjectFileName.c_str(); }
 
-      /// @brief Set full path to the project path (including project file name).
-      /// @param pth full path to the project file
+      // Set full path to the project path (including project file name).
       virtual void setProjectPath( const char * pth ) { m_modelProjectFileName = pth; }
 
 
@@ -92,6 +88,10 @@ namespace casa
 
       std::vector<Parameter*>     m_prmsSet;              // list of parameters for this case
       std::vector<ObsValue*>      m_results;              // list of observables values
+
+      // disable copy constructor and copy operator
+      RunCaseImpl( const RunCaseImpl & );
+      RunCase & operator = ( const RunCaseImpl & );
    };
 }
 

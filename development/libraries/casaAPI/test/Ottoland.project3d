@@ -523,9 +523,10 @@ LayerName InterpFileName NumberOfPoints PolynomialDegree InterpGroupName StartAg
 ;
 Age Thickness ThicknessGrid CalibThickness OptimThickness ErrThickness
 () () () () () ()
-0 27692 "" -9999 0 0
-290 27692 "" -9999 0 0
-310 36000 "" -9999 0 0
+0   13750  "" -9999 -9999 -9999
+185 13750  "" -9999 -9999 -9999
+220 25000  "" -9999 -9999 -9999
+310 25000  "" -9999 -9999 -9999
 [End]
 ;
 ;

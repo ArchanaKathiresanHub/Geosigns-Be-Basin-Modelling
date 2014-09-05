@@ -18,6 +18,7 @@
 #include "DoEGeneratorImpl.h"
 #include "MCSolverImpl.h"
 #include "ObsSpaceImpl.h"
+#include "PrmOneCrustThinningEvent.h"
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmSourceRockTOC.h"
 #include "RSProxyImpl.h"
@@ -25,6 +26,7 @@
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
 #include "VarSpaceImpl.h"
+#include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
 
@@ -34,6 +36,7 @@
 #include <sstream>
 #include <string>
 #include <cassert>
+#include <cmath>
 
 namespace casa {
 
@@ -67,14 +70,15 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa
    casa::PrmTopCrustHeatProduction prm( mdl );
    if ( mdl.errorCode() != ErrorHandler::NoError ) return mdl.errorCode();
 
-   double baseValue = prm.doubleValue( );
+   const std::vector<double> & baseValue = prm.asDoubleArray();
+   assert( baseValue.size() == 1 );
 
-   if ( baseValue < minVal || baseValue > maxVal )
+   if ( baseValue[0] < minVal || baseValue[0] > maxVal )
    {
       return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of parameter in base case is outside of the given range" );
    }
 
-   return varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( prm.doubleValue(), minVal, maxVal, rangeShape ) );
+   return varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( baseValue[0], minVal, maxVal, rangeShape ) );
 }
 
 // Add a parameter to variate source rock lithology TOC value @f$ [%%] @f$ in given range
@@ -93,16 +97,74 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa
    casa::PrmSourceRockTOC prm( mdl, layerName );
    if ( mdl.errorCode() != ErrorHandler::NoError ) return mdl.errorCode();
 
-   double baseValue = prm.doubleValue();
+   const std::vector<double> & baseValue = prm.asDoubleArray();
+   assert( baseValue.size() == 1 );
 
-   if ( baseValue < minVal || baseValue > maxVal )
+   if ( baseValue[0] < minVal || baseValue[0] > maxVal )
    {
       return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of parameter in base case is outside of the given range" );
    }
 
-   return varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue, minVal, maxVal, rangeShape ) );
+   return varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue[0], minVal, maxVal, rangeShape ) );
 }
 
+// Add 4 parameters to variate one crust thinning event.
+ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni, double maxThickIni,
+                                                                                 double minT0,       double maxT0,       
+                                                                                 double minDeltaT,   double maxDeltaT,   
+                                                                                 double minThingFct, double maxThingFct, VarPrmContinuous::PDF thingFctPDF )
+{
+   VarSpace & varPrmsSet = sa.varSpace();
+
+   // Get base value of parameter from the Model
+   mbapi::Model & mdl = sa.baseCase();
+
+   casa::PrmOneCrustThinningEvent prm( mdl );
+   if ( mdl.errorCode() != ErrorHandler::NoError ) return mdl.errorCode();
+
+   std::vector<double> baseValues = prm.asDoubleArray();
+
+   for ( size_t i = 0; i < 4; ++i ) // replace undefined base value with middle of value range
+   {
+      if ( std::abs(UndefinedDoubleValue - baseValues[i]) < 1.e-10 )
+      {
+         switch ( i )
+         {
+            case 0: baseValues[i] = 0.5 * ( minThickIni + maxThickIni ); break;
+            case 1: baseValues[i] = 0.5 * ( minT0       + maxT0       ); break;
+            case 2: baseValues[i] = 0.5 * ( minDeltaT   + maxDeltaT   ); break;
+            case 3: baseValues[i] = 0.5 * ( minThingFct + maxThingFct ); break;
+         }
+      }
+   }
+
+   if ( baseValues[0] < minThickIni || baseValues[0] > maxThickIni )
+   {
+      return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of initial thickness parameter in base case is outside of the given range" );
+   }
+
+   if ( baseValues[1] < minT0 || baseValues[1] > maxT0 )
+   {
+      return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of start time for crust thinning parameter in base case is outside of the given range" );
+   }
+
+   if ( baseValues[2] < minDeltaT || baseValues[2] > maxDeltaT )
+   {
+      return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of duration of crust thinning parameter in base case is outside of the given range" );
+   }
+
+   if ( baseValues[3] < minThingFct || baseValues[3] > maxThingFct )
+   {
+      return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of crust thinning factor parameter in base case is outside of the given range" );
+   }
+   
+   return varPrmsSet.addParameter( new VarPrmOneCrustThinningEvent( baseValues[0], minThickIni, maxThickIni,
+                                                                    baseValues[1], minT0,       maxT0,
+                                                                    baseValues[2], minDeltaT,   maxDeltaT,
+                                                                    baseValues[3], minThingFct, maxThingFct,
+                                                                    thingFctPDF ) );
+}
+ 
 }
 
 // Class which hides all ScenarioAnalysis implementation

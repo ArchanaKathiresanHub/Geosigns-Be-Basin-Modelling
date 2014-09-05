@@ -40,8 +40,8 @@ namespace casa
       /// @return i-th parameter or null pointer if there is no such parameter
       virtual Parameter * parameter( size_t i ) const = 0;
 
-      /// @brief Get number of observables value 
-      /// @return observables value number
+      /// @brief Get number of observables defined for this case
+      /// @return observables number
       virtual size_t observablesNumber() const = 0;
 
       /// @brief Get i-th observable value

@@ -20,11 +20,10 @@
 
 namespace casa
 {
-// Variable parameters set manager. It keeps a unique set of variable parameters
+// Observables manager. It keeps a unique set of targets (observables)
 class ObsSpaceImpl : public ObsSpace
 {
 public:  
-   // ObsSpace interface implementation
    
    // Add a new observable
    virtual ErrorHandler::ReturnCode addObservable( Observable * prm )
@@ -51,6 +50,10 @@ public:
 
 private:
    std::vector< Observable*> m_obsSet;
+
+   // disable copy constructor and copy operator
+   ObsSpaceImpl( const ObsSpaceImpl & );
+   ObsSpaceImpl & operator = ( const ObsSpaceImpl & );
 };
 
 }

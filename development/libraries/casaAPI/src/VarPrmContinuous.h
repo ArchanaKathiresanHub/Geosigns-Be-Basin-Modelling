@@ -14,8 +14,6 @@
 #ifndef CASA_API_VAR_PRM_CONTINOUS_H
 #define CASA_API_VAR_PRM_CONTINOUS_H
 
-#include "Range.h"
-
 #include <memory>
 
 /// @page CASA_VarPrmContinuousPage Continuous variable parameter
@@ -30,12 +28,13 @@
 /// The following list of simple range variable parameters is implemented in CASA API
 /// - @link CASA_SourceRockTOCPage Source rock initial Total Organic Contents (TOC) parameter @endlink
 /// - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
-///
+/// - @link CASA_OneCrustThinningEventPage One event crust thinning parameter @endlink
 namespace casa
 {
    class Parameter;
 
-   /// @brief Variable parameter with continuous value range
+   /// @brief Variable parameter with continuous value range.\n
+   /// The parameter value can be represented by the one or several doubles values
    class VarPrmContinuous
    {
    public:
@@ -50,29 +49,34 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmContinuous() {;}
 
-      /// @brief Get minimal variable parameter value as double
-      /// @return minimal value for variable parameter
-      double minValueAsDouble() const { return m_valueRange->minRangeValueAsDouble(); }
+      /// @brief A parameter which corresponds the minimal range value of the variable parameter 
+      /// @return the parameter object which should not be deleted by a caller
+      virtual const Parameter * minValue() const { return m_minValue.get(); }
 
-      /// @brief Get maximal variable parameter value as double
-      /// @return maximal value for variable parameter
-      double maxValueAsDouble() const { return m_valueRange->maxRangeValueAsDouble(); }
+      /// @brief A parameter which corresponds the maximal range value of the variable parameter 
+      /// @return the parameter object should be deleted by a caller
+      virtual const Parameter * maxValue() const { return m_maxValue.get(); }
 
-      /// @brief Get base value for the variable parameter as double
-      /// @return base value
-      virtual double baseValueAsDouble() const = 0;
+      /// @brief A parameter which corresponds the base value of the variable parameter 
+      /// @return the parameter object which should not be deleted by a caller
+      virtual const Parameter * baseValue() const { return m_baseValue.get(); }
+
+      /// @brief Get Probability Density Function type of the variable parameter
+      /// @return parameter PDF type
+      virtual PDF pdfType() const { return m_pdf; }
 
       /// @brief Create a copy of the parameter and assign to the given value. If value is outside of the parameter range,\n
       ///        the method will return a zero pointer
       /// @param val new value for parameter
       /// @return the new parameter object which should be deleted by the caller itself
-      virtual Parameter * createNewParameterFromDouble( double val ) const = 0;
+      virtual Parameter * createNewParameterFromDouble( const std::vector<double> & vals ) const = 0;
 
    protected:
       VarPrmContinuous() : m_pdf(Block) {;}
 
       std::auto_ptr<Parameter> m_baseValue;    ///< Base parameter value, used also as object factory for concrete parameter value
-      std::auto_ptr<Range>     m_valueRange;   ///< Range for the parameter (min,max) or (left,right) values
+      std::auto_ptr<Parameter> m_minValue;    ///< Base parameter value, used also as object factory for concrete parameter value
+      std::auto_ptr<Parameter> m_maxValue;    ///< Base parameter value, used also as object factory for concrete parameter value
 
       PDF                       m_pdf;          ///< Probability density function for parameter. Block is default value
    

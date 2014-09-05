@@ -62,8 +62,8 @@ generate_dox( src/API.cfg )
 # Unit tests for DoEGeneratorTest
 
 #Various cauldron projects which are used in unit tests
-configure_file(test/Project.project3d Project.project3d)
-configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d)
+configure_file(test/Project.project3d Project.project3d COPYONLY )
+configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 
 
 add_gtest( NAME mbapiModelTest

@@ -156,11 +156,10 @@ namespace mbapi {
       ReturnCode loadModelFromProjectFile( const char * projectFileName );
 
       /// @brief Save the model to the Cauldron project project1d/project3d file under the given file name
-      ///        If file exist, it will be overwritten, if the writing is not possible or failed, interface will
-      ///        throw an exception
+      ///        If file exist, it will be overwritten
       ///
       /// @param projectFileName the name for the Cauldron project file
-      /// @return NoError in case of success, error code otherwise. The error message could be retrieved with getAPIErrorMessage call
+      /// @return NoError in case of success, error code otherwise.
       ReturnCode saveModelToProjectFile( const char * projectFileName );
 
       /// @brief Get model stratigraphy manager. It allows manipulate model startigraphy

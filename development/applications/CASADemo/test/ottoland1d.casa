@@ -6,6 +6,8 @@ base_project "Ottoland.project3d"
 # Variable parameters
 varprm "TopCrustHeatProduction" 0.1 4.9 "Block"
 varprm "SourceRockTOC" "Lower Jurassic" 5.0 15.0 "Block"
+#                              InCrThick   T0      dT    ThinFct  PDF
+varprm "CrustThinningOneEvent" 15000 40000 120 180 30 45 0.5 0.8 "Block"
 #
 #       type     prop name      X        Y           Z    Age   Ref   Dev  SWght UWght
 target XYZPoint "Temperature" 460001.0 6750001.0 2751.0   0.0  108.6  2.0   1.0  1.0
@@ -17,6 +19,10 @@ target XYZPoint "Temperature" 460001.0 6750001.0 2751.0   0.0  108.6  2.0   1.0 
 target XYZPoint "Temperature" 460001.0 6750001.0 3200.0   0.0  120.0  2.0   1.0  1.0
 target XYZPoint "Vr"          460001.0 6750001.0 1590.0   0.0  0.62   0.1   1.0  1.0
 target XYZPoint "Vr"          460001.0 6750001.0 2722.0   0.0  1.04   0.1   1.0  1.0
+
+#       type     traj file name         prop name   age Dev SWght  UWght
+target WellTraj "WellTemperature.dat" "Temperature" 0.0 2.0  1.0    1.0
+target WellTraj "WellVr.dat"          "Vr"          0.0 0.1  1.0    1.0
 #
 # DoE
 doe "FullFactorial"

@@ -18,12 +18,12 @@
 
 /// @page CASA_ObservablePage Observables
 ///
-/// <b><em> Observable (or Target) </em></b> – any simulator output value. It could be any data value from the \n
+/// <b><em> Observable (or Target) </em></b> - any simulator output value. It could be any data value from the \n
 /// simulation results. For example temperature or VRe at some position and depth for current time. \n
-/// Some observables could be used for risk assessment – for example the total amount of HC in a trap.\n
-/// The set of observables also could be denote as an output vector:  @f$ \vec{O} = \vec{(o_1,o_2,…,o_m)} @f$ .
+/// Some observables could be used for risk assessment - for example the total amount of HC in a trap.\n
+/// The set of observables also could be denote as an output vector:  @f$ \vec{O} = \vec{(o_1,o_2,...,o_m)} @f$ .
 ///
-/// <b><em> Observable reference value </em></b> – usually it is a measurement of corresponded observable value \n
+/// <b><em> Observable reference value </em></b> - usually it is a measurement of corresponded observable value \n
 /// from the real well.Observables with reference value could be used for calibration workflow.
 ///
 /// <b><em> Standard deviation value of observable reference value </em></b> - contains the standard deviations \n
@@ -33,14 +33,15 @@
 /// indicates that the data points are spread out over a large range of values. 
 /// In science, researchers commonly report the standard deviation of experimental data, and only effects that \n
 /// fall much farther than two standard deviations away from what would have been expected are considered \n
-/// statistically significant—normal random error or variation in the measurements is in this way distinguished \n
+/// statistically significant - normal random error or variation in the measurements is in this way distinguished \n
 /// from causal variation.
-/// @image html Standard_deviation_diagram.png "A plot of a normal distribution (or bell-shaped curve) where each band has a width of 1 standard deviation (68–95–99.7 rule)"
+/// @image html Standard_deviation_diagram.png "A plot of a normal distribution (or bell-shaped curve) where each band has \n
+/// a width of 1 standard deviation (68-95-99.7 rule)"
 ///
 ///The following list of of Observable types is implemented in CASA API:
 ///
-/// - Any Cauldron property value at the grid IJK position
-/// - @todo Any Cauldron property value at XYZ model position
+/// - @subpage  CASA_ObservableGridPropXYZPage
+/// - Set of any Cauldron property values along well trajectory
 ///
 /// A new observable object could be created by one of the static functions from @link casa::DataDigger Data Digger @endlink
 
@@ -65,7 +66,7 @@ namespace casa
 
       /// @brief Get name of the observable
       /// @return observable name
-      virtual const char * name() = 0;
+      virtual const char * name() const = 0;
 
       /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise

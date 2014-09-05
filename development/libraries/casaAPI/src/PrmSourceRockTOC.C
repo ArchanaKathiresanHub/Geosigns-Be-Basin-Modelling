@@ -12,8 +12,6 @@
 /// @brief This file keeps API implementation for Source Rock TOC parameter handling 
 
 
-#include "SimpleRange.h"
-
 #include "PrmSourceRockTOC.h"
 #include "cmbAPI.h"
 
@@ -25,35 +23,46 @@
 namespace casa
 {
 
+// Constructor
+PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName )
+{ 
+   m_layerName = layerName;
+   bool isFound = false;
+
+   mbapi::SourceRockManager & mgr = mdl.sourceRockManager();
+
+   // go over all source rock lithologies and look for the first lithology with the same layer name as given
+   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
+   for ( size_t i = 0; i < srIDs.size(); ++i )
+   {
+      if ( mgr.layerName( srIDs[i] ) == m_layerName )
+      {
+         m_toc = mgr.tocIni( srIDs[i] );
+         if ( ErrorHandler::NoError != mgr.errorCode() ) mdl.moveError( mgr );
+         isFound = true;
+         break;
+      }
+   }
+   if ( !isFound ) mdl.reportError( ErrorHandler::NonexistingID, std::string( "Can't find layer with name " ) +
+                                    layerName + " in source rock lithology table" );
+   // construct parameter name
+   std::ostringstream oss;
+   oss << "SourceRockTOC(" << m_layerName << ")";
+   m_name = oss.str();
+}
+
  // Constructor
- PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName )
- { 
-    m_layerName = layerName;
-    bool isFound = false;
-
-    mbapi::SourceRockManager & mgr = mdl.sourceRockManager();
-
-    // go over all source rock lithologies and look for the first lithology with the same layer name as given
-    const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-    for ( size_t i = 0; i < srIDs.size(); ++i )
-    {
-       if ( mgr.layerName( srIDs[i] ) == m_layerName )
-       {
-          m_toc = mgr.tocIni( srIDs[i] );
-          if ( ErrorHandler::NoError != mgr.errorCode() ) mdl.moveError( mgr );
-          isFound = true;
-          break;
-       }
-    }
-    if ( !isFound ) mdl.reportError( ErrorHandler::NonexistingID, std::string( "Can't find layer with name " ) +
-                                     layerName + " in source rock lithology table" );
- }
-
- // Constructor
-PrmSourceRockTOC::PrmSourceRockTOC( double val, const char * layerName ) : m_toc( val ), m_layerName( layerName ) {;}
+PrmSourceRockTOC::PrmSourceRockTOC( double val, const char * layerName ) : m_toc( val ), m_layerName( layerName )
+{
+   // construct parameter name
+   std::ostringstream oss;
+   oss << "SourceRockTOC(" << m_layerName << ")";
+   m_name = oss.str();
+}
 
 // Destructor
 PrmSourceRockTOC::~PrmSourceRockTOC() {;}
+
 
 // Update given model with the parameter value
 ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel )

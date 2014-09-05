@@ -14,6 +14,8 @@
 #ifndef CASA_API_OBSVALUE_H
 #define CASA_API_OBSVALUE_H
 
+#include <vector>
+
 namespace casa
 {
    class Observable; // parent object
@@ -27,11 +29,17 @@ namespace casa
       virtual ~ObsValue() { ; }
 
       /// @brief Get parent observable which define type of observable
-      virtual Observable * observable() const = 0;
+      virtual const Observable * observable() const = 0;
+
+      /// @brief Calculate Root Mean Squared Error for the observable value if reference value was specified\n
+      /// MSE is calculated using this formula:\n
+      /// @f$ MSE \equiv {\frac{1}{N} \sum\nolimits_{i=1}^{i=N} {\left( {\frac{Y_i-M_i \left( {x_j } \right)}{\sigma_i }} \right)^2} } @f$
+      /// @return Root Mean Squared Error
+      virtual double MSE() const = 0;
 
       // The following methods are used for testing  
-      virtual bool isDouble() = 0;
-      virtual double doubleValue() = 0;
+      virtual bool isDouble() const = 0;
+      virtual std::vector<double> doubleValue() const = 0;
 
    protected:
       ObsValue() { ; }

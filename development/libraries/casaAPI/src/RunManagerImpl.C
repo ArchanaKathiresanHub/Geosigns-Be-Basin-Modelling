@@ -476,9 +476,15 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
       // run over all cases, make a pause, get a Twix
       std::cout << "submitted: " << submitted << ", finished: " << finished << ", failed: " << crashed << ", pending: " << pending << ", running: " << running << std::endl;
       
-      m_jobSched->sleep(); // wait a bit till go to the next loop
+      if ( submitted == finished )
+      {
+         allFinished = true;
+      }
+      else
+      {
+         m_jobSched->sleep(); // wait a bit till go to the next loop
+      }
 
-      if ( submitted == finished ) allFinished = true;
    }
    return NoError;
 }

@@ -21,8 +21,7 @@
 
 /// @page CASA_DataDiggerPage Data Digger
 ///
-/// @link casa::DataDigger Data digger @endlink provides set of API functions to create various types of @link casa::Observable Observable @endlink objects.
-/// It also allows to collect observables value from the simulation results.
+// It also allows to collect observables value from the simulation results.
 /// To full fill this purpose it should first add to each run case project request for observables. This must be done just after
 /// cases mutation. casa::DataDigger uses the functionality of datadriller cauldron application. Call for datadriller added by casa::RunManager
 /// at the end of applications pipeline.
@@ -70,15 +69,6 @@ namespace casa
    public:
       /// @brief Destructor
       virtual ~DataDigger() {;}
-
-      /// @brief Create an observable object which will keep given property value for given XYZ coordinates
-      /// @param x X coordinate 
-      /// @param y Y coordinate
-      /// @param z depth value
-      /// @param propName name of the property
-      /// @param simTime simulation time for property value extraction
-      /// @return Pointer to new observable object
-      static Observable * newObsPropertyXYZ( double x, double y, double z, const char * propName, double simTime = 0.0 );
 
       /// @brief Insert into project file request for observables values using datadriller cauldron app and data mining interface.\n
       /// Observables must be requested after case mutation.

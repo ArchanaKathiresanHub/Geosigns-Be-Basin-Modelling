@@ -8,19 +8,18 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ObsGridPropertyXYZ.h
+/// @file ObsGridPropertyWell.h
 /// @brief This file keeps declaration of the class of grid property value as observable
 
-#ifndef CASA_API_OBS_GRID_PROPERTY_XYZ_H
-#define CASA_API_OBS_GRID_PROPERTY_XYZ_H
+#ifndef CASA_API_OBS_GRID_PROPERTY_WELL_H
+#define CASA_API_OBS_GRID_PROPERTY_WELL_H
 
 #include "Observable.h"
 
 #include <memory>
 
-/// @page CASA_ObservableGridPropXYZPage any Cauldron grid property at specified XYZ point
-/// This observable could retrieve grid property value for given position in a grid
-/// 
+/// @page CASA_ObservableGridPropWellPage any Cauldron grid property along well trajectory
+/// This observable could retrieve grid property values along given well trajectory, defined as a set of XYZ points
 
 namespace mbapi
 {
@@ -30,19 +29,22 @@ namespace mbapi
 namespace casa
 {
    /// @brief Base class for keeping some value from Cauldron simulation results
-   class ObsGridPropertyXYZ : public Observable
+   class ObsGridPropertyWell : public Observable
    {
    public:
       /// @brief Create observable for the given grid property for specified grid position
-      /// @param x X-th grid coordinate
-      /// @param y Y-th grid coordinate
-      /// @param z Z-th grid coordinate
+      /// @param x well trajectory X-th coordinates
+      /// @param y well trajectory Y-th coordinates
+      /// @param z well trajectory Z-th coordinates
       /// @param propName name of the property
       /// @param simTime simulation time
-      ObsGridPropertyXYZ( double x, double y, double z, const char * propName, double simTime );
+      ObsGridPropertyWell( const std::vector<double> & x,
+                           const std::vector<double> & y,
+                           const std::vector<double> & z,
+                           const char * propName, double simTime );
 
       /// @brief Destructor
-      virtual ~ObsGridPropertyXYZ( );
+      virtual ~ObsGridPropertyWell( );
 
       /// @brief Get name of the observable
       /// @return observable name
@@ -92,27 +94,27 @@ namespace casa
       virtual ObsValue * getFromModel( mbapi::Model & caldModel );
 
    protected:
-      double      m_x;  ///< X-th coordinate
-      double      m_y;  ///< Y-th coordinate
-      double      m_z;  ///< Z-th coordinate
+      std::vector<double>     m_x;  ///< X-th coordinates
+      std::vector<double>     m_y;  ///< Y-th coordinates
+      std::vector<double>     m_z;  ///< Z-th coordinates
 
-      std::string m_propName;  ///< Property name
-      double      m_simTime;   ///< simulator time
+      std::string             m_propName;  ///< Property name
+      double                  m_simTime;   ///< simulator time
 
-      std::string m_name;      ///< name of the observable
+      std::string             m_name;      ///< name of the observable
 
-      size_t      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
+      std::vector<size_t>     m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
       std::auto_ptr<ObsValue> m_refValue;  ///< reference value
       double                  m_devValue;  ///< standard deviation for reference value
 
-      double      m_saWeight;  ///< Observable weight for sensitivity analysis
-      double      m_uaWeight;  ///< Observable weight for uncertainty analysis
+      double                  m_saWeight;  ///< Observable weight for sensitivity analysis
+      double                  m_uaWeight;  ///< Observable weight for uncertainty analysis
 
    private:
-      ObsGridPropertyXYZ( const ObsGridPropertyXYZ & );
-      ObsGridPropertyXYZ & operator = ( const ObsGridPropertyXYZ & );
+      ObsGridPropertyWell( const ObsGridPropertyWell & );
+      ObsGridPropertyWell & operator = ( const ObsGridPropertyWell & );
    };
 }
 
-#endif // CASA_API_OBS_GRID_PROPERTY_XYZ_H
+#endif // CASA_API_OBS_GRID_PROPERTY_WELL_H

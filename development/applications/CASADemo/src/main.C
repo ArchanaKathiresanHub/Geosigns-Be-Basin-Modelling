@@ -3,8 +3,7 @@
 #include "FilePath.h"
 #include "FolderPath.h"
 #include "ObsValueDoubleScalar.h"
-#include "PrmSourceRockTOC.h"
-#include "PrmTopCrustHeatProduction.h"
+#include "ObsValueDoubleArray.h"
 #include "RunCase.h"
 #include "RunCaseSet.h"
 #include "RunManagerImpl.h"
@@ -14,11 +13,15 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #include <cstdlib>
 
 #include "CfgFileParser.h"
 
+std::string g_baseCaseName;
+std::string g_location;
+std::string g_dataFileName = "casa_data.m";
 
 using namespace casa;
 
@@ -34,6 +37,15 @@ int ReportError( ErrorHandler & errHnd )
    return -1;
 }
 
+VarPrmContinuous::PDF Str2pdf( const std::string & pdf )
+{
+   if (      pdf == "Block"    ) return VarPrmContinuous::Block;    // equal PDF
+   else if ( pdf == "Triangle" ) return VarPrmContinuous::Triangle; // triangle PDF
+   else if ( pdf == "Normal"   ) return VarPrmContinuous::Normal;   // gauss PDF
+   
+   return VarPrmContinuous::Block;
+}
+
 ErrorHandler::ReturnCode AddVarParameter( casa::ScenarioAnalysis & sc, const std::vector< std::string > & prms )
 {
    VarPrmContinuous::PDF ppdf = VarPrmContinuous::Block;
@@ -45,11 +57,7 @@ ErrorHandler::ReturnCode AddVarParameter( casa::ScenarioAnalysis & sc, const std
       double minVal = atof( prms[1].c_str() );
       double maxVal = atof( prms[2].c_str() );
       
-      VarPrmContinuous::PDF ppdf = VarPrmContinuous::Block;
-
-      if (      prms[3] == "Block"    ) { ppdf = VarPrmContinuous::Block;    } // equal PDF
-      else if ( prms[3] == "Triangle" ) { ppdf = VarPrmContinuous::Triangle; } // triangle PDF
-      else if ( prms[3] == "Normal"   ) { ppdf = VarPrmContinuous::Normal;   } // gauss PDF
+      ppdf = Str2pdf( prms[3] );
      
       return BusinessLogicRulesSet::VaryTopCrustHeatProduction( sc, minVal, maxVal, ppdf );
    }
@@ -60,11 +68,35 @@ ErrorHandler::ReturnCode AddVarParameter( casa::ScenarioAnalysis & sc, const std
       double minVal = atof( prms[2].c_str() );
       double maxVal = atof( prms[3].c_str() );
  
-      if (      prms[4] == "Block"    ) { ppdf = VarPrmContinuous::Block;    } // equal PDF
-      else if ( prms[4] == "Triangle" ) { ppdf = VarPrmContinuous::Triangle; } // triangle PDF
-      else if ( prms[4] == "Normal"   ) { ppdf = VarPrmContinuous::Normal;   } // gauss PDF
+      ppdf = Str2pdf( prms[3] );
    
       return BusinessLogicRulesSet::VarySourceRockTOC( sc, prms[1].c_str(), minVal,  maxVal,  ppdf );
+   }
+   else if ( prms[0] == "CrustThinningOneEvent" )
+   {
+      assert( prms.size() == 10 );
+
+      // Initial crustal thickness
+      double minCrustThickn = atof(  prms[1].c_str() );
+      double maxCrustThickn = atof(  prms[2].c_str() );
+
+      // Start thinning time
+      double minTStart = atof( prms[3].c_str() );
+      double maxTStart = atof( prms[4].c_str() );
+
+      // Thinning duraration
+      double minDeltaT = atof( prms[5].c_str() );
+      double maxDeltaT = atof( prms[6].c_str() );
+
+      double minFactor = atof( prms[7].c_str() );
+      double maxFactor = atof( prms[8].c_str() );
+
+      VarPrmContinuous::PDF pdfType = Str2pdf( prms[9] );
+      
+      return BusinessLogicRulesSet::VaryOneCrustThinningEvent( sc, minCrustThickn, maxCrustThickn, 
+                                                                   minTStart,      maxTStart, 
+                                                                   minDeltaT,      maxDeltaT,
+                                                                   minFactor,      maxFactor, pdfType );
    }
    
    return sc.reportError( ErrorHandler::UndefinedValue, std::string( "Unknown variable parameter name: ") + prms[0] );
@@ -80,13 +112,13 @@ ErrorHandler::ReturnCode AddObservable( casa::ScenarioAnalysis & sc, const std::
       double x      = atof( prms[2].c_str() );
       double y      = atof( prms[3].c_str() );
       double z      = atof( prms[4].c_str() );
-      double age    = atof( prms[5].c_str() );
-      double refVal = atof( prms[6].c_str() );
-      double stdDev = atof( prms[7].c_str() );
-      double wgtSA  = atof( prms[8].c_str() );
-      double wgtUA  = atof( prms[9].c_str() );
+      double age    = atof( prms[5].c_str() ); // age for the observable
+      double refVal = atof( prms[6].c_str() ); // observable reference value
+      double stdDev = atof( prms[7].c_str() ); // std deviation value
+      double wgtSA  = atof( prms[8].c_str() ); // observable weight for Sensitivity Analysis
+      double wgtUA  = atof( prms[9].c_str() ); // observable weight for Uncertainty Analysis
 
-      casa::Observable * xyzVal = DataDigger::newObsPropertyXYZ( x, y, z, prms[1].c_str(), age );
+      casa::Observable * xyzVal = ObsSpace::newObsPropertyXYZ( x, y, z, prms[1].c_str(), age );
       xyzVal->setReferenceValue( new ObsValueDoubleScalar( xyzVal, refVal ), stdDev );
       xyzVal->setSAWeight( wgtSA );
       xyzVal->setUAWeight( wgtUA );
@@ -95,7 +127,31 @@ ErrorHandler::ReturnCode AddObservable( casa::ScenarioAnalysis & sc, const std::
 
       return ErrorHandler::NoError;
    }
-   
+   else if ( prms[0] == "WellTraj" ) // file  format X Y Z RefVal
+   {
+      assert( prms.size() == 7 );
+      const std::string & trajFileName = prms[1];                 // well trajectory file with reference values
+      const std::string & propName     = prms[2];                 // property name
+      double              age          = atof( prms[3].c_str() ); // age for the observable
+      double              stdDev       = atof( prms[4].c_str() ); // std deviation value
+      double              wgtSA        = atof( prms[5].c_str() ); // observable weight for Sensitivity Analysis
+      double              wgtUA        = atof( prms[6].c_str() ); // observable weight for Uncertainty Analysis
+
+      // read trajectory file
+      std::vector<double> x;
+      std::vector<double> y;
+      std::vector<double> z;
+      std::vector<double> r;
+      CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r );
+      casa::Observable * wellVal = ObsSpace::newObsPropertyWell( x, y, z, propName.c_str(), age ); 
+      wellVal->setReferenceValue( new ObsValueDoubleArray( wellVal, r ), stdDev );
+      wellVal->setSAWeight( wgtSA );
+      wellVal->setUAWeight( wgtUA );
+ 
+      if ( sc.obsSpace().addObservable( wellVal ) != ErrorHandler::NoError ) return sc.moveError( sc.obsSpace() );
+
+      return ErrorHandler::NoError;
+   }
    return sc.reportError( ErrorHandler::UndefinedValue, std::string( "Unknown variable parameter name: ") + prms[0] );
 }
                
@@ -120,12 +176,132 @@ void PrintObsValues( casa::ScenarioAnalysis & sc )
          casa::ObsValue * ov = cs->observableValue( i );
          if ( ov && ov->observable() && ov->isDouble() ) 
          {
-            std::cout << "      " << ov->observable()->name() << " = " << ov->doubleValue() << std::endl;
+            const std::vector<double> & vals = ov->doubleValue();
+            std::cout << "      " << ov->observable()->name() << " = (" ;
+            for ( size_t i = 0; i < vals.size(); ++i )
+            {
+               std::cout << " " << vals[i];
+            }
+            std::cout << " )" << std::endl;
          }
       }
    }
 }
 
+void SaveResults( casa::ScenarioAnalysis & sc )
+{
+   std::ofstream ofs( g_dataFileName.c_str(), std::ios_base::out | std::ios_base::trunc );
+   
+   if ( ofs.bad() ) return;
+
+   ofs << "BaseCaseName  = '" << g_baseCaseName << "';\n";
+   ofs << "DoEName       = '" << DoEGenerator::DoEName( sc.doeGenerator().algorithm() ) << "';\n";
+   ofs << "PathToCaseSet = '" << g_location << "';\n";
+
+   RunCaseSet & rcs = sc. doeCaseSet();
+
+   if ( !rcs.size() ) return;
+
+   // save parameters value for each case
+   // First save name of the variable parameters
+   ofs << "ParametersName = [\n";
+   for ( size_t j = 0; j < rcs[0]->parametersNumber(); ++j )
+   {
+      casa::Parameter * prm = rcs[0]->parameter( j );
+      if ( !prm  ) continue;
+      ofs << "    \"" << prm->name() << "\"\n";      
+   }
+   ofs << "];\n\n";
+
+   // Second - values for parameters for each case
+   ofs << "ParametersVal = [\n";
+ 
+   for ( size_t i = 0; i < rcs.size(); ++i )
+   {
+      ofs << i;  // Case number
+
+      for ( size_t j = 0; j < rcs[i]->parametersNumber(); ++j )
+      {
+         casa::Parameter * prm = rcs[i]->parameter( j );
+         
+         if ( !prm  ) continue;
+
+         const std::vector<double> & prmVals = prm->asDoubleArray();
+
+         for ( size_t k = 0; k < prmVals.size(); ++k )
+         {
+            ofs << "\t" << prmVals[k];
+         }
+      }
+      ofs << "\n";
+   }
+   ofs << "];\n\n";
+
+   // save observables value for each case
+   // First save name of the observables
+   ofs << "ObservablesName = [\n";
+   for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
+   {
+      casa::ObsValue * obv = rcs[0]->observableValue( j );
+      
+      if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
+
+      ofs << "    \"" << obv->observable()->name() << "\"\n";      
+   }
+   ofs << "];\n\n";
+
+   // Second - value for observables for each case
+   ofs << "ObservablesDim = [ ";
+   for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
+   {
+      casa::ObsValue * obv = rcs[0]->observableValue( j );
+      
+      if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
+
+      ofs << " " << obv->doubleValue().size();      
+    }
+    ofs << " ];\n\n";
+
+   ofs << "ObservablesVal = [\n";
+   for ( size_t i = 0; i < rcs.size(); ++i )
+   {
+      ofs << i;
+
+      for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
+      {
+         casa::ObsValue * obv = rcs[i]->observableValue( j );
+
+         if ( obv && obv->isDouble() )
+         {
+            const std::vector<double> & vals = obv->doubleValue();
+            for ( size_t k = 0; k < vals.size(); ++k ) ofs << "\t" << vals[k];
+         }
+      }
+
+      ofs << std::endl;
+   }
+   ofs << "];\n\n";
+
+   // Third - observables MSE for each case
+   ofs << "ObservablesMSE = [\n";
+   for ( size_t i = 0; i < rcs.size(); ++i )
+   {
+      ofs << i;
+
+      for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
+      {
+         casa::ObsValue * obv = rcs[i]->observableValue( j );
+
+         if ( obv && obv->isDouble() )
+         {
+            ofs << "\t" << obv->MSE();
+         }
+      }
+
+      ofs << std::endl;
+   }
+   ofs << "];\n";
+}
 
 int main( int argc, char ** argv )
 {
@@ -174,6 +350,7 @@ int main( int argc, char ** argv )
             {
                std::cout << "Set base case: " << prms[0] << std::endl;
                if( ErrorHandler::NoError != sc.defineBaseCase( prms[0].c_str() ) ) return ReportError( sc );
+               g_baseCaseName = prms[0];
             }
             break;
 
@@ -212,6 +389,7 @@ int main( int argc, char ** argv )
                if ( ErrorHandler::NoError != sc.setScenarioLocation( prms[0].c_str() ) ) return ReportError( sc );
                if ( ErrorHandler::NoError != sc.applyMutations(      sc.doeCaseSet() ) ) return ReportError( sc );
                if ( ErrorHandler::NoError != sc.dataDigger().requestObservables( sc.obsSpace(), sc.doeCaseSet() ) ) return ReportError( sc );
+               g_location = prms[0];
             }
             break;
 
@@ -262,5 +440,7 @@ int main( int argc, char ** argv )
             break;
       }
    }
+   std::cout << "Export CASA results to : " << g_dataFileName << std::endl;
+   SaveResults( sc );
 }
 

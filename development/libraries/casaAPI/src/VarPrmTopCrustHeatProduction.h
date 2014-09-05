@@ -9,7 +9,7 @@
 // 
 
 /// @file VarPrmTopCrustHeatProduction.h
-/// @brief This file keeps API declaration for handling continuous parameters. 
+/// @brief This file keeps API declaration for handling variation of casa::PrmTopCrustHeatProduction parameter
 
 #ifndef CASA_API_VAR_PARAMETER_TOP_CRUST_HEAT_PRODUCTION_H
 #define CASA_API_VAR_PARAMETER_TOP_CRUST_HEAT_PRODUCTION_H
@@ -25,11 +25,7 @@ namespace casa
       VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType );
       virtual ~VarPrmTopCrustHeatProduction();
 
-      /// @brief Get base value for the variable parameter as double
-      /// @return base value
-      virtual double baseValueAsDouble() const;
-
-      virtual Parameter * createNewParameterFromDouble( double val ) const;
+      virtual Parameter * createNewParameterFromDouble( const std::vector<double> & vals ) const;
 
    protected:
    };

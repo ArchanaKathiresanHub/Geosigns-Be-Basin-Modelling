@@ -11,9 +11,6 @@
 /// @file VarPrmSourceRockTOC.h
 /// @brief This file keeps API implementation for handling variation of initial source rock TOC parameter. 
 
-
-#include "SimpleRange.h"
-
 #include "PrmSourceRockTOC.h"
 #include "VarPrmSourceRockTOC.h"
 
@@ -26,26 +23,29 @@ VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char * layerName, double baseVal
    m_layerName( layerName )
 {
    m_pdf = pdfType;
-   m_valueRange.reset( new SimpleRange( minValue, maxValue ) );
-   
-   
-   assert( m_valueRange->isValInRange( baseValue ) );
 
+   assert( minValue <= baseValue && maxValue >= baseValue );
+
+   m_minValue.reset( new PrmSourceRockTOC( minValue, layerName ) );
+   m_maxValue.reset( new PrmSourceRockTOC( maxValue, layerName ) );
+   
    m_baseValue.reset( new PrmSourceRockTOC( baseValue, layerName ) );
 }
 
 VarPrmSourceRockTOC::~VarPrmSourceRockTOC()
 {
+   ;
 }
 
-double VarPrmSourceRockTOC::baseValueAsDouble() const
+Parameter * VarPrmSourceRockTOC::createNewParameterFromDouble( const std::vector<double> & vals ) const
 {
-   return dynamic_cast<PrmSourceRockTOC*>( m_baseValue.get() )->value();
-}
+   assert( vals.size() == 1 );
 
-Parameter * VarPrmSourceRockTOC::createNewParameterFromDouble( double val ) const
-{
-   return m_valueRange->isValInRange( val ) ? (new PrmSourceRockTOC( val, m_layerName.c_str() )) : 0;
+   double minV = dynamic_cast<PrmSourceRockTOC*>( m_minValue.get() )->value();
+   double maxV = dynamic_cast<PrmSourceRockTOC*>( m_maxValue.get() )->value();
+
+   if ( minV > vals[0] || maxV < vals[0] ) return 0;
+   return new PrmSourceRockTOC( vals[0], m_layerName.c_str() );
 }
 
 }

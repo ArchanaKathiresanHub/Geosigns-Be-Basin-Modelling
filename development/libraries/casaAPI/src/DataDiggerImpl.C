@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file DataDiggerImpl.h
+/// @file DataDiggerImpl.C
 /// @brief This file keeps API implementation for data digger. 
 
 
@@ -16,7 +16,6 @@
 #include "RunCaseSetImpl.h"
 #include "DataDiggerImpl.h"
 #include "ObsSpaceImpl.h"
-#include "ObsGridPropertyXYZ.h"
 #include "cmbAPI.h"
 
 #include <cassert>
@@ -25,13 +24,6 @@ namespace casa
 {
 
 const std::string Observable::s_dataMinerTable = "DataMiningIoTbl"; //name of the table which keeps observable values after simulations
-
-
-// Create an observable object which will keep given property value for given XYZ coordinates
-Observable * DataDigger::newObsPropertyXYZ( double x, double y, double z, const char * propName, double simTime )
-{
-   return new ObsGridPropertyXYZ( x, y, z, propName, simTime );
-}
 
 
 DataDiggerImpl::DataDiggerImpl()
@@ -57,16 +49,17 @@ ErrorHandler::ReturnCode DataDiggerImpl::requestObservables( ObsSpace & obs, Run
       if ( !cs ) continue;
 
       mbapi::Model * mdl = cs->caseModel();
-      mdl->clearTable( Observable::s_dataMinerTable ); // clear the table
-
+      
       if ( !mdl ) continue; // skip cases without model
+      
+      if ( NoError != mdl->clearTable( Observable::s_dataMinerTable ) ) return moveError( *mdl ); // clear the table
 
       // for each case go through all observables and update DataMiningIoTbl & SnapshotIoTbl
       for ( size_t ob = 0; ob < obSpace.size(); ++ob )
       {
          if ( NoError != obSpace[ob]->requestObservableInModel( *mdl ) ) return moveError( *mdl );
       }
-      mdl->saveModelToProjectFile( cs->projectPath() );
+      if ( NoError != mdl->saveModelToProjectFile( cs->projectPath() ) ) return moveError( *mdl );
    }
    return NoError;
 }
@@ -88,7 +81,7 @@ ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunC
       for ( size_t ob = 0; ob < observSpace.size(); ++ob )
       {
          Observable * obDef = observSpace[ ob ];
-         ObsValue * obVal = obDef->getFromModel( *caseModel );
+         ObsValue   * obVal = obDef->getFromModel( *caseModel );
 
          if ( !obVal ) return moveError( *caseModel );
          runCase->addObservableValue( obVal );
@@ -98,3 +91,4 @@ ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunC
 }
 
 }
+

@@ -16,6 +16,7 @@
 #include <stdexcept>
 
 #include <cassert>
+#include <cmath>
 
 void CfgFileParser::parseFile( const std::string & fileName )
 {
@@ -90,6 +91,61 @@ void CfgFileParser::parseFile( const std::string & fileName )
    assert( m_cmdList.size() == m_cmdPrms.size() ); 
 }
 
+// read well trajectory file with reference values
+void CfgFileParser::readTrajectoryFile( const std::string fileName, 
+                                        std::vector<double> & x,
+                                        std::vector<double> & y,
+                                        std::vector<double> & z,
+                                        std::vector<double> & ref )
+{
+   std::ifstream file( fileName.c_str() );
+
+   x.clear();
+   y.clear();
+   z.clear();
+   ref.clear();
+
+   std::string line;
+   
+   // process one line 
+   while( std::getline( file, line ) )
+   {
+      if ( line[0] == '#' ) continue;
+
+      std::istringstream iss( line );
+
+      std::string result;
+      
+      int tokNum = 0;
+      std::string opt;
+
+      double xc, yc, zc, rv;
+
+      while( std::getline( iss, result, ' ') ) 
+      {
+         if ( result.empty() || (result.size() == 1 && result[0] == ' ') ) continue;
+
+         switch( tokNum )
+         {
+            case 0: xc = atof( result.c_str() ); break;
+            case 1: yc = atof( result.c_str() ); break;
+            case 2: zc = atof( result.c_str() ); break;
+            case 3: rv = atof( result.c_str() ); break;
+            default: throw std::runtime_error( std::string( "Wrong format of Well trajectory file: " ) + fileName );
+         }
+         ++tokNum;
+      }
+      if ( 4 == tokNum )
+      {
+         x.push_back( xc );
+         y.push_back( yc );
+         z.push_back( zc );
+         ref.push_back( rv );
+      }
+   }
+}
+
+
 std::ostream & operator << ( std::ostream & ost, const CfgFileParser & cfg )
 {
    for ( size_t i = 0; i < cfg.m_cmdList.size(); ++i )
@@ -114,4 +170,5 @@ std::ostream & operator << ( std::ostream & ost, const CfgFileParser & cfg )
    }
    return ost;
 }
+
 

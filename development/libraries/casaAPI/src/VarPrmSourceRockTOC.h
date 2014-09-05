@@ -31,11 +31,7 @@ namespace casa
       VarPrmSourceRockTOC( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType = Block );
       virtual ~VarPrmSourceRockTOC();
      
-      /// @brief Get base value for the variable parameter as double
-      /// @return base value
-      virtual double baseValueAsDouble() const;
-
-      virtual Parameter * createNewParameterFromDouble( double val ) const;
+      virtual Parameter * createNewParameterFromDouble( const std::vector<double> & vals ) const;
 
    protected:
       std::string m_layerName; ///< source rock lithology name

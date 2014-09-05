@@ -5,6 +5,7 @@
 #include "../src/PrmTopCrustHeatProduction.h"
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
+#include "../src/VarPrmOneCrustThinningEvent.h"
 
 #include <memory>
 //#include <cmath>
@@ -43,8 +44,14 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
    const VarPrmTopCrustHeatProduction * p1c = dynamic_cast<const VarPrmTopCrustHeatProduction*>( varPrms.continuousParameter( 0 ) );
 
    ASSERT_TRUE( p1c != NULL ); // do we have the required parameter in the list?
-   ASSERT_NEAR( p1c->minValueAsDouble(), 0.2, eps ); // does it range have given min value
-   ASSERT_NEAR( p1c->maxValueAsDouble(), 4.0, eps ); // does it range have given max value
+   
+   const std::vector<double> & minV = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   ASSERT_NEAR( minV[0],  0.2, eps ); // does it range have given min value
+   ASSERT_NEAR( maxV[0],  4.0, eps ); // does it range have given max value
+   ASSERT_NEAR( baseV[0], 2.5, eps );  // does it range have base value from the project?
 }
 
 // Test how ones can add variable parameter source rock TOC to scenario analysis
@@ -66,7 +73,56 @@ TEST_F( BLRSTest, VarySourceRockTOCTest )
    ASSERT_EQ( varPrms.size(), 1 );
    const VarPrmSourceRockTOC * p1c = dynamic_cast<const VarPrmSourceRockTOC*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
-   ASSERT_NEAR( p1c->minValueAsDouble(), 10.0, eps );   // does it range have given min value
-   ASSERT_NEAR( p1c->maxValueAsDouble( ), 30.0, eps );  // does it range have given max value
+
+   const std::vector<double> & minV = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   ASSERT_NEAR( minV[0],  10.0, eps );  // does it range have given min value?
+   ASSERT_NEAR( maxV[0],  30.0, eps );  // does it range have given max value?
+   ASSERT_NEAR( baseV[0], 10.0, eps );  // does it range have base value from the project?
 }
 
+TEST_F( BLRSTest, VaryOneCrustThinningEvent )
+{
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+
+   // set the parameter
+   ASSERT_EQ( ErrorHandler::NoError, 
+              casa::BusinessLogicRulesSet::VaryOneCrustThinningEvent( sc, 15000.0, 40000.0, 120.0, 230.0, 30.0, 45.0, 0.5, 0.8, VarPrmContinuous::Block ) );
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+
+   const VarPrmOneCrustThinningEvent * p1c = dynamic_cast<const VarPrmOneCrustThinningEvent*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const std::vector<double> & minV  = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   // does it range have given min value
+   ASSERT_NEAR( minV[0], 15000.0, eps );
+   ASSERT_NEAR( minV[1], 120.0,   eps );
+   ASSERT_NEAR( minV[2], 30.0,    eps );
+   ASSERT_NEAR( minV[3], 0.5,     eps );
+
+   // does it range have given max value
+   ASSERT_NEAR( maxV[0], 40000.0, eps );  
+   ASSERT_NEAR( maxV[1], 230.0,   eps );  
+   ASSERT_NEAR( maxV[2], 45.0,    eps );  
+   ASSERT_NEAR( maxV[3], 0.8,     eps );  
+
+   // does it have base values from project?
+   ASSERT_NEAR( baseV[0], 25000.0, eps );  
+   ASSERT_NEAR( baseV[1], 220.0,   eps );  
+   ASSERT_NEAR( baseV[2], 35.0,    eps );  
+   ASSERT_NEAR( baseV[3], 0.55,    eps );  
+}

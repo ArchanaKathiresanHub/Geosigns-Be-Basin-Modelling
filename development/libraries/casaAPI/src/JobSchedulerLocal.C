@@ -81,43 +81,43 @@ private:
 // Start a new process using fork/exec, and mangle the file descriptors
 SystemProcess::SystemProcess( const std::string & cwd, const std::string & commandString, const std::string & outFile, const std::string & errFile )
 {
-   DEBUG( 1, "Running command: %s\n", commandString.c_str( ) );
+   DEBUG( 1, "Running command: %s\n", commandString.c_str() );
    m_isOk = false;
 
 #ifndef _WIN32 // Unix implementaiton
    
-   int pid = fork( );
-   if ( pid < 0 )
+   // Split command line options in tokens
+   std::istringstream       s( commandString );
+   std::vector<std::string> argsV = std::vector<std::string>( std::istream_iterator<std::string>( s ), std::istream_iterator<std::string>() );
+   std::string              location( argsV[ 0 ] );
+
+   // Fill in argv list
+   const char ** args = new const char*[ argsV.size() + 1 ];
+   
+   for ( size_t n = 0; n < argsV.size(); ++n ) args[ n ] = argsV[ n ].c_str();
+   args[ argsV.size() ] = NULL;
+
+   const char * nwd = cwd.c_str(); // script folder
+
+   int pid = fork();
+   if ( pid < 0 ) // fork() failed!
    {
-      // fork() failed!
       throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "SystemProcess: fork failed";
    }
    else if ( pid == 0 ) // child
    {
-      // Split command line options in tokens
-      std::istringstream       s( commandString );
-      std::vector<std::string> argsV = std::vector<std::string>( std::istream_iterator<std::string>( s ), std::istream_iterator<std::string>() );
-      std::string              location( argsV[ 0 ] );
-
-      // Fill in argv list
-      const char** args = new const char*[ argsV.size() + 1 ];
-      for ( size_t n = 0; n < argsV.size(); ++n )
+      // change current folder to the script folder
+      if ( chdir( nwd ) == 0 )
       {
-         args[ n ] = argsV[ n ].c_str();
+         // redirect outputs to files
+         int out = open( outFile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0660 );
+         int err = open( errFile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0660 );
+         if ( -1 != out ) dup2( out, fileno( stdout ) );
+         if ( -1 != err ) dup2( err, fileno( stderr ) );
+
+         // Start the process
+         execvp( location.c_str( ), const_cast<char* const*>( args ) );
       }
-      args[ argsV.size() ] = NULL;
-
-      // change current dir to the script dir
-      chdir( cwd.c_str() );
-
-      // redirect outputs to files
-      int out = open( outFile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0660 );
-      int err = open( errFile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0660 );
-      if ( -1 != out ) dup2( out, fileno( stdout ) );
-      if ( -1 != err ) dup2( err, fileno( stderr ) );
-
-      // Start the process
-      execvp( location.c_str( ), const_cast<char* const*>( args ) );
 
       // Execution failed - quit the child process
       _exit( 1 );  // This is exit of the child process!
@@ -126,6 +126,7 @@ SystemProcess::SystemProcess( const std::string & cwd, const std::string & comma
    {
       m_pid = pid;
       m_isOk = true;
+      delete [] args;
    }
 #else // Windows implementation
 
