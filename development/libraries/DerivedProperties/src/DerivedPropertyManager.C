@@ -23,6 +23,10 @@ const DataModel::AbstractProperty* DerivedProperties::DerivedPropertyManager::ge
    return m_projectHandle->findProperty ( name );
 }
 
+const DataModel::AbstractGrid* DerivedProperties::DerivedPropertyManager::getMapGrid () const {
+   return m_projectHandle->getActivityOutputGrid ();
+}
+
 void DerivedProperties::DerivedPropertyManager::loadSurfacePropertyCalculators () {
 
    // Get a list of properties that have been saved.
