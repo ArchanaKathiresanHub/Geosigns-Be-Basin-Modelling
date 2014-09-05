@@ -109,11 +109,8 @@ namespace Shell.BasinModeling.Cauldron.Test
          {
             Assert.IsTrue( 2 == expSet.runCase(i).parametersNumber() );
 
-            Assert.IsTrue( expSet.runCase(i).parameter(0).isDouble() );
-            Assert.IsTrue( expSet.runCase(i).parameter(1).isDouble() );
-
-            double val1 = expSet.runCase(i).parameter(0).doubleValue();
-            double val2 = expSet.runCase(i).parameter(1).doubleValue();
+            double val1 = expSet.runCase(i).parameter(0).asDoubleArray()[0];
+            double val2 = expSet.runCase(i).parameter(1).asDoubleArray()[0];
                         
             switch ( i )
             {
@@ -187,8 +184,8 @@ namespace Shell.BasinModeling.Cauldron.Test
             PrmSourceRockTOC prm_toc = new PrmSourceRockTOC(caseModel, m_layerName);
 
             // get parameters from case set
-            Assert.IsTrue(Math.Abs(sa.doeCaseSet().runCase(i).parameter(0).doubleValue() - prm_toc.doubleValue()) < eps);
-            Assert.IsTrue(Math.Abs(sa.doeCaseSet().runCase(i).parameter(1).doubleValue() - prm_tchp.doubleValue()) < eps);
+            Assert.IsTrue(Math.Abs(sa.doeCaseSet().runCase(i).parameter(0).asDoubleArray()[0] - prm_toc.asDoubleArray()[0]) < eps);
+            Assert.IsTrue(Math.Abs(sa.doeCaseSet().runCase(i).parameter(1).asDoubleArray()[0] - prm_tchp.asDoubleArray()[0]) < eps);
          }
    
          // cleaning files/folders
