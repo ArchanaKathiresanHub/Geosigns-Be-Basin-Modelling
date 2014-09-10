@@ -7,8 +7,6 @@
 #include "Interface/ProjectHandle.h"
 
 
-#include <unistd.h>
-#include <values.h>
 #include <assert.h>
 #include <math.h>
 

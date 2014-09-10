@@ -167,7 +167,7 @@ struct SelectIfGridPairThicknessIsLargerThanZero {
          return false;
       }
          
-      double thickness = pair.base()[tuple(m_i,m_j)] - pair.top()[tuple(m_i,m_j)];
+      double thickness = pair.base()[functions::tuple(m_i,m_j)] - pair.top()[functions::tuple(m_i,m_j)];
       assert(thickness >= 0.0);
 
       // Formations with thickness equal 0.0 don't count here as real formations.
@@ -222,8 +222,8 @@ struct ContinueIfOverburdenDepthAndNumberOfFormationsLeft {
          return CONTINUE;
       }
 
-      double thickness = gridMaps.base()[tuple(m_i,m_j)];
-      thickness -= gridMaps.top()[tuple(m_i,m_j)];
+      double thickness = gridMaps.base()[functions::tuple(m_i,m_j)];
+      thickness -= gridMaps.top()[functions::tuple(m_i,m_j)];
       m_someValid = true;
 
       if (m_pred(gridMaps, thickness) ) {

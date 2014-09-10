@@ -193,7 +193,7 @@ void LeakGas::distribute(const double& gasVolume, const double& oilVolume, doubl
 
    // If the oil buoyancy alone is bigger or equal to the maximum seal pressure, all gas 
    // will be leaked:
-   if (maxGasLevelFunctor < tuple(0.0,0.0) ) 
+   if (maxGasLevelFunctor < functions::tuple(0.0,0.0) ) 
    {  
 #ifdef DEBUG_LEAKGAS
       assert(oilVolume >= leakGasDueToOilBuoyancy.maxVolume());

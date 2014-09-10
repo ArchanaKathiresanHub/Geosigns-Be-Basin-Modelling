@@ -4,13 +4,15 @@
 #include <iostream>
 
 #include <vector>
+
+#define _USE_MATH_DEFINES
 #include <math.h>
+
 #include <algorithm>
 #include <limits>
 #include <assert.h>
 
 using std::vector;
-using std::max;
 using std::min;
 using std::numeric_limits;
 

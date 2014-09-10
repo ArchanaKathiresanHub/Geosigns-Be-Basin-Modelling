@@ -56,6 +56,7 @@ if (UNIX)
 
 else ()
 	add_subdirectory(fastcauldron)
+	add_subdirectory(fastmig)
 endif ()
 
 # Local Variables:

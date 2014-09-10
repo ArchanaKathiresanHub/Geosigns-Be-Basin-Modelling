@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <math.h>
 
-using std::max;
 using CBMGenerics::C2K;
 
 namespace migration {

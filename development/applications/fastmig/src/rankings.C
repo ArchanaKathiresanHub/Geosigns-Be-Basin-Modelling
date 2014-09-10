@@ -16,7 +16,6 @@
 #endif // sgi
 
 #include <assert.h>
-#include <unistd.h>
 #include <time.h>
 
 #include "rankings.h"
@@ -79,6 +78,7 @@ void migration::Deserialize (void)
 long SecondsAtStart = 0;
 long SecondsAtLapTime = 0;
 
+#ifndef _MSC_VER
 void migration::StartTime (void)
 {
    timespec tp;
@@ -102,6 +102,11 @@ long migration::GetLapTime (void)
    SecondsAtLapTime = tp.tv_sec;
    return lapTime;
 }
+#else
+long migration::GetLapTime (void) { return 0; }
+long migration::GetElapsedTime (void) { return 0; }
+void migration::StartTime (void) {}
+#endif
 
 /// produces a formatted progress statement on cout
 void migration::ReportProgress (const string & str1, const string & str2, const string & str3, double age)
@@ -140,11 +145,12 @@ string & migration::GetRankString (void)
 {
    static string fullRankString;
 
+#ifndef _MSC_VER
+   char timestr[32];
    timespec tp;
    clock_gettime(CLOCK_REALTIME, &tp);
-
-   char timestr[32];
    sprintf (timestr, "%9ld.%9ld\t", tp.tv_sec, tp.tv_nsec);
+#endif
 
    static string rankString = "";
    if (rankString == "")
@@ -159,7 +165,9 @@ string & migration::GetRankString (void)
    }
 
    fullRankString = "";
+#ifndef _MSC_VER
    fullRankString += timestr;
+#endif
    fullRankString += rankString;
    return fullRankString;
 }
@@ -191,8 +199,9 @@ bool migration::ComputeRanks (const DataAccess::Interface::Grid * grid)
    int * rcvbuf = Array<int>::create1d (NumProcessors () * 4);
 
    char hostname[128];
+#ifndef _MSC_VER
    gethostname (hostname, 128);
-
+#endif
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank: %2d, Host: %s, I: %3d - %3d, J: %3d - %3d\n", GetRank (), hostname, sendbuf[0], sendbuf[1], sendbuf[2], sendbuf[3]);
    PetscSynchronizedFlush (PETSC_COMM_WORLD);
 

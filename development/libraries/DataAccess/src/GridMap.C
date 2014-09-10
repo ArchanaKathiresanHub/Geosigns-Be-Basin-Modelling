@@ -16,7 +16,6 @@ using namespace DataAccess;
 using namespace Interface;
 
 #define Min(a,b)        (a < b ? a : b)
-#define Max(a,b)        (a > b ? a : b)
 
 unsigned int GridMap::firstI (void) const
 {

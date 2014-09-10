@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <unistd.h>
 
 #include "petsc.h"
 
@@ -99,6 +98,7 @@ int main (int argc, char ** argv)
       NumProcessorsArg += numProcessors;
    }
 
+#ifndef _MSC_VER
    PetscBool ddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
    if (ddd)
@@ -142,6 +142,7 @@ int main (int argc, char ** argv)
       system (cmd);
       sleep (10);
    }
+#endif
 
    int rank = 99999;
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);

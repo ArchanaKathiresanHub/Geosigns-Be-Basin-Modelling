@@ -1,7 +1,4 @@
-#include <values.h>
 #include <assert.h>
-
-
 #include "Column.h"
 #ifdef USEOTGC
 #include "OilToGasCracker.h"
@@ -1953,7 +1950,7 @@ FaultStatus ProxyColumn::getFaultStatus (void)
       valueRequest.j = getJ ();
       valueRequest.valueSpec = FAULTSTATUS;
       RequestHandling::SendRequest (valueRequest, valueResponse);
-      m_faultStatus = (FaultStatus) valueResponse.value;
+      m_faultStatus = (FaultStatus) ((int)(valueResponse.value));
       setCached (FAULTSTATUSCACHE);
    }
 

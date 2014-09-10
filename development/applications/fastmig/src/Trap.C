@@ -29,7 +29,6 @@
 #include "utils.h"
 #include "CBMGenerics/src/consts.h"
 
-#include <values.h>
 #include <assert.h>
 #include <algorithm>
 #include <vector>
@@ -40,6 +39,8 @@ extern ostringstream cerrstrstr;
 
 using namespace std;
 using namespace CBMGenerics;
+
+#define MAXDOUBLE std::numeric_limits<double>::max()
 
 using Interface::Formation;
 using Interface::Snapshot;
@@ -1329,7 +1330,7 @@ bool Trap::computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOve
             return false;
 	 }
 
-         double thickness =  (*d).base()[tuple(i,j)] - (*d).top()[tuple(i,j)];
+         double thickness =  (*d).base()[functions::tuple(i,j)] - (*d).top()[functions::tuple(i,j)];
 
 #ifdef DEBUG_TRAP
          string name = (*f)->getName();
@@ -1338,19 +1339,19 @@ bool Trap::computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOve
          bool validBaseDepth = (*d).base().valid();
          double compTopDepth = 0.0;
          if (validTopDepth)
-            compTopDepth = (*d).top()[tuple(i,j)];
+            compTopDepth = (*d).top()[functions::tuple(i,j)];
          double compBaseDepth = 0.0;
          if (validBaseDepth)
-            compBaseDepth = (*d).base()[tuple(i,j)];
+            compBaseDepth = (*d).base()[functions::tuple(i,j)];
 
          bool validTopPorosity = (*p).top().valid();
          bool validBasePorosity = (*p).base().valid();
          double compTopPorosity = 0.0;
          if (validTopPorosity)
-            compTopPorosity = (*p).top()[tuple(i,j)];
+            compTopPorosity = (*p).top()[functions::tuple(i,j)];
          double compBasePorosity = 0.0;
          if (validBasePorosity)
-            compBasePorosity = (*p).base()[tuple(i,j)];
+            compBasePorosity = (*p).base()[functions::tuple(i,j)];
 
          double snapshotAge = snapshot->getTime();
 #endif
@@ -1363,7 +1364,7 @@ bool Trap::computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOve
 
             return false;
 	 }
-         double topTemperature = (*t)[tuple(i,j)];
+         double topTemperature = (*t)[functions::tuple(i,j)];
 
          if (!(*p).top().valid()) {
 	    cerr << "Trap.C:1413: Exiting as no valid permeability property found for base of overburden formation: '" << 
@@ -1372,7 +1373,7 @@ bool Trap::computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOve
 
             return false;
 	 }
-         double topPorosity = (*p).top()[tuple(i,j)];
+         double topPorosity = (*p).top()[functions::tuple(i,j)];
 
          diffusionOverburdenProps.push_back( DiffusionLeak::OverburdenProp(thickness, 
 	    topPorosity, basePorosity, topTemperature, baseTemperature) );
@@ -1388,7 +1389,7 @@ bool Trap::computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOve
 
 	 return false;
       }
-      baseDepth = (*d).base()[tuple(i,j)];
+      baseDepth = (*d).base()[functions::tuple(i,j)];
 
       if (!(*p).top().valid()) {
 	 cerr << "Trap.C:1438: Exiting as no valid permeability property found for top of overburden formation: '" << 
@@ -1398,7 +1399,7 @@ bool Trap::computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOve
 	 return false;
       }
 
-      basePorosity = (*p).top()[tuple(i,j)];
+      basePorosity = (*p).top()[functions::tuple(i,j)];
 
       if (!(*t).valid()) {
 	 cerr << "Trap.C:1448: Exiting as no valid temperature property found for top of overburden formation: '" << 
@@ -1407,7 +1408,7 @@ bool Trap::computeDiffusionOverburdenImpl(const SurfaceGridMapContainer& fullOve
 
 	 return false;
       }
-      baseTemperature = (*t)[tuple(i,j)];
+      baseTemperature = (*t)[functions::tuple(i,j)];
 
       ++d; ++p; ++t;
    }
@@ -1714,16 +1715,16 @@ bool Trap::computeSealPressureLeakParametersImpl(const Interface::FracturePressu
 	 double compTopFormationDepth = 0.0;
 
 	 if (validTop)
-	    compTopFormationDepth = (*d).top ()[tuple (i, j)];
+	    compTopFormationDepth = (*d).top ()[functions::tuple (i, j)];
 	 double compBaseFormationDepth = 0.0;
 
 	 if (validBase)
-	    compBaseFormationDepth = (*d).base ()[tuple (i, j)];
+	    compBaseFormationDepth = (*d).base ()[functions::tuple (i, j)];
 	 double compTopDepth = getTopDepth ();
 	 string name = (*f)->getName ();
 	 double snapshotAge = snapshot->getTime ();
 #endif
-	 assert (!(*d).top ().valid () || getTopDepth () - (*d).top ()[tuple (i, j)] > 0.0);
+	 assert (!(*d).top ().valid () || getTopDepth () - (*d).top ()[functions::tuple (i, j)] > 0.0);
 
 	 if (!(*d).base ().valid ())
 	 {
@@ -1733,7 +1734,7 @@ bool Trap::computeSealPressureLeakParametersImpl(const Interface::FracturePressu
 
 	    return false;
 	 }
-	 assert ((*d).base ()[tuple (i, j)] - (*d).top ()[tuple (i, j)] > 0.0);
+	 assert ((*d).base ()[functions::tuple (i, j)] - (*d).top ()[functions::tuple (i, j)] > 0.0);
 
 	 // The right formation is found:
 	 break;
@@ -1756,11 +1757,11 @@ bool Trap::computeSealPressureLeakParametersImpl(const Interface::FracturePressu
 
    // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they 
    // do exist.  Get the fractions of the LithoTypes:
-   lithFracs.push_back (0.01 * (*l0).second[tuple (i, j)]);
+   lithFracs.push_back (0.01 * (*l0).second[functions::tuple (i, j)]);
    if ((*f)->getLithoType2 () && l1 != lithoType2Percents.end () && (*l1).first == (*f))
-      lithFracs.push_back (0.01 * (*l1).second[tuple (i, j)]);
+      lithFracs.push_back (0.01 * (*l1).second[functions::tuple (i, j)]);
    if ((*f)->getLithoType3 () && l2 != lithoType3Percents.end () && (*l2).first == (*f))
-      lithFracs.push_back (0.01 * (*l2).second[tuple (i, j)]);
+      lithFracs.push_back (0.01 * (*l2).second[functions::tuple (i, j)]);
 
    // For the capillary entry pressure, we need to know what mixing model to apply when calculating 
    // the effective capillary parameters:
@@ -1782,7 +1783,7 @@ bool Trap::computeSealPressureLeakParametersImpl(const Interface::FracturePressu
 	 return false;
       }
       else
-	 permeability = (*p).base ()[tuple (i, j)];
+	 permeability = (*p).base ()[functions::tuple (i, j)];
    }
 
    // But as depth and temperatureC are of course continuous properties, we may get them from 

@@ -37,7 +37,10 @@ using namespace migration;
 #include "utils.h"
 
 #include "h5_parallel_file_types.h"
+
+#ifndef _MSC_VER
 #include "h5merge.h"
+#endif
 
 using namespace DataAccess;
 
@@ -192,6 +195,8 @@ bool Migrator::mergeOutputFiles ( ) {
    if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ){
       return true;
    }
+
+#ifndef _MSC_VER
    PetscBool noFileCopy = PETSC_FALSE;
 
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
@@ -208,6 +213,9 @@ bool Migrator::mergeOutputFiles ( ) {
       ReportProgress ("Merged Output Maps");
    }
    return status;
+#else
+   return true;
+#endif
 }
 
 /// compute the positions of the reservoirs within the formations

@@ -1,5 +1,4 @@
 #ifdef USEOTGC
-#include <values.h>
 #include <assert.h>
 #include "EosPack.h"
 

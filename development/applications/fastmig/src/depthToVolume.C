@@ -11,7 +11,6 @@ using functions::tuple;
 using std::map;
 using std::numeric_limits;
 using std::min;
-using std::max;
 
 namespace migration { namespace depthToVolume {
 
@@ -36,6 +35,10 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
    // In order to solve a problem with the case when the capacities of all columns are zero,
    // we determine also the lowest and highest depths of the columns:
    Tuple2<double> limits; 
+
+#ifdef _MSC_VER
+#undef max
+#endif
    limits[0] =  numeric_limits<double>::max();
    limits[1] = -numeric_limits<double>::max();
 
@@ -124,8 +127,8 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
    // Traps with an empty levelToVolume function are more difficult to deal with than a 
    // trap with a zero levelToVolume function: 
    if (capacity[1] == 0.0) {
-      depthToCapacity.push_back(tuple(limits[0],0.0));
-      depthToCapacity.push_back(tuple(limits[1],0.0));
+      depthToCapacity.push_back(functions::tuple(limits[0],0.0));
+      depthToCapacity.push_back(functions::tuple(limits[1],0.0));
    }
    
    assert(depthToCapacity.size() > 1);

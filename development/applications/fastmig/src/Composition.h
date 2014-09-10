@@ -15,6 +15,11 @@
 #include <map>
 #include <vector>
 
+#ifdef _MSC_VER
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#endif /** _MSC_VER */
+
 using namespace std;
 
 using namespace pvtFlash;

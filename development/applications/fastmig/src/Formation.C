@@ -11,8 +11,6 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/GridMap.h"
 
-#include <unistd.h>
-#include <values.h>
 #include <assert.h>
 #include <math.h>
 

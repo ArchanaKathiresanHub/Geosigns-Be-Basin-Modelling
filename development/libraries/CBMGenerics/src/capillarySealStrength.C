@@ -8,7 +8,6 @@
 #include <assert.h>
 
 using std::numeric_limits;
-using std::max;
 
 namespace CBMGenerics {
 
@@ -57,7 +56,7 @@ void capParameters(const vector<LithoProp>& liths, const vector<double>& fracs,
 
 double capSealStrength_Air_Hg(const double& capC1, const double& capC2, const double& permeability)
 {
-   double perm = max(permeability, 1e-9);
+   double perm = std::max(permeability, 1e-9);
    double capSealStrength = pow(perm, -capC1);
    capSealStrength *= pow(10.0, -capC2);
 

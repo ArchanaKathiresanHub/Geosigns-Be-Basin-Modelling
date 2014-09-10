@@ -12,62 +12,23 @@
 
 if (BM_PARALLEL)
 
-add_executable( fastmig
-	  src/Barrier.C
-	  src/Biodegrade.C
-	  src/CapillarySealStrength.C
-	  src/Column.C
-	  src/Composition.C
-	  src/depthToVolume_Column.C
-	  src/DiffusionCoefficient.C
-	  src/DiffusionLeak.C
-	  src/Formation.C
-	  src/Immobiles.C
-	  src/Interpolator.C
-	  src/LeakAllGasAndOilDistributor.C
-	  src/LeakGasAndSpillOil.C
-	  src/LeakGas.C
-	  src/Leak.C
-	  src/LeakOrSpill.C
-	  src/LeakOrWasteGasAndSpillOil.C
-	  src/LeakOrWaste.C
-	  src/LeakWasteAndSpillDistributor.C
-	  src/main.C
-	  src/MassBalance.C
-	  src/MassBalance_ofstream.C
-	  src/MassBalance_ostream.C
-	  src/migration.C
-	  src/Migrator.C
-	  src/ObjectFactory.C
-	  src/OilToGasCracker.C
-	  src/overburden_MPI.C
-	  src/overburden.C
-	  src/rankings.C
-	  src/RequestDefs.C
-	  src/RequestHandling.C
-	  src/Reservoir.C
-	  src/SpillAllGasAndOilDistributor.C
-	  src/Spill.C
-	  src/SpillOilAndGas.C
-	  src/Surface.C
-	  src/SurfaceGridMapContainer.C
-	  src/SurfaceGridMap.C
-	  src/Trap.C
-	  src/utils.C
-	  src/WasteGasAndSpillOil.C
-	  src/Waste.C
-)
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_executable(fastmig ${all_srcs} ${all_headers})
 
 add_definitions(-DUSEOTGC)
 
 include_directories(
-        ${PROJECT_SOURCE_DIR}/libraries
+    ${PROJECT_SOURCE_DIR}/libraries
 	${FLEXLM_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 )
-	
 
 bm_include_libraries(
 	DataModel
@@ -75,7 +36,6 @@ bm_include_libraries(
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack	
 	CBMGenerics
@@ -85,13 +45,38 @@ bm_include_libraries(
 	TableIO
 	functions
 )
+
+# OFPP only for Linux
+if (UNIX)
+	bm_include_libraries( OneFilePerProcess )
+endif (UNIX)
+
+set (targetLibraries
+	${HDF5_LIBRARIES}
+	${PETSC_LIBRARIES}
+	${BLAS_LIBRARIES}
+	${MPI_LIBRARIES}
+)
+
+#only add flexlm for Linux
+if (UNIX)
+	set (targetLibraries
+		${targetLibraries}
+		${FLEXLM_LIBRARIES}
+		OneFilePerProcess
+	)
+else ()
+	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
+	set( CMAKE_EXE_LINKER_FLAGS  
+		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
+	)
+endif (UNIX)
 
 target_link_libraries(fastmig
 	DataAccess
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	EosPack	
 	CBMGenerics
@@ -100,17 +85,16 @@ target_link_libraries(fastmig
 	utilities
 	TableIO
 	functions
-	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${HDF5_LIBRARIES}
 	${BLAS_LIBRARIES}
 	${BM_MPI_LOCK_LIBRARIES}
+	${targetLibraries}
 )
 
 set_target_properties(fastmig
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
-
 
 install(TARGETS fastmig
 	RUNTIME DESTINATION bin

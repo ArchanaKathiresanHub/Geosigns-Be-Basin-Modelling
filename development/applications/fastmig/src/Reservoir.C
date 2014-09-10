@@ -28,9 +28,9 @@
 #include "petscvec.h"
 #include "petscdmda.h"
 
+#define MAXDOUBLE std::numeric_limits<double>::max()
+
 #include <vector>
-#include <unistd.h>
-#include <values.h>
 #include <assert.h>
 #include <math.h>
 
@@ -826,7 +826,7 @@ bool Reservoir::computeFaults (void)
 	 }
 	 else
 	 {
-	    fs = FaultStatus (gmValue);
+	    fs = FaultStatus ((int)gmValue);
 	 }
 	 getLocalColumn (i, j)->setFaultStatus (fs);
       }
@@ -2781,7 +2781,7 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
    vector<int> from;
    vector<int> to;
 
-   int finalIds[maxNumberOfRequests];
+   int* finalIds = new int[maxNumberOfRequests];
 
    const int maxIterations = 100;
 
@@ -2898,6 +2898,8 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
 	 trap->setDrainageAreaId (to[p]); // for the DrainageAreaId Map
       }
    }
+
+   delete [] finalIds;
 
    RequestHandling::FinishRequestHandling ();
 }

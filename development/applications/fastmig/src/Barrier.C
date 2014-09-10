@@ -33,7 +33,7 @@ Barrier::~Barrier (void)
 
 
 /// Use permeability properties of given formation to update the barrier's properties
-void Barrier::updateBlocking (const Formation * formation,
+void Barrier::updateBlocking (const migration::Formation * formation,
       const DataAccess::Interface::Snapshot * snapshot)
 {
 #if 0

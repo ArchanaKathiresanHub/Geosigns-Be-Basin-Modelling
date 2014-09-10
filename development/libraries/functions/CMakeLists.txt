@@ -10,11 +10,16 @@
 #                                                                       #
 #########################################################################
 
-add_library(functions
-	src/MonotonicIncreasingPiecewiseLinearInvertableFunction.C
-        src/enableGDBBreak.C
-)
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
 
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_library(functions 
+   ${all_srcs}
+   ${all_headers}
+)
 
 install(TARGETS functions
 	RUNTIME DESTINATION bin

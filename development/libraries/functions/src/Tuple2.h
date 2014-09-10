@@ -28,8 +28,11 @@ public:
  
   Tuple2()
   {
-    m_first = -numeric_limits<ENTRY>::max();
-    m_second = m_first;
+#ifdef _MSC_VER
+#undef max
+#endif
+      m_first = -numeric_limits<ENTRY>::max();
+      m_second = m_first;
   }
 
   inline ~Tuple2() {
