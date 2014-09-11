@@ -201,6 +201,8 @@ bool migration::ComputeRanks (const DataAccess::Interface::Grid * grid)
    char hostname[128];
 #ifndef _MSC_VER
    gethostname (hostname, 128);
+#else
+   strcpy(hostname,"undefined");
 #endif
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank: %2d, Host: %s, I: %3d - %3d, J: %3d - %3d\n", GetRank (), hostname, sendbuf[0], sendbuf[1], sendbuf[2], sendbuf[3]);
    PetscSynchronizedFlush (PETSC_COMM_WORLD);

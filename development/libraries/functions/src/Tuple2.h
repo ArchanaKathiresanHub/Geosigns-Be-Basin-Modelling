@@ -3,8 +3,9 @@
 
 #include <assert.h>
 #include <limits>
-
-using std::numeric_limits;
+#ifdef _MSC_VER
+#undef max
+#endif
 
 namespace functions {
 
@@ -28,10 +29,7 @@ public:
  
   Tuple2()
   {
-#ifdef _MSC_VER
-#undef max
-#endif
-      m_first = -numeric_limits<ENTRY>::max();
+      m_first = -std::numeric_limits<ENTRY>::max();
       m_second = m_first;
   }
 

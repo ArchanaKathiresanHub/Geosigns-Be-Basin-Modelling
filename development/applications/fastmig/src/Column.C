@@ -1950,7 +1950,7 @@ FaultStatus ProxyColumn::getFaultStatus (void)
       valueRequest.j = getJ ();
       valueRequest.valueSpec = FAULTSTATUS;
       RequestHandling::SendRequest (valueRequest, valueResponse);
-      m_faultStatus = (FaultStatus) ((int)(valueResponse.value));
+      m_faultStatus = (FaultStatus) (static_cast<int>((valueResponse.value)));
       setCached (FAULTSTATUSCACHE);
    }
 

@@ -826,7 +826,7 @@ bool Reservoir::computeFaults (void)
 	 }
 	 else
 	 {
-	    fs = FaultStatus ((int)gmValue);
+	    fs = FaultStatus (static_cast<int>(gmValue));
 	 }
 	 getLocalColumn (i, j)->setFaultStatus (fs);
       }
@@ -2781,7 +2781,8 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
    vector<int> from;
    vector<int> to;
 
-   int* finalIds = new int[maxNumberOfRequests];
+   std::vector<int> finalIds;
+   finalIds.resize(maxNumberOfRequests);
 
    const int maxIterations = 100;
 
@@ -2898,8 +2899,6 @@ void Reservoir::eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, un
 	 trap->setDrainageAreaId (to[p]); // for the DrainageAreaId Map
       }
    }
-
-   delete [] finalIds;
 
    RequestHandling::FinishRequestHandling ();
 }

@@ -231,7 +231,7 @@ double LeakGasAndSpillOil::computeFinalGasVolume(const double maxGasBuoyancyLeve
    // Check if the solution make sense:
    assert(gasVolume >= 0.0);
    assert(0.0 <= gasLevel && gasLevel <= m_leakGas.levelToVolume()->
-      invert(numeric_limits<double>::max()));
+      invert(std::numeric_limits<double>::max()));
 
    assert(gasLimits[0][X] <= gasLevel && gasLevel <= gasLimits[1][X]);
    assert(gasLimits[0][Y] <= gasVolume && gasVolume <= gasLimits[1][Y]);
