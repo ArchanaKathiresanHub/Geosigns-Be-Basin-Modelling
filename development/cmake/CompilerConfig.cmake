@@ -176,7 +176,7 @@ if (UNIX)
       find_package(MPI REQUIRED)
    endif()
    
-elseif(MSVC)
+elseif(WIN32)
  
    # First detect the Compiler
    enable_language(CXX)
@@ -250,7 +250,7 @@ if (BM_PARALLEL)
    elseif (MPI_AUTODETECT_STRING MATCHES "OpenRTE")
       string(REGEX REPLACE "^[^0-9]*([0-9]+(\\.[0-9]+)*).*$" "\\1" mpiVersion "${MPI_AUTODETECT_STRING}")
       set(mpiName "OpenMPI")
-   elseif (MSVC)
+   elseif (WIN32)
      set(mpiName "MicrosoftMPI")
      set(mpiVersion "2012.R2")
    else()
