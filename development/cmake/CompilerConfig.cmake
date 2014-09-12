@@ -116,6 +116,12 @@ if (BM_USE_INTEL_COMPILER AND UNIX)
       # because of SEEK_SET, etc... already being defined in stdio.h or iostream
       add_definitions(-DMPICH_SKIP_MPICXX)
 
+      # If linking statically then link with the MPI libraries statically
+      # See main CMakeLists.txt file for comment on linking statically in
+      # general
+      if (NOT BUILD_SHARED_LIBS)
+         set(CMAKE_EXE_LINKER_FLAGS "-static_mpi ${CMAKE_EXE_LINKER_FLAGS}")
+      endif()
    endif()
 
    # Add environment set-up scripts to generated script

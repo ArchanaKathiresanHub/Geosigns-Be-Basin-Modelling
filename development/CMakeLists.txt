@@ -46,6 +46,39 @@ option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 
 #
+# Variables concerning version numbers
+#
+set(BM_VERSION_NUMBER_MAJOR "2014" CACHE STRING "Numerical version major string. Anything like 2014")
+set(BM_VERSION_NUMBER_MINOR "01" CACHE STRING "Numerical version minor string. Anything like 01")
+set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
+set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
+set(BM_VERSION_STRING "v${BM_VERSION_NUMBER}${BM_VERSION_TAG}")
+set(BM_SVNREVISION "-9999" CACHE STRING "Source control revision number (TFS or SVN)")
+set(BM_BUILD_NUMBER "0" CACHE STRING "Build number (Used to number Windows DLLs)")
+set(BM_REVISION "0" CACHE STRING "Revision number (Used to number Windows DLLs)")
+
+#
+# Various configurable variables
+#
+
+set( BM_THIRD_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
+
+set(BM_SSSDEV_INSTALL_DIR "${CMAKE_BINARY_DIR}/sssdev" CACHE PATH "sssdev installation path")
+set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.BuildNumber)")
+set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
+set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
+
+
+#
+# Common CMake configuration flags
+# 
+
+option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation prefix" )
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug')")
+
+
+#
 # Determine minimum toolset: CMake & C++ Compiler
 #
 cmake_minimum_required(VERSION 2.8)
@@ -65,40 +98,12 @@ Project(BasinModeling)
 
 include(cmake/BasinModelingUtilities.cmake)
 include(cmake/ExternalProject.cmake)
-
 include(FeatureSummary)
 
-#
-# Variables concerning version numbers
-#
-set(BM_VERSION_NUMBER_MAJOR "2014" CACHE STRING "Numerical version major string. Anything like 2014")
-set(BM_VERSION_NUMBER_MINOR "01" CACHE STRING "Numerical version minor string. Anything like 01")
-set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
-set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
-set(BM_VERSION_STRING "v${BM_VERSION_NUMBER}${BM_VERSION_TAG}")
-set(BM_SVNREVISION "-9999" CACHE STRING "Source control revision number (TFS or SVN)")
-set(BM_BUILD_NUMBER "0" CACHE STRING "Build number (Used to number Windows DLLs)")
-set(BM_REVISION "0" CACHE STRING "Revision number (Used to number Windows DLLs)")
 
 #
-# Various configurable variables
+# Detect and set the configuration of 3rd party components
 #
-
-set( BM_THIRD_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
-
-set(BM_SSSDEV_INSTALL_DIR "${PROJECT_BINARY_DIR}/sssdev" CACHE PATH "sssdev installation path")
-set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.BuildNumber)")
-set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
-set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
-
-
-#
-# Common CMake configuration flags
-# 
-
-option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
-set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}" CACHE PATH "Installation prefix" )
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug')")
 
 configure_external_projects()
 
@@ -148,12 +153,27 @@ if(UNIX)
 
     # Depending on whether we want to link statically or dynamicaly, ...
     if (BUILD_SHARED_LIBS)
-       # Then we want the search paths for the SOs to be included in the
-       # binaries
+       # Then we want the search paths for the Shared Objects (.so files) to
+       # be included in the binaries
        set( CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
     else()
-       # Search for static libraries only
+       # Search for static libraries only.
        set( CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".so")
+
+       # NOTE: We don't force pure static linking with the -static flag.
+       # Pure static linking is a bad idea as is reported by many people over
+       # the Internet, because:
+       # 1) Glibc is LGPL licensed. Linking statically with it means that you
+       #    have to distribute your object file with it. This is impractical
+       # 2) Even when you link with Glibc statically, it is still required
+       #    that a matching version of the libc.so shared library file is
+       #    available on the system, because its NSS functions (gethostbyname,
+       #    etc...) depend on it.
+       # 3) Linking statically with libgcc is also a bad idea if you link with
+       #    3rd party libraries that link with it dynamically. 
+       # 4) Linking statically with libstdc++ is considered to be a good idea,
+       #    but with GCC versions < 4.5 this is quite cumbersome.
+
     endif()
 
     # Extra stuff if want code coverage instrumentation in the build
