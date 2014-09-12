@@ -22,7 +22,7 @@ include_directories(
       ${SUMPP_INCLUDE_DIR}
 )
 
-add_library( SUMlib STATIC
+add_library( SUMlib
    ${all_srcs}
    ${all_headers}
 )

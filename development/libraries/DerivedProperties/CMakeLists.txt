@@ -71,20 +71,20 @@ generate_dox( DerivedProperties.cfg )
 
 add_gtest( NAME DerivedProperties::DerivedProperties
            SOURCES test/DerivedProperties.C
-           LIBRARIES DerivedProperties
+           LIBRARIES DerivedProperties SerialDataAccess
 )
 
 add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
            SOURCES test/SimplePropertyManagerTest.C
-           LIBRARIES DerivedProperties
+           LIBRARIES DerivedProperties SerialDataAccess
 )
 
 add_gtest( NAME DerivedProperties::CompoundPropertyManagerTest
            SOURCES test/CompoundPropertyManagerTest.C
-           LIBRARIES DerivedProperties
+           LIBRARIES DerivedProperties SerialDataAccess
 )
 
 add_gtest( NAME DerivedProperties::MultiplePropertyManagerTest
            SOURCES test/MultiplePropertyManagerTest.C
-           LIBRARIES DerivedProperties
+           LIBRARIES DerivedProperties SerialDataAccess
 )

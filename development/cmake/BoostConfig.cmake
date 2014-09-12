@@ -45,7 +45,7 @@ if (UNIX)
            SPEED    "DebugAll" "variant=debug"
            SPEED    "MemCheck" "variant=debug"
            OS       "{CurrentPlatform}"
-           LINK     "Dynamic" "link=dynamic" 
+           LINK     "Dynamic" "link=shared" 
            LINK     "Static"  "link=static" 
 
          YIELD_LIBRARIES  "boost_filesystem" "boost_system"

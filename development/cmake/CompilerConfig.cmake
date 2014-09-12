@@ -16,6 +16,7 @@ include(cmake/EnvSetup.cmake)
 
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
+set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" ) 
 
 if (DEFINED ENV{CXX} )
    set(intel_compiler "OFF")
@@ -41,10 +42,10 @@ if (BM_USE_INTEL_COMPILER AND UNIX)
    if (BM_PARALLEL)
       # Use the MPI compiler frontends -- mpiicc and mpiicpc -- as compilers.
       add_environment_source_script_to_wrapper( cc "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
-      finish_wrapper( cc "mpiicc" C_Compiler)
+      finish_wrapper( cc "mpiicc -link_mpi=${INTEL_MPI_FLAVOUR}" C_Compiler)
 
       add_environment_source_script_to_wrapper( cxx "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
-      finish_wrapper( cxx "mpiicpc" CXX_Compiler)
+      finish_wrapper( cxx "mpiicpc -link_mpi=${INTEL_MPI_FLAVOUR}" CXX_Compiler)
  
       add_environment_source_script_to_wrapper( mpiexec "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
       add_environment_source_script_to_wrapper( mpiexec "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
@@ -53,6 +54,8 @@ if (BM_USE_INTEL_COMPILER AND UNIX)
       add_environment_source_script_to_wrapper( mpirun "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
       add_environment_source_script_to_wrapper( mpirun "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
       finish_wrapper( mpirun "mpirun" MpiRun)
+
+      set( MPI_NAME "IntelMPI_${INTEL_MPI_FLAVOUR}" CACHE STRING "Name of the MPI implementation")
 
    else()
       # Don't use MPI when the parallel applications won't be built.
@@ -92,7 +95,7 @@ if (BM_USE_INTEL_COMPILER AND UNIX)
       add_environment_source_script(BOURNE "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
       add_external_package_info(
-          CAPABILITY MPI
+          CAPABILITY MPIlib
           NAME         "MPI"
           VENDOR       "Intel"
           VERSION      "4.1.1.036"
@@ -154,7 +157,7 @@ else()
          set( MPIRUN "${MPI_ROOT}/bin/mpiexec.exe" CACHE FILEPATH "Location of mpirun command" )
 
          add_external_package_info(
-                   CAPABILITY MPI
+                   CAPABILITY MPIlib
                    NAME         "MPI"
                    VENDOR       "Microsoft"
                    VERSION      "HPC Pack 2012 R2"
