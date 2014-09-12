@@ -16,6 +16,11 @@ set(all_headers
   src/DerivedFormationSurfaceProperty.h
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
+  src/FormationMapProperty.h
+  src/FormationMapPropertyCalculator.h
+  src/DerivedFormationMapProperty.h
+  src/PrimaryFormationMapProperty.h
+  src/PrimaryFormationMapPropertyCalculator.h
   src/FormationPropertyCalculator.h
   src/FormationProperty.h
   src/FormationSurfacePropertyCalculator.h
@@ -36,6 +41,10 @@ set(all_srcs
   src/DerivedFormationSurfaceProperty.C
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
+  src/FormationMapProperty.C
+  src/DerivedFormationMapProperty.C
+  src/PrimaryFormationMapProperty.C
+  src/PrimaryFormationMapPropertyCalculator.C
   src/FormationProperty.C
   src/FormationSurfaceProperty.C
   src/PrimaryFormationProperty.C
@@ -86,5 +95,20 @@ add_gtest( NAME DerivedProperties::CompoundPropertyManagerTest
 
 add_gtest( NAME DerivedProperties::MultiplePropertyManagerTest
            SOURCES test/MultiplePropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess
+)
+
+add_gtest( NAME DerivedProperties::MultipleFormationMapPropertyManagerTest
+           SOURCES test/MultipleFormationMapPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess
+)
+
+add_gtest( NAME DerivedProperties::MultipleFormationSurfacePropertyManagerTest
+           SOURCES test/MultipleFormationSurfacePropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess
+)
+
+add_gtest( NAME DerivedProperties::MultipleFormationPropertyManagerTest
+           SOURCES test/MultipleFormationPropertyManagerTest.C
            LIBRARIES DerivedProperties SerialDataAccess
 )
