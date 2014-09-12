@@ -7,15 +7,18 @@
 
 #include "PrimarySurfaceProperty.h"
 #include "PrimaryFormationSurfaceProperty.h"
+#include "PrimaryFormationMapProperty.h"
 #include "PrimaryFormationProperty.h"
 
 #include "PrimarySurfacePropertyCalculator.h"
+#include "PrimaryFormationMapPropertyCalculator.h"
 #include "PrimaryFormationPropertyCalculator.h"
 #include "PrimaryFormationSurfacePropertyCalculator.h"
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    loadSurfacePropertyCalculators ();
    loadFormationSurfacePropertyCalculators ();
+   loadFormationMapPropertyCalculators ();
    loadFormationPropertyCalculators ();
 }
 
@@ -53,6 +56,21 @@ void DerivedProperties::DerivedPropertyManager::loadFormationSurfacePropertyCalc
    } 
 
    delete allFormationSurfaceProperties;
+}
+
+void DerivedProperties::DerivedPropertyManager::loadFormationMapPropertyCalculators () {
+
+   // Get a list of properties that have been saved.
+   DataAccess::Interface::PropertyList* allFormationMapProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATION, 0, 0, 0, 0, DataAccess::Interface::MAP );
+
+   for ( size_t i = 0; i < allFormationMapProperties->size (); ++i ) {
+      const DataAccess::Interface::Property* property = (*allFormationMapProperties)[ i ];
+
+      addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new PrimaryFormationMapPropertyCalculator ( m_projectHandle, property )));
+
+   } 
+
+   delete allFormationMapProperties;
 }
 
 void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators () {

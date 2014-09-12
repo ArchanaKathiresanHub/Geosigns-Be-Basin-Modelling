@@ -27,6 +27,31 @@ void DerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( 
 
 }
 
+void DerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr calculator ) {
+
+   const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
+
+   assert ( propertyNames.size () > 0 );
+
+   for ( size_t i = 0; i < propertyNames.size (); ++i ) {
+      const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
+
+      if ( computedProperty != 0 ) {
+
+         if ( m_formationMapPropertyCalculators.find ( computedProperty ) == m_formationMapPropertyCalculators.end ()) {
+            m_formationMapPropertyCalculators [ computedProperty ] = calculator;
+         } else {
+            // What to do?
+         }
+
+      } else {
+         // Error
+      }
+
+   }
+
+}
+
 void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
@@ -89,6 +114,18 @@ DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::AbstractPrope
 
 }
 
+DerivedProperties::FormationMapPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationMapCalculator ( const DataModel::AbstractProperty* property ) const {
+
+   FormationMapPropertyCalculatorMap::const_iterator formationMapiter = m_formationMapPropertyCalculators.find ( property );
+
+   if ( formationMapiter != m_formationMapPropertyCalculators.end ()) {
+      return formationMapiter->second;
+   } else {
+      return FormationMapPropertyCalculatorPtr ();
+   }
+
+}
+
 DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property ) const {
 
    FormationPropertyCalculatorMap::const_iterator formationMapiter = m_formationPropertyCalculators.find ( property );
@@ -117,6 +154,10 @@ void DerivedProperties::AbstractPropertyManager::addSurfaceProperty ( const Surf
    m_surfaceProperties.push_back ( surfaceProperty );
 }
 
+void DerivedProperties::AbstractPropertyManager::addFormationMapProperty ( const FormationMapPropertyPtr formationMapProperty ) {
+   m_formationMapProperties.push_back ( formationMapProperty );
+}
+
 void DerivedProperties::AbstractPropertyManager::addFormationProperty ( const FormationPropertyPtr formationProperty ) {
    m_formationProperties.push_back ( formationProperty );
 }
@@ -126,11 +167,9 @@ void DerivedProperties::AbstractPropertyManager::addFormationSurfaceProperty ( c
 }
 
 
-DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager::findPropertyValues ( const DataModel::AbstractProperty* property,
-                                                                                                       const DataModel::AbstractSnapshot* snapshot,
-                                                                                                       const DataModel::AbstractSurface*  surface ) const {
-
-   SurfacePropertyPtr result;
+DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager::findSurfacePropertyValues ( const DataModel::AbstractProperty* property,
+                                                                                                              const DataModel::AbstractSnapshot* snapshot,
+                                                                                                              const DataModel::AbstractSurface*  surface ) const {
 
    for ( size_t i = 0; i < m_surfaceProperties.size (); ++i ) {
 
@@ -145,11 +184,27 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager
    return SurfacePropertyPtr ();
 }
 
-DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
-                                                                                                         const DataModel::AbstractSnapshot*  snapshot,
-                                                                                                         const DataModel::AbstractFormation* formation ) const {
+DerivedProperties::FormationMapPropertyPtr DerivedProperties::AbstractPropertyManager::findFormationMapPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                                        const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                        const DataModel::AbstractFormation* formation ) const {
 
-   SurfacePropertyPtr result;
+   for ( size_t i = 0; i < m_formationMapProperties.size (); ++i ) {
+
+      if ( m_formationMapProperties [ i ]->getProperty () == property and
+           m_formationMapProperties [ i ]->getSnapshot () == snapshot and
+           m_formationMapProperties [ i ]->getFormation() == formation ) {
+         return m_formationMapProperties [ i ];
+      }
+
+   }
+
+   return FormationMapPropertyPtr ();
+}
+
+
+DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManager::findFormationPropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                                  const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                  const DataModel::AbstractFormation* formation ) const {
 
    for ( size_t i = 0; i < m_formationProperties.size (); ++i ) {
 
@@ -165,12 +220,10 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManag
 }
 
 
-DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractPropertyManager::findPropertyValues ( const DataModel::AbstractProperty*  property,
-                                                                                                                const DataModel::AbstractSnapshot*  snapshot,
-                                                                                                                const DataModel::AbstractFormation* formation,
-                                                                                                                const DataModel::AbstractSurface*  surface ) const {
-
-   SurfacePropertyPtr result;
+DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractPropertyManager::findFormationSurfacePropertyValues ( const DataModel::AbstractProperty*  property,
+                                                                                                                                const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                                const DataModel::AbstractFormation* formation,
+                                                                                                                                const DataModel::AbstractSurface*  surface ) const {
 
    for ( size_t i = 0; i < m_formationSurfaceProperties.size (); ++i ) {
 
@@ -193,7 +246,7 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager
 
    SurfacePropertyPtr result;
 
-   result = findPropertyValues ( property, snapshot, surface );
+   result = findSurfacePropertyValues ( property, snapshot, surface );
 
    if ( result == 0 ) {
       const SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property );
@@ -224,13 +277,51 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager
    return result;
 }
 
+DerivedProperties::FormationMapPropertyPtr DerivedProperties::AbstractPropertyManager::getFormationMapProperty ( const DataModel::AbstractProperty*  property,
+                                                                                                                 const DataModel::AbstractSnapshot*  snapshot,
+                                                                                                                 const DataModel::AbstractFormation* formation ) {
+   
+   FormationMapPropertyPtr result;
+
+   result = findFormationMapPropertyValues ( property, snapshot, formation );
+
+   if ( result == 0 ) {
+      const FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property );
+      FormationMapPropertyList  calculatedProperties;
+ 
+      if ( calculator != 0 ) {
+         calculator->calculate ( *this, snapshot, formation, calculatedProperties );
+
+         for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+            addFormationMapProperty ( calculatedProperties [ i ]);
+
+            if ( calculatedProperties [ i ]->getProperty () == property ) {
+               result = calculatedProperties [ i ];
+            }
+
+         }
+
+         if ( result == 0 ) {
+            // Error.
+         }
+
+      } else {
+         // Error.
+      }
+
+   }
+
+   return result;
+}
+
+
 DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManager::getFormationProperty ( const DataModel::AbstractProperty*  property,
                                                                                                            const DataModel::AbstractSnapshot*  snapshot,
                                                                                                            const DataModel::AbstractFormation* formation ) {
    
    FormationPropertyPtr result;
 
-   result = findPropertyValues ( property, snapshot, formation );
+   result = findFormationPropertyValues ( property, snapshot, formation );
 
    if ( result == 0 ) {
       const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property );
@@ -268,7 +359,7 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
    
    FormationSurfacePropertyPtr result;
 
-   result = findPropertyValues ( property, snapshot, formation, surface );
+   result = findFormationSurfacePropertyValues ( property, snapshot, formation, surface );
 
    if ( result == 0 ) {
       const FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property );

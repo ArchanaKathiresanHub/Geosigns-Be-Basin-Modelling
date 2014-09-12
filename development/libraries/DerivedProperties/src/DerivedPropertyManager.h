@@ -46,6 +46,11 @@ namespace DerivedProperties {
 
       /// \brief Load primary property calculators that are associated with formation only.
       ///
+      /// These are map properties loaded from the property-values in the project-handle.
+      void loadFormationMapPropertyCalculators ();
+
+      /// \brief Load primary property calculators that are associated with formation only.
+      ///
       /// These are volume properties loaded from the property-values in the project-handle.
       void loadFormationPropertyCalculators ();
 
