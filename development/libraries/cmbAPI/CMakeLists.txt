@@ -50,6 +50,7 @@ target_link_libraries(cmbapi
    TableIO
    EosPack
    utilities
+   ${Boost_LIBRARIES}
 )
 
 generate_dox( src/API.cfg )

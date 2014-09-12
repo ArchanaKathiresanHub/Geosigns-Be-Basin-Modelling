@@ -1,3 +1,15 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2012-2014 Shell International Exploration & Production. #
+# All rights reserved.                                                  #
+#                                                                       #
+# Developed under license for Shell by PDS BV.                          #
+#                                                                       #
+# Confidential and proprietary source code of Shell.                    #
+# Do not distribute without written permission from Shell.              #
+#                                                                       #
+#########################################################################
+
 execute_process(
       COMMAND /apps/sss/share/getos2
       RESULT_VARIABLE CSCE_PLATFORM_IS_NOT_OK
@@ -24,6 +36,8 @@ set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation pat
 
 set(INTEL_CXX_ROOT "/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
 set(INTEL_MPI_ROOT "/apps/3rdparty/intel/impi/4.1.1.036" CACHE PATH "Path to Intel MPI library" )
+option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
+option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
 
 set(DOXYGEN_EXECUTABLE "${CBM_HOME}/Tools/bin/doxygen" CACHE PATH "Path to doxygen executable")
 set(DOT_EXECUTABLE "${CBM_HOME}/Tools/bin/dot" CACHE PATH "Path to dot executable")
