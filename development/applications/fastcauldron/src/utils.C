@@ -971,26 +971,3 @@ double globalMaximum ( const double value ) {
 
 
 
-template<>
-bool MpiMaximum<bool> ( const bool& operand ) {
-
-   int localOperand = ( operand ? 1 : 0 );
-   int result;
-
-   MPI_Allreduce ( &localOperand, &result, 1, 
-                   MpiType<int>::type, MPI_MAX, PETSC_COMM_WORLD );
-
-   return result == 1;
-}
-
-template<>
-bool MpiMinimum<bool> ( const bool& operand ) {
-
-   int localOperand = ( operand ? 1 : 0 );
-   int result;
-
-   MPI_Allreduce ( &localOperand, &result, 1, 
-                   MpiType<int>::type, MPI_MIN, PETSC_COMM_WORLD );
-
-   return result == 1;
-}

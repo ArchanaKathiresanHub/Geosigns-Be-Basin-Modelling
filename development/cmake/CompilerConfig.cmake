@@ -122,7 +122,7 @@ if (BM_USE_INTEL_COMPILER AND UNIX)
       if (NOT BUILD_SHARED_LIBS)
          set(CMAKE_EXE_LINKER_FLAGS "-static_mpi ${CMAKE_EXE_LINKER_FLAGS}")
       endif()
-   endif()
+   endif(BM_PARALLEL)
 
    # Add environment set-up scripts to generated script
    add_environment_source_script(CSHELL "${INTEL_CXX_ROOT}/bin/compilervars.csh intel64")
@@ -148,7 +148,12 @@ if (BM_USE_INTEL_COMPILER AND UNIX)
    )
 
    
-else()
+else(BM_USE_INTEL_COMPILER AND UNIX)
+
+   if (BM_PARALLEL AND UNIX AND NOT BM_USE_INTEL_COMPILER)
+     set(CMAKE_C_COMPILER "mpicc")
+     set(CMAKE_CXX_COMPILER "mpicxx")
+   endif()
 
    # First detect the Compiler
    enable_language(CXX)
@@ -221,14 +226,14 @@ if (BM_PARALLEL)
   # Use mpiexec here, since the MPI standard describes its existence.
    execute_process( COMMAND "${MPIEXEC}" "-V"
          OUTPUT_VARIABLE MPI_AUTODETECT_STRING
-         ERROR_QUIET
+         ERROR_VARIABLE MPI_AUTODETECT_STRING
    )
 
    if (MPI_AUTODETECT_STRING MATCHES "Intel\\(R\\) MPI Library")
       string(REGEX REPLACE "^.*Version ([0-9]+(.[0-9]+)*).*$" "\\1" mpiVersion "${MPI_AUTODETECT_STRING}")
       set(mpiName "IntelMPI")
    elseif (MPI_AUTODETECT_STRING MATCHES "OpenRTE")
-      string(REGEX REPLACE "^.*([0-9]+(.[0-9]+)*).*$" "\\1" mpiVersion "${MPI_AUTODETECT_STRING}")
+      string(REGEX REPLACE "^[^0-9]*([0-9]+(\\.[0-9]+)*).*$" "\\1" mpiVersion "${MPI_AUTODETECT_STRING}")
       set(mpiName "OpenMPI")
    elseif (MSVC)
      set(mpiName "MicrosoftMPI")

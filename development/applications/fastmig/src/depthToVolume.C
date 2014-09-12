@@ -11,6 +11,7 @@ using functions::tuple;
 using std::map;
 using std::numeric_limits;
 using std::min;
+using std::max;
 
 namespace migration { namespace depthToVolume {
 

@@ -16,7 +16,11 @@ include( cmake/AddPackage.cmake)
 if (UNIX)
    # Convert the compiler name that CMake has to a toolset name that the Boost
    # build system can understand
-   string(TOLOWER "${CMAKE_CXX_COMPILER_ID}" toolset)
+   if ( CMAKE_CXX_COMPILER_ID STREQUAL GNU )
+     set(toolset "gcc")
+   else()
+     string(TOLOWER "${CMAKE_CXX_COMPILER_ID}" toolset)
+   endif()
 
    # Instruct boost to use our compiler
    add_environment_variable( BOOST_BUILD_PATH "${PROJECT_BINARY_DIR}" )

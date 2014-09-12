@@ -27,6 +27,7 @@ bm_include_libraries(
 
 target_link_libraries(LinearAlgebra
 	utilities
+        ${BLAS_LIBRARIES}
 )
 
 install(TARGETS LinearAlgebra

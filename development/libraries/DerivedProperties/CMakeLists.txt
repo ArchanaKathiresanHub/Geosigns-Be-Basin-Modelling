@@ -62,6 +62,11 @@ add_library(DerivedProperties
   ${all_headers}
 )
 
+target_link_libraries(DerivedProperties 
+  LinearAlgebra
+  ${HDF5_LIBRARIES}
+)
+
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
