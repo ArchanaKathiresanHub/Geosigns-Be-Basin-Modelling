@@ -73,13 +73,13 @@ int main (int argc, char ** argv)
 
    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
+#ifdef FLEXLM
    int rc = EPTFLEXLM_OK;
    
    char feature[EPTFLEXLM_MAX_FEATURE_LEN];
    char version[EPTFLEXLM_MAX_VER_LEN];
    char errmessage[EPTFLEXLM_MAX_MESS_LEN];
    
-#ifdef FLEXLM
   
    // FlexLM license handling only for node with rank = 0
    if( rank == 0 ) {
@@ -119,6 +119,8 @@ int main (int argc, char ** argv)
       
       return -1;
    }
+#else
+   char feature[] = "ibs_cauldron_calc";
 #endif 
 
    PetscBool myddd = PETSC_FALSE;

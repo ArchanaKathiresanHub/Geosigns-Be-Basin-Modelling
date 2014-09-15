@@ -42,9 +42,11 @@ get_filename_component(CMAKE_COMMAND_PATH "${CMAKE_COMMAND}" PATH CACHE)
 add_environment_path( "${CMAKE_COMMAND_PATH}" )
 
 # Add license server
-add_environment_variable( SIEPRTS_LICENSE_FILE
+if (BM_USE_FLEXLM)
+   add_environment_variable( SIEPRTS_LICENSE_FILE
       "3000@ams1-s-07489.europe.shell.com:3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com"
-)
+   )
+endif()
 #NOTE: This variables can be reverse engineered by running the a IBS application
 #      with CSCE_DEBUG=1 set
 # For example: CSCE_DEBUG=1 ksh -x /apps/sssdev/share/fastcauldron -v2013.0504
