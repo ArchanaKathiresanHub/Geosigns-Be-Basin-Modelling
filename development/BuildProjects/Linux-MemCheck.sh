@@ -5,7 +5,7 @@ build=${BUILD_DIR:-`mktemp -d`}
 installdir=${INSTALL_DIR:-"${build}"}
 unit_test_output=${UNIT_TEST_OUTPUT_DIR:-"${build}"}
 platform=${PLATFORM:-Linux}
-configuration=${CONFIGURATION:-Debug}
+configuration=${CONFIGURATION:-MemCheck}
 nprocs=${NUMBER_OF_CORES:-12}
 
 # Set some code to execute when shell script exits
@@ -40,8 +40,6 @@ popd
 # Standard applications
 CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/cmake
 CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/ctest
-HDF5=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/hdf5-parallel-valgrind/1.8.11/LinuxRHEL64
-PETSC=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/petsc/3.4.1-gcc-4.1.2/LinuxRHEL64
 VALGRIND_ROOT=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/Valgrind/valgrind-3.9.0-impi-4.1.1.036/Linux
 VALGRIND=${VALGRIND_ROOT}/bin/valgrind
 VALGRIND_MPI=${VALGRIND_ROOT}/lib/valgrind/libmpiwrap-amd64-linux.so
@@ -51,13 +49,12 @@ INTEL_COMPILER_VARS=/nfs/rvl/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192/
 echo Building Cauldron
 pushd $build
 
-CXX=g++ CC=gcc ${CMAKE} ${src}/development \
+${CMAKE} ${src}/development \
       -DCMAKE_BUILD_TYPE=${configuration} \
+      -DBUILD_SHARED_LIBS=ON  \
+      -DBM_USE_INTEL_COMPILER=OFF \
       -DBM_UNIT_TEST_OUTPUT_DIR=${unit_test_output} \
       -DCMAKE_INSTALL_PREFIX=${installdir} \
-      -DBUILD_SHARED_LIBS=ON  \
-      -DHDF5_HOME=$HDF5 \
-      -DPETSC_ROOT=$PETSC \
 	  "$@" \
   || { echo error: Configuration has failed; exit 1; } 
 

@@ -99,6 +99,8 @@ Project(BasinModeling)
 include(cmake/BasinModelingUtilities.cmake)
 include(cmake/ExternalProject.cmake)
 include(FeatureSummary)
+include(cmake/ConfigurationFlags.cmake)
+include(cmake/WarningFlags.cmake)
 
 
 #
