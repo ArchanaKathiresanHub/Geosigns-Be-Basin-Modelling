@@ -977,6 +977,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmMohoDepth", "ALCSmMohoDepth", "m", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepMohoDepth", "ALCStepMohoDepth", "m", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "AllochthonousLithology", "AllochthonousLithology", "", FORMATIONPROPERTY ) );
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ChemicalCompaction", "ChemicalCompaction", "frac", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "BulkDensity", "BulkDensityVec2", "kg/m3", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Depth", "Depth", "m", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "DepthHighRes", "DepthHighRes", "m", FORMATIONPROPERTY ) );

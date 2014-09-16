@@ -1038,8 +1038,12 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       }
           
       if ( name == "ChemicalCompaction" ) {
-	containsChemicalCompaction = true;
-         property->setOption ( Interface::NO_OUTPUT );
+         containsChemicalCompaction = true;
+         if ( getRunParameters ()->getChemicalCompaction () ) {
+            property->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
+         } else {
+            property->setOption ( Interface::NO_OUTPUT );
+         }
       }
 
       if ( name == "HorizontalPermeability" ) {
@@ -1380,7 +1384,11 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
 
    if ( not containsChemicalCompaction ) {
-      m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), Interface::NO_OUTPUT, "ChemicalCompaction" ));
+      if ( getRunParameters ()->getChemicalCompaction () ) {
+         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "ChemicalCompaction" ));
+      } else {
+         m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), Interface::NO_OUTPUT, "ChemicalCompaction" ));
+      }
    } 
 
    if ( not containsThicknessError ) {

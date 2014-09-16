@@ -22,9 +22,15 @@ PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyList         
       outputPropertyName = propertyListName ( m_propertyName );
    }
 
+   LayerProps* localFormation = ( m_propertyName == CHEMICAL_COMPACTION ? formation : 0 );
+
    PropertyValue* localValues = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( outputPropertyName,
-                                                                                                                snapshot, 0, 0,
+                                                                                                                snapshot, 0, localFormation,
                                                                                                                 surface ));
+   if( m_propertyName == CHEMICAL_COMPACTION && ! m_formation->hasChemicalCompaction () ) {
+      localValues->allowOutput( false );
+   }
+
    m_values.push_back ( localValues );
 
    if ( localValues->getProperty () != 0 ) {
