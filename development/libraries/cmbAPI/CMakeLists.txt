@@ -25,13 +25,8 @@ bm_include_libraries(
    DataModel
    CBMGenerics
    Serial_Hdf5
-   DataMining
-   GeoPhysics
-   LinearAlgebra
-   Interpolation
    DataAccess
    TableIO
-   EosPack
    utilities
 )
 
@@ -42,14 +37,11 @@ include_directories(
 
 target_link_libraries(cmbapi
    CBMGenerics
-   Serial_Hdf5
-   DataMining
-   GeoPhysics
-   Interpolation
-   DataAccess
-   TableIO
-   EosPack
    utilities
+   TableIO
+   Serial_Hdf5
+   DataAccess
+   SerialDataAccess
    ${Boost_LIBRARIES}
 )
 
@@ -69,5 +61,5 @@ configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 
 add_gtest( NAME mbapiModelTest
    SOURCES test/mbapiModelTest.C
-   LIBRARIES cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES cmbapi DataAccess SerialDataAccess
 )

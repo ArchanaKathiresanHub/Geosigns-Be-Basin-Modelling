@@ -18,16 +18,15 @@ execute_process(
 )
 
 if (NOT CSCE_PLATFORM_IS_NOT_OK)
-   set(platformId "${CSCE_PLATFORM}")
+   set( BM_PLATFORM_ID "${CSCE_PLATFORM}" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
 else()
    message(WARNING "This platform is not Shell Linux!")
-   set(platformId "Unknown_Linux")
 endif()
 
-set( BM_PLATFORM_ID "${platformId}" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
 
 set(CBM_HOME "/nfs/rvl/groups/ept-sg/SWEast/Cauldron" CACHE PATH "The path the shared drive of the development team")
 
+option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" ON)
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
@@ -36,6 +35,8 @@ set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation pat
 
 set(INTEL_CXX_ROOT "/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
 set(INTEL_MPI_ROOT "/apps/3rdparty/intel/impi/4.1.1.036" CACHE PATH "Path to Intel MPI library" )
+set(INTEL_MKL_ROOT "${INTEL_CXX_ROOT}/mkl" CACHE PATH "Path to Intel MKL" )
+
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
 
@@ -48,4 +49,7 @@ set( FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE
 set( LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
 
 set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/tslib/tslib-7.3" CACHE PATH "Path to Geocosm's TsLib 7.3" )
+
+set(PARAVIEW_CONFIG_ROOT "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linux64x_26/lib/cmake/paraview-4.1"
+      CACHE PATH "Path where ParaViewConfig.cmake can be found")
 

@@ -15,7 +15,6 @@
 #include "cmbAPI.h"
 
 #include "database.h"
-#include "DataMiningProjectHandle.h"
 
 #include "cauldronschemafuncs.h"
 

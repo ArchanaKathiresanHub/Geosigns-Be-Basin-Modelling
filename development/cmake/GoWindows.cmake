@@ -11,3 +11,5 @@ set( BM_PLATFORM_ID "MSWindows_Amd64" CACHE STRING "An identifier for the platfo
 option( BM_CSHARP_API "Build the C sharp interface" ON)
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 
+set( INTEL_MKL_ROOT "${CMAKE_SOURCE_DIR}/../3rdparty/PETSc_Windows-3.4.4/lib/intel64" CACHE PATH "Location of Intel MKL")
+

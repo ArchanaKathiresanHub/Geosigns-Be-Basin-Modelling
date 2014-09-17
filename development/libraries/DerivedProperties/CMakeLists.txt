@@ -65,6 +65,7 @@ add_library(DerivedProperties
 target_link_libraries(DerivedProperties 
   LinearAlgebra
   ${HDF5_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 

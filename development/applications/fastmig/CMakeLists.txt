@@ -24,7 +24,6 @@ add_definitions(-DUSEOTGC)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/libraries
-	${FLEXLM_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
@@ -46,31 +45,6 @@ bm_include_libraries(
 	functions
 )
 
-# OFPP only for Linux
-if (UNIX)
-	bm_include_libraries( OneFilePerProcess )
-endif (UNIX)
-
-set (targetLibraries
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
-	${BLAS_LIBRARIES}
-	${MPI_LIBRARIES}
-)
-
-#only add flexlm for Linux
-if (UNIX)
-	set (targetLibraries
-		${targetLibraries}
-		${FLEXLM_LIBRARIES}
-		OneFilePerProcess
-	)
-else ()
-	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
-	set( CMAKE_EXE_LINKER_FLAGS  
-		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
-	)
-endif (UNIX)
 
 target_link_libraries(fastmig
 	DataAccess
@@ -87,14 +61,23 @@ target_link_libraries(fastmig
 	functions
 	${PETSC_LIBRARIES}
 	${HDF5_LIBRARIES}
-	${BLAS_LIBRARIES}
-	${BM_MPI_LOCK_LIBRARIES}
-	${targetLibraries}
+	${MPI_LIBRARIES}
 )
 
 set_target_properties(fastmig
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
+   
+if (UNIX)
+   # The OneFilePerProcess library is only available on Unix
+   bm_include_libraries( OneFilePerProcess )
+   target_link_libraries(fastmig OneFilePerProcess)
+endif ()
+
+if (BM_USE_FLEXLM)
+   include_directories(${FLEXLM_INCLUDE_DIRS})
+   target_link_libraries(fastmig ${FLEXLM_LIBRARIES})
+endif(BM_USE_FLEXLM)
 
 install(TARGETS fastmig
 	RUNTIME DESTINATION bin

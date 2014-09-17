@@ -16,17 +16,37 @@ include(cmake/AddPackage.cmake)
 # Use Intel MKL as BLAS library
 #
 
-set( BLAS_FOUND "ON" CACHE BOOL "Whether a BLAS library is available" )
-set( INTEL_MKL_ROOT "${INTEL_CXX_ROOT}/mkl" )
+set( BLAS_FOUND ON )
+set( INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
 set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )
-set( BLAS_INCLUDE_DIRS "${BLAS_ROOT}/include" )
+set( MKL_LIBRARIES "BLAS_LIBRARIES-NOTFOUND")
 
-set( MKL_LIBRARIES)
-   list( APPEND MKL_LIBRARIES  "-Wl,--start-group")
-   list( APPEND MKL_LIBRARIES "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_intel_lp64.a")
-   list( APPEND MKL_LIBRARIES "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a")
-   list( APPEND MKL_LIBRARIES "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_core.a")
-   list( APPEND MKL_LIBRARIES "-Wl,--end-group" ) 
+if (UNIX)
+   set( BLAS_INCLUDE_DIRS "${BLAS_ROOT}/include" )
+   if ( INTEL_MKL_ROOT )
+      set( MKL_LIBRARIES
+         "-Wl,--start-group"
+         "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_intel_lp64.a"
+         "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
+         "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_core.a"
+         "-Wl,--end-group" 
+      ) 
+   endif()
+elseif(WIN32)
+   set( BLAS_INCLUDE_DIRS )
+   set( MKL_LIBRARIES
+          "${INTEL_MKL_ROOT}/libiomp5md.lib"
+          "${INTEL_MKL_ROOT}/libmmt.lib"
+          "${INTEL_MKL_ROOT}/libdecimal.lib"
+          "${INTEL_MKL_ROOT}/libirc.lib"
+          "${INTEL_MKL_ROOT}/svml_dispmt.lib"
+          "${INTEL_MKL_ROOT}/mkl_core.lib"
+          "${INTEL_MKL_ROOT}/mkl_intel_lp64.lib"
+          "${INTEL_MKL_ROOT}/mkl_intel_thread.lib"
+          "${INTEL_MKL_ROOT}/mkl_scalapack_lp64.lib"
+      )
+endif()
+
 set ( BLAS_LIBRARIES "${MKL_LIBRARIES}" CACHE STRING "List of libraries that have to be linked to use BLAS" )
 
 set( BLAS95_FOUND "OFF" CACHE BOOL "Whether Fortran 95 interface for BLAS is provided" )

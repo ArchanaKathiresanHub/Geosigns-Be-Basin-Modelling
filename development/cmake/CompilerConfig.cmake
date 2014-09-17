@@ -119,9 +119,6 @@ if (UNIX)
              ECCN         "Unknown"
          )
 
-         # Note: We only need C bindings. The C++ bindings sometimes give trouble
-         # because of SEEK_SET, etc... already being defined in stdio.h or iostream
-         add_definitions(-DMPICH_SKIP_MPICXX)
 
          # If linking statically then link with the MPI libraries statically
          # See main CMakeLists.txt file for comment on linking statically in
@@ -237,8 +234,13 @@ endif()
 
 
 if (BM_PARALLEL)
-  # Finally determine the name and the version of the MPI implementation
-  # Use mpiexec here, since the MPI standard describes its existence.
+   # Note: We only need C bindings. The C++ bindings sometimes give trouble
+   # because of SEEK_SET, etc... already being defined in stdio.h or iostream
+   # For MPICH and MVAPICH  adding the following definition will disable that.
+   add_definitions(-DMPICH_SKIP_MPICXX)
+
+   # Finally determine the name and the version of the MPI implementation
+   # Use mpiexec here, since the MPI standard describes its existence.
    execute_process( COMMAND "${MPIEXEC}" "-V"
          OUTPUT_VARIABLE MPI_AUTODETECT_STRING
          ERROR_VARIABLE MPI_AUTODETECT_STRING

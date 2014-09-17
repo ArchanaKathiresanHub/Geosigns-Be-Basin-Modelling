@@ -45,7 +45,7 @@ add_external_project_to_repository(
 
 # Set the path to the include directory
 set(PETSC_INCLUDE_DIRS "${PETSC_ROOT}/include")
-set(PETSC_LIBRARIES "petsc")
+set(PETSC_LIBRARIES "petsc" ${BLAS_LIBRARIES})
 
 
 add_external_package_info( 
@@ -66,7 +66,7 @@ add_external_package_info(
     ECCN         "EAR99"
 )                   
 
-else () # windows
+elseif (WIN32) # windows
 
    set(PETSC_VERSION "3.4.4" CACHE STRING "PETSC Version")
    set(PETSC_HOME "${THIRD_PARTY_DIR}/PETSc_Windows-3.4.4" CACHE PATH "PETSc home path") 
@@ -74,16 +74,7 @@ else () # windows
    set(PETSC_RELEASE "${PETSC_HOME}/PETSc/c-opt_icl_mkl" CACHE PATH "Release path")
    set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")
    set(PETSC_LIBRARIES 
-          "${PETSC_HOME}/lib/intel64/libiomp5md.lib"
-          "${PETSC_HOME}/lib/intel64/libmmt.lib"
-          "${PETSC_HOME}/lib/intel64/libdecimal.lib"
-          "${PETSC_HOME}/lib/intel64/libirc.lib"
-          "${PETSC_HOME}/lib/intel64/svml_dispmt.lib"
-          "${PETSC_HOME}/lib/intel64/mkl_core.lib"
-          "${PETSC_HOME}/lib/intel64/mkl_intel_lp64.lib"
-          "${PETSC_HOME}/lib/intel64/mkl_intel_lp64.lib"
-          "${PETSC_HOME}/lib/intel64/mkl_intel_thread.lib"
-          "${PETSC_HOME}/lib/intel64/mkl_scalapack_lp64.lib"
+          "${BLAS_LIBRARIES}"
           "${PETSC_HOME}/PETSc/externalpackages/lib/HYPRE.lib"
           "${PETSC_HOME}/PETSc/externalpackages/lib/metis.lib"
           "${PETSC_HOME}/PETSc/externalpackages/lib/parmetis.lib"
@@ -100,7 +91,12 @@ else () # windows
    set(PETSC_FOUND TRUE)
    set(PETSC_ROOT "${PETSC_HOME}" CACHE PATH "Installation directory of PETSc")
    #find_library(PETSC_LIBRARIES "petsc" PATHS "${PETSC_LIBRARIES}" NO_DEFAULT_PATH )
-   set(PETSC_LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}")
+
+   # Because PETSc is is built with the static version of the Visual C Runtime
+   # library and other 3rd party libs (like HDF5) are compiled with the DLL
+   # version, all kinds of difficult linking problems arise. The following forces
+   # linking, although everyone on the internet says its risky
+   set(PETSC_LINK_FLAGS "/NODEFAULTLIB:LIBCMT /FORCE:MULTIPLE ${OpenMP_LINK_FLAGS}")
 
    add_external_package_info( 
           CAPABILITY  PETScLib
@@ -121,7 +117,7 @@ else () # windows
    )                   
 	
 
-endif (UNIX)
+endif ()
 
 # Local Variables:
 # mode: cmake

@@ -21,7 +21,6 @@ add_executable( fastgenex6
 include_directories(
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
-	${FLEXLM_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
 )
 
@@ -57,15 +56,17 @@ target_link_libraries( fastgenex6
 	utilities
 	TableIO
 	${HDF5_LIBRARIES}
-	${FLEXLM_LIBRARIES}
 	${PETSC_LIBRARIES}
-	${BLAS_LIBRARIES}
-	${BM_MPI_LOCK_LIBRARIES}
 )
 
 set_target_properties(fastgenex6
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
+
+if (BM_USE_FLEXLM)
+   include_directories( ${FLEXLM_INCLUDE_DIRS})
+   target_link_libraries(fastgenex6 ${FLEXLM_LIBRARIES})
+endif(BM_USE_FLEXLM)
 
 
 install(TARGETS fastgenex6

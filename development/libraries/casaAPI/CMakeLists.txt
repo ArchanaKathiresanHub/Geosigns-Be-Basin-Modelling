@@ -27,13 +27,12 @@ bm_include_libraries(
    CBMGenerics
    cmbAPI
    utilities
+   DataModel
 )
 
 include_directories(
    ${SUMPP_INCLUDE_DIR}
-   ${LSF_INCLUDE_DIR}
    ${CMAKE_CURRENT_BINARY_DIR}
-   ${PROJECT_SOURCE_DIR}/libraries/DataModel/src
    src
 )
 
@@ -41,8 +40,12 @@ target_link_libraries(casaapi
    cmbapi
    utilities
    SUMlib
-   ${LSF_LIBS}
 )
+
+if (LSF_HOME)
+   include_directories(${LSF_INCLUDE_DIR})
+   target_link_libraries(casaapi ${LSF_LIBS})
+endif(LSF_HOME)
 
 generate_dox( src/API.cfg )
 	
@@ -82,11 +85,13 @@ add_gtest( NAME ValidatorTest
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
 
-add_gtest( NAME RunManagerTest
-   SOURCES test/RunManagerTest.C
-   INCLUDE_DIRS ${LSF_INCLUDE_DIR}
-   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
-)
+if (LSF_HOME)
+   add_gtest( NAME RunManagerTest
+      SOURCES test/RunManagerTest.C
+      INCLUDE_DIRS ${LSF_INCLUDE_DIR}
+      LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
+   )
+endif()
 
 add_gtest( NAME DataDiggerTest
    SOURCES test/DataDiggerTest.C

@@ -112,7 +112,7 @@ set( BM_MPI_ID "${MPI_NAME}_${MPI_VERSION}" CACHE STRING "An identifier for the 
 message(STATUS "MPI identifier = ${BM_MPI_ID}")
 
 # Set Platform identifier
-set( BM_PLATFORM_ID "${platformId}" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
+set( BM_PLATFORM_ID "${CMAKE_SYSTEM}" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
 message(STATUS "Platform identifier = ${BM_PLATFORM_ID}")
 
 macro( configure_external_projects )

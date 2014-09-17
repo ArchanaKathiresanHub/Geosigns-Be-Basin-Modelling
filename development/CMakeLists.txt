@@ -10,10 +10,12 @@
 #                                                                       #
 #########################################################################
 
+cmake_minimum_required(VERSION 2.8)
+
 #
 # Load system-dependent configuration
 #
-if (UNIX)
+if (UNIX AND EXISTS /apps/sss/share/getos2 )
    set(defaultPreset "ShellLinux")
 elseif(WIN32)
    set(defaultPreset "Windows")
@@ -29,14 +31,14 @@ endif()
 #
 # Set location to third party components that are included in TFS
 #
-set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/../3rdparty")
+set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty")
 
 #
 # Options whether to build certain parts
 #
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_PARALLEL "Build the parallel cauldron applications" ON )
-option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
+option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
 option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BM_BUILD_DOCS "Build documentation" ON )
@@ -81,8 +83,7 @@ set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Deb
 #
 # Determine minimum toolset: CMake & C++ Compiler
 #
-cmake_minimum_required(VERSION 2.8)
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}")
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 include(cmake/EnvSetup.cmake)
 init_environment()
 find_package(Compiler CONFIG)
@@ -130,12 +131,11 @@ if(MSVC)
    message(STATUS "BM_WINDOWS_PLATFORM = ${BM_WINDOWS_PLATFORM}")
 
    add_definitions( "-Dand=&&" "-Dor=||" "-Dnot=!" )
-   option( BM_USE_MSVC_DYNAMIC_LIBS "Use the dynamic C runtime" ON )
-#  if (BM_USE_MSVC_DYNAMIC_LIBS)
+#if (BUILD_SHARED_LIBS)
 #     configure_msvc_runtime("dynamic")
-#  else()
-#    configure_msvc_runtime("static")
-#  endif()
+#   else()
+#     configure_msvc_runtime("static")
+#   endif()
 
    if (NOT BUILD_SHARED_LIBS)
       add_definitions(-DCBMGENERICS_STATIC)
@@ -213,11 +213,11 @@ find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
+find_package(BLAS REQUIRED CONFIG)
 find_package(PETSC REQUIRED CONFIG)
    
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)
-   find_package(BLAS REQUIRED CONFIG)
    find_package(Touchstone REQUIRED CONFIG)
    find_package(LSF REQUIRED CONFIG)
    

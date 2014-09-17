@@ -37,7 +37,6 @@ bm_include_libraries(
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
-	${FLEXLM_INCLUDE_DIRS}
 )
 
 target_link_libraries(geomorph
@@ -50,8 +49,12 @@ target_link_libraries(geomorph
 	LinearAlgebra
 	Interpolation
 	${HDF5_LIBRARIES}
-	${FLEXLM_LIBRARIES}
 )
+
+if (BM_USE_FLEXLM)
+   include_directories(${FLEXLM_INCLUDE_DIRS})
+   target_link_libraries(geomorph ${FLEXLM_LIBRARIES})
+endif(BM_USE_FLEXLM)
 
 generate_dox( src/geomorph.cfg )
 

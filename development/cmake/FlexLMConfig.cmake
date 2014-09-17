@@ -14,7 +14,7 @@ include(cmake/AddPackage.cmake)
 
 if (UNIX)
 	set( FLEXLM_ROOT "FLEXLM-NOTFOUND" CACHE PATH "Path to FlexLM directory" )
-	set( FLEXLM_LIBRARY "${FLEXLM_ROOT}/lib/EPTFlexLm.o" CACHE FILEPATH "Path of FlexLM library" )
+	set( FLEXLM_LIBRARY "FLEXLM_LIBRARY-NOTFOUND" CACHE FILEPATH "Path of FlexLM library" )
 	set( FLEXLM_INCLUDE_DIR "${FLEXLM_ROOT}/include" CACHE PATH "Path to FlexLM include files" )
 
         set( FLEXLM_LIBRARIES "${FLEXLM_LIBRARY}")

@@ -59,7 +59,6 @@ target_link_libraries(deviatedwell
 	CBMGenerics
 	calibration_kernel
 	${HDF5_LIBRARIES}
-	${BLAS_LIBRARIES}
 )
 
 install(TARGETS deviatedwell

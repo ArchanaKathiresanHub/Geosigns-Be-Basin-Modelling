@@ -26,7 +26,6 @@ bm_include_libraries(
 )
 
 target_link_libraries(Interpolation
-	${BLAS_LIBRARIES}
 	utilities
 	LinearAlgebra
 )

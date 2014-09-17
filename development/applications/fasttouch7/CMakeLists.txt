@@ -10,10 +10,9 @@
 #                                                                       #
 #########################################################################
 
-if (BM_PARALLEL)
-set(target_name fasttouch7)
+if (BM_PARALLEL AND TS7_ROOT)
 
-add_executable(${target_name}
+add_executable(fasttouch7
 	src/main.C
         src/misc.C
 	src/FastTouch.C
@@ -48,10 +47,9 @@ include_directories(
 	${XERCES_INCLUDE_DIRS}
 	${XSD_INCLUDE_DIRS}
 	${TS7_INCLUDE_DIRS}
-	${FLEXLM_INCLUDE_DIRS}
 )
 
-target_link_libraries(${target_name} 
+target_link_libraries(fasttouch7
 	DataAccess
 	DistributedDataAccess
 	Utilities_Petsc
@@ -61,25 +59,26 @@ target_link_libraries(${target_name}
 	TableIO
 	utilities
 	CBMGenerics
-
 	${TS7_LIBRARIES}
 	${HDF5_LIBRARIES}
-	${FLEXLM_LIBRARIES}
 	${XERCES_LIBRARIES}
 	${PETSC_LIBRARIES}
-	${BLAS_LIBRARIES}
 )
 
 set_target_properties(fasttouch7
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
+if (BM_USE_FLEXLM)
+   include_directories( ${FLEXLM_INCLUDE_DIRS})
+   target_link_libraries(fasttouch7 ${FLEXLM_LIBRARIES})
+endif(BM_USE_FLEXLM)
 
 install(TARGETS fasttouch7
 	RUNTIME DESTINATION bin
 )
 
-endif(BM_PARALLEL)
+endif(BM_PARALLEL AND TS7_ROOT)
 
 # Local Variables:
 # mode: cmake

@@ -12,9 +12,11 @@
 
 include( ${PROJECT_SOURCE_DIR}/cmake/AddPackage.cmake)
 
+set(PARAVIEW_CONFIG_ROOT "PARAVIEW-NOTFOUND" CACHE PATH "Path where ParaViewConfig.cmake can be found")
+
 find_package(ParaViewInstallation CONFIG
       CONFIGS "ParaViewConfig.cmake"
-      PATHS "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linux64x_26/lib/cmake/paraview-4.1"
+      PATHS "${PARAVIEW_CONFIG_ROOT}"
       NO_DEFAULT_PATH
 )
 

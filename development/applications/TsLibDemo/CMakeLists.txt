@@ -10,7 +10,7 @@
 #                                                                       #
 #########################################################################
 
-if (BM_PARALLEL)
+if (BM_PARALLEL AND TS7_ROOT)
 set(target_name TouchLibDemo)
 
 add_executable(${target_name}
@@ -20,8 +20,6 @@ add_executable(${target_name}
    src/tslibloader.cpp
 )
 
-bm_include_libraries(
-)
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
@@ -32,13 +30,11 @@ include_directories(
 	${XERCES_INCLUDE_DIRS}
 	${XSD_INCLUDE_DIRS}
 	${TS7_INCLUDE_DIRS}
-	${TS_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 )
 
 target_link_libraries(${target_name} 
 	${TS7_LIBRARIES}
-	${TS_LIBRARIES}
 	${XERCES_LIBRARIES}
 	${MPI_LIBRARIES}
 )
@@ -47,4 +43,4 @@ install(TARGETS TouchLibDemo
 	RUNTIME DESTINATION bin
 )
 
-endif(BM_PARALLEL)
+endif(BM_PARALLEL AND TS7_ROOT)
