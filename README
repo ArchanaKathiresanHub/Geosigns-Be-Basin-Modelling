@@ -81,7 +81,7 @@ Source Code Overview
 
 /development/cmake/*Config.cmake
    
-   CMake scripts that help locate a certain 3rd party package
+   CMake scripts that help locate a certain 3rd party package.
 
 /development/applications
 /development/applications/*/src
@@ -93,7 +93,7 @@ Source Code Overview
 /development/libraries/*/src
 /development/libraries/*/test
 
-   All source and and unit tests for each library
+   All source and and unit tests for each library.
 
 
 

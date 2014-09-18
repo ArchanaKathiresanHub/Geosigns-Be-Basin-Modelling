@@ -7,7 +7,7 @@ Quick Installation Instructions
  1) Get CMake. Any CMake version later than 2.8 should work, but this package
     has been developed primarily with CMake 2.8.10
 
- 2) Unpack the source code in a directory. For convenience of notation I'll
+ 2) Unpack the source code in a directory. For convenience of notation let's
     refer to it as $SRCDIR
 
  3) Create a build directory. For convenience let's call it $BUILDDIR 
@@ -74,7 +74,7 @@ be useful:
      as possible: only system libraries, like libc, are linked dynamically. If
      this variable is set to ON, all libraries are build as shared libraries
      and linked dynamically. This is extremely useful when tracking down
-     linking problems, because the this mode is more sensitive to errors. Also
+     linking problems, because then this mode is more sensitive to errors. Also
      this mode is necessary when you want to run a tracer like ITAC or a memory
      checker like Valgrind, because they need to replace the MPI library at
      runtime.
