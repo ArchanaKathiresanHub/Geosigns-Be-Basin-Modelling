@@ -1,0 +1,110 @@
+Basin Modelling
+===============
+
+Quick Installation Instructions
+-------------------------------
+
+ 1) Get CMake. Any CMake version later than 2.8 should work, but this package
+    has been developed primarily with CMake 2.8.10
+
+ 2) Unpack the source code in a directory. For convenience of notation I'll
+    refer to it as $SRCDIR
+
+ 3) Create a build directory. For convenience let's call it $BUILDDIR 
+
+ 4) Locate the path of your copy of the Intel MKL. I'll refer to it as
+    $MKLROOT. Load your favourite compiler and MPI implementation into the
+    environment. I'll assume the MPI compiler frontends for the C and C++
+    compilers are called 'mpicc' and 'mpicxx', respectively.
+ 
+ 5) Change to $BUILDDIR and run CMake
+     
+      $ cd $BUILDDIR
+      $ CC=mpicc CXX=mpicxx cmake -DINTEL_MKL_ROOT=$MKLROOT $SRCDIR/development
+
+ 6) Set-up some extra environment variables
+
+      $ source envsetup.sh
+
+ 7) Build
+      
+      $ make
+
+    in case you have lots of processors, say $NPROCS, then you can do instead
+ 
+      $ make -j $NPROCS
+
+ 8) You can run then the applications directly from their build location. For
+    example, the binary for fastcauldron can be found in:
+
+       $BUILDDIR/applications/fastcauldron/fastcauldron
+
+    Don't forget that you need to source this environment set-up script each
+    time you start a new shell session.
+    
+       source $BUILDDIR/envsetup.sh
+
+
+More configuration parameters
+-----------------------------
+Besides INTEL_MKL_ROOT there are several non mandatory CMake variables that can
+be useful:
+
+ - BM_USE_INTEL_COMPILER[=OFF] together with INTEL_CXX_ROOT
+    
+     configure the project to build with the Intel compiler. For example, set
+     INTEL_CXX_ROOT=/opt/intel/composer_xe_2013.5.192 and set
+     BM_USE_INTEL_COMPILER=ON, then the compilation will be performed by Intel
+     compiler in that directory. It will generate a wrapper of the compiler
+     with the proper environment set-up. And it also adds this environment to
+     the 'envsetup.sh' script.
+
+ - BM_USE_INTEL_MPI[=OFF] together with INTEL_MPI_ROOT
+
+     configure the project to build with the Intel MPI implementation. For
+     example, set INTEL_CXX_ROOT=/opt/intel/impi and set BM_USE_INTEL_MPI=ON,
+     then the compilation will be performed by the Intel MPI compiler frontend
+     in that directory. It will generate a wrapper of the compiler with the
+     proper environment set-up. And it also adds this environment to the
+     'envsetup.sh' script.
+
+ - BUILD_SHARED_LIBS[=OFF]]
+  
+     When this variable is turned off, the executables are linked as 'static'
+     as possible: only system libraries, like libc, are linked dynamically. If
+     this variable is set to ON, all libraries are build as shared libraries
+     and linked dynamically. This is extremely useful when tracking down
+     linking problems, because the this mode is more sensitive to errors. Also
+     this mode is necessary when you want to run a tracer like ITAC or a memory
+     checker like Valgrind, because they need to replace the MPI library at
+     runtime.
+
+ - CMAKE_CXX_FLAGS and CMAKE_C_FLAGS
+   
+     Any *extra* compiler flags can be added to this variable. These flags will
+     be used to compile all translation units into object files.
+
+ - CMAKE_BUILD_TYPE[=Release]
+ 
+     Sets the flavour of this build. Values can be: 
+      * Release   Compiler flags are set to full optimization, and third party
+                  libraries are build in release mode.
+
+      * Debug     Compiler optimizations are enabled but the floating point
+                  arithmetic optimizations are disabled. Third party libraries
+                  are build in release mode.
+
+      * DebugAll  Some compiler optimizations are performed. Third party
+                  libraries are build in debug mode.
+
+      * MemCheck  Disabled all compiler optimizations and third party libraries
+                  are compiled so that they don't give false positives in a
+                  memory checker.
+
+ - CMAKE_INSTALL_PREFIX
+
+      Sets the destination path for when you do a 'make install'. Most likely,
+      you don't want to do that.
+
+  
+
