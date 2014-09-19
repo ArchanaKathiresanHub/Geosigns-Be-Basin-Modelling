@@ -1,0 +1,18 @@
+The generate.sh script in this directory will create 4 x 4 = 16 projects from
+one original template. The original project is the WCSB model.
+Then there are two sizes: 
+  - Medium, which is a subsampling of this project by 3x3, 
+  - Large, which is this project at full resolution,
+  - Dream, which is this project super-sampled 3x3, and
+  - Impossible, which is this project super-sampled 17x17.
+
+There are 4 difficulty levels. This difficulty level reflects the amount of
+errort the solver needs:
+  - Easy. All layers are parallel, level, and made out of standard sandstone.
+  - Medium. The geometry of the basin is the same as the original, but all
+    formations are made out of sandstone.
+  - Hard. The stratigraphy of the basin is the same as the original
+  - Salt. The original stratigraphy but with some formations set to consist of
+    pure impermeable salt.
+
+The resulting 16 projects are all combinations of sizes and difficulties.

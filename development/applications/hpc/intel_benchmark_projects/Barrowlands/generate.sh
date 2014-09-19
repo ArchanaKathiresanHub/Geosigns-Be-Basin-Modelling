@@ -21,7 +21,10 @@ r template/${size}-dim
 p
 EOF
 
-      sed -nf $script < template/Project.project3d  > $size-$difficulty.project3d
+      name=$size-$difficulty
+      mkdir -p $name
+      sed -nf $script < template/Project.project3d  > $name/Project.project3d
+      cp template/Inputs.HDF $name
    done
 done
 

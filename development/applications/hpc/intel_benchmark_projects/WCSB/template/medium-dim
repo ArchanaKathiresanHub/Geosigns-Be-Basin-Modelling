@@ -1,0 +1,10 @@
+;
+; ProjectIoTbl
+;
+[ProjectIoTbl]
+;
+ProjectName    ProjectSize    Description    ProjectTeam    ProjectStartDa ProjectEndDate ProgramVersion ModellingMode  XCoord         YCoord         NumberX        NumberY        DeltaX         DeltaY         ScaleX         ScaleY         OffsetX        OffsetY        WindowXMin     WindowXMax     WindowYMin     WindowYMax     WktGeometryOutline
+()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()             ()
+"USGS Model"   "Big"          ""             ""             ""             ""             "v2013.10"     "3d"           0              0              616            535            2000           2000           3              3              0              0              0              615            0              534            ""
+[End]
+
