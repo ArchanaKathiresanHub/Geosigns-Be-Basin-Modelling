@@ -47,8 +47,7 @@ public:
  */
 TEST_F( testWalderhaugCompactionCalculator, test_extreme_time_values )
 {
-	WalderhaugCompactionCalculator * my_Object = dynamic_cast < WalderhaugCompactionCalculator* > ( ChemicalCompactionCalculator::create ( "Walderhaug" ) );
-
+        WalderhaugCompactionCalculator* my_Object = dynamic_cast < WalderhaugCompactionCalculator* > ( ChemicalCompactionCalculator::create ( "Walderhaug" ) );
 	const int size           = 1;
 	const int sizeValidNodes = size;
 
@@ -94,6 +93,7 @@ TEST_F( testWalderhaugCompactionCalculator, test_extreme_time_values )
 	//Time step = 100 000 My => chemical compaction still <= -1.0
 	my_Object -> computeOnTimeStep ( currentGrid2 );
 	ASSERT_LE( -1.0, currentGrid2.setChemicalCompaction()[0] );
+	delete my_Object;
 
 }
 
@@ -203,6 +203,7 @@ TEST_F( testWalderhaugCompactionCalculator, test_extreme_parameters_values )
 		ASSERT_GE( chemicalCompaction1[i], result ); // chemical compaction (t + deltat) <= chemical compaction (t)
 		ASSERT_DOUBLE_EQ( expectedResult, result );  // chemical compaction = expected chemical compaction
 	}
+	delete my_Object;
 }
 
 /*!
@@ -286,6 +287,7 @@ TEST_F( testWalderhaugCompactionCalculator, test_extreme_lithologies_values )
 		ASSERT_GE( chemicalCompaction1[i], result );  // chemical compaction (t + deltat) <= chemical compaction (t)
 		ASSERT_DOUBLE_EQ( expectedResult, result );   // chemical compaction = expected chemical compaction
 	}
+	delete my_Object;
 }
 
 /*!
@@ -356,6 +358,7 @@ TEST_F( testWalderhaugCompactionCalculator, test_initial_porosity )
 	my_Object -> computeOnTimeStep ( currentGrid2 );
 	double result3 = currentGrid2.setChemicalCompaction()[0];
 	ASSERT_DOUBLE_EQ( expectedResult3, result3 );
+	delete my_Object;
 }
 
 /*!
@@ -404,5 +407,6 @@ TEST_F( testWalderhaugCompactionCalculator, test_interaction_temperatures )
 		ASSERT_GE( chemicalCompaction1[i], result );    // chemical compaction (t + deltat) <= chemical compaction (t)
 		ASSERT_NEAR( expectedResult, result, 1e-6);
 	}
+	delete my_Object;
 }
 

@@ -99,6 +99,8 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_time_values )
 
 	my_Object -> computeOnTimeStep ( grid3 ); //Time step = 1000 My => chemical compaction > -1
 	ASSERT_LE( grid3.setChemicalCompaction()[0], -1.0 );
+
+	delete my_Object;
 }
 
 /*!
@@ -214,6 +216,8 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_parameters_values )
 		ASSERT_GE( chemicalCompaction1[i], result );    // chemical compaction (t + deltat) <= chemical compaction (t)
 		ASSERT_DOUBLE_EQ( expectedResult, result );     // chemical compaction = expected chemical compaction
 	}
+
+	delete my_Object;
 }
 
 /*!
@@ -250,6 +254,9 @@ TEST_F( testSchneiderCompactionCalculator, no_valid_nodes )
 
 	ASSERT_GT( 0.0, grid.setChemicalCompaction()[0] ); // If valid node => compaction
 	ASSERT_EQ( 0.0, grid.setChemicalCompaction()[1] ); //If non valid node => no compaction
+
+	delete my_Object;
+	
 }
 
 /*!
@@ -290,6 +297,8 @@ TEST_F( testSchneiderCompactionCalculator, reference_temperature )
 	ASSERT_EQ( result, grid.setChemicalCompaction()[1] );        // T --> T0 with T<T0 => exponential part = 1
 	ASSERT_EQ( result, grid.setChemicalCompaction()[2] );        // T = TO => exponential part = 1
 	ASSERT_DOUBLE_EQ( result, grid.setChemicalCompaction()[3] ); // T --> T0 with T>T0 => exponential part --> 1
+
+	delete my_Object;
 }
 
 /*!
@@ -339,6 +348,8 @@ TEST_F( testSchneiderCompactionCalculator, extreme_lithology_values )
 		ASSERT_GE( chemicalCompaction1[i], result );    // chemical compaction (t + deltat) <= chemical compaction (t)
 		ASSERT_DOUBLE_EQ( expectedResult, result );     //chemical compaction
 	}
+
+	delete my_Object;
 }
 
 TEST_F( testSchneiderCompactionCalculator, test_change_lithology )
@@ -398,6 +409,6 @@ TEST_F( testSchneiderCompactionCalculator, test_change_lithology )
 	ASSERT_DOUBLE_EQ( result2, chemicalCompaction2[0] );
 	ASSERT_DOUBLE_EQ( result2, expectedResult2 );
 
-
+	delete my_Object;
 
 }
