@@ -165,9 +165,10 @@ private:
    const double * m_referenceViscosity;
 
    //For Walderhaug model
+   const double * m_fractionQuartz;
    const double * m_grainSize;
    const double * m_coatingClay;
-   const double * m_fractionQuartz;
+
 
 };
 

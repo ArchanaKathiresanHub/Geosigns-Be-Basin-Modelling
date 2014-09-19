@@ -595,6 +595,7 @@ void GeoPhysics::CompoundLithology::mixSurfacePorosity(DataAccess::Interface::Po
       surfacePorosity = Mixed_Void_Ratio / (1.0 + Mixed_Void_Ratio);
    }
    else {
+      surfacePorosity = 0.0 ;
 
       /* Dominant lithotype defines Porosity Model and Compaction Coefficient value */
       while (m_lithoComponents.end() != componentIter) {

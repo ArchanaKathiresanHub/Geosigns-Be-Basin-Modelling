@@ -19,6 +19,7 @@
 #include <algorithm>
 
 
+
 using namespace GeoPhysics;
 
 class testSchneiderCompactionCalculator : public ::testing::Test
@@ -365,12 +366,10 @@ TEST_F( testSchneiderCompactionCalculator, test_change_lithology )
 
 	double chemicalCompaction1 [size] = {0.0}; //[fraction of unit volume]
 	double chemicalCompaction2 [size] = {0.0}; //[fraction of unit volume]
-	double chemicalCompaction3 [size] = {0.0}; //[fraction of unit volume]
+	
 	const double porosity1     [size] = {0.5}; //[fraction of unit volume]
-	const double porosity2     [size] = {0.3}; //[fraction of unit volume]
-
+	
 	const double temperature1 [size] = {80.0};  //[C]
-	const double temperature2 [size] = {81.0};  //[C]
 	const double ves          [size] = {50.0e6}; //[Pa]
 
 	const int validNodes[sizeValidNodes] = {0};

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <cmath>
 
+
+
 using namespace GeoPhysics;
 
 class testWalderhaugCompactionCalculator : public ::testing::Test
@@ -258,9 +260,12 @@ TEST_F( testWalderhaugCompactionCalculator, test_extreme_lithologies_values )
 		grainSize [index + 2] = 10.0;
 
 		int remainder = index % 9;
-		if (      remainder <= 2 ) { clayCoating [index] = 0.0; }
-		else if ( remainder >= 6 ) { clayCoating [index] = 1.0; }
-		else                       { clayCoating [index] = 0.1; }
+		double value =0.1;
+		if (      remainder <= 2 ) { value = 0.0; }
+		else if ( remainder >= 6 ) { value = 1.0; }
+		clayCoating [index] = value;
+		clayCoating [index +1] = value;
+		clayCoating [index +2] =value;
 	}
 
 	MockGrid grid( size, previousTime, currentTime, chemicalCompaction1, porosity, previousTemperature, currentTemperature, sizeValidNodes, validNodes,
@@ -308,7 +313,6 @@ TEST_F( testWalderhaugCompactionCalculator, test_initial_porosity )
 	double chemicalCompaction1 [size] = {0.0}; //[fraction of unit volume]
 	double chemicalCompaction2 [size] = {0.0}; //[fraction of unit volume]
 	double chemicalCompaction3 [size] = {0.0}; //[fraction of unit volume]
-	double chemicalCompaction4 [size] = {0.0}; //[fraction of unit volume]
 	const double porosity1     [size] = {0.5}; //[fraction of unit volume]
 	const double porosity2     [size] = {0.3}; //[fraction of unit volume]
 
