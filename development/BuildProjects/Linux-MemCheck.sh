@@ -79,5 +79,8 @@ export LD_PRELOAD=$VALGRIND_MPI
 #       --run-libc-freeres=no is necessary, because glibc versions
 #                          until 2.12.90-14 have a bug that triggers an error in Valgrind
 #      The output redirection at the end is necessary because TFS would interpret the "ERROR SUMMARY" as an error! 
-$VALGRIND --error-exitcode=1 --run-libc-freeres=no --tool=memcheck applications/fastcauldron/fastcauldron -project MemCheck.project3d -itcoupled 2>&1 | sed -e 's/ERROR //' 
+$VALGRIND --error-exitcode=1 --run-libc-freeres=no --tool=memcheck applications/fastcauldron/fastcauldron -project MemCheck.project3d -itcoupled 2> error_log
+exit_status=$?
 
+sed -e 's/ERROR //' < error_log
+exit $exit_status
