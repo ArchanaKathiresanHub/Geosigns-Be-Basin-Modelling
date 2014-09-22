@@ -1,6 +1,6 @@
 The generate.sh script in this directory will create 4 x 4 = 16 projects from
 one original template. The original project is the WCSB model.
-Then there are two sizes: 
+Then there are four sizes: 
   - Medium, which is a subsampling of this project by 3x3, 
   - Large, which is this project at full resolution,
   - Dream, which is this project super-sampled 3x3, and
