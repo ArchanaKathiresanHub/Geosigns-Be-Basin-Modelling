@@ -59,12 +59,10 @@ target_link_libraries(cauldron2voxet
 	${HDF5_LIBRARIES}
 )
 
-get_target_property(PARSPEC_EXEC parspec LOCATION)
 add_custom_command(OUTPUT ${voxetProjectFormatSources}
 	DEPENDS parspec
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/applications/cauldron2voxet
-	COMMAND ${PARSPEC_EXEC}
-	ARGS -schema VoxetSchema -directory ${PROJECT_BINARY_DIR}/applications/cauldron2voxet -input src/VoxetProperty.Spec
+	COMMAND parspec -schema VoxetSchema -directory ${PROJECT_BINARY_DIR}/applications/cauldron2voxet -input src/VoxetProperty.Spec
 )
 
 install(TARGETS cauldron2voxet

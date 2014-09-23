@@ -87,9 +87,11 @@ set( CPACK_SOURCE_IGNORE_FILES
    )
 
 # Set the version of the package
-today(currentDate)
-get_changeset_id(changeset)
-set( CPACK_PACKAGE_VERSION "${changeset}-packed_on-${currentDate}")
+if (NOT CPACK_PACKAGE_VERSION)
+   today(currentDate)
+   get_changeset_id(changeset)
+   set( CPACK_PACKAGE_VERSION "${changeset}-packed_on-${currentDate}")
+endif()
 message(STATUS "Package version = ${CPACK_PACKAGE_VERSION}")
 
 # Include CPack

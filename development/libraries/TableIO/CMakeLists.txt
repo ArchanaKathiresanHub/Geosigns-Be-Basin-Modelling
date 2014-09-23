@@ -37,14 +37,10 @@ add_executable( parspec
    src/datautils.C
 )
 
-get_target_property(PARSPEC_EXEC parspec LOCATION)
-
-
 add_custom_command( OUTPUT ${generator_source_files}
 	DEPENDS parspec BasinModellerProperty.Spec
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMAND ${PARSPEC_EXEC} 
-	ARGS -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input BasinModellerProperty.Spec 
+	COMMAND parspec -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input BasinModellerProperty.Spec 
 )
 
 generate_dox( src/tableio.cfg )

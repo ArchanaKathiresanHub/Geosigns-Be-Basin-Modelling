@@ -25,7 +25,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <AgentKeyAlt Condition="'$(AgentKeyAlt)' == ''">C:\opt\putty\s_bpac00.tfs_build_server.ppk</AgentKeyAlt>
     <RemoteSourceDirAlt Condition="'$(RemoteSourceDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/$(AgentName)/src</RemoteSourceDirAlt>
     <RemoteBuildDirAlt Condition="'$(RemoteBuildDirAlt)' == ''">$(SWEast)/$(AgentAccountAlt)/builds/$(BuildNumber)</RemoteBuildDirAlt>
-    
+    <RemoteTestResults Condition="'$(RemoteTestResults)' == ''">$(RemoteBuildDirAlt)/share/UnitTestResults</RemoteTestResults>
   </PropertyGroup>
 
   <!-- STANDARD UTILITIES -->
@@ -66,15 +66,16 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 	<Deploy Condition=" '$(Deploy)' == '' ">False</Deploy>
 	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
 	<Geocase Condition=" '$(Geocase)' == '' ">False</Geocase>
+    <BuildNumber Condition=" '$(BuildNumber)' == '' ">XXXX</BuildNumber>
   </PropertyGroup>
   
   <PropertyGroup>
   
     <solution_root>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root>
-	
+	<build_dir>$(solution_root)\..\..\Build\$(Configuration)\$(Platform)</build_dir>
     <!-- Clear remote build directory. Ensure existence of remote source directory -->
-    <remove_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt)"</remove_remote_dirs>
-    <make_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt)"</make_remote_dirs>
+    <remove_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt) $(RemoteTestResults)"</remove_remote_dirs>
+    <make_remote_dirs>$(ssh_command_alt) "rm -Rf $(RemoteBuildDirAlt); mkdir -p $(RemoteSourceDirAlt) $(RemoteBuildDirAlt) $(RemoteTestResults)"</make_remote_dirs>
 
     <!-- Copy source with rsync -->
     <rsh>$(putty_dir)\PLINK.exe -batch -ssh -i $(AgentKeyAlt)</rsh>
@@ -83,15 +84,15 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <!-- Execute remote build script -->
     <run_on_platform>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-DoOnPlatform.sh $(Platform)</run_on_platform>
     <script_to_build>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
-    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) UNIT_TEST_OUTPUT_DIR=$(RemoteBuildDirAlt) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase)</build_env_vars>
+    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) UNIT_TEST_OUTPUT_DIR=$(RemoteTestResults) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase) BUILD_NUMBER=$(BuildNumber)</build_env_vars>
     <build>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash $(script_to_build) $(OtherCMakeParams)"</build>
 
     <!-- Deploy to Houston -->
     <script_deploy_to_houston>$(RemoteSourceDirAlt)/development/BuildProjects/ReleaseToHouston</script_deploy_to_houston>
     <deploy_to_houston>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash -x $(script_deploy_to_houston) v$(VersionNumberMajor).$(VersionNumberMinor)$(VersionTag)"</deploy_to_houston>
 	
-	<!-- Copy generated documentation to drop folder -->
-	<copy_docs>$(scp_command_alt) -r $(AgentAccountAlt)@$(AgentHost):$(RemoteBuildDirAlt)/share/doc .</copy_docs>
+   <!-- Copy entire build to drop folder -->
+   <copy_build>$(scp_command_alt) -r $(AgentAccountAlt)@$(AgentHost):$(RemoteBuildDirAlt)/* .</copy_build>
   </PropertyGroup>
   
   <Target Name="BuildOnLinux">
@@ -99,7 +100,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <Exec Command="$(copy_code)" WorkingDirectory="$(solution_root)"/>
     <Exec Command="$(build)" />
     <Exec Command="$(deploy_to_houston)" Condition=" '$(DeployToHouston)' == 'True' "/>
-	  <Exec Command="$(copy_docs)" WorkingDirectory="$(OutDir)"/>
+    <Exec Command="$(copy_build)" WorkingDirectory="$(OutDir)"/>
   </Target>
 
   <Target Name="CleanOnLinux">
@@ -125,7 +126,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <JUnitTrxConversionStyle Condition=" '$(JUnitTrxConversionStyle)'=='' and  '$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Net Framework Setup\NDP\V4\Client@TargetVersion)'=='4.0.0'">$(TeamBuildExtensionsRefPath)\xslt\tpaggregated_2010_trx.xslt</JUnitTrxConversionStyle>
     <JUnitTrxConversionStyle Condition=" '$(JUnitTrxConversionStyle)'=='' ">$(TeamBuildExtensionsRefPath)\xslt\tpaggregated_trx.xslt</JUnitTrxConversionStyle>
 	
-	<TestResultsRoot>$(BinariesRoot)\TestResults</TestResultsRoot>
+	<TestResultsRoot>$(build_dir)\TestResults</TestResultsRoot>
   </PropertyGroup>  
   
   <Target Name="PublishJUnitFromLinux">

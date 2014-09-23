@@ -137,14 +137,11 @@ target_link_libraries(cauldronexplorer
     SUMlib
 )
 
-get_target_property(PARSPEC_EXEC parspec LOCATION)
-
 
 add_custom_command( OUTPUT ${generator_source_files}
 	DEPENDS parspec  ParameterSpaceExplorationTool.Spec
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMAND ${PARSPEC_EXEC} 
-	ARGS -schema ParameterSpaceExplorationTool -directory ${CMAKE_CURRENT_BINARY_DIR} -input ParameterSpaceExplorationTool.Spec 
+	COMMAND parspec -schema ParameterSpaceExplorationTool -directory ${CMAKE_CURRENT_BINARY_DIR} -input ParameterSpaceExplorationTool.Spec 
 )
 
 install(TARGETS cauldronexplorer
