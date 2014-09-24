@@ -67,6 +67,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
 	<DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
 	<Geocase Condition=" '$(Geocase)' == '' ">False</Geocase>
     <BuildNumber Condition=" '$(BuildNumber)' == '' ">XXXX</BuildNumber>
+	<TFSVersion Condition=" '$(TFSVersion)' == '' ">YYYY</TFSVersion>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -84,7 +85,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <!-- Execute remote build script -->
     <run_on_platform>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-DoOnPlatform.sh $(Platform)</run_on_platform>
     <script_to_build>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
-    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) UNIT_TEST_OUTPUT_DIR=$(RemoteTestResults) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase) BUILD_NUMBER=$(BuildNumber)</build_env_vars>
+    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) UNIT_TEST_OUTPUT_DIR=$(RemoteTestResults) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase) BUILD_NUMBER=$(BuildNumber) TFS_VERSION=$(TFSVersion)</build_env_vars>
     <build>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash $(script_to_build) $(OtherCMakeParams)"</build>
 
     <!-- Deploy to Houston -->

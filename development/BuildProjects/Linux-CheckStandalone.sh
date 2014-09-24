@@ -13,7 +13,7 @@ version_number_major=${VERSION_NUMBER_MAJOR:-`date +%Y`}
 version_number_minor=${VERSION_NUMBER_MINOR:-`date +%m`}  
 version_tag=${VERSION_TAG:-`whoami`}
 remote_host=${REMOTEHOST:-houcy1-n-sp030b01.americas.shell.com}
-build_number=${BUILD_NUMBER:-XXXX}
+tfs_version=${TFS_VERSION:-YYYY}
 
 # Make some temporary files to scripts in 
 run_on_cluster=`mktemp`
@@ -64,10 +64,10 @@ CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x
 # Package Cauldron
 pushd $build
 echo Packaging cauldron source
-${CMAKE} "-DCPACK_PACKAGE_VERSION=${build_number}" ${src} || { echo "Could not configure source package" ; exit 1; }
+${CMAKE} "-DCPACK_PACKAGE_VERSION=${tfs_version}" ${src} || { echo "Could not configure source package" ; exit 1; }
 make package_source                                       || { echo "Could not make source package" ; exit 1; }
 local_host=`hostname --fqdn`                              || { echo "Could not get hostname" ; exit 1; }
-tar=BasinModeling-${build_number}-Source.tar.gz
+tar=BasinModeling-${tfs_version}-Source.tar.gz
 tarfile=$build/$tar
 
 # Make a script to run something on HOUGDC cluster
