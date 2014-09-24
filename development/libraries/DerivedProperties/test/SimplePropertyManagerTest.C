@@ -30,6 +30,9 @@ public :
 
    const DataModel::AbstractGrid* getMapGrid () const;
 
+   /// \brief Return whether or not the node is defined.
+   bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
+
 private :
 
 
@@ -237,6 +240,9 @@ TestPropertyManager::~TestPropertyManager () {
    delete m_mapGrid;
 }
 
+bool TestPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const { 
+   return true; 
+}
 
 void TestPropertyManager::addProperty ( const DataModel::AbstractProperty* property ) {
    

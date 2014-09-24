@@ -9,10 +9,10 @@
 #include "AbstractFormation.h"
 #include "AbstractGrid.h"
 
-
 #include "Interface/GridMap.h"
 #include "Interface/PropertyValue.h"
 
+#include "PrimaryProperty.h"
 #include "FormationProperty.h"
 
 namespace DerivedProperties {
@@ -20,8 +20,7 @@ namespace DerivedProperties {
    /// \brief Contains the values of the property at the snapshot time for the formation.
    ///
    /// The values are stored in a two dimensional array.
-   class PrimaryFormationProperty : public FormationProperty {
-
+   class PrimaryFormationProperty : public FormationProperty, public PrimaryProperty  {
 
    public :
 
@@ -33,10 +32,8 @@ namespace DerivedProperties {
                            unsigned int j,
                            unsigned int k ) const;
 
+ private :
 
-   private :
-
-      const DataAccess::Interface::GridMap* m_gridMap;
 
    };
 

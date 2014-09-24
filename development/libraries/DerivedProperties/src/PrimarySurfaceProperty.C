@@ -11,7 +11,7 @@ DerivedProperties::PrimarySurfaceProperty::PrimarySurfaceProperty ( const DataAc
                      propertyValue->getSnapshot (),
                      propertyValue->getSurface (),
                      propertyValue->getGridMap ()->getGrid ()),
-   m_gridMap ( propertyValue->getGridMap ())
+   PrimaryProperty ( propertyValue->getGridMap () )
 {
 }
 

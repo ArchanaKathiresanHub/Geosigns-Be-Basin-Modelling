@@ -7,6 +7,7 @@
 #include "AbstractGrid.h"
 
 #include "Interface/GridMap.h"
+#include "Interface/RunParameters.h"
 
 #include "AbstractPropertyManager.h"
 
@@ -32,6 +33,16 @@ namespace DerivedProperties {
       /// \brief Get the grid for the map.
       virtual const DataModel::AbstractGrid* getMapGrid () const;
 
+      /// \brief Return whether or not the node is defined.
+      bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
+
+      /// \brief Return the run parameters
+      const DataAccess::Interface::RunParameters* getRunParameters() const;
+
+   protected :
+      /// \brief The geophysics project handle
+      GeoPhysics::ProjectHandle* m_projectHandle;
+
    private :
 
       /// \brief Load primary property calculators that are associated with surface only.
@@ -54,8 +65,6 @@ namespace DerivedProperties {
       /// These are volume properties loaded from the property-values in the project-handle.
       void loadFormationPropertyCalculators ();
 
-      /// \brief The geophysics project handle
-      GeoPhysics::ProjectHandle* m_projectHandle;
 
    }; 
 

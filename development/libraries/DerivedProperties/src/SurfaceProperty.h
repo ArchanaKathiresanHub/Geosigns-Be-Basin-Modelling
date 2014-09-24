@@ -10,6 +10,8 @@
 #include "AbstractSurface.h"
 #include "AbstractGrid.h"
 
+#include "Property.h"
+
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the surface.
@@ -18,7 +20,7 @@ namespace DerivedProperties {
    /// Properties such as porosity may not an object of this type to store their
    /// values.
    /// The indices will use global index numbering.
-   class SurfaceProperty {
+   class SurfaceProperty : virtual public Property {
 
    public :
 

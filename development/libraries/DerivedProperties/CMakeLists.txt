@@ -21,10 +21,15 @@ set(all_headers
   src/DerivedFormationMapProperty.h
   src/PrimaryFormationMapProperty.h
   src/PrimaryFormationMapPropertyCalculator.h
+  src/PrimaryProperty.h
+  src/Property.h
   src/FormationPropertyCalculator.h
   src/FormationProperty.h
   src/FormationSurfacePropertyCalculator.h
   src/FormationSurfaceProperty.h
+  src/PermeabilityFormationCalculator.h
+  src/PermeabilityFormationSurfaceCalculator.h
+  src/PorosityFormationCalculator.h
   src/PrimaryFormationPropertyCalculator.h
   src/PrimaryFormationProperty.h
   src/PrimaryFormationSurfacePropertyCalculator.h
@@ -33,6 +38,8 @@ set(all_headers
   src/PrimarySurfaceProperty.h
   src/SurfacePropertyCalculator.h
   src/SurfaceProperty.h
+  src/VesFormationCalculator.h
+  src/VesSurfaceCalculator.h
 )
 
 set(all_srcs
@@ -43,8 +50,13 @@ set(all_srcs
   src/DerivedSurfaceProperty.C
   src/FormationMapProperty.C
   src/DerivedFormationMapProperty.C
+  src/PermeabilityFormationCalculator.C
+  src/PermeabilityFormationSurfaceCalculator.C
+  src/PorosityFormationCalculator.C
   src/PrimaryFormationMapProperty.C
   src/PrimaryFormationMapPropertyCalculator.C
+  src/PrimaryProperty.C
+  src/Property.C
   src/FormationProperty.C
   src/FormationSurfaceProperty.C
   src/PrimaryFormationProperty.C
@@ -54,6 +66,8 @@ set(all_srcs
   src/PrimarySurfaceProperty.C
   src/PrimarySurfacePropertyCalculator.C
   src/SurfaceProperty.C
+  src/VesFormationCalculator.C
+  src/VesSurfaceCalculator.C
 )
 
 

@@ -11,12 +11,14 @@
 #include "AbstractFormation.h"
 #include "AbstractGrid.h"
 
+#include "Property.h"
+
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the formation.
    ///
    /// The indices will use global index numbering.
-   class FormationSurfaceProperty {
+   class FormationSurfaceProperty : virtual public Property {
 
    public :
 
