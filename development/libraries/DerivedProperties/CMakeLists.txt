@@ -100,27 +100,27 @@ generate_dox( DerivedProperties.cfg )
 
 add_gtest( NAME DerivedProperties::DerivedProperties
            SOURCES test/DerivedProperties.C
-           LIBRARIES DerivedProperties SerialDataAccess
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
 add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
            SOURCES test/SimplePropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
 add_gtest( NAME DerivedProperties::CompoundPropertyManagerTest
            SOURCES test/CompoundPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
 add_gtest( NAME DerivedProperties::MultiplePropertyManagerTest
            SOURCES test/MultiplePropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
 add_gtest( NAME DerivedProperties::MultipleFormationMapPropertyManagerTest
            SOURCES test/MultipleFormationMapPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
 add_gtest( NAME DerivedProperties::MultipleFormationSurfacePropertyManagerTest
@@ -130,5 +130,5 @@ add_gtest( NAME DerivedProperties::MultipleFormationSurfacePropertyManagerTest
 
 add_gtest( NAME DerivedProperties::MultipleFormationPropertyManagerTest
            SOURCES test/MultipleFormationPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
