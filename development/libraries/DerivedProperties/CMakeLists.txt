@@ -125,7 +125,7 @@ add_gtest( NAME DerivedProperties::MultipleFormationMapPropertyManagerTest
 
 add_gtest( NAME DerivedProperties::MultipleFormationSurfacePropertyManagerTest
            SOURCES test/MultipleFormationSurfacePropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
 add_gtest( NAME DerivedProperties::MultipleFormationPropertyManagerTest
