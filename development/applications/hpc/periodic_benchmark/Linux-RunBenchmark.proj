@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+ <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">RHEL6.4</Platform>
+    <Deploy Condition=" '$(Deploy)' == '' ">False</Deploy>
+    <DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
+  </PropertyGroup>
+  
+  <Import Project="$(MSBuildProjectDirectory)\..\..\..\BuildProjects\BasinModeling.Linux.Props.xml" />
+  
+  <PropertyGroup>
+    <BenchmarkTableDir Condition=" '$(BenchmarkTableDir)' == '' ">$(SWEast)/hpc/periodic-benchmark</BenchmarkTableDir>
+    <BenchmarkTableFile Condition=" '$(BenchmarkTableFile)' == '' ">Results-$(Platform)-$(Configuration)</BenchmarkTableFile>
+    <SimulatorOptions Condition=" '$(SimulatorOptions)' == '' ">-itcoupled</SimulatorOptions>
+    <Processors Condition=" '$(Processors)' == '' ">1</Processors>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <benchmark_script>$(RemoteSourceDirAlt)/development/applications/hpc/periodic_benchmark/Linux-RunBenchmark.sh</benchmark_script>
+    <make_table_dir>$(ssh_command_alt) "mkdir -p $(BenchmarkTableDir)"</make_table_dir>
+    <run_benchmark>$(ssh_command_alt) "$(build_env_vars) TABLE_DIR='$(BenchmarkTableDir)' TABLE_FILE='$(BenchmarkTableFile)' SIMULATOR_OPTIONS='$(SimulatorOptions)' /bin/bash $(run_on_platform) /bin/bash $(benchmark_script)"</run_benchmark>
+  </PropertyGroup>
+
+  <Target Name="RunBenchmark">
+    <Exec Command="$(make_remote_dirs)"/>
+    <Exec Command="$(copy_code)" WorkingDirectory="$(solution_root)"/>
+    <Exec Command="$(make_table_dir)"/>
+    <Exec Command="$(run_benchmark)" />
+  </Target>
+
+  <Target Name="Build">
+    <CallTarget Targets="RunBenchmark" ContinueOnError="true"/>
+    <CallTarget Targets="CleanOnLinux" ContinueOnError="true" />
+  </Target>  
+  
+</Project>
