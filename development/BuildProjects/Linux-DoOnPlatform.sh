@@ -5,8 +5,17 @@ PLATFORM=$1
 shift
 
 PROCS=$1
-if echo "$PROCS" | grep -q '[[:digit:]]\+' ; then
-  LSF_PROCS="-x -n $PROCS" 
+
+#
+# Format for PROCS
+#  - "1", "2", ...  => the number of slots
+#  - "x1", "x2", ... => a number of slots on a exclusively allocated nodes
+if echo "$PROCS" | grep -q '^x[[:digit:]]\+$' ;  then
+  P=`echo $PROCS | sed -e 's/^x\([[:digit:]]\+\)$/\1/'`
+  LSF_PROCS="-x -n $P"
+  shift
+elif echo "$PROCS" | grep -q '^[[:digit:]]\+$' ; then
+  LSF_PROCS="-n $PROCS" 
   shift
 else
   LSF_PROCS=""

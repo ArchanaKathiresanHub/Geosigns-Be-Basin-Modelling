@@ -59,8 +59,9 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">RHEL6.4</Platform>
-    <Processors Condition=" '$(Processors)' == '' ">12</Processors> 
-    <VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">9999</VersionNumberMajor>
+  	<AllocatedProcessors Condition=" '$(AllocatedProcessors)' == '' ">1</AllocatedProcessors> <!-- Legal values are: any integer greater or equal than 1 -->
+	<ProcessorAllocation Condition=" '$(ProcessorAllocation)' == '' "></ProcessorAllocation> <!-- Legal values are: '', or 'x' for exclusive node allocation -->
+    <VersionNumberMajor Condition=" '$(VersionNumberMajor)' == '' ">9999</VersionNumberMajor> 
 	<VersionNumberMinor Condition=" '$(VersionNumberMinor)' == '' ">99</VersionNumberMinor>
 	<VersionTag Condition=" '$(VersionTag)' == '' ">nightly</VersionTag>
 	<OtherCMakeParams Condition=" '$(OtherCMakeParams)' == '' "></OtherCMakeParams>
@@ -84,9 +85,9 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <copy_code>$(rsync_exe) --rsh="$(rsh)" --recursive --delete . $(AgentAccountAlt)@$(AgentHost):$(RemoteSourceDirAlt)</copy_code>
 
     <!-- Execute remote build script -->
-    <run_on_platform>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-DoOnPlatform.sh $(Platform) $(Processors)</run_on_platform>
+    <run_on_platform>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-DoOnPlatform.sh $(Platform) $(ProcessorAllocation)$(AllocatedProcessors)</run_on_platform>
     <script_to_build>$(RemoteSourceDirAlt)/development/BuildProjects/Linux-BuildAndInstall.sh</script_to_build>
-    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) UNIT_TEST_OUTPUT_DIR=$(RemoteTestResults) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase) BUILD_NUMBER=$(BuildNumber) TFS_VERSION=$(TFSVersion) PROCESSORS=$(Processors)</build_env_vars>
+    <build_env_vars>env VERSION_NUMBER_MAJOR=$(VersionNumberMajor) VERSION_NUMBER_MINOR=$(VersionNumberMinor) VERSION_TAG=$(VersionTag) SRC_DIR=$(RemoteSourceDirAlt) INSTALL_DIR=$(RemoteBuildDirAlt) UNIT_TEST_OUTPUT_DIR=$(RemoteTestResults) CONFIGURATION=$(Configuration) PLATFORM=$(Platform) DEPLOY=$(Deploy) GEOCASE=$(Geocase) BUILD_NUMBER=$(BuildNumber) TFS_VERSION=$(TFSVersion) PROCESSORS=$(AllocatedProcessors)</build_env_vars>
     <build>$(ssh_command_alt) "$(build_env_vars) /bin/bash $(run_on_platform) /bin/bash $(script_to_build) $(OtherCMakeParams)"</build>
 
     <!-- Deploy to Houston -->

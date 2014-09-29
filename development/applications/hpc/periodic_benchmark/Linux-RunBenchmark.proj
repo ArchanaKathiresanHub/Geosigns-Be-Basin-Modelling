@@ -14,7 +14,8 @@
     <BenchmarkTableDir Condition=" '$(BenchmarkTableDir)' == '' ">$(SWEast)/hpc/periodic-benchmark</BenchmarkTableDir>
     <BenchmarkTableFile Condition=" '$(BenchmarkTableFile)' == '' ">Results-$(Platform)-$(Configuration)</BenchmarkTableFile>
     <SimulatorOptions Condition=" '$(SimulatorOptions)' == '' ">-itcoupled</SimulatorOptions>
-    <Processors Condition=" '$(Processors)' == '' ">1</Processors>
+    <AllocatedProcessors Condition=" '$(AllocatedProcessors)' == '' ">1</AllocatedProcessors>
+	<ProcessorAllocation Condition=" '$(ProcessorAllocation)' == '' ">x</ProcessorAllocation>
   </PropertyGroup>
   
   <PropertyGroup>
