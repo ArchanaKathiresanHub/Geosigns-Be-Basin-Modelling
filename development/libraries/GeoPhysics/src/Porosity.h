@@ -31,10 +31,7 @@ namespace GeoPhysics
       double getSurfacePorosity() const;
       double getFullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
       double getCompactionCoefficent() const;
-      double getDVoidRatioDVes(const double computedVoidRatio, const double ves, const double maxVes, const bool loadingPhase) const;
-      double getPorosityDerivativeWrtVes(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
       double getPorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
-      double getDVoidRatioDP(const double ves, const double maxVes, const bool loadingPhase, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
       double getMinimumMechanicalPorosity() const;
 
       /// Abstract class
@@ -58,17 +55,9 @@ namespace GeoPhysics
          /// Return compactIncrement
          virtual double  CompactionCoefficent() const = 0;
 
-         /// Return ExponentialDVoidRatioDP
-         virtual double DVoidRatioDVes(const double computedVoidRatio, const double ves, const double maxVes, const bool loadingPhase) const = 0;
-
-         /// Return PorosityDerivativeWrtVes
-         virtual double PorosityDerivativeWrtVes(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const = 0;
-
          /// Return PorosityDerivative
          virtual double PorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const = 0;
 
-         /// Return DVoidRatioDP
-         virtual double DVoidRatioDP(const double ves, const double maxVes, const bool loadingPhase, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const = 0;
          /// Return MinimumMechanicalPorosity
          virtual double  MinimumMechanicalPorosity( ) const = 0;
 
@@ -119,23 +108,8 @@ namespace GeoPhysics
    }
 
    inline double Porosity
-      ::getDVoidRatioDVes(const double computedVoidRatio, const double ves, const double maxVes, const bool loadingPhase) const{
-      return m_algorithm->DVoidRatioDVes(computedVoidRatio, ves, maxVes, loadingPhase);
-   }
-
-   inline double Porosity
-      ::getPorosityDerivativeWrtVes(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const{
-      return m_algorithm->PorosityDerivativeWrtVes(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-   }
-
-   inline double Porosity
-      ::getPorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
-      return m_algorithm->PorosityDerivative(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-   }
-
-   inline double Porosity
-      ::getDVoidRatioDP(const double ves, const double maxVes, const bool loadingPhase, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const{
-      return m_algorithm->DVoidRatioDP(ves, maxVes, loadingPhase, includeChemicalCompaction, chemicalCompactionTerm);
+     ::getPorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+     return m_algorithm->PorosityDerivative(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
    }
 
    inline double Porosity

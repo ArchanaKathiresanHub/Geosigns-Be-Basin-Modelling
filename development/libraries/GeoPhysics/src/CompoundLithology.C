@@ -999,14 +999,6 @@ void GeoPhysics::CompoundLithology::calcBulkHeatProd(const double Porosity, doub
 
 }
 
-double GeoPhysics::CompoundLithology::computeDVoidRatioDP(const double ves,
-   const double maxVes,
-   const bool   includeChemicalCompaction,
-   const double chemicalCompactionTerm) const {
-   const bool loadingPhase = ves >= maxVes;
-   return m_porosity.getDVoidRatioDP(ves, maxVes, loadingPhase, includeChemicalCompaction, chemicalCompactionTerm);
-
-}
 
 //------------------------------------------------------------//
 
@@ -1341,17 +1333,6 @@ bool GeoPhysics::CompoundLithology::hasHydraulicallyFractured(const double hydro
 double GeoPhysics::CompoundLithology::fracturePressure(const double hydrostaticPressure,
    const double lithostaticPressure) const {
    return  m_lithologyFractureGradient * (lithostaticPressure - hydrostaticPressure) + hydrostaticPressure;
-}
-
-
-//------------------------------------------------------------//
-
-double GeoPhysics::CompoundLithology::computePorosityDerivativeWrtVes(const double ves,
-   const double maxVes,
-   const bool   includeChemicalCompaction,
-   const double chemicalCompactionTerm) const {
-
-   return m_porosity.getPorosityDerivativeWrtVes(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
 }
 
 //------------------------------------------------------------//

@@ -150,56 +150,6 @@ namespace GeoPhysics
       return m_soilMechanicsCompactionCoefficient;
    }
 
-   ///DVoidRatioDVes
-   double soilMechanicsPorosity::DVoidRatioDVes(const double computedVoidRatio, const double ves, const double maxVes, const bool loadingPhase) const {
-
-      /* This is the derivative of the void-ratio w.r.t. sigma with singular point ! */
-      /* If loading is TRUE then maxVes = ves */
-
-      double D_Psi_D_Sigma;
-      //
-      //  d psi       d psi   d phi
-      //  -------  = ------   ------
-      //  d sigma     d phi   d sigma
-      //
-
-      if (ves > 0.0) {
-         D_Psi_D_Sigma = -m_soilMechanicsCompactionCoefficient / ves;
-      }
-      else {
-         D_Psi_D_Sigma = -m_soilMechanicsCompactionCoefficient / std::numeric_limits<double>::epsilon();
-      }
-
-      return D_Psi_D_Sigma;
-   }
-
-   ///PorosityDerivativeWrtVes
-   double soilMechanicsPorosity::PorosityDerivativeWrtVes(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
-
-      if (ves >= maxVes) {
-         double ves0 = 1.0e5; //reference effective stress
-
-         if (ves < ves0) {
-            return 0.0;
-         }
-         else {
-            double denominator = 1.0 + porosity(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-            return -m_soilMechanicsCompactionCoefficient / ves / (denominator * denominator);
-         }
-
-      }
-      else {
-
-         double surfaceVoidRatio = m_depoporosity / (1.0 - m_depoporosity);
-         double porosityAtMinVes = surfaceVoidRatio / (1.0 + surfaceVoidRatio);
-         double porosityAtMaxVes = porosity(maxVes, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-
-         double derivative = PercentagePorosityReboundForSoilMechanics * (porosityAtMaxVes - porosityAtMinVes) / (maxVes - 1.0e5);
-
-         return derivative;
-      }
-   }
-
    ///PorosityDerivative
    double soilMechanicsPorosity::PorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
 
@@ -224,31 +174,6 @@ namespace GeoPhysics
       porosityDerivative = pow(1.0 - porosityValue, 2) * m_soilMechanicsCompactionCoefficient / vesValue;
 
       return porosityDerivative;
-   }
-
-   ///DVoidRatioDP
-   double soilMechanicsPorosity::DVoidRatioDP(const double ves, const double maxVes, const bool loadingPhase, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
-
-      const double Biot = 1.0;
-
-      double psi;
-      double D_Psi_D_P;
-
-      /* This routine will return the derivative of the void-ratio (dpsi) */
-      /* using a cut-off value of psi. */
-
-      double Min_ves = 1.0e5;
-      double vesUsed = NumericFunctions::Maximum(ves, Min_ves);
-
-      double computedPorosity = porosity(vesUsed, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-
-      psi = computedPorosity / (1.0 - computedPorosity);
-
-      D_Psi_D_P = -Biot *
-         DVoidRatioDVes(psi, vesUsed, maxVes, loadingPhase);
-
-      return D_Psi_D_P;
-
    }
 
    ///MinimumMechanicalPorosity

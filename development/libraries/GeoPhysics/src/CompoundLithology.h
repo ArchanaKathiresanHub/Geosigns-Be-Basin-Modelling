@@ -243,17 +243,6 @@ namespace GeoPhysics {
          const double chemicalCompactionTerm) const;
 
 
-      double computePorosityDerivativeWrtVes(const double ves,
-         const double maxVes,
-         const bool   includeChemicalCompaction,
-         const double chemicalCompactionTerm) const;
-
-      double computeDVoidRatioDP(const double ves,
-         const double maxVes,
-         const bool   includeChemicalCompaction,
-         const double chemicalCompactionTerm) const;
-
-
       /// Return the reference-effective-stress.
       ///
       /// Used in computing the soil-mechanics void-ratio (porosity).

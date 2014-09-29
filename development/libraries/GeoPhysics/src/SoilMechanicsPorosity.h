@@ -34,17 +34,8 @@ namespace GeoPhysics
       /// Return Compaction coefficients (only m_compactionincr for exponential)
       virtual double CompactionCoefficent() const;
 
-      /// Return DVoidRatioDVes
-      virtual double DVoidRatioDVes(const double computedVoidRatio, const double ves, const double maxVes, const bool loadingPhase) const;
-
-      /// Return PorosityDerivativeWrtVes
-      virtual double PorosityDerivativeWrtVes(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
-
-      /// Return PorosityDerivative
+     /// Return PorosityDerivative
       virtual double PorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
-
-      /// Return DVoidRatioDP
-      virtual double DVoidRatioDP(const double ves, const double maxVes, const bool loadingPhase, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
 
       /// Return minimumMechanicalPorosity
       virtual double  MinimumMechanicalPorosity( ) const;

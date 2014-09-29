@@ -94,45 +94,6 @@ namespace GeoPhysics
       return m_compactionincr;
    }
 
-   ///DVoidRatioDVes
-   double ExponentialPorosity::DVoidRatioDVes(const double computedVoidRatio, const double ves, const double maxVes, const bool loadingPhase) const {
-
-      /* This is the derivative of the void-ratio w.r.t. ves with singular point */
-      /* If loadingPhase is TRUE then maxVes = ves */
-
-      double dpsi, cC1, cC2, dpsidphi;
-
-      //
-      //  d psi       d psi   d phi
-      //  -------  = ------   ------
-      //  d sigma     d phi   d sigma
-      //
-
-      cC1 = computedVoidRatio / (1.0 + computedVoidRatio);
-      cC2 = 1.0 - cC1;
-      dpsidphi = 1.0 / (cC2 * cC2);
-
-      if (loadingPhase) {
-         dpsi = -m_compactionincr * cC1 * dpsidphi;
-      }
-      else {
-         dpsi = -m_compactiondecr * cC1 * dpsidphi;
-      }
-
-      return dpsi;
-   }
-
-   ///PorosityDerivativeWrtVes
-   double ExponentialPorosity::PorosityDerivativeWrtVes(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
-
-      if (ves >= maxVes) {
-         return -m_compactionincr;
-      }
-      else {
-         return -m_compactiondecr;
-      }
-   }
-
    ///PorosityDerivative
    double ExponentialPorosity::PorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
 
@@ -157,32 +118,6 @@ namespace GeoPhysics
       }
 
       return porosityDerivative;
-   }
-
-   ///DVoidRatioDP
-   double ExponentialPorosity::DVoidRatioDP(const double ves, const double maxVes, const bool loadingPhase, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
-
-      const double Biot = 1.0;
-
-      double psi, dpsi;
-
-      /* This routine will return the derivative of the void-ratio (dpsi) */
-      /* using a cut-off value of psi.  */
-
-      double min_ves = 1.0e5; // 
-
-      //    double min_ves = 
-      //      Exponential_Minimum_Stress ( m_depositionalPorosity, maxVes, m_compactionincr, m_compactiondecr, loadingPhase );
-
-      double ves_used = NumericFunctions::Maximum(ves, min_ves);
-
-      double computedPorosity = porosity(ves_used, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-
-      psi = computedPorosity / (1.0 - computedPorosity);
-
-      dpsi = -Biot * DVoidRatioDVes(psi, ves_used, maxVes, loadingPhase);
-
-      return dpsi;
    }
 
    ///MinimumMechanicalPorosity
