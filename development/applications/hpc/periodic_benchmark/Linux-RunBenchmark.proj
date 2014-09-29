@@ -29,6 +29,7 @@
     <Exec Command="$(copy_code)" WorkingDirectory="$(solution_root)"/>
     <Exec Command="$(make_table_dir)"/>
     <Exec Command="$(run_benchmark)" />
+    <Exec Command="$(copy_build)" WorkingDirectory="$(OutDir)"/>
   </Target>
 
   <Target Name="Build">
