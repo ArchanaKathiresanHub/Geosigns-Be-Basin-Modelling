@@ -11,7 +11,6 @@
 
 #include "AbstractPropertyManager.h"
 
-#include "GeoPhysicsProjectHandle.h"
 
 namespace DerivedProperties {
 
@@ -22,7 +21,7 @@ namespace DerivedProperties {
 
    public :
 
-      DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle );
+      DerivedPropertyManager ( DataAccess::Interface::ProjectHandle* projectHandle );
 
       /// \brief Get the property given the property-name.
       ///
@@ -41,7 +40,7 @@ namespace DerivedProperties {
 
    protected :
       /// \brief The geophysics project handle
-      GeoPhysics::ProjectHandle* m_projectHandle;
+      DataAccess::Interface::ProjectHandle* m_projectHandle;
 
    private :
 

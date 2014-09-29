@@ -15,7 +15,7 @@
 #include "PrimaryFormationPropertyCalculator.h"
 #include "PrimaryFormationSurfacePropertyCalculator.h"
 
-DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( DataAccess::Interface::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    loadSurfacePropertyCalculators ();
    loadFormationSurfacePropertyCalculators ();
    loadFormationMapPropertyCalculators ();
@@ -89,7 +89,12 @@ void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators
 }
 
 bool DerivedProperties::DerivedPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
-   return m_projectHandle->getNodeIsValid ( i, j );
+   GeoPhysics::ProjectHandle * geoProjectHandle = dynamic_cast <GeoPhysics::ProjectHandle *>( m_projectHandle );
+   if( geoProjectHandle ) {
+      return geoProjectHandle->getNodeIsValid ( i, j );
+   } else {
+      return false;
+   }
 }
 
 const DataAccess::Interface::RunParameters*  DerivedProperties::DerivedPropertyManager::getRunParameters() const {

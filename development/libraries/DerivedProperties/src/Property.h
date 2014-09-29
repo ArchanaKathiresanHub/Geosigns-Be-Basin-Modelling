@@ -11,6 +11,7 @@ namespace DerivedProperties {
    public:
 
       Property () {};
+      virtual ~Property () {};
       
       ///  \brief Retrieve data in-or excluding ghost points according to specification
       virtual bool retrieveData ( bool withGhosts = false ) const;

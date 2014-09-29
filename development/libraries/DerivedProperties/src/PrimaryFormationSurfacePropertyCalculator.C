@@ -8,7 +8,7 @@
 
 #include "PrimaryFormationSurfaceProperty.h"
 
-DerivedProperties::PrimaryFormationSurfacePropertyCalculator::PrimaryFormationSurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
+DerivedProperties::PrimaryFormationSurfacePropertyCalculator::PrimaryFormationSurfacePropertyCalculator ( const DataAccess::Interface::ProjectHandle*   projectHandle,
                                                                                                           const DataModel::AbstractProperty* property ) :
    m_property ( property )
 {
