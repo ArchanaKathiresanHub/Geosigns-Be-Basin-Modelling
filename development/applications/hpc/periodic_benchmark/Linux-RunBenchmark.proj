@@ -6,6 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">RHEL6.4</Platform>
     <Deploy Condition=" '$(Deploy)' == '' ">False</Deploy>
     <DeployToHouston Condition=" '$(DeployToHouston)' == '' ">False</DeployToHouston>
+    <AllocatedProcessors Condition=" '$(AllocatedProcessors)' == '' ">1</AllocatedProcessors>
+	<ProcessorAllocation Condition=" '$(ProcessorAllocation)' == '' ">x</ProcessorAllocation>
   </PropertyGroup>
   
   <Import Project="$(MSBuildProjectDirectory)\..\..\..\BuildProjects\BasinModeling.Linux.Props.xml" />
@@ -14,8 +16,6 @@
     <BenchmarkTableDir Condition=" '$(BenchmarkTableDir)' == '' ">$(SWEast)/hpc/periodic-benchmark</BenchmarkTableDir>
     <BenchmarkTableFile Condition=" '$(BenchmarkTableFile)' == '' ">Results-$(Platform)-$(Configuration)</BenchmarkTableFile>
     <SimulatorOptions Condition=" '$(SimulatorOptions)' == '' ">-itcoupled</SimulatorOptions>
-    <AllocatedProcessors Condition=" '$(AllocatedProcessors)' == '' ">1</AllocatedProcessors>
-	<ProcessorAllocation Condition=" '$(ProcessorAllocation)' == '' ">x</ProcessorAllocation>
   </PropertyGroup>
   
   <PropertyGroup>
