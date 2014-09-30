@@ -100,6 +100,7 @@ do
         echo -ne "\n"
       ) >>  ${tabledir}/${tablefile}
 
+      echo ">>> Plotting results <<<"
       # Extract data from the graph
       sed -ne "/ok\\t${platform}\\t${configuration}\\t${nprocs}\\t${project}\\t${size}\\t${difficulty}/p" < ${tabledir}/${tablefile} > $selection
        
@@ -112,8 +113,9 @@ set datafile separator "\t"
 set xlabel "TFS Changeset"
 set ylabel "Running time (seconds)"
 set yrange [0:]
+set grid
 set title "The $size sized $difficulty difficulty project $project simulated\n with $simulator_options on $platform built as $configuration on $nprocs processors" 
-plot "$selection" using ${Xaxis}:10 title "Total time" with linespoints,\
+plot "$selection" using ${Xaxis}:10 title "Total time" with linespoints linewidth 4,\
      "$selection" using ${Xaxis}:11 title "System assembly time" with linespoints,\
      "$selection" using ${Xaxis}:12 title "System solve time" with linespoints,\
      "$selection" using ${Xaxis}:13 title "Other" with linespoints
@@ -125,7 +127,8 @@ EOF
    done
 done
 
-
+echo ">>> Copying table '${tablefile}' to drop folder <<<"
+cp ${tabledir}/${tablefile} ${installdir}
 
 popd
 
