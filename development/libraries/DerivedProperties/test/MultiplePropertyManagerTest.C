@@ -4,9 +4,9 @@
 #include "../src/AbstractPropertyManager.h"
 #include "../src/SurfacePropertyCalculator.h"
 #include "../src/DerivedSurfaceProperty.h"
+#include "../src/VesSurfaceCalculator.h"
 
 #include "MockSurface.h"
-#include "MockFormation.h"
 #include "MockSnapshot.h"
 #include "MockProperty.h"
 #include "MockGrid.h"
@@ -128,15 +128,14 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
 
    TestPropertyManager propertyManager;
 
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "LithoStaticPressure" );
    const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
    const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
-   const DataModel::AbstractProperty* property4 = propertyManager.getProperty ( "Property4" );
+   const DataModel::AbstractProperty* property4 = propertyManager.getProperty ( "Pressure" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
    const DataModel::AbstractSnapshot*  anotherSnapshot = new MockSnapshot ( 10.0 );
    const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
-   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
 
    const DataModel::AbstractSurface*   bottomSurface = new MockSurface ( "BottomSurface" );
 
@@ -168,16 +167,42 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
 
    delete snapshot;
    delete surface;
-   delete formation;
+}
+
+TEST ( AbstractPropertyManagerTest, VesTest )
+{
+
+   TestPropertyManager propertyManager;
+
+   const DataModel::AbstractProperty* lithostaticPressure = propertyManager.getProperty ( "LithoStaticPressure" );
+   const DataModel::AbstractProperty* pressure = propertyManager.getProperty ( "Pressure" );
+
+   const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
+   const DataModel::AbstractSnapshot*  anotherSnapshot = new MockSnapshot ( 10.0 );
+   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
+
+   SurfacePropertyPtr lithostaticPressureSurfaceProperty = propertyManager.getSurfaceProperty ( lithostaticPressure, snapshot, surface );
+   SurfacePropertyPtr pressureSurfaceProperty = propertyManager.getSurfaceProperty ( pressure, snapshot, surface );
+
+   const DataModel::AbstractProperty* ves = propertyManager.getProperty ( "Ves" );
+   SurfacePropertyPtr vesSurfaceProperty = propertyManager.getSurfaceProperty ( ves, snapshot, surface );
+
+   EXPECT_EQ ( ves, vesSurfaceProperty->getProperty ());
+   EXPECT_DOUBLE_EQ ( 52000000, vesSurfaceProperty->get ( 5, 7 ));
+   EXPECT_DOUBLE_EQ ( 72000000, vesSurfaceProperty->get ( 7, 5 ));
+
+   delete snapshot;
+   delete surface;
 }
 
 
 TestPropertyManager::TestPropertyManager () {
    // These will come from the project handle.
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "LithoStaticPressure" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Pressure" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Ves" ) );
    m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2" ) );
    m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3" ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property4" ) );
 
    // Add all properties to the property manager.
    for ( size_t i = 0; i < m_mockProperties.size (); ++i ) {
@@ -187,9 +212,10 @@ TestPropertyManager::TestPropertyManager () {
    // This will come from the project handle.
    m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
 
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator ));
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator )); 
    addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property2Calculator ( ValueToAdd )));
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property4Calculator ));
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property4Calculator )); 
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new VesSurfaceCalculator ));  
 }
 
 
@@ -234,7 +260,7 @@ bool TestPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned 
 }
 
 Property1Calculator::Property1Calculator () {
-   m_propertyNames.push_back ( "Property1" );
+   m_propertyNames.push_back ( "LithoStaticPressure" );
 }
 
 const std::vector<std::string>& Property1Calculator::getPropertyNames () const {
@@ -250,7 +276,7 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
    derivedProperties.clear ();
 
    if ( surface->getName () == "TopSurface" ) {
-      const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
+      const DataModel::AbstractProperty* property = propertyManager.getProperty ( "LithoStaticPressure" );
 
       DerivedSurfacePropertyPtr derivedProp = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( property, snapshot, surface, propertyManager.getMapGrid ()));
       double value = 0.0;
@@ -283,7 +309,7 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
                                       const DataModel::AbstractSurface*         surface,
                                       SurfacePropertyList&                derivedProperties ) const {
 
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "LithoStaticPressure" );
    const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
    const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
 
@@ -313,7 +339,7 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 }
 
 Property4Calculator::Property4Calculator () {
-   m_propertyNames.push_back ( "Property4" );
+   m_propertyNames.push_back ( "Pressure" );
 }
 
 const std::vector<std::string>& Property4Calculator::getPropertyNames () const {
@@ -326,9 +352,9 @@ void Property4Calculator::calculate ( DerivedProperties::AbstractPropertyManager
                                       const DataModel::AbstractSurface*           surface,
                                             SurfacePropertyList&                  derivedProperties ) const {
 
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "LithoStaticPressure" );
    const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
-   const DataModel::AbstractProperty* property4 = propertyManager.getProperty ( "Property4" );
+   const DataModel::AbstractProperty* property4 = propertyManager.getProperty ( "Pressure" );
 
    const SurfacePropertyPtr prop2 = propertyManager.getSurfaceProperty ( property2, snapshot, surface );
    const SurfacePropertyPtr prop1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );

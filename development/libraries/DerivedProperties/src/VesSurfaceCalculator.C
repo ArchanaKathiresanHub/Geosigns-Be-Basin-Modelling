@@ -1,10 +1,7 @@
 #include "AbstractPropertyManager.h"
 #include "DerivedSurfaceProperty.h"
 #include "DerivedPropertyManager.h"
-
-#include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
-#include "CompoundLithologyArray.h"
 
 #include "VesSurfaceCalculator.h"
 
@@ -43,8 +40,8 @@ void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::Abs
          
          for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
 
-            if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
-               
+            // if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
+            if( lithostaticPressure->get ( i, j ) != undefinedValue && porePressure->get ( i, j ) != porePressure->getUndefinedValue () ) {
                ves->set ( i, j, ( lithostaticPressure->get ( i, j ) - porePressure->get ( i, j )) * GeoPhysics::MPa_To_Pa );
             } else {
                ves->set ( i, j, undefinedValue );
