@@ -12,8 +12,6 @@
 
 add_executable(CASADemo src/main.C src/CfgFileParser.C src/MatlabExporter.C)
 
-message( "Bla bla bla: " ${SUMPP_INCLUDE_DIR} )
-
 bm_include_libraries(
    casaAPI
    cmbAPI

@@ -311,6 +311,7 @@ void MatlabExporter::exportScenario( ScenarioAnalysis & sc, const std::string & 
    ofs << "BaseCaseName  = '" << baseCaseName << "';\n";
    ofs << "PathToCaseSet = '" << location << "';\n";
 
+   sc.doeCaseSet().filterByExperimentName( "" );
    if ( !sc.doeCaseSet().size() )
    {
       ofs << "# Empty case set no data to print\n\n";
