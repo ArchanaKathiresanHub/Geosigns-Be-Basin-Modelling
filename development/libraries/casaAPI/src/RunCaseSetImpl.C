@@ -46,11 +46,13 @@ const RunCase * RunCaseSetImpl::operator[] ( size_t i ) const
       
 
 // Set filter for experiments by experiment name
-void RunCaseSetImpl::filterByExperimentName( const std::string expName )
+void RunCaseSetImpl::filterByExperimentName( const std::string & expName )
 {
    // reset previous filter any case
    m_expIndSet.clear();
    m_filter = expName;
+
+   if ( m_filter.empty() ) return;
 
    std::map< std::string, std::vector<size_t> >::iterator ret;
 
@@ -63,12 +65,12 @@ void RunCaseSetImpl::filterByExperimentName( const std::string expName )
 }
 
 // Get all experiment names for this case set as an array
-std::vector< std::string > RunCaseSetImpl::experimentNames( )
+std::vector< std::string > RunCaseSetImpl::experimentNames() const
 {
    std::vector<std::string> expSet;
 
    // loop over all experiments and collect names
-   for ( std::map<std::string, std::vector<size_t> >::iterator it = m_expSet.begin(); it != m_expSet.end(); ++it )
+   for ( std::map<std::string, std::vector<size_t> >::const_iterator it = m_expSet.begin(); it != m_expSet.end(); ++it )
    {
       expSet.push_back( it->first );
    }

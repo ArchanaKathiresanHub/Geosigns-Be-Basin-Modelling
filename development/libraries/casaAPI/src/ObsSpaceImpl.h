@@ -37,7 +37,7 @@ public:
    virtual size_t size() const { return m_obsSet.size(); } 
 
    // get i-th observable
-   Observable * operator[] ( size_t i ) { return m_obsSet[ i ]; }
+   Observable * operator[] ( size_t i ) const { return m_obsSet[ i ]; }
 
    // Constructor/Destructor
    ObsSpaceImpl() { ; }

@@ -5,8 +5,6 @@
 #if (defined (_WIN32) || defined (_WIN64))
 #define NOMINMAX
 #include <stdafx.h>
-#else
-#include <values.h>
 #endif
 
 #include <assert.h>

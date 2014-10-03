@@ -22,10 +22,19 @@ namespace casa
    class VarPrmTopCrustHeatProduction : public VarPrmContinuous
    {
    public:
+      /// @brief Construct variable parameter for the top crust heat production rate
+      /// @param baseValue base value
+      /// @param minValue  minimal range value
+      /// @param maxValue  maximal range value
       VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType );
+
+      /// @brief Destructor
       virtual ~VarPrmTopCrustHeatProduction();
 
-      virtual Parameter * createNewParameterFromDouble( const std::vector<double> & vals ) const;
+      /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
+      /// @param[in,out] vals iterator which points to the first sub-parameter value
+      /// @return new casa::PrmTopCrustHeatProduction  parameter
+      virtual SharedParameterPtr createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const;
 
    protected:
    };

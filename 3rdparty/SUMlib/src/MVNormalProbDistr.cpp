@@ -16,7 +16,7 @@ namespace SUMlib {
 
 /**
  *  n dimensional Normal probability distribution
- *  with mean m and correlationmatrix c
+ *  with mean m and covariance matrix c
  *
  *  p(x;m,c) = [(2.pi)^n det(c)]^(-0.5) exp[ -0.5 tr(x-m) . inv(c) . (x-m) ]
  *
@@ -44,22 +44,16 @@ MVNormalProbDistr::MVNormalProbDistr( )
 
 MVNormalProbDistr::MVNormalProbDistr(
       const std::vector<double>& mean,
-      const std::vector<std::vector<double> >& cormat,
-      const std::vector<double>& min,
-      const std::vector<double>& max )
+      const std::vector<std::vector<double> >& covmat )
 {
-   assert( mean.size() == cormat.size() );
-   assert( mean.size() == max.size() );
-   assert( min.size() == max.size() );
-   initialise( mean, cormat, min, max );
+   assert( mean.size() == covmat.size() );
+   initialise( mean, covmat );
 }
 
 MVNormalProbDistr::MVNormalProbDistr( ParameterPdf const& pdf )
 {
    assert( pdf.covariance().size() == pdf.sizeCon() );
-   m_disWeights = pdf.disWeights();
-   assert( m_disWeights.size() == pdf.sizeDis() );
-   initialise( pdf.scaledOrdinalBase(), pdf.covariance(), pdf.low().ordinalPart(), pdf.high().ordinalPart() );
+   initialise( pdf.scaledOrdinalBase(), pdf.covariance() );
 }
 
 MVNormalProbDistr::~MVNormalProbDistr( )
@@ -68,36 +62,36 @@ MVNormalProbDistr::~MVNormalProbDistr( )
 }
 
 /**
- *  Initialise the distribution by specifying the untruncated mean and
- *  variance matrix.
- *  The initialisation calculates m_a and m_w from the variance matrix.
+ *  Initialise the PDF by specifying the untruncated mean and covariance matrix.
+ *  The initialisation calculates m_a and m_w from the covariance matrix.
  */
 void MVNormalProbDistr::initialise(
       const std::vector<double>& base,
-      const std::vector<std::vector<double> >& cormat,
-      const std::vector<double>& min,
-      const std::vector<double>& max )
+      const std::vector<std::vector<double> >& covmat )
 {
-   m_min = min;
-   m_max = max;
-   m_acceptedMin = m_min;
-   m_acceptedMax = m_max;
    m_base = base;
+   m_sampleMin.resize( m_base.size() );
+   m_sampleMax.resize( m_base.size() );
+   for ( size_t i = 0; i < m_base.size(); ++i )
+   {
+      m_sampleMin[i] = MinInf;
+      m_sampleMax[i] = -MinInf;
+   }
    m_mean = m_base;
-   m_mean.resize( cormat.size() ); //m_mean is continuous part of m_base
+   m_mean.resize( covmat.size() ); //m_mean is continuous part of m_base
 
    // Check that the covariance matrix is OK
-   ParameterPdf::checkCovarianceMatrix ( cormat );
+   ParameterPdf::checkCovarianceMatrix ( covmat );
 
    // Prepare for singular value decomposition of m_cormat
    // Clear the storage for SVD matrices m_a and m_w
    m_a.clear();
-   m_a = cormat;
+   m_a = covmat;
 
    m_w.clear();
-   m_w.resize( cormat.size(), 0 );
+   m_w.resize( covmat.size(), 0 );
 
-   std::vector<std::vector<double> > v( cormat.size(), m_w ); // m_w is filled with zeroes
+   std::vector<std::vector<double> > v( covmat.size(), m_w ); // m_w is filled with zeroes
 
    // Use singular value decomposition: C = U . W . tr(V) with
    // C symmetric and positive definite
@@ -113,7 +107,7 @@ void MVNormalProbDistr::initialise(
    }
 
    // Check the results
-   check( v, cormat );
+   check( v, covmat );
 }
 
 // Check singular value decomposition:
@@ -122,23 +116,23 @@ void MVNormalProbDistr::initialise(
 
 void MVNormalProbDistr::check(
       const std::vector<std::vector<double> >& v,
-      const std::vector<std::vector<double> >& cormat ) const
+      const std::vector<std::vector<double> >& covmat ) const
 {
-   std::vector<std::vector<double> > res(cormat.size());
+   std::vector<std::vector<double> > res(covmat.size());
 
-   for ( size_t i = 0; i < cormat.size(); ++i )
+   for ( size_t i = 0; i < covmat.size(); ++i )
    {
-      res[i].resize( cormat.size() );
-      for ( size_t j = 0; j < cormat.size(); ++j )
+      res[i].resize( covmat.size() );
+      for ( size_t j = 0; j < covmat.size(); ++j )
       {
          res[i][j] = 0;
-         for ( size_t k = 0; k < cormat.size(); ++k )
+         for ( size_t k = 0; k < covmat.size(); ++k )
             res[i][j] += m_w[k] * m_a[i][k] * v[j][k];
 
          // Check C == U . W . tr(V)
-         double tmp = ::fabs( res[i][j] - cormat[i][j] );
+         double tmp = ::fabs( res[i][j] - covmat[i][j] );
          if ( tmp > 1e-6 )
-            throw "1. Singular value decomposition on variance matrix failed";
+            throw "1. Singular value decomposition on covariance matrix failed";
 
          // Check U == V
          tmp = 0;
@@ -146,18 +140,18 @@ void MVNormalProbDistr::check(
          if (m_w[j] > 1e-9)
             tmp = ::fabs( m_a[i][j] - v[i][j] );
          if ( tmp > 1e-6 )
-            throw "2. Singular value decomposition on variance matrix failed";
+            throw "2. Singular value decomposition on covariance matrix failed";
       }
    }
 
    // Check m_a . (1/w) . tr(m_a) == inv(c)
    bool wzero = false;
-   for ( size_t i = 0; i < cormat.size(); ++i )
+   for ( size_t i = 0; i < covmat.size(); ++i )
    {
-      for ( size_t j = 0; j < cormat.size(); ++j )
+      for ( size_t j = 0; j < covmat.size(); ++j )
       {
          res[i][j] = 0;
-         for ( size_t k = 0; k < cormat.size(); ++k )
+         for ( size_t k = 0; k < covmat.size(); ++k )
             if (m_w[k] > 1e-9)
                res[i][j] += m_a[i][k] * m_a[j][k] / m_w[k];
             else
@@ -166,23 +160,23 @@ void MVNormalProbDistr::check(
    }
    if (!wzero)
    {
-      for ( size_t i = 0; i < cormat.size(); ++i )
+      for ( size_t i = 0; i < covmat.size(); ++i )
       {
-         for ( size_t j = 0; j < cormat.size(); ++j )
+         for ( size_t j = 0; j < covmat.size(); ++j )
          {
             double tmpij = 0;
-            for ( size_t k = 0; k < cormat.size(); ++k )
-               tmpij += res[i][k] * cormat[k][j];
+            for ( size_t k = 0; k < covmat.size(); ++k )
+               tmpij += res[i][k] * covmat[k][j];
 
                // This should be the unity matrix
             if ( ::fabs( tmpij - ((i==j)?1:0) ) > 1e-3 )
-               throw "3. Singular value decomposition on variance matrix failed";
+               throw "3. Singular value decomposition on covariance matrix failed";
          }
       }
    }
 }
 
-void MVNormalProbDistr::setBounds( RealVector const& min, RealVector const& max )
+void MVNormalProbDistr::setSamplingBounds( RealVector const& min, RealVector const& max )
 {
    if ( min.size() != max.size() )
    {
@@ -192,14 +186,14 @@ void MVNormalProbDistr::setBounds( RealVector const& min, RealVector const& max 
    {
       THROW2( DimensionMismatch, "Boundary values lists do not match the size of the parameters in the distribution" );
    }
-   m_acceptedMin = min;
-   m_acceptedMax = max;
+   m_sampleMin = min;
+   m_sampleMax = max;
 }
 
 /**
  *  Sample from a Gaussian distribution. The number of samples equals the size
  *  of the vector p which receives the sample values. Sample values outside the
- *  given bounds are not stored, but are counted in the total number of
+ *  sample bounds are not stored, but are counted in the total number of
  *  needed draws. The total of needed draws to create the sample is returned.
  */
 
@@ -224,7 +218,7 @@ int MVNormalProbDistr::priorSample( RandomGenerator& rg, std::vector<double>& p 
          ++icount;
 
          // Check the bounds
-         if ( ! ( p[i] < m_acceptedMin[i] ) && ! ( p[i] > m_acceptedMax[i] ) )
+         if ( ! ( p[i] < m_sampleMin[i] ) && ! ( p[i] > m_sampleMax[i] ) )
          {
             inbounds = true;
          }
@@ -261,7 +255,7 @@ int MVNormalProbDistr::noPriorSample( RandomGenerator& rg, std::vector<double>& 
 
 double MVNormalProbDistr::uniformSample( RandomGenerator& rg, size_t k ) const
 {
-   double sample = m_acceptedMin[k] + ( m_acceptedMax[k] - m_acceptedMin[k] ) * rg.uniformRandom();
+   double sample = m_sampleMin[k] + ( m_sampleMax[k] - m_sampleMin[k] ) * rg.uniformRandom();
 
    return sample;
 }
@@ -269,7 +263,7 @@ double MVNormalProbDistr::uniformSample( RandomGenerator& rg, size_t k ) const
 /**
  *  Sample the distribution. The number of samples equals the size of the
  *  vector p which receives the sample values. Sample values outside the
- *  given bounds are not stored, but are counted in the total number of
+ *  sample bounds are not stored, but are counted in the total number of
  *  needed draws. The total of needed draws to create the sample is returned.
  */
 
@@ -320,19 +314,7 @@ double MVNormalProbDistr::calcLogPriorProb( Parameter const& p ) const
    }
    lh *= -0.5;
 
-   // Loop over the discrete parameters
-   for ( size_t i = sizeCon(); i < size(); ++i )
-   {
-      // Define relative position of p[i] between 0 and 1
-      size_t disIdx = i - sizeCon();
-      double range = m_max[i] - m_min[i];
-      assert( range > 0.0 );
-      double rel_p = ( p[i] - m_min[i] ) / range;
-
-      // Update lh
-      std::vector<double> weights = m_disWeights[disIdx];
-      lh += calcLogWeight( rel_p, weights );
-   }
+   // Ignore the discrete parameters as they cannot be normally distributed.
 
    return lh;
 }

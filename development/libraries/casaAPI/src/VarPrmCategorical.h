@@ -16,6 +16,7 @@
 
 #include "Parameter.h"
 #include "Enumeration.h"
+#include "VarParameter.h"
 
 #include <memory>
 #include <vector>
@@ -29,20 +30,37 @@ namespace casa
 {
 
    /// @brief Class to manage categorical variable parameter type
-   class VarPrmCategorical
+   class VarPrmCategorical : public VarParameter
    {
    public:
       /// @brief Destructor
       virtual ~VarPrmCategorical() {;}
 
-      /// @brief Get list of categorical parameter values as sorted list of unsigned integers
+      /// @brief Define this variable parameter as a categorical
+      /// @return VarParameter::Categorical
+      virtual Type variationType() const { return Categorical; }
+
+      /// @brief A parameter which corresponds the minimal range value of the variable parameter 
+      /// @return the parameter object which should not be deleted by a caller
+      virtual const SharedParameterPtr minValue() const = 0;
+
+      /// @brief A parameter which corresponds the maximal range value of the variable parameter 
+      /// @return the parameter object should be deleted by a caller
+      virtual const SharedParameterPtr maxValue() const = 0;
+
+      /// @brief A parameter which corresponds the base value of the variable parameter 
+      /// @return the parameter object which should not be deleted by a caller
+      virtual const SharedParameterPtr baseValue() const = 0;
+
+      /// @brief Get list of categorical parameter values as sorted list of unsigned integers. \n
+      ///        Enumeration of categorical values must start from zero
       virtual std::vector< unsigned int> valuesAsUnsignedIntSortedSet() const = 0;
 
       /// @brief Create a copy of the parameter and assign to the given value. If value is not in var. parameter values set,\n
       ///        the method will return a zero pointer
       /// @param val new value for parameter
       /// @return the new parameter object which should be deleted by the caller itself
-      virtual Parameter * createNewParameterFromUnsignedInt( unsigned int val ) const = 0;
+      virtual SharedParameterPtr createNewParameterFromUnsignedInt( unsigned int val ) const = 0;
 
    protected:
       VarPrmCategorical() {;}

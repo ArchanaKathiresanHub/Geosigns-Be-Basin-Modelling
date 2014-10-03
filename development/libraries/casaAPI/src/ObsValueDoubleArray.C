@@ -23,7 +23,7 @@ namespace casa
 
       if ( m_value.size() && m_parent && m_parent->hasReferenceValue() )
       {
-         ObsValueDoubleArray * refVal = dynamic_cast<ObsValueDoubleArray*>( m_parent->referenceValue() );
+         const ObsValueDoubleArray * refVal = dynamic_cast<const ObsValueDoubleArray*>( m_parent->referenceValue() );
    
          if ( refVal )
          {

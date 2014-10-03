@@ -36,6 +36,15 @@ class INTERFACE_SUMLIB McmcProxy : public Proxy
       /// The standard deviation for the reference value
       /// @returns the standard deviation value
       virtual double getStdDeviation() const = 0;
+      
+      /// Set whether the reference value of the proxy should be used
+      /// @param [in] active  true if the reference value must be used.
+      virtual void setUsed( bool active ) = 0;
+      
+      /// Set the reference value and the standard deviation
+      /// @param [in] reference reference value (actual or synthetic measurement)
+      /// @param [in] stddev    standard deviation of the measurement
+      virtual void setReference( double reference, double stddev ) = 0;
 
       /// Calculate the error of a specified value with respect to the reference value,
       /// scaled by the standard deviation

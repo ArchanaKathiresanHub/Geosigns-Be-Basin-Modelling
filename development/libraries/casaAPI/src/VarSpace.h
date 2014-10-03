@@ -51,6 +51,16 @@ namespace casa
       /// @return number of categorical parameters
       virtual size_t numberOfCategPrms() const = 0;
 
+      /// @brief Get i-th continuous parameter from the list
+      /// @param i continuous parameter number
+      /// @return pointer to the requested continuous parameter on success or zero pointer otherwise
+      virtual const VarPrmContinuous * continuousParameter( size_t i ) const = 0;
+
+      /// @brief Get i-th categorical parameter from the list
+      /// @param i categorical parameter number
+      /// @return pointer to the requested categorical parameter on success or zero pointer otherwise
+      virtual const VarPrmCategorical * categoricalParameter( size_t i ) const = 0;
+
    protected:
       VarSpace() {;}
       virtual ~VarSpace() {;}

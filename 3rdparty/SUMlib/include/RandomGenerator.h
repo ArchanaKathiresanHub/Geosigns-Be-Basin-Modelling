@@ -18,7 +18,7 @@ namespace SUMlib {
 
 class INTERFACE_SUMLIB RandomGenerator
 {
-   int m_ma[55];
+   int m_ma[56];
    int m_inext;
    int m_inextp;
 

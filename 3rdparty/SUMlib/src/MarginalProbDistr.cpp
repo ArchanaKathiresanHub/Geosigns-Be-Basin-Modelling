@@ -19,16 +19,16 @@ namespace SUMlib {
 MarginalProbDistr::MarginalProbDistr(
       const vector<double>& base,
       const vector<vector<double> >& cov,
-      const vector<double>& low,
-      const vector<double>& high,
+      const vector<double>& pdfMin,
+      const vector<double>& pdfMax,
       const vector<Type>& types, /* vector<Type>() */
       unsigned int logNormalInfo /* 1 */
       )
 {
    assert( base.size() == cov.size() );
-   assert( base.size() == high.size() );
-   assert( low.size() == high.size() );
-   initialise( base, cov, low, high, low, high, types, logNormalInfo );
+   assert( base.size() == pdfMax.size() );
+   assert( pdfMin.size() == pdfMax.size() );
+   initialise( base, cov, pdfMin, pdfMax, types, logNormalInfo );
 }
 
 MarginalProbDistr::MarginalProbDistr(
@@ -41,18 +41,14 @@ MarginalProbDistr::MarginalProbDistr(
    m_disWeights = pdf.disWeights();
    assert( m_disWeights.size() == pdf.sizeDis() );
 
-   vector<double> low = pdf.low().ordinalPart();
-   vector<double> high = pdf.high().ordinalPart();
    vector<double> pdfMin = pdf.lowestNonFrozenOrdParams();
    vector<double> pdfMax = pdf.highestNonFrozenOrdParams();
-   initialise( pdf.scaledOrdinalBase(), pdf.covariance(), low, high, pdfMin, pdfMax, types, logNormalInfo );
+   initialise( pdf.scaledOrdinalBase(), pdf.covariance(), pdfMin, pdfMax, types, logNormalInfo );
 }
 
 void MarginalProbDistr::initialise(
       const vector<double>& base,
       const vector<vector<double> >& cov,
-      const vector<double>& low,
-      const vector<double>& high,
       const vector<double>& pdfMin,
       const vector<double>& pdfMax,
       const vector<Type>& types, /* vector<Type>() */
@@ -70,10 +66,10 @@ void MarginalProbDistr::initialise(
    m_base = base;
    m_mean = m_base;
    m_mean.resize( cov.size() ); //m_mean is continuous part of m_base
-   m_low = low;
-   m_high = high;
    m_pdfMin = pdfMin;
    m_pdfMax = pdfMax;
+   m_sampleMin = m_pdfMin;
+   m_sampleMax = m_pdfMax;
    m_types = types.empty() ? vector<Type>( cov.size(), Uniform ) : types;
    m_stdev.resize( cov.size() );
    for ( size_t i = 0; i < cov.size(); ++i )
@@ -103,6 +99,20 @@ MarginalProbDistr::~MarginalProbDistr()
 void MarginalProbDistr::setTypes( vector<MarginalProbDistr::Type> const& types )
 {
    m_types = types;
+}
+
+void MarginalProbDistr::setSamplingBounds( const std::vector<double>& min, const std::vector<double>& max )
+{
+   if ( min.size() != max.size() )
+   {
+      THROW2( DimensionMismatch, "Minimum values list and maximum values list must have equal size" );
+   }
+   if ( m_sampleMin.size() != min.size() )
+   {
+      THROW2( DimensionMismatch, "Boundary values lists do not match the size of the parameters in the distribution" );
+   }
+   m_sampleMin = min;
+   m_sampleMax = max;
 }
 
 void MarginalProbDistr::initLogNormal2(
@@ -235,20 +245,49 @@ double MarginalProbDistr::calcLogPriorProb( Parameter const& p ) const
       logProb += val;
    }
 
-   // Loop over the discrete parameters
-   for ( size_t i = m_mean.size(); i < p.size(); ++i )
-   {
-      // Define relative position of p[i] between 0 and 1
-      size_t disIdx = i - m_mean.size();
-      double range = m_high[i] - m_low[i];
-      assert( range > 0.0 );
-      double rel_p = ( p[i] - m_low[i] ) / range;
-
-      // Update logProb
-      const vector<double>& weights = m_disWeights[disIdx];
-      logProb += calcLogWeight( rel_p, weights );
-   }
+   calcLogDisWeights( p, true, logProb );
 
    return logProb;
+}
+
+double MarginalProbDistr::correct4DISbounds( Parameter const& p ) const
+{
+   assert( p.size() == m_base.size() );
+
+   double logCorr = 0.0;
+   calcLogDisWeights( p, false, logCorr );
+
+   return logCorr;
+}
+
+void MarginalProbDistr::calcLogDisWeights( Parameter const& p, bool prior, double& logProb ) const
+{
+   // Loop over the discrete parameters   
+   for ( size_t i = m_mean.size(); i < p.size(); ++i )
+   {
+      // First determine boundary indices i1 and i2 that correspond to the sampling bounds
+      size_t disIdx = i - m_mean.size();
+      size_t nW = m_disWeights[disIdx].size() - 1;
+      assert( nW > 0 );
+      double totRange = m_pdfMax[i] - m_pdfMin[i];
+      assert( totRange > 0.0 );
+      size_t i1 = int( ( m_sampleMin[i] - m_pdfMin[i] ) * nW / totRange + 0.5 );
+      size_t i2 = int( ( m_sampleMax[i] - m_pdfMin[i] ) * nW / totRange + 0.5 );
+      if ( i2 > i1 )
+      {
+         vector<double> weights( i2 - i1 + 1 );
+         for ( size_t j = 0; j < weights.size(); ++j )
+         {
+            // Only consider unit weights if prior = false
+            weights[j] = prior ? m_disWeights[disIdx][i1 + j] : 1.0;
+         }
+         // Now define relative position of p[i] between 0 and 1, and update logProb
+         double sampleRange = m_sampleMax[i] - m_sampleMin[i];
+         assert( sampleRange > 0.0 );
+         double rel_p = ( p[i] - m_sampleMin[i] ) / sampleRange;
+         logProb += calcLogWeight( rel_p, weights );
+      }
+      // else nothing: p[i] is effectively frozen -> logProb is also frozen and cancels out
+   }
 }
 } // namespace SUMlib

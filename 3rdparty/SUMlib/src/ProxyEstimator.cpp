@@ -148,10 +148,18 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
    assert( nrOrdPars <= nrPars ); //number of ordinal parameters cannot exceed total number of parameters
    assert( nrPars < Nord2 ); //total number of parameters must be smaller than the number of all 2nd order terms
    assert( Nord2 < Ncrit ); //number of all 3rd order terms excl. 3-way interaction terms > number of all 2nd order terms
-   assert( order < 3 );
+   assert( order < 3 || order == 9 );
    assert( iCandidate < code.size() );
+   
+   // Handle special case first: no categorical parameter(s) present AND only allow up to pure quadratic terms
+   if ( nrOrdPars == nrPars && order == 9 )
+   {
+      assert( code[iCandidate].size() < 3 );
+      if ( code[iCandidate].size() == 2 && code[iCandidate][0] != code[iCandidate][1] ) return false;
+   }
 
-   if ( ( nrOrdPars == nrPars ) && ( order == 0 ) ) //no categorical parameter(s) present
+   // If no categorical parameter(s) present AND order is at default
+   if ( nrOrdPars == nrPars && order == 0 )
    {
       if ( N <= 1 + nrPars )
       {
@@ -168,23 +176,48 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
       // Only accept 3-way interaction term if it helps convergence
       else if ( !allow3WayX && threeWayXterm( code, iCandidate ) ) return false;
    }
-   else if ( nrOrdPars < nrPars ) //other logic if categorical parameter(s) are present
-   {
-      unsigned int ao = ( order == 1 ? order : 2 ); //locally applied order
 
-      // Reject higher order terms that makes no sense from a user perspective
-      if ( code[iCandidate].size() == 2 )
+   // Else if categorical parameter(s) are present: Reject higher order terms that make no sense from a user perspective
+   else if ( nrOrdPars < nrPars )
+   {
+      // If the user just asks for intercepts (user order = 0) with auto-search = OFF, then reject any other term
+      if ( order == -1 ) //-1 is special flag indicating user order = 0 with no wish for auto search
       {
-         if ( !CubicProxy::validOrder2Var( ao, nrOrdPars, code[iCandidate][1], code[iCandidate][0] ) )
+         if ( code[iCandidate].size() == 1 )
          {
-            return false;
+            if ( code[iCandidate][0] < nrOrdPars ) return false;
+         }
+         else if ( code[iCandidate].size() == 2 )
+         {
+            if ( !CubicProxy::validOrder2Var( 0, nrOrdPars, code[iCandidate][1], code[iCandidate][0] ) )
+            {
+               return false;
+            }
+         }
+         else if ( code[iCandidate].size() == 3 )
+         {
+            if ( !CubicProxy::validOrder3Var( 0, nrOrdPars, code[iCandidate][2], code[iCandidate][1], code[iCandidate][0] ) )
+            {
+               return false;
+            }
          }
       }
-      else if ( code[iCandidate].size() == 3 )
+      else
       {
-         if ( !CubicProxy::validOrder3Var( ao, nrOrdPars, code[iCandidate][2], code[iCandidate][1], code[iCandidate][0] ) )
+         unsigned int ao = ( order == 0 ) ? 2 : order; //ao is a locally applied order
+         if ( code[iCandidate].size() == 2 )
          {
-            return false;
+            if ( !CubicProxy::validOrder2Var( ao, nrOrdPars, code[iCandidate][1], code[iCandidate][0] ) )
+            {
+               return false;
+            }
+         }
+         else if ( code[iCandidate].size() == 3 )
+         {
+            if ( !CubicProxy::validOrder3Var( ao, nrOrdPars, code[iCandidate][2], code[iCandidate][1], code[iCandidate][0] ) )
+            {
+               return false;
+            }
          }
       }
 
@@ -210,29 +243,6 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
                {
                   return false; //only accept 3rd order monomial with no or one ordinal parameter
                }
-            }
-         }
-      }
-
-      // If the user just asks for intercepts (order = 0) with auto-search = OFF, then reject any other term
-      if ( order == -1 ) //-1 is special flag indicating user order = 0 without auto search
-      {
-         if ( code[iCandidate].size() == 1 )
-         {
-            if ( code[iCandidate][0] < nrOrdPars ) return false;
-         }
-         else if ( code[iCandidate].size() == 2 )
-         {
-            if ( !CubicProxy::validOrder2Var( 0, nrOrdPars, code[iCandidate][1], code[iCandidate][0] ) )
-            {
-               return false;
-            }
-         }
-         else if ( code[iCandidate].size() == 3 )
-         {
-            if ( !CubicProxy::validOrder3Var( 0, nrOrdPars, code[iCandidate][2], code[iCandidate][1], code[iCandidate][0] ) )
-            {
-               return false;
             }
          }
       }
@@ -382,9 +392,13 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
       }
 
       // Find only influential variables that honor the specified order > 0
-      if ( userOrder > 0 )
+      if ( userOrder == 1 )
       {
          nConsideredVars = CubicProxy::numVars( numPar, userOrder );
+      }
+      else if ( userOrder == 2 || userOrder == 9 )
+      {
+         nConsideredVars = CubicProxy::numVars( numPar, 2 );
       }
       else //order = 0
       {
@@ -410,20 +424,21 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    if ( ! search && ( nActiveVars >= getNrCases() ) )
    {
       // The supplied vars cannot be handled as too few cases are available
+      search = true; //no other choice than using auto search (from scratch)
+      targetR2 = 1.0; //maximum target value here as the user did not ask for auto search
       activeVars.clear(); //remove the supplied vars to enable model building from scratch
       nActiveVars = 0;
 
       // Find only influential variables that honor the specified order
-      if ( nbOrdPars == numPar ) //no categorical parameter(s) present, so order is 1 or 2 here!
+      if ( nbOrdPars == numPar ) //no categorical parameter(s) present, so order > 0 here!
       {
-         nConsideredVars = CubicProxy::numVars( numPar, userOrder );
+         unsigned int appliedOrder = ( userOrder == 9 ) ? 2 : userOrder;
+         nConsideredVars = CubicProxy::numVars( numPar, appliedOrder );
       }
       else if ( userOrder == 0 ) //categorical parameter(s) present AND user wants intercepts only
       {
          order = -1; //flag needed in approveCandidate() to look for different intercept terms
       }
-      search = true; //no other choice than using auto search (from scratch)
-      targetR2 = 1.0; //maximum target value here as the user did not ask for auto search
    }
 
    // The total number of considered variables

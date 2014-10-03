@@ -46,7 +46,7 @@ namespace casa
       /// @brief Filtering run cases which are correspond to the given experiment name. After applying filter, the size() and [] operator\n
       ///        will return only expName related run cases. Such filtering allows to keep different DoE & MC runs in one container.
       /// @param expName experiment name
-      virtual void filterByExperimentName( const std::string expName ) = 0;
+      virtual void filterByExperimentName( const std::string & expName ) = 0;
 
       /// @brief Returns experiment name which was set as a filter
       /// @return filter as a string, or empty string if it wasn't set
@@ -54,7 +54,11 @@ namespace casa
 
       /// @brief Get all experiment names for this case set as an array
       /// @return list of experiment names as an array
-      virtual std::vector< std::string > experimentNames() = 0;
+      virtual std::vector< std::string > experimentNames() const = 0;
+
+      /// @brief Is set empty
+      /// @return true if set is empty, false otherwise
+      virtual bool empty() const = 0;
 
    protected:
       RunCaseSet( ) { ; }

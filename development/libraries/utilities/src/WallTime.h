@@ -3,12 +3,13 @@
 
 #include "stdafx.h"
 
-#if defined(__linux__)
-#include <sys/time.h>
-#elif defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 #include <WinSock.h>
 #include <time.h>
+#else
+#include <sys/time.h>
 #endif
+
 #include <iostream>
 
 namespace WallTime {

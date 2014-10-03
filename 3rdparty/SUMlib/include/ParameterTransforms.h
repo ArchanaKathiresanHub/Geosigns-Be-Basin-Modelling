@@ -27,6 +27,9 @@ namespace SUMlib
 /// @class ParameterTransforms
 /// @brief Class handling the transformations on parameters. Transformations can only be applied on the continuous
 ///        parameters. For all non-trivial transforms the original bounds, as given in the parameter space, are used.
+///
+///        Notes:
+///        * Transforms for all continous Parameters should be given. The fixed Parameters are ignored.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class INTERFACE_SUMLIB ParameterTransforms : public ISerializable
 {
@@ -35,14 +38,18 @@ class INTERFACE_SUMLIB ParameterTransforms : public ISerializable
 
       enum TransformType
       {
-         transformNone,    //! No, or trivial transform:     x -> x.
-         transformLog,     //! Log transform:                x -> log(x).
-         transformInv,     //! Inverse/reciprocal transform: x -> 1/x.
-         transformSqrt     //! Square-root transform:        x -> sqrt(x).
+         transformConst = 0,  //! Constant transform:           x -> 0.
+         transformNone,       //! No, or trivial transform:     x -> x.
+         transformLog,        //! Log transform:                x -> log(x).
+         transformInv,        //! Inverse/reciprocal transform: x -> 1/x.
+         transformSqrt,       //! Square-root transform:        x -> sqrt(x).
+         numTransforms        //! Number of transforms.
       };
 
+
       /// Constructor.
-      /// @param [in] transformDef        for every continuous parameter the transform type is specified.
+      /// @param [in] transformDef        for every continuous parameter the transform type is specified. This includes the
+      ///                                 transforms for the fixed parameters. These will be filtered out.
       /// @param [in] parSpace            the parameter space contains information about the scaling of the transforms.
       ParameterTransforms( const std::vector< TransformType >& transformDef, const ParameterSpace& parSpace );
 
@@ -57,6 +64,13 @@ class INTERFACE_SUMLIB ParameterTransforms : public ISerializable
       ///                              SUMlib case (i.e. scaled between [-1, 1]).
       /// @return the transformed parameter.
       Parameter apply( const Parameter& parameter ) const;
+
+
+      /// Check if the transforms contained in this instance are all valid.
+      /// @param [in] parIndicesWithInvalidTransforms the parameter indices that have invalid transforms.
+      /// @param [in] reason                          this string will contain the reason in case the transform is not valid.
+      /// @return true iff the transform type with the attributes is a valid transform.
+      bool isValid( std::vector< size_t >& parIndicesWithInvalidTransforms, std::vector< std::string >& reasons ) const;
 
       /// Check if the transform is valid.
       /// @param [in] transformType    the transform type enumeration.
@@ -83,10 +97,14 @@ class INTERFACE_SUMLIB ParameterTransforms : public ISerializable
 
    private:
       bool                                         m_isTrivial;         //! True iff all components have trivial transformations.
-      std::vector< IParameterComponentTransform* > m_transforms;        //! Transformations for every continuous parameter component.
-      std::vector< TransformType >                 m_transformDefs;     //! Transformation definitions.
+      std::vector< IParameterComponentTransform* > m_transforms;        //! Transformations for every non-fixed continuous parameter component.
+      std::vector< TransformType >                 m_transformDefs;     //! Transformation definitions for all continuous parameters (including fixed).
+                                                                        //! Note that this implies m_transformDefs.size() != m_transforms.size() in general.
       ParameterSpace                               m_parSpace;          //! Parameter space.
 };
+
+/// Readability typedef
+typedef std::vector< ParameterTransforms::TransformType > ParameterTransformTypeVector;
 
 } /// namespace SUMlib
 

@@ -26,10 +26,10 @@ VarPrmSourceRockTOC::VarPrmSourceRockTOC( const char * layerName, double baseVal
 
    assert( minValue <= baseValue && maxValue >= baseValue );
 
-   m_minValue.reset( new PrmSourceRockTOC( minValue, layerName ) );
-   m_maxValue.reset( new PrmSourceRockTOC( maxValue, layerName ) );
+   m_minValue.reset( new PrmSourceRockTOC( this, minValue, layerName ) );
+   m_maxValue.reset( new PrmSourceRockTOC( this, maxValue, layerName ) );
    
-   m_baseValue.reset( new PrmSourceRockTOC( baseValue, layerName ) );
+   m_baseValue.reset( new PrmSourceRockTOC( this, baseValue, layerName ) );
 }
 
 VarPrmSourceRockTOC::~VarPrmSourceRockTOC()
@@ -37,15 +37,20 @@ VarPrmSourceRockTOC::~VarPrmSourceRockTOC()
    ;
 }
 
-Parameter * VarPrmSourceRockTOC::createNewParameterFromDouble( const std::vector<double> & vals ) const
+SharedParameterPtr VarPrmSourceRockTOC::createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const
 {
-   assert( vals.size() == 1 );
-
    double minV = dynamic_cast<PrmSourceRockTOC*>( m_minValue.get() )->value();
    double maxV = dynamic_cast<PrmSourceRockTOC*>( m_maxValue.get() )->value();
+   double prmV = *vals++;
 
-   if ( minV > vals[0] || maxV < vals[0] ) return 0;
-   return new PrmSourceRockTOC( vals[0], m_layerName.c_str() );
+   if ( minV > prmV || prmV > maxV )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of source rock TOC parameter for layer " << m_layerName << ": " << prmV << 
+                                                                        " falls out of range: [" << minV << ":" << maxV << "]";
+   }
+   SharedParameterPtr prm( new PrmSourceRockTOC( this, prmV, m_layerName.c_str() ) );
+
+   return prm;
 }
 
 }

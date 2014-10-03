@@ -21,7 +21,7 @@
 #include "DoEGenerator.h"
 #include "ErrorHandler.h"
 #include "MCSolver.h"
-#include "RSProxy.h"
+#include "RSProxySet.h"
 #include "ObsSpace.h"
 #include "RunManager.h"
 #include "VarSpace.h"
@@ -131,7 +131,7 @@ namespace casa
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VaryLayerThickness( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
+      ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
                                                    VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
@@ -141,7 +141,7 @@ namespace casa
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VaryTopCrustHeatProduction( casa::ScenarioAnalysis & sa, double minVal, double maxVal,
+      ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa, double minVal, double maxVal,
                                                            VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add a parameter to variate source rock lithology TOC value @f$ [\%] @f$ in given range
@@ -152,7 +152,7 @@ namespace casa
       /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VarySourceRockTOC( casa::ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
+      ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
                                                   VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add 4 parameters to variate one crust thinning event.
@@ -162,15 +162,15 @@ namespace casa
       /// @param[in] maxT0 maximal range value for the start time of crust thinning
       /// @param[in] minDeltaT minimal range value for the duration of crust thinning
       /// @param[in] maxDeltaT maximal range value for the duration of crust thinning
-      /// @param[in] minThingFct minimal range value for the crust thickness factor (final crust thickness is equal the initial thickness multiplied by this factor)
-      /// @param[in] maxThingFct maximal range value for the crust thickness factor 
+      /// @param[in] minThinningFct minimal range value for the crust thickness factor (final crust thickness is equal the initial thickness multiplied by this factor)
+      /// @param[in] maxThinningFct maximal range value for the crust thickness factor 
       /// @param[in] pdfType probability function type for the variable parameter. If PDF needs some middle parameter value it will be\n
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni, double maxThickIni, 
-                                                                                       double minT0,       double maxT0,       
-                                                                                       double minDeltaT,   double maxDeltaT,   
-                                                                                       double minThingFct, double maxThingFct, VarPrmContinuous::PDF pdfType );
+      ErrorHandler::ReturnCode VaryOneCrustThinningEvent( ScenarioAnalysis & sa, double minThickIni,    double maxThickIni, 
+                                                                                 double minT0,          double maxT0,       
+                                                                                 double minDeltaT,      double maxDeltaT,   
+                                                                                 double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF pdfType );
    };
 
    /// @brief ScenarioAnalysis keeps all objects which are necessary for UA/SA of single workflow
@@ -243,14 +243,15 @@ namespace casa
       /// @return Observables set manager
       ObsSpace & obsSpace();
 
-      /// @brief Define which order of response surface polynomial approximation of  will be used in this scenario analysis
-      /// @param order order of polynomial approximation
+      /// @brief Add new response surface polynomial approximation to scenario analysis
+      /// @param name proxy name
+      /// @param order order of polynomial approximation. 
       /// @param krType do we need Kriging interpolation, and which one?
-      ErrorHandler::ReturnCode setRSAlgorithm( int order, RSProxy::RSKrigingType krType );
+      ErrorHandler::ReturnCode addRSAlgorithm( const char * name, int order, RSProxy::RSKrigingType krType );
       
-      /// @brief Get response surface proxy 
-      /// @return reference to proxy object
-      RSProxy & responseSurfaceProxy();
+      /// @brief Get response surface proxies set which were defined for the scenario.
+      /// @return set of proxies
+      RSProxySet & rsProxySet();
 
       /// @brief Get all cases for this scenario. The list will include cases generated by MC/MCMC only
       /// @return array of casa::Case objects

@@ -17,25 +17,18 @@
 #include "ErrorHandler.h"
 
 #include <vector>
+#include <boost/shared_ptr.hpp>
+
 
 namespace mbapi
 {
    class Model;
 }
 
-/// @page CASA_VarParameterPage Variable Parameters
-/// 
-/// For Variable parameter a DoE algorithm generates several fixed values of this Parameter when generating
-/// a Case set for building a response surface proxy.
-/// 
-/// CASA API supports the following types of variable parameters:
-/// - \subpage CASA_VarPrmContinuousPage
-/// - \subpage CASA_VarPrmCategoricalPage
-///
-/// Set of variable parameters for scenario analysis is managed by a @ref CASA_VarSpacePage "VarSpace manager"
-
 namespace casa
 {
+   class VarParameter;
+
    /// @brief Base class for all types of Cauldron model parameters used in CASA
    class Parameter
    {
@@ -47,6 +40,10 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const = 0;
 
+      /// @brief Get variable parameter which was used to create this parameter
+      /// @return Pointer to the variable parameter
+      virtual const VarParameter * parent() const = 0;
+
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @return ErrorHandler::NoError in success, or error code otherwise
@@ -57,8 +54,23 @@ namespace casa
       /// @return empty string on success, or error message if validation fail
       virtual std::string validate( mbapi::Model & caldModel ) = 0;
 
-      // The following methods are used for testing  
+      // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
+
+      /// @brief Get parameter value as an array of doubles
+      /// @return parameter value represented as set of doubles
+      ///
+      /// @pre parent()->variationType() must returns VarParameter::Continuous
+      /// @post return set of doubles which represent value of this parameter if parameter is continuous \n
+      ///       or empty array otherwise
       virtual std::vector<double> asDoubleArray() const = 0;
+
+      /// @brief Get parameter value as integer
+      /// @return parameter value represented as integer
+      ///
+      /// @pre parent()->variationType() must returns VarParameter::Categorical
+      /// @post return one non negative integer number which represents a value of this parameter if \n
+      ///       parameter is categroical, or -1 otherwise
+      virtual int asInteger() const = 0;
 
    protected:
       Parameter() {;}
@@ -68,5 +80,7 @@ namespace casa
       Parameter & operator = ( const Parameter & );
    };
 }
+
+typedef boost::shared_ptr<casa::Parameter> SharedParameterPtr;
 
 #endif // CASA_API_PARAMETER_H

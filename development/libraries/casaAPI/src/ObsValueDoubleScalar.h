@@ -27,7 +27,7 @@ namespace casa
       /// @brief Constructor
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
-      ObsValueDoubleScalar( Observable * parent, double val ) : m_parent( parent ), m_value( val ) { ; }
+      ObsValueDoubleScalar( const Observable * parent, double val ) : m_parent( parent ), m_value( val ) { ; }
 
       /// @brief Copy constructor
       /// @param ov another observable value to be copying
@@ -66,8 +66,8 @@ namespace casa
       virtual std::vector<double> doubleValue() const { return std::vector<double>( 1, value() ); }
 
    protected:
-      double       m_value;    // value itself
-      Observable * m_parent;   // pointer to the observable description object
+      double             m_value;    // value itself
+      const Observable * m_parent;   // pointer to the observable description object
    };
 }
 

@@ -274,7 +274,14 @@ namespace casa
       oss                                << " " << inputProjectOption()  << " " << inProjectFile;
       if ( !outProjectFile.empty() ) oss << " " << outputProjectOption() << " " << outProjectFile;
       oss << "\n\n";
-      
+     
+      // add to scrip checking of the return code of the mpirun. If it is 0 - create file Stage_X.sh.success, or Stage_X.ch.failed otherwise
+      switch ( m_sh )
+      {
+         case bash: oss << "if [ $? -eq 0 ]; then\n   touch $(basename $BASH_SOURCE).success\nelse\n   touch $(basename $BASH_SOURCE).failed\nfi\n"; break;
+         case csh:  oss << "if ( $status != 0 ) then\n   touch `basename $0`.failed\nelse\n   touch `basename $0`.success\nendif\n"; break;
+         case cmd:  break;
+      }
       return oss.str();
    }
 }

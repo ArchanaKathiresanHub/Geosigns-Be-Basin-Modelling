@@ -1,23 +1,36 @@
+//                                                                      
+// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "cmbAPI.h"
 #include "casaAPI.h"
 #include "FilePath.h"
 #include "FolderPath.h"
 #include "ObsValueDoubleScalar.h"
 #include "ObsValueDoubleArray.h"
-#include "RunCase.h"
-#include "RunCaseSet.h"
+#include "RSProxyImpl.h"
+#include "RunCaseImpl.h"
+#include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
+#include "VarSpace.h"
 #include "VarPrmSourceRockTOC.h"
 #include "VarPrmTopCrustHeatProduction.h"
 
 #include <memory>
 #include <string>
 #include <iostream>
-#include <fstream>
 
+#include <fstream>
 #include <cstdlib>
 
 #include "CfgFileParser.h"
+#include "MatlabExporter.h"
 
 std::string g_baseCaseName;
 std::string g_location;
@@ -84,7 +97,7 @@ ErrorHandler::ReturnCode AddVarParameter( casa::ScenarioAnalysis & sc, const std
       double minTStart = atof( prms[3].c_str() );
       double maxTStart = atof( prms[4].c_str() );
 
-      // Thinning duraration
+      // Thinning duration
       double minDeltaT = atof( prms[5].c_str() );
       double maxDeltaT = atof( prms[6].c_str() );
 
@@ -188,119 +201,28 @@ void PrintObsValues( casa::ScenarioAnalysis & sc )
    }
 }
 
-void SaveResults( casa::ScenarioAnalysis & sc )
+void LoadParametersAndCreateCasesSet( const casa::VarSpace & vs, std::vector<RunCase *> & rcs, const std::string & fName )
 {
-   std::ofstream ofs( g_dataFileName.c_str(), std::ios_base::out | std::ios_base::trunc );
-   
-   if ( ofs.bad() ) return;
+   assert( !fName.empty() );
 
-   ofs << "BaseCaseName  = '" << g_baseCaseName << "';\n";
-   ofs << "DoEName       = '" << DoEGenerator::DoEName( sc.doeGenerator().algorithm() ) << "';\n";
-   ofs << "PathToCaseSet = '" << g_location << "';\n";
+   std::vector< std::vector<double> > prmVals;
+   CfgFileParser::readParametersValueFile( fName, prmVals );
 
-   RunCaseSet & rcs = sc. doeCaseSet();
-
-   if ( !rcs.size() ) return;
-
-   // save parameters value for each case
-   // First save name of the variable parameters
-   ofs << "ParametersName = [\n";
-   for ( size_t j = 0; j < rcs[0]->parametersNumber(); ++j )
+   for ( size_t i = 0; i < prmVals.size(); ++i )
    {
-      casa::Parameter * prm = rcs[0]->parameter( j );
-      if ( !prm  ) continue;
-      ofs << "    \"" << prm->name() << "\"\n";      
-   }
-   ofs << "];\n\n";
-
-   // Second - values for parameters for each case
-   ofs << "ParametersVal = [\n";
- 
-   for ( size_t i = 0; i < rcs.size(); ++i )
-   {
-      ofs << i;  // Case number
-
-      for ( size_t j = 0; j < rcs[i]->parametersNumber(); ++j )
-      {
-         casa::Parameter * prm = rcs[i]->parameter( j );
-         
-         if ( !prm  ) continue;
-
-         const std::vector<double> & prmVals = prm->asDoubleArray();
-
-         for ( size_t k = 0; k < prmVals.size(); ++k )
-         {
-            ofs << "\t" << prmVals[k];
-         }
-      }
-      ofs << "\n";
-   }
-   ofs << "];\n\n";
-
-   // save observables value for each case
-   // First save name of the observables
-   ofs << "ObservablesName = [\n";
-   for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
-   {
-      casa::ObsValue * obv = rcs[0]->observableValue( j );
+      std::auto_ptr<RunCaseImpl> nrc( new RunCaseImpl() );
       
-      if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
+      std::vector<double>::const_iterator vit = prmVals[i].begin();
 
-      ofs << "    \"" << obv->observable()->name() << "\"\n";      
-   }
-   ofs << "];\n\n";
-
-   // Second - value for observables for each case
-   ofs << "ObservablesDim = [ ";
-   for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
-   {
-      casa::ObsValue * obv = rcs[0]->observableValue( j );
-      
-      if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
-
-      ofs << " " << obv->doubleValue().size();      
-    }
-    ofs << " ];\n\n";
-
-   ofs << "ObservablesVal = [\n";
-   for ( size_t i = 0; i < rcs.size(); ++i )
-   {
-      ofs << i;
-
-      for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
+      for ( size_t j = 0; j < vs.numberOfContPrms(); ++j )
       {
-         casa::ObsValue * obv = rcs[i]->observableValue( j );
+         assert( vit != prmVals[i].end());
 
-         if ( obv && obv->isDouble() )
-         {
-            const std::vector<double> & vals = obv->doubleValue();
-            for ( size_t k = 0; k < vals.size(); ++k ) ofs << "\t" << vals[k];
-         }
+         SharedParameterPtr prm = vs.continuousParameter( j )->createNewParameterFromDouble( vit );
+         nrc->addParameter( prm );
       }
-
-      ofs << std::endl;
+      rcs.push_back( nrc.release() );
    }
-   ofs << "];\n\n";
-
-   // Third - observables MSE for each case
-   ofs << "ObservablesMSE = [\n";
-   for ( size_t i = 0; i < rcs.size(); ++i )
-   {
-      ofs << i;
-
-      for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
-      {
-         casa::ObsValue * obv = rcs[i]->observableValue( j );
-
-         if ( obv && obv->isDouble() )
-         {
-            ofs << "\t" << obv->MSE();
-         }
-      }
-
-      ofs << std::endl;
-   }
-   ofs << "];\n";
 }
 
 int main( int argc, char ** argv )
@@ -438,9 +360,108 @@ int main( int argc, char ** argv )
                PrintObsValues( sc );
             }
             break;
+
+         case CfgFileParser::response: // calculate response surface approximation
+            {
+               assert( prms.size() == 4 );
+               
+               std::string name = prms[0]; // proxy name
+               // convert list of DoEs like: "Tornado,BoxBenken" into array of DoE names
+               const std::vector<std::string> & doeList = CfgFileParser::list2array( prms[1], ',' ); 
+
+               long respSurfOrder = std::atol( prms[2].c_str() ); // response surface order
+
+               casa::RSProxy::RSKrigingType krType = RSProxy::NoKriging;
+               // get kriging name
+               if (      !prms[3].compare( "No"     ) ) { ;                                } // no kriging, already defined
+               else if ( !prms[3].compare( "Local"  ) ) { krType = RSProxy::LocalKriging;  } // local kriging
+               else if ( !prms[3].compare( "Global" ) ) { krType = RSProxy::GlobalKriging; } // global kriging
+               else { std::cerr << "Unsupported kriging type: " << prms[3] <<", can be only No, Local or Global\n"; }
+
+               // add response
+               if( ErrorHandler::NoError != sc.addRSAlgorithm( name.c_str(), respSurfOrder, krType ) ) { return ReportError( sc ); }
+
+               // call response calculation
+               RSProxy * proxy = sc.rsProxySet().rsProxy( name.c_str() );
+
+               std::vector<const RunCase *> rcs; // set of run cases which will be used in RSProxy calculation
+
+               // collect cases for given set of DoE
+               for ( size_t i = 0; i < doeList.size(); ++i )
+               {
+                  sc.doeCaseSet().filterByExperimentName( doeList[i] );
+                  for ( size_t j = 0; j < sc.doeCaseSet().size(); ++j )
+                  {
+                     rcs.push_back( sc.doeCaseSet()[j] );
+                  }
+               }
+               if ( rcs.empty() ) { std::cout << "Empty case set for given list of DoE: " << prms[1] << ", skip proxy calculation" << std::endl; }
+               else
+               {
+                  std::cout << "Starting response surface approximation calculation for proxy: " << name << std::endl;
+                  if ( ErrorHandler::NoError != proxy->calculateRSProxy( rcs ) ) return ReportError( *proxy );
+               }
+               std::cout << "Response surface approximation calculation for proxy " << name << " finished" << std::endl;
+            }
+            break;
+
+         case CfgFileParser::evaluate: // evaluate response surface proxy
+         {
+            assert( prms.size() == 3 );
+
+            std::string                      proxyName    = prms[0];    // proxy name
+            // convert list of DoEs or data files like: "Tornado,BoxBenken" into array of names
+            const std::vector<std::string> & prmsList     = CfgFileParser::list2array( prms[1], ',' );
+            std::string                      dataFileName = prms[2]; // output file name
+
+            std::vector<RunCase *>       rcs; // set of run cases which were created from set of parameters defined in external dat file
+
+            for ( size_t i = 0; i < prmsList.size(); ++i )
+            {
+               sc.doeCaseSet().filterByExperimentName( prmsList[i] );
+               if ( sc.doeCaseSet().size() ) // DoE name was given, add cases from DoE
+               {
+                  for ( size_t j = 0; j < sc.doeCaseSet().size(); ++j )
+                  {
+                     const casa::RunCase * rc = sc.doeCaseSet()[j];
+                     // create new RunCase and make a shallow copy parameters using shared pointers
+                     std::auto_ptr<RunCaseImpl> nrc( new RunCaseImpl() );
+                     for ( size_t k = 0; k < rc->parametersNumber(); ++k ) nrc->addParameter( rc->parameter( k ) );
+
+                     // add new case to the list
+                     rcs.push_back( nrc.release() );
+                  }
+               }
+               else // file name is given, parse file and create a set of run cases
+               {
+                  LoadParametersAndCreateCasesSet( sc.varSpace(), rcs, prmsList[i] );
+               }
+            }
+            
+            // Search for given proxy name in the set of calculated proxies
+            RSProxy * proxy = sc.rsProxySet().rsProxy( proxyName.c_str() );
+            // call response evaluation
+            if ( !proxy ) 
+            {
+               sc.reportError( ErrorHandler:: NonexistingID, std::string( "Unknown proxy name:" ) + proxyName );
+               return ReportError( sc );
+            }
+
+            std::cout<< "Evaluate proxy " << proxyName << "for " << rcs.size() << " cases\n";
+            for ( size_t i = 0; i < rcs.size(); ++i )
+            {
+               if ( ErrorHandler::NoError != proxy->evaluateRSProxy( *rcs[i] ) ) return ReportError( *proxy );
+            }
+            std::cout<< "Export proxy evaluation results to " << dataFileName << "file\n";
+            MatlabExporter::exportObsValues( dataFileName, rcs );
+
+            for ( size_t i = 0; i < rcs.size(); ++i ) delete rcs[i]; // clean cases created here
+         }
       }
    }
    std::cout << "Export CASA results to : " << g_dataFileName << std::endl;
-   SaveResults( sc );
+
+   MatlabExporter mex( g_dataFileName );
+   mex.exportScenario( sc, g_baseCaseName, g_location );
 }
 

@@ -16,6 +16,8 @@
 
 #include "ErrorHandler.h"
 
+#include <vector>
+
 /// @page CASA_ObservablePage Observables
 ///
 /// <b><em> Observable (or Target) </em></b> - any simulator output value. It could be any data value from the \n
@@ -62,7 +64,7 @@ namespace casa
       static const std::string s_dataMinerTable; ///< name of the table which keeps observable values after simulations
 
       /// @brief Destructor
-      virtual ~Observable() { ; }
+      virtual ~Observable() {;}
 
       /// @brief Get name of the observable
       /// @return observable name
@@ -70,15 +72,15 @@ namespace casa
 
       /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise
-      virtual bool hasReferenceValue() = 0;
+      virtual bool hasReferenceValue() const = 0;
 
       /// @brief Get reference value
       /// @return reference value
-      virtual ObsValue * referenceValue() = 0;
+      virtual const ObsValue * referenceValue() const = 0;
 
       /// @brief Get standard deviations for the reference value
       /// @return a standard deviation for reference value
-      virtual double stdDeviationForRefValue() = 0;
+      virtual double stdDeviationForRefValue() const = 0;
 
       /// @brief Set reference value
       /// @param refVal reference value itself
@@ -87,19 +89,19 @@ namespace casa
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
-      virtual double saWeight() = 0;
+      virtual double saWeight() const = 0;
 
       /// @brief Get weighting coefficient for uncertainty analysis
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
-      virtual double uaWeight() = 0;
+      virtual double uaWeight() const = 0;
 
       /// @brief Set weight coefficient for Sensitivity analysis
       /// @param w weight coefficient value
-      virtual void setSAWeight(double w) = 0;
+      virtual void setSAWeight( double w ) = 0;
 
       /// @brief Set weight coefficient for Uncertainty analysis
       /// @param w weight coefficient value
-      virtual void setUAWeight(double w) = 0;
+      virtual void setUAWeight( double w ) = 0;
 
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
@@ -109,7 +111,12 @@ namespace casa
       /// @brief Get this observable value from Cauldron model
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
-      virtual ObsValue * getFromModel(mbapi::Model & caldModel) = 0;
+      virtual ObsValue * getFromModel( mbapi::Model & caldModel ) = 0;
+
+      /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
+      /// @param[in,out] val iterator for double array
+      /// @return new observable value
+      virtual ObsValue * creatNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const = 0;
 
    protected:
       Observable() { ; }

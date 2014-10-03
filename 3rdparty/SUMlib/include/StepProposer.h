@@ -65,11 +65,13 @@ class INTERFACE_SUMLIB_DEBUG StepProposer
        *     the proposed parameter.
        *  @param tr The ratio of the probabilities of the transition
        *     to and from.
+       *  @param iChain Index of the chain
        */
       void proposeRandomStep(
             RandomGenerator& rg,
             std::vector<double>& p,    // In: p1, Out: p2
-            double& tr ) const;
+            double& tr,
+            unsigned int iChain ) const;
 
       /**
        *  For an existing parameters, generate a new
@@ -90,10 +92,10 @@ class INTERFACE_SUMLIB_DEBUG StepProposer
        */
       void adaptStepSize( std::vector<double>& acceptanceRate );
 
-      const std::vector<double>& min() const { return m_min; }
-      const std::vector<double>& max() const { return m_max; }
-      const std::vector<double>& dp() const { return m_dp; }
-      void setStepSize(std::vector<double>const& dp );
+      /// @brief Set the initial step size
+      ///   @param dp   Value of the step size for each parameter
+      ///   @param chainSize Number of chains
+      void setStepSize(std::vector<double>const& dp, unsigned int chainSize );
 
    private:
       /**
@@ -123,9 +125,10 @@ class INTERFACE_SUMLIB_DEBUG StepProposer
 
        /**
        *  Size of the rectangular transition distribution for the
-       *  parameter factor values.
+       *  parameter factor values, for each chain.
+       *  m_dp[i][j] is the maximum proposed step size for parameter i and chain j
        */
-      std::vector<double> m_dp;
+      std::vector< std::vector<double> > m_dp;
       /**
        *  The number of steps using a shift from the rectangular
        *  transition distribution. The sum of all approved shifts

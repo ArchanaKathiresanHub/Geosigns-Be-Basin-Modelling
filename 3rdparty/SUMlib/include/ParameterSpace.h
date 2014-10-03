@@ -63,13 +63,6 @@ class INTERFACE_SUMLIB ParameterSpace : public ISerializable
       /// Destructor
       virtual ~ParameterSpace();
 
-      /// Set the original number of dummy parameters for each categorical parameter,
-      /// and set the inverse transformation types for the continuous parameters.
-      /// @param [in] origLow        original lower bounds as specified by the user
-      /// @param [in] origHigh       original upper bounds as specified by the user
-      /// @param [in] tr             set of continuous parameter transformation types
-      void initialise( Case const& origLow, Case const& origHigh, TransformationSet const& tr );
-
       /// Set the bounds of the parameter space
       /// @param [in] bounds         parameter bounds to use
       void setBounds( ParameterBounds const& bounds );
@@ -116,11 +109,11 @@ class INTERFACE_SUMLIB ParameterSpace : public ISerializable
 
       /// Getter for the lower parameter bounds
       /// @returns the lower bounds
-      const Case& low() const { return m_bounds.low(); }
+      const Case& low() const { return m_tr_bounds.low(); }
 
       /// Getter for the upper parameter bounds
       /// @returns the upper bounds
-      const Case& high() const { return m_bounds.high(); }
+      const Case& high() const { return m_tr_bounds.high(); }
 
       /// Getter for the transformed lower parameter bounds
       /// @returns the transformed lower bounds
@@ -193,6 +186,13 @@ class INTERFACE_SUMLIB ParameterSpace : public ISerializable
       /// Getter for the number of "non-fixed" continuous parameters
       /// @returns the number of "non-fixed" continuous parameters
       unsigned int nbOfNonFixedContinuousPars() const;
+
+      /// Get the size (dimensionality) of a prepared case. This includes splitting out dummy indices.
+      unsigned int getPreparedCaseSize() const;
+
+      /// Get the number of dummy parameters for a categorical parameter.
+      /// @param [in] catIndex: the index of the categorical parameter.
+      unsigned int nbOfDummyParsForCat( size_t catIndex ) const;
 
       /// Getter for the categorical parameter values from a prepared case
       /// @param [in] v    a prepared case

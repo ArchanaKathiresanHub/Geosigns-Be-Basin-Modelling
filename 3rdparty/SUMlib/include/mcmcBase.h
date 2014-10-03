@@ -16,15 +16,13 @@
 #include "McmcProxy.h"
 #include "KrigingProxy.h"
 #include "ParameterPdf.h"
+#include "RandomGenerator.h"
 #include "McmcStatistics.h"
 #include "SUMlib.h"
 
 namespace SUMlib {
 
-class MarginalProbDistr;
-class McmcStatistics;
 class MVNormalProbDistr;
-class RandomGenerator;
 class StepProposer;
 
 /// @class McmcBase implements the base of all MC (Markov Chain) to obtain a sample
@@ -81,6 +79,8 @@ public:
    static const unsigned int numBestMatches;
 
    typedef std::multimap<double, const std::vector<double> > ParameterRanking;
+
+   typedef std::pair< double, std::vector<double> > RmseCasePair;
 
 protected:
 
@@ -189,7 +189,7 @@ protected:
    bool m_tooBigAccRatio;
 
    /// Reference to a random number generator used to accept/reject proposals.
-   RandomGenerator &m_rg;
+   RandomGenerator m_rg;
 
    /// Private radom number generators for each Markov chain
    std::vector<RandomGenerator> m_rngs;
@@ -376,7 +376,7 @@ public:
    /// @param[in]     constraints         constraints on the parameter space
    /// @param[in]     statistics          statistics calculator
    /// @param[in]     maxNbOfIterations   maximum number of iterations to prevent an infinite execute loop
-   McmcBase( RandomGenerator &rg, std::vector<McmcProxy*> const& ascs, unsigned int sampleSize, const ParameterPdf & pdf,
+   McmcBase( int seed, std::vector<McmcProxy*> const& ascs, unsigned int sampleSize, const ParameterPdf & pdf,
          const ParameterBounds & constraints, McmcStatistics &statistics, unsigned int maxNbOfIterations = 100 );
 
    /// Destructor
@@ -640,18 +640,23 @@ protected:
    /// Called a few times by iterateOnce().
    /// Carry out a number of steps of which the last one is assumed not to
    /// correlate with steps from the previous cycle.
+   /// @param[in]     iChain     Chain index
    /// @param[out]    accRatios  acceptance ratios for a subsample
-   void doCycle( std::vector<std::vector<double> >& accRatios );
+   /// @param[out]    bestMatch  best match of this cycle
+   void doCycle( unsigned int iChain, std::vector<double>& accRatios, RmseCasePair& bestMatch );
 
    /// Called by doCycle()
+   /// @param[in]     iChain     Chain index
    /// @param[in]     stepCount  step counter of a cycle
    /// @param[out]    accRatios  acceptance ratios for a subsample
-   void step( unsigned int stepCount, std::vector<std::vector<double> >& accRatios );
+   /// @param[out]    bestMatch  best match of this cycle
+   void step( unsigned int iChain, unsigned int stepCount, std::vector<double>& accRatios, RmseCasePair& bestMatch );
 
    /// Called by step()
+   /// @param[in]   iChain       Chain index
    /// @param[out]  accRatios    acceptance ratios for a subsample
    /// @param[out]  newPar       indicates whether a new parameter has been found
-   void proposeStep( std::vector<std::vector<double> >& accRatios, std::vector<bool>& newPar );
+   void proposeStep( unsigned int iChain, std::vector<double>& accRatios, bool& newPar );
 
    /// Calcutate set of (log of) likelihoods for simulated results y.
    ///
@@ -700,7 +705,11 @@ protected:
    /// @param[in]     logP_lh log likelihood
    double getRMSEkey( double logP_lh ) const;
 
-   bool isSameCase( const std::vector<double>&, const std::vector<double>& ) const;
+   /// Compare two parameters, first is full, second is nonCat only
+   /// @param[in]    par1  first parameter, including categorical values
+   /// @param[in]    par2  second parameter, excluding categorical values
+   /// @param[in]    key   key for finding the categorical values
+   bool isSameCase( const std::vector<double>& par1, const std::vector<double>& par2, unsigned int key ) const;
 
    ParameterSet extendSampleToProxyCase( ParameterSet const& parset ) const;
 

@@ -3,6 +3,7 @@
 // Neither the whole nor any part of this document may be copied, modified or distributed in any
 // form without the prior written consent of the copyright owner.
 
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
 
@@ -13,6 +14,7 @@ namespace SUMlib {
    static const int RG_MZ = 0;
    static const int RG_MBIG = 1000000000;
    static const int RG_MSEED = 161803398;
+   static const double RG_FAC = 1.0 / RG_MBIG;
 
 /**
  *  The portable random number generator (Knuth).
@@ -42,16 +44,16 @@ RandomGenerator::~RandomGenerator()
 void RandomGenerator::initialise( int idum )
 {
    // Use seed idum
-   int mj = RG_MSEED - abs(idum);
+   int mj = abs(RG_MSEED - abs(idum));
    mj = mj % RG_MBIG;
-   m_ma[54] = mj;
+   m_ma[55] = mj;
    int mk = 1;
 
    // Initialise the rest of the table
    for ( int i = 1; i <= 54; ++i )
    {
       // Slight random order index
-      int ii = (21 * i) % 55 - 1;
+      int ii = (21 * i) % 55;
 
       // Not really random number
       m_ma[ii] = mk;
@@ -63,9 +65,9 @@ void RandomGenerator::initialise( int idum )
    // Warm up the generator by randomizing
    for ( int k=1; k <= 4; k++ )
    {
-      for (int i = 0; i < 55; ++i )
+      for (int i = 1; i <= 55; ++i )
       {
-         m_ma[i] -= m_ma[ (i+31) % 55 ];
+         m_ma[i] -= m_ma[ 1 + (i+30) % 55 ];
          if ( m_ma[i] < RG_MZ ) m_ma[i] += RG_MBIG;
       }
    }
@@ -86,11 +88,13 @@ double RandomGenerator::uniformRandom()
    m_inextp = m_inextp + 1;
    if ( m_inextp == 56 ) m_inextp = 1;
 
-   int mj = m_ma[m_inext-1] - m_ma[m_inextp-1];
+   int mj = m_ma[m_inext] - m_ma[m_inextp];
    if ( mj < RG_MZ ) mj = mj + RG_MBIG;
-   m_ma[m_inext-1] = mj;
+   m_ma[m_inext] = mj;
 
-   return double(mj) / RG_MBIG;
+   double r = mj * RG_FAC;
+   assert( 0 <= r && r < 1 );
+   return r;
 }
 
 /**

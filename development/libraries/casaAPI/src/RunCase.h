@@ -38,7 +38,7 @@ namespace casa
       /// @brief Get i-th parameter
       /// @param i position of requested parameter
       /// @return i-th parameter or null pointer if there is no such parameter
-      virtual Parameter * parameter( size_t i ) const = 0;
+      virtual SharedParameterPtr parameter( size_t i ) const = 0;
 
       /// @brief Get number of observables defined for this case
       /// @return observables number

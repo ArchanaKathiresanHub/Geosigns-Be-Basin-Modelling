@@ -24,6 +24,8 @@
 #include "StratigraphyManager.h"
 #include "FluidManager.h"
 
+#include "UndefinedValues.h"
+
 /// @mainpage Cauldron APIs
 /// @tableofcontents
 /// This documentation describes set of APIs which allows 3d party applications interact with Cauldron.
@@ -66,10 +68,6 @@
 
 /// @brief Namespace which keeps API to manipulate Cauldron model
 namespace mbapi {
-
-#define UndefinedDoubleValue  -9999      ///< Undefined value for floating point numbers
-#define UndefinedIntegerValue -1         ///< Undefined value for integer numbers
-#define UndefinedStringValue  "undef"    ///< Undefined value for strings
 
    /// @class Model cmbAPI.h "cmbAPI.h"
    /// @brief Class Model keeps the Cauldron data model insides and provides a set of interfaces to work with the model

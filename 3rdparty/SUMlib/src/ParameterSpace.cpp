@@ -28,17 +28,6 @@ ParameterSpace::ParameterSpace( Case const& origLow, Case const& origHigh,
    m_bounds(),
    m_tr_bounds()
 {
-   initialise( origLow, origHigh, tr );
-}
-
-ParameterSpace::~ParameterSpace()
-{
-   // empty
-}
-
-void ParameterSpace::initialise( Case const& origLow, Case const& origHigh,
-                                 TransformationSet const& tr )
-{
    // Set number of original dummy parameters for each categorical parameter
    unsigned int nbOfCatPars = origLow.sizeCat();
    m_nbOfOrigDummyPars.resize( nbOfCatPars );
@@ -74,6 +63,11 @@ void ParameterSpace::initialise( Case const& origLow, Case const& origHigh,
    }
 }
 
+ParameterSpace::~ParameterSpace()
+{
+   // empty
+}
+
 void ParameterSpace::setBounds( ParameterBounds const& bounds )
 {
    if ( ( ! m_tr.empty() ) && ( m_tr.size() != bounds.sizeCon() ) )
@@ -88,13 +82,15 @@ void ParameterSpace::setBounds( ParameterBounds const& bounds )
    m_bounds = bounds;
 
    // Calculate the transformed lower bounds of the continuous parameters.
-   Case lowCase = low();
+   // m_tr_bounds member (used by low() and high()) is not yet initialised, so we have to call m_bounds.low() here.
+   Case lowCase = m_bounds.low();
    vector<double> conLow = lowCase.continuousPart();
    transform( m_tr, conLow );
    lowCase.setContinuousPart( conLow );
 
    // Calculate the transformed upper bounds of the continuous parameters.
-   Case highCase = high();
+   // m_tr_bounds member (used by low() and high()) is not yet initialised, so we have to call m_bounds.low() here.
+   Case highCase = m_bounds.high();
    vector<double> conHigh = highCase.continuousPart();
    transform( m_tr, conHigh );
    highCase.setContinuousPart( conHigh );
@@ -251,7 +247,7 @@ void ParameterSpace::unprepare( RealVector const& v, Case &c ) const
    for ( unsigned int k = 0; k < sizeDis(); ++k )
    {
       double d = conPars[k + sizeCon()];
-      disPars[k] = int( d > 0.0 ? d + 0.5 : d - 0.5 ); //round off to nearest discrete value
+      disPars[k] = floor( d + 0.5 ); //round off to nearest discrete value
    }
    c.setDiscretePart( disPars ); //copy the converted values to the discrete part of c
    conPars.resize( sizeCon() ); //strip continuous parameters that have just been converted
@@ -407,6 +403,21 @@ unsigned int ParameterSpace::nbOfNonFixedContinuousPars() const
       }
    }
    return nbOfPreparedConPars;
+}
+
+unsigned int ParameterSpace::getPreparedCaseSize() const
+{
+   size_t preparedCaseSize = nbOfNonFixedOrdinalPars();
+   for ( size_t iCat = 0; iCat < m_nbOfOrigDummyPars.size(); ++iCat )
+   {
+      preparedCaseSize += isFixed( sizeOrd() + iCat ) ? 0 : m_nbOfOrigDummyPars[ iCat ];
+   }
+   return preparedCaseSize;
+}
+
+unsigned int ParameterSpace::nbOfDummyParsForCat( size_t catIndex ) const
+{
+   return m_nbOfOrigDummyPars[ catIndex ];
 }
 
 void ParameterSpace::convert2origProxyIdx( IndexList& indexes ) const
@@ -607,7 +618,7 @@ bool serialize( ISerializer* p_serializer, const ParameterSpace::TransformationS
    return p_serializer->save(uVector);
 }
 
-// This function is still needed because of backwords compatibility with runfile
+// This function is still needed because of backwards compatibility with runfile
 // To be used for vector of unsigned int (IndexList), bool and Transformation (TransformationSet).
 bool deserialize( IDeserializer* p_deserializer, ParameterSpace::TransformationSet& p_enumVector )
 {

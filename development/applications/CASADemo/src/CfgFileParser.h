@@ -26,7 +26,9 @@ public:
       target,       // create observable
       doe,          // create doe
       location,     // where cases will be generated, run mutator
-      run
+      run,          // run planned DoE experiments
+      response,     // calculate coefficients for response surface approximation
+      evaluate      // calculate observables value using response surface approximation
    } CfgCommand;
 
    CfgFileParser() {;}
@@ -42,12 +44,20 @@ public:
    // access to command parameters
    const std::vector< std::string > & parameters( size_t i ) { return m_cmdPrms[i]; }
 
+   // split list of strings divided by sep in to array of strings
+   static std::vector<std::string> list2array( const std::string & listOfStr, char sep = ' ');
+
    // read well trajectory file with reference values
-   static void readTrajectoryFile( const std::string fileName, 
+   static void readTrajectoryFile( const std::string & fileName, 
                                    std::vector<double> & x,
                                    std::vector<double> & y,
                                    std::vector<double> & z,
                                    std::vector<double> & ref );
+
+   // read parameters value from plain data file
+   static void readParametersValueFile( const std::string & fileName, std::vector< std::vector<double> > & dataVals );
+   
+
 
    // printing parsed file
    friend std::ostream & operator << ( std::ostream & ost, const CfgFileParser & cfg );

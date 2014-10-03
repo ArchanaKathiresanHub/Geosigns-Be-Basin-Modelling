@@ -97,3 +97,8 @@ add_gtest( NAME DataDiggerTest
    SOURCES test/DataDiggerTest.C
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
+
+add_gtest( NAME RSProxyTest
+   SOURCES test/RSProxyTest.C
+   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)

@@ -35,8 +35,8 @@ StepProposer::StepProposer(
    for ( size_t i = 0; i < m_dp.size(); ++i )
    {
       double range = m_max[i] - m_min[i];
-      m_minDp[i] = 1e-3 * range;
-      m_maxDp[i] = 0.5 * range / sqrt(12.0);
+      m_minDp[i] = 1e-3 * range / sqrt( pSize );
+      m_maxDp[i] = 0.1 * range / sqrt( pSize );
    }
 }
 
@@ -72,7 +72,7 @@ void StepProposer::check() const
  *  symmetric transition is always one: q(p1->p2) = q(p2->p1).
  *
  *  Here, q is set to a Uniform distribution within a small box of size 2*dp for each
- *  dimension, where 2*dp cannot exceed stdDev_Uniform = range(parameter) / sqrt(12).
+ *  dimension, centered around the current parameter values.
  *
  *  The reflection principle must be applied if the proposed p2 violates one or more
  *  parameter bounds; if a bound is exceeded by an absolute value, say ds <= dp, then
@@ -93,7 +93,7 @@ void StepProposer::proposeStep(
    // and return log( tr ) = 0.
    for ( size_t i = 0; i < p.size(); ++i )
    {
-      proposeRandomStep( m_rg, p[i], tr[i] );
+      proposeRandomStep( m_rg, p[i], tr[i], i );
    }
 }
 
@@ -106,7 +106,8 @@ void StepProposer::proposeStep(
 void StepProposer::proposeRandomStep(
             RandomGenerator& rg,
             std::vector<double>& p,    // In: p1, Out: p2
-            double& tr ) const
+            double& tr,
+            unsigned int iChain ) const
 {
    // Perform a few steps
    for ( size_t steps = 0; steps < m_nbSteps; ++steps )
@@ -116,7 +117,7 @@ void StepProposer::proposeRandomStep(
       {
          // Propose a new value by drawing a random number within
          // a step size dp of the current p[i] value.
-         p[i] = p[i] - m_dp[i] + rg.uniformRandom() * ( 2 * m_dp[i] );
+         p[i] = p[i] - m_dp[i][iChain] + rg.uniformRandom() * ( 2 * m_dp[i][iChain] );
          if ( p[i] < m_min[i] )
          {
             p[i] = m_min[i] + ( m_min[i] - p[i] ); //bounce back
@@ -179,25 +180,30 @@ void StepProposer::adaptStepSize( std::vector<double>& acceptanceRate )
 {
    // The acceptance rate should be between 23 and 45 %
    // After: Roberts, Gelman and Gilks 1994
-   for ( size_t j = 0; j < m_dp.size(); ++j )
+   size_t nChain = acceptanceRate.size();
+   for ( size_t i = 0; i < m_dp.size(); ++i )
    {
-      if ( acceptanceRate[j] < 23.0 )
+      for ( size_t j = 0; j < nChain; ++j )
       {
-         m_dp[j] = std::max<double>( 0.9 * m_dp[j], m_minDp[j] );
-      }
-      else if ( acceptanceRate[j] > 45.0 )
-      {
-         m_dp[j] = std::min<double>( 1.1 * m_dp[j], m_maxDp[j] );
+         if ( acceptanceRate[j] < 23.0 )
+         {
+            m_dp[i][j] = std::max<double>( 0.9 * m_dp[i][j], m_minDp[i] );
+         }
+         else if ( acceptanceRate[j] > 45.0 )
+         {
+            m_dp[i][j] = std::min<double>( 1.1 * m_dp[i][j], m_maxDp[i] );
+         }
       }
    }
 }
 
-void StepProposer::setStepSize( const std::vector<double>& dp )
+void StepProposer::setStepSize( const std::vector<double>& dp, unsigned int chainSize )
 {
    for ( unsigned int i = 0; i < dp.size(); ++i )
    {
-      m_dp[i] = std::max<double>( dp[i], m_minDp[i] );
-      m_dp[i] = std::min<double>( m_dp[i], m_maxDp[i] );
+      double value  = std::max<double>( dp[i], m_minDp[i] );
+      value = std::min<double>( value, m_maxDp[i] );
+      m_dp[i].resize( chainSize, value );
    }
 }
 

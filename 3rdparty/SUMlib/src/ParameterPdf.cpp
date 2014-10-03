@@ -73,7 +73,7 @@ void ParameterPdf::initialise(
    setDefaultsIfUnknownPDF();
    checkDimensions();
    checkOrdinalBase();
-   removeRedundantWeights();
+   removeRedundantCatWeights();
    removeFixedElements();
    checkWeights();
    checkCategoricalBase();
@@ -218,22 +218,8 @@ void ParameterPdf::checkDimensions() const
    }
 }
 
-void ParameterPdf::removeRedundantWeights()
+void ParameterPdf::removeRedundantCatWeights()
 {
-   // only store weights for used discrete parameter values
-   for ( unsigned int i = 0; i < sizeDis(); ++i )
-   {
-      int lowValue = low().discretePar( i );
-      int lowestValue = m_minLow.discretePar( i );
-      int nbOfWeights = 1 + high().discretePar( i ) - lowValue;
-      vector<double> weights( nbOfWeights );
-      for ( int j = 0; j < nbOfWeights; ++j )
-      {
-         weights[j] = m_disWeights[i][j + lowValue - lowestValue];
-      }
-      m_disWeights[i] = weights;
-   }
-
    // only store weights for used categorical parameter values
    for ( unsigned int i = 0; i < sizeCat(); ++i )
    {
@@ -551,21 +537,24 @@ void ParameterPdf::scaleDis( std::vector<int> const& p_min, std::vector<int> con
    assert( m_disVars.size() == sizeDis() );
 
    // Apply scaling
+   vector<double> minLow( m_minLow.ordinalPart() ), maxHigh( m_maxHigh.ordinalPart() );
+   unsigned int nbCon = m_minLow.sizeCon();
    for ( unsigned int i = 0; i < sizeDis(); ++i )
    {
       double unscaledRange = double( high().discretePar( i ) - low().discretePar( i ) );
       assert( unscaledRange > 0.0 );
       double scaleFactor = ( p_max[i] - p_min[i] )/unscaledRange;
       m_discreteBase[i] = ( discreteBase( i ) - low().discretePar( i ) )*scaleFactor + p_min[i];
-      double minLow = double( m_minLow.discretePar( m_disVars[i] ) );
-      double scaledMinLow = -1.0 + scaleFactor * ( minLow - low().discretePar( i ) ); //<= -1
-      m_minLow.setDiscretePar( m_disVars[i], int( scaledMinLow + 0.5 ) );
-      double maxHigh = double( m_maxHigh.discretePar( m_disVars[i] ) );
-      double scaledMaxHigh = -1.0 + scaleFactor * ( maxHigh - low().discretePar( i ) ); //>= 1
-      m_maxHigh.setDiscretePar( m_disVars[i], int( scaledMaxHigh + 0.5 ) );
+      unsigned int idx = nbCon + m_disVars[i];
+      minLow[idx] = -1.0 + scaleFactor * ( m_minLow.ordinalPar( idx ) - low().discretePar( i ) ); //<= -1
+      maxHigh[idx] = -1.0 + scaleFactor * ( m_maxHigh.ordinalPar( idx ) - low().discretePar( i ) ); //>= 1
    }
    m_low.setDiscretePart( p_min );
    m_high.setDiscretePart( p_max );
+   m_minLow.setContinuousPart( minLow );
+   m_maxHigh.setContinuousPart( maxHigh );
+   m_minLow.setDiscretePart( vector<int>() );
+   m_maxHigh.setDiscretePart( vector<int>() );
 }
 
 void ParameterPdf::extendToProxyCase( IndexList const& c, vector<double> &v ) const
@@ -621,19 +610,14 @@ void ParameterPdf::setDisWeights( unsigned int idx, vector<double> const& w )
    {
       if ( m_disVars[i] == idx )
       {
-         int l = low().discretePar( i );
-         int h = high().discretePar( i );
-         int ll = m_minLow.discretePar( idx );
-         int hh = m_maxHigh.discretePar( idx );
+         int l = m_minLow.discretePar( idx );
+         int h = m_maxHigh.discretePar( idx );
          assert( disWeights()[i].size() == 1 + h - l );
-         if ( w.size() != 1 + hh - ll )
+         if ( w.size() != 1 + h - l )
          {
             THROW2( DimensionMismatch, "Supplied weights" );
          }
-         for ( unsigned int j = 0; j < disWeights()[i].size(); ++j )
-         {
-            m_disWeights[i][j] = w[j + l - ll];
-         }
+         m_disWeights[i] = w;
          checkDisWeights( i );
       }
    }

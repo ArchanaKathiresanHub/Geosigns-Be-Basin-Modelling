@@ -27,6 +27,21 @@ class KrigingData;
 /// The calculate method can then be used to calculate the proxies for the
 /// specified collection of target sets, with optional settings for the
 /// proxy calculation.
+///
+/// The function calculate(...) receives a few arguments (settings) that control the
+/// polynomial proxy building:
+/// order of polynomial (0, 1, 2, or 9); 9 is conventional: linear + pure quadratic.
+/// modelSearch (bool) to search for more optimal polynomial proxies that honor 'order'.
+/// targetR2 is the adjusted R^2 value between 0 and 1 above which we accept the model.
+/// confLevel ranging between 0.5 (50% confidence level) and 0.999 (99.9% confidence level),
+/// 0.5 has no effect whereas higher values gradually result in more significant monomials.
+
+/// The combination modelSearch = true and order = 0 does not make sense (no search needed).
+/// This combination (default) is therefore used to search for terms up to 3rd order.
+
+/// So-called binary dummy parameters indicate which categorical value (if any) applies.
+/// Dummy parameters can be part of a polynomial term but they don't increase its order.
+/// For example, dummy_par * x * y is a second order term that applies to a categorical state.
 class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
 {
    public:
@@ -64,14 +79,14 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
       ///                              transforms will be applied. Transforms are only applied on the
       ///                              continuous, unfrozen, scalar parameters. @see SUMlib::ParameterTransforms.
       void calculate(
-            TargetCollection const&                                                 targets,
-            std::vector<std::vector<bool> > const&                                  case2Obs2Valid,
-            unsigned int                                                            order,
-            bool                                                                    modelSearch,
-            double                                                                  targetR2,
-            double                                                                  confLevel,
-            Partition const&                                                        partition,
-            const std::vector< std::vector< ParameterTransforms::TransformType > >& parTransformsDef = std::vector< std::vector< ParameterTransforms::TransformType > >()
+            TargetCollection const&                              targets,
+            std::vector<std::vector<bool> > const&               case2Obs2Valid,
+            unsigned int                                         order,
+            bool                                                 modelSearch,
+            double                                               targetR2,
+            double                                               confLevel,
+            Partition const&                                     partition,
+            const std::vector< ParameterTransformTypeVector >&   parTransformsDef = std::vector< ParameterTransformTypeVector >()
             );
 
       /// Getter for the list of proxies

@@ -29,9 +29,15 @@ namespace casa
       /// @param maxValue maximal value for the variable parameter range
       /// @param pdfType type of PDF shape for the variable parameter
       VarPrmSourceRockTOC( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType = Block );
+
+      /// @brief Destructor
       virtual ~VarPrmSourceRockTOC();
      
-      virtual Parameter * createNewParameterFromDouble( const std::vector<double> & vals ) const;
+      /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
+      /// @param[in,out] vals iterator which points to the first sub-parameter value
+      /// @return new casa::PrmSourceRockTOC parameter
+      virtual SharedParameterPtr createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const;
+
 
    protected:
       std::string m_layerName; ///< source rock lithology name

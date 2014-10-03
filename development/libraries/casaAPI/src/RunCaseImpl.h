@@ -29,7 +29,7 @@ namespace casa
    class RunCaseImpl : public RunCase
    {
    public:
-      // Default constructor, used with Monte Carol cases
+      // Default constructor, used with Monte Carlo cases
       RunCaseImpl();
 
       virtual ~RunCaseImpl();
@@ -41,10 +41,10 @@ namespace casa
       // Get i-th parameter
       // i position of requested parameter
       // return i-th parameter or null pointer if there is no such parameter
-      virtual Parameter * parameter( size_t i ) const;
+      virtual SharedParameterPtr parameter( size_t i ) const;
 
       // Add new parameter to the list
-      void addParameter( Parameter * prm );
+      void addParameter( SharedParameterPtr prm );
 
       // Get number of observables value
       // return observables value number
@@ -81,13 +81,12 @@ namespace casa
       // Set full path to the project path (including project file name).
       virtual void setProjectPath( const char * pth ) { m_modelProjectFileName = pth; }
 
-
    private:
       std::auto_ptr<mbapi::Model> m_model;                // Mutated model, available after mutateCaseTo call
       std::string                 m_modelProjectFileName; // full path to the project file
 
-      std::vector<Parameter*>     m_prmsSet;              // list of parameters for this case
-      std::vector<ObsValue*>      m_results;              // list of observables values
+      std::vector<SharedParameterPtr>  m_prmsSet;              // list of parameters for this case
+      std::vector<ObsValue*>           m_results;              // list of observables values
 
       // disable copy constructor and copy operator
       RunCaseImpl( const RunCaseImpl & );

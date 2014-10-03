@@ -13,6 +13,9 @@
 
 
 #include "PrmTopCrustHeatProduction.h"
+#include "VarPrmTopCrustHeatProduction.h"
+
+// CMB API
 #include "cmbAPI.h"
 #include "ErrorHandler.h"
 
@@ -29,12 +32,13 @@ static const char * s_topCrushHeatProd     = "TopCrustHeatProd";
 static const char * s_topCrushHeatProdGrid = "TopCrustHeatProdGrid";
 
 // Constructor
-PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( double val )  : m_heatProdRateValue( val )
+PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val )
+   : m_parent( parent )
+   , m_heatProdRateValue( val )
 {
-   ;
 }
 
-PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( mbapi::Model & mdl )
+PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( mbapi::Model & mdl ) : m_parent( 0 )
 {
    m_heatProdRateValue = mdl.tableValueAsDouble( s_basementTblName, 0, s_topCrushHeatProd );
 

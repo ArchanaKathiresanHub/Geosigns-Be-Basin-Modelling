@@ -28,32 +28,20 @@ void ProbDistr::calcLogPriorProb( ParameterSet const& parSet, RealVector &priorP
 
 double ProbDistr::calcLogWeight( double rel_p, RealVector const& weights ) const
 {
-   // Precaution: Truncate in case of extrapolation beyond bounds!
-   if ( rel_p < 0.0 )
-   {
-      rel_p = 0.0;
-   }
-   else if ( rel_p > 1.0 )
-   {
-      rel_p = 1.0;
-   }
-   
    size_t nbOfIntervals = weights.size() - 1;
    assert( nbOfIntervals > 0 );
-
-   // To interpolate between nearest weights, define corresponding indices and factor
-   double interpolationFactor = nbOfIntervals * rel_p;
-   size_t index1 = int( interpolationFactor ); //truncate
-   if ( index1 == nbOfIntervals ) index1--; //avoid index2 = index1 + 1 out of bounds
-   interpolationFactor -= index1; //factor now between 0 and 1
-   size_t index2 = index1 + 1;
-
-   // Interpolate between nearest weights, and update log-Likelihood
-   double weight_p = ( 1.0 - interpolationFactor ) * weights[index1];
-   weight_p += interpolationFactor * weights[index2];
-   if ( weight_p < CloseToZero )
+   
+   size_t nearestIndex = int( nbOfIntervals * rel_p + 0.5 ); //round to nearest index
+   assert( nearestIndex <= nbOfIntervals );
+   
+   double weight_p = weights[nearestIndex]; //determine corresponding weight
+   if ( weight_p < CloseToZero ) //not likely to happen, just a precaution
    {
       return MinInf;
+   }
+   else if ( ( nearestIndex == 0 ) || ( nearestIndex == nbOfIntervals ) )
+   {
+      return log( 2 * weight_p ); //factor 2 to correct for the smaller boundary intervals
    }
    else
    {

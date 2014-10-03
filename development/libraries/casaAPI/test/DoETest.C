@@ -106,10 +106,10 @@ TEST_F( DoETest, Tornado2Prms )
    {
       ASSERT_EQ( 2, doeCaseSet[i]->parametersNumber() );
 
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
       double val1 = prm1->value();
       double val2 = prm2->value();
@@ -154,10 +154,10 @@ TEST_F( DoETest, BoxBehnken2Prms )
    {
       ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
    
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
    
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
       double val1 = prm1->value( );
       double val2 = prm2->value( );
@@ -202,10 +202,10 @@ TEST_F( DoETest, FullFactorial2Prms )
    {
       ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
 
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
       double val1 = prm1->value( );
       double val2 = prm2->value( );
@@ -250,10 +250,10 @@ TEST_F( DoETest, PlackettBurman2Prms )
    {
       ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
 
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
       double val1 = prm1->value();
       double val2 = prm2->value();
@@ -297,10 +297,10 @@ TEST_F( DoETest, PlackettBurmanMirror2Prms )
    {
       ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
 
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
       double val1 = prm1->value();
       double val2 = prm2->value();
@@ -344,10 +344,10 @@ TEST_F( DoETest, SpaceFilling2Prms )
    {
       ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
 
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
       double val1 = prm1->value();
       double val2 = prm2->value();
@@ -387,10 +387,10 @@ TEST_F( DoETest, LatinHypercube2Prms )
    {
       ASSERT_EQ( 2, doeCaseSet[ i ]->parametersNumber() );
 
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
       double val1 = prm1->value();
       double val2 = prm2->value();
@@ -429,13 +429,13 @@ TEST_F( DoETest, AllVarPrmsTornadoTest )
       // 3 parameter per 1 case, 3d parameter - multi-dim (4 doubles for 1 parameter)
       ASSERT_EQ( 3, doeCaseSet[ i ]->parametersNumber() );
 
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( doeCaseSet[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( doeCaseSet[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
 
-      const casa::PrmOneCrustThinningEvent * prm3 = dynamic_cast<casa::PrmOneCrustThinningEvent*>( doeCaseSet[ i ]->parameter( 2 ) );
+      const casa::PrmOneCrustThinningEvent * prm3 = dynamic_cast<casa::PrmOneCrustThinningEvent*>( doeCaseSet[ i ]->parameter( 2 ).get() );
       double val1 = prm1->value();
       double val2 = prm2->value();
       const std::vector<double> & val3 = prm3->asDoubleArray();

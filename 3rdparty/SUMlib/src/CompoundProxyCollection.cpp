@@ -6,10 +6,80 @@
 #include <assert.h>
 
 #include "CompoundProxyCollection.h"
+#include "Exception.h"
 #include "KrigingData.h"
 #include "SerializerUtils.h"
 
-namespace SUMlib {
+namespace SUMlib
+{
+
+namespace
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Intialises the parameter transforms. Performs the following tasks:
+/// * Filter out the frozen parameters in @param parameterSpace.
+/// * Create the transforms (default, trivial transforms are created when parTransformsDef is empty).
+/// * Check if all transforms are valid, throws a SUMlib::InvalidTransforms exception when this is not the case.
+///
+/// Callers owns the ParameterTransforms (i.e. return vector elements) and is responsible for clean-up or ownership transfer.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+std::vector< ParameterTransforms* > initialiseParameterTransforms( std::vector< ParameterTransformTypeVector > parTransformsDef,
+                                                                   const ParameterSpace& parameterSpace,
+                                                                   const size_t numObservables )
+{
+   if ( parTransformsDef.size() == 0 )
+   {
+      parTransformsDef.assign( numObservables, ParameterTransformTypeVector( parameterSpace.size(), ParameterTransforms::transformNone ) );
+   }
+   assert( parTransformsDef.size() == numObservables );
+
+   /// Remember the invalid transforms during the prepare below.
+   std::vector< size_t >      invalidObsTransforms;
+   std::vector< size_t >      invalidParTransforms;
+   std::vector< std::string > invalidTransformReasons;
+   bool                       allTransformsAreValid = true;
+
+   /// Prepare transformations.
+   std::vector< ParameterTransforms* > obsDependentParTransforms( numObservables );
+   for ( size_t iObs = 0; iObs < numObservables; ++iObs )
+   {
+      assert( parTransformsDef[ iObs ].size() == parameterSpace.size() );
+
+      std::vector< size_t > invalidParTransformsForThisObs;
+      std::vector< std::string > invalidTransformReasonsForThisObs;
+
+      /// Create new ParameterTransforms.
+      ParameterTransforms* pt = new ParameterTransforms( parTransformsDef[ iObs ], parameterSpace );
+      obsDependentParTransforms[ iObs ] = pt;
+
+      /// Handle invalid transforms.
+      allTransformsAreValid &= pt->isValid( invalidParTransformsForThisObs, invalidTransformReasonsForThisObs );
+
+      /// Append the invalid indices and reasons.
+      invalidParTransforms.insert( invalidParTransforms.end(), invalidParTransformsForThisObs.begin(), invalidParTransformsForThisObs.end() );
+      invalidTransformReasons.insert( invalidTransformReasons.end(), invalidTransformReasonsForThisObs.begin(), invalidTransformReasonsForThisObs.end() );
+
+      /// This appends the current value of iObs for each invalid parameter transform found for this observable.
+      invalidObsTransforms.resize( invalidParTransforms.size(), iObs );
+   }
+
+   /// Throw exception if there are invalid transforms.
+   if ( !allTransformsAreValid )
+   {
+      /// Need to clean up the parameter transforms before throwing the exception.
+      for ( size_t i = 0; i < obsDependentParTransforms.size(); ++i )
+      {
+         delete obsDependentParTransforms[ i ];
+      }
+      throw InvalidTransforms( invalidObsTransforms, invalidParTransforms, invalidTransformReasons );
+   }
+
+   return obsDependentParTransforms;
+}
+
+} /// Anonymous namespace.
+
 
 CompoundProxyCollection::CompoundProxyCollection()
 {
@@ -35,14 +105,14 @@ CompoundProxyCollection::~CompoundProxyCollection()
 }
 
 void CompoundProxyCollection::calculate(
-               TargetCollection const&                                                 targets,
-               std::vector< std::vector< bool > > const&                               case2Obs2Valid,
-               unsigned int                                                            order,
-               bool                                                                    modelSearch,
-               double                                                                  targetR2,
-               double                                                                  confLevel,
-               Partition const&                                                        partition,
-               const std::vector< std::vector< ParameterTransforms::TransformType > >& parTransformsDef
+               TargetCollection const&                               targets,
+               std::vector< std::vector< bool > > const&             case2Obs2Valid,
+               unsigned int                                          order,
+               bool                                                  modelSearch,
+               double                                                targetR2,
+               double                                                confLevel,
+               Partition const&                                      partition,
+               const std::vector< ParameterTransformTypeVector >&    parTransformsDef
                )
 {
    assert( case2Obs2Valid.size() == m_preparedCaseSet.size() );
@@ -50,36 +120,25 @@ void CompoundProxyCollection::calculate(
    {
       assert( case2Obs2Valid[i].size() == targets.size() );
    }
+
    deleteProxies();
 
    Partition part( partition );
    m_parameterSpace.prepare( part );
    unsigned int n = m_parameterSpace.nbOfNonFixedOrdinalPars();
-   unsigned int iObs = 0;
 
-   const size_t nContinuousPar = m_parameterSpace.nbOfNonFixedContinuousPars();
+   /// Ownership is transferred to the individual sub-proxies in the loop below.
+   std::vector< ParameterTransforms* > obsDependentParTransforms = initialiseParameterTransforms( parTransformsDef, m_parameterSpace, targets.size() );
 
-   /// Copy needed in order to ensure that the parameter definitions are initialised.
-   std::vector< std::vector< ParameterTransforms::TransformType > > parTransformsDefCopy( parTransformsDef );
-
-   if ( parTransformsDefCopy.size() == 0 )
-   {
-      parTransformsDefCopy.assign( targets.size(), std::vector< ParameterTransforms::TransformType >( nContinuousPar, ParameterTransforms::transformNone ) );
-   }
-
-   assert( parTransformsDefCopy.size() == targets.size() );
-
-   for ( TargetCollection::const_iterator t = targets.begin(); t != targets.end(); ++t )
+   /// Create all sub-proxies.
+   for ( size_t iObs = 0; iObs < targets.size(); ++iObs )
    {
       std::vector<bool> caseValid;
-      provideCaseValidity( case2Obs2Valid, (*t).size(), iObs, caseValid );
+      provideCaseValidity( case2Obs2Valid, targets[ iObs ].size(), iObs, caseValid );
 
-      assert( parTransformsDefCopy[ iObs ].size() == nContinuousPar );
-      ParameterTransforms::ptr parTransforms( new ParameterTransforms( parTransformsDefCopy[ iObs ], m_parameterSpace ) );
+      ParameterTransforms::ptr parTransforms( obsDependentParTransforms[ iObs ] );
 
-      m_proxies.push_back( new CompoundProxy( m_preparedCaseSet, caseValid, m_krigingData.get(), *t, n, order, modelSearch, targetR2, confLevel, part,  parTransforms ) );
-
-      iObs++;
+      m_proxies.push_back( new CompoundProxy( m_preparedCaseSet, caseValid, m_krigingData.get(), targets[ iObs ], n, order, modelSearch, targetR2, confLevel, part,  parTransforms ) );
    }
 }
 

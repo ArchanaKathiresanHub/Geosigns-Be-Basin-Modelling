@@ -8,9 +8,7 @@
 
 namespace SUMlib {
 
-const double ReferenceProxy::defaultStdDev = 1.0;
-
-ReferenceProxy::ReferenceProxy( Proxy const& proxy, double reference, double stddev /* defaultStdDev */ ) :
+ReferenceProxy::ReferenceProxy( Proxy const& proxy, double reference, double stddev ) :
    m_proxy( proxy ),
    m_active( true ),
    m_hasReference( true ),
@@ -48,7 +46,7 @@ bool ReferenceProxy::hasReference() const
    return m_hasReference;
 }
 
-void ReferenceProxy::setReference( double reference, double stddev /* defaultStdDev */ )
+void ReferenceProxy::setReference( double reference, double stddev )
 {
    m_hasReference = true;
    m_reference = reference;
@@ -73,9 +71,9 @@ double ReferenceProxy::getStdDeviation() const
    return m_stddev;
 }
 
-double ReferenceProxy::getProxyValue(Parameter const& p, KrigingType ) const
+double ReferenceProxy::getProxyValue(Parameter const& p, KrigingType t /* DefaultKriging */ ) const
 {
-   return m_proxy.getProxyValue( p );
+   return m_proxy.getProxyValue( p, t );
 }
 
 unsigned int ReferenceProxy::size() const

@@ -45,7 +45,6 @@
 #include "stdafx.h"
 
 #include <math.h>
-#include <malloc.h>
 #include <stdlib.h>
 
 #include "EosCauldron.h"

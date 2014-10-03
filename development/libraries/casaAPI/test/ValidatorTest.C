@@ -83,28 +83,28 @@ TEST_F( ValidatorTest, TOCPrmValidation )
 
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
 
-   PrmSourceRockTOC prm( 0.5 * ( m_minTOC + m_maxTOC ), m_layerName );
+   PrmSourceRockTOC prm( NULL, 0.5 * ( m_minTOC + m_maxTOC ), m_layerName );
      
    // check if all comes OK
    const std::string & validationMessage = prm.validate( sc.baseCase() );
    ASSERT_TRUE( validationMessage.empty() );
 
    // check for error for negative TOC
-   PrmSourceRockTOC prm1( -1, m_layerName );
+   PrmSourceRockTOC prm1( NULL, -1, m_layerName );
    const std::string & validationMessage1 = prm1.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage1.empty( ) ); // negative value message
 
    // check for error for more then 100% TOC
-   PrmSourceRockTOC prm2( 101, m_layerName );
+   PrmSourceRockTOC prm2( NULL, 101, m_layerName );
    const std::string & validationMessage2 = prm2.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage2.empty() ); // out of range message
 
    // check for error if wrong layer name is given
-   PrmSourceRockTOC prm3( 0.5 * ( m_minTOC + m_maxTOC ), "Some wrong layer name" );
+   PrmSourceRockTOC prm3( NULL, 0.5 * ( m_minTOC + m_maxTOC ), "Some wrong layer name" );
    const std::string & validationMessage3 = prm3.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage3.empty() ); // wrong layer message
 
-   PrmSourceRockTOC prm4( 77, m_layerName );
+   PrmSourceRockTOC prm4( NULL, 77, m_layerName );
    const std::string & validationMessage4 = prm4.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage4.empty() ); // value in the model is differ than given
 }
@@ -116,18 +116,18 @@ TEST_F( ValidatorTest, TCHPPrmValidation )
 
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
 
-   PrmTopCrustHeatProduction prm( 0.5 * ( m_minTCHP + m_maxTCHP ) );
+   PrmTopCrustHeatProduction prm( NULL, 0.5 * ( m_minTCHP + m_maxTCHP ) );
 
    // check if all comes OK
    const std::string & validationMessage = prm.validate( sc.baseCase() );
    ASSERT_TRUE( validationMessage.empty() );
 
    // check for error for negative TCHP rate
-   PrmTopCrustHeatProduction prm1( -1 );
+   PrmTopCrustHeatProduction prm1( NULL, -1 );
    const std::string & validationMessage1 = prm1.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage1.empty() ); // negative value message
 
-   PrmTopCrustHeatProduction prm2( 77 );
+   PrmTopCrustHeatProduction prm2( NULL, 77 );
    const std::string & validationMessage2 = prm2.validate( sc.baseCase() );
    ASSERT_FALSE( validationMessage2.empty() ); // value in the model is differ than given
 }

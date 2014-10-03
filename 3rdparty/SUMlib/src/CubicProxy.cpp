@@ -82,10 +82,13 @@ void CubicProxy::calculateCoefficients( int stat, vector<vector<double> > const&
 
 unsigned int CubicProxy::numVars( unsigned int nPar, unsigned int maxOrder /* 3 */ )
 {
-   unsigned int num(0);
+   unsigned int num = 0;
 
    switch( maxOrder )
    {
+      case 9: //special convention: linear + pure quadratic terms
+         num = 2*nPar;
+         break;
       case 3:
          num = 3*nPar*(nPar+1)/2 + nPar*(nPar-1)*(nPar-2)/6;
          break;
@@ -95,7 +98,7 @@ unsigned int CubicProxy::numVars( unsigned int nPar, unsigned int maxOrder /* 3 
       case 1:
          num = nPar;
          break;
-      case 0 :
+      case 0:
          break;
       default:
          THROW2( InvalidValue, "maximum order is 3" );
@@ -417,7 +420,7 @@ IndexList CubicProxy::initialVarList(
       Partition const&     partition )
 {
    assert( partition.size() == nPars );
-   assert( order < 3 );
+   assert( order < 3 || order == 9 ); //by convention, order = 9 stands for linear + pure quadratic terms
 
    // start without any vars, i.e. intercept only!
    IndexList vars( 0 ); //no vars if order == 0 (intercept only)
@@ -439,7 +442,7 @@ IndexList CubicProxy::initialVarList(
    }
 
    // second order terms
-   if ( order == 2 )
+   if ( order == 2 || order == 9 )
    {
       for ( j = 0; j < nPars; ++j )
       {
@@ -447,7 +450,10 @@ IndexList CubicProxy::initialVarList(
          {
             if ( partition[j] && partition[k] )
             {
-               vars.push_back( i );
+               if ( order == 2 || k == j ) //no interaction terms if order = 9
+               {
+                  vars.push_back( i );
+               }
             }
             ++i;
          }
@@ -461,7 +467,7 @@ IndexList CubicProxy::initialVarList( unsigned int nPars, unsigned int nOrdPars,
                                       unsigned int order, Partition const& partition )
 {
    assert( partition.size() == nPars );
-   assert( order < 3 );
+   assert( order < 3 || order == 9 ); //by convention, order = 9 stands for linear + pure quadratic terms
    assert( nOrdPars < nPars );
 
    IndexList vars;
@@ -519,13 +525,14 @@ IndexList CubicProxy::initialVarList( unsigned int nPars, unsigned int nOrdPars,
 bool CubicProxy::validOrder2Var( unsigned int order, unsigned int nOrds, unsigned int k, unsigned int j )
 {
    assert( k >= j );
-   bool validTerm, validOrder0, validOrder1, validOrder2;
+   bool validTerm, validOrder0, validOrder1, validOrder2, validOrder9;
 
-   validOrder0 = ( ( order == 0 ) && ( k > j ) && ( j >= nOrds ) );
-   validOrder1 = ( ( order == 1 ) && ( k > j ) && ( k >= nOrds ) );
-   validOrder2 = ( ( order == 2 ) && !( ( k == j ) && ( k >= nOrds ) ) );
+   validOrder0 = ( order == 0 ) && ( k > j ) && ( j >= nOrds );
+   validOrder1 = ( order == 1 ) && ( k > j ) && ( k >= nOrds );
+   validOrder2 = ( order == 2 ) && !( k == j && k >= nOrds );
+   validOrder9 = ( order == 9 ) && !( k == j && k >= nOrds ) && !( k > j && k < nOrds );
 
-   validTerm = ( validOrder0 || validOrder1 || validOrder2 );
+   validTerm = ( validOrder0 || validOrder1 || validOrder2 || validOrder9 );
    return validTerm;
 }
 
@@ -533,13 +540,14 @@ bool CubicProxy::validOrder3Var( unsigned int order, unsigned int nOrds,
                                  unsigned int l, unsigned int k, unsigned int j )
 {
    assert( ( l >= k ) && ( k >= j ) );
-   bool validTerm, validOrder0, validOrder1, validOrder2;
+   bool validTerm, validOrder0, validOrder1, validOrder2, validOrder9;
 
-   validOrder0 = ( ( order == 0 ) && ( l > k ) && ( k > j ) && ( j >= nOrds ) );
-   validOrder1 = ( ( order == 1 ) && ( l > k ) && ( k > j ) && ( k >= nOrds ) );
-   validOrder2 = ( ( order == 2 ) && ( l > k ) && ( l >= nOrds ) && !( ( k == j ) && ( k >= nOrds ) ) );
+   validOrder0 = ( order == 0 ) && ( l > k ) && ( k > j ) && ( j >= nOrds );
+   validOrder1 = ( order == 1 ) && ( l > k ) && ( k > j ) && ( k >= nOrds );
+   validOrder2 = ( order == 2 ) && ( l > k ) && ( l >= nOrds ) && !( k == j && k >= nOrds );
+   validOrder9 = ( order == 9 ) && ( l > k ) && ( l >= nOrds ) && !( k == j && k >= nOrds ) && !( k > j && k < nOrds );
 
-   validTerm = ( validOrder0 || validOrder1 || validOrder2 );
+   validTerm = ( validOrder0 || validOrder1 || validOrder2 || validOrder9 );
    return validTerm;
 }
 

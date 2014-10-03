@@ -27,7 +27,7 @@ namespace casa
       /// @brief Constructor
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
-      ObsValueDoubleArray( Observable * parent, const std::vector<double> & val ) : 
+      ObsValueDoubleArray( const Observable * parent, const std::vector<double> & val ) : 
          m_parent( parent ), 
          m_value( val.begin(), val.end() )
       { ; }
@@ -65,8 +65,8 @@ namespace casa
       virtual std::vector<double> doubleValue() const { return m_value; }
 
    protected:
-      std::vector<double>   m_value;    // value itself
-      Observable          * m_parent;   // pointer to the observable description object
+      std::vector<double>  m_value;    // value itself
+      const Observable   * m_parent;   // pointer to the observable description object
    };
 
 }

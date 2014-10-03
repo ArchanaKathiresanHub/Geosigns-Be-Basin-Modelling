@@ -13,6 +13,9 @@
 
 
 #include "PrmOneCrustThinningEvent.h"
+#include "VarPrmOneCrustThinningEvent.h"
+
+// CMB API
 #include "cmbAPI.h"
 
 #include <cassert>
@@ -30,7 +33,7 @@ static const char * s_crustIoTblThicknessCol = "Thickness";
 static const double s_eps = 1.e-8;
 
 // Constructor. Get parameter values from the model
-PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl )
+PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_parent( 0 )
 {
    int crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
@@ -61,13 +64,13 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl )
 }
 
 // Constructor. Set given parameter values
-PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( double thickIni, double t0, double dt, double coeff ) : 
-     m_initialThicknes( thickIni ) 
+PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent, double thickIni, double t0, double dt, double coeff ) : 
+     m_parent( parent )
+   , m_initialThicknes( thickIni ) 
    , m_t0( t0 )
    , m_dt( dt )
    , m_coeff( coeff )
 {
-   ;
 }
 
 // Set this parameter value in Cauldron model
@@ -172,7 +175,7 @@ std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
    return oss.str(); // another model, no reason to check further
 }
   
-// The following methods are used for testing  
+// Get parameter value as an array of doubles
 std::vector<double> PrmOneCrustThinningEvent::asDoubleArray() const
 {
    std::vector<double> vals(4);

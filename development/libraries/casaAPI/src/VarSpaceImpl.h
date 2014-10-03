@@ -65,10 +65,10 @@ public:
    }
 
    // Get i-th continuous parameter from the list
-   const VarPrmContinuous * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
+   virtual const VarPrmContinuous * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
 
    // Get i-th categorical parameter from the list
-   const VarPrmCategorical * categoricalParameter( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ] : NULL; }
+   virtual const VarPrmCategorical * categoricalParameter( size_t i ) const { return i < m_catPrms.size() ? m_catPrms[ i ] : NULL; }
 
 
 private:

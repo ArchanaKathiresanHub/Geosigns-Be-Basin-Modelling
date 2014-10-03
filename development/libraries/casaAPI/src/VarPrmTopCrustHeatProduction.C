@@ -24,12 +24,12 @@ VarPrmTopCrustHeatProduction::VarPrmTopCrustHeatProduction( double baseValue, do
 {
    m_pdf = pdfType;
   
-   m_minValue.reset( new PrmTopCrustHeatProduction( minValue ) );
-   m_maxValue.reset( new PrmTopCrustHeatProduction( maxValue ) );
+   m_minValue.reset( new PrmTopCrustHeatProduction( this, minValue ) );
+   m_maxValue.reset( new PrmTopCrustHeatProduction( this, maxValue ) );
    
    assert( minValue <= baseValue && maxValue >= baseValue );
 
-   m_baseValue.reset( new PrmTopCrustHeatProduction( baseValue ) );
+   m_baseValue.reset( new PrmTopCrustHeatProduction( this, baseValue ) );
 }
 
 VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
@@ -37,14 +37,21 @@ VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
    ;
 }
 
-Parameter * VarPrmTopCrustHeatProduction::createNewParameterFromDouble( const std::vector<double> & vals ) const
+SharedParameterPtr VarPrmTopCrustHeatProduction::createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const
 {
-   assert( vals.size() == 1 );
-
    double minV = dynamic_cast<PrmTopCrustHeatProduction*>( m_minValue.get() )->value();
    double maxV = dynamic_cast<PrmTopCrustHeatProduction*>( m_maxValue.get() )->value();
+   double valP = *vals++;
 
-   return (minV <= vals[0] && vals[0] <= maxV) ? new PrmTopCrustHeatProduction( vals[0] ) : 0;
+   if ( minV > valP || valP > maxV )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of Top crust heat production rate parameter " << valP << 
+                                                                        " falls out of range: [" << minV << ":" << maxV << "]";
+   }
+   
+   SharedParameterPtr prm( new PrmTopCrustHeatProduction( this, valP ) );
+
+   return prm;
 }
 
 }

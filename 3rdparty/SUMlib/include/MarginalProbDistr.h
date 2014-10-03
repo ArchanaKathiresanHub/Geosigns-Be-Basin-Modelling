@@ -43,15 +43,15 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
       MarginalProbDistr(
             const std::vector<double>& base,
             const std::vector<std::vector<double> >& cov,
-            const std::vector<double>& low,
-            const std::vector<double>& high,
+            const std::vector<double>& pdfMin,
+            const std::vector<double>& pdfMax,
             const std::vector<Type>& types = std::vector<Type>(),
             unsigned int logNormalInfo = 1
             );
 
-      /// This constructor supports all ordinal parameters (discrete ones are interpolated)!
+      /// This constructor supports all ordinal parameters!
       /// Base, variances, low and high are taken from ParameterPdf data.
-      /// @param [in] pdf parameter pdf to use bounds, base and variances from
+      /// @param [in] pdf parameter pdf to use bounds, base and covariances from
       MarginalProbDistr(
             ParameterPdf const& pdf,
             const std::vector<Type>& types = std::vector<Type>(),
@@ -65,8 +65,6 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
       void initialise(
             const std::vector<double>& base,
             const std::vector<std::vector<double> >& cov,
-            const std::vector<double>& low,
-            const std::vector<double>& high,
             const std::vector<double>& pdfMin,
             const std::vector<double>& pdfMax,
             const std::vector<Type>& types = std::vector<Type>(),
@@ -75,6 +73,11 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
 
       /// Setter for the parameter distribution types
       void setTypes( std::vector<Type> const& types );
+      
+      /// Set ordinal parameter bounds used for sampling
+      /// @param [in] min  lower ordinal sampling bounds
+      /// @param [in] max  upper ordinal sampling bounds
+      void setSamplingBounds( const std::vector<double>& min, const std::vector<double>& max );
 
       /// Calculates the logarithm of the prior probability density for parameter p.
       ///
@@ -82,11 +85,15 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
       /// individual marginals. Note that normalization factors are neglected as they cancel
       /// out in the MCMC procedure.
       double calcLogPriorProb( Parameter const& p ) const;
+      
+      /// Even without any prior distributions, corrections must still be calculated to account
+      /// for the rounding effects near the bounds of discrete parameters.
+      double correct4DISbounds( Parameter const& p ) const;
 
    private:
       /**
        *  Get internal parameters mu and sigma as a function of median, stdev and low;
-       *    low comes into play if it is not zero as it is subtracted from mode when the
+       *  low comes into play if it is not zero as it is subtracted from mode when the
        *  logNormal properties are calculated (support on positive axis only!).
        */
       void initLogNormal2( const std::vector<double>& median, const std::vector<double>& stdev,
@@ -94,7 +101,7 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
 
       /**
        *  Get internal parameters mu and sigma as a function of mode, stdev and low;
-       *    low comes into play if it is not zero as it is subtracted from mode when the
+       *  low comes into play if it is not zero as it is subtracted from mode when the
        *  logNormal properties are calculated (support on positive axis only!).
        */
       void initLogNormal1( const std::vector<double>& mode, const std::vector<double>& stdev,
@@ -108,6 +115,9 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
 
       // Calculation of logarithm of marginal Triangular probability density function for parameter p
       double calcLogMarginalTriangular( double p, double base, double low, double high ) const;
+      
+      // Calculate (logarithm of) discrete weights
+      void calcLogDisWeights( Parameter const& p, bool prior, double& logProb ) const;
 
       std::vector<Type> m_types;
 
@@ -119,12 +129,12 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
 
       // Prior standard deviations corresponding to the continuous parameters
       std::vector<double> m_stdev;
-
-      // Lower and upper bounds for the parameters
-      std::vector<double> m_low, m_high;
       
       // Lower and upper bounds for the parameter PDF's
       std::vector<double> m_pdfMin, m_pdfMax;
+      
+      // Lower and upper sampling bounds
+      std::vector<double> m_sampleMin, m_sampleMax;
 
       // Internal parameters mu and sigma needed to describe a logNormal distribution
       std::vector<double> m_mu;

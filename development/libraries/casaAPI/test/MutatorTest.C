@@ -87,10 +87,10 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
       PrmSourceRockTOC          prm_toc(  caseModel, m_layerName );
 
       // get parameters from case set
-      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( (sc.doeCaseSet())[ i ]->parameter( 0 ) );
+      const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( (sc.doeCaseSet())[ i ]->parameter( 0 ).get() );
       ASSERT_TRUE( prm1 != NULL );
 
-      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( (sc.doeCaseSet())[ i ]->parameter( 1 ) );
+      const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( (sc.doeCaseSet())[ i ]->parameter( 1 ).get() );
       ASSERT_TRUE( prm2 != NULL );
 
       ASSERT_NEAR( prm1->value(), prm_toc.value(), eps );
@@ -164,10 +164,10 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
          PrmSourceRockTOC          prm_toc(  caseModel, m_layerName );
 
          // get parameters from case set
-         const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( ( sc.doeCaseSet() )[ i ]->parameter( 0 ) );
+         const casa::PrmSourceRockTOC * prm1 = dynamic_cast<casa::PrmSourceRockTOC*>( ( sc.doeCaseSet() )[ i ]->parameter( 0 ).get() );
          ASSERT_TRUE( prm1 != NULL );
 
-         const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( ( sc.doeCaseSet() )[ i ]->parameter( 1 ) );
+         const casa::PrmTopCrustHeatProduction * prm2 = dynamic_cast<casa::PrmTopCrustHeatProduction*>( ( sc.doeCaseSet() )[ i ]->parameter( 1 ).get() );
          ASSERT_TRUE( prm2 != NULL );
 
          ASSERT_NEAR( prm1->value(), prm_toc.value(), eps );

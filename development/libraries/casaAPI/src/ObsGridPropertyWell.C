@@ -66,7 +66,6 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
    if ( ErrorHandler::NoError != caldModel.propertyManager().requestPropertyInSnapshots( m_propName ) ) return caldModel.errorCode();
 
    size_t tblSize = caldModel.tableSize( Observable::s_dataMinerTable ); 
-   
 
    for ( size_t i = 0; i < m_x.size(); ++i )
    {
@@ -98,6 +97,19 @@ ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
    }
 
    return new ObsValueDoubleArray( this, vals );
+}
+
+// Create this observable value from double array (converting data from SUMlib for response surface evaluation
+ObsValue * ObsGridPropertyWell::creatNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
+{
+   std::vector<double> obsVal( m_x.size(), -9999.0 );
+
+   for ( size_t i = 0; i < m_x.size(); ++i )
+   {
+      obsVal[i] = *val++;
+   }
+
+   return new ObsValueDoubleArray( this, obsVal );
 }
 
 }

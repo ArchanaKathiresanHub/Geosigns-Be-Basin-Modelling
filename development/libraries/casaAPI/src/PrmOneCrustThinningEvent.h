@@ -16,6 +16,11 @@
 
 #include "Parameter.h"
 
+// CMB API
+#include <UndefinedValues.h>
+
+#include <cassert>
+
 namespace mbapi
 {
    class Model;
@@ -33,20 +38,24 @@ namespace mbapi
 /// 
 namespace casa
 {
+   class VarPrmOneCrustThinningEvent;
+
    /// @brief Single event crust thinning parameter
    class PrmOneCrustThinningEvent : public Parameter
    {
    public:
-      /// @brief Constructor
+      /// @brief Constructor. Create parameter by reading parameter value from the given model
       /// @param mdl Cauldron model interface object to get value for single event crust thinning parameter
       PrmOneCrustThinningEvent( mbapi::Model & mdl );
 
-      /// @brief Constructor
+      /// @brief Constructor. Create parameter from variation of variable parameter
+      /// @param parent pointer to a variable parameter which created this one
+      /// @param mdl Cauldron model interface object to get value for single event crust thinning parameter
       /// @param thickIni initial crust thickness
       /// @param t0 start time for crust thinning event
       /// @param dt duration of crust thinning event
       /// @param coeff crust thinning factor
-      PrmOneCrustThinningEvent( double thickIni, double t0, double dt, double coeff );
+      PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent, double thickIni, double t0, double dt, double coeff );
 
 
       ///@brief Destructor
@@ -55,6 +64,10 @@ namespace casa
       /// @brief Get name of the parameter
       /// @return parameter name
       virtual const char * name() const { return "CrustThinningSingleEvent(InitialThickness, T0, dT, ThinningFactor)"; }
+
+      /// @brief Get variable parameter which was used to create this parameter
+      /// @return Pointer to the variable parameter
+      virtual const VarParameter * parent() const { return m_parent; }
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
@@ -66,16 +79,24 @@ namespace casa
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
 
-      // The following methods are used for testing  
+      // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
+      
+      /// @brief Get parameter value as an array of doubles
+      /// @return parameter value represented as set of doubles
       virtual std::vector<double> asDoubleArray() const;
 
+      /// @brief Get parameter value as integer
+      /// @return parameter value represented as integer
+      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
+
    private:
-      std::string m_name;        ///< name of the parameter
+      const VarParameter * m_parent;          ///< variable parameter which was used to create this one
+      std::string          m_name;            ///< name of the parameter
       
-      double m_initialThicknes;  ///< initial crust thickness
-      double m_t0;               ///< start time for thinning event
-      double m_dt;               ///< duration of thinning event
-      double m_coeff;            ///< factor for the crust thinning
+      double               m_initialThicknes; ///< initial crust thickness
+      double               m_t0;              ///< start time for thinning event
+      double               m_dt;              ///< duration of thinning event
+      double               m_coeff;           ///< factor for the crust thinning
    };
 }
 #endif // CASA_API_PARAMETER_ONE_CRUST_THINNING_EVENT_H

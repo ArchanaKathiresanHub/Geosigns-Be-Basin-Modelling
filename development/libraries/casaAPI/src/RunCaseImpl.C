@@ -27,20 +27,21 @@ RunCaseImpl::RunCaseImpl() {;}
 // Destructor
 RunCaseImpl::~RunCaseImpl()
 {
-   for ( size_t i = 0; i < m_prmsSet.size(); ++i ) delete m_prmsSet[i];
    for ( size_t i = 0; i < m_results.size(); ++i ) delete m_results[i];
    m_prmsSet.clear(); 
    m_results.clear();
 }
 
 // Get i-th parameter
-Parameter * RunCaseImpl::parameter( size_t i ) const
+SharedParameterPtr RunCaseImpl::parameter( size_t i ) const
 {
-   return i < m_prmsSet.size() ? m_prmsSet[ i ] : NULL;
+   SharedParameterPtr nulPtr( static_cast<Parameter*>(0) );
+
+   return i < m_prmsSet.size() ? m_prmsSet[ i ] : nulPtr;
 }
 
 // Add new parameter to the list
-void RunCaseImpl::addParameter( Parameter * prm )
+void RunCaseImpl::addParameter( SharedParameterPtr prm )
 {
    m_prmsSet.push_back( prm );
 }

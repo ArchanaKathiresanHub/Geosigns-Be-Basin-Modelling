@@ -212,8 +212,8 @@ private: //methods
    /// Check dimensions
    void checkDimensions() const;
 
-   /// remove weights for discrete/categorical values that are beyond current bounds
-   void removeRedundantWeights();
+   /// remove weights for categorical values that are not used
+   void removeRedundantCatWeights();
 
    /// Remove fixed elements
    void removeFixedElements();

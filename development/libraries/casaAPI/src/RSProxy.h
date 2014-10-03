@@ -67,6 +67,7 @@
 
 #include "ErrorHandler.h"
 
+#include <map>
 #include <vector>
 
 namespace casa
@@ -77,6 +78,9 @@ namespace casa
    class RSProxy : public ErrorHandler
    {
    public:
+      typedef std::map< std::vector< unsigned int >, double > CoefficientsMap;
+      typedef std::vector< CoefficientsMap >                  CoefficientsMapList;
+
       /// @brief Types of Kriging interpolation which can be used in proxy
       enum RSKrigingType
       {
@@ -91,12 +95,24 @@ namespace casa
       /// @brief Calculate polynomial coefficients for the given cases set
       /// @param caseSet list of cases which keeps simulation results with variable parameters value and observables value
       /// @return ErrorHandler::NoError in case of success, or error code in case of error
-      virtual ErrorHandler::ReturnCode calculateRSProxy( const std::vector<RunCase*> & caseSet ) = 0;
+      ///
+      /// @pre Non empty set of cases, each of them must keeps parameters value set and corresponded set of observables value set from simulation.
+      /// @post Properly initialized RSProxy object with calculated polynomial coefficients for the response surface approximation.
+      virtual ErrorHandler::ReturnCode calculateRSProxy( const std::vector<const RunCase*> & caseSet ) = 0;
 
-      /// @brief Calculate values of observables for given set of parameters
+
+      /// @brief Calculate values of observables for given set of parameters.
       /// @param cs case which keeps list of parameters and list of observables to be calculated
-      /// @return ErrorHandler::NoError in case of success, or error code in case of error
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ///
+      /// @pre RSProxy object must be initialized with RSProxy::calculateRSProxy() call before it can be
+      ///      used for proxy evaluation.
+      /// @post Calculated observables value for given case
       virtual ErrorHandler::ReturnCode evaluateRSProxy( RunCase & cs ) = 0;
+
+      /// @brief Get type of kriging interpolation for this proxy
+      /// @return which kriging interpolation is used for the proxy
+      virtual RSKrigingType kriging() const = 0; 
 
    protected:
       RSProxy() {;}

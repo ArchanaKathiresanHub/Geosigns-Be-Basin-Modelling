@@ -75,7 +75,7 @@ const unsigned int maxNbOfRandomTrials = 10; //maximum of 10 random propositions
 const unsigned int McmcBase::numBestMatches = 100000;
 
 McmcBase::McmcBase(
-      RandomGenerator &rg,
+      int seed,
       vector<McmcProxy*> const& proxies,
       unsigned int sampleSize,
       const ParameterPdf & parameterPdf,
@@ -95,8 +95,7 @@ McmcBase::McmcBase(
    m_statistics( statistics ),
    m_stddevfac(1),
    m_acceptanceRate(0),
-   m_rg( rg ),
-   m_stepProposer( new StepProposer(rg, m_constraints.sizeOrd(), m_constraints.low().ordinalPart(), m_constraints.high().ordinalPart(), 4 ) ),
+   m_rg( seed ),
    m_margDistr(new MarginalProbDistr( m_pdf ) ),
    m_mvNormalDistr( new MVNormalProbDistr( m_pdf ) ),
    m_stepMethod(MetropolisHasting),
@@ -105,6 +104,9 @@ McmcBase::McmcBase(
    m_ySample_avg( m_proxies.size() ),
    m_bestMatches()
 {
+   assert( m_pdf.sizeOrd() == m_constraints.sizeOrd() );
+   m_margDistr->setSamplingBounds( m_constraints.low().ordinalPart(), m_constraints.high().ordinalPart() );
+   m_stepProposer = new StepProposer( m_rg, m_constraints.sizeOrd(), m_constraints.low().ordinalPart(), m_constraints.high().ordinalPart(), 1 );
    fillCatValuesAndWeights();
    doCatInit();
 }
@@ -458,7 +460,7 @@ void McmcBase::adaptStepSize()
       totDenom += m_nProposed[i];
    }
 
-   m_acceptanceRate = 100 * totNom / totDenom;
+   m_acceptanceRate = totDenom > 0.0 ? ( 100 * totNom / totDenom ) : 0.0;
 
    m_stepProposer->adaptStepSize( acceptanceRate );
    std::fill( m_nAccepted.begin(), m_nAccepted.end(), 0 );
@@ -528,18 +530,18 @@ void McmcBase::normalPriorSample( )
 
    // Sample within bounds of the prior
    m_pSubSample.assign( m_subSampleSize, vector<double>( m_pdf.sizeOrd(), 0 ) );
-   m_mvNormalDistr->setBounds( m_constraints.low().ordinalPart(), m_constraints.high().ordinalPart() );
+   m_mvNormalDistr->setSamplingBounds( m_constraints.low().ordinalPart(), m_constraints.high().ordinalPart() );
    m_mvNormalDistr->sample( m_rg, m_pSubSample, getUsePrior() );
    assert( m_pSubSample[0].size() == m_pdf.sizeOrd() );
 
-   // Initialise the step sizes
+   // Initialise the step sizes to 0.25 * sigma / sqrt( dimension of parameter space )
    vector<double> dp( m_pdf.sizeOrd() );
    for ( size_t i = 0; i < dp.size(); ++i )
    {
-      if ( i < varmat.size() ) dp[i] = 0.5*sqrt( varmat[i][i] );
-      else dp[i] = 1.0 / sqrt(12.0);
+      if ( i < varmat.size() ) dp[i] = 0.25 * sqrt( varmat[i][i] / m_pdf.sizeOrd() );
+      else dp[i] = 0.5 / sqrt( 12.0 * m_pdf.sizeOrd() );
    }
-   m_stepProposer->setStepSize( dp );
+   m_stepProposer->setStepSize( dp, m_subSampleSize );
 
    // Calculate the prior probabilities of the new subsample
    m_priorProb = calcPriorProb( m_pSubSample );
@@ -693,24 +695,31 @@ unsigned int McmcBase::iterateOnce()
    std::fill( m_nAccepted.begin(), m_nAccepted.end(), 0 );
    std::fill( m_nProposed.begin(), m_nProposed.end(), 0 );
 
+   std::vector<RmseCasePair> bestMatchValues( m_sampleSize );
    // Construct sample results from subsample results
    m_tooBigAccRatio = false; //no acceptance ratios calculated yet in this iteration
-   for ( unsigned int i = 0; i < nbOfCycles; ++i )
+   for ( unsigned int iChain = 0; iChain < m_subSampleSize; iChain++ )
    {
-      // Initialise acceptance ratios for a subsample
-      vector<vector<double> > rSubSample( m_subSampleSize, vector<double>(1,0) );
-      doCycle( rSubSample );
-      for ( unsigned int j = 0; j < m_subSampleSize; ++j )
+      for ( unsigned int i = 0; i < nbOfCycles; ++i )
       {
-         unsigned int k = j * nbOfCycles + i;
-         m_pSample[k] = m_pSubSample[j];
-         m_ySample[k] = m_yImpr[j];
-         m_fSample[k] = m_fSubSample[j];
-         m_rSample[k] = rSubSample[j];
+         // Initialise acceptance ratios for a subsample
+         vector<double> rSubSample( 1, 0.0 );
+         unsigned int k = iChain * nbOfCycles + i;
+         doCycle( iChain, rSubSample, bestMatchValues[k] );
+         m_pSample[k] = m_pSubSample[iChain];
+         m_ySample[k] = m_yImpr[iChain];
+         m_fSample[k] = m_fSubSample[iChain];
+         m_rSample[k] = rSubSample;
       }
    }
 
-   adaptStepSize(); //adapt step size based on the cycle-averaged acceptance rate
+   for ( unsigned int i = 0; i < m_sampleSize; ++i )
+   {
+      updateBestMatches( bestMatchValues[i].first, bestMatchValues[i].second );
+   }
+
+   // Stop adaptation of step size after 80% of max number of iterations (if not yet converged)
+   if ( m_iterationCount < 4 * m_maxNbOfIterations / 5 ) adaptStepSize();
 
    // Store the pairs {p[i], y[i]}
    CopySampleAndResponse( m_pSample, m_ySample, m_sample_copy );
@@ -721,25 +730,25 @@ unsigned int McmcBase::iterateOnce()
    return ++m_iterationCount;
 }
 
-void McmcBase::doCycle( vector<vector<double> >& accRatios )
+void McmcBase::doCycle( unsigned int iChain, vector<double>& accRatios, RmseCasePair& bestMatch )
 {
    for ( unsigned int i = 1; i <= nbOfSteps; ++i )
    {
-      step( i, accRatios );
+      step( iChain, i, accRatios, bestMatch );
    }
 }
 
-void McmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios )
+void McmcBase::step( unsigned int iChain, unsigned int stepCount, vector<double>& accRatios, RmseCasePair& bestMatch )
 {
    // Remember subsample data before proposing a new step (p = pOld)
-   vector<vector<double> > pOldSubSample = m_pSubSample;
-   vector<vector<double> > yOld = m_y;
-   vector<double> oldPriorProb = m_priorProb;
-   vector<double> oldLogLh = m_logLh;
+   vector<double> pOldSubSample = m_pSubSample[iChain];
+   vector<double> yOld = m_y[iChain];
+   double oldPriorProb = m_priorProb[iChain];
+   double oldLogLh = m_logLh[iChain];
 
    // Propose a new step, i.e. propose a new case being a new "dot" in the subsample
-   vector<bool> foundNewParProp( m_subSampleSize, false ); //new parameter proposal not found yet
-   proposeStep( accRatios, foundNewParProp );
+   bool foundNewParProp( false ); //new parameter proposal not found yet
+   proposeStep( iChain, accRatios, foundNewParProp );
 
    // A new step has been proposed now but pNew (= m_pSubSample) has not been accepted yet if
    // smart Kriging has been used (in which case yNew has been generated by "poor" proxies).
@@ -747,141 +756,136 @@ void McmcBase::step( unsigned int stepCount, vector<vector<double> >& accRatios 
    {
       setKrigingType( m_proxyKrigingType ); //use proxy setting for Kriging
    }
-   for ( size_t i = 0; i < m_subSampleSize; ++i )
+
+   // If pNew[i] = pOld[i], there is nothing new to test.
+   // So update stuff if needed and continue with the next parameter from the subsample.
+   if ( !foundNewParProp )
    {
-      // If pNew[i] = pOld[i], there is nothing new to test.
-      // So update stuff if needed and continue with the next parameter from the subsample.
-      if ( !foundNewParProp[i] )
-      {
-         if ( stepCount == nbOfSteps )
-         {
-            double RMSEkey = getRMSEkey( m_logLh_impr[i] );
-            updateBestMatches( RMSEkey, extendSubSampleToProxyCase( m_pSubSample[i], i ) );
-            accRatios[i][0] = 1.0; //by definition
-         }
-         continue;
-      }
-
-      // Determine yNew as a function of pNew, and logLhNew as a function of yNew
-      vector<double> yNew( m_yImpr[i].size() );
-      double logLhNew;
-      // Expensive calls only in case of smart Kriging and if measurements are involved (no MC)
-      stepImpl( yNew, logLhNew, i );
-
-      // Update of best matches independent of final acceptance of m_pSubSample[i]
-      double RMSEkey = getRMSEkey( logLhNew );
-      if ( stepCount == nbOfSteps ) updateBestMatches( RMSEkey, extendSubSampleToProxyCase( m_pSubSample[i], i ) );
-
-      // Final acceptance test
-      double logTransRatio = oldLogLh[i] - m_logLh[i] + oldPriorProb[i] - m_priorProb[i];
-      double logAccRatio = logLhNew - m_logLh_impr[i] + m_priorProb[i] - oldPriorProb[i];
-      if ( acceptProposal( logTransRatio, logAccRatio, m_rngs[i] ) || ( m_krigingUsage != SmartMcmcKriging ) )
-      {
-         m_yImpr[i] = yNew;
-         m_logLh_impr[i] = logLhNew;
-         m_fSubSample[i][0] = GetMinusLogPosteriorProb( getUsePrior(), logLhNew, m_priorProb[i] );
-         m_nAccepted[i] += 1;
-      }
-      else
-      {
-         m_pSubSample[i] = pOldSubSample[i]; //rejected, so back to pOld
-         m_y[i] = yOld[i]; //back to yOld(pOld)
-         m_priorProb[i] = oldPriorProb[i]; //back to priorProb(pOld)
-         m_logLh[i] = oldLogLh[i]; //back to logLh(yOld)
-         if ( m_searchStatus[i] != Random )
-         {
-            m_lastTornadoStep[i]++; //otherwise the same Tornado step will be proposed in vain
-            if ( m_lastTornadoStep[i] == 2*m_pdf.sizeOrd() ) m_lastTornadoStep[i] = 0; //cyclic!
-         }
-      }
-
-      // Store the acceptance ratio at the last step of the cycle
       if ( stepCount == nbOfSteps )
       {
-         accRatios[i][0] += logAccRatio; //update (log of) acceptance ratio first
-         if ( accRatios[i][0] > m_logMaxAccRatio )
-         {
-            accRatios[i][0] = m_logMaxAccRatio;
-            m_tooBigAccRatio = true;
-         }
-         accRatios[i][0] = exp( accRatios[i][0] );
+         bestMatch.first = getRMSEkey( m_logLh_impr[iChain] );
+         bestMatch.second = extendSubSampleToProxyCase( m_pSubSample[iChain], iChain );
+         accRatios[0] = 1.0; //by definition
       }
+      return;
+   }
+
+   // Determine yNew as a function of pNew, and logLhNew as a function of yNew
+   vector<double> yNew( m_yImpr[iChain].size() );
+   double logLhNew;
+   // Expensive calls only in case of smart Kriging and if measurements are involved (no MC)
+   stepImpl( yNew, logLhNew, iChain );
+
+   // Update of best matches independent of final acceptance of m_pSubSample[i]
+   if ( stepCount == nbOfSteps )
+   {
+      bestMatch.first = getRMSEkey( logLhNew );
+      bestMatch.second = extendSubSampleToProxyCase( m_pSubSample[iChain], iChain );
+   }
+
+   // Final acceptance test
+   double logTransRatio = oldLogLh - m_logLh[iChain] + oldPriorProb - m_priorProb[iChain];
+   double logAccRatio = logLhNew - m_logLh_impr[iChain] + m_priorProb[iChain] - oldPriorProb;
+   if ( ( m_krigingUsage != SmartMcmcKriging ) || acceptProposal( logTransRatio, logAccRatio, m_rngs[iChain] ) )
+   {
+      m_yImpr[iChain] = yNew;
+      m_logLh_impr[iChain] = logLhNew;
+      m_fSubSample[iChain][0] = GetMinusLogPosteriorProb( getUsePrior(), logLhNew, m_priorProb[iChain] );
+      m_nAccepted[iChain] += 1;
+   }
+   else
+   {
+      m_pSubSample[iChain] = pOldSubSample; //rejected, so back to pOld
+      m_y[iChain] = yOld; //back to yOld(pOld)
+      m_priorProb[iChain] = oldPriorProb; //back to priorProb(pOld)
+      m_logLh[iChain] = oldLogLh; //back to logLh(yOld)
+      if ( m_searchStatus[iChain] != Random )
+      {
+         m_lastTornadoStep[iChain]++; //otherwise the same Tornado step will be proposed in vain
+         if ( m_lastTornadoStep[iChain] == 2*m_pdf.sizeOrd() ) m_lastTornadoStep[iChain] = 0; //cyclic!
+      }
+   }
+
+   // Store the acceptance ratio at the last step of the cycle
+   if ( stepCount == nbOfSteps )
+   {
+      accRatios[0] += logAccRatio; //update (log of) acceptance ratio first
+      if ( accRatios[0] > m_logMaxAccRatio )
+      {
+         accRatios[0] = m_logMaxAccRatio;
+         m_tooBigAccRatio = true;
+      }
+      accRatios[0] = exp( accRatios[0] );
    }
 }
 
-void McmcBase::proposeStep( vector<vector<double> >& accRatios, vector<bool>& newPar )
+void McmcBase::proposeStep( unsigned int iChain, vector<double>& accRatios, bool& newPar )
 {
    // For each Markov chain, create proposals until one of them is no longer rejected
-   for ( size_t i = 0; i < m_subSampleSize; ++i )
+   unsigned int maxCount;
+   if ( m_searchStatus[iChain] == Random ) maxCount = maxNbOfRandomTrials;
+   else maxCount = 2 * m_pdf.sizeOrd();
+   unsigned int count = 0; //counts the number of trials for each Markov chain
+   while ( !newPar && (count < maxCount) && (m_searchStatus[iChain] != Terminated) )
    {
-      unsigned int maxCount;
-      if ( m_searchStatus[i] == Random ) maxCount = maxNbOfRandomTrials;
-      else maxCount = 2 * m_pdf.sizeOrd();
-      unsigned int count = 0; //counts the number of trials for each Markov chain
-      while ( !newPar[i] && (count < maxCount) && (m_searchStatus[i] != Terminated) )
+      // Propose a new sample pStar, with transition likelihood
+      // => pStar[i][] = T( p[i][] ) and transRatio[i] p*->p / p->p*
+      vector<double> pStar(m_pSubSample[iChain]);
+      double logTransRatio = 0;
+      unsigned int proposedTornadoStep = 0;
+      if ( m_searchStatus[iChain] == Random )
       {
-         // Propose a new sample pStar, with transition likelihood
-         // => pStar[i][] = T( p[i][] ) and transRatio[i] p*->p / p->p*
-         vector<double> pStar(m_pSubSample[i]);
-         double logTransRatio = 0;
-         unsigned int proposedTornadoStep = 0;
-         if ( m_searchStatus[i] == Random )
-         {
-            m_stepProposer->proposeRandomStep( m_rngs[i], pStar, logTransRatio );
-         }
-         else
-         {
-            proposedTornadoStep = m_stepProposer->proposeTornadoStep( pStar, count, maxCount, m_lastTornadoStep[i] );
-         }
-
-         // Calculate prior probability for the proposed parameter state
-         double priorProbStar = calcPriorProb( pStar );
-
-         // Initialise yStar and logLhStar
-         vector<double> yStar( m_y[i] );
-         double logLhStar = proposeStepImpl1( pStar, yStar, i );
-
-         // Initialise the (log of) acceptance likelihood ratio
-         double logAccRatio = 0;
-
-         // Prior ratio only when used and calculated
-         if ( getUsePrior() )
-         {
-            logAccRatio += (priorProbStar - m_priorProb[i]);
-         }
-
-         // Likelihood ratio from comparison with historical data
-         logAccRatio += proposeStepImpl2( logLhStar, i );
-
-         // Preliminary acceptance test based on cheap proxies if smart Kriging is used,
-         // in which case the final test based on expensive proxies occurs in step().
-         // Without smart Kriging, the below test is already decisive such that the
-         // test in step() is always passed.
-         if ( acceptProposal( logTransRatio, logAccRatio, m_rngs[i] ) )
-         {
-            newPar[i] = true;
-            m_lastTornadoStep[i] = proposedTornadoStep;
-
-            // Copy calculated properties
-            m_pSubSample[i] = pStar;
-            m_y[i] = yStar;
-            m_priorProb[i] = priorProbStar;
-            m_logLh[i] = logLhStar;
-         }
-
-         // Collect (log of) an unbiased acceptance ratio independent of acceptance test
-         count++;
-         if ( count == 1 ) accRatios[i][0] = logAccRatio;
-
-         // Adapt search status if needed
-         if ( (count == maxCount) && !newPar[i] )
-         {
-            proposeStepImpl3( i );
-         }
+         m_stepProposer->proposeRandomStep( m_rngs[iChain], pStar, logTransRatio, iChain );
+      }
+      else
+      {
+         proposedTornadoStep = m_stepProposer->proposeTornadoStep( pStar, count, maxCount, m_lastTornadoStep[iChain] );
       }
 
-      m_nProposed[i] += count;
+      // Calculate prior probability for the proposed parameter state
+      double priorProbStar = calcPriorProb( pStar );
+
+      // Initialise yStar and logLhStar
+      vector<double> yStar( m_y[iChain] );
+      double logLhStar = proposeStepImpl1( pStar, yStar, iChain );
+
+      // Initialise the (log of) acceptance likelihood ratio
+      double logAccRatio = (priorProbStar - m_priorProb[iChain]);
+
+      // Likelihood ratio from comparison with historical data
+      logAccRatio += proposeStepImpl2( logLhStar, iChain );
+
+      // Preliminary acceptance test based on cheap proxies if smart Kriging is used,
+      // in which case the final test based on expensive proxies occurs in step().
+      // Without smart Kriging, the below test is already decisive such that the
+      // test in step() is always passed.
+      if ( acceptProposal( logTransRatio, logAccRatio, m_rngs[iChain] ) )
+      {
+         newPar = true;
+         m_lastTornadoStep[iChain] = proposedTornadoStep;
+
+         // Copy calculated properties
+         m_pSubSample[iChain] = pStar;
+         m_y[iChain] = yStar;
+         m_priorProb[iChain] = priorProbStar;
+         m_logLh[iChain] = logLhStar;
+      }
+
+      // Collect (log of) an unbiased acceptance ratio independent of acceptance test
+      count++;
+      if ( count == 1 )
+      {
+         accRatios[0] = logAccRatio;
+      }
+
+      // Adapt search status if needed
+      if ( (count == maxCount) && !newPar )
+      {
+         proposeStepImpl3( iChain );
+      }
    }
+
+   m_nProposed[iChain] += count;
 }
 
 RealVector McmcBase::calcPriorProb( ParameterSet const& parSet ) const
@@ -898,25 +902,26 @@ RealVector McmcBase::calcPriorProb( ParameterSet const& parSet ) const
 double McmcBase::calcPriorProb( Parameter const& p ) const
 {
    double priorProb = 0.0;
-   if ( getUsePrior() )
+   switch ( m_parameterDistribution )
    {
-      switch ( m_parameterDistribution )
+      case MultivariateGaussianDistribution:
       {
-         case MultivariateGaussianDistribution:
-         {
-            priorProb = m_mvNormalDistr->calcLogPriorProb( p );
-         }
-         break;
-         case MarginalDistribution:
-         {
-            priorProb = m_margDistr->calcLogPriorProb( p );
-         }
-         break;
-         case NoPrior:
-         default:
-         // do nothing
-         break;
+         priorProb = m_mvNormalDistr->calcLogPriorProb( p );
       }
+      break;
+      case MarginalDistribution:
+      {
+         priorProb = m_margDistr->calcLogPriorProb( p );
+      }
+      break;
+      case NoPrior:
+      {
+         priorProb = m_margDistr->correct4DISbounds( p );
+      }
+      break;
+      default:
+      // do nothing
+      break;
    }
    return priorProb;
 }
@@ -1080,13 +1085,31 @@ bool McmcBase::uniqueMatch( const vector<double>& match ) const
    return unique;
 }
 
-bool McmcBase::isSameCase( const std::vector<double>& case1, const std::vector<double>& case2 ) const
+bool McmcBase::isSameCase( const std::vector<double>& case1, const std::vector<double>& case2, unsigned int key ) const
 {
-   if ( case1.size() != case2.size() ) { return false; }
-   for ( size_t i = 0; i < case1.size(); ++i )
+   assert ( case2.size() <= case1.size() );  // case2 misses the categorical part
+
+   // Compare the continuous parts
+   size_t i = 0;
+   for (  ; i < case2.size(); ++i )
    {
-      if ( !IsEqualTo(case1[i], case2[i]) )
+      if ( !IsEqualTo( case1[i], case2[i]) )
          return false;
+   }
+
+   // Now compare the categorical part
+   // Inlined the extendSampleToProxyCase
+   if ( m_CatIndexOfSample.size() > 0 )
+   {
+      // There are CAT-values
+      assert( key < m_CatIndexOfSample.size() );
+      Parameter newPar( case2 );
+      m_pdf.extendToProxyCase( m_catValuesWeights[ m_CatIndexOfSample[ key ] ].first, newPar );
+      for (  ; i < newPar.size(); ++i )
+      {
+         if ( !IsEqualTo( case1[i], newPar[i]) )
+            return false;
+      }
    }
    return true;
 }
@@ -1101,15 +1124,15 @@ const std::vector<std::vector<double> > McmcBase::getSortedYSample() const
       unsigned int key = 0;
       for ( copyIter = m_sample_copy.begin(); copyIter != m_sample_copy.end(); ++copyIter )
       {
-         const Parameter& extendedSampleCopy = extendSampleToProxyCase( (*copyIter).first, key );
-         if ( isSameCase( (*paramIter).second, extendedSampleCopy ) )
+         if ( isSameCase( paramIter->second, copyIter->first, key ) )
          {
-            sortedYSample.push_back( (*copyIter).second );
+            sortedYSample.push_back( copyIter->second );
             break;
          }
          key = key + 1;
       }
    }
+
    if ( sortedYSample.size() < m_bestMatches.size() )
    {
       // Precaution: Because floating point comparison may be inaccurate, we need

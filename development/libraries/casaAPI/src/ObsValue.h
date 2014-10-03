@@ -37,7 +37,7 @@ namespace casa
       /// @return Root Mean Squared Error
       virtual double MSE() const = 0;
 
-      // The following methods are used for testing  
+      // The following methods are used for converting observables values from CASA to SUMLib 
       virtual bool isDouble() const = 0;
       virtual std::vector<double> doubleValue() const = 0;
 

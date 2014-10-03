@@ -40,14 +40,18 @@ namespace casa
       virtual const RunCase * operator[] ( size_t i ) const;
 
       // Set filter for experiments by experiment name
-      virtual void filterByExperimentName( const std::string expName );
+      virtual void filterByExperimentName( const std::string & expName );
 
       // Returns experiment name which was set as a filter
       // return filter as a string, or empty string if it wasn't set
       virtual std::string filter() const { return m_filter; }
 
       // Get all experiment names for this case set as an array
-      virtual std::vector< std::string > experimentNames();
+      virtual std::vector< std::string > experimentNames() const;
+
+      /// @brief Is set empty
+      /// @return true if set is empty, false otherwise
+      virtual bool empty() const { return size() == 0 ? true : false; }
 
       // Access to i-th element
       RunCase * at( size_t i );

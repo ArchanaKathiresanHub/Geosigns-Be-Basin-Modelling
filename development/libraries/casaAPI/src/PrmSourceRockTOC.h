@@ -16,6 +16,11 @@
 
 #include "Parameter.h"
 
+// CMB API
+#include <UndefinedValues.h>
+
+#include <cassert>
+
 namespace mbapi
 {
    class Model;
@@ -29,21 +34,24 @@ namespace mbapi
 
 namespace casa
 {
+   class VarPrmSourceRockTOC;
+
    /// @brief Source rock initial organic content parameter
    class PrmSourceRockTOC : public Parameter
    {
    public:
-      /// @brief Constructor 
+      /// @brief Constructor. Create parameter by reading parameter value from the given model
       /// @param mdl Cauldron model interface object to get value for TOC for given layer from\n
       ///            if model has more than one source rock lithology for the same layer, the TOC\n
       ///            value will be equal the first one
       /// @param layerName layer name
       PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName );
 
-      /// @brief Constructor 
+      /// @brief Constructor. Create parameter from variation of variable parameter
+      /// @param parent pointer to a variable parameter which created this one
       /// @param val value of top crust heat production rate
       /// @param layerName layer name
-      PrmSourceRockTOC( double val, const char * layerName );
+      PrmSourceRockTOC( const VarPrmSourceRockTOC * parent, double val, const char * layerName );
 
       /// @brief Destructor
       virtual ~PrmSourceRockTOC();
@@ -51,6 +59,10 @@ namespace casa
       /// @brief Get name of the parameter
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
+
+      /// @brief Get variable parameter which was used to create this parameter
+      /// @return Pointer to the variable parameter
+      virtual const VarParameter * parent() const { return m_parent; }
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
@@ -68,14 +80,23 @@ namespace casa
       /// @return parameter value
       double value() const { return m_toc;  }
 
-      // The following methods are used for testing  
+      // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
+      
+      /// @brief Get parameter value as an array of doubles
+      /// @return parameter value represented as set of doubles
       virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
 
+      /// @brief Get parameter value as integer
+      /// @return parameter value represented as integer
+      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
+
    protected:
-      std::string m_name;        ///< name of the parameter
+      const VarParameter * m_parent;    ///< variable parameter which was used to create this one
+
+      std::string          m_name;      ///< name of the parameter
       
-      std::string m_layerName;   ///< layer name with source rock
-      double      m_toc;         ///< TOC value
+      std::string          m_layerName; ///< layer name with source rock
+      double               m_toc;       ///< TOC value
    };
 
 }

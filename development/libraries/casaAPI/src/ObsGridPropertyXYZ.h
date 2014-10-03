@@ -50,15 +50,15 @@ namespace casa
       
       /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise
-      virtual bool hasReferenceValue() { return m_refValue.get() == NULL ? false : true; }
+      virtual bool hasReferenceValue() const { return m_refValue.get() == NULL ? false : true; }
 
       /// @brief Get reference value
       /// @return reference value
-      virtual ObsValue * referenceValue() { return m_refValue.get(); }
+      virtual const ObsValue * referenceValue() const { return m_refValue.get(); }
 
       /// @brief Get standard deviations for the reference value
       /// @return a standard deviation for reference value
-      virtual double stdDeviationForRefValue() { return m_devValue; }
+      virtual double stdDeviationForRefValue() const { return m_devValue; }
 
       /// @brief Set reference value
       /// @param refVal reference value itself
@@ -67,7 +67,7 @@ namespace casa
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
-      virtual double saWeight() { return m_saWeight; }
+      virtual double saWeight() const { return m_saWeight; }
 
       /// @brief Set weight coefficient for Sensitivity analysis
       /// @param w weight coefficient value
@@ -79,7 +79,7 @@ namespace casa
 
       /// @brief Get weighting coefficient for uncertainty analysis
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
-      virtual double uaWeight( ) { return m_uaWeight; }
+      virtual double uaWeight() const { return m_uaWeight; }
    
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
@@ -90,6 +90,11 @@ namespace casa
       /// @param caldModel reference to Cauldron model
       /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
       virtual ObsValue * getFromModel( mbapi::Model & caldModel );
+
+      /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
+      /// @param[in,out] val iterator for double array
+      /// @return new observable value
+      virtual ObsValue * creatNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const;
 
    protected:
       double      m_x;  ///< X-th coordinate

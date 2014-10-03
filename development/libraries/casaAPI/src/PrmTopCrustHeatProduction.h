@@ -16,6 +16,11 @@
 
 #include "Parameter.h"
 
+// CMB API
+#include <UndefinedValues.h>
+
+#include <cassert>
+
 /// @page CASA_TopCrustHeatProductionPage Top crust heat production rate parameter
 /// 
 /// This parameter defines the surface Radiogenic heat production of the basement.
@@ -24,17 +29,21 @@
 
 namespace casa
 {
+   class VarPrmTopCrustHeatProduction;
+
    /// @brief Surface Radiogenic heat production of the basement parameter
    class PrmTopCrustHeatProduction : public Parameter
    {
    public:
-      /// @brief Constructor 
-      /// @param val value of top crust heat production rate
-      PrmTopCrustHeatProduction( double val );
-
-      /// @brief Constructor from cauldron model
+      /// @brief Constructor. Create parameter by reading parameter value from the given model
+      /// @param parent pointer to a variable parameter which created this one
       /// @param mdl get value of parameter from cauldron model
       PrmTopCrustHeatProduction( mbapi::Model & mdl );
+
+      /// @brief Constructor. Create parameter from variation of variable parameter
+      /// @param parent pointer to a variable parameter which created this one
+      /// @param val value of top crust heat production rate
+      PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val );
 
       /// @brief Destructor
       virtual ~PrmTopCrustHeatProduction();
@@ -42,6 +51,10 @@ namespace casa
       /// @brief Get name of the parameter
       /// @return parameter name
       virtual const char * name() const { return "TopCrustHeatProdRate"; }
+
+      /// @brief Get variable parameter which was used to create this parameter
+      /// @return Pointer to the variable parameter
+      virtual const VarParameter * parent() const { return m_parent; }
 
       /// @brief Set this parameter value in Cauldron model
       /// @param caldModel reference to Cauldron model
@@ -58,11 +71,20 @@ namespace casa
       /// @return parameter value
       double value() const { return m_heatProdRateValue; }
 
-      // The following methods are used for testing  
+      // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
+      
+      /// @brief Get parameter value as an array of doubles
+      /// @return parameter value represented as set of doubles
       virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
+   
+      /// @brief Get parameter value as integer
+      /// @return parameter value represented as integer
+      virtual int asInteger() const { assert(0); return UndefinedIntegerValue; }
+
 
    protected:
-      double      m_heatProdRateValue; ///< top crust heat production rate value
+      const VarParameter  * m_parent;            ///< variable parameter which was used to create this one
+      double                m_heatProdRateValue; ///< top crust heat production rate value
    };
 
 }

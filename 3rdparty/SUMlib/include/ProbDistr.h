@@ -22,6 +22,11 @@ class INTERFACE_SUMLIB ProbDistr
       /// @param [in] p parameter to calculate the log of the prior probability for
       /// @returns the log of the prior probability
       virtual double calcLogPriorProb( Parameter const& p ) const = 0;
+      
+      /// Set ordinal parameter bounds used for sampling
+      /// @param [in] min  lower ordinal sampling bounds
+      /// @param [in] max  upper ordinal sampling bounds
+      virtual void setSamplingBounds( const RealVector &min, const RealVector &max ) = 0;
 
       /// Calculate the log of the prior probability for all parameters in the parameterset
       /// @param [in] parSet parameter set to calculate the log of the prior probability for

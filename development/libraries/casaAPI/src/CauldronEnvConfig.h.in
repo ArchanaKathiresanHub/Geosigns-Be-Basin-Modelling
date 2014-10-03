@@ -11,7 +11,7 @@
 #ifndef CAULDRON_CONFIG_ENV_H
 #define CAULDRON_CONFIG_ENV_H
 
-static const char * s_MPI_ROOT       = "${MPI_ROOT64}";
+static const char * s_MPI_ROOT       = "${MPI_ROOT}";
 static const char * s_LICENSE_SERVER = "${SIEPRTS_LICENSE_FILE}";
 static const char * s_MPIRUN_CMD     = "${MPIRUN}";
 static const char * s_LSF_CAULDRON_PROJECT_NAME = "${LSF_CAULDRON_PROJECT_NAME}";

@@ -49,6 +49,8 @@ void CfgFileParser::parseFile( const std::string & fileName )
             else if ( result == "doe"          ) m_cmdList.push_back( doe );
             else if ( result == "run"          ) m_cmdList.push_back( run );
             else if ( result == "location"     ) m_cmdList.push_back( location );
+            else if ( result == "response"     ) m_cmdList.push_back( response );
+            else if ( result == "evaluate"     ) m_cmdList.push_back( evaluate );
             else throw std::runtime_error( std::string( "Unknown command: " ) + result );
             m_cmdPrms.push_back( std::vector<std::string>() );
          }
@@ -92,8 +94,28 @@ void CfgFileParser::parseFile( const std::string & fileName )
    assert( m_cmdList.size() == m_cmdPrms.size() ); 
 }
 
+
+// split list of strings divided by sep in to array of strings
+std::vector<std::string> CfgFileParser::list2array( const std::string & listOfStr, char sep )
+{
+   std::vector<std::string> strList; // array where we will keep strings from list to return
+
+   std::istringstream iss( listOfStr ); // tokenizer
+
+   std::string result; // one token
+
+   while( std::getline( iss, result, sep ) ) 
+   {
+      if ( result.empty() || (result.size() == 1 && result[0] == sep ) ) continue; // skip spaces and separators
+
+      if ( !result.empty() ) strList.push_back( result ); // add token to the list
+   }
+
+   return strList;
+}
+
 // read well trajectory file with reference values
-void CfgFileParser::readTrajectoryFile( const std::string fileName, 
+void CfgFileParser::readTrajectoryFile( const std::string & fileName, 
                                         std::vector<double> & x,
                                         std::vector<double> & y,
                                         std::vector<double> & z,
@@ -146,6 +168,42 @@ void CfgFileParser::readTrajectoryFile( const std::string fileName,
    }
 }
 
+// read parameters value from plain data file
+void CfgFileParser::readParametersValueFile( const std::string & fileName, std::vector< std::vector<double> > & dataVals )
+{
+   std::ifstream file( fileName.c_str() );
+
+   dataVals.clear();
+
+   std::string line;
+   
+   // process one line 
+   while( std::getline( file, line ) )
+   {
+      if ( line[0] == '#' ) continue;
+
+      std::istringstream iss( line );
+
+      std::string result;
+      
+      int tokNum = 0;
+      std::string opt;
+
+      std::vector<double> oneLineVals;
+
+      while( std::getline( iss, result, ' ') ) 
+      {
+         if ( result.empty() || (result.size() == 1 && result[0] == ' ') ) continue;
+
+         double v = atof( result.c_str() );
+         oneLineVals.push_back( v );
+      }
+      if ( !oneLineVals.empty() ) dataVals.push_back( oneLineVals );
+   }
+}
+
+
+ 
 
 std::ostream & operator << ( std::ostream & ost, const CfgFileParser & cfg )
 {

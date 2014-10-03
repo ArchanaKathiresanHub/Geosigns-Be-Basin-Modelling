@@ -13,6 +13,9 @@
 
 
 #include "PrmSourceRockTOC.h"
+#include "VarPrmSourceRockTOC.h"
+
+// CMB API
 #include "cmbAPI.h"
 
 #include <cassert>
@@ -24,7 +27,7 @@ namespace casa
 {
 
 // Constructor
-PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName )
+PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName ) : m_parent( 0 )
 { 
    m_layerName = layerName;
    bool isFound = false;
@@ -52,7 +55,10 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName )
 }
 
  // Constructor
-PrmSourceRockTOC::PrmSourceRockTOC( double val, const char * layerName ) : m_toc( val ), m_layerName( layerName )
+PrmSourceRockTOC::PrmSourceRockTOC( const VarPrmSourceRockTOC * parent, double val, const char * layerName ) :
+     m_parent( parent )
+   , m_toc( val )
+   , m_layerName( layerName )
 {
    // construct parameter name
    std::ostringstream oss;

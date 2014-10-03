@@ -23,7 +23,7 @@ namespace casa
 
       if ( m_parent && m_parent->hasReferenceValue() )
       {
-         ObsValueDoubleScalar * refVal = dynamic_cast<ObsValueDoubleScalar*>( m_parent->referenceValue() );
+         const ObsValueDoubleScalar * refVal = dynamic_cast<const ObsValueDoubleScalar*>( m_parent->referenceValue() );
  
          if ( refVal )
          {

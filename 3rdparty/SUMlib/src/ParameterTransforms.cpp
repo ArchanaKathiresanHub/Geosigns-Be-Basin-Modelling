@@ -17,7 +17,7 @@ namespace
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// serialize
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool serialize( SUMlib::ISerializer* serializer, const std::vector< SUMlib::ParameterTransforms::TransformType >& transformDefs )
+bool serialize( SUMlib::ISerializer* serializer, const SUMlib::ParameterTransformTypeVector& transformDefs )
 {
    std::vector< unsigned int > transformDefsUInt( transformDefs.size() );
    for ( size_t i = 0; i < transformDefs.size(); ++i )
@@ -33,7 +33,7 @@ bool serialize( SUMlib::ISerializer* serializer, const std::vector< SUMlib::Para
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// deserialize
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool deserialize( SUMlib::IDeserializer* deserializer, std::vector< SUMlib::ParameterTransforms::TransformType >& transformDefs )
+bool deserialize( SUMlib::IDeserializer* deserializer, SUMlib::ParameterTransformTypeVector& transformDefs )
 {
    std::vector< unsigned int > transformDefsUInt;
    bool ok = SUMlib::deserialize( deserializer, transformDefsUInt );
@@ -58,6 +58,7 @@ ParameterTransforms::ParameterTransforms( const std::vector< TransformType >& tr
    m_transformDefs( transformDefs ),
    m_parSpace( parSpace )
 {
+   assert( transformDefs.size() == m_parSpace.size() );
    initialise();
 }
 
@@ -85,32 +86,66 @@ void ParameterTransforms::initialise()
 {
    m_isTrivial = true;
 
+   /// Cannot initialise twice.
    assert( m_transforms.size() == 0 );
-   m_transforms.resize( m_transformDefs.size() );
+
+   m_transforms.resize( m_parSpace.getPreparedCaseSize() );
 
    const Case& caseLow = m_parSpace.low();
    const Case& caseHigh = m_parSpace.high();
 
-   size_t iConParNonFixed = 0;
+   size_t iParNonFixed = 0;
 
-   for ( size_t iConPar = 0; iConPar < m_parSpace.sizeCon(); ++iConPar )
+   for ( size_t iPar = 0; iPar < m_parSpace.size(); ++iPar )
    {
       /// Skip fixed parameters
-      if ( m_parSpace.isFixed( iConPar ) )
+      if ( m_parSpace.isFixed( iPar ) )
       {
          continue;
       }
 
-      IParameterComponentTransform* parTransform = buildTransform( m_transformDefs[ iConParNonFixed ], caseLow.continuousPar( iConPar ), caseHigh.continuousPar( iConPar ) );
-      assert( parTransform );
-      if ( !dynamic_cast< TrivialParameterTransform* >( parTransform ) )
+      if ( iPar < m_parSpace.sizeOrd() )
       {
-         m_isTrivial = false;
-      }
-      m_transforms[ iConParNonFixed ] = parTransform;
+         double parameterBoundMin = 0;
+         double parameterBoundMax = 0;
+         if ( iPar < m_parSpace.sizeCon() )
+         {
+            parameterBoundMin = caseLow.continuousPar( iPar );
+            parameterBoundMax = caseHigh.continuousPar( iPar );
+         }
+         else
+         {
+            assert( m_transformDefs[ iPar ] == ParameterTransforms::transformConst || m_transformDefs[ iPar ] == ParameterTransforms::transformNone );
+         }
 
-      ++iConParNonFixed;
+         IParameterComponentTransform* parTransform = buildTransform( m_transformDefs[ iPar ], parameterBoundMin, parameterBoundMax );
+         if ( !dynamic_cast< TrivialParameterTransform* >( parTransform ) )
+         {
+            m_isTrivial = false;
+         }
+         m_transforms[ iParNonFixed ] = parTransform;
+         ++iParNonFixed;
+      }
+      else
+      {
+         assert( m_transformDefs[ iPar ] == ParameterTransforms::transformConst || m_transformDefs[ iPar ] == ParameterTransforms::transformNone );
+
+         size_t catIndex = iPar - m_parSpace.sizeOrd();
+         for ( size_t i = 0; i < m_parSpace.nbOfDummyParsForCat( catIndex ); ++i )
+         {
+            IParameterComponentTransform* parTransform = buildTransform( m_transformDefs[ iPar ], 0, 0 );
+            if ( !dynamic_cast< TrivialParameterTransform* >( parTransform ) )
+            {
+               m_isTrivial = false;
+            }
+            m_transforms[ iParNonFixed ] = parTransform;
+            ++iParNonFixed;
+         }
+      }
    }
+   
+   /// Check that every component of the prepared case has a transform assigned.
+   assert( iParNonFixed == m_transforms.size() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,6 +154,32 @@ void ParameterTransforms::initialise()
 bool ParameterTransforms::isTrivial() const
 {
    return m_isTrivial;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// isValid
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool ParameterTransforms::isValid( std::vector< size_t >& parIndicesWithInvalidTransforms, std::vector< std::string >& reasons ) const
+{
+   assert( parIndicesWithInvalidTransforms.size() == 0 );
+   assert( reasons.size() == 0 );
+
+   bool isValid = true;
+
+   for ( size_t i = 0; i < m_transforms.size(); ++i )
+   {
+      std::string reason;
+      if ( !m_transforms[ i ]->isValid( &reason ) )
+      {
+         /// parIndex points to index in the parameter vector with fixed parameters included.
+         size_t parIndex = m_parSpace.nonFixedParIdx()[ i ];
+         parIndicesWithInvalidTransforms.push_back( parIndex );
+         reasons.push_back( reason );
+         isValid = false;
+      }
+   }
+
+   return isValid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +199,11 @@ IParameterComponentTransform* ParameterTransforms::buildTransform( TransformType
 {
    switch ( transformType )
    {
+      case transformConst:
+      {
+         return new ConstantParameterTransform();
+      }
+
       case transformNone:
       {
          return new TrivialParameterTransform();

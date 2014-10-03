@@ -20,8 +20,8 @@ class INTERFACE_SUMLIB MCMC : public McmcBase {
 public:
 
    /// Constructor
-   MCMC( RandomGenerator &rg, std::vector<McmcProxy*>const& ascs, unsigned int sampleSize, const ParameterPdf & pdf, const ParameterBounds & constraints,
-         McmcStatistics &statistics, unsigned int maxNbOfIterations = 100 ) : McmcBase( rg, ascs, sampleSize, pdf, constraints, statistics, maxNbOfIterations )
+   MCMC( int seed, std::vector<McmcProxy*>const& ascs, unsigned int sampleSize, const ParameterPdf & pdf, const ParameterBounds & constraints,
+         McmcStatistics &statistics, unsigned int maxNbOfIterations = 100 ) : McmcBase( seed, ascs, sampleSize, pdf, constraints, statistics, maxNbOfIterations )
          { initialise(); }
 
    /// Destructor

@@ -22,6 +22,7 @@
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmSourceRockTOC.h"
 #include "RSProxyImpl.h"
+#include "RSProxySetImpl.h"
 #include "RunCaseImpl.h"
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
@@ -37,6 +38,7 @@
 #include <string>
 #include <cassert>
 #include <cmath>
+#include <map>
 
 namespace casa {
 
@@ -109,10 +111,10 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa
 }
 
 // Add 4 parameters to variate one crust thinning event.
-ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni, double maxThickIni,
-                                                                                 double minT0,       double maxT0,       
-                                                                                 double minDeltaT,   double maxDeltaT,   
-                                                                                 double minThingFct, double maxThingFct, VarPrmContinuous::PDF thingFctPDF )
+ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni,    double maxThickIni,
+                                                                                 double minT0,          double maxT0,       
+                                                                                 double minDeltaT,      double maxDeltaT,   
+                                                                                 double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF thingFctPDF )
 {
    VarSpace & varPrmsSet = sa.varSpace();
 
@@ -125,15 +127,21 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
    std::vector<double> baseValues = prm.asDoubleArray();
 
    for ( size_t i = 0; i < 4; ++i ) // replace undefined base value with middle of value range
+   // crust thickness profile shape in base project file could not match what we need : 
+   // *--------*
+   //          \
+   //           *-----------*
+   // in this case, constructor of parameter could pick up some of base values from the base project file
+   // for others - we will use avarage from min/max
    {
       if ( std::abs(UndefinedDoubleValue - baseValues[i]) < 1.e-10 )
       {
          switch ( i )
          {
-            case 0: baseValues[i] = 0.5 * ( minThickIni + maxThickIni ); break;
-            case 1: baseValues[i] = 0.5 * ( minT0       + maxT0       ); break;
-            case 2: baseValues[i] = 0.5 * ( minDeltaT   + maxDeltaT   ); break;
-            case 3: baseValues[i] = 0.5 * ( minThingFct + maxThingFct ); break;
+            case 0: baseValues[i] = 0.5 * ( minThickIni    + maxThickIni ); break;
+            case 1: baseValues[i] = 0.5 * ( minT0          + maxT0       ); break;
+            case 2: baseValues[i] = 0.5 * ( minDeltaT      + maxDeltaT   ); break;
+            case 3: baseValues[i] = 0.5 * ( minThinningFct + maxThinningFct ); break;
          }
       }
    }
@@ -153,15 +161,15 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
       return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of duration of crust thinning parameter in base case is outside of the given range" );
    }
 
-   if ( baseValues[3] < minThingFct || baseValues[3] > maxThingFct )
+   if ( baseValues[3] < minThinningFct || baseValues[3] > maxThinningFct )
    {
       return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of crust thinning factor parameter in base case is outside of the given range" );
    }
    
-   return varPrmsSet.addParameter( new VarPrmOneCrustThinningEvent( baseValues[0], minThickIni, maxThickIni,
-                                                                    baseValues[1], minT0,       maxT0,
-                                                                    baseValues[2], minDeltaT,   maxDeltaT,
-                                                                    baseValues[3], minThingFct, maxThingFct,
+   return varPrmsSet.addParameter( new VarPrmOneCrustThinningEvent( baseValues[0], minThickIni,    maxThickIni,
+                                                                    baseValues[1], minT0,          maxT0,
+                                                                    baseValues[2], minDeltaT,      maxDeltaT,
+                                                                    baseValues[3], minThinningFct, maxThinningFct,
                                                                     thingFctPDF ) );
 }
  
@@ -227,17 +235,36 @@ public:
    // Define which order of response surface polynomial approximation of  will be used in this scenario analysis
    // order order of polynomial approximation
    // krType do we need Kriging interpolation, and which one?
-   void setRSAlgorithm( int order, RSProxy::RSKrigingType krType )
+   void addRSAlgorithm( const std::string & name, size_t order, RSProxy::RSKrigingType krType )
    {
-      throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "setRSAlgorithm() not implemented yet";
+      if ( order < 0 || order > 3 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "addRSAlgorithm(): wrong value for the order: " << order << 
+                                                                              ", must be in range: [0:3]";
+      }
+      if ( name.empty() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "addRSAlgorithm(): empty proxy name";
+
+      if ( m_rsProxySet->rsProxy( name ) ) // already has response surface with the same name
+      {
+         throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "addRSAlgorithm(): proxy with name: " << name << ", already exist in the scenario";
+      }
+      else
+      { 
+         if ( order < 3 )
+         {
+            m_rsProxySet->addNewRSProxy( new RSProxyImpl( name, varSpace(), obsSpace(), order, krType ), name );
+         }
+         else
+         {
+            m_rsProxySet->addNewRSProxy( new RSProxyImpl( name, varSpace(), obsSpace(), 2, krType, true, 1.0 ), name );
+         }
+      }
    }
    
-   // Get response surface proxy 
-   // return reference to proxy object
-   RSProxy & responseSurfaceProxy() { return *(m_rsProxy.get()); }
+   // Get response surface proxies set
+   RSProxySet & rsProxySet() { return *(m_rsProxySet.get() ); }
 
    // Get all cases for this scenario. The list will include cases generated by MC/MCMC only
-   // return array of casa::Case objects
    RunCaseSet & mcCaseSet() { return *( m_mcCases.get() ); }
 
    // Define type of Monte Carlo algorithm which will be used in this scenario analysis
@@ -254,23 +281,23 @@ public:
    MCSolver & mcSolver()  { return *(m_mcSolver.get()); }
       
 private:
-   std::string                     m_caseSetPath;         // path to folder which will be the root folder for all scenario cases
-   std::string                     m_baseCaseProjectFile; // path to the base case project file
-   int                             m_iterationNum;        // Scenario analysis iteration number
-   int                             m_caseNum;             // counter for the cases, used in folder name of the case
+   std::string                      m_caseSetPath;         // path to folder which will be the root folder for all scenario cases
+   std::string                      m_baseCaseProjectFile; // path to the base case project file
+   int                              m_iterationNum;        // Scenario analysis iteration number
+   int                              m_caseNum;             // counter for the cases, used in folder name of the case
 
-   std::auto_ptr<mbapi::Model>     m_baseCase;
-   std::auto_ptr<ObsSpaceImpl>     m_obsSpace;           // observables manager
-   std::auto_ptr<VarSpaceImpl>     m_varSpace;           // variable parameters manager
-   std::auto_ptr<DoEGeneratorImpl> m_doe;
+   std::auto_ptr<mbapi::Model>      m_baseCase;
+   std::auto_ptr<ObsSpaceImpl>      m_obsSpace;           // observables manager
+   std::auto_ptr<VarSpaceImpl>      m_varSpace;           // variable parameters manager
+   std::auto_ptr<DoEGeneratorImpl>  m_doe;
    
-   std::auto_ptr<RunCaseSetImpl>   m_doeCases;
-   std::auto_ptr<RunCaseSetImpl>   m_mcCases;
+   std::auto_ptr<RunCaseSetImpl>    m_doeCases;
+   std::auto_ptr<RunCaseSetImpl>    m_mcCases;
 
-   std::auto_ptr<RunManager>       m_runManager;
-   std::auto_ptr<DataDigger>       m_dataDigger;
-   std::auto_ptr<RSProxy>          m_rsProxy;
-   std::auto_ptr<MCSolver>         m_mcSolver;
+   std::auto_ptr<RunManager>        m_runManager;
+   std::auto_ptr<DataDigger>        m_dataDigger;
+   std::auto_ptr<RSProxySetImpl>    m_rsProxySet;
+   std::auto_ptr<MCSolver>          m_mcSolver;
 };
 
 
@@ -368,13 +395,13 @@ ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
 RunManager & ScenarioAnalysis::runManager() { return m_pimpl->runManager(); }
 DataDigger & ScenarioAnalysis::dataDigger() { return m_pimpl->dataDigger(); }
 
-RSProxy & ScenarioAnalysis::responseSurfaceProxy() { return m_pimpl->responseSurfaceProxy(); }
+RSProxySet & ScenarioAnalysis::rsProxySet() { return m_pimpl->rsProxySet(); }
 
 RunCaseSet & ScenarioAnalysis::mcCaseSet()  { return m_pimpl->mcCaseSet(); }
 
-ErrorHandler::ReturnCode ScenarioAnalysis::setRSAlgorithm( int order, RSProxy::RSKrigingType krType )
+ErrorHandler::ReturnCode ScenarioAnalysis::addRSAlgorithm( const char * name, int order, RSProxy::RSKrigingType krType )
 {
-   try { m_pimpl->setRSAlgorithm( order, krType ); }
+   try { m_pimpl->addRSAlgorithm( name, static_cast<size_t>( order ), krType ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch( ...            ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -408,9 +435,10 @@ ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
    m_mcCases.reset(    new RunCaseSetImpl() );
 
    m_runManager.reset( new RunManagerImpl() );
-
    m_dataDigger.reset( new DataDiggerImpl() );
-   m_rsProxy.reset(    new RSProxyImpl()    );
+
+   m_rsProxySet.reset( new RSProxySetImpl() );
+
    m_mcSolver.reset(   new MCSolverImpl()   );
 }
 

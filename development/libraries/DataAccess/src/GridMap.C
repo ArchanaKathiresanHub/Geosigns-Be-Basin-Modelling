@@ -1,7 +1,7 @@
 #include <math.h>
 #if defined(_WIN32) || defined (_WIN64)
 #else
-#include <values.h>
+#include <limits.h>
 #endif
 #include <assert.h>
 #include <iomanip>

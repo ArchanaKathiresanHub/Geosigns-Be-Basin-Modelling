@@ -14,8 +14,6 @@ namespace SUMlib {
 /// @class ReferenceProxy implements an McmcProxy
 class INTERFACE_SUMLIB ReferenceProxy : public McmcProxy
 {
-   static const double defaultStdDev;
-
    public:
 
       /// ReferenceProxy without reference value
@@ -26,7 +24,7 @@ class INTERFACE_SUMLIB ReferenceProxy : public McmcProxy
       /// @param [in] proxy     the proxy instance
       /// @param [in] reference the reference value (actual or synthetic measurement)
       /// @param [in] stddev    the standard deviation of the measurement
-      ReferenceProxy( Proxy const & proxy, double reference, double stddev = defaultStdDev );
+      ReferenceProxy( Proxy const & proxy, double reference, double stddev );
 
       /// Destructor
       virtual ~ReferenceProxy();
@@ -44,10 +42,10 @@ class INTERFACE_SUMLIB ReferenceProxy : public McmcProxy
       /// Use the default implementation of the getProxyValue call with kriging weights
       using Proxy::getProxyValue;
 
-      /// Set the reference value and optionally the standard deviation
+      /// Set the reference value and the standard deviation
       /// @param [in] reference reference value (actual or synthetic measurement)
       /// @param [in] stddev    standard deviation of the measurement
-      void setReference( double reference, double stddev = defaultStdDev );
+      void setReference( double reference, double stddev );
 
       /// Returns wether the ReferenceProxy has reference data
       /// @returns true if reference data is available

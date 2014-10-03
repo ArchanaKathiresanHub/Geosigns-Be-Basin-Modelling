@@ -51,7 +51,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       /// @param [in]  krigingData    Kriging data
       /// @param [in]  targetSet      Target to calculate proxy for
       /// @param [in]  nbOfOrdPars    Number of prepared ordinal parameters
-      /// @param [in]  order          Order of polynomial (0, 1, or 2)
+      /// @param [in]  order          Order of polynomial (0, 1, 2, or 9); 9 is conventional: linear + pure quadratic.
       /// @param [in]  modelSearch    Cubic polynomial model search
       /// @param [in]  targetR2       adjusted R^2 value above which we accept the model
       /// @param [in]  confLevel      needed for significance test of model increments
@@ -78,7 +78,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       /// @param [in]  krigingData    Kriging data
       /// @param [in]  targetSet      Target to calculate proxy for
       /// @param [in]  nbOfOrdPars    Number of prepared ordinal parameters
-      /// @param [in]  order          Order of polynomial (0, 1, or 2)
+      /// @param [in]  order          Order of polynomial (0, 1, 2, or 9); 9 is conventional: linear + pure quadratic.
       /// @param [in]  modelSearch    Cubic polynomial model search
       /// @param [in]  targetR2       adjusted R^2 value above which we accept the model
       /// @param [in]  confLevel      needed for significance test of model increments
