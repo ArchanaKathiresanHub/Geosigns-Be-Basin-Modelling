@@ -31,6 +31,10 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmTopCrustHeatProduction();
 
+	  /// @brief Get name of variable parameter in short form
+	  /// @return array of names for each subparameter
+	  virtual std::vector<std::string> name();
+
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first sub-parameter value
       /// @return new casa::PrmTopCrustHeatProduction  parameter

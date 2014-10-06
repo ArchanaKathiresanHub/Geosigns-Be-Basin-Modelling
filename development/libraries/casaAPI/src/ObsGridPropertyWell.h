@@ -96,7 +96,7 @@ namespace casa
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
       /// @return new observable value
-      virtual ObsValue * creatNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const;
+      virtual ObsValue * createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const;
 
    protected:
       std::vector<double>     m_x;  ///< X-th coordinates

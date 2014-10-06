@@ -188,7 +188,7 @@ void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, c
    {
       assert( vit != valList.end() ); // simple check if array has yet unused values
 
-      casa::ObsValue * obsVal = obs[i]->creatNewObsValueFromDouble( vit ); // create new observable value (can throw!)
+      casa::ObsValue * obsVal = obs[i]->createNewObsValueFromDouble( vit ); // create new observable value (can throw!)
       if ( obsVal ) rc.addObservableValue( obsVal ); // add new observable value to the RunCase
    }
 }

@@ -3,9 +3,27 @@
 %module CauldronAPI
 
 %include "Base/Common.i"
+%include "std_vector.i"
 %include "std_string.i"
 
+/// Shared pointer types wrapping
+// CASA API
+%include "boost_shared_ptr.i"
+// CASA API
+%shared_ptr(casa::Parameter)
+%shared_ptr(casa::PrmOneCrustThinningEvent)
+%shared_ptr(casa::PrmTopCrustHeatProduction)
+%shared_ptr(casa::PrmSourceRockTOC)
+
+
 %{
+
+// Interface to DataModel
+#include "../../../DataModel/src/AbstractFormation.h"
+#include "../../../DataModel/src/AbstractSurface.h"
+#include "../../../DataModel/src/AbstractGrid.h"
+#include "../../../DataModel/src/AbstractProperty.h"
+#include "../../../DataModel/src/AbstractSnapshot.h"
 
 #include "../../../DataAccess/src/Interface/Interface.h"
 #include "../../../DataAccess/src/Interface/daobject.h"
@@ -98,6 +116,7 @@
 
 // Interface for APIs library
 // CMB API
+#include "../../../utilities/src/formattingexception.h"
 #include "../../../cmbAPI/src/ErrorHandler.h"
 #include "../../../cmbAPI/src/LithologyManager.h"
 #include "../../../cmbAPI/src/FluidManager.h"
@@ -113,7 +132,12 @@
 #include "../../../cmbAPI/src/PropertyManagerImpl.h"
 #include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
-#include "../../../casaAPI/src/Parameter.h"
+#include "../../../casaAPI/src/CauldronApp.h"
+#include "../../../casaAPI/src/DoEGenerator.h"
+#include "../../../casaAPI/src/DoEGeneratorImpl.h"
+#include "../../../casaAPI/src/JobScheduler.h"
+#include "../../../casaAPI/src/JobSchedulerLocal.h"
+#include "../../../casaAPI/src/JobSchedulerLSF.h"
 #include "../../../casaAPI/src/Observable.h"
 #include "../../../casaAPI/src/ObsValue.h"
 #include "../../../casaAPI/src/ObsGridPropertyXYZ.h"
@@ -121,25 +145,27 @@
 #include "../../../casaAPI/src/ObsValueDoubleScalar.h"
 #include "../../../casaAPI/src/ObsSpace.h"
 #include "../../../casaAPI/src/ObsSpaceImpl.h"
-#include "../../../casaAPI/src/VarPrmContinuous.h"
+#include "../../../casaAPI/src/Parameter.h"
+#include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 #include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/PrmSourceRockTOC.h"
-#include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
-#include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
-#include "../../../casaAPI/src/DoEGenerator.h"
-#include "../../../casaAPI/src/DoEGeneratorImpl.h"
+#include "../../../casaAPI/src/RSProxy.h"
+#include "../../../casaAPI/src/RSProxyImpl.h"
+#include "../../../casaAPI/src/RSProxySet.h"
+#include "../../../casaAPI/src/RSProxySetImpl.h"
+#include "../../../casaAPI/src/RunManager.h"
+#include "../../../casaAPI/src/RunManagerImpl.h"
 #include "../../../casaAPI/src/RunCase.h"
 #include "../../../casaAPI/src/RunCaseImpl.h"
 #include "../../../casaAPI/src/RunCaseSet.h"
 #include "../../../casaAPI/src/RunCaseSetImpl.h"
+#include "../../../casaAPI/src/VarParameter.h"
 #include "../../../casaAPI/src/VarSpace.h"
 #include "../../../casaAPI/src/VarSpaceImpl.h"
-#include "../../../casaAPI/src/CauldronApp.h"
-#include "../../../casaAPI/src/RunManager.h"
-#include "../../../casaAPI/src/RunManagerImpl.h"
-#include "../../../casaAPI/src/JobScheduler.h"
-#include "../../../casaAPI/src/JobSchedulerLocal.h"
-#include "../../../casaAPI/src/JobSchedulerLSF.h"
+#include "../../../casaAPI/src/VarPrmContinuous.h"
+#include "../../../casaAPI/src/VarPrmOneCrustThinningEvent.h"
+#include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
+#include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 
 #include "../../../cmbAPI/src/Path.h"
 #include "../../../cmbAPI/src/FilePath.h"
@@ -150,7 +176,15 @@
 using namespace casa;
 %}
 
+
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
+
+// Interface to DataModel
+%include "../../../DataModel/src/AbstractFormation.h"
+%include "../../../DataModel/src/AbstractSurface.h"
+%include "../../../DataModel/src/AbstractGrid.h"
+%include "../../../DataModel/src/AbstractProperty.h"
+%include "../../../DataModel/src/AbstractSnapshot.h"
 
 //%include "../../../DataAccess/src/Interface/Implementation.h"
 %include "../../../DataAccess/src/Interface/Interface.h"
@@ -240,6 +274,7 @@ using namespace casa;
 
 // Interface for APIs library
 // CMB API
+%include "../../../utilities/src/formattingexception.h"
 %include "../../../cmbAPI/src/ErrorHandler.h"
 %include "../../../cmbAPI/src/LithologyManager.h"
 %include "../../../cmbAPI/src/FluidManager.h"
@@ -255,7 +290,12 @@ using namespace casa;
 %include "../../../cmbAPI/src/PropertyManagerImpl.h"
 %include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
-%include "../../../casaAPI/src/Parameter.h"
+%include "../../../casaAPI/src/CauldronApp.h"
+%include "../../../casaAPI/src/DoEGenerator.h"
+%include "../../../casaAPI/src/DoEGeneratorImpl.h"
+%include "../../../casaAPI/src/JobScheduler.h"
+%include "../../../casaAPI/src/JobSchedulerLocal.h"
+%include "../../../casaAPI/src/JobSchedulerLSF.h"
 %include "../../../casaAPI/src/Observable.h"
 %include "../../../casaAPI/src/ObsValue.h"
 %include "../../../casaAPI/src/ObsGridPropertyXYZ.h"
@@ -264,25 +304,26 @@ using namespace casa;
 %include "../../../casaAPI/src/ObsSpace.h"
 %include "../../../casaAPI/src/ObsSpaceImpl.h"
 %include "../../../casaAPI/src/Parameter.h"
-%include "../../../casaAPI/src/VarPrmContinuous.h"
+%include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/PrmSourceRockTOC.h"
-%include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
-%include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
-%include "../../../casaAPI/src/DoEGenerator.h"
-%include "../../../casaAPI/src/DoEGeneratorImpl.h"
+%include "../../../casaAPI/src/RSProxy.h"
+%include "../../../casaAPI/src/RSProxyImpl.h"
+%include "../../../casaAPI/src/RSProxySet.h"
+%include "../../../casaAPI/src/RSProxySetImpl.h"
+%include "../../../casaAPI/src/RunManager.h"
+%include "../../../casaAPI/src/RunManagerImpl.h"
 %include "../../../casaAPI/src/RunCase.h"
 %include "../../../casaAPI/src/RunCaseImpl.h"
 %include "../../../casaAPI/src/RunCaseSet.h"
 %include "../../../casaAPI/src/RunCaseSetImpl.h"
+%include "../../../casaAPI/src/VarParameter.h"
 %include "../../../casaAPI/src/VarSpace.h"
 %include "../../../casaAPI/src/VarSpaceImpl.h"
-%include "../../../casaAPI/src/CauldronApp.h"
-%include "../../../casaAPI/src/RunManager.h"
-%include "../../../casaAPI/src/RunManagerImpl.h"
-%include "../../../casaAPI/src/JobScheduler.h"
-%include "../../../casaAPI/src/JobSchedulerLocal.h"
-%include "../../../casaAPI/src/JobSchedulerLSF.h"
+%include "../../../casaAPI/src/VarPrmContinuous.h"
+%include "../../../casaAPI/src/VarPrmOneCrustThinningEvent.h"
+%include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
+%include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 
 %include "../../../cmbAPI/src/Path.h"
 %include "../../../cmbAPI/src/FilePath.h"
@@ -309,6 +350,9 @@ using namespace casa;
 %apply int    INOUT[]  { int * szIso }
 %apply double OUTPUT[] { double * isolines }
 %apply double OUTPUT[] { double * critPt }
+
+
+%apply int &INOUT { int & off };
 
 
 %include "../../../EosPack/src/EosPackCAPI.h"
@@ -385,3 +429,7 @@ using namespace casa;
 
 /// CASA API
 %template(CasesList) std::vector<casa::RunCase*>;
+%template(ConstCasesList) std::vector<const casa::RunCase*>;
+
+%template(DoubleVector) std::vector<double>;
+

@@ -115,8 +115,20 @@ namespace casa
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
-      /// @return new observable value
-      virtual ObsValue * creatNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const = 0;
+      /// @return new observable value on success, or NULL pointer otherwise
+      virtual ObsValue * createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const = 0;
+
+      /// @brief Wrapper function to use in C# through Swig due to absence of iterators in Swig
+      /// @parameter[in] vals vector of observables value
+      /// @parameter[in,out] off offset in the vector, where the observable values are located
+      /// @return new observable value on success, or NULL pointer otherwise
+      ObsValue * newObsValueFromDoubles( const std::vector<double> & vals, int & off )
+      {
+         std::vector<double>::const_iterator it = vals.begin() + off;
+         ObsValue * ret = createNewObsValueFromDouble( it );
+         off += it - vals.begin();
+         return ret;
+      }
 
    protected:
       Observable() { ; }

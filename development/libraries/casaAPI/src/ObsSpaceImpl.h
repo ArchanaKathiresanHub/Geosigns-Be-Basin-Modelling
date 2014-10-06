@@ -39,6 +39,9 @@ public:
    // get i-th observable
    Observable * operator[] ( size_t i ) const { return m_obsSet[ i ]; }
 
+   // get i-th observable
+   Observable * at(size_t i) const { return m_obsSet[i]; }
+
    // Constructor/Destructor
    ObsSpaceImpl() { ; }
 

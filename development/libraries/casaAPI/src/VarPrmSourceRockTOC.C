@@ -37,6 +37,13 @@ VarPrmSourceRockTOC::~VarPrmSourceRockTOC()
    ;
 }
 
+std::vector<std::string> VarPrmSourceRockTOC::name()
+{
+	std::vector<std::string> ret;
+	ret.push_back("SourceRocTOC");
+	return ret;
+}
+
 SharedParameterPtr VarPrmSourceRockTOC::createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const
 {
    double minV = dynamic_cast<PrmSourceRockTOC*>( m_minValue.get() )->value();

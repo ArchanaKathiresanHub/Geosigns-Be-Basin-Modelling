@@ -43,6 +43,16 @@ VarPrmOneCrustThinningEvent::~VarPrmOneCrustThinningEvent()
 {
 }
 
+std::vector<std::string> VarPrmOneCrustThinningEvent::name()
+{
+	std::vector<std::string> ret;
+	ret.push_back("InitialCrustThickness");
+	ret.push_back("EventStartTime");
+	ret.push_back("EventDuration");
+	ret.push_back("CrustThinningFactor");
+	return ret;
+}
+
 SharedParameterPtr VarPrmOneCrustThinningEvent::createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const
 {
    const std::vector<double> & minV = dynamic_cast<PrmOneCrustThinningEvent*>( m_minValue.get() )->asDoubleArray();

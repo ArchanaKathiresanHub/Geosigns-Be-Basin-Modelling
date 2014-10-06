@@ -42,8 +42,9 @@ namespace casa
                       /// (for instance, a PVT parameter that can distinguish between a few, unrelated PVT models) 
       };
 
-      /// @brief Get name of variable parameter in shot form
-      std::vector<std::string> name();
+      /// @brief Get name of variable parameter in short form
+	  /// @return array of names for each subparameter
+      virtual std::vector<std::string> name() = 0;
 
       /// @brief Destructor
       virtual ~VarParameter() {;}

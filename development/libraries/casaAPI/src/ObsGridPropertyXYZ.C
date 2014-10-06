@@ -100,7 +100,7 @@ ObsValue * ObsGridPropertyXYZ::getFromModel( mbapi::Model & caldModel )
 }
 
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
-ObsValue * ObsGridPropertyXYZ::creatNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
+ObsValue * ObsGridPropertyXYZ::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {
    return new ObsValueDoubleScalar( this, *val++ );
 }
