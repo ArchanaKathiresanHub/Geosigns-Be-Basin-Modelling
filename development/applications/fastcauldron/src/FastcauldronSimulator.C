@@ -1892,7 +1892,10 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
    m_computeCapillaryPressure = computeCapillaryPressure == PETSC_TRUE;
 
-   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+   if ( getCauldron() -> getCalculationMode() != OVERPRESSURED_TEMPERATURE_MODE &&
+        getModellingMode () != Interface::MODE1D ) {
+      H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+   }
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
 }
 
