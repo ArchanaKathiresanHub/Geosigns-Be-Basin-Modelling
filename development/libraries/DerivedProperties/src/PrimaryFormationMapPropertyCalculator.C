@@ -7,7 +7,7 @@
 
 #include "PrimaryFormationMapProperty.h"
 
-DerivedProperties::PrimaryFormationMapPropertyCalculator::PrimaryFormationMapPropertyCalculator ( const DataAccess::Interface::ProjectHandle*   projectHandle,
+DerivedProperties::PrimaryFormationMapPropertyCalculator::PrimaryFormationMapPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
                                                                                                   const DataModel::AbstractProperty* property ) :
    m_property ( property )
 {

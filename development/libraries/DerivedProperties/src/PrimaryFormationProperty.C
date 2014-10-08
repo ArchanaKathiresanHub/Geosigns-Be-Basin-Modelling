@@ -12,14 +12,27 @@ DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const Da
                        propertyValue->getFormation (),
                        propertyValue->getGridMap ()->getGrid (),
                        propertyValue->getGridMap ()->lastK () + 1 ),
-   PrimaryProperty ( propertyValue->getGridMap () )
+   m_gridMap ( propertyValue->getGridMap () )
 {
+   m_gridMap->retrieveData ( true );
 }
+
+DerivedProperties::PrimaryFormationProperty::~PrimaryFormationProperty() {
+
+   m_gridMap->restoreData ( false, true );
+}
+
 
 double DerivedProperties::PrimaryFormationProperty::get ( unsigned int i,
                                                           unsigned int j,
                                                           unsigned int k ) const {
    return m_gridMap->getValue ( i, j, k );
+}
+
+
+double DerivedProperties::PrimaryFormationProperty::getUndefinedValue ( ) const {
+
+   return m_gridMap->getUndefinedValue ( );
 }
 
 

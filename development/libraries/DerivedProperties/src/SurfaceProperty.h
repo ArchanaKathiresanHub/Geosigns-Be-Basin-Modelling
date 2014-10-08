@@ -10,8 +10,6 @@
 #include "AbstractSurface.h"
 #include "AbstractGrid.h"
 
-#include "Property.h"
-
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the surface.
@@ -20,7 +18,7 @@ namespace DerivedProperties {
    /// Properties such as porosity may not an object of this type to store their
    /// values.
    /// The indices will use global index numbering.
-   class SurfaceProperty : virtual public Property {
+   class SurfaceProperty {
 
    public :
 
@@ -61,7 +59,8 @@ namespace DerivedProperties {
       virtual double get ( unsigned int i,
                            unsigned int j ) const = 0;
 
-
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const = 0;
    private :
 
       const DataModel::AbstractProperty* m_property;

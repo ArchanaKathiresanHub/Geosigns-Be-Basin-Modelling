@@ -13,7 +13,6 @@
 #include "Interface/GridMap.h"
 #include "Interface/PropertyValue.h"
 
-#include "PrimaryProperty.h"
 #include "SurfaceProperty.h"
 
 namespace DerivedProperties {
@@ -21,21 +20,24 @@ namespace DerivedProperties {
    /// \brief Contains the values of the property at the snapshot time for the surface.
    ///
    /// The values are stored in a two dimensional array.
-   class PrimarySurfaceProperty : public SurfaceProperty, public PrimaryProperty {
+   class PrimarySurfaceProperty : public SurfaceProperty {
 
 
    public :
 
       PrimarySurfaceProperty ( const DataAccess::Interface::PropertyValue* propertyValue );
 
+      ~PrimarySurfaceProperty();
 
       /// \brief Get the value at the position.
       virtual double get ( unsigned int i,
                            unsigned int j ) const;
 
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const;
 
    private :
-
+      const DataAccess::Interface::GridMap* m_gridMap;
    };
 
    typedef boost::shared_ptr<PrimarySurfaceProperty> PrimarySurfacePropertyPtr;

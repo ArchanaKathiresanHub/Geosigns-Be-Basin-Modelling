@@ -21,8 +21,6 @@ set(all_headers
   src/DerivedFormationMapProperty.h
   src/PrimaryFormationMapProperty.h
   src/PrimaryFormationMapPropertyCalculator.h
-  src/PrimaryProperty.h
-  src/Property.h
   src/FormationPropertyCalculator.h
   src/FormationProperty.h
   src/FormationSurfacePropertyCalculator.h
@@ -55,8 +53,6 @@ set(all_srcs
   src/PorosityFormationCalculator.C
   src/PrimaryFormationMapProperty.C
   src/PrimaryFormationMapPropertyCalculator.C
-  src/PrimaryProperty.C
-  src/Property.C
   src/FormationProperty.C
   src/FormationSurfaceProperty.C
   src/PrimaryFormationProperty.C

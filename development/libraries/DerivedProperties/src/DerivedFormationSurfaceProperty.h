@@ -37,6 +37,8 @@ namespace DerivedProperties {
                          unsigned int j,
                          double   value );
 
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const;
    private :
 
       boost::multi_array<double,2> m_values;

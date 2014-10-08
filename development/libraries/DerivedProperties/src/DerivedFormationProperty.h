@@ -38,6 +38,8 @@ namespace DerivedProperties {
                  unsigned int k,
                  double   value );
 
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const;
 
    private :
 

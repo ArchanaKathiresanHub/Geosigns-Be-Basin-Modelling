@@ -27,12 +27,14 @@ namespace DerivedProperties {
 
       PrimaryFormationSurfaceProperty ( const DataAccess::Interface::PropertyValue* propertyValue );
 
+      ~PrimaryFormationSurfaceProperty();
 
       /// \brief Get the value at the position.
       virtual double get ( unsigned int i,
                            unsigned int j ) const;
 
-
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const;
    private :
 
       const DataAccess::Interface::GridMap* m_gridMap;

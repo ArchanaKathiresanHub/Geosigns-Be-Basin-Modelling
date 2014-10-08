@@ -50,12 +50,7 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       
       if(  lithologies != 0 ) {
-         
-         ves->retrieveData ();
-         maxVes->retrieveData ();
-         if( chemicalCompaction != 0 ) chemicalCompaction->retrieveData ();
-         
-         
+                  
          DerivedFormationPropertyPtr porosityProp =
             DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aPorosityProperty, snapshot, formation, 
                                                                                             propertyManager.getMapGrid (), geoFormation->getMaximumNumberOfElements() + 1 ));
@@ -83,9 +78,6 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
          }
          derivedProperties.push_back ( porosityProp );
          
-         ves->restoreData ();
-         maxVes->restoreData ();
-         if( chemicalCompaction != 0 ) chemicalCompaction->restoreData ();
       }
    }
 }

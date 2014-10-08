@@ -1,4 +1,5 @@
 #include "DerivedSurfaceProperty.h"
+#include "Interface/Interface.h"
 
 DerivedProperties::DerivedSurfaceProperty::DerivedSurfaceProperty ( const DataModel::AbstractProperty* property,
                                                                     const DataModel::AbstractSnapshot* snapshot,
@@ -19,4 +20,9 @@ void DerivedProperties::DerivedSurfaceProperty::set ( unsigned int i,
                                                       double   value ) {
 
    m_values[ i - firstI(true)][ j - firstJ(true)] = value;
+}
+
+double DerivedProperties::DerivedSurfaceProperty::getUndefinedValue () const {
+
+   return DataAccess::Interface::DefaultUndefinedMapValue;
 }

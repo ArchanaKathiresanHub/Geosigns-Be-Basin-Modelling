@@ -52,10 +52,6 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
       
       if(  lithologies != 0 ) {
          
-         ves->retrieveData ();
-         maxVes->retrieveData ();
-         if( chemicalCompaction != 0 ) chemicalCompaction->retrieveData ();
-         
          DerivedFormationSurfacePropertyPtr verticalPermeability =
             DerivedFormationSurfacePropertyPtr ( new DerivedProperties::DerivedFormationSurfaceProperty ( aPermeabilityVProperty, snapshot, 
                                                                                                           formation, surface, propertyManager.getMapGrid () ));
@@ -89,9 +85,6 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
          derivedProperties.push_back ( verticalPermeability );
          derivedProperties.push_back ( horizontalPermeability );
          
-         ves->restoreData ();
-         maxVes->restoreData ();
-         if( chemicalCompaction != 0 ) chemicalCompaction->restoreData ();
       }
    } 
 }

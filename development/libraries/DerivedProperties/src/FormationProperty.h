@@ -10,15 +10,13 @@
 #include "AbstractFormation.h"
 #include "AbstractGrid.h"
 
-#include "Property.h"
-
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the formation.
    ///
    /// The indices will use global index numbering.
    /// The array bounds are a closed set of intervals.
-   class FormationProperty : virtual public Property {
+   class FormationProperty {
 
    public :
 
@@ -73,6 +71,8 @@ namespace DerivedProperties {
                            unsigned int j,
                            unsigned int k ) const = 0;
 
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const = 0;
 
    private :
 

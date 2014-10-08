@@ -20,3 +20,8 @@ void DerivedProperties::DerivedFormationMapProperty::set ( unsigned int i,
 
    m_values[ i - firstI(true)][ j - firstJ(true)] = value;
 }
+
+double DerivedProperties::DerivedFormationMapProperty::getUndefinedValue () const {
+
+   return DataAccess::Interface::DefaultUndefinedMapValue;
+}

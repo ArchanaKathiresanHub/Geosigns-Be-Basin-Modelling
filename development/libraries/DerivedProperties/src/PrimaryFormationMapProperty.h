@@ -27,11 +27,14 @@ namespace DerivedProperties {
 
       PrimaryFormationMapProperty ( const DataAccess::Interface::PropertyValue* propertyValue );
 
+      ~PrimaryFormationMapProperty();
 
       /// \brief Get the value at the position.
       virtual double get ( unsigned int i,
                            unsigned int j ) const;
 
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const;
 
    private :
 

@@ -1,3 +1,4 @@
+#include "Interface/Interface.h"
 #include "DerivedFormationProperty.h"
 
 DerivedProperties::DerivedFormationProperty::DerivedFormationProperty ( const DataModel::AbstractProperty*  property,
@@ -15,4 +16,9 @@ void DerivedProperties::DerivedFormationProperty::set ( unsigned int i,
                                                         unsigned int k,
                                                         double   value ) {
    m_values [ i - firstI(true)][ j - firstJ(true)][ k - firstK ()] = value;
+}
+
+double DerivedProperties::DerivedFormationProperty::getUndefinedValue () const {
+
+   return DataAccess::Interface::DefaultUndefinedMapValue;
 }

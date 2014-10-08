@@ -4,7 +4,6 @@
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
-#include "CompoundLithologyArray.h"
 
 #include "VesFormationCalculator.h"
 
@@ -35,9 +34,6 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
 
    if( lithostaticPressure != 0 and porePressure != 0 and geoFormation != 0 ) {
               
-      lithostaticPressure->retrieveData ();
-      porePressure->retrieveData ();
-      
       DerivedFormationPropertyPtr ves = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aVesProperty, snapshot, formation, 
                                                                                                                         propertyManager.getMapGrid (),
                                                                                                                         geoFormation->getMaximumNumberOfElements() + 1 ));
@@ -48,9 +44,9 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
          for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
             
             if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
-               
+                
                for ( unsigned int k = lithostaticPressure->firstK (); k <= lithostaticPressure->lastK (); ++k ) {
-                  
+                 
                   ves->set ( i, j, k, ( lithostaticPressure->get ( i, j, k ) - porePressure->get ( i, j, k )) * GeoPhysics::MPa_To_Pa );
                }
             } else {
@@ -61,8 +57,5 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
          }
       }
       derivedProperties.push_back ( ves );
-      
-      lithostaticPressure->restoreData ();
-      porePressure->restoreData ();
    }
 }

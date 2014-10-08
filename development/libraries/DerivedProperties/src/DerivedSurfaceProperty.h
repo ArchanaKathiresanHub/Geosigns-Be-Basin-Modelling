@@ -37,6 +37,8 @@ namespace DerivedProperties {
                          unsigned int j,
                          double   value );
 
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const;
    private :
 
       /// \brief 2 dimensional array containing the surface property values.

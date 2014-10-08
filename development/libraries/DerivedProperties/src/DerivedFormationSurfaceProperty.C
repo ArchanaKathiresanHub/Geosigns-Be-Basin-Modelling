@@ -1,3 +1,4 @@
+#include "Interface/Interface.h"
 #include "DerivedFormationSurfaceProperty.h"
 
 DerivedProperties::DerivedFormationSurfaceProperty::DerivedFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
@@ -19,4 +20,9 @@ void DerivedProperties::DerivedFormationSurfaceProperty::set ( unsigned int i,
                                                                unsigned int j,
                                                                double   value ) {
    m_values[ i - firstI(true)][ j - firstJ(true)] = value;
+}
+
+double DerivedProperties::DerivedFormationSurfaceProperty::getUndefinedValue () const {
+
+   return DataAccess::Interface::DefaultUndefinedMapValue;
 }

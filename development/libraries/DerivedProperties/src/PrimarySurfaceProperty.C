@@ -11,12 +11,24 @@ DerivedProperties::PrimarySurfaceProperty::PrimarySurfaceProperty ( const DataAc
                      propertyValue->getSnapshot (),
                      propertyValue->getSurface (),
                      propertyValue->getGridMap ()->getGrid ()),
-   PrimaryProperty ( propertyValue->getGridMap () )
+   m_gridMap ( propertyValue->getGridMap () )
 {
+   m_gridMap->retrieveData ( true );
 }
+
+DerivedProperties::PrimarySurfaceProperty::~PrimarySurfaceProperty() {
+
+   m_gridMap->restoreData ( false, true );
+}
+
 
 double DerivedProperties::PrimarySurfaceProperty::get ( unsigned int i,
                                                         unsigned int j ) const {
    return m_gridMap->getValue ( i, j );
+}
+
+double DerivedProperties::PrimarySurfaceProperty::getUndefinedValue ( ) const {
+
+   return m_gridMap->getUndefinedValue ( );
 }
 

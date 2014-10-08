@@ -30,9 +30,6 @@ void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::Abs
    
    if( lithostaticPressure != 0 and porePressure != 0 ) {
               
-      lithostaticPressure->retrieveData ();
-      porePressure->retrieveData ();
-      
       DerivedSurfacePropertyPtr ves = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( aVesProperty, snapshot, surface, propertyManager.getMapGrid () ));
       double undefinedValue = lithostaticPressure->getUndefinedValue ();
       
@@ -49,8 +46,5 @@ void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::Abs
          }
       }
       derivedProperties.push_back ( ves );
-      
-      lithostaticPressure->restoreData ();
-      porePressure->restoreData ();
    }
 }
