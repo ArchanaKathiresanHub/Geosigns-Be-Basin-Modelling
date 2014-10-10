@@ -70,6 +70,16 @@ if (UNIX)
          
          set( MPI_NAME "IntelMPI_${INTEL_MPI_FLAVOUR}" CACHE STRING "Name of the MPI implementation")
 
+         # Set options how to link Intel MPI when using the compiler frontend.
+         if (BUILD_SHARED_LIBS)
+            set( linkOpts "-link_mpi=${INTEL_MPI_FLAVOUR}" )
+         else()
+            # If linking statically then link with the Intel MPI libraries statically
+            # See main CMakeLists.txt file for comment on linking statically in
+            # general
+            set( linkOpts "-link_mpi=${INTEL_MPI_FLAVOUR} -static_mpi")
+         endif()
+
          #  Add MPI to the environment set-up script and wrappers
          add_environment_source_script_to_wrapper( cc "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
          add_environment_source_script_to_wrapper( cxx "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
@@ -79,8 +89,8 @@ if (UNIX)
 
          if (BM_USE_INTEL_COMPILER)
             # Use the MPI compiler frontends to the Intel compiler -- mpiicc and mpiicpc -- as compilers.
-            finish_wrapper( cc "mpiicc -link_mpi=${INTEL_MPI_FLAVOUR}" C_Compiler)
-            finish_wrapper( cxx "mpiicpc -link_mpi=${INTEL_MPI_FLAVOUR}" CXX_Compiler)
+            finish_wrapper( cc "mpiicc ${linkOpts}" C_Compiler)
+            finish_wrapper( cxx "mpiicpc ${linkOpts}" CXX_Compiler)
          
             # start generating environment for mpiexec and mpirun utilitise
             add_environment_source_script_to_wrapper( mpiexec "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
@@ -89,8 +99,8 @@ if (UNIX)
          else(BM_USE_INTEL_COMPILER)
 
             # Use the MPI compiler frontends to the normal compilers -- mpicc and mpicxx -- as compilers.
-            finish_wrapper( cc "mpicc -link_mpi=${INTEL_MPI_FLAVOUR}" C_Compiler)
-            finish_wrapper( cxx "mpicxx -link_mpi=${INTEL_MPI_FLAVOUR}" CXX_Compiler)
+            finish_wrapper( cc "mpicc ${linkOpts}" C_Compiler)
+            finish_wrapper( cxx "mpicxx ${linkOpts}" CXX_Compiler)
          endif()
 
          # Write wrappers for mpiexec and mpirun utilities
@@ -119,13 +129,6 @@ if (UNIX)
              ECCN         "Unknown"
          )
 
-
-         # If linking statically then link with the MPI libraries statically
-         # See main CMakeLists.txt file for comment on linking statically in
-         # general
-         if (NOT BUILD_SHARED_LIBS)
-            set(CMAKE_EXE_LINKER_FLAGS "-static_mpi ${CMAKE_EXE_LINKER_FLAGS}")
-         endif()
 
          # Set various MPI variables
          set(MPI_C_COMPILER "${CMAKE_C_COMPILER}" CACHE FILEPATH "MPI C Compiler")
