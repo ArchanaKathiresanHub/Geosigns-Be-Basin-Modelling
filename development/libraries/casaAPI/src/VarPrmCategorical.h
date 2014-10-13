@@ -52,11 +52,11 @@ namespace casa
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const = 0;
 
-      /// @brief Get list of categorical parameter values as sorted list of unsigned integers. \n
+      /// @brief Get list of categorical parameter values as sorted list of unsigned integers.
       ///        Enumeration of categorical values must start from zero
       virtual std::vector< unsigned int> valuesAsUnsignedIntSortedSet() const = 0;
 
-      /// @brief Create a copy of the parameter and assign to the given value. If value is not in var. parameter values set,\n
+      /// @brief Create a copy of the parameter and assign to the given value. If value is not in var. parameter values set,
       ///        the method will return a zero pointer
       /// @param val new value for parameter
       /// @return the new parameter object which should be deleted by the caller itself

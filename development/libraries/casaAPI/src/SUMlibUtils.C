@@ -26,7 +26,7 @@
 #include <vector>
 #include <cassert>
 
-// CASA -> SUMlib case convertion
+// CASA -> SUMlib case conversion
 void sumext::convertCase( const casa::RunCase & crc, SUMlib::Case  & sc )
 {
    const casa::RunCaseImpl & rci = dynamic_cast<const casa::RunCaseImpl &>( crc );
@@ -65,7 +65,7 @@ void sumext::convertCase( const casa::RunCase & crc, SUMlib::Case  & sc )
    sc.setCategoricalPart( sumCatArray ); // set categorical parameters values to SUMlib::Case
 }
 
-// SUMlib -> CASA case convertion
+// SUMlib -> CASA case conversion
 void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, casa::RunCase & crc )
 {
    casa::RunCaseImpl & newCase = dynamic_cast<casa::RunCaseImpl &>( crc );
@@ -84,7 +84,7 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
       assert( cit != sumCntArray.end() );
-      SharedParameterPtr  newPrm = varSpace.continuousParameter( i )->createNewParameterFromDouble( cit );
+      SharedParameterPtr  newPrm = varSpace.continuousParameter( i )->newParameterFromDoubles( cit );
       newCase.addParameter( newPrm );
    }
 
@@ -95,7 +95,7 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
    }
 }
 
-// CASA -> SUMlib observables convertion
+// CASA -> SUMlib observables conversion
 void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & caseSet
                                     , SUMlib::TargetCollection          & targetsSet 
                                     , std::vector< std::vector<bool> >  & matrValidObs )
@@ -113,7 +113,7 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
    for ( size_t j = 0; j < rc0->observablesNumber(); ++j )
    {
       // get observable value and check is it double? 
-      const casa::ObsValue * obv = rc0->observableValue( j );
+      const casa::ObsValue * obv = rc0->obsValue( j );
       assert( obv );
       if ( obv->isDouble() )
       {
@@ -144,12 +144,13 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
    {
       const casa::RunCaseImpl * rc = dynamic_cast<const casa::RunCaseImpl *>( caseSet[i] );
       assert( rc != 0 );
-
+      
+      obsNum = 0;
       // for each case go over all observable
-      for ( size_t j = 0, obsNum = 0; j < rc->observablesNumber(); ++j )
+      for ( size_t j = 0; j < rc->observablesNumber(); ++j )
       {
          // get observable value and check is it double? 
-         const casa::ObsValue * obv = rc->observableValue( j );
+         const casa::ObsValue * obv = rc->obsValue( j );
          assert( obv );
          assert( obv->observable() );
    
@@ -172,7 +173,7 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
    }
 }
 
-// SUMlib -> CASA observables convertion
+// SUMlib -> CASA observables conversion
 void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, const casa::ObsSpace & obsDef, casa::RunCase & cs )
 {
    casa::RunCaseImpl        & rc  = dynamic_cast<casa::RunCaseImpl &>( cs );
@@ -189,7 +190,7 @@ void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, c
       assert( vit != valList.end() ); // simple check if array has yet unused values
 
       casa::ObsValue * obsVal = obs[i]->createNewObsValueFromDouble( vit ); // create new observable value (can throw!)
-      if ( obsVal ) rc.addObservableValue( obsVal ); // add new observable value to the RunCase
+      if ( obsVal ) rc.addObsValue( obsVal ); // add new observable value to the RunCase
    }
 }
 

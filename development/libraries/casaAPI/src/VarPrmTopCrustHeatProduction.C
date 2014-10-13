@@ -37,7 +37,7 @@ VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
    ;
 }
 
-std::vector<std::string> VarPrmTopCrustHeatProduction::name()
+std::vector<std::string> VarPrmTopCrustHeatProduction::name() const
 {
 	std::vector<std::string> ret;
 	ret.push_back("TopCrustHeatProductionRate");
@@ -45,7 +45,7 @@ std::vector<std::string> VarPrmTopCrustHeatProduction::name()
 	return ret;
 }
 
-SharedParameterPtr VarPrmTopCrustHeatProduction::createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const
+SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const
 {
    double minV = dynamic_cast<PrmTopCrustHeatProduction*>( m_minValue.get() )->value();
    double maxV = dynamic_cast<PrmTopCrustHeatProduction*>( m_maxValue.get() )->value();

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file VarPrmOneCrustTinningEvent.h
+/// @file VarPrmOneCrustThinningEvent.h
 /// @brief This file keeps API declaration for handling variation of casa::PrmOneCrustThinningEvent parameter
 
 #ifndef CASA_API_VAR_PARAMETER_ONE_CRUST_THINNING_EVENT_H
@@ -24,13 +24,14 @@ namespace casa
    public:
       /// @brief Construct variable parameter for one crust thinning event in crust thickness history. 
       ///
-      /// Crust thickness in Cauldorn is defined by a set of rapper points which define crust thickness for given time
-      /// Between points the linear interpolation is used. This variable parameter can define one crust thinning even which
-      /// could be defined by the following list of sub-parameters:
-      /// -# @f$ d_0 @f$ - initial crust thickness - defines thickness of the crust at the beginning of simulation
-      /// -# @f$ t_0 @f$ - defines time when crust thickness starts to change
-      /// -# @f$ \delta t @f$ - defines duration of crust thinning event
-      /// -# @f$ \sigma @f$ - crust thinning factor (@f$ d_1 = \sigma \cdot d_0 @f$)
+      /// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ thickness( time ) @f$ 
+      /// User must provide a sorted by time a sequence of points @f$ [(time, thickness), ... ] @f$ .
+      /// This variable parameter allows to define a crust thickness function with one crust thinning event.
+      /// To define this event user should provide these sub-parameters:
+      /// -# @f$ d_0 @f$ - [m] initial crust thickness - defines thickness of the crust at the beginning of simulation
+      /// -# @f$ t_0 @f$ - [Ma] defines time when crust thickness starts to change
+      /// -# @f$ \delta t @f$ - [Ma] defines duration of crust thinning event
+      /// -# @f$ \sigma @f$ - [dimensionless] crust thinning factor ( @f$ \sigma = \frac{d_1}{d_0} @f$ )
       /// @param baseThickIni    base value for the initial thickness
       /// @param minThickIni     minimal value for the initial thickness
       /// @param maxThickIni     maximal value for the initial thickness
@@ -54,12 +55,12 @@ namespace casa
 
 	  /// @brief Get name of variable parameter in short form
 	  /// @return array of names for each subparameter
-	  virtual std::vector<std::string> name();
+	  virtual std::vector<std::string> name() const;
 
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const;
+      virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
 
    protected:

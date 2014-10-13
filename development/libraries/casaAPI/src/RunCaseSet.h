@@ -36,14 +36,14 @@ namespace casa
       /// @brief Access to i-th element
       /// @param i position element in the list
       /// @return pointer to RunCase object on success, or null pointer otherwise. User should not delete this object
-      virtual const RunCase * operator[] ( size_t i ) const = 0;
+      virtual RunCase * operator[] ( size_t i ) const = 0;
 
       /// @brief Another way to access to i-th element. C# doesn't support operator[] through swig
       /// @param i position of the element in the list
       /// @return pointer to RunCase object on success, or null pointer otherwise. User should not delete this object
-      const RunCase * runCase( size_t i ) const { return (*this)[ i ]; }
+      RunCase * runCase( size_t i ) const { return (*this)[ i ]; }
 
-      /// @brief Filtering run cases which are correspond to the given experiment name. After applying filter, the size() and [] operator\n
+      /// @brief Filtering run cases which are correspond to the given experiment name. After applying filter, the size() and [] operator
       ///        will return only expName related run cases. Such filtering allows to keep different DoE & MC runs in one container.
       /// @param expName experiment name
       virtual void filterByExperimentName( const std::string & expName ) = 0;

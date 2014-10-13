@@ -543,7 +543,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
          }
       }
 
-      RunCaseImpl * cs = dynamic_cast<RunCaseImpl*>( rcs.at( i ) );
+      RunCaseImpl * cs = dynamic_cast<RunCaseImpl*>( rcs[ i ] );
 
       if ( cs )
       {
@@ -570,7 +570,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
 
    for ( size_t i = 0; i < rcs.size(); ++i )
    {
-      RunCaseImpl * cs = dynamic_cast<RunCaseImpl*>( rcs.at( i ) );
+      RunCaseImpl * cs = dynamic_cast<RunCaseImpl*>( rcs[ i ] );
 
       if ( cs )
       {

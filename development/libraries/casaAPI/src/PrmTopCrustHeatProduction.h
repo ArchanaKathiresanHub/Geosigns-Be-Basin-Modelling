@@ -36,13 +36,12 @@ namespace casa
    {
    public:
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param parent pointer to a variable parameter which created this one
       /// @param mdl get value of parameter from cauldron model
       PrmTopCrustHeatProduction( mbapi::Model & mdl );
 
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
-      /// @param val value of top crust heat production rate
+      /// @param val value of top crust heat production rate @f$ [ \mu W/m^3] @f$
       PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val );
 
       /// @brief Destructor
@@ -61,7 +60,7 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
-      /// @brief Validate top crust heat production rate value if it is in positive range\n
+      /// @brief Validate top crust heat production rate value if it is in positive range
       ///        also it checks does the given model has the same value for this parameter.
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value

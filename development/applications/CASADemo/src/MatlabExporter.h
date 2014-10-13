@@ -7,13 +7,12 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 // 
+#ifndef MATLAB_EXPORTER_H
+#define MATLAB_EXPORTER_H
 
 #include <string>
 #include <fstream>
 #include <vector>
-
-#ifndef MATLAB_EXPORTER_H
-#define MATLAB_EXPORTER_H
 
 namespace casa
 {

@@ -9,6 +9,7 @@
 // 
 
 #include "CfgFileParser.h"
+#include "CasaCommander.h"
 
 #include <algorithm>
 #include <fstream>
@@ -19,15 +20,19 @@
 #include <cassert>
 #include <cmath>
 
-void CfgFileParser::parseFile( const std::string & fileName )
+
+void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQueue )
 {
-   std::ifstream file( fileName.c_str() );
+   std::ifstream file( cmdFile.c_str() );
 
    std::string line;
    // process command
    while( std::getline( file, line ) )
    {
       if ( line[0] == '#' ) continue;
+      
+      CfgCommand               cmdID;
+      std::vector<std::string> cmdPrms;
 
       std::istringstream iss( line );
 
@@ -42,28 +47,26 @@ void CfgFileParser::parseFile( const std::string & fileName )
 
          if ( 0 == tokNum )// get app name
          {
-            if (      result == "app"          ) m_cmdList.push_back( app );
-            else if ( result == "base_project" ) m_cmdList.push_back( base_project );
-            else if ( result == "varprm"       ) m_cmdList.push_back( varprm ); 
-            else if ( result == "target"       ) m_cmdList.push_back( target );
-            else if ( result == "doe"          ) m_cmdList.push_back( doe );
-            else if ( result == "run"          ) m_cmdList.push_back( run );
-            else if ( result == "location"     ) m_cmdList.push_back( location );
-            else if ( result == "response"     ) m_cmdList.push_back( response );
-            else if ( result == "evaluate"     ) m_cmdList.push_back( evaluate );
+            if (      result == "app"          ) cmdID = app;
+            else if ( result == "base_project" ) cmdID = base_project;
+            else if ( result == "varprm"       ) cmdID = varprm; 
+            else if ( result == "target"       ) cmdID = target;
+            else if ( result == "doe"          ) cmdID = doe;
+            else if ( result == "run"          ) cmdID = run;
+            else if ( result == "location"     ) cmdID = location;
+            else if ( result == "response"     ) cmdID = response;
+            else if ( result == "evaluate"     ) cmdID = evaluate;
+            else if ( result == "exportMatlab" ) cmdID = exportMatlab;
             else throw std::runtime_error( std::string( "Unknown command: " ) + result );
-            m_cmdPrms.push_back( std::vector<std::string>() );
          }
          else
          {
-            assert( m_cmdList.size() == m_cmdPrms.size() );
-
             if ( opt.size() ) // continue parsing one option
             {
-               if ( result[result.size()-1] == '"' )
+               if ( *result.rbegin() == '"' )
                {                  
                   opt += " " + result.substr( 0, result.size()-1 ); 
-                  m_cmdPrms.back().push_back( opt );
+                  cmdPrms.push_back( opt );
                   opt = "";
                }
                else { opt += " " + result; }
@@ -73,9 +76,9 @@ void CfgFileParser::parseFile( const std::string & fileName )
             {
                if ( result[0] == '"' )
                {
-                  if ( result[result.size()-1] == '"'  )
+                  if ( *result.rbegin() == '"'  )
                   {
-                     m_cmdPrms.back().push_back( result.substr( 1, result.size() - 2 ) );
+                     cmdPrms.push_back( result.substr( 1, result.size() - 2 ) );
                   }
                   else
                   {
@@ -84,16 +87,15 @@ void CfgFileParser::parseFile( const std::string & fileName )
                }
                else
                {
-                  m_cmdPrms.back().push_back( result );
+                  cmdPrms.push_back( result );
                }
             }  
          }
          ++tokNum;
       }
+      cmdQueue.addCommand( cmdID, cmdPrms );
    }
-   assert( m_cmdList.size() == m_cmdPrms.size() ); 
 }
-
 
 // split list of strings divided by sep in to array of strings
 std::vector<std::string> CfgFileParser::list2array( const std::string & listOfStr, char sep )
@@ -108,7 +110,7 @@ std::vector<std::string> CfgFileParser::list2array( const std::string & listOfSt
    {
       if ( result.empty() || (result.size() == 1 && result[0] == sep ) ) continue; // skip spaces and separators
 
-      if ( !result.empty() ) strList.push_back( result ); // add token to the list
+      strList.push_back( result ); // add token to the list
    }
 
    return strList;
@@ -201,33 +203,4 @@ void CfgFileParser::readParametersValueFile( const std::string & fileName, std::
       if ( !oneLineVals.empty() ) dataVals.push_back( oneLineVals );
    }
 }
-
-
- 
-
-std::ostream & operator << ( std::ostream & ost, const CfgFileParser & cfg )
-{
-   for ( size_t i = 0; i < cfg.m_cmdList.size(); ++i )
-   {
-      switch( cfg.m_cmdList[i] )
-      {
-         case CfgFileParser::app:            ost << "app         "; break;
-         case CfgFileParser::base_project:   ost << "base_project"; break;
-         case CfgFileParser::varprm:         ost << "varprm      "; break;
-         case CfgFileParser::target:         ost << "target      "; break;
-         case CfgFileParser::doe:            ost << "doe         "; break;
-         case CfgFileParser::run:            ost << "run         "; break;
-         case CfgFileParser::location:       ost << "location    "; break;
-         default: break;
-      }
-      ost << ":";
-      for ( size_t j = 0; j < cfg.m_cmdPrms[i].size(); ++j )
-      {
-         ost << " \"" << cfg.m_cmdPrms[i][j] << "\""; 
-      }
-      ost << std::endl;
-   }
-   return ost;
-}
-
 

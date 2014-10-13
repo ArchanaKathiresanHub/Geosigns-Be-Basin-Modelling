@@ -34,7 +34,7 @@ size_t RunCaseSetImpl::size() const
 
 
 // Read only access to i-th element
-const RunCase * RunCaseSetImpl::operator[] ( size_t i ) const
+RunCase * RunCaseSetImpl::operator[] ( size_t i ) const
 {
    if ( !m_filter.empty() )
    {
@@ -54,7 +54,7 @@ void RunCaseSetImpl::filterByExperimentName( const std::string & expName )
 
    if ( m_filter.empty() ) return;
 
-   std::map< std::string, std::vector<size_t> >::iterator ret;
+   ListOfDoEIndexesSet::iterator ret;
 
    // check first do we have such experiment?
    ret = m_expSet.find( expName );
@@ -70,23 +70,12 @@ std::vector< std::string > RunCaseSetImpl::experimentNames() const
    std::vector<std::string> expSet;
 
    // loop over all experiments and collect names
-   for ( std::map<std::string, std::vector<size_t> >::const_iterator it = m_expSet.begin(); it != m_expSet.end(); ++it )
+   for ( ListOfDoEIndexesSet::const_iterator it = m_expSet.begin(); it != m_expSet.end(); ++it )
    {
       expSet.push_back( it->first );
    }
 
    return expSet;
-}
-
-// Access to i-th element
-RunCase * RunCaseSetImpl::at( size_t i )
-{
-   if ( !m_filter.empty( ) )
-   {
-      return i < m_expIndSet.size( ) ? m_caseSet[ m_expIndSet[ i ] ] : NULL;
-   }
-
-   return i < m_caseSet.size( ) ? m_caseSet[ i ] : NULL;
 }
  
 // Move a new Cases to the collection and clear array 

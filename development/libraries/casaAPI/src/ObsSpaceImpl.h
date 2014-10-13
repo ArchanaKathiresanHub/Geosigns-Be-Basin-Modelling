@@ -24,7 +24,15 @@ namespace casa
 class ObsSpaceImpl : public ObsSpace
 {
 public:  
-   
+   // Constructor/Destructor
+   ObsSpaceImpl() { ; }
+
+   virtual ~ObsSpaceImpl()
+   {
+      for ( size_t i = 0; i < m_obsSet.size(); ++i ) delete m_obsSet[i];
+      m_obsSet.clear();
+   }
+
    // Add a new observable
    virtual ErrorHandler::ReturnCode addObservable( Observable * prm )
    {
@@ -40,16 +48,10 @@ public:
    Observable * operator[] ( size_t i ) const { return m_obsSet[ i ]; }
 
    // get i-th observable
-   Observable * at(size_t i) const { return m_obsSet[i]; }
+   Observable * at( size_t i ) const { return m_obsSet[i]; }
 
-   // Constructor/Destructor
-   ObsSpaceImpl() { ; }
-
-   virtual ~ObsSpaceImpl()
-   {
-      for ( size_t i = 0; i < m_obsSet.size(); ++i ) delete m_obsSet[i];
-      m_obsSet.clear();
-   }
+   // Get i-th observable
+   virtual const Observable * observable( size_t i ) const { return i < size() ? at( i ) : 0; }
 
 private:
    std::vector< Observable*> m_obsSet;

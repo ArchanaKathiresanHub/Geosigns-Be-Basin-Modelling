@@ -26,6 +26,7 @@ namespace casa
       /// @param baseValue base value
       /// @param minValue  minimal range value
       /// @param maxValue  maximal range value
+      /// @param pdfType type of probabiltiy density function for this variable parameter
       VarPrmTopCrustHeatProduction( double baseValue, double minValue, double maxValue, PDF pdfType );
 
       /// @brief Destructor
@@ -33,12 +34,12 @@ namespace casa
 
 	  /// @brief Get name of variable parameter in short form
 	  /// @return array of names for each subparameter
-	  virtual std::vector<std::string> name();
+	  virtual std::vector<std::string> name() const;
 
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first sub-parameter value
       /// @return new casa::PrmTopCrustHeatProduction  parameter
-      virtual SharedParameterPtr createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const;
+      virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
    protected:
    };

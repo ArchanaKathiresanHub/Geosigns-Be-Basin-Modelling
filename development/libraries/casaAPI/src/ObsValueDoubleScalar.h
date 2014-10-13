@@ -9,7 +9,7 @@
 // 
 
 /// @file ObsValueDoubleScalar.h
-/// @brief This file keeps definition of the interface class for handling observables value which could be represented\n
+/// @brief This file keeps definition of the interface class for handling observables value which could be represented
 /// as float point scalar
 
 #ifndef CASA_API_OBS_VALUE_DOUBLE_SCALAR_H

@@ -265,5 +265,159 @@ namespace Shell.BasinModeling.Cauldron.Test
          Directory.Delete( pathToCaseSet, true ); // delete folder ./CaseSet
          Assert.IsFalse(Directory.Exists(pathToCaseSet));  
       }
+
+      [TestMethod]
+      public void RSProxy_Test() // analog of API/test/RSProxyTest.C
+      {
+         DoubleVector obsVals = new DoubleVector();
+         // case 1
+         obsVals.Add( 65.1536 );
+         obsVals.Add( 0.479763 );
+         // case 2
+         obsVals.Add( 49.8126 );
+         obsVals.Add( 0.386869 );
+         // case 3
+         obsVals.Add( 80.4947 );
+         obsVals.Add( 0.572657 );
+         // case 4
+         obsVals.Add( 65.1536 );
+         obsVals.Add( 0.479763 );
+         // case 5
+         obsVals.Add( 65.1536 );
+         obsVals.Add( 0.479763 );
+
+         // create new scenario analysis
+         ScenarioAnalysis sa = new ScenarioAnalysis();
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.defineBaseCase(m_projectFileName));
+
+         VarSpace vrs = sa.varSpace();
+         ObsSpace obs = sa.obsSpace();
+
+         // vary 2 parameters
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+
+         // add 2 observables for T & VRE
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable( ObsSpace.newObsPropertyXYZ( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable( ObsSpace.newObsPropertyXYZ( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );
+
+         // set Tornado as DoE
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
+         
+         // generate DoE
+         DoEGenerator doe = sa.doeGenerator();
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == doe.generateDoE(sa.varSpace(), sa.doeCaseSet()));
+
+         RunCaseSet rcs = sa.doeCaseSet();
+         ConstCasesList proxyRC = new ConstCasesList();
+
+         int off = 0;
+         for ( uint i = 0; i < rcs.size(); ++i ) 
+         {
+            RunCase rc = rcs.runCase(i);
+            proxyRC.Add( rc ); // collect run cases for proxy calculation
+
+
+            for ( uint j = 0; j < 2; ++j )
+            {
+               ObsValue obVal = obs.observable( j ).newObsValueFromDoubles( obsVals, ref off );
+               rc.addObsValue( obVal );
+            }
+         }
+
+         // Calculate Respons Surface proxy
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.addRSAlgorithm( "TestFirstOrderTornadoRS", 1, RSProxy.RSKrigingType.NoKriging ) );
+         RSProxy proxy = sa.rsProxySet().rsProxy( "TestFirstOrderTornadoRS" );
+
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == proxy.calculateRSProxy( proxyRC ) );
+
+         CoefficientsMapList cml = proxy.getCoefficientsMapList();
+         
+         // Check proxy coefficients for
+         // first observable obs(1) = 65.1536 + 15.3411 * prm_1 +0 * prm_2 
+         for ( int i = 0; i < cml.Count; ++i ) // go over all observables
+         {
+            CoefficientsMap cm = cml[i];
+            var enumerator = cm.GetEnumerator();
+
+            if ( i == 0 ) // check Response Surfvace for the first observable
+            {
+               uint cpow = 0;
+               while ( enumerator.MoveNext() )
+               { 
+                  UnsignedIntVector prmIDs = enumerator.Current.Key;
+                  double            coef   = enumerator.Current.Value;
+
+                  switch ( cpow  )
+                  {
+                  case 0:
+                     Assert.AreEqual<int>( prmIDs.Count, 0 );
+                     Assert.IsTrue( Math.Abs( 65.15362 - coef ) < eps );
+                     break;
+
+                  case 1:
+                     Assert.AreEqual<int>( prmIDs.Count, 1 );
+                     Assert.AreEqual<uint>( prmIDs[0], 0 );
+                     Assert.IsTrue( Math.Abs( 15.34105 - coef ) < eps );
+                     break;
+
+                  case 2:
+                     Assert.AreEqual<int>( prmIDs.Count, 1 );
+                     Assert.AreEqual<uint>( prmIDs[0], 1 );
+                     Assert.IsTrue( Math.Abs( 0.0 - coef ) < eps );
+                     break;
+                  }
+                  ++cpow;
+               }
+            }
+            else if ( i == 1 ) // check Response Surfvace for the second observable
+            {
+               uint cpow = 0;
+               while ( enumerator.MoveNext() )
+               { 
+                  UnsignedIntVector prmIDs = enumerator.Current.Key;
+                  double            coef   = enumerator.Current.Value;
+
+                  switch ( cpow  )
+                  {
+                  case 0:
+                     Assert.AreEqual<int>( prmIDs.Count, 0 );
+                     Assert.IsTrue( Math.Abs( 0.479763 - coef ) < eps );
+                     break;
+
+                  case 1:
+                     Assert.AreEqual<int>( prmIDs.Count, 1 );
+                     Assert.AreEqual<uint>( prmIDs[0], 0 );
+                     Assert.IsTrue( Math.Abs( 0.0928937 - coef ) < eps );
+                     break;
+
+                  case 2:
+                     Assert.AreEqual<int>( prmIDs.Count, 1 );
+                     Assert.AreEqual<uint>( prmIDs[0], 1 );
+                     Assert.IsTrue( Math.Abs( 0.0 - coef ) < eps );
+                     break;
+                  }
+                  ++cpow;
+               }
+            }
+         }
+         // check response surface evaluation
+         // create one new case
+         RunCaseImpl  nrc = new RunCaseImpl();
+         DoubleVector prmVals = new DoubleVector();
+         // set case parameters
+         prmVals.Add( 10.16 );
+         prmVals.Add( 1.970 );
+
+         off = 0;
+         for ( uint i = 0; i < prmVals.Count; ++i )
+         {
+            nrc.addParameter( vrs.continuousParameter( i ).newParameterFromDoubles(  prmVals, ref off ) );
+         }
+   
+         Assert.IsTrue( ErrorHandler.ReturnCode.NoError == proxy.evaluateRSProxy( nrc ) );
+         Assert.IsTrue( Math.Abs(nrc.obsValue( 0 ).doubleValue()[0] - 65.6445336 ) < eps);
+         Assert.IsTrue( Math.Abs(nrc.obsValue( 1 ).doubleValue()[0] - 0.4827356 ) < eps);
+      }
    }
 }

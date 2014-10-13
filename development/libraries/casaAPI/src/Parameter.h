@@ -19,6 +19,10 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
+/// @page CASA_ParameterPage Cauldron project parameter
+/// Parameter is some value (or possibly set of values) in project file which has an influence on simulation.
+/// Any change of the parameter value, will change in some way the simulation results.
+///
 
 namespace mbapi
 {
@@ -60,7 +64,7 @@ namespace casa
       /// @return parameter value represented as set of doubles
       ///
       /// @pre parent()->variationType() must returns VarParameter::Continuous
-      /// @post return set of doubles which represent value of this parameter if parameter is continuous \n
+      /// @post return set of doubles which represent value of this parameter if parameter is continuous
       ///       or empty array otherwise
       virtual std::vector<double> asDoubleArray() const = 0;
 
@@ -68,7 +72,7 @@ namespace casa
       /// @return parameter value represented as integer
       ///
       /// @pre parent()->variationType() must returns VarParameter::Categorical
-      /// @post return one non negative integer number which represents a value of this parameter if \n
+      /// @post return one non negative integer number which represents a value of this parameter if
       ///       parameter is categroical, or -1 otherwise
       virtual int asInteger() const = 0;
 

@@ -18,8 +18,9 @@
 
 #include <memory>
 
-/// @page CASA_ObservableGridPropXYZPage any Cauldron grid property at specified XYZ point
-/// This observable could retrieve grid property value for given position in a grid
+/// @page CASA_ObservableGridPropXYZPage Any Cauldron grid property at specified XYZ point 
+/// in basin model coordinate space. This observable could retrieve any grid property value
+/// for the given position in a grid
 /// 
 
 namespace mbapi
@@ -34,11 +35,11 @@ namespace casa
    {
    public:
       /// @brief Create observable for the given grid property for specified grid position
-      /// @param x X-th grid coordinate
-      /// @param y Y-th grid coordinate
-      /// @param z Z-th grid coordinate
+      /// @param x X-th grid coordinate [m]
+      /// @param y Y-th grid coordinate [m]
+      /// @param z Z-th grid coordinate [m]
       /// @param propName name of the property
-      /// @param simTime simulation time
+      /// @param simTime simulation time [Ma]
       ObsGridPropertyXYZ( double x, double y, double z, const char * propName, double simTime );
 
       /// @brief Destructor

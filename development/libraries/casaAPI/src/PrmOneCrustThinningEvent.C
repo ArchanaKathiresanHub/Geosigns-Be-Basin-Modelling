@@ -37,10 +37,10 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 {
    int crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
-   m_initialThicknes = UndefinedDoubleValue;
-   m_t0              = UndefinedDoubleValue;
-   m_dt              = UndefinedDoubleValue;
-   m_coeff           = UndefinedDoubleValue;
+   m_initialThickness = UndefinedDoubleValue;
+   m_t0               = UndefinedDoubleValue;
+   m_dt               = UndefinedDoubleValue;
+   m_coeff            = UndefinedDoubleValue;
 
    if ( ErrorHandler::NoError == mdl.errorCode() )
    {
@@ -55,7 +55,7 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 
       if ( 4 == crustIoTblSize )
       {
-         m_initialThicknes = d.back();
+         m_initialThickness = d.back();
          m_coeff = d.front() / d.back();
          m_t0 = t[2];
          m_dt = t[2] - t[1];
@@ -66,7 +66,7 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 // Constructor. Set given parameter values
 PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent, double thickIni, double t0, double dt, double coeff ) : 
      m_parent( parent )
-   , m_initialThicknes( thickIni ) 
+   , m_initialThickness( thickIni ) 
    , m_t0( t0 )
    , m_dt( dt )
    , m_coeff( coeff )
@@ -93,20 +93,20 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & ca
    }
 
    // 0 time
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 0, s_crustIoTblAgeCol,       0.0                         ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 0, s_crustIoTblThicknessCol, m_initialThicknes * m_coeff ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 0, s_crustIoTblAgeCol,       0.0                          ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 0, s_crustIoTblThicknessCol, m_initialThickness * m_coeff ) ) return caldModel.errorCode();
 
    // end event time
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblAgeCol,       m_t0 - m_dt                 ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblThicknessCol, m_initialThicknes * m_coeff ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblAgeCol,       m_t0 - m_dt                  ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblThicknessCol, m_initialThickness * m_coeff ) ) return caldModel.errorCode();
 
    // start event time
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblAgeCol,       m_t0              ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblThicknessCol, m_initialThicknes ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblAgeCol,       m_t0               ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblThicknessCol, m_initialThickness ) ) return caldModel.errorCode();
 
    // before time begin
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblAgeCol,       eldestAge         ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblThicknessCol, m_initialThicknes ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblAgeCol,       eldestAge          ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblThicknessCol, m_initialThickness ) ) return caldModel.errorCode();
 
    return ErrorHandler::NoError;
 }
@@ -116,8 +116,8 @@ std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
 {
    std::ostringstream oss;
 
-   if (      m_initialThicknes < 0.0    ) { oss << "Initial crust thickness value can not be negative: "                             << m_initialThicknes << "\n"; }
-   else if ( m_initialThicknes > 100000 ) { oss << "Too big value for the initial crust thickness, it can not be more then 100 km: " << m_initialThicknes << "\n"; }
+   if (      m_initialThickness < 0.0    ) { oss << "Initial crust thickness value can not be negative: "                             << m_initialThickness << "\n"; }
+   else if ( m_initialThickness > 100000 ) { oss << "Too big value for the initial crust thickness, it can not be more then 100 km: " << m_initialThickness << "\n"; }
 
    if      ( m_t0 <= 0.0   ) { oss << "Starting time for the crust thinning event must be greater than 0: " << m_t0 << "\n"; }
    else if ( m_t0 > 1000.0 ) { oss << "Too big value for the starting time of crust thinning event: "       << m_t0 << "\n"; }
@@ -147,9 +147,9 @@ std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
       d[i] = caldModel.tableValueAsDouble( s_crustIoTblName, i, s_crustIoTblThicknessCol );
    }
    
-   if ( std::abs( d[3] - m_initialThicknes ) > s_eps ) 
+   if ( std::abs( d[3] - m_initialThickness ) > s_eps ) 
    { 
-      oss << "Initial crust thickness value in the model (" << d[3] << ") is differ from parameter value (" << m_initialThicknes << ")\n";
+      oss << "Initial crust thickness value in the model (" << d[3] << ") is differ from parameter value (" << m_initialThickness << ")\n";
    }
 
    if ( std::abs( t[2] - m_t0 ) > s_eps ) 
@@ -180,7 +180,7 @@ std::vector<double> PrmOneCrustThinningEvent::asDoubleArray() const
 {
    std::vector<double> vals(4);
 
-   vals[0] = m_initialThicknes;
+   vals[0] = m_initialThickness;
    vals[1] = m_t0;
    vals[2] = m_dt;
    vals[3] = m_coeff;

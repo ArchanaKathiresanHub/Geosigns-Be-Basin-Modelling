@@ -129,7 +129,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
    {
       m_collection->calculate( targetCollection
                              , validCase2Obs 
-                             , m_rsOrder
+                             , static_cast<unsigned int>( m_rsOrder )
                              , m_autosearch
                              , m_targedR2
                              , m_confLevel

@@ -9,7 +9,7 @@
 // 
 
 /// @file ObsValueDoubleArray.h
-/// @brief This file keeps definition of the interface class for handling array of observable values which could be represented\n
+/// @brief This file keeps definition of the interface class for handling array of observable values which could be represented
 /// as float point array
 
 #ifndef CASA_API_OBS_VALUE_DOUBLE_ARRAY_H

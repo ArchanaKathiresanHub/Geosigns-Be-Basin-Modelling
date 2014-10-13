@@ -13,6 +13,8 @@
 
 #include "RunCaseImpl.h"
 #include "ObsValue.h"
+#include "Parameter.h"
+#include "VarParameter.h"
 
 #include <cstring>
 #include <sstream>
@@ -43,18 +45,35 @@ SharedParameterPtr RunCaseImpl::parameter( size_t i ) const
 // Add new parameter to the list
 void RunCaseImpl::addParameter( SharedParameterPtr prm )
 {
+   for ( size_t i = 0; i < m_prmsSet.size(); ++i )
+   {
+      if ( m_prmsSet[i]->parent() == prm->parent() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Parameter value for variable parameter: "  <<
+                                                                          prm->parent()->name()[0] << ", already exsit in RunCase";
+      }
+   }
    m_prmsSet.push_back( prm );
 }
 
 // Get i-th observable
-ObsValue * RunCaseImpl::observableValue( size_t i ) const
+ObsValue * RunCaseImpl::obsValue( size_t i ) const
 {
    return i < m_results.size( ) ? m_results[ i ] : NULL;
 }
 
 // Add new observable to the list
-void RunCaseImpl::addObservableValue( ObsValue * obs )
+void RunCaseImpl::addObsValue( ObsValue * obs )
 {
+   // doe check if we already have such type ObsValue
+   for ( size_t i = 0; i < m_results.size(); ++i )
+   {
+      if ( m_results[i]->observable() == obs->observable() )
+      {
+         throw ErrorHandler::Exception(ErrorHandler::AlreadyDefined) << "Observable value for obzervable: " << 
+                                                      obs->observable()->name() <<", already exsit in RunCase";
+      }
+   }
    m_results.push_back( obs );
 }
 
@@ -111,12 +130,12 @@ std::string RunCaseImpl::validateCase()
 }
 
 // Load project file into mbapi::Model object
-mbapi::Model * RunCaseImpl::loadProject()
+mbapi::Model & RunCaseImpl::loadProject()
 {
    m_model.reset( new mbapi::Model( ) ); // if already having some model, drop it
    m_model->loadModelFromProjectFile( m_modelProjectFileName.c_str() );
 
-   return m_model.get();
+   return *(m_model.get());
 }
 
 }

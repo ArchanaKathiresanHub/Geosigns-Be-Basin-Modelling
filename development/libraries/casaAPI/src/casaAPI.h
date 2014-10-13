@@ -47,14 +47,14 @@
 /// utilize them to rapidly infer stochastic properties of the model (like P10, P50, P90 cases)
 ///
 /// This manual is divided in the following sections:
-/// - \subpage CASA_ScenarioAnalysisPage
-/// - \subpage CASA_ClassHierachyPage
-/// - \subpage CASA_VarParametersAndObservablesPage
-/// - \subpage CASA_DoEGeneratorPage
-/// - \subpage CASA_RunManagerPage
-/// - \subpage CASA_DataDiggerPage
-/// - \subpage CASA_RSProxyPage
-/// - \subpage CASA_MCSolverPage
+/// - @subpage CASA_ScenarioAnalysisPage
+/// - @subpage CASA_ClassHierachyPage
+/// - @subpage CASA_VarParametersAndObservablesPage
+/// - @subpage CASA_DoEGeneratorPage
+/// - @subpage CASA_RunManagerPage
+/// - @subpage CASA_DataDiggerPage
+/// - @subpage CASA_RSProxyPage
+/// - @subpage CASA_MCSolverPage
 ///
 /// The block diagram which describes an interaction between different parts of CASA API could be seen here:
 /// @image html TopView.png "High level design diagram for Cauldron  CASA API library"
@@ -69,17 +69,24 @@
 ///   - casa::MCSolver - for performing Monte Carlo/Markov Chain Monte Carlo calculations
 ///
 ///  The set of data classes includes:
-///   - casa::VarSpace - variable parameters manager. Keep and allows to manipulate variable parameters with range. VarSpace keeps:
-///     -# casa::VarPrmContinuous continuous variable parameters set
-///     -# casa::VarPrmCategorical categorical variable parameters set
-///   - casa::RunCase - main class for keeping a single set of variable parameters value and observables from the simulation results
-///   - casa::RunCaseSet - container to keep a collection of casa::RunCase objects
+///   - casa::VarParameter - @link CASA_VarParameterPage Base class for variable parameter description.@endlink It is inhereted by:
+///      -# casa::VarPrmContinuous  - @link CASA_VarPrmContinuousPage Continuous variable parameters @endlink
+///      -# casa::VarPrmCategorical - @link  CASA_VarPrmCategoricalPage Variable parameters for categorical values @endlink
+///   - casa::VarSpace - @link CASA_VarSpacePage Container which keeps and allows to manipulate variable parameters description.@endlink
+///   - casa::RunCase - main class for keeping variable parameters value and targets value for a single Cauldron project run or for
+///                     a single point of Monte Carlo simulation results
+///   - casa::RunCaseSet - container which keeps a collection of casa::RunCase objects
 ///   - casa::Parameter - base class for keeping a single parameter value. The following set of parameters is implemented now:
-///     -# case::PrmSourceRockTOC - \subpage CASA_SourceRockTOCPage
-///     -# case::PrmTopCrustHeatProduction - \subpage CASA_TopCrustHeatProductionPage
-///   - CASAPI::Observable - base class for keeping a target value from simulation results. It also could include reference value from measurements
-///      -# casa::PropertyValueIJK
-///      -# casa::PropertyValueXYZ
+///     -# casa::PrmSourceRockTOC - @link CASA_SourceRockTOCPage Source rock initial Total Organic Contents (TOC) parameter @endlink
+///     -# casa::PrmTopCrustHeatProduction - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
+///     -# casa::PrmOneCrustThinningEvent - @link CASA_OneCrustThinningEventPage Crust thinning parameter @endlink
+///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 
+///                        value from measurements. casa::ScenarioAnalysis keeps one set of Observables in casa::ObsSpace container.
+///                        The following set of implemented targets is implemented now:
+///      -# casa::ObsGridPropertyXYZ - @link CASA_ObservableGridPropXYZPage  Any Cauldron grid property at specified XYZ point.@endlink
+///      -# casa::ObsGridPropertyWell - @link CASA_ObservableGridPropWellPage Cauldron grid property along a well trajectory. @endlink
+///   - casa::ObsValue - base class which keeps target value itself. Each casa::RunCase keeps a unique set of casa::ObsValue objects with
+///                      the simulation results from this case. 
 /// 
 ///   The UML class diagram of CASA API is here:
 ///   @image html CASA-class-dagram.png "UML class diagram Cauldron CASA API library"
@@ -87,39 +94,58 @@
 
 
 /// @page CASA_VarParametersAndObservablesPage Variable Parameters and Observables
+/// @subpage CASA_ParameterPage
 ///
-/// @b Variable @b Parameter - a parameter in Cauldron project file which exact value is unknown. 
+/// @subpage CASA_VarParameterPage - a parameter in Cauldron project file which exact value is unknown.
 /// There are only some estimations on it value range. For example - source rock TOC - [5:20]%.
 ///
-/// Variable parameters are kept by @subpage CASA_VarSpacePage
-/// Types of variable parameters implemented in API are described here: \subpage CASA_VarParameterPage
+/// Variable parameters are kept by @subpage CASA_VarSpacePage container. Types of implemented in API
+/// variable parameters are described here: @link CASA_VarParameterPage @b Variable @b Parameter @endlink
 ///
-/// @link CASA_ObservablePage @b Observable @endlink - a simulator output value. Could be any data value from the simulation results.\n
-/// Usually, modeler have some measurements for the basin from wells. Some of observables could correspond those measurements.\n
-/// For example temperature or VRe at some position and depth for current time. Some observables could be used\n
-/// for risk assessment - for example total amount of HC in a trap.
+/// @link CASA_ObservablePage @b Observable @endlink - a description of simulator output value. Could be any data from 
+/// the simulation results.
+/// Usually, modeler have some measurements for the basin from wells. Some of observables could correspond those measurements.
+/// For example temperature or VRe at some position and depth for "@i present @i day" time. 
+/// Some observables could have integrated over space or/and time values and be used for risk assessment, 
+/// for example - a total amount of HC in a trap.
 /// 
 /// Observables are kept by @subpage CASA_ObsSpacePage
-///
-/// casa::DataDigger for each observable from the set, creates for each casa::RunCase casa::ObsValue object, extracting
-/// data from the case simulation results.
+/// casa::DataDigger, after the simulation stage, goes over all observables
+/// and extracts their values from simulation results. For each case, casa::DataDigger creates 
+/// a list of casa::ObsValue objects which keep the observables values for this case.
 ///
 /// Types of observables implemented in API are described here: \subpage CASA_ObservablePage
 
 
 /// @page CASA_ScenarioAnalysisPage Scenario analysis workflows
 /// Scenario analysis API allows to reproduce the following workflows to perform a scenario analysis
-/// -# First guess
-/// -# Parameters sensitivity estimation
-/// -# Calibration
-/// -# Uncertainty and risk analysis
+/// -# <b> First guess </b> 
+/// 
+/// -# <b> Parameters screening and sensitivity analysis. </b> Allows to screen a wide range of input parameters 
+/// (maps, boundary condition tables or scalar values) on their importance of influencing a target model output and secondary calibration 
+/// responses. Target outputs are generally
+///      - trap properties( e.g.volumes, GOR, API ),
+///      - property predictions at hypothetical well / prospect locations( e.g.pore pressure, temperatures ), or
+///      - aggregate property predictions over an area / volume( e.g.cumulative expulsion over a kitchen, total adsorbed hydrocarbons, average   
+///      - direction of migration, etc. )
+/// Secondary calibration responses represent simulated values of T, VR and pressures at the position and depth of available measured data.
+///
+/// -# <b> Semi-automated calibration. </b> Calibration tries to achieve the best match of model
+/// outputs and measurement data by use of minimization algorithms.The modeler has however a
+/// choice on what "best" means via the comparison criteria. This is how project objectives 
+/// can be included and why it is semi-automated on purpose.
+///
+/// -# <b> Uncertainty and risk analysis.</b> Many parameter combinations may yield the comparably good model fits.
+///   - Some parameter influencing prediction quantities may hardly be constraint by available data
+///   - Consider a large number of such models and combine predictions in empirical probability distributions
+///
 
 /// @brief Namespace which keeps API for performing uncertainty/sensitivity scenario analysis
 namespace casa
 {
    class ScenarioAnalysis;
    
-   /// @brief Name space which keeps set of high level functions for variable parameters definitions.\n
+   /// @brief Name space which keeps set of high level functions for variable parameters definitions.
    ///        This set of functions provides an easy way to add variable parameters to casa::ScenarioAnalysis
    namespace BusinessLogicRulesSet
    {
@@ -128,7 +154,7 @@ namespace casa
       /// @param[in] layerName name of the layer in base case model to variate it thickness
       /// @param[in] minVal the minimal range value 
       /// @param[in] maxVal the maximal range value 
-      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
+      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
@@ -138,7 +164,7 @@ namespace casa
       /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
       /// @param[in] minVal the minimal range value 
       /// @param[in] maxVal the maximal range value 
-      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
+      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa, double minVal, double maxVal,
@@ -149,13 +175,14 @@ namespace casa
       /// @param[in] layerName name. If layer has mixing of source rocks, for all of them TOC will be changed
       /// @param[in] minVal the minimal range value 
       /// @param[in] maxVal the maximal range value 
-      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be\n
+      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
                                                   VarPrmContinuous::PDF rangeShape );
 
       /// @brief Add 4 parameters to variate one crust thinning event.
+      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
       /// @param[in] minThickIni minimal range value for the initial crust thickness
       /// @param[in] maxThickIni maximal range value for the initial crust thickness
       /// @param[in] minT0 minimal range value for the start time of crust thinning
@@ -164,7 +191,7 @@ namespace casa
       /// @param[in] maxDeltaT maximal range value for the duration of crust thinning
       /// @param[in] minThinningFct minimal range value for the crust thickness factor (final crust thickness is equal the initial thickness multiplied by this factor)
       /// @param[in] maxThinningFct maximal range value for the crust thickness factor 
-      /// @param[in] pdfType probability function type for the variable parameter. If PDF needs some middle parameter value it will be\n
+      /// @param[in] pdfType probability function type for the variable parameter. If PDF needs some middle parameter value it will be
       ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryOneCrustThinningEvent( ScenarioAnalysis & sa, double minThickIni,    double maxThickIni, 

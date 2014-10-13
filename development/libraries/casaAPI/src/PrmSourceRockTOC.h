@@ -41,15 +41,15 @@ namespace casa
    {
    public:
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get value for TOC for given layer from\n
-      ///            if model has more than one source rock lithology for the same layer, the TOC\n
+      /// @param mdl Cauldron model interface object to get value for TOC for given layer from
+      ///            if model has more than one source rock lithology for the same layer, the TOC
       ///            value will be equal the first one
       /// @param layerName layer name
       PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName );
 
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
-      /// @param val value of top crust heat production rate
+      /// @param val value of the initial total organic content in source rock @f$ [ weight \% ] @f$
       /// @param layerName layer name
       PrmSourceRockTOC( const VarPrmSourceRockTOC * parent, double val, const char * layerName );
 
@@ -69,8 +69,8 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
-      /// @brief Validate TOC value if it is in [0:100] range, also it check are any source rock  \n
-      ///        lithology in the model with the same layer name, does the parameter value is the \n
+      /// @brief Validate TOC value if it is in [0:100] range, also it check are any source rock
+      ///        lithology in the model with the same layer name, does the parameter value is the
       ///        same as in source rock lithology.
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value

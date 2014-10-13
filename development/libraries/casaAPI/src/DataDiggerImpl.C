@@ -45,7 +45,7 @@ ErrorHandler::ReturnCode DataDiggerImpl::requestObservables( ObsSpace & obs, Run
    for ( size_t rc = 0; rc < rcSet.size(); ++rc )
    {
       // go through all run cases
-      RunCaseImpl * cs = dynamic_cast<RunCaseImpl *>( rcSet.at(rc) );
+      RunCaseImpl * cs = dynamic_cast<RunCaseImpl *>( rcSet[rc] );
       if ( !cs ) continue;
 
       mbapi::Model * mdl = cs->caseModel();
@@ -72,19 +72,19 @@ ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunC
 
    for ( size_t c = 0; c < runCaseSet.size( ); ++c )
    {
-      RunCaseImpl * runCase = dynamic_cast<RunCaseImpl*>( runCaseSet.at( c ) );
+      RunCaseImpl * runCase = dynamic_cast<RunCaseImpl*>( runCaseSet[ c ] );
       assert( runCase->observablesNumber() == 0 );
 
-      mbapi::Model * caseModel = runCase->loadProject();
-      if ( caseModel->errorCode() != NoError ) { return moveError( *caseModel ); }
+      mbapi::Model & caseModel = runCase->loadProject();
+      if ( caseModel.errorCode() != NoError ) { return moveError( caseModel ); }
 
       for ( size_t ob = 0; ob < observSpace.size(); ++ob )
       {
          Observable * obDef = observSpace[ ob ];
-         ObsValue   * obVal = obDef->getFromModel( *caseModel );
+         ObsValue   * obVal = obDef->getFromModel( caseModel );
 
-         if ( !obVal ) return moveError( *caseModel );
-         runCase->addObservableValue( obVal );
+         if ( !obVal ) return moveError( caseModel );
+         runCase->addObsValue( obVal );
       }
    }
    return NoError;

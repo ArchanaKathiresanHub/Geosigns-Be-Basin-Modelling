@@ -1,0 +1,970 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<tagfile>
+  <compound kind="file">
+    <name>cmbAPI.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>cmbAPI_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <includes id="LithologyManager_8h" name="LithologyManager.h" local="yes" imported="no">LithologyManager.h</includes>
+    <includes id="PropertyManager_8h" name="PropertyManager.h" local="yes" imported="no">PropertyManager.h</includes>
+    <includes id="SnapshotManager_8h" name="SnapshotManager.h" local="yes" imported="no">SnapshotManager.h</includes>
+    <includes id="SourceRockManager_8h" name="SourceRockManager.h" local="yes" imported="no">SourceRockManager.h</includes>
+    <includes id="StratigraphyManager_8h" name="StratigraphyManager.h" local="yes" imported="no">StratigraphyManager.h</includes>
+    <includes id="FluidManager_8h" name="FluidManager.h" local="yes" imported="no">FluidManager.h</includes>
+    <includes id="UndefinedValues_8h" name="UndefinedValues.h" local="yes" imported="no">UndefinedValues.h</includes>
+    <class kind="class">mbapi::Model</class>
+    <namespace>mbapi</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ErrorHandler.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>ErrorHandler_8h</filename>
+    <class kind="class">ErrorHandler</class>
+  </compound>
+  <compound kind="file">
+    <name>FilePath.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>FilePath_8h</filename>
+    <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>FluidManager.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>FluidManager_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <class kind="class">mbapi::FluidManager</class>
+    <namespace>mbapi</namespace>
+  </compound>
+  <compound kind="file">
+    <name>FolderPath.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>FolderPath_8h</filename>
+    <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
+    <class kind="class">ibs::FolderPath</class>
+  </compound>
+  <compound kind="file">
+    <name>LithologyManager.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>LithologyManager_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <class kind="class">mbapi::LithologyManager</class>
+    <namespace>mbapi</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Path.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>Path_8h</filename>
+    <class kind="struct">ibs::PathException</class>
+    <class kind="class">ibs::Path</class>
+  </compound>
+  <compound kind="file">
+    <name>PropertyManager.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>PropertyManager_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <class kind="class">mbapi::PropertyManager</class>
+    <namespace>mbapi</namespace>
+  </compound>
+  <compound kind="file">
+    <name>SnapshotManager.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>SnapshotManager_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <class kind="class">mbapi::SnapshotManager</class>
+    <namespace>mbapi</namespace>
+  </compound>
+  <compound kind="file">
+    <name>SourceRockManager.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>SourceRockManager_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <class kind="class">mbapi::SourceRockManager</class>
+    <namespace>mbapi</namespace>
+  </compound>
+  <compound kind="file">
+    <name>StratigraphyManager.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>StratigraphyManager_8h</filename>
+    <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
+    <class kind="class">mbapi::StratigraphyManager</class>
+    <namespace>mbapi</namespace>
+  </compound>
+  <compound kind="file">
+    <name>UndefinedValues.h</name>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <filename>UndefinedValues_8h</filename>
+    <member kind="define">
+      <type>#define</type>
+      <name>UndefinedDoubleValue</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>a41facb4b389b7f7ebaba6af891428dd4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>UndefinedIntegerValue</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>a4820a5ff20f84b367280947280c73496</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>UndefinedStringValue</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>ab003bd42d0231b1723316bcfaf963957</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="page">
+    <name>ErrorHandlerPage</name>
+    <title>Error handling in CMB and CASA APIs</title>
+    <filename>ErrorHandlerPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CMB_API_Descr</name>
+    <title>Cauldron Model Building API</title>
+    <filename>CMB_API_Descr</filename>
+  </compound>
+  <compound kind="page">
+    <name>ClassHierachyPage</name>
+    <title>Cauldron Model hierarchy description.</title>
+    <filename>ClassHierachyPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>FluidManagerPage</name>
+    <title>Fluid Manager</title>
+    <filename>FluidManagerPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>LithologyManagerPage</name>
+    <title>Lithology Manager</title>
+    <filename>LithologyManagerPage</filename>
+    <docanchor file="LithologyManagerPage" title="Porosity models">PorosityModelsSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Exponential porosity model">ExpPorosityModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Soil mechanics porosity model">SoilMechPorosityModelSubSec</docanchor>
+  </compound>
+  <compound kind="page">
+    <name>SourceRockManagerPage</name>
+    <title>Source Rock Manager</title>
+    <filename>SourceRockManagerPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>StratigraphyManagerPage</name>
+    <title>Stratigraphy Manager</title>
+    <filename>StratigraphyManagerPage</filename>
+  </compound>
+  <compound kind="class">
+    <name>ErrorHandler</name>
+    <filename>classErrorHandler.html</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>ReturnCode</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>NoError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a76e479d65f9bb4578840e8c5f441447f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>IoError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462ad8143059ef098014bf62a13a71204aaf</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>MemAllocError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462af71f0c410af863d389dc85e8669287da</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>NonexistingID</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462af821d2e4b3a3a55d92033597ec64fe80</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>UndefinedValue</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a974c2b8690b5d259f37cb6e9231c8d61</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>OutOfRangeValue</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a8e9942c5bc4bf1f90900c5d48b2c473a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>NotImplementedAPI</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462accaaf5278e4f5562a2baa371fefc55d2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>AlreadyDefined</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462ad1b148d4c3e188fdcb92350e03531643</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>MutationError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a52834351f4120be495e01a78e105c099</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>ValidationError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462aa86d8bf0a108a3b2f7731e28a55ceb54</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>MCSolverError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a1e9a1fe64b72cd13693dc0ce80ce7a0d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>RSProxyError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462af152e0410223128d58e06e7d2c08dda8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>SUMLibException</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a3579fffd51a4610a49b0a0179e3c88ae</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>LSFLibError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a3c56c7c56b2a9aeae5f55a0d6f3839f1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>WrongPath</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a1fd17132d5dae1521485a24d566e5350</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>UnknownError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462aa508cd0573517dc586f06dae09e1c4c4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>reportError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>ace617082a5004c941f232295c5ed318b</anchor>
+      <arglist>(ReturnCode rc, const std::string &amp;msg)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>resetError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>aee2f31377fe29bdbd73139e0a414a6ff</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>moveError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>a592eee170030fac52f391c77903c84a3</anchor>
+      <arglist>(ErrorHandler &amp;otherErrHandler)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>errorCode</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>a06970d3d48a7ad48d58da43ad33ee4d9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type></type>
+      <name>~ErrorHandler</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>a73c7e690b864697e507aaeb537b3c3e5</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>File</name>
+    <filename>classFile.html</filename>
+  </compound>
+  <compound kind="class">
+    <name>ibs::FolderPath</name>
+    <filename>classibs_1_1FolderPath.html</filename>
+    <base>ibs::Path</base>
+    <member kind="function">
+      <type></type>
+      <name>FolderPath</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>aaff829c60d4b7d8885438058710affff</anchor>
+      <arglist>(const std::string &amp;folderPath)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>FolderPath</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>aa7c1fc0dbc9e8fa9a1709271ab5028b6</anchor>
+      <arglist>(const FolderPath &amp;fld)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~FolderPath</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>a2c85d47b376bfb9b6f13ab320c794d7f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>create</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>a1b6e1e765386f437b054dcc194bb306c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>remove</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>a064e4f826b6b1e481cce8ac9132e5747</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>empty</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>a4e1ad5b107d56afaf8a7fb4cd83b9db5</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>clean</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>ad3ffda4b56b420233426d5cf967522ac</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>FolderPath &amp;</type>
+      <name>operator=</name>
+      <anchorfile>classibs_1_1FolderPath.html</anchorfile>
+      <anchor>ab96da29af1acbd0024b55af43dad3b1f</anchor>
+      <arglist>(const FolderPath &amp;fld)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>exists</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a026d9ea100af3ddf52e9c732f7ab3c46</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>path</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a24b8af46d71ce28a5e01dcfa18098fca</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>const char *</type>
+      <name>cpath</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>af36d67d79880809aa05436fd06547bd9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>Path &amp;</type>
+      <name>cutLast</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>afa39edaf0190a2f2f205c69796b9b4d0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>size</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a7e1fe6339927cf747915ea338b2cdec4</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>operator[]</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>aa39fb7179c7b386157d83712b99f6a60</anchor>
+      <arglist>(size_t i)</arglist>
+    </member>
+    <member kind="function">
+      <type>Path &amp;</type>
+      <name>operator&lt;&lt;</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>a5656a6ec4a00c1e107c3fb01faff8d86</anchor>
+      <arglist>(const T &amp;pathEl)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>ibs::Path</name>
+    <filename>classibs_1_1Path.html</filename>
+  </compound>
+  <compound kind="struct">
+    <name>ibs::PathException</name>
+    <filename>structibs_1_1PathException.html</filename>
+  </compound>
+  <compound kind="namespace">
+    <name>mbapi</name>
+    <filename>namespacembapi.html</filename>
+    <class kind="class">mbapi::FluidManager</class>
+    <class kind="class">mbapi::LithologyManager</class>
+    <class kind="class">mbapi::Model</class>
+    <class kind="class">mbapi::PropertyManager</class>
+    <class kind="class">mbapi::SnapshotManager</class>
+    <class kind="class">mbapi::SourceRockManager</class>
+    <class kind="class">mbapi::StratigraphyManager</class>
+  </compound>
+  <compound kind="class">
+    <name>mbapi::FluidManager</name>
+    <filename>classmbapi_1_1FluidManager.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="function" protection="protected">
+      <type></type>
+      <name>FluidManager</name>
+      <anchorfile>classmbapi_1_1FluidManager.html</anchorfile>
+      <anchor>af3f88f7e60b8f79eacb9df4c035d8b24</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual</type>
+      <name>~FluidManager</name>
+      <anchorfile>classmbapi_1_1FluidManager.html</anchorfile>
+      <anchor>a8f7c1ee1b534ec46751e216c40f3770f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="typedef">
+      <type>size_t</type>
+      <name>FluidID</name>
+      <anchorfile>classmbapi_1_1FluidManager.html</anchorfile>
+      <anchor>a407ebbbb5b63ca5a8789e6f446c5d3d7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; FluidID &gt;</type>
+      <name>getFluidsID</name>
+      <anchorfile>classmbapi_1_1FluidManager.html</anchorfile>
+      <anchor>ab31fe534068f13b21033278ce01b9f0d</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual FluidID</type>
+      <name>createNewFluid</name>
+      <anchorfile>classmbapi_1_1FluidManager.html</anchorfile>
+      <anchor>a208f23753ccf9b7c936a3e2e5ce2c085</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getFluidName</name>
+      <anchorfile>classmbapi_1_1FluidManager.html</anchorfile>
+      <anchor>adae63423a2a15f4d1c82d395534628ec</anchor>
+      <arglist>(FluidID id, std::string &amp;fluidName) const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>mbapi::LithologyManager</name>
+    <filename>classmbapi_1_1LithologyManager.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getSTPThermalConductivityCoeff</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>ac79b587c03bf42477e4cd8e18ddabe3a</anchor>
+      <arglist>(LithologyID id, double &amp;stpThermCond)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setSTPThermalConductivityCoeff</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a00c6e62c15d3198ada668e10e4fe254f</anchor>
+      <arglist>(LithologyID id, double stpThermCond)=0</arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>PorosityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a08cb1061f6837c519aac4693059d2e52</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Exponential</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a84ae9107844367f2629e8bb63be08c4b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>SoilMechanics</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a9eb738599441dabdf9e6bd5916c80e35</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Unknown</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a4949d15dc8c5d90d29288d6e04ac0318</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>size_t</type>
+      <name>LithologyID</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>aa7c83dc5fd423ff9253b465f9e3cd738</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; LithologyID &gt;</type>
+      <name>getLithologiesID</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a08f9c1e5d7656e824f61c087ea37211a</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual LithologyID</type>
+      <name>createNewLithology</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a7125239c045953406af0c5df746110d1</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getLithologyName</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>aed483516edb0752d240fc716bf56d1fd</anchor>
+      <arglist>(LithologyID id, std::string &amp;lithName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getPorosityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a4763c7382e2f7140a8c555258a127957</anchor>
+      <arglist>(LithologyID id, PorosityModel &amp;porModel)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setPorosityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a4d8b3d32c2533cc9856e9bba7c2df05d</anchor>
+      <arglist>(LithologyID id, PorosityModel porModel)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getSurfacePorosity</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a6ab37b6900e841f039fd2c86bc5ca987</anchor>
+      <arglist>(LithologyID id, double &amp;surfPor)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setSurfacePorosity</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>ad4e61447fa1bbf96054cd2966e68ed67</anchor>
+      <arglist>(LithologyID id, double surfPor)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getCompactionCoeff</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a5b72212788b8544e746eda1702de453b</anchor>
+      <arglist>(LithologyID id, double &amp;compCoeff)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setCompactionCoeff</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a03701a0ce93715262bcee861eb81eb8e</anchor>
+      <arglist>(LithologyID id, double compCoeff)=0</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual</type>
+      <name>~LithologyManager</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a82c1a7759a01ca2d43630ac537a7595f</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>mbapi::Model</name>
+    <filename>classmbapi_1_1Model.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="function">
+      <type></type>
+      <name>Model</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>afcb6731981102f5177cc9de2b8c92f84</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~Model</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>adc1adf8fcebeefa658cf0aa1f6cb407c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>Model &amp;</type>
+      <name>operator=</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7afc9b40340967e4d03724ce98f02de9</anchor>
+      <arglist>(const Model &amp;otherModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>tableSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>abfbcac1ce060100240c7f866623ae1ce</anchor>
+      <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>tableValueAsDouble</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a5f2f95770cc1f10b998df635ebe2cea6</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>tableValueAsString</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a4f1c412e4cb1fafdb7fdfa7f1873ac26</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setTableValue</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a22f296c6c078f49330595f8d7fffab9a</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, double propValue)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setTableValue</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ac46f778da1248f27d4c3fcd364a6f5ba</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, const std::string &amp;propValue)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>clearTable</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aeee1f28764016d5dab8bdbdfd15024f7</anchor>
+      <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>addRowToTable</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aaf9771356dc94cff7673c0c87408c729</anchor>
+      <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>loadModelFromProjectFile</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>af7e0371a14c1f46601a91940e2b47686</anchor>
+      <arglist>(const char *projectFileName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>saveModelToProjectFile</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a248aa16548ae2a96bfde997bdf4f5020</anchor>
+      <arglist>(const char *projectFileName)</arglist>
+    </member>
+    <member kind="function">
+      <type>StratigraphyManager &amp;</type>
+      <name>stratigraphyManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aef1d7eed9bb7ffc57c45aef11189b328</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>LithologyManager &amp;</type>
+      <name>lithologyManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a9b8e78c29f28ed7417276ade6daed53d</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>FluidManager &amp;</type>
+      <name>fluidManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aec526a95704d18f08a349524e189f6ac</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>SourceRockManager &amp;</type>
+      <name>sourceRockManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a79698cf186a078e74e6d809ad48fdd11</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>SnapshotManager &amp;</type>
+      <name>snapshotManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aeb77b55bf5ba0bb2eba709a92d366393</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>PropertyManager &amp;</type>
+      <name>propertyManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a8bc2f524b4271bb406d057140efffed3</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>mbapi::PropertyManager</name>
+    <filename>classmbapi_1_1PropertyManager.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PropertyManager</name>
+      <anchorfile>classmbapi_1_1PropertyManager.html</anchorfile>
+      <anchor>a6ca55ec789f75fafd3f6f617e2651c68</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>requestPropertyInSnapshots</name>
+      <anchorfile>classmbapi_1_1PropertyManager.html</anchorfile>
+      <anchor>a4106e2158b24e28df1d824a6178a8280</anchor>
+      <arglist>(const std::string &amp;propName)=0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>mbapi::SnapshotManager</name>
+    <filename>classmbapi_1_1SnapshotManager.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~SnapshotManager</name>
+      <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
+      <anchor>a9b4a9163c0556bbbae64d30d4edc06ef</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual int</type>
+      <name>snapshotsNumber</name>
+      <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
+      <anchor>ac2f337e30dda92a9cea2e2d8222d40a5</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>time</name>
+      <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
+      <anchor>a5dac334c90e1655cfd7a0f284c8029c5</anchor>
+      <arglist>(size_t i)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>isMinor</name>
+      <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
+      <anchor>a9450d719efbec262eb63d972bb071b8b</anchor>
+      <arglist>(size_t i)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>type</name>
+      <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
+      <anchor>a804e3c138861bf8bccfbd516267fa3c1</anchor>
+      <arglist>(size_t i)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>fileName</name>
+      <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
+      <anchor>ae060d29769df8412920038b782141472</anchor>
+      <arglist>(size_t i)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>requestMajorSnapshot</name>
+      <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
+      <anchor>a0fac09cedecce1000d957df371fcc4bd</anchor>
+      <arglist>(double simTime)=0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>mbapi::SourceRockManager</name>
+    <filename>classmbapi_1_1SourceRockManager.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>tocIni</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a3de50b5029bcb2b9d8601a0387b572a1</anchor>
+      <arglist>(SourceRockID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>tocInitMapName</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a576dfde1f46c583465b486668964c0e4</anchor>
+      <arglist>(SourceRockID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setTOCIni</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>ad04c6ada0791498921554a9d38d24e23</anchor>
+      <arglist>(const std::string &amp;layerName, double newTOC)=0</arglist>
+    </member>
+    <member kind="typedef">
+      <type>size_t</type>
+      <name>SourceRockID</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a8d2ab0560f077a93961ba74bf1eaa9a0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; SourceRockID &gt;</type>
+      <name>sourceRockIDs</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>aa3c944520a774811db3990f59620b965</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual SourceRockID</type>
+      <name>createNewSourceRockLithology</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a4c90e46af9128faf83b33d4afe168214</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>layerName</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a5e557f09534c07bc8d85b7cfc2f04e5b</anchor>
+      <arglist>(SourceRockID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>sourceRockType</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>aea3f4885d89a84605ba7b38d8e91321c</anchor>
+      <arglist>(SourceRockID id)=0</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual</type>
+      <name>~SourceRockManager</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>ad17ec0a8dab794cf55c16d864e79fea0</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>mbapi::StratigraphyManager</name>
+    <filename>classmbapi_1_1StratigraphyManager.html</filename>
+    <base>ErrorHandler</base>
+    <member kind="typedef">
+      <type>size_t</type>
+      <name>LayerID</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ad2a046749ccd5f4a56ddb149c0eed79d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; LayerID &gt;</type>
+      <name>getLayersID</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a6c6995e1305e278ad21116edae03545d</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; SurfaceID &gt;</type>
+      <name>geSurfacesID</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a6e4b70ff941997d943c303ad04763029</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual LayerID</type>
+      <name>createNewLayer</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a47a0b748d9faf5cc2a3802a504c2a623</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual SurfaceID</type>
+      <name>createNewSurface</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>affbcad4e76926364204e32d15db26769</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getLayerName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a9660e7a942dee12293c9ad652695d241</anchor>
+      <arglist>(LayerID id, std::string &amp;layerName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>getSurfaceName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a9bc13f5a5a5bec0011ff61234e551e46</anchor>
+      <arglist>(LayerID id, std::string &amp;surfName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setLayerSurfaces</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a1dcbf2cfdec037015b04f9b7734d992e</anchor>
+      <arglist>(LayerID lid, SurfaceID usid, SurfaceID dsid)=0</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type></type>
+      <name>StratigraphyManager</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a3847f0ba8fd80565ea31c0ed0f078428</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual</type>
+      <name>~StratigraphyManager</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a371f742343bb250438c0dd49feb85336</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="page">
+    <name>index</name>
+    <title>Cauldron APIs</title>
+    <filename>index</filename>
+  </compound>
+</tagfile>

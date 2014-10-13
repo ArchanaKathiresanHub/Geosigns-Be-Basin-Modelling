@@ -27,6 +27,8 @@ namespace casa
    class RunCaseSetImpl : public RunCaseSet
    {
    public:
+      typedef std::map< std::string, std::vector<size_t> > ListOfDoEIndexesSet;
+
       // Constructor/destructor
       RunCaseSetImpl() { ; }
       virtual ~RunCaseSetImpl();
@@ -34,10 +36,10 @@ namespace casa
       // Size of the collection
       virtual size_t size() const;
 
-      // Read only access to i-th element
+      // Access to i-th element
       // i position element in the collection
       // return pointer to RunCase object which should not be deleted by the user on success
-      virtual const RunCase * operator[] ( size_t i ) const;
+      virtual RunCase * operator[] ( size_t i ) const;
 
       // Set filter for experiments by experiment name
       virtual void filterByExperimentName( const std::string & expName );
@@ -53,18 +55,15 @@ namespace casa
       /// @return true if set is empty, false otherwise
       virtual bool empty() const { return size() == 0 ? true : false; }
 
-      // Access to i-th element
-      RunCase * at( size_t i );
-
       // Move a new Cases to the collection and clear array 
       void addNewCases( std::vector<RunCase*> & newCases, const std::string & expName );
 
    protected:
-      std::vector< RunCase* >                      m_caseSet;    // keeps all RunCases
+      std::vector< RunCase* > m_caseSet;    // keeps all RunCases
       
-      std::map< std::string, std::vector<size_t> > m_expSet;     // keeps set of indexes for each experiment
-      std::string                                  m_filter;     // keeps filter value
-      std::vector<size_t>                          m_expIndSet;  // keeps index set for given filter
+      ListOfDoEIndexesSet     m_expSet;     // keeps set of indexes for each experiment
+      std::string             m_filter;     // keeps filter value
+      std::vector<size_t>     m_expIndSet;  // keeps index set for given filter
    };
 }
 

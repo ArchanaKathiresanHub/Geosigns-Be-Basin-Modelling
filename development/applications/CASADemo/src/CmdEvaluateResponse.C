@@ -1,0 +1,108 @@
+//                                                                      
+// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+#include "CasaCommander.h"
+#include "CmdEvaluateResponse.h"
+#include "CfgFileParser.h"
+#include "MatlabExporter.h"
+
+#include "casaAPI.h"
+#include "RunCaseImpl.h"
+
+#include <cstdlib>
+#include <iostream>
+#include <memory>
+
+CmdEvaluateResponse::CmdEvaluateResponse( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
+{
+   assert( m_prms.size() == 3 );
+
+   m_proxyName = m_prms[0];    // get proxy name
+   if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No proxy name was given";
+   
+   // convert list of DoEs or data files like: "Tornado,BoxBenken" into array of names
+   m_expList = CfgFileParser::list2array( m_prms[1], ',' );
+   if ( m_expList.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No any DoE or data file name was given";
+
+   m_dataFileName = m_prms[2]; // output file name
+   if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No output file name was specified";
+}
+
+void CmdEvaluateResponse::execute( casa::ScenarioAnalysis & sa )
+{
+   std::vector<casa::RunCase *> rcs; // set of run cases which were created from set of parameters defined in external dat file
+
+   for ( size_t i = 0; i < m_expList.size(); ++i )
+   {
+      sa.doeCaseSet().filterByExperimentName( m_expList[i] );
+      if ( sa.doeCaseSet().size() ) // DoE name was given, add cases from DoE
+      {
+         for ( size_t j = 0; j < sa.doeCaseSet().size(); ++j )
+         {
+            const casa::RunCase * rc = sa.doeCaseSet()[j];
+            // create new RunCase and make a shallow copy of parameters using shared pointers
+            std::auto_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
+            for ( size_t k = 0; k < rc->parametersNumber(); ++k ) nrc->addParameter( rc->parameter( k ) );
+
+            // add new case to the list
+            rcs.push_back( nrc.release() );
+         }
+      }
+      else // file name is given, parse file and create a set of run cases
+      {
+         std::vector< std::vector<double> > prmVals;
+         CfgFileParser::readParametersValueFile( m_expList[i], prmVals );
+         casa::VarSpace & vs = sa.varSpace();
+
+         for ( size_t i = 0; i < prmVals.size(); ++i )
+         {
+            std::auto_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
+
+            std::vector<double>::const_iterator vit = prmVals[i].begin();
+
+            for ( size_t j = 0; j < vs.numberOfContPrms(); ++j )
+            {
+               assert( vit != prmVals[i].end() );
+
+               SharedParameterPtr prm = vs.continuousParameter( j )->newParameterFromDoubles( vit );
+               nrc->addParameter( prm );
+            }
+            rcs.push_back( nrc.release() );
+         }
+      }
+   }
+   // Search for given proxy name in the set of calculated proxies
+   casa::RSProxy * proxy = sa.rsProxySet().rsProxy( m_proxyName.c_str() );
+   // call response evaluation
+   if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
+
+   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   {
+      std::cout << "Evaluate proxy " << m_proxyName << "for " << rcs.size() << " cases\n";
+   }
+
+   for ( size_t i = 0; i < rcs.size(); ++i )
+   {
+      if ( ErrorHandler::NoError != proxy->evaluateRSProxy( *rcs[i] ) )
+      {
+         throw ErrorHandler::Exception( proxy->errorCode() ) << proxy->errorMessage();
+      }
+   }
+
+   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   {
+      std::cout << "Export proxy evaluation results to " << m_dataFileName << "file\n";
+   }
+
+   MatlabExporter::exportObsValues( m_dataFileName, rcs );
+
+   for ( size_t i = 0; i < rcs.size(); ++i ) delete rcs[i]; // clean cases created here
+}
+

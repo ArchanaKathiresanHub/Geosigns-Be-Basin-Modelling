@@ -43,7 +43,7 @@ VarPrmOneCrustThinningEvent::~VarPrmOneCrustThinningEvent()
 {
 }
 
-std::vector<std::string> VarPrmOneCrustThinningEvent::name()
+std::vector<std::string> VarPrmOneCrustThinningEvent::name() const
 {
 	std::vector<std::string> ret;
 	ret.push_back("InitialCrustThickness");
@@ -53,7 +53,7 @@ std::vector<std::string> VarPrmOneCrustThinningEvent::name()
 	return ret;
 }
 
-SharedParameterPtr VarPrmOneCrustThinningEvent::createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const
+SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const
 {
    const std::vector<double> & minV = dynamic_cast<PrmOneCrustThinningEvent*>( m_minValue.get() )->asDoubleArray();
    const std::vector<double> & maxV = dynamic_cast<PrmOneCrustThinningEvent*>( m_maxValue.get() )->asDoubleArray();

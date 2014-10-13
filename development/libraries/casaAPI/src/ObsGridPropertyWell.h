@@ -18,8 +18,9 @@
 
 #include <memory>
 
-/// @page CASA_ObservableGridPropWellPage any Cauldron grid property along well trajectory
-/// This observable could retrieve grid property values along given well trajectory, defined as a set of XYZ points
+/// @page CASA_ObservableGridPropWellPage Cauldron grid property along a well trajectory
+/// This observable could retrieve values for any grid property along the given well trajectory.
+/// The trajectory must be defined as a set of XYZ points in basin model coordinate space.
 
 namespace mbapi
 {
@@ -33,11 +34,11 @@ namespace casa
    {
    public:
       /// @brief Create observable for the given grid property for specified grid position
-      /// @param x well trajectory X-th coordinates
-      /// @param y well trajectory Y-th coordinates
-      /// @param z well trajectory Z-th coordinates
+      /// @param x well trajectory X-th coordinates [m]
+      /// @param y well trajectory Y-th coordinates [m]
+      /// @param z well trajectory Z-th coordinates [m]
       /// @param propName name of the property
-      /// @param simTime simulation time
+      /// @param simTime simulation time [Ma]
       ObsGridPropertyWell( const std::vector<double> & x,
                            const std::vector<double> & y,
                            const std::vector<double> & z,

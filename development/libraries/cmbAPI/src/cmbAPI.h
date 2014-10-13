@@ -31,9 +31,9 @@
 /// This documentation describes set of APIs which allows 3d party applications interact with Cauldron.
 ///
 /// The following APIs are available now:
-/// -# \subpage CMB_API_Descr
-/// -# \subpage CASA_API_Descr
-/// -# \subpage ErrorHandlerPage
+/// -# @subpage CMB_API_Descr
+/// -# @subpage CASA_API_Descr
+/// -# @subpage ErrorHandlerPage
 
 /// @page ErrorHandlerPage Error handling in CMB and CASA APIs
 /// Because of using Cauldron APIs in multi programming language environment, the error handling in the API is 

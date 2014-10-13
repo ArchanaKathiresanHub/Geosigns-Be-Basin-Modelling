@@ -24,9 +24,9 @@
 /// last case is completed, it returns the run status for each case in terms of succeeded/failed.
 ///
 /// RunManager configuration could be changed by the following environment variables:
-/// - @b SIEPRTS_LICENSE_FILE - Defines the list of license servers for cauldron applications. The default value is: \n
+/// - @b SIEPRTS_LICENSE_FILE - Defines the list of license servers for cauldron applications. The default value is:
 ///      @code 3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com:3000@ams1-s-07489.europe.shell.com @endcode
-/// - @b CAULDRON_MPIRUN_CMD  - Defines which mpirun command will be used and it parameters. The default value is:\n
+/// - @b CAULDRON_MPIRUN_CMD  - Defines which mpirun command will be used and it parameters. The default value is:
 ///      @code source /apps/3rdparty/intel/impi/4.1.1.036/intel64/bin/mpivars.sh \n mpirun -outfile-pattern 'output-rank-%r.log' -env I_MPI_FABRICS shm:tcp -env I_MPI_DEBUG 5 @endcode
 /// - @b CAULDRON_VERSION - Defines the version of Cauldron which will be used for submitting jobs to the cluster. The default value is: @code v2014.0703 @endcode
 /// - @b IBS_ROOT - Defines a path to IBS folder where the different versions of the Cauldron could be found. The default value is: @code /apps/sssdev/ibs @endcode
@@ -39,7 +39,6 @@
 ///   - @b fastgenex6 - To model Generation and expulsion of hydrocarbon from source rocks.
 ///   - @b fastmig - To model migration of hydrocarbon from source rock to reservoir layers.
 ///   - @b fastctc - To calculate crust thickness history.
-///   - fasttouch7 - To calculate reservoir quality using Geocosm ResQ library.
 ///   - @b track1d - To extract data along vertical well for given position
 ///   - @b general - Any other application defined by given script body.
 ///
@@ -57,7 +56,7 @@
 /// @todo implement \b fasttouch7 as casa::CauldronApp
 ///
 ///
-/// <b> Work in 2015 </b> could add an extra analysis of simulation failures, input to output matching, possible input duplications\n
+/// <b> Work in 2015 </b> could add an extra analysis of simulation failures, input to output matching, possible input duplications
 /// (e.g. using one P/T run to feed many G/M runs).
 
 namespace casa
@@ -71,7 +70,7 @@ namespace casa
       /// @name Types definitions
       /// @{
       /// @brief Cauldron simulator applications
-      typedef enum
+      enum ApplicationType
       {
          fastcauldron, ///< Conventional (Pressure/Temperature), unconventional (Darcy)
          fastctc,      ///< Crust thickness history calculation
@@ -81,7 +80,7 @@ namespace casa
          track1d,      ///< Extract data along vertical well for given position
          datadriller,  ///< Extract data from the simulation results using DataMiningIoTbl as a requests set
          generic       ///< Allows to define any application not mentioned over
-      } ApplicationType;
+      };
       /// @}
       
       /// @brief Destructor
@@ -94,8 +93,8 @@ namespace casa
       /// @return pointer to the application object which later should be passed to RunManager::addApplication() method
       static CauldronApp * createApplication( ApplicationType appType, int cpus = 1, const std::string cmdLine = "" );
 
-      /// @brief Set up Cauldron version. Version should be defined as "v2014.1007" (which is the default)\n
-      ///        Version also could be defined by the environment variable CAULDRON_VERSION. This interface\n
+      /// @brief Set up Cauldron version. Version should be defined as "v2014.1007" (which is the default)
+      ///        Version also could be defined by the environment variable CAULDRON_VERSION. This interface
       ///        has a priority over the environment variable.
       /// @param verString Cauldron version which will be used for submit jobs to HPC cluster.
       /// @return NoError on success, error code otherwise

@@ -83,7 +83,7 @@ namespace casa
       /// the casa::VarSpace (including multi-dimensional parameters) defining the proxies.
       ///
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      CoefficientsMapList  getCoefficientsMapList() const;
+      virtual CoefficientsMapList  getCoefficientsMapList() const;
 
    protected:
       std::string      m_name;     // proxy name

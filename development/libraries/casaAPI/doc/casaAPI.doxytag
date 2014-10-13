@@ -1,0 +1,2720 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<tagfile>
+  <compound kind="file">
+    <name>casaAPI.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>casaAPI_8h</filename>
+    <includes id="RunCaseSet_8h" name="RunCaseSet.h" local="yes" imported="no">RunCaseSet.h</includes>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <includes id="VarPrmCategorical_8h" name="VarPrmCategorical.h" local="yes" imported="no">VarPrmCategorical.h</includes>
+    <includes id="DataDigger_8h" name="DataDigger.h" local="yes" imported="no">DataDigger.h</includes>
+    <includes id="DoEGenerator_8h" name="DoEGenerator.h" local="yes" imported="no">DoEGenerator.h</includes>
+    <includes id="MCSolver_8h" name="MCSolver.h" local="yes" imported="no">MCSolver.h</includes>
+    <includes id="RSProxySet_8h" name="RSProxySet.h" local="yes" imported="no">RSProxySet.h</includes>
+    <includes id="ObsSpace_8h" name="ObsSpace.h" local="yes" imported="no">ObsSpace.h</includes>
+    <includes id="RunManager_8h" name="RunManager.h" local="yes" imported="no">RunManager.h</includes>
+    <includes id="VarSpace_8h" name="VarSpace.h" local="yes" imported="no">VarSpace.h</includes>
+    <class kind="class">casa::ScenarioAnalysis</class>
+    <namespace>casa</namespace>
+    <namespace>casa::BusinessLogicRulesSet</namespace>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryLayerThickness</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ac6f78e98a1e221c8a68c52a89115fbce</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryTopCrustHeatProduction</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ad47b2eab9e8dbd56c8a6a32af0de85a0</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockTOC</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a2f25490e7aab7844f4666b55a697c56c</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryOneCrustThinningEvent</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a6a97b95673dc1e879056f95b07106c18</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minThickIni, double maxThickIni, double minT0, double maxT0, double minDeltaT, double maxDeltaT, double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>CauldronApp.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>CauldronApp_8h</filename>
+    <class kind="class">casa::CauldronApp</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>DataDigger.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>DataDigger_8h</filename>
+    <includes id="RunCaseSet_8h" name="RunCaseSet.h" local="yes" imported="no">RunCaseSet.h</includes>
+    <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
+    <includes id="ObsSpace_8h" name="ObsSpace.h" local="yes" imported="no">ObsSpace.h</includes>
+    <class kind="class">casa::DataDigger</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>DoEGenerator.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>DoEGenerator_8h</filename>
+    <class kind="class">casa::DoEGenerator</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Enumeration.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>Enumeration_8h</filename>
+    <class kind="class">casa::Enumeration</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>JobScheduler.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>JobScheduler_8h</filename>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>JobSchedulerLocal.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>JobSchedulerLocal_8h</filename>
+    <includes id="JobScheduler_8h" name="JobScheduler.h" local="yes" imported="no">JobScheduler.h</includes>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>JobSchedulerLSF.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>JobSchedulerLSF_8h</filename>
+    <includes id="JobScheduler_8h" name="JobScheduler.h" local="yes" imported="no">JobScheduler.h</includes>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>MCSolver.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>MCSolver_8h</filename>
+    <includes id="RSProxy_8h" name="RSProxy.h" local="yes" imported="no">RSProxy.h</includes>
+    <includes id="VarSpace_8h" name="VarSpace.h" local="yes" imported="no">VarSpace.h</includes>
+    <class kind="class">casa::MCSolver</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Observable.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>Observable_8h</filename>
+    <class kind="class">casa::Observable</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ObsGridPropertyWell.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>ObsGridPropertyWell_8h</filename>
+    <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
+    <class kind="class">casa::ObsGridPropertyWell</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ObsGridPropertyXYZ.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>ObsGridPropertyXYZ_8h</filename>
+    <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
+    <class kind="class">casa::ObsGridPropertyXYZ</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ObsSpace.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>ObsSpace_8h</filename>
+    <includes id="Observable_8h" name="Observable.h" local="yes" imported="no">Observable.h</includes>
+    <class kind="class">casa::ObsSpace</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ObsValue.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>ObsValue_8h</filename>
+    <class kind="class">casa::ObsValue</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ObsValueDoubleArray.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>ObsValueDoubleArray_8h</filename>
+    <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
+    <class kind="class">casa::ObsValueDoubleArray</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ObsValueDoubleScalar.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>ObsValueDoubleScalar_8h</filename>
+    <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
+    <class kind="class">casa::ObsValueDoubleScalar</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Parameter.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>Parameter_8h</filename>
+    <class kind="class">casa::Parameter</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>PrmOneCrustThinningEvent.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>PrmOneCrustThinningEvent_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmOneCrustThinningEvent</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>PrmSourceRockTOC.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>PrmSourceRockTOC_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmSourceRockTOC</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>PrmTopCrustHeatProduction.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>PrmTopCrustHeatProduction_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmTopCrustHeatProduction</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>RSProxy.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>RSProxy_8h</filename>
+    <class kind="class">casa::RSProxy</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>RSProxySet.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>RSProxySet_8h</filename>
+    <class kind="class">casa::RSProxySet</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>RunCase.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>RunCase_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <includes id="ObsValue_8h" name="ObsValue.h" local="yes" imported="no">ObsValue.h</includes>
+    <class kind="class">casa::RunCase</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>RunCaseSet.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>RunCaseSet_8h</filename>
+    <class kind="class">casa::RunCaseSet</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>RunManager.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>RunManager_8h</filename>
+    <includes id="CauldronApp_8h" name="CauldronApp.h" local="yes" imported="no">CauldronApp.h</includes>
+    <class kind="class">casa::RunManager</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>SUMlibUtils.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>SUMlibUtils_8h</filename>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarParameter.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarParameter_8h</filename>
+    <class kind="class">casa::VarParameter</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmCategorical.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmCategorical_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <includes id="Enumeration_8h" name="Enumeration.h" local="yes" imported="no">Enumeration.h</includes>
+    <includes id="VarParameter_8h" name="VarParameter.h" local="yes" imported="no">VarParameter.h</includes>
+    <class kind="class">casa::VarPrmCategorical</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmContinuous.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmContinuous_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <includes id="VarParameter_8h" name="VarParameter.h" local="yes" imported="no">VarParameter.h</includes>
+    <class kind="class">casa::VarPrmContinuous</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmOneCrustThinningEvent.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmOneCrustThinningEvent_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmSourceRockTOC.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmSourceRockTOC_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmSourceRockTOC</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmTopCrustHeatProduction.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmTopCrustHeatProduction_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmTopCrustHeatProduction</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarSpace.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarSpace_8h</filename>
+    <class kind="class">casa::VarSpace</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="page">
+    <name>CASA_API_Descr</name>
+    <title>Computer Aided Scenario Analysis API</title>
+    <filename>CASA_API_Descr</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ClassHierachyPage</name>
+    <title>CASA interface classes hierarchy description.</title>
+    <filename>CASA_ClassHierachyPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarParametersAndObservablesPage</name>
+    <title>Variable Parameters and Observables</title>
+    <filename>CASA_VarParametersAndObservablesPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ScenarioAnalysisPage</name>
+    <title>Scenario analysis workflows</title>
+    <filename>CASA_ScenarioAnalysisPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_DataDiggerPage</name>
+    <title>Data Digger</title>
+    <filename>CASA_DataDiggerPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_DoEGeneratorPage</name>
+    <title>Design of Experiments generator</title>
+    <filename>CASA_DoEGeneratorPage</filename>
+    <docanchor file="CASA_DoEGeneratorPage" title="Variety of DoE algorithms available in API">CASA_DoEGeneratorSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Tornado design">TornadoSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Plackett-Burman design">PlackettBurmanSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Box-Behnken design">BoxBehnkenSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Full Factorial design">FullFactorialSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Space filling design">SpaceFillingSection</docanchor>
+    <docanchor file="CASA_DoEGeneratorPage" title="Basic/Optimized Latin Hypercube.">LatinHypercubeSection</docanchor>
+  </compound>
+  <compound kind="page">
+    <name>CASA_MCSolverPage</name>
+    <title>Monte Carlo solver</title>
+    <filename>CASA_MCSolverPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservablePage</name>
+    <title>Observables</title>
+    <filename>CASA_ObservablePage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservableGridPropWellPage</name>
+    <title>Cauldron grid property along a well trajectory</title>
+    <filename>CASA_ObservableGridPropWellPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObservableGridPropXYZPage</name>
+    <title>Any Cauldron grid property at specified XYZ point</title>
+    <filename>CASA_ObservableGridPropXYZPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ObsSpacePage</name>
+    <title>Observables set manager</title>
+    <filename>CASA_ObsSpacePage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_ParameterPage</name>
+    <title>Cauldron project parameter</title>
+    <filename>CASA_ParameterPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_OneCrustThinningEventPage</name>
+    <title>Crust thinning parameter</title>
+    <filename>CASA_OneCrustThinningEventPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SourceRockTOCPage</name>
+    <title>Source rock initial Total Organic Contents (TOC) parameter</title>
+    <filename>CASA_SourceRockTOCPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_TopCrustHeatProductionPage</name>
+    <title>Top crust heat production rate parameter</title>
+    <filename>CASA_TopCrustHeatProductionPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_RSProxyPage</name>
+    <title>Response surface proxy</title>
+    <filename>CASA_RSProxyPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_KrigingPage</name>
+    <title>Kriging interpolation</title>
+    <filename>CASA_KrigingPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_RunManagerPage</name>
+    <title>Jobs execution manager</title>
+    <filename>CASA_RunManagerPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarParameterPage</name>
+    <title>Variable parameter</title>
+    <filename>CASA_VarParameterPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarPrmCategoricalPage</name>
+    <title>Variable parameter for categorical values</title>
+    <filename>CASA_VarPrmCategoricalPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarPrmContinuousPage</name>
+    <title>Continuous variable parameter</title>
+    <filename>CASA_VarPrmContinuousPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_VarSpacePage</name>
+    <title>Variable parameters set manager</title>
+    <filename>CASA_VarSpacePage</filename>
+  </compound>
+  <compound kind="namespace">
+    <name>casa</name>
+    <filename>namespacecasa.html</filename>
+    <namespace>casa::BusinessLogicRulesSet</namespace>
+    <class kind="class">casa::CauldronApp</class>
+    <class kind="class">casa::DataDigger</class>
+    <class kind="class">casa::DoEGenerator</class>
+    <class kind="class">casa::Enumeration</class>
+    <class kind="class">casa::MCSolver</class>
+    <class kind="class">casa::Observable</class>
+    <class kind="class">casa::ObsGridPropertyWell</class>
+    <class kind="class">casa::ObsGridPropertyXYZ</class>
+    <class kind="class">casa::ObsSpace</class>
+    <class kind="class">casa::ObsValue</class>
+    <class kind="class">casa::ObsValueDoubleArray</class>
+    <class kind="class">casa::ObsValueDoubleScalar</class>
+    <class kind="class">casa::Parameter</class>
+    <class kind="class">casa::PrmOneCrustThinningEvent</class>
+    <class kind="class">casa::PrmSourceRockTOC</class>
+    <class kind="class">casa::PrmTopCrustHeatProduction</class>
+    <class kind="class">casa::RSProxy</class>
+    <class kind="class">casa::RSProxySet</class>
+    <class kind="class">casa::RunCase</class>
+    <class kind="class">casa::RunCaseSet</class>
+    <class kind="class">casa::RunManager</class>
+    <class kind="class">casa::ScenarioAnalysis</class>
+    <class kind="class">casa::VarParameter</class>
+    <class kind="class">casa::VarPrmCategorical</class>
+    <class kind="class">casa::VarPrmContinuous</class>
+    <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
+    <class kind="class">casa::VarPrmSourceRockTOC</class>
+    <class kind="class">casa::VarPrmTopCrustHeatProduction</class>
+    <class kind="class">casa::VarSpace</class>
+  </compound>
+  <compound kind="class">
+    <name>casa::CauldronApp</name>
+    <filename>classcasa_1_1CauldronApp.html</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>ShellType</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a0c1b35d4bb55066c9da143d3eac8c74c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>CauldronApp</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a66c9b6b83bc92a82e7fa1a4c133eeeed</anchor>
+      <arglist>(ShellType sh, const std::string &amp;appName, bool isParallel=true)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~CauldronApp</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a3290d08c96607201702c4ffaed1bba51</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setShellType</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a1155c25ac88fdf1461c2c7a1da081ccd</anchor>
+      <arglist>(ShellType sh)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setCauldronVersion</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a00fb16fc9b5b2b0084378eefaa1925c8</anchor>
+      <arglist>(const std::string &amp;ver)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>generateScript</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a1103bfe2220898ffcf5ca7ddcd289d06</anchor>
+      <arglist>(const std::string &amp;inProjectFile, const std::string &amp;outProjectFile)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setPathToApp</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a32da7033b689116cc3460bbc25a01bb1</anchor>
+      <arglist>(const std::string &amp;rootPath)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setCPUs</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a274b94185bf9bddb7b1917c33f118e96</anchor>
+      <arglist>(int numOfCPUs)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>cpus</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>ac79e483958c26de93ec0e9f5342f8a59</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addOption</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a1225ce3fb2c67c9c305596a5fac1d4d6</anchor>
+      <arglist>(const std::string &amp;opt)</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>const char *</type>
+      <name>env</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a1659b80c59c08d805ea047266ad673c5</anchor>
+      <arglist>(const char *varName)</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>dumpEnv</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a482fa9a3eb028f966fb4dccac47acc5b</anchor>
+      <arglist>(std::ostream &amp;oss)</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>bool</type>
+      <name>pushDefaultEnv</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a61e40c51ac09950f7e73fd3d7060a5ec</anchor>
+      <arglist>(const std::string &amp;varName, const std::string &amp;varValue)</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>inputProjectOption</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a5e1fcf4cff62076e0a79400412ad8bff</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>outputProjectOption</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>abf4b7723f227f51ca3f54135bfc4776f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::map&lt; std::string, std::string &gt;</type>
+      <name>m_env</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>abdfb2c8407f0948d05aec17e5d061cb0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_appName</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a0df1c825033cd84703b4372b6294efd9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>bool</type>
+      <name>m_parallel</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a8fd0cc4585ab86e986f1e45577eefade</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>int</type>
+      <name>m_cpus</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a9ac5f8be32fd21569d9f27502d6edd03</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>ShellType</type>
+      <name>m_sh</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a3efa1758a91a66f0c7ec5e631ac9459a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_version</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a5a501e94ab74f5c5e23644143ce897f5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_rootPath</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a4c640c4a9b124ed55d7a79c938ff6058</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_mpiEnv</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>af1cce7e8198f569608cef45a4092f336</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_mpirunCmd</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a30dd3c46bc8ccda178b14ba809bf9dec</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>m_optionsList</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a8691ee75a27bcf2c332cd0dd5ffe4ad4</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::DataDigger</name>
+    <filename>classcasa_1_1DataDigger.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~DataDigger</name>
+      <anchorfile>classcasa_1_1DataDigger.html</anchorfile>
+      <anchor>a0eee80f0436103ab2051e03a24514c26</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>requestObservables</name>
+      <anchorfile>classcasa_1_1DataDigger.html</anchorfile>
+      <anchor>a517d1d7ca5da33ee6231fe14e564b192</anchor>
+      <arglist>(ObsSpace &amp;obs, RunCaseSet &amp;rcs)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>collectRunResults</name>
+      <anchorfile>classcasa_1_1DataDigger.html</anchorfile>
+      <anchor>a20652ba865da8b3794156fbe9847d99f</anchor>
+      <arglist>(ObsSpace &amp;obs, RunCaseSet &amp;rcs)=0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::DoEGenerator</name>
+    <filename>classcasa_1_1DoEGenerator.html</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>DoEAlgorithm</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>TheFirstDoEAlgo</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632ba281fac8d75944e9c5af502ec1314f603</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>BoxBehnken</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632ba2e873d1b613da318174c70aeec807f2f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Tornado</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632ba165be644ea4ffe84fc3816b54e967abe</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PlackettBurman</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632ba514e266c6ed0bb1f512d868a9dcd942b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PlackettBurmanMirror</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632bad144a347ca1dfea7603388fb4abb8239</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>FullFactorial</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632bad6bf5b499a89883518aa6af8500b230f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>LatinHypercube</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632bac6931347b3c59dda1bbb2056ea1e914c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>SpaceFilling</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632ba9f0864e7421441af26f458fdc5a5b999</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>TheLastDoEAlgo</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ac39a3df55efca555fdc7a02be88c632bab32458dbd2dadee25039d24ae0f56e75</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~DoEGenerator</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>a026cd51f49fdd06bfa09f6cdcc27c11b</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>generateDoE</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>ad63a575f071a94c5892b10e9db68156d</anchor>
+      <arglist>(const VarSpace &amp;varPrmsSet, RunCaseSet &amp;rcSet, size_t runsNum=0)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual DoEAlgorithm</type>
+      <name>algorithm</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>a02aefbc6f07485c296262c80df86238f</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static std::string</type>
+      <name>DoEName</name>
+      <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
+      <anchor>a8c337ffc87a64c714f67ebef687230a3</anchor>
+      <arglist>(DoEAlgorithm algo)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::Enumeration</name>
+    <filename>classcasa_1_1Enumeration.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~Enumeration</name>
+      <anchorfile>classcasa_1_1Enumeration.html</anchorfile>
+      <anchor>ac1f8b754099186046dbc93b703c78873</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::MCSolver</name>
+    <filename>classcasa_1_1MCSolver.html</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>MCAlgorithm</name>
+      <anchorfile>classcasa_1_1MCSolver.html</anchorfile>
+      <anchor>aec00aac9f453586b8ed7d63b572eecdc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>MonteCarlo</name>
+      <anchorfile>classcasa_1_1MCSolver.html</anchorfile>
+      <anchor>aec00aac9f453586b8ed7d63b572eecdca350891fc2161181f1de7a31ceb921c10</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>MarkovChainMonteCarlo</name>
+      <anchorfile>classcasa_1_1MCSolver.html</anchorfile>
+      <anchor>aec00aac9f453586b8ed7d63b572eecdcae627fe3338d6dbc8b141325119af93b3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>MCKrigingType</name>
+      <anchorfile>classcasa_1_1MCSolver.html</anchorfile>
+      <anchor>abca1c1bb79b075c9bd990c0584db075d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~MCSolver</name>
+      <anchorfile>classcasa_1_1MCSolver.html</anchorfile>
+      <anchor>a41adf338e3c29b69742621d8b39a90ed</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>runSimulation</name>
+      <anchorfile>classcasa_1_1MCSolver.html</anchorfile>
+      <anchor>a21173e2ee68bae893ac5d747d95d710c</anchor>
+      <arglist>(int numerOfSampl, const RSProxy &amp;proxy, const VarSpace &amp;varPrmsSet)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; RunCase * &gt; &amp;</type>
+      <name>getSimulationResults</name>
+      <anchorfile>classcasa_1_1MCSolver.html</anchorfile>
+      <anchor>a856c1d25e2f24abc4b489fad118b92cc</anchor>
+      <arglist>()=0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::Observable</name>
+    <filename>classcasa_1_1Observable.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~Observable</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a64dbb1fe98bdd9794958a7dc2d5d451e</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a6b5943b1145078ac6ce20381ae1d1674</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>hasReferenceValue</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>aaee1f065d3f91ed22ae889a1d9e70b1f</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const ObsValue *</type>
+      <name>referenceValue</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>ac2ebf6254171a8995dce0c3f03f9516f</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>stdDeviationForRefValue</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>ae009960477a978577c5bfeb7f9b713a6</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>setReferenceValue</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>ab56e82b6c54a0610a7ed817b97eb6cc9</anchor>
+      <arglist>(ObsValue *refVal, double stdDevVal)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>saWeight</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>ace5afa09f8182e330522e8389b19ef87</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>uaWeight</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>aeeba6e802c08f50ccab69e69a880ea35</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>setSAWeight</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>ac649a0c9a5765e3a93510305b0926d05</anchor>
+      <arglist>(double w)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>setUAWeight</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>ae97cbf5d0e62f89221a3238c5b9f8b3d</anchor>
+      <arglist>(double w)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>requestObservableInModel</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a8a245a6135eb3eca0015586b71246c03</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ObsValue *</type>
+      <name>getFromModel</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a0af7863d52c62280dee93ee2d030044a</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ObsValue *</type>
+      <name>createNewObsValueFromDouble</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>abcb883588593df7ccbe4d1962f11dee5</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;val) const =0</arglist>
+    </member>
+    <member kind="function">
+      <type>ObsValue *</type>
+      <name>newObsValueFromDoubles</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a158d57481bf75c56e6477a7cffed6f15</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;vals, int &amp;off)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const std::string</type>
+      <name>s_dataMinerTable</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a29fd650912ea76f50f1307f0f8eb6655</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::ObsGridPropertyWell</name>
+    <filename>classcasa_1_1ObsGridPropertyWell.html</filename>
+    <base>casa::Observable</base>
+    <member kind="function">
+      <type></type>
+      <name>ObsGridPropertyWell</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a8f5a6593082ca129cecfd3342768f9f6</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;x, const std::vector&lt; double &gt; &amp;y, const std::vector&lt; double &gt; &amp;z, const char *propName, double simTime)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~ObsGridPropertyWell</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a6eae04dfc37a6ec3d6be9cc4831573e1</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a657b7220ab522e9fa1e18134d5d155a8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>hasReferenceValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a885d8a7df53ea992d4ab108c7ea6717c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const ObsValue *</type>
+      <name>referenceValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a0dec3d8ceb917c0bf80b37119fe0b09c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>stdDeviationForRefValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a63b9b95d45beca14f4c3b803631ac412</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setReferenceValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a7cce87af6fe2200159882c0aef994ac4</anchor>
+      <arglist>(ObsValue *refVal, double stdDevVal)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>saWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>af34172341b2bf9bcc9e034a33105b855</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setSAWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>aa64e0071492040352abbc32ba720aea7</anchor>
+      <arglist>(double w)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setUAWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ad1ce724c61c416ff5ef903596a20be3c</anchor>
+      <arglist>(double w)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>uaWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a7d5e6dd6559bc2c4101db32934703292</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>requestObservableInModel</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ad4cdb0bbe83cb3f86bf7a90c34ceb60e</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ObsValue *</type>
+      <name>getFromModel</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ad850b458c987cb8442af33f2145abe57</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ObsValue *</type>
+      <name>createNewObsValueFromDouble</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>abe2396aad662684df70eca9f5198f76d</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;val) const </arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::vector&lt; double &gt;</type>
+      <name>m_x</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a40b5906212f5d98086090079b2411772</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::vector&lt; double &gt;</type>
+      <name>m_y</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a7c87b5c001a1c66e4b04e7d3bfb32f9e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::vector&lt; double &gt;</type>
+      <name>m_z</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>aeb8cb8a65f15cae733278e2d443d4564</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_propName</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ac303247fd3062bab699e7ea50b83c019</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_simTime</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a0052e1922af69bc79b5a4812a004d9db</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a98e4a9dcb1d7a256d242ee6727add7ee</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::vector&lt; size_t &gt;</type>
+      <name>m_posDataMiningTbl</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a353f3a5f3a4b241f8f73b0bbe7704ee9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::auto_ptr&lt; ObsValue &gt;</type>
+      <name>m_refValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a9d61715cc87fdf15220b503c531c4b82</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_devValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>aad65ee417ab00e4d251d0e15d9e5e886</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_saWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>af57ae2a4573834ce714b4e814eee180a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_uaWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a8c642217afcedaa0be418d3073166d40</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::ObsGridPropertyXYZ</name>
+    <filename>classcasa_1_1ObsGridPropertyXYZ.html</filename>
+    <base>casa::Observable</base>
+    <member kind="function">
+      <type></type>
+      <name>ObsGridPropertyXYZ</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a196d63c71f06a5048e9de5b2ddb3b3a0</anchor>
+      <arglist>(double x, double y, double z, const char *propName, double simTime)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~ObsGridPropertyXYZ</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ad4852f6753688107873120a3bf84ff11</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a47cc29a33d86a7641491bf6fdd752101</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>hasReferenceValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ab71b48793c374eaaccf8a47235ec1a0f</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const ObsValue *</type>
+      <name>referenceValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a72b477a049b0772d5cdc67f3aae50bcd</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>stdDeviationForRefValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a434d6dc2abed697889a30c81390ec264</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setReferenceValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a3ef5066b5f169700061d30fdac1c282f</anchor>
+      <arglist>(ObsValue *refVal, double stdDevVal)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>saWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a5914bae4af0051c7b00186eca278797a</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setSAWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>addf522b2c6709e82de9a65b16cb1b9ed</anchor>
+      <arglist>(double w)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual void</type>
+      <name>setUAWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a7544bf1b457f338272040638d3cb64ce</anchor>
+      <arglist>(double w)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>uaWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a8fdad3e50969443bee733745b3239838</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>requestObservableInModel</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a02c457ad727c63dd5abf0679324bf9c6</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ObsValue *</type>
+      <name>getFromModel</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ad7a8e31a7b1da4339e8443918c94e9e6</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ObsValue *</type>
+      <name>createNewObsValueFromDouble</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a2b7d96dd444440d65a9f396ff0819589</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;val) const </arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_x</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a40131e944b42e7e149b895a294f272d0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_y</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a2caf415ece4b17f512de5756b88b7268</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_z</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ade3ccefe4db8cb66e30027357bb2e50e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_propName</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ac0be75b5161a78057eb89a7312581e3e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_simTime</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a77e5ff1d961d402071e69a4d9589d31e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a949271a8f5ec887514b0423858e7a50a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>size_t</type>
+      <name>m_posDataMiningTbl</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a5ac273a9edd88e465fb44d7343d76bea</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::auto_ptr&lt; ObsValue &gt;</type>
+      <name>m_refValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a46bfb9dbf44b29d7f8d8875427eb8b35</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_devValue</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ae504db272afd0eb02859863269f41af5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_saWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a4dd1323c58048aa96c614766e7c52eea</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_uaWeight</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a20af5cdc4c0a978703f7c32677770dab</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::ObsSpace</name>
+    <filename>classcasa_1_1ObsSpace.html</filename>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>addObservable</name>
+      <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
+      <anchor>a4227e19a1da2cf38ba2fe04fc673d22e</anchor>
+      <arglist>(Observable *obs)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>size</name>
+      <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
+      <anchor>ab87a3ee3d6d06652e03c47ce8bd0c351</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const Observable *</type>
+      <name>observable</name>
+      <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
+      <anchor>a0d0fa943a8dbd91c72d2e85133b7ac9f</anchor>
+      <arglist>(size_t i) const =0</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static Observable *</type>
+      <name>newObsPropertyXYZ</name>
+      <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
+      <anchor>a774633ca2f9eb161e8b1e1d0b2ff76fd</anchor>
+      <arglist>(double x, double y, double z, const char *propName, double simTime=0.0)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static Observable *</type>
+      <name>newObsPropertyWell</name>
+      <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
+      <anchor>a2f8c4d4c5bf861bb10182c75b666d53c</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;x, const std::vector&lt; double &gt; &amp;y, const std::vector&lt; double &gt; &amp;z, const char *propName, double simTime=0.0)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::ObsValue</name>
+    <filename>classcasa_1_1ObsValue.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~ObsValue</name>
+      <anchorfile>classcasa_1_1ObsValue.html</anchorfile>
+      <anchor>ab5c0b127caa11d5461a90a80850a349a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const Observable *</type>
+      <name>observable</name>
+      <anchorfile>classcasa_1_1ObsValue.html</anchorfile>
+      <anchor>a040f68e0a6964578958ad5cbcda657cb</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>MSE</name>
+      <anchorfile>classcasa_1_1ObsValue.html</anchorfile>
+      <anchor>ae8d5881435676896cb189e8f183ad9ae</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::ObsValueDoubleArray</name>
+    <filename>classcasa_1_1ObsValueDoubleArray.html</filename>
+    <base>casa::ObsValue</base>
+    <member kind="function">
+      <type></type>
+      <name>ObsValueDoubleArray</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>a8fbda44994da2e6407b63a191796cfc8</anchor>
+      <arglist>(const Observable *parent, const std::vector&lt; double &gt; &amp;val)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsValueDoubleArray</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>adb3af29d9efe65591abd890afb0de30f</anchor>
+      <arglist>(const ObsValueDoubleArray &amp;ov)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~ObsValueDoubleArray</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>a157579ea74e77640491bcf75b92d5e1d</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ObsValueDoubleArray &amp;</type>
+      <name>operator=</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>a70b4a4cad650ff8fa158ed89231a17f9</anchor>
+      <arglist>(const ObsValueDoubleArray &amp;otherObs)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const Observable *</type>
+      <name>observable</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>a26be3af34673e45849574ba1548b62fa</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>MSE</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>a1aa0e09434ebbd48c6dad8eec52793d6</anchor>
+      <arglist>() const </arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::ObsValueDoubleScalar</name>
+    <filename>classcasa_1_1ObsValueDoubleScalar.html</filename>
+    <base>casa::ObsValue</base>
+    <member kind="function">
+      <type></type>
+      <name>ObsValueDoubleScalar</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>ad8da42beb542b802bebbaed2a3b49f2d</anchor>
+      <arglist>(const Observable *parent, double val)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsValueDoubleScalar</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>a1e4ff2e22354ff553e6d3269c126484b</anchor>
+      <arglist>(const ObsValueDoubleScalar &amp;ov)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~ObsValueDoubleScalar</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>abbfa1c23f3bb99667711a113af7a68c9</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ObsValueDoubleScalar &amp;</type>
+      <name>operator=</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>ae78f252dff8667c920bea00e87eace97</anchor>
+      <arglist>(const ObsValueDoubleScalar &amp;otherObs)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const Observable *</type>
+      <name>observable</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>af46e810a57a5f0a40c6c13b9f36d2900</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual double</type>
+      <name>MSE</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>afd66cb091293b31f16017d96df58b925</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>value</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>a749604f4d7e32eff70c950fe9090412b</anchor>
+      <arglist>() const </arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::Parameter</name>
+    <filename>classcasa_1_1Parameter.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~Parameter</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>a167c97ea91f7ceed5968bdcc6113400c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>afe2cd9e1c8242ee4e85c755807483043</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>ac27f0edd61ef17bbc23a7920581bf9b3</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>adaf2347637a3974671faa04fa9b817ac</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>a2e842a67b535655e89ff7848ece01667</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>ac4f89b28bb90acea246579830c0fe232</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>a3aef6e9c60997ad5e6c804411f4bf4c1</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::PrmOneCrustThinningEvent</name>
+    <filename>classcasa_1_1PrmOneCrustThinningEvent.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmOneCrustThinningEvent</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>ab2de7867724a80edc8f03bbd38432027</anchor>
+      <arglist>(mbapi::Model &amp;mdl)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmOneCrustThinningEvent</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a931843fba62178bdfeba1bb479625cea</anchor>
+      <arglist>(const VarPrmOneCrustThinningEvent *parent, double thickIni, double t0, double dt, double coeff)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmOneCrustThinningEvent</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>ac677832b6576d6b906ac523b25ca164c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a52abff677e9787b195c5e2362c324e87</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>af237784c1edc44bdd711f398ec050e45</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a680568a968b6b951190320bd20012999</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a311b52246a1530fb53213ba4bd240ed1</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>ae62e447eeb94e30a9f7aa8a6e17e2c9e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a52843c352ed731f3a4949a1f3384db60</anchor>
+      <arglist>() const </arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::PrmSourceRockTOC</name>
+    <filename>classcasa_1_1PrmSourceRockTOC.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a1189cc1ab3544f3014b4f459b4034752</anchor>
+      <arglist>(mbapi::Model &amp;mdl, const char *layerName)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>aa4143f193f3e776c75ee374874c602f4</anchor>
+      <arglist>(const VarPrmSourceRockTOC *parent, double val, const char *layerName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>ae7d5364f45754295d7cb3c9513e95179</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a60b03caaba33400880d208f6e4ae54db</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a4073e78fdb4f6aa628fc94096234c65d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a7f530cecdd5a97c92fdc2db9c0549182</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a401e1ea5d1bb9e5a34add975620b37e6</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>value</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>aba677fa22e16389d645305ec3a09b19c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a1ea5a94f0af5418cef8adf94025a7e82</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>afbdcbcb585cb4fc99f18daa5f363793a</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>const VarParameter *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>ae1cf8ade1f5bffa380ce0677f08771ce</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>af0b57518e8aa4cd5454dd66923675d4c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a0b25d11000f5a8154dfea6c1540c69aa</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_toc</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a142f1ce2c53790001ff8cd1cee151bb9</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::PrmTopCrustHeatProduction</name>
+    <filename>classcasa_1_1PrmTopCrustHeatProduction.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmTopCrustHeatProduction</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>af94e51f8bb72e68acb7a7441bc3819a3</anchor>
+      <arglist>(mbapi::Model &amp;mdl)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmTopCrustHeatProduction</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a63a7a152232bf7f4ff8029901d74b158</anchor>
+      <arglist>(const VarPrmTopCrustHeatProduction *parent, double val)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmTopCrustHeatProduction</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a7656d250ee26713bb29d6c9efa42f130</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a08af060ff631ef6dfb55772d112453ea</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a1a08c1443a48908130de5ebe549448ee</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a8ddf9edf63b8c3c08ea78ec92986505f</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a2f5580de7026d6cac156ce676fcfa662</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>value</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>ad73d5ffc9fa76c7b52ff48d4c9cec920</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a4e65aa6d4f5a092a699b62a8ed94e5ef</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a7bdefc968ea5111d6203db10884cc6e6</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>const VarParameter *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>aacb005ada8c785c279980ee79e2efad4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_heatProdRateValue</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>adf5c5efdbce1213a59fa78b94b781e0c</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::RSProxy</name>
+    <filename>classcasa_1_1RSProxy.html</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>RSKrigingType</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>a78d06d241dffea8143d3284ff4d3e9b6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>NoKriging</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>a78d06d241dffea8143d3284ff4d3e9b6af2fcb17fe21e0b3674ef46985074db26</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>LocalKriging</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>a78d06d241dffea8143d3284ff4d3e9b6a4309dc4ff4f03b3bcdf03a26eef83d16</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>GlobalKriging</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>a78d06d241dffea8143d3284ff4d3e9b6a70b2cc285e416a3730ff88115faf5649</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~RSProxy</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>ab7d115dd9a1878606d739084fd347b1a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>calculateRSProxy</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>a34dec3689763f8df58e4ee8c04a52ae2</anchor>
+      <arglist>(const std::vector&lt; const RunCase * &gt; &amp;caseSet)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>evaluateRSProxy</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>ad190cd337069156f41ab1e7a5073170e</anchor>
+      <arglist>(RunCase &amp;cs)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual RSKrigingType</type>
+      <name>kriging</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>a78331dc95423dce9b768cfd89eab2995</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual CoefficientsMapList</type>
+      <name>getCoefficientsMapList</name>
+      <anchorfile>classcasa_1_1RSProxy.html</anchorfile>
+      <anchor>a071e73265f2f8fbd0b5f911b076aca94</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::RSProxySet</name>
+    <filename>classcasa_1_1RSProxySet.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~RSProxySet</name>
+      <anchorfile>classcasa_1_1RSProxySet.html</anchorfile>
+      <anchor>a366b9b37d6c93408684aae91461b04b2</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>size</name>
+      <anchorfile>classcasa_1_1RSProxySet.html</anchorfile>
+      <anchor>a6eaf134abe2e4a27b278a081335aff53</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const RSProxy *</type>
+      <name>operator[]</name>
+      <anchorfile>classcasa_1_1RSProxySet.html</anchorfile>
+      <anchor>a1427da9e0f553ca82dd54d366ea4db36</anchor>
+      <arglist>(size_t i) const =0</arglist>
+    </member>
+    <member kind="function">
+      <type>const RSProxy *</type>
+      <name>rsProxy</name>
+      <anchorfile>classcasa_1_1RSProxySet.html</anchorfile>
+      <anchor>a6c6966e1060f45429ce9226fea3a424d</anchor>
+      <arglist>(size_t i) const </arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual RSProxy *</type>
+      <name>rsProxy</name>
+      <anchorfile>classcasa_1_1RSProxySet.html</anchorfile>
+      <anchor>a95636acaf5e48d6146180b86976e0844</anchor>
+      <arglist>(const std::string &amp;name) const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>names</name>
+      <anchorfile>classcasa_1_1RSProxySet.html</anchorfile>
+      <anchor>a9ef42c8e859208dc60eb5f6c71474a84</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>empty</name>
+      <anchorfile>classcasa_1_1RSProxySet.html</anchorfile>
+      <anchor>a541cf93f175c6ad8a6587a33c848b5fa</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::RunCase</name>
+    <filename>classcasa_1_1RunCase.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~RunCase</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a59ae04344ea113ec2a7d1a58840aa46d</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>addParameter</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>ad5e5973ea5306ef2059ae34173f4d6b1</anchor>
+      <arglist>(SharedParameterPtr prm)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>parametersNumber</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a8d084dc3caff2068e9cb232db2f96c0c</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual SharedParameterPtr</type>
+      <name>parameter</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a5d941fef0d214697b0caee1393e3f7a5</anchor>
+      <arglist>(size_t i) const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>addObsValue</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a534e0b3ee3c10efe4ff9aa2eba08c229</anchor>
+      <arglist>(ObsValue *obs)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>observablesNumber</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a4a2c96581969a058d139fdab2e5b676f</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ObsValue *</type>
+      <name>obsValue</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>ac288a62a712208f04d318e8c4cbef984</anchor>
+      <arglist>(size_t i) const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>mutateCaseTo</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a8cae13667d0118c2f362b269ee0f8be0</anchor>
+      <arglist>(mbapi::Model &amp;baseCase, const char *newProjectName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>validateCase</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a6aed22544a54d990adc671f5c870a5ab</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual mbapi::Model *</type>
+      <name>caseModel</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a8d44b575d3e824edfc0a903d6a3ac748</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const char *</type>
+      <name>projectPath</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a666859462b560dbe3b0cf913bc321c1e</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::RunCaseSet</name>
+    <filename>classcasa_1_1RunCaseSet.html</filename>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~RunCaseSet</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>a68988d62216f186ab52d9f3e19b6c55d</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>size</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>ae478a53d6e47a7294cb97b9ed050b2e1</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual RunCase *</type>
+      <name>operator[]</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>af12bd24c3b9110ca87beeed00dd745ae</anchor>
+      <arglist>(size_t i) const =0</arglist>
+    </member>
+    <member kind="function">
+      <type>RunCase *</type>
+      <name>runCase</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>ac44a8a020c61165b17e94fd92d07022c</anchor>
+      <arglist>(size_t i) const </arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>filterByExperimentName</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>afc2efc087efa2557ce9fed885a81c44b</anchor>
+      <arglist>(const std::string &amp;expName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>filter</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>a6977ffba7ee2db03e642b66185f7d843</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>experimentNames</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>a903d6861fecc03ed25b872579830624b</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>empty</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>a9594c648dd21c382631f6eb9a0f042dc</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::RunManager</name>
+    <filename>classcasa_1_1RunManager.html</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>ApplicationType</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>fastcauldron</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4ca5a08b6111419372caeedc9bd871d50f1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>fastctc</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4ca3e70ec805d918d3c63dabaecd030dd25</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>fastgenex6</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4ca9b6242e2963156947168607351798672</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>fasttouch7</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4caa881c0ee99a00385debb7682e25ab7f8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>fastmig</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4ca757f78d537d66509c8af437664672aad</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>track1d</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4ca5f87a0e1f36678fce036af2586562c7f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>datadriller</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4ca35e332df86abe2a708809cf8dd8cb43f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>generic</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ac9252a97b9af971dfb11ec8929e61f4ca1c9d2a3e6872653cdc3290e0a2651048</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~RunManager</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>a8d9b85728104957c1fe813f7afac93a1</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setCauldronVersion</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>ae06b9e69ff6ba9f6b6939e849fd2445f</anchor>
+      <arglist>(const char *verString)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>addApplication</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>a93339258bbd05e0d2e7a2b79d19d0e1e</anchor>
+      <arglist>(CauldronApp *app)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>scheduleCase</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>a8c1a0e3d2f99851e20c86611887e8b77</anchor>
+      <arglist>(const RunCase &amp;newRun)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>runScheduledCases</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>af0c8db02d90b9652c6085a95ed700551</anchor>
+      <arglist>(bool asyncRun)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setClusterName</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>a42fa7545dcae973d1f6e6c4664f58448</anchor>
+      <arglist>(const char *clusterName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>clusterName</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>afe3d26ccefee5a89c153ae097adc5598</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static CauldronApp *</type>
+      <name>createApplication</name>
+      <anchorfile>classcasa_1_1RunManager.html</anchorfile>
+      <anchor>aeb89913de48d50b5f9882526b8e522b8</anchor>
+      <arglist>(ApplicationType appType, int cpus=1, const std::string cmdLine=&quot;&quot;)</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::ScenarioAnalysis</name>
+    <filename>classcasa_1_1ScenarioAnalysis.html</filename>
+    <member kind="function">
+      <type></type>
+      <name>ScenarioAnalysis</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a956361f716336777b0b298e9aa4aef0c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~ScenarioAnalysis</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a7b1ed3e75f8ce53c4725c1374716e1fd</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>defineBaseCase</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a91a049957facb47b947cc4d02cbac709</anchor>
+      <arglist>(const mbapi::Model &amp;bcModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>defineBaseCase</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a27bf09f8b16f44cc71db810f40d7a7f0</anchor>
+      <arglist>(const char *projectFileName)</arglist>
+    </member>
+    <member kind="function">
+      <type>mbapi::Model &amp;</type>
+      <name>baseCase</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a50ed1aea3c309b8aa0ba96cf86c9ff1e</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setScenarioLocation</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>aa4c0d764d036e470007d88a60272e64e</anchor>
+      <arglist>(const char *pathToCaseSet)</arglist>
+    </member>
+    <member kind="function">
+      <type>VarSpace &amp;</type>
+      <name>varSpace</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a4554303ed86083f345b63903a766e12c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setDoEAlgorithm</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>aff859b58873ad73d172a5730d09c84c3</anchor>
+      <arglist>(DoEGenerator::DoEAlgorithm algo)</arglist>
+    </member>
+    <member kind="function">
+      <type>DoEGenerator &amp;</type>
+      <name>doeGenerator</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a7c627d513d05b874c80f3f63a1eaaf75</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>RunCaseSet &amp;</type>
+      <name>doeCaseSet</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a25a429c285cdc032377d85b19eedc033</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>applyMutations</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>ad47373e4b23ffd605ff6f1d0388a198b</anchor>
+      <arglist>(RunCaseSet &amp;cs)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>validateCaseSet</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a35a0d9da2ff0cc6b5aa95433c0f66efb</anchor>
+      <arglist>(RunCaseSet &amp;cs)</arglist>
+    </member>
+    <member kind="function">
+      <type>RunManager &amp;</type>
+      <name>runManager</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a06ebc92f9e2d9f5b5045910fd72dd2f1</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>DataDigger &amp;</type>
+      <name>dataDigger</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a5a7f00eac299816db5477e0cb9b0c48c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ObsSpace &amp;</type>
+      <name>obsSpace</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a2972817242e24174678daf8337030870</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>addRSAlgorithm</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a8a339d3e6b4eb92bd41d2f2d09ed52cb</anchor>
+      <arglist>(const char *name, int order, RSProxy::RSKrigingType krType)</arglist>
+    </member>
+    <member kind="function">
+      <type>RSProxySet &amp;</type>
+      <name>rsProxySet</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a771e01c9ea797f988b84f276da4cd9d9</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>RunCaseSet &amp;</type>
+      <name>mcCaseSet</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a434f5bec9ec47f046ddf501d4a6e29cd</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setMCAlgorithm</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>acef81d02b1a0377f6bf355aadf460c3a</anchor>
+      <arglist>(MCSolver::MCAlgorithm algo, MCSolver::MCKrigingType interp=MCSolver::NoKriging)</arglist>
+    </member>
+    <member kind="function">
+      <type>MCSolver &amp;</type>
+      <name>mcSolver</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>aa0c849f76ce56993156ce0e0bd92fecd</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarParameter</name>
+    <filename>classcasa_1_1VarParameter.html</filename>
+    <member kind="enumeration">
+      <type></type>
+      <name>Type</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>a34c88f2a5ac21283dfed3689c693328b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Continuous</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>a34c88f2a5ac21283dfed3689c693328ba717bc4ee2522af80c8a9c7250c171338</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Discrete</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>a34c88f2a5ac21283dfed3689c693328ba4003c715d49f668213952711c152fb02</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Categorical</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>a34c88f2a5ac21283dfed3689c693328bac0cb12f80cb366836b96450dba15e483</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>ac9a7fc056d63482fcceaab2ebb1e2839</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarParameter</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>a74f5fe6f9fbd05c589e3a2c1b947b772</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual Type</type>
+      <name>variationType</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>ae11b6b4529faea526ce163d09ee7a019</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const SharedParameterPtr</type>
+      <name>minValue</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>abfadfe1405033f89450f3043bd7e94b2</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const SharedParameterPtr</type>
+      <name>maxValue</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>afcb98b6f64f07e33ed6b34f90055d0e1</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const SharedParameterPtr</type>
+      <name>baseValue</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>a4b05303a880785d524720d1e5b20d83d</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmCategorical</name>
+    <filename>classcasa_1_1VarPrmCategorical.html</filename>
+    <base>casa::VarParameter</base>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmCategorical</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>addd6e6c773b430218a7677bb3b7e71aa</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual Type</type>
+      <name>variationType</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>a98d2fa088fa63bb085202288ecbcbc38</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const SharedParameterPtr</type>
+      <name>minValue</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>a5452f55db7144781c1026ee313a5c984</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const SharedParameterPtr</type>
+      <name>maxValue</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>a806c546e9c10b2c659a5fb0ca0cb6f40</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const SharedParameterPtr</type>
+      <name>baseValue</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>af47f028420cf4af3851d3e443c7e4ddf</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; unsigned int &gt;</type>
+      <name>valuesAsUnsignedIntSortedSet</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>ad5acb5059c6040d6cce7ac4f69e24ea9</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual SharedParameterPtr</type>
+      <name>createNewParameterFromUnsignedInt</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>ad9c68389227afc3109769d13f7fb3c41</anchor>
+      <arglist>(unsigned int val) const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmContinuous</name>
+    <filename>classcasa_1_1VarPrmContinuous.html</filename>
+    <base>casa::VarParameter</base>
+    <member kind="enumeration">
+      <type></type>
+      <name>PDF</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>aae6536fb7ff2d99c1a4ab71c0a73f6e8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Block</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>aae6536fb7ff2d99c1a4ab71c0a73f6e8a8d4eb6d4d1e2b85ee7dbbe42bc0b3da0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Triangle</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>aae6536fb7ff2d99c1a4ab71c0a73f6e8ae7c9212177d3c67086b41ea1ca6a441d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Normal</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>aae6536fb7ff2d99c1a4ab71c0a73f6e8a6269fe05157836585509745766f7ecf5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmContinuous</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>aba4039fb2f84783588b42cb9b35dac68</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual Type</type>
+      <name>variationType</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>a8e9ca4bbb0773fc2bedb42129052177d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const SharedParameterPtr</type>
+      <name>minValue</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>a0c0dec75a537693d6ba8c8c6497cb544</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const SharedParameterPtr</type>
+      <name>maxValue</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>abb305012cfc0cd4cca69c7091402d5be</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const SharedParameterPtr</type>
+      <name>baseValue</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>a3448da3d529b36ff3ed6c6c090187ca8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual PDF</type>
+      <name>pdfType</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>a0a118201a989bec1dceba6b90e5507d8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>ad74557edd20724976b1559d4a186fa90</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const =0</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>aeee58c388f561448e39444ea858256cd</anchor>
+      <arglist>(std::vector&lt; double &gt; &amp;vals, int &amp;off) const </arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>SharedParameterPtr</type>
+      <name>m_baseValue</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>afbde45b910bc6cbbf338399cb60a8270</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>SharedParameterPtr</type>
+      <name>m_minValue</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>a5041203bc68b19d1a207b0b9270c0027</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>SharedParameterPtr</type>
+      <name>m_maxValue</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>ab1e75a82d6e9deac9bf45e5ac918b4fc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>PDF</type>
+      <name>m_pdf</name>
+      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
+      <anchor>a34acd00aa9ce2caf10652a32f4c2ded1</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmOneCrustThinningEvent</name>
+    <filename>classcasa_1_1VarPrmOneCrustThinningEvent.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmOneCrustThinningEvent</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>ab984782ad905e93075e552b1b6211594</anchor>
+      <arglist>(double baseThickIni, double minThickIni, double maxThickIni, double baseT0, double minT0, double maxT0, double baseDeltaT, double minDeltaT, double maxDeltaT, double baseThinningFct, double minThinningFct, double maxThinningFct, PDF prmPDF)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>aa9e7fc04612291adc4496c16e3174473</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>ad3fec67fc91b4ef6a3b563bc6dd18627</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmSourceRockTOC</name>
+    <filename>classcasa_1_1VarPrmSourceRockTOC.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a553a7d0ace8ca8182fb3407e80bb2e7c</anchor>
+      <arglist>(const char *layerName, double baseValue, double minValue, double maxValue, PDF pdfType=Block)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a0e557bee85ea334739826395fb33eaf2</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a13d28ebbf4b03f241b565204d45c74e7</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>a49ce3bc3fd9db49a1aef3066473773c9</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>ad990ed7dff14d40653dd4f164e0530c7</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmTopCrustHeatProduction</name>
+    <filename>classcasa_1_1VarPrmTopCrustHeatProduction.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmTopCrustHeatProduction</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a0d0c666cefef420bcd7ef39a4e84d6a9</anchor>
+      <arglist>(double baseValue, double minValue, double maxValue, PDF pdfType)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmTopCrustHeatProduction</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>af38361272f0baee74ebfeed759afb688</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a3be8c5d1bb24efa8c0d1b36017db00e2</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>a876518430ed3cb26474ae482c2a58061</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarSpace</name>
+    <filename>classcasa_1_1VarSpace.html</filename>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>addParameter</name>
+      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
+      <anchor>af74a4b8bf67f19070bed07ff136d46c3</anchor>
+      <arglist>(VarPrmCategorical *prm)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>addParameter</name>
+      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
+      <anchor>a49c7f23cabacb4b802707b908309c500</anchor>
+      <arglist>(VarPrmContinuous *prm)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>size</name>
+      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
+      <anchor>a15ac7ddafe041d13714904cc9207e497</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>numberOfContPrms</name>
+      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
+      <anchor>a135f3bbf75b179aecb8c39a5881cdc9c</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual size_t</type>
+      <name>numberOfCategPrms</name>
+      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
+      <anchor>a5e9bbd4903b3005175aedb94102f969c</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const VarPrmContinuous *</type>
+      <name>continuousParameter</name>
+      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
+      <anchor>a30d4b131b84fc65bfd50c2e923ffaa22</anchor>
+      <arglist>(size_t i) const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const VarPrmCategorical *</type>
+      <name>categoricalParameter</name>
+      <anchorfile>classcasa_1_1VarSpace.html</anchorfile>
+      <anchor>a6a0a48cd414e4dc3b799a3870f524c0c</anchor>
+      <arglist>(size_t i) const =0</arglist>
+    </member>
+  </compound>
+  <compound kind="namespace">
+    <name>casa::BusinessLogicRulesSet</name>
+    <filename>namespacecasa_1_1BusinessLogicRulesSet.html</filename>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryLayerThickness</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ac6f78e98a1e221c8a68c52a89115fbce</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryTopCrustHeatProduction</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>ad47b2eab9e8dbd56c8a6a32af0de85a0</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockTOC</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a2f25490e7aab7844f4666b55a697c56c</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VaryOneCrustThinningEvent</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a6a97b95673dc1e879056f95b07106c18</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, double minThickIni, double maxThickIni, double minT0, double maxT0, double minDeltaT, double maxDeltaT, double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF pdfType)</arglist>
+    </member>
+  </compound>
+</tagfile>

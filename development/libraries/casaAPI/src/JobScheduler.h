@@ -9,7 +9,7 @@
 // 
 
 /// @file JobScheduler.h
-/// @brief This file keeps declaration the base class for job scheduler\n
+/// @brief This file keeps declaration the base class for job scheduler
 ///        It is used by casa::RunManager and is not intended be exposed through CASA API
 #ifndef CASA_CASE_SCHEDULER_H
 #define CASA_CASE_SCHEDULER_H

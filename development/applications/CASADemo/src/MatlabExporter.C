@@ -35,8 +35,6 @@ MatlabExporter::~MatlabExporter()
 
 void MatlabExporter::exportDoEInfo( ScenarioAnalysis & sc, std::ofstream & ofs )
 {
-   if ( ofs.bad() ) return;
-
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
 
    // export DoE info
@@ -62,8 +60,6 @@ void MatlabExporter::exportDoEInfo( ScenarioAnalysis & sc, std::ofstream & ofs )
 
 void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc, std::ofstream & ofs )
 {
-   if ( ofs.bad() ) return;
-
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
 
    // First save name of the variable parameters
@@ -163,8 +159,6 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc, std::ofstream 
 
 void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream & ofs )
 {
-   if ( ofs.bad() ) return;
-
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
 
    // save observables value for each case
@@ -172,7 +166,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
    ofs << "ObservablesName = {\n";
    for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
    {
-      ObsValue * obv = rcs[0]->observableValue( j );
+      ObsValue * obv = rcs[0]->obsValue( j );
       
       if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
 
@@ -184,7 +178,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
    ofs << "ObservablesDim = [ ";
    for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
    {
-      ObsValue * obv = rcs[0]->observableValue( j );
+      ObsValue * obv = rcs[0]->obsValue( j );
       
       if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
 
@@ -199,7 +193,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
 
       for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
       {
-         ObsValue * obv = rcs[i]->observableValue( j );
+         ObsValue * obv = rcs[i]->obsValue( j );
 
          if ( obv && obv->isDouble() )
          {
@@ -220,7 +214,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
 
       for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
       {
-         ObsValue * obv = rcs[i]->observableValue( j );
+         ObsValue * obv = rcs[i]->obsValue( j );
 
          if ( obv && obv->isDouble() )
          {
@@ -236,10 +230,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
 
 void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc, std::ofstream & ofs )
 {
-   if ( ofs.bad() ) return;
-
    // Save proxies as set of function for each proxy_observable
-   if ( ofs.bad() ) return;
    const std::vector<std::string> & proxyNames = sc.rsProxySet().names();
 
    // calculate total parameters number
@@ -305,7 +296,7 @@ void MatlabExporter::exportScenario( ScenarioAnalysis & sc, const std::string & 
 {
    std::ofstream ofs( m_fname.c_str(), std::ios_base::out | std::ios_base::trunc );
    
-   if ( ofs.bad() ) return;
+   if ( ofs.fail() ) return;
 
    // export globals
    ofs << "BaseCaseName  = '" << baseCaseName << "';\n";
@@ -334,14 +325,12 @@ void MatlabExporter::exportScenario( ScenarioAnalysis & sc, const std::string & 
 void MatlabExporter::exportObsValues( const std::string & fName, const std::vector<casa::RunCase*> & rcs )
 {
    std::ofstream ofs( fName.c_str(), std::ios_base::out | std::ios_base::trunc );
-
-   if ( ofs.bad() ) return;
-
+   
    for ( size_t i = 0; i < rcs.size(); ++i )
    {
       for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
       {
-         const casa::ObsValue * obs = rcs[i]->observableValue( j );
+         const casa::ObsValue * obs = rcs[i]->obsValue( j );
          if ( obs->isDouble() )
          {
             const std::vector<double> & vals = obs->doubleValue();

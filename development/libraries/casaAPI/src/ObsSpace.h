@@ -19,7 +19,7 @@
 
 #include <vector>
 
-/// @page CASA_ObsSpacePage Observables set manager
+/// @page CASA_ObsSpacePage Container for observables description
 /// @link casa::ObsSpace A collection of observables @endlink defined for scenario analysis 
 /// @link casa::ObsSpace @endlink also provides a set of API functions to create various types of @link casa::Observable Observable @endlink objects.
 namespace casa
@@ -59,6 +59,11 @@ namespace casa
       /// @brief Get number of observables defined in ObsSpace
       /// @return total number of observables in set
       virtual size_t size() const = 0;
+
+      /// @brief Get i-th observable
+      /// @param i observable number
+      /// @return i-th observable pointer on success, 0 pointer otherwise
+      virtual const Observable * observable( size_t i ) const = 0;
 
    protected:
       ObsSpace() {;}

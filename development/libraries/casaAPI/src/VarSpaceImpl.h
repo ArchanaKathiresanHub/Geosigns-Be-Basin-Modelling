@@ -72,8 +72,11 @@ public:
 
 
 private:
-   std::vector< VarPrmCategorical*> m_catPrms;
-   std::vector< VarPrmContinuous*>  m_cntPrms;
+   VarSpaceImpl( const VarSpaceImpl & );
+   VarSpaceImpl & operator = ( const VarSpaceImpl & );
+
+   std::vector< VarPrmCategorical*> m_catPrms; // set of categorical variable parameters
+   std::vector< VarPrmContinuous*>  m_cntPrms; // set of continuous variable parameters
 };
 
 }

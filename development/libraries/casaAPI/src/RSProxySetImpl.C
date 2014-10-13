@@ -18,13 +18,13 @@
 
 casa::RSProxySetImpl::~RSProxySetImpl()
 {
-   for ( std::map<std::string, casa::RSProxy *>::iterator it = m_proxySet.begin(); it != m_proxySet.end(); ++it ) delete it->second;
+   for ( ProxySet::iterator it = m_proxySet.begin(); it != m_proxySet.end(); ++it ) delete it->second;
 }
 
 std::vector< std::string > casa::RSProxySetImpl::names() const
 { 
    std::vector< std::string> ret; 
-   for ( std::map< std::string, casa::RSProxy *>::const_iterator it = m_proxySet.begin(); it != m_proxySet.end(); ++it )
+   for ( ProxySet::const_iterator it = m_proxySet.begin(); it != m_proxySet.end(); ++it )
    {
       ret.push_back( it->first );
    }

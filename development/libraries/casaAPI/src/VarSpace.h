@@ -16,7 +16,7 @@
 
 #include "ErrorHandler.h"
 
-/// @page CASA_VarSpacePage Variable parameters set manager
+/// @page CASA_VarSpacePage Container for variable parameters
 /// @link casa::VarSpace A collection of variable parameters @endlink defined for scenario analysis 
 
 namespace casa

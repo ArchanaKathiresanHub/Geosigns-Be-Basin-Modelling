@@ -31,8 +31,8 @@ namespace casa
       /// @brief Get parent observable which define type of observable
       virtual const Observable * observable() const = 0;
 
-      /// @brief Calculate Root Mean Squared Error for the observable value if reference value was specified\n
-      /// MSE is calculated using this formula:\n
+      /// @brief Calculate Root Mean Squared Error for the observable value if reference value was specified
+      /// MSE is calculated using this formula:
       /// @f$ MSE \equiv {\frac{1}{N} \sum\nolimits_{i=1}^{i=N} {\left( {\frac{Y_i-M_i \left( {x_j } \right)}{\sigma_i }} \right)^2} } @f$
       /// @return Root Mean Squared Error
       virtual double MSE() const = 0;

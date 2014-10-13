@@ -28,12 +28,15 @@ namespace mbapi
 
 /// @page CASA_OneCrustThinningEventPage Crust thinning parameter
 /// 
-/// This parameter defines 1D profile which describes one event of crust thinning.\n
-/// This 1D profile is defined by the 
+/// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ D( t ) @f$ 
+/// User must provide a sorted by time a sequence of points @f$ [p_0(t_0, d_0), p_1(t_1, d_1), ... ] @f$ .
+/// This variable parameter allows to define a crust thickness function with one crust thinning event.
+/// To define such event, user should provide these sub-parameters:
 /// -# initial crust thickness @f$ d_0 @f$ [m]. The valid range is [0:100000]
 /// -# start time for the thinning event @f$ t_0 @f$ [Ma]. The valid range is [0:1000];
-/// -# duration of the thinning @f$ \delta t = t_1 - t_0 @\f$ [Ma]. The value must be in range  @f$ 0 < \delta t < t_0 @f$
-/// -# final crust thickness which is defined as a @f$ d_1 = \sigma \cdot d_0 @f$ where is @f$ \sigma @f$ - thinning factor, and it valid range is [0:1].
+/// -# duration of the thinning @f$ \delta t = t_1 - t_0 @\f$ [Ma]. The value must be in range  @f$ 0 < \delta t < t_0 @f$ 
+/// -# final crust thickness which is defined as a @f$ d_1 = \sigma \cdot d_0 @f$ where is @f$ \sigma @f$ - a thinning factor with valid range [0:1].
+///
 /// @image html CrustThinningOneEvent.png "One event of crust thinning"
 /// 
 namespace casa
@@ -50,11 +53,10 @@ namespace casa
 
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
-      /// @param mdl Cauldron model interface object to get value for single event crust thinning parameter
-      /// @param thickIni initial crust thickness
-      /// @param t0 start time for crust thinning event
-      /// @param dt duration of crust thinning event
-      /// @param coeff crust thinning factor
+      /// @param thickIni initial crust thickness [m]
+      /// @param t0 start time for crust thinning event [Ma]
+      /// @param dt duration of crust thinning event [Ma]
+      /// @param coeff crust thinning factor [unitless]
       PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent, double thickIni, double t0, double dt, double coeff );
 
 
@@ -93,10 +95,10 @@ namespace casa
       const VarParameter * m_parent;          ///< variable parameter which was used to create this one
       std::string          m_name;            ///< name of the parameter
       
-      double               m_initialThicknes; ///< initial crust thickness
-      double               m_t0;              ///< start time for thinning event
-      double               m_dt;              ///< duration of thinning event
-      double               m_coeff;           ///< factor for the crust thinning
+      double               m_initialThickness; ///< initial crust thickness
+      double               m_t0;               ///< start time for thinning event
+      double               m_dt;               ///< duration of thinning event
+      double               m_coeff;            ///< factor for the crust thinning
    };
 }
 #endif // CASA_API_PARAMETER_ONE_CRUST_THINNING_EVENT_H

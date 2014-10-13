@@ -24,7 +24,7 @@
 
 namespace casa
 {
-   /// @brief Case class is devoted to keep parameters and results for a single Cauldron project run or for\n
+   /// @brief Case class is devoted to keep parameters and results for a single Cauldron project run or for
    ///        a single point of Monte Carlo simulation results
    class RunCaseImpl : public RunCase
    {
@@ -44,7 +44,7 @@ namespace casa
       virtual SharedParameterPtr parameter( size_t i ) const;
 
       // Add new parameter to the list
-      void addParameter( SharedParameterPtr prm );
+      virtual void addParameter( SharedParameterPtr prm );
 
       // Get number of observables value
       // return observables value number
@@ -52,16 +52,16 @@ namespace casa
 
       // Get i-th observable value
       // return i-th observable value or null pointer if there is no such observable
-      virtual ObsValue * observableValue( size_t i ) const;
+      virtual ObsValue * obsValue( size_t i ) const;
 
       // Add new observable value to the list
-      void addObservableValue( ObsValue * obs );
+      virtual void addObsValue( ObsValue * obs );
 
       // Mutate give case to the given project file
       virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName );
 
       // Do checking, are all variable parameters case value in their ranges
-      // if validation is OK, return empty string. otherwise - the list of validation\n
+      // if validation is OK, return empty string. otherwise - the list of validation
       //         failed parameters with theirs values
       virtual std::string validateCase();
 
@@ -71,7 +71,7 @@ namespace casa
 
       // Load associated with this case project file into mbapi::Model object
       // return loaded model. If any error happened during loading, Model object will contain error description
-      mbapi::Model * loadProject();
+      mbapi::Model & loadProject();
 
       // Get full path to the project path (including project file name). If this case has no project associated with 
       // it, it will return null pointer

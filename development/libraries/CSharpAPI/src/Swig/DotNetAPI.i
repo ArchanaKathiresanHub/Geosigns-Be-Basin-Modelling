@@ -5,6 +5,8 @@
 %include "Base/Common.i"
 %include "std_vector.i"
 %include "std_string.i"
+%include "std_map.i"
+%include "std_pair.i"
 
 /// Shared pointer types wrapping
 // CASA API
@@ -177,6 +179,26 @@ using namespace casa;
 %}
 
 
+%include <typemaps.i>
+%include <arrays_csharp.i>
+
+// EosPackCAPI.h:EosPackComputeWithLumpingArr()
+%apply double INPUT[]  { double * compMasses }
+%apply double OUTPUT[] { double * phaseCompMasses }
+%apply double OUTPUT[] { double * phaseDensity }
+%apply double OUTPUT[] { double * phaseViscosity }
+
+// EosPackCAPI.h:BuildPTDiagram()
+%apply double INPUT[]  { double * comp }
+%apply double OUTPUT[] { double * points }
+%apply int    INOUT[]  { int * szIso }
+%apply double OUTPUT[] { double * isolines }
+%apply double OUTPUT[] { double * critPt }
+
+// CASA Observable.h:newObsValueFromDoubles()
+%apply int  &INOUT { int & off };
+
+
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
 
 // Interface to DataModel
@@ -336,25 +358,6 @@ using namespace casa;
 %array_functions(double, doubleArray);
 
 
-%include <arrays_csharp.i>
-
-// EosPackCAPI.h:EosPackComputeWithLumpingArr()
-%apply double INPUT[]  { double * compMasses }
-%apply double OUTPUT[] { double * phaseCompMasses }
-%apply double OUTPUT[] { double * phaseDensity }
-%apply double OUTPUT[] { double * phaseViscosity }
-
-// EosPackCAPI.h:BuildPTDiagram()
-%apply double INPUT[]  { double * comp }
-%apply double OUTPUT[] { double * points }
-%apply int    INOUT[]  { int * szIso }
-%apply double OUTPUT[] { double * isolines }
-%apply double OUTPUT[] { double * critPt }
-
-
-%apply int &INOUT { int & off };
-
-
 %include "../../../EosPack/src/EosPackCAPI.h"
 
 // double array size of 1 for getting buble pressure for given temperature
@@ -428,8 +431,12 @@ using namespace casa;
 %template(PointList)      std::vector<const DataAccess::Interface::Point *>;
 
 /// CASA API
-%template(CasesList) std::vector<casa::RunCase*>;
-%template(ConstCasesList) std::vector<const casa::RunCase*>;
+%template(CasesList)       std::vector<      casa::RunCase*>;
+%template(ConstCasesList)  std::vector<const casa::RunCase*>;
+
+%template(CoefficientsMap)     std::map< std::vector< unsigned int >, double >;
+%template(CoefficientsMapList) std::vector< std::map< std::vector< unsigned int>, double > >;
+%template(PolynomCoefficient)  std::pair< std::vector< unsigned int >, double >;
 
 %template(DoubleVector) std::vector<double>;
 

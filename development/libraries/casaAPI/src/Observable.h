@@ -18,34 +18,34 @@
 
 #include <vector>
 
-/// @page CASA_ObservablePage Observables
+/// @page CASA_ObservablePage Observable description
 ///
-/// <b><em> Observable (or Target) </em></b> - any simulator output value. It could be any data value from the \n
-/// simulation results. For example temperature or VRe at some position and depth for current time. \n
-/// Some observables could be used for risk assessment - for example the total amount of HC in a trap.\n
+/// <b><em> Observable (or Target) </em></b> - any simulator output value. It could be any data value from the
+/// simulation results. For example temperature or VRe at some position and depth for current time.
+/// Some observables could be used for risk assessment - for example the total amount of HC in a trap.
 /// The set of observables also could be denote as an output vector:  @f$ \vec{O} = \vec{(o_1,o_2,...,o_m)} @f$ .
 ///
-/// <b><em> Observable reference value </em></b> - usually it is a measurement of corresponded observable value \n
+/// <b><em> Observable reference value </em></b> - usually it is a measurement of corresponded observable value
 /// from the real well.Observables with reference value could be used for calibration workflow.
 ///
-/// <b><em> Standard deviation value of observable reference value </em></b> - contains the standard deviations \n
-/// of the measurement noise. Standard deviation (SD) (represented by the Greek letter sigma, @f$ \sigma @f$) \n
-/// measures the amount of variation or dispersion from the average. A low standard deviation indicates that \n
-/// the data points tend to be very close to the mean (also called expected value); a high standard deviation \n
+/// <b><em> Standard deviation value of observable reference value </em></b> - contains the standard deviations
+/// of the measurement noise. Standard deviation (SD) (represented by the Greek letter sigma, @f$ \sigma @f$)
+/// measures the amount of variation or dispersion from the average. A low standard deviation indicates that
+/// the data points tend to be very close to the mean (also called expected value); a high standard deviation
 /// indicates that the data points are spread out over a large range of values. 
-/// In science, researchers commonly report the standard deviation of experimental data, and only effects that \n
-/// fall much farther than two standard deviations away from what would have been expected are considered \n
-/// statistically significant - normal random error or variation in the measurements is in this way distinguished \n
+/// In science, researchers commonly report the standard deviation of experimental data, and only effects that
+/// fall much farther than two standard deviations away from what would have been expected are considered
+/// statistically significant - normal random error or variation in the measurements is in this way distinguished
 /// from causal variation.
-/// @image html Standard_deviation_diagram.png "A plot of a normal distribution (or bell-shaped curve) where each band has \n
+/// @image html Standard_deviation_diagram.png "A plot of a normal distribution (or bell-shaped curve) where each band has
 /// a width of 1 standard deviation (68-95-99.7 rule)"
 ///
-///The following list of of Observable types is implemented in CASA API:
+///The following list of Observable types is implemented in CASA API:
 ///
 /// - @subpage  CASA_ObservableGridPropXYZPage
-/// - Set of any Cauldron property values along well trajectory
+/// - @subpage CASA_ObservableGridPropWellPage
 ///
-/// A new observable object could be created by one of the static functions from @link casa::DataDigger Data Digger @endlink
+/// A new casa::Observable object could be created by one of the static functions from @link casa::DataDigger Data Digger @endlink
 
 namespace mbapi
 {
@@ -56,7 +56,7 @@ namespace casa
 {
    class ObsValue; // class which will keep the real value from the results which corresponds this observable
 
-   /// @brief Base class for keeping description of some value (not the value itself) from Cauldron simulation results\n
+   /// @brief Base class for keeping description of some value (not the value itself) from Cauldron simulation results
    /// Also this class keeps observable reference value and observable weights for Sensitivity and Uncertainty analysis
    class Observable
    {
@@ -110,7 +110,9 @@ namespace casa
 
       /// @brief Get this observable value from Cauldron model
       /// @param caldModel reference to Cauldron model
-      /// @return observable value on success or NULL otherwise. Error code could be obtained from the Model object
+      /// @return a new ObsValue object with observable value on success or NULL otherwise. 
+      /// Error code could be obtained from the Model object. Caller is responsible for deleting the object
+      /// when it can be discarded
       virtual ObsValue * getFromModel( mbapi::Model & caldModel ) = 0;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
@@ -119,14 +121,16 @@ namespace casa
       virtual ObsValue * createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const = 0;
 
       /// @brief Wrapper function to use in C# through Swig due to absence of iterators in Swig
-      /// @parameter[in] vals vector of observables value
-      /// @parameter[in,out] off offset in the vector, where the observable values are located
+      /// @param[in] vals vector of observables value
+      /// @param[in,out] off offset in the vector, where the observable values are located
       /// @return new observable value on success, or NULL pointer otherwise
       ObsValue * newObsValueFromDoubles( const std::vector<double> & vals, int & off )
       {
          std::vector<double>::const_iterator it = vals.begin() + off;
+         std::vector<double>::const_iterator sit = it;
+
          ObsValue * ret = createNewObsValueFromDouble( it );
-         off += it - vals.begin();
+         off += static_cast<unsigned int>( it - sit );
          return ret;
       }
 

@@ -23,18 +23,15 @@
 ///
 /// Continuous parameter - a parameter that can take any value between certain bounds
 /// (for instance, a fault-sealing factor that varies in the [0, 1] range)
-/// CASA API allows to have the following subtypes of continuous parameters:
-///   - \subpage CASA_SimpleRangePage
-///   - \subpage CASA_MapRangePage
-///   - \subpage CASA_CurveRangePage
 ///
-/// The following list of simple range variable parameters is implemented in CASA API
-/// - @link CASA_SourceRockTOCPage Source rock initial Total Organic Contents (TOC) parameter @endlink
-/// - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
-/// - @link CASA_OneCrustThinningEventPage One event crust thinning parameter @endlink
+/// The following list of variable parameters is implemented in CASA API
+/// - @subpage CASA_SourceRockTOCPage 
+/// - @subpage CASA_TopCrustHeatProductionPage 
+/// - @subpage CASA_OneCrustThinningEventPage 
+
 namespace casa
 {
-   /// @brief Variable parameter with continuous value range.\n
+   /// @brief Variable parameter with continuous value range.
    /// The parameter value can be represented by the one or several doubles values
    class VarPrmContinuous : public VarParameter
    {
@@ -73,7 +70,20 @@ namespace casa
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr createNewParameterFromDouble( std::vector<double>::const_iterator & vals ) const = 0;
+      virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const = 0;
+
+      /// @brief Wrapper function to use in C# through Swig due to absence of iterators in Swig
+      /// @param vals vector with parameters values.
+      /// @param[in,out] off position in array where this parameter values are located
+      /// @return new parameter for given set of values
+      virtual SharedParameterPtr newParameterFromDoubles(std::vector<double> & vals, int & off) const
+      {
+         std::vector<double>::const_iterator it = vals.begin() + off;
+         std::vector<double>::const_iterator sit = it;
+         SharedParameterPtr ret = newParameterFromDoubles( it );
+         off += static_cast<unsigned int>(it - sit);
+         return ret;
+      }
 
    protected:
       VarPrmContinuous() : m_pdf(Block) {;}

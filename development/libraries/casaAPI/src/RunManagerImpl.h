@@ -37,8 +37,8 @@ namespace casa
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode addApplication( CauldronApp * app );
 
-      /// @brief Set up Cauldron version. Versions should be defined as "v2014.1007" (which is the default)\n
-      ///        Version also could be defined by the environment variable CAULDRON_VERSION. This interface\n
+      /// @brief Set up Cauldron version. Versions should be defined as "v2014.1007" (which is the default)
+      ///        Version also could be defined by the environment variable CAULDRON_VERSION. This interface
       ///        has a priority over the environment variable.
       /// @param verString Cauldron version which will be used for submit jobs to HPC cluster.
       /// @return NoError on success, error code otherwise

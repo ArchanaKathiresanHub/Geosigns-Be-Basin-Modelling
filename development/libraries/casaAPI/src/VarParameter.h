@@ -14,14 +14,14 @@
 #ifndef CASA_API_VAR_PARAMETER_H
 #define CASA_API_VAR_PARAMETER_H
 
-/// @page CASA_VarParameterPage Variable Parameters
-/// 
+/// @page CASA_VarParameterPage Variable parameter
+///  
 /// For the given variable parameter a DoE algorithm generates several fixed values of this parameter 
 /// when generating Cases set
 /// 
 /// CASA API supports the following types of variable parameters:
-/// - \subpage CASA_VarPrmContinuousPage
-/// - \subpage CASA_VarPrmCategoricalPage
+/// - @subpage CASA_VarPrmContinuousPage
+/// - @subpage CASA_VarPrmCategoricalPage
 ///
 /// Set of variable parameters for scenario analysis is managed by a @ref CASA_VarSpacePage "VarSpace manager"
 
@@ -38,13 +38,13 @@ namespace casa
       {
          Continuous,  ///< A parameter that can take any value between certain bounds (for instance, a fault-sealing factor that varies in the [0, 1] range)
          Discrete,    ///< A parameter that can take ordered discrete values between certain bounds (for instance, a diameter of a pipe, available in some pre-defined sizes). 
-         Categorical  ///< A parameter that can take some unordered discrete values each of which referring to a different category \n
+         Categorical  ///< A parameter that can take some unordered discrete values each of which referring to a different category
                       /// (for instance, a PVT parameter that can distinguish between a few, unrelated PVT models) 
       };
 
       /// @brief Get name of variable parameter in short form
 	  /// @return array of names for each subparameter
-      virtual std::vector<std::string> name() = 0;
+      virtual std::vector<std::string> name() const = 0;
 
       /// @brief Destructor
       virtual ~VarParameter() {;}

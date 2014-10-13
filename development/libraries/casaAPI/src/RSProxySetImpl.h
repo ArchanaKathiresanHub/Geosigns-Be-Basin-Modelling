@@ -24,6 +24,11 @@ namespace casa
    class RSProxySetImpl : public RSProxySet
    {
    public:
+      typedef std::map < std::string, RSProxy * > ProxySet;
+
+      /// @brief Constructor
+      RSProxySetImpl() { ; }
+
       /// @brief Destructor
       virtual ~RSProxySetImpl();
 
@@ -35,7 +40,7 @@ namespace casa
       virtual const RSProxy * operator[] ( size_t i ) const
       {  
          if ( m_proxySet.size() <= i ) return 0;
-         std::map<std::string, RSProxy *>::const_iterator it = m_proxySet.begin();
+         ProxySet::const_iterator it = m_proxySet.begin();
          for ( size_t j = 0; j <= i; ++j ) ++it;
          return it->second;
       }
@@ -56,7 +61,13 @@ namespace casa
       void addNewRSProxy( RSProxy * proxy, const std::string & name ) { assert( m_proxySet.count( name ) == 0 ); m_proxySet[name] = proxy; }
 
    protected:
-      std::map<std::string, RSProxy *> m_proxySet;
+      ProxySet m_proxySet;
+
+   private:
+      // disable copy constructor and copy operator
+      RSProxySetImpl( const RSProxySetImpl & );
+      RSProxySetImpl & operator = (const RSProxySetImpl &);
+
    };
 }
 #endif // CASA_API_RS_PROXY_SET_IMPL_H
