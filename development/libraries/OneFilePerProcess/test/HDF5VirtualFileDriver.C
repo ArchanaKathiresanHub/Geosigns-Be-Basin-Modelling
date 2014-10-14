@@ -328,7 +328,7 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile3 )
 
    File c( name, false );
    EXPECT_EQ( 4, c.open( File::Open, false, -1));
-   EXPECT_EQ( 4, c.open( File::Open, true, -1) );
+   EXPECT_EQ( File::CannotOpenFile, c.open( File::Open, true, -1) );
 }
 
 TEST( HDF5VirtualFileDriverTest, OpenExistingFile4 )
@@ -363,7 +363,7 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile5 )
 
     
       EXPECT_EQ( 6, c.open( File::Open, false, -1));
-      EXPECT_EQ( 6, c.open( File::Open, true, -1) );
+      EXPECT_EQ( File::CannotOpenFile, c.open( File::Open, true, -1) );
    }
 }
 
