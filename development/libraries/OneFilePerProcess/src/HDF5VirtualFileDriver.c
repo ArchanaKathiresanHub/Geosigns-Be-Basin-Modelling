@@ -323,7 +323,7 @@ H5FD_t * OFPP_openFile( const char * name, unsigned flags, hid_t fapl_id, haddr_
 
    // if the file could not be opened with the extended file name, are we going to retry with the normal name?
    int meWillRetry = 0;
-   if (file == NULL && (H5F_ACC_TRUNC & flags) == 0  && (H5F_ACC_CREAT & flags) == 0 && (H5F_ACC_EXCL & flags) == 0)
+   if (file == NULL && (H5F_ACC_RDWR & flags) == 0  && (H5F_ACC_TRUNC & flags) == 0  && (H5F_ACC_CREAT & flags) == 0 && (H5F_ACC_EXCL & flags) == 0 )
       meWillRetry = 1;
 
    int totalRetryCount = 0;

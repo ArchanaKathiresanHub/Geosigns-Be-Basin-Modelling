@@ -633,18 +633,19 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
 void FastcauldronSimulator::updateSnapshotFileCreationFlags () {
 
    if ( getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE ) {
-      Interface::MutableSnapshotList::const_iterator snapshotIter;
-
-      for ( snapshotIter = m_snapshots.begin (); snapshotIter != m_snapshots.end (); ++snapshotIter ) {
-
-         if ( (*snapshotIter)->getFileName () != "" ) {
-            (*snapshotIter)->setAppendFile ( File_Exists ( m_cauldron->getOutputDirectory () + (*snapshotIter)->getFileName ()));
-         }
-
+      if( !H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
+         Interface::MutableSnapshotList::const_iterator snapshotIter;
+         
+         for ( snapshotIter = m_snapshots.begin (); snapshotIter != m_snapshots.end (); ++snapshotIter ) {
+            
+            if ( (*snapshotIter)->getFileName () != "" ) {
+               (*snapshotIter)->setAppendFile ( File_Exists ( m_cauldron->getOutputDirectory () + (*snapshotIter)->getFileName ()));
+            }
+            
+         } 
+         
       }
-
    }
-
 }
 
 //------------------------------------------------------------//
@@ -799,8 +800,7 @@ bool FastcauldronSimulator::nodeIsDefined ( const int i, const int j ) const {
 bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
    if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
-       getModellingMode () == Interface::MODE1D  ||
-       m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
+       getModellingMode () == Interface::MODE1D ) {
 
       return true;
    }
@@ -836,10 +836,19 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
                string s = "Merging of " + filePathName + " ";
                displayTime ( s, StartTime, 0 );          
             }
-            if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), false )) {
-               status = false;
-               PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
-            } 
+            if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
+               if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
+                  if( !appendFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() )) {
+                     status = false;
+                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+                  } 
+               }
+            } else {
+               if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), false )) {
+                  status = false;
+                  PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
+               } 
+            }
          }
       }
    }
@@ -1892,8 +1901,7 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    m_printCommandLine = hasPrintCommandLine or m_cauldron->debug1 or m_cauldron->verbose;
    m_computeCapillaryPressure = computeCapillaryPressure == PETSC_TRUE;
 
-   if ( getCauldron() -> getCalculationMode() != OVERPRESSURED_TEMPERATURE_MODE &&
-        getModellingMode () != Interface::MODE1D ) {
+   if ( getModellingMode () != Interface::MODE1D ) {
       H5_Parallel_PropertyList::setOneFilePerProcessOption ();
    }
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();

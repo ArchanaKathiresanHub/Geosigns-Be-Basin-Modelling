@@ -15,6 +15,12 @@ class  FileHandler {
    // megre all files with the given name
    friend bool mergeFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, const bool reuse = false);
 
+   // megre all files with the given name
+   friend bool appendFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );
+
+   // iterate over the local file and write data to the global file
+   friend herr_t updateDataset ( hid_t groupId, const char* name, void * voidReader);
+
 public:
    FileHandler( MPI_Comm comm );
 
@@ -43,8 +49,8 @@ public:
    static double s_creatingDTime;
 
 private:
-   int m_rank;   // rank of the processor
-   bool m_reuse; // master process overwrites the local file with a global file  
+   int  m_rank;   // rank of the processor
+   bool m_reuse;  // master process overwrites the local file with a global file  
 
    size_t m_valCount;    // size of allocated local buffer
    size_t m_attrCount;   // size of the attribute buffer

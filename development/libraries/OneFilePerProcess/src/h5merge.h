@@ -5,5 +5,6 @@
 
 bool copyFile( std::string & dstPath, std::string & currentPath );
 bool mergeFiles( MPI_Comm comm, const std::string& fileName, const std::string &tempDirName, const bool reuse );
+bool appendFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );
 
 #endif

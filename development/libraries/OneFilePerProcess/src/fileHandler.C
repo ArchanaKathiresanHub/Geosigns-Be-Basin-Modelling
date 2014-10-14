@@ -32,8 +32,7 @@ FileHandler:: FileHandler ( MPI_Comm comm ) {
       m_dimensions [d] = 0;
    }
    m_spatialDimension = 0;
-   m_reuse = false;
-
+   m_reuse  = false;
 }
 
 herr_t FileHandler::reallocateBuffers ( ssize_t dataSize ) {
