@@ -121,7 +121,7 @@ TEST_F( testWalderhaugCompactionCalculator, test_extreme_parameters_values )
 
 	std::fill_n( porosity,      12,      0.03 );
 	std::fill_n( porosity + 12, 12,      0.3 );
-	std::fill_n( porosity + 24, size-24, 1.0  );
+	std::fill_n( porosity + 24, 12, 1.0  );
 
 	//We don't want to test the aglorithm without temperature variation for now
 	//that is why the temperatures are never equals here
@@ -253,7 +253,7 @@ TEST_F( testWalderhaugCompactionCalculator, test_extreme_lithologies_values )
 	std::fill_n( fractionQuartz + 9,      9,      0.65   );
 	std::fill_n( fractionQuartz + 18,     9,      1.0    );
 
-	for ( int index = 0; index < size; ++index )
+	for ( int index = 0; index < size; index += 3 )
 	{
 		grainSize [index    ] = 1e-10;
 		grainSize [index + 1] = 0.02;
