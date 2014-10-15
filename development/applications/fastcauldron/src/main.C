@@ -172,6 +172,8 @@ int main(int argc, char** argv)
    StatisticsHandler::initialise ();
    FastcauldronSimulator::CreateFrom ( appctx );
    FastcauldronSimulator::getInstance() . readCommandLineParametersEarlyStage( argc, argv );
+ 
+   FastcauldronSimulator::getInstance() . deleteTemporaryDirSnapshots();
 
    FastcauldronSimulator::getInstance ().setFormationElementHeightScalingFactors ();
 

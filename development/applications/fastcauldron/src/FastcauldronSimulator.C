@@ -1907,6 +1907,29 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
 }
 
+//------------------------------------------------------------//
+void FastcauldronSimulator::deleteTemporaryDirSnapshots()
+{
+   if( getCauldron ()->getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE && H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
+
+      database::Table::iterator timeTableIter;
+      database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
+      
+      assert ( snapshotTable != 0 );
+      
+      for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
+         
+         string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
+         if ( !snapshotFileName.empty() && ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
+            std::stringstream filePath;
+            filePath << H5_Parallel_PropertyList::getTempDirName() << "/" << getProjectPath () << "/" <<  getOutputDir() << "/" << snapshotFileName << "_" << PetscGlobalRank;
+            unlink ( filePath.str().c_str ());
+         }
+      }
+   }
+}
+
+//------------------------------------------------------------//
 void FastcauldronSimulator::readCommandLineParametersLateStage( const int argc, char ** argv)
 {
    m_cauldron->setAdditionalCommandLineParameters ();
