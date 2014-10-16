@@ -2,6 +2,7 @@
 #define _DERIVED_PROPERTIES__DERIVED_FORMATION_PROPERTY_H_
 
 #include <boost/multi_array.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "AbstractProperty.h"
 #include "AbstractSnapshot.h"

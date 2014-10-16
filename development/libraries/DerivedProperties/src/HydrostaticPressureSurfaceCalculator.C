@@ -1,0 +1,95 @@
+#include "HydrostaticPressureSurfaceCalculator.h"
+
+#include "GeoPhysicsFormation.h"
+#include "GeoPhysicalConstants.h"
+#include "GeoPhysicalFunctions.h"
+
+
+DerivedProperties::HydrostaticPressureSurfaceCalculator::HydrostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
+   m_projectHandle ( projectHandle )
+{
+   m_propertyNames.push_back ( "HydroStaticPressure" );
+}
+ 
+void DerivedProperties::HydrostaticPressureSurfaceCalculator::calculate ( AbstractPropertyManager&           propertyManager,
+                                                                          const DataModel::AbstractSnapshot* snapshot,
+                                                                          const DataModel::AbstractSurface*  surface,
+                                                                                SurfacePropertyList&         derivedProperties ) const {
+
+   const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( m_propertyNames [ 0 ]);
+
+   const DataAccess::Interface::Surface* currentSurface = dynamic_cast<const DataAccess::Interface::Surface*>( surface );
+
+   DerivedSurfacePropertyPtr hydrostaticPressure = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( hydrostaticPressureProperty,
+                                                                                                                               snapshot,
+                                                                                                                               surface, 
+                                                                                                                               propertyManager.getMapGrid ()));
+
+   if ( currentSurface->getTopFormation () == 0 ) {
+      computeHydrostaticPressureAtSeaBottom ( propertyManager, snapshot->getTime (), currentSurface, hydrostaticPressure );
+   } else {
+      copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, currentSurface, hydrostaticPressure );
+   }
+
+   derivedProperties.push_back ( hydrostaticPressure );
+}
+
+void DerivedProperties::HydrostaticPressureSurfaceCalculator::computeHydrostaticPressureAtSeaBottom ( const AbstractPropertyManager&        propertyManager,
+                                                                                                      const double                          snapshotAge,
+                                                                                                      const DataAccess::Interface::Surface* surface,
+                                                                                                            DerivedSurfacePropertyPtr&      hydrostaticPressure ) const {
+
+   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( surface->getBottomFormation ()->getFluidType ());
+
+   double pressure;
+
+   for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
+
+         if ( propertyManager.getNodeIsValid ( i, j )) {
+            GeoPhysics::computeHydrostaticPressure ( fluid,
+                                                     m_projectHandle->getSeaBottomTemperature ( i, j, snapshotAge ),
+                                                     m_projectHandle->getSeaBottomDepth ( i, j, snapshotAge ),
+                                                     pressure );
+            hydrostaticPressure->set ( i, j, pressure );
+         }
+
+      }
+
+   }
+
+}
+
+void DerivedProperties::HydrostaticPressureSurfaceCalculator::copyHydrostaticPressureFromLayerAbove ( AbstractPropertyManager&              propertyManager,
+                                                                                                      const DataModel::AbstractProperty*    hydrostaticPressureProperty,
+                                                                                                      const DataModel::AbstractSnapshot*    snapshot,
+                                                                                                      const DataAccess::Interface::Surface* surface,
+                                                                                                            DerivedSurfacePropertyPtr&      hydrostaticPressure ) const {
+
+   const DataModel::AbstractFormation* formationAbove = surface->getTopFormation ();
+
+   const FormationPropertyPtr hydrostaticPressureAbove = propertyManager.getFormationProperty ( hydrostaticPressureProperty, snapshot, formationAbove );
+   double undefinedValue = hydrostaticPressureAbove->getUndefinedValue ();
+
+   for ( unsigned int i = hydrostaticPressureAbove->firstI ( true ); i <= hydrostaticPressureAbove->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = hydrostaticPressureAbove->firstJ ( true ); j <= hydrostaticPressureAbove->lastJ ( true ); ++j ) {
+
+         if ( propertyManager.getNodeIsValid ( i, j )) {
+            hydrostaticPressure->set ( i, j, hydrostaticPressureAbove->get ( i, j, 0 ));
+         } else {
+            hydrostaticPressure->set ( i, j, undefinedValue );
+         }
+
+      }
+
+   }
+
+}
+
+
+const std::vector<std::string>& DerivedProperties::HydrostaticPressureSurfaceCalculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+

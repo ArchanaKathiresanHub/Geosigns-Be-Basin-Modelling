@@ -12,49 +12,53 @@
 
 set(all_headers
   src/AbstractPropertyManager.h
+  src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
-  src/DerivedFormationMapProperty.h
-  src/PrimaryFormationMapProperty.h
-  src/PrimaryFormationMapPropertyCalculator.h
-  src/FormationPropertyCalculator.h
   src/FormationProperty.h
-  src/FormationSurfacePropertyCalculator.h
+  src/FormationPropertyCalculator.h
   src/FormationSurfaceProperty.h
+  src/FormationSurfacePropertyCalculator.h
+  src/HydrostaticPressureFormationCalculator.h
+  src/HydrostaticPressureSurfaceCalculator.h
   src/PermeabilityFormationCalculator.h
   src/PermeabilityFormationSurfaceCalculator.h
   src/PorosityFormationCalculator.h
-  src/PrimaryFormationPropertyCalculator.h
+  src/PrimaryFormationMapProperty.h
+  src/PrimaryFormationMapPropertyCalculator.h
   src/PrimaryFormationProperty.h
-  src/PrimaryFormationSurfacePropertyCalculator.h
+  src/PrimaryFormationPropertyCalculator.h
   src/PrimaryFormationSurfaceProperty.h
-  src/PrimarySurfacePropertyCalculator.h
+  src/PrimaryFormationSurfacePropertyCalculator.h
   src/PrimarySurfaceProperty.h
-  src/SurfacePropertyCalculator.h
+  src/PrimarySurfacePropertyCalculator.h
   src/SurfaceProperty.h
+  src/SurfacePropertyCalculator.h
   src/VesFormationCalculator.h
   src/VesSurfaceCalculator.h
 )
 
 set(all_srcs
   src/AbstractPropertyManager.C
+  src/DerivedFormationMapProperty.C
   src/DerivedFormationProperty.C
   src/DerivedFormationSurfaceProperty.C
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
   src/FormationMapProperty.C
-  src/DerivedFormationMapProperty.C
+  src/FormationProperty.C
+  src/FormationSurfaceProperty.C
+  src/HydrostaticPressureFormationCalculator.C
+  src/HydrostaticPressureSurfaceCalculator.C
   src/PermeabilityFormationCalculator.C
   src/PermeabilityFormationSurfaceCalculator.C
   src/PorosityFormationCalculator.C
   src/PrimaryFormationMapProperty.C
   src/PrimaryFormationMapPropertyCalculator.C
-  src/FormationProperty.C
-  src/FormationSurfaceProperty.C
   src/PrimaryFormationProperty.C
   src/PrimaryFormationPropertyCalculator.C
   src/PrimaryFormationSurfaceProperty.C

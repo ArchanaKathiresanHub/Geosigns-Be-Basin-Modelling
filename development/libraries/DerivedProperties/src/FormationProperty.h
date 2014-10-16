@@ -65,6 +65,8 @@ namespace DerivedProperties {
       /// This is the last index of a closed interval.
       unsigned int lastK () const;
 
+      /// \brief The number of nodes in the z-direction.
+      unsigned int lengthK () const;
 
       /// \brief Get the value of the property at the position i,j,k.
       virtual double get ( unsigned int i,
@@ -142,6 +144,10 @@ inline unsigned int DerivedProperties::FormationProperty::firstK () const {
 
 inline unsigned int DerivedProperties::FormationProperty::lastK () const {
    return m_numberK - 1;
+}
+
+inline unsigned int DerivedProperties::FormationProperty::lengthK () const {
+   return m_numberK;
 }
 
 #endif // _DERIVED_PROPERTIES__FORMATION_PROPERTY_H_
