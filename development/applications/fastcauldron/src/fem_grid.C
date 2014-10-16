@@ -579,6 +579,10 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     m_surfaceNodeHistory.clearProperties ();
 //     basinModel->projectSnapshots.deleteIntermediateMinorSnapshotFiles ( savedMinorSnapshotTimes, basinModel->getOutputDirectory ());
 
+    if ( basinModel->isModellingMode3D() ) {
+        basinModel->threeDTimeIoTbl->clear();
+    }
+
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
