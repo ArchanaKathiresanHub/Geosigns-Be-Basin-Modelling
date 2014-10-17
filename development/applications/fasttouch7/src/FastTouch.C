@@ -131,7 +131,7 @@ bool FastTouch::mergeOutputFiles ( ) {
    
    string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + FastTouchActivityName + "_Results.HDF";
    
-   bool status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy );
+   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
 
    if( status ) {
       status = H5_Parallel_PropertyList::copyMergedFile( filePathName );

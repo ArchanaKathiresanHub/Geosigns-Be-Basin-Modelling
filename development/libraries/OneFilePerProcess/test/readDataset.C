@@ -1,9 +1,13 @@
 #include <mpi.h>
 #include <hdf5.h>
 #include <stdio.h>
+
+#include "../src/RewriteFileName.h"
+
 #include "h5merge.h"
 #include "fileHandler.h"
-#include "../src/RewriteFileName.h"
+#include "fileHandlerReuse.h"
+#include "fileHandlerAppend.h"
 
 #include <gtest/gtest.h>
 
@@ -23,6 +27,7 @@
 //  5: Reallocation of buffers
 //  6: Collective check of an error
 //  7: Dataset and attribute are written correctly. Reuse of the file structure.
+//  7: Dataset and attribute are written correctly. Update existing file.
 
 namespace
 {
@@ -309,10 +314,10 @@ TEST( h5mergeTest, MergeExistingFiles1 )
 {
    if (MPI::size() > 1)
    {
-      FileHandler reader(  MPI_COMM_WORLD );
-
-      std::string name  = File::tempName();
+      std::string name   = File::tempName();
       File a( name, true );
+
+      FileHandler reader( MPI_COMM_WORLD, name, "." );
 
       int status = a.open( File::Create, 5, false );
       ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
@@ -328,7 +333,8 @@ TEST( h5mergeTest, MergeExistingFiles1 )
          EXPECT_EQ( 0, status );
       }
       reader.setGlobalId ( b.fileId () );
-      
+      reader.setLocalId ( a.fileId () );
+
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPI::rank() == 0)
@@ -344,10 +350,11 @@ TEST( h5mergeTest, MergeExistingFiles2 )
 {
    if (MPI::size() > 1)
    {
-      FileHandler reader(  MPI_COMM_WORLD );
 
       std::string name  = File::tempName();
       File a( name, true );
+
+      FileHandler reader(  MPI_COMM_WORLD, name, "." );
 
       int status = a.open( File::CreateWithAttr, 5, false );
       ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
@@ -363,6 +370,7 @@ TEST( h5mergeTest, MergeExistingFiles2 )
          EXPECT_EQ( 0, status );
       }
       reader.setGlobalId ( b.fileId () );
+      reader.setLocalId ( a.fileId () );
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
@@ -379,10 +387,10 @@ TEST( h5mergeTest, MergeExistingFiles3 )
 {
    if (MPI::size() > 1)
    {
-      FileHandler reader(  MPI_COMM_WORLD );
+      std::string name  = File::tempName();
+      FileHandler reader(  MPI_COMM_WORLD, name, "." );
  
       EXPECT_EQ( -1, readDataset( NULL, StdDataSetName, &reader ));
-
    }
                  
 }
@@ -391,9 +399,9 @@ TEST( h5mergeTest, MergeExistingFiles4 )
 {
    if (MPI::size() > 1)
    {
-      FileHandler reader(  MPI_COMM_WORLD );
-
       std::string name  = File::tempName();
+      FileHandler reader(  MPI_COMM_WORLD, name, "." );
+
       File a( name, true );
 
       int status = a.open( File::Create, 5, false );
@@ -410,6 +418,7 @@ TEST( h5mergeTest, MergeExistingFiles4 )
          EXPECT_EQ( 0, status );
       }
       reader.setGlobalId ( b.fileId () );
+      reader.setLocalId  ( a.fileId () );
  
       EXPECT_EQ( -1, readDataset( a.fileId(), "", &reader ));
 
@@ -419,7 +428,7 @@ TEST( h5mergeTest, MergeExistingFiles4 )
 
 TEST( h5mergeTest, MergeExistingFiles5 )
 {
-   FileHandler reader(  MPI_COMM_WORLD );
+   FileHandler reader( MPI_COMM_WORLD, "", "." );
    reader.setSpatialDimension ( 3 );
    
    EXPECT_EQ( 0, reader.reallocateBuffers ( 5 ));
@@ -429,7 +438,7 @@ TEST( h5mergeTest, MergeExistingFiles5 )
 
 TEST( h5mergeTest, MergeExistingFiles6 )
 {
-   FileHandler reader(  MPI_COMM_WORLD );
+   FileHandler reader(  MPI_COMM_WORLD, "", "." );
 
    if (MPI::size() > 1)
    {
@@ -442,13 +451,13 @@ TEST( h5mergeTest, MergeExistingFiles6 )
    }
 }
 
-TEST( h5mergeTest, MergeExistingFiles7 )
+TEST( h5mergeTest, ReuseExistingFiles7 )
 {
    if (MPI::size() > 1)
    {
-      FileHandler reader(  MPI_COMM_WORLD );
- 
       std::string name  = File::tempName();
+      FileHandlerReuse reader(  MPI_COMM_WORLD, name, "." );
+ 
       File a( name, true );
 
       int status = a.open( File::CreateWithAttr, 5, true );
@@ -456,7 +465,35 @@ TEST( h5mergeTest, MergeExistingFiles7 )
   
       EXPECT_EQ( 5, status );
 
-      reader.setReuseOption( true );
+      reader.setLocalId(  a.fileId ());
+      reader.setGlobalId ( a.fileId () );
+ 
+      EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
+
+      if (MPI::rank() == 0)
+      {      
+         a.close();
+         EXPECT_EQ( MPI::size() * 5, a.open( File::OpenWithAttr, -1, true ));
+      }
+   }
+                 
+}
+
+TEST( h5mergeTest, AppendExistingFiles8 )
+{
+   if (MPI::size() > 1)
+   {
+      std::string name  = File::tempName();
+      FileHandlerAppend reader(  MPI_COMM_WORLD, name, "." );
+ 
+      File a( name, true );
+
+      int status = a.open( File::CreateWithAttr, 5, true );
+      ASSERT_FALSE( File::CannotCreateFile == status ) << "Local file can't be created." << std::endl;
+  
+      EXPECT_EQ( 5, status );
+
+      reader.setLocalId(  a.fileId ());
       reader.setGlobalId ( a.fileId () );
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
