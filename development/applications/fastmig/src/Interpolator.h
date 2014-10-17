@@ -23,19 +23,28 @@ class XF {
    ~XF () {}
    XF (double xx, double ff): x(xx), f(ff) {}
 
+   double getX () const {
+      return x;
+   }
+
+   double getF () const {
+      return f;
+   }
+
  private:
    double x;
    double f;
 
    void print (void);
 
-   friend bool operator < (const XF& xf1, const XF& xyf2);
    friend class Interpolator;
-   friend bool UnOrderedSorter (const XF& xf1, const XF& xyf2);
-   friend bool AscendingSorter (const XF& xf1, const XF& xyf2);
-   friend bool DescendingSorter (const XF& xf1, const XF& xyf2);
+
 };
 
+   bool operator < (const XF& xf1, const XF& xyf2);
+   bool UnOrderedSorter (const XF& xf1, const XF& xyf2);
+   bool AscendingSorter (const XF& xf1, const XF& xyf2);
+   bool DescendingSorter (const XF& xf1, const XF& xyf2);
 
 class Interpolator
 {

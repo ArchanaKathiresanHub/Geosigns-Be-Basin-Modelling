@@ -19,20 +19,28 @@ void XF::print (void)
 
 bool migration::UnOrderedSorter (const XF& xf1, const XF& xf2)
 {
-   return (xf1.x < xf2.x);
+   return (xf1.getX () < xf2.getX ());
 }
 
 bool migration::AscendingSorter (const XF& xf1, const XF& xf2)
 {
-   if (xf1.x < xf2.x) return true;
-   else if (xf1.f < xf2.f) return true;
+   if (xf1.getX () < xf2.getX ()) return true;
+   else if (xf1.getF () < xf2.getF ()) return true;
    else return false;
 }
 
 bool migration::DescendingSorter (const XF& xf1, const XF& xf2)
 {
-   if (xf1.x < xf2.x) return true;
-   else if (xf1.f > xf2.f) return true;
+   if (xf1.getX () < xf2.getX ()) return true;
+   else if (xf1.getF () > xf2.getF ()) return true;
+   else return false;
+}
+
+
+bool migration::operator < (const XF& xf1, const XF& xf2)
+{
+   if (xf1.getX () < xf2.getX ()) return true;
+   else if (xf1.getF () < xf2.getF ()) return true;
    else return false;
 }
 
@@ -153,11 +161,3 @@ void Interpolator::print (void)
    }
    cerr << endl;
 }
-
-bool migration::operator < (const XF& xf1, const XF& xf2)
-{
-   if (xf1.x < xf2.x) return true;
-   else if (xf1.f < xf2.f) return true;
-   else return false;
-}
-
