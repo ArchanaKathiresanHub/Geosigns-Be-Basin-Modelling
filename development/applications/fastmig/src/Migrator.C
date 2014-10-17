@@ -50,8 +50,7 @@ extern string NumProcessorsArg;
 
 Migrator::Migrator (database::Database * database, const string & name, const string & accessMode) :
    GeoPhysics::ProjectHandle (database, name, accessMode),
-   m_massBalance(0),
-   m_propertyManager ( this )
+   m_massBalance(0)
 {
    m_reservoirs = 0;
    m_formations = 0;
