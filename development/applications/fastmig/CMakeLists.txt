@@ -33,6 +33,10 @@ bm_include_libraries(
 	DataModel
 	DataAccess
 	DistributedDataAccess
+	DerivedProperties
+	GeoPhysics
+	Interpolation
+	LinearAlgebra
 	Utilities_Petsc
 	Serial_Hdf5
 	Parallel_Hdf5
@@ -48,7 +52,9 @@ bm_include_libraries(
 
 target_link_libraries(fastmig
 	DataAccess
+	DerivedProperties
 	DistributedDataAccess
+	GeoPhysics
 	Utilities_Petsc
 	Serial_Hdf5
 	Parallel_Hdf5
