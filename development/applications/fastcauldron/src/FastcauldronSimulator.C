@@ -39,7 +39,6 @@
 #include "MultiComponentFlowHandler.h"
 
 #ifndef _MSC_VER
-#include "fileHandler.h"
 #include "h5merge.h"
 #endif
 
@@ -837,14 +836,14 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
                displayTime ( s, StartTime, 0 );          
             }
             if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
-               if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
-                  if( !appendFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName() )) {
+               if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
+                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
                      status = false;
                      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
                   } 
                }
             } else {
-               if( !mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), false )) {
+               if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
                   status = false;
                   PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
                } 
@@ -861,32 +860,12 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       displayTime ( s, StartTime, 0 );
    }
 
-   status = mergeFiles ( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), !noFileCopy );
+   status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
 
    if( status ) {
       status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
    }
    if( status ) {
-      if( false &&  m_fastcauldronSimulator->getRank () == 0 ) {
-         string s = "End of merging ";
-         displayTime ( s, StartTime, 0 );
-         
-         displayTime(m_cauldron->debug1 or m_cauldron->verbose,"Merging of output files: ");
-         
-         displayTime( " Reading datasets time    ", 0, & FileHandler::s_readingDTime );
-         displayTime( " Reading attributes time  ", 0, & FileHandler::s_readingATime );
-         displayTime( " Writing datasets time    ", 0, & FileHandler::s_writingDTime );
-         displayTime( " Writing attributes time  ", 0, & FileHandler::s_writingATime );
-         displayTime( " Creating datasets time   ", 0, & FileHandler::s_creatingDTime );
-         displayTime( " Creating groups time     ", 0, & FileHandler::s_creatingGTime );
-         cout << endl;
-         
-         displayTime( " Total Reading time       ", 0, & FileHandler::s_readDTime );
-         displayTime( " Total Collecting time    ", 0, & FileHandler::s_collectingTime );
-         displayTime( " Total Writing time       ", 0, & FileHandler::s_writeDTime );
-         displayTime( " Total Attribute time     ", 0, & FileHandler::s_attributeTime );
-         cout << endl;
-      }
       displayTime( true, "Merging of output files: " );
 
     } else {
