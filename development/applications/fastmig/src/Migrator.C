@@ -50,7 +50,8 @@ extern string NumProcessorsArg;
 
 Migrator::Migrator (database::Database * database, const string & name, const string & accessMode) :
    GeoPhysics::ProjectHandle (database, name, accessMode),
-   m_massBalance(0)
+   m_massBalance(0),
+   m_propertyManager ( this )
 {
    m_reservoirs = 0;
    m_formations = 0;
@@ -125,16 +126,6 @@ bool Migrator::compute (void)
    if (!started) return false;
   
    setFormationLithologies ( false, true ); 
-
-   if (GetRank () == 0)
-   {
-      string fileName = utils::getProjectBaseName(m_projectName);
-      fileName += "_MassBalance";
-
-      m_massBalanceFile.open (fileName.c_str (), ios::out);
-      m_massBalance = new MassBalance<ofstream>(m_massBalanceFile);
-   }
-
 
    if (GetRank () == 0)
    {
