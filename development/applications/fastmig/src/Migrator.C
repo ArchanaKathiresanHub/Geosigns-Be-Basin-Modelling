@@ -48,9 +48,9 @@ static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Inte
 
 extern string NumProcessorsArg;
 
-Migrator::Migrator (database::Database * database, const string & name, const string & accessMode)
-      : Interface::ProjectHandle (database, name, accessMode),
-        m_massBalance(0)
+Migrator::Migrator (database::Database * database, const string & name, const string & accessMode) :
+   GeoPhysics::ProjectHandle (database, name, accessMode),
+   m_massBalance(0)
 {
    m_reservoirs = 0;
    m_formations = 0;
@@ -115,6 +115,26 @@ bool Migrator::compute (void)
    
    bool started = startActivity (activityName, getHighResolutionOutputGrid ());
    if (!started) return false;
+
+
+   ios::fmtflags f( std::cout.flags() );
+   std::cout << std::setfill (' ');
+   started =  GeoPhysics::ProjectHandle::initialise ( );
+   std::cout.flags ( f );
+
+   if (!started) return false;
+  
+   setFormationLithologies ( false, true ); 
+
+   if (GetRank () == 0)
+   {
+      string fileName = utils::getProjectBaseName(m_projectName);
+      fileName += "_MassBalance";
+
+      m_massBalanceFile.open (fileName.c_str (), ios::out);
+      m_massBalance = new MassBalance<ofstream>(m_massBalanceFile);
+   }
+
 
    if (GetRank () == 0)
    {
@@ -490,7 +510,8 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
    Interface::FormationList::iterator formationIter;
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
-      const Formation * formation = (Formation *) * formationIter;
+      const Formation* formation = dynamic_cast<const Formation*>(*formationIter);
+
 
       const Formation * formationBelow = formation->getBottomFormation ();
 

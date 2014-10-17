@@ -7,7 +7,7 @@ namespace database
    class Table;
 }
 
-#include "Interface/Formation.h"
+#include "GeoPhysicsFormation.h"
 
 namespace DataAccess
 {
@@ -30,7 +30,7 @@ namespace migration
 
    /// This class implements the Formation-specific migration functionality.
    /// It is constructed on top of the DataAccess::formation class.
-   class Formation : public Interface::Formation
+   class Formation : public GeoPhysics::Formation
    {
       public:
 	 /// This constructor is called by the object factory

@@ -18,10 +18,13 @@
 using Interface::LithoType;
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 
-class Interpolator;
 
 namespace migration
 {
+
+   class Interpolator;
+
+
    using namespace DataAccess;
 
    typedef vector<Column *> ColumnVector;
@@ -298,7 +301,7 @@ namespace migration
 	 double m_sealPermeability;
 	 double m_fracturePressure;
 
-	 Interpolator * m_volumeToDepth2;
+         migration::Interpolator * m_volumeToDepth2;
          const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
          Distributor* m_distributor;
 

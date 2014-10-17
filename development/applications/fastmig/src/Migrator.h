@@ -32,7 +32,8 @@ namespace database
    class Record;
 }
 
-#include "Interface/ProjectHandle.h"
+#include "GeoPhysicsProjectHandle.h"
+
 
 using namespace DataAccess;
 
@@ -50,7 +51,7 @@ namespace migration
 
    /// Top class of the Migration class hierarchy.
    /// Inherits from the DataAccess::Migrator class to provide easy access to Formations, Reservoirs, etc.
-   class Migrator : public Interface::ProjectHandle
+   class Migrator : public GeoPhysics::ProjectHandle
    {
       public:
 	 /// Constructor

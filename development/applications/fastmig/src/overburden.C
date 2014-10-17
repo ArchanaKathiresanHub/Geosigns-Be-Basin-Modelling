@@ -26,7 +26,7 @@ vector<const Formation*> getDownwardOverburdenFormationsIf(const
    for (Interface::FormationList::const_iterator it = formations->begin();
       it != formations->end(); ++it)
    {
-      const Formation * iteratorFormation = (const Formation *) (*it);
+      const Formation * iteratorFormation = dynamic_cast <const Formation *> (*it);
       if (iteratorFormation == formation) break;
       else {
          if (pred(iteratorFormation))  

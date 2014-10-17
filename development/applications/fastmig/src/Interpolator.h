@@ -14,6 +14,8 @@
 
 using namespace std;
 
+namespace migration {
+
 // Helper class for the interpolator
 class XF {
  public:
@@ -67,5 +69,5 @@ private:
    vectorXF m_vectorXF;
 };
 
-
+}
 #endif

@@ -1,4 +1,7 @@
-#include "Interface/ObjectFactory.h"
+#ifndef FASTMIG__OBJECT_FACTORY_H
+#define FASTMIG__OBJECT_FACTORY_H
+
+#include "GeoPhysicsObjectFactory.h"
 
 namespace DataAccess
 {
@@ -22,18 +25,24 @@ namespace database
 namespace migration
 {
 
-   class ObjectFactory : public DataAccess::Interface::ObjectFactory
+   class ObjectFactory : public GeoPhysics::ObjectFactory
    {
+
       virtual DataAccess::Interface::ProjectHandle * produceProjectHandle (database::Database * database,
-	    const string & name, const string & accessMode);
+                                                                           const string & name, const string & accessMode);
+
       virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
-	    database::Record * record);
+                                                                   database::Record * record);
+
       virtual DataAccess::Interface::Formation * produceFormation (DataAccess::Interface::ProjectHandle * projectHandle,
-	    database::Record * record);
+                                                                   database::Record * record);
+
       virtual DataAccess::Interface::Surface * produceSurface (DataAccess::Interface::ProjectHandle * projectHandle,
-	    database::Record * record);
+                                                               database::Record * record);
    };
 }
 
 
 
+
+#endif // FASTMIG__OBJECT_FACTORY_H

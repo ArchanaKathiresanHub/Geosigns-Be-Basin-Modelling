@@ -8,6 +8,7 @@
 
 #include <algorithm>
 using namespace std;
+using namespace migration;
 
 #include "array.h"
 
@@ -16,19 +17,19 @@ void XF::print (void)
    cerr << "(" << x << ", " << f << ")";
 }
 
-bool UnOrderedSorter (const XF& xf1, const XF& xf2)
+bool migration::UnOrderedSorter (const XF& xf1, const XF& xf2)
 {
    return (xf1.x < xf2.x);
 }
 
-bool AscendingSorter (const XF& xf1, const XF& xf2)
+bool migration::AscendingSorter (const XF& xf1, const XF& xf2)
 {
    if (xf1.x < xf2.x) return true;
    else if (xf1.f < xf2.f) return true;
    else return false;
 }
 
-bool DescendingSorter (const XF& xf1, const XF& xf2)
+bool migration::DescendingSorter (const XF& xf1, const XF& xf2)
 {
    if (xf1.x < xf2.x) return true;
    else if (xf1.f > xf2.f) return true;
@@ -153,7 +154,7 @@ void Interpolator::print (void)
    cerr << endl;
 }
 
-bool operator < (const XF& xf1, const XF& xf2)
+bool migration::operator < (const XF& xf1, const XF& xf2)
 {
    if (xf1.x < xf2.x) return true;
    else if (xf1.f < xf2.f) return true;

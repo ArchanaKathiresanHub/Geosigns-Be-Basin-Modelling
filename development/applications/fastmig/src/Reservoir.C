@@ -847,12 +847,11 @@ bool Reservoir::computeOverburdenGridMaps (void)
    // Determine the overburden formations.  Include first the formation of the reservoir, for 
    // the trap may be sealed inside the formation:
    vector<const Formation*> formations;
-   formations.push_back( (Formation *) getFormation() );   
+   formations.push_back( dynamic_cast<Formation *>( const_cast<Interface::Formation*>(getFormation())));
    overburden::OverburdenFormations overburden(formations, true);
 
    // Add the formation overburdens:
-   overburden::OverburdenFormations overburdenFormations = overburden::getOverburdenFormations(
-      (Formation *) getFormation(), true);
+   overburden::OverburdenFormations overburdenFormations = overburden::getOverburdenFormations( dynamic_cast<Formation *> ( const_cast<Interface::Formation*>(getFormation())), true);
    overburden.append(overburdenFormations.formations());
 
    // We need the depth for both diffusion leakage and seal pressure leakage.  (Note, we put depths 
@@ -1324,7 +1323,7 @@ const GridMap * Reservoir::getSeaBottomDepthMap (const Snapshot * snapshot) cons
    // continue downward until a gridMap is returned
    for (formationIter = formations->begin (); gridMap == 0 && formationIter != formations->end (); ++formationIter)
    {
-      const Formation * topFormation = (const Formation *) * formationIter;
+      const Formation * topFormation = dynamic_cast<const Formation *>( * formationIter);
 
       gridMap = getPropertyGridMap (propertyName, snapshot, 0, 0, topFormation->getTopSurface ());
    }
@@ -1346,7 +1345,7 @@ const GridMap * Reservoir::getSeaBottomPressureMap (const Snapshot * snapshot) c
    // continue downward until a gridMap is returned
    for (formationIter = formations->begin (); gridMap == 0 && formationIter != formations->end (); ++formationIter)
    {
-      const Formation * topFormation = (const Formation *) * formationIter;
+      const Formation * topFormation = dynamic_cast<const Formation *>( * formationIter );
 
       gridMap = getPropertyGridMap (propertyName, snapshot, 0, 0, topFormation->getTopSurface ());
    }
@@ -1358,7 +1357,7 @@ const GridMap * Reservoir::getSeaBottomPressureMap (const Snapshot * snapshot) c
 const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
       const Snapshot * snapshot) const
 {
-   return getVolumePropertyGridMap ((const Formation *) getFormation (), propertyName, snapshot);
+   return getVolumePropertyGridMap ( dynamic_cast<const Formation *>( getFormation ()), propertyName, snapshot);
 }
 
 const GridMap * Reservoir::getVolumePropertyGridMap (const Formation * formation, const string & propertyName,
@@ -1427,7 +1426,7 @@ const GridMap * Reservoir::getTopSurfacePropertyGridMap (const string & property
    const Formation * formation;
    const GridMap * formationTopMap = 0;
 
-   for (formation = (const Formation *) getFormation ();
+   for (formation = dynamic_cast<const Formation *>( getFormation ());
 	 formationTopMap == 0 && formation != 0;
 	 formation = formation->getTopFormation ())
    {
@@ -1442,7 +1441,7 @@ const GridMap * Reservoir::getBottomSurfacePropertyGridMap (const string & prope
    const Formation * formation;
    const GridMap * formationBottomMap = 0;
 
-   for (formation = (Formation *) getFormation ();
+   for (formation = dynamic_cast<Formation *> ( const_cast<Interface::Formation*>(getFormation ()));
 	 !formationBottomMap && formation;
 	 formation = formation->getBottomFormation ())
    {
@@ -1709,7 +1708,7 @@ bool Reservoir::isActive (const Snapshot * snapshot) const
 {
    if (getActivityMode () == "NeverActive") return false; // not active anyway
 
-   const Formation * formation = (const Formation *) getFormation ();
+   const Formation * formation = dynamic_cast<const Formation *>( getFormation ());
    const Surface * topSurface = (const Surface *) formation->getTopSurface ();
    const Snapshot * depoSnapshot = topSurface->getSnapshot ();
 

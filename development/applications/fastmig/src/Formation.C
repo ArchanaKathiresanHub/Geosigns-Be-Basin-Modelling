@@ -30,8 +30,9 @@ using Interface::FormationList;
 namespace migration
 {
 
-Formation::Formation (ProjectHandle * projectHandle, database::Record * record)
-   : Interface::Formation (projectHandle, record)
+   Formation::Formation (ProjectHandle * projectHandle, database::Record * record) :
+      Interface::Formation (projectHandle, record),
+      GeoPhysics::Formation (projectHandle, record)
 {
 }
 
@@ -169,15 +170,15 @@ const GridMap* Formation::getBaseGridMap(const Property* prop,
 const Formation * Formation::getTopFormation () const
 {
    const Interface::Surface * surface = getTopSurface ();
-      
-   return (const Formation *) (surface ? surface->getTopFormation () : 0);
+
+   return dynamic_cast <const Formation *> (surface ? surface->getTopFormation () : 0);
 }
 
 const Formation * Formation::getBottomFormation () const
 {
    const Interface::Surface * surface = getBottomSurface ();
       
-   return (const Formation *) (surface ? surface->getBottomFormation () : 0);
+   return dynamic_cast <const Formation *> (surface ? surface->getBottomFormation () : 0);
 }
 
 }
