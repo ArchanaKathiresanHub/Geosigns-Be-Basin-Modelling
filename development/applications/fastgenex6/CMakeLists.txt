@@ -12,11 +12,14 @@
 
 if (BM_PARALLEL)
 
-add_executable( fastgenex6
-	src/main.C
-	src/GenexSimulator.C
-	src/GenexSimulatorFactory.C
-)
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_executable(fastgenex6 ${all_srcs} ${all_headers})
+
 
 include_directories(
 	${HDF5_INCLUDE_DIRS}
@@ -30,7 +33,6 @@ bm_include_libraries(
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	genex6
 	genex6_kernel
@@ -41,12 +43,33 @@ bm_include_libraries(
 	TableIO
 )
 
+# OFPP only for Linux
+if (UNIX)
+	bm_include_libraries( OneFilePerProcess )
+endif (UNIX)
+
+set (targetLibraries
+	${HDF5_LIBRARIES}
+	${PETSC_LIBRARIES}
+)
+
+if (UNIX)
+	set (targetLibraries
+		${targetLibraries}
+		OneFilePerProcess
+	)
+else ()
+	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
+	set( CMAKE_EXE_LINKER_FLAGS  
+		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
+	)
+endif (UNIX)
+
 target_link_libraries( fastgenex6
 	DataAccess
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	genex6
 	genex6_kernel
@@ -55,8 +78,7 @@ target_link_libraries( fastgenex6
 	OTGC_kernel6
 	utilities
 	TableIO
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
+	${targetLibraries}
 )
 
 set_target_properties(fastgenex6

@@ -34,7 +34,9 @@ using namespace DataAccess;
 #include "ComponentManager.h"
 #include "GenexResultManager.h"
 
+#ifndef _MSC_VER
 #include "h5merge.h"
+#endif
 
 using namespace Genex6;
 
@@ -357,6 +359,10 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
        getModellingMode () == Interface::MODE1D ) return true;
 
+#ifdef _MSC_VER
+   return true;
+#else
+
    PetscBool noFileCopy = PETSC_FALSE;
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
 
@@ -376,6 +382,7 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    }
 
    return status;
+#endif
 }
 
 
