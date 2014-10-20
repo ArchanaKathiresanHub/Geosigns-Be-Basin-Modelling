@@ -37,14 +37,23 @@ bm_include_libraries(
 
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
 
+
 # Note to the following line:
-#    Use quotes to set the value of SWIG_FLAGS. The semi-colon makes sure 
+#  * From CMake version 3 the '-dllimport' flag is added automatically by CMake itself
+#  * Use quotes to set the value of SWIG_FLAGS. The semi-colon makes sure 
 #    that the value becomes space separated again, when the build script 
 #    is generated
-set_source_files_properties( src/Swig/DotNetAPI.i
-    PROPERTIES SWIG_FLAGS "-namespace;Shell.BasinModeling.Cauldron;-dllimport;Cauldron.dll"
-    CPLUSPLUS ON
-)
+if (CMAKE_MAJOR_VERSION GREATER 2)
+   set_source_files_properties( src/Swig/DotNetAPI.i
+	   PROPERTIES SWIG_FLAGS "-namespace;Shell.BasinModeling.Cauldron"
+       CPLUSPLUS ON
+   )
+else()
+   set_source_files_properties( src/Swig/DotNetAPI.i
+       PROPERTIES SWIG_FLAGS "-namespace;Shell.BasinModeling.Cauldron;-dllimport;Cauldron.dll"
+	   CPLUSPLUS ON
+   )
+endif()
 
 swig_add_module( Cauldron csharp src/Swig/DotNetAPI.i
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
