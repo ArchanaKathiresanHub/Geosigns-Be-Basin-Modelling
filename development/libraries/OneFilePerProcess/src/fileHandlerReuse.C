@@ -11,9 +11,9 @@ void FileHandlerReuse::openLocalFile( hid_t fileAccessPList ) {
 
    // only rank 0 needs RDWR access?
    if(  m_rank != 0 ) {
-      m_localFileId = H5Fopen( m_fileName.c_str(), H5F_ACC_RDWR, fileAccessPList );
-   } else {
       m_localFileId = H5Fopen( m_fileName.c_str(), H5F_ACC_RDONLY, fileAccessPList );
+   } else {
+      m_localFileId = H5Fopen( m_fileName.c_str(), H5F_ACC_RDWR, fileAccessPList );
    }
 }
 
@@ -34,3 +34,4 @@ void FileHandlerReuse::createGroup( const char* name ) {
    }
   
 }
+ 
