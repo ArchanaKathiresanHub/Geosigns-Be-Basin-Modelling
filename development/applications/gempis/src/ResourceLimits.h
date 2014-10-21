@@ -20,7 +20,7 @@ class ResourceLimits
 	  {
 	    HAVE_VALUES,    // startup was successful, have lim it values
 	    CREATE_LIMITS,  // need to collect values
-	    CREATE_FAILED,  // gempis was unsuccessful in collecting limit values
+	    CREATE_FAILED  // gempis was unsuccessful in collecting limit values
 	  };
 
     public slots:
