@@ -350,14 +350,23 @@ namespace GeoPhysics {
       bool isFault() const;
 
    protected:
-
+      
+      /// Decide whether or not you can mix the lithologies depending on the porosity models
+      /// Return true if mixing is ok return false otherwise 
       bool allowableMixing() const;
 
       void mixSurfacePorosity(DataAccess::Interface::PorosityModel porosityModel, double & surfacePorosity, double & surfaceVoidRatio);
-
+      
+      // Decide which porosity model should be used, choose the model with the main percentage
+      /// According to allowableMixing() function, the chosen model is also the only with non nul percentage
       void mixPorosityModel(DataAccess::Interface::PorosityModel & porosityModel);
 
-      void mixCompactionCoefficients(double & compactionincr, double & compactiondecr, double & soilMechanicsCompactionCoefficient);
+      void mixCompactionCoefficients(double & compactionincr, double & compactionincrA,
+    		  double & compactionincrB,
+    		  double & compactiondecr,
+    		  double & compactiondecrA,
+    		  double & compactiondecrB,
+    		  double & soilMechanicsCompactionCoefficient);
 
       void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
 

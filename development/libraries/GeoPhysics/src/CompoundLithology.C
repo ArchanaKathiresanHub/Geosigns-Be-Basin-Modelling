@@ -31,6 +31,8 @@ GeoPhysics::CompoundLithology::CompoundLithology(GeoPhysics::ProjectHandle* proj
    m_isFaultLithology = false;
 
 }
+//------------------------------------------------------------//
+
 
 GeoPhysics::CompoundLithology::~CompoundLithology() {
    m_lithoComponents.clear();
@@ -51,6 +53,7 @@ std::string GeoPhysics::CompoundLithology::image() const {
 
    return buffer.str();
 }
+//------------------------------------------------------------//
 
 
 GeoPhysics::CompoundLithologyComposition GeoPhysics::CompoundLithology::getComposition() const {
@@ -109,6 +112,8 @@ GeoPhysics::CompoundLithologyComposition GeoPhysics::CompoundLithology::getCompo
 
    return CompoundLithologyComposition(simpleName1, simpleName2, simpleName3, fraction1, fraction2, fraction3, mixingModel);
 }
+//------------------------------------------------------------//
+
 
 bool GeoPhysics::CompoundLithology::isBasement() const {
 
@@ -118,10 +123,14 @@ bool GeoPhysics::CompoundLithology::isBasement() const {
    }
    return false;
 }
+//------------------------------------------------------------//
+
 
 GeoPhysics::SimpleLithology* GeoPhysics::CompoundLithology::getSimpleLithology() const {
    return m_lithoComponents[0];
 }
+//------------------------------------------------------------//
+
 
 const string GeoPhysics::CompoundLithology::getThermalModel() const {
 
@@ -131,23 +140,29 @@ const string GeoPhysics::CompoundLithology::getThermalModel() const {
    }
    return thermalModel;
 }
+//------------------------------------------------------------//
+
 
 void GeoPhysics::CompoundLithology::addLithology(SimpleLithology* a_lithology, const double a_percentage) {
    m_lithoComponents.push_back(a_lithology);
    m_componentPercentage.push_back(a_percentage);
 }
+//------------------------------------------------------------//
 
 
 void GeoPhysics::CompoundLithology::setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient) {
 
-   if (porosityModel == DataAccess::Interface::EXPONENTIAL_POROSITY) {
-      setMinimumExponentialPorosity();
+   if (porosityModel == DataAccess::Interface::SOIL_MECHANICS_POROSITY) {
+      setMinimumSoilMechanicsPorosity(surfaceVoidRatio, soilMechanicsCompactionCoefficient);
    }
    else {
-      setMinimumSoilMechanicsPorosity(surfaceVoidRatio, soilMechanicsCompactionCoefficient);
+      setMinimumExponentialPorosity();
+      
    }
 
 }
+//------------------------------------------------------------//
+
 
 void GeoPhysics::CompoundLithology::setMinimumExponentialPorosity() {
 
@@ -159,6 +174,8 @@ void GeoPhysics::CompoundLithology::setMinimumExponentialPorosity() {
    }
 
 }
+//------------------------------------------------------------//
+
 
 void GeoPhysics::CompoundLithology::setMinimumSoilMechanicsPorosity(double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient) {
 
@@ -184,7 +201,7 @@ void GeoPhysics::CompoundLithology::setMinimumSoilMechanicsPorosity(double  surf
    }
 
 }
-
+//------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::createThCondTbl() {
 
@@ -299,23 +316,26 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
    }
 
 }
-
+//------------------------------------------------------------//
 
 double GeoPhysics::CompoundLithology::exponentialDecompactionFunction(const double ves) const {
 
-   if (m_porosity.getCompactionCoefficent() <= 0.0) return 0.0;
+   if (m_porosity.getCompactionCoefficient() <= 0.0) return 0.0;
 
-   double  r1 = 1.0 - m_porosity.getSurfacePorosity() * exp(-ves * m_porosity.getCompactionCoefficent());
+   double  r1 = 1.0 - m_porosity.getSurfacePorosity() * exp(-ves * m_porosity.getCompactionCoefficient());
    double  r2 = log(r1);
-   double  r3 = ves + r2 / m_porosity.getCompactionCoefficent();
+   double  r3 = ves + r2 / m_porosity.getCompactionCoefficient();
 
    return r3;
 
 }
+//------------------------------------------------------------//
+
 
 void GeoPhysics::CompoundLithology::makeFault(const bool newFaultValue) {
    m_isFaultLithology = newFaultValue;
 }
+//------------------------------------------------------------//
 
 
 double GeoPhysics::CompoundLithology::heatcapacity(const double temperature) const {
@@ -333,6 +353,8 @@ double GeoPhysics::CompoundLithology::heatcapacity(const double temperature) con
 
    return lithoHeatCapacity;
 }
+//------------------------------------------------------------//
+
 
 double GeoPhysics::CompoundLithology::densityXheatcapacity(const double temperature, const double  pressure) const {
 
@@ -355,6 +377,8 @@ double GeoPhysics::CompoundLithology::densityXheatcapacity(const double temperat
 
    return lithoHeatCapacity;
 }
+//------------------------------------------------------------//
+
 
 double GeoPhysics::CompoundLithology::hydrostatFullCompThickness(const double maxVes,
    const double thickness,
@@ -388,6 +412,7 @@ double GeoPhysics::CompoundLithology::hydrostatFullCompThickness(const double ma
    return  m_porosity.getFullCompThickness(MaxVesValue, thickness, densitydiff, vesScaleFactor, overpressuredCompaction);
 
 }
+//------------------------------------------------------------//
 
 
 bool GeoPhysics::CompoundLithology::isIncompressible() const {
@@ -402,6 +427,7 @@ bool GeoPhysics::CompoundLithology::isIncompressible() const {
 
    return lithoIsIncompressible;
 }
+//------------------------------------------------------------//
 
 
 double GeoPhysics::CompoundLithology::porosity(const double sigma,
@@ -411,6 +437,7 @@ double GeoPhysics::CompoundLithology::porosity(const double sigma,
 
    return m_porosity.porosity(sigma, sigma_max, includeChemicalCompaction, chemicalCompactionTerm);
 }
+//------------------------------------------------------------//
 
 
 bool GeoPhysics::CompoundLithology::allowableMixing() const {
@@ -468,6 +495,7 @@ bool GeoPhysics::CompoundLithology::allowableMixing() const {
 
    return Mixing_Okay;
 }
+//------------------------------------------------------------//
 
 
 bool  GeoPhysics::CompoundLithology::reCalcProperties(){
@@ -534,19 +562,29 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    double surfacePorosity;
    double surfaceVoidRatio;
    double compactionincr;
+   double compactionincrA;
+   double compactionincrB;
    double compactiondecr;
+   double compactiondecrA;
+   double compactiondecrB;
    double soilMechanicsCompactionCoefficient;
 
    mixPorosityModel(porosityModel);
    mixSurfacePorosity(porosityModel, surfacePorosity, surfaceVoidRatio);
-   mixCompactionCoefficients(compactionincr, compactiondecr, soilMechanicsCompactionCoefficient);
-
+   mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, soilMechanicsCompactionCoefficient);
+    
    //Create porosity object
+   
+   //blablablabla
    m_porosity = Porosity::create(porosityModel,
    surfacePorosity,
    minimumMechanicalPorosity,
    compactionincr,
+   compactionincrA,
+   compactionincrB,
    compactiondecr,
+   compactiondecrA,
+   compactiondecrB,
    soilMechanicsCompactionCoefficient);
 
    reSetBehaviorForHysteresis();
@@ -615,21 +653,26 @@ void GeoPhysics::CompoundLithology::mixSurfacePorosity(DataAccess::Interface::Po
 //------------------------------------------------------------//
 
 
-void GeoPhysics::CompoundLithology::mixCompactionCoefficients(double& compactionincr, double& compactiondecr, double& soilMechanicsCompactionCoefficient) {
-
+void GeoPhysics::CompoundLithology::mixCompactionCoefficients(
+		double& compactionincr,
+		double& compactionincrA,
+		double& compactionincrB,
+		double& compactiondecr,
+		double& compactiondecrA,
+		double& compactiondecrB,
+		double& soilMechanicsCompactionCoefficient) {
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
 
-   soilMechanicsCompactionCoefficient=0.0;
-   compactionincr=0.0;
-   compactiondecr=0.0;
+   soilMechanicsCompactionCoefficient = 0.0;
+   compactionincr  = 0.0;
+   compactionincrA = 0.0;
+   compactionincrB = 0.0;
+   compactiondecr  = 0.0;
+   compactiondecrA = 0.0;
+   compactiondecrB = 0.0;
 
    double Fraction;
-
-   //
-   // As soon as we can be sure that the different lithology types DO NOT use 
-   // the compaction coefficient of the other (in computing FCT, ...) then
-   // we can uncomment the code that is commented out here.
 
    while (m_lithoComponents.end() != componentIter) {
       
@@ -637,8 +680,13 @@ void GeoPhysics::CompoundLithology::mixCompactionCoefficients(double& compaction
  
       soilMechanicsCompactionCoefficient = soilMechanicsCompactionCoefficient + (*componentIter)->getCompCoeff() * Fraction;
       compactionincr = compactionincr + (*componentIter)->getCompCoeff() * Fraction;
-      compactiondecr = compactiondecr + 0.1*(*componentIter)->getCompCoeff() * Fraction;
-
+      compactionincrA = compactionincrA + (*componentIter)->getCompCoeffA() * Fraction;
+      compactionincrB = compactionincrB + (*componentIter)->getCompCoeffB() * Fraction;
+       
+      compactiondecr = compactiondecr + 0.1 * (*componentIter)->getCompCoeff() * Fraction;
+      compactiondecrA = compactiondecrA + 0.1 * (*componentIter)->getCompCoeffA() * Fraction;
+      compactiondecrB = compactiondecrB + 0.1 * (*componentIter)->getCompCoeffB() * Fraction;
+      
       ++componentIter;
       ++percentIter;
    }
@@ -669,8 +717,9 @@ void   GeoPhysics::CompoundLithology::mixPorosityModel(DataAccess::Interface::Po
 
    }
 
-   //------------------------------------------------------------// 
 }
+//------------------------------------------------------------// 
+
 
 void GeoPhysics::CompoundLithology::reSetBehaviorForHysteresis() {
 
@@ -749,8 +798,8 @@ void GeoPhysics::CompoundLithology::reSetBehaviorForHysteresis() {
       }
    }
 }
-
 //------------------------------------------------------------//
+
 
 void GeoPhysics::CompoundLithology::getSurfacePorosity(CompoundProperty& porosity) const {
 
@@ -992,6 +1041,8 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNP(const FluidType* fluid,
    BulkTHCondP = pow(MatrixTHCondP, 1.0 - Porosity) * pow(FluidThCond, Porosity);
 
 }
+//------------------------------------------------------------// 
+
 
 void GeoPhysics::CompoundLithology::calcBulkHeatProd(const double Porosity, double &BulkHeatProd)  const {
 

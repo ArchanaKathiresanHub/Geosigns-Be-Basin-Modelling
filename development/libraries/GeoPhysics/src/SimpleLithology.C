@@ -38,7 +38,11 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    this->getSurfacePorosity() / 100,
    Interface::LithoType::getMinimumMechanicalPorosity() / 100.0,
    1.0E-08 * this->getExponentialCompactionCoefficient(),
+   1.0E-08 * this->getExponentialCompactionCoefficientA(),
+   1.0E-08 * this->getExponentialCompactionCoefficientB(),
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficient(),
+   0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientA(),
+   0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientB(),
    this->getSoilMechanicsCompactionCoefficient()
    ))
 {
@@ -133,7 +137,11 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
                                    litho.getSurfacePorosity ( ) / 100.0,
                                    litho.getMinimumMechanicalPorosity( ) / 100.0,
                                    1.0E-8 * litho.getExponentialCompactionCoefficient ( ),
+                                   1.0E-8 * litho.getExponentialCompactionCoefficientA ( ),
+                                   1.0E-8 * litho.getExponentialCompactionCoefficientB ( ),
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficient ( ),
+                                   0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientA ( ),
+                                   0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientB ( ),
                                    litho.getSoilMechanicsCompactionCoefficient ( ))),
 
    m_lithoname ( litho.m_lithoname ),
@@ -289,8 +297,8 @@ std::string GeoPhysics::SimpleLithology::image() const {
    buffer << " m_heatproduction         " << m_heatproduction << " " << endl;
    buffer << " m_density                " << m_density << " " << endl;
    buffer << " porosity                 " << m_porosity.getSurfacePorosity() << " " << endl;
-   buffer << " m_compactionincr         " << m_porosity.getCompactionCoefficent() << " " << endl;
-   buffer << " m_compactiondecr         " << 0.1 * m_porosity.getCompactionCoefficent() << " " << endl;
+   buffer << " m_compactionincr         " << m_porosity.getCompactionCoefficient() << " " << endl;
+   buffer << " m_compactiondecr         " << 0.1 * m_porosity.getCompactionCoefficient() << " " << endl;
    buffer << " m_thermalconductivityval " << m_thermalconductivityval << " " << endl;
    buffer << " m_permeability           [does not have .image() method yet]" << endl;
 
@@ -308,6 +316,7 @@ std::string GeoPhysics::SimpleLithology::image() const {
    switch (m_porosity.getPorosityModel()) {
    case DataAccess::Interface::EXPONENTIAL_POROSITY: buffer << "EXPONENTIAL_POROSITY"; break;
    case DataAccess::Interface::SOIL_MECHANICS_POROSITY: buffer << "SOIL_MECHANICS_POROSITY"; break;
+   case DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY: buffer << "DOUBLE_EXPONENTIAL_POROSITY"; break;
    default: buffer << "UNDEFINED_POROSITY";
    }
 

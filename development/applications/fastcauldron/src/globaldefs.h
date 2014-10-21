@@ -489,10 +489,11 @@ enum DarcyErrorIndicator { // No error has occurred.
 
 typedef enum {PIECEWISE_LINEAR, CUBIC_SPLINE} Interpolation_Method;
 
-typedef enum {EXPONENTIAL, SOIL_MECHANICS} PorosityModelType;
+typedef enum {EXPONENTIAL, SOIL_MECHANICS, DOUBLE_EXPONENTIAL_MODEL} PorosityModelType;
 
-const std::string PorosityModelTypeImage [ 2 ] = { "Exponential",
-                                                   "Soil Mechanics"};
+const std::string PorosityModelTypeImage [ 3 ] = { "Exponential",
+                                                   "Soil Mechanics",
+                                                   "Double Exponential"};
 
 typedef enum {CONSTmodel = 1, CALC, TABLE, UNSPECIFIED} ModelType;
 

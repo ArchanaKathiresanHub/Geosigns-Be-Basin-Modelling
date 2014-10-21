@@ -1,5 +1,5 @@
-#ifndef _GEOPHYSICS__EXPONENTIAL_POROSITY_H_
-#define _GEOPHYSICS__EXPONENTIAL_POROSITY_H_
+#ifndef _GEOPHYSICS__DOUBLE_EXPONENTIAL_POROSITY_H_
+#define _GEOPHYSICS__DOUBLE_EXPONENTIAL_POROSITY_H_
 
 #include "Porosity.h"
 
@@ -8,13 +8,15 @@
 namespace GeoPhysics
 {
 
-   class ExponentialPorosity : public Porosity::Algorithm {
+   class DoubleExponentialPorosity : public Porosity::Algorithm {
    public:
       /// Constructor
-      ExponentialPorosity(double depoPorosity,
+      DoubleExponentialPorosity(double depoPorosity,
     	 double minimumMechanicalPorosity,
-         double compactionIncr,
-         double compactionDecr);
+         double compactionIncrA, 
+         double compactionIncrB,
+         double compactionDecrA,
+         double compactionDecrB );
 
       /// Return porosity with exponential function
       virtual double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
@@ -25,23 +27,21 @@ namespace GeoPhysics
       /// Return FullCompThickness
       virtual double fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
 
-      /// Return Compaction coefficients
-      virtual double compactionCoefficient() const;
-      
-      /// Return Compaction coefficients 
-      virtual double compactionCoefficientA() const { return 0.0; }
-
-      /// Return Compaction coefficients 
-      virtual double compactionCoefficientB() const { return 0.0; }
+      /// Return Compaction coefficients (only m_compactionincr for exponential)
+      virtual double compactionCoefficient() const{ return 0.0;}
+      virtual double compactionCoefficientA() const;
+      virtual double compactionCoefficientB() const;
 
       /// Return PorosityDerivative
       virtual double porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
-      
+
 
    private:
       ///class members
-      double  m_compactionIncr;
-      double  m_compactionDecr;
+      double m_compactionIncrA;
+      double m_compactionIncrB;
+      double m_compactionDecrA;
+      double m_compactionDecrB;
    };
 }
 #endif

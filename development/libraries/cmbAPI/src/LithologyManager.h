@@ -40,6 +40,17 @@
 /// The model has 2 parameters:
 ///   -# @f$ \phi_0 @f$ - surface porosity
 ///   -# @f$ \beta @f$ - compaction coefficient
+///
+/// @subsection DoubleExpPorosityModelSubSec Double-Exponential porosity model 
+/// in <b>DoubleExponential</b> porosity model the porosity is calculated according to this formula:
+/// @f[ \phi = \phi_0 /2 exp(-c1_{ef} \sigma) + \phi_0 /2 exp(-c2_{ef} \sigma) @f]
+/// The model has 3 parameters:
+///   -# @f$ \phi_0 @f$ - surface porosity
+///   -# @f$ c1_{ef} @f$ - compaction coefficient @f$ [10^{-8} Pa^-1] @f$
+///   -# @f$ c2_{ef} @f$ - compaction coefficient @f$ [10^{-8} Pa^-1] @f$
+///
+
+
 
 namespace mbapi {
    /// @class LithologyManager LithologyManager.h "LithologyManager.h"
@@ -55,6 +66,7 @@ namespace mbapi {
       typedef enum {
          Exponential,   ///< Exponential porosity model
          SoilMechanics, ///< Soil mechanics porosity model
+         DoubleExponential, ///< Double Exponential porosity model 
          Unknown        ///< Not any model was defined
       } PorosityModel;
 

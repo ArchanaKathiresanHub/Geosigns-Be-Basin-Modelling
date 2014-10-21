@@ -2,8 +2,8 @@
 #define _GEOPHYSICS__SOIL_MECHANICS_POROSITY_H_
 
 #include "Porosity.h"
-#include "CompoundLithology.h"
-#include <cmath>
+
+
 
 namespace GeoPhysics
 {
@@ -17,34 +17,30 @@ namespace GeoPhysics
          double depositionVoidRatio);
 
       /// Return porosity with soilMechanicsPorosity
-
       virtual double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
 
-      /// Return the surfacePorosity
-
-      virtual double surfacePorosity() const;
-
       /// Return the permeability model
-
       virtual Porosity::Model  model() const;
 
       /// Return FullCompThickness
-      virtual double FullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
+      virtual double fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
 
-      /// Return Compaction coefficients (only m_compactionincr for exponential)
-      virtual double CompactionCoefficent() const;
+      /// Return Compaction coefficients 
+      virtual double compactionCoefficient() const;
+      
+      /// Return Compaction coefficients 
+      virtual double compactionCoefficientA() const { return 0.0; }
+                  
+      /// Return Compaction coefficients 
+      virtual double compactionCoefficientB() const { return 0.0; }
 
-     /// Return PorosityDerivative
-      virtual double PorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
+      /// Return PorosityDerivative
+      virtual double porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
 
-      /// Return minimumMechanicalPorosity
-      virtual double  MinimumMechanicalPorosity( ) const;
 
    private:
 
       /// Class members
-      double  m_depoporosity;
-      double  m_minimumMechanicalPorosity;
       double  m_soilMechanicsCompactionCoefficient;
       double  m_depositionVoidRatio;
    };

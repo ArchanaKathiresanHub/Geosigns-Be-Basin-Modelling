@@ -3,10 +3,7 @@
 #include "NumericFunctions.h"
 
 #include <cmath>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <limits>
+
 
 using namespace DataAccess;
 
@@ -14,11 +11,10 @@ namespace GeoPhysics
 {
 
    ///Parameters from constructor
-   soilMechanicsPorosity::soilMechanicsPorosity(double depoPorosity, double minimumMechanicalPorosity, double soilMechanicsCompactionCoefficient, double depositionVoidRatio)
-      : m_depoporosity(depoPorosity)
-      , m_minimumMechanicalPorosity(minimumMechanicalPorosity)
-      , m_soilMechanicsCompactionCoefficient(soilMechanicsCompactionCoefficient)
-      , m_depositionVoidRatio(depositionVoidRatio)
+   soilMechanicsPorosity::soilMechanicsPorosity(double depoPorosity, double minimumMechanicalPorosity, double soilMechanicsCompactionCoefficient, double depositionVoidRatio):
+	  Algorithm(depoPorosity,minimumMechanicalPorosity),
+      m_soilMechanicsCompactionCoefficient(soilMechanicsCompactionCoefficient),
+      m_depositionVoidRatio(depositionVoidRatio)
    {}
 
    ///soilMechanicsPorosity porosity function
@@ -72,7 +68,7 @@ namespace GeoPhysics
       }
 
       calculatedPorosity = NumericFunctions::Maximum(calculatedPorosity, MinimumSoilMechanicsPorosity);
-      calculatedPorosity = NumericFunctions::Minimum(calculatedPorosity, m_depoporosity);
+      calculatedPorosity = NumericFunctions::Minimum(calculatedPorosity, m_depoPorosity);
 
       if (includeChemicalCompaction) {
          calculatedPorosity = calculatedPorosity + chemicalCompactionTerm;
@@ -82,23 +78,18 @@ namespace GeoPhysics
    };
 
 
-   double soilMechanicsPorosity::surfacePorosity() const
-   {
-      return m_depoporosity;
-   }
-
    Porosity::Model soilMechanicsPorosity::model() const
    {
       return DataAccess::Interface::SOIL_MECHANICS_POROSITY;
    }
 
    ///compute FullCompThickness
-   double soilMechanicsPorosity::FullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const {
+   double soilMechanicsPorosity::fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const {
 
       double Solid_Thickness;
 
       if (m_soilMechanicsCompactionCoefficient == 0.0) {
-         Solid_Thickness = thickness * (1.0 - m_depoporosity);
+         Solid_Thickness = thickness * (1.0 - m_depoPorosity);
       }
       else if (thickness == 0.0) {
          Solid_Thickness = 0.0;
@@ -145,13 +136,13 @@ namespace GeoPhysics
       return Solid_Thickness;
    }
 
-   ///CompactionCoefficent
-   double soilMechanicsPorosity::CompactionCoefficent() const {
+   ///CompactionCoefficient
+   double soilMechanicsPorosity::compactionCoefficient() const {
       return m_soilMechanicsCompactionCoefficient;
    }
 
    ///PorosityDerivative
-   double soilMechanicsPorosity::PorosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
+   double soilMechanicsPorosity::porosityDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const {
 
       //
       //
@@ -174,12 +165,6 @@ namespace GeoPhysics
       porosityDerivative = pow(1.0 - porosityValue, 2) * m_soilMechanicsCompactionCoefficient / vesValue;
 
       return porosityDerivative;
-   }
-
-   ///MinimumMechanicalPorosity
-   double soilMechanicsPorosity::MinimumMechanicalPorosity( ) const
-   {
-      return m_minimumMechanicalPorosity;
    }
 
 }

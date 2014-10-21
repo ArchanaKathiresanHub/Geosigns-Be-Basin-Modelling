@@ -48,6 +48,8 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
       m_porosityModel = EXPONENTIAL_POROSITY;
    } else if ( porosityModelStr == "Soil_Mechanics" ) {
       m_porosityModel = SOIL_MECHANICS_POROSITY;
+   } else if ( porosityModelStr == "Double_Exponential") {
+     m_porosityModel = DOUBLE_EXPONENTIAL_POROSITY;
    } else {
       std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosoty model as the default value." << endl;
       // Error
@@ -84,7 +86,7 @@ const string LithoType::s_attributeNames[] =
    "FgColour", "BgColour", "Pixmap", "HeatProdSource", "PermMixModel", "Porosity_Model",
    "Multipoint_Porosity", "Multipoint_Permeability",
    // Doubles
-   "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefSC", "CompacCoefFM", "StpThCond",
+   "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA","CompacCoefESB", "CompacCoefSC", "CompacCoefFM", "StpThCond",
    "ThCondAnisotropy", "DepoPerm", "PermDecrStressCoef", "PermIncrRelaxCoef", "PermAnisotropy",
    "SeisVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
    "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "SpecSurfArea", "GeoVariance",
@@ -158,6 +160,14 @@ double LithoType::getExponentialCompactionCoefficient () const {
    return database::getCompacCoefES ( m_record );
 }
 
+double LithoType::getExponentialCompactionCoefficientA () const {
+   return database::getCompacCoefESA ( m_record );
+}
+
+double LithoType::getExponentialCompactionCoefficientB () const {
+   return database::getCompacCoefESB ( m_record );
+}
+
 double LithoType::getSoilMechanicsCompactionCoefficient () const {
    return database::getCompaction_Coefficient_SM ( m_record );
 }
@@ -171,8 +181,7 @@ double LithoType::getCompacCoefFM () const {
 }
 
 double LithoType::getQuartzGrainSize () const {
-	double bla = database::getQuartzGrainSize( m_record );
-   return bla;
+   return database::getQuartzGrainSize( m_record );
 }
 
 double LithoType::getQuartzFraction () const {

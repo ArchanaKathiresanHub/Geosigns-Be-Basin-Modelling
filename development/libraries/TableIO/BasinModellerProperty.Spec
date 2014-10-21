@@ -2303,7 +2303,7 @@ START-properties
 
 
     Identification      : Porosity_Model
-    Description         : Method of porosity used in computation (exponential or soil mechanics)
+    Description         : Method of porosity used in computation (exponential (single or double) or soil mechanics)
     Unit of measurement : 
     Type                : string
     Error Field         : No
@@ -2354,7 +2354,7 @@ START-properties
     Property I/O        : No
     
 #    Identification      : TExpansionCoef
-#    Description         : coefficent of thermal expansion
+#    Description         : coefficient of thermal expansion
 #    Unit of measurement : 10-5C-1 
 #    Type                : float
 #    Error Field         : No
@@ -2813,12 +2813,30 @@ START-properties
     Property I/O        : No
 
     Identification      : CompacCoefES
-    Description         : Vertical Effective Stress compaction coefficient 
+    Description         : Vertical Effective Stress single exponential or SM compaction coefficient 
     Unit of measurement : 10-8Pa-1
     Type                : float
     Error Field         : Yes
     Time dependent      : No
     Property I/O        : No
+
+    Identification      : CompacCoefESA
+    Description         : Vertical Effective Stress double exponential compaction coefficient A
+    Unit of measurement : 10-8Pa-1
+    Type                : float
+    Error Field         : Yes
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0.0
+
+    Identification      : CompacCoefESB
+    Description         : Vertical Effective Stress double exponential compaction coefficient B
+    Unit of measurement : 10-8Pa-1
+    Type                : float
+    Error Field         : Yes
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0.0
 
     Identification      : PresFuncName
     Description         : Fracture pressure curve name
@@ -10192,6 +10210,8 @@ START-property-tables
     Column         : HeatProd
     Column         : SurfacePorosity
     Column         : CompacCoefES
+    Column         : CompacCoefESA
+    Column         : CompacCoefESB
     Column         : CompacCoefSC
     Column         : CompacCoefFM
     Column         : StpThCond

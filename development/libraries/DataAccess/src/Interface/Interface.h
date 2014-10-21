@@ -289,7 +289,7 @@ namespace DataAccess
          FgColour, BgColour, Pixmap, HeatProdSource, PermMixModel, Porosity_Model,
          Multipoint_Porosity, Multipoint_Permeability,
          // Doubles
-         Density, HeatProd, SurfacePorosity, CompacCoefES, CompacCoefSC, CompacCoefFM, StpThCond,
+         Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, CompacCoefSC, CompacCoefFM, StpThCond,
          ThCondAnisotropy, DepoPerm, PermDecrStressCoef, PermIncrRelaxCoef, PermAnisotropy,
          SeisVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
          ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity,
@@ -364,7 +364,8 @@ namespace DataAccess
       /// The function describing the porosity.
       enum PorosityModel {
          EXPONENTIAL_POROSITY,
-         SOIL_MECHANICS_POROSITY
+         SOIL_MECHANICS_POROSITY,
+         DOUBLE_EXPONENTIAL_POROSITY
       };
 
       /// The model describing the permeability.

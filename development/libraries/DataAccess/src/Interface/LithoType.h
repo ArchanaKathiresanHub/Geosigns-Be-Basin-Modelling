@@ -63,8 +63,14 @@ namespace DataAccess
          /// Return the porosity model.
          virtual PorosityModel getPorosityModel () const;
 
-         /// Return the exponential compaction coefficient.
+         /// Return the sinlge exponential compaction coefficient.
          virtual double getExponentialCompactionCoefficient () const;
+
+         /// Return the double exponential compaction coefficient A.
+         virtual double getExponentialCompactionCoefficientA () const;
+
+         /// Return the double exponential compaction coefficient B.
+         virtual double getExponentialCompactionCoefficientB () const;
 
          /// Return the soil mechanics compaction coefficient.
          virtual double getSoilMechanicsCompactionCoefficient () const;

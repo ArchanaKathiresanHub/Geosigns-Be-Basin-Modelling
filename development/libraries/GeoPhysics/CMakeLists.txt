@@ -12,15 +12,16 @@
 
 set(cross_platform_headers
       src/ChemicalCompactionCalculator.h
+      src/DoubleExponentialPorosity.h
+      src/ExponentialPorosity.h
       src/Permeability.h
       src/Porosity.h
-      src/ExponentialPorosity.h
-      src/SoilMechanicsPorosity.h
       src/PermeabilityImpermeable.h
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
 	  src/SchneiderCompactionCalculator.h
+	  src/SoilMechanicsPorosity.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
@@ -56,14 +57,15 @@ set(unix_only_headers
 
 set(cross_platform_srcs
       src/ChemicalCompactionCalculator.C
+      src/DoubleExponentialPorosity.C
+      src/ExponentialPorosity.C
       src/Permeability.C
       src/Porosity.C
-      src/ExponentialPorosity.C
-      src/SoilMechanicsPorosity.C
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
 	  src/SchneiderCompactionCalculator.C
+	  src/SoilMechanicsPorosity.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C
@@ -177,7 +179,17 @@ add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
-add_gtest(NAME GeoPhysics::PermeabilityImpermeable
+add_gtest( NAME GeoPhysics::DoubleExponentialPorosity
+      SOURCES test/DoubleExponentialPorosity.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::ExponentialPorosity
+      SOURCES test/ExponentialPorosity.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.C
    LIBRARIES GeoPhysics SerialDataAccess
 )
@@ -202,6 +214,11 @@ add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
+add_gtest( NAME GeoPhysics::SoilMechanicsPorosity
+      SOURCES test/SoilMechanicsPorosity.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
 add_gtest( NAME GeoPhysics::VitriniteReflectance
       SOURCES test/VitriniteReflectance.C test/InputGrid.C test/OutputGrid.C
       LIBRARIES GeoPhysics SerialDataAccess
@@ -222,16 +239,6 @@ add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
-
-add_gtest( NAME GeoPhysics::ExponentialPorosity
-      SOURCES test/ExponentialPorosity.C 
-      LIBRARIES GeoPhysics SerialDataAccess
-)
-
-add_gtest( NAME GeoPhysics::SoilMechanicsPorosity
-      SOURCES test/SoilMechanicsPorosity.C 
-      LIBRARIES GeoPhysics SerialDataAccess
-)
 
 # Local Variables:
 # mode: cmake

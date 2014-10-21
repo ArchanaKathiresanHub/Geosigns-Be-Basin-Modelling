@@ -50,8 +50,14 @@ namespace GeoPhysics {
       /// Return thermal conductivity model
       const std::string getThermalCondModelName() const;
 
-      /// Return depositional porosity.
+      /// Return compaction coefficient for single exponential model.
       double getCompCoeff() const;
+      
+      /// Return compaction coefficient A for double exponential model.
+      double getCompCoeffA() const;
+      
+      /// Return compaction coefficient B for double exponential model.
+      double getCompCoeffB() const;
 
       /// Return depositional porosity.
       double getDepoPoro() const;
@@ -59,6 +65,7 @@ namespace GeoPhysics {
       /// Return porosity model
       DataAccess::Interface::PorosityModel getPoroModel() const;
 
+      /// Return permeability model
       DataAccess::Interface::PermeabilityModel getPermeabilityModel() const;
 
       /// Return the depositional permeability.
@@ -239,7 +246,15 @@ inline double GeoPhysics::SimpleLithology::getDepoPoro() const {
 }
 
 inline double GeoPhysics::SimpleLithology::getCompCoeff() const {
-   return m_porosity.getCompactionCoefficent();
+   return m_porosity.getCompactionCoefficient();
+}
+
+inline double GeoPhysics::SimpleLithology::getCompCoeffA() const {
+   return m_porosity.getCompactionCoefficientA();
+}
+
+inline double GeoPhysics::SimpleLithology::getCompCoeffB() const {
+   return m_porosity.getCompactionCoefficientB();
 }
 
 inline DataAccess::Interface::PorosityModel GeoPhysics::SimpleLithology::getPoroModel() const{
@@ -271,7 +286,7 @@ inline double GeoPhysics::SimpleLithology::getSeismicVelocity() const {
 }
 
 inline bool GeoPhysics::SimpleLithology::isIncompressible() const {
-   return (m_porosity.getCompactionCoefficent() == 0.0);
+   return (m_porosity.getCompactionCoefficient() == 0.0);
 }
 
 inline double GeoPhysics::SimpleLithology::getReferenceSolidViscosity() const {
