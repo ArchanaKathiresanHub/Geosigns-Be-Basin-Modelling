@@ -1,19 +1,16 @@
 #include "HydrostaticPressureFormationCalculator.h"
 
 #include "Interface/Surface.h"
+#include "Interface/Snapshot.h"
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicalFunctions.h"
-
 
 DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
    m_projectHandle ( projectHandle )
 {
    m_propertyNames.push_back ( "HydroStaticPressure" );
 }
-
-// DerivedProperties::HydrostaticPressureFormationCalculator::~HydrostaticPressureFormationCalculator () {
-// }
  
 void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( AbstractPropertyManager&            propertyManager,
                                                                             const DataModel::AbstractSnapshot*  snapshot,
@@ -25,15 +22,15 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
    const DataModel::AbstractProperty* temperatureProperty = propertyManager.getProperty ( "Temperature" );
    const DataModel::AbstractProperty* depthProperty = propertyManager.getProperty ( "Depth" );
 
-   const FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
-   const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
-   const FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
+   FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
+   FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
+   FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
 
    // const GeoPhysics::Formation* formationAbove = dynamic_cast<const GeoPhysics::Formation*>( m_projectHandle->findFormation ( formation->getName ())->getTopSurface ()->getTopFormation ());
    // const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-   const GeoPhysics::Formation* formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
+   const GeoPhysics::Formation* formationAbove = 0;
 
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
 
@@ -47,6 +44,12 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
    double segmentPressure;
    double pressure;
    unsigned int topNodeIndex = hydrostaticPressure->lastK ();
+
+   derivedProperties.clear ();
+
+   if ( currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
+      formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
+   }
 
    // Initialise the top set of nodes for the hydrostatic pressure.
    if ( formationAbove == 0 ) {
@@ -72,7 +75,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
                thickness = depth->get ( i, j, k - 1 ) - depth->get ( i, j, k );
                fluidDensityBottom = fluid->density ( temperature->get ( i, j, k - 1 ), porePressure->get ( i, j, k - 1 ));
                segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
-
                pressure = hydrostaticPressure->get ( i, j, k ) + segmentPressure;
                hydrostaticPressure->set ( i, j, k - 1, pressure );
 

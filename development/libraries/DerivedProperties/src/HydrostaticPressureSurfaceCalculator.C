@@ -1,5 +1,7 @@
 #include "HydrostaticPressureSurfaceCalculator.h"
 
+#include "Interface/Surface.h"
+#include "Interface/Snapshot.h"
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicalFunctions.h"
@@ -19,13 +21,19 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::calculate ( Abstra
    const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( m_propertyNames [ 0 ]);
 
    const DataAccess::Interface::Surface* currentSurface = dynamic_cast<const DataAccess::Interface::Surface*>( surface );
+   const DataAccess::Interface::Formation* formationAbove = currentSurface->getTopFormation ();
+   const DataAccess::Interface::Formation* formationBelow = currentSurface->getBottomFormation ();
 
    DerivedSurfacePropertyPtr hydrostaticPressure = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( hydrostaticPressureProperty,
                                                                                                                                snapshot,
                                                                                                                                surface, 
                                                                                                                                propertyManager.getMapGrid ()));
 
-   if ( currentSurface->getTopFormation () == 0 ) {
+   if ( currentSurface->getTopFormation () == 0 or
+        snapshot->getTime () == currentSurface->getSnapshot ()->getTime () or 
+        ( snapshot->getTime () >= currentSurface->getSnapshot ()->getTime () and
+          snapshot->getTime () < formationBelow->getBottomSurface ()->getSnapshot ()->getTime ())) {
+
       computeHydrostaticPressureAtSeaBottom ( propertyManager, snapshot->getTime (), currentSurface, hydrostaticPressure );
    } else {
       copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, currentSurface, hydrostaticPressure );
