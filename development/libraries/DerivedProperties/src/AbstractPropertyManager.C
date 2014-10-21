@@ -9,44 +9,6 @@ using namespace std;
 DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
 DerivedProperties::AbstractPropertyManager::~AbstractPropertyManager () {
-
-   // for ( size_t i = 0; i < m_surfaceProperties.size (); ++i ) {
-   //    std::cout << " deleting surface prop: " 
-   //         << m_surfaceProperties [ i ]->getProperty ()->getName () << "  "
-   //         << m_surfaceProperties [ i ]->getSurface ()->getName () << "  "
-   //         << m_surfaceProperties [ i ]->getSnapshot ()->getTime () << "  "
-   //         << std::endl;
-
-   //    m_surfaceProperties [ i ].reset ();
-   // }
-
-   for ( size_t i = 0; i < m_formationProperties.size (); ++i ) {
-      std::cout << " checking formation prop: " 
-           << m_formationProperties [ i ]->getProperty ()->getName () << "  "
-           << m_formationProperties [ i ]->getFormation ()->getName () << "  "
-           << m_formationProperties [ i ]->getSnapshot ()->getTime () << "  "
-           << std::endl;
-   }
-
-   for ( size_t i = 0; i < m_formationProperties.size (); ++i ) {
-      std::cout << " deleting formation prop: " 
-           << m_formationProperties [ i ]->getProperty ()->getName () << "  "
-           << m_formationProperties [ i ]->getFormation ()->getName () << "  "
-           << m_formationProperties [ i ]->getSnapshot ()->getTime () << "  "
-           << std::endl;
-
-      m_formationProperties [ i ].reset ();
-   }
-
-   // for ( size_t i = 0; i < m_formationSurfaceProperties.size (); ++i ) {
-   //    m_formationSurfaceProperties [ i ].reset ();
-   // }
-
-   // for ( size_t i = 0; i < m_formationMapProperties.size (); ++i ) {
-   //    m_formationMapProperties [ i ].reset ();
-   // }
-
-
 }
 
 
