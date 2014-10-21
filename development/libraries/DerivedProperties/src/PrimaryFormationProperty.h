@@ -34,10 +34,15 @@ namespace DerivedProperties {
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
- private :
+
+   private :
+
+      const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
 
    };
+
+   // typedef PrimaryFormationProperty* PrimaryFormationPropertyPtr;
 
    typedef boost::shared_ptr<PrimaryFormationProperty> PrimaryFormationPropertyPtr;
 

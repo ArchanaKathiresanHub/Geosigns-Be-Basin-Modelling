@@ -11,6 +11,7 @@ DerivedProperties::PrimarySurfaceProperty::PrimarySurfaceProperty ( const DataAc
                      propertyValue->getSnapshot (),
                      propertyValue->getSurface (),
                      propertyValue->getGridMap ()->getGrid ()),
+   m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap () )
 {
    m_gridMap->retrieveData ( true );
@@ -18,7 +19,10 @@ DerivedProperties::PrimarySurfaceProperty::PrimarySurfaceProperty ( const DataAc
 
 DerivedProperties::PrimarySurfaceProperty::~PrimarySurfaceProperty() {
 
-   m_gridMap->restoreData ( false, true );
+  if ( m_propertyValue->hasGridMap ()) {
+     m_gridMap->restoreData ( false, true );
+  }
+
 }
 
 

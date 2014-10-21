@@ -11,6 +11,7 @@ DerivedProperties::PrimaryFormationMapProperty::PrimaryFormationMapProperty ( co
                           propertyValue->getSnapshot (),
                           propertyValue->getFormation (),
                           propertyValue->getGridMap ()->getGrid ()),
+   m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap ())
 {
    m_gridMap->retrieveData ( true );
@@ -18,7 +19,10 @@ DerivedProperties::PrimaryFormationMapProperty::PrimaryFormationMapProperty ( co
 
 DerivedProperties::PrimaryFormationMapProperty::~PrimaryFormationMapProperty() {
 
-   m_gridMap->restoreData ( false, true );
+   if ( m_propertyValue->hasGridMap ()) {
+      m_gridMap->restoreData ( false, true );
+   }
+
 }
 
 

@@ -37,7 +37,10 @@ namespace DerivedProperties {
       virtual double getUndefinedValue () const;
 
    private :
+
+      const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
+
    };
 
    typedef boost::shared_ptr<PrimarySurfaceProperty> PrimarySurfacePropertyPtr;

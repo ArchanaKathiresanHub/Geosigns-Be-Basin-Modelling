@@ -13,6 +13,7 @@ DerivedProperties::PrimaryFormationSurfaceProperty::PrimaryFormationSurfacePrope
                               propertyValue->getFormation (),
                               propertyValue->getSurface (),
                               propertyValue->getGridMap ()->getGrid ()),
+   m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap ())
 {
    m_gridMap->retrieveData ( true );
@@ -20,7 +21,10 @@ DerivedProperties::PrimaryFormationSurfaceProperty::PrimaryFormationSurfacePrope
 
 DerivedProperties::PrimaryFormationSurfaceProperty::~PrimaryFormationSurfaceProperty() {
 
-   m_gridMap->restoreData ( false, true );
+   if ( m_propertyValue->hasGridMap ()) {
+      m_gridMap->restoreData ( false, true );
+   }
+
 }
 
 double DerivedProperties::PrimaryFormationSurfaceProperty::get ( unsigned int i,

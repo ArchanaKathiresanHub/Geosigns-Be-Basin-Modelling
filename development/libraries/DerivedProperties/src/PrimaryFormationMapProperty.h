@@ -38,6 +38,7 @@ namespace DerivedProperties {
 
    private :
 
+      const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
 
    };
