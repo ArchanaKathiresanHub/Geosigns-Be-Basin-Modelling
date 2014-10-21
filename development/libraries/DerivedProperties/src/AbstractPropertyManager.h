@@ -25,7 +25,7 @@ namespace DerivedProperties {
       AbstractPropertyManager ();
 
       /// \brief Destructor.
-      virtual ~AbstractPropertyManager () {}
+      virtual ~AbstractPropertyManager ();
 
 
       /// \brief Get the property given the property-name.
@@ -41,6 +41,11 @@ namespace DerivedProperties {
       /// \param [in] property The property whose values are requested.
       /// \param [in] snapshot The snapshot time at which the values were calculated.
       /// \param [in] surface  The surface to which the values are associated.
+      /// \pre property is not be null and is a valid property.
+      /// \pre snapshot is not null and is a valid snapshot age.
+      /// \pre surface is not null and is a  valid surface.
+      /// \pre A calculator for this property exists.
+      /// \post The result contains values of the required property at the required surface for the required snapshot age.
       SurfacePropertyPtr getSurfaceProperty ( const DataModel::AbstractProperty* property,
                                               const DataModel::AbstractSnapshot* snapshot,
                                               const DataModel::AbstractSurface*  surface );
@@ -80,6 +85,9 @@ namespace DerivedProperties {
                                                                 const DataModel::AbstractFormation* formation,
                                                                 const DataModel::AbstractSurface*   surface );
 
+      /// \brief Remove all properties associated with a particular snapshot.
+      void removeProperties ( const DataModel::AbstractSnapshot* snapshot );
+
       /// \brief Get the grid for the map.
       virtual const DataModel::AbstractGrid* getMapGrid () const = 0;
 
@@ -91,43 +99,43 @@ namespace DerivedProperties {
       /// \brief Add a calculator for a property or set of properties defined on a surface.
       ///
       /// \param [in] calculator  A calculator of surface properties.
-      void addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr calculator );
+      void addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& calculator );
 
       /// \brief Add a calculator for a property or set of map properties defined on a formation.
       ///
       /// \param [in] calculator  A calculator of formation map properties.
-      void addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr calculator );
+      void addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator );
 
       /// \brief Add a calculator for a property or set of properties defined on a formation.
       ///
       /// \param [in] calculator  A calculator of formation properties.
-      void addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr calculator );
+      void addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator );
  
       /// \brief Add a calculator for a property or set of properties defined on a surface and formation.
       ///
       /// \param [in] calculator  A calculator of formation-surface properties.
-      void addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr calculator );
+      void addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator );
 
 
       /// \brief Add a set of property values to the availble property values.
       ///
       /// \param [in] surfaceProperty  A set of property values associated with a surface.
-      void addSurfaceProperty ( const SurfacePropertyPtr surfaceProperty );
+      void addSurfaceProperty ( const SurfacePropertyPtr& surfaceProperty );
       
       /// \brief Add a set of property values to the available property values.
       ///
       /// \param [in] formationMapProperty  A set of map property values associated with a formation.
-      void addFormationMapProperty ( const FormationMapPropertyPtr formationMapProperty );
+      void addFormationMapProperty ( const FormationMapPropertyPtr& formationMapProperty );
       
       /// \brief Add a set of property values to the availble property values.
       ///
       /// \param [in] formationProperty  A set of property values associated with a formation.
-      void addFormationProperty ( const FormationPropertyPtr formationProperty );
+      void addFormationProperty ( const FormationPropertyPtr& formationProperty );
 
       /// \brief Add a set of property values to the availble property values.
       ///
       /// \param [in] formationSurfaceProperty  A set of property values associated with a formation and surface.
-      void addFormationSurfaceProperty ( const FormationSurfacePropertyPtr formationSurfaceProperty );
+      void addFormationSurfaceProperty ( const FormationSurfacePropertyPtr& formationSurfaceProperty );
 
 
       /// \brief Get the calculator for the property.

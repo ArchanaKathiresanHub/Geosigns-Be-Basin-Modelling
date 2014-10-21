@@ -1,8 +1,56 @@
 #include "AbstractPropertyManager.h"
 
+#include <algorithm>
+#include <iostream>
+using namespace std;
+
+#include "FormationPropertyErasePredicate.h"
+
 DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
-void DerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr calculator ) {
+DerivedProperties::AbstractPropertyManager::~AbstractPropertyManager () {
+
+   // for ( size_t i = 0; i < m_surfaceProperties.size (); ++i ) {
+   //    std::cout << " deleting surface prop: " 
+   //         << m_surfaceProperties [ i ]->getProperty ()->getName () << "  "
+   //         << m_surfaceProperties [ i ]->getSurface ()->getName () << "  "
+   //         << m_surfaceProperties [ i ]->getSnapshot ()->getTime () << "  "
+   //         << std::endl;
+
+   //    m_surfaceProperties [ i ].reset ();
+   // }
+
+   for ( size_t i = 0; i < m_formationProperties.size (); ++i ) {
+      std::cout << " checking formation prop: " 
+           << m_formationProperties [ i ]->getProperty ()->getName () << "  "
+           << m_formationProperties [ i ]->getFormation ()->getName () << "  "
+           << m_formationProperties [ i ]->getSnapshot ()->getTime () << "  "
+           << std::endl;
+   }
+
+   for ( size_t i = 0; i < m_formationProperties.size (); ++i ) {
+      std::cout << " deleting formation prop: " 
+           << m_formationProperties [ i ]->getProperty ()->getName () << "  "
+           << m_formationProperties [ i ]->getFormation ()->getName () << "  "
+           << m_formationProperties [ i ]->getSnapshot ()->getTime () << "  "
+           << std::endl;
+
+      m_formationProperties [ i ].reset ();
+   }
+
+   // for ( size_t i = 0; i < m_formationSurfaceProperties.size (); ++i ) {
+   //    m_formationSurfaceProperties [ i ].reset ();
+   // }
+
+   // for ( size_t i = 0; i < m_formationMapProperties.size (); ++i ) {
+   //    m_formationMapProperties [ i ].reset ();
+   // }
+
+
+}
+
+
+void DerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -27,7 +75,7 @@ void DerivedProperties::AbstractPropertyManager::addSurfacePropertyCalculator ( 
 
 }
 
-void DerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -52,7 +100,7 @@ void DerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculat
 
 }
 
-void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -77,7 +125,7 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
 
 }
 
-void DerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr calculator ) {
+void DerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -150,19 +198,19 @@ DerivedProperties::FormationSurfacePropertyCalculatorPtr DerivedProperties::Abst
 
 }
 
-void DerivedProperties::AbstractPropertyManager::addSurfaceProperty ( const SurfacePropertyPtr surfaceProperty ) {
+void DerivedProperties::AbstractPropertyManager::addSurfaceProperty ( const SurfacePropertyPtr& surfaceProperty ) {
    m_surfaceProperties.push_back ( surfaceProperty );
 }
 
-void DerivedProperties::AbstractPropertyManager::addFormationMapProperty ( const FormationMapPropertyPtr formationMapProperty ) {
+void DerivedProperties::AbstractPropertyManager::addFormationMapProperty ( const FormationMapPropertyPtr& formationMapProperty ) {
    m_formationMapProperties.push_back ( formationMapProperty );
 }
 
-void DerivedProperties::AbstractPropertyManager::addFormationProperty ( const FormationPropertyPtr formationProperty ) {
+void DerivedProperties::AbstractPropertyManager::addFormationProperty ( const FormationPropertyPtr& formationProperty ) {
    m_formationProperties.push_back ( formationProperty );
 }
 
-void DerivedProperties::AbstractPropertyManager::addFormationSurfaceProperty ( const FormationSurfacePropertyPtr formationSurfaceProperty ) {
+void DerivedProperties::AbstractPropertyManager::addFormationSurfaceProperty ( const FormationSurfacePropertyPtr& formationSurfaceProperty ) {
    m_formationSurfaceProperties.push_back ( formationSurfaceProperty );
 }
 
@@ -314,7 +362,6 @@ DerivedProperties::FormationMapPropertyPtr DerivedProperties::AbstractPropertyMa
    return result;
 }
 
-
 DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManager::getFormationProperty ( const DataModel::AbstractProperty*  property,
                                                                                                            const DataModel::AbstractSnapshot*  snapshot,
                                                                                                            const DataModel::AbstractFormation* formation ) {
@@ -388,4 +435,10 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
    }
 
    return result;
+}
+
+void DerivedProperties::AbstractPropertyManager::removeProperties ( const DataModel::AbstractSnapshot* snapshot ) {
+   FormationPropertyList::iterator toRemove = std::remove_if ( m_formationProperties.begin (), m_formationProperties.end (),
+                                                               FormationPropertyErasePredicate ( snapshot ));
+   m_formationProperties.erase ( toRemove, m_formationProperties.end ());
 }
