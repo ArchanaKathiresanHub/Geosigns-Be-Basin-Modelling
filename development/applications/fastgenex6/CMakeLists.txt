@@ -20,7 +20,6 @@ source_group(source FILES ${all_srcs})
 
 add_executable(fastgenex6 ${all_srcs} ${all_headers})
 
-
 include_directories(
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
@@ -43,28 +42,6 @@ bm_include_libraries(
 	TableIO
 )
 
-# OFPP only for Linux
-if (UNIX)
-	bm_include_libraries( OneFilePerProcess )
-endif (UNIX)
-
-set (targetLibraries
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
-)
-
-if (UNIX)
-	set (targetLibraries
-		${targetLibraries}
-		OneFilePerProcess
-	)
-else ()
-	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
-	set( CMAKE_EXE_LINKER_FLAGS  
-		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
-	)
-endif (UNIX)
-
 target_link_libraries( fastgenex6
 	DataAccess
 	DistributedDataAccess
@@ -78,8 +55,20 @@ target_link_libraries( fastgenex6
 	OTGC_kernel6
 	utilities
 	TableIO
-	${targetLibraries}
+	${HDF5_LIBRARIES}
+	${PETSC_LIBRARIES}
 )
+
+# OFPP only for Linux
+if (UNIX)
+	target_link_libraries(fastgenex6 OneFilePerProcess)
+	bm_include_libraries( OneFilePerProcess )
+else ()
+	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
+	set( CMAKE_EXE_LINKER_FLAGS  
+		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
+	)
+endif (UNIX)
 
 set_target_properties(fastgenex6
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"

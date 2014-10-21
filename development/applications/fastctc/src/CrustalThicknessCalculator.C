@@ -650,7 +650,10 @@ bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aMap) {
 //------------------------------------------------------------//
 bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
+#ifdef _MSC_VER
+	return true;
+#else
+	if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
   
    PetscBool noFileCopy = PETSC_FALSE;
 
@@ -676,6 +679,7 @@ bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );
    }
    return status;
+#endif
 }
 
 //------------------------------------------------------------//

@@ -12,11 +12,13 @@
 
 if (BM_PARALLEL)
 
-add_executable(fastctc
-	src/CrustalThicknessCalculator.C 
-	src/CrustalThicknessCalculatorFactory.C 
-	src/main.C
-)
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_executable(fastctc ${all_srcs} ${all_headers})
 
 bm_include_libraries(
 	DataModel
@@ -46,7 +48,6 @@ target_link_libraries(fastctc
 	TableIO
 	CBMGenerics
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	utilities
 	Utilities_Petsc
@@ -56,6 +57,17 @@ target_link_libraries(fastctc
 	${HDF5_LIBRARIES}
 	${PETSC_LIBRARIES}
 )
+
+# OFPP only for Linux
+if (UNIX)
+	target_link_libraries(fastctc OneFilePerProcess)
+	bm_include_libraries( OneFilePerProcess )
+else ()
+	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
+	set( CMAKE_EXE_LINKER_FLAGS  
+		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
+	)
+endif (UNIX)
 
 set_target_properties(fastctc
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"

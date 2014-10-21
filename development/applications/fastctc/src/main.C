@@ -123,6 +123,7 @@ int main (int argc, char ** argv)
    char feature[] = "ibs_cauldron_calc";
 #endif 
 
+#ifndef _MSC_VER
    PetscBool myddd = PETSC_FALSE;
    PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
    if (myddd)
@@ -134,6 +135,7 @@ int main (int argc, char ** argv)
       system (cmd);
       sleep (20);
    }
+#endif
 
    PetscBool isDefined = PETSC_FALSE;
    

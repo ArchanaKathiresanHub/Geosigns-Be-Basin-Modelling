@@ -53,6 +53,7 @@ else ()
 	add_subdirectory(fastcauldron)
 	add_subdirectory(fastmig)
 	add_subdirectory(fastgenex6)
+	add_subdirectory(fastctc)
 endif ()
 
 # Local Variables:
