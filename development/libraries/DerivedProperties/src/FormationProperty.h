@@ -26,7 +26,7 @@ namespace DerivedProperties {
                           const DataModel::AbstractGrid*      grid,
                           const unsigned int                  nk );
 
-      virtual ~FormationProperty () {}
+      virtual ~FormationProperty ();
 
       /// \brief Get the grid on which the property values are defined.
       const DataModel::AbstractGrid* getGrid () const;
@@ -72,6 +72,11 @@ namespace DerivedProperties {
       virtual double get ( unsigned int i,
                            unsigned int j,
                            unsigned int k ) const = 0;
+
+      /// \brief Get the value of the property at the position i,j and interpolated at a position k.
+      virtual double interpolate ( unsigned int i,
+                                   unsigned int j,
+                                   double       k ) const;
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const = 0;
