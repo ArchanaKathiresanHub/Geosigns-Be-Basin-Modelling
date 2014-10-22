@@ -20,7 +20,7 @@ bool SurfaceGridMapContainer::allValid()
    {
       for (constant_properties::iterator gm = (*it).second.begin(); 
 	 gm != (*it).second.end(); ++gm)
-	 if (!(*gm).second.map())
+	 if (!(*gm).second.valid())
             return false;
    }
 
@@ -29,7 +29,7 @@ bool SurfaceGridMapContainer::allValid()
    {
       for (continuous_properties::iterator gm = (*it).second.begin(); 
 	 gm != (*it).second.end(); ++gm)
-	 if (!(*gm).surface().map())
+	 if (!(*gm).surface().valid())
             return false;
    } }
 
@@ -39,9 +39,9 @@ bool SurfaceGridMapContainer::allValid()
       for (discontinuous_properties::iterator gm = (*it).second.begin(); 
 	 gm != (*it).second.end(); ++gm)
       {
-	 if (!(*gm).top().map())
+	 if (!(*gm).top().valid())
             return false;
-	 if (!(*gm).base().map())
+	 if (!(*gm).base().valid())
             return false;
       }
    } }

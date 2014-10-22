@@ -6,7 +6,9 @@
 #include "AbstractProperty.h"
 #include "AbstractGrid.h"
 
+#include "Interface/Grid.h"
 #include "Interface/GridMap.h"
+#include "Interface/Property.h"
 #include "Interface/RunParameters.h"
 
 #include "AbstractPropertyManager.h"
@@ -28,10 +30,10 @@ namespace DerivedProperties {
       ///
       /// If the name is not found then a null pointer will be returned.
       /// \param [in] name The name of the required property.
-      virtual const DataModel::AbstractProperty* getProperty ( const std::string& name ) const;
+      virtual const DataAccess::Interface::Property* getProperty ( const std::string& name ) const;
 
       /// \brief Get the grid for the map.
-      virtual const DataModel::AbstractGrid* getMapGrid () const;
+      virtual const DataAccess::Interface::Grid* getMapGrid () const;
 
       /// \brief Return whether or not the node is defined.
       bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
@@ -40,6 +42,7 @@ namespace DerivedProperties {
       const DataAccess::Interface::RunParameters* getRunParameters() const;
 
    protected :
+
       /// \brief The geophysics project handle
       GeoPhysics::ProjectHandle* m_projectHandle;
 
@@ -64,7 +67,6 @@ namespace DerivedProperties {
       ///
       /// These are volume properties loaded from the property-values in the project-handle.
       void loadFormationPropertyCalculators ();
-
 
    }; 
 

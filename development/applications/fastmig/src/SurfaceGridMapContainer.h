@@ -49,8 +49,6 @@ private:
    map<ContinuousPropertyEnum, continuous_properties> m_continuous;
    map<DiscontinuousPropertyEnum, discontinuous_properties> m_discontinuous;
 
-   vector<const GridMap*> m_ownedGridMaps;
-
 public:
 
    SurfaceGridMapContainer();

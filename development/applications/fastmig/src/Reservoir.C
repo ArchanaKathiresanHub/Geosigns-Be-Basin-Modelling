@@ -15,6 +15,7 @@
 #include "RequestHandling.h"
 
 #include "Interface/ProjectHandle.h"
+#include "Interface/Property.h"
 #include "Interface/Snapshot.h"
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
@@ -742,13 +743,12 @@ bool Reservoir::computeOverburdens (void)
 
 bool Reservoir::computeSeaBottomPressures (void)
 {
-   const GridMap * gridMap = getSeaBottomPressureMap (getEnd ());
-   if (!gridMap)
-   {
+
+   DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomPressureProperty (getEnd ());
+
+   if ( gridMap == 0 ) {
       return false;
    }
-
-   gridMap->retrieveData ();
 
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
@@ -757,11 +757,10 @@ bool Reservoir::computeSeaBottomPressures (void)
 	 LocalColumn * column = getLocalColumn (i, j);
 	 if (IsValid (column))
 	 {
-	    column->setSeaBottomPressure (column->getTopDepth () - gridMap->getValue (i, j));
+	    column->setSeaBottomPressure (column->getTopDepth () - gridMap->get (i, j));
 	 }
       }
    }
-   gridMap->restoreData ();
 
    return true;
 }
@@ -1172,13 +1171,16 @@ bool Reservoir::computePressures (void)
 
 bool Reservoir::computeHydrostaticPressures (void)
 {
-   const GridMap * gridMap = getPropertyGridMap ("HydroStaticPressure", getEnd ());
-   if (!gridMap) return false;
 
-   unsigned int depth = gridMap->getDepth ();
+   DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("HydroStaticPressure", getEnd ());
+
+   if ( gridMap == 0 ) {
+      return false;
+   }
+
+   unsigned int depth = gridMap->lengthK ();
    assert (depth > 1);
 
-   gridMap->retrieveData ();
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -1188,10 +1190,10 @@ bool Reservoir::computeHydrostaticPressures (void)
 	 index = Max ((double) 0, index);
 	 index = Min ((double) depth - 1, index);
 
-	 column->setHydrostaticPressure (gridMap->getValue (i, j, index));
+	 column->setHydrostaticPressure (gridMap->get (i, j, index));
       }
+
    }
-   gridMap->restoreData ();
 
    return true;
 }
@@ -1332,36 +1334,52 @@ const GridMap * Reservoir::getSeaBottomDepthMap (const Snapshot * snapshot) cons
    return gridMap;
 }
 
-const GridMap * Reservoir::getSeaBottomPressureMap (const Snapshot * snapshot) const
-{
-   string propertyName = "HydroStaticPressure";
+DerivedProperties::SurfacePropertyPtr Reservoir::getSeaBottomPressureProperty ( const Interface::Snapshot * snapshot) const {
+
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( "HydroStaticPressure" );
 
    FormationList * formations = m_projectHandle->getFormations (snapshot);
+
    assert (formations);
    assert (formations->size () > 0);
 
-   Interface::FormationList::iterator formationIter;
-   const GridMap * gridMap = 0;
-   // continue downward until a gridMap is returned
-   for (formationIter = formations->begin (); gridMap == 0 && formationIter != formations->end (); ++formationIter)
-   {
-      const Formation * topFormation = dynamic_cast<const Formation *>( * formationIter );
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
+   const Interface::Formation* topFormation = 0;
 
-      gridMap = getPropertyGridMap (propertyName, snapshot, 0, 0, topFormation->getTopSurface ());
+   for ( size_t i = 0; i < formations->size (); ++i ) {
+
+      if ((*formations)[ i ]->getTopSurface ()->getSnapshot ()->getTime () <= snapshot->getTime ()) {
+         topFormation = (*formations)[ i ];
+      }
+
    }
 
+   DerivedProperties::SurfacePropertyPtr hydrostaticPressure = mig->getPropertyManager ().getSurfaceProperty ( property, snapshot, topFormation->getTopSurface ());
+
    delete formations;
-   return gridMap;
+   return hydrostaticPressure;
+
 }
 
+
+DerivedProperties::FormationPropertyPtr Reservoir::getFormationPropertyPtr ( const string &              propertyName,
+                                                                             const Interface::Snapshot * snapshot ) const {
+
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
+
+   return mig->getPropertyManager ().getFormationProperty ( property, snapshot, getFormation ());
+}
+
+
 const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
-      const Snapshot * snapshot) const
+                                               const Snapshot * snapshot) const
 {
    return getVolumePropertyGridMap ( dynamic_cast<const Formation *>( getFormation ()), propertyName, snapshot);
 }
 
 const GridMap * Reservoir::getVolumePropertyGridMap (const Formation * formation, const string & propertyName,
-      const Snapshot * snapshot) const
+                                                     const Snapshot * snapshot) const
 {
    int selectionFlags = Interface::FORMATION;
 

@@ -22,11 +22,11 @@ DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::
    loadFormationPropertyCalculators ();
 }
 
-const DataModel::AbstractProperty* DerivedProperties::DerivedPropertyManager::getProperty ( const std::string& name ) const {
+const DataAccess::Interface::Property* DerivedProperties::DerivedPropertyManager::getProperty ( const std::string& name ) const {
    return m_projectHandle->findProperty ( name );
 }
 
-const DataModel::AbstractGrid* DerivedProperties::DerivedPropertyManager::getMapGrid () const {
+const DataAccess::Interface::Grid* DerivedProperties::DerivedPropertyManager::getMapGrid () const {
    return m_projectHandle->getActivityOutputGrid ();
 }
 
@@ -82,7 +82,6 @@ void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators
       const DataAccess::Interface::Property* property = (*allFormationProperties)[ i ];
 
       addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property )));
-
    } 
 
    delete allFormationProperties;

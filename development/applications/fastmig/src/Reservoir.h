@@ -15,6 +15,9 @@ namespace database
 
 #include "Interface/Reservoir.h"
 
+#include "SurfaceProperty.h"
+#include "FormationProperty.h"
+
 namespace DataAccess
 {
    namespace Interface
@@ -222,6 +225,9 @@ namespace migration
 	       const Interface::Snapshot * snapshot) const;
 	 const Interface::GridMap * getSeaBottomPressureMap (
 	       const Interface::Snapshot * snapshot) const;
+
+      DerivedProperties::SurfacePropertyPtr getSeaBottomPressureProperty ( const Interface::Snapshot * snapshot) const;
+
 	 const Interface::GridMap * getPropertyGridMap (const string & propertyName,
 	       const Interface::Snapshot * snapshot,
 	       const Interface::Reservoir * reservoir,
@@ -239,6 +245,9 @@ namespace migration
 	       const Interface::Snapshot * snapshot) const;
 	 const Interface::GridMap * getFormationPropertyGridMap (const string & propertyName,
 	       const Interface::Snapshot * snapshot) const;
+
+      DerivedProperties::FormationPropertyPtr getFormationPropertyPtr ( const string &              propertyName,
+                                                                        const Interface::Snapshot * snapshot ) const;
 
 	 ProxyColumn * getProxyColumn (unsigned int i, unsigned int j);
    public:

@@ -36,7 +36,6 @@ public:
    double operator[](const Tuple2<unsigned int>& ij) const;
 
    bool valid() const { return m_gridMap; }
-   const GridMap* map() const { return m_gridMap; }
 };
 
 } // namespace migration

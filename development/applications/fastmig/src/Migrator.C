@@ -50,8 +50,10 @@ extern string NumProcessorsArg;
 
 Migrator::Migrator (database::Database * database, const string & name, const string & accessMode) :
    GeoPhysics::ProjectHandle (database, name, accessMode),
-   m_massBalance(0)
+   m_massBalance(0),
+   m_propertyManager ( this )
 {
+
    m_reservoirs = 0;
    m_formations = 0;
    InitializeRequestTypes ();
@@ -71,6 +73,7 @@ Migrator::Migrator (database::Database * database, const string & name, const st
 
 Migrator::~Migrator (void)
 {
+
    if (m_reservoirs) delete m_reservoirs;
    if (m_formations) delete m_formations;
 #ifdef USEOTGC
@@ -169,10 +172,12 @@ bool Migrator::compute (void)
 
       continueActivity ();
 
+      m_propertyManager.removeProperties ( start );
       deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
             0, start, 0, 0, 0, Interface::MAP | Interface::VOLUME); 
    }
 
+   m_propertyManager.removeProperties ( end );
    deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
          0, end, 0, 0, 0, Interface::MAP | Interface::VOLUME); 
 

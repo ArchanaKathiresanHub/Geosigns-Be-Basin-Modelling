@@ -33,6 +33,7 @@ namespace database
 }
 
 #include "GeoPhysicsProjectHandle.h"
+#include "MigrationPropertyManager.h"
 
 
 using namespace DataAccess;
@@ -118,8 +119,14 @@ namespace migration
 	 void deleteExpelledChargeMaps (const Interface::Snapshot * snapshot);
 
 	 const Interface::GridMap * getPropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot,
-	       const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface) const;
+                                                        const Interface::Snapshot * snapshot,
+                                                        const Interface::Reservoir * reservoir,
+                                                        const Interface::Formation * formation,
+                                                        const Interface::Surface * surface) const;
+
+
+         MigrationPropertyManager& getPropertyManager ();
+
 
       private:
 	 mutable DataAccess::Interface::FormationList * m_formations;
@@ -138,7 +145,14 @@ namespace migration
 
 	 vector<database::Record *> * m_migrationRecordLists;
 
+      MigrationPropertyManager m_propertyManager;
+
    };
 }
+
+inline migration::MigrationPropertyManager& migration::Migrator::getPropertyManager () {
+   return m_propertyManager;
+}
+
 
 #endif // _MIGRATION_MIGRATOR_H
