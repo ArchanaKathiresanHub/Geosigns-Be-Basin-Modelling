@@ -15,7 +15,7 @@ goto exit
 :l1
 set HDF5_ROOT=%TOP_LEVEL_DIR%\..\3rdparty\hdf5.win64\hdf5
 
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -G"Visual Studio 10 Win64" %TOP_LEVEL_DIR% ^
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -G"Visual Studio 11 Win64" %TOP_LEVEL_DIR% ^
 	-DCMAKE_INSTALL_PREFIX=%CD%
 
 "C:\Program Files (x86)\CMake 2.8\bin\cmake-gui.exe" -H%TOP_LEVEL_DIR% -B%CD%

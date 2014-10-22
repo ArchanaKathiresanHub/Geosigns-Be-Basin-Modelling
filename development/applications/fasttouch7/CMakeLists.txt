@@ -10,7 +10,7 @@
 #                                                                       #
 #########################################################################
 
-if (BM_PARALLEL AND TS7_ROOT)
+if (BM_PARALLEL AND TSLIB_ROOT)
 
 add_executable(fasttouch7
 	src/main.C
@@ -46,7 +46,7 @@ include_directories(
 	${PETSC_INCLUDE_DIRS}
 	${XERCES_INCLUDE_DIRS}
 	${XSD_INCLUDE_DIRS}
-	${TS7_INCLUDE_DIRS}
+	${TSLIB_INCLUDE_DIRS}
 )
 
 target_link_libraries(fasttouch7
@@ -54,20 +54,23 @@ target_link_libraries(fasttouch7
 	DistributedDataAccess
 	Utilities_Petsc
 	Serial_Hdf5
-	OneFilePerProcess
 	Parallel_Hdf5
 	TableIO
 	utilities
 	CBMGenerics
-	${TS7_LIBRARIES}
+	${TSLIB_LIBRARIES}
 	${HDF5_LIBRARIES}
 	${XERCES_LIBRARIES}
 	${PETSC_LIBRARIES}
 )
 
+if (UNIX)
+target_link_libraries(fasttouch7
+    OneFilePerProcess)
+endif(UNIX)
+
 set_target_properties(fasttouch7
-      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
-)
+      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}")
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
@@ -78,7 +81,12 @@ install(TARGETS fasttouch7
 	RUNTIME DESTINATION bin
 )
 
-endif(BM_PARALLEL AND TS7_ROOT)
+if(WIN32)
+#Min and Max defined in BurialHistorySchema.hxx collides with the min max macro
+  add_definitions(-DNOMINMAX)
+endif()
+
+endif(BM_PARALLEL AND TSLIB_ROOT)
 
 # Local Variables:
 # mode: cmake

@@ -52,8 +52,11 @@ if (UNIX)
 else ()
 	add_subdirectory(fastcauldron)
 	add_subdirectory(fastmig)
+   add_subdirectory(fastctc)
 	add_subdirectory(fastgenex6)
-	add_subdirectory(fastctc)
+   if ( MSVC11 )
+      add_subdirectory(fasttouch7)
+   endif()
 endif ()
 
 # Local Variables:

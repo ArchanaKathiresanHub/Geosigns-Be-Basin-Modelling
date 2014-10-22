@@ -1,6 +1,5 @@
 #include "hdf5.h"
 #include <stdlib.h>
-#include <unistd.h>
 
 #include "petscvec.h"
 #include "petsc.h"
@@ -22,6 +21,8 @@ using namespace std;
 
 #ifdef _WIN32
    #include <direct.h>
+   #include <process.h>
+   #include <windows.h>
    #define GetCurrentDir _getcwd
    #define GetProcessID _getpid
    #define DIRDELIMCHAR "\\"
@@ -85,7 +86,7 @@ static void SetUpTempMCRFolder()
       oss << workingDir;
       free( workingDir );
    }
-
+   
    oss << DIRDELIMCHAR << "mcrTemp_" << GetProcessID(); 
    putenv( strdup( oss.str().c_str() ) );
 }
@@ -103,7 +104,9 @@ static void CleanTempMCRFolder()
    if ( !tmpDir ) // clean MCR cache folder only in case if it is in current folder (no TMPDIR variable defined)
    {
       const char * path = getenv( "MCR_CACHE_ROOT" );
+#ifndef _WIN32    
       nftw( path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS );
+#endif
    }
 }
 //////////////////////////////////////////////////////////////////
@@ -124,7 +127,7 @@ int main (int argc, char ** argv)
         argv0 = argv[0];
     else
         ++argv0;
-    
+
     PetscOptionsHasName (PETSC_NULL, "-debug", &debug);
 
     char inputFileName[128];
@@ -137,7 +140,7 @@ int main (int argc, char ** argv)
         PetscFinalize ();
         EXIT (-1);
     }
- 
+
     char outputFileName[128];
     PetscBool outputFileSet;
  
@@ -146,39 +149,43 @@ int main (int argc, char ** argv)
     {
         strcpy (outputFileName, inputFileName);
     }
- 
+
+#ifdef unix 
+
     PetscBool ddd = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
     if (ddd)
     {
-        char cmd[150];
-        
+        char cmd[150];  
+
         sprintf (cmd, "/usr/bin/ddd --debugger /usr/bin/gdb %s %d &", argv[0],  getpid ());
         system (cmd);
-        sleep (10);
+        sleep(10);
     }
 
     PetscBool myddd = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
     if (myddd)
     {
-        char cmd[150];
-        
+        char cmd[150]; 
+
         sprintf (cmd, "/glb/home/ksaho3/bin/myddd %s %d &", argv[0],  getpid ());
         system (cmd);
-        sleep (10);
+        sleep(10);
     }
     
     PetscBool gdb = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-gdb", &gdb);
     if (gdb)
     {
-        char cmd[150];
-        
+        char cmd[150];  
+
         sprintf (cmd, "/usr/bin/gdb %s %d &", argv[0],  getpid ());
         system (cmd);
-        sleep (10);
+        sleep(10);
     }
+
+#endif
 
 
 #ifdef FLEXLM

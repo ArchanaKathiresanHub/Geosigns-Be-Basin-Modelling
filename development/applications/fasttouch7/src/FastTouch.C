@@ -1,4 +1,8 @@
+#ifdef _WIN32
+#include <direct.h>
+#else
 #include <unistd.h>
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -8,7 +12,9 @@ using namespace std;
 #include "petscdmda.h"
 
 #include "h5_parallel_file_types.h"
+#ifndef _MSC_VER
 #include "h5merge.h"
+#endif
 
 #include "database.h"
 #include "cauldronschema.h"
@@ -70,8 +76,8 @@ bool FastTouch::removeResqPropertyValues (void)
 bool FastTouch::compute (void)
 {
 
-    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
- 
+   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+
     bool started = startActivity (FastTouchActivityName, getLowResolutionOutputGrid ());
  
     if (!started) return false;
@@ -124,7 +130,7 @@ bool FastTouch::mergeOutputFiles ( ) {
    if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ){
       return true; 
    }
-
+#ifndef _MSC_VER   
    PetscBool noFileCopy = PETSC_FALSE;
    
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
@@ -142,4 +148,7 @@ bool FastTouch::mergeOutputFiles ( ) {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );   
    }
    return status;
+#else
+   return true;
+#endif
 }

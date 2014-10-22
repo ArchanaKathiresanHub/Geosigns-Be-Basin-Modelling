@@ -1,5 +1,3 @@
-#include <unistd.h>
-
 #include "petsc.h"
 
 // Touchstone Include files
@@ -23,6 +21,14 @@ using namespace std;
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
 #include "Interface/PropertyValue.h"
+
+#ifdef _WIN32
+#include <direct.h>
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 
 double MinimumAll (double myValue);
 

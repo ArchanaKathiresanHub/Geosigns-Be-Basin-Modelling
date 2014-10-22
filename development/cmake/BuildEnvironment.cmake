@@ -27,15 +27,13 @@ add_environment_variable( GENEX6DIR "${PROJECT_SOURCE_DIR}/geocase/misc/genex60"
 add_environment_variable( OTGCDIR "${PROJECT_SOURCE_DIR}/geocase/misc/OTGC")
 add_environment_variable( CTCDIR "${PROJECT_SOURCE_DIR}/geocase/misc")
 
-if (TS7_ROOT)
-   add_environment_variable( GEOCOSMBASEDIR "${TS7_ROOT}" )
-   add_environment_variable( GEOCOSMDIR "${TS7_LIBRARY_DIR}")
-   set(MatlabMCR "${TS7_ROOT}/3rdparty/matlabmcr/matlab/v713" )
-   add_environment_variable( MATLABMCR "${MatlabMCR}" )
-   add_environment_variable( XAPPLRESDIR "${MatlabMCR}/X11/app-defaults" )
-   add_environment_variable( LD_LIBRARY_PATH "${MatlabMCR}/runtime/glnxa64:${MatlabMCR}/sys/os/glnxa64:${MatlabMCR}/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:${MatlabMCR}/sys/java/jre/glnxa64/jre/lib/amd64/server:${MatlabMCR}/sys/java/jre/glnxa64/jre/lib/amd64:${TS7_LIBRARY_DIR}:\$LD_LIBRARY_PATH")
+if (TSLIB_ROOT)
+add_environment_variable( GEOCOSMBASEDIR "${TSLIB_ROOT}" )
+add_environment_variable( GEOCOSMDIR "${TSLIB_LIBRARY_DIR}")
+add_environment_variable( MATLABMCR "${MCR_ROOT}" )
+add_environment_variable( XAPPLRESDIR "${MCR_ROOT}/X11/app-defaults" )
+add_environment_variable( LD_LIBRARY_PATH "${MCR_ROOT}/runtime/glnxa64:${MCR_ROOT}/runtime/bin/glnxa64:${MCR_ROOT}/sys/os/glnxa64:${MCR_ROOT}/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:${MCR_ROOT}/sys/java/jre/glnxa64/jre/lib/amd64/server:${MCR_ROOT}/sys/java/jre/glnxa64/jre/lib/amd64:${TSLIB_LIBRARY_DIR}:\$LD_LIBRARY_PATH")
 endif()
-
 add_environment_variable( LANG "en_US.UTF-8" )
 
 # Setting the PATH variable to /apps/sssdev
@@ -47,9 +45,9 @@ add_environment_path( "${CMAKE_COMMAND_PATH}" )
 
 # Add license server
 if (BM_USE_FLEXLM)
-   add_environment_variable( SIEPRTS_LICENSE_FILE
+add_environment_variable( SIEPRTS_LICENSE_FILE
       "3000@ams1-s-07489.europe.shell.com:3000@houic-s-9320.americas.shell.com:3000@cbj-s-8447.asia-pac.shell.com"
-   )
+)
 endif()
 #NOTE: This variables can be reverse engineered by running the a IBS application
 #      with CSCE_DEBUG=1 set

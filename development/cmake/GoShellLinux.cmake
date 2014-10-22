@@ -48,8 +48,22 @@ set( FLEXLM_LIBRARY "${FLEXLM_ROOT}/LinuxRHEL_i686_30WS/lib64/EPTFlexLm.o" CACHE
 
 set( LSF_HOME "/glb/apps/hpc/lsfprod/9.1/linux2.6-glibc2.3-x86_64" CACHE PATH "Home dir for LSF binary files")
 
-set( TS7_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/tslib/tslib-7.3" CACHE PATH "Path to Geocosm's TsLib 7.3" )
-
 set(PARAVIEW_CONFIG_ROOT "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linux64x_26/lib/cmake/paraview-4.1"
       CACHE PATH "Path where ParaViewConfig.cmake can be found")
+	
+set( TSLIB_VERSION "7.3")	
+set( TSLIB_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/tslib/tslib-7.3" CACHE PATH "Path to Geocosm's TsLib" )
+set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library directory")
+
+set( MCR_ROOT "${TSLIB_ROOT}/3rdparty/matlabmcr/matlab/v713" CACHE PATH "Path to Matlab Compiler Runtime")
+set( MCR_VERSION "713" CACHE STRING "Matlab Compiler Runtime Version")
+
+set( XERCES_ROOT "${TSLIB_ROOT}/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
+set( XERCES_LIBRARIES "${XERCES_ROOT}/lib/libxerces-c-3.1.so" )
+
+set( XSD_ROOT "${TSLIB_ROOT}/3rdparty/xsd/xsd-3.3.0.b3-i686-linux-gnu/libxsd" CACHE PATH "Path to Codesynthesis's XSD library")
+
+
+
+
 

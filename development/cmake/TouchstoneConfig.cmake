@@ -15,21 +15,21 @@ include(cmake/AddPackage.cmake)
 #
 # Add Geocosm's Touchstone libraries + all its 3rd party components
 #
- 
-set( TS7_ROOT "TS7-NOTFOUND" CACHE PATH "Path to Geocosm's TsLib 7.3" )
-set( TS7_LIBRARY_DIR "${TS7_ROOT}/bin/x86_64_linux/Release")
-set( TS7_INCLUDE_DIRS "${TS7_ROOT}/include;${TS7_ROOT}/geocosmxml" )
-find_library( GeocosmBaseCpp "geocosmxmllibbasecpp" PATHS "${TS7_LIBRARY_DIR}" NO_DEFAULT_PATH)
-find_library( GeocosmException "geocosmexception"   PATHS "${TS7_LIBRARY_DIR}" NO_DEFAULT_PATH)
-set( TS7_LIBRARIES )
-list(APPEND TS7_LIBRARIES "${GeocosmBaseCpp}" "${GeocosmException}")
-mark_as_advanced( GeocosmBaseCpp GeocosmException )
-     
+
+set( TSLIB_ROOT "TSLIB-NOTFOUND" CACHE PATH "Path to Geocosm's TsLib" )
+set( TSLIB_LIBRARY_DIR "TSLIB_LIBRARY_DIR-NOTFOUND" CACHE PATH "Path to Geocosm's TsLib library dir" )
+set( TSLIB_INCLUDE_DIRS "${TSLIB_ROOT}/include;${TSLIB_ROOT}/geocosmxml" )
+find_library( TSLIB_GEOCOSMBASECPP "geocosmxmllibbasecpp" PATHS "${TSLIB_LIBRARY_DIR}" NO_DEFAULT_PATH)
+find_library( TSLIB_GEOCOSMEXCEPTION "geocosmexception"   PATHS "${TSLIB_LIBRARY_DIR}" NO_DEFAULT_PATH)
+set( TSLIB_LIBRARIES )
+list(APPEND TSLIB_LIBRARIES "${TSLIB_GEOCOSMBASECPP}" "${TSLIB_GEOCOSMEXCEPTION}")
+mark_as_advanced( TSLIB_GEOCOSMBASECPP TSLIB_GEOCOSMEXCEPTION )
+
 add_external_package_info(
       CAPABILITY TsLib7
       NAME    "TsLib"
       VENDOR  "Geocosm"
-      VERSION "7.3.0.3436"
+      VERSION "${TSLIB_VERSION}"
       LICENSE_TYPE "Commercial"
       LICENSE_FILE ""
       URL "http://www.geocosm.net/consortia/touchstone.htm"
@@ -42,11 +42,10 @@ add_external_package_info(
       CONTAINS_CRYPTO "No"
       ECCN         "EAR99"
 )
- 
-set( XERCES_ROOT "${TS7_ROOT}/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
+
+set( XERCES_ROOT "XERCES-NOTFOUND" CACHE PATH "Path to Xerces-C library" )
 set( XERCES_INCLUDE_DIRS "${XERCES_ROOT}/include")
 find_library( XERCES_LIBRARIES "xerces-c-3.1" PATHS "${XERCES_ROOT}/lib" NO_DEFAULT_PATH)
-
 add_external_package_info(
       CAPABILITY XercesC
       NAME    "Xerces-C"
@@ -66,7 +65,7 @@ add_external_package_info(
       ECCN         "EAR99"
 )
 
-set( XSD_ROOT "${TS7_ROOT}/3rdparty/xsd/xsd-3.3.0.b3-i686-linux-gnu/libxsd" CACHE PATH "Path to Codesynthesis's XSD library")
+set( XSD_ROOT "XSD-NOTFOUND" CACHE PATH "Path to Codesynthesis's XSD library")
 set( XSD_INCLUDE_DIRS "${XSD_ROOT}")
 add_external_package_info(
       CAPABILITY XSD
@@ -87,13 +86,15 @@ add_external_package_info(
       ECCN         "Unknown"
 )
 
+set( MCR_ROOT "MCR-NOTFOUND" CACHE PATH "Path to Matlab Compiler Runtime")
+set( MCR_VERSION "Unknown" CACHE STRING "Matlab Compiler Runtime Version")
 add_external_package_info(
       CAPABILITY MatlabCompilerRuntime
       NAME       "Matlab Compiler Runtime"
       VENDOR     "The Mathworks, Inc."
-      VERSION    "7.13"
+      VERSION    "${MCR_VERSION}"
       LICENSE_TYPE "Commercial"
-      LICENSE_FILE  "${TS7_ROOT}/3rdparty/matlabmcr/matlab/v713/license.txt"
+      LICENSE_FILE  "${MCR_ROOT}/license.txt"
       URL        "http://www.mathworks.co.uk/products/compiler/mcr"
       DESCRIPTION "High-level language and interactive environment for numerical computation, visualization, and programming"
       REQUIRED_BY "TsLib7"
@@ -113,7 +114,7 @@ add_external_package_info(
       VENDOR     "Oracle"
       VERSION    "1.5.0_04"
       LICENSE_TYPE "Commercial"
-      LICENSE_FILE  "${TS7_ROOT}/3rdparty/matlabmcr/matlab/_jvm/LICENSE"
+      LICENSE_FILE  "${MCR_ROOT}/sys/java/jre/win64/jre/LICENSE"
       URL "http://www.oracle.com/technetwork/java/javase/overview/index.html"
       DESCRIPTION "Java Runtime Environment used by InstallShield installer of Matlab Compiler Runtime that is used by Geocosm's TsLib"
       REQUIRED_BY "MatlabCompilerRuntime"
@@ -134,7 +135,7 @@ add_external_package_info(
       VENDOR     "Oracle"
       VERSION    "1.6.0_12"
       LICENSE_TYPE "Commercial"
-      LICENSE_FILE "${TS7_ROOT}/3rdparty/matlabmcr/matlab/v713/sys/java/jre/glnxa64/jre/LICENSE"
+      LICENSE_FILE "${MCR_ROOT}/sys/java/jre/win64/jre/LICENSE"
       URL "http://www.oracle.com/technetwork/java/javase/overview/index.html"
       DESCRIPTION "Java Runtime Environment used by Matlab Compiler Runtime that is used by Geocosm's TsLib"
       REQUIRED_BY "MatlabCompilerRuntime"
