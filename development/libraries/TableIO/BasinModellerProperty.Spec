@@ -2824,7 +2824,7 @@ START-properties
     Description         : Vertical Effective Stress double exponential compaction coefficient A
     Unit of measurement : 10-8Pa-1
     Type                : float
-    Error Field         : Yes
+    Error Field         : No
     Time dependent      : No
     Property I/O        : No
     Default             : 0.0
@@ -2833,7 +2833,7 @@ START-properties
     Description         : Vertical Effective Stress double exponential compaction coefficient B
     Unit of measurement : 10-8Pa-1
     Type                : float
-    Error Field         : Yes
+    Error Field         : No
     Time dependent      : No
     Property I/O        : No
     Default             : 0.0
