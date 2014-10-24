@@ -26,6 +26,7 @@ add_library(casaapi
 bm_include_libraries(
    CBMGenerics
    cmbAPI
+   FileSystem
    utilities
    DataModel
 )
@@ -38,6 +39,7 @@ include_directories(
 
 target_link_libraries(casaapi 
    cmbapi
+   FileSystem
    utilities
    SUMlib
 )

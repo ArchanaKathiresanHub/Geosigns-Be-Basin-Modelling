@@ -16,52 +16,19 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(cmbapi
-	${all_srcs}
-	${all_headers}
+add_library(FileSystem
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(
-   DataModel
-   CBMGenerics
-   Serial_Hdf5
-   DataAccess
-   TableIO
    utilities
-   FileSystem
 )
 
-include_directories(
-   ${HDF5_INCLUDE_DIRS}
-   src
-)
-
-target_link_libraries(cmbapi
-   CBMGenerics
+target_link_libraries(FileSystem
    utilities
-   TableIO
-   Serial_Hdf5
-   DataAccess
-   SerialDataAccess
-   FileSystem
    ${Boost_LIBRARIES}
 )
 
-generate_dox( src/API.cfg )
-	
-#######################################
-### Unit Tests
-#######################################
+generate_dox( src/FileSystem.cfg)
 
-#######################################
-# Unit tests for DoEGeneratorTest
-
-#Various cauldron projects which are used in unit tests
-configure_file(test/Project.project3d Project.project3d COPYONLY )
-configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
-
-
-add_gtest( NAME mbapiModelTest
-   SOURCES test/mbapiModelTest.C
-   LIBRARIES cmbapi DataAccess SerialDataAccess
-)

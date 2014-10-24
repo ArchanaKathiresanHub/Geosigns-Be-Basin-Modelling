@@ -24,7 +24,7 @@ bm_include_libraries(
    casaAPI
    cmbAPI
    CBMGenerics
-   ${SUMPP_INCLUDE_DIR}
+   FileSystem
    utilities
 )
 

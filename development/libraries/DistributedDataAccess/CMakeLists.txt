@@ -34,6 +34,7 @@ if (BM_PARALLEL)
 		Serial_Hdf5
 		Parallel_Hdf5
 		TableIO
+                FileSystem
 		utilities
 		CBMGenerics
 		${HDF5_LIBRARIES}
@@ -50,6 +51,7 @@ if (BM_PARALLEL)
 		Serial_Hdf5 
 		Parallel_Hdf5
 		TableIO
+                FileSystem
 		utilities 
 		CBMGenerics
 		)

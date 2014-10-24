@@ -13,7 +13,7 @@
 if (UNIX)
    set(preciseFpModel)
    if (BM_USE_INTEL_COMPILER)
-      set(preciseFpModel "-fp-model=precise")
+      set(preciseFpModel "-fp-model precise")
    endif()
 
    set(CMAKE_C_FLAGS_RELEASE "-g -O2" CACHE STRING "List of C compiler flags for a Release build") 

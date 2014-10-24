@@ -29,6 +29,8 @@
 #include "h5_parallel_file_types.h"
 #include "petscvector_readwrite.h"
 
+#include "FolderPath.h"
+
 using namespace DataAccess;
 using namespace Interface;
 using namespace std;
@@ -311,32 +313,34 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
 //------------------------------------------------------------//
 bool ProjectHandle::makeOutputDir() const
 {
-#ifdef _MSC_VER
-   int status = mkdir ( getFullOutputDir().c_str () );
-#else
-   // Need to create output directory if it does not exist.
-   if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
-      
-      int status = mkdir ( H5_Parallel_PropertyList::getTempDirName().c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
-      
-      if( status != 0 and errno == ENOTDIR ) {
-         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR TMPDIR couldn't be created. \n");
-         return false;
+   using namespace ibs;
+   if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) 
+   {  // in case we need a temporary location
+
+      // Create the directory in the temporary location
+      FolderPath tmpdir( H5_Parallel_PropertyList::getTempDirName() + "/" + getFullOutputDir() );
+      try
+      {
+         tmpdir.create();
       }
-      string temp_outputDir = H5_Parallel_PropertyList::getTempDirName() + "/" + ProjectHandle::getOutputDir();
-      
-      status = mkdir ( temp_outputDir.c_str(), S_IRWXU | S_IRGRP | S_IXGRP );
-      
-      if ( status != 0 and errno == ENOTDIR ) {
+      catch( PathException & e)
+      {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR TMPDIR '%s' couldn't be created, because: %s\n", tmpdir.path().c_str(),  e.what() );
          return false;
       }
    }
-   int status = mkdir ( getFullOutputDir().c_str (), S_IRWXU | S_IRGRP | S_IXGRP );
-#endif
-   
-   if ( status != 0 and errno == ENOTDIR ) {
+
+   // Create the directory in the final location
+   try
+   {
+      FolderPath( getFullOutputDir() ).create();
+   }
+   catch( PathException & e)
+   {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Directory to final write location '%s' couldn't be created, because: %s\n", getFullOutputDir().c_str(),  e.what() );
       return false;
    }
+   
    return true;
 }
 
