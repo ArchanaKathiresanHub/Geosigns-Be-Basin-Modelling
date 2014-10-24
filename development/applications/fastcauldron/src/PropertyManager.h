@@ -127,11 +127,13 @@ private :
    ///
    /// More than one output-property may be created here, if 
    /// the formation is at the bottom of the sediments.
+   /// createForTopSurfaceOnly applies only to sediment formations
    void createSurfacePropertyMaps ( AppCtx*                                cauldron,
                                     const OutputPropertyMapAssociation     association,
                                     const PropertyList                     requiredProperty,
                                     const Interface::Snapshot*             snapshot,
-                                    const Basin_Modelling::Layer_Iterator& formation );
+                                    const Basin_Modelling::Layer_Iterator& formation,
+                                    const bool                             createForTopSurfaceOnly );
 
    /// Creates a formation property and adds it the to the m_mapProperties list.
    void createFormationPropertyMaps ( AppCtx*                                cauldron,
@@ -141,11 +143,14 @@ private :
                                       const Basin_Modelling::Layer_Iterator& formation );
 
    /// Creates a surface-formation property and adds it the to the m_mapProperties list.
+   ///
+   /// createForTopSurfaceOnly applies only to sediment formations
    void createSurfaceFormationPropertyMaps ( AppCtx*                                cauldron,
                                              const OutputPropertyMapAssociation     association,
                                              const PropertyList                     requiredProperty,
                                              const Interface::Snapshot*             snapshot,
-                                             const Basin_Modelling::Layer_Iterator& formation );
+                                             const Basin_Modelling::Layer_Iterator& formation,
+                                             const bool                             createForTopSurfaceOnly );
 
    /// Initialises all of the 2d output-properties.
    // Better to have a more generic function using member-function pointers.

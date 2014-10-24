@@ -227,8 +227,8 @@ void PropertyManager::createSurfacePropertyMaps ( AppCtx*                       
                                                   const OutputPropertyMapAssociation     association,
                                                   const PropertyList                     requiredProperty,
                                                   const Interface::Snapshot*             snapshot,
-                                                  const Basin_Modelling::Layer_Iterator& formation ) {
-
+                                                  const Basin_Modelling::Layer_Iterator& formation,
+                                                  const bool                             createForTopSurfaceOnly ) {
 
    OutputPropertyMap* property;
 
@@ -243,7 +243,8 @@ void PropertyManager::createSurfacePropertyMaps ( AppCtx*                       
       }
 
       // Must get the bottom-most surface if sediments-only is selected.
-      if ( formation.Layer_Below () == 0 or formation.Layer_Below ()->isCrust ()) {
+      /// createForTopSurfaceOnly applies only to sediment formations
+      if ( not createForTopSurfaceOnly and ( formation.Layer_Below () == 0 or formation.Layer_Below ()->isCrust ())) {
          property = m_derivedProperties.allocateMap ( requiredProperty,
                                                       formation.Current_Layer (),
                                                       formation.Current_Layer ()->getBottomSurface (),
@@ -288,7 +289,8 @@ void PropertyManager::createSurfaceFormationPropertyMaps ( AppCtx*              
                                                            const OutputPropertyMapAssociation     association,
                                                            const PropertyList                     requiredProperty,
                                                            const Interface::Snapshot*             snapshot,
-                                                           const Basin_Modelling::Layer_Iterator& formation ) {
+                                                           const Basin_Modelling::Layer_Iterator& formation,
+                                                           const bool                             createForTopSurfaceOnly ) {
 
    OutputPropertyMap* property;
 
@@ -301,14 +303,17 @@ void PropertyManager::createSurfaceFormationPropertyMaps ( AppCtx*              
       addMapPropertyMap ( association, requiredProperty, property );
    }
 
-   // It property is a vector-quantity then it must also be output on the bottom surface of the formation.
-   property = m_derivedProperties.allocateMap ( requiredProperty,
-                                                formation.Current_Layer (),
-                                                formation.Current_Layer ()->getBottomSurface (),
-                                                snapshot );
+   if ( not createForTopSurfaceOnly ) {
+      // It property is a vector-quantity then it must also be output on the bottom surface of the formation.
+      property = m_derivedProperties.allocateMap ( requiredProperty,
+                                                   formation.Current_Layer (),
+                                                   formation.Current_Layer ()->getBottomSurface (),
+                                                   snapshot );
 
-   if ( property != 0 ) {
-      addMapPropertyMap ( association, requiredProperty, property );
+      if ( property != 0 ) {
+         addMapPropertyMap ( association, requiredProperty, property );
+      }
+
    }
 
 }
@@ -349,6 +354,8 @@ void PropertyManager::computePropertyMaps ( AppCtx*                    cauldron,
 
    const OutputPropertyMapAssociation association = m_derivedProperties.getMapAssociation ( requiredProperty );
    Layer_Iterator layers;
+   bool topSurfaceOnly = maximumOutputOption == Interface::SOURCE_ROCK_ONLY_OUTPUT or
+                         maximumOutputOption == Interface::SHALE_GAS_ONLY_OUTPUT;
 
    if ( maximumOutputOption == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
       layers.Initialise_Iterator ( cauldron->layers, Descending, Basement_And_Sediments, Active_Layers_Only );
@@ -367,7 +374,7 @@ void PropertyManager::computePropertyMaps ( AppCtx*                    cauldron,
       switch ( association ) {
 
         case SURFACE_ASSOCIATION : 
-           createSurfacePropertyMaps ( cauldron, association, requiredProperty, snapshot, layers ); 
+           createSurfacePropertyMaps ( cauldron, association, requiredProperty, snapshot, layers, topSurfaceOnly ); 
            break;
 
         case FORMATION_ASSOCIATION :
@@ -375,7 +382,7 @@ void PropertyManager::computePropertyMaps ( AppCtx*                    cauldron,
            break;
 
         case SURFACE_FORMATION_ASSOCIATION :
-           createSurfaceFormationPropertyMaps ( cauldron, association, requiredProperty, snapshot, layers );
+           createSurfaceFormationPropertyMaps ( cauldron, association, requiredProperty, snapshot, layers, topSurfaceOnly );
            break;
 
         default :
@@ -521,13 +528,6 @@ void PropertyManager::calculatePropertyMaps () {
    OutputPropertyMapSet::iterator outputPropertyIter;
 
    for ( outputPropertyIter = m_mapProperties.begin (); outputPropertyIter != m_mapProperties.end (); ++outputPropertyIter ) {
-
-      if ( GENEX_PROPERTIES <= (*outputPropertyIter)->getPropertyName () and (*outputPropertyIter)->getPropertyName () <= SPECIES_N2 ) { 
-
-         PropertyList prop = (*outputPropertyIter)->getPropertyName ();
-         int var;
-         var = 1;
-      }
 
       if ((*outputPropertyIter)->anyIsRequired ()) { 
          (*outputPropertyIter)->calculate ();
