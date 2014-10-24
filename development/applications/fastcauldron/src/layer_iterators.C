@@ -108,8 +108,9 @@ bool Basin_Modelling::Layer_Iterator::Add_Layer ( const LayerProps_Ptr       Cur
      break;
 
     case Shale_Gas_Only :
-
-       Include_Layer = Current_Layer -> isSourceRock () && Current_Layer -> getSourceRock1() -> doApplyAdsorption();
+       
+       Include_Layer = Current_Layer -> isSourceRock () && ( Current_Layer -> getSourceRock1() -> doApplyAdsorption() ||
+                                                           ( Current_Layer -> getSourceRock2() ? Current_Layer -> getSourceRock2() -> doApplyAdsorption() : false ));
       break;
 
     case Reservoirs_Only :
