@@ -1,26 +1,6 @@
 ##########################################################################
-# $Header: /nfs/rvl/users/ibs/RCS/./EPT-HM/BB/RubyPropModel/BasinModellerProperty.Spec,v 26.15 2006/11/08 13:46:44 nlwse0 Stable $
+#    Property specification file for BPA-Cauldron                        #
 ##########################################################################
-#
-#    Property specification file for the Ruby 1D/3D project
-#    Created June 10 1994
-#    compiled by Lidia Lonergen
-#    
-##########################################################################
-
-START-application-attributes
-
-    Identification      : Ruby
-    Comment		: No
-    Parsing             : No
-    Pre-conditions      : Yes     
-    Post-conditions     : Yes     
-    Class-invariants    : Yes
-    Persistency         : TimeDependentOnly
-    Property I/O        : Yes
-    DynamicInterface    : Yes
-
-END-application-attributes
 
 ##########################################################################
 
@@ -81,7 +61,7 @@ START-properties
     Description         : Whether or not it is selected
     Unit of measurement : 
     Type                : boolean
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -90,7 +70,7 @@ START-properties
     Description         : May be updated by the local user if 1
     Unit of measurement : 
     Type                : boolean
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -355,18 +335,8 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-    Identification      : RunNumber
-    Description         : Monte Carlo analysis run number
-                          Used in DepthMCResultIoTbl and TimeMCResultIoTbl
-    Unit of measurement : 
-    Type                : integer
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
     Identification      : Value
-    Description         : In a Monte Carlo run calculated property value
-                          Used in DepthMCResultIoTbl and TimeMCResultIoTbl
+    Description         : A property value
     Unit of measurement : 
     Type                : float
     Error Field         : No
@@ -388,38 +358,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
-    Identification      : Fileextension
-    Description         : Extension of a filename
-    Type                : string
-    Unit of measurement : 
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : Dataset
-    Description         : Logical name to identify dataset
-    Type                : string
-    Unit of measurement : 
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-#    Identification      : Xlocation
-#    Description         : x coordinate of a point in the basinmodel
-#    Unit of measurement : m
-#    Type                : float
-#    Error Field         : No 
-#    Time dependent      : No
-#    Property I/O        : No
-
-#    Identification      : Ylocation
-#    Description         : y coordinate of a point in the basinmodel
-#    Unit of measurement : m
-#    Type                : float
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
 
     Identification      : BricksizeEast
     Description         : Bricksize in model East direction in 1D modelling mode
@@ -519,11 +457,11 @@ START-properties
     Identification      : ProjectSize
     Description         : Size of the project in relation to the
                           size of the machine. Possible values:
-			  "" or "Small" -> The whole modelling can
-			  be run within virtual memory
-			  "Big" Only a very limitted number of
-			  snapshots can be held within virtual memory
-			  This field is a 3D only field.
+                          "" or "Small" -> The whole modelling can
+                          be run within virtual memory
+                          "Big" Only a very limitted number of
+                          snapshots can be held within virtual memory
+                          This field is a 3D only field.
     Unit of measurement : 
     Type                : string
     Error Field         : No
@@ -562,14 +500,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-#    Identification      : BPAServer
-#    Description         : BPA server to which this project has been uploaded
-#    Unit of measurement :
-#    Type                : string
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
-
     Identification      : BPAKey
     Description         : key into BPA database
     Unit of measurement : 
@@ -578,27 +508,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-#    Identification      : BPAChecksum
-#    Description         : Hexadecimal checksum of the uploaded project file
-#    Unit of measurement :
-#    Type                : string
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
-#    Identification      : BPAName
-#    Description         : BPA Name under which this project has been uploaded
-#    Unit of measurement :
-#    Type                : string
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
-#    Identification      : BPAOwnerOrg
-#    Description         : BPA OwnerOrg to which this project belongs
-#    Unit of measurement :
-#    Type                : string
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
     Identification      : PTCouplingMode
     Description         : One of "Hydrostatic", "LooselyCoupled", "ItCoupled"
     Unit of measurement : 
@@ -645,19 +554,17 @@ START-properties
 
     Identification      : OutputOption
     Description         : Allowed values for the "DepthIoTbl":
-                          and for the "DepthMCResultIoTbl":
                           "None", "SedimentsOnly" or "SedimentsPlusBasement".
                           Allowed values for the "TimeIoTbl":
-                          and for the "TimeMCResultIoTbl":
                           "None", "SourceRockOnly", "SedimentsOnly" or
-			  "SedimentsPlusBasement".
-			  This field specifies the level of detail at 
+                          "SedimentsPlusBasement".
+                          This field specifies the level of detail at 
                           which property values are saved. "None" means
-			  that no property value of this type will be
-			  saved. The other options mean that property
-			  values will be saved for the source rock
-			  layer(s), the sediment layers or
-			  sediment + basement layers.
+                          that no property value of this type will be
+                          saved. The other options mean that property
+                          values will be saved for the source rock
+                          layer(s), the sediment layers or
+                          sediment + basement layers.
     Unit of measurement : 
     Type                : string
     Error Field         : No
@@ -667,11 +574,9 @@ START-properties
     # Added by S. Mathijssen (ORIGIN) 05-11-1997
     # Increment 1.2
     Identification      : ResultOption
-    Description         : Allowed values for the "DepthIoTbl",
-                          for the "DepthMCResultIoTbl", for the
-                          "TimeIoTbl", and for the "TimeMCResultIoTbl":
+    Description         : Allowed values for the "DepthIoTbl", "TimeIoTbl":
                           "Simple" and "Full".
-			  "Simple" means average, minimum, maximum, standard
+                          "Simple" means average, minimum, maximum, standard
                           deviation, sum, sum^2, NP, and Skewness and Kurtosis.
                           "Full" means all MC results, P15, P50 and P85, and
                           all simple distribution results. 
@@ -688,7 +593,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 2
+    Default             : 2
 
     Identification      : NumberY
     Description         : Number of nodes in the Y direction (Northing)
@@ -697,7 +602,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 2
+    Default             : 2
     
     Identification      : NumberZ
     Description         : Number of nodes in the Z direction
@@ -706,7 +611,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 2
+    Default             : 2
     
     Identification      : ScaleX
     Description         : Division factor in the X direction (Easting)
@@ -715,7 +620,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 1
+    Default             : 1
 
     Identification      : ScaleY
     Description         : Division factor in the Y direction (Northing)
@@ -724,7 +629,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 1
+    Default             : 1
 
     Identification      : ElementRefinementZ
     Description         : Refinement of elements in the z-direction for each formation.
@@ -733,7 +638,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 1
+    Default             : 1
 
     Identification      : OffsetX
     Description         : Offset of nodes in the X direction (Easting)
@@ -742,7 +647,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : OffsetY
     Description         : Offset of nodes in the Y direction (Northing)
@@ -751,7 +656,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
     
     Identification      : DeltaX
     Description         : Same as attribute "BricksizeEast"
@@ -760,7 +665,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 1
+    Default             : 1
 
     Identification      : DeltaY
     Description         : Same as attribute "BricksizeNorth"
@@ -769,43 +674,43 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 1
+    Default             : 1
 
-    Identification	: WindowXMin
+    Identification      : WindowXMin
     Description         : Lower X index for Grid Window
     Unit of measurement : 
     Type                : smallint
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: -1
+    Default             : -1
 
-    Identification	: WindowXMax
+    Identification      : WindowXMax
     Description         : Upper X index for Grid Window
     Unit of measurement : 
     Type                : smallint
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: -1
+    Default             : -1
 
-    Identification	: WindowYMin
+    Identification      : WindowYMin
     Description         : Lower Y index for Grid Window
     Unit of measurement : 
     Type                : smallint
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: -1
+    Default             : -1
 
-    Identification	: WindowYMax
+    Identification      : WindowYMax
     Description         : Upper Y index for Grid Window
     Unit of measurement : 
     Type                : smallint
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: -1
+    Default             : -1
 
 #### Well Location data ---------------------------------------------------
 
@@ -837,7 +742,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : YCoord
     Description         : grid Y coordinate of a well
@@ -846,7 +751,7 @@ START-properties
     Error Field         : No 
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : ZCoord
     Description         : z (depth) coordinate
@@ -855,7 +760,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : SpillPointXCoord
     Description         : grid x coordinate of a trap spill point
@@ -864,7 +769,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : SpillPointYCoord
     Description         : grid Y coordinate of a trap spill point
@@ -873,7 +778,7 @@ START-properties
     Error Field         : No 
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : BHFName
     Description         : Name of burial history file in output directory
@@ -890,7 +795,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : YBottom
     Description         : bottom left of a grid
@@ -899,7 +804,7 @@ START-properties
     Error Field         : No 
     Time dependent      : No
     Property I/O        : No
-    Default		: 0
+    Default             : 0
 
     Identification      : Latitude
     Description         : Latitude of a well
@@ -966,7 +871,7 @@ START-properties
     Identification      : MapType
     Description         : Type of the grid map, possible values are:
                             "DECASCII", "DECBINARY", "ZYCOR", "CPS3",
-			    "EPIRUS", "XYZ"
+                            "EPIRUS", "XYZ"
     Unit of measurement : 
     Type                : string
     Error Field         : No
@@ -984,10 +889,10 @@ START-properties
     Identification      : TypeOfSnapshot
     Description         : Type of snapshot, possible values:
                           "System Generated" is a snapshot needed for 
-			  for the decompaction. This type of snapshot
-			  may not be deleted by the user
+                          for the decompaction. This type of snapshot
+                          may not be deleted by the user
                           "User Defined" --> is a snapshot added by
-			  the user.
+                          the user.
     Unit of measurement : 
     Type                : string
     Error Field         : No
@@ -998,7 +903,7 @@ START-properties
     Description         : Filename of the grid map (with extension)
     Unit of measurement : 
     Type                : string
-    Default		: ""
+    Default             : ""
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -1006,7 +911,7 @@ START-properties
     Identification      : MapSeqNbr
     Description         : Sequence number of the grid map, within the
                           grid loader (Starting with 0). This attribute
-			  is only relevant for multiple map files.
+                          is only relevant for multiple map files.
     Unit of measurement : 
     Type                : smallint
     Error Field         : No
@@ -1041,7 +946,7 @@ START-properties
     Description         : inode number identifying the file
     Unit of measurement : 
     Type                : integer
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -1105,22 +1010,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-#    Identification      : ErosionAge
-#    Description         : Age of erosion of a horizon/formation
-#    Unit of measurement : s (to User Ma)
-#    Type                : float
-#    Error Field         : Yes
-#    Time dependent      : No
-#    Property I/O        : No
-
-#    Identification      : ErosionAgeVec2
-#    Description         : Age of erosion  of a top and bottom of formation
-#    Unit of measurement : s (to User Ma)
-#    Type                : floatvector 2
-#    Error Field         : Yes
-#    Time dependent      : No
-#    Property I/O        : No
-
     Identification      : TwoWayTtime
     Description         : one way travel time (two-way-travel time/2)
     Unit of measurement : s
@@ -1150,7 +1039,7 @@ START-properties
     Identification      : DepoSequence
     Description         : depositional sequence of formations from model
                           bottom up. For the TimeIoTbl:
-			  1000*deposeg_layer + deposeq_surface
+                          1000*deposeg_layer + deposeq_surface
     Unit of measurement :
     Type                : smallint
     Error Field         : No
@@ -1176,7 +1065,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : HeatCaptype
     Description         : name of fluid type used to identify a set of 
                           material properties of that fluid type (In the
@@ -1187,23 +1075,21 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : ThermCondtype
     Description         : name of fluid type used to identify a set of 
                           material properties of that fluid type (In the
                           first version we only have one fluid = water)
-     Unit of measurement :  
+    Unit of measurement :  
     Type                : string
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : Denstype
     Description         : name of fluid type used to identify a set of 
                           material properties of that fluid type (In the
                           first version we only have one fluid = water)
-     Unit of measurement :  
+    Unit of measurement :  
     Type                : string
     Error Field         : No
     Time dependent      : No
@@ -1267,7 +1153,7 @@ START-properties
 
     Identification      : SourceRock
     Description         : Flag to indicate whether a layer is a Source Rock
-			  within the model
+                          within the model
     Type                : boolean
     Unit of measurement : 
     Error Field         : No
@@ -1276,7 +1162,7 @@ START-properties
 
     Identification      : MobileLayer
     Description         : Flag to indicate whether a layer is a Mobile Layer
-			  within the model (i.e. salt or ignious intrusion)
+                          within the model (i.e. salt or ignious intrusion)
     Type                : boolean
     Unit of measurement : 
     Error Field         : No
@@ -1285,9 +1171,9 @@ START-properties
 
     Identification      : HasAllochthonLitho
     Description         : Flag to indicate whether a layer has an allochthonous lithology
-			  within the model (i.e. salt or ignious intrusion)
+                          within the model (i.e. salt or ignious intrusion)
     Type                : boolean
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -1308,7 +1194,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
     Default             : 0
-
 
     Identification      : IsIgneousIntrusion
     Description         : Flag to indicate whether a layer is an igneous intrusion or not.
@@ -1336,9 +1221,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
     Default             : -9999.0
-
-
-
 
 #### Source Rock properties -------------------------------------------------
 
@@ -1387,7 +1269,7 @@ START-properties
     Identification      : S2Ini
     Description         : S2 initial value: The remaining generative potential 
                           of the rock which has not yet been transformed into 
-			  hydrocarbons
+                          hydrocarbons
     Type                : float
     Unit of measurement : kg/tonne
     Error Field         : Yes
@@ -1397,7 +1279,7 @@ START-properties
     Identification      : S2IniGrid
     Description         : S2 initial value: The remaining generative potential 
                           of the rock which has not yet been transformed into 
-			  hydrocarbons
+                          hydrocarbons
     Type                : string
     Unit of measurement :
     Error Field         : No
@@ -1507,7 +1389,7 @@ START-properties
 
     Identification      : CharLength
     Description         : Characteristic length of the source Rock. 
-			  Measurement for the ease of pimary migration
+                          Measurement for the ease of pimary migration
     Type                : float
     Unit of measurement : m
     Error Field         : Yes
@@ -1516,7 +1398,7 @@ START-properties
 
     Identification      : CharLengthGrid
     Description         : Characteristic length of the source Rock. 
-			  Measurement for the ease of pimary migration
+                          Measurement for the ease of pimary migration
     Type                : string
     Unit of measurement :
     Error Field         : No
@@ -1525,8 +1407,8 @@ START-properties
 
     Identification      : UpperBiot
     Description         : Biot number for the top boundary of the source rock.
-			  A value to indicate the seal/carrier capacity of the
-			  top of source rock/lithology boundary
+                          A value to indicate the seal/carrier capacity of the
+                          top of source rock/lithology boundary
     Type                : float
     Unit of measurement : 
     Error Field         : Yes
@@ -1535,8 +1417,8 @@ START-properties
 
     Identification      : UpperBiotGrid
     Description         : Biot number for the top boundary of the source rock.
-			  A value to indicate the seal/carrier capacity of the
-			  top of source rock/lithology boundary
+                          A value to indicate the seal/carrier capacity of the
+                          top of source rock/lithology boundary
     Type                : string
     Unit of measurement : 
     Error Field         : No
@@ -1545,8 +1427,8 @@ START-properties
 
     Identification      : LowerBiot
     Description         : Biot number for the bottom boundary of the source rock.
-			  A value to indicate the seal/carrier capacity of the
-			  bottom of source rock/lithology boundary
+                          A value to indicate the seal/carrier capacity of the
+                          bottom of source rock/lithology boundary
     Type                : float
     Unit of measurement : 
     Error Field         : Yes
@@ -1555,8 +1437,8 @@ START-properties
 
     Identification      : LowerBiotGrid
     Description         : Biot number for the bottom boundary of the source rock.
-			  A value to indicate the seal/carrier capacity of the
-			  bottom of source rock/lithology boundary
+                          A value to indicate the seal/carrier capacity of the
+                          bottom of source rock/lithology boundary
     Type                : string
     Unit of measurement : 
     Error Field         : No
@@ -1565,7 +1447,7 @@ START-properties
 
     Identification      : KerogenStartAct
     Description         : The activation energy limit for which the kerogen
-			  cracking starts
+                          cracking starts
     Type                : float
     Unit of measurement : kJ/mol
     Error Field         : Yes
@@ -1574,7 +1456,7 @@ START-properties
 
     Identification      : KerogenStartActGrid
     Description         : The activation energy limit for which the kerogen
-			  cracking starts
+                          cracking starts
     Type                : string
     Unit of measurement :
     Error Field         : No
@@ -1583,7 +1465,7 @@ START-properties
 
     Identification      : KerogenEndAct
     Description         : The activation energy limit where the kerogen
-			  cracking ends
+                          cracking ends
     Type                : float
     Unit of measurement : kJ/mol
     Error Field         : Yes
@@ -1592,7 +1474,7 @@ START-properties
 
     Identification      : KerogenEndActGrid
     Description         : The activation energy limit where the kerogen
-			  cracking ends
+                          cracking ends
     Type                : string
     Unit of measurement :
     Error Field         : No
@@ -1601,7 +1483,7 @@ START-properties
 
     Identification      : PreAsphaltStartAct
     Description         : The activation energy limit for which the PreAsphalt
-			  cracking starts
+                          cracking starts
     Type                : float
     Unit of measurement : kJ/mol
     Error Field         : Yes
@@ -1611,7 +1493,7 @@ START-properties
 
     Identification      : PreAsphaltStartActGrid
     Description         : The activation energy limit for which the PreAsphalt
-			  cracking starts
+                          cracking starts
     Type                : string
     Unit of measurement :
     Error Field         : No
@@ -1620,7 +1502,7 @@ START-properties
 
     Identification      : PreAsphaltEndAct
     Description         : The activation energy limit where the PreAsphalt
-			  cracking ends
+                          cracking ends
     Type                : float
     Unit of measurement : kJ/mol
     Error Field         : Yes
@@ -1629,7 +1511,7 @@ START-properties
 
     Identification      : PreAsphaltEndActGrid
     Description         : The activation energy limit where the PreAsphalt
-			  cracking ends
+                          cracking ends
     Type                : string
     Unit of measurement :
     Error Field         : No
@@ -1675,7 +1557,7 @@ START-properties
     Identification      : NGenexSlices
     Description         : Number of slices in which the source rock will be 
                           modelled with the Genex generation and expulsion 
-			  calculations
+                          calculations
     Type                : smallint
     Unit of measurement : 
     Error Field         : No
@@ -1685,7 +1567,7 @@ START-properties
     Identification      : NGenexSlicesGrid
     Description         : Number of slices in which the source rock will be 
                           modelled with the Genex generation and expulsion 
-			  calculations
+                          calculations
     Type                : string
     Unit of measurement : 
     Error Field         : No
@@ -1699,7 +1581,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default		: 0.5
+    Default             : 0.5
  
     Identification      : AsphalteneDiffusionEnergy
     Description         : diffusion energy for asphaltne 
@@ -1839,41 +1721,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-;    Identification      : DepoAgeIni
-;    Description         : Initial deposition age of the source rock.
-;    Type                : float
-;    Unit of measurement : m
-;    Error Field         : Yes
-;    Time dependent      : No
-;    Property I/O        : No
-
-;    Identification      : Tmaxi
-;    Description         : Maximum temperature to use
-;                          NOT USED (YET) BY GENEX4 KERNEL
-;    Type                : float
-;    Unit of measurement : 
-;    Error Field         : Yes
-;    Time dependent      : No
-;    Property I/O        : No
-
-;    Identification      : FractIni
-;    Description         : Fractionation initialisation
-;                          NOT USED (YET) BY GENEX4 KERNEL
-;    Type                : float
-;    Unit of measurement : 
-;    Error Field         : Yes
-;    Time dependent      : No
-;    Property I/O        : No
-
-;    Identification      : FractFact
-;    Description         : Fractionation factor alpha
-;                          NOT USED (YET) BY GENEX4 KERNEL
-;    Type                : float
-;    Unit of measurement : 
-;    Error Field         : Yes
-;    Time dependent      : No
-;    Property I/O        : No
-
 
  #### Geometry properties -------------------------------------------------
 
@@ -1892,7 +1739,6 @@ START-properties
     Error Field         : No  
     Time dependent      : Yes
     Property I/O        : No
-
 
     Identification      : DepthGrid
     Description         : MapName of the "Depth" property
@@ -1962,22 +1808,12 @@ START-properties
     Identification      : BrickHeightSediment
     Description         : Maximum present day brick height of the bricks 
                           in the sedimentary layers, also used for the depth
-			  interval of the output results
+                          interval of the output results
     Unit of measurement : m
     Type                : float
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
-;    Identification      : BrickHeightBasement
-;    Description         : Maximum present day brick height of the 
-;                          bricks in the basement layers (superseded by 
-;			  BrickHeightCrust and BrickHeightMantle)
-;    Unit of measurement : m
-;    Type                : float
-;    Error Field         : No
-;    Time dependent      : No
-;    Property I/O        : No
 
     Identification      : BrickHeightCrust
     Description         : Maximum present day brick height of the 
@@ -2030,7 +1866,7 @@ START-properties
     Description         : Fracture-pressure model type to be used
     Unit of measurement : 
     Type                : smallint
-    Default		: 1
+    Default             : 1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -2039,7 +1875,7 @@ START-properties
     Description         : Calculate all DepthIoProps through time and store
                           them in the DepthIoTbl --> 1
                           Only calculate and store the present day DepthIoProps
-			  and store them in the DepthIoTbl <> 1
+                          and store them in the DepthIoTbl <> 1
     Unit of measurement : 
     Type                : smallint
     Error Field         : No
@@ -2098,7 +1934,7 @@ START-properties
     Description         : Initial Lithospheric Mantle thickness 
     Unit of measurement : m
     Type                : float
-    Default		: 115000
+    Default             : 115000
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -2122,16 +1958,16 @@ START-properties
     Default             : "Standard Conductivity Mantle"
     
     Identification      : BasaltThickness
-    Description		: present-day basalt thickness
+    Description         : present-day basalt thickness
     Unit of measurement : m
     Type                : float
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
     
-    Identification 	: BasaltThicknessGrid
-    Description    	: MapName of the Basalt Thickness
+    Identification      : BasaltThicknessGrid
+    Description         : MapName of the Basalt Thickness
     Unit of measurement : 
     Type                : string
     Error Field         : No 
@@ -2139,16 +1975,16 @@ START-properties
     Property I/O        : No
     
     Identification      : CrustThicknessMeltOnset
-    Description		: crust thickness at melt onset
+    Description         : crust thickness at melt onset
     Unit of measurement : m
     Type                : float
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
     
-    Identification 	: CrustThicknessMeltOnsetGrid
-    Description    	: MapName of the Crust Thickness at melt onset
+    Identification      : CrustThicknessMeltOnsetGrid
+    Description         : MapName of the Crust Thickness at melt onset
     Unit of measurement : 
     Type                : string
     Error Field         : No 
@@ -2249,7 +2085,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : SeisVelocityModel
     Description         : SeisVelocityModel Model for the fluidtype,fluid
     Unit of measurement : 
@@ -2300,8 +2135,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
-
     Identification      : Porosity_Model
     Description         : Method of porosity used in computation (exponential (single or double) or soil mechanics)
     Unit of measurement : 
@@ -2320,12 +2153,10 @@ START-properties
     Property I/O        : No
     Default             : 0.0
 
-
-
     Identification      : Number_Of_Data_Points
     Description         : Number of data points
     Type                : smallint
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -2344,7 +2175,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : Viscosity
     Description         : The ease in which fluid will flow in Pascal times Second
     Unit of measurement : PaS
@@ -2353,14 +2183,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
     
-#    Identification      : TExpansionCoef
-#    Description         : coefficient of thermal expansion
-#    Unit of measurement : 10-5C-1 
-#    Type                : float
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
-
     Identification      : HeatCapacity
     Description         : Specific heat capacity of lithotype and fluidtypes
                           (temperature dependent, see tables), of matrix,
@@ -2468,7 +2290,6 @@ START-properties
     Time dependent      : Yes 
     Property I/O        : No
 
-
     Identification      : IsoStaticMass
     Description         : isostatic mass of the sediments plus basement
     Unit of measurement : kg/m3
@@ -2573,7 +2394,111 @@ START-properties
     Time dependent      : No 
     Property I/O        : No
     Default             : 1.0
+ 
+    Identification      : LambdaPc_LW
+    Description         : Lambda for liquid | water (brine) in Brooks-Corey
+                          constitutive relation for capillary pressure
+    Unit of measurement : (unknown)
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 1.0
 
+    Identification      : LambdaPc_VL
+    Description         : Lambda for vapour | liquid in Brooks-Corey
+                          constitutive relation for capillary pressure
+    Unit of measurement : (unknown)
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999
+
+    Identification      : N_W
+    Description         : Water (brine) exponent in Brooks-Corey
+                          constitutive relation for relative permeability
+    Unit of measurement : (unknown)
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+   Default             : 1.0
+
+    Identification      : N_V
+    Description         : Vapour (hydrocarbon) exponent in Brooks-Corey
+                          constitutive relation for relative permeability
+    Unit of measurement : (unknown)
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999
+
+    Identification      : N_L
+    Description         : Liquid (hydrocaron) exponent in Brooks-Corey
+                          constitutive relation for relative permeability
+    Unit of measurement : (unknown)
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999
+
+    Identification      : Svr
+    Description         : Residual gas (vapour) saturation,
+    Unit of measurement : frac
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999
+
+    Identification      : Slr
+    Description         : Residual oil (liquid) saturation,
+    Unit of measurement : frac
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999
+
+    Identification      : Swi
+    Description         : Irreducible water saturation
+    Unit of measurement : frac
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : -9999
+
+    Identification      : KrwMax
+    Description         : Maximum relative permeability for water
+    Unit of measurement : frac
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 1
+
+    Identification      : KrlMax
+    Description         : Maximum relative permeability for liquid/oil
+    Unit of measurement : frac
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 1
+
+    Identification      : KrvMax
+    Description         : Maximum relative permeability for vapour/gas
+    Unit of measurement : frac
+    Type                : double
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 1
+   
     Identification      : ThCondParallel
     Description         : Thermal conductivity parallel to bedding at a
                           specific temperature (= ThCond * ThCondAnisotrpy)  
@@ -2582,33 +2507,6 @@ START-properties
     Error Field         : No 
     Time dependent      : Yes
     Property I/O        : No
-
-#    Identification      : UraniumConcent
-#    Description         : Uranium (U) concentration of a lithotype, used to
-#                          calculate the radiogenic heat production
-#    Unit of measurement : weigthppm 
-#    Type                : float
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
-
-#    Identification      : ThoriumConcent
-#    Description         : Thorium (Th) concentration of a lithotype, used to
-#                          calculate the radiogenic heat production
-#    Unit of measurement : weigthppm 
-#    Type                : float
-#    Error Field         : No
-#    Time dependent      : No
-#    Property I/O        : No
-
-#    Identification      : PotassiumConcent
-#    Description         : Potassium (K) concentration of a lithotype, used to
-#                          calculate the radiogenic heat production
-#    Unit of measurement : weigth% 
-#    Type                : float
-#    Error Field         : No
-#    Time dependent      : No
-#   Property I/O        : No
 
     Identification      : HeatProd
     Description         : Radiogenic heat production of a lythotype 
@@ -2746,7 +2644,6 @@ START-properties
     Property I/O        : No
     Default             : 0
 
-
     Identification      : SpecSurfArea
     Description         : Specific surface area, factor in a formula to determine
                           the capillary pressure from the porosity
@@ -2757,7 +2654,7 @@ START-properties
     Property I/O        : No
     Default             : 0.06
 
-	Identification      : QuartzGrainSize
+    Identification      : QuartzGrainSize
     Description         : Size of the grains of quartz, for example average diameter
     Unit of measurement : cm
     Type                : double 
@@ -2766,7 +2663,7 @@ START-properties
     Property I/O        : No
     Default             : 0.03
 
-	Identification      : QuartzFraction
+    Identification      : QuartzFraction
     Description         : Volume fraction of quartz in the facies
     Unit of measurement : fraction of total volume - without unit
     Type                : double 
@@ -2775,7 +2672,7 @@ START-properties
     Property I/O        : No
     Default             : 0.0
 
-	Identification      : ClayCoatingFactor
+    Identification      : ClayCoatingFactor
     Description         : Fraction of quartz grain surface area coated by clay
     Unit of measurement : fraction of total area of quartz grain - without unit
     Type                : double 
@@ -2793,6 +2690,7 @@ START-properties
     Time dependent      : No 
     Property I/O        : No
     Default             : 1.7
+
 #### Rock properties Algorithm parameters ---------------------------------
 
     Identification      : CompacCoefSC
@@ -2880,7 +2778,6 @@ START-properties
 
 #### Point properties -----------------------------------------------------
 
-
     Identification      : DummyLayerSegment
     Description         : if property is set at segment the segment 
                           belongs to a dummy layer
@@ -2925,7 +2822,6 @@ START-properties
     Error Field         : No
     Time dependent      : Yes
     Property I/O        : No
-
 
 #### (over)pressure related properties ---------------------------
 
@@ -2994,14 +2890,13 @@ START-properties
     Time dependent      : Yes
     Property I/O        : No
 
-
     Identification      : CEPGas
     Description         : The Capillary Entry Pressure for Gas
     Unit of measurement : MPa
     Type                : double
     Error Field         : No
     Time dependent      : Yes
-    Default		: -1
+    Default             : -1
     Property I/O        : No
 
     Identification      : CEPOil
@@ -3010,7 +2905,7 @@ START-properties
     Type                : double
     Error Field         : No
     Time dependent      : Yes
-    Default		: -1
+    Default             : -1
     Property I/O        : No
 
     Identification      : CEPVapour
@@ -3019,7 +2914,7 @@ START-properties
     Type                : double
     Error Field         : No
     Time dependent      : Yes
-    Default		: -1
+    Default             : -1
     Property I/O        : No
 
     Identification      : CEPLiquid
@@ -3028,7 +2923,7 @@ START-properties
     Type                : double
     Error Field         : No
     Time dependent      : Yes
-    Default		: -1
+    Default             : -1
     Property I/O        : No
 
     Identification      : FractSealStrength
@@ -3037,7 +2932,7 @@ START-properties
     Type                : double
     Error Field         : No
     Time dependent      : Yes
-    Default		: -1
+    Default             : -1
     Property I/O        : No
 
     Identification      : HydroStaticPressure
@@ -3049,7 +2944,6 @@ START-properties
     Time dependent      : Yes
     Property I/O        : No
 
-
     Identification      : LithoStaticPressure
     Description         : The lythostatic pressure, which follows a simple
                           depth curve.
@@ -3058,7 +2952,6 @@ START-properties
     Error Field         : No
     Time dependent      : Yes
     Property I/O        : No
-
 
     Identification      : OverPressure (Pressure - HydroStaticPressure)
     Description         : The overpressure
@@ -3241,7 +3134,6 @@ START-properties
     Property I/O        : No
     Default             : 0.0
 
-
     Identification      : RetainedGasVolumeST
     Unit of measurement : bcf/km2
     Type                : float
@@ -3282,9 +3174,8 @@ START-properties
     Property I/O        : No
     Default             : 0.0
 
-
-
 #### Calibration / Thermal Indicator properties ---------------------------
+
 # Measured Pressure
     Identification      : MPressure
     Description         : 
@@ -3320,7 +3211,6 @@ START-properties
     Error Field         : No
     Time dependent      : Yes
     Property I/O        : No
-
 
     Identification      : TemperatureGrid
     Description         : 
@@ -3418,7 +3308,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
  
 # vitrinite reflectance
 
@@ -3440,7 +3329,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
  
 # Sonic velocity (Sonic log from Logic)
 
@@ -3452,7 +3340,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
  
 #  Bulk Density (Density log from Logic)
 
@@ -3491,7 +3378,6 @@ START-properties
     Time dependent      : Yes
     Property I/O        : No
 
-
     Identification      : HopIsoActEnergy
     Description         : 
     Unit of measurement : J/mol
@@ -3515,7 +3401,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
 
     Identification      : HopIsoFreqFactor
     Description         : 
@@ -3556,7 +3441,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
 
 # fission track properties
 
@@ -3793,7 +3677,7 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-   #Fission track new data entries for Cauldron/BPA integration
+# Fission track new data entries for Cauldron/BPA integration
 
     Identification      : FtPredLengthHistId
     Description         : Histogram identifier
@@ -3887,11 +3771,10 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : ActEnergy2
     Description         : Phase 2 (dissilution of smectite and the 
                           precipitation of illite-rich crystals) activation 
-			  energy
+                          energy
     Unit of measurement : 
     Type                : float
     Error Field         : No
@@ -3901,7 +3784,7 @@ START-properties
     Identification      : FreqFactor2
     Description         : Phase 2 (dissilution of smectite and the 
                           precipitation of illite-rich crystals) frequency 
-			  factor
+                          factor
     Unit of measurement : 
     Type                : float
     Error Field         : No
@@ -3916,25 +3799,23 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
 #### Run Options / Algorithm choice Properties -----------------------------
 
     Identification      : FileVersioning
     Description         : File versioning policy:
                           1 = no file versioning
-			  2 = IBS - like version numbers
-			  3 = .bak files
+                          2 = IBS - like version numbers
+                          3 = .bak files
     Type                : integer
     Unit of measurement : 
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : AutoSaving
     Description         : Automatically saves the projectfile after a run
                           0 or NULL = no autosaving
-			  1 = autosaving
+                          1 = autosaving
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -3945,7 +3826,7 @@ START-properties
     Description         : Saves the whole projectfile before each 
                           montecarlo iteration
                           0 or NULL = no autosaving
-			  1 = autosaving
+                          1 = autosaving
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -3964,7 +3845,7 @@ START-properties
     Identification      : ConsoleLevel
     Description         : Level at which messages are send to the console
                           < 0 means error msssages
-			  > 0 means trace msssages
+                          > 0 means trace msssages
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -3974,7 +3855,7 @@ START-properties
     Identification      : PopupLevel
     Description         : Level at which messages are popped up
                           < 0 means error msssages
-			  > 0 means trace msssages
+                          > 0 means trace msssages
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -3984,7 +3865,7 @@ START-properties
     Identification      : LogfileLevel
     Description         : Level at which messages are send to the logfile
                           < 0 means error msssages
-			  > 0 means trace msssages
+                          > 0 means trace msssages
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -4023,7 +3904,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
 
     Identification      : Optimisation_Level
     Description         : Level of optimisation in run
@@ -4068,7 +3948,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
     Default             : 1
-
 
     Identification      : HeatFlowSolution
     Description         : Heat flow solution model
@@ -4186,46 +4065,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-    Identification      : PrimaryRow
-    Description         : Name of the first identification row in the table
-    Type                : string
-    Unit of measurement :
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : SecondaryRow
-    Description         : Name of the second identification row in the table
-    Type                : string
-    Unit of measurement :
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : RSMparameter
-    Description         : Name of the parameter to change
-    Type                : string
-    Unit of measurement :
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : RSMnumber
-    Description         : the ID number in %param[ID]%
-    Type                : integer
-    Unit of measurement :
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : RSMparameterValue
-    Description         : The identification for response surface modelling
-    Type                : string
-    Unit of measurement :
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
     Identification      : McHistOutput
     Description         : Switch for MonteCarlo Histogram output generation  (1 = On, 0 = Off)
     Type                : boolean
@@ -4259,12 +4098,11 @@ START-properties
     Property I/O        : No
     Default             : 0.001
 
-
     Identification      : Optimization
     Description         : Application of Optimization; boolean value (0 or 1)
     Type                : boolean
     Unit of measurement : 
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4364,10 +4202,10 @@ START-properties
     Identification      : NrMCSaveEvery
     Description         : If NrMCSaveEvery > 0 then the project file
                           together with the output results will be
-			  saved every "NrMCSaveEvery" iterations. These
-			  files can be used for intermediate purposes
-			  and to be able to perform a restart and
-			  continue in case of problems.
+                          saved every "NrMCSaveEvery" iterations. These
+                          files can be used for intermediate purposes
+                          and to be able to perform a restart and
+                          continue in case of problems.
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -4377,10 +4215,10 @@ START-properties
     Identification      : NrSensSaveEvery
     Description         : If NrSensSaveEvery > 0 then the project file
                           together with the output results will be
-			  saved every "NrSensSaveEvery" iterations. These
-			  files can be used for intermediate purposes
-			  and to be able to perform a restart and
-			  continue in case of problems.
+                          saved every "NrSensSaveEvery" iterations. These
+                          files can be used for intermediate purposes
+                          and to be able to perform a restart and
+                          continue in case of problems.
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -4390,7 +4228,7 @@ START-properties
     Identification      : NrMCLoopsCompleted
     Description         : Number of Monte Carlo loops completed,
                           this information is needed for the
-			  restart facility.
+                          restart facility.
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -4400,14 +4238,14 @@ START-properties
     Identification      : MCStatusOfLastRun
     Description         : Status of the last run,
                           this information is needed for the
-			  restart facility and for "Big" 3D projects
-			  Possible values are:
-			     "Initial", "CalculatingGeometry", "GeometryCalculated",
-			     "CalculatingTemperatures", "TemperaturesCalculated", 
-			     "CalculatingGenex", "GenexCalculated"
-			     "CalculatingXmig",  "XmigCalculated", etc.
+                          restart facility and for "Big" 3D projects
+                          Possible values are:
+                             "Initial", "CalculatingGeometry", "GeometryCalculated",
+                             "CalculatingTemperatures", "TemperaturesCalculated", 
+                             "CalculatingGenex", "GenexCalculated"
+                             "CalculatingXmig",  "XmigCalculated", etc.
     Type                : string
-    Default		: "Initial"
+    Default             : "Initial"
     Unit of measurement : 
     Error Field         : No
     Time dependent      : No
@@ -4416,11 +4254,11 @@ START-properties
     Identification      : MCStatusOfLastPressureRun
     Description         : Status of the last run,
                           this information is needed for the
-			  restart facility and for "Big" 3D projects
-			  Possible values are:
-			     "Initial", "CalculatingPressures", "PressuresCalculated",
+                          restart facility and for "Big" 3D projects
+                          Possible values are:
+                             "Initial", "CalculatingPressures", "PressuresCalculated",
     Type                : string
-    Default		: "Initial"
+    Default             : "Initial"
     Unit of measurement : 
     Error Field         : No
     Time dependent      : No
@@ -4429,12 +4267,12 @@ START-properties
     Identification      : MCCalculationScope
     Description         : Target of the last run,
                           this information is needed for the
-			  restart facility
-			  Possible values are:
-			  "DECOMPACT", "HIGHRESDECOMPACT", "TEMPERATURE",
+                          restart facility
+                          Possible values are:
+                          "DECOMPACT", "HIGHRESDECOMPACT", "TEMPERATURE",
                           "GENEX", "XMIG", "FULLRUN", "PRESSURE".
     Type                : string
-    Default		: "FULLRUN"
+    Default             : "FULLRUN"
     Unit of measurement : 
     Error Field         : No
     Time dependent      : No
@@ -4443,12 +4281,12 @@ START-properties
     Identification      : MCStatusOfLastHighResRun
     Description         : Status of the last run,
                           this information is needed for the
-			  restart facility and for "Big" 3D projects
-			  Possible values are:
-			     "Initial", "CalculatingHighResDecompaction",
+                          restart facility and for "Big" 3D projects
+                          Possible values are:
+                             "Initial", "CalculatingHighResDecompaction",
                              "HighResDecompactionCalculated",
     Type                : string
-    Default		: "Initial"
+    Default             : "Initial"
     Unit of measurement : 
     Error Field         : No
     Time dependent      : No
@@ -4457,7 +4295,7 @@ START-properties
     Identification      : OutputDirOfLastRun
     Description         : Output directory of the last run, needed to save
                           the output of a continued run within the save 
-			  directory
+                          directory
     Type                : string
     Unit of measurement : 
     Error Field         : No
@@ -4476,7 +4314,7 @@ START-properties
     Identification      : MCCurrentSeedNumber
     Description         : Internal seed number for the montecarlo pseudo
                           random generator. This number is needed generate
-			  the same results in case of a re-start + continue.
+                          the same results in case of a re-start + continue.
     Type                : integer
     Unit of measurement : 
     Error Field         : No
@@ -4538,7 +4376,7 @@ START-properties
     Description         : Switch for SGR analysis (1 = On, 0 = Off)
     Type                : boolean
     Unit of measurement : 
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4547,7 +4385,7 @@ START-properties
     Description         : Switch for Bio Degradation (1 = On, 0 = Off)
     Type                : boolean
     Unit of measurement : 
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4556,7 +4394,7 @@ START-properties
     Description         : Switch for Bio Degradation (1 = On, 0 = Off)
     Type                : boolean
     Unit of measurement : 
-    Default		: 1
+    Default             : 1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4565,7 +4403,7 @@ START-properties
     Description         : Switch for Diffusion (1 = On, 0 = Off)
     Type                : boolean
     Unit of measurement : 
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4574,7 +4412,7 @@ START-properties
     Description         : Reservoir activityMode
     Type                : string
     Unit of measurement : 
-    Default		: "AlwaysActive"
+    Default             : "AlwaysActive"
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4583,7 +4421,7 @@ START-properties
     Description         : Reservoir start of activity
     Type                : float
     Unit of measurement : Ma
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4592,7 +4430,7 @@ START-properties
     Description         : Switch for vertical migration blocking (1 = On, 0 = Off)
     Type                : boolean
     Unit of measurement : 
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4601,7 +4439,7 @@ START-properties
     Description         : Permeability at which to block vertical migration
     Type                : float
     Unit of measurement : mD
-    Default		: 1e-9
+    Default             : 1e-9
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -4730,9 +4568,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No  
-  
- 
-
    
 #### User Interface properties:-----------------------------------------------
 
@@ -4912,7 +4747,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
 
 #
 #### Genex output properties: start --------------------------------------
@@ -5137,7 +4971,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : asphaltenesExpelledCumulative
     Description         : asphaltenesExpelledCumulative
     Type                : float
@@ -5218,11 +5051,9 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
 ##
 ## The following are used on for units in UI
 ##
-
 
     Identification      : C15+AroExpelledCumulative
     Description         : C15+AroExpelledCumulative
@@ -5556,7 +5387,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
 ##
 ##
 ##
@@ -5593,7 +5423,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : TransportedMass
     Description         : Mass that has been transported during a snapshot interval (for debugging only).
     Type                : float
@@ -5601,8 +5430,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
-
 
 ##
 ## Concentration of HCs
@@ -5720,7 +5547,6 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-
     Identification      : LSCConcentration
     Description         : LSCConcentration
     Type                : float
@@ -5792,8 +5618,6 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
-
 
 ##
 ## Saturation of phases.
@@ -5911,9 +5735,21 @@ START-properties
     Time dependent      : No
     Property I/O        : No
 
-##
-##
-##
+Identification      : HcLiquidBrineCapillaryEntryPressure
+    Description         : PC between Hc liquid and brine
+    Type                : float
+    Unit of measurement : Pa
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+
+    Identification      : HcVapourBrineCapillaryEntryPressure
+    Description         : PC between Hc vapour and brine
+    Type                : float
+    Unit of measurement : Pa
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
 
     Identification      : HcLiquidDensity
     Description         : HcLiquidDensity
@@ -5983,7 +5819,6 @@ START-properties
     Time dependent      : Yes 
     Property I/O        : No
 
-
     Identification      : HcLiquidVelocityX
     Description         : Horizontal hc-liquid velocity (calculated)
     Unit of measurement : mm/y
@@ -6016,28 +5851,8 @@ START-properties
     Time dependent      : Yes 
     Property I/O        : No
 
-
 #
 #### Genex output properties: end --------------------------------------
-#
-#
-# Colin's extensions ------------------------------------------------------
-#
-#    Identification      : Head
-#    Description         : Fluid Potential
-#    Unit of measurement : C (degCentigrade)
-#    Type                : float 
-#    Error Field         : No
-#    Time dependent      : Yes
-#    Property I/O        : No
-
-#    Identification      : FluidFlow
-#    Description         : The fluid flow vector
-#    Unit of measurement : 
-#    Type                : floatvector 3
-#    Error Field         : No
-#    Time dependent      : Yes
-#    Property I/O        : No
 
 #### Reservoir Properties -----------------------------
 
@@ -6093,7 +5908,7 @@ START-properties
     Description         : Minimal volume of a trap to be of interest
     Unit of measurement : m3
     Type                : float
-    Default		: 5e5
+    Default             : 5e5
     Error Field         : No
     Time dependent      : Yes
     Property I/O        : No
@@ -6102,7 +5917,7 @@ START-properties
     Description         : Possible volume of a trap
     Unit of measurement : m3
     Type                : float
-    Default		: 5e5
+    Default             : 5e5
     Error Field         : No
     Time dependent      : Yes
     Property I/O        : No
@@ -6200,7 +6015,7 @@ START-properties
     Description         : Maximum temperature for biodegradation to take place
     Unit of measurement : C (degCentigrade)
     Type                : double 
-    Default		: 80.0 
+    Default             : 80.0 
     Error Field         : Yes
     Time dependent      : No 
     Property I/O        : No
@@ -6209,7 +6024,7 @@ START-properties
     Description         : Bio Degrad. temperature constant 
     Unit of measurement : 1/C 
     Type                : double 
-    Default		: 70.0 
+    Default             : 70.0 
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6218,7 +6033,7 @@ START-properties
     Description         : Bio Degrad. time Constant 
     Unit of measurement : 1/Ma 
     Type                : double 
-    Default		: 0.5
+    Default             : 0.5
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6227,7 +6042,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.0008 
+    Default             : 0.0008 
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6236,7 +6051,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.0005 
+    Default             : 0.0005 
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6245,7 +6060,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.0003
+    Default             : 0.0003
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6254,7 +6069,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.0008
+    Default             : 0.0008
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6263,7 +6078,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.001
+    Default             : 0.001
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6272,7 +6087,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.001
+    Default             : 0.001
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6281,7 +6096,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.0
+    Default             : 0.0
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6290,7 +6105,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.007
+    Default             : 0.007
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6299,7 +6114,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.009
+    Default             : 0.009
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6308,7 +6123,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.05
+    Default             : 0.05
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6317,7 +6132,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.011
+    Default             : 0.011
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6326,7 +6141,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.061
+    Default             : 0.061
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6335,7 +6150,7 @@ START-properties
     Description         : Bio Degradation factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.1
+    Default             : 0.1
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6346,7 +6161,7 @@ START-properties
     Description         : Diffusion Model, one of: 'Transient', 'Steady State'
     Type                : string
     Unit of measurement : 
-    Default		: "Transient"
+    Default             : "Transient"
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6355,7 +6170,7 @@ START-properties
     Description         : Seal Thickness Model, one of: 'FullOverburden', 'LimitedOverburden State'
     Type                : string
     Unit of measurement : 
-    Default		: "FullOverburden"
+    Default             : "FullOverburden"
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6364,7 +6179,7 @@ START-properties
     Description         : maximum seal thickness in case of LimitedOverburden SealThicknessModel
     Unit of measurement : m
     Type                : double 
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No 
     Property I/O        : No
@@ -6373,7 +6188,7 @@ START-properties
     Description         : Salinity
     Unit of measurement : kg/kg
     Type                : double 
-    Default		: 0.15
+    Default             : 0.15
     Error Field         : Yes
     Time dependent      : No 
     Property I/O        : No
@@ -6382,7 +6197,7 @@ START-properties
     Description         : Activation Energy
     Unit of measurement : J
     Type                : double 
-    Default		: 18360.0 
+    Default             : 18360.0 
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6391,7 +6206,7 @@ START-properties
     Description         : Diffusion constant
     Unit of measurement : ???? 
     Type                : double 
-    Default		: 8.31451
+    Default             : 8.31451
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6400,7 +6215,7 @@ START-properties
     Description         : Diffusion factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 3.047e-06
+    Default             : 3.047e-06
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6409,7 +6224,7 @@ START-properties
     Description         : Diffusion factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 2.484e-6
+    Default             : 2.484e-6
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6418,7 +6233,7 @@ START-properties
     Description         : Diffusion factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 2.266e-6
+    Default             : 2.266e-6
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6427,7 +6242,7 @@ START-properties
     Description         : Diffusion factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 2.036e-6
+    Default             : 2.036e-6
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6436,7 +6251,7 @@ START-properties
     Description         : Diffusion factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 1.908e-6
+    Default             : 1.908e-6
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6445,7 +6260,7 @@ START-properties
     Description         : Concentration factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 1
+    Default             : 1
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6454,7 +6269,7 @@ START-properties
     Description         : Concentration factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.222
+    Default             : 0.222
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6463,7 +6278,7 @@ START-properties
     Description         : Concentration factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.089
+    Default             : 0.089
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6472,7 +6287,7 @@ START-properties
     Description         : Concentration factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.020
+    Default             : 0.020
     Error Field         : Yes 
     Time dependent      : No 
     Property I/O        : No
@@ -6481,85 +6296,8 @@ START-properties
     Description         : Concentration factor 
     Unit of measurement : 
     Type                : double 
-    Default		: 0.0067
+    Default             : 0.0067
     Error Field         : Yes 
-    Time dependent      : No 
-    Property I/O        : No
-
-#### Diffusion results -----------------------------
-
-    Identification      : MassC1Diffused
-    Description         : diffused mass of the specified component. 
-    Unit of measurement : kg
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-
-    Identification      : MassC2Diffused
-    Description         : diffused mass of the specified component. 
-    Unit of measurement : kg
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-
-    Identification      : MassC3Diffused
-    Description         : diffused mass of the specified component. 
-    Unit of measurement : kg
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-
-    Identification      : PenetrationC1
-    Description         : penetration depth of the diffusion front
-    Unit of measurement : m
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-
-    Identification      : PenetrationC2
-    Description         : penetration depth of the diffusion front
-    Unit of measurement : m
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-
-    Identification      : PenetrationC3
-    Description         : penetration depth of the diffusion front
-    Unit of measurement : m
-    Type                : double 
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-
-    Identification      : DiffCoefC1
-    Description         : Diffusion coefficient
-    Unit of measurement : m^2/s
-    Type                : double 
-    default		: -9999
-    Error Field         : No
-    Time dependent      : No 
-    Property I/O        : No
-
-    Identification      : DiffCoefC2
-    Description         : Diffusion coefficient
-    Unit of measurement : m^2/s
-    Type                : double 
-    default		: -9999
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : DiffCoefC3
-    Description         : Diffusion coefficient
-    Unit of measurement : m^2/s
-    Type                : double
-    default		: -9999
-    Error Field         : No
     Time dependent      : No 
     Property I/O        : No
 
@@ -6683,7 +6421,7 @@ START-properties
     Description         : Process through which charge was lost: "Spill", ....
     Type                : string
     Unit of measurement :
-    Default		: "Spill"
+    Default             : "Spill"
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6718,7 +6456,7 @@ START-properties
     Unit of measurement : 
     Error Field         : No
     Time dependent      : No
-    Property I/O	: No
+    Property I/O        : No
 
     Identification      : DestinationPointY
     Description         : Reservoir and snapshot specific trap spill id
@@ -6726,32 +6464,8 @@ START-properties
     Unit of measurement : 
     Error Field         : No
     Time dependent      : No
-    Property I/O	: No
+    Property I/O        : No
 
-    Identification      : LeakPointX
-    Description         : Reservoir and snapshot specific reservoir leak id
-    Type                : float 
-    Unit of measurement : 
-    Error Field         : No
-    Time dependent      : No
-    Property I/O	: No
-
-    Identification      : LeakPointY
-    Description         : Reservoir and snapshot specific reservoir leak id
-    Type                : float 
-    Unit of measurement : 
-    Error Field         : No
-    Time dependent      : No
-    Property I/O	: No
-   
-    Identification      : WasteLeakPoint
-    Description         : Reservoir and snapshot specific reservoir leak id
-    Type                : double 
-    Unit of measurement : kg
-    Error Field         : No
-    Time dependent      : No
-    Property I/O	: No
-   
     Identification      : WCSurface
     Description         : Surface of the OWC/GWC (Oil water contact or Gas water contact)
     Type                : float 
@@ -6796,7 +6510,7 @@ START-properties
     Description         : InterfacialTensionGas
     Unit of measurement : N/m
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6805,7 +6519,7 @@ START-properties
     Description         : InterfacialTensionOil
     Unit of measurement : N/m
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6814,7 +6528,7 @@ START-properties
     Description         : Critical temperature of the vapour hydrocarbon phase
     Unit of measurement : C
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6823,7 +6537,7 @@ START-properties
     Description         : Critical temperature of the liquid hydrocarbon phase
     Unit of measurement : C
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6832,7 +6546,7 @@ START-properties
     Description         : InterfacialTensionVapour
     Unit of measurement : N/m
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6841,7 +6555,7 @@ START-properties
     Description         : InterfacialTensionLiquid
     Unit of measurement : N/m
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6850,7 +6564,7 @@ START-properties
     Description         : Critical temperature of the vapour hydrocarbon phase
     Unit of measurement : C
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6859,7 +6573,7 @@ START-properties
     Description         : Critical temperature of the liquid hydrocarbon phase
     Unit of measurement : C
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6868,7 +6582,7 @@ START-properties
     Description         : seal permeability of the trap formation
     Unit of measurement : mD
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6877,7 +6591,7 @@ START-properties
     Description         : seal permeability of the trap formation
     Unit of measurement : mD
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6886,7 +6600,7 @@ START-properties
     Description         : porosity of the trap formation
     Unit of measurement : volume%
     Type                : double
-    Default		: -1
+    Default             : -1
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -6898,7 +6612,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC2
     Description         : mass of the specified component. 
@@ -6907,7 +6621,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC3
     Description         : mass of the specified component. 
@@ -6916,7 +6630,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC4
     Description         : mass of the specified component. 
@@ -6925,7 +6639,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC5
     Description         : mass of the specified component. 
@@ -6934,7 +6648,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassN2
     Description         : mass of the specified component. 
@@ -6943,7 +6657,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassCOx
     Description         : mass of the specified component. 
@@ -6952,7 +6666,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassH2S
     Description         : mass of the specified component. 
@@ -6961,7 +6675,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC6_14Aro
     Description         : mass of the specified component. 
@@ -6970,7 +6684,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC6_14Sat
     Description         : mass of the specified component. 
@@ -6979,7 +6693,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC15Aro
     Description         : mass of the specified component. 
@@ -6988,7 +6702,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC15Sat
     Description         : mass of the specified component. 
@@ -6997,7 +6711,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassLSC
     Description         : mass of the specified component. 
@@ -7006,7 +6720,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC15AT
     Description         : mass of the specified component. 
@@ -7015,7 +6729,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC15AroS
     Description         : mass of the specified component. 
@@ -7024,7 +6738,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC15SatS
     Description         : mass of the specified component. 
@@ -7033,7 +6747,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC6_14BT
     Description         : mass of the specified component. 
@@ -7042,7 +6756,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC6_14DBT
     Description         : mass of the specified component. 
@@ -7051,7 +6765,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC6_14BP
     Description         : mass of the specified component. 
@@ -7060,7 +6774,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC6_14SatS
     Description         : mass of the specified component. 
@@ -7069,7 +6783,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : MassC6_14AroS
     Description         : mass of the specified component. 
@@ -7078,7 +6792,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : Massresins
     Description         : mass of the specified component. 
@@ -7087,7 +6801,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : Massasphaltenes
     Description         : mass of the specified component. 
@@ -7096,7 +6810,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMass
     Description         : mass of the specified phase. 
@@ -7113,7 +6827,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC2
     Description         : mass of the specified component. 
@@ -7122,8 +6836,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
-
+    Default             : 0
 
     Identification      : FreeGasMassC3
     Description         : mass of the specified component. 
@@ -7132,8 +6845,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
-
+    Default             : 0
 
     Identification      : FreeGasMassC4
     Description         : mass of the specified component. 
@@ -7142,8 +6854,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
-
+    Default             : 0
 
     Identification      : FreeGasMassC5
     Description         : mass of the specified component. 
@@ -7152,8 +6863,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
-
+    Default             : 0
 
     Identification      : FreeGasMassN2
     Description         : mass of the specified component. 
@@ -7162,8 +6872,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
-
+    Default             : 0
 
     Identification      : FreeGasMassCOx
     Description         : mass of the specified component. 
@@ -7180,7 +6889,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC6_14Aro
     Description         : mass of the specified component. 
@@ -7189,7 +6898,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC6_14Sat
     Description         : mass of the specified component. 
@@ -7198,7 +6907,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC15Aro
     Description         : mass of the specified component. 
@@ -7207,7 +6916,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC15Sat
     Description         : mass of the specified component. 
@@ -7216,7 +6925,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassLSC
     Description         : mass of the specified component. 
@@ -7225,7 +6934,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC15AT
     Description         : mass of the specified component. 
@@ -7234,7 +6943,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC15AroS
     Description         : mass of the specified component. 
@@ -7243,7 +6952,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC15SatS
     Description         : mass of the specified component. 
@@ -7252,7 +6961,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC6_14BT
     Description         : mass of the specified component. 
@@ -7261,7 +6970,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC6_14DBT
     Description         : mass of the specified component. 
@@ -7270,7 +6979,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC6_14BP
     Description         : mass of the specified component. 
@@ -7279,7 +6988,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC6_14SatS
     Description         : mass of the specified component. 
@@ -7288,7 +6997,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassC6_14AroS
     Description         : mass of the specified component. 
@@ -7297,7 +7006,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassresins
     Description         : mass of the specified component. 
@@ -7306,7 +7015,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : FreeGasMassasphaltenes
     Description         : mass of the specified component. 
@@ -7315,7 +7024,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMass
     Description         : mass of the specified phase. 
@@ -7324,7 +7033,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC1
     Description         : mass of the specified component. 
@@ -7333,7 +7042,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC2
     Description         : mass of the specified component. 
@@ -7342,7 +7051,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC3
     Description         : mass of the specified component. 
@@ -7351,7 +7060,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC4
     Description         : mass of the specified component. 
@@ -7360,7 +7069,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC5
     Description         : mass of the specified component. 
@@ -7369,7 +7078,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassN2
     Description         : mass of the specified component. 
@@ -7378,7 +7087,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassCOx
     Description         : mass of the specified component. 
@@ -7387,7 +7096,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassH2S
     Description         : mass of the specified component. 
@@ -7396,7 +7105,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC6_14Aro
     Description         : mass of the specified component. 
@@ -7405,7 +7114,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC6_14Sat
     Description         : mass of the specified component. 
@@ -7414,7 +7123,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC15Aro
     Description         : mass of the specified component. 
@@ -7423,7 +7132,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC15Sat
     Description         : mass of the specified component. 
@@ -7432,7 +7141,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassresins
     Description         : mass of the specified component. 
@@ -7441,7 +7150,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassasphaltenes
     Description         : mass of the specified component. 
@@ -7450,7 +7159,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassLSC
     Description         : mass of the specified component. 
@@ -7459,7 +7168,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC15AT
     Description         : mass of the specified component. 
@@ -7468,7 +7177,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC15AroS
     Description         : mass of the specified component. 
@@ -7477,7 +7186,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC15SatS
     Description         : mass of the specified component. 
@@ -7486,7 +7195,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC6_14BT
     Description         : mass of the specified component. 
@@ -7495,7 +7204,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC6_14DBT
     Description         : mass of the specified component. 
@@ -7504,7 +7213,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC6_14BP
     Description         : mass of the specified component. 
@@ -7513,7 +7222,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC6_14SatS
     Description         : mass of the specified component. 
@@ -7522,7 +7231,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : CondensateMassC6_14AroS
     Description         : mass of the specified component. 
@@ -7531,7 +7240,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMass
     Description         : mass of the specified phase. 
@@ -7540,7 +7249,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC1
     Description         : mass of the specified component. 
@@ -7549,7 +7258,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC2
     Description         : mass of the specified component. 
@@ -7558,7 +7267,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC3
     Description         : mass of the specified component. 
@@ -7567,7 +7276,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC4
     Description         : mass of the specified component. 
@@ -7576,7 +7285,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC5
     Description         : mass of the specified component. 
@@ -7585,7 +7294,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassN2
     Description         : mass of the specified component. 
@@ -7594,7 +7303,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassCOx
     Description         : mass of the specified component. 
@@ -7603,7 +7312,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassH2S
     Description         : mass of the specified component. 
@@ -7612,7 +7321,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC6_14Aro
     Description         : mass of the specified component. 
@@ -7621,7 +7330,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC6_14Sat
     Description         : mass of the specified component. 
@@ -7630,7 +7339,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC15Aro
     Description         : mass of the specified component. 
@@ -7639,7 +7348,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC15Sat
     Description         : mass of the specified component. 
@@ -7648,7 +7357,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassresins
     Description         : mass of the specified component. 
@@ -7657,7 +7366,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassasphaltenes
     Description         : mass of the specified component. 
@@ -7666,7 +7375,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassLSC
     Description         : mass of the specified component. 
@@ -7675,7 +7384,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC15AT
     Description         : mass of the specified component. 
@@ -7684,7 +7393,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC15AroS
     Description         : mass of the specified component. 
@@ -7693,7 +7402,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC15SatS
     Description         : mass of the specified component. 
@@ -7702,7 +7411,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC6_14BT
     Description         : mass of the specified component. 
@@ -7711,7 +7420,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC6_14DBT
     Description         : mass of the specified component. 
@@ -7720,7 +7429,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC6_14BP
     Description         : mass of the specified component. 
@@ -7729,7 +7438,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC6_14SatS
     Description         : mass of the specified component. 
@@ -7738,7 +7447,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : SolutionGasMassC6_14AroS
     Description         : mass of the specified component. 
@@ -7747,7 +7456,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMass
     Description         : mass of the specified phase. 
@@ -7756,7 +7465,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC1
     Description         : mass of the specified component. 
@@ -7765,7 +7474,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC2
     Description         : mass of the specified component. 
@@ -7774,7 +7483,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC3
     Description         : mass of the specified component. 
@@ -7783,7 +7492,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC4
     Description         : mass of the specified component. 
@@ -7792,7 +7501,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC5
     Description         : mass of the specified component. 
@@ -7801,7 +7510,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassN2
     Description         : mass of the specified component. 
@@ -7810,7 +7519,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassCOx
     Description         : mass of the specified component. 
@@ -7819,7 +7528,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassH2S
     Description         : mass of the specified component. 
@@ -7828,7 +7537,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC6_14Aro
     Description         : mass of the specified component. 
@@ -7837,7 +7546,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC6_14Sat
     Description         : mass of the specified component. 
@@ -7846,7 +7555,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC15Aro
     Description         : mass of the specified component. 
@@ -7855,7 +7564,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC15Sat
     Description         : mass of the specified component. 
@@ -7864,7 +7573,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassresins
     Description         : mass of the specified component. 
@@ -7873,7 +7582,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassasphaltenes
     Description         : mass of the specified component. 
@@ -7882,7 +7591,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassLSC
     Description         : mass of the specified component. 
@@ -7891,7 +7600,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC15AT
     Description         : mass of the specified component. 
@@ -7900,7 +7609,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC15AroS
     Description         : mass of the specified component. 
@@ -7909,7 +7618,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC15SatS
     Description         : mass of the specified component. 
@@ -7918,7 +7627,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC6_14BT
     Description         : mass of the specified component. 
@@ -7927,7 +7636,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC6_14DBT
     Description         : mass of the specified component. 
@@ -7936,7 +7645,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC6_14BP
     Description         : mass of the specified component. 
@@ -7945,7 +7654,7 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC6_14SatS
     Description         : mass of the specified component. 
@@ -7954,46 +7663,10 @@ START-properties
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-	Default				: 0
+    Default             : 0
 
     Identification      : StockTankOilMassC6_14AroS
     Description         : mass of the specified component. 
-    Unit of measurement : kg
-    Type                : double
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-	Default				: 0
-
-    Identification      : MassOilSpilled
-    Description         : mass of oil spilled from a trap.
-    Unit of measurement : kg
-    Type                : double
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-    Default             : 0
-
-    Identification      : MassGasSpilled
-    Description         : mass of gas spilled from a trap.
-    Unit of measurement : kg
-    Type                : double
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-    Default             : 0
-
-    Identification      : MassOilLost
-    Description         : mass of oil lost from a trap.
-    Unit of measurement : kg
-    Type                : double
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-    Default             : 0
-
-    Identification      : MassGasLost
-    Description         : mass of gas lost from a trap.
     Unit of measurement : kg
     Type                : double
     Error Field         : No
@@ -8021,22 +7694,6 @@ START-properties
 
     Identification      : Key
     Description         : Key  
-    Unit of measurement : 
-    Type                : integer
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : MarkerHeight
-    Description         : Location on x-axis of bin with index 'Index'
-    Unit of measurement : 
-    Type                : float
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-
-    Identification      : MarkerLocation
-    Description         : Horizontal location of marker
     Unit of measurement : 
     Type                : integer
     Error Field         : No
@@ -8417,7 +8074,7 @@ START-properties
     Description         : Touchstone percent for output Map
     Unit of measurement : 
     Type                : float
-    Default		: 100
+    Default             : 100
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -8426,7 +8083,7 @@ START-properties
     Description         : Touchstone percent for output Map
     Unit of measurement : 
     Type                : boolean
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -8435,42 +8092,12 @@ START-properties
     Description         : Touchstone percent for output Map
     Unit of measurement : 
     Type                : boolean
-    Default		: 0
+    Default             : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-
-# Sensitivity User Options
-
-    Identification      : GroupCombination
-    Description         : Sensitivity Analysis Sobol input group combinations
-    Unit of measurement : 
-    Type                : integer
-    Error Field         : No
-    Time dependent      : No
-    Property I/O        : No
-    
-# Obsolete property definitions
-
-    Identification      : FTlength
-    Description         : Fission track length
-    Unit of measurement : micron
-    Type                : float 
-    Error Field         : No
-    Time dependent      : Yes
-    Property I/O        : No
-
-    Identification      : FTage
-    Description         : Fission track age
-    Unit of measurement : Ma
-    Type                : float 
-    Error Field         : No
-    Time dependent      : Yes
-    Property I/O        : No
-
 
 #### Allochthonous lithology property data --------------------------------
-
 
     Identification      : InterpFileName
     Description         : Filename of the interpolation results (with extension)
@@ -8588,7 +8215,7 @@ START-properties
 #### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties 
 
     Identification      : Moho
-    Description		: present-day Moho depth 
+    Description         : present-day Moho depth 
     Unit of measurement : m
     Type                : string
     Error Field         : No
@@ -8596,7 +8223,7 @@ START-properties
     Property I/O        : No
 
     Identification      : AdjustedWaterLoadedSubsidence
-    Description		: present-day water loaded subsidence
+    Description         : present-day water loaded subsidence
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8604,7 +8231,7 @@ START-properties
     Property I/O        : No
 
     Identification      : AdjustedResidualDepthAnomaly
-    Description		: present-day calculated residual depth anomaly
+    Description         : present-day calculated residual depth anomaly
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8612,7 +8239,7 @@ START-properties
     Property I/O        : No
 
     Identification      : ContinentalCrustalThickness
-    Description		: present-day continental crustal thickness
+    Description         : present-day continental crustal thickness
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8620,7 +8247,7 @@ START-properties
     Property I/O        : No
 
     Identification      : EffectiveCrustalThickness
-    Description		: present-day effective crust thickness
+    Description         : present-day effective crust thickness
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8628,7 +8255,7 @@ START-properties
     Property I/O        : No
 
     Identification      : TopBasaltUnderplate
-    Description		: present-day depth to top basalt
+    Description         : present-day depth to top basalt
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8636,7 +8263,7 @@ START-properties
     Property I/O        : No
 
     Identification      : ALCMaxAsthenoMantleDepth
-    Description		: maximum depth of asthenospheric mantle
+    Description         : maximum depth of asthenospheric mantle
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8644,7 +8271,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCStepTopBasaltDepth
-    Description		: depth of top of lithoswitched basalt
+    Description         : depth of top of lithoswitched basalt
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8652,7 +8279,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCStepMohoDepth
-    Description		: Moho, base of lithoswitched basalt or continental crust
+    Description         : Moho, base of lithoswitched basalt or continental crust
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8660,7 +8287,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCStepContCrustThickness
-    Description		: thickness of continental crust after lithoswitching
+    Description         : thickness of continental crust after lithoswitching
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8668,7 +8295,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCStepBasaltThickness
-    Description		: calculated after lithoswitching thickness of basalt
+    Description         : calculated after lithoswitching thickness of basalt
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8676,7 +8303,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCSmBasaltThickness
-    Description		: smooth basalt thickness
+    Description         : smooth basalt thickness
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8684,7 +8311,7 @@ START-properties
     Property I/O        : No
  
     Identification      : ALCSmContCrustThickness
-    Description		: interpolated continental crust thickness
+    Description         : interpolated continental crust thickness
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8692,7 +8319,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCSmTopBasaltDepth
-    Description		: calculated depth of top of basalt
+    Description         : calculated depth of top of basalt
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8700,7 +8327,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCSmMohoDepth
-    Description		: calculated depth of Moho
+    Description         : calculated depth of Moho
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8708,7 +8335,7 @@ START-properties
     Property I/O        : No
     
     Identification      : ALCOrigLithMantleDepth
-    Description		: base of uplifted initial mantle
+    Description         : base of uplifted initial mantle
     Unit of measurement : m
     Type                : float
     Error Field         : No
@@ -8829,18 +8456,6 @@ START-properties
     Default             : 2300.0
 
 
-#    Identification      : MapRowIndex
-#    Description         : Indicate which row of the map is required
-#    Type                : Integer
-
-#    Identification      : MapColumnIndex
-#    Description         : Indicate which column of the map is required
-#    Type                : Integer
-
-#    Identification      : AdsorptionNodeOutputSubscript
-#    Description         : The name of the output subscript
-#    Type                : string
-
 #### BPA Name/Description/etc mapping table to preserve BPA-specific properties on roundtripped projects
 
     Identification      : TblIoMappingEncode
@@ -8877,10 +8492,6 @@ START-property-tables
     Column         : ProjectTeam
     Column         : ProjectStartDate
     Column         : ProjectEndDate
-#    Column         : BPAServer
-#    Column         : BPAName
-#    Column         : BPAOwnerOrg
-#    Column         : BPAChecksum
     Column         : ProgramVersion
     Column         : ModellingMode
     Column         : XCoord
@@ -8893,10 +8504,10 @@ START-property-tables
     Column         : ScaleY
     Column         : OffsetX
     Column         : OffsetY
-    Column	   : WindowXMin
-    Column	   : WindowXMax
-    Column	   : WindowYMin
-    Column	   : WindowYMax
+    Column         : WindowXMin
+    Column         : WindowXMax
+    Column         : WindowYMin
+    Column         : WindowYMax
     Column         : WktGeometryOutline
     Header         : Project data
     Time dependent : No
@@ -8919,15 +8530,6 @@ START-property-tables
     Column         : TblIoMappingEncode
     Column         : BPAColumnName
     Column         : BPAColumnValue
-
-    Identification : DefaultFileIoTbl
-    Description    : default filenames + extensions per (logical) dataset
-    Column         : Filename
-    Column         : Fileextension
-    Column         : Dataset
-    Header         : Default files  
-    Time dependent : No
-    Property I/O   : Yes
 
     Identification : IoOptionsIoTbl
     Description    : table with file io options
@@ -8963,7 +8565,7 @@ START-property-tables
     Column         : BricksizeEast
     Column         : BricksizeNorth
     Column         : BrickHeightSediment  
-#			BrickHeightBasement -> replaced by the 2 below:
+# BrickHeightBasement -> replaced by the 2 below:
     Column         : BrickHeightCrust
     Column         : BrickHeightMantle
     Column         : MaxNumberOfRunOverpressure
@@ -8995,7 +8597,7 @@ START-property-tables
     Column         : PTCouplingMode
     Column         : CoupledMode
     Column         : ChemicalCompaction
-	Column         : ChemicalCompactionAlgorithm
+    Column         : ChemicalCompactionAlgorithm
     Column         : ConvectiveTerm
     Column         : NonGeometricLoop
     Column         : AllochthonousModelling
@@ -9031,25 +8633,11 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-    Identification : RespSurfModelParamsIoTbl
-    Description    : table with parameters for response surface modelling
-    Column         : AnalysisIdentification
-    Column         : PrimaryRow
-    Column         : SecondaryRow
-    Column         : RSMparameter
-    Column         : RSMnumber
-    Column         : RSMparameterValue
-    Header         : Run Options
-    Time dependent : No
-    Property I/O   : Yes
-
-
     # Changed by S. Mathijssen (ORIGIN) 05-11-1997
     # Increment 1.2
     Identification : FilterDepthIoTbl
     Description    : Determines which properties needs to be present
                      within the DepthIoTbl
-                     and the DepthMCResultIoTbl
     Column         : PropertyName
     Column         : ModellingMode
     Column         : OutputOption
@@ -9063,7 +8651,6 @@ START-property-tables
     Identification : FilterTimeIoTbl
     Description    : Determines which properties needs to be present
                      within the TimeIoTbl
-                     and the TimeMCResultIoTbl
     Column         : PropertyName
     Column         : ModellingMode
     Column         : OutputOption
@@ -9118,7 +8705,8 @@ START-property-tables
 #### Project - 3d tables --------------------------------------------------
 
     Identification : GridMapIoTbl
-    Description    : table with grid map data, KEYS: ReferredBy+MapName
+    Description    : table with grid map data
+    KEYS           : ReferredBy+MapName
     Column         : ReferredBy
     Column         : MapName
     Column         : MapType
@@ -9224,7 +8812,6 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-
     Identification : CrustIoTbl
     Description    : table with Crust thickness data for IO and UI
     Column         : Age
@@ -9329,7 +8916,7 @@ START-property-tables
     Identification : CTCIoTbl 
     Description    : Table of user defined data for calculation of MOHO and basalt thickness
     Column         : SurfaceName
-    Column         : T0Ini	  
+    Column         : T0Ini        
     Column         : T0IniGrid
     Column         : TRIni
     Column         : TRIniGrid
@@ -9370,7 +8957,7 @@ START-property-tables
     Identification : BoundaryValuesIoTbl
     Description    : Table of boundary values Through Time 
     Column         : BeginTimeValues
-    Column         : EndTimeValues	
+    Column         : EndTimeValues      
     Column         : PropertyValueGrid
     Column         : PropertyValue
     Header         : Boundary values datas
@@ -9391,7 +8978,7 @@ START-property-tables
     Description    : Table of Permafrost simulation parameters 
     Column         : PermafrostInd
     Column         : PressureTerm
-    Column	   : SalinityTerm
+    Column         : SalinityTerm
     Header         : Permafrost parameters
     Time dependent : No
     Property I/O   : Yes
@@ -9430,19 +9017,11 @@ START-property-tables
     Column         : FixedCrustThickness
     Column         : CalibFixedCrustThickness
     Column         : InitialLithosphericMantleThickness
-    Column	   : CrustPropertyModel
-    Column	   : MantlePropertyModel
+    Column         : CrustPropertyModel
+    Column         : MantlePropertyModel
     Header         : Basement
     Time dependent : No
     Property I/O   : Yes
-
-#    Identification : SealevelIoTbl
-#    Description    : Table of sealevel through time 
-#    Column         : Sealevel
-#    Column         : Age
-#    Header         : Sea Levels
-#    Time dependent : No
-#    Property I/O   : Yes
 
 
 #### Calibration / Thermal Indicator Data -----------------------------------
@@ -9459,11 +9038,7 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-   
-
 # temperatures /BHT:
-
-
 
     Identification : FormTempIoTbl
     Description    : Corrected temperature data for a well
@@ -9596,7 +9171,6 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-
 # Fission track :
 
     Identification : FtGrainIoTbl
@@ -9681,7 +9255,6 @@ START-property-tables
     Header         : Layout of the Cl Weight Bins used in the fission track prediction algorithms
     Time dependent : No
     Property I/O   : Yes
-
 
 # XMIG stuff
 
@@ -10081,7 +9654,6 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-
     Identification : SourceRockPropIoTbl
     Description    : Contains present day source rock properties
     Column         : LayerName
@@ -10117,23 +9689,6 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-    Identification : DiffusionResultIoTbl
-    Description    : Table listing the diffusion values per trap
-    Column         : ReservoirName
-    Column         : Age
-    Column         : TrapID
-    Column         : XCoord
-    Column         : YCoord
-    Column         : MassC1Diffused
-    Column         : PenetrationC1
-    Column         : DiffCoefC1
-    Column         : MassC2Diffused
-    Column         : PenetrationC2
-    Column         : DiffCoefC2
-    Column         : MassC3Diffused
-    Column         : PenetrationC3
-    Column         : DiffCoefC3
-
     Identification : MigrationIoTbl
     Description    : Table listing migrations (information through time, read-only)
     Column         : MigrationProcess
@@ -10161,14 +9716,14 @@ START-property-tables
     Column         : MassC15Aro
     Column         : MassC15Sat
     Column         : MassLSC
-    Column	   : MassC15AT
-    Column	   : MassC15AroS
-    Column	   : MassC15SatS
-    Column	   : MassC6_14BT
-    Column	   : MassC6_14DBT
-    Column	   : MassC6_14BP
-    Column	   : MassC6_14SatS
-    Column	   : MassC6_14AroS
+    Column         : MassC15AT
+    Column         : MassC15AroS
+    Column         : MassC15SatS
+    Column         : MassC6_14BT
+    Column         : MassC6_14DBT
+    Column         : MassC6_14BP
+    Column         : MassC6_14SatS
+    Column         : MassC6_14AroS
     Column         : Massresins
     Column         : Massasphaltenes
 
@@ -10176,20 +9731,6 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-    Identification : ReservoirLeakIoTbl
-    Description    : Table listing reservoir leakage
-    Column         : Age
-    Column         : SourceReservoirName
-    Column         : SourceTrapID
-    Column         : LeakPointX
-    Column         : LeakPointY
-    Column         : MassOilSpilled
-    Column         : MassGasSpilled
-    Column         : WasteLeakPoint
-    Header         : Reservoir Leak Data
-    Time dependent : No
-    Property I/O   : Yes
-    
  # Lithotype data IO:
 
     Identification : LithotypeIoTbl
@@ -10227,6 +9768,17 @@ START-property-tables
     Column         : PcKrModel
     Column         : LambdaPc
     Column         : LambdaKr
+    Column         : LambdaPc_LW
+    Column         : LambdaPc_VL
+    Column         : N_W
+    Column         : N_V
+    Column         : N_L
+    Column         : KrwMax
+    Column         : KrvMax
+    Column         : KrlMax
+    Column         : Swi
+    Column         : Svr
+    Column         : Slr
     Column         : Porosity_Model
     Column         : Compaction_Coefficient_SM
     Column         : Number_Of_Data_Points
@@ -10238,20 +9790,10 @@ START-property-tables
     Column         : MinimumPorosity
     Column         : SpecSurfArea
     Column         : GeoVariance
-	Column		   : QuartzGrainSize
-	Column         : QuartzFraction
-	Column         : ClayCoatingFactor
+    Column         : QuartzGrainSize
+    Column         : QuartzFraction
+    Column         : ClayCoatingFactor
 
-    Header         : Lithotype Data
-    Time dependent : No
-    Property I/O   : Yes
-
-    Identification : LitMixIoTbl
-    Description    : Table that specifies how a lithotype was defined in terms
-                     of a mix of other lithotypes
-    Column         : Lithotype
-    Column         : Lithotype1
-    Column         : Percent1
     Header         : Lithotype Data
     Time dependent : No
     Property I/O   : Yes
@@ -10276,18 +9818,6 @@ START-property-tables
     Header         : Lithotype Data
     Time dependent : No
     Property I/O   : Yes
-
-#    Identification : LitUraThoPotIoTbl
-#    Description    : Table of Uranium, Thorium and Potassium concentration for
-#                     a specific lithotype, these values can be used 
-#                     calculate the 
-#    Column         : Lithotype
-#    Column         : UraniumConcent
-#    Column         : ThoriumConcent
-#    Column         : PotassiumConcent
-#    Header         : Lithotype Data
-#    Time dependent : No
-#    Property I/O   : Yes
 
 #   MODEL:
 
@@ -10326,32 +9856,6 @@ START-property-tables
     Column         : DensXHeatCap
     Time dependent : No
     Property I/O   : No
-
-#   Identification : FltHeatCapTbl
-#   Description    : Table of specific heat capacity  at
-#                    a certain temperature and pressure 
-#   Column         : TempIndex
-#   Column         : Pressure
-#   Column         : HeatCapacity
-#   Time dependent : No
-#   Property I/O   : No
-
-#   Identification : FltDensityTbl
-#   Description    : Table of density  at a certain temperature and pressure 
-#   Column         : TempIndex
-#   Column         : Pressure
-#   Column         : Density
-#   Time dependent : No
-#   Property I/O   : No
-
-#   Identification : FltDensXHeatCapTbl
-#   Description    : Table of density x specific heat capacity  at
-#                    a certain temperature and pressure 
-#   Column         : TempIndex
-#   Column         : Pressure
-#   Column         : DensXHeatCap
-#   Time dependent : No
-#   Property I/O   : No
 
 # Fluidtype data ----------------------------------------------------------
 
@@ -10505,7 +10009,7 @@ START-property-tables
     Identification : RunStatusIoTbl
     Description    : Table which contains the most imported status information
                      of the last run. Important for re-start + continue
-		     behaviour for montecarlo 1d-runs or big 3d-runs
+                     behaviour for montecarlo 1d-runs or big 3d-runs
     Column         : NrMCLoopsCompleted
     Column         : MCCurrentSeedNumber
     Column         : MCStatusOfLastRun
@@ -10526,8 +10030,8 @@ START-property-tables
     # skewness and kurtosis
     Identification : DepthIoTbl
     Description    : Table listing the statistics of property values
-                     for serveral depth/time combinations, 
-		     KEYS: PropertyName+Time+Depth_
+                     for serveral depth/time combinations,
+    KEYS           : PropertyName+Time+Depth_
     Column         : PropertyName
     Column         : Time
     Column         : Depth_
@@ -10551,46 +10055,6 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-    Identification : DepthMCResultIoTbl
-    Description    : Table listing the values of property values
-                     for all MC-runs and serveral depth/time combinations, 
-		     KEYS: PropertyName+Time+Depth_+RunNumber
-    Column         : PropertyName
-    Column         : Time
-    Column         : Depth_
-    Column         : RunNumber
-    Column         : Value
-    Header         : Output results
-    Time dependent : No
-    Property I/O   : Yes
-
-    Identification : ExportDepthIoTbl
-    Description    : This is a strip down version of 'DepthIoTbl' used to
-                     export a depth io plot to file
-    Column         : PropertyName
-    Column         : Time
-    Column         : Depth_
-    Column         : Average
-    Column         : StandardDev
-    Column         : Minimum
-    Column         : Maximum
-
-    # Added by S. Mathijssen (ORIGIN) 15-12-1997
-    # PR 12
-    Column         : P15
-    Column         : P50
-    Column         : P85
-
-    # Added by S. Mathijssen (ORIGIN) 15-12-1997
-    # PR 18
-    Column         : Skewness
-    Column         : Kurtosis
-
-
-    Header         : Output results
-    Time dependent : No
-    Property I/O   : Yes
-
     # Changed by S. Mathijssen (ORIGIN) 14-11-1997
     # Increment 4.4
     # Added P15, P50 and P85
@@ -10600,7 +10064,7 @@ START-property-tables
     Identification : TimeIoTbl
     Description    : Table listing the statistics of property values
                      for serveral time/surface combinations,
-		     KEYS: PropertyName+Time+SurfaceName+FormationName
+    KEYS           : PropertyName+Time+SurfaceName+FormationName
     Column         : PropertyName
     Column         : Time
     Column         : SurfaceName
@@ -10663,102 +10127,12 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-    Identification : TimeMCResultIoTbl
-    Description    : Table listing the property values
-                     for all MC-runs and several time/surface combinations,
-		     KEYS: PropertyName+Time+SurfaceName+FormationName+RunNumber
-    Column         : PropertyName
-    Column         : Time
-    Column         : SurfaceName
-    Column         : FormationName
-    Column         : RunNumber
-    Column         : Value
-    Header         : Output results
-    Time dependent : No
-    Property I/O   : Yes
-
-    Identification : TimeSensResultIoTbl
-    Description    : Table for holding Cauldron results when using Sample C
-                     SOBOL results. This table is not saved to file
-		     KEYS: PropertyName+Time+SurfaceName+FormationName+RunNumber
-    Column         : PropertyName
-    Column         : Time
-    Column         : SurfaceName
-    Column         : FormationName
-    Column         : RunNumber
-    Column         : Value
-    Header         : Output results
-    Time dependent : No
-    Property I/O   : Yes
-    Property I/O   : Yes
-
-    Identification : ExportTimeIoTbl
-    Description    : This is a strip down version of TimeIoTbl used to
-                     export a time io plot to file
-    Column         : PropertyName
-    Column         : Time
-    Column         : SurfaceName
-    Column         : FormationName
-    Column         : Average
-    Column         : StandardDev
-    Column         : Minimum
-    Column         : Maximum
-
-    # Added by S. Mathijssen (ORIGIN) 15-12-1997
-    # PR 12
-    Column         : P15
-    Column         : P50
-    Column         : P85
-
-    # Added by S. Mathijssen (ORIGIN) 15-12-1997
-    # PR 18
-    Column         : Skewness
-    Column         : Kurtosis
-
-
-    Header         : Output results
-    Time dependent : No
-    Property I/O   : Yes
-
-    Identification : HistogramMCResultIoTbl
-    Description    : Table listing the PropertyName,SurfaceName,FormationName
-                     combinations for which histograms are calculated in 
-                     MC-mode. Key is a reference to entries in the 
-                     MarkerMCResultIoTbl, NumberOfBins is the number of bins
-                     in the histogram.
-		     KEYS: PropertyName+SurfaceName+FormationName
-    Column         : PropertyName
-    Column         : SurfaceName
-    Column         : FormationName
-    Column         : DepoSequence
-    Column         : Time
-    Column         : NumberOfBins
-    Column         : Key
-    Column         : NP
-    Header         : Histograms of MC output
-    Time dependent : No
-    Property I/O   : Yes
-
-    Identification : MarkerMCResultIoTbl
-    Description    : Table listing the markerheight and markerlocation to
-                     allow calculation of histograms. From the MarkerHeight
-                     values a histogram is calculated, MarkerLocation is needed
-                     for restart of a run.
-		     KEYS: Key+Index
-    Column         : Key
-    Column         : Index
-    Column         : MarkerHeight
-    Column         : MarkerLocation
-    Header         : Histogram data
-    Time dependent : No
-    Property I/O   : Yes
-
     Identification : TemperatureIsoIoTbl
     Description    : Table to hold the temperature Iso depth that will be
                      displayed in the burial graph. The depth is calculated 
                      and stored after each time step in the Sum. Number of Points
                      is stored to accomodate MC runs. 
-                     KEYS: ContourValue + Age
+    KEYS           : ContourValue + Age
     Column         : Age
     Column         : ContourValue
     Column         : Sum
@@ -10772,7 +10146,7 @@ START-property-tables
                      displayed in the burial graph. The depth is calculated 
                      and stored after each time step in the Sum.  Number of Points
                      is stored to accomodate MC runs. 
-                     KEYS: ContourValue + Age
+    KEYS           : ContourValue + Age
     Column         : Age
     Column         : ContourValue
     Column         : Sum
@@ -10788,7 +10162,7 @@ START-property-tables
                      to accomodate MC runs.
                      This table is used to perfrom operations on the 
                      TemperatureIsoIoTbl and VrIsoIoTbl (inheritance)
-                     KEYS: ContourValue + Age
+    KEYS           : ContourValue + Age
     Column         : Age
     Column         : ContourValue
     Column         : Sum
@@ -10809,28 +10183,6 @@ START-property-tables
     Time dependent : No
     Property I/O   : Yes
 
-# Sensitivity tables
-
-    Identification : GrpCombIoTbl
-    Description    : Sensitivity Analysis Group Input combinations
-    Column         : GroupCombination
-    Header         : Sensitivity Analysis Sobol Input Group Combinations
-    Time dependent : No
-    Property I/O   : Yes
-
-# Obsolete tables
-
-    Identification : FTmIoTbl
-    Description    : Obsolete fission track table
-    Column         : DepthIndex
-    Column         : FTlength
-    Column         : FTage
-    Column         : Label
-    Column         : Optimization
-#    Header         : Fission track measurements
-    Time dependent : No
-    Property I/O   : Yes
-
 # Genex History location Table
 
     Identification : GenexHistoryLocationIoTbl
@@ -10840,6 +10192,7 @@ START-property-tables
     Column         : YPlanePosition
     Column         : Filename
     Header         : Node simulation history
+    Property I/O   : Yes
 
 # Shale Gas Tables
 
@@ -10888,13 +10241,6 @@ END-property-tables
 START-application-classes
 
     Identification : Project
-    # Identification : Node
-    # Identification : Segment
-    # Identification : Brick
-    # Identification : Lithotype
-    # Identification : Fluidtype
-    # Identification : Lithomatrix
-    # Identification : Fluid
 
 END-application-classes
 
@@ -10906,16 +10252,13 @@ START-application-class-properties
     Property : ProjectIoTbl
     Property : ProjectNotesIoTbl
     Property : RelatedProjectsIoTbl
-    Property : DefaultFileIoTbl
     Property : IoOptionsIoTbl
     Property : RunOptionsIoTbl
     Property : SnapshotIoTbl
     Property : SensAnalysisIoTbl
-    Property : RespSurfModelParamsIoTbl
     Property : WellLocIoTbl
     Property : TouchstoneWellIoTbl
     Property : TouchstoneMapIoTbl
-    Property : GrpCombIoTbl
     Property : GridMapIoTbl
     Property : StratIoTbl
     Property : SourceRockLithoIoTbl
@@ -10958,7 +10301,6 @@ START-application-class-properties
     Property : MigrationIoTbl
     Property : TrapperIoTbl
     Property : DataMiningIoTbl
-    Property : ReservoirLeakIoTbl
     Property : FtGrainIoTbl
     Property : FtLengthIoTbl
     Property : FtSampleIoTbl
@@ -10966,7 +10308,6 @@ START-application-class-properties
     Property : FtPredLengthCountsHistDataIoTbl
     Property : FtClWeightPercBinsIoTbl
     Property : LithotypeIoTbl
-    Property : LitMixIoTbl
     Property : LitThCondIoTbl
     Property : LitHeatCapIoTbl
     Property : FluidtypeIoTbl
@@ -10978,27 +10319,12 @@ START-application-class-properties
     Property : RunStatusIoTbl
     Property : FilterTimeIoTbl
     Property : FilterTimeDepthIoTbl
-    #Property : PlotTbl
-    #Property : HistogramTbl
-    #Property : SnapshotTbl
-    #Property : PlotBoundsTbl
-    #Property : NeedlePropsTbl
     Property : DepthIoTbl
-    Property : DepthMCResultIoTbl
-    Property : ExportDepthIoTbl
     Property : TimeIoTbl
     Property : 3DTimeIoTbl
     Property : 1DTimeIoTbl
-    Property : TimeMCResultIoTbl
-    Property : TimeSensResultIoTbl
-    Property : ExportTimeIoTbl
-    Property : HistogramMCResultIoTbl
-    Property : MarkerMCResultIoTbl
-    Property : DiffusionResultIoTbl
     Property : TemperatureIsoIoTbl
     Property : VrIsoIoTbl
-    #Property : GenericIsoIoTbl
-    Property : FTmIoTbl
 # Genex History Location 
     Property : GenexHistoryLocationIoTbl
 # CrustalThicknessCalculator data
@@ -11009,138 +10335,9 @@ START-application-class-properties
     Property : AdsorptionHistoryIoTbl
     Property : IrreducibleWaterSaturationIoTbl
     Property : SGDensityIoTbl
-#    Property : AdsorptionNodeOutputIoTbl
+# BPA-Cauldron integration
     Property : BPANameMapping
     
-    # Class    : Node
-    # Property : Depth
-    # Property : SurfaceNormal
-    # Property : Ves
-    # Property : MaxVes
-    # Property : Pressure
-    # Property : HydroStaticPressure
-    # Property : LithoStaticPressure
-    # Property : OverPressure
-    # Property : MassFluxX 
-    # Property : MassFluxY
-    # Property : MassFluxZ 
-    # Property : MassFlux_
-    # Property : Temperature
-    # Property : HeatFlowX 
-    # Property : HeatFlowY
-    # Property : HeatFlowZ 
-    # Property : HeatFlow_
-    # Property : Vr
-    # Property : HopaneIsomerisation
-    # Property : SteraneIsomerisation
-    # Property : SteraneAromatisation
-    # Property : IlliteFraction
-    # Property : FCTCorrection
-    # Property : FaultElements
-    # Property : SaveFCTCorrection
-    # Property : IsoStaticMass
-    # Property : IsoStaticDeflection
-    # Property : IsoStaticWaterBottom
-#    Property : Xlocation
-#    Property : Ylocation
-#    Property : DepoAge
-#    Property : ErosionAge
-#    Property : HeatProd
-#    Property : Head
-
-
-    # Class    : Segment
-    # Property : DummyLayerSegment
-    # Property : Thickness
-#    Property : FullCompThickness   superseded by FCThicknessHistory attribute
-    # Property : PorosityVec2
-    # Property : SonicVec2
-    # Property : VelocityVec2
-    # Property : ReflectivityVec2
-    # Property : BulkDensityVec2
-    # Property : ThCondVec2
-    # Property : PermeabilityVec2
-    # Property : DiffusivityVec2
-    
-
-    # Class    : Brick
-    # Property : HeatFlowVec8
-    # Property : MassFluxVec8
-#    Property : FluidFlow
-
-    # Class    : Lithotype
-    # Property : DepoPerm
-    # Property : PermDecrStressCoef
-    # Property : PermIncrRelaxCoef
-    # Property : PermAnisotropy
-    # Property : PermMixModel
-    # Property : HeatCapTbl
-    # Property : ThCondTbl
-    # Property : Density
-    # Property : HeatProd
-    # Property : SurfacePorosity
-    # Property : CompacCoefES
-    # Property : CompacCoefSC
-    # Property : CompacCoefFM
-    # Property : StpThCond
-    # Property : ThCondAnisotropy
-    # Property : SeisVelocity
-    # Property : CapC1
-    # Property : CapC2
-    # Property : Porosity_Model
-    # Property : Compaction_Coefficient_SM
-    # Property : Number_Of_Data_Points
-    # Property : Multipoint_Porosity
-    # Property : Multipoint_Permeability 
-    # Property : HydraulicFracturingPercent
-    # Property : ReferenceSolidViscosity
-    # Property : ActivationEnergy
-    # Property : MinimumPorosity
-
-    # Class    : Lithomatrix
-    # Property : DepoPerm
-    # Property : PermDecrStressCoef
-    # Property : PermIncrRelaxCoef
-    # Property : PermAnisotropy
-    # Property : PermMixModel
-    # Property : LitMixTbl
-    # Property : MixModel
-    # Property : Density
-    # Property : DensXHeatCapTbl
-    # Property : ThCondTbl
-    # Property : HeatProd
-    # Property : SurfacePorosity
-    # Property : CompacCoefES
-    # Property : CompacCoefSC 
-    # Property : CompacCoefFM
-    # Property : StpThCond
-    # Property : ThCondAnisotropy
-    # Property : SeisVelocity
-    # Property : CapC1
-    # Property : CapC2
-    # Property : Porosity_Model
-    # Property : Compaction_Coefficient_SM
-    # Property : Number_Of_Data_Points
-    # Property : Multipoint_Porosity
-    # Property : Multipoint_Permeability
-    # Property : HydraulicFracturingPercent
-    # Property : ReferenceSolidViscosity
-    # Property : ActivationEnergy
-    # Property : MinimumPorosity
-
-    # Class    : Fluidtype
-    # Property : Density
-    # Property : SeisVelocity
-    # # Property : FltHeatCapTbl
-    # # Property : FltDensityTbl
-    # Property : ThCondTbl
-
-    # Class    : Fluid
-    # Property : Density
-    # Property : SeisVelocity
-    # Property : FltDensXHeatCapTbl
-    # Property : ThCondTbl
-
 
 END-application-class-properties
 
