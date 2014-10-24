@@ -25,6 +25,8 @@ set(all_headers
   src/FormationSurfacePropertyCalculator.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
+  src/LithostaticPressureFormationCalculator.h
+  src/LithostaticPressureSurfaceCalculator.h
   src/PermeabilityFormationCalculator.h
   src/PermeabilityFormationSurfaceCalculator.h
   src/PorosityFormationCalculator.h
@@ -54,6 +56,8 @@ set(all_srcs
   src/FormationSurfaceProperty.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
+  src/LithostaticPressureFormationCalculator.C
+  src/LithostaticPressureSurfaceCalculator.C
   src/PermeabilityFormationCalculator.C
   src/PermeabilityFormationSurfaceCalculator.C
   src/PorosityFormationCalculator.C

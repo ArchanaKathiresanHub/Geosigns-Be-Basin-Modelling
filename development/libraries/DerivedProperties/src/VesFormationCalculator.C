@@ -2,7 +2,6 @@
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
 
-#include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 
 #include "VesFormationCalculator.h"
@@ -30,13 +29,11 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
    
    derivedProperties.clear ();
    
-   const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-
-   if( lithostaticPressure != 0 and porePressure != 0 and geoFormation != 0 ) {
+   if( lithostaticPressure != 0 and porePressure != 0 ) {
               
       DerivedFormationPropertyPtr ves = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aVesProperty, snapshot, formation, 
                                                                                                                         propertyManager.getMapGrid (),
-                                                                                                                        geoFormation->getMaximumNumberOfElements() + 1 ));
+                                                                                                                        porePressure->lengthK () ));
       double undefinedValue = lithostaticPressure->getUndefinedValue ();
       
       for ( unsigned int i = lithostaticPressure->firstI ( true ); i <= lithostaticPressure->lastI ( true ); ++i ) {
