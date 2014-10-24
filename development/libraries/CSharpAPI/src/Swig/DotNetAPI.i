@@ -169,9 +169,9 @@
 #include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 
-#include "../../../cmbAPI/src/Path.h"
-#include "../../../cmbAPI/src/FilePath.h"
-#include "../../../cmbAPI/src/FolderPath.h"
+#include "../../../FileSystem/src/Path.h"
+#include "../../../FileSystem/src/FilePath.h"
+#include "../../../FileSystem/src/FolderPath.h"
 
 #include "../../../casaAPI/src/casaAPI.h"
 
@@ -347,9 +347,9 @@ using namespace casa;
 %include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 
-%include "../../../cmbAPI/src/Path.h"
-%include "../../../cmbAPI/src/FilePath.h"
-%include "../../../cmbAPI/src/FolderPath.h"
+%include "../../../FileSystem/src/Path.h"
+%include "../../../FileSystem/src/FilePath.h"
+%include "../../../FileSystem/src/FolderPath.h"
 
 %include "../../../casaAPI/src/casaAPI.h"
 

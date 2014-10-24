@@ -32,6 +32,7 @@ bm_include_libraries(
    DataAccess
    cmbAPI
    casaAPI
+   FileSystem
    utilities
 )
 
