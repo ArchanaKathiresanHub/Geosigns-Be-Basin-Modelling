@@ -2,8 +2,11 @@
 
 #include <boost/bind.hpp>
 #include <iostream>
-#include <sys/sysinfo.h>
 #include <sstream>
+
+#ifndef _MSC_VER
+#include <sys/sysinfo.h>
+#endif
 
 #include "NumericFunctions.h"
 #include "System.h"
@@ -60,11 +63,19 @@ void MemoryChecker::checkMemory ( const MemoryChecker* tc ) {
       return;
    }
 
-   unsigned long memoryPerProcess;
+   unsigned long memoryPerProcess = 0;
+
+#ifndef _MSC_VER
    struct sysinfo inf;
 
    sysinfo ( &inf );
    memoryPerProcess = inf.totalram / nprocs;
+#endif
+
+   if ( memoryPerProcess == 0 ) {
+      // If the memory per process is zero then terminate the thread.
+      return;
+   }
 
    while ( not tc->exitLoop ()) {
 
