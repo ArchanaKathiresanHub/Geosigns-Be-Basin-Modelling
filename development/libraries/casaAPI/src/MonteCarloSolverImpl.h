@@ -20,8 +20,11 @@
 #include "McmcBase.h"
 #include "McmcStatistics.h"
 
+#include <memory>
+
 namespace SUMlib
 {
+   class McmcBase;
    class MCAlgorithmBase;
    class CompoundProxyCollection;
    class McmcProxy;
