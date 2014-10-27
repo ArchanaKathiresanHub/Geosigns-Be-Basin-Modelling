@@ -21,7 +21,7 @@
 #include "VarPrmContinuous.h"
 
 #include <stdexcept>
-#include <limits>
+#include <climits>
 
 // SUMlib includes
 #include "Exception.h"
