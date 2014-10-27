@@ -6,17 +6,6 @@
 /// \brief Handles all statistics that are to be output at the need of a run.
 class StatisticsHandler {
 
-   /// \brief Holds the values from the /proc/self/statm file.
-   struct StatM {
-      unsigned long size;
-      unsigned long resident;
-      unsigned long share;
-      unsigned long text;
-      unsigned long lib;
-      unsigned long data;
-      unsigned long dt;
-   };
-
 public :
 
    /// \brief Initialise the internal state of the handler.
@@ -31,9 +20,6 @@ public :
    static void print ();
 
 private :
-
-   /// \brief Get values from the /proc/self/statm file.
-   static void getStatM ( StatM& statm );
 
    static double s_virtualMemoryUsage;
    static double s_residentMemoryUsage;

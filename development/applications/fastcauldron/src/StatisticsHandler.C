@@ -5,6 +5,7 @@
 #include "NumericFunctions.h"
 #include "FastcauldronSimulator.h"
 #include "utils.h"
+#include "System.h"
 
 double StatisticsHandler::s_virtualMemoryUsage = 0.0;
 double StatisticsHandler::s_residentMemoryUsage = 0.0;
@@ -26,6 +27,7 @@ void StatisticsHandler::update () {
    s_virtualMemoryUsage = NumericFunctions::Maximum ( s_virtualMemoryUsage, double ( stat.size ) * double ( getpagesize ()));
    s_residentMemoryUsage = NumericFunctions::Maximum ( s_residentMemoryUsage, double ( stat.resident ) * double ( getpagesize ()));
 #endif
+
 }
 
 void StatisticsHandler::print () {
@@ -48,24 +50,4 @@ void StatisticsHandler::print () {
   PetscPrintf ( PETSC_COMM_WORLD, "</statistics>\n");
   PetscSynchronizedFlush ( PETSC_COMM_WORLD );
 
-}
-
-
-
-void StatisticsHandler::getStatM ( StatM& statm ) {
-
-   unsigned long dummy;
-   const char* statm_path = "/proc/self/statm";
-
-   FILE *f = fopen(statm_path,"r");
-
-   if(!f){
-      perror(statm_path);
-   }
-
-   if(7 != fscanf(f,"%ld %ld %ld %ld %ld %ld %ld",
-                  &statm.size,&statm.resident,&statm.share,&statm.text,&statm.lib,&statm.data,&statm.dt))
-   {
-   }
-   fclose(f);
 }

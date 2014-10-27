@@ -6,6 +6,7 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <stdio.h>
 
 #include "petscconf.h"
 
@@ -47,11 +48,52 @@ int GetProcPID()
   return (int)getpid();
 
 }
+
+
+long getNumberOrCoresOnline () {
+   return sysconf (_SC_NPROCESSORS_ONLN);
+}
+
+void getStatM ( StatM& statm ) {
+
+   unsigned long dummy;
+   const char* statm_path = "/proc/self/statm";
+
+   FILE *f = fopen(statm_path,"r");
+
+   if(!f){
+      perror(statm_path);
+   }
+
+   if(7 != fscanf(f,"%ld %ld %ld %ld %ld %ld %ld",
+                  &statm.size,&statm.resident,&statm.share,&statm.text,&statm.lib,&statm.data,&statm.dt))
+   {
+   }
+   fclose(f);
+}
+
+
 #else
 
 double GetResidentSetSize() { return 0; }
 int GetCurrentLimit() { return 0; }
 long GetPageSize() { return 0; }
 int GetProcPID() { return 0; }
+
+long getNumberOrCoresOnline () {
+   return 0;
+}
+
+void getStatM ( StatM& statm ) {
+   statm.size = 0;
+   statm.resident = 0;
+   statm.share = 0;
+   statm.text = 0;
+   statm.lib = 0;
+   statm.data = 0;
+   statm.dt = 0;
+
+}
+
 
 #endif

@@ -24,6 +24,8 @@
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
 
+#include "MemoryChecker.h"
+
 #ifdef FLEXLM
 #undef FLEXLM
 #endif
@@ -68,17 +70,26 @@ void finaliseFastcauldron ( AppCtx* appctx,
 #endif
 }
 
+static void abortOnBadAlloc () {
+   cerr << " cannot allocate ersources, aborting"  << endl;
+   MPI_Abort ( PETSC_COMM_WORLD, 3 );
+}
+
 
 bool determineSaltModellingCapability ( const AppCtx* appctx );
 
 int main(int argc, char** argv)
 {
+   MemoryChecker mc;
    bool status;
    int returnStatus = 0;
    bool solverHasConverged;
    bool errorInDarcy;
    bool geometryHasConverged;
 
+
+   // If bad_alloc is raised during an allocation of memory then this function will be called.
+   std::set_new_handler ( abortOnBadAlloc );
 
    // Initialise Petsc and get rank & size of MPI
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
