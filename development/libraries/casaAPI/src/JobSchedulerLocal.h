@@ -37,7 +37,7 @@ namespace casa
       virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus );
 
       // run job
-      virtual void runJob( JobID job );
+      virtual JobState runJob( JobID job );
 
       // get job state
       virtual JobState jobState( JobID job );
@@ -52,7 +52,9 @@ namespace casa
    private:
       class Job;                       // job OS dependent description
       std::vector<Job*> m_jobs;        // array of scheduled jobs
+      size_t            m_avCPUs;      // number of cores in system
 
+      size_t            runningJobsNumber(); // get number of running jobs
 
       JobSchedulerLocal( const JobSchedulerLocal & jbS );
       JobSchedulerLocal & operator = ( const JobSchedulerLocal & jbS );

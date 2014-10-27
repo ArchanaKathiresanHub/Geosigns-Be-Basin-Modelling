@@ -1,6 +1,7 @@
 # applications
 app fastcauldron "-itcoupled"
 app fastgenex6
+#
 base_project "OttolandWithGenex.project3d"
 #
 # Variable parameters
@@ -20,8 +21,8 @@ target XYZPoint "Vr"          460001.0 6750001.0 1590.0   0.0  0.62   0.1   1.0 
 target XYZPoint "Vr"          460001.0 6750001.0 2722.0   0.0  1.04   0.1   1.0  1.0
 
 #       type     traj file name         prop name   age Dev SWght  UWght
-#target WellTraj "WellTemperature.dat" "Temperature" 0.0 2.0  1.0    1.0
-#target WellTraj "WellVr.dat"          "Vr"          0.0 0.1  1.0    1.0
+#target WellTraj "WellTemperature.in"   "Temperature" 0.0 2.0  1.0    1.0
+#target WellTraj "WellVr.in"            "Vr"          0.0 0.1  1.0    1.0
 #
 # DoE
 doe "Tornado"
@@ -33,11 +34,11 @@ location "/scratch/nlskon/inversion/CASADemo/CaseSet"
 run "LOCAL" "v2014.0704"
 
 # Response surface   RSP Name         List of DoE             Order (0,1,2,3) Kriging (No, Local, Global)
-response             "ZeroOrder"      "Tornado"                0               No
-response             "FirstOrder"     "FullFactorial"          1               No
-response             "SecondOrder"    "FullFactorial,Tornado"  2               No
-response             "ThirdOrder"     "FullFactorial,Tornado"  3               No
-response             "FirstOrdKrig"   "SpaceFilling"           1               Global
+response             "ZeroOrder"      "Tornado"                 0               No
+response             "FirstOrder"     "FullFactorial"           1               No
+response             "SecondOrder"    "FullFactorial,Tornado"   2               No
+response             "ThirdOrder"     "FullFactorial,Tornado"   3               No
+response             "FirstOrdKrig"   "SpaceFilling"            1               Global
 
 # Evaluate response surfaces for set of DoE cases
 evaluate             "FirstOrder"   "Tornado,FullFactorial,SpaceFilling"  "FirstOrderAllDoEs.dat"
@@ -45,4 +46,11 @@ evaluate             "SecondOrder"  "Tornado,FullFactorial,SpaceFilling"  "Secon
 evaluate             "FirstOrdKrig" "Tornado,FullFactorial,SpaceFilling"  "FirstOrderKrigAllDoEs.dat"
 
 # Evaluate response surfaces for set parameters defined in external data file
-evaluate             "FirstOrdKrig" "varPrmVals.dat"    "FirstOrderKrigGivenParameters.dat"
+evaluate             "FirstOrdKrig" "varPrmVals.in"    "FirstOrderKrigGivenParameters.dat"
+
+# Run Monte Carlo sampling     ProxyName        MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
+montecarlo                     "FirstOrder"      MC        50          100         Polynomial       NoPrior       1.0
+#montecarlo                    "FirstOrdKrig"    MCMC      500         100         GlobalKriging    NoPrior       1.6
+
+# Export results into Matlab
+exportMatlab         "casa_Ottoland_3prm.m"

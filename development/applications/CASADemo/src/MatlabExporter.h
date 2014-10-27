@@ -37,6 +37,7 @@ private:
    void exportParametersInfo(  casa::ScenarioAnalysis & sc, std::ofstream & ofs );
    void exportObservablesInfo( casa::ScenarioAnalysis & sc, std::ofstream & ofs );
    void exportRSAProxies(      casa::ScenarioAnalysis & sc, std::ofstream & ofs );
+   void exportMCResults(       casa::ScenarioAnalysis & sc, std::ofstream & ofs );
 };
 
 #endif // MATLAB_EXPORTER_H

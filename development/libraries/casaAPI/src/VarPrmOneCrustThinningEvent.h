@@ -32,30 +32,30 @@ namespace casa
       /// -# @f$ t_0 @f$ - [Ma] defines time when crust thickness starts to change
       /// -# @f$ \delta t @f$ - [Ma] defines duration of crust thinning event
       /// -# @f$ \sigma @f$ - [dimensionless] crust thinning factor ( @f$ \sigma = \frac{d_1}{d_0} @f$ )
-      /// @param baseThickIni    base value for the initial thickness
-      /// @param minThickIni     minimal value for the initial thickness
-      /// @param maxThickIni     maximal value for the initial thickness
-      /// @param baseT0          base value for the event start time
-      /// @param minT0           minimal value for the event start time
-      /// @param maxT0           maximal value for the event start time
-      /// @param baseDeltaT      base value for the event duration
-      /// @param minDeltaT       minimal value for the event duration
-      /// @param maxDeltaT       maximal value for the event duration
-      /// @param baseThinningFct base value for the thinning factor
-      /// @param minThinningFct  minimal value for the thinning factor
-      /// @param maxThinningFct  maximal value for the thinning factor
-      /// @param prmPDF          probability density function for all 4 sub-parameters
-       VarPrmOneCrustThinningEvent( double baseThickIni,   double minThickIni,    double maxThickIni, 
-                                   double baseT0,          double minT0,          double maxT0,       
-                                   double baseDeltaT,      double minDeltaT,      double maxDeltaT,   
-                                   double baseThinningFct, double minThinningFct, double maxThinningFct, 
-                                   PDF prmPDF );
+      VarPrmOneCrustThinningEvent( double baseThickIni      ///<  base value for the initial thickness
+                                 , double minThickIni       ///<  minimal value for the initial thickness
+                                 , double maxThickIni       ///<  maximal value for the initial thickness
+                                 , double baseT0            ///<  base value for the event start time
+                                 , double minT0             ///<  minimal value for the event start time
+                                 , double maxT0             ///<  maximal value for the event start time
+                                 , double baseDeltaT        ///<  base value for the event duration
+                                 , double minDeltaT         ///<  minimal value for the event duration
+                                 , double maxDeltaT         ///<  maximal value for the event duration
+                                 , double baseThinningFct   ///<  base value for the thinning factor
+                                 , double minThinningFct    ///<  minimal value for the thinning factor
+                                 , double maxThinningFct    ///<  maximal value for the thinning factor
+                                 , PDF prmPDF               ///<  probability density function for all 4 sub-parameters
+                                 );
 
       virtual ~VarPrmOneCrustThinningEvent();
 
-	  /// @brief Get name of variable parameter in short form
-	  /// @return array of names for each subparameter
-	  virtual std::vector<std::string> name() const;
+      /// @brief Get name of variable parameter in short form     
+      /// @return array of names for each subparameter
+      virtual std::vector<std::string> name() const;
+
+      /// @brief Get number of subparameters if it is more than one
+      /// @return dimension of variable parameter
+      virtual size_t dimension() const { return 4; }
 
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.

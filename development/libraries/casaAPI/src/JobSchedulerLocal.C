@@ -12,6 +12,7 @@
 /// @brief This file keeps methods implementation of the class for local job scheduler.
 
 #include "JobSchedulerLocal.h"
+#include "FilePath.h"
 
 #ifndef _WIN32
 #include <fcntl.h>
@@ -34,8 +35,10 @@
 #ifndef _WIN32
 #include <sys/stat.h>
 static void Wait( int sec ) { sleep( sec ); }
+static size_t NumCPUS() { return sysconf( _SC_NPROCESSORS_ONLN ); }
 #else
 static void Wait( int milsec ) { Sleep( milsec * 1000 ); }
+static size_t NumCPUS() { SYSTEM_INFO sysinfo; GetSystemInfo( &sysinfo ); return sysinfo.dwNumberOfProcessors; }
 #endif
 
 
@@ -208,11 +211,12 @@ class JobSchedulerLocal::Job
 public:
    Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
    {
-      m_cwd = cwd;
-      m_command = scriptName;
-      m_jobName = jobName;
-      m_cpus = cpus;
-      m_isFinished = false;  
+      m_cwd      = cwd;
+      m_command  = scriptName;
+      m_jobName  = jobName;
+      m_cpus     = cpus;
+      m_jobState = JobScheduler::NotSubmittedYet;  
+
       m_out = jobName + ".out";  // redirect stdout
       m_err = jobName + ".err";  // redirect stderr
    }
@@ -220,56 +224,66 @@ public:
    virtual ~Job() { ; }
 
    const char * command() const { return m_command.c_str(); }
-   
-   // check is job was submitted already
-   bool isSubmitted() const { return m_proc.get() != NULL ? true : false; }
+  
+   int cpus() const { return m_cpus; }
 
-   // check is job finished?
-   bool isFinished() const { return m_isFinished; }
+   void submit() { if ( JobScheduler::NotSubmittedYet == m_jobState ) m_jobState = JobScheduler::JobPending; }
 
-   bool submit() { 
-      if ( !m_proc.get( ) ) m_proc.reset( new SystemProcess( m_cwd, m_command, m_out, m_err ) );
-      return m_proc->isProcessRunning();
+   bool run()
+   { 
+      if ( !m_proc.get() ) m_proc.reset( new SystemProcess( m_cwd, m_command, m_out, m_err ) );
+      m_jobState = m_proc->isProcessRunning() ? JobScheduler::JobRunning : JobScheduler::JobFailed;
+      return m_jobState == JobScheduler::JobRunning;
    }
 
    // check job status
    JobScheduler::JobState status()
-   {
-      if ( !isSubmitted() ) return JobScheduler::NotSubmittedYet;
-      if ( m_isFinished ) return JobScheduler::JobFinished;
-
-      m_proc->updateProcessStatus();
-
-      if ( m_proc->isProcessRunning() )
+   { 
+      switch ( m_jobState )
       {
-         return JobScheduler::JobRunning;
-      }
-      else
-      {
-         if ( m_isFinished ) return JobScheduler::JobFinished;
-         m_isFinished = true;
-         return JobScheduler::JobSucceeded;
-      }
+         case JobScheduler::NotSubmittedYet:
+         case JobScheduler::JobFinished:
+         case JobScheduler::JobPending:
+         case JobScheduler::JobFailed:      
+            break;
 
-      return JobScheduler::Unknown;
+         case JobScheduler::JobSucceeded: m_jobState = JobScheduler::JobFinished;  break; // on second request convert succeeded to finished
+
+         case JobScheduler::JobRunning:
+            m_proc->updateProcessStatus();
+
+            if ( m_proc->isProcessRunning() ) { m_jobState = JobScheduler::JobRunning; }
+            else
+            {
+               if (      ibs::FilePath ( m_command + ".success" ).exists() ) { m_jobState = JobScheduler::JobSucceeded; }
+               else if ( ibs::FilePath ( m_command + ".failed"  ).exists() ) { m_jobState = JobScheduler::JobFailed;    }
+               else                                                          { m_jobState = JobScheduler::Unknown;      }
+            }
+            break;
+
+         default: assert(0); break;
+      }
+      return m_jobState;
    }
 
 protected:
    std::auto_ptr<SystemProcess> m_proc;
+   
+   JobScheduler::JobState m_jobState; // state of the job
 
-   bool          m_isFinished; // is job finished?
-   std::string   m_command;    // command to execute
-   std::string   m_out;        // name of the output log file
-   std::string   m_err;        // name of the output err log file
-   std::string   m_cwd;        // path to folder with script name. Will be set as current for the job
-   std::string   m_jobName;    // name of the job
-   std::string   m_cpus;       // number of cpus for the job (does not used yet)
+   std::string   m_command;           // command to execute
+   std::string   m_out;               // name of the output log file
+   std::string   m_err;               // name of the output err log file
+   std::string   m_cwd;               // path to folder with script name. Will be set as current for the job
+   std::string   m_jobName;           // name of the job
+   int           m_cpus;              // number of cpus for the job (does not used yet)
 };
 
 
 JobSchedulerLocal::JobSchedulerLocal()
 {
    m_clusterName = "LOCAL";
+   m_avCPUs = NumCPUS();
 }
 
 JobSchedulerLocal::~JobSchedulerLocal()
@@ -295,30 +309,58 @@ JobScheduler::JobID JobSchedulerLocal::addJob( const std::string & cwd, const st
 }
 
 // run job
-void JobSchedulerLocal::runJob( JobID job )
+JobScheduler::JobState JobSchedulerLocal::runJob( JobID job )
 {
    if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no such job in the queue";
 
-   if ( !m_jobs[ job ]->isSubmitted() )
+   if ( m_jobs[ job ]->status() == JobScheduler::NotSubmittedYet )
    {
-      // spawn job to the cluster
-      if ( !m_jobs[ job ]->submit() )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Submitting job " << m_jobs[ job ]->command() << " failed";
-      }
+      m_jobs[ job ]->submit();
    }
+
+   return jobState( job );
 }
 
 // get job state
 JobScheduler::JobState JobSchedulerLocal::jobState( JobID id )
 {
    if ( id >= m_jobs.size( ) ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "jobState(): no such job in the queue";
-   return m_jobs[ id ]->status( ); 
+
+   JobScheduler::JobState jobState = m_jobs[id]->status();
+
+   if ( JobScheduler::JobPending == jobState ) // if it's pending try to run job
+   {
+     // ignore start job request if number of running jobs is equal number of CPU cores
+      if ( runningJobsNumber() < m_avCPUs ) 
+      {
+         // run job
+         if ( !m_jobs[id]->run() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::LSFLibError ) << "Submitting job " << m_jobs[ id ]->command() << " failed";
+         }
+      }
+      jobState = m_jobs[ id ]->status();
+   }
+
+   return jobState;
 }
 
-void JobSchedulerLocal::sleep( )
+void JobSchedulerLocal::sleep()
 {
    Wait( 10 );
+}
+
+// get number of running jobs
+size_t JobSchedulerLocal::runningJobsNumber()
+{
+   size_t jobsRunning = 0;
+   // go over jobs and see how many is running
+   for ( size_t i = 0; i < m_jobs.size(); ++i )
+   {
+      if ( JobScheduler::JobRunning == m_jobs[ i ]->status() ) jobsRunning += m_jobs[i]->cpus();
+   }
+
+   return jobsRunning;
 }
 
 }

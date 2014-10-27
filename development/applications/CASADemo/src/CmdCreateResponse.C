@@ -23,7 +23,7 @@ CmdCreateResponse::CmdCreateResponse( CasaCommander & parent, const std::vector<
 
    m_proxyName = m_prms[0]; // proxy name
    // convert list of DoEs like: "Tornado,BoxBenken" into array of DoE names
-   std::vector<std::string> m_doeList = CfgFileParser::list2array( m_prms[1], ',' );
+   m_doeList = CfgFileParser::list2array( m_prms[1], ',' );
    m_respSurfOrder = atol( m_prms[2].c_str() ); // response surface order
 
    // get kriging name

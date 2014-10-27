@@ -225,7 +225,7 @@ JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd, const std:
 }
 
 // run job
-void JobSchedulerLSF::runJob( JobID job )
+JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
 {
    if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no such job in the queue";
 
@@ -241,6 +241,7 @@ void JobSchedulerLSF::runJob( JobID job )
          ;
       } 
    }
+   return jobState( job );
 }
 
 // get job state

@@ -1,0 +1,133 @@
+// 
+// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+/// @file MonteCarloSolverImpl.h
+/// @brief This file keeps declaration implementation of API for performing Monte Carlo simulation
+
+#ifndef CASA_API_MONTE_CARLO_SOLVER_IMPL_H
+#define CASA_API_MONTE_CARLO_SOLVER_IMPL_H
+
+#include "MonteCarloSolver.h"
+
+// SUMlib
+#include "McmcBase.h"
+#include "McmcStatistics.h"
+
+namespace SUMlib
+{
+   class MCAlgorithmBase;
+   class CompoundProxyCollection;
+   class McmcProxy;
+   class ParameterPdf;
+}
+
+namespace casa
+{   
+   /// Monte Carlo solver implementation
+   class MonteCarloSolverImpl : public MonteCarloSolver
+   {
+   public:
+
+      // Constructor / Destructor
+      MonteCarloSolverImpl( Algorithm               algo        = MonteCarloSolver::MonteCarlo // Monte Carlo algorithm type         
+                          , KrigingType             interp      = MonteCarloSolver::NoKriging  // Which Kriging interpolation to use 
+                          , PriorDistribution       priorDist   = MonteCarloSolver::NoPrior    // How to use variable parameter PDF. If NoPrior - uniform block PDF
+                          , MeasurementDistribution measureDist = MonteCarloSolver::Normal     // How measurements are distributed   
+                          );
+
+      virtual ~MonteCarloSolverImpl();
+
+      // Get Monte Carlo Solver algorithm
+      virtual Algorithm algorithm() const { return m_algo; };
+
+      // Get type of kriging interpolation
+      virtual KrigingType kriging() const { return m_kriging; }
+
+      // Get how to measurements are distributed
+      virtual MeasurementDistribution measurementDistrib() const { return m_measureDistr; }
+
+      // Get how to variable paramters PDF are treated in MC
+      virtual PriorDistribution priorDistribution() const { return m_priorDistr; }
+
+      // Get the goodness of fit (GOF) to be displayed (in %). Preferably, the GOF should be larger than about 50%.
+      virtual double GOF() const;
+      
+      // For MCMC algorithm get standard deviation factor value
+      virtual double stdDevFactor() const { return m_stdDevFactor; }
+
+      // For MCMC algorithm get proposed standard deviation factor to keep GOF > 50%
+      virtual double proposedStdDevFactor() const;
+      
+      // Start Monte Carlo simulation
+      virtual ErrorHandler::ReturnCode runSimulation( RSProxy        & proxy        // A Response Surface proxy object
+                                                    , const VarSpace & proxyVsp     // A set of variable parameters which were used to build proxy 
+                                                    , const VarSpace & mcmcVsp      // Additional restrictions on variable parameters range
+                                                    , const ObsSpace & obs          // Observables set
+                                                    , unsigned int     numOfSamples // Number of Monte Carlo points to sample
+                                                    , unsigned int     maxNumSteps  // Maximal number of steps
+                                                    , double           stdDevFactor // used in MCMC to scale standard deviations of observables for better GOF value
+                                                    );
+
+      // Perform all neccessary steps for Monte Carlo simulation but do not run calculation itself 
+      virtual ErrorHandler::ReturnCode prepareSimulation( RSProxy        & proxy              // A response Surface proxy object
+                                                        , const VarSpace & proxyVsp           // A set of variable parameters which were used to build proxy
+                                                        , const VarSpace & mcmcVsp            // Additional restrictions on variable parameters range 
+                                                        , const ObsSpace & obs                // Observables set
+                                                        , unsigned int     numOfSamples       // number of Monte Carlo points to sample 
+                                                        , unsigned int     maxNumSteps        // maximal number of steps                
+                                                        , double           stdDevFactor = 1.0 // used in MCMC to scale standard deviations of observables for better GOF value
+                                                        );
+
+      // Make one Monte Carlo iteration
+      virtual ErrorHandler::ReturnCode iterateOnce( int & itNum );
+
+      // Collect all results of Monte Carlo solver run
+      virtual ErrorHandler::ReturnCode collectMCResults( const VarSpace & proxyVsp // A set of variable parameters which were used to build proxy
+                                                       , const ObsSpace & obs      // Additional restrictions on variable parameters range
+                                                       );
+
+      // Get Monte Carlo simulation results
+      // return array of cases which contains parameters values and observables values calculated through response surface proxy evaluation
+      virtual const MCResults & getSimulationResults();
+
+   private:
+      // the parameter sample
+      typedef std::vector< std::vector< double > > SampleParameterVector;
+
+      enum StepMethod // depend on MC algorithm. For MC/MCMC - MetropolisHasting is used. For MCLocSolver - SurvivalOfTheFittest.
+      {
+         MetropolisHasting,
+         SurvivalOfTheFittest
+      };
+
+      SUMlib::McmcBase * createMcmc( const SUMlib::CompoundProxyCollection & proxySet, const ObsSpace & obs,
+                                     const VarSpace & proxyVs, const VarSpace & mcmcVs, unsigned int numSamples );
+
+      ErrorHandler::ReturnCode configureSolver( const RSProxy & proxy, const VarSpace & proxyVsp, unsigned int maxNumSteps );
+
+      MCResults                        m_results;       // Set of pairs - total RMSE + case generated by MC/MCMC simulation 
+
+      Algorithm                        m_algo;          // type of MC solver - MC/MCMC/Based MC local solver
+      KrigingType                      m_kriging;       // use kriging interpolation
+      PriorDistribution                m_priorDistr;    // use of ignore variable parameters PDF
+      MeasurementDistribution          m_measureDistr;  // how measurements are distributed
+      StepMethod                       m_stepMethod;    // which step method solver will use      
+      double                           m_stdDevFactor;  // used to scale standard deviation values to getting good Godness of Fit in MCMC
+
+      // SUMlib needed data structures
+      std::vector<SUMlib::McmcProxy*>  m_input;
+      SUMlib::McmcStatistics           m_statistics;
+      SUMlib::ParameterPdf             m_unscaledPdf;
+      SUMlib::ParameterSpace           m_parSpace;
+      std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // SUMlib MC/MC/MC Solver object itself
+   };
+}
+
+#endif // CASA_API_MONTE_CARLO_SOLVER_IMPL_H

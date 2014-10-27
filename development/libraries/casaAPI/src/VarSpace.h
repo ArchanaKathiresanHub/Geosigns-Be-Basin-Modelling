@@ -23,6 +23,7 @@ namespace casa
 {
    class VarPrmCategorical;
    class VarPrmContinuous;
+   class VarPrmDiscrete;
 
    /// @class VarSpace VarSpace.h "VarSpace.h"
    /// @brief Variable parameters set manager. It keeps a unique set of variable parameters
@@ -39,6 +40,11 @@ namespace casa
       /// @return NoError on success or error code if such parameter is already added to the set
       virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm ) = 0;
 
+      /// @brief Add a new discrete parameter
+      /// @param prm a new parameter to be added to the set
+      /// @return NoError on success or error code if such parameter is already added to the set
+      virtual ErrorHandler::ReturnCode addParameter( VarPrmDiscrete * prm ) = 0;
+
       /// @brief Get number of variable parameters defined in VarSpace
       /// @return total number of parameters in set
       virtual size_t size() const = 0;
@@ -47,6 +53,10 @@ namespace casa
       /// @return number of continuous parameters
       virtual size_t numberOfContPrms() const = 0;
 
+      /// @brief Get number of discrete parameters defined in VarSpace
+      /// @return number of discrete parameters
+      virtual size_t numberOfDiscrPrms() const = 0;
+ 
       /// @brief Get number of categorical parameters defined in VarSpace
       /// @return number of categorical parameters
       virtual size_t numberOfCategPrms() const = 0;
@@ -55,6 +65,11 @@ namespace casa
       /// @param i continuous parameter number
       /// @return pointer to the requested continuous parameter on success or zero pointer otherwise
       virtual const VarPrmContinuous * continuousParameter( size_t i ) const = 0;
+
+      /// @brief Get i-th discrete parameter from the list
+      /// @param i discrete parameter number
+      /// @return pointer to the requested discrete parameter on success or zero pointer otherwise
+      virtual const VarPrmDiscrete * discreteParameter( size_t i ) const = 0;
 
       /// @brief Get i-th categorical parameter from the list
       /// @param i categorical parameter number

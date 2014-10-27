@@ -85,7 +85,7 @@ void CmdEvaluateResponse::execute( casa::ScenarioAnalysis & sa )
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
-      std::cout << "Evaluate proxy " << m_proxyName << "for " << rcs.size() << " cases\n";
+      std::cout << "Evaluate proxy " << m_proxyName << " for " << rcs.size() << " cases\n";
    }
 
    for ( size_t i = 0; i < rcs.size(); ++i )

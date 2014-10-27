@@ -21,6 +21,7 @@
 /// 
 /// CASA API supports the following types of variable parameters:
 /// - @subpage CASA_VarPrmContinuousPage
+/// - @subpage CASA_VarPrmDiscrete
 /// - @subpage CASA_VarPrmCategoricalPage
 ///
 /// Set of variable parameters for scenario analysis is managed by a @ref CASA_VarSpacePage "VarSpace manager"
@@ -64,7 +65,12 @@ namespace casa
       /// @brief A parameter which corresponds the base value of the variable parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const = 0;
-      
+
+      /// @brief For Discrete and Categorical var. parameter this function returns user specified
+      ///        weights for each parameter value. If user didn't specify weights or parameter type
+      ///        is continuous, empty array will be returned
+      /// @return array with parameter values weights
+      virtual std::vector<double> weights() const = 0;
    };
 }
 #endif // CASA_API_VAR_PARAMETER_H

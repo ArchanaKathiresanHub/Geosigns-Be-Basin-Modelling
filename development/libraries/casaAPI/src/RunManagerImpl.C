@@ -432,67 +432,89 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( const RunCase & newRun )
 ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
 {
    bool allFinished = false;
-   
-   // just for info
-   int finished  = 0;
-   int submitted = 0;
-   int crashed   = 0;
-
-   while ( !allFinished )
+  
+   try 
    {
-      int running   = 0;
-      int pending   = 0;
-
-      // loop over all cases
-      for ( size_t i = 0; i < m_jobs.size(); ++i )
+      while ( !allFinished ) // loop till all will be finished
       {
-         for ( size_t j = 0; j < m_jobs[i].size(); ++j )
+         // counters for jobs states
+         int finished  = 0;
+         int submitted = 0;
+         int crashed   = 0;
+         int running   = 0;
+         int pending   = 0;
+         int totJobs   = 0;
+
+         // loop over all cases
+         for ( size_t i = 0; i < m_jobs.size(); ++i )
          {
-            JobScheduler::JobID job = m_jobs[i][j];
+            bool contAppPipeline = true;
 
-            JobScheduler::JobState jobState = m_jobSched->jobState( job );
-
-            if ( JobScheduler::JobFinished == jobState ) continue; // skip finished jobs
-
-            if ( JobScheduler::NotSubmittedYet == jobState ) // not submitted yet
+            for ( size_t j = 0; j < m_jobs[i].size() && contAppPipeline; ++j )
             {
-               try                     { m_jobSched->runJob( job ); }
-               catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+               JobScheduler::JobID job = m_jobs[i][j];
 
-               submitted++;
-               break;
-            }
-            else // something could be still on the cluster, check status
-            {
-               switch( jobState )
+               JobScheduler::JobState jobState = m_jobSched->jobState( job );
+               ++totJobs;
+
+               if ( JobScheduler::NotSubmittedYet == jobState )
                {
-                  case JobScheduler::JobFailed: // job failed!!! should not run others in a queue! 
+                  jobState = m_jobSched->runJob( job ); // submit job
+                  ++submitted;
+               }
+
+               switch ( jobState )
+               {
+                  case JobScheduler::JobFailed: // job failed!!! shouldn't run others in a pipeline! 
                      ++crashed;
                      m_jobs[i].resize( j+1 ); // drop all other jobs for this case
                      break;
+
+                  case JobScheduler::JobFinished:  ++finished; break; // skip finished jobs
                   case JobScheduler::JobSucceeded: ++finished; break; // job succeeded
                   case JobScheduler::JobPending:   ++pending;  break; // job pending
-                  case JobScheduler::JobRunning:   ++running;  break; // job is running on cluster
+                  case JobScheduler::JobRunning:   ++running;  break; // job is running
+
                   default: break;
                }
-               if ( jobState == JobScheduler::JobSucceeded ) continue; // start another job
+
+               // analyse job state from point of view further pipeline processing
+               switch ( jobState )
+               {
+                  case JobScheduler::NotSubmittedYet:
+                  case JobScheduler::JobFailed: 
+                  case JobScheduler::JobPending:
+                  case JobScheduler::JobRunning:
+                     contAppPipeline = false; // stop going further in applications pipeline for this case
+                     break;
+
+                  case JobScheduler::JobFinished: 
+                  case JobScheduler::JobSucceeded:
+                     continue; // continue pipeline processing
+                     break;
+               }
             }
-            break;
+         }
+         // run over all cases, make a pause, get a Twix
+         std::cout << "total: "       << totJobs   << 
+                      ", submitted: " << submitted <<
+                      ", finished: "  << finished  << 
+                      ", failed: "    << crashed   << 
+                      ", pending: "   << pending   << 
+                      ", running: "   << running   << std::endl;
+         
+         if ( totJobs == (finished+crashed) )
+         {
+            allFinished = true;
+         }
+         else
+         {
+            m_jobSched->sleep(); // wait a bit till go to the next loop
          }
       }
-      // run over all cases, make a pause, get a Twix
-      std::cout << "submitted: " << submitted << ", finished: " << finished << ", failed: " << crashed << ", pending: " << pending << ", running: " << running << std::endl;
-      
-      if ( submitted == finished )
-      {
-         allFinished = true;
-      }
-      else
-      {
-         m_jobSched->sleep(); // wait a bit till go to the next loop
-      }
-
    }
+   catch ( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   
    return NoError;
 }
 

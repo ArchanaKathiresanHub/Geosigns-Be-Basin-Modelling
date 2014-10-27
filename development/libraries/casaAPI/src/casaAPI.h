@@ -20,7 +20,8 @@
 #include "DataDigger.h"
 #include "DoEGenerator.h"
 #include "ErrorHandler.h"
-#include "MCSolver.h"
+#include "MonteCarloSolver.h"
+#include "RSProxy.h"
 #include "RSProxySet.h"
 #include "ObsSpace.h"
 #include "RunManager.h"
@@ -54,7 +55,7 @@
 /// - @subpage CASA_RunManagerPage
 /// - @subpage CASA_DataDiggerPage
 /// - @subpage CASA_RSProxyPage
-/// - @subpage CASA_MCSolverPage
+/// - @subpage CASA_MonteCarloSolverPage
 ///
 /// The block diagram which describes an interaction between different parts of CASA API could be seen here:
 /// @image html TopView.png "High level design diagram for Cauldron  CASA API library"
@@ -66,7 +67,7 @@
 ///   - casa::RunManager - for submitting jobs to the HPC cluster
 ///   - casa::DataDigger - for extracting observables (targets) value from the simulation results
 ///   - casa::RSProxy - for calculating coefficients for polynomial approximation of the response surface 
-///   - casa::MCSolver - for performing Monte Carlo/Markov Chain Monte Carlo calculations
+///   - casa::MonteCarloSolver - for performing Monte Carlo/Markov Chain Monte Carlo calculations
 ///
 ///  The set of data classes includes:
 ///   - casa::VarParameter - @link CASA_VarParameterPage Base class for variable parameter description.@endlink It is inhereted by:
@@ -150,54 +151,53 @@ namespace casa
    namespace BusinessLogicRulesSet
    {
       /// @brief Add a parameter to variate layer thickness value [m] in given range
-      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-      /// @param[in] layerName name of the layer in base case model to variate it thickness
-      /// @param[in] minVal the minimal range value 
-      /// @param[in] maxVal the maximal range value 
-      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be
-      ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VaryLayerThickness( ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
-                                                   VarPrmContinuous::PDF rangeShape );
+      ErrorHandler::ReturnCode VaryLayerThickness(
+              ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            , const char          * layerName   ///< [in] name of the layer in base case model to variate it thickness
+            , double                minVal      ///< [in] the minimal range value 
+            , double                maxVal      ///< [in] the maximal range value 
+            , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
+                                                     parameter value it will be taken from the base case model */
+            );
 
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
-      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-      /// @param[in] minVal the minimal range value 
-      /// @param[in] maxVal the maximal range value 
-      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be
-      ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa, double minVal, double maxVal,
-                                                           VarPrmContinuous::PDF rangeShape );
+      ErrorHandler::ReturnCode VaryTopCrustHeatProduction(
+              ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            , double                minVal      ///< [in] the minimal range value 
+            , double                maxVal      ///< [in] the maximal range value 
+            , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
+                                                     parameter value it will be taken from the base case model */
+            );
 
       /// @brief Add a parameter to variate source rock lithology TOC value @f$ [\%] @f$ in given range
-      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-      /// @param[in] layerName name. If layer has mixing of source rocks, for all of them TOC will be changed
-      /// @param[in] minVal the minimal range value 
-      /// @param[in] maxVal the maximal range value 
-      /// @param[in] rangeShape defines a type of probability function for the parameter. If PDF needs some middle parameter value it will be
-      ///            taken from the base case model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa, const char * layerName, double minVal, double maxVal,
-                                                  VarPrmContinuous::PDF rangeShape );
+      ErrorHandler::ReturnCode VarySourceRockTOC(
+              ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+            , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+            , double                minVal      ///< [in] the minimal range value 
+            , double                maxVal      ///< [in] the maximal range value 
+            , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
+                                                          parameter value it will be taken from the base case model */
+            );
 
-      /// @brief Add 4 parameters to variate one crust thinning event.
-      /// @param[in,out] sa casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-      /// @param[in] minThickIni minimal range value for the initial crust thickness
-      /// @param[in] maxThickIni maximal range value for the initial crust thickness
-      /// @param[in] minT0 minimal range value for the start time of crust thinning
-      /// @param[in] maxT0 maximal range value for the start time of crust thinning
-      /// @param[in] minDeltaT minimal range value for the duration of crust thinning
-      /// @param[in] maxDeltaT maximal range value for the duration of crust thinning
-      /// @param[in] minThinningFct minimal range value for the crust thickness factor (final crust thickness is equal the initial thickness multiplied by this factor)
-      /// @param[in] maxThinningFct maximal range value for the crust thickness factor 
-      /// @param[in] pdfType probability function type for the variable parameter. If PDF needs some middle parameter value it will be
-      ///            taken from the base case model
+      /// @brief Add 4 variable parameters to one crust thinning event.
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode VaryOneCrustThinningEvent( ScenarioAnalysis & sa, double minThickIni,    double maxThickIni, 
-                                                                                 double minT0,          double maxT0,       
-                                                                                 double minDeltaT,      double maxDeltaT,   
-                                                                                 double minThinningFct, double maxThinningFct, VarPrmContinuous::PDF pdfType );
+      ErrorHandler::ReturnCode VaryOneCrustThinningEvent(
+            ScenarioAnalysis    & sa             ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , double                minThickIni    ///< [in] minimal range value for the initial crust thickness
+          , double                maxThickIni    ///< [in] maximal range value for the initial crust thickness
+          , double                minT0          ///< [in] minimal range value for the start time of crust thinning
+          , double                maxT0          ///< [in] maximal range value for the start time of crust thinning
+          , double                minDeltaT      ///< [in] minimal range value for the duration of crust thinning
+          , double                maxDeltaT      ///< [in] maximal range value for the duration of crust thinning
+          , double                minThinningFct /**< [in] minimal range value for the crust thickness factor (final crust 
+                                                           thickness is equal the initial thickness multiplied by this factor) */
+          , double                maxThinningFct ///< [in] maximal range value for the crust thickness factor 
+          , VarPrmContinuous::PDF pdfType        /**< [in] probability function type for the variable parameter. If PDF needs 
+                                                      some middle parameter value it will be taken from the base case model */
+          );                                   
    };
 
    /// @brief ScenarioAnalysis keeps all objects which are necessary for UA/SA of single workflow
@@ -284,16 +284,20 @@ namespace casa
       /// @return array of casa::Case objects
       RunCaseSet & mcCaseSet();
       
-      /// @brief Define type of Monte Carlo algorithm which will be used in this scenario analysis
-      /// @param algo Monte Carlo algorithm
-      /// @param interp do we need Kriging interpolation? If yes, the response surface proxy must also use it.
+      /// @brief Define type of Monte Carlo algorithm which will be used in this scenario analysis      
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode setMCAlgorithm( MCSolver::MCAlgorithm algo, MCSolver::MCKrigingType interp = MCSolver::NoKriging );
+      ErrorHandler::ReturnCode setMCAlgorithm( MonteCarloSolver::Algorithm               algo                                   /**< Monte Carlo algorithm type */
+                                             , MonteCarloSolver::KrigingType             interp = MonteCarloSolver::NoKriging   /**< Do we need Kriging interpolation? If yes, the 
+                                                                                                                                     response surface proxy must also use it. */
+                                             , MonteCarloSolver::PriorDistribution       priorDist = MonteCarloSolver::NoPrior  /**< How to use variable parameter PDF. If it is set
+                                                                                                                                     to NoPrior, uniform block PDF is assumed. */
+                                             , MonteCarloSolver::MeasurementDistribution measureDist = MonteCarloSolver::Normal /**< How measurements are distributed */
+                                             );
       
       /// @brief Get Monte Carlo solver
       /// @return reference to Monte Carlo solver. If MC solver algorithm wasn't defined befor by ScenarioAnalysis::setMCAlgorithm(), it
       ///         will be set up to MC with no Kriging by default.
-      MCSolver & mcSolver();
+      MonteCarloSolver & mcSolver();
       
    private:
       /// @brief Copy constructor is disabled

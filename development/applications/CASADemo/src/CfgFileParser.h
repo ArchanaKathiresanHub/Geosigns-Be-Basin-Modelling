@@ -31,7 +31,8 @@ public:
       run,          // run planned DoE experiments
       response,     // calculate coefficients for response surface approximation
       evaluate,     // calculate observables value using response surface approximation
-      exportMatlab  // export all data to matlab file
+      exportMatlab, // export all data to matlab file
+      mc            // run MC/MCMC simulation
    };
 
    CfgFileParser() {;}

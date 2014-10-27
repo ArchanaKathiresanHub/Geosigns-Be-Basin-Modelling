@@ -23,19 +23,24 @@ namespace casa
    {
    public:
       /// @brief Create a new initial source rock TOC variable parameter
-      /// @param layerName name of the layer for TOC variation. If layer has mix of source rocks litho-types, TOC will be changed for all of them
-      /// @param baseValue base value of parameter
-      /// @param minValue minimal value for the variable parameter range
-      /// @param maxValue maximal value for the variable parameter range
-      /// @param pdfType type of PDF shape for the variable parameter
-      VarPrmSourceRockTOC( const char * layerName, double baseValue, double minValue, double maxValue, PDF pdfType = Block );
+      VarPrmSourceRockTOC( const char * layerName /**< name of the layer for TOC variation. If layer has mix of 
+                                                      source rocks litho-types, TOC will be changed for all of them */
+                         , double baseValue      ///< base value of parameter
+                         , double minValue       ///< minimal value for the variable parameter range
+                         , double maxValue       ///< maximal value for the variable parameter range
+                         , PDF pdfType = Block   ///< type of PDF shape for the variable parameter
+                         );
 
       /// @brief Destructor
       virtual ~VarPrmSourceRockTOC();
      
-	  /// @brief Get name of variable parameter in short form
-	  /// @return array of names for each subparameter
-	  virtual std::vector<std::string> name() const;
+	   /// @brief Get name of variable parameter in short form
+	   /// @return array of names for each subparameter
+	   virtual std::vector<std::string> name() const;
+
+      /// @brief Get number of subparameters if it is more than one
+      /// @return dimension of variable parameter
+      virtual size_t dimension() const { return 1; }
 
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first sub-parameter value

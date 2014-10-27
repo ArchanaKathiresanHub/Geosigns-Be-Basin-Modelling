@@ -81,6 +81,7 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc, std::ofstream 
       SharedParameterPtr prm = rcs[0]->parameter( j );
       switch( prm->parent()->variationType() )
       {
+         case VarParameter::Discrete:
          case VarParameter::Continuous:  ofs << " " << prm->asDoubleArray().size(); totPrmsNum += prm->asDoubleArray().size(); break;
          case VarParameter::Categorical: ofs << " " << 1;                         ++totPrmsNum;                                break;
          default: assert( false ); break;
@@ -96,6 +97,7 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc, std::ofstream 
       const SharedParameterPtr prm = rcs[0]->parameter( j )->parent()->minValue();
       switch( prm->parent()->variationType() )
       {
+         case VarParameter::Discrete:
          case VarParameter::Continuous:
          {
             const std::vector<double> & prmVals = prm->asDoubleArray();
@@ -115,6 +117,7 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc, std::ofstream 
       const SharedParameterPtr prm = rcs[0]->parameter( j )->parent()->maxValue();
       switch( prm->parent()->variationType() )
       {
+         case VarParameter::Discrete:
          case VarParameter::Continuous:
          {
             const std::vector<double> & prmVals = prm->asDoubleArray();
@@ -140,6 +143,7 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc, std::ofstream 
 
          switch( prm->parent()->variationType() )
          {
+            case VarParameter::Discrete:
             case VarParameter::Continuous:
                {
                   const std::vector<double> & prmVals = prm->asDoubleArray();
@@ -183,8 +187,26 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
       if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
 
       ofs << " " << obv->doubleValue().size();      
-    }
-    ofs << " ];\n\n";
+   }
+   ofs << " ];\n\n";
+
+   ofs << "ObservablesRefValue = [\n";
+   for ( size_t i = 0; i < sc.obsSpace().size(); ++i )
+   {
+      const Observable * obs = sc.obsSpace().observable( i );
+      ofs << "    { [ ";
+      if ( obs->hasReferenceValue() )
+      {
+         const ObsValue * obv = obs->referenceValue();
+         const std::vector<double> & rv = obv->doubleValue();
+         for ( size_t j = 0; j < rv.size(); ++j )
+         {
+            ofs << rv[j] << " ";
+         }
+      }
+      ofs << " ], " << obs->stdDeviationForRefValue() << " }\n";
+   }
+   ofs << " ];\n\n";
 
    ofs << "ObservablesVal = [\n";
    for ( size_t i = 0; i < rcs.size(); ++i )
@@ -241,6 +263,7 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc, std::ofstream & of
       SharedParameterPtr prm = rcs[0]->parameter( j );
       switch( prm->parent()->variationType() )
       {
+         case VarParameter::Discrete:
          case VarParameter::Continuous:    totPrmsNum += prm->asDoubleArray().size(); break;
          case VarParameter::Categorical: ++totPrmsNum;                                break;
          default: assert( false ); break;
@@ -292,6 +315,112 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc, std::ofstream & of
    }
 }
 
+void MatlabExporter::exportMCResults( ScenarioAnalysis & sc, std::ofstream & ofs )
+{
+   ofs << "MCAlgoName = '";
+   switch ( sc.mcSolver().algorithm() )
+   {
+      case MonteCarloSolver::MonteCarlo:  ofs << "MC";          break;
+      case MonteCarloSolver::MCMC:        ofs << "MCMC";        break;
+      case MonteCarloSolver::MCLocSolver: ofs << "MCLocSolver"; break;
+   }
+   ofs << "';\n\n";
+
+   ofs << "MCKrigingType = '";
+   switch ( sc.mcSolver().kriging() )
+   {
+      case MonteCarloSolver::NoKriging:     ofs << "Polynomial";    break;
+      case MonteCarloSolver::SmartKriging:  ofs << "SmartKriging";  break;
+      case MonteCarloSolver::GlobalKriging: ofs << "GlobalKriging"; break;
+   }
+   ofs << "';\n\n";
+
+   ofs << "MCMeasurementDistr = '";
+   switch ( sc.mcSolver().measurementDistrib() )
+   {
+      case MonteCarloSolver::NoMeasurements: ofs << "Undefined"; break;
+      case MonteCarloSolver::Normal:         ofs << "Normal";    break; 
+      case MonteCarloSolver::Robust:         ofs << "Robust";    break;
+      case MonteCarloSolver::Mixed:          ofs << "Mixed";     break;
+   }
+   ofs << "';\n\n";
+ 
+   ofs << "MCPriorDistribution = '";
+   switch( sc.mcSolver().priorDistribution() )
+   {
+      case MonteCarloSolver::NoPrior:           ofs << "NoPrior";           break;
+      case MonteCarloSolver::MarginalPrior:     ofs << "MarginalPrior";     break;
+      case MonteCarloSolver::MultivariatePrior: ofs << "MultivariatePrior"; break;
+   }
+   ofs << "';\n\n";
+
+   ofs << "MCGOF                = " << sc.mcSolver().GOF()                  << ";\n\n";
+   ofs << "MCStdDevFact         = " << sc.mcSolver().stdDevFactor()         << ";\n\n";
+   ofs << "MCProposedStdDevFact = " << sc.mcSolver().proposedStdDevFactor() << ";\n\n";
+
+   // export MC samples
+   const MonteCarloSolver::MCResults & mcSamples = sc.mcSolver().getSimulationResults();
+
+   ofs << "MCSamplingPrmsVal = [\n";
+
+   std::vector<double> mcRMSEs;
+   
+   for ( size_t i = 0; i < mcSamples.size(); ++i )
+   {
+      ofs << i;  // Case number
+
+      for ( size_t j = 0; j < mcSamples[i].second->parametersNumber(); ++j )
+      {
+         SharedParameterPtr prm = mcSamples[i].second->parameter( j );
+
+         switch( prm->parent()->variationType() )
+         {
+            case VarParameter::Continuous:
+            case VarParameter::Discrete:
+               {
+                  const std::vector<double> & prmVals = prm->asDoubleArray();
+                  for ( size_t k = 0; k < prmVals.size(); ++k ) { ofs << "\t" << prmVals[k]; }
+               }
+               break;
+
+            case VarParameter::Categorical:  ofs << " " << prm->asInteger();  break;
+            default: assert( false ); break;
+         }
+         mcRMSEs.push_back( mcSamples[i].first );
+     }
+     ofs << "\n";
+   }
+   ofs << "];\n\n";
+
+   // save RMSE array
+   ofs << "MCSamplingRMSE = [\n";
+   for ( size_t i = 0; i < mcRMSEs.size(); ++i )
+   {
+      ofs << mcRMSEs[i] << "\n";
+   }
+   ofs << "];\n\n";
+
+   // export MC samplings observables value
+   ofs << "MCSamplingObsVal = [\n";
+
+   for ( size_t i = 0; i < mcSamples.size(); ++i )
+   {
+      ofs << i;  // Case number
+      for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
+      {
+         ObsValue * obv = mcSamples[i].second->obsValue( j );
+
+         if ( obv && obv->isDouble() )
+         {
+            const std::vector<double> & vals = obv->doubleValue();
+            for ( size_t k = 0; k < vals.size(); ++k ) ofs << "\t" << vals[k];
+         }
+      }
+      ofs << std::endl;
+   }
+   ofs << "];\n\n";
+}
+
 void MatlabExporter::exportScenario( ScenarioAnalysis & sc, const std::string & baseCaseName, const std::string & location )
 {
    std::ofstream ofs( m_fname.c_str(), std::ios_base::out | std::ios_base::trunc );
@@ -320,6 +449,10 @@ void MatlabExporter::exportScenario( ScenarioAnalysis & sc, const std::string & 
 
    // export proxies as functions
    exportRSAProxies( sc, ofs );
+
+   // export MC/MCMC results
+   exportMCResults( sc, ofs );
+
 }
 
 void MatlabExporter::exportObsValues( const std::string & fName, const std::vector<casa::RunCase*> & rcs )

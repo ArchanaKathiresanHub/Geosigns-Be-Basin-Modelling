@@ -33,7 +33,7 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
 
    if ( m_prms[0] != "TopCrustHeatProduction" &&
         m_prms[0] != "SourceRockTOC" &&
-        m_prms[0] == "CrustThinningOneEvent" )
+        m_prms[0] != "CrustThinningOneEvent" )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown variable parameter name: " << m_prms[0];
    }

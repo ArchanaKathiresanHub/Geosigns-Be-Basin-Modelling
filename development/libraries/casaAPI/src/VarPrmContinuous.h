@@ -36,7 +36,7 @@ namespace casa
    class VarPrmContinuous : public VarParameter
    {
    public:
-      /// @brief Probability Density Function (PDF) shape for the parameter. It is used in casa::MCSolver
+      /// @brief Probability Density Function (PDF) shape for the parameter. It is used in casa::MonteCarloSolver
       enum PDF
       {
          Block,    ///< PDF is uniform in parameter range
@@ -51,6 +51,10 @@ namespace casa
       /// @return VarParameter::Continuous
       virtual Type variationType() const { return Continuous; }
 
+      /// @brief Get number of subparameters if it is more than one
+      /// @return dimension of variable parameter
+      virtual size_t dimension() const = 0;
+
       /// @brief A parameter which corresponds the minimal range value of the variable parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const { return m_minValue; }
@@ -63,9 +67,17 @@ namespace casa
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const { return m_baseValue; }
 
+      /// @brief For continuous parameters weights are calculated using PDF
+      /// @return empty array 
+      virtual std::vector<double> weights() const { return std::vector<double>(); }
+
       /// @brief Get Probability Density Function type of the variable parameter
       /// @return parameter PDF type
       virtual PDF pdfType() const { return m_pdf; }
+
+      /// @brief Calculate standard deviation values for parameter
+      /// @return vector with standard deviation value for each sub-parameter
+      std::vector<double> stdDevs() const;
 
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
@@ -92,7 +104,7 @@ namespace casa
       SharedParameterPtr m_minValue;    ///< Base parameter value, used also as object factory for concrete parameter value
       SharedParameterPtr m_maxValue;    ///< Base parameter value, used also as object factory for concrete parameter value
 
-      PDF                       m_pdf;          ///< Probability density function for parameter. Block is default value
+      PDF                m_pdf;         ///< Probability density function for parameter. Block is default value
    
    private:
    };

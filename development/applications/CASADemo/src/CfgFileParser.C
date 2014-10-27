@@ -29,7 +29,7 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
    // process command
    while( std::getline( file, line ) )
    {
-      if ( line[0] == '#' ) continue;
+      if ( line[0] == '#' || line.empty() ) continue;
       
       CfgCommand               cmdID;
       std::vector<std::string> cmdPrms;
@@ -57,6 +57,7 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
             else if ( result == "response"     ) cmdID = response;
             else if ( result == "evaluate"     ) cmdID = evaluate;
             else if ( result == "exportMatlab" ) cmdID = exportMatlab;
+            else if ( result == "montecarlo"   ) cmdID = mc;
             else throw std::runtime_error( std::string( "Unknown command: " ) + result );
          }
          else

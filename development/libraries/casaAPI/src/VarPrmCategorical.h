@@ -25,6 +25,7 @@
 ///
 /// Categorical parameter - a parameter that can take some unordered discrete values each of which referring to a
 /// different category (for instance, a PVT parameter that can distinguish between a few, non related PVT models)
+/// There is no ordering in this labeling (you cannot say that one scenario is ‘larger’ than the other)
 
 namespace casa
 {
@@ -52,6 +53,11 @@ namespace casa
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const = 0;
 
+      /// @brief Get user specified weights for each parameter value. If user didn't specify weights,
+      ///        empty array will be returned
+      /// @return array with parameter values weights
+      virtual std::vector<double> weights() const { return m_weights; }
+
       /// @brief Get list of categorical parameter values as sorted list of unsigned integers.
       ///        Enumeration of categorical values must start from zero
       virtual std::vector< unsigned int> valuesAsUnsignedIntSortedSet() const = 0;
@@ -66,8 +72,8 @@ namespace casa
       VarPrmCategorical() {;}
 
       std::auto_ptr<Enumeration> m_valueSet;
+      std::vector<double> m_weights;
    };
-
 }
 
 #endif // CASA_API_VAR_PRM_CATEGORICAL_H

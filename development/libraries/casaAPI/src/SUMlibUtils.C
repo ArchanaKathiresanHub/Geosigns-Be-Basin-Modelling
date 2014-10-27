@@ -22,10 +22,12 @@
 
 // SUMlib includes
 #include <Case.h>
+#include <ParameterPdf.h>
 
 #include <vector>
 #include <cassert>
 
+///////////////////////////////////////////////////////////////////////////////
 // CASA -> SUMlib case conversion
 void sumext::convertCase( const casa::RunCase & crc, SUMlib::Case  & sc )
 {
@@ -65,6 +67,8 @@ void sumext::convertCase( const casa::RunCase & crc, SUMlib::Case  & sc )
    sc.setCategoricalPart( sumCatArray ); // set categorical parameters values to SUMlib::Case
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
 // SUMlib -> CASA case conversion
 void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, casa::RunCase & crc )
 {
@@ -95,10 +99,12 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
    }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
 // CASA -> SUMlib observables conversion
 void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & caseSet
-                                    , SUMlib::TargetCollection          & targetsSet 
-                                    , std::vector< std::vector<bool> >  & matrValidObs )
+                                    , SUMlib::TargetCollection                & targetsSet 
+                                    , std::vector< std::vector<bool> >        & matrValidObs )
 {
    assert( targetsSet.empty() );
    assert( !caseSet.empty() );
@@ -173,6 +179,8 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
    }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
 // SUMlib -> CASA observables conversion
 void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, const casa::ObsSpace & obsDef, casa::RunCase & cs )
 {
@@ -193,4 +201,256 @@ void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, c
       if ( obsVal ) rc.addObsValue( obsVal ); // add new observable value to the RunCase
    }
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Create SUMlib bounds.
+void sumext::createSUMlibBounds( const casa::VarSpace & varSp, SUMlib::Case & lowCs, SUMlib::Case & highCs, std::vector<SUMlib::IndexList> & catIndices )
+{
+   const casa::VarSpaceImpl & varSpace = dynamic_cast<const casa::VarSpaceImpl &>( varSp );
+
+   casa::RunCaseImpl lowRCs;
+   casa::RunCaseImpl uprRCs;
+
+   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
+   {
+      lowRCs.addParameter( varSpace.continuousParameter( i )->minValue() );
+      uprRCs.addParameter( varSpace.continuousParameter( i )->maxValue() );
+   }
+
+   sumext::convertCase( lowRCs, lowCs );
+   sumext::convertCase( uprRCs, highCs );
+
+   // collect categorical parameters enumeration set  
+   // clean container for categorical values
+   catIndices.clear();
+
+   for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
+   {
+      const std::vector<unsigned int> & valsSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet();
+      assert( !valsSet.empty() );
+
+      catIndices.push_back( SUMlib::IndexList( valsSet.begin(), valsSet.end() ) );
+   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Create SUMlib prior info. Set base case
+void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
+                              , SUMlib::Case & pBase
+                              , SUMlib::RealMatrix & variance
+                              , SUMlib::RealMatrix & disWeights
+                              , SUMlib::RealMatrix & catWeights
+                              )
+{
+   // Create a CASA case for the base, and create an array containing all standard deviations. The standard
+   // deviations and the variance matrix are used for continuous variable parameters only. For discrete and categorical 
+   // varibal parameters it return the weights.
+  
+   SUMlib::RealVector stdDevs;
+   casa::RunCaseImpl  baseRCs;
+
+   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
+   {
+      const casa::VarPrmContinuous * prm = varSpace.continuousParameter( i );
+      // set base value
+      baseRCs.addParameter( prm->baseValue() );
+
+      // calculate standard deviation value:
+      const std::vector<double> & prmStdDev = prm->stdDevs();
+
+      stdDevs.insert( stdDevs.end(), prmStdDev.begin(), prmStdDev.end() );
+   }
+
+   // Convert the standard deviations to a variance matrix.
+   for ( std::size_t i = 0; i < stdDevs.size(); ++i )
+   {
+      variance.push_back( SUMlib::RealVector( stdDevs.size(), 0.0 ) );
+      variance.back()[ i ] = stdDevs[ i ] * stdDevs[ i ];
+   }
+
+   // process discrete parameters
+   for ( size_t i = 0; i < varSpace.numberOfDiscrPrms(); ++i )
+   {
+      const casa::VarPrmDiscrete * prm = varSpace.discreteParameter( i );
+      // set base value
+      baseRCs.addParameter( prm->baseValue() );
+
+      std::vector< double > weights = prm->weights();
+
+      // If no weights are specified, create a vector with weights all equal to 1.
+      if ( weights.empty() )
+      {
+         const std::vector<SharedParameterPtr> & valsSet = varSpace.discreteParameter(i)->valuesSet();
+         weights.assign( 1.0, valsSet.size() );
+      }
+      disWeights.push_back( weights );
+   }
+ 
+   // process categorical parameters
+   for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
+   {
+      const casa::VarPrmCategorical * prm = varSpace.categoricalParameter( i );
+      // set base case
+      baseRCs.addParameter( prm->baseValue() );
+
+      std::vector< double > weights = prm->weights();
+      // If no weights are specified, create a vector with weights all equal to 1.
+      if ( weights.empty() )
+      {
+         const std::vector<unsigned int> & prmIndSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet();
+         weights.assign( 1.0, prmIndSet.size() );
+      }
+      catWeights.push_back( weights );
+   }
+
+   // Convert the base case.
+   sumext::convertCase( baseRCs, pBase );
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Create a SUMlib ParameterPdf. CASA->SUMlib
+void sumext::convertVarSpace2ParameterPdf( const casa::VarSpace & varSpace, const SUMlib::ParameterSpace & pSpace, SUMlib::ParameterPdf & pdf )
+{
+   // Initialise SUMlib cases and variance.
+   SUMlib::Case pBase;
+   SUMlib::Case pAbsLow;
+   SUMlib::Case pAbsHigh;
+   std::vector< SUMlib::IndexList > pCatIndices;
+
+   SUMlib::RealMatrix variance;
+   SUMlib::RealMatrix disWeights, catWeights;
+
+   // Create SUMlib prior info and outer bounds
+   sumext::createSUMlibBounds( varSpace, pAbsLow, pAbsHigh, pCatIndices );
+   sumext::createSUMlibPrior( varSpace, pBase, variance, disWeights, catWeights );
+
+   // Create SUMlib PDF.
+   pdf.initialise( pSpace, pAbsLow, pAbsHigh, pBase, variance, disWeights, catWeights );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Creates custom-made box constraints that can be passed directly to SUMlib::McmcBase.
+/// @param [in]  proxyVs          Proxy varSpace
+/// @param [out] boxConstraints   Custom-made box contraints stored as a SUMlib::ParameterBounds instance
+///
+////////////////////////////////////////////////////////////////////////////////
+void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::VarSpace & mcmcVs, SUMlib::ParameterBounds & boxConstraints )
+{
+   // Properly scale the mcmc bounds and convert the discrete parts to continuous parts.
+   // Determine intersection of categorical values.
+   std::vector< double > sumConScaledLow;  // continuous values, for the low case, scaled between [ -1, +1 ]
+   std::vector< double > sumConScaledHigh; // continuous values, for the high case, scaled between [ -1, +1 ]
+
+   std::vector< double > sumDisScaledLow;  // discrete values, for the low case, scaled between [ -1, +1 ]
+   std::vector< double > sumDisScaledHigh; // discrete values, for the high case, scaled between [ -1, +1 ]
+   
+   std::vector< unsigned int > sumCatLow;  // categorical values, for the low case
+   std::vector< unsigned int > sumCatHigh; // categorical values, for the high case
+   
+   std::vector< SUMlib::IndexList > sumCatIndices; // shared categorical values between proxyVs and mcmcVs
+
+   assert( proxyVs.size() == mcmcVs.size() );
+
+   // process continuous parameters 
+   assert( proxyVs.numberOfContPrms() == mcmcVs.numberOfContPrms() );
+
+   for ( size_t i = 0; i < proxyVs.numberOfContPrms(); ++i )
+   {
+      const casa::VarPrmContinuous * proxyPrm = proxyVs.continuousParameter( i );
+
+      const std::vector<double> & proxyMinVals = proxyPrm->minValue()->asDoubleArray();
+      const std::vector<double> & proxyMaxVals = proxyPrm->maxValue()->asDoubleArray();
+
+      const casa::VarPrmContinuous * mcmcPrm = mcmcVs.continuousParameter( i );
+ 
+      const std::vector<double> & mcmcMinVals = mcmcPrm->minValue()->asDoubleArray();
+      const std::vector<double> & mcmcMaxVals = mcmcPrm->maxValue()->asDoubleArray();
+
+      assert( proxyMinVals.size() == mcmcMaxVals.size() );
+
+      // scale values to [-1:1] range
+      for ( size_t j = 0; j < proxyMinVals.size(); ++j )
+      {
+         double min_proxy = proxyMinVals[j];
+         double max_proxy = proxyMaxVals[j];
+         double min_mcmc  = mcmcMinVals[j];
+         double max_mcmc  = mcmcMaxVals[j];
+         double range_proxy = max_proxy - min_proxy;
+         
+         assert( range_proxy > 0.0 );
+
+         double scaledLow  = -1.0 + 2 * ( min_mcmc - min_proxy ) / range_proxy;
+         double scaledHigh = -1.0 + 2 * ( max_mcmc - min_proxy ) / range_proxy;
+
+         sumConScaledLow.push_back( scaledLow );
+         sumConScaledHigh.push_back( scaledHigh );
+      }
+   }
+
+   // process discrete parameters 
+   assert( proxyVs.numberOfDiscrPrms() == mcmcVs.numberOfDiscrPrms() );
+
+   for ( size_t i = 0; i < proxyVs.numberOfDiscrPrms(); ++i )
+   {
+      const casa::VarPrmDiscrete * proxyPrm = proxyVs.discreteParameter( i );
+
+      const std::vector<double> & proxyMinVals = proxyPrm->minValue()->asDoubleArray();
+      const std::vector<double> & proxyMaxVals = proxyPrm->maxValue()->asDoubleArray();
+
+      const casa::VarPrmDiscrete * mcmcPrm = mcmcVs.discreteParameter( i );
+ 
+      const std::vector<double> & mcmcMinVals = mcmcPrm->minValue()->asDoubleArray();
+      const std::vector<double> & mcmcMaxVals = mcmcPrm->maxValue()->asDoubleArray();
+
+      assert( proxyMinVals.size() == mcmcMaxVals.size() );
+
+      // scale values to [-1:1] range
+      for ( size_t j = 0; j < proxyMinVals.size(); ++j )
+      {
+         double min_proxy = proxyMinVals[j];
+         double max_proxy = proxyMaxVals[j];
+         double min_mcmc  = mcmcMinVals[j];
+         double max_mcmc  = mcmcMaxVals[j];
+         double range_proxy = max_proxy - min_proxy;
+         
+         assert( range_proxy > 0.0 );
+
+         double scaledLow  = -1.0 + 2 * ( min_mcmc - min_proxy ) / range_proxy;
+         double scaledHigh = -1.0 + 2 * ( max_mcmc - min_proxy ) / range_proxy;
+
+         sumDisScaledLow.push_back( scaledLow );
+         sumDisScaledHigh.push_back( scaledHigh );
+      }
+   }
+
+   // process categorical parameters
+   assert( proxyVs.numberOfCategPrms() == mcmcVs.numberOfCategPrms() );
+
+   for ( size_t i = 0; i < proxyVs.numberOfCategPrms(); ++i )
+   {
+      const std::vector< unsigned int> & proxyCategories = proxyVs.categoricalParameter( i )->valuesAsUnsignedIntSortedSet();
+      const std::vector< unsigned int> & mcmcCategories  = mcmcVs.categoricalParameter(  i )->valuesAsUnsignedIntSortedSet();
+      std::vector< unsigned int > sharedCategories;
+      std::set_intersection( proxyCategories.begin(), proxyCategories.end(), mcmcCategories.begin(), mcmcCategories.end(),
+                             std::back_inserter( sharedCategories ) );
+
+      sumCatIndices.push_back( sharedCategories );
+
+      sumCatLow.push_back( sumCatIndices.back().front() );
+      sumCatHigh.push_back( sumCatIndices.back().back() );
+   }
+
+   // Create the final SUMlib box constraints.
+   sumConScaledLow.insert(  sumConScaledLow.end(),  sumDisScaledLow.begin(),  sumDisScaledLow.end() );
+   sumConScaledHigh.insert( sumConScaledHigh.end(), sumDisScaledHigh.begin(), sumDisScaledHigh.end() );
+   
+   const SUMlib::Case sumCaseLow ( sumConScaledLow,  std::vector< int >(), sumCatLow  );
+   const SUMlib::Case sumCaseHigh( sumConScaledHigh, std::vector< int >(), sumCatHigh );
+
+   boxConstraints.initialise( sumCaseLow, sumCaseHigh, sumCatIndices );
+}
+ 
+
 

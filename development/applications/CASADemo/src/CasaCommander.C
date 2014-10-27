@@ -23,6 +23,7 @@
 #include "CmdExpMatlab.h"
 #include "CmdLocation.h"
 #include "CmdRun.h"
+#include "CmdRunMC.h"
 
 #include <typeinfo>
 
@@ -46,6 +47,7 @@ void CasaCommander::addCommand( CfgFileParser::CfgCommand cmdID, const std::vect
    case CfgFileParser::response:     cmd.reset( new CmdCreateResponse(   *this, prms ) ); break;
    case CfgFileParser::evaluate:     cmd.reset( new CmdEvaluateResponse( *this, prms ) ); break;
    case CfgFileParser::exportMatlab: cmd.reset( new CmdExpMatlab(        *this, prms ) ); break;
+   case CfgFileParser::mc:           cmd.reset( new CmdRunMC(            *this, prms ) ); break;
    default: throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknowd command ID: " << cmdID;  break;
    }
    m_cmds.push_back( cmd );

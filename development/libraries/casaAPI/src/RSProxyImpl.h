@@ -19,11 +19,8 @@
 #include <memory>
 #include <string>
 
-namespace SUMlib
-{
-   class CompoundProxyCollection;
-}
-
+// SUMlib includes
+#include <CompoundProxyCollection.h>
 
 namespace casa
 {   
@@ -85,6 +82,10 @@ namespace casa
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       virtual CoefficientsMapList  getCoefficientsMapList() const;
 
+      /// @brief Get SUMlib proxy object
+      /// @return SUMlib proxy object
+      SUMlib::CompoundProxyCollection * getProxyCollection() const { return m_collection.get(); }
+ 
    protected:
       std::string      m_name;     // proxy name
 

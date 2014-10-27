@@ -25,7 +25,7 @@ namespace casa
    class JobScheduler
    {
    public:
-      typedef enum
+      enum JobState
       {
          NotSubmittedYet, // job wasn't submitted yet
          JobSucceeded,    // job finished OK
@@ -34,7 +34,7 @@ namespace casa
          JobRunning,      // job is running on cluster
          JobFinished,     // job is finished or crashed
          Unknown          // job status is unknown
-      } JobState;
+      };
 
       typedef size_t JobID ;
 
@@ -52,7 +52,7 @@ namespace casa
       virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus ) = 0;
       
       // run job
-      virtual void runJob( JobID job ) = 0;
+      virtual JobState runJob( JobID job ) = 0;
 
       // get job state
       virtual JobState jobState( JobID job ) = 0;

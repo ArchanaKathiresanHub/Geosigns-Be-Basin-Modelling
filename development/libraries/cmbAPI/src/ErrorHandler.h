@@ -27,22 +27,22 @@ public:
    /// @brief Set of return codes for API functions
    typedef enum
    {
-      NoError = 0,       ///< Call was successful
-      IoError,           ///< Error related to IO operations
-      MemAllocError,     ///< Error with memory allocation
-      NonexistingID,     ///< Unknown ID of object is given
-      UndefinedValue,    ///< The requested value not defined (for uninitialized values)
-      OutOfRangeValue,   ///< The given value is out of allowed range 
-      NotImplementedAPI, ///< For not implemented API methods
-      AlreadyDefined,    ///< The value was already defined, and can't be redefined again
-      MutationError,     ///< Error happened during mutation of the base case
-      ValidationError,   ///< Error happened during validation of mutated case
-      MCSolverError,     ///< Error happened in MC solver
-      RSProxyError,      ///< Error happened in response surface builder
-      SUMLibException,   ///< Exception was caught during SUMLib call
-      LSFLibError,       ///< Error happened in RunManager when it interracts with LSF
-      WrongPath,         ///< Wrong path given
-      UnknownError       ///< Unknown error
+      NoError = 0,           ///< Call was successful
+      IoError,               ///< Error related to IO operations
+      MemAllocError,         ///< Error with memory allocation
+      NonexistingID,         ///< Unknown ID of object is given
+      UndefinedValue,        ///< The requested value not defined (for uninitialized values)
+      OutOfRangeValue,       ///< The given value is out of allowed range 
+      NotImplementedAPI,     ///< For not implemented API methods
+      AlreadyDefined,        ///< The value was already defined, and can't be redefined again
+      MutationError,         ///< Error happened during mutation of the base case
+      ValidationError,       ///< Error happened during validation of mutated case
+      MonteCarloSolverError, ///< Error happened in MC solver
+      RSProxyError,          ///< Error happened in response surface builder
+      SUMLibException,       ///< Exception was caught during SUMLib call
+      LSFLibError,           ///< Error happened in RunManager when it interracts with LSF
+      WrongPath,             ///< Wrong path given
+      UnknownError           ///< Unknown error
    } ReturnCode;
    /// @}
 

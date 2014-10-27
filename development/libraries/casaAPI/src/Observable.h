@@ -70,6 +70,10 @@ namespace casa
       /// @return observable name
       virtual const char * name() const = 0;
 
+      /// @brief Get observable dimension
+      /// @return dimension of observable
+      virtual size_t dimension() const = 0;
+
       /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise
       virtual bool hasReferenceValue() const = 0;

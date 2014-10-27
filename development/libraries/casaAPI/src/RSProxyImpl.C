@@ -110,7 +110,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
    sumext::convertCase( minCase, pLowest );
    sumext::convertCase( maxCase, pHighest );
 
-   // will use all parameters as on paramerter space
+   // will use all parameters as on parameter space
    SUMlib::Partition partition( pLowest.size(), true );
 
    // collect and convert list of observables to SUMlib TargetCollection

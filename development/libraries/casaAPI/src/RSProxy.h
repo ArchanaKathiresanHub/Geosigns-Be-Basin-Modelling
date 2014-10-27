@@ -87,7 +87,7 @@ namespace casa
          NoKriging,     ///< Do not use Kriging interpolation. The default
          LocalKriging,  ///< Use local Kriging interpolation (partial of GlobalKriging and faster)
          GlobalKriging  ///< Use global Kriging interpolation
-      } ;
+      };
 
       /// @brief Destructor
       virtual ~RSProxy() {;}

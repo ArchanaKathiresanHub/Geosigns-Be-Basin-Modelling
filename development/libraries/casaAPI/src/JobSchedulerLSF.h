@@ -38,7 +38,7 @@ namespace casa
       virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus );
       
       // run job
-      virtual void runJob( JobID job );
+      virtual JobState runJob( JobID job );
 
       // get job state
       virtual JobState jobState( JobID job );

@@ -15,7 +15,7 @@
 
 using namespace casa;
 
-static const double eps = 1.e-5;
+static const double eps = 1.e-6;
 
 class RSProxyTest : public ::testing::Test
 {
@@ -85,19 +85,19 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
       {
          case 0:
             ASSERT_EQ( prm.size(), 0 );
-            EXPECT_NEAR( 65.15362, coef, 1e-6 );
+            EXPECT_NEAR( 65.15362, coef, eps );
             break;
 
          case 1:
             ASSERT_EQ( prm.size(), 1 );
             ASSERT_EQ( prm[0], 0 );
-            EXPECT_NEAR( 15.34105, coef, 1e-6 );
+            EXPECT_NEAR( 15.34105, coef, eps );
             break;
 
          case 2:
             ASSERT_EQ( prm.size(), 1 );
             ASSERT_EQ( prm[0], 1 );
-            EXPECT_NEAR( 0.0, coef, 1e-6 );
+            EXPECT_NEAR( 0.0, coef, eps );
             break;
       }
       ++cpow;
@@ -112,19 +112,19 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
       {
          case 0:
             ASSERT_EQ( prm.size(), 0 );
-            EXPECT_NEAR( 0.479763, coef, 1e-6 );
+            EXPECT_NEAR( 0.479763, coef, eps );
             break;
 
          case 1:
             ASSERT_EQ( prm.size(), 1 );
             ASSERT_EQ( prm[0], 0 );
-            EXPECT_NEAR( 0.0928937, coef, 1e-6 );
+            EXPECT_NEAR( 0.0928937, coef, eps );
             break;
 
          case 2:
             ASSERT_EQ( prm.size(), 1 );
             ASSERT_EQ( prm[0], 1 );
-            EXPECT_NEAR( 0.0, coef, 1e-6 );
+            EXPECT_NEAR( 0.0, coef, eps );
             break;
       }
       ++cpow;
@@ -148,7 +148,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    
    ASSERT_EQ( ErrorHandler::NoError, proxy->evaluateRSProxy( *(nrc.get() ) ) );
 
-   EXPECT_NEAR( nrc->obsValue( 0 )->doubleValue()[0], 65.6445336, 1.e-6 ); // T [0C]
-   EXPECT_NEAR( nrc->obsValue( 1 )->doubleValue()[0], 0.4827356,  1.e-6 );  // VRE
+   EXPECT_NEAR( nrc->obsValue( 0 )->doubleValue()[0], 65.6445336, eps ); // T [0C]
+   EXPECT_NEAR( nrc->obsValue( 1 )->doubleValue()[0], 0.4827356,  eps );  // VRE
 }
 
