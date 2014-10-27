@@ -10,7 +10,7 @@ int GetCurrentLimit();
 int GetProcPID();
 
 /// \brief Returns the number of cores that are online.
-long getNumberOrCoresOnline ();
+long getNumberOfCoresOnline ();
 
 
 /// \brief Holds the values from the /proc/self/statm file.

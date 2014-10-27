@@ -1,11 +1,9 @@
 #include "MemoryChecker.h"
 
-#include <unistd.h>
 #include <boost/bind.hpp>
 #include <iostream>
 #include <sys/sysinfo.h>
 #include <sstream>
-#include <stdio.h>
 
 #include "NumericFunctions.h"
 #include "System.h"
@@ -16,15 +14,25 @@ const unsigned int MemoryChecker::MaximumTimeBetweenSamples = 60;
 
 
 MemoryChecker::MemoryChecker ( const unsigned int timeBetweenSamples ):
+
+#if 0
    m_timeBetweenSamples ( NumericFunctions::Maximum ( MinimumTimeBetweenSamples, NumericFunctions::Minimum ( timeBetweenSamples, MaximumTimeBetweenSamples ))),
    m_exit ( false ),
    m_thread ( boost::bind ( &checkMemory, this))
+#else
+   m_timeBetweenSamples ( NumericFunctions::Maximum ( MinimumTimeBetweenSamples, NumericFunctions::Minimum ( timeBetweenSamples, MaximumTimeBetweenSamples ))),
+   m_exit ( false )
+#endif
 { 
 }
 
 MemoryChecker::~MemoryChecker () {
    m_exit = true;
+
+#if 0
    m_thread.join ();
+#endif
+
 }
 
 bool MemoryChecker::exitLoop () const {
@@ -43,9 +51,12 @@ unsigned long MemoryChecker::getMemoryUsed () const {
 
 void MemoryChecker::checkMemory ( const MemoryChecker* tc ) {
       
-   long nprocs = sysconf (_SC_NPROCESSORS_ONLN);
+#if 0
+   long nprocs = getNumberOfCoresOnline ();
 
    if ( nprocs == 0 ) {
+      // If the number of cores is 0 (i.e. unknown) then we cannot calculate the memory per process.
+      // This is probably only a result of the windows build.
       return;
    }
 
@@ -63,6 +74,7 @@ void MemoryChecker::checkMemory ( const MemoryChecker* tc ) {
 
       sleep ( tc->m_timeBetweenSamples );
    }
+#endif
 
 }
 

@@ -50,7 +50,7 @@ int GetProcPID()
 }
 
 
-long getNumberOrCoresOnline () {
+long getNumberOfCoresOnline () {
    return sysconf (_SC_NPROCESSORS_ONLN);
 }
 
@@ -80,7 +80,7 @@ int GetCurrentLimit() { return 0; }
 long GetPageSize() { return 0; }
 int GetProcPID() { return 0; }
 
-long getNumberOrCoresOnline () {
+long getNumberOfCoresOnline () {
    return 0;
 }
 
