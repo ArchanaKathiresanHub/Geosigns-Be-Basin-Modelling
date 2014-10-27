@@ -12,6 +12,8 @@ int GetProcPID();
 /// \brief Returns the number of cores that are online.
 long getNumberOfCoresOnline ();
 
+/// \brief Returns the number of bytes in a page.
+int getPageSize ();
 
 /// \brief Holds the values from the /proc/self/statm file.
 struct StatM {

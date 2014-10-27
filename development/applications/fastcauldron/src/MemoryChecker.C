@@ -45,7 +45,7 @@ unsigned long MemoryChecker::getMemoryUsed () const {
 
    getStatM ( statm );
 
-   return statm.size * getpagesize ();
+   return statm.size * getPageSize ();
 
 }
 

@@ -54,6 +54,10 @@ long getNumberOfCoresOnline () {
    return sysconf (_SC_NPROCESSORS_ONLN);
 }
 
+int getPageSize () {
+   return getpagesize ();
+}
+
 void getStatM ( StatM& statm ) {
 
    unsigned long dummy;
@@ -81,6 +85,10 @@ long GetPageSize() { return 0; }
 int GetProcPID() { return 0; }
 
 long getNumberOfCoresOnline () {
+   return 0;
+}
+
+int getPageSize () {
    return 0;
 }
 
