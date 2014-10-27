@@ -6,21 +6,10 @@
 
 #include "hdf5.h"
 #include "fileHandler.h"
-#include "fileHandlerReuse.h"
-#include "fileHandlerAppend.h"
 
 #include "H5FDmpio.h"
 #include "HDF5VirtualFileDriver.h"
 //#define SAFE_RUN 1
-
-FileHandler * allocateFileHandler ( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, mergeOption anOption ) {
-   
-   if( anOption == REUSE ) return new FileHandlerReuse( comm, fileName, tempDirName );
-   else if( anOption == APPEND ) return new FileHandlerAppend( comm, fileName, tempDirName );
-   else return new FileHandler( comm, fileName, tempDirName );
-
-
-}
 
 void FileHandler::openLocalFile( hid_t fileAccessPList ) {
 
@@ -96,16 +85,6 @@ void FileHandler::createDataset( const char* name , hid_t dtype ) {
    }
 
 }
-
-void FileHandler::setGlobalId( hid_t id ) {
-   m_globalFileId = id;
-
-}
-
-void FileHandler::setLocalId( hid_t id ) {
-   m_localFileId = id;
-}
-
 
 void FileHandler::setSpatialDimension( int dimension ) {
    m_spatialDimension = dimension;
@@ -425,4 +404,33 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    
    
    return 0;
+}
+
+void FileHandler::setGlobalFileId( hid_t id ) {
+   m_globalFileId = id;
+
+}
+
+void FileHandler::setLocalFileId( hid_t aLocalFileId ) {
+   m_localFileId = aLocalFileId;
+}
+
+void FileHandler::setGroupId( hid_t anId ) {
+   m_groupId = anId;
+}
+
+void FileHandler::setGlobalDsetId( hid_t anId ) {
+   m_global_dset_id = anId;
+}
+
+void FileHandler::setMemspace( hid_t aMemspace ) {
+   m_memspace = aMemspace;
+}
+
+void FileHandler::setFilespace( hid_t aFilespace ) {
+   m_filespace = aFilespace;
+}
+
+const char * FileHandler::getFileName() const {
+   return m_fileName.c_str();
 }

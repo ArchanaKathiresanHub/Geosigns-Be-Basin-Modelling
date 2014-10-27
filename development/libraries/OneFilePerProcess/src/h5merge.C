@@ -3,6 +3,8 @@
 
 #include "h5merge.h"
 #include "fileHandler.h"
+#include "fileHandlerReuse.h"
+#include "fileHandlerAppend.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -49,5 +51,13 @@ bool mergeFiles ( FileHandler * aFileHandler ) {
       return status;
    } 
    return false;
+
+}
+
+FileHandler * allocateFileHandler ( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, MergeOption anOption ) {
+   
+   if( anOption == REUSE ) return new FileHandlerReuse( comm, fileName, tempDirName );
+   else if( anOption == APPEND ) return new FileHandlerAppend( comm, fileName, tempDirName );
+   else return new FileHandler( comm, fileName, tempDirName );
 
 }

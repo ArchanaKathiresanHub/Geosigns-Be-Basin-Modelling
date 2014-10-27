@@ -29,14 +29,14 @@ inline hid_t FileHandlerReuse::closeGlobalFile() {
 }
 inline void FileHandlerReuse::openGlobalFile () {
 
-   if( m_rank == 0 ) {
-      m_globalFileId = m_localFileId; 
+   if( getRank() == 0 ) {
+      setGlobalFileId ( getLocalFileId()); 
    }
 }
 inline void FileHandlerReuse::createDataset( const char* name , hid_t dtype ) {
 
-    if( m_rank == 0 ) {
-       m_global_dset_id = m_local_dset_id;
+    if( getRank() == 0 ) {
+       setGlobalDsetId( getLocalDsetId());
     }
 }
 

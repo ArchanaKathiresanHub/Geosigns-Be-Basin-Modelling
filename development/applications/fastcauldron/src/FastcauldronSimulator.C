@@ -1902,7 +1902,12 @@ void FastcauldronSimulator::deleteTemporaryDirSnapshots()
          if ( !snapshotFileName.empty() && ! database::getIsMinorSnapshot ( *timeTableIter ) ) {
             std::stringstream filePath;
             filePath << H5_Parallel_PropertyList::getTempDirName() << "/" << getProjectPath () << "/" <<  getOutputDir() << "/" << snapshotFileName << "_" << PetscGlobalRank;
-            unlink ( filePath.str().c_str ());
+            int status = std::remove ( filePath.str().c_str ());
+            
+            if (status == -1)
+               cerr << "MeSsAgE WARNING  Unable to remove snapshot file, because '" 
+                    << std::strerror(errno) << "'" << endl;
+            
          }
       }
    }

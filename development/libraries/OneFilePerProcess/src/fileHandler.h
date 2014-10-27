@@ -12,7 +12,7 @@ const int MAX_ATTRIBUTE_NAME_SIZE = 64;
 /// \brief This file contains a functionality for merging multiple HDF files (located in  $TMPDIRs) into one file (located in Project path). 
 ///        Different merging modes:
 /// CREATE - Every process reads its local file. Process with rank 0 creates a global file in project path directory and writes merging results to it
-/// RESUE  - Every process reads its local file. Process with rank 0 re-writes its local file with merging results. 
+/// REUSE  - Every process reads its local file. Process with rank 0 re-writes its local file with merging results. 
 ///          The merging file has to be copied to a final destination afterwards.
 /// APPEND - Every process reads its local file. Process with rank 0 opens/create a global file in Project path and updates it with merging results.
 
@@ -57,48 +57,98 @@ public:
    /// \brief Reallocate buffers for reading of dataset depends on datasize type
    herr_t reallocateBuffers ( ssize_t dataSize ); 
 
-   /// \brief methods for unit tests
-   void setGlobalId( hid_t id );
-   void setLocalId( hid_t id );
+   /// \brief Access members
+   int getRank() const;
+   hid_t getLocalFileId () const;
+   hid_t getGlobalFileId () const;
+   hid_t getGroupId () const;
+   hid_t getLocalDsetId() const;
+   hid_t getGlobalDsetId() const;
+   hid_t getMemspace() const;
+   hid_t getFilespace() const;
+   hid_t getSpatialDimension() const;
+   const char * getFileName() const;
+   
+   void setLocalFileId ( hid_t aLocalId );
+   void setGlobalFileId ( hid_t aGlobalId );
+   void setGroupId( hid_t aGroupId );
+   void setGlobalDsetId( hid_t aGlobalId );
+   void setMemspace( hid_t aMemspace );
+   void setFilespace( hid_t aMemspace );
    void setSpatialDimension ( int dimension );
 
 protected:
-   int   m_rank;           // rank of the processor
-   hid_t m_localFileId;    // local data file (to read from)
-   hid_t m_globalFileId;   // global data file (to write into)
+
+   hsize_t m_count [MAX_FILE_DIMENSION];
+   hsize_t m_offset [MAX_FILE_DIMENSION];
+
+private:
+   int      m_rank;      // rank of the processor
+   MPI_Comm m_comm;
+
+   /// \brief Name of the file to merge
+   std::string m_fileName; 
+
    hid_t m_groupId;
+   hid_t m_localFileId;   // local data file (to read from)
+   hid_t m_globalFileId;  // global data file (to write into)
    hid_t m_local_dset_id;
    hid_t m_global_dset_id;
 
    hid_t m_memspace;
    hid_t m_filespace;
 
-   hsize_t m_count [MAX_FILE_DIMENSION];
-   hsize_t m_offset [MAX_FILE_DIMENSION];
-
-   int m_spatialDimension; // data dimentions
-
-   /// \brief Name of the file to merge
-   std::string m_fileName; 
-
-private:
-   MPI_Comm m_comm;
-
-   size_t m_valCount;    // size of allocated local buffer
-   size_t m_attrCount;   // size of the attribute buffer
+   size_t m_valCount;            // size of allocated local buffer
+   size_t m_attrCount;           // size of the attribute buffer
    std::vector<char> m_data;     // local data buffer (to read)
    std::vector<char> m_sumData;  // global data buffer (to write from rank 0)
    std::vector<char> m_attrData; // attributes buffer
 
+   int m_spatialDimension;       // data dimentions
    hsize_t m_dimensions [MAX_FILE_DIMENSION]; 
+
    /// \brief Path to Temporary directory where local files are located
    std::string m_tempDirName; 
 };
 
-/// \brief Interface to allocate file handler
-FileHandler * allocateFileHandler ( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, mergeOption anOption );
-  
+ 
 herr_t readDataset ( hid_t groupId, const char* name, void * voidReader);
 
+
+inline int FileHandler::getRank() const {
+   return  m_rank;
+}
+
+inline hid_t FileHandler::getLocalFileId() const {
+   return m_localFileId;
+}
+
+inline hid_t FileHandler::getGlobalFileId() const {
+   return m_globalFileId;
+}
+
+inline hid_t FileHandler::getGroupId() const {
+   return  m_groupId;
+}
+
+inline hid_t FileHandler::getLocalDsetId() const {
+   return m_local_dset_id;
+}
+
+inline hid_t FileHandler::getGlobalDsetId() const {
+   return m_global_dset_id;
+}
+
+inline hid_t FileHandler::getMemspace() const {
+   return m_memspace;
+}
+
+inline hid_t FileHandler::getFilespace() const {
+   return m_filespace;
+}
+
+inline hid_t FileHandler::getSpatialDimension() const {
+   return m_spatialDimension;
+}
 
 #endif

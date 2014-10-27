@@ -332,8 +332,8 @@ TEST( h5mergeTest, MergeExistingFiles1 )
 
          EXPECT_EQ( 0, status );
       }
-      reader.setGlobalId ( b.fileId () );
-      reader.setLocalId ( a.fileId () );
+      reader.setGlobalFileId ( b.fileId () );
+      reader.setLocalFileId ( a.fileId () );
 
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
@@ -369,8 +369,8 @@ TEST( h5mergeTest, MergeExistingFiles2 )
 
          EXPECT_EQ( 0, status );
       }
-      reader.setGlobalId ( b.fileId () );
-      reader.setLocalId ( a.fileId () );
+      reader.setGlobalFileId ( b.fileId () );
+      reader.setLocalFileId ( a.fileId () );
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
@@ -417,8 +417,8 @@ TEST( h5mergeTest, MergeExistingFiles4 )
 
          EXPECT_EQ( 0, status );
       }
-      reader.setGlobalId ( b.fileId () );
-      reader.setLocalId  ( a.fileId () );
+      reader.setGlobalFileId ( b.fileId () );
+      reader.setLocalFileId  ( a.fileId () );
  
       EXPECT_EQ( -1, readDataset( a.fileId(), "", &reader ));
 
@@ -465,8 +465,8 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
   
       EXPECT_EQ( 5, status );
 
-      reader.setLocalId(  a.fileId ());
-      reader.setGlobalId ( a.fileId () );
+      reader.setLocalFileId(  a.fileId ());
+      reader.setGlobalFileId ( a.fileId () );
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
@@ -493,8 +493,8 @@ TEST( h5mergeTest, AppendExistingFiles8 )
   
       EXPECT_EQ( 5, status );
 
-      reader.setLocalId(  a.fileId ());
-      reader.setGlobalId ( a.fileId () );
+      reader.setLocalFileId(  a.fileId ());
+      reader.setGlobalFileId ( a.fileId () );
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 

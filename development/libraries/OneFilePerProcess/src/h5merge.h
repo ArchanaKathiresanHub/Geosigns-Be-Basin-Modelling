@@ -6,11 +6,13 @@
 
 class FileHandler;
 
-enum mergeOption { CREATE, REUSE, APPEND, UNKNOWN };
+enum MergeOption { CREATE, REUSE, APPEND, UNKNOWN };
 
 bool copyFile( std::string & dstPath, std::string & currentPath );
-bool mergeFiles( FileHandler * aFileHandler ) ;//MPI_Comm comm, const std::string& fileName, const std::string &tempDirName, const bool reuse );
-bool appendFiles( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );
-FileHandler * allocateFileHandler ( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, mergeOption anOption );
+
+bool mergeFiles( FileHandler * aFileHandler ) ;
+
+/// \brief Interface to allocate file handler
+FileHandler * allocateFileHandler ( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName, MergeOption anOption );
 
 #endif
