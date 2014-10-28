@@ -41,52 +41,13 @@ namespace GeoPhysics
       return calculatedPorosity;
    }
 
+   bool DoubleExponentialPorosity::isIncompressible () const {
+      return m_compactionIncrA == 0.0 and m_compactionIncrB == 0.0;
+   }
+
    Porosity::Model DoubleExponentialPorosity::model() const
    {
       return DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY;
-   }
-
-   ///FullCompThickness
-   double DoubleExponentialPorosity::fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const {
-           
-      double Solid_Thickness;
-
-      if (m_compactionIncrA == 0.0 && m_compactionIncrB == 0.0) {
-         Solid_Thickness = thickness * (1.0 - m_depoPorosity);
-      }
-      else if (thickness == 0.0) {
-         Solid_Thickness = 0.0;
-      }
-      else {
-
-         const bool Loading_Phase = true;
-         const bool Include_Chemical_Compaction = false;
-
-         // If we are initialising the model for an Overpressure run
-         // then we assume some overpressure. An amount that equates to VES = 0.5 * ( Pl - Ph )
-         const double VES_Scaling = (overpressuredCompaction ? vesScaleFactor : 1.0);
-
-         double vesTop = MaxVesValue;
-         double porosityTop = porosity(vesTop, vesTop, Include_Chemical_Compaction, 0.0);
-         double vesBottom;
-         double porosityBottom;
-         double computedSolidThickness;
-         double computedRealThickness;
-         int iteration = 1;
-
-         computedSolidThickness = thickness * (1.0 - porosityTop);
-
-         do {
-            vesBottom = MaxVesValue + VES_Scaling * AccelerationDueToGravity * densitydiff * computedSolidThickness;
-            porosityBottom = porosity(vesBottom, vesBottom, Include_Chemical_Compaction, 0.0);
-            computedRealThickness = 0.5 * computedSolidThickness * (1.0 / (1.0 - porosityTop) + 1.0 / (1.0 - porosityBottom));
-            computedSolidThickness = computedSolidThickness * (thickness / computedRealThickness);
-         } while (fabs(thickness - computedRealThickness) >= thickness * Porosity::SolidThicknessIterationTolerance && iteration++ <= 10);
-
-         Solid_Thickness = computedSolidThickness;
-      }
-      return Solid_Thickness;
-      
    }
 
    ///CompactionCoefficientA

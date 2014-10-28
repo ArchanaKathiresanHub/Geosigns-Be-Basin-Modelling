@@ -138,6 +138,9 @@ namespace GeoPhysics
           */
          virtual double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const = 0;
 
+         /// \brief Determine if the porosity model is incompressible.
+         virtual bool isIncompressible () const = 0;
+
          /*!
           * \brief Return the deposition porosity [fraction of volume]
           */
@@ -151,7 +154,7 @@ namespace GeoPhysics
          /*!
           * \brief Return the solid thickness of the layer [m]
           */ 
-         virtual double  fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const = 0;
+         virtual double  fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
 
          /*!
           * \brief Return the compaction coefficient during loading phase for single exponential model [Pa-1] or the compaction coefficient for soil mechanics model [1]

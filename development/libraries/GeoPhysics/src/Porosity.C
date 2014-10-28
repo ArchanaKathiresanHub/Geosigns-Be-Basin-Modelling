@@ -1,8 +1,11 @@
 #include "Porosity.h"
 
+#include <cmath>
+
 #include "ExponentialPorosity.h"
 #include "SoilMechanicsPorosity.h"
 #include "DoubleExponentialPorosity.h"
+#include "GeoPhysicalConstants.h"
 #include "Interface/Interface.h"
 
 const double GeoPhysics::Porosity::SolidThicknessIterationTolerance = 0.00001;
@@ -59,6 +62,44 @@ namespace GeoPhysics
 	   
    }
 
+   double Porosity::Algorithm::fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const {
+
+      double solidThickness;
+
+      if ( isIncompressible ()) {
+         solidThickness = thickness * (1.0 - surfacePorosity ());
+      } else if (thickness == 0.0) {
+         solidThickness = 0.0;
+      } else {
+
+         const bool IncludeChemicalCompaction = false;
+
+         // If we are initialising the model for an Overpressure run
+         // then we assume some overpressure. An amount that equates to VES = 0.5 * ( Pl - Ph )
+         const double vesScaling = (overpressuredCompaction ? vesScaleFactor : 1.0);
+
+         double vesTop = MaxVesValue;
+         double porosityTop = porosity(vesTop, vesTop, IncludeChemicalCompaction, 0.0);
+         double vesBottom;
+         double porosityBottom;
+         double computedSolidThickness;
+         double computedRealThickness;
+         int iteration = 1;
+
+         computedSolidThickness = thickness * (1.0 - porosityTop);
+
+         do {
+            vesBottom = MaxVesValue + vesScaling * AccelerationDueToGravity * densitydiff * computedSolidThickness;
+            porosityBottom = porosity(vesBottom, vesBottom, IncludeChemicalCompaction, 0.0);
+            computedRealThickness = 0.5 * computedSolidThickness * (1.0 / (1.0 - porosityTop) + 1.0 / (1.0 - porosityBottom));
+            computedSolidThickness = computedSolidThickness * (thickness / computedRealThickness);
+         } while ( std::abs ( thickness - computedRealThickness ) >= thickness * Porosity::SolidThicknessIterationTolerance && iteration++ <= 10);
+
+         solidThickness = computedSolidThickness;
+      }
+
+      return solidThickness;
+   }
 
    double Porosity::Algorithm::minimumMechanicalPorosity( ) const
    {

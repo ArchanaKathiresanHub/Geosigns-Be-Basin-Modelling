@@ -19,11 +19,11 @@ namespace GeoPhysics
       /// Return porosity with soilMechanicsPorosity
       virtual double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
 
+      /// \brief Determine if the porosity model is incompressible.
+      virtual bool isIncompressible () const;
+
       /// Return the permeability model
       virtual Porosity::Model  model() const;
-
-      /// Return FullCompThickness
-      virtual double fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
 
       /// Return Compaction coefficients 
       virtual double compactionCoefficient() const;

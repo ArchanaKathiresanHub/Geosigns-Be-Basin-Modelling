@@ -53,6 +53,10 @@ namespace GeoPhysics
       return calculatedPorosity;
    }
 
+   bool ExponentialPorosity::isIncompressible () const {
+      return m_compactionIncr == 0.0;
+   }
+
 
    ///PorosityModel
    Porosity::Model ExponentialPorosity::model() const

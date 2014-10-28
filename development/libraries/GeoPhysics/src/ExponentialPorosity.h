@@ -19,6 +19,9 @@ namespace GeoPhysics
       /// Return porosity with exponential function
       virtual double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const;
 
+      /// \brief Determine if the porosity model is incompressible.
+      virtual bool isIncompressible () const;
+
       /// Return the permeability model
       virtual Porosity::Model  model() const;
 
