@@ -5,8 +5,13 @@
 #include "DoubleExponentialPorosity.h"
 #include "Interface/Interface.h"
 
+const double GeoPhysics::Porosity::SolidThicknessIterationTolerance = 0.00001;
+
+
 namespace GeoPhysics
 {
+
+
 
    Porosity
       ::Porosity(Algorithm * algorithm)

@@ -20,9 +20,13 @@ namespace GeoPhysics
    class Porosity
    {
    public:
+
+      /// \brief Tolerance used in the iterative method used to calculate the solid thickness.
+      static const double SolidThicknessIterationTolerance;
+
       /*!
-	   * Create porosity object.
-	   */
+       * Create porosity object.
+       */
       Porosity();
       typedef DataAccess::Interface::PorosityModel Model;
       

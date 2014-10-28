@@ -185,9 +185,9 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
       DataAccess::Interface::IdentityFunctor identity;
 
       m_crustThinningRatio = 1.0;
-      m_crustMaximumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, -1,
-                                                                                                                        dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ()),
-                                                                                                                        identity ));
+      m_crustMaximumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
+                                                                                                                   dynamic_cast<const Interface::GridMap*>(getInputThicknessMap ()),
+                                                                                                                   identity ));
       m_crustMaximumThickness->retrieveData ();
    } else {
 
@@ -200,9 +200,9 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
       Interface::PaleoFormationPropertyList* crustThicknesses = Interface::CrustFormation::getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
 
-      m_crustMaximumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, -1,
-                                                                                                                        GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid (),
-                                                                                                                        Interface::DefaultUndefinedMapValue ));
+      m_crustMaximumThickness = dynamic_cast<Interface::GridMap*>(m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
+                                                                                                                   GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid (),
+                                                                                                                   Interface::DefaultUndefinedMapValue ));
 
       m_crustMaximumThickness->retrieveData ();
 

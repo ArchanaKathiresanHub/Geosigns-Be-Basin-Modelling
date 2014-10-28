@@ -81,7 +81,7 @@ namespace GeoPhysics
             porosityBottom = porosity(vesBottom, vesBottom, Include_Chemical_Compaction, 0.0);
             computedRealThickness = 0.5 * computedSolidThickness * (1.0 / (1.0 - porosityTop) + 1.0 / (1.0 - porosityBottom));
             computedSolidThickness = computedSolidThickness * (thickness / computedRealThickness);
-         } while (fabs(thickness - computedRealThickness) >= thickness * 0.00001 && iteration++ <= 10);
+         } while (fabs(thickness - computedRealThickness) >= thickness * Porosity::SolidThicknessIterationTolerance && iteration++ <= 10);
 
          Solid_Thickness = computedSolidThickness;
       }

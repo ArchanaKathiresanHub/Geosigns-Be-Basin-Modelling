@@ -3,6 +3,8 @@
 #include "NumericFunctions.h"
 
 #include <cmath>
+#include <iostream>
+#include <iomanip>
 
 
 using namespace DataAccess;
@@ -43,12 +45,22 @@ namespace GeoPhysics
 
          voidRatio = Epsilon100 - m_soilMechanicsCompactionCoefficient * log(vesUsed / ves0);
 
-         calculatedPorosity = voidRatio / (1.0 + voidRatio);
-      }
-      else {
+         if ( voidRatio > 0.0 ) {
+            calculatedPorosity = voidRatio / (1.0 + voidRatio);
+         } else {
+            calculatedPorosity = MinimumSoilMechanicsPorosity;
+         } 
+
+      } else {
 
          voidRatio = Epsilon100 - m_soilMechanicsCompactionCoefficient * log(NumericFunctions::Maximum(ves0, maxVes) / ves0);
-         phiMaxVes = voidRatio / (1.0 + voidRatio);
+
+         if ( voidRatio > 0.0 ) {
+            phiMaxVes = voidRatio / (1.0 + voidRatio);
+         } else {
+            phiMaxVes = MinimumSoilMechanicsPorosity;
+         } 
+
          voidRatio = Epsilon100;
          phiMinVes = voidRatio / (1.0 + voidRatio);
 
@@ -129,7 +141,7 @@ namespace GeoPhysics
                << endl;
 #endif
 
-         } while (fabs(thickness - computedRealThickness) >= thickness * 0.0005 and iteration++ <= 10);
+         } while (fabs(thickness - computedRealThickness) >= thickness * Porosity::SolidThicknessIterationTolerance and iteration++ <= 10);
 
          Solid_Thickness = computedSolidThickness;
       }
