@@ -228,15 +228,6 @@ namespace casa
       if ( m_mpirunCmd.empty() )
       {
          m_mpirunCmd =  std::string( s_MPIRUN_CMD ) + " -env I_MPI_DEBUG 5";
-
-         m_mpiEnv = std::string( "source " ) + s_MPI_ROOT;
-
-         switch( m_sh )
-         {
-            case bash: m_mpiEnv += "/bin/mpivars.sh\n\n";  break;
-            case csh:  m_mpiEnv += "/bin/mpivars.csh\n\n"; break;
-            case cmd:  m_mpiEnv = ""; break;
-         }
       }
    }
 
