@@ -1712,19 +1712,18 @@ database::Record* FastcauldronSimulator::findTimeIoRecord ( database::Table*   t
                                                             const std::string& surfaceName, 
                                                             const std::string& formationName ) const {
 
-   database::Table * subTable = timeIoTbl->getSubTable("Time", time);
 
-   assert (subTable);
    database::Table::iterator tblIter;
 
-   for (tblIter = subTable->begin (); tblIter != subTable->end (); ++tblIter)
+   for (tblIter = timeIoTbl->begin (); tblIter != timeIoTbl->end (); ++tblIter)
    {
-      if (database::getPropertyName (*tblIter) == propertyName and
-          database::getSurfaceName (*tblIter) == surfaceName and
-	  database::getFormationName (*tblIter) == formationName)
-      {
-	 assert (database::getTime (*tblIter) == time);
-         return *tblIter;
+      if ( database::getTime (*tblIter) == time ) {
+         if( database::getPropertyName (*tblIter) == propertyName and
+             database::getSurfaceName (*tblIter) == surfaceName and
+             database::getFormationName (*tblIter) == formationName)
+         {
+            return *tblIter;
+         }
       }
 
    }
