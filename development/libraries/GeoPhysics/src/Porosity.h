@@ -138,7 +138,9 @@ namespace GeoPhysics
           */
          virtual double porosity(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const = 0;
 
-         /// \brief Determine if the porosity model is incompressible.
+         /*!
+          * \brief Determine if the porosity model is incompressible.
+          */
          virtual bool isIncompressible () const = 0;
 
          /*!
