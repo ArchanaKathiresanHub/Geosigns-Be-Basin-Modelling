@@ -67,8 +67,6 @@
 #include "../../../DataAccess/src/Interface/landmarkfaultfilereader.h"
 #include "../../../DataAccess/src/Interface/LangmuirAdsorptionIsothermSample.h"
 #include "../../../DataAccess/src/Interface/LangmuirAdsorptionTOCEntry.h"
-#include "../../../DataAccess/src/Interface/Lead.h"
-#include "../../../DataAccess/src/Interface/LeadTrap.h"
 #include "../../../DataAccess/src/Interface/LithologyHeatCapacitySample.h"
 #include "../../../DataAccess/src/Interface/LithologyThermalConductivitySample.h"
 #include "../../../DataAccess/src/Interface/LithoType.h"
@@ -100,7 +98,6 @@
 #include "../../../DataAccess/src/Interface/TouchstoneMap.h"
 #include "../../../DataAccess/src/Interface/Trap.h"
 #include "../../../DataAccess/src/Interface/Trapper.h"
-#include "../../../DataAccess/src/Interface/TrapPhase.h"
 #include "../../../DataAccess/src/Interface/zycorfaultfilereader.h"
 #include "../../../DataAccess/src/Interface/IgneousIntrusionEvent.h"
 
@@ -253,8 +250,6 @@ using namespace casa;
 %include "../../../DataAccess/src/Interface/landmarkfaultfilereader.h"
 %include "../../../DataAccess/src/Interface/LangmuirAdsorptionIsothermSample.h"
 %include "../../../DataAccess/src/Interface/LangmuirAdsorptionTOCEntry.h"
-%include "../../../DataAccess/src/Interface/Lead.h"
-%include "../../../DataAccess/src/Interface/LeadTrap.h"
 %include "../../../DataAccess/src/Interface/LithologyHeatCapacitySample.h"
 %include "../../../DataAccess/src/Interface/LithologyThermalConductivitySample.h"
 %include "../../../DataAccess/src/Interface/LithoType.h"
@@ -282,7 +277,6 @@ using namespace casa;
 %include "../../../DataAccess/src/Interface/TouchstoneMap.h"
 %include "../../../DataAccess/src/Interface/Trap.h"
 %include "../../../DataAccess/src/Interface/Trapper.h"
-%include "../../../DataAccess/src/Interface/TrapPhase.h"
 %include "../../../DataAccess/src/Interface/IgneousIntrusionEvent.h"
 %include "../../../DataAccess/src/Interface/zycorfaultfilereader.h"
 
@@ -402,10 +396,6 @@ using namespace casa;
 %template(TrapperList)      std::vector<const DataAccess::Interface::Trapper *>;
 /// list type for the trappers
 %template(MigrationList)      std::vector<const DataAccess::Interface::Migration *>;
-/// list type for the Leads
-%template(LeadList)      std::vector<const DataAccess::Interface::Lead *>;
-/// list type for the LeadTraps
-%template(LeadTrapList)      std::vector<const DataAccess::Interface::LeadTrap *>;
 /// list type for the (Mapped)InputValues
 %template(InputValueList)      std::vector<const DataAccess::Interface::InputValue *>;
 /// list type for the properties

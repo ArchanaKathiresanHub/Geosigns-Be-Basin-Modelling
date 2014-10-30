@@ -5880,34 +5880,10 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
 
 # Lead and Trapper Properties
 
-    Identification      : LeadID
-    Description         : Identifies series of vertically connected traps
-    Type                : integer 
-    Unit of measurement : 
-    Error Field         : No
-
     Identification      : PersistentTrapID
     Description         : Identifies series of vertically connected traps
     Type                : integer 
     Unit of measurement : 
-    Error Field         : No
-
-    Identification      : ReservoirPhase
-    Description         : Phase in the reservoir
-    Type                : string 
-    Unit of measurement : 
-    Error Field         : No
-
-    Identification      : GasVolume
-    Description         : gass phase volume
-    Unit of measurement : m^3
-    Type                : double
-    Error Field         : No
-
-    Identification      : OilVolume
-    Description         : oil phase volume
-    Unit of measurement : m^3
-    Type                : double
     Error Field         : No
 
     Identification      : VolumeVapour
@@ -5919,18 +5895,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Identification      : VolumeLiquid
     Description         : liquid phase volume
     Unit of measurement : m^3
-    Type                : double
-    Error Field         : No
-
-    Identification      : GasDensity
-    Description         : gass phase density
-    Unit of measurement : kg/m^3
-    Type                : double
-    Error Field         : No
-
-    Identification      : OilDensity
-    Description         : oil phase density
-    Unit of measurement : kg/m^3
     Type                : double
     Error Field         : No
 
@@ -6030,45 +5994,9 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : double
     Error Field         : No
 
-    Identification      : GasViscosity
-    Description         : gass phase viscosity
-    Unit of measurement : Pa*s
-    Type                : double
-    Error Field         : No
-
-    Identification      : OilViscosity
-    Description         : oil phase viscosity
-    Unit of measurement : Pa*s
-    Type                : double
-    Error Field         : No
-
-    Identification      : GasGORM
-    Description         : gass phase Gas/Oil Ratio
-    Unit of measurement : kg/kg
-    Type                : double
-    Error Field         : No
-
-    Identification      : OilGORM
-    Description         : Oil phase Gas/Oil Ratio
-    Unit of measurement : kg/kg
-    Type                : double
-    Error Field         : No
-
     Identification      : GOR
     Description         : Gas/Oil volume factor
     Unit of measurement : m^3/m^3
-    Type                : double
-    Error Field         : No
-
-    Identification      : FormVolFactor
-    Description         : Gas/Oil formation volume factor
-    Unit of measurement : m^3/m^3
-    Type                : double
-    Error Field         : No
-
-    Identification      : API
-    Description         : API Gravity
-    Unit of measurement : degreesAPI
     Type                : double
     Error Field         : No
 
@@ -6083,32 +6011,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement : m^3/m^3
     Type                : double
     Error Field         : No
-
-    Identification      : N2GasRatio
-    Description         : Nitrogen C1-C5 Ratio
-    Unit of measurement : mass%
-    Type                : double
-    Error Field         : No
-
-    Identification      : GasWetness
-    Description         : Gas phase wetness 
-    Unit of measurement : mole%
-    Type                : double
-    Error Field         : No
-
-    Identification      : OilMass
-    Description         : mass of oil
-    Unit of measurement : kg
-    Type                : double
-    Error Field         : No
-    Default             : 0
-
-    Identification      : GasMass
-    Description         : mass of gas
-    Unit of measurement : kg
-    Type                : double
-    Error Field         : No
-    Default             : 0
 
     Identification      : MassLiquid
     Description         : mass of liquid phase
@@ -7344,41 +7246,6 @@ START-property-tables
     Column         : Massresins
     Column         : Massasphaltenes
     Header         : Trap Data
-
-    Identification : LeadIoTbl
-    Description    : Table listing of traps organized by leads, present day only
-    Column         : LeadID
-    Column         : ReservoirName
-    Column         : TrapID
-    Column         : ReservoirPhase
-    Column         : XCoord
-    Column         : YCoord
-    Column         : Depth
-    Column         : WCSurface
-    Column         : GOC
-    Column         : OWC
-    Column         : Temperature
-    Column         : Pressure
-    Column         : Porosity
-    Column         : SealPermeability
-    Column         : CEPGas
-    Column         : CEPOil
-    Column         : GasMass
-    Column         : OilMass
-    Column         : GasVolume
-    Column         : OilVolume
-    Column         : GasDensity
-    Column         : OilDensity
-    Column         : GasViscosity
-    Column         : OilViscosity
-    Column         : GasGORM
-    Column         : OilGORM
-    Column         : FormVolFactor
-    Column         : CGR
-    Column         : N2GasRatio
-    Column         : GasWetness
-    Column         : API
-    Header         : Lead Data
 
     Identification : TrapperIoTbl
     Description    : Table listing of traps for trapper

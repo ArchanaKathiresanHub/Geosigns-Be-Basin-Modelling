@@ -126,9 +126,6 @@ namespace DataAccess
 	    virtual Trap * produceTrap (ProjectHandle * projectHandle, database::Record * record);
 	    virtual Trapper * produceTrapper (ProjectHandle * projectHandle, database::Record * record);
 	    virtual Migration * produceMigration (ProjectHandle * projectHandle, database::Record * record);
-	    virtual Lead * produceLead (ProjectHandle * projectHandle, unsigned int id);
-	    virtual LeadTrap * produceLeadTrap (ProjectHandle * projectHandle, Trap * trap);
-	    virtual TrapPhase * produceTrapPhase (ProjectHandle * projectHandle, database::Record * record);
 
 	    virtual InputValue * produceInputValue (ProjectHandle * projectHandle, database::Record * record);
 

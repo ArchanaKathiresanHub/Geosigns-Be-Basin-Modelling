@@ -283,12 +283,6 @@ namespace DataAccess
          /// If all arguments are non-0, at most one trap can meet the conditions.
          virtual const Trap * findTrap( const Reservoir * reservoir, const Snapshot * snapshot, unsigned int id ) const;
 
-         /// return the list of Leads
-         virtual LeadList * getLeads( void ) const;
-
-         /// return a Lead with the given id
-         virtual const Lead * findLead( unsigned int id ) const;
-
          /// return the list of (Mapped)InputValues
          virtual InputValueList * getInputValues( void ) const;
 
@@ -561,7 +555,6 @@ namespace DataAccess
          MutableTrapList m_traps;
          MutableTrapperList m_trappers;
          MutableMigrationList m_migrations;
-         MutableLeadList m_leads;
          MutableInputValueList m_inputValues;
          MutablePropertyList m_properties;
          MutablePropertyValueList m_propertyValues;
@@ -668,7 +661,6 @@ namespace DataAccess
          bool loadTraps( void );
          bool loadTrappers( void );
          bool loadMigrations( void );
-         bool loadLeads( void );
          bool loadInputValues( void );
          bool loadProperties( void );
          bool loadMapPropertyValues( void );
@@ -785,7 +777,6 @@ namespace DataAccess
          void deleteTraps( void );
          void deleteTrappers( void );
          void deleteMigrations( void );
-         void deleteLeads( void );
          void deleteInputValues( void );
          void deleteProperties( void );
          void deletePropertyValues( void );

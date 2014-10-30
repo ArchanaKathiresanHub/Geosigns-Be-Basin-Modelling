@@ -33,8 +33,6 @@
 #include "Interface/IrreducibleWaterSaturationSample.h"
 #include "Interface/LangmuirAdsorptionIsothermSample.h"
 #include "Interface/LangmuirAdsorptionTOCEntry.h"
-#include "Interface/Lead.h"
-#include "Interface/LeadTrap.h"
 #include "Interface/LithoType.h"
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
@@ -63,7 +61,6 @@
 #include "Interface/TouchstoneMap.h"
 #include "Interface/Trap.h"
 #include "Interface/Trapper.h"
-#include "Interface/TrapPhase.h"
 #include "Interface/Migration.h"
 #include "Interface/CrustalThicknessData.h"
 
@@ -246,21 +243,6 @@ Trapper * ObjectFactory::produceTrapper (ProjectHandle * projectHandle, database
 Migration * ObjectFactory::produceMigration (ProjectHandle * projectHandle, database::Record * record)
 {
    return new Migration (projectHandle, record);
-}
-
-Lead * ObjectFactory::produceLead (ProjectHandle * projectHandle, unsigned int id)
-{
-   return new Lead (projectHandle, id);
-}
-
-LeadTrap * ObjectFactory::produceLeadTrap (ProjectHandle * projectHandle, Trap * trap)
-{
-   return new LeadTrap (projectHandle, trap);
-}
-
-TrapPhase * ObjectFactory::produceTrapPhase (ProjectHandle * projectHandle, database::Record * record)
-{
-   return new TrapPhase (projectHandle, record);
 }
 
 IgneousIntrusionEvent* ObjectFactory::produceIgneousIntrusionEvent (ProjectHandle * projectHandle, database::Record * record )

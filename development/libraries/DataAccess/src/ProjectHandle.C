@@ -49,8 +49,6 @@
 #include "Interface/CrustFormation.h"
 #include "Interface/InputValue.h"
 #include "Interface/IgneousIntrusionEvent.h"
-#include "Interface/Lead.h"
-#include "Interface/LeadTrap.h"
 #include "Interface/LithoType.h"
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
@@ -275,9 +273,6 @@ m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutpu
       connectUpAndDownstreamTrappers();
    }
 
-   loadLeads();
-
-
    loadFaults();
 
    /*
@@ -384,7 +379,6 @@ ProjectHandle::~ProjectHandle( void )
       delete m_globalOperations;
    }
 
-   deleteLeads();
    deleteSnapshots();
    deleteLithoTypes();
    deleteSurfaces();
@@ -2449,45 +2443,6 @@ bool ProjectHandle::loadMigrations( void )
    return true;
 }
 
-bool ProjectHandle::loadLeads( void )
-{
-   database::Table* leadTbl = getTable( "LeadIoTbl" );
-   if ( !leadTbl ) return false;
-
-   database::Table::iterator tblIter;
-   for ( tblIter = leadTbl->begin(); tblIter != leadTbl->end(); ++tblIter )
-   {
-      Record * leadRecord = *tblIter;
-      Lead * lead = (Lead *)findLead( database::getLeadID( leadRecord ) );
-      if ( !lead )
-      {
-         lead = getFactory()->produceLead( this, database::getLeadID( leadRecord ) );
-         m_leads.push_back( lead );
-      }
-
-      Reservoir * reservoir = (Reservoir *)findReservoir( ( database::getReservoirName( leadRecord ) ) );
-      LeadTrap * leadTrap =
-         lead->findLeadTrap( reservoir, database::getTrapID( leadRecord ) );
-
-      if ( !leadTrap )
-      {
-         Trap * trap = (Trap *)findTrap( ( Interface::Reservoir * ) reservoir, ( Interface::Snapshot * ) findSnapshot( 0 ), database::getTrapID( leadRecord ) );
-         if ( trap != 0 )
-         {
-            leadTrap = lead->createLeadTrap( trap );
-         }
-         else
-         {
-            cerr << "ERROR: Could not find trap " << database::getTrapID( leadRecord )
-               << " of reservoir " << database::getReservoirName( leadRecord )
-               << " at age 0" << endl;
-         }
-      }
-      leadTrap->createTrapPhase( leadRecord );
-   }
-   return true;
-}
-
 bool ProjectHandle::loadInputValues( void )
 {
    database::Table* gridMapTbl = getTable( "GridMapIoTbl" );
@@ -4027,34 +3982,6 @@ Interface::MigrationList * ProjectHandle::getMigrations( const string & process,
    return migrationList;
 }
 
-Interface::LeadList * ProjectHandle::getLeads( void ) const
-{
-   Interface::LeadList * leadList = new Interface::LeadList;
-
-   MutableLeadList::const_iterator leadIter;
-
-   for ( leadIter = m_leads.begin(); leadIter != m_leads.end(); ++leadIter )
-   {
-      Lead * lead = *leadIter;
-      leadList->push_back( lead );
-   }
-   return leadList;
-}
-
-const Interface::Lead * ProjectHandle::findLead( unsigned int id ) const
-{
-   MutableLeadList::const_iterator leadIter;
-
-   for ( leadIter = m_leads.begin(); leadIter != m_leads.end(); ++leadIter )
-   {
-      const Lead * lead = *leadIter;
-
-      if ( lead->getId() == id )
-         return lead;
-   }
-   return 0;
-}
-
 void ProjectHandle::numberInputValues( void )
 {
    MutableInputValueList::iterator inputValueIter;
@@ -5592,18 +5519,6 @@ void ProjectHandle::deleteMigrations( void )
       delete migration;
    }
    m_migrations.clear();
-}
-
-void ProjectHandle::deleteLeads( void )
-{
-   MutableLeadList::const_iterator leadIter;
-
-   for ( leadIter = m_leads.begin(); leadIter != m_leads.end(); ++leadIter )
-   {
-      Lead * lead = *leadIter;
-      delete lead;
-   }
-   m_leads.clear();
 }
 
 void ProjectHandle::deleteIgneousIntrusions() {

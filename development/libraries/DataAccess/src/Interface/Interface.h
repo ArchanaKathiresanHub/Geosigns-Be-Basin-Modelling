@@ -63,8 +63,6 @@ namespace DataAccess
       class IrreducibleWaterSaturationSample;
       class LangmuirAdsorptionIsothermSample;
       class LangmuirAdsorptionTOCEntry;
-      class Lead;
-      class LeadTrap;
       class LithoType;
       class LithologyHeatCapacitySample;
       class LithologyThermalConductivitySample;
@@ -135,12 +133,6 @@ namespace DataAccess
       typedef vector<const Trapper *> TrapperList;
       /// list type for the Migrations
       typedef vector<const Migration *> MigrationList;
-      /// list type for the Leads
-      typedef vector<const Lead *> LeadList;
-      /// list type for the LeadTraps
-      typedef vector<const LeadTrap *> LeadTrapList;
-      /// list type for the LeadTraps
-      typedef vector<const LeadTrap *> LeadTrapList;
       /// list type for the (Mapped)InputValues
       typedef vector<const InputValue *> InputValueList;
       /// list type for the properties
@@ -553,8 +545,6 @@ namespace DataAccess
       class IrreducibleWaterSaturationSample;
       class LangmuirAdsorptionIsothermSample;
       class LangmuirAdsorptionTOCEntry;
-      class Lead;
-      class LeadTrap;
       class LithoType;
       class LithologyHeatCapacitySample;
       class LithologyThermalConductivitySample;
@@ -586,7 +576,6 @@ namespace DataAccess
       class Trap;
       class Trapper;
       class Migration;
-      class TrapPhase;
 
 
       /*
@@ -629,10 +618,8 @@ namespace DataAccess
       typedef vector<Trap *> MutableTrapList;
       /// mutable list type for the trappers
       typedef vector<Trapper *> MutableTrapperList;
-      /// mutable list type for the Leads
+      /// mutable list type for the Migrations
       typedef vector<Migration *> MutableMigrationList;
-      /// mutable list type for the Leads
-      typedef vector<Lead *> MutableLeadList;
       /// mutable list type for the (Mapped)InputValues
       typedef vector<InputValue *> MutableInputValueList;
       /// mutable list type for the Properties
