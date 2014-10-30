@@ -36,7 +36,7 @@ if (UNIX)
          ARCHIVE_MD5 "8c54705c424513fa2be0042696a3a162"
          PATCH_COMMAND 
             "./bootstrap.sh" 
-            "--with-libraries=filesystem,system"
+            "--with-libraries=filesystem,system,thread,atomic,serialization"
             "--prefix={ROOT}" 
          CONFIGURE_COMMAND "./b2" "install"
          BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Boost has been built."
@@ -52,7 +52,7 @@ if (UNIX)
            LINK     "Dynamic" "link=shared" 
            LINK     "Static"  "link=static" 
 
-         YIELD_LIBRARIES  "boost_filesystem" "boost_system"
+         YIELD_LIBRARIES  "boost_filesystem" "boost_system" "boost_thread" "boost_atomic" "boost_serialization"
    )
 
    # Use boost in our project

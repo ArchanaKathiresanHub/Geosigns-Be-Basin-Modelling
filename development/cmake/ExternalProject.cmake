@@ -264,12 +264,15 @@ macro( add_external_project_to_repository )
 
 
    if (BM_EXTERNAL_COMPONENTS_REBUILD)
+      set( extProj_srcdir "${PROJECT_BINARY_DIR}/ExternalComponents/build/${extProj_NAME}")
+
       # Add the extProj as external project for the current extProj configuration
       ExternalProject_Add( ${extProj_NAME}
          PREFIX          "${extProj_ROOT}"
          URL             "${extProj_ARCHIVE}"
          URL_MD5         "${extProj_ARCHIVE_MD5}"
          PATCH_COMMAND   "${extProj_PATCH_COMMAND}"
+         SOURCE_DIR      "${extProj_srcdir}"
          CONFIGURE_COMMAND ${extProj_CONFIGURE_COMMAND} ${configureFlags}
          BUILD_COMMAND   ${extProj_BUILD_COMMAND}
          BUILD_IN_SOURCE 1  # Because some libraries may not support out-of-source compilation
@@ -283,6 +286,20 @@ macro( add_external_project_to_repository )
          LOG_TEST      1
          LOG_INSTALL   1
       ) 
+
+      # The source-build dir are interesting to keep around because it shows
+      # explicitly how the library was built. However, the number of files is
+      # too large to store 'naked' on an NFS volume. For that reason this
+      # directory is converted into a TAR file.
+      set( extProj_PostbuildSrc "${extProj_ROOT}/src/${extProj_NAME}-post_build_src.tar.gz")
+      add_custom_command( TARGET ${extProj_NAME}
+            POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" 
+            ARGS "-E" "tar" "czf" "${extProj_PostbuildSrc}" "*"
+            WORKING_DIRECTORY "${extProj_srcdir}"
+            COMMENT "Packing the files in the build directory of ${extProj_NAME}"
+         )
+    
    endif()
 
 
