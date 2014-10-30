@@ -34,15 +34,21 @@ namespace casa
    {
    public:
       /// @brief Create observable for the given grid property for specified grid position
-      /// @param x well trajectory X-th coordinates [m]
-      /// @param y well trajectory Y-th coordinates [m]
-      /// @param z well trajectory Z-th coordinates [m]
-      /// @param propName name of the property
-      /// @param simTime simulation time [Ma]
-      ObsGridPropertyWell( const std::vector<double> & x,
-                           const std::vector<double> & y,
-                           const std::vector<double> & z,
-                           const char * propName, double simTime );
+      static ObsGridPropertyWell * createNewInstance( const std::vector<double> & x ///< well trajectory X-th coordinates [m]
+                                                    , const std::vector<double> & y ///< well trajectory Y-th coordinates [m]
+                                                    , const std::vector<double> & z ///< well trajectory Z-th coordinates [m]
+                                                    , const char * propName         ///< name of the property
+                                                    , double simTime = 0.0          ///< simulation time [Ma]
+                                                    ) { return new ObsGridPropertyWell( x, y, z, propName, simTime ); };
+
+
+      /// @brief Create observable for the given grid property for specified grid position
+      ObsGridPropertyWell( const std::vector<double> & x ///< well trajectory X-th coordinates [m]
+                         , const std::vector<double> & y ///< well trajectory Y-th coordinates [m]
+                         , const std::vector<double> & z ///< well trajectory Z-th coordinates [m]
+                         , const char * propName         ///< name of the property
+                         , double simTime                ///< simulation time [Ma]
+                         );
 
       /// @brief Destructor
       virtual ~ObsGridPropertyWell( );

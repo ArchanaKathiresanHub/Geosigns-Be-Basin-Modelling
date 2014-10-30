@@ -19,18 +19,11 @@
 namespace casa
 {
 
-// Create an observable object which will keep given property value for given XYZ coordinates
-Observable * ObsSpace::newObsPropertyXYZ( double x, double y, double z, const char * propName, double simTime )
+ErrorHandler::ReturnCode ObsSpaceImpl::addObservable( Observable * prm )
 {
-   return new ObsGridPropertyXYZ( x, y, z, propName, simTime );
+   if ( prm ) { m_obsSet.push_back( prm ); }
+   else       { return reportError( UndefinedValue, "ObsSpaceImpl::addObservable() no observable was given" ); }
+   return NoError;
 }
-
-Observable * ObsSpace::newObsPropertyWell( const std::vector<double> & x, const std::vector<double> & y,
-                                           const std::vector<double> & z, const char * propName, double simTime )
-{
-   return new ObsGridPropertyWell( x, y, z, propName, simTime );
-}
-
-
 
 }

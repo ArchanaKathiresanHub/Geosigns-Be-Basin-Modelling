@@ -5,6 +5,7 @@
 #include "../src/RunCaseSetImpl.h"
 #include "../src/RSProxyImpl.h"
 #include "../src/ObsValueDoubleScalar.h"
+#include "../src/ObsGridPropertyXYZ.h"
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
 
@@ -41,11 +42,11 @@ public:
       ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC(         "Lower Jurassic", 10.0, 5.0, 15.0, VarPrmContinuous::Block ) ) );
       ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction(                  2.5,  0.1, 4.9,  VarPrmContinuous::Block ) ) );
 
-      Observable * ob = ObsSpace::newObsPropertyXYZ( 460001.0, 6750001.0, 2751.0, "Temperature", 0.0 );
+      Observable * ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.0 );
       ob->setReferenceValue( new ObsValueDoubleScalar( ob, 108.6 ), 2.0 ); 
       ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ob ) );
 
-      ob = ObsSpace::newObsPropertyXYZ( 460001.0, 6750001.0, 2730.0, "Vr", 0.0 );
+      ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.0 );
       ob->setReferenceValue( new ObsValueDoubleScalar( ob, 1.1 ), 0.1 );
       ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ob ) );
 
@@ -96,7 +97,7 @@ public:
          for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
          {
             casa::ObsValue * obv = mcSamples[i].second->obsValue( j );
-            std::cerr << obv->doubleValue()[0] << (j == mcSamples[i].second->observablesNumber() - 1 ? " " : ", " );
+            std::cerr << obv->asDoubleArray()[0] << (j == mcSamples[i].second->observablesNumber() - 1 ? " " : ", " );
          }
          std::cerr << "}" << std::endl;
       }
@@ -125,7 +126,7 @@ public:
          for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
          {
             casa::ObsValue * obv = mcSamples[i].second->obsValue( j );
-            EXPECT_LT( relativeError( table[i][off++], obv->doubleValue()[0] ), reps );
+            EXPECT_LT( relativeError( table[i][off++], obv->asDoubleArray()[0] ), reps );
          }
       }
    }

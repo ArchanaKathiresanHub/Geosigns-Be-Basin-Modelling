@@ -39,7 +39,7 @@ namespace casa
 
       // The following methods are used for converting observables values from CASA to SUMLib 
       virtual bool isDouble() const = 0;
-      virtual std::vector<double> doubleValue() const = 0;
+      virtual std::vector<double> asDoubleArray() const = 0;
 
    protected:
       ObsValue() { ; }

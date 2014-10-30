@@ -186,7 +186,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
       
       if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
 
-      ofs << " " << obv->doubleValue().size();      
+      ofs << " " << obv->asDoubleArray().size();      
    }
    ofs << " ];\n\n";
 
@@ -198,7 +198,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
       if ( obs->hasReferenceValue() )
       {
          const ObsValue * obv = obs->referenceValue();
-         const std::vector<double> & rv = obv->doubleValue();
+         const std::vector<double> & rv = obv->asDoubleArray();
          for ( size_t j = 0; j < rv.size(); ++j )
          {
             ofs << rv[j] << " ";
@@ -219,7 +219,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc, std::ofstream
 
          if ( obv && obv->isDouble() )
          {
-            const std::vector<double> & vals = obv->doubleValue();
+            const std::vector<double> & vals = obv->asDoubleArray();
             for ( size_t k = 0; k < vals.size(); ++k ) ofs << "\t" << vals[k];
          }
       }
@@ -412,7 +412,7 @@ void MatlabExporter::exportMCResults( ScenarioAnalysis & sc, std::ofstream & ofs
 
          if ( obv && obv->isDouble() )
          {
-            const std::vector<double> & vals = obv->doubleValue();
+            const std::vector<double> & vals = obv->asDoubleArray();
             for ( size_t k = 0; k < vals.size(); ++k ) ofs << "\t" << vals[k];
          }
       }
@@ -466,7 +466,7 @@ void MatlabExporter::exportObsValues( const std::string & fName, const std::vect
          const casa::ObsValue * obs = rcs[i]->obsValue( j );
          if ( obs->isDouble() )
          {
-            const std::vector<double> & vals = obs->doubleValue();
+            const std::vector<double> & vals = obs->asDoubleArray();
             for ( size_t k = 0; k < vals.size(); ++k )
             {
                ofs << vals[k] << " ";

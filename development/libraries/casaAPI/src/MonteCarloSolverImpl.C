@@ -80,7 +80,7 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
          const ObsValue * obrv = obv->referenceValue();
          if ( obrv->isDouble() )
          {
-            const std::vector<double> & vals = obrv->doubleValue();
+            const std::vector<double> & vals = obrv->asDoubleArray();
 
             for ( size_t k = 0; k < vals.size(); ++k )
             {
@@ -344,12 +344,5 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
 
    return NoError;
 }
-
-// Execute all scheduled cases
-const MonteCarloSolver::MCResults & MonteCarloSolverImpl::getSimulationResults()
-{
-   return m_results;
-}
-
 
 }

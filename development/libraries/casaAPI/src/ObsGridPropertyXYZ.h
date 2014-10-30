@@ -34,13 +34,22 @@ namespace casa
    class ObsGridPropertyXYZ : public Observable
    {
    public:
+
+      /// @brief Create new observable object for the given grid property for specified grid position
+      static ObsGridPropertyXYZ * createNewInstance( double x                ///< X-th grid coordinate [m]
+                                                   , double y                ///< Y-th grid coordinate [m]
+                                                   , double z                ///< Z-th grid coordinate [m]
+                                                   , const char * propName   ///< name of the property
+                                                   , double simTime = 0.0    ///< simulation time [Ma]
+                                                   ) { return new ObsGridPropertyXYZ( x, y, z, propName, simTime ); }
+
       /// @brief Create observable for the given grid property for specified grid position
-      /// @param x X-th grid coordinate [m]
-      /// @param y Y-th grid coordinate [m]
-      /// @param z Z-th grid coordinate [m]
-      /// @param propName name of the property
-      /// @param simTime simulation time [Ma]
-      ObsGridPropertyXYZ( double x, double y, double z, const char * propName, double simTime );
+      ObsGridPropertyXYZ( double x              ///< X-th grid coordinate [m]
+                        , double y              ///< Y-th grid coordinate [m]
+                        , double z              ///< Z-th grid coordinate [m]
+                        , const char * propName ///< name of the property
+                        , double simTime        ///< simulation time [Ma]
+                        );
 
       /// @brief Destructor
       virtual ~ObsGridPropertyXYZ( );

@@ -2,6 +2,7 @@
 #include "../src/casaAPI.h"
 #include "../src/RunCaseImpl.h"
 #include "../src/RunCaseSetImpl.h"
+#include "../src/ObsGridPropertyXYZ.h"
 
 #include <memory>
 //#include <cmath>
@@ -29,8 +30,8 @@ TEST_F( DataDiggerTest, GetIJKObservable )
    casa::DataDigger     & dd = sc.dataDigger();
    casa::RunCaseSetImpl & rcs = dynamic_cast<casa::RunCaseSetImpl&>( sc.doeCaseSet() );
 
-   obs.addObservable( ObsSpace::newObsPropertyXYZ( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) );
-   obs.addObservable( ObsSpace::newObsPropertyXYZ( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) );
+   obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) );
+   obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) );
 
    // add new case and set case project path
    std::vector<RunCase*> rcv;

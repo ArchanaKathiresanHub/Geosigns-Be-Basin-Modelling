@@ -30,6 +30,8 @@ namespace Shell.BasinModeling.Cauldron.Test
          }
       }
 
+      public double relativeError( double v1, double v2 ) { return Math.Abs( (v1 - v2) / (v1 + v2) ); }
+
       private bool m_isDebug = false;
 
       private void logMsg(string msg)
@@ -42,6 +44,76 @@ namespace Shell.BasinModeling.Cauldron.Test
 
       }
 
+      private void prepareScenarioUpToMC( Cauldron.ScenarioAnalysis sa, Cauldron.RSProxy.RSKrigingType krig, int proxyOrder, string proxyName )
+      {
+         DoubleVector obsVals = new DoubleVector();
+         // case 1
+         obsVals.Add( 65.1536 );
+         obsVals.Add( 0.479763 );
+         // case 2
+         obsVals.Add( 49.8126 );
+         obsVals.Add( 0.386869 );
+         // case 3
+         obsVals.Add( 80.4947 );
+         obsVals.Add( 0.572657 );
+         // case 4
+         obsVals.Add( 65.1536 );
+         obsVals.Add( 0.479763 );
+         // case 5
+         obsVals.Add( 65.1536 );
+         obsVals.Add( 0.479763 );
+
+         // define base case for scenario
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.defineBaseCase(m_projectFileName));
+
+         VarSpace vrs = sa.varSpace();
+         ObsSpace obs = sa.obsSpace();
+
+         // vary 2 parameters
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
+
+         // add 2 observables for T & VRE
+         Observable ob = ObsGridPropertyXYZ.createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 );
+         ob.setReferenceValue( ObsValueDoubleScalar.createNewInstance( ob, 108.6 ), 2.0 );
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable( ob ) );
+         
+         ob = ObsGridPropertyXYZ.createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 );
+         ob.setReferenceValue( ObsValueDoubleScalar.createNewInstance( ob, 1.1 ), 0.1 );
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable( ob ) );
+
+         // set Tornado as DoE
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
+         
+         // generate DoE
+         DoEGenerator doe = sa.doeGenerator();
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == doe.generateDoE(sa.varSpace(), sa.doeCaseSet()));
+
+         RunCaseSet rcs = sa.doeCaseSet();
+         ConstCasesList proxyRC = new ConstCasesList();
+
+         int off = 0;
+         for ( uint i = 0; i < rcs.size(); ++i ) 
+         {
+            RunCase rc = rcs.runCase(i);
+            proxyRC.Add( rc ); // collect run cases for proxy calculation
+
+
+            for ( uint j = 0; j < 2; ++j )
+            {
+               ObsValue obVal = obs.observable( j ).newObsValueFromDoubles( obsVals, ref off );
+               rc.addObsValue( obVal );
+            }
+         }
+
+         // Calculate Response Surface proxy
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.addRSAlgorithm( proxyName, proxyOrder, RSProxy.RSKrigingType.NoKriging ) );
+         RSProxy proxy = sa.rsProxySet().rsProxy( "TestFirstOrderTornadoRS" );
+
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == proxy.calculateRSProxy( proxyRC ) );
+      }
+
+      
       public double m_minTOC =  5.0;
       public double m_midTOC = 10.0;
       public double m_maxTOC = 15.0;
@@ -54,7 +126,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
       public string m_fileName        = @"Ottoland.project3d";
 
-      public double eps = 1.0e-6;
+      public double eps  = 1.0e-6;
+      public double reps = 1.0e-2;
 
       #region Additional test attributes
 
@@ -85,7 +158,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       #endregion
 
       [TestMethod]
-      public void DoE_Tornado_Test() // analog of API/test/DoeTest.C:Tornado2Prms
+      public void DoE_Tornado_Test() // analog of casaAPI/test/DoeTest.C:Tornado2Prms
       {
          ScenarioAnalysis sa = new ScenarioAnalysis();
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.defineBaseCase(m_projectFileName));
@@ -139,7 +212,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       }
 
       [TestMethod]
-      public void Mutator_Test() // analog of API/test/MutatorTest.C
+      public void Mutator_Test() // analog of casaAPIAPI/test/MutatorTest.C
       {   
          // create new scenario analysis
          ScenarioAnalysis sa = new ScenarioAnalysis();
@@ -267,70 +340,14 @@ namespace Shell.BasinModeling.Cauldron.Test
       }
 
       [TestMethod]
-      public void RSProxy_Test() // analog of API/test/RSProxyTest.C
+      public void RSProxy_Test() // analog of casaAPIAPI/test/RSProxyTest.C
       {
-         DoubleVector obsVals = new DoubleVector();
-         // case 1
-         obsVals.Add( 65.1536 );
-         obsVals.Add( 0.479763 );
-         // case 2
-         obsVals.Add( 49.8126 );
-         obsVals.Add( 0.386869 );
-         // case 3
-         obsVals.Add( 80.4947 );
-         obsVals.Add( 0.572657 );
-         // case 4
-         obsVals.Add( 65.1536 );
-         obsVals.Add( 0.479763 );
-         // case 5
-         obsVals.Add( 65.1536 );
-         obsVals.Add( 0.479763 );
-
          // create new scenario analysis
          ScenarioAnalysis sa = new ScenarioAnalysis();
-         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.defineBaseCase(m_projectFileName));
-
-         VarSpace vrs = sa.varSpace();
-         ObsSpace obs = sa.obsSpace();
-
-         // vary 2 parameters
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VarySourceRockTOC(sa, m_layerName, m_minTOC, m_maxTOC, VarPrmContinuous.PDF.Block));
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == CauldronAPI.VaryTopCrustHeatProduction(sa, m_minTCHP, m_maxTCHP, VarPrmContinuous.PDF.Block));
-
-         // add 2 observables for T & VRE
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable( ObsSpace.newObsPropertyXYZ( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == obs.addObservable( ObsSpace.newObsPropertyXYZ( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );
-
-         // set Tornado as DoE
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setDoEAlgorithm(DoEGenerator.DoEAlgorithm.Tornado));
+         // prepare scenario - define Tornado DoE for 2 var parameters and 2 observables, create 1st order proxy
+         prepareScenarioUpToMC(sa, RSProxy.RSKrigingType.NoKriging, 1, "TestFirstOrderTornadoRS");
          
-         // generate DoE
-         DoEGenerator doe = sa.doeGenerator();
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == doe.generateDoE(sa.varSpace(), sa.doeCaseSet()));
-
-         RunCaseSet rcs = sa.doeCaseSet();
-         ConstCasesList proxyRC = new ConstCasesList();
-
-         int off = 0;
-         for ( uint i = 0; i < rcs.size(); ++i ) 
-         {
-            RunCase rc = rcs.runCase(i);
-            proxyRC.Add( rc ); // collect run cases for proxy calculation
-
-
-            for ( uint j = 0; j < 2; ++j )
-            {
-               ObsValue obVal = obs.observable( j ).newObsValueFromDoubles( obsVals, ref off );
-               rc.addObsValue( obVal );
-            }
-         }
-
-         // Calculate Respons Surface proxy
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.addRSAlgorithm( "TestFirstOrderTornadoRS", 1, RSProxy.RSKrigingType.NoKriging ) );
-         RSProxy proxy = sa.rsProxySet().rsProxy( "TestFirstOrderTornadoRS" );
-
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == proxy.calculateRSProxy( proxyRC ) );
-
+         RSProxy proxy = sa.rsProxySet().rsProxy("TestFirstOrderTornadoRS");
          CoefficientsMapList cml = proxy.getCoefficientsMapList();
          
          // Check proxy coefficients for
@@ -408,16 +425,129 @@ namespace Shell.BasinModeling.Cauldron.Test
          // set case parameters
          prmVals.Add( 10.16 );
          prmVals.Add( 1.970 );
-
-         off = 0;
+         
+         int off = 0;
          for ( uint i = 0; i < prmVals.Count; ++i )
          {
-            nrc.addParameter( vrs.continuousParameter( i ).newParameterFromDoubles(  prmVals, ref off ) );
+            nrc.addParameter( sa.varSpace().continuousParameter( i ).newParameterFromDoubles(  prmVals, ref off ) );
          }
    
          Assert.IsTrue( ErrorHandler.ReturnCode.NoError == proxy.evaluateRSProxy( nrc ) );
-         Assert.IsTrue( Math.Abs(nrc.obsValue( 0 ).doubleValue()[0] - 65.6445336 ) < eps);
-         Assert.IsTrue( Math.Abs(nrc.obsValue( 1 ).doubleValue()[0] - 0.4827356 ) < eps);
+         Assert.IsTrue( Math.Abs(nrc.obsValue( 0 ).asDoubleArray()[0] - 65.6445336 ) < eps);
+         Assert.IsTrue( Math.Abs(nrc.obsValue( 1 ).asDoubleArray()[0] - 0.4827356 ) < eps);
+      }
+
+      [TestMethod]
+      public void MCSolver_MC_Test() // analog of casaAPI/test/MCTest.C
+      {
+         // create new scenario analysis
+         ScenarioAnalysis sa = new ScenarioAnalysis();
+         // prepare scenario - define Tornado DoE for 2 var parameters and 2 observables, create 1st order proxy
+         prepareScenarioUpToMC(sa, RSProxy.RSKrigingType.NoKriging, 1, "TestFirstOrderTornadoRS");
+
+         RSProxy proxy = sa.rsProxySet().rsProxy("TestFirstOrderTornadoRS");
+
+         // create corresponded MC algorithm
+         Assert.IsTrue( ErrorHandler.ReturnCode.NoError == sa.setMCAlgorithm( MonteCarloSolver.Algorithm.MonteCarlo,      MonteCarloSolver.KrigingType.NoKriging,
+                                                                              MonteCarloSolver.PriorDistribution.NoPrior, MonteCarloSolver.MeasurementDistribution.Normal ) );
+
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.mcSolver().runSimulation(proxy, sa.varSpace(), sa.varSpace(), sa.obsSpace(), 50, 10, 1.0));
+  
+         Assert.IsTrue( Math.Abs( sa.mcSolver().stdDevFactor() - 1.0 ) <  eps );  // VRE
+   
+         // Get MC samples
+         // must be 50 samples
+         Assert.IsTrue( sa.mcSolver().samplingsNumber() == 50 );
+         
+         // check couple cases to be sure
+         RunCase rc = sa.mcSolver().samplingPoint( 7 );
+
+         // check RMSE value
+         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(7), 12.5414988464063 ) < reps);
+         
+         // check generated parameters
+         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 13.1922 ) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 4.488628) < reps);
+
+         // check evaluated observables
+         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 74.9480) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.53907) < reps);
+
+         rc = sa.mcSolver().samplingPoint( 44 );
+
+         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(44), 20.6405723) < reps);
+
+         // check generated parameters
+         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 5.68843) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 3.839) < reps);
+
+         // check evaluated observables
+         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 51.9248) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.399659) < reps);
+      }
+
+      [TestMethod]
+      public void MCSolver_MC_NonMatchingKriging_Test() // analog of casaAPI/test/MCTest.C
+      {
+         // create new scenario analysis
+         ScenarioAnalysis sa = new ScenarioAnalysis();
+         // prepare scenario - define Tornado DoE for 2 var parameters and 2 observables, create 1st order proxy
+         prepareScenarioUpToMC(sa, RSProxy.RSKrigingType.NoKriging, 1, "TestFirstOrderTornadoRS");
+
+         RSProxy proxy = sa.rsProxySet().rsProxy("TestFirstOrderTornadoRS");
+
+         // create corresponded MC algorithm
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.setMCAlgorithm(MonteCarloSolver.Algorithm.MonteCarlo, MonteCarloSolver.KrigingType.GlobalKriging,
+                                                                              MonteCarloSolver.PriorDistribution.NoPrior, MonteCarloSolver.MeasurementDistribution.Normal));
+         // Expect an error here because we define to use kriging in MonteCarlo and do not provide proxy with kriging
+         Assert.IsTrue(ErrorHandler.ReturnCode.MonteCarloSolverError == sa.mcSolver().runSimulation(proxy, sa.varSpace(), sa.varSpace(), sa.obsSpace(), 50, 10, 1.0));
+      }
+
+      [TestMethod]
+      public void MCSolver_MCMC_Test() // analog of casaAPI/test/MCTest.C
+      {
+         // create new scenario analysis
+         ScenarioAnalysis sa = new ScenarioAnalysis();
+         // prepare scenario - define Tornado DoE for 2 var parameters and 2 observables, create 1st order proxy
+         prepareScenarioUpToMC(sa, RSProxy.RSKrigingType.NoKriging, 1, "TestFirstOrderTornadoRS");
+
+         RSProxy proxy = sa.rsProxySet().rsProxy("TestFirstOrderTornadoRS");
+
+         // create corresponded MC algorithm
+         Assert.IsTrue( ErrorHandler.ReturnCode.NoError == sa.setMCAlgorithm( MonteCarloSolver.Algorithm.MCMC,      MonteCarloSolver.KrigingType.NoKriging,
+                                                                              MonteCarloSolver.PriorDistribution.NoPrior, MonteCarloSolver.MeasurementDistribution.Normal ) );
+
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == sa.mcSolver().runSimulation(proxy, sa.varSpace(), sa.varSpace(), sa.obsSpace(), 50, 10, 1.0));
+     
+         // Get MCMC samples
+         // must be 50 samples
+         Assert.IsTrue( sa.mcSolver().samplingsNumber() == 50 );
+         
+         // check couple cases to be sure
+         RunCase rc = sa.mcSolver().samplingPoint( 7 );
+
+         // check RMSE value
+         Assert.IsTrue( relativeError( sa.mcSolver().RMSE(7), 10.6236) < reps );
+         
+         // check generated parameters
+         Assert.IsTrue( relativeError( rc.parameter( 0 ).asDoubleArray()[0], 14.99030 ) < reps );
+         Assert.IsTrue( relativeError( rc.parameter( 1 ).asDoubleArray()[0], 3.032920 ) < reps );
+
+         // check evaluated observables
+         Assert.IsTrue( relativeError( rc.obsValue( 0 ).asDoubleArray()[0], 80.46500 ) < reps );
+         Assert.IsTrue( relativeError( rc.obsValue( 1 ).asDoubleArray()[0], 0.572478 ) < reps);
+
+         rc = sa.mcSolver().samplingPoint( 44 );
+
+         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(44), 10.77432) < reps);
+
+         // check generated parameters
+         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 14.84846) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 0.37549) < reps);
+
+         // check evaluated observables
+         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 80.029724) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.56984) < reps);
       }
    }
 }

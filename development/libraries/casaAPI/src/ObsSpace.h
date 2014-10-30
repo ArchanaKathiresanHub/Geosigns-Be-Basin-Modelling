@@ -29,29 +29,7 @@ namespace casa
    class ObsSpace : public ErrorHandler
    {
    public:
-      /// @brief Create an observable object which will keep given property value for given XYZ coordinates
-      /// @param x X coordinate 
-      /// @param y Y coordinate
-      /// @param z depth value
-      /// @param propName name of the property
-      /// @param simTime simulation time for property value extraction
-      /// @return Pointer to new observable object
-      static Observable * newObsPropertyXYZ( double x, double y, double z, const char * propName, double simTime = 0.0 );
-
-      /// @brief Create an observable object which will keep given property values along well trajectory defined by set of XYZ coordinates
-      /// @param x X coordinates set
-      /// @param y Y coordinates set
-      /// @param z depth values set
-      /// @param propName name of the property
-      /// @param simTime simulation time for property value extraction
-      /// @return Pointer to new observable object
-      static Observable * newObsPropertyWell( const std::vector<double> & x, 
-                                              const std::vector<double> & y,
-                                              const std::vector<double> & z,
-                                              const char * propName,
-                                              double simTime = 0.0 );
-
-     /// @brief Add a new observable
+      /// @brief Add a new observable
       /// @param obs a new observable to be added to the set
       /// @return NoError on success or error code if such parameter is already added to the set
       virtual ErrorHandler::ReturnCode addObservable( Observable * obs ) = 0;

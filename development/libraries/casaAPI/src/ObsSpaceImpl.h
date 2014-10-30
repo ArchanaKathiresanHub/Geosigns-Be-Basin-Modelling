@@ -34,12 +34,7 @@ public:
    }
 
    // Add a new observable
-   virtual ErrorHandler::ReturnCode addObservable( Observable * prm )
-   {
-      if ( prm ) { m_obsSet.push_back( prm ); }
-      else       { return reportError( UndefinedValue, "ObsSpaceImpl::addObservable() no observable was given" ); }
-      return NoError;
-   }
+   virtual ErrorHandler::ReturnCode addObservable( Observable * prm );
 
    // Get number of variable parameters defined in ObsSpace
    virtual size_t size() const { return m_obsSet.size(); } 

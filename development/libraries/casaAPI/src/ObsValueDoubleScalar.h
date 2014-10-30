@@ -23,8 +23,12 @@ namespace casa
    class ObsValueDoubleScalar : public ObsValue
    {
    public:
-      
-      /// @brief Constructor
+      /// @brief Create a new ObsValueDoubleScalar object. 
+      /// @param parent Observable object which contains full description of observable
+      /// @param val value of observable
+      static ObsValueDoubleScalar * createNewInstance( const Observable * parent, double val ) { return new ObsValueDoubleScalar( parent, val ); }
+
+      /// @brief Constructor. Use create() static method to create new instance of this class
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
       ObsValueDoubleScalar( const Observable * parent, double val ) : m_parent( parent ), m_value( val ) { ; }
@@ -63,11 +67,13 @@ namespace casa
 
       // The following methods are used for testing  
       virtual bool isDouble() const { return true; }
-      virtual std::vector<double> doubleValue() const { return std::vector<double>( 1, value() ); }
+      virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
 
    protected:
       double             m_value;    // value itself
       const Observable * m_parent;   // pointer to the observable description object
+   
+   private:
    };
 }
 

@@ -27,7 +27,7 @@ namespace casa
    
          if ( refVal )
          {
-            const std::vector<double> & rv = refVal->doubleValue();
+            const std::vector<double> & rv = refVal->asDoubleArray();
             assert( rv.size() == m_value.size() );
 
             for ( size_t i = 0; i < rv.size(); ++i )

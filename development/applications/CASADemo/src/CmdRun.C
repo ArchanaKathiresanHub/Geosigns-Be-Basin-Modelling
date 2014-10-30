@@ -38,7 +38,7 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
          casa::ObsValue * ov = cs->obsValue( i );
          if ( ov && ov->observable() && ov->isDouble() )
          {
-            const std::vector<double> & vals = ov->doubleValue();
+            const std::vector<double> & vals = ov->asDoubleArray();
             std::cout << "      " << ov->observable()->name() << " = (";
             for ( size_t i = 0; i < vals.size(); ++i )
             {

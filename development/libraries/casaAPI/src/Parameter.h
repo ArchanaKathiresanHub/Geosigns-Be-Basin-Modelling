@@ -73,7 +73,7 @@ namespace casa
       ///
       /// @pre parent()->variationType() must returns VarParameter::Categorical
       /// @post return one non negative integer number which represents a value of this parameter if
-      ///       parameter is categroical, or -1 otherwise
+      ///       parameter is categorical, or -1 otherwise
       virtual int asInteger() const = 0;
 
    protected:

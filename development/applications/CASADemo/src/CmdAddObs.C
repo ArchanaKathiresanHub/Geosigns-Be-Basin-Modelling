@@ -14,6 +14,8 @@
 
 #include "casaAPI.h"
 #include "ObsSpace.h"
+#include "ObsGridPropertyWell.h"
+#include "ObsGridPropertyXYZ.h"
 #include "ObsValueDoubleScalar.h"
 #include "ObsValueDoubleArray.h"
 
@@ -59,7 +61,7 @@ void CmdAddObs::execute( casa::ScenarioAnalysis & sa )
       double wgtSA  = atof( m_prms[8].c_str() ); // observable weight for Sensitivity Analysis
       double wgtUA  = atof( m_prms[9].c_str() ); // observable weight for Uncertainty Analysis
 
-      casa::Observable * xyzVal = casa::ObsSpace::newObsPropertyXYZ( x, y, z, m_prms[1].c_str(), age );
+      casa::Observable * xyzVal = casa::ObsGridPropertyXYZ::createNewInstance( x, y, z, m_prms[1].c_str(), age );
       xyzVal->setReferenceValue( new casa::ObsValueDoubleScalar( xyzVal, refVal ), stdDev );
       xyzVal->setSAWeight( wgtSA );
       xyzVal->setUAWeight( wgtUA );
@@ -87,7 +89,7 @@ void CmdAddObs::execute( casa::ScenarioAnalysis & sa )
       CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r );
       
       // create observable
-      casa::Observable * wellVal = casa::ObsSpace::newObsPropertyWell( x, y, z, propName.c_str(), age );
+      casa::Observable * wellVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age );
       wellVal->setReferenceValue( new casa::ObsValueDoubleArray( wellVal, r ), stdDev );
       wellVal->setSAWeight( wgtSA );
       wellVal->setUAWeight( wgtUA );

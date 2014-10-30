@@ -4,6 +4,7 @@
 #include "../src/RunCaseImpl.h"
 #include "../src/RunCaseSetImpl.h"
 #include "../src/RSProxyImpl.h"
+#include "../src/ObsGridPropertyXYZ.h"
 #include "../src/ObsValueDoubleScalar.h"
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
@@ -43,8 +44,8 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", 10.0, 5.0, 15.0, VarPrmContinuous::Block ) ) );
    ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( 2.5, 0.1, 4.9, VarPrmContinuous::Block ) ) );
 
-   ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsSpace::newObsPropertyXYZ( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
-   ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsSpace::newObsPropertyXYZ( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
+   ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );
 
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
 
@@ -148,7 +149,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    
    ASSERT_EQ( ErrorHandler::NoError, proxy->evaluateRSProxy( *(nrc.get() ) ) );
 
-   EXPECT_NEAR( nrc->obsValue( 0 )->doubleValue()[0], 65.6445336, eps ); // T [0C]
-   EXPECT_NEAR( nrc->obsValue( 1 )->doubleValue()[0], 0.4827356,  eps );  // VRE
+   EXPECT_NEAR( nrc->obsValue( 0 )->asDoubleArray()[0], 65.6445336, eps ); // T [0C]
+   EXPECT_NEAR( nrc->obsValue( 1 )->asDoubleArray()[0], 0.4827356,  eps );  // VRE
 }
 

@@ -140,6 +140,8 @@
 #include "../../../casaAPI/src/JobScheduler.h"
 #include "../../../casaAPI/src/JobSchedulerLocal.h"
 #include "../../../casaAPI/src/JobSchedulerLSF.h"
+#include "../../../casaAPI/src/MonteCarloSolver.h"
+#include "../../../casaAPI/src/MonteCarloSolverImpl.h"
 #include "../../../casaAPI/src/Observable.h"
 #include "../../../casaAPI/src/ObsValue.h"
 #include "../../../casaAPI/src/ObsGridPropertyXYZ.h"
@@ -318,6 +320,8 @@ using namespace casa;
 %include "../../../casaAPI/src/JobScheduler.h"
 %include "../../../casaAPI/src/JobSchedulerLocal.h"
 %include "../../../casaAPI/src/JobSchedulerLSF.h"
+%include "../../../casaAPI/src/MonteCarloSolver.h"
+%include "../../../casaAPI/src/MonteCarloSolverImpl.h"
 %include "../../../casaAPI/src/Observable.h"
 %include "../../../casaAPI/src/ObsValue.h"
 %include "../../../casaAPI/src/ObsGridPropertyXYZ.h"
@@ -437,6 +441,7 @@ using namespace casa;
 %template(CoefficientsMap)     std::map< std::vector< unsigned int >, double >;
 %template(CoefficientsMapList) std::vector< std::map< std::vector< unsigned int>, double > >;
 %template(PolynomCoefficient)  std::pair< std::vector< unsigned int >, double >;
+%template(MCResults)           std::vector< std::pair<double,casa::RunCase*> >;
 
-%template(DoubleVector) std::vector<double>;
+/// %template(DoubleVector) std::vector<double>;
 

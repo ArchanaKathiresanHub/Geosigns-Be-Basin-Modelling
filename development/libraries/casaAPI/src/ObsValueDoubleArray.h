@@ -23,7 +23,12 @@ namespace casa
    class ObsValueDoubleArray : public ObsValue
    {
    public:
-      
+      /// @brief Create a new ObsValueDoubleArray object. 
+      /// @param parent Observable object which contains full description of observable
+      /// @param val value of observable
+      static ObsValueDoubleArray * createNewInstance( const Observable * parent, 
+                                                      const std::vector<double> & val ) { return new ObsValueDoubleArray( parent, val ); }
+
       /// @brief Constructor
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
@@ -62,7 +67,7 @@ namespace casa
      
       // The following methods are used for testing  
       virtual bool isDouble() const { return true; }
-      virtual std::vector<double> doubleValue() const { return m_value; }
+      virtual std::vector<double> asDoubleArray() const { return m_value; }
 
    protected:
       std::vector<double>  m_value;    // value itself
