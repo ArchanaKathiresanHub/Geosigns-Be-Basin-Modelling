@@ -295,7 +295,7 @@ macro( add_external_project_to_repository )
       add_custom_command( TARGET ${extProj_NAME}
             POST_BUILD
             COMMAND "${CMAKE_COMMAND}" 
-            ARGS "-E" "tar" "czf" "${extProj_PostbuildSrc}" "*"
+            ARGS "-E" "tar" "czf" "${extProj_PostbuildSrc}" "."
             WORKING_DIRECTORY "${extProj_srcdir}"
             COMMENT "Packing the files in the build directory of ${extProj_NAME}"
          )
