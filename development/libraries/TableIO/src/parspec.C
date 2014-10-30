@@ -389,8 +389,6 @@ int main (int argc, char **argv)
    string defaultValue;
    bool error;
 
-   bool endProps;
-   bool startNewProp;
 
    while (loadSpecLine (infile, line))
    {
@@ -410,8 +408,8 @@ int main (int argc, char **argv)
    // Read in all the fields possible.
    while (loadSpecLine (infile, line))
    {
-      endProps = (line.find ("END-properties") != string::npos);
-      startNewProp = getKeywordValue (line, "Identification", value);
+      bool endProps = (line.find ("END-properties") != string::npos);
+      bool startNewProp = getKeywordValue (line, "Identification", value);
 
       if (endProps || startNewProp)
       {
@@ -458,7 +456,7 @@ int main (int argc, char **argv)
          size_t fieldUnitStartPos = value.find_first_of (separators, 0);
 
          if (fieldUnitStartPos != string::npos)
-            value.erase (fieldUnitStartPos, 100000);
+            value.erase (fieldUnitStartPos);
 
          unit = value;
       }
@@ -524,23 +522,6 @@ int main (int argc, char **argv)
       {
          TableFields[tableName].push_back (value);
          FieldTables[value].push_back (tableName);
-      }
-
-      if (tableIO && getKeywordValue (line, "Property I/O", value))
-      {
-         if (value != "Yes" && value != "yes")
-         {
-            TableList.pop_back ();
-            for (StringList::iterator fieldIter = TableFields[tableName].begin ();
-                 fieldIter != TableFields[tableName].end (); ++fieldIter)
-            {
-               string fieldName = *fieldIter;
-
-               FieldTables[fieldName].pop_back ();
-            }
-            TableFields[tableName].clear ();
-            tableIO = false;
-         }
       }
    }
 
