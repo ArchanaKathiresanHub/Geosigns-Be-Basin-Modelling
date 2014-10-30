@@ -21,7 +21,7 @@ add_external_project_to_repository(
       ARCHIVE_MD5 "a0e0a32d62028218b1c1848ad7121476"
       CONFIGURE_COMMAND "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be configured."
       BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be built."
-      INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "copy_directory" "{ROOT}/src/Eigen/Eigen" "{ROOT}/include/eigen3/Eigen"
+      INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "copy_directory" "{SRCBUILD}/Eigen" "{ROOT}/include/eigen3/Eigen"
       CONFIGURE_OPTIONS 
         COMPILER "{CurrentCompiler}" 
         MPI      "{CurrentMPI}"

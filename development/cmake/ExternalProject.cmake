@@ -174,11 +174,17 @@ macro( add_external_project_to_repository )
    set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/${extProj_NAME}/${extProj_VERSION}/${BM_EXTERNAL_COMPONENTS_FLAVOUR}")
    set( ${extProj_NAME}_ROOT "${extProj_ROOT}" )
 
+   # What is the place where the source and build are performed
+   set( extProj_srcdir "${PROJECT_BINARY_DIR}/ExternalComponents/build/${extProj_NAME}")
+   
    # Replaces {XYZ} keywords in the configuration options
    foreach( parameter ${multiValueArgs})
       # Replace the {ROOT} keyword with the installation directory
       string(REPLACE "{ROOT}" "${extProj_ROOT}" extProj_${parameter} "${extProj_${parameter}}")
 
+	  # Replace the {SRCBUILD} keyword with the source and build directory
+      string(REPLACE "{SRCBUILD}" "${extProj_srcdir}" extProj_${parameter} "${extProj_${parameter}}")
+	  
       # Replace the {CurrentPlatform} keyword with the current platform ID
       string(REPLACE "{CurrentPlatform}" "${BM_PLATFORM_ID}" extProj_${parameter} "${extProj_${parameter}}")
 
@@ -264,7 +270,6 @@ macro( add_external_project_to_repository )
 
 
    if (BM_EXTERNAL_COMPONENTS_REBUILD)
-      set( extProj_srcdir "${PROJECT_BINARY_DIR}/ExternalComponents/build/${extProj_NAME}")
 
       # Add the extProj as external project for the current extProj configuration
       ExternalProject_Add( ${extProj_NAME}
