@@ -863,8 +863,8 @@ double GeoPhysics::CompoundLithology::computeSegmentThickness(const double topMa
    const bool   IncludeChemicalCompaction = false;
    const double ChemicalCompactionDummyValue = 0.0;
 
-   double porosityTop = porosity(topMaxVes, topVes, IncludeChemicalCompaction, ChemicalCompactionDummyValue);
-   double porosityBottom = porosity(bottomMaxVes, bottomVes, IncludeChemicalCompaction, ChemicalCompactionDummyValue);
+   double porosityTop = porosity(topVes, topMaxVes, IncludeChemicalCompaction, ChemicalCompactionDummyValue);
+   double porosityBottom = porosity(bottomVes, bottomMaxVes, IncludeChemicalCompaction, ChemicalCompactionDummyValue);
 
    return 0.5 * (1.0 / (1.0 - porosityTop) + 1.0 / (1.0 - porosityBottom)) * solidThickness;
 
