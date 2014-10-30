@@ -126,4 +126,4 @@ inline GridMap * InterfaceOutput::getMap( const outputMaps &mapInd )
    return m_outputMaps[mapInd];
 }
 
-#endif  __Interface_OUTPUT_H__
+#endif  
