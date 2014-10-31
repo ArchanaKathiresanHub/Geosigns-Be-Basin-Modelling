@@ -6,6 +6,15 @@ LIBDIR="/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc-lib-staging-`whoami`"
 SRC=`dirname $0`/..
 USERGROUP=g_psaz00
 
+# clean up on exit
+trash=
+function onExit()
+{
+   rm -rf $trash
+}
+
+trap onExit EXIT
+
 # User name check
 whoami=`whoami`
 if [ x$whoami != xs_bpac00 ]; then
@@ -24,43 +33,56 @@ pushd $LIBDIR > /dev/null
 LIBDIR=`pwd -P`
 popd > /dev/null
 
+
+# Precompiled combinations
+combinations=`mktemp`
+trash="$combinations $trash"
+cat > $combinations  <<EOF
+#OS      Intel Compiler   Intel MPI   Shared Libs   Configuration
+RHEL6.4  ON               ON          OFF           Release
+RHEL6.4  ON               ON          OFF           Debug
+RHEL6.4  OFF              ON          OFF           Debug
+RHEL6.4  ON               ON          ON            Release
+RHEL6.4  ON               ON          ON            Debug
+RHEL5.10 ON               ON          OFF           Release
+RHEL5.10 ON               ON          OFF           Debug
+RHEL5.8  ON               ON          OFF           Release
+RHEL5.8  ON               ON          OFF           Debug
+RHEL5.8  ON               ON          ON            Release
+RHEL5.8  ON               ON          ON            Debug
+RHEL5.8  ON               ON          ON            MemCheck
+EOF
+
+
 # Build the libraries for every platform
-for platform in "RHEL6.4" "RHEL5.8" "RHEL5.10"
+for flavour in `awk '/^[^#]/ { printf "%s,%s,%s,%s,%s\n", $1, $2, $3, $4, $5 }' $combinations`
 do
-   bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash <<EOF
+   platform=`echo $flavour | cut -f 1 -d ,`
+   intel_compiler=`echo $flavour | cut -f 2 -d ,`
+   intel_mpi=`echo $flavour | cut -f 3 -d ,`
+   shared_libs=`echo $flavour | cut -f 4 -d ,`
+   configuration=`echo $flavour | cut -f 5 -d ,`
+
+   bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash -s <<EOF &
 #!/bin/bash
 
-TMPLIBDIR=\`mktemp -d\`
-BUILDDIRS=
+TMPLIBDIR=\`mktemp -d\` || { echo "Cannot create temporary installation directory"; exit 1; }
+BUILD=\`mktemp -d\` || { echo "Cannot create temporary build directory"; exit 1; }
 
 function onExit()
 {
   # remove the temporary directory made for the build directory
-  chmod -R u+w \$BUILDDIRS \$TMPLIBDIR
-  rm -rf \$BUILDDIRS \$TMPLIBDIR
+  chmod -R u+w \$BUILD \$TMPLIBDIR
+  rm -rf \$BUILD \$TMPLIBDIR
 }
 trap onExit EXIT
 
 
-for IntelCompiler in ON OFF
-do
-   for IntelMPI in ON 
-   do
-      for sharedlib in ON OFF
-      do 
-         for config in Release Debug DebugAll MemCheck
-         do
-           BUILD=\`mktemp -d\`
-           BUILDDIRS="\$BUILD \$BUILDDIRS"
-           ( cd \$BUILD ; $SRC/bootstrap.csh -DCMAKE_BUILD_TYPE=\$config -DBUILD_SHARED_LIBS=\$sharedlib -DBM_USE_INTEL_COMPILER=\$IntelCompiler -DBM_USE_INTEL_MPI=\$IntelMPI -DBM_EXTERNAL_COMPONENTS_REBUILD=ON -DBM_EXTERNAL_COMPONENTS_DIR=\$TMPLIBDIR ; source envsetup.sh ; make -j16 $LIBS ; ) &
+cd \$BUILD 
+$SRC/bootstrap.csh -DCMAKE_BUILD_TYPE=$configuration -DBUILD_SHARED_LIBS=$shared_libs -DBM_USE_INTEL_COMPILER=$intel_compiler -DBM_USE_INTEL_MPI=$intel_mpi -DBM_EXTERNAL_COMPONENTS_REBUILD=ON -DBM_EXTERNAL_COMPONENTS_DIR=\$TMPLIBDIR 
+source envsetup.sh 
+make -j5 $LIBS
 
-         done
-      done
-      wait
-   done
-done
-
-wait
 
 # Restrict the permissions again
 echo -n "Marking all files as readable by everybody but read-only in the temporary library directory \$TMPLIBDIR ..."
@@ -73,9 +95,13 @@ echo "Copying new library directory to destination $LIBDIR"
 mkdir -p $LIBDIR
 rsync -av \$TMPLIBDIR/ $LIBDIR
 echo DONE
+
+exit 0
 EOF
 
 done
+
+wait
 
 echo Libraries are ready for deployment in directory $LIBDIR
 echo Please move them manually to the correct destination

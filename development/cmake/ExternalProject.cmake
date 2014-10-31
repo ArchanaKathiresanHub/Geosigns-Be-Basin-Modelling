@@ -38,7 +38,8 @@ include(CMakeParseArguments)
 #                CONFIGURE_OPTIONS   <"COMPILER"|"MPI"|"SPEED"|"OS"|"LINK"> 
 #                                      <flavour name> <flag1> [flag2...]
 #                                      [<"COMPILER"|...> ... ]
-#                YIELD_LIBRARIES     <library1>...
+#                [YIELD_LIBRARIES    <library1>...]
+#                [YIELD_SOURCE       <directory>]
 #          )
 #
 #        Basically, the parameters direct CMake how to build the third party
@@ -58,6 +59,8 @@ include(CMakeParseArguments)
 #        keywords: 
 #          {ROOT}       Is replaced by the full path of the installation
 #                       directory.
+#          {SRCBUILD}   Is replaced by the full path of the source and build
+#                       directory.
 #          {CC}         Is replaced by the full path to the C compiler that is
 #                       used by this project.
 #          {CXX}        Is replaced by the full path to the C++ compiler that is
@@ -74,12 +77,15 @@ include(CMakeParseArguments)
 #        The YIELD_LIBRARIES command can be used import the a library from the
 #        third party project into the current project. The library is expected
 #        to be in the 'lib' directory of the installation directory.
+#
+#        The YIELD_SOURCE command directs that the source and build directory
+#        should copied to the given destination directory.
 #        
 #        Whether the actual library is rebuild when necessary and where it ends
 #        up is determined by the two variables:
-
+#
 #          BM_EXTERNAL_COMPONENTS_REBUILD  Set it ON or OFF. ON means that the
-#                             component is rebuild when necessar
+#                             component is rebuild when necessary
 #          BM_EXTERNAL_COMPONENTS_DIR  The full path to where the builds of the
 #                             third party projects can be found.
 #
@@ -102,6 +108,9 @@ option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external compo
 
 # Location of external components dir
 set(BM_EXTERNAL_COMPONENTS_DIR "${PROJECT_BINARY_DIR}/ExternalComponents" CACHE PATH "The path to the directory of prebuilt libraries")
+
+# Location of external components dir
+set(BM_EXTERNAL_COMPONENTS_TMPDIR "${PROJECT_BINARY_DIR}/ExternalComponents" CACHE PATH "The path to the directory of libraries that are built only for this occassion")
 
 # Determine Compiler identifier
 set( BM_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}_${CMAKE_CXX_COMPILER_VERSION}" CACHE STRING "An identifier for the Compiler for this build." )
@@ -154,6 +163,7 @@ macro( add_external_project_to_repository )
          VERSION
          ARCHIVE 
          ARCHIVE_MD5 
+         YIELD_SOURCE
    )
    set(multiValueArgs 
          PATCH_COMMAND
@@ -170,13 +180,27 @@ macro( add_external_project_to_repository )
                       ${ARGN}
          )
 
-   # What is the path to the installed library for each configuration?
+   # What is the path to the installed library for each configuration and does it need to be built?
    set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/${extProj_NAME}/${extProj_VERSION}/${BM_EXTERNAL_COMPONENTS_FLAVOUR}")
+   set( extProj_rebuild ${BM_EXTERNAL_COMPONENTS_REBUILD})
+
+   if ( BM_EXTERNAL_COMPONENTS_REBUILD )
+      message(STATUS "External component ${extProj_NAME} will be (re)built")
+   endif()
+
+   if (NOT BM_EXTERNAL_COMPONENTS_REBUILD AND NOT EXISTS ${extProj_ROOT})
+      message(STATUS "External component ${extProj_NAME} will be built temporarily")
+      set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_TMPDIR}/${extProj_NAME}")
+      set( extProj_rebuild ON)
+   endif()
    set( ${extProj_NAME}_ROOT "${extProj_ROOT}" )
 
    # What is the place where the source and build are performed
-   set( extProj_srcdir "${PROJECT_BINARY_DIR}/ExternalComponents/build/${extProj_NAME}")
-   
+   set( extProj_srcdir "${BM_EXTERNAL_COMPONENTS_TMPDIR}/build/${extProj_NAME}")
+
+   # The place where the tarball of the source and build directory is stored
+   set( extProj_PostbuildSrc "${extProj_ROOT}/src/${extProj_NAME}-post_build_src.tar.gz")
+
    # Replaces {XYZ} keywords in the configuration options
    foreach( parameter ${multiValueArgs})
       # Replace the {ROOT} keyword with the installation directory
@@ -269,7 +293,7 @@ macro( add_external_project_to_repository )
    endforeach()
 
 
-   if (BM_EXTERNAL_COMPONENTS_REBUILD)
+   if (extProj_rebuild)
 
       # Add the extProj as external project for the current extProj configuration
       ExternalProject_Add( ${extProj_NAME}
@@ -296,7 +320,6 @@ macro( add_external_project_to_repository )
       # explicitly how the library was built. However, the number of files is
       # too large to store 'naked' on an NFS volume. For that reason this
       # directory is converted into a TAR file.
-      set( extProj_PostbuildSrc "${extProj_ROOT}/src/${extProj_NAME}-post_build_src.tar.gz")
       add_custom_command( TARGET ${extProj_NAME}
             POST_BUILD
             COMMAND "${CMAKE_COMMAND}" 
@@ -304,7 +327,29 @@ macro( add_external_project_to_repository )
             WORKING_DIRECTORY "${extProj_srcdir}"
             COMMENT "Packing the files in the build directory of ${extProj_NAME}"
          )
-    
+      # Some projects need the source to be available. Install these files to the directory denoted by YIELD_SOURCE
+      if (extProj_YIELD_SOURCE)
+         add_custom_command( TARGET ${extProj_NAME}
+               POST_BUILD
+               COMMAND "${CMAKE_COMMAND}" 
+               ARGS "-E" "copy_directory" "${extProj_srcdir}" "${extProj_YIELD_SOURCE}"
+               COMMENT "Installing source of ${extProj_NAME} to directory ${dir}"
+            )
+      endif()
+   else()
+
+     # Install source tarball to the directories defined by YIELD_SOURCE during CMake configuration
+      if (extProj_YIELD_SOURCE)
+         message("Installing source of ${extProj_NAME} to directory ${extProj_YIELD_SOURCE}")
+         execute_process(  
+               COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" "${extProj_YIELD_SOURCE}"
+         )
+         execute_process(
+               COMMAND "${CMAKE_COMMAND}" "-E" "tar" "xzf" "${extProj_PostbuildSrc}"
+               WORKING_DIRECTORY "${extProj_YIELD_SOURCE}"
+            )
+      endif()
+
    endif()
 
 
@@ -319,7 +364,7 @@ macro( add_external_project_to_repository )
       # Add the library as a target
       add_library(${lib} ${linkType} IMPORTED GLOBAL)
 
-      if (BM_EXTERNAL_COMPONENTS_REBUILD)
+      if (extProj_rebuild)
          add_dependencies(${lib} ${extProj_NAME})
       endif()
 
@@ -328,4 +373,5 @@ macro( add_external_project_to_repository )
          IMPORTED_LOCATION "${extProj_ROOT}/lib/${CMAKE_${linkType}_LIBRARY_PREFIX}${lib}${CMAKE_${linkType}_LIBRARY_SUFFIX}")
    endforeach()
 
+   
 endmacro()

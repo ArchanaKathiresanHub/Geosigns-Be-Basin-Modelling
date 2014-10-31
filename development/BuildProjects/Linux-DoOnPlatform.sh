@@ -24,11 +24,22 @@ fi
 # Source LSF command line tools
 source /glb/apps/hpc/lsfprod/conf/profile.lsf
 
+# Clean-up after exiting
+trash=
+function onExit()
+{
+   rm -rf $trash
+}
+trap onExit EXIT
 
+
+# Execute on available platforms
+exit_status=0
 case $PLATFORM in
   RHEL6*) 
       # Submit command to cluster
       bsub -P $LSF_PROJECT -Is -q default.q -R "select[ostype=$PLATFORM]" $LSF_PROCS "$@" 
+      exit_status=$?
 
       # Print that we ended the job
       echo "<<Exited from Job>>"
@@ -38,6 +49,7 @@ case $PLATFORM in
   RHEL5.10)
       # Submit command to TAW (Thin Any Where) cluster
       bsub -P $LSF_PROJECT -Is -q taw.q -R "select[ostype=RHEL5.10]" $LSF_PROCS "$@" 
+      exit_status=$?
 
       # Print that we ended the job
       echo "<<Exited from Job>>"
@@ -51,18 +63,29 @@ case $PLATFORM in
          exit 1
       fi
       
+      # Set-up TMPDIR so that it points to scratch
+      tmpdir=/scratch/do-on-platform.$$
+      trash="$tmpdir $trash"
+      mkdir -p $tmpdir
+
       echo "<<Running job locally>>"
 
       # Execute the command
-      "$@"
+      TMPDIR=$tmpdir "$@"
+      exit_status=$?
 
       # Print that we ended the job
       echo "<<Exited from Job>>"
+
+      # Remove temporary files
+      rm -rf $tmpdir
 
       ;;
 
   *)
       echo "Platform $PLATFORM is not available"
+      exit_status=1
       ;;
 esac
 
+exit $exit_status

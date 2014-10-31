@@ -16,6 +16,8 @@ set (HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version")
 
 if(UNIX)
 
+   set(HDF5_SOURCE_DIR "${CMAKE_BINARY_DIR}/hdf5" CACHE PATH "Source directory of HDF5")
+
 # parallel version
    add_external_project_to_repository(
          NAME HDF5
@@ -36,9 +38,8 @@ if(UNIX)
            LINK     "Dynamic"    "--enable-shared" "--disable-static"
            LINK     "Static"     "--disable-shared" "--enable-static"
          YIELD_LIBRARIES "hdf5" "hdf5_hl"
+         YIELD_SOURCE "${HDF5_SOURCE_DIR}"
    )
-        
-   set(HDF5_SOURCE_DIR "${HDF5_ROOT}/src/HDF5" CACHE PATH "Source directory of HDF5")
 
    set(HDF5_INCLUDE_DIR ${HDF5_ROOT}/include)
    set(HDF5_INCLUDE_DIRS)
