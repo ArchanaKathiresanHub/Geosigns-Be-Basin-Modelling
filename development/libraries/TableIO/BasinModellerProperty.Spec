@@ -5878,7 +5878,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : integer
     Error Field         : No
 
-# Lead and Trapper Properties
+# Trapper Properties
 
     Identification      : PersistentTrapID
     Description         : Identifies series of vertically connected traps
