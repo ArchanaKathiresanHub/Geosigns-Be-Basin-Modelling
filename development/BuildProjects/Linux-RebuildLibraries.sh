@@ -51,6 +51,10 @@ RHEL5.8  ON               ON          OFF           Debug
 RHEL5.8  ON               ON          ON            Release
 RHEL5.8  ON               ON          ON            Debug
 RHEL5.8  ON               ON          ON            MemCheck
+RHEL5.8  OFF              ON          OFF           Release
+RHEL5.8  OFF              ON          OFF           Debug
+RHEL5.8  OFF              ON          ON            Release
+RHEL5.8  OFF              ON          ON            Debug
 EOF
 
 

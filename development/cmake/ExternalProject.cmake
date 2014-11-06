@@ -186,12 +186,12 @@ macro( add_external_project_to_repository )
 
    if ( BM_EXTERNAL_COMPONENTS_REBUILD )
       message(STATUS "External component ${extProj_NAME} will be (re)built")
-   endif()
-
-   if (NOT BM_EXTERNAL_COMPONENTS_REBUILD AND NOT EXISTS ${extProj_ROOT})
+   elseif (NOT BM_EXTERNAL_COMPONENTS_REBUILD AND NOT EXISTS ${extProj_ROOT})
       message(STATUS "External component ${extProj_NAME} will be built temporarily")
       set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_TMPDIR}/${extProj_NAME}")
       set( extProj_rebuild ON)
+   else()
+      message(STATUS "External component ${extProj_NAME} is prebuilt")
    endif()
    set( ${extProj_NAME}_ROOT "${extProj_ROOT}" )
 
@@ -340,7 +340,7 @@ macro( add_external_project_to_repository )
 
      # Install source tarball to the directories defined by YIELD_SOURCE during CMake configuration
       if (extProj_YIELD_SOURCE)
-         message("Installing source of ${extProj_NAME} to directory ${extProj_YIELD_SOURCE}")
+         message(STATUS "Installing source of ${extProj_NAME} to directory ${extProj_YIELD_SOURCE}")
          execute_process(  
                COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" "${extProj_YIELD_SOURCE}"
          )
