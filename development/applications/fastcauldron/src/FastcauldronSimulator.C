@@ -1631,6 +1631,31 @@ const Interface::Snapshot* FastcauldronSimulator::findOrCreateSnapshot ( const d
 
 //------------------------------------------------------------//
 
+void FastcauldronSimulator::saveSourceRockProperties ( const Interface::Snapshot* snapshot,
+                                                       const PropListVec&         genexProperties,
+                                                       const PropListVec&         shaleGasProperties ) {
+
+   // Compute all required properties.
+   PropertyManager::getInstance ().computeSourceRockPropertyMaps ( m_cauldron, snapshot, genexProperties, shaleGasProperties );
+
+   // Save properties to disk.
+   continueActivity ();
+
+   // Remove property calculators.
+   PropertyManager::getInstance ().clear ();
+
+   // Delete the output snapshot property-values.
+
+#if 0
+   deleteSnapshotProperties ();
+#endif
+
+   deleteSnapshotPropertyValueMaps ();
+
+}
+
+//------------------------------------------------------------//
+
 void FastcauldronSimulator::saveMapProperties ( const PropListVec&                    requiredProperties,
                                                 const Interface::Snapshot*            snapshot,
                                                 const Interface::PropertyOutputOption maximumOutputOption ) {

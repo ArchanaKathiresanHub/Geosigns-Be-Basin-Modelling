@@ -257,27 +257,21 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL0 );
 #endif
 
-  if (basinModel->isModellingMode1D())
-  {
-     m_volumeOutputProperties.push_back ( SONICVEC );
-  }
-
   m_volumeOutputProperties.push_back ( VELOCITYVEC );
   m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
   m_volumeOutputProperties.push_back ( VR );
-
-  if (basinModel->isModellingMode1D())
-  {
-     m_volumeOutputProperties.push_back ( ILLITEFRACTION );
-     m_volumeOutputProperties.push_back ( BIOMARKERS );
-  }
 
   mapOutputProperties.push_back ( VR );
 
   if (basinModel->isModellingMode1D())
   {
+     m_volumeOutputProperties.push_back ( SONICVEC );
+     m_volumeOutputProperties.push_back ( ILLITEFRACTION );
+     m_volumeOutputProperties.push_back ( BIOMARKERS );
+
      mapOutputProperties.push_back ( ILLITEFRACTION );
      mapOutputProperties.push_back ( BIOMARKERS );
+     mapOutputProperties.push_back ( SONICVEC );
   }
 
   mapOutputProperties.push_back ( HEAT_FLOW );
@@ -291,10 +285,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( BULKDENSITYVEC );
   mapOutputProperties.push_back ( VELOCITYVEC );
 
-  if (basinModel->isModellingMode1D())
-  {
-     mapOutputProperties.push_back ( SONICVEC );
-  }
 
   mapOutputProperties.push_back ( REFLECTIVITYVEC );
   mapOutputProperties.push_back ( PERMEABILITYHVEC );
@@ -474,7 +464,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 #endif
 
   // Properties required by GenEx.
-  //genexOutputProperties.push_back ( DEPTH );
   genexOutputProperties.push_back ( TEMPERATURE );
   genexOutputProperties.push_back ( VES );
 
@@ -483,20 +472,18 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   genexOutputProperties.push_back ( PRESSURE );
   genexOutputProperties.push_back ( EROSIONFACTOR );
   
-  shaleGasOutputProperties.push_back ( TEMPERATURE );
-  shaleGasOutputProperties.push_back ( VES );
   shaleGasOutputProperties.push_back ( VR );
   shaleGasOutputProperties.push_back ( EROSIONFACTOR );
   shaleGasOutputProperties.push_back ( MAXVES );
   shaleGasOutputProperties.push_back ( PRESSURE );
+
+  shaleGasOutputProperties.push_back ( TEMPERATURE );
+  shaleGasOutputProperties.push_back ( VES );
   shaleGasOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
   shaleGasOutputProperties.push_back ( HYDROSTATICPRESSURE );
   shaleGasOutputProperties.push_back ( LITHOSTATICPRESSURE );
   shaleGasOutputProperties.push_back ( POROSITYVEC );
   shaleGasOutputProperties.push_back ( PERMEABILITYVEC );
-
-  // Preevaluated_Basis_Functions::Get_Instance ()->Preevaluate ( pressureSolver->getPlaneQuadratureDegree ( basinModel -> Optimisation_Level ),
-  //                                                              pressureSolver->getDepthQuadratureDegree ( basinModel -> Optimisation_Level ));
 
   // Initialise the surfaceNodeHistory object, by reading in the 
   // specification file containing all nodes that are to be recorded.
@@ -1147,6 +1134,10 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
        PetscPrintf(PETSC_COMM_WORLD, " time for time-step: %f\n", (WallTime::clock () - startTime).floatValue() );
     }
 
+    if ( basinModel->exitAtAgeDefined () and basinModel->getExitAtAge () >= Current_Time ) {
+       break;
+    }
+
   }
 
   if ( basinModel -> debug1 or basinModel->verbose ) {
@@ -1374,103 +1365,106 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
            && basinModel->projectSnapshots.isMinorSnapshot ( Current_Time, minorSnapshots ) ) ) // 1D model: save minor AND major timesteps
   {
 
-    const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( Current_Time );
-    assert ( snapshot != 0 );
+     const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( Current_Time );
+     assert ( snapshot != 0 );
 
-    // Compute the derived properties that are to be output.
-    m_vreAlgorithm->getResults( m_vreOutputGrid );
-    m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+     // Compute the derived properties that are to be output.
+     m_vreAlgorithm->getResults( m_vreOutputGrid );
+     m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
 
-    if(  basinModel->isModellingMode1D() )
-    {
-      Temperature_Calculator.computeSnapShotSmectiteIllite ( Current_Time, basinModel->getValidNeedles ());
-      Temperature_Calculator.computeSnapShotBiomarkers ( Current_Time, basinModel->getValidNeedles () );
-    }
+     if(  basinModel->isModellingMode1D() )
+     {
+        Temperature_Calculator.computeSnapShotSmectiteIllite ( Current_Time, basinModel->getValidNeedles ());
+        Temperature_Calculator.computeSnapShotBiomarkers ( Current_Time, basinModel->getValidNeedles () );
+     }
 
-    if( basinModel->isALC() ) {
-       basinModel->calcBasementProperties( Current_Time );
-	}
-  // save both map and volume data.
-    if ( Current_Time == 0.0 && m_concludingVolumeOutputProperties.size() > 0)
-       {
-          m_combinedVolumeOutputProperties.reserve(m_concludingVolumeOutputProperties.size() + m_volumeOutputProperties.size() );
-          m_combinedVolumeOutputProperties.insert(m_combinedVolumeOutputProperties.end(), m_volumeOutputProperties.begin(),
-                                                  m_volumeOutputProperties.end());
-          m_combinedVolumeOutputProperties.insert(m_combinedVolumeOutputProperties.end(), m_concludingVolumeOutputProperties.begin(),
-                                                  m_concludingVolumeOutputProperties.end());
-          FastcauldronSimulator::getInstance ().saveProperties ( mapOutputProperties,
-                                                           m_combinedVolumeOutputProperties,
-                                                           snapshot,
-                                                           Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       }
-    else
-       {
-          FastcauldronSimulator::getInstance ().saveProperties ( mapOutputProperties,
-                                                                 m_volumeOutputProperties,
-                                                                 snapshot,
-                                                              Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-       }
+     if ( basinModel->isALC() ) {
+        basinModel->calcBasementProperties( Current_Time );
+     }
 
-    if( basinModel->isModellingMode1D() )
-    {
-      collectAndSaveIsoValues(Current_Time, basinModel);
-    }
+     // save both map and volume data.
+     if ( Current_Time == 0.0 && m_concludingVolumeOutputProperties.size() > 0)
+     {
+        m_combinedVolumeOutputProperties.reserve(m_concludingVolumeOutputProperties.size() + m_volumeOutputProperties.size() );
+        m_combinedVolumeOutputProperties.insert(m_combinedVolumeOutputProperties.end(), m_volumeOutputProperties.begin(),
+                                                m_volumeOutputProperties.end());
+        m_combinedVolumeOutputProperties.insert(m_combinedVolumeOutputProperties.end(), m_concludingVolumeOutputProperties.begin(),
+                                                m_concludingVolumeOutputProperties.end());
+        FastcauldronSimulator::getInstance ().saveProperties ( mapOutputProperties,
+                                                               m_combinedVolumeOutputProperties,
+                                                               snapshot,
+                                                               Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     }
+     else
+     {
+        FastcauldronSimulator::getInstance ().saveProperties ( mapOutputProperties,
+                                                               m_volumeOutputProperties,
+                                                               snapshot,
+                                                               Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     }
+
+     if( basinModel->isModellingMode1D() )
+     {
+        collectAndSaveIsoValues(Current_Time, basinModel);
+     }
 	
-    // Collect surface node properties.
-    m_surfaceNodeHistory.Add_Time ( Current_Time );
+     // Collect surface node properties.
+     m_surfaceNodeHistory.Add_Time ( Current_Time );
 
-    // Delete the vectors for derived properties as they are no longer required.
+     // Delete the vectors for derived properties as they are no longer required.
+     if(  basinModel->isModellingMode1D() )
+     {
+        Temperature_Calculator.deleteSmectiteIlliteVector ();
+        Temperature_Calculator.deleteBiomarkersVectors ();
+     }
 
-    if(  basinModel->isModellingMode1D() )
-    {
-      Temperature_Calculator.deleteSmectiteIlliteVector ();
-      Temperature_Calculator.deleteBiomarkersVectors ();
-    }
-
-    if (      basinModel->isModellingMode1D()  
+     if (      basinModel->isModellingMode1D()  
           &&  Current_Time != (*majorSnapshots)->time () ) // 1D model: save minor snapshot
-    {
-       savedMinorSnapshotTimes.insert ( Current_Time );
-    }
+     {
+        savedMinorSnapshotTimes.insert ( Current_Time );
+     }
 
   } else {
 
-    if ( basinModel->projectSnapshots.isMinorSnapshot ( Current_Time, minorSnapshots )) {
-       const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( Current_Time );
-       assert ( snapshot != 0 );
+     if ( basinModel->projectSnapshots.isMinorSnapshot ( Current_Time, minorSnapshots )) {
+        const Interface::Snapshot* snapshot = FastcauldronSimulator::getInstance ().findOrCreateSnapshot ( Current_Time );
+        assert ( snapshot != 0 );
 
-      if ( ! basinModel->projectSnapshots.projectPrescribesMinorSnapshots ()) {
-         FastcauldronSimulator::getInstance ().saveVolumeProperties ( looselyCoupledOutputProperties,
-                                                                      snapshot,
-                                                                      Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-        savedMinorSnapshotTimes.insert ( Current_Time );
-      }
+        if ( ! basinModel->projectSnapshots.projectPrescribesMinorSnapshots ()) {
+           FastcauldronSimulator::getInstance ().saveVolumeProperties ( looselyCoupledOutputProperties,
+                                                                        snapshot,
+                                                                        Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+           savedMinorSnapshotTimes.insert ( Current_Time );
+        }
 
-       m_vreAlgorithm->getResults( m_vreOutputGrid );
-       m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
-       computeErosionFactorMaps ( basinModel, Current_Time );
+        m_vreAlgorithm->getResults( m_vreOutputGrid );
+        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+        computeErosionFactorMaps ( basinModel, Current_Time );
 
-       FastcauldronSimulator::getInstance ().saveMapProperties ( genexOutputProperties, snapshot, Interface::SOURCE_ROCK_ONLY_OUTPUT );
-       FastcauldronSimulator::getInstance ().saveMapProperties ( shaleGasOutputProperties, snapshot, Interface::SHALE_GAS_ONLY_OUTPUT );
-       deleteErosionFactorMaps ( basinModel );
-    }
+        FastcauldronSimulator::getInstance ().saveSourceRockProperties ( snapshot, genexOutputProperties, shaleGasOutputProperties );
 
-    if ( m_surfaceNodeHistory.IsDefined ()) {
 
-       m_vreAlgorithm->getResults( m_vreOutputGrid );
-       m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
-      computePermeabilityVectors ( basinModel );
-      computeThermalConductivityVectors ( basinModel );
-      computeBulkDensityVectors ( basinModel );
+        // FastcauldronSimulator::getInstance ().saveMapProperties ( genexOutputProperties, snapshot, Interface::SOURCE_ROCK_ONLY_OUTPUT );
+        // FastcauldronSimulator::getInstance ().saveMapProperties ( shaleGasOutputProperties, snapshot, Interface::SHALE_GAS_ONLY_OUTPUT );
+        deleteErosionFactorMaps ( basinModel );
+     }
 
-      // Collect surface node properties.
-      m_surfaceNodeHistory.Add_Time ( Current_Time );
+     if ( m_surfaceNodeHistory.IsDefined ()) {
+        m_vreAlgorithm->getResults( m_vreOutputGrid );
+        m_vreOutputGrid.exportToModel( basinModel->layers, basinModel->getValidNeedles() );
+        computePermeabilityVectors ( basinModel );
+        computeThermalConductivityVectors ( basinModel );
+        computeBulkDensityVectors ( basinModel );
+        
+        // Collect surface node properties.
+        m_surfaceNodeHistory.Add_Time ( Current_Time );
 
-      deleteThermalConductivityVectors ( basinModel );
-      deleteBulkDensityVectors ( basinModel );
-    }
+        deleteThermalConductivityVectors ( basinModel );
+        deleteBulkDensityVectors ( basinModel );
+     }
 
   }
+
   PetscTime(&End_Time);
   Property_Saving_Time = Property_Saving_Time + ( End_Time - Start_Time );
 

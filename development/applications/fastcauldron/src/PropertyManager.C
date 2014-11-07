@@ -434,6 +434,33 @@ void PropertyManager::computePropertyVolumes ( AppCtx*                          
 
 //------------------------------------------------------------//
 
+void PropertyManager::computeSourceRockPropertyMaps ( AppCtx*                    cauldron,
+                                                      const Interface::Snapshot* snapshot,
+                                                      const PropListVec&         genexProperties,
+                                                      const PropListVec&         shaleGasProperties ) {
+
+   PropListVec::const_iterator propertyIter;
+
+   for ( propertyIter = genexProperties.begin (); propertyIter != genexProperties.end (); ++propertyIter ) {
+      computePropertyMaps ( cauldron, *propertyIter, snapshot, DataAccess::Interface::SOURCE_ROCK_ONLY_OUTPUT );
+   } 
+
+   for ( propertyIter = shaleGasProperties.begin (); propertyIter != shaleGasProperties.end (); ++propertyIter ) {
+
+      if ( std::find ( genexProperties.begin (), genexProperties.end (), *propertyIter ) == genexProperties.end ()) {
+         computePropertyMaps ( cauldron, *propertyIter, snapshot, DataAccess::Interface::SHALE_GAS_ONLY_OUTPUT );
+      }
+
+   } 
+
+   initialisePropertyMaps ();
+   calculatePropertyMaps ();
+   finalisePropertyMaps ();
+
+}
+
+//------------------------------------------------------------//
+
 void PropertyManager::computePropertyMaps ( AppCtx*                    cauldron,
                                             const PropListVec&         requiredProperties,
                                             const Interface::Snapshot* snapshot,

@@ -143,6 +143,10 @@ public :
 
 
    ///
+   void saveSourceRockProperties ( const Interface::Snapshot* snapshot,
+                                   const PropListVec&         genexProperties,
+                                   const PropListVec&         shaleGasProperties );
+
    void saveMapProperties ( const PropListVec&                    requiredProperties,
                             const Interface::Snapshot*            snapshot,
                             const Interface::PropertyOutputOption maximumOutputOption );

@@ -429,7 +429,7 @@ public:
    PetscBool doGenex;
    PetscBool m_doOutputAtAge;
    double m_ageToOutput;
-	 
+
    PetscBool allowPressureJacobianReuse;
    int        pressureJacobianReuseCount;
    PetscBool allowIluFillIncrease;
@@ -497,6 +497,15 @@ public:
    bool Create_Reference_DA_for_Io_Maps ();
 
   // bool updateRunStatusIOTable ( const string& lastRunStatus );
+
+   /// \brief Determine if exitat has been enabled.
+   bool exitAtAgeDefined () const;
+
+   /// \brief Get the age at which the simulation should exit.
+   ///
+   /// If exitat has not been enabled then this will return the null-value.
+   double getExitAtAge () const;
+
 
  private:
 
@@ -577,6 +586,11 @@ public:
    bool   m_permafrost;
 
    PetscBool m_useTemisRelPerm;
+
+   bool   m_exitAtAgeSet;
+   double m_exitAtAge;
+ 
+
 };
 
 /*  template <class Type> */
@@ -585,6 +599,14 @@ bool AppCtx::setRunStatus (const string & property, const string & value)
    database::Record * record = getRunStatusRecord ();
    record->setValue (property, value);
    return true;
+}
+
+inline bool AppCtx::exitAtAgeDefined () const {
+   return m_exitAtAgeSet;
+}
+
+inline double AppCtx::getExitAtAge () const {
+   return m_exitAtAge;
 }
 
 inline CalculationMode AppCtx::getCalculationMode () const {

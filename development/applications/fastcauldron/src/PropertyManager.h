@@ -68,6 +68,14 @@ public :
                               const Interface::Snapshot*            snapshot,
                               const Interface::PropertyOutputOption maximumOutputOption );
 
+   /// Computes map-properties for source rock layers.
+   ///
+   // Appctx is required for the layers.
+   void computeSourceRockPropertyMaps ( AppCtx*                    cauldron,
+                                        const Interface::Snapshot* snapshot,
+                                        const PropListVec&         genexProperties,
+                                        const PropListVec&         shaleGasProperties );
+
    /// Computes all volume-properties on required-property list.
    ///
    // Appctx is required for the layers.

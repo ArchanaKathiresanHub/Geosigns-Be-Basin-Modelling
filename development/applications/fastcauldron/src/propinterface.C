@@ -92,6 +92,9 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    CheckForStartInDebugger (&argc, &argv);
 
    m_computeComponentFlow = false;
+   m_exitAtAgeSet = false;
+   m_exitAtAge = CAULDRONIBSNULLVALUE;
+
 
 #if 0
    PetscLogEventRegister (&Vec_Allocate, "Vec_Allocate", 0);
@@ -126,6 +129,7 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    m_permafrostTimeStep = 0.0;
    m_permafrost = false;
    m_permafrostCurrentInd = 0;
+
 }
 
 
@@ -607,9 +611,11 @@ bool AppCtx::getCommandLineOptions() {
   PetscBool Dummy      = PETSC_FALSE;
   PetscBool outputNotRequired = PETSC_FALSE;
   PetscBool outputAgeChanged = PETSC_FALSE;
+  PetscBool exitAgeChanged = PETSC_FALSE;
   PetscBool bbtemp = PETSC_FALSE;
   PetscBool Found;
   double outputAge;
+  double exitAge;
   PetscBool saveResultsIfDarcyError = PETSC_FALSE;
   int ierr;
 
@@ -648,6 +654,9 @@ bool AppCtx::getCommandLineOptions() {
   ierr = PetscOptionsHasName( PETSC_NULL, "-nohdfoutput",&outputNotRequired ); CHKERRQ(ierr);
   PetscOptionsGetReal ( PETSC_NULL, "-onlyat", &outputAge, &outputAgeChanged );
 
+  PetscOptionsGetReal ( PETSC_NULL, "-exitat", &exitAge, &exitAgeChanged );
+
+
 
   ierr = PetscOptionsHasName( PETSC_NULL, "-saveonerror", &saveResultsIfDarcyError ); CHKERRQ(ierr);
 
@@ -655,6 +664,11 @@ bool AppCtx::getCommandLineOptions() {
      m_saveOnDarcyError = true;
   } else {
      m_saveOnDarcyError = false;
+  }
+
+  if ( exitAgeChanged == PETSC_TRUE ) {
+     m_exitAtAgeSet = true;
+     m_exitAtAge = exitAge;
   }
 
   if(outputAgeChanged)
