@@ -71,6 +71,7 @@ target_link_libraries(fastcauldron
 	${HDF5_LIBRARIES}
 	${PETSC_LIBRARIES}
 	${MPI_LIBRARIES}
+	${Boost_LIBRARIES}
 )
 
 set_target_properties(fastcauldron

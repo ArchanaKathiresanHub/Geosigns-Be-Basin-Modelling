@@ -59,7 +59,7 @@ if (UNIX)
    set(BOOST_ROOT "${Boost_ROOT}")
    set(Boost_FOUND TRUE)
    set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
-   set(Boost_LIBRARIES "boost_filesystem" "boost_system")
+   set(Boost_LIBRARIES "boost_filesystem" "boost_system" "boost_thread" "boost_atomic" "boost_serialization")
 
    add_external_package_info(
       CAPABILITY BoostLib
