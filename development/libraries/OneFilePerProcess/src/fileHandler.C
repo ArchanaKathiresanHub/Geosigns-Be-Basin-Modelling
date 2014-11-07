@@ -11,6 +11,16 @@
 #include "HDF5VirtualFileDriver.h"
 //#define SAFE_RUN 1
 
+void reduce_op( float *invec, float *inoutvec, int *len, MPI_Datatype *datatype ) {  
+   
+   for( int i = 0; i < * len; ++ i ) {
+      
+      if( invec[i] != 0 ) {
+         inoutvec[i] = invec[i];
+      }
+   }
+}
+
 void FileHandler::openLocalFile( hid_t fileAccessPList ) {
 
    m_localFileId = H5Fopen( m_fileName.c_str(), H5F_ACC_RDONLY, fileAccessPList );
@@ -95,6 +105,12 @@ bool FileHandler::mergeFiles() {
 
    hid_t status = 0, close_status = 0, iteration_status = 0;
 
+   if( m_rank == 0 ) {
+      std::cout << m_fileName << std::endl;
+   }
+
+   MPI_Op_create(( MPI_User_function *)reduce_op, true, &m_op );
+
    hid_t fileAccessPList = H5Pcreate(H5P_FILE_ACCESS);
 
    std::stringstream tmpName;
@@ -133,6 +149,8 @@ bool FileHandler::mergeFiles() {
     
    iteration_status = H5Giterate ( m_localFileId, "/", 0, readDataset, this );
 
+   MPI_Op_free ( &m_op );
+
    status = H5Fclose( m_localFileId );    
   
    close_status = checkError( status ); 
@@ -161,6 +179,7 @@ FileHandler::FileHandler ( MPI_Comm comm, const std::string & fileName, const st
    MPI_Comm_rank( comm, &m_rank );
 
    m_valCount  = 0;
+   m_valNumber = 0;
    m_attrCount = 0;
 
    m_groupId   = H5P_DEFAULT;
@@ -182,17 +201,27 @@ FileHandler::FileHandler ( MPI_Comm comm, const std::string & fileName, const st
 
 herr_t FileHandler::reallocateBuffers ( ssize_t dataSize ) {
 
-   if( dataSize >= 0 ) {
-      m_valCount = dataSize;
+ 
+   m_valCount  = 0;
+   m_valNumber = 0;
+
+   if( dataSize > 0 ) {
+      m_valNumber = 1;
       
       for (int d = 0; d < m_spatialDimension; ++d) {
          m_count [d] = m_dimensions[d];       
-         m_valCount *= m_count[d];
+         m_valNumber *= m_count[d];
       } 
-      m_data.resize( m_valCount );
-      m_sumData.resize( m_valCount );
+    }
+
+   if( m_spatialDimension > 1 ) {
+      m_data.resize( m_valNumber );
+      m_sumData.resize( m_valNumber );
+   } else {
+      m_valCount = m_valNumber * dataSize;      
+      m_data1D.resize( m_valCount );
    }
-   return 0;
+   return 0; 
 }
 
 herr_t FileHandler::readAttributes( hid_t localDataSetId, hid_t globalDataSetId )  {
@@ -345,6 +374,10 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    hid_t   dtype    = H5Dget_type( reader->m_local_dset_id );
    ssize_t dataSize = H5Tget_size(dtype);
  
+   H5T_class_t storageTypeId = H5Tget_class( dtype );
+   
+   bool isFloatType = ( storageTypeId == H5T_FLOAT );
+ 
 #ifdef SAFE_RUN
    if( reader->checkError ( dataSize ) < 0 || dataSize < 0 ) {
       return -1;
@@ -360,38 +393,32 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
 
    H5Sselect_hyperslab( reader->m_filespace, H5S_SELECT_SET, reader->m_offset, NULL, reader->m_count, NULL );
 
-   H5Dread ( reader->m_local_dset_id, dtype, reader->m_memspace, reader->m_filespace, H5P_DEFAULT, reader->m_data.data() );
-
-   reader->closeSpaces();
-
-   // Summarize all local data in a global array
-   if( reader->m_spatialDimension == 1 ) {
-      if( reader->m_rank == 0 ) {
-         reader->m_sumData = reader->m_data;
+   if( reader->m_spatialDimension > 1 ) {
+      if( isFloatType ) {
+         status = reader->merge2D ( name, dtype );
+      } else {
+         if( reader->m_rank == 0 ) {       
+            std::cout << " ERROR 2D dataset datatype is not FLOAT" << std::endl;
+         }
+         status = -1;
       }
    } else {
-      MPI_Reduce( reader->m_data.data(), reader->m_sumData.data(), reader->m_valCount, MPI_CHAR, MPI_SUM, 0, reader->m_comm );
-
+      status = reader->merge1D ( name, dtype );
    }
 
-   if( reader->m_rank == 0 ) {
-      reader->createDataset( name, dtype );
-      status = H5Dwrite( reader->m_global_dset_id, dtype, reader->m_memspace, reader->m_filespace, H5P_DEFAULT, reader->m_sumData.data() );
-
+   if( reader->m_rank == 0 && status >= 0 ) {
       if( status >= 0 ) {
          reader->writeAttributes();
-       } else {
-         if( reader->m_rank == 0 ) {       
-            std::cout << " ERROR Cannot write the dataset" << name << std::endl;
-         }
+      } else {
+         std::cout << " ERROR Cannot write the dataset" << name << std::endl;
       }
-
+      
       H5Sclose( reader->m_filespace );
       H5Sclose( reader->m_memspace );
-
+      
       reader->closeGlobalDset();
    }
- 
+   
    H5Dclose( reader->m_local_dset_id );
 
 #ifdef SAFE_RUN
@@ -402,8 +429,44 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    }
 #endif
    
-   
    return 0;
+}
+
+herr_t FileHandler::merge1D ( const char* name, hid_t  dtype ) {
+
+   herr_t status = 0;
+
+   H5Dread ( m_local_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data1D.data() );
+
+   closeSpaces();
+
+   if( m_rank == 0 && status >= 0 ) {
+      createDataset( name, dtype );
+
+      status = H5Dwrite( m_global_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data1D.data() );  
+   }
+   return status;
+}
+
+herr_t FileHandler::merge2D ( const char* name, hid_t dtype ) {
+   
+   herr_t status = 0;
+
+   H5Dread ( m_local_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data.data() );
+
+   closeSpaces();
+   
+   // Summarize all local data in a global array
+   std::fill( m_sumData.begin(), m_sumData.end(), 0 );
+
+   MPI_Reduce( m_data.data(), m_sumData.data(), m_valNumber, MPI_FLOAT, m_op, 0, m_comm );
+
+   if( m_rank == 0 && status >= 0 ) {
+      createDataset( name, dtype );
+   
+      status = H5Dwrite( m_global_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_sumData.data() );
+   }
+   return status;
 }
 
 void FileHandler::setGlobalFileId( hid_t id ) {

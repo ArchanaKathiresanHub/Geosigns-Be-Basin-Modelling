@@ -57,7 +57,13 @@ public:
    /// \brief Reallocate buffers for reading of dataset depends on datasize type
    herr_t reallocateBuffers ( ssize_t dataSize ); 
 
-   /// \brief Access members
+   /// \brief merge 1D dataset
+   herr_t merge1D ( const char* name, hid_t dtype );
+
+   /// \brief merge 2D dataset
+   herr_t merge2D ( const char* name, hid_t dtype );
+
+  /// \brief Access members
    int getRank() const;
    hid_t getLocalFileId () const;
    hid_t getGlobalFileId () const;
@@ -98,17 +104,24 @@ private:
    hid_t m_memspace;
    hid_t m_filespace;
 
-   size_t m_valCount;            // size of allocated local buffer
-   size_t m_attrCount;           // size of the attribute buffer
-   std::vector<char> m_data;     // local data buffer (to read)
-   std::vector<char> m_sumData;  // global data buffer (to write from rank 0)
-   std::vector<char> m_attrData; // attributes buffer
+   size_t m_valCount;             // size of allocated local buffer
+   size_t m_valNumber;            // number of elements in local buffer
+   size_t m_attrCount;            // size of the attribute buffer
 
-   int m_spatialDimension;       // data dimentions
+   std::vector<float> m_data;     // local data buffer for 2D dataset (for reading)
+   std::vector<float> m_sumData;  // global data buffer for 2D dataset (for collecting data on rank 0)
+
+   std::vector<char> m_data1D;    // data buffer for 1D dataset (for reading and writing )
+   std::vector<char> m_attrData;  // attributes buffer
+
+   int m_spatialDimension;        // data dimentions
    hsize_t m_dimensions [MAX_FILE_DIMENSION]; 
 
    /// \brief Path to Temporary directory where local files are located
    std::string m_tempDirName; 
+
+   /// \brief Operation to collect data on 0 process
+   MPI_Op m_op;
 };
 
  
