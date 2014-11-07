@@ -100,7 +100,7 @@ elseif(WIN32)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
 
-    find_package( Boost 1.55.0 REQUIRED COMPONENTS filesystem system )
+    find_package( Boost 1.55.0 REQUIRED COMPONENTS filesystem system thread date_time chrono )
 
     add_external_package_info(
       CAPABILITY BoostLib
