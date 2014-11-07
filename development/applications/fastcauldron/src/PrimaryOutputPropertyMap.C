@@ -66,6 +66,7 @@ bool PrimaryOutputPropertyMap::calculate () {
    // The map has to be retrieved.
    m_propertyMaps [ 0 ]->retrieveGhostedData ();
 
+   m_isCalculated = true;
    return m_propertyMaps [ 0 ]->retrieved ();
 }
 
