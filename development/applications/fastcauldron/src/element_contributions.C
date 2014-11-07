@@ -7,7 +7,6 @@
 #include "Quadrature3D.h"
 #include "BasisFunction.h"
 #include "FiniteElement.h"
-// #include "preevaluated_basis_functions.h"
 #include "globaldefs.h"
 #include "utils.h"
 #include "Lithology.h"
@@ -819,9 +818,9 @@ void Basin_Modelling::computeHeatFlow
   matrixMatrixProduct ( scaledGradBasis, conductivityTensor, gradBasis2 );
   matrixTransposeVectorProduct ( gradBasis2, currentElementTemperature, heatFlow );
 
-  ///
-  /// Fouriers law states:  q = -k \grad T
-  ///
+  //
+  // Fouriers law states:  q = -k \grad T
+  //
   scale ( heatFlow, -1.0 );
 
   if ( includeAdvectionTerm && fluid != 0 ) {
@@ -1295,9 +1294,9 @@ void Basin_Modelling::Assemble_Element_Pressure_Salt_System
 
         Scaling = Element_Scaling * integrationWeight * Permeability_Normal * Current_Fluid_Density / Fluid_Viscosity;
 
-        ///
-        /// diag ( \nabla N \frac{\kappa \rho_f}{\mu}) \nabla N )
-        ///
+        //
+        // diag ( \nabla N \frac{\kappa \rho_f}{\mu}) \nabla N )
+        //
         for ( III = 1; III <= 8; III++ ) {
           Element_Jacobian ( III, III ) = Element_Jacobian ( III, III ) 
                                            + Scaling * (  Scaled_Grad_Basis ( III, 1 ) * Scaled_Grad_Basis ( III, 1 ) 

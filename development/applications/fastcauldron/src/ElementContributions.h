@@ -105,14 +105,14 @@ double poreVolumeOfElement ( const LayerElement&  element,
 
 /// \brief Compute the average porosity for an element.
 ///
-/// \frac{\int_{e} \phi dx}{\int_{e} dx}
+/// \f$ \frac{\int_{e} \phi dx}{\int_{e} dx} \f$
 double averageElementPorosity ( const LayerElement&                               element,
                                 const FiniteElementMethod::ElementGeometryMatrix& geometryMatrix,
                                 const int                                         numberOfQuadraturePoints = DefaultQuadratureDegree );
 
 /// \brief Compute the average porosity for an element.
 ///
-/// \frac{\int_{e} \phi dx}{\int_{e} dx}
+/// \f$ \frac{\int_{e} \phi dx}{\int_{e} dx} \f$
 double averageElementPorosity ( const LayerElement&                               element,
                                 const int                                         numberOfQuadraturePoints = DefaultQuadratureDegree );
 

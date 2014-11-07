@@ -244,41 +244,41 @@ namespace Basin_Modelling {
   ///
   /// The overpressure equation:
   ///
-  /// \f[
+  /// \f$
   ///      \frac{\partial (\phi \rho_f)}{\partial t}=
   ///                      \nabla \cdot \left( \frac{\rho_f k}{\mu} \nabla P_o \right) + S_p
-  /// \f]
+  /// \f$
   ///
   /// The weak form:
   ///
-  /// \f[
+  /// \f$
   ///      \int_{e} N \frac{(\phi \rho_f)_{n}}{\delta t} dx - \int_{e} N \frac{(\phi \rho_f)_{n-1}}{\delta t} dx =
   ///                       \int_{e} \nabla N \cdot \left( \frac{\rho_f k}{\mu} \nabla P_o \right)  dx +
   ///                       \int_{e} N S_p  dx
-  /// \f]
+  /// \f$
   ///
   /// The Residual:
   ///
-  /// \f[
+  /// \f$
   ///     R = -\int_{e} N \frac{(\phi \rho_f)_{n}}{\delta t} dx + \int_{e} N \frac{(\phi \rho_f)_{n-1}}{\delta t} dx
   ///          -\int_{e} \nabla N \cdot \left( \frac{\rho_f k}{\mu} \nabla P_o \right)  dx
   ///          +\int_{e} N S_p  dx
-  /// \f]
+  /// \f$
   ///
   /// The overpressure is defined as:
   ///
-  /// \f[
-  ///      P_o(x) = \sum_{i=1}^n \alpha_i N_{i}(\^{x})
-  /// \f]
+  /// \f$
+  ///      P_o(x) = \sum_{i=1}^n \alpha_i N_{i}(x)
+  /// \f$
   ///
   /// The Jacobian:
   ///
-  /// \f[{eqnarray}
+  /// \f${eqnarray}
   ///     J &=& \frac{\partial R}{\partial \alpha_i} \newline
   ///       &=& -\int_{e} N \frac{\partial (\phi \rho_f)_{n}}{\partial P_o}\frac{1}{\delta t} N dx
   ///           -\int_{e} \nabla N \left( \frac{1}{\mu}\frac{\partial (k \rho_f)}{\partial P_o} \nabla P_o \right) N dx
   ///           -\int_{e} \nabla N \left(\frac{k \rho_f}{\mu} \right) \nabla N dx
-  /// \f]
+  /// \f$
   ///
   ///
   ///
