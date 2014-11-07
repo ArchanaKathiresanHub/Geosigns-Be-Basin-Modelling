@@ -39,12 +39,13 @@ unsigned long MemoryChecker::getMemoryUsed () const {
 
    getStatM ( statm );
 
-   return statm.size * getPageSize () / ToMegaBytes;
+   return ( statm.size * getPageSize ()) / ToMegaBytes;
 
 }
 
 void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
       
+#ifndef _MSC_VER
    long nprocs = getNumberOfCoresOnline ();
 
    if ( nprocs == 0 ) {
@@ -55,13 +56,11 @@ void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
 
    unsigned long memoryPerProcess = 0;
 
-#ifndef _MSC_VER
    struct sysinfo inf;
 
    sysinfo ( &inf );
    memoryPerProcess = inf.totalram / nprocs;
    memoryPerProcess /= ToMegaBytes;
-#endif
 
    if ( memoryPerProcess == 0 ) {
       // If the memory per process is zero then terminate the thread.
@@ -74,10 +73,9 @@ void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
          std::cerr << " MeSsAgE WARNING: Current memory used is " << mc->getMemoryUsed () << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
       }
 
-#ifndef _MSC_VER
       sleep ( mc->m_timeBetweenSamples );
-#endif
    }
 
+#endif
 }
 
