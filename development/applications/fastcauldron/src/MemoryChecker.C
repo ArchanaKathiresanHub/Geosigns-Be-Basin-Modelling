@@ -17,25 +17,15 @@ const unsigned int MemoryChecker::MaximumTimeBetweenSamples = 60;
 
 
 MemoryChecker::MemoryChecker ( const unsigned int timeBetweenSamples ):
-
-#if 0
    m_timeBetweenSamples ( NumericFunctions::Maximum ( MinimumTimeBetweenSamples, NumericFunctions::Minimum ( timeBetweenSamples, MaximumTimeBetweenSamples ))),
    m_exit ( false ),
    m_thread ( boost::bind ( &checkMemory, this))
-#else
-   m_timeBetweenSamples ( NumericFunctions::Maximum ( MinimumTimeBetweenSamples, NumericFunctions::Minimum ( timeBetweenSamples, MaximumTimeBetweenSamples ))),
-   m_exit ( false )
-#endif
 { 
 }
 
 MemoryChecker::~MemoryChecker () {
    m_exit = true;
-
-#if 0
    m_thread.join ();
-#endif
-
 }
 
 bool MemoryChecker::exitLoop () const {
@@ -52,9 +42,8 @@ unsigned long MemoryChecker::getMemoryUsed () const {
 
 }
 
-void MemoryChecker::checkMemory ( const MemoryChecker* tc ) {
+void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
       
-#if 0
    long nprocs = getNumberOfCoresOnline ();
 
    if ( nprocs == 0 ) {
@@ -77,15 +66,14 @@ void MemoryChecker::checkMemory ( const MemoryChecker* tc ) {
       return;
    }
 
-   while ( not tc->exitLoop ()) {
+   while ( not mc->exitLoop ()) {
 
-      if ( tc->getMemoryUsed () > memoryPerProcess ) {
-         std::cerr << " checking memory " << tc->getMemoryUsed () << std::endl;
+      if ( mc->getMemoryUsed () > memoryPerProcess ) {
+         std::cerr << " checking memory " << mc->getMemoryUsed () << std::endl;
       }
 
-      sleep ( tc->m_timeBetweenSamples );
+      sleep ( mc->m_timeBetweenSamples );
    }
-#endif
 
 }
 
