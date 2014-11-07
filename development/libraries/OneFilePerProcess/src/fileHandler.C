@@ -494,6 +494,16 @@ void FileHandler::setFilespace( hid_t aFilespace ) {
    m_filespace = aFilespace;
 }
 
+void FileHandler::createOp () {
+   MPI_Op_create(( MPI_User_function *)reduce_op, true, &m_op );
+
+}
+
+void FileHandler::freeOp () {
+   MPI_Op_free ( &m_op );
+
+}
+
 const char * FileHandler::getFileName() const {
    return m_fileName.c_str();
 }

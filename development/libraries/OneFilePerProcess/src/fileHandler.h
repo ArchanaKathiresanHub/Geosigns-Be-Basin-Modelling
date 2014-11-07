@@ -83,6 +83,9 @@ public:
    void setFilespace( hid_t aMemspace );
    void setSpatialDimension ( int dimension );
 
+   void createOp();
+   void freeOp();
+
 protected:
 
    hsize_t m_count [MAX_FILE_DIMENSION];

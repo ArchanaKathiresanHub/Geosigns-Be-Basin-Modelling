@@ -166,7 +166,7 @@ public:
          hid_t dataset = H5Dopen( m_h5file, StdDataSetName, H5P_DEFAULT);
          EXPECT_GE(dataset, 0);
 
-         status = H5Dread( dataset, H5T_NATIVE_INT, space, space, H5P_DEFAULT, &data );
+         status = H5Dread( dataset, H5T_NATIVE_FLOAT, space, space, H5P_DEFAULT, &data );
          EXPECT_GE(status, 0);
 
          if( access == OpenWithAttr ) {
@@ -203,10 +203,10 @@ public:
       {
          // Create local files
          EXPECT_GE(data, 0);
-         hid_t dataset = H5Dcreate( m_h5file, StdDataSetName, H5T_NATIVE_INT, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+         hid_t dataset = H5Dcreate( m_h5file, StdDataSetName, H5T_NATIVE_FLOAT, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
          EXPECT_GE(dataset, 0);
          
-         status = H5Dwrite( dataset, H5T_NATIVE_INT, space, space, H5P_DEFAULT, &data ); 
+         status = H5Dwrite( dataset, H5T_NATIVE_FLOAT, space, space, H5P_DEFAULT, &data ); 
          EXPECT_GE(status, 0);
          
          if( access == CreateWithAttr ) {
@@ -334,14 +334,16 @@ TEST( h5mergeTest, MergeExistingFiles1 )
       }
       reader.setGlobalFileId ( b.fileId () );
       reader.setLocalFileId ( a.fileId () );
+      reader.createOp();
 
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPI::rank() == 0)
       {      
          b.close();
-         EXPECT_EQ( MPI::size() * 5, b.open( File::Open, -1, true ));
+         EXPECT_EQ( 5, b.open( File::Open, -1, true ));
       }
+      reader.freeOp();
    }
                  
 }
@@ -371,14 +373,16 @@ TEST( h5mergeTest, MergeExistingFiles2 )
       }
       reader.setGlobalFileId ( b.fileId () );
       reader.setLocalFileId ( a.fileId () );
- 
+      reader.createOp();
+
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPI::rank() == 0)
       {      
          b.close();
-         EXPECT_EQ( MPI::size() * 5, b.open( File::OpenWithAttr, -1, true ));
+         EXPECT_EQ( 5, b.open( File::OpenWithAttr, -1, true ));
       }
+      reader.freeOp();
    }
                  
 }
@@ -419,10 +423,12 @@ TEST( h5mergeTest, MergeExistingFiles4 )
       }
       reader.setGlobalFileId ( b.fileId () );
       reader.setLocalFileId  ( a.fileId () );
+      reader.createOp();
  
       EXPECT_EQ( -1, readDataset( a.fileId(), "", &reader ));
 
-    }
+      reader.freeOp();
+   }
                  
 }
 
@@ -467,14 +473,16 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
 
       reader.setLocalFileId(  a.fileId ());
       reader.setGlobalFileId ( a.fileId () );
+      reader.createOp();
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPI::rank() == 0)
       {      
          a.close();
-         EXPECT_EQ( MPI::size() * 5, a.open( File::OpenWithAttr, -1, true ));
+         EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));
       }
+      reader.freeOp();
    }
                  
 }
@@ -495,14 +503,16 @@ TEST( h5mergeTest, AppendExistingFiles8 )
 
       reader.setLocalFileId(  a.fileId ());
       reader.setGlobalFileId ( a.fileId () );
+      reader.createOp();
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPI::rank() == 0)
       {      
          a.close();
-         EXPECT_EQ( MPI::size() * 5, a.open( File::OpenWithAttr, -1, true ));
+         EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));
       }
+      reader.freeOp();
    }
                  
 }
