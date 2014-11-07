@@ -11,6 +11,11 @@ class MemoryChecker {
 
 public :
 
+   /// \brief Conversion factor from bytes to mega-bytes.
+   ///
+   /// The bytes value should be divided by this value.
+   static const unsigned int ToMegaBytes;
+
    /// \brief The default duration between samples being taken.
    static const unsigned int DefaultTimeBetweenSamples;
 

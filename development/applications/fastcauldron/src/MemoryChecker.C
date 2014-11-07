@@ -11,6 +11,7 @@
 #include "NumericFunctions.h"
 #include "System.h"
 
+const unsigned int MemoryChecker::ToMegaBytes = 1048576;
 const unsigned int MemoryChecker::DefaultTimeBetweenSamples = 30;
 const unsigned int MemoryChecker::MinimumTimeBetweenSamples = 1;
 const unsigned int MemoryChecker::MaximumTimeBetweenSamples = 60;
@@ -38,7 +39,7 @@ unsigned long MemoryChecker::getMemoryUsed () const {
 
    getStatM ( statm );
 
-   return statm.size * getPageSize ();
+   return statm.size * getPageSize () / ToMegaBytes;
 
 }
 
@@ -59,6 +60,7 @@ void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
 
    sysinfo ( &inf );
    memoryPerProcess = inf.totalram / nprocs;
+   memoryPerProcess /= ToMegaBytes;
 #endif
 
    if ( memoryPerProcess == 0 ) {
@@ -69,10 +71,12 @@ void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
    while ( not mc->exitLoop ()) {
 
       if ( mc->getMemoryUsed () > memoryPerProcess ) {
-         std::cerr << " Warning: Current memory used is " << mc->getMemoryUsed () << " which exceeds the memory per process of " << memoryPerProcess << std::endl;
+         std::cerr << " MeSsAgE WARNING: Current memory used is " << mc->getMemoryUsed () << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
       }
 
+#ifndef _MSC_VER
       sleep ( mc->m_timeBetweenSamples );
+#endif
    }
 
 }
