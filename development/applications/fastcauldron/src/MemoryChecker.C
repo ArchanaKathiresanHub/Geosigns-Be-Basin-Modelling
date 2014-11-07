@@ -69,7 +69,7 @@ void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
    while ( not mc->exitLoop ()) {
 
       if ( mc->getMemoryUsed () > memoryPerProcess ) {
-         std::cerr << " checking memory " << mc->getMemoryUsed () << std::endl;
+         std::cerr << " Warning: Current memory used is " << mc->getMemoryUsed () << " which exceeds the memory per process of " << memoryPerProcess << std::endl;
       }
 
       sleep ( mc->m_timeBetweenSamples );
