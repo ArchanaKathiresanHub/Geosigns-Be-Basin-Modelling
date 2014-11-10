@@ -19,6 +19,7 @@ set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: o
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" OFF)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" OFF)
+option(BM_USE_MPI_FRONTEND "Whether to use MPI frontend when compiling. (UNIX only)" OFF)
    
 if (UNIX) 
    #
@@ -33,6 +34,8 @@ if (UNIX)
 
       add_environment_source_script_to_wrapper( cc "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
       add_environment_source_script_to_wrapper( cxx "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
+      add_environment_source_script_to_wrapper( ccwl "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
+      add_environment_source_script_to_wrapper( cxxwl "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
 
       # Add package info
       add_external_package_info(
@@ -55,11 +58,13 @@ if (UNIX)
 
    endif(BM_USE_INTEL_COMPILER)
 
+   set(args "\"$@\"")
+
    if( NOT BM_PARALLEL)
       # Write and set the wrapper if not building parallel applications
       if (BM_USE_INTEL_COMPILER)
-         finish_wrapper( cc "icc" C_Compiler)
-         finish_wrapper( cxx "icpc" CXX_Compiler)
+         finish_wrapper( cc "icc ${args}" C_Compiler)
+         finish_wrapper( cxx "icpc ${args}" CXX_Compiler)
       endif()
       # Rely on system default if not using Intel compiler
    
@@ -83,15 +88,20 @@ if (UNIX)
          #  Add MPI to the environment set-up script and wrappers
          add_environment_source_script_to_wrapper( cc "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
          add_environment_source_script_to_wrapper( cxx "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
+         add_environment_source_script_to_wrapper( ccwl "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
+         add_environment_source_script_to_wrapper( cxxwl "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
          add_environment_source_script(CSHELL "${INTEL_MPI_ROOT}/intel64/bin/mpivars.csh")
          add_environment_source_script(BOURNE "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
          if (BM_USE_INTEL_COMPILER)
             # Use the MPI compiler frontends to the Intel compiler -- mpiicc and mpiicpc -- as compilers.
-            finish_wrapper( cc "mpiicc ${linkOpts}" C_Compiler)
-            finish_wrapper( cxx "mpiicpc ${linkOpts}" CXX_Compiler)
-         
+            finish_wrapper( cc "mpiicc ${linkOpts} ${args}" C_Compiler)
+            finish_wrapper( cxx "mpiicpc ${linkOpts} ${args}" CXX_Compiler)
+ 
+            finish_wrapper( ccwl "mpiicc ${args}" C_Compiler_Without_Linking)
+            finish_wrapper( cxxwl "mpiicpc ${args}" CXX_Compiler_Without_Linking)
+        
             # start generating environment for mpiexec and mpirun utilitise
             add_environment_source_script_to_wrapper( mpiexec "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
             add_environment_source_script_to_wrapper( mpirun "${INTEL_CXX_ROOT}/bin/compilervars.sh intel64")
@@ -99,16 +109,46 @@ if (UNIX)
          else(BM_USE_INTEL_COMPILER)
 
             # Use the MPI compiler frontends to the normal compilers -- mpicc and mpicxx -- as compilers.
-            finish_wrapper( cc "mpicc ${linkOpts}" C_Compiler)
-            finish_wrapper( cxx "mpicxx ${linkOpts}" CXX_Compiler)
+            finish_wrapper( cc "mpicc ${linkOpts} ${args}" C_Compiler)
+            finish_wrapper( cxx "mpicxx ${linkOpts} ${args}" CXX_Compiler)
+
+            finish_wrapper( ccwl "mpicc ${args}" C_Compiler_Without_Linking)
+            finish_wrapper( cxxwl "mpicxx ${args}" CXX_Compiler_Without_Linking)
+         endif()
+
+         if (NOT BM_USE_MPI_FRONTEND)
+            # However the Intel MPI compiler frontends are quite a bit slower when
+            # ran from NFS volumes, therefore it's to call the compilers directly
+            execute_process( COMMAND "${C_Compiler}" "-show" "${args}"
+                  OUTPUT_VARIABLE evaluatedFrontendLinkingC
+            )
+            execute_process( COMMAND "${CXX_Compiler}" "-show" "${args}"
+                  OUTPUT_VARIABLE evaluatedFrontendLinkingCXX
+            )
+
+            # Note: Also take into account that these wrappers generate a
+            # different set of commands when they are ran in non-linking mode
+            execute_process( COMMAND "${C_Compiler_Without_Linking}" "-c" "-show" "${args}"
+                  OUTPUT_VARIABLE evaluatedFrontendNonLinkingC
+            )
+            execute_process( COMMAND "${CXX_Compiler_Without_Linking}" "-c" "-show" "${args}"
+                  OUTPUT_VARIABLE evaluatedFrontendNonLinkingCXX
+            )
+
+            # Generate the wrapper. The overly complex regualr expression is
+            # there to detect a "-c" command line parameter. When this is
+            # given, the linker commands should not be generated
+            set( onlyCompile "\\\\([[:space:]]\\\\|^\\\\)\\\\(-c\\\\|-S\\\\|-E\\\\)\\\\([[:space:]]\\\\|$\\\\)")
+            finish_wrapper( cc  "if echo \"$*\" | grep -q '${onlyCompile}' ; then ${evaluatedFrontendNonLinkingC} else ${evaluatedFrontendLinkingC} fi" C_Compiler)
+            finish_wrapper( cxx "if echo \"$*\" | grep -q '${onlyCompile}' ; then ${evaluatedFrontendNonLinkingCXX} else ${evaluatedFrontendLinkingCXX} fi" CXX_Compiler)
          endif()
 
          # Write wrappers for mpiexec and mpirun utilities
          add_environment_source_script_to_wrapper( mpiexec "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
          add_environment_source_script_to_wrapper( mpirun "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
-         finish_wrapper( mpiexec "mpiexec" MpiExec )
-         finish_wrapper( mpirun "mpirun" MpiRun)
+         finish_wrapper( mpiexec "mpiexec ${args}" MpiExec )
+         finish_wrapper( mpirun "mpirun ${args}" MpiRun)
 
          # Write info about Intel MPI
          add_external_package_info(

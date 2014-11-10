@@ -135,10 +135,13 @@ macro(finish_wrapper name executable wrapper)
 ${compilerEnvironment}
 
 # Run the tool
-${executable} \"$@\"
+${executable}
 "
        )
 
+   if (EXISTS "${CMAKE_BINARY_DIR}/${name}_wrap.sh")
+     file(REMOVE "${CMAKE_BINARY_DIR}/${name}_wrap.sh")
+   endif()
    file(COPY "${CMAKE_BINARY_DIR}/aux/${name}_wrap.sh"
         DESTINATION "${CMAKE_BINARY_DIR}"
         FILE_PERMISSIONS
