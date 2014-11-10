@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-bool copyFile( std::string & dstPath, std::string & curPath )    
+bool copyFile( const std::string & dstPath, const std::string & curPath )    
 {
    bool status = true;
    const size_t bufSize = 8 * 1024 * 1024;

@@ -202,6 +202,7 @@ add_definitions(-DSVNREVISION="${BM_SVNREVISION}")
 if(BM_BUILD_ENABLE_TESTING)
    enable_testing()
    find_package(TestFramework REQUIRED CONFIG)
+   find_package(Valgrind REQUIRED CONFIG)
 endif()
 
 if (BM_CSHARP_API)

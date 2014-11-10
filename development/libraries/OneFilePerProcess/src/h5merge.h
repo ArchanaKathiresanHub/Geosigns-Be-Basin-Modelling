@@ -8,7 +8,7 @@ class FileHandler;
 
 enum MergeOption { CREATE, REUSE, APPEND, UNKNOWN };
 
-bool copyFile( std::string & dstPath, std::string & currentPath );
+bool copyFile( const std::string & dstPath, const std::string & currentPath );
 
 bool mergeFiles( FileHandler * aFileHandler ) ;
 

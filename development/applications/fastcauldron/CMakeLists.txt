@@ -105,6 +105,16 @@ add_gtest( NAME "MatrixInterpolator"
 add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
 	   SOURCES test/PceTest.C )
 
+configure_file( 
+      ${CMAKE_CURRENT_SOURCE_DIR}/test/MemCheck.project3d
+      MemCheck.project3d
+      COPYONLY
+)
+
+add_memcheck( NAME "Fastcauldron_SimpleItcoupled"
+             EXECUTABLE fastcauldron
+             PARAMETERS "-project" "MemCheck.project3d" "-itcoupled"
+      )
 	
 endif(BM_PARALLEL)	
 

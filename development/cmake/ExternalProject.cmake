@@ -338,6 +338,9 @@ macro( add_external_project_to_repository )
       endif()
    else()
 
+     # Since we don't build it, add a dummy target, so that others may still depend on it
+     add_library( ${extProj_NAME} UNKNOWN IMPORTED GLOBAL)
+
      # Install source tarball to the directories defined by YIELD_SOURCE during CMake configuration
       if (extProj_YIELD_SOURCE)
          message(STATUS "Installing source of ${extProj_NAME} to directory ${extProj_YIELD_SOURCE}")

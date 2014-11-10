@@ -75,7 +75,7 @@ fi
 #Give access for the group g_psaz00 to build folder
 chgrp -R g_psaz00 $build
 chmod -R g+rw $build
-find $build -type d | xargs chmod g+x
+find $build -type d -print0 | xargs -0 chmod g+x
 
 if [ x$geocase = xTrue ]; then
 # Import (legacy) Geocase
