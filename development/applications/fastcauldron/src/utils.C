@@ -176,12 +176,12 @@ void displayTime(const bool debug, const char* str)
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
 
-void displayTime(const string & str, PetscLogDouble StartTime, double * timeToDisplay )
+void displayTime(const string & str, PetscLogDouble StartTime)
 {
    PetscLogDouble EndTime;
 
    PetscTime(&EndTime);
-   double CalculationTime = ( timeToDisplay ? * timeToDisplay : EndTime - StartTime ); 
+   double CalculationTime = EndTime - StartTime; 
    long remainder = (long) CalculationTime;
    
    long secs = remainder % 60;
@@ -190,18 +190,39 @@ void displayTime(const string & str, PetscLogDouble StartTime, double * timeToDi
    remainder -= mins * 60;
    long hrs = remainder / (60 * 60);
 
-   std::stringstream sstart;
-   std::stringstream send;
+   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+   cout << str << hrs << " Hrs. " << mins << " Mins. " << secs << " Sec." << endl;
+   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 
-   if( timeToDisplay != 0 ) {
-      sstart << " Time: " << * timeToDisplay << " (";
-      send   << ")";
-   } else {
-      sstart << "";
-      send   << "";
-   } 
-   cout << str << sstart.str() << hrs << " Hrs. " << mins << " Mins. " << secs << " Sec." << send.str() << endl;
+}
 
+void Display_Merging_Progress( const string & fileName, double startTime) {
+   
+   if (PetscGlobalRank != 0)
+      return;
+   
+   char time[124];
+
+   PetscTime(&EndTime);
+   CalculationTime = EndTime - startTime; 
+   long remainder = (long) CalculationTime;
+
+   long secs = remainder % 60;
+   remainder -= secs;
+   long mins = (remainder / 60) % 60;
+   remainder -= mins * 60;
+   long hrs = remainder / (60 * 60);
+
+   sprintf (time, "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
+
+   ostringstream buf;
+   buf.precision(4);
+   buf.setf(ios::fixed);
+               
+   buf << "Merging of " << fileName << " : " << setw( 8 ) << " Elapsed: " << time;;
+   
+   cout << buf.str() << endl;
+   cout << flush;
 }
 
 void getElapsedTime(char* str)

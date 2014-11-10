@@ -105,10 +105,6 @@ bool FileHandler::mergeFiles() {
 
    hid_t status = 0, close_status = 0, iteration_status = 0;
 
-   if( m_rank == 0 ) {
-      std::cout << m_fileName << std::endl;
-   }
-
    MPI_Op_create(( MPI_User_function *)reduce_op, true, &m_op );
 
    hid_t fileAccessPList = H5Pcreate(H5P_FILE_ACCESS);
