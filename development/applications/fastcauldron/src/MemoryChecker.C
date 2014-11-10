@@ -22,12 +22,11 @@ MemoryChecker::MemoryChecker ( const unsigned int timeBetweenSamples ):
    m_exit ( false ),
    m_thread ( boost::bind ( &checkMemory, this))
 { 
+   m_thread.detach ();
 }
 
 MemoryChecker::~MemoryChecker () {
    m_exit = true;
-   m_thread.interrupt ();
-   m_thread.join ();
 }
 
 bool MemoryChecker::exitLoop () const {
@@ -47,41 +46,34 @@ unsigned long MemoryChecker::getMemoryUsed () const {
 void MemoryChecker::checkMemory ( const MemoryChecker* mc ) {
       
 #ifndef _MSC_VER
-   try {
-      long nprocs = getNumberOfCoresOnline ();
+   long nprocs = getNumberOfCoresOnline ();
 
-      if ( nprocs == 0 ) {
-         // If the number of cores is 0 (i.e. unknown) then we cannot calculate the memory per process.
-         // This is probably only a result of the windows build.
-         return;
-      }
-
-      unsigned long memoryPerProcess = 0;
-
-      struct sysinfo inf;
-
-      sysinfo ( &inf );
-      memoryPerProcess = inf.totalram / nprocs;
-      memoryPerProcess /= ToMegaBytes;
-
-      if ( memoryPerProcess == 0 ) {
-         // If the memory per process is zero then terminate the thread.
-         return;
-      }
-
-      while ( not mc->exitLoop ()) {
-
-         if ( mc->getMemoryUsed () > memoryPerProcess ) {
-            std::cerr << " MeSsAgE WARNING: Current memory used is " << mc->getMemoryUsed () << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
-         }
-
-         boost::this_thread::sleep ( boost::posix_time::seconds ( mc->m_timeBetweenSamples ));
-      }
-
+   if ( nprocs == 0 ) {
+      // If the number of cores is 0 (i.e. unknown) then we cannot calculate the memory per process.
+      // This is probably only a result of the windows build.
+      return;
    }
 
-   catch ( boost::thread_interrupted e ) {
-      // Do nothing.
+   unsigned long memoryPerProcess = 0;
+
+   struct sysinfo inf;
+
+   sysinfo ( &inf );
+   memoryPerProcess = inf.totalram / nprocs;
+   memoryPerProcess /= ToMegaBytes;
+
+   if ( memoryPerProcess == 0 ) {
+      // If the memory per process is zero then terminate the thread.
+      return;
+   }
+
+   while ( not mc->exitLoop ()) {
+
+      if ( mc->getMemoryUsed () > memoryPerProcess ) {
+         std::cerr << " MeSsAgE WARNING: Current memory used is " << mc->getMemoryUsed () << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
+      }
+
+      boost::this_thread::sleep ( boost::posix_time::seconds ( mc->m_timeBetweenSamples ));
    }
 
 #endif
