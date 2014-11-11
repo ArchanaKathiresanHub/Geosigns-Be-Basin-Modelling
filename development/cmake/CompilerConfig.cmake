@@ -22,6 +22,18 @@ option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" OFF)
 option(BM_USE_MPI_FRONTEND "Whether to use MPI frontend when compiling. (UNIX only)" OFF)
    
 if (UNIX) 
+
+   #
+   # We may need to construct wrappers for a few commands because they need
+   # special environments.
+   #
+   init_wrapper( cc )      # C Compiler
+   init_wrapper( cxx )     # C++ Compiler
+   init_wrapper( ccwl )    # C Compiler without linking
+   init_wrapper( cxxwl )   # C++ Compiler without linking
+   init_wrapper( mpiexec ) # mpiexec command
+   init_wrapper( mpirun )  # mpirun command
+
    #
    # Set the compiler on Unix to Intel if enabled
    #

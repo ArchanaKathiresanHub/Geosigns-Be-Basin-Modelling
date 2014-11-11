@@ -97,10 +97,16 @@ macro(add_environment_variable varName varValue)
    file(APPEND "${CMAKE_BINARY_DIR}/${BM_WINCMD_SHELL_ENVIRONMENT_SCRIPT_FILE}" "set ${varName}=${value}\n")
 endmacro(add_environment_variable)
 
-# - Write a shell script that can wraps an executable
+# - Write a shell script that wraps an executable
 # Some executables that are necessary to build this project, need a special
-# environment. The following functions create a wrapper for such an executable
+# environment. The following functions create a wrapper for such executables
 # by first setting-up this special environment and then calling the executable.
+#
+# init_wrapper
+#        Prepares writing a wrapper for the given executable
+#
+#          init_wrapper( <wrapper-name> <executable> )
+#        
 #
 # add_environment_source_script_to_wrapper
 #        Adds a line to the script that sources a specified script.
@@ -117,13 +123,24 @@ endmacro(add_environment_variable)
 #        paraemeters. The file name of the resulting wrapper is written
 #        to variable <variable-name>.
 
+macro(init_wrapper name)
+   # Clear the environment
+   file(WRITE "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh" "")
+endmacro(init_wrapper)
+
 macro(add_environment_source_script_to_wrapper name scriptName)
+   # Append a script to source into the environment
    file(APPEND "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh" "source ${scriptName}\n")
 endmacro(add_environment_source_script_to_wrapper)
 
 macro(finish_wrapper name executable wrapper)
-   # First read the set of scripts to be sourced
-   file(READ "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh" compilerEnvironment)
+   # First read the set of scripts to be sourced 
+   execute_process( 
+         COMMAND /bin/bash 
+            ${CMAKE_SOURCE_DIR}/cmake/SaveEnvironment.sh 
+            "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh"
+            OUTPUT_VARIABLE compilerEnvironment
+   ) 
 
    # Now write the wrapper
    file(WRITE "${CMAKE_BINARY_DIR}/aux/${name}_wrap.sh" 
