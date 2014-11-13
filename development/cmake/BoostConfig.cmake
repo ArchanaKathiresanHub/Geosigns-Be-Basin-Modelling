@@ -12,6 +12,7 @@
 
 include( cmake/AddPackage.cmake)
 
+set(BOOST_LIBS_LIST filesystem system thread atomic date_time chrono)
 
 if (UNIX)
    # Convert the compiler name that CMake has to a toolset name that the Boost
@@ -24,9 +25,21 @@ if (UNIX)
 
    # Instruct boost to use our compiler
    add_environment_variable( BOOST_BUILD_PATH "${PROJECT_BINARY_DIR}" )
-   file( WRITE "${PROJECT_BINARY_DIR}/user-config.jam" 
+   file( WRITE "${PROJECT_BINARY_DIR}/user-config.jam"
          "using ${toolset} : ${CMAKE_CXX_COMPILER_VERSION} : ${CMAKE_CXX_COMPILER} ;\n"
    )
+
+   # filesystem;system;thread;atomic -> "filesystem,system,thread,atomic"
+   #
+   string( REPLACE ";" "," COMMA_SEP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
+message("COMMA_SEP_BOOST_LIBS_LIST: ${COMMA_SEP_BOOST_LIBS_LIST}")
+
+   # filesystem;system;thread;atomic -> "boost_filesystem boost_system boost_thread boost_atomic"
+   #
+   string( REPLACE ";" " boost_" TMP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
+   set(PREFIXED_BOOST_LIBS_LIST "boost_${TMP_BOOST_LIBS_LIST}")
+   separate_arguments(PREFIXED_BOOST_LIBS_LIST)
+message("PREFIXED_BOOST_LIBS_LIST: ${PREFIXED_BOOST_LIBS_LIST}")
 
    # Add Boost as an external project
    add_external_project_to_repository(
@@ -34,14 +47,14 @@ if (UNIX)
          VERSION 1.56.0
          ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_56_0.tar.gz"
          ARCHIVE_MD5 "8c54705c424513fa2be0042696a3a162"
-         PATCH_COMMAND 
-            "./bootstrap.sh" 
-            "--with-libraries=filesystem,system,thread,atomic"
-            "--prefix={ROOT}" 
+         PATCH_COMMAND
+            "./bootstrap.sh"
+            "--with-libraries=${COMMA_SEP_BOOST_LIBS_LIST}"
+            "--prefix={ROOT}"
          CONFIGURE_COMMAND "./b2" "install"
          BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Boost has been built."
          INSTALL_COMMAND  "${CMAKE_COMMAND}" "-E" "echo" "Boost has already been installed."
-         CONFIGURE_OPTIONS 
+         CONFIGURE_OPTIONS
            COMPILER "{CurrentCompiler}" "toolset=${toolset}"
            MPI      "{CurrentMPI}"
            SPEED    "Release" "variant=release"
@@ -49,17 +62,18 @@ if (UNIX)
            SPEED    "DebugAll" "variant=debug"
            SPEED    "MemCheck" "variant=debug"
            OS       "{CurrentPlatform}"
-           LINK     "Dynamic" "link=shared" 
-           LINK     "Static"  "link=static" 
+           LINK     "Dynamic" "link=shared"
+           LINK     "Static"  "link=static"
 
-         YIELD_LIBRARIES  "boost_filesystem" "boost_system" "boost_thread" "boost_atomic" "boost_date_time" "boost_chrono"
+         YIELD_LIBRARIES  ${PREFIXED_BOOST_LIBS_LIST}
    )
 
    # Use boost in our project
    set(BOOST_ROOT "${Boost_ROOT}")
    set(Boost_FOUND TRUE)
    set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
-   set(Boost_LIBRARIES "boost_filesystem" "boost_system"  "boost_thread" "boost_atomic" "boost_date_time" "boost_chrono")
+   set(Boost_LIBRARIES ${PREFIXED_BOOST_LIBS_LIST})
+message( "Boost_LIBRARIES: ${Boost_LIBRARIES}")
 
    add_external_package_info(
       CAPABILITY BoostLib
@@ -78,8 +92,8 @@ if (UNIX)
       CONTAINS_CRYPTO "No"
       ECCN         "EAR99"
       ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/2013.10-ECCN_Discussion_with_George_Jolly.msg"
-   )   
-   
+   )
+
 elseif(WIN32)
 
     set(BOOST_ROOT "Boost-NOTFOUND" CACHE PATH "Location of the Boost C++ libraries")
@@ -95,12 +109,15 @@ elseif(WIN32)
 
     math(EXPR _64 "${CMAKE_SIZEOF_VOID_P} * 8")
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib${_64}${BOOST_LIB_POSTFIX}")
-    
+
     if (NOT BUILD_SHARED_LIBS)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
 
-    find_package( Boost 1.56.0 REQUIRED COMPONENTS filesystem system thread atomic date_time chrono )
+    string( REPLACE ";" " " SPACE_SEP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
+    MESSAGE( ${SPACE_SEP_BOOST_LIBS_LIST})
+
+    find_package( Boost 1.56.0 REQUIRED COMPONENTS ${SPACE_SEP_BOOST_LIBS_LIST} )
 
     add_external_package_info(
       CAPABILITY BoostLib

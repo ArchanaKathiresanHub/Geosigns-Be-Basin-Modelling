@@ -53,8 +53,8 @@ public:
       m_isFinished = false;
 
       // clean LSF structures
-      memset( &m_submit,     0, sizeof( m_submit ) ); 
-      memset( &m_submitRepl, 0, sizeof( m_submitRepl ) ); 
+      memset( &m_submit,     0, sizeof( m_submit ) );
+      memset( &m_submitRepl, 0, sizeof( m_submitRepl ) );
 
       // resource limits are initialized to default
       for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
@@ -64,12 +64,12 @@ public:
       m_submit.command          = strdup( scriptName.c_str() );
       m_submit.jobName          = strdup( jobName.c_str() );
 
-      // stdout/stderr 
+      // stdout/stderr
       m_submit.outFile          = strdup( (jobName + ".out" ).c_str() );
       m_submit.errFile          = strdup( (jobName + ".err" ).c_str() );
-      
+
       m_submit.options          = SUB_PROJECT_NAME | SUB_JOB_NAME | SUB_OUT_FILE | SUB_ERR_FILE;
-      
+
       m_submit.cwd              = strdup( cwd.c_str() );
       m_submit.options3         = SUB3_CWD;
 
@@ -188,7 +188,7 @@ public:
       ok = ok ? sz.save( m_submit.options3,         "Options3Flags"  ) : ok; 
       ok = ok ? sz.save( m_submit.numProcessors,    "CPUsNum"        ) : ok;
       ok = ok ? sz.save( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
-      
+
       // TODO save necessar fields for submitRepl
       //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
 
@@ -228,7 +228,7 @@ public:
 
       // resource limits are initialized to default
       for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
-      
+
       std::string buf;
 
       ok = ok ? dz.load( buf, "CldProjectName" ) : ok;
@@ -246,8 +246,7 @@ public:
       ok = ok ? dz.load( buf, "StdErrLogFile" ) : ok;
       m_submit.errFile = strdup( buf.c_str() );
 
-      ok = ok ? dz.load( buf, "OptionsFlags" ) : ok;
-      m_submit.options = strdup( buf.c_str() );
+      ok = ok ? dz.load( m_submit.options, "OptionsFlags" ) : ok;
 
       ok = ok ? dz.load( buf, "CWD" ) : ok;
       m_submit.cwd = strdup( buf.c_str() );

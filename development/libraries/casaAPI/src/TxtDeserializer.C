@@ -244,19 +244,25 @@ namespace casa
       return ok;
    }
 
-   bool TxtDeserializer::load( bool         & v, const std::string & n ) { return loadVal( m_file, v, n, "bool",   m_buf ); }
-   bool TxtDeserializer::load( int          & v, const std::string & n ) { return loadVal( m_file, v, n, "int",    m_buf ); }
-   bool TxtDeserializer::load( unsigned int & v, const std::string & n ) { return loadVal( m_file, v, n, "uint",   m_buf ); }
-   bool TxtDeserializer::load( long long    & v, const std::string & n ) { return loadVal( m_file, v, n, "llong",  m_buf ); }
-   bool TxtDeserializer::load( ObjRefID     & v, const std::string & n ) { return loadVal( m_file, v, n, "refID",  m_buf ); }
-   bool TxtDeserializer::load( float        & v, const std::string & n ) { return loadVal( m_file, v, n, "float",  m_buf ); }
-   bool TxtDeserializer::load( double       & v, const std::string & n ) { return loadVal( m_file, v, n, "double", m_buf ); }
-   bool TxtDeserializer::load( std::string  & v, const std::string & n ) { return loadVal( m_file, v, n, "string", m_buf ); }
+   bool TxtDeserializer::load( bool               & v, const std::string & n ) { return loadVal( m_file, v, n, "bool",   m_buf ); }
+   bool TxtDeserializer::load( int                & v, const std::string & n ) { return loadVal( m_file, v, n, "int",    m_buf ); }
+   bool TxtDeserializer::load( unsigned int       & v, const std::string & n ) { return loadVal( m_file, v, n, "uint",   m_buf ); }
+   bool TxtDeserializer::load( long long          & v, const std::string & n ) { return loadVal( m_file, v, n, "llong",  m_buf ); }
+#ifndef _WIN32
+   bool TxtDeserializer::load( unsigned long long & v, const std::string & n ) { return loadVal( m_file, v, n, "llong",  m_buf ); }
+#endif
+   bool TxtDeserializer::load( ObjRefID           & v, const std::string & n ) { return loadVal( m_file, v, n, "refID",  m_buf ); }
+   bool TxtDeserializer::load( float              & v, const std::string & n ) { return loadVal( m_file, v, n, "float",  m_buf ); }
+   bool TxtDeserializer::load( double             & v, const std::string & n ) { return loadVal( m_file, v, n, "double", m_buf ); }
+   bool TxtDeserializer::load( std::string        & v, const std::string & n ) { return loadVal( m_file, v, n, "string", m_buf ); }
 
    bool TxtDeserializer::load( std::vector< bool >         & v, const std::string & n ) { return loadVec( m_file, v, n, "bool",   m_buf ); }
    bool TxtDeserializer::load( std::vector< int >          & v, const std::string & n ) { return loadVec( m_file, v, n, "int",    m_buf ); }
    bool TxtDeserializer::load( std::vector< unsigned int > & v, const std::string & n ) { return loadVec( m_file, v, n, "uint",   m_buf ); }
-   bool TxtDeserializer::load( std::vector< long long    > & v, const std::string & n ) { return loadVec( m_file, v, n, "llong",  m_buf ); }
+   bool TxtDeserializer::load( std::vector< long long >    & v, const std::string & n ) { return loadVec( m_file, v, n, "llong",  m_buf ); }
+#ifndef _WIN32
+   bool TxtDeserializer::load( std::vector< unsigned long long > & v, const std::string & n ) { return loadVec( m_file, v, n, "llong",  m_buf ); }
+#endif
    bool TxtDeserializer::load( std::vector< ObjRefID >     & v, const std::string & n ) { return loadVec( m_file, v, n, "refID",  m_buf ); }
    bool TxtDeserializer::load( std::vector< float >        & v, const std::string & n ) { return loadVec( m_file, v, n, "float",  m_buf ); }
    bool TxtDeserializer::load( std::vector< double >       & v, const std::string & n ) { return loadVec( m_file, v, n, "double", m_buf ); }

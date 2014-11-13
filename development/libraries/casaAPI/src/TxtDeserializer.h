@@ -65,6 +65,13 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool load( long long & val, const std::string & valName );
 
+#ifndef _WIN32
+      /// @brief  Load unsigned long long value
+      /// @param  val the unsigned long long value to load
+      /// @return true if on success, false otherwise
+      virtual bool load( unsigned long long & val, const std::string & valName );
+#endif
+
       /// @brief  Load ObjRefID value
       /// @param  val the ObjRefID value to load
       /// @return true if on success, false otherwise
@@ -105,7 +112,14 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool load( std::vector< long long > & vec, const std::string & vecName );
 
-      /// @brief  Load vector of long long values
+#ifndef _WIN32
+      /// @brief  Load vector of unsigned long long values
+      /// @param  vec the vector of unsigned long long values to load
+      /// @return true if on success, false otherwise
+      virtual bool load( std::vector< unsigned long long > & vec, const std::string & vecName );
+#endif
+
+     /// @brief  Load vector of long long values
       /// @param  vec the vector of long long values to load
       /// @return true if on success, false otherwise
       virtual bool load( std::vector< ObjRefID > & vec, const std::string & vecName );

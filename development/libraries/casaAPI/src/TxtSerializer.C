@@ -75,6 +75,9 @@ namespace casa
    bool TxtSerializer::save( int                 val, const std::string & vn ) { return saveValTo( m_file, "int",    vn, val ); }
    bool TxtSerializer::save( unsigned int        val, const std::string & vn ) { return saveValTo( m_file, "uint",   vn, val ); }
    bool TxtSerializer::save( long long           val, const std::string & vn ) { return saveValTo( m_file, "llong",  vn, val ); }
+#ifndef _WIN32
+   bool TxtSerializer::save( unsigned long long  val, const std::string & vn ) { return saveValTo( m_file, "llong",  vn, val ); }
+#endif
    bool TxtSerializer::save( ObjRefID            val, const std::string & vn ) { return saveValTo( m_file, "refID",  vn, val ); }
    bool TxtSerializer::save( float               val, const std::string & vn ) { return saveValTo( m_file, "float",  vn, val ); }
    bool TxtSerializer::save( double              val, const std::string & vn ) { return saveValTo( m_file, "double", vn, val ); }
@@ -83,6 +86,9 @@ namespace casa
    bool TxtSerializer::save( const std::vector< bool >         & vec, const std::string & vn ) { return saveVecTo( m_file, "bool",   vn, vec ); }
    bool TxtSerializer::save( const std::vector< int >          & vec, const std::string & vn ) { return saveVecTo( m_file, "int",    vn, vec ); }
    bool TxtSerializer::save( const std::vector< unsigned int > & vec, const std::string & vn ) { return saveVecTo( m_file, "uint",   vn, vec ); }
+#ifndef _WIN32
+   bool TxtSerializer::save( const std::vector< unsigned long long > & vec, const std::string & vn ) { return saveVecTo( m_file, "llong",  vn, vec ); }
+#endif
    bool TxtSerializer::save( const std::vector< long long >    & vec, const std::string & vn ) { return saveVecTo( m_file, "llong",  vn, vec ); }
    bool TxtSerializer::save( const std::vector< ObjRefID >     & vec, const std::string & vn ) { return saveVecTo( m_file, "refID",  vn, vec ); }
    bool TxtSerializer::save( const std::vector< float >        & vec, const std::string & vn ) { return saveVecTo( m_file, "float",  vn, vec ); }

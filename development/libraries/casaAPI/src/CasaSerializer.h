@@ -67,6 +67,13 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool save( long long val, const std::string & valName ) = 0;
 
+#ifndef _WIN32
+      /// @brief  Save unsigned long long value
+      /// @param  val the long long value to save
+      /// @return true if on success, false otherwise
+      virtual bool save( unsigned long long val, const std::string & valName ) = 0;
+#endif
+
       /// @brief  Save ObjRefID value
       /// @param  val the ObjRefID value to save
       /// @return true if on success, false otherwise
@@ -106,6 +113,13 @@ namespace casa
       /// @param  vec the vector of long long values to save
       /// @return true if on success, false otherwise
       virtual bool save( const std::vector< long long > & vec, const std::string & vecName ) = 0;
+
+#ifndef _WIN32
+      /// @brief  Save vector of unsigned long long values
+      /// @param  vec the vector of long long values to save
+      /// @return true if on success, false otherwise
+      virtual bool save( const std::vector< unsigned long long > & vec, const std::string & vecName ) = 0;
+#endif
 
       /// @brief  Save vector of long long values
       /// @param  vec the vector of long long values to save

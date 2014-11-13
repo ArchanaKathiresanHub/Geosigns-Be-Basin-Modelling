@@ -84,7 +84,7 @@ namespace casa
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       /// @return new ObsValueDoubleScalar instance on susccess, or throw and exception in case of any error
-      ObsValueDoubleScalar::ObsValueDoubleScalar( CasaDeserializer & dz, unsigned int objVer );
+      ObsValueDoubleScalar( CasaDeserializer & dz, unsigned int objVer );
       /// {@
 
    protected:
