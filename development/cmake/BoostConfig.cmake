@@ -32,14 +32,12 @@ if (UNIX)
    # filesystem;system;thread;atomic -> "filesystem,system,thread,atomic"
    #
    string( REPLACE ";" "," COMMA_SEP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
-message("COMMA_SEP_BOOST_LIBS_LIST: ${COMMA_SEP_BOOST_LIBS_LIST}")
 
    # filesystem;system;thread;atomic -> "boost_filesystem boost_system boost_thread boost_atomic"
    #
    string( REPLACE ";" " boost_" TMP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
    set(PREFIXED_BOOST_LIBS_LIST "boost_${TMP_BOOST_LIBS_LIST}")
    separate_arguments(PREFIXED_BOOST_LIBS_LIST)
-message("PREFIXED_BOOST_LIBS_LIST: ${PREFIXED_BOOST_LIBS_LIST}")
 
    # Add Boost as an external project
    add_external_project_to_repository(
@@ -73,7 +71,6 @@ message("PREFIXED_BOOST_LIBS_LIST: ${PREFIXED_BOOST_LIBS_LIST}")
    set(Boost_FOUND TRUE)
    set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
    set(Boost_LIBRARIES ${PREFIXED_BOOST_LIBS_LIST})
-message( "Boost_LIBRARIES: ${Boost_LIBRARIES}")
 
    add_external_package_info(
       CAPABILITY BoostLib
@@ -143,7 +140,4 @@ endif()
 
 
 include_directories(${Boost_INCLUDE_DIRS})
-
-
-
 
