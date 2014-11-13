@@ -36,6 +36,7 @@ using namespace CBMGenerics;
 #include "errorhandling.h"
 
 #include <cassert>
+#include <cstring>
 
 using namespace std;
 
