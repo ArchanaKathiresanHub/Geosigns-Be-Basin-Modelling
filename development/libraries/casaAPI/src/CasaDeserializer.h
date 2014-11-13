@@ -20,6 +20,7 @@
 // STL
 #include <map>
 #include <vector>
+#include <typeinfo>
 
 namespace casa
 {

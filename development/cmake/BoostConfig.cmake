@@ -111,10 +111,7 @@ elseif(WIN32)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
 
-    string( REPLACE ";" " " SPACE_SEP_BOOST_LIBS_LIST "${BOOST_LIBS_LIST}")
-    MESSAGE( ${SPACE_SEP_BOOST_LIBS_LIST})
-
-    find_package( Boost 1.56.0 REQUIRED COMPONENTS ${SPACE_SEP_BOOST_LIBS_LIST} )
+    find_package( Boost 1.56.0 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
 
     add_external_package_info(
       CAPABILITY BoostLib
