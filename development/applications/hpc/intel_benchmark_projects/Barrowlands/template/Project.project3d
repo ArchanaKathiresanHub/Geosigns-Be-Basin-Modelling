@@ -23,19 +23,6 @@ Filename
 [End]
 ;
 ;
-; BPANameMapping
-;
-[BPANameMapping]
-;
-TblIoMappingEncode BPAColumnName BPAColumnValue
-() () ()
-"CAULDRON_ALTERNATIVE" "NAME" "Barrowlands"
-"CAULDRON_ALTERNATIVE" "DESCRIPTION" ""
-"CAULDRON" "NAME" "Barrowlands"
-"CAULDRON" "DESCRIPTION" ""
-[End]
-;
-;
 ; DefaultFileIoTbl
 ;
 [DefaultFileIoTbl]

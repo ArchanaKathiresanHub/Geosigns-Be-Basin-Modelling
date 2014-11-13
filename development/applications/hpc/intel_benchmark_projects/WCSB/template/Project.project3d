@@ -22,18 +22,6 @@ Filename
 [End]
 ;
 ;
-; BPANameMapping
-;
-[BPANameMapping]
-;
-TblIoMappingEncode BPAColumnName BPAColumnValue
-() () ()
-"CAULDRON_ALTERNATIVE" "NAME" "Scenario #1"
-"CAULDRON" "NAME" "USGS Model"
-"CAULDRON" "DESCRIPTION" "Model built from USGS Maps\n2000x2000m"
-[End]
-;
-;
 ; DefaultFileIoTbl
 ;
 [DefaultFileIoTbl]
