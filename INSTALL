@@ -106,5 +106,45 @@ be useful:
       Sets the destination path for when you do a 'make install'. Most likely,
       you don't want to do that.
 
+- CMAKE_TOOLCHAIN_FILE and IMPORT_EXECUTABLES
+
+      Put build in cross compilation mode, for example, when compiling for the
+      Intel MIC architecture.
+
+      Normally when cross compiling, do the following steps
+        1) First make a build native to the host system, e.g. in the directory
+           $BUILD/native, as you would do normally.
+
+        2) Create another build directory for your cross compilation target,
+           e.g. $BUILD/cross.
+
+        3) Write a toolchain file for your target. For example: create a 
+           MyToolchain.cmake file with the contents 
+           --- snip ---
+           set(CMAKE_SYSTEM_NAME "Linux")
+           set(CMAKE_SYSTEM_PROCESSOR "IntelMIC")
+
+           set(CMAKE_C_COMPILER "mpiicc")
+           set(CMAKE_CXX_COMPILER "mpiicpc")
+           set(CMAKE_C_FLAGS "-mmic")
+           set(CMAKE_CXX_FLAGS "-mmic")
+           --- snap ---
+
+        4) Build the 3rd party components PETSC, HDF5, Boost, Eigen, ...
+           separately with the cross compiler
+
+        4) Run CMake or bootstrap.csh in your build directory $BUILD/cross
+             
+             $ cmake -DCMAKE_TOOLCHAIN_FILE=MyToolchain.cmake \
+                     -DIMPORT_EXECUTABLES=$BUILD/native/ImportExecutables.cmake \
+                     -DBM_EXTERNAL_COMPONENTS_REBUILD=OFF \
+                     -DPETSC_ROOT=... -DHDF5_ROOT=... -DBoost_ROOT=... -DEigen_ROOT=... \ 
+                     $SRC/development
+   
+        5) Then run 'make' in $BUILD/cross
+        
+
+
+
   
 

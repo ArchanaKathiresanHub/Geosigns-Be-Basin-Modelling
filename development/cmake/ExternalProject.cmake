@@ -193,7 +193,7 @@ macro( add_external_project_to_repository )
    else()
       message(STATUS "External component ${extProj_NAME} is prebuilt")
    endif()
-   set( ${extProj_NAME}_ROOT "${extProj_ROOT}" )
+   set( ${extProj_NAME}_ROOT "${extProj_ROOT}" CACHE PATH "Path to the external component '${extProj_NAME}'" )
 
    # What is the place where the source and build are performed
    set( extProj_srcdir "${BM_EXTERNAL_COMPONENTS_TMPDIR}/build/${extProj_NAME}")
