@@ -35,7 +35,7 @@ void FileHandler::openGlobalFile () {
 
 }
 
-hid_t FileHandler::closeGlobalFile() {
+hid_t FileHandler::closeGlobalFile() { 
    if( m_rank == 0 ) {
       return H5Fclose( m_globalFileId );
    }
@@ -306,7 +306,7 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
 
    FileHandler* reader = static_cast<FileHandler *>( voidReader );
 
-   if( groupId == NULL ) {
+   if( groupId < 0 ) {
       
       if( reader->m_rank == 0 ) {       
          std::cout << " ERROR Cannot iterate the group or dataset " << name << std::endl;
@@ -402,7 +402,8 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
       status = reader->merge1D ( name, dtype );
    }
 
-   if( reader->m_rank == 0 && status >= 0 ) {
+   if( reader->m_rank == 0 ) {
+
       if( status >= 0 ) {
          reader->writeAttributes();
       } else {
@@ -430,9 +431,7 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
 
 herr_t FileHandler::merge1D ( const char* name, hid_t  dtype ) {
 
-   herr_t status = 0;
-
-   H5Dread ( m_local_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data1D.data() );
+   herr_t status = H5Dread ( m_local_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data1D.data() );
 
    closeSpaces();
 
@@ -446,9 +445,7 @@ herr_t FileHandler::merge1D ( const char* name, hid_t  dtype ) {
 
 herr_t FileHandler::merge2D ( const char* name, hid_t dtype ) {
    
-   herr_t status = 0;
-
-   H5Dread ( m_local_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data.data() );
+   herr_t status = H5Dread ( m_local_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data.data() );
 
    closeSpaces();
    
