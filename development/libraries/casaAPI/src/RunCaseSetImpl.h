@@ -18,6 +18,7 @@
 #include <memory>
 #include <vector>
 
+#include "CasaDeserializer.h"
 #include "DoEGenerator.h"
 #include "RunCaseSet.h"
 
@@ -51,12 +52,23 @@ namespace casa
       // Get all experiment names for this case set as an array
       virtual std::vector< std::string > experimentNames() const;
 
-      /// @brief Is set empty
-      /// @return true if set is empty, false otherwise
+      // Is set empty
+      // return true if set is empty, false otherwise
       virtual bool empty() const { return size() == 0 ? true : false; }
 
       // Move a new Cases to the collection and clear array 
       void addNewCases( std::vector<RunCase*> & newCases, const std::string & expName );
+
+      // Serialization / Deserialization
+
+      // version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      // Serialize object to the given stream
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      // Create a new instance and deserialize it from the given stream
+      RunCaseSetImpl( CasaDeserializer & inStream, const char * objName );
 
    protected:
       std::vector< RunCase* > m_caseSet;    // keeps all RunCases

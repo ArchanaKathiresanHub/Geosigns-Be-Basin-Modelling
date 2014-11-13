@@ -61,6 +61,26 @@ namespace casa
       /// @return cluster name as a string
       virtual std::string clusterName();
 
+      // Serialization / Deserialization
+      /// @{
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
+      /// @param sz Serializer stream
+      /// @param  version stream version
+      /// @return true if it succeeds, false if it fails.
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      /// @brief Create a new DataDiggerImpl instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objVer version of object representation in stream
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      RunManagerImpl( CasaDeserializer & inStream, const char * objName );
+      /// @}
+
+
    protected:
       std::string                     m_cldVersion;  ///< version of the cauldron to be used in calculations
       std::string                     m_ibsRoot;     ///< full path to cauldron installation

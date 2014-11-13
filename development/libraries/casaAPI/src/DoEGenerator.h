@@ -92,9 +92,12 @@
 /// orthogonally projected onto a lower dimensional space. This avoids that any two design points can be considered as the same
 /// point if one or more parameters turn out to be insensitive.The design is also space-filling, but not augmentable.
 
-///   
 
+// CASA
+#include "CasaSerializer.h"
 #include "ErrorHandler.h"
+
+// STL
 #include <vector>
 
 namespace casa
@@ -104,7 +107,7 @@ namespace casa
 
    /// @class DoEGenerator DoEGenerator.h "DoEGenerator.h"
    /// @brief Class DoEGenerator allows to generate various types of "Design of Experiments"
-   class DoEGenerator : public ErrorHandler
+   class DoEGenerator : public ErrorHandler, public CasaSerializable
    {
    public:
 

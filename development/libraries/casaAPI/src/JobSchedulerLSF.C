@@ -8,18 +8,25 @@
 // Do not distribute without written permission from Shell.
 // 
 
+// CMB
 #include "ErrorHandler.h"
+
+// CASA
+#include "CasaDeserializer.h"
 #include "JobSchedulerLSF.h"
 
 #include "CauldronEnvConfig.h"
 
+// LSF
 #ifdef WITH_LSF_SCHEDULER
 #include <lsf/lsbatch.h>
 #endif
 
+// STL
 #include <iostream>
 #include <fstream>
 
+// STD C lib
 #include <cstdlib>
 #include <cstring>
 
@@ -36,7 +43,7 @@ static void Wait( int milsec ) { Sleep( milsec * 1000 ); }
 namespace casa
 {
 
-class JobSchedulerLSF::Job
+class JobSchedulerLSF::Job : public CasaSerializable
 {
 public:
    Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
@@ -161,6 +168,104 @@ public:
       return Unknown;   // unknown status
    }
 
+   // Serialization / Deserialization
+   // version of serialized object representation
+   virtual unsigned int version() const { return 0; }
+
+   // Serialize object to the given stream
+   virtual bool save( CasaSerializer & sz, unsigned int version ) const
+   {
+      bool ok = sz.save( m_isFinished, "IsFinished" );
+
+#ifdef WITH_LSF_SCHEDULER
+      ok = ok ? sz.save( m_submit.projectName,      "CldProjectName" ) : ok;
+      ok = ok ? sz.save( m_submit.command,          "ScriptName"     ) : ok;
+      ok = ok ? sz.save( m_submit.jobName,          "JobName"        ) : ok;
+      ok = ok ? sz.save( m_submit.outFile,          "StdOutLogFile"  ) : ok;
+      ok = ok ? sz.save( m_submit.errFile,          "StdErrLogFile"  ) : ok;
+      ok = ok ? sz.save( m_submit.options,          "OptionsFlags"   ) : ok;
+      ok = ok ? sz.save( m_submit.cwd,              "CWD"            ) : ok;
+      ok = ok ? sz.save( m_submit.options3,         "Options3Flags"  ) : ok; 
+      ok = ok ? sz.save( m_submit.numProcessors,    "CPUsNum"        ) : ok;
+      ok = ok ? sz.save( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
+      
+      // TODO save necessar fields for submitRepl
+      //struct submitReply m_submitRepl; // lsf_submit returns here some info in case of error
+
+      ok = ok ? sz.save( m_lsfJobID, "LSFJobID" ) : ok;
+#else
+      ok = ok ? sz.save( m_command,  "Command" ) : ok;
+#endif
+      return ok;
+   }
+
+   // Create a new instance and deserialize it from the given stream
+   Job( CasaDeserializer & dz, const char * objName )
+   {
+      // read from file object name and version
+      std::string  objNameInFile;
+      std::string  objType;
+      unsigned int objVer;
+
+      bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
+      if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Deserialization error. Can not load object: " << objName;
+      }
+
+      if ( version() < objVer )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Version of object in file is newer. No forward compatibility!";
+      }
+
+      ok = ok ? dz.load( m_isFinished, "IsFinished" ) : ok;
+#ifdef WITH_LSF_SCHEDULER
+      // clean LSF structures
+      memset( &m_submit,     0, sizeof( m_submit ) );
+      memset( &m_submitRepl, 0, sizeof( m_submitRepl ) );
+
+      // resource limits are initialized to default
+      for ( int i = 0; i < LSF_RLIM_NLIMITS; ++i ) { m_submit.rLimits[i] = DEFAULT_RLIMIT; }
+      
+      std::string buf;
+
+      ok = ok ? dz.load( buf, "CldProjectName" ) : ok;
+      m_submit.projectName = strdup( buf.c_str() );
+
+      ok = ok ? dz.load( buf, "ScriptName" ) : ok;
+      m_submit.command = strdup( buf.c_str() );
+
+      ok = ok ? dz.load( buf, "JobName" ) : ok;
+      m_submit.jobName = strdup( buf.c_str() );
+
+      ok = ok ? dz.load( buf, "StdOutLogFile" ) : ok;
+      m_submit.outFile = strdup( buf.c_str() );
+
+      ok = ok ? dz.load( buf, "StdErrLogFile" ) : ok;
+      m_submit.errFile = strdup( buf.c_str() );
+
+      ok = ok ? dz.load( buf, "OptionsFlags" ) : ok;
+      m_submit.options = strdup( buf.c_str() );
+
+      ok = ok ? dz.load( buf, "CWD" ) : ok;
+      m_submit.cwd = strdup( buf.c_str() );
+
+      ok = ok ? dz.load( m_submit.options3,         "Options3Flags"  ) : ok; 
+      ok = ok ? dz.load( m_submit.numProcessors,    "CPUsNum"        ) : ok;
+      ok = ok ? dz.load( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
+      
+#else
+      ok = ok ? dz.load( m_command,  "Command" ) : ok;
+#endif
+      if ( !ok )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "JobSchedulerLSF::Job deserialization error";
+      }
+   }
+
  private:
    bool               m_isFinished; // was this job finished?
 
@@ -178,6 +283,7 @@ public:
    Job( const Job & jb );
    Job & operator = ( const Job & jb );
 };
+
 
 
 JobSchedulerLSF::JobSchedulerLSF( const std::string & clusterName )
@@ -259,6 +365,44 @@ JobScheduler::JobState JobSchedulerLSF::jobState( JobID id )
 void JobSchedulerLSF::sleep()
 {
    Wait( 10 );
+}
+
+// Serialize object to the given stream
+bool JobSchedulerLSF::save( CasaSerializer & sz, unsigned int fileVersion ) const
+{
+   bool ok = sz.save( m_clusterName, "ClusterName" );
+
+   ok = ok ? sz.save( m_jobs.size(), "JobsQueueSize" ) : ok;
+   for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
+   {
+      ok = sz.save( *m_jobs[i], "JobDescr" );
+   }
+   return ok;
+}
+
+// Create a new instance and deserialize it from the given stream
+JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
+{
+   if ( version() < objVer )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Version of object in file is newer. No forward compatibility!";
+   }
+
+   bool ok = dz.load( m_clusterName, "ClusterName" );
+   
+   size_t setSize;
+   ok = ok ? dz.load( setSize, "JobsQueueSize" ) : ok;
+   for ( size_t i = 0; i < setSize && ok; ++i )
+   {
+      m_jobs.push_back( new Job( dz, "JobDescr" ) );
+   }
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "JobSchedulerLSF deserialization error";
+   }
 }
 
 

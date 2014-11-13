@@ -11,6 +11,7 @@
 /// @file cusaAPI.C 
 /// This file keeps API definition for creating ScenarioAnalysis
 
+// CASA
 #include "casaAPI.h"
 #include "cmbAPI.h"
 
@@ -18,6 +19,10 @@
 #include "DoEGeneratorImpl.h"
 #include "MonteCarloSolverImpl.h"
 #include "ObsSpaceImpl.h"
+#include "ObsGridPropertyXYZ.h"
+#include "ObsGridPropertyWell.h"
+#include "ObsValueDoubleArray.h"
+#include "ObsValueDoubleScalar.h"
 #include "PrmOneCrustThinningEvent.h"
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmSourceRockTOC.h"
@@ -26,6 +31,8 @@
 #include "RunCaseImpl.h"
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
+#include "TxtSerializer.h"
+#include "TxtDeserializer.h"
 #include "VarSpaceImpl.h"
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
@@ -34,6 +41,8 @@
 #include "FolderPath.h"
 #include "FilePath.h"
 
+// STL
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <cassert>
@@ -173,10 +182,12 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
                                                                     thingFctPDF ) );
 }
  
-}
+} // namespace BusinessLogicRulesSet
+} // namespace casa
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 // Class which hides all ScenarioAnalysis implementation
-class ScenarioAnalysis::ScenarioAnalysisImpl
+class casa::ScenarioAnalysis::ScenarioAnalysisImpl
 {
 public:
    // Constructor / destructor
@@ -190,11 +201,17 @@ public:
    // Define a base case for scenario analysis from file.
    void defineBaseCase( const char * projectFileName ); 
 
+   // get base case project file name
+   const char * baseCaseProjectFileName() const { return m_baseCaseProjectFile.c_str(); }
+
    // Get base case model if it was set, empty model otherwise
    mbapi::Model & baseCase();
 
    // Set path where SA will generate a bunch of cases
    void setScenarioLocation( const char * pathToCaseSet );
+   
+   // Get path to top level folder where the set of generated cases are located
+   const char *scenarioLocation() const { return m_caseSetPath.c_str(); }
 
    // Provide variable parameters set manager
    VarSpace & varSpace() { return *(m_varSpace.get()); }
@@ -284,6 +301,12 @@ public:
    //         will be set up to MC with no Kriging by default.
    MonteCarloSolver & mcSolver()  { return *(m_mcSolver.get()); }
       
+   // Dump ScenarioAnalysis object to file
+   void serialize( CasaSerializer & outStream );
+
+   // Load ScenarioAnalysis object from file
+   void deserialize( CasaDeserializer & inStream );
+
 private:
    std::string                      m_caseSetPath;         // path to folder which will be the root folder for all scenario cases
    std::string                      m_baseCaseProjectFile; // path to the base case project file
@@ -301,11 +324,11 @@ private:
    std::auto_ptr<RunManager>        m_runManager;
    std::auto_ptr<DataDigger>        m_dataDigger;
    std::auto_ptr<RSProxySetImpl>    m_rsProxySet;
-   std::auto_ptr<MonteCarloSolver>          m_mcSolver;
+   std::auto_ptr<MonteCarloSolver>  m_mcSolver;
 };
 
-
-
+namespace casa
+{
 ///////////////////////////////////////////////////////////////////////////////
 // Set of ScenarioAnalysis wrapper functions to hide the actual implementation from .h
 
@@ -345,6 +368,11 @@ ErrorHandler::ReturnCode ScenarioAnalysis::defineBaseCase( const char * projectF
    return NoError;
 }
 
+const char * ScenarioAnalysis::baseCaseProjectFileName() const
+{
+   return m_pimpl->baseCaseProjectFileName();
+}
+
 // set path where scenario will generate projects
 ErrorHandler::ReturnCode ScenarioAnalysis::setScenarioLocation( const char * pathToCaseSet )
 {
@@ -354,6 +382,11 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setScenarioLocation( const char * pat
    catch ( ...                      ) { return reportError( UnknownError,   "Unknown error" ); }
 
    return NoError;
+}
+
+const char * ScenarioAnalysis::scenarioLocation() const
+{
+   return m_pimpl->scenarioLocation();
 }
 
 // Define DoE algorithm
@@ -422,6 +455,83 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MonteCarloSolver::Alg
 
    return NoError;
 }
+
+// Save scenario to the file
+ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, const char * fileType )
+{
+   FILE * fid = NULL;
+   try
+   {
+      fid = fopen( fileName, "w" );
+      
+      const int casaFileVersion = 0;
+
+      if ( !fid ) throw Exception( SerializationError ) << "Can not open file: " << fileName << " for writing";
+
+      if ( !strcmp( "txt", fileType ) )
+      {
+         TxtSerializer txtOutStream( fid, casaFileVersion );
+         m_pimpl->serialize( txtOutStream );
+      }
+      else if ( !strcmp( "bin", fileType ) )
+      {
+         throw Exception( NotImplementedAPI ) << "Binary serialization not implemented yet";
+      }
+      else
+      {
+         return reportError( NonexistingID,
+            std::string( "Unknown type of output file for saving ScenarioAnalysis object: " ) + fileType );
+      }
+      fclose( fid );
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      if ( fid ) fclose( fid );
+      return reportError( ex.errorCode(), ex.what() );
+   }
+   return NoError;
+}
+
+// Create new ScenarioAnaylysis object and read all data from the given file
+ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const char * fileType )
+{
+   const int casaFileVersion = 0;
+
+   std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
+   FILE * fid = NULL;
+   try
+   {
+      fid = fopen( fileName, "r" );
+
+      if ( !fid ) throw Exception( DeserializationError ) << "Can not open file: " << fileName << " for reading";
+
+      if ( !strcmp( "bin", fileType ) )
+      {
+         throw Exception( NotImplementedAPI ) << "Binary deserialization not implemented yet";
+      }
+      else if ( !strcmp( "txt", fileType ) )
+      {
+         TxtDeserializer txtInStream( fid, casaFileVersion );
+         sc->m_pimpl->deserialize( txtInStream );
+         if ( sc->errorCode() != ErrorHandler::NoError )
+         {
+            throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
+         }
+      }
+      else
+      {
+         throw Exception( NonexistingID ) << "Unknown type of input file for loading ScenarioAnalysis object: " << fileType;
+      }
+      fclose( fid );
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      if ( fid ) fclose( fid );
+      sc->reportError( ex.errorCode(), ex.what() );
+   }
+   return sc.release();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // The actual implementation of CASA API
@@ -589,4 +699,46 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
    if ( !allValid ) throw ex;
 }
 
+void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStream )
+{
+   bool ok = outStream.save( m_caseSetPath,         "caseSetPath"  );
+   ok = ok ? outStream.save( m_baseCaseProjectFile, "baseCaseProjectFile" ) : ok;
+   ok = ok ? outStream.save( m_iterationNum,        "iterationNum" ) : ok;
+   ok = ok ? outStream.save( m_caseNum,             "caseNum"      ) : ok;
+                                                                   
+   ok = ok ? outStream.save( *m_obsSpace.get(),     "ObsSpace"     ) : ok; // serialize observables manager
+   ok = ok ? outStream.save( *m_varSpace.get(),     "VarSpace"     ) : ok; // serialize variable parameters set
+   ok = ok ? outStream.save( *m_doe.get(),          "DoE"          ) : ok; // serialize doe generator
+   ok = ok ? outStream.save( *m_dataDigger.get(),   "DataDigger"   ) : ok; // data digger
+   ok = ok ? outStream.save( *m_runManager.get(),   "RunManger "   ) : ok; // run manager
+                                                                   
+   ok = ok ? outStream.save( *m_doeCases.get(),     "DoECasesSet"  ) : ok;
+   ok = ok ? outStream.save( *m_mcCases.get(),      "MCCasesSet"   ) : ok;
+   ok = ok ? outStream.save( *m_rsProxySet.get(),   "RSProxySet"   ) : ok;
+   ok = ok ? outStream.save( *m_mcSolver.get(),     "MCSolver"     ) : ok;
+
+   if ( !ok ) throw ErrorHandler::Exception( SerializationError ) << "Serialization error in ScenarioAnalysis";
 }
+
+// Load ScenarioAnalysis object from file
+void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inStream )
+{
+   bool ok = inStream.load( m_caseSetPath,         "caseSetPath" );
+   ok = ok ? inStream.load( m_baseCaseProjectFile, "baseCaseProjectFile" ) : ok;
+   ok = ok ? inStream.load( m_iterationNum,        "iterationNum" ) : ok;
+   ok = ok ? inStream.load( m_caseNum,             "caseNum" ) : ok;
+
+   m_obsSpace.reset(   new ObsSpaceImpl(         inStream, "ObsSpace"    ) );
+   m_varSpace.reset(   new VarSpaceImpl(         inStream, "VarSpace"    ) );
+   m_doe.reset(        new DoEGeneratorImpl(     inStream, "DoE"         ) );
+   m_dataDigger.reset( new DataDiggerImpl(       inStream, "DataDigger"  ) );
+   m_runManager.reset( new RunManagerImpl(       inStream, "RunManger"   ) );
+
+   m_doeCases.reset(   new RunCaseSetImpl(       inStream, "DoECasesSet" ) );
+   m_mcCases.reset(    new RunCaseSetImpl(       inStream, "MCCasesSet"  ) );
+   m_rsProxySet.reset( new RSProxySetImpl(       inStream, "RSProxySet"  ) );
+   m_mcSolver.reset(   new MonteCarloSolverImpl( inStream, "MCSolver"    ) );
+}
+
+}
+

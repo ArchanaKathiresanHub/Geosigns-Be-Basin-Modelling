@@ -36,7 +36,7 @@ if (UNIX)
          ARCHIVE_MD5 "8c54705c424513fa2be0042696a3a162"
          PATCH_COMMAND 
             "./bootstrap.sh" 
-            "--with-libraries=filesystem,system,thread,atomic,serialization"
+            "--with-libraries=filesystem,system,thread,atomic"
             "--prefix={ROOT}" 
          CONFIGURE_COMMAND "./b2" "install"
          BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Boost has been built."
@@ -52,14 +52,14 @@ if (UNIX)
            LINK     "Dynamic" "link=shared" 
            LINK     "Static"  "link=static" 
 
-         YIELD_LIBRARIES  "boost_filesystem" "boost_system" "boost_thread" "boost_atomic" "boost_serialization"
+         YIELD_LIBRARIES  "boost_filesystem" "boost_system" "boost_thread" "boost_atomic" "boost_date_time" "boost_chrono"
    )
 
    # Use boost in our project
    set(BOOST_ROOT "${Boost_ROOT}")
    set(Boost_FOUND TRUE)
    set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
-   set(Boost_LIBRARIES "boost_filesystem" "boost_system" "boost_thread" "boost_atomic" "boost_serialization")
+   set(Boost_LIBRARIES "boost_filesystem" "boost_system"  "boost_thread" "boost_atomic" "boost_date_time" "boost_chrono")
 
    add_external_package_info(
       CAPABILITY BoostLib
@@ -100,15 +100,15 @@ elseif(WIN32)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
 
-    find_package( Boost 1.55.0 REQUIRED COMPONENTS filesystem system thread date_time chrono )
+    find_package( Boost 1.56.0 REQUIRED COMPONENTS filesystem system thread atomic date_time chrono )
 
     add_external_package_info(
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.55.0"
+      VERSION "1.56.0"
       LICENSE_TYPE "Boost v1"
-      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.55.0.txt"
+      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.56.0.txt"
       URL "http://boost.org"
       DESCRIPTION "Free peer-reviewed portable C++ source libraries"
       REQUIRED_AT  "Runtime"

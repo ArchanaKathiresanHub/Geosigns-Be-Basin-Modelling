@@ -14,6 +14,7 @@
 #ifndef CASA_API_DATA_DIGGER_H
 #define CASA_API_DATA_DIGGER_H
 
+#include "CasaSerializer.h"
 #include "RunCaseSet.h"
 #include "ErrorHandler.h"
 #include "Observable.h"
@@ -64,7 +65,7 @@ namespace casa
    /// @class DataDigger DataDigger.h "DataDigger.h"
    /// @brief Data digger extracts observables value from simulation results for single case
    ///        Also it performs like observables object factory.
-   class DataDigger : public ErrorHandler
+   class DataDigger : public ErrorHandler, public CasaSerializable
    {
    public:
       /// @brief Destructor

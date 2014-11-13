@@ -12,36 +12,114 @@
 /// @brief This file keeps API definition for handling continuous parameters.
 
 #include "VarPrmContinuous.h"
+#include "VarPrmOneCrustThinningEvent.h"
+#include "VarPrmTopCrustHeatProduction.h"
+#include "VarPrmSourceRockTOC.h"
+
 
 #include <cmath>
 
 namespace casa
 {
 
-std::vector<double> VarPrmContinuous::stdDevs() const
-{
-   const std::vector<double> minVals  = m_minValue->asDoubleArray();
-   const std::vector<double> maxVals  = m_maxValue->asDoubleArray();
-   const std::vector<double> baseVals = m_baseValue->asDoubleArray();
-
-   std::vector<double> devs( minVals.size(), 0 );
-   for( size_t i = 0; i < devs.size(); ++i )
+   std::vector<double> VarPrmContinuous::stdDevs() const
    {
-      double mi = minVals[i];
-      double ma = maxVals[i];
-      double to = baseVals[i];
+      const std::vector<double> minVals = m_minValue->asDoubleArray();
+      const std::vector<double> maxVals = m_maxValue->asDoubleArray();
+      const std::vector<double> baseVals = m_baseValue->asDoubleArray();
 
-      switch ( m_pdf )
+      std::vector<double> devs( minVals.size(), 0 );
+      for ( size_t i = 0; i < devs.size(); ++i )
       {
+         double mi = minVals[i];
+         double ma = maxVals[i];
+         double to = baseVals[i];
+
+         switch ( m_pdf )
+         {
          case Block:    devs[i] = 0.5 * (ma - mi) / sqrt( 3.0 );                                              break;
          case Triangle: devs[i] = sqrt( (mi * mi + ma * ma + to * to - mi * ma - mi * to - ma * to) / 18.0 ); break;
-         case Normal:   devs[i] = 0.5 * (ma -  mi) / 5.0;                                                     break;
-         default:       assert(0);                                                                            break;
+         case Normal:   devs[i] = 0.5 * (ma - mi) / 5.0;                                                     break;
+         default:       assert( 0 );                                                                            break;
+         }
+      }
+      return devs;
+   }
+
+   bool VarPrmContinuous::save( CasaSerializer & sz, unsigned int version ) const
+   {
+      // register var. parameter with serializer to allow all Parameters objects keep reference after deserializtion
+      CasaSerializer::ObjRefID obID = sz.ptr2id( this );
+      bool ok = sz.save( obID, "ID" );
+      
+      ok = ok ? sz.save( m_pdf, "prmPDF" ) : ok;
+
+      ok = ok ? sz.save( *(m_baseValue.get()), "baseValue" ) : ok;
+      ok = ok ? sz.save( *(m_minValue.get()),  "minValue" )  : ok;
+      ok = ok ? sz.save( *(m_maxValue.get()),  "maxValue" )  : ok;
+      
+      return ok;
+   }
+
+   VarPrmContinuous * VarPrmContinuous::load( CasaDeserializer & dz, const char * objName )
+   {
+      std::string  ot; // object type name
+      std::string  on; // object name
+      unsigned int vr; // object version
+
+      dz.loadObjectDescription( ot, on, vr );
+      if ( on.compare( objName ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "VarPrmDiscrete deserialization error, expected VarPrmDiscrete with name: " << objName
+            << ", but stream gave object with name: " << on;
+      }
+      // Here should be switch over possible discrete parameters
+      if (      ot == typeid( casa::VarPrmOneCrustThinningEvent  ).name() ) { return new VarPrmOneCrustThinningEvent(  dz, vr ); }
+      else if ( ot == typeid( casa::VarPrmTopCrustHeatProduction ).name() ) { return new VarPrmTopCrustHeatProduction( dz, vr ); }
+      else if ( ot == typeid( casa::VarPrmSourceRockTOC          ).name() ) { return new VarPrmSourceRockTOC(          dz, vr ); }
+      else
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "VarPrmDiscrete deserialization error: Unknown type: " << ot;
+      }
+
+      return 0;
+   }
+   
+   // Constructor from input stream, implements common part of deserialization for continuous variable parameters
+   VarPrmContinuous::VarPrmContinuous( CasaDeserializer & dz, unsigned int objVer )
+   {
+      if ( version() < objVer )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) <<
+            "Version of VarPrmContinuous in file is newer. No forward compatibility!";
+      }
+
+      CasaDeserializer::ObjRefID obID;
+
+      // load data necessary to create an object
+      bool ok = dz.load( obID, "ID" );
+
+      // register observable with deserializer under read ID to allow Parameters objects keep reference after deserializtion
+      if ( ok ) { dz.registerObjPtrUnderID( this, obID ); }
+
+      int pdf;
+      ok = ok ? dz.load( pdf, "prmPDF" ) : ok;
+      m_pdf = static_cast<VarPrmContinuous::PDF>(pdf);
+
+      if ( ok )
+      {
+         m_baseValue.reset( Parameter::load( dz, "baseValue" ) );
+         m_minValue.reset(  Parameter::load( dz,  "minValue" ) );
+         m_maxValue.reset(  Parameter::load( dz,  "maxValue" ) );
+      }
+      else
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "VarPrmContinuous deserialization unknown error";
       }
    }
-   return devs;
-}
-
 
 }
 

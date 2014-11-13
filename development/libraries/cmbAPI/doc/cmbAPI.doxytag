@@ -2,7 +2,7 @@
 <tagfile>
   <compound kind="file">
     <name>cmbAPI.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>cmbAPI_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <includes id="LithologyManager_8h" name="LithologyManager.h" local="yes" imported="no">LithologyManager.h</includes>
@@ -17,13 +17,13 @@
   </compound>
   <compound kind="file">
     <name>ErrorHandler.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>ErrorHandler_8h</filename>
     <class kind="class">ErrorHandler</class>
   </compound>
   <compound kind="file">
     <name>FluidManager.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>FluidManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::FluidManager</class>
@@ -31,7 +31,7 @@
   </compound>
   <compound kind="file">
     <name>LithologyManager.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
@@ -39,7 +39,7 @@
   </compound>
   <compound kind="file">
     <name>PropertyManager.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>PropertyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::PropertyManager</class>
@@ -47,7 +47,7 @@
   </compound>
   <compound kind="file">
     <name>SnapshotManager.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>SnapshotManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SnapshotManager</class>
@@ -55,7 +55,7 @@
   </compound>
   <compound kind="file">
     <name>SourceRockManager.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>SourceRockManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SourceRockManager</class>
@@ -63,7 +63,7 @@
   </compound>
   <compound kind="file">
     <name>StratigraphyManager.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>StratigraphyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::StratigraphyManager</class>
@@ -71,7 +71,7 @@
   </compound>
   <compound kind="file">
     <name>UndefinedValues.h</name>
-    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlwsu2/src/cauldron-git-repo/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
     <filename>UndefinedValues_8h</filename>
     <member kind="define">
       <type>#define</type>
@@ -216,9 +216,9 @@
     </member>
     <member kind="enumvalue">
       <type>@</type>
-      <name>MCSolverError</name>
+      <name>MonteCarloSolverError</name>
       <anchorfile>classErrorHandler.html</anchorfile>
-      <anchor>acadba1da388468d5c383dbdbcfcee462a1e9a1fe64b72cd13693dc0ce80ce7a0d</anchor>
+      <anchor>acadba1da388468d5c383dbdbcfcee462af4f54ca064c04ef8f60afab96c054ca7</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
@@ -247,6 +247,20 @@
       <name>WrongPath</name>
       <anchorfile>classErrorHandler.html</anchorfile>
       <anchor>acadba1da388468d5c383dbdbcfcee462a1fd17132d5dae1521485a24d566e5350</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>SerializationError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a26304ae699cf214ebdb44451d39762e8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>DeserializationError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a2b65ab987920017d5824734c1f3258c8</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">

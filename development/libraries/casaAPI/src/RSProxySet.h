@@ -14,6 +14,10 @@
 #ifndef CASA_API_RS_PROXY_SET_H
 #define CASA_API_RS_PROXY_SET_H
 
+// CASA
+#include "CasaSerializer.h"
+
+// STL
 #include <string>
 #include <vector>
 
@@ -23,7 +27,7 @@ namespace casa
 
    /// @brief RSProxySet class keep list of casa::RSProxy objects and allows to manage them.
    ///        Also it can filter objects in set depending on experiment name.
-   class RSProxySet
+   class RSProxySet : public CasaSerializable
    {
    public:
       /// @brief Destructor

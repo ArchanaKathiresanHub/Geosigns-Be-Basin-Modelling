@@ -53,6 +53,17 @@ namespace casa
       // Print all parameters of LSF batch system
       void printLSFBParametersInfo();
 
+      // Serialization / Deserialization
+
+      // version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      // Serialize object to the given stream
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      // Create a new instance and deserialize it from the given stream
+      JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer );
+
    private:
       class Job;                       // job OS dependent description
       std::vector<Job*> m_jobs;        // array of scheduled jobs

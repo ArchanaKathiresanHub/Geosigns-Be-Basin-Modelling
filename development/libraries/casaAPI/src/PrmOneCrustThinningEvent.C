@@ -188,6 +188,54 @@ std::vector<double> PrmOneCrustThinningEvent::asDoubleArray() const
    return vals;
 }
 
+
+// Save all object data to the given stream, that object could be later reconstructed from saved data
+bool PrmOneCrustThinningEvent::save( CasaSerializer & sz, unsigned int version ) const
+{
+   bool hasParent = m_parent ? true : false;
+   bool ok = sz.save( hasParent, "hasParent" );
+   
+   if ( hasParent )
+   {
+      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
+      ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
+   }
+   ok = ok ? sz.save( m_name,             "name"             ) : ok;
+   ok = ok ? sz.save( m_initialThickness, "initialThickness" ) : ok;
+   ok = ok ? sz.save( m_t0,               "t0"               ) : ok;
+   ok = ok ? sz.save( m_dt,               "dt"               ) : ok;
+   ok = ok ? sz.save( m_coeff,            "coeff"            ) : ok;
+
+   return ok;
+}
+
+// Create a new var.parameter instance by deserializing it from the given stream
+PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int objVer )
+{
+   CasaDeserializer::ObjRefID parentID;
+
+   bool hasParent;
+   bool ok = dz.load( hasParent, "hasParent" );
+   
+   if ( hasParent )
+   {
+      bool ok = dz.load( parentID, "VarParameterID" );
+      m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
+   }
+
+   ok = ok ? dz.load( m_name,             "name" )             : ok;
+   ok = ok ? dz.load( m_initialThickness, "initialThickness" ) : ok;
+   ok = ok ? dz.load( m_t0,               "t0" )               : ok;
+   ok = ok ? dz.load( m_dt,               "dt" )               : ok;
+   ok = ok ? dz.load( m_coeff,            "coeff" )            : ok;
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "PrmOneCrustThinningEvent deserialization unknown error";
+   }
+}
+
 }
 
 

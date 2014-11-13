@@ -11,7 +11,8 @@
 /// @file RSProxyImpl.C
 /// @brief This file keeps API implementation of Response Surface Proxy
 
-
+// CASA
+#include "CasaDeserializer.h"
 #include "Parameter.h"
 #include "VarParameter.h"
 #include "VarPrmCategorical.h"
@@ -25,6 +26,7 @@
 #include <Exception.h>
 #include <ParameterTransforms.h>
 
+// STL
 #include <cassert>
 #include <sstream>
 
@@ -40,8 +42,8 @@ RSProxyImpl::RSProxyImpl( const std::string & rspName
                         , double targedR2
                         , double confLevel ) :
         m_name( rspName )
-      , m_varSpace( varSp )
-      , m_obsSpace( obsSp )
+      , m_varSpace( &varSp )
+      , m_obsSpace( &obsSp )
       , m_rsOrder(    rsOrder )
       , m_kriging(    rsKrig )
       , m_autosearch( autoSearch )
@@ -163,7 +165,7 @@ ErrorHandler::ReturnCode RSProxyImpl::evaluateRSProxy( RunCase & cs )
    sumext::convertCase( cs, sumCase );
 
    const SUMlib::ProxyValueList & obsVals = m_collection->getProxyValueList( sumCase, static_cast<SUMlib::KrigingType>( m_kriging ) );
-   sumext::convertObservablesValue( obsVals, m_obsSpace, cs );
+   sumext::convertObservablesValue( obsVals, *m_obsSpace, cs );
 
    return NoError;
 }
@@ -174,6 +176,75 @@ RSProxy::CoefficientsMapList RSProxyImpl::getCoefficientsMapList() const
    CoefficientsMapList coefficients;
    m_collection->getCoefficientsMapList( coefficients );
    return coefficients;
+}
+
+// Serialize object to the given stream
+bool RSProxyImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+{
+   bool ok = sz.save( m_name, "ProxyName" );
+
+   CasaSerializer::ObjRefID obsID = sz.ptr2id( m_obsSpace );
+   CasaSerializer::ObjRefID vspID = sz.ptr2id( m_varSpace );
+
+   ok = ok ? sz.save( obsID, "ObsSpaceID" ) : ok;
+   ok = ok ? sz.save( vspID, "VarSpaceID" ) : ok;
+
+   ok = ok ? sz.save( m_rsOrder,                   "Order"               ) : ok; 
+   ok = ok ? sz.save( static_cast<int>(m_kriging), "Kriging"             ) : ok;
+   ok = ok ? sz.save( m_autosearch,                "AutoSearch"          ) : ok;
+   ok = ok ? sz.save( m_targedR2,                  "TargedR2"            ) : ok;
+   ok = ok ? sz.save( m_confLevel,                 "ConfLevel"           ) : ok;
+   ok = ok ? sz.save( *m_collection.get(),         "CompProxyCollection" ) : ok;
+
+   return ok;
+}
+
+// Create a new instance and deserialize it from the given stream
+RSProxyImpl::RSProxyImpl( CasaDeserializer & dz, const char * objName )
+{
+   // read from file object name and version
+   std::string  objNameInFile;
+   std::string  objType;
+   unsigned int objVer;
+
+   bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
+   if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Deserialization error. Can not load object: " << objName;
+   }
+
+   if ( version() < objVer )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Version of object in file is newer. No forward compatibility!";
+   }
+
+   ok = ok ? dz.load( m_name, "ProxyName" ) : ok;
+
+   CasaSerializer::ObjRefID obsID;
+   CasaSerializer::ObjRefID vspID;
+
+   ok = ok ? dz.load( obsID, "ObsSpaceID" ) : ok;
+   ok = ok ? dz.load( vspID, "VarSpaceID" ) : ok;
+   
+   m_obsSpace = dz.id2ptr<ObsSpace>( obsID );
+   m_varSpace = dz.id2ptr<VarSpace>( vspID );
+   
+   ok = ok ? dz.load( m_rsOrder, "Order" ) : ok;
+   
+   int krType;
+   ok = ok ? dz.load( krType, "Kriging" ) : ok;
+   m_kriging = static_cast<RSProxy::RSKrigingType>( krType );
+
+   ok = ok ? dz.load( m_autosearch, "AutoSearch" ) : ok;
+   ok = ok ? dz.load( m_targedR2, "TargedR2" ) : ok;
+   ok = ok ? dz.load( m_confLevel, "ConfLevel" ) : ok;
+   
+   m_collection.reset( new SUMlib::CompoundProxyCollection() );
+   ok = ok ? dz.load( *m_collection.get(), "CompProxyCollection" ) : ok;
+
+   if ( !ok ) throw Exception( DeserializationError ) << "RSProxyImpl deserialization error";
 }
 
 }

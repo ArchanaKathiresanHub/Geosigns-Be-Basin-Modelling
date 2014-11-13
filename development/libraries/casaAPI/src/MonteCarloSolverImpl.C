@@ -11,7 +11,8 @@
 /// @file MonteCarloSolverImpl.C
 /// @brief This file keeps implementation of API for performing Monte Carlo simulation
 
-
+// CASA
+#include "CasaDeserializer.h"
 #include "MonteCarloSolverImpl.h"
 #include "ObsSpace.h"
 #include "RSProxyImpl.h"
@@ -20,7 +21,10 @@
 #include "VarSpace.h"
 #include "VarPrmContinuous.h"
 
+// STL
 #include <stdexcept>
+
+// STD C library
 #include <climits>
 
 // SUMlib includes
@@ -112,7 +116,7 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
 
    try
    {
-      int mcmcSeed = INT_MAX * rng.uniformRandom();
+      int mcmcSeed = static_cast<int>( INT_MAX * rng.uniformRandom() );
 
       switch( m_algo )
       {
@@ -343,6 +347,113 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
    }
 
    return NoError;
+}
+
+// Serialize object to the given stream
+bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+{
+   bool ok = true;
+
+   if ( fileVersion >= 0 )
+   {
+      ok = ok ? sz.save( static_cast<int>(m_algo),         "Algo"        ) : ok;
+      ok = ok ? sz.save( static_cast<int>(m_kriging),      "Kriging"     ) : ok;
+      ok = ok ? sz.save( static_cast<int>(m_priorDistr),   "PriorDistr"  ) : ok;
+      ok = ok ? sz.save( static_cast<int>(m_measureDistr), "MeasurDistr" ) : ok;
+      ok = ok ? sz.save( static_cast<int>(m_stepMethod),   "StepMethod"  ) : ok;
+      ok = ok ? sz.save( m_stdDevFactor,                   "StdDevFact"  ) : ok;
+
+      // save MC results
+      ok = ok ? sz.save( m_results.size(), "ResultsSetSize" ) : ok;
+      for ( size_t i = 0; i < m_results.size() && ok; ++i )
+      {
+         ok = sz.save( m_results[i].first, "RMSEVal" );
+         ok = ok ? sz.save( *(m_results[i].second), "MCRunCase" ) : ok;
+      }
+   }
+
+   // save SUMlib needed data structures
+   // TODO implement saving of SUMlib data structures
+   /*ok = ok ? sz.save( m_input.size(), "McmcProxySetSize" ) : ok;
+   for ( size_t i = 0; i < m_input.size() && ok; ++i )
+   {
+      ok = sz.save( *m_input[i], "McmcProxy" );
+   }
+   */
+   ok = ok ? sz.save( m_parSpace, "ParameterSpace" ) : ok;
+
+   // SUMlib::McmcStatistics           m_statistics; TODO implement save/load
+   // SUMlib::ParameterPdf             m_unscaledPdf; TODO implemetn save/load
+   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself 
+
+   return ok;
+}
+
+// Create a new instance and deserialize it from the given stream
+MonteCarloSolverImpl::MonteCarloSolverImpl( CasaDeserializer & dz, const char * objName )
+{
+   // read from file object name and version
+   std::string  objNameInFile;
+   std::string  objType;
+   unsigned int objVer;
+
+   bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
+   if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Deserialization error. Can not load object: " << objName;
+   }
+
+   if ( version() < objVer )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Version of object in file is newer. No forward compatibility!";
+   }
+
+   int val;
+   ok = ok ? dz.load( val, "Algo" ) : ok;
+   m_algo = static_cast<Algorithm>(val);
+   
+   ok = ok ? dz.load( val, "Kriging" ) : ok;
+   m_kriging = static_cast<KrigingType>(val);
+
+   ok = ok ? dz.load( val, "PriorDistr" ) : ok;
+   m_priorDistr = static_cast<PriorDistribution>(val);
+
+   ok = ok ? dz.load( val, "MeasurDistr" ) : ok;
+   m_measureDistr = static_cast<MeasurementDistribution>(val);
+
+   ok = ok ? dz.load( val,   "StepMethod"  ) : ok;
+   m_stepMethod = static_cast<StepMethod>(val);
+   
+   ok = ok ? dz.load( m_stdDevFactor, "StdDevFact" ) : ok;
+
+   // load MC results
+   size_t setSize;
+   ok = ok ? dz.load( setSize, "ResultsSetSize" ) : ok;
+   for ( size_t i = 0; i < setSize && ok; ++i )
+   {  
+      double val;
+      ok = dz.load( val, "RMSEVal" );
+      RunCaseImpl * rco = ok ? new RunCaseImpl( dz, "MCRunCase" ) : 0;
+      if ( ok ) m_results.push_back( std::pair<double, RunCase*>( val, rco ) );
+   }
+
+   // TODO implement loading of SUMlib data structures
+   /* ok = ok ? sz.save( setSize, "McmcProxySetSize" ) : ok;
+   for ( size_t i = 0; i < setSize && ok; ++i )
+   {
+      SUMlib::McmcProxy * po = new SUMlib::McmcProxy();
+      ok = ok ? dz.load( *po, "McmcProxy" );
+   }
+   */
+   ok = ok ? dz.load( m_parSpace, "ParameterSpace" ) : ok;
+
+   // SUMlib::McmcStatistics           m_statistics; TODO implement save/load
+   // SUMlib::ParameterPdf             m_unscaledPdf; TODO implemetn save/load
+   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself 
+
+   if ( !ok ) throw Exception( DeserializationError ) << "MonteCarloSolverImpl deserialization error";
 }
 
 }

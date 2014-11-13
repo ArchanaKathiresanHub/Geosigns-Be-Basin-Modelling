@@ -33,8 +33,14 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdAddCldApp::execute( casa::ScenarioAnalysis & sa )
+void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
+#ifdef _WIN32
+   casa::CauldronApp::ShellType sh = casa::CauldronApp::cmd;
+#else
+   casa::CauldronApp::ShellType sh = casa::CauldronApp::bash;
+#endif // _WIN32
+
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
       std::cout << "Add cauldron application to calculation pipeline " << m_prms[0] << "(";
@@ -51,15 +57,16 @@ void CmdAddCldApp::execute( casa::ScenarioAnalysis & sa )
    {
       int cpus = atol( m_prms[p++].c_str() );
       const std::string & appName = m_prms[p++];
-      app = casa::RunManager::createApplication( casa::RunManager::generic, cpus, appName );
+
+      app = casa::RunManager::createApplication( casa::RunManager::generic, cpus, sh, appName );
    }
-   else { app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ) ); }
+   else { app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), 1, sh ); }
 
    assert( 0 != app );
 
    for ( ; p < m_prms.size(); ++p ) app->addOption( m_prms[p] );
 
-   casa::RunManager & rm = sa.runManager();
+   casa::RunManager & rm = sa->runManager();
    if ( ErrorHandler::NoError != rm.addApplication( app ) )
    {
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();

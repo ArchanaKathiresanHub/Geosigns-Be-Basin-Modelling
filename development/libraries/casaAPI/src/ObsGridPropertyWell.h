@@ -15,7 +15,9 @@
 #define CASA_API_OBS_GRID_PROPERTY_WELL_H
 
 #include "Observable.h"
+#include "ObsValue.h"
 
+// STL
 #include <memory>
 
 /// @page CASA_ObservableGridPropWellPage Cauldron grid property along a well trajectory
@@ -110,6 +112,24 @@ namespace casa
       /// @return new observable value
       virtual ObsValue * createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const;
 
+      /// @{
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
+      /// @param sz Serializer stream
+      /// @param  version stream version
+      /// @return true if it succeeds, false if it fails.
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      /// @brief Create a new observable instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objVer version of object representation in stream
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      ObsGridPropertyWell( CasaDeserializer & dz, unsigned int objVer );
+      /// {@
+
    protected:
       std::vector<double>     m_x;  ///< X-th coordinates
       std::vector<double>     m_y;  ///< Y-th coordinates
@@ -129,6 +149,7 @@ namespace casa
       double                  m_uaWeight;  ///< Observable weight for uncertainty analysis
 
    private:
+
       ObsGridPropertyWell( const ObsGridPropertyWell & );
       ObsGridPropertyWell & operator = ( const ObsGridPropertyWell & );
    };

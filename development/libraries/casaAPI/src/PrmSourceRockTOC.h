@@ -90,6 +90,23 @@ namespace casa
       /// @return parameter value represented as integer
       virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
 
+      /// @{
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
+      /// @param sz Serializer stream
+      /// @param  version stream version
+      /// @return true if it succeeds, false if it fails.
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      /// @brief Create a new parameter instance by deserializing it from the given stream
+      /// @param dz input stream
+      /// @param objVer version of object representation in stream
+      PrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer );
+      /// {@
+
    protected:
       const VarParameter * m_parent;    ///< variable parameter which was used to create this one
 

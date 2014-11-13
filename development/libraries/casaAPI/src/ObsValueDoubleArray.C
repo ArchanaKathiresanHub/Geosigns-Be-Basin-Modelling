@@ -43,5 +43,31 @@ namespace casa
       return rmse;
    }
 
+   bool ObsValueDoubleArray::save( CasaSerializer & sz, unsigned int version ) const
+   {
+      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
+
+      bool ok = sz.save( parentID, "ObservableID" );
+      ok = ok ? sz.save( m_value, "arrayOfVals" ) : ok;
+      return ok;
+   }
+
+   // Create a new ObsValueDoubleScalar instance and deserialize it from the given stream
+   ObsValueDoubleArray::ObsValueDoubleArray( CasaDeserializer & dz, unsigned int objVer )
+   {
+      CasaDeserializer::ObjRefID parentID;
+
+      bool ok = dz.load( parentID, "ObservableID" );
+      m_parent = ok ? dz.id2ptr<Observable>( parentID ) : 0;
+      
+      ok = ok ? dz.load( m_value, "scalarVal" ) : ok;
+
+      if ( !ok || !m_parent )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "ObsValueDoubleArray deserialization unknown error";
+      }
+   }
+
 }
 

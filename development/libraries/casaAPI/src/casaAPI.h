@@ -14,6 +14,7 @@
 #ifndef CASA_API
 #define CASA_API
 
+// CASA
 #include "RunCaseSet.h"
 #include "VarPrmContinuous.h"
 #include "VarPrmCategorical.h"
@@ -29,6 +30,7 @@
 
 #include "cmbAPI.h"
 
+// STL
 #include <memory>
 #include <vector>
 
@@ -220,6 +222,10 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode defineBaseCase( const char * projectFileName );
 
+      /// @brief Return a base case project name
+      /// @return project file name for the base case of scenario analysis
+      const char * baseCaseProjectFileName() const;
+
       /// @brief Get base case model
       /// @return pointer to the base case model if it was set before, empty model otherwise
       mbapi::Model & baseCase();
@@ -228,6 +234,10 @@ namespace casa
       /// @param pathToCaseSet
       /// @return ErrorHandler::NoError on success, or ErrorHandler::WrongPath if SA can't create folders/files using this path
       ErrorHandler::ReturnCode setScenarioLocation( const char * pathToCaseSet );
+
+      /// @brief Get path where SA generats a bunch of cases
+      /// @return path to the top folder where generated cases are located
+      const char * scenarioLocation() const;
 
       /// @brief Provides variable parameters set manager
       /// @return reference to the instance of VarSpace class
@@ -298,7 +308,18 @@ namespace casa
       /// @return reference to Monte Carlo solver. If MC solver algorithm wasn't defined befor by ScenarioAnalysis::setMCAlgorithm(), it
       ///         will be set up to MC with no Kriging by default.
       MonteCarloSolver & mcSolver();
-      
+
+      /// @brief Save scenario to the file
+      /// @param fileName - name of the file for scenario to be saved in
+      /// @param fileType - "bin"/"txt" - how to save scenario - in binary or in text
+      ErrorHandler::ReturnCode saveScenario( const char * fileName, const char * fileType );
+
+      /// @brief  Create new ScenarioAnaylysis object and read all data from the given file
+      /// @param  fileName name of the file.
+      /// @param  fileType "bin"/"txt" file type
+      /// @return null if it fails, else the new casa::ScenarioAnalysis object.
+      static ScenarioAnalysis * loadScenario( const char * fileName, const char * fileType );
+
    private:
       /// @brief Copy constructor is disabled
       ScenarioAnalysis( const ScenarioAnalysis & );

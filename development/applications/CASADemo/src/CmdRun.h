@@ -23,7 +23,7 @@ public:
    virtual ~CmdRun() { ; }
 
    /// @brief Run command
-   virtual void execute( casa::ScenarioAnalysis & sa );
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
 protected:
    std::string  m_cldVer;  // cauldron version

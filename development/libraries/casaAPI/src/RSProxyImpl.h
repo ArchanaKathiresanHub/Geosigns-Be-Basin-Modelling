@@ -14,8 +14,10 @@
 #ifndef CASA_API_RESPONSE_SURFACE_PROXY_IMPL_H
 #define CASA_API_RESPONSE_SURFACE_PROXY_IMPL_H
 
+// CASA
 #include "RSProxy.h"
 
+// STL
 #include <memory>
 #include <string>
 
@@ -86,11 +88,30 @@ namespace casa
       /// @return SUMlib proxy object
       SUMlib::CompoundProxyCollection * getProxyCollection() const { return m_collection.get(); }
  
+      // Serialization / Deserialization
+      /// @{
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
+      /// @param sz Serializer stream
+      /// @param  version stream version
+      /// @return true if it succeeds, false if it fails.
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      /// @brief Create a new RSProxyImpl instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objVer version of object representation in stream
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      RSProxyImpl( CasaDeserializer & inStream, const char * objName );
+      /// @} 
+
    protected:
       std::string      m_name;     // proxy name
 
-      const VarSpace & m_varSpace; // set of variable parameters
-      const ObsSpace & m_obsSpace; // set of observables definitions
+      const VarSpace * m_varSpace; // set of variable parameters
+      const ObsSpace * m_obsSpace; // set of observables definitions
 
       size_t        m_rsOrder;    // order of the response surface polynomial approximation
       RSKrigingType m_kriging;    // type of kriging interpolation
@@ -106,5 +127,6 @@ namespace casa
       RSProxyImpl & operator = ( const RSProxyImpl & ); 
    };
 }
+
 
 #endif // CASA_API_RESPONSE_SURFACE_PROXY_IMPL_H

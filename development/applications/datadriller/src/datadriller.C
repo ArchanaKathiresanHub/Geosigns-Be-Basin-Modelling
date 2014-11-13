@@ -1,22 +1,3 @@
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-
-#include <vector>
-#include <map>
-#include <cstring>
-#include <cstdlib>
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <assert.h>
-
-using namespace std;
-
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
@@ -52,10 +33,10 @@ using namespace CBMGenerics;
 #include "DomainPropertyFactory.h"
 #include "DomainPropertyCollection.h"
 
-#include <string>
-#include <sstream>
-#include <vector>
-#include <stdexcept>
+#include "errorhandling.h"
+
+#include <cassert>
+
 using namespace std;
 
 using namespace DataAccess;
@@ -63,8 +44,6 @@ using namespace Interface;
 using namespace Numerics;
 using namespace Mining;
 
-
-#include "errorhandling.h"
 
 const double StockTankPressure = 101325.0 * 1e-6;
 const double StockTankTemperature = 15.0;

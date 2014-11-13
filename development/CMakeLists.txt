@@ -236,6 +236,11 @@ if(BM_BUILD_DOCS)
    find_package(Doxygen CONFIG)
 endif()
 
+# Write additional environment variables to build environment set-up file
+#
+include(cmake/BuildEnvironment.cmake)
+
+#
 #
 # Include the subdirectories that have to be built
 #
@@ -275,11 +280,6 @@ endif()
 
 configure_file(InstallAll${script_suffix}.cmake InstallAll${script_suffix} @ONLY)
 configure_file(MoveInstalls${script_suffix}.cmake MoveInstalls${script_suffix} @ONLY)
-
-#
-# Write additional environment variables to build environment set-up file
-#
-include(cmake/BuildEnvironment.cmake)
 
 
 #

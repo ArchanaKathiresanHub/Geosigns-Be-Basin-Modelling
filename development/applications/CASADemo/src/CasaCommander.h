@@ -43,7 +43,7 @@ public:
    void addCommand( CfgFileParser::CfgCommand cmdID, const std::vector< std::string > & prms );
 
    /// @brief Go over all command in a queue and execute them for the
-   void executeCommands( casa::ScenarioAnalysis & sa );
+   void executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
    /// @brief Get verbose level for command processing
    VerboseLevel verboseLevel() const { return m_msgLvl; }

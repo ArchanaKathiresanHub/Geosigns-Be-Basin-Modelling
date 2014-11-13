@@ -47,7 +47,7 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
    }
 }
 
-void CmdAddVarPrm::execute( casa::ScenarioAnalysis & sa )
+void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
@@ -68,9 +68,9 @@ void CmdAddVarPrm::execute( casa::ScenarioAnalysis & sa )
 
       ppdf = Str2pdf( m_prms[3] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( sa, minVal, maxVal, ppdf ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( *sa.get(), minVal, maxVal, ppdf ) )
       {
-         throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
    else if ( m_prms[0] == "SourceRockTOC" )
@@ -80,9 +80,9 @@ void CmdAddVarPrm::execute( casa::ScenarioAnalysis & sa )
 
       ppdf = Str2pdf( m_prms[3] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( sa, m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
       {
-         throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
    else if ( m_prms[0] == "CrustThinningOneEvent" )
@@ -104,14 +104,17 @@ void CmdAddVarPrm::execute( casa::ScenarioAnalysis & sa )
 
       casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms[9] );
 
-      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryOneCrustThinningEvent( sa, minCrustThickn, maxCrustThickn,
-                                                                                                minTStart, maxTStart,
-                                                                                                minDeltaT, maxDeltaT,
-                                                                                                minFactor, maxFactor, pdfType )
-         )
-
-      {
-         throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
-      }
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryOneCrustThinningEvent( *sa.get()
+                                                                                          , minCrustThickn
+                                                                                          , maxCrustThickn
+                                                                                          , minTStart
+                                                                                          , maxTStart
+                                                                                          , minDeltaT
+                                                                                          , maxDeltaT
+                                                                                          , minFactor
+                                                                                          , maxFactor
+                                                                                          , pdfType
+                                                                                          )
+         ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
 }

@@ -14,6 +14,7 @@
 #ifndef CASA_API_CASE_IMPL_H
 #define CASA_API_CASE_IMPL_H
 
+#include "CasaDeserializer.h"
 #include "cmbAPI.h"
 #include "Parameter.h"
 #include "RunCase.h"
@@ -80,6 +81,17 @@ namespace casa
 
       // Set full path to the project path (including project file name).
       virtual void setProjectPath( const char * pth ) { m_modelProjectFileName = pth; }
+
+      // Serialization / Deserialization
+
+      // version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      // Serialize object to the given stream
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      // Create a new instance and deserialize it from the given stream
+      RunCaseImpl( CasaDeserializer & inStream, const char * objName );
 
    private:
       std::auto_ptr<mbapi::Model> m_model;                // Mutated model, available after mutateCaseTo call

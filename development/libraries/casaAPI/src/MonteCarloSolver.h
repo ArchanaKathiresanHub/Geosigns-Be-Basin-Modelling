@@ -14,8 +14,13 @@
 #ifndef CASA_API_MONTE_CARLO_SOLVER_H
 #define CASA_API_MONTE_CARLO_SOLVER_H
 
+// CMB
 #include "ErrorHandler.h"
 
+// CASA
+#include "CasaSerializer.h"
+
+// STL
 #include <vector>
 
 /// @page CASA_MonteCarloSolverPage Monte Carlo solver
@@ -53,7 +58,7 @@ namespace casa
    class RunCase;
 
    /// @brief Monte Carlo solver
-   class MonteCarloSolver : public ErrorHandler
+   class MonteCarloSolver : public ErrorHandler, public CasaSerializable
    {
    public:
       /// @brief MC sampling point results

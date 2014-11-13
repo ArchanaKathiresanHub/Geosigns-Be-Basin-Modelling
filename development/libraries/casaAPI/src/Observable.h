@@ -15,7 +15,10 @@
 #define CASA_API_OBSERVABLE_H
 
 #include "ErrorHandler.h"
+#include "CasaSerializer.h"
+#include "CasaDeserializer.h"
 
+// STL
 #include <vector>
 
 /// @page CASA_ObservablePage Observable description
@@ -58,7 +61,7 @@ namespace casa
 
    /// @brief Base class for keeping description of some value (not the value itself) from Cauldron simulation results
    /// Also this class keeps observable reference value and observable weights for Sensitivity and Uncertainty analysis
-   class Observable
+   class Observable : public CasaSerializable
    {
    public:
       static const std::string s_dataMinerTable; ///< name of the table which keeps observable values after simulations
@@ -138,10 +141,17 @@ namespace casa
          return ret;
       }
 
+      /// @brief Create a new observable instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objName expected object name
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      static Observable * load( CasaDeserializer & dz, const char * objName );
+
    protected:
       Observable() { ; }
       
    private:
+
       Observable(const Observable &);
       Observable & operator = ( const Observable & );
    };

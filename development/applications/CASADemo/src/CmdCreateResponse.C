@@ -36,26 +36,27 @@ CmdCreateResponse::CmdCreateResponse( CasaCommander & parent, const std::vector<
    }
 }
 
-void CmdCreateResponse::execute( casa::ScenarioAnalysis & sa )
+void CmdCreateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {  
    // add response
-   if ( ErrorHandler::NoError != sa.addRSAlgorithm( m_proxyName.c_str(), m_respSurfOrder, static_cast<casa::RSProxy::RSKrigingType>( m_krType ) ) )
-   {
-      throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
-   }
+   if ( ErrorHandler::NoError != sa->addRSAlgorithm( m_proxyName.c_str()
+                                                   , m_respSurfOrder
+                                                   , static_cast<casa::RSProxy::RSKrigingType>( m_krType ) 
+                                                   )
+      ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    
    // call response calculation
-   casa::RSProxy * proxy = sa.rsProxySet().rsProxy( m_proxyName.c_str() );
+   casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName.c_str() );
 
    std::vector<const casa::RunCase *> rcs; // set of run cases which will be used in RSProxy calculation
 
    // collect cases for given set of DoE
    for ( size_t i = 0; i < m_doeList.size(); ++i )
    {
-      sa.doeCaseSet().filterByExperimentName( m_doeList[i] );
-      for ( size_t j = 0; j < sa.doeCaseSet().size(); ++j )
+      sa->doeCaseSet().filterByExperimentName( m_doeList[i] );
+      for ( size_t j = 0; j < sa->doeCaseSet().size(); ++j )
       {
-         rcs.push_back( sa.doeCaseSet()[j] );
+         rcs.push_back( sa->doeCaseSet()[j] );
       }
    }
    if ( rcs.empty() && m_commander.verboseLevel() > CasaCommander::Quiet )

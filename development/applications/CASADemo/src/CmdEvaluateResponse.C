@@ -35,18 +35,18 @@ CmdEvaluateResponse::CmdEvaluateResponse( CasaCommander & parent, const std::vec
    if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No output file name was specified";
 }
 
-void CmdEvaluateResponse::execute( casa::ScenarioAnalysis & sa )
+void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    std::vector<casa::RunCase *> rcs; // set of run cases which were created from set of parameters defined in external dat file
 
    for ( size_t i = 0; i < m_expList.size(); ++i )
    {
-      sa.doeCaseSet().filterByExperimentName( m_expList[i] );
-      if ( sa.doeCaseSet().size() ) // DoE name was given, add cases from DoE
+      sa->doeCaseSet().filterByExperimentName( m_expList[i] );
+      if ( sa->doeCaseSet().size() ) // DoE name was given, add cases from DoE
       {
-         for ( size_t j = 0; j < sa.doeCaseSet().size(); ++j )
+         for ( size_t j = 0; j < sa->doeCaseSet().size(); ++j )
          {
-            const casa::RunCase * rc = sa.doeCaseSet()[j];
+            const casa::RunCase * rc = sa->doeCaseSet()[j];
             // create new RunCase and make a shallow copy of parameters using shared pointers
             std::auto_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
             for ( size_t k = 0; k < rc->parametersNumber(); ++k ) nrc->addParameter( rc->parameter( k ) );
@@ -59,7 +59,7 @@ void CmdEvaluateResponse::execute( casa::ScenarioAnalysis & sa )
       {
          std::vector< std::vector<double> > prmVals;
          CfgFileParser::readParametersValueFile( m_expList[i], prmVals );
-         casa::VarSpace & vs = sa.varSpace();
+         casa::VarSpace & vs = sa->varSpace();
 
          for ( size_t i = 0; i < prmVals.size(); ++i )
          {
@@ -79,7 +79,7 @@ void CmdEvaluateResponse::execute( casa::ScenarioAnalysis & sa )
       }
    }
    // Search for given proxy name in the set of calculated proxies
-   casa::RSProxy * proxy = sa.rsProxySet().rsProxy( m_proxyName.c_str() );
+   casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName.c_str() );
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 

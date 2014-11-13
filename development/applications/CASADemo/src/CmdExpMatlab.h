@@ -23,7 +23,7 @@ public:
    virtual ~CmdExpMatlab() { ; }
 
    /// @brief Run command
-   virtual void execute( casa::ScenarioAnalysis & sa );
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
 protected:
    std::string   m_dataFileName; ///< Name of matlab file to export results

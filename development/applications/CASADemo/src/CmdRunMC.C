@@ -78,7 +78,7 @@ CmdRunMC::CmdRunMC( CasaCommander & parent, const std::vector< std::string > & c
    if ( m_prms.size() > 6 ) m_stdDevFactor = atof( m_prms[6].c_str() );
 }
 
-void CmdRunMC::execute( casa::ScenarioAnalysis & sa )
+void CmdRunMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
@@ -93,24 +93,29 @@ void CmdRunMC::execute( casa::ScenarioAnalysis & sa )
    }
    
    // create corresponded MC algorithm
-   if ( ErrorHandler::NoError != sa.setMCAlgorithm( static_cast<casa::MonteCarloSolver::Algorithm>( m_mcAlg ),
+   if ( ErrorHandler::NoError != sa->setMCAlgorithm( static_cast<casa::MonteCarloSolver::Algorithm>( m_mcAlg ),
                                                     static_cast<casa::MonteCarloSolver::KrigingType>( m_proxyUsage ),
                                                     static_cast<casa::MonteCarloSolver::PriorDistribution>( m_varPrmPDFEval ),
                                                     casa::MonteCarloSolver::Normal )
       )
    {
-      throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
+      throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 
    // look for the proxy:
-   casa::RSProxy * proxy = sa.rsProxySet().rsProxy( m_proxyName );
+   casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName );
    if ( !proxy ) throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find response proxy with name: " << m_proxyName;
 
    // run simulation itself
-   if ( ErrorHandler::NoError != sa.mcSolver().prepareSimulation( *proxy, sa.varSpace(), sa.varSpace(), sa.obsSpace(), m_samplesNum, m_maxStepsNum, m_stdDevFactor ) )
-   {
-      throw ErrorHandler::Exception( sa.mcSolver().errorCode() ) << sa.mcSolver().errorMessage();
-   }
+   if ( ErrorHandler::NoError != sa->mcSolver().prepareSimulation( *proxy
+                                                                 , sa->varSpace()
+                                                                 , sa->varSpace()
+                                                                 , sa->obsSpace()
+                                                                 , m_samplesNum
+                                                                 , m_maxStepsNum
+                                                                 , m_stdDevFactor
+                                                                 )
+      ) { throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage(); }
    
    std::cout << "Performed iterations: ";
 
@@ -118,9 +123,9 @@ void CmdRunMC::execute( casa::ScenarioAnalysis & sa )
    {
       int itNum;
 
-      if ( ErrorHandler::NoError != sa.mcSolver().iterateOnce( itNum ) )
+      if ( ErrorHandler::NoError != sa->mcSolver().iterateOnce( itNum ) )
       {
-         throw ErrorHandler::Exception( sa.mcSolver().errorCode() ) << sa.mcSolver().errorMessage();
+         throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage();
       }
       if ( !itNum ) break; // converged
       
@@ -138,9 +143,9 @@ void CmdRunMC::execute( casa::ScenarioAnalysis & sa )
       }
    }
 
-   if ( ErrorHandler::NoError != sa.mcSolver().collectMCResults( sa.varSpace(), sa.obsSpace() ) )
+   if ( ErrorHandler::NoError != sa->mcSolver().collectMCResults( sa->varSpace(), sa->obsSpace() ) )
    {
-      throw ErrorHandler::Exception( sa.mcSolver().errorCode() ) << sa.mcSolver().errorMessage();
+      throw ErrorHandler::Exception( sa->mcSolver().errorCode() ) << sa->mcSolver().errorMessage();
    }
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )

@@ -16,6 +16,7 @@
 
 #include "ErrorHandler.h"
 
+#include "CasaSerializer.h"
 #include "DoEGenerator.h"
 #include "VarSpace.h"
 
@@ -49,7 +50,17 @@ namespace casa
       // return DoE algorithm type
       virtual DoEAlgorithm algorithm() { return m_typeOfDoE; }
 
-      
+      // Serialization / Deserialization
+
+      // version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      // Serialize object to the given stream
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      // Create a new instance and deserialize it from the given stream
+      DoEGeneratorImpl( CasaDeserializer & inStream, const char * objName );
+     
    private:
       DoEAlgorithm                         m_typeOfDoE;
 

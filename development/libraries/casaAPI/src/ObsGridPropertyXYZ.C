@@ -105,5 +105,76 @@ ObsValue * ObsGridPropertyXYZ::createNewObsValueFromDouble( std::vector<double>:
    return new ObsValueDoubleScalar( this, *val++ );
 }
 
+bool ObsGridPropertyXYZ::save( CasaSerializer & sz, unsigned int version ) const
+{
+   // register observable with serializer to allow ObsValue objects keep reference after deserializtion
+   CasaSerializer::ObjRefID obID = sz.ptr2id( this ); 
+
+   bool ok = sz.save( obID, "ID" );
+   ok = ok ? sz.save( m_x, "X" ) : ok;
+   ok = ok ? sz.save( m_y, "Y" ) : ok;
+   ok = ok ? sz.save( m_z, "Z" ) : ok;
+
+   ok = ok ? sz.save( m_propName, "propName" ) : ok;
+   ok = ok ? sz.save( m_simTime, "simTime"  ) : ok;
+
+   ok = ok ? sz.save( m_name, "name" ) : ok;
+
+   ok = ok ? sz.save( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
+
+   bool hasRefVal = m_refValue.get() ? true : false;
+   ok = ok ? sz.save( hasRefVal, "HasRefValue" ) : ok;
+   if ( hasRefVal ) { ok = ok ? sz.save( *(m_refValue.get()), "refValue" ) : ok; }
+   
+   ok = ok ? sz.save( m_devValue, "devValue" ) : ok;
+
+   ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
+   ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
+
+   return ok;
+}
+
+ObsGridPropertyXYZ::ObsGridPropertyXYZ( CasaDeserializer & dz, unsigned int objVer )
+{
+   if ( version() < objVer )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) <<
+         "Version of ObsGridPropertyXYZ in file is newer. No forward compatibility!";
+   }
+
+   CasaDeserializer::ObjRefID obID;
+
+   // load data necessary to create an object
+   bool ok = dz.load( obID, "ID" );
+
+   // register observable with deserializer under read ID to allow ObsValue objects keep reference after deserializtion
+   dz.registerObjPtrUnderID( this, obID );
+
+   ok = ok ? dz.load( m_x, "X" ) : ok;
+   ok = ok ? dz.load( m_y, "Y" ) : ok;
+   ok = ok ? dz.load( m_z, "Z" ) : ok;
+
+   ok = ok ? dz.load( m_propName, "propName" ) : ok;
+   ok = ok ? dz.load( m_simTime,  "simTime"  ) : ok;
+
+   ok = ok ? dz.load( m_name, "name" ) : ok;
+   ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
+
+   bool hasRefVal;
+   ok = ok ? dz.load( hasRefVal, "HasRefValue" ) : ok;
+
+   if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
+
+   ok = ok ? dz.load( m_devValue, "devValue" ) : ok;
+   ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
+   ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
+   
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "ObsGridPropertyXYZ deserialization unknown error";
+   }
+}
+
 }
 

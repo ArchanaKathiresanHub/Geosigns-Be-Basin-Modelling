@@ -14,9 +14,15 @@
 #ifndef CASA_API_PARAMETER_H
 #define CASA_API_PARAMETER_H
 
+// CASA
 #include "ErrorHandler.h"
+#include "CasaSerializer.h"
+#include "CasaDeserializer.h"
 
+// STL
 #include <vector>
+
+// boost
 #include <boost/shared_ptr.hpp>
 
 /// @page CASA_ParameterPage Cauldron project parameter
@@ -34,7 +40,7 @@ namespace casa
    class VarParameter;
 
    /// @brief Base class for all types of Cauldron model parameters used in CASA
-   class Parameter
+   class Parameter : public CasaSerializable
    {
    public:
       /// @brief Parameter destructor
@@ -75,6 +81,12 @@ namespace casa
       /// @post return one non negative integer number which represents a value of this parameter if
       ///       parameter is categorical, or -1 otherwise
       virtual int asInteger() const = 0;
+
+      /// @brief Create a new parameter instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objName expected object name
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      static Parameter * load( CasaDeserializer & dz, const char * objName );
 
    protected:
       Parameter() {;}

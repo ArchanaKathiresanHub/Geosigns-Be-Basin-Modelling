@@ -14,10 +14,18 @@
 #ifndef CASA_API_CAULDRON_APP_H
 #define CASA_API_CAULDRON_APP_H
 
+// CMB
 #include "ErrorHandler.h"
+
+// CASA
+#include "CasaSerializer.h"
+#include "CasaDeserializer.h"
+
+// FileSystem
 #include "FilePath.h"
 #include "FolderPath.h"
 
+// STL
 #include <map>
 #include <string>
 #include <sstream>
@@ -26,7 +34,7 @@
 namespace casa
 {
    /// @brief Class for creating command line for cauldron application
-   class CauldronApp 
+   class CauldronApp : public CasaSerializable
    {
    public:   
       /// @brief Shell which will be used for script generation
@@ -46,9 +54,9 @@ namespace casa
       /// @brief Destructor
       virtual ~CauldronApp() {;}
 
-      /// @brief Set shell for scripts. The default is bash
-      /// @param sh shell name
-      void setShellType( ShellType sh ) { m_sh = sh; }
+      /// @brief  In case of general app defines script body.
+      /// @param  cmdLine  full script body
+      void setScriptBody( const std::string & cmdLine ) { m_scriptBody = cmdLine; }
       
       /// @brief Set which version of the Cauldron app will be used. This string is used as part of path to an application
       /// @param ver cauldron version like "v2014.7nightly"
@@ -76,10 +84,34 @@ namespace casa
       /// @param opt new option
       void addOption( const std::string & opt ) { m_optionsList.push_back( opt ); }
 
+      /// @brief  Return scirpt suffix which depends on the chosen shell - for example .sh for bash and .bat for cmd
+      /// @return commands script suffix
+      const char * scriptSuffix() const;
+
+      // Serialization / Deserialization
+      /// @{
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
+      /// @param sz Serializer stream
+      /// @param  version stream version
+      /// @return true if it succeeds, false if it fails.
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      /// @brief Create a new DataDiggerImpl instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objVer version of object representation in stream
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      CauldronApp( CasaDeserializer & inStream, const char * objName );
+      /// @}
+
    protected:
 
       std::map< std::string, std::string >   m_env; ///< keeps environment variables in map: [variable] -> value
       std::string                            m_appName;      ///< name of application like fastcauldron/genex6/...
+      std::string                            m_scriptBody;   ///< in case of general app keeps script body
       bool                                   m_parallel;     ///< is this application parallel?
       int                                    m_cpus;         ///< how many cpus should use application
 
@@ -87,8 +119,10 @@ namespace casa
 
       std::string                            m_version;      ///< Cauldron version which will be used
       std::string                            m_rootPath;     ///< path prefix to applications root like /apps/sssdev/ibs
-      std::string                            m_mpiEnv;       ///< path to script with environment set up for mpirun
       std::string                            m_mpirunCmd;    ///< mpirun command with parameters
+
+      std::string                            m_inputOpt;     ///< command line option for app to load input project file
+      std::string                            m_outputOpt;    ///< command line option for app to save output project file
 
       std::vector< std::string >             m_optionsList;  ///< List of options for the application
    
@@ -105,14 +139,6 @@ namespace casa
       /// @param varValue the value of the environment variable if it does not exist in environment
       /// @return true if given varValue was used, false otherwise
       bool pushDefaultEnv( const std::string & varName, const std::string & varValue );
-
-      /// @brief Get option to specify input project name
-      /// @return input project option as a string
-      virtual std::string inputProjectOption() { return "-project"; } // in different applications this parameter could be different
-
-      /// @brief Get option to specify output project name
-      /// @return output project option as a string
-      virtual std::string outputProjectOption() { return "-save"; } // in different applications this parameter could be different
 
       CauldronApp( const CauldronApp & anotherApp );
       CauldronApp & operator = ( const CauldronApp & anotherApp );

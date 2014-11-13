@@ -14,6 +14,9 @@
 #ifndef CASA_API_RUN_CASE_SET_H
 #define CASA_API_RUN_CASE_SET_H
 
+// CASA
+#include "CasaSerializer.h"
+
 #include <string>
 #include <vector>
 
@@ -23,7 +26,7 @@ namespace casa
 
    /// @brief RunCaseSet class keep list of casa::RunCase objects and allows to manage them.
    ///        Also it can filter objects in set depending on experiment name.
-   class RunCaseSet
+   class RunCaseSet : public CasaSerializable
    {
    public:
       /// @brief Destructor
@@ -61,7 +64,7 @@ namespace casa
       virtual bool empty() const = 0;
 
    protected:
-      RunCaseSet( ) { ; }
+      RunCaseSet() { ; }
    };
 
 }

@@ -14,9 +14,11 @@
 #ifndef CASA_OBS_VAR_SPACE_H
 #define CASA_OBS_VAR_SPACE_H
 
+#include "CasaSerializer.h"
 #include "ErrorHandler.h"
 #include "Observable.h"
 
+// STL
 #include <vector>
 
 /// @page CASA_ObsSpacePage Container for observables description
@@ -26,7 +28,7 @@ namespace casa
 {
    /// @class ObsSpace ObsSpace.h "ObsSpace.h"
    /// @brief Observables set manager. It keeps a set of observables
-   class ObsSpace : public ErrorHandler
+   class ObsSpace : public ErrorHandler, public CasaSerializable
    {
    public:
       /// @brief Add a new observable
@@ -44,8 +46,10 @@ namespace casa
       virtual const Observable * observable( size_t i ) const = 0;
 
    protected:
-      ObsSpace() {;}
-      virtual ~ObsSpace() {;}
+      ObsSpace() { ; }
+      virtual ~ObsSpace() { ; }
+   
+   private:
    };
 }
 

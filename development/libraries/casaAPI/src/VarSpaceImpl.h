@@ -20,6 +20,8 @@
 #include "VarPrmContinuous.h"
 #include "VarPrmDiscrete.h"
 
+#include "CasaDeserializer.h"
+
 #include <vector>
 
 namespace casa
@@ -31,28 +33,13 @@ public:
    // VarSpace interface implementation
    
    // Add a new categorical parameter
-   virtual ErrorHandler::ReturnCode addParameter( VarPrmCategorical * prm )
-   {
-      if ( prm ) { m_catPrms.push_back( prm ); }
-      else       { return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
-      return NoError;
-   }
+   virtual ErrorHandler::ReturnCode addParameter( VarPrmCategorical * prm );
 
    // Add a new continuous parameter
-   virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm )
-   {
-      if ( prm ) { m_cntPrms.push_back( prm ); }
-      else       { return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
-      return NoError;
-   }
+   virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm );
 
    // Add a new discrete parameter
-   virtual ErrorHandler::ReturnCode addParameter( VarPrmDiscrete * prm )
-   {
-      if ( prm ) { m_disPrms.push_back( prm ); }
-      else       { return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
-      return NoError;
-   }
+   virtual ErrorHandler::ReturnCode addParameter( VarPrmDiscrete * prm );
 
    // Get number of variable parameters defined in VarSpace
    virtual size_t size() const { return m_catPrms.size() + m_cntPrms.size() + m_disPrms.size(); } 
@@ -70,15 +57,8 @@ public:
    
    // Constructor/Destructor
    VarSpaceImpl() { ; }
-   virtual ~VarSpaceImpl()
-   {
-      for ( size_t i = 0; i < m_catPrms.size(); ++i ) delete m_catPrms[i];
-      for ( size_t i = 0; i < m_disPrms.size(); ++i ) delete m_disPrms[i];
-      for ( size_t i = 0; i < m_cntPrms.size(); ++i ) delete m_cntPrms[i];
-      m_catPrms.clear();
-      m_disPrms.clear();
-      m_cntPrms.clear();
-   }
+
+   virtual ~VarSpaceImpl();
 
    // Get i-th continuous parameter from the list
    virtual const VarPrmContinuous * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
@@ -88,6 +68,17 @@ public:
 
    // Get i-th discrete parameter from the list
    virtual const VarPrmDiscrete * discreteParameter( size_t i ) const { return i < m_disPrms.size() ? m_disPrms[ i ] : NULL; }
+
+   // Serialization / Deserialization
+
+   // version of serialized object representation
+   virtual unsigned int version() const { return 0; }
+
+   // Serialize object to the given stream
+   virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+   // Create a new instance and deserialize it from the given stream
+   VarSpaceImpl( CasaDeserializer & inStream, const char * objName );
 
 private:
    VarSpaceImpl( const VarSpaceImpl & );

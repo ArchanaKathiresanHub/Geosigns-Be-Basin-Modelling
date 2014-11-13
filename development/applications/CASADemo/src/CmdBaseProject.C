@@ -24,15 +24,15 @@ CmdBaseProject::CmdBaseProject( CasaCommander & parent, const std::vector< std::
    if ( m_baseProjectName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty base case project name";
 }
 
-void CmdBaseProject::execute( casa::ScenarioAnalysis & sa )
+void CmdBaseProject::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
       std::cout << "Set base case: " << m_baseProjectName << std::endl;
    }
 
-   if ( ErrorHandler::NoError != sa.defineBaseCase( m_baseProjectName.c_str() ) )
+   if ( ErrorHandler::NoError != sa->defineBaseCase( m_baseProjectName.c_str() ) )
    {
-      throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
+      throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
 }

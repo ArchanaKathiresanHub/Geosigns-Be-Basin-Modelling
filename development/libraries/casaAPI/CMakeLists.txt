@@ -42,6 +42,7 @@ target_link_libraries(casaapi
    FileSystem
    utilities
    SUMlib
+   ${Boost_LIBRARIES}
 )
 
 if (LSF_HOME)
@@ -63,6 +64,8 @@ configure_file(test/Ottoland.project3d Ottoland.project3d)
 
 #Cauldron project with results for DataDigger unit testing
 configure_file(test/OttolandWithGenex.project3d OttolandWithGenex.project3d COPYONLY ) 
+configure_file(test/Ottoland_casa_state.txt Ottoland_casa_state.txt COPYONLY ) 
+
 configure_file(test/OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 COPYONLY ) 
 configure_file(test/OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF COPYONLY ) 
 configure_file(test/OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF COPYONLY ) 
@@ -107,5 +110,10 @@ add_gtest( NAME RSProxyTest
 
 add_gtest( NAME MCTest
    SOURCES test/MCTest.C
+   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME SerializationTest
+   SOURCES test/SerializationTest.C
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )

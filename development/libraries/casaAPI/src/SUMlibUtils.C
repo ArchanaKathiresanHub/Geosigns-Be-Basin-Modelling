@@ -282,7 +282,7 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
       if ( weights.empty() )
       {
          const std::vector<SharedParameterPtr> & valsSet = varSpace.discreteParameter(i)->valuesSet();
-         weights.assign( 1.0, valsSet.size() );
+         weights.assign( valsSet.size(), 1.0 );
       }
       disWeights.push_back( weights );
    }
@@ -299,7 +299,7 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
       if ( weights.empty() )
       {
          const std::vector<unsigned int> & prmIndSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet();
-         weights.assign( 1.0, prmIndSet.size() );
+         weights.assign( prmIndSet.size(), 1.0 );
       }
       catWeights.push_back( weights );
    }

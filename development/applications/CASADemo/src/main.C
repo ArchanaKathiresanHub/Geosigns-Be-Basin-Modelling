@@ -48,7 +48,7 @@ int main( int argc, char ** argv )
       cmdFile.parseFile( argv[1], cmdQueue );
 
       // New scenario object
-      casa::ScenarioAnalysis sc;
+      std::auto_ptr<casa::ScenarioAnalysis> sc( new casa::ScenarioAnalysis() );
 
       //process commands
       cmdQueue.executeCommands( sc );

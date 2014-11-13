@@ -14,7 +14,11 @@
 #ifndef CASA_API_RUN_MANAGER_H
 #define CASA_API_RUN_MANAGER_H
 
+// CMB
 #include "ErrorHandler.h"
+
+// CASA
+#include "CasaSerializer.h"
 #include "CauldronApp.h"
 
 /// @page CASA_RunManagerPage Jobs execution manager
@@ -64,7 +68,7 @@ namespace casa
    class RunCase;
 
    /// @brief Allows to run set of Cases on HPC cluster
-   class RunManager : public ErrorHandler
+   class RunManager : public ErrorHandler, public CasaSerializable
    {
    public:
       /// @name Types definitions
@@ -87,11 +91,12 @@ namespace casa
       virtual ~RunManager() {;}
 
       /// @brief Factory for creating application objects which can be used for creating calculation pipeline
-      /// @param appType type of application
-      /// @param cpus optional parameters, it defines the number of cpus to use in this application. The default value is 1
-      /// @param cmdLine optional parameter for general application. This string should contains the script itself
-      /// @return pointer to the application object which later should be passed to RunManager::addApplication() method
-      static CauldronApp * createApplication( ApplicationType appType, int cpus = 1, const std::string cmdLine = "" );
+      /// @return pointer to the application object which later should be passed to RunManager::addApplication() method      
+      static CauldronApp * createApplication( ApplicationType appType                       ///< type of application
+                                            , int cpus = 1                                  ///< (optional) it defines the number of cpus to use in this application
+                                            , CauldronApp::ShellType sh = CauldronApp::bash ///< (optional) shell type (define how run scripts will be generated)
+                                            , const std::string cmdLine = ""                ///< (optional) for general application, should contains the script body
+                                            );                               
 
       /// @brief Set up Cauldron version. Version should be defined as "v2014.1007" (which is the default)
       ///        Version also could be defined by the environment variable CAULDRON_VERSION. This interface

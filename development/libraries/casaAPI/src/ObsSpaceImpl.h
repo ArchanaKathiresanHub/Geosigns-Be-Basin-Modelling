@@ -14,8 +14,10 @@
 #ifndef CASA_API_OBS_SPACE_IMPL_H
 #define CASA_API_OBS_SPACE_IMPL_H
 
+// CASA
 #include "ObsSpace.h"
 
+// STL
 #include <vector>
 
 namespace casa
@@ -47,6 +49,17 @@ public:
 
    // Get i-th observable
    virtual const Observable * observable( size_t i ) const { return i < size() ? at( i ) : 0; }
+
+   // Serialization / Deserialization
+  
+   // version of serialized object representation
+   virtual unsigned int version() const { return 0; }
+
+   // Serialize object to the given stream
+   virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+   // Create a new instance and deserialize it from the given stream
+   ObsSpaceImpl( CasaDeserializer & dz, const char * objName );
 
 private:
    std::vector< Observable*> m_obsSet;

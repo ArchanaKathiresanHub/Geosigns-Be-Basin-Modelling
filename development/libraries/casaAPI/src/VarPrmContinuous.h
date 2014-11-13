@@ -16,6 +16,8 @@
 
 #include "Parameter.h"
 #include "VarParameter.h"
+#include "CasaDeserializer.h"
+
 
 #include <memory>
 
@@ -97,8 +99,28 @@ namespace casa
          return ret;
       }
 
+      /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
+      /// @param sz Serializer stream
+      /// @param  version stream version
+      /// @return true if it succeeds, false if it fails.
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      /// @brief Create a new VarPrmContinuous instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objName expected object name
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      static VarPrmContinuous * load( CasaDeserializer & dz, const char * objName );
+
    protected:
       VarPrmContinuous() : m_pdf(Block) {;}
+
+      // version of serialized object representation
+      virtual unsigned int version() const { return 0; } // could be overloaded by child classes
+
+      /// @brief  Constructor from input stream, implements common part of deserialization for continuous variable parameters
+      /// @param dz input stream
+      /// @param objVer The object version.
+      VarPrmContinuous( CasaDeserializer & dz, unsigned int objVer );
 
       SharedParameterPtr m_baseValue;   ///< Base parameter value, used also as object factory for concrete parameter value
       SharedParameterPtr m_minValue;    ///< Base parameter value, used also as object factory for concrete parameter value

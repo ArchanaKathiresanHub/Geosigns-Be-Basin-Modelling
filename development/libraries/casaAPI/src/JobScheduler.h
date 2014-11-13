@@ -14,15 +14,19 @@
 #ifndef CASA_CASE_SCHEDULER_H
 #define CASA_CASE_SCHEDULER_H
 
+// CMB
 #include "ErrorHandler.h"
 
+// CASA
+#include "CasaSerializer.h"
+// STL
 #include <string>
 
 namespace casa
 {
 
    // This class provides OS independent access to the job scheduler to RunManager.
-   class JobScheduler
+   class JobScheduler : public CasaSerializable
    {
    public:
       enum JobState
@@ -63,6 +67,8 @@ namespace casa
       // Wait a bit (~10 sec) before asking about job state again
       // for the LOCAL cluster - do nothing
       virtual void sleep() = 0;
+
+      static JobScheduler *  load( CasaDeserializer & dz, const char * objName );
 
    protected:
       JobScheduler() { ; }

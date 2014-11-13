@@ -1,0 +1,3942 @@
+class casa::TxtSerializer Serializer 0
+string caseSetPath "d:\cauldron\CASADemo\CaseSet"
+string baseCaseProjectFile "OttolandWithGenex.project3d"
+int iterationNum 2
+int caseNum 14
+class casa::ObsSpaceImpl ObsSpace 0
+refID ID 0
+refID ObservablesSetSize 7
+class casa::ObsGridPropertyXYZ Observable 0
+refID ID 1
+double X 460001
+double Y 6.75e+006
+double Z 1293
+string propName "Temperature"
+double simTime 0
+string name "GridPropertyXYZ(Temperature, (460001,6.75e+006,1293),0)"
+refID posDataMiningTbl 0
+bool HasRefValue true
+class casa::ObsValueDoubleScalar refValue 0
+refID ObservableID 1
+double scalarVal 65.7
+double devValue 2
+double saWeight 1
+double uaWeight 1
+class casa::ObsGridPropertyXYZ Observable 0
+refID ID 2
+double X 460001
+double Y 6.75e+006
+double Z 2129
+string propName "Temperature"
+double simTime 0
+string name "GridPropertyXYZ(Temperature, (460001,6.75e+006,2129),0)"
+refID posDataMiningTbl 1
+bool HasRefValue true
+class casa::ObsValueDoubleScalar refValue 0
+refID ObservableID 2
+double scalarVal 74.5
+double devValue 10
+double saWeight 1
+double uaWeight 1
+class casa::ObsGridPropertyXYZ Observable 0
+refID ID 3
+double X 460001
+double Y 6.75e+006
+double Z 2362
+string propName "Temperature"
+double simTime 0
+string name "GridPropertyXYZ(Temperature, (460001,6.75e+006,2362),0)"
+refID posDataMiningTbl 2
+bool HasRefValue true
+class casa::ObsValueDoubleScalar refValue 0
+refID ObservableID 3
+double scalarVal 100
+double devValue 5
+double saWeight 1
+double uaWeight 1
+class casa::ObsGridPropertyXYZ Observable 0
+refID ID 4
+double X 460001
+double Y 6.75e+006
+double Z 2751
+string propName "Temperature"
+double simTime 0
+string name "GridPropertyXYZ(Temperature, (460001,6.75e+006,2751),0)"
+refID posDataMiningTbl 3
+bool HasRefValue true
+class casa::ObsValueDoubleScalar refValue 0
+refID ObservableID 4
+double scalarVal 108.6
+double devValue 2
+double saWeight 1
+double uaWeight 1
+class casa::ObsGridPropertyXYZ Observable 0
+refID ID 5
+double X 460001
+double Y 6.75e+006
+double Z 3200
+string propName "Temperature"
+double simTime 0
+string name "GridPropertyXYZ(Temperature, (460001,6.75e+006,3200),0)"
+refID posDataMiningTbl 4
+bool HasRefValue true
+class casa::ObsValueDoubleScalar refValue 0
+refID ObservableID 5
+double scalarVal 120
+double devValue 2
+double saWeight 1
+double uaWeight 1
+class casa::ObsGridPropertyXYZ Observable 0
+refID ID 6
+double X 460001
+double Y 6.75e+006
+double Z 1590
+string propName "Vr"
+double simTime 0
+string name "GridPropertyXYZ(Vr, (460001,6.75e+006,1590),0)"
+refID posDataMiningTbl 5
+bool HasRefValue true
+class casa::ObsValueDoubleScalar refValue 0
+refID ObservableID 6
+double scalarVal 0.62
+double devValue 0.1
+double saWeight 1
+double uaWeight 1
+class casa::ObsGridPropertyXYZ Observable 0
+refID ID 7
+double X 460001
+double Y 6.75e+006
+double Z 2722
+string propName "Vr"
+double simTime 0
+string name "GridPropertyXYZ(Vr, (460001,6.75e+006,2722),0)"
+refID posDataMiningTbl 6
+bool HasRefValue true
+class casa::ObsValueDoubleScalar refValue 0
+refID ObservableID 7
+double scalarVal 1.04
+double devValue 0.1
+double saWeight 1
+double uaWeight 1
+class casa::VarSpaceImpl VarSpace 0
+refID ID 8
+refID CatPrmsSetSize 0
+refID DisPrmsSetSize 0
+refID CntPrmsSetSize 3
+class casa::VarPrmTopCrustHeatProduction CntVarParameter 0
+refID ID 9
+int prmPDF 0
+class casa::PrmTopCrustHeatProduction baseValue 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmTopCrustHeatProduction minValue 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.1
+class casa::PrmTopCrustHeatProduction maxValue 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.9
+class casa::VarPrmSourceRockTOC CntVarParameter 0
+refID ID 10
+int prmPDF 0
+class casa::PrmSourceRockTOC baseValue 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmSourceRockTOC minValue 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 5
+class casa::PrmSourceRockTOC maxValue 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 15
+class casa::VarPrmOneCrustThinningEvent CntVarParameter 0
+refID ID 11
+int prmPDF 0
+class casa::PrmOneCrustThinningEvent baseValue 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.65
+class casa::PrmOneCrustThinningEvent minValue 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 15000
+double t0 120
+double dt 30
+double coeff 0.5
+class casa::PrmOneCrustThinningEvent maxValue 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 40000
+double t0 180
+double dt 45
+double coeff 0.8
+class casa::DoEGeneratorImpl DoE 0
+int TypOfDoE 1
+class casa::DataDiggerImpl DataDigger 0
+class casa::RunManagerImpl RunManger  0
+string CauldronVersion "cld-dev-64"
+string IBSRoot ""
+refID AppListSize 3
+class casa::CauldronApp CldApp 0
+refID EnvVarList 6
+string EnvVarName "CTCDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc"
+string EnvVarName "EOSPACKDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\eospack"
+string EnvVarName "GENEX5DIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\genex50"
+string EnvVarName "GENEX6DIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\genex60"
+string EnvVarName "GENEXDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\genex40"
+string EnvVarName "OTGCDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\OTGC"
+string AppName "fastcauldron.exe"
+string ScriptBody ""
+bool IsAppParallel true
+int CPUsNum 1
+int ShellType 2
+string CldVersion "cld-dev-64"
+string IBSROOT "d:\cauldron"
+string MPIRunCmd "D:/cauldron/trunk/development/../3rdparty/MicrosoftMPI-HPC-Pack-2012-R2/bin/mpiexec.exe"
+string InputOpt "-project"
+string OutputOpt "-save"
+vector[string] AppOptionsList 1 "-itcoupled"
+class casa::CauldronApp CldApp 0
+refID EnvVarList 5
+string EnvVarName "EOSPACKDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\eospack"
+string EnvVarName "GENEX5DIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\genex50"
+string EnvVarName "GENEX6DIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\genex60"
+string EnvVarName "GENEXDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\genex40"
+string EnvVarName "OTGCDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\OTGC"
+string AppName "fastgenex6.exe"
+string ScriptBody ""
+bool IsAppParallel true
+int CPUsNum 1
+int ShellType 2
+string CldVersion "cld-dev-64"
+string IBSROOT "d:\cauldron"
+string MPIRunCmd "D:/cauldron/trunk/development/../3rdparty/MicrosoftMPI-HPC-Pack-2012-R2/bin/mpiexec.exe"
+string InputOpt "-project"
+string OutputOpt "-save"
+vector[string] AppOptionsList 0
+class casa::CauldronApp CldApp 0
+refID EnvVarList 4
+string EnvVarName "CTCDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc"
+string EnvVarName "EOSPACKDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\eospack"
+string EnvVarName "GENEX6DIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\genex60"
+string EnvVarName "OTGCDIR"
+string EnvVarVal "IBS_ROOT\AULDRON_VERSION\misc\OTGC"
+string AppName "datadriller.exe"
+string ScriptBody ""
+bool IsAppParallel false
+int CPUsNum 1
+int ShellType 2
+string CldVersion "cld-dev-64"
+string IBSROOT "d:\cauldron"
+string MPIRunCmd "D:/cauldron/trunk/development/../3rdparty/MicrosoftMPI-HPC-Pack-2012-R2/bin/mpiexec.exe"
+string InputOpt "-input"
+string OutputOpt "-output"
+vector[string] AppOptionsList 0
+class casa::JobSchedulerLocal JobScheduler 0
+string ClusterName "LOCAL"
+refID CoresNumber 8
+refID JobsQueueSize 39
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_1\Stage_0.bat"
+string StdOutLogFile "Case_1_stage_0.out"
+string StdErrLogFile "Case_1_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_1"
+string JobName "Case_1_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_1\Stage_1.bat"
+string StdOutLogFile "Case_1_stage_1.out"
+string StdErrLogFile "Case_1_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_1"
+string JobName "Case_1_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_1\Stage_2.bat"
+string StdOutLogFile "Case_1_stage_2.out"
+string StdErrLogFile "Case_1_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_1"
+string JobName "Case_1_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_2\Stage_0.bat"
+string StdOutLogFile "Case_2_stage_0.out"
+string StdErrLogFile "Case_2_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_2"
+string JobName "Case_2_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_2\Stage_1.bat"
+string StdOutLogFile "Case_2_stage_1.out"
+string StdErrLogFile "Case_2_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_2"
+string JobName "Case_2_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_2\Stage_2.bat"
+string StdOutLogFile "Case_2_stage_2.out"
+string StdErrLogFile "Case_2_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_2"
+string JobName "Case_2_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_3\Stage_0.bat"
+string StdOutLogFile "Case_3_stage_0.out"
+string StdErrLogFile "Case_3_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_3"
+string JobName "Case_3_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_3\Stage_1.bat"
+string StdOutLogFile "Case_3_stage_1.out"
+string StdErrLogFile "Case_3_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_3"
+string JobName "Case_3_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_3\Stage_2.bat"
+string StdOutLogFile "Case_3_stage_2.out"
+string StdErrLogFile "Case_3_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_3"
+string JobName "Case_3_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_4\Stage_0.bat"
+string StdOutLogFile "Case_4_stage_0.out"
+string StdErrLogFile "Case_4_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_4"
+string JobName "Case_4_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_4\Stage_1.bat"
+string StdOutLogFile "Case_4_stage_1.out"
+string StdErrLogFile "Case_4_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_4"
+string JobName "Case_4_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_4\Stage_2.bat"
+string StdOutLogFile "Case_4_stage_2.out"
+string StdErrLogFile "Case_4_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_4"
+string JobName "Case_4_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_5\Stage_0.bat"
+string StdOutLogFile "Case_5_stage_0.out"
+string StdErrLogFile "Case_5_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_5"
+string JobName "Case_5_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_5\Stage_1.bat"
+string StdOutLogFile "Case_5_stage_1.out"
+string StdErrLogFile "Case_5_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_5"
+string JobName "Case_5_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_5\Stage_2.bat"
+string StdOutLogFile "Case_5_stage_2.out"
+string StdErrLogFile "Case_5_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_5"
+string JobName "Case_5_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_6\Stage_0.bat"
+string StdOutLogFile "Case_6_stage_0.out"
+string StdErrLogFile "Case_6_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_6"
+string JobName "Case_6_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_6\Stage_1.bat"
+string StdOutLogFile "Case_6_stage_1.out"
+string StdErrLogFile "Case_6_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_6"
+string JobName "Case_6_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_6\Stage_2.bat"
+string StdOutLogFile "Case_6_stage_2.out"
+string StdErrLogFile "Case_6_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_6"
+string JobName "Case_6_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_7\Stage_0.bat"
+string StdOutLogFile "Case_7_stage_0.out"
+string StdErrLogFile "Case_7_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_7"
+string JobName "Case_7_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_7\Stage_1.bat"
+string StdOutLogFile "Case_7_stage_1.out"
+string StdErrLogFile "Case_7_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_7"
+string JobName "Case_7_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_7\Stage_2.bat"
+string StdOutLogFile "Case_7_stage_2.out"
+string StdErrLogFile "Case_7_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_7"
+string JobName "Case_7_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_8\Stage_0.bat"
+string StdOutLogFile "Case_8_stage_0.out"
+string StdErrLogFile "Case_8_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_8"
+string JobName "Case_8_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_8\Stage_1.bat"
+string StdOutLogFile "Case_8_stage_1.out"
+string StdErrLogFile "Case_8_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_8"
+string JobName "Case_8_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_8\Stage_2.bat"
+string StdOutLogFile "Case_8_stage_2.out"
+string StdErrLogFile "Case_8_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_8"
+string JobName "Case_8_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_9\Stage_0.bat"
+string StdOutLogFile "Case_9_stage_0.out"
+string StdErrLogFile "Case_9_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_9"
+string JobName "Case_9_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_9\Stage_1.bat"
+string StdOutLogFile "Case_9_stage_1.out"
+string StdErrLogFile "Case_9_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_9"
+string JobName "Case_9_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 1
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_9\Stage_2.bat"
+string StdOutLogFile "Case_9_stage_2.out"
+string StdErrLogFile "Case_9_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_9"
+string JobName "Case_9_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_10\Stage_0.bat"
+string StdOutLogFile "Case_10_stage_0.out"
+string StdErrLogFile "Case_10_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_10"
+string JobName "Case_10_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_10\Stage_1.bat"
+string StdOutLogFile "Case_10_stage_1.out"
+string StdErrLogFile "Case_10_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_10"
+string JobName "Case_10_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 1
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_10\Stage_2.bat"
+string StdOutLogFile "Case_10_stage_2.out"
+string StdErrLogFile "Case_10_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_10"
+string JobName "Case_10_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_11\Stage_0.bat"
+string StdOutLogFile "Case_11_stage_0.out"
+string StdErrLogFile "Case_11_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_11"
+string JobName "Case_11_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_11\Stage_1.bat"
+string StdOutLogFile "Case_11_stage_1.out"
+string StdErrLogFile "Case_11_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_11"
+string JobName "Case_11_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 1
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_11\Stage_2.bat"
+string StdOutLogFile "Case_11_stage_2.out"
+string StdErrLogFile "Case_11_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_11"
+string JobName "Case_11_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_12\Stage_0.bat"
+string StdOutLogFile "Case_12_stage_0.out"
+string StdErrLogFile "Case_12_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_12"
+string JobName "Case_12_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_12\Stage_1.bat"
+string StdOutLogFile "Case_12_stage_1.out"
+string StdErrLogFile "Case_12_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_12"
+string JobName "Case_12_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 1
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_12\Stage_2.bat"
+string StdOutLogFile "Case_12_stage_2.out"
+string StdErrLogFile "Case_12_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_12"
+string JobName "Case_12_stage_2"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_13\Stage_0.bat"
+string StdOutLogFile "Case_13_stage_0.out"
+string StdErrLogFile "Case_13_stage_0.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_13"
+string JobName "Case_13_stage_0"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 5
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_13\Stage_1.bat"
+string StdOutLogFile "Case_13_stage_1.out"
+string StdErrLogFile "Case_13_stage_1.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_13"
+string JobName "Case_13_stage_1"
+int CPUsNum 1
+class casa::JobSchedulerLocal::Job JobDescr 0
+int JobState 1
+string Command "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_13\Stage_2.bat"
+string StdOutLogFile "Case_13_stage_2.out"
+string StdErrLogFile "Case_13_stage_2.err"
+string CWD "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_13"
+string JobName "Case_13_stage_2"
+int CPUsNum 1
+refID NumberOfCases 13
+vector[refID] CaseJobsQueueIDs 3 0 1 2
+vector[refID] CaseJobsQueueIDs 3 3 4 5
+vector[refID] CaseJobsQueueIDs 3 6 7 8
+vector[refID] CaseJobsQueueIDs 3 9 10 11
+vector[refID] CaseJobsQueueIDs 3 12 13 14
+vector[refID] CaseJobsQueueIDs 3 15 16 17
+vector[refID] CaseJobsQueueIDs 3 18 19 20
+vector[refID] CaseJobsQueueIDs 3 21 22 23
+vector[refID] CaseJobsQueueIDs 3 24 25 26
+vector[refID] CaseJobsQueueIDs 3 27 28 29
+vector[refID] CaseJobsQueueIDs 3 30 31 32
+vector[refID] CaseJobsQueueIDs 3 33 34 35
+vector[refID] CaseJobsQueueIDs 3 36 37 38
+class casa::RunCaseSetImpl DoECasesSet 0
+refID RunCaseSetSize 13
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_1\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 68.8365
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 102.208
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 111.563
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 126.228
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 142.151
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.510634
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.956274
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_2\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.1
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 55.9668
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 82.0465
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 89.3631
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 100.746
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 113.013
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.432416
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.71487
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_3\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.9
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 81.6257
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 122.252
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 133.66
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 151.627
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 171.228
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.605549
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.35032
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_4\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 5
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 68.8365
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 102.208
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 111.563
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 126.228
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 142.151
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.510634
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.956274
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_5\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 15
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 68.8365
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 102.208
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 111.563
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 126.228
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 142.151
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.510634
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.956274
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_6\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 15000
+double t0 150
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 69.2951
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 102.923
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 112.349
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 127.13
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 143.184
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.515114
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.978555
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_7\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 40000
+double t0 150
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 66.8714
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 99.1344
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 108.179
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 122.34
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 137.703
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.495977
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.897653
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_8\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 120
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 70.9906
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 105.582
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 115.28
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 130.503
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 147.048
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.525077
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.00991
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_9\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 180
+double dt 37.5
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 67.6769
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 100.391
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 109.561
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 123.923
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 139.511
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.500498
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.924711
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_10\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 30
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 68.8365
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 102.208
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 111.563
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 126.228
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 142.151
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.510634
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.956274
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_11\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 45
+double coeff 0.65
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 68.8365
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 102.208
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 111.563
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 126.228
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 142.151
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.510634
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.956274
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_12\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.5
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 68.9122
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 102.308
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 111.666
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 126.342
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 142.282
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.520858
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.03058
+class casa::RunCaseImpl RunCase 0
+string PathToModel "d:\cauldron\CASADemo\CaseSet\Iteration_1\Case_13\OttolandWithGenex.project3d"
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.5
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27500
+double t0 150
+double dt 37.5
+double coeff 0.8
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 68.6099
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 101.868
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 111.195
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 125.807
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 141.67
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.502561
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.909587
+refID MapOfDoEIndSetSize 1
+string DoEName "Tornado"
+vector[refID] DoEIndSet 13 0 1 2 3 4 5 6 7 8 9 10 11 12
+string CurrentExpFilter ""
+vector[refID] CurDoEIndSet 0
+class casa::RunCaseSetImpl MCCasesSet 0
+refID RunCaseSetSize 0
+refID MapOfDoEIndSetSize 0
+string CurrentExpFilter ""
+vector[refID] CurDoEIndSet 0
+class casa::RSProxySetImpl RSProxySet 0
+refID ProxiesSetSize 1
+string ProxyName "FirstOrd"
+class casa::RSProxyImpl ProxyObj 0
+string ProxyName "FirstOrd"
+refID ObsSpaceID 0
+refID VarSpaceID 8
+refID Order 1
+int Kriging 0
+bool AutoSearch false
+double TargedR2 0.95
+double ConfLevel 0.5
+class SUMlib::CompoundProxyCollection CompProxyCollection 0
+uint sumlib 0
+double sumlib 4.89898
+double sumlib 0.816497
+uint sumlib 6
+uint sumlib 13
+vector[double] sumlib 13 0 1 1 1 1 1 1 1 1 1 1 1 1
+vector[double] sumlib 13 1 0 2 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 2 0 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 0 2 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 2 0 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 0 2 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 2 0 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 0 2 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 2 0 1.41421 1.41421 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 0 2 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 2 0 1.41421 1.41421
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 0 2
+vector[double] sumlib 13 1 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 1.41421 2 0
+double sumlib 1
+uint sumlib 1
+uint sumlib 13
+vector[double] sumlib 13 7.88511 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915 -0.720915
+vector[double] sumlib 13 -0.720915 3.76423 1.31474 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 1.31474 3.76423 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 3.76423 1.31474 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 1.31474 3.76423 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 3.76423 1.31474 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 1.31474 3.76423 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 3.76423 1.31474 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 1.31474 3.76423 -0.417315 -0.417315 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 3.76423 1.31474 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 1.31474 3.76423 -0.417315 -0.417315
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 3.76423 1.31474
+vector[double] sumlib 13 -0.720915 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 -0.417315 1.31474 3.76423
+uint sumlib 13
+vector[double] sumlib 13 1 0 0 0 0 0 0 0 0 0 0 0 0
+vector[double] sumlib 13 0 1 0 0 0 0 0 0 0 0 0 0 0
+vector[double] sumlib 13 0 0 1 0 0 0 0 0 0 0 0 0 0
+vector[double] sumlib 13 0 0 0 1 0 0 0 0 0 0 0 0 0
+vector[double] sumlib 13 0 0 0 0 1 0 0 0 0 0 0 0 0
+vector[double] sumlib 13 0 0 0 0 0 1 0 0 0 0 0 0 0
+vector[double] sumlib 13 0 0 0 0 0 0 1 0 0 0 0 0 0
+vector[double] sumlib 13 0 0 0 0 0 0 0 1 0 0 0 0 0
+vector[double] sumlib 13 0 0 0 0 0 0 0 0 1 0 0 0 0
+vector[double] sumlib 13 0 0 0 0 0 0 0 0 0 1 0 0 0
+vector[double] sumlib 13 0 0 0 0 0 0 0 0 0 0 1 0 0
+vector[double] sumlib 13 0 0 0 0 0 0 0 0 0 0 0 1 0
+vector[double] sumlib 13 0 0 0 0 0 0 0 0 0 0 0 0 1
+uint sumlib 7
+uint sumlib 2
+bool sumlib true
+bool sumlib true
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+uint sumlib 6
+vector[int] sumlib 1 0
+vector[int] sumlib 1 1
+vector[int] sumlib 1 2
+vector[int] sumlib 1 3
+vector[int] sumlib 1 4
+vector[int] sumlib 1 5
+vector[double] sumlib 6 -1.87884e-016 0 0 0 0 0
+double sumlib 68.7793
+vector[double] sumlib 6 12.8294 0 -1.21183 -1.65686 0 -0.151162
+uint sumlib 6
+uint sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+vector[double] sumlib 13 0.0571769 0.0169223 0.0169223 0.0571769 0.0571769 -0.696061 -0.696061 0.554424 0.554424 0.0571769 0.0571769 -0.0182275 -0.0182275
+uint sumlib 6
+uint sumlib 6
+double sumlib 0.99056
+uint sumlib 0
+vector[int] sumlib 6 1 1 1 1 1 1
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 2
+bool sumlib true
+bool sumlib true
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+uint sumlib 6
+vector[int] sumlib 1 0
+vector[int] sumlib 1 1
+vector[int] sumlib 1 2
+vector[int] sumlib 1 3
+vector[int] sumlib 1 4
+vector[int] sumlib 1 5
+vector[double] sumlib 6 -1.87884e-016 0 0 0 0 0
+double sumlib 102.119
+vector[double] sumlib 6 20.1029 0 -1.89431 -2.59566 0 -0.219826
+uint sumlib 6
+uint sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+vector[double] sumlib 13 0.0893358 0.0304064 0.0304064 0.0893358 0.0893358 -1.09029 -1.09029 0.867233 0.867233 0.0893358 0.0893358 -0.030689 -0.030689
+uint sumlib 6
+uint sumlib 6
+double sumlib 0.990575
+uint sumlib 0
+vector[int] sumlib 6 1 1 1 1 1 1
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 2
+bool sumlib true
+bool sumlib true
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+uint sumlib 6
+vector[int] sumlib 1 0
+vector[int] sumlib 1 1
+vector[int] sumlib 1 2
+vector[int] sumlib 1 3
+vector[int] sumlib 1 4
+vector[int] sumlib 1 5
+vector[double] sumlib 6 -1.87884e-016 0 0 0 0 0
+double sumlib 111.467
+vector[double] sumlib 6 22.1484 0 -2.0849 -2.85976 0 -0.235592
+uint sumlib 6
+uint sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+vector[double] sumlib 13 0.0963971 0.044615 0.044615 0.0963971 0.0963971 -1.20258 -1.20258 0.953389 0.953389 0.0963971 0.0963971 -0.0364193 -0.0364193
+uint sumlib 6
+uint sumlib 6
+double sumlib 0.990577
+uint sumlib 0
+vector[int] sumlib 6 1 1 1 1 1 1
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 2
+bool sumlib true
+bool sumlib true
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+uint sumlib 6
+vector[int] sumlib 1 0
+vector[int] sumlib 1 1
+vector[int] sumlib 1 2
+vector[int] sumlib 1 3
+vector[int] sumlib 1 4
+vector[int] sumlib 1 5
+vector[double] sumlib 6 -1.87884e-016 0 0 0 0 0
+double sumlib 126.12
+vector[double] sumlib 6 25.4406 0 -2.39511 -3.28975 0 -0.267117
+uint sumlib 6
+uint sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+vector[double] sumlib 13 0.108068 0.0666033 0.0666033 0.108068 0.108068 -1.3848 -1.3848 1.09327 1.09327 0.108068 0.108068 -0.0452382 -0.0452382
+uint sumlib 6
+uint sumlib 6
+double sumlib 0.990559
+uint sumlib 0
+vector[int] sumlib 6 1 1 1 1 1 1
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 2
+bool sumlib true
+bool sumlib true
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+uint sumlib 6
+vector[int] sumlib 1 0
+vector[int] sumlib 1 1
+vector[int] sumlib 1 2
+vector[int] sumlib 1 3
+vector[int] sumlib 1 4
+vector[int] sumlib 1 5
+vector[double] sumlib 6 -1.87884e-016 0 0 0 0 0
+double sumlib 142.03
+vector[double] sumlib 6 29.1076 0 -2.74039 -3.76808 0 -0.306026
+uint sumlib 6
+uint sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+vector[double] sumlib 13 0.12097 0.0902461 0.0902461 0.12097 0.12097 -1.58718 -1.58718 1.24916 1.24916 0.12097 0.12097 -0.0546444 -0.0546444
+uint sumlib 6
+uint sumlib 6
+double sumlib 0.990547
+uint sumlib 0
+vector[int] sumlib 6 1 1 1 1 1 1
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 2
+bool sumlib true
+bool sumlib true
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+uint sumlib 6
+vector[int] sumlib 1 0
+vector[int] sumlib 1 1
+vector[int] sumlib 1 2
+vector[int] sumlib 1 3
+vector[int] sumlib 1 4
+vector[int] sumlib 1 5
+vector[double] sumlib 6 -1.87884e-016 0 0 0 0 0
+double sumlib 0.511632
+vector[double] sumlib 6 0.0865662 0 -0.00956836 -0.0122895 0 -0.00914818
+uint sumlib 6
+uint sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+vector[double] sumlib 13 -0.000998454 0.00735041 0.00735041 -0.000998454 -0.000998454 -0.00608637 -0.00608637 0.00115486 0.00115486 -0.000998454 -0.000998454 7.72249e-005 7.72249e-005
+uint sumlib 6
+uint sumlib 6
+double sumlib 0.976019
+uint sumlib 0
+vector[int] sumlib 6 1 1 1 1 1 1
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 2
+bool sumlib true
+bool sumlib true
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+uint sumlib 6
+vector[int] sumlib 1 0
+vector[int] sumlib 1 1
+vector[int] sumlib 1 2
+vector[int] sumlib 1 3
+vector[int] sumlib 1 4
+vector[int] sumlib 1 5
+vector[double] sumlib 6 -1.87884e-016 0 0 0 0 0
+double sumlib 0.969043
+vector[double] sumlib 6 0.317724 0 -0.0404509 -0.0425985 0 -0.0604974
+uint sumlib 6
+uint sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+vector[double] sumlib 13 -0.0127687 0.0635518 0.0635518 -0.0127687 -0.0127687 -0.0309383 -0.0309383 -0.00173364 -0.00173364 -0.0127687 -0.0127687 0.00104192 0.00104192
+uint sumlib 6
+uint sumlib 6
+double sumlib 0.904683
+uint sumlib 0
+vector[int] sumlib 6 1 1 1 1 1 1
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0
+uint sumlib 13
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 0
+vector[double] sumlib 6 -1 0 0 0 0 0
+vector[double] sumlib 6 1 0 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 -1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 1 0 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 -1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 1 0 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 -1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 1 0 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 -1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 1 0
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 -1
+vector[double] sumlib 6 -2.22045e-016 0 0 0 0 1
+class casa::MonteCarloSolverImpl MCSolver 0
+int Algo 0
+int Kriging 0
+int PriorDistr 0
+int MeasurDistr 1
+int StepMethod 0
+double StdDevFact 1
+refID ResultsSetSize 50
+double RMSEVal 1.94628
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.509632
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 11.7745
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 17835.5
+double t0 135.974
+double dt 43.2368
+double coeff 0.784463
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 59.7156
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 87.9283
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 95.8366
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 108.172
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 121.497
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.444784
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.702507
+double RMSEVal 1.95113
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.510023
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 12.0287
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 18396.4
+double t0 140.685
+double dt 44.1658
+double coeff 0.742594
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 59.4454
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 87.5003
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 95.3633
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 107.626
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 120.872
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.444992
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.710941
+double RMSEVal 2.1828
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.284516
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 12.1675
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 18043.1
+double t0 132.876
+double dt 43.1665
+double coeff 0.78026
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 58.6675
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 86.2855
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 94.0264
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 106.093
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 119.119
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.438031
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.678128
+double RMSEVal 2.23489
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.261677
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 11.4871
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 18154.5
+double t0 133.916
+double dt 42.6865
+double coeff 0.772489
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 58.485
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 85.9987
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 93.7101
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 105.729
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 118.703
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.43717
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.676402
+double RMSEVal 2.23851
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.87193
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 6.25914
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 32348.4
+double t0 177.371
+double dt 38.3542
+double coeff 0.596945
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 58.1481
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 85.4568
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 93.1078
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 105.026
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 117.892
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.441221
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.720354
+double RMSEVal 2.30822
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.241974
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 11.3127
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 17910.6
+double t0 135.763
+double dt 43.3975
+double coeff 0.780298
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 58.2934
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 85.6994
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 93.3807
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 105.351
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 118.269
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.435413
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.668811
+double RMSEVal 2.36556
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.788663
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 5.87202
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 32534.9
+double t0 175.038
+double dt 38.0954
+double coeff 0.590193
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 57.8205
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 84.9427
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 92.5412
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 104.375
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 117.148
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.439442
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.714762
+double RMSEVal 2.56012
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.47117
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 5.92784
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 37798.6
+double t0 132.796
+double dt 39.369
+double coeff 0.774787
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 63.1055
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 93.2462
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 101.699
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 114.905
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 129.201
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.466077
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.773613
+double RMSEVal 2.64928
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.58607
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 6.42126
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 37696.5
+double t0 140.3
+double dt 40.0868
+double coeff 0.780336
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 63.3096
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 93.5667
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 102.052
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 115.31
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 129.663
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.466887
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.776262
+double RMSEVal 2.78187
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.639533
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 6.36768
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 33074.9
+double t0 175.838
+double dt 38.3534
+double coeff 0.59762
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 56.9193
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 83.5317
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 90.987
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 102.59
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 115.106
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.432869
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.689141
+double RMSEVal 2.85249
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.640828
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 6.32545
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 32514.9
+double t0 179.395
+double dt 38.4265
+double coeff 0.601786
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 56.7799
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 83.3135
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 90.7468
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 102.313
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 114.789
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.431633
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.684393
+double RMSEVal 2.89781
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.51005
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.15451
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 38571.1
+double t0 121.601
+double dt 31.9219
+double coeff 0.515801
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 64.1178
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 94.803
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 103.402
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 116.858
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 131.438
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.487269
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.89661
+double RMSEVal 2.90733
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 0.555082
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 6.48475
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 32700.1
+double t0 172.781
+double dt 37.5483
+double coeff 0.602416
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 56.6682
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 83.1386
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 90.5541
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 102.093
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 114.538
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.43107
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.681581
+double RMSEVal 3.19299
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.75451
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 6.4896
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 35611.4
+double t0 138.966
+double dt 40.7543
+double coeff 0.793351
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 64.4728
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 95.39
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 104.061
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 117.618
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 132.304
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.474311
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.801954
+double RMSEVal 3.25992
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.93331
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.06906
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 25623.2
+double t0 171.192
+double dt 41.1121
+double coeff 0.71578
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 64.6953
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 95.7267
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 104.427
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 118.031
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 132.773
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.479936
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.843473
+double RMSEVal 3.30587
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.73776
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 7.96266
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 35744.5
+double t0 133.038
+double dt 39.5016
+double coeff 0.783342
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 64.7078
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 95.757
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 104.465
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 118.083
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 132.837
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.476644
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.81176
+double RMSEVal 3.3081
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.67146
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.34298
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 39666.9
+double t0 120.853
+double dt 31.011
+double coeff 0.550611
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 64.8806
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 96.0027
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 104.726
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 118.379
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 133.178
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.490436
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.901456
+double RMSEVal 3.48782
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.73232
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.49322
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 38671.7
+double t0 122.836
+double dt 31.7931
+double coeff 0.5051
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 65.2388
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 96.5583
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 105.336
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 119.078
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 133.978
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.495356
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.928273
+double RMSEVal 3.55525
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.83657
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 7.32477
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 33465.2
+double t0 137.746
+double dt 39.9166
+double coeff 0.788658
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 65.1916
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 96.515
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 105.3
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 119.041
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 133.933
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.4797
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.823388
+double RMSEVal 3.57308
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.78623
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.98374
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 38662.6
+double t0 124.655
+double dt 30.762
+double coeff 0.56987
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 65.3621
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 96.759
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 105.56
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 119.337
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 134.273
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.492612
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.906733
+double RMSEVal 3.86407
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 1.8954
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.68985
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 39297.9
+double t0 125.233
+double dt 32.9679
+double coeff 0.507559
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 65.915
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 97.6185
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 106.504
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 120.42
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 135.513
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.499627
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.943441
+double RMSEVal 3.9295
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.05666
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.57235
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 23450.6
+double t0 164.042
+double dt 41.1932
+double coeff 0.734849
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 65.9409
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 97.6798
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 106.579
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 120.505
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 135.604
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.487814
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.869295
+double RMSEVal 3.97326
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.17786
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 7.32359
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 25892.9
+double t0 170.071
+double dt 42.2231
+double coeff 0.739184
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 66.0147
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 97.7969
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 106.709
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 120.653
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 135.773
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.487582
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.867127
+double RMSEVal 4.0589
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.21724
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 8.41842
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 26360.7
+double t0 170.305
+double dt 43.3993
+double coeff 0.734177
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 66.172
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 98.043
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 106.98
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 120.964
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 136.129
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.488854
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.872514
+double RMSEVal 4.07971
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.38646
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.49717
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 35658.7
+double t0 171.843
+double dt 37.5584
+double coeff 0.533851
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 66.2921
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 98.2118
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 107.158
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 121.164
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 136.358
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.499427
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.943438
+double RMSEVal 4.58005
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.38752
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.15006
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 26141.8
+double t0 170.565
+double dt 43.426
+double coeff 0.717337
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 67.1061
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 99.5047
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 108.589
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 122.813
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 138.244
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.496084
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.902188
+double RMSEVal 4.61702
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.52332
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.2837
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 32610.2
+double t0 173.389
+double dt 35.6576
+double coeff 0.539075
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 67.2286
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 99.6788
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 108.774
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 123.02
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 138.481
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.505745
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.96712
+double RMSEVal 4.89128
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.61934
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.4735
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 33545.7
+double t0 172.619
+double dt 38.7124
+double coeff 0.532733
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 67.7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 100.417
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 109.588
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 123.955
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 139.55
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.509195
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.980454
+double RMSEVal 4.92247
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.61041
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.60065
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 35238.1
+double t0 167.804
+double dt 36.4129
+double coeff 0.535738
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 67.7512
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 100.498
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 109.677
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 124.058
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 139.67
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.509367
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.979421
+double RMSEVal 4.96409
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 2.66086
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.7922
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 33198.6
+double t0 175.085
+double dt 37.7929
+double coeff 0.526056
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 67.8262
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 100.614
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 109.804
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 124.203
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 139.834
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.510355
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 0.986266
+double RMSEVal 11.0587
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 3.868
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.59006
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 23264.2
+double t0 127.574
+double dt 30.0801
+double coeff 0.54255
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 77.8496
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 116.317
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 127.104
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 144.083
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 162.586
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.579957
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.23903
+double RMSEVal 11.7113
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.06361
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.0747
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 21777
+double t0 129.544
+double dt 30.2346
+double coeff 0.565117
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 78.9078
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 117.978
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 128.934
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 146.185
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 164.991
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.585967
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.25784
+double RMSEVal 11.7236
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.08681
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.63636
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 24010.3
+double t0 128.166
+double dt 30.9719
+double coeff 0.531136
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 78.9257
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 118.003
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 128.961
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 146.215
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 165.025
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.587732
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.26935
+double RMSEVal 12.0457
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.12307
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.13267
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 18716.4
+double t0 129.634
+double dt 38.3168
+double coeff 0.629578
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 79.4525
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 118.837
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 129.884
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 147.277
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 166.24
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.586487
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.24949
+double RMSEVal 12.0863
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.17218
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.8347
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 21261.7
+double t0 130.398
+double dt 30.9058
+double coeff 0.543169
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 79.5131
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 118.923
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 129.975
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 147.38
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 166.358
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.591267
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.28152
+double RMSEVal 12.1677
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.13642
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.3313
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 20568.3
+double t0 125.576
+double dt 30.2144
+double coeff 0.553696
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 79.6449
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 119.131
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 130.204
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 147.644
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 166.661
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.591841
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.28163
+double RMSEVal 12.3033
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.11288
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.94491
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 17443.3
+double t0 123.153
+double dt 37.926
+double coeff 0.639827
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 79.869
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 119.491
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 130.604
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 148.106
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 167.189
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.589124
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.25733
+double RMSEVal 12.3194
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.60067
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 11.0661
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 15521.6
+double t0 172.027
+double dt 42.1287
+double coeff 0.69997
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 79.903
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 119.551
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 130.673
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 148.178
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 167.265
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.5845
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.23447
+double RMSEVal 12.3999
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.59442
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.9159
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 15108
+double t0 169.728
+double dt 41.9315
+double coeff 0.703278
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 80.0333
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 119.755
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 130.898
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 148.437
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 167.562
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.585331
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.23691
+double RMSEVal 12.6377
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.68895
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.1471
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 27063.8
+double t0 152.965
+double dt 43.6143
+double coeff 0.598043
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 80.4114
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 120.34
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 131.539
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 149.174
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 168.407
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.592874
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.27698
+double RMSEVal 12.6818
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.47079
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.57
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 21264.7
+double t0 139.682
+double dt 38.5172
+double coeff 0.654574
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 80.4841
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 120.458
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 131.671
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 149.329
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 168.586
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.591438
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.26293
+double RMSEVal 12.7505
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.34634
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.62146
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 18291.1
+double t0 130.879
+double dt 38.359
+double coeff 0.653821
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 80.5941
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 120.629
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 131.859
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 149.546
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 168.836
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.592877
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.26888
+double RMSEVal 12.9342
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.77105
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 11.4301
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 16809.4
+double t0 168.067
+double dt 41.8256
+double coeff 0.709595
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 80.898
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 121.111
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 132.393
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 150.154
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 169.527
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.590695
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.2546
+double RMSEVal 13.2158
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.77795
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 11.216
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 16726.8
+double t0 160.638
+double dt 41.4325
+double coeff 0.710176
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 81.3526
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 121.824
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 133.177
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 151.057
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 170.561
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.594015
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.2661
+double RMSEVal 13.2298
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.80618
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.8339
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 16356.4
+double t0 163.615
+double dt 41.721
+double coeff 0.709663
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 81.3755
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 121.859
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 133.217
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 151.102
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 170.611
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.594128
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.26701
+double RMSEVal 13.2425
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.89119
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.4718
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 29803.3
+double t0 150.152
+double dt 42.8735
+double coeff 0.591971
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 81.3884
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 121.871
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 133.226
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 151.112
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 170.625
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.599594
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.30133
+double RMSEVal 13.2717
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.89414
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.1579
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 29658.6
+double t0 149.518
+double dt 42.6183
+double coeff 0.608531
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 81.4365
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 121.948
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 133.312
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 151.211
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 170.739
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.599061
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.29641
+double RMSEVal 13.3228
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.85153
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.3037
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 26701.3
+double t0 149.378
+double dt 43.945
+double coeff 0.594094
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 81.5178
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 122.073
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 133.448
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 151.367
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 170.917
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.600726
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.30637
+double RMSEVal 13.6265
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.861
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 9.31394
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 25856.2
+double t0 143.045
+double dt 44.6258
+double coeff 0.587228
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 82.007
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 122.838
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 134.291
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 152.336
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 172.027
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.604727
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.32212
+double RMSEVal 13.844
+class casa::RunCaseImpl MCRunCase 0
+string PathToModel ""
+refID PrmsSetSize 3
+class casa::PrmTopCrustHeatProduction CasePrm 0
+bool hasParent true
+refID VarParameterID 9
+double heatProdRateValue 4.83025
+class casa::PrmSourceRockTOC CasePrm 0
+bool hasParent true
+refID VarParameterID 10
+string name "SourceRockTOC(Lower Jurassic)"
+string layerName "Lower Jurassic"
+double toc 10.4518
+class casa::PrmOneCrustThinningEvent CasePrm 0
+bool hasParent true
+refID VarParameterID 11
+string name ""
+double initialThickness 21499.6
+double t0 139.774
+double dt 39.4407
+double coeff 0.668826
+refID ObsSetSize 7
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 1
+double scalarVal 82.3634
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 2
+double scalarVal 123.404
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 3
+double scalarVal 134.918
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 4
+double scalarVal 153.058
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 5
+double scalarVal 172.853
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 6
+double scalarVal 0.603316
+class casa::ObsValueDoubleScalar CaseObsVal 0
+refID ObservableID 7
+double scalarVal 1.30388
+class SUMlib::ParameterSpace ParameterSpace 0
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+uint sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 0.1 5 15000 120 30 0.5
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[double] sumlib 6 4.9 15 40000 180 45 0.8
+vector[int] sumlib 0
+vector[int] sumlib 0
+uint sumlib 0
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 6 0 1 2 3 4 5
+vector[int] sumlib 0

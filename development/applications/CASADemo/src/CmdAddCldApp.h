@@ -23,7 +23,7 @@ public:
    virtual ~CmdAddCldApp() { ; }
 
    /// @brief Run command
-   virtual void execute( casa::ScenarioAnalysis & sa );
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
 private:
    unsigned int m_app;

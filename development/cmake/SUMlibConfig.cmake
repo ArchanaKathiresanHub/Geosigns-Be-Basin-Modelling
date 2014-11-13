@@ -38,3 +38,21 @@ add_external_package_info(
        CONTAINS_CRYPTO "No"
        ECCN         "Unknown"
 )
+
+add_external_package_info(
+       CAPABILITY NumericalRecipes
+       NAME     "Numerical Recipes"
+       VENDOR   "Numerical Recipes Software"
+       VERSION  "2.11"
+       LICENSE_TYPE "Commercial"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/NumericalRecipes.txt"
+       URL      "http://www.nr.com"
+       DESCRIPTION "Source code from Numerical Recipes book"
+       REQUIRED_AT  "Runtime"
+       COUNTRY_OF_ORIGIN "Unknown"
+       SHIPPED      "Yes"
+       INCLUSION_TYPE "Static Link"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
+)

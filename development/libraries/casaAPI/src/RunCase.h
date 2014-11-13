@@ -14,6 +14,7 @@
 #ifndef CASA_API_CASE_H
 #define CASA_API_CASE_H
 
+#include "CasaSerializer.h"
 #include "Parameter.h"
 #include "cmbAPI.h"
 #include "ObsValue.h"
@@ -25,7 +26,7 @@ namespace casa
 {
    /// @brief Class which is devoted to keep parameters and results for a single Cauldron project run or for
    ///        a single point of Monte Carlo simulation results
-   class RunCase
+   class RunCase : public CasaSerializable
    {
    public:
       /// @brief Destructor

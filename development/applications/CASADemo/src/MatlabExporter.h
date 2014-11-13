@@ -20,6 +20,8 @@ namespace casa
    class RunCase;
 }
 
+/// @brief This class allows to export ScenarioAnalysis data as a Matlab command file
+/// User should execute this command file in Matlab/octave to load data calculated bu
 class MatlabExporter
 {
 public:

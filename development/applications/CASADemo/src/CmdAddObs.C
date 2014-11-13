@@ -37,7 +37,7 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
    }
 }
 
-void CmdAddObs::execute( casa::ScenarioAnalysis & sa )
+void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
@@ -66,9 +66,9 @@ void CmdAddObs::execute( casa::ScenarioAnalysis & sa )
       xyzVal->setSAWeight( wgtSA );
       xyzVal->setUAWeight( wgtUA );
 
-      if ( ErrorHandler::NoError != sa.obsSpace().addObservable( xyzVal ) )
+      if ( ErrorHandler::NoError != sa->obsSpace().addObservable( xyzVal ) )
       {
-         throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
    else if ( m_prms[0] == "WellTraj" ) // file  format X Y Z RefVal
@@ -94,9 +94,9 @@ void CmdAddObs::execute( casa::ScenarioAnalysis & sa )
       wellVal->setSAWeight( wgtSA );
       wellVal->setUAWeight( wgtUA );
 
-      if ( ErrorHandler::NoError != sa.obsSpace().addObservable( wellVal ) )
+      if ( ErrorHandler::NoError != sa->obsSpace().addObservable( wellVal ) )
       {
-         throw ErrorHandler::Exception( sa.errorCode() ) << sa.errorMessage();
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
 }

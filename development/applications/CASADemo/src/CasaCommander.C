@@ -24,6 +24,8 @@
 #include "CmdLocation.h"
 #include "CmdRun.h"
 #include "CmdRunMC.h"
+#include "CmdSaveState.h"
+#include "CmdLoadState.h"
 
 #include <typeinfo>
 
@@ -48,6 +50,8 @@ void CasaCommander::addCommand( CfgFileParser::CfgCommand cmdID, const std::vect
    case CfgFileParser::evaluate:     cmd.reset( new CmdEvaluateResponse( *this, prms ) ); break;
    case CfgFileParser::exportMatlab: cmd.reset( new CmdExpMatlab(        *this, prms ) ); break;
    case CfgFileParser::mc:           cmd.reset( new CmdRunMC(            *this, prms ) ); break;
+   case CfgFileParser::saveState:    cmd.reset( new CmdSaveState(        *this, prms ) ); break;
+   case CfgFileParser::loadState:    cmd.reset( new CmdLoadState(        *this, prms ) ); break;
    default: throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknowd command ID: " << cmdID;  break;
    }
    m_cmds.push_back( cmd );
@@ -62,7 +66,7 @@ void CasaCommander::addCommand( CfgFileParser::CfgCommand cmdID, const std::vect
    }
 }
 
-void CasaCommander::executeCommands( casa::ScenarioAnalysis & sa )
+void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    for ( size_t i = 0; i < m_cmds.size(); ++i )
    {

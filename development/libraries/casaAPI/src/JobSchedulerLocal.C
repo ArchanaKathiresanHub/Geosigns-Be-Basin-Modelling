@@ -11,9 +11,19 @@
 /// @file JobSchedulerLocal.C
 /// @brief This file keeps methods implementation of the class for local job scheduler.
 
+// CASA
+#include "CasaDeserializer.h"
 #include "JobSchedulerLocal.h"
+
+// FileSystem
 #include "FilePath.h"
 
+// STL
+#include <iterator>
+#include <memory>
+#include <sstream>
+
+// STD C lib
 #ifndef _WIN32
 #include <fcntl.h>
 #include <signal.h>
@@ -28,10 +38,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <iterator>
-#include <memory>
-#include <sstream>
-
 #ifndef _WIN32
 #include <sys/stat.h>
 static void Wait( int sec ) { sleep( sec ); }
@@ -40,7 +46,6 @@ static size_t NumCPUS() { return sysconf( _SC_NPROCESSORS_ONLN ); }
 static void Wait( int milsec ) { Sleep( milsec * 1000 ); }
 static size_t NumCPUS() { SYSTEM_INFO sysinfo; GetSystemInfo( &sysinfo ); return sysinfo.dwNumberOfProcessors; }
 #endif
-
 
 
 #ifndef NDEBUG 
@@ -206,7 +211,7 @@ void SystemProcess::updateProcessStatus()
 }
 
 
-class JobSchedulerLocal::Job
+class JobSchedulerLocal::Job : public CasaSerializable
 {
 public:
    Job( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
@@ -264,6 +269,62 @@ public:
          default: assert(0); break;
       }
       return m_jobState;
+   }
+
+   // version of serialized object representation
+   virtual unsigned int version() const { return 0; }
+
+   // Serialize object to the given stream
+   virtual bool save( CasaSerializer & sz, unsigned int version ) const
+   {
+      bool ok = sz.save( static_cast<int>(m_jobState), "JobState" );
+
+      ok = ok ? sz.save( m_command, "Command"       ) : ok;
+      ok = ok ? sz.save( m_out,     "StdOutLogFile" ) : ok;
+      ok = ok ? sz.save( m_err,     "StdErrLogFile" ) : ok;
+      ok = ok ? sz.save( m_cwd,     "CWD"           ) : ok;
+      ok = ok ? sz.save( m_jobName, "JobName"       ) : ok;
+      ok = ok ? sz.save( m_cpus,    "CPUsNum"       ) : ok;
+      return ok;
+   }
+
+   // Create a new instance and deserialize it from the given stream
+   Job( CasaDeserializer & dz, const char * objName )
+   {
+      // read from file object name and version
+      std::string  objNameInFile;
+      std::string  objType;
+      unsigned int objVer;
+
+      bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
+      if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Deserialization error. Can not load object: " << objName;
+      }
+
+      if ( version() < objVer )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Version of object in file is newer. No forward compatibility!";
+      }
+
+      int js;
+      ok = ok ? dz.load( js, "JobState" ) : ok;
+      m_jobState = static_cast<JobScheduler::JobState>( js );
+
+      ok = ok ? dz.load( m_command, "Command"       ) : ok;
+      ok = ok ? dz.load( m_out,     "StdOutLogFile" ) : ok;
+      ok = ok ? dz.load( m_err,     "StdErrLogFile" ) : ok;
+      ok = ok ? dz.load( m_cwd,     "CWD"           ) : ok;
+      ok = ok ? dz.load( m_jobName, "JobName"       ) : ok;
+      ok = ok ? dz.load( m_cpus,    "CPUsNum"       ) : ok;
+      
+      if ( !ok )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "JobSchedulerLSF::Job deserialization error";
+      }
    }
 
 protected:
@@ -363,5 +424,44 @@ size_t JobSchedulerLocal::runningJobsNumber()
    return jobsRunning;
 }
 
+// Serialize object to the given stream
+bool JobSchedulerLocal::save( CasaSerializer & sz, unsigned int fileVersion ) const
+{
+   bool ok = sz.save( m_clusterName, "ClusterName" );
+   ok = ok ? sz.save( m_avCPUs,      "CoresNumber" ) : ok;
+
+   ok = ok ? sz.save( m_jobs.size(), "JobsQueueSize" ) : ok;
+   for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
+   {
+      ok = sz.save( *m_jobs[i], "JobDescr" );
+   }
+   return ok;
+}
+
+// Create a new instance and deserialize it from the given stream
+JobSchedulerLocal::JobSchedulerLocal( CasaDeserializer & dz, unsigned int objVer )
+{
+   if ( version() < objVer )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Version of object in file is newer. No forward compatibility!";
+   }
+
+   bool ok = dz.load( m_clusterName, "ClusterName" );
+   ok = ok ? dz.load( m_avCPUs,      "CoresNumber" ) : ok;
+
+   size_t setSize;
+   ok = ok ? dz.load( setSize, "JobsQueueSize" ) : ok;
+   for ( size_t i = 0; i < setSize && ok; ++i )
+   {
+      m_jobs.push_back( new Job( dz, "JobDescr" ) );
+   }
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "JobSchedulerLocal deserialization error";
+   }
+}
 }
 

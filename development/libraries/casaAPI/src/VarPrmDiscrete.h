@@ -16,6 +16,8 @@
 
 #include "Parameter.h"
 #include "VarParameter.h"
+#include "CasaDeserializer.h"
+
 
 #include <memory>
 
@@ -76,6 +78,12 @@ namespace casa
          off += static_cast<unsigned int>(it - sit);
          return ret;
       }
+
+      /// @brief Create a new VarPrmDiscrete instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objName expected object name
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      static VarPrmDiscrete * load( CasaDeserializer & dz, const char * objName );
 
    protected:
       VarPrmDiscrete() {;}

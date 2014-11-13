@@ -125,4 +125,42 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
    return oss.str();
 }
 
+// Save all object data to the given stream, that object could be later reconstructed from saved data
+bool PrmTopCrustHeatProduction::save( CasaSerializer & sz, unsigned int version ) const
+{
+   bool hasParent = m_parent ? true : false;
+   bool ok = sz.save( hasParent, "hasParent" );
+
+   if ( hasParent )
+   {
+      CasaSerializer::ObjRefID parentID = sz.ptr2id( m_parent );
+      ok = ok ? sz.save( parentID, "VarParameterID" ) : ok;
+   }
+   ok = ok ? sz.save( m_heatProdRateValue, "heatProdRateValue" ) : ok;
+
+   return ok;
+}
+
+// Create a new var.parameter instance by deserializing it from the given stream
+PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( CasaDeserializer & dz, unsigned int objVer )
+{
+   CasaDeserializer::ObjRefID parentID;
+
+   bool hasParent;
+   bool ok = dz.load( hasParent, "hasParent" );
+
+   if ( hasParent )
+   {
+      bool ok = dz.load( parentID, "VarParameterID" );
+      m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
+   }
+
+   ok = ok ? dz.load( m_heatProdRateValue, "heatProdRateValue" ) : ok;
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "PrmTopCrustHeatProduction deserialization unknown error";
+   }
+}
 }

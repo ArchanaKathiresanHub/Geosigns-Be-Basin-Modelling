@@ -69,7 +69,26 @@ namespace casa
       virtual bool isDouble() const { return true; }
       virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
 
+      /// @{
+      /// @brief Defines version of serialized object representation. Must be updated on each change in save()
+      /// @return Actual version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
+      /// @param sz Serializer stream
+      /// @param  version stream version
+      /// @return true if it succeeds, false if it fails.
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+      
+      /// @brief Create a new ObsValueDoubleScalar instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objVer version of object representation in stream
+      /// @return new ObsValueDoubleScalar instance on susccess, or throw and exception in case of any error
+      ObsValueDoubleScalar::ObsValueDoubleScalar( CasaDeserializer & dz, unsigned int objVer );
+      /// {@
+
    protected:
+
       double             m_value;    // value itself
       const Observable * m_parent;   // pointer to the observable description object
    

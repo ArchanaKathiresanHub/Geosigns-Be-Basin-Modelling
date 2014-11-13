@@ -42,6 +42,8 @@ public:
       SUMLibException,       ///< Exception was caught during SUMLib call
       LSFLibError,           ///< Error happened in RunManager when it interracts with LSF
       WrongPath,             ///< Wrong path given
+      SerializationError,    ///< Error happens during serialization process
+      DeserializationError,  ///< Error happens during deserialization process
       UnknownError           ///< Unknown error
    } ReturnCode;
    /// @}

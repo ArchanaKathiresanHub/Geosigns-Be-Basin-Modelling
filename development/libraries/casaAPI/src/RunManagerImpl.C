@@ -11,7 +11,10 @@
 /// @file RunManagerImpl.C
 /// @brief This file keeps API implementation of Run Manager
 
+// FileSystem
 #include "FilePath.h"
+
+// CASA
 #include "CauldronApp.h"
 #include "RunCase.h"
 #include "RunManagerImpl.h"
@@ -25,282 +28,37 @@
 #include <sys/stat.h>
 #endif
 
+// STL
 #include <fstream>
 #include <iostream>
+
+// STD C lib
 #include <cstring>
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Definition the set of cauldron applications
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace casa
 {
-
-   // fastcauldron application wrapper
-   class FastCauldronApp : public CauldronApp
-   {
-   public:
-      /// Constructor of fastcauldron app
-      FastCauldronApp( ShellType sh = bash ) : CauldronApp( sh, "fastcauldron", true )
-      {
-         m_cpus = 1;
-         
-         // set up needed for simulators environment vars
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex60"   ).path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
-         
-      }
-   };
-   
-   // fastgenex6 application wrapper
-   class FastGenex6App : public CauldronApp
-   {
-   public:
-      // Constructor of fastgenex6 app
-      FastGenex6App( ShellType sh = bash ) : CauldronApp( sh, "fastgenex6", true )
-      {
-         m_cpus = 1;
-         
-         // set up environment vars
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex60"   ).path() );
-      }
-   };
- 
-   // fastmig application wrapper
-   class FastMigApp : public CauldronApp
-   {
-   public:
-      // Constructor of fastgenex6 app
-      FastMigApp( ShellType sh = bash ) : CauldronApp( sh, "fastmig", true )
-      {
-         m_cpus = 1;
-         
-         // set up environment vars
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"   ).path() );
-         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex50").path() );
-      }
-   };
-   
-   // fastctc application wrapper
-   class FastCtcApp : public CauldronApp
-   {
-   public:
-      // Constructor of fastgenex6 app
-      FastCtcApp( ShellType sh = bash ) : CauldronApp( sh, "fastctc", true )
-      {
-         m_cpus = 1;
-         
-         // set up environment vars
-         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( m_rootPath ) << m_version << "misc"             ).path() );
-      }
-   };
-
-   // datadriller application wrapper
-   class DataDrillerApp : public CauldronApp
-   {
-   public:
-      // Constructor of fastgenex6 app
-      DataDrillerApp( ShellType sh = bash ) : CauldronApp( sh, "datadriller", false )
-      {
-         m_cpus = 1;
-
-         // set up environment vars
-         pushDefaultEnv( "EOSPACKDIR", ( ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack" ).path() );
-         pushDefaultEnv( "OTGCDIR",    ( ibs::FolderPath( m_rootPath ) << m_version << "misc" << "OTGC"    ).path() );
-         pushDefaultEnv( "GENEX6DIR",  ( ibs::FolderPath( m_rootPath ) << m_version << "misc" << "genex60" ).path() );
-         pushDefaultEnv( "CTCDIR",     ( ibs::FolderPath( m_rootPath ) << m_version << "misc"              ).path() );
-      }
-   protected:
-      virtual std::string inputProjectOption() { return "-input"; }
-      virtual std::string outputProjectOption() { return "-output"; }
-   };
-
-   // fasttouch7 application wrapper
-
-   // track1d application wrapper
-   class Track1DApp : public CauldronApp
-   {
-   public:
-      /// Constructor of track1d app
-      Track1DApp( ShellType sh = bash ) : CauldronApp( sh, "track1d", false )
-      {
-         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( m_rootPath ) << m_version << "misc" << "eospack").path() );
-      }
-      
-      // Generates script file which contains environment set up and application run for given input/output project file
-      virtual std::string generateScript( const std::string & inProjectFile, const std::string & outProjectFile )
-      {
-         // dump script top line with shell preference
-         std::ostringstream oss;
-         switch ( m_sh )
-         {
-            case bash: oss << "#!/bin/bash\n"; break;
-            case csh:  oss << "#!/bin/csh\n";  break;
-            case cmd:                          break;
-         }
-         oss << "\n";
-         
-         // dump all necessary environment variables to the script
-         dumpEnv( oss );
-         oss << "\n";
-         
-         // dump application name with full path
-         oss << ( ibs::FilePath( m_rootPath ) << m_version << "Linux" << "bin" << m_appName ).path();
-         
-         // dump app options list
-         for ( size_t i = 0; i < m_optionsList.size(); ++i ) { oss << " " << m_optionsList[i]; }
-         
-         // dump input/output project name
-         oss << " -project " << inProjectFile << " | sed '1,4d' > " << ( outProjectFile.empty() ? (inProjectFile + "_track1d.csv") : outProjectFile ) << "\n";
-         
-         return oss.str();
-      }
-   };
-   
-   // Some generic app. Script command line, passed as a parameter of constructor
-   class GenericApp : public CauldronApp
-   {
-   public:
-      // Constructor
-      GenericApp( const std::string & cmdLine ) : CauldronApp( bash, "unknown", false ) { m_cmdLine = cmdLine; }
-      
-      // Destructor
-      virtual ~GenericApp() {;}
-      
-      // Generates script file which contains the given to constructor script body
-      virtual std::string generateScript( const std::string & /*inFile*/, const std::string & /*outFile*/ ) { return m_cmdLine; }
-      
-   private:
-      std::string m_cmdLine;  ///< script body
-   };
-   
-  
-   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CauldronApp methods definition
-   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-   // get environment variable
-   const char * CauldronApp::env( const char * varName ) { return getenv( varName ); }
-   
-   // add the default value of environment variable to the list if it does not set up in environment
-   bool CauldronApp::pushDefaultEnv( const std::string & varName, const std::string & varValue )
-   {
-      const char * envValue = env( varName.c_str() );
-      m_env[ varName ] = envValue ? envValue : varValue;
-      return envValue ? false : true;
-   }
-
-   void CauldronApp::dumpEnv( std::ostream & oss )
-   {
-      for ( std::map< std::string, std::string >::const_iterator it = m_env.begin(); it != m_env.end(); ++it )
-      {
-         switch( m_sh )
-         {
-            case bash:  oss << "export " << it->first << "="   << it->second << "\n";   break;
-            case csh:   oss << "setenv " << it->first << " "   << it->second << "\n";   break;
-            case cmd:   oss << "set "    << it->first << "=\"" << it->second << "\"\n"; break;
-         }
-      }
-   }
-   
-   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // CauldronApp methods definition
-   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   CauldronApp::CauldronApp( ShellType sh, const std::string & appName, bool isParallel ) :
-                             m_appName( appName ), m_parallel( isParallel )
-   {
-      setShellType( sh );
-
-      if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] = s_LICENSE_SERVER;
-    
-      m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : "v2014.0703";        // the default version is the latest available release for now
-      m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : "/apps/sssdev/ibs";  // path to IBS folder where the different versions are
-      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                  // 
-      
-      if ( m_mpirunCmd.empty() )
-      {
-         m_mpirunCmd =  std::string( s_MPIRUN_CMD ) + " -env I_MPI_DEBUG 5";
-      }
-   }
-
-   std::string CauldronApp::generateScript( const std::string & inProjectFile, const std::string & outProjectFile )
-   {
-      // dump script top line with shell preference
-      std::ostringstream oss;
-      switch ( m_sh )
-      {
-         case bash: oss << "#!/bin/bash\n\n"; break;
-         case csh:  oss << "#!/bin/csh\n\n";  break;
-         case cmd:                            break;
-      }
-      
-      // dump all necessary environment variables to the script
-      dumpEnv( oss );
-      
-      oss << "\n";
-      
-      // if application is parallel, add mpirun dirrective with options
-      if ( m_parallel )
-      {
-         oss << m_mpiEnv << m_mpirunCmd;
-         oss << " -outfile-pattern '" + m_appName + "-output-rank-%r.log' ";
-         if ( m_cpus > 0 ) { oss << "-np " << m_cpus << " "; }
-      }
-      
-      // dump application name with full path
-      oss << ( ibs::FilePath( m_rootPath ) << m_version << "Linux" << "bin" << m_appName ).path();
-      
-      // dump app options list
-      for ( size_t i = 0; i < m_optionsList.size(); ++i ) { oss << " " << m_optionsList[i]; }
-      
-      // dump input/output project name
-      oss                                << " " << inputProjectOption()  << " " << inProjectFile;
-      if ( !outProjectFile.empty() ) oss << " " << outputProjectOption() << " " << outProjectFile;
-      oss << "\n\n";
-     
-      // add to scrip checking of the return code of the mpirun. If it is 0 - create file Stage_X.sh.success, or Stage_X.ch.failed otherwise
-      switch ( m_sh )
-      {
-         case bash: oss << "if [ $? -eq 0 ]; then\n   touch $(basename $BASH_SOURCE).success\nelse\n   touch $(basename $BASH_SOURCE).failed\nfi\n"; break;
-         case csh:  oss << "if ( $status != 0 ) then\n   touch `basename $0`.failed\nelse\n   touch `basename $0`.success\nendif\n"; break;
-         case cmd:  break;
-      }
-      return oss.str();
-   }
-}
-
-namespace casa
-{
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RunManager / RunManagerImpl methods definition
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, std::string cmdLine )
+CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, CauldronApp::ShellType sh, std::string cmdLine )
 {
-   CauldronApp * app = NULL;
-
-   switch ( appType ) {
-         
-      case fastcauldron: app = new FastCauldronApp( CauldronApp::bash ); break;
-      case fastgenex6:   app = new FastGenex6App(   CauldronApp::bash ); break;
-      case fastmig:      app = new FastMigApp(      CauldronApp::bash ); break;
-      case fastctc:      app = new FastCtcApp(      CauldronApp::bash ); break;
-      case track1d:      app = new Track1DApp(      CauldronApp::bash ); break;
-      case generic:      app = new GenericApp(      cmdLine ); break;
-         
+   std::auto_ptr<CauldronApp> app;
+   switch ( appType )
+   {
+      case fastcauldron: app.reset( new CauldronApp( sh, "fastcauldron", true  ) ); break;
+      case fastgenex6:   app.reset( new CauldronApp( sh, "fastgenex6",   true  ) ); break;
+      case fastmig:      app.reset( new CauldronApp( sh, "fastmig",      true  ) ); break;
+      case fastctc:      app.reset( new CauldronApp( sh, "fastctc",      true  ) ); break;
+      case datadriller:  app.reset( new CauldronApp( sh, "datadriller",  false ) ); break;
+      case track1d:      app.reset( new CauldronApp( sh, "track1d",      false ) ); break;
+      case generic:      app.reset( new CauldronApp( sh, "unknown",      false ) );
+         app->setScriptBody( cmdLine );
+         break;
       default: break;
    }
-   if ( app ) app->setCPUs( cpus );
+   if ( app.get() ) app->setCPUs( cpus );
 
-   return app;
+   return app.release();
 }
 
 
@@ -321,7 +79,13 @@ RunManagerImpl::RunManagerImpl( const std::string & clusterName )
    }
 #endif
 
-   CauldronApp * dda = new DataDrillerApp();
+   CauldronApp * dda = new CauldronApp(
+#ifdef _WIN32
+      CauldronApp::cmd
+#else
+      CauldronApp::bash
+#endif
+      , "datadriller", false );
    addApplication( dda ); // insert datadriller application to extract data results
 }
 
@@ -388,7 +152,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( const RunCase & newRun )
 
       // generate script file name
       ibs::FilePath scriptFile( pfp.filePath() );
-      scriptFile << (std::string( "Stage_" ) + ibs::to_string( i ) + ".sh");
+      scriptFile << (std::string( "Stage_" ) + ibs::to_string( i ) + m_appList[i]->scriptSuffix() );
       
       // save script to file
       std::ofstream ofs( scriptFile.path().c_str(), std::ios_base::out | std::ios_base::trunc );
@@ -536,6 +300,80 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
 ///////////////////////////////////////////////////////////////////////////////
 // Get cluster name from job scheduler
 std::string RunManagerImpl::clusterName() { return m_jobSched->clusterName(); }
+
+
+// Serialize object to the given stream
+bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
+{
+   bool ok = true;
+   if ( fileVersion >= 0 ) // initial version implementation
+   {
+      ok = ok ? sz.save( m_cldVersion, "CauldronVersion" ) : ok;
+      ok = ok ? sz.save( m_ibsRoot,    "IBSRoot"         ) : ok;
+
+      ok = ok ? sz.save( m_appList.size(), "AppListSize" ) : ok;
+      for ( size_t i = 0; i < m_appList.size() && ok; ++i )
+      {
+         ok = sz.save( *m_appList[i], "CldApp" );
+      }
+
+      ok = ok ? sz.save( *m_jobSched.get(), "JobScheduler" ) : ok;
+
+      ok = ok ? sz.save( m_jobs.size(), "NumberOfCases" ) : ok;
+      for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
+      {
+         ok = ok ? sz.save( m_jobs[i], "CaseJobsQueueIDs" ) : ok;
+      }
+   }
+   return ok;
+}
+
+// Create a new instance and deserialize it from the given stream
+RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
+{
+   // read from file object name and version
+   std::string  objNameInFile;
+   std::string  objType;
+   unsigned int objVer;
+
+   bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
+   if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Deserialization error. Can not load object: " << objName;
+   }
+
+   if ( version() < objVer )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "Version of object in file is newer. No forward compatibility!";
+   }
+
+   ok = ok ? dz.load( m_cldVersion, "CauldronVersion" ) : ok;
+   ok = ok ? dz.load( m_ibsRoot,    "IBSRoot"         ) : ok;
+
+   size_t setSize;
+   ok = ok ? dz.load( setSize, "AppListSize" ) : ok;
+   for ( size_t i = 0; i < setSize && ok; ++i )
+   {
+      CauldronApp * app = new CauldronApp( dz, "CldApp" );
+      ok = app ? true : false;
+      m_appList.push_back( app );
+   }
+
+   m_jobSched.reset( ok ? JobScheduler::load( dz, "JobScheduler" ) : 0 );
+   ok = ok ? (m_jobSched.get() ? true : false) : ok;
+
+   size_t sz = 0;
+   ok = ok ? dz.load( sz, "NumberOfCases" ) : ok;
+   for ( size_t i = 0; i < sz && ok; ++i )
+   {
+      m_jobs.push_back( std::vector<size_t>() );
+      ok = ok ? dz.load( m_jobs.back(), "CaseJobsQueueIDs" ) : ok;
+   }
+
+   if ( !ok ) throw Exception( DeserializationError ) << "RunManagerImpl deserialization error";
+}
 
 }
 

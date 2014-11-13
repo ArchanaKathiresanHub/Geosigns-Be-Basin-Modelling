@@ -61,14 +61,14 @@ CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPr
    if ( m_cldVer.empty() )  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Cauldron version not given";
 }
 
-void CmdRun::execute( casa::ScenarioAnalysis & sa )
+void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
       std::cout << "Adding jobs to the queue and generating scripts for:" << std::endl;
    }
 
-   casa::RunManager & rm = sa.runManager();
+   casa::RunManager & rm = sa->runManager();
 
    // set version and cluster
    if ( ErrorHandler::NoError != rm.setCauldronVersion( m_cldVer.c_str() ) ||
@@ -76,14 +76,14 @@ void CmdRun::execute( casa::ScenarioAnalysis & sa )
       ) throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
 
    // submit jobs
-   for ( size_t i = 0; i < sa.doeCaseSet().size(); ++i )
+   for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {
       if ( m_commander.verboseLevel() > CasaCommander::Quiet )
       {
-         std::cout << "    " << (sa.doeCaseSet()[i])->projectPath() << std::endl;
+         std::cout << "    " << (sa->doeCaseSet()[i])->projectPath() << std::endl;
       }
 
-      if ( ErrorHandler::NoError != rm.scheduleCase( *(sa.doeCaseSet()[i]) ) )
+      if ( ErrorHandler::NoError != rm.scheduleCase( *(sa->doeCaseSet()[i]) ) )
       {
          throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
       }
@@ -101,10 +101,10 @@ void CmdRun::execute( casa::ScenarioAnalysis & sa )
    }
 
    // collect observables value
-   if ( ErrorHandler::NoError != sa.dataDigger().collectRunResults( sa.obsSpace(), sa.doeCaseSet() ) )
+   if ( ErrorHandler::NoError != sa->dataDigger().collectRunResults( sa->obsSpace(), sa->doeCaseSet() ) )
    {
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 
-   if ( m_commander.verboseLevel() > CasaCommander::Minimal ) { PrintObsValues( sa ); }
+   if ( m_commander.verboseLevel() > CasaCommander::Minimal ) { PrintObsValues( *sa.get() ); }
 }

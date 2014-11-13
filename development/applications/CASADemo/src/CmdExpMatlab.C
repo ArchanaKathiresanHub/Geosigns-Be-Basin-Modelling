@@ -27,7 +27,7 @@ CmdExpMatlab::CmdExpMatlab( CasaCommander & parent, const std::vector< std::stri
    if ( m_dataFileName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty Matlab data file name for exporting results";
 }
 
-void CmdExpMatlab::execute( casa::ScenarioAnalysis & sa )
+void CmdExpMatlab::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 {
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
@@ -37,18 +37,6 @@ void CmdExpMatlab::execute( casa::ScenarioAnalysis & sa )
    // Go over all command and extract location and base case name
    const std::vector< SharedCmdPtr > & cmds = m_commander.cmdQueue();
 
-   std::string baseCaseName;
-   std::string location;
-
-   for ( size_t i = 0; i < cmds.size() && ( baseCaseName.empty() || location.empty() ); ++i )
-   {
-      CmdLocation    * cmdLoc = dynamic_cast<CmdLocation*   >( cmds[i].get() );
-      CmdBaseProject * cmdBP  = dynamic_cast<CmdBaseProject*>( cmds[i].get() );
-
-      if ( cmdLoc ) location     = cmdLoc->casesLocation();
-      if ( cmdBP  ) baseCaseName = cmdBP->baseProjectName();
-   }
-
    MatlabExporter mex( m_dataFileName );
-   mex.exportScenario( sa, baseCaseName, location );  
+   mex.exportScenario( *sa.get(), sa->baseCaseProjectFileName(), sa->scenarioLocation() );
 }

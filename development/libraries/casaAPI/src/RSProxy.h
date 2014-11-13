@@ -65,8 +65,13 @@
 /// speed up the calculations. In the case of LocalKrigin, only a partial Kriging expression is used.
 ///
 
+// CMB
 #include "ErrorHandler.h"
 
+// CASA
+#include "CasaSerializer.h"
+
+//STL
 #include <map>
 #include <vector>
 
@@ -75,7 +80,7 @@ namespace casa
    class RunCase;
 
    /// @brief Class to handle response surface proxy
-   class RSProxy : public ErrorHandler
+   class RSProxy : public ErrorHandler, public CasaSerializable
    {
    public:
       typedef std::map< std::vector< unsigned int >, double > CoefficientsMap;

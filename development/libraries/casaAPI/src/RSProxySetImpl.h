@@ -14,8 +14,10 @@
 #ifndef CASA_API_RS_PROXY_SET_IMPL_H
 #define CASA_API_RS_PROXY_SET_IMPL_H
 
-#include <RSProxySet.h>
+// CASA
+#include "RSProxySet.h"
 
+// STL
 #include <map>
 #include <cassert>
 
@@ -26,17 +28,16 @@ namespace casa
    public:
       typedef std::map < std::string, RSProxy * > ProxySet;
 
-      /// @brief Constructor
+      // Default constructor
       RSProxySetImpl() { ; }
 
-      /// @brief Destructor
+      // Destructor
       virtual ~RSProxySetImpl();
 
-      /// @brief Get size of the set
-      /// @return size of the set
+      // Get size of the set
       virtual size_t size() const { return m_proxySet.size(); }
 
-      //Access to i-th element
+      // Access to i-th element
       virtual const RSProxy * operator[] ( size_t i ) const
       {  
          if ( m_proxySet.size() <= i ) return 0;
@@ -59,6 +60,17 @@ namespace casa
 
       // Add new proxy to the set
       void addNewRSProxy( RSProxy * proxy, const std::string & name ) { assert( m_proxySet.count( name ) == 0 ); m_proxySet[name] = proxy; }
+
+      // Serialization / Deserialization
+
+      // version of serialized object representation
+      virtual unsigned int version() const { return 0; }
+
+      // Serialize object to the given stream
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
+
+      // Create a new instance and deserialize it from the given stream
+      RSProxySetImpl( CasaDeserializer & dz, const char * objName );
 
    protected:
       ProxySet m_proxySet;

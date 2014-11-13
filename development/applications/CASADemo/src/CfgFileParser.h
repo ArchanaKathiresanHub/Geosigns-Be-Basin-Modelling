@@ -32,6 +32,8 @@ public:
       response,     // calculate coefficients for response surface approximation
       evaluate,     // calculate observables value using response surface approximation
       exportMatlab, // export all data to matlab file
+      saveState,    // save CASA state to file
+      loadState,    // load CASA state from the file
       mc            // run MC/MCMC simulation
    };
 

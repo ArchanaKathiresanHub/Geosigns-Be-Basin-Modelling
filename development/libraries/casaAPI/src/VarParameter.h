@@ -27,11 +27,12 @@
 /// Set of variable parameters for scenario analysis is managed by a @ref CASA_VarSpacePage "VarSpace manager"
 
 #include <vector>
+#include "CasaSerializer.h"
 
 namespace casa
 {
    /// @brief Base class for variable parameters. It keeps the common part of any variable parameter 
-   class VarParameter
+   class VarParameter : public CasaSerializable
    {
    public:
       /// @brief Defines possible types of parameter variation
@@ -71,6 +72,8 @@ namespace casa
       ///        is continuous, empty array will be returned
       /// @return array with parameter values weights
       virtual std::vector<double> weights() const = 0;
+
+   protected:
    };
 }
 #endif // CASA_API_VAR_PARAMETER_H

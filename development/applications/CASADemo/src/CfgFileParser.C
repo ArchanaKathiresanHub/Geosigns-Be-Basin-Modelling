@@ -58,6 +58,8 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
             else if ( result == "evaluate"     ) cmdID = evaluate;
             else if ( result == "exportMatlab" ) cmdID = exportMatlab;
             else if ( result == "montecarlo"   ) cmdID = mc;
+            else if ( result == "savestate"    ) cmdID = saveState;
+            else if ( result == "loadstate"    ) cmdID = loadState;
             else throw std::runtime_error( std::string( "Unknown command: " ) + result );
          }
          else

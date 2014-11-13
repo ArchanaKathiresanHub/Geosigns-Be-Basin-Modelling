@@ -11,9 +11,12 @@
 #ifndef CASA_CMD_H
 #define CASA_CMD_H
 
+// STL
 #include <string>
 #include <vector>
+#include <memory>
 
+// boost
 #include <boost/shared_ptr.hpp>
 
 namespace casa
@@ -31,7 +34,7 @@ public:
    virtual ~CasaCmd() { ; }
 
    /// @brief Run command
-   virtual void execute( casa::ScenarioAnalysis & sa ) = 0;
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa ) = 0;
 
 protected:
    /// @brief Constructor

@@ -15,6 +15,7 @@
 #define CASA_API_VAR_SPACE_H
 
 #include "ErrorHandler.h"
+#include "CasaSerializer.h"
 
 /// @page CASA_VarSpacePage Container for variable parameters
 /// @link casa::VarSpace A collection of variable parameters @endlink defined for scenario analysis 
@@ -27,7 +28,7 @@ namespace casa
 
    /// @class VarSpace VarSpace.h "VarSpace.h"
    /// @brief Variable parameters set manager. It keeps a unique set of variable parameters
-   class VarSpace : public ErrorHandler
+   class VarSpace : public ErrorHandler, public CasaSerializable
    {
    public:
       /// @brief Add a new categorical parameter
@@ -78,7 +79,7 @@ namespace casa
 
    protected:
       VarSpace() {;}
-      virtual ~VarSpace() {;}
+      virtual ~VarSpace() { ; }
 
    };
 }

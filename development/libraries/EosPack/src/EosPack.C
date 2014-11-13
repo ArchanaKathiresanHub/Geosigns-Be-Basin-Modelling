@@ -59,7 +59,13 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
          }
 
          // read config-file tables
-         pvtFlash::pvtPropertiesConfigFile = std::string( eosPackDir ) + "/" + ConfigFileName;
+         pvtFlash::pvtPropertiesConfigFile = std::string( eosPackDir ) + 
+#ifdef _WIN32
+            "\\"
+#else
+            "/"  
+#endif
+            + ConfigFileName;
       }
 
       // read config-file tables

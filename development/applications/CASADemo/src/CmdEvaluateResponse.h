@@ -23,7 +23,7 @@ public:
    virtual ~CmdEvaluateResponse() { ; }
 
    /// @brief Run command
-   virtual void execute( casa::ScenarioAnalysis & sa );
+   virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
 protected:
    std::string                  m_proxyName;    ///< Name of Response Surface proxy

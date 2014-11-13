@@ -17,6 +17,7 @@
 #include "Parameter.h"
 #include "Enumeration.h"
 #include "VarParameter.h"
+#include "CasaDeserializer.h"
 
 #include <memory>
 #include <vector>
@@ -67,6 +68,12 @@ namespace casa
       /// @param val new value for parameter
       /// @return the new parameter object which should be deleted by the caller itself
       virtual SharedParameterPtr createNewParameterFromUnsignedInt( unsigned int val ) const = 0;
+
+      /// @brief Create a new VarPrmCategorical instance and deserialize it from the given stream
+      /// @param dz input stream
+      /// @param objName expected object name
+      /// @return new observable instance on susccess, or throw and exception in case of any error
+      static VarPrmCategorical * load( CasaDeserializer & dz, const char * objName );
 
    protected:
       VarPrmCategorical() {;}
