@@ -41,20 +41,25 @@ cat > $combinations  <<EOF
 #OS      Intel Compiler   Intel MPI   Shared Libs   Configuration
 RHEL6.4  ON               ON          OFF           Release
 RHEL6.4  ON               ON          OFF           Debug
-RHEL6.4  OFF              ON          OFF           Debug
 RHEL6.4  ON               ON          ON            Release
 RHEL6.4  ON               ON          ON            Debug
+RHEL6.4  OFF              ON          OFF           Release
+RHEL6.4  OFF              ON          OFF           Debug
+RHEL6.4  OFF              ON          ON            Release
+RHEL6.4  OFF              ON          ON            Debug
+RHEL6.4  OFF              ON          ON            MemCheck
 RHEL5.10 ON               ON          OFF           Release
 RHEL5.10 ON               ON          OFF           Debug
+RHEL5.10 OFF              ON          ON            MemCheck
 RHEL5.8  ON               ON          OFF           Release
 RHEL5.8  ON               ON          OFF           Debug
 RHEL5.8  ON               ON          ON            Release
 RHEL5.8  ON               ON          ON            Debug
-RHEL5.8  ON               ON          ON            MemCheck
 RHEL5.8  OFF              ON          OFF           Release
 RHEL5.8  OFF              ON          OFF           Debug
 RHEL5.8  OFF              ON          ON            Release
 RHEL5.8  OFF              ON          ON            Debug
+RHEL5.8  OFF              ON          ON            MemCheck
 EOF
 
 
