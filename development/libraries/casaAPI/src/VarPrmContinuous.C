@@ -75,9 +75,9 @@ namespace casa
             << ", but stream gave object with name: " << on;
       }
       // Here should be switch over possible discrete parameters
-      if (      ot == typeid( casa::VarPrmOneCrustThinningEvent  ).name() ) { return new VarPrmOneCrustThinningEvent(  dz, vr ); }
-      else if ( ot == typeid( casa::VarPrmTopCrustHeatProduction ).name() ) { return new VarPrmTopCrustHeatProduction( dz, vr ); }
-      else if ( ot == typeid( casa::VarPrmSourceRockTOC          ).name() ) { return new VarPrmSourceRockTOC(          dz, vr ); }
+      if (      ot == "VarPrmOneCrustThinningEvent"  ) { return new VarPrmOneCrustThinningEvent(  dz, vr ); }
+      else if ( ot == "VarPrmTopCrustHeatProduction" ) { return new VarPrmTopCrustHeatProduction( dz, vr ); }
+      else if ( ot == "VarPrmSourceRockTOC"          ) { return new VarPrmSourceRockTOC(          dz, vr ); }
       else
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

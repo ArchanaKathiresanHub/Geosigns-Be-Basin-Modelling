@@ -30,9 +30,9 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
          << "Parameter deserialization error, expected parameter with name: " << objName
          << ", but stream gave object with name: " << on;
    }
-   if (      ot == typeid( casa::PrmOneCrustThinningEvent  ).name() ) { return new PrmOneCrustThinningEvent(  dz, vr ); }
-   else if ( ot == typeid( casa::PrmSourceRockTOC          ).name() ) { return new PrmSourceRockTOC(          dz, vr ); }
-   else if ( ot == typeid( casa::PrmTopCrustHeatProduction ).name() ) { return new PrmTopCrustHeatProduction( dz, vr ); }
+   if (      ot == "PrmOneCrustThinningEvent"  ) { return new PrmOneCrustThinningEvent(  dz, vr ); }
+   else if ( ot == "PrmSourceRockTOC"          ) { return new PrmSourceRockTOC(          dz, vr ); }
+   else if ( ot == "PrmTopCrustHeatProduction" ) { return new PrmTopCrustHeatProduction( dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

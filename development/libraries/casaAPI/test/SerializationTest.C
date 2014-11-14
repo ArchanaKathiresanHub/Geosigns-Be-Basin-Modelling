@@ -22,9 +22,10 @@ TEST_F( SerializationTest, ReloadStateFromTxtTest )
 {
    // create new scenario analysis
    casa::ScenarioAnalysis * sc = casa::ScenarioAnalysis::loadScenario( "Ottoland_casa_state.txt", "txt" );
+
    sc->saveScenario( "casa_state_reloaded.txt", "txt" );
    delete sc;
-   
+
    std::ifstream org( "Ottoland_casa_state.txt", std::ifstream::in );
    std::ifstream rel( "casa_state_reloaded.txt", std::ifstream::in );
    while ( !org.eof() && org.good() )

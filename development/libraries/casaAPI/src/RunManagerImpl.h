@@ -67,6 +67,10 @@ namespace casa
       /// @return Actual version of serialized object representation
       virtual unsigned int version() const { return 0; }
 
+      /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
+      /// @return object class name
+      virtual const char * typeName() const { return "RunManagerImpl"; }
+
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
       /// @param  version stream version

@@ -55,6 +55,10 @@ namespace casa
       // version of serialized object representation
       virtual unsigned int version() const { return 0; }
 
+      /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
+      /// @return object class name
+      virtual const char * typeName() const { return "DoEGeneratorImpl"; }
+
       // Serialize object to the given stream
       virtual bool save( CasaSerializer & sz, unsigned int version ) const;
 

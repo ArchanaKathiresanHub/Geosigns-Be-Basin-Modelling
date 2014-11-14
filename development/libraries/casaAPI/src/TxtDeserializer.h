@@ -27,10 +27,17 @@ namespace casa
       /// @brief Constructor
       /// @param fileHandle file pointer
       /// @param ver version
-      TxtDeserializer( FILE * fileHandle, int ver );
+      TxtDeserializer( FILE * fileHandle, unsigned int ver );
 
       /// @brief Destructor
       virtual ~TxtDeserializer();
+
+      /// @brief Read the description of the next object from file and compare with given data. Works only for CasaSerializable objects
+      /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
+      /// @param objName object name 
+      /// @param ver version of object 
+      /// @return true on success, false on any error
+      virtual bool checkObjectDescription( const char * objType, const std::string & objName, unsigned int ver );
 
       /// @brief Read the description of the next object in file. Works only for class objects
       /// @param objType string representation of object type as it returned by typeid().name()
@@ -140,9 +147,9 @@ namespace casa
       virtual bool load( std::vector< std::string > & vec, const std::string & vecName );
 
    private:
-      FILE*  m_file;
-      int    m_version;
-      char * m_buf;
+      FILE          * m_file;
+      unsigned int    m_version;
+      char          * m_buf;
 
       TxtDeserializer( const TxtDeserializer & );               // copy constructor
       TxtDeserializer & operator = ( const TxtDeserializer & ); // copy operator

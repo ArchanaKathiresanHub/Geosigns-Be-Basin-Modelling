@@ -13,7 +13,6 @@
 
 // STL
 #include <sstream>
-#include <typeinfo>
 
 namespace casa
 {
@@ -43,7 +42,7 @@ namespace casa
       return fprintf( fp, oss.str().c_str() ) > 0;
    }
 
-   // Save one value as a new line in file with template - typeid name value\n
+   // Save one value as a new line in file with template - type name - name value\n
    template <typename T> inline bool saveValTo( FILE * fp, const char * typeName, const std::string & name, T val )
    {
       bool ok = fprintf( fp, "%s %s ", typeName, name.c_str() ) > 0;
@@ -68,7 +67,7 @@ namespace casa
       : m_file( fileHandle )
       , m_version( ver )
    {
-      fprintf( m_file, "%s Serializer %d\n", typeid(*this).name(), ver );
+      fprintf( m_file, "TxtSerializer Serializer %d\n", ver );
    }
 
    bool TxtSerializer::save( bool                val, const std::string & vn ) { return saveValTo( m_file, "bool",   vn, val ); }
@@ -98,7 +97,7 @@ namespace casa
    // Save CasaSerializable object
    bool TxtSerializer::save( const CasaSerializable & so, const std::string & objName )
    {
-      bool ok = fprintf( m_file, "%s %s %d\n", typeid(so).name(), objName.c_str(), so.version() ) > 0;
+      bool ok = fprintf( m_file, "%s %s %d\n", so.typeName(), objName.c_str(), so.version() ) > 0;
       return ok ? so.save( *this, m_version ) : ok;
    }
 
@@ -145,7 +144,7 @@ namespace casa
       const SUMlib::ISerializationVersion * soVersion = dynamic_cast<const SUMlib::ISerializationVersion*>(&so);
       unsigned int version = soVersion ? soVersion->getSerializationVersion() : 0;
 
-      bool ok = fprintf( m_file, "%s %s %d\n", typeid(so).name(), objName.c_str(), version ) > 0;
+      bool ok = fprintf( m_file, "ISerializable %s %d\n", objName.c_str(), version ) > 0;
       
       SUMlibSerializer sumlibSer( *this );
       ok = ok ? so.save( &sumlibSer, version ) : ok;

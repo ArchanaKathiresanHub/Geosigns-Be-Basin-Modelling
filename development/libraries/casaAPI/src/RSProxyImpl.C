@@ -208,7 +208,7 @@ RSProxyImpl::RSProxyImpl( CasaDeserializer & dz, const char * objName )
    unsigned int objVer;
 
    bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
-   if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
+   if ( objType.compare( this->typeName() ) || objNameInFile.compare( objName ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
          << "Deserialization error. Can not load object: " << objName;

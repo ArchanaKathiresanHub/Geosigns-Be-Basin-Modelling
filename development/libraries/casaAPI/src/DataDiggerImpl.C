@@ -101,25 +101,13 @@ namespace casa
    DataDiggerImpl::DataDiggerImpl( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      std::string  objNameInFile;
-      std::string  objType;
-      unsigned int objVer;
-
-      bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
-      if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
+      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+ 
+      if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "Deserialization error. Can not load object: " << objName;
+            << "DataDiggerImpl deserialization error";
       }
-
-      if ( version() < objVer )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "Version of object in file is newer. No forward compatibility!";
-      }
-
-      if ( !ok ) throw Exception( DeserializationError ) << "DataDiggerImpl deserialization error";
    }
-
 }
 

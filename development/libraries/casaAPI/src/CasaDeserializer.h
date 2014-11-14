@@ -20,7 +20,6 @@
 // STL
 #include <map>
 #include <vector>
-#include <typeinfo>
 
 namespace casa
 {
@@ -37,8 +36,15 @@ namespace casa
       /// @brief  Destructor
       virtual ~CasaDeserializer() { ; }
 
+      /// @brief Read the description of the next object from file and compare with given data. Works only for CasaSerializable objects
+      /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
+      /// @param objName object name 
+      /// @param ver version of object 
+      /// @return true on success, false on any error
+      virtual bool checkObjectDescription( const char * objType, const std::string & objName, unsigned int ver ) = 0;
+
       /// @brief Read the description of the next object in file. Works only for class objects
-      /// @param objType string representation of object type as it returned by typeid().name()
+      /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
       /// @param objName object name as it was given to serializer
       /// @param ver version of object representation in file
       /// @return true on success, false on any error

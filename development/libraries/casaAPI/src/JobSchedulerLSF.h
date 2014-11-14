@@ -61,7 +61,10 @@ namespace casa
       // Serialize object to the given stream
       virtual bool save( CasaSerializer & sz, unsigned int version ) const;
 
-      // Create a new instance and deserialize it from the given stream
+      // Get type name of the serialaizable object, used in deserialization to create object with correct type
+      virtual const char * typeName() const { return "JobSchedulerLSF"; }
+
+       // Create a new instance and deserialize it from the given stream
       JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer );
 
    private:

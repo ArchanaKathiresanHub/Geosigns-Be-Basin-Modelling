@@ -186,61 +186,73 @@ inline bool loadVec( FILE * fp, std::vector< T > & val, const std::string & valN
 
 namespace casa
 {
-   TxtDeserializer::TxtDeserializer( FILE * fileHandle, int ver )
+   TxtDeserializer::TxtDeserializer( FILE * fileHandle, unsigned int ver )
       : m_file( fileHandle )
       , m_version( ver )
    {
       m_buf = new char[MAX_BUF_SIZE];
 
-      // read info from file about serializer
-      std::string  srType;
-      std::string  srName;
-      unsigned int srVersion;
-      
-      if ( !loadObjectDescription( srType, srName, srVersion ) )
+      // read info from file about serializer      
+      if ( !checkObjectDescription( "TxtSerializer", "Serializer", ver ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "TxtDeserializer: Can't read serializer signature from input file";
       }
-
-      if ( srType.compare( "class casa::TxtSerializer" ) ||  srName.compare( "Serializer" ) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "TxtDeserializer: Wrong input file signature, can't run deserialization";
-      }
-
-      if ( srVersion != m_version )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "TxtDeserializer: Mismatch file format versions of Serializer/Deserializer";
-      }
-   }
+  }
 
    TxtDeserializer::~TxtDeserializer()
    {
       delete[] m_buf;
    }
 
-   // Read the description of the next object in file. Works only for class objects
-   bool TxtDeserializer::loadObjectDescription( std::string & objType, std::string & objName, unsigned int & ver )
+   // Read the description of the next object in file. Works only for CasaSerializable objects
+   bool TxtDeserializer::checkObjectDescription( const char * objType, const std::string & objName, unsigned int ver )
    {
       std::vector<std::string> tokens;
-      if ( !readAndSplitLine( m_file, m_buf, tokens ) || tokens.size() != 4 )
+      if ( !readAndSplitLine( m_file, m_buf, tokens ) || tokens.size() != 3 )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "TxtDeserializer: Can't read next object description from input file";
       }
 
-      if ( tokens[0].compare( "class" ) != 0 )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "TxtDeserialaizer: wrong object description: "
-            << tokens[0] << " " << tokens[1] << " " << tokens[2];
-      }
-      objType = tokens[0] + " " + tokens[1];
-      objName = tokens[2];
+      unsigned objVer;
+      bool ok = string2val( tokens.back(), objVer );
 
-      std::string strVal = tokens[3];
-      bool ok = string2val( strVal, ver );
+      if ( tokens[0].compare( objType ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Deserialization error. Expected object type is: " << objType << ", but in stream: " << tokens[0];
+      }
+
+      if ( objName.compare( tokens[1] ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Deserialization error. Expected object name: " << objName << ", but in stream: " << tokens[1];
+      }
+
+      if ( ver < objVer )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Version of object in file is newer. No forward compatibility!";
+      }
+      return ok;
+   }
+
+   // Read the description of the next object in file. Works only for class objects
+   bool TxtDeserializer::loadObjectDescription( std::string & objType, std::string & objName, unsigned int & ver )
+   {
+      std::vector<std::string> tokens;
+      if ( !readAndSplitLine( m_file, m_buf, tokens ) || tokens.size() != 3 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "TxtDeserializer: Can't read next object description from input file";
+      }
+      objType = tokens[0];
+      objName = tokens[1];
+
+      unsigned objVer;
+      bool ok = string2val( tokens.back(), objVer );
+      ver = objVer;
       return ok;
    }
 
@@ -314,7 +326,7 @@ namespace casa
       unsigned int objVer;
 
       bool ok = loadObjectDescription( objType, objNameInFile, objVer );
-      if ( objType.compare( typeid(so).name() ) || objNameInFile.compare( objName ) )
+      if ( objType.compare( "ISerializable" ) || objNameInFile.compare( objName ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "Deserialization error. Can not load SUMlib object: " << objName;

@@ -300,22 +300,7 @@ namespace casa
    CauldronApp::CauldronApp( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      std::string  objNameInFile;
-      std::string  objType;
-      unsigned int objVer;
-
-      bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
-      if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "Deserialization error. Can not load object: " << objName;
-      }
-
-      if ( version() < objVer )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "Version of object in file is newer. No forward compatibility!";
-      }
+      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
 
       size_t setSize;
       ok = ok ? dz.load( setSize, "EnvVarList" ) : ok;

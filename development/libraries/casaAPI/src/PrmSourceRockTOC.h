@@ -101,6 +101,10 @@ namespace casa
       /// @return true if it succeeds, false if it fails.
       virtual bool save( CasaSerializer & sz, unsigned int version ) const;
 
+      /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
+      /// @return object class name
+      virtual const char * typeName() const { return "PrmSourceRockTOC"; }
+
       /// @brief Create a new parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream

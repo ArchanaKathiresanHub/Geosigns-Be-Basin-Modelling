@@ -172,6 +172,9 @@ public:
    // version of serialized object representation
    virtual unsigned int version() const { return 0; }
 
+   // Get type name of the serialaizable object, used in deserialization to create object with correct type
+   virtual const char * typeName() const { return "JobSchedulerLSF::Job"; }
+
    // Serialize object to the given stream
    virtual bool save( CasaSerializer & sz, unsigned int version ) const
    {
@@ -203,22 +206,7 @@ public:
    Job( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      std::string  objNameInFile;
-      std::string  objType;
-      unsigned int objVer;
-
-      bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
-      if ( objType.compare( typeid(*this).name() ) || objNameInFile.compare( objName ) )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "Deserialization error. Can not load object: " << objName;
-      }
-
-      if ( version() < objVer )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-            << "Version of object in file is newer. No forward compatibility!";
-      }
+      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
 
       ok = ok ? dz.load( m_isFinished, "IsFinished" ) : ok;
 #ifdef WITH_LSF_SCHEDULER

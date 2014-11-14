@@ -29,8 +29,8 @@ casa::ObsValue * casa::ObsValue::load( CasaDeserializer & dz, const char * objNa
          << "ObsValue deserialization error, expected observable with name: " << objName
          << ", but stream gave object with name: " << on;
    }
-   if (      ot == typeid( casa::ObsValueDoubleArray  ).name() ) { return new ObsValueDoubleArray(  dz, vr ); }
-   else if ( ot == typeid( casa::ObsValueDoubleScalar ).name() ) { return new ObsValueDoubleScalar( dz, vr ); }
+   if (      ot == "ObsValueDoubleArray" ) { return new ObsValueDoubleArray(  dz, vr ); }
+   else if ( ot == "ObsValueDoubleScalar") { return new ObsValueDoubleScalar( dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

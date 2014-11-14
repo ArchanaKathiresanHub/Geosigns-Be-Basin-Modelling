@@ -32,8 +32,8 @@ casa::JobScheduler * casa::JobScheduler::load( CasaDeserializer & dz, const char
          << "JobScheduler deserialization error, expected observable with name: " << objName
          << ", but stream gave object with name: " << on;
    }
-   if (      ot == typeid( casa::JobSchedulerLocal ).name() ) { return new JobSchedulerLocal(  dz, vr ); }
-   else if ( ot == typeid( casa::JobSchedulerLSF   ).name() ) { return new JobSchedulerLSF(    dz, vr ); }
+   if (      ot == "JobSchedulerLocal" ) { return new JobSchedulerLocal(  dz, vr ); }
+   else if ( ot == "JobSchedulerLSF"   ) { return new JobSchedulerLSF(    dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

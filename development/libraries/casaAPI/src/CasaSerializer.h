@@ -166,6 +166,7 @@ namespace casa
 
       virtual unsigned int version() const { return 0; } // version of the object representation in file
       virtual bool save( CasaSerializer & sz, unsigned int version ) const = 0;
+      virtual const char * typeName() const = 0;
    };
 
 
