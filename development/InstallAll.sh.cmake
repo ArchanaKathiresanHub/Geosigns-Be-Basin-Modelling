@@ -76,6 +76,8 @@ else
          echo "    - Installing Matlab runtime"
          echo "-P installLocation=`pwd`/matlabmcr/matlab" > MCRInstaller.in
          ./MCRInstaller.bin -silent -options MCRInstaller.in
+         echo "    - Increasing java memory"
+         mv java.opts "`pwd`/matlabmcr/matlab/v713/bin/glnxa64"
       popd > /dev/null
    popd > /dev/null
    
