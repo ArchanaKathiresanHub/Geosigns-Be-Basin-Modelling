@@ -176,13 +176,13 @@ void displayTime(const bool debug, const char* str)
   cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
 
-void displayTime(const string & str, PetscLogDouble StartTime)
+void displayTime(const string & str, PetscLogDouble startTime )
 {
-   PetscLogDouble EndTime;
+   PetscLogDouble endTime;
 
-   PetscTime(&EndTime);
-   double CalculationTime = EndTime - StartTime; 
-   long remainder = (long) CalculationTime;
+   PetscTime(&endTime);
+   double calculationTime = endTime - startTime; 
+   long remainder = (long) calculationTime;
    
    long secs = remainder % 60;
    remainder -= secs;
@@ -201,8 +201,6 @@ void Display_Merging_Progress( const string & fileName, double startTime) {
    if (PetscGlobalRank != 0)
       return;
    
-   char time[124];
-
    PetscTime(&EndTime);
    CalculationTime = EndTime - startTime; 
    long remainder = (long) CalculationTime;
@@ -213,7 +211,8 @@ void Display_Merging_Progress( const string & fileName, double startTime) {
    remainder -= mins * 60;
    long hrs = remainder / (60 * 60);
 
-   sprintf (time, "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
+   char time[124];
+   snprintf (time, 124, "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
 
    ostringstream buf;
    buf.precision(4);

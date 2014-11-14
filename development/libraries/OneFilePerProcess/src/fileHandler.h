@@ -22,7 +22,7 @@ class  FileHandler {
 public:  
    FileHandler( MPI_Comm comm, const std::string & fileName, const std::string & tempDirName );  
 
-   virtual ~FileHandler() {};
+   virtual ~FileHandler();
 
    // \brief Iterate over the local file and write data to the global file
    friend herr_t readDataset ( hid_t groupId, const char* name, void * voidReader);
@@ -83,9 +83,6 @@ public:
    void setFilespace( hid_t aMemspace );
    void setSpatialDimension ( int dimension );
 
-   void createOp();
-   void freeOp();
-
 protected:
 
    hsize_t m_count [MAX_FILE_DIMENSION];
@@ -106,10 +103,6 @@ private:
 
    hid_t m_memspace;
    hid_t m_filespace;
-
-   size_t m_valCount;             // size of allocated local buffer
-   size_t m_valNumber;            // number of elements in local buffer
-   size_t m_attrCount;            // size of the attribute buffer
 
    std::vector<float> m_data;     // local data buffer for 2D dataset (for reading)
    std::vector<float> m_sumData;  // global data buffer for 2D dataset (for collecting data on rank 0)

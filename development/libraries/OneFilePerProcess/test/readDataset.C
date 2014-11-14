@@ -334,7 +334,6 @@ TEST( h5mergeTest, MergeExistingFiles1 )
       }
       reader.setGlobalFileId ( b.fileId () );
       reader.setLocalFileId ( a.fileId () );
-      reader.createOp();
 
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
@@ -343,7 +342,6 @@ TEST( h5mergeTest, MergeExistingFiles1 )
          b.close();
          EXPECT_EQ( 5, b.open( File::Open, -1, true ));
       }
-      reader.freeOp();
    }
                  
 }
@@ -373,7 +371,6 @@ TEST( h5mergeTest, MergeExistingFiles2 )
       }
       reader.setGlobalFileId ( b.fileId () );
       reader.setLocalFileId ( a.fileId () );
-      reader.createOp();
 
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
@@ -382,7 +379,6 @@ TEST( h5mergeTest, MergeExistingFiles2 )
          b.close();
          EXPECT_EQ( 5, b.open( File::OpenWithAttr, -1, true ));
       }
-      reader.freeOp();
    }
                  
 }
@@ -423,11 +419,8 @@ TEST( h5mergeTest, MergeExistingFiles4 )
       }
       reader.setGlobalFileId ( b.fileId () );
       reader.setLocalFileId  ( a.fileId () );
-      reader.createOp();
  
       EXPECT_EQ( -1, readDataset( a.fileId(), "", &reader ));
-
-      reader.freeOp();
    }
                  
 }
@@ -473,8 +466,7 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
 
       reader.setLocalFileId(  a.fileId ());
       reader.setGlobalFileId ( a.fileId () );
-      reader.createOp();
- 
+
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
       if (MPI::rank() == 0)
@@ -482,7 +474,6 @@ TEST( h5mergeTest, ReuseExistingFiles7 )
          a.close();
          EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));
       }
-      reader.freeOp();
    }
                  
 }
@@ -503,7 +494,6 @@ TEST( h5mergeTest, AppendExistingFiles8 )
 
       reader.setLocalFileId(  a.fileId ());
       reader.setGlobalFileId ( a.fileId () );
-      reader.createOp();
  
       EXPECT_EQ( 0, readDataset( a.fileId(), StdDataSetName, &reader ));
 
@@ -512,7 +502,6 @@ TEST( h5mergeTest, AppendExistingFiles8 )
          a.close();
          EXPECT_EQ( 5, a.open( File::OpenWithAttr, -1, true ));
       }
-      reader.freeOp();
    }
                  
 }
