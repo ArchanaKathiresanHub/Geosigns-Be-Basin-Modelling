@@ -212,7 +212,7 @@ void Display_Merging_Progress( const string & fileName, double startTime) {
    long hrs = remainder / (60 * 60);
 
    char time[124];
-   snprintf (time, 124, "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
+   sprintf (time, "%2.2ld:%2.2ld:%2.2ld", hrs, mins, secs);
 
    ostringstream buf;
    buf.precision(4);
