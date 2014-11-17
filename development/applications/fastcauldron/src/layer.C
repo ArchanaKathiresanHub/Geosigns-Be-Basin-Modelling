@@ -775,7 +775,7 @@ double LayerProps::calcDiffDensity ( const unsigned int i, const unsigned int j 
   
   lithodens = getLithology ( i,j ) -> density();
 
-  if ( fluid != 0 && getLithology ( i,j ) -> surfacePorosity() != 0.0 ) {
+  if ( fluid != 0 ) {
     fluiddens = fluid->getConstantDensity();
   } else {
     fluiddens = 0.0;

@@ -2517,7 +2517,7 @@ bool GeoPhysics::ProjectHandle::calcFullCompactedThickness ( const unsigned int 
   const CompoundLithology* lithology = formation->getCompoundLithologyArray ()( i, j, age ); 
   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
 
-  if ( fluid != 0 and lithology->surfacePorosity () != 0.0 ) {
+  if ( fluid != 0 ) {
      diffdensity = lithology->density () - fluid->getConstantDensity ();
   } else {
      diffdensity = lithology->density ();
