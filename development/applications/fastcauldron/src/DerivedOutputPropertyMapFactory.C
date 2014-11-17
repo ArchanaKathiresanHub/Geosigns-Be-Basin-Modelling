@@ -46,6 +46,7 @@
 #include "FluidPropertyCalculator.h"
 #include "BrineProperties.h"
 #include "TimeOfElementInvasionCalculator.h"
+#include "FracturePressureMapCalculator.h"
 #include "FracturePressureVolumeCalculator.h"
 
 DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
@@ -87,6 +88,11 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ PRESSURE ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateFracturePressureMapCalculator;
+   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap [ FRACTURE_PRESSURE ] = mapTraits;
 
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;

@@ -294,6 +294,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( MAXVES );
   mapOutputProperties.push_back ( OVERPRESSURE );
   mapOutputProperties.push_back ( PRESSURE );
+  mapOutputProperties.push_back ( FRACTURE_PRESSURE );
   mapOutputProperties.push_back ( HYDROSTATICPRESSURE );
   mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
 
@@ -1443,9 +1444,6 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
 
         FastcauldronSimulator::getInstance ().saveSourceRockProperties ( snapshot, genexOutputProperties, shaleGasOutputProperties );
 
-
-        // FastcauldronSimulator::getInstance ().saveMapProperties ( genexOutputProperties, snapshot, Interface::SOURCE_ROCK_ONLY_OUTPUT );
-        // FastcauldronSimulator::getInstance ().saveMapProperties ( shaleGasOutputProperties, snapshot, Interface::SHALE_GAS_ONLY_OUTPUT );
         deleteErosionFactorMaps ( basinModel );
      }
 
