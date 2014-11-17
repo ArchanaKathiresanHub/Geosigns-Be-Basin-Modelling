@@ -26,9 +26,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
    FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
    FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
 
-   // const GeoPhysics::Formation* formationAbove = dynamic_cast<const GeoPhysics::Formation*>( m_projectHandle->findFormation ( formation->getName ())->getTopSurface ()->getTopFormation ());
-   // const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-
    const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
    const GeoPhysics::Formation* formationAbove = 0;
 
@@ -57,6 +54,9 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
    } else {
       copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, formationAbove, hydrostaticPressure );
    }
+   porePressure->retrieveData();
+   temperature->retrieveData();
+   depth->retrieveData();
 
    // now that the top of the set of nodes of the property has been initialised 
    // the hydrostatic pressure for the remaining nodes below them can be computed.
@@ -88,6 +88,9 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
       }
 
    }
+   porePressure->restoreData();
+   temperature->restoreData();
+   depth->restoreData();
 
    derivedProperties.push_back ( hydrostaticPressure );
 }

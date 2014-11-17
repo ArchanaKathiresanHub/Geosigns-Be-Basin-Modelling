@@ -38,3 +38,17 @@ double DerivedProperties::PrimaryFormationProperty::getUndefinedValue ( ) const 
 
    return m_gridMap->getUndefinedValue ( );
 }
+
+const DataAccess::Interface::GridMap* DerivedProperties::PrimaryFormationProperty::getGridMap() const {
+
+   return m_gridMap;
+}
+
+void DerivedProperties::PrimaryFormationProperty::retrieveData() const {
+   m_gridMap->retrieveData();
+}
+
+void DerivedProperties::PrimaryFormationProperty::restoreData() const {
+   m_gridMap->restoreData();
+}
+

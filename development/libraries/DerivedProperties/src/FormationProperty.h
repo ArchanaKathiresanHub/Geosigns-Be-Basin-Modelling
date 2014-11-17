@@ -40,7 +40,6 @@ namespace DerivedProperties {
       /// \brief Get the property.
       const DataModel::AbstractProperty* getProperty () const;
 
-
       /// \brief The first index on the grid in the x-direction.
       unsigned int firstI ( const bool includeGhostNodes ) const;
 
@@ -80,6 +79,12 @@ namespace DerivedProperties {
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const = 0;
+
+      /// \brief Retreive the grid map
+      virtual void retrieveData () const {};
+
+      /// \brief Restore the grid map.
+      virtual void restoreData () const {};
 
    private :
 

@@ -35,6 +35,9 @@ void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( Derive
 
       double undefinedValue = ves->getUndefinedValue ();
       
+      ves->retrieveData();
+      porePressure->retrieveData();
+
       for ( unsigned int i = ves->firstI ( true ); i <= ves->lastI ( true ); ++i ) {
          
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
@@ -47,6 +50,9 @@ void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( Derive
             }
          }
       }
-      derivedProperties.push_back ( ves );
+      derivedProperties.push_back ( lithostaticPressure );
+
+      ves->restoreData();
+      porePressure->restoreData();
    }
 }

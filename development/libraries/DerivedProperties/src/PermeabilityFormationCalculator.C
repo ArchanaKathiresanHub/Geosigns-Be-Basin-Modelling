@@ -60,6 +60,9 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
          double undefinedValue = ves->getUndefinedValue ();
          double chemicalCompactionValue, permNorm, permPlane;
          GeoPhysics::CompoundProperty porosity;
+
+         ves->retrieveData();
+         maxVes->retrieveData();
          
          for ( unsigned int i = verticalPermeability->firstI ( true ); i <= verticalPermeability->lastI ( true ); ++i ) {
             
@@ -88,6 +91,9 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
          }
          derivedProperties.push_back ( verticalPermeability );
          derivedProperties.push_back ( horizontalPermeability );
+
+         ves->restoreData();
+         maxVes->restoreData();
       }
    }
 }

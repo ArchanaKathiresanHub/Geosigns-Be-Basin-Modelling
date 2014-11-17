@@ -33,6 +33,9 @@ void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::Abs
       DerivedSurfacePropertyPtr ves = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( aVesProperty, snapshot, surface, propertyManager.getMapGrid () ));
       double undefinedValue = lithostaticPressure->getUndefinedValue ();
       
+      lithostaticPressure->retrieveData();
+      porePressure->retrieveData();
+
       for ( unsigned int i = lithostaticPressure->firstI ( true ); i <= lithostaticPressure->lastI ( true ); ++i ) {
          
          for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
@@ -46,5 +49,10 @@ void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::Abs
          }
       }
       derivedProperties.push_back ( ves );
+
+      lithostaticPressure->restoreData();
+      porePressure->restoreData();
+
+
    }
 }

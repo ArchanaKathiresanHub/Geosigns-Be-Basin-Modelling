@@ -54,6 +54,12 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
          DerivedFormationPropertyPtr porosityProp =
             DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aPorosityProperty, snapshot, formation, 
                                                                                             propertyManager.getMapGrid (), geoFormation->getMaximumNumberOfElements() + 1 ));
+         ves->retrieveData();
+         maxVes->retrieveData();
+
+         if( chemicalCompactionRequired ) {
+            chemicalCompaction->retrieveData();
+         }
          double undefinedValue = ves->getUndefinedValue ();
          
          for ( unsigned int i = porosityProp->firstI ( true ); i <= porosityProp->lastI ( true ); ++i ) {
@@ -77,7 +83,13 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
             }
          }
          derivedProperties.push_back ( porosityProp );
+
+         ves->restoreData();
+         maxVes->restoreData();
          
+         if( chemicalCompactionRequired ) {
+            chemicalCompaction->restoreData();
+         }
       }
    }
 }

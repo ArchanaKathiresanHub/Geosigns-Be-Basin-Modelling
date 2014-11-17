@@ -61,6 +61,13 @@ namespace DerivedProperties {
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const = 0;
+
+      /// \brief Retreive the grid map
+      virtual void retrieveData () const {};
+
+      /// \brief Restore the grid map.
+      virtual void restoreData () const {};
+
    private :
 
       const DataModel::AbstractProperty* m_property;
@@ -112,5 +119,6 @@ inline unsigned int DerivedProperties::SurfaceProperty::lastI ( const bool inclu
 inline unsigned int DerivedProperties::SurfaceProperty::lastJ ( const bool includeGhostNodes ) const {
    return static_cast<unsigned int>(m_grid->lastJ ( includeGhostNodes ));
 }
+
 
 #endif // DERIVED_PROPERTIES__SURFACE_PROPERTY_H

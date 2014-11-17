@@ -35,14 +35,21 @@ namespace DerivedProperties {
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
 
+      /// \ brief Get the gridMap
+      const DataAccess::Interface::GridMap* getGridMap() const;
+
+      /// \brief Retreive the grid map
+      void retrieveData () const;
+
+      /// \brief Restore the grid map.
+      void restoreData () const;
+
    private :
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;
       const DataAccess::Interface::GridMap* m_gridMap;
 
    };
-
-   // typedef PrimaryFormationProperty* PrimaryFormationPropertyPtr;
 
    typedef boost::shared_ptr<PrimaryFormationProperty> PrimaryFormationPropertyPtr;
 

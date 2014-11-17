@@ -34,6 +34,9 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
       DerivedFormationPropertyPtr ves = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aVesProperty, snapshot, formation, 
                                                                                                                         propertyManager.getMapGrid (),
                                                                                                                         porePressure->lengthK () ));
+      lithostaticPressure->retrieveData();
+      porePressure->retrieveData();
+
       double undefinedValue = lithostaticPressure->getUndefinedValue ();
       
       for ( unsigned int i = lithostaticPressure->firstI ( true ); i <= lithostaticPressure->lastI ( true ); ++i ) {
@@ -53,6 +56,9 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
             }
          }
       }
+      lithostaticPressure->restoreData();
+      porePressure->restoreData();
+
       derivedProperties.push_back ( ves );
    }
 }

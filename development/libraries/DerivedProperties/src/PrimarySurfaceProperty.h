@@ -36,6 +36,18 @@ namespace DerivedProperties {
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
 
+      /// \brief Retreive the grid map
+      void retrieveData () const;
+
+      /// \brief Restore the grid map.
+      void restoreData () const;
+
+       /// \brief Get the average value of the map.
+      double getAverageValue () const;
+     
+
+      /// \ brief Get the gridMap
+      const DataAccess::Interface::GridMap* getGridMap() const;
    private :
 
       const DataAccess::Interface::PropertyValue* m_propertyValue;

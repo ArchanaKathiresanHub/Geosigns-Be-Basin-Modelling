@@ -36,3 +36,20 @@ double DerivedProperties::PrimarySurfaceProperty::getUndefinedValue ( ) const {
    return m_gridMap->getUndefinedValue ( );
 }
 
+
+const DataAccess::Interface::GridMap* DerivedProperties::PrimarySurfaceProperty::getGridMap() const {
+
+   return m_gridMap;
+}
+
+void DerivedProperties::PrimarySurfaceProperty::retrieveData() const {
+   m_gridMap->retrieveData();
+}
+
+void DerivedProperties::PrimarySurfaceProperty::restoreData() const {
+   m_gridMap->restoreData();
+}
+
+double DerivedProperties::PrimarySurfaceProperty::getAverageValue() const {
+   return m_gridMap->getAverageValue();
+}
