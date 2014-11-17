@@ -463,7 +463,7 @@ herr_t FileHandler::merge2D ( const char* name, hid_t dtype ) {
      
    if( errorFlag ) {
       if( m_rank == 0 ) {
-         std::cout << "MeSsAgE WARNING Duplicated data in " << name << " dataset" << std::endl;
+         std::cout << "MeSsAgE WARNING Duplicated data found in " << name << " dataset" << std::endl;
       }
    }
  
