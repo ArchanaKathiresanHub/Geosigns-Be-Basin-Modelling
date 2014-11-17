@@ -61,8 +61,6 @@ namespace GeoPhysics {
       /// These are:
       ///   - heat-capacity;
       ///   - thermal-conductivity;
-      ///   - density; and
-      ///   - density-x-heat-capacity (this one is not directly in the project-file).
       void loadPropertyTables ();
 
       /// return the simple density.
@@ -73,9 +71,6 @@ namespace GeoPhysics {
       /// Over-ride the project file value and set the fluid-density function to constant.
       void setDensityToConstant ();
 
-//    /// return the simple seismic velocity.
-//    double getConstantSeismicVelocity () const;
-
 #if 0
    /// return the simple density, possibly changed from what appears in the fluid-io table.
    double density () const;
@@ -85,9 +80,6 @@ namespace GeoPhysics {
       ///
       /// If the density calculation model is 'constant' the result here may be different from that in the fluid-io table.
       double density ( const double temperature, const double pressure ) const;
-
-      /// Compte the fluid density from the density table.
-      double densityFromTable ( const double temperature, const double pressure ) const;
 
       /// Correct the simple density (density value) of the fluid.
       ///
@@ -160,21 +152,10 @@ namespace GeoPhysics {
       /// It depends only on temperature.
       mutable ibs::Interpolator     m_thermalConductivitytbl;
 
-      /// The interpolator for the fluid-density table.
-      ///
-      /// It depends on both temperature and pressure.
-      mutable ibs::Interpolator2d   m_densitytbl;
-
       /// The interpolator for the fluid-heat-capacity table.
       ///
       /// It depends on both temperature and pressure.
       mutable ibs::Interpolator2d   m_heatCapacitytbl;
-
-      /// The interpolator for the fluid-density-x-heat-capacity table.
-      ///
-      /// It depends on both temperature and pressure. It is computed from the 
-      /// heat-capacity-table and the fluid-density table NOT the fluid-density function.
-      mutable ibs::Interpolator2d   m_densXheatCapacitytbl;
 
       /// Which calculation model to use for the seismic velocity.
       DataAccess::Interface::CalculationModel m_seismicVelocityCalculationModel;

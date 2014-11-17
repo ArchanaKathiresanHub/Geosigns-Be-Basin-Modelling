@@ -67,15 +67,12 @@ void GeoPhysics::FluidType::loadPropertyTables () {
    // Load heat-capacity, thermal-conductivity and density tables.
    Interface::FluidHeatCapacitySampleList* heatCapacitySamples;
    Interface::FluidThermalConductivitySampleList* thermalConductivitySamples;
-   Interface::FluidDensitySampleList* densitySamples;
 
    heatCapacitySamples = m_projectHandle->getFluidHeatCapacitySampleList ( m_projectHandle->findFluid ( getHeatCapacityFluidName ()));
    thermalConductivitySamples = m_projectHandle->getFluidThermalConductivitySampleList ( m_projectHandle->findFluid ( getThermalConductivityFluidName ()));
-   densitySamples = m_projectHandle->getFluidDensitySampleList ( m_projectHandle->findFluid ( getDensityFluidName ()));
- 
+
    Interface::FluidHeatCapacitySampleList::const_iterator heatCapacitySampleIter;
    Interface::FluidThermalConductivitySampleList::const_iterator thermalConductivitySampleIter;
-   Interface::FluidDensitySampleList::const_iterator densitySampleIter;
 
    for ( heatCapacitySampleIter = heatCapacitySamples->begin ();
          heatCapacitySampleIter != heatCapacitySamples->end ();
@@ -95,29 +92,6 @@ void GeoPhysics::FluidType::loadPropertyTables () {
       m_thermalConductivitytbl.addPoint ( sample->getTemperature (), sample->getThermalConductivity ());
    }
 
-   // This table must be loaded before the density-x-heat-capacity is computed since it may be used in this calculation.
-   for ( densitySampleIter = densitySamples->begin ();
-         densitySampleIter != densitySamples->end ();
-         ++densitySampleIter ) {
-
-      const Interface::FluidDensitySample * sample = *densitySampleIter;
-
-      m_densitytbl.addPoint ( sample->getTemperature (), sample->getPressure (), sample->getDensity ());
-   }
-
-   // Would it be better to use the density that will used in the computation?
-   for ( heatCapacitySampleIter = heatCapacitySamples->begin ();
-         heatCapacitySampleIter != heatCapacitySamples->end ();
-         ++heatCapacitySampleIter ) {
-
-      const Interface::FluidHeatCapacitySample * sample = *heatCapacitySampleIter;
-
-      const double temperature = sample->getTemperature ();
-      const double pressure    = sample->getPressure ();
-
-      m_densXheatCapacitytbl.addPoint ( temperature, pressure, sample->getHeatCapacity () * densityFromTable ( temperature, pressure ));
-   }
-
    // Load data for permafrost modelling
    if( m_projectHandle->getPermafrostData() != 0 ) {
       if( m_projectHandle->getPermafrostData()->getPressureTerm() ) {
@@ -130,20 +104,13 @@ void GeoPhysics::FluidType::loadPropertyTables () {
 
    delete heatCapacitySamples;
    delete thermalConductivitySamples;
-   delete densitySamples;
 }
 
 double GeoPhysics::FluidType::getLiquidusTemperature ( const double temperature, const double pressure ) const {
-   
-   // return ( - 0.073 * pressure - 0.064 * salinityConcentration ( temperature, pressure ));
 
    double p = NumericFunctions::Maximum ( 0.0, pressure );
 
-   // NLSAY3: Debugging
-/*   if ( pressure<0 ) {std::cout << "Pressure: " << pressure << " LiquidusTemperature: " << - m_pressureTerm * pressure - m_salinityTerm * salinityConcentration ( temperature, pressure ) << std::endl;}*/
-
    return ( - m_pressureTerm * p - m_salinityTerm * salinityConcentration ( temperature, p ));
-
 }
     
 double GeoPhysics::FluidType::getSolidusTemperature ( const double liquidusTemperature ) const {
@@ -163,10 +130,6 @@ void GeoPhysics::FluidType::setDensityToConstant () {
    m_densityCalculationModel = CBMGenerics::waterDensity::Constant;
 }
 
-// double GeoPhysics::FluidType::getSimpleSeismicVelocity () const {
-//    return m_seismicVelocityVal;
-// }
-
 double GeoPhysics::FluidType::salinityConcentration( const double temperature, const double pressure ) const {
    
    const double p = NumericFunctions::Maximum ( 0.0, pressure );
@@ -185,10 +148,6 @@ double GeoPhysics::FluidType::density ( const double temperature, const double p
 
    // Added to prevent compiler warning about missing return at end of function.
    return 0.0;
-}
-
-double GeoPhysics::FluidType::densityFromTable ( const double temperature, const double pressure ) const {
-   return m_densitytbl.compute ( temperature, pressure );
 }
 
 void GeoPhysics::FluidType::correctSimpleDensity ( const double standardDepth,
@@ -276,8 +235,8 @@ double GeoPhysics::FluidType::densXheatCapacity ( const double temperature,
                                                   const double pressure,
                                                   bool includePermafrost ) const {
 
-   // Lookup the volumetric heat capacity (VHC) of water. 
-   const double waterVHC = m_densXheatCapacitytbl.compute ( temperature, pressure, ibs::Interpolator2d::constant );
+   /// Volumetric heat capacity is the product of specific heat capacity (tabulated) and density (see function)
+   const double waterVHC = m_heatCapacitytbl.compute( temperature, pressure, ibs::Interpolator2d::constant ) * density( temperature, pressure );
  
    if( includePermafrost ) {
 
