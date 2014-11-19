@@ -20,23 +20,6 @@ class CasaCommander;
 class CfgFileParser
 {
 public:
-   enum CfgCommand
-   {
-      app,          // add cauldron application to pipeline
-      base_project, // set scenario base case 
-      varprm,       // create variable parameter
-      target,       // create observable
-      doe,          // create doe
-      location,     // where cases will be generated, run mutator
-      run,          // run planned DoE experiments
-      response,     // calculate coefficients for response surface approximation
-      evaluate,     // calculate observables value using response surface approximation
-      exportMatlab, // export all data to matlab file
-      saveState,    // save CASA state to file
-      loadState,    // load CASA state from the file
-      mc            // run MC/MCMC simulation
-   };
-
    CfgFileParser() {;}
 
    // load command file 

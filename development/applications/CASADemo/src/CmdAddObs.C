@@ -24,7 +24,10 @@
 
 CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() > 1 );
+   if( m_prms.size() < 1 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Observable is not defined properly";
+   }
 
    if ( m_prms[0] != "XYZPoint" && m_prms[0] != "WellTraj" )
    {

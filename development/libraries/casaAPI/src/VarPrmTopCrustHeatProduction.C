@@ -40,7 +40,7 @@ VarPrmTopCrustHeatProduction::~VarPrmTopCrustHeatProduction()
 std::vector<std::string> VarPrmTopCrustHeatProduction::name() const
 {
 	std::vector<std::string> ret;
-	ret.push_back("TopCrustHeatProductionRate");
+	ret.push_back( "TopCrustHeatProdRate [\\mu W/m^3]" );
 
 	return ret;
 }

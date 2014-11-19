@@ -23,11 +23,19 @@ TEST_F( SerializationTest, ReloadStateFromTxtTest )
    // create new scenario analysis
    casa::ScenarioAnalysis * sc = casa::ScenarioAnalysis::loadScenario( "Ottoland_casa_state.txt", "txt" );
 
-   sc->saveScenario( "casa_state_reloaded.txt", "txt" );
+   // Do round trip
+   // create 1st reloaded scenario
+   sc->saveScenario( "casa_state_reloaded_1.txt", "txt" );
    delete sc;
+   // load it again
+   sc = casa::ScenarioAnalysis::loadScenario( "casa_state_reloaded_1.txt", "txt" );
+   // save it as new one
+   sc->saveScenario( "casa_state_reloaded_2.txt", "txt" );
+   delete sc; // clean and close all
 
-   std::ifstream org( "Ottoland_casa_state.txt", std::ifstream::in );
-   std::ifstream rel( "casa_state_reloaded.txt", std::ifstream::in );
+   // compare files
+   std::ifstream org( "casa_state_reloaded_1.txt", std::ifstream::in );
+   std::ifstream rel( "casa_state_reloaded_2.txt", std::ifstream::in );
    while ( !org.eof() && org.good() )
    {
       ASSERT_TRUE( rel.good() );

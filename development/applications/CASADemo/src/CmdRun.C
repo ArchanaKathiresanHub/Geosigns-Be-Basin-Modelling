@@ -53,10 +53,9 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
 CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() == 2 );
-   
-   m_cluster = m_prms[0];
-   m_cldVer = m_prms[1];
+   m_cluster = m_prms.size() > 0 ? m_prms[0] : "";
+   m_cldVer  = m_prms.size() > 1 ? m_prms[1] : "";
+
    if ( m_cluster.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty HPC cluster name";
    if ( m_cldVer.empty() )  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Cauldron version not given";
 }

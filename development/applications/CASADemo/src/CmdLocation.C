@@ -18,9 +18,7 @@
 
 CmdLocation::CmdLocation( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() == 1 );
-
-   m_locPath = m_prms[0];
+   m_locPath = m_prms.size() > 0 ? m_prms[0] : "";
    if ( m_locPath.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty path to generated cases";
 }
 

@@ -18,7 +18,11 @@
 
 CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() > 0 );
+   if ( m_prms.size() < 1 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Wrong parameters number: " 
+         << m_prms.size() << " in Cauldron application definition";
+   }
 
    if (      m_prms[0] == "fastcauldron" ) m_app = casa::RunManager::fastcauldron;
    else if ( m_prms[0] == "fastgenex6"   ) m_app = casa::RunManager::fastgenex6;

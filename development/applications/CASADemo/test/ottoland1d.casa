@@ -30,7 +30,7 @@ doe "FullFactorial"
 doe "SpaceFilling" 20
 #
 # Run Manager
-location "/scratch/nlskon/inversion/CASADemo/CaseSet"
+location "/scratch/nlskon/inversion/test/CaseSet"
 run "LOCAL" "v2014.0704"
 
 # Response surface   RSP Name         List of DoE             Order (0,1,2,3) Kriging (No, Local, Global)
@@ -48,9 +48,21 @@ evaluate             "FirstOrdKrig" "Tornado,FullFactorial,SpaceFilling"  "First
 # Evaluate response surfaces for set parameters defined in external data file
 evaluate             "FirstOrdKrig" "varPrmVals.in"    "FirstOrderKrigGivenParameters.dat"
 
+# creat proxy QC plots
+#                     Proxy name      DoE names for     DoE names for               Plot script name
+#                                     proxy building    proxy testing
+plotRSProxyQC        "FirstOrdKrig"  "SpaceFilling"     "FullFactorial,Tornado"    "FirstOrdKrigQC.m"
+
 # Run Monte Carlo sampling     ProxyName        MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
-montecarlo                     "FirstOrder"      MC        50          100         Polynomial       NoPrior       1.0
-#montecarlo                    "FirstOrdKrig"    MCMC      500         100         GlobalKriging    NoPrior       1.6
+#montecarlo                     "FirstOrder"      MC        50          100         Polynomial       NoPrior       1.0
+montecarlo                    "FirstOrdKrig"    MCMC      500         100         GlobalKriging    NoPrior       1.6
+
+#create MC/MCMC results plot
+plotMC               "mcplot.m"
 
 # Export results into Matlab
 exportMatlab         "casa_Ottoland_3prm.m"
+
+# dump results to file
+savestate            "casa_state.txt"  "txt"
+#loadstate            "casa_state.txt"  "txt"

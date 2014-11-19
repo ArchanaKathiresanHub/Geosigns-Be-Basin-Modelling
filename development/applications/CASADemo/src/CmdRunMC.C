@@ -26,10 +26,8 @@ CmdRunMC::CmdRunMC( CasaCommander & parent, const std::vector< std::string > & c
    m_proxyUsage   = casa::MonteCarloSolver::NoKriging;
    m_varPrmPDFEval= casa::MonteCarloSolver::NoPrior;
    
-   assert( m_prms.size() > 0 ); // at least proxy name must be here
-
    // process command parameters
-   m_proxyName = m_prms[0];
+   m_proxyName = m_prms.size() > 0 ? m_prms[0] : "";
 
    if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Response surface proxy name must be specified";
 

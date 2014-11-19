@@ -18,7 +18,7 @@
 
 CmdBaseProject::CmdBaseProject( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() == 1 );
+   if ( m_prms.size() < 1 ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No base case project name given";
 
    m_baseProjectName = m_prms[0];
    if ( m_baseProjectName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty base case project name";

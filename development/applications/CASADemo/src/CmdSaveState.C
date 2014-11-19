@@ -18,10 +18,9 @@
 
 CmdSaveState::CmdSaveState( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() > 0 );
-
    m_fileType = "bin";
-   m_fileName = m_prms[0];
+   m_fileName = m_prms.size() > 0 ? m_prms[0] : "";
+
    if ( m_fileName.empty() ) throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Empty file name to save CASA state";
 
    if ( m_prms.size() > 1 )

@@ -109,7 +109,7 @@ namespace casa
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       PrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer );
-      /// {@
+      /// @}
 
    protected:
       const VarParameter * m_parent;    ///< variable parameter which was used to create this one

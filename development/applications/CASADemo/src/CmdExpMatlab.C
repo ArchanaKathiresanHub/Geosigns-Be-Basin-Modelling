@@ -21,8 +21,6 @@
 
 CmdExpMatlab::CmdExpMatlab( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() < 2 );
-
    m_dataFileName = m_prms.size() < 1 ? "casa_data.m" : m_prms[0];
    if ( m_dataFileName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty Matlab data file name for exporting results";
 }

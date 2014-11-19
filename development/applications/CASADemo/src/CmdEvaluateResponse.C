@@ -22,7 +22,11 @@
 
 CmdEvaluateResponse::CmdEvaluateResponse( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() == 3 );
+   if ( m_prms.size() != 3 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::RSProxyError ) << "Wrong parameters number: " 
+         << m_prms.size() << " (expected 3) in response proxy " << (m_prms.size() > 0 ? (m_prms[0] + " ") : "" ) << "evaluation command";
+   }
 
    m_proxyName = m_prms[0];    // get proxy name
    if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No proxy name was given";
@@ -35,13 +39,18 @@ CmdEvaluateResponse::CmdEvaluateResponse( CasaCommander & parent, const std::vec
    if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No output file name was specified";
 }
 
-void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+void CmdEvaluateResponse::createRunCasesSet( std::auto_ptr<casa::ScenarioAnalysis> & sa
+                                           , std::vector<casa::RunCase *>          & rcs
+                                           , const std::vector<std::string>        & expList
+                                           , std::vector<size_t>                   & sizePerExp
+                                           )
 {
-   std::vector<casa::RunCase *> rcs; // set of run cases which were created from set of parameters defined in external dat file
-
-   for ( size_t i = 0; i < m_expList.size(); ++i )
+   sizePerExp.clear();
+   for ( size_t e = 0; e < expList.size(); ++e )
    {
-      sa->doeCaseSet().filterByExperimentName( m_expList[i] );
+      sizePerExp.push_back(0);
+
+      sa->doeCaseSet().filterByExperimentName( expList[e] );
       if ( sa->doeCaseSet().size() ) // DoE name was given, add cases from DoE
       {
          for ( size_t j = 0; j < sa->doeCaseSet().size(); ++j )
@@ -53,12 +62,13 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
             // add new case to the list
             rcs.push_back( nrc.release() );
+            sizePerExp[e] += 1;
          }
       }
       else // file name is given, parse file and create a set of run cases
       {
          std::vector< std::vector<double> > prmVals;
-         CfgFileParser::readParametersValueFile( m_expList[i], prmVals );
+         CfgFileParser::readParametersValueFile( expList[e], prmVals );
          casa::VarSpace & vs = sa->varSpace();
 
          for ( size_t i = 0; i < prmVals.size(); ++i )
@@ -66,7 +76,7 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
             std::auto_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
 
             std::vector<double>::const_iterator vit = prmVals[i].begin();
-
+   
             for ( size_t j = 0; j < vs.numberOfContPrms(); ++j )
             {
                assert( vit != prmVals[i].end() );
@@ -75,9 +85,19 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                nrc->addParameter( prm );
             }
             rcs.push_back( nrc.release() );
+            sizePerExp[e] += 1;
          }
       }
    }
+}
+
+void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
+{
+   std::vector<casa::RunCase *> rcs; // set of run cases which were created from set of parameters defined in external dat file
+   std::vector<size_t> casePerExp;
+
+   createRunCasesSet( sa, rcs, m_expList, casePerExp ); // create new set of run cases with parameters value
+
    // Search for given proxy name in the set of calculated proxies
    casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName.c_str() );
    // call response evaluation
@@ -88,11 +108,23 @@ void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       std::cout << "Evaluate proxy " << m_proxyName << " for " << rcs.size() << " cases\n";
    }
 
-   for ( size_t i = 0; i < rcs.size(); ++i )
+   size_t i = 0;
+   for ( size_t e = 0; e < m_expList.size(); ++e )
    {
-      if ( ErrorHandler::NoError != proxy->evaluateRSProxy( *rcs[i] ) )
+      if ( m_commander.verboseLevel() > CasaCommander::Quiet )
       {
-         throw ErrorHandler::Exception( proxy->errorCode() ) << proxy->errorMessage();
+         std::cout << " evaluate proxy for " << m_expList[e]  << "DoE/data file for " << casePerExp[e]  << " cases\n";
+      }
+
+      for ( size_t c = 0; c < casePerExp[e]; ++c )
+      {
+         assert( i < rcs.size() );
+
+         if ( ErrorHandler::NoError != proxy->evaluateRSProxy( *rcs[i] ) )
+         {
+            throw ErrorHandler::Exception( proxy->errorCode() ) << proxy->errorMessage();
+         }
+         ++i;
       }
    }
 

@@ -31,7 +31,7 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
    {
       if ( line[0] == '#' || line.empty() ) continue;
       
-      CfgCommand               cmdID;
+      std::string              cmdID;
       std::vector<std::string> cmdPrms;
 
       std::istringstream iss( line );
@@ -47,20 +47,7 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
 
          if ( 0 == tokNum )// get app name
          {
-            if (      result == "app"          ) cmdID = app;
-            else if ( result == "base_project" ) cmdID = base_project;
-            else if ( result == "varprm"       ) cmdID = varprm; 
-            else if ( result == "target"       ) cmdID = target;
-            else if ( result == "doe"          ) cmdID = doe;
-            else if ( result == "run"          ) cmdID = run;
-            else if ( result == "location"     ) cmdID = location;
-            else if ( result == "response"     ) cmdID = response;
-            else if ( result == "evaluate"     ) cmdID = evaluate;
-            else if ( result == "exportMatlab" ) cmdID = exportMatlab;
-            else if ( result == "montecarlo"   ) cmdID = mc;
-            else if ( result == "savestate"    ) cmdID = saveState;
-            else if ( result == "loadstate"    ) cmdID = loadState;
-            else throw std::runtime_error( std::string( "Unknown command: " ) + result );
+            cmdID = result;
          }
          else
          {

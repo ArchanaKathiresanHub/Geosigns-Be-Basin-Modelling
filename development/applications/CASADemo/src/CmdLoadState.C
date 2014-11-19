@@ -18,7 +18,10 @@
 
 CmdLoadState::CmdLoadState( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() > 0 );
+   if ( m_prms.size() < 1 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No file name for saving CASA state was given";
+   }
 
    m_fileType = "bin";
    m_fileName = m_prms[0];

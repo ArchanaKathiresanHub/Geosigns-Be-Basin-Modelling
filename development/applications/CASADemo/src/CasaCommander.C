@@ -22,6 +22,8 @@
 #include "CmdEvaluateResponse.h"
 #include "CmdExpMatlab.h"
 #include "CmdLocation.h"
+#include "CmdPlotMC.h"
+#include "CmdPlotRSProxyQC.h"
 #include "CmdRun.h"
 #include "CmdRunMC.h"
 #include "CmdSaveState.h"
@@ -34,27 +36,30 @@ CasaCommander::CasaCommander()
    m_msgLvl = Minimal;
 }
 
-void CasaCommander::addCommand( CfgFileParser::CfgCommand cmdID, const std::vector< std::string > & prms )
+void CasaCommander::addCommand( const std::string & cmdName, const std::vector< std::string > & prms )
 {
-   SharedCmdPtr cmd;
-   switch ( cmdID )
-   {
-   case CfgFileParser::app:          cmd.reset( new CmdAddCldApp(        *this, prms ) ); break;
-   case CfgFileParser::base_project: cmd.reset( new CmdBaseProject(      *this, prms ) ); break;
-   case CfgFileParser::varprm:       cmd.reset( new CmdAddVarPrm(        *this, prms ) ); break;
-   case CfgFileParser::target:       cmd.reset( new CmdAddObs(           *this, prms ) ); break;
-   case CfgFileParser::doe:          cmd.reset( new CmdDoE(              *this, prms ) ); break;
-   case CfgFileParser::location:     cmd.reset( new CmdLocation(         *this, prms ) ); break;
-   case CfgFileParser::run:          cmd.reset( new CmdRun(              *this, prms ) ); break;
-   case CfgFileParser::response:     cmd.reset( new CmdCreateResponse(   *this, prms ) ); break;
-   case CfgFileParser::evaluate:     cmd.reset( new CmdEvaluateResponse( *this, prms ) ); break;
-   case CfgFileParser::exportMatlab: cmd.reset( new CmdExpMatlab(        *this, prms ) ); break;
-   case CfgFileParser::mc:           cmd.reset( new CmdRunMC(            *this, prms ) ); break;
-   case CfgFileParser::saveState:    cmd.reset( new CmdSaveState(        *this, prms ) ); break;
-   case CfgFileParser::loadState:    cmd.reset( new CmdLoadState(        *this, prms ) ); break;
-   default: throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknowd command ID: " << cmdID;  break;
-   }
+   SharedCmdPtr  cmd;
+
+   if (      cmdName == "app"          ) cmd.reset( new CmdAddCldApp(        *this, prms ) );// add cauldron application to pipeline
+   else if ( cmdName == "base_project" ) cmd.reset( new CmdBaseProject(      *this, prms ) );// set scenario base case 
+   else if ( cmdName == "varprm"       ) cmd.reset( new CmdAddVarPrm(        *this, prms ) );// create variable parameter
+   else if ( cmdName == "target"       ) cmd.reset( new CmdAddObs(           *this, prms ) );// create observable
+   else if ( cmdName == "doe"          ) cmd.reset( new CmdDoE(              *this, prms ) );// create doe
+   else if ( cmdName == "run"          ) cmd.reset( new CmdRun(              *this, prms ) );// run planned DoE experiments
+   else if ( cmdName == "location"     ) cmd.reset( new CmdLocation(         *this, prms ) );// where cases will be generated, run mutator
+   else if ( cmdName == "response"     ) cmd.reset( new CmdCreateResponse(   *this, prms ) );// calculate coefficients for response surface approximation
+   else if ( cmdName == "evaluate"     ) cmd.reset( new CmdEvaluateResponse( *this, prms ) );// calculate observables value using response surface approximation
+   else if ( cmdName == "exportMatlab" ) cmd.reset( new CmdExpMatlab(        *this, prms ) );// export all data to matlab file
+   else if ( cmdName == "montecarlo"   ) cmd.reset( new CmdRunMC(            *this, prms ) );// run MC/MCMC simulation
+   else if ( cmdName == "savestate"    ) cmd.reset( new CmdSaveState(        *this, prms ) );// save CASA state to file
+   else if ( cmdName == "loadstate"    ) cmd.reset( new CmdLoadState(        *this, prms ) );// load CASA state from the file
+   else if ( cmdName == "plotMC"       ) cmd.reset( new CmdPlotMC(           *this, prms ) );// create plot with MC/MCMC results
+   else if ( cmdName == "plotRSProxyQC") cmd.reset( new CmdPlotRSProxyQC(    *this, prms ) );// create QC plot for RSProxy results
+
+   else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown command: " << cmdName;
+
    m_cmds.push_back( cmd );
+
    if ( m_msgLvl > Minimal )
    {
       std::cout << "Added command to the command queue: " << typeid(*(cmd.get())).name() << "(";

@@ -46,10 +46,10 @@ VarPrmOneCrustThinningEvent::~VarPrmOneCrustThinningEvent()
 std::vector<std::string> VarPrmOneCrustThinningEvent::name() const
 {
 	std::vector<std::string> ret;
-	ret.push_back("InitialCrustThickness");
-	ret.push_back("EventStartTime");
-	ret.push_back("EventDuration");
-	ret.push_back("CrustThinningFactor");
+	ret.push_back("InitialCrustThickness [m]");
+	ret.push_back("EventStartTime [Ma]");
+	ret.push_back("EventDuration [Ma]");
+	ret.push_back("CrustThinningFactor [m/m]");
 	return ret;
 }
 

@@ -9,7 +9,7 @@
 // 
 
 /// @file VarSpaceImpl.C
-/// @brief This file keeps API implementation for Varervables manager. 
+/// @brief This file keeps API implementation for variable parameters set manager. 
 
 #include "VarSpaceImpl.h"
 

@@ -60,13 +60,13 @@ namespace casa
       /// @param sz Serializer stream
       /// @param  version stream version
       /// @return true if it succeeds, false if it fails.
-      virtual bool save( CasaSerializer & sz, unsigned int version ) const { return VarPrmContinuous::save( sz, version ); }
+      virtual bool save( CasaSerializer & sz, unsigned int version ) const;
 
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      VarPrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer ) { ; }
-      /// {@
+      VarPrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer );
+      /// @}
 
    protected:
       std::string m_layerName; ///< source rock lithology name

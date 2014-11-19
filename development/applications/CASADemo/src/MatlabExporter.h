@@ -21,7 +21,7 @@ namespace casa
 }
 
 /// @brief This class allows to export ScenarioAnalysis data as a Matlab command file
-/// User should execute this command file in Matlab/octave to load data calculated bu
+/// User should execute this command file in Matlab/octave to load data calculated by CASADemo
 class MatlabExporter
 {
 public:
@@ -32,14 +32,18 @@ public:
    
    static void exportObsValues( const std::string & fName, const std::vector<casa::RunCase*> & rcs );
 
-private:
-   std::string m_fname;
+   void exportDoEInfo(         casa::ScenarioAnalysis & sc );
+   void exportParametersInfo(  casa::ScenarioAnalysis & sc );
+   void exportObservablesInfo( casa::ScenarioAnalysis & sc );
+   void exportRSAProxies(      casa::ScenarioAnalysis & sc );
+   void exportMCResults(       casa::ScenarioAnalysis & sc );
 
-   void exportDoEInfo(         casa::ScenarioAnalysis & sc, std::ofstream & ofs );
-   void exportParametersInfo(  casa::ScenarioAnalysis & sc, std::ofstream & ofs );
-   void exportObservablesInfo( casa::ScenarioAnalysis & sc, std::ofstream & ofs );
-   void exportRSAProxies(      casa::ScenarioAnalysis & sc, std::ofstream & ofs );
-   void exportMCResults(       casa::ScenarioAnalysis & sc, std::ofstream & ofs );
+   template <typename T> MatlabExporter & operator << ( const T    & val ) { m_ofs << val; return *this; }
+   MatlabExporter                       & operator << ( const char * val ) { m_ofs << val; return *this; }
+
+private:
+   std::string   m_fname;
+   std::ofstream m_ofs;
 };
 
 #endif // MATLAB_EXPORTER_H

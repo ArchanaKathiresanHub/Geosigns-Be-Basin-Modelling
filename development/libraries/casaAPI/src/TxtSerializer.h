@@ -23,7 +23,7 @@ namespace casa
    public:
 
       /// @brief  Constructor. Throw on null file handle and negative version number
-      /// @param  file file pointer, must be not null
+      /// @param  fileHandle file pointer, must be not null
       /// @param  ver file version 
       TxtSerializer( FILE * fileHandle, int ver );
 

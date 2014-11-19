@@ -46,14 +46,14 @@ namespace casa
       {
       case cmd:
          m_appName += ".exe"; // on windows all applications have .exe suffix
-         version = "%CAULDRON_VERSION%";
-         rootPath = "%IBS_ROOT%";
+         version    = "%CAULDRON_VERSION%";
+         rootPath   = "%IBS_ROOT%";
          break;
 
       case csh:
       case bash:
-         rootPath = "${CAULDRON_VERSION}";
-         version = "${IBS_ROOT}";
+         version  = "${CAULDRON_VERSION}";
+         rootPath = "${IBS_ROOT}";
          break;
       }
 
@@ -76,38 +76,38 @@ namespace casa
       if ( appName == "fastcauldron" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "GENEXDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
-         pushDefaultEnv( "OTGCDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC").path() );
-         pushDefaultEnv( "CTCDIR", (ibs::FolderPath( rootPath ) << version << "misc").path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
       }
       else if ( appName == "fastgenex6" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC").path() );
-         pushDefaultEnv( "GENEXDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
-         pushDefaultEnv( "GENEX6DIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
       }
       else if ( appName == "fastmig" )
       {
          // set up environment vars
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC").path() );
-         pushDefaultEnv( "GENEXDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
-         pushDefaultEnv( "GENEX5DIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
+         pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
       }
       else if ( appName == "fastctc" )
       {
-         pushDefaultEnv( "CTCDIR", (ibs::FolderPath( rootPath ) << version << "misc").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
       }
       else if ( appName == "datadriller" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         pushDefaultEnv( "OTGCDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC").path() );
-         pushDefaultEnv( "GENEX6DIR", (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
-         pushDefaultEnv( "CTCDIR", (ibs::FolderPath( rootPath ) << version << "misc").path() );
+         pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
+         pushDefaultEnv( "GENEX6DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex60").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
          m_inputOpt = "-input";
          m_outputOpt = "-output";
       }

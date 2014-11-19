@@ -49,7 +49,7 @@ namespace casa
       /// @brief Get name of the parameter
       /// @return parameter name
       virtual const char * name() const = 0;
-
+      
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const = 0;

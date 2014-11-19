@@ -40,7 +40,7 @@ public:
    /// @brief Create and add the new command to the queue
    /// @param cmdID command ID defined in CfgFileParser
    /// @param prms list of command parameters
-   void addCommand( CfgFileParser::CfgCommand cmdID, const std::vector< std::string > & prms );
+   void addCommand( const std::string & cmdID, const std::vector< std::string > & prms );
 
    /// @brief Go over all command in a queue and execute them for the
    void executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa );

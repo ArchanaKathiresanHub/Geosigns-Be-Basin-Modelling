@@ -19,7 +19,12 @@
 
 CmdCreateResponse::CmdCreateResponse( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() == 4 );
+   if ( m_prms.size() != 4 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::RSProxyError ) << "Wrong parameters number: " 
+         << m_prms.size() << " (expected 4) in response proxy " << (m_prms.size() > 0 ? (m_prms[0] + " ") : "" ) << "definition";
+   }
+
 
    m_proxyName = m_prms[0]; // proxy name
    // convert list of DoEs like: "Tornado,BoxBenken" into array of DoE names
@@ -70,7 +75,7 @@ void CmdCreateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          std::cout << "Starting response surface approximation calculation for proxy: " << m_proxyName << std::endl;
       }
 
-      // Here we will calculate proxy, at least!
+      // After all preparation and RunCases collecting, here we will calculate proxy
       if ( ErrorHandler::NoError != proxy->calculateRSProxy( rcs ) )
       {
          throw ErrorHandler::Exception( proxy->errorCode() ) << proxy->errorMessage();

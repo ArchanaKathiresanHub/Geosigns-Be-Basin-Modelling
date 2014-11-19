@@ -132,7 +132,7 @@ namespace casa
       /// @param objVer version of object representation in stream
       /// @return new observable instance on susccess, or throw and exception in case of any error
       ObsGridPropertyXYZ( CasaDeserializer & dz, unsigned int objVer );
-      /// {@
+      /// @}
 
    protected:
       double      m_x;  ///< X-th coordinate

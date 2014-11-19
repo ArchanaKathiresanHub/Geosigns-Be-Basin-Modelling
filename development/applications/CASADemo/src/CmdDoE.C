@@ -18,8 +18,11 @@
 
 CmdDoE::CmdDoE( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() > 0 );
-   
+   if ( m_prms.size() < 1 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No name of DoE was given";
+   }
+
    m_numExp = 0;
 
    if (      m_prms[0] == "Tornado"              ) { m_doeAlg = casa::DoEGenerator::Tornado; }

@@ -29,7 +29,10 @@ static casa::VarPrmContinuous::PDF Str2pdf( const std::string & pdf )
 
 CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   assert( m_prms.size() > 1 );
+   if ( m_prms.size() < 1 )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No name of variable parameter was given";
+   }
 
    if ( m_prms[0] != "TopCrustHeatProduction" &&
         m_prms[0] != "SourceRockTOC" &&

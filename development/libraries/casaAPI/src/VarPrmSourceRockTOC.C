@@ -40,7 +40,7 @@ VarPrmSourceRockTOC::~VarPrmSourceRockTOC()
 std::vector<std::string> VarPrmSourceRockTOC::name() const
 {
 	std::vector<std::string> ret;
-	ret.push_back("SourceRocTOC");
+	ret.push_back( m_layerName + " TOC [%]" );
 	return ret;
 }
 
@@ -58,6 +58,28 @@ SharedParameterPtr VarPrmSourceRockTOC::newParameterFromDoubles( std::vector<dou
    SharedParameterPtr prm( new PrmSourceRockTOC( this, prmV, m_layerName.c_str() ) );
 
    return prm;
+}
+
+
+// Save all object data to the given stream, that object could be later reconstructed from saved data
+bool VarPrmSourceRockTOC::save( CasaSerializer & sz, unsigned int version ) const
+{
+   bool ok = VarPrmContinuous::save( sz, version );
+   ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
+
+   return ok;
+}
+
+// Create a new var.parameter instance by deserializing it from the given stream
+VarPrmSourceRockTOC::VarPrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer ) : VarPrmContinuous( dz, objVer )
+{
+   bool ok = dz.load( m_layerName, "layerName" );
+
+   if ( !ok )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+         << "VarPrmSourceRockTOC deserialization unknown error";
+   }
 }
 
 }
