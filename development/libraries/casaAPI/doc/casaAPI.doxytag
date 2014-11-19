@@ -4,18 +4,7 @@
     <name>casaAPI.h</name>
     <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
     <filename>casaAPI_8h</filename>
-    <includes id="RunCaseSet_8h" name="RunCaseSet.h" local="yes" imported="no">RunCaseSet.h</includes>
-    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
-    <includes id="VarPrmCategorical_8h" name="VarPrmCategorical.h" local="yes" imported="no">VarPrmCategorical.h</includes>
-    <includes id="DataDigger_8h" name="DataDigger.h" local="yes" imported="no">DataDigger.h</includes>
-    <includes id="DoEGenerator_8h" name="DoEGenerator.h" local="yes" imported="no">DoEGenerator.h</includes>
-    <includes id="MonteCarloSolver_8h" name="MonteCarloSolver.h" local="yes" imported="no">MonteCarloSolver.h</includes>
-    <includes id="RSProxy_8h" name="RSProxy.h" local="yes" imported="no">RSProxy.h</includes>
-    <includes id="RSProxySet_8h" name="RSProxySet.h" local="yes" imported="no">RSProxySet.h</includes>
-    <includes id="ObsSpace_8h" name="ObsSpace.h" local="yes" imported="no">ObsSpace.h</includes>
-    <includes id="RunManager_8h" name="RunManager.h" local="yes" imported="no">RunManager.h</includes>
-    <includes id="VarSpace_8h" name="VarSpace.h" local="yes" imported="no">VarSpace.h</includes>
-    <class kind="class">casa::ScenarioAnalysis</class>
+    <includes id="ScenarioAnalysis_8h" name="ScenarioAnalysis.h" local="yes" imported="no">ScenarioAnalysis.h</includes>
     <namespace>casa</namespace>
     <namespace>casa::BusinessLogicRulesSet</namespace>
     <member kind="function">
@@ -228,6 +217,24 @@
     <filename>RunManager_8h</filename>
     <includes id="CauldronApp_8h" name="CauldronApp.h" local="yes" imported="no">CauldronApp.h</includes>
     <class kind="class">casa::RunManager</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>ScenarioAnalysis.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>ScenarioAnalysis_8h</filename>
+    <includes id="RunCaseSet_8h" name="RunCaseSet.h" local="yes" imported="no">RunCaseSet.h</includes>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <includes id="VarPrmCategorical_8h" name="VarPrmCategorical.h" local="yes" imported="no">VarPrmCategorical.h</includes>
+    <includes id="DataDigger_8h" name="DataDigger.h" local="yes" imported="no">DataDigger.h</includes>
+    <includes id="DoEGenerator_8h" name="DoEGenerator.h" local="yes" imported="no">DoEGenerator.h</includes>
+    <includes id="MonteCarloSolver_8h" name="MonteCarloSolver.h" local="yes" imported="no">MonteCarloSolver.h</includes>
+    <includes id="RSProxy_8h" name="RSProxy.h" local="yes" imported="no">RSProxy.h</includes>
+    <includes id="RSProxySet_8h" name="RSProxySet.h" local="yes" imported="no">RSProxySet.h</includes>
+    <includes id="ObsSpace_8h" name="ObsSpace.h" local="yes" imported="no">ObsSpace.h</includes>
+    <includes id="RunManager_8h" name="RunManager.h" local="yes" imported="no">RunManager.h</includes>
+    <includes id="VarSpace_8h" name="VarSpace.h" local="yes" imported="no">VarSpace.h</includes>
+    <class kind="class">casa::ScenarioAnalysis</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
@@ -476,10 +483,24 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual bool</type>
+      <name>checkObjectDescription</name>
+      <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
+      <anchor>adf81def0de9a60b9c1793a783610817a</anchor>
+      <arglist>(const char *objType, const std::string &amp;objName, unsigned int ver)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
       <name>loadObjectDescription</name>
       <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
       <anchor>ab469a922af94acee60e9d46b50eeb9c7</anchor>
       <arglist>(std::string &amp;objType, std::string &amp;objName, unsigned int &amp;ver)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
+      <anchor>a0903fbeb4bd5ae0e7bb5e03ff524290a</anchor>
+      <arglist>(SUMlib::ISerializable &amp;so, const std::string &amp;objName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual bool</type>
@@ -501,6 +522,20 @@
       <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
       <anchor>afa98a9b20dcdd0a69c4bfaf4bdc6d844</anchor>
       <arglist>(unsigned int &amp;val, const std::string &amp;valName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
+      <anchor>aaa057445b9a15cfe4f35fe8c22d905c6</anchor>
+      <arglist>(long long &amp;val, const std::string &amp;valName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
+      <anchor>a81f57c9f5004e93cfc92daf5b10079ee</anchor>
+      <arglist>(unsigned long long &amp;val, const std::string &amp;valName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual bool</type>
@@ -555,6 +590,20 @@
       <type>virtual bool</type>
       <name>load</name>
       <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
+      <anchor>a157250e11a55fc1483c26f69f42a1b7a</anchor>
+      <arglist>(std::vector&lt; long long &gt; &amp;vec, const std::string &amp;vecName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
+      <anchor>a137a9c017f7ad5f2c4ac464921876bae</anchor>
+      <arglist>(std::vector&lt; unsigned long long &gt; &amp;vec, const std::string &amp;vecName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1CasaDeserializer.html</anchorfile>
       <anchor>a1b05fd1cc8b5f668b38b5203db8fff14</anchor>
       <arglist>(std::vector&lt; ObjRefID &gt; &amp;vec, const std::string &amp;vecName)=0</arglist>
     </member>
@@ -597,13 +646,6 @@
       <anchor>a5e75f3453ef6b200ad1636327417eb9b</anchor>
       <arglist>()</arglist>
     </member>
-    <member kind="function">
-      <type></type>
-      <name>CasaSerializable</name>
-      <anchorfile>classcasa_1_1CasaSerializable.html</anchorfile>
-      <anchor>a0628ca13c51449deb14410502f4236bf</anchor>
-      <arglist>(CasaDeserializer &amp;dz, const char *objName)</arglist>
-    </member>
   </compound>
   <compound kind="class">
     <name>casa::CasaSerializer</name>
@@ -615,26 +657,19 @@
       <anchor>a1388a8f3ad23f49525c79e2a34014e73</anchor>
       <arglist>()</arglist>
     </member>
-    <member kind="function">
-      <type>ObjRefID</type>
-      <name>ptr2id</name>
-      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
-      <anchor>ac635bfc3103a5d127b7b9059eaf88ee3</anchor>
-      <arglist>(const Observable *ob)</arglist>
-    </member>
-    <member kind="function">
-      <type>ObjRefID</type>
-      <name>ptr2id</name>
-      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
-      <anchor>afc63e2b803d7656e6b72a167b78bd1fc</anchor>
-      <arglist>(const VarParameter *ob)</arglist>
-    </member>
     <member kind="function" virtualness="pure">
       <type>virtual bool</type>
       <name>save</name>
       <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
       <anchor>aac22d377e058f8ffe231d5d10c306416</anchor>
       <arglist>(const CasaSerializable &amp;so, const std::string &amp;objName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
+      <anchor>a0a75381a9a0961d12c82fb45dc614349</anchor>
+      <arglist>(const SUMlib::ISerializable &amp;so, const std::string &amp;objName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual bool</type>
@@ -656,6 +691,20 @@
       <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
       <anchor>a4b85270bbc2d2755e405e14a8232c95f</anchor>
       <arglist>(unsigned int val, const std::string &amp;valName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
+      <anchor>a74c61619723a5b4c10299c0074b51e10</anchor>
+      <arglist>(long long val, const std::string &amp;valName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
+      <anchor>a17368bc0caae70c3521764ea27b09b26</anchor>
+      <arglist>(unsigned long long val, const std::string &amp;valName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual bool</type>
@@ -710,6 +759,20 @@
       <type>virtual bool</type>
       <name>save</name>
       <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
+      <anchor>a7b9f41196cc74a790d2ad88d4da50df5</anchor>
+      <arglist>(const std::vector&lt; long long &gt; &amp;vec, const std::string &amp;vecName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
+      <anchor>a02d50247fbf83374c5957a42a7bfd887</anchor>
+      <arglist>(const std::vector&lt; unsigned long long &gt; &amp;vec, const std::string &amp;vecName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
       <anchor>a582c339b9643c9948a79e03aead75f90</anchor>
       <arglist>(const std::vector&lt; ObjRefID &gt; &amp;vec, const std::string &amp;vecName)=0</arglist>
     </member>
@@ -734,6 +797,13 @@
       <anchor>ab4eade9a414540b879c978091ee60d7b</anchor>
       <arglist>(const std::vector&lt; std::string &gt; &amp;vec, const std::string &amp;vecName)=0</arglist>
     </member>
+    <member kind="function">
+      <type>ObjRefID</type>
+      <name>ptr2id</name>
+      <anchorfile>classcasa_1_1CasaSerializer.html</anchorfile>
+      <anchor>aab09dc624ea4f7c48d0fb80f65b7b6d9</anchor>
+      <arglist>(const T *obj)</arglist>
+    </member>
     <member kind="function" protection="protected">
       <type></type>
       <name>CasaSerializer</name>
@@ -745,6 +815,7 @@
   <compound kind="class">
     <name>casa::CauldronApp</name>
     <filename>classcasa_1_1CauldronApp.html</filename>
+    <base>casa::CasaSerializable</base>
     <member kind="enumeration">
       <type></type>
       <name>ShellType</name>
@@ -821,6 +892,34 @@
       <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
       <anchor>adcc3877c79d0ebd88a1e93025c02ccc7</anchor>
       <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>aeaa19c2f571751791266cbcede34f52b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>ac5740ed43d9d29f2ce8e951d8361d842</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>a0b568ff3d2cff0252b4a14fa362162ad</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>CauldronApp</name>
+      <anchorfile>classcasa_1_1CauldronApp.html</anchorfile>
+      <anchor>aa94a4a6036555cd3a029b2e92b20e577</anchor>
+      <arglist>(CasaDeserializer &amp;inStream, const char *objName)</arglist>
     </member>
     <member kind="function" protection="protected">
       <type>const char *</type>
@@ -931,6 +1030,7 @@
   <compound kind="class">
     <name>casa::DataDigger</name>
     <filename>classcasa_1_1DataDigger.html</filename>
+    <base>casa::CasaSerializable</base>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
       <name>~DataDigger</name>
@@ -956,6 +1056,7 @@
   <compound kind="class">
     <name>casa::DoEGenerator</name>
     <filename>classcasa_1_1DoEGenerator.html</filename>
+    <base>casa::CasaSerializable</base>
     <member kind="enumeration">
       <type></type>
       <name>DoEAlgorithm</name>
@@ -1069,6 +1170,7 @@
   <compound kind="class">
     <name>casa::MonteCarloSolver</name>
     <filename>classcasa_1_1MonteCarloSolver.html</filename>
+    <base>casa::CasaSerializable</base>
     <member kind="enumeration">
       <type></type>
       <name>Algorithm</name>
@@ -1541,6 +1643,34 @@
       <anchor>abe2396aad662684df70eca9f5198f76d</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;val) const </arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ab2e68a3a93f8e0865bba90fa05a92f3c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>ae0e169eebae6f7324fa0029cde27870e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a79967c53f8ba752611625c138b665fa7</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsGridPropertyWell</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
+      <anchor>a762bff753e448857e45eeaf119b12693</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
     <member kind="function" static="yes">
       <type>static ObsGridPropertyWell *</type>
       <name>createNewInstance</name>
@@ -1624,27 +1754,6 @@
       <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
       <anchor>a8c642217afcedaa0be418d3073166d40</anchor>
       <arglist></arglist>
-    </member>
-    <member kind="function" virtualness="virtual">
-      <type>virtual unsigned int</type>
-      <name>version</name>
-      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
-      <anchor>ab2e68a3a93f8e0865bba90fa05a92f3c</anchor>
-      <arglist>() const </arglist>
-    </member>
-    <member kind="function" virtualness="virtual">
-      <type>virtual bool</type>
-      <name>save</name>
-      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
-      <anchor>a79967c53f8ba752611625c138b665fa7</anchor>
-      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
-    </member>
-    <member kind="function">
-      <type></type>
-      <name>ObsGridPropertyWell</name>
-      <anchorfile>classcasa_1_1ObsGridPropertyWell.html</anchorfile>
-      <anchor>a762bff753e448857e45eeaf119b12693</anchor>
-      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -1756,6 +1865,34 @@
       <anchor>a2b7d96dd444440d65a9f396ff0819589</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;val) const </arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ab1e5956267275f84715d8fd4b5ceb573</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>ab8fbb8bb964dd8afa73da271d099dde5</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int fileVer) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a97c49b79b94b5951f9f02cc6c5e3ae0b</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>ObsGridPropertyXYZ</name>
+      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
+      <anchor>a4568021786ae2fa50969fe64faa87705</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
     <member kind="function" static="yes">
       <type>static ObsGridPropertyXYZ *</type>
       <name>createNewInstance</name>
@@ -1839,27 +1976,6 @@
       <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
       <anchor>a20af5cdc4c0a978703f7c32677770dab</anchor>
       <arglist></arglist>
-    </member>
-    <member kind="function" virtualness="virtual">
-      <type>virtual unsigned int</type>
-      <name>version</name>
-      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
-      <anchor>ab1e5956267275f84715d8fd4b5ceb573</anchor>
-      <arglist>() const </arglist>
-    </member>
-    <member kind="function" virtualness="virtual">
-      <type>virtual bool</type>
-      <name>save</name>
-      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
-      <anchor>ab8fbb8bb964dd8afa73da271d099dde5</anchor>
-      <arglist>(CasaSerializer &amp;sz, unsigned int fileVer) const </arglist>
-    </member>
-    <member kind="function">
-      <type></type>
-      <name>ObsGridPropertyXYZ::ObsGridPropertyXYZ</name>
-      <anchorfile>classcasa_1_1ObsGridPropertyXYZ.html</anchorfile>
-      <anchor>a6129fcbb5eaff2979e61fb971f79d40a</anchor>
-      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -1995,25 +2111,18 @@
       <anchor>a3ffe72f5b7b760c9cbeeb5d014d59d5b</anchor>
       <arglist>() const </arglist>
     </member>
-    <member kind="function" static="yes">
-      <type>static ObsValueDoubleArray *</type>
-      <name>createNewInstance</name>
-      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
-      <anchor>a142db1d3b3bd9ce082ad99a25a78e7cd</anchor>
-      <arglist>(const Observable *parent, const std::vector&lt; double &gt; &amp;val)</arglist>
-    </member>
-    <member kind="variable" protection="protected">
-      <type>std::vector&lt; double &gt;</type>
-      <name>m_value</name>
-      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
-      <anchor>a3691bb6a9272cc6ce28db4a8e2faad09</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
       <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
       <anchor>aab772387409ee9c15c22f42ef72bb3d5</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>aa856b793344cd854f416d8ca46ac47c6</anchor>
       <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -2025,10 +2134,17 @@
     </member>
     <member kind="function">
       <type></type>
-      <name>ObsValueDoubleArray::ObsValueDoubleArray</name>
+      <name>ObsValueDoubleArray</name>
       <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
-      <anchor>a3dbc421841b1ff0e5c52da31c224bb02</anchor>
+      <anchor>a6fc9e9b6c31b68a02c9f7a6202c21324</anchor>
       <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static ObsValueDoubleArray *</type>
+      <name>createNewInstance</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleArray.html</anchorfile>
+      <anchor>a142db1d3b3bd9ce082ad99a25a78e7cd</anchor>
+      <arglist>(const Observable *parent, const std::vector&lt; double &gt; &amp;val)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2098,25 +2214,18 @@
       <anchor>aeafe762a1fdb709e1e10406c5c878510</anchor>
       <arglist>() const </arglist>
     </member>
-    <member kind="function" static="yes">
-      <type>static ObsValueDoubleScalar *</type>
-      <name>createNewInstance</name>
-      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
-      <anchor>a35d1f660d0081b9459fde0dac1183c7c</anchor>
-      <arglist>(const Observable *parent, double val)</arglist>
-    </member>
-    <member kind="variable" protection="protected">
-      <type>double</type>
-      <name>m_value</name>
-      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
-      <anchor>a1429753f60e5d5706f3f68e1fd26492e</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
       <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
       <anchor>a2935bc7833de71872f309762f3b8edfa</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>aa2b2a4a2bda8f41e129bb73bc62bf239</anchor>
       <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -2128,10 +2237,17 @@
     </member>
     <member kind="function">
       <type></type>
-      <name>ObsValueDoubleScalar::ObsValueDoubleScalar</name>
+      <name>ObsValueDoubleScalar</name>
       <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
-      <anchor>a4b92597a40660f5f8e6f7aa60f4b228f</anchor>
+      <anchor>ab428c171805a142d0aa864f1838e802b</anchor>
       <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static ObsValueDoubleScalar *</type>
+      <name>createNewInstance</name>
+      <anchorfile>classcasa_1_1ObsValueDoubleScalar.html</anchorfile>
+      <anchor>a35d1f660d0081b9459fde0dac1183c7c</anchor>
+      <arglist>(const Observable *parent, double val)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2276,6 +2392,13 @@
       <anchor>ae2b1267c9ac2cfa268d8485a0ba6ddd7</anchor>
       <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a25db4ad059ee30a93a33c7458318a859</anchor>
+      <arglist>() const </arglist>
+    </member>
     <member kind="function">
       <type></type>
       <name>PrmOneCrustThinningEvent</name>
@@ -2358,6 +2481,34 @@
       <anchor>afbdcbcb585cb4fc99f18daa5f363793a</anchor>
       <arglist>() const </arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a43b846d4581f31cdd59efcc06fd84331</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a76c3b6cd7d5975b6e0e6c8e81b8b4ee6</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a447c025a249089378f4f2b57f054d35e</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockTOC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
+      <anchor>a6515e13366af7f35e329de7941934d8d</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
     <member kind="variable" protection="protected">
       <type>const VarParameter *</type>
       <name>m_parent</name>
@@ -2385,27 +2536,6 @@
       <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
       <anchor>a142f1ce2c53790001ff8cd1cee151bb9</anchor>
       <arglist></arglist>
-    </member>
-    <member kind="function" virtualness="virtual">
-      <type>virtual unsigned int</type>
-      <name>version</name>
-      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
-      <anchor>a43b846d4581f31cdd59efcc06fd84331</anchor>
-      <arglist>() const </arglist>
-    </member>
-    <member kind="function" virtualness="virtual">
-      <type>virtual bool</type>
-      <name>save</name>
-      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
-      <anchor>a76c3b6cd7d5975b6e0e6c8e81b8b4ee6</anchor>
-      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
-    </member>
-    <member kind="function">
-      <type></type>
-      <name>PrmSourceRockTOC</name>
-      <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
-      <anchor>a6515e13366af7f35e329de7941934d8d</anchor>
-      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2482,20 +2612,6 @@
       <anchor>a7bdefc968ea5111d6203db10884cc6e6</anchor>
       <arglist>() const </arglist>
     </member>
-    <member kind="variable" protection="protected">
-      <type>const VarParameter *</type>
-      <name>m_parent</name>
-      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
-      <anchor>aacb005ada8c785c279980ee79e2efad4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="protected">
-      <type>double</type>
-      <name>m_heatProdRateValue</name>
-      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
-      <anchor>adf5c5efdbce1213a59fa78b94b781e0c</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
@@ -2510,6 +2626,13 @@
       <anchor>ad907f37344030125d4d4a68d1460e141</anchor>
       <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>afa3f755a80bd37bd6ebdfc46f2a90281</anchor>
+      <arglist>() const </arglist>
+    </member>
     <member kind="function">
       <type></type>
       <name>PrmTopCrustHeatProduction</name>
@@ -2517,10 +2640,25 @@
       <anchor>abb116728fd2d06a6ae39a400d0db0678</anchor>
       <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
+    <member kind="variable" protection="protected">
+      <type>const VarParameter *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>aacb005ada8c785c279980ee79e2efad4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_heatProdRateValue</name>
+      <anchorfile>classcasa_1_1PrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>adf5c5efdbce1213a59fa78b94b781e0c</anchor>
+      <arglist></arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>casa::RSProxy</name>
     <filename>classcasa_1_1RSProxy.html</filename>
+    <base>casa::CasaSerializable</base>
     <member kind="enumeration">
       <type></type>
       <name>RSKrigingType</name>
@@ -2588,6 +2726,7 @@
   <compound kind="class">
     <name>casa::RSProxySet</name>
     <filename>classcasa_1_1RSProxySet.html</filename>
+    <base>casa::CasaSerializable</base>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
       <name>~RSProxySet</name>
@@ -2784,6 +2923,7 @@
   <compound kind="class">
     <name>casa::RunManager</name>
     <filename>classcasa_1_1RunManager.html</filename>
+    <base>casa::CasaSerializable</base>
     <member kind="enumeration">
       <type></type>
       <name>ApplicationType</name>
@@ -2936,6 +3076,13 @@
       <arglist>(const char *projectFileName)</arglist>
     </member>
     <member kind="function">
+      <type>const char *</type>
+      <name>baseCaseProjectFileName</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>a859534316ab632896273a4d2d56360b8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
       <type>mbapi::Model &amp;</type>
       <name>baseCase</name>
       <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
@@ -2948,6 +3095,13 @@
       <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
       <anchor>aa4c0d764d036e470007d88a60272e64e</anchor>
       <arglist>(const char *pathToCaseSet)</arglist>
+    </member>
+    <member kind="function">
+      <type>const char *</type>
+      <name>scenarioLocation</name>
+      <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
+      <anchor>ac68b63e07e12aad2999d47f76be4963a</anchor>
+      <arglist>() const </arglist>
     </member>
     <member kind="function">
       <type>VarSpace &amp;</type>
@@ -3070,8 +3224,8 @@
       <type></type>
       <name>TxtDeserializer</name>
       <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
-      <anchor>a297576e52c1bc2f5105ec9b8a52693cc</anchor>
-      <arglist>(FILE *fileHandle, int ver)</arglist>
+      <anchor>aa8d5f5c8becfbfb938dee60f30182483</anchor>
+      <arglist>(FILE *fileHandle, unsigned int ver)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
@@ -3082,10 +3236,24 @@
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
+      <name>checkObjectDescription</name>
+      <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
+      <anchor>a85908d587c839e4c07530909ce7936e1</anchor>
+      <arglist>(const char *objType, const std::string &amp;objName, unsigned int ver)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
       <name>loadObjectDescription</name>
       <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
       <anchor>a11a63641a7455f3f3913e79024287f15</anchor>
       <arglist>(std::string &amp;objType, std::string &amp;objName, unsigned int &amp;ver)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
+      <anchor>a48dfb5e0c92ff016de5a4ec4ab97947c</anchor>
+      <arglist>(SUMlib::ISerializable &amp;so, const std::string &amp;objName)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
@@ -3107,6 +3275,20 @@
       <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
       <anchor>a564042362c1b787f0eb68c563ecdefd3</anchor>
       <arglist>(unsigned int &amp;val, const std::string &amp;valName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
+      <anchor>a2b38e9cbb9323b49f19930308208243e</anchor>
+      <arglist>(long long &amp;val, const std::string &amp;valName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
+      <anchor>a467c43eb11c70f54ad7233d7ebe7fe84</anchor>
+      <arglist>(unsigned long long &amp;val, const std::string &amp;valName)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
@@ -3156,6 +3338,20 @@
       <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
       <anchor>a1e5949897f8fb30f41273fb83c9ce592</anchor>
       <arglist>(std::vector&lt; unsigned int &gt; &amp;vec, const std::string &amp;vecName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
+      <anchor>a040c784e5a01202556d19a3ddcc296a3</anchor>
+      <arglist>(std::vector&lt; long long &gt; &amp;vec, const std::string &amp;vecName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>load</name>
+      <anchorfile>classcasa_1_1TxtDeserializer.html</anchorfile>
+      <anchor>ab84a7eeb3ef3e099120fb11b99175a8f</anchor>
+      <arglist>(std::vector&lt; unsigned long long &gt; &amp;vec, const std::string &amp;vecName)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
@@ -3215,6 +3411,13 @@
       <type>virtual bool</type>
       <name>save</name>
       <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
+      <anchor>adc6f22c3a41d16510aca52c9e196de10</anchor>
+      <arglist>(const SUMlib::ISerializable &amp;so, const std::string &amp;objName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
       <anchor>a4d2630f58b28998756f2df7342cb735f</anchor>
       <arglist>(bool val, const std::string &amp;valName)</arglist>
     </member>
@@ -3231,6 +3434,20 @@
       <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
       <anchor>a9d83af330764a97042c39a7c1ca00c33</anchor>
       <arglist>(unsigned int val, const std::string &amp;valName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
+      <anchor>a963ac24298c331312d3757edb23a0b5b</anchor>
+      <arglist>(long long val, const std::string &amp;valName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
+      <anchor>a5bdf44b2da720eecc24572e558c92c67</anchor>
+      <arglist>(unsigned long long val, const std::string &amp;valName)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
@@ -3280,6 +3497,20 @@
       <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
       <anchor>ab767a2b08a1c4e16684bbb5a42144bc7</anchor>
       <arglist>(const std::vector&lt; unsigned int &gt; &amp;vec, const std::string &amp;vecName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
+      <anchor>a6e5d6d1629d21c759228cc8dd0938aa3</anchor>
+      <arglist>(const std::vector&lt; long long &gt; &amp;vec, const std::string &amp;vecName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1TxtSerializer.html</anchorfile>
+      <anchor>a9ad326015ddfdf98ca66d161854d16b5</anchor>
+      <arglist>(const std::vector&lt; unsigned long long &gt; &amp;vec, const std::string &amp;vecName)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
@@ -3755,6 +3986,13 @@
       <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
+      <anchor>a2b2bbfc8fb19b799b652635857cfa64a</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
       <type>virtual bool</type>
       <name>save</name>
       <anchorfile>classcasa_1_1VarPrmOneCrustThinningEvent.html</anchorfile>
@@ -3808,18 +4046,18 @@
       <anchor>a49ce3bc3fd9db49a1aef3066473773c9</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
     </member>
-    <member kind="variable" protection="protected">
-      <type>std::string</type>
-      <name>m_layerName</name>
-      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
-      <anchor>ad990ed7dff14d40653dd4f164e0530c7</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
       <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
       <anchor>a2b692719e514296e104092d2511df436</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>ac060cdbc1045a4352b202e7db05e5340</anchor>
       <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -3835,6 +4073,13 @@
       <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
       <anchor>a0d8fc5bf9a3b6241592a01714fbd22f3</anchor>
       <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
+      <anchor>ad990ed7dff14d40653dd4f164e0530c7</anchor>
+      <arglist></arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -3881,6 +4126,13 @@
       <name>version</name>
       <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
       <anchor>a0bc693a573d4f754f6832b9491eb8a2c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmTopCrustHeatProduction.html</anchorfile>
+      <anchor>afa4c4526523bd7f5adad78f85e1aa98d</anchor>
       <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
