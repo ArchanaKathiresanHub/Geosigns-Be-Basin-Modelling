@@ -216,6 +216,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    ofs << "for i = 1:length( ProxyQC )\n";
    ofs << "   hold off\n";
+   ofs << "   display( ['  processign plot for observable: ' ProxyQC(i).obsName] );\n";
    ofs << "\n\n";
    ofs << "   % plot all experiments which were used to build proxy, get scale\n";
    ofs << "   for e = 1:length( ProxyQC(i).expNameProxyBld )\n";
@@ -277,11 +278,11 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "   ah=get (gcf, 'currentaxes');\n";
    ofs << "   set( ah, 'fontweight', 'bold' );\n";
-   ofs << "   title( ['QC plot: ' ProxyQC(i).obsName], 'fontweight', 'bold' );\n";
+   ofs << "   title( ['" << m_proxyName << " QC plot: ' ProxyQC(i).obsName], 'fontweight', 'bold' );\n";
    ofs << "\n";
    ofs << "   clear h;\n";
    ofs << "   clear legName;\n";
-   ofs << "   eval( sprintf( 'print proxyQC_Obs_%d.jpg -s 1000x600', i ) )\n";
+   ofs << "   eval( sprintf( 'print "<< m_proxyName << "_proxyQC_Obs_%d.jpg -S1200x800', i ) )\n";
    ofs << "end\n";
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
