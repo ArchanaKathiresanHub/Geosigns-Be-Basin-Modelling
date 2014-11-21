@@ -140,25 +140,6 @@ void elementVolumeCalculations ( const LayerElement&                            
                                  const int                                         numberOfQuadraturePoints = DefaultQuadratureDegree );
                                  
                                  
-/// \brief Compute the area of the element-face indicated by whichBoundary.
-double areaOfElementFace ( const LayerElement&                               element,
-                           const VolumeData::BoundaryId                      whichBoundary,
-                           const FiniteElementMethod::ElementGeometryMatrix& geometryMatrix,
-                           const int                                         numberOfQuadraturePoints = DefaultQuadratureDegree );
-
-/// \brief Compute the area of the element-face indicated by whichBoundary.
-double areaOfElementFace ( const LayerElement&                               element,
-                           const VolumeData::BoundaryId                      whichBoundary,
-                           const int                                         numberOfQuadraturePoints = DefaultQuadratureDegree );
-
-/// \brief Compute the area and area of pore-space of the element-face indicated by whichBoundary.
-void areaOfElementFace ( const LayerElement&                               element,
-                         const VolumeData::BoundaryId                      whichBoundary,
-                         const FiniteElementMethod::ElementGeometryMatrix& geometryMatrix,
-                               double&                                     faceArea,
-                               double&                                     facePoreArea,
-                         const int                                         numberOfQuadraturePoints = DefaultQuadratureDegree );
-
 /// Get the outward pointing normal to the given face.
 ///
 /// Element is orientated in usual fem order.

@@ -10,12 +10,7 @@
 
 #include "array.h"
 
-#include "petscvector_readwrite.h"
-#include "petscdimensions.h"
-#include "h5_file_types.h"
-
 #include "snapshotdata.h"
-#include "PetscVectors.h"
 
 #include "utils.h"
 #include "globaldefs.h"
@@ -211,23 +206,9 @@ private :
                          const int          localK,
                                DoubleArray& propertyData ) const;
 
-  /// Read-in the property values from the file.
-  bool readTimeStepData ( H5_ReadOnly_File&         inFile,
-                          DM                        propertyDA,
-                          SavedPropertyValuesArray& propertyValues );
-
-#if 0
-  void setTimeStepData ( const std::string&        fileName,
-                         DM                        propertyDA,
-                         SavedPropertyValuesArray& propertyValues );
-#endif
-
 
   /// The property values read in from the file
   SavedPropertyValuesArrayVector savedProperties;
-
-  /// Which dimension are we working in.
-  Petsc_3D                       petscD;
 
   /// The coefficients of the interpolants.
   CoefficientArray               allCoefficients;
@@ -326,49 +307,6 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setDA ( const DM  newD
 
 }
 
-//------------------------------------------------------------//
-
-template <class InterpolatorCalculator>
-bool GenericSnapshotInterpolator<InterpolatorCalculator>::readTimeStepData ( H5_ReadOnly_File&         inFile,
-                                                                             DM                        propertyDA,
-                                                                             SavedPropertyValuesArray& propertyValues ) {
-
-
-  bool status = false;
-
-  hid_t groupID = inFile.openGroup ( propertyName.c_str ());
-
-  if ( groupID > -1 ) {
-
-    hid_t dataID = inFile.openDataset ( layerName.c_str (), groupID );
-
-    if ( dataID >= 0 ) {
-      PetscVector_ReadWrite<float>   propertyReader;
-      int I;
-
-      ///
-      /// Is there a better way to read in the data from the hdf file?
-      ///
-      status = propertyReader.collectRawData ( &inFile, dataID, dimensionInfo, &localBuffer, localBufferSize, false );
-      //      status = propertyReader.collectRawData ( &inFile, dataID, dimensionInfo, &propertyValues [ 0 ][ 0 ], size );
-
-      if ( status ) {
-
-        for ( I = 0; I < localBufferSize; I++ ) {
-          propertyValues [ 0 ][ 0 ][ I ] = localBuffer [ I ];
-        }
-
-      }
-
-    }
-
-    inFile.closeDataset ( dataID );
-  }
-
-  inFile.closeGroup ( groupID );
-
-  return status;
-}
 
 //------------------------------------------------------------//
 

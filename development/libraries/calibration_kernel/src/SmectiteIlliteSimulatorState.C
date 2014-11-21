@@ -4,33 +4,35 @@ namespace Calibration
 {
 
 SmectiteIlliteSimulatorState::SmectiteIlliteSimulatorState(const double referenceTime):
-m_initialized(false),
-m_referenceTime(referenceTime),
-m_referenceTemperature(0.0)
+   m_referenceTime(referenceTime),
+   m_referenceTemperature(0.0),
+   m_initialized(false)
 {
    for(int i = 0 ;i < NUMOFSTATEVARIABLES; i++)
    {
-		m_stateVariables[ i ] = 0.0;
+      m_stateVariables[ i ] = 0.0;
    }
 }
+
 SmectiteIlliteSimulatorState::~SmectiteIlliteSimulatorState()
 {
  
 }
+
 void SmectiteIlliteSimulatorState::getStateVariables(double theStateVariables[]) const
 {
- 	for(int i = 0 ;i < NUMOFSTATEVARIABLES; i++)
+   for(int i = 0 ;i < NUMOFSTATEVARIABLES; i++)
    {
-		theStateVariables[ i ] = m_stateVariables[ i ];
+      theStateVariables[ i ] = m_stateVariables[ i ];
    }
 }
+
 void SmectiteIlliteSimulatorState::setStateVariables(double newStateVariables[])
 {
-	for(int i = 0 ;i < NUMOFSTATEVARIABLES; i++)
+   for(int i = 0 ;i < NUMOFSTATEVARIABLES; i++)
    {
-		m_stateVariables[ i ] = newStateVariables[ i ];
+      m_stateVariables[ i ] = newStateVariables[ i ];
    }
-
 }
 
 }

@@ -42,9 +42,9 @@ void NumericFunctions::Quadrature3D::get ( const int       degree,
                                            const int       face,
                                                  Iterator& iter ) {
 
-   int free1;
-   int free2;
-   int fixed;
+   unsigned int free1 = -1;
+   unsigned int free2 = -1;
+   unsigned int fixed = -1;
 
    if ( face == 0 or face == 5 ) {
       free1 = 0;

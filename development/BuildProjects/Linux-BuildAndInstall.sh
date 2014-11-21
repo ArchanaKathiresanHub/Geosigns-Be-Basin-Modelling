@@ -49,6 +49,10 @@ SVN=/glb/home/ksaho3/bin.Linux/svn
 CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/cmake
 CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/ctest
 
+# Set the simplest locale so that there won't be any text conversion problems
+# for the logged output between Linux and Windows
+export LANG=C
+
 # Build applications
 echo Building Cauldron applications
 pushd $build
@@ -66,10 +70,12 @@ source envsetup.sh
 
 make -k -j${nprocs} || { echo error: Build has failed; exit 1 ; } 
 
-if [[ ${configuration} =~ "[Dd]ebug" ]]; then
-   make install || { echo error: Installation has failed; exit 1 ; }
-else
-   make install/strip || { echo error: Installation has failed; exit 1 ; } 
+if [ x$deploy = xTrue ]; then
+   if [[ ${configuration} =~ "[Rr]elease" ]]; then
+      make install/strip || { echo error: Installation has failed; exit 1 ; }
+   else
+      make install || { echo error: Installation has failed; exit 1 ; } 
+   fi
 fi
 
 #Give access for the group g_psaz00 to build folder
@@ -92,7 +98,11 @@ if [ x$geocase = xTrue ]; then
        -DCMAKE_INSTALL_PREFIX=${installdir} \
        -DCMAKE_BUILD_TYPE=${configuration}
    make -j${nprocs}
-   make install/strip
+
+   if [ x$deploy = xTrue ]; then
+      make install/strip
+   fi
+
    popd
 else
    echo Geocase applications have been excluded

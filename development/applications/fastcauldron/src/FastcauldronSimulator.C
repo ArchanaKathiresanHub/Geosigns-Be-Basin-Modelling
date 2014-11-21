@@ -535,10 +535,6 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode)
 
    bool started = false;
 
-#if 0
-   cout << " calculation mode: " << CalculationModeImage [ mode ] << endl;
-#endif
-
    m_calculationMode = mode;
 
    switch ( mode ) {

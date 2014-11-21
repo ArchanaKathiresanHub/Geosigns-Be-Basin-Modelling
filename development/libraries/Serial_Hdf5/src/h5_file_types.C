@@ -65,12 +65,12 @@ hid_t H5_Base_File::createDatasetPropertyList (H5_PropertyList *propertyType)
 
 hid_t H5_Base_File::openGroup (const char *name)
 {
-   return H5Gopen (hFileId, name, NULL);
+   return H5Gopen (hFileId, name, H5P_DEFAULT);
 }
 
 hid_t H5_Base_File::openGroup (const char *name, hid_t locId)
 {
-   return H5Gopen (locId, name, NULL);
+   return H5Gopen (locId, name, H5P_DEFAULT);
 }
 
 void H5_Base_File::closeGroup (hid_t grp)
@@ -80,12 +80,12 @@ void H5_Base_File::closeGroup (hid_t grp)
 
 hid_t H5_Base_File::openDataset (const char *dataname)
 {
-   return H5Dopen (hFileId, dataname, NULL);
+   return H5Dopen (hFileId, dataname, H5P_DEFAULT);
 }
 
 hid_t H5_Base_File::openDataset (const char *dataname, hid_t locId)
 {
-   return H5Dopen (locId, dataname, NULL);
+   return H5Dopen (locId, dataname, H5P_DEFAULT);
 }
 
 void H5_Base_File::closeDataset (hid_t dset)
@@ -132,7 +132,7 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t type,
 hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type, 
                                  H5_FixedSpace& space, hid_t propertyList)
 {
-   hid_t datasetId = H5Dopen (locId, dataname, NULL);
+   hid_t datasetId = H5Dopen (locId, dataname, H5P_DEFAULT);
    if (datasetId >= 0)
    {
       H5Dclose (datasetId);
@@ -164,7 +164,7 @@ hid_t H5_Write_File::addGroup (const char *groupname, hid_t locId)
 hid_t H5_Write_File::addAttribute (const char *attributeName, hid_t locId, hid_t type, 
                                     H5_FixedSpace &space)
 {
-   return H5Acreate (locId, attributeName, type, space.space_id(), H5P_DEFAULT, NULL);
+   return H5Acreate (locId, attributeName, type, space.space_id(), H5P_DEFAULT, H5P_DEFAULT);
 }
 
 bool H5_Write_File::writeDataset (hid_t dataId, const void *buffer, H5_PropertyList *pList,

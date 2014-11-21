@@ -30,8 +30,6 @@ using namespace std;
 
 using namespace PersistentTraps;
 
-#include "utils.h"
-
 static char * argv0 = 0;
 static void showUsage (char * message = 0);
 

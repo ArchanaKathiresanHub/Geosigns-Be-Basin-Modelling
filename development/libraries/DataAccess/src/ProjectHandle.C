@@ -30,8 +30,6 @@
 
 #include "EosPack.h"
 
-#include "MD5.h"
-
 #include "Interface/ProjectHandle.h"
 
 #include "Interface/AllochthonousLithology.h"
@@ -183,11 +181,11 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode ) :
 m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 )
 {
+   (void) accessMode; // ignore warning about unused parameter
+
    m_messageHandler = 0;
    m_globalOperations = 0;
    m_factory = GetFactoryToUse();
-
-   m_outputDir = "";
 
    m_rank = ddd::GetRank();
    m_size = ddd::GetSize();
@@ -319,7 +317,7 @@ bool ProjectHandle::loadModellingMode( void )
 {
    database::Table * projectIoTbl = 0;
 
-   // try to get it from the RunStatusIoTbl
+   // try to get it from the ProjectIoTbl
    projectIoTbl = getTable( "ProjectIoTbl" );
    if ( !projectIoTbl )
       return false;
@@ -532,7 +530,6 @@ bool ProjectHandle::finishActivity( bool isComplete )
    {
       finalizeMapPropertyValuesWriter();
 
-      if ( isComplete ) reportActivityCompletion();
       resetActivityName();
       resetActivityOutputGrid();
 
@@ -587,33 +584,6 @@ bool ProjectHandle::continueActivity( void )
 void ProjectHandle::resetActivityName( void )
 {
    m_activityName = "";
-}
-
-bool ProjectHandle::reportActivityCompletion( void )
-{
-   database::Table* runStatusIoTbl = 0;
-   Record* runStatusRecord = 0;
-
-   const string & outputDir = getOutputDir();
-
-   // try to get it from the RunStatusIoTbl
-   runStatusIoTbl = getTable( "RunStatusIoTbl" );
-   if ( !runStatusIoTbl ) return false;
-
-   runStatusRecord = runStatusIoTbl->createRecord();
-   if ( !runStatusRecord ) return false;
-
-   database::setNrMCLoopsCompleted( runStatusRecord, 1 );
-   database::setMCCurrentSeedNumber( runStatusRecord, 0 );
-   database::setMCStatusOfLastRun( runStatusRecord, m_activityName );
-   database::setMCCalculationScope( runStatusRecord, "" );
-   database::setOutputDirOfLastRun( runStatusRecord, outputDir );
-   database::setRestartTempCalcTimeStep( runStatusRecord, DefaultUndefinedScalarValue );
-   database::setRestartPresCalcTimeStep( runStatusRecord, DefaultUndefinedScalarValue );
-
-
-   database::setOutputDirCreatedBy( runStatusRecord, getProjectName() );
-   return true;
 }
 
 bool ProjectHandle::setActivityName( const string & name )
@@ -1602,7 +1572,6 @@ bool ProjectHandle::loadFormations( void )
 
       stratRecord = *tblIter;
 
-      const std::string& layerName = database::getLayerName( stratRecord );
       int depoSequenceNumber = database::getDepoSequence( stratRecord );
 
       // If the depo-sequence number is the null value then this is the bottom most surface definition.
@@ -2287,7 +2256,7 @@ bool ProjectHandle::loadBottomBoundaryConditions( void )
 {
    database::Table * projectIoTbl = 0;
 
-   // try to get it from the RunStatusIoTbl
+   // try to get it from the BasementIoTbl
    projectIoTbl = getTable( "BasementIoTbl" );
 
    if ( projectIoTbl == 0 ) {
@@ -2459,9 +2428,6 @@ bool ProjectHandle::loadMapPropertyValues( void )
 {
    using Interface::FORMATIONPROPERTY;
    using Interface::RESERVOIRPROPERTY;
-
-   //1DComponent does not have contain HDF5OutputMaps
-   //if (!containsHDF5OutputMaps ()) return false; MAP
 
    database::Table* timeIoTbl = getTable( "TimeIoTbl" );
    database::Table::iterator tblIter;
@@ -2775,7 +2741,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
 
       gridMap->retrieveData();
 
-      int gridMapDepth = gridMap->getDepth();
+      unsigned int gridMapDepth = gridMap->getDepth();
 
       for ( int k = gridMapDepth - 1; k >= 0; --k )
       {
@@ -2792,7 +2758,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
          {
             database::setSurfaceName( timeIoRecord, propertyValue->getFormation()->getBottomSurfaceName() );
          }
-         if ( k == gridMapDepth - 1 )
+         if ( k == static_cast<int>(gridMapDepth - 1) )
          {
             database::setSurfaceName( timeIoRecord, propertyValue->getFormation()->getTopSurfaceName() );
          }
@@ -2905,7 +2871,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld( void )
             gridMap->retrieveData();
          }
 
-         int gridMapDepth = gridMap->getDepth();
+         unsigned int gridMapDepth = gridMap->getDepth();
 
          assert( gridMapDepth == depthGridMap->getDepth() );
 
@@ -3116,6 +3082,8 @@ PropertyValue * ProjectHandle::createVolumePropertyValue( const string & propert
 /// Does not actually download the values of a Property, this is done on demand only.
 static herr_t AddVolumePropertyValue( hid_t groupId, const char * formationName, ProjectHandle * projectHandle )
 {
+   (void) groupId; // ignore compulsary parameter groupId
+
    const Formation * formation = dynamic_cast<const Formation *>( projectHandle->findFormation( formationName ) );
    if ( formation != 0 )
    {
@@ -3176,7 +3144,7 @@ static herr_t ListVolumePropertyValues( hid_t groupId, const char * propertyValu
 /// Does not load the actual values of thr PropertyValues, this is done on demand only.
 bool ProjectHandle::loadVolumePropertyValues( void )
 {
-   if ( !wasProducedByFastCauldron() || Interface::MODE1D == getModellingMode() ) return false;
+   if ( Interface::MODE1D == getModellingMode() ) return false;
 
    database::Table* timeIoTbl = getTable( "3DTimeIoTbl" );
    if ( timeIoTbl == 0 || timeIoTbl->size() == 0 )
@@ -3934,29 +3902,6 @@ const Interface::Trap * ProjectHandle::findTrap( const Interface::Reservoir * re
    return 0;
 }
 
-Interface::TrapperList * ProjectHandle::getTrappers( const Interface::Reservoir * reservoir,
-   const Interface::Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const
-{
-   Interface::TrapperList * trapperList = new Interface::TrapperList;
-
-   MutableTrapperList::const_iterator trapperIter;
-
-   for ( trapperIter = m_trappers.begin(); trapperIter != m_trappers.end(); ++trapperIter )
-   {
-      Trapper * trapper = *trapperIter;
-
-      if ( trapper->matchesConditions( (Reservoir *)reservoir, (Snapshot *)snapshot, id, persistentId ) )
-         trapperList->push_back( trapper );
-   }
-
-   if ( reservoir && snapshot )
-      connectUpAndDownstreamTrappers( trapperList, (Reservoir *)reservoir, (Snapshot *)snapshot );
-   else
-      connectUpAndDownstreamTrappers();
-
-   return trapperList;
-}
-
 Interface::MigrationList * ProjectHandle::getMigrations( const string & process, const Interface::Formation * sourceFormation,
    const Interface::Snapshot * sourceSnapshot, const Interface::Reservoir * sourceReservoir, const Interface::Trapper * sourceTrapper,
    const Interface::Snapshot * destinationSnapshot, const Interface::Reservoir * destinationReservoir, const Interface::Trapper * destinationTrapper
@@ -4182,7 +4127,6 @@ void splitFilePath( const string & filePath, string & directoryName, string & fi
       fileName = filePath;
    }
 }
-
 
 void ProjectHandle::printPropertyValues( Interface::PropertyValueList * propertyValues ) const
 {
@@ -4689,9 +4633,8 @@ bool ProjectHandle::loadFracturePressureFunctionParameters()
    if ( !pressureFuncIoTbl )
       return false;
 
-   int r = 0;
-   Record* pressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( r );
-   for ( r = 0; r < pressureFuncIoTbl->size(); ++r )
+   Record* pressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( 0 );
+   for ( size_t r = 0; r < pressureFuncIoTbl->size(); ++r )
    {
       Record* curPressureFuncIoTblRecord = pressureFuncIoTbl->getRecord( r );
       if ( database::getSelected( curPressureFuncIoTblRecord ) == 1 )
@@ -5011,7 +4954,7 @@ bool ProjectHandle::connectMigrations( void )
          int sourceTrapperId = database::getSourceTrapID( migration->getRecord() );
          if ( sourceTrapperId > 0 )
          {
-            Trapper * sourceTrapper = (Trapper *)findTrapper( migration->getSourceReservoir(), migration->getSourceSnapshot(), sourceTrapperId, 0 );
+            Trapper * sourceTrapper = findTrapper( migration->getSourceReservoir(), migration->getSourceSnapshot(), sourceTrapperId, 0 );
             if ( sourceTrapper == 0 ) throw RecordException( "Cannot find Trapper: %:%:%", sourceAge, sourceReservoirName, sourceTrapperId );
             migration->setSourceTrapper( sourceTrapper );
          }
@@ -5019,7 +4962,7 @@ bool ProjectHandle::connectMigrations( void )
          int destinationTrapperId = database::getDestinationTrapID( migration->getRecord() );
          if ( destinationTrapperId > 0 )
          {
-            Trapper * destinationTrapper = (Trapper *)findTrapper( migration->getDestinationReservoir(), migration->getDestinationSnapshot(), destinationTrapperId, 0 );
+            Trapper * destinationTrapper = findTrapper( migration->getDestinationReservoir(), migration->getDestinationSnapshot(), destinationTrapperId, 0 );
             if ( destinationTrapper == 0 ) throw RecordException( "Cannot find Trapper: %:%:%", destinationAge, destinationReservoirName, destinationTrapperId );
             migration->setDestinationTrapper( destinationTrapper );
          }
@@ -5067,8 +5010,8 @@ bool ProjectHandle::connectUpAndDownstreamTrappers( void ) const
          int downstreamTrapperId = database::getDestinationTrapID( migrationRecord );
          if ( upstreamTrapperId <= 0 || downstreamTrapperId <= 0 || upstreamTrapperId == downstreamTrapperId ) continue;
 
-         Trapper * upstreamTrapper = (Trapper *)findTrapper( ( Interface::Reservoir * ) reservoir, ( Interface::Snapshot * ) snapshot, upstreamTrapperId, 0 );
-         Trapper * downstreamTrapper = (Trapper *)findTrapper( ( Interface::Reservoir * ) reservoir, ( Interface::Snapshot * ) snapshot, downstreamTrapperId, 0 );
+         Trapper * upstreamTrapper = findTrapper( ( Interface::Reservoir * ) reservoir, ( Interface::Snapshot * ) snapshot, upstreamTrapperId, 0 );
+         Trapper * downstreamTrapper = findTrapper( ( Interface::Reservoir * ) reservoir, ( Interface::Snapshot * ) snapshot, downstreamTrapperId, 0 );
          if ( upstreamTrapper == 0 || downstreamTrapper == 0 ) continue;
 
          if ( upstreamTrapper->getDownstreamTrapper() != 0 || upstreamTrapper->getDownstreamTrapper() == downstreamTrapper ) continue;
@@ -5086,66 +5029,15 @@ bool ProjectHandle::connectUpAndDownstreamTrappers( void ) const
    return true;
 }
 
-bool ProjectHandle::connectUpAndDownstreamTrappers( Interface::TrapperList * trappers, Reservoir * reservoir, const Snapshot * snapshot ) const
-{
-   assert( reservoir );
-   assert( snapshot );
 
-   if ( reservoir->trappersAreUpAndDownstreamConnected( snapshot->getTime() ) )
-   {
-      return true;
-   }
-
-   database::Table* migrationTbl = getTable( "MigrationIoTbl" );
-   database::Table::iterator tblIter;
-
-   bool validRecordEncountered = false;
-
-   for ( tblIter = migrationTbl->begin(); tblIter != migrationTbl->end(); ++tblIter )
-   {
-      Record * migrationRecord = *tblIter;
-      if ( database::getMigrationProcess( migrationRecord ) != "Spill" ) continue;
-
-      if ( database::getSourceAge( migrationRecord ) != snapshot->getTime() )
-      {
-         if ( !validRecordEncountered ) continue;
-         else break;
-      }
-
-      if ( database::getSourceReservoirName( migrationRecord ) != reservoir->getName() )
-      {
-         if ( !validRecordEncountered ) continue;
-         else break;
-      }
-
-      validRecordEncountered = true;
-
-      int upstreamTrapperId = database::getSourceTrapID( migrationRecord );
-      int downstreamTrapperId = database::getDestinationTrapID( migrationRecord );
-      if ( upstreamTrapperId <= 0 || downstreamTrapperId <= 0 || upstreamTrapperId == downstreamTrapperId ) continue;
-
-      Trapper * upstreamTrapper = (Trapper *)findTrapper( *trappers, reservoir, snapshot, upstreamTrapperId, 0 );
-      Trapper * downstreamTrapper = (Trapper *)findTrapper( *trappers, reservoir, snapshot, downstreamTrapperId, 0 );
-      if ( upstreamTrapper == 0 || downstreamTrapper == 0 ) continue;
-
-      if ( upstreamTrapper->getDownstreamTrapper() != 0 || upstreamTrapper->getDownstreamTrapper() == downstreamTrapper ) continue;
-
-      upstreamTrapper->setDownstreamTrapper( downstreamTrapper );
-      downstreamTrapper->addUpstreamTrapper( upstreamTrapper );
-   }
-
-   reservoir->setTrappersUpAndDownstreamConnected( snapshot->getTime() );
-   return true;
-}
-
-const Interface::Trapper * ProjectHandle::findTrapper( Interface::TrapperList & trappers, const Interface::Reservoir * reservoir,
+Interface::Trapper * ProjectHandle::findTrapper( const Interface::MutableTrapperList & trappers, const Interface::Reservoir * reservoir,
    const Interface::Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const
 {
-   Interface::TrapperList::iterator trapperIter;
+   Interface::MutableTrapperList::const_iterator trapperIter;
 
    for ( trapperIter = trappers.begin(); trapperIter != trappers.end(); ++trapperIter )
    {
-      Trapper * trapper = (Trapper *)* trapperIter;
+      Trapper * trapper = * trapperIter;
 
       if ( trapper->matchesConditions( (Reservoir *)reservoir, (Snapshot *)snapshot, id, persistentId ) )
          return trapper;
@@ -5153,10 +5045,10 @@ const Interface::Trapper * ProjectHandle::findTrapper( Interface::TrapperList & 
    return 0;
 }
 
-const Interface::Trapper * ProjectHandle::findTrapper( const Interface::Reservoir * reservoir,
+Interface::Trapper * ProjectHandle::findTrapper( const Interface::Reservoir * reservoir,
    const Interface::Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const
 {
-   return findTrapper( ( Interface::TrapperList & ) m_trappers, reservoir, snapshot, id, persistentId );
+   return findTrapper( m_trappers, reservoir, snapshot, id, persistentId );
 }
 
 void ProjectHandle::deleteTimeOutputProperties() {
@@ -5699,64 +5591,8 @@ void ProjectHandle::deletePointHistories() {
 /// Get a project's output directory
 const string & ProjectHandle::getOutputDir( void ) const
 {
-   const static string emptyString = "";
-   database::Table* runStatusIoTbl = 0;
-   Record * runStatusRecord = 0;
-
-   if ( m_outputDir != "" ) return m_outputDir;
-
-#ifdef BUGGY
-   // try to get it from the RunStatusIoTbl
-   runStatusIoTbl = getTable ("RunStatusIoTbl");
-   if (runStatusIoTbl && runStatusIoTbl->size () > 0)
-   {
-      runStatusRecord = runStatusIoTbl->getRecord (runStatusIoTbl->size () - 1);
-      if (!runStatusRecord) return emptyString;
-
-      m_outputDir = database::getOutputDirOfLastRun (runStatusRecord);
-      if (m_outputDir != "")
-      {
-         return m_outputDir;
-      }
-   }
-#else
-   m_outputDir = getProjectName();
-   m_outputDir += "_CauldronOutputDir";
-#endif
-
-   return m_outputDir;
+   return getProjectName() +  "_CauldronOutputDir";
 }
-
-bool ProjectHandle::setOutputDir(  const string & fileOrDirName ) const
-{
-   Table * runStatusIoTbl = getTable( "RunStatusIoTbl" );
-   if ( !runStatusIoTbl || runStatusIoTbl->size() == 0 ) return false;
-
-   Record * runStatusRecord = runStatusIoTbl->getRecord( 0 );
-   assert( runStatusRecord );
-
-   if ( fileOrDirName.length() == 0 ) return false;
-   string projectName = fileOrDirName;
-
-   string::size_type dotPos = projectName.rfind( ".project" );
-   if ( dotPos != string::npos )
-   {
-      projectName.erase( dotPos, string::npos );
-   }
-
-   string::size_type slashPos = projectName.rfind( "_CauldronOutputDir" );
-   if ( slashPos != string::npos )
-   {
-      projectName.erase( slashPos, string::npos );
-   }
-
-   string dirName = projectName + "_CauldronOutputDir";
-
-   setOutputDirCreatedBy( runStatusRecord, projectName );
-   setOutputDirOfLastRun( runStatusRecord, dirName );
-   return true;
-}
-
 
 void ProjectHandle::resetSnapshotIoTbl(  ) const
 {
@@ -5764,47 +5600,13 @@ void ProjectHandle::resetSnapshotIoTbl(  ) const
    Table * table = getTable( "SnapshotIoTbl" );
    if ( !table ) return;
 
-   for ( int i = 0; i < table->size(); ++i )
+   for ( size_t i = 0; i < table->size(); ++i )
    {
       Record * record = table->getRecord( i );
       setSnapshotFileName( record, "" );
    }
 }
 
-
-/// Check whether the outputs of a project were produced by FastCauldron
-bool ProjectHandle::wasProducedByFastCauldron( void ) const
-{
-#if 0
-   Table * runStatusIoTbl = getTable ("RunStatusIoTbl");
-   if (!runStatusIoTbl || runStatusIoTbl->size () == 0) return false;
-
-   Record * runStatusRecord = runStatusIoTbl->getRecord (0);
-   if (!runStatusRecord) return false;
-
-   const string & runStatus = database::getMCStatusOfLastRun (runStatusRecord);
-
-   if (runStatus.find ("Fast") == string::npos) return false;
-   else return true;
-#else
-   return true;
-#endif
-}
-
-/// Check whether the 2-D output map files are in HDF5 format.
-bool ProjectHandle::containsHDF5OutputMaps( void ) const
-{
-   database::Table* ioOptionsIoTbl = getTable( "IoOptionsIoTbl" );
-   if ( !ioOptionsIoTbl || ioOptionsIoTbl->size() == 0 ) return false;
-
-   Record * ioOptionsRecord = ioOptionsIoTbl->getRecord( 0 );
-   if ( !ioOptionsRecord ) return false;
-
-   const string & mapType = database::getMapType( ioOptionsRecord );
-
-   if ( mapType != "HDF5" ) return false;
-   else return true;
-}
 
 const Grid * ProjectHandle::findOutputGrid( int numI, int numJ ) const
 {

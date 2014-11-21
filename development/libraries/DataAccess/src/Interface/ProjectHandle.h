@@ -104,9 +104,6 @@ namespace DataAccess
          /// start a new activity
          bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false );
 
-         /// report completion of an activity to the in-core project file.
-         bool reportActivityCompletion( void );
-
          /// Restart an activity.
          bool restartActivity( void );
 
@@ -264,18 +261,13 @@ namespace DataAccess
             const Snapshot * destinationSnapshot, const Reservoir * destinationReservoir, const Trapper * destinationTrapper
             ) const;
 
-         /// return a list of Trapper objects based on the given arguments.
-         /// if an argument equals 0, it is used as a wildcard.
-         virtual TrapperList * getTrappers( const Reservoir * reservoir,
-            const Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const;
-
          /// return a list of Trap objects based on the given arguments.
          /// if an argument equals 0, it is used as a wildcard.
          virtual TrapList * getTraps( const Reservoir * reservoir, const Snapshot * snapshot, unsigned int id ) const;
 
          /// return a Trapper that meets the given condition arguments.
          /// If an argument equals 0, it is used as a wildcard.
-         virtual const Trapper * findTrapper( const Reservoir * reservoir,
+         virtual Trapper * findTrapper( const Reservoir * reservoir,
             const Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const;
 
          /// return a Trap that meets the given condition arguments.
@@ -354,7 +346,6 @@ namespace DataAccess
 
          void printPropertyValues( PropertyValueList * propertyValues ) const;
 
-
          void addProperty( Property * property );
          // Function supporting the implementation
          PropertyValue * addPropertyValue( database::Record * record, const string & name, const Property * property, const Snapshot * snapshot,
@@ -391,8 +382,6 @@ namespace DataAccess
          virtual const string & getOutputDir( void ) const;
          virtual const string  getFullOutputDir( void ) const;
          virtual bool makeOutputDir() const;
-
-         bool setOutputDir( const string & fileOrDirName ) const;
 
          void resetSnapshotIoTbl(  ) const;
 
@@ -641,9 +630,6 @@ namespace DataAccess
          bool loadLithoTypes( void );
          bool loadTouchstoneMaps( void );
 
-#if 0
-         bool loadSourceRocks (void);
-#endif
          bool loadSurfaces( void );
          bool loadFormations( void );
          bool loadReservoirs( void );
@@ -738,9 +724,7 @@ namespace DataAccess
          /// Connect spilling traps
          bool connectUpAndDownstreamTrappers( void ) const;
 
-         bool connectUpAndDownstreamTrappers( TrapperList * trappers, Reservoir * reservoir, const Snapshot * snapshot ) const;
-
-         const Trapper * findTrapper( TrapperList & trappers, const Reservoir * reservoir,
+         Trapper * findTrapper( const MutableTrapperList & trappers, const Reservoir * reservoir,
             const Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const;
 
          void numberInputValues( void );
@@ -811,13 +795,6 @@ namespace DataAccess
          void deletePointHistories();
          void deleteIrreducibleWaterSaturationSample();
          void deleteSGDensitySample();
-
-
-         /// Check whether the results of this project were produced by fastcauldron
-         bool wasProducedByFastCauldron( void ) const;
-         /// Check whether the output maps are in HDF5 format.
-         bool containsHDF5OutputMaps( void ) const;
-
 
          MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
          MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;

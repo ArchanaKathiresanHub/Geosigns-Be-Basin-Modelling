@@ -11,7 +11,8 @@ GeneralException
 
 GeneralException
    :: GeneralException(const GeneralException & other)
-   : m_message(other.m_message.str())
+   : std::exception(other)
+   , m_message(other.m_message.str())
    , m_formatted()
 {}
 

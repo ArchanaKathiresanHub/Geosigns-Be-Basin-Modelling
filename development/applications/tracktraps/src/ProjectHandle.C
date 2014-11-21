@@ -1,22 +1,9 @@
-#include <assert.h>
-
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using namespace std;
-#endif // sgi
-
+#include <cassert>
+#include <iostream>
 
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
-using namespace database;
 
 #include "ProjectHandle.h"
 #include "Reservoir.h"
@@ -25,8 +12,10 @@ using namespace database;
 
 #include "Interface/Snapshot.h"
 
+using namespace database;
 using namespace DataAccess;
 using namespace PersistentTraps;
+using namespace std;
 
 static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
 
@@ -42,14 +31,6 @@ ProjectHandle::~ProjectHandle (void)
 
 bool ProjectHandle::createPersistentTraps (void)
 {
-#ifdef NOTIMPLEMENTED
-   if (!migrationCompleted ())
-   {
-      cerr << "Migration has not been performed on this project" << endl;
-      return false;
-   }
-#endif
-
    Interface::SnapshotList * snapshots = getSnapshots (MAJOR);
 
    Interface::SnapshotList::const_iterator snapshotIter;
@@ -69,9 +50,6 @@ bool ProjectHandle::createPersistentTraps (void)
 
       if (result) result = determineTrapExtents (snapshot);
       if (result) result = determineTrapPorosities (snapshot);
-#ifdef MAPSUNAVAILABLE
-      if (result) result = determineTrapSealPermeabilities (snapshot);
-#endif
       if (result) result = determineReservoirDepths (snapshot);
 
       if (!result)
@@ -85,40 +63,8 @@ bool ProjectHandle::createPersistentTraps (void)
       previousSnapshot = snapshot;
    }
 
-#ifdef NOTIMPLEMENTED
-   Interface::ProjectHandle::deletePersistentTraps ();
-#endif
-
    savePersistentTraps ();
    deletePersistentTraps ();
-
-#ifdef NOTIMPLEMENTED
-   Interface::ProjectHandle::loadPersistentTraps ();
-#endif
-
-   return true;
-}
-
-bool ProjectHandle::migrationCompleted (void)
-{
-   Table *runStatusIoTbl = getTable ("RunStatusIoTbl");
-
-   assert (runStatusIoTbl);
-
-   if (runStatusIoTbl->size () == 0)
-   {
-      return false;
-   }
-
-   Record *runStatusIoRecord = runStatusIoTbl->getRecord (0);
-
-   assert (runStatusIoRecord);
-   string runStatus = getMCStatusOfLastRun (runStatusIoRecord);
-
-   if (runStatus != "XmigCalculated" && runStatus != "FastXmigCalculated")
-   {
-      return false;
-   }
 
    return true;
 }

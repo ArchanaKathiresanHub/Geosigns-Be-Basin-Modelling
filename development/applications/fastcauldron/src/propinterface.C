@@ -78,7 +78,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 {
    database = 0;
    timeIoTbl = 0;
-   runStatusIoTbl = 0;
    m_saveOnDarcyError = false;
 
    Reference_DA_For_Io_Maps = 0;
@@ -1331,25 +1330,6 @@ bool AppCtx::openProject ()
    threeDTimeIoTbl = database->getTable ("3DTimeIoTbl");
    PETSC_ASSERT (threeDTimeIoTbl);
 
-   runStatusIoTbl = database->getTable ("RunStatusIoTbl");
-   PETSC_ASSERT (runStatusIoTbl);
-
-   if ( runStatusIoTbl->size() == 0 ) {
-
-     runStatusIoTbl->clear ();
-     Record * record = runStatusIoTbl->createRecord ();
-
-     setNrMCLoopsCompleted (record, 1);
-     setMCCurrentSeedNumber (record, 367);
-     setMCStatusOfLastRun (record, "Initial");
-     setMCCalculationScope (record, "INITIAL");
-     setOutputDirOfLastRun (record, "");
-     setOutputDirCreatedBy (record, "");
-     setRestartTempCalcTimeStep ( record, IBSNULLVALUE );
-     setRestartPresCalcTimeStep ( record, IBSNULLVALUE );
-
-   }
-
    database::Table * ioOptionsIoTbl;
    ioOptionsIoTbl = database->getTable ("IoOptionsIoTbl");
    PETSC_ASSERT (ioOptionsIoTbl);
@@ -1781,17 +1761,6 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
 
 //------------------------------------------------------------//
 
-Record * AppCtx::getRunStatusRecord (void)
-{
-   PETSC_ASSERT (runStatusIoTbl);
-   Record * record = runStatusIoTbl->getRecord (0);
-   PETSC_ASSERT (record);
-   return record;
-}
-
-
-//------------------------------------------------------------//
-
 void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
 
   database::Table* localTimeIoTbl = database->getTable ("TimeIoTbl");
@@ -1928,65 +1897,7 @@ void AppCtx::deleteMinorSnapshotsFromTimeIOTable ( const snapshottimeContainer& 
       deleteTimeIORecord (*ssIter);
    }
 
-#if 0
-  PropListVec::const_iterator propIter;
-  SnapshotConstIterator ssIter;
-
-  for ( propIter = properties.begin(); propIter != properties.end (); ++propIter ) {
-
-    for ( ssIter = savedMinorSnapshotTimes.rbegin (); ssIter != savedMinorSnapshotTimes.rend (); ++ssIter ) {
-      deleteTimeIORecord ( timefilter.getPropertyName( *propIter ), *ssIter );
-    }
-
-  }
-#endif
-
 }
-
-//------------------------------------------------------------//
-
-#if 0
-bool AppCtx::updateRunStatusIOTable ( const string& lastRunStatus ) {
-
-   database::Table*  localRunStatusIoTbl = 0;
-   database::Record* runStatusRecord = 0;
-
-   const string outputDir = getOutputDirectory ();
-   string projectName = getProjectName ();
-
-   // try to get it from the RunStatusIoTbl
-   localRunStatusIoTbl = database->getTable ("RunStatusIoTbl");
-
-   if (localRunStatusIoTbl == 0 ) {
-     return false;
-   }
-
-   runStatusRecord = localRunStatusIoTbl->createRecord ();
-
-   if (!runStatusRecord) {
-     return false;
-   }
-
-   database::setNrMCLoopsCompleted (runStatusRecord, 0);
-   database::setMCCurrentSeedNumber (runStatusRecord, 0);
-   database::setMCCalculationScope (runStatusRecord, "");
-   database::setOutputDirOfLastRun (runStatusRecord, outputDir);
-   database::setMCStatusOfLastRun ( runStatusRecord, lastRunStatus );
-   database::setRestartTempCalcTimeStep ( runStatusRecord, IBSNULLVALUE );
-   database::setRestartPresCalcTimeStep ( runStatusRecord, IBSNULLVALUE );
-
-   string::size_type dotPos = projectName.rfind (".project");
-
-   if (dotPos != string::npos) {
-     projectName.erase (dotPos, string::npos);
-   }
-
-   database::setOutputDirCreatedBy (runStatusRecord, projectName);
-   return true;
-
-
-}
-#endif
 
 //------------------------------------------------------------//
 

@@ -201,22 +201,6 @@ int main (int argc, char ** argv)
 
    if (inputonly)
    {
-      Table *runStatusIoTbl = tables->getTable ("RunStatusIoTbl");
-
-      assert (runStatusIoTbl);
-
-      runStatusIoTbl->clear ();
-      Record *runStatusIoRecord = runStatusIoTbl->createRecord ();
-
-      setNrMCLoopsCompleted (runStatusIoRecord, 1);
-      setMCCurrentSeedNumber (runStatusIoRecord, 367);
-      setMCStatusOfLastRun (runStatusIoRecord, "Initial");
-      setMCCalculationScope (runStatusIoRecord, "INITIAL");
-      setOutputDirOfLastRun (runStatusIoRecord, "");
-      setOutputDirCreatedBy (runStatusIoRecord, "");
-      setRestartTempCalcTimeStep (runStatusIoRecord, 99999);
-      setRestartPresCalcTimeStep (runStatusIoRecord, 99999);
-
       tables->clearTable ("TimeIoTbl");
       tables->clearTable ("DepthIoTbl");
       tables->clearTable ("TrapIoTbl");

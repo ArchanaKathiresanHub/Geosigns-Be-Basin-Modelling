@@ -9,8 +9,8 @@ ChemicalCompactionSchneiderGrid :: ChemicalCompactionSchneiderGrid( DM* mapViewO
 		const LayerList & layerList ) :
 		ChemicalCompactionGrid( mapViewOfDomain, layerList ),
 		m_currentTemperature ( getNumberOfNodes( mapViewOfDomain, layerList) ),
-		m_ves ( getNumberOfNodes( mapViewOfDomain, layerList) ),
-		m_porosity ( getNumberOfNodes( mapViewOfDomain, layerList) )
+		m_porosity ( getNumberOfNodes( mapViewOfDomain, layerList) ),
+		m_ves ( getNumberOfNodes( mapViewOfDomain, layerList) )
 {
 
 }

@@ -117,15 +117,9 @@ set(all_srcs)
 set(all_headers)
 set(all_dependent_libs)
 
-#if (UNIX)
-   set(all_srcs ${cross_platform_srcs} ${unix_only_srcs})
-   set(all_headers ${cross_platform_headers} ${unix_only_headers})
-   set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs} )
-#elseif( WIN32 )
-#   set(all_srcs ${cross_platform_srcs})
-#   set(all_headers ${cross_platform_headers})
-#   set(all_dependent_libs ${cross_platform_libs} )
-#endif()
+set(all_srcs ${cross_platform_srcs} ${unix_only_srcs})
+set(all_headers ${cross_platform_headers} ${unix_only_headers})
+set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs} )
 
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
@@ -135,6 +129,8 @@ add_library( GeoPhysics
 	${all_srcs}
 	${all_headers}
 )
+
+add_dependencies(GeoPhysics Boost)
 
 bm_include_libraries( 
         DataModel

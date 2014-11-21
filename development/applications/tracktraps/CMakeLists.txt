@@ -18,7 +18,6 @@ add_executable(tracktraps
 	src/Trap.C
 	src/generics.C
 	src/main.C
-	src/utils.C
 )
 
 bm_include_libraries(

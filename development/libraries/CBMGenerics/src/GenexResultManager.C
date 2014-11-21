@@ -48,7 +48,7 @@ GenexResultManager::GenexResultManager()
    // Add degree sign
    tempResultUnits [0][0]=char ( 167 );
    tempResultUnits [1][0]=char ( 167 );
-#endif 0
+#endif 
 
    for(i = 0; tempResultUnits[i] != ""; ++i)  
    {

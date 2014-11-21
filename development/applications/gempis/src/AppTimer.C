@@ -33,9 +33,9 @@
 // calling class.
 //
 AppTimer::AppTimer( QObject * receiver, char * member ) :
-  m_duration( 1000 ),
   m_receiver( receiver ),
-  m_member( member )
+  m_member( member ),
+  m_duration( 1000 )
 {
 #ifdef DEBUG_APPTIMER
   cout << this << " AppTimer::AppTimer()" << endl;

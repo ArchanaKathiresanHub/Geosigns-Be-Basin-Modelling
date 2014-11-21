@@ -461,7 +461,6 @@ string InputValue::saveToDirectory (const string & directory)
    }
 }
 
-
 GridMap * InputValue::loadGridMap (void) const
 {
    assert (m_record);

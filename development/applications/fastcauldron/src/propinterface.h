@@ -23,7 +23,6 @@
 #include "timefilter.h"
 #include "filterwizard.h"
 #include "utils.h"
-#include "profile.h"
 #include "fileio.h"
 #include "System.h"
 #include <algorithm>
@@ -326,8 +325,6 @@ public:
 
   void initialiseTimeIOTable ( const string& currentOperation );
 
-   database::Record * getRunStatusRecord (void);
-
    typedef std::vector<double> DoubleVector;
 
    
@@ -351,12 +348,9 @@ public:
    //FT stuff
    void writeFissionTrackResultsToDatabase(const FissionTrackCalculator &theFTCalculator);
 
-   inline bool setRunStatus (const string & property, const string & value);
-
    database::Database * database;
    database::Table * timeIoTbl;
    database::Table * threeDTimeIoTbl;
-   database::Table * runStatusIoTbl;
 
    LayerList layers;
 
@@ -496,8 +490,6 @@ public:
 
    bool Create_Reference_DA_for_Io_Maps ();
 
-  // bool updateRunStatusIOTable ( const string& lastRunStatus );
-
    /// \brief Determine if exitat has been enabled.
    bool exitAtAgeDefined () const;
 
@@ -592,14 +584,6 @@ public:
  
 
 };
-
-/*  template <class Type> */
-bool AppCtx::setRunStatus (const string & property, const string & value)
-{
-   database::Record * record = getRunStatusRecord ();
-   record->setValue (property, value);
-   return true;
-}
 
 inline bool AppCtx::exitAtAgeDefined () const {
    return m_exitAtAgeSet;

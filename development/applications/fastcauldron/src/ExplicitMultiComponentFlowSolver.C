@@ -1201,10 +1201,8 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
       return 0.0;
    }
 
-   double pressureGradient;
-   double permeabilityValue;
-
-   pressureGradient = 0.0;
+   double pressureGradient = 0.0;
+   double permeabilityValue = -1.0;
 
    switch ( face ) {
 

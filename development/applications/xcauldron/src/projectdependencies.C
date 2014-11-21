@@ -53,15 +53,6 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
       }
    }
 
-   Table * runStatusTbl = projBase->getTable ("RunStatusIoTbl");
-   if (runStatusTbl == 0 || runStatusTbl->size() == 0)
-   {
-      return dependencies;
-   }
-
-   Record * runStatusRcrd = runStatusTbl->getRecord (0);
-   assert (runStatusRcrd);
-
    Table * ioOptionsTbl = projBase->getTable ("IoOptionsIoTbl");
    if (ioOptionsTbl == 0 || ioOptionsTbl->size() == 0)
    {
@@ -73,7 +64,8 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
 
    const string & mapType = getMapType (ioOptionsRcrd);
 
-   std::string outputDir = getOutputDirOfLastRun (runStatusRcrd);
+   std::string fileName = projBase->getFileName();
+   std::string outputDir = std::string( fileName, 0, fileName.rfind(".project")) + "_CauldronOutputDir";
    int dirLength = outputDir.length ();
    if (dirLength > 0 && outputDir[dirLength - 1] == '/')
       outputDir.erase (dirLength - 1, string::npos);

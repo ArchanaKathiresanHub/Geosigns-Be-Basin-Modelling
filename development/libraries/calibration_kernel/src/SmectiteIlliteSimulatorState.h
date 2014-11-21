@@ -18,85 +18,93 @@ class SmectiteIlliteSimulatorState
 public:
    SmectiteIlliteSimulatorState(const double referenceTime = 0.0);
    ~SmectiteIlliteSimulatorState();
- 
-	 enum StateVariableId
+
+   enum StateVariableId
    { 
       STOTAL = 0,               
       TOTAL1 = 1,
       TOTAL2 = 2,
       TOTALX = 3,
-    	NUMOFSTATEVARIABLES = 4
+      NUMOFSTATEVARIABLES = 4
    };
-	
-	void getStateVariables(double theStateVariables[]) const;
- 	void setStateVariables(double newStateVariables[]); 
 
- 	void setReferenceTime(const double &inTime); 
- 	double getReferenceTime() const;
+   void getStateVariables(double theStateVariables[]) const;
+   void setStateVariables(double newStateVariables[]); 
 
-	double getReferenceTemperature() const;
-	void setReferenceTemperature(const double &inTemperature); 
-	bool isInitialized() const;
-	void setAsInitialized();
-	void setAsNotInitialized();
-	SmectiteIlliteSimulatorState & operator=(const SmectiteIlliteSimulatorState &inValue)
-	{
-		if(this != &inValue)	
-		{
-	   	m_referenceTime 			= inValue.m_referenceTime;
-	   	m_referenceTemperature 	= inValue.m_referenceTemperature;
-			m_initialized 				= inValue.m_initialized;    
-			for(int i = 0; i < NUMOFSTATEVARIABLES; i++)
-   		{
-				m_stateVariables[ i ] = inValue.m_stateVariables[ i ];
-   		}
-		}
-		return *this;
-	}
-	SmectiteIlliteSimulatorState(const SmectiteIlliteSimulatorState &inValue)
-	{
-	   m_referenceTime 			= inValue.m_referenceTime;
-	   m_referenceTemperature 	= inValue.m_referenceTemperature;
-		m_initialized 				= inValue.m_initialized;    
-		for(int i = 0; i < NUMOFSTATEVARIABLES; i++)
-   	{
-			m_stateVariables[ i ] = inValue.m_stateVariables[ i ];
-   	}
-	}
+   void setReferenceTime(const double &inTime); 
+   double getReferenceTime() const;
+
+   double getReferenceTemperature() const;
+   void setReferenceTemperature(const double &inTemperature); 
+   bool isInitialized() const;
+   void setAsInitialized();
+   void setAsNotInitialized();
+
+   SmectiteIlliteSimulatorState & operator=(const SmectiteIlliteSimulatorState &inValue)
+   {
+      if(this != &inValue)	
+      {
+         m_referenceTime = inValue.m_referenceTime;
+         m_referenceTemperature	= inValue.m_referenceTemperature;
+         m_initialized 	= inValue.m_initialized;    
+         for(int i = 0; i < NUMOFSTATEVARIABLES; i++)
+         {
+            m_stateVariables[ i ] = inValue.m_stateVariables[ i ];
+         }
+      }
+      return *this;
+   }
+
+   SmectiteIlliteSimulatorState(const SmectiteIlliteSimulatorState &inValue)
+   {
+      m_referenceTime = inValue.m_referenceTime;
+      m_referenceTemperature = inValue.m_referenceTemperature;
+      m_initialized = inValue.m_initialized;    
+      for(int i = 0; i < NUMOFSTATEVARIABLES; i++)
+      {
+            m_stateVariables[ i ] = inValue.m_stateVariables[ i ];
+      }
+   }
 
 private:
    double m_referenceTime;  
-	double m_referenceTemperature; 
-	bool m_initialized;     
+   double m_referenceTemperature; 
+   bool m_initialized;     
    double m_stateVariables[NUMOFSTATEVARIABLES];
 };
+
 inline void SmectiteIlliteSimulatorState::setReferenceTime(const double &inTime) 
 {
    m_referenceTime = inTime;
 }
+
 inline double SmectiteIlliteSimulatorState::getReferenceTime() const 
 {
    return m_referenceTime;
 }
+
 inline double SmectiteIlliteSimulatorState::getReferenceTemperature() const
 {
-	return m_referenceTemperature;
+   return m_referenceTemperature;
 }
+
 inline void SmectiteIlliteSimulatorState::setReferenceTemperature(const double &inTemperature) 
 {
-	m_referenceTemperature = inTemperature;
+   m_referenceTemperature = inTemperature;
 }  
+
 inline bool SmectiteIlliteSimulatorState::isInitialized() const
 {
-	return m_initialized;
+   return m_initialized;
 }
+
 inline void SmectiteIlliteSimulatorState::setAsInitialized()
 {
-	m_initialized = true;
+   m_initialized = true;
 }
 inline void SmectiteIlliteSimulatorState::setAsNotInitialized()
 {
-	m_initialized = false;
+   m_initialized = false;
 }
 
 

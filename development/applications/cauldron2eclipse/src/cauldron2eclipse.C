@@ -54,8 +54,6 @@ const int CornerOffsets[NumCorners][3] = { {0, 0, -1}, {1, 0, -1}, {1, 1, -1}, {
 
 static char * argv0 = 0;
 static void showUsage (const char * message = 0);
-static void changeUndefinedValue (double & var, double oldValue, double newValue);
-static int ss = 1;
 
 bool verbose = false;
 bool debug = false;
@@ -107,16 +105,6 @@ void writeValue (T value, bool swapMode)
 static double PascalToMegaPascal (double in)
 {
    return 1e-6 * in;
-}
-
-static double MegaPascalToPascal (double in)
-{
-   return 1e6 * in;
-}
-
-static double MegaPascalToBar (double in)
-{
-   return 10 * in;
 }
 
 static double CelsiusToKelvin (double in)
@@ -531,7 +519,7 @@ int main (int argc, char ** argv)
       outputFile << "ZCORN" << endl;
    }
 
-   int noItems;
+   int noItems = -1;
 
    //------------- Binary data
    if (doBinary)
@@ -879,7 +867,7 @@ int main (int argc, char ** argv)
          double percent3 = 0;
 
          LithologyId::iterator lithologyIndex;
-         int lithologyIndexNumber;
+         int lithologyIndexNumber = -1;
 
          if (allPercentagesConstant)
          {
@@ -1404,11 +1392,6 @@ void GetCornerIndices (double kIndices[] , int k, int numK)
       kIndices[0] = k - 0.5;
       kIndices[1] = k + 0.5;
    }
-}
-
-static void changeUndefinedValue (double & var, double oldValue, double newValue)
-{
-   if (var == oldValue) var = newValue;
 }
 
 static int numItemsLeft;

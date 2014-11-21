@@ -555,9 +555,9 @@ int main (int argc, char **argv)
 
 #define EQUALIZEFIELDPOSITIONS
 #ifdef EQUALIZEFIELDPOSITIONS
-   int numErrors = OrderFields ();
 
 #if DEBUG
+   int numErrors = OrderFields ();
    cerr << "Ordering succeeded with " << numErrors << " errors" << endl;
 #endif
 

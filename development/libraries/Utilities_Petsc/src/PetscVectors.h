@@ -44,8 +44,6 @@ public:
    virtual bool     end                    (void) = 0;
    virtual int      convertCurrentToLinear (void) = 0;
    virtual int      linearSize             (void) = 0;
-   virtual DimType  operator             ()(const int K, const int J=0, const int I=0 ) const = 0;
-   virtual DimType& operator             ()(const int K, const int J=0, const int I=0) = 0; 
    virtual void     Restore_Global_Array   (const Update_Mode Update_Method = No_Update ) = 0;
    virtual void     Set_Global_Array       (const DM         Global_Array,
 			                    const Vec        Global_Vector,
@@ -135,12 +133,12 @@ public :
 
   ~PETSC_2D_Array ();
 
-  DimType operator ()( const int J, const int I=0, const int K=0) const 
+  DimType operator ()( const int J, const int I=0) const 
   {
      return Distributed_Data [ J ][ I ];
   } // end operator ()
 
-  DimType& operator ()( const int J, const int I=0, const int K=0) 
+  DimType& operator ()( const int J, const int I=0) 
   {
      return Distributed_Data [ J ][ I ];
   } // end operator ()
@@ -198,12 +196,12 @@ public :
 
   ~PETSC_1D_Array ();
 
-  DimType operator ()(const int I, const int J=0, const int K=0) const 
+  DimType operator ()(const int I) const 
   {
     return Distributed_Data [ I ];
   } // end operator ()
 
-  DimType& operator ()(const int I, const int J=0, const int K=0) 
+  DimType& operator ()(const int I) 
   {
     return Distributed_Data [ I ];
   } // end operator ()

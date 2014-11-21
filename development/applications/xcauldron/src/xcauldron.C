@@ -130,7 +130,6 @@ DataSchema * createReducedCauldronSchema (bool outputs)
 
    createGridMapIoTblDefinition (dataSchema);
    createRelatedProjectsIoTblDefinition (dataSchema);
-   createRunStatusIoTblDefinition (dataSchema);
    createIoOptionsIoTblDefinition (dataSchema);
    if (outputs)
    {

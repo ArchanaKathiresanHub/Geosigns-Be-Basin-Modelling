@@ -21,6 +21,8 @@ add_library(utilities
 	${all_headers}
 )
 
+add_dependencies(utilities Boost)
+
 if (MSVC)
 	add_definitions( "-D_USE_MATH_DEFINES" )
 endif(MSVC)

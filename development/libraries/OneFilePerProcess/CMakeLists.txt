@@ -13,7 +13,10 @@
 set( all_srcs    src/HDF5VirtualFileDriver.c src/RewriteFileName.c src/h5merge.C src/fileHandler.C src/fileHandlerReuse.C src/fileHandlerAppend.C )
 set( all_headers src/HDF5VirtualFileDriver.h src/RewriteFileName.h src/h5merge.h src/fileHandler.h src/fileHandlerReuse.h src/fileHandlerAppend.h )
 
-add_definitions(-DH5_HAVE_PARALLEL -std=c99)
+set_source_files_properties( src/HDF5VirtualFileDriver.c 
+      PROPERTIES COMPILE_FLAGS "-std=c99"
+)
+
 add_library(OneFilePerProcess
 	${all_srcs}
 	${all_headers}

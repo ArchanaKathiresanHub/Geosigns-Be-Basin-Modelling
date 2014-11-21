@@ -7634,20 +7634,6 @@ START-property-tables
 
 # Output results  ------------------------------------------------------
 
-    Identification : RunStatusIoTbl
-    Description    : Table which contains the most imported status information
-                     of the last run. Important for re-start + continue
-                     behaviour for montecarlo 1d-runs or big 3d-runs
-    Column         : NrMCLoopsCompleted
-    Column         : MCCurrentSeedNumber
-    Column         : MCStatusOfLastRun
-    Column         : MCCalculationScope
-    Column         : OutputDirOfLastRun
-    Column         : OutputDirCreatedBy
-    Column         : RestartTempCalcTimeStep
-    Column         : RestartPresCalcTimeStep
-    Header         : Output results
-
     # Changed by S. Mathijssen (ORIGIN) 14-11-1997
     # Increment 4.4
     # Added P15, P50 and P85

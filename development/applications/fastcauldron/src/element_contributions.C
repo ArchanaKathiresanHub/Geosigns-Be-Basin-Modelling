@@ -4,7 +4,6 @@
 
 //------------------------------------------------------------//
 
-#include "Quadrature3D.h"
 #include "BasisFunction.h"
 #include "FiniteElement.h"
 #include "globaldefs.h"

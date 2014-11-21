@@ -246,7 +246,6 @@ string PropertyValue::saveToDirectory (const string & directory)
    return fileName;
 }
 
-
 //1DComponennt
 //assumtpion lower left corner
 double PropertyValue::getMode1DResult() const	//used in createTimeIoRecord for the MODE1D case

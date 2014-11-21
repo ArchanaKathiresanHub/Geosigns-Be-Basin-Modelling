@@ -277,7 +277,6 @@ bool Database::skipTableFromStream (istream & infile)
 }
 
 		
-
 Table::Table (const TableDefinition & tableDefinition):
 m_tableDefinition (tableDefinition)
 {

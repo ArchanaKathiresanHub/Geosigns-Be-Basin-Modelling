@@ -55,22 +55,6 @@ AllochMod::AllochthonousLithologySimulator::~AllochthonousLithologySimulator (vo
 
 bool AllochMod::AllochthonousLithologySimulator::saveToFile ( const std::string& fileName ) {
 
-  database::Table* runStatusIoTbl = getDataBase()->getTable ("RunStatusIoTbl");
-  database::Record* runStatusRecord;
-
-  const string outputDir = getOutputDir ();
-
-  runStatusRecord = runStatusIoTbl->createRecord ();
-
-  database::setNrMCLoopsCompleted ( runStatusRecord, 0 );
-  database::setMCCurrentSeedNumber ( runStatusRecord, 0 );
-  database::setMCCalculationScope ( runStatusRecord, "" );
-  database::setOutputDirOfLastRun ( runStatusRecord, outputDir );
-  database::setOutputDirCreatedBy ( runStatusRecord, GeomorphRunStatus );
-  database::setMCStatusOfLastRun ( runStatusRecord, GeomorphRunStatus );
-  database::setRestartTempCalcTimeStep ( runStatusRecord, IBSNULLVALUE );
-  database::setRestartPresCalcTimeStep ( runStatusRecord, IBSNULLVALUE );
-
   getDataBase ()->saveToFile ( fileName );
   return true;
 }

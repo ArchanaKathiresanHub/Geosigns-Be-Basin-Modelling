@@ -342,6 +342,10 @@ namespace database
 		/// Fill the tables of this database from the specified file.
 		bool loadFromFile (const std::string & filename);
 
+                /// Get the file name
+                std::string getFileName() const
+                { return m_fileName; }
+
 		/// Return an iterator pointing to the beginning of the Database.
 		inline Database::iterator begin (void);
 		/// Return an iterator pointing to the end of the Database.

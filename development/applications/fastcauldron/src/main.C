@@ -332,8 +332,6 @@ int main(int argc, char** argv)
    /// They will not be used from this point onwards.
    NumericFunctions::Quadrature::finaliseQuadrature ();
 
-   appctx -> setRunStatus ( "OutputDirOfLastRun", appctx -> getOutputDirectory () );
-
    if (( not appctx->saveOnDarcyError () and errorInDarcy ) or not solverHasConverged ) {
      returnStatus = 1;
 #if 0
