@@ -154,18 +154,7 @@ namespace
   }
 
   template <typename T> database::Record * 
-  tableFindRecord(database::Table * table, const std::string & field, const std::string & value)
-  {
-     std::istringstream v(value);
-
-     T x;
-     v >> x;
-     if (v)
-        return table->findRecord(field, x);
-     else
-        throw Project3DParameter::QueryException() << "The value '" << value << "' cannot be parsed as '"
-           << typeid(T).name() << "' for field '" << field << "'";
-  }
+  tableFindRecord(database::Table * table, const std::string & field, const std::string & value);
   
   template <> database::Record *
   tableFindRecord<std::string>(database::Table * table, const std::string & field, const std::string & value)
@@ -340,11 +329,6 @@ ImplicitProject3DParameter
 {
    switch(type)
    {
-      case BOOL: return tableFindRecord<bool>(table, field, value); 
-      case INT :  return tableFindRecord<int>(table, field, value); 
-      case LONG:  return tableFindRecord<long>(table, field, value); 
-      case FLOAT: return tableFindRecord<float>(table, field, value); 
-      case DOUBLE:return tableFindRecord<double>(table, field, value); 
       case STRING:return tableFindRecord<std::string>(table, field, value); 
 
       default: 

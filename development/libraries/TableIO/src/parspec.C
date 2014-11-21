@@ -74,32 +74,6 @@ bool loadSpecLine (ifstream & infile, string & line)
    }
 }
 
-/// Extracts a word from a line beyond linePos
-size_t loadWordFromLine (const string & line, size_t linePos, string & word)
-{
-   string separators = " \t";
-
-   size_t wordStartPos = line.find_first_not_of (separators, linePos);
-
-   if (wordStartPos == string::npos)
-   {
-      word = "";
-      return string::npos;
-   }
-
-   size_t wordEndPos = line.find_last_not_of (separators);
-
-   size_t wordLength;
-
-   if (wordEndPos == string::npos)
-      wordLength = string::npos;
-   else
-      wordLength = wordEndPos + 1 - wordStartPos;
-
-   word = line.substr (wordStartPos, wordLength);
-   return wordEndPos + 1;
-}
-
 /// if a line contains the given keyword, return the associated value
 bool getKeywordValue (const string & line, const string & keyword, string & value)
 {
@@ -714,9 +688,6 @@ int main (int argc, char **argv)
    schemaSourceOut << "   return dataSchema;" << endl;
    schemaSourceOut << "}" << endl;
 
-   // Add field access convenience functions, starting with most frequently used fields.
-   int numInconsistencies = 0;
-
    for (StringList::iterator fieldIter = FieldList.begin (); fieldIter != FieldList.end (); ++fieldIter)
    {
       string fieldName = *fieldIter;
@@ -747,14 +718,6 @@ int main (int argc, char **argv)
       tableName = FieldTables[fieldName][0];
 
       int indexValue = GetIndex (tableName, fieldName);
-      bool indexConsistency = CheckIndex (fieldName, tableName, indexValue);
-
-      if (!indexConsistency)
-      {
-	 if (verbose)
-	    cerr << "Warning: " << fieldName << " has differing table positions" << endl;
-         numInconsistencies++;
-      }
 
       string fieldType = FieldTypes[fieldName];
 
@@ -793,38 +756,12 @@ int main (int argc, char **argv)
       funcsSourceOut << "   return get" << cleanFieldName << " (record);" << endl;
       funcsSourceOut << "}" << endl << endl;
 
-      // The template handling of the current Sun compiler leaves some things to be desired.
-      funcsSourceOut << "#ifdef sun" << endl;
       funcsSourceOut << "const " << fieldType << " & database::get" << cleanFieldName << " (database::Record * record)" << endl;
       funcsSourceOut << "{" << endl;
-
-      if (indexConsistency)
-      {
-         funcsSourceOut << "   return record->getValue (" << indexValue << ", (" << fieldType << " *) 0);" << endl;
-      }
-      else
-      {
-         funcsSourceOut << "   static int cachedIndex = " << indexValue << ";" << endl;
-         funcsSourceOut << "   return record->getValue (\"" << fieldName << "\", (" << fieldType <<
-               " *) 0, & cachedIndex);" << endl;
-      }
+      funcsSourceOut << "   static int cachedIndex = " << indexValue << ";" << endl;
+      funcsSourceOut << "   return record->getValue<" << fieldType << "> (\"" << fieldName << "\", & cachedIndex);"
+            << endl;
       funcsSourceOut << "}" << endl;
-
-      funcsSourceOut << "#else" << endl;
-      funcsSourceOut << "const " << fieldType << " & database::get" << cleanFieldName << " (database::Record * record)" << endl;
-      funcsSourceOut << "{" << endl;
-      if (indexConsistency)
-      {
-         funcsSourceOut << "   return record->getValue<" << fieldType << "> (" << indexValue << ");" << endl;
-      }
-      else
-      {
-         funcsSourceOut << "   static int cachedIndex = " << indexValue << ";" << endl;
-         funcsSourceOut << "   return record->getValue<" << fieldType << "> (\"" << fieldName << "\", & cachedIndex);"
-               << endl;
-      }
-      funcsSourceOut << "}" << endl;
-      funcsSourceOut << "#endif" << endl << endl;
 
       funcsSourceOut << "void database::set" << cleanFieldName << " (database::Table * tbl, int i, const " << fieldType << " & my" <<
             cleanFieldName << ")" << endl;
@@ -836,16 +773,9 @@ int main (int argc, char **argv)
       funcsSourceOut << "void database::set" << cleanFieldName << " (database::Record * record, const " << fieldType << " & my" <<
             cleanFieldName << ")" << endl;
       funcsSourceOut << "{" << endl;
-      if (indexConsistency)
-      {
-         funcsSourceOut << "   record->setValue (" << indexValue << ", my" << cleanFieldName << ");" << endl;
-      }
-      else
-      {
-         funcsSourceOut << "   static int cachedIndex = " << indexValue << ";" << endl;
-         funcsSourceOut << "   record->setValue (\"" << fieldName << "\", my" << cleanFieldName << ", & cachedIndex);" <<
-               endl;
-      }
+      funcsSourceOut << "   static int cachedIndex = " << indexValue << ";" << endl;
+      funcsSourceOut << "   record->setValue (\"" << fieldName << "\", my" << cleanFieldName << ", & cachedIndex);" <<
+            endl;
       funcsSourceOut << "}" << endl << endl;
    }
 
@@ -857,7 +787,5 @@ int main (int argc, char **argv)
    funcsSourceOut.close ();
    funcsHeaderOut.close ();
 
-   if (verbose)
-      cerr << "Number of inconsistent fields is " << numInconsistencies << endl;
    return 0;
 }

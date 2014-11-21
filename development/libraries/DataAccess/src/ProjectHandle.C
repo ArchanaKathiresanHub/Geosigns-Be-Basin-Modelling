@@ -109,7 +109,6 @@ using database::Database;
 using database::DataSchema;
 using database::Table;
 using database::Record;
-using database::Transaction;
 
 const double DefaultUndefinedValue = 99999;
 
@@ -1922,7 +1921,7 @@ bool ProjectHandle::loadFaultEvents( void )
       {
          Record *record = *tblIter;
 
-         double age = database::getAge( record );
+         double age = database::getStartAge( record );
          const Snapshot * snapshot = (const Snapshot *)findSnapshot( age );
          if ( !snapshot ) continue;
 
@@ -4184,49 +4183,6 @@ void splitFilePath( const string & filePath, string & directoryName, string & fi
    }
 }
 
-void ProjectHandle::computeInputChecksums( const string & directory, database::Transaction * transaction ) const
-{
-   MutableInputValueList::const_iterator inputValueIter;
-
-   for ( inputValueIter = m_inputValues.begin(); inputValueIter != m_inputValues.end(); ++inputValueIter )
-   {
-      InputValue * inputValue = *inputValueIter;
-      inputValue->computeChecksum( directory, transaction );
-   }
-}
-
-void ProjectHandle::computeOutputChecksums( database::Transaction * transaction, const string & rootDirectory,
-   Interface::PropertyValueList * propertyValues ) const
-{
-   Interface::PropertyValueList::iterator propertyValueIter;
-   for ( propertyValueIter = propertyValues->begin(); propertyValueIter != propertyValues->end(); ++propertyValueIter )
-   {
-      Interface::PropertyValue * propertyValue = ( Interface::PropertyValue * ) * propertyValueIter;
-      propertyValue->computeChecksum( rootDirectory, getOutputDir(), transaction );
-   }
-}
-
-string ProjectHandle::computeChecksum( const string & fileName ) const
-{
-   // cerr << "MD5: handling file: " << fileName << endl;
-
-   ifstream file( fileName.c_str() );
-
-   if ( !file )
-   {
-      cerr << "MD5: " << fileName << " can't be opened" << endl;
-      return "";
-   }
-   else
-   {
-      MD5 context( file );
-
-      string checksum = context.hex_digest();
-
-      return checksum;
-   }
-}
-
 
 void ProjectHandle::printPropertyValues( Interface::PropertyValueList * propertyValues ) const
 {
@@ -5771,7 +5727,7 @@ const string & ProjectHandle::getOutputDir( void ) const
    return m_outputDir;
 }
 
-bool ProjectHandle::setOutputDir( Transaction * transaction, const string & fileOrDirName ) const
+bool ProjectHandle::setOutputDir(  const string & fileOrDirName ) const
 {
    Table * runStatusIoTbl = getTable( "RunStatusIoTbl" );
    if ( !runStatusIoTbl || runStatusIoTbl->size() == 0 ) return false;
@@ -5796,16 +5752,13 @@ bool ProjectHandle::setOutputDir( Transaction * transaction, const string & file
 
    string dirName = projectName + "_CauldronOutputDir";
 
-   runStatusRecord = runStatusRecord->edit( transaction );
-   if ( !runStatusRecord ) return false;
-
    setOutputDirCreatedBy( runStatusRecord, projectName );
    setOutputDirOfLastRun( runStatusRecord, dirName );
    return true;
 }
 
 
-void ProjectHandle::resetSnapshotIoTbl( Transaction * transaction ) const
+void ProjectHandle::resetSnapshotIoTbl(  ) const
 {
 
    Table * table = getTable( "SnapshotIoTbl" );
@@ -5814,7 +5767,6 @@ void ProjectHandle::resetSnapshotIoTbl( Transaction * transaction ) const
    for ( int i = 0; i < table->size(); ++i )
    {
       Record * record = table->getRecord( i );
-      record = record->edit( transaction );
       setSnapshotFileName( record, "" );
    }
 }

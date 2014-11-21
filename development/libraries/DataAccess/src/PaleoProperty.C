@@ -94,14 +94,14 @@ GridMap * PaleoProperty::loadMap (PaleoPropertyMapAttributeId attributeId) const
 
    if ( m_startProperty == 0 ) {
       const string attributeGridName = s_MapAttributeNames[attributeIndex] + "Grid";
-      const string & valueGridMapId = m_record->getValue (attributeGridName, (string *) 0);
+      const string & valueGridMapId = m_record->getValue<std::string> (attributeGridName);
 
       if (valueGridMapId.length () != 0) {
          gridMap = m_projectHandle->loadInputMap ( m_record->getTable ()->name (), valueGridMapId);
       } else {
-         double value;
+         double value= m_record->getValue<double>(s_MapAttributeNames[attributeIndex]);
 
-         if ((value = m_record->getValue (s_MapAttributeNames[attributeIndex], (double *) 0)) != RecordValueUndefined)
+         if (value != RecordValueUndefined)
          {
             const Grid * grid = m_projectHandle->getActivityOutputGrid();
 

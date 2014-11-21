@@ -51,22 +51,22 @@ AttributeValue & DAObject::getAttributeValue (const string & attributeName, unsi
       switch (getAttributeType (attributeName))
       {
          case Bool:
-            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue (attributeName, (bool *) 0));
+            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue<bool>(attributeName));
             break;
          case Int:
-            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue (attributeName, (int *) 0));
+            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue<int>(attributeName));
             break;
          case Long:
-            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue (attributeName, (long *) 0));
+            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue<long>(attributeName));
             break;
          case Float:
-            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue (attributeName, (float *) 0));
+            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue<float>(attributeName));
             break;
          case Double:
-            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue (attributeName, (double *) 0));
+            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue<double>(attributeName));
             break;
          case String:
-            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue (attributeName, (string *) 0));
+            (void *) new AttributeValue (this, attrIndex + 1, m_record->getValue<std::string>(attributeName));
             break;
          case NoAttributeType:
          default:

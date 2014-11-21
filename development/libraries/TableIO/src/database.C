@@ -59,7 +59,7 @@ Database::~Database (void)
 		delete table;
 	}
 
-	delete & m_dataSchema;
+       	delete & m_dataSchema;
 }
 
 void Database::addHeader (const string & text)
@@ -73,14 +73,6 @@ void Database::addHeader (const string & text)
 void Database::clearHeader (void)
 {
 	m_header = "";
-}
-
-Transaction * Database::createTransaction (void)
-{
-	Transaction * transaction = new Transaction (this);
-	// m_transactions.push_back (transaction);
-
-	return transaction;
 }
 
 Table *Database::getTable (const string & name)
@@ -284,329 +276,10 @@ bool Database::skipTableFromStream (istream & infile)
 	}
 }
 
-TablePartitioning::TablePartitioning (Table * table, size_t fieldIndex) : m_table (table), m_partitioningFieldIndex (fieldIndex)
-{
-	m_partitioningFieldDefinition = m_table->getTableDefinition().getFieldDefinition (m_partitioningFieldIndex);
-	assert (m_partitioningFieldDefinition != 0);
-	
-	switch (m_partitioningFieldDefinition->dataType ())
-	{
-			case Bool:
-		 m_subTables = (void *) new std::map<bool, Table *>;
-				break;
-			case Int:
-		 m_subTables = (void *) new std::map<int, Table *>;
-				break;
-			case Long:
-		 m_subTables = (void *) new std::map<long, Table *>;
-				break;
-			case Float:
-		 m_subTables = (void *) new std::map<float, Table *>;
-				break;
-			case Double:
-		 m_subTables = (void *) new std::map<double, Table *>;
-				break;
-			case String:
-		 m_subTables = (void *) new std::map<string, Table *>;
-				break;
-			default:
-				assert (false);
-	}
-
-	m_sizeSubTables = 0;
-}
-
-TablePartitioning::~TablePartitioning ()
-{
-	switch (m_partitioningFieldDefinition->dataType ())
-	{
-			case Bool:
-		 deleteSubTables<bool> ();
-				break;
-			case Int:
-		 deleteSubTables<int> ();
-				break;
-			case Long:
-		 deleteSubTables<long> ();
-				break;
-			case Float:
-		 deleteSubTables<float> ();
-				break;
-			case Double:
-		 deleteSubTables<double> ();
-				break;
-			case String:
-		 deleteSubTables<string> ();
-				break;
-			default:
-				assert (false);
-	}
-
-	m_sizeSubTables = 0;
-}
-
-void TablePartitioning::clear ()
-{
-	switch (m_partitioningFieldDefinition->dataType ())
-	{
-			case Bool:
-		 clearSubTables<bool> ();
-				break;
-			case Int:
-		 clearSubTables<int> ();
-				break;
-			case Long:
-		 clearSubTables<long> ();
-				break;
-			case Float:
-		 clearSubTables<float> ();
-				break;
-			case Double:
-		 clearSubTables<double> ();
-				break;
-			case String:
-		 clearSubTables<string> ();
-				break;
-			default:
-				assert (false);
-	}
-
-	m_sizeSubTables = 0;
-}
-
-bool TablePartitioning::removeRecord (Record * record)
-{
-	Table * subTable;
-	switch (m_partitioningFieldDefinition->dataType ())
-	{
-		case Bool:
-	 {
-		 bool fieldValue = record->getValue<bool> (m_partitioningFieldIndex);
-		 subTable = getSubTable (fieldValue);
-	 }
-	 break;
-		case Int:
-	 {
-		 int fieldValue = record->getValue<int> (m_partitioningFieldIndex);
-		 subTable = getSubTable (fieldValue);
-	 }
-	 break;
-		case Long:
-	 {
-		 long fieldValue = record->getValue<long> (m_partitioningFieldIndex);
-		 subTable = getSubTable (fieldValue);
-	 }
-	 break;
-		case Float:
-	 {
-		 float fieldValue = record->getValue<float> (m_partitioningFieldIndex);
-		 subTable = getSubTable (fieldValue);
-	 }
-	 break;
-		case Double:
-	 {
-		 double fieldValue = record->getValue<double> (m_partitioningFieldIndex);
-		 subTable = getSubTable (fieldValue);
-	 }
-	 break;
-		case String:
-	 {
-		 string fieldValue = record->getValue<string> (m_partitioningFieldIndex);
-		 subTable = getSubTable (fieldValue);
-	 }
-	 break;
-		default:
-	 assert (false);
-	}
-
-	assert (subTable);
-
-	if (subTable->removeRecord (record))
-	{
-		--m_sizeSubTables;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool TablePartitioning::syncSubTables (void)
-{
-	// does not deal with inserted or deleted records yet.
-	int i;
-
-	for (i = m_sizeSubTables; i < m_table->size (); ++i)
-	{
-		Record * record = m_table->getRecord (i);
-
-		Table * subTable;
-		switch (m_partitioningFieldDefinition->dataType ())
-		{
-	 case Bool:
-		 {
-			 bool fieldValue = record->getValue<bool> (m_partitioningFieldIndex);
-			 subTable = getSubTableImpl (fieldValue);
-		 }
-		 break;
-	 case Int:
-		 {
-			 int fieldValue = record->getValue<int> (m_partitioningFieldIndex);
-			 subTable = getSubTableImpl (fieldValue);
-		 }
-		 break;
-	 case Long:
-		 {
-			 long fieldValue = record->getValue<long> (m_partitioningFieldIndex);
-			 subTable = getSubTableImpl (fieldValue);
-		 }
-		 break;
-	 case Float:
-		 {
-			 float fieldValue = record->getValue<float> (m_partitioningFieldIndex);
-			 subTable = getSubTableImpl (fieldValue);
-		 }
-		 break;
-	 case Double:
-		 {
-			 double fieldValue = record->getValue<double> (m_partitioningFieldIndex);
-			 subTable = getSubTableImpl (fieldValue);
-		 }
-		 break;
-	 case String:
-		 {
-			 string fieldValue = record->getValue<string> (m_partitioningFieldIndex);
-			 subTable = getSubTableImpl (fieldValue);
-		 }
-		 break;
-	 default:
-		 assert (false);
-		}
-
-		subTable->addRecord (record);
-		++m_sizeSubTables;
-	}
-	return true;
-}
 		
-Transaction::Transaction (const Database * database) :
-	m_database (database), m_parent (0), m_child (0)
-{
-}
-
-Transaction::~Transaction (void)
-{
-	if (m_parent) m_parent->setChild (0);
-}
-
-Transaction * Transaction::createSubTransaction (void)
-{
-	if (getChild () != 0) return getChild ()->createSubTransaction ();
-
-	Transaction * transaction = new Transaction (m_database);
-	transaction->setParent (this);
-	setChild (transaction);
-
-	return transaction;
-}
-
-void Transaction::rollBack (void)
-{
-	if (m_child) m_child->rollBack ();
-
-	RecordPairListReverseIterator recordPairIter;
-	RecordListIterator recordIter;
-
-	for (recordPairIter = m_deletedRecords.rbegin (); recordPairIter != m_deletedRecords.rend (); ++recordPairIter)
-	{
-		RecordPair & recordPair = *recordPairIter;
-		Record *record = recordPair.first;
-		Record *nextRecord = recordPair.second;
-
-		record->getTable ()->insertRecord (record, nextRecord);
-
-		record->unlock (this);
-	}
-
-	for (recordPairIter = m_editedRecords.rbegin (); recordPairIter != m_editedRecords.rend (); ++recordPairIter)
-	{
-		RecordPair & recordPair = *recordPairIter;
-		Record *editedRecord = recordPair.first;
-		Record *copiedRecord = recordPair.second;
-
-		editedRecord->copyFrom (* copiedRecord);
-		editedRecord->unlock (this);
-		delete copiedRecord;
-	}
-
-	for (recordIter = m_createdRecords.begin (); recordIter != m_createdRecords.end (); ++recordIter)
-	{
-		Record *record = *recordIter;
-		record->destroyYourself ();
-	}
-	
-	delete this;
-}
-
-void Transaction::commit (void)
-{
-	RecordPairListIterator recordPairIter;
-	RecordListIterator recordIter;
-
-	if (m_parent) return;
-
-	for (recordPairIter = m_deletedRecords.begin (); recordPairIter != m_deletedRecords.end (); ++recordPairIter)
-	{
-		RecordPair & recordPair = *recordPairIter;
-		Record *record = recordPair.first;
-		delete record;
-	}
-
-	for (recordPairIter = m_editedRecords.begin (); recordPairIter != m_editedRecords.end (); ++recordPairIter)
-	{
-		RecordPair & recordPair = *recordPairIter;
-
-		Record *editedRecord = recordPair.first;
-		Record *copiedRecord = recordPair.second;
-
-		editedRecord->unlock (this);
-		delete copiedRecord;
-	}
-
-	for (recordIter = m_createdRecords.begin (); recordIter != m_createdRecords.end (); ++recordIter)
-	{
-		Record *record = *recordIter;
-		record->unlock (this);
-	}
-
-	if (m_child)
-	{
-		m_child->setParent (0);
-		m_child->commit ();
-	}
-
-	delete this;
-}
-
-bool Transaction::descendsFrom (Transaction * transaction)
-{
-	if (this == transaction) return true;
-	if (transaction == 0) return false;
-	if (m_parent == 0) return false;
-	return m_parent->descendsFrom (transaction);
-}
-
-bool Transaction::ascends (Transaction * transaction)
-{
-	if (this == transaction) return true;
-	if (transaction == 0) return false;
-	if (m_child == 0) return false;
-	return m_child->ascends (transaction);
-}
 
 Table::Table (const TableDefinition & tableDefinition):
-m_tableDefinition (tableDefinition), m_tablePartitionings (0)
+m_tableDefinition (tableDefinition)
 {
 }
 
@@ -617,8 +290,6 @@ Table::~Table (void)
 		Record *record = *iter;
 		delete record;
 	}
-
-	resetPartitionings ();
 }
 
 void Table::clear (bool deleteRecords)
@@ -632,22 +303,13 @@ void Table::clear (bool deleteRecords)
 		}
 	}
 
-	clearPartitionings ();
-
 	m_records.clear ();
 }
 
 
-Record *Table::createRecord (Transaction * transaction)
+Record *Table::createRecord ()
 {
 	Record *record = new Record (m_tableDefinition, this);
-
-	if (transaction)
-	{
-		while (transaction->getChild () != 0) transaction = transaction->getChild ();
-		record->lock (transaction);
-		transaction->addCreatedRecord (record);
-	}
 
 	addRecord (record);
 
@@ -716,81 +378,21 @@ void Table::addRecord (Record * record)
 }
 
 
-Record * Table::editRecord (Record * record, Transaction * transaction)
+
+bool Table::deleteRecord (Record * record)
 {
-	if (record->isLockedBy (transaction)) return record;
-	if (record->isLocked ()) return 0;
-
-	assert (transaction);
-
-	while (transaction->getChild () != 0) transaction = transaction->getChild ();
-
-	Record * copiedRecord = new Record (* record);
-	transaction->addEditedRecord (record, copiedRecord);
-
-	record->lock (transaction);
-
-	return record;
-}
-
-bool Table::removeRecordFromTablePartitionings (Record * record)
-{
-	if (m_tablePartitionings)
-	{
-		int i;
-		for (i = m_tableDefinition.size () -1; i >=0; --i)
-		{
-	 if (m_tablePartitionings[i])
-	 {
-		 if (!m_tablePartitionings[i]->removeRecord (record))
-		 {
-			 return false;
-		 }
-	 }
-		}
-	}
-	return true;
-}
-
-bool Table::deleteRecord (Record * record, Transaction * transaction)
-{
-	Record * recordNext = removeRecord (record);
-
-	return deleteRecordTransactional (record, recordNext, transaction);
-}
-
-bool Table::deleteRecordTransactional (Record * record, Record * recordNext, Transaction * transaction)
-{
-	if (transaction)
-	{
-		while (transaction->getChild () != 0) transaction = transaction->getChild ();
-
-		transaction->addDeletedRecord (record, recordNext);
-	}
-	else
-	{
-		delete record;
-	}
-	return true;
+	removeRecord (record);
+        return true;
 }
 
 Record * Table::removeRecord (Record * record)
 {
-	removeRecordFromTablePartitionings (record);
 	Table::iterator iter = findRecordPosition (record);
 
 	iter = removeRecord (iter);
 	return getRecord (iter);
 }
 
-Table::iterator Table::deleteRecord (Table::iterator & iter, Transaction * transaction)
-{
-	Record * recordToDelete = getRecord (iter);
-	Table::iterator returnIter = removeRecord (iter);
-	deleteRecordTransactional (recordToDelete, getRecord (iter), transaction);
-
-	return returnIter;
-}
 
 Table::iterator Table::removeRecord (Table::iterator & iter)
 {
@@ -802,7 +404,7 @@ Table::iterator Table::removeRecord (Table::iterator & iter)
 	return iter;
 }
 
-Record * Table::findRecord (const std::string & fieldName, const char * value)
+Record * Table::findRecord (const std::string & fieldName, const std::string & value)
 {
 	int index = getIndex (fieldName);
 	if (index < 0) return 0;
@@ -811,35 +413,27 @@ Record * Table::findRecord (const std::string & fieldName, const char * value)
 	for (iter = begin (); iter != end (); ++iter)
 	{
 		Record * record = * iter;
-		const std::string & foundValue = record->getValue (index, (std::string *) 0);
+		const std::string & foundValue = record->getValue<std::string>(index);
 
 		if (foundValue == value) return record;
 	}
 	return 0;
 }
 
-Record * Table::findRecord (const std::string & fieldName1, const char * value1, const std::string & fieldName2, const char * value2, Record * record1)
+Record * Table::findRecord (const std::string & field1, const std::string & value1, const std::string & field2, const std::string & value2, Record * other)
 {
-	int index1 = getIndex (fieldName1);
-	if (index1 < 0) return 0;
-
-	int index2 = getIndex (fieldName2);
-	if (index2 < 0) return 0;
+	int index1 = getIndex(field1);
+        int index2 = getIndex(field2);
+	if (index1 < 0 || index2 < 0) return 0;
 
 	Table::iterator iter;
 	for (iter = begin (); iter != end (); ++iter)
 	{
 		Record * record = * iter;
-		const std::string & foundValue1 = record->getValue (index1, (std::string *) 0);
-
-		if (foundValue1 == value1) {
-			const std::string & foundValue2 = record->getValue (index2, (std::string *) 0);
-			if (foundValue2 == value2) {
-				if( record != record1 ) {
-					return record;
-				}
-			}
-		}
+		if (  record != other &&
+                      value1 == record->getValue<std::string>(index1) && 
+                      value2 == record->getValue<std::string>(index2)) 
+                   return record;
 	}
 	return 0;
 }
@@ -1078,64 +672,20 @@ bool Table::loadRowBasedRecordsFromStream (istream & infile)
 	}
 }
 
-void Table::resetPartitionings ()
-{
-	if (!m_tablePartitionings) return;
-
-	int i;
-	for (i = m_tableDefinition.size () -1; i >=0; --i)
-	{
-		delete m_tablePartitionings[i];
-	}
-
-	delete [] m_tablePartitionings;
-	m_tablePartitionings = 0;
-}
-
-TablePartitioning * Table::getPartitioning (const std::string & fieldName)
-{
-	int fieldIndex = getIndex (fieldName);
-	assert (fieldIndex >= 0);
-
-	if (!m_tablePartitionings)
-	{
-		m_tablePartitionings = new TablePartitioning * [m_tableDefinition.size ()];
-		int i;
-		for (i = m_tableDefinition.size () -1; i >=0; --i)
-		{
-	 m_tablePartitionings[i] = 0;
-		}
-	}
-	if (!m_tablePartitionings[fieldIndex])
-	{
-		m_tablePartitionings[fieldIndex] = new TablePartitioning (this, fieldIndex);
-	}
-
-	return m_tablePartitionings[fieldIndex];
-}
-
-void Table::clearPartitionings ()
-{
-	if (!m_tablePartitionings) return;
-
-	int i;
-	for (i = m_tableDefinition.size () -1; i >=0; --i)
-	{
-		if (m_tablePartitionings[i]) m_tablePartitionings[i]->clear ();
-	}
-}
 
 Record::Record (const TableDefinition & tableDefinition, Table * table)
-	: m_tableDefinition (tableDefinition), m_table (table), m_transaction (0)
+	: m_table(table), m_tableDefinition (tableDefinition)
 {
 	createFields ();
 }
 
-Record::Record (Record & record)
-	: m_tableDefinition (record.m_tableDefinition), m_table (record.m_table), m_transaction (0)
+Record::Record (const Record & other)
+	: m_table(other.m_table),
+           m_tableDefinition (other.m_tableDefinition),
+           m_fields()
 {
-	createFields ();
-	copyFrom (record);
+   for (size_t i = 0; i < other.m_fields.size(); ++i)
+      m_fields.push_back( other.m_fields[i]->clone() );
 }
 
 void Record::createFields (void)
@@ -1144,201 +694,45 @@ void Record::createFields (void)
 	{
 		FieldDefinition *fieldDef = m_tableDefinition.getFieldDefinition (i);
 
-		void *field = 0;
+                boost::shared_ptr<AbstractField> field;
 
 		switch (fieldDef->dataType())
 		{
 			case Bool:
-				field = (void *) new Field < bool > (*fieldDef);
+				field.reset( new Field < bool > (*fieldDef) );
 
 				break;
 			case Int:
-				field = (void *) new Field < int >(*fieldDef);
+				field.reset( new Field < int >(*fieldDef) );
 
 				break;
 			case Long:
-				field = (void *) new Field < long >(*fieldDef);
+				field.reset( new Field < long >(*fieldDef) );
 
 				break;
 			case Float:
-				field = (void *) new Field < float >(*fieldDef);
+				field.reset( new Field < float >(*fieldDef) );
 
 				break;
 			case Double:
-				field = (void *) new Field < double >(*fieldDef);
+				field.reset( new Field < double >(*fieldDef) );
 
 				break;
 			case String:
-				field = (void *) new Field < string > (*fieldDef);
+				field.reset( new Field < string > (*fieldDef) );
 
 				break;
 			default:
 				assert (false);
-				field = 0;
 		}
 
-		if (field)
-		{
-			m_fields.push_back (field);
-		}
+            	m_fields.push_back (field);
 	}
 }
 
-void Record::copyFrom (Record & record)
-{
-	for (size_t i = 0; i < m_tableDefinition.size (); i++)
-	{
-		FieldDefinition *fieldDef = m_tableDefinition.getFieldDefinition (i);
-
-		switch (fieldDef->dataType())
-		{
-			case Bool:
-	 {
-#ifdef sgi
-		 Field < bool > *field = (Field < bool > *) getField (i);
-		 Field < bool > *fieldToCopy = (Field < bool > *) record.getField (i);
-
-		 const bool & value = fieldToCopy->getValue ((bool *) 0);
-		 field->setValue (value);
-#else
-		 // does not compile on irix
-		 copyField (& record, i, (bool *) 0);
-#endif
-				break;
-	 }
-			case Int:
-	 {
-#ifdef sgi
-		 Field < int > *field = (Field < int > *) getField (i);
-		 Field < int > *fieldToCopy = (Field < int > *) record.getField (i);
-
-		 const int & value = fieldToCopy->getValue ((int *) 0);
-		 field->setValue (value);
-#else
-		 // does not compile on irix
-		 copyField (& record, i, (int *) 0);
-#endif
-				break;
-	 }
-			case Long:
-	 {
-#ifdef sgi
-		 Field < long > *field = (Field < long > *) getField (i);
-		 Field < long > *fieldToCopy = (Field < long > *) record.getField (i);
-
-		 const long & value = fieldToCopy->getValue ((long *) 0);
-		 field->setValue (value);
-#else
-		 // does not compile on irix
-		 copyField (& record, i, (long *) 0);
-#endif
-				break;
-	 }
-			case Float:
-	 {
-#ifdef sgi
-		 Field < float > *field = (Field < float > *) getField (i);
-		 Field < float > *fieldToCopy = (Field < float > *) record.getField (i);
-
-		 const float & value = fieldToCopy->getValue ((float *) 0);
-		 field->setValue (value);
-#else
-		 // does not compile on irix
-		 copyField (& record, i, (float *) 0);
-#endif
-				break;
-	 }
-			case Double:
-	 {
-#ifdef sgi
-		 Field < double > *field = (Field < double > *) getField (i);
-		 Field < double > *fieldToCopy = (Field < double > *) record.getField (i);
-
-		 const double & value = fieldToCopy->getValue ((double *) 0);
-		 field->setValue (value);
-#else
-		 // does not compile on irix
-		 copyField (& record, i, (double *) 0);
-#endif
-				break;
-	 }
-			case String:
-	 {
-#ifdef sgi
-		 Field < string > *field = (Field < string > *) getField (i);
-		 Field < string > *fieldToCopy = (Field < string > *) record.getField (i);
-
-		 const string & value = fieldToCopy->getValue ((string *) 0);
-		 field->setValue (value);
-#else
-		 // does not compile on irix
-		 copyField (& record, i, (string *) 0);
-#endif
-				break;
-	 }
-			default:
-				assert (false);
-		}
-	}
-}
-
-Record::~Record (void)
-{
-	removeFields ();
-}
-
-void Record::removeFields (void)
-{
-	for (size_t i = 0; i < m_tableDefinition.size (); i++)
-	{
-		FieldDefinition *fieldDef = m_tableDefinition.getFieldDefinition (i);
-
-		void *field = m_fields[i];
-
-		switch (fieldDef->dataType ())
-		{
-			case Bool:
-				delete (Field < bool > *)field;
-				break;
-			case Int:
-				delete (Field < int >*) field;
-
-				break;
-			case Long:
-				delete (Field < long >*) field;
-
-				break;
-			case Float:
-				delete (Field < float >*) field;
-
-				break;
-			case Double:
-				delete (Field < double >*) field;
-
-				break;
-			case String:
-				delete (Field < string > *)field;
-				break;
-			default:
-				assert (false);
-		}
-	}
-	m_fields.clear ();
-}
-
-template <class Type>
-void * Record::copyField (Record * srcRecord, size_t index, Type * ptr)
-{
-	FieldDefinition *fieldDef = m_tableDefinition.getFieldDefinition (index);
-
-	Field < Type > *field = (Field < Type > *)getField (index);
-	Field < Type > *fieldToCopy = (Field < Type > *)srcRecord->getField (index);
-
-
-	const Type & value = fieldToCopy->getValue ((Type *) 0);
-	field->setValue (value);
-
-	return (void *) field;
+const std::string & Record::tableName() const
+{ 
+   return getTable()->name(); 
 }
 
 void Record::destroyYourself (void)
@@ -1351,12 +745,7 @@ void Record::addToTable (void)
 	getTable ()->addRecord (this);
 }
 
-Record * Record::edit (Transaction * transaction)
-{
-	return getTable ()->editRecord (this, transaction);
-}
-
-void *Record::getField (const string & name, int *cachedIndex)
+boost::shared_ptr<AbstractField> Record::getField (const string & name, int *cachedIndex) const
 {
 	int hint = (cachedIndex ? *cachedIndex : -1);
 
@@ -1366,7 +755,7 @@ void *Record::getField (const string & name, int *cachedIndex)
 		*cachedIndex = index;
 
 	if (index == -1)
-		return 0;
+		return boost::shared_ptr<AbstractField>();
 	return m_fields[index];
 }
 
@@ -1489,47 +878,6 @@ template <> bool Field < double >::assignFromString (const string & word)
 	return true;
 }
 
-template <> bool Field < int >::saveValueToStream (ostream & ofile, int &borrowed)
-{
-	const FieldDefinition & fieldDef = getFieldDefinition ();
-
-	switch (fieldDef.dataType ())
-	{
-		case Bool:
-			((Field < bool > *)this)->saveToStream (ofile, borrowed);
-			return true;
-		case Int:
-			((Field < int >*) this)->saveToStream (ofile, borrowed);
-			return true;
-		case Long:
-			((Field < long >*) this)->saveToStream (ofile, borrowed);
-			return true;
-		case Float:
-			((Field < float >*) this)->saveToStream (ofile, borrowed);
-			return true;
-		case Double:
-			((Field < double >*) this)->saveToStream (ofile, borrowed);
-			return true;
-		case String:
-			((Field < string > *)this)->saveToStream (ofile, borrowed);
-			return true;
-		default:
-			return false;
-	}
-}
-
-template < class Type > bool Field < Type >::saveValueToStream (ostream & ofile, int &borrowed)
-{
-	assert (false);
-	return false;
-}
-
-template < class Type > Field < Type >::Field (const FieldDefinition & fieldDef)
-	: m_fieldDefinition (fieldDef)
-{
-	assignFromString (m_fieldDefinition.defaultValue ());
-}
-
 void Record::printOn (ostream & str)
 {
 	saveToStream (str, false);
@@ -1547,18 +895,17 @@ bool Record::saveToStream (ostream & ofile, bool rowBased)
 	for (size_t order = 0; order < m_tableDefinition.persistentSize (); order++)
 	{
 		const size_t position = m_tableDefinition.getPosition (order);
-		void *field = m_fields[position];
 
 		if (rowBased)
 		{
 			borrowed = 0;
 
-			const FieldDefinition & fieldDef = ((Field < int >*) field)->getFieldDefinition ();
+			const FieldDefinition & fieldDef = m_fields[position]->getFieldDefinition ();
 
 			fieldDef.saveNameToStream (ofile, borrowed);
 			ofile << "      ";
 
-			((Field < int >*) field)->saveValueToStream (ofile, borrowed);
+			m_fields[position]->saveToStream (ofile, borrowed);
 			ofile << "      ";
 
 			fieldDef.saveUnitToStream (ofile, borrowed);
@@ -1571,7 +918,7 @@ bool Record::saveToStream (ostream & ofile, bool rowBased)
 				ofile << " ";
 	 }
 
-			((Field < int >*) field)->saveValueToStream (ofile, borrowed);
+			m_fields[position]->saveToStream (ofile, borrowed);
 		}
 	}
 
@@ -1581,7 +928,7 @@ bool Record::saveToStream (ostream & ofile, bool rowBased)
 }
 
 
-bool Record::loadFromLine (string & line, vector < int >&dataToFieldMap)
+bool Record::loadFromLine (const std::string & line, vector < int > & dataToFieldMap)
 {
 	size_t linePos = 0;
 
@@ -1613,69 +960,42 @@ bool Record::loadFromLine (string & line, vector < int >&dataToFieldMap)
 bool Record::assignFromStringToIndex (const string & word, int toIndex)
 {
 	FieldDefinition *fieldDef = m_tableDefinition.getFieldDefinition (toIndex);
-
 	assert (fieldDef->isValid ());
+        getField(toIndex)->assignFromString(word);
 
-
-	switch (fieldDef->dataType ())
-	{
-		case Bool:
-			((Field < bool > *)getField (toIndex))->assignFromString (word);
-			break;
-		case Int:
-			((Field < int >*) getField (toIndex))->assignFromString (word);
-			break;
-		case Long:
-			((Field < long >*) getField (toIndex))->assignFromString (word);
-			break;
-		case Float:
-			((Field < float >*) getField (toIndex))->assignFromString (word);
-			break;
-		case Double:
-			((Field < double >*) getField (toIndex))->assignFromString (word);
-			break;
-		case String:
-			((Field < string > *)getField (toIndex))->assignFromString (word);
-			break;
-		default:
-			return false;
-	}
 	return true;
 }
 
-template < class Type > void checkType (const Type & a, const datatype::DataType type)
-{
-	assert (false);
-}
+template < class Type > void checkType (const Type & a, const datatype::DataType type);
 
-}
-
-template <> void database::checkType < bool > (const bool & a, const datatype::DataType type)
+template <> void checkType < bool > (const bool & a, const datatype::DataType type)
 {
 	assert (type == datatype::Bool);
 }
 
-template <> void database::checkType < int >(const int &a, const datatype::DataType type)
+template <> void checkType < int >(const int &a, const datatype::DataType type)
 {
 	assert (type == datatype::Int);
 }
 
-template <> void database::checkType < long >(const long &a, const datatype::DataType type)
+template <> void checkType < long >(const long &a, const datatype::DataType type)
 {
 	assert (type == datatype::Long);
 }
 
-template <> void database::checkType < float >(const float &a, const datatype::DataType type)
+template <> void checkType < float >(const float &a, const datatype::DataType type)
 {
 	assert (type == datatype::Float);
 }
 
-template <> void database::checkType < double >(const double &a, const datatype::DataType type)
+template <> void checkType < double >(const double &a, const datatype::DataType type)
 {
 	assert (type == datatype::Double);
 }
 
-template <> void database::checkType < string > (const string & a, const datatype::DataType type)
+template <> void checkType < string > (const string & a, const datatype::DataType type)
 {
 	assert (type == datatype::String);
+}
+
 }

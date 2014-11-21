@@ -777,7 +777,7 @@ database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, 
       string fieldName = "Mass";
       fieldName += TableComponentNames[component];
 
-      double mass = oldRecord->getValue (fieldName, (double *) 0);
+      double mass = oldRecord->getValue<double> (fieldName);
       newRecord->setValue (fieldName, mass);
    }
 
@@ -809,7 +809,7 @@ void Migrator::addMigrationRecord (const string & srcReservoirName, const string
       string fieldName = "Mass";
       fieldName += TableComponentNames[component];
 
-      double mass = (newlyCreated ? 0 : record->getValue (fieldName, (double *) 0));
+      double mass = (newlyCreated ? 0 : record->getValue<double>(fieldName));
       mass += mr.composition.getWeight ((ComponentId) component);
 
       record->setValue (fieldName, mass);
@@ -968,8 +968,8 @@ bool MigrationIoTblMerge (database::Record * recordL,  database::Record * record
       string fieldName = "Mass";
       fieldName += TableComponentNames[component];
 
-      double massL = recordL->getValue (fieldName, (double *) 0);
-      double massR = recordR->getValue (fieldName, (double *) 0);
+      double massL = recordL->getValue<double>(fieldName);
+      double massR = recordR->getValue<double>(fieldName);
 
       recordL->setValue (fieldName, massL + massR);
    }
@@ -1041,7 +1041,7 @@ void Migrator::sanitizeMigrationRecords (void)
       {
          if (sourceTrapId < 0)
          {
-            nextIter = m_migrationIoTbl->deleteRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
       }
@@ -1071,12 +1071,12 @@ void Migrator::sanitizeMigrationRecords (void)
          {
             // shouldn't happen!!!
 
-            nextIter = m_migrationIoTbl->deleteRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
          else if (sourceTrapId == destinationTrapId)
          {
-            nextIter = m_migrationIoTbl->deleteRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
          else if (destinationTrapId < 0)
@@ -1088,7 +1088,7 @@ void Migrator::sanitizeMigrationRecords (void)
       {
          if (sourceTrapId < 0)
          {
-            nextIter = m_migrationIoTbl->deleteRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
       }
@@ -1102,7 +1102,7 @@ void Migrator::sanitizeMigrationRecords (void)
       {
          if (sourceTrapId < 0)
          {
-            nextIter = m_migrationIoTbl->deleteRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
       }

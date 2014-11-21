@@ -122,7 +122,7 @@ double Trap::getMass (ComponentId componentId) const
 double Trap::getMass (const string & componentName) const
 {
    string componentMassName = "Mass" + componentName;
-   return m_record->getValue (componentMassName, (double *) 0);
+   return m_record->getValue<double>(componentMassName);
 }
 
 /// return the volume of the given phase in this Trap
@@ -134,7 +134,7 @@ double Trap::getVolume (PhaseId phaseId) const
 double Trap::getVolume (const string & phaseName) const
 {
    string phaseVolumeName = "Volume" + phaseName;
-   return m_record->getValue (phaseVolumeName, (double *) 0);
+   return m_record->getValue<double>(phaseVolumeName);
 }
 
 /// return the Trap's depth

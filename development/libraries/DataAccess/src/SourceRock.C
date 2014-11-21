@@ -186,7 +186,7 @@ GridMap * SourceRock::loadMap (SourceRockMapAttributeId attributeId) const
    unsigned int attributeIndex = (unsigned int) attributeId;
 
    string attributeGridName = s_MapAttributeNames[attributeIndex] + "Grid";
-   const string & valueGridMapId = m_record->getValue (attributeGridName, (string *) 0);
+   const string & valueGridMapId = m_record->getValue<std::string>(attributeGridName);
 
    GridMap * gridMap = 0;
    if (valueGridMapId.length () != 0)
@@ -195,8 +195,8 @@ GridMap * SourceRock::loadMap (SourceRockMapAttributeId attributeId) const
    }
    else
    {
-      double value;
-      if ((value = m_record->getValue (s_MapAttributeNames[attributeIndex], (double *) 0)) != RecordValueUndefined)
+      double value = m_record->getValue<double>(s_MapAttributeNames[attributeIndex]);
+      if ( value != RecordValueUndefined)
       {
          //const Grid *grid = m_projectHandle->getInputGrid ();
 	 const Grid * grid = m_projectHandle->getActivityOutputGrid();

@@ -7,7 +7,6 @@
 namespace database
 {
    class Database;
-   class Transaction;
    class Table;
    class Record;
 }
@@ -66,9 +65,7 @@ namespace DataAccess
 	    unsigned int computeIndex ();
 	    unsigned int applyIndex (unsigned int index);
 
-	    void computeChecksum (const string & directory, database::Transaction * transaction);
 	    string saveToDirectory (const string & directory);
-	    void convertToBPA (database::Transaction * transaction);
 
 	 private:
             static const unsigned int ValueMap = 0;

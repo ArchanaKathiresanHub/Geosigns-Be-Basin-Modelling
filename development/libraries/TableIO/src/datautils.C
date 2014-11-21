@@ -1,25 +1,8 @@
 #include <string>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-      #include <fstream>
-      #include <sstream>
-      #include <iomanip>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include <iostream.h>
-      #include <fstream.h>
-      #include <strstream.h>
-      #include <iomanip.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <fstream>
-   #include <sstream>
-   #include <iomanip>
-   using namespace std;
-#endif // sgi
+#include <iostream>
+#include <iomanip>
+#include <algorithm>
 
 #include "datautils.h"
 
@@ -30,13 +13,7 @@ bool loadLine (istream & infile, string & line, bool checkForHeaders)
    string separators = " \t";
    while (true)
    {
-#ifdef sun
-      static char buf[1<<14];
-      infile.getline (buf, 1<<14);
-      line = buf;
-#else
       getline (infile, line, '\n');
-#endif
       if (infile.eof ())
       {
 	 return false;
@@ -61,7 +38,7 @@ bool loadLine (istream & infile, string & line, bool checkForHeaders)
 }
 
 // searches from linePos, returns the 'word' in word and returns the linePos beyond 'word'
-size_t loadWordFromLine (string & line, size_t linePos, string & word)
+size_t loadWordFromLine (const string & line, size_t linePos, string & word)
 {
    const string separators = " \t";
    const string quote = "\"";
@@ -111,6 +88,30 @@ size_t loadWordFromLine (string & line, size_t linePos, string & word)
    }
 }
 
+
+bool saveStringToStream (ostream & ofile, const string & word, int & borrowed, int fieldWidth)
+{
+#ifdef linux
+   // setw () does not work like it should on (this version of) linux
+   int wordLength = std::max(fieldWidth - borrowed, (int) word.length ());
+   borrowed = std::max(wordLength + borrowed - fieldWidth, 0);
+
+   int spaceLength = wordLength - word.length ();
+   while (spaceLength > 0)
+   {
+      ofile << " ";
+      --spaceLength;
+   }
+   ofile << word;
+#else
+   int wordLength = std::max(fieldWidth - borrowed, (int) word.length ());
+   borrowed = std::max(wordLength + borrowed - fieldWidth, 0);
+
+   ofile << setw (wordLength) << word;
+#endif
+   return !ofile.fail ();
+}
+
 bool findAndRemoveDelimiters (string & line, const char delimiters[])
 {
    if (line[0] != delimiters[0]) return false;
@@ -124,25 +125,3 @@ bool findAndRemoveDelimiters (string & line, const char delimiters[])
    return true;
 }
 
-bool saveStringToStream (ostream & ofile, const string & word, int & borrowed, int fieldWidth)
-{
-#ifdef linux
-   // setw () does not work like it should on (this version of) linux
-   int wordLength = Max (fieldWidth - borrowed, (int) word.length ());
-   borrowed = Max (wordLength + borrowed - fieldWidth, 0);
-
-   int spaceLength = wordLength - word.length ();
-   while (spaceLength > 0)
-   {
-      ofile << " ";
-      --spaceLength;
-   }
-   ofile << word;
-#else
-   int wordLength = Max (fieldWidth - borrowed, (int) word.length ());
-   borrowed = Max (wordLength + borrowed - fieldWidth, 0);
-
-   ofile << setw (wordLength) << word;
-#endif
-   return !ofile.fail ();
-}

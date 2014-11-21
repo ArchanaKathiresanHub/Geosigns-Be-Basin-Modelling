@@ -82,7 +82,7 @@ GridMap * AllochthonousLithologyDistribution::loadMap ( const Interface::Allocht
    unsigned int attributeIndex = (unsigned int) attributeId;
 
    string attributeGridName = s_MapAttributeNames[attributeIndex] + "Grid";
-   const string & valueGridMapId = m_record->getValue (attributeGridName, (string *) 0);
+   const string & valueGridMapId = m_record->getValue<std::string>(attributeGridName);
 
    GridMap * gridMap = 0;
    if (valueGridMapId.length () != 0)
@@ -91,8 +91,8 @@ GridMap * AllochthonousLithologyDistribution::loadMap ( const Interface::Allocht
    }
    else
    {
-      double value;
-      if ((value = m_record->getValue (s_MapAttributeNames[attributeIndex], (double *) 0)) != RecordValueUndefined)
+      double value = m_record->getValue<double>(s_MapAttributeNames[attributeIndex]);
+      if (value != RecordValueUndefined)
       {
          const Grid *grid = (Grid *) m_projectHandle->getInputGrid ();
          gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);

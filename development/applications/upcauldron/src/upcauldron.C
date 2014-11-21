@@ -23,7 +23,6 @@ using database::DataSchema;
 using database::TableDefinition;
 using database::Table;
 using database::Record;
-using database::Transaction;
 
 #include "process.h"
 

@@ -13,7 +13,6 @@ using namespace std;
 namespace database
 {
    class Database;
-   class Transaction;
    class Table;
    class Record;
 }
@@ -94,7 +93,6 @@ namespace DataAccess
 	    /// Returns whether this PropertyValue has been uploaded onto a BPA server.
 	    virtual bool isUploadedToBPA (void) const;
 	    
-	    void computeChecksum (const string & directory, const string & subdir, database::Transaction * transaction);
 	    string saveToDirectory (const string & directory);
 
 	    /// First sorts on the age of the PropertyValue objects,

@@ -386,7 +386,7 @@ bool InputValue::fillEventAttributes (void) const
 	    for (i = 0; gridNames[i] != ""; ++i)
 	    {
 	       string fullGridName = gridNames[i] + "Grid";
-	       if (record->getValue (fullGridName, (std::string *) 0) == database::getMapName (m_record))
+	       if (record->getValue<std::string>(fullGridName) == database::getMapName (m_record))
 	       {
 		  m_propertyName = gridNames[i];
 		  m_formationName = database::getLayerName (record);
@@ -458,51 +458,6 @@ string InputValue::saveToDirectory (const string & directory)
       {
 	 return getFileName ();
       }
-   }
-}
-
-void InputValue::computeChecksum (const string & directory, Transaction * transaction)
-{
-   string fullFileName;
-   if (getType () == PropertyMap)
-   {
-      char indexStr[10];
-      sprintf (indexStr, "%d", getIndex ());
-
-      string fileName = string ("InputMap") + indexStr + ".HDF";
-      fullFileName = directory + '/' + fileName;
-
-   }
-   else
-   {
-      fullFileName = directory + "/" + getFileName ();
-   }
-
-   string checksum = m_projectHandle->computeChecksum (fullFileName);
-   Record * record = m_record->edit (transaction);
-   setMD5Checksum (record, checksum);
-}
-
-void InputValue::convertToBPA (Transaction * transaction)
-{
-   if (getType () == PropertyMap)
-   {
-      Record * record = m_record->edit (transaction);
-      
-      database::setMapType (record, "HDF5");
-      assert (database::getMapType (record) == "HDF5");
-
-      char indexStr[10];
-      sprintf (indexStr, "%d", getIndex ());
-
-      string mapFileName = "InputMap";
-      mapFileName += indexStr;
-      mapFileName += ".HDF";
-
-      setMapFileName (record, mapFileName);
-      setFileId (record, -1);
-      setMapSeqNbr (record, 0);
-      setHDF5FileName (record, "");
    }
 }
 

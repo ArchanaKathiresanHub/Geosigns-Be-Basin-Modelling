@@ -246,16 +246,6 @@ string PropertyValue::saveToDirectory (const string & directory)
    return fileName;
 }
 
-void PropertyValue::computeChecksum (const string & directory, const string & subdirectory, Transaction * transaction)
-{
-   string fileName = getPropertyGrid (getRecord ()) + ".HDF";
-   string fullFileName = directory + '/' + subdirectory + '/' +  fileName;
-
-   string checksum = m_projectHandle->computeChecksum (fullFileName);
-
-   Record * record = m_record->edit (transaction);
-   setMD5Checksum (record, checksum);
-}
 
 //1DComponennt
 //assumtpion lower left corner

@@ -354,13 +354,6 @@ namespace DataAccess
 
          void printPropertyValues( PropertyValueList * propertyValues ) const;
 
-         void computeInputChecksums( const string & rootDirectory, database::Transaction * transaction ) const;
-
-         void computeOutputChecksums( database::Transaction * transaction, const string & rootDirectory,
-            PropertyValueList * propertyValues ) const;
-
-         virtual string computeChecksum( const string & fileName ) const;
-
 
          void addProperty( Property * property );
          // Function supporting the implementation
@@ -399,9 +392,9 @@ namespace DataAccess
          virtual const string  getFullOutputDir( void ) const;
          virtual bool makeOutputDir() const;
 
-         bool setOutputDir( database::Transaction * transaction, const string & fileOrDirName ) const;
+         bool setOutputDir( const string & fileOrDirName ) const;
 
-         void resetSnapshotIoTbl( database::Transaction * transaction ) const;
+         void resetSnapshotIoTbl(  ) const;
 
          const string & getCrustIoTableName();
          database::Table* getCrustIoTable( void );

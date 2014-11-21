@@ -84,7 +84,7 @@ void TrapperIoTableRec::loadRec( const database::Table::iterator & tit )
 
       for ( int p = 0; p < 4; ++p )
       {
-         (*tit)->getValue( m_iTotMass[p], m_TotMass + p );
+         (*tit)->getValue<double>( m_iTotMass[p] );
    
          m_CompMass[p].resize( CBMGenerics::ComponentManager::NumberOfSpecies );
          for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpecies; ++i )
