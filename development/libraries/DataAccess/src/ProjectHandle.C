@@ -5589,7 +5589,7 @@ void ProjectHandle::deletePointHistories() {
 
 
 /// Get a project's output directory
-const string & ProjectHandle::getOutputDir( void ) const
+std::string ProjectHandle::getOutputDir( void ) const
 {
    return getProjectName() +  "_CauldronOutputDir";
 }

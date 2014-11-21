@@ -379,7 +379,7 @@ namespace DataAccess
          GridMap * loadGridMap( const Parent * parent, unsigned int childIndex, const string & filePathName, const string & dataSetName );
 
          /// Get the name of the output directory
-         virtual const string & getOutputDir( void ) const;
+         virtual std::string getOutputDir( void ) const;
          virtual const string  getFullOutputDir( void ) const;
          virtual bool makeOutputDir() const;
 
@@ -496,8 +496,6 @@ namespace DataAccess
          string m_fileName;
          /// The name of the project
          string m_projectName;
-         /// The name of the output directory
-         mutable string m_outputDir;
 
          /// A function to extract the project directory and the project file name
          void splitName( void );

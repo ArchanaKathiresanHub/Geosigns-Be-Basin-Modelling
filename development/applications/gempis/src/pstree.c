@@ -142,7 +142,7 @@ void uid2user( uid_t uid, char *name, int len )
   un[NUMUN];
   static short n = 0;
   short i;
-  char *found = "?";
+  const char *found = "?";
 
   // no output buffer
   if ( name == NULL ) 

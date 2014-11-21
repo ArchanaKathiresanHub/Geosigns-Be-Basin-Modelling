@@ -218,7 +218,7 @@ TEST ( VreTtiMethod, DeathTest )
 
    ASSERT_DEATH( methodObject9->doTimestep( PreviousInput, CurrentInput ), "Assertion.*timeStep > 0.0" );
 }
-#endif NDEBUG
+#endif // NDEBUG
 
 /// First test of >1 timesteps
 TEST( VreTtiMethod, timestep_test1 )

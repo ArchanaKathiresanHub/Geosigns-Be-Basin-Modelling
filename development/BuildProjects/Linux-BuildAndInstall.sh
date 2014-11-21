@@ -68,7 +68,16 @@ ${src}/development/bootstrap.csh \
 
 source envsetup.sh
 
-make -k -j${nprocs} || { echo error: Build has failed; exit 1 ; } 
+# Run Gnu Make :-)
+# Notes on parameters:
+#   -k  => build as much as you can
+#   -j  => parallel build
+#   3>&1 1>&2 2>&3 3>&- | sed -e 's/[Ww]arning:/warning :/' 
+#       => Redirects stderr to the sed script which makes GCC outputted
+#          warnings easier to digest for TFS / Visual Studio
+make -k -j${nprocs} 3>&1 1>&2 2>&3 3>&- | sed -e 's/[Ww]arning:/warning :/' \
+   || { echo error: Build has failed; exit 1 ; } 
+
 
 if [ x$deploy = xTrue ]; then
    if [[ ${configuration} =~ "[Rr]elease" ]]; then

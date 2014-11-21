@@ -1,4 +1,5 @@
 #include "Quadrature3D.h"
+#include <climits>
 
 NumericFunctions::Quadrature3D* NumericFunctions::Quadrature3D::s_quadratureInstance = 0;
 
@@ -42,9 +43,9 @@ void NumericFunctions::Quadrature3D::get ( const int       degree,
                                            const int       face,
                                                  Iterator& iter ) {
 
-   unsigned int free1 = -1;
-   unsigned int free2 = -1;
-   unsigned int fixed = -1;
+   unsigned int free1 = UINT_MAX;
+   unsigned int free2 = UINT_MAX;
+   unsigned int fixed = UINT_MAX;
 
    if ( face == 0 or face == 5 ) {
       free1 = 0;
