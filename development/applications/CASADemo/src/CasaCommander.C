@@ -78,3 +78,12 @@ void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa 
       m_cmds[i]->execute( sa );
    }
 }
+
+void CasaCommander::printHelpPage()
+{
+   std::cout << "Input file for application usually has .casa extension and contains a set of commands with their parameters\n";
+   std::cout << "Here is a shot description of implemented commands\n";
+
+   CmdAddCldApp::printHelpPage( "app" );
+
+}

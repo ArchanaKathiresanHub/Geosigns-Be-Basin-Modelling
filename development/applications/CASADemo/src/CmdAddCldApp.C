@@ -76,3 +76,18 @@ void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 }
+
+
+void CmdAddCldApp::printHelpPage( const char * cmdName )
+{
+   std::cout << "  " << cmdName << " <app name> [app parameters]\n";
+   std::cout << "   - add a new Cauldron application at the end of the simulation pipeline. The full Cauldron simulation \n";
+   std::cout << "     could consists of several stages, like P/T simulation then genex and then migration. Command must \n";
+   std::cout << "     have an application name as the first parameter and optionally, application parameters. Input and \n";
+   std::cout << "     output project file names must not be specified as command options, they will be added by CASA.\n";
+   std::cout << "     Here is an examples of using \"" << cmdName << "\" command:\n";
+   std::cout << "         app fastcauldron \"-itcoupled\"\n";
+   std::cout << "         app fastgenex6\n";
+}
+
+

@@ -50,6 +50,9 @@ public:
 
    const std::vector< SharedCmdPtr> & cmdQueue() { return m_cmds; }
 
+   /// @brief Print short description of all available commands
+   static void printHelpPage();
+
 private:
    std::vector< SharedCmdPtr>  m_cmds;         ///< Queue of commands
    VerboseLevel                m_msgLvl;       ///< How talkative should be CASADemo app

@@ -16,7 +16,10 @@ int main( int argc, char ** argv )
 {
    if ( argc < 2 )
    {
-      std::cout << "Usage: " << argv[0] << " cfgfile.casa" << std::endl;
+      std::cout << "Usage: " << argv[0] << " [options] cfgfile.casa\n";
+      std::cout << " options are:\n";
+      std::cout << "    -quiet|minimal|detailed - set level of printed on screen information to off/minimal/full\n";
+      std::cout << "    -help print help page about CASADemo commands and exit\n";
       return -1;
    }
 
@@ -30,9 +33,10 @@ int main( int argc, char ** argv )
       {
          if ( '-' == argv[i][0] )
          {
-            if (      !strcmp( argv[i] + 1, "quite"    ) ) { msgLvl = CasaCommander::Quiet; }
+            if (      !strcmp( argv[i] + 1, "quiet"    ) ) { msgLvl = CasaCommander::Quiet; }
             else if ( !strcmp( argv[i] + 1, "minimal"  ) ) { msgLvl = CasaCommander::Minimal; }
             else if ( !strcmp( argv[i] + 1, "detailed" ) ) { msgLvl = CasaCommander::Detailed; }
+            else if ( !strcmp( argv[i] + 1, "help"     ) ) { CasaCommander::printHelpPage(); exit(0); }
             else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown option: " << argv[i];
          }
          else

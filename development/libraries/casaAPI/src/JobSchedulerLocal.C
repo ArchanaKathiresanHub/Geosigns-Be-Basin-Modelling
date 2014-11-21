@@ -17,6 +17,7 @@
 
 // FileSystem
 #include "FilePath.h"
+#include "FolderPath.h"
 
 // STL
 #include <iterator>
@@ -66,7 +67,18 @@ public:
    virtual ~SystemProcess( )
    {
 #ifndef _WIN32
-      if ( m_isOk ) kill( m_pid, SIGTERM );
+//      if ( m_isOk ) kill( m_pid, SIGTERM );
+
+      // get TMPDIR value if it is set
+      const char * tmpDir = getenv( "TMPDIR" );
+
+      // clean $TMPDIR/pid if it is exists
+      if ( tmpDir )
+      {
+         ibs::FolderPath tmpSubPrcDir( tmpDir );
+         tmpSubPrcDir << m_pid;
+         if ( tmpSubPrcDir.exists() ) tmpSubPrcDir.remove();
+      }
 #else
       if ( m_isOk   ) { TerminateProcess( hProcess, 0 ); }
       if ( hProcess ) { CloseHandle( hProcess ); }
@@ -87,7 +99,11 @@ private:
 };
 
 // Start a new process using fork/exec, and mangle the file descriptors
-SystemProcess::SystemProcess( const std::string & cwd, const std::string & commandString, const std::string & outFile, const std::string & errFile )
+SystemProcess::SystemProcess( const std::string & cwd
+                            , const std::string & commandString
+                            , const std::string & outFile
+                            , const std::string & errFile
+                            )
 {
    DEBUG( 1, "Running command: %s\n", commandString.c_str() );
    m_isOk = false;
@@ -107,6 +123,9 @@ SystemProcess::SystemProcess( const std::string & cwd, const std::string & comma
 
    const char * nwd = cwd.c_str(); // script folder
 
+   // get TMPDIR value if it is set
+   const char * tmpDir = getenv( "TMPDIR" );
+
    int pid = fork();
    if ( pid < 0 ) // fork() failed!
    {
@@ -117,6 +136,17 @@ SystemProcess::SystemProcess( const std::string & cwd, const std::string & comma
       // change current folder to the script folder
       if ( chdir( nwd ) == 0 )
       {
+         // create TMPDIR like $TMPDIR/pid
+         if ( tmpDir )
+         {
+            ibs::FolderPath tmpSubPrcDir( tmpDir );
+            tmpSubPrcDir << getpid();
+            // if subdir in TMPDIR doesn't exist - create the new one
+            if ( !tmpSubPrcDir.exists() ) tmpSubPrcDir.create();
+            
+            putenv( strdup((std::string("TMPDIR=")+tmpSubPrcDir.path()).c_str()) );
+         }
+
          // redirect outputs to files
          int out = open( outFile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0660 );
          int err = open( errFile.c_str(), O_RDWR | O_CREAT | O_APPEND, 0660 );
