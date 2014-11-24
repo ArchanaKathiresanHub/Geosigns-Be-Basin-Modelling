@@ -75,7 +75,8 @@ source envsetup.sh
 #   3>&1 1>&2 2>&3 3>&- | sed -e 's/[Ww]arning:/warning :/' 
 #       => Redirects stderr to the sed script which makes GCC outputted
 #          warnings easier to digest for TFS / Visual Studio
-make -k -j${nprocs} 3>&1 1>&2 2>&3 3>&- | sed -e 's/[Ww]arning:/warning :/' \
+#          (See also http://stackoverflow.com/questions/3441452/msbuild-and-ignorestandarderrorwarningformat)
+make -k -j${nprocs} 3>&1 1>&2 2>&3 3>&- | sed -e 's/:\(.*\): \([Ww]arning\|[Ee]rror\): /(\1): \2 : /' \
    || { echo error: Build has failed; exit 1 ; } 
 
 
