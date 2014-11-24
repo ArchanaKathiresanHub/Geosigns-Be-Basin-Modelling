@@ -159,8 +159,8 @@ if (UNIX)
          add_environment_source_script_to_wrapper( mpiexec "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
          add_environment_source_script_to_wrapper( mpirun "${INTEL_MPI_ROOT}/intel64/bin/mpivars.sh")
 
-         finish_wrapper( mpiexec "mpiexec ${args}" MpiExec )
-         finish_wrapper( mpirun "mpirun ${args}" MpiRun)
+         finish_wrapper( mpiexec "mpiexec ${args}" MpiExec ADDITIVE)
+         finish_wrapper( mpirun "mpirun ${args}" MpiRun ADDITIVE)
 
          # Write info about Intel MPI
          add_external_package_info(

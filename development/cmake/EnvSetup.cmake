@@ -117,11 +117,13 @@ endmacro(add_environment_variable)
 # finish_wrapper
 #        Writes the wrapper and makes it executable
 #
-#           finish_wrapper( <wrapper-name> <executable> <variable-name> )
+#           finish_wrapper( <wrapper-name> <executable> <variable-name> [ADDITIVE])
 #        
 #        Appends the a call to <executable> and forwards all positional
 #        paraemeters. The file name of the resulting wrapper is written
-#        to variable <variable-name>.
+#        to variable <variable-name>. If ADDITIVE is given, the given 
+#        scripts will be sourced each time before the command is ran, 
+#        instead of being sourced only once.
 
 macro(init_wrapper name)
    # Clear the environment
@@ -135,12 +137,16 @@ endmacro(add_environment_source_script_to_wrapper)
 
 macro(finish_wrapper name executable wrapper)
    # First read the set of scripts to be sourced 
-   execute_process( 
-         COMMAND /bin/bash 
-            ${CMAKE_SOURCE_DIR}/cmake/SaveEnvironment.sh 
-            "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh"
-            OUTPUT_VARIABLE compilerEnvironment
-   ) 
+   if ( "x${ARGN}" STREQUAL "xADDITIVE")
+      file(READ "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh" compilerEnvironment)
+   else()
+      execute_process( 
+            COMMAND /bin/bash 
+               ${CMAKE_SOURCE_DIR}/cmake/SaveEnvironment.sh 
+               "${CMAKE_BINARY_DIR}/aux/${name}_wrap_environment.sh"
+               OUTPUT_VARIABLE compilerEnvironment
+      ) 
+   endif()
 
    # Now write the wrapper
    file(WRITE "${CMAKE_BINARY_DIR}/aux/${name}_wrap.sh" 
