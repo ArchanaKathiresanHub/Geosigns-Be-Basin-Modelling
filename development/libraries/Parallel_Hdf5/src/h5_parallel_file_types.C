@@ -41,42 +41,42 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
 
 hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
 {
-  // set parallel read/write on file
+   // set parallel read/write on file
    hid_t pList = H5P_DEFAULT;
-
-  if( not s_oneFilePerProcess ) 
-  {
-     pList = H5Pcreate (H5P_DATASET_XFER);
-     H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
-  } 
-
-  return pList;
+   
+   if( not s_oneFilePerProcess ) 
+   {
+      pList = H5Pcreate (H5P_DATASET_XFER);
+      H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
+   } 
+   
+   return pList;
 }
-         
+
 bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
 {
    PetscBool noOfpp = PETSC_FALSE;
-
+   
 #ifndef _MSC_VER
    PetscOptionsHasName ( PETSC_NULL, "-noofpp", &noOfpp );
-
-   if( !noOfpp ) {
-   const char * tmpDir = 0; 
-        
-      char temporaryDirName [ PETSC_MAX_PATH_LEN ];
-   memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
    
-      PetscBool oneFilePerProcess;
-   PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+   if( !noOfpp ) {   
 
+      const char * tmpDir = 0; 
+      
+      char temporaryDirName [ PETSC_MAX_PATH_LEN ];
+      memset ( temporaryDirName, 0, PETSC_MAX_PATH_LEN );
+      
+      PetscBool oneFilePerProcess;
+      PetscOptionsGetString ( PETSC_NULL, "-onefileperprocess", temporaryDirName, PETSC_MAX_PATH_LEN, &oneFilePerProcess );
+      
       if( temporaryDirName[0] == 0 ) {
          tmpDir = getenv( "TMPDIR" );
       } else {
          tmpDir = temporaryDirName;
       }
-   
+      
       if( tmpDir == NULL ) {
-         PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING $TMPDIR is not set, 'one file per process' option cannot be used.\n");    
          noOfpp = PETSC_TRUE;
       } else {
          setTempDirName ( tmpDir );
@@ -84,7 +84,7 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
       }
    }
 #endif
-
+   
    setOneFilePerProcess ( !noOfpp );
 
    return !noOfpp;
@@ -107,7 +107,6 @@ bool H5_Parallel_PropertyList :: copyMergedFile( std::string & filePathName )
 
        if( !noFileCopy ) {
          std::string curPath = getTempDirName() + "/" +  filePathName + "_0";
-         // PetscPrintf ( PETSC_COMM_WORLD, " Copy %s to %s\n", curPath.c_str(), filePathName.c_str() );
          status = copyFile ( filePathName, curPath );
          if( !status ) {
             PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );               
