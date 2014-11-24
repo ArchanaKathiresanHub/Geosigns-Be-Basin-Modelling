@@ -3255,100 +3255,6 @@ START-properties
     Unit of measurement : 
     Error Field         : No
 
-    Identification      : NrMCLoopsCompleted
-    Description         : Number of Monte Carlo loops completed,
-                          this information is needed for the
-                          restart facility.
-    Type                : integer
-    Unit of measurement : 
-    Error Field         : No
-
-    Identification      : MCStatusOfLastRun
-    Description         : Status of the last run,
-                          this information is needed for the
-                          restart facility and for "Big" 3D projects
-                          Possible values are:
-                             "Initial", "CalculatingGeometry", "GeometryCalculated",
-                             "CalculatingTemperatures", "TemperaturesCalculated", 
-                             "CalculatingGenex", "GenexCalculated"
-                             "CalculatingXmig",  "XmigCalculated", etc.
-    Type                : string
-    Default             : "Initial"
-    Unit of measurement : 
-    Error Field         : No
-    
-    Identification      : MCStatusOfLastPressureRun
-    Description         : Status of the last run,
-                          this information is needed for the
-                          restart facility and for "Big" 3D projects
-                          Possible values are:
-                             "Initial", "CalculatingPressures", "PressuresCalculated",
-    Type                : string
-    Default             : "Initial"
-    Unit of measurement : 
-    Error Field         : No
-    
-    Identification      : MCCalculationScope
-    Description         : Target of the last run,
-                          this information is needed for the
-                          restart facility
-                          Possible values are:
-                          "DECOMPACT", "HIGHRESDECOMPACT", "TEMPERATURE",
-                          "GENEX", "XMIG", "FULLRUN", "PRESSURE".
-    Type                : string
-    Default             : "FULLRUN"
-    Unit of measurement : 
-    Error Field         : No
-
-    Identification      : MCStatusOfLastHighResRun
-    Description         : Status of the last run,
-                          this information is needed for the
-                          restart facility and for "Big" 3D projects
-                          Possible values are:
-                             "Initial", "CalculatingHighResDecompaction",
-                             "HighResDecompactionCalculated",
-    Type                : string
-    Default             : "Initial"
-    Unit of measurement : 
-    Error Field         : No
-    
-    Identification      : OutputDirOfLastRun
-    Description         : Output directory of the last run, needed to save
-                          the output of a continued run within the save 
-                          directory
-    Type                : string
-    Unit of measurement : 
-    Error Field         : No
-
-    Identification      : OutputDirCreatedBy
-    Description         : The name of the projectfile (without extension),
-                          the outputdirectory belongs to.
-    Type                : string
-    Unit of measurement : 
-    Error Field         : No
-
-    Identification      : MCCurrentSeedNumber
-    Description         : Internal seed number for the montecarlo pseudo
-                          random generator. This number is needed generate
-                          the same results in case of a re-start + continue.
-    Type                : integer
-    Unit of measurement : 
-    Error Field         : No
-
-    Identification      : RestartTempCalcTimeStep
-    Description         : The first temperature calculation timestep that need to 
-                          be taken in case of a restart for 3D projects.
-    Type                : double
-    Unit of measurement : 
-    Error Field         : No
-
-    Identification      : RestartPresCalcTimeStep
-    Description         : The first pressure calculation timestep that need to 
-                          be taken in case of a restart for 3D projects.
-    Type                : double
-    Unit of measurement : 
-    Error Field         : No
-
     Identification      : AnalysisIdentification
     Description         : Unique identification for the sensitivity analysis
                           to be perform. For more details see "RBYmontecarlo.dat"
@@ -7890,7 +7796,6 @@ START-application-class-properties
     Property : FltDensityIoTbl
     Property : FltViscoIoTbl
     Property : FilterDepthIoTbl
-    Property : RunStatusIoTbl
     Property : FilterTimeIoTbl
     Property : FilterTimeDepthIoTbl
     Property : DepthIoTbl
