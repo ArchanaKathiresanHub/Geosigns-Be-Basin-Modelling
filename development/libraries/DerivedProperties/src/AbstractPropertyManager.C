@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-#include "FormationPropertyErasePredicate.h"
+#include "PropertyErasePredicate.h"
 
 DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
@@ -353,7 +353,26 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
 }
 
 void DerivedProperties::AbstractPropertyManager::removeProperties ( const DataModel::AbstractSnapshot* snapshot ) {
-   FormationPropertyList::iterator toRemove = std::remove_if ( m_formationProperties.begin (), m_formationProperties.end (),
-                                                               FormationPropertyErasePredicate ( snapshot ));
-   m_formationProperties.erase ( toRemove, m_formationProperties.end ());
+
+   // Remove formation properties at snapshot time.
+   FormationPropertyList::iterator formationsToRemove = std::remove_if ( m_formationProperties.begin (), m_formationProperties.end (),
+                                                                         PropertyErasePredicate<FormationPropertyPtr> ( snapshot ));
+   m_formationProperties.erase ( formationsToRemove, m_formationProperties.end ());
+
+   // Remove formation-surface properties at snapshot time.
+   FormationSurfacePropertyList::iterator formationSurfacesToRemove = std::remove_if ( m_formationSurfaceProperties.begin (), m_formationSurfaceProperties.end (),
+                                                                                       PropertyErasePredicate<FormationSurfacePropertyPtr> ( snapshot ));
+   m_formationSurfaceProperties.erase ( formationSurfacesToRemove, m_formationSurfaceProperties.end ());
+
+   // Remove formation-map properties at snapshot time.
+   FormationMapPropertyList::iterator formationMapsToRemove = std::remove_if ( m_formationMapProperties.begin (), m_formationMapProperties.end (),
+                                                                               PropertyErasePredicate<FormationMapPropertyPtr> ( snapshot ));
+   m_formationMapProperties.erase ( formationMapsToRemove, m_formationMapProperties.end ());
+
+   // Remove surface properties at snapshot time.
+   SurfacePropertyList::iterator surfacesToRemove = std::remove_if ( m_surfaceProperties.begin (), m_surfaceProperties.end (),
+                                                                     PropertyErasePredicate<SurfacePropertyPtr> ( snapshot ));
+   m_surfaceProperties.erase ( surfacesToRemove, m_surfaceProperties.end ());
+
+
 }
