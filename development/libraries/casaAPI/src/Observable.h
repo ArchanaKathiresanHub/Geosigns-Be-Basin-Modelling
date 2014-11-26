@@ -37,7 +37,7 @@
 /// the data points tend to be very close to the mean (also called expected value); a high standard deviation
 /// indicates that the data points are spread out over a large range of values. 
 /// In science, researchers commonly report the standard deviation of experimental data, and only effects that
-/// fall much farther than two standard deviations away from what would have been expected are considered
+/// fall much further than two standard deviations away from what would have been expected are considered
 /// statistically significant - normal random error or variation in the measurements is in this way distinguished
 /// from causal variation.
 /// @image html Standard_deviation_diagram.png "A plot of a normal distribution (or bell-shaped curve) where each band has
@@ -69,9 +69,10 @@ namespace casa
       /// @brief Destructor
       virtual ~Observable() {;}
 
-      /// @brief Get name of the observable
-      /// @return observable name
-      virtual const char * name() const = 0;
+      /// @brief Get name of the observable. If dimension of observable is more than 1
+      ///        it return name for each dimension
+      /// @return observable name for each dimension
+      virtual std::vector<std::string> name() const = 0;
 
       /// @brief Get observable dimension
       /// @return dimension of observable

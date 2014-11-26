@@ -181,30 +181,24 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
 
 void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc )
 {
-   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
-
    // save observables value for each case
    // First save name of the observables
    m_ofs << "ObservablesName = {\n";
-   for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
+   for ( size_t j = 0; j < sc.obsSpace().size(); ++j )
    {
-      ObsValue * obv = rcs[0]->obsValue( j );
-      
-      if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
-
-      m_ofs << "    \'" << obv->observable()->name() << "\'\n";      
+      const std::vector<std::string> & obsNames = sc.obsSpace().observable( j )->name();
+      for ( size_t k = 0; k < obsNames.size(); ++k )
+      {
+         m_ofs << "    \'" << obsNames[k] << "\'\n";      
+      }
    }
    m_ofs << "};\n\n";
 
    // Second - value for observables for each case
    m_ofs << "ObservablesDim = [ ";
-   for ( size_t j = 0; j < rcs[0]->observablesNumber(); ++j )
+   for ( size_t j = 0; j < sc.obsSpace().size(); ++j )
    {
-      ObsValue * obv = rcs[0]->obsValue( j );
-      
-      if ( !obv || !obv->isDouble()  ) continue;  // skip observables which is not double
-
-      m_ofs << " " << obv->asDoubleArray().size();      
+      m_ofs << " " << sc.obsSpace().observable( j )->dimension();      
    }
    m_ofs << " ];\n\n";
 
@@ -225,6 +219,8 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc )
       m_ofs << " ], " << obs->stdDeviationForRefValue() << " }\n";
    }
    m_ofs << " ];\n\n";
+
+   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
 
    m_ofs << "ObservablesVal = [\n";
    for ( size_t i = 0; i < rcs.size(); ++i )
@@ -433,6 +429,20 @@ void MatlabExporter::exportMCResults( ScenarioAnalysis & sc )
             const std::vector<double> & vals = obv->asDoubleArray();
             for ( size_t k = 0; k < vals.size(); ++k ) m_ofs << "\t" << vals[k];
          }
+      }
+      m_ofs << std::endl;
+   }
+   m_ofs << "];\n\n";
+
+   // save CDFs per observable
+   m_ofs << "MC_P10P90_CDF = [\n";
+   const std::vector< std::vector< double > > & cdf = sc.mcSolver().p10p90CDF();
+   for ( size_t i = 0; i < cdf.size(); ++i )
+   {
+      m_ofs << "  ";
+      for ( size_t j = 0; j < cdf[i].size(); ++j )
+      {
+         m_ofs << " " << cdf[i][j];
       }
       m_ofs << std::endl;
    }

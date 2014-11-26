@@ -51,7 +51,7 @@ public:
    const std::vector< SharedCmdPtr> & cmdQueue() { return m_cmds; }
 
    /// @brief Print short description of all available commands
-   static void printHelpPage();
+   static void printHelpPage( const std::string & cmdName );
 
 private:
    std::vector< SharedCmdPtr>  m_cmds;         ///< Queue of commands

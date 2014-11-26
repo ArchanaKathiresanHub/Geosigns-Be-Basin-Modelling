@@ -142,9 +142,8 @@ SystemProcess::SystemProcess( const std::string & cwd
             ibs::FolderPath tmpSubPrcDir( tmpDir );
             tmpSubPrcDir << getpid();
             // if subdir in TMPDIR doesn't exist - create the new one
-            if ( !tmpSubPrcDir.exists() ) tmpSubPrcDir.create();
-            
-            putenv( strdup((std::string("TMPDIR=")+tmpSubPrcDir.path()).c_str()) );
+            if ( !tmpSubPrcDir.exists() ) tmpSubPrcDir.create();            
+            setenv( "TMPDIR", tmpSubPrcDir.path().c_str(), 1 );
          }
 
          // redirect outputs to files

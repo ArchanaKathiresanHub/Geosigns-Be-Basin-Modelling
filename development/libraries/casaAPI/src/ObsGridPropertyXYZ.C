@@ -46,16 +46,17 @@ ObsGridPropertyXYZ::ObsGridPropertyXYZ( double x, double y, double z, const char
 
 
    // construct observable name
+
    std::ostringstream oss;
-   oss << "GridPropertyXYZ(" << m_propName << ", (" << m_x << "," << m_y << "," << m_z << ")," << m_simTime << ")";
-   m_name = oss.str();
+   oss << m_propName << "(" << m_x << "," << m_y << "," << m_z << "," << m_simTime << ")";
+   m_name.push_back( oss.str() );
 }
 
 // Destructor
 ObsGridPropertyXYZ::~ObsGridPropertyXYZ() {;}
 
 // Get name of the observable
-const char * ObsGridPropertyXYZ::name() const { return m_name.c_str(); }
+std::vector<std::string> ObsGridPropertyXYZ::name() const { return m_name; }
         
 // Get standard deviations for the reference value
 void ObsGridPropertyXYZ::setReferenceValue( ObsValue * obsVal, double devVal )

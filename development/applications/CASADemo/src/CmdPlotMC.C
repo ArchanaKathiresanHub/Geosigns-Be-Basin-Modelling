@@ -116,7 +116,7 @@ void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "c = floor( length( cc ) * (1-MCGOF(1)/100) );\n";
    ofs << "   bar( MCGOF(1), 'facecolor', cc(c,:) );\n";
    ofs << "   axis( [0 2 0 100] );\n";
-   ofs << "   text( 0.2, MCGOF(1), sprintf('  GOF\n%g%%', MCGOF(1) ), 'fontweight', 'bold' );\n";
+   ofs << "   text( 0.2, MCGOF(1), sprintf('  GOF\\n%g%%', MCGOF(1) ), 'fontweight', 'bold' );\n";
    ofs << "end\n\n";
    ofs << "h = colorbar;\n";
    ofs << "ylabel(h, 'RMSE', 'fontweight', 'bold' );\n";
@@ -135,4 +135,14 @@ void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       std::cout << "\nSucceeded." << std::endl;
    }
 }
+
+void CmdPlotMC::printHelpPage( const char * cmdName )
+{
+   std::cout << "  " << cmdName << " <scriptName>\n";
+   std::cout << "   - create Matlab/Octave .m script file which could be used to create plot with results of MC/MCMC simulation\n";
+   std::cout << "     \n";
+   std::cout << "     Example:\"" << cmdName << "\" command:\n";
+   std::cout << "         " << cmdName << " \"mcmcmplot.m\"\n";
+}
+
 

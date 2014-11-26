@@ -121,3 +121,55 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
 }
+
+void CmdAddVarPrm::printHelpPage( const char * cmdName )
+{
+   std::cout << "  " << cmdName << " <variable parameter type name> <min value> <max value> <pdf of parameter>\n\n";
+   std::cout << "    Variable parameter - a parameter in Cauldron project file which exact value is unknown.\n";
+   std::cout << "  There are only some estimations on it value range. For example - source rock TOC - [5:20]%.\n";
+   std::cout << "  To define the variable parameter user should specify parameter type name and parameter range min/max values\n\n";
+
+   std::cout << "  The following list of variable parameters is implemented for this command:\n";
+   std::cout << "    TopCrustHeatProduction - surface radiogenic heat production of the basement [ uW/m^3].\n";
+   std::cout << "    SourceRockTOC          - the initial total organic content in source rock [ weight % ].\n";
+   std::cout << "    CrustThinningOneEvent  - a crust thickness function with one crust thinning event.\n";
+   std::cout << "\n";
+   std::cout << "    TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       minVal - the parameter minimal range value\n";
+   std::cout << "       maxVal - the parameter maximal range value\n";
+   std::cout << "       prmPDF - the parameter probability density function type, the value could be one of the following:\n";
+   std::cout << "                \"Block\"    - uniform probability between min and max values,\n";
+   std::cout << "                \"Triangle\" - triangle shape probability function. The top triangle value is taken from the base case\n";
+   std::cout << "                \"Normal\"   - normal (or Gaussian) probability function. The position of highest value is taken from the base case\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #              type               minVal  maxVal    prmPDF\n";
+   std::cout << "    " << cmdName << " \"TopCrustHeatProduction\"    0.1     4.9  \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    SourceRockTOC  <layerName> <minVal> <maxVal> <prmPDF>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       layerName - source rock layer name\n";
+   std::cout << "       minVal    - the parameter minimal range value\n";
+   std::cout << "       maxVal    - the parameter maximal range value\n";
+   std::cout << "       prmPDF    - the parameter probability density function type\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+   std::cout << "    "<< cmdName << " \"SourceRockTOC\" \"Lower Jurassic\"    5.0    15.0  \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
+   std::cout << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
+   std::cout << "       mnT0           - crust thinning event start time - minimal range value\n";
+   std::cout << "       mxT0           - crust thinning event start time - maximal range value\n";
+   std::cout << "       mnVact         - crust thickness factor - minimal range value\n";
+   std::cout << "       mxVact         - crust thickness factor - maximal range value\n";
+   std::cout << "       prmPDF    - the parameter probability density function type\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #                                InCrThick   T0       dT    ThinFct  PDF\n";
+   std::cout << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
+}
+

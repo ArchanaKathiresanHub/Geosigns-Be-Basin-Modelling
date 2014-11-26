@@ -36,7 +36,7 @@ int main( int argc, char ** argv )
             if (      !strcmp( argv[i] + 1, "quiet"    ) ) { msgLvl = CasaCommander::Quiet; }
             else if ( !strcmp( argv[i] + 1, "minimal"  ) ) { msgLvl = CasaCommander::Minimal; }
             else if ( !strcmp( argv[i] + 1, "detailed" ) ) { msgLvl = CasaCommander::Detailed; }
-            else if ( !strcmp( argv[i] + 1, "help"     ) ) { CasaCommander::printHelpPage(); exit(0); }
+            else if ( !strcmp( argv[i] + 1, "help"     ) ) { CasaCommander::printHelpPage( (i+1 < argc ? argv[i+1] : "") ); exit(0); }
             else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown option: " << argv[i];
          }
          else

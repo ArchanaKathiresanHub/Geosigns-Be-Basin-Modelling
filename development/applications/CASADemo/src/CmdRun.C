@@ -38,13 +38,13 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
          casa::ObsValue * ov = cs->obsValue( i );
          if ( ov && ov->observable() && ov->isDouble() )
          {
-            const std::vector<double> & vals = ov->asDoubleArray();
-            std::cout << "      " << ov->observable()->name() << " = (";
+            const std::vector<double>      & vals  = ov->asDoubleArray();
+            const std::vector<std::string> & names = ov->observable()->name();
+
             for ( size_t i = 0; i < vals.size(); ++i )
             {
-               std::cout << " " << vals[i];
+               std::cout << "      " << names[i] << " = " << vals[i] << "\n";
             }
-            std::cout << " )" << std::endl;
          }
       }
    }

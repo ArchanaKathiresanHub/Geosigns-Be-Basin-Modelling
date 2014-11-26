@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <sstream>
+#include <vector>
 
 namespace formattingexception {
 
@@ -19,10 +20,15 @@ public:
    virtual const char * what() const throw ()  ;
 
    // Allow nice notation
-   template <typename T>
-   GeneralException & operator<<(const T & x )
+   template <typename T> GeneralException & operator << (const T & x )
    {
       m_message << x;
+      return *this;
+   }
+
+   template <typename T> GeneralException & operator << (const std::vector<T> & x )
+   {
+      for ( size_t i = 0; i < x.size(); ++i ) m_message << x[i] << " ";
       return *this;
    }
 
@@ -34,8 +40,7 @@ private:
 template <typename T>
 struct BaseException : GeneralException
 {
-   template <typename U>
-   T & operator<< (const U & x) 
+   template <typename U> T & operator<< (const U & x) 
    {
       return static_cast<T &>( GeneralException::operator<<( x ) );
    }

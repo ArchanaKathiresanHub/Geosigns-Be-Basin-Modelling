@@ -119,9 +119,10 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    // now go over simulations and proxy evaluation and for each observable
    // export data
    // 1st create observables list:
+   // TODO implement for well trajectory
    for ( size_t i = 0; i < sa->obsSpace().size(); ++i )
    {
-      ofs << "\nProxyQC(" << i+1 << ").obsName = '" << sa->obsSpace().observable( i )->name() << "';\n";
+      ofs << "\nProxyQC(" << i+1 << ").obsName = '" << sa->obsSpace().observable( i )->name()[0] << "';\n";
 
       // go over DoE cases which were used to build proxy
       size_t csPos = 0;

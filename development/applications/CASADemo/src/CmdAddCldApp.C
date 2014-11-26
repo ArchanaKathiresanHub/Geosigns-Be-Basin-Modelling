@@ -86,8 +86,8 @@ void CmdAddCldApp::printHelpPage( const char * cmdName )
    std::cout << "     have an application name as the first parameter and optionally, application parameters. Input and \n";
    std::cout << "     output project file names must not be specified as command options, they will be added by CASA.\n";
    std::cout << "     Here is an examples of using \"" << cmdName << "\" command:\n";
-   std::cout << "         app fastcauldron \"-itcoupled\"\n";
-   std::cout << "         app fastgenex6\n";
+   std::cout << "         " << cmdName << " fastcauldron \"-itcoupled\"\n";
+   std::cout << "         " << cmdName << " fastgenex6\n";
 }
 
 

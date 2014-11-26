@@ -331,7 +331,7 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
    {
       fid = fopen( fileName, "w" );
       
-      const int casaFileVersion = 0;
+      const int casaFileVersion = 1;
 
       if ( !fid ) throw Exception( SerializationError ) << "Can not open file: " << fileName << " for writing";
 
@@ -362,7 +362,7 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
 // Create new ScenarioAnaylysis object and read all data from the given file
 ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const char * fileType )
 {
-   const int casaFileVersion = 0;
+   const int casaFileVersion = 1;
 
    std::auto_ptr<ScenarioAnalysis> sc( new ScenarioAnalysis() );
    FILE * fid = NULL;

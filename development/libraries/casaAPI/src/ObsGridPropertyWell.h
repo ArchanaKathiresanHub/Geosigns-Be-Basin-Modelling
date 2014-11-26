@@ -55,9 +55,10 @@ namespace casa
       /// @brief Destructor
       virtual ~ObsGridPropertyWell( );
 
-      /// @brief Get name of the observable
-      /// @return observable name
-      virtual const char * name() const;
+      /// @brief Get name of the observable. If dimension of observable is more than 1
+      ///        it return name for each dimension
+      /// @return observable name for each dimension
+      virtual std::vector<std::string> name() const;
       
       /// @brief Get observable dimension
       /// @return dimension of observable
@@ -142,7 +143,7 @@ namespace casa
       std::string             m_propName;  ///< Property name
       double                  m_simTime;   ///< simulator time
 
-      std::string             m_name;      ///< name of the observable
+      std::vector< std::string> m_name;      ///< name of the observable
 
       std::vector<size_t>     m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 

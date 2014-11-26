@@ -45,7 +45,7 @@ namespace casa
       };
 
       /// @brief Get name of variable parameter in short form
-	  /// @return array of names for each subparameter
+	   /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const = 0;
 
       /// @brief Destructor

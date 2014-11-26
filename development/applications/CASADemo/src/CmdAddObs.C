@@ -103,3 +103,52 @@ void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       }
    }
 }
+
+void CmdAddObs::printHelpPage( const char * cmdName )
+{
+   std::cout << "  " << cmdName << " <target type name> [target parameters]\n\n";
+   std::cout << "    Observable (or Target) - could be any data value from the simulation results.\n";
+   std::cout << "  For example temperature or VRe at some position and depth for current time.\n\n";
+
+   std::cout << "    Observable reference value - usually it is a measurement of corresponded observable\n";
+   std::cout << "  value from the real well. Observables with reference value could be used for calibration workflow.\n\n";
+
+   std::cout << "    Standard deviation value of observable reference value - contains the standard deviations\n";
+   std::cout << "  of the measurement noise. Standard deviation (SD) measures the amount of variation or dispersion\n";
+   std::cout << "  from the average. A low standard deviation indicates that the data points tend to be very close to\n";
+   std::cout << "  the mean (also called expected value); a high standard deviation indicates that the data points are\n";
+   std::cout << "  spread out over a large range of values.\n\n";
+
+   std::cout << "  The following list of target types is implemented for this command:\n";
+   std::cout << "    XYZPoint - a property value at one point on 3D simulation grid\n";
+   std::cout << "    WellTraj - a sequence of property values along some path in 3D simulation grid coordinate system\n\n";
+
+   std::cout << "    XYSPoint <PropName> <X> <Y> <Z> <Age> <ReferenceValue> <StandardDeviationValue> <SA weight> <UA weight>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       PropName               - property name as it was defined in Cauldron project file\n";
+   std::cout << "       X,Y,Z                  - are the target point coordinates in 3D simulation grid\n";
+   std::cout << "       Age                    - simulation age in [Ma]\n";
+   std::cout << "       ReferenceValue         - reference value (measurements) for this target\n";
+   std::cout << "       StandardDeviationValue - std. deviation for reference value\n";
+   std::cout << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
+   std::cout << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #       type      prop name       X        Y           Z    Age   Ref   Dev  SWght UWght\n";
+   std::cout << "    "<< cmdName << " XYZPoint \"Temperature\" 460001.0 6750001.0 1293.0   0.0  65.7   2.0   1.0  1.0\n";
+   std::cout << "\n";
+
+   std::cout << "    WellTraj <TrajFileName> <Age> <StandardDeviationValue> <SA weight> <UA weight>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       TrajFileName           - Name of text file which keeps trajectory points description: X Y Z RefValue per point per line.\n";
+   std::cout << "       PropName               - property name as it was defined in Cauldron project file\n";
+   std::cout << "       Age                    - simulation age in [Ma]\n";
+   std::cout << "       StandardDeviationValue - std. deviation for reference value (one for all points along trajectory)\n";
+   std::cout << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
+   std::cout << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #                 traj file name   prop name   age Dev SWght  UWght\n";
+   std::cout << "    " << cmdName << " WellTraj  \"WellVr.in\"       \"Vr\"       0.0 0.1  1.0    1.0\n";
+}
+

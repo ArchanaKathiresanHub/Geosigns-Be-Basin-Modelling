@@ -36,17 +36,23 @@ ObsGridPropertyWell::ObsGridPropertyWell( const std::vector<double> & x, const s
    assert( !m_propName.empty() );
    assert( m_x.size() == m_y.size() && m_x.size() == m_z.size() );
 
-   // construct observable name
-   std::ostringstream oss;
-   oss << "GridPropertyWell(" << m_propName << ", " << m_simTime << ", " << "TrajPt(" << x.size() << "))";
-   m_name = oss.str();
+   // construct observable name for each trajectory point
+   for ( size_t i = 0; i < m_x.size(); ++i )
+   {
+      std::ostringstream oss;
+      oss << m_propName << "(" << m_x[i] << "," << m_y[i] << "," << m_z[i] << "," << m_simTime << ")";
+      m_name.push_back( oss.str() );
+   }
 }
 
 // Destructor
 ObsGridPropertyWell::~ObsGridPropertyWell() {;}
 
 // Get name of the observable
-const char * ObsGridPropertyWell::name() const { return m_name.c_str(); }
+std::vector< std::string > ObsGridPropertyWell::name() const
+{
+   return m_name;
+}
         
 // Get standard deviations for the reference value
 void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, double devVal )

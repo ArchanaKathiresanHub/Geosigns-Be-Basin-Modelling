@@ -44,6 +44,7 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( Algorithm algo, KrigingType interp, 
    , m_priorDistr( priorDist )
    , m_measureDistr( measureDistr )
    , m_stdDevFactor( 1.0 )
+   , m_GOF( 0.0 )
 {
    ;
 }
@@ -51,6 +52,7 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( Algorithm algo, KrigingType interp, 
 MonteCarloSolverImpl::~MonteCarloSolverImpl()
 {
    for ( size_t i = 0; i < m_results.size(); ++i ) delete m_results[i].second;
+   for ( size_t i = 0; i < m_input.size();   ++i ) delete m_input[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -244,7 +246,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::configureSolver( const RSProxy & 
 // Get the goodness of fit (GOF) to be displayed (in %). Preferably, the GOF should be larger than about 50%.
 double MonteCarloSolverImpl::GOF() const
 {
-   return m_statistics.getGoodnessOfFitReduced();
+   return m_GOF;
 }
 
 // For MCMC algorithm get proposed standard deviation factor to keep GOF > 50%
@@ -345,6 +347,12 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
    {
       sumext::convertObservablesValue( obsVals[i], obs, *(m_results[i].second) );
    }
+   
+   m_GOF = m_statistics.getGoodnessOfFitReduced();
+
+   // collect P10-P90 CDF
+   SUMlib::McmcBase::P10ToP90Parameters cases;
+   m_mcmc->getP10toP90( m_cdf, cases );
 
    return NoError;
 }
@@ -369,6 +377,18 @@ bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int fileVersion )
       {
          ok = sz.save( m_results[i].first, "RMSEVal" );
          ok = ok ? sz.save( *(m_results[i].second), "MCRunCase" ) : ok;
+      }
+   }
+
+   if ( fileVersion >= 1 )
+   {
+      ok = sz.save( m_GOF, "GOF" );
+
+      // save P10-P90 CDF per observable
+      ok = ok ? sz.save( m_cdf.size(), "CDFSetSize" ) : ok;
+      for ( size_t i = 0; i < m_cdf.size() && ok; ++i )
+      {
+         ok = sz.save( m_cdf[i], "ObsCDF" );
       }
    }
 
@@ -437,6 +457,20 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( CasaDeserializer & dz, const char * 
       ok = dz.load( val, "RMSEVal" );
       RunCaseImpl * rco = ok ? new RunCaseImpl( dz, "MCRunCase" ) : 0;
       if ( ok ) m_results.push_back( std::pair<double, RunCase*>( val, rco ) );
+   }
+
+   if ( objVer > 0 )
+   {
+      ok = ok ? dz.load( m_GOF, "GOF" ) : ok;
+
+      // load P10-P90 CDF per observable
+      ok = ok ? dz.load( setSize, "CDFSetSize" ) : ok;
+      for ( size_t i = 0; i < setSize && ok; ++i )
+      {
+         std::vector<double> cdf;
+         ok = dz.load( cdf, "ObsCDF" );
+         m_cdf.push_back( cdf );
+      }
    }
 
    // TODO implement loading of SUMlib data structures
