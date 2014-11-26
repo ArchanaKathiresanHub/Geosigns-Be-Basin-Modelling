@@ -1,6 +1,8 @@
 #ifndef _DATA_MODEL__ABSTRACT_SNAPSHOT_H_
 #define _DATA_MODEL__ABSTRACT_SNAPSHOT_H_
 
+#include <set>
+
 namespace DataModel {
 
    /// \brief The age at which.
@@ -14,6 +16,9 @@ namespace DataModel {
       virtual double getTime () const = 0;
 
    };
+
+   /// \brief A set of snapshot pointers.
+   typedef std::set<const AbstractSnapshot*> AbstractSnapshotSet;
 
 } // namespace DataModel
 
