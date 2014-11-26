@@ -39,8 +39,8 @@ namespace DerivedProperties {
 
    protected :
 
-      /// \brief The geophysics project handle
-      GeoPhysics::ProjectHandle* m_projectHandle;
+      /// \brief Get the geophysics project handle
+      const GeoPhysics::ProjectHandle* getProjectHandle () const;
 
    private :
 
@@ -63,6 +63,10 @@ namespace DerivedProperties {
       ///
       /// These are volume properties loaded from the property-values in the project-handle.
       void loadFormationPropertyCalculators ();
+
+
+      /// \brief The geophysics project handle
+      GeoPhysics::ProjectHandle* m_projectHandle;
 
    }; 
 

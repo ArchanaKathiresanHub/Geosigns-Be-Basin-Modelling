@@ -22,6 +22,10 @@ DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::
    loadFormationPropertyCalculators ();
 }
 
+const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
+   return m_projectHandle;
+}
+
 const DataAccess::Interface::Property* DerivedProperties::DerivedPropertyManager::getProperty ( const std::string& name ) const {
    return m_projectHandle->findProperty ( name );
 }
