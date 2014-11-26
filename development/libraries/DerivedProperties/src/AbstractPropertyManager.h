@@ -100,12 +100,20 @@ namespace DerivedProperties {
       /// \brief Add a calculator for a property or set of properties defined on a surface.
       ///
       /// \param [in] calculator  A calculator of surface properties.
-      void addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& calculator );
+      /// \param [in] snapshot    The snapshot for which the calculator is valid.
+      ///
+      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
+      void addSurfacePropertyCalculator ( const SurfacePropertyCalculatorPtr& calculator,
+                                          const DataModel::AbstractSnapshot*  snapshot = 0 );
 
       /// \brief Add a calculator for a property or set of map properties defined on a formation.
       ///
       /// \param [in] calculator  A calculator of formation map properties.
-      void addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator );
+      /// \param [in] snapshot    The snapshot for which the calculator is valid.
+      ///
+      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
+      void addFormationMapPropertyCalculator ( const FormationMapPropertyCalculatorPtr& calculator,
+                                               const DataModel::AbstractSnapshot*       snapshot = 0 );
 
       /// \brief Add a calculator for a property or set of properties defined on a formation.
       ///
@@ -119,7 +127,11 @@ namespace DerivedProperties {
       /// \brief Add a calculator for a property or set of properties defined on a surface and formation.
       ///
       /// \param [in] calculator  A calculator of formation-surface properties.
-      void addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator );
+      /// \param [in] snapshot    The snapshot for which the calculator is valid.
+      ///
+      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
+      void addFormationSurfacePropertyCalculator ( const FormationSurfacePropertyCalculatorPtr& calculator,
+                                                   const DataModel::AbstractSnapshot*           snapshot = 0 );
 
 
       /// \brief Add a set of property values to the availble property values.
@@ -143,34 +155,44 @@ namespace DerivedProperties {
       void addFormationSurfaceProperty ( const FormationSurfacePropertyPtr& formationSurfaceProperty );
 
 
-      /// \brief Get the calculator for the property.
+      /// \brief Get the calculator for the property and snapshot.
+      ///
+      /// \param [in] property The property whose calulator is requested.
+      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      /// \param [in] property The property whose calulator is requested.
-      SurfacePropertyCalculatorPtr getSurfaceCalculator ( const DataModel::AbstractProperty* property ) const;
+      SurfacePropertyCalculatorPtr getSurfaceCalculator ( const DataModel::AbstractProperty* property,
+                                                          const DataModel::AbstractSnapshot* snapshot ) const;
 
-      /// \brief Get the calculator for the property.
+      /// \brief Get the calculator for the property and snapshot.
+      ///
+      /// \param [in] property The property whose calulator is requested.
+      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      /// \param [in] property The property whose calulator is requested.
-      FormationMapPropertyCalculatorPtr getFormationMapCalculator ( const DataModel::AbstractProperty* property ) const;
+      FormationMapPropertyCalculatorPtr getFormationMapCalculator ( const DataModel::AbstractProperty* property,
+                                                                    const DataModel::AbstractSnapshot* snapshot ) const;
 
-      /// \brief Get the calculator for the property and snapshot
+      /// \brief Get the calculator for the property and snapshot.
+      ///
+      /// \param [in] property The property whose calulator is requested.
+      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      /// \param [in] property The property whose calulator is requested.
-      /// \param [in] snapshot The snapshot .
       FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property,
                                                               const DataModel::AbstractSnapshot* snapshot ) const;
 
-      /// \brief Get the calculator for the property.
+      /// \brief Get the calculator for the property and snapshot.
+      ///
+      /// \param [in] property The property whose calulator is requested.
+      /// \param [in] snapshot The associated snapshot for the calcualtor.
       ///
       /// If no calculator has been added then a null will be returned.
-      /// \param [in] property The property whose calulator is requested.
-      FormationSurfacePropertyCalculatorPtr getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property ) const;
+      FormationSurfacePropertyCalculatorPtr getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property,
+                                                                            const DataModel::AbstractSnapshot* snapshot ) const;
 
 
-      /// \brief Search the list of available property values for a specific set of values.
+      /// \brief Search the list of available surface property values for a specific set of values.
       ///
       /// If the values are not found then a null will be returned.
       /// \param [in] property The property whose values are requested.
@@ -180,7 +202,7 @@ namespace DerivedProperties {
                                                      const DataModel::AbstractSnapshot* snapshot,
                                                      const DataModel::AbstractSurface*  surface ) const;
 
-      /// \brief Search the list of available map property values for a specific set of values.
+      /// \brief Search the list of available formation map property values for a specific set of values.
       ///
       /// If the values are not found then a null will be returned.
       /// \param [in] property  The property whose values are requested.
@@ -190,7 +212,7 @@ namespace DerivedProperties {
                                                                const DataModel::AbstractSnapshot*  snapshot,
                                                                const DataModel::AbstractFormation* formation ) const;
 
-      /// \brief Search the list of available property values for a specific set of values.
+      /// \brief Search the list of available formation property values for a specific set of values.
       ///
       /// If the values are not found then a null will be returned.
       /// \param [in] property  The property whose values are requested.
@@ -200,7 +222,7 @@ namespace DerivedProperties {
                                                          const DataModel::AbstractSnapshot*  snapshot,
                                                          const DataModel::AbstractFormation* formation ) const;
 
-      /// \brief Search the list of available property values for a specific set of values.
+      /// \brief Search the list of available formation surface property values for a specific set of values.
       ///
       /// If the values are not found then a null will be returned.
       /// \param [in] property  The property whose values are requested.
@@ -214,21 +236,17 @@ namespace DerivedProperties {
 
    private :
 
-      /// \brief Mapping from property to is associated surface property calculator.
-      typedef std::map<const DataModel::AbstractProperty*,SurfacePropertyCalculatorPtr> SurfacePropertyCalculatorMap;
+      /// \brief Mapping from property and snapshot to the associated surface property calculator.
+      typedef PropertySnapshotCalculatorMap<SurfacePropertyCalculatorPtr> SurfacePropertyCalculatorMap;
 
-      /// \brief Mapping from property to is associated formation map property calculator.
-      typedef std::map<const DataModel::AbstractProperty*, FormationMapPropertyCalculatorPtr> FormationMapPropertyCalculatorMap;
+      /// \brief Mapping from property and snapshot to the associated formation map property calculator.
+      typedef PropertySnapshotCalculatorMap<FormationMapPropertyCalculatorPtr> FormationMapPropertyCalculatorMap;
 
-      /// \brief Mapping from property to is associated formation property calculator.
-      // typedef std::map<const DataModel::AbstractProperty*, FormationPropertyCalculatorPtr> FormationPropertyCalculatorMap;
-
+      /// \brief Mapping from property and snapshot to the associated formation property calculator.
       typedef PropertySnapshotCalculatorMap<FormationPropertyCalculatorPtr> FormationPropertyCalculatorMap;
 
-
-
-      /// \brief Mapping from property to is associated formation and surface property calculator.
-      typedef std::map<const DataModel::AbstractProperty*, FormationSurfacePropertyCalculatorPtr> FormationSurfacePropertyCalculatorMap;
+      /// \brief Mapping from property and snapshot to the associated formation and surface property calculator.
+      typedef PropertySnapshotCalculatorMap<FormationSurfacePropertyCalculatorPtr> FormationSurfacePropertyCalculatorMap;
 
 
 

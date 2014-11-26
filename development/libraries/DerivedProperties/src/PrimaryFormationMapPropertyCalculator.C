@@ -19,6 +19,7 @@ DerivedProperties::PrimaryFormationMapPropertyCalculator::PrimaryFormationMapPro
       const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
 
       if ( propVal->getProperty () == m_property and propVal->getSurface () == 0 and propVal->getFormation () != 0 ) {
+         m_snapshots.insert ( propVal->getSnapshot ());
          m_formationPropertyValues.push_back ( propVal );
       }
 
@@ -54,4 +55,8 @@ void DerivedProperties::PrimaryFormationMapPropertyCalculator::calculate ( Abstr
 
 const std::vector<std::string>& DerivedProperties::PrimaryFormationMapPropertyCalculator::getPropertyNames () const {
    return m_propertyNames;
+} 
+
+const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationMapPropertyCalculator::getSnapshots () const {
+   return m_snapshots;
 } 

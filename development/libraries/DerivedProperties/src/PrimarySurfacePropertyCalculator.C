@@ -19,6 +19,7 @@ DerivedProperties::PrimarySurfacePropertyCalculator::PrimarySurfacePropertyCalcu
       const DataAccess::Interface::PropertyValue* propVal = (*surfaceProperties)[ i ];
 
       if ( propVal->getProperty () == m_property and propVal->getSurface () != 0 and propVal->getFormation () == 0 ) {
+         m_snapshots.insert ( propVal->getSnapshot ());
          m_surfacePropertyValues.push_back ( propVal );
       }
 
@@ -54,4 +55,8 @@ void DerivedProperties::PrimarySurfacePropertyCalculator::calculate ( AbstractPr
 
 const std::vector<std::string>& DerivedProperties::PrimarySurfacePropertyCalculator::getPropertyNames () const {
    return m_propertyNames;
+} 
+
+const DataModel::AbstractSnapshotSet& DerivedProperties::PrimarySurfacePropertyCalculator::getSnapshots () const {
+   return m_snapshots;
 } 
