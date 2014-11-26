@@ -26,7 +26,7 @@ namespace DerivedProperties {
                                  const DataModel::AbstractGrid*      grid,
                                  const unsigned int                  nk );
 
-      virtual ~DerivedFormationProperty () {};
+      virtual ~DerivedFormationProperty ();
 
       /// \brief Get the value of the property at the position i,j,k.
       virtual double get ( unsigned int i,

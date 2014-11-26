@@ -13,6 +13,7 @@
 #include "FormationMapPropertyCalculator.h"
 #include "FormationPropertyCalculator.h"
 #include "FormationSurfacePropertyCalculator.h"
+#include "PropertySnapshotCalculatorMap.h"
 
 namespace DerivedProperties {
 
@@ -109,7 +110,11 @@ namespace DerivedProperties {
       /// \brief Add a calculator for a property or set of properties defined on a formation.
       ///
       /// \param [in] calculator  A calculator of formation properties.
-      void addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator );
+      /// \param [in] snapshot    The snapshot for which the calculator is valid.
+      ///
+      /// If the snapshot is null value then this indicates that the calculator is for any snapshot age.
+      void addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator,
+                                            const DataModel::AbstractSnapshot*    snapshot = 0 );
  
       /// \brief Add a calculator for a property or set of properties defined on a surface and formation.
       ///
@@ -150,11 +155,13 @@ namespace DerivedProperties {
       /// \param [in] property The property whose calulator is requested.
       FormationMapPropertyCalculatorPtr getFormationMapCalculator ( const DataModel::AbstractProperty* property ) const;
 
-      /// \brief Get the calculator for the property.
+      /// \brief Get the calculator for the property and snapshot
       ///
       /// If no calculator has been added then a null will be returned.
       /// \param [in] property The property whose calulator is requested.
-      FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property ) const;
+      /// \param [in] snapshot The snapshot .
+      FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property,
+                                                              const DataModel::AbstractSnapshot* snapshot ) const;
 
       /// \brief Get the calculator for the property.
       ///
@@ -214,10 +221,16 @@ namespace DerivedProperties {
       typedef std::map<const DataModel::AbstractProperty*, FormationMapPropertyCalculatorPtr> FormationMapPropertyCalculatorMap;
 
       /// \brief Mapping from property to is associated formation property calculator.
-      typedef std::map<const DataModel::AbstractProperty*, FormationPropertyCalculatorPtr> FormationPropertyCalculatorMap;
+      // typedef std::map<const DataModel::AbstractProperty*, FormationPropertyCalculatorPtr> FormationPropertyCalculatorMap;
+
+      typedef PropertySnapshotCalculatorMap<FormationPropertyCalculatorPtr> FormationPropertyCalculatorMap;
+
+
 
       /// \brief Mapping from property to is associated formation and surface property calculator.
       typedef std::map<const DataModel::AbstractProperty*, FormationSurfacePropertyCalculatorPtr> FormationSurfacePropertyCalculatorMap;
+
+
 
       /// \brief Map of property to surface-property calculator.
       SurfacePropertyCalculatorMap m_surfacePropertyCalculators;

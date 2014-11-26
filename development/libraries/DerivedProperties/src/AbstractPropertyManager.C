@@ -62,7 +62,8 @@ void DerivedProperties::AbstractPropertyManager::addFormationMapPropertyCalculat
 
 }
 
-void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator ) {
+void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator ( const FormationPropertyCalculatorPtr& calculator,
+                                                                                  const DataModel::AbstractSnapshot*    snapshot ) {
 
    const std::vector<std::string>& propertyNames = calculator->getPropertyNames ();
 
@@ -72,13 +73,7 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
-
-         if ( m_formationPropertyCalculators.find ( computedProperty ) == m_formationPropertyCalculators.end ()) {
-            m_formationPropertyCalculators [ computedProperty ] = calculator;
-         } else {
-            // What to do?
-         }
-
+         m_formationPropertyCalculators.insert ( computedProperty, snapshot, calculator );
       } else {
          // Error
       }
@@ -136,15 +131,18 @@ DerivedProperties::FormationMapPropertyCalculatorPtr DerivedProperties::Abstract
 
 }
 
-DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property ) const {
+DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property,
+                                                                                                                       const DataModel::AbstractSnapshot* snapshot ) const {
 
-   FormationPropertyCalculatorMap::const_iterator formationMapiter = m_formationPropertyCalculators.find ( property );
+   // FormationPropertyCalculatorMap::const_iterator formationMapiter = m_formationPropertyCalculators.find ( property );
 
-   if ( formationMapiter != m_formationPropertyCalculators.end ()) {
-      return formationMapiter->second;
-   } else {
-      return FormationPropertyCalculatorPtr ();
-   }
+   // if ( formationMapiter != m_formationPropertyCalculators.end ()) {
+   //    return formationMapiter->second;
+   // } else {
+   //    return FormationPropertyCalculatorPtr ();
+   // }
+
+   return m_formationPropertyCalculators.get ( property, snapshot );
 
 }
 
@@ -333,7 +331,7 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManag
    result = findFormationPropertyValues ( property, snapshot, formation );
 
    if ( result == 0 ) {
-      const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property );
+      const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property, snapshot );
       FormationPropertyList  calculatedProperties;
  
       if ( calculator != 0 ) {

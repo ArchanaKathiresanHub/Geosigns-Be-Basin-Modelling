@@ -11,6 +11,10 @@ DerivedProperties::DerivedFormationProperty::DerivedFormationProperty ( const Da
 {
 }
 
+DerivedProperties::DerivedFormationProperty::~DerivedFormationProperty () {
+}
+
+
 void DerivedProperties::DerivedFormationProperty::set ( unsigned int i,
                                                         unsigned int j,
                                                         unsigned int k,

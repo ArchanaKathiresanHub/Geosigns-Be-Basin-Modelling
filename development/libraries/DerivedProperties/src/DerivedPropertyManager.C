@@ -81,7 +81,14 @@ void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators
    for ( size_t i = 0; i < allFormationProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allFormationProperties)[ i ];
 
-      addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property )));
+      PrimaryFormationPropertyCalculatorPtr propertyCalculator ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property ));
+      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
+      DataModel::AbstractSnapshotSet::const_iterator ssIter;
+
+      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
+         addFormationPropertyCalculator ( propertyCalculator, *ssIter );
+      }
+
    } 
 
    delete allFormationProperties;

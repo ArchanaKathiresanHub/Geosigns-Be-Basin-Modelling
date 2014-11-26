@@ -20,6 +20,7 @@ DerivedProperties::PrimaryFormationPropertyCalculator::PrimaryFormationPropertyC
       const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
 
       if ( propVal->getProperty () == m_property and propVal->getFormation () != 0 ) {
+         m_snapshots.insert ( propVal->getSnapshot ());
          m_formationPropertyValues.push_back ( propVal );
       }
 
@@ -52,6 +53,10 @@ void DerivedProperties::PrimaryFormationPropertyCalculator::calculate ( Abstract
    }
 
 }
+
+const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationPropertyCalculator::getSnapshots () const {
+   return m_snapshots;
+} 
 
 const std::vector<std::string>& DerivedProperties::PrimaryFormationPropertyCalculator::getPropertyNames () const {
    return m_propertyNames;

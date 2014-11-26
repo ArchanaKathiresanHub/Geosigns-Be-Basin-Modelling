@@ -38,6 +38,7 @@ set(all_headers
   src/PrimaryFormationSurfacePropertyCalculator.h
   src/PrimarySurfaceProperty.h
   src/PrimarySurfacePropertyCalculator.h
+  src/PropertySnapshotCalculatorMap.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
   src/VesFormationCalculator.h
