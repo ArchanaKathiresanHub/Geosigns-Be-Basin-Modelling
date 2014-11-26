@@ -186,7 +186,7 @@ macro( add_external_project_to_repository )
 
    if ( BM_EXTERNAL_COMPONENTS_REBUILD )
       message(STATUS "External component ${extProj_NAME} will be (re)built")
-   elseif (NOT BM_EXTERNAL_COMPONENTS_REBUILD AND NOT EXISTS ${extProj_ROOT})
+   elseif (NOT BM_EXTERNAL_COMPONENTS_REBUILD AND NOT EXISTS ${extProj_ROOT} AND NOT ${extProj_NAME}_ROOT)
       message(STATUS "External component ${extProj_NAME} will be built temporarily")
       set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_TMPDIR}/${extProj_NAME}")
       set( extProj_rebuild ON)
@@ -194,6 +194,7 @@ macro( add_external_project_to_repository )
       message(STATUS "External component ${extProj_NAME} is prebuilt")
    endif()
    set( ${extProj_NAME}_ROOT "${extProj_ROOT}" CACHE PATH "Path to the external component '${extProj_NAME}'" )
+   set(extProj_ROOT "${${extProj_NAME}_ROOT}")
 
    # What is the place where the source and build are performed
    set( extProj_srcdir "${BM_EXTERNAL_COMPONENTS_TMPDIR}/build/${extProj_NAME}")
@@ -336,24 +337,40 @@ macro( add_external_project_to_repository )
                COMMENT "Installing source of ${extProj_NAME} to directory ${dir}"
             )
       endif()
+
    else()
 
      # Since we don't build it, add a dummy target, so that others may still depend on it
      add_library( ${extProj_NAME} UNKNOWN IMPORTED GLOBAL)
 
-     # Install source tarball to the directories defined by YIELD_SOURCE during CMake configuration
-      if (extProj_YIELD_SOURCE)
-         message(STATUS "Installing source of ${extProj_NAME} to directory ${extProj_YIELD_SOURCE}")
-         execute_process(  
-               COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" "${extProj_YIELD_SOURCE}"
-         )
-         execute_process(
-               COMMAND "${CMAKE_COMMAND}" "-E" "tar" "xzf" "${extProj_PostbuildSrc}"
-               WORKING_DIRECTORY "${extProj_YIELD_SOURCE}"
-            )
-      endif()
+     # Then install the source, ...
+     set( ${extProj_NAME}_SOURCE_DIR "${extProj_YIELD_SOURCE}" CACHE PATH "Source directory of external component ${extProj_NAME}")
+     # if it is needed.
+     if (${extProj_NAME}_SOURCE_DIR)
+         if (EXISTS "${${extProj_NAME}_SOURCE_DIR}")
+            # Then the source is already there, so we can stop here.
+            message(STATUS "Source of ${extProj_NAME} seems to be already installed in directory ${${extProj_NAME}_SOURCE_DIR}")
+         else()
+            if (EXISTS "${extProj_PostbuildSrc}")
+               # Install source tarball to the directories defined by YIELD_SOURCE during CMake configuration
+               message(STATUS "Installing source of ${extProj_NAME} to directory ${${extProj_NAME}_SOURCE_DIR}")
+               execute_process(  
+                     COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" "${${extProj_NAME}_SOURCE_DIR}"
+               )
+               execute_process(
+                     COMMAND "${CMAKE_COMMAND}" "-E" "tar" "xzf" "${extProj_PostbuildSrc}"
+                     WORKING_DIRECTORY "${${extProj_NAME}_SOURCE_DIR}"
+               )
+            else()
+               # panic! and inform user how to do it him/herself.
+               message(WARNING "Source of ${extProj_NAME} wasn't found in ${${extProj_NAME}_SOURCE_DIR}. Please set ${extProj_NAME}_SOURCE_DIR variable.")
 
-   endif()
+            endif()
+         endif()
+
+      endif(${extProj_NAME}_SOURCE_DIR)
+
+   endif(extProj_rebuild)
 
 
   # Add the libraries from YIELD_LIBRARIES as targets
@@ -367,13 +384,41 @@ macro( add_external_project_to_repository )
       # Add the library as a target
       add_library(${lib} ${linkType} IMPORTED GLOBAL)
 
+      set(libPathVarName "${extProj_NAME}_${lib}_LIBRARY")
       if (extProj_rebuild)
+         # In case this external component is rebuild
+         # Make it (the library) depend on the component
          add_dependencies(${lib} ${extProj_NAME})
+         
+         # Set the location of the library (whose filename depends on it being
+         # a shared or static library)
+         set( 
+            ${libPathVarName}
+            "${extProj_ROOT}/lib/${CMAKE_${linkType}_LIBRARY_PREFIX}${lib}${CMAKE_${linkType}_LIBRARY_SUFFIX}" 
+            CACHE PATH 
+            "Prefix of search path to library ${lib} which is part of external component ${extProj_NAME}"
+         )
+
+      else()
+
+         # In case we don't rebuild libraries, the library is already there. In
+         # that case we can use CMake's find_library command to find the path
+         find_library(${libPathVarName}
+               ${lib} 
+               PATHS ${extProj_ROOT} 
+               PATH_SUFFIXES lib
+               DOC "Prefix of search path to library ${lib} which is part of external component ${extProj_NAME}"
+               NO_DEFAULT_PATH
+         )
+
+         if (NOT ${libPathVarName})
+            message(SEND_ERROR "Could not find location of library ${lib} which is part of component ${extProj_NAME}. Searched path is '${extProj_ROOT}'. Set ${extProj_NAME}_ROOT variable to change this path.")
+         endif()
+
       endif()
 
       # Set the location of the library file
-      set_target_properties( ${lib} PROPERTIES 
-         IMPORTED_LOCATION "${extProj_ROOT}/lib/${CMAKE_${linkType}_LIBRARY_PREFIX}${lib}${CMAKE_${linkType}_LIBRARY_SUFFIX}")
+      set_target_properties( ${lib} PROPERTIES IMPORTED_LOCATION "${${libPathVarName}}")
    endforeach()
 
    
