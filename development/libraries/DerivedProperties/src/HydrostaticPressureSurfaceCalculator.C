@@ -21,7 +21,6 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::calculate ( Abstra
    const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( m_propertyNames [ 0 ]);
 
    const DataAccess::Interface::Surface* currentSurface = dynamic_cast<const DataAccess::Interface::Surface*>( surface );
-   const DataAccess::Interface::Formation* formationAbove = currentSurface->getTopFormation ();
    const DataAccess::Interface::Formation* formationBelow = currentSurface->getBottomFormation ();
 
    DerivedSurfacePropertyPtr hydrostaticPressure = DerivedSurfacePropertyPtr ( new DerivedProperties::DerivedSurfaceProperty ( hydrostaticPressureProperty,
