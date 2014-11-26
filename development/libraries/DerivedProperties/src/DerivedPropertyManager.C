@@ -97,8 +97,3 @@ void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators
 bool DerivedProperties::DerivedPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
    return m_projectHandle->getNodeIsValid ( i, j );
 }
-
-const DataAccess::Interface::RunParameters*  DerivedProperties::DerivedPropertyManager::getRunParameters() const {
-   return m_projectHandle->getRunParameters();
-
-}

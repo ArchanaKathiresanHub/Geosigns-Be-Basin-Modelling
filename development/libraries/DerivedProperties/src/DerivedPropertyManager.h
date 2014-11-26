@@ -9,7 +9,6 @@
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
 #include "Interface/Property.h"
-#include "Interface/RunParameters.h"
 
 #include "AbstractPropertyManager.h"
 
@@ -37,9 +36,6 @@ namespace DerivedProperties {
 
       /// \brief Return whether or not the node is defined.
       bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
-
-      /// \brief Return the run parameters
-      const DataAccess::Interface::RunParameters* getRunParameters() const;
 
    protected :
 

@@ -2,13 +2,15 @@
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
 
+#include "Interface/RunParameters.h"
+
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 #include "CompoundLithologyArray.h"
 
 #include "PermeabilityFormationCalculator.h"
 
-DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator () {
+DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    m_propertyNames.push_back ( "PermeabilityVec2" );
    m_propertyNames.push_back ( "PermeabilityHVec2" );
 }
@@ -39,14 +41,11 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
          
-      DerivedProperties::DerivedPropertyManager * dPropertyManager = dynamic_cast< DerivedProperties::DerivedPropertyManager *>( &propertyManager );
       const FormationPropertyPtr chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
       bool chemicalCompactionRequired  = false;
       
-      if( dPropertyManager != 0 ) {
-         chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and dPropertyManager->getRunParameters()->getChemicalCompaction () and
-            ( chemicalCompaction != 0 );
-      }
+      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
+
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       
       if(  lithologies != 0 ) {

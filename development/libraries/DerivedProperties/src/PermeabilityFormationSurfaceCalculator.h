@@ -2,6 +2,7 @@
 #define DERIVED_PROPERTIES__PERMEABITILY_FORMATION_SURFACE_CALCULATOR_H
 
 #include "FormationSurfacePropertyCalculator.h"
+#include "GeoPhysicsProjectHandle.h"
 
 namespace DerivedProperties {
 
@@ -9,7 +10,7 @@ namespace DerivedProperties {
 
    public :
 
-      PermeabilityFormationSurfaceCalculator ();
+      PermeabilityFormationSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~PermeabilityFormationSurfaceCalculator () {}
  
@@ -24,7 +25,14 @@ namespace DerivedProperties {
 
    private :
 
+      /// \brief Contains array of propert names, in this case PermeabilityVec2 and PermeabilityHVec2.
+      ///
+      /// These are the permeability in both vertical and horizontal directions.
       std::vector<std::string> m_propertyNames;
+
+      /// \brief The project handle.
+      const GeoPhysics::ProjectHandle* m_projectHandle;
+
     };
 
 

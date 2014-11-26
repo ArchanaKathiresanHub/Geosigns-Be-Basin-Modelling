@@ -2,12 +2,14 @@
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
 
+#include "Interface/RunParameters.h"
+
 #include "GeoPhysicsFormation.h"
 #include "CompoundLithologyArray.h"
 
 #include "PorosityFormationCalculator.h"
 
-DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator () {
+DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    m_propertyNames.push_back ( "Porosity" );
 }
 
@@ -37,15 +39,11 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
                
-      DerivedProperties::DerivedPropertyManager * dPropertyManager = dynamic_cast< DerivedProperties::DerivedPropertyManager *>( &propertyManager );
       const FormationPropertyPtr chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
       
       bool chemicalCompactionRequired  = false;
          
-      if( dPropertyManager != 0 ) {
-         chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and dPropertyManager->getRunParameters()->getChemicalCompaction () and
-            ( chemicalCompaction != 0 );
-      }
+      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
       
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       

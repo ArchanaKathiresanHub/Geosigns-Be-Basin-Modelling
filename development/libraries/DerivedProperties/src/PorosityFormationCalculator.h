@@ -2,6 +2,7 @@
 #define DERIVED_PROPERTIES__POROSITY_CALCULATOR_H
 
 #include "FormationPropertyCalculator.h"
+#include "GeoPhysicsProjectHandle.h"
 
 namespace DerivedProperties {
 
@@ -9,7 +10,7 @@ namespace DerivedProperties {
 
    public :
 
-      PorosityFormationCalculator ();
+      PorosityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~PorosityFormationCalculator () {}
  
@@ -23,7 +24,12 @@ namespace DerivedProperties {
 
    private :
 
+      /// \brief Contains array of propert names, in this case only porosity.
       std::vector<std::string> m_propertyNames;
+
+      /// \brief The project handle.
+      const GeoPhysics::ProjectHandle* m_projectHandle;
+
     };
 
 
