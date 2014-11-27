@@ -2225,7 +2225,7 @@ bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( cons
       segmentThickness = formation->getSolidThickness ( i, j, (unsigned int)(segment)).MaxY (dummy);
       assert( segmentThickness != Interface::DefaultUndefinedScalarValue );
 
-      if ( fluid != 0 and lithology->surfacePorosity () != 0.0 ) {
+      if ( fluid != 0  ) {
          diffdensity = lithology->density () - fluid->getConstantDensity ();
       } else {
          diffdensity = lithology->density ();
