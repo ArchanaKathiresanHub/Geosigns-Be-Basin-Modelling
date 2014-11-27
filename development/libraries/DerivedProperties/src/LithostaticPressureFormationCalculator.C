@@ -6,7 +6,7 @@
 
 #include "LithostaticPressureFormationCalculator.h"
 
-DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator () {
+DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
    m_propertyNames.push_back ( "LithoStaticPressure" );
 }
 
@@ -43,7 +43,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
          
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
             
-            if ( propertyManager.getNodeIsValid ( i , j ) ) { 
+            if ( getProjectHandle ()->getNodeIsValid ( i, j )) { 
                 
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
                  

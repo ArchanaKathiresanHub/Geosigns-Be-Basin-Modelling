@@ -9,7 +9,7 @@ namespace DerivedProperties {
 
    public :
 
-      LithostaticPressureFormationCalculator ();
+      LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~LithostaticPressureFormationCalculator () {}
  

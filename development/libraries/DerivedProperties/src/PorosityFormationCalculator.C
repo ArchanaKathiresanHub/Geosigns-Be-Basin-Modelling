@@ -9,7 +9,7 @@
 
 #include "PorosityFormationCalculator.h"
 
-DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::PorosityFormationCalculator::PorosityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
    m_propertyNames.push_back ( "Porosity" );
 }
 
@@ -43,7 +43,7 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
       
       bool chemicalCompactionRequired  = false;
          
-      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
+      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and getProjectHandle ()->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
       
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       
@@ -64,7 +64,7 @@ void DerivedProperties::PorosityFormationCalculator::calculate ( DerivedProperti
             
             for ( unsigned int j = porosityProp->firstJ ( true ); j <= porosityProp->lastJ ( true ); ++j ) {
                
-               if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
+               if ( getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = porosityProp->firstK (); k <= porosityProp->lastK (); ++k ) {
                      double chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );

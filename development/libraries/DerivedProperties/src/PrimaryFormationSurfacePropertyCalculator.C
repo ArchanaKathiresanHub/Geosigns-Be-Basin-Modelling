@@ -10,6 +10,7 @@
 
 DerivedProperties::PrimaryFormationSurfacePropertyCalculator::PrimaryFormationSurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
                                                                                                           const DataModel::AbstractProperty* property ) :
+   FormationSurfacePropertyCalculator ( projectHandle ),
    m_property ( property )
 {
 

@@ -97,7 +97,3 @@ void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators
 
    delete allFormationProperties;
 }
-
-bool DerivedProperties::DerivedPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
-   return m_projectHandle->getNodeIsValid ( i, j );
-}

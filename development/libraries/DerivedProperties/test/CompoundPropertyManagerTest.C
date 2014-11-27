@@ -4,6 +4,13 @@
 #include "../src/AbstractPropertyManager.h"
 #include "../src/SurfacePropertyCalculator.h"
 #include "../src/DerivedSurfaceProperty.h"
+#include "../src/FormationMapPropertyCalculator.h"
+#include "../src/DerivedFormationMapProperty.h"
+#include "../src/FormationPropertyCalculator.h"
+#include "../src/DerivedFormationProperty.h"
+#include "../src/FormationSurfacePropertyCalculator.h"
+#include "../src/DerivedFormationSurfaceProperty.h"
+
 
 #include "MockSurface.h"
 #include "MockFormation.h"
@@ -54,11 +61,11 @@ private :
 };
 
 
-class Property1Calculator : public DerivedProperties::SurfacePropertyCalculator {
+class SurfaceProperty1Calculator : public DerivedProperties::SurfacePropertyCalculator {
 
 public :
 
-   Property1Calculator ();
+   SurfaceProperty1Calculator ();
 
    void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
@@ -73,11 +80,11 @@ private :
 
 };
 
-class Property2Calculator : public DerivedProperties::SurfacePropertyCalculator {
+class SurfaceProperty2Calculator : public DerivedProperties::SurfacePropertyCalculator {
 
 public :
 
-   Property2Calculator ( const double value );
+   SurfaceProperty2Calculator ( const double value );
 
    void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                     const DataModel::AbstractSnapshot*        snapshot,
@@ -92,6 +99,133 @@ private :
    double m_value;
 
 };
+
+
+
+
+class FormationMapProperty1Calculator : public DerivedProperties::FormationMapPropertyCalculator {
+
+public :
+
+   FormationMapProperty1Calculator ();
+
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                    const DataModel::AbstractSnapshot*          snapshot,
+                    const DataModel::AbstractFormation*         formation,
+                          FormationMapPropertyList&             derivedProperties ) const;
+
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+
+};
+
+class FormationMapProperty2Calculator : public DerivedProperties::FormationMapPropertyCalculator {
+
+public :
+
+   FormationMapProperty2Calculator ( const double value );
+
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                    const DataModel::AbstractSnapshot*          snapshot,
+                    const DataModel::AbstractFormation*         formation,
+                    FormationMapPropertyList&                   derivedProperties ) const;
+
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+   double m_value;
+
+};
+
+
+class FormationProperty1Calculator : public DerivedProperties::FormationPropertyCalculator {
+
+public :
+
+   FormationProperty1Calculator ();
+
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                    const DataModel::AbstractSnapshot*          snapshot,
+                    const DataModel::AbstractFormation*         formation,
+                          FormationPropertyList&                derivedProperties ) const;
+
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+
+};
+
+class FormationProperty2Calculator : public DerivedProperties::FormationPropertyCalculator {
+
+public :
+
+   FormationProperty2Calculator ( const double value );
+
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                    const DataModel::AbstractSnapshot*          snapshot,
+                    const DataModel::AbstractFormation*         formation,
+                    FormationPropertyList&                      derivedProperties ) const;
+
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+   double m_value;
+
+};
+
+
+class FormationSurfaceProperty1Calculator : public DerivedProperties::FormationSurfacePropertyCalculator {
+
+public :
+
+   FormationSurfaceProperty1Calculator ();
+
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                    const DataModel::AbstractSnapshot*          snapshot,
+                    const DataModel::AbstractFormation*         formation,
+                    const DataModel::AbstractSurface*           surface,
+                          FormationSurfacePropertyList&         derivedProperties ) const;
+
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+
+};
+
+class FormationSurfaceProperty2Calculator : public DerivedProperties::FormationSurfacePropertyCalculator {
+
+public :
+
+   FormationSurfaceProperty2Calculator ( const double value );
+
+   void calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                    const DataModel::AbstractSnapshot*          snapshot,
+                    const DataModel::AbstractFormation*         formation,
+                    const DataModel::AbstractSurface*           surface,
+                          FormationSurfacePropertyList&         derivedProperties ) const;
+
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+   double m_value;
+
+};
+
+
+
 
 
 // Tests whether properties are retrieved correctly from the property-manager.
@@ -154,6 +288,173 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
 }
 
 
+
+
+TEST ( AbstractPropertyManagerTest,  Test2 )
+{
+   TestPropertyManager propertyManager;
+
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+
+   const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
+   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
+   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
+
+   FormationMapPropertyPtr formationProperty2 = propertyManager.getFormationMapProperty ( property2, snapshot, formation );
+   FormationMapPropertyPtr formationProperty1 = propertyManager.getFormationMapProperty ( property1, snapshot, formation );
+   FormationMapPropertyPtr formationProperty3 = propertyManager.getFormationMapProperty ( property3, snapshot, formation );
+
+   EXPECT_EQ ( property1, formationProperty1->getProperty ());
+   EXPECT_EQ ( formation, formationProperty1->getFormation ());
+   EXPECT_EQ ( snapshot, formationProperty1->getSnapshot ());
+
+   EXPECT_EQ ( property2, formationProperty2->getProperty ());
+   EXPECT_EQ ( formation, formationProperty2->getFormation ());
+   EXPECT_EQ ( snapshot, formationProperty2->getSnapshot ());
+
+   EXPECT_EQ ( property3, formationProperty3->getProperty ());
+   EXPECT_EQ ( formation, formationProperty3->getFormation ());
+   EXPECT_EQ ( snapshot, formationProperty3->getSnapshot ());
+
+   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd, formationProperty2->get ( i, j ));
+      }
+
+   }
+
+   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd * ValueToAdd, formationProperty3->get ( i, j ));
+      }
+
+   }
+
+   delete snapshot;
+   delete surface;
+   delete formation;
+}
+
+
+
+TEST ( AbstractPropertyManagerTest,  Test3 )
+{
+   TestPropertyManager propertyManager;
+
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+
+   const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
+   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
+   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
+
+   FormationPropertyPtr formationProperty2 = propertyManager.getFormationProperty ( property2, snapshot, formation );
+   FormationPropertyPtr formationProperty1 = propertyManager.getFormationProperty ( property1, snapshot, formation );
+   FormationPropertyPtr formationProperty3 = propertyManager.getFormationProperty ( property3, snapshot, formation );
+
+   EXPECT_EQ ( property1, formationProperty1->getProperty ());
+   EXPECT_EQ ( formation, formationProperty1->getFormation ());
+   EXPECT_EQ ( snapshot, formationProperty1->getSnapshot ());
+
+   EXPECT_EQ ( property2, formationProperty2->getProperty ());
+   EXPECT_EQ ( formation, formationProperty2->getFormation ());
+   EXPECT_EQ ( snapshot, formationProperty2->getSnapshot ());
+
+   EXPECT_EQ ( property3, formationProperty3->getProperty ());
+   EXPECT_EQ ( formation, formationProperty3->getFormation ());
+   EXPECT_EQ ( snapshot, formationProperty3->getSnapshot ());
+
+   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+
+         for ( unsigned int k = formationProperty1->firstK (); k <= formationProperty1->lastK (); ++k ) {
+            EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j, k ) + ValueToAdd, formationProperty2->get ( i, j, k ));
+         }
+
+      }
+
+   }
+
+   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+
+         for ( unsigned int k = formationProperty1->firstK (); k <= formationProperty1->lastK (); ++k ) {
+            EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j, k ) + ValueToAdd * ValueToAdd, formationProperty3->get ( i, j, k ));
+         }
+
+      }
+
+   }
+
+   delete snapshot;
+   delete surface;
+   delete formation;
+}
+
+
+
+
+
+TEST ( AbstractPropertyManagerTest,  Test4 )
+{
+   TestPropertyManager propertyManager;
+
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+
+   const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
+   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
+   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
+
+   FormationSurfacePropertyPtr formationProperty2 = propertyManager.getFormationSurfaceProperty ( property2, snapshot, formation, surface );
+   FormationSurfacePropertyPtr formationProperty1 = propertyManager.getFormationSurfaceProperty ( property1, snapshot, formation, surface );
+   FormationSurfacePropertyPtr formationProperty3 = propertyManager.getFormationSurfaceProperty ( property3, snapshot, formation, surface );
+
+   EXPECT_EQ ( property1, formationProperty1->getProperty ());
+   EXPECT_EQ ( formation, formationProperty1->getFormation ());
+   EXPECT_EQ ( surface,   formationProperty1->getSurface ());
+   EXPECT_EQ ( snapshot, formationProperty1->getSnapshot ());
+
+   EXPECT_EQ ( property2, formationProperty2->getProperty ());
+   EXPECT_EQ ( formation, formationProperty2->getFormation ());
+   EXPECT_EQ ( surface,   formationProperty2->getSurface ());
+   EXPECT_EQ ( snapshot, formationProperty2->getSnapshot ());
+
+   EXPECT_EQ ( property3, formationProperty3->getProperty ());
+   EXPECT_EQ ( formation, formationProperty3->getFormation ());
+   EXPECT_EQ ( surface,   formationProperty3->getSurface ());
+   EXPECT_EQ ( snapshot, formationProperty3->getSnapshot ());
+
+   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd, formationProperty2->get ( i, j ));
+      }
+
+   }
+
+   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd * ValueToAdd, formationProperty3->get ( i, j ));
+      }
+
+   }
+
+   delete snapshot;
+   delete surface;
+   delete formation;
+}
+
+
 TestPropertyManager::TestPropertyManager () {
    // These will come from the project handle.
    m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1" ) );
@@ -168,8 +469,17 @@ TestPropertyManager::TestPropertyManager () {
    // This will come frmo the project handle.
    m_mapGrid = new DataModel::MockGrid ( 0, 0, 0, 0, 10, 10, 10, 10 );
 
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator ));
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property2Calculator ( ValueToAdd )));
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new SurfaceProperty1Calculator ));
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new SurfaceProperty2Calculator ( ValueToAdd )));
+
+   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new FormationMapProperty1Calculator ));
+   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new FormationMapProperty2Calculator ( ValueToAdd )));
+
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new FormationProperty1Calculator ));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new FormationProperty2Calculator ( ValueToAdd )));
+
+   addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty1Calculator ));
+   addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new FormationSurfaceProperty2Calculator ( ValueToAdd )));
 
 
 }
@@ -208,6 +518,9 @@ const DataModel::AbstractProperty* TestPropertyManager::getProperty ( const std:
 }
 
 bool TestPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const { 
+   (void) i;
+   (void) j;
+
    return true; 
 }
 
@@ -215,19 +528,19 @@ const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
    return m_mapGrid;
 }
 
-Property1Calculator::Property1Calculator () {
+SurfaceProperty1Calculator::SurfaceProperty1Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
    m_propertyNames.push_back ( "Property1" );
 }
 
-const std::vector<std::string>& Property1Calculator::getPropertyNames () const {
+const std::vector<std::string>& SurfaceProperty1Calculator::getPropertyNames () const {
    return m_propertyNames;
 }
 
 
-void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                      const DataModel::AbstractSnapshot*        snapshot,
-                                      const DataModel::AbstractSurface*         surface,
-                                      SurfacePropertyList&                derivedProperties ) const {
+void SurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                             const DataModel::AbstractSnapshot*        snapshot,
+                                             const DataModel::AbstractSurface*         surface,
+                                             SurfacePropertyList&                derivedProperties ) const {
 
    const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
 
@@ -248,20 +561,20 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
    derivedProperties.push_back ( derivedProp );
 }
 
-Property2Calculator::Property2Calculator ( const double value ) : m_value ( value ) {
+SurfaceProperty2Calculator::SurfaceProperty2Calculator ( const double value ) : DerivedProperties::SurfacePropertyCalculator ( 0 ), m_value ( value ) {
    m_propertyNames.push_back ( "Property2" );
    m_propertyNames.push_back ( "Property3" );
 }
 
-const std::vector<std::string>& Property2Calculator::getPropertyNames () const {
+const std::vector<std::string>& SurfaceProperty2Calculator::getPropertyNames () const {
    return m_propertyNames;
 }
 
 
-void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
-                                      const DataModel::AbstractSnapshot*        snapshot,
-                                      const DataModel::AbstractSurface*         surface,
-                                      SurfacePropertyList&                derivedProperties ) const {
+void SurfaceProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                             const DataModel::AbstractSnapshot*        snapshot,
+                                             const DataModel::AbstractSurface*         surface,
+                                             SurfacePropertyList&                derivedProperties ) const {
 
    const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
    const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
@@ -271,8 +584,6 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
    DerivedSurfacePropertyPtr derivedProp2 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property2, snapshot, surface, propertyManager.getMapGrid ()));
    DerivedSurfacePropertyPtr derivedProp3 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property3, snapshot, surface, propertyManager.getMapGrid ()));
-
-   double value = 0.0;
 
    derivedProperties.clear ();
 
@@ -288,3 +599,240 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
    derivedProperties.push_back ( derivedProp2 );
    derivedProperties.push_back ( derivedProp3 );
 }
+
+
+
+
+FormationMapProperty1Calculator::FormationMapProperty1Calculator () : DerivedProperties::FormationMapPropertyCalculator ( 0 ) {
+   m_propertyNames.push_back ( "Property1" );
+}
+
+const std::vector<std::string>& FormationMapProperty1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
+
+void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                                  const DataModel::AbstractSnapshot*          snapshot,
+                                                  const DataModel::AbstractFormation*         formation,
+                                                        FormationMapPropertyList&             derivedProperties ) const {
+
+   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
+
+   DerivedFormationMapPropertyPtr derivedProp = DerivedFormationMapPropertyPtr ( new DerivedProperties::DerivedFormationMapProperty ( property, snapshot, formation, propertyManager.getMapGrid ()));
+   double value = 0.0;
+
+   derivedProperties.clear ();
+
+   for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
+         derivedProp->set ( i, j, value );
+         value += 1.0;
+      }
+
+   }
+
+   derivedProperties.push_back ( derivedProp );
+}
+
+FormationMapProperty2Calculator::FormationMapProperty2Calculator ( const double value ) : DerivedProperties::FormationMapPropertyCalculator ( 0 ), m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
+}
+
+const std::vector<std::string>& FormationMapProperty2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
+
+void FormationMapProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                                  const DataModel::AbstractSnapshot*          snapshot,
+                                                  const DataModel::AbstractFormation*         formation,
+                                                        FormationMapPropertyList&             derivedProperties ) const {
+
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+
+   const FormationMapPropertyPtr prop1 = propertyManager.getFormationMapProperty ( property1, snapshot, formation );
+
+   DerivedFormationMapPropertyPtr derivedProp2 = DerivedFormationMapPropertyPtr( new DerivedProperties::DerivedFormationMapProperty ( property2, snapshot, formation, propertyManager.getMapGrid ()));
+   DerivedFormationMapPropertyPtr derivedProp3 = DerivedFormationMapPropertyPtr( new DerivedProperties::DerivedFormationMapProperty ( property3, snapshot, formation, propertyManager.getMapGrid ()));
+
+   derivedProperties.clear ();
+
+   for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = derivedProp2->firstJ ( true ); j <= derivedProp2->lastJ ( true ); ++j ) {
+         derivedProp2->set ( i, j, prop1->get ( i, j ) + m_value );
+         derivedProp3->set ( i, j, prop1->get ( i, j ) + m_value * m_value );
+      }
+
+   }
+
+   derivedProperties.push_back ( derivedProp2 );
+   derivedProperties.push_back ( derivedProp3 );
+}
+
+
+
+
+
+FormationProperty1Calculator::FormationProperty1Calculator () : FormationPropertyCalculator ( 0 ) {
+   m_propertyNames.push_back ( "Property1" );
+}
+
+const std::vector<std::string>& FormationProperty1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
+
+void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                                  const DataModel::AbstractSnapshot*       snapshot,
+                                                  const DataModel::AbstractFormation*      formation,
+                                                        FormationPropertyList&             derivedProperties ) const {
+
+   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
+
+   DerivedFormationPropertyPtr derivedProp = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( property, snapshot, formation, propertyManager.getMapGrid (), 10 ));
+   double value = 0.0;
+
+   derivedProperties.clear ();
+
+   for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
+
+         for ( unsigned int k = derivedProp->firstK (); k <= derivedProp->lastK (); ++k ) {
+            derivedProp->set ( i, j, k, value );
+            value += 1.0;
+         }
+
+      }
+
+   }
+
+   derivedProperties.push_back ( derivedProp );
+}
+
+FormationProperty2Calculator::FormationProperty2Calculator ( const double value ) : FormationPropertyCalculator ( 0 ), m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
+}
+
+const std::vector<std::string>& FormationProperty2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
+
+void FormationProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                                  const DataModel::AbstractSnapshot*       snapshot,
+                                                  const DataModel::AbstractFormation*      formation,
+                                                        FormationPropertyList&             derivedProperties ) const {
+
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+
+   const FormationPropertyPtr prop1 = propertyManager.getFormationProperty ( property1, snapshot, formation );
+
+   DerivedFormationPropertyPtr derivedProp2 = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty ( property2, snapshot, formation, propertyManager.getMapGrid (), 10 ));
+   DerivedFormationPropertyPtr derivedProp3 = DerivedFormationPropertyPtr( new DerivedProperties::DerivedFormationProperty ( property3, snapshot, formation, propertyManager.getMapGrid (), 10 ));
+
+   derivedProperties.clear ();
+
+   for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = derivedProp2->firstJ ( true ); j <= derivedProp2->lastJ ( true ); ++j ) {
+
+         for ( unsigned int k = derivedProp2->firstK (); k <= derivedProp2->lastK (); ++k ) {
+            derivedProp2->set ( i, j, k, prop1->get ( i, j, k ) + m_value );
+            derivedProp3->set ( i, j, k, prop1->get ( i, j, k ) + m_value * m_value );
+         }
+
+      }
+
+   }
+
+   derivedProperties.push_back ( derivedProp2 );
+   derivedProperties.push_back ( derivedProp3 );
+}
+
+
+FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () : FormationSurfacePropertyCalculator ( 0 ) {
+   m_propertyNames.push_back ( "Property1" );
+}
+
+const std::vector<std::string>& FormationSurfaceProperty1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
+
+void FormationSurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                                      const DataModel::AbstractSnapshot*          snapshot,
+                                                      const DataModel::AbstractFormation*         formation,
+                                                      const DataModel::AbstractSurface*           surface,
+                                                            FormationSurfacePropertyList&         derivedProperties ) const {
+
+   const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
+
+   DerivedFormationSurfacePropertyPtr derivedProp = DerivedFormationSurfacePropertyPtr ( new DerivedProperties::DerivedFormationSurfaceProperty ( property, snapshot, formation, surface, propertyManager.getMapGrid ()));
+   double value = 0.0;
+
+   derivedProperties.clear ();
+
+   for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
+         derivedProp->set ( i, j, value );
+         value += 1.0;
+      }
+
+   }
+
+   derivedProperties.push_back ( derivedProp );
+}
+
+FormationSurfaceProperty2Calculator::FormationSurfaceProperty2Calculator ( const double value ) : FormationSurfacePropertyCalculator ( 0 ), m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
+}
+
+const std::vector<std::string>& FormationSurfaceProperty2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
+
+void FormationSurfaceProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
+                                                      const DataModel::AbstractSnapshot*          snapshot,
+                                                      const DataModel::AbstractFormation*         formation,
+                                                      const DataModel::AbstractSurface*           surface,
+                                                            FormationSurfacePropertyList&         derivedProperties ) const {
+
+   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
+   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
+   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
+
+   const FormationSurfacePropertyPtr prop1 = propertyManager.getFormationSurfaceProperty ( property1, snapshot, formation, surface );
+
+   DerivedFormationSurfacePropertyPtr derivedProp2 = DerivedFormationSurfacePropertyPtr( new DerivedProperties::DerivedFormationSurfaceProperty ( property2, snapshot, formation, surface, propertyManager.getMapGrid ()));
+   DerivedFormationSurfacePropertyPtr derivedProp3 = DerivedFormationSurfacePropertyPtr( new DerivedProperties::DerivedFormationSurfaceProperty ( property3, snapshot, formation, surface, propertyManager.getMapGrid ()));
+
+   derivedProperties.clear ();
+
+   for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = derivedProp2->firstJ ( true ); j <= derivedProp2->lastJ ( true ); ++j ) {
+         derivedProp2->set ( i, j, prop1->get ( i, j ) + m_value );
+         derivedProp3->set ( i, j, prop1->get ( i, j ) + m_value * m_value );
+      }
+
+   }
+
+   derivedProperties.push_back ( derivedProp2 );
+   derivedProperties.push_back ( derivedProp3 );
+}
+
+
+

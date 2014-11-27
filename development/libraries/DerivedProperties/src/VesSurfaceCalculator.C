@@ -5,7 +5,7 @@
 
 #include "VesSurfaceCalculator.h"
 
-DerivedProperties::VesSurfaceCalculator::VesSurfaceCalculator () {
+DerivedProperties::VesSurfaceCalculator::VesSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : SurfacePropertyCalculator ( projectHandle ) {
    m_propertyNames.push_back ( "Ves" );
 }
 

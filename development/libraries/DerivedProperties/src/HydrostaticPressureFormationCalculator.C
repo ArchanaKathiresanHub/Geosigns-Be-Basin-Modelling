@@ -7,7 +7,7 @@
 #include "GeoPhysicalFunctions.h"
 
 DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
-   m_projectHandle ( projectHandle )
+   FormationPropertyCalculator ( projectHandle )
 {
    m_propertyNames.push_back ( "HydroStaticPressure" );
 }
@@ -64,7 +64,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
 
       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( propertyManager.getNodeIsValid ( i , j ) ) {
+         if ( getNodeIsValid ( i, j )) {
             fluidDensityTop = fluid->density ( temperature->get ( i, j, topNodeIndex ), porePressure->get ( i, j, topNodeIndex ));
 
             // Loop index is shifted up by 1.
@@ -106,10 +106,10 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
 
       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( propertyManager.getNodeIsValid ( i, j )) {
+         if ( getNodeIsValid ( i, j )) {
             GeoPhysics::computeHydrostaticPressure ( fluid,
-                                                     m_projectHandle->getSeaBottomTemperature ( i, j, snapshotAge ),
-                                                     m_projectHandle->getSeaBottomDepth ( i, j, snapshotAge ),
+                                                     getProjectHandle ()->getSeaBottomTemperature ( i, j, snapshotAge ),
+                                                     getProjectHandle ()->getSeaBottomDepth ( i, j, snapshotAge ),
                                                      pressure );
             hydrostaticPressure->set ( i, j, 0, pressure );
          }
@@ -134,7 +134,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticP
 
       for ( unsigned int j = hydrostaticPressureAbove->firstJ ( true ); j <= hydrostaticPressureAbove->lastJ ( true ); ++j ) {
 
-         if ( propertyManager.getNodeIsValid ( i, j )) {
+         if ( getNodeIsValid ( i, j )) {
             hydrostaticPressure->set ( i, j, topNodeIndex, hydrostaticPressureAbove->get ( i, j, 0 ));
          } else {
             hydrostaticPressure->set ( i, j, topNodeIndex, undefinedValue );

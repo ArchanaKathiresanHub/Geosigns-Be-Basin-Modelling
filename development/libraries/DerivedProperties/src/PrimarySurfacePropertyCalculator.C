@@ -9,6 +9,7 @@
 
 DerivedProperties::PrimarySurfacePropertyCalculator::PrimarySurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
                                                                                         const DataModel::AbstractProperty* property ) :
+   SurfacePropertyCalculator ( projectHandle ),
    m_property ( property )
 {
 
@@ -36,6 +37,7 @@ void DerivedProperties::PrimarySurfacePropertyCalculator::calculate ( AbstractPr
                                                                       const DataModel::AbstractSnapshot* snapshot,
                                                                       const DataModel::AbstractSurface*  surface,
                                                                             SurfacePropertyList&         derivedProperties ) const {
+   (void) propManager;
 
    derivedProperties.clear ();
 

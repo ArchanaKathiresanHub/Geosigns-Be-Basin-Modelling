@@ -178,7 +178,6 @@ TEST ( AbstractPropertyManagerTest, VesTest )
    const DataModel::AbstractProperty* pressure = propertyManager.getProperty ( "Pressure" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractSnapshot*  anotherSnapshot = new MockSnapshot ( 10.0 );
    const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
 
    SurfacePropertyPtr lithostaticPressureSurfaceProperty = propertyManager.getSurfaceProperty ( lithostaticPressure, snapshot, surface );
@@ -215,7 +214,7 @@ TestPropertyManager::TestPropertyManager () {
    addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator )); 
    addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property2Calculator ( ValueToAdd )));
    addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property4Calculator )); 
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new VesSurfaceCalculator ));  
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new VesSurfaceCalculator ( 0 )));  
 }
 
 
@@ -256,10 +255,12 @@ const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
 }
 
 bool TestPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const { 
+   (void) i;
+   (void) j;
    return true; 
 }
 
-Property1Calculator::Property1Calculator () {
+Property1Calculator::Property1Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
    m_propertyNames.push_back ( "LithoStaticPressure" );
 }
 
@@ -295,7 +296,7 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 }
 
-Property2Calculator::Property2Calculator ( const double value ) : m_value ( value ) {
+Property2Calculator::Property2Calculator ( const double value ) : DerivedProperties::SurfacePropertyCalculator ( 0 ), m_value ( value ) {
    m_propertyNames.push_back ( "Property2" );
    m_propertyNames.push_back ( "Property3" );
 }
@@ -321,8 +322,6 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
       DerivedSurfacePropertyPtr derivedProp2 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property2, snapshot, surface, propertyManager.getMapGrid ()));
       DerivedSurfacePropertyPtr derivedProp3 = DerivedSurfacePropertyPtr( new DerivedProperties::DerivedSurfaceProperty ( property3, snapshot, surface, propertyManager.getMapGrid ()));
 
-      double value = 0.0;
-
       for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
 
          for ( unsigned int j = derivedProp2->firstJ ( true ); j <= derivedProp2->lastJ ( true ); ++j ) {
@@ -338,7 +337,7 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 }
 
-Property4Calculator::Property4Calculator () {
+Property4Calculator::Property4Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
    m_propertyNames.push_back ( "Pressure" );
 }
 

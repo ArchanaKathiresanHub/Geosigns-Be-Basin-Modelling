@@ -6,7 +6,7 @@
 
 #include "VesFormationCalculator.h"
 
-DerivedProperties::VesFormationCalculator::VesFormationCalculator () {
+DerivedProperties::VesFormationCalculator::VesFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
    m_propertyNames.push_back ( "Ves" );
 }
 
@@ -43,7 +43,7 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
          
          for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
             
-            if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
+            if ( getNodeIsValid ( i, j )) {
                 
                for ( unsigned int k = lithostaticPressure->firstK (); k <= lithostaticPressure->lastK (); ++k ) {
                  

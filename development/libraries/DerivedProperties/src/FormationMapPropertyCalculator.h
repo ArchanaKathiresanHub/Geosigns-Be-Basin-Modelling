@@ -11,6 +11,7 @@
 #include "AbstractFormation.h"
 
 #include "FormationMapProperty.h"
+#include "PropertyCalculator.h"
 
 namespace DerivedProperties {
 
@@ -18,9 +19,11 @@ namespace DerivedProperties {
    class AbstractPropertyManager;
 
    /// \brief Calculates a derived property or set of properties.
-   class FormationMapPropertyCalculator {
+   class FormationMapPropertyCalculator : public PropertyCalculator {
 
    public :
+
+      FormationMapPropertyCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~FormationMapPropertyCalculator () {}
 

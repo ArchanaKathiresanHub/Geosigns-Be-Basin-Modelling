@@ -12,15 +12,19 @@
 
 #include "FormationProperty.h"
 
+#include "PropertyCalculator.h"
+
 namespace DerivedProperties {
 
    // Forward declaration of PropertyManager
    class AbstractPropertyManager;
 
    /// \brief Calculates a derived property or set of properties.
-   class FormationPropertyCalculator {
+   class FormationPropertyCalculator : public PropertyCalculator {
 
    public :
+
+      FormationPropertyCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~FormationPropertyCalculator () {}
 

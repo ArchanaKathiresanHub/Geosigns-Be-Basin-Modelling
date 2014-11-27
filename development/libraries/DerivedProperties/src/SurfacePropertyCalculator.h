@@ -11,6 +11,7 @@
 #include "AbstractSurface.h"
 
 #include "SurfaceProperty.h"
+#include "PropertyCalculator.h"
 
 namespace DerivedProperties {
 
@@ -18,9 +19,11 @@ namespace DerivedProperties {
    class AbstractPropertyManager;
 
    /// \brief Calculates a derived property or set of properties.
-   class SurfacePropertyCalculator {
+   class SurfacePropertyCalculator : public PropertyCalculator {
 
    public :
+
+      SurfacePropertyCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~SurfacePropertyCalculator () {}
 

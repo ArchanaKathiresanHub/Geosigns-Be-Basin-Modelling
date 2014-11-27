@@ -56,7 +56,6 @@ namespace DerivedProperties {
 
       /// \brief Will contain only a single string, that of HydroStaticPressure.
       std::vector<std::string> m_propertyNames;
-      const GeoPhysics::ProjectHandle* m_projectHandle;
 
     };
 

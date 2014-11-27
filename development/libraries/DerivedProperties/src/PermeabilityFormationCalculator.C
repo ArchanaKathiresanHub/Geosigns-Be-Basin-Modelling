@@ -10,7 +10,7 @@
 
 #include "PermeabilityFormationCalculator.h"
 
-DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
    m_propertyNames.push_back ( "PermeabilityVec2" );
    m_propertyNames.push_back ( "PermeabilityHVec2" );
 }
@@ -44,7 +44,7 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
       const FormationPropertyPtr chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
       bool chemicalCompactionRequired  = false;
       
-      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
+      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and getProjectHandle ()->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       
@@ -67,7 +67,7 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
             
             for ( unsigned int j = verticalPermeability->firstJ ( true ); j <= verticalPermeability->lastJ ( true ); ++j ) {
                
-               if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
+               if ( getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = verticalPermeability->firstK (); k <= verticalPermeability->lastK (); ++k ) {
                      chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );

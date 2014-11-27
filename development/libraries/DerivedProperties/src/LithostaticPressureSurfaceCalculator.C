@@ -5,7 +5,7 @@
 
 #include "LithostaticPressureSurfaceCalculator.h"
 
-DerivedProperties::LithostaticPressureSurfaceCalculator::LithostaticPressureSurfaceCalculator () {
+DerivedProperties::LithostaticPressureSurfaceCalculator::LithostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : SurfacePropertyCalculator ( projectHandle ) {
    m_propertyNames.push_back ( "LithoStaticPressure" );
 }
 

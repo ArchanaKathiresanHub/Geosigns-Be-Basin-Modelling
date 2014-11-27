@@ -9,7 +9,7 @@ namespace DerivedProperties {
 
    public :
 
-      VesFormationCalculator ();
+      VesFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~VesFormationCalculator () {}
  

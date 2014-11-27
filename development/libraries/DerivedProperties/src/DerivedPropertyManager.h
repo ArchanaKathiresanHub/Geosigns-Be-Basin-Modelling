@@ -34,9 +34,6 @@ namespace DerivedProperties {
       /// \brief Get the grid for the map.
       virtual const DataAccess::Interface::Grid* getMapGrid () const;
 
-      /// \brief Return whether or not the node is defined.
-      bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
-
    protected :
 
       /// \brief Get the geophysics project handle

@@ -1,6 +1,5 @@
 #include "SurfaceProperty.h"
 
-
 DerivedProperties::SurfaceProperty::SurfaceProperty ( const DataModel::AbstractProperty* property,
                                                       const DataModel::AbstractSnapshot* snapshot,
                                                       const DataModel::AbstractSurface*  surface,

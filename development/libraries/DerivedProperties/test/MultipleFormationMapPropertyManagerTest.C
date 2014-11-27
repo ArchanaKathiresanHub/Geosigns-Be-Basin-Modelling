@@ -212,6 +212,8 @@ void TestPropertyManager::addProperty ( const DataModel::AbstractProperty* prope
 }
 
 bool TestPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const { 
+   (void) i;
+   (void) j;
    return true; 
 }
 
@@ -232,7 +234,7 @@ const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
    return m_mapGrid;
 }
 
-Property1Calculator::Property1Calculator () {
+Property1Calculator::Property1Calculator () : DerivedProperties::FormationMapPropertyCalculator ( 0 ) {
    m_propertyNames.push_back ( "Property1" );
 }
 
@@ -268,7 +270,7 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 }
 
-Property2Calculator::Property2Calculator ( const double value ) : m_value ( value ) {
+Property2Calculator::Property2Calculator ( const double value )  : DerivedProperties::FormationMapPropertyCalculator ( 0 ), m_value ( value ) {
    m_propertyNames.push_back ( "Property2" );
    m_propertyNames.push_back ( "Property3" );
 }
@@ -294,8 +296,6 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
       DerivedFormationMapPropertyPtr derivedProp2 = DerivedFormationMapPropertyPtr( new DerivedProperties::DerivedFormationMapProperty ( property2, snapshot, formation, propertyManager.getMapGrid ()));
       DerivedFormationMapPropertyPtr derivedProp3 = DerivedFormationMapPropertyPtr( new DerivedProperties::DerivedFormationMapProperty ( property3, snapshot, formation, propertyManager.getMapGrid ()));
 
-      double value = 0.0;
-
       for ( unsigned int i = derivedProp2->firstI ( true ); i <= derivedProp2->lastI ( true ); ++i ) {
 
          for ( unsigned int j = derivedProp2->firstJ ( true ); j <= derivedProp2->lastJ ( true ); ++j ) {
@@ -311,7 +311,7 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 }
 
-Property4Calculator::Property4Calculator () {
+Property4Calculator::Property4Calculator () : DerivedProperties::FormationMapPropertyCalculator ( 0 ) {
    m_propertyNames.push_back ( "Property4" );
 }
 

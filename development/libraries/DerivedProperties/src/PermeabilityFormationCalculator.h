@@ -29,9 +29,6 @@ namespace DerivedProperties {
       /// These are the permeability in both vertical and horizontal directions.
       std::vector<std::string> m_propertyNames;
 
-      /// \brief The project handle.
-      const GeoPhysics::ProjectHandle* m_projectHandle;
-
    };
 
 

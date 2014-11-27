@@ -27,9 +27,6 @@ namespace DerivedProperties {
       /// \brief Contains array of propert names, in this case only porosity.
       std::vector<std::string> m_propertyNames;
 
-      /// \brief The project handle.
-      const GeoPhysics::ProjectHandle* m_projectHandle;
-
     };
 
 
