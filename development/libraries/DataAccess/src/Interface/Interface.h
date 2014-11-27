@@ -727,6 +727,9 @@ namespace DataAccess
       /// The name of the lithology used in the mantle formation.
       static const std::string MantleLithologyName = "Litho. Mantle";
 
+      /// \var NullString
+      static const std::string NullString = "";
+
       /// \var IgneousIntrusionEventDuration
       /// \brief The time interval over which an igneous intrusion can be inflated.
       ///

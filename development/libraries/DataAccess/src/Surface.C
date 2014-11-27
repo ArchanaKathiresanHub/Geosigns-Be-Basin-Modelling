@@ -31,6 +31,7 @@ using namespace database;
 #include "Interface/Parent.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
+#include "Interface/Interface.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -80,14 +81,26 @@ SurfaceKind Surface::kind () const {
    return m_kind;
 }
 
-const string & Surface::getTopFormationName (void)
+const string & Surface::getTopFormationName (void) const
 {
-   return m_top->getName ();
+
+   if ( m_top != 0 ) {
+      return m_top->getName ();
+   } else {
+      return NullString;
+   }
+
 }
 
-const string & Surface::getBottomFormationName (void)
+const string & Surface::getBottomFormationName (void) const
 {
-   return m_bottom->getName ();
+
+   if ( m_bottom != 0 ) {
+      return m_bottom->getName ();
+   } else {
+      return NullString;
+   } 
+
 }
 
 void Surface::setTopFormation (Formation * formation)

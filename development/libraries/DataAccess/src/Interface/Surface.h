@@ -26,9 +26,9 @@ namespace DataAccess
 	    virtual const string & getMangledName (void) const;
 
 	    /// Return the name of the Formation found above this Surface if there is one.
-	    virtual const string & getTopFormationName (void);
+	    virtual const string & getTopFormationName (void) const;
 	    /// Return the name of the Formation found below this Surface if there is one.
-	    virtual const string & getBottomFormationName (void);
+	    virtual const string & getBottomFormationName (void) const;
 
 	    /// Return the Snapshot containing the deposition age of this Surface
 	    virtual const Snapshot * getSnapshot (void) const;
