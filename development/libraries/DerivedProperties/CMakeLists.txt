@@ -21,6 +21,7 @@ set(all_headers
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
   src/FormationProperty.h
+  src/FormationPropertyAtSurface.h
   src/FormationPropertyCalculator.h
   src/FormationSurfaceProperty.h
   src/FormationSurfacePropertyCalculator.h
@@ -58,6 +59,7 @@ set(all_srcs
   src/FormationMapProperty.C
   src/FormationMapPropertyCalculator.C
   src/FormationProperty.C
+  src/FormationPropertyAtSurface.C
   src/FormationPropertyCalculator.C
   src/FormationSurfaceProperty.C
   src/FormationSurfacePropertyCalculator.C
