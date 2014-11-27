@@ -46,6 +46,7 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::computeHydrostatic
                                                                                                       const DataAccess::Interface::Surface* surface,
                                                                                                             DerivedSurfacePropertyPtr&      hydrostaticPressure ) const {
 
+   (void) propertyManager;
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( surface->getBottomFormation ()->getFluidType ());
 
    double pressure;

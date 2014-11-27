@@ -38,6 +38,7 @@ void DerivedProperties::PrimaryFormationMapPropertyCalculator::calculate ( Abstr
                                                                            const DataModel::AbstractFormation* formation,
                                                                            FormationMapPropertyList&           derivedProperties ) const {
 
+   (void) propManager;
    derivedProperties.clear ();
 
    for ( size_t i = 0; i < m_formationPropertyValues.size (); ++i ) {
