@@ -197,18 +197,19 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_DARCY_MODE ) {
      concludingOutputProperties.push_back ( FCTCORRECTION );
   }
+  PetscBool addMinorProperties;
 
+  PetscOptionsHasName ( PETSC_NULL, "-minor", &addMinorProperties );
+
+  if( addMinorProperties ) {
+     looselyCoupledOutputProperties.push_back ( TEMPERATURE );
+     looselyCoupledOutputProperties.push_back ( DEPTH );
+     looselyCoupledOutputProperties.push_back ( PRESSURE );
+     looselyCoupledOutputProperties.push_back ( CHEMICAL_COMPACTION );
+  }
   looselyCoupledOutputProperties.push_back ( VES );
   looselyCoupledOutputProperties.push_back ( MAXVES );
-/*
-  looselyCoupledOutputProperties.push_back ( PRESSURE );
-  looselyCoupledOutputProperties.push_back ( HYDROSTATICPRESSURE );
-  looselyCoupledOutputProperties.push_back ( LITHOSTATICPRESSURE );
-  looselyCoupledOutputProperties.push_back ( POROSITYVEC );
-  looselyCoupledOutputProperties.push_back ( PERMEABILITYVEC );
-  looselyCoupledOutputProperties.push_back ( TEMPERATURE );
-  looselyCoupledOutputProperties.push_back ( DEPTH );
- */ 
+
   // Surface properties
   basinModel->timefilter.setFilter ( "AllochthonousLithology", "SedimentsOnly" );
 

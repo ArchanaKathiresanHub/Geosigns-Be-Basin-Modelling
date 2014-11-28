@@ -114,11 +114,25 @@ void FCTCalc::decompact(){
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
      FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
   }
-  
+
+  PetscBool minorSnapshots;
+
+  PetscOptionsHasName ( PETSC_NULL, "-minor", &minorSnapshots );
+ 
+  SnapshotEntrySet allSnapshots;
+
+  if( minorSnapshots and ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or 
+                           FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE  )) {
+     allSnapshots.insert(  cauldron->projectSnapshots.majorSnapshotsBegin (), cauldron->projectSnapshots.majorSnapshotsEnd () );
+     allSnapshots.insert(  cauldron->projectSnapshots.minorSnapshotsBegin (), cauldron->projectSnapshots.minorSnapshotsEnd () );
+  } else {
+     allSnapshots = cauldron->projectSnapshots.getMajorSnapshotTimes ();
+  }
+
   // Perform decompaction
   SnapshotEntrySetIterator it;
 
-  for (it= cauldron->projectSnapshots.majorSnapshotsBegin (); it != cauldron->projectSnapshots.majorSnapshotsEnd (); ++it) {
+  for ( it = allSnapshots.rbegin (); it != allSnapshots.rend (); ++it ) {
     
     double SnapShotTime = (*it)->time ();
     
@@ -142,6 +156,7 @@ void FCTCalc::decompact(){
 #endif
 
   }
+  allSnapshots.clear();
 
   {
     Well wells( cauldron );

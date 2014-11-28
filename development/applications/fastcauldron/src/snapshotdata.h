@@ -192,6 +192,7 @@ public :
                           const double                    timeStepFraction = 0.25 ) const;
 
 
+   SnapshotEntrySet & getMajorSnapshotTimes() { return majorSnapshotTimes; }
 
 private :
 
@@ -221,3 +222,4 @@ private :
 
 
 #endif // _SNAPSHOT_DATA_H
+

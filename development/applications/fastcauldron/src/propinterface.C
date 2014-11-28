@@ -526,6 +526,8 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -fcctmodel <n>            Set the crust-thinning model, default = 1." << endl;
   helpBuffer << "    -fcinfmantscal <scal>     Set the scaling factor for inferior-mantle element height, default scal = 1" << endl;
   helpBuffer << "                              Maximum element height of elements in inferior-mantle is defined to be: scal * maximum-element-height-in-mantle." << endl;
+  helpBuffer << "    -minor                    Output Pressure, Depth, Temperature, Chemical Compaction volume properties at minor snapshots times." << endl;
+  helpBuffer << "                              Runs high resolution decompaction at major and minor snapshot times." << endl;
 
   helpBuffer << endl;
   helpBuffer << endl;
