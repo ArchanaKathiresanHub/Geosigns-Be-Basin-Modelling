@@ -37,6 +37,11 @@ namespace DerivedProperties {
       /// \brief Determine whether or not the node is valid.
       virtual bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
 
+      virtual SurfacePropertyPtr getSurfaceProperty ( const DataModel::AbstractProperty* property,
+                                                      const DataModel::AbstractSnapshot* snapshot,
+                                                      const DataModel::AbstractSurface*  surface );
+
+
    protected :
 
       /// \brief Get the geophysics project handle
