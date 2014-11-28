@@ -9,7 +9,7 @@ namespace DerivedProperties {
 
    public :
 
-      LithostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      LithostaticPressureSurfaceCalculator ();
 
       virtual ~ LithostaticPressureSurfaceCalculator () {}
  
@@ -17,13 +17,6 @@ namespace DerivedProperties {
                                const DataModel::AbstractSnapshot*  snapshot,
                                const DataModel::AbstractSurface*   surface,
                                      SurfacePropertyList&          derivedProperties ) const;
-
-      /// \brief Get a list of the property names that will be calculated by the calculator.
-      virtual const std::vector<std::string>& getPropertyNames () const;
-
-   private :
-
-      std::vector<std::string> m_propertyNames;
     };
 
 

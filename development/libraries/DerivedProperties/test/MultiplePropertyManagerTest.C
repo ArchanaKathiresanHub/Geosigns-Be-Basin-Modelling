@@ -64,11 +64,6 @@ public :
                     const DataModel::AbstractSurface*         surface,
                           SurfacePropertyList&                derivedProperties ) const;
 
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
 
 };
 
@@ -83,11 +78,8 @@ public :
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
 
-   const std::vector<std::string>& getPropertyNames () const;
-
 private :
 
-   std::vector<std::string> m_propertyNames;
    double m_value;
 
 };
@@ -103,11 +95,8 @@ public :
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
 
-   const std::vector<std::string>& getPropertyNames () const;
-
 private :
 
-   std::vector<std::string> m_propertyNames;
    double m_value;
 
 };
@@ -214,7 +203,7 @@ TestPropertyManager::TestPropertyManager () {
    addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property1Calculator )); 
    addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property2Calculator ( ValueToAdd )));
    addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new Property4Calculator )); 
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new VesSurfaceCalculator ( 0 )));  
+   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new VesSurfaceCalculator ));  
 }
 
 
@@ -260,14 +249,9 @@ bool TestPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned 
    return true; 
 }
 
-Property1Calculator::Property1Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "LithoStaticPressure" );
+Property1Calculator::Property1Calculator () {
+   addPropertyName ( "LithoStaticPressure" );
 }
-
-const std::vector<std::string>& Property1Calculator::getPropertyNames () const {
-   return m_propertyNames;
-}
-
 
 void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*        snapshot,
@@ -296,13 +280,9 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 }
 
-Property2Calculator::Property2Calculator ( const double value ) : DerivedProperties::SurfacePropertyCalculator ( 0 ), m_value ( value ) {
-   m_propertyNames.push_back ( "Property2" );
-   m_propertyNames.push_back ( "Property3" );
-}
-
-const std::vector<std::string>& Property2Calculator::getPropertyNames () const {
-   return m_propertyNames;
+Property2Calculator::Property2Calculator ( const double value ) : m_value ( value ) {
+   addPropertyName ( "Property2" );
+   addPropertyName ( "Property3" );
 }
 
 void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -337,14 +317,9 @@ void Property2Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 }
 
-Property4Calculator::Property4Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Pressure" );
+Property4Calculator::Property4Calculator () {
+   addPropertyName ( "Pressure" );
 }
-
-const std::vector<std::string>& Property4Calculator::getPropertyNames () const {
-   return m_propertyNames;
-}
-
 
 void Property4Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                       const DataModel::AbstractSnapshot*          snapshot,

@@ -31,9 +31,6 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation* formation,
                                      FormationPropertyList&        derivedProperties ) const;
 
-      /// \brief Get a list of the property names that will be calculated by the calculator.
-      virtual const std::vector<std::string>& getPropertyNames () const;
-
    private :
 
       /// \brief Compute the hydrostatic pressure at the top of the domain.
@@ -49,10 +46,9 @@ namespace DerivedProperties {
                                                    const DataModel::AbstractFormation* formationAbove,
                                                          DerivedFormationPropertyPtr&  hydrostaticPressure ) const;
 
-      /// \brief Will contain only a single string, that of HydroStaticPressure.
-      std::vector<std::string> m_propertyNames;
+      const GeoPhysics::ProjectHandle* m_projectHandle;
 
-    };
+   };
 
 
 }

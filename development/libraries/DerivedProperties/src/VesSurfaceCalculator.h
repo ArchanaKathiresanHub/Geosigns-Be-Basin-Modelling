@@ -9,7 +9,7 @@ namespace DerivedProperties {
 
    public :
 
-      VesSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      VesSurfaceCalculator ();
 
       virtual ~VesSurfaceCalculator () {}
  
@@ -18,12 +18,6 @@ namespace DerivedProperties {
                                const DataModel::AbstractSurface*   surface,
                                      SurfacePropertyList&          derivedProperties ) const;
 
-      /// \brief Get a list of the property names that will be calculated by the calculator.
-      virtual const std::vector<std::string>& getPropertyNames () const;
-
-   private :
-
-      std::vector<std::string> m_propertyNames;
     };
 
 

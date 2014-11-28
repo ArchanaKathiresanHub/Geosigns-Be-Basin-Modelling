@@ -8,9 +8,9 @@
 
 
 DerivedProperties::HydrostaticPressureSurfaceCalculator::HydrostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
-   SurfacePropertyCalculator ( projectHandle )
+   m_projectHandle ( projectHandle )
 {
-   m_propertyNames.push_back ( "HydroStaticPressure" );
+   addPropertyName ( "HydroStaticPressure" );
 }
  
 void DerivedProperties::HydrostaticPressureSurfaceCalculator::calculate ( AbstractPropertyManager&           propertyManager,
@@ -18,7 +18,7 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::calculate ( Abstra
                                                                           const DataModel::AbstractSurface*  surface,
                                                                                 SurfacePropertyList&         derivedProperties ) const {
 
-   const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( m_propertyNames [ 0 ]);
+   const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
 
    const DataAccess::Interface::Surface* currentSurface = dynamic_cast<const DataAccess::Interface::Surface*>( surface );
    const DataAccess::Interface::Formation* formationBelow = currentSurface->getBottomFormation ();
@@ -55,10 +55,10 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::computeHydrostatic
 
       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( getNodeIsValid ( i, j )) {
+         if ( m_projectHandle->getNodeIsValid ( i, j )) {
             GeoPhysics::computeHydrostaticPressure ( fluid,
-                                                     getProjectHandle ()->getSeaBottomTemperature ( i, j, snapshotAge ),
-                                                     getProjectHandle ()->getSeaBottomDepth ( i, j, snapshotAge ),
+                                                     m_projectHandle->getSeaBottomTemperature ( i, j, snapshotAge ),
+                                                     m_projectHandle->getSeaBottomDepth ( i, j, snapshotAge ),
                                                      pressure );
             hydrostaticPressure->set ( i, j, pressure );
          }
@@ -84,7 +84,7 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::copyHydrostaticPre
 
       for ( unsigned int j = hydrostaticPressureAbove->firstJ ( true ); j <= hydrostaticPressureAbove->lastJ ( true ); ++j ) {
 
-         if ( getNodeIsValid ( i, j )) {
+         if ( m_projectHandle->getNodeIsValid ( i, j )) {
             hydrostaticPressure->set ( i, j, hydrostaticPressureAbove->get ( i, j, 0 ));
          } else {
             hydrostaticPressure->set ( i, j, undefinedValue );
@@ -95,9 +95,3 @@ void DerivedProperties::HydrostaticPressureSurfaceCalculator::copyHydrostaticPre
    }
 
 }
-
-
-const std::vector<std::string>& DerivedProperties::HydrostaticPressureSurfaceCalculator::getPropertyNames () const {
-   return m_propertyNames;
-}
-

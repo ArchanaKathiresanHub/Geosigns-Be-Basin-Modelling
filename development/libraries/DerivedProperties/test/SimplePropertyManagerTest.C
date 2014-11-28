@@ -65,12 +65,6 @@ public :
                     const DataModel::AbstractSurface*           surface,
                           SurfacePropertyList&                  derivedProperties ) const;
 
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
-
 };
 
 class FormationProperty1Calculator : public DerivedProperties::FormationPropertyCalculator {
@@ -83,12 +77,6 @@ public :
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
-
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
 
 };
 
@@ -104,12 +92,6 @@ public :
                     const DataModel::AbstractFormation*         formation,
                           FormationMapPropertyList&             derivedProperties ) const;
 
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
-
 };
 
 class FormationSurfaceProperty1Calculator : public DerivedProperties::FormationSurfacePropertyCalculator {
@@ -123,12 +105,6 @@ public :
                     const DataModel::AbstractFormation*         formation,
                     const DataModel::AbstractSurface*           surface,
                           FormationSurfacePropertyList&         derivedProperties ) const;
-
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
 
 };
 
@@ -329,12 +305,8 @@ const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
    return m_mapGrid;
 }
 
-Property1Calculator::Property1Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& Property1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+Property1Calculator::Property1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -363,12 +335,8 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 
 
-FormationMapProperty1Calculator::FormationMapProperty1Calculator () : DerivedProperties::FormationMapPropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& FormationMapProperty1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+FormationMapProperty1Calculator::FormationMapProperty1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -397,12 +365,8 @@ void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPro
 
 
 
-FormationProperty1Calculator::FormationProperty1Calculator () : DerivedProperties::FormationPropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& FormationProperty1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+FormationProperty1Calculator::FormationProperty1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -432,12 +396,8 @@ void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractProper
 }
 
 
-FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () : DerivedProperties::FormationSurfacePropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& FormationSurfaceProperty1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void FormationSurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,

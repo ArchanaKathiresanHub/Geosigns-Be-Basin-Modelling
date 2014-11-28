@@ -5,12 +5,8 @@
 
 #include "LithostaticPressureSurfaceCalculator.h"
 
-DerivedProperties::LithostaticPressureSurfaceCalculator::LithostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : SurfacePropertyCalculator ( projectHandle ) {
-   m_propertyNames.push_back ( "LithoStaticPressure" );
-}
-
-const std::vector<std::string>& DerivedProperties::LithostaticPressureSurfaceCalculator::getPropertyNames () const {
-   return m_propertyNames;
+DerivedProperties::LithostaticPressureSurfaceCalculator::LithostaticPressureSurfaceCalculator () {
+   addPropertyName ( "LithoStaticPressure" );
 }
 
 void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -42,7 +38,6 @@ void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( Derive
          
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
 
-            // if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
             if( ves->get ( i, j ) != undefinedValue && porePressure->get ( i, j ) != porePressure->getUndefinedValue () ) {
                lithostaticPressure->set ( i, j, ( ves->get ( i, j ) * GeoPhysics::PascalsToMegaPascals + porePressure->get ( i, j )));
             } else {

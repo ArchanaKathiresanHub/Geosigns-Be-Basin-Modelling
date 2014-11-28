@@ -10,13 +10,9 @@
 
 #include "PermeabilityFormationSurfaceCalculator.h"
 
-DerivedProperties::PermeabilityFormationSurfaceCalculator::PermeabilityFormationSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationSurfacePropertyCalculator ( projectHandle ) {
-   m_propertyNames.push_back ( "PermeabilityVec2" );
-   m_propertyNames.push_back ( "PermeabilityHVec2" );
-}
-
-const std::vector<std::string>& DerivedProperties::PermeabilityFormationSurfaceCalculator::getPropertyNames () const {
-   return m_propertyNames;
+DerivedProperties::PermeabilityFormationSurfaceCalculator::PermeabilityFormationSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+   addPropertyName ( "PermeabilityVec2" );
+   addPropertyName ( "PermeabilityHVec2" );
 }
 
 void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -48,7 +44,7 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
       const FormationSurfacePropertyPtr chemicalCompaction = propertyManager.getFormationSurfaceProperty ( aChemicalCompactionProperty, snapshot, formation, surface );
       bool chemicalCompactionRequired  = false;
       
-      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and getProjectHandle ()->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
+      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       
@@ -74,7 +70,7 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
             
             for ( unsigned int j = verticalPermeability->firstJ ( true ); j <= verticalPermeability->lastJ ( true ); ++j ) {
                
-               if ( getNodeIsValid ( i, j )) {
+               if ( m_projectHandle->getNodeIsValid ( i, j )) {
                  
                      chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j ) : 0.0 );
 
