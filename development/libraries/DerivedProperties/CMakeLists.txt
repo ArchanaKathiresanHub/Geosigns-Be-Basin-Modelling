@@ -57,12 +57,9 @@ set(all_srcs
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
   src/FormationMapProperty.C
-  src/FormationMapPropertyCalculator.C
   src/FormationProperty.C
   src/FormationPropertyAtSurface.C
-  src/FormationPropertyCalculator.C
   src/FormationSurfaceProperty.C
-  src/FormationSurfacePropertyCalculator.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
   src/LithostaticPressureFormationCalculator.C
@@ -80,7 +77,6 @@ set(all_srcs
   src/PrimarySurfacePropertyCalculator.C
   src/PropertyCalculator.C
   src/SurfaceProperty.C
-  src/SurfacePropertyCalculator.C
   src/VesFormationCalculator.C
   src/VesSurfaceCalculator.C
 )

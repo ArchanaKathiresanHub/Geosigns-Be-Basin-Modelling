@@ -23,9 +23,6 @@ namespace DerivedProperties {
 
    public :
 
-      /// \brief Constructor.
-      FormationSurfacePropertyCalculator ();
-
       virtual ~FormationSurfacePropertyCalculator () {}
 
       /// \brief Calculate the property values and add the property values to the list.

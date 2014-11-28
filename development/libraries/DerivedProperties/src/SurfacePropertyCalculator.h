@@ -23,8 +23,6 @@ namespace DerivedProperties {
 
    public :
 
-      SurfacePropertyCalculator ();
-
       virtual ~SurfacePropertyCalculator () {}
 
       /// \brief Calculate the property values and add the property values to the list.

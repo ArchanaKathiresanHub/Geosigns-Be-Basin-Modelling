@@ -23,8 +23,6 @@ namespace DerivedProperties {
 
    public :
 
-      FormationMapPropertyCalculator ();
-
       virtual ~FormationMapPropertyCalculator () {}
 
       /// \brief Calculate the property values and add the property values to the list.
