@@ -59,6 +59,14 @@ namespace DerivedProperties {
       virtual double get ( unsigned int i,
                            unsigned int j ) const = 0;
 
+     /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const = 0;
+
+      /// \brief Retreive the grid map
+      virtual void retrieveData () const {};
+
+      /// \brief Restore the grid map.
+      virtual void restoreData () const {};
 
    private :
 

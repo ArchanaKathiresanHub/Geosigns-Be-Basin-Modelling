@@ -26,73 +26,76 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
    FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
    FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
 
-   const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
-   const GeoPhysics::Formation* formationAbove = 0;
-
-   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
-
-   DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( hydrostaticPressureProperty, snapshot, formation, 
-                                                                                                                                     propertyManager.getMapGrid (),
-                                                                                                                                     porePressure->lengthK ()));
-
-   double thickness;
-   double fluidDensityTop;
-   double fluidDensityBottom;
-   double segmentPressure;
-   double pressure;
-   unsigned int topNodeIndex = hydrostaticPressure->lastK ();
-
-   derivedProperties.clear ();
-
-   if ( currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
-      formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
-   }
-
-   // Initialise the top set of nodes for the hydrostatic pressure.
-   if ( formationAbove == 0 ) {
-      computeHydrostaticPressureAtSeaBottom ( propertyManager, snapshot->getTime (), fluid, hydrostaticPressure );
-   } else {
-      copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, formationAbove, hydrostaticPressure );
-   }
-   porePressure->retrieveData();
-   temperature->retrieveData();
-   depth->retrieveData();
-
-   // now that the top of the set of nodes of the property has been initialised 
-   // the hydrostatic pressure for the remaining nodes below them can be computed.
-   for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
-
-      for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
-
-         if ( getNodeIsValid ( i, j )) {
-            fluidDensityTop = fluid->density ( temperature->get ( i, j, topNodeIndex ), porePressure->get ( i, j, topNodeIndex ));
-
-            // Loop index is shifted up by 1.
-            for ( unsigned int k = hydrostaticPressure->lastK (); k > hydrostaticPressure->firstK (); --k ) {
-               // index k     is top node of segment
-               // index k - 1 is bottom node of segment
-
-               thickness = depth->get ( i, j, k - 1 ) - depth->get ( i, j, k );
-               fluidDensityBottom = fluid->density ( temperature->get ( i, j, k - 1 ), porePressure->get ( i, j, k - 1 ));
-               segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
-               pressure = hydrostaticPressure->get ( i, j, k ) + segmentPressure;
-               hydrostaticPressure->set ( i, j, k - 1, pressure );
-
-               // now copy the density at bottom of segment to use for top of segment below.
-               // This saves on a density calculation.
-               fluidDensityTop = fluidDensityBottom;
-            }
-
-         }
-
+   if( porePressure != 0 and temperature != 0 and depth != 0 ) {
+      const GeoPhysics::Formation* currentFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+      const GeoPhysics::Formation* formationAbove = 0;
+      
+      const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
+      
+      DerivedFormationPropertyPtr hydrostaticPressure = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( hydrostaticPressureProperty, snapshot, formation, 
+                                                                                                                                        propertyManager.getMapGrid (),
+                                                                                                                                        porePressure->lengthK ()));
+      
+      double thickness;
+      double fluidDensityTop;
+      double fluidDensityBottom;
+      double segmentPressure;
+      double pressure;
+      unsigned int topNodeIndex = hydrostaticPressure->lastK ();
+      
+      derivedProperties.clear ();
+      
+      if ( currentFormation->getTopSurface ()->getSnapshot ()->getTime () > snapshot->getTime ()) {
+         formationAbove = dynamic_cast<const GeoPhysics::Formation*>( currentFormation->getTopSurface ()->getTopFormation ());
+      }
+      
+      // Initialise the top set of nodes for the hydrostatic pressure.
+      if ( formationAbove == 0 ) {
+         computeHydrostaticPressureAtSeaBottom ( propertyManager, snapshot->getTime (), fluid, hydrostaticPressure );
+      } else {
+         copyHydrostaticPressureFromLayerAbove ( propertyManager, hydrostaticPressureProperty, snapshot, formationAbove, hydrostaticPressure );
       }
 
+      porePressure->retrieveData();
+      temperature->retrieveData();
+      depth->retrieveData();
+      
+      // now that the top of the set of nodes of the property has been initialised 
+      // the hydrostatic pressure for the remaining nodes below them can be computed.
+      for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
+         
+         for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
+            
+         if ( getNodeIsValid ( i, j )) {
+               fluidDensityTop = fluid->density ( temperature->get ( i, j, topNodeIndex ), porePressure->get ( i, j, topNodeIndex ));
+               
+               // Loop index is shifted up by 1.
+               for ( unsigned int k = hydrostaticPressure->lastK (); k > hydrostaticPressure->firstK (); --k ) {
+                  // index k     is top node of segment
+                  // index k - 1 is bottom node of segment
+                  
+                  thickness = depth->get ( i, j, k - 1 ) - depth->get ( i, j, k );
+                  fluidDensityBottom = fluid->density ( temperature->get ( i, j, k - 1 ), porePressure->get ( i, j, k - 1 ));
+                  segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
+                  pressure = hydrostaticPressure->get ( i, j, k ) + segmentPressure;
+                  hydrostaticPressure->set ( i, j, k - 1, pressure );
+                  
+                  // now copy the density at bottom of segment to use for top of segment below.
+                  // This saves on a density calculation.
+                  fluidDensityTop = fluidDensityBottom;
+               }
+               
+            }
+            
+         }
+         
+      }
+      porePressure->restoreData();
+      temperature->restoreData();
+      depth->restoreData();
+      
+      derivedProperties.push_back ( hydrostaticPressure );
    }
-   porePressure->restoreData();
-   temperature->restoreData();
-   depth->restoreData();
-
-   derivedProperties.push_back ( hydrostaticPressure );
 }
 
 void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostaticPressureAtSeaBottom ( const AbstractPropertyManager&     propertyManager,

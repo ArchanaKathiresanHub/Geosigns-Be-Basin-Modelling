@@ -62,6 +62,12 @@ namespace DerivedProperties {
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const = 0;
 
+      /// \brief Retreive the grid map
+      virtual void retrieveData () const {};
+
+      /// \brief Restore the grid map.
+      virtual void restoreData () const {};
+
    private :
 
       const DataModel::AbstractProperty*  m_property;
