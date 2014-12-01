@@ -43,7 +43,7 @@ bm_include_libraries(
 	EosPack	
 	CBMGenerics
 	genex6
-	OTGC_kernel6
+	genex6_kernel
 	utilities
 	TableIO
 	functions
@@ -61,6 +61,7 @@ target_link_libraries(fastmig
 	EosPack	
 	CBMGenerics
 	genex6
+	genex6_kernel
 	OTGC_kernel6
 	utilities
 	TableIO

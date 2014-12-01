@@ -13,6 +13,7 @@
 #include "overburden_MPI.h"
 #include "RetrieveAndRestoreSurfaceGridMapContainer.h"
 #include "RequestHandling.h"
+#include "ObjectFactory.h"
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/Property.h"
@@ -23,8 +24,11 @@
 #include "Interface/BiodegradationParameters.h"
 #include "Interface/FracturePressureFunctionParameters.h"
 #include "Interface/DiffusionLeakageParameters.h"
+#include "Interface/MapWriter.h"
 
 #include "CBMGenerics/src/consts.h"
+#include "Constants.h"
+#include "FormationPropertyAtSurface.h"
 
 #include "petscvec.h"
 #include "petscdmda.h"
@@ -39,6 +43,7 @@
 using std::ostringstream;
 extern ostringstream cerrstrstr;
 
+//#define DEBUG 1
 
 using namespace std;
 using namespace CBMGenerics;
@@ -79,6 +84,7 @@ Reservoir::Reservoir (ProjectHandle * projectHandle, database::Record * record)
    {
       m_neighbourDistances[n] = -1;
    }
+
 }
 
 Reservoir::~Reservoir (void)
@@ -86,6 +92,7 @@ Reservoir::~Reservoir (void)
    removePreviousTraps ();
    removeTraps ();
    destroyColumns ();
+
 }
 
 void Reservoir::createColumns (void)
@@ -541,33 +548,82 @@ bool Reservoir::computeProperties (void)
 
    if (!computeDepths ())
       return false;
-
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeDepths done" << endl;
+   }
+#endif
    if (!computeSeaBottomPressures ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeSeaBottomPressures done" << endl;
+   }
+#endif
 
    if (!computeOverburdens ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeOverburdens done" << endl;
+   }
+#endif
 
    if (!adaptOverburdens ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "adaptOverburdens done" << endl;
+   }
+#endif
 
    if (!computeFaults ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeFaultss done" << endl;
+   }
+#endif
 
    if (!computePorosities ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computePorosities done" << endl;
+   }
+#endif
 
    if (!computePermeabilities ())
       return false;
 
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computePermeabilities done" << endl;
+   }
+#endif
    if (!computeTemperatures ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeTemperatures done" << endl;
+   }
+#endif
 
    if (!computePressures ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computePressures done" << endl;
+   }
+#endif
 
    if (!computeOverburdenGridMaps ())
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeOverburdenGridMaps done" << endl;
+   }
+#endif
 
    // And if the type of fracturePressureFunctionParameters is given by Interface::
    // FunctionOfLithostaticPressure, also the hydrostatic and lithostatic pressures are needed.  
@@ -575,14 +631,30 @@ bool Reservoir::computeProperties (void)
       fracturePressureFunctionParameters = getProjectHandle()->getFracturePressureFunctionParameters();
    if (!fracturePressureFunctionParameters)
       return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "fracturePressureFunctionParameters ON" << endl;
+   }
+#endif
 
       if (fracturePressureFunctionParameters->type () == Interface::FunctionOfLithostaticPressure)
       {
       if (!computeHydrostaticPressures ())
          return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeHydrostaticPressures done" << endl;
+   }
+#endif
 
       if (!computeLithostaticPressures ())
          return false;
+#if DEBUG
+   if( GetRank() == 0 ) {
+      cout << "computeLithostaticPressures done" << endl;
+   }
+#endif
+
    }
 
    return true;
@@ -591,20 +663,20 @@ bool Reservoir::computeProperties (void)
 /// compute the top and bottom depths of the reservoir.
 bool Reservoir::computeDepths (void)
 {
-   const GridMap * formationGridMap = getPropertyGridMap ("Depth", getEnd ());
+   DerivedProperties::FormationPropertyPtr formationGridMap = getFormationPropertyPtr ("Depth", getEnd ());
 
    if (!formationGridMap)
    {
       cerr << "ERROR: " << getName () <<
-	 "::computing of reservoir depths failed, could not find the formation depth map" << endl;
+	 "::computing of reservoir depths failed, could not find the formation depth map at " << getEnd ()->getTime() << endl;
 	 cerr.flush ();
       return false;
    }
 
-   unsigned int depth = formationGridMap->getDepth ();
+   unsigned int depth = formationGridMap->lengthK ();
    assert (depth > 1);
-
-   formationGridMap->retrieveData ();
+     
+   formationGridMap->retrieveData();
 
    if (lowResEqualsHighRes ())
    {
@@ -615,37 +687,37 @@ bool Reservoir::computeDepths (void)
             LocalColumn *column = getLocalColumn (i, j);
 
             double topIndex = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-	    double bottomIndex = column->getBottomDepthOffset () * (depth - 1);
+            double bottomIndex = column->getBottomDepthOffset () * (depth - 1);
 
             topIndex = Max ((double) 0, topIndex);
             topIndex = Min ((double) depth - 1, topIndex);
 
-	    bottomIndex = Max ((double) 0, bottomIndex);
-	    bottomIndex = Min ((double) depth - 1, bottomIndex);
+            bottomIndex = Max ((double) 0, bottomIndex);
+            bottomIndex = Min ((double) depth - 1, bottomIndex);
 
-            double topValue = formationGridMap->getValue (i, j, topIndex);
-	    double bottomValue = formationGridMap->getValue (i, j, bottomIndex);
+            double topValue = formationGridMap->interpolate (i, j, topIndex);
+            double bottomValue = formationGridMap->interpolate (i, j, bottomIndex);
 
             if (topValue == formationGridMap->getUndefinedValue ())
             {
-	       topValue = getUndefinedValue ();
+               topValue = getUndefinedValue ();
             }
-	    column->setTopDepth (topValue);
+            column->setTopDepth (topValue);
 
-	    if (bottomValue == formationGridMap->getUndefinedValue ())
-	    {
-	       assert (topValue == getUndefinedValue ());
+            if (bottomValue == formationGridMap->getUndefinedValue ())
+            {
+               assert (topValue == getUndefinedValue ());
 
-	       bottomValue = getUndefinedValue ();
-	    }
-	    column->setBottomDepth (bottomValue);
+               bottomValue = getUndefinedValue ();
+            }
+            column->setBottomDepth (bottomValue);
          }
       }
    }
    else
    {
-      const GridMap * topSurfaceGridMap = getTopSurfacePropertyGridMap ("DepthHighRes", getEnd ());
-      const GridMap * bottomSurfaceGridMap = getBottomSurfacePropertyGridMap ("DepthHighRes", getEnd ());
+      DerivedProperties::SurfacePropertyPtr topSurfaceGridMap = getTopSurfaceProperty ("DepthHighRes", getEnd ());
+      DerivedProperties::SurfacePropertyPtr bottomSurfaceGridMap = getBottomSurfaceProperty ("DepthHighRes", getEnd ());
 
       if (!topSurfaceGridMap)
       {
@@ -674,10 +746,9 @@ bool Reservoir::computeDepths (void)
          {
             LocalColumn *column = getLocalColumn (i, j);
 
-	    double topSurfaceDepth = topSurfaceGridMap->getValue (i, j);
-	    double bottomSurfaceDepth = bottomSurfaceGridMap->getValue (i, j);
-            double lowResTopSurfaceDepth = formationGridMap->getValue (i, j, depth - 1);
-
+	    double topSurfaceDepth = topSurfaceGridMap->get (i, j);
+	    double bottomSurfaceDepth = bottomSurfaceGridMap->get (i, j);
+            double lowResTopSurfaceDepth = formationGridMap->get (i, j, depth - 1);
 
 	    if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () ||
 		  topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () ||
@@ -717,26 +788,32 @@ bool Reservoir::computeDepths (void)
 /// Additional overburdens are calculated in adaptOverburdens ().
 bool Reservoir::computeOverburdens (void)
 {
-   const GridMap * gridMap = getSeaBottomDepthMap (getEnd ());
-   if (!gridMap)
-   {
-      return false;
-   }
+ 
+   DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomProperty ( depthPropertyName(), getEnd ());
 
-   gridMap->retrieveData ();
+   if ( gridMap == 0 ) {
+      // If there is no surface property, use formation property
+      DerivedProperties::FormationPropertyPtr gridFormMap = getSeaBottomFormationProperty ( depthPropertyName(), getEnd ());
+      const Interface::Formation* seaFormation = getSeaBottomFormation(  getEnd () );
 
-   for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
-   {
-      for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
-      {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 if (IsValid (column))
-	 {
-	    column->setOverburden (column->getTopDepth () - gridMap->getValue (i, j));
-	 }
+      gridMap = DerivedProperties::SurfacePropertyPtr( new DerivedProperties::FormationPropertyAtSurface ( gridFormMap, seaFormation->getTopSurface () ));
+      if ( gridMap == 0 ) {
+         return false;
       }
    }
-   gridMap->restoreData ();
+
+   gridMap->retrieveData( ); 
+
+   for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i) {
+      for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j) {
+
+         LocalColumn * column = getLocalColumn (i, j);
+         if (IsValid (column)) {
+            column->setOverburden (column->getTopDepth () - gridMap->get( i, j ));
+         }
+      }
+   }
+    gridMap->restoreData( ); 
 
    return true;
 }
@@ -744,11 +821,15 @@ bool Reservoir::computeOverburdens (void)
 bool Reservoir::computeSeaBottomPressures (void)
 {
 
-   DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomPressureProperty (getEnd ());
+   DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomProperty ( "HydroStaticPressure", getEnd () );
+   //   DerivedProperties::FormationPropertyPtr gridMap = getSeaBottomFormationProperty ( "HydroStaticPressure", getEnd () );
 
-   if ( gridMap == 0 ) {
+   if ( gridMap == 0 )
+   {
       return false;
    }
+
+   gridMap->retrieveData();
 
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
@@ -757,10 +838,12 @@ bool Reservoir::computeSeaBottomPressures (void)
 	 LocalColumn * column = getLocalColumn (i, j);
 	 if (IsValid (column))
 	 {
-	    column->setSeaBottomPressure (column->getTopDepth () - gridMap->get (i, j));
+            //	    column->setSeaBottomPressure (column->getTopDepth () - gridMap->get (i, j, gridMap->lastK() ));
+	    column->setSeaBottomPressure (column->getTopDepth () - gridMap->get (i, j ));
 	 }
       }
    }
+   gridMap->restoreData();
 
    return true;
 }
@@ -769,15 +852,25 @@ bool Reservoir::computeSeaBottomPressures (void)
 /// the reservoir top depth and the reservoir's formation top depth.
 bool Reservoir::adaptOverburdens (void)
 {
-   const GridMap * gridMap;
+   DerivedProperties::SurfacePropertyPtr gridMap = getTopSurfaceProperty ( depthPropertyName(), getEnd ());
 
-   if (lowResEqualsHighRes ())
-      gridMap = getTopSurfacePropertyGridMap ("Depth", getEnd ());
-   else
-      gridMap = getTopSurfacePropertyGridMap ("DepthHighRes", getEnd ());
+   if( gridMap == 0 ) {
+      DerivedProperties::FormationPropertyPtr gridFormMap = getTopFormationProperty ( depthPropertyName(), getEnd ());
+      gridMap = DerivedProperties::SurfacePropertyPtr( new DerivedProperties::FormationPropertyAtSurface ( gridFormMap, getTopFormation( getEnd () )->getTopSurface () ));
 
-   gridMap->retrieveData ();
+      if ( gridMap == 0 ) {
+         if( GetRank() ) {
+            cout << "Cannot allocate " << depthPropertyName() << " FormationPropertyAtSurface " << getEnd ()->getTime() << endl;
+         }
+         return false;
+      }
+      
+   }
 
+   double gridUndefinedValue = gridMap->getUndefinedValue () ;
+
+   gridMap->retrieveData( ); 
+   
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -786,19 +879,20 @@ bool Reservoir::adaptOverburdens (void)
 
 	 if (column->getTopDepth () != getUndefinedValue ())
 	 {
-	    double formationTopDepth = gridMap->getValue (i, j);
+	    double formationTopDepth = gridMap->get( i, j );
+
 	    double reservoirDepthOffset = 0;
 
-	    if (formationTopDepth != gridMap->getUndefinedValue ())
+            if (formationTopDepth != gridUndefinedValue)
 	    {
 	       reservoirDepthOffset = column->getTopDepth () - formationTopDepth;
 	       reservoirDepthOffset = Max (0.0, reservoirDepthOffset);
-	    }
+	    } 
 	    column->setOverburden (column->getOverburden () + reservoirDepthOffset);
 	 }
       }
    }
-   gridMap->restoreData ();
+   gridMap->restoreData( ); 
 
    return true;
 }
@@ -1043,65 +1137,73 @@ bool Reservoir::saveComputedProperty (const string & name, ValueSpec valueSpec, 
 
 bool Reservoir::computePorosities (void)
 {
-   const GridMap * gridMap = getPropertyGridMap ("Porosity", getEnd ());
-   if (!gridMap) return false;
 
-   unsigned int depth = gridMap->getDepth ();
+   DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Porosity", getEnd ());
+
+   if ( gridMap == 0 ) {
+      return false;
+   }
+
+   unsigned int depth = gridMap->lengthK ();
    assert (depth > 1);
 
-   gridMap->retrieveData ();
+   gridMap->retrieveData ();  
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-	 index = Max ((double) 0, index);
-	 index = Min ((double) depth - 1, index);
-
-	 column->setPorosity (gridMap->getValue (i, j, index) * Percentage2Fraction);
+         LocalColumn * column = getLocalColumn (i, j);
+         double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
+         index = Max ((double) 0, index);
+         index = Min ((double) depth - 1, index);
+         
+         column->setPorosity (gridMap->interpolate (i, j, index) * Percentage2Fraction);
       }
    }
-   gridMap->restoreData ();
-
+   gridMap->restoreData ();   
    return true;
 }
 
 bool Reservoir::computePermeabilities (void)
 {
-   const GridMap * gridMap = getPropertyGridMap ("Permeability", getEnd ());
-   if (!gridMap) return false;
 
-   unsigned int depth = gridMap->getDepth ();
+   DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Permeability", getEnd ());
+
+   if ( gridMap == 0 ) {
+      return false;
+   }
+
+   unsigned int depth = gridMap->lengthK(); 
    assert (depth > 1);
-
-   gridMap->retrieveData ();
+   
+   gridMap->retrieveData ();        
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
       {
-	 LocalColumn * column = getLocalColumn (i, j);
-	 double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-	 index = Max ((double) 0, index);
-	 index = Min ((double) depth - 1, index);
-
-	 column->setPermeability (gridMap->getValue (i, j, index));
+         LocalColumn * column = getLocalColumn (i, j);
+         double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
+         index = Max ((double) 0, index);
+         index = Min ((double) depth - 1, index);
+         
+         column->setPermeability (gridMap->interpolate (i, j, index));
       }
    }
-   gridMap->restoreData ();
-
+   gridMap->restoreData ();         
    return true;
 }
 
 bool Reservoir::computeTemperatures (void)
 {
-   const GridMap * gridMap = getPropertyGridMap ("Temperature", getEnd ());
-   if (!gridMap) return false;
+   DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Temperature", getEnd ());
+   if ( gridMap == 0 ) {
+      return false;
+   }
 
-   unsigned int depth = gridMap->getDepth ();
+   unsigned int depth = gridMap->lengthK ();
    assert (depth > 1);
-
-   gridMap->retrieveData ();
+   
+   gridMap->retrieveData (); 
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -1111,7 +1213,7 @@ bool Reservoir::computeTemperatures (void)
 	 index = Max ((double) 0, index);
 	 index = Min ((double) depth - 1, index);
 
-	 column->setTemperature (gridMap->getValue (i, j, index));
+	 column->setTemperature (gridMap->interpolate (i, j, index));
       }
    }
    gridMap->restoreData ();
@@ -1121,11 +1223,10 @@ bool Reservoir::computeTemperatures (void)
 
 bool Reservoir::computePressures (void)
 {
-   const GridMap *gridMap = getPropertyGridMap ("Pressure", getEnd ());
-
+   DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Pressure", getEnd ());
    if (gridMap)
    {
-      unsigned int depth = gridMap->getDepth ();
+      unsigned int depth = gridMap->lengthK ();
       assert (depth > 1);
 
       gridMap->retrieveData ();
@@ -1139,13 +1240,11 @@ bool Reservoir::computePressures (void)
             index = Max ((double) 0, index);
             index = Min ((double) depth - 1, index);
 
-            column->setPressure (gridMap->getValue (i, j, index));
+            column->setPressure (gridMap->interpolate (i, j, index));
          }
       }
       gridMap->restoreData ();
-   }
-   else
-   {
+   } else {
       if (GetRank () == 0)
       {
 	 cerr << "WARNING: 3D property 'Pressure' does not exist for Formation "
@@ -1180,7 +1279,8 @@ bool Reservoir::computeHydrostaticPressures (void)
 
    unsigned int depth = gridMap->lengthK ();
    assert (depth > 1);
-
+   
+   gridMap->retrieveData ();
    for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
    {
       for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -1190,20 +1290,24 @@ bool Reservoir::computeHydrostaticPressures (void)
 	 index = Max ((double) 0, index);
 	 index = Min ((double) depth - 1, index);
 
-	 column->setHydrostaticPressure (gridMap->get (i, j, index));
+	 column->setHydrostaticPressure (gridMap->interpolate (i, j, index));
       }
 
    }
-
+   gridMap->restoreData ();
+   
    return true;
 }
-
+ 
 bool Reservoir::computeLithostaticPressures (void)
 {
-   const GridMap * gridMap = getPropertyGridMap ("LithoStaticPressure", getEnd ());
-   if (!gridMap) return false;
+   DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("LithoStaticPressure", getEnd ());
 
-   unsigned int depth = gridMap->getDepth ();
+   if ( gridMap == 0 ) {
+      return false;
+   }
+
+   unsigned int depth = gridMap->lengthK ();
    assert (depth > 1);
 
    gridMap->retrieveData ();
@@ -1216,7 +1320,7 @@ bool Reservoir::computeLithostaticPressures (void)
 	 index = Max ((double) 0, index);
 	 index = Min ((double) depth - 1, index);
 
-	 column->setLithostaticPressure (gridMap->getValue (i, j, index));
+	 column->setLithostaticPressure (gridMap->interpolate (i, j, index));
       }
    }
    gridMap->restoreData ();
@@ -1308,59 +1412,62 @@ const Reservoir * Reservoir::getSourceReservoir (void)
    return m_sourceReservoir;
 }
 
-const GridMap * Reservoir::getSeaBottomDepthMap (const Snapshot * snapshot) const
-{
-   string propertyName;
-   if (lowResEqualsHighRes ())
-      propertyName = "Depth";
-   else
-      propertyName = "DepthHighRes";
-
-   FormationList * formations = m_projectHandle->getFormations (snapshot);
-   assert (formations);
-   assert (formations->size () > 0);
-
-   Interface::FormationList::iterator formationIter;
-   const GridMap * gridMap = 0;
-   // continue downward until a gridMap is returned
-   for (formationIter = formations->begin (); gridMap == 0 && formationIter != formations->end (); ++formationIter)
-   {
-      const Formation * topFormation = dynamic_cast<const Formation *>( * formationIter);
-
-      gridMap = getPropertyGridMap (propertyName, snapshot, 0, 0, topFormation->getTopSurface ());
-   }
-
-   delete formations;
-   return gridMap;
-}
-
-DerivedProperties::SurfacePropertyPtr Reservoir::getSeaBottomPressureProperty ( const Interface::Snapshot * snapshot) const {
-
-   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( "HydroStaticPressure" );
+const Interface::Formation* Reservoir::getSeaBottomFormation ( const Interface::Snapshot * snapshot ) const {
 
    FormationList * formations = m_projectHandle->getFormations (snapshot);
 
    assert (formations);
    assert (formations->size () > 0);
 
-   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
    const Interface::Formation* topFormation = 0;
 
    for ( size_t i = 0; i < formations->size (); ++i ) {
+   // continue downward until a gridMap is returned
 
       if ((*formations)[ i ]->getTopSurface ()->getSnapshot ()->getTime () <= snapshot->getTime ()) {
          topFormation = (*formations)[ i ];
       }
 
    }
-
-   DerivedProperties::SurfacePropertyPtr hydrostaticPressure = mig->getPropertyManager ().getSurfaceProperty ( property, snapshot, topFormation->getTopSurface ());
-
    delete formations;
-   return hydrostaticPressure;
+   return topFormation;
+}
+
+DerivedProperties::SurfacePropertyPtr Reservoir::getSeaBottomProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const {
+
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
+
+   const Interface::Formation* seaFormation = getSeaBottomFormation( snapshot );
+
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
+   DerivedProperties::SurfacePropertyPtr theProperty = mig->getPropertyManager ().getSurfaceProperty ( property, snapshot, 
+                                                                                                      ( seaFormation ? seaFormation->getTopSurface () : 0 ));
+#ifdef DEBUG   
+   if( GetRank() == 0 ) {
+      if( theProperty ) {
+         cout << "getSeaBottomProperty " << propertyName << " for " << seaFormation->getName() << " at " << snapshot->getTime () << " at " << seaFormation->getTopSurface ()->getName()  << endl;
+      } else {
+         cout << "NO getSeaBottomProperty " << propertyName << " for " << seaFormation->getName() << " at " << snapshot->getTime () << " at " << seaFormation->getTopSurface ()->getName()  << endl;
+      }
+   }
+#endif
+
+   return theProperty;
 
 }
 
+DerivedProperties::FormationPropertyPtr Reservoir::getSeaBottomFormationProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const {
+
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
+
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
+   const Interface::Formation* seaFormation = getSeaBottomFormation( snapshot );
+
+   DerivedProperties::FormationPropertyPtr theProperty = mig->getPropertyManager ().getFormationProperty ( property, snapshot, seaFormation );
+
+   return theProperty;
+
+}
 
 DerivedProperties::FormationPropertyPtr Reservoir::getFormationPropertyPtr ( const string &              propertyName,
                                                                              const Interface::Snapshot * snapshot ) const {
@@ -1371,6 +1478,67 @@ DerivedProperties::FormationPropertyPtr Reservoir::getFormationPropertyPtr ( con
    return mig->getPropertyManager ().getFormationProperty ( property, snapshot, getFormation ());
 }
 
+const Interface::Formation* Reservoir::getTopFormation ( const Interface::Snapshot * snapshot ) const{
+
+   const Formation * formation = dynamic_cast<const Formation *>( getFormation ());
+
+   const Interface::Formation* topFormation = 0;
+
+   for ( ; topFormation == 0 && formation != 0; formation = formation->getTopFormation () ) {
+
+      if ( formation->getTopSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ()) {
+         topFormation = formation;
+      } 
+   }
+   return topFormation;
+
+}
+
+DerivedProperties::FormationPropertyPtr Reservoir::getTopFormationProperty (const string & propertyName, const Snapshot * snapshot) const
+{
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
+
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
+ 
+   const Interface::Formation* topFormation = getTopFormation( snapshot );
+ 
+   DerivedProperties::FormationPropertyPtr theProperty = mig->getPropertyManager ().getFormationProperty ( property, snapshot, topFormation );
+
+   return theProperty;
+}
+
+DerivedProperties::SurfacePropertyPtr Reservoir::getTopSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
+{
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
+
+   const Interface::Formation* topFormation = getTopFormation( snapshot );
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
+
+   DerivedProperties::SurfacePropertyPtr theProperty = mig->getPropertyManager ().getSurfaceProperty ( property, snapshot, ( topFormation ? topFormation->getTopSurface () : 0 ));
+  
+   return theProperty;
+}
+
+
+DerivedProperties::SurfacePropertyPtr Reservoir::getBottomSurfaceProperty (const string & propertyName, const Snapshot * snapshot) const
+{
+   const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
+
+   const Formation * formation = dynamic_cast<const Formation *>( getFormation ());
+
+   Migrator* mig = dynamic_cast<migration::Migrator*>( m_projectHandle );
+   const Interface::Formation* bottomFormation = 0;
+
+   for ( ; bottomFormation == 0 && formation != 0; formation = formation->getBottomFormation () ) {
+
+      if ( formation->getBottomSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ()) {
+         bottomFormation = formation;
+      } 
+   }
+   DerivedProperties::SurfacePropertyPtr theProperty = mig->getPropertyManager (). getSurfaceProperty ( property, snapshot, ( bottomFormation ? bottomFormation->getBottomSurface () : 0 ));
+
+   return theProperty;
+}
 
 const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
                                                const Snapshot * snapshot) const
@@ -1434,50 +1602,6 @@ const GridMap * Reservoir::getReservoirPropertyGridMap (const string & propertyN
    return getPropertyGridMap (propertyName, snapshot, this, 0, 0);
 }
 
-const GridMap * Reservoir::getFormationPropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
-{
-   return getPropertyGridMap (propertyName, snapshot, 0, getFormation (), 0);
-}
-
-const GridMap * Reservoir::getTopSurfacePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
-{
-   const Formation * formation;
-   const GridMap * formationTopMap = 0;
-
-   for (formation = dynamic_cast<const Formation *>( getFormation ());
-	 formationTopMap == 0 && formation != 0;
-	 formation = formation->getTopFormation ())
-   {
-      formationTopMap = getPropertyGridMap (propertyName, snapshot, 0, 0, formation->getTopSurface ());
-   }
-
-   return formationTopMap;
-}
-
-const GridMap * Reservoir::getBottomSurfacePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
-{
-   const Formation * formation;
-   const GridMap * formationBottomMap = 0;
-
-   for (formation = dynamic_cast<Formation *> ( const_cast<Interface::Formation*>(getFormation ()));
-	 !formationBottomMap && formation;
-	 formation = formation->getBottomFormation ())
-   {
-      formationBottomMap = getPropertyGridMap (propertyName, snapshot, 0, 0, formation->getBottomSurface ());
-   }
-
-   return formationBottomMap;
-}
-
-const GridMap * Reservoir::getTopFormationSurfacePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
-{
-   return getPropertyGridMap (propertyName, snapshot, 0, getFormation (), getFormation ()->getTopSurface ());
-}
-
-const GridMap * Reservoir::getBottomFormationSurfacePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
-{
-   return getPropertyGridMap (propertyName, snapshot, 0, getFormation (), getFormation ()->getBottomSurface ());
-}
 
 const Grid * Reservoir::getGrid (void) const
 {
@@ -1540,6 +1664,20 @@ double Reservoir::getLossPVT (void)
    return m_lossPVT;
 }
 
+
+const GridMap * Reservoir::getTopSurfacePropertyGridMap (const string & propertyName, const Snapshot * snapshot) const
+{
+   const Formation * formation;
+   const GridMap * formationTopMap = 0;
+
+   for (formation = dynamic_cast<const Formation *>( getFormation ()); formationTopMap == 0 && formation != 0; formation = formation->getTopFormation ())
+   {
+      formationTopMap = getPropertyGridMap (propertyName, snapshot, 0, 0, formation->getTopSurface ());      
+   }
+
+   return formationTopMap;
+}
+
 double Reservoir::getAverageDepth (void)
 {
    if (m_averageDepth == Interface::DefaultUndefinedScalarValue)
@@ -1586,25 +1724,15 @@ int Reservoir::computeMaximumTrapCount (bool countUndersized)
 
 bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
 {
-   string depthPropertyName;
 
-   if (lowResEqualsHighRes ())
-   {
-      depthPropertyName = "Depth";
-   }
-   else
-   {
-      depthPropertyName = "DepthHighRes";
-   }
-
-   const GridMap * formationTopDepthMap = getTopSurfacePropertyGridMap (depthPropertyName, presentDay);
-   const GridMap * formationBottomDepthMap = getBottomSurfacePropertyGridMap (depthPropertyName, presentDay);
+    DerivedProperties::SurfacePropertyPtr formationTopDepthMap = getTopSurfaceProperty (depthPropertyName(), presentDay);
+    DerivedProperties::SurfacePropertyPtr formationBottomDepthMap = getBottomSurfaceProperty (depthPropertyName(), presentDay);
 
    if (!formationTopDepthMap)
    {
       if (GetRank () == 0)
       {
-	 cerr << "WARNING: property value '" << depthPropertyName << "' does not exist for top surface of formation "
+	 cerr << "WARNING: property value '" << depthPropertyName() << "' does not exist for top surface of formation "
 	    << getFormation ()->getName () << " at snapshot " << presentDay->getTime ()  <<
 	    ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
 	 cerr.flush ();
@@ -1616,7 +1744,7 @@ bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
    {
       if (GetRank () == 0)
       {
-	 cerr << "WARNING: property value '" << depthPropertyName << "' does not exist for bottom surface of formation "
+	 cerr << "WARNING: property value '" << depthPropertyName() << "' does not exist for bottom surface of formation "
 	    << getFormation ()->getName () << " at snapshot " << presentDay->getTime ()  <<
 	    ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
 	 cerr.flush ();
@@ -1640,8 +1768,8 @@ bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
       {
 	 LocalColumn * column = getLocalColumn (i, j);
 
-	 double formationTopDepth = formationTopDepthMap->getValue (i, j);
-	 double formationBottomDepth = formationBottomDepthMap->getValue (i, j);
+	 double formationTopDepth = formationTopDepthMap->get (i, j);
+	 double formationBottomDepth = formationBottomDepthMap->get (i, j);
 
 	 if (formationTopDepth == formationTopDepthMap->getUndefinedValue () || 
 	       formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
@@ -1683,8 +1811,6 @@ bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
    if (depthOffsetMap) depthOffsetMap->restoreData ();
    if (thicknessMap) thicknessMap->restoreData ();
 
-   delete formationTopDepthMap;
-   delete formationBottomDepthMap;
    if (depthOffsetMap) delete depthOffsetMap;
    if (thicknessMap) delete thicknessMap;
 
@@ -1770,11 +1896,52 @@ bool Reservoir::crackChargesToBeMigrated (OilToGasCracker & otgc)
 }
 #endif
 
-bool Reservoir::collectExpelledCharges (const Formation * formation,
-      unsigned int direction, Barrier * barrier)
-{
 
+
+bool Reservoir::collectExpelledCharges (const Formation * formation, unsigned int direction, Barrier * barrier)
+{
    if (direction == EXPELLEDNONE) return true;
+
+   PetscBool genexMinorSnapshots;
+   PetscBool genexFraction;
+   PetscBool printDebug;
+   
+   PetscOptionsHasName ( PETSC_NULL, "-genex",  &genexMinorSnapshots );
+   PetscOptionsHasName ( PETSC_NULL, "-genexf", &genexFraction );
+   PetscOptionsHasName ( PETSC_NULL, "-debug",  &printDebug );
+
+   const double depoTime = formation->getTopSurface ()->getSnapshot ()->getTime();
+   bool sourceRockIsActive = ( depoTime  > getStart()->getTime() )  || fabs ( depoTime -  getStart()->getTime ()) < Genex6::Constants::ZERO;
+
+   Formation * srFormation = const_cast< Formation *>( formation );
+
+   if( genexMinorSnapshots ) {
+      if( sourceRockIsActive ) {
+         if( ! formation->isPreprocessed() ) {
+            bool status = srFormation->preprocessSourceRock( getStart()->getTime(), printDebug  );
+            if( !status && GetRank() == 0 ) {
+               cout << "Cannot preprocess " << formation->getName() << ", depoage= " << depoTime << " at " <<  getStart()->getTime() << endl;
+            }
+            
+         }
+         bool status = srFormation->calculateGenexTimeInterval( getStart(), getEnd(), printDebug );
+         
+         if( status ) {
+            double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
+
+            addChargesToBeMigrated ( formation->getGenexData(), fraction, barrier);
+
+         } else {
+            if( GetRank() == 0 ) {
+               cout << "Cannot calculate genex " << getName() << ", depoage= " << depoTime << " at " <<  getStart()->getTime() << endl;
+            }
+
+         }
+      
+         return status;
+      } 
+      return true; 
+   }
 
    for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
    {
@@ -1788,22 +1955,107 @@ bool Reservoir::collectExpelledCharges (const Formation * formation,
 
       double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
+      double startTime, endTime, fractionToMigrate = 1;
+
+      if( gridMapStart ) {
+         startTime = getStart ()->getTime();
+      } else  if( genexFraction ) {         
+         const Snapshot * startSnapshot = m_projectHandle->findPreviousSnapshot( getStart ()->getTime() );
+         startTime = startSnapshot->getTime();
+         gridMapStart = getPropertyGridMap (propertyName, startSnapshot, 0, formation, 0);
+      }
+      if( gridMapEnd ) {
+         endTime = getEnd ()->getTime();
+      } else if( genexFraction ) {
+         const Snapshot * endSnapshot = m_projectHandle->findNextSnapshot( getEnd ()->getTime() );
+         endTime = endSnapshot->getTime();
+         gridMapEnd = getPropertyGridMap (propertyName, endSnapshot, 0, formation, 0);
+      }
+      
+      if( startTime - endTime > 0 and genexFraction ) {
+         if( gridMapStart && gridMapEnd ) {
+            fractionToMigrate = (getStart()->getTime() - getEnd()->getTime()) / (startTime - endTime );
+            if( endTime == getEnd ()->getTime() ) {
+               //fractionToMigrate =  the rest
+            }
+         }
+      } 
+
+      if( gridMapStart && gridMapEnd ) {
+	 if (GetRank () == 0 and  printDebug ) {
+            if( propertyName == "asphaltenesExpelledCumulative" ) {
+               cout << formation->getName() << ": " << propertyName << ": Start = " << startTime << "(" << getStart ()->getTime() <<"), End = " << endTime 
+                    << "(" << getEnd ()->getTime() << "),fraction = " << fractionToMigrate << endl;
+            }
+         }
+      } else {
+        if( gridMapStart && !gridMapEnd ) {
+           if (GetRank () == 0 and  printDebug) {
+             if( propertyName == "asphaltenesExpelledCumulative" ) {
+                cout << formation->getName() << ": " <<  propertyName << ": only start " << startTime << " and no " << getEnd ()->getTime() << " depotime = " << depoTime << endl;
+             }
+           }
+        } else if( !gridMapStart && gridMapEnd ) {
+           if (GetRank () == 0 and  printDebug ) {
+              if( propertyName == "asphaltenesExpelledCumulative" ) {
+                 cout << formation->getName() << ": " << propertyName << ": only end " << endTime << " and no " << getStart ()->getTime() << " depotime = " << depoTime <<endl;
+              }
+           }
+        }
+      }           
+
       if (gridMapEnd)
       {
-	 gridMapEnd->retrieveData ();
-	 addChargesToBeMigrated ((ComponentId) componentId, gridMapEnd, fraction, barrier);
-	 gridMapEnd->restoreData ();
-      }
-
+         gridMapEnd->retrieveData ();
+         addChargesToBeMigrated ((ComponentId) componentId, gridMapEnd, fraction * fractionToMigrate, barrier);
+         gridMapEnd->restoreData ();        
+      } 
+      
       if (gridMapStart)
       {
-	 gridMapStart->retrieveData ();
-	 subtractChargesToBeMigrated ((ComponentId) componentId, gridMapStart, fraction, barrier);
-	 gridMapStart->restoreData ();
+         gridMapStart->retrieveData ();
+         subtractChargesToBeMigrated ((ComponentId) componentId, gridMapStart, fraction * fractionToMigrate, barrier);
+         gridMapStart->restoreData ();
       }
 
    }
 
+   return true;
+}
+
+
+bool Reservoir::saveGenexMaps( const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot ) {
+
+   const Interface::Surface   * topMap = formation->getTopSurface();
+   const string topSurfaceName = topMap->getName();
+   
+   float time = (float) aSnapshot->getTime ();
+
+   const string extensionString = ".HDF";
+   Interface::MapWriter * mapWriter = m_projectHandle->GetFactoryToUse()->produceMapWriter();
+   
+   const string dirToOutput = m_projectHandle->getProjectName() + "_CauldronOutputDir/";
+
+   //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
+   string outputFileName =  dirToOutput + formation->getName() + "_" + speciesName + "_" + aSnapshot->asString() + extensionString;
+   
+   // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
+   string dataSetName = speciesName; //"0"; //outputMapsNames[i];
+   dataSetName += "_";
+   dataSetName += aSnapshot->asString();
+   dataSetName += "_";
+   dataSetName += topSurfaceName;
+   
+   mapWriter->open( outputFileName, false );
+   mapWriter->saveDescription (m_projectHandle->getActivityOutputGrid ());
+   
+   mapWriter->writeMapToHDF ( aMap, time, time, dataSetName, topSurfaceName); 
+   mapWriter->close();
+   
+   if( GetRank() == 0 ) {
+      cout << "Map " << speciesName << " at " << time << " is saved into " << outputFileName <<  endl;
+   }
+   delete mapWriter;
    return true;
 }
 
@@ -2486,6 +2738,36 @@ bool Reservoir::addChargesToBeMigrated (ComponentId componentId, const GridMap *
 	 }
       }
    }
+   return true;
+}
+/// add charges to the reservoir
+bool Reservoir::addChargesToBeMigrated (const Interface::GridMap * gridMap , double fraction, Barrier * barrier)
+{
+   gridMap->retrieveData();
+
+   for (unsigned int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId) {
+      if (!ComponentsUsed[componentId]) continue;
+               
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i) {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j) {
+
+            LocalColumn * column = getLocalColumn (i, j);
+            double value = gridMap->getValue (i, j, componentId);
+
+            if ( value != gridMap->getUndefinedValue ())  {
+               if (IsValid (column)) {
+                  if (barrier && barrier->isBlocking (i, j)) {
+                     addBlocked ((ComponentId)componentId, value * fraction * getSurface (i, j));
+                  } else {
+                     column->addComponentToBeMigrated ((ComponentId)componentId, value * fraction * getSurface (i, j));
+                  }
+               }
+            }
+         }
+      }
+   }
+   gridMap->restoreData();
+
    return true;
 }
 

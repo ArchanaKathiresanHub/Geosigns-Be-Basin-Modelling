@@ -144,19 +144,24 @@ bool Migrator::compute (void)
    computeDepthOffsets ();
    computeNetToGross ();
 
-   Interface::SnapshotList * snapshots = getSnapshots ();
+   PetscBool minorSnapshots;
+
+   PetscOptionsHasName ( PETSC_NULL, "-minor", &minorSnapshots );
+ 
+   Interface::SnapshotList * snapshots = getSnapshots ( minorSnapshots ? ( Interface::MAJOR | Interface::MINOR ) : Interface::MAJOR );
 
    Interface::SnapshotList::reverse_iterator snapshotIter;
 
    const Interface::Snapshot * start;
    const Interface::Snapshot * end = 0;
    // skip the first as it does not contain meaningful data.
+
    for (snapshotIter = snapshots->rbegin (), ++snapshotIter; snapshotIter != snapshots->rend (); ++snapshotIter)
    {
       start = end;
       end = * snapshotIter;
 
-      if (!start) continue;
+      if (!start) continue;     
 
 #if 0
       cerr << GetRankString () << ": " << "Snapshot:: " << end->getTime () << endl;

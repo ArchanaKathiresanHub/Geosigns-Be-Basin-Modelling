@@ -4359,6 +4359,43 @@ const Interface::Snapshot * ProjectHandle::findSnapshot( double time, int type )
    return nearestSnapshot;
 }
 
+const Interface::Snapshot * ProjectHandle::findNextSnapshot( double time, int type ) const
+{
+   // first, try the highway
+   const double tolerance = 1e-6;
+   MutableSnapshotList::const_reverse_iterator snapshotIter;
+
+   for ( snapshotIter = m_snapshots.rbegin(); snapshotIter != m_snapshots.rend(); ++ snapshotIter )
+   {
+      const Snapshot * snapshot = *snapshotIter;
+      if ( ( snapshot->getType() & type ) && snapshot->getTime() <= time )
+      {
+         // Note that we return an Interface::Snapshot
+         return snapshot;
+      }
+   }
+
+   return 0;
+}
+const Interface::Snapshot * ProjectHandle::findPreviousSnapshot( double time, int type ) const
+{
+   // first, try the highway
+   const double tolerance = 1e-6;
+   MutableSnapshotList::const_iterator snapshotIter;
+
+   for ( snapshotIter = m_snapshots.begin(); snapshotIter != m_snapshots.end(); ++ snapshotIter )
+   {
+      const Snapshot * snapshot = *snapshotIter;
+      if ( ( snapshot->getType() & type ) && snapshot->getTime() > time )
+      {
+         // Note that we return an Interface::Snapshot
+         return snapshot;
+      }
+   }
+
+   return 0;
+}
+
 const Interface::Reservoir * ProjectHandle::findReservoir( const string & name ) const
 {
    MutableReservoirList::const_iterator reservoirIter;

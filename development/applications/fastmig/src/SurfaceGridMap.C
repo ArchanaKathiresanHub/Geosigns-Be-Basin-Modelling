@@ -20,7 +20,7 @@ SurfaceGridMap::~SurfaceGridMap()
 
 void SurfaceGridMap::retrieveData()
 {
-   assert(m_status == CREATED || m_status == RESTORED);
+   //   assert(m_status == CREATED || m_status == RESTORED);
    if (m_gridMap)
       m_gridMap->retrieveData();
    m_status = RETRIEVED;

@@ -74,6 +74,7 @@ void LinearGridInterpolator::initialize(const GridMap *theGrid)
    m_A = allocate2DArray(m_rows, m_columns);
    m_B = allocate2DArray(m_rows, m_columns);
 }
+
 void LinearGridInterpolator::clear()
 {
    delete2DArray(m_A, m_rows);
@@ -162,6 +163,295 @@ void LinearGridInterpolator::compute ( const double                          sta
    }
 
  
+}
+
+
+void LinearGridInterpolator::initialize( const DerivedProperties::SurfacePropertyPtr theProperty )
+{
+   m_firstI = theProperty->firstI( false );
+   m_lastI  = theProperty->lastI( false );
+   m_firstJ = theProperty->firstJ( false );
+   m_lastJ  = theProperty->lastJ( false );
+   
+   m_rows   = m_lastI - m_firstI + 1;
+   m_columns= m_lastJ - m_firstJ + 1;
+     
+   m_A = allocate2DArray(m_rows, m_columns);
+   m_B = allocate2DArray(m_rows, m_columns);
+}
+
+
+void LinearGridInterpolator::compute ( const Snapshot *startTime,
+                                       const DerivedProperties::SurfacePropertyPtr startProperty,
+                                       const Snapshot *endTime, 
+                                       const DerivedProperties::SurfacePropertyPtr endProperty ) {
+
+
+   const double start = startTime->getTime();
+   const double end   = endTime->getTime(); 
+
+   //if first time(most likely)
+   if(!m_A || !m_B )
+   {
+      initialize( startProperty ); 
+   }
+   //if matrices have been allocated, check for bounds... 
+   else if(m_A && m_B )
+   {
+     //if bounds are different clear and reallocate
+      if ( m_firstI != startProperty->firstI( false ) ||
+           m_lastI  != startProperty->lastI ( false ) ||
+           m_firstJ != startProperty->firstJ( false ) ||
+           m_lastJ  != startProperty->lastJ ( false ) 
+         )
+      {
+         clear (); 
+         initialize ( startProperty );  
+      } 
+   }
+   
+   //main functionality
+   double aTime = start;
+   double bTime = end;
+   double BMinusA = bTime - aTime;
+     
+   double aValue = 0.0;
+   double bValue = 0.0;
+   unsigned int depth = 1; // it is a Surface property
+   unsigned int i = 0;
+   unsigned int j = 0;
+
+   for(i = startProperty->firstI( false ); i <= startProperty->lastI( false ); ++i)
+   {
+
+      for(j = startProperty->firstJ ( false ); j<= startProperty->lastJ( false ); ++j)
+      {
+         aValue = startProperty->get( i, j );
+         bValue = endProperty->get( i, j );
+
+         double valueA = bTime * aValue / BMinusA - aTime * bValue / BMinusA;
+         double valueB = (bValue - aValue)/BMinusA;
+         
+         setValueFromGridMap(valueA, i, j, A);
+         setValueFromGridMap(valueB, i, j, B);
+      }
+
+   }
+}
+
+void LinearGridInterpolator::initialize( const DerivedProperties::FormationPropertyPtr theProperty )
+{
+   m_firstI = theProperty->firstI( false );
+   m_lastI  = theProperty->lastI( false );
+   m_firstJ = theProperty->firstJ( false );
+   m_lastJ  = theProperty->lastJ( false );
+   
+   m_rows   = m_lastI - m_firstI + 1;
+   m_columns= m_lastJ - m_firstJ + 1;
+     
+   m_A = allocate2DArray(m_rows, m_columns);
+   m_B = allocate2DArray(m_rows, m_columns);
+}
+
+void LinearGridInterpolator::initialize( const DerivedProperties::FormationMapPropertyPtr theProperty )
+{
+   m_firstI = theProperty->firstI( false );
+   m_lastI  = theProperty->lastI( false );
+   m_firstJ = theProperty->firstJ( false );
+   m_lastJ  = theProperty->lastJ( false );
+   
+   m_rows   = m_lastI - m_firstI + 1;
+   m_columns= m_lastJ - m_firstJ + 1;
+     
+   m_A = allocate2DArray(m_rows, m_columns);
+   m_B = allocate2DArray(m_rows, m_columns);
+}
+
+void LinearGridInterpolator::initialize( const DerivedProperties::FormationSurfacePropertyPtr theProperty )
+{
+   m_firstI = theProperty->firstI( false );
+   m_lastI  = theProperty->lastI( false );
+   m_firstJ = theProperty->firstJ( false );
+   m_lastJ  = theProperty->lastJ( false );
+   
+   m_rows   = m_lastI - m_firstI + 1;
+   m_columns= m_lastJ - m_firstJ + 1;
+     
+   m_A = allocate2DArray(m_rows, m_columns);
+   m_B = allocate2DArray(m_rows, m_columns);
+}
+
+void LinearGridInterpolator::compute ( const Snapshot *startTime,
+                                       const DerivedProperties::FormationPropertyPtr startProperty,
+                                       const Snapshot *endTime, 
+                                       const DerivedProperties::FormationPropertyPtr endProperty ) {
+
+
+   const double start = startTime->getTime();
+   const double end   = endTime->getTime(); 
+
+   //if first time(most likely)
+   if(!m_A || !m_B )
+   {
+      initialize( startProperty ); 
+   }
+   //if matrices have been allocated, check for bounds... 
+   else if(m_A && m_B )
+   {
+     //if bounds are different clear and reallocate
+      if ( m_firstI != startProperty->firstI( false ) ||
+           m_lastI  != startProperty->lastI ( false ) ||
+           m_firstJ != startProperty->firstJ( false ) ||
+           m_lastJ  != startProperty->lastJ ( false ) 
+         )
+      {
+         clear (); 
+         initialize ( startProperty );  
+      } 
+   }
+   
+   //main functionality
+   double aTime = start;
+   double bTime = end;
+   double BMinusA = bTime - aTime;
+     
+   double aValue = 0.0;
+   double bValue = 0.0;
+   unsigned int depth = 1; // it is a Surface property
+   unsigned int i = 0;
+   unsigned int j = 0;
+
+   for(i = startProperty->firstI( false ); i <= startProperty->lastI( false ); ++i)
+   {
+
+      for(j = startProperty->firstJ ( false ); j<= startProperty->lastJ( false ); ++j)
+      {
+         aValue = startProperty->get( i, j, startProperty->lastK() );
+         bValue = endProperty->get( i, j, endProperty->lastK() );
+
+         double valueA = bTime * aValue / BMinusA - aTime * bValue / BMinusA;
+         double valueB = (bValue - aValue)/BMinusA;
+         
+         setValueFromGridMap(valueA, i, j, A);
+         setValueFromGridMap(valueB, i, j, B);
+      }
+
+   }
+}
+
+void LinearGridInterpolator::compute ( const Snapshot *startTime,
+                                       const DerivedProperties::FormationMapPropertyPtr startProperty,
+                                       const Snapshot *endTime, 
+                                       const DerivedProperties::FormationMapPropertyPtr endProperty ) {
+
+
+   const double start = startTime->getTime();
+   const double end   = endTime->getTime(); 
+
+   //if first time(most likely)
+   if(!m_A || !m_B )
+   {
+      initialize( startProperty ); 
+   }
+   //if matrices have been allocated, check for bounds... 
+   else if(m_A && m_B )
+   {
+     //if bounds are different clear and reallocate
+      if ( m_firstI != startProperty->firstI( false ) ||
+           m_lastI  != startProperty->lastI ( false ) ||
+           m_firstJ != startProperty->firstJ( false ) ||
+           m_lastJ  != startProperty->lastJ ( false ) 
+         )
+      {
+         clear (); 
+         initialize ( startProperty );  
+      } 
+   }
+   
+   //main functionality
+   double aTime = start;
+   double bTime = end;
+   double BMinusA = bTime - aTime;
+     
+   double aValue = 0.0;
+   double bValue = 0.0;
+   unsigned int depth = 1; // it is a Surface property
+   unsigned int i = 0;
+   unsigned int j = 0;
+
+   for(i = startProperty->firstI( false ); i <= startProperty->lastI( false ); ++i)
+   {
+
+      for(j = startProperty->firstJ ( false ); j<= startProperty->lastJ( false ); ++j)
+      {
+         aValue = startProperty->get( i, j );
+         bValue = endProperty->get( i, j );
+
+         double valueA = bTime * aValue / BMinusA - aTime * bValue / BMinusA;
+         double valueB = (bValue - aValue)/BMinusA;
+         
+         setValueFromGridMap(valueA, i, j, A);
+         setValueFromGridMap(valueB, i, j, B);
+      }
+
+   }
+}
+void LinearGridInterpolator::compute ( const Snapshot *startTime,
+                                       const DerivedProperties::FormationSurfacePropertyPtr startProperty,
+                                       const Snapshot *endTime, 
+                                       const DerivedProperties::FormationSurfacePropertyPtr endProperty ) {
+
+
+   const double start = startTime->getTime();
+   const double end   = endTime->getTime(); 
+
+   //if first time(most likely)
+   if(!m_A || !m_B )
+   {
+      initialize( startProperty ); 
+   }
+   //if matrices have been allocated, check for bounds... 
+   else if(m_A && m_B )
+   {
+     //if bounds are different clear and reallocate
+      if ( m_firstI != startProperty->firstI( false ) ||
+           m_lastI  != startProperty->lastI ( false ) ||
+           m_firstJ != startProperty->firstJ( false ) ||
+           m_lastJ  != startProperty->lastJ ( false ) 
+         )
+      {
+         clear (); 
+         initialize ( startProperty );  
+      } 
+   }
+   
+   //main functionality
+   double aTime = start;
+   double bTime = end;
+   double BMinusA = bTime - aTime;
+     
+   double aValue = 0.0;
+   double bValue = 0.0;
+   unsigned int depth = 1; // it is a Surface property
+   unsigned int i = 0;
+   unsigned int j = 0;
+
+   for(i = startProperty->firstI( false ); i <= startProperty->lastI( false ); ++i)
+   {
+
+      for(j = startProperty->firstJ ( false ); j<= startProperty->lastJ( false ); ++j)
+      {
+         aValue = startProperty->get( i, j );
+         bValue = endProperty->get( i, j );
+
+         double valueA = bTime * aValue / BMinusA - aTime * bValue / BMinusA;
+         double valueB = (bValue - aValue)/BMinusA;
+         
+         setValueFromGridMap(valueA, i, j, A);
+         setValueFromGridMap(valueB, i, j, B);
+      }
+
+   }
 }
 
 

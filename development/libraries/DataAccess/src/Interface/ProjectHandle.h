@@ -132,6 +132,10 @@ namespace DataAccess
 
          /// Find the Snapshot with the given time
          virtual const Snapshot * findSnapshot( double time, int type = MAJOR ) const;
+         /// Find the Snapshot with the given time
+         virtual const Snapshot * findNextSnapshot( double time, int type = MAJOR ) const;
+         /// Find the Snapshot with the given time
+         virtual const Snapshot * findPreviousSnapshot( double time, int type = MAJOR ) const;
          /// Find the LithoType with the given name
          virtual const LithoType * findLithoType( const string & name ) const;
          /// Find the Formation with the given name

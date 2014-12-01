@@ -30,6 +30,7 @@ namespace DataAccess
    }
 }
 
+
 using namespace DataAccess;
 
 #include "SurfaceGridMapContainer.h"
@@ -103,6 +104,7 @@ namespace migration
          bool computeLithostaticPressures (void);
 	 /// Load the necessary overburden properties used for diffusion:
 	 bool computeOverburdenGridMaps (void);
+
    public:
 	 /// refine geometry, to take into account zero thicknesses
 	 bool refineGeometry (void);
@@ -221,12 +223,15 @@ namespace migration
 	 const Interface::GridMap * getVolumePropertyGridMap (const Formation * formation,
 	       const string & propertyName, const Interface::Snapshot * snapshot) const;
    private:
-	 const Interface::GridMap * getSeaBottomDepthMap (
-	       const Interface::Snapshot * snapshot) const;
-	 const Interface::GridMap * getSeaBottomPressureMap (
-	       const Interface::Snapshot * snapshot) const;
 
-      DerivedProperties::SurfacePropertyPtr getSeaBottomPressureProperty ( const Interface::Snapshot * snapshot) const;
+       DerivedProperties::SurfacePropertyPtr getSeaBottomProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
+       DerivedProperties::SurfacePropertyPtr getTopSurfaceProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
+       DerivedProperties::SurfacePropertyPtr getBottomSurfaceProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
+       DerivedProperties::FormationPropertyPtr getTopFormationProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
+       DerivedProperties::FormationPropertyPtr getSeaBottomFormationProperty ( const string & propertyName, const Interface::Snapshot * snapshot ) const;
+
+      const Interface::Formation* getSeaBottomFormation ( const Interface::Snapshot * snapshot ) const;
+      const Interface::Formation* getTopFormation ( const Interface::Snapshot * snapshot ) const;
 
 	 const Interface::GridMap * getPropertyGridMap (const string & propertyName,
 	       const Interface::Snapshot * snapshot,
@@ -237,15 +242,6 @@ namespace migration
 	       const Interface::Snapshot * snapshot) const;
 	 const Interface::GridMap * getTopSurfacePropertyGridMap (const string & propertyName,
 	       const Interface::Snapshot * snapshot) const;
-	 const Interface::GridMap * getBottomSurfacePropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot) const;
-	 const Interface::GridMap * getTopFormationSurfacePropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot) const;
-	 const Interface::GridMap * getBottomFormationSurfacePropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot) const;
-	 const Interface::GridMap * getFormationPropertyGridMap (const string & propertyName,
-	       const Interface::Snapshot * snapshot) const;
-
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr ( const string &              propertyName,
                                                                         const Interface::Snapshot * snapshot ) const;
 
@@ -263,6 +259,8 @@ namespace migration
 
 	 inline bool hasName (const string & name);
 
+         inline const string depthPropertyName() const;
+         
    public:
 	 inline void setStart (const DataAccess::Interface::Snapshot * start);
 	 inline void setEnd (const DataAccess::Interface::Snapshot * end);
@@ -331,6 +329,7 @@ namespace migration
 	 bool checkDistribution (void);
 
 	 bool addChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
+	 bool addChargesToBeMigrated (const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
 	 bool subtractChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
 	 bool checkChargesToBeMigrated (ComponentId componentId);
 
@@ -366,8 +365,10 @@ public:
 	 bool processMigration (MigrationRequest & mr);
 	 bool processAbsorption (MigrationRequest & mr);
 
+      bool preprocessSourceRock(const Formation * formation, const double startTime ) ; 
 
-      private:
+      bool saveGenexMaps( const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot );
+     private:
 
 	 /// The Traps we work on
 	 TrapVector m_traps;
@@ -418,7 +419,7 @@ public:
 	 MigrationRequestVector m_migrationRequests;
 
 	 bool m_computeFluxesHasFinished;
-   };
+  };
 }
 
 bool migration::Reservoir::lowResEqualsHighRes (void) const
@@ -429,6 +430,12 @@ bool migration::Reservoir::lowResEqualsHighRes (void) const
 bool migration::Reservoir::hasName (const string & name)
 {
    return getName () == name;
+}
+
+const string migration::Reservoir::depthPropertyName ( ) const
+{
+   if( m_lowResEqualsHighRes ) return "Depth";
+   else return "DepthHighRes";
 }
 
 void migration::Reservoir::setAverageDepth (double depth)
