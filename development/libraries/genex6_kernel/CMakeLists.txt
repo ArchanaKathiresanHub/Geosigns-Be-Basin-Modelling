@@ -26,6 +26,7 @@ bm_include_libraries(
 	genex6 
 	CBMGenerics 
 	EosPack 
+	DerivedProperties
 	utilities 
 	Serial_Hdf5 
 	OTGC_kernel6
@@ -44,6 +45,7 @@ target_link_libraries(genex6_kernel
 	genex6
 	CBMGenerics
 	EosPack
+	DerivedProperties
 	utilities
 	Serial_Hdf5
 	OTGC_kernel6
