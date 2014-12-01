@@ -24,6 +24,8 @@ namespace DerivedProperties {
 
    public :
 
+      FormationPropertyCalculator ();
+
       virtual ~FormationPropertyCalculator () {}
 
       /// \brief Calculate the property values and add the property values to the list.
