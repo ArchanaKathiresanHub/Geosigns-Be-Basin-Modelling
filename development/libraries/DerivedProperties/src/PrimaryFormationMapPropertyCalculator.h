@@ -41,6 +41,9 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation* formation,
                                      FormationMapPropertyList&     derivedProperties ) const;
 
+      /// \brief Get a list of the property names that will be calculated by the calculator.
+      virtual const std::vector<std::string>& getPropertyNames () const;
+
       /// \brief Get the snapshots for which the property is available.
       const DataModel::AbstractSnapshotSet& getSnapshots () const;
 
@@ -51,6 +54,9 @@ namespace DerivedProperties {
 
       /// \brief The list of all the property-values for the property.
       DataAccess::Interface::PropertyValueList m_formationPropertyValues;
+
+      /// \brief Will contain the name of the property.
+      std::vector<std::string>                 m_propertyNames;
 
       /// \brief Contains a set of snapshots for which there are property-values available for this property.
       DataModel::AbstractSnapshotSet           m_snapshots;

@@ -6,8 +6,12 @@
 
 #include "LithostaticPressureFormationCalculator.h"
 
-DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
-   addPropertyName ( "LithoStaticPressure" );
+DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
+   m_propertyNames.push_back ( "LithoStaticPressure" );
+}
+
+const std::vector<std::string>& DerivedProperties::LithostaticPressureFormationCalculator::getPropertyNames () const {
+   return m_propertyNames;
 }
 
 void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -39,7 +43,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
          
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
             
-            if ( m_projectHandle->getNodeIsValid ( i, j )) { 
+            if ( getProjectHandle ()->getNodeIsValid ( i, j )) { 
                 
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
                  

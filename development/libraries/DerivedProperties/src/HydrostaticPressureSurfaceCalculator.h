@@ -36,6 +36,9 @@ namespace DerivedProperties {
                                const DataModel::AbstractSurface*   surface,
                                      SurfacePropertyList&          derivedProperties ) const;
 
+      /// \brief Get a list of the property names that will be calculated by the calculator.
+      virtual const std::vector<std::string>& getPropertyNames () const;
+
    private :
 
       /// \brief Compute the hydrostatic pressure at the top of the domain.
@@ -51,9 +54,10 @@ namespace DerivedProperties {
                                                    const DataAccess::Interface::Surface* surface,
                                                          DerivedSurfacePropertyPtr&      hydrostaticPressure ) const;
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      /// \brief Will contain only a single string, that of HydroStaticPressure.
+      std::vector<std::string> m_propertyNames;
 
-   };
+    };
 
 
 }

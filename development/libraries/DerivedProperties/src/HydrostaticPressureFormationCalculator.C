@@ -7,9 +7,9 @@
 #include "GeoPhysicalFunctions.h"
 
 DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
-   m_projectHandle ( projectHandle )
+   FormationPropertyCalculator ( projectHandle )
 {
-   addPropertyName ( "HydroStaticPressure" );
+   m_propertyNames.push_back ( "HydroStaticPressure" );
 }
  
 void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( AbstractPropertyManager&            propertyManager,
@@ -17,7 +17,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
                                                                             const DataModel::AbstractFormation* formation,
                                                                                   FormationPropertyList&        derivedProperties ) const {
 
-   const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( getPropertyNames ()[ 0 ]);
+   const DataModel::AbstractProperty* hydrostaticPressureProperty = propertyManager.getProperty ( m_propertyNames [ 0 ]);
    const DataModel::AbstractProperty* porePressureProperty = propertyManager.getProperty ( "Pressure" );
    const DataModel::AbstractProperty* temperatureProperty = propertyManager.getProperty ( "Temperature" );
    const DataModel::AbstractProperty* depthProperty = propertyManager.getProperty ( "Depth" );
@@ -41,7 +41,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
    double segmentPressure;
    double pressure;
    unsigned int topNodeIndex = hydrostaticPressure->lastK ();
-   double undefinedValue = hydrostaticPressure->getUndefinedValue ();
 
    derivedProperties.clear ();
 
@@ -65,7 +64,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
 
       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( getNodeIsValid ( i, j )) {
             fluidDensityTop = fluid->density ( temperature->get ( i, j, topNodeIndex ), porePressure->get ( i, j, topNodeIndex ));
 
             // Loop index is shifted up by 1.
@@ -82,12 +81,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
                // now copy the density at bottom of segment to use for top of segment below.
                // This saves on a density calculation.
                fluidDensityTop = fluidDensityBottom;
-            }
-
-         } else {
-
-            for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-               hydrostaticPressure->set ( i, j, k - 1, undefinedValue );
             }
 
          }
@@ -114,14 +107,12 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
 
       for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( getNodeIsValid ( i, j )) {
             GeoPhysics::computeHydrostaticPressure ( fluid,
-                                                     m_projectHandle->getSeaBottomTemperature ( i, j, snapshotAge ),
-                                                     m_projectHandle->getSeaBottomDepth ( i, j, snapshotAge ),
+                                                     getProjectHandle ()->getSeaBottomTemperature ( i, j, snapshotAge ),
+                                                     getProjectHandle ()->getSeaBottomDepth ( i, j, snapshotAge ),
                                                      pressure );
             hydrostaticPressure->set ( i, j, 0, pressure );
-         } else {
-            hydrostaticPressure->set ( i, j, 0, hydrostaticPressure->getUndefinedValue ());
          }
 
       }
@@ -144,7 +135,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticP
 
       for ( unsigned int j = hydrostaticPressureAbove->firstJ ( true ); j <= hydrostaticPressureAbove->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( getNodeIsValid ( i, j )) {
             hydrostaticPressure->set ( i, j, topNodeIndex, hydrostaticPressureAbove->get ( i, j, 0 ));
          } else {
             hydrostaticPressure->set ( i, j, topNodeIndex, undefinedValue );
@@ -154,5 +145,10 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticP
 
    }
 
+}
+
+
+const std::vector<std::string>& DerivedProperties::HydrostaticPressureFormationCalculator::getPropertyNames () const {
+   return m_propertyNames;
 }
 

@@ -72,6 +72,12 @@ public :
                     const DataModel::AbstractSurface*         surface,
                           SurfacePropertyList&                derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+
 };
 
 class SurfaceProperty2Calculator : public DerivedProperties::SurfacePropertyCalculator {
@@ -85,8 +91,11 @@ public :
                     const DataModel::AbstractSurface*         surface,
                     SurfacePropertyList&                derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
 private :
 
+   std::vector<std::string> m_propertyNames;
    double m_value;
 
 };
@@ -105,6 +114,12 @@ public :
                     const DataModel::AbstractFormation*         formation,
                           FormationMapPropertyList&             derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+
 };
 
 class FormationMapProperty2Calculator : public DerivedProperties::FormationMapPropertyCalculator {
@@ -118,8 +133,11 @@ public :
                     const DataModel::AbstractFormation*         formation,
                     FormationMapPropertyList&                   derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
 private :
 
+   std::vector<std::string> m_propertyNames;
    double m_value;
 
 };
@@ -136,6 +154,12 @@ public :
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+
 };
 
 class FormationProperty2Calculator : public DerivedProperties::FormationPropertyCalculator {
@@ -149,8 +173,11 @@ public :
                     const DataModel::AbstractFormation*         formation,
                     FormationPropertyList&                      derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
 private :
 
+   std::vector<std::string> m_propertyNames;
    double m_value;
 
 };
@@ -168,6 +195,12 @@ public :
                     const DataModel::AbstractSurface*           surface,
                           FormationSurfacePropertyList&         derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
+private :
+
+   std::vector<std::string> m_propertyNames;
+
 };
 
 class FormationSurfaceProperty2Calculator : public DerivedProperties::FormationSurfacePropertyCalculator {
@@ -182,8 +215,11 @@ public :
                     const DataModel::AbstractSurface*           surface,
                           FormationSurfacePropertyList&         derivedProperties ) const;
 
+   const std::vector<std::string>& getPropertyNames () const;
+
 private :
 
+   std::vector<std::string> m_propertyNames;
    double m_value;
 
 };
@@ -492,9 +528,14 @@ const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
    return m_mapGrid;
 }
 
-SurfaceProperty1Calculator::SurfaceProperty1Calculator () {
-   addPropertyName ( "Property1" );
+SurfaceProperty1Calculator::SurfaceProperty1Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
+   m_propertyNames.push_back ( "Property1" );
 }
+
+const std::vector<std::string>& SurfaceProperty1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void SurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                              const DataModel::AbstractSnapshot*        snapshot,
@@ -520,10 +561,15 @@ void SurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractProperty
    derivedProperties.push_back ( derivedProp );
 }
 
-SurfaceProperty2Calculator::SurfaceProperty2Calculator ( const double value ) : m_value ( value ) {
-   addPropertyName ( "Property2" );
-   addPropertyName ( "Property3" );
+SurfaceProperty2Calculator::SurfaceProperty2Calculator ( const double value ) : DerivedProperties::SurfacePropertyCalculator ( 0 ), m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
 }
+
+const std::vector<std::string>& SurfaceProperty2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void SurfaceProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                              const DataModel::AbstractSnapshot*        snapshot,
@@ -557,9 +603,14 @@ void SurfaceProperty2Calculator::calculate ( DerivedProperties::AbstractProperty
 
 
 
-FormationMapProperty1Calculator::FormationMapProperty1Calculator () {
-   addPropertyName ( "Property1" );
+FormationMapProperty1Calculator::FormationMapProperty1Calculator () : DerivedProperties::FormationMapPropertyCalculator ( 0 ) {
+   m_propertyNames.push_back ( "Property1" );
 }
+
+const std::vector<std::string>& FormationMapProperty1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                   const DataModel::AbstractSnapshot*          snapshot,
@@ -585,10 +636,15 @@ void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPro
    derivedProperties.push_back ( derivedProp );
 }
 
-FormationMapProperty2Calculator::FormationMapProperty2Calculator ( const double value ) : m_value ( value ) {
-   addPropertyName ( "Property2" );
-   addPropertyName ( "Property3" );
+FormationMapProperty2Calculator::FormationMapProperty2Calculator ( const double value ) : DerivedProperties::FormationMapPropertyCalculator ( 0 ), m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
 }
+
+const std::vector<std::string>& FormationMapProperty2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void FormationMapProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                   const DataModel::AbstractSnapshot*          snapshot,
@@ -623,9 +679,14 @@ void FormationMapProperty2Calculator::calculate ( DerivedProperties::AbstractPro
 
 
 
-FormationProperty1Calculator::FormationProperty1Calculator () {
-   addPropertyName ( "Property1" );
+FormationProperty1Calculator::FormationProperty1Calculator () : FormationPropertyCalculator ( 0 ) {
+   m_propertyNames.push_back ( "Property1" );
 }
+
+const std::vector<std::string>& FormationProperty1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                   const DataModel::AbstractSnapshot*       snapshot,
@@ -655,10 +716,15 @@ void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractProper
    derivedProperties.push_back ( derivedProp );
 }
 
-FormationProperty2Calculator::FormationProperty2Calculator ( const double value ) : m_value ( value ) {
-   addPropertyName ( "Property2" );
-   addPropertyName ( "Property3" );
+FormationProperty2Calculator::FormationProperty2Calculator ( const double value ) : FormationPropertyCalculator ( 0 ), m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
 }
+
+const std::vector<std::string>& FormationProperty2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void FormationProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                   const DataModel::AbstractSnapshot*       snapshot,
@@ -694,9 +760,14 @@ void FormationProperty2Calculator::calculate ( DerivedProperties::AbstractProper
 }
 
 
-FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () {
-   addPropertyName ( "Property1" );
+FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () : FormationSurfacePropertyCalculator ( 0 ) {
+   m_propertyNames.push_back ( "Property1" );
 }
+
+const std::vector<std::string>& FormationSurfaceProperty1Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void FormationSurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                       const DataModel::AbstractSnapshot*          snapshot,
@@ -723,10 +794,15 @@ void FormationSurfaceProperty1Calculator::calculate ( DerivedProperties::Abstrac
    derivedProperties.push_back ( derivedProp );
 }
 
-FormationSurfaceProperty2Calculator::FormationSurfaceProperty2Calculator ( const double value ) : m_value ( value ) {
-   addPropertyName ( "Property2" );
-   addPropertyName ( "Property3" );
+FormationSurfaceProperty2Calculator::FormationSurfaceProperty2Calculator ( const double value ) : FormationSurfacePropertyCalculator ( 0 ), m_value ( value ) {
+   m_propertyNames.push_back ( "Property2" );
+   m_propertyNames.push_back ( "Property3" );
 }
+
+const std::vector<std::string>& FormationSurfaceProperty2Calculator::getPropertyNames () const {
+   return m_propertyNames;
+}
+
 
 void FormationSurfaceProperty2Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
                                                       const DataModel::AbstractSnapshot*          snapshot,

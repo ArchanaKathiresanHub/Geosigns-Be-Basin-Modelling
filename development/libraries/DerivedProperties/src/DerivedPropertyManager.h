@@ -34,9 +34,6 @@ namespace DerivedProperties {
       /// \brief Get the grid for the map.
       virtual const DataAccess::Interface::Grid* getMapGrid () const;
 
-      /// \brief Determine whether or not the node is valid.
-      virtual bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
-
    protected :
 
       /// \brief Get the geophysics project handle
@@ -71,14 +68,5 @@ namespace DerivedProperties {
    }; 
 
 } // namespace DerivedProperties
-
-//
-// Inline functions.
-//
-
-inline bool DerivedProperties::DerivedPropertyManager::getNodeIsValid ( const unsigned int i, const unsigned int j ) const {
-   return m_projectHandle->getNodeIsValid ( i, j );
-}
-
 
 #endif // DERIVED_PROPERTIES__DERIVED_PROPERTY_MANAGER_H

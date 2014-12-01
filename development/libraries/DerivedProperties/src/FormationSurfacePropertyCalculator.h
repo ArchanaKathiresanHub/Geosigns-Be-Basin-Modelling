@@ -24,7 +24,7 @@ namespace DerivedProperties {
    public :
 
       /// \brief Constructor.
-      FormationSurfacePropertyCalculator ();
+      FormationSurfacePropertyCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
 
       virtual ~FormationSurfacePropertyCalculator () {}
 
@@ -34,6 +34,9 @@ namespace DerivedProperties {
                                const DataModel::AbstractFormation* formation,
                                const DataModel::AbstractSurface*   surface,
                                      FormationSurfacePropertyList& derivedProperties ) const = 0;
+
+      /// \brief Get a list of the property names that will be calculated by the calculator.
+      virtual const std::vector<std::string>& getPropertyNames () const = 0;
 
 
    };

@@ -1,4 +1,4 @@
 #include "FormationPropertyCalculator.h"
 
-DerivedProperties::FormationPropertyCalculator::FormationPropertyCalculator () {
+DerivedProperties::FormationPropertyCalculator::FormationPropertyCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : PropertyCalculator ( projectHandle ) {
 }

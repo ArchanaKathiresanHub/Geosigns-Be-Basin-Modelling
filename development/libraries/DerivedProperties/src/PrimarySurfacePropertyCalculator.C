@@ -9,11 +9,12 @@
 
 DerivedProperties::PrimarySurfacePropertyCalculator::PrimarySurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
                                                                                         const DataModel::AbstractProperty* property ) :
+   SurfacePropertyCalculator ( projectHandle ),
    m_property ( property )
 {
 
    DataAccess::Interface::PropertyValueList* surfaceProperties = projectHandle->getPropertyValues ( DataAccess::Interface::SURFACE, 0, 0, 0, 0, 0, DataAccess::Interface::MAP );
-   addPropertyName ( property->getName ());
+   m_propertyNames.push_back ( property->getName ());
 
    for ( size_t i = 0; i < surfaceProperties->size (); ++i ) {
       const DataAccess::Interface::PropertyValue* propVal = (*surfaceProperties)[ i ];
@@ -53,6 +54,10 @@ void DerivedProperties::PrimarySurfacePropertyCalculator::calculate ( AbstractPr
    }
 
 }
+
+const std::vector<std::string>& DerivedProperties::PrimarySurfacePropertyCalculator::getPropertyNames () const {
+   return m_propertyNames;
+} 
 
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimarySurfacePropertyCalculator::getSnapshots () const {
    return m_snapshots;

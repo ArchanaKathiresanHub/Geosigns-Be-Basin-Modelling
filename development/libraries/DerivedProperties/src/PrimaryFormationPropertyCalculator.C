@@ -10,11 +10,12 @@
 
 DerivedProperties::PrimaryFormationPropertyCalculator::PrimaryFormationPropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
                                                                                             const DataModel::AbstractProperty* property ) :
+   FormationPropertyCalculator ( projectHandle ),
    m_property ( property )
 {
 
    DataAccess::Interface::PropertyValueList* formationProperties = projectHandle->getPropertyValues ( DataAccess::Interface::FORMATION, 0, 0, 0, 0, 0, DataAccess::Interface::VOLUME );
-   addPropertyName ( property->getName ());
+   m_propertyNames.push_back ( property->getName ());
 
    for ( size_t i = 0; i < formationProperties->size (); ++i ) {
       const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
@@ -57,4 +58,8 @@ void DerivedProperties::PrimaryFormationPropertyCalculator::calculate ( Abstract
 
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationPropertyCalculator::getSnapshots () const {
    return m_snapshots;
+} 
+
+const std::vector<std::string>& DerivedProperties::PrimaryFormationPropertyCalculator::getPropertyNames () const {
+   return m_propertyNames;
 } 

@@ -92,9 +92,6 @@ namespace DerivedProperties {
       /// \brief Get the grid for the map.
       virtual const DataModel::AbstractGrid* getMapGrid () const = 0;
 
-      /// \brief Determine whether or not the node is valid.
-      virtual bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const = 0;
-
    protected :
 
       /// \brief Add a calculator for a property or set of properties defined on a surface.

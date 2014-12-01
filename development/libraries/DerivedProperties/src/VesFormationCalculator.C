@@ -6,8 +6,12 @@
 
 #include "VesFormationCalculator.h"
 
-DerivedProperties::VesFormationCalculator::VesFormationCalculator () {
-   addPropertyName ( "Ves" );
+DerivedProperties::VesFormationCalculator::VesFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
+   m_propertyNames.push_back ( "Ves" );
+}
+
+const std::vector<std::string>& DerivedProperties::VesFormationCalculator::getPropertyNames () const {
+   return m_propertyNames;
 }
 
 void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -39,7 +43,7 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
          
          for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
             
-            if ( propertyManager.getNodeIsValid ( i, j )) {
+            if ( getNodeIsValid ( i, j )) {
                 
                for ( unsigned int k = lithostaticPressure->firstK (); k <= lithostaticPressure->lastK (); ++k ) {
                  

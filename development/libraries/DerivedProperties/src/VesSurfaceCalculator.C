@@ -5,8 +5,12 @@
 
 #include "VesSurfaceCalculator.h"
 
-DerivedProperties::VesSurfaceCalculator::VesSurfaceCalculator () {
-   addPropertyName ( "Ves" );
+DerivedProperties::VesSurfaceCalculator::VesSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : SurfacePropertyCalculator ( projectHandle ) {
+   m_propertyNames.push_back ( "Ves" );
+}
+
+const std::vector<std::string>& DerivedProperties::VesSurfaceCalculator::getPropertyNames () const {
+   return m_propertyNames;
 }
 
 void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -36,6 +40,7 @@ void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::Abs
          
          for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
 
+            // if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
             if( lithostaticPressure->get ( i, j ) != undefinedValue && porePressure->get ( i, j ) != porePressure->getUndefinedValue () ) {
                ves->set ( i, j, ( lithostaticPressure->get ( i, j ) - porePressure->get ( i, j )) * GeoPhysics::MPa_To_Pa );
             } else {
