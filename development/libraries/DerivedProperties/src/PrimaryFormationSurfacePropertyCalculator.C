@@ -40,7 +40,6 @@ void DerivedProperties::PrimaryFormationSurfacePropertyCalculator::calculate ( A
                                                                                const DataModel::AbstractSurface*   surface,
                                                                                FormationSurfacePropertyList& derivedProperties ) const {
 
-   (void) propManager;
    derivedProperties.clear ();
 
    for ( size_t i = 0; i < m_formationSurfacePropertyValues.size (); ++i ) {

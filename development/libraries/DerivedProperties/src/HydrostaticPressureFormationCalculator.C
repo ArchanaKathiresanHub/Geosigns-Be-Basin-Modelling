@@ -100,7 +100,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                                                                                                         const GeoPhysics::FluidType*       fluid,
                                                                                                               DerivedFormationPropertyPtr& hydrostaticPressure ) const {
 
-   (void) propertyManager;
    double pressure;
 
    for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {

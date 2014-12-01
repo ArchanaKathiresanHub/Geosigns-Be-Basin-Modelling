@@ -42,14 +42,7 @@ void DerivedProperties::DerivedPropertyManager::loadSurfacePropertyCalculators (
    for ( size_t i = 0; i < allSurfaceProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allSurfaceProperties)[ i ];
 
-      PrimarySurfacePropertyCalculatorPtr propertyCalculator = PrimarySurfacePropertyCalculatorPtr ( new PrimarySurfacePropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
-      DataModel::AbstractSnapshotSet::const_iterator ssIter;
-
-      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addSurfacePropertyCalculator ( propertyCalculator, *ssIter );
-      }
-
+      addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new PrimarySurfacePropertyCalculator ( m_projectHandle, property )));
    } 
 
    delete allSurfaceProperties;
@@ -63,14 +56,7 @@ void DerivedProperties::DerivedPropertyManager::loadFormationSurfacePropertyCalc
    for ( size_t i = 0; i < allFormationSurfaceProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allFormationSurfaceProperties)[ i ];
 
-      PrimaryFormationSurfacePropertyCalculatorPtr propertyCalculator = PrimaryFormationSurfacePropertyCalculatorPtr ( new PrimaryFormationSurfacePropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
-      DataModel::AbstractSnapshotSet::const_iterator ssIter;
-
-      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addFormationSurfacePropertyCalculator ( propertyCalculator, *ssIter );
-      }
-
+      addFormationSurfacePropertyCalculator ( FormationSurfacePropertyCalculatorPtr ( new PrimaryFormationSurfacePropertyCalculator ( m_projectHandle, property )));
    } 
 
    delete allFormationSurfaceProperties;
@@ -84,13 +70,7 @@ void DerivedProperties::DerivedPropertyManager::loadFormationMapPropertyCalculat
    for ( size_t i = 0; i < allFormationMapProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allFormationMapProperties)[ i ];
 
-      PrimaryFormationMapPropertyCalculatorPtr propertyCalculator = PrimaryFormationMapPropertyCalculatorPtr ( new PrimaryFormationMapPropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
-      DataModel::AbstractSnapshotSet::const_iterator ssIter;
-
-      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addFormationMapPropertyCalculator ( propertyCalculator, *ssIter );
-      }
+      addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new PrimaryFormationMapPropertyCalculator ( m_projectHandle, property )));
 
    } 
 
