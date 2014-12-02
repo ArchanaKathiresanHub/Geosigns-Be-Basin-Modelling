@@ -38,6 +38,7 @@ target_link_libraries(UnitTestGenex6
 	CBMGenerics
 	genex6
 	genex6_kernel
+	GeoPhysics
 	TableIO
 	utilities
 	${HDF5_LIBRARIES}

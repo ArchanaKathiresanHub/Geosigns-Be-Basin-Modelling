@@ -45,6 +45,7 @@ bm_include_libraries(
 target_link_libraries( fastgenex6
 	DataAccess
 	DistributedDataAccess
+	GeoPhysics
 	Utilities_Petsc
 	Serial_Hdf5
 	Parallel_Hdf5
