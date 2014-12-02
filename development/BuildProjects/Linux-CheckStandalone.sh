@@ -33,8 +33,8 @@ function onExit()
 trap onExit EXIT
 
 # Test the build directory
-test -d "$build" || { echo "Given build directory '$build' does not exist"; exit 1; }
-ls "$build"/* > /dev/null 2>&1 && { echo "Given build directory '$build' is not empty"; exit 1; }
+test -d "$build" || { echo "error : Given build directory '$build' does not exist"; exit 1; }
+ls "$build"/* > /dev/null 2>&1 && { echo "error : Given build directory '$build' is not empty"; exit 1; }
 
 
 # set UMASK
@@ -64,9 +64,12 @@ CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x
 # Package Cauldron
 pushd $build
 echo Packaging cauldron source
-${CMAKE} "-DCPACK_PACKAGE_VERSION=${tfs_version}" ${src} || { echo "Could not configure source package" ; exit 1; }
-make package_source                                       || { echo "Could not make source package" ; exit 1; }
-local_host=`hostname --fqdn`                              || { echo "Could not get hostname" ; exit 1; }
+${CMAKE} "-DCPACK_PACKAGE_VERSION=${tfs_version}" ${src} \
+        || { echo "CMAKE : error : Could not configure source package" ; exit 1; }
+make package_source  \
+        || { echo "GNU Make : error : Could not make source package" ; exit 1; }
+local_host=`hostname --fqdn`  \
+        || { echo "hostname : error : Could not get hostname" ; exit 1; }
 tar=BasinModeling-${tfs_version}-Source.tar.gz
 tarfile=$build/$tar
 
@@ -91,7 +94,7 @@ EOF
 
 cat >> $script <<"EOF"
 
-remoteBuildDir=`mktemp -d` || { echo Could not create build directory; exit 1; }
+remoteBuildDir=`mktemp -d` || { echo "mktemp : error : Could not create build directory"; exit 1; }
 
 function onExit()
 {
@@ -113,10 +116,10 @@ srcdir=`basename $tarfile .tar.gz`
 pushd ${remoteBuildDir}
 
 echo "Copying the source package to the remote host"
-scp -q -o StrictHostKeyChecking=no -o CheckHostIP=no ${local_host}:${tarfile} . || { echo Could not copy source archive; exit 1; }
+scp -q -o StrictHostKeyChecking=no -o CheckHostIP=no ${local_host}:${tarfile} . || { echo "scp : error : Could not copy source archive"; exit 1; }
 
 echo "Untarring the source package"
-tar xzvf $tar || { echo Could not uncompress tarfile; exit 1 ; }
+tar xzvf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 
 echo "Configuring the package"
 ${CMAKE} \
@@ -127,17 +130,20 @@ ${CMAKE} \
    -DBM_UNIT_TEST_OUTPUT_DIR=. \
    -DBM_CONFIG_PRESET=OFF \
    ${srcdir}/development \
-   || { echo "Configuration of standalone package has failed" ; exit 1; }
+   || { echo "CMake : error : Configuration of standalone package has failed" ; exit 1; }
 
 source envsetup.sh
 
 echo "Building the package"
-make -j${procs} -k \
-   || { echo "Build of standalone package has failed"; exit 1; }
+set -o pipefail
+make -j${procs} -k 2>&1 \
+   | sed -e 's/:\(.*\): \([Ww]arning\|[Ee]rror\): /(\1): \2 : /'  \
+   | sed -e 's/: \(undefined reference\) /: error : \1 /' \
+   || { echo "GNU Make : error : Build of standalone package has failed"; exit 1; }
 
 echo "Testing the package"
 ctest \
-   || { echo "One or more unit tests have failed" ; exit 1 ; }
+   || { echo "CTest : error : One or more unit tests have failed" ; exit 1 ; }
 
 scp *-junit.xml ${local_host}:${unit_test_output}
 
@@ -146,13 +152,14 @@ EOF
 
 SSH_OPTS="-q -o StrictHostKeyChecking=no -o CheckHostIP=no"
 echo "Copy script to remote host"
-scp $SSH_OPTS ${run_on_cluster} ${remote_host}:${run_on_cluster} || { echo "Could not copy the script to the remote build host"; exit 1; }
+scp $SSH_OPTS ${run_on_cluster} ${remote_host}:${run_on_cluster} \
+       || { echo "scp : error : Could not copy the script to the remote build host"; exit 1; }
 
 echo "Execute the script on the remote host"
 exit_status=0
 ssh $SSH_OPTS  ${remote_host} /bin/bash ${run_on_cluster} < ${script} 
 if [ $? != 0 ]; then
-  echo "error: Standalone version could not be compiled"
+  echo "$0 : error: Standalone version could not be compiled"
   exit_status=1
 fi
 

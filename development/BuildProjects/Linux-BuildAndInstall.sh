@@ -64,27 +64,40 @@ ${src}/development/bootstrap.csh \
       -DBM_UNIT_TEST_OUTPUT_DIR=${unit_test_output} \
       -DCMAKE_INSTALL_PREFIX=${installdir} \
 	  "$@" \
-  || { echo error: Configuration has failed; exit 1; } 
+  || { echo "CMake : error : Configuration has failed"; exit 1; } 
 
 source envsetup.sh
 
+# Make piped commands fail if any of the subcommands fail... This is needed
+# shortly after
+set -o pipefail
+
 # Run Gnu Make :-)
 # Notes on parameters:
+#
 #   -k  => build as much as you can
+#
 #   -j  => parallel build
-#   3>&1 1>&2 2>&3 3>&- | sed -e 's/[Ww]arning:/warning :/' 
-#       => Redirects stderr to the sed script which makes GCC outputted
-#          warnings easier to digest for TFS / Visual Studio
+#
+#   3>&1 1>&2 2>&3 3>&-  
+#       => Swap stdout and stderr, so that subsequent sed scripts work on the stderr.
+#
+#   sed -e 's/:\(.*\): \([Ww]arning\|[Ee]rror\): /(\1): \2 : /' | \
+#   sed -e 's/: \(undefined reference\) /: error : \1/' 
+#       => Make GCC and LD outputted warnings easier to digest for TFS / Visual Studio
 #          (See also http://stackoverflow.com/questions/3441452/msbuild-and-ignorestandarderrorwarningformat)
-make -k -j${nprocs} 3>&1 1>&2 2>&3 3>&- | sed -e 's/:\(.*\): \([Ww]arning\|[Ee]rror\): /(\1): \2 : /' \
-   || { echo error: Build has failed; exit 1 ; } 
-
+#
+make -k -j${nprocs} \
+     3>&1 1>&2 2>&3 3>&-  \
+     | sed -e 's/:\(.*\): \([Ww]arning\|[Ee]rror\): /(\1): \2 : /'  \
+     | sed -e 's/: \(undefined reference\) /: error : \1 /' \
+         || { echo "GNU Make : error : Build has failed "; exit 1 ; } 
 
 if [ x$deploy = xTrue ]; then
    if [[ ${configuration} =~ "[Rr]elease" ]]; then
-      make install/strip || { echo error: Installation has failed; exit 1 ; }
+      make install/strip || { echo "GNU Make : error : Installation has failed"; exit 1 ; }
    else
-      make install || { echo error: Installation has failed; exit 1 ; } 
+      make install || { echo "GNU Make : error : Installation has failed"; exit 1 ; } 
    fi
 fi
 
@@ -125,9 +138,9 @@ if [ x$deploy = xTrue ]; then
      echo "Installation complete at the first attempt"
    else
      echo "Let's try to rotate the installation first..."
-     bash MoveInstalls.sh || { echo error: Deployment has failed; exit 1 ; }
+     bash MoveInstalls.sh || { echo "MoveInstalls.sh : error : Deployment has failed"; exit 1 ; }
      echo "Again, trying to install fresh binaries..."
-     bash InstallAll.sh || { echo error: Deployment has failed; exit 1 ; }
+     bash InstallAll.sh || { echo "InstallAll.sh : error : Deployment has failed"; exit 1 ; }
      echo "Installation succeeded at the second attempy."
    fi 
  
@@ -141,7 +154,7 @@ else
 fi 
   
 # Run Unit Tests
-${CTEST} || { echo error: One or more unit tests have failed; exit 1 ; } 
+${CTEST} || { echo "CTest : error: One or more unit tests have failed"; exit 1 ; } 
 
 popd
 
