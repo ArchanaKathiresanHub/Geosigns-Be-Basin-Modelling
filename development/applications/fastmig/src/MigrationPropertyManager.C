@@ -7,19 +7,166 @@
 #include "VesSurfaceCalculator.h"
 #include "HydrostaticPressureSurfaceCalculator.h"
 #include "HydrostaticPressureFormationCalculator.h"
+#include "LithostaticPressureSurfaceCalculator.h"
+#include "LithostaticPressureFormationCalculator.h"
+#include "FormationPropertyAtSurface.h"
 
 #include "ObjectFactory.h"
+#include "Interface/Snapshot.h"
 
-migration::MigrationPropertyManager::MigrationPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) :
+namespace migration {
+
+MigrationPropertyManager::MigrationPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) :
    DerivedProperties::DerivedPropertyManager ( projectHandle ) {
    
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PorosityFormationCalculator ( projectHandle )));
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::VesFormationCalculator ));
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationCalculator ( projectHandle )));
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureFormationCalculator ( projectHandle )));
+   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PorosityFormationCalculator ( projectHandle ) ));
 
-   addSurfacePropertyCalculator ( DerivedProperties::SurfacePropertyCalculatorPtr ( new DerivedProperties::VesSurfaceCalculator ));
+   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationCalculator ( projectHandle ) ));
+   addFormationSurfacePropertyCalculator ( DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationSurfaceCalculator ( projectHandle ) ));
+
+   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureFormationCalculator ( projectHandle )));
    addSurfacePropertyCalculator ( DerivedProperties::SurfacePropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureSurfaceCalculator ( projectHandle )));
 
-   addFormationSurfacePropertyCalculator ( DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationSurfaceCalculator ( projectHandle )));
-}       
+   addSurfacePropertyCalculator ( DerivedProperties::SurfacePropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureSurfaceCalculator ( projectHandle )));
+   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureFormationCalculator ( projectHandle )));
+} 
+      
+MigrationPropertyManager::~MigrationPropertyManager() {
+
+   for ( int i = 0; i < m_derivedMaps.size(); ++ i ) {
+      delete m_derivedMaps[i];
+   }
+   m_derivedMaps.clear();
+}
+
+DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::FormationPropertyPtr aProperty  ) {
+   
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+                                                                                                     aProperty->lengthK() );
+   theMap->retrieveData();
+
+   for ( unsigned int i = theMap->firstI (); i <= theMap->lastI (); ++i ) {
+      for ( unsigned int j = theMap->firstJ (); j <= theMap->lastJ (); ++j ) {
+         for ( unsigned int k = 0; k < theMap->getDepth (); ++k ) {
+               theMap->setValue (i, j, k, aProperty->get( i, j, k ));
+         }
+      }
+   }
+
+   theMap->restoreData (true);
+
+   m_derivedMaps.push_back( theMap );
+
+   return theMap;
+}
+
+DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::FormationSurfacePropertyPtr aProperty  ) {
+   
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+                                                                                                     aProperty->getUndefinedValue(), 1 );
+   theMap->retrieveData();
+
+   for ( unsigned int i = theMap->firstI (); i <= theMap->lastI (); ++i ) {
+      for ( unsigned int j = theMap->firstJ (); j <= theMap->lastJ (); ++j ) {
+         theMap->setValue (i, j, aProperty->get( i, j ));
+      }
+   }
+
+   theMap->restoreData (true);
+
+   m_derivedMaps.push_back( theMap );
+
+   return theMap;
+}
+
+
+DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedGridMap ( DerivedProperties::SurfacePropertyPtr aProperty  ) {
+   
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 
+                                                                                                     aProperty->getUndefinedValue(), 1 );
+   theMap->retrieveData();
+
+   for ( unsigned int i = theMap->firstI (); i <= theMap->lastI (); ++i ) {
+      for ( unsigned int j = theMap->firstJ (); j <= theMap->lastJ (); ++j ) {
+         theMap->setValue (i, j, aProperty->get( i, j ));
+      }
+   }
+
+
+   theMap->restoreData (true);
+
+   m_derivedMaps.push_back( theMap );
+
+   return theMap;
+}
+
+DataAccess::Interface::GridMap *  MigrationPropertyManager::produceDerivedTopSurfaceGridMap ( DerivedProperties::FormationPropertyPtr aProperty  ) {
+   
+   DataAccess::Interface::GridMap * theMap = getProjectHandle()->GetFactoryToUse()->produceGridMap ( 0, 0, getProjectHandle()->getActivityOutputGrid (), 1 );
+
+   theMap->retrieveData();
+
+   for ( unsigned int i = theMap->firstI (); i <= theMap->lastI (); ++i ) {
+      for ( unsigned int j = theMap->firstJ (); j <= theMap->lastJ (); ++j ) {
+         theMap->setValue ( i, j, aProperty->get( i, j, aProperty->lastK()) );
+      }
+   }
+
+   theMap->restoreData (true);
+
+   m_derivedMaps.push_back( theMap );
+
+   return theMap;
+}
+
+
+double getTopValue ( DerivedProperties::SurfacePropertyPtr aSurfaceProperty, DerivedProperties::FormationPropertyPtr aFormationProperty,
+                     unsigned int i, unsigned j ) {
+
+   if( aSurfaceProperty != 0 ) {
+      return aSurfaceProperty->get( i, j );
+   }
+
+   if( aFormationProperty != 0 ) {
+      return aFormationProperty->get( i, j, aFormationProperty->lastK() );
+   }
+   return 0.0;
+}
+
+double getBottomValue ( DerivedProperties::SurfacePropertyPtr aSurfaceProperty, DerivedProperties::FormationPropertyPtr aFormationProperty,
+                        unsigned int i, unsigned j ) {
+
+   if( aSurfaceProperty != 0 ) {
+      return aSurfaceProperty->get( i, j );
+   }
+
+   if( aFormationProperty != 0 ) {
+      return aFormationProperty->get( i, j, 0 );
+   }
+   return 0.0;
+}
+
+void retrieveData ( DerivedProperties::SurfacePropertyPtr aSurfaceProperty, DerivedProperties::FormationPropertyPtr aFormationProperty ) {
+ 
+   if( aSurfaceProperty != 0 ) { 
+      aSurfaceProperty->retrieveData();
+   }
+
+   if( aFormationProperty != 0 ) {
+      aFormationProperty->retrieveData();
+   }
+
+}
+void restoreData ( DerivedProperties::SurfacePropertyPtr aSurfaceProperty, DerivedProperties::FormationPropertyPtr aFormationProperty ) {
+
+   if( aSurfaceProperty != 0 ) {
+      aSurfaceProperty->restoreData();
+   }
+
+   if( aFormationProperty != 0 ) {
+      aFormationProperty->restoreData();
+   }
+
+}
+
+}
