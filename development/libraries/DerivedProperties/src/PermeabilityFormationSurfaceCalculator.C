@@ -9,16 +9,11 @@
 #include "CompoundLithologyArray.h"
 
 #include "PermeabilityFormationSurfaceCalculator.h"
+#include "PropertyRetriever.h"
 
-#define FORMATION_PROPERTY 1
-
-DerivedProperties::PermeabilityFormationSurfaceCalculator::PermeabilityFormationSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationSurfacePropertyCalculator ( projectHandle ) {
-   m_propertyNames.push_back ( "PermeabilityVec2" );
-   m_propertyNames.push_back ( "PermeabilityHVec2" );
-}
-
-const std::vector<std::string>& DerivedProperties::PermeabilityFormationSurfaceCalculator::getPropertyNames () const {
-   return m_propertyNames;
+DerivedProperties::PermeabilityFormationSurfaceCalculator::PermeabilityFormationSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+   addPropertyName ( "PermeabilityVec2" );
+   addPropertyName ( "PermeabilityHVec2" );
 }
 
 void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -36,15 +31,16 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
    const DataModel::AbstractProperty* aPermeabilityVProperty = propertyManager.getProperty ( "PermeabilityVec2" );
    const DataModel::AbstractProperty* aPermeabilityHProperty = propertyManager.getProperty ( "PermeabilityHVec2" );
    
-#ifndef  FORMATION_PROPERTY
-   const SurfacePropertyPtr ves    = propertyManager.getSurfaceProperty ( aVesProperty, snapshot, surface );
-   const SurfacePropertyPtr maxVes = propertyManager.getSurfaceProperty ( aMaxVesProperty, snapshot, surface );
-#else
+   // const SurfacePropertyPtr ves    = propertyManager.getSurfaceProperty ( aVesProperty, snapshot, surface );
+   // const SurfacePropertyPtr maxVes = propertyManager.getSurfaceProperty ( aMaxVesProperty, snapshot, surface );
    const FormationPropertyPtr ves    = propertyManager.getFormationProperty ( aVesProperty, snapshot, formation );
    const FormationPropertyPtr maxVes = propertyManager.getFormationProperty ( aMaxVesProperty, snapshot, formation );
-#endif
+
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
    
+   PropertyRetriever vesRetriever ( ves );
+   PropertyRetriever maxVesRetriever ( maxVes );
+
    derivedProperties.clear ();
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
@@ -52,7 +48,7 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
       const FormationSurfacePropertyPtr chemicalCompaction = propertyManager.getFormationSurfaceProperty ( aChemicalCompactionProperty, snapshot, formation, surface );
       bool chemicalCompactionRequired  = false;
       
-      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and getProjectHandle ()->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
+      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       
@@ -67,34 +63,21 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
          double undefinedValue = ves->getUndefinedValue ();
          double chemicalCompactionValue, permNorm, permPlane;
          GeoPhysics::CompoundProperty porosity;
+
+         unsigned int vesK    = ves->lastK();
+         unsigned int maxVesK = maxVes->lastK();
          
-         ves->retrieveData();
-         maxVes->retrieveData();
-
-#ifdef  FORMATION_PROPERTY
-         unsigned int vesK = 0;
-         unsigned int maxVesK = 0;
-
-         if( surface->getName() == geoFormation->getTopSurfaceName() ) {
-            vesK = ves->lastK();
-            maxVesK = maxVes->lastK();
-         } 
-#endif         
          for ( unsigned int i = verticalPermeability->firstI ( true ); i <= verticalPermeability->lastI ( true ); ++i ) {
             
             for ( unsigned int j = verticalPermeability->firstJ ( true ); j <= verticalPermeability->lastJ ( true ); ++j ) {
                
-               if ( getNodeIsValid ( i, j )) {
+               if ( m_projectHandle->getNodeIsValid ( i, j )) {
                  
                      chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j ) : 0.0 );
 
-#ifdef   FORMATION_PROPERTY
                      (*lithologies)( i, j )->getPorosity ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
                      (*lithologies)( i, j )->calcBulkPermeabilityNP ( ves->get ( i, j, vesK ), maxVes->get ( i, j, maxVesK ), porosity, permNorm, permPlane );
-#else
-                     (*lithologies)( i, j )->getPorosity ( ves->get ( i, j ), maxVes->get ( i, j ), chemicalCompactionRequired, chemicalCompactionValue, porosity );
-                     (*lithologies)( i, j )->calcBulkPermeabilityNP ( ves->get ( i, j ), maxVes->get ( i, j ), porosity, permNorm, permPlane );
-#endif                     
+                     
                      verticalPermeability->set ( i, j, permNorm / GeoPhysics::MILLIDARCYTOM2 );
                      horizontalPermeability->set ( i, j, permPlane / GeoPhysics::MILLIDARCYTOM2 );
                       
@@ -107,8 +90,6 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
          derivedProperties.push_back ( verticalPermeability );
          derivedProperties.push_back ( horizontalPermeability );
          
-         ves->restoreData();
-         maxVes->restoreData();
       }
    } 
 }

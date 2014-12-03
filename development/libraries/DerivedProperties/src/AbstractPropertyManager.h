@@ -47,9 +47,9 @@ namespace DerivedProperties {
       /// \pre surface is not null and is a  valid surface.
       /// \pre A calculator for this property exists.
       /// \post The result contains values of the required property at the required surface for the required snapshot age.
-      SurfacePropertyPtr getSurfaceProperty ( const DataModel::AbstractProperty* property,
-                                              const DataModel::AbstractSnapshot* snapshot,
-                                              const DataModel::AbstractSurface*  surface );
+      virtual SurfacePropertyPtr getSurfaceProperty ( const DataModel::AbstractProperty* property,
+                                                      const DataModel::AbstractSnapshot* snapshot,
+                                                      const DataModel::AbstractSurface*  surface );
 
       /// \brief Get the formation property values.
       ///
@@ -58,9 +58,9 @@ namespace DerivedProperties {
       /// \param [in] property  The property whose values are requested.
       /// \param [in] snapshot  The snapshot time at which the values were calculated.
       /// \param [in] formation The formation with which the values are associated.
-      FormationMapPropertyPtr getFormationMapProperty ( const DataModel::AbstractProperty*  property,
-                                                        const DataModel::AbstractSnapshot*  snapshot,
-                                                        const DataModel::AbstractFormation* formation );
+      virtual FormationMapPropertyPtr getFormationMapProperty ( const DataModel::AbstractProperty*  property,
+                                                                const DataModel::AbstractSnapshot*  snapshot,
+                                                                const DataModel::AbstractFormation* formation );
 
       /// \brief Get the formation property values.
       ///
@@ -69,9 +69,9 @@ namespace DerivedProperties {
       /// \param [in] property  The property whose values are requested.
       /// \param [in] snapshot  The snapshot time at which the values were calculated.
       /// \param [in] formation The formation with which the values are associated.
-      FormationPropertyPtr getFormationProperty ( const DataModel::AbstractProperty*  property,
-                                                  const DataModel::AbstractSnapshot*  snapshot,
-                                                  const DataModel::AbstractFormation* formation );
+      virtual FormationPropertyPtr getFormationProperty ( const DataModel::AbstractProperty*  property,
+                                                          const DataModel::AbstractSnapshot*  snapshot,
+                                                          const DataModel::AbstractFormation* formation );
 
       /// \brief Get the surface and formation property values.
       ///
@@ -81,16 +81,19 @@ namespace DerivedProperties {
       /// \param [in] snapshot  The snapshot time at which the values were calculated.
       /// \param [in] formation The formation with which the values are associated.
       /// \param [in] surface   The surface with which the values are associated.
-      FormationSurfacePropertyPtr getFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
-                                                                const DataModel::AbstractSnapshot*  snapshot,
-                                                                const DataModel::AbstractFormation* formation,
-                                                                const DataModel::AbstractSurface*   surface );
+      virtual FormationSurfacePropertyPtr getFormationSurfaceProperty ( const DataModel::AbstractProperty*  property,
+                                                                        const DataModel::AbstractSnapshot*  snapshot,
+                                                                        const DataModel::AbstractFormation* formation,
+                                                                        const DataModel::AbstractSurface*   surface );
 
       /// \brief Remove all properties associated with a particular snapshot.
       void removeProperties ( const DataModel::AbstractSnapshot* snapshot );
 
       /// \brief Get the grid for the map.
       virtual const DataModel::AbstractGrid* getMapGrid () const = 0;
+
+      /// \brief Determine whether or not the node is valid.
+      virtual bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const = 0;
 
    protected :
 

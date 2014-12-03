@@ -4,13 +4,10 @@
 #include "GeoPhysicalConstants.h"
 
 #include "LithostaticPressureSurfaceCalculator.h"
+#include "PropertyRetriever.h"
 
-DerivedProperties::LithostaticPressureSurfaceCalculator::LithostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : SurfacePropertyCalculator ( projectHandle ) {
-   m_propertyNames.push_back ( "LithoStaticPressure" );
-}
-
-const std::vector<std::string>& DerivedProperties::LithostaticPressureSurfaceCalculator::getPropertyNames () const {
-   return m_propertyNames;
+DerivedProperties::LithostaticPressureSurfaceCalculator::LithostaticPressureSurfaceCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+   addPropertyName ( "LithoStaticPressure" );
 }
 
 void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -25,6 +22,9 @@ void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( Derive
    
    const SurfacePropertyPtr ves          = propertyManager.getSurfaceProperty ( aVesProperty, snapshot, surface );
    const SurfacePropertyPtr porePressure = propertyManager.getSurfaceProperty ( aPorePressureProperty, snapshot, surface );
+
+   PropertyRetriever vesRetriever ( ves );
+   PropertyRetriever ppRetriever ( porePressure );
    
    derivedProperties.clear ();
    
@@ -35,14 +35,10 @@ void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( Derive
 
       double undefinedValue = ves->getUndefinedValue ();
       
-      ves->retrieveData();
-      porePressure->retrieveData();
-
       for ( unsigned int i = ves->firstI ( true ); i <= ves->lastI ( true ); ++i ) {
          
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
 
-            // if ( propertyManager.getNodeIsValid ( i , j ) ) { //FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
             if( ves->get ( i, j ) != undefinedValue && porePressure->get ( i, j ) != porePressure->getUndefinedValue () ) {
                lithostaticPressure->set ( i, j, ( ves->get ( i, j ) * GeoPhysics::PascalsToMegaPascals + porePressure->get ( i, j )));
             } else {
@@ -50,9 +46,7 @@ void DerivedProperties::LithostaticPressureSurfaceCalculator::calculate ( Derive
             }
          }
       }
-      derivedProperties.push_back ( lithostaticPressure );
 
-      ves->restoreData();
-      porePressure->restoreData();
+      derivedProperties.push_back ( lithostaticPressure );
    }
 }

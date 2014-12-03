@@ -10,13 +10,15 @@
 #include "AbstractFormation.h"
 #include "AbstractGrid.h"
 
+#include "AbstractPropertyValues.h"
+
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated property for the formation.
    ///
    /// The indices will use global index numbering.
    /// The array bounds are a closed set of intervals.
-   class FormationProperty {
+   class FormationProperty : public AbstractPropertyValues {
 
    public :
 
@@ -76,15 +78,6 @@ namespace DerivedProperties {
       virtual double interpolate ( unsigned int i,
                                    unsigned int j,
                                    double       k ) const;
-
-      /// \brief Get the undefined value.
-      virtual double getUndefinedValue () const = 0;
-
-      /// \brief Retreive the grid map
-      virtual void retrieveData () const {};
-
-      /// \brief Restore the grid map.
-      virtual void restoreData () const {};
 
    private :
 

@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "../src/AbstractPropertyManager.h"
+#include "../src/AbstractPropertyValues.h"
 #include "../src/SurfacePropertyCalculator.h"
 #include "../src/DerivedSurfaceProperty.h"
 #include "../src/DerivedFormationMapProperty.h"
@@ -14,10 +15,14 @@
 #include "MockProperty.h"
 #include "MockGrid.h"
 
+#include "../src/PropertyRetriever.h"
+
 #include <gtest/gtest.h>
 
 using namespace DataModel;
 using namespace DerivedProperties;
+
+static const double UndefinedValue = 99999.0;
 
 class TestPropertyManager : public DerivedProperties::AbstractPropertyManager {
 
@@ -54,6 +59,41 @@ private :
 
 };
 
+class TestFormationProperty : public DerivedProperties::DerivedFormationProperty {
+
+public :
+
+   TestFormationProperty ( const DataModel::AbstractProperty*  property,
+                           const DataModel::AbstractSnapshot*  snapshot,
+                           const DataModel::AbstractFormation* formation,
+                           const DataModel::AbstractGrid*      grid,
+                           const unsigned int                  nk );
+
+   /// \brief Get the value of the property at the position i,j,k.
+   virtual double get ( unsigned int i,
+                        unsigned int j,
+                        unsigned int k ) const;
+
+   /// \brief Get the undefined value.
+   virtual double getUndefinedValue () const;
+
+   /// \brief Determine if the map has been retrieved or not.
+   virtual bool isRetrieved () const;
+
+   /// \brief Retreive the grid map
+   virtual void retrieveData () const;
+
+   /// \brief Restore the grid map.
+   virtual void restoreData () const;
+
+
+private :
+
+   mutable bool m_hasBeenRetrieved;
+
+};
+
+
 class Property1Calculator : public DerivedProperties::SurfacePropertyCalculator {
 
 public :
@@ -64,12 +104,6 @@ public :
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractSurface*           surface,
                           SurfacePropertyList&                  derivedProperties ) const;
-
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
 
 };
 
@@ -83,12 +117,6 @@ public :
                     const DataModel::AbstractSnapshot*          snapshot,
                     const DataModel::AbstractFormation*         formation,
                           FormationPropertyList&                derivedProperties ) const;
-
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
 
 };
 
@@ -104,12 +132,6 @@ public :
                     const DataModel::AbstractFormation*         formation,
                           FormationMapPropertyList&             derivedProperties ) const;
 
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
-
 };
 
 class FormationSurfaceProperty1Calculator : public DerivedProperties::FormationSurfacePropertyCalculator {
@@ -123,12 +145,6 @@ public :
                     const DataModel::AbstractFormation*         formation,
                     const DataModel::AbstractSurface*           surface,
                           FormationSurfacePropertyList&         derivedProperties ) const;
-
-   const std::vector<std::string>& getPropertyNames () const;
-
-private :
-
-   std::vector<std::string> m_propertyNames;
 
 };
 
@@ -145,6 +161,7 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
    const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
 
    SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property, snapshot, surface );
+   PropertyRetriever propRet ( surfaceProperty1 );
 
    double value = 0.0;
 
@@ -176,6 +193,7 @@ TEST ( AbstractPropertyManagerTest,  Test2 )
    const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
 
    FormationPropertyPtr formationProperty1 = propertyManager.getFormationProperty ( property, snapshot, formation );
+   PropertyRetriever propRet ( formationProperty1 );
 
    // double value = 0.0;
 
@@ -211,6 +229,7 @@ TEST ( AbstractPropertyManagerTest,  Test3 )
    const DataModel::AbstractSurface*   surface   = new MockSurface ( "Top Sutrface" );
 
    FormationMapPropertyPtr fmProperty1 = propertyManager.getFormationMapProperty ( property, snapshot, formation );
+   PropertyRetriever propRet ( fmProperty1 );
 
    double value = 0.0;
 
@@ -245,6 +264,7 @@ TEST ( AbstractPropertyManagerTest,  Test4 )
    const DataModel::AbstractSurface*   surface   = new MockSurface ( "Top Sutrface" );
 
    FormationSurfacePropertyPtr fsProperty1 = propertyManager.getFormationSurfaceProperty ( property, snapshot, formation, surface );
+   PropertyRetriever propRet ( fsProperty1 );
 
    double value = 0.0;
 
@@ -329,12 +349,8 @@ const DataModel::AbstractGrid* TestPropertyManager::getMapGrid () const {
    return m_mapGrid;
 }
 
-Property1Calculator::Property1Calculator () : DerivedProperties::SurfacePropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& Property1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+Property1Calculator::Property1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -363,12 +379,8 @@ void Property1Calculator::calculate ( DerivedProperties::AbstractPropertyManager
 
 
 
-FormationMapProperty1Calculator::FormationMapProperty1Calculator () : DerivedProperties::FormationMapPropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& FormationMapProperty1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+FormationMapProperty1Calculator::FormationMapProperty1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -397,12 +409,8 @@ void FormationMapProperty1Calculator::calculate ( DerivedProperties::AbstractPro
 
 
 
-FormationProperty1Calculator::FormationProperty1Calculator () : DerivedProperties::FormationPropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& FormationProperty1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+FormationProperty1Calculator::FormationProperty1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -412,7 +420,7 @@ void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractProper
    
    const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
 
-   DerivedFormationPropertyPtr derivedProp = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( property, snapshot, formation, propertyManager.getMapGrid (), 10 ));
+   DerivedFormationPropertyPtr derivedProp = DerivedFormationPropertyPtr ( new TestFormationProperty ( property, snapshot, formation, propertyManager.getMapGrid (), 10 ));
    double value = 0.0; 
 
    derivedProperties.clear ();
@@ -432,12 +440,8 @@ void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractProper
 }
 
 
-FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () : DerivedProperties::FormationSurfacePropertyCalculator ( 0 ) {
-   m_propertyNames.push_back ( "Property1" );
-}
-
-const std::vector<std::string>& FormationSurfaceProperty1Calculator::getPropertyNames () const {
-   return m_propertyNames;
+FormationSurfaceProperty1Calculator::FormationSurfaceProperty1Calculator () {
+   addPropertyName ( "Property1" );
 }
 
 void FormationSurfaceProperty1Calculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -466,4 +470,42 @@ void FormationSurfaceProperty1Calculator::calculate ( DerivedProperties::Abstrac
    derivedProperties.push_back ( derivedProp );
 }
 
+
+TestFormationProperty::TestFormationProperty ( const DataModel::AbstractProperty*  property,
+                                               const DataModel::AbstractSnapshot*  snapshot,
+                                               const DataModel::AbstractFormation* formation,
+                                               const DataModel::AbstractGrid*      grid,
+                                               const unsigned int                  nk ) :
+   DerivedProperties::DerivedFormationProperty ( property, snapshot, formation, grid, nk )
+{
+   m_hasBeenRetrieved = false;
+}
+
+double TestFormationProperty::get ( unsigned int i,
+                                    unsigned int j,
+                                    unsigned int k ) const {
+
+   if ( m_hasBeenRetrieved ) {
+      return DerivedProperties::DerivedFormationProperty::get ( i, j, k );
+   } else {
+      return UndefinedValue;
+   }
+
+}
+
+double TestFormationProperty::getUndefinedValue () const {
+   return UndefinedValue;
+}
+
+bool TestFormationProperty::isRetrieved () const {
+   return m_hasBeenRetrieved;
+}
+
+void TestFormationProperty::retrieveData () const {
+   m_hasBeenRetrieved = true;
+}
+
+void TestFormationProperty::restoreData () const {
+   m_hasBeenRetrieved = false;
+}
 

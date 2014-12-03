@@ -36,11 +36,14 @@ namespace DerivedProperties {
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
 
+      /// \brief Determine wether or not the data has been retrieved.
+      virtual bool isRetrieved () const;
+
       /// \brief Retreive the grid map
-      void retrieveData () const;
+      virtual void retrieveData () const;
 
       /// \brief Restore the grid map.
-      void restoreData () const;
+      virtual void restoreData () const;
 
        /// \brief Get the average value of the map.
       double getAverageValue () const;

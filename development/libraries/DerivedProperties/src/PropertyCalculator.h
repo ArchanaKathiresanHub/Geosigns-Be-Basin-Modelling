@@ -9,24 +9,25 @@ namespace DerivedProperties {
 
    public :
 
-      PropertyCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
+      PropertyCalculator ();
 
       virtual ~PropertyCalculator ();
 
-      /// \brief Return whether or not the node is defined.
-      bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
+      /// \brief Get a list of the property names that will be calculated by the calculator.
+      virtual const std::vector<std::string>& getPropertyNames () const;
 
    protected :
 
-      const GeoPhysics::ProjectHandle* getProjectHandle () const;
+      /// \brief Add property name to the set of properties that will be calculated by this calculator.
+      void addPropertyName ( const std::string& propertyName );
       
    private :
 
-      const GeoPhysics::ProjectHandle* m_projectHandle;
+      /// \brief Contains array of property names.
+      std::vector<std::string> m_propertyNames;
 
    };
 
 }
-
 
 #endif // DERIVED_PROPERTIES__PROPERTY_CALCULATOR_H

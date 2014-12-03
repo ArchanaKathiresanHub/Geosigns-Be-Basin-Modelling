@@ -1,5 +1,6 @@
 #include "FormationPropertyAtSurface.h"
 
+#include <limits>
 
 DerivedProperties::FormationPropertyAtSurface::FormationPropertyAtSurface ( const FormationPropertyPtr&       formationProperty,
                                                                             const DataModel::AbstractSurface* surface ) :
@@ -13,7 +14,7 @@ DerivedProperties::FormationPropertyAtSurface::FormationPropertyAtSurface ( cons
       m_offset = formationProperty->firstK ();
    } else {
       // Error.
-      m_offset = -1;
+      m_offset = std::numeric_limits<unsigned int>::max ();
    }
 
 }
@@ -26,6 +27,10 @@ double DerivedProperties::FormationPropertyAtSurface::get ( unsigned int i,
 
 double DerivedProperties::FormationPropertyAtSurface::getUndefinedValue () const {
    return m_formationProperty->getUndefinedValue ();
+}
+
+bool DerivedProperties::FormationPropertyAtSurface::isRetrieved () const {
+   return m_formationProperty->isRetrieved ();
 }
 
 void DerivedProperties::FormationPropertyAtSurface::retrieveData () const {

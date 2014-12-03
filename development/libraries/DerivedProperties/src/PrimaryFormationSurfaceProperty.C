@@ -37,3 +37,16 @@ double DerivedProperties::PrimaryFormationSurfaceProperty::getUndefinedValue ( )
 
    return m_gridMap->getUndefinedValue ( );
 }
+
+bool DerivedProperties::PrimaryFormationSurfaceProperty::isRetrieved () const {
+   return m_gridMap->retrieved ();
+}
+
+void DerivedProperties::PrimaryFormationSurfaceProperty::retrieveData() const {
+   m_gridMap->retrieveData();
+}
+
+void DerivedProperties::PrimaryFormationSurfaceProperty::restoreData() const {
+   m_gridMap->restoreData();
+}
+

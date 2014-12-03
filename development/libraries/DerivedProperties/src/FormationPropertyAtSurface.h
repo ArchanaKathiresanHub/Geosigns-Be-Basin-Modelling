@@ -28,6 +28,9 @@ namespace DerivedProperties {
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
 
+      /// \brief Determine wether or not the data has been retrieved.
+      virtual bool isRetrieved () const;
+
       /// \brief Retreive the grid map
       virtual void retrieveData () const;
 

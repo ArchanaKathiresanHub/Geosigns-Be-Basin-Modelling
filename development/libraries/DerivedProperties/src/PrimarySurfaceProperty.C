@@ -42,6 +42,10 @@ const DataAccess::Interface::GridMap* DerivedProperties::PrimarySurfaceProperty:
    return m_gridMap;
 }
 
+bool DerivedProperties::PrimarySurfaceProperty::isRetrieved () const {
+   return m_gridMap->retrieved ();
+}
+
 void DerivedProperties::PrimarySurfaceProperty::retrieveData() const {
    m_gridMap->retrieveData();
 }

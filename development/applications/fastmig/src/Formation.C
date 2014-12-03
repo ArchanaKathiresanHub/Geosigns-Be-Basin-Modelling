@@ -159,37 +159,55 @@ const GridMap* Formation::getFormationPrimaryPropertyGridMap ( const Property* p
 
          if( thePrimaryProperty != 0 ) {
             theMap = thePrimaryProperty->getGridMap();
-         } 
+         }
+
       }
+
    }
+
    return theMap;
 }
 
- const GridMap* Formation::getSurfacePropertyGridMap( const Property* prop, const Snapshot* snapshot, const Interface::Surface* surface ) const
+const GridMap* Formation::getSurfacePropertyGridMap( const Property* prop, const Snapshot* snapshot, const Interface::Surface* surface ) const
 {
 
    const GridMap* theMap = 0;
    Migrator* mig = dynamic_cast<migration::Migrator*>( getProjectHandle() );
 
    if ( mig != 0 ) {
- 
-      DerivedProperties::SurfacePropertyPtr theProperty = mig->getPropertyManager ().getSurfaceProperty ( prop, snapshot, surface ); 
-      if( theProperty != 0 ) {
-      
-         const DerivedProperties::PrimarySurfaceProperty * thePrimaryProperty =  dynamic_cast< const DerivedProperties::PrimarySurfaceProperty *>( theProperty.get() );
 
-         if( thePrimaryProperty != 0 ) {
-            theMap = thePrimaryProperty->getGridMap();
+      if ( prop->getName ().find ( "Permeability" ) == std::string::npos ) {
+ 
+         DerivedProperties::SurfacePropertyPtr theProperty = mig->getPropertyManager ().getSurfaceProperty ( prop, snapshot, surface ); 
+
+         if( theProperty != 0 ) {
+      
+            const DerivedProperties::PrimarySurfaceProperty * thePrimaryProperty =  dynamic_cast< const DerivedProperties::PrimarySurfaceProperty *>( theProperty.get() );
+
+            if( thePrimaryProperty != 0 ) {
+               theMap = thePrimaryProperty->getGridMap();
+            } else {
+               theMap = mig->getPropertyManager ().produceDerivedGridMap ( theProperty );
+            }
+
          } else {
-            theMap = mig->getPropertyManager ().produceDerivedGridMap ( theProperty );
+            DerivedProperties::FormationSurfacePropertyPtr theFormationProperty = mig->getPropertyManager ().getFormationSurfaceProperty ( prop, snapshot, this, surface ); 
+
+            if( theFormationProperty != 0 ) {
+               theMap = mig->getPropertyManager ().produceDerivedGridMap ( theFormationProperty );
+            }
 
          }
+
       } else {
          DerivedProperties::FormationSurfacePropertyPtr theFormationProperty = mig->getPropertyManager ().getFormationSurfaceProperty ( prop, snapshot, this, surface ); 
+
          if( theFormationProperty != 0 ) {
             theMap = mig->getPropertyManager ().produceDerivedGridMap ( theFormationProperty );
          }
+
       }
+
    }
  
    return theMap;  

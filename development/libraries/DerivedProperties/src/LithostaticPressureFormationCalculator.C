@@ -5,13 +5,10 @@
 #include "GeoPhysicalConstants.h"
 
 #include "LithostaticPressureFormationCalculator.h"
+#include "PropertyRetriever.h"
 
-DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
-   m_propertyNames.push_back ( "LithoStaticPressure" );
-}
-
-const std::vector<std::string>& DerivedProperties::LithostaticPressureFormationCalculator::getPropertyNames () const {
-   return m_propertyNames;
+DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+   addPropertyName ( "LithoStaticPressure" );
 }
 
 void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -26,6 +23,9 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
    
    const FormationPropertyPtr ves          = propertyManager.getFormationProperty ( aVesProperty, snapshot, formation );
    const FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( aPorePressureProperty, snapshot, formation );
+
+   PropertyRetriever vesRetriever ( ves );
+   PropertyRetriever ppRetriever ( porePressure );
    
    derivedProperties.clear ();
    
@@ -35,15 +35,13 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
          DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( aLithostaticPressureProperty, snapshot, formation, 
                                                                                          propertyManager.getMapGrid (),
                                                                                          ves->lengthK () ));
-      ves->retrieveData();
-      porePressure->retrieveData();
       double undefinedValue = ves->getUndefinedValue ();
       
       for ( unsigned int i = ves->firstI ( true ); i <= ves->lastI ( true ); ++i ) {
          
          for ( unsigned int j = ves->firstJ ( true ); j <= ves->lastJ ( true ); ++j ) {
             
-            if ( getProjectHandle ()->getNodeIsValid ( i, j )) { 
+            if ( m_projectHandle->getNodeIsValid ( i, j )) { 
                 
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
                  
@@ -56,8 +54,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
             }
          }
       }
-      ves->restoreData();
-      porePressure->restoreData();
+
       derivedProperties.push_back ( lithostaticPressure );
    }
 }

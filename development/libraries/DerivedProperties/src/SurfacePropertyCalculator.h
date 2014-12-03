@@ -23,8 +23,6 @@ namespace DerivedProperties {
 
    public :
 
-      SurfacePropertyCalculator ( const GeoPhysics::ProjectHandle* projectHandle );
-
       virtual ~SurfacePropertyCalculator () {}
 
       /// \brief Calculate the property values and add the property values to the list.
@@ -32,10 +30,6 @@ namespace DerivedProperties {
                                const DataModel::AbstractSnapshot* snapshot,
                                const DataModel::AbstractSurface*  surface,
                                      SurfacePropertyList&         derivedProperties ) const = 0;
-
-      /// \brief Get a list of the property names that will be calculated by the calculator.
-      virtual const std::vector<std::string>& getPropertyNames () const = 0;
-
 
    };
 

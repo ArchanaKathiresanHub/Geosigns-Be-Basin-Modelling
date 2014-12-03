@@ -32,17 +32,20 @@ namespace DerivedProperties {
                            unsigned int j,
                            unsigned int k ) const;
 
-      /// \brief Get the undefined value.
-      virtual double getUndefinedValue () const;
-
       /// \ brief Get the gridMap
       const DataAccess::Interface::GridMap* getGridMap() const;
 
+      /// \brief Get the undefined value.
+      virtual double getUndefinedValue () const;
+
+      /// \brief Determine wether or not the data has been retrieved.
+      virtual bool isRetrieved () const;
+
       /// \brief Retreive the grid map
-      void retrieveData () const;
+      virtual void retrieveData () const;
 
       /// \brief Restore the grid map.
-      void restoreData () const;
+      virtual void restoreData () const;
 
    private :
 

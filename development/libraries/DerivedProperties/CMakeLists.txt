@@ -13,6 +13,7 @@
 
 set(all_headers
   src/AbstractPropertyManager.h
+  src/AbstractPropertyValues.h
   src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
@@ -42,6 +43,7 @@ set(all_headers
   src/PrimarySurfacePropertyCalculator.h
   src/PropertyCalculator.h
   src/PropertyErasePredicate.h
+  src/PropertyRetriever.h
   src/PropertySnapshotCalculatorMap.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
@@ -57,12 +59,9 @@ set(all_srcs
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
   src/FormationMapProperty.C
-  src/FormationMapPropertyCalculator.C
   src/FormationProperty.C
   src/FormationPropertyAtSurface.C
-  src/FormationPropertyCalculator.C
   src/FormationSurfaceProperty.C
-  src/FormationSurfacePropertyCalculator.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
   src/LithostaticPressureFormationCalculator.C
@@ -79,8 +78,8 @@ set(all_srcs
   src/PrimarySurfaceProperty.C
   src/PrimarySurfacePropertyCalculator.C
   src/PropertyCalculator.C
+  src/PropertyRetriever.C
   src/SurfaceProperty.C
-  src/SurfacePropertyCalculator.C
   src/VesFormationCalculator.C
   src/VesSurfaceCalculator.C
 )

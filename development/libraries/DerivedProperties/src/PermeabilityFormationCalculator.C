@@ -9,14 +9,11 @@
 #include "CompoundLithologyArray.h"
 
 #include "PermeabilityFormationCalculator.h"
+#include "PropertyRetriever.h"
 
-DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : FormationPropertyCalculator ( projectHandle ) {
-   m_propertyNames.push_back ( "PermeabilityVec2" );
-   m_propertyNames.push_back ( "PermeabilityHVec2" );
-}
-
-const std::vector<std::string>& DerivedProperties::PermeabilityFormationCalculator::getPropertyNames () const {
-   return m_propertyNames;
+DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+   addPropertyName ( "PermeabilityVec2" );
+   addPropertyName ( "PermeabilityHVec2" );
 }
 
 void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -36,6 +33,9 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
    const FormationPropertyPtr maxVes = propertyManager.getFormationProperty ( aMaxVesProperty, snapshot, formation );
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
+
+   PropertyRetriever vesRetriever ( ves );
+   PropertyRetriever maxVesRetriever ( maxVes );
    
    derivedProperties.clear ();
    
@@ -44,7 +44,7 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
       const FormationPropertyPtr chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
       bool chemicalCompactionRequired  = false;
       
-      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and getProjectHandle ()->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
+      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       
@@ -60,14 +60,11 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
          double chemicalCompactionValue, permNorm, permPlane;
          GeoPhysics::CompoundProperty porosity;
 
-         ves->retrieveData();
-         maxVes->retrieveData();
-         
          for ( unsigned int i = verticalPermeability->firstI ( true ); i <= verticalPermeability->lastI ( true ); ++i ) {
             
             for ( unsigned int j = verticalPermeability->firstJ ( true ); j <= verticalPermeability->lastJ ( true ); ++j ) {
                
-               if ( getNodeIsValid ( i, j )) {
+               if ( m_projectHandle->getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = verticalPermeability->firstK (); k <= verticalPermeability->lastK (); ++k ) {
                      chemicalCompactionValue = ( chemicalCompactionRequired ? chemicalCompaction->get ( i, j, k ) : 0.0 );
@@ -91,8 +88,6 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
          derivedProperties.push_back ( verticalPermeability );
          derivedProperties.push_back ( horizontalPermeability );
 
-         ves->restoreData();
-         maxVes->restoreData();
       }
    }
 }

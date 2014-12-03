@@ -31,8 +31,19 @@ double DerivedProperties::PrimaryFormationMapProperty::get ( unsigned int i,
    return m_gridMap->getValue ( i, j );
 }
 
-
 double DerivedProperties::PrimaryFormationMapProperty::getUndefinedValue ( ) const {
-
    return m_gridMap->getUndefinedValue ( );
 }
+
+bool DerivedProperties::PrimaryFormationMapProperty::isRetrieved () const {
+   return m_gridMap->retrieved ();
+}
+
+void DerivedProperties::PrimaryFormationMapProperty::retrieveData() const {
+   m_gridMap->retrieveData();
+}
+
+void DerivedProperties::PrimaryFormationMapProperty::restoreData() const {
+   m_gridMap->restoreData();
+}
+

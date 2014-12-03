@@ -10,12 +10,11 @@
 
 DerivedProperties::PrimaryFormationSurfacePropertyCalculator::PrimaryFormationSurfacePropertyCalculator ( const GeoPhysics::ProjectHandle*   projectHandle,
                                                                                                           const DataModel::AbstractProperty* property ) :
-   FormationSurfacePropertyCalculator ( projectHandle ),
    m_property ( property )
 {
 
    DataAccess::Interface::PropertyValueList* formationProperties = projectHandle->getPropertyValues ( DataAccess::Interface::FORMATIONSURFACE, 0, 0, 0, 0, 0, DataAccess::Interface::MAP );
-   m_propertyNames.push_back ( property->getName ());
+   addPropertyName ( property->getName ());
 
    for ( size_t i = 0; i < formationProperties->size (); ++i ) {
       const DataAccess::Interface::PropertyValue* propVal = (*formationProperties)[ i ];
@@ -40,6 +39,7 @@ void DerivedProperties::PrimaryFormationSurfacePropertyCalculator::calculate ( A
                                                                                const DataModel::AbstractSurface*   surface,
                                                                                FormationSurfacePropertyList& derivedProperties ) const {
 
+   (void) propManager;
    derivedProperties.clear ();
 
    for ( size_t i = 0; i < m_formationSurfacePropertyValues.size (); ++i ) {
@@ -55,10 +55,6 @@ void DerivedProperties::PrimaryFormationSurfacePropertyCalculator::calculate ( A
    }
 
 }
-
-const std::vector<std::string>& DerivedProperties::PrimaryFormationSurfacePropertyCalculator::getPropertyNames () const {
-   return m_propertyNames;
-} 
 
 const DataModel::AbstractSnapshotSet& DerivedProperties::PrimaryFormationSurfacePropertyCalculator::getSnapshots () const {
    return m_snapshots;

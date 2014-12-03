@@ -44,6 +44,10 @@ const DataAccess::Interface::GridMap* DerivedProperties::PrimaryFormationPropert
    return m_gridMap;
 }
 
+bool DerivedProperties::PrimaryFormationProperty::isRetrieved () const {
+   return m_gridMap->retrieved ();
+}
+
 void DerivedProperties::PrimaryFormationProperty::retrieveData() const {
    m_gridMap->retrieveData();
 }
