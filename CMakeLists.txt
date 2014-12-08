@@ -65,10 +65,10 @@ set( CPACK_SOURCE_IGNORE_FILES
 
       # Packages for the Windows build.
       "/3rdparty/hdf5.win64-1.8.11/"
-      "/3rdparty/hdf5.win64.1.8.11-full.zip"
+      "/3rdparty/sources/hdf5.win64.1.8.11-full.zip"
       "/3rdparty/MicrosoftMPI-HPC-Pack-2012-R2/"
       "/3rdparty/PETSc_Windows-3.4.4/"
-      "/3rdparty/swigwin-3.0.0/"
+      "/3rdparty/swigwin-3.0.2/"
       "/3rdparty/xerces-c-3.1.0-x86_64-windows-vc-9.0.zip"
       "/3rdparty/xsd-3.3.0-i686-windows.zip"
 
