@@ -188,17 +188,42 @@ namespace casa
 {
    TxtDeserializer::TxtDeserializer( FILE * fileHandle, unsigned int ver )
       : m_file( fileHandle )
-      , m_version( ver )
    {
       m_buf = new char[MAX_BUF_SIZE];
 
+      std::string objType;
+      std::string objName;
+      unsigned int objVer;
+
+      bool ok = loadObjectDescription( objType, objName, objVer );
+
       // read info from file about serializer      
-      if ( !checkObjectDescription( "TxtSerializer", "Serializer", ver ) )
+      if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "TxtDeserializer: Can't read serializer signature from input file";
       }
-  }
+      
+      if ( objType != "TxtSerializer" )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) <<
+            "Deserialization error. Expected object type is: TxtSerializer, but in stream: " << objType;
+      }
+         
+      if ( objName != "Serializer" )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) <<
+            "Deserialization error. Expected object name: Serializer, but in stream: " << objName;
+      }
+ 
+      if ( ver < objVer )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
+            << "Version of object in file is newer. No forward compatibility!";
+      }
+       
+      m_version = objVer;
+   }
 
    TxtDeserializer::~TxtDeserializer()
    {

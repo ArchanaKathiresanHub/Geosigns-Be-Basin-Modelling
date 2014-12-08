@@ -1,0 +1,468 @@
+// Copyright 2014, Shell Global Solutions International B.V.
+// All rights reserved. This document and the data and information contained herein is CONFIDENTIAL.
+// Neither the whole nor any part of this document may be copied, modified or distributed in any
+// form without the prior written consent of the copyright owner.
+
+#include "StreamSerializer.h"
+
+namespace SUMlib {
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  destructor
+///
+///
+////////////////////////////////////////////////////////////////////////////////
+StreamDeserializer::~StreamDeserializer()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load SUMlib::ISerializable
+///
+/// @param  SUMlib::ISerializable
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( SUMlib::ISerializable& serializable )
+{
+   unsigned int version = 0;
+   // serializable has a version
+   bool ok = loadArray( version );
+   return ok && serializable.load( this, version );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load boolean
+///
+/// @param  p_bool the boolean
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( bool& p_bool )
+{
+   bool res = loadArray( p_bool );
+   return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load int
+///
+/// @param  p_int the int
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( int& p_int )
+{
+   bool res = loadArray( p_int );
+   return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load long long
+///
+/// @param  p_longlong the long long
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( long long& p_longlong )
+{
+   bool res = loadArray( p_longlong );
+   return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load unsigned long long
+///
+/// @param  p_ulonglong the unsigned long long
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( unsigned long long& p_ulonglong )
+{
+   bool res = loadArray( p_ulonglong );
+   return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load float
+///
+/// @param  p_float the float
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( float& p_float )
+{
+   bool res = loadArray( p_float );
+   return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load unsigned int
+///
+/// @param  p_unsignedInt unsigned int
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( unsigned int& p_unsignedInt )
+{
+   bool res = loadArray( p_unsignedInt );
+   return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load double
+///
+/// @param  p_double the double
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( double& p_double )
+{
+   bool res = loadArray( p_double );
+   return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load string
+///
+/// @param  p_string the string
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::string& p_string )
+{
+   unsigned int siz;
+   bool ok = loadArray( siz );
+   const int SMALL_BUF_SIZE = 4096;
+   if ( siz > 0 && siz <= SMALL_BUF_SIZE )
+   {
+      // Allocate on stack (is a bit faster)
+      char buf[SMALL_BUF_SIZE+1];
+      ok = ok && loadBytes( buf, siz * sizeof( char ) );
+      p_string = std::string( buf, siz );
+   }
+   else if ( siz > SMALL_BUF_SIZE )
+   {
+      // Allocate on heap (is a bit slower)
+      char* buf = new char[siz + 1];
+      ok = ok && loadBytes( buf, siz * sizeof( char ) );
+      p_string = std::string( buf, siz );
+      delete[] buf;
+   }
+   else
+   {
+      p_string = "";
+   }
+   return ok;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load StringVector
+///
+/// @param  p_stringVec the StringVector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< std::string >& p_stringVec )
+{
+   return loadVec( p_stringVec );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load real vector
+///
+/// @param  p_realVector the real vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< double >& p_realVector )
+{
+   return loadVec( p_realVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load int vector
+///
+/// @param  p_intVector the int vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< int >& p_intVector )
+{
+   return loadVec( p_intVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load unsigned int vector
+///
+/// @param  p_uintVector the int vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< unsigned int >& p_uintVector )
+{
+   return loadVec( p_uintVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load long long vector
+///
+/// @param  p_longlongVector the long long vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< long long >& p_longlongVector )
+{
+   return loadVec( p_longlongVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load unsigned long long vector
+///
+/// @param  p_ulonglongVector the unsigned long long vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< unsigned long long >& p_ulonglongVector )
+{
+   return loadVec( p_ulonglongVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load bool vector
+///
+/// @param  p_boolVector the bool vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< bool >& p_boolVector )
+{
+   // not using template because of the bool storage in std::vector
+   unsigned long long vecSize = 0;
+   bool ok = load( vecSize );
+
+   if ( ok )
+   {
+      p_boolVector.clear();
+      p_boolVector.resize( vecSize );
+      for ( size_t i = 0; i < vecSize && ok; ++i )
+      {
+         bool tempBool;
+         ok = load( tempBool );
+         p_boolVector[i] = tempBool;
+      }
+   }
+   return ok;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  load float vector
+///
+/// @param  p_floatVector the float vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamDeserializer::load( std::vector< float >& p_floatVector )
+{
+   return loadVec( p_floatVector );
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  destructor
+///
+///
+////////////////////////////////////////////////////////////////////////////////
+StreamSerializer::~StreamSerializer()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save SUMlib::ISerializable
+///
+/// @param  SUMlib::ISerializable
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const SUMlib::ISerializable& serializable )
+{
+   unsigned int version = 0;
+   const SUMlib::ISerializationVersion* serialVersion;
+   serialVersion = dynamic_cast<const SUMlib::ISerializationVersion*>( &serializable );
+   if ( serialVersion )
+   {
+      version = serialVersion->getSerializationVersion();
+   }
+   save( version );
+   return serializable.save( this, version );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save boolean
+///
+/// @param  p_bool the boolean
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( bool p_bool )
+{
+   return saveArray( p_bool );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save int
+///
+/// @param  p_int the int
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( int p_int )
+{
+   return saveArray( p_int );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save long long
+///
+/// @param  p_longlong the long long
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( long long p_long )
+{
+   return saveArray( p_long );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save unsigned long long
+///
+/// @param  p_ulonglong the unsigned long long
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( unsigned long long p_long )
+{
+   return saveArray( p_long );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save unsigned int
+///
+/// @param  p_unsignedInt unsigned int
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( unsigned int p_unsignedInt )
+{
+   return saveArray( p_unsignedInt );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save float
+///
+/// @param  p_double the double
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( float p_float )
+{
+   return saveArray( p_float );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save double
+///
+/// @param  p_double the double
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( double p_double )
+{
+   return saveArray( p_double );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save string
+///
+/// @param  p_string the string
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::string& p_string )
+{
+   unsigned int siz = p_string.size();
+   bool ok = saveArray( siz );
+   ok = ok && saveBytes( p_string.c_str(), siz * sizeof( char ) );
+   return ok;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save string vector
+///
+/// @param  p_stringVec the string vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< std::string >& p_stringVec )
+{
+   return saveVec( p_stringVec );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save real vector
+///
+/// @param  p_realVector the real vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< double >& p_realVector )
+{
+   return saveVec( p_realVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save int vector
+///
+/// @param  p_intVector the int vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< int >& p_intVector )
+{
+   return saveVec( p_intVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save int vector
+///
+/// @param  p_uintVector the int vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< unsigned int >& p_uintVector )
+{
+  return saveVec( p_uintVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save long long vector
+///
+/// @param  p_longlongVector the long long vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< long long >& p_longlongVector )
+{
+  return saveVec( p_longlongVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save unsigned long long vector
+///
+/// @param  p_ulonglongVector the unsigned long long vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< unsigned long long >& p_ulonglongVector )
+{
+   return saveVec( p_ulonglongVector );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save bool vector
+///
+/// @param  p_boolVector the bool vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< bool >& p_boolVector )
+{
+   return saveVec( p_boolVector );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  save float vector
+///
+/// @param  p_floatVector the float vector
+/// @return true if ok
+////////////////////////////////////////////////////////////////////////////////
+bool StreamSerializer::save( const std::vector< float >& p_floatVector )
+{
+   return saveVec( p_floatVector );
+}
+
+}

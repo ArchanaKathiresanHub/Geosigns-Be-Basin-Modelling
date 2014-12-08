@@ -83,7 +83,7 @@ namespace casa
    class RSProxy : public ErrorHandler, public CasaSerializable
    {
    public:
-      typedef std::map< std::vector< unsigned int >, double > CoefficientsMap;
+      typedef std::map< std::vector< unsigned int >, std::pair<double,double> > CoefficientsMap;
       typedef std::vector< CoefficientsMap >                  CoefficientsMapList;
 
       /// @brief Types of Kriging interpolation which can be used in proxy
@@ -147,7 +147,7 @@ namespace casa
       /// the casa::VarSpace (including multi-dimensional parameters) defining the proxies.
       ///
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      virtual CoefficientsMapList getCoefficientsMapList() const = 0;
+      virtual const CoefficientsMapList & getCoefficientsMapList() const = 0;
 
    protected:
       RSProxy() {;}

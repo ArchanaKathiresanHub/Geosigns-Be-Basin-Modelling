@@ -72,6 +72,11 @@ class INTERFACE_SUMLIB ReferenceProxy : public McmcProxy
       /// Implements McmcProxy
       virtual bool isUsed( void ) const;
 
+      virtual bool load( IDeserializer*, unsigned int /*version*/ );
+      virtual bool save( ISerializer*, unsigned int /*version*/ ) const;
+
+      const Proxy& getProxy() const { return m_proxy; }
+
    private:
 
       // non-copyable

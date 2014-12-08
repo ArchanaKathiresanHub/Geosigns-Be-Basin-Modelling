@@ -12,6 +12,7 @@
 #include "McmcProxy.h"
 #include "McmcStatistics.h"
 #include "NumericUtils.h"
+#include "SerializerUtils.h"
 
 using std::vector;
 using std::ostream;
@@ -292,6 +293,46 @@ void McmcStatistics::calcCatCovariances( const RealMatrix& pSample, const std::v
       CalcCovariances( pCatSamples[i], m_pCatSampleAvgs[i], pCatSampleCov );
       m_pCatSampleCovMat.push_back( pCatSampleCov);
    }
+}
+
+bool McmcStatistics::load( IDeserializer* deserializer, unsigned int )
+{
+   bool ok = true;
+   ok = ok & deserialize( deserializer, m_chi2 );
+   ok = ok & deserialize( deserializer, m_gof );
+   ok = ok & deserialize( deserializer, m_chi2Red );
+   ok = ok & deserialize( deserializer, m_gofRed );
+   ok = ok & deserialize( deserializer, m_numDegFreedom );
+   ok = ok & deserialize( deserializer, m_lhMu );
+   ok = ok & deserialize( deserializer, m_lhSd );
+   ok = ok & deserialize( deserializer, m_pSampleAvg );
+   ok = ok & deserialize( deserializer, m_pCatSampleAvgs );
+   ok = ok & deserialize( deserializer, m_pSampleCovMat );
+   ok = ok & deserialize( deserializer, m_pCatSampleCovMat );
+   ok = ok & deserialize( deserializer, m_ySampleAvg );
+   ok = ok & deserialize( deserializer, m_scaledDev );
+
+   return ok;
+}
+
+bool McmcStatistics::save( ISerializer* serializer, unsigned int ) const
+{
+   bool ok = true;
+   ok = ok & serialize( serializer, m_chi2 );
+   ok = ok & serialize( serializer, m_gof );
+   ok = ok & serialize( serializer, m_chi2Red );
+   ok = ok & serialize( serializer, m_gofRed );
+   ok = ok & serialize( serializer, m_numDegFreedom );
+   ok = ok & serialize( serializer, m_lhMu );
+   ok = ok & serialize( serializer, m_lhSd );
+   ok = ok & serialize( serializer, m_pSampleAvg );
+   ok = ok & serialize( serializer, m_pCatSampleAvgs );
+   ok = ok & serialize( serializer, m_pSampleCovMat );
+   ok = ok & serialize( serializer, m_pCatSampleCovMat );
+   ok = ok & serialize( serializer, m_ySampleAvg );
+   ok = ok & serialize( serializer, m_scaledDev );
+
+   return ok;
 }
 
 } // namespace SUMlib

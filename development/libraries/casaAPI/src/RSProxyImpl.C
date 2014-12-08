@@ -137,6 +137,8 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
                              , m_confLevel
                              , partition
                              , parameterTransformsDef );
+
+      m_collection->getCoefficientsMapList( m_coefficients );
    }
    catch ( SUMlib::InvalidTransforms & e )
    {
@@ -171,11 +173,9 @@ ErrorHandler::ReturnCode RSProxyImpl::evaluateRSProxy( RunCase & cs )
 }
 
 
-RSProxy::CoefficientsMapList RSProxyImpl::getCoefficientsMapList() const
+const RSProxy::CoefficientsMapList & RSProxyImpl::getCoefficientsMapList() const
 {
-   CoefficientsMapList coefficients;
-   m_collection->getCoefficientsMapList( coefficients );
-   return coefficients;
+   return m_coefficients;
 }
 
 // Serialize object to the given stream

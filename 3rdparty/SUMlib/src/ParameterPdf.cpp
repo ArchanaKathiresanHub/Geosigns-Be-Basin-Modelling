@@ -14,6 +14,7 @@
 #include "Exception.h"
 #include "NumericUtils.h"
 #include "ParameterPdf.h"
+#include "SerializerUtils.h"
 
 using std::vector;
 
@@ -662,6 +663,54 @@ vector<double> ParameterPdf::highestNonFrozenOrdParams() const
       highestVarOrdPars[i] = m_maxHigh.ordinalPar( varParIdx()[i] );
    }
    return highestVarOrdPars;
+}
+
+bool ParameterPdf::load( IDeserializer* deserialiser, unsigned int /*version*/ )
+{
+   bool ok = true;
+   ok = ok && deserialize( deserialiser, m_low );
+   ok = ok && deserialize( deserialiser, m_high );
+   ok = ok && deserialize( deserialiser, m_minLow );
+   ok = ok && deserialize( deserialiser, m_maxHigh );
+   ok = ok && deserialize( deserialiser, m_catValues );
+   ok = ok && deserialize( deserialiser, m_varParIdx );
+   ok = ok && deserialize( deserialiser, m_conVars );
+   ok = ok && deserialize( deserialiser, m_disVars );
+   ok = ok && deserialize( deserialiser, m_catVars );
+   ok = ok && deserialize( deserialiser, m_discreteBase );
+   ok = ok && deserialize( deserialiser, m_mostLikely );
+   ok = ok && deserialize( deserialiser, m_scaledOrdinalBase );
+   ok = ok && deserialize( deserialiser, m_categoricalBase );
+   ok = ok && deserialize( deserialiser, m_covariance );
+   ok = ok && deserialize( deserialiser, m_minStddev );
+   ok = ok && deserialize( deserialiser, m_disWeights );
+   ok = ok && deserialize( deserialiser, m_catWeights );
+
+   return ok;
+}
+
+bool ParameterPdf::save( ISerializer* serialiser, unsigned int /*version*/ ) const
+{
+   bool ok = true;
+   ok = ok && serialize( serialiser, m_low );
+   ok = ok && serialize( serialiser, m_high );
+   ok = ok && serialize( serialiser, m_minLow );
+   ok = ok && serialize( serialiser, m_maxHigh );
+   ok = ok && serialize( serialiser, m_catValues );
+   ok = ok && serialize( serialiser, m_varParIdx );
+   ok = ok && serialize( serialiser, m_conVars );
+   ok = ok && serialize( serialiser, m_disVars );
+   ok = ok && serialize( serialiser, m_catVars );
+   ok = ok && serialize( serialiser, m_discreteBase );
+   ok = ok && serialize( serialiser, m_mostLikely );
+   ok = ok && serialize( serialiser, m_scaledOrdinalBase );
+   ok = ok && serialize( serialiser, m_categoricalBase );
+   ok = ok && serialize( serialiser, m_covariance );
+   ok = ok && serialize( serialiser, m_minStddev );
+   ok = ok && serialize( serialiser, m_disWeights );
+   ok = ok && serialize( serialiser, m_catWeights );
+
+   return ok;
 }
 
 } // namespace SUMlib

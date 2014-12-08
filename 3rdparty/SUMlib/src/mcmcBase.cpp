@@ -24,6 +24,10 @@
 #include "RandomGenerator.h"
 #include "StepProposer.h"
 
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
+
 using std::vector;
 using std::endl;
 
@@ -698,6 +702,12 @@ unsigned int McmcBase::iterateOnce()
    std::vector<RmseCasePair> bestMatchValues( m_sampleSize );
    // Construct sample results from subsample results
    m_tooBigAccRatio = false; //no acceptance ratios calculated yet in this iteration
+
+   // Run this piece in parallel
+   // Use OpenMP. Some chain calculations are faster than others, so use a guided schedule
+#ifdef USE_OPENMP
+   #pragma omp parallel for schedule(guided)
+#endif
    for ( unsigned int iChain = 0; iChain < m_subSampleSize; iChain++ )
    {
       for ( unsigned int i = 0; i < nbOfCycles; ++i )
@@ -916,7 +926,7 @@ double McmcBase::calcPriorProb( Parameter const& p ) const
       break;
       case NoPrior:
       {
-         priorProb = m_margDistr->correct4DISbounds( p );
+         priorProb = m_margDistr->correctForDisBounds( p );
       }
       break;
       default:
@@ -1117,16 +1127,29 @@ bool McmcBase::isSameCase( const std::vector<double>& case1, const std::vector<d
 const std::vector<std::vector<double> > McmcBase::getSortedYSample() const
 {
    std::vector< std::vector< double > > sortedYSample;
+   size_t nBest = m_bestMatches.size();
+   sortedYSample.resize( nBest );
+   std::vector< std::pair< double, std::vector< double > > > flatRanking;
+   flatRanking.reserve( nBest );
    ParameterRanking::const_iterator paramIter;
    for ( paramIter = m_bestMatches.begin(); paramIter != m_bestMatches.end(); ++paramIter )
    {
+      flatRanking.push_back( std::pair<double, std::vector< double > >( paramIter->first, paramIter->second ) );
+   }
+   assert( flatRanking.size() == nBest );
+#ifdef USE_OPENMP
+      #pragma omp parallel for
+#endif
+   for ( size_t i = 0; i < nBest; i++ )
+   {
+      std::vector< double >& paramCase = flatRanking[i].second;
       std::vector<std::pair<Parameter, RealVector> >::const_iterator copyIter;
       unsigned int key = 0;
       for ( copyIter = m_sample_copy.begin(); copyIter != m_sample_copy.end(); ++copyIter )
       {
-         if ( isSameCase( paramIter->second, copyIter->first, key ) )
+         if ( isSameCase( paramCase, copyIter->first, key ) )
          {
-            sortedYSample.push_back( copyIter->second );
+            sortedYSample[i] = copyIter->second;
             break;
          }
          key = key + 1;

@@ -15,6 +15,25 @@
 
 namespace SUMlib
 {
+///////////////////////////////////////////////////////////////////////////
+// SERIALIZE
+///////////////////////////////////////////////////////////////////////////
+
+// template for serialize vector<T>
+template < typename T >
+inline bool serialize( ISerializer* p_serializer, const std::vector<T>& p_vec )
+{
+   unsigned int nrOfRows = p_vec.size();
+   bool         ok(p_serializer->save(nrOfRows));
+
+   // for all rows
+   for (size_t i(0); ok && i < nrOfRows; ++i)
+   {
+      ok = serialize( p_serializer, p_vec[i] );
+   }
+
+   return ok;
+}
 
 // default template for serialize
 template < class T >
@@ -60,6 +79,31 @@ inline bool serialize( ISerializer* p_serializer, const std::vector<unsigned int
    }
 
    return p_serializer->save(uVector);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// DESERIALIZE
+///////////////////////////////////////////////////////////////////////////
+
+// template for deserialize vector<T>
+template < typename T >
+inline bool deserialize( IDeserializer* p_deserializer, std::vector<T>& p_vec )
+{
+   unsigned int nrOfRows(0);
+   bool         ok(p_deserializer->load(nrOfRows));
+
+   if (ok)
+   {
+      p_vec.resize(nrOfRows);
+
+      // for all rows
+      for (size_t i(0); ok && i < nrOfRows; ++i)
+      {
+         ok = deserialize( p_deserializer, p_vec[i] );
+      }
+   }
+
+   return ok;
 }
 
 // template for deserialize

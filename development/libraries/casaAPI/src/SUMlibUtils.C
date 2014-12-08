@@ -18,6 +18,7 @@
 #include "ObsValue.h"
 #include "Parameter.h"
 #include "RunCaseImpl.h"
+#include "SensitivityCalculatorImpl.h"
 #include "VarSpaceImpl.h"
 
 // SUMlib includes
@@ -313,7 +314,7 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
 // Create a SUMlib ParameterPdf. CASA->SUMlib
 void sumext::convertVarSpace2ParameterPdf( const casa::VarSpace & varSpace, const SUMlib::ParameterSpace & pSpace, SUMlib::ParameterPdf & pdf )
 {
-   // Initialise SUMlib cases and variance.
+   // Initialize SUMlib cases and variance.
    SUMlib::Case pBase;
    SUMlib::Case pAbsLow;
    SUMlib::Case pAbsHigh;
@@ -451,6 +452,4 @@ void sumext::createBoxConstraints( const casa::VarSpace & proxyVs, const casa::V
 
    boxConstraints.initialise( sumCaseLow, sumCaseHigh, sumCatIndices );
 }
- 
-
 

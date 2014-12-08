@@ -93,6 +93,10 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
       /// @returns a list of pointers to the calculated proxies
       CompoundProxyList const&   getProxyList() const;
 
+      /// Getter for the kriging data
+      /// @returns a kriging data object
+      const KrigingData&  getKrigingData() const;
+
       /// Getter for the ParameterSpace calculated from the ParameterSet
       /// @returns the parameter space
       ParameterSpace const&      getParameterSpace() const;
@@ -116,13 +120,13 @@ class INTERFACE_SUMLIB CompoundProxyCollection : public ISerializable
             KrigingType                         krigingType = DefaultKriging ) const;
 
 
-      /// Return the cubic proxy coefficients for each of the proxies in the
+      /// Return the cubic proxy coefficients and their standard errors for each of the proxies in the
       /// collection.
       ///
       /// @param [out] a vector of coefficient maps. The keys are index lists
-      ///              referring to parameter elements in the the unprepared
+      ///              referring to parameter elements in the unprepared
       ///              parameter set.
-      void getCoefficientsMapList( std::vector<MonomialCoefficientsMap>& ) const;
+      void getCoefficientsMapList( std::vector<CubicProxy::CoefficientsMap>& ) const;
 
       /// Returns the number of sub-proxies in this CompoundProxyCollection
       /// This is equal to the dimension of the ProxyValueList

@@ -137,6 +137,10 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool save( const std::vector< std::string > & vec, const std::string & vecName );
 
+      /// @brief Get version of serialization file
+      /// @return get file version
+      virtual int version() { return m_version; }
+
    private:
       FILE *      m_file;
       int         m_version;

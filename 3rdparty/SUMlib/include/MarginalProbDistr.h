@@ -88,7 +88,7 @@ class INTERFACE_SUMLIB MarginalProbDistr : public ProbDistr
       
       /// Even without any prior distributions, corrections must still be calculated to account
       /// for the rounding effects near the bounds of discrete parameters.
-      double correct4DISbounds( Parameter const& p ) const;
+      double correctForDisBounds( Parameter const& p ) const;
 
    private:
       /**

@@ -14,6 +14,7 @@
 #include "ParameterSpace.h"
 #include "Case.h"
 #include "SUMlib.h"
+#include "ISerializer.h"
 
 namespace SUMlib {
 
@@ -25,7 +26,7 @@ class ParameterSpace;
 /// The PDF can also scale itself to the [-1:1] domain.
 ///
 /// Generated copy constructor and copy assignment are OK
-class INTERFACE_SUMLIB ParameterPdf
+class INTERFACE_SUMLIB ParameterPdf : public ISerializable
 {
 public:
    /// Default constructor.
@@ -251,6 +252,10 @@ private: //methods
    /// @param [in] p_min   new minimum values for the discrete parameters
    /// @param [in] p_max   new maximum values for the discrete parameters
    void scaleDis( std::vector<int> const& p_min, std::vector<int> const& p_max );
+
+   // ISerializable interface
+   virtual bool load( IDeserializer*, unsigned int );
+   virtual bool save( ISerializer*, unsigned int ) const;
 
 private: //data
 

@@ -53,10 +53,6 @@ namespace casa
       /// @return VarParameter::Continuous
       virtual Type variationType() const { return Continuous; }
 
-      /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
-      virtual size_t dimension() const = 0;
-
       /// @brief A parameter which corresponds the minimal range value of the variable parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const { return m_minValue; }

@@ -60,6 +60,17 @@ public:
 
    virtual ~VarSpaceImpl();
 
+   // Get i-th parameter (numeration is first continuous, then discrete and then categorical)
+   virtual const VarParameter * parameter( size_t i ) const 
+   {
+      if ( i < m_cntPrms.size() ) return m_cntPrms[i];
+      i -= m_cntPrms.size();
+      if ( i < m_disPrms.size() ) return m_disPrms[i];
+      i -= m_disPrms.size();
+      if ( i < m_catPrms.size() ) return m_catPrms[i];
+      return 0;
+   }
+
    // Get i-th continuous parameter from the list
    virtual const VarPrmContinuous * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
 
@@ -69,6 +80,7 @@ public:
    // Get i-th discrete parameter from the list
    virtual const VarPrmDiscrete * discreteParameter( size_t i ) const { return i < m_disPrms.size() ? m_disPrms[ i ] : NULL; }
 
+  
    // Serialization / Deserialization
 
    // version of serialized object representation

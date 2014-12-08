@@ -138,12 +138,15 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
             KrigingType                krigingType,
             KrigingWeights&            krigingWeights ) const;
 
-      /// Get the map of cubic proxy monomials and coefficients.
+      /// Get the map of cubic proxy monomials and coefficients and standard errors.
       /// @param [out]  the coefficients map
-      void getCoefficientsMap( MonomialCoefficientsMap & ) const;
+      void getCoefficientsMap( CubicProxy::CoefficientsMap & ) const;
 
       /// Returns the adjusted R^2 of the CubicProxy
       double adjustedR2() const { return m_adjustedR2; }
+
+      /// Returns the leverage scores (i.e. diagonal of hat matrix)
+      std::vector<double> const& leverages() const { return m_leverages; }
 
       // made deliberately private so that calling load/save directly on this class is more difficult
       // the preferred way is to call save/load on the ISerializer.
@@ -151,7 +154,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       // ISerializable
       virtual bool load( IDeserializer*, unsigned int version );
       virtual bool save( ISerializer*, unsigned int version ) const;
-      // ISerializationVersion 
+      // ISerializationVersion
       // when in the future implementing this interface also in base class
       // add the version of this class to the version of the base class:  Proxy::getSerializationVersion() + g_version
       // this way if the base changes all subclasses will get an increase of version
@@ -167,8 +170,6 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       typedef std::pair< std::auto_ptr<CubicProxy>,std::auto_ptr<KrigingProxy> > ProxyPair;
 
       /// Compute the proxies associated with a parameterSet and TargetSet
-      /// @param [out] proxyPair    a pair of Proxy ptrs, one CubicProxy and one KrigingProxy
-      /// @param [out] adjustedR2   adjusted R^2 belonging to the CubicProxy
       /// @param [in]  parSet       scaled parameter set
       /// @param [in]  caseValid    case validity indicator
       /// @param [in]  targetSet    unscaled target set
@@ -179,10 +180,7 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       /// @param [in]  confLevel    needed for significance test of model increments
       /// @param [in]  initVars     monomials/variables of the initial polynomial
       /// @param [in]  order        Order of polynomial (0, 1, or 2)
-      /// @returns whether the CubicProxy calculation converged
-      bool calculateProxyPair(
-            ProxyPair &                proxyPair,
-            double &                   adjustedR2,
+      void calculateProxyPair(
             ParameterSet const&        parSet,
             std::vector<bool> const&   caseValid,
             TargetSet const&           targetSet,
@@ -217,6 +215,8 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
 
       ParameterTransforms::ptr m_parTransforms;
 
+      // Leverage scores (i.e. diagonal of hat matrix)
+      std::vector<double> m_leverages;
 };
 
 } // namespace SUMlib

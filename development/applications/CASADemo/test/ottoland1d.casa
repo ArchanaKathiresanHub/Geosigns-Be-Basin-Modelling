@@ -53,9 +53,20 @@ evaluate             "FirstOrdKrig" "varPrmVals.in"    "FirstOrderKrigGivenParam
 #                                     proxy building    proxy testing
 plotRSProxyQC        "FirstOrdKrig"  "SpaceFilling"     "FullFactorial,Tornado"    "FirstOrdKrigQC.m"
 
-# Run Monte Carlo sampling     ProxyName        MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
-#montecarlo                     "FirstOrder"      MC        50          100         Polynomial       NoPrior       1.0
-montecarlo                    "FirstOrdKrig"    MCMC      500         100         GlobalKriging    NoPrior       1.6
+# create plots for Tornado diagram
+#                                    Doe names                   Matlab/Octave script name
+plotTornado                          "Tornado"                   "TornadoPlotTornadoDoE.m"
+plotTornado                          "FullFactorial,Tornado"     "TornadoPlotTornadoFFDoEs.m"
+
+
+# create plot for Pareto diagram
+#                                    Proxy name       Matlab/Octave script name
+plotPareto                           "FirstOrder"     "ParetoPlotTornado1stOrdRS.m"
+
+# Monte Carlo part
+# Run Monte Carlo sampling     ProxyName         MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
+#montecarlo                    "FirstOrder"      MC        50          100         Polynomial       NoPrior       1.0
+montecarlo                     "FirstOrdKrig"    MCMC      500         100         GlobalKriging    NoPrior       1.6
 
 #create MC/MCMC results plot
 plotMC               "mcplot.m"

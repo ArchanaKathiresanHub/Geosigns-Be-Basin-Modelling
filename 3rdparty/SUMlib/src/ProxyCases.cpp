@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <numeric>
 #include <vector>
 
 #include "BaseTypes.h"
@@ -260,7 +261,7 @@ double ProxyCases::calculateMSE( CubicProxy const *proxy, ParameterSet const& pa
 
    const unsigned int N = par.size();
 
-   // Calculate mean-squared-error of proxy response to wrt. supplied targets
+   // Calculate mean-squared-error of proxy response w.r.t. supplied targets
    RealVector response;
    response.reserve( par.size() );
    for ( unsigned i = 0; i < N; ++i )
@@ -303,7 +304,7 @@ void ProxyCases::test( CubicProxy const * proxy, unsigned int nrOfUsedVars, doub
    const unsigned int degreesOfFreedom = nTune + nTest - nrOfUsedVars - 1;
    if ( degreesOfFreedom > 0 )
    {
-      double totalMSE = ( mseTune * nTune + mseTest * nTest ) / degreesOfFreedom;
+      const double totalMSE = ( mseTune * nTune + mseTest * nTest ) / degreesOfFreedom;
       totalRMSE = sqrt( totalMSE );
       if ( m_targetVariance < Tiny )
       {
@@ -319,6 +320,105 @@ void ProxyCases::test( CubicProxy const * proxy, unsigned int nrOfUsedVars, doub
       adjustedR2 = -1.0; //adjusted R^2 is not defined here but -1 is poor enough
       totalRMSE = sqrt( 2 * std::max<double>( m_targetVariance, 1.0 ) ); //poor enough too
    }
+}
+
+std::vector<double> ProxyCases::calcLeverages() const
+{
+   // Calculate leverage scores = diagonal of hat matrix = diagonal of U*U'
+   const RealMatrix& u = m_builder->orthonormalU();
+   const std::size_t n = numTuneCases();
+   const std::size_t p = m_builder->baseVars().size();
+   assert( u.size() == n ); // check #rows of u
+   assert( u.empty() && p == 0 || u.front().size() == p ); // check #columns of u
+   std::vector<double> leverages( n );
+   for ( std::size_t i = 0; i < n; ++i )
+   {
+      leverages[i] = std::inner_product( u[i].begin(), u[i].end(), u[i].begin(), 0.0 );
+      // SUMlib removes the intercept column from the design matrix, and for the remaining columns the column mean is
+      // subtracted. As a consequence, SUMlib's hat matrix is different from the traditional hat matrix: when the SUMlib
+      // hat matrix is subtracted from the traditional hat matrix, the result is 1/n for each cell, where n is the
+      // number of cases. We compensate for that here, to let the leverages be the diagonal of the traditional hat
+      // matrix. See also "Regression Diagnostics: Identifying Influential Data and Sources of Collinearity" by David A.
+      // Belsley, Edwin Kuh, and Roy E. Welsch.
+      leverages[i] += 1.0 / numTuneCases();
+   }
+   return leverages;
+}
+
+std::vector<double> ProxyCases::calcStdErrors() const
+{
+   // n = number of cases
+   // p = number of polynomial terms excluding intercept
+   const std::size_t n = m_tunePars.size() + m_testPars.size();
+   const std::size_t p = m_builder->baseVars().size();
+
+   // rss = residual sum of squares
+   CubicProxy* proxy = createProxy();
+   const double rss = tuneMSE( proxy ) * m_tunePars.size() + testMSE( proxy ) * m_testPars.size();
+   delete proxy;
+
+   // var = unbiased estimation of variance of the error
+   // Prevent division by zero.
+   const double var = rss / std::max< std::size_t >( n - p - 1, 1 );
+
+   // a = ( Xs' * Xs )^-1 = V * ( S' * S )^-1 * V', where Xs is SUMlib's design matrix
+   RealMatrix a( p, RealVector( p, 0.0 ) );
+   const RealVector& s = m_builder->singularValues();
+   const RealMatrix& v = m_builder->orthonormalV();
+   assert( s.size() == p ); // check #rows of S
+   assert( v.size() == p ); // check #rows of V
+   assert( v.empty() && p == 0 || v.front().size() == p ); // check #columns of V
+   const double sTiny = ! s.empty() ? s.size() * *std::max_element( s.begin(), s.end() ) * MachineEpsilon() : 0.0;
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      for ( std::size_t j = 0; j < p; ++j )
+      {
+         for ( std::size_t k = 0; k < p; ++k )
+         {
+            const double sTrunc = std::max( s[k], sTiny );
+            a[i][j] += v[i][k] * v[j][k] / ( sTrunc * sTrunc );
+         }
+      }
+   }
+
+   // b(i) = X1(1,i) + ... + X1(p,i), where X1 is the original design matrix without the first column
+   RealVector b( p, 0.0 );
+   assert( m_builder->proxyData().size() == n ); // check #rows of design matrix
+   assert( m_builder->proxyData().empty() && n == 0 || m_builder->proxyData().front().size() == p ); // check #columns
+   assert( m_builder->proxyMean().size() == p ); // check #rows of mean vector
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      for ( std::size_t j = 0; j < n; ++j )
+      {
+         b[i] += m_builder->proxyData()[j][i] + m_builder->proxyMean()[i];
+      }
+   }
+
+   // c = i' * X1 * ( Xs' * Xs )^-1 * X1' * i = b(i) * b(j) * a(i,j)
+   double c = 0;
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      for ( std::size_t j = 0; j < p; ++j )
+      {
+         c += b[i] * b[j] * a[i][j];
+      }
+   }
+
+   // Allocate memory for standard errors. First element is for intercept, rest is for other coefficients.
+   std::vector<double> stdErrors( p + 1 );
+
+   // Calculate standard error of intercept:
+   // standard_error = sqrt( var / n^2 * ( n + i' * X1 * ( Xs' * Xs )^-1 * X1' i ) ) = sqrt( var / n^2 * ( n + c ) )
+   stdErrors[ 0 ] = std::sqrt( var / ( n * n ) * ( n + c ) );
+
+   // Calculate standard errors of coefficients other than intercept:
+   // standard_error(i) = sqrt( var * ( ( Xs' * Xs )^-1 )(i,i) = sqrt( var * a(i,i) )
+   for ( std::size_t i = 0; i < p; ++i )
+   {
+      stdErrors[i + 1] = std::sqrt( var * a[i][i] );
+   }
+
+   return stdErrors;
 }
 
 

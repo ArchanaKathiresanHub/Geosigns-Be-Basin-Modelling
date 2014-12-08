@@ -5,6 +5,7 @@
 
 #include "Exception.h"
 #include "ReferenceProxy.h"
+#include "SerializerUtils.h"
 
 namespace SUMlib {
 
@@ -79,6 +80,31 @@ double ReferenceProxy::getProxyValue(Parameter const& p, KrigingType t /* Defaul
 unsigned int ReferenceProxy::size() const
 {
    return m_proxy.size();
+}
+
+// Complicated situation: m_proxy is const, it is loaded and saved outside
+bool ReferenceProxy::load( IDeserializer* deserializer, unsigned int /*version*/ )
+{
+   bool ok = true;
+
+   ok = ok && deserialize( deserializer, m_active );
+   ok = ok && deserialize( deserializer, m_hasReference );
+   ok = ok && deserialize( deserializer, m_reference );
+   ok = ok && deserialize( deserializer, m_stddev );
+
+   return ok;
+}
+
+bool ReferenceProxy::save( ISerializer* serializer, unsigned int /*version*/ ) const
+{
+   bool ok = true;
+
+   ok = ok && serialize( serializer, m_active );
+   ok = ok && serialize( serializer, m_hasReference );
+   ok = ok && serialize( serializer, m_reference );
+   ok = ok && serialize( serializer, m_stddev );
+
+   return ok;
 }
 
 } // namespace SUMlib

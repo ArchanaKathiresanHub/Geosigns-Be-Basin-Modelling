@@ -82,7 +82,7 @@ namespace casa
       /// the casa::VarSpace (including multi-dimensional parameters) defining the proxies.
       ///
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      virtual CoefficientsMapList  getCoefficientsMapList() const;
+      virtual const CoefficientsMapList & getCoefficientsMapList() const;
 
       /// @brief Get SUMlib proxy object
       /// @return SUMlib proxy object
@@ -122,6 +122,8 @@ namespace casa
       bool          m_autosearch; // shall we ignore given order and try to search for order ourself?
       double        m_targedR2;   // @TODO document
       double        m_confLevel;  // @TODO document
+
+      CoefficientsMapList m_coefficients; // set of polynomial appoximation coefficients
 
       std::auto_ptr<SUMlib::CompoundProxyCollection> m_collection; // SUMlib response proxy
 

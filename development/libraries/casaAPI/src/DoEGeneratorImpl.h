@@ -16,7 +16,6 @@
 
 #include "ErrorHandler.h"
 
-#include "CasaSerializer.h"
 #include "DoEGenerator.h"
 #include "VarSpace.h"
 

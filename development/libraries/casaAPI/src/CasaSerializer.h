@@ -141,8 +141,13 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool save( const std::vector< std::string > & vec, const std::string & vecName ) = 0;
 
-      /// @breif Register or convert observable pointer to observable ID
+      /// @brief Get version of serialization file
+      /// @return get file version
+      virtual int version() = 0;
+
+      /// @brief Register or convert observable pointer to observable ID
       template <class T> ObjRefID ptr2id( const T * obj );
+
 
    protected:
       /// @brief  Default constructor

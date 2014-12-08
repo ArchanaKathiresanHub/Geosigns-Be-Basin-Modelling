@@ -150,7 +150,7 @@ bool ProxyEstimator::approveCandidate( unsigned int N, unsigned int nrPars, unsi
    assert( Nord2 < Ncrit ); //number of all 3rd order terms excl. 3-way interaction terms > number of all 2nd order terms
    assert( order < 3 || order == 9 );
    assert( iCandidate < code.size() );
-   
+
    // Handle special case first: no categorical parameter(s) present AND only allow up to pure quadratic terms
    if ( nrOrdPars == nrPars && order == 9 )
    {
@@ -363,7 +363,6 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    }
 
    VarList activeVars = vars;
-   unsigned int nActiveVars = activeVars.size();
 
    // The number of variables that can be determined with the cases available for estimation
    const unsigned int maxNumVars = getNrCasesForEstimation() - 1;
@@ -382,13 +381,11 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
          {
             activeVars[i] = i;
          }
-         nActiveVars = activeVars.size();
       }
       else //start model building from scratch; 3rd order terms will not be searched for!
       {
          // The supplied vars are removed (intercept only)
          activeVars.clear();
-         nActiveVars = 0;
       }
 
       // Find only influential variables that honor the specified order > 0
@@ -416,18 +413,16 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    {
       // The supplied vars are removed (intercept only)
       activeVars.clear();
-      nActiveVars = 0;
    }
 
    // If auto search has been set to false,
    // check whether there are enough cases to handle all supplied vars.
-   if ( ! search && ( nActiveVars >= getNrCases() ) )
+   if ( ! search && ( activeVars.size() >= getNrCases() ) )
    {
       // The supplied vars cannot be handled as too few cases are available
       search = true; //no other choice than using auto search (from scratch)
       targetR2 = 1.0; //maximum target value here as the user did not ask for auto search
       activeVars.clear(); //remove the supplied vars to enable model building from scratch
-      nActiveVars = 0;
 
       // Find only influential variables that honor the specified order
       if ( nbOrdPars == numPar ) //no categorical parameter(s) present, so order > 0 here!
@@ -474,7 +469,7 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    // The supplied vars serve as starting point for the search algorithm
    // So the proxy candidate is initialised to a proxy with the supplied vars.
    proxycases.createProxyBuilder( activeVars ); //create proxy builder first based on supplied vars
-   best.setProxy( proxycases, nActiveVars ); //set proxy candidate cheaply with help of proxy builder
+   best.setProxy( proxycases, activeVars.size() ); //set proxy candidate cheaply with help of proxy builder
    const double eps = 1e-9;
    if ( best.adjustedR2 >= ( targetR2 - eps ) ) converged = true; //initial proxy already fits well.
 
@@ -485,7 +480,7 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    const unsigned int maxNbOfIters = std::max<unsigned int>( 2*numPar + getNrCases()/3, 50 );
    bool allow3WayCrossTerms = false;
 
-   while ( ! converged && ! exhausted( nActiveVars, maxNumVars ) )
+   while ( ! converged && ! exhausted( activeVars.size(), maxNumVars ) )
    {
       whileIterCount++;
 
@@ -559,7 +554,6 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
 
          // Copy the selected variables to the active variables list
          best.proxy->getVarList( activeVars );
-         nActiveVars = activeVars.size();
 
          // Convergence if either adjusted R^2 has reached its target,
          // or if the maximum number of iterations has been reached.
@@ -576,7 +570,6 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
          // Next iteration starts with the variables list from the
          // best of the ranked candidates, and attempts to get an improvement
          candidates[best_index].proxy->getVarList( activeVars );
-         nActiveVars = activeVars.size();
 
          // attempt to improve the best candidate so far for
          // maxDeteriorateCount iterations
@@ -597,13 +590,13 @@ bool ProxyEstimator::autoEstimate( ProxyCandidate &best, unsigned int nbOrdPars,
    } // main convergence loop
 
    // The final SVD based on all cases
-   if ( betterProxyFound && getNrCasesForTest() > 0 )
+   if ( betterProxyFound )
    {
       CaseList allCasesActive( m_parSet.size(), true );
       proxycases.setCaseList( allCasesActive );
       best.proxy->getVarList( activeVars );
       proxycases.createProxyBuilder( activeVars );
-      best.setProxy( proxycases, nActiveVars );
+      best.setProxy( proxycases, activeVars.size() );
    }
 
    // Restore old flags
@@ -669,6 +662,8 @@ void ProxyCandidate::setProxy( ProxyCases const& proxycases, unsigned int nActua
    delete this->proxy;
    proxy = proxycases.createProxy( );
    proxycases.test( proxy, nActualVars, rmseTune, rmseTest, rmseTotal, adjustedR2 );
+   leverages = proxycases.calcLeverages();
+   proxy->setStdErrors( proxycases.calcStdErrors() );
 }
 
 bool ProxyCandidate::update( ProxyCases const& proxycases, unsigned int var, unsigned int nActualVars )

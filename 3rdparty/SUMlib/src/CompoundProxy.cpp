@@ -95,12 +95,10 @@ void CompoundProxy::initialise(
    {
       initVars = CubicProxy::initialVarList( size(), nbOfOrdPars, order, part ); //categorical parameter(s) present
    }
-   calculateProxyPair( m_proxyPair, m_adjustedR2, parSet, caseValid, targetSet, krigingData, nbOfOrdPars, modelSearch, targetR2, confLevel, initVars, order );
+   calculateProxyPair( parSet, caseValid, targetSet, krigingData, nbOfOrdPars, modelSearch, targetR2, confLevel, initVars, order );
 }
 
-bool CompoundProxy::calculateProxyPair(
-      ProxyPair&                 proxyPair,
-      double&                    adjustedR2,
+void CompoundProxy::calculateProxyPair(
       ParameterSet const&        parSet,
       std::vector<bool> const&   caseValid,
       TargetSet const&           targetSet,
@@ -142,18 +140,16 @@ bool CompoundProxy::calculateProxyPair(
 
    // Compute Cubic proxy
    ProxyCandidate candidate;
-   bool cubicOK = estimator.autoEstimate( candidate, nbOfOrdPars, order, initVars, modelSearch, targetR2, confLevel );
+   estimator.autoEstimate( candidate, nbOfOrdPars, order, initVars, modelSearch, targetR2, confLevel );
 
    // If a proxy was calculated, use it even if the estimator did not converge
    if ( candidate.proxy )
    {
-      proxyPair.first.reset( candidate.proxy );
-      proxyPair.second.reset( new KrigingProxy( candidate.proxy, *m_parTransforms, krigingData, parSet, caseValid, targetSet, nbOfOrdPars ) );
-      adjustedR2 = candidate.adjustedR2;
+      m_proxyPair.first.reset( candidate.proxy );
+      m_proxyPair.second.reset( new KrigingProxy( candidate.proxy, *m_parTransforms, krigingData, parSet, caseValid, targetSet, nbOfOrdPars ) );
+      m_adjustedR2 = candidate.adjustedR2;
+      m_leverages = candidate.leverages;
    }
-
-   // Return whether the proxy calculation converged
-   return cubicOK;
 }
 
 unsigned int CompoundProxy::size( ) const
@@ -263,10 +259,14 @@ bool CompoundProxy::load( IDeserializer* deserializer, unsigned int version )
    {
       m_parTransforms.reset( new ParameterTransforms() );
       ok = ok && deserialize( deserializer, *m_parTransforms );
+
+      ok = ok && deserialize( deserializer, m_leverages );
    }
    else
    {
       m_parTransforms.reset( new ParameterTransforms() );
+
+      m_leverages.clear();
    }
 
    return ok;
@@ -299,6 +299,8 @@ bool CompoundProxy::save( ISerializer* serializer, unsigned int version ) const
    ok = ok && serialize( serializer, m_adjustedR2);
 
    ok = ok && serialize( serializer, *m_parTransforms );
+
+   ok = ok && serialize( serializer, m_leverages );
 
    return ok;
 } // CompoundProxy::save()

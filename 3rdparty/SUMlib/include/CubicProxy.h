@@ -18,12 +18,12 @@ namespace SUMlib {
 
 /// @class CubicProxy holds proxy model coefficients for a cubic polynomial model.
 /// The class assumes parameters to be scaled to the [-1:1] domain.
-class CubicProxy : public ISerializable
+class CubicProxy : public ISerializable, public ISerializationVersion
 {
    public:
 
-      /// CubicProxy monomials and their coefficients
-      typedef std::map< IndexList, double > CoefficientsMap;
+      /// CubicProxy monomials and their coefficients and standard errors
+      typedef std::map< MonomialKey, std::pair< double, double > > CoefficientsMap;
 
       /// Calculate coefficients for a proxy model based on SVD data (a, w, and v) and target values
       /// @param [in] stat    integer status of SVD (0 = success)
@@ -175,7 +175,7 @@ class CubicProxy : public ISerializable
       /// @returns the size (number of elements of the cases)
       unsigned int size() const;
 
-      /// Get a map of monomials and their cubic proxy coefficient.
+      /// Get a map of monomials and their cubic proxy coefficient and standard error.
       /// @param [out] cubic proxy monomials and coefficients map
       void getCoefficientsMap( CoefficientsMap& map ) const;
 
@@ -189,12 +189,17 @@ class CubicProxy : public ISerializable
       /// @param [out] p_varList a copy of the internal active variables list
       void getVarList( IndexList & p_varList ) const;
 
+      /// Set the standard errors of the proxy coefficients
+      /// @param [in] stdErrors standard errors
+      void setStdErrors( RealVector const& stdErrors );
+
       // made deliberately private so that calling load/save directly on this class is more difficult
       // the preferred way is to call save/load on the ISerializer.
    private:
       // ISerializable
       virtual bool load( IDeserializer*, unsigned int version );
       virtual bool save( ISerializer*, unsigned int version ) const;
+      virtual unsigned int getSerializationVersion() const;
 
    private: // methods
 
@@ -220,6 +225,9 @@ class CubicProxy : public ISerializable
 
       /// The proxy coefficients
       RealVector              m_coefficients;
+
+      /// The standard errors of the proxy coefficients
+      RealVector              m_stdErrors;
 };
 
 // Inlined to increase performance.

@@ -35,8 +35,8 @@ StepProposer::StepProposer(
    for ( size_t i = 0; i < m_dp.size(); ++i )
    {
       double range = m_max[i] - m_min[i];
-      m_minDp[i] = 1e-3 * range / std::sqrt( static_cast<double>(pSize) );
-      m_maxDp[i] = 0.1 * range / std::sqrt( static_cast<double>(pSize) );
+      m_minDp[i] = 1e-3 * range / sqrt( double( pSize ) );
+      m_maxDp[i] = 0.1 * range / sqrt( double( pSize ) );
    }
 }
 

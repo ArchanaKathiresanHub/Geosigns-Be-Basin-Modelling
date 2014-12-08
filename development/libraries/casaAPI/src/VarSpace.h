@@ -22,6 +22,7 @@
 
 namespace casa
 {
+   class VarParameter;
    class VarPrmCategorical;
    class VarPrmContinuous;
    class VarPrmDiscrete;
@@ -61,6 +62,11 @@ namespace casa
       /// @brief Get number of categorical parameters defined in VarSpace
       /// @return number of categorical parameters
       virtual size_t numberOfCategPrms() const = 0;
+
+      /// @brief Get i-th parameter (numeration is first continuous, then discrete and then categorical)
+      /// @param i parameter number
+      /// @return pointer to the requested parameter on success or zero pointer otherwise
+      virtual const VarParameter * parameter( size_t i ) const = 0;
 
       /// @brief Get i-th continuous parameter from the list
       /// @param i continuous parameter number

@@ -14,11 +14,12 @@
 #include "BaseTypes.h"
 #include "MarginalProbDistr.h"
 #include "McmcProxy.h"
+#include "McmcStatistics.h"
 #include "KrigingProxy.h"
 #include "ParameterPdf.h"
 #include "RandomGenerator.h"
-#include "McmcStatistics.h"
 #include "SUMlib.h"
+#include "IMcmc.h"
 
 namespace SUMlib {
 
@@ -30,57 +31,13 @@ class StepProposer;
 /// response model and the active set data.
 ///
 /// The parameter samples are ranked (best matches) according to the RMSE
-class INTERFACE_SUMLIB McmcBase {
+class INTERFACE_SUMLIB McmcBase : public IMcmc {
 
 public:
-
-   /// Enumerates the types of distributions available for the measured data.
-   ///
-   /// Normal is a Gaussian distribution, Robust is a Laplace (double
-   /// exponential) distribution and Mixed is a Normal distribution with Robust
-   /// tails.
-   enum MeasurementDistributionType {
-      NoMeasurements,
-      NormalDistribution,
-      RobustDistribution,
-      MixedDistribution
-   };
-
-   /// Enumerates the types of parameter distributions.
-   enum ParameterDistributionType {
-      NoPrior,
-      MarginalDistribution,
-      MultivariateGaussianDistribution
-   };
-
-   /// Enumerates the stepping algorithms.
-   ///
-   /// MetropolisHasting is the normal MCMC method to approximate the posterior
-   /// distribution by a sample. SurvivalOfTheFittest is very much like
-   /// MetropolisHasting, but accepts only proposals with higher likelihoods,
-   /// thereby approximating the maximum likelihood solution(s).
-   enum StepMethod {
-      MetropolisHasting,
-      SurvivalOfTheFittest
-   };
-
-   /// Enumerates the ways how Kriging is applied.
-   ///
-   /// NoMcmcKriging: Only polynomial proxies are used, so less accurate but fast.
-   /// SmartMcmcKriging: Kriging is only applied at decisive moments (default).
-   /// FullMcmcKriging: Kriging is always applied, so accurate but expensive.
-   enum KrigingUsage {
-      NoMcmcKriging,
-      SmartMcmcKriging,
-      FullMcmcKriging
-   };
-
    /// Number of best matches to collect
    static const unsigned int numBestMatches;
 
    typedef std::multimap<double, const std::vector<double> > ParameterRanking;
-
-   typedef std::pair< double, std::vector<double> > RmseCasePair;
 
 protected:
 
@@ -152,7 +109,7 @@ protected:
    std::vector<MarginalProbDistr::Type> m_marginalDistribution;
 
    /// Statistics calculator
-   McmcStatistics &m_statistics;
+   McmcStatistics& m_statistics;
 
    /**
     * Standard deviation factor, multiplies all historical standard deviations.
@@ -211,7 +168,7 @@ protected:
    StepMethod m_stepMethod;
 
    // Update the best matches
-   void updateBestMatches( double key, Parameter const & p );
+   void updateBestMatches( double key, Parameter const& p );
 
    // Check whether a candidate match is unique, i.e. not too close to existing matches.
    bool uniqueMatch(const std::vector<double>& p ) const;
@@ -376,8 +333,8 @@ public:
    /// @param[in]     constraints         constraints on the parameter space
    /// @param[in]     statistics          statistics calculator
    /// @param[in]     maxNbOfIterations   maximum number of iterations to prevent an infinite execute loop
-   McmcBase( int seed, std::vector<McmcProxy*> const& ascs, unsigned int sampleSize, const ParameterPdf & pdf,
-         const ParameterBounds & constraints, McmcStatistics &statistics, unsigned int maxNbOfIterations = 100 );
+   McmcBase( int seed, std::vector<McmcProxy*> const& ascs, unsigned int sampleSize, const ParameterPdf& pdf,
+         const ParameterBounds& constraints, McmcStatistics& statistics, unsigned int maxNbOfIterations = 100 );
 
    /// Destructor
    virtual ~McmcBase();
@@ -390,7 +347,7 @@ public:
    /// (outliers). Then continue with the Normal distribution on the good data.
    ///
    /// @param method The distribution type.
-   void setMeasurementDistributionType( MeasurementDistributionType method );
+   virtual void setMeasurementDistributionType( MeasurementDistributionType method );
 
    /// Get the measurement error distribution used.
    ///
@@ -406,7 +363,7 @@ public:
    /// within bounds is equally likely a priory.
    ///
    /// @param parameterDistribution The distribution.
-   void setParameterDistributionType( ParameterDistributionType parameterDistribution );
+   virtual void setParameterDistributionType( ParameterDistributionType parameterDistribution );
 
    /// Get the parameter distribution.
    ///
@@ -416,17 +373,17 @@ public:
    /// Set the parameter marginal distribution.
    ///
    /// @param distribution The marginal distribution.
-   void setMarginalDistributionType( size_t parameterSeqnb, MarginalProbDistr::Type marginalDistributionType );
+   virtual void setMarginalDistributionType( size_t parameterSeqnb, MarginalProbDistr::Type marginalDistributionType );
 
    /// Set the parameter marginal distribution.
    ///
    /// @param distribution The marginal distribution.
-   void setMarginalDistributionType( const std::vector<MarginalProbDistr::Type> &marginalDistribution );
+   virtual void setMarginalDistributionType( const std::vector<MarginalProbDistr::Type>& marginalDistribution );
 
    /// Get the parameter marginal distribution.
    ///
    /// @return The parameter marginal distribution.
-   const std::vector<MarginalProbDistr::Type> &
+   const std::vector<MarginalProbDistr::Type>&
       getMarginalDistributionType() const { return m_marginalDistribution; }
 
    /// Set the step method type.
@@ -436,20 +393,20 @@ public:
    /// likelihood parameter values.
    ///
    /// @param stepMethod The step method to use.
-   void setStepMethodType( StepMethod stepMethod );
+   virtual void setStepMethodType( StepMethod stepMethod );
 
    /// Set Kriging usage: NoMcmcKriging, SmartMcmcKriging, or FullMcmcKriging.
    ///
    /// @param krUsage The indicator specifying Kriging usage.
-   void setKrigingUsage( KrigingUsage krUsage ) { m_krigingUsage = krUsage; }
+   virtual void setKrigingUsage( KrigingUsage krUsage ) { m_krigingUsage = krUsage; }
 
    /// Setter for the kriging type to apply.
    /// @param [in] krigingType the new kriging type value
-   void setKrigingType( KrigingType krigingType );
+   virtual void setKrigingType( KrigingType krigingType );
    
    /// Setter for the proxy kriging type to apply.
    /// @param [in] krigingType the new kriging type value to be used for the proxy
-   void setProxyKrigingType( KrigingType krigingType ) { m_proxyKrigingType = krigingType; }
+   virtual void setProxyKrigingType( KrigingType krigingType ) { m_proxyKrigingType = krigingType; }
 
    /// Getter for the kriging type to apply
    /// @returns the current kriging type value
@@ -458,7 +415,7 @@ public:
    /// Set maximum number of iterations.
    ///
    /// @param maxNbOfIterations The maximum number of iterations.
-   void setMaxNbOfIterations( unsigned int maxNbOfIterations ) { m_maxNbOfIterations = maxNbOfIterations; }
+   virtual void setMaxNbOfIterations( unsigned int maxNbOfIterations ) { m_maxNbOfIterations = maxNbOfIterations; }
 
    /// Get the currently used step method type.
    ///
@@ -469,12 +426,12 @@ public:
    /// Set the standard deviation factor to be used.
    ///
    /// @param stdDevFactor The new standard deviation factor.
-   void setStdDevFactor( double stddevfac );
+   virtual void setStdDevFactor( double stddevfac );
 
    /// Get the global standard deviation factor.
    ///
    /// @return The global standard deviation factor.
-   double getStdDevFactor() const { return m_stddevfac; }
+   virtual double getStdDevFactor() const { return m_stddevfac; }
 
    /// Get the goodness of fit (GOF) to be displayed (in %).
    /// Preferably, the GOF should be larger than about 50%.
@@ -489,7 +446,7 @@ public:
    /// close to a half. The goodness-of-fit indicator is subsequently not useful
    /// anymore. SUM does however calculate the goodness-of-fit without using the
    /// factor for diagnostic purposes.
-   void adaptStdDevFactor();
+   virtual void adaptStdDevFactor();
 
    /// Set whether to use prior in the MCMC acceptance criterium.
    ///
@@ -522,19 +479,19 @@ public:
 
    /// Get the values of ySample
    /// @return the values of ySample
-   const std::vector<std::vector<double> >& getYSample() const { return m_ySample; }
+   virtual const std::vector<std::vector<double> >& getYSample() const { return m_ySample; }
 
    /// Get the values of ySample sorted by RMSE (same order as getBestMatches)
    /// @return the values of ySample sorted by RMSE (same order as getBestMatches)
-   const std::vector<std::vector<double> > getSortedYSample() const;
+   virtual const std::vector<std::vector<double> > getSortedYSample() const;
    
    /// Get the average values of pSample
    /// @return the average values of pSample
-   const std::vector<double>& getPSampleAvg() const { return m_pSample_avg; }
+   virtual const std::vector<double>& getPSampleAvg() const { return m_pSample_avg; }
 
    /// Get the average values of pSample per categorical combination
    /// @return the average values of pSample per categorical combination
-   const std::vector< std::vector<double> >& getPCatSampleAvgs() const { return m_pCatSample_avgs; }
+   virtual const std::vector< std::vector<double> >& getPCatSampleAvgs() const { return m_pCatSample_avgs; }
 
    /// Get the covariance values of pSample
    /// @return the covariance values of pSample
@@ -542,7 +499,7 @@ public:
 
    /// Get the covariance values of pSample per categorical combination
    /// @return the covariance values of pSample per categorical combination
-   const std::vector<std::vector<std::vector<double> > >& getPCatSampleCovs() const { return m_pCatSample_covs; }
+   virtual const std::vector<std::vector<std::vector<double> > >& getPCatSampleCovs() const { return m_pCatSample_covs; }
 
    /// Get the average values of ySample
    /// @return the average values of ySample
@@ -558,7 +515,7 @@ public:
 
    /// Get the best matches
    /// @return the best matches
-   const ParameterRanking& getBestMatches() const { return m_bestMatches; }
+   virtual const ParameterRanking& getBestMatches() const { return m_bestMatches; }
 
    std::vector< unsigned int > m_CatIndexOfSample;
 
@@ -566,11 +523,11 @@ public:
 
    /// Get the iteration count
    /// @return the iteration count
-   unsigned int getIterationCount() { return m_iterationCount; }
+   virtual unsigned int getIterationCount() { return m_iterationCount; }
 
    /// Get the categorical combinations
    /// @return the categorical combination
-   std::vector< std::vector< unsigned int > > getCatCombi();
+   virtual std::vector< std::vector< unsigned int > > getCatCombi();
 
    typedef std::vector< std::pair< std::vector< unsigned int >, double > > CatValuesWeights;
    CatValuesWeights m_catValuesWeights;
@@ -578,6 +535,8 @@ public:
    std::vector<double> m_catLikelihoods;
 
 protected:
+
+   typedef std::pair< double, std::vector<double> > RmseCasePair;
 
    // Virtual functions
 
@@ -620,12 +579,12 @@ protected:
    void addCatValuesAndWeights( const std::vector< unsigned int >& usedCatValues,
         const std::vector< unsigned int >& vectorValues, const RealVector& vectorWeights );
 
-   static unsigned int CountUsed( std::vector<McmcProxy*> const & ascs );
+   static unsigned int CountUsed( std::vector<McmcProxy*> const& ascs );
 
    static double GetMinusLogPosteriorProb( bool usePrior, double logP_lh, double logP_prior );
    
    static void CopySampleAndResponse( ParameterSet const& sample, std::vector<RealVector> const& y,
-               std::vector<std::pair<Parameter, RealVector> > &out );
+               std::vector<std::pair<Parameter, RealVector> >& out );
    
    /// Create initial sampling from the Parameter PDF
    ///
@@ -736,7 +695,7 @@ public:
    /// Distinct history matches can be found this way.
    ///
    /// @returns the number of iterations needed for convergence
-   unsigned int execute();
+   virtual unsigned int execute();
 
    /// Performs a single iteration in the MCMC process. An iteration loops
    /// over a limited number of cycles each of which performing a limited
@@ -745,7 +704,7 @@ public:
    /// "proposal steps" are generated first until one is accepted.
    ///
    /// @returns the iteration counter (0 if process has converged)
-   unsigned int iterateOnce();
+   virtual unsigned int iterateOnce();
 
    /// Adjust the transition step size by examining the current acceptance rate.
    ///
@@ -770,7 +729,7 @@ public:
     *
     * For testing only.
     */
-   void printStatistics( std::ostream &out ) const;
+   void printStatistics( std::ostream& out ) const;
 
    /**
     * Returns for every McmcProxy the P10 to P90 values.
@@ -781,9 +740,7 @@ public:
     * Dimension m: [ascs.size()][9]
     * Dimension s: [ascs.size()][9][pSize]
     */
-   typedef std::vector<std::vector<double> > P10ToP90Values;
-   typedef std::vector<std::vector<Parameter> > P10ToP90Parameters;
-   void getP10toP90( P10ToP90Values & values, P10ToP90Parameters & parameters );
+   virtual void getP10toP90( P10ToP90Values& values, P10ToP90Parameters& parameters );
 
    /**
     * Calculate sum of squared errors based on proxy results and measurement values.

@@ -11,6 +11,7 @@
 
 #include "BaseTypes.h"
 #include "SUMlib.h"
+#include "ISerializer.h"
 
 class McmcProxy;
 
@@ -18,7 +19,7 @@ namespace SUMlib {
 
 /// @class McmcStatistics collects chi2 distribution characteristics and
 /// average and covariances of the sample parameters and responses
-class INTERFACE_SUMLIB McmcStatistics
+class INTERFACE_SUMLIB McmcStatistics : public ISerializable
 {
    public:
 
@@ -129,6 +130,10 @@ class INTERFACE_SUMLIB McmcStatistics
       /// Print statistics to an output stream
       /// For testing only(?)
       std::ostream& print( std::ostream& out, double stdDevFactor, std::vector<McmcProxy*> const& proxies ) const;
+
+      // ISerializable interface
+      virtual bool load( IDeserializer*, unsigned int );
+      virtual bool save( ISerializer*, unsigned int ) const;
 
    private:
 

@@ -24,7 +24,9 @@
 #include "CmdLocation.h"
 #include "CmdPlotMC.h"
 #include "CmdPlotP10P90.h"
+#include "CmdPlotPareto.h"
 #include "CmdPlotRSProxyQC.h"
+#include "CmdPlotTornado.h"
 #include "CmdRun.h"
 #include "CmdRunMC.h"
 #include "CmdSaveState.h"
@@ -37,6 +39,8 @@ static const char * CmdNameAddObservable = "target";
 static const char * CmdNameAddVarPrm     = "varprm";
 static const char * CmdNamePlotMC        = "plotMC";
 static const char * CmdNamePlotP10P90    = "plotP10P90";
+static const char * CmdNamePlotPareto    = "plotPareto";
+static const char * CmdNamePlotTornado   = "plotTornado";
 
 CasaCommander::CasaCommander()
 {
@@ -63,6 +67,8 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CmdNamePlotMC        ) cmd.reset( new CmdPlotMC(           *this, prms ) );// create plot with MC/MCMC results
    else if ( cmdName == "plotRSProxyQC"      ) cmd.reset( new CmdPlotRSProxyQC(    *this, prms ) );// create QC plot for RSProxy results
    else if ( cmdName == CmdNamePlotP10P90    ) cmd.reset( new CmdPlotP10P90(       *this, prms ) );// create plot of CDF & 1-CDF for each observable
+   else if ( cmdName == CmdNamePlotPareto    ) cmd.reset( new CmdPlotPareto(       *this, prms ) );// create plot of Pareto diagram for parameters sensitivity over all observables
+   else if ( cmdName == CmdNamePlotTornado   ) cmd.reset( new CmdPlotTornado(      *this, prms ) );// create plot of Tornado diagram for each observable for parameters sensitivity
 
    else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown command: " << cmdName;
 
@@ -100,10 +106,15 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "   " << "\nVarious plot commands:" << "\n";
       std::cout << "   " << CmdNamePlotMC        << " - create Matlab/Octave script to create a set of MC sampling plots for each pair of variable parameters\n";
       std::cout << "   " << CmdNamePlotP10P90    << " - create Matlab/Octave script to plot P10-P90 CDF diagram for each observable\n";
+      std::cout << "   " << CmdNamePlotPareto    << " - create Matlab/Octave script to plot Pareto diagram for parameters sensitivity over all observables\n";
+      std::cout << "   " << CmdNamePlotTornado   << " - create Matlab/Octave script to plot Tornado diagrams for parameters sensitivity for each observable\n";
    }
-   else if ( cmd == CmdNameAddCldApp      ) { CmdAddCldApp::printHelpPage(  CmdNameAddCldApp     ); }
-   else if ( cmd == CmdNameAddObservable  ) { CmdAddObs::printHelpPage(     CmdNameAddObservable ); }
-   else if ( cmd == CmdNameAddVarPrm      ) { CmdAddVarPrm::printHelpPage(  CmdNameAddVarPrm     ); }
-   else if ( cmd == CmdNamePlotMC         ) { CmdPlotMC::printHelpPage(     CmdNamePlotMC        ); }
-   else if ( cmd == CmdNamePlotP10P90     ) { CmdPlotP10P90::printHelpPage( CmdNamePlotP10P90    ); }
+   else if ( cmd == CmdNameAddCldApp      ) { CmdAddCldApp::printHelpPage(   CmdNameAddCldApp     ); }
+   else if ( cmd == CmdNameAddObservable  ) { CmdAddObs::printHelpPage(      CmdNameAddObservable ); }
+   else if ( cmd == CmdNameAddVarPrm      ) { CmdAddVarPrm::printHelpPage(   CmdNameAddVarPrm     ); }
+   else if ( cmd == CmdNamePlotMC         ) { CmdPlotMC::printHelpPage(      CmdNamePlotMC        ); }
+   else if ( cmd == CmdNamePlotP10P90     ) { CmdPlotP10P90::printHelpPage(  CmdNamePlotP10P90    ); }
+   else if ( cmd == CmdNamePlotPareto     ) { CmdPlotPareto::printHelpPage(  CmdNamePlotPareto    ); }
+   else if ( cmd == CmdNamePlotTornado    ) { CmdPlotTornado::printHelpPage( CmdNamePlotTornado   ); }
 }
+

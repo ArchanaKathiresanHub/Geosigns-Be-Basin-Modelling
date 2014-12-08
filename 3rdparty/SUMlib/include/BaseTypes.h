@@ -95,8 +95,6 @@ typedef IndexList                         MonomialKey;
 /// @typedef A list of monomial keys
 typedef std::vector< IndexList >          MonomialKeyList;
 
-/// @typedef A map of monomial keys and their coefficients
-typedef std::map< MonomialKey, double >   MonomialCoefficientsMap;
 
 /// @typedef CategoricalCombination is a specific combination of values of all
 /// categorical parameter variables

@@ -150,6 +150,10 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool load( std::vector< std::string > & vec, const std::string & vecName ) = 0;
 
+      /// @brief Get version of derialized file
+      /// @return get file version
+      virtual int version() = 0;
+
       template <class T> bool registerObjPtrUnderID( const T * obj, ObjRefID id );     
       template <class T> const T * id2ptr( ObjRefID id ) const;
 

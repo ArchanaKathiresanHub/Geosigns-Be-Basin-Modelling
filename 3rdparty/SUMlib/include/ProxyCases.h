@@ -99,9 +99,17 @@ class INTERFACE_SUMLIB ProxyCases
 
       /// Get the number of tune cases
       unsigned int numTuneCases() const;
-      
+
       /// Get the number of parameter elements
       unsigned int caseSize() const;
+
+      /// Calculate the leverage scores (i.e. diagonal of hat matrix)
+      /// @returns the leverage scores
+      std::vector<double> calcLeverages() const;
+
+      /// Calculate the standard errors of the proxy coefficients including the intercept.
+      /// @returns the standard errors
+      std::vector<double> calcStdErrors() const;
 
       /// Set the seed of the random number generator
       static void RNGseed( int seed );

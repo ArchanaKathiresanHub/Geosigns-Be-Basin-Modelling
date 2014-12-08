@@ -212,7 +212,7 @@ class INTERFACE_SUMLIB ProxyEstimator
 
       /// Determines whether the estimation loop can do another round of augmentation or reduction
       bool exhausted( unsigned int nActiveVars, unsigned int nVars ) const;
-      
+
       /// Checks whether it is allowed to insert the candidate to the model
       bool approveCandidate( unsigned int N, unsigned int nrPars, unsigned int nrOrdPars,
                              unsigned int Nord2, unsigned int Ncrit, MonomialKeyList const& code,
@@ -220,7 +220,7 @@ class INTERFACE_SUMLIB ProxyEstimator
 
       /// Checks whether code[i] refers to a 3-way interaction term
       bool threeWayXterm( MonomialKeyList const& code, unsigned int i ) const;
-      
+
       /// Checks whether the candidate model is significantly better than the best model so far
       bool betterProxyExists( ProxyCandidate const& candidate, ProxyCandidate const& best,
                               double confLevel, double eps ) const;
@@ -278,6 +278,7 @@ struct INTERFACE_SUMLIB ProxyCandidate
    double rmseTest;
    double rmseTotal;
    double adjustedR2;
+   std::vector<double> leverages;
 
    friend bool operator<(ProxyCandidate const& lhs, ProxyCandidate const& rhs );
 };

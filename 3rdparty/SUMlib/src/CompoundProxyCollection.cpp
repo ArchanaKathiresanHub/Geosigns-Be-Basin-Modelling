@@ -176,17 +176,17 @@ ProxyValue CompoundProxyCollection::getProxyValue( size_t index, Case const& c, 
    return px->getProxyValue( preparedCase, krigingType );
 }
 
-void CompoundProxyCollection::getCoefficientsMapList( std::vector<MonomialCoefficientsMap>& coef ) const
+void CompoundProxyCollection::getCoefficientsMapList( std::vector<CubicProxy::CoefficientsMap>& coef ) const
 {
    coef.resize( m_proxies.size() );
    for ( unsigned int i = 0; i < m_proxies.size(); ++i )
    {
       // Get the coefficients map for the proxy
-      MonomialCoefficientsMap map;
+      CubicProxy::CoefficientsMap map;
       m_proxies[i]->getCoefficientsMap( map );
 
-      // Insert unprepared indexlists as keys, and coefficients as values
-      for ( MonomialCoefficientsMap::const_iterator m = map.begin(); m != map.end(); ++m )
+      // Insert unprepared indexlists as keys, and coefficients and standard errors as values
+      for ( CubicProxy::CoefficientsMap::const_iterator m = map.begin(); m != map.end(); ++m )
       {
          IndexList key( ( *m ).first );
          m_parameterSpace.convert2origProxyIdx( key );
@@ -274,5 +274,10 @@ bool CompoundProxyCollection::save( ISerializer* serializer, unsigned int ) cons
    return ok;
 } // CompoundProxyCollection::save()
 
+/// Fetch the krigingData
+const KrigingData& CompoundProxyCollection::getKrigingData() const
+{
+   return *m_krigingData;
+}
 
 } // namespace SUMlib

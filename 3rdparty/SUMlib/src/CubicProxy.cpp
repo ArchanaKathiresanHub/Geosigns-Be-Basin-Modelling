@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <map>
 #include <numeric>
 
@@ -23,6 +24,8 @@ namespace SUMlib {
 
 namespace
 {
+
+unsigned int g_version( 1 );
 
 struct AbsoluteLessThan
 {
@@ -73,6 +76,11 @@ void CubicProxy::calculateCoefficients( int stat, vector<vector<double> > const&
    if ( stat == 0 )
    {
       svbksb( a, SV, v, b, coef, threshold );
+
+      // Set tiny coefficients to zero. These will be ignored by CubicProxy::getCoefficientsMap(). Coefficients are also
+      // calculated in ProxyBuilder::calcAugmentedCoeff and ProxyBuilder::calcReducedCoeff. It is expected that those
+      // functions do not generate tiny coefficients so those coefficients are not set to zero.
+      std::replace_if( coef.begin(), coef.end(), AbsoluteLessThan( MachineEpsilon() ), 0.0 );
    }
    else
    {
@@ -242,6 +250,7 @@ void CubicProxy::initialise(
    m_proxyMean    = proxyMean;
    m_targetMean   = targetMean;
    m_coefficients = coefficients;
+   m_stdErrors.assign( coefficients.size() + 1, -1.0 );
 }
 
 unsigned int CubicProxy::size() const
@@ -254,14 +263,17 @@ void CubicProxy::getVarList( IndexList &vars ) const
    vars = m_vars;
 }
 
-void CubicProxy::getCoefficientsMap( MonomialCoefficientsMap& map ) const
+void CubicProxy::getCoefficientsMap( CoefficientsMap& map ) const
 {
    map.clear();
 
-   map[ IndexList() ] = getIntercept();
+   map[ IndexList() ] = std::make_pair( getIntercept(), m_stdErrors[0] );
    for ( size_t i = 0; i < m_code.size(); ++i )
    {
-      map[ m_code[i] ] = m_coefficients[i];
+      if ( m_coefficients[i] != 0.0 )
+      {
+         map[ m_code[i] ] = std::make_pair( m_coefficients[i], m_stdErrors[i+1] );
+      }
    }
 }
 
@@ -552,7 +564,14 @@ bool CubicProxy::validOrder3Var( unsigned int order, unsigned int nOrds,
 }
 
 
-bool CubicProxy::load( IDeserializer* deserializer, unsigned int )
+void CubicProxy::setStdErrors( RealVector const& stdErrors )
+{
+   assert( stdErrors.size() == m_coefficients.size() + 1 );
+   m_stdErrors = stdErrors;
+}
+
+
+bool CubicProxy::load( IDeserializer* deserializer, unsigned int version )
 {
    bool           ok(true);
 
@@ -575,14 +594,23 @@ bool CubicProxy::load( IDeserializer* deserializer, unsigned int )
    ok = ok && deserialize(deserializer,m_proxyMean);
    ok = ok && deserialize(deserializer,m_targetMean);
    ok = ok && deserialize(deserializer,m_coefficients);
+   if ( version >= 1 )
+   {
+      ok = ok && deserialize(deserializer,m_stdErrors);
+   }
+   else
+   {
+      m_stdErrors.assign( m_coefficients.size() + 1, -1.0 );
+   }
    ok = ok && deserialize(deserializer,m_size);
 
    return ok;
 } // CubicProxy::load()
 
 
-bool CubicProxy::save( ISerializer* serializer, unsigned int ) const
+bool CubicProxy::save( ISerializer* serializer, unsigned int version ) const
 {
+   assert( version == g_version );
    bool  ok(true);
 
    ok = ok && serialize(serializer, m_vars);
@@ -597,9 +625,17 @@ bool CubicProxy::save( ISerializer* serializer, unsigned int ) const
    ok = ok && serialize(serializer, m_proxyMean);
    ok = ok && serialize(serializer, m_targetMean);
    ok = ok && serialize(serializer, m_coefficients);
+   ok = ok && serialize(serializer, m_stdErrors);
    ok = ok && serialize(serializer, m_size);
 
    return ok;
 } // CubicProxy::save()
+
+
+unsigned int CubicProxy::getSerializationVersion() const
+{
+   return g_version;
+}
+
 
 } // namespace SUMlib

@@ -146,6 +146,10 @@ namespace casa
       /// @return true if on success, false otherwise
       virtual bool load( std::vector< std::string > & vec, const std::string & vecName );
 
+      /// @brief Get version of derialized file
+      /// @return get file version
+      virtual int version() { return m_version; }
+
    private:
       FILE          * m_file;
       unsigned int    m_version;

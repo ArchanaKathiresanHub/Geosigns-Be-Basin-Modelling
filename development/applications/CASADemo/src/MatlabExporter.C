@@ -316,8 +316,10 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
          for ( RSProxy::CoefficientsMap::const_iterator it = cmap.begin(); it != cmap.end(); ++it )
          {
             const std::vector< unsigned int > & prmsLst = it->first;
+            double coef = it->second.first;
+            double errr = it->second.second;
 
-            m_ofs << " " << (it->second < 0.0 ? "" : "+") << it->second << " ";
+            m_ofs << " " << (coef < 0.0 ? "" : "+ ") << coef << " ";
             for( size_t k = 0; k < prmsLst.size(); ++k ) 
             {
                m_ofs << "* prm_" << prmsLst[k]+1;

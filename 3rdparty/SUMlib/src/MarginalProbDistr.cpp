@@ -250,7 +250,7 @@ double MarginalProbDistr::calcLogPriorProb( Parameter const& p ) const
    return logProb;
 }
 
-double MarginalProbDistr::correct4DISbounds( Parameter const& p ) const
+double MarginalProbDistr::correctForDisBounds( Parameter const& p ) const
 {
    assert( p.size() == m_base.size() );
 

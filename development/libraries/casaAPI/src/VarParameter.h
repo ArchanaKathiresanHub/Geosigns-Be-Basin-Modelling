@@ -26,8 +26,12 @@
 ///
 /// Set of variable parameters for scenario analysis is managed by a @ref CASA_VarSpacePage "VarSpace manager"
 
-#include <vector>
+// CASA
 #include "CasaSerializer.h"
+#include "Parameter.h"
+
+// STL
+#include <vector>
 
 namespace casa
 {
@@ -44,12 +48,16 @@ namespace casa
                       /// (for instance, a PVT parameter that can distinguish between a few, unrelated PVT models) 
       };
 
-      /// @brief Get name of variable parameter in short form
-	   /// @return array of names for each subparameter
-      virtual std::vector<std::string> name() const = 0;
-
       /// @brief Destructor
       virtual ~VarParameter() {;}
+
+      /// @brief Get name of variable parameter in short form
+      /// @return array of names for each subparameter
+      virtual std::vector<std::string> name() const = 0;
+
+      /// @brief Get number of subparameters if it is more than one
+      /// @return dimension of variable parameter
+      virtual size_t dimension() const = 0;
 
       /// @brief Get type of variable parameter
       /// @return type of parameter variation
