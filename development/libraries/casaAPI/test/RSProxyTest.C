@@ -81,7 +81,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    for ( RSProxy::CoefficientsMap::const_iterator it = cml[0].begin(); it != cml[0].end(); ++it )
    {
       const std::vector<unsigned int> & prm  = it->first;
-      double                            coef = it->second.second; 
+      double                            coef = it->second.first; 
       switch ( cpow  )
       {
          case 0:
@@ -108,7 +108,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    for ( RSProxy::CoefficientsMap::const_iterator it = cml[1].begin(); it != cml[1].end(); ++it )
    {
       const std::vector<unsigned int> & prm  = it->first;
-      double                            coef = it->second.second; 
+      double                            coef = it->second.first; 
       switch ( cpow  )
       {
          case 0:
