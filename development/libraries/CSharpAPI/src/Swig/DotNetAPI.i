@@ -430,9 +430,9 @@ using namespace casa;
 %template(CasesList)       std::vector<      casa::RunCase*>;
 %template(ConstCasesList)  std::vector<const casa::RunCase*>;
 
-%template(CoefficientsMap)     std::map< std::vector< unsigned int >, double >;
-%template(CoefficientsMapList) std::vector< std::map< std::vector< unsigned int>, double > >;
-%template(PolynomCoefficient)  std::pair< std::vector< unsigned int >, double >;
+%template(CoefficientsMap)     std::map< std::vector< unsigned int >, std::pair<double,double> >;
+%template(CoefficientsMapList) std::vector< std::map< std::vector< unsigned int>, std::pair<double,double> > >;
+%template(PolynomCoefficient)  std::pair< std::vector< unsigned int >, std::pair<double,double> >;
 %template(MCResults)           std::vector< std::pair<double,casa::RunCase*> >;
 
 /// %template(DoubleVector) std::vector<double>;

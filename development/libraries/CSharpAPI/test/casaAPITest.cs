@@ -373,7 +373,7 @@ namespace Shell.BasinModeling.Cauldron.Test
                while (enumerator.MoveNext())
                {
                   UnsignedIntVector prmIDs = enumerator.Current.Key;
-                  double coef = enumerator.Current.Value;
+                  double coef = enumerator.Current.Value.first;
 
                   switch (cpow)
                   {
@@ -403,7 +403,7 @@ namespace Shell.BasinModeling.Cauldron.Test
                while (enumerator.MoveNext())
                {
                   UnsignedIntVector prmIDs = enumerator.Current.Key;
-                  double coef = enumerator.Current.Value;
+                  double coef = enumerator.Current.Value.first;
 
                   switch (cpow)
                   {
@@ -569,17 +569,22 @@ namespace Shell.BasinModeling.Cauldron.Test
 
       [TestMethod]
       public void ScenarioAnalysis_Serialzation_Test() // analog of casaAPI/test/SerializationTest.C
-      {
-         // create new scenario analysis
-         /*ScenarioAnalysis sa = ScenarioAnalysis.loadScenario("Ottoland_casa_state.txt", "txt");
-         
-         sa.saveScenario("casa_state_reloaded.txt", "txt");
+      {/*
+         {  // create fresh serialized state
+            ScenarioAnalysis sa = ScenarioAnalysis.loadScenario("Ottoland_casa_state.txt", "txt");
+            sa.saveScenario("casa_state_reloaded_1.txt", "txt");
+         }
+         {
+            // do round trip - load and save it
+            ScenarioAnalysis sa = ScenarioAnalysis.loadScenario("casa_state_reloaded.txt_1", "txt");
+            sa.saveScenario("casa_state_reloaded_2.txt", "txt");
+         }
 
-         string fileAContent = File.ReadAllText("Ottoland_casa_state.txt");
-         string fileBContent = File.ReadAllText("casa_state_reloaded.txt");
+         string fileAContent = File.ReadAllText("casa_state_reloaded_1.txt");
+         string fileBContent = File.ReadAllText("casa_state_reloaded_2.txt");
 
          Assert.IsTrue(fileAContent == fileBContent);
-          */
+         */
       }
    }
 }
