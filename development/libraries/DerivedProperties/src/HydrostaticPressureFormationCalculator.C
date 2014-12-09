@@ -89,7 +89,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::calculate ( Abst
          } else {
 
             for ( unsigned int k = hydrostaticPressure->firstK (); k <= hydrostaticPressure->lastK (); ++k ) {
-               hydrostaticPressure->set ( i, j, k - 1, undefinedValue );
+               hydrostaticPressure->set ( i, j, k, undefinedValue );
             }
 
          }
