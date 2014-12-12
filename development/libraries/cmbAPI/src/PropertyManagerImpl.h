@@ -50,8 +50,9 @@ namespace mbapi
       /// @brief Check if properties table has given property in active state. If given property\n
       /// doesn't exist in table it adds corresponded record, if property isn't active - makes it active
       /// @param propName name of the requested property
+      /// @param outputPropOption in which layers option should be requested, for example: None/SourceRockOnly/SedimentsOnly...
       /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode requestPropertyInSnapshots( const std::string & propName );
+      virtual ErrorHandler::ReturnCode requestPropertyInSnapshots( const std::string & propName, const std::string & outputPropOption = "" );
 
    private:
       database::Database                              * m_db;           // project database

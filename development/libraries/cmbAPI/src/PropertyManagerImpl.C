@@ -34,7 +34,7 @@ void PropertyManagerImpl::setDatabase( database::Database * db, const std::strin
    m_fltTimeTable = m_db->getTable( "FilterTimeIoTbl" );
 }
 
-ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const std::string & propName )
+ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const std::string & propName, const std::string & outputPropOption )
 {
    // add major snapshot if it is not exists already
    if ( !m_db ) throw Exception(UndefinedValue) << "Project was not loaded in to the model";
@@ -61,7 +61,7 @@ ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const 
       if ( record1d && record3d ) break; // do not to scan all records
    }
 
-   const std::string & oo = outputOptionForProperty( propName ); // get output option for the property
+   const std::string & oo = outputPropOption.empty() ? outputOptionForProperty( propName ) : outputPropOption; // get output option for the property
 
    if ( record3d )
    {

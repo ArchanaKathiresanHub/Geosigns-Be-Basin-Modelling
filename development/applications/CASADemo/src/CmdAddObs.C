@@ -14,6 +14,7 @@
 
 #include "casaAPI.h"
 #include "ObsSpace.h"
+#include "ObsSourceRockMapProp.h"
 #include "ObsGridPropertyWell.h"
 #include "ObsGridPropertyXYZ.h"
 #include "ObsValueDoubleScalar.h"
@@ -29,14 +30,20 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Observable is not defined properly";
    }
 
-   if ( m_prms[0] != "XYZPoint" && m_prms[0] != "WellTraj" )
+   int expPrmsNum = 0;
+   int expOptPrmNum = 0;
+   if (      m_prms[0] == "XYZPoint"            ) { expPrmsNum = 10; expOptPrmNum = 10; }
+   else if ( m_prms[0] == "WellTraj"            ) { expPrmsNum = 7;  expOptPrmNum = 7;  }
+   else if ( m_prms[0] == "XYPointSorceRockMap" ) { expPrmsNum = 8;  expOptPrmNum = 10; }
+   else
    {
-      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown target name: " << m_prms[0];
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown observable name: " << m_prms[0];
    }
+
    // check number of command parameters for var parameter
-   if ( m_prms[0] == "XYZPoint" && m_prms.size() != 10 || m_prms[0] == "WellTraj" && m_prms.size() != 7 )
+   if ( m_prms.size() != expPrmsNum && m_prms.size() != expOptPrmNum )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0] << " observable";
    }
 }
 
@@ -52,6 +59,13 @@ void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       std::cout << ")" << std::endl;
    }
 
+   casa::Observable * obsVal    = 0;
+   casa::ObsValue   * obsRefVal = 0;
+   
+   double wgtSA  = 1.0;
+   double wgtUA  = 1.0;
+   double stdDev = 0.0;
+
    // Add observable
    if ( m_prms[0] == "XYZPoint" )
    {
@@ -60,28 +74,21 @@ void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       double z      = atof( m_prms[4].c_str() );
       double age    = atof( m_prms[5].c_str() ); // age for the observable
       double refVal = atof( m_prms[6].c_str() ); // observable reference value
-      double stdDev = atof( m_prms[7].c_str() ); // std deviation value
-      double wgtSA  = atof( m_prms[8].c_str() ); // observable weight for Sensitivity Analysis
-      double wgtUA  = atof( m_prms[9].c_str() ); // observable weight for Uncertainty Analysis
+      stdDev        = atof( m_prms[7].c_str() ); // std deviation value
+      wgtSA         = atof( m_prms[8].c_str() ); // observable weight for Sensitivity Analysis
+      wgtUA         = atof( m_prms[9].c_str() ); // observable weight for Uncertainty Analysis
 
-      casa::Observable * xyzVal = casa::ObsGridPropertyXYZ::createNewInstance( x, y, z, m_prms[1].c_str(), age );
-      xyzVal->setReferenceValue( new casa::ObsValueDoubleScalar( xyzVal, refVal ), stdDev );
-      xyzVal->setSAWeight( wgtSA );
-      xyzVal->setUAWeight( wgtUA );
-
-      if ( ErrorHandler::NoError != sa->obsSpace().addObservable( xyzVal ) )
-      {
-         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
-      }
+      obsVal    = casa::ObsGridPropertyXYZ::createNewInstance( x, y, z, m_prms[1].c_str(), age );
+      obsRefVal = new casa::ObsValueDoubleScalar( obsVal, refVal );
    }
    else if ( m_prms[0] == "WellTraj" ) // file  format X Y Z RefVal
    {
-      const std::string & trajFileName = m_prms[1];                 // well trajectory file with reference values
-      const std::string & propName     = m_prms[2];                 // property name
+      const std::string & trajFileName =       m_prms[1];           // well trajectory file with reference values
+      const std::string & propName     =       m_prms[2];           // property name
       double              age          = atof( m_prms[3].c_str() ); // age for the observable
-      double              stdDev       = atof( m_prms[4].c_str() ); // std deviation value
-      double              wgtSA        = atof( m_prms[5].c_str() ); // observable weight for Sensitivity Analysis
-      double              wgtUA        = atof( m_prms[6].c_str() ); // observable weight for Uncertainty Analysis
+      stdDev                           = atof( m_prms[4].c_str() ); // std deviation value
+      wgtSA                            = atof( m_prms[5].c_str() ); // observable weight for Sensitivity Analysis
+      wgtUA                            = atof( m_prms[6].c_str() ); // observable weight for Uncertainty Analysis
 
       // read trajectory file
       std::vector<double> x;
@@ -92,12 +99,42 @@ void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r );
       
       // create observable
-      casa::Observable * wellVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age );
-      wellVal->setReferenceValue( new casa::ObsValueDoubleArray( wellVal, r ), stdDev );
-      wellVal->setSAWeight( wgtSA );
-      wellVal->setUAWeight( wgtUA );
+      obsVal    = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age );
+      obsRefVal = new casa::ObsValueDoubleArray( obsVal, r );
+   }
+   else if ( m_prms[0] == "XYPointSorceRockMap" ) // X Y layer_name prop_name age ref value std_dev sa_w ua_w
+   {
+      const  std::string & srPropName  =       m_prms[1];           // property of source rock calculated in Genex
+      double x                         = atof( m_prms[2].c_str() ); // X coordinate for the point on the map
+      double y                         = atof( m_prms[3].c_str() ); // Y coordinate for the point on the map
+      const  std::string & srLayerName =       m_prms[4];           // source rock layer name
+      double age                       = atof( m_prms[5].c_str() ); // age for the observable
 
-      if ( ErrorHandler::NoError != sa->obsSpace().addObservable( wellVal ) )
+      obsVal    = casa::ObsSourceRockMapProp::createNewInstance( x, y, srLayerName.c_str(), srPropName.c_str(), age );
+      // optional parameters
+      if ( m_prms.size() == 10 )
+      {
+         double refVal                 = atof( m_prms[6].c_str() ); // observable reference value
+         stdDev                        = atof( m_prms[7].c_str() ); // std deviation value
+         
+         wgtSA                         = atof( m_prms[8].c_str() ); // observable weight for Sensitivity Analysis
+         wgtUA                         = atof( m_prms[9].c_str() ); // observable weight for Uncertainty Analysis
+         obsRefVal = new casa::ObsValueDoubleScalar( obsVal, refVal );
+      }
+      else
+      {
+         wgtSA                         = atof( m_prms[6].c_str() ); // observable weight for Sensitivity Analysis
+         wgtUA                         = atof( m_prms[7].c_str() ); // observable weight for Uncertainty Analysis
+      }
+   }
+
+   if ( obsVal )
+   {
+      if ( obsRefVal ) obsVal->setReferenceValue( obsRefVal, stdDev );
+      obsVal->setSAWeight( wgtSA );
+      obsVal->setUAWeight( wgtUA );
+
+      if ( ErrorHandler::NoError != sa->obsSpace().addObservable( obsVal ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
@@ -136,6 +173,22 @@ void CmdAddObs::printHelpPage( const char * cmdName )
    std::cout << "    Example:\n";
    std::cout << "    #       type      prop name       X        Y           Z    Age   Ref   Dev  SWght UWght\n";
    std::cout << "    "<< cmdName << " XYZPoint \"Temperature\" 460001.0 6750001.0 1293.0   0.0  65.7   2.0   1.0  1.0\n";
+   std::cout << "\n";
+
+   std::cout << "    XYPointSorceRockMap <PropName> <X> <Y> <LayerName> <Age> [<ReferenceValue> <StandardDeviationValue>] <SA weight> <UA weight>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       PropName               - property name as it was defined in Cauldron project file\n";
+   std::cout << "       X,Y                    - are the aerial target point coordinates\n";
+   std::cout << "       LayerName              - source rock layer name\n";
+   std::cout << "       Age                    - simulation age in [Ma]\n";
+   std::cout << "       ReferenceValue         - (optional) reference value (measurements) for this target\n";
+   std::cout << "       StandardDeviationValue - (optional) standard deviation for reference value\n";
+   std::cout << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
+   std::cout << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #       type      prop name       X        Y           Z    Age   Ref   Dev  SWght UWght\n";
+   std::cout << "    "<< cmdName << " XYPointSorceRockMap \"OilExpelledCumulative\" 460001.0 6750001.0 \"Lower Jurassic\"  1.0  1.0\n";
    std::cout << "\n";
 
    std::cout << "    WellTraj <TrajFileName> <Age> <StandardDeviationValue> <SA weight> <UA weight>\n";

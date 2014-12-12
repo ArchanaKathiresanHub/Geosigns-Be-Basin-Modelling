@@ -45,7 +45,8 @@
 ///
 ///The following list of Observable types is implemented in CASA API:
 ///
-/// - @subpage  CASA_ObservableGridPropXYZPage
+/// - @subpage CASA_ObservableGridPropXYZPage
+/// - @subpage CASA_ObservableSourceRockMapPropPage
 /// - @subpage CASA_ObservableGridPropWellPage
 ///
 /// A new casa::Observable object could be created by one of the static functions from @link casa::DataDigger Data Digger @endlink
@@ -152,7 +153,6 @@ namespace casa
       Observable() { ; }
       
    private:
-
       Observable(const Observable &);
       Observable & operator = ( const Observable & );
    };

@@ -1,9 +1,6 @@
 #ifndef _DATAACCESS__DATA_MINING__CAULDRON_DOMAIN_H_
 #define _DATAACCESS__DATA_MINING__CAULDRON_DOMAIN_H_
 
-#include <vector>
-#include <map>
-
 #include "Interface/Formation.h"
 #include "Interface/GridMap.h"
 #include "Interface/Snapshot.h"
@@ -17,14 +14,18 @@
 #include "ElementPosition.h"
 #include "CauldronWell.h"
 
-namespace DataAccess {
+#include <vector>
+#include <map>
 
-   namespace Mining {
+namespace DataAccess
+{
 
+   namespace Mining
+   {
       /// Objects of this type contain the 3d depths for the basin,
       /// at the specified snapshot time.
-      class CauldronDomain {
-
+      class CauldronDomain
+      {
          /// \typdef GridMapList
          /// The sequence of depth maps.
          ///
@@ -47,102 +48,108 @@ namespace DataAccess {
 
       public :
 
-         CauldronDomain ( Interface::ProjectHandle* handle );
+         CauldronDomain( Interface::ProjectHandle * handle );
 
-         ~CauldronDomain ();
+         ~CauldronDomain();
 
          /// \brief Set the snapshot time.
          ///
          /// All previously read depth data is removed and the new
          /// depth data (for the specified snapshot time) is read.
-         void setSnapshot ( const Interface::Snapshot* snapshot );
+         void setSnapshot( const Interface::Snapshot* snapshot );
 
          /// \brief Find the element/formation in which the the point (x,y,z) lies.
          ///
          /// Also sets the reference co-ordinates.
-         bool findLocation ( const double x,
-                             const double y,
-                             const double z,
-                             ElementPosition& element ) const;
+         bool findLocation( double x,
+                            double y,
+                            double z,
+                            ElementPosition & element ) const;
 
          /// \brief Find the element/formation in which the the point p lies.
          ///
          /// Also sets the reference co-ordinates.
-         bool findLocation ( const Numerics::Point&     p,
-                             ElementPosition& element ) const;
+         bool findLocation( const Numerics::Point & p,
+                            ElementPosition       & element ) const;
 
          /// \brief Find the element/surface/formation in which the the point (x,y)-surface lies.
          ///
          /// Also sets the reference co-ordinates.
-         bool findLocation ( const double x,
-                             const double y,
-                             const Interface::Surface* surface,
-                             ElementPosition& element ) const;
+         bool findLocation( double x,
+                            double y,
+                            const Interface::Surface * surface,
+                            ElementPosition          & element ) const;
+
+         /// \brief Find the element/formation in which the the point (x,y)-lies.
+         ///
+         /// Also sets the reference co-ordinates.
+         bool findLocation( double x,
+                            double y,
+                            const Interface::Formation * surface,
+                            ElementPosition            & element ) const;
 
          /// \brief Return the top surface of the cauldron model at the (x,y)-point.
-         void getTopSurface ( const double x,
-                              const double y,
-                              ElementPosition& element,
-                              bool includeBasement = false ) const;
+         void getTopSurface( double x,
+                             double y,
+                             ElementPosition & element,
+                             bool              includeBasement = false ) const;
 
          /// \brief Return the bottom surface of the cauldron model at the (x,y)-point.
-         void getBottomSurface ( const double x,
-                                 const double y,
-                                 ElementPosition& element,
-                                 bool includeBasement = false ) const;
+         void getBottomSurface( double x,
+                                double y,
+                                ElementPosition & element,
+                                bool              includeBasement = false ) const;
 
          /// \brief Find elements along a well path.
          ///
          /// This can be a vertical or deviated well.
          /// Do we also need the inter-formation or even inter-element boundaries?
-         void findWellPath ( const CauldronWell&            well,
-                                   ElementPositionSequence& elements,
-                             const bool                     captureInterFormationBoundary = true,
-                             const bool                     captureInterPlanarElementBoundary = true,
-                             const bool                     captureInterVerticalElementBoundary = false ) const;
+         void findWellPath( const CauldronWell      & well,
+                            ElementPositionSequence & elements,
+                            bool                      captureInterFormationBoundary = true,
+                            bool                      captureInterPlanarElementBoundary = true,
+                            bool                      captureInterVerticalElementBoundary = false ) const;
 
       protected :
 
          /// \brief Remove all data from the object.
-         void clear ();
+         void clear();
 
          /// \brief Set the actual (x,y)-coordinates, the (xi,eta)-reference coordinates and the (i,j)-global position of the element.
          /// 
          /// If the (x,y) is invalid then element will be cleared on exit.
-         void setPlaneElement ( ElementPosition& element,
-                                const double      x,
-                                const double      y ) const;
+         void setPlaneElement( ElementPosition& element, double x, double y ) const;
 
          /// \brief Add elements that lie in the open interval ( startS, endS ).
          ///
          /// The additions are subject to the conditions: 
-         ///      i.   Add inter-formation boundary elements.
-         ///      ii.  Add inter-planar boundary elements, i.e. If the well path passes through the side faces
-         ////          of an element then the elements either side of the face will be added.
-         ///      iii. Add inter-vertical boundary elements, i.e. If the well path passes through 
-         ///           the upper or lower face of an element then the elements either side of this face will be added.
-         void addIntermediateElements ( const CauldronWell&            well,
-                                        const double                   startS,
-                                        const ElementPosition&         startElement,
-                                        const double                   endS,
-                                        const ElementPosition&         endElement,
-                                              ElementPositionSequence& elements,
-                                        const bool                     captureInterFormationBoundary,
-                                        const bool                     captureInterPlanarElementBoundary,
-                                        const bool                     captureInterVerticalElementBoundary ) const;
+         ///      -# Add inter-formation boundary elements.
+         ///      -# Add inter-planar boundary elements, i.e. If the well path passes through the side faces of an 
+         ///         element then the elements either side of the face will be added.
+         ///      -# Add inter-vertical boundary elements, i.e. If the well path passes through 
+         ///         the upper or lower face of an element then the elements either side of this face will be added.
+         void addIntermediateElements( const CauldronWell      & well,
+                                       double                    startS,
+                                       const ElementPosition   & startElement,
+                                       double                    endS,
+                                       const ElementPosition   & endElement,
+                                       ElementPositionSequence & elements,
+                                       bool                      captureInterFormationBoundary,
+                                       bool                      captureInterPlanarElementBoundary,
+                                       bool                      captureInterVerticalElementBoundary ) const;
 
 
          /// \brief Determine if to elements are equal subject to the conditions.
          ///
          /// The conditions: 
-         ///      i.   Do elements share the same formation.
-         ///      ii.  Do the elements share the same lateral position (i.e. i and j position).
-         ///      iii. Do the elements share the same vertical position (i.e. k position).
-         bool isEqual ( const ElementPosition& startElement,
-                        const ElementPosition& endElement,
-                        const bool             captureInterFormationBoundary,
-                        const bool             captureInterPlanarElementBoundary,
-                        const bool             captureInterVerticalElementBoundary ) const;
+         ///      -# Do elements share the same formation.
+         ///      -# Do the elements share the same lateral position (i.e. i and j position).
+         ///      -# Do the elements share the same vertical position (i.e. k position).
+         bool isEqual( const ElementPosition & startElement,
+                       const ElementPosition & endElement,
+                       bool                    captureInterFormationBoundary,
+                       bool                    captureInterPlanarElementBoundary,
+                       bool                    captureInterVerticalElementBoundary ) const;
 
          Interface::ProjectHandle* m_projectHandle;
 
@@ -163,11 +170,8 @@ namespace DataAccess {
 
          /// Mapping from depth-grid-map to formation. Enables retrieving the formation for a given depth map.
          GridMapToFormation m_mapToFormation;
-
       };
-
    }
-
 }
 
 #endif // _DATAACCESS__DATA_MINING__CAULDRON_DOMAIN_H_

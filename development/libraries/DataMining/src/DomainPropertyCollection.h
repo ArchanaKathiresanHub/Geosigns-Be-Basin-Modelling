@@ -1,68 +1,49 @@
 #ifndef _DATAACCESS__DOMAIN_PROPERTY_COLLECTION_H_
 #define _DATAACCESS__DOMAIN_PROPERTY_COLLECTION_H_
 
-#include <map>
-#include <string>
-
+// DataAccess
 #include "Interface/Snapshot.h"
 #include "Interface/Property.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
 
-
+// DataMining
 #include "DomainProperty.h"
 #include "DomainPropertyFactory.h"
 #include "DomainPropertyCollection.h"
 
-namespace DataAccess {
+// STL
+#include <map>
+#include <string>
 
-   namespace Mining {
 
+namespace DataAccess
+{
+   namespace Mining
+   {
       class DomainPropertyFactory;
-
-   }
-
-}
-
-namespace DataAccess {
-
-   namespace Mining {
 
       /// A collection of domain-properties.
       ///
       /// Each one if allocated by the domain-property factory and saved in a 
       /// mapping from the DAL::property to the DomainProperty.
-      class DomainPropertyCollection {
+      class DomainPropertyCollection
+      {
 
-         /// \typedef PropertyToDomainProperty
-         /// A mapping from a DAL::property to a domain-property.
+         /// \brief A mapping from a DAL::property to a domain-property.
          typedef std::map < const Interface::Property*, DomainProperty* > PropertyToDomainProperty;
 
-      public :
+      public:
 
-         DomainPropertyCollection ( Interface::ProjectHandle* projectHandle );
+         DomainPropertyCollection( Interface::ProjectHandle* projectHandle );
 
          virtual ~DomainPropertyCollection ();
 
-//          /// Set the factory for the domain-properties.
-//          ///
-//          /// The client application remains responsible for finalisation 
-//          /// and destruction of the property-factory.
-//          static void setFactory ( DomainPropertyFactory* factory );
-
-//          /// Set the project-handle.
-//          ///
-//          /// The client application remains responsible for finalisation 
-//          /// and destruction of the project-handle.
-//          static void setProjectHandle ( Interface::ProjectHandle* handle );
-
-
          /// Return a pointer to the project-handle.
-         Interface::ProjectHandle* getProjectHandle () const;
+         Interface::ProjectHandle * getProjectHandle() const { return m_projectHandle; }
 
          /// Return a constant pointer to the current snapshot.
-         const Interface::Snapshot* getSnapshot () const;
-
+         const Interface::Snapshot * getSnapshot() const { return m_snapshot; }
 
          /// Deletes all properties that have been collected.
          virtual void clear ();
@@ -72,19 +53,19 @@ namespace DataAccess {
          /// Deletes all previously collected data.
          /// All properties allocated from this point forward will be from this snapshot time.
          /// If the snapshot to be set is the same as that aslready set then nothing will change.
-         virtual void setSnapshot ( const Interface::Snapshot* snapshot );
+         virtual void setSnapshot( const Interface::Snapshot* snapshot );
 
          /// Retrieve a domain-property from the collection.
          ///
          /// The first time a particular property is selected it will
          /// be allocated by the factory and saved in the collection.
-         virtual DomainProperty* getDomainProperty ( const std::string& propertyName ) const;
+         virtual DomainProperty * getDomainProperty( const std::string & propertyName ) const;
 
          /// Retrieve a domain-property from the collection.
          ///
          /// The first time a particular property is selected it will
          /// be allocated by the factory and saved in the collection.
-         virtual DomainProperty* getDomainProperty ( const Interface::Property* property ) const;
+         virtual DomainProperty * getDomainProperty ( const Interface::Property * property ) const;
 
          /// \brief Initialises all the domain-properties that are in the collection.
          void initialiseProperties ();
@@ -94,15 +75,9 @@ namespace DataAccess {
 
 
       private :
-
-         /// The project-handle from which all properties are retrieved.
-         Interface::ProjectHandle* m_projectHandle;
-
-         /// The factory that allocates all domain-properties.
-         Mining::DomainPropertyFactory* m_propertyFactory;
-
-         /// The snapshot at which all properties are retrieved.
-         const Interface::Snapshot* m_snapshot;
+         Interface::ProjectHandle      * m_projectHandle;   ///< The project-handle from which all properties are retrieved.
+         Mining::DomainPropertyFactory * m_propertyFactory; ///< The factory that allocates all domain-properties.
+         const Interface::Snapshot     * m_snapshot;        ///< The snapshot at which all properties are retrieved.
 
          /// The collection of domain-properties.
          ///
@@ -110,12 +85,8 @@ namespace DataAccess {
          // This is mutable so that properties can be added if they are not in the map
          // in the get-domain-property functions and these function remain const.
          mutable PropertyToDomainProperty m_domainProperty;
-
       };
-
    }
-
-
 }
 
 #endif // _DATAACCESS__DOMAIN_PROPERTY_COLLECTION_H_

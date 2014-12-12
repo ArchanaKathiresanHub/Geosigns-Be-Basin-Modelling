@@ -35,6 +35,11 @@ using namespace CBMGenerics;
 
 #include "errorhandling.h"
 
+// STL
+#include <algorithm>
+#include <memory>
+
+// STD C lib
 #include <cassert>
 #include <cstring>
 
@@ -49,9 +54,11 @@ using namespace Mining;
 const double StockTankPressure = 101325.0 * 1e-6;
 const double StockTankTemperature = 15.0;
 
-bool debug = false;
+bool debug   = false;
+bool verbose = false;
 
-static double GetTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Interface::Property * property, const Interface::Snapshot * snapshot, const Interface::Reservoir * reservoir, double x, double y);
+static double GetTrapPropertyValue( Mining::ProjectHandle* projectHandle, 
+                                    const Interface::Property * property, const Interface::Snapshot * snapshot, const Interface::Reservoir * reservoir, double x, double y);
 static double ComputeTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Interface::Trap * trap, const Interface::Property * property, const Interface::Snapshot * snapshot, const Interface::Reservoir * reservoir, unsigned int i, unsigned int j);
 static const Interface::GridMap * GetPropertyGridMap (Mining::ProjectHandle* projectHandle, const Interface::Property * property, const Interface::Snapshot * snapshot, const Interface::Reservoir * reservoir);
 static bool performPVT (double masses[ComponentManager::NumberOfOutputSpecies], double temperature, double pressure,
@@ -59,114 +66,89 @@ static bool performPVT (double masses[ComponentManager::NumberOfOutputSpecies], 
 static double Accumulate (double values[], int numberOfValues);
 static double ComputeVolume (double * masses, double density, int numberOfSpecies);
 
-static void showUsage ( const char* command,
-                        const char* message = 0);
+static void showUsage ( const char* command, const char* message = 0 );
 
+static int parseCmdLineArgs( int      argc
+                           , char  ** argv
+                           , string & inputProjectFileName
+                           , string & outputProjectFileName
+                           )
+{
+   inputProjectFileName  = "";
+   outputProjectFileName = "";
+
+   for ( int arg = 1; arg < argc; arg++ )
+   {
+      if ( strncmp( argv[arg], "-input", max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 )
+      {
+         if ( arg + 1 >= argc )
+         {
+            showUsage( argv[ 0 ], "Argument for '-input' is missing");
+            return -1;
+         }
+         inputProjectFileName = argv[++arg];
+      }
+      else if ( strncmp( argv[arg], "-output", max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 )
+      {
+         if ( arg + 1 >= argc )
+         {
+            showUsage( argv[ 0 ], "Argument for '-output' is missing" );
+            return -1;
+         }
+         outputProjectFileName = argv[++arg];
+      }
+      else if ( strncmp( argv[arg], "-debug",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { debug   = true; }
+      else if ( strncmp( argv[arg], "-verbose", max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { verbose = true; }
+      else if ( strncmp( argv[arg], "-help",    max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return -1; }
+      else if ( strncmp( argv[arg], "-?",       max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return -1; }
+      else if ( strncmp( argv[arg], "-usage",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return -1; }
+      else                                                                             { showUsage( argv[ 0 ], "Unknown argument" ); return -1; }
+
+      if ( inputProjectFileName.empty()  ) { showUsage ( argv[ 0 ], "No project file specified"); return -1; }
+      if ( outputProjectFileName.empty() ) { outputProjectFileName = inputProjectFileName;  }
+   }
+   return 0;
+}
 
 int main (int argc, char ** argv)
 {
    string inputProjectFileName;
    string outputProjectFileName;
-   bool verbose = false;
 
-   int arg;
-   for (arg = 1; arg < argc; arg++)
-   {
-      if (strncmp (argv[arg], "-input", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         if (arg + 1 >= argc)
-         {
-            showUsage ( argv[ 0 ], "Argument for '-input' is missing");
-            return -1;
-         }
-         inputProjectFileName = argv[++arg];
-      }
-      else if (strncmp (argv[arg], "-debug", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         debug = true;
-      }
-      else if (strncmp (argv[arg], "-help", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         showUsage ( argv[ 0 ], " Standard usage.");
-         return -1;
-      }
-      else if (strncmp (argv[arg], "-?", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         showUsage ( argv[ 0 ], " Standard usage.");
-         return -1;
-      }
-      else if (strncmp (argv[arg], "-output", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         if (arg + 1 >= argc)
-         {
-            showUsage ( argv[ 0 ], "Argument for '-output' is missing");
-            return -1;
-         }
-         outputProjectFileName = argv[++arg];
-      }
-      else if (strncmp (argv[arg], "-usage", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         showUsage ( argv[ 0 ], " Standard usage.");
-         return -1;
-      }
-      else if (strncmp (argv[arg], "-verbose", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         verbose = true;
-      }
-      else
-      {
-         showUsage ( argv[ 0 ]);
-         return -1;
-      }
-   }
+   if ( parseCmdLineArgs( argc, argv, inputProjectFileName, outputProjectFileName ) < 0 ) return -1;
 
-   if (inputProjectFileName == "")
-   {
-      showUsage ( argv[ 0 ], "No project file specified");
-      return -1;
-   }
+   std::auto_ptr<Mining::DomainPropertyFactory> factory( new DataAccess::Mining::DomainPropertyFactory );
+   Interface::ProjectHandle::UseFactory( factory.get() );
 
-   if (outputProjectFileName == "")
-   {
-      outputProjectFileName = inputProjectFileName;
-   }
+   std::auto_ptr<Mining::ProjectHandle> projectHandle( dynamic_cast<Mining::ProjectHandle*>( OpenCauldronProject( inputProjectFileName, "r" ) ) );
 
-   Mining::DomainPropertyFactory* factory = new DataAccess::Mining::DomainPropertyFactory;
+   projectHandle->startActivity( "datadriller", projectHandle->getLowResolutionOutputGrid ());
+   projectHandle->initialise( true, false );
 
-   Interface::ProjectHandle::UseFactory ( factory );
+   projectHandle->setFormationLithologies( false, false );
 
-   Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (inputProjectFileName, "r"));
+   CauldronDomain domain( projectHandle.get() );
 
-   projectHandle->startActivity ( "datadriller", projectHandle->getLowResolutionOutputGrid ());
-   projectHandle->initialise ( true, false );
-
-   projectHandle->setFormationLithologies (false, false);
-
-   CauldronDomain domain ( projectHandle );
-
-   DomainPropertyCollection* domainProperties = projectHandle->getDomainPropertyCollection ();
-
-   database::Table * table = projectHandle->getTable ("DataMiningIoTbl");
+   DomainPropertyCollection * domainProperties = projectHandle->getDomainPropertyCollection();
+   database::Table          * table            = projectHandle->getTable ("DataMiningIoTbl");
 
    const Interface::Grid * grid = projectHandle->getLowResolutionOutputGrid ();
 
-   if (table)
+   if ( table )
    {
-      database::Table::iterator tableIter;
-      int recordIndex;
+      int recordIndex = 1;
 
-      for (recordIndex = 1, tableIter = table->begin (); tableIter != table->end (); ++tableIter, ++recordIndex)
+      for ( database::Table::iterator tableIter = table->begin(); tableIter != table->end(); ++tableIter, ++recordIndex )
       {
-         double value = Interface::DefaultUndefinedScalarValue;
-         database::Record * record = * tableIter;
-         const Interface::Property* property = 0;
+         double                      value    = Interface::DefaultUndefinedScalarValue;
+         database::Record          * record   = *tableIter;
+         const Interface::Property * property = 0;
 
          try
          {
             double snapshotTime = database::getTime (record);
-            if (snapshotTime == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined Time value %:", snapshotTime);
-
-            if (snapshotTime < 0) throw RecordException ("Illegal snapshot time: %", snapshotTime);
+            if ( snapshotTime == Interface::DefaultUndefinedScalarValue ) throw RecordException( "Undefined Time value %:", snapshotTime );
+            if ( snapshotTime < 0 )                                       throw RecordException( "Illegal snapshot time: %", snapshotTime );
 
             const Interface::Snapshot * snapshot = projectHandle->findSnapshot (snapshotTime);
 
@@ -174,100 +156,85 @@ int main (int argc, char ** argv)
             double y = database::getYCoord (record);
             double z = database::getZCoord (record);
 
-            if (x == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined XCoord value: %", x);
-            if (y == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined YCoord value: %", y);
+            if ( x == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined XCoord value: %", x );
+            if ( y == Interface::DefaultUndefinedScalarValue) throw RecordException ("Undefined YCoord value: %", y );
 
+            const string & propertyName  = database::getPropertyName( record );
+            const string & reservoirName = database::getReservoirName(record );
+            const string & formationName = database::getFormationName(record );
+            const string & surfaceName   = database::getSurfaceName(  record );
 
-            const string & propertyName = database::getPropertyName (record);
-
-
-            const string & reservoirName = database::getReservoirName (record);
-            const string & formationName = database::getFormationName (record);
-            const string & surfaceName = database::getSurfaceName (record);
-
-            property = projectHandle->findProperty (propertyName);
-            if (!property) throw RecordException ("Unknown PropertyName value: %", propertyName);
-
-            if (z != Interface::DefaultUndefinedScalarValue)
+            property = projectHandle->findProperty( propertyName );
+            if ( !property ) throw RecordException( "Unknown PropertyName value: %", propertyName );
+            
+            if ( reservoirName != "" )
             {
-               domain.setSnapshot (snapshot);
-               domainProperties->setSnapshot (snapshot);
+               const Interface::Reservoir * reservoir = projectHandle->findReservoir( reservoirName );
+               if ( !reservoir ) throw RecordException( "Unknown ReservoirName value: %", reservoirName );
+
+               value = GetTrapPropertyValue( projectHandle.get(), property, snapshot, reservoir, x, y );
+            }
+            else if ( z != Interface::DefaultUndefinedScalarValue || !surfaceName.empty() || !formationName.empty() )
+            {
+               domain.setSnapshot( snapshot );
+               domainProperties->setSnapshot( snapshot );
 
                unsigned int i, j;
-               if (!grid->getGridPoint (x, y, i, j)) throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
+               if ( !grid->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
 
                ElementPosition element;
-               if (!domain.findLocation (x, y, z, element))
-                  throw RecordException ("Illegal point coordinates:", x, y, z);
-
-
-               DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
-               if (domainProperty)
+               
+               if ( z != Interface::DefaultUndefinedScalarValue )
                {
-                  domainProperty->initialise ();
-                  value = domainProperty->compute (element);
+                  if ( !domain.findLocation( x, y, z, element ) ) throw RecordException ("Illegal point coordinates:", x, y, z);
+               }
+
+               else if ( surfaceName != "" && formationName == "" )
+               {
+                  const Interface::Surface * surface = projectHandle->findSurface (surfaceName);
+                  if ( !surface )                                       throw RecordException( "Unknown SurfaceName value: %", surfaceName );
+                  if ( !domain.findLocation( x, y, surface, element ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
+               }
+
+               else if ( formationName != "" && surfaceName == "" ) // z is also not defined - here we are having formation map property
+               {
+                  const Interface::Formation * formation = projectHandle->findFormation( formationName );
+                  if ( !formation )                                       throw RecordException( "Unknown FormationName value: %", formationName );
+                  if ( !domain.findLocation( x, y, formation, element ) ) throw RecordException ( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
+               }
+ 
+               DomainProperty * domainProperty = domainProperties->getDomainProperty( property );
+               if ( domainProperty )
+               {
+                  domainProperty->initialise();
+                  value = domainProperty->compute( element );
                }
             }
-            else if (surfaceName != "")
-            {
-
-               domain.setSnapshot (snapshot);
-               domainProperties->setSnapshot (snapshot);
-
-               const Interface::Surface * surface = projectHandle->findSurface (surfaceName);
-               if (!surface) throw RecordException ("Unknown SurfaceName value: %", surfaceName);
-
-               unsigned int i, j;
-               if (!grid->getGridPoint (x, y, i, j)) throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
-
-               ElementPosition element;
-               if (!domain.findLocation (x, y, surface, element))
-                  throw RecordException ("Illegal (XCoord, YCoord) pair: (%, %)", x, y);
-
-
-
-               DomainProperty * domainProperty = domainProperties->getDomainProperty (property);
-               if (domainProperty)
-               {
-                  domainProperty->initialise ();
-                  value = domainProperty->compute (element);
-               }
-            }
-            else if (formationName != "")
-            {
-               throw (RecordException ("Use of FormationName not yet implemented:"));
-            }
-            else if (reservoirName != "")
-            {
-               const Interface::Reservoir * reservoir = projectHandle->findReservoir (reservoirName);
-               if (!reservoir) throw RecordException ("Unknown ReservoirName value: %", reservoirName);
-               value = GetTrapPropertyValue (projectHandle, property, snapshot, reservoir, x, y);
-            }
-            else
-            {
-               throw RecordException ("Illegal specification");
-            }
+            else if ( formationName != "" && surfaceName != "" ) { throw RecordException( "Use of FormationName together with SurfaceName not yet implemented:" ); }
+            else                                                 { throw RecordException( "Illegal specification" ); }
          }
-         catch (RecordException & recordException)
+         catch( const RecordException & recordException )
          {
             cerr << "Error in row " << recordIndex << " of DataMiningIoTbl: " << recordException.what () << endl;
          }
 
-
-         database::setValue (record, value);
-         if (property)
-         {
-            database::setPropertyUnit (record, property->getUnit ());
-         }
+         database::setValue( record, value );
+         if ( property ) { database::setPropertyUnit( record, property->getUnit() ); }
       }
    }
 
-   projectHandle->saveToFile (outputProjectFileName);
+   projectHandle->saveToFile( outputProjectFileName );
 
    return 0;
 }
 
-double GetTrapPropertyValue (Mining::ProjectHandle* projectHandle, const Interface::Property * property, const Interface::Snapshot * snapshot, const Interface::Reservoir * reservoir, double x, double y)
+double GetTrapPropertyValue( Mining::ProjectHandle      * projectHandle
+                           , const Interface::Property  * property
+                           , const Interface::Snapshot  * snapshot
+                           , const Interface::Reservoir * reservoir
+                           , double x
+                           , double y
+                           )
 {
    const Interface::Property* trapIdProperty = projectHandle->findProperty ( "ResRockTrapId" );
    const Interface::GridMap * trapIdGridMap = GetPropertyGridMap (projectHandle, trapIdProperty, snapshot, reservoir);

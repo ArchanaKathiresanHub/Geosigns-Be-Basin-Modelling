@@ -1,48 +1,33 @@
 #include "DomainProperty.h"
-
 #include "DomainPropertyCollection.h"
 
-DataAccess::Mining::DomainProperty::DomainProperty ( const DomainPropertyCollection*  collection,
-                                                     const Interface::Snapshot* snapshot,
-                                                     const Interface::Property* property ) : 
-   m_collection ( collection ),
-   m_snapshot ( snapshot ),
-   m_property ( property )
+namespace DataAccess { namespace Mining
 {
-}
 
-DataAccess::Mining::DomainProperty::~DomainProperty () {
-}
+  DomainProperty::DomainProperty( const DomainPropertyCollection*  collection,
+                                  const Interface::Snapshot* snapshot,
+                                  const Interface::Property* property
+                                )
+                                : m_collection ( collection )
+                                , m_snapshot ( snapshot )
+                                , m_property ( property )
+  {
+  }
 
-const DataAccess::Interface::Property* DataAccess::Mining::DomainProperty::getProperty () const {
-   return m_property;
-}
+  DomainProperty::~DomainProperty() {}
 
-const DataAccess::Interface::Snapshot* DataAccess::Mining::DomainProperty::getSnapshot () const {
-   return m_snapshot;
-}
+  const Interface::ProjectHandle * DomainProperty::getProjectHandle() const { return m_collection->getProjectHandle(); }
 
-const DataAccess::Interface::ProjectHandle* DataAccess::Mining::DomainProperty::getProjectHandle () const {
-   return m_collection->getProjectHandle ();
-}
+  bool DomainProperty::initialise()
+  { 
+     // Do nothing.
+     return true;
+  }
 
-const DataAccess::Mining::DomainPropertyCollection* DataAccess::Mining::DomainProperty::getPropertyCollection () const {
-   return m_collection;
-}
+  void DomainProperty::compute( const ElementPosition      & position,
+                                InterpolatedPropertyValues & evaluations ) const
+  {
+     evaluations.setValue( getProperty(), compute( position ) );
+  }
+}} // namespace DataAccess::Mining
 
-bool DataAccess::Mining::DomainProperty::initialise () {
-   // Do nothing.
-   return true;
-}
-
-void DataAccess::Mining::DomainProperty::compute ( const ElementPosition&            position,
-                                                         InterpolatedPropertyValues& evaluations ) const {
-   evaluations.setValue ( getProperty (), compute ( position ));
-}
-
-
-DataAccess::Mining::DomainPropertyAllocator::DomainPropertyAllocator () {
-}
-
-DataAccess::Mining::DomainPropertyAllocator::~DomainPropertyAllocator () {
-}
