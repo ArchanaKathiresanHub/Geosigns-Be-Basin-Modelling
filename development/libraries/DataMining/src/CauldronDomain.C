@@ -254,9 +254,6 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
             // The formation must be in the domain of the map, since the this grid was added at the same time!
             if ( m_mapToFormation.find( grid )->second == formation )
             { 
-               // get top surface for formation
-               const Interface::Surface * surface = formation->getTopSurface(); 
-
                // Interpolate the depth at the (x,y) point on the surface.
                surfaceDepth = interpolate2D( element, grid->getGridMap(), 0 );
 
@@ -269,7 +266,6 @@ bool DataAccess::Mining::CauldronDomain::findLocation( double x, double y, const
 
                   // The grid must be in the mapping.
                   element.setFormation( formation );
-                  element.setSurface( surface );
                   element.getActualPoint()( 2 ) = surfaceDepth;
                }
                break;

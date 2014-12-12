@@ -200,6 +200,13 @@ int main (int argc, char ** argv)
                {
                   const Interface::Formation * formation = projectHandle->findFormation( formationName );
                   if ( !formation )                                       throw RecordException( "Unknown FormationName value: %", formationName );
+
+                  // check for FORMATION MAP properties which are only allowed here:
+                  if ( !property->hasPropertyValues( Interface::FORMATION, snapshot, 0, formation, 0, Interface::MAP ) )
+                  {
+                     throw RecordException( "Volume properties unsupported for the FORMATION MAP property request: Z value is undefined and Formation name is specified" );
+                  }
+                  
                   if ( !domain.findLocation( x, y, formation, element ) ) throw RecordException ( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
                }
  

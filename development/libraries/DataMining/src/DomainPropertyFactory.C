@@ -31,7 +31,7 @@ static const char * s_SurfacePropList[] =
    , "VesHighRes"
 };
 
-static const char * s_FormationPropList[] =
+static const char * s_FormationPropCheckAllocList[] =
 {
      "FluidVelocityX"
    , "FluidVelocityY"
@@ -40,7 +40,11 @@ static const char * s_FormationPropList[] =
    , "HeatFlowX"
    , "HeatFlowY"
    , "HeatFlowZ"
-   , "BulkDensity"
+};
+
+static const char * s_FormationPropList[] =
+{
+     "BulkDensity"
    , "Depth"
    , "Diffusivity"
    , "FluidVelocity"
@@ -132,6 +136,16 @@ namespace DataAccess { namespace Mining
       {
          property = m_projectHandle->findProperty( s_FormationPropList[i] );
          m_allocators [ property ] = produceFormationPropertyAllocator( handle, property );
+      }
+
+      // add formation properties but check first, was allocator already added
+      for ( unsigned int i = 0; i < sizeof( s_FormationPropCheckAllocList ) / sizeof( const char* ); ++i )
+      {
+         property = m_projectHandle->findProperty( s_FormationPropCheckAllocList[i] );
+         if ( not containsAllocator ( property ) )
+         {
+            m_allocators [ property ] = produceFormationPropertyAllocator ( handle, property );
+         }
       }
 
       // add concentrations for HC species
