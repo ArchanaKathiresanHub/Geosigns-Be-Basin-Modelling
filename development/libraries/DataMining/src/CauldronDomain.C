@@ -10,30 +10,27 @@
 DataAccess::Mining::CauldronDomain::CauldronDomain( Interface::ProjectHandle * handle ) 
    : m_projectHandle( handle )
 {
-
    m_snapshot = 0;
    m_depthProperty = m_projectHandle->findProperty( "Depth" );
-
-   m_activityGrid = m_projectHandle->getLowResolutionOutputGrid();
 }
 
 //------------------------------------------------------------//
 DataAccess::Mining::CauldronDomain::~CauldronDomain()
 {
-   clear ();
+   clear();
 }
 
 //------------------------------------------------------------//
 void DataAccess::Mining::CauldronDomain::setSnapshot( const Interface::Snapshot * snapshot )
 {
-   if( m_snapshot == snapshot ) return;
+   if ( m_snapshot == snapshot ) return;
 
    clear ();
 
    m_snapshot = snapshot;
 
    // Get all 3d depth grids.
-   Interface::PropertyValueList * domainDepths = m_projectHandle->getPropertyValues ( FORMATION, m_depthProperty, m_snapshot, 0, 0, 0, VOLUME );
+   Interface::PropertyValueList * domainDepths = m_projectHandle->getPropertyValues( FORMATION, m_depthProperty, m_snapshot, 0, 0, 0, VOLUME );
 
    for ( Interface::PropertyValueList::const_iterator depthIter = domainDepths->begin(); depthIter != domainDepths->end(); ++depthIter )
    {
@@ -67,26 +64,29 @@ void DataAccess::Mining::CauldronDomain::setSnapshot( const Interface::Snapshot 
 
 void DataAccess::Mining::CauldronDomain::setPlaneElement( ElementPosition & element, double x, double y ) const
 {
-   const double originX = m_activityGrid->minI();
-   const double originY = m_activityGrid->minJ();
+   const Interface::Grid * activityGrid = m_projectHandle->getActivityOutputGrid();
+   if ( !activityGrid ) activityGrid = m_projectHandle->getLowResolutionOutputGrid();
 
-   const double endPointX = m_activityGrid->maxI();
-   const double endPointY = m_activityGrid->maxJ();
+   const double originX   = activityGrid->minI();
+   const double originY   = activityGrid->minJ();
 
-   const double deltaX = m_activityGrid->deltaI();
-   const double deltaY = m_activityGrid->deltaJ();
+   const double endPointX = activityGrid->maxI();
+   const double endPointY = activityGrid->maxJ();
+
+   const double deltaX    = activityGrid->deltaI();
+   const double deltaY    = activityGrid->deltaJ();
 
    bool foundElement = false;
 
    if ( NumericFunctions::inRange( x, originX, endPointX ) and NumericFunctions::inRange( y, originY, endPointY ) )
    {
-      unsigned int i = (unsigned int)(std::floor( ( x - originX ) / deltaX ) ) + m_activityGrid->firstI();
-      unsigned int j = (unsigned int)(std::floor( ( y - originY ) / deltaY ) ) + m_activityGrid->firstJ();
+      unsigned int i = (unsigned int)(std::floor( ( x - originX ) / deltaX ) ) + activityGrid->firstI();
+      unsigned int j = (unsigned int)(std::floor( ( y - originY ) / deltaY ) ) + activityGrid->firstJ();
 
       double elementOriginX;
       double elementOriginY;
 
-      if ( m_activityGrid->getPosition( i, j, elementOriginX, elementOriginY ) )
+      if ( activityGrid->getPosition( i, j, elementOriginX, elementOriginY ) )
       {
          foundElement = true;
          double xi  = 2.0 * ( x - elementOriginX ) / deltaX - 1.0;
@@ -387,11 +387,12 @@ void DataAccess::Mining::CauldronDomain::getBottomSurface( double x, double y, E
 
 //------------------------------------------------------------//
 
-bool DataAccess::Mining::CauldronDomain::isEqual ( const ElementPosition & startElement,
-                                                   const ElementPosition & endElement,
-                                                   bool  captureInterFormationBoundary,
-                                                   bool  captureInterPlanarElementBoundary,
-                                                   bool  captureInterVerticalElementBoundary ) const
+bool DataAccess::Mining::CauldronDomain::isEqual( const ElementPosition & startElement
+                                                , const ElementPosition & endElement
+                                                , bool  captureInterFormationBoundary
+                                                , bool  captureInterPlanarElementBoundary
+                                                , bool  captureInterVerticalElementBoundary
+                                                ) const
 {
 
    if ( not captureInterFormationBoundary and
@@ -494,15 +495,16 @@ bool DataAccess::Mining::CauldronDomain::isEqual ( const ElementPosition & start
 }
 
 //------------------------------------------------------------//
-void DataAccess::Mining::CauldronDomain::addIntermediateElements( const CauldronWell      & well,
-                                                                  double                    startS,
-                                                                  const ElementPosition   & startElement,
-                                                                  double                    endS,
-                                                                  const ElementPosition   & endElement,
-                                                                  ElementPositionSequence & elements,
-                                                                  bool                      captureInterFormationBoundary,
-                                                                  bool                      captureInterPlanarElementBoundary,
-                                                                  bool                      captureInterVerticalElementBoundary ) const
+void DataAccess::Mining::CauldronDomain::addIntermediateElements( const CauldronWell      & well
+                                                                , double                    startS
+                                                                , const ElementPosition   & startElement
+                                                                , double                    endS
+                                                                , const ElementPosition   & endElement
+                                                                , ElementPositionSequence & elements
+                                                                , bool                      captureInterFormationBoundary
+                                                                , bool                      captureInterPlanarElementBoundary
+                                                                , bool                      captureInterVerticalElementBoundary
+                                                                ) const
 {
    const double epsilon = 1.0e-4;
 
@@ -581,11 +583,12 @@ void DataAccess::Mining::CauldronDomain::addIntermediateElements( const Cauldron
 
 //------------------------------------------------------------//
 
-void DataAccess::Mining::CauldronDomain::findWellPath ( const CauldronWell&       well,
-                                                        ElementPositionSequence & elements,
-                                                        bool                      captureInterFormationBoundary,
-                                                        bool                      captureInterPlanarElementBoundary,
-                                                        bool                      captureInterVerticalElementBoundary ) const
+void DataAccess::Mining::CauldronDomain::findWellPath( const CauldronWell&       well
+                                                     , ElementPositionSequence & elements
+                                                     , bool                      captureInterFormationBoundary
+                                                     , bool                      captureInterPlanarElementBoundary
+                                                     , bool                      captureInterVerticalElementBoundary
+                                                     ) const
 {
 
    const double tolerance = 1.0e-4;

@@ -159,9 +159,6 @@ namespace DataAccess
          /// The depth of the nodes, ...
          const Interface::Property*    m_depthProperty;
 
-         /// The map grid.
-         const Interface::Grid*        m_activityGrid;
-
          /// The depth properties for the layers.
          PropertyValueList  m_domainDepths;
 

@@ -28,9 +28,9 @@ namespace DataAccess {
          /// \brief Get the domain-property collection.
          ///
          /// Should this be a singleton? Since only one will exist.
-         DomainPropertyCollection* getDomainPropertyCollection ();
+         DomainPropertyCollection * getDomainPropertyCollection() { return m_domainPropertyCollection; }
 
-         CauldronDomain& getCauldronDomain ();
+         CauldronDomain & getCauldronDomain() { return *m_cauldronDomain; };
 
          /// \brief Add an alternative name for the property name.
          void addAlternativeName ( const std::string& propertyName,
@@ -72,10 +72,5 @@ namespace DataAccess {
    }
 
 }
-
-inline DataAccess::Mining::CauldronDomain& DataAccess::Mining::ProjectHandle::getCauldronDomain () {
-   return *m_cauldronDomain;
-}
-
 
 #endif // _DATAMINING__PROJECT_HANDLE_H_

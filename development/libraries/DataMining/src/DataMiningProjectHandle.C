@@ -19,10 +19,10 @@ using namespace std;
 #include "BasinTemperatureGradientCalculator.h"
 #include "BasementHeatFlowCalculator.h"
 
-DataAccess::Mining::ProjectHandle::ProjectHandle (database::Database * database, const std::string & name, const std::string & accessMode) :
+DataAccess::Mining::ProjectHandle::ProjectHandle( database::Database * database, const std::string & name, const std::string & accessMode ) :
    GeoPhysics::ProjectHandle ( database, name, accessMode ) {
 
-   addNewProperties ();
+   addNewProperties();
 
    m_domainPropertyCollection = ((Mining::DomainPropertyFactory*)(getFactory()))->produceDomainPropertyCollection ( this );
    m_cauldronDomain = ((Mining::DomainPropertyFactory*)(getFactory()))->produceCauldronDomain ( this );
@@ -211,6 +211,3 @@ void DataAccess::Mining::ProjectHandle::listSavedProperties ( std::ostream& out 
 
 }
 
-DataAccess::Mining::DomainPropertyCollection* DataAccess::Mining::ProjectHandle::getDomainPropertyCollection () {
-   return m_domainPropertyCollection;
-}
