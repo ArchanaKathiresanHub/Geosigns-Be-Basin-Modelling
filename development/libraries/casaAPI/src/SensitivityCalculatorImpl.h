@@ -1,12 +1,12 @@
 //                                                                      
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file SensitivityCalculatorImpl.h
 /// @brief This file keeps declaration of the implementation part of variable parameters sensitivity calculator

@@ -9,7 +9,7 @@
 // 
 
 /// @file SensitivityCalculator.h
-/// @brief This file keeps API declaration for variable parameters sensitivit calculator
+/// @brief This file keeps API declaration for variable parameters sensitivity calculator
 
 #ifndef CASA_API_SENSITIVITY_CALCULATOR_H
 #define CASA_API_SENSITIVITY_CALCULATOR_H
