@@ -161,7 +161,9 @@ bool Migrator::compute (void)
       start = end;
       end = * snapshotIter;
 
-      if (!start) continue;     
+      if (!start) continue;
+
+      
 
 #if 0
       cerr << GetRankString () << ": " << "Snapshot:: " << end->getTime () << endl;
@@ -358,7 +360,9 @@ bool Migrator::chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbov
 
    reservoir->refineGeometry ();
 
-   reservoir->saveComputedInputProperties ();
+   // save only major snapshots results
+   const bool saveSnapshot = end->getType() == Interface::MAJOR;
+   reservoir->saveComputedInputProperties ( saveSnapshot );
 
    reservoir->computePathways ();
    reservoir->computeTargetColumns ();
@@ -486,9 +490,9 @@ bool Migrator::chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbov
 
    if (GetRank () == 0) m_massBalance->clear();
 
-   reservoir->saveTrapProperties ();
+   reservoir->saveTrapProperties ( saveSnapshot );
    reservoir->computeFluxes ();
-   reservoir->saveComputedOutputProperties ();
+   reservoir->saveComputedOutputProperties ( saveSnapshot );
 
    return true;
 }

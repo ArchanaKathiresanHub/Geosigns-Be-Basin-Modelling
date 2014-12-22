@@ -1052,53 +1052,56 @@ double Reservoir::getMassStoredInColumns (void)
    return SumAll (totalMass);
 }
 
-bool Reservoir::saveComputedInputProperties (void)
+bool Reservoir::saveComputedInputProperties ( const bool saveSnapshot )
 {
    bool result = true;
-   result &= saveComputedProperty ("ResRockTop", TOPDEPTH);
-   result &= saveComputedProperty ("ResRockBottom", BOTTOMDEPTH);
-   result &= saveComputedProperty ("ResRockThickness", THICKNESS);
-   result &= saveComputedProperty ("ResRockPorosity", POROSITYPERCENTAGE);
-   result &= saveComputedProperty ("ResRockFaultCutEdges", FAULTSTATUS);
-   result &= saveComputedProperty ("ResRockBarriers", COLUMNSTATUS);
-   result &= saveComputedProperty ("ResRockPressure", PRESSURE);
-   result &= saveComputedProperty ("ResRockTemperature", TEMPERATURE);
-   result &= saveComputedProperty ("ResRockOverburden", OVERBURDEN);
 
+   if( saveSnapshot ) {
+      result &= saveComputedProperty ("ResRockTop", TOPDEPTH);
+      result &= saveComputedProperty ("ResRockBottom", BOTTOMDEPTH);
+      result &= saveComputedProperty ("ResRockThickness", THICKNESS);
+      result &= saveComputedProperty ("ResRockPorosity", POROSITYPERCENTAGE);
+      result &= saveComputedProperty ("ResRockFaultCutEdges", FAULTSTATUS);
+      result &= saveComputedProperty ("ResRockBarriers", COLUMNSTATUS);
+      result &= saveComputedProperty ("ResRockPressure", PRESSURE);
+      result &= saveComputedProperty ("ResRockTemperature", TEMPERATURE);
+      result &= saveComputedProperty ("ResRockOverburden", OVERBURDEN);
+   }
    return result;
 }
 
-bool Reservoir::saveComputedOutputProperties (void)
+bool Reservoir::saveComputedOutputProperties ( const bool saveSnapshot )
 {
    bool result = true;
+   if( saveSnapshot ) {
 
-   result &= saveComputedProperty ("ResRockTrapId", GLOBALTRAPID);
-   result &= saveComputedProperty ("ResRockLeakage", LEAKAGEQUANTITY);
-   result &= saveComputedProperty ("ResRockCapacity", CAPACITY);
+      result &= saveComputedProperty ("ResRockTrapId", GLOBALTRAPID);
+      result &= saveComputedProperty ("ResRockLeakage", LEAKAGEQUANTITY);
+      result &= saveComputedProperty ("ResRockCapacity", CAPACITY);
 #ifdef USEOTGC
-   result &= saveComputedProperty ("ResRockImmobilesDensity", IMMOBILESDENSITY);
+      result &= saveComputedProperty ("ResRockImmobilesDensity", IMMOBILESDENSITY);
 #endif
-   result &= saveComputedProperty ("ResRockFlux", FLUX);
-   result &= saveComputedProperty ("ResRockFlow", FLOW);
-
-   int phase;
-   for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
-   {
-      string propName = "ResRockDrainageId";
-      propName += PhaseNames[phase];
-
-      result &= saveComputedProperty (propName + "Phase", DRAINAGEAREAID, (PhaseId) phase);
+      result &= saveComputedProperty ("ResRockFlux", FLUX);
+      result &= saveComputedProperty ("ResRockFlow", FLOW);
+      
+      int phase;
+      for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
+      {
+         string propName = "ResRockDrainageId";
+         propName += PhaseNames[phase];
+         
+         result &= saveComputedProperty (propName + "Phase", DRAINAGEAREAID, (PhaseId) phase);
+      }
+      
+      for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
+      {
+         string propName = "ResRockFill";
+         propName += PhaseNames[phase];
+         
+         result &= saveComputedProperty (propName + "PhaseDensity", LATERALCHARGEDENSITY, (PhaseId) phase);
+         result &= saveComputedProperty (propName + "PhaseQuantity", CHARGEQUANTITY, (PhaseId) phase);
+      }
    }
-
-   for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
-   {
-      string propName = "ResRockFill";
-      propName += PhaseNames[phase];
-
-      result &= saveComputedProperty (propName + "PhaseDensity", LATERALCHARGEDENSITY, (PhaseId) phase);
-      result &= saveComputedProperty (propName + "PhaseQuantity", CHARGEQUANTITY, (PhaseId) phase);
-   }
-
    return result;
 }
 
@@ -2949,30 +2952,31 @@ void Reservoir::collectTrapProperties (TrapPropertiesRequest * tpRequests, unsig
 
 /// renumber traps according to the amount of stored charge
 /// save the trap properties to the TrapIoTbl
-bool Reservoir::saveTrapProperties (void)
+bool Reservoir::saveTrapProperties ( const bool saveSnapshot )
 {
-   unsigned int maxLocalNumberOfTraps = computeMaximumTrapCount (true);
-   TrapPropertiesRequest * trapsIn = new TrapPropertiesRequest [maxLocalNumberOfTraps];
-
-   collectTrapProperties (trapsIn, maxLocalNumberOfTraps);
-
-   unsigned int maxGlobalNumberOfTraps = maxLocalNumberOfTraps * NumProcessors ();
-   TrapPropertiesRequest * trapsOut = new TrapPropertiesRequest [maxGlobalNumberOfTraps];
-
-   // collect trap info from all processors and sort it according to charge content
-   AllGatherFromAll (trapsIn, maxLocalNumberOfTraps, TrapPropertiesType,
-	 trapsOut, maxLocalNumberOfTraps, TrapPropertiesType);
-
-   delete [] trapsIn;
-
-   // sort the traps according to the weight of their content, largest weight first
-   qsort (trapsOut, maxGlobalNumberOfTraps, sizeof (TrapPropertiesRequest), TrapPropertiesCompare);
-
-   populateMigrationTables (trapsOut, maxGlobalNumberOfTraps);
-   eliminateUndersizedTraps (trapsOut, maxGlobalNumberOfTraps);
-
-   delete [] trapsOut;
-
+   if( saveSnapshot ) {
+      unsigned int maxLocalNumberOfTraps = computeMaximumTrapCount (true);
+      TrapPropertiesRequest * trapsIn = new TrapPropertiesRequest [maxLocalNumberOfTraps];
+      
+      collectTrapProperties (trapsIn, maxLocalNumberOfTraps);
+      
+      unsigned int maxGlobalNumberOfTraps = maxLocalNumberOfTraps * NumProcessors ();
+      TrapPropertiesRequest * trapsOut = new TrapPropertiesRequest [maxGlobalNumberOfTraps];
+      
+      // collect trap info from all processors and sort it according to charge content
+      AllGatherFromAll (trapsIn, maxLocalNumberOfTraps, TrapPropertiesType,
+                        trapsOut, maxLocalNumberOfTraps, TrapPropertiesType);
+      
+      delete [] trapsIn;
+      
+      // sort the traps according to the weight of their content, largest weight first
+      qsort (trapsOut, maxGlobalNumberOfTraps, sizeof (TrapPropertiesRequest), TrapPropertiesCompare);
+      
+      populateMigrationTables (trapsOut, maxGlobalNumberOfTraps);
+      eliminateUndersizedTraps (trapsOut, maxGlobalNumberOfTraps);
+      
+      delete [] trapsOut;
+   }
    return true;
 }
 

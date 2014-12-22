@@ -118,9 +118,9 @@ namespace migration
 
 	 double getMassStoredInColumns (void);
 	 /// save properties that were derived from input maps during the current snapshot interval
-	 bool saveComputedInputProperties (void);
+	 bool saveComputedInputProperties ( const bool saveSnapshot );
 	 /// save properties the migration module computed during the current snapshot interval
-	 bool saveComputedOutputProperties (void);
+	 bool saveComputedOutputProperties ( const bool saveSnapshot );
    private:
 	 /// save the property specified by valueSpec under the given name for the given phase (if applicable).
 	 bool saveComputedProperty (const string & name, ValueSpec valueSpec, PhaseId phase = NO_PHASE);
@@ -133,7 +133,7 @@ namespace migration
 	 void eliminateUndersizedTraps (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests);
    public:
 	 /// save trap-related scalar properties
-	 bool saveTrapProperties (void);
+	 bool saveTrapProperties ( const bool saveSnapshot );
 
 	 /// compute the traps of this reservoir
 	 bool computeTraps (void);
