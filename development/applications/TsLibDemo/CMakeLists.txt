@@ -21,8 +21,6 @@ add_executable(${target_name}
 )
 
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-
 # IMPORTANT: remove -rdynamic from CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 

@@ -78,7 +78,7 @@ set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation prefix" )
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug')")
-
+include(cmake/ConfigurationFlags.cmake)
 
 #
 # Determine minimum toolset: CMake & C++ Compiler
@@ -100,7 +100,6 @@ Project(BasinModeling)
 include(cmake/BasinModelingUtilities.cmake)
 include(cmake/ExternalProject.cmake)
 include(FeatureSummary)
-include(cmake/ConfigurationFlags.cmake)
 include(cmake/WarningFlags.cmake)
 
 
@@ -147,11 +146,6 @@ if(MSVC)
 endif()
 
 if(UNIX)
-    # The library to be compiled with -O3 is EosPack, all others, 
-    # including the applications are to be compiled with -O2.
-    # Also we want assert(3) in Release configuration
-    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-    set(CMAKE_C_FLAGS_RELEASE "-O2")
 
     # Depending on whether we want to link statically or dynamicaly, ...
     if (BUILD_SHARED_LIBS)
@@ -179,6 +173,7 @@ if(UNIX)
     endif()
 
     # Extra stuff if want code coverage instrumentation in the build
+    # FIXME: This code coverage build feature is probably broken.
     if(BM_CODE_COVERAGE_ENABLE)
        set( BM_CODE_COVERAGE_DIR "${PROJECT_BINARY_DIR}/profiled" CACHE PATH "Code coverage directory" )
        mark_as_advanced( BM_CODE_COVERAGE_DIR )
