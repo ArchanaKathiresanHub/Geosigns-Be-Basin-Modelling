@@ -235,6 +235,7 @@ m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutpu
    loadIgneousIntrusions();
    loadReservoirs();
    loadMobileLayers();
+   loadTouchstoneMaps();
    loadAllochthonousLithologies();
    loadAllochthonousLithologyDistributions();
    loadAllochthonousLithologyInterpolations();
@@ -384,6 +385,7 @@ ProjectHandle::~ProjectHandle( void )
    deleteSourceRocks();
    deleteReservoirs();
    deleteMobileLayers();
+   deleteTouchstoneMaps();
    deleteAllochthonousLithologies();
    deleteAllochthonousLithologyDistributions();
    deleteAllochthonousLithologyInterpolations();

@@ -1,10 +1,3 @@
-/// The function of the Burial History class is to gather all 
-/// burial history information relating to a specific surface from
-/// the project file needed by ResQ for the ResQ calculations and hold it in 
-/// a dynamic array which can be easily accessed by any class that
-/// needs it 
-
-#include "FastTouch.h"
 #include "BurialHistory.h"
 
 #include "Interface/Formation.h"
@@ -15,14 +8,18 @@
 #include "Interface/Property.h"
 #include "Interface/Snapshot.h"
 
-#include <assert.h>
+#include "FastTouch.h"
+#include "BurialHistoryTimeStep.h"
+
+#include <cassert>
 #include "array.h"
 
-using namespace fasttouch;
 using namespace DataAccess;
 using namespace Interface;
 
-#define PA_TO_MPA 1e-6
+
+namespace fasttouch
+{
 
 //
 // PUBLIC METHODS
@@ -31,17 +28,15 @@ using namespace Interface;
 /// The class constructor validates the input parameters and
 /// instructs the relevant I/O operations to be carried out
 /// so that all necessary I/O is done one time. 
-BurialHistory::BurialHistory (const Surface * surface, const Formation * formation,  
-                              FastTouch * ft)
-: m_formation        (formation), 
-  m_surface          (surface), 
-  m_fastTouch        (ft)
+BurialHistory::BurialHistory(const Surface * surface,  ProjectHandle & projectHandle)
+: m_surface          (surface), 
+  m_projectHandle(projectHandle)
 {
-   m_depthProperty = m_fastTouch->findProperty ("Depth");
-   m_temperatureProperty = m_fastTouch->findProperty ("Temperature");
-   m_vesProperty = m_fastTouch->findProperty ("Ves");
+   m_depthProperty = m_projectHandle.findProperty ("Depth");
+   m_temperatureProperty = m_projectHandle.findProperty ("Temperature");
+   m_vesProperty = m_projectHandle.findProperty ("Ves");
 
-   const Grid * activeGrid = m_fastTouch->getActivityOutputGrid ();
+   const Grid * activeGrid = m_projectHandle.getActivityOutputGrid ();
 
    m_firstI = activeGrid->firstI ();
    m_firstJ = activeGrid->firstJ ();
@@ -57,21 +52,9 @@ BurialHistory::BurialHistory (const Surface * surface, const Formation * formati
    loadPaleoData ();
 }
 
-BurialHistory::~BurialHistory (void)
+BurialHistory::~BurialHistory(void)
 {
    clearSnapshotMapMemory ();
-   if ( m_burialHistoryTimestep )
-   {
-      delete [] m_burialHistoryTimestep;
-   }
-   
-   // CLOSE TEMP TEST FILE
-   // burialOutput.close ();
-}
-
-const BurialHistory::BurialHistoryMap* BurialHistory::returnAsMap (void)
-{
-    return &m_burialHistoryMap;
 }
 
 /** This function converts the stl::map holding the burial history into the
@@ -80,10 +63,10 @@ const BurialHistory::BurialHistoryMap* BurialHistory::returnAsMap (void)
  *  functionality. COnverting this data to the array at a later stage
  *  when it is needed externally can be done safely.
  */
-Geocosm::TsLib::burHistTimestep* BurialHistory::returnAsArray (const int &i, const int &j, int &validTimesteps)
+const std::vector<BurialHistoryTimeStep> & BurialHistory::returnAsArray (int i, int j, bool reverse)
 {
    Properties *p;
-   validTimesteps = 0;
+   m_burialHistoryTimestep.clear();
    
    BurialHistoryMap::reverse_iterator mapIt;
    for ( mapIt = m_burialHistoryMap.rbegin(); mapIt != m_burialHistoryMap.rend (); ++mapIt )
@@ -93,7 +76,7 @@ Geocosm::TsLib::burHistTimestep* BurialHistory::returnAsArray (const int &i, con
       // check if all properties present at timestep
       if ( ! p->temp || ! p->depth || ! p->ves )
       {
-	 continue;
+         continue;
       }
 
       unsigned int iArray = i - m_firstI;
@@ -101,24 +84,28 @@ Geocosm::TsLib::burHistTimestep* BurialHistory::returnAsArray (const int &i, con
 
       // check for null value
       if ( p->temp  [iArray][jArray] == Interface::DefaultUndefinedMapValue ||
-	   p->depth [iArray][jArray] == Interface::DefaultUndefinedMapValue ||
-	   p->ves   [iArray][jArray] == Interface::DefaultUndefinedMapValue )
+           p->depth [iArray][jArray] == Interface::DefaultUndefinedMapValue ||
+           p->ves   [iArray][jArray] == Interface::DefaultUndefinedMapValue )
       {
-	 validTimesteps = 0;
-         return 0;
+         return m_burialHistoryTimestep;
       }
-      
       // if one property present for timestep, then all should be as should be switched on 
       // before run.
-      m_burialHistoryTimestep[validTimesteps].time        = mapIt->first;
-      m_burialHistoryTimestep[validTimesteps].temperature = p->temp  [iArray][jArray];
-      m_burialHistoryTimestep[validTimesteps].depth       = p->depth [iArray][jArray];
-      m_burialHistoryTimestep[validTimesteps].effStress   = p->ves   [iArray][jArray] * PA_TO_MPA;
+      BurialHistoryTimeStep timeStep;
+      
+      timeStep.time        = mapIt->first;
+      timeStep.temperature = p->temp  [iArray][jArray];
+      timeStep.depth       = p->depth [iArray][jArray];
+      timeStep.effStress   = p->ves   [iArray][jArray] * PA_TO_MPA;
+      timeStep.waterSat    = 100;
 
-      ++validTimesteps;
+      m_burialHistoryTimestep.push_back( timeStep );
    }
 
-   return validTimesteps > 0 ? m_burialHistoryTimestep : 0;
+   if (reverse)
+      std::reverse( m_burialHistoryTimestep.begin(), m_burialHistoryTimestep.end() );
+
+   return m_burialHistoryTimestep;
 }
 /// This function collects 3d burial history.
 /// The burial history is saved in an stl::map
@@ -127,7 +114,7 @@ Geocosm::TsLib::burHistTimestep* BurialHistory::returnAsArray (const int &i, con
 /// external use is dynamically allocated here.
 bool BurialHistory::loadPaleoData (void)
 {
-    PropertyValueList * propertyValues = m_fastTouch->getPropertyValues (SURFACE, 0, 0, 0, 0, m_surface, MAP);
+    PropertyValueList * propertyValues = m_projectHandle.getPropertyValues (SURFACE, 0, 0, 0, 0, m_surface, MAP);
  
     PropertyValueList::iterator iter;
  
@@ -174,9 +161,6 @@ bool BurialHistory::loadPaleoData (void)
         gridMap->restoreData ();
     }
     delete propertyValues;
-
-    // initialise return array 
-    m_burialHistoryTimestep = new Geocosm::TsLib::burHistTimestep [m_burialHistoryMap.size()];
  
     return true;
 }
@@ -189,7 +173,7 @@ void BurialHistory::clearSnapshotMapMemory (void)
       p = &(it->second);
 
       if (p->depth)
-	 Array < double >::delete2d (p->depth);
+         Array < double >::delete2d (p->depth);
 
       if (p->temp)
          Array < double >::delete2d (p->temp);
@@ -197,4 +181,7 @@ void BurialHistory::clearSnapshotMapMemory (void)
       if (p->ves)
          Array < double >::delete2d (p->ves);
    }
+}
+
+
 }

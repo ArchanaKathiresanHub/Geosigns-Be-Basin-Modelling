@@ -1,6 +1,13 @@
 #ifndef _FASTTOUCH_FASTTOUCH_H_
 #define _FASTTOUCH_FASTTOUCH_H_
 
+#include "Interface/ProjectHandle.h"
+#include "MasterTouch.h"
+
+#include <string>
+#include <vector>
+#include <memory>
+
 namespace database
 {
    class Database;
@@ -8,56 +15,47 @@ namespace database
    class Record;
 }
 
-#include "Interface/ProjectHandle.h"
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-
-using namespace std;
 
 namespace DataAccess
 {
-    namespace Interface
-    {
-        class TouchstoneMap;
-    }
+   namespace Interface
+   {
+      class TouchstoneMap;
+   }
 }
-
-using namespace DataAccess;
 
 namespace fasttouch
 {
-    
-    class MasterTouch;
 
-    const string FastTouchActivityName = "FastTouch";
-    
-    /** Top class of the FastTouch class hierarchy.
-     *  Inherits from the DataAccess::Migrator class to provide easy access to Formations, Reservoirs, etc.
-     */
-    class FastTouch : public Interface::ProjectHandle
-    {
-        public:
-            /**  Constructor. */
-            FastTouch (database::Database * database, const string & name, const string & accessMode);
-            static FastTouch *CreateFrom (const string & inputFileName);
-            virtual ~FastTouch (void);
-          
-            bool saveTo (const string & outputFileName);
-          
-            bool removeResqPropertyValues (void);
-          
-            /// The top migration routine
-            bool compute (void);
-            
-            bool mergeOutputFiles ( );
-        private:
-          
-            bool addToComputationList (const Interface::TouchstoneMap * touchstoneMap);
-            
-            MasterTouch * m_masterTouch;
+   class MasterTouch;
+
+   const std::string FastTouchActivityName = "FastTouch";
+
+   /** Top class of the FastTouch class hierarchy.
+    *  Inherits from the DataAccess::Migrator class to provide easy access to Formations, Reservoirs, etc.
+    */
+   class FastTouch 
+   {
+      public:
+         /**  Constructor. */
+         FastTouch (const std::string & inputFileName);
+         virtual ~FastTouch (void);
+
+         bool saveTo (const std::string & outputFileName);
+
+         bool removeResqPropertyValues (void);
+
+         /// The top migration routine
+         bool compute (void);
+
+         bool mergeOutputFiles ( );
+
+      private:
+
+         bool addToComputationList (const DataAccess::Interface::TouchstoneMap * touchstoneMap);
+
+         std::auto_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
+         MasterTouch m_masterTouch;
    };
 }
 

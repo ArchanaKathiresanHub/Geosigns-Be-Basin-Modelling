@@ -1,51 +1,29 @@
-#ifndef __MASTERTOUCH__
-#define __MASTERTOUCH__
-
-
-#ifdef __INTEL_COMPILER // disable warning "type qualifier on return type is meaningless" in tslibI.h
-#pragma warning push
-#pragma warning(disable:858)
-#endif
-
-#include "tslibI.h"
-
-#ifdef __INTEL_COMPILER
-#pragma warning pop
-#endif
-
-#include "TsLibLoader.h"
-
-#include "hdf5.h"
+#ifndef FASTTOUCH7_MASTERTOUCH_H
+#define FASTTOUCH7_MASTERTOUCH_H
 
 #include <list>
 #include <vector>
 #include <map>
 #include <string>
-
-#include <iostream>
-#include <fstream>
-
-using namespace std;
+#include <tr1/array>
 
 #include "Interface/Formation.h"
 #include "Interface/Surface.h"
-
-#include "BurialHistoryGeneric.h"
 
 namespace DataAccess
 {
    namespace Interface
    {
+      class ProjectHandle;
       class GridMap;
       class Grid;
    }
 }
 
+class TouchstoneFiles;
+
 namespace fasttouch
 {
-   //class BurialHistory;
-   class FastTouch;
-   
    /** This class controls the functional requests to the ResQ library
     *  The necessary steps using the library are as follows
     *  - Load Tcf files associated with user-selected layer
@@ -60,9 +38,9 @@ namespace fasttouch
          /** Struct containing Map information. */
          struct MapInfo
          {
-            string format;
+            std::string format;
             DataAccess::Interface::GridMap * gridMap;
-            short percent;
+            int percent;
          };
 
          /** Struct containing information of different layers. */
@@ -89,161 +67,55 @@ namespace fasttouch
             const DataAccess::Interface::Formation * formation;
          };
          
-         typedef list < MapInfo > MapInfoList;
+         typedef std::list < MapInfo > MapInfoList;
          
          // output category and corresponding list of formats
-         typedef map < string, MapInfoList > CategoryMapInfoList;
+         typedef std::map < std::string, MapInfoList > CategoryMapInfoList;
          
          // list of layers with corresponding categories for output
-         typedef map < LayerInfo, CategoryMapInfoList > LayerCategoryMapInfoList;
+         typedef std::map < LayerInfo, CategoryMapInfoList > LayerCategoryMapInfoList;
 
          // map of tcf filenames with corresponding output list
-         typedef map < string, LayerCategoryMapInfoList > FileLayerCategoryMapInfoList;
+         typedef std::map < std::string, LayerCategoryMapInfoList > FileLayerCategoryMapInfoList;
 
          enum { SD = 0, MEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION };
 
       private:
-         static const int numberOfTouchstoneProperties = 7;
-         static const int numberOfStatisticalOutputs   = 29;
 
-         double m_OutputProperties [ numberOfTouchstoneProperties * numberOfStatisticalOutputs ];
-         double m_ActualOutputProperties [ numberOfTouchstoneProperties * numberOfStatisticalOutputs ];
+         DataAccess::Interface::ProjectHandle & m_projectHandle;
 
-         /** Result header types of models and modals to be saved are stored
-          *  in this list. */
-         std::vector < TcfSchema::ResultHeaderIdentificationType > iD;
-
-         /** Determine if the given result header is to be saved or not. */
-         int SaveResultHeader (TcfSchema::DetailHeadersType::modalHeaders_iterator& itor);
-
-         map <int, int> m_categoriesMappingOrder;
-         int m_percentPercentileMapping [101];
-         map < string, int > m_categoriesMapping;
-         FastTouch * m_fastTouch;
+         std::tr1::array<int,101> m_percentPercentileMapping;
+         std::map < std::string, int > m_categoriesMapping;
 
          // display values
-         map < string, int > m_formatsMapping;
+         std::map < std::string, int > m_formatsMapping;
          
-         LayerCategoryMapInfoList    * m_layerList;
          FileLayerCategoryMapInfoList  m_fileList;
 
-         CategoryMapInfoList m_currentOutputs;
-
-         // make sure tcf file is valid file type
-         bool validTcfFile( char * filename );
-
-         /** Touchstone Library Interface object.*/ 
-         Geocosm::TsLib::TsLibInterface * tslib;
-         
-         /** Switch to determine whether the touchstone library calculation
-          * (tslib->Calculate(...)) is a direct analog run or monte carlo
-          * run. Output of tcfinfo->IsDirectAnalogRun() is stored in this
-          * variable. */
-         bool m_directAnalogRun;
-         
-         /** Number of realizations for monte carlo run. */
-         int m_nrOfRealizations;
-
-         /** Touchstone configuration file object.*/
-         Geocosm::TsLib::TcfInfoInterface* tcfInfo;
-
-         /** Touchstone calculation context. */
-         Geocosm::TsLib::CalcContextInterface* tslibCalcContext;
-
-         /** Touchstone BurialHistory info.*/
-         Geocosm::TsLib::TsLibBurialHistory tslibBurialHistoryInfo;
-
          /** Collect cauldron output and call the new ts calculate*/
-         bool calculate( const char *filename,
+         bool calculate( const std::string & filename,
                          const DataAccess::Interface::Surface * surface,
-                         const DataAccess::Interface::Formation * formation );
+                         const CategoryMapInfoList & currentOutputs );
 
-         bool retrieveGridMaps();
-         bool restoreGridMaps();
-         
-         void touchstoneError( const char *function );
-
-         // save ts results to ts output directory
-         void writeResultsToGrids(    int east, int north, int timestepIndex );
-         
-         void setFormatsMapping();
-         void setCategoriesMapping();
-
-         // memmory deallocation functions
-         void cleanUpRun (char **filenames, int size);
+         bool retrieveGridMaps(const CategoryMapInfoList & currentOutputs);
+         bool restoreGridMaps(const CategoryMapInfoList & currentOutputs);
+          
+         /** save ts results to ts output directory */
+         void writeResultsToGrids(int east, int north, const CategoryMapInfoList & outputCategory, TouchstoneFiles& readTouchstone);
 
       public:
-         MasterTouch( FastTouch * fastTouch );
+         MasterTouch( DataAccess::Interface::ProjectHandle & projectHandle);
          bool run();
      
          // add format request to category output for a certain layer
-         bool addOutputFormat( const string & filename,
+         bool addOutputFormat( const std::string & filename,
                                const DataAccess::Interface::Surface * surface,
                                const DataAccess::Interface::Formation * formation,
-                               const string & category, const string & format, short percent);
-
-         ~MasterTouch (void);
+                               const std::string & category, const std::string & format, int percent);
    };
 
-   // h5 compound type for Result grid coordinates
-   struct GridCoordInfo
-   {
-      GridCoordInfo( double minE, double maxE, double minN, double maxN,
-                     float delI, float delJ, int minx, int maxx, int miny, int maxy )
-         : minEast( minE ), maxEast( maxE ), minNorth ( minN ), maxNorth( maxN ), deltaI( delI ), deltaJ( delJ ),
-           minX( minx ), maxX( maxx ), minY( miny ), maxY( maxy ) {}
-
-      GridCoordInfo() {}
-
-      ~GridCoordInfo() {}
-
-      // GridCoordInfo& operator[] (int index)  
-
-      double minEast;
-      double maxEast;
-      double minNorth;
-      double maxNorth;
-
-      float deltaI;
-      float deltaJ;
-
-      int minX;
-      int maxX;
-      int minY;
-      int maxY;
-   };
-
-   class H5_ResultInfo
-   {
-      public:
-         // ctor / dtor
-         H5_ResultInfo( void )
-         {
-            GridCoordInfo gridCoordInfo;
-            
-            m_hGridId = H5Tcreate( H5T_COMPOUND, sizeof( GridCoordInfo ) );
-            
-            H5Tinsert( m_hGridId, "MinEast",  (size_t) ((size_t) & gridCoordInfo.minEast  - (size_t) & gridCoordInfo), H5T_NATIVE_DOUBLE );
-            H5Tinsert( m_hGridId, "MaxEast",  (size_t) ((size_t) & gridCoordInfo.maxEast  - (size_t) & gridCoordInfo), H5T_NATIVE_DOUBLE );
-            H5Tinsert( m_hGridId, "MinNorth", (size_t) ((size_t) & gridCoordInfo.minNorth - (size_t) & gridCoordInfo), H5T_NATIVE_DOUBLE );
-            H5Tinsert( m_hGridId, "MaxNorth", (size_t) ((size_t) & gridCoordInfo.maxNorth - (size_t) & gridCoordInfo), H5T_NATIVE_DOUBLE );
-            H5Tinsert( m_hGridId, "DeltaI",   (size_t) ((size_t) & gridCoordInfo.deltaI   - (size_t) & gridCoordInfo), H5T_NATIVE_FLOAT );
-            H5Tinsert( m_hGridId, "DeltaJ",   (size_t) ((size_t) & gridCoordInfo.deltaJ   - (size_t) & gridCoordInfo), H5T_NATIVE_FLOAT );
-            H5Tinsert( m_hGridId, "MinX",     (size_t) ((size_t) & gridCoordInfo.minX     - (size_t) & gridCoordInfo), H5T_NATIVE_INT );
-            H5Tinsert( m_hGridId, "MaxX",     (size_t) ((size_t) & gridCoordInfo.maxX     - (size_t) & gridCoordInfo), H5T_NATIVE_INT );
-            H5Tinsert( m_hGridId, "MinY",     (size_t) ((size_t) & gridCoordInfo.minY     - (size_t) & gridCoordInfo), H5T_NATIVE_INT );
-            H5Tinsert( m_hGridId, "MaxY",     (size_t) ((size_t) & gridCoordInfo.maxY     - (size_t) & gridCoordInfo), H5T_NATIVE_INT );
-         }
-         
-         ~H5_ResultInfo() { H5Tclose( m_hGridId ); }
-
-         // public methods
-         hid_t gridId() const { return m_hGridId; }
-
-      private:
-         hid_t m_hGridId;
-   };
 }
+
 
 #endif
 

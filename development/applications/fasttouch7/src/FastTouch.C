@@ -39,36 +39,27 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-FastTouch::FastTouch (database::Database * database, const string & name, const string & accessMode)
-      : ProjectHandle (database, name, accessMode)
+FastTouch::FastTouch (const std::string & inputFileName )
+      : m_projectHandle( OpenCauldronProject (inputFileName, "rw"))
+      , m_masterTouch(*m_projectHandle)
 {
-   m_masterTouch = new MasterTouch (this);
 }
 
 FastTouch::~FastTouch (void)
 {
-   delete m_masterTouch;
-   deleteTouchstoneMaps ();
-}
-
-FastTouch * FastTouch::CreateFrom (const string & inputFileName)
-{
-   FastTouch * fastTouch = (FastTouch *) OpenCauldronProject (inputFileName, "rw");
-   if (fastTouch) fastTouch->loadTouchstoneMaps ();
-   return fastTouch;
 }
 
 bool FastTouch::saveTo (const string & outputFileName)
 {
-   return saveToFile (outputFileName);
+   return m_projectHandle->saveToFile (outputFileName);
 }
 
 bool FastTouch::removeResqPropertyValues (void)
 {
-    const Property * resqProperty = findProperty ("Resq: ");
+    const Property * resqProperty = m_projectHandle->findProperty ("Resq: ");
     if (!resqProperty) return false;
     
-    deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
+    m_projectHandle->deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
             resqProperty, 0, 0, 0, 0, Interface::MAP); 
     return true;
 }
@@ -76,13 +67,13 @@ bool FastTouch::removeResqPropertyValues (void)
 bool FastTouch::compute (void)
 {
 
-   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
 
-    bool started = startActivity (FastTouchActivityName, getLowResolutionOutputGrid ());
+    bool started = m_projectHandle->startActivity (FastTouchActivityName, m_projectHandle->getLowResolutionOutputGrid ());
  
     if (!started) return false;
  
-    TouchstoneMapList * touchstoneMaps = getTouchstoneMaps ();
+    TouchstoneMapList * touchstoneMaps = m_projectHandle->getTouchstoneMaps ();
     TouchstoneMapList::iterator mapIter;
  
     for (mapIter = touchstoneMaps->begin (); mapIter != touchstoneMaps->end (); ++mapIter)
@@ -100,11 +91,11 @@ bool FastTouch::compute (void)
         }
     }
  
-    m_masterTouch->run ();
+    m_masterTouch.run ();
  
     delete touchstoneMaps;
  
-    finishActivity ();
+    m_projectHandle->finishActivity ();
  
     bool status = true;
     if( !mergeOutputFiles ()) {
@@ -120,8 +111,9 @@ bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
    touchstoneMap->asString (str);
    // cerr << "Adding " << str << "to computation list" << endl;
 
-   m_masterTouch->addOutputFormat (touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
-	 touchstoneMap->getCategory (), touchstoneMap->getFormat (), touchstoneMap->getPercentage ());
+   m_masterTouch.addOutputFormat( 
+         touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
+	 touchstoneMap->getCategory (), touchstoneMap->getFormat (), static_cast<int>(touchstoneMap->getPercentage ()));
    return true;
 }
 
@@ -135,7 +127,9 @@ bool FastTouch::mergeOutputFiles ( ) {
    
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
    
-   string filePathName = getProjectPath () + "/" + getOutputDir () + "/" + FastTouchActivityName + "_Results.HDF";
+   string filePathName 
+      = m_projectHandle->getProjectPath () 
+      + "/" + m_projectHandle->getOutputDir () + "/" + FastTouchActivityName + "_Results.HDF";
    
    bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
 

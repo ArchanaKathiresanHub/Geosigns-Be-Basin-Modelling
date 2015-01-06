@@ -15,8 +15,6 @@ using namespace std;
 
 #include "FastTouch.h"
 
-#include "ObjectFactory.h"
-
 #include "misc.h"
 
 #ifdef _WIN32
@@ -242,9 +240,6 @@ int main (int argc, char ** argv)
     bool status = true;
     FastTouch * fastTouch = 0;
 
-    ObjectFactory* objectFactory = new ObjectFactory();
-    DataAccess::Interface::ProjectHandle::UseFactory (objectFactory);
-    
     StartProgress ();
     if (debug) ReportProgress (string ("XAPPLRESDIR: ") + getenv ("XAPPLRESDIR"));
  
@@ -255,7 +250,7 @@ int main (int argc, char ** argv)
     }
 
     ReportProgress (string ("Reading Project File: ") + inputFileName);
-    fastTouch = FastTouch::CreateFrom (inputFileName);
+    fastTouch = new FastTouch(inputFileName);
     
     status = (fastTouch != 0);
     

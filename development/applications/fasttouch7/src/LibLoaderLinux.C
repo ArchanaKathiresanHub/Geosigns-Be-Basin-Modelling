@@ -33,29 +33,29 @@ namespace Geocosm
 #endif
       return true;
    }
-   
+
 #if _WIN32
-	void LibLoader::GetLibList(std::vector<std::string>& list, const std::string& dir)
-	{
-		WIN32_FIND_DATA FindFileData;
-		HANDLE hFind;
-		std::string searchStr(dir);
-		searchStr.append("*.dll");
-		hFind = FindFirstFile(searchStr.c_str(), &FindFileData);
+   void LibLoader::GetLibList(std::vector<std::string>& list, const std::string& dir)
+   {
+      WIN32_FIND_DATA FindFileData;
+      HANDLE hFind;
+      std::string searchStr(dir);
+      searchStr.append("*.dll");
+      hFind = FindFirstFile(searchStr.c_str(), &FindFileData);
 
-		list.clear();
-		if (hFind == INVALID_HANDLE_VALUE) 
-		{
-			return;
-		}
-		do {
-			std::string filestr(dir);
-			filestr.append(FindFileData.cFileName);
-			list.push_back(filestr);
-		}while (FindNextFile(hFind, &FindFileData) != 0);
+      list.clear();
+      if (hFind == INVALID_HANDLE_VALUE) 
+      {
+         return;
+      }
+      do {
+         std::string filestr(dir);
+         filestr.append(FindFileData.cFileName);
+         list.push_back(filestr);
+      }while (FindNextFile(hFind, &FindFileData) != 0);
 
-		FindClose(hFind);
-	}
+      FindClose(hFind);
+   }
 #else
    void LibLoader::GetLibList(std::vector<std::string>& list, const std::string& dir)
    {
@@ -75,7 +75,7 @@ namespace Geocosm
          }
       }
       closedir(directory); 
-    }
+   }
 #endif
 
 }

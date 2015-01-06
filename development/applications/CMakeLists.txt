@@ -53,9 +53,6 @@ else ()
 	add_subdirectory(fastmig)
    add_subdirectory(fastctc)
 	add_subdirectory(fastgenex6)
-   if ( MSVC11 )
-      add_subdirectory(fasttouch7)
-   endif()
 endif ()
 
 # Local Variables:
