@@ -105,6 +105,11 @@ add_gtest( NAME "MatrixInterpolator"
 add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
 	   SOURCES test/PceTest.C )
 
+add_gtest( NAME "PetscSolver"
+           SOURCES src/PetscSolver.C test/PetscSolver.C
+           LIBRARIES ${PETSC_LIBRARIES}
+         )
+
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/MemCheck.project3d
       MemCheck.project3d

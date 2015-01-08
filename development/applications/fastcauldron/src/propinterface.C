@@ -4499,58 +4499,6 @@ void AppCtx::setLayerData () {
 
 //------------------------------------------------------------//
 
-
-void AppCtx::setPressureLinearSolver ( KSP&        pressureLinearSolver,
-                                       const double solverTolerance ) const {
-
-  KSPCreate ( PETSC_COMM_WORLD, &pressureLinearSolver );
-  KSPSetType ( pressureLinearSolver, KSPCG );
-  setSolverTolerance ( pressureLinearSolver, solverTolerance );
-  setSolverMaxIterations ( pressureLinearSolver, PressureSolver::DefaultMaximumPressureLinearSolverIterations );
-  KSPSetFromOptions ( pressureLinearSolver );
-}
-
-
-//------------------------------------------------------------//
-
-
-void AppCtx::setTemperatureLinearSolver ( KSP&         temperatureLinearSolver,
-                                          const double solverTolerance,
-                                          const bool   requiredForSteadyStateCalculation ) const {
-
-  KSPType requiredSolverType;
-
-  // The steady state calculation does not require GMRes,
-  // so use, when possible, the more efficient CG.
-  if ( requiredForSteadyStateCalculation ) {
-    requiredSolverType = KSPCG;
-  } else {
-    requiredSolverType = Temperature_Linear_Solver_Type;
-  }
-
-  KSPCreate ( PETSC_COMM_WORLD, &temperatureLinearSolver );
-  KSPSetType ( temperatureLinearSolver, requiredSolverType );
-
-  if ( strcmp ( requiredSolverType, KSPGMRES ) == 0 ) {
-
-    // In later version of PETSc there is an easier way of setting the restart value.
-    int (*SetGMResRestart)(KSP,int);
-    SetGMResRestart=0;
-    PetscObjectQueryFunction((PetscObject)temperatureLinearSolver,"KSPGMRESSetRestart_C", (PetscVoidFunction*)&SetGMResRestart);
-
-    if ( SetGMResRestart != 0 ) {
-      (*SetGMResRestart)( temperatureLinearSolver, Temperature_GMRes_Restart );
-    }
-
-  }
-
-  setSolverTolerance ( temperatureLinearSolver, solverTolerance );
-  KSPSetFromOptions ( temperatureLinearSolver );
-}
-
-
-//------------------------------------------------------------//
-
 const IsoLineTable & AppCtx::getContourValueTable(enum ContourType theType) const
 {
    return m_theTables[theType];

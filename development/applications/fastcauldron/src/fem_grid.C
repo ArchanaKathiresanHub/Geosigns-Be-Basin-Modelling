@@ -68,10 +68,13 @@
 #include "Interface/Grid.h"
 
 #include "PetscLogStages.h"
+#include "PetscSolver.h"
 
 #include "VitriniteReflectance.h"
 #include "TemperatureForVreInputGrid.h"
 #include "VreOutputGrid.h"
+
+#include <boost/shared_ptr.hpp>
 
 #ifdef _MSC_VER
 #include <float.h>  // for _isnan() on VC++
@@ -2183,7 +2186,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   // The default PETSc ILU-fill levels.
   int iluFillLevels = 0;
 
-  int gmresRestartValue = PressureSolver::DefaultGMResRestartValue;
   int linearSolverIterationCount = PressureSolver::DefaultMaximumPressureLinearSolverIterations;
   int linearSolverTotalIterationCount;
   int linearSolveAttempts;
@@ -2199,16 +2201,16 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   PetscScalar Solution_Length;
   PetscReal   linearSolverResidualNorm;
 
-  KSP Pressure_Linear_Solver;
-  // SLES Pressure_Linear_Solver;
-  // KSP  pressureLinearSolverKsp;
-  KSPConvergedReason convergedReason;
+  boost::shared_ptr<PetscSolver> pressureLinearSolver( 
+        new PetscCG( pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ),
+            PressureSolver::DefaultMaximumPressureLinearSolverIterations 
+           )
+       );
+  pressureLinearSolver->loadCmdLineOptions();
+
 
   bool JacobianComputed;
-  bool changedSolver = false;
 
-  basinModel -> setPressureLinearSolver ( Pressure_Linear_Solver,
-                                           pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ));
 
 #if PETSc_MATRIX_BUG_FIXED
   pressureSolver->createMatrixStructure ( *basinModel -> mapDA,
@@ -2304,16 +2306,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
       PetscTime(&Start_Time);
 
-      KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
-
-#if 0
-      if ( Number_Of_Nonlinear_Iterations <= basinModel->pressureJacobianReuseCount ) {
-         KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
-      } else {
-         KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_PRECONDITIONER );
-      }
-#endif
-
       JacobianComputed = true;
 
       PetscTime(&Jacobian_End_Time);
@@ -2323,15 +2315,16 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       VecSet ( Residual_Solution, Zero );
 
       // Solve the matrix equation (Jacobian^{-1} \times residual) to some acceptable tolerance.
-      KSPSolve ( Pressure_Linear_Solver, Residual, Residual_Solution );
+      KSPConvergedReason convergedReason;
+      pressureLinearSolver->solve( 
+           Jacobian, Residual, Residual_Solution, 
+           &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm
+        ); 
 
-      KSPGetIterationNumber ( Pressure_Linear_Solver, &numberOfLinearIterations );
-      KSPGetConvergedReason ( Pressure_Linear_Solver, &convergedReason );
       // First attempt to solve linear system of equations.
       linearSolveAttempts = 1;
 
       if ( convergedReason < 0 ) {
-         KSPGetIterationNumber ( Pressure_Linear_Solver, &numberOfLinearIterations );
          linearSolverTotalIterationCount = numberOfLinearIterations;
 
          PetscPrintf ( PETSC_COMM_WORLD,
@@ -2344,39 +2337,25 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
          // On subsequent iterations the restart level and the maximum number of iterations are both increased,
          for ( int linearSolveLoop = 1; linearSolveLoop <= PressureSolver::MaximumLinearSolveAttempts and convergedReason < 0; ++linearSolveLoop, ++linearSolveAttempts ) {
 
-            if ( not changedSolver ) {
-               KSPType currentLinearSolverType;
-               KSPGetType ( Pressure_Linear_Solver, &currentLinearSolverType );
-
-               if ( strcmp ( currentLinearSolverType, KSPGMRES ) != 0 ) {
-                  // It is possible to select gmres from the command line then it is not necessary to change it.
-                  setLinearSolverType ( Pressure_Linear_Solver, KSPGMRES );
-               }
-
-               // If gmres has been selected frmo the command line or config file then
-               // use at least the restart value that has been selected.
-               int currentGMResRestart;
-               KSPGMRESGetRestart ( Pressure_Linear_Solver, &currentGMResRestart );
-               gmresRestartValue = max ( currentGMResRestart, PressureSolver::DefaultGMResRestartValue );
-
-               // Set at least the current number of iterations defined for the linear solver.
-               int currentMaximumNumberOfIterations = getSolverMaxIterations ( Pressure_Linear_Solver );
-               linearSolverIterationCount = max ( currentMaximumNumberOfIterations, PressureSolver::DefaultMaximumPressureLinearSolverIterations );
-
-               // Indicate that the linear solver has been changed.
-               changedSolver = true;
+            boost::shared_ptr<PetscGMRES> gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
+            if ( ! gmres  ) {
+               pressureLinearSolver.reset( 
+                     new PetscGMRES( 
+                           pressureLinearSolver->getMaxIterations(), 
+                           PressureSolver::DefaultGMResRestartValue, 
+                           pressureLinearSolver->getTolerance() 
+                        )
+                     );
+               gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
             } else {
-               gmresRestartValue += PressureSolver::GMResRestartIncrementValue;
-               linearSolverIterationCount = ( 3 * linearSolverIterationCount ) / 2;
+               gmres->setRestart( gmres->getRestart() + PressureSolver::GMResRestartIncrementValue );
+               gmres->setMaxIterations( 3 * gmres->getMaxIterations() / 2 );
             }
 
-            KSPGMRESSetRestart ( Pressure_Linear_Solver, gmresRestartValue );
-            setSolverMaxIterations ( Pressure_Linear_Solver, linearSolverIterationCount );
-
-            KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
-            KSPSolve ( Pressure_Linear_Solver, Residual, Residual_Solution );
-            KSPGetIterationNumber ( Pressure_Linear_Solver, &numberOfLinearIterations );
-            KSPGetConvergedReason ( Pressure_Linear_Solver, &convergedReason );
+            pressureLinearSolver->solve( 
+                  Jacobian, Residual, Residual_Solution, 
+                  &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm
+               );
 
             linearSolverTotalIterationCount += numberOfLinearIterations;
 
@@ -2396,39 +2375,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
         PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB );
         MatView ( Jacobian, viewer );
         VecView ( Residual, viewer );
-      }
-#endif
-
-#if 0
-      if ( FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE3D ) {
-         // Only update solver/preconditioner in 3d mode.
-
-         if ( basinModel->allowSolverChange and 
-              ( numberOfLinearIterations <= 2 or numberOfLinearIterations == PressureSolver::DefaultMaximumPressureLinearSolverIterations )
-              and isDefaultSolver ) {
-
-            // Change the linear solver to gmres (from cg). This sometimes helps (but is generally slower).
-            setLinearSolverType ( Pressure_Linear_Solver,
-                                  KSPGMRES );
-
-            KSPSetOperators ( Pressure_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN );
-            KSPSolve ( Pressure_Linear_Solver, Residual, Residual_Solution );
-            isDefaultSolver = false;
-            changedSolver = true;
-         } else if ( basinModel->allowIluFillIncrease and
-                     numberOfLinearIterations >= PressureSolver::getIterationsForIluFillLevelIncrease ( basinModel->Optimisation_Level, iluFillLevels ) and 
-                     iluFillLevels < 4 ) {
-
-            iluFillLevels += 2;
-
-            // Some problem with this function
-            // KSPSetUp ( Pressure_Linear_Solver, Residual, Residual_Solution );
-            setPreconditionerFillLevels ( Pressure_Linear_Solver,
-                                          iluFillLevels );
-
-            changedSolver = true;
-         }
-
       }
 #endif
 
@@ -2502,7 +2448,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       PetscTime(&Iteration_End_Time);
       Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
       Total_Iteration_Time = Total_Iteration_Time + Iteration_Time; 
-      KSPGetResidualNorm ( Pressure_Linear_Solver, &linearSolverResidualNorm );
 
       if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) 
       {
@@ -2600,8 +2545,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
     system( "fastcauldron_PostNLsolve" );
   }
 
-  KSPDestroy ( &Pressure_Linear_Solver );
-
   VecDestroy  ( &Residual );
   VecDestroy  ( &Overpressure );
   VecDestroy  ( &Residual_Solution );
@@ -2694,18 +2637,33 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
   PetscLogDouble Jacobian_Time;
   PetscLogDouble Total_Jacobian_Time = 0.0;
 
-  KSP Temperature_Linear_Solver;  
-  KSPConvergedReason convergedReason;
+  boost::shared_ptr< PetscSolver > temperatureLinearSolver;
+  
+  if (isSteadyStateCalculation || strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
+  {
+     temperatureLinearSolver.reset(
+        new PetscCG(
+          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )
+        )
+     );
+  }
+  else
+  {
+     temperatureLinearSolver.reset(
+        new PetscGMRES(
+          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+          basinModel->Temperature_GMRes_Restart
+        )
+     );
+  }
+  temperatureLinearSolver->loadCmdLineOptions();
+
 
   PetscScalar Previous_T_Norm = 0.0;
 
   PetscLogStages :: push( PetscLogStages :: TEMPERATURE_INITIALISATION_LINEAR_SOLVER );
 
-  basinModel -> setTemperatureLinearSolver ( Temperature_Linear_Solver,
-                                              Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
-                                              isSteadyStateCalculation );
-
-  maximumNumberOfLinearSolverIterations = getSolverMaxIterations ( Temperature_Linear_Solver );
+  maximumNumberOfLinearSolverIterations = temperatureLinearSolver->getMaxIterations();
 
 #if PETSc_MATRIX_BUG_FIXED
   cauldronCalculator->createMatrixStructure ( *basinModel -> mapDA,
@@ -2775,8 +2733,6 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
 
-      PetscTime(&Start_Time);
-      KSPSetOperators ( Temperature_Linear_Solver, Jacobian, Jacobian, SAME_NONZERO_PATTERN);
     } else {
 
       // It is not always necessary to compute the Jacobian, the one from the previous 
@@ -2795,8 +2751,9 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
       Element_Assembly_Time = Element_Assembly_Time + Element_Contributions_Time;
 
-      PetscTime(&Start_Time);
     }
+
+    PetscTime(&Start_Time);
 
     PetscTime(&Jacobian_End_Time);
     Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time; 
@@ -2804,10 +2761,8 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
     
     VecSet ( Residual_Solution, Zero );
     
-    KSPSolve( Temperature_Linear_Solver, Residual, Residual_Solution );
-    KSPGetIterationNumber ( Temperature_Linear_Solver, &numberOfLinearIterations );
-
-    KSPGetConvergedReason ( Temperature_Linear_Solver, &convergedReason );
+    KSPConvergedReason convergedReason;
+    temperatureLinearSolver->solve( Jacobian, Residual, Residual_Solution, &numberOfLinearIterations, &convergedReason);
     temperatureHasDiverged = ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
 
     PetscTime(&End_Time);
@@ -2880,8 +2835,6 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step
 
   StatisticsHandler::update ();
 
-  KSPDestroy ( &Temperature_Linear_Solver );
-
   VecDestroy  ( &Residual );
   VecDestroy  ( &Temperature );
   VecDestroy  ( &Residual_Solution );
@@ -2941,17 +2894,33 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   PetscLogDouble System_Assembly_End_Time;
   PetscLogDouble Total_System_Assembly_Time;
 
-  KSP Temperature_Linear_Solver;  
-  KSPConvergedReason convergedReason;
+  boost::shared_ptr< PetscSolver > temperatureLinearSolver;
+  
+  if ( strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
+  {
+     temperatureLinearSolver.reset(
+        new PetscCG(
+          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )
+        )
+     );
+  }
+  else
+  {
+     temperatureLinearSolver.reset(
+        new PetscGMRES(
+          Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+          basinModel->Temperature_GMRes_Restart
+        )
+     );
+  }
+  temperatureLinearSolver->loadCmdLineOptions();
+
 
   PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
   PetscTime(&Iteration_Start_Time);
 
-  basinModel -> setTemperatureLinearSolver ( Temperature_Linear_Solver,
-                                              Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
-                                              false );
 
-  maximumNumberOfLinearSolverIterations = getSolverMaxIterations ( Temperature_Linear_Solver );
+  maximumNumberOfLinearSolverIterations = temperatureLinearSolver->getMaxIterations();
 
 
 
@@ -2995,7 +2964,6 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
                                                      Stiffness_Matrix, Load_Vector,
                                                      Element_Contributions_Time );
 
-  KSPSetOperators ( Temperature_Linear_Solver, Stiffness_Matrix, Stiffness_Matrix, SAME_NONZERO_PATTERN );
   PetscTime(&System_Assembly_End_Time);
   Total_System_Assembly_Time = System_Assembly_End_Time - System_Assembly_Start_Time;
 
@@ -3010,15 +2978,13 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   PetscTime(&restoreEndTime);
   restoreCreationTime = restoreEndTime - restoreStartTime;
 
-//    VecSet ( &Zero, Temperature );
-  KSPSolve ( Temperature_Linear_Solver, Load_Vector, Temperature );
-  KSPGetIterationNumber ( Temperature_Linear_Solver, &numberOfLinearIterations );
+  KSPConvergedReason convergedReason;
+  temperatureLinearSolver->solve(Stiffness_Matrix, Load_Vector, Temperature, &numberOfLinearIterations, &convergedReason);
   PetscTime(&End_Time);
 
   Solve_Time = End_Time - Start_Time;
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
-  KSPGetConvergedReason ( Temperature_Linear_Solver, &convergedReason );
 
   temperatureHasDiverged = isnan ( T_Norm ) || ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
 
@@ -3042,9 +3008,6 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step
   }
 
   StatisticsHandler::update ();
-
-  KSPDestroy ( &Temperature_Linear_Solver );
-
 
   PetscTime(&Iteration_End_Time);
   Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 

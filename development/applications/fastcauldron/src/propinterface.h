@@ -456,13 +456,6 @@ public:
    //
    // Pressure and Temperature linear solver information
    //
-   void setPressureLinearSolver    ( KSP&         pressureLinearSolver,
-                                     const double solverTolerance ) const;
-
-   void setTemperatureLinearSolver ( KSP&         temperatureLinearSolver,
-                                     const double solverTolerance,
-				     const bool   requiredForSteadyStateCalculation ) const;
-
 
    int  Temperature_GMRes_Restart;
 
