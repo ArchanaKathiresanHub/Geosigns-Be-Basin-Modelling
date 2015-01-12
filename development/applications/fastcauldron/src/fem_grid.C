@@ -2341,12 +2341,16 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
             if ( ! gmres  ) {
                pressureLinearSolver.reset( 
                      new PetscGMRES( 
-                           pressureLinearSolver->getMaxIterations(), 
+                           pressureLinearSolver->getTolerance(),
                            PressureSolver::DefaultGMResRestartValue, 
-                           pressureLinearSolver->getTolerance() 
+                           pressureLinearSolver->getMaxIterations()
                         )
                      );
                gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
+               gmres->loadCmdLineOptions();
+               gmres->setRestart( std::max( gmres->getRestart() , PressureSolver::DefaultGMResRestartValue));
+               gmres->setMaxIterations( std::max( pressureLinearSolver->getMaxIterations(), PressureSolver::DefaultMaximumPressureLinearSolverIterations) );
+
             } else {
                gmres->setRestart( gmres->getRestart() + PressureSolver::GMResRestartIncrementValue );
                gmres->setMaxIterations( 3 * gmres->getMaxIterations() / 2 );

@@ -108,6 +108,7 @@ add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
 add_gtest( NAME "PetscSolver"
            SOURCES src/PetscSolver.C test/PetscSolver.C
            LIBRARIES ${PETSC_LIBRARIES}
+           LINK_FLAGS "${PETSC_LINK_FLAGS}"
          )
 
 configure_file( 
