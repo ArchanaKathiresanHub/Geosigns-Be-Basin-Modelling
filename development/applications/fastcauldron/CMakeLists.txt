@@ -84,6 +84,12 @@ if(UNIX)
    target_link_libraries(fastcauldron OneFilePerProcess)
 endif()
 
+if (WIN32)
+  # Windows.h defines 'min' and 'max' macros if NOMINMAX is not defined. These
+  # macros collide with std::min and std::max
+  add_definitions(-DNOMINMAX)
+endif()
+
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
    target_link_libraries(fastcauldron ${FLEXLM_LIBRARIES})
