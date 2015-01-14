@@ -732,10 +732,10 @@ bool ProjectHandle::createSnapshotsAtRiftEvents()
          setTypeOfSnapshot( record, "System Generated" );
          setSnapshotFileName( record, "" );
 
-         // m_snapshots.push_back (getFactory ()->produceSnapshot (this, record));
+         m_snapshots.push_back (getFactory ()->produceSnapshot (this, record));
       }
    }
-   // std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
+   std::sort ( m_snapshots.begin (), m_snapshots.end (), SnapshotLessThan ());
 
    return true;
 }

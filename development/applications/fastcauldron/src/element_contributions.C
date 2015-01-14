@@ -2265,7 +2265,7 @@ void Basin_Modelling::Assemble_Element_Temperature_System
         //
         // Term 4
         //
-        Heat_Source_Term = FiniteElementMethod::innerProduct ( Element_Heat_Production, Basis );
+        Heat_Source_Term = ( 1.0 - Current_Porosity ) * FiniteElementMethod::innerProduct ( Element_Heat_Production, Basis );
         Increment ( integrationWeight * Heat_Source_Term, Basis, Element_Residual );
 
         //----------------------------//
@@ -2581,7 +2581,7 @@ void Basin_Modelling::Assemble_Element_Temperature_Residual
         //
         // Term 4
         //
-        Heat_Source_Term = FiniteElementMethod::innerProduct ( Element_Heat_Production, Basis );
+        Heat_Source_Term = ( 1.0 - Current_Porosity ) * FiniteElementMethod::innerProduct ( Element_Heat_Production, Basis );
         Increment ( integrationWeight * Heat_Source_Term, Basis, Element_Residual );
 
 
@@ -2860,9 +2860,8 @@ void Basin_Modelling::Assemble_Element_Temperature_Stiffness_Matrix
         //
         // Term 4
         //
-        Heat_Source_Term = innerProduct ( Element_Heat_Production, Basis );
+        Heat_Source_Term = ( 1.0 - Current_Porosity ) * innerProduct ( Element_Heat_Production, Basis );
         Load_Terms = Heat_Source_Term + t3 * timeStepInv;
-        // Load_Terms = Load_Terms + Heat_Source_Term;
 
         //
         // Update the load vector with Source terms and previous time step term (Called Load_Terms).
