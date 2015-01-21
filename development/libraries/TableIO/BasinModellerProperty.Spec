@@ -139,6 +139,13 @@ START-properties
     Default             : 0
     Error Field         : No
 
+    Identification      : UseInResQ
+    Description         : 0 if NotUsed, 1 if Used
+    Unit of measurement :
+    Type                : integer
+    Default             : 0
+    Error Field         : No
+
     Identification      : Depth_
     Description         : The depth for a property
     Unit of measurement : m
@@ -6423,6 +6430,7 @@ START-property-tables
     Description    : table with snapshot data (3D only)
     Column         : Time
     Column         : IsMinorSnapshot
+    Column         : UseInResQ
     Column         : TypeOfSnapshot
     Column         : SnapshotFileName
     Header         : Run Options

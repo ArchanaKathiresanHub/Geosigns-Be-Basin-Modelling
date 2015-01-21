@@ -249,12 +249,15 @@ void TouchstoneWrapper::calculateWrite ( ) {
    int lastJ 			= -1;
    int iD 				= -1;
    int step 			= 	0;
+   std::vector<size_t> usedSnapshotsIndexes;
+   
    mkfifo(m_status, 0777);
    FILE * statusFile = fopen(m_status,"w");
    
    ReadBurial ReadBurial(m_burhistFile);
    ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ);
-   
+   ReadBurial.readSnapshotsIndexes(usedSnapshotsIndexes);
+     
    int totalNumberOfSteps = (lastI	+	1	-	firstI);
    
    TouchstoneFiles WriteTouchstone(m_results);
@@ -280,15 +283,15 @@ void TouchstoneWrapper::calculateWrite ( ) {
 
             m_tslibCalcContext->Calculate( m_tslibBurialHistoryInfo, true ); 
 
-            WriteTouchstone.writeNumTimeSteps(numTimeSteps);    
-            write( m_tslibBurialHistoryInfo.count - 1, WriteTouchstone ); 
+            WriteTouchstone.writeNumTimeSteps(numTimeSteps);  
+       
+            for( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn ) write( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
 
          } else {
 
             WriteTouchstone.writeNumTimeSteps(numTimeSteps);
 
          }
-
       }
       
       double fractionCompleted =  (double) ++step / (double) totalNumberOfSteps ;

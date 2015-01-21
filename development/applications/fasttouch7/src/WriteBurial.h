@@ -14,6 +14,7 @@ public:
    WriteBurial(const char * filename);
 //write methods
    void writeIndexes(int firstI, int lastI, int firstJ, int lastJ) ;
+   void writeSnapshotsIndexes(const std::vector<size_t> & usedSnapshotsIndexes);
    void writeBurialHistory(const std::vector<BurialHistoryTimeStep> & burHistTimesteps, int iD) ;	
 };
 

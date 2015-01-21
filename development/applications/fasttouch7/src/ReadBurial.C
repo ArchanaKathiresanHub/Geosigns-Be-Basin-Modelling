@@ -18,6 +18,15 @@ void ReadBurial::readNumTimeStepsID( size_t * numTimeSteps, int * iD)
 	m_filename >> *numTimeSteps;
 }
 
+void ReadBurial::readSnapshotsIndexes(std::vector<size_t> & usedSnapshotsIndexes) 
+{
+   size_t usedSnapshotsIndexesSize = 0;
+   m_filename >> usedSnapshotsIndexesSize;
+   usedSnapshotsIndexes.resize(usedSnapshotsIndexesSize);
+   for ( int ii = 0; ii < usedSnapshotsIndexes.size(); ++ii ) m_filename >> usedSnapshotsIndexes[ii];
+   
+}
+
 void ReadBurial::readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep > & burHistTimesteps, int numTimeSteps) 
 {
 

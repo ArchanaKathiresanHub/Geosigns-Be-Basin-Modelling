@@ -16,6 +16,7 @@
 #include "Interface/GridMap.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/Snapshot.h"
 
 
 double MinimumAll (double myValue);
@@ -129,6 +130,8 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    , m_categoriesMapping()
    , m_formatsMapping()
    , m_fileList()
+   , m_usedSnapshotsIndex()
+   , m_usedSnapshotsAge()
 {
    // set format mapping
    m_formatsMapping[iSd_str]           = SD;  
@@ -155,7 +158,6 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    }
    m_percentPercentileMapping[ 99 ] = 20; 
    
-   
    // set categories mapping
    m_categoriesMapping [iCore_equiv_str]    = 0; //TSLIB_RC_CORE_PORO;
    m_categoriesMapping [iIntergranular_str] = 1; //TSLIB_RC_IGV;
@@ -165,6 +167,28 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    m_categoriesMapping [iCement_Quartz_str] = 5; //TSLIB_RC_CMT_QRTZ;
    m_categoriesMapping [iLog_str]           = 6; //TSLIB_RC_LOGPERM;
    
+   // Used snapshots
+	Interface::SnapshotList * MajorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
+	Interface::SnapshotList::iterator it;
+	
+	for (size_t majorSnapshotIndex = 0; majorSnapshotIndex < MajorSnapshots->size(); ++majorSnapshotIndex)
+	{
+	   if ((*MajorSnapshots)[majorSnapshotIndex]->getUseInResQ())
+	   {
+	   	m_usedSnapshotsIndex.push_back( majorSnapshotIndex );
+	      m_usedSnapshotsAge.push_back( (*MajorSnapshots)[majorSnapshotIndex]->getTime() );
+	   }
+	}
+	
+	// Age 0 is always included
+	if (m_usedSnapshotsAge.empty() || find( m_usedSnapshotsAge.begin( ), m_usedSnapshotsAge.end( ), 0.0) == m_usedSnapshotsAge.end( )) 
+	{
+		m_usedSnapshotsIndex.push_back( 0 );
+		m_usedSnapshotsAge.push_back( 0.0 );  
+	}
+		
+	delete MajorSnapshots;
+	
 }
 
 /** The run function is responsible for carrying out the functional
@@ -235,6 +259,10 @@ bool MasterTouch::run()
  *  Each grid map created must correspond to a Tcf file, a specific layer,
  *  a results category and a result format.
  */
+ 
+ 
+//7 this is called by Fassouch 
+ 
 bool MasterTouch::addOutputFormat( const string & filename,
                                    const Surface * surface, const Formation * formation, 
                                    const string & category, const string & format,
@@ -259,30 +287,38 @@ bool MasterTouch::addOutputFormat( const string & filename,
 
    propertyValueName += " ";
    propertyValueName += perc_str;
-
-   const Snapshot * zeroSnapshot = m_projectHandle.findSnapshot( 0 );
-
-   if ( !zeroSnapshot ) 
-   { 
-      cerr << endl << "Could not create PropertyValue: " << propertyValueName  << ", could not find present day snapshot" << endl; 
-      return false; 
-   }
-
-   PropertyValue * propertyValue = m_projectHandle.createMapPropertyValue( propertyValueName, zeroSnapshot, 0, formation, surface); 
-   if ( !propertyValue )
-   { 
-      cerr << endl << "Could not create PropertyValue named: " << propertyValueName << endl; 
-      return false; 
-   }
    
-   GridMap * gridMap = propertyValue->getGridMap();
- 
    // create map info
    MapInfo map; 
-   map.format  = format; 
-   map.gridMap = gridMap; 
+   map.format  = format;
    map.percent = percent;
-
+     
+   // update map.gridMap
+   
+	for(size_t it = 0; it < m_usedSnapshotsAge.size(); ++it ) 
+	{		
+	
+		const Snapshot * majorSnapshot = m_projectHandle.findSnapshot( m_usedSnapshotsAge[it] );
+		      
+		if ( !majorSnapshot ) 
+		{ 
+      cerr << endl << "Could not create PropertyValue: " << propertyValueName  << ", could not find snapshot " << m_usedSnapshotsAge[it] << endl; 
+      return false; 
+		}
+		
+		PropertyValue * propertyValue = m_projectHandle.createMapPropertyValue( propertyValueName, majorSnapshot, 0, formation, surface);
+		
+		if ( !propertyValue )
+   	{ 
+      cerr << endl << "Could not create PropertyValue named: " << propertyValueName  <<endl; 
+      return false; 
+   	}
+		
+		GridMap * gridMap = propertyValue->getGridMap();
+		
+		map.gridMap.push_back(gridMap);		
+   }
+   
    LayerInfo layer( surface, formation );
 
    // add layer info and map info to output list
@@ -309,13 +345,17 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
 	
    char burhistFile[L_tmpnam]; 
    tmpnam(burhistFile);
+
    //Create an write burial history
    {
       BurialHistory burialHistory(surface, m_projectHandle);
 
       WriteBurial WriteBurial(burhistFile);
       WriteBurial.writeIndexes(firstI, lastI, firstJ, lastJ );
-
+      WriteBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
+		
+		//Write Burial History
+		
       for ( int i = firstI; i <= lastI; ++i )
       {
          for( int j = firstJ; j <= lastJ; ++j )
@@ -327,7 +367,7 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
          }
       }
    }
-
+   
    char resultFile[L_tmpnam];
    tmpnam(resultFile); 
 
@@ -345,7 +385,6 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
    m_categoriesMapping[iMicro_str]         = vec[3]; // TSLIB_RC_MICRO_PORO;
    m_categoriesMapping[iAbsolute_str]      = vec[4]; // TSLIB_RC_PERM;
    m_categoriesMapping[iCement_Quartz_str] = vec[5]; // TSLIB_RC_CMT_QRTZ;
-
     
    //Read touchstone results
    for ( int i = firstI; i <= lastI; ++i )
@@ -354,8 +393,11 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
       {         
          size_t numTimeSteps = 0;
          ReadTouchstone.readNumTimeSteps(&numTimeSteps);
-
-         if (numTimeSteps > 0) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone);
+         
+         if (numTimeSteps > 0) { 
+            for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
+         }
+         
       }
    } 			
 
@@ -368,7 +410,7 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
  *  with that particular layer should be extracted before the next grid point's 
  *  results are processed
  */
-void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone)
+void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn)
 {
    const int numberOfTouchstoneProperties = 7;
    const int numberOfStatisticalOutputs   = 29;
@@ -395,7 +437,7 @@ void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList &
          int resultStat = resultFormat 
                         + int (resultFormat > MODE) * ( m_percentPercentileMapping[ (*mIt).percent ] ) 
                         + int (resultFormat > PERCENTILE ) * ( 20 - m_percentPercentileMapping [ (*mIt).percent ] );
-         (*mIt).gridMap->setValue( i, j,  outputProperties[ resultCat *  numberOfStatisticalOutputs + resultStat ] );
+         (*mIt).gridMap[sn]->setValue( i, j,  outputProperties[ resultCat *  numberOfStatisticalOutputs + resultStat ] );
       }
    }
 }
@@ -410,7 +452,9 @@ bool MasterTouch::retrieveGridMaps(const CategoryMapInfoList & currentOutputs)
       for ( MapInfoList::const_iterator milIterator = mapInfoList.begin(); milIterator != mapInfoList.end(); ++milIterator )
       {
          const MapInfo & mapInfo = *milIterator;
-         mapInfo.gridMap->retrieveData ();
+         for(size_t it = 0; it < m_usedSnapshotsIndex.size(); ++it ) 
+         mapInfo.gridMap[it]->retrieveData ();
+         
       }
    }
    return true;
@@ -425,7 +469,8 @@ bool MasterTouch::restoreGridMaps(const CategoryMapInfoList & currentOutputs)
       for (MapInfoList::const_iterator milIterator = mapInfoList.begin (); milIterator != mapInfoList.end (); ++milIterator)
       {
          const MapInfo & mapInfo = *milIterator;
-         mapInfo.gridMap->restoreData ();
+         for(size_t it = 0; it < m_usedSnapshotsIndex.size(); ++it ) 
+         mapInfo.gridMap[it]->restoreData ();
       }
    }
    return true;

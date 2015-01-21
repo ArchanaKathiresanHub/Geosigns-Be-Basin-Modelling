@@ -94,10 +94,15 @@ const std::string& Snapshot::getKind () const {
    return database::getTypeOfSnapshot ( m_record );
 }
 
-
 int Snapshot::getType (void) const
 {
    return m_type;
+}
+
+bool Snapshot::getUseInResQ (void) const {
+	
+	return database::getUseInResQ ( m_record ) == 1;
+
 }
 
 void Snapshot::setAppendFile ( const bool append ) {

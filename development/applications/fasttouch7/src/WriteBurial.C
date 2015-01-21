@@ -13,6 +13,16 @@ void WriteBurial::writeIndexes(int firstI, int lastI, int firstJ, int lastJ)
    m_filename << firstI << lastI << firstJ << lastJ; 
 }
 
+void WriteBurial::writeSnapshotsIndexes(const std::vector<size_t> & usedSnapshotsIndexes) 
+{
+   m_filename << usedSnapshotsIndexes.size(); 
+   
+   for ( int sn = 0; sn < usedSnapshotsIndexes.size(); ++sn )
+   {
+      m_filename << usedSnapshotsIndexes[sn]; 
+   }
+}
+
 void WriteBurial::writeBurialHistory(const std::vector<BurialHistoryTimeStep > & burHistTimesteps, int iD) 
 {
    m_filename << iD;

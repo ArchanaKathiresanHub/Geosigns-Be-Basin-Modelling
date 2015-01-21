@@ -109,7 +109,7 @@ bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
 {
    string str;
    touchstoneMap->asString (str);
-   // cerr << "Adding " << str << "to computation list" << endl;
+   //cerr << "Adding " << str << "to computation list" << endl;
 
    m_masterTouch.addOutputFormat( 
          touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),

@@ -35,6 +35,7 @@ namespace DataAccess
 	    virtual void printOn (ostream &) const;
 
 	    virtual int getType (void) const;
+	    virtual bool getUseInResQ (void) const;
 
             /// Set whether the snapshot file should be appended or not.
             virtual void setAppendFile ( const bool append );

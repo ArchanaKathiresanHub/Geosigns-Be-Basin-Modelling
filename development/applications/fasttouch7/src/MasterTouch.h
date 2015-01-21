@@ -39,7 +39,7 @@ namespace fasttouch
          struct MapInfo
          {
             std::string format;
-            DataAccess::Interface::GridMap * gridMap;
+            std::vector<DataAccess::Interface::GridMap *> gridMap;
             int percent;
          };
 
@@ -91,6 +91,10 @@ namespace fasttouch
          std::map < std::string, int > m_formatsMapping;
          
          FileLayerCategoryMapInfoList  m_fileList;
+         
+        	std::vector<size_t> m_usedSnapshotsIndex;
+        
+         std::vector<double> m_usedSnapshotsAge;
 
          /** Collect cauldron output and call the new ts calculate*/
          bool calculate( const std::string & filename,
@@ -101,7 +105,7 @@ namespace fasttouch
          bool restoreGridMaps(const CategoryMapInfoList & currentOutputs);
           
          /** save ts results to ts output directory */
-         void writeResultsToGrids(int east, int north, const CategoryMapInfoList & outputCategory, TouchstoneFiles& readTouchstone);
+         void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn);
 
       public:
          MasterTouch( DataAccess::Interface::ProjectHandle & projectHandle);
