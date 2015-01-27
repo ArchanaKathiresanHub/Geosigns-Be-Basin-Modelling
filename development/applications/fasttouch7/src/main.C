@@ -64,7 +64,6 @@ static char help[] = "Parallel FastTouch \n\n";
 void PrintUsage (char * argv0);
 
 PetscBool debug = PETSC_FALSE;
-
 //////////////////////////////////////////////////////////////////
 // Set of auxillar functions to set/clean up temporary folder per MPI process
 // to keep Matlab MCR cache files during CreateRealization call
@@ -127,7 +126,7 @@ int main (int argc, char ** argv)
         ++argv0;
 
     PetscOptionsHasName (PETSC_NULL, "-debug", &debug);
-
+    
     char inputFileName[128];
     PetscBool inputFileSet;
  

@@ -9,6 +9,7 @@
 
 #include "Interface/Formation.h"
 #include "Interface/Surface.h"
+#include "petsc.h"
 
 namespace DataAccess
 {

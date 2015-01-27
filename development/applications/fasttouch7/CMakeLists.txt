@@ -85,7 +85,7 @@ endif()
 
 #Touchstone Wrapper
 
-configure_file(touchstoneWrapper.sh.cmake "aux/touchstoneWrapper.sh")
+configure_file(LocalBuild.cmake "aux/touchstoneWrapper.sh")
 file(COPY "${CMAKE_CURRENT_BINARY_DIR}/aux/touchstoneWrapper.sh"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}"
         FILE_PERMISSIONS
@@ -112,6 +112,7 @@ install(TARGETS touchstoneWrapper
 	RUNTIME DESTINATION bin
 )
 
+# Copy touchstoneWrapper.sh in the installation directory
 install(PROGRAMS touchstoneWrapper.sh
    DESTINATION bin
 )

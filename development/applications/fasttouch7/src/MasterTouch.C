@@ -26,8 +26,6 @@ using namespace fasttouch;
 using namespace DataAccess;
 using namespace Interface;
 
-#include <unistd.h>
-
 #include <cerrno>
 #include <cstdlib>
 #include <libgen.h>
@@ -186,8 +184,7 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
 		m_usedSnapshotsAge.push_back( 0.0 );  
 	}
 		
-	delete MajorSnapshots;
-	
+	delete MajorSnapshots;	
 }
 
 /** The run function is responsible for carrying out the functional
@@ -204,7 +201,7 @@ bool MasterTouch::run()
    { 
       return false;
    }
-
+	
    FileLayerCategoryMapInfoList::const_iterator it;
 
    for ( it = m_fileList.begin(); it != m_fileList.end(); ++it )
@@ -253,7 +250,7 @@ bool MasterTouch::run()
          		ReportProgress( progressString );
 				} else 
 				{
-         		cout << "MasterTouch::calculate is restarted " << endl;
+					cerr << "MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs"<<endl;
          		runs += 1;
          	}
          }
@@ -389,7 +386,7 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
    }
    catch ( ... )
    {
-		cout << "Touchstone Wrapper failed " << endl;
+		cerr << "Touchstone wrapper failed " << endl;
       return false;
    }
 
@@ -425,7 +422,7 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
    }	
    catch ( std::exception & e ) 
    {
-		cout << "Results are not read correctly : " << e.what() << endl;
+		cerr << "Results are not read correctly on MPI process " << GetRank( ) << " : "<< e.what() << endl;
    	return false;
 	}	
 

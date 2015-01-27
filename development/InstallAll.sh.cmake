@@ -75,14 +75,8 @@ else
          tar xf Xerces.tar
          echo "    - Unpacking Codesynthesis XSD archive"
          tar xf xsd.tar
-         echo "    - Installing Matlab runtime"
-         echo "-P installLocation=`pwd`/matlabmcr/matlab" > MCRInstaller.in
-         ./MCRInstaller.bin -silent -options MCRInstaller.in
-         echo "    - Increasing java memory"
-         mv java.opts "`pwd`/matlabmcr/matlab/v713/bin/glnxa64"
       popd > /dev/null
    popd > /dev/null
-   
 fi
 
 echo "Configuring installation"

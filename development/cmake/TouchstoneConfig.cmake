@@ -26,7 +26,7 @@ list(APPEND TSLIB_LIBRARIES "${TSLIB_GEOCOSMBASECPP}" "${TSLIB_GEOCOSMEXCEPTION}
 mark_as_advanced( TSLIB_GEOCOSMBASECPP TSLIB_GEOCOSMEXCEPTION )
 
 add_external_package_info(
-      CAPABILITY TsLib7
+      CAPABILITY TsLib
       NAME    "TsLib"
       VENDOR  "Geocosm"
       VERSION "${TSLIB_VERSION}"
@@ -86,67 +86,43 @@ add_external_package_info(
       ECCN         "Unknown"
 )
 
-set( MCR_ROOT "MCR-NOTFOUND" CACHE PATH "Path to Matlab Compiler Runtime")
-set( MCR_VERSION "Unknown" CACHE STRING "Matlab Compiler Runtime Version")
+set( MCR_ROOT "MCR-NOTFOUND" CACHE PATH "Path to Matlab ")
+set( MCR_VERSION "Unknown" CACHE STRING "Matlab version")
 add_external_package_info(
-      CAPABILITY MatlabCompilerRuntime
-      NAME       "Matlab Compiler Runtime"
+      CAPABILITY Matlab
+      NAME       "Matlab"
       VENDOR     "The Mathworks, Inc."
       VERSION    "${MCR_VERSION}"
       LICENSE_TYPE "Commercial"
       LICENSE_FILE  "${MCR_ROOT}/license.txt"
-      URL        "http://www.mathworks.co.uk/products/compiler/mcr"
+      URL        "http://www.mathworks.co.uk/products/matlab"
       DESCRIPTION "High-level language and interactive environment for numerical computation, visualization, and programming"
       REQUIRED_BY "TsLib7"
       REQUIRED_AT  "Runtime"
       COUNTRY_OF_ORIGIN "USA"
-      SHIPPED        "Yes"
+      SHIPPED        "No"
       INCLUSION_TYPE "Separate Executable"
       USEABLE_STAND_ALONE "Yes"
       CONTAINS_CRYPTO "No"
-      ECCN         "5D992"
-      ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/2013.10-ECCN_Discussion_with_George_Jolly.msg"
 )
 	
 add_external_package_info(
-      CAPABILITY MatlabCompilerRuntime_InstallerJRE
+      CAPABILITY Matlab_JRE
       NAME       "Java Runtime Environment"
       VENDOR     "Oracle"
-      VERSION    "1.5.0_04"
+      VERSION    "6"
       LICENSE_TYPE "Commercial"
-      LICENSE_FILE  "${MCR_ROOT}/sys/java/jre/win64/jre/LICENSE"
+      LICENSE_FILE "${MCR_ROOT}/sys/java/jre/glnxa64/jre/LICENSE"
       URL "http://www.oracle.com/technetwork/java/javase/overview/index.html"
-      DESCRIPTION "Java Runtime Environment used by InstallShield installer of Matlab Compiler Runtime that is used by Geocosm's TsLib"
-      REQUIRED_BY "MatlabCompilerRuntime"
-      REQUIRED_AT  "Build"
-      COUNTRY_OF_ORIGIN "USA"
-      SHIPPED        "Yes"
-      INCLUSION_TYPE "Separate Executable"
-      USEABLE_STAND_ALONE "Yes"
-      CONTAINS_CRYPTO "Yes"
-      ECCN         "5D992"
-      ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/2013.10-ECCN_Discussion_with_George_Jolly.msg"
-      ECCN_EVIDENCE "http://www.oracle.com/us/products/export/eccn-matrix-software-412042.pdf"
-)
-
-add_external_package_info(
-      CAPABILITY MatlabCompilerRuntime_JRE
-      NAME       "Java Runtime Environment"
-      VENDOR     "Oracle"
-      VERSION    "1.6.0_12"
-      LICENSE_TYPE "Commercial"
-      LICENSE_FILE "${MCR_ROOT}/sys/java/jre/win64/jre/LICENSE"
-      URL "http://www.oracle.com/technetwork/java/javase/overview/index.html"
-      DESCRIPTION "Java Runtime Environment used by Matlab Compiler Runtime that is used by Geocosm's TsLib"
-      REQUIRED_BY "MatlabCompilerRuntime"
+      DESCRIPTION "Java Runtime Environment used by Matlab that is used by Geocosm's TsLib"
+      REQUIRED_BY "Matlab"
       REQUIRED_AT  "Runtime"
       COUNTRY_OF_ORIGIN "USA"
-      SHIPPED        "Yes"
+      SHIPPED        "No"
       INCLUSION_TYPE "Separate Executable"
       USEABLE_STAND_ALONE "Yes"
       CONTAINS_CRYPTO "Yes"
-      ECCN         "5D992"
-      ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/2013.10-ECCN_Discussion_with_George_Jolly.msg"
-      ECCN_EVIDENCE "http://www.oracle.com/us/products/export/eccn-matrix-software-412042.pdf"
 )  
+
+
 

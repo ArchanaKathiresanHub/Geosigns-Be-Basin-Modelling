@@ -208,22 +208,11 @@ bool TouchstoneWrapper::loadTcf ( ) {
    const TcfSchema::ResultHeadersType& statHeaders = m_tslibCalcContext->StatisticsResultHeaders();
 
    try 
-   {  // !!! Note
-      // Here is an attempt to fix crashes on accessing this file - "num2str.m" during CreateRealizations() call
-      // this happened not every run, but quite often and it seems to depend on the load of filesystem
-      // it should be removed after upgrading to TouchStone 7.4 library
-      string filePath = string( getenv( "MATLABMCR" ) ) + "/matlab/v713/toolbox/matlab/strfun/num2str.m";
-            
-      FILE * fid = NULL;
-      for ( int i = 0; i < 1000 && !fid; ++i ) fid = fopen( filePath.c_str(), "rb" );
-      if ( fid )
-      {
-         char buf[20];
-         fread( buf, 10, 1, fid );
-         fclose( fid );
-      }
-      // end of the fix
-      if ( !m_directAnalogRun ) m_tslibCalcContext->CreateRealizations( m_nrOfRealizations ); 
+   { 
+		int randomSeed = 0; 
+		for ( int  i = 0; i != strlen(m_filename); ++i )
+		randomSeed +=m_filename[i];
+      if ( !m_directAnalogRun ) m_tslibCalcContext->CreateRealizations( m_nrOfRealizations, randomSeed, 1); 
    }   
    catch ( std::exception & e )
    {
