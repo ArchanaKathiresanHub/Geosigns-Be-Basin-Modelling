@@ -641,8 +641,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>requestPropertyInSnapshots</name>
       <anchorfile>classmbapi_1_1PropertyManager.html</anchorfile>
-      <anchor>a4106e2158b24e28df1d824a6178a8280</anchor>
-      <arglist>(const std::string &amp;propName)=0</arglist>
+      <anchor>abc27162bab6fc4d9390ed6f8af9630c6</anchor>
+      <arglist>(const std::string &amp;propName, const std::string &amp;outputPropOption=&quot;&quot;)=0</arglist>
     </member>
   </compound>
   <compound kind="class">

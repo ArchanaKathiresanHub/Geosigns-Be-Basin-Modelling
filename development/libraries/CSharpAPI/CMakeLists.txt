@@ -118,11 +118,13 @@ set( CSHARP_UNIT_TESTS_SRC
     test/BpaPhase.cs
     test/cmbAPITest.cs
     test/casaAPITest.cs
+    test/casaAPI_SensitivityCalculatorTest.cs
 )
 
 configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
-configure_file(test/Project.project3d csharp-test/Project.project3d)
-configure_file(test/Ottoland.project3d csharp-test/Ottoland.project3d)
+configure_file(test/Project.project3d csharp-test/Project.project3d COPYONLY)
+configure_file(test/Ottoland.project3d csharp-test/Ottoland.project3d COPYONLY)
+configure_file(test/Ottoland_casa_state.txt csharp-test/Ottoland_casa_state.txt COPYONLY)
 configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg)
 
 add_csharp_unittest( 

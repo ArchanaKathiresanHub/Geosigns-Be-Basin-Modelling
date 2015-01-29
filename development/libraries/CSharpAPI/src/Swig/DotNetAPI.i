@@ -132,6 +132,8 @@
 #include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 #include "../../../casaAPI/src/CauldronApp.h"
+#include "../../../casaAPI/src/DataDigger.h"
+#include "../../../casaAPI/src/DataDiggerImpl.h"
 #include "../../../casaAPI/src/DoEGenerator.h"
 #include "../../../casaAPI/src/DoEGeneratorImpl.h"
 #include "../../../casaAPI/src/JobScheduler.h"
@@ -160,6 +162,8 @@
 #include "../../../casaAPI/src/RunCaseImpl.h"
 #include "../../../casaAPI/src/RunCaseSet.h"
 #include "../../../casaAPI/src/RunCaseSetImpl.h"
+#include "../../../casaAPI/src/SensitivityCalculator.h"
+#include "../../../casaAPI/src/SensitivityCalculatorImpl.h"
 #include "../../../casaAPI/src/ScenarioAnalysis.h"
 #include "../../../casaAPI/src/VarParameter.h"
 #include "../../../casaAPI/src/VarSpace.h"
@@ -310,6 +314,8 @@ using namespace casa;
 %include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 %include "../../../casaAPI/src/CauldronApp.h"
+%include "../../../casaAPI/src/DataDigger.h"
+%include "../../../casaAPI/src/DataDiggerImpl.h"
 %include "../../../casaAPI/src/DoEGenerator.h"
 %include "../../../casaAPI/src/DoEGeneratorImpl.h"
 %include "../../../casaAPI/src/JobScheduler.h"
@@ -338,6 +344,8 @@ using namespace casa;
 %include "../../../casaAPI/src/RunCaseImpl.h"
 %include "../../../casaAPI/src/RunCaseSet.h"
 %include "../../../casaAPI/src/RunCaseSetImpl.h"
+%include "../../../casaAPI/src/SensitivityCalculator.h"
+%include "../../../casaAPI/src/SensitivityCalculatorImpl.h"
 %include "../../../casaAPI/src/ScenarioAnalysis.h"
 %include "../../../casaAPI/src/VarParameter.h"
 %include "../../../casaAPI/src/VarSpace.h"
@@ -435,5 +443,7 @@ using namespace casa;
 %template(PolynomCoefficient)  std::pair< std::vector< unsigned int >, std::pair<double,double> >;
 %template(MCResults)           std::vector< std::pair<double,casa::RunCase*> >;
 
-/// %template(DoubleVector) std::vector<double>;
+
+/// CASA API SensitivityCalculator data types
+%template(TornadoSensitivityData) std::vector<casa::TornadoSensitivityInfo>;
 

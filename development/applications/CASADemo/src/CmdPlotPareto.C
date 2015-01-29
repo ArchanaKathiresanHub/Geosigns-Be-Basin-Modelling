@@ -55,7 +55,7 @@ void CmdPlotPareto::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    casa::SensitivityCalculator & sCalc = sa->sensitivityCalculator();
 
-   casa::SensitivityCalculator::ParetoSensitivityInfo data;
+   casa::ParetoSensitivityInfo data;
    sCalc.calculatePareto( proxy, data );
 
    MatlabExporter ofs( m_mFileName );

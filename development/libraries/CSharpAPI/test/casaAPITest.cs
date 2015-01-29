@@ -124,8 +124,15 @@ namespace Shell.BasinModeling.Cauldron.Test
       public double m_maxTCHP = 4.9;
 
       public string m_layerName = @"Lower Jurassic";
-      public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
       public string m_fileName = @"Ottoland.project3d";
+
+      // for regular run
+      public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
+      public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
+
+      // for debug run
+      // public string m_projectFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
+      // public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
 
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
@@ -446,6 +453,11 @@ namespace Shell.BasinModeling.Cauldron.Test
          Assert.IsTrue(Math.Abs(nrc.obsValue(0).asDoubleArray()[0] - 65.6445336) < eps);
          Assert.IsTrue(Math.Abs(nrc.obsValue(1).asDoubleArray()[0] - 0.4827356) < eps);
       }
+      
+      [TestMethod]
+      public void Empty_test()
+      { }
+
 
       [TestMethod]
       public void MCSolver_MC_Test() // analog of casaAPI/test/MCTest.C
@@ -567,11 +579,10 @@ namespace Shell.BasinModeling.Cauldron.Test
          Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.56984) < reps);
       }
 
-      [TestMethod]
+/*      [TestMethod]
       public void ScenarioAnalysis_Serialzation_Test() // analog of casaAPI/test/SerializationTest.C
-      {/*
-         {  // create fresh serialized state
-            ScenarioAnalysis sa = ScenarioAnalysis.loadScenario("Ottoland_casa_state.txt", "txt");
+      {
+         
             sa.saveScenario("casa_state_reloaded_1.txt", "txt");
          }
          {
@@ -584,7 +595,7 @@ namespace Shell.BasinModeling.Cauldron.Test
          string fileBContent = File.ReadAllText("casa_state_reloaded_2.txt");
 
          Assert.IsTrue(fileAContent == fileBContent);
-         */
       }
+ */
    }
 }

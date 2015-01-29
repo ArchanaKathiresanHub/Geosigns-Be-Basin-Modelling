@@ -39,10 +39,10 @@ namespace casa
    typedef std::vector<ProxyWeightPair>            ProxyWeightList1D;
 
    //////////////////////////////////////////////////////////////
-   // SensitivityCalculator::ParetoSensitivityInfo
+   // ParetoSensitivityInfo
    //////////////////////////////////////////////////////////////
    const std::vector< std::pair<const VarParameter *, int > >
-   SensitivityCalculator::ParetoSensitivityInfo::getVarParametersWithCumulativeImpact( double fraction ) const
+   ParetoSensitivityInfo::getVarParametersWithCumulativeImpact( double fraction ) const
    {
       std::vector< std::pair<const VarParameter *, int> > ret;
       double cumulative = 0.0;
@@ -55,7 +55,7 @@ namespace casa
    }
 
    // Get the sensitivity of specified VarParameter
-   double SensitivityCalculator::ParetoSensitivityInfo::getSensitivity( const VarParameter * varPrm, int subPrmID ) const
+   double ParetoSensitivityInfo::getSensitivity( const VarParameter * varPrm, int subPrmID ) const
    {
       for ( size_t i = 0; i < m_vprmPtr.size(); ++i )
       {
@@ -68,7 +68,7 @@ namespace casa
    }
 
    // Get the cumulative sensitivity of specified VarParameter
-   double SensitivityCalculator::ParetoSensitivityInfo::getCumulativeSensitivity( const VarParameter * varPrm, int subPrmID ) const
+   double ParetoSensitivityInfo::getCumulativeSensitivity( const VarParameter * varPrm, int subPrmID ) const
    {
       double cumulative = 0.0;
       for ( size_t i = 0; i < m_vprmSens.size(); ++i )
@@ -80,7 +80,7 @@ namespace casa
    }
 
    // Add new parameter sensitivity to the list
-   void SensitivityCalculator::ParetoSensitivityInfo::add( const VarParameter * varPrm, int subPrmID, double val ) 
+   void ParetoSensitivityInfo::add( const VarParameter * varPrm, int subPrmID, double val ) 
    { 
       for ( size_t i = 0; i < m_vprmSens.size() && varPrm; ++i )
       {  // create sorted by sensitivity value array
@@ -99,6 +99,69 @@ namespace casa
          m_vprmPtr.push_back(   varPrm );
       }
    }
+
+   //////////////////////////////////////////////////////////////
+   // TornadoSensitivityInfo
+   //////////////////////////////////////////////////////////////
+   TornadoSensitivityInfo::TornadoSensitivityInfo( const  Observable * obs
+                                                  , int    obsSubID
+                                                  , double obsRefVal
+                                                  , const  std::vector< std::pair<const VarParameter *, int> > & varPrms
+                                                  , const  SensitivityData & sensData
+                                                  , const  SensitivityData & relSensData 
+                                                  )
+                                                  : m_obs( obs )
+                                                  , m_obsSubID( obsSubID )
+                                                  , m_refObsValue( obsRefVal )
+                                                  , m_vprmPtr( varPrms )
+                                                  , m_sensitivities( sensData )
+                                                  , m_relSensitivities( relSensData ) {;}
+
+   TornadoSensitivityInfo::TornadoSensitivityInfo( const TornadoSensitivityInfo & tsi )
+                                                 : m_obs( tsi.observable() )
+                                                 , m_obsSubID( tsi.observableSubID() )
+                                                 , m_refObsValue( tsi.refObsValue() )
+                                                 , m_vprmPtr( tsi.varPrmList() )
+                                                 , m_sensitivities( tsi.sensitivities() )
+                                                 , m_relSensitivities( tsi.relSensitivities() ) {;}
+
+
+   double TornadoSensitivityInfo::minAbsSensitivityValue( size_t prmNum ) const
+   {
+      return m_sensitivities[prmNum].size() == 1 ? refObsValue() :                             // categ. prm
+                                                   refObsValue() + m_sensitivities[prmNum][0]; // contin. prm
+   }
+
+   double TornadoSensitivityInfo::maxAbsSensitivityValue( size_t prmNum ) const
+   {
+      return m_sensitivities[prmNum].size() == 1 ? refObsValue() + m_sensitivities[prmNum][0] : // categ. prm
+                                                   refObsValue() + m_sensitivities[prmNum][1];  // contin. prm
+   }
+
+   double TornadoSensitivityInfo::minRelSensitivityValue( size_t prmNum ) const
+   {
+      return m_sensitivities[prmNum].size() == 1 ? 101 : // no rel. sensitivity for categ. prm
+                                                   m_relSensitivities[prmNum][0];
+   }
+
+   double TornadoSensitivityInfo::maxRelSensitivityValue( size_t prmNum ) const
+   {
+      return m_sensitivities[prmNum].size() == 1 ? 101 : // no rel. sensitivity for categ. prm
+                                                   m_relSensitivities[prmNum][1];
+   }
+
+   std::vector<std::string> TornadoSensitivityInfo::varParametersNameList()
+   {
+      std::vector<std::string> names;
+      for ( size_t i = 0; i < m_vprmPtr.size(); ++i )
+      {
+         const std::vector<std::string> & vprmNames = m_vprmPtr[i].first->name();
+         names.push_back( vprmNames[m_vprmPtr[i].second] );
+      }
+      return names;
+   }
+
+
 
    //////////////////////////////////////////////////////////////
    // SensitivityCalculator methods
@@ -182,8 +245,10 @@ namespace casa
       return NoError;
    }
       
-   ErrorHandler::ReturnCode SensitivityCalculatorImpl::calculateTornado( RunCaseSet & cs, const std::vector<std::string> & expNames, std::vector<TornadoSensitivityInfo> & returnValue )
+   std::vector<TornadoSensitivityInfo> SensitivityCalculatorImpl::calculateTornado( RunCaseSet & cs, const std::vector<std::string> & expNames )
    {
+      std::vector<TornadoSensitivityInfo> returnValue;
+
       // create proxy for tornado sensitivity calculation
       RSProxyImpl sensProxy( "TempProxyForSensCalc", *m_varSpace, *m_obsSpace, 1, RSProxy::GlobalKriging, false, 0.0, 0.0 );
 
@@ -195,7 +260,11 @@ namespace casa
       }
 
       // After all preparation and RunCases collecting, here we will calculate proxy
-      if ( ErrorHandler::NoError != sensProxy.calculateRSProxy( caseSet ) ) return moveError( sensProxy );
+      if ( ErrorHandler::NoError != sensProxy.calculateRSProxy( caseSet ) )
+      {
+         moveError( sensProxy );
+         return returnValue;
+      }
       
       // get SUMlib proxies list
       const std::vector<const SUMlib::CompoundProxy *> & tornadoProxiesLst = sensProxy.getProxyCollection()->getProxyList();
@@ -223,7 +292,7 @@ namespace casa
       for ( size_t i = 0; i < m_obsSpace->size(); ++i )
       {
          const Observable * obs = m_obsSpace->observable( i );
-         for ( size_t j = 0; j < obs->dimension(); ++j )
+         for ( int j = 0; j < obs->dimension(); ++j )
          {
             obsList.push_back( std::pair<const Observable *, int>( obs, j ) );
          }
@@ -240,7 +309,7 @@ namespace casa
          returnValue.push_back( TornadoSensitivityInfo( obsList[o].first, obsList[o].second, refObsValue, varPrmList, sensitivities, relSensitivities ) ); 
       }
 
-      return NoError;
+      return returnValue;
    }
 
 

@@ -48,9 +48,10 @@ namespace casa
       /// @brief Construct 1st order proxy for given set of cases and calculate Tornado variable parameters sensitivities
       /// @param cs[in] case set manager which keeps run cases for DoE experiments
       /// @param expName[in] list of DoE names which will be used to create proxy for parameters sensitivity calculation
-      /// @param tornSens[out] array which contains for each observable, a set of variable parameters sensitivities which could be used for creation Tornado diagram
-      /// @return ErrorHandler::NoError in case of success, or error code otherwise
-      virtual ErrorHandler::ReturnCode calculateTornado( RunCaseSet & cs, const std::vector<std::string> & expNames, std::vector<TornadoSensitivityInfo> & tornSens );
+      /// @return array which contains for each observable, a set of variable parameters sensitivities which could be used
+      ///         for creation Tornado diagram. In case of error method will return empty array and error code and error message
+      ///         could be obtained from SensitivitCalculator object
+      virtual std::vector<TornadoSensitivityInfo> calculateTornado( RunCaseSet & cs, const std::vector<std::string> & expNames );
 
 
       // Serialization / Deserialization

@@ -63,8 +63,8 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    casa::SensitivityCalculator & sCalc = sa->sensitivityCalculator();
 
-   std::vector< casa::SensitivityCalculator::TornadoSensitivityInfo > data;
-   sCalc.calculateTornado( sa->doeCaseSet(), m_doeNames, data );
+   std::vector< casa::TornadoSensitivityInfo > data = sCalc.calculateTornado( sa->doeCaseSet(), m_doeNames );
+   if ( data.empty() ) { throw ErrorHandler::Exception( sCalc.errorCode() ) << sCalc.errorMessage(); }
 
    MatlabExporter ofs( m_mFileName );
 
@@ -89,9 +89,9 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       ofs << "TornadoSens.obsName{ " << i+1 << "} = '" << obsNames[data[i].observableSubID()] << "';\n";
       ofs << "TornadoSens.obsRefVal( " << i+1 << ") = " << data[i].refObsValue() << ";\n";
 
-      const std::vector<std::pair<const casa::VarParameter *, int> >             & varPrmList = data[i].varPrmList();
-      const casa::SensitivityCalculator::TornadoSensitivityInfo::SensitivityData & sens       = data[i].sensitivities();
-      const casa::SensitivityCalculator::TornadoSensitivityInfo::SensitivityData & relSens    = data[i].relSensitivities();
+      const std::vector<std::pair<const casa::VarParameter *, int> > & varPrmList = data[i].varPrmList();
+      const casa::TornadoSensitivityInfo::SensitivityData            & sens       = data[i].sensitivities();
+      const casa::TornadoSensitivityInfo::SensitivityData            & relSens    = data[i].relSensitivities();
       
       for ( size_t j = 0; j < varPrmList.size(); ++j )
       {
@@ -110,7 +110,7 @@ void CmdPlotTornado::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
             minVal = data[i].refObsValue();
             maxVal = minVal + sens[j][0];
             minRelVal = 101; // sens will not be shown if pp > 100
-            minRelVal = relSens[j][0];
+            maxRelVal = relSens[j][0];
          }
          else
          {
