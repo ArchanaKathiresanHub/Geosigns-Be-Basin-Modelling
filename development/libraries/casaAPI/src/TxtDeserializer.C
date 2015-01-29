@@ -28,8 +28,8 @@ template <typename T> inline bool string2val( const std::string & str, T & val )
 
 inline bool string2val( const std::string & str, bool & val )
 {
-   if (      !str.compare( "true"  ) ) val = true;
-   else if ( !str.compare( "false" ) ) val = false;
+   if (      str.find( "true" )  == 0 ) val = true;
+   else if ( str.find( "false" ) == 0 ) val = false;
    else return false;
 
    return true;
