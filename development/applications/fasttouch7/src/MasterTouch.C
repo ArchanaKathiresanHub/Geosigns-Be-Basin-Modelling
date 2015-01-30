@@ -215,8 +215,7 @@ bool MasterTouch::run()
       for( outIt = m_layerList->begin(); outIt != m_layerList->end(); ++outIt )
       {
       	bool calculated = false;
-      	int runs = 1;
-      	while (!calculated && runs <= MAX_RUNS ) 
+      	for (int runs = 0; runs < MAX_RUNS && !calculated; ++runs) 
       	{
          	
          	// set current layer iterator so can retrieve all output 
@@ -251,7 +250,6 @@ bool MasterTouch::run()
 				} else 
 				{
 					cerr << "MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs"<<endl;
-         		runs += 1;
          	}
          }
 
@@ -386,7 +384,7 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
    }
    catch ( ... )
    {
-		cerr << "Touchstone wrapper failed " << endl;
+		cerr << "Message warning: Touchstone wrapper failed for unknown reason " << endl;
       return false;
    }
 
@@ -422,7 +420,7 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
    }	
    catch ( std::exception & e ) 
    {
-		cerr << "Results are not read correctly on MPI process " << GetRank( ) << " : "<< e.what() << endl;
+		cerr << "Message warning: results are not read correctly on MPI process " << GetRank( ) << " : "<< e.what() << endl;
    	return false;
 	}	
 
