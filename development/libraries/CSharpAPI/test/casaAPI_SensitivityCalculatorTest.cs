@@ -37,11 +37,12 @@ namespace Shell.BasinModeling.Cauldron.Test
       }
 
       // for regular run
-//      public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
-//      public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
+      public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
+      public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
 
-      public string m_projectFileName         = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
-      public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
+      // for debug run
+//      public string m_projectFileName         = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
+//      public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
 
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
