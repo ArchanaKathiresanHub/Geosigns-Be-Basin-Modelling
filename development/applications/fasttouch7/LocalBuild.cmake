@@ -16,3 +16,5 @@ then
 fi
 
 ${CMAKE_INSTALL_PREFIX}/applications/fasttouch7/touchstoneWrapper "$@" > /dev/null
+
+rm -f core.* >  /dev/null 

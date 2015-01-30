@@ -17,3 +17,5 @@ then
 fi
 
 $dir/touchstoneWrapper "$@" > /dev/null 
+
+rm -f core.* > /dev/null 
