@@ -8,6 +8,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 using namespace Geocosm;
 
@@ -63,7 +65,8 @@ private:
 
    static const int numberOfTouchstoneProperties = 7;
    static const int numberOfStatisticalOutputs   = 29;
-
+   
+   struct rlimit m_coreSize;
 };
 
 #endif
