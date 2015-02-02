@@ -4326,7 +4326,7 @@ const Interface::Grid * ProjectHandle::getHighResolutionOutputGrid( void ) const
 const Interface::Snapshot * ProjectHandle::findSnapshot( double time, int type ) const
 {
    // first, try the highway
-   const double tolerance = 1e-6;
+   const double tolerance = 1e-7;
    MutableSnapshotList::const_iterator snapshotIter;
 
    for ( snapshotIter = m_snapshots.begin(); snapshotIter != m_snapshots.end(); ++snapshotIter )
