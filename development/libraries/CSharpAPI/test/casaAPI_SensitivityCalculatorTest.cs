@@ -41,8 +41,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
 
       // for debug run
-//      public string m_projectFileName         = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
-//      public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
+      //public string m_projectFileName         = @"c:\Temp\dev-x64_Debug\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
+      //public string m_serialisedStateFileName = @"c:\Temp\dev-x64_Debug\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
 
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
@@ -77,7 +77,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       #endregion
 
       [TestMethod]
-      public void ScenarioAnalysis_SensitivityCalculatorTest() // test for Tornado sens. calc
+      public void ScenarioAnalysis_SensitivityCalculatorTornadoTest() // test for Tornado sens. calc
       {
          ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
          SensitivityCalculator sensCalc = sa.sensitivityCalculator();
@@ -126,6 +126,62 @@ namespace Shell.BasinModeling.Cauldron.Test
                break; // compare only one set of parameters sensitivities in this test
             }
             break; // do test only for 1 observable
+         }
+      }
+
+      [TestMethod]
+      public void ScenarioAnalysis_SensitivityCalculatorParetoTest() // test for Tornado sens. calc
+      {
+         ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
+         RSProxySet proxySet = sa.rsProxySet();
+
+         RSProxy secOrdProx = proxySet.rsProxy( "SecondOrder" );
+         
+         Assert.IsTrue( secOrdProx != null );
+
+         SensitivityCalculator sensCalc = sa.sensitivityCalculator();
+
+         ParetoSensitivityInfo paretoData = new ParetoSensitivityInfo();
+         Assert.AreEqual( ErrorHandler.ReturnCode.NoError, sensCalc.calculatePareto(secOrdProx, paretoData ) );
+         for ( int i = 0; i < paretoData.m_vprmPtr.Count; ++i )
+         {
+            VarParameter prm = paretoData.m_vprmPtr[i];
+            int prmSubId = paretoData.m_vprmSubID[i];
+            String prmName = prm.name()[prmSubId];
+            double prmSens = paretoData.getSensitivity(prm, prmSubId);
+            
+            switch ( i )
+            {
+               case 0:
+                  Assert.IsTrue( Math.Abs(prmSens - 77.7633296939624) < eps );
+                  Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmName );
+                  break;
+
+               case 1:
+                  Assert.IsTrue( Math.Abs(prmSens - 10.2448067481032) < eps );
+                  Assert.AreEqual( @"EventStartTime [Ma]", prmName );
+                  break;
+
+               case 2:
+                  Assert.IsTrue( Math.Abs(prmSens - 7.87589293181969) < eps );
+                  Assert.AreEqual(@"InitialCrustThickness [m]", prmName);
+                  break;
+
+               case 3:
+                  Assert.IsTrue( Math.Abs(prmSens - 3.95385427910523) < eps );
+                  Assert.AreEqual( @"CrustThinningFactor [m/m]", prmName );
+                  break;
+
+               case 4:
+                  Assert.IsTrue(Math.Abs(prmSens - 0.10563669785741404) < eps);
+                  Assert.AreEqual( @"EventDuration [Ma]", prmName );
+                  break;
+
+               case 5:
+                  Assert.IsTrue(Math.Abs(prmSens - 0.056479649152066574) < eps);
+                  Assert.AreEqual( @"Lower Jurassic TOC [%]", prmName );
+                  break;
+            }
          }
       }
    }

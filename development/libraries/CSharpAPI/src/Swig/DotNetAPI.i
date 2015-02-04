@@ -435,8 +435,8 @@ using namespace casa;
 %template(PointList)      std::vector<const DataAccess::Interface::Point *>;
 
 /// CASA API
-%template(CasesList)       std::vector<      casa::RunCase*>;
-%template(ConstCasesList)  std::vector<const casa::RunCase*>;
+%template(CasesList)          std::vector<      casa::RunCase*>;
+%template(ConstCasesList)     std::vector<const casa::RunCase*>;
 
 %template(CoefficientsMap)     std::map< std::vector< unsigned int >, std::pair<double,double> >;
 %template(CoefficientsMapList) std::vector< std::map< std::vector< unsigned int>, std::pair<double,double> > >;
@@ -446,4 +446,5 @@ using namespace casa;
 
 /// CASA API SensitivityCalculator data types
 %template(TornadoSensitivityData) std::vector<casa::TornadoSensitivityInfo>;
-
+%template(VarParametersList)      std::vector<const casa::VarParameter*>;
+%template(IntVector)              std::vector<int>;
