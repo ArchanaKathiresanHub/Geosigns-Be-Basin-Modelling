@@ -630,9 +630,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
                                                                    
    ok = ok ? outStream.save( obsSpace(),            "ObsSpace"     ) : ok; // serialize observables manager
    ok = ok ? outStream.save( varSpace(),            "VarSpace"     ) : ok; // serialize variable parameters set
-   ok = ok ? outStream.save( *m_doe.get(),          "DoE"          ) : ok; // serialize doe generator
-   ok = ok ? outStream.save( *m_dataDigger.get(),   "DataDigger"   ) : ok; // data digger
-   ok = ok ? outStream.save( *m_runManager.get(),   "RunManger "   ) : ok; // run manager
+
+   ok = ok ? outStream.save( *(doeGenerator()),     "DoE"          ) : ok; // serialize doe generator
+   ok = ok ? outStream.save( dataDigger(),          "DataDigger"   ) : ok; // data digger
+   ok = ok ? outStream.save( runManager(),          "RunManger "   ) : ok; // run manager
                                                                    
    ok = ok ? outStream.save( *m_doeCases.get(),     "DoECasesSet"  ) : ok;
    ok = ok ? outStream.save( *m_mcCases.get(),      "MCCasesSet"   ) : ok;
