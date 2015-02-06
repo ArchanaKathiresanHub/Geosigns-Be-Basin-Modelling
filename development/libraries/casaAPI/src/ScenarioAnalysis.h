@@ -150,6 +150,13 @@ namespace casa
       ///         will be set up to MC with no Kriging by default.
       MonteCarloSolver & mcSolver();
 
+      /// @brief After the Monte Carlo simulation it creates project file with parameters set which corresponds to the
+      ///        Monte Carlo sampling point with minimal RMSE
+      /// @param projFileName name of the project file for best matched case project file
+      /// @param mcSampleNum Monte Carlo sample number to be exported as calibrated project
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode saveCalibratedCase( const char * projFileName, size_t mcSampleNum );
+
       /// @brief Get serialization version number
       // History:
       // version 0: initial implementation

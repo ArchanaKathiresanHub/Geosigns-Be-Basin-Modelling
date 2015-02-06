@@ -107,7 +107,10 @@ namespace casa
       // apply mutations
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {
-         m_prmsSet[i]->setInModel( *(m_model.get()) );
+         if ( ErrorHandler::NoError != m_prmsSet[i]->setInModel( *(m_model.get()) ) ) 
+         {
+            throw ErrorHandler::Exception( m_model->errorCode() ) << m_model->errorMessage();
+         }
       }
 
       // write mutated project to the file
@@ -139,6 +142,20 @@ namespace casa
       m_model->loadModelFromProjectFile( m_modelProjectFileName.c_str() );
 
       return *(m_model.get());
+   }
+
+   // compare parameters set for 2 cases
+   bool RunCaseImpl::operator == ( const RunCase & cs ) const
+   {
+      const RunCaseImpl & rci = dynamic_cast<const RunCaseImpl &>( cs );
+
+      if ( m_prmsSet.size() != rci.m_prmsSet.size() ) return false;
+
+      for ( size_t i = 0; i < m_prmsSet.size(); ++i )
+      {
+         if ( !(*(m_prmsSet[i].get()) == *(rci.m_prmsSet[i].get())) ) return false;
+      }
+      return true;
    }
 
    // Serialize object to the given stream

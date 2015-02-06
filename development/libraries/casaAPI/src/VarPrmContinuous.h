@@ -95,6 +95,11 @@ namespace casa
          return ret;
       }
 
+      /// @brief Returns mask array where for selected parameters true value set
+      ///        Selected parameters means parameters where min/max values are different
+      /// @return mask array with true value for selected parameters
+      virtual std::vector<bool> selected() const;
+
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
       /// @param  version stream version

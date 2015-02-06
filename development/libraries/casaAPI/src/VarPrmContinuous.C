@@ -15,17 +15,18 @@
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
+#include "VarPrmSourceRockHI.h"
+#include "VarPrmPorosityModel.h"
 
 
 #include <cmath>
 
 namespace casa
 {
-
    std::vector<double> VarPrmContinuous::stdDevs() const
    {
-      const std::vector<double> minVals = m_minValue->asDoubleArray();
-      const std::vector<double> maxVals = m_maxValue->asDoubleArray();
+      const std::vector<double> minVals  = m_minValue->asDoubleArray();
+      const std::vector<double> maxVals  = m_maxValue->asDoubleArray();
       const std::vector<double> baseVals = m_baseValue->asDoubleArray();
 
       std::vector<double> devs( minVals.size(), 0 );
@@ -39,11 +40,29 @@ namespace casa
          {
          case Block:    devs[i] = 0.5 * (ma - mi) / sqrt( 3.0 );                                              break;
          case Triangle: devs[i] = sqrt( (mi * mi + ma * ma + to * to - mi * ma - mi * to - ma * to) / 18.0 ); break;
-         case Normal:   devs[i] = 0.5 * (ma - mi) / 5.0;                                                     break;
-         default:       assert( 0 );                                                                            break;
+         case Normal:   devs[i] = 0.5 * (ma - mi) / 5.0;                                                      break;
+         default:       assert( 0 );                                                                          break;
          }
       }
       return devs;
+   }
+
+   std::vector<bool> VarPrmContinuous::selected() const
+   {
+      std::vector<bool> mask;
+      const std::vector<double> & minVals = m_minValue->asDoubleArray();
+      const std::vector<double> & maxVals = m_maxValue->asDoubleArray();
+      assert( minVals.size() == maxVals.size() );
+      for ( size_t i = 0; i < minVals.size(); ++i )
+      {
+         if ( std::fabs( minVals[i] ) > 0.0 || std::fabs( maxVals[i] ) > 0.0 )
+         {
+            // check relative difference
+            mask.push_back( std::fabs( (maxVals[i] - minVals[i])/(maxVals[i] + minVals[i]) ) < 1.e-5 ? false : true );
+         }
+         else {  mask.push_back( false ); } // both equal to zero
+      }
+      return mask;
    }
 
    bool VarPrmContinuous::save( CasaSerializer & sz, unsigned int version ) const
@@ -74,10 +93,12 @@ namespace casa
             << "VarPrmDiscrete deserialization error, expected VarPrmDiscrete with name: " << objName
             << ", but stream gave object with name: " << on;
       }
-      // Here should be switch over possible discrete parameters
+      // create new variabale parameter object depending on object type name from file
       if (      ot == "VarPrmOneCrustThinningEvent"  ) { return new VarPrmOneCrustThinningEvent(  dz, vr ); }
       else if ( ot == "VarPrmTopCrustHeatProduction" ) { return new VarPrmTopCrustHeatProduction( dz, vr ); }
       else if ( ot == "VarPrmSourceRockTOC"          ) { return new VarPrmSourceRockTOC(          dz, vr ); }
+      else if ( ot == "VarPrmSourceRockHI"           ) { return new VarPrmSourceRockHI(           dz, vr ); }
+      else if ( ot == "VarPrmPorosityModel"          ) { return new VarPrmPorosityModel(          dz, vr ); }
       else
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -111,8 +132,8 @@ namespace casa
       if ( ok )
       {
          m_baseValue.reset( Parameter::load( dz, "baseValue" ) );
-         m_minValue.reset(  Parameter::load( dz,  "minValue" ) );
-         m_maxValue.reset(  Parameter::load( dz,  "maxValue" ) );
+         m_minValue.reset(  Parameter::load( dz, "minValue"  ) );
+         m_maxValue.reset(  Parameter::load( dz, "maxValue"  ) );
       }
       else
       {

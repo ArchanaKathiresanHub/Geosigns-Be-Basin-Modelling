@@ -21,14 +21,22 @@
 #include "SnapshotManagerImpl.h"
 #include "PropertyManagerImpl.h"
 
+// FileSystem library
+#include "FilePath.h"
+#include "FolderPath.h"
+
 // DataAccess library
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 
 #include "cauldronschemafuncs.h"
 
-#include <string>
+// C Library
 #include <cmath>
+
+// STL
+#include <set>
+#include <string>
 
 namespace mbapi {
 
@@ -37,6 +45,9 @@ namespace mbapi {
 class Model::ModelImpl
 {
 public:
+   static const char * m_mapFilesTableName;
+   static const char * m_mapFilesColName;
+
    // constructor / destructor
    ModelImpl();
    ~ModelImpl(); 
@@ -81,9 +92,15 @@ public:
    SnapshotManagerImpl               m_snpMgr;
    PropertyManagerImpl               m_prpMgr;
 
+   std::set<std::string>             m_mapsFileList; // unique list of files with project maps
+
    std::auto_ptr<database::Database>                    m_projDatabase;  // project file database (set of tables)
    std::string                                          m_projFileName;  // project files name with path
 };
+
+
+const char * Model::ModelImpl::m_mapFilesTableName = "GridMapIoTbl";
+const char * Model::ModelImpl::m_mapFilesColName   = "MapFileName";
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -393,9 +410,41 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 
    m_projFileName = projectFileName;
    
-   m_srkMgr.setDatabase( m_projDatabase.get() ); // set database in source rock manager
-   m_snpMgr.setDatabase( m_projDatabase.get(), m_projFileName ); // set database in snapshot manager
-   m_prpMgr.setDatabase( m_projDatabase.get(), m_projFileName ); // set database in property manager
+   m_srkMgr.setDatabase(  m_projDatabase.get() ); // set database in source rock manager
+   m_lithMgr.setDatabase( m_projDatabase.get() ); // set database in lithologies type manager
+   m_snpMgr.setDatabase(  m_projDatabase.get(), m_projFileName ); // set database in snapshot manager
+   m_prpMgr.setDatabase(  m_projDatabase.get(), m_projFileName ); // set database in property manager
+
+   // collecting map files name
+   // get pointer to the table
+   database::Table * table = m_projDatabase->getTable( m_mapFilesTableName );
+
+   if ( !table ) return; // no table - no maps
+   
+   int recNum = table->size();
+   ibs::FilePath projectFile( projectFileName );
+   std::string projectPath = projectFile.filePath();
+   if ( projectPath.empty() ) projectPath = ".";
+
+   for ( int i = 0; i < recNum; ++i )
+   {
+      database::Record * rec = table->getRecord( i );
+      if ( rec )
+      {
+         const std::string & fname = rec->getValue<std::string>( m_mapFilesColName );
+         if ( !fname.empty() )
+         {
+            // construct the full file path to the original map file
+            ibs::FolderPath mapFilePath( projectPath );
+            mapFilePath << fname;
+            // add it to the list
+            if ( !m_mapsFileList.count( mapFilePath.path() ) )
+            {
+               m_mapsFileList.insert( mapFilePath.path() );
+            }
+         }
+      }
+   }
 }
 
 // Save model to the project file
@@ -407,6 +456,23 @@ void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile() failed to save to " << 
                                                                    projectFileName << " project file";
+      }
+      
+      // copying maps
+      // get project file path
+      ibs::FilePath projectFilePath( projectFileName );
+      projectFilePath.cutLast();  // cut filename
+
+      for ( std::set<std::string>::const_iterator it = m_mapsFileList.begin(); it != m_mapsFileList.end(); ++it )
+      {
+         ibs::FilePath origMapFile( *it );
+         ibs::FilePath newMapFile = projectFilePath;
+         newMapFile << origMapFile.fileName();
+
+         if ( !newMapFile.exists() && !origMapFile.copyFile( newMapFile ) )
+         {
+            ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): can not copy map file: " << origMapFile.path();
+         }
       }
    }
    else

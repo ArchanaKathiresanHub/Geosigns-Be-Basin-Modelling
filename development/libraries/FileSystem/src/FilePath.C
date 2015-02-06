@@ -17,6 +17,7 @@
 
 #include "boost/filesystem/path.hpp"
 #include "boost/version.hpp"
+#include "boost/filesystem.hpp"
 
 namespace ibs
 {
@@ -101,6 +102,22 @@ std::string FilePath::fileNameExtension() const
    }
 
    return fnne;
+}
+
+
+bool FilePath::copyFile( const Path & destPath )
+{
+   if ( destPath.exists() ) return false;
+
+   try
+   {
+      boost::filesystem::copy_file( boost::filesystem::path( m_path ), boost::filesystem::path( destPath.path() ) );
+   }
+   catch ( const boost::filesystem::filesystem_error & ex )
+   {
+      return false;
+   }
+   return true;
 }
 
 }

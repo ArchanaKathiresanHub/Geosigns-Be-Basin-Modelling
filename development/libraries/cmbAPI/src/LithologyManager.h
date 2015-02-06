@@ -25,32 +25,32 @@
 /// Lithology must have defined a porosity model. The current implementation allows to choose from:
 ///   -# Exponential porosity model
 ///   -# Soil mechanics porosity model
+///   -# Double exponential porosity model
 ///
 /// @subsection ExpPorosityModelSubSec Exponential porosity model 
 /// in <b>Exponential</b> porosity model the porosity is calculated according to this formula:
 /// @f[ \phi = \phi_0 exp(-c_{ef} \sigma) @f]
 /// The model has 2 parameters:
-///   -# @f$ \phi_0 @f$ - surface porosity
-///   -# @f$ c_{ef} @f$ - inverse effective stress value @f$ [10^{-8} Pa^-1] @f$
+///   -# @f$ \phi_0 @f$ - surface porosity [%]
+///   -# @f$ c_{ef} @f$ - compaction coefficient (effective stress) @f$ [10^{-8} Pa^{-1}] @f$
 ///
 /// @subsection SoilMechPorosityModelSubSec Soil mechanics porosity model
 /// in <b>Soil Mechanics</b> porosity model the porosity is calculated according to this formula:
 /// @f[ \phi = \frac{\psi}{1+\psi} @f] where
 /// @f[ \psi = \psi_0 - \beta log( \frac{\sigma}{\sigma_0} ), \psi_0 = \frac{\phi_0}{1 - \phi_0} @f]
 /// The model has 2 parameters:
-///   -# @f$ \phi_0 @f$ - surface porosity
-///   -# @f$ \beta @f$ - compaction coefficient
+///   -# @f$ \phi_0 @f$ - surface porosity [%]
+///   -# @f$ \beta @f$ - compaction coefficient  @f$ [unitless] @f$
 ///
 /// @subsection DoubleExpPorosityModelSubSec Double-Exponential porosity model 
 /// in <b>DoubleExponential</b> porosity model the porosity is calculated according to this formula:
-/// @f[ \phi = \phi_0 /2 exp(-c1_{ef} \sigma) + \phi_0 /2 exp(-c2_{ef} \sigma) @f]
-/// The model has 3 parameters:
+/// @f[ \phi = \phi_m + \phi_0 / 2 exp(-c1_{ef} \sigma) + \phi_0 / 2 exp(-c2_{ef} \sigma) @f]
+//// The model has 4 parameters:
 ///   -# @f$ \phi_0 @f$ - surface porosity
-///   -# @f$ c1_{ef} @f$ - compaction coefficient @f$ [10^{-8} Pa^-1] @f$
-///   -# @f$ c2_{ef} @f$ - compaction coefficient @f$ [10^{-8} Pa^-1] @f$
+///   -# @f$ \phi_min @f$ - minimal porosity
+///   -# @f$ c1_{ef} @f$ - compaction coefficient (effective stress) @f$ [10^{-8} Pa^{-1}] @f$
+///   -# @f$ c2_{ef} @f$ - compaction coefficient (effective stress) @f$ [10^{-8} Pa^{-1}] @f$
 ///
-
-
 
 namespace mbapi {
    /// @class LithologyManager LithologyManager.h "LithologyManager.h"
@@ -63,7 +63,8 @@ namespace mbapi {
       /// Set of interfaces for interacting with a Cauldron model
       typedef size_t LithologyID;  ///< unique ID for lithology
 
-      typedef enum {
+      typedef enum
+      {
          Exponential,   ///< Exponential porosity model
          SoilMechanics, ///< Soil mechanics porosity model
          DoubleExponential, ///< Double Exponential porosity model 
@@ -71,20 +72,18 @@ namespace mbapi {
       } PorosityModel;
 
 
-
       /// @brief Get list of lithologies in the model
       /// @return array with IDs of different lygthologies defined in the model
-      virtual std::vector<LithologyID> getLithologiesID() const = 0; 
+      virtual std::vector<LithologyID> lithologiesIDs() const = 0; 
 
       /// @brief Create new lithology
       /// @return ID of the new Lithology
       virtual LithologyID createNewLithology() = 0;
 
-      /// @brief Get lithology name for
+      /// @brief Get lithology type name for the given ID
       /// @param[in] id lithology ID
-      /// @param[out] lithName on success has a lithology name, or empty string otherwise
-      /// @return NoError on success or NonexistingID on error
-      virtual ReturnCode getLithologyName( LithologyID id, std::string & lithName ) = 0;
+      /// @return lithology type name for given lithology ID or empty string in case of error
+      virtual std::string lithologyName( LithologyID id ) = 0;
 
       /// @{
       /// Porosity model definition
@@ -92,40 +91,20 @@ namespace mbapi {
       /// @brief Get lithology porosity model
       /// @param[in] id lithology ID
       /// @param[out] porModel type of porosity model set for the given lithology
+      /// @param[out] porModelPrms array with porosity model parameters. The order of parameters depends on the model and 
+      ///             the same as described \ref PorosityModelsSec here.
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode getPorosityModel( LithologyID id, PorosityModel & porModel ) = 0;
+      virtual ReturnCode porosityModel( LithologyID id, PorosityModel & porModel, std::vector<double> & porModelPrms ) = 0;
 
       /// @brief Set lithology porosity model
       /// @param[in] id lithology ID
-      /// @param[out] porModel new type of porosity model for the given lithology
+      /// @param[in] porModel new type of porosity model for the given lithology
+      /// @param[in] porModelPrms porosity model parameters. The order of parameters depends on the model and 
+      ///             the same as described \ref PorosityModelsSec here.
       /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode setPorosityModel( LithologyID id, PorosityModel porModel ) = 0;
+      virtual ReturnCode setPorosityModel( LithologyID id, PorosityModel porModel, const std::vector<double> & porModelPrms ) = 0;
 
-      /// @brief Get surface porosity for Exponential or Soil Mechanic lithology porosity model
-      /// @param[in] id lithology ID
-      /// @param[out] surfPor Surface porosity @f$ \phi_0 @f$
-      /// @return NoError on success or UndefinedValue if the value wasn't set before or NonexistingID on error
-      virtual ReturnCode getSurfacePorosity( LithologyID id, double & surfPor ) = 0;
-
-      /// @brief Set surface porosity for Exponential or Soil Mechanic lithology porosity model
-      /// @param[in] id lithology ID
-      /// @param[in] surfPor Surface porosity @f$ \phi_0 @f$
-      /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode setSurfacePorosity( LithologyID id, double surfPor ) = 0;
-
-      /// @brief Get compaction coefficient for Exponential @f$(c_{ef})@f$ or Soil Mechanic @f$(\beta)@f$ lithology porosity model
-      /// @param[in] id lithology ID
-      /// @param[out] compCoeff Compaction coefficient valued
-      /// @return NoError on success or UndefinedValue if the value wasn't set before or NonexistingID on error
-      virtual ReturnCode getCompactionCoeff( LithologyID id, double & compCoeff ) = 0;
-
-      /// @brief Set compaction coefficient for Exponential @f$(c_{ef})@f$ or Soil Mechanic @f$(\beta)@f$ lithology porosity model
-      /// @param[in] id lithology ID
-      /// @param[in] compCoeff The new value for compaction coefficient
-      /// @return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode setCompactionCoeff( LithologyID id, double compCoeff ) = 0;
-
-      /// @}
+     /// @}
 
       /// @{
       /// Thermal conductivity model parameters
@@ -134,7 +113,7 @@ namespace mbapi {
       /// @param[in] id lithology ID
       /// @param[out] stpThermCond on success has the thermal conductivity coefficient value, or unchanged in case of error
       /// @return NoError on success, NonexistingID on unknown lithology ID or UndefinedValue if the value wasn't set before
-      virtual ReturnCode getSTPThermalConductivityCoeff( LithologyID id, double & stpThermCond ) = 0;
+      virtual ReturnCode STPThermalConductivityCoeff( LithologyID id, double & stpThermCond ) = 0;
 
       /// @brief Set lithology STP thermal conductivity coefficient
       /// @param[in] id lithology ID

@@ -29,6 +29,7 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
    else if ( m_prms[0] == "fastctc"      ) m_app = casa::RunManager::fastctc;
    else if ( m_prms[0] == "fasttouch7"   ) m_app = casa::RunManager::fasttouch7;
    else if ( m_prms[0] == "fastmig"      ) m_app = casa::RunManager::fastmig;
+   else if ( m_prms[0] == "tracktraps"   ) m_app = casa::RunManager::tracktraps;
    else if ( m_prms[0] == "track1d"      ) m_app = casa::RunManager::track1d;
    else if ( m_prms[0] == "generic"      ) m_app = casa::RunManager::generic;
    else

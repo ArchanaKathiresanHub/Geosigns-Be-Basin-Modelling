@@ -1,0 +1,70 @@
+# applications
+app fastcauldron "-itcoupled"
+app fastgenex6
+
+base_project "OttolandWithGenex.project3d"
+#
+# Variable parameters
+
+varprm "TopCrustHeatProduction" 0.1 4.9 "Block"
+
+#                              InCrThick   T0      dT    ThinFct  PDF
+varprm "CrustThinningOneEvent" 15000 40000 120 180 30 45 0.5 0.8 "Block"
+
+varprm "SourceRockTOC"          "Lower Jurassic" 0.5 15.0 "Block"
+
+#
+#       type               prop name                    X        Y        Z              Age   Ref   Dev  SWght UWght
+target XYZPoint            "Temperature"             460001.0 6750001.0 1293.0           0.0  65.7   2.0   0.05  1.0
+target XYZPoint            "Temperature"             460001.0 6750001.0 2129.0           0.0  74.5   10.0  0.05  1.0
+target XYZPoint            "Temperature"             460001.0 6750001.0 2362.0           0.0  100.0  5.0   0.05  1.0
+target XYZPoint            "Temperature"             460001.0 6750001.0 2751.0           0.0  108.6  2.0   0.05  1.0
+target XYZPoint            "Temperature"             460001.0 6750001.0 3200.0           0.0  120.0  2.0   0.05  1.0
+
+target XYZPoint            "Vr"                      460001.0 6750001.0 1590.0           0.0  0.62   0.1   1.0   1.0
+target XYZPoint            "Vr"                      460001.0 6750001.0 2722.0           0.0  1.04   0.1   1.0   1.0
+
+target XYPointSorceRockMap "OilExpelledCumulative"   460001.0 6750001.0 "Lower Jurassic" 0.0               1.0   1.0
+target XYPointSorceRockMap "HcGasExpelledCumulative" 460001.0 6750001.0 "Lower Jurassic" 0.0               1.0   1.0
+
+# DoE
+doe "BoxBehnken"
+doe "SpaceFilling" 50
+
+# Run Manager
+location "/scratch/nlskon/inversion/Workflow-UA-CASA/CaseSet"
+
+run "LOCAL" "v2014.07nightly"
+
+# Response surface   RSP Name              List of DoE               Order (0,1,2,3) Kriging (No, Local, Global)
+response             "SecOrdBB"            "BoxBehnken"                    2         No
+response             "ZeroOrdKrig"         "SpaceFilling"                  0         Global
+
+# Export CASA calculated data to Matlab
+exportMatlab         "casa_Ottoland_ua.m"
+savestate            "casa_state_ua.txt"  "txt"
+
+# creat proxy QC plots
+#                     Proxy name       DoE names for           DoE names for          Plot script name
+#                                      proxy building          proxy testing
+plotRSProxyQC        "SecOrdBB"        "BoxBehnken"            "SpaceFilling"          "SecOrdBB.m"
+plotRSProxyQC        "ZeroOrdKrig"     "SpaceFilling"          "BoxBehnken"            "ZeroOrdKrig.m"
+
+#
+# Run Monte Carlo sampling     ProxyName        MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
+montecarlo                    "SecOrdBB"        MCMC     5000        100           Polynomial       NoPrior       1.6
+exportMatlab                  "casa_Ottoland_mc2ndOrder.m"
+
+# create plot
+plotMC                        "mcplotSecOrdBB.m"
+plotP10P90                    "mcmcp10p90plot2ndOrd.m"
+
+#
+# Run Monte Carlo sampling     ProxyName        MCAlgo   NumSamples  MaxIterNum    ProxyEvalType  DistrType      StdDevFact
+montecarlo                    "ZeroOrdKrig"     MCMC     5000        100           GlobalKriging   NoPrior       1.6
+exportMatlab                  "casa_Ottoland_mcmc0OrderKrig.m"
+
+# create plot
+plotMC                        "mcplotZeroOrdKrig.m"
+plotP10P90                    "mcmcp10p90plotZOrd.m"
+

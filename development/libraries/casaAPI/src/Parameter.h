@@ -82,6 +82,11 @@ namespace casa
       ///       parameter is categorical, or -1 otherwise
       virtual int asInteger() const = 0;
 
+      /// @brief Are two parameters equal?
+      /// @param prm Parameter object to compare with
+      /// @return true if parameters are the same, false otherwise
+      virtual bool operator == ( const Parameter & prm ) const = 0;
+
       /// @brief Create a new parameter instance and deserialize it from the given stream
       /// @param dz input stream
       /// @param objName expected object name

@@ -9,6 +9,7 @@
 // 
 #include "CasaCommander.h"
 #include "CmdAddVarPrm.h"
+#include "UndefinedValues.h"
 
 #include "casaAPI.h"
 
@@ -35,15 +36,19 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
    }
 
    if ( m_prms[0] != "TopCrustHeatProduction" &&
-        m_prms[0] != "SourceRockTOC" &&
-        m_prms[0] != "CrustThinningOneEvent" )
+        m_prms[0] != "SourceRockTOC"          &&
+        m_prms[0] != "SourceRockHI"           &&
+        m_prms[0] != "CrustThinningOneEvent"  &&
+        m_prms[0] != "PorosityModel" )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown variable parameter name: " << m_prms[0];
    }
    // check number of command parameters for var parameter
-   if ( m_prms[0] == "TopCrustHeatProduction" && m_prms.size() != 4 ||
-        m_prms[0] == "SourceRockTOC"          && m_prms.size() != 5 ||
-        m_prms[0] == "CrustThinningOneEvent"  && m_prms.size() != 10
+   if ( m_prms[0] == "TopCrustHeatProduction" && m_prms.size() !=  4 ||
+        m_prms[0] == "SourceRockTOC"          && m_prms.size() !=  5 ||
+        m_prms[0] == "SourceRockHI"           && m_prms.size() !=  5 ||
+        m_prms[0] == "CrustThinningOneEvent"  && m_prms.size() != 10 ||
+        m_prms[0] == "PorosityModel"          && (m_prms.size() <  8 || m_prms.size() > 12) 
       )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
@@ -81,14 +86,26 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       double minVal = atof( m_prms[2].c_str() );
       double maxVal = atof( m_prms[3].c_str() );
 
-      ppdf = Str2pdf( m_prms[3] );
+      ppdf = Str2pdf( m_prms[4] );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
-   else if ( m_prms[0] == "CrustThinningOneEvent" )
+   else if ( m_prms[0] == "SourceRockHI" )
+   {
+      double minVal = atof( m_prms[2].c_str() );
+      double maxVal = atof( m_prms[3].c_str() );
+
+      ppdf = Str2pdf( m_prms[4] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHI( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
+   }
+    else if ( m_prms[0] == "CrustThinningOneEvent" )
    {
       // Initial crustal thickness
       double minCrustThickn = atof( m_prms[1].c_str() );
@@ -119,6 +136,53 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                                                                                           , pdfType
                                                                                           )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
+   }
+   else if ( m_prms[0] == "PorosityModel" )
+   {
+      size_t pos = 1;
+      std::string litName   = m_prms[pos++];
+      std::string modelName = m_prms[pos++];
+      double minSurfPor     = atof( m_prms[pos++].c_str() );
+      double maxSurfPor     = atof( m_prms[pos++].c_str() );
+      double minCompCoef    = atof( m_prms[pos++].c_str() );
+      double maxCompCoef    = atof( m_prms[pos++].c_str() );
+
+      double minMinPor = UndefinedDoubleValue;
+      double maxMinPor = UndefinedDoubleValue;
+
+      double minCompCoef1 = UndefinedDoubleValue; 
+      double maxCompCoef1 = UndefinedDoubleValue; 
+
+      if ( m_prms.size() == 12 )
+      {
+         minMinPor    = atof( m_prms[pos++].c_str() );
+         maxMinPor    = atof( m_prms[pos++].c_str() );
+         minCompCoef1 = atof( m_prms[pos++].c_str() ); 
+         maxCompCoef1 = atof( m_prms[pos++].c_str() ); 
+      }
+      else if ( m_prms.size() != 8 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
+      }
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms.back() );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryPorosityModelParameters( *sa.get()
+                                                                                            , litName.c_str()
+                                                                                            , modelName.c_str()
+                                                                                            , minSurfPor
+                                                                                            , maxSurfPor
+                                                                                            , minCompCoef
+                                                                                            , maxCompCoef
+                                                                                            , minMinPor
+                                                                                            , maxMinPor
+                                                                                            , minCompCoef1
+                                                                                            , maxCompCoef1
+                                                                                            , pdfType
+                                                                                            )
+         )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
    }
 }
 
@@ -166,10 +230,33 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "       mxT0           - crust thinning event start time - maximal range value\n";
    std::cout << "       mnVact         - crust thickness factor - minimal range value\n";
    std::cout << "       mxVact         - crust thickness factor - maximal range value\n";
-   std::cout << "       prmPDF    - the parameter probability density function type\n";
+   std::cout << "       prmPDF         - the parameter probability density function type\n";
    std::cout << "\n";
    std::cout << "    Example:\n";
    std::cout << "    #                                InCrThick   T0       dT    ThinFct  PDF\n";
    std::cout << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    PorosityModel <lithologyName> <porModelName> <mnSurfPor> <mxSurfPor> <mnCmpCf> <mxCmpCf> [<mnMinPor> <mxMinPor> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       lithologyName - lithology name\n";
+   std::cout << "       porModelName  - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
+   std::cout << "       mnSurfPor     - surface porosity - minimal range value\n";
+   std::cout << "       mxSurfPor     - surface porosity - maximal range value\n";
+   std::cout << "       mnCmpCf       - compaction coefficient - minimal range value\n";
+   std::cout << "       mxCmpCf       - compaction coefficient - maximal range value\n";
+   std::cout << "       mnMinPor      - minimal porosity (for Double_Exponential model only) - minimal range value\n";
+   std::cout << "       mxMinPor      - minimal porosity (for Double_Exponential model only) - maximal range value\n";
+   std::cout << "       mnCmpCf1      - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
+   std::cout << "       mxCmpCf1      - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
+   std::cout << "       prmPDF        - the parameter probability density function type\n";
+   std::cout << "\n";
+   std::cout << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values for min/max and will be ignored\n\n";
+   std::cout << "    Example 1:\n";
+   std::cout << "    #       VarPrmName      LithName             PorModel       SurfPor [%]  CompCoeff  Parameter PDF\n";
+   std::cout << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay]\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    Example 2:\n";
+   std::cout << "    #      VarPrmName      LithName              PorModel          SurfPor [%]  CompCoeff      Parameter PDF\n";
+   std::cout << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
 }
 

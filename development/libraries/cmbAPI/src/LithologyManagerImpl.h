@@ -16,6 +16,11 @@
 
 #include "LithologyManager.h"
 
+namespace database
+{
+   class Database;
+}
+
 namespace mbapi {
 
    // Class LithologyManager keeps a list of lithologies in Cauldron model and allows to add/delete/edit lithology
@@ -29,64 +34,41 @@ namespace mbapi {
       // Destructor
       virtual ~LithologyManagerImpl() {;}
 
-      // Copy operator
-      LithologyManagerImpl & operator = ( const LithologyManagerImpl & otherLithMgr );
-
       // Set of interfaces for interacting with a Cauldron model
+
+      // Set project database. Reset all
+      void setDatabase( database::Database * db );
 
       // Get list of lithologies in the model
       // return array with IDs of different lygthologies defined in the model
-      virtual std::vector<LithologyID> getLithologiesID() const; 
+      virtual std::vector<LithologyID> lithologiesIDs() const; 
 
       // Create new lithology
       // return ID of the new Lithology
       virtual LithologyID createNewLithology();
 
-      // Get lithology name for
+      // Get lithology type name for the given ID
       // [in] id lithology ID
-      // [out] lithName on success has a lithology name, or empty string otherwise
-      // return NoError on success or NonexistingID on error
-      virtual ReturnCode getLithologyName( LithologyID id, std::string & lithName );
-      
+      // return lithology type name for given lithology ID or empty string in case of error
+      virtual std::string lithologyName( LithologyID id );
+     
       /////////////////////////////////////////////////////////////////////////
       // Porosity models
 
-      // Get lithology porosity model
+      //  Get lithology porosity model
       // [in] id lithology ID
       // [out] porModel type of porosity model set for the given lithology
+      // [out] porModelPrms array with porosity model parameters
       // return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode getPorosityModel( LithologyID id, PorosityModel & porModel );
+      virtual ReturnCode porosityModel( LithologyID id, PorosityModel & porModel, std::vector<double> & porModelPrms );
 
-      // Set lithology porosity model
+      //  Set lithology porosity model
       // [in] id lithology ID
-      // [out] porModel new type of porosity model for the given lithology
+      // [in] porModel new type of porosity model for the given lithology
+      // [in] porModelPrms porosity model parameters
       // return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode setPorosityModel( LithologyID id, PorosityModel porModel );
+      virtual ReturnCode setPorosityModel( LithologyID id, PorosityModel porModel, const std::vector<double> & porModelPrms );
 
-      // Get surface porosity for Exponential or Soil Mechanic lithology porosity model
-      // [in] id lithology ID
-      // [out] surfPorosity Surface porosity @f$ \phi_0 @f$
-      // return NoError on success or UndefinedValue if the value wasn't set before or NonexistingID on error
-      virtual ReturnCode getSurfacePorosity( LithologyID id, double & surfPor );
-
-      // Set surface porosity for Exponential or Soil Mechanic lithology porosity model
-      // [in] id lithology ID
-      // [in] surfPor Surface porosity @f$ \phi_0 @f$
-      // return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode setSurfacePorosity( LithologyID id, double surfPor );
-
-      // Get compaction coefficient for Exponential @f$(c_{ef})@f$ or Soil Mechanic @f$(\beta)@f$ lithology porosity model
-      // [in] id lithology ID
-      // [out] compCoeff Compaction coefficient valued
-      // return NoError on success or UndefinedValue if the value wasn't set before or NonexistingID on error
-      virtual ReturnCode getCompactionCoeff( LithologyID id, double & compCoeff );
-
-      //  Set compaction coefficient for Exponential @f$(c_{ef})@f$ or Soil Mechanic @f$(\beta)@f$ lithology porosity model
-      // [in] id lithology ID
-      // [in] compCoeff The new value for compaction coefficient
-      // return NoError on success or OutOfRangeValue or NonexistingID on error
-      virtual ReturnCode setCompactionCoeff( LithologyID id, double compCoeff );
-      
       /////////////////////////////////////////////////////////////////////////
       // Thermal conductivity model
 
@@ -94,7 +76,7 @@ namespace mbapi {
       // [in] id lithology ID
       // [out] stpThermCond on success has the thermal conductivity coefficient value, or unchanged in case of error
       // return NoError on success, NonexistingID on unknown lithology ID or UndefinedValue if the value wasn't set before
-      virtual ReturnCode getSTPThermalConductivityCoeff( LithologyID id, double & stpThermCond );
+      virtual ReturnCode STPThermalConductivityCoeff( LithologyID id, double & stpThermCond );
 
       // Set lithology STP thermal conductivity coefficient
       // [in] id lithology ID
@@ -103,8 +85,25 @@ namespace mbapi {
       virtual ReturnCode setSTPThermalConductivityCoeff( LithologyID id, double stpThermCond );
 
    private:
-      // Copy constructor is disabled, use the copy operator instead
+      // Copy constructor is disabled
       LithologyManagerImpl( const LithologyManager & );
+
+      // Copy operator is disabled
+      LithologyManagerImpl & operator = ( const LithologyManagerImpl & otherLithMgr );
+
+      static const char * m_lithoTypesTableName;        // table name for lithologies type in project file
+      static const char * m_lithoTypeNameFieldName;     // column name for lithology type name 
+
+      static const char * m_porosityModelFieldName;     // column name for type of porosity model
+      static const char * m_surfPorosityFieldName;      // column name for surface porosity (porosity model parameter)
+      static const char * m_ccExponentialFieldName;     // column name for compaction coefficient of Exponential porosity model     
+      static const char * m_ccaDblExponentialFieldName; // column name for compaction coefficient A of Double Exponential porosity model 
+      static const char * m_ccbDblExponentialFieldName; // column name for compaction coefficient B of Double Exponential porosity model 
+
+      static const char * m_ccSoilMechanicsFieldName;   // column name for compaction coefficient of the Soil Model porosity model
+      static const char * m_minPorosityFieldName;       // column name for minimal porosity of the Double Exponential porosity model
+
+      database::Database * m_db; // cauldron project database
    };
 }
 

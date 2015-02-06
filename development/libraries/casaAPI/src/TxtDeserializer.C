@@ -51,6 +51,11 @@ inline bool readAndSplitLine( FILE * fp, char * buf, std::vector<std::string> & 
    std::string::size_type endLinePos = line.find( "\n" );
    if ( std::string::npos != endLinePos ) line = line.substr( 0, endLinePos );
 
+   // clean possible last symbol '\r'
+   endLinePos = line.find( "\r" );
+   if ( std::string::npos != endLinePos ) line = line.substr( 0, endLinePos );
+
+
    std::istringstream iss( line );
 
    std::string result;

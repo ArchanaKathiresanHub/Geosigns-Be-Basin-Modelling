@@ -97,6 +97,7 @@ namespace casa
          pushDefaultEnv( "OTGCDIR",    (ibs::FolderPath( rootPath ) << version << "misc" << "OTGC"   ).path() );
          pushDefaultEnv( "GENEXDIR",   (ibs::FolderPath( rootPath ) << version << "misc" << "genex40").path() );
          pushDefaultEnv( "GENEX5DIR",  (ibs::FolderPath( rootPath ) << version << "misc" << "genex50").path() );
+         pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( rootPath ) << version << "misc"             ).path() );
       }
       else if ( appName == "fastctc" )
       {
@@ -111,10 +112,15 @@ namespace casa
          m_inputOpt = "-input";
          m_outputOpt = "-output";
       }
+      else if ( appName == "tracktraps" )
+      {
+         pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
+         m_outputOpt = "-output";
+      }
       else if ( appName == "track1d" )
       {
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( rootPath ) << version << "misc" << "eospack").path() );
-         m_outputOpt = " | sed '1,4d' > track1d_results.csv";
+         m_outputOpt = "| sed '1,4d' > track1d_results.csv";
       }
    }
 

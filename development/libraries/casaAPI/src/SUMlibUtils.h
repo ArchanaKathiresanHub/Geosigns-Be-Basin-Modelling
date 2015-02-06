@@ -71,10 +71,11 @@ namespace sumext
 
 
    /// @brief Create SUMlib bounds
-  void createSUMlibBounds( const casa::VarSpace            & varSp      ///< [in]  VarSpace
-                          , SUMlib::Case                   & lowCs      ///< [out] SUMlib lower bounds
-                          , SUMlib::Case                   & highCs     ///< [out] SUMlib upper bounds
-                          , std::vector<SUMlib::IndexList> & catIndices ///< [out] indexes of categorical parameters
+  void createSUMlibBounds( const casa::VarSpace            & varSp        ///< [in]  VarSpace
+                          , SUMlib::Case                   & lowCs        ///< [out] SUMlib lower bounds
+                          , SUMlib::Case                   & highCs       ///< [out] SUMlib upper bounds
+                          , std::vector<bool>              & selectedPrms ///< [out] mask array, keeps true for unfrozen var. parameters
+                          , std::vector<SUMlib::IndexList> & catIndices   ///< [out] indexes of categorical parameters
                           );
 
    /// @brief Create SUMlib prior info.

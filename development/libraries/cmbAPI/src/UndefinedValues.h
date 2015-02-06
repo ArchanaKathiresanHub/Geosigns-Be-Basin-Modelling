@@ -18,4 +18,10 @@
 #define UndefinedIntegerValue -1         ///< Undefined value for integer numbers
 #define UndefinedStringValue  "undef"    ///< Undefined value for strings
 
+#include <cmath>
+
+inline bool IsValueUndefined( double              val ) { return std::fabs( val - UndefinedDoubleValue ) < 1e-5; }
+inline bool IsValueUndefined( const std::string & val ) { return val == UndefinedStringValue; }
+inline bool IsValueUndefined( int                 val ) { return val == UndefinedIntegerValue; }
+
 #endif // CMB_API

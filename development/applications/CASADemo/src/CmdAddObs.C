@@ -17,6 +17,7 @@
 #include "ObsSourceRockMapProp.h"
 #include "ObsGridPropertyWell.h"
 #include "ObsGridPropertyXYZ.h"
+#include "ObsTrapProp.h"
 #include "ObsValueDoubleScalar.h"
 #include "ObsValueDoubleArray.h"
 
@@ -35,6 +36,7 @@ CmdAddObs::CmdAddObs( CasaCommander & parent, const std::vector< std::string > &
    if (      m_prms[0] == "XYZPoint"            ) { expPrmsNum = 10; expOptPrmNum = 10; }
    else if ( m_prms[0] == "WellTraj"            ) { expPrmsNum = 7;  expOptPrmNum = 7;  }
    else if ( m_prms[0] == "XYPointSorceRockMap" ) { expPrmsNum = 8;  expOptPrmNum = 10; }
+   else if ( m_prms[0] == "TrapProp"            ) { expPrmsNum = 6;  expOptPrmNum = 8;  }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown observable name: " << m_prms[0];
@@ -127,6 +129,22 @@ void CmdAddObs::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          wgtUA                         = atof( m_prms[7].c_str() ); // observable weight for Uncertainty Analysis
       }
    }
+   else if ( m_prms[0] == "TrapProp" ) // X Y reservoir_name prop_name age
+   {
+      const std::string & propName = m_prms[1];                 // trap property
+      double x                     = atof( m_prms[2].c_str() ); // trap X coord
+      double y                     = atof( m_prms[3].c_str() ); // trap Y coord
+      const std::string & resName  = m_prms[4];                 // reservoir name
+      double age                   = atof( m_prms[5].c_str() ); // age for the observable
+ 
+      obsVal = casa::ObsTrapProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age );
+
+      if ( m_prms.size() == 8 )
+      {
+         wgtSA                     = atof( m_prms[6].c_str() ); // observable weight for Sensitivity Analysis
+         wgtUA                     = atof( m_prms[7].c_str() ); // observable weight for Uncertainty Analysis
+      }
+   }
 
    if ( obsVal )
    {
@@ -158,9 +176,11 @@ void CmdAddObs::printHelpPage( const char * cmdName )
 
    std::cout << "  The following list of target types is implemented for this command:\n";
    std::cout << "    XYZPoint - a property value at one point on 3D simulation grid\n";
-   std::cout << "    WellTraj - a sequence of property values along some path in 3D simulation grid coordinate system\n\n";
-
-   std::cout << "    XYSPoint <PropName> <X> <Y> <Z> <Age> <ReferenceValue> <StandardDeviationValue> <SA weight> <UA weight>\n";
+   std::cout << "    WellTraj - a sequence of property values along some path in 3D simulation grid coordinate system\n";
+   std::cout << "    XYPointSorceRockMap - a surface property value for source rock layer\n";
+   std::cout << "    TrapProp - trap property, trap is defined by X,Y coordinates and reservoir name\n";
+   std::cout << "\n";
+   std::cout << "    XYZPoint <PropName> <X> <Y> <Z> <Age> <ReferenceValue> <StandardDeviationValue> <SA weight> <UA weight>\n";
    std::cout << "    Where:\n";
    std::cout << "       PropName               - property name as it was defined in Cauldron project file\n";
    std::cout << "       X,Y,Z                  - are the target point coordinates in 3D simulation grid\n";
@@ -203,5 +223,59 @@ void CmdAddObs::printHelpPage( const char * cmdName )
    std::cout << "    Example:\n";
    std::cout << "    #                 traj file name   prop name   age Dev SWght  UWght\n";
    std::cout << "    " << cmdName << " WellTraj  \"WellVr.in\"       \"Vr\"       0.0 0.1  1.0    1.0\n";
+
+   std::cout << "    TrapProp <PropName> <X> <Y> <ReservoirName> <Age> [<SA weight> <UA weight>]\n";
+   std::cout << "    Where:\n";
+   std::cout << "       PropName               - trap property name (supported properties list - see below)\n";
+   std::cout << "       X,Y                    - are the aerial target point coordinates\n";
+   std::cout << "       LayerName              - source rock layer name\n";
+   std::cout << "       Age                    - simulation age in [Ma]\n";
+   std::cout << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
+   std::cout << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #       type      prop name       X        Y          ReservName    Age   SWght UWght\n";
+   std::cout << "    "<< cmdName << " TrapProp \"GOR\" 460001.0 6750001.0  \"Res\"       0.0    1.0  1.0\n";
+   std::cout << "\n";
+   std::cout << "    Supported trap property list:\n";
+   std::cout << "       VolumeFGIIP [m3] -             Volume of free gas initially in place\n";
+   std::cout << "       VolumeCIIP [m3] -              Volume of condensate initially in place\n";
+   std::cout << "       VolumeSGIIP [m3] -             Volume of solution gas initially in place\n";
+   std::cout << "       VolumeSTOIIP [m3] -            Volume of stock tank oil initially in place\n";
+   std::cout << "       VolumeLiquid [m3] -            Volume of reservoir liquid phase\n";
+   std::cout << "       VolumeVapour [m3] -            Volume of reservoir vapour phase\n";
+   std::cout << "       DensityFGIIP [kg/m3] -         Density of free gas initially in place\n";
+   std::cout << "       DensityCIIP [kg/m3] -          Density of condensate initially in place\n";
+   std::cout << "       DensitySGIIP [kg/m3] -         Density of solution gas initially in place\n";
+   std::cout << "       DensitySTOIIP [kg/m3] -        Density of stock tank oil initially in place\n";
+   std::cout << "       DensityLiquid [kg/m3] -        Density of reservoir liquid phase\n";
+   std::cout << "       DensityVapour [kg/m3] -        Density of reservoir vapour phase\n";
+   std::cout << "       ViscosityFGIIP [Pa*s] -        Viscosity of free gas initially in place\n";
+   std::cout << "       ViscosityCIIP [Pa*s] -         Viscosity of condensate initially in place\n";
+   std::cout << "       ViscositySGIIP [Pa*s] -        Viscosity of solution gas initially in place\n";
+   std::cout << "       ViscositySTOIIP [Pa*s] -       Viscosity of stock tank oil initially in place\n";
+   std::cout << "       ViscosityLiquid [Pa*s] -       Viscosity of reservoir liquid phase\n";
+   std::cout << "       ViscosityVapour [Pa*s] -       Viscosity of reservoir vapour phase\n";
+   std::cout << "       MassFGIIP [kg] -               Mass of free gas initially in place\n";
+   std::cout << "       MassCIIP [kg] -                Mass of condensate initially in place\n";
+   std::cout << "       MassSGIIP [kg] -               Mass of solution gas initially in place\n";
+   std::cout << "       MassSTOIIP [kg] -              Mass of stock tank oil initially in place\n";
+   std::cout << "       MassLiquid [kg] -              Mass of reservoir liquid phase\n";
+   std::cout << "       MassVapour [kg] -              Mass of reservoir vapour phase\n";
+   std::cout << "       CGR [m3/m3] -                  Condensate Gas Ratio: VolumeCIIP / VolumeFGIIP\n";
+   std::cout << "       GOR [m3/m3] -                  Gas Oil Ratio: VolumeSGIIP / VolumeSTOIIP\n";
+   std::cout << "       OilAPI [] -                    API of STOIIP\n";
+   std::cout << "       CondensateAPI [] -             API of CIIP\n";
+   std::cout << "       GasWetnessFGIIP [mole/mole] -  C1 / Sum (C2 - C5) of FGIIP\n";
+   std::cout << "       GasWetnessSGIIP [mole/mole] -  C1 / Sum (C2 - C5) of SGIIP\n";
+   std::cout << "       CEPLiquid [MPa] -              CEP\n";
+   std::cout << "       CEPVapour [MPa] -              CEP\n";
+   std::cout << "       FracturePressure [MPa] -       Fracture pressure of the trap\n";
+   std::cout << "       ColumnHeightLiquid [m] -       Height of the liquid column\n";
+   std::cout << "       ColumnHeightVapour [m] -       Height of the vapour column\n";
+   std::cout << "       GOC [m] -                      Depth of Vapour-Liquid contact\n";
+   std::cout << "       OWC [m] -                      Depth of Liquid-Water contact\n";
+   std::cout << "       SpillDepth [m] -               Spill depth\n";
+   std::cout << "       SealPermeability [mD] -        Seal permeability\n";
 }
 

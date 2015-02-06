@@ -14,6 +14,7 @@
 #include "ObsGridPropertyXYZ.h"
 #include "ObsGridPropertyWell.h"
 #include "ObsSourceRockMapProp.h"
+#include "ObsTrapProp.h"
 
 
 casa::Observable * casa::Observable::load( CasaDeserializer & dz, const char * objName )
@@ -32,6 +33,7 @@ casa::Observable * casa::Observable::load( CasaDeserializer & dz, const char * o
    if (      ot == "ObsGridPropertyXYZ"   ) { return new ObsGridPropertyXYZ(   dz, vr ); }
    else if ( ot == "ObsGridPropertyWell"  ) { return new ObsGridPropertyWell(  dz, vr ); }
    else if ( ot == "ObsSourceRockMapProp" ) { return new ObsSourceRockMapProp( dz, vr ); }
+   else if ( ot == "ObsTrapProp"          ) { return new ObsTrapProp(          dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

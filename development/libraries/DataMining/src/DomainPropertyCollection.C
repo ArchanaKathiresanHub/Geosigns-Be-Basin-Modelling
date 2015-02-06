@@ -3,92 +3,89 @@
 
 #include <iostream>
 
-namespace DataAccess
+namespace DataAccess { namespace Mining
 {
-   namespace Mining
+
+   DomainPropertyCollection::DomainPropertyCollection ( Interface::ProjectHandle * handle ) : m_projectHandle ( handle )
+   {
+      m_snapshot = 0;
+      m_propertyFactory = (Mining::DomainPropertyFactory*)(m_projectHandle->getFactory ());
+   }
+
+   DomainPropertyCollection::~DomainPropertyCollection()
+   {
+      m_snapshot = 0;
+      clear ();
+   }
+
+   void DomainPropertyCollection::setSnapshot ( const Interface::Snapshot * snapshot )
    {
 
-      DomainPropertyCollection::DomainPropertyCollection ( Interface::ProjectHandle * handle ) : m_projectHandle ( handle )
+      if ( snapshot != m_snapshot )
       {
-         m_snapshot = 0;
-         m_propertyFactory = (Mining::DomainPropertyFactory*)(m_projectHandle->getFactory ());
+         clear();
+         m_snapshot = snapshot;
       }
 
-      DomainPropertyCollection::~DomainPropertyCollection()
+   }
+
+   void DomainPropertyCollection::clear()
+   {
+      for ( PropertyToDomainProperty::iterator propIter = m_domainProperty.begin(); propIter != m_domainProperty.end(); ++propIter )
       {
-         m_snapshot = 0;
-         clear ();
+         delete propIter->second;
       }
 
-      void DomainPropertyCollection::setSnapshot ( const Interface::Snapshot * snapshot )
-      {
+      m_domainProperty.clear();
+      m_snapshot = 0;
+   }
 
-         if ( snapshot != m_snapshot )
+   DomainProperty * DomainPropertyCollection::getDomainProperty( const std::string & propertyName ) const
+   {
+      const Interface::Property * property = m_projectHandle->findProperty( propertyName );
+      assert ( property != 0 );
+      return getDomainProperty ( property );
+   }
+
+   DomainProperty * DomainPropertyCollection::getDomainProperty( const Interface::Property * property ) const
+   {
+      assert ( property != 0 );
+
+      PropertyToDomainProperty::iterator propIter = m_domainProperty.find( property );
+      DomainProperty                   * result   = 0;
+
+      if ( propIter != m_domainProperty.end() )
+      {
+         // If a property already exists then return the corresponding domain-property.
+         result = propIter->second;
+      }
+      else
+      {
+         // If the property does not exist in the map then allocate a new one using the factory.
+         // Then add it to the map and return the newly created domain-property.
+         result = m_propertyFactory->allocate( this, m_snapshot, property );
+         if ( !result )
          {
-            clear();
-            m_snapshot = snapshot;
+            std::cerr << "  Property " << property->getName () << " cannot be found in the domain-property factory." << std::endl;
+            std::exit ( 1 );
          }
 
+         m_domainProperty [ property ] = result;
       }
+      return result;
+   }
 
-      void DomainPropertyCollection::clear()
+   void DomainPropertyCollection::initialiseProperties()
+   {
+      for ( PropertyToDomainProperty::iterator iter = m_domainProperty.begin(); iter != m_domainProperty.end(); ++iter )
       {
-         for ( PropertyToDomainProperty::iterator propIter = m_domainProperty.begin(); propIter != m_domainProperty.end(); ++propIter )
-         {
-            delete propIter->second;
-         }
-
-         m_domainProperty.clear();
-         m_snapshot = 0;
+         iter->second->initialise();
       }
+   }
 
-      DomainProperty * DomainPropertyCollection::getDomainProperty( const std::string & propertyName ) const
-      {
-         const Interface::Property * property = m_projectHandle->findProperty( propertyName );
-         assert ( property != 0 );
-         return getDomainProperty ( property );
-      }
+   bool DomainPropertyCollection::contains( const Interface::Property * property ) const
+   {
+      return m_domainProperty.find( property ) != m_domainProperty.end();
+   }
 
-      DomainProperty * DomainPropertyCollection::getDomainProperty( const Interface::Property * property ) const
-      {
-         assert ( property != 0 );
-
-         PropertyToDomainProperty::iterator propIter = m_domainProperty.find( property );
-         DomainProperty                   * result   = 0;
-
-         if ( propIter != m_domainProperty.end() )
-         {
-            // If a property already exists then return the corresponding domain-property.
-            result = propIter->second;
-         }
-         else
-         {
-            // If the property does not exist in the map then allocate a new one using the factory.
-            // Then add it to the map and return the newly created domain-property.
-            result = m_propertyFactory->allocate( this, m_snapshot, property );
-            if ( !result )
-            {
-               std::cerr << "  Property " << property->getName () << " cannot be found in the domain-property factory." << std::endl;
-               std::exit ( 1 );
-            }
-
-            m_domainProperty [ property ] = result;
-         }
-         return result;
-      }
-
-      void DomainPropertyCollection::initialiseProperties()
-      {
-         for ( PropertyToDomainProperty::iterator iter = m_domainProperty.begin(); iter != m_domainProperty.end(); ++iter )
-         {
-            iter->second->initialise();
-         }
-      }
-
-      bool DomainPropertyCollection::contains( const Interface::Property * property ) const
-      {
-         return m_domainProperty.find( property ) != m_domainProperty.end();
-      }
-
-   } // namespace Mining
-} // namespace DataAccess
+}} // namespace DataAccess::Mining

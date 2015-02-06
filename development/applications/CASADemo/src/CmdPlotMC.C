@@ -81,7 +81,7 @@ void CmdPlotMC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "      if ( i == j )\n";
    ofs << "         %Plot histogram for each parameter\n";
-   ofs << "         hist( MCSamplingPrmsVal(:,j+1) );\n";
+   ofs << "         hist( MCSamplingPrmsVal(:,j+1), 20, 'facecolor', 'b', 'edgecolor', 'k' );\n";
    ofs << "      else \n";
    ofs << "         %Scatter plot for each parameters pair\n";
    ofs << "         scatter(MCSamplingPrmsVal(:, j + 1), MCSamplingPrmsVal(:, i + 1), mSize, cc(colInd, :), 'filled' );\n";

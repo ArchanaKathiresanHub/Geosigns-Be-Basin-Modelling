@@ -43,6 +43,7 @@
 ///   - @b fastgenex6 - To model Generation and expulsion of hydrocarbon from source rocks.
 ///   - @b fastmig - To model migration of hydrocarbon from source rock to reservoir layers.
 ///   - @b fastctc - To calculate crust thickness history.
+///   - @b tracktraps - To search traps and generate trapID property
 ///   - @b track1d - To extract data along vertical well for given position
 ///   - @b general - Any other application defined by given script body.
 ///
@@ -81,6 +82,7 @@ namespace casa
          fastgenex6,   ///< Hydrocarbons expulsion from source rock
          fasttouch7,   ///< ResQ reservoir quality
          fastmig,      ///< Hydrocarbons primary migration
+         tracktraps,   ///< Traps search
          track1d,      ///< Extract data along vertical well for given position
          datadriller,  ///< Extract data from the simulation results using DataMiningIoTbl as a requests set
          generic       ///< Allows to define any application not mentioned over

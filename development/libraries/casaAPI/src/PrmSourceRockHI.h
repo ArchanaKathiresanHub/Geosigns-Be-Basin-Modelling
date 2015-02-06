@@ -8,11 +8,11 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file PrmOneCrustThinningEvent.h
-/// @brief This file keeps API declaration for one event of crust thinning parameter handling.
+/// @file PrmSourceRockHI.h
+/// @brief This file keeps API declaration for Source Rock HI parameter handling. 
 
-#ifndef CASA_API_PARAMETER_ONE_CRUST_THINNING_EVENT_H
-#define CASA_API_PARAMETER_ONE_CRUST_THINNING_EVENT_H
+#ifndef CASA_API_PARAMETER_SOURCE_ROCK_HI_H
+#define CASA_API_PARAMETER_SOURCE_ROCK_HI_H
 
 #include "Parameter.h"
 
@@ -26,44 +26,39 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_OneCrustThinningEventPage Crust thinning parameter
+/// @page CASA_SourceRockHIPage Source rock initial Total Organic Contents (HI) parameter
 /// 
-/// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ D( t ) @f$ 
-/// User must provide a sorted by time a sequence of points @f$ [p_0(t_0, d_0), p_1(t_1, d_1), ... ] @f$ .
-/// This variable parameter allows to define a crust thickness function with one crust thinning event.
-/// To define such event, user should provide these sub-parameters:
-/// -# initial crust thickness @f$ d_0 @f$ [m]. The valid range is [0:100000]
-/// -# start time for the thinning event @f$ t_0 @f$ [Ma]. The valid range is [0:1000];
-/// -# duration of the thinning @f$ \delta t = t_1 - t_0 @\f$ [Ma]. The value must be in range  @f$ 0 < \delta t < t_0 @f$ 
-/// -# final crust thickness which is defined as a @f$ d_1 = \sigma \cdot d_0 @f$ where is @f$ \sigma @f$ - a thinning factor with valid range [0:1].
-///
-/// @image html CrustThinningOneEvent.png "One event of crust thinning"
+/// This parameter defines the hydrogen index initial ratio in source rock.
+/// The value is defined in units: @f$ [ kg/tonne ] @f$
+/// It is continuous parameter and his range is @f$ [0:1000]\% @f$
+
 namespace casa
 {
-   class VarPrmOneCrustThinningEvent;
+   class VarPrmSourceRockHI;
 
-   /// @brief Single event crust thinning parameter
-   class PrmOneCrustThinningEvent : public Parameter
+   /// @brief Source rock hydrogen index initial ratio parameter
+   class PrmSourceRockHI : public Parameter
    {
    public:
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get value for single event crust thinning parameter
-      PrmOneCrustThinningEvent( mbapi::Model & mdl );
+      /// @param mdl Cauldron model interface object to get value for HI for given layer from.
+      ///            If model has more than one source rock lithology for the same layer, the HI
+      ///            value will be equal the first one
+      /// @param layerName layer name
+      PrmSourceRockHI( mbapi::Model & mdl, const char * layerName );
 
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
-      /// @param thickIni initial crust thickness [m]
-      /// @param t0 start time for crust thinning event [Ma]
-      /// @param dt duration of crust thinning event [Ma]
-      /// @param coeff crust thinning factor [unitless]
-      PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent, double thickIni, double t0, double dt, double coeff );
+      /// @param val value of the hydrogen index initial ratio in source rock @f$ [ kg/tonne ] @f$
+      /// @param layerName layer name
+      PrmSourceRockHI( const VarPrmSourceRockHI * parent, double val, const char * layerName );
 
-      ///@brief Destructor
-      virtual ~PrmOneCrustThinningEvent() {;}
-
+      /// @brief Destructor
+      virtual ~PrmSourceRockHI();
+     
       /// @brief Get name of the parameter
       /// @return parameter name
-      virtual const char * name() const { return "CrustThinningSingleEvent(InitialThickness, T0, dT, ThinningFactor)"; }
+      virtual const char * name() const { return m_name.c_str(); }
 
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
@@ -74,16 +69,22 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
-      /// @brief Validate crust thinning parameter values 
+      /// @brief Validate HI value if it is in [0:100] range, also it check are any source rock
+      ///        lithology in the model with the same layer name, does the parameter value is the
+      ///        same as in source rock lithology.
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
+
+      /// @brief Get value for the parameter as double
+      /// @return parameter value
+      double value() const { return m_hi;  }
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
       
       /// @brief Get parameter value as an array of doubles
       /// @return parameter value represented as set of doubles
-      virtual std::vector<double> asDoubleArray() const;
+      virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
@@ -107,22 +108,23 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "PrmOneCrustThinningEvent"; }
+      virtual const char * typeName() const { return "PrmSourceRockHI"; }
 
       /// @brief Create a new parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      PrmOneCrustThinningEvent( CasaDeserializer & dz, unsigned int objVer );
+      PrmSourceRockHI( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 
-   private:
-      const VarParameter * m_parent;          ///< variable parameter which was used to create this one
-      std::string          m_name;            ///< name of the parameter
+   protected:
+      const VarParameter * m_parent;    ///< variable parameter which was used to create this one
+
+      std::string          m_name;      ///< name of the parameter
       
-      double               m_initialThickness; ///< initial crust thickness
-      double               m_t0;               ///< start time for thinning event
-      double               m_dt;               ///< duration of thinning event
-      double               m_coeff;            ///< factor for the crust thinning
+      std::string          m_layerName; ///< layer name with source rock
+      double               m_hi;        ///< HI value
    };
+
 }
-#endif // CASA_API_PARAMETER_ONE_CRUST_THINNING_EVENT_H
+
+#endif // CASA_API_PARAMETER_SOURCE_ROCK_HI_H

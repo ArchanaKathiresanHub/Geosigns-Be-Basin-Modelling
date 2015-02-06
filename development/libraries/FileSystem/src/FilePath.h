@@ -48,6 +48,10 @@ namespace ibs {
       /// @return file name extension. If file has no extension, return empty string
       std::string fileNameExtension() const;
 
+      /// @brief Copy file to the given path
+      /// @parma destPath destination path for the file
+      bool copyFile( const Path & destPath ); 
+
    private:
    };
 } // ibs

@@ -27,12 +27,19 @@ namespace casa
       DataDiggerImpl();
       virtual ~DataDiggerImpl();
 
-      /// @brief Insert into project file request for observables values using datadriller cauldron app and data mining interface.\n
+      /// @brief Insert into project file requests for observables value using datadriller cauldron app and data mining interface.\n
       /// Observables must be requested after case mutation.
       /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will request data using datadriller table
-      /// @param rcs casa::RunCaseSet object which keeps list of observables
+      /// @param rcs casa::RunCaseSet object which keeps list of cases 
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCaseSet & rcs );
+
+      /// @brief Insert into project file requests for observables value using datadriller cauldron app and data mining interface.\n
+      /// Observables must be requested after case mutation.
+      /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will request data using datadriller table
+      /// @param rc casa::RunCase object 
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCase * rc );
 
       // Collect observables value from simulation results for given case
       // obs - set of observables 

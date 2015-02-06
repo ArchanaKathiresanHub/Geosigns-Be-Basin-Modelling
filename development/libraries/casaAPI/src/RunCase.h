@@ -78,6 +78,11 @@ namespace casa
       /// @return full path to the project file (including project file name) or null pointer if project wasn't defined during mutation.
       virtual const char * projectPath() const = 0;
 
+      /// @brief Compare cases. It is neccessary because DoE generator could return the same cases for different DoE
+      /// @param cs RunCase for compare with
+      /// @return true if RunCases have the same parameters set, false otherwise
+      virtual bool operator == ( const RunCase & cs ) const = 0;
+
    protected:
       RunCase() { ; }
    };

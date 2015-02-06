@@ -80,6 +80,11 @@ namespace casa
       /// @return parameter value represented as integer
       virtual int asInteger() const { assert(0); return UndefinedIntegerValue; }
 
+      /// @brief Are two parameters equal?
+      /// @param prm Parameter object to compare with
+      /// @return true if parameters are the same, false otherwise
+      virtual bool operator == ( const Parameter & prm ) const;
+
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation

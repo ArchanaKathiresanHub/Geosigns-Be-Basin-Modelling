@@ -8,12 +8,12 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file PrmSourceRockTOC.C
-/// @brief This file keeps API implementation for Source Rock TOC parameter handling 
+/// @file PrmSourceRockHI.C
+/// @brief This file keeps API implementation for Source Rock HI parameter handling 
 
 
-#include "PrmSourceRockTOC.h"
-#include "VarPrmSourceRockTOC.h"
+#include "PrmSourceRockHI.h"
+#include "VarPrmSourceRockHI.h"
 
 // CMB API
 #include "cmbAPI.h"
@@ -27,7 +27,7 @@ namespace casa
 {
 
 // Constructor
-PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName ) : m_parent( 0 )
+PrmSourceRockHI::PrmSourceRockHI( mbapi::Model & mdl, const char * layerName ) : m_parent( 0 )
 { 
    m_layerName = layerName;
    bool isFound = false;
@@ -40,7 +40,7 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName )
    {
       if ( mgr.layerName( srIDs[i] ) == m_layerName )
       {
-         m_toc = mgr.tocIni( srIDs[i] );
+         m_hi = mgr.hiIni( srIDs[i] );
          if ( ErrorHandler::NoError != mgr.errorCode() ) mdl.moveError( mgr );
          isFound = true;
          break;
@@ -50,68 +50,52 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName )
                                     layerName + " in source rock lithology table" );
    // construct parameter name
    std::ostringstream oss;
-   oss << "SourceRockTOC(" << m_layerName << ")";
+   oss << "SourceRockHI(" << m_layerName << ")";
    m_name = oss.str();
 }
 
  // Constructor
-PrmSourceRockTOC::PrmSourceRockTOC( const VarPrmSourceRockTOC * parent, double val, const char * layerName ) :
+PrmSourceRockHI::PrmSourceRockHI( const VarPrmSourceRockHI * parent, double val, const char * layerName ) :
      m_parent( parent )
-   , m_toc( val )
+   , m_hi( val )
    , m_layerName( layerName )
 {
    // construct parameter name
    std::ostringstream oss;
-   oss << "SourceRockTOC(" << m_layerName << ")";
+   oss << "SourceRockHI(" << m_layerName << ")";
    m_name = oss.str();
 }
 
 // Destructor
-PrmSourceRockTOC::~PrmSourceRockTOC() {;}
+PrmSourceRockHI::~PrmSourceRockHI() {;}
 
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel )
+ErrorHandler::ReturnCode PrmSourceRockHI::setInModel( mbapi::Model & caldModel )
 {
    mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
    
-   // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
+   // go over all source rock lithologies and check do we have HI map set for the layer with the same name
    const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( size_t i = 0; i < srIDs.size(); ++i )
-   {
-      if ( mgr.layerName( srIDs[i] ) == m_layerName )
-      {
-         const std::string & mapName = mgr.tocInitMapName( srIDs[i] );
-         if ( !mapName.empty() )
-         {
-            std::ostringstream oss;
-            oss << "Source rock lithology with ID " << srIDs[i] << " has TOC already defined as a map";
-            return caldModel.reportError( ErrorHandler::AlreadyDefined, oss.str() );
-         }
-         else if ( ErrorHandler::NoError != mgr.errorCode() ) return caldModel.moveError( mgr );
-      }
-   }
    
-   ErrorHandler::ReturnCode ret = mgr.setTOCIni( m_layerName, m_toc );
-
-   if ( ErrorHandler::NoError != ret ) return caldModel.moveError( mgr );
+   if ( ErrorHandler::NoError != mgr.setHIIni( m_layerName, m_hi )  ) return caldModel.moveError( mgr );
    
    return ErrorHandler::NoError;
 }
 
-// Validate TOC value if it is in [0:100] range
-std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
+// Validate HI value if it is in [0:100] range
+std::string PrmSourceRockHI::validate( mbapi::Model & caldModel )
 {
    std::ostringstream oss;
 
-   if (      m_toc < 0   ) oss << "TOC value for the layer " << m_layerName << ", can not be negative: " << m_toc << std::endl;
-   else if ( m_toc > 100 ) oss << "TOC value for the layer " << m_layerName << ", can not be more than 100%: " << m_toc << std::endl;
+   if (      m_hi < 0    ) oss << "HI value for the layer " << m_layerName << ", can not be negative: " << m_hi << std::endl;
+   else if ( m_hi > 1000 ) oss << "HI value for the layer " << m_layerName << ", can not be more than 1000 kg/tonne: " << m_hi << std::endl;
 
    mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
 
    bool layerFound = false;
 
-   // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
+   // go over all source rock lithologies and check do we have HI map set for the layer with the same name
    const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
    for ( size_t i = 0; i < srIDs.size(); ++i )
    {
@@ -119,17 +103,9 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
       {
          layerFound = true;
 
-         const std::string & mapName = mgr.tocInitMapName( srIDs[i] );
-         if ( !mapName.empty() )
-         {
-            oss << "Source rock lithology with ID " << srIDs[i] << "for the layer " << m_layerName <<
-                   " has TOC already defined as a map" << std::endl;
-         }
-         else if ( ErrorHandler::NoError != mgr.errorCode() ) oss << mgr.errorCode() << std::endl;
-         
-         double mdlTOC = mgr.tocIni( srIDs[i] );
-         if ( std::fabs( mdlTOC - m_toc ) > 1.e-8 ) oss << "Value of TOC in the model (" << mdlTOC <<
-                                                  ") is different from the parameter value (" << m_toc << ")" << std::endl;
+         double mdlHI = mgr.hiIni( srIDs[i] );
+         if ( std::fabs( mdlHI - m_hi ) > 1.e-8 ) oss << "Value of HI in the model (" << mdlHI <<
+                                                  ") is different from the parameter value (" << m_hi << ")" << std::endl;
       }
    }
 
@@ -140,22 +116,22 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
 
 
 // Are two parameters equal?
-bool PrmSourceRockTOC::operator == ( const Parameter & prm ) const
+bool PrmSourceRockHI::operator == ( const Parameter & prm ) const
 {
-   const PrmSourceRockTOC * pp = dynamic_cast<const PrmSourceRockTOC *>( &prm );
+   const PrmSourceRockHI * pp = dynamic_cast<const PrmSourceRockHI *>( &prm );
    if ( !pp ) return false;
    
    const double eps = 1.e-5;
 
    if ( m_layerName != pp->m_layerName       ) return false;
-   if ( std::fabs( m_toc - pp->m_toc ) > eps ) return false;
+   if ( std::fabs( m_hi - pp->m_hi ) > eps ) return false;
 
    return true;
 }
 
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
-bool PrmSourceRockTOC::save( CasaSerializer & sz, unsigned int version ) const
+bool PrmSourceRockHI::save( CasaSerializer & sz, unsigned int version ) const
 {
    bool hasParent = m_parent ? true : false;
    bool ok = sz.save( hasParent, "hasParent" );
@@ -167,13 +143,13 @@ bool PrmSourceRockTOC::save( CasaSerializer & sz, unsigned int version ) const
    }
    ok = ok ? sz.save( m_name,      "name"      ) : ok;
    ok = ok ? sz.save( m_layerName, "layerName" ) : ok;
-   ok = ok ? sz.save( m_toc,       "toc"       ) : ok;
+   ok = ok ? sz.save( m_hi,        "HI"       ) : ok;
 
    return ok;
 }
 
 // Create a new var.parameter instance by deserializing it from the given stream
-PrmSourceRockTOC::PrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer )
+PrmSourceRockHI::PrmSourceRockHI( CasaDeserializer & dz, unsigned int objVer )
 {
    CasaDeserializer::ObjRefID parentID;
 
@@ -186,14 +162,14 @@ PrmSourceRockTOC::PrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer )
       m_parent = ok ? dz.id2ptr<VarParameter>( parentID ) : 0;
    }
 
-   ok = ok ? dz.load( m_name, "name" ) : ok;
+   ok = ok ? dz.load( m_name,      "name" ) : ok;
    ok = ok ? dz.load( m_layerName, "layerName" ) : ok;
-   ok = ok ? dz.load( m_toc, "toc" ) : ok;
+   ok = ok ? dz.load( m_hi,        "HI" ) : ok;
 
    if ( !ok )
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "PrmSourceRockTOC deserialization unknown error";
+         << "PrmSourceRockHI deserialization unknown error";
    }
 }
 

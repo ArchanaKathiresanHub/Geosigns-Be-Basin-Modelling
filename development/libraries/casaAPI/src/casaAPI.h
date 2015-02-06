@@ -64,8 +64,10 @@
 ///   - casa::RunCaseSet - container which keeps a collection of casa::RunCase objects
 ///   - casa::Parameter - base class for keeping a single parameter value. The following set of parameters is implemented now:
 ///     -# casa::PrmSourceRockTOC - @link CASA_SourceRockTOCPage Source rock initial Total Organic Contents (TOC) parameter @endlink
+///     -# casa::PrmSourceRockHI  - @link CASA_SourceRockHIPage  Source rock Hydrogen Index (HI) initial ratio parameter @endlink
 ///     -# casa::PrmTopCrustHeatProduction - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
 ///     -# casa::PrmOneCrustThinningEvent - @link CASA_OneCrustThinningEventPage Crust thinning parameter @endlink
+///     -# casa::PrmPorosityModel - @link CASA_PorosityModelPage lithology porosity model parameters @endlink
 ///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 
 ///                        value from measurements. casa::ScenarioAnalysis keeps one set of Observables in casa::ObsSpace container.
 ///                        The following set of implemented targets is implemented now:
@@ -136,34 +138,45 @@ namespace casa
       /// @brief Add a parameter to variate layer thickness value [m] in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLayerThickness(
-              ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-            , const char          * layerName   ///< [in] name of the layer in base case model to variate it thickness
-            , double                minVal      ///< [in] the minimal range value 
-            , double                maxVal      ///< [in] the maximal range value 
-            , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
-                                                     parameter value it will be taken from the base case model */
-            );
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * layerName   ///< [in] name of the layer in base case model to variate it thickness
+          , double                minVal      ///< [in] the minimal range value 
+          , double                maxVal      ///< [in] the maximal range value 
+          , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
+                                                   parameter value it will be taken from the base case model */
+          );
 
       /// @brief Add a parameter to variate top crust heat production value @f$ [\mu W/m^3] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryTopCrustHeatProduction(
-              ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-            , double                minVal      ///< [in] the minimal range value 
-            , double                maxVal      ///< [in] the maximal range value 
-            , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
-                                                     parameter value it will be taken from the base case model */
-            );
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , double                minVal      ///< [in] the minimal range value 
+          , double                maxVal      ///< [in] the maximal range value 
+          , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
+                                                   parameter value it will be taken from the base case model */
+          );
 
-      /// @brief Add a parameter to variate source rock lithology TOC value @f$ [\%] @f$ in given range
+      /// @brief Add a parameter to variate source rock lithology initial TOC value @f$ [\%] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockTOC(
-              ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-            , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
-            , double                minVal      ///< [in] the minimal range value 
-            , double                maxVal      ///< [in] the maximal range value 
-            , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
-                                                          parameter value it will be taken from the base case model */
-            );
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , double                minVal      ///< [in] the minimal range value 
+          , double                maxVal      ///< [in] the maximal range value 
+          , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
+                                                        parameter value it will be taken from the base case model */
+          );
+
+      /// @brief Add a parameter to variate source rock lithology HI initial ratio value @f$ [kg/tonne] @f$ in given range
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VarySourceRockHI(
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , double                minVal      ///< [in] the minimal range value 
+          , double                maxVal      ///< [in] the maximal range value 
+          , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
+                                                        parameter value it will be taken from the base case model */
+          );
 
       /// @brief Add 4 variable parameters to one crust thinning event.
       /// @return ErrorHandler::NoError on success or error code otherwise
@@ -180,7 +193,26 @@ namespace casa
           , double                maxThinningFct ///< [in] maximal range value for the crust thickness factor 
           , VarPrmContinuous::PDF pdfType        /**< [in] probability function type for the variable parameter. If PDF needs 
                                                       some middle parameter value it will be taken from the base case model */
-          );                                   
+          );
+
+      /// @brief Add porosity model parameters variation
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VaryPorosityModelParameters( 
+            ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char *          litName       ///< [in] lithology name
+          , const char *          modelName     ///< [in] porosity model name, supported now: Exponential, Soil_Mechanics, Double_Exponential
+          , double                minSurfPor    ///< [in] min range value for the surface porosity 
+          , double                maxSurfPor    ///< [in] max range value for the surface porosity
+          , double                minCompCoef   ///< [in] min range value for the compaction coefficient
+          , double                maxCompCoef   ///< [in] max range value for the compaction coefficient
+          , double                minMinPor     ///< [in] min range value for the minimal porosity value (Double_Exponential model only)
+          , double                maxMinPor     ///< [in] max range value for the minimal porosity value (Double_Exponential model only)
+          , double                minCompCoef1  ///< [in] min range value for the compaction coefficient for the second exponent (Double_Exponential model only)
+          , double                maxCompCoef1  ///< [in] max range value for the compaction coefficient for the second exponent (Double_Exponential model only)
+          , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
+                                                        some middle parameter value it will be taken from the base case model */
+
+          );
    };
 }
 

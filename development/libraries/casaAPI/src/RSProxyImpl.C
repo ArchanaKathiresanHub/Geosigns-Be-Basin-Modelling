@@ -64,21 +64,24 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
 {
    if ( caseSet.empty() ) return reportError( RSProxyError, "Can not build response surface approximation for zero size case set" );
 
+   std::vector< const RunCase*> filteredCaseSet;
+   removeDuplicated( caseSet, filteredCaseSet );
+
    // Create a SUMlib cases set
-   std::vector<SUMlib::Case>   sumCaseSet( caseSet.size() );
+   std::vector<SUMlib::Case>   sumCaseSet( filteredCaseSet.size() );
 
    // convert set of paremetes value for each case from CASA to SUMlib
-   for ( std::size_t i = 0; i < caseSet.size(); ++i )
+   for ( std::size_t i = 0; i < filteredCaseSet.size(); ++i )
    {
-      assert( caseSet[i] != 0 );
+      assert( filteredCaseSet[i] != 0 );
 
       // convert parameters set from RunCase to SUMLib Case
-      sumext::convertCase( *(caseSet[i]), sumCaseSet[i] );
+      sumext::convertCase( *(filteredCaseSet[i]), sumCaseSet[i] );
    }
 
    ///////////////////////////
    // create parameters bounds
-   const RunCaseImpl * rc = dynamic_cast<const RunCaseImpl *>( caseSet[0] );
+   const RunCaseImpl * rc = dynamic_cast<const RunCaseImpl *>( filteredCaseSet[0] );
    assert( rc != 0 );
 
    RunCaseImpl minCase;
@@ -119,7 +122,7 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
    SUMlib::TargetCollection   targetCollection;
    std::vector< std::vector< bool > >  validCase2Obs; // matrix which defines for which case which observable is valid
 
-   sumext::convertObservablesValue( caseSet, targetCollection, validCase2Obs );   
+   sumext::convertObservablesValue( filteredCaseSet, targetCollection, validCase2Obs );   
    assert( !targetCollection.empty() );
 
    // we do not use parameters transformation yet
@@ -245,6 +248,23 @@ RSProxyImpl::RSProxyImpl( CasaDeserializer & dz, const char * objName )
    ok = ok ? dz.load( *m_collection.get(), "CompProxyCollection" ) : ok;
 
    if ( !ok ) throw Exception( DeserializationError ) << "RSProxyImpl deserialization error";
+}
+
+
+void RSProxyImpl::removeDuplicated( const std::vector<const RunCase*> & caseSet, std::vector< const RunCase*> & filteredCaseSet )
+{
+   if ( caseSet.empty() ) return;
+   filteredCaseSet.push_back( caseSet[0] );
+
+   for ( size_t i = 1; i < caseSet.size(); ++i )
+   {
+      bool found = false;
+      for ( size_t j = 0; j < filteredCaseSet.size() && !found; ++j )
+      {
+         if ( *(caseSet[i]) == *(filteredCaseSet[j] ) ) found = true;
+      }
+      if ( !found ) filteredCaseSet.push_back( caseSet[i] );
+   }
 }
 
 }

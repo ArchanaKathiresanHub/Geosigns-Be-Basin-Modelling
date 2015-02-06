@@ -50,6 +50,7 @@ CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, 
       case fastmig:      app.reset( new CauldronApp( sh, "fastmig",      true  ) ); break;
       case fastctc:      app.reset( new CauldronApp( sh, "fastctc",      true  ) ); break;
       case datadriller:  app.reset( new CauldronApp( sh, "datadriller",  false ) ); break;
+      case tracktraps:   app.reset( new CauldronApp( sh, "tracktraps",   false ) ); break;
       case track1d:      app.reset( new CauldronApp( sh, "track1d",      false ) ); break;
       case generic:      app.reset( new CauldronApp( sh, "unknown",      false ) );
          app->setScriptBody( cmdLine );

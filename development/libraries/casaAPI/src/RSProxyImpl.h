@@ -127,6 +127,9 @@ namespace casa
 
       std::auto_ptr<SUMlib::CompoundProxyCollection> m_collection; // SUMlib response proxy
 
+      // compare cases and remove duplicated
+      void removeDuplicated( const std::vector<const RunCase*> & caseSet, std::vector< const RunCase*> & filteredCaseSet );
+
    private:
       // disable copy constructor and copy operator
       RSProxyImpl( const RSProxyImpl & );

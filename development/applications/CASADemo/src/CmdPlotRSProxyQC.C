@@ -91,20 +91,19 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    ofs << "colors = [\n";
    ofs << "   'k'\n";
-   ofs << "   'b'\n";
-   ofs << "   'g'\n";
    ofs << "   'r'\n";
+   ofs << "   'g'\n";
+   ofs << "   'b'\n";
    ofs << "   'c'\n";
    ofs << "   'm'\n";
    ofs << "   'y'\n";
-   ofs << "   'w'\n";
    ofs << "   ];\n";
 
    ofs << "markers = [\n";
    ofs << "   '+'\n";
-   ofs << "   '*'\n";
    ofs << "   'x'\n";
    ofs << "   's'\n";
+   ofs << "   '*'\n";
    ofs << "   'd'\n";
    ofs << "   'v'\n";
    ofs << "   '^'\n";
@@ -262,23 +261,32 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   text( maxV-1.4*dx, (maxV-dx)*1.1-0.6*dx, '110%', 'fontweight', 'bold' );\n";
    ofs << "\n";
    ofs << "   if ( length( ObservablesRefValue{ i } ) > 0 )\n";
-   ofs << "      plot( [ ObsRefVal ], [ ObsRefVal ], 'or', 'linewidth', 3, 'markerfacecolor', 'w', 'markersize', plotMarkerSize, 'linewidth', 3 );\n";
+   ofs << "      plot( [ ObsRefVal ], [ ObsRefVal ], 'or', 'markerfacecolor', 'w', 'markersize', plotMarkerSize, 'linewidth', 3 );\n";
+   ofs << "      hrf = plot( [ ObsRefVal ], [ ObsRefVal], 'or', 'markersize', plotMarkerSize, 'linewidth', 3 );\n";
    ofs << "   end\n";
    ofs << "\n";
    ofs << "   % plot again experiment which were used to build proxy\n";
    ofs << "   for e = 1:length( ProxyQC(i).expNameProxyBld )\n";
    ofs << "      cl = colors( mod(e-1,length(colors))+1,:);\n";
    ofs << "      h(e) = plot( ProxyQC(i).proxyBldData{e}(1,:), ProxyQC(i).proxyBldData{e}(2,:), [cl 'o'], 'markerfacecolor', cl );\n";
-   ofs << "      legName{e} = ProxyQC(i).expNameProxyBld{e};\n";
+   ofs << "      legName{e} = sprintf( '%s - %d cases', ProxyQC(i).expNameProxyBld{e}, length( ProxyQC(i).proxyBldData{e}(2,:) ) );\n";
    ofs << "   end\n";
    ofs << "\n";
    ofs << "   for e = 1:length( ProxyQC(i).proxyTstData )\n";
    ofs << "      mr = markers( mod(e-1,length(markers))+1,:);\n";
-   ofs << "      h(end+1) = plot( ProxyQC(i).proxyTstData{e}(1,:), ProxyQC(i).proxyTstData{e}(2,:), ['r' mr], 'markerfacecolor', 'r' );\n";
-   ofs << "      legName{end+1} = ProxyQC(i).expNameProxyTst{e};\n";
+   ofs << "      cl = colors( mod(e,length(colors))+1,:);\n";
+   ofs << "      h(end+1) = plot( ProxyQC(i).proxyTstData{e}(1,:), ProxyQC(i).proxyTstData{e}(2,:), [cl mr], 'markerfacecolor', cl, 'linewidth', 3 );\n";
+   ofs << "      legName{end+1} = sprintf( '%s - %d cases', ProxyQC(i).expNameProxyTst{e}, length( ProxyQC(i).proxyTstData{e}(2,:) ) );\n";
    ofs << "   end\n";
    ofs << "\n";
-   ofs << "   legend( h, legName, 'location', 'northeastoutside' );\n";
+   ofs << "   if ( exist( 'hrf' ) )\n";
+   ofs << "       h = [h hrf];\n";
+   ofs << "       legName = [legName, 'Reference value'];\n";
+   ofs << "       clear hrf;\n";
+   ofs << "   end\n";
+   ofs << "\n";
+   ofs << "   legend( h, legName, 'location', 'southeast' );\n";
+   ofs << "   grid on;\n";
    ofs << "\n";
    ofs << "   set( findobj( gcf(), 'type', 'axes', 'Tag', 'legend'), 'fontweight', 'bold' );\n";
    ofs << "\n";
@@ -286,9 +294,12 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   set( ah, 'fontweight', 'bold' );\n";
    ofs << "   title( ['" << m_proxyName << " QC plot: ' ProxyQC(i).obsName], 'fontweight', 'bold' );\n";
    ofs << "\n";
+   ofs << "   xlabel( 'Simulated value' );\n";
+   ofs << "   ylabel( 'Proxy value' );\n";
+   ofs << "\n";
    ofs << "   clear h;\n";
    ofs << "   clear legName;\n";
-   ofs << "   eval( sprintf( 'print "<< m_proxyName << "_proxyQC_Obs_%d.jpg -S1200x800', i ) )\n";
+   ofs << "   eval( sprintf( 'print "<< m_proxyName << "_proxyQC_Obs_%d.jpg -S1000,1000', i ) )\n";
    ofs << "end\n";
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )

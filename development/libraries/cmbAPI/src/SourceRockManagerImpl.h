@@ -56,6 +56,7 @@ namespace mbapi {
       // Get source rock type name for the given ID
       virtual std::string sourceRockType( SourceRockID id );
 
+      
       // Get total organic contents value ( must be in range 0-100 percent) for the given source rock lithology
       virtual double tocIni( SourceRockID id );
 
@@ -66,12 +67,20 @@ namespace mbapi {
       // rock lithologies associated with the given layer
       virtual ReturnCode setTOCIni( const std::string & layerName, double newTOC );
 
+
+      // Source rock HI (hydrogen index initial ratio) API 
+      virtual double hiIni( SourceRockID id );
+
+      //  Set hydrogen index initial ratio value ( must be in range 0-1000 kg/tonne) for all source rock lithologies associated with the given layer
+      virtual ReturnCode setHIIni( const std::string & layerName, double newHI );
+
    private:
       static const char * m_sourceRockTableName;     // table name for source rock lithologies in project file
       static const char * m_layerNameFieldName;      // name of the field which keeps layer name
       static const char * m_sourceRockTypeFieldName; // name of the field which keeps source rock type name
       static const char * m_tocIni;                  // initial TOC
       static const char * m_tocIniMap;               // initial TOC map name
+      static const char * m_hiIni;                   // initial HI
 
       // Copy constructor is disabled, use the copy operator instead
       SourceRockManagerImpl( const SourceRockManager & );

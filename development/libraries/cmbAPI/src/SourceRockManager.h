@@ -67,13 +67,30 @@ namespace mbapi {
       /// @return on success TOC map name (if it was defined or empty string otherwise)
       virtual std::string tocInitMapName( SourceRockID id ) = 0;
 
-      /// @brief Set total organic contents value ( must be in range 0-100 percent) for all source\n
+      /// @brief Set total organic contents value ( must be in range 0-100 percent) for all source
       ///        rock lithologies associated with the given layer
       /// @param layerName name of the layer
       /// @param newTOC new TOC value
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setTOCIni( const std::string & layerName, double newTOC ) = 0;
    
+      /// @}
+
+      /// @{
+      /// Source rock HI (hydrogen index initial ratio) API 
+      ///
+      /// @brief Get HI value ( must be in range 0-1000 kg/tonne) for the given source rock lithology
+      /// @param[in] id source rock ID
+      /// @return HI value for given source rock lithology ID or UndefinedDoubleValue in case of error
+      virtual double hiIni( SourceRockID id ) = 0;
+
+      /// @brief Set hydrogen index initial ratio value ( must be in range 0-1000 kg/tonne) for all source
+      ///        rock lithologies associated with the given layer
+      /// @param layerName name of the layer
+      /// @param newTOC new HI value
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setHIIni( const std::string & layerName, double newHI ) = 0;
+
       /// @}
 
 

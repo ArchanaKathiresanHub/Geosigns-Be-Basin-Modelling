@@ -86,6 +86,7 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & ca
    double eldestAge = caldModel.tableValueAsDouble( s_stratIoTblName, firstLayerRow, s_stratIoTblAgeCol );
    if ( ErrorHandler::NoError != caldModel.errorCode() ) return caldModel.errorCode();
 
+
    // add 4 rows to the table
    for ( size_t i = 0; i < 4; ++i )
    {
@@ -99,7 +100,7 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & ca
    // end event time
    if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblAgeCol,       m_t0 - m_dt                  ) ) return caldModel.errorCode();
    if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 1, s_crustIoTblThicknessCol, m_initialThickness * m_coeff ) ) return caldModel.errorCode();
-
+   // request snapshot at this time
    // start event time
    if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblAgeCol,       m_t0               ) ) return caldModel.errorCode();
    if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 2, s_crustIoTblThicknessCol, m_initialThickness ) ) return caldModel.errorCode();
@@ -107,6 +108,10 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & ca
    // before time begin
    if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblAgeCol,       eldestAge          ) ) return caldModel.errorCode();
    if ( ErrorHandler::NoError != caldModel.setTableValue( s_crustIoTblName, 3, s_crustIoTblThicknessCol, m_initialThickness ) ) return caldModel.errorCode();
+
+   // request snapshots at start event time and at finish event time
+   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot( m_t0 - m_dt ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot( m_t0        ) ) return caldModel.errorCode();
 
    return ErrorHandler::NoError;
 }
@@ -186,6 +191,22 @@ std::vector<double> PrmOneCrustThinningEvent::asDoubleArray() const
    vals[3] = m_coeff;
 
    return vals;
+}
+
+// Are two parameters equal?
+bool PrmOneCrustThinningEvent::operator == ( const Parameter & prm ) const
+{
+   const PrmOneCrustThinningEvent * pp = dynamic_cast<const PrmOneCrustThinningEvent *>( &prm );
+   if ( !pp ) return false;
+   
+   const double eps = 1.e-3;
+
+   if ( std::fabs( m_initialThickness - pp->m_initialThickness ) > eps ) return false;
+   if ( std::fabs( m_t0               - pp->m_t0               ) > eps ) return false;
+   if ( std::fabs( m_dt               - pp->m_dt               ) > eps ) return false;
+   if ( std::fabs( m_coeff            - pp->m_coeff            ) > eps ) return false;
+
+   return true;
 }
 
 

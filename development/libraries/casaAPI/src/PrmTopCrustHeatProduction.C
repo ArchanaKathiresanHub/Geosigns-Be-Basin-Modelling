@@ -125,6 +125,21 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
    return oss.str();
 }
 
+
+// Are two parameters equal?
+bool PrmTopCrustHeatProduction::operator == ( const Parameter & prm ) const
+{
+   const PrmTopCrustHeatProduction * pp = dynamic_cast<const PrmTopCrustHeatProduction *>( &prm );
+   if ( !pp ) return false;
+   
+   const double eps = 1.e-5;
+
+   if ( std::fabs( m_heatProdRateValue- pp->m_heatProdRateValue) > eps ) return false;
+
+   return true;
+}
+
+
 // Save all object data to the given stream, that object could be later reconstructed from saved data
 bool PrmTopCrustHeatProduction::save( CasaSerializer & sz, unsigned int version ) const
 {

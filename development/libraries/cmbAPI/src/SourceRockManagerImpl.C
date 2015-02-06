@@ -28,6 +28,8 @@ const char * SourceRockManagerImpl::m_layerNameFieldName      = "LayerName";
 const char * SourceRockManagerImpl::m_sourceRockTypeFieldName = "SourceRockType";
 const char * SourceRockManagerImpl::m_tocIni                  = "TocIni";
 const char * SourceRockManagerImpl::m_tocIniMap               = "TocIniGrid";
+const char * SourceRockManagerImpl::m_hiIni                   = "HiIni";
+
 // Constructor
 SourceRockManagerImpl::SourceRockManagerImpl()
 {
@@ -201,6 +203,57 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( const std::string & l
          if ( ln == layerName )
          {
             rec->setValue( m_tocIni, newTOC );
+         }
+      }
+   }
+   return NoError;
+}
+
+double SourceRockManagerImpl::hiIni( SourceRockID id )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   // get pointer to the table
+   database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+   // if table does not exist - report error
+   if ( !table )
+   {
+      reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
+      return UndefinedDoubleValue;
+   }
+
+   // if record does not exist report error
+   database::Record * rec = table->getRecord( static_cast<int>( id ) );
+   if ( !rec )
+   {
+      reportError( NonexistingID, "No source rock lithology with such ID" );
+      return UndefinedDoubleValue;
+   }
+
+   return rec->getValue<double>( m_hiIni );
+}
+
+ErrorHandler::ReturnCode SourceRockManagerImpl::setHIIni( const std::string & layerName, double newHI )
+{
+   if ( newHI < 0.0 || newHI > 1000.0 ) return reportError( OutOfRangeValue, "HI value must be in range [0:1000]" );
+   
+   // get pointer to the table
+   database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+   // if table does not exist - report error
+   if ( !table ) return reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
+   
+   size_t recNum = table->size();
+   for ( size_t i = 0; i < recNum; ++i )
+   {
+      database::Record * rec = table->getRecord(  static_cast<int>( i ) );
+      if ( rec )
+      {
+         const std::string & ln = rec->getValue<std::string>( m_layerNameFieldName );
+         if ( ln == layerName )
+         {
+            rec->setValue( m_hiIni, newHI );
          }
       }
    }

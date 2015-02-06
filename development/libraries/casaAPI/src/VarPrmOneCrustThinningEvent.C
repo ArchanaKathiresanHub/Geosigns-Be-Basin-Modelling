@@ -28,10 +28,14 @@ VarPrmOneCrustThinningEvent::VarPrmOneCrustThinningEvent( double baseThickIni,  
 {
    m_pdf = prmPDF;
    
-   assert( minThickIni <= baseThickIni && baseThickIni <= maxThickIni );
-   assert( minT0       <= baseT0       && baseT0       <= maxT0       );
-   assert( minDeltaT   <= baseDeltaT   && baseDeltaT   <= maxDeltaT   );
-   assert( minThinningFct <= baseThinningFct && baseThinningFct <= maxThinningFct );
+   if ( baseThickIni    < minThickIni    ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust initial thickness less than minimal value";
+   if ( baseThickIni    > maxThickIni    ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust initial thickness greater than maximal value";
+   if ( baseT0          < minT0          ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event start time less than minimal value";
+   if ( baseT0          > maxT0          ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event start time greater than maximal value";
+   if ( baseDeltaT      < minDeltaT      ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event duration less than minimal value";
+   if ( baseDeltaT      > maxDeltaT      ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of event duration greater than maximal value";
+   if ( baseThinningFct < minThinningFct ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust thinning factor less than minimal value";
+   if ( baseThinningFct > maxThinningFct ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Base value of crust thinning factor greater than maximal value";
 
    m_minValue.reset( new PrmOneCrustThinningEvent( this, minThickIni, minT0, minDeltaT, minThinningFct ) );
    m_maxValue.reset( new PrmOneCrustThinningEvent( this, maxThickIni, maxT0, maxDeltaT, maxThinningFct ) );

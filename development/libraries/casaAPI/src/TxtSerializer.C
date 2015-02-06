@@ -24,6 +24,20 @@ namespace casa
       return fprintf( fp, oss.str().c_str() ) > 0;
    }
 
+   inline bool saveValue( FILE * fp, double val )
+   {
+      std::ostringstream oss;
+      oss << std::scientific << val;
+      return fprintf( fp, oss.str().c_str() ) > 0;
+   }
+
+   inline bool saveValue( FILE * fp, float val )
+   {
+      std::ostringstream oss;
+      oss << std::scientific << val;
+      return fprintf( fp, oss.str().c_str() ) > 0;
+   }
+
    inline bool saveValue( FILE * fp, bool val )
    {
       std::ostringstream oss; oss << (val ? "true" : "false");
@@ -33,7 +47,7 @@ namespace casa
    inline bool saveValue( FILE * fp, const std::string & val )
    {
       std::ostringstream oss; oss << "\"" << val << "\"";
-      return fprintf( fp, oss.str().c_str() ) > 0;
+      return fputs( oss.str().c_str(), fp ) >= 0;
    }
 
    inline bool saveValue( FILE * fp, const char * val )

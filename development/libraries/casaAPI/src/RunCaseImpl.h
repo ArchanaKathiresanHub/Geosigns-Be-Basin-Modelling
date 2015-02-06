@@ -82,6 +82,9 @@ namespace casa
       // Set full path to the project path (including project file name).
       virtual void setProjectPath( const char * pth ) { m_modelProjectFileName = pth; }
 
+      // Compare cases. It is neccessary because DoE generator could return the same cases for different DoE
+      virtual bool operator == ( const RunCase & cs ) const;
+
       // Serialization / Deserialization
 
       // version of serialized object representation

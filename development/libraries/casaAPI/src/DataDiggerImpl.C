@@ -39,28 +39,38 @@ namespace casa
 
    ErrorHandler::ReturnCode DataDiggerImpl::requestObservables( ObsSpace & obs, RunCaseSet & rcs )
    {
-      ObsSpaceImpl   & obSpace = dynamic_cast<ObsSpaceImpl &>(obs);
       RunCaseSetImpl & rcSet = dynamic_cast<RunCaseSetImpl &>(rcs);
 
+      // go through all run cases
       for ( size_t rc = 0; rc < rcSet.size(); ++rc )
       {
-         // go through all run cases
-         RunCaseImpl * cs = dynamic_cast<RunCaseImpl *>(rcSet[rc]);
-         if ( !cs ) continue;
-
-         mbapi::Model * mdl = cs->caseModel();
-
-         if ( !mdl ) continue; // skip cases without model
-
-         if ( NoError != mdl->clearTable( Observable::s_dataMinerTable ) ) return moveError( *mdl ); // clear the table
-
-         // for each case go through all observables and update DataMiningIoTbl & SnapshotIoTbl
-         for ( size_t ob = 0; ob < obSpace.size(); ++ob )
-         {
-            if ( NoError != obSpace[ob]->requestObservableInModel( *mdl ) ) return moveError( *mdl );
-         }
-         if ( NoError != mdl->saveModelToProjectFile( cs->projectPath() ) ) return moveError( *mdl );
+         if ( NoError != requestObservables( obs, rcSet[rc] ) ) return errorCode();
       }
+      
+      return NoError;
+   }
+
+   ErrorHandler::ReturnCode DataDiggerImpl::requestObservables( ObsSpace & obs, RunCase * rc )
+   {
+      if ( !rc ) return NoError;
+      ObsSpaceImpl   & obSpace = dynamic_cast<ObsSpaceImpl &>(obs);
+
+      RunCaseImpl * cs = dynamic_cast<RunCaseImpl *>( rc );
+      if ( !cs ) return NoError;
+
+      mbapi::Model * mdl = cs->caseModel();
+
+      if ( !mdl ) return NoError; // skip cases without model
+
+      if ( NoError != mdl->clearTable( Observable::s_dataMinerTable ) ) return moveError( *mdl ); // clear the table
+
+      // for each case go through all observables and update DataMiningIoTbl & SnapshotIoTbl
+      for ( size_t ob = 0; ob < obSpace.size(); ++ob )
+      {
+         if ( NoError != obSpace[ob]->requestObservableInModel( *mdl ) ) return moveError( *mdl );
+      }
+      if ( NoError != mdl->saveModelToProjectFile( cs->projectPath() ) ) return moveError( *mdl );
+
       return NoError;
    }
 

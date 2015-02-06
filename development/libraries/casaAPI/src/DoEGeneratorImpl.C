@@ -84,12 +84,12 @@ namespace casa
 
          std::vector< SUMlib::IndexList > pCatIndices;
 
-         unsigned int numRuns = static_cast<unsigned int>(runsNum);
+         unsigned int numRuns = static_cast<unsigned int>( runsNum );
 
-         sumext::createSUMlibBounds( varPrmsSet, minCase, maxCase, pCatIndices );
+         std::vector< bool > selectedPrms;
+         sumext::createSUMlibBounds( varPrmsSet, minCase, maxCase, selectedPrms, pCatIndices );
          sumext::createSUMlibPrior( varPrmsSet, baseCase, dummy_variance, dummy_disWeights, dummy_catWeights );
 
-         const std::vector< bool > selectedPrms( minCase.size(), true );
 
          // create bounds 
          const SUMlib::ParameterBounds pBounds( minCase, maxCase, pCatIndices );

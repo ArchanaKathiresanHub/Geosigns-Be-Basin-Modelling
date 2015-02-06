@@ -143,7 +143,7 @@ public:
          }
          else
          {
-            m_rsProxySet->addNewRSProxy( new RSProxyImpl( name, varSpace(), obsSpace(), 2, krType, true, 1.0 ), name );
+            m_rsProxySet->addNewRSProxy( new RSProxyImpl( name, varSpace(), obsSpace(), 0, krType, true, 1.0 ), name );
          }
       }
    }
@@ -170,7 +170,10 @@ public:
    // return reference to Monte Carlo solver. If MC solver algorithm wasn't defined befor by ScenarioAnalysis::setMCAlgorithm(), it
    //         will be set up to MC with no Kriging by default.
    MonteCarloSolver & mcSolver()  { return *(m_mcSolver.get()); }
-      
+ 
+   // Save best matched case from Monte Carlo solver as calibrated scenario
+   void saveCalibratedCase( const char * projFileName, size_t mcSampleNum );
+
    // Get SensitivityCalculator
    SensitivityCalculator & sensitivityCalculator() { return *(m_sensCalc.get()); }
 
@@ -195,7 +198,7 @@ private:
    std::auto_ptr<RunCaseSetImpl>            m_mcCases;
 
    std::auto_ptr<RunManager>                m_runManager;
-   std::auto_ptr<DataDigger>                m_dataDigger;
+   std::auto_ptr<DataDiggerImpl>            m_dataDigger;
    std::auto_ptr<RSProxySetImpl>            m_rsProxySet;
    std::auto_ptr<SensitivityCalculatorImpl> m_sensCalc;
    std::auto_ptr<MonteCarloSolver>          m_mcSolver;
@@ -328,6 +331,17 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MonteCarloSolver::Alg
 
    return NoError;
 }
+
+
+ErrorHandler::ReturnCode ScenarioAnalysis::saveCalibratedCase( const char * projFileName, size_t mcSampleNum )
+{
+   try { m_pimpl->saveCalibratedCase( projFileName, mcSampleNum ); }
+   catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch( ...            ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
 
 // Save scenario to the file
 ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, const char * fileType )
@@ -569,6 +583,44 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
    if ( !allValid ) throw ex;
 }
 
+void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * projFileName, size_t mcSampleNum )
+{
+   if ( mcSampleNum < 1 )
+   {
+      throw Exception( MonteCarloSolverError ) << "Monte Carlo sampling numbering starts with 1, can not get sample point:" << mcSampleNum;
+   }
+   if ( m_mcSolver->samplingsNumber() < mcSampleNum )
+   {
+      throw Exception( MonteCarloSolverError ) << "Requested Monte Carlo sampling point number bigger than total number of sampling points";
+   }
+
+   RunCase * bmCase = const_cast<RunCase*>( m_mcSolver->samplingPoint( mcSampleNum-1 ) ); // by default samples are sorted according to RMSE
+   if ( !bmCase )
+   {
+      throw Exception( MonteCarloSolverError ) << "Can not generate calibrated case: " << projFileName << ". Monte Carlo simulation should be done first";
+   }
+   
+   RunCaseImpl * bmCaseImpl = dynamic_cast<RunCaseImpl*>( bmCase );
+
+   // construct best matched case set path like pathToScenario/BestMatch_projFileName
+   ibs::FilePath fp( projFileName );
+
+   ibs::FolderPath bmCasePath( m_caseSetPath );
+   bmCasePath << std::string( "Calibrated_" ) + fp.fileNameNoExtension();
+   
+   if ( bmCasePath.exists() ) throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << bmCasePath.path() << " is not empty";
+   
+   bmCasePath.create();
+   bmCasePath << projFileName;
+
+   // do mutation
+   bmCaseImpl->mutateCaseTo( *(m_baseCase.get()), bmCasePath.path().c_str() );
+   // add observables
+   m_dataDigger->requestObservables( *m_obsSpace.get(), bmCaseImpl );
+   // generate scripts
+   m_runManager->scheduleCase( *bmCaseImpl );
+}
+
 void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStream )
 {
    bool ok = outStream.save( m_caseSetPath,         "caseSetPath"  );
@@ -576,8 +628,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
    ok = ok ? outStream.save( m_iterationNum,        "iterationNum" ) : ok;
    ok = ok ? outStream.save( m_caseNum,             "caseNum"      ) : ok;
                                                                    
-   ok = ok ? outStream.save( *m_obsSpace.get(),     "ObsSpace"     ) : ok; // serialize observables manager
-   ok = ok ? outStream.save( *m_varSpace.get(),     "VarSpace"     ) : ok; // serialize variable parameters set
+   ok = ok ? outStream.save( obsSpace(),            "ObsSpace"     ) : ok; // serialize observables manager
+   ok = ok ? outStream.save( varSpace(),            "VarSpace"     ) : ok; // serialize variable parameters set
    ok = ok ? outStream.save( *m_doe.get(),          "DoE"          ) : ok; // serialize doe generator
    ok = ok ? outStream.save( *m_dataDigger.get(),   "DataDigger"   ) : ok; // data digger
    ok = ok ? outStream.save( *m_runManager.get(),   "RunManger "   ) : ok; // run manager
@@ -585,7 +637,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
    ok = ok ? outStream.save( *m_doeCases.get(),     "DoECasesSet"  ) : ok;
    ok = ok ? outStream.save( *m_mcCases.get(),      "MCCasesSet"   ) : ok;
    ok = ok ? outStream.save( *m_rsProxySet.get(),   "RSProxySet"   ) : ok;
-   ok = ok ? outStream.save( *m_mcSolver.get(),     "MCSolver"     ) : ok;
+   ok = ok ? outStream.save( mcSolver(),            "MCSolver"     ) : ok;
 
    if ( outStream.version() > 1 )
    {
@@ -599,9 +651,17 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
 void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inStream )
 {
    bool ok = inStream.load( m_caseSetPath,         "caseSetPath" );
-   ok = ok ? inStream.load( m_baseCaseProjectFile, "baseCaseProjectFile" ) : ok;
+   
+   // read base case name and load it as a model
+   std::string baseCaseName;
+   ok = ok ? inStream.load( baseCaseName, "baseCaseProjectFile" ) : ok;
+
+   if ( ok ) defineBaseCase( baseCaseName.c_str() );
+
    ok = ok ? inStream.load( m_iterationNum,        "iterationNum" ) : ok;
    ok = ok ? inStream.load( m_caseNum,             "caseNum" ) : ok;
+
+   if ( !ok ) throw ErrorHandler::Exception( DeserializationError ) << "Deserialization error in ScenarioAnalysis";
 
    m_obsSpace.reset(   new ObsSpaceImpl(              inStream, "ObsSpace"              ) );
    m_varSpace.reset(   new VarSpaceImpl(              inStream, "VarSpace"              ) );

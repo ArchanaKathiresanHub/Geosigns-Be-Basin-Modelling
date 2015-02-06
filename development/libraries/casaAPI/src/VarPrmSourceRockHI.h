@@ -8,23 +8,23 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file VarPrmSourceRockTOC.h
-/// @brief This file keeps API declaration for handling variation of initial source rock TOC parameter. 
+/// @file VarPrmSourceRockHI.h
+/// @brief This file keeps API declaration for handling variation of source rock HI parameter. 
 
-#ifndef CASA_API_VAR_PARAMETER_SOURCE_ROCK_TOC_H
-#define CASA_API_VAR_PARAMETER_SOURCE_ROCK_TOC_H
+#ifndef CASA_API_VAR_PARAMETER_SOURCE_ROCK_HI_H
+#define CASA_API_VAR_PARAMETER_SOURCE_ROCK_HI_H
 
 #include "VarPrmContinuous.h"
 
 namespace casa
 {
-   /// @brief Variation for casa::PrmSourceRockTOC parameter
-   class VarPrmSourceRockTOC : public VarPrmContinuous
+   /// @brief Variation for casa::PrmSourceRockHI parameter
+   class VarPrmSourceRockHI : public VarPrmContinuous
    {
    public:
-      /// @brief Create a new initial source rock TOC variable parameter
-      VarPrmSourceRockTOC( const char * layerName /**< name of the layer for TOC variation. If layer has mix of 
-                                                      source rocks litho-types, TOC will be changed for all of them */
+      /// @brief Create a new initial source rock HI variable parameter
+      VarPrmSourceRockHI( const char * layerName /**< name of the layer for HI variation. If layer has mix of 
+                                                      source rocks litho-types, HI will be changed for all of them */
                          , double baseValue      ///< base value of parameter
                          , double minValue       ///< minimal value for the variable parameter range
                          , double maxValue       ///< maximal value for the variable parameter range
@@ -32,7 +32,7 @@ namespace casa
                          );
 
       /// @brief Destructor
-      virtual ~VarPrmSourceRockTOC();
+      virtual ~VarPrmSourceRockHI();
      
 	   /// @brief Get name of variable parameter in short form
 	   /// @return array of names for each subparameter
@@ -44,7 +44,7 @@ namespace casa
 
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first sub-parameter value
-      /// @return new casa::PrmSourceRockTOC parameter
+      /// @return new casa::PrmSourceRockHI parameter
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
       /// @{
@@ -54,7 +54,7 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "VarPrmSourceRockTOC"; }
+      virtual const char * typeName() const { return "VarPrmSourceRockHI"; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -65,7 +65,7 @@ namespace casa
       /// @brief Create a new var.parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      VarPrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer );
+      VarPrmSourceRockHI( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 
    protected:
@@ -74,4 +74,4 @@ namespace casa
 
 }
 
-#endif // CASA_API_VAR_PARAMETER_SOURCE_ROCK_TOC_H
+#endif // CASA_API_VAR_PARAMETER_SOURCE_ROCK_HI_H

@@ -206,17 +206,26 @@ void sumext::convertObservablesValue( const SUMlib::ProxyValueList &  valList, c
 
 ///////////////////////////////////////////////////////////////////////////////
 // Create SUMlib bounds.
-void sumext::createSUMlibBounds( const casa::VarSpace & varSp, SUMlib::Case & lowCs, SUMlib::Case & highCs, std::vector<SUMlib::IndexList> & catIndices )
+void sumext::createSUMlibBounds( const casa::VarSpace           & varSp
+                               , SUMlib::Case                   & lowCs
+                               , SUMlib::Case                   & highCs
+                               , std::vector<bool>              & selectedPrms
+                               , std::vector<SUMlib::IndexList> & catIndices
+                               )
 {
    const casa::VarSpaceImpl & varSpace = dynamic_cast<const casa::VarSpaceImpl &>( varSp );
 
    casa::RunCaseImpl lowRCs;
    casa::RunCaseImpl uprRCs;
 
+   selectedPrms.clear();
    for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
    {
       lowRCs.addParameter( varSpace.continuousParameter( i )->minValue() );
       uprRCs.addParameter( varSpace.continuousParameter( i )->maxValue() );
+
+      const std::vector<bool> & selPrms = varSpace.continuousParameter( i )->selected();
+      selectedPrms.insert( selectedPrms.end(), selPrms.begin(), selPrms.end() );
    }
 
    sumext::convertCase( lowRCs, lowCs );
@@ -323,8 +332,10 @@ void sumext::convertVarSpace2ParameterPdf( const casa::VarSpace & varSpace, cons
    SUMlib::RealMatrix variance;
    SUMlib::RealMatrix disWeights, catWeights;
 
+   std::vector<bool> selectedPrms;
+
    // Create SUMlib prior info and outer bounds
-   sumext::createSUMlibBounds( varSpace, pAbsLow, pAbsHigh, pCatIndices );
+   sumext::createSUMlibBounds( varSpace, pAbsLow, pAbsHigh, selectedPrms, pCatIndices );
    sumext::createSUMlibPrior( varSpace, pBase, variance, disWeights, catWeights );
 
    // Create SUMlib PDF.
