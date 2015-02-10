@@ -20,7 +20,8 @@
 // STL
 #include <memory>
 
-/// @page CASA_ObservableSourceRockMapPropPage Any Genex map property for source rock layer at specified XY point.
+/// @page CASA_ObservableSourceRockMapPropPage Any Genex map property value for source rock layer at 
+/// specified XY point.
 
 namespace mbapi
 {

@@ -87,7 +87,7 @@ namespace mbapi {
       /// @brief Set hydrogen index initial ratio value ( must be in range 0-1000 kg/tonne) for all source
       ///        rock lithologies associated with the given layer
       /// @param layerName name of the layer
-      /// @param newTOC new HI value
+      /// @param newHI new HI value
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setHIIni( const std::string & layerName, double newHI ) = 0;
 

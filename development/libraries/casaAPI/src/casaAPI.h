@@ -40,6 +40,7 @@
 /// - @subpage CASA_RunManagerPage
 /// - @subpage CASA_DataDiggerPage
 /// - @subpage CASA_RSProxyPage
+/// - @subpage CASA_SensitivityCalculatorPage
 /// - @subpage CASA_MonteCarloSolverPage
 ///
 /// The block diagram which describes an interaction between different parts of CASA API could be seen here:
@@ -52,6 +53,7 @@
 ///   - casa::RunManager - for submitting jobs to the HPC cluster
 ///   - casa::DataDigger - for extracting observables (targets) value from the simulation results
 ///   - casa::RSProxy - for calculating coefficients for polynomial approximation of the response surface 
+///   - casa::SensitivityCalculator - for calculating data for Tornado/Pareto diagrams
 ///   - casa::MonteCarloSolver - for performing Monte Carlo/Markov Chain Monte Carlo calculations
 ///
 ///  The set of data classes includes:
@@ -71,8 +73,10 @@
 ///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 
 ///                        value from measurements. casa::ScenarioAnalysis keeps one set of Observables in casa::ObsSpace container.
 ///                        The following set of implemented targets is implemented now:
-///      -# casa::ObsGridPropertyXYZ - @link CASA_ObservableGridPropXYZPage  Any Cauldron grid property at specified XYZ point.@endlink
+///      -# casa::ObsGridPropertyXYZ - @link CASA_ObservableGridPropXYZPage  Any Cauldron grid property at specified XYZ point. @endlink
 ///      -# casa::ObsGridPropertyWell - @link CASA_ObservableGridPropWellPage Cauldron grid property along a well trajectory. @endlink
+///      -# casa::ObsTrapProp - @link CASA_ObservableTrapPropPage Any trap property which could be extracted by datadriller after migration calculation. @endlink
+///      -# casa::ObsSourceRockMapProp - @link CASA_ObservableSourceRockMapPropPage Any Genex map property for source rock layer at specified XY point. @endlink
 ///   - casa::ObsValue - base class which keeps target value itself. Each casa::RunCase keeps a unique set of casa::ObsValue objects with
 ///                      the simulation results from this case. 
 /// 

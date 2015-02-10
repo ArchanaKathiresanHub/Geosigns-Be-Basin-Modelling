@@ -105,9 +105,9 @@ namespace casa
       virtual const char * typeName() const { return "CauldronApp"; }
 
       /// @brief Create a new DataDiggerImpl instance and deserialize it from the given stream
-      /// @param dz input stream
-      /// @param objVer version of object representation in stream
-      /// @return new observable instance on susccess, or throw and exception in case of any error
+      /// @param inStream input stream
+      /// @param objName name of the application
+      /// @return new observable instance on success, or throw and exception in case of any error
       CauldronApp( CasaDeserializer & inStream, const char * objName );
       /// @}
 

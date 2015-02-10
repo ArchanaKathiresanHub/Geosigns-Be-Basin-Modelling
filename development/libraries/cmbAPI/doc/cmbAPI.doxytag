@@ -370,9 +370,9 @@
     <base>ErrorHandler</base>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
-      <name>getSTPThermalConductivityCoeff</name>
+      <name>STPThermalConductivityCoeff</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>ac79b587c03bf42477e4cd8e18ddabe3a</anchor>
+      <anchor>a5689ece2a18964525251a13b0643946d</anchor>
       <arglist>(LithologyID id, double &amp;stpThermCond)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
@@ -426,9 +426,9 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual std::vector&lt; LithologyID &gt;</type>
-      <name>getLithologiesID</name>
+      <name>lithologiesIDs</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08f9c1e5d7656e824f61c087ea37211a</anchor>
+      <anchor>a311c4542ad93b99beaf9b26205493d44</anchor>
       <arglist>() const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
@@ -439,53 +439,25 @@
       <arglist>()=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
-      <type>virtual ReturnCode</type>
-      <name>getLithologyName</name>
+      <type>virtual std::string</type>
+      <name>lithologyName</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>aed483516edb0752d240fc716bf56d1fd</anchor>
-      <arglist>(LithologyID id, std::string &amp;lithName)=0</arglist>
+      <anchor>afb0d100c1b64f3b1c7b938f877593e7e</anchor>
+      <arglist>(LithologyID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
-      <name>getPorosityModel</name>
+      <name>porosityModel</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a4763c7382e2f7140a8c555258a127957</anchor>
-      <arglist>(LithologyID id, PorosityModel &amp;porModel)=0</arglist>
+      <anchor>a40be5cc31c1b6bb35097d3b8a4ca120b</anchor>
+      <arglist>(LithologyID id, PorosityModel &amp;porModel, std::vector&lt; double &gt; &amp;porModelPrms)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
       <name>setPorosityModel</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a4d8b3d32c2533cc9856e9bba7c2df05d</anchor>
-      <arglist>(LithologyID id, PorosityModel porModel)=0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual ReturnCode</type>
-      <name>getSurfacePorosity</name>
-      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a6ab37b6900e841f039fd2c86bc5ca987</anchor>
-      <arglist>(LithologyID id, double &amp;surfPor)=0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual ReturnCode</type>
-      <name>setSurfacePorosity</name>
-      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>ad4e61447fa1bbf96054cd2966e68ed67</anchor>
-      <arglist>(LithologyID id, double surfPor)=0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual ReturnCode</type>
-      <name>getCompactionCoeff</name>
-      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a5b72212788b8544e746eda1702de453b</anchor>
-      <arglist>(LithologyID id, double &amp;compCoeff)=0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual ReturnCode</type>
-      <name>setCompactionCoeff</name>
-      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a03701a0ce93715262bcee861eb81eb8e</anchor>
-      <arglist>(LithologyID id, double compCoeff)=0</arglist>
+      <anchor>a178cf7cab18aa59e7ac5072e51b3d87c</anchor>
+      <arglist>(LithologyID id, PorosityModel porModel, const std::vector&lt; double &gt; &amp;porModelPrms)=0</arglist>
     </member>
     <member kind="function" protection="protected" virtualness="virtual">
       <type>virtual</type>
@@ -723,6 +695,20 @@
       <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
       <anchor>ad04c6ada0791498921554a9d38d24e23</anchor>
       <arglist>(const std::string &amp;layerName, double newTOC)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>hiIni</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a904a5412965b66184b8da2f89585a0fd</anchor>
+      <arglist>(SourceRockID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setHIIni</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a77677515869dde07cbd94096ac4bad4e</anchor>
+      <arglist>(const std::string &amp;layerName, double newHI)=0</arglist>
     </member>
     <member kind="typedef">
       <type>size_t</type>

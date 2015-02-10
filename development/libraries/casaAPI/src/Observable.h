@@ -46,8 +46,9 @@
 ///The following list of Observable types is implemented in CASA API:
 ///
 /// - @subpage CASA_ObservableGridPropXYZPage
-/// - @subpage CASA_ObservableSourceRockMapPropPage
 /// - @subpage CASA_ObservableGridPropWellPage
+/// - @subpage CASA_ObservableSourceRockMapPropPage
+/// - @subpage CASA_ObservableTrapPropPage
 ///
 /// A new casa::Observable object could be created by one of the static functions from @link casa::DataDigger Data Digger @endlink
 

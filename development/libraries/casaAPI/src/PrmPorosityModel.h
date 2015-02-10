@@ -49,7 +49,7 @@ namespace mbapi
 ///
 /// <b> Soil Mechanics model </b>
 ///
-/// @f$ \psi = \psi_0 - \beta exp( frac{\sigma}{\sigma_0} ) @f$
+/// @f$ \psi = \psi_0 - \beta \cdot exp( \frac{\sigma}{\sigma_0} ) @f$
 /// Where
 /// @f$ \phi = \frac{\psi}{1+\psi} @f$
 /// @f$ \psi_0 = \frac{\phi_0}{1-\phi_0} @f$
@@ -90,16 +90,16 @@ namespace casa
       } PorosityModelType;
 
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get value for TOC for given layer from
-      ///            if model has more than one source rock lithology for the same layer, the TOC
-      ///            value will be equal the first one
-      /// @param layerName layer name
+      /// @param mdl Cauldron model interface object to get Porosity model and it parameters value 
+      ///            for the given lithology. 
+      /// @param lithoName lithology name
       PrmPorosityModel( mbapi::Model & mdl, const char * lithoName );
 
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
-      /// @param val value of the initial total organic content in source rock @f$ [ weight \% ] @f$
-      /// @param layerName layer name
+      /// @param lithoName lithology name
+      /// @param mdlType type of porosity model
+      /// @param mdlPrms list of model parameters
       PrmPorosityModel( const VarPrmPorosityModel * parent, const char * lithoName, PorosityModelType mdlType, const std::vector<double> & mdlPrms );
 
       /// @brief Destructor
@@ -167,7 +167,7 @@ namespace casa
       std::string          m_name;      ///< name of the parameter
       
       PorosityModelType    m_modelType;   ///< type of the porosity model
-      std::string          m_lithoName;   ///< layer name with source rock
+      std::string          m_lithoName;   ///< lithology name
       
       // Soil Mechanics model parameters
       double               m_clayFraction;///< clay fraction which unique defines surface porosity and compaction coefficient

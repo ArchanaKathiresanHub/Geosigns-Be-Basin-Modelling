@@ -30,7 +30,7 @@ namespace casa
       /// -# Exponential
       /// -# Soil mechanics
       /// -# Double exponential
-      /// These models are described @link CASA_PorosityModelPage here.
+      /// These models are described @link CASA_PorosityModelPage here. @endlink
       VarPrmPorosityModel( const char * lithoName      ///< name of the lithology type
                          , PrmPorosityModel::PorosityModelType mdlType ///< type of porosity model, supported: Exponential/Soil_Mechanics/Double_Exponential
                          , double       baseSurfPor    ///< base value for surface porosity

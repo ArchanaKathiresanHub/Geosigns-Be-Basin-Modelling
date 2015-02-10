@@ -21,7 +21,7 @@
 /// 
 /// CASA API supports the following types of variable parameters:
 /// - @subpage CASA_VarPrmContinuousPage
-/// - @subpage CASA_VarPrmDiscrete
+/// - @subpage CASA_VarPrmDiscretePage
 /// - @subpage CASA_VarPrmCategoricalPage
 ///
 /// Set of variable parameters for scenario analysis is managed by a @ref CASA_VarSpacePage "VarSpace manager"

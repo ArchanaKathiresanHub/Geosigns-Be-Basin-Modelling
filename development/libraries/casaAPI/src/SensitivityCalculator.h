@@ -54,7 +54,7 @@
 /// Figure 
 /// @image html TornadoDiagram.jpg "Tornado plot example"
 /// 
-/// <b>Pareto diagram</b> or <b>Pareto chart</b, named after Vilfredo Pareto, is a type of chart 
+/// <b>Pareto diagram</b> or <b>Pareto chart</b>, named after Vilfredo Pareto, is a type of chart 
 /// that contains both bars and a line graph, where individual values are represented in descending 
 /// order by bars, and the cumulative total is represented by the line (Wikipedia)
 ///
@@ -86,9 +86,9 @@ namespace casa
 
       /// @brief Get the sensitivity of specified VarParameter
       /// @param varPrm variable parameter object pointer
-      /// @param subPrmID  subparameter ID
+      /// @param subPrmID sub-parameter ID
       /// @returns      the sensitivity value
-      double getSensitivity( const VarParameter * varPrm, int subPrmNum ) const;
+      double getSensitivity( const VarParameter * varPrm, int subPrmID ) const;
 
       /// @brief Get the cumulative sensitivity of specified VarParameter
       /// @param varPrm variable parameter  object pointer
@@ -181,14 +181,14 @@ namespace casa
       virtual ~SensitivityCalculator() {;}
 
       /// @brief Calculate data for Pareto diagram construction
-      /// @param proxy[in]     pointer to the proxy object which is used to calculate parameters sensitivities
-      /// @param sensInfo[out] data set which contains all parameters cumulative sensitivities which can be used to create Pareto diagram
+      /// @param proxy [in]     pointer to the proxy object which is used to calculate parameters sensitivities
+      /// @param sensInfo [out] data set which contains all parameters cumulative sensitivities which can be used to create Pareto diagram
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       virtual ErrorHandler::ReturnCode calculatePareto(const RSProxy * proxy, ParetoSensitivityInfo  & sensInfo) = 0;
 
       /// @brief Construct 1st order proxy for given set of cases and calculate Tornado variable parameters sensitivities
-      /// @param cs[in] case set manager which keeps run cases for DoE experiments
-      /// @param expName[in] list of DoE names which will be used to create proxy for parameters sensitivity calculation
+      /// @param cs [in] case set manager which keeps run cases for DoE experiments
+      /// @param expNames [in] list of DoE names which will be used to create proxy for parameters sensitivity calculation
       /// @return array which contains for each observable, a set of variable parameters sensitivities which could be used
       ///         for creation Tornado diagram. In case of error method will return empty array and error code and error message
       ///         could be obtained from SensitivitCalculator object

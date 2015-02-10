@@ -26,11 +26,11 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_SourceRockHIPage Source rock initial Total Organic Contents (HI) parameter
+/// @page CASA_SourceRockHIPage Source rock Hydrogen Index (HI) initial ratio parameter
 /// 
 /// This parameter defines the hydrogen index initial ratio in source rock.
 /// The value is defined in units: @f$ [ kg/tonne ] @f$
-/// It is continuous parameter and his range is @f$ [0:1000]\% @f$
+/// It is continuous parameter and his range is @f$ [0:1000] @f$
 
 namespace casa
 {
