@@ -31,6 +31,7 @@ public:
 
 private:
    unsigned int m_app;
+   int          m_cpus;
 };
 
 #endif // CASA_CMD_ADD_CAULDRON_APPLICATION_H

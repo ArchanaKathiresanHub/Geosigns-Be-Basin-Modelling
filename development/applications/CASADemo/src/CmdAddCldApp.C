@@ -15,6 +15,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <locale>
 
 CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
@@ -24,14 +25,30 @@ CmdAddCldApp::CmdAddCldApp( CasaCommander & parent, const std::vector< std::stri
          << m_prms.size() << " in Cauldron application definition";
    }
 
-   if (      m_prms[0] == "fastcauldron" ) m_app = casa::RunManager::fastcauldron;
-   else if ( m_prms[0] == "fastgenex6"   ) m_app = casa::RunManager::fastgenex6;
-   else if ( m_prms[0] == "fastctc"      ) m_app = casa::RunManager::fastctc;
-   else if ( m_prms[0] == "fasttouch7"   ) m_app = casa::RunManager::fasttouch7;
-   else if ( m_prms[0] == "fastmig"      ) m_app = casa::RunManager::fastmig;
-   else if ( m_prms[0] == "tracktraps"   ) m_app = casa::RunManager::tracktraps;
-   else if ( m_prms[0] == "track1d"      ) m_app = casa::RunManager::track1d;
-   else if ( m_prms[0] == "generic"      ) m_app = casa::RunManager::generic;
+   // set it to negative that later we can check - was it given or not
+   m_cpus = -1;
+
+   size_t it = 0;
+   
+   // read cpus number if was given
+   std::locale loc;
+   if ( m_prms.size() > 1 && std::isdigit( m_prms[it][0], loc ) )
+   {
+      m_cpus = atol( m_prms[it].c_str() );
+      if ( m_cpus < 1 || m_cpus > 100000 ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+         "Wrong number of cpus: " << m_cpus << ", for application: " << m_prms[it+1];
+
+      ++it;
+   }
+
+   if (      m_prms[it] == "fastcauldron" ) m_app = casa::RunManager::fastcauldron;
+   else if ( m_prms[it] == "fastgenex6"   ) m_app = casa::RunManager::fastgenex6;
+   else if ( m_prms[it] == "fastctc"      ) m_app = casa::RunManager::fastctc;
+   else if ( m_prms[it] == "fasttouch7"   ) m_app = casa::RunManager::fasttouch7;
+   else if ( m_prms[it] == "fastmig"      ) m_app = casa::RunManager::fastmig;
+   else if ( m_prms[it] == "tracktraps"   ) m_app = casa::RunManager::tracktraps;
+   else if ( m_prms[it] == "track1d"      ) m_app = casa::RunManager::track1d;
+   else if ( m_prms[it] == "generic"      ) m_app = casa::RunManager::generic;
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown cauldron application name: " << m_prms[0];
@@ -46,26 +63,29 @@ void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    casa::CauldronApp::ShellType sh = casa::CauldronApp::bash;
 #endif // _WIN32
 
+   // was cpus number given?
+   size_t p = m_cpus < 0 ? 1 : 2;
+   if ( m_cpus < 0 ) { m_cpus = 1; } // if not - set it to 1
+
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )
    {
-      std::cout << "Add cauldron application to calculation pipeline " << m_prms[0] << "(";
+      std::cout << "Add cauldron application to calculation pipeline " << m_prms[p - 1] << "(";
 
-      for ( size_t p = 1; p < m_prms.size(); ++p ) std::cout << m_prms[p] << ((p == m_prms.size() - 1) ? "" : ",");
+      for ( size_t i = p; i < m_prms.size(); ++i ) std::cout << m_prms[i] << ((i == m_prms.size() - 1) ? "" : ",");
       
       std::cout << ")" << std::endl;
    }
    casa::CauldronApp * app = 0;
    
-   size_t p = 1;
 
    if ( casa::RunManager::generic == m_app )
    {
-      int cpus = atol( m_prms[p++].c_str() );
       const std::string & appName = m_prms[p++];
 
-      app = casa::RunManager::createApplication( casa::RunManager::generic, cpus, sh, appName );
+      app = casa::RunManager::createApplication( casa::RunManager::generic, m_cpus, sh, appName );
    }
-   else { app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), 1, sh ); }
+   else { 
+   app = casa::RunManager::createApplication( static_cast<casa::RunManager::ApplicationType>( m_app ), m_cpus, sh ); }
 
    assert( 0 != app );
 
@@ -81,13 +101,16 @@ void CmdAddCldApp::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
 void CmdAddCldApp::printHelpPage( const char * cmdName )
 {
-   std::cout << "  " << cmdName << " <app name> [app parameters]\n";
+   std::cout << "  " << cmdName << " [cpus] <app name> [app parameters]\n";
    std::cout << "   - add a new Cauldron application at the end of the simulation pipeline. The full Cauldron simulation \n";
    std::cout << "     could consists of several stages, like P/T simulation then genex and then migration. Command must \n";
    std::cout << "     have an application name as the first parameter and optionally, application parameters. Input and \n";
    std::cout << "     output project file names must not be specified as command options, they will be added by CASA.\n";
+   std::cout << "     If application is parallel, user could specify number of cpus before the application name. This is an \n";
+   std::cout << "     optional parameter, if it was not specified the number of cpus will be set to 1.\n";
    std::cout << "     Here is an examples of using \"" << cmdName << "\" command:\n";
    std::cout << "         " << cmdName << " fastcauldron \"-itcoupled\"\n";
+   std::cout << "         " << cmdName << " 4 fastcauldron \"-itcoupled\"\n";
    std::cout << "         " << cmdName << " fastgenex6\n";
 }
 
