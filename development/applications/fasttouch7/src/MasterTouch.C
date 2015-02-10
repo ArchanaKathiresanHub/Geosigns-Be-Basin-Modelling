@@ -55,8 +55,8 @@ void executeWrapper( const char * burHistFile, const string & filename, const ch
 
 	int pid = fork();
 
-	if (pid == 0) {	
-
+	if (pid == 0)
+	{	
 		const char * wrapperName = "touchstoneWrapper.sh";
 
 		errno = 0;
@@ -65,14 +65,14 @@ void executeWrapper( const char * burHistFile, const string & filename, const ch
 			static_cast<const char *>(0)
 			);
 
-		if (errno != 0) {
-
+		if (errno != 0)
+		{
 			cerr << "\n---------------------------------------\n";
-			cerr << "  Could not run TouchstoneWrapper '" << getPath() << '/' << wrapperName << "'\n";
+			cerr << "MeSsAgE error: Could not run TouchstoneWrapper '" << getPath() << '/' << wrapperName;
 			cerr << "  Error code " << errno << ":  " << std::strerror(errno) << '\n'; 
 			cerr << "---------------------------------------" << std::endl;
-
 		}
+		
 	} 	
 	else 	
 	{ 
@@ -81,14 +81,16 @@ void executeWrapper( const char * burHistFile, const string & filename, const ch
 		utilities::TimeToComplete timeToComplete( 30, 300, 0.1, 0.1 );
 		timeToComplete.start();   
 
-		while (! waitpid(pid, NULL, WNOHANG)) 
-		{
-			fread(&fractionCompleted,sizeof(fractionCompleted),1,statusFile);
-			string reported = timeToComplete.report( MinimumAll(fractionCompleted) );
-			if ( !reported.empty()) 
+		while ( ! waitpid(pid, NULL, WNOHANG) ) 
+		{				
+			if ( 1 == fread( &fractionCompleted, sizeof(fractionCompleted), 1, statusFile ) )
 			{
-				ReportProgress( reported );
-			}     	
+					string reported = timeToComplete.report( MinimumAll( fractionCompleted ) );
+					if ( !reported.empty()) 
+					{
+						ReportProgress( reported );
+					}
+			}	
 		}
 		fclose(statusFile);
 	}  
@@ -215,7 +217,7 @@ bool MasterTouch::run()
       for( outIt = m_layerList->begin(); outIt != m_layerList->end(); ++outIt )
       {
       	bool calculated = false;
-      	for (int runs = 0; runs < MAX_RUNS && !calculated; ++runs) 
+      	for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
       	{
          	
          	// set current layer iterator so can retrieve all output 
@@ -252,7 +254,8 @@ bool MasterTouch::run()
 					cerr << "MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs"<<endl;
          	}
          }
-
+         
+         if ( !calculated ) { break; }
       }
       // check for early exit from For loop
       if ( outIt != m_layerList->end() ) { break; }
@@ -343,6 +346,8 @@ bool MasterTouch::addOutputFormat( const string & filename,
  */
 bool MasterTouch::calculate( const std::string & filename, const Surface * surface, const CategoryMapInfoList & currentOutputs)
 {
+	try
+	{ 
    // for each defined node on reservoir surface  
    int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
    int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
@@ -378,16 +383,8 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
    tmpnam(resultFile); 
 
    //Execute touchstoneWrapper
-   try
-	{
-   	executeWrapper(burhistFile, filename, resultFile);
-   }
-   catch ( ... )
-   {
-		cerr << "Message warning: Touchstone wrapper failed for unknown reason " << endl;
-      return false;
-   }
-
+   executeWrapper(burhistFile, filename, resultFile);
+   
    //read touchstone categories
    TouchstoneFiles ReadTouchstone(resultFile);
    std::vector<int> vec;
@@ -401,8 +398,7 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
    m_categoriesMapping[iCement_Quartz_str] = vec[5]; // TSLIB_RC_CMT_QRTZ;
     
    //Read touchstone results
-   try 
-   {
+
    	for ( int i = firstI; i <= lastI; ++i )
    	{
       	for( int j = firstJ; j <= lastJ; ++j )
@@ -414,16 +410,25 @@ bool MasterTouch::calculate( const std::string & filename, const Surface * surfa
          	{ 
             	for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
          	}
-         
       	}
    	} 	
    }	
-   catch ( std::exception & e ) 
+   catch (const std::runtime_error & r)
+   { 
+   	cerr << "MeSsAgE warning: runtime error on MPI process " << GetRank( ) << " : "<< r.what() << endl;
+	   return false;
+   }
+  	catch ( std::exception & e ) 
    {
-		cerr << "Message warning: results are not read correctly on MPI process " << GetRank( ) << " : "<< e.what() << endl;
+		cerr << "MeSsAgE warning: exception on MPI process " << GetRank( ) << " : "<< e.what() << endl;
    	return false;
-	}	
-
+   }
+   catch( ... )
+   {
+   	cerr << "MeSsAgE warning: unknown errors on MPI process " << GetRank( ) << endl;
+   	return false;
+   } 
+   
    return true;
 }
 
