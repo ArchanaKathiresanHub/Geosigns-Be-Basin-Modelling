@@ -18,6 +18,8 @@ if (NOT MSVC)
   message(FATAL_ERROR "MS Visual studio is necessary to build the C sharp interface")
 endif()
 
+add_definitions( "/bigobj" )
+
 include_directories(
    src/Swig
    ${SUMPP_INCLUDE_DIR}

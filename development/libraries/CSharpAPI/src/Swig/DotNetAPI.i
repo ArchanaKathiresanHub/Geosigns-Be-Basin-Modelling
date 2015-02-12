@@ -442,7 +442,7 @@ using namespace casa;
 %template(CoefficientsMapList) std::vector< std::map< std::vector< unsigned int>, std::pair<double,double> > >;
 %template(PolynomCoefficient)  std::pair< std::vector< unsigned int >, std::pair<double,double> >;
 %template(MCResults)           std::vector< std::pair<double,casa::RunCase*> >;
-
+%template(MCSamplingPoint)     std::pair<double,RunCase*>;
 
 /// CASA API SensitivityCalculator data types
 %template(TornadoSensitivityData) std::vector<casa::TornadoSensitivityInfo>;
