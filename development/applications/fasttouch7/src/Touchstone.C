@@ -84,9 +84,9 @@ TouchstoneWrapper::TouchstoneWrapper(const char * burhistFile, char * filename, 
    setCategoriesMapping ( );
    
    /** limit the size of core dump files **/
-//	m_coreSize.rlim_cur = 0;
-//	m_coreSize.rlim_max = 0;
-//	setrlimit(RLIMIT_CORE, &m_coreSize);
+	m_coreSize.rlim_cur = 0;
+	m_coreSize.rlim_max = 0;
+	setrlimit(RLIMIT_CORE, &m_coreSize);
 }
 
 TouchstoneWrapper::~TouchstoneWrapper ( ) 
