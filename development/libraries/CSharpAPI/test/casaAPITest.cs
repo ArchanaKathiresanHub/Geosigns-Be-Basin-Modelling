@@ -131,8 +131,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
 
       // for debug run
-      // public string m_projectFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
-      // public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
+      //public string m_projectFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
+      //public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
 
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
@@ -194,6 +194,7 @@ namespace Shell.BasinModeling.Cauldron.Test
             Assert.IsTrue(2 == expSet.runCase(i).parametersNumber());
 
             double val1 = expSet.runCase(i).parameter(0).asDoubleArray()[0];
+
             double val2 = expSet.runCase(i).parameter(1).asDoubleArray()[0];
 
             switch (i)
@@ -579,23 +580,27 @@ namespace Shell.BasinModeling.Cauldron.Test
          Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.56984) < reps);
       }
 
-/*      [TestMethod]
+      [TestMethod]
       public void ScenarioAnalysis_Serialzation_Test() // analog of casaAPI/test/SerializationTest.C
       {
-         
-            sa.saveScenario("casa_state_reloaded_1.txt", "txt");
+         {
+            ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
+
+            Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
+            Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.saveScenario(@".\casa_state_reloaded_1.txt", "txt") );
          }
          {
             // do round trip - load and save it
-            ScenarioAnalysis sa = ScenarioAnalysis.loadScenario("casa_state_reloaded.txt_1", "txt");
-            sa.saveScenario("casa_state_reloaded_2.txt", "txt");
+            ScenarioAnalysis sb = ScenarioAnalysis.loadScenario(@".\casa_state_reloaded_1.txt", "txt");
+            Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sb.errorCode());
+
+            sb.saveScenario(@".\casa_state_reloaded_2.txt", "txt");
          }
 
-         string fileAContent = File.ReadAllText("casa_state_reloaded_1.txt");
-         string fileBContent = File.ReadAllText("casa_state_reloaded_2.txt");
+         string fileAContent = File.ReadAllText(@".\casa_state_reloaded_1.txt");
+         string fileBContent = File.ReadAllText(@".\casa_state_reloaded_2.txt");
 
          Assert.IsTrue(fileAContent == fileBContent);
       }
- */
    }
 }

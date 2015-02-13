@@ -41,8 +41,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
 
       // for debug run
-      //public string m_projectFileName         = @"c:\Temp\dev-x64_Debug\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
-      //public string m_serialisedStateFileName = @"c:\Temp\dev-x64_Debug\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
+      //public string m_projectFileName         = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
+      //public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
 
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
@@ -80,6 +80,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       public void ScenarioAnalysis_SensitivityCalculatorTornadoTest() // test for Tornado sens. calc
       {
          ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
+
          SensitivityCalculator sensCalc = sa.sensitivityCalculator();
          StringVector doeNames = new StringVector();
          doeNames.Add("Tornado");
@@ -133,6 +135,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       public void ScenarioAnalysis_SensitivityCalculatorParetoTest() // test for Tornado sens. calc
       {
          ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
+
          RSProxySet proxySet = sa.rsProxySet();
 
          RSProxy secOrdProx = proxySet.rsProxy( "SecondOrder" );
