@@ -65,11 +65,20 @@ namespace casa
 
       if ( m_mpirunCmd.empty() )
       {
-         m_mpirunCmd = std::string( s_MPIRUN_CMD )
+         ibs::FilePath mpirunPath( s_MPIRUN_CMD );
+         if ( !mpirunPath.exists() )
+         {
+            ibs::FilePath appPath( ibs::FilePath::pathToExecutable() );
+            appPath << mpirunPath.fileName();
+            m_mpirunCmd = appPath.path();
+         }
+         else
+         {
+            m_mpirunCmd = std::string( s_MPIRUN_CMD );
+         }
 #ifndef _WIN32
-            + " -env I_MPI_DEBUG 5"
+         m_mpirunCmd += " -env I_MPI_DEBUG 5";
 #endif
-         ; 
       }
 
       // do some tunning depends on application name

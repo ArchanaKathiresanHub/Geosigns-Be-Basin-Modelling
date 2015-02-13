@@ -52,6 +52,10 @@ namespace ibs {
       /// @parma destPath destination path for the file
       bool copyFile( const Path & destPath ); 
 
+      /// @brief Return full path to the application executable which called this method
+      /// @return path to executable
+      static std::string pathToExecutable();
+
    private:
    };
 } // ibs

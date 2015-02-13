@@ -19,6 +19,13 @@
 #include "boost/version.hpp"
 #include "boost/filesystem.hpp"
 
+#ifndef _WIN32
+#include <libgen.h>
+#include <unistd.h>
+#else
+#include <windows.h>
+#endif
+
 namespace ibs
 {
 
@@ -118,6 +125,23 @@ bool FilePath::copyFile( const Path & destPath )
       return false;
    }
    return true;
+}
+
+std::string FilePath::pathToExecutable()
+{
+#ifndef _WIN32
+	char buf[FILENAME_MAX];
+   size_t len = readlink( "/proc/self/exe", buf, sizeof(buf) - 1 );
+   buf[len]= '\0';
+   return dirname( buf );
+#else
+   TCHAR buf[MAX_PATH];
+
+   DWORD length = GetModuleFileName( NULL, buf, sizeof( buf ) - 1 );
+   PathRemoveFileSpec( buf );
+
+   return buf;
+#endif
 }
 
 }
