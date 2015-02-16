@@ -20,7 +20,7 @@
 #include "boost/filesystem.hpp"
 
 #ifndef _WIN32
-#include <libgen.h>
+//#include <libgen.h>
 #include <unistd.h>
 #else
 #include <windows.h>
@@ -120,7 +120,7 @@ bool FilePath::copyFile( const Path & destPath )
    {
       boost::filesystem::copy_file( boost::filesystem::path( m_path ), boost::filesystem::path( destPath.path() ) );
    }
-   catch ( const boost::filesystem::filesystem_error & ex )
+   catch ( ... )
    {
       return false;
    }
@@ -129,19 +129,20 @@ bool FilePath::copyFile( const Path & destPath )
 
 std::string FilePath::pathToExecutable()
 {
+   std::string epath;
 #ifndef _WIN32
 	char buf[FILENAME_MAX];
    size_t len = readlink( "/proc/self/exe", buf, sizeof(buf) - 1 );
    buf[len]= '\0';
-   return dirname( buf );
+   epath = std::string( buf );
 #else
    TCHAR buf[MAX_PATH];
 
    DWORD length = GetModuleFileName( NULL, buf, sizeof( buf ) - 1 );
-   PathRemoveFileSpec( buf );
-
-   return buf;
+   epath = std::string( buf );
 #endif
+   FilePath pathTo( epath );
+   return pathTo.filePath();
 }
 
 }
