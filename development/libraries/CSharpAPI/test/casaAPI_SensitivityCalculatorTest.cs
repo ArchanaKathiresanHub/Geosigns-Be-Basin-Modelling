@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace Shell.BasinModeling.Cauldron.Test
 {
@@ -37,12 +38,12 @@ namespace Shell.BasinModeling.Cauldron.Test
       }
 
       // for regular run
-      public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
-      public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
+      //public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
+      //public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
 
       // for debug run
-      //public string m_projectFileName         = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
-      //public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
+      public string m_projectFileName         = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
+      public string m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland_casa_state.txt";
 
       public double eps = 1.0e-6;
       public double reps = 1.0e-2;
@@ -93,7 +94,8 @@ namespace Shell.BasinModeling.Cauldron.Test
 
          Assert.AreEqual<int>(tornadoData.Count, 9, "Wrong observables number in Tornado diagram data" ); // number of observables
          
-         for (int i = 0; i < tornadoData.Count; ++i)
+         //for (int i = 0; i < tornadoData.Count; ++i)
+         for (int i = 0; i < 1; ++i) // do test only for 1 observable
          {
             Observable obs = tornadoData[i].observable();
             StringVector obsNames = obs.name();
@@ -106,7 +108,8 @@ namespace Shell.BasinModeling.Cauldron.Test
                                     "Wrong first observable name for Tornado sensitivity");
 
             StringVector prmNames = tornadoData[i].varParametersNameList();
-            for (uint j = 0; j < prmNames.Count; ++j)
+            //for (uint j = 0; j < prmNames.Count; ++j)
+            for (uint j = 0; j < 1; ++j) // compare only one set of parameters sensitivities in this test
             {
                double minPrmAbsSens = tornadoData[i].minAbsSensitivityValue(j);
                double maxPrmAbsSens = tornadoData[i].maxAbsSensitivityValue(j);
@@ -124,10 +127,7 @@ namespace Shell.BasinModeling.Cauldron.Test
                Assert.IsTrue(Math.Abs(maxPrmRelSens - 40.3462) < 1e-3, "Wrong max relative value for the first parameter in the Tornado diagram data");
                Assert.AreEqual<string>(name, "TopCrustHeatProdRate [\\mu W/m^3]", "Wrong first parameter name in Tornado diagram data");
                Assert.AreEqual<int>(subPrmNum, 0, "Wrong sub-parameter id for the first parameter in the Tornado diagram data");
-
-               break; // compare only one set of parameters sensitivities in this test
             }
-            break; // do test only for 1 observable
          }
       }
 
@@ -186,6 +186,106 @@ namespace Shell.BasinModeling.Cauldron.Test
                   Assert.AreEqual( @"Lower Jurassic TOC [%]", prmName );
                   break;
             }
+         }
+      }
+
+
+      [TestMethod] // test for Pareto with variation of observable weights sens. calc
+      public void ScenarioAnalysis_SensitivityCalculatorCyclicParetoTest()
+      {
+         ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
+
+         RSProxySet proxySet = sa.rsProxySet();
+
+         RSProxy secOrdProx = proxySet.rsProxy("SecondOrder");
+
+         Assert.IsTrue(secOrdProx != null);
+
+         SensitivityCalculator sensCalc = sa.sensitivityCalculator();
+
+         //////////////////////////////////////////
+         // Create pareto with weights 1.0
+         ParetoSensitivityInfo paretoDataEQW = new ParetoSensitivityInfo();
+         
+         // set all observable SA weights to 1.0
+         for ( uint o = 0; o < sa.obsSpace().size(); ++o )
+         {
+            sa.obsSpace().observable(o).setSAWeight(1.0);
+         }
+
+         // get pareto data for equal weighting
+         Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sensCalc.calculatePareto(secOrdProx, paretoDataEQW));
+
+         // list of parameters - can be different various weights value
+         List<string> prmNamesEQW = new List<string>();
+         // list of parameters sensitivities
+         List<double>  sensDataEQW = new List<double>();
+
+         for (int i = 0; i < paretoDataEQW.m_vprmPtr.Count; ++i)
+         {
+            VarParameter prm = paretoDataEQW.m_vprmPtr[i];
+            int prmSubId = paretoDataEQW.m_vprmSubID[i];
+            prmNamesEQW.Add( prm.name()[prmSubId] );
+            sensDataEQW.Add(paretoDataEQW.getSensitivity(prm, prmSubId));
+         }
+
+         //////////////////////////////////////////
+         // Create set of 5 pareto charts with weights variation
+         for ( uint p = 0; p < 5; ++p )
+         {
+            // keep results only till the next loop. It will simulate
+            // user interaction and pareto recalculation
+            List<double>  sensDataVW = new List<double>(); 
+            List<string>  prmNamesVW = new List<string>();
+            ParetoSensitivityInfo paretoDataVW = new ParetoSensitivityInfo();
+
+            // variate in some way SA weights for observables
+            // user updates SA weights
+            for ( uint o = 0; o < sa.obsSpace().size(); ++o )
+            {
+               sa.obsSpace().observable(0).setSAWeight( 1.0 - 1.0/(2.0 + o + p) );
+            }
+            // get pareto data for the new weighting
+            Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sensCalc.calculatePareto(secOrdProx, paretoDataVW));
+            // collect new pareto data
+            for (int i = 0; i < paretoDataVW.m_vprmPtr.Count; ++i)
+            {
+               VarParameter prm = paretoDataVW.m_vprmPtr[i];
+               int prmSubId = paretoDataVW.m_vprmSubID[i];
+               prmNamesVW.Add( prm.name()[prmSubId] );
+               sensDataVW.Add(paretoDataVW.getSensitivity(prm, prmSubId));
+            }
+
+            // use new pareto (plot for example), in test case just check numbers for the
+            // first parameter in the chart
+            switch( p )
+            {
+               case 0:
+                  Assert.IsTrue(Math.Abs(sensDataVW[0]- 77.721115907) < eps);
+                  Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
+                  break;
+
+               case 1:
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.72500210) < eps);
+                  Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
+                  break;
+
+               case 2:
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.72823309) < eps);
+                  Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
+                  break;
+
+               case 3:
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.73096169) < eps);
+                  Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
+                  break;
+
+               case 4:
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.73329662) < eps);
+                  Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
+                  break;
+            }            
          }
       }
    }
