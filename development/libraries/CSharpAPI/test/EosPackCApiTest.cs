@@ -22,7 +22,7 @@ namespace BasinModelingLinkTest
    [TestClass]
    public class EosPackCApiTest
    {
-      private static string m_cfgFile = @".\PTDiagCalculatorTest.cfg";
+      private static string m_cfgFile = @"..\..\..\..\..\PTDiagCalculatorTest.cfg";
        
       #region Additional test attributes
       // 

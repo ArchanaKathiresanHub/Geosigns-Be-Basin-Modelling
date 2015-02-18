@@ -127,8 +127,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       public string m_fileName = @"Ottoland.project3d";
 
       // for regular run
-      public string m_projectFileName = @"..\..\..\csharp-test\Ottoland.project3d";
-      public string m_serialisedStateFileName = @"..\..\..\csharp-test\Ottoland_casa_state.txt";
+      public string m_projectFileName = @"..\..\..\..\..\Ottoland.project3d";
+      public string m_serialisedStateFileName = @"..\..\..\..\..\Ottoland_casa_state.txt";
 
       // for debug run
       //public string m_projectFileName = @"d:\cauldron\cld-dev-64\libraries\CSharpAPI\csharp-test\Ottoland.project3d";
@@ -152,10 +152,17 @@ namespace Shell.BasinModeling.Cauldron.Test
       }
 
       //Use TestInitialize to run code before running each test
-      //[TestInitialize()]
-      //public void MyTestInitialize()
-      //{
-      //}
+      [TestInitialize()]
+      public void TestInitialize()
+      {
+         if (System.Diagnostics.Debugger.IsAttached)
+         {
+            m_isDebug = true;
+            // for debug run
+            m_projectFileName = @"d:\cauldron\cld-dev-64\Ottoland.project3d";
+            m_serialisedStateFileName = @"d:\cauldron\cld-dev-64\Ottoland_casa_state.txt";
+         }
+      }
       //
       //Use TestCleanup to run code after each test has run
       //[TestCleanup()]

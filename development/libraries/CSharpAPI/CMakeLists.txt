@@ -124,11 +124,11 @@ set( CSHARP_UNIT_TESTS_SRC
 )
 
 configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
-configure_file(test/Project.project3d csharp-test/Project.project3d COPYONLY)
-configure_file(test/Ottoland.project3d csharp-test/Ottoland.project3d COPYONLY)
-configure_file(test/OttolandWithGenex.project3d csharp-test/OttolandWithGenex.project3d COPYONLY)
-configure_file(test/Ottoland_casa_state.txt csharp-test/Ottoland_casa_state.txt COPYONLY)
-configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg COPYONLY)
+configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)
+configure_file(test/Ottoland.project3d ${CMAKE_BINARY_DIR}/Ottoland.project3d COPYONLY)
+configure_file(test/OttolandWithGenex.project3d ${CMAKE_BINARY_DIR}/OttolandWithGenex.project3d COPYONLY)
+configure_file(test/Ottoland_casa_state.txt ${CMAKE_BINARY_DIR}/Ottoland_casa_state.txt)
+configure_file(test/PTDiagCalculatorTest.cfg ${CMAKE_BINARY_DIR}/PTDiagCalculatorTest.cfg COPYONLY)
 
 add_csharp_unittest( 
   NAME Shell.BasinModeling.Cauldron.Test

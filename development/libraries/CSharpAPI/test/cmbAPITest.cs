@@ -22,14 +22,8 @@ namespace Shell.BasinModeling.Cauldron.Test
       ///</summary>
       public TestContext TestContext
       {
-         get
-         {
-            return testContextInstance;
-         }
-         set
-         {
-            testContextInstance = value;
-         }
+         get { return testContextInstance;  }
+         set { testContextInstance = value; }
       }
 
       private void logMsg( string msg )
@@ -38,8 +32,10 @@ namespace Shell.BasinModeling.Cauldron.Test
          {
             file.WriteLine(msg);
          }
-
       }
+ 
+      public string m_projectFileName = @"..\..\..\..\..\Project.project3d";
+      public string m_ottolandProject = @"..\..\..\..\..\Ottoland.project3d";
 
       private bool compareFiles( string projFile1, string projFile2 )
       {
@@ -95,10 +91,16 @@ namespace Shell.BasinModeling.Cauldron.Test
       }
 
       //Use TestInitialize to run code before running each test
-      //[TestInitialize()]
-      //public void MyTestInitialize()
-      //{
-      //}
+      [TestInitialize()]
+      public void MyTestInitialize()
+      {
+         if (System.Diagnostics.Debugger.IsAttached)
+         {
+            // for debug run
+            m_projectFileName = @"d:\cauldron\cld-dev-64\Project.project3d";
+            m_ottolandProject = @"d:\cauldron\cld-dev-64\Ottoland.project3d";
+         }
+      }
       //
       //Use TestCleanup to run code after each test has run
       //[TestCleanup()]
@@ -111,7 +113,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void TestCMB_API_LoadFile()
       {
-         string fileName = @"..\..\..\csharp-test\Project.project3d";
+         string fileName = m_projectFileName;
          Model cmb = new Model();
          Model.ReturnCode ret = cmb.loadModelFromProjectFile(fileName);
          Assert.AreEqual( ret, Model.ReturnCode.NoError );
@@ -120,7 +122,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void TestCMB_API_ModelLoadSaveProjectRoundTrip()
       {
-         string fileName = @"..\..\..\csharp-test\Project.project3d";
+         string fileName = m_projectFileName;
          Model cmb = new Model();
          Model.ReturnCode ret = cmb.loadModelFromProjectFile(fileName);
          Assert.AreEqual(ret, Model.ReturnCode.NoError);
@@ -143,7 +145,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void TestCMB_API_BasementPropertySetting()
       {
-         string fileName = @"..\..\..\csharp-test\Project.project3d";
+         string fileName = m_projectFileName;
          Model testModel = new Model();
          
          // load project file
@@ -187,7 +189,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       [TestMethod]
       public void TestCMB_API_SourceRockTOCSettings()
       {
-         string fileName = @"..\..\..\csharp-test\Ottoland.project3d";
+         string fileName = m_ottolandProject;
          Model testModel = new Model();
    
          // load test project
