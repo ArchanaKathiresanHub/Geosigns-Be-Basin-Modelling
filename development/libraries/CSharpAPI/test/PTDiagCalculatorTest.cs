@@ -53,7 +53,7 @@ namespace Shell.BasinModeling.Cauldron.Test
       private static double[] m_CritPoint = { 909.17673, 10959091.306859 };
       private static double[] m_BubblePoint = { 588.15, 10057971.0253 };
       private static double m_eps = 1e-3;  // threshold for comparison
-      private static string m_cfgFile = @"..\..\..\..\..\PTDiagCalculatorTest.cfg";
+      private static string m_cfgFile = @".\PTDiagCalculatorTest.cfg";
 
       /// <summary>
       ///Gets or sets the test context which provides

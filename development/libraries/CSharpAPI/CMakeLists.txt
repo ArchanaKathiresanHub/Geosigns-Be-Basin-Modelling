@@ -128,7 +128,7 @@ configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COP
 configure_file(test/Ottoland.project3d ${CMAKE_BINARY_DIR}/Ottoland.project3d COPYONLY)
 configure_file(test/OttolandWithGenex.project3d ${CMAKE_BINARY_DIR}/OttolandWithGenex.project3d COPYONLY)
 configure_file(test/Ottoland_casa_state.txt ${CMAKE_BINARY_DIR}/Ottoland_casa_state.txt)
-configure_file(test/PTDiagCalculatorTest.cfg ${CMAKE_BINARY_DIR}/PTDiagCalculatorTest.cfg COPYONLY)
+configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg COPYONLY)
 
 add_csharp_unittest( 
   NAME Shell.BasinModeling.Cauldron.Test
