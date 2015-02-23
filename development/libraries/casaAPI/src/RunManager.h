@@ -117,7 +117,7 @@ namespace casa
       /// @brief Add a Case to the scheduled cases set
       /// @param newRun new Case to be scheduled for run
       /// @return ErrorHandler::NoError on success or error code otherwise
-      virtual ErrorHandler::ReturnCode scheduleCase( const RunCase & newRun ) = 0;
+      virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun ) = 0;
 
       /// @brief Execute all scheduled cases
       /// @param asyncRun

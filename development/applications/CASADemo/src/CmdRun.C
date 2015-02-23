@@ -71,7 +71,7 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    // set version and cluster
    if ( ErrorHandler::NoError != rm.setCauldronVersion( m_cldVer.c_str() ) ||
-      ErrorHandler::NoError != rm.setClusterName( m_cluster.c_str() )
+        ErrorHandler::NoError != rm.setClusterName( m_cluster.c_str() )
       ) throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
 
    // submit jobs

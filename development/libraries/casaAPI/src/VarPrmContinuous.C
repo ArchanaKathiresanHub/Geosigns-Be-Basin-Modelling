@@ -50,18 +50,18 @@ namespace casa
    std::vector<bool> VarPrmContinuous::selected() const
    {
       std::vector<bool> mask;
+      
       const std::vector<double> & minVals = m_minValue->asDoubleArray();
       const std::vector<double> & maxVals = m_maxValue->asDoubleArray();
+      
       assert( minVals.size() == maxVals.size() );
+      
       for ( size_t i = 0; i < minVals.size(); ++i )
       {
-         if ( std::fabs( minVals[i] ) > 0.0 || std::fabs( maxVals[i] ) > 0.0 )
-         {
-            // check relative difference
-            mask.push_back( std::fabs( (maxVals[i] - minVals[i])/(maxVals[i] + minVals[i]) ) < 1.e-5 ? false : true );
-         }
-         else {  mask.push_back( false ); } // both equal to zero
+         // check relative difference
+         mask.push_back( ( std::fabs(maxVals[i] - minVals[i]) <= 1.e-6 * std::fabs(maxVals[i] + minVals[i]) ) ? false : true );
       }
+
       return mask;
    }
 

@@ -27,7 +27,7 @@ namespace casa
 {
 
    // Constructor
-   RunCaseImpl::RunCaseImpl() { ; }
+   RunCaseImpl::RunCaseImpl() : m_runState( NotSubmitted ) { ; }
 
    // Destructor
    RunCaseImpl::~RunCaseImpl()
@@ -153,7 +153,7 @@ namespace casa
 
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
       {
-         if ( !(*(m_prmsSet[i].get()) == *(rci.m_prmsSet[i].get())) ) return false;
+         if ( *(m_prmsSet[i].get()) != *(rci.m_prmsSet[i].get()) ) return false;
       }
       return true;
    }
@@ -164,6 +164,14 @@ namespace casa
       bool ok = true;
 
       // initial implementation of serialization, must exist in all future versions of serialization
+
+      if ( fileVersion >= 3 )
+      {
+         // register run case with serializer to allow RunManager object keep reference after deserialization
+         CasaSerializer::ObjRefID rcID = sz.ptr2id( this );
+         bool ok = sz.save( rcID, "ID" );
+      }
+
       if ( fileVersion >= 0 )
       {
          // std::auto_ptr<mbapi::Model> m_model;
@@ -183,6 +191,10 @@ namespace casa
             ok = sz.save( *m_results[i], "CaseObsVal" );
          }
       }
+      if ( fileVersion >= 3 )
+      {
+         ok = ok ? sz.save( static_cast<int>( m_runState ), "RunCaseState" ) : ok;
+      }
       return ok;
    }
 
@@ -190,6 +202,14 @@ namespace casa
    {
       // read from file object name and version
       bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+
+      CasaDeserializer::ObjRefID rcID;
+
+      // load data necessary to create an object
+      ok = ok ? dz.load( rcID, "ID" ) : ok;
+
+      // register runcase with deserializer under read ID to allow RunManager object keep reference after deserializtion
+      if ( ok ) dz.registerObjPtrUnderID( this, rcID );
 
       // std::auto_ptr<mbapi::Model> m_model;
       ok = ok ? dz.load( m_modelProjectFileName, "PathToModel" ) : ok;
@@ -213,6 +233,10 @@ namespace casa
          m_results.push_back( ov );
       }
 
+      int st;
+      ok = ok ? dz.load( st, "RunCaseState" ) : ok;
+      m_runState = ok ? static_cast<CaseStatus>( st ) : NotSubmitted;
+
       if ( !ok )
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -220,3 +244,4 @@ namespace casa
       }
    }
 }
+

@@ -27,6 +27,7 @@ bool casa::ObsSpaceImpl::save( CasaSerializer & sz, unsigned int fileVersion ) c
 {
    bool ok = true;
    
+   // initial implementation of serialization, must exist in all future versions of serialization
    if ( fileVersion >= 0 )
    {
       // register ObsSpace object with serializer to allow other objects to keep reference to it after deserializtion
@@ -35,14 +36,11 @@ bool casa::ObsSpaceImpl::save( CasaSerializer & sz, unsigned int fileVersion ) c
 
       size_t setSize = m_obsSet.size();
 
-      if ( fileVersion >= 0 )
-      {  // initial implementation of serialization, must exist in all future versions of serialization
-         ok = sz.save( setSize, "ObservablesSetSize" );
+      ok = sz.save( setSize, "ObservablesSetSize" );
 
-         for ( size_t i = 0; i < setSize && ok; ++i )
-         {
-            ok = ok ? sz.save( *(m_obsSet[i]), "Observable" ) : ok;
-         }
+      for ( size_t i = 0; i < setSize && ok; ++i )
+      {
+         ok = ok ? sz.save( *(m_obsSet[i]), "Observable" ) : ok;
       }
    }
    return ok;
@@ -56,18 +54,7 @@ casa::ObsSpaceImpl::ObsSpaceImpl(CasaDeserializer & dz, const char * objName)
    std::string  objType;
    unsigned int objVer;
 
-   bool ok = dz.loadObjectDescription( objType, objNameInFile, objVer );
-   if ( objType.compare( typeName() ) || objNameInFile.compare( objName ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "Deserialization error. Can not load object: " << objName;
-   }
-
-   if ( version() < objVer )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
-         << "Version of object in file is newer. No forward compatibility!";
-   }
+   bool ok = dz.checkObjectDescription( typeName(), objName, version() );
 
    CasaDeserializer::ObjRefID obsID;
 

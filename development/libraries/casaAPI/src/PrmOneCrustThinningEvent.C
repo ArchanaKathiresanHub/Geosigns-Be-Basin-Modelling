@@ -199,12 +199,12 @@ bool PrmOneCrustThinningEvent::operator == ( const Parameter & prm ) const
    const PrmOneCrustThinningEvent * pp = dynamic_cast<const PrmOneCrustThinningEvent *>( &prm );
    if ( !pp ) return false;
    
-   const double eps = 1.e-3;
+   const double eps = 1.e-4;
 
-   if ( std::fabs( m_initialThickness - pp->m_initialThickness ) > eps ) return false;
-   if ( std::fabs( m_t0               - pp->m_t0               ) > eps ) return false;
-   if ( std::fabs( m_dt               - pp->m_dt               ) > eps ) return false;
-   if ( std::fabs( m_coeff            - pp->m_coeff            ) > eps ) return false;
+   if ( !NearlyEqual( m_initialThickness, pp->m_initialThickness, eps ) ) return false;
+   if ( !NearlyEqual( m_t0              , pp->m_t0              , eps ) ) return false;
+   if ( !NearlyEqual( m_dt              , pp->m_dt              , eps ) ) return false;
+   if ( !NearlyEqual( m_coeff           , pp->m_coeff           , eps ) ) return false;
 
    return true;
 }

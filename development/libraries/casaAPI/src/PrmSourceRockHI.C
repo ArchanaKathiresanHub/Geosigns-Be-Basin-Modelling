@@ -104,8 +104,8 @@ std::string PrmSourceRockHI::validate( mbapi::Model & caldModel )
          layerFound = true;
 
          double mdlHI = mgr.hiIni( srIDs[i] );
-         if ( std::fabs( mdlHI - m_hi ) > 1.e-8 ) oss << "Value of HI in the model (" << mdlHI <<
-                                                  ") is different from the parameter value (" << m_hi << ")" << std::endl;
+         if ( !NearlyEqual( mdlHI, m_hi, 1.e-4 ) )
+            oss << "Value of HI in the model (" << mdlHI << ") is different from the parameter value (" << m_hi << ")" << std::endl;
       }
    }
 
@@ -121,10 +121,11 @@ bool PrmSourceRockHI::operator == ( const Parameter & prm ) const
    const PrmSourceRockHI * pp = dynamic_cast<const PrmSourceRockHI *>( &prm );
    if ( !pp ) return false;
    
-   const double eps = 1.e-5;
+   const double eps = 1.e-6;
 
-   if ( m_layerName != pp->m_layerName       ) return false;
-   if ( std::fabs( m_hi - pp->m_hi ) > eps ) return false;
+   if ( m_layerName != pp->m_layerName ) return false;
+
+   if ( !NearlyEqual( m_hi, pp->m_hi, eps ) ) return false;
 
    return true;
 }

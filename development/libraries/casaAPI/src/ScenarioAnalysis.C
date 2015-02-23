@@ -122,32 +122,8 @@ public:
    // Define which order of response surface polynomial approximation of  will be used in this scenario analysis
    // order order of polynomial approximation
    // krType do we need Kriging interpolation, and which one?
-   void addRSAlgorithm( const std::string & name, size_t order, RSProxy::RSKrigingType krType )
-   {
-      if ( order < 0 || order > 3 )
-      {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "addRSAlgorithm(): wrong value for the order: " << order << 
-                                                                              ", must be in range: [0:3]";
-      }
-      if ( name.empty() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "addRSAlgorithm(): empty proxy name";
-
-      if ( m_rsProxySet->rsProxy( name ) ) // already has response surface with the same name
-      {
-         throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "addRSAlgorithm(): proxy with name: " << name << ", already exist in the scenario";
-      }
-      else
-      { 
-         if ( order < 3 )
-         {
-            m_rsProxySet->addNewRSProxy( new RSProxyImpl( name, varSpace(), obsSpace(), order, krType ), name );
-         }
-         else
-         {
-            m_rsProxySet->addNewRSProxy( new RSProxyImpl( name, varSpace(), obsSpace(), 0, krType, true, 1.0 ), name );
-         }
-      }
-   }
-   
+   void addRSAlgorithm( const std::string & name, size_t order, RSProxy::RSKrigingType krType, const std::vector<std::string> & doeList );
+  
    // Get response surface proxies set
    RSProxySet & rsProxySet() { return *(m_rsProxySet.get() ); }
 
@@ -309,9 +285,13 @@ ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
 }
 
 
-ErrorHandler::ReturnCode ScenarioAnalysis::addRSAlgorithm( const char * name, int order, RSProxy::RSKrigingType krType )
+ErrorHandler::ReturnCode ScenarioAnalysis::addRSAlgorithm( const char * name
+                                                         , int order
+                                                         , RSProxy::RSKrigingType krType
+                                                         , const std::vector<std::string> & doeList
+                                                         )
 {
-   try { m_pimpl->addRSAlgorithm( name, static_cast<size_t>( order ), krType ); }
+   try { m_pimpl->addRSAlgorithm( name, static_cast<size_t>( order ), krType, doeList ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch( ...            ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -621,6 +601,43 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    m_runManager->scheduleCase( *bmCaseImpl );
 }
 
+void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string              & name
+                                                           , size_t                           order
+                                                           , RSProxy::RSKrigingType           krType
+                                                           , const std::vector<std::string> & doeList
+                                                           )
+{
+
+   if ( order < 0 || order > 3 )
+   {
+      throw Exception( OutOfRangeValue ) << "addRSAlgorithm(): wrong value for the order: " << order << 
+                                            ", must be in range: [0:3]";
+   }
+   if ( name.empty() ) throw Exception( OutOfRangeValue ) << "addRSAlgorithm(): empty proxy name";
+
+   RSProxy * proxy = m_rsProxySet->rsProxy( name );
+   if ( proxy ) // already has response surface with the same name
+   {
+      throw Exception( AlreadyDefined ) << "addRSAlgorithm(): proxy with name: " << name << ", already exists in the scenario";
+   }
+   else
+   { 
+      proxy = order < 3 ? new RSProxyImpl( name, varSpace(), obsSpace(), order, krType ) :
+                          new RSProxyImpl( name, varSpace(), obsSpace(), 0, krType, true, 1.0 );
+      m_rsProxySet->addNewRSProxy( proxy, name );
+   }
+
+   // if DoEs name list is not empty - calculate response surface
+   if ( doeList.size() )
+   {
+      const std::vector<const casa::RunCase *> & rcs = m_doeCases->collectCompletedCases( doeList );
+
+      if ( rcs.empty() ) throw Exception( RSProxyError ) << "addRSAlgorithm(): empty completed cases list for given DoEs";
+
+      if ( NoError != proxy->calculateRSProxy( rcs ) ) { throw Exception( proxy->errorCode() ) << proxy->errorMessage(); }
+   }
+}
+ 
 void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStream )
 {
    bool ok = outStream.save( m_caseSetPath,         "caseSetPath"  );
@@ -631,13 +648,14 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
    ok = ok ? outStream.save( obsSpace(),            "ObsSpace"     ) : ok; // serialize observables manager
    ok = ok ? outStream.save( varSpace(),            "VarSpace"     ) : ok; // serialize variable parameters set
 
+   ok = ok ? outStream.save( *m_doeCases.get(),     "DoECasesSet"  ) : ok;
+   ok = ok ? outStream.save( *m_mcCases.get(),      "MCCasesSet"   ) : ok;
+   ok = ok ? outStream.save( *m_rsProxySet.get(),   "RSProxySet"   ) : ok;
+
    ok = ok ? outStream.save( *(doeGenerator()),     "DoE"          ) : ok; // serialize doe generator
    ok = ok ? outStream.save( dataDigger(),          "DataDigger"   ) : ok; // data digger
    ok = ok ? outStream.save( runManager(),          "RunManger "   ) : ok; // run manager
                                                                    
-   ok = ok ? outStream.save( *m_doeCases.get(),     "DoECasesSet"  ) : ok;
-   ok = ok ? outStream.save( *m_mcCases.get(),      "MCCasesSet"   ) : ok;
-   ok = ok ? outStream.save( *m_rsProxySet.get(),   "RSProxySet"   ) : ok;
    ok = ok ? outStream.save( mcSolver(),            "MCSolver"     ) : ok;
 
    if ( outStream.version() > 1 )
@@ -666,13 +684,15 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
 
    m_obsSpace.reset(   new ObsSpaceImpl(              inStream, "ObsSpace"              ) );
    m_varSpace.reset(   new VarSpaceImpl(              inStream, "VarSpace"              ) );
-   m_doe.reset(        new DoEGeneratorImpl(          inStream, "DoE"                   ) );
-   m_dataDigger.reset( new DataDiggerImpl(            inStream, "DataDigger"            ) );
-   m_runManager.reset( new RunManagerImpl(            inStream, "RunManger"             ) );
 
    m_doeCases.reset(   new RunCaseSetImpl(            inStream, "DoECasesSet"           ) );
    m_mcCases.reset(    new RunCaseSetImpl(            inStream, "MCCasesSet"            ) );
    m_rsProxySet.reset( new RSProxySetImpl(            inStream, "RSProxySet"            ) );
+
+   m_doe.reset(        new DoEGeneratorImpl(          inStream, "DoE"                   ) );
+   m_dataDigger.reset( new DataDiggerImpl(            inStream, "DataDigger"            ) );
+   m_runManager.reset( new RunManagerImpl(            inStream, "RunManger"             ) );
+
    m_mcSolver.reset(   new MonteCarloSolverImpl(      inStream, "MCSolver"              ) );
 
    m_sensCalc.reset(  inStream.version() > 1 ? new SensitivityCalculatorImpl( inStream, "SensitivityCalculator" ) : 

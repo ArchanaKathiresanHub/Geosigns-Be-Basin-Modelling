@@ -69,12 +69,15 @@ public:
          {
             rc->addObsValue( new ObsValueDoubleScalar( obs[j], obsVals[i][j] ) );
          }
+         rc->setRunStatus( RunCase::Completed );
       }
 
-      // Create RS proxy
-      ASSERT_EQ( ErrorHandler::NoError, sc.addRSAlgorithm( "TestFirstOrderTornadoRS", 1, krig ) );
+      // Create and calculate RS proxy
+      std::vector<std::string> doeList;
+      doeList.push_back( DoEGenerator::DoEName( DoEGenerator::Tornado ) );
+
+      ASSERT_EQ( ErrorHandler::NoError, sc.addRSAlgorithm( "TestFirstOrderTornadoRS", 1, krig, doeList ) );
       *proxy = dynamic_cast<RSProxyImpl*>( sc.rsProxySet().rsProxy( "TestFirstOrderTornadoRS" ) );
-      ASSERT_EQ( ErrorHandler::NoError, (*proxy)->calculateRSProxy( proxyRC ) );
    }
 
    void printMCResults( const casa::MonteCarloSolver::MCResults & mcSamples )

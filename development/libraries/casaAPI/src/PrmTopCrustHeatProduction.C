@@ -116,7 +116,7 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
       return oss.str();
    }
 
-   if ( std::fabs( valInModel - m_heatProdRateValue ) > 1e-8 )
+   if ( !NearlyEqual( valInModel, m_heatProdRateValue, 1e-6 ) )
    {
       oss << "Top crust heat production rate parameter value in the model (" << valInModel; 
       oss << ") is differ from a parameter value (" << m_heatProdRateValue << ")" << std::endl;
@@ -132,11 +132,7 @@ bool PrmTopCrustHeatProduction::operator == ( const Parameter & prm ) const
    const PrmTopCrustHeatProduction * pp = dynamic_cast<const PrmTopCrustHeatProduction *>( &prm );
    if ( !pp ) return false;
    
-   const double eps = 1.e-5;
-
-   if ( std::fabs( m_heatProdRateValue- pp->m_heatProdRateValue) > eps ) return false;
-
-   return true;
+   return NearlyEqual( m_heatProdRateValue, pp->m_heatProdRateValue, 1.e-6 ) ? true : false;
 }
 
 

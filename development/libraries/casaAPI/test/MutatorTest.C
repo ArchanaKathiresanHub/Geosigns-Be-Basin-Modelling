@@ -132,7 +132,7 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::BoxBehnken ) );
    ASSERT_EQ( ErrorHandler::NoError, sc.doeGenerator().generateDoE( sc.varSpace(), sc.doeCaseSet() ) );
 
-   ASSERT_EQ( 10, sc.doeCaseSet().size() );
+   ASSERT_EQ( 9, sc.doeCaseSet().size() ); // Box-Behnken & Tornado have central point in common
 
    ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.path().c_str() ) );
 

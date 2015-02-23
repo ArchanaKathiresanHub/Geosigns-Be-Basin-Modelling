@@ -174,7 +174,7 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
       // in this case, constructor of parameter could pick up some of base values from the base project file
       // for others - we will use avarage from min/max
       {
-         if ( std::abs(UndefinedDoubleValue - baseValues[i]) < 1.e-10 )
+         if ( IsValueUndefined( baseValues[i] ) )
          {
             switch ( i )
             {
@@ -253,10 +253,8 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
       if ( PrmPorosityModel::SoilMechanics == mdlType )
       {
-         bool surfPorIsDef = std::fabs( minSurfPor  - UndefinedDoubleValue ) < 1e-5 || 
-                             std::fabs( maxSurfPor  - UndefinedDoubleValue ) < 1e-5 ? false : true;
-         bool compCofIsDef = std::fabs( minCompCoef - UndefinedDoubleValue ) < 1e-5 || 
-                             std::fabs( maxCompCoef - UndefinedDoubleValue ) < 1e-5 ? false : true;
+         bool surfPorIsDef = IsValueUndefined( minSurfPor  ) || IsValueUndefined( maxSurfPor  ) ? false : true;
+         bool compCofIsDef = IsValueUndefined( minCompCoef ) || IsValueUndefined( maxCompCoef ) ? false : true;
 
          if ( ! surfPorIsDef && ! compCofIsDef ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << 
             "For soil mechanics porosity model the surface porosity or compaction coefficient value range must be specified";

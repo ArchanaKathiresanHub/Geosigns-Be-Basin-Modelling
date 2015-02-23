@@ -128,8 +128,10 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
          else if ( ErrorHandler::NoError != mgr.errorCode() ) oss << mgr.errorCode() << std::endl;
          
          double mdlTOC = mgr.tocIni( srIDs[i] );
-         if ( std::fabs( mdlTOC - m_toc ) > 1.e-8 ) oss << "Value of TOC in the model (" << mdlTOC <<
-                                                  ") is different from the parameter value (" << m_toc << ")" << std::endl;
+         if ( !NearlyEqual( mdlTOC, m_toc, 1.e-4 ) )
+         {
+            oss << "Value of TOC in the model (" << mdlTOC << ") is different from the parameter value (" << m_toc << ")" << std::endl;
+         }
       }
    }
 
@@ -145,10 +147,11 @@ bool PrmSourceRockTOC::operator == ( const Parameter & prm ) const
    const PrmSourceRockTOC * pp = dynamic_cast<const PrmSourceRockTOC *>( &prm );
    if ( !pp ) return false;
    
-   const double eps = 1.e-5;
+   const double eps = 1.e-6;
 
-   if ( m_layerName != pp->m_layerName       ) return false;
-   if ( std::fabs( m_toc - pp->m_toc ) > eps ) return false;
+   if ( m_layerName != pp->m_layerName ) return false;
+
+   if ( !NearlyEqual( m_toc, pp->m_toc, eps ) ) return false;
 
    return true;
 }

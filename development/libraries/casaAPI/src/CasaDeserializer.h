@@ -20,6 +20,7 @@
 // STL
 #include <map>
 #include <vector>
+#include <typeinfo>
 
 namespace casa
 {
@@ -188,7 +189,7 @@ namespace casa
    };
 
 
-   template <class T> bool CasaDeserializer::registerObjPtrUnderID( const T * obj, ObjRefID id )
+   template <typename T> bool CasaDeserializer::registerObjPtrUnderID( const T * obj, ObjRefID id )
    {
       const void * vobj = static_cast<const T *>(obj);
 
@@ -202,12 +203,12 @@ namespace casa
             if ( m_id2ptr[id] != vobj ) // yes, registering another pointer under existed ID - error
             {
                throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) <<
-                  "Duplicated ID during registration of Observable object";
+                  "Duplicated ID during registration of object";
             }
             else
             {
                throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) <<
-                  "Inconsistency in ptr->ID table for registration of Observable objects";
+                  "Inconsistency in ptr->ID table for registration of objects";
             }
          }
          else // register it at least
@@ -219,11 +220,11 @@ namespace casa
       return true;
    }
 
-   template <class T> const T * CasaDeserializer::id2ptr( ObjRefID id ) const
+   template <typename T> const T * CasaDeserializer::id2ptr( ObjRefID id ) const
    {
       if ( id >= m_id2ptr.size() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "Wrong ID for Observable object";
+         throw ErrorHandler::Exception( ErrorHandler::DeserializationError ) << "Wrong ID for object";
       }
       return static_cast<const T*>( m_id2ptr[id] );
    }

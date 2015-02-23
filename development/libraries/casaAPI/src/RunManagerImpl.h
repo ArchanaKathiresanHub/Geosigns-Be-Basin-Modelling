@@ -24,6 +24,7 @@ namespace casa
 {
 
    class CauldronApp;
+   class RunCaseImpl;
 
    /// @brief Allows to run set of Cases on HPC cluster
    class RunManagerImpl : public RunManager
@@ -47,7 +48,7 @@ namespace casa
       /// @brief add Case to set
       /// @param newRun new Case to be scheduled for run
       /// @return ErrorHandler::NoError on success or error code otherwise
-      virtual ErrorHandler::ReturnCode scheduleCase( const RunCase & newRun );
+      virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun );
 
       /// @brief Execute all scheduled cases
       /// @param asyncRun
@@ -92,7 +93,8 @@ namespace casa
       std::vector< CauldronApp* >     m_appList;     ///< pipeline of cauldron applications to perform simulation
       std::auto_ptr<JobScheduler>     m_jobSched;    ///< OS dependent wrapper for the job scheduler
 
-      std::vector< std::vector< JobScheduler::JobID > >   m_jobs; ///< queue of jobs for each case
+      std::vector< std::vector< JobScheduler::JobID > >   m_jobs;  ///< queue of jobs for each case
+      std::vector< RunCaseImpl * >                        m_cases; ///< list of run cases
    };
 }
 

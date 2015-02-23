@@ -16,7 +16,7 @@
 
 // CASA
 #include "CauldronApp.h"
-#include "RunCase.h"
+#include "RunCaseImpl.h"
 #include "RunManagerImpl.h"
 
 #include "CauldronEnvConfig.h"
@@ -110,8 +110,10 @@ ErrorHandler::ReturnCode RunManagerImpl::addApplication( CauldronApp * app )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Add Case to set
-ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( const RunCase & newRun )
+ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun )
 {
+   if ( newRun.runStatus() != RunCase::NotSubmitted ) return NoError;
+
    // do not add cases which has no project file
    if ( !newRun.projectPath() ) return reportError( WrongPath, "Case with empty path to project file was given" );
 
@@ -125,6 +127,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( const RunCase & newRun )
 
    // add new empty row to jobs list
    m_jobs.push_back( std::vector< JobScheduler::JobID >() );
+   m_cases.push_back( dynamic_cast<RunCaseImpl*>( &newRun ) );
 
    // construct case name, use name of the directory where project is located or just Case_N
    size_t sz = pfp.size();
@@ -180,6 +183,8 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( const RunCase & newRun )
       m_jobs.back().push_back( id );
    }
 
+   m_cases.back()->setRunStatus( RunCase::Scheduled );
+
    return NoError;
 }
 
@@ -224,6 +229,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                   case JobScheduler::JobFailed: // job failed!!! shouldn't run others in a pipeline! 
                      ++crashed;
                      m_jobs[i].resize( j+1 ); // drop all other jobs for this case
+                     m_cases[i]->setRunStatus( RunCase::Failed );
                      break;
 
                   case JobScheduler::JobFinished:  ++finished; break; // skip finished jobs
@@ -249,6 +255,12 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                      continue; // continue pipeline processing
                      break;
                }
+            }
+
+            // If pipeline was successfully completed and case marked as scheduled - move it to completed state
+            if ( contAppPipeline && m_cases[i]->runStatus() == RunCase::Scheduled )
+            {
+               m_cases[i]->setRunStatus( RunCase::Completed );
             }
          }
          // run over all cases, make a pause, get a Twix
@@ -326,6 +338,17 @@ bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
          ok = ok ? sz.save( m_jobs[i], "CaseJobsQueueIDs" ) : ok;
       }
    }
+
+   if ( fileVersion >= 3 )
+   {
+      // save array of run case object ids, the size of array exactly the same as m_jobs size
+      assert( m_jobs.size() == m_cases.size() );
+      for ( size_t i = 0; i < m_cases.size(); ++i )
+      {
+         CasaSerializer::ObjRefID rcID = sz.ptr2id( m_cases[i] );
+         ok = ok ? sz.save( rcID, "RunCaseID" ) : ok;
+      }
+   }
    return ok;
 }
 
@@ -358,6 +381,18 @@ RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
       ok = ok ? dz.load( m_jobs.back(), "CaseJobsQueueIDs" ) : ok;
    }
 
+   // load array of run case object ids, the size of array exactly the same as m_jobs size
+   for ( size_t i = 0; i < m_jobs.size() && ok; ++i )
+   {
+      CasaDeserializer::ObjRefID rcID;
+      ok = ok ? dz.load( rcID, "RunCaseID" ) : ok;
+
+      RunCaseImpl * rc = ok ? const_cast<RunCaseImpl*>( dz.id2ptr<RunCaseImpl>( rcID ) ) : 0;
+
+      if ( rc ) m_cases.push_back( rc );
+      else ok = false;
+   }
+ 
    if ( !ok ) throw Exception( DeserializationError ) << "RunManagerImpl deserialization error";
 }
 

@@ -59,6 +59,9 @@ namespace casa
       // Move a new Cases to the collection and clear array 
       void addNewCases( std::vector<RunCase*> & newCases, const std::string & expName );
 
+      // collect completed cases for given DoEs name list
+      virtual std::vector<const RunCase*> collectCompletedCases( const std::vector<std::string> & doeList );
+
       // Serialization / Deserialization
 
       // version of serialized object representation

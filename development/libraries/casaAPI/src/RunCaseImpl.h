@@ -66,6 +66,12 @@ namespace casa
       //         failed parameters with theirs values
       virtual std::string validateCase();
 
+      // Get state of the case
+      virtual CaseStatus runStatus() const { return m_runState; }
+
+      // Set run state of the case (used by RunManager)
+      void setRunStatus( CaseStatus st ) { assert( st > m_runState ); m_runState = st; }
+
       // Get a model associated with this Case
       // return pointer to the model
       virtual mbapi::Model * caseModel() const { return m_model.get(); }
@@ -88,7 +94,9 @@ namespace casa
       // Serialization / Deserialization
 
       // version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      // version 0 - initial impelementation
+      // version 1 - added run state of the case
+      virtual unsigned int version() const { return 1; }
 
       // Get type name of the serialaizable object, used in deserialization to create object with correct type
       virtual const char * typeName() const { return "RunCaseImpl"; }
@@ -100,11 +108,11 @@ namespace casa
       RunCaseImpl( CasaDeserializer & inStream, const char * objName );
 
    private:
-      std::auto_ptr<mbapi::Model> m_model;                // Mutated model, available after mutateCaseTo call
-      std::string                 m_modelProjectFileName; // full path to the project file
-
+      std::auto_ptr<mbapi::Model>      m_model;                // Mutated model, available after mutateCaseTo call
+      std::string                      m_modelProjectFileName; // full path to the project file
       std::vector<SharedParameterPtr>  m_prmsSet;              // list of parameters for this case
       std::vector<ObsValue*>           m_results;              // list of observables values
+      CaseStatus                       m_runState;             // Stat of the run case (submitted/completed/failed)
 
       // disable copy constructor and copy operator
       RunCaseImpl( const RunCaseImpl & );

@@ -335,8 +335,12 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
       SUMlib::Case cs;
       m_parSpace.unprepare( it->second, cs );
 
-      m_results.push_back( MCSamplingPoint( it->first, new RunCaseImpl() ) );
-      sumext::convertCase( cs, proxyVsp, *m_results.back().second );
+      std::auto_ptr<RunCaseImpl> mcCase( new RunCaseImpl() );
+
+      sumext::convertCase( cs, proxyVsp, *mcCase.get() );
+      mcCase->setRunStatus( RunCase::Completed ); // MC cases always completed
+
+      m_results.push_back( MCSamplingPoint( it->first, mcCase.release() ) );
    }
 
    // process observables value for each sampling point

@@ -63,6 +63,12 @@ namespace casa
       /// @return true if set is empty, false otherwise
       virtual bool empty() const = 0;
 
+      /// @brief Collect completed cases for given DoEs name list
+      /// @param doeList list of DoE names
+      /// @return array of completed cases for given DoEs
+      virtual std::vector<const RunCase*> collectCompletedCases( const std::vector<std::string> & doeList ) = 0;
+
+
    protected:
       RunCaseSet() { ; }
    };

@@ -29,6 +29,15 @@ namespace casa
    class RunCase : public CasaSerializable
    {
    public:
+      /// @brief Denote run case status
+      typedef enum
+      {
+         NotSubmitted, ///< Case wasn't submitted for execution
+         Scheduled,    ///< Case submitted for execution
+         Completed,
+         Failed
+      } CaseStatus;
+
       /// @brief Destructor
       virtual ~RunCase() { ; }
 
@@ -64,9 +73,13 @@ namespace casa
       virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName ) = 0;
 
       /// @brief Do checking, are all variable parameters case value in their ranges
-      /// @return if validation is OK, empty string. otherwise - the list of validation
+      /// @return if validation is OK, empty string, otherwise - the list of validation
       ///         failed parameters with theirs values
       virtual std::string validateCase() = 0;
+
+      /// @brief Get state of the case
+      /// @return execution case status
+      virtual CaseStatus runStatus() const = 0;
 
       /// @brief Get a model associated with this Case
       /// @return pointer to the model

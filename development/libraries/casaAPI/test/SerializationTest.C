@@ -22,6 +22,7 @@ TEST_F( SerializationTest, ReloadStateFromTxtTest )
 {
    // create new scenario analysis
    casa::ScenarioAnalysis * sc = casa::ScenarioAnalysis::loadScenario( "Ottoland_casa_state.txt", "txt" );
+   ASSERT_EQ( ErrorHandler::NoError, sc->errorCode() );
 
    // Do round trip
    // create 1st reloaded scenario

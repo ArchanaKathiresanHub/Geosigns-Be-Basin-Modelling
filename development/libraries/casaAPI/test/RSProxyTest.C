@@ -58,16 +58,17 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    for ( size_t i = 0; i < rcs.size(); ++i ) 
    {
       RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( rcs[ i ] );
-      
+
       proxyRC.push_back( rc ); // collect run cases for proxy calculation
 
       for ( size_t j = 0; j < 2; ++j )
       {
          rc->addObsValue( new ObsValueDoubleScalar( obs[j], obsVals[i][j] ) );
       }
+      rc->setRunStatus( RunCase::Completed );
    }
 
-   ASSERT_EQ( ErrorHandler::NoError, sc.addRSAlgorithm( "TestFirstOrderTornadoRS", 1, RSProxy::NoKriging ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.addRSAlgorithm( "TestFirstOrderTornadoRS", 1, RSProxy::NoKriging, std::vector<std::string>() ) );
    RSProxyImpl * proxy = dynamic_cast<RSProxyImpl*>( sc.rsProxySet().rsProxy( "TestFirstOrderTornadoRS" ) );
 
    ASSERT_EQ( ErrorHandler::NoError, proxy->calculateRSProxy( proxyRC ) );

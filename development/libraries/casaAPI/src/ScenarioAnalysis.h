@@ -117,13 +117,16 @@ namespace casa
       /// @return Observables set manager
       ObsSpace & obsSpace();
 
-      /// @brief Add new response surface polynomial approximation to scenario analysis
-      /// @param name proxy name
-      /// @param order order of polynomial approximation. 
-      /// @param krType do we need Kriging interpolation, and which one?
-      ErrorHandler::ReturnCode addRSAlgorithm( const char * name, int order, RSProxy::RSKrigingType krType );
+      /// @brief Add the new response surface polynomial approximation to scenario analysis. If
+      ///        list of DoE experiments is not empty - calculate proxy for corresponded cases set
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode addRSAlgorithm( const char * name                        ///< proxy name
+                                             , int order                                ///< order of polynomial approximation
+                                             , RSProxy::RSKrigingType krType            ///< do we need Kriging interpolation, and which one?
+                                             , const std::vector<std::string> & doeList ///< list of DoE experiments name to calculate proxy coeff.
+                                             );
       
-      /// @brief Get response surface proxies set which were defined for the scenario.
+      /// @brief Get response surface proxies list of this scenario.
       /// @return set of proxies
       RSProxySet & rsProxySet();
 
@@ -162,7 +165,7 @@ namespace casa
       // version 0: initial implementation
       // version 1: 
       // version 2: Added SensitivityCalculator
-      int version() { return 2; }
+      int version() { return 3; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in

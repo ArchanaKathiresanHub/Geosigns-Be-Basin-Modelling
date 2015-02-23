@@ -54,10 +54,8 @@ namespace casa
 
       if ( m_filter.empty() ) return;
 
-      ListOfDoEIndexesSet::iterator ret;
-
       // check first do we have such experiment?
-      ret = m_expSet.find( expName );
+      ListOfDoEIndexesSet::iterator ret = m_expSet.find( expName );
       if ( ret != m_expSet.end() )
       {
          m_expIndSet.assign( ret->second.begin(), ret->second.end() );
@@ -91,17 +89,78 @@ namespace casa
          std::vector<size_t> newIndSet( newCases.size() );
 
          size_t pos = m_caseSet.size(); // position of new inserted elements
-         m_caseSet.insert( m_caseSet.end(), newCases.begin(), newCases.end() );
 
-         // add experiment indexes to experiments set
-         for ( size_t i = 0; i < newCases.size(); ++i )
+         if ( pos )
          {
-            newIndSet[i] = i + pos;
+            // add cases with unique parameters set only
+            for ( size_t i = 0; i < newCases.size(); ++i ) // go over all new cases
+            {
+               bool found = false;
+               for ( size_t j = 0; j < pos && !found; ++j ) // check only cases which were in set before
+               {
+                  if ( *(m_caseSet[j]) == *(newCases[i]) ) // duplicated case
+                  {
+                     newIndSet[i] = j;   // copy only index of the case
+                     delete newCases[i]; // and delete duplicated case itself
+                     found = true;
+                  }
+               }
+               if ( !found ) // normal case, add it to the list
+               {
+                  newIndSet[i] = m_caseSet.size();
+                  m_caseSet.push_back( newCases[i] );
+               }
+            }
          }
-         m_expSet[expLabel] = newIndSet;
+         else // nothing yet to compare with, just add all of new cases
+         {
+            m_caseSet.insert( m_caseSet.end(), newCases.begin(), newCases.end() );
+            for ( size_t i = 0; i < newCases.size(); ++i ) newIndSet[i] = i;
+         }
+
+         m_expSet[expLabel] = newIndSet; // put list of experiment case indexes to the map
 
          newCases.clear(); // clean container
       }
+   }
+      
+   // collect completed cases for given DoEs name list
+   std::vector<const RunCase*> RunCaseSetImpl::collectCompletedCases( const std::vector<std::string> & doeList )
+   {
+      std::vector<const RunCase *> rcs( m_caseSet.size(), 0 ); // at first use it as mask array
+      std::vector<size_t>          rcsIndSet; // here we will collect experiments index
+
+      // the first step collect cases as unique indexes set and use pointers array as a mask array
+      for ( size_t i = 0; i < doeList.size(); ++i )
+      {
+         // look for DoE name
+         ListOfDoEIndexesSet::iterator ret = m_expSet.find( doeList[i] );
+         
+         if ( ret == m_expSet.end() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not find DoE with name: " << doeList[i];
+         
+         const std::vector<size_t> & doeIndSet = ret->second;
+
+         // collect RunCases pointer and index for the DoE
+         for ( size_t j = 0; j < doeIndSet.size(); ++j )
+         {
+            if ( !rcs[ doeIndSet[j] ] ) //use RunCase pointer as a mask value to avoid duplicated cases
+            {
+               rcs[doeIndSet[j]] = m_caseSet[doeIndSet[j]];
+               rcsIndSet.push_back( doeIndSet[j] );
+            }
+         }
+      }
+      
+      // the second step - check cases for completion and collect them in to array
+      rcs.clear(); // clear mask array and use it as container of the RunCases now
+      for ( size_t i = 0; i < rcsIndSet.size(); ++i )
+      {
+         if ( m_caseSet[rcsIndSet[i]]->runStatus() == RunCase::Completed )
+         {
+            rcs.push_back( m_caseSet[rcsIndSet[i]] );
+         }
+      } 
+      return rcs;
    }
 
    // Serialize object to the given stream

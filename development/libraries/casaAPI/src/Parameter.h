@@ -87,6 +87,11 @@ namespace casa
       /// @return true if parameters are the same, false otherwise
       virtual bool operator == ( const Parameter & prm ) const = 0;
 
+      /// @brief Are two parameters not equal?
+      /// @param prm Parameter object to compare with
+      /// @return false if parameters are the same, true otherwise
+      virtual bool operator != ( const Parameter & prm ) const { return ! (*this == prm); }
+
       /// @brief Create a new parameter instance and deserialize it from the given stream
       /// @param dz input stream
       /// @param objName expected object name
