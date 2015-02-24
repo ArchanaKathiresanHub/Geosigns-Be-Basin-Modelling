@@ -70,7 +70,7 @@ namespace casa
       virtual CaseStatus runStatus() const { return m_runState; }
 
       // Set run state of the case (used by RunManager)
-      void setRunStatus( CaseStatus st ) { assert( st > m_runState ); m_runState = st; }
+      virtual void setRunStatus( CaseStatus st ) { assert( st > m_runState ); m_runState = st; }
 
       // Get a model associated with this Case
       // return pointer to the model

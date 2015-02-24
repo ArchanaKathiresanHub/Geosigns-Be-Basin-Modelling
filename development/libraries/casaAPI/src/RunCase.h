@@ -81,6 +81,10 @@ namespace casa
       /// @return execution case status
       virtual CaseStatus runStatus() const = 0;
 
+      /// @brief Set run state of the case
+      /// @param st new run case state
+      virtual void setRunStatus( CaseStatus st ) = 0;
+
       /// @brief Get a model associated with this Case
       /// @return pointer to the model
       virtual mbapi::Model * caseModel() const = 0;

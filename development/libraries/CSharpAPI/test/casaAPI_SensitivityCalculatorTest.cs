@@ -125,10 +125,10 @@ namespace Shell.BasinModeling.Cauldron.Test
                int subPrmNum = tornadoData[i].varParameterSubID(j);
 
                // check results
-               Assert.IsTrue(Math.Abs(minPrmAbsSens - 55.9668) < 1e-3, "Wrong min absolute value for the first parameter in the Tornado diagram data");
-               Assert.IsTrue(Math.Abs(maxPrmAbsSens - 81.6257) < 1e-3, "Wrong max absolute value for the first parameter in the Tornado diagram data");
-               Assert.IsTrue(Math.Abs(minPrmRelSens + 40.6002) < 1e-3, "Wrong min relative value for the first parameter in the Tornado diagram data");
-               Assert.IsTrue(Math.Abs(maxPrmRelSens - 40.3462) < 1e-3, "Wrong max relative value for the first parameter in the Tornado diagram data");
+               Assert.IsTrue(Math.Abs(minPrmAbsSens - 55.730) < 1e-3, "Wrong min absolute value for the first parameter in the Tornado diagram data");
+               Assert.IsTrue(Math.Abs(maxPrmAbsSens - 81.3728) < 1e-3, "Wrong max absolute value for the first parameter in the Tornado diagram data");
+               Assert.IsTrue(Math.Abs(minPrmRelSens + 42.0058) < 1e-3, "Wrong min relative value for the first parameter in the Tornado diagram data");
+               Assert.IsTrue(Math.Abs(maxPrmRelSens - 41.7406) < 1e-3, "Wrong max relative value for the first parameter in the Tornado diagram data");
                Assert.AreEqual<string>(name, "TopCrustHeatProdRate [\\mu W/m^3]", "Wrong first parameter name in Tornado diagram data");
                Assert.AreEqual<int>(subPrmNum, 0, "Wrong sub-parameter id for the first parameter in the Tornado diagram data");
             }
@@ -161,33 +161,33 @@ namespace Shell.BasinModeling.Cauldron.Test
             switch ( i )
             {
                case 0:
-                  Assert.IsTrue( Math.Abs(prmSens - 77.7633296939624) < eps );
+                  Assert.IsTrue( Math.Abs(prmSens - 79.6008172) < eps );
                   Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmName );
                   break;
 
                case 1:
-                  Assert.IsTrue( Math.Abs(prmSens - 10.2448067481032) < eps );
+                  Assert.IsTrue(Math.Abs(prmSens - 7.5755968) < eps);
                   Assert.AreEqual( @"EventStartTime [Ma]", prmName );
                   break;
 
                case 2:
-                  Assert.IsTrue( Math.Abs(prmSens - 7.87589293181969) < eps );
+                  Assert.IsTrue(Math.Abs(prmSens - 7.0943135) < eps);
                   Assert.AreEqual(@"InitialCrustThickness [m]", prmName);
                   break;
 
                case 3:
-                  Assert.IsTrue( Math.Abs(prmSens - 3.95385427910523) < eps );
+                  Assert.IsTrue(Math.Abs(prmSens - 3.80063564) < eps);
                   Assert.AreEqual( @"CrustThinningFactor [m/m]", prmName );
                   break;
 
                case 4:
-                  Assert.IsTrue(Math.Abs(prmSens - 0.10563669785741404) < eps);
-                  Assert.AreEqual( @"EventDuration [Ma]", prmName );
+                  Assert.IsTrue(Math.Abs(prmSens - 1.50147197) < eps);
+                  Assert.AreEqual( @"Lower Jurassic TOC [%]", prmName );
                   break;
 
                case 5:
-                  Assert.IsTrue(Math.Abs(prmSens - 0.056479649152066574) < eps);
-                  Assert.AreEqual( @"Lower Jurassic TOC [%]", prmName );
+                  Assert.IsTrue(Math.Abs(prmSens - 0.4271647653) < eps);
+                  Assert.AreEqual( @"EventDuration [Ma]", prmName );
                   break;
             }
          }
@@ -266,27 +266,27 @@ namespace Shell.BasinModeling.Cauldron.Test
             switch( p )
             {
                case 0:
-                  Assert.IsTrue(Math.Abs(sensDataVW[0]- 77.721115907) < eps);
+                  Assert.IsTrue(Math.Abs(sensDataVW[0]- 79.557912) < eps);
                   Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
                   break;
 
                case 1:
-                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.72500210) < eps);
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 79.561850) < eps);
                   Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
                   break;
 
                case 2:
-                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.72823309) < eps);
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 79.565126458) < eps);
                   Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
                   break;
 
                case 3:
-                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.73096169) < eps);
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 79.5678944) < eps);
                   Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
                   break;
 
                case 4:
-                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 77.73329662) < eps);
+                  Assert.IsTrue(Math.Abs(sensDataVW[0] - 79.5702639) < eps);
                   Assert.AreEqual(@"TopCrustHeatProdRate [\mu W/m^3]", prmNamesVW[0]);
                   break;
             }            

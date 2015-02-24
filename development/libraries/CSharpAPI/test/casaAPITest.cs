@@ -90,28 +90,27 @@ namespace Shell.BasinModeling.Cauldron.Test
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError == doe.generateDoE(sa.varSpace(), sa.doeCaseSet()));
 
          RunCaseSet rcs = sa.doeCaseSet();
-         ConstCasesList proxyRC = new ConstCasesList();
 
          int off = 0;
          for (uint i = 0; i < rcs.size(); ++i)
          {
             RunCase rc = rcs.runCase(i);
-            proxyRC.Add(rc); // collect run cases for proxy calculation
-
 
             for (uint j = 0; j < 2; ++j)
             {
                ObsValue obVal = obs.observable(j).newObsValueFromDoubles(obsVals, ref off);
                rc.addObsValue(obVal);
             }
+            rc.setRunStatus(RunCase.CaseStatus.Completed);
          }
 
          // Calculate Response Surface proxy
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
-                       sa.addRSAlgorithm(proxyName, proxyOrder, RSProxy.RSKrigingType.NoKriging));
-         RSProxy proxy = sa.rsProxySet().rsProxy("TestFirstOrderTornadoRS");
+         StringVector doeList = new StringVector();
+         string doeName = DoEGenerator.DoEName(DoEGenerator.DoEAlgorithm.Tornado);
+         doeList.Add(doeName);
 
-         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == proxy.calculateRSProxy(proxyRC));
+         ErrorHandler.ReturnCode retCode = sa.addRSAlgorithm(proxyName, proxyOrder, RSProxy.RSKrigingType.NoKriging, doeList);
+         Assert.IsTrue(ErrorHandler.ReturnCode.NoError == retCode );
       }
 
 
@@ -495,23 +494,23 @@ namespace Shell.BasinModeling.Cauldron.Test
          RunCase rc = sa.mcSolver().samplingPoint(7);
 
          // check RMSE value
-         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(7), 12.5414988464063) < reps);
+         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(7), 12.5415) < reps);
 
          // check generated parameters
          Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 13.1922) < reps);
-         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 4.488628) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 4.48863) < reps);
 
          // check evaluated observables
-         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 74.9480) < reps);
-         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.53907) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 74.948) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.539071) < reps);
 
          rc = sa.mcSolver().samplingPoint(44);
 
-         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(44), 20.6405723) < reps);
+         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(44), 20.6406) < reps);
 
          // check generated parameters
          Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 5.68843) < reps);
-         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 3.839) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 3.83905) < reps);
 
          // check evaluated observables
          Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 51.9248) < reps);
@@ -556,6 +555,8 @@ namespace Shell.BasinModeling.Cauldron.Test
          Assert.IsTrue(ErrorHandler.ReturnCode.NoError ==
                        sa.mcSolver().runSimulation(proxy, sa.varSpace(), sa.varSpace(), sa.obsSpace(), 50, 10, 1.0));
 
+         sa.saveScenario("MCMC.txt", "txt");
+
          // Get MCMC samples
          // must be 50 samples
          Assert.IsTrue(sa.mcSolver().samplingsNumber() == 50);
@@ -564,27 +565,29 @@ namespace Shell.BasinModeling.Cauldron.Test
          RunCase rc = sa.mcSolver().samplingPoint(7);
 
          // check RMSE value
-         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(7), 10.6236) < reps);
-
+         double rmse = sa.mcSolver().RMSE(7);
+         Assert.IsTrue(relativeError(rmse, 10.6236) < reps);
+         	
          // check generated parameters
-         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 14.99030) < reps);
-         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 3.032920) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 14.9903) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 3.03292) < reps);
 
          // check evaluated observables
-         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 80.46500) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 80.4651) < reps);
          Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.572478) < reps);
 
          rc = sa.mcSolver().samplingPoint(44);
 
-         Assert.IsTrue(relativeError(sa.mcSolver().RMSE(44), 10.77432) < reps);
-
+         rmse = sa.mcSolver().RMSE(44);
+         Assert.IsTrue(relativeError(rmse, 10.758168) < reps);
+	
          // check generated parameters
-         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 14.84846) < reps);
-         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 0.37549) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(0).asDoubleArray()[0], 14.8485) < reps);
+         Assert.IsTrue(relativeError(rc.parameter(1).asDoubleArray()[0], 0.375491) < reps);
 
          // check evaluated observables
-         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 80.029724) < reps);
-         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.56984) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(0).asDoubleArray()[0], 80.0297) < reps);
+         Assert.IsTrue(relativeError(rc.obsValue(1).asDoubleArray()[0], 0.569842) < reps);
       }
 
       [TestMethod]
