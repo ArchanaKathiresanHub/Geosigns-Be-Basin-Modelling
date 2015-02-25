@@ -11,13 +11,17 @@
 /// @file PrmPorosityModel.C
 /// @brief This file keeps API implementation for Porosity model parameter handling 
 
-
+// CASA API
 #include "PrmPorosityModel.h"
 #include "VarPrmPorosityModel.h"
 
 // CMB API
 #include "cmbAPI.h"
 
+// Utilities lib
+#include <NumericFunctions.h>
+
+// STL/C lib
 #include <cassert>
 #include <cmath>
 #include <sstream>
@@ -265,8 +269,8 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                   samePorModel = m_modelType == Exponential ? true : false;
                   if ( samePorModel )
                   {
-                     sameSurfPor = NearlyEqual( m_surfPor,  mdlPrms[0], 1.e-4 ); 
-                     sameCC      = NearlyEqual( m_compCoef, mdlPrms[1], 1.e-4 );
+                     sameSurfPor = NumericFunctions::isEqual( m_surfPor,  mdlPrms[0], 1.e-4 ); 
+                     sameCC      = NumericFunctions::isEqual( m_compCoef, mdlPrms[1], 1.e-4 );
                   }
                   break;
  
@@ -274,8 +278,8 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                   samePorModel = m_modelType == SoilMechanics ? true : false;
                   if ( samePorModel )
                   {
-                     sameSurfPor = NearlyEqual( SMcf2sp( m_clayFraction ), mdlPrms[0], 1.e-4 ); 
-                     sameCC      = NearlyEqual( SMcf2cc( m_clayFraction ), mdlPrms[1], 1.e-4 ); 
+                     sameSurfPor = NumericFunctions::isEqual( SMcf2sp( m_clayFraction ), mdlPrms[0], 1.e-4 ); 
+                     sameCC      = NumericFunctions::isEqual( SMcf2cc( m_clayFraction ), mdlPrms[1], 1.e-4 ); 
                   }
                   break;
 
@@ -283,10 +287,10 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                   samePorModel = m_modelType == SoilMechanics ? true : false;
                   if ( samePorModel )
                   {
-                     sameSurfPor = NearlyEqual( m_surfPor,     mdlPrms[0], 1.e-4 );
-                     sameMinPor  = NearlyEqual( m_minPorosity, mdlPrms[1], 1.e-4 );
-                     sameCCA     = NearlyEqual( m_compCoef,    mdlPrms[2], 1.e-4 );
-                     sameCCB     = NearlyEqual( m_compCoef1,   mdlPrms[3], 1.e-4 );
+                     sameSurfPor = NumericFunctions::isEqual( m_surfPor,     mdlPrms[0], 1.e-4 );
+                     sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[1], 1.e-4 );
+                     sameCCA     = NumericFunctions::isEqual( m_compCoef,    mdlPrms[2], 1.e-4 );
+                     sameCCB     = NumericFunctions::isEqual( m_compCoef1,   mdlPrms[3], 1.e-4 );
                   }
                   break;
 
@@ -354,19 +358,19 @@ bool PrmPorosityModel::operator == ( const Parameter & prm ) const
    switch ( m_modelType )
    {
       case Exponential:
-         if ( !NearlyEqual( m_surfPor,  pp->m_surfPor,  eps ) ) return false;
-         if ( !NearlyEqual( m_compCoef, pp->m_compCoef, eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_surfPor,  pp->m_surfPor,  eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_compCoef, pp->m_compCoef, eps ) ) return false;
          break;
 
       case SoilMechanics:
-         if ( !NearlyEqual( m_clayFraction, pp->m_clayFraction, eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_clayFraction, pp->m_clayFraction, eps ) ) return false;
          break;
 
       case DoubleExponential:
-         if ( !NearlyEqual( m_surfPor,     pp->m_surfPor,     eps ) ) return false;
-         if ( !NearlyEqual( m_compCoef,    pp->m_compCoef,    eps ) ) return false;
-         if ( !NearlyEqual( m_minPorosity, pp->m_minPorosity, eps ) ) return false;
-         if ( !NearlyEqual( m_compCoef1,   pp->m_compCoef1,   eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_surfPor,     pp->m_surfPor,     eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_compCoef,    pp->m_compCoef,    eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_minPorosity, pp->m_minPorosity, eps ) ) return false;
+         if ( !NumericFunctions::isEqual( m_compCoef1,   pp->m_compCoef1,   eps ) ) return false;
    }
    return true;
 }
@@ -466,7 +470,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
    else if ( !IsValueUndefined( surfPor ) && !IsValueUndefined( cc ) )
    {
       m_clayFraction = SMsp2cf( surfPor );
-      if ( !NearlyEqual( m_clayFraction, SMcc2cf( cc ), 1.e-4 ) )
+      if ( !NumericFunctions::isEqual( m_clayFraction, SMcc2cf( cc ), 1.e-4 ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
             "Lithology: " << m_lithoName <<

@@ -11,13 +11,17 @@
 /// @file PrmSourceRockTOC.C
 /// @brief This file keeps API implementation for Source Rock TOC parameter handling 
 
-
+// CASA API
 #include "PrmSourceRockTOC.h"
 #include "VarPrmSourceRockTOC.h"
 
 // CMB API
 #include "cmbAPI.h"
 
+// Utilities lib
+#include <NumericFunctions.h>
+
+// STL/C lib
 #include <cassert>
 #include <cmath>
 #include <sstream>
@@ -128,7 +132,7 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
          else if ( ErrorHandler::NoError != mgr.errorCode() ) oss << mgr.errorCode() << std::endl;
          
          double mdlTOC = mgr.tocIni( srIDs[i] );
-         if ( !NearlyEqual( mdlTOC, m_toc, 1.e-4 ) )
+         if ( !NumericFunctions::isEqual( mdlTOC, m_toc, 1.e-4 ) )
          {
             oss << "Value of TOC in the model (" << mdlTOC << ") is different from the parameter value (" << m_toc << ")" << std::endl;
          }
@@ -151,7 +155,7 @@ bool PrmSourceRockTOC::operator == ( const Parameter & prm ) const
 
    if ( m_layerName != pp->m_layerName ) return false;
 
-   if ( !NearlyEqual( m_toc, pp->m_toc, eps ) ) return false;
+   if ( !NumericFunctions::isEqual( m_toc, pp->m_toc, eps ) ) return false;
 
    return true;
 }

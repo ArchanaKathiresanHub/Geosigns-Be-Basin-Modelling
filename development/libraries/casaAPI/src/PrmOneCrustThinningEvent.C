@@ -11,13 +11,17 @@
 /// @file PrmOneCrustThinningEvent.C
 /// @brief This file keeps API implementation for single event crust thinning parameter handling
 
-
+// CASA API
 #include "PrmOneCrustThinningEvent.h"
 #include "VarPrmOneCrustThinningEvent.h"
 
 // CMB API
 #include "cmbAPI.h"
 
+// Utilities lib
+#include <NumericFunctions.h>
+
+// STL/C lib
 #include <cassert>
 #include <cmath>
 #include <sstream>
@@ -201,10 +205,10 @@ bool PrmOneCrustThinningEvent::operator == ( const Parameter & prm ) const
    
    const double eps = 1.e-4;
 
-   if ( !NearlyEqual( m_initialThickness, pp->m_initialThickness, eps ) ) return false;
-   if ( !NearlyEqual( m_t0              , pp->m_t0              , eps ) ) return false;
-   if ( !NearlyEqual( m_dt              , pp->m_dt              , eps ) ) return false;
-   if ( !NearlyEqual( m_coeff           , pp->m_coeff           , eps ) ) return false;
+   if ( !NumericFunctions::isEqual( m_initialThickness, pp->m_initialThickness, eps ) ) return false;
+   if ( !NumericFunctions::isEqual( m_t0              , pp->m_t0              , eps ) ) return false;
+   if ( !NumericFunctions::isEqual( m_dt              , pp->m_dt              , eps ) ) return false;
+   if ( !NumericFunctions::isEqual( m_coeff           , pp->m_coeff           , eps ) ) return false;
 
    return true;
 }

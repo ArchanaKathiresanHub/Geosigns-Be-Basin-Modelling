@@ -11,7 +11,7 @@
 /// @file PrmTopCrustHeatProduction.h
 /// @brief This file keeps API implementation for handling Top Crust Heat Production Rate basement parameter. 
 
-
+// CASA API
 #include "PrmTopCrustHeatProduction.h"
 #include "VarPrmTopCrustHeatProduction.h"
 
@@ -19,6 +19,10 @@
 #include "cmbAPI.h"
 #include "ErrorHandler.h"
 
+// utilities lib
+#include <NumericFunctions.h>
+
+// STL/C lib
 #include <cassert>
 #include <cmath>
 #include <sstream>
@@ -116,7 +120,7 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & caldModel )
       return oss.str();
    }
 
-   if ( !NearlyEqual( valInModel, m_heatProdRateValue, 1e-6 ) )
+   if ( !NumericFunctions::isEqual( valInModel, m_heatProdRateValue, 1e-6 ) )
    {
       oss << "Top crust heat production rate parameter value in the model (" << valInModel; 
       oss << ") is differ from a parameter value (" << m_heatProdRateValue << ")" << std::endl;
@@ -132,7 +136,7 @@ bool PrmTopCrustHeatProduction::operator == ( const Parameter & prm ) const
    const PrmTopCrustHeatProduction * pp = dynamic_cast<const PrmTopCrustHeatProduction *>( &prm );
    if ( !pp ) return false;
    
-   return NearlyEqual( m_heatProdRateValue, pp->m_heatProdRateValue, 1.e-6 ) ? true : false;
+   return NumericFunctions::isEqual( m_heatProdRateValue, pp->m_heatProdRateValue, 1.e-6 ) ? true : false;
 }
 
 

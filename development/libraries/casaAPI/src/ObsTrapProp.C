@@ -10,10 +10,17 @@
 
 /// @file ObsTrapProp.C
 
+// CASA API
 #include "ObsValueDoubleScalar.h"
 #include "ObsTrapProp.h"
+
+// CMB API
 #include "cmbAPI.h"
 
+// Utilities lib
+#include "NumericFunctions.h"
+
+// STL/C lib
 #include <cassert>
 #include <sstream>
 
@@ -90,7 +97,7 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
 
    // Data digger can't find specified trap property. It could be due to absence of the trap at given place
    // here we will try to avoid undefined values for some trap properties
-   if ( NearlyEqual( UndefinedDoubleValue, val, 1e-6 ) )
+   if ( NumericFunctions::isEqual( UndefinedDoubleValue, val, 1e-6 ) )
    {
       if ( m_propName.substr(0, 6) == "Volume" || m_propName.substr(0, 4) == "Mass" ) { val = 0.0; } // no trap at this place - no HC
    }

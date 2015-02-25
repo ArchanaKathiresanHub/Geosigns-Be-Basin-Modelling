@@ -28,8 +28,10 @@
 ///
 /// The following list of variable parameters is implemented in CASA API
 /// - @subpage CASA_SourceRockTOCPage 
+/// - @subpage CASA_SourceRockHIPage 
 /// - @subpage CASA_TopCrustHeatProductionPage 
 /// - @subpage CASA_OneCrustThinningEventPage 
+/// - @subpage CASA_PorosityModelPage 
 
 namespace casa
 {

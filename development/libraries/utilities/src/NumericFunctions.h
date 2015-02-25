@@ -150,7 +150,7 @@ bool NumericFunctions::inRange ( const Number& value,
 
 //------------------------------------------------------------//
 
-template<class Number>
+template<typename Number>
 bool NumericFunctions::isEqual ( const Number& x, const Number& y, const Number& tolerance ) {
 
    if ( x == y ) {

@@ -189,7 +189,7 @@ namespace casa
    };
 
 
-   template <typename T> bool CasaDeserializer::registerObjPtrUnderID( const T * obj, ObjRefID id )
+   template <class T> bool CasaDeserializer::registerObjPtrUnderID( const T * obj, ObjRefID id )
    {
       const void * vobj = static_cast<const T *>(obj);
 
@@ -220,7 +220,7 @@ namespace casa
       return true;
    }
 
-   template <typename T> const T * CasaDeserializer::id2ptr( ObjRefID id ) const
+   template <class T> const T * CasaDeserializer::id2ptr( ObjRefID id ) const
    {
       if ( id >= m_id2ptr.size() )
       {

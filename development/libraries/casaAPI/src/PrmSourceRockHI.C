@@ -11,13 +11,17 @@
 /// @file PrmSourceRockHI.C
 /// @brief This file keeps API implementation for Source Rock HI parameter handling 
 
-
+// CASA API
 #include "PrmSourceRockHI.h"
 #include "VarPrmSourceRockHI.h"
 
 // CMB API
 #include "cmbAPI.h"
 
+// Utilities lib
+#include <NumericFunctions.h>
+
+// STL/C lib
 #include <cassert>
 #include <cmath>
 #include <sstream>
@@ -104,7 +108,7 @@ std::string PrmSourceRockHI::validate( mbapi::Model & caldModel )
          layerFound = true;
 
          double mdlHI = mgr.hiIni( srIDs[i] );
-         if ( !NearlyEqual( mdlHI, m_hi, 1.e-4 ) )
+         if ( !NumericFunctions::isEqual( mdlHI, m_hi, 1.e-4 ) )
             oss << "Value of HI in the model (" << mdlHI << ") is different from the parameter value (" << m_hi << ")" << std::endl;
       }
    }
@@ -125,7 +129,7 @@ bool PrmSourceRockHI::operator == ( const Parameter & prm ) const
 
    if ( m_layerName != pp->m_layerName ) return false;
 
-   if ( !NearlyEqual( m_hi, pp->m_hi, eps ) ) return false;
+   if ( !NumericFunctions::isEqual( m_hi, pp->m_hi, eps ) ) return false;
 
    return true;
 }
