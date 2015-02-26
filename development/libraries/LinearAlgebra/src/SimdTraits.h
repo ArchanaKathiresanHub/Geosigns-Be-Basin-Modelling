@@ -39,6 +39,9 @@ namespace Numerics {
    template< const SimdInstructionTechnology SimdTechnology >
    struct SimdTraits {
 
+      /// \brief Indicate which SIMD instruction technology is being used.
+      static const SimdInstructionTechnology SimdInstructionUsed = NO_SIMD;
+
       /// \brief Alignment on the size of a double.
       static const int Alignment = 8;
 
@@ -55,6 +58,9 @@ namespace Numerics {
    template<>
    struct SimdTraits<SSE> {
 
+      /// \brief Indicate which SIMD instruction technology is being used.
+      static const SimdInstructionTechnology SimdInstructionUsed = SSE;
+
       /// \brief Alignment on the size of a SSE data type.
       static const int Alignment = 16;
 
@@ -67,19 +73,26 @@ namespace Numerics {
       typedef __m128d PackedDouble;
 
    };
-#else
-   /// \brief Specialisation of SimdTraits for SSE instructions.
-   template<>
-   struct SimdTraits<SSE> {
-      // Should have a compile time assert
-   };
 #endif
+
+
+   template<const bool b>
+   struct StaticAssert;
+
+   template<>
+   struct StaticAssert<true> {
+      enum {Value = 1};
+   };
+
 
 
 #ifdef __AVX__
    /// \brief Specialisation of SimdTraits for AVX instructions.
    template<>
    struct SimdTraits<AVX> {
+
+      /// \brief Indicate which SIMD instruction technology is being used.
+      static const SimdInstructionTechnology SimdInstructionUsed = AVX;
 
       /// \brief Alignment on the size of a AVX data type.
       static const int Alignment = 32;
@@ -92,11 +105,6 @@ namespace Numerics {
       /// \brief Four double values packed into the data type.
       typedef __m256d PackedDouble;
 
-   };
-#else
-   /// \brief Specialisation of SimdTraits for AVX instructions.
-   template<>
-   struct SimdTraits<AVX> {
    };
 #endif
 

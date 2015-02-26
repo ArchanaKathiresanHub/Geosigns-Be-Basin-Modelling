@@ -10,9 +10,6 @@ namespace Numerics {
    template< const SimdInstructionTechnology SimdTechnology >
    struct SimdInstruction {
 
-      /// \brief Indicate which SIMD instruction technology is being used.
-      static const SimdInstructionTechnology SimdInstructionUsed = NO_SIMD;
-
       /// \brief The packed double for NO_SIMD is a double.
       typedef SimdTraits<NO_SIMD>::PackedDouble PackedDouble;
 
@@ -67,10 +64,6 @@ namespace Numerics {
    /// \brief Specialisation of SimdInstruction with SSE instruction set.
    template<>
    struct SimdInstruction<SSE> {
-
-
-      /// \brief Indicate which SIMD instruction technology is being used.
-      static const SimdInstructionTechnology SimdInstructionUsed = SSE;
 
       /// \brief The simd data-type for SSE.
       typedef SimdTraits<SSE>::PackedDouble PackedDouble;
@@ -141,9 +134,6 @@ namespace Numerics {
    /// \brief Specialisation of SimdInstruction with AVX instruction set.
    template<>
    struct SimdInstruction<AVX> {
-
-      /// \brief Indicate which SIMD instruction technology is being used.
-      static const SimdInstructionTechnology SimdInstructionUsed = AVX;
 
       /// \brief The simd data-type for AVX.
       typedef SimdTraits<AVX>::PackedDouble PackedDouble;
