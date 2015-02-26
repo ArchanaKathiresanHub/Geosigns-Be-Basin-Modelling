@@ -1,7 +1,7 @@
 #ifndef NUMERICS__SIMD_TRAITS__H
 #define NUMERICS__SIMD_TRAITS__H
 
-#ifdef __SSE__
+#ifdef __SSE2__
 #include <xmmintrin.h>
 #endif
 
@@ -13,6 +13,8 @@ namespace Numerics {
 
    /// \brief Enumeration of the instruction technology to be used.
    ///
+   /// Here SSE means the sse2 update that includes double precision floating point arithmetic.
+   ///
    /// Possible future technology additions include:
    ///    - AVXFMA   This extends AVX with a fused-multiply-add instruction.
    ///    - AVX512   This extends the size of the AVX register to 512 bits, thus 8 doubles.
@@ -23,7 +25,7 @@ namespace Numerics {
 #ifdef __AVX__
   #undef SIMD_TECHNOLOGY
   #define SIMD_TECHNOLOGY AVX
-#elif defined __SSE__
+#elif defined __SSE2__
   #undef SIMD_TECHNOLOGY
   #define SIMD_TECHNOLOGY SSE
 #else
@@ -52,7 +54,7 @@ namespace Numerics {
 
    };
 
-#ifdef __SSE__
+#ifdef __SSE2__
    /// \brief Specialisation of SimdTraits for SSE instructions.
    template<>
    struct SimdTraits<SSE> {
