@@ -32,7 +32,6 @@ namespace Numerics {
 #endif
 
 
-
    /// \brief Traits class for alignment and number of double packed into the packed-double.
    ///
    /// If no specialisation exists then NO_SIMD instructions will be used.
@@ -76,16 +75,6 @@ namespace Numerics {
 #endif
 
 
-   template<const bool b>
-   struct StaticAssert;
-
-   template<>
-   struct StaticAssert<true> {
-      enum {Value = 1};
-   };
-
-
-
 #ifdef __AVX__
    /// \brief Specialisation of SimdTraits for AVX instructions.
    template<>
@@ -108,9 +97,14 @@ namespace Numerics {
    };
 #endif
 
-
+#ifdef _WIN32
+   /// \brief The maximum simd instruction capability.
+   static const SimdInstructionTechnology CurrentSimdTechnology = NO_SIMD;
+#else
    /// \brief The maximum simd instruction capability.
    static const SimdInstructionTechnology CurrentSimdTechnology = SSE; //SIMD_TECHNOLOGY;
+#endif
+
 
 
 } // end namespace Numerics

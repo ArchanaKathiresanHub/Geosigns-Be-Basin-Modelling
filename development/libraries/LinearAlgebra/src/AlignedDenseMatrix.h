@@ -2,6 +2,7 @@
 #define LINEAR_ALGEBRA__ALIGNED_DENSE_MATRIX__H
 
 #include <iostream>
+#include <string>
 
 namespace Numerics {
 
