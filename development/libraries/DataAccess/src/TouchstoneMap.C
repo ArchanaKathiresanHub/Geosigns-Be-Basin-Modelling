@@ -27,6 +27,7 @@ using namespace database;
 #include "Interface/TouchstoneMap.h"
 #include "Interface/Surface.h"
 #include "Interface/Formation.h"
+#include "Interface/InputValue.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -108,6 +109,24 @@ const string & TouchstoneMap::getFormat (void) const
 double TouchstoneMap::getPercentage (void) const
 {
    return database::getPercentile (m_record);
+}
+
+int TouchstoneMap::getFaciesNumber (void) const
+{
+   return database::getFaciesNumber (m_record);
+}
+
+const string & TouchstoneMap::getFaciesNameMap (void) const
+{
+   return database::getFaciesMap (m_record);
+}
+
+const GridMap * TouchstoneMap::getFaciesGridMap (void) const
+{
+	const Interface::InputValue * inputValue = m_projectHandle->findInputValue( "TouchstoneMapIoTbl", getFaciesNameMap( ) );
+	
+	//if FaciesMap is found return GridMap, otherwise return null 	
+	return inputValue ? inputValue->getGridMap( ) : 0;
 }
 
 void TouchstoneMap::printOn (ostream & ostr) const

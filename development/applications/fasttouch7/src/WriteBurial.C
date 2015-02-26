@@ -8,27 +8,39 @@ WriteBurial::WriteBurial(const char * filename)
 
 //write functions
 
-void WriteBurial::writeIndexes(int firstI, int lastI, int firstJ, int lastJ) 
+void WriteBurial::writeIndexes(int firstI, int lastI, int firstJ, int lastJ, int numLayers) 
 {
-   m_filename << firstI << lastI << firstJ << lastJ; 
+   m_filename << firstI << lastI << firstJ << lastJ << numLayers; 
 }
 
 void WriteBurial::writeSnapshotsIndexes(const std::vector<size_t> & usedSnapshotsIndexes) 
 {
    m_filename << usedSnapshotsIndexes.size(); 
    
-   for ( int sn = 0; sn < usedSnapshotsIndexes.size(); ++sn )
+   for ( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn )
    {
       m_filename << usedSnapshotsIndexes[sn]; 
    }
 }
 
-void WriteBurial::writeBurialHistory(const std::vector<BurialHistoryTimeStep > & burHistTimesteps, int iD) 
+void WriteBurial::writeBurialHistory(const std::vector<BurialHistoryTimeStep > & burHistTimesteps, int iD, bool isInFacies) 
 {
+   
+   size_t size;   
+   
+   if (isInFacies) 
+   {
+   size = burHistTimesteps.size();
+   }
+   else 
+   {
+   size = 0;
+   }
+   
    m_filename << iD;
-   m_filename << burHistTimesteps.size();
-
-   for ( int bt = 0; bt < burHistTimesteps.size(); ++bt )
+   m_filename << size;
+   
+   for ( size_t bt = 0; bt < size; ++bt )
    {
       m_filename << burHistTimesteps[bt].time; 
       m_filename << burHistTimesteps[bt].temperature;
@@ -38,3 +50,4 @@ void WriteBurial::writeBurialHistory(const std::vector<BurialHistoryTimeStep > &
       m_filename << burHistTimesteps[bt].overPressure;    
    }
 }
+

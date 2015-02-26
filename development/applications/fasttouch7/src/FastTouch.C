@@ -40,8 +40,8 @@ using namespace Interface;
 
 
 FastTouch::FastTouch (const std::string & inputFileName )
-      : m_projectHandle( OpenCauldronProject (inputFileName, "rw"))
-      , m_masterTouch(*m_projectHandle)
+   : m_projectHandle( OpenCauldronProject (inputFileName, "rw"))
+   , m_masterTouch(*m_projectHandle)
 {
 }
 
@@ -56,53 +56,53 @@ bool FastTouch::saveTo (const string & outputFileName)
 
 bool FastTouch::removeResqPropertyValues (void)
 {
-    const Property * resqProperty = m_projectHandle->findProperty ("Resq: ");
-    if (!resqProperty) return false;
+   const Property * resqProperty = m_projectHandle->findProperty ("Resq: ");
+   if (!resqProperty) return false;
     
-    m_projectHandle->deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
-            resqProperty, 0, 0, 0, 0, Interface::MAP); 
-    return true;
+   m_projectHandle->deletePropertyValues (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE,
+                                          resqProperty, 0, 0, 0, 0, Interface::MAP); 
+   return true;
 }
 
 bool FastTouch::compute (void)
 {
 
-    H5_Parallel_PropertyList::setOneFilePerProcessOption ();
+   H5_Parallel_PropertyList::setOneFilePerProcessOption ();
 
-    bool started = m_projectHandle->startActivity (FastTouchActivityName, m_projectHandle->getLowResolutionOutputGrid ());
+   bool started = m_projectHandle->startActivity (FastTouchActivityName, m_projectHandle->getLowResolutionOutputGrid ());
  
-    if (!started) return false;
+   if (!started) return false;
  
-    TouchstoneMapList * touchstoneMaps = m_projectHandle->getTouchstoneMaps ();
-    TouchstoneMapList::iterator mapIter;
+   TouchstoneMapList * touchstoneMaps = m_projectHandle->getTouchstoneMaps ();
+   TouchstoneMapList::iterator mapIter;
  
-    for (mapIter = touchstoneMaps->begin (); mapIter != touchstoneMaps->end (); ++mapIter)
-    {
-        const TouchstoneMap * touchstoneMap = * mapIter;
-        if (touchstoneMap->findPropertyValue () == 0)
-        {
-            addToComputationList (touchstoneMap);
-        }
-        else
-        {
-            string str;
-            touchstoneMap->asString (str);
-            cerr << "Found PropertyValue for " << str << endl;
-        }
-    }
+   for (mapIter = touchstoneMaps->begin (); mapIter != touchstoneMaps->end (); ++mapIter)
+   {
+      const TouchstoneMap * touchstoneMap = * mapIter;
+      if (touchstoneMap->findPropertyValue () == 0)
+      {
+         addToComputationList (touchstoneMap);
+      }
+      else
+      {
+         string str;
+         touchstoneMap->asString (str);
+         cerr << "Found PropertyValue for " << str << endl;
+      }
+   }
  
-    m_masterTouch.run ();
+   m_masterTouch.run ();
  
-    delete touchstoneMaps;
+   delete touchstoneMaps;
  
-    m_projectHandle->finishActivity ();
+   m_projectHandle->finishActivity ();
  
-    bool status = true;
-    if( !mergeOutputFiles ()) {
-       PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
-       status = false;
-    } 
-    return status;
+   bool status = true;
+   if( !mergeOutputFiles ()) {
+      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
+      status = false;
+   } 
+   return status;
 }
 
 bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
@@ -112,8 +112,9 @@ bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
    //cerr << "Adding " << str << "to computation list" << endl;
 
    m_masterTouch.addOutputFormat( 
-         touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
-	 touchstoneMap->getCategory (), touchstoneMap->getFormat (), static_cast<int>(touchstoneMap->getPercentage ()));
+                                 touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
+                                 touchstoneMap->getCategory (), touchstoneMap->getFormat (), static_cast<int>(touchstoneMap->getPercentage ()),
+                                 touchstoneMap->getFaciesGridMap ( ), touchstoneMap->getFaciesNumber());
    return true;
 }
 

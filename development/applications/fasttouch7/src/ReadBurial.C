@@ -7,9 +7,9 @@ ReadBurial::ReadBurial(const char * filename)
 
 //read functions
 
-void ReadBurial::readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ)
+void ReadBurial::readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ, int * numLayers)
 {
-	m_filename >> *firstI >> *lastI >> *firstJ >> *lastJ;
+	m_filename >> *firstI >> *lastI >> *firstJ >> *lastJ >> *numLayers;
 }
 
 void ReadBurial::readNumTimeStepsID( size_t * numTimeSteps, int * iD)

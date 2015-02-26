@@ -5960,6 +5960,13 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement : 
     Type                : string
     Error Field         : No
+    
+    Identification      : FaciesNumber
+    Description         : Integer indicating up to 4 facies, 0 if calculations are not performed
+    Unit of measurement :
+    Type                : integer
+    Default             : 0
+    Error Field         : No
 
     Identification      : Category
     Description         : Touchstone Category for output Map
@@ -5980,6 +5987,12 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Default             : 100
     Error Field         : No
 
+    Identification      : FaciesMap
+    Description         : String to indicate the map applied to each TCF
+    Unit of measurement : 
+    Type                : string
+    Error Field         : No
+    
     Identification      : PercentUsed
     Description         : Touchstone percent for output Map
     Unit of measurement : 
@@ -7672,11 +7685,13 @@ START-property-tables
     Identification : TouchstoneMapIoTbl
     Description    : List of map choices made by user
     Column         : TcfName
+    Column         : FaciesNumber  
     Column         : SurfaceName
     Column         : FormationName
     Column         : Category
     Column         : Format
     Column         : Percentile
+    Column         : FaciesMap
     Header         : List of Touchstone Map Combinations
 
 # Genex History location Table

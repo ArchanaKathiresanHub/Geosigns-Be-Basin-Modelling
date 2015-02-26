@@ -6,8 +6,6 @@
 #include "MasterTouch.h"
 #include "misc.h"
 #include "TimeToComplete.h"
-#include "BurialHistory.h"
-#include "WriteBurial.h"
 #include "TouchstoneFiles.h"
 
 #include "Interface/Formation.h"
@@ -37,63 +35,66 @@ using namespace Interface;
 
 string getPath( ) {
 
-	char buff[1024];
+   char buff[1024];
 
-	ssize_t len = readlink("/proc/self/exe",	buff,	sizeof(buff)-1);
+   ssize_t len = readlink("/proc/self/exe",	buff,	sizeof(buff)-1);
 
-	buff[len]= '\0';
+   buff[len]= '\0';
 
-	return string(dirname(buff));
+   return string(dirname(buff));
 
 }
 
 void executeWrapper( const char * burHistFile, const string & filename, const char * resultFile ) {
 
-	char status[L_tmpnam];
-	tmpnam(status);
-	mkfifo(status, 0777);
+   char status[L_tmpnam];
+   tmpnam(status);
+   mkfifo(status, 0777);
 
-	int pid = fork();
+   int pid = fork();
 
-	if (pid == 0)
-	{	
-		const char * wrapperName = "touchstoneWrapper.sh";
+   if (pid == 0)
+   {	
+      const char * wrapperName = "touchstoneWrapper.sh";
 
-		errno = 0;
-		execl( (getPath() + "/" +  wrapperName).c_str(), wrapperName,
-			burHistFile , filename.c_str() , resultFile , status,  
-			static_cast<const char *>(0)
-			);
+      errno = 0;
+      execl( (getPath() + "/" +  wrapperName).c_str(), wrapperName,
+	     burHistFile , filename.c_str() , resultFile , status,  
+	     static_cast<const char *>(0)
+	     );
 
-		if (errno != 0)
-		{
-			cerr << "\n---------------------------------------\n";
-			cerr << "MeSsAgE error: Could not run TouchstoneWrapper '" << getPath() << '/' << wrapperName;
-			cerr << "  Error code " << errno << ":  " << std::strerror(errno) << '\n'; 
-			cerr << "---------------------------------------" << std::endl;
-		}
+      if (errno != 0)
+      {
+         cerr << "\n---------------------------------------\n";
+         cerr << "MeSsAgE error: Could not run TouchstoneWrapper '" << getPath() << '/' << wrapperName;
+         cerr << "  Error code " << errno << ":  " << std::strerror(errno) << '\n'; 
+         cerr << "---------------------------------------" << std::endl;
+      }
 		
-	} 	
-	else 	
-	{ 
-		double fractionCompleted = 0.0; 
-		FILE * statusFile = fopen(status,"r");   
-		utilities::TimeToComplete timeToComplete( 30, 300, 0.1, 0.1 );
-		timeToComplete.start();   
+      exit(0);
+   } 	
+   else 	
+   { 
+      double fractionCompleted = 0.0; 
+      FILE * statusFile = fopen(status,"r");   
+      utilities::TimeToComplete timeToComplete( 30, 300, 0.1, 0.1 );
+      timeToComplete.start();   
+			
 
-		while ( ! waitpid(pid, NULL, WNOHANG) ) 
-		{				
-			if ( 1 == fread( &fractionCompleted, sizeof(fractionCompleted), 1, statusFile ) )
-			{
-					string reported = timeToComplete.report( MinimumAll( fractionCompleted ) );
-					if ( !reported.empty()) 
-					{
-						ReportProgress( reported );
-					}
-			}	
-		}
-		fclose(statusFile);
-	}  
+      while ( ! waitpid(pid, NULL, WNOHANG) ) 
+      {						
+         if ( 1 == fread( &fractionCompleted, sizeof(fractionCompleted), 1, statusFile ) )
+         {
+            string reported = timeToComplete.report( MinimumAll( fractionCompleted ) );
+            if ( !reported.empty()) 
+            {
+               ReportProgress( reported );
+            }
+         }			
+      }
+      fclose(statusFile);
+      unlink(status);
+   } 
 }
 
 
@@ -128,9 +129,10 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    , m_percentPercentileMapping()
    , m_categoriesMapping()
    , m_formatsMapping()
-   , m_fileList()
+   , m_layerList()
    , m_usedSnapshotsIndex()
    , m_usedSnapshotsAge()
+   , m_layerCategoryResultCounter()
 {
    // set format mapping
    m_formatsMapping[iSd_str]           = SD;  
@@ -167,26 +169,26 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    m_categoriesMapping [iLog_str]           = 6; //TSLIB_RC_LOGPERM;
    
    // Used snapshots
-	Interface::SnapshotList * MajorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
-	Interface::SnapshotList::iterator it;
+   Interface::SnapshotList * MajorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
+   Interface::SnapshotList::iterator it;
 	
-	for (size_t majorSnapshotIndex = 0; majorSnapshotIndex < MajorSnapshots->size(); ++majorSnapshotIndex)
-	{
-	   if ((*MajorSnapshots)[majorSnapshotIndex]->getUseInResQ())
-	   {
-	   	m_usedSnapshotsIndex.push_back( majorSnapshotIndex );
-	      m_usedSnapshotsAge.push_back( (*MajorSnapshots)[majorSnapshotIndex]->getTime() );
-	   }
-	}
+   for (size_t majorSnapshotIndex = 0; majorSnapshotIndex < MajorSnapshots->size(); ++majorSnapshotIndex)
+   {
+      if ((*MajorSnapshots)[majorSnapshotIndex]->getUseInResQ())
+      {
+         m_usedSnapshotsIndex.push_back( majorSnapshotIndex );
+         m_usedSnapshotsAge.push_back( (*MajorSnapshots)[majorSnapshotIndex]->getTime() );
+      }
+   }
 	
-	// Age 0 is always included
-	if (m_usedSnapshotsAge.empty() || find( m_usedSnapshotsAge.begin( ), m_usedSnapshotsAge.end( ), 0.0) == m_usedSnapshotsAge.end( )) 
-	{
-		m_usedSnapshotsIndex.push_back( 0 );
-		m_usedSnapshotsAge.push_back( 0.0 );  
-	}
+   // Age 0 is always included
+   if (m_usedSnapshotsAge.empty() || find( m_usedSnapshotsAge.begin( ), m_usedSnapshotsAge.end( ), 0.0) == m_usedSnapshotsAge.end( )) 
+   {
+      m_usedSnapshotsIndex.push_back( 0 );
+      m_usedSnapshotsAge.push_back( 0.0 );  
+   }
 		
-	delete MajorSnapshots;	
+   delete MajorSnapshots;	
 }
 
 /** The run function is responsible for carrying out the functional
@@ -197,96 +199,91 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
  *  Tcf files are closed and dynamic memory is cleaned up.
  */
 bool MasterTouch::run()
-{
+{   
    // make sure data has been selected 
-   if ( m_fileList.empty() ) 
+   if ( m_fileLayerFaciesGridMap.empty() ) 
    { 
       return false;
    }
 	
-   FileLayerCategoryMapInfoList::const_iterator it;
-
-   for ( it = m_fileList.begin(); it != m_fileList.end(); ++it )
+   // for each TCF file
+   FileLayerFaciesGridMap::iterator it;
+   for ( it = m_fileLayerFaciesGridMap.begin(); it != m_fileLayerFaciesGridMap.end(); ++it )
    {
-      const string & filename = (it->first);
-
-      // for each TCF file
-      LayerCategoryMapInfoList * m_layerList = &(m_fileList[filename]);
+		
+      const string & filename = (it->first);   
+      LayerFaciesGridMap * layerFaciesGridMap = &(m_fileLayerFaciesGridMap[filename]);   
       
-      LayerCategoryMapInfoList::iterator outIt;
-      for( outIt = m_layerList->begin(); outIt != m_layerList->end(); ++outIt )
+      string progressString = "Starting TCF: ";
+      progressString += filename;
+      ReportProgress( progressString );
+		
+      //write burial histories for all layers and facies that uses that TCF file
+      char burhistFile[L_tmpnam]; 
+      tmpnam(burhistFile);
+	   
       {
-      	bool calculated = false;
-      	for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
-      	{
-         	
-         	// set current layer iterator so can retrieve all output 
-         	// combinations during write/save maps
-         	CategoryMapInfoList currentOutputs = outIt->second;
-
-         	string progressString = "Starting TCF: ";
-         	progressString += filename;
-         	progressString += ", Surface: ";
-         	progressString += (outIt->first).surface->getName();
-         	progressString += ", Formation: ";
-         	progressString += (outIt->first).formation->getName();
-         	ReportProgress( progressString );
-
-         	// execute TS calculate
-         	retrieveGridMaps (currentOutputs);
-         	calculated = calculate( filename, (outIt->first).surface, currentOutputs) ;
-         	restoreGridMaps (currentOutputs);
-         	
-         	if (calculated) 
-         	{
-         		//cout << "MasterTouch::calculate completed successfully " << endl;
-         		
-         		progressString = "Finished TCF: ";
-         		progressString += filename;
-         		progressString += ", Surface: ";
-         		progressString += (outIt->first).surface->getName();
-         		progressString += ", Formation: ";
-         		progressString += (outIt->first).formation->getName();
-
-         		ReportProgress( progressString );
-				} else 
-				{
-					cerr << "MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs"<<endl;
-         	}
+         WriteBurial WriteBurial(burhistFile);
+	   	
+         // for each defined node on reservoir surface  
+         int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
+         int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
+         int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
+         int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
+	   	
+         WriteBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap->size( ));
+         WriteBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
+			
+         //for each Layer			
+         LayerFaciesGridMap::iterator outIt;
+         for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
+         {			
+	    writeBurialHistory( filename, (outIt->first).surface, WriteBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
          }
-         
-         if ( !calculated ) { break; }
       }
-      // check for early exit from For loop
-      if ( outIt != m_layerList->end() ) { break; }
+		
+      //Run touchstone wrapper
+      bool calculated = false;
+      for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
+      {
+         calculated =   calculate(filename, burhistFile);
+         if (calculated) 
+         {
+         		
+            progressString = "Finished TCF: ";
+            progressString += filename;
+            ReportProgress( progressString );
+         
+         } else 
+         {
+            cerr << "MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs"<<endl;
+         }		
+      }	
    }        
    
-	while (MinimumAll (10) < 10 );
+   while (MinimumAll (10) < 10 );
    
    return true;
 }  
  
 /** Each set of results requested by the user corresponds to a grid map
  *  generated by Cauldron, filled with ResQ calculation results.
- *  Each grid map created must correspond to a Tcf file, a specific layer,
- *  a results category and a result format.
+ *  Each grid map created must correspond to a specific layer and results category + format
  */
  
 bool MasterTouch::addOutputFormat( const string & filename,
                                    const Surface * surface, const Formation * formation, 
                                    const string & category, const string & format,
-                                   int percent )
+                                   int percent, const GridMap * faciesGrid, int index )
 {
    if ( filename.size() < 1 )
    {
-       cerr << endl << "Warning, a tcf file has not been chosen" << endl;
-       return false;
+      cerr << endl << "Warning, a tcf file has not been chosen" << endl;
+      return false;
    }
  
    string propertyValueName;
-   propertyValueName += "Resq: ";
-   propertyValueName += filename;
-   propertyValueName += " ";
+   propertyValueName += "Resq: ";  
    propertyValueName += category;
    propertyValueName += " ";
    propertyValueName += format;
@@ -297,43 +294,111 @@ bool MasterTouch::addOutputFormat( const string & filename,
    propertyValueName += " ";
    propertyValueName += perc_str;
    
-   // create map info
-   MapInfo map; 
-   map.format  = format;
-   map.percent = percent;
-     
-   // update map.gridMap
-   
-	for(size_t it = 0; it < m_usedSnapshotsAge.size(); ++it ) 
-	{		
-	
-		const Snapshot * majorSnapshot = m_projectHandle.findSnapshot( m_usedSnapshotsAge[it] );
-		      
-		if ( !majorSnapshot ) 
-		{ 
-      cerr << endl << "Could not create PropertyValue: " << propertyValueName  << ", could not find snapshot " << m_usedSnapshotsAge[it] << endl; 
-      return false; 
-		}
-		
-		PropertyValue * propertyValue = m_projectHandle.createMapPropertyValue( propertyValueName, majorSnapshot, 0, formation, surface);
-		
-		if ( !propertyValue )
-   	{ 
-      cerr << endl << "Could not create PropertyValue named: " << propertyValueName  <<endl; 
-      return false; 
-   	}
-		
-		GridMap * gridMap = propertyValue->getGridMap();
-		
-		map.gridMap.push_back(gridMap);		
-   }
-   
    LayerInfo layer( surface, formation );
-
-   // add layer info and map info to output list
-   m_fileList[filename][layer][category].push_back( map );
+   
+   //check if a map for the layer already exists for propertyValueName
+   if (m_layerCategoryResultCounter[layer].count(propertyValueName) == 0)    
+   {
+   
+      //Create map info
+      MapInfo map; 
+      map.format  = format;
+      map.percent = percent;
+   
+      for(size_t it = 0; it < m_usedSnapshotsAge.size(); ++it ) 
+      {		
+	
+         const Snapshot * majorSnapshot = m_projectHandle.findSnapshot( m_usedSnapshotsAge[it] );
+		      
+         if ( !majorSnapshot ) 
+         { 
+            cerr << endl << "Could not create PropertyValue: " << propertyValueName  << ", could not find snapshot " << m_usedSnapshotsAge[it] << endl; 
+            return false; 
+         }
+		
+         PropertyValue * propertyValue = m_projectHandle.createMapPropertyValue( propertyValueName, majorSnapshot, 0, formation, surface);
+		
+         if ( !propertyValue )
+         { 
+            cerr << endl << "Could not create PropertyValue named: " << propertyValueName  <<endl; 
+            return false; 
+         }
+		
+         GridMap * newGridMap = propertyValue->getGridMap();		
+         map.gridMap.push_back(newGridMap);		
+      }
+   
+      // add layer info and map info to output list
+      m_layerList[layer][category].push_back( map );
+      m_layerCategoryResultCounter[layer][propertyValueName] = 1;
+   
+   }
+ 
+   //check if a FaciesGridMap for the TCF already exists for the layer
+   if (m_fileLayerFaciesGridMap[filename].count(layer) == 0)
+   {    
+      faciesGridMap faciesGridMap; 
+         faciesGridMap.GridMap = faciesGrid;
+            faciesGridMap.faciesNumber = index;
+               m_fileLayerFaciesGridMap[filename][layer] = faciesGridMap ;
+   }
 
    return true;
+}
+
+/** This function writes burial histories to file for a formation **/
+
+void MasterTouch::writeBurialHistory( const std::string & filename, const Surface * surface, WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap)
+{
+
+   // for each defined node on reservoir surface  
+   int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
+   int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
+   int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
+   int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
+      
+   bool facieGridMapisDefined = false;
+   bool writeFlag = true;
+   double gridMapValue = -1.0;
+	
+   // if a facies is not defined, all surface belongs to the TCF   
+   if (faciesGridMap->GridMap) 
+   {
+      facieGridMapisDefined = true;
+      faciesGridMap->GridMap->retrieveData(false);
+   }
+  
+   // retrive burial history 	  
+   BurialHistory burialHistory(surface, m_projectHandle);
+       
+   // write Burial History	
+   for ( unsigned int i = firstI; i <= lastI; ++i )
+   {
+      for( unsigned int j = firstJ; j <= lastJ; ++j )
+      {
+         // write burial histories only for selected areas, for areas with gridMapValue == 0 do not write burial histories. Perform this check only if facieGridMapisDefined    
+         if (facieGridMapisDefined) 
+         {
+            gridMapValue = faciesGridMap->GridMap->getValue(i, j);
+            if (gridMapValue == 0) 
+            {
+               writeFlag = false ;
+            } 
+            else
+            {
+               writeFlag = (gridMapValue == faciesGridMap->faciesNumber);
+            }
+         }
+		 				 				
+         const std::vector<BurialHistoryTimeStep> & burHistTimesteps = burialHistory.returnAsArray( i, j, true );
+		 	
+         int iD = ( i - firstI )  * ( lastJ - firstJ + 1 ) + j;  
+                  
+         WriteBurial.writeBurialHistory(burHistTimesteps, iD, writeFlag) ;
+      }
+   }
+	
+   if (faciesGridMap->GridMap) faciesGridMap->GridMap->restoreData(false,false); 
 }
 
 /** This function controls the build of the Cauldron - ResQ functionality. 
@@ -344,91 +409,75 @@ bool MasterTouch::addOutputFormat( const string & filename,
  *  results for that particular coordinate. Finally it writes the results to a result
  *  list which is saved to file at a later stage.
  */
-bool MasterTouch::calculate( const std::string & filename, const Surface * surface, const CategoryMapInfoList & currentOutputs)
+bool MasterTouch::calculate( const std::string & filename, const char * burhistFile )
 {
-	try
-	{ 
-   // for each defined node on reservoir surface  
-   int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
-   int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
-   int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
-   int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
-	
-   char burhistFile[L_tmpnam]; 
-   tmpnam(burhistFile);
-
-   //Create an write burial history
+   try 
    {
-      BurialHistory burialHistory(surface, m_projectHandle);
+      // for each defined node on reservoir surface  
+      int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
+      int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
+      int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
+      int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
+   
+      char resultFile[L_tmpnam];
+      tmpnam(resultFile); 
 
-      WriteBurial WriteBurial(burhistFile);
-      WriteBurial.writeIndexes(firstI, lastI, firstJ, lastJ );
-      WriteBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
-		
-		//Write Burial History
-		
-      for ( int i = firstI; i <= lastI; ++i )
-      {
-         for( int j = firstJ; j <= lastJ; ++j )
+      //Execute touchstoneWrapper
+      executeWrapper(burhistFile, filename, resultFile);
+   
+      //read touchstone categories
+      TouchstoneFiles ReadTouchstone(resultFile);
+      std::vector<int> vec;
+      ReadTouchstone.readOrder(vec);
+
+      m_categoriesMapping[iCore_equiv_str]    = vec[0]; // TSLIB_RC_CORE_PORO;
+      m_categoriesMapping[iIntergranular_str] = vec[1]; // TSLIB_RC_IGV;
+      m_categoriesMapping[iMacro_str]         = vec[2]; // TSLIB_RC_MACRO_PORO;
+      m_categoriesMapping[iMicro_str]         = vec[3]; // TSLIB_RC_MICRO_PORO;
+      m_categoriesMapping[iAbsolute_str]      = vec[4]; // TSLIB_RC_PERM;
+      m_categoriesMapping[iCement_Quartz_str] = vec[5]; // TSLIB_RC_CMT_QRTZ;
+  
+      //Read touchstone results for all included layers	
+      LayerCategoryMapInfoList::iterator outIt;
+      for( outIt = m_layerList.begin( ); outIt != m_layerList.end(); ++outIt )
+      {	
+	
+         CategoryMapInfoList currentOutputs = outIt->second;
+         retrieveGridMaps (currentOutputs);
+	
+         for ( int i = firstI; i <= lastI; ++i )
          {
-            const std::vector<BurialHistoryTimeStep> & burHistTimesteps 
-               = burialHistory.returnAsArray( i, j, true );
-            int iD = ( i - firstI )  * ( lastJ - firstJ + 1 ) + j;  
-            WriteBurial.writeBurialHistory(burHistTimesteps, iD) ;
-         }
-      }
-   }
-   
-   char resultFile[L_tmpnam];
-   tmpnam(resultFile); 
-
-   //Execute touchstoneWrapper
-   executeWrapper(burhistFile, filename, resultFile);
-   
-   //read touchstone categories
-   TouchstoneFiles ReadTouchstone(resultFile);
-   std::vector<int> vec;
-   ReadTouchstone.readOrder(vec);
-
-   m_categoriesMapping[iCore_equiv_str]    = vec[0]; // TSLIB_RC_CORE_PORO;
-   m_categoriesMapping[iIntergranular_str] = vec[1]; // TSLIB_RC_IGV;
-   m_categoriesMapping[iMacro_str]         = vec[2]; // TSLIB_RC_MACRO_PORO;
-   m_categoriesMapping[iMicro_str]         = vec[3]; // TSLIB_RC_MICRO_PORO;
-   m_categoriesMapping[iAbsolute_str]      = vec[4]; // TSLIB_RC_PERM;
-   m_categoriesMapping[iCement_Quartz_str] = vec[5]; // TSLIB_RC_CMT_QRTZ;
-    
-   //Read touchstone results
-
-   	for ( int i = firstI; i <= lastI; ++i )
-   	{
-      	for( int j = firstJ; j <= lastJ; ++j )
-      	{         
-         	size_t numTimeSteps = 0;
-         	ReadTouchstone.readNumTimeSteps(&numTimeSteps);
+            for( int j = firstJ; j <= lastJ; ++j )
+            {         
+               size_t numTimeSteps = 0;
+               ReadTouchstone.readNumTimeSteps(&numTimeSteps);
          
-         	if (numTimeSteps > 0) 
-         	{ 
-            	for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
-         	}
-      	}
-   	} 	
-   }	
+               if (numTimeSteps > 0) 
+               { 
+                  for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
+               }
+            }
+         }
+   		
+         restoreGridMaps (currentOutputs); 	
+      }
+      //catch exceptions
+   } 
    catch (const std::runtime_error & r)
    { 
-   	cerr << "MeSsAgE warning: runtime error on MPI process " << GetRank( ) << " : "<< r.what() << endl;
-	   return false;
+      cerr << "MeSsAgE warning: runtime error on MPI process " << GetRank( ) << " : "<< r.what() << endl;
+      return false;
    }
-  	catch ( std::exception & e ) 
+   catch ( std::exception & e ) 
    {
-		cerr << "MeSsAgE warning: exception on MPI process " << GetRank( ) << " : "<< e.what() << endl;
-   	return false;
+      cerr << "MeSsAgE warning: exception on MPI process " << GetRank( ) << " : "<< e.what() << endl;
+      return false;
    }
    catch( ... )
    {
-   	cerr << "MeSsAgE warning: unknown errors on MPI process " << GetRank( ) << endl;
-   	return false;
+      cerr << "MeSsAgE warning: unknown errors on MPI process " << GetRank( ) << endl;
+      return false;
    } 
-   
    return true;
 }
 
@@ -463,13 +512,12 @@ void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList &
          // if resultFormat = { MODE } then resultStat = 7, ... 27 
          // if resultFormat = { DISTRIBUTION } then resultStat = 28;
          int resultStat = resultFormat 
-                        + int (resultFormat > MODE) * ( m_percentPercentileMapping[ (*mIt).percent ] ) 
-                        + int (resultFormat > PERCENTILE ) * ( 20 - m_percentPercentileMapping [ (*mIt).percent ] );
+	    + int (resultFormat > MODE) * ( m_percentPercentileMapping[ (*mIt).percent ] ) 
+	    + int (resultFormat > PERCENTILE ) * ( 20 - m_percentPercentileMapping [ (*mIt).percent ] );
          (*mIt).gridMap[sn]->setValue( i, j,  outputProperties[ resultCat *  numberOfStatisticalOutputs + resultStat ] );
       }
    }
 }
-
 
 bool MasterTouch::retrieveGridMaps(const CategoryMapInfoList & currentOutputs)
 {
@@ -481,7 +529,7 @@ bool MasterTouch::retrieveGridMaps(const CategoryMapInfoList & currentOutputs)
       {
          const MapInfo & mapInfo = *milIterator;
          for(size_t it = 0; it < m_usedSnapshotsIndex.size(); ++it ) 
-         mapInfo.gridMap[it]->retrieveData ();
+	    mapInfo.gridMap[it]->retrieveData ();
          
       }
    }
@@ -498,7 +546,7 @@ bool MasterTouch::restoreGridMaps(const CategoryMapInfoList & currentOutputs)
       {
          const MapInfo & mapInfo = *milIterator;
          for(size_t it = 0; it < m_usedSnapshotsIndex.size(); ++it ) 
-         mapInfo.gridMap[it]->restoreData ();
+	    mapInfo.gridMap[it]->restoreData ();
       }
    }
    return true;

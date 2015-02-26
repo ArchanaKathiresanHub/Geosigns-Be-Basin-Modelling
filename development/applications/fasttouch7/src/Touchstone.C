@@ -18,9 +18,9 @@ int TouchstoneWrapper::SaveResultHeader( TcfSchema::DetailHeadersType::modalHead
    for ( unsigned long int i = 0; i < m_iD.size(); ++i )
    {
       if ( itor->iD().kernel()     == m_iD[i].kernel() &&
-            itor->iD().model()      == m_iD[i].model() &&
-            itor->iD().iD()         == m_iD[i].iD() &&
-            itor->iD().resultType() == m_iD[i].resultType() )
+           itor->iD().model()      == m_iD[i].model() &&
+           itor->iD().iD()         == m_iD[i].iD() &&
+           itor->iD().resultType() == m_iD[i].resultType() )
       {
          return i;
       }
@@ -84,9 +84,9 @@ TouchstoneWrapper::TouchstoneWrapper(const char * burhistFile, char * filename, 
    setCategoriesMapping ( );
    
    /** limit the size of core dump files **/
-	m_coreSize.rlim_cur = 0;
-	m_coreSize.rlim_max = 0;
-	setrlimit(RLIMIT_CORE, &m_coreSize);
+   m_coreSize.rlim_cur = 0;
+   m_coreSize.rlim_max = 0;
+   setrlimit(RLIMIT_CORE, &m_coreSize);
 }
 
 TouchstoneWrapper::~TouchstoneWrapper ( ) 
@@ -211,9 +211,9 @@ bool TouchstoneWrapper::loadTcf ( ) {
 
    try 
    { 
-		int randomSeed = 0; 
-		for ( int  i = 0; i != strlen(m_filename); ++i )
-		randomSeed +=m_filename[i];
+      int randomSeed = 0; 
+      for ( int  i = 0; i != strlen(m_filename); ++i )
+         randomSeed +=m_filename[i];
       if ( !m_directAnalogRun ) m_tslibCalcContext->CreateRealizations( m_nrOfRealizations, randomSeed, 1); 
    }   
    catch ( std::exception & e )
@@ -238,6 +238,7 @@ void TouchstoneWrapper::calculateWrite ( ) {
    int lastI 			= -1;
    int firstJ 			= -1;
    int lastJ 			= -1;
+   int numLayers		= -1;
    int iD 				= -1;
    int step 			= 	0;
    std::vector<size_t> usedSnapshotsIndexes;
@@ -246,51 +247,52 @@ void TouchstoneWrapper::calculateWrite ( ) {
    FILE * statusFile = fopen(m_status,"w");
    
    ReadBurial ReadBurial(m_burhistFile);
-   ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ);
+   ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ, &numLayers);
    ReadBurial.readSnapshotsIndexes(usedSnapshotsIndexes);
      
-   int totalNumberOfSteps = (lastI	+	1	-	firstI);
+   int totalNumberOfSteps = (lastI	+	1	-	firstI) * numLayers;
    
    TouchstoneFiles WriteTouchstone(m_results);
    WriteTouchstone.writeOrder(m_categoriesMappingOrder);   
 
-   for ( int i = firstI; i <= lastI; ++i )
+   for ( int l = 1; l <= numLayers; ++l )
    {
-      for( int j = firstJ; j <= lastJ; ++j )
-      {	
-         size_t numTimeSteps = 0;
+      for ( int i = firstI; i <= lastI; ++i )
+      {
+         for( int j = firstJ; j <= lastJ; ++j )
+         {	
+            size_t numTimeSteps = 0;
 
-         ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD); 
+            ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD); 
 
-         if (numTimeSteps > 0) 
-         {
-            std::vector<Geocosm::TsLib::burHistTimestep> burHistTimesteps(numTimeSteps) ; 
+            if (numTimeSteps > 0) 
+            {
+               std::vector<Geocosm::TsLib::burHistTimestep> burHistTimesteps(numTimeSteps) ; 
 
-            ReadBurial.readBurialHistory(burHistTimesteps,numTimeSteps); 
+               ReadBurial.readBurialHistory(burHistTimesteps,numTimeSteps); 
 
-            m_tslibBurialHistoryInfo.burialHistoryTSteps = &burHistTimesteps[0];
-            m_tslibBurialHistoryInfo.count               = numTimeSteps;
-            m_tslibBurialHistoryInfo.iD                  = iD; 
+               m_tslibBurialHistoryInfo.burialHistoryTSteps = &burHistTimesteps[0];
+               m_tslibBurialHistoryInfo.count               = numTimeSteps;
+               m_tslibBurialHistoryInfo.iD                  = iD; 
 
-            m_tslibCalcContext->Calculate( m_tslibBurialHistoryInfo, true ); 
+               m_tslibCalcContext->Calculate( m_tslibBurialHistoryInfo, true ); 
 
-            WriteTouchstone.writeNumTimeSteps(numTimeSteps);  
+               WriteTouchstone.writeNumTimeSteps(numTimeSteps);  
        
-            for( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn ) write( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
+               for( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn ) write( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
 
-         } else {
+            } else {
 
-            WriteTouchstone.writeNumTimeSteps(numTimeSteps);
+               WriteTouchstone.writeNumTimeSteps(numTimeSteps);
 
-         }
+            }
+         }   
       }
-      
       double fractionCompleted =  (double) ++step / (double) totalNumberOfSteps ;
-      fwrite(&fractionCompleted,sizeof(fractionCompleted),1,statusFile);
+      fwrite(&fractionCompleted,sizeof(fractionCompleted), 1, statusFile);
       fflush(statusFile);
    }
 }
-
 
 void TouchstoneWrapper::write(int timestepIndex, TouchstoneFiles& WriteTouchstone) {
 

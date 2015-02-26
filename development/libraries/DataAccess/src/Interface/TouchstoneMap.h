@@ -29,7 +29,13 @@ namespace DataAccess
 	    virtual const string & getFormat (void) const;
 	    /// Return the percentage in case Format is "Percentile"
 	    virtual double getPercentage (void) const;
-
+	    
+	    /// Return the Facies Number
+	    virtual int getFaciesNumber (void) const;
+	    /// Return the name of the facies map
+	    virtual const string & getFaciesNameMap (void) const;
+		 /// Return the gridMap object
+	    virtual const GridMap * getFaciesGridMap (void) const;
 
 	    /// Find the PropertyValue that was produced for this TouchstoneMap
 	    virtual const PropertyValue * findPropertyValue (void) const;

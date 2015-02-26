@@ -396,6 +396,24 @@ bool InputValue::fillEventAttributes (void) const
 	    }
 	 }
       }
+      
+		else if (tblName == "TouchstoneMapIoTbl")
+      {
+	 Table::iterator tblIter;
+	 Record * record = 0;
+
+	 for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
+	 {
+	    record = * tblIter;
+	    if (getFaciesMap ( record ) == database::getMapName (m_record))
+		{
+	       m_propertyName = "FaciesIndex";
+	       m_formationName = database::getFormationName (record);   
+	       m_surfaceName = database::getSurfaceName (record);   
+	       return true;
+		}    
+	 }
+      }      
    }
    return false;
 }
