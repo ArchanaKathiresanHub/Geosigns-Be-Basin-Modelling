@@ -79,14 +79,14 @@ namespace Numerics {
 
       /// \brief Get access to the low level array of values for a particular column.
       ///
-      /// \param [in] i col position.
-      /// \pre 0 <= i < cols ().
+      /// \param [in] col The column position required.
+      /// \pre 0 <= col < cols ().
       const double* getColumn ( const int col ) const;
 
       /// \brief Get access to the low level array of values for a particular column.
       ///
-      /// \param [in] i col position.
-      /// \pre 0 <= i < cols ().
+      /// \param [in] col The column position required.
+      /// \pre 0 <= col < cols ().
       double* getColumn ( const int col );
 
       /// \brief Output the matrix to the stream.
