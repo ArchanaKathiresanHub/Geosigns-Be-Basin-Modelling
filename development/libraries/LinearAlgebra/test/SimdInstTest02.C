@@ -2,17 +2,42 @@
 #include "../src/SimdInstruction.h"
 #include <gtest/gtest.h>
 #include <stdlib.h>
-#include <tr1/array>
 
-#include <iostream>
+#ifndef _WIN32
+#include <tr1/array>
+#endif
+
+
+#ifdef _WIN32
+template<typename Type, const unsigned int Size>
+class array {
+public :
+
+   const Type& operator []( const unsigned int i ) const {
+      return m_values [ i ];
+   }
+
+   Type& operator []( const unsigned int i ) {
+      return m_values [ i ];
+   }
+
+private :
+
+   Type m_values [ Size ];
+
+};
+#else
 using namespace std;
+using namespace tr1;
+#endif
+
 
 TEST ( SimdInstrTests, NoSimdTest02 ) {
 
    typedef Numerics::SimdTraits<Numerics::NO_SIMD> SimdTraits;
    typedef Numerics::SimdInstruction<Numerics::NO_SIMD> SimdInstruction;
 
-   typedef std::tr1::array<double, SimdTraits::DoubleStride> DoubleArray;
+   typedef array<double, SimdTraits::DoubleStride> DoubleArray;
 
    double value1 = 2.5;
    double value2 = 3.25;
@@ -51,7 +76,7 @@ TEST ( SimdInstrTests, SseTest02 ) {
    typedef Numerics::SimdInstruction<SimdUsed> SimdInstruction;
 
 
-   typedef std::tr1::array<double, SimdTraits::DoubleStride> DoubleArray;
+   typedef array<double, SimdTraits::DoubleStride> DoubleArray;
 
    double value1 = 2.5;
    double value2 = 3.25;
@@ -93,7 +118,7 @@ TEST ( SimdInstrTests, AvxTest02 ) {
    typedef Numerics::SimdInstruction<SimdUsed> SimdInstruction;
 
 
-   typedef std::tr1::array<double, SimdTraits::DoubleStride> DoubleArray;
+   typedef array<double, SimdTraits::DoubleStride> DoubleArray;
 
    double value1 = 2.5;
    double value2 = 3.25;
