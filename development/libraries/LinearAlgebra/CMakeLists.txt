@@ -36,3 +36,17 @@ install(TARGETS LinearAlgebra
 	ARCHIVE DESTINATION lib
 )
 
+add_gtest ( NAME SimdTraits::TraitsTest
+            SOURCES test/TraitsTest.C
+            LIBRARIES LinearAlgebra
+)
+
+add_gtest ( NAME SimdTraits::InstTest01
+            SOURCES test/SimdInstTest01.C
+            LIBRARIES LinearAlgebra
+)
+
+add_gtest ( NAME SimdTraits::InstTest02
+            SOURCES test/SimdInstTest02.C
+            LIBRARIES LinearAlgebra
+)
