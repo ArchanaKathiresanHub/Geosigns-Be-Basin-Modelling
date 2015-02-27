@@ -5,6 +5,12 @@
 #include <stdlib.h>
 
 
+#ifdef _WIN32
+double drand48 () {
+   return static_cast<double>(rand ()) / static_cast<double>(RAND_MAX+1);
+}
+#endif
+
 using namespace Numerics;
 
 // Fill the matrix with random values.
@@ -13,7 +19,7 @@ void randomise ( AlignedDenseMatrix& mat );
 
 TEST ( MatrixTest, ConstructionTest ) {
 
-   static const Numerics::SimdInstructionTechnology SimdUsed = Numerics::SSE;
+   static const Numerics::SimdInstructionTechnology SimdUsed = Numerics::CurrentSimdTechnology;
 
    typedef Numerics::SimdTraits<SimdUsed> SimdTraits;
    typedef Numerics::SimdInstruction<SimdUsed> SimdInstruction;
@@ -58,7 +64,7 @@ TEST ( MatrixTest, ConstructionTest ) {
 
 TEST ( MatrixTest, CopyTest01 ) {
 
-   static const Numerics::SimdInstructionTechnology SimdUsed = Numerics::SSE;
+   static const Numerics::SimdInstructionTechnology SimdUsed = Numerics::CurrentSimdTechnology;
 
    typedef Numerics::SimdTraits<SimdUsed> SimdTraits;
    typedef Numerics::SimdInstruction<SimdUsed> SimdInstruction;
