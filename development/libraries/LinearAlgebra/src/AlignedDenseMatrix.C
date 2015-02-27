@@ -4,6 +4,25 @@
 
 #include "SimdTraits.h"
 #include "SimdInstruction.h"
+#include "MatMultDetails.h"
+
+#ifdef USE_BLAS_LIBRARY
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+extern void dgemm_(char *transa, char *transb, int *m, int *n, int *k, double *alpha, const double *a, int *lda, const double *b, int *ldb, double *beta, double *c, int *ldc);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+
+inline void dgemm(char transa, char transb, int m, int n, int k, double alpha, const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) {
+  dgemm_ ( &transa, &transb, &m, &n, &k, &alpha, a, &lda, b, &ldb, &beta, c, &ldc);
+}
+#endif
+
 
 Numerics::AlignedDenseMatrix::AlignedDenseMatrix ( const int m, const int n ) : m_rows ( m ), m_cols ( n ) {
    allocate ();
@@ -102,5 +121,55 @@ void Numerics::AlignedDenseMatrix::print ( const std::string& name,
       }
 
    } 
+
+}
+
+
+void Numerics::matmult ( const MatrixTransposeType transposeA,
+                         const MatrixTransposeType transposeB,
+                         const double              alpha,
+                         const AlignedDenseMatrix& a,
+                         const AlignedDenseMatrix& b,
+                         const double              beta,
+                               AlignedDenseMatrix& c ) {
+
+#ifdef USE_BLAS_LIBRARY
+   static const char transChar [ 2 ] = {'N', 'T'};
+
+   int m;
+   int n;
+   int k;
+
+   if ( transposeA == NO_TRANSPOSE ) {
+      m = a.rows ();
+      k = a.cols ();
+   } else {
+      m = a.cols ();
+      k = a.rows ();
+   }
+
+   if ( transposeB == NO_TRANSPOSE ) {
+      n = b.cols ();
+   } else {
+      n = b.rows ();
+   }
+
+   dgemm ( transChar [ transposeA ], transChar [ transposeB ], 
+           m, n, k, alpha,
+           a.data (), a.leadingDimension (),
+           b.data (), b.leadingDimension (),
+           beta, c.data (), c.leadingDimension ());
+
+#else
+   if ( transposeA == NO_TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+      details::matMatProd ( alpha, a, b, beta, c );
+   } else if ( transposeA == NO_TRANSPOSE and transposeB == TRANSPOSE ) {
+      details::matMatTransProd ( alpha, a, b, beta, c );
+   } else if ( transposeA == TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+      details::matTransMatProd ( alpha, a, b, beta, c );
+   } else { // if ( transposeA == TRANSPOSE and transposeB == TRANSPOSE ) {
+      details::matTransMatTransProd ( alpha, a, b, beta, c );
+   }
+#endif
 
 }

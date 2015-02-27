@@ -131,6 +131,18 @@ namespace Numerics {
 
    };
 
+   /// \brief Compute the product of two matrices.
+   ///
+   /// \f$ c = \alpha \times \mbox{op}\( a \) \times \mbox{op}\( b \) + \beta \times c \f$ 
+   void matmult ( const MatrixTransposeType transposeA,
+                  const MatrixTransposeType transposeB,
+                  const double              alpha,
+                  const AlignedDenseMatrix& a,
+                  const AlignedDenseMatrix& b,
+                  const double              beta,
+                        AlignedDenseMatrix& c );
+
+
 } // end namespace Numerics
 
 //-----------------

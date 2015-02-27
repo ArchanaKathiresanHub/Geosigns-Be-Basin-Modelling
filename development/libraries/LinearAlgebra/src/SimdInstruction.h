@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "SimdTraits.h"
+#include "AlignedMemoryAllocator.h"
 
 namespace Numerics {
 
@@ -10,14 +11,17 @@ namespace Numerics {
    template< const SimdInstructionTechnology SimdTechnology >
    struct SimdInstruction {
 
+      /// \brief Instantiation of SimdTraits with the NO_SIMD configuration.
+      typedef SimdTraits<NO_SIMD> Traits;
+
       /// \brief The packed double for NO_SIMD is a double.
-      typedef SimdTraits<NO_SIMD>::PackedDouble PackedDouble;
+      typedef Traits::PackedDouble PackedDouble;
 
       /// \brief Required alignment for PackedDouble.
-      static const int Alignment = SimdTraits<NO_SIMD>::Alignment;
+      static const int Alignment = Traits::Alignment;
 
       /// \brief The number of doubles in the PackedDouble.
-      static const int DoubleStride = SimdTraits<NO_SIMD>::DoubleStride;
+      static const int DoubleStride = Traits::DoubleStride;
 
 
       /// \brief Allocate an array of size numberOfDoubles.
@@ -65,14 +69,17 @@ namespace Numerics {
    template<>
    struct SimdInstruction<SSE> {
 
+      /// \brief Instantiation of SimdTraits with the SSE configuration.
+      typedef SimdTraits<SSE> Traits;
+
       /// \brief The simd data-type for SSE.
-      typedef SimdTraits<SSE>::PackedDouble PackedDouble;
+      typedef Traits::PackedDouble PackedDouble;
 
       /// \brief Required alignment for SSE PackedDouble.
-      static const int Alignment = SimdTraits<SSE>::Alignment;
+      static const int Alignment = Traits::Alignment;
 
       /// \brief The number of doubles in the SSE PackedDouble.
-      static const int DoubleStride = SimdTraits<SSE>::DoubleStride;
+      static const int DoubleStride = Traits::DoubleStride;
 
       /// \brief Allocate an array of size numberOfDoubles.
       ///
@@ -120,7 +127,7 @@ namespace Numerics {
       /// res[i] = a[i] * b[i], for i = 1, 2
       static PackedDouble mul ( const PackedDouble& a, const PackedDouble& b );
 
-      /// \brief Add two packed doubles together and add to another.
+      /// \brief Multiply two packed doubles together and add to another.
       ///
       /// res[i] = a[i] * b[i] + c[i], for i = 1, 2
       static PackedDouble mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c );
@@ -135,14 +142,17 @@ namespace Numerics {
    template<>
    struct SimdInstruction<AVX> {
 
+      /// \brief Instantiation of SimdTraits with the AVX configuration.
+      typedef SimdTraits<AVX> Traits;
+
       /// \brief The simd data-type for AVX.
-      typedef SimdTraits<AVX>::PackedDouble PackedDouble;
+      typedef Traits::PackedDouble PackedDouble;
 
       /// \brief Required alignment for AVX PackedDouble.
-      static const int Alignment = SimdTraits<AVX>::Alignment;
+      static const int Alignment = Traits::Alignment;
 
       /// \brief The number of doubles in the AVX PackedDouble.
-      static const int DoubleStride = SimdTraits<AVX>::DoubleStride;
+      static const int DoubleStride = Traits::DoubleStride;
 
       /// \brief Allocate an array of size numberOfDoubles.
       ///
@@ -192,7 +202,7 @@ namespace Numerics {
       /// res(i)=a(i)*b(i), where i = 0, 1, 2, 3
       static PackedDouble mul ( const PackedDouble& a, const PackedDouble& b );
 
-      /// \brief Add two packed doubles together and add to another.
+      /// \brief Multiply two packed doubles together and add to another.
       ///
       /// res(i)=a(i)*b(i)+c(i), where i = 0, 1, 2, 3
       static PackedDouble mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c );
@@ -213,13 +223,12 @@ namespace Numerics {
 
 template< const Numerics::SimdInstructionTechnology SimdTechnology >
 inline double* Numerics::SimdInstruction<SimdTechnology>::allocate ( const int numberOfDoubles ) {
-   return new double [ numberOfDoubles ];
+   return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
 }
 
 template< const Numerics::SimdInstructionTechnology SimdTechnology >
 inline void Numerics::SimdInstruction<SimdTechnology>::free ( double*& buf ) {
-   delete [] buf;
-   buf = 0;
+   AlignedMemoryAllocator<double, Alignment>::free ( buf );
 }
 
 template< const Numerics::SimdInstructionTechnology SimdTechnology >
@@ -262,25 +271,11 @@ Numerics::SimdInstruction<SimdTechnology>::mulAdd ( const PackedDouble& a, const
 
 #ifdef __SSE__
 inline double* Numerics::SimdInstruction<Numerics::SSE>::allocate ( const int numberOfDoubles ) {
-
-   void* buf;
-   int error = posix_memalign ( &buf, Alignment, sizeof ( double ) * numberOfDoubles );
-
-   if ( error == 0 ) {
-      return (double*)(buf);
-   } else {
-      return 0;
-   }
-
+   return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
 }
 
 inline void Numerics::SimdInstruction<Numerics::SSE>::free ( double*& buf ) {
-
-   if ( buf != 0 ) {
-      ::free ( buf );
-      buf = 0;
-   }
-
+   AlignedMemoryAllocator<double, Alignment>::free ( buf );
 }
 
 inline Numerics::SimdInstruction<Numerics::SSE>::PackedDouble
@@ -318,25 +313,11 @@ Numerics::SimdInstruction<Numerics::SSE>::mulAdd ( const PackedDouble& a, const 
 
 #ifdef __AVX__
 inline double* Numerics::SimdInstruction<Numerics::AVX>::allocate ( const int numberOfDoubles ) {
-
-   void* buf;
-   int error = posix_memalign ( &buffer, Alignment, sizeof ( double ) * numberOfDoubles );
-
-   if ( error == 0 ) {
-      return (double*)(buf);
-   } else {
-      return 0;
-   }
-
+   return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
 }
 
 inline void Numerics::SimdInstruction<Numerics::AVX>::free ( double*& buf ) {
-
-   if ( buf != 0 ) {
-      ::free ( buf );
-      buf = 0;
-   }
-
+   AlignedMemoryAllocator<double, Alignment>::free ( buf );
 }
 
 inline Numerics::SimdInstruction<Numerics::AVX>::PackedDouble

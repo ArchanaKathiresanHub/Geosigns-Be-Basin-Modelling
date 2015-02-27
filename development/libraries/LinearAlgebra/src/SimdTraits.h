@@ -108,7 +108,6 @@ namespace Numerics {
 #endif
 
 
-
 } // end namespace Numerics
 
 #endif // NUMERICS__SIMD_TRAITS__H
