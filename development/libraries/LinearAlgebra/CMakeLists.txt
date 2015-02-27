@@ -50,3 +50,8 @@ add_gtest ( NAME SimdTraits::InstTest02
             SOURCES test/SimdInstTest02.C
             LIBRARIES LinearAlgebra
 )
+
+add_gtest ( NAME MatrixTests::ConstructionTest
+            SOURCES test/MatrixTest01.C
+            LIBRARIES LinearAlgebra
+)
