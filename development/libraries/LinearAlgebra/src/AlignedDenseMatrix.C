@@ -83,7 +83,7 @@ void Numerics::AlignedDenseMatrix::resize ( const AlignedDenseMatrix& mat ) {
    if ( m_values != 0 and m_rows == mat.m_rows and m_cols == mat.m_cols ) {
       // Matrix has same size already, so nothing to do.
       return;
-   } else if ( m_values != 0 and m_rows != mat.m_rows and m_cols != mat.m_cols ) {
+   } else if ( m_values != 0 ) {
       SimdInstruction<CurrentSimdTechnology>::free ( m_values );
    }
 
@@ -96,12 +96,11 @@ void Numerics::AlignedDenseMatrix::fill ( const double withTheValue ) {
 
    int i;
    int j;
-   int count;
 
-   for ( j = 0, count = 0; j < m_rows; ++j, count += m_leadingDimension - m_rows ) {
+   for ( j = 0; j < cols (); ++j ) {
 
-      for ( i = 0; i < m_cols; ++i, ++count ) {
-         m_values [ count ] = withTheValue;
+      for ( i = 0; i < rows (); ++i ) {
+         operator ()( i, j ) = withTheValue;
       }
 
    }

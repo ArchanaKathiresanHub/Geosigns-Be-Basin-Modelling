@@ -43,11 +43,19 @@ void Numerics::details::matMatProd ( const double              alpha,
             cd128 [ i ] = zero;
          }
 
+         if ( amod > 0 ) {
+            cd128 [ asize ] = zero;
+         }
+
       } else {
 
 #pragma ivdep
          for ( i = 0; i < cColStride; i += 1 ) {
             cd128 [ i ] = SimdInstr::mul ( cd128 [ i ], beta128 );
+         }
+
+         if ( amod > 0 ) {
+            cd128 [ asize ] = SimdInstr::mul ( cd128 [ i ], beta128 );
          }
 
       }
@@ -59,13 +67,6 @@ void Numerics::details::matMatProd ( const double              alpha,
          for ( i = 0; i < asize; ++i ) {
             cd128 [ i ] = SimdInstr::mulAdd ( ad128 [ i ], bVal128, cd128 [ i ]);
          }
-
-         // for ( i = 0; i < asize; i += 4 ) {
-         //    cd128 [ i ] = SimdInstr::add ( cd128 [ i ], SimdInstr::mul ( ad128 [ i ], bVal128 ));
-         //    cd128 [ i + 1 ] = SimdInstr::add ( cd128 [ i + 1 ], SimdInstr::mul ( ad128 [ i + 1 ], bVal128 ));
-         //    cd128 [ i + 2 ] = SimdInstr::add ( cd128 [ i + 2 ], SimdInstr::mul ( ad128 [ i + 2 ], bVal128 ));
-         //    cd128 [ i + 3 ] = SimdInstr::add ( cd128 [ i + 3 ], SimdInstr::mul ( ad128 [ i + 3 ], bVal128 ));
-         // }
 
          if ( amod > 0 ) {
             cd128 [ asize ] = SimdInstr::add ( cd128 [ asize ], SimdInstr::mul ( ad128 [ asize ], bVal128 ));
@@ -181,13 +182,6 @@ void Numerics::details::matMatTransProd ( const double              alpha,
          for ( i = 0; i < asize; ++i ) {
             cd128 [ i ] = SimdInstr::mulAdd ( ad128 [ i ], bVal128, cd128 [ i ]);
          }
-
-         // for ( i = 0; i < asize; i += 4 ) {
-         //    cd128 [ i ] = SimdInstr::add ( cd128 [ i ], SimdInstr::mul ( ad128 [ i ], bVal128 ));
-         //    cd128 [ i + 1 ] = SimdInstr::add ( cd128 [ i + 1 ], SimdInstr::mul ( ad128 [ i + 1 ], bVal128 ));
-         //    cd128 [ i + 2 ] = SimdInstr::add ( cd128 [ i + 2 ], SimdInstr::mul ( ad128 [ i + 2 ], bVal128 ));
-         //    cd128 [ i + 3 ] = SimdInstr::add ( cd128 [ i + 3 ], SimdInstr::mul ( ad128 [ i + 3 ], bVal128 ));
-         // }
 
          if ( amod > 0 ) {
             cd128 [ asize ] = SimdInstr::add ( cd128 [ asize ], SimdInstr::mul ( ad128 [ asize ], bVal128 ));
