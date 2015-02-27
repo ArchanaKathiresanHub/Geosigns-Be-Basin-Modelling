@@ -1,6 +1,7 @@
 #ifndef ALIGNED_MEMORY_ALLOCATOR__H
 #define ALIGNED_MEMORY_ALLOCATOR__H
 
+#include <stdlib.h>
 #include <cstdlib>
 
 /// \brief Simple allocator that allocates memory aligned on some address boundary.
@@ -34,7 +35,6 @@ Type* AlignedMemoryAllocator<Type, Alignment>::allocate ( const unsigned int num
    } else {
       return 0;
    }
-
 
 }
 
