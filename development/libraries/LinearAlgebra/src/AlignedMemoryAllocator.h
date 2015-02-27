@@ -10,7 +10,7 @@
 template<typename Type, const unsigned int Alignment>
 struct AlignedMemoryAllocator {
 
-   /// \brief D0 allocation.
+   /// \brief Do allocation.
    ///
    /// \param [in] numberOfItems The size of the array to be allocated.
    static Type* allocate ( const unsigned int numberOfItems );
@@ -27,6 +27,10 @@ struct AlignedMemoryAllocator {
 template<typename Type, const unsigned int Alignment>
 Type* AlignedMemoryAllocator<Type, Alignment>::allocate ( const unsigned int numberOfItems ) {
 
+#ifdef _WIN32
+   // Since, at the moment, we do not run on 
+   return new Type [ numberOfItems ];
+#else
    void* buf;
    int error = posix_memalign ( &buf, Alignment, sizeof ( Type ) * numberOfItems );
 
@@ -35,17 +39,22 @@ Type* AlignedMemoryAllocator<Type, Alignment>::allocate ( const unsigned int num
    } else {
       return 0;
    }
+#endif
 
 }
 
 template<typename Type, const unsigned int Alignment>
 void AlignedMemoryAllocator<Type, Alignment>::free ( Type*& buf ) {
 
+#ifdef _WIN32
+   delete [] buf;
+   buf = 0;
+#else
    if ( buf != 0 ) {
       std::free ( buf );
       buf = 0;
    }
-
+#endif
 }
 
 
