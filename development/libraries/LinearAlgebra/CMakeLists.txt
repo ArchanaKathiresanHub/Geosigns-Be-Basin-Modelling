@@ -61,7 +61,12 @@ add_gtest ( NAME MatrixTests::MultTest
             LIBRARIES LinearAlgebra
 )
 
-add_gtest ( NAME MatrixTests::GenMultTest
+add_gtest ( NAME MatrixTests::SimpleMultTest
             SOURCES test/MatrixMultTest03.C
+            LIBRARIES LinearAlgebra
+)
+
+add_gtest ( NAME MatrixTests::GeneralMultTest
+            SOURCES test/MatrixMultTest04.C
             LIBRARIES LinearAlgebra
 )

@@ -3,6 +3,7 @@
 #include "../src/AlignedDenseMatrix.h"
 #include <gtest/gtest.h>
 #include <stdlib.h>
+#include <math.h>
 #include <iostream>
 
 #ifdef _WIN32
@@ -56,6 +57,9 @@ TEST ( GeneralMatrixMultiply, NoTransNoTrans ) {
    AlignedDenseMatrix mat2 ( n2, n1 );
    AlignedDenseMatrix mat3 ( n1, n1 );
    AlignedDenseMatrix res  ( n1, n1 );
+   double alpha1 = M_SQRT2;
+   double alpha2 = M_E;
+   double beta  = M_PI;
 
    int i;
    int j;
@@ -65,14 +69,27 @@ TEST ( GeneralMatrixMultiply, NoTransNoTrans ) {
    randomise ( mat3 );
    randomise ( res );
 
-   Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
-   blasMatMult       ( Numerics::NO_TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, res );
+   Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::NO_TRANSPOSE, alpha1, mat1, mat2, 0.0, mat3 );
+   blasMatMult       ( Numerics::NO_TRANSPOSE, Numerics::NO_TRANSPOSE, alpha1, mat1, mat2, 0.0, res );
 
    // Compare the result of the product with the expected value.
    for ( i = 0; i < n1; ++i ) {
 
       for ( j = 0; j < n1; ++j ) {
          EXPECT_NEAR ( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
+      }
+
+   }
+
+   // Now add the product to mat3 again.
+   Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::NO_TRANSPOSE, alpha2, mat1, mat2, beta, mat3 );
+   blasMatMult       ( Numerics::NO_TRANSPOSE, Numerics::NO_TRANSPOSE, alpha2, mat1, mat2, beta, res );
+
+   // Compare the result of the product with the expected value.
+   for ( i = 0; i < n1; ++i ) {
+
+      for ( j = 0; j < n1; ++j ) {
+         EXPECT_NEAR( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
       }
 
    }
@@ -98,6 +115,9 @@ TEST ( GeneralMatrixMultiply, NoTransTrans ) {
    AlignedDenseMatrix mat2 ( n1, n2 );
    AlignedDenseMatrix mat3 ( n1, n1 );
    AlignedDenseMatrix res  ( n1, n1 );
+   double alpha1 = M_SQRT2;
+   double alpha2 = M_E;
+   double beta  = M_PI;
 
    int i;
    int j;
@@ -107,14 +127,27 @@ TEST ( GeneralMatrixMultiply, NoTransTrans ) {
    // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
    randomise ( mat3 );
 
-   Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
-   blasMatMult       ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, res );
+   Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, alpha1, mat1, mat2, 0.0, mat3 );
+   blasMatMult       ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, alpha1, mat1, mat2, 0.0, res );
 
    // Compare the result of the product with the expected value.
    for ( i = 0; i < n1; ++i ) {
 
       for ( j = 0; j < n1; ++j ) {
          EXPECT_NEAR ( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
+      }
+
+   }
+
+   // Now add the product to mat3 again.
+   Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, alpha2, mat1, mat2, beta, mat3 );
+   blasMatMult       ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, alpha2, mat1, mat2, beta, res );
+
+   // Compare the result of the product with the expected value.
+   for ( i = 0; i < n1; ++i ) {
+
+      for ( j = 0; j < n1; ++j ) {
+         EXPECT_NEAR( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
       }
 
    }
@@ -140,6 +173,9 @@ TEST ( GeneralMatrixMultiply, TransNoTrans ) {
    AlignedDenseMatrix mat2 ( n2, n1 );
    AlignedDenseMatrix mat3 ( n1, n1 );
    AlignedDenseMatrix res  ( n1, n1 );
+   double alpha1 = M_SQRT2;
+   double alpha2 = M_E;
+   double beta  = M_PI;
 
    int i;
    int j;
@@ -149,14 +185,27 @@ TEST ( GeneralMatrixMultiply, TransNoTrans ) {
    // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
    randomise ( mat3 );
 
-   Numerics::matmult ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
-   blasMatMult       ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, res );
+   Numerics::matmult ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, alpha1, mat1, mat2, 0.0, mat3 );
+   blasMatMult       ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, alpha1, mat1, mat2, 0.0, res );
 
    // Compare the result of the product with the expected value.
    for ( i = 0; i < n1; ++i ) {
 
       for ( j = 0; j < n1; ++j ) {
          EXPECT_NEAR ( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
+      }
+
+   }
+
+   // Now add the product to mat3 again.
+   Numerics::matmult ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, alpha2, mat1, mat2, beta, mat3 );
+   blasMatMult       ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, alpha2, mat1, mat2, beta, res );
+
+   // Compare the result of the product with the expected value.
+   for ( i = 0; i < n1; ++i ) {
+
+      for ( j = 0; j < n1; ++j ) {
+         EXPECT_NEAR( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
       }
 
    }
@@ -181,6 +230,9 @@ TEST ( GeneralMatrixMultiply, TransTrans ) {
    AlignedDenseMatrix mat2 ( n1, n2 );
    AlignedDenseMatrix mat3 ( n1, n1 );
    AlignedDenseMatrix res  ( n1, n1 );
+   double alpha1 = M_SQRT2;
+   double alpha2 = M_E;
+   double beta  = M_PI;
 
    int i;
    int j;
@@ -190,14 +242,27 @@ TEST ( GeneralMatrixMultiply, TransTrans ) {
    // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
    randomise ( mat3 );
 
-   Numerics::matmult ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
-   blasMatMult       ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, res );
+   Numerics::matmult ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, alpha1, mat1, mat2, 0.0, mat3 );
+   blasMatMult       ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, alpha1, mat1, mat2, 0.0, res );
 
    // Compare the result of the product with the expected value.
    for ( i = 0; i < n1; ++i ) {
 
       for ( j = 0; j < n1; ++j ) {
          EXPECT_NEAR ( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
+      }
+
+   }
+
+   // Now add the product to mat3 again.
+   Numerics::matmult ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, alpha2, mat1, mat2, beta, mat3 );
+   blasMatMult       ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, alpha2, mat1, mat2, beta, res );
+
+   // Compare the result of the product with the expected value.
+   for ( i = 0; i < n1; ++i ) {
+
+      for ( j = 0; j < n1; ++j ) {
+         EXPECT_NEAR( res ( i, j ), mat3 ( i, j ), res ( i, j ) * 1.0e-12 );
       }
 
    }
