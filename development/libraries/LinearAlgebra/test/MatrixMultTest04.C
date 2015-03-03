@@ -10,6 +10,11 @@
 double drand48 () {
    return static_cast<double>(rand ()) / static_cast<double>(RAND_MAX+1);
 }
+
+static const double M_SQRT2 = 1.41421356237309504880;
+static const double M_E     = 2.7182818284590452354;
+static const double M_PI    = 3.14159265358979323846;
+
 #endif
 
 #ifdef __cplusplus
