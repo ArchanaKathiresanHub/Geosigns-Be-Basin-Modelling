@@ -102,10 +102,10 @@ TEST ( GeneralMatrixMultiply, NoTransTrans ) {
    int i;
    int j;
 
-   mat1.fill ( value );
-   mat2.fill ( value );
-   // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
+   randomise ( mat1 );
+   randomise ( mat2 );
    randomise ( mat3 );
+   randomise ( res );
 
    Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
    blasMatMult       ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, res );
@@ -144,10 +144,10 @@ TEST ( GeneralMatrixMultiply, TransNoTrans ) {
    int i;
    int j;
 
-   mat1.fill ( value );
-   mat2.fill ( value );
-   // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
+   randomise ( mat1 );
+   randomise ( mat2 );
    randomise ( mat3 );
+   randomise ( res );
 
    Numerics::matmult ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
    blasMatMult       ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, res );
@@ -185,10 +185,10 @@ TEST ( GeneralMatrixMultiply, TransTrans ) {
    int i;
    int j;
 
-   mat1.fill ( value );
-   mat2.fill ( value );
-   // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
+   randomise ( mat1 );
+   randomise ( mat2 );
    randomise ( mat3 );
+   randomise ( res );
 
    Numerics::matmult ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
    blasMatMult       ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, res );

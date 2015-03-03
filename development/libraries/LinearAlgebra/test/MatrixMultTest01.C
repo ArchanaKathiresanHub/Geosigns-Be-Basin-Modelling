@@ -24,6 +24,9 @@ TEST ( MatrixTest, MultTest01 ) {
    // IMPORTANT: For this test to complete this number should be a double precision
    // model number and have not too many significant figures.
    double value = 2.5;
+
+   // Matrix product is: c_ij = \sum_k a_ik b_kj
+   // So 
    double expectedValue = value * value * static_cast<double>(n2);
 
    AlignedDenseMatrix mat1 ( n1, n2 );
@@ -35,6 +38,8 @@ TEST ( MatrixTest, MultTest01 ) {
 
    mat1.fill ( value );
    mat2.fill ( value );
+   // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
+   randomise ( mat3 );
 
    Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
 
@@ -81,6 +86,8 @@ TEST ( MatrixTest, MultTest02 ) {
 
    mat1.fill ( value );
    mat2.fill ( value );
+   // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
+   randomise ( mat3 );
 
    Numerics::matmult ( Numerics::NO_TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
 
@@ -127,6 +134,8 @@ TEST ( MatrixTest, MultTest03 ) {
 
    mat1.fill ( value );
    mat2.fill ( value );
+   // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
+   randomise ( mat3 );
 
    Numerics::matmult ( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
 
@@ -172,6 +181,8 @@ TEST ( MatrixTest, MultTest04 ) {
 
    mat1.fill ( value );
    mat2.fill ( value );
+   // Fill mat3 with random values in order to test that the assignment in matmult works (beta = 0).
+   randomise ( mat3 );
 
    Numerics::matmult ( Numerics::TRANSPOSE, Numerics::TRANSPOSE, 1.0, mat1, mat2, 0.0, mat3 );
 
