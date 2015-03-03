@@ -2,6 +2,8 @@
 //
 #define MAX_RUNS 3
 #include <string>
+#include <limits.h>
+#include <fcntl.h>
 
 #include "MasterTouch.h"
 #include "misc.h"
@@ -30,8 +32,11 @@ using namespace Interface;
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
+
+static const char * tempBurial  = "/tmp/BurialhistXXXXXX";
+static const char * tempResults = "/tmp/ResultsXXXXXX";
+static const char * tempStatus  = "/tmp/StatusXXXXXX";
 
 string getPath( ) {
 
@@ -45,56 +50,112 @@ string getPath( ) {
 
 }
 
-void executeWrapper( const char * burHistFile, const string & filename, const char * resultFile ) {
+bool check_zombie( pid_t pid )
+{
+   char pbuf[32];
+      
+   snprintf( pbuf, sizeof( pbuf ), "/proc/%d/stat", (int)pid );
+   FILE* fpstat = fopen( pbuf, "r" );
+	
+   // if "/proc/%d/stat" is not found we can not check the status of the zombie  	
+   if ( !fpstat ) return false;
+	
+   int  rpid = 0;
+   char rcmd[32];
+   char rstatc = 0;
+	
+   fscanf( fpstat, "%d %30s %c", &rpid, rcmd, &rstatc ); 
+  	
+   fclose(fpstat);
+   //cout <<" in check_zombie "<<endl;
+   return rstatc == 'Z' ? true : false;
+}
 
-   char status[L_tmpnam];
-   tmpnam(status);
-   mkfifo(status, 0777);
+bool MasterTouch::executeWrapper( const char * burHistFile, const string & filename, const char * resultFile ) {
 
+   char status[PATH_MAX];
+	
+   strcpy( status, tempStatus );
+   
+   mkstemp( status );
+   mkfifo( status, 0777 );
+   
+   //convert GetRank( ) value to ostringstream
+   ostringstream rank;
+   rank << GetRank();
+	
    int pid = fork();
 
    if (pid == 0)
    {	
-      const char * wrapperName = "touchstoneWrapper.sh";
-
+      const char * wrapperName = "touchstoneWrapper";
+				
       errno = 0;
       execl( (getPath() + "/" +  wrapperName).c_str(), wrapperName,
-	     burHistFile , filename.c_str() , resultFile , status,  
-	     static_cast<const char *>(0)
-	     );
+             burHistFile , filename.c_str() , resultFile , status, (rank.str( )).c_str(),  
+             static_cast<const char *>(0) );
 
       if (errno != 0)
-      {
-         cerr << "\n---------------------------------------\n";
-         cerr << "MeSsAgE error: Could not run TouchstoneWrapper '" << getPath() << '/' << wrapperName;
-         cerr << "  Error code " << errno << ":  " << std::strerror(errno) << '\n'; 
-         cerr << "---------------------------------------" << std::endl;
+      { 
+         std::ostringstream oss;
+         oss << "error: Could not run TouchstoneWrapper '" << getPath() << '/' << wrapperName 
+             << "  Error code " << errno << ":  " << std::strerror(errno);
+         message( oss.str());
       }
 		
-      exit(0);
+      exit(0);		
    } 	
    else 	
    { 
-      double fractionCompleted = 0.0; 
-      FILE * statusFile = fopen(status,"r");   
+      double fractionCompleted = 0.0;    
       utilities::TimeToComplete timeToComplete( 30, 300, 0.1, 0.1 );
-      timeToComplete.start();   
+      timeToComplete.start(); 
+      int childstate; 		
+		
+      int fd    = open( status, O_RDONLY );
+      int flags = fcntl( fd, F_GETFL );
+      fcntl( fd, F_SETFL, flags | O_NONBLOCK ); 
+		
 			
-
-      while ( ! waitpid(pid, NULL, WNOHANG) ) 
-      {						
-         if ( 1 == fread( &fractionCompleted, sizeof(fractionCompleted), 1, statusFile ) )
+      while ( !waitpid( pid, &childstate, WNOHANG ) ) 
+      {	
+         bool childStartedCalculation = fractionCompleted > 0 ? true : false;
+         usleep( 500 );		
+         if ( read( fd, &fractionCompleted, sizeof( fractionCompleted ) ) == sizeof( fractionCompleted) )
          {
             string reported = timeToComplete.report( MinimumAll( fractionCompleted ) );
-            if ( !reported.empty()) 
-            {
-               ReportProgress( reported );
-            }
-         }			
+            if ( !reported.empty()) ReportProgress( reported );
+         }
+         else
+         {
+            if ( !WIFEXITED(childstate) && !childStartedCalculation && check_zombie(pid) ) 
+            { 
+               ostringstream oss;
+               oss << "warning: touchstoneWrapper is zombie " << std::strerror(errno);
+               message( oss.str() );
+               return false;
+            } 
+         }
+
       }
-      fclose(statusFile);
-      unlink(status);
+				
+      if ( close( fd ) < 0 )
+      {
+         ostringstream oss;
+         oss << "error: Could not close status file, error code " << std::strerror(errno);
+         message( oss.str() );
+      }
+	  	
+      if ( unlink( status ) < 0 )
+      {
+         ostringstream oss;
+         oss << "error: Could not unlink status file, error code " << std::strerror(errno);
+         message( oss.str() );
+      }
+			
    } 
+	
+   return true; 
 }
 
 
@@ -133,6 +194,7 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    , m_usedSnapshotsIndex()
    , m_usedSnapshotsAge()
    , m_layerCategoryResultCounter()
+   , m_verboseLevel(0)
 {
    // set format mapping
    m_formatsMapping[iSd_str]           = SD;  
@@ -187,8 +249,18 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
       m_usedSnapshotsIndex.push_back( 0 );
       m_usedSnapshotsAge.push_back( 0.0 );  
    }
-		
+   
    delete MajorSnapshots;	
+   
+   //verbosity level
+   PetscBool inputVerbose;
+   PetscInt verboseLevel;
+	
+   PetscOptionsGetInt (PETSC_NULL, "-verboselevel", &verboseLevel, &inputVerbose);
+   if (inputVerbose)
+   {
+      m_verboseLevel = verboseLevel;
+   }
 }
 
 /** The run function is responsible for carrying out the functional
@@ -219,9 +291,10 @@ bool MasterTouch::run()
       ReportProgress( progressString );
 		
       //write burial histories for all layers and facies that uses that TCF file
-      char burhistFile[L_tmpnam]; 
-      tmpnam(burhistFile);
-	   
+      char burhistFile[PATH_MAX];
+      strcpy(burhistFile,tempBurial);
+      mkstemp(burhistFile);
+   	
       {
          WriteBurial WriteBurial(burhistFile);
 	   	
@@ -256,7 +329,9 @@ bool MasterTouch::run()
          
          } else 
          {
-            cerr << "MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs"<<endl;
+            std::ostringstream oss;
+            oss << "warning: MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs";
+            message( oss.str() );
          }		
       }	
    }        
@@ -278,7 +353,9 @@ bool MasterTouch::addOutputFormat( const string & filename,
 {
    if ( filename.size() < 1 )
    {
-      cerr << endl << "Warning, a tcf file has not been chosen" << endl;
+      ostringstream oss;
+      oss << "warning: MasterTouch::addOutputFormat, a tcf file has not been chosen ";   	
+      message( oss.str() ); 
       return false;
    }
  
@@ -312,15 +389,20 @@ bool MasterTouch::addOutputFormat( const string & filename,
 		      
          if ( !majorSnapshot ) 
          { 
-            cerr << endl << "Could not create PropertyValue: " << propertyValueName  << ", could not find snapshot " << m_usedSnapshotsAge[it] << endl; 
-            return false; 
+            ostringstream oss;
+            oss << "warning: MasterTouch::addOutputFormat, Could not create PropertyValue: " << propertyValueName  << 
+               ", could not find snapshot " << m_usedSnapshotsAge[it]; 	
+            message( oss.str() );          
+            return false;  
          }
 		
          PropertyValue * propertyValue = m_projectHandle.createMapPropertyValue( propertyValueName, majorSnapshot, 0, formation, surface);
 		
          if ( !propertyValue )
          { 
-            cerr << endl << "Could not create PropertyValue named: " << propertyValueName  <<endl; 
+            ostringstream oss;
+            oss << "warning: MasterTouch::addOutputFormat, Could not create PropertyValue named: " << propertyValueName;
+            message( oss.str() ); 
             return false; 
          }
 		
@@ -338,11 +420,11 @@ bool MasterTouch::addOutputFormat( const string & filename,
    if (m_fileLayerFaciesGridMap[filename].count(layer) == 0)
    {    
       faciesGridMap faciesGridMap; 
-         faciesGridMap.GridMap = faciesGrid;
-            faciesGridMap.faciesNumber = index;
-               m_fileLayerFaciesGridMap[filename][layer] = faciesGridMap ;
+      faciesGridMap.GridMap = faciesGrid;
+      faciesGridMap.faciesNumber = index;
+      m_fileLayerFaciesGridMap[filename][layer] = faciesGridMap ;
    }
-
+   
    return true;
 }
 
@@ -419,11 +501,15 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
       int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
       int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
    
-      char resultFile[L_tmpnam];
-      tmpnam(resultFile); 
+      char resultFile[PATH_MAX];
+      strcpy(resultFile,tempResults);
+      mkstemp(resultFile);
 
       //Execute touchstoneWrapper
-      executeWrapper(burhistFile, filename, resultFile);
+      if (!executeWrapper( burhistFile, filename, resultFile))
+      {
+         throw std::runtime_error( "Error in executeWrapper" );
+      }
    
       //read touchstone categories
       TouchstoneFiles ReadTouchstone(resultFile);
@@ -463,21 +549,28 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
       }
       //catch exceptions
    } 
-   catch (const std::runtime_error & r)
+   catch ( const std::runtime_error & e )
    { 
-      cerr << "MeSsAgE warning: runtime error on MPI process " << GetRank( ) << " : "<< r.what() << endl;
+      ostringstream oss;
+      oss << "error: MasterTouch::calculate() error on MPI process " << GetRank() << " : "<< e.what();   	
+      message( oss.str() ); 
       return false;
    }
    catch ( std::exception & e ) 
    {
-      cerr << "MeSsAgE warning: exception on MPI process " << GetRank( ) << " : "<< e.what() << endl;
+      ostringstream oss;
+      oss << "error: MasterTouch::calculate() error on MPI process " << GetRank() << " : "<< e.what();   	
+      message( oss.str()); 
       return false;
    }
    catch( ... )
    {
-      cerr << "MeSsAgE warning: unknown errors on MPI process " << GetRank( ) << endl;
+      ostringstream oss;
+      oss << "error: MasterTouch::calculate() unknown  error on MPI process " << GetRank();
+      message( oss.str()); 
       return false;
-   } 
+   } 	
+   
    return true;
 }
 

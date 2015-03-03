@@ -142,7 +142,7 @@ START-properties
     Identification      : UseInResQ
     Description         : 0 if NotUsed, 1 if Used
     Unit of measurement :
-    Type                : integer
+    Type                : boolean
     Default             : 0
     Error Field         : No
 

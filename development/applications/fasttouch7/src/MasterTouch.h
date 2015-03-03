@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <tr1/array>
+#include <iostream>
 
 #include "Interface/Formation.h"
 #include "Interface/Surface.h"
@@ -82,6 +83,8 @@ namespace fasttouch
       typedef std::map < LayerInfo, std::map <std::string, int> > LayerCategoryResultCounter;
 
       enum { SD = 0, MEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION };
+      
+      void message( const std::string & msg, int level = 0 ) {  if ( level >= m_verboseLevel ) (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << msg << std::endl; }      
 
       //** Struct containing facies map and facies indexes *//
       struct faciesGridMap
@@ -110,6 +113,8 @@ namespace fasttouch
         
          std::vector<double> m_usedSnapshotsAge;
          
+         PetscInt m_verboseLevel;         
+         
          LayerCategoryResultCounter m_layerCategoryResultCounter;
          
          // Multi facies data mebers
@@ -121,6 +126,7 @@ namespace fasttouch
 
          bool retrieveGridMaps(const CategoryMapInfoList & currentOutputs);
          bool restoreGridMaps(const CategoryMapInfoList & currentOutputs);
+         bool executeWrapper( const char * burHistFile, const string & filename, const char * resultFile );
           
          /** save ts results to ts output directory */
 

@@ -4,11 +4,13 @@
 
 #include <iostream>
 #include <cmath>
+#include <cerrno>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <limits.h>
 
 using namespace Geocosm;
 
@@ -51,7 +53,20 @@ void TouchstoneWrapper::setCategoriesMapping ()
 }
 
 
-TouchstoneWrapper::TouchstoneWrapper(const char * burhistFile, char * filename, const char * results,  const char * status): m_burhistFile (burhistFile), m_filename (filename), m_results(results), m_status(status) {
+TouchstoneWrapper::TouchstoneWrapper( const char * burhistFile
+                                    ,       char * filename
+                                    , const char * results
+                                    , const char * status
+                                    , const char * rank
+                                    , int          verboseLevel
+                                    )
+                                    : m_burhistFile( burhistFile )
+                                    , m_filename( filename )
+                                    , m_results( results )
+                                    , m_status( status )
+                                    , m_rank( rank )
+                                    , m_verboseLevel( verboseLevel ) 
+{
 
    char * geocosmDir = getenv ( "GEOCOSMDIR" );
 
@@ -66,38 +81,56 @@ TouchstoneWrapper::TouchstoneWrapper(const char * burhistFile, char * filename, 
       m_tslib = Geocosm::TsLibPluginManager::CreateTsLibPlugin();
 
       // Initialize Touchstone configuration file object.
-      m_tcfInfo = Geocosm::TsLibPluginManager::CreateTcfInfo();   
-
-   }
-   catch ( GeocosmException & ex )
-   {  
-      cerr << endl << "MasterTouch::" << endl << ex << endl;
-      throw ex;
-   }
-   catch ( std::exception & ex )
-   {
-      cerr << endl << "MasterTouch::" << endl << ex.what() << endl;
-      throw ex;
-   }
-
-   // set up fixed string lists
-   setCategoriesMapping ( );
+      m_tcfInfo = Geocosm::TsLibPluginManager::CreateTcfInfo();
+      
+      // set up fixed string lists
+		setCategoriesMapping ( );
    
-   /** limit the size of core dump files **/
-   m_coreSize.rlim_cur = 0;
-   m_coreSize.rlim_max = 0;
-   setrlimit(RLIMIT_CORE, &m_coreSize);
+   	/** limit the size of core dump files **/
+   	m_coreSize.rlim_cur = 0;
+   	m_coreSize.rlim_max = 0;
+   	setrlimit(RLIMIT_CORE, &m_coreSize);   
+
+   }
+   catch ( const GeocosmException & g )
+   {  
+   	throw Exception() << "TouchstoneWrapper() GeocosmException on LoadPluginLibraries( geocosmDir ) call " << g << " on MPI process " << m_rank;
+   }
+  	catch (const std::runtime_error & r)
+   {
+   	throw Exception() << "TouchstoneWrapper() std::runtime_error on LoadPluginLibraries() call: " << r.what() <<" on MPI process "<< m_rank;
+   } 
+   catch ( const std::exception & e )
+   {
+   	throw Exception() << "TouchstoneWrapper() std::exception on LoadPluginLibraries() call: " << e.what() <<" on MPI process "<< m_rank;
+   }
+	catch (...)
+   {
+   	throw Exception() << "TouchstoneWrapper unknown exception on LoadPluginLibraries( ) call on MPI process "<< m_rank;
+   }  
+   
 }
 
 TouchstoneWrapper::~TouchstoneWrapper ( ) 
 {
    delete m_tcfInfo;
    delete m_tslib;
-   Geocosm::TsLibPluginManager::UnloadPluginLibraries( );
+   ostringstream oss;
+   
+   try
+   {
+	   Geocosm::TsLibPluginManager::UnloadPluginLibraries();
+   }
+   catch ( const GeocosmException   & g ) { oss << "~TouchstoneWrapper() GeocosmException on UnloadPluginLibraries() call:"    << g << "on MPI process " << m_rank; message( oss.str() ); }
+	catch ( const std::runtime_error & r ) { oss << "~TouchstoneWrapper() std::runtime_error on UnloadPluginLibraries() call: " << r.what() << "on MPI process " << m_rank; message( oss.str() ); } 
+   catch ( const std::exception     & e ) { oss << "~TouchstoneWrapper() std::exception on UnloadPluginLibraries() call: "     << e.what() << "on MPI process " << m_rank; message( oss.str() ); }
+	catch (...)                            { oss << "~TouchstoneWrapper ( ) unknown exception on UnloadPluginLibraries( ) call"; message( oss.str() ); }
+	
 }
 
 
-bool TouchstoneWrapper::loadTcf ( ) {
+bool TouchstoneWrapper::loadTcf ( ) 
+{
 
    //load tcf file
    m_tcfInfo->Tcf( m_filename );
@@ -208,31 +241,38 @@ bool TouchstoneWrapper::loadTcf ( ) {
    //Cat 1 Mean, Cat 1 Mode, Cat 1 stdve, Cat 5 Mean, Cat 5 Mode, Cat 5 stdev, Cat 10 Mean, Cat 10 Mode, Cat 10 stdev ...
 
    const TcfSchema::ResultHeadersType& statHeaders = m_tslibCalcContext->StatisticsResultHeaders();
-
+   
    try 
    { 
-      int randomSeed = 0; 
-      for ( int  i = 0; i != strlen(m_filename); ++i )
-         randomSeed +=m_filename[i];
+		int randomSeed = 0; 
+		for ( int  i = 0; i != strlen(m_filename); ++i )
+		randomSeed +=m_filename[i];
       if ( !m_directAnalogRun ) m_tslibCalcContext->CreateRealizations( m_nrOfRealizations, randomSeed, 1); 
-   }   
-   catch ( std::exception & e )
-   {
-      cout << "Exception in MasterTouch::calculate() on CreateRealization() call: " << e.what() << endl;
-      return false;
+   }      
+   catch ( const GeocosmException & g ) 
+   {  
+   	throw Exception() << "loadTcf() GeocosmException on CreateRealization( ) call:" << g <<" on MPI process "<< m_rank;
    }
-   catch (...)
+	catch ( const std::runtime_error & r )
    {
-      cout << "Unknown exception in MasterTouch::calculate() on CreateRealization() call." << endl;
-      return false;
+   	throw Exception() << "loadTcf() std::runtime_error on CreateRealization( ) call: "<< r.what() <<" on MPI process "<< m_rank;
+   } 
+   catch ( const std::exception & e )
+   {
+   	throw Exception() << "loadTcf() std::exception on CreateRealization( ) call: " << e.what() <<" on MPI process "<< m_rank;
    }
-
+	catch (...)
+   {
+   	throw Exception() << "loadTcf() unknown exception on CreateRealization( ) call, on MPI process "<< m_rank;
+   }
+    
    return true;
-
+   
 }
 
 void TouchstoneWrapper::calculateWrite ( ) {
-
+	try
+	{
    // initialize indexes
    int firstI			= -1;
    int lastI 			= -1;
@@ -243,8 +283,10 @@ void TouchstoneWrapper::calculateWrite ( ) {
    int step 			= 	0;
    std::vector<size_t> usedSnapshotsIndexes;
    
-   mkfifo(m_status, 0777);
-   FILE * statusFile = fopen(m_status,"w");
+	mkfifo(m_status, 0777);
+	int fd = open(m_status, O_WRONLY);
+	int flags = fcntl(fd, F_GETFL);
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK ); 
    
    ReadBurial ReadBurial(m_burhistFile);
    ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ, &numLayers);
@@ -279,7 +321,10 @@ void TouchstoneWrapper::calculateWrite ( ) {
 
                WriteTouchstone.writeNumTimeSteps(numTimeSteps);  
        
-               for( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn ) write( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
+         	   for( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn )
+         	   {
+         	   	writeTouchstoneResults( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
+         	   }
 
             } else {
 
@@ -289,12 +334,36 @@ void TouchstoneWrapper::calculateWrite ( ) {
          }   
       }
       double fractionCompleted =  (double) ++step / (double) totalNumberOfSteps ;
-      fwrite(&fractionCompleted,sizeof(fractionCompleted), 1, statusFile);
-      fflush(statusFile);
+   	
+   	if ( write( fd, &fractionCompleted, sizeof( fractionCompleted ) ) < 0 )
+   	{
+			ostringstream oss;
+   		oss << "Could not write the status file on calculateWrite(), error code " << std::strerror( errno ) <<" on MPI process "<< m_rank;
+   		message( oss.str() );
+   	}
+   }
+}
+	catch ( const GeocosmException & g )
+   {  
+   	ostringstream oss;
+   	oss << "calculateWrite() GeocosmException " << g <<" on MPI process "<< m_rank;
+   	throw Exception() << oss;
+   }
+	catch ( const std::runtime_error & r )
+   {
+   	throw Exception() << "calculateWrite() std::runtime_error " << r.what() <<" on MPI process "<< m_rank;
+   } 
+   catch ( const std::exception & e )
+   {
+   	throw Exception() << "calculateWrite() std::exception " << e.what() <<" on MPI process "<< m_rank;
+   }
+	catch (...)
+   {
+   	throw Exception() << "calculateWrite( ) unknown exception on MPI process "<< m_rank;
    }
 }
 
-void TouchstoneWrapper::write(int timestepIndex, TouchstoneFiles& WriteTouchstone) {
+void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFiles& WriteTouchstone) {
 
    GeoKernelDetailResultData detailedResults;
 
@@ -329,7 +398,7 @@ void TouchstoneWrapper::write(int timestepIndex, TouchstoneFiles& WriteTouchston
    }
    else
    {
-      cerr << "Touch stone error: Failed to get statistics results for all categories." << endl;
+      throw Exception() << "writeTouchstoneResults() Failed to get statistics results for all categories on MPI process "<< m_rank;
    }
 
    for(int ii = 0; ii < numberOfTouchstoneProperties * numberOfStatisticalOutputs; ++ii)
@@ -362,7 +431,7 @@ void TouchstoneWrapper::write(int timestepIndex, TouchstoneFiles& WriteTouchston
    }
    else
    {
-      cerr << "Touch stone error: Failed to get raw results for all categories." << endl;
+      throw Exception() << "writeTouchstoneResults() Failed to get raw results for all categories on MPI process "<< m_rank;
    }
 
    // Fill the m_tslib actual output results
@@ -371,9 +440,16 @@ void TouchstoneWrapper::write(int timestepIndex, TouchstoneFiles& WriteTouchston
       outputProperties [ 6 * numberOfStatisticalOutputs + jj ] = std::log( outputProperties [ 4 * numberOfStatisticalOutputs + jj ] );
 
    }
-
-   // Write results
-   WriteTouchstone.writeArray( outputProperties );
+   
+	// Write results
+	try
+	{
+   	WriteTouchstone.writeArray( outputProperties );
+   }
+  	catch ( const std::runtime_error & r )
+   {
+   	throw Exception() << "writeTouchstoneResults() std::runtime_error " << r.what() <<" on MPI process "<< m_rank;
+   } 
 
 }
 

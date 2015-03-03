@@ -85,15 +85,6 @@ endif()
 
 #Touchstone Wrapper
 
-configure_file(LocalBuild.cmake "aux/touchstoneWrapper.sh")
-file(COPY "${CMAKE_CURRENT_BINARY_DIR}/aux/touchstoneWrapper.sh"
-        DESTINATION "${CMAKE_CURRENT_BINARY_DIR}"
-        FILE_PERMISSIONS
-           OWNER_READ OWNER_WRITE OWNER_EXECUTE
-           GROUP_READ GROUP_WRITE GROUP_EXECUTE
-           WORLD_READ WORLD_EXECUTE
-)
-
 add_executable(touchstoneWrapper
 	src/TouchstoneWrapper.C 
 	src/TsLibLoader.C
@@ -106,15 +97,11 @@ add_executable(touchstoneWrapper
 target_link_libraries(touchstoneWrapper
 	${TSLIB_LIBRARIES}
 	${XERCES_LIBRARIES}
+	utilities
 )
 
 install(TARGETS touchstoneWrapper
 	RUNTIME DESTINATION bin
-)
-
-# Copy touchstoneWrapper.sh in the installation directory
-install(PROGRAMS touchstoneWrapper.sh
-   DESTINATION bin
 )
 
 ### Unit Tests
