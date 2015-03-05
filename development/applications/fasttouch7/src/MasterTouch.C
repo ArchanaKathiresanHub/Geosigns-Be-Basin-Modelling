@@ -74,10 +74,9 @@ bool check_zombie( pid_t pid )
 bool MasterTouch::executeWrapper( const char * burHistFile, const string & filename, const char * resultFile ) {
 
    char status[PATH_MAX];
-	
    strcpy( status, tempStatus );
-   
    mkstemp( status );
+   
    mkfifo( status, 0777 );
    
    //convert GetRank( ) value to ostringstream
@@ -154,7 +153,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       }
 			
    } 
-	
+   
    return true; 
 }
 
@@ -311,7 +310,7 @@ bool MasterTouch::run()
          LayerFaciesGridMap::iterator outIt;
          for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
          {			
-	    writeBurialHistory( filename, (outIt->first).surface, WriteBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
+	    writeBurialHistory( (outIt->first).surface, WriteBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
          }
       }
 		
@@ -319,7 +318,7 @@ bool MasterTouch::run()
       bool calculated = false;
       for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
       {
-         calculated =   calculate(filename, burhistFile);
+         calculated =  calculate(filename, burhistFile);
          if (calculated) 
          {
          		
@@ -430,7 +429,7 @@ bool MasterTouch::addOutputFormat( const string & filename,
 
 /** This function writes burial histories to file for a formation **/
 
-void MasterTouch::writeBurialHistory( const std::string & filename, const Surface * surface, WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap)
+void MasterTouch::writeBurialHistory( const Surface * surface, WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap)
 {
 
    // for each defined node on reservoir surface  

@@ -130,7 +130,7 @@ namespace fasttouch
           
          /** save ts results to ts output directory */
 
-         void writeBurialHistory(const std::string & filename, const DataAccess::Interface::Surface * surface, WriteBurial::WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap);
+         void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial::WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap);
          
          void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn);
          

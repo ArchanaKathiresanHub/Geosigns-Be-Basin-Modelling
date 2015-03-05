@@ -115,6 +115,7 @@ TouchstoneWrapper::~TouchstoneWrapper ( )
 {
    delete m_tcfInfo;
    delete m_tslib;
+   
    ostringstream oss;
    
    try
@@ -304,7 +305,7 @@ void TouchstoneWrapper::calculateWrite ( ) {
          for( int j = firstJ; j <= lastJ; ++j )
          {	
             size_t numTimeSteps = 0;
-
+            
             ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD); 
 
             if (numTimeSteps > 0) 
@@ -398,7 +399,7 @@ void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFile
    }
    else
    {
-      throw Exception() << "writeTouchstoneResults() Failed to get statistics results for all categories on MPI process "<< m_rank;
+   	if (timestepIndex > -1) throw Exception() << "writeTouchstoneResults() Failed to get statistics results for all categories on MPI process "<< m_rank;
    }
 
    for(int ii = 0; ii < numberOfTouchstoneProperties * numberOfStatisticalOutputs; ++ii)
@@ -431,14 +432,13 @@ void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFile
    }
    else
    {
-      throw Exception() << "writeTouchstoneResults() Failed to get raw results for all categories on MPI process "<< m_rank;
+      if (timestepIndex > -1) throw Exception() << "writeTouchstoneResults() Failed to get raw results for all categories on MPI process "<< m_rank;
    }
 
    // Fill the m_tslib actual output results
    for ( int jj = 0; jj <  numberOfStatisticalOutputs; ++jj )
    {
       outputProperties [ 6 * numberOfStatisticalOutputs + jj ] = std::log( outputProperties [ 4 * numberOfStatisticalOutputs + jj ] );
-
    }
    
 	// Write results
