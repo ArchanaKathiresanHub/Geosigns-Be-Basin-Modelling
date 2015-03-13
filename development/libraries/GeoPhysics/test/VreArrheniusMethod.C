@@ -117,7 +117,7 @@ double quickCalculationSweeney( double time1, double time2, double temp1, double
       }
    }
 
-   double timeStep = ( time1 - time2 ) * 3.15576e13; // convertion to seconds
+   double timeStep = ( time1 - time2 ) * 3.15576e13; // conversion to seconds
 
    const double gasConstant = 1.987; /// gas constant (also known as R)
 
@@ -178,12 +178,8 @@ double justDeltaI( double time1, double time2, double temp1, double temp2, int n
          temp1 += 0.001;
    }
 
-   time1 = time1 * 3.15576e13;
-   time2 = time2 * 3.15576e13;
+   double timeStep = ( time1 - time2 ) * 3.15576e13; // conversion to seconds
 
-   double timeStep = ( time1 - time2 );
-
-   const double numberOfSecondsInMillionYears = 3.15576e13;
    const double gasConstant = 1.987; /// gas constant (also known as R)
 
    double theFraction = 0.0;
