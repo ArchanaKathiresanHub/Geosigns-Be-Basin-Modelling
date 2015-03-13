@@ -129,10 +129,8 @@ void VreArrheniusMethod :: doTimestep( const InputGrid & previousGrid, const Inp
       /** Quantities from Appendix 1 of Sweeney & Burnham (1990) */
 
       /** temperatures (in Kelvins) at previous and current timestep */
-      double previousTemperature = previousTemperatureGrid[node] + 273.15;
-      double currentTemperature  = currentTemperatureGrid[node] + 273.15;
-      assert( previousTemperature > 0.0);
-      assert( currentTemperature > 0.0);
+      double previousTemperature = std::max( 1.0, previousTemperatureGrid[node] + 273.15);
+      double currentTemperature  = std::max( 1.0, currentTemperatureGrid[node] + 273.15);
 
       /** factors a and b used in eq. (10) */
       const double a1 = 2.334733;
@@ -176,8 +174,8 @@ void VreArrheniusMethod :: doTimestep( const InputGrid & previousGrid, const Inp
      
          /** deltaI is \f$ \delta I_{ij} \f$, see eq. (9) */
          double & deltaI = m_deltaI[reaction + node * m_numberOfReactions];
-         deltaI += delt * ( currentTemperature * edCurrent * std::exp(- etCurrent ) -
-                            previousTemperature * edPrevious * std::exp(- etPrevious ) );
+         deltaI += std::max(delt * ( currentTemperature * edCurrent * std::exp(- etCurrent ) -
+                                     previousTemperature * edPrevious * std::exp(- etPrevious ) ) , 0.0);
          fractionF += m_stoichiometricFactors[reaction] * (1.0 - std::exp( - deltaI ));
       } /// end for each reaction
  

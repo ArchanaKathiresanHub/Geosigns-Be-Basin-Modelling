@@ -1,6 +1,6 @@
 /** In this test case we check the behaviour of the VreArrheniusMethod class.
     Various methods are checked including the function convertFractionToVR( double )
-	from its derived classes SweeneyBurnham and Larter                                    */
+    from its derived classes SweeneyBurnham and Larter                                    */
 
 #include "../src/VitriniteReflectance.h"
 #include "../src/VreArrheniusMethod.h"
@@ -29,19 +29,19 @@ double VreFromDeltas( double * deltaI );
 class ConvertFractionToVR_Sweeney : public SweeneyBurnham
 {
 public:
-	double compute(double x) const { return this->convertFractionToVR(x); }
+   double compute(double x) const { return this->convertFractionToVR(x); }
 };
 
 class ConvertFractionToVR_Larter : public Larter
 {
 public:
-	double compute(double x) const { return this->convertFractionToVR(x); }
+   double compute(double x) const { return this->convertFractionToVR(x); }
 };
 
 /** The following two tests check that VRe is calculated correctly for a range of 
     input values (fConv in the source file) for which the results have been manually
-	pre-calculated. Checks are also performed to ensure that a VR value greater than
-	R_0 will always be returned, even for negative fConv                                  */
+    pre-calculated. Checks are also performed to ensure that a VR value greater than
+    R_0 will always be returned, even for negative fConv                                  */
 TEST( VreArrheniusMethod, testing_conversion_to_VR_Sweeney )
 {   
    ConvertFractionToVR_Sweeney conversionCheck;
@@ -75,31 +75,29 @@ TEST( VreArrheniusMethod, testing_conversion_to_VR_Larter )
 };
 
 
-
 /** In what follows we check the doTimestep() and getResults() methods of
     the VitriniteReflectance Class specifically for the SweeneyBurnham subclass  */
-
 
 
 /** Three auxilliary functions - quickCalculationSweeney(), justDeltaI() and VreFromDeltas() -
     are being used to calculate independently the final value of VRe and intermediate quantities */
 double quickCalculationSweeney( double time1, double time2, double temp1, double temp2 )
 {
-    double fe[] =          /** stoichiometric factors */
-   { 
-      0.03, 0.03, 0.04, 0.04, 0.05, 
-      0.05, 0.06, 0.04, 0.04, 0.07, 
-      0.06, 0.06, 0.06, 0.05, 0.05, 
-      0.04, 0.03, 0.02, 0.02, 0.01 
-   };
+   double fe[] =          /** stoichiometric factors */
+      { 
+         0.03, 0.03, 0.04, 0.04, 0.05, 
+         0.05, 0.06, 0.04, 0.04, 0.07, 
+         0.06, 0.06, 0.06, 0.05, 0.05, 
+         0.04, 0.03, 0.02, 0.02, 0.01 
+      };
  
    double en[]   =        /** activation energies */
-   { 
-      34000.0, 36000.0, 38000.0, 40000.0, 42000.0, 
-      44000.0, 46000.0, 48000.0, 50000.0, 52000.0, 
-      54000.0, 56000.0, 58000.0, 60000.0, 62000.0, 
-      64000.0, 66000.0, 68000.0, 70000.0, 72000.0 
-   }; 
+      { 
+         34000.0, 36000.0, 38000.0, 40000.0, 42000.0, 
+         44000.0, 46000.0, 48000.0, 50000.0, 52000.0, 
+         54000.0, 56000.0, 58000.0, 60000.0, 62000.0, 
+         64000.0, 66000.0, 68000.0, 70000.0, 72000.0 
+      }; 
 
    double bigA = 1.0e13;
    const double a1 = 2.334733;
@@ -107,6 +105,8 @@ double quickCalculationSweeney( double time1, double time2, double temp1, double
    const double b1 = 3.330657;
    const double b2 = 1.681534;
 
+   temp1 = std::max(1.0, temp1 + 273.15);
+   temp2 = std::max(1.0, temp2 + 273.15);
    
    if ( std::abs(temp1-temp2) < 0.001 )
    {
@@ -117,15 +117,8 @@ double quickCalculationSweeney( double time1, double time2, double temp1, double
       }
    }
 
-   temp1 += 273.15;
-   temp2 += 273.15;
+   double timeStep = ( time1 - time2 ) * 3.15576e13; // convertion to seconds
 
-   time1 = time1 * 3.15576e13;
-   time2 = time2 * 3.15576e13;
-
-   double timeStep = ( time1 - time2 );
-
-   const double numberOfSecondsInMillionYears = 3.15576e13;
    const double gasConstant = 1.987; /// gas constant (also known as R)
 
    double theFraction = 0.0;
@@ -135,15 +128,16 @@ double quickCalculationSweeney( double time1, double time2, double temp1, double
 
    for( int n = 0; n < 20; ++n )
    {
-	  eOverRT1[n] = en[n] / ( gasConstant * temp1 );
-	  eOverRT2[n] = en[n] / ( gasConstant * temp2 );
+      eOverRT1[n] = en[n] / ( gasConstant * temp1 );
+      eOverRT2[n] = en[n] / ( gasConstant * temp2 );
 
-	  deltaIij[n] = timeStep / ( temp2 - temp1 ) * ( temp2 * bigA * std::exp( - eOverRT2[n] )
-		 * ( 1.0 - ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * a1 + a2 ) / ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * b1 + b2 ) )
-		            - temp1 * bigA * std::exp( - eOverRT1[n] )
-		 * ( 1.0 - ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * a1 + a2 ) / ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * b1 + b2 ) ) );
+      deltaIij[n] = timeStep / ( temp2 - temp1 ) *
+         ( temp2 * bigA * std::exp( - eOverRT2[n] )
+           * ( 1.0 - ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * a1 + a2 ) / ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * b1 + b2 ) )
+           - temp1 * bigA * std::exp( - eOverRT1[n] ) * ( 1.0 - ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * a1 + a2 )
+                                                          / ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * b1 + b2 ) ) );
 
-	  theFraction += fe[n] * ( 1.0 - std::exp( - deltaIij[n] ) );
+      theFraction += fe[n] * ( 1.0 - std::exp( - deltaIij[n] ) );
    }
 
    return std::exp( std::log( 0.2 ) + theFraction * 3.7 );
@@ -152,20 +146,20 @@ double quickCalculationSweeney( double time1, double time2, double temp1, double
 double justDeltaI( double time1, double time2, double temp1, double temp2, int n )
 {
    double fe[] =          /** stoichiometric factors */
-   { 
-      0.03, 0.03, 0.04, 0.04, 0.05, 
-      0.05, 0.06, 0.04, 0.04, 0.07, 
-      0.06, 0.06, 0.06, 0.05, 0.05, 
-      0.04, 0.03, 0.02, 0.02, 0.01 
-   };
+      { 
+         0.03, 0.03, 0.04, 0.04, 0.05, 
+         0.05, 0.06, 0.04, 0.04, 0.07, 
+         0.06, 0.06, 0.06, 0.05, 0.05, 
+         0.04, 0.03, 0.02, 0.02, 0.01 
+      };
  
    double en[]   =        /** activation energies */
-   { 
-      34000.0, 36000.0, 38000.0, 40000.0, 42000.0, 
-      44000.0, 46000.0, 48000.0, 50000.0, 52000.0, 
-      54000.0, 56000.0, 58000.0, 60000.0, 62000.0, 
-      64000.0, 66000.0, 68000.0, 70000.0, 72000.0 
-   }; 
+      { 
+         34000.0, 36000.0, 38000.0, 40000.0, 42000.0, 
+         44000.0, 46000.0, 48000.0, 50000.0, 52000.0, 
+         54000.0, 56000.0, 58000.0, 60000.0, 62000.0, 
+         64000.0, 66000.0, 68000.0, 70000.0, 72000.0 
+      }; 
 
    double bigA = 1.0e13;
    const double a1 = 2.334733;
@@ -173,6 +167,8 @@ double justDeltaI( double time1, double time2, double temp1, double temp2, int n
    const double b1 = 3.330657;
    const double b2 = 1.681534;
 
+   temp1 = std::max(1.0, temp1 + 273.15);
+   temp2 = std::max(1.0, temp2 + 273.15);
    
    if ( std::abs(temp1-temp2) < 0.001 )
    {
@@ -181,9 +177,6 @@ double justDeltaI( double time1, double time2, double temp1, double temp2, int n
       else
          temp1 += 0.001;
    }
-
-   temp1 += 273.15;
-   temp2 += 273.15;
 
    time1 = time1 * 3.15576e13;
    time2 = time2 * 3.15576e13;
@@ -201,28 +194,29 @@ double justDeltaI( double time1, double time2, double temp1, double temp2, int n
    eOverRT1[n] = en[n] / ( gasConstant * temp1 );
    eOverRT2[n] = en[n] / ( gasConstant * temp2 );
 
-   deltaIij[n] = timeStep / ( temp2 - temp1 ) * ( temp2 * bigA * std::exp( - eOverRT2[n] )
-      * ( 1.0 - ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * a1 + a2 ) / ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * b1 + b2 ) )
-               - temp1 * bigA * std::exp( - eOverRT1[n] )
-      * ( 1.0 - ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * a1 + a2 ) / ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * b1 + b2 ) ) );
+   deltaIij[n] = timeStep / ( temp2 - temp1 ) *
+      ( temp2 * bigA * std::exp( - eOverRT2[n] ) * 
+        ( 1.0 - ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * a1 + a2 ) / ( std::pow( eOverRT2[n], 2.0 ) + eOverRT2[n] * b1 + b2 ) ) -
+        temp1 * bigA * std::exp( - eOverRT1[n] )
+        * ( 1.0 - ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * a1 + a2 ) / ( std::pow( eOverRT1[n], 2.0 ) + eOverRT1[n] * b1 + b2 ) ) );
 
    return deltaIij[n];
 }
 
 double VreFromDeltas( double * deltaI )
 {
-   double fe[] =          /** stoichiometric factors */
-   { 
-      0.03, 0.03, 0.04, 0.04, 0.05, 
-      0.05, 0.06, 0.04, 0.04, 0.07, 
-      0.06, 0.06, 0.06, 0.05, 0.05, 
-      0.04, 0.03, 0.02, 0.02, 0.01 
-   };
+   double fe[] =   /** stoichiometric factors */
+      { 
+         0.03, 0.03, 0.04, 0.04, 0.05, 
+         0.05, 0.06, 0.04, 0.04, 0.07, 
+         0.06, 0.06, 0.06, 0.05, 0.05, 
+         0.04, 0.03, 0.02, 0.02, 0.01 
+      };
 
    double theFraction = 0.0;
    for( int n = 0; n < 20; ++n )
    {
-	  theFraction += fe[n] * ( 1.0 - std::exp( - deltaI[n] ) );
+      theFraction += fe[n] * ( 1.0 - std::exp( - deltaI[n] ) );
    }
 
    return std::exp( std::log( 0.2 ) + theFraction * 3.7 );
@@ -269,26 +263,28 @@ TEST_P(  VreArrheniusMethodTest, OneTimeStep )
 }
 
 ParameterSet oneTimeStepTestCases[] = 
-{// time1  time2 temperature1 temperature2
-   { 100.0, 99.0, 150.0, 150.0 },
-   { 100.0, 98.0, 200.0, 220.0 },
-   { 100.0, 99.99, 200.0, 100.0 },
-   { 100.0, 50.0, 100.0, 100.01 },
-   { 100.0, 99.9999, -200.0, -200.0 },
-   { 100.0, 1.0, 0.0, 300.0 },
-   { 100.0, 99.99, 0.0, 2000.0 },
-   { 100.0, 1.0, 1.0e-13, 0.0 },
-   { 100.0, 99.0, 4000.0, 4000.0 }
-};
+   {// time1  time2 temperature1 temperature2
+      { 100.0, 99.0, 150.0, 150.0 },
+      { 100.0, 98.0, 200.0, 220.0 },
+      { 100.0, 99.99, 200.0, 100.0 },
+      { 100.0, 50.0, 100.0, 100.01 },
+      { 100.0, 99.9999, -200.0, -200.0 },
+      { 100.0, 1.0, 0.0, 300.0 },
+      { 100.0, 99.99, 0.0, 2000.0 },
+      { 100.0, 1.0, 1.0e-13, 0.0 },
+      { 100.0, 99.0, 4000.0, 4000.0 },
+      { 3000.0, 2999.999999, -500.0, -300.0 },
+      { 0.001000001, 0.001, 10000.0, -10000.0 },
+      { 1.0, 0.99999999999999, 1e10, 1e10 }
+   };
 
 INSTANTIATE_TEST_CASE_P( SingleTimestep,
-                        VreArrheniusMethodTest,
-                        ::testing::ValuesIn(oneTimeStepTestCases));
-
+                         VreArrheniusMethodTest,
+                         ::testing::ValuesIn(oneTimeStepTestCases));
 
 /** Following tests checks continuity of VR values across temperature
-differences that the Arrhenius algorithms use to decide how the calculation
-will proceed */
+    differences that the Arrhenius algorithms use to decide how the calculation
+    will proceed */
 TEST(  VreArrheniusMethodTest, OneTimeStepContinuity1 )
 {
    double time1 = 10;
@@ -343,37 +339,11 @@ TEST(  VreArrheniusMethodTest, OneTimeStepContinuity2 )
    EXPECT_NEAR( CurrentOutputA.printVR(), CurrentOutputB.printVR(), CurrentOutputA.printVR() * 1.0e-6);
 }
 
-
-/** First death test. Asserts death if one of the two Temperature
-    is < 0 Kelvin */
-
-#ifndef NDEBUG
-TEST( VreArrheniusMethod, DeathTest1 )
-{
-   ::testing::FLAGS_gtest_death_test_style="threadsafe";
-
-   double time1 = 100.0;
-   double time2 = 1.0;
-   double temp1 = 0.0;
-   double temp2 = -300.0;
-   int gridSize = 10;
-   
-   InputGrid PreviousInput( time1, temp1, gridSize );
-   InputGrid CurrentInput( time2, temp2, gridSize );
-
-   OutputGrid CurrentOutput( gridSize );
-
-   SweeneyBurnham methodObject7;
-   
-   ASSERT_DEATH( methodObject7.doTimestep( PreviousInput, CurrentInput ), "Assertion.*currentTemperature > 0.0" );
-}
-#endif /// NDEBUG
-
-/** Second death test
-    Asserts death if sizes if time1 < time2 ( => timestep < 0 )               */
+/** Death test
+    Asserts death if time1 < time2 ( => timestep < 0 )               */
 
 #ifndef NDEBUG
-TEST( VreArrheniusMethod, DeathTest2 )
+TEST( VreArrheniusMethod, DeathTest )
 {
    ::testing::FLAGS_gtest_death_test_style="threadsafe";
 
@@ -394,7 +364,6 @@ TEST( VreArrheniusMethod, DeathTest2 )
 }
 #endif /// NDEBUG
 
-
 /// First test of >1 timesteps
 TEST( VreArrheniusMethod, timestep_test1 )
 {
@@ -411,13 +380,13 @@ TEST( VreArrheniusMethod, timestep_test1 )
 
    for( int n = 0; n < 20; ++n )
    {
-	  tempDelta1[n] = justDeltaI( time1, time2, temp1, temp2, n );
+      tempDelta1[n] = justDeltaI( time1, time2, temp1, temp2, n );
       tempDelta2[n] = justDeltaI( time2, time3, temp2, temp3, n );
    }
 
    for( int n = 0; n < 20; ++n )
    {
-	  tempDelta1[n] += tempDelta2[n];
+      tempDelta1[n] += tempDelta2[n];
    }
    
    InputGrid PreviousInput( time1, temp1, gridSize );
@@ -454,13 +423,13 @@ TEST( VreArrheniusMethod, timestep_test2 )
 
    for( int n = 0; n < 20; ++n )
    {
-	  tempDelta1[n] = justDeltaI( time1, time2, temp1, temp2, n );
+      tempDelta1[n] = justDeltaI( time1, time2, temp1, temp2, n );
       tempDelta2[n] = justDeltaI( time2, time3, temp2, temp3, n );
    }
 
    for( int n = 0; n < 20; ++n )
    {
-	  tempDelta1[n] += tempDelta2[n];
+      tempDelta1[n] += tempDelta2[n];
    }
    
    InputGrid PreviousInput( time1, temp1, gridSize );
@@ -500,14 +469,14 @@ TEST( VreArrheniusMethod, timestep_test3 )
 
    for( int n = 0; n < 20; ++n )
    {
-	  tempDelta1[n] = justDeltaI( time1, time2, temp1, temp2, n );
+      tempDelta1[n] = justDeltaI( time1, time2, temp1, temp2, n );
       tempDelta2[n] = justDeltaI( time2, time3, temp2, temp3, n );
-	  tempDelta3[n] = justDeltaI( time3, time4, temp3, temp4, n );
+      tempDelta3[n] = justDeltaI( time3, time4, temp3, temp4, n );
    }
 
    for( int n = 0; n < 20; ++n )
    {
-	  tempDelta1[n] += ( tempDelta2[n] + tempDelta3[n] );
+      tempDelta1[n] += ( tempDelta2[n] + tempDelta3[n] );
    }
    
    InputGrid PreviousInput( time1, temp1, gridSize );
@@ -532,3 +501,62 @@ TEST( VreArrheniusMethod, timestep_test3 )
    EXPECT_NEAR( expected, AfterNextOutput.printVR(), expected * 1.0e-6);
 }
 
+
+/// Fourth test of >1 timesteps (4 timesteps, mix of parameters)
+TEST( VreArrheniusMethod, timestep_test4 )
+{
+   double time1 = 300.0;
+   double time2 = 90.0;
+   double time3 = 89.9999999;
+   double time4 = 10.0;
+   double time5 = -10.0;
+   double temp1 = -290.0;
+   double temp2 = -289.9999;
+   double temp3 = 80000.0;
+   double temp4 = -1000000.0;
+   double temp5 = 1.0;
+   int gridSize = 10;
+
+   double tempDelta1[20];
+   double tempDelta2[20];
+   double tempDelta3[20];
+   double tempDelta4[20];
+
+   for( int n = 0; n < 20; ++n )
+   {
+      tempDelta1[n] = justDeltaI( time1, time2, temp1, temp2, n );
+      tempDelta2[n] = justDeltaI( time2, time3, temp2, temp3, n );
+      tempDelta3[n] = justDeltaI( time3, time4, temp3, temp4, n );
+      tempDelta4[n] = justDeltaI( time4, time5, temp4, temp5, n );
+   }
+
+   for( int n = 0; n < 20; ++n )
+   {
+      tempDelta1[n] += ( tempDelta2[n] + tempDelta3[n] + tempDelta4[n] );
+   }
+   
+   InputGrid PreviousInput( time1, temp1, gridSize );
+   InputGrid CurrentInput( time2, temp2, gridSize );
+   InputGrid NextInput( time3, temp3, gridSize );
+   InputGrid AfterNextInput( time4, temp4, gridSize );
+   InputGrid PostAfterNextInput( time5, temp5, gridSize );
+
+   OutputGrid CurrentOutput( gridSize );
+   OutputGrid NextOutput( gridSize );
+   OutputGrid AfterNextOutput( gridSize );
+   OutputGrid PostAfterNextOutput( gridSize );
+
+   SweeneyBurnham methodObject11;
+   
+   methodObject11.doTimestep( PreviousInput, CurrentInput );
+   methodObject11.getResults( CurrentOutput );
+   methodObject11.doTimestep( CurrentInput, NextInput );
+   methodObject11.getResults( NextOutput );
+   methodObject11.doTimestep( NextInput, AfterNextInput );
+   methodObject11.getResults( AfterNextOutput );
+   methodObject11.doTimestep( AfterNextInput, PostAfterNextInput );
+   methodObject11.getResults( PostAfterNextOutput );
+
+   double expected = VreFromDeltas( tempDelta1 );
+   EXPECT_NEAR( expected, PostAfterNextOutput.printVR(), expected * 1.0e-6);
+}
