@@ -175,12 +175,19 @@ namespace GeoPhysics {
      
             /** deltaI is \f$ \delta I_{ij} \f$, see eq. (9) */
             double & deltaI = m_deltaI[reaction + node * m_numberOfReactions];
-            deltaI += std::max(delt * ( currentTemperature * edCurrent * std::exp(- etCurrent ) -
-                                        previousTemperature * edPrevious * std::exp(- etPrevious ) ) , 0.0);
-            fractionF += m_stoichiometricFactors[reaction] * (1.0 - std::exp( - deltaI ));
+
+            /** Provisional update to deltaI */
+            double update = delt * ( currentTemperature * edCurrent * std::exp(- etCurrent ) -
+                                     previousTemperature * edPrevious * std::exp(- etPrevious ) );
+
+            /** Checking that the update is a positive finite number */
+            if ( isfinite(update) && update > 0.0 )
+            {
+               deltaI += update;
+               fractionF += m_stoichiometricFactors[reaction] * (1.0 - std::exp( - deltaI ));
+            }
          } /// end for each reaction
- 
-         assert ( !isnan( fractionF ));
+
          m_fractionF[node] = fractionF;
 
       } /// end for each node
