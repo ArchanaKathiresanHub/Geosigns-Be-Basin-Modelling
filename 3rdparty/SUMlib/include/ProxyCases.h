@@ -103,6 +103,9 @@ class INTERFACE_SUMLIB ProxyCases
       /// Get the number of parameter elements
       unsigned int caseSize() const;
 
+      /// Returns the rank of the design matrix.
+      unsigned int getDesignMatrixRank() const;
+
       /// Calculate the leverage scores (i.e. diagonal of hat matrix)
       /// @returns the leverage scores
       std::vector<double> calcLeverages() const;

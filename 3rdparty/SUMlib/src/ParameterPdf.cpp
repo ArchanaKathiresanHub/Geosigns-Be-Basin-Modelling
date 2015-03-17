@@ -235,7 +235,7 @@ void ParameterPdf::removeRedundantCatWeights()
 
 void ParameterPdf::checkCovarianceMatrix( RealMatrix const& cov )
 {
-   static const double eps( 1e-12 );
+   static const double eps( 1e-6 );
 
    for ( unsigned int i = 0; i < cov.size(); ++i )
    {
@@ -654,7 +654,7 @@ vector<double> ParameterPdf::lowestNonFrozenOrdParams() const
    }
    return lowestVarOrdPars;
 }
-   
+
 vector<double> ParameterPdf::highestNonFrozenOrdParams() const
 {
    vector<double> highestVarOrdPars( sizeOrd() );

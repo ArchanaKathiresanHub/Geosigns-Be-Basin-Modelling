@@ -26,7 +26,9 @@ static unsigned int  g_version(2);
 CompoundProxy::CompoundProxy(
    KrigingData *krigingData)
 :
-   m_krigingData(krigingData)
+   m_krigingData(krigingData),
+   m_size(0),
+   m_adjustedR2(-1)
 {
    // empty
 }
@@ -220,6 +222,17 @@ void CompoundProxy::getCoefficientsMap( CubicProxy::CoefficientsMap& map ) const
    }
 }
 
+unsigned int CompoundProxy::getDesignMatrixRank() const
+{
+   assert( cubicProxy() );
+   return cubicProxy()->getDesignMatrixRank();
+}
+
+bool CompoundProxy::isRegressionIllPosed() const
+{
+   assert( cubicProxy() );
+   return cubicProxy()->isRegressionIllPosed();
+}
 
 bool CompoundProxy::load( IDeserializer* deserializer, unsigned int version )
 {

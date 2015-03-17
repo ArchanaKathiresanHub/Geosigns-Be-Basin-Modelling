@@ -1155,13 +1155,6 @@ const std::vector<std::vector<double> > McmcBase::getSortedYSample() const
          key = key + 1;
       }
    }
-
-   if ( sortedYSample.size() < m_bestMatches.size() )
-   {
-      // Precaution: Because floating point comparison may be inaccurate, we need
-      // to clear this vector so ProxyResponse will still evaluate the Proxy to fill the caseResults.
-      sortedYSample.clear();
-   }
    return sortedYSample;
 }
 

@@ -165,7 +165,8 @@ void CubicProxy::monomials( Parameter const& Par, RealVector & r )
 
 CubicProxy::CubicProxy() :
    m_size(0),
-   m_targetMean(0.0)
+   m_targetMean(0.0),
+   m_designMatrixRank(0)
 {
    // empty
 }
@@ -181,7 +182,8 @@ CubicProxy::CubicProxy(
       IndexList const&     vars
       ) :
    m_size(0),
-   m_targetMean(0.0)
+   m_targetMean(0.0),
+   m_designMatrixRank(0)
 {
    initialise( parSet, targetSet, vars );
 }
@@ -244,13 +246,14 @@ void CubicProxy::initialise(
    assert( vars.size() == coefficients.size() );
    assert( vars.size() == proxyMean.size() );
 
-   m_size         = size;
-   m_vars         = vars;
-   m_code         = code;
-   m_proxyMean    = proxyMean;
-   m_targetMean   = targetMean;
-   m_coefficients = coefficients;
+   m_size             = size;
+   m_vars             = vars;
+   m_code             = code;
+   m_proxyMean        = proxyMean;
+   m_targetMean       = targetMean;
+   m_coefficients     = coefficients;
    m_stdErrors.assign( coefficients.size() + 1, -1.0 );
+   m_designMatrixRank = 0;
 }
 
 unsigned int CubicProxy::size() const
@@ -571,6 +574,27 @@ void CubicProxy::setStdErrors( RealVector const& stdErrors )
 }
 
 
+void CubicProxy::setDesignMatrixRank( unsigned int rank )
+{
+   m_designMatrixRank = rank;
+}
+
+
+unsigned int CubicProxy::getDesignMatrixRank() const
+{
+   return m_designMatrixRank;
+}
+
+
+bool CubicProxy::isRegressionIllPosed() const
+{
+   // The number of polynomial terms is less than or equal to the number of cases, so for the maximum rank it suffices
+   // to look only at the number of terms.
+   const unsigned int maxRank = m_coefficients.size() + 1;
+   return m_designMatrixRank < maxRank;
+}
+
+
 bool CubicProxy::load( IDeserializer* deserializer, unsigned int version )
 {
    bool           ok(true);
@@ -603,6 +627,14 @@ bool CubicProxy::load( IDeserializer* deserializer, unsigned int version )
       m_stdErrors.assign( m_coefficients.size() + 1, -1.0 );
    }
    ok = ok && deserialize(deserializer,m_size);
+   if ( version >= 1 )
+   {
+      ok = ok && deserialize(deserializer,m_designMatrixRank);
+   }
+   else
+   {
+      m_designMatrixRank = 0;
+   }
 
    return ok;
 } // CubicProxy::load()
@@ -627,6 +659,7 @@ bool CubicProxy::save( ISerializer* serializer, unsigned int version ) const
    ok = ok && serialize(serializer, m_coefficients);
    ok = ok && serialize(serializer, m_stdErrors);
    ok = ok && serialize(serializer, m_size);
+   ok = ok && serialize(serializer, m_designMatrixRank);
 
    return ok;
 } // CubicProxy::save()

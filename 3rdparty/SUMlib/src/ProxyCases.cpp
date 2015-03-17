@@ -322,6 +322,29 @@ void ProxyCases::test( CubicProxy const * proxy, unsigned int nrOfUsedVars, doub
    }
 }
 
+unsigned int ProxyCases::getDesignMatrixRank() const
+{
+   unsigned int rank = 0;
+   const RealVector& s = m_builder->singularValues();
+   if ( ! s.empty() )
+   {
+      const double sTiny = s.size() * *std::max_element( s.begin(), s.end() ) * MachineEpsilon();
+      for ( RealVector::const_iterator it = s.begin(); it != s.end(); ++it )
+      {
+         if ( *it > sTiny )
+         {
+            ++rank;
+         }
+      }
+   }
+
+   // We've now calculated the rank of SUMlib's design matrix (without the intercept column, and with the column means
+   // subtracted from the other columns). We want to return the rank of the original design matrix, so we have to add 1.
+   ++rank;
+
+   return rank;
+}
+
 std::vector<double> ProxyCases::calcLeverages() const
 {
    // Calculate leverage scores = diagonal of hat matrix = diagonal of U*U'

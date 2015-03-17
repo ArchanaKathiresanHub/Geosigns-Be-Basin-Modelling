@@ -247,6 +247,9 @@ RSProxyImpl::RSProxyImpl( CasaDeserializer & dz, const char * objName )
    m_collection.reset( new SUMlib::CompoundProxyCollection() );
    ok = ok ? dz.load( *m_collection.get(), "CompProxyCollection" ) : ok;
 
+   // get coefficients again
+   if ( ok ) m_collection->getCoefficientsMapList( m_coefficients );
+
    if ( !ok ) throw Exception( DeserializationError ) << "RSProxyImpl deserialization error";
 }
 

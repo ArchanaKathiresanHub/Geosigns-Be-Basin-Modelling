@@ -193,6 +193,15 @@ class CubicProxy : public ISerializable, public ISerializationVersion
       /// @param [in] stdErrors standard errors
       void setStdErrors( RealVector const& stdErrors );
 
+      /// Sets the rank of the design matrix.
+      void setDesignMatrixRank( unsigned int rank );
+
+      /// Returns the rank of the design matrix.
+      unsigned int getDesignMatrixRank() const;
+
+      /// Returns true iff the regression is ill-posed.
+      bool isRegressionIllPosed() const;
+
       // made deliberately private so that calling load/save directly on this class is more difficult
       // the preferred way is to call save/load on the ISerializer.
    private:
@@ -228,6 +237,9 @@ class CubicProxy : public ISerializable, public ISerializationVersion
 
       /// The standard errors of the proxy coefficients
       RealVector              m_stdErrors;
+
+      /// The rank of the design matrix
+      unsigned int            m_designMatrixRank;
 };
 
 // Inlined to increase performance.

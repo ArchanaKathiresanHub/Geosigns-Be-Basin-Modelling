@@ -663,6 +663,7 @@ void ProxyCandidate::setProxy( ProxyCases const& proxycases, unsigned int nActua
    proxy = proxycases.createProxy( );
    proxycases.test( proxy, nActualVars, rmseTune, rmseTest, rmseTotal, adjustedR2 );
    leverages = proxycases.calcLeverages();
+   proxy->setDesignMatrixRank( proxycases.getDesignMatrixRank() );
    proxy->setStdErrors( proxycases.calcStdErrors() );
 }
 

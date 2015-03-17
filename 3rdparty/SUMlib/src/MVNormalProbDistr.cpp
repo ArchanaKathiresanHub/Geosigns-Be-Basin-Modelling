@@ -131,16 +131,16 @@ void MVNormalProbDistr::check(
 
          // Check C == U . W . tr(V)
          double tmp = ::fabs( res[i][j] - covmat[i][j] );
-         if ( tmp > 1e-6 )
-            throw "1. Singular value decomposition on covariance matrix failed";
+         if ( tmp > 1e-2 )
+            THROW2( CalculationError, "1. Singular value decomposition on covariance matrix failed" );
 
          // Check U == V
          tmp = 0;
          // No need to check if W[j][j] = 0
-         if (m_w[j] > 1e-9)
+         if (m_w[j] > 1e-6)
             tmp = ::fabs( m_a[i][j] - v[i][j] );
-         if ( tmp > 1e-6 )
-            throw "2. Singular value decomposition on covariance matrix failed";
+         if ( tmp > 1e-2 )
+            THROW2( CalculationError, "2. Singular value decomposition on covariance matrix failed" );
       }
    }
 
@@ -152,7 +152,7 @@ void MVNormalProbDistr::check(
       {
          res[i][j] = 0;
          for ( size_t k = 0; k < covmat.size(); ++k )
-            if (m_w[k] > 1e-9)
+            if (m_w[k] > 1e-6)
                res[i][j] += m_a[i][k] * m_a[j][k] / m_w[k];
             else
                wzero = true;
@@ -169,8 +169,8 @@ void MVNormalProbDistr::check(
                tmpij += res[i][k] * covmat[k][j];
 
                // This should be the unity matrix
-            if ( ::fabs( tmpij - ((i==j)?1:0) ) > 1e-3 )
-               throw "3. Singular value decomposition on covariance matrix failed";
+            if ( ::fabs( tmpij - ((i==j)?1:0) ) > 1e-2 )
+               THROW2( CalculationError, "3. Singular value decomposition on covariance matrix failed" );
          }
       }
    }

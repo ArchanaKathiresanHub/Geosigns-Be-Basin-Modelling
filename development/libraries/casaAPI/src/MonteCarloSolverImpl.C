@@ -69,8 +69,8 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
    m_parSpace = proxySet.getParameterSpace();
 
    std::auto_ptr< SUMlib::McmcBase > mcmcBase;
-   static const unsigned int seed( 1970-10-16 );
-   //static const unsigned int seed( 1966-12-10 );
+   //static const unsigned int seed( 1970-10-16 );
+   static const unsigned int seed( 1966-12-10 );
    static SUMlib::RandomGenerator rng( seed );
 
    // Convert observables definition CASA->SUMlib

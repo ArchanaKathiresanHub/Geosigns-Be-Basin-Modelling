@@ -18,6 +18,9 @@
 // Table IO lib
 #include "database.h"
 
+// Genex6_kernel lib
+#include "SourceRock.h"
+
 // STL
 #include <stdexcept>
 #include <string>
@@ -347,6 +350,18 @@ double StratigraphyManagerImpl::sourceRockMixHI( LayerID lid )
    return mixHI;
 }
 
+// Get H/C index for source rocks mix for the given layer
+double StratigraphyManagerImpl::sourceRockMixHC( LayerID lid )
+{
+   double mixHC = 0;
+   double hi = sourceRockMixHI( lid );
+   if ( ErrorHandler::NoError == errorCode() )
+   {
+      return Genex6::SourceRock::convertHItoHC( hi );
+   }
+   return mixHC;
+}
+ 
 // Set source rock types name for the given layer and enable layer to be layer with source rock 
 ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockTypeName( LayerID lid
                                                                        , const std::vector<std::string> & srTypeNames
@@ -435,4 +450,13 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHI( LayerID li
    return NoError;
 }
 
+// Set HI value for source rock mix for the given layer
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockMixHC( LayerID lid, double srmHC )
+{
+   double hi = Genex6::SourceRock::convertHCtoHI( srmHC );
+   return setSourceRockMixHI( lid, srmHC );
 }
+
+
+}
+

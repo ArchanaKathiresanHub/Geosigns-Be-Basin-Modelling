@@ -145,6 +145,12 @@ class INTERFACE_SUMLIB CompoundProxy : public Proxy, public ISerializationVersio
       /// Returns the adjusted R^2 of the CubicProxy
       double adjustedR2() const { return m_adjustedR2; }
 
+      /// Returns the rank of the design matrix.
+      unsigned int getDesignMatrixRank() const;
+
+      /// Returns true iff the regression is ill-posed.
+      bool isRegressionIllPosed() const;
+
       /// Returns the leverage scores (i.e. diagonal of hat matrix)
       std::vector<double> const& leverages() const { return m_leverages; }
 

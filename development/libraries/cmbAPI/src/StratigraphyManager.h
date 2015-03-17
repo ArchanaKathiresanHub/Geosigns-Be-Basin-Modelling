@@ -101,6 +101,13 @@ namespace mbapi {
       /// HI value for the mix or 0 otherwise.
       virtual double sourceRockMixHI( LayerID lid ) = 0;
 
+      /// @brief Get H/C index for source rocks mix for the given layer
+      /// @param lid layer ID
+      /// @return if source rock mixing is enabled for the given layer, this function returns
+      /// HI value for the mix or 0 otherwise.
+      virtual double sourceRockMixHC( LayerID lid ) = 0;
+
+
       /// @brief Set source rock types name for the given layer and enable layer to be layer with source rock 
       /// @param lid layer ID
       /// @param srTypeNames array which can have one or two (in case of mixing) source rock types name. 
@@ -112,6 +119,12 @@ namespace mbapi {
       /// @param srmHI HI value for source rock mix
       /// @return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
       virtual ReturnCode setSourceRockMixHI( LayerID lid, double srmHI ) = 0;
+
+      /// @brief Set H/C value for source rock mix for the given layer
+      /// @param lid layer ID
+      /// @param srmHI H/C value for source rock mix
+      /// @return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
+      virtual ReturnCode setSourceRockMixHC( LayerID lid, double srmHC ) = 0;
 
       /// @}
 

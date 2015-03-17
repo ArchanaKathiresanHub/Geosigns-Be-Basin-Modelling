@@ -15,6 +15,7 @@
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
+#include "VarPrmSourceRockHC.h"
 #include "VarPrmSourceRockHI.h"
 #include "VarPrmPorosityModel.h"
 
@@ -97,6 +98,7 @@ namespace casa
       if (      ot == "VarPrmOneCrustThinningEvent"  ) { return new VarPrmOneCrustThinningEvent(  dz, vr ); }
       else if ( ot == "VarPrmTopCrustHeatProduction" ) { return new VarPrmTopCrustHeatProduction( dz, vr ); }
       else if ( ot == "VarPrmSourceRockTOC"          ) { return new VarPrmSourceRockTOC(          dz, vr ); }
+      else if ( ot == "VarPrmSourceRockHC"           ) { return new VarPrmSourceRockHC(           dz, vr ); }
       else if ( ot == "VarPrmSourceRockHI"           ) { return new VarPrmSourceRockHI(           dz, vr ); }
       else if ( ot == "VarPrmPorosityModel"          ) { return new VarPrmPorosityModel(          dz, vr ); }
       else
@@ -141,6 +143,5 @@ namespace casa
             << "VarPrmContinuous deserialization unknown error";
       }
    }
-
 }
 

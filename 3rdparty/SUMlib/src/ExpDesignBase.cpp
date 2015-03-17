@@ -252,10 +252,16 @@ void ExpDesignBase::createOrdDesign( ParameterBounds const& bounds, Case const& 
          if ( m_design[icase][i] < 0 )
          {
             conDes[icase][i] = center.ordinalPar( i ) + m_design[icase][i] * dpNeg[i];
+
+            // Make sure the parameter >= min. It can only be < min due to a round-off error.
+            conDes[icase][i] = std::max( conDes[icase][i], bounds.low().ordinalPar( i ) );
          }
          else
          {
             conDes[icase][i] = center.ordinalPar( i ) + m_design[icase][i] * dpPos[i];
+
+            // Make sure the parameter <= max. It can only be > max due to a round-off error.
+            conDes[icase][i] = std::min( conDes[icase][i], bounds.high().ordinalPar( i ) );
          }
       }
       // Loop over the discrete parameters.

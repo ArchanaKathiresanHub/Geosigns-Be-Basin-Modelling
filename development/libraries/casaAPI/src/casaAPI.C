@@ -17,12 +17,14 @@
 
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmSourceRockTOC.h"
+#include "PrmSourceRockHC.h"
 #include "PrmSourceRockHI.h"
 #include "PrmOneCrustThinningEvent.h"
 #include "PrmPorosityModel.h"
 
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
+#include "VarPrmSourceRockHC.h"
 #include "VarPrmSourceRockHI.h"
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmPorosityModel.h"
@@ -62,22 +64,27 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis & sa
       mbapi::Model & mdl = sa.baseCase();
       
       casa::PrmTopCrustHeatProduction prm( mdl );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) return mdl.errorCode();
+      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
       assert( baseValue.size() == 1 );
 
       if ( baseValue[0] < minVal || baseValue[0] > maxVal )
       {
-         return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of parameter in base case is outside of the given range" );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      return varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( baseValue[0], minVal, maxVal, rangeShape ) );
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmTopCrustHeatProduction( baseValue[0], minVal, maxVal, rangeShape ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
    }
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
+
+   return ErrorHandler::NoError;
 }
 
 // Add a parameter to variate source rock lithology TOC value @f$ [%%] @f$ in given range
@@ -96,22 +103,27 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis & sa
       mbapi::Model & mdl = sa.baseCase();
 
       casa::PrmSourceRockTOC prm( mdl, layerName );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
+      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
       assert( baseValue.size() == 1 );
 
       if ( baseValue[0] < minVal || baseValue[0] > maxVal )
       {
-         return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of parameter in base case is outside of the given range" );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      return varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue[0], minVal, maxVal, rangeShape ) );
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockTOC( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
    }
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
+
+   return ErrorHandler::NoError;
 }
 
 // Add a parameter to variate source rock lithology HI value [kg/tonne] in given range
@@ -130,23 +142,107 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis & sa
       mbapi::Model & mdl = sa.baseCase();
 
       casa::PrmSourceRockHI prm( mdl, layerName );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
+      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
       assert( baseValue.size() == 1 );
 
       if ( baseValue[0] < minVal || baseValue[0] > maxVal )
       {
-         return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of parameter in base case is outside of the given range" );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
       }
 
-      return varPrmsSet.addParameter( new VarPrmSourceRockHI( layerName, baseValue[0], minVal, maxVal, rangeShape ) );
+      // check if H/C or HI variation for the same level is already in the list
+      for ( size_t i = 0; i < varPrmsSet.numberOfContPrms(); ++i )
+      {
+         const VarPrmContinuous * prm = varPrmsSet.continuousParameter( i );
+
+         const VarPrmSourceRockHC * hcPrm = dynamic_cast<const VarPrmSourceRockHC *>( prm );
+         if ( hcPrm && hcPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock H/C parameter is already defined for the layer " << layerName <<
+               ", H/C and HI variation can not be defined together";
+         }
+
+         const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
+         if ( hcPrm && hiPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock HI parameter is already defined for the layer " << layerName;
+         }
+      }
+
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHI( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
    }
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
+
+   return ErrorHandler::NoError;
 }
+
+// Add a parameter to variate source rock lithology HC value [kg/tonne C] in given range
+ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
+                                         , const char * layerName
+                                         , double minVal
+                                         , double maxVal
+                                         , VarPrmContinuous::PDF rangeShape
+                                         )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace();
+
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase();
+
+      casa::PrmSourceRockHI prm( mdl, layerName );
+      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+
+      const std::vector<double> & baseValue = prm.asDoubleArray();
+      assert( baseValue.size() == 1 );
+
+      if ( baseValue[0] < minVal || baseValue[0] > maxVal )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+      }
+
+      // check if H/C or HI variation for the same level is already in the list
+      for ( size_t i = 0; i < varPrmsSet.numberOfContPrms(); ++i )
+      {
+         const VarPrmContinuous * prm = varPrmsSet.continuousParameter( i );
+
+         const VarPrmSourceRockHC * hcPrm = dynamic_cast<const VarPrmSourceRockHC *>( prm );
+         if ( hcPrm && hcPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock H/C parameter is already defined for the layer " << layerName;
+         }
+         
+         const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
+         if ( hcPrm && hiPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock HI parameter is already defined for the layer " << layerName <<
+               ", H/C and HI variation can not be defined together";
+         }
+      }
+
+      // add variable parameter to VarSpace
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockHC( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
+   }
+   catch( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+
 
 // Add 4 parameters to variate one crust thinning event.
 ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni,    double maxThickIni,
@@ -162,7 +258,7 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
       mbapi::Model & mdl = sa.baseCase();
 
       casa::PrmOneCrustThinningEvent prm( mdl );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) return mdl.errorCode();
+      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       std::vector<double> baseValues = prm.asDoubleArray();
 
@@ -188,34 +284,39 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
 
       if ( baseValues[0] < minThickIni || baseValues[0] > maxThickIni )
       {
-         return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of initial thickness parameter in base case is outside of the given range" );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of initial thickness parameter in base case is outside of the given range";
       }
 
       if ( baseValues[1] < minT0 || baseValues[1] > maxT0 )
       {
-         return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of start time for crust thinning parameter in base case is outside of the given range" );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of start time for crust thinning parameter in base case is outside of the given range";
       }
 
       if ( baseValues[2] < minDeltaT || baseValues[2] > maxDeltaT )
       {
-         return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of duration of crust thinning parameter in base case is outside of the given range" );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of duration of crust thinning parameter in base case is outside of the given range";
       }
 
       if ( baseValues[3] < minThinningFct || baseValues[3] > maxThinningFct )
       {
-         return mdl.reportError( ErrorHandler::OutOfRangeValue, "Value of crust thinning factor parameter in base case is outside of the given range" );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of crust thinning factor parameter in base case is outside of the given range";
       }
       
-      return varPrmsSet.addParameter( new VarPrmOneCrustThinningEvent( baseValues[0], minThickIni,    maxThickIni,
-                                                                       baseValues[1], minT0,          maxT0,
-                                                                       baseValues[2], minDeltaT,      maxDeltaT,
-                                                                       baseValues[3], minThinningFct, maxThinningFct,
-                                                                       thingFctPDF ) );
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmOneCrustThinningEvent( baseValues[0], minThickIni,    maxThickIni,
+                                                                                              baseValues[1], minT0,          maxT0,
+                                                                                              baseValues[2], minDeltaT,      maxDeltaT,
+                                                                                              baseValues[3], minThinningFct, maxThinningFct,
+                                                                                              thingFctPDF ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
    }
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
+
+   return ErrorHandler::NoError;
 }
 
 // Add variation of porosity model parameters 
@@ -246,9 +347,9 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
       // calculate base value as middle of range first
 
-      double baseSurfPor   = 0.5 * ( minSurfPor + maxSurfPor );
-      double baseCompCoef  = 0.5 * ( minCompCoef  + maxCompCoef );
-      double baseMinPor    = 0.5 * ( minMinPor    + maxMinPor );
+      double baseSurfPor   = 0.5 * ( minSurfPor   + maxSurfPor   );
+      double baseCompCoef  = 0.5 * ( minCompCoef  + maxCompCoef  );
+      double baseMinPor    = 0.5 * ( minMinPor    + maxMinPor    );
       double baseCompCoef1 = 0.5 * ( minCompCoef1 + maxCompCoef1 );
 
       if ( PrmPorosityModel::SoilMechanics == mdlType )
@@ -296,19 +397,24 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
             }
          }
       }
-      return varPrmsSet.addParameter( new VarPrmPorosityModel( litName,       mdlType, 
-                                                               baseSurfPor,   minSurfPor,   maxSurfPor, 
-                                                               baseMinPor,    minMinPor,    maxMinPor,
-                                                               baseCompCoef,  minCompCoef,  maxCompCoef,
-                                                               baseCompCoef1, minCompCoef1, maxCompCoef1,
-                                                               pdfType
-                                                             ) );
-                                                                       
+      
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPorosityModel( litName,       mdlType, 
+                                                                                      baseSurfPor,   minSurfPor,   maxSurfPor, 
+                                                                                      baseMinPor,    minMinPor,    maxMinPor,
+                                                                                      baseCompCoef,  minCompCoef,  maxCompCoef,
+                                                                                      baseCompCoef1, minCompCoef1, maxCompCoef1,
+                                                                                      pdfType
+                                                                                    ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
    }
    catch( const ErrorHandler::Exception & ex )
    {
       return sa.reportError( ex.errorCode(), ex.what() );
    }
+
+   return ErrorHandler::NoError;
 }
  
 } // namespace BusinessLogicRulesSet

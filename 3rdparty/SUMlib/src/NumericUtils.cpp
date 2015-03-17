@@ -27,10 +27,7 @@ double MachineEpsilon()
 bool IsEqualTo( double d1, double d2 )
 {
    const double tolerance = 1e-14;
-   const double eps = MachineEpsilon();
-
-   // The eps is needed to handle the case d1 = d2 = 0.
-   return ( fabs( d1 - d2 ) < eps + tolerance * ( fabs( d1 ) + fabs( d2 ) ) );
+   return ( fabs( d1 - d2 ) <= tolerance * ( fabs( d1 ) + fabs( d2 ) ) );
 }
 
 int svdcmp( vector<vector<double> > &a,

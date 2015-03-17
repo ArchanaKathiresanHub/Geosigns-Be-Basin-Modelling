@@ -182,6 +182,25 @@ namespace casa
                                                         parameter value it will be taken from the base case model */
           );
 
+      /// @brief Add a parameter to variate source rock lithology H/C initial ratio value @f$ [kg/tonne C] @f$ in given range
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VarySourceRockHC(
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , double                minVal      ///< [in] the minimal range value 
+          , double                maxVal      ///< [in] the maximal range value 
+          , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
+                                                        parameter value it will be taken from the base case model */
+          );
+
+/*      /// @brief Add parameter to variate source rock type for the specified layer
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VarySourceRockType(
+            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , const char          * 
+*/ 
+
       /// @brief Add 4 variable parameters to one crust thinning event.
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryOneCrustThinningEvent(
