@@ -1,5 +1,5 @@
 ;
-; START - Project3dDataSet (TableIoSerialized) 24-Sep-2012 11:09:26 AM
+; START - (P3dmod modification) /glb/home/nlskon/tmp/Ottoland.project3d Mon Mar 16 17:42:30 2015
 ;
 ;
 ; ProjectIoTbl
@@ -471,12 +471,12 @@ SurfaceName DepoAge Depth ErrDepth DepthGrid TwoWayTtime LayerName DepoSequence 
 "Upper Cretaceous missing" 65 -9999 0 "" 0 "Upper Cretaceous" 9 300 -9999 0 "" "Std. Chalk" 100 "" "" 0 "" "" 0 "Layered" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "" "" 0 "" 1 0 0 0 0 0
 "Mid Cretaceous top" 100 628 0 "" 0 "Mid Cretaceous" 8 -9999 -9999 0 "" "Std. Chalk" 100 "" "" 0 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "" "" 0 "" 1 0 0 0 0 0
 "Upper Jurassic top" 144 792 0 "" 0 "Upper Jurassic" 7 -9999 -9999 0 "" "Std. Sandstone" 80 "" "Std. Shale" 20 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "" "" 0 "" 1 0 0 0 0 0
-"Lower Jurassic top" 187 1560 0 "" 0 "Lower Jurassic" 6 -9999 -9999 0 "" "Std. Shale" 75 "" "Std.Lime Mudstone" 25 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "Type II Mesozoic Marine Shale (Kinetics)" "" -9999 "" 1 0 0 0 0 0
+"Lower Jurassic top" 187 1560 0 "" 0 "Lower Jurassic" 6 -9999 -9999 0 "" "Std. Shale" 75 "" "Std.Lime Mudstone" 25 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 1 0 0 0 0 0 "Type II Mesozoic Marine Shale (Kinetics)" "" -9999 "" 1 0 0 0 0 0
 "Triassic top" 220 2022 0 "" 0 "Triassic" 5 -9999 -9999 0 "" "Std. Shale" 80 "" "Std. Sandstone" 20 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "" "" 0 "" 1 0 0 0 0 0
 "Permian erosion" 270 2579 0 "" 0 "Permian" 4 -9999 -9999 0 "" "Std. Sandstone" 100 "" "" 0 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "" "" 0 "" 1 0 0 0 0 0
 "Upper Carboniferous missing" 290 -9999 0 "" 0 "Upper Carboniferous" 3 400 -9999 0 "" "Std. Shale" 80 "" "Std. Sandstone" 20 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "" "" 0 "" 1 0 0 0 0 0
 "Mid Carboniferous top" 300 2579 0 "" 0 "Mid Carboiniferous" 2 -9999 -9999 0 "" "Std. Shale" 75 "" "Std. Sandstone" 25 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "" "" 0 "" 1 0 0 0 0 0
-"Westphalian top" 311 4500 0 "" 0 "Westphalian" 1 -9999 -9999 0 "" "Std. Shale" 75 "" "Std. Sandstone" 25 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 0 0 0 0 0 0 "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)" "" -9999 "" 1 0 0 0 0 0
+"Westphalian top" 311 4500 0 "" 0 "Westphalian" 1 -9999 -9999 0 "" "Std. Shale" 75 "" "Std. Sandstone" 25 "" "" 0 "Homogeneous" -9999 "Std. Marine Water" -9999 1 0 0 0 0 0 "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)" "" -9999 "" 1 0 0 0 0 0
 "Basement" 315 5200 0 "" 0 "" -9999 -9999 -9999 0 "" "" -9999 "" "" -9999 "" "" -9999 "" -9999 "" -9999 0 -9999 0 -9999 -9999 0 "" "" 0 "" 1 0 0 0 0 0
 [End]
 ;
@@ -1711,7 +1711,4 @@ SGMeanBulkDensity
 (Kg/m3)
 2300
 [End]
-;
-;
-; END - Project3dDataSet (TableIoSerialized) 24-Sep-2012 11:09:26 AM
 ;

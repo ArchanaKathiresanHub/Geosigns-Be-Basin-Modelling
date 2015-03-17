@@ -116,6 +116,7 @@
 // Interface for APIs library
 // CMB API
 #include "../../../utilities/src/formattingexception.h"
+#include "../../../cmbAPI/src/UndefinedValues.h"
 #include "../../../cmbAPI/src/ErrorHandler.h"
 #include "../../../cmbAPI/src/LithologyManager.h"
 #include "../../../cmbAPI/src/FluidManager.h"
@@ -303,6 +304,7 @@ using namespace casa;
 // CMB API
 %include "../../../utilities/src/formattingexception.h"
 %include "../../../cmbAPI/src/ErrorHandler.h"
+%include "../../../cmbAPI/src/UndefinedValues.h"
 %include "../../../cmbAPI/src/LithologyManager.h"
 %include "../../../cmbAPI/src/FluidManager.h"
 %include "../../../cmbAPI/src/SourceRockManager.h"

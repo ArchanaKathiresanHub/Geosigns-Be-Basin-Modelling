@@ -16,6 +16,7 @@
 
 #define UndefinedDoubleValue  -9999.0    ///< Undefined value for float point numbers
 #define UndefinedIntegerValue -1         ///< Undefined value for integer numbers
+#define UndefinedIDValue       65535     ///< Undefined value for size_t/ID type numbers
 #define UndefinedStringValue  "undef"    ///< Undefined value for strings
 
 #include <cmath>
@@ -41,5 +42,10 @@ inline bool IsValueUndefined( const std::string & val ) { return val == Undefine
 /// @param val integer value to check
 /// @return true if given value is exact as "undefined integer value", false otherwise
 inline bool IsValueUndefined( int                 val ) { return val == UndefinedIntegerValue; }
+
+/// @brief Check is given value is equal to "undefined size_t/ID-type value" 
+/// @param val integer value to check
+/// @return true if given value is exact as "undefined ID value", false otherwise
+inline bool IsValueUndefined( size_t              val ) { return val == UndefinedIDValue; }
 
 #endif // CMB_API

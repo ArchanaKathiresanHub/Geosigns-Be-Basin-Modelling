@@ -31,27 +31,60 @@ namespace casa
 {
 
 // Constructor
-PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName ) : m_parent( 0 )
-{ 
-   m_layerName = layerName;
-   bool isFound = false;
-
-   mbapi::SourceRockManager & mgr = mdl.sourceRockManager();
-
-   // go over all source rock lithologies and look for the first lithology with the same layer name as given
-   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( size_t i = 0; i < srIDs.size(); ++i )
+ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
+                                   , const char * layerName
+                                   ) : m_parent(0), m_layerName( layerName )
+{    
+   try
    {
-      if ( mgr.layerName( srIDs[i] ) == m_layerName )
+      mbapi::SourceRockManager   & srMgr = mdl.sourceRockManager();
+      mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
+
+      // get check is this layer has a mix of source rocks
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+      if (stMgr.errorCode() != ErrorHandler::NoError) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+
+      // check if layer set as active source rock
+      if ( !stMgr.isSourceRockActive( lid ) )
       {
-         m_toc = mgr.tocIni( srIDs[i] );
-         if ( ErrorHandler::NoError != mgr.errorCode() ) mdl.moveError( mgr );
-         isFound = true;
-         break;
+         throw ErrorHandler::Exception(ErrorHandler::ValidationError) <<
+            "TOC setting error: source rock is not active for the layer:" << m_layerName;
       }
+   
+      // in case of SR mixing report as unimplemented
+      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      {
+         throw ErrorHandler::Exception(ErrorHandler::NotImplementedAPI) <<
+            "Setting TOC parameter for the mixing of source rocks is not implemented yet";
+      }
+
+      const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+      if ( srtNames.empty() )
+      {
+         throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Layer " << m_layerName <<
+            " set as source rock layer but has no source rock lithology defined";
+      }
+
+      mbapi::SourceRockManager::SourceRockID sid = srMgr.findID(m_layerName, srtNames[0]);
+      if ( IsValueUndefined( sid ) )
+      {
+         throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Can not find source rock lithology for layer "
+            << m_layerName << " and SR type " << srtNames[0];
+      }
+
+      // check if in base project TOC is defined as a map
+      const std::string & mapName = srMgr.tocInitMapName(sid);
+      if ( !mapName.empty() )
+      {
+         throw ErrorHandler::Exception(ErrorHandler::AlreadyDefined) <<
+            "Source rock lithology for layer" << m_layerName << 
+            " has TOC already defined as a map. This is unsupported yet";
+      }
+
+      m_toc = srMgr.tocIni( sid );
    }
-   if ( !isFound ) mdl.reportError( ErrorHandler::NonexistingID, std::string( "Can't find layer with name " ) +
-                                    layerName + " in source rock lithology table" );
+   catch (const ErrorHandler::Exception & e) { mdl.reportError(e.errorCode(), e.what()); }
+
    // construct parameter name
    std::ostringstream oss;
    oss << "SourceRockTOC(" << m_layerName << ")";
@@ -59,10 +92,13 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName )
 }
 
  // Constructor
-PrmSourceRockTOC::PrmSourceRockTOC( const VarPrmSourceRockTOC * parent, double val, const char * layerName ) :
-     m_parent( parent )
-   , m_toc( val )
-   , m_layerName( layerName )
+PrmSourceRockTOC::PrmSourceRockTOC( const VarPrmSourceRockTOC * parent
+                                  , double                      val
+                                  , const char                * layerName
+                                  )
+                                  : m_parent( parent )
+                                  , m_toc( val )
+                                  , m_layerName( layerName )
 {
    // construct parameter name
    std::ostringstream oss;
@@ -77,29 +113,58 @@ PrmSourceRockTOC::~PrmSourceRockTOC() {;}
 // Update given model with the parameter value
 ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel )
 {
-   mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
-   
-   // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
-   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( size_t i = 0; i < srIDs.size(); ++i )
+   try
    {
-      if ( mgr.layerName( srIDs[i] ) == m_layerName )
+      mbapi::SourceRockManager   & srMgr = caldModel.sourceRockManager();
+      mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
+
+      // get check is this layer has a mix of source rocks
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+
+      // check if layer set as active source rock
+      if ( !stMgr.isSourceRockActive( lid ) )
       {
-         const std::string & mapName = mgr.tocInitMapName( srIDs[i] );
-         if ( !mapName.empty() )
-         {
-            std::ostringstream oss;
-            oss << "Source rock lithology with ID " << srIDs[i] << " has TOC already defined as a map";
-            return caldModel.reportError( ErrorHandler::AlreadyDefined, oss.str() );
-         }
-         else if ( ErrorHandler::NoError != mgr.errorCode() ) return caldModel.moveError( mgr );
+         throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
+            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+      }
+
+      // in case of SR mixing report as unimplemented
+      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << 
+            "Setting TOC parameter for the mixing of source rocks is not implemented yet";
+      }
+
+      const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+      if ( srtNames.empty() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
+            " set as source rock layer but has no source rock lithology defined";
+      }
+
+      mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
+      if ( IsValueUndefined( sid ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
+            << m_layerName << " and SR type " << srtNames[0];
+      }
+
+      // check if in base project TOC is defined as a map
+      const std::string & mapName = srMgr.tocInitMapName( sid );
+      if ( !mapName.empty() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Source rock lithology for layer" <<
+            m_layerName << " has TOC already defined as a map. This is unsupported yet";
+      }
+
+      if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, m_toc ) )
+      {
+         throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
       }
    }
-   
-   ErrorHandler::ReturnCode ret = mgr.setTOCIni( m_layerName, m_toc );
+   catch ( const ErrorHandler::Exception & e ) { return caldModel.reportError( e.errorCode(), e.what() ); }
 
-   if ( ErrorHandler::NoError != ret ) return caldModel.moveError( mgr );
-   
    return ErrorHandler::NoError;
 }
 

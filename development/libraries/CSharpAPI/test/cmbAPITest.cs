@@ -195,22 +195,35 @@ namespace Shell.BasinModeling.Cauldron.Test
          // load test project
          Assert.AreEqual(Model.ReturnCode.NoError, testModel.loadModelFromProjectFile(fileName));
 
-         SourceRockManager srMgr = testModel.sourceRockManager();
+         SourceRockManager   srMgr = testModel.sourceRockManager();
+         StratigraphyManager stMgr = testModel.stratigraphyManager();
+
+         double[] ltocOld = { 70.2, 10.0 };
+         double[] ltocNew = { 19.0, 70.0 };
+         string[] lNames = { "Westphalian", "Lower Jurassic" };
 
          // get current values for TOC. Test project has 2 source rock lithologies with TOC 70.2 & 10.0
-         double toc1st = srMgr.tocIni( 0 );
-         Assert.AreEqual( Model.ReturnCode.NoError, srMgr.errorCode() );
-
-         Assert.IsTrue( Math.Abs( toc1st - 70.2 ) < eps );
-         
-         toc1st = srMgr.tocIni( 1 );
-         Assert.AreEqual( Model.ReturnCode.NoError, srMgr.errorCode() );
-         Assert.IsTrue( Math.Abs( toc1st - 10.0 ) < eps );
-
-         // change TOC values to some others - 19 & 70
-         Assert.AreEqual( Model.ReturnCode.NoError, srMgr.setTOCIni( "Lower Jurassic", 19.0 ) );
-         Assert.AreEqual( Model.ReturnCode.NoError, srMgr.setTOCIni( "Westphalian", 70.0 ) );
+         for ( uint i = 0; i < ltocOld.Length; ++i )
+         {
+            // find correct source rock type
+            uint lid = stMgr.layerID( lNames[i] );
+            Assert.IsFalse( CauldronAPI.IsValueUndefined( lid ) );
       
+            StringVector layerSourceRocks = stMgr.sourceRockTypeName( lid );
+            Assert.IsTrue( layerSourceRocks.Count == 1 );
+
+            uint sid = srMgr.findID( lNames[i], layerSourceRocks[0] );
+            Assert.IsFalse( CauldronAPI.IsValueUndefined( sid ) );
+      
+            // check what was set before
+            double tocInFile = srMgr.tocIni( sid );
+            Assert.IsTrue( ErrorHandler.ReturnCode.NoError == srMgr.errorCode() );
+            Assert.IsTrue( Math.Abs( tocInFile - ltocOld[i] ) < eps ); 
+
+            // set the new value
+            Assert.IsTrue( ErrorHandler.ReturnCode.NoError == srMgr.setTOCIni( sid, ltocNew[i] ) );
+         }
+    
          // save as a new temporary project file
          Assert.AreEqual( Model.ReturnCode.NoError, testModel.saveModelToProjectFile( "Ottoland_changedTOC.project3d" ) );
 
@@ -218,16 +231,27 @@ namespace Shell.BasinModeling.Cauldron.Test
          Model modifModel = new Model();
          Assert.AreEqual( Model.ReturnCode.NoError, modifModel.loadModelFromProjectFile( "Ottoland_changedTOC.project3d" ) );
    
-         SourceRockManager srModMgr = modifModel.sourceRockManager();
+         SourceRockManager   srModMgr = modifModel.sourceRockManager();
+         StratigraphyManager stModMgr = modifModel.stratigraphyManager();
 
          // check values for the TOC
-         toc1st = srModMgr.tocIni( 0 );
-         Assert.AreEqual( Model.ReturnCode.NoError, srModMgr.errorCode() );
-         Assert.IsTrue( Math.Abs( toc1st - 70.0 ) < eps );
-   
-         toc1st = srModMgr.tocIni( 1 );
-         Assert.AreEqual(Model.ReturnCode.NoError, srModMgr.errorCode() );
-         Assert.IsTrue( Math.Abs( toc1st - 19.0 ) <  eps );
+         for ( uint i = 0; i < ltocNew.Length; ++i )
+         {
+            // find correct source rock type
+            uint lid = stModMgr.layerID( lNames[i] );
+            Assert.IsFalse( CauldronAPI.IsValueUndefined( lid ) );
+
+            StringVector layerSourceRocks = stModMgr.sourceRockTypeName( lid );
+            Assert.IsTrue( layerSourceRocks.Count == 1 );
+
+            uint sid = srModMgr.findID( lNames[i], layerSourceRocks[0] );
+            Assert.IsFalse( CauldronAPI.IsValueUndefined( sid ) );
+
+            // check if the new values are set
+            double tocInFile = srModMgr.tocIni( sid );
+            Assert.IsTrue( ErrorHandler.ReturnCode.NoError == srModMgr.errorCode() );
+            Assert.IsTrue( Math.Abs( tocInFile - ltocNew[i] ) < eps );
+         }
 
          // delete temporary project file
          File.Delete( "Ottoland_changedTOC.project3d" );

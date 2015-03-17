@@ -38,6 +38,12 @@ namespace mbapi {
       /// @return array with IDs of different source rocks defined in the model
       virtual std::vector<SourceRockID> sourceRockIDs() const = 0; 
 
+      /// @brief Search for source rock lithology record which has given layer name and source rock type name
+      /// @param lName layer name
+      /// @param srTypeName name of source rock lithology
+      /// @return ID of found source rock lithology on success or UndefinedIDValue otherwise
+      virtual SourceRockID findID( const std::string & lName, const std::string & srTypeName ) = 0;
+
       /// @brief Create new source rock lithology record
       /// @return ID of the new source rock lithology
       virtual SourceRockID createNewSourceRockLithology() = 0;
@@ -69,28 +75,41 @@ namespace mbapi {
 
       /// @brief Set total organic contents value ( must be in range 0-100 percent) for all source
       ///        rock lithologies associated with the given layer
-      /// @param layerName name of the layer
+      /// @param id source rock ID
       /// @param newTOC new TOC value
       /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ReturnCode setTOCIni( const std::string & layerName, double newTOC ) = 0;
-   
+      virtual ReturnCode setTOCIni( SourceRockID id, double newTOC ) = 0;
       /// @}
 
       /// @{
-      /// Source rock HI (hydrogen index initial ratio) API 
+      /// Source rock HI (hydrogen index initial ratio) API
       ///
-      /// @brief Get HI value ( must be in range 0-1000 kg/tonne) for the given source rock lithology
-      /// @param[in] id source rock ID
+      /// @brief Get HI value for the given source rock lithology
+      /// @param id source rock ID
       /// @return HI value for given source rock lithology ID or UndefinedDoubleValue in case of error
       virtual double hiIni( SourceRockID id ) = 0;
 
       /// @brief Set hydrogen index initial ratio value ( must be in range 0-1000 kg/tonne) for all source
       ///        rock lithologies associated with the given layer
-      /// @param layerName name of the layer
-      /// @param newHI new HI value
+      /// @param id source rock ID
+      /// @param newHI new HI value ( must be in range 0-1000 kg/tonne)
       /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ReturnCode setHIIni( const std::string & layerName, double newHI ) = 0;
+      virtual ReturnCode setHIIni( SourceRockID id, double newHI ) = 0;
+      /// @}
 
+      /// @{
+      /// Source rock H/C initial ratio API 
+
+      /// @brief Get H/C initial ratio ( kg/tonne C)
+      /// @param id source rock ID
+      /// @return H/C value for given source rock lithology ID or UndefinedDoubleValue in case of error
+      virtual double hcIni( SourceRockID id ) = 0;
+
+      /// @brief Set H/C initial ratio value ( must be in range 0-1000 kg/tonne C)
+      /// @param id source rock ID
+      /// @param newHC new H/C ratio value ( must be in range 0-1000 kg/tonne)
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setHCIni( SourceRockID id, double newHC ) = 0;
       /// @}
 
 

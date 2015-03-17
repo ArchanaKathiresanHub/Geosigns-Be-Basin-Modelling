@@ -60,10 +60,79 @@ using Interface::LithoType;
 
 namespace Genex6
 {
-   class GenexSimulator;
+class GenexSimulator;
 
-   const double SourceRock::conversionCoeffs [8] = { -2.60832073307101E-05, 0.236463623513642, -0.0319467563289369, 0.00185738251210839, 2.36948559032296E-05, -6.62225531134738E-06, 
-                                                       2.38411451425613E-07, -2.692340754443E-09 };  
+const double SourceRock::conversionCoeffs [8] = { -2.60832073307101E-05, 0.236463623513642, -0.0319467563289369, 0.00185738251210839, 2.36948559032296E-05, -6.62225531134738E-06, 
+                                                    2.38411451425613E-07, -2.692340754443E-09 };  
+
+void SourceRock::getHIBounds( double &HILower, double &HIUpper ) {
+
+   HILower = 28.47;
+   HIUpper = 773.6;
+
+   // HILower = 26.32;
+   // HIUpper = 637.44;
+
+   // HILower = 24.36;
+   // HIUpper = 428.26;
+}
+
+double SourceRock::convertHCtoHI( double aHC ) {
+
+   double HILower;
+   double HIUpper;
+   double HIValue;
+   double HCValue;
+
+   getHIBounds( HILower, HIUpper );
+
+   // Simple bisection method to compute HI from H/C
+   while ( fabs( HILower - HIUpper ) > 0.0001 ) {
+      HIValue = 0.5 * (HILower + HIUpper);
+      HCValue = convertHItoHC( HIValue );
+
+      if ( HCValue > aHC ) {
+         HIUpper = HIValue;
+      }
+      else {
+         HILower = HIValue;
+      }
+   }
+
+   return HIValue;
+}
+
+double SourceRock::convertHItoHC( double aHI ) {
+
+   if ( aHI != Interface::DefaultUndefinedMapValue ) {
+      int i;
+      double hc = conversionCoeffs[7];
+      const double sqrtHI = sqrt( aHI );
+
+      for ( i = 6; i >= 0; --i ) {
+         hc = hc * sqrtHI + conversionCoeffs[i];
+      }
+      /*
+      double x = aHI;
+      const double a = -2.60832073307101E-05;
+      const double b = 0.236463623513642;
+      const double c = -0.0319467563289369;
+      const double d = 0.00185738251210839;
+      const double e = 2.36948559032296E-05;
+      const double f = -6.62225531134738E-06;
+      const double g = 2.38411451425613E-07;
+      const double h = -2.692340754443E-09;
+
+      double hc = a + b * pow(x, 0.5) + c *pow(x, 1) + d * pow(x, 1.5) + e * pow(x, 2) +
+      f *pow(x, 2.5) + g * pow(x, 3) + h * pow(x, 3.5);
+      */
+      return floor( hc * 1000 + 0.5 ) / 1000;
+   }
+   else {
+      return  Interface::DefaultUndefinedMapValue;
+   }
+}
+
 
 
 std::map<std::string, std::string> SourceRock::s_CfgFileNameBySRType;
@@ -2559,74 +2628,6 @@ void SourceRock::initialiseNodes () {
 
 }
 
-void SourceRock::getHIBounds( double &HILower, double &HIUpper ) {
-
-   double HILowerBound = 28.47;
-   double HIUpperBound = 773.6;
-   
-   // HILowerBound = 26.32;
-   // HIUpperBound = 637.44;
-  
-   // HILowerBound = 24.36;
-   // HIUpperBound = 428.26;
- 
-   HILower = HILowerBound;
-   HIUpper = HIUpperBound;
-} 
-
-double SourceRock::convertHCtoHI ( double aHC ) {
-
-  double HILower;
-  double HIUpper;
-  double HIValue;
-  double HCValue;
-
-  getHIBounds ( HILower, HIUpper );
-
-  // Simple bisection method to compute HI from H/C
-  while ( fabs ( HILower - HIUpper ) > 0.0001 ) {
-    HIValue = 0.5 * ( HILower + HIUpper );
-    HCValue = convertHItoHC ( HIValue );
-
-    if ( HCValue > aHC ) {
-      HIUpper = HIValue;
-    } else {
-      HILower = HIValue;
-    }
-  }
-
-  return HIValue;   
-}
-
-double SourceRock::convertHItoHC ( double aHI ) {
-   
-   if( aHI != Interface::DefaultUndefinedMapValue ) {
-      int i;
-      double hc = conversionCoeffs [7];
-      const double sqrtHI = sqrt (aHI);
-      
-      for ( i = 6; i >= 0; -- i ) {
-         hc = hc * sqrtHI + conversionCoeffs [i];
-      }
-      /*
-        double x = aHI;
-        const double a = -2.60832073307101E-05;
-        const double b = 0.236463623513642;
-        const double c = -0.0319467563289369;
-        const double d = 0.00185738251210839;
-        const double e = 2.36948559032296E-05;
-        const double f = -6.62225531134738E-06;
-        const double g = 2.38411451425613E-07;
-        const double h = -2.692340754443E-09;
-        
-        double hc = a + b * pow(x, 0.5) + c *pow(x, 1) + d * pow(x, 1.5) + e * pow(x, 2) +
-        f *pow(x, 2.5) + g * pow(x, 3) + h * pow(x, 3.5);
-      */
-      return floor( hc * 1000 + 0.5) / 1000;
-   } else {
-      return  Interface::DefaultUndefinedMapValue;
-   }
-}
 #if 0
 void SourceRock::clear () {
 

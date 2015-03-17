@@ -51,6 +51,16 @@ class SnapshotInterval;
 class SourceRock : public Interface::SourceRock
 {
 public:
+   /// \brief Convert H/C value to HI 
+   static double convertHCtoHI( double aHI );
+
+   /// \brief Convert HI value to H/C 
+   static double convertHItoHC( double aHI );
+
+   /// \brief Get min/max range value for HI
+   static void getHIBounds( double &HILower, double &HIUpper );
+
+public:
    SourceRock (Interface::ProjectHandle * projectHandle, database::Record * record);
    virtual ~SourceRock (void);
 
@@ -202,13 +212,6 @@ protected:
 
    const Simulator& getSimulator () const;
 
-   // \brief Convert HC value to HI 
-   double convertHCtoHI ( double aHI );
-
-   // \brief Convert HI value to HC 
-   double convertHItoHC ( double aHI );
-    
-   void getHIBounds( double &HILower, double &HIUpper );
    /// The valid nodes of the source rock
    std::vector<Genex6::SourceRockNode*> m_theNodes;
 

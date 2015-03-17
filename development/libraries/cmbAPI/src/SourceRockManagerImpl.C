@@ -11,24 +11,29 @@
 /// @file SourceRockManagerImpl.C
 /// @brief This file keeps API implementation for manipulating source rocks in Cauldron model
 
+// CMB API
 #include "cmbAPI.h"
 #include "SourceRockManagerImpl.h"
 
+// TableIO lib
 #include "database.h"
 
+// Genex6_kernel lib
+#include "SourceRock.h"
+
+// STL
 #include <stdexcept>
 #include <string>
 
-
 namespace mbapi
 {
-
 const char * SourceRockManagerImpl::m_sourceRockTableName     = "SourceRockLithoIoTbl";
 const char * SourceRockManagerImpl::m_layerNameFieldName      = "LayerName";      
 const char * SourceRockManagerImpl::m_sourceRockTypeFieldName = "SourceRockType";
 const char * SourceRockManagerImpl::m_tocIni                  = "TocIni";
 const char * SourceRockManagerImpl::m_tocIniMap               = "TocIniGrid";
 const char * SourceRockManagerImpl::m_hiIni                   = "HiIni";
+const char * SourceRockManagerImpl::m_hcIni                   = "HcIni";
 
 // Constructor
 SourceRockManagerImpl::SourceRockManagerImpl()
@@ -71,6 +76,47 @@ std::vector<SourceRockManager::SourceRockID> SourceRockManagerImpl::sourceRockID
    return srIDs;
 }
 
+// Search for source rock lithology record which has given layer name and source rock type name
+// return ID of found source rock lithology on success or UndefinedIDValue otherwise
+SourceRockManager::SourceRockID SourceRockManagerImpl::findID( const std::string & lName
+                                                             , const std::string & srTypeName
+                                                             )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      int tblSize = table->size();
+      for ( int i = 0; i < tblSize; ++i )
+      {
+         database::Record * rec = table->getRecord( i );
+         if ( !rec )
+         {
+            throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << i;
+         }
+
+         if ( lName      == rec->getValue<std::string>( m_layerNameFieldName ) && 
+              srTypeName == rec->getValue<std::string>( m_sourceRockTypeFieldName )
+            )
+         {
+            return static_cast<SourceRockManager::SourceRockID>(i);
+         }
+      }
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedIDValue;
+}
+
+
 // Create new source rock
 // return ID of the new SourceRock
 SourceRockManager::SourceRockID SourceRockManagerImpl::createNewSourceRockLithology()
@@ -82,26 +128,27 @@ SourceRockManager::SourceRockID SourceRockManagerImpl::createNewSourceRockLithol
 std::string SourceRockManagerImpl::layerName( SourceRockID id )
 {
    if ( errorCode() != NoError ) resetError();
-
    std::string layName;
-
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_sourceRockTableName );
-
-   // if table does not exist - report error
-   if ( !table )
+   
+   try
    {
-      reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
-      return layName;
-   }
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
 
-   database::Record * rec = table->getRecord( static_cast<int>( id ) );
-   if ( !rec )
-   {
-      reportError( NonexistingID, "No source rock lithology with such ID" );
-      return layName;
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+      layName = rec->getValue<std::string>( m_layerNameFieldName );
    }
-   layName = rec->getValue<std::string>( m_layerNameFieldName );
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
    return layName;
 }
@@ -110,26 +157,27 @@ std::string SourceRockManagerImpl::layerName( SourceRockID id )
 std::string SourceRockManagerImpl::sourceRockType( SourceRockID id )
 {
    if ( errorCode() != NoError ) resetError();
-
    std::string tpName;
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_sourceRockTableName );
-
-   // if table does not exist - report error
-   if ( !table )
+   try
    {
-      reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
-      return tpName;
-   }
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
 
-   database::Record * rec = table->getRecord( static_cast<int>( id ) );
-   if ( !rec )
-   {
-      reportError( NonexistingID, "No source rock lithology with such ID" );
-      return tpName;
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+      tpName = rec->getValue<std::string>( m_sourceRockTypeFieldName );
    }
-   tpName = rec->getValue<std::string>( m_sourceRockTypeFieldName );
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
    return tpName;
 }
@@ -139,73 +187,87 @@ double SourceRockManagerImpl::tocIni( SourceRockID id )
 {
    if ( errorCode() != NoError ) resetError();
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_sourceRockTableName );
-
-   // if table does not exist - report error
-   if ( !table )
+   try
    {
-      reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
-      return UndefinedDoubleValue;
-   }
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
 
-   // if record does not exist report error
-   database::Record * rec = table->getRecord( static_cast<int>( id ) );
-   if ( !rec )
-   {
-      reportError( NonexistingID, "No source rock lithology with such ID" );
-      return UndefinedDoubleValue;
-   }
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
 
-   return rec->getValue<double>( m_tocIni );
+      // if record does not exist report error
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+
+      return rec->getValue<double>( m_tocIni );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+   return UndefinedDoubleValue;
 }
 
 // get layer TOC map name
 std::string SourceRockManagerImpl::tocInitMapName( SourceRockID id )
 {
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_sourceRockTableName );
+   if ( errorCode() != NoError ) resetError();
 
-   // if table does not exist - report error
-   if ( !table )
+   try
    {
-      reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
-      return UndefinedStringValue;
-   }
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
 
-   // if record does not exist report error
-   database::Record * rec = table->getRecord( static_cast<int>( id ) );
-   if ( !rec )
-   {
-      reportError( NonexistingID, "No source rock lithology with such ID" );
-      return UndefinedStringValue;
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      // if record does not exist report error
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+      return rec->getValue<std::string>( m_tocIniMap );
    }
-   return rec->getValue<std::string>( m_tocIniMap );
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedStringValue;
 }
 
-ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( const std::string & layerName, double newTOC )
+ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( SourceRockID id, double newTOC )
 {
-   if ( newTOC < 0.0 || newTOC > 100.0 ) return reportError( OutOfRangeValue, "TOC value must be in range [0:100]" );
-   
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_sourceRockTableName );
+   if ( errorCode() != NoError ) resetError();
 
-   // if table does not exist - report error
-   if ( !table ) return reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
-   
-   size_t recNum = table->size();
-   for ( size_t i = 0; i < recNum; ++i )
+   try
    {
-      database::Record * rec = table->getRecord(  static_cast<int>( i ) );
-      if ( rec )
+      if ( newTOC < 0.0 || newTOC > 100.0 )
       {
-         const std::string & ln = rec->getValue<std::string>( m_layerNameFieldName );
-         if ( ln == layerName )
-         {
-            rec->setValue( m_tocIni, newTOC );
-         }
+         throw Exception( OutOfRangeValue ) << "TOC value must be in range [0:100] but given is: " << newTOC;
       }
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord(  static_cast<int>( id ) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+      rec->setValue( m_tocIni, newTOC );
    }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
    return NoError;
 }
 
@@ -213,50 +275,123 @@ double SourceRockManagerImpl::hiIni( SourceRockID id )
 {
    if ( errorCode() != NoError ) resetError();
 
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_sourceRockTableName );
-
-   // if table does not exist - report error
-   if ( !table )
+   try
    {
-      reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
-      return UndefinedDoubleValue;
-   }
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
 
-   // if record does not exist report error
-   database::Record * rec = table->getRecord( static_cast<int>( id ) );
-   if ( !rec )
-   {
-      reportError( NonexistingID, "No source rock lithology with such ID" );
-      return UndefinedDoubleValue;
-   }
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
 
-   return rec->getValue<double>( m_hiIni );
+      // if record does not exist report error
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+
+      double hcIni = rec->getValue<double>( m_hcIni );
+      return Genex6::SourceRock::convertHCtoHI( hcIni );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedDoubleValue;
 }
 
-ErrorHandler::ReturnCode SourceRockManagerImpl::setHIIni( const std::string & layerName, double newHI )
+ErrorHandler::ReturnCode SourceRockManagerImpl::setHIIni( SourceRockID id, double newHI )
 {
-   if ( newHI < 0.0 || newHI > 1000.0 ) return reportError( OutOfRangeValue, "HI value must be in range [0:1000]" );
-   
-   // get pointer to the table
-   database::Table * table = m_db->getTable( m_sourceRockTableName );
+   if ( errorCode() != NoError ) resetError();
 
-   // if table does not exist - report error
-   if ( !table ) return reportError( NonexistingID, std::string( m_sourceRockTableName ) + " table could not be found in project" );
-   
-   size_t recNum = table->size();
-   for ( size_t i = 0; i < recNum; ++i )
+   try
    {
-      database::Record * rec = table->getRecord(  static_cast<int>( i ) );
-      if ( rec )
+      if ( newHI < 0.0 || newHI > 1000.0 ) 
       {
-         const std::string & ln = rec->getValue<std::string>( m_layerNameFieldName );
-         if ( ln == layerName )
-         {
-            rec->setValue( m_hiIni, newHI );
-         }
+         throw Exception( OutOfRangeValue ) << "HI value must be in range [0:1000], but given is: " << newHI;
       }
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+
+      double hcIni = Genex6::SourceRock::convertHItoHC( newHI );
+      rec->setValue( m_hcIni, hcIni );
    }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+double SourceRockManagerImpl::hcIni( SourceRockID id )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      // if record does not exist report error
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+
+      return rec->getValue<double>( m_hcIni );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedDoubleValue;
+}
+
+ErrorHandler::ReturnCode SourceRockManagerImpl::setHCIni( SourceRockID id, double newHC )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      if ( newHC < 0.0 || newHC > 2.0 )
+      {
+         throw Exception( OutOfRangeValue ) << "H/C value must be in range [0:2] but given is: " << newHC;
+      }
+
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+      rec->setValue( m_hcIni, newHC );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
    return NoError;
 }
 

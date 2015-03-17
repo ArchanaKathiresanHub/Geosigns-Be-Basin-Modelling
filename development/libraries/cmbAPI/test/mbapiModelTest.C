@@ -146,24 +146,39 @@ TEST_F( mbapiModelTest, BasementPropertySetting )
 // Test set/get TOC in source rock lithology
 TEST_F( mbapiModelTest, SourceRockTOCSettings )
 {
+
    mbapi::Model testModel;
-   
+
    // load test project
    ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( "Ottoland.project3d" ) );
 
-   mbapi::SourceRockManager & srMgr = testModel.sourceRockManager();
+   mbapi::SourceRockManager   & srMgr = testModel.sourceRockManager();
+   mbapi::StratigraphyManager & stMgr = testModel.stratigraphyManager();
 
-   // get current values for TOC. Test project has 2 source rock lithologies with TOC 70.2 & 10.0
-   double toc1st = srMgr.tocIni( 0 );
-   ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
-   ASSERT_NEAR( toc1st, 70.2, eps );
-   toc1st = srMgr.tocIni( 1 );
-   ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
-   ASSERT_NEAR( toc1st, 10.0, eps );
+   // change TOC values to some others - 19, 70
+   double ltocOld[] = { 70.2, 10.0 };
+   double ltocNew[] = { 19.0, 70.0 };
+   const char * lNames[] = { "Westphalian", "Lower Jurassic" };
 
-   // change TOC values to some others - 19 & 70
-   ASSERT_EQ( ErrorHandler::NoError, srMgr.setTOCIni( "Lower Jurassic", 19.0 ) );
-   ASSERT_EQ( ErrorHandler::NoError, srMgr.setTOCIni( "Westphalian", 70.0 ) );
+   for ( size_t i = 0; i < sizeof( ltocOld ) / sizeof( double ); ++i )
+   {  // find correct source rock type
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( lNames[i] );
+      ASSERT_EQ( IsValueUndefined( lid ), false );
+      const std::vector<std::string> & layerSourceRocks = stMgr.sourceRockTypeName( lid );
+      ASSERT_EQ( layerSourceRocks.size(), 1 );
+
+      mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( lNames[i], layerSourceRocks.front() );
+      ASSERT_EQ( IsValueUndefined( sid ), false );
+      
+      // check what was set before
+      double tocInFile = srMgr.tocIni( sid );
+      ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
+      ASSERT_NEAR( tocInFile, ltocOld[i], eps );
+
+      // set the new value
+      ASSERT_EQ( ErrorHandler::NoError, srMgr.setTOCIni( sid, ltocNew[i] ) );
+   }
+
    // save as a new temporary project file
    ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "Ottoland_changedTOC.project3d" ) );
 
@@ -171,15 +186,27 @@ TEST_F( mbapiModelTest, SourceRockTOCSettings )
    mbapi::Model modifModel;
    ASSERT_EQ( ErrorHandler::NoError, modifModel.loadModelFromProjectFile( "Ottoland_changedTOC.project3d" ) );
    
-   mbapi::SourceRockManager & srModMgr = modifModel.sourceRockManager();
+   mbapi::SourceRockManager   & srModMgr = modifModel.sourceRockManager();
+   mbapi::StratigraphyManager & stModMgr = modifModel.stratigraphyManager();
 
    // check values for the TOC
-   toc1st = srModMgr.tocIni( 0 );
-   ASSERT_EQ( ErrorHandler::NoError, srModMgr.errorCode() );
-   ASSERT_NEAR( toc1st, 70.0, eps );
-   toc1st = srModMgr.tocIni( 1 );
-   ASSERT_EQ( ErrorHandler::NoError, srModMgr.errorCode() );
-   ASSERT_NEAR( toc1st, 19.0, eps );
+   for ( size_t i = 0; i < sizeof( ltocNew ) / sizeof( double ); ++i )
+   {
+      // find correct source rock type
+      mbapi::StratigraphyManager::LayerID lid = stModMgr.layerID( lNames[i] );
+      ASSERT_EQ( IsValueUndefined( lid ), false );
+
+      const std::vector<std::string> & layerSourceRocks = stModMgr.sourceRockTypeName( lid );
+      ASSERT_EQ( layerSourceRocks.size(), 1 );
+
+      mbapi::SourceRockManager::SourceRockID sid = srModMgr.findID( lNames[i], layerSourceRocks.front() );
+      ASSERT_EQ( IsValueUndefined( sid ), false );
+
+      // check if the new values are set
+      double tocInFile = srModMgr.tocIni( sid );
+      ASSERT_EQ( ErrorHandler::NoError, srModMgr.errorCode() );
+      ASSERT_NEAR( tocInFile, ltocNew[i], eps );
+   }
 
    // delete temporary project file
    remove( "Ottoland_changedTOC.project3d" );

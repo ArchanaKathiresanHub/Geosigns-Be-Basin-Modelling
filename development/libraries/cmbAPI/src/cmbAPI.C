@@ -410,10 +410,11 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 
    m_projFileName = projectFileName;
    
-   m_srkMgr.setDatabase(  m_projDatabase.get() ); // set database in source rock manager
-   m_lithMgr.setDatabase( m_projDatabase.get() ); // set database in lithologies type manager
-   m_snpMgr.setDatabase(  m_projDatabase.get(), m_projFileName ); // set database in snapshot manager
-   m_prpMgr.setDatabase(  m_projDatabase.get(), m_projFileName ); // set database in property manager
+   m_srkMgr.setDatabase(   m_projDatabase.get() ); // set database in source rock manager
+   m_lithMgr.setDatabase(  m_projDatabase.get() ); // set database in lithologies type manager
+   m_snpMgr.setDatabase(   m_projDatabase.get(), m_projFileName ); // set database in snapshot manager
+   m_prpMgr.setDatabase(   m_projDatabase.get(), m_projFileName ); // set database in property manager
+   m_stratMgr.setDatabase( m_projDatabase.get() ); // set database in stratigraphy manager
 
    // collecting map files name
    // get pointer to the table
@@ -421,7 +422,7 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
 
    if ( !table ) return; // no table - no maps
    
-   int recNum = table->size();
+   size_t recNum = table->size();
    ibs::FilePath projectFile( projectFileName );
    std::string projectPath = projectFile.filePath();
    if ( projectPath.empty() ) projectPath = ".";

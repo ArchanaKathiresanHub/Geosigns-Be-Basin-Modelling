@@ -67,7 +67,10 @@ TEST_F( MutatorTest, Tornado2PrmsMutations )
    ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
    pathToCaseSet << "CaseSet";
 
+   // to prevent failure on the second test run - clean folder
+   if ( !pathToCaseSet.empty() ) pathToCaseSet.clean();
    ASSERT_EQ( ErrorHandler::NoError, sc.setScenarioLocation( pathToCaseSet.path().c_str() ) );
+
    ASSERT_EQ( ErrorHandler::NoError, sc.applyMutations( sc.doeCaseSet() ) );
 
    pathToCaseSet << "Iteration_1";
@@ -121,6 +124,9 @@ TEST_F( MutatorTest, TornadoBB2PrmsMutations )
    // set root folder for the experiments
    ibs::FolderPath pathToCaseSet = ibs::FolderPath( "." );
    pathToCaseSet << "CaseSet";
+
+   // to prevent failure on the second test run - clean folder
+   if ( !pathToCaseSet.empty() ) pathToCaseSet.clean();
 
    // set up and generate first DoE
    ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );

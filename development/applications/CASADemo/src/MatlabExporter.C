@@ -291,6 +291,59 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
    }
    m_ofs << "};\n\n";
 
+   m_ofs << "%export proxy polynomial coefficients as a list of matrix\n";
+   for ( size_t i = 0; i < proxyNames.size(); ++i )
+   {
+      const RSProxyImpl * rs = dynamic_cast< const RSProxyImpl *> ( sc.rsProxySet().rsProxy( proxyNames[i].c_str() ) );
+      const RSProxy::CoefficientsMapList & cml = rs->getCoefficientsMapList();
+
+      for ( size_t j = 0; j < cml.size(); ++j )
+      {
+         const RSProxy::CoefficientsMap & cmap = cml[j];
+
+         std::vector<int> numCoefPerOrd;
+
+         // get polynomial order 
+         int ord = 0;
+         for ( RSProxy::CoefficientsMap::const_iterator it = cmap.begin(); it != cmap.end(); ++it )
+         {
+            const std::vector< unsigned int > & prmsLst = it->first;
+            ord = ord < prmsLst.size() ? prmsLst.size() : ord;
+            if ( numCoefPerOrd.size() < prmsLst.size()+1 ) numCoefPerOrd.resize( prmsLst.size()+1, 0 );
+            numCoefPerOrd[prmsLst.size()] += 1; 
+         }
+
+         // allocate zero matrix with rank equals to polynomial order
+         m_ofs << proxyNames[i] << "(" << j+1 << ").ord0 = 0.0;\n"; // zero order always
+         for ( int k = 0; k < ord; ++k  )
+         {
+            m_ofs << proxyNames[i] << "(" << j+1 << ").ord" << k+1 << " = zeros(";
+            if ( k == 0 ) m_ofs << "1, ";
+            else  m_ofs << numCoefPerOrd[k] << ",";
+            m_ofs << k+2 << ");\n";
+         }
+
+         numCoefPerOrd.assign( numCoefPerOrd.size(), 0 ); // reset counters
+
+         for ( RSProxy::CoefficientsMap::const_iterator it = cmap.begin(); it != cmap.end(); ++it )
+         {
+            const std::vector< unsigned int > & prmsLst = it->first;
+            double coef = it->second.first;
+            //double errr = it->second.second;
+            m_ofs << proxyNames[i] << "(" << j + 1 << ").ord" << prmsLst.size();
+            if ( prmsLst.empty() ) { m_ofs << " = " << coef << ";\n"; }
+            else
+            {
+               m_ofs << "(" << numCoefPerOrd[prmsLst.size()]+1 << ",:) = [";
+               numCoefPerOrd[prmsLst.size()] += 1;
+               for ( int k = 0; k < prmsLst.size(); ++k ) m_ofs << prmsLst[k]+1 << ",";
+               m_ofs << coef << "];\n";
+            }
+         }
+      }
+   }
+   m_ofs << "\n\n";
+
    for ( size_t i = 0; i < proxyNames.size(); ++i )
    {
       const RSProxyImpl * rs = dynamic_cast< const RSProxyImpl *> ( sc.rsProxySet().rsProxy( proxyNames[i].c_str() ) );

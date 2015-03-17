@@ -22,6 +22,9 @@ add_library(cmbapi
 )
 
 bm_include_libraries(
+   genex6
+   genex6_kernel
+   EosPack
    DataModel
    CBMGenerics
    Serial_Hdf5
@@ -43,6 +46,9 @@ target_link_libraries(cmbapi
    Serial_Hdf5
    DataAccess
    SerialDataAccess
+   genex6
+   genex6_kernel
+   EosPack
    FileSystem
    ${Boost_LIBRARIES}
 )

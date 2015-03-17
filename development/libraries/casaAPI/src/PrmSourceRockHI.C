@@ -31,27 +31,54 @@ namespace casa
 {
 
 // Constructor
-PrmSourceRockHI::PrmSourceRockHI( mbapi::Model & mdl, const char * layerName ) : m_parent( 0 )
+PrmSourceRockHI::PrmSourceRockHI( mbapi::Model & mdl, const char * layerName ) : m_parent(0), m_layerName( layerName )
 { 
-   m_layerName = layerName;
-   bool isFound = false;
-
-   mbapi::SourceRockManager & mgr = mdl.sourceRockManager();
-
-   // go over all source rock lithologies and look for the first lithology with the same layer name as given
-   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( size_t i = 0; i < srIDs.size(); ++i )
+   try
    {
-      if ( mgr.layerName( srIDs[i] ) == m_layerName )
+      mbapi::SourceRockManager   & srMgr = mdl.sourceRockManager();
+      mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
+
+      // get check is this layer has a mix of source rocks
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+
+      // check if layer set as active source rock
+      if ( !stMgr.isSourceRockActive( lid ) )
       {
-         m_hi = mgr.hiIni( srIDs[i] );
-         if ( ErrorHandler::NoError != mgr.errorCode() ) mdl.moveError( mgr );
-         isFound = true;
-         break;
+         throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
+            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+      }
+
+      // in case of SR mixing get HI from the mix
+      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      {
+         m_hi = stMgr.sourceRockMixHI(lid);
+         if ( stMgr.errorCode() != ErrorHandler::NoError )
+         {
+            throw ErrorHandler::Exception(ErrorHandler::NonexistingID) <<
+               "Can not get HI parameter for the mixing of source rocks for the layer " << m_layerName;
+         }
+      }
+      else // otherwise go to source rock lithology table for the source rock hi
+      {
+         const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+         if ( srtNames.empty() )
+         {
+            throw ErrorHandler::Exception(ErrorHandler::UndefinedValue) << "Layer " << m_layerName <<
+               " set as source rock layer but has no source rock lithology defined";
+         }
+
+         mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
+         if ( IsValueUndefined( sid ) )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
+               << m_layerName << " and SR type " << srtNames[0];
+         }
+         m_hi = srMgr.hiIni( sid );
       }
    }
-   if ( !isFound ) mdl.reportError( ErrorHandler::NonexistingID, std::string( "Can't find layer with name " ) +
-                                    layerName + " in source rock lithology table" );
+   catch (const ErrorHandler::Exception & e) { mdl.reportError(e.errorCode(), e.what()); }
+
    // construct parameter name
    std::ostringstream oss;
    oss << "SourceRockHI(" << m_layerName << ")";
@@ -77,13 +104,52 @@ PrmSourceRockHI::~PrmSourceRockHI() {;}
 // Update given model with the parameter value
 ErrorHandler::ReturnCode PrmSourceRockHI::setInModel( mbapi::Model & caldModel )
 {
-   mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
-   
-   // go over all source rock lithologies and check do we have HI map set for the layer with the same name
-   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   
-   if ( ErrorHandler::NoError != mgr.setHIIni( m_layerName, m_hi )  ) return caldModel.moveError( mgr );
-   
+   try
+   {
+      mbapi::SourceRockManager   & srMgr = caldModel.sourceRockManager();
+      mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
+
+      // get check is this layer has a mix of source rocks
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+
+      // check how many source rock types for this level is defined
+      if ( !stMgr.isSourceRockActive( lid ) )
+      { 
+         throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
+            "HI setting error: source rock is not active for the layer:" << m_layerName;
+      }
+
+      // in case of SR mixing, HI is set in stratigraphy table
+      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      {
+         if ( ErrorHandler::NoError != stMgr.setSourceRockMixHI( lid, m_hi ) )
+         {
+            throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage();
+         }
+      }
+      else
+      {
+         const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+         if ( srtNames.empty() )
+         { 
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
+               " set as source rock layer but has no source rock lithology defined";
+         }
+         mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
+         if ( IsValueUndefined( sid ) )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
+               << m_layerName << " and SR type " << srtNames[0];
+         }
+         if ( ErrorHandler::NoError != srMgr.setHIIni( sid, m_hi ) )
+         {
+            throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
+         }
+      }      
+   }
+   catch ( const ErrorHandler::Exception & e ) { return caldModel.reportError( e.errorCode(), e.what() ); }
+
    return ErrorHandler::NoError;
 }
 
@@ -95,25 +161,58 @@ std::string PrmSourceRockHI::validate( mbapi::Model & caldModel )
    if (      m_hi < 0    ) oss << "HI value for the layer " << m_layerName << ", can not be negative: " << m_hi << std::endl;
    else if ( m_hi > 1000 ) oss << "HI value for the layer " << m_layerName << ", can not be more than 1000 kg/tonne: " << m_hi << std::endl;
 
-   mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
-
-   bool layerFound = false;
-
-   // go over all source rock lithologies and check do we have HI map set for the layer with the same name
-   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( size_t i = 0; i < srIDs.size(); ++i )
+   try
    {
-      if ( mgr.layerName( srIDs[i] ) == m_layerName )
-      {
-         layerFound = true;
+      mbapi::SourceRockManager   & srMgr = caldModel.sourceRockManager();
+      mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
 
-         double mdlHI = mgr.hiIni( srIDs[i] );
-         if ( !NumericFunctions::isEqual( mdlHI, m_hi, 1.e-4 ) )
-            oss << "Value of HI in the model (" << mdlHI << ") is different from the parameter value (" << m_hi << ")" << std::endl;
+      // get check is this layer has a mix of source rocks
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+
+      // check if layer set as active source rock
+      if ( !stMgr.isSourceRockActive( lid ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
+            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+      }
+
+      double hiInModel = UndefinedDoubleValue;
+
+      // in case of SR mixing get HI from the mix
+      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      {
+         hiInModel = stMgr.sourceRockMixHI( lid );
+         if ( stMgr.errorCode() != ErrorHandler::NoError )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<
+               "Can not get HI parameter for the mixing of source rocks for the layer " << m_layerName;
+         }
+      }
+      else // otherwise go to source rock lithology table for the source rock hi
+      {
+         const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+         if ( srtNames.empty() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
+               " set as source rock layer but has no source rock lithology defined";
+         }
+
+         mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
+         if ( IsValueUndefined( sid ) )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
+               << m_layerName << " and SR type " << srtNames[0];
+         }
+         hiInModel = srMgr.hiIni( sid );
+      }
+
+      if ( !NumericFunctions::isEqual( hiInModel, m_hi, 1.e-4 ) )
+      {
+         oss << "Value of HI in the model (" << hiInModel << ") is different from the parameter value (" << m_hi << ")" << std::endl;
       }
    }
-
-   if ( !layerFound ) oss << "There is no such layer in the model: " << m_layerName << std::endl;
+   catch ( const ErrorHandler::Exception & e ) { oss << e.what() << std::endl; }
 
    return oss.str();
 }

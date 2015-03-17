@@ -55,16 +55,19 @@ namespace mbapi {
       virtual SurfaceID createNewSurface() = 0;
 
       /// @brief Get layer name for the given ID
-      /// @param[in] id layer ID
-      /// @param[out] layerName on success has a layer name, or empty string otherwise
-      /// @return NoError on success or NonexistingID on error
-      virtual ReturnCode getLayerName( LayerID id, std::string & layerName ) = 0;
+      /// @param id layer ID
+      /// @return layer name on success or empty string otherwise 
+      virtual std::string layerName( LayerID id ) = 0;
+
+      /// @brief Get layer ID for the given name 
+      /// @param ln layer name
+      /// @return layer ID on success or UndefinedIDValue otherwise
+      virtual LayerID layerID( const std::string & ln ) = 0;
 
       /// @brief Get surface name for the given ID
-      /// @param[in] id surface ID
-      /// @param[out] surfName on success has a surface name, or empty string otherwise
-      /// @return NoError on success or NonexistingID on error
-      virtual ReturnCode getSurfaceName( LayerID id, std::string & surfName ) = 0;
+      /// @param id surface ID
+      /// @return surface name on success, or empty string otherwise
+      virtual std::string surfaceName( LayerID id ) = 0;
 
       /// @brief Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       /// @param[in] lid layer ID
@@ -72,6 +75,43 @@ namespace mbapi {
       /// @param[in] dsid down surface id
       /// @return NoError on success or NonexistingID on error
       virtual ReturnCode setLayerSurfaces( LayerID lid,  SurfaceID usid, SurfaceID dsid ) = 0;
+
+      // Layer -> Source rock type relation methods
+
+      /// @brief Check if the given layer is a source rock layer
+      /// @param id layer ID
+      /// @return true if the given layer is a source rock layer, false otherwise
+      virtual bool isSourceRockActive( LayerID id ) = 0;
+
+      /// @brief Check if for the given layer source rock mixing is enabled
+      /// @param id layer ID
+      /// @return true if source rock mixing is enabled, false otherwise
+      virtual bool isSourceRockMixingEnabled( LayerID id ) = 0;
+
+      /// @brief Get source rock types associated with given layer ID
+      /// @param lid layer ID
+      /// @return if layer is not a source rock layer function returns an empty array,
+      ///         otherwise it returns one or two (if source rock mixing is enabled for the layer)
+      ///         source rock type names which can be used to access source rock type properties.
+      virtual std::vector<std::string> sourceRockTypeName( LayerID lid ) = 0;
+      
+      /// @brief Get HI index for source rocks mix for the given layer
+      /// @param lid layer ID
+      /// @return if source rock mixing is enabled for the given layer, this function returns
+      /// HI value for the mix or 0 otherwise.
+      virtual double sourceRockMixHI( LayerID lid ) = 0;
+
+      /// @brief Set source rock types name for the given layer and enable layer to be layer with source rock 
+      /// @param lid layer ID
+      /// @param srTypeNames array which can have one or two (in case of mixing) source rock types name. 
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setSourceRockTypeName( LayerID lid, const std::vector<std::string> & srTypeNames ) = 0;
+
+      /// @brief Set HI value for source rock mix for the given layer
+      /// @param lid layer ID
+      /// @param srmHI HI value for source rock mix
+      /// @return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
+      virtual ReturnCode setSourceRockMixHI( LayerID lid, double srmHI ) = 0;
 
       /// @}
 

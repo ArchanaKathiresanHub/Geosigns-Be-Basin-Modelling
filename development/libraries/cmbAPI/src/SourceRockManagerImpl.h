@@ -45,8 +45,12 @@ namespace mbapi {
       // Get list of source rocks in the model
       // return array with IDs of different lithologies defined in the model
       virtual std::vector<SourceRockID> sourceRockIDs( ) const;
-      // Create new source rock
 
+      // Search for source rock lithology record which has given layer name and source rock type name
+      // return ID of found source rock lithology on success or UndefinedIDValue otherwise
+      virtual SourceRockID findID( const std::string & lName, const std::string & srTypeName );
+
+      // Create new source rock
       // return ID of the new source rock lithology
       virtual SourceRockID createNewSourceRockLithology( );
 
@@ -65,14 +69,20 @@ namespace mbapi {
 
       // Set total organic contents value ( must be in range 0-100 percent) for all source
       // rock lithologies associated with the given layer
-      virtual ReturnCode setTOCIni( const std::string & layerName, double newTOC );
+      virtual ReturnCode setTOCIni( SourceRockID id, double newTOC );
 
 
       // Source rock HI (hydrogen index initial ratio) API 
       virtual double hiIni( SourceRockID id );
 
       //  Set hydrogen index initial ratio value ( must be in range 0-1000 kg/tonne) for all source rock lithologies associated with the given layer
-      virtual ReturnCode setHIIni( const std::string & layerName, double newHI );
+      virtual ReturnCode setHIIni( SourceRockID id, double newHI );
+
+      // Get H/C initial ratio ( kg/tonne C)
+      virtual double hcIni( SourceRockID id );
+
+      // Set H/C initial ratio value ( must be in range 0-1000 kg/tonne C)
+      virtual ReturnCode setHCIni( SourceRockID id, double newHC );
 
    private:
       static const char * m_sourceRockTableName;     // table name for source rock lithologies in project file
@@ -81,6 +91,7 @@ namespace mbapi {
       static const char * m_tocIni;                  // initial TOC
       static const char * m_tocIniMap;               // initial TOC map name
       static const char * m_hiIni;                   // initial HI
+      static const char * m_hcIni;                   // initial H/C ratio
 
       // Copy constructor is disabled, use the copy operator instead
       SourceRockManagerImpl( const SourceRockManager & );

@@ -165,6 +165,7 @@ namespace casa
       // version 0: initial implementation
       // version 1: 
       // version 2: Added SensitivityCalculator
+      // version 3: Added RunManager cases state
       int version() { return 3; }
 
       /// @brief Save scenario to the file

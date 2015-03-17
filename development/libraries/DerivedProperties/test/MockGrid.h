@@ -19,16 +19,16 @@ namespace DataModel {
                  const int endJ,   const int ghostEndJ );
 
       /// return the first local horizontal index
-      virtual int firstI ( const bool includeGhosts ) const;
+      virtual int firstI ( bool includeGhosts ) const;
 
       /// return the first local vertical index
-      virtual int firstJ ( const bool includeGhosts ) const;
+      virtual int firstJ ( bool includeGhosts ) const;
 
       /// return the last local horizontal index
-      virtual int lastI ( const bool includeGhosts ) const;
+      virtual int lastI ( bool includeGhosts ) const;
 
       /// return the last local vertical index
-      virtual int lastJ ( const bool includeGhosts ) const;
+      virtual int lastJ ( bool includeGhosts ) const;
 
    private :
 

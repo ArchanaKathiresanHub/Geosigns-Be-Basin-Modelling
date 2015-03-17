@@ -110,9 +110,9 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
-   ASSERT_NEAR( minV[0],  371.0, eps );  // does it range have given min value?
-   ASSERT_NEAR( maxV[0],  571.0, eps );  // does it range have given max value?
-   ASSERT_NEAR( baseV[0], 471.0, eps );  // does it range have base value from the project?
+   ASSERT_NEAR( minV[0],  371.0,      eps );  // does it range have given min value?
+   ASSERT_NEAR( maxV[0],  571.0,      eps );  // does it range have given max value?
+   ASSERT_NEAR( baseV[0], 472.068687, eps );  // does it range have base value from the project?
 }
 
 TEST_F( BLRSTest, VaryOneCrustThinningEvent )
