@@ -45,6 +45,7 @@ target_link_libraries(cmbapi
    TableIO
    Serial_Hdf5
    DataAccess
+   GeoPhysics
    SerialDataAccess
    genex6
    genex6_kernel
