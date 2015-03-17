@@ -2,11 +2,13 @@
 
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <algorithm>
 
 #include "NumericFunctions.h"
 
 #ifdef _MSC_VER
+#define NOMINMAX
 #include <float.h>  // for _isnan() on VC++
 #define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
 #endif /** _MSC_VER */
@@ -181,7 +183,7 @@ namespace GeoPhysics {
                                      previousTemperature * edPrevious * std::exp(- etPrevious ) );
 
             /** Checking that the update is a positive finite number */
-            if ( isfinite(update) && update > 0.0 )
+            if ( update < std::numeric_limits<double>::max() && update > 0.0 )
             {
                deltaI += update;
                fractionF += m_stoichiometricFactors[reaction] * (1.0 - std::exp( - deltaI ));
