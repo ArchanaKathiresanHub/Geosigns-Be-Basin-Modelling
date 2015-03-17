@@ -5,7 +5,7 @@
     <solution_root_native>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..'))</solution_root_native>
     <solution_root_cmake>$(solution_root_native.Replace('\','/'))</solution_root_cmake>
     <build_dir>$(solution_root_native)\..\..\Build\$(Configuration)\$(Platform)</build_dir>
-    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">11</VisualStudioVersion>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">12</VisualStudioVersion>
     <cmake_generator Condition=" '$(Platform)' == 'x64' ">Visual Studio $(VisualStudioVersion) Win64</cmake_generator>
     <cmake_generator Condition=" '$(Platform)' == 'Win32' ">Visual Studio $(VisualStudioVersion)</cmake_generator>
    
