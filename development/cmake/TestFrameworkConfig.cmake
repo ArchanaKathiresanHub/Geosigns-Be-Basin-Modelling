@@ -117,7 +117,7 @@ macro(add_gtest )
    
    # Windows has a 260 character limitation of path names, so want to keep the executable name length limited
    if (WIN32)
-     set(maxExeNameLength 200)
+     set(maxExeNameLength 40)
 	  string(LENGTH "${execName}" exeNameLength)
      if (exeNameLength GREATER maxExeNameLength)
 	    string(SUBSTRING "${execName}" 0 "${maxExeNameLength}" croppedExeName)
