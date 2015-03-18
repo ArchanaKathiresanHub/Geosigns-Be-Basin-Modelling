@@ -19,9 +19,6 @@ option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 
 set( INTEL_MKL_ROOT "${CMAKE_SOURCE_DIR}/../3rdparty/PETSc_Windows-3.4.4/lib/intel64" CACHE PATH "Location of Intel MKL")
 
-# to supress errors with multiple defined ceil/floor and so on in libmmt.lib
-set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE"  )
-
 set( TSLIB_VERSION "7.4.2" CACHE STRING "Tslib version")
 set( TSLIB_ROOT "${buildToolDirectory}/geocosm" CACHE PATH "Path to Geocosm's TsLib" )
 set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/lib/x64")

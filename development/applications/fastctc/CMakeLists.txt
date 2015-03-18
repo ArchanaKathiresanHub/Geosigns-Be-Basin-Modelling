@@ -62,11 +62,6 @@ target_link_libraries(fastctc
 if (UNIX)
 	target_link_libraries(fastctc OneFilePerProcess)
 	bm_include_libraries( OneFilePerProcess )
-else ()
-	# add a link flag to resolve a conflict between an Intel and MSVCRT library (multiple definition of floor/ceil)
-	set( CMAKE_EXE_LINKER_FLAGS  
-		"${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE" 
-	)
 endif (UNIX)
 
 set_target_properties(fastctc

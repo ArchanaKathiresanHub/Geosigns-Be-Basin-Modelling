@@ -285,6 +285,10 @@ elseif(WIN32)
        CONTAINS_CRYPTO "Unknown"
        ECCN         "Unknown"
     )
+
+   # to supress errors with multiple defined ceil/floor and so on in libmmt.lib
+   set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE"  )
+
 endif()
 
 
