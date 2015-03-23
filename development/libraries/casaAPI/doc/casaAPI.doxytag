@@ -37,6 +37,27 @@
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockHC</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>aa436e5b6479043f4b76d62efe6c3027c</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockPreAsphaltActEnergy</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a56ed01587867a9552cfd50d39ad3de0b</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockType</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a9888c93665dea2aa719e6c462ee1d40f</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const std::vector&lt; std::string &gt; &amp;stVariation, const std::vector&lt; double &gt; &amp;weights)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
       <name>VaryOneCrustThinningEvent</name>
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
       <anchor>a6a97b95673dc1e879056f95b07106c18</anchor>
@@ -248,11 +269,27 @@
     </member>
   </compound>
   <compound kind="file">
+    <name>PrmSourceRockHC.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>PrmSourceRockHC_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmSourceRockHC</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>PrmSourceRockHI.h</name>
     <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockHI_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
     <class kind="class">casa::PrmSourceRockHI</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>PrmSourceRockPreAsphaltStartAct.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>PrmSourceRockPreAsphaltStartAct_8h</filename>
+    <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
+    <class kind="class">casa::PrmSourceRockPreAsphaltStartAct</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
@@ -356,7 +393,6 @@
     <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
     <filename>VarPrmCategorical_8h</filename>
     <includes id="Parameter_8h" name="Parameter.h" local="yes" imported="no">Parameter.h</includes>
-    <includes id="Enumeration_8h" name="Enumeration.h" local="yes" imported="no">Enumeration.h</includes>
     <includes id="VarParameter_8h" name="VarParameter.h" local="yes" imported="no">VarParameter.h</includes>
     <class kind="class">casa::VarPrmCategorical</class>
     <namespace>casa</namespace>
@@ -397,6 +433,14 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>VarPrmSourceRockHC.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmSourceRockHC_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmSourceRockHC</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>VarPrmSourceRockHI.h</name>
     <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockHI_8h</filename>
@@ -405,11 +449,27 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>VarPrmSourceRockPreAsphaltStartAct.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmSourceRockPreAsphaltStartAct_8h</filename>
+    <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
+    <class kind="class">casa::VarPrmSourceRockPreAsphaltStartAct</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>VarPrmSourceRockTOC.h</name>
     <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockTOC_8h</filename>
     <includes id="VarPrmContinuous_8h" name="VarPrmContinuous.h" local="yes" imported="no">VarPrmContinuous.h</includes>
     <class kind="class">casa::VarPrmSourceRockTOC</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
+    <name>VarPrmSourceRockType.h</name>
+    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmSourceRockType_8h</filename>
+    <includes id="VarPrmCategorical_8h" name="VarPrmCategorical.h" local="yes" imported="no">VarPrmCategorical.h</includes>
+    <class kind="class">casa::VarPrmSourceRockType</class>
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
@@ -515,14 +575,29 @@
     <filename>CASA_PorosityModelPage</filename>
   </compound>
   <compound kind="page">
+    <name>CASA_SourceRockHCPage</name>
+    <title>Source rock H/C initial ratio parameter</title>
+    <filename>CASA_SourceRockHCPage</filename>
+  </compound>
+  <compound kind="page">
     <name>CASA_SourceRockHIPage</name>
     <title>Source rock Hydrogen Index (HI) initial ratio parameter</title>
     <filename>CASA_SourceRockHIPage</filename>
   </compound>
   <compound kind="page">
+    <name>CASA_SourceRockPreAsphaltStartActPage</name>
+    <title>Source rock pre-asphaltene activation energy parameter</title>
+    <filename>CASA_SourceRockPreAsphaltStartActPage</filename>
+  </compound>
+  <compound kind="page">
     <name>CASA_SourceRockTOCPage</name>
     <title>Source rock initial Total Organic Contents (TOC) parameter</title>
     <filename>CASA_SourceRockTOCPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_SourceRockTypePage</name>
+    <title>Source rock type parameter</title>
+    <filename>CASA_SourceRockTypePage</filename>
   </compound>
   <compound kind="page">
     <name>CASA_TopCrustHeatProductionPage</name>
@@ -599,8 +674,11 @@
     <class kind="struct">casa::ParetoSensitivityInfo</class>
     <class kind="class">casa::PrmOneCrustThinningEvent</class>
     <class kind="class">casa::PrmPorosityModel</class>
+    <class kind="class">casa::PrmSourceRockHC</class>
     <class kind="class">casa::PrmSourceRockHI</class>
+    <class kind="class">casa::PrmSourceRockPreAsphaltStartAct</class>
     <class kind="class">casa::PrmSourceRockTOC</class>
+    <class kind="class">casa::PrmSourceRockType</class>
     <class kind="class">casa::PrmTopCrustHeatProduction</class>
     <class kind="class">casa::RSProxy</class>
     <class kind="class">casa::RSProxySet</class>
@@ -618,8 +696,11 @@
     <class kind="class">casa::VarPrmDiscrete</class>
     <class kind="class">casa::VarPrmOneCrustThinningEvent</class>
     <class kind="class">casa::VarPrmPorosityModel</class>
+    <class kind="class">casa::VarPrmSourceRockHC</class>
     <class kind="class">casa::VarPrmSourceRockHI</class>
+    <class kind="class">casa::VarPrmSourceRockPreAsphaltStartAct</class>
     <class kind="class">casa::VarPrmSourceRockTOC</class>
+    <class kind="class">casa::VarPrmSourceRockType</class>
     <class kind="class">casa::VarPrmTopCrustHeatProduction</class>
     <class kind="class">casa::VarSpace</class>
     <member kind="function">
@@ -2969,6 +3050,13 @@
       <anchor>af0850f1244c42535ecc063cb9a560ec3</anchor>
       <arglist>(const Parameter &amp;prm) const =0</arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator!=</name>
+      <anchorfile>classcasa_1_1Parameter.html</anchorfile>
+      <anchor>a05a31cd3e5e849c2abb213cc79016635</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
     <member kind="function" static="yes">
       <type>static Parameter *</type>
       <name>load</name>
@@ -3300,6 +3388,144 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::PrmSourceRockHC</name>
+    <filename>classcasa_1_1PrmSourceRockHC.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a34ceb04bf410c71e97e1930b27b50042</anchor>
+      <arglist>(mbapi::Model &amp;mdl, const char *layerName)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a27b8f39141b418a0830222332537dc83</anchor>
+      <arglist>(const VarPrmSourceRockHC *parent, double val, const char *layerName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a8f999da36458970aa633a61d3c6b405a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a7f831ba67dcbb3e64926a81b4b7a1106</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>aed98d1206165b4528f9ef49b51abfa45</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>ad17f46aab1fb0b7366a4a647b8a49326</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a7732d54cbddae61d71c5c51d7ac9613e</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>value</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a06e76759b98b970cea010157ebbc7e3d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a8682034dccfd83c2e9537ca1c874df69</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>af69f336367b080e0924d78ee1365bdbf</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator==</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a4d620557dfc9c78835dd4c34b8d6f1a2</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a477a6a5e8d222837eb683fc26fc81bdf</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a690738ca65d96400ec4cd5b7de4e71d8</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>af5b1ab6378704a271d19c4a4fa468fd8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>aa50e084ec4093c19f37b495ef3d502b3</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>const VarParameter *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a1ac3f2eb88c2c85cb8360028503d230c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a21b3c49dcfe746eacc78304b6d8cefeb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a6a72a45f60b4249a66014e167f1827d2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_hc</name>
+      <anchorfile>classcasa_1_1PrmSourceRockHC.html</anchorfile>
+      <anchor>a476458516a30a18edfe0fbc2fe965f97</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::PrmSourceRockHI</name>
     <filename>classcasa_1_1PrmSourceRockHI.html</filename>
     <base>casa::Parameter</base>
@@ -3438,6 +3664,144 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::PrmSourceRockPreAsphaltStartAct</name>
+    <filename>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ad4b31057102e1628d683f02192676c8c</anchor>
+      <arglist>(mbapi::Model &amp;mdl, const char *layerName)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a5accb8744a666f967b89dd16ea2d1f7b</anchor>
+      <arglist>(const VarPrmSourceRockPreAsphaltStartAct *parent, double val, const char *layerName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a04b66d0cd06891f74f24292104500953</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>af0b67150ff6a32911167b5b77b18f10f</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>adc4f6e666417a171b07038e068e45377</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a6eaece4e8320f2831b48e8f89e5e04ad</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ae0526211192d3559e31c5f67b3dae5b7</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>value</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a6a48905f1cf0e9fb2c7b3c21f8aba3db</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a2c10612d41f10bfe5c470fe67491c8f9</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a3b878edb47e33addd515c3b03b5017c5</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator==</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>aef531e8be8749fb65e03226d80aef6ed</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ae8e65710a23b06cd4a032cdebf71b94d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a903020a6ccb85d96571965e136af63cf</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a185c3b97f54719f6f231992c9db493b8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a935c3032acd967e33d591e0e2cc0c901</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>const VarParameter *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ab54d80e25ec48f5215ee19f22eec742d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ab986716331fb2cc8d97bd8876dd22cb0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a4134d45db8bda70f5bdb6d395b889906</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>double</type>
+      <name>m_value</name>
+      <anchorfile>classcasa_1_1PrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>abb87e1677c9a242f56e32d6a98c8f936</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::PrmSourceRockTOC</name>
     <filename>classcasa_1_1PrmSourceRockTOC.html</filename>
     <base>casa::Parameter</base>
@@ -3572,6 +3936,151 @@
       <name>m_toc</name>
       <anchorfile>classcasa_1_1PrmSourceRockTOC.html</anchorfile>
       <anchor>a142f1ce2c53790001ff8cd1cee151bb9</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::PrmSourceRockType</name>
+    <filename>classcasa_1_1PrmSourceRockType.html</filename>
+    <base>casa::Parameter</base>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockType</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a1992b62a17a731955dd51f2f7bcc5079</anchor>
+      <arglist>(mbapi::Model &amp;mdl, const std::string &amp;layerName)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockType</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a13f652714694d56c2a88638f558ed756</anchor>
+      <arglist>(const VarPrmSourceRockType *parent, const std::string &amp;layerName, const std::string &amp;sourceRockTypeName)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~PrmSourceRockType</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a84ca77f190f31d24bc1baf4ae503286f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>ae05c379244c64cbc7cb9b52f20510620</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const VarParameter *</type>
+      <name>parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>ac3f7b155d196da0ead02f973cc64dbb3</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setInModel</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>aa7dab69b08fde91f9b7f3402a0f2598d</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::string</type>
+      <name>validate</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>af7f17690dabae73479038d21e232d753</anchor>
+      <arglist>(mbapi::Model &amp;caldModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>sourceRockTypeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a8dcb29b30e7450599e76ccee41021af0</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>layerName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a955597a34024b0695d9e0f4f58344354</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; double &gt;</type>
+      <name>asDoubleArray</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a99ed93ed4c4d22317b0e6053af8647e0</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual int</type>
+      <name>asInteger</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a0f1ce6339ea5ed290332be5131884288</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>operator==</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a25a87e7c4b6b3ba30fd020fe350df8c4</anchor>
+      <arglist>(const Parameter &amp;prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a67c7eb3cd96611a5eefe8dd0cbec4e6d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>ae9d65140db5e59e242aada589a9b3e94</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a0f5a3e650a63e6479b26a4720600f41d</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>PrmSourceRockType</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>ab5abc8f985dbc109164ec624ec38c097</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>const VarPrmSourceRockType *</type>
+      <name>m_parent</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>ac9ac21d801991d13d04dc3b32314aa68</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_name</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a59a4201476c75ac37e0e572037e9d5fc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a65323ade93a791959d67c624d8ea5366</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_srtName</name>
+      <anchorfile>classcasa_1_1PrmSourceRockType.html</anchorfile>
+      <anchor>a2a36d59d2dcb6728aab663ec14f53f6f</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -3825,6 +4334,27 @@
     <name>casa::RunCase</name>
     <filename>classcasa_1_1RunCase.html</filename>
     <base>casa::CasaSerializable</base>
+    <member kind="enumeration">
+      <type></type>
+      <name>CaseStatus</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>ab208fcdf55a08ce05a2a22fac9199948</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>NotSubmitted</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>ab208fcdf55a08ce05a2a22fac9199948a1ee34bf7c612acc1c62265ff640ccd6d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>Scheduled</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>ab208fcdf55a08ce05a2a22fac9199948a090ab404d1d0440b92c1525675cc43a3</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
       <name>~RunCase</name>
@@ -3887,6 +4417,20 @@
       <anchorfile>classcasa_1_1RunCase.html</anchorfile>
       <anchor>a6aed22544a54d990adc671f5c870a5ab</anchor>
       <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual CaseStatus</type>
+      <name>runStatus</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>ac8b091f6c8af21498da93f2954b7e148</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>setRunStatus</name>
+      <anchorfile>classcasa_1_1RunCase.html</anchorfile>
+      <anchor>a4eeb8546960e2492ccd5ffba9b91b74e</anchor>
+      <arglist>(CaseStatus st)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual mbapi::Model *</type>
@@ -3969,6 +4513,13 @@
       <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
       <anchor>a9594c648dd21c382631f6eb9a0f042dc</anchor>
       <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; const RunCase * &gt;</type>
+      <name>collectCompletedCases</name>
+      <anchorfile>classcasa_1_1RunCaseSet.html</anchorfile>
+      <anchor>a2380394a26f26b3a2092ce1acf68f402</anchor>
+      <arglist>(const std::vector&lt; std::string &gt; &amp;doeList)=0</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -4070,8 +4621,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>scheduleCase</name>
       <anchorfile>classcasa_1_1RunManager.html</anchorfile>
-      <anchor>a8c1a0e3d2f99851e20c86611887e8b77</anchor>
-      <arglist>(const RunCase &amp;newRun)=0</arglist>
+      <anchor>a69467634acf968fdeed67582eaa96387</anchor>
+      <arglist>(RunCase &amp;newRun)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
@@ -4228,8 +4779,8 @@
       <type>ErrorHandler::ReturnCode</type>
       <name>addRSAlgorithm</name>
       <anchorfile>classcasa_1_1ScenarioAnalysis.html</anchorfile>
-      <anchor>a8a339d3e6b4eb92bd41d2f2d09ed52cb</anchor>
-      <arglist>(const char *name, int order, RSProxy::RSKrigingType krType)</arglist>
+      <anchor>aee0839ed2e6e550427509a062e487503</anchor>
+      <arglist>(const char *name, int order, RSProxy::RSKrigingType krType, const std::vector&lt; std::string &gt; &amp;doeList)</arglist>
     </member>
     <member kind="function">
       <type>RSProxySet &amp;</type>
@@ -4768,6 +5319,13 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual const SharedParameterPtr</type>
+      <name>baseValue</name>
+      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
+      <anchor>a4b05303a880785d524720d1e5b20d83d</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual const SharedParameterPtr</type>
       <name>minValue</name>
       <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
       <anchor>abfadfe1405033f89450f3043bd7e94b2</anchor>
@@ -4778,20 +5336,6 @@
       <name>maxValue</name>
       <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
       <anchor>afcb98b6f64f07e33ed6b34f90055d0e1</anchor>
-      <arglist>() const =0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual const SharedParameterPtr</type>
-      <name>baseValue</name>
-      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
-      <anchor>a4b05303a880785d524720d1e5b20d83d</anchor>
-      <arglist>() const =0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual std::vector&lt; double &gt;</type>
-      <name>weights</name>
-      <anchorfile>classcasa_1_1VarParameter.html</anchorfile>
-      <anchor>ac090500579f56699b6c33935cfa2eebe</anchor>
       <arglist>() const =0</arglist>
     </member>
   </compound>
@@ -4813,26 +5357,33 @@
       <anchor>a98d2fa088fa63bb085202288ecbcbc38</anchor>
       <arglist>() const </arglist>
     </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual const SharedParameterPtr</type>
-      <name>minValue</name>
-      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
-      <anchor>a5452f55db7144781c1026ee313a5c984</anchor>
-      <arglist>() const =0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
-      <type>virtual const SharedParameterPtr</type>
-      <name>maxValue</name>
-      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
-      <anchor>a806c546e9c10b2c659a5fb0ca0cb6f40</anchor>
-      <arglist>() const =0</arglist>
-    </member>
-    <member kind="function" virtualness="pure">
+    <member kind="function" virtualness="virtual">
       <type>virtual const SharedParameterPtr</type>
       <name>baseValue</name>
       <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
-      <anchor>af47f028420cf4af3851d3e443c7e4ddf</anchor>
-      <arglist>() const =0</arglist>
+      <anchor>ab3a918ad90cac4b5184ffc87ba19bdd4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const SharedParameterPtr</type>
+      <name>minValue</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>ade6b44803c9d94c8b3da0ae10c9a16c8</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const SharedParameterPtr</type>
+      <name>maxValue</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>a376d4281567630b1efd8c37de0a91375</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>selected</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>aef94ad2c4ead614d72ab81a91f116617</anchor>
+      <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual std::vector&lt; double &gt;</type>
@@ -4841,19 +5392,26 @@
       <anchor>acbc1b606a3b1cc938c9c9e6e7d46d67c</anchor>
       <arglist>() const </arglist>
     </member>
-    <member kind="function" virtualness="pure">
+    <member kind="function" virtualness="virtual">
       <type>virtual std::vector&lt; unsigned int &gt;</type>
       <name>valuesAsUnsignedIntSortedSet</name>
       <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
-      <anchor>ad5acb5059c6040d6cce7ac4f69e24ea9</anchor>
-      <arglist>() const =0</arglist>
+      <anchor>a3bda4b186e9b41e26583de3438a77277</anchor>
+      <arglist>() const </arglist>
     </member>
-    <member kind="function" virtualness="pure">
+    <member kind="function" virtualness="virtual">
       <type>virtual SharedParameterPtr</type>
       <name>createNewParameterFromUnsignedInt</name>
       <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
-      <anchor>ad9c68389227afc3109769d13f7fb3c41</anchor>
-      <arglist>(unsigned int val) const =0</arglist>
+      <anchor>acb2f45715ceaeac7811efa83fa91fe58</anchor>
+      <arglist>(unsigned int val) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>a9295b3fb4f5f8953ca730c133424abd4</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
     </member>
     <member kind="function" static="yes">
       <type>static VarPrmCategorical *</type>
@@ -4861,6 +5419,13 @@
       <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
       <anchor>af53d8d1e1a0976847174891812c02ca7</anchor>
       <arglist>(CasaDeserializer &amp;dz, const char *objName)</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type></type>
+      <name>VarPrmCategorical</name>
+      <anchorfile>classcasa_1_1VarPrmCategorical.html</anchorfile>
+      <anchor>abd067a3ebc40f9677a6e1161261ce63f</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -4928,13 +5493,6 @@
       <name>baseValue</name>
       <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
       <anchor>a3448da3d529b36ff3ed6c6c090187ca8</anchor>
-      <arglist>() const </arglist>
-    </member>
-    <member kind="function" virtualness="virtual">
-      <type>virtual std::vector&lt; double &gt;</type>
-      <name>weights</name>
-      <anchorfile>classcasa_1_1VarPrmContinuous.html</anchorfile>
-      <anchor>aefbb4c763dc4d92ecf091fdb082950f6</anchor>
       <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
@@ -5241,6 +5799,88 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>casa::VarPrmSourceRockHC</name>
+    <filename>classcasa_1_1VarPrmSourceRockHC.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>a3f52399ecb8d47e0c9c60281ea60ef9a</anchor>
+      <arglist>(const char *layerName, double baseValue, double minValue, double maxValue, PDF pdfType=Block)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>ab873d177bfc27caba4b7d9889cd1e6c7</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>a1553ba85b06a78866d5ae69d00d4b8c3</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual size_t</type>
+      <name>dimension</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>af9bbb7f3af8479ce68168a3d7ce05c71</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>af7c7f602fd60018b164652e6b18478d6</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>a787ddc470eb292b94fb76d032665f9c0</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>ab87751a70f3349d1469dc30ad56f2dcc</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>ada913e57d3be5dedd12fa6f9903cc0c0</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>a1701032c3077b1a87641e64921a0a6a6</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockHC</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>af3b1079907121c9b7099d6c8b6e6aa66</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHC.html</anchorfile>
+      <anchor>acc397ea8a1838b46bc4fbcafd81b2efc</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>casa::VarPrmSourceRockHI</name>
     <filename>classcasa_1_1VarPrmSourceRockHI.html</filename>
     <base>casa::VarPrmContinuous</base>
@@ -5279,6 +5919,13 @@
       <anchor>a9b42ff76043857425a34521fcdeaa282</anchor>
       <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
     </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockHI.html</anchorfile>
+      <anchor>a07e791c38e73fb9ef2cea751cc2b5f50</anchor>
+      <arglist>() const </arglist>
+    </member>
     <member kind="function" virtualness="virtual">
       <type>virtual unsigned int</type>
       <name>version</name>
@@ -5312,6 +5959,81 @@
       <name>m_layerName</name>
       <anchorfile>classcasa_1_1VarPrmSourceRockHI.html</anchorfile>
       <anchor>a6134cab2d7e85ad289e4840026b057df</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmSourceRockPreAsphaltStartAct</name>
+    <filename>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</filename>
+    <base>casa::VarPrmContinuous</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ad61fd50ddef9b60aedb61beee2e99271</anchor>
+      <arglist>(const char *layerName, double baseValue, double minValue, double maxValue, PDF pdfType=Block)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a701a3b21250b639bd08fdd947542fa1b</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>abfec49e7c7e9342c14af43dd53bf27aa</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual size_t</type>
+      <name>dimension</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a4f0bd20cef85dd144912f702a121a136</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual SharedParameterPtr</type>
+      <name>newParameterFromDoubles</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a9b0a2b245a85a075db43af6239f4b61d</anchor>
+      <arglist>(std::vector&lt; double &gt;::const_iterator &amp;vals) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a9657e1e526d91820dd57fb8cf1c76d6f</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>ab22af6483da4be3b5ee570f20f07bdbe</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a00be9ce481801c92112733532a85b1a5</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockPreAsphaltStartAct</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>a2f7a50a79ba88e416524c8a8a38bbb18</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
+    </member>
+    <member kind="variable" protection="protected">
+      <type>std::string</type>
+      <name>m_layerName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockPreAsphaltStartAct.html</anchorfile>
+      <anchor>af0f41d2a6c9f2236ff94ea0dce2f04d5</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -5388,6 +6110,74 @@
       <anchorfile>classcasa_1_1VarPrmSourceRockTOC.html</anchorfile>
       <anchor>ad990ed7dff14d40653dd4f164e0530c7</anchor>
       <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>casa::VarPrmSourceRockType</name>
+    <filename>classcasa_1_1VarPrmSourceRockType.html</filename>
+    <base>casa::VarPrmCategorical</base>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockType</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a867373b2c35cc8d873543c46813cd9db</anchor>
+      <arglist>(const char *layerName, const std::string &amp;baseVal, const std::vector&lt; std::string &gt; &amp;variation, const std::vector&lt; double &gt; &amp;weights)</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual</type>
+      <name>~VarPrmSourceRockType</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a818402f34d0e6fc0bf411c89a69b7fe0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>name</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a6d360aef4281a2c7c76a323d744ec44c</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual size_t</type>
+      <name>dimension</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a702506aac78433f4f305fa59477b27c6</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>index</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a10585a3caed6aa2786e2bbe3a676a03f</anchor>
+      <arglist>(const PrmSourceRockType *prm) const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual unsigned int</type>
+      <name>version</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>aa71188c8d78b8d1a5f095e69223decd4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual const char *</type>
+      <name>typeName</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a4067df1f658151b7e02225d1d0d72eb4</anchor>
+      <arglist>() const </arglist>
+    </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual bool</type>
+      <name>save</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>acfe67f3e6ec472ed95e61bdab08cab16</anchor>
+      <arglist>(CasaSerializer &amp;sz, unsigned int version) const </arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>VarPrmSourceRockType</name>
+      <anchorfile>classcasa_1_1VarPrmSourceRockType.html</anchorfile>
+      <anchor>a2d8c56d2dd64ac2fd3c5df7078a5861b</anchor>
+      <arglist>(CasaDeserializer &amp;dz, unsigned int objVer)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -5570,6 +6360,27 @@
       <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
       <anchor>ab1dc8dc39897129e7344f1700dbc77f6</anchor>
       <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockHC</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>aa436e5b6479043f4b76d62efe6c3027c</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockPreAsphaltActEnergy</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a56ed01587867a9552cfd50d39ad3de0b</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, double minVal, double maxVal, VarPrmContinuous::PDF rangeShape)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>VarySourceRockType</name>
+      <anchorfile>namespacecasa_1_1BusinessLogicRulesSet.html</anchorfile>
+      <anchor>a9888c93665dea2aa719e6c462ee1d40f</anchor>
+      <arglist>(ScenarioAnalysis &amp;sa, const char *layerName, const std::vector&lt; std::string &gt; &amp;stVariation, const std::vector&lt; double &gt; &amp;weights)</arglist>
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>

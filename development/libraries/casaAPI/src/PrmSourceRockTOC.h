@@ -40,16 +40,14 @@ namespace casa
    class PrmSourceRockTOC : public Parameter
    {
    public:
-      /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get value for TOC for given layer from
-      ///            if model has more than one source rock lithology for the same layer, the TOC
-      ///            value will be equal the first one
+      /// @brief Constructor, creates parameter object by reading the parameter value from the given model
+      /// @param mdl Cauldron model interface object to get the parameter value for the given layer from
       /// @param layerName layer name
       PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
+      /// @brief Constructor, creates the parameter object for the given parameter value and layer name
       /// @param parent pointer to a variable parameter which created this one
-      /// @param val value of the initial total organic content in source rock @f$ [ weight \% ] @f$
+      /// @param val value of the parameter
       /// @param layerName layer name
       PrmSourceRockTOC( const VarPrmSourceRockTOC * parent, double val, const char * layerName );
 
@@ -60,7 +58,7 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
 
-      /// @brief Get variable parameter which was used to create this parameter
+      /// @brief Get variable parameter object which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
@@ -69,9 +67,7 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
-      /// @brief Validate TOC value if it is in [0:100] range, also it check are any source rock
-      ///        lithology in the model with the same layer name, does the parameter value is the
-      ///        same as in source rock lithology.
+      /// @brief Validate parameter value if it is inside of valid range
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );

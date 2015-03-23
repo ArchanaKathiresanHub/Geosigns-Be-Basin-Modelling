@@ -17,6 +17,8 @@
 #include "PrmSourceRockTOC.h"
 #include "PrmSourceRockHC.h"
 #include "PrmSourceRockHI.h"
+#include "PrmSourceRockType.h"
+#include "PrmSourceRockPreAsphaltStartAct.h"
 #include "PrmTopCrustHeatProduction.h"
 #include "PrmPorosityModel.h"
 
@@ -33,12 +35,14 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
          << "Parameter deserialization error, expected parameter with name: " << objName
          << ", but stream gave object with name: " << on;
    }
-   if (      ot == "PrmOneCrustThinningEvent"  ) { return new PrmOneCrustThinningEvent(  dz, vr ); }
-   else if ( ot == "PrmSourceRockTOC"          ) { return new PrmSourceRockTOC(          dz, vr ); }
-   else if ( ot == "PrmSourceRockHC"           ) { return new PrmSourceRockHC(           dz, vr ); }
-   else if ( ot == "PrmSourceRockHI"           ) { return new PrmSourceRockHI(           dz, vr ); }
-   else if ( ot == "PrmTopCrustHeatProduction" ) { return new PrmTopCrustHeatProduction( dz, vr ); }
-   else if ( ot == "PrmPorosityModel"          ) { return new PrmPorosityModel(          dz, vr ); }
+   if (      ot == "PrmOneCrustThinningEvent"        ) { return new PrmOneCrustThinningEvent(        dz, vr ); }
+   else if ( ot == "PrmSourceRockTOC"                ) { return new PrmSourceRockTOC(                dz, vr ); }
+   else if ( ot == "PrmSourceRockHC"                 ) { return new PrmSourceRockHC(                 dz, vr ); }
+   else if ( ot == "PrmSourceRockHI"                 ) { return new PrmSourceRockHI(                 dz, vr ); }
+   else if ( ot == "PrmSourceRockPreAsphaltStartAct" ) { return new PrmSourceRockPreAsphaltStartAct( dz, vr ); }
+   else if ( ot == "PrmSourceRockType"               ) { return new PrmSourceRockType(               dz, vr ); }
+   else if ( ot == "PrmTopCrustHeatProduction"       ) { return new PrmTopCrustHeatProduction(       dz, vr ); }
+   else if ( ot == "PrmPorosityModel"                ) { return new PrmPorosityModel(                dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

@@ -103,7 +103,7 @@ namespace casa
       PrmPorosityModel( const VarPrmPorosityModel * parent, const char * lithoName, PorosityModelType mdlType, const std::vector<double> & mdlPrms );
 
       /// @brief Destructor
-      virtual ~PrmPorosityModel();
+      virtual ~PrmPorosityModel() { ; }
      
       /// @brief Get name of the parameter
       /// @return parameter name

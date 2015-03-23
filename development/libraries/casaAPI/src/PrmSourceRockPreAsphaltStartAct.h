@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -8,11 +8,11 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file PrmSourceRockHC.h
-/// @brief This file keeps API declaration for Source Rock H/C parameter handling. 
+/// @file PrmSourceRockPreAsphaltStartAct.h
+/// @brief This file keeps API declaration for Source Rock Preasphaltene Activation Energy parameter handling. 
 
-#ifndef CASA_API_PARAMETER_SOURCE_ROCK_HC_H
-#define CASA_API_PARAMETER_SOURCE_ROCK_HC_H
+#ifndef CASA_API_PARAMETER_SOURCE_ROCK_PRE_ASPH_ACT_ENERGY_H
+#define CASA_API_PARAMETER_SOURCE_ROCK_PRE_ASPH_ACT_ENERGY_H
 
 #include "Parameter.h"
 
@@ -26,41 +26,40 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_SourceRockHCPage Source rock H/C initial ratio parameter
+/// @page CASA_SourceRockPreAsphaltStartActPage Source rock pre-asphaltene activation energy parameter
 /// 
-/// This parameter defines the H/C initial ratio in source rock.
-/// The value is defined in units: @f$ [ kg/tonne C] @f$
-/// It is continuous parameter and his range is @f$ [0:2] @f$
+/// This parameter defines the activation energy limit for which the pre-asphalt cracking starts
+/// The value is defined in units: @f$ [ kJ/mol ] @f$
+/// It is a continuous parameter and it valid range usually is defined by the source rock type, but it
+/// value can't be out of the range @f$ [200:220]\% @f$
 
 namespace casa
 {
-   class VarPrmSourceRockHC;
+   class VarPrmSourceRockPreAsphaltStartAct;
 
-   /// @brief Source rock hydrogen index initial ratio parameter
-   class PrmSourceRockHC : public Parameter
+   /// @brief Source rock initial organic content parameter
+   class PrmSourceRockPreAsphaltStartAct : public Parameter
    {
    public:
-      /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get value for H/C for given layer from.
-      ///            If model has more than one source rock lithology for the same layer, the H/C
-      ///            value will be equal the first one
+      /// @brief Constructor, creates parameter object by reading the parameter value from the given model
+      /// @param mdl Cauldron model interface object to get the parameter value for the given layer from
       /// @param layerName layer name
-      PrmSourceRockHC( mbapi::Model & mdl, const char * layerName );
+      PrmSourceRockPreAsphaltStartAct( mbapi::Model & mdl, const char * layerName );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
+      /// @brief Constructor, creates the parameter object for the given parameter value and layer name
       /// @param parent pointer to a variable parameter which created this one
-      /// @param val value of the hydrogen index initial ratio in source rock @f$ [ kg/tonne C] @f$
+      /// @param val value of the parameter
       /// @param layerName layer name
-      PrmSourceRockHC( const VarPrmSourceRockHC * parent, double val, const char * layerName );
+      PrmSourceRockPreAsphaltStartAct( const VarPrmSourceRockPreAsphaltStartAct * parent, double val, const char * layerName );
 
       /// @brief Destructor
-      virtual ~PrmSourceRockHC() { ; }
+      virtual ~PrmSourceRockPreAsphaltStartAct();
      
       /// @brief Get name of the parameter
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
 
-      /// @brief Get variable parameter which was used to create this parameter
+      /// @brief Get variable parameter object which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
@@ -69,14 +68,14 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
-      /// @brief Validate H/C value if it is in [0:2] range
+      /// @brief Validate parameter value if it is inside of valid range
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
 
       /// @brief Get value for the parameter as double
       /// @return parameter value
-      double value() const { return m_hc;  }
+      double value() const { return m_value;  }
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
       
@@ -106,12 +105,12 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "PrmSourceRockHC"; }
+      virtual const char * typeName() const { return "PrmSourceRockPreAsphaltStartAct"; }
 
       /// @brief Create a new parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      PrmSourceRockHC( CasaDeserializer & dz, unsigned int objVer );
+      PrmSourceRockPreAsphaltStartAct( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 
    protected:
@@ -120,9 +119,9 @@ namespace casa
       std::string          m_name;      ///< name of the parameter
       
       std::string          m_layerName; ///< layer name with source rock
-      double               m_hc;        ///< H/C value
+      double               m_value;     ///< pre-asphaltene activation energy value 
    };
 
 }
 
-#endif // CASA_API_PARAMETER_SOURCE_ROCK_HC_H
+#endif // CASA_API_PARAMETER_SOURCE_ROCK_PRE_ASPH_ACT_ENERGY_H

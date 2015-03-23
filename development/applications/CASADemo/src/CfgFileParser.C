@@ -106,6 +106,30 @@ std::vector<std::string> CfgFileParser::list2array( const std::string & listOfSt
    return strList;
 }
 
+// parse matlab like vector: [1,3,4,5] to vector of doubles
+std::vector<double> CfgFileParser::set2array( const std::string & lst, char sep )
+{
+   std::vector<double> valSet; // array where we will keep double values from the set to return
+   std::string listOfVal = lst;
+
+   // cut []
+   if ( listOfVal[0]                    == '[' ) listOfVal.erase( 0, 1 );
+   if ( listOfVal[listOfVal.size() - 1] == ']' ) listOfVal.erase( listOfVal.size() - 1, 1 );
+
+   std::istringstream iss( listOfVal ); // tokenizer
+
+   std::string result; // one token
+
+   while (std::getline(iss, result, sep))
+   {
+      if (result.empty() || (result.size() == 1 && result[0] == sep)) continue; // skip spaces and separators
+
+      valSet.push_back( atof(result.c_str() ) ); // add token to the list
+   }
+
+   return valSet;
+}
+
 // read well trajectory file with reference values
 void CfgFileParser::readTrajectoryFile( const std::string & fileName, 
                                         std::vector<double> & x,

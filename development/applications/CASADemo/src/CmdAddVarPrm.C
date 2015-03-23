@@ -10,6 +10,7 @@
 #include "CasaCommander.h"
 #include "CmdAddVarPrm.h"
 #include "UndefinedValues.h"
+#include "CfgFileParser.h"
 
 #include "casaAPI.h"
 
@@ -39,18 +40,22 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
         m_prms[0] != "SourceRockTOC"          &&
         m_prms[0] != "SourceRockHC"           &&
         m_prms[0] != "SourceRockHI"           &&
+        m_prms[0] != "SourceRockType"         &&
+        m_prms[0] != "SourceRockPreasphActEnergy" &&
         m_prms[0] != "CrustThinningOneEvent"  &&
         m_prms[0] != "PorosityModel" )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown variable parameter name: " << m_prms[0];
    }
    // check number of command parameters for var parameter
-   if ( m_prms[0] == "TopCrustHeatProduction" && m_prms.size() !=  4 ||
-        m_prms[0] == "SourceRockTOC"          && m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockHC"           && m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockHI"           && m_prms.size() !=  5 ||
-        m_prms[0] == "CrustThinningOneEvent"  && m_prms.size() != 10 ||
-        m_prms[0] == "PorosityModel"          && (m_prms.size() <  8 || m_prms.size() > 12) 
+   if ( m_prms[0] == "TopCrustHeatProduction"     && m_prms.size() !=  4 ||
+        m_prms[0] == "SourceRockTOC"              && m_prms.size() !=  5 ||
+        m_prms[0] == "SourceRockHC"               && m_prms.size() !=  5 ||
+        m_prms[0] == "SourceRockHI"               && m_prms.size() !=  5 ||
+        m_prms[0] == "SourceRockType"             && m_prms.size() !=  4 ||
+        m_prms[0] == "SourceRockPreasphActEnergy" && m_prms.size() !=  5 ||
+        m_prms[0] == "CrustThinningOneEvent"      && m_prms.size() != 10 ||
+        m_prms[0] == "PorosityModel"              && (m_prms.size() <  8 || m_prms.size() > 12) 
       )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
@@ -115,6 +120,32 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
       ppdf = Str2pdf( m_prms[4] );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockHI( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
+   }
+   else if ( m_prms[0] == "SourceRockType" )
+   {
+      std::string layerName = m_prms[1];
+      std::vector<std::string> srtList    = CfgFileParser::list2array( m_prms[2], ',' );
+      std::vector<double>      srtWeights = CfgFileParser::set2array(  m_prms[3], ',' );
+      if (ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockType( *sa.get()
+                                                                                  , layerName.c_str()
+                                                                                  , srtList
+                                                                                  , srtWeights
+                                                                                  ) )
+      {
+         throw ErrorHandler::Exception(sa->errorCode()) << sa->errorMessage();
+      }
+   }   
+   else if ( m_prms[0] == "SourceRockPreasphActEnergy" )
+   {
+      double minVal = atof( m_prms[2].c_str() );
+      double maxVal = atof( m_prms[3].c_str() );
+
+      ppdf = Str2pdf( m_prms[4] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockPreAsphaltActEnergy( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
@@ -254,7 +285,28 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "\n";
    std::cout << "    Example:\n";
    std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
-   std::cout << "    "<< cmdName << " \"SourceRockHI\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
+   std::cout << "    " << cmdName << " \"SourceRockHI\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    SourceRockType  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
+   std::cout << "    Where:\n";
+   std::cout << "       layerName - source rock layer name\n";
+   std::cout << "       SRtype    - comma separated list of source rock types for variation\n";
+   std::cout << "       w1-w2     - comma separated list of source rock types weights\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #             type         layerName          category list             categories weight\n";
+   std::cout << "    "<< cmdName << " \"SourceRockType\" \"Lower Jurassic\"  \"Type1,Type2,Type3\" [0.8, 0.1, 0.1]\n";
+   std::cout << "\n";
+   std::cout << "    SourceRockPreasphActEnergy  <layerName> <minVal> <maxVal> <prmPDF>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       layerName - source rock layer name\n";
+   std::cout << "       minVal    - the parameter minimal range value\n";
+   std::cout << "       maxVal    - the parameter maximal range value\n";
+   std::cout << "       prmPDF    - the parameter probability density function type\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
+   std::cout << "    " << cmdName << " \"SourceRockPreasphActEnergy\" \"Lower Jurassic\"    204.0  206.0  \"Block\"\n";
    std::cout << "\n";
    std::cout << "    CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
    std::cout << "    Where:\n";

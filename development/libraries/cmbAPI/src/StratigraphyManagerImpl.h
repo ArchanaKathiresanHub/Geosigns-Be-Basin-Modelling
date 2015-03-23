@@ -46,11 +46,11 @@ namespace mbapi {
 
       // Get list of layers in the model
       // returns an array with IDs of layers defined in the model
-      virtual std::vector<LayerID> getLayersID() const; 
+      virtual std::vector<LayerID> layersIDs() const; 
 
       // Get list of surfaces in the model
       // returns array with IDs of surfaces defined in the model
-      virtual std::vector<SurfaceID> geSurfacesID() const; 
+      virtual std::vector<SurfaceID> surfacesIDs() const; 
 
       // Create new layer
       // returns ID of the new Stratigraphy

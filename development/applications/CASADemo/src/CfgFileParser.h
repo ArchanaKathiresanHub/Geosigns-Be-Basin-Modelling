@@ -26,7 +26,10 @@ public:
    void parseFile( const std::string & cmdFile, CasaCommander & cmdQueue );
 
    // split list of strings divided by sep in to array of strings
-   static std::vector<std::string> list2array( const std::string & listOfStr, char sep = ' ');
+   static std::vector<std::string> list2array( const std::string & listOfStr, char sep = ' ' );
+
+   // parse matlab like vector: [1,3,4,5] to vector of doubles
+   static std::vector<double> set2array( const std::string & listOfVal, char sep = ',' );
 
    // read well trajectory file with reference values
    static void readTrajectoryFile( const std::string & fileName, 

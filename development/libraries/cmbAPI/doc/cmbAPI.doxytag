@@ -89,10 +89,45 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>UndefinedIDValue</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>ac6f01950fd7e1f78ac8c7d16b22292ff</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>UndefinedStringValue</name>
       <anchorfile>UndefinedValues_8h.html</anchorfile>
       <anchor>ab003bd42d0231b1723316bcfaf963957</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>IsValueUndefined</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>a40d01b014f055509690e93b78e22a30e</anchor>
+      <arglist>(double val)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>IsValueUndefined</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>a08d6b9314531cd76b2bfd7c9ec1f6fa6</anchor>
+      <arglist>(const std::string &amp;val)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>IsValueUndefined</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>aaa395ba94b155124beac5549c1a69e23</anchor>
+      <arglist>(int val)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>IsValueUndefined</name>
+      <anchorfile>UndefinedValues_8h.html</anchorfile>
+      <anchor>a606269f806b7e218c3aca80f84eb9ab7</anchor>
+      <arglist>(size_t val)</arglist>
     </member>
   </compound>
   <compound kind="page">
@@ -693,8 +728,8 @@
       <type>virtual ReturnCode</type>
       <name>setTOCIni</name>
       <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
-      <anchor>ad04c6ada0791498921554a9d38d24e23</anchor>
-      <arglist>(const std::string &amp;layerName, double newTOC)=0</arglist>
+      <anchor>a1aaa769f87b73110d49381358e65669a</anchor>
+      <arglist>(SourceRockID id, double newTOC)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
@@ -707,8 +742,36 @@
       <type>virtual ReturnCode</type>
       <name>setHIIni</name>
       <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
-      <anchor>a77677515869dde07cbd94096ac4bad4e</anchor>
-      <arglist>(const std::string &amp;layerName, double newHI)=0</arglist>
+      <anchor>aa231e4bee50f8f33063f75bf8d0363aa</anchor>
+      <arglist>(SourceRockID id, double newHI)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>hcIni</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a0a03317fa69d7f4311898233d28545ea</anchor>
+      <arglist>(SourceRockID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setHCIni</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a798730eadbf2feccfd42d54c77af9c4b</anchor>
+      <arglist>(SourceRockID id, double newHC)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>preAsphActEnergy</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>aa8fd79a0419219f23affccc5fe182548</anchor>
+      <arglist>(SourceRockID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setPreAsphActEnergy</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a187be1067b9dc733d8e3d05fd8ed861d</anchor>
+      <arglist>(SourceRockID id, double newVal)=0</arglist>
     </member>
     <member kind="typedef">
       <type>size_t</type>
@@ -723,6 +786,13 @@
       <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
       <anchor>aa3c944520a774811db3990f59620b965</anchor>
       <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual SourceRockID</type>
+      <name>findID</name>
+      <anchorfile>classmbapi_1_1SourceRockManager.html</anchorfile>
+      <anchor>a444c78ff7a5cafc563e131264f21c5a7</anchor>
+      <arglist>(const std::string &amp;lName, const std::string &amp;srTypeName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual SourceRockID</type>
@@ -766,16 +836,16 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual std::vector&lt; LayerID &gt;</type>
-      <name>getLayersID</name>
+      <name>layersIDs</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
-      <anchor>a6c6995e1305e278ad21116edae03545d</anchor>
+      <anchor>a4aed414e2acaace9d5c4d475a59dbfe3</anchor>
       <arglist>() const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual std::vector&lt; SurfaceID &gt;</type>
-      <name>geSurfacesID</name>
+      <name>surfacesIDs</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
-      <anchor>a6e4b70ff941997d943c303ad04763029</anchor>
+      <anchor>a67bbd5663107775d67c98440d58329f2</anchor>
       <arglist>() const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
@@ -793,18 +863,25 @@
       <arglist>()=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
-      <type>virtual ReturnCode</type>
-      <name>getLayerName</name>
+      <type>virtual std::string</type>
+      <name>layerName</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
-      <anchor>a9660e7a942dee12293c9ad652695d241</anchor>
-      <arglist>(LayerID id, std::string &amp;layerName)=0</arglist>
+      <anchor>aa2b1b1cfc9e54afe8e56c853b0a060a3</anchor>
+      <arglist>(LayerID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
-      <type>virtual ReturnCode</type>
-      <name>getSurfaceName</name>
+      <type>virtual LayerID</type>
+      <name>layerID</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
-      <anchor>a9bc13f5a5a5bec0011ff61234e551e46</anchor>
-      <arglist>(LayerID id, std::string &amp;surfName)=0</arglist>
+      <anchor>a57102a3694e4d6860cc62af6df9cde50</anchor>
+      <arglist>(const std::string &amp;ln)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>surfaceName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ac8f5c4812a9c0ada5e008c8d4a468003</anchor>
+      <arglist>(LayerID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
@@ -812,6 +889,62 @@
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>a1dcbf2cfdec037015b04f9b7734d992e</anchor>
       <arglist>(LayerID lid, SurfaceID usid, SurfaceID dsid)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>isSourceRockActive</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a20cce168851d86d5d11480766a4f3e8e</anchor>
+      <arglist>(LayerID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>isSourceRockMixingEnabled</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a382d21709da3ef5ca8ad746e69d5aa37</anchor>
+      <arglist>(LayerID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; std::string &gt;</type>
+      <name>sourceRockTypeName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a6d27f70866caa545ead070869befedd3</anchor>
+      <arglist>(LayerID lid)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>sourceRockMixHI</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a510d2f09696b8ba03dcad37224a6ec32</anchor>
+      <arglist>(LayerID lid)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>sourceRockMixHC</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a2ff76cb4825f819a07965c3ecb371cf7</anchor>
+      <arglist>(LayerID lid)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setSourceRockTypeName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a130e1246681feb11c42dc1b70e4f0eda</anchor>
+      <arglist>(LayerID lid, const std::vector&lt; std::string &gt; &amp;srTypeNames)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setSourceRockMixHI</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a57e704016fa6e81b8227fe53d02aa3a9</anchor>
+      <arglist>(LayerID lid, double srmHI)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setSourceRockMixHC</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a1badb903d7c1b6a218a5a3f28ccc8ca1</anchor>
+      <arglist>(LayerID lid, double srmHC)=0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type></type>

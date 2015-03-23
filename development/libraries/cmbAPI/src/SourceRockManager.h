@@ -100,17 +100,32 @@ namespace mbapi {
       /// @{
       /// Source rock H/C initial ratio API 
 
-      /// @brief Get H/C initial ratio ( kg/tonne C)
+      /// @brief Get H/C initial ratio
       /// @param id source rock ID
       /// @return H/C value for given source rock lithology ID or UndefinedDoubleValue in case of error
       virtual double hcIni( SourceRockID id ) = 0;
 
-      /// @brief Set H/C initial ratio value ( must be in range 0-1000 kg/tonne C)
+      /// @brief Set H/C initial ratio value  (must be in range 0-2)
       /// @param id source rock ID
-      /// @param newHC new H/C ratio value ( must be in range 0-1000 kg/tonne)
+      /// @param newHC new H/C ratio value
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setHCIni( SourceRockID id, double newHC ) = 0;
       /// @}
+
+      /// @{
+      /// Source rock pre-asphaltene activation energy API
+      /// @brief Get pre-asphaltene activation energy [kJ/mol]
+      /// @param id source rock ID
+      /// @return pre-asphaltene activation energy value for given source rock lithology ID or UndefinedDoubleValue in case of error
+      virtual double preAsphActEnergy( SourceRockID id ) = 0;
+
+      /// @brief Set pre-asphaltene activation energy (must be in range 200-220 kJ/mol)
+      /// @param id source rock ID
+      /// @param newVal new pre-asphaltene activation energy value
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      virtual ReturnCode setPreAsphActEnergy( SourceRockID id, double newVal ) = 0;
+      /// @}
+
 
 
    protected:

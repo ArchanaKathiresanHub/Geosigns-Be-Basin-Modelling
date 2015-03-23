@@ -97,11 +97,17 @@ namespace casa
          // Let the SUMlib experimental design create a SUMlib case set.
          std::vector<SUMlib::Case> sumCases;
 
+         size_t numOfOrdPrms = 0; // count number of continuous parameters
+         for ( size_t i = 0; i < varPrmsSet.numberOfContPrms(); ++i )
+         {
+            numOfOrdPrms += varPrmsSet.continuousParameter( i )->dimension();
+         }
+
          // create SUMlib object for DoE generation
          if ( SpaceFilling == m_typeOfDoE ) // special case, can extend already existed set of cases
          {
-            const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>(selectedPrms.size()),
-               static_cast<unsigned int>(expSet.size()), static_cast<unsigned int>(runsNum) );
+            const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( numOfOrdPrms ),
+                                        static_cast<unsigned int>(expSet.size()), static_cast<unsigned int>( runsNum ) );
             const bool replicate = false;
             doe.getCaseSet( pBounds, baseCase, replicate, sumCases );
          }
@@ -117,12 +123,12 @@ namespace casa
 
             switch ( m_typeOfDoE )
             {
-            case BoxBehnken:           doe.reset( new SUMlib::BoxBehnken( selectedPrms, static_cast<unsigned int>(selectedPrms.size()) ) ); break;
-            case Tornado:              doe.reset( new SUMlib::Tornado( selectedPrms, static_cast<unsigned int>(selectedPrms.size()) ) ); break;
-            case PlackettBurman:       doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>(selectedPrms.size()), false, false ) ); break;
-            case PlackettBurmanMirror: doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>(selectedPrms.size()), false, true ) ); break;
-            case LatinHypercube:       doe.reset( new SUMlib::OptimisedLHD( selectedPrms, static_cast<unsigned int>(selectedPrms.size()), numRuns ) ); break;
-            case FullFactorial:        doe.reset( new SUMlib::FactDesign( selectedPrms, static_cast<unsigned int>(selectedPrms.size()) ) ); break;
+            case BoxBehnken:           doe.reset( new SUMlib::BoxBehnken(   selectedPrms, static_cast<unsigned int>(numOfOrdPrms)               ) ); break;
+            case Tornado:              doe.reset( new SUMlib::Tornado(      selectedPrms, static_cast<unsigned int>(numOfOrdPrms)               ) ); break;
+            case PlackettBurman:       doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>(numOfOrdPrms), false, false ) ); break;
+            case PlackettBurmanMirror: doe.reset( new SUMlib::ScreenDesign( selectedPrms, static_cast<unsigned int>(numOfOrdPrms), false, true  ) ); break;
+            case LatinHypercube:       doe.reset( new SUMlib::OptimisedLHD( selectedPrms, static_cast<unsigned int>(numOfOrdPrms), numRuns      ) ); break;
+            case FullFactorial:        doe.reset( new SUMlib::FactDesign(   selectedPrms, static_cast<unsigned int>(numOfOrdPrms)               ) ); break;
             default:
                std::ostringstream oss;
                oss << "Unknown DoE algorithm: " << m_typeOfDoE;

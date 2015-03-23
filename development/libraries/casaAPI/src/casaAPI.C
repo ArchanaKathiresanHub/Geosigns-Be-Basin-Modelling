@@ -19,6 +19,9 @@
 #include "PrmSourceRockTOC.h"
 #include "PrmSourceRockHC.h"
 #include "PrmSourceRockHI.h"
+#include "PrmSourceRockType.h"
+#include "PrmSourceRockPreAsphaltStartAct.h"
+
 #include "PrmOneCrustThinningEvent.h"
 #include "PrmPorosityModel.h"
 
@@ -26,6 +29,8 @@
 #include "VarPrmSourceRockTOC.h"
 #include "VarPrmSourceRockHC.h"
 #include "VarPrmSourceRockHI.h"
+#include "VarPrmSourceRockType.h"
+#include "VarPrmSourceRockPreAsphaltStartAct.h"
 #include "VarPrmOneCrustThinningEvent.h"
 #include "VarPrmPorosityModel.h"
 
@@ -165,7 +170,7 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis & sa
          }
 
          const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
-         if ( hcPrm && hiPrm->layerName() == layerName )
+         if ( hiPrm && hiPrm->layerName() == layerName )
          {
             throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock HI parameter is already defined for the layer " << layerName;
          }
@@ -199,7 +204,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
 
-      casa::PrmSourceRockHI prm( mdl, layerName );
+      casa::PrmSourceRockHC prm( mdl, layerName );
       if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
 
       const std::vector<double> & baseValue = prm.asDoubleArray();
@@ -222,7 +227,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
          }
          
          const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
-         if ( hcPrm && hiPrm->layerName() == layerName )
+         if ( hiPrm && hiPrm->layerName() == layerName )
          {
             throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of source rock HI parameter is already defined for the layer " << layerName <<
                ", H/C and HI variation can not be defined together";
@@ -243,6 +248,105 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis & sa
    return ErrorHandler::NoError;
 }
 
+
+// Add a parameter to variate source rock lithology pre-asphaltene activation energy value @f$ [kJ/mol] @f$ in given range
+ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis & sa
+                                                          , const char * layerName
+                                                          , double minVal
+                                                          , double maxVal
+                                                          , VarPrmContinuous::PDF rangeShape
+                                                          )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace();
+
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase();
+
+      casa::PrmSourceRockPreAsphaltStartAct prm( mdl, layerName );
+      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+
+      const std::vector<double> & baseValue = prm.asDoubleArray();
+      assert( baseValue.size() == 1 );
+
+      if ( baseValue[0] < minVal || baseValue[0] > maxVal )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+      }
+
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockPreAsphaltStartAct( layerName, baseValue[0], minVal, maxVal, rangeShape ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
+   }
+   catch ( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+
+
+// Add parameter to variate source rock type for the specified layer
+ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
+                                           , const char                     * layerName
+                                           , const std::vector<std::string> & stVariation
+                                           , const std::vector<double>      & weights
+                                           )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace();
+
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase();
+      
+      PrmSourceRockType prm( mdl, layerName );
+
+      bool found = false;
+
+      // check if base case exist in given variation
+      for ( size_t i = 0; i < stVariation.size() && !found; ++i )
+      {
+         if ( stVariation[i] == prm.sourceRockTypeName() ) found = true;
+      }
+
+      if ( !found )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Scenario base case has source rock type name for layer " << 
+            layerName << " which is not in source rock types variation list";
+      }
+
+      // we need to check are source rock lithology table keeps records for all given source rock types
+      mbapi::SourceRockManager   & srMgr = mdl.sourceRockManager();
+
+      for ( size_t i = 0; i < stVariation.size(); ++i )
+      {
+         mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( layerName, stVariation[i] );
+   
+         if ( IsValueUndefined( sid ) )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Source rock lithology variation " << 
+               layerName << "->" << stVariation[i] <<  " does not exist in source rock lithology table";
+         }
+      }
+      
+      // add variable parameter to VarSpace
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockType( layerName, prm.sourceRockTypeName(), stVariation, weights ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
+   }
+   catch( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+ 
 
 // Add 4 parameters to variate one crust thinning event.
 ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa, double minThickIni,    double maxThickIni,

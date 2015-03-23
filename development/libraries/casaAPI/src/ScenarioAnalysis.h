@@ -166,7 +166,8 @@ namespace casa
       // version 1: 
       // version 2: Added SensitivityCalculator
       // version 3: Added RunManager cases state
-      int version() { return 3; }
+      // version 4: SUMlib updated to the latest version
+      int version() { return 4; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in

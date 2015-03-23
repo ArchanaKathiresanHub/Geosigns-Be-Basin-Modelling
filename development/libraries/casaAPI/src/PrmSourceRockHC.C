@@ -38,7 +38,6 @@ PrmSourceRockHC::PrmSourceRockHC( mbapi::Model & mdl, const char * layerName ) :
       mbapi::SourceRockManager   & srMgr = mdl.sourceRockManager();
       mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
 
-      // get check is this layer has a mix of source rocks
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
       if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
 
@@ -46,7 +45,7 @@ PrmSourceRockHC::PrmSourceRockHC( mbapi::Model & mdl, const char * layerName ) :
       if ( !stMgr.isSourceRockActive( lid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+            "H/C setting error: source rock is not active for the layer:" << m_layerName;
       }
 
       // in case of SR mixing get H/C from the HI mix value
@@ -97,10 +96,6 @@ PrmSourceRockHC::PrmSourceRockHC( const VarPrmSourceRockHC * parent, double val,
    m_name = oss.str();
 }
 
-// Destructor
-PrmSourceRockHC::~PrmSourceRockHC() {;}
-
-
 // Update given model with the parameter value
 ErrorHandler::ReturnCode PrmSourceRockHC::setInModel( mbapi::Model & caldModel )
 {
@@ -109,7 +104,6 @@ ErrorHandler::ReturnCode PrmSourceRockHC::setInModel( mbapi::Model & caldModel )
       mbapi::SourceRockManager   & srMgr = caldModel.sourceRockManager();
       mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
 
-      // get check is this layer has a mix of source rocks
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
       if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
 
@@ -166,7 +160,6 @@ std::string PrmSourceRockHC::validate( mbapi::Model & caldModel )
       mbapi::SourceRockManager   & srMgr = caldModel.sourceRockManager();
       mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
 
-      // get check is this layer has a mix of source rocks
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
       if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
 
@@ -174,7 +167,7 @@ std::string PrmSourceRockHC::validate( mbapi::Model & caldModel )
       if ( !stMgr.isSourceRockActive( lid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+            "H/C setting error: source rock is not active for the layer:" << m_layerName;
       }
 
       double hcInModel = UndefinedDoubleValue;

@@ -20,7 +20,12 @@ public:
 
    bool compareFiles( const char * projFile1, const char * projFile2 );
    bool compareModels( mbapi::Model & model1, mbapi::Model & model2 );
+
+   static const char * m_sourceRockTestProject;
 };
+
+const char * mbapiModelTest::m_sourceRockTestProject = "SourceRockTesting.project3d";
+
 
 bool mbapiModelTest::compareFiles( const char * projFile1, const char * projFile2 )
 {
@@ -146,11 +151,10 @@ TEST_F( mbapiModelTest, BasementPropertySetting )
 // Test set/get TOC in source rock lithology
 TEST_F( mbapiModelTest, SourceRockTOCSettings )
 {
-
    mbapi::Model testModel;
 
    // load test project
-   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_sourceRockTestProject ) );
 
    mbapi::SourceRockManager   & srMgr = testModel.sourceRockManager();
    mbapi::StratigraphyManager & stMgr = testModel.stratigraphyManager();
@@ -165,7 +169,7 @@ TEST_F( mbapiModelTest, SourceRockTOCSettings )
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( lNames[i] );
       ASSERT_EQ( IsValueUndefined( lid ), false );
       const std::vector<std::string> & layerSourceRocks = stMgr.sourceRockTypeName( lid );
-      ASSERT_EQ( layerSourceRocks.size(), 1 );
+      ASSERT_EQ( layerSourceRocks.size(), (i == 0 ? 2: 1) );
 
       mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( lNames[i], layerSourceRocks.front() );
       ASSERT_EQ( IsValueUndefined( sid ), false );
@@ -180,11 +184,11 @@ TEST_F( mbapiModelTest, SourceRockTOCSettings )
    }
 
    // save as a new temporary project file
-   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "Ottoland_changedTOC.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "ChangedTOC.project3d" ) );
 
    // reload this new project file into other model
    mbapi::Model modifModel;
-   ASSERT_EQ( ErrorHandler::NoError, modifModel.loadModelFromProjectFile( "Ottoland_changedTOC.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, modifModel.loadModelFromProjectFile( "ChangedTOC.project3d" ) );
    
    mbapi::SourceRockManager   & srModMgr = modifModel.sourceRockManager();
    mbapi::StratigraphyManager & stModMgr = modifModel.stratigraphyManager();
@@ -197,7 +201,7 @@ TEST_F( mbapiModelTest, SourceRockTOCSettings )
       ASSERT_EQ( IsValueUndefined( lid ), false );
 
       const std::vector<std::string> & layerSourceRocks = stModMgr.sourceRockTypeName( lid );
-      ASSERT_EQ( layerSourceRocks.size(), 1 );
+      ASSERT_EQ( layerSourceRocks.size(), (i == 0 ? 2 : 1) );
 
       mbapi::SourceRockManager::SourceRockID sid = srModMgr.findID( lNames[i], layerSourceRocks.front() );
       ASSERT_EQ( IsValueUndefined( sid ), false );
@@ -209,7 +213,81 @@ TEST_F( mbapiModelTest, SourceRockTOCSettings )
    }
 
    // delete temporary project file
-   remove( "Ottoland_changedTOC.project3d" );
+   remove( "ChangedTOC.project3d" );
+}
+
+// Test set/get TOC in source rock lithology
+TEST_F( mbapiModelTest, SourceRockHI_HCSettings )
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_sourceRockTestProject ) );
+
+   mbapi::SourceRockManager   & srMgr = testModel.sourceRockManager();
+   mbapi::StratigraphyManager & stMgr = testModel.stratigraphyManager();
+
+   const char * lNames[] = { "Westphalian", "Lower Jurassic" };
+
+   for ( size_t i = 0; i < 2; ++i )
+   {  // find correct source rock type
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( lNames[i] );
+      ASSERT_EQ( IsValueUndefined( lid ), false );
+
+      // source rock must be active
+      ASSERT_EQ( stMgr.isSourceRockActive( lid ), true );
+
+      // get source rock type
+      const std::vector<std::string> & layerSourceRocks = stMgr.sourceRockTypeName( lid );
+
+      // and find it id
+      mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( lNames[i], layerSourceRocks.front() );
+      ASSERT_EQ( IsValueUndefined( sid ), false );
+ 
+      double hiSR = srMgr.hiIni( sid );
+      double hcSR = srMgr.hcIni( sid );
+ 
+      // check mixing settings
+      switch ( i )
+      {
+         case 0:  // Wetphalian
+            {
+               ASSERT_EQ( stMgr.isSourceRockMixingEnabled( lid ), true );
+               ASSERT_EQ( layerSourceRocks.size(), 2 );
+               ASSERT_NEAR( stMgr.sourceRockMixHI( lid ), 700.0, eps );
+   
+               mbapi::SourceRockManager::SourceRockID sid2 = srMgr.findID( lNames[i], layerSourceRocks.back() );
+               ASSERT_EQ( IsValueUndefined( sid2 ), false );
+               
+               double hiSR2 = srMgr.hiIni( sid2 );
+               double hcSR2 = srMgr.hcIni( sid2 );
+            
+               ASSERT_NEAR( hiSR,   94.364368, eps );
+               ASSERT_NEAR( hiSR2, 472.068687, eps );
+
+               ASSERT_NEAR( hcSR,  0.801, eps );
+               ASSERT_NEAR( hcSR2, 1.25, eps );
+
+               srMgr.setHCIni( 1.0, sid2 );
+               ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
+               ASSERT_NEAR( srMgr.hiIni( sid2 ), 193.17523, eps );
+            }
+            break;
+
+         case 1:  // Lower Jurassic
+            ASSERT_EQ( stMgr.isSourceRockMixingEnabled( lid ), false );
+            ASSERT_EQ( layerSourceRocks.size(), 1 );
+            ASSERT_NEAR( stMgr.sourceRockMixHI( lid ), 0, eps );
+
+            ASSERT_NEAR( hiSR,   472.068687, eps );
+            ASSERT_NEAR( hcSR,  1.25, eps );
+
+            srMgr.setHIIni( sid, 500.0 );
+            ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
+            ASSERT_NEAR( srMgr.hcIni( sid ), 1.261, eps );
+          break;
+      }
+   }
 }
 
 TEST_F (mbapiModelTest, SnapshotManager )
@@ -229,6 +307,74 @@ TEST_F (mbapiModelTest, SnapshotManager )
    ASSERT_EQ( testModel.snapshotManager().isMinor( 1 ), false );
 }
 
+
+// Test set/get TOC in source rock lithology
+TEST_F( mbapiModelTest, SourceRockPreAsphActEnergySettings )
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_sourceRockTestProject ) );
+
+   mbapi::SourceRockManager   & srMgr = testModel.sourceRockManager();
+   mbapi::StratigraphyManager & stMgr = testModel.stratigraphyManager();
+
+   // change preasphalt activation energy values to some others - 207, 211
+   double lvalOld[] = { 206.0, 210.0 };
+   double lvalNew[] = { 207.0, 211.0 };
+   const char * lNames[] = { "Westphalian", "Lower Jurassic" };
+
+   for ( size_t i = 0; i < sizeof( lvalOld ) / sizeof( double ); ++i )
+   {  // find correct source rock type
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( lNames[i] );
+      ASSERT_EQ( IsValueUndefined( lid ), false );
+      const std::vector<std::string> & layerSourceRocks = stMgr.sourceRockTypeName( lid );
+      ASSERT_EQ( layerSourceRocks.size(), (i == 0 ? 2 : 1) );
+
+      mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( lNames[i], layerSourceRocks.front() );
+      ASSERT_EQ( IsValueUndefined( sid ), false );
+
+      // check what was set before
+      double valInFile = srMgr.preAsphActEnergy( sid );
+      ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
+      ASSERT_NEAR( valInFile, lvalOld[i], eps );
+
+      // set the new value
+      ASSERT_EQ( ErrorHandler::NoError, srMgr.setPreAsphActEnergy( sid, lvalNew[i] ) );
+   }
+
+   // save as a new temporary project file
+   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "ChangedPreAsphEnergy.project3d" ) );
+
+   // reload this new project file into other model
+   mbapi::Model modifModel;
+   ASSERT_EQ( ErrorHandler::NoError, modifModel.loadModelFromProjectFile( "ChangedPreAsphEnergy.project3d" ) );
+
+   mbapi::SourceRockManager   & srModMgr = modifModel.sourceRockManager();
+   mbapi::StratigraphyManager & stModMgr = modifModel.stratigraphyManager();
+
+   // check values for the TOC
+   for ( size_t i = 0; i < sizeof( lvalNew ) / sizeof( double ); ++i )
+   {
+      // find correct source rock type
+      mbapi::StratigraphyManager::LayerID lid = stModMgr.layerID( lNames[i] );
+      ASSERT_EQ( IsValueUndefined( lid ), false );
+
+      const std::vector<std::string> & layerSourceRocks = stModMgr.sourceRockTypeName( lid );
+      ASSERT_EQ( layerSourceRocks.size(), (i == 0 ? 2 : 1) );
+
+      mbapi::SourceRockManager::SourceRockID sid = srModMgr.findID( lNames[i], layerSourceRocks.front() );
+      ASSERT_EQ( IsValueUndefined( sid ), false );
+
+      // check if the new values are set
+      double valInFile = srModMgr.preAsphActEnergy( sid );
+      ASSERT_EQ( ErrorHandler::NoError, srModMgr.errorCode() );
+      ASSERT_NEAR( valInFile, lvalNew[i], eps );
+   }
+
+   // delete temporary project file
+   remove( "ChangedPreAsphEnergy.project3d" );
+}
 
 TEST_F( mbapiModelTest, ModelCopyOperator )
 {

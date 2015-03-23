@@ -65,6 +65,7 @@ generate_dox( src/API.cfg )
 
 #Various cauldron projects which are used in unit tests
 configure_file(test/Project.project3d Project.project3d COPYONLY )
+configure_file(test/SourceRockTesting.project3d SourceRockTesting.project3d COPYONLY )
 configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 
 

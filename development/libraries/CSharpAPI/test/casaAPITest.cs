@@ -596,6 +596,11 @@ namespace Shell.BasinModeling.Cauldron.Test
          {
             ScenarioAnalysis sa = ScenarioAnalysis.loadScenario(m_serialisedStateFileName, "txt");
 
+            if ( ErrorHandler.ReturnCode.NoError != sa.errorCode() )
+            {
+               m_isDebug = true;
+               logMsg("Serialization test failed with message:" + sa.errorMessage());
+            }
             Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.errorCode());
             Assert.AreEqual(ErrorHandler.ReturnCode.NoError, sa.saveScenario(@".\casa_state_reloaded_1.txt", "txt") );
          }

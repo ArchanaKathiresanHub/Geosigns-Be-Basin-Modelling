@@ -34,6 +34,7 @@ const char * SourceRockManagerImpl::m_tocIni                  = "TocIni";
 const char * SourceRockManagerImpl::m_tocIniMap               = "TocIniGrid";
 const char * SourceRockManagerImpl::m_hiIni                   = "HiIni";
 const char * SourceRockManagerImpl::m_hcIni                   = "HcIni";
+const char * SourceRockManagerImpl::m_PreAsphaltStartAct      = "PreAsphaltStartAct";
 
 // Constructor
 SourceRockManagerImpl::SourceRockManagerImpl()
@@ -389,6 +390,70 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setHCIni( SourceRockID id, doubl
          throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
       }
       rec->setValue( m_hcIni, newHC );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Get pre-asphaltene activation energy [kJ/mol]
+double SourceRockManagerImpl::preAsphActEnergy( SourceRockID id )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      // if record does not exist report error
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+
+      return rec->getValue<double>( m_PreAsphaltStartAct );
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedDoubleValue;
+}
+
+// Set pre-asphaltene activation energy (must be in range 200-220 kJ/mol)
+ErrorHandler::ReturnCode SourceRockManagerImpl::setPreAsphActEnergy( SourceRockID id, double newVal )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      if ( newVal < 200.0 || newVal > 220.0 )
+      {
+         throw Exception( OutOfRangeValue ) << "pre-asphaltene activation energy  value must be in range [200:220]" <<
+                                               " but given is: " << newVal;
+      }
+
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+      rec->setValue( m_PreAsphaltStartAct, newVal );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 

@@ -146,10 +146,6 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
    }
 }
 
-// Destructor
-PrmPorosityModel::~PrmPorosityModel() {;}
-
-
 // Update given model with the parameter value
 ErrorHandler::ReturnCode PrmPorosityModel::setInModel( mbapi::Model & caldModel )
 {

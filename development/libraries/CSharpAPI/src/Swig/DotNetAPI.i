@@ -15,7 +15,12 @@
 %shared_ptr(casa::Parameter)
 %shared_ptr(casa::PrmOneCrustThinningEvent)
 %shared_ptr(casa::PrmTopCrustHeatProduction)
+%shared_ptr(casa::PrmPorosityModel)
 %shared_ptr(casa::PrmSourceRockTOC)
+%shared_ptr(casa::PrmSourceRockHC)
+%shared_ptr(casa::PrmSourceRockHI)
+%shared_ptr(casa::PrmSourceRockType)
+%shared_ptr(casa::PrmSourceRockPreAsphaltStartAct)
 
 
 %{
@@ -154,6 +159,9 @@
 #include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/PrmSourceRockTOC.h"
 #include "../../../casaAPI/src/PrmSourceRockHI.h"
+#include "../../../casaAPI/src/PrmSourceRockHC.h"
+#include "../../../casaAPI/src/PrmSourceRockType.h"
+#include "../../../casaAPI/src/PrmSourceRockPreAsphaltStartAct.h"
 #include "../../../casaAPI/src/PrmPorosityModel.h"
 #include "../../../casaAPI/src/RSProxy.h"
 #include "../../../casaAPI/src/RSProxyImpl.h"
@@ -176,6 +184,9 @@
 #include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 #include "../../../casaAPI/src/VarPrmSourceRockHI.h"
+#include "../../../casaAPI/src/VarPrmSourceRockHC.h"
+#include "../../../casaAPI/src/VarPrmSourceRockType.h"
+#include "../../../casaAPI/src/VarPrmSourceRockPreAsphaltStartAct.h"
 #include "../../../casaAPI/src/VarPrmPorosityModel.h"
 
 #include "../../../FileSystem/src/Path.h"
@@ -340,8 +351,11 @@ using namespace casa;
 %include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/PrmSourceRockTOC.h"
-#include "../../../casaAPI/src/PrmSourceRockHI.h"
-#include "../../../casaAPI/src/PrmPorosityModel.h"
+%include "../../../casaAPI/src/PrmSourceRockHI.h"
+%include "../../../casaAPI/src/PrmSourceRockHC.h"
+%include "../../../casaAPI/src/PrmSourceRockType.h"
+%include "../../../casaAPI/src/PrmSourceRockPreAsphaltStartAct.h"
+%include "../../../casaAPI/src/PrmPorosityModel.h"
 %include "../../../casaAPI/src/RSProxy.h"
 %include "../../../casaAPI/src/RSProxyImpl.h"
 %include "../../../casaAPI/src/RSProxySet.h"
@@ -363,6 +377,9 @@ using namespace casa;
 %include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/VarPrmSourceRockTOC.h"
 %include "../../../casaAPI/src/VarPrmSourceRockHI.h"
+%include "../../../casaAPI/src/VarPrmSourceRockHC.h"
+%include "../../../casaAPI/src/VarPrmSourceRockType.h"
+%include "../../../casaAPI/src/VarPrmSourceRockPreAsphaltStartAct.h"
 %include "../../../casaAPI/src/VarPrmPorosityModel.h"
 
 %include "../../../FileSystem/src/Path.h"

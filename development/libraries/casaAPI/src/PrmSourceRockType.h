@@ -8,13 +8,14 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file PrmSourceRockHC.h
-/// @brief This file keeps API declaration for Source Rock H/C parameter handling. 
+/// @file PrmSourceRockTypes.h
+/// @brief This file keeps API declaration for Source Rock Type parameter handling.
 
-#ifndef CASA_API_PARAMETER_SOURCE_ROCK_HC_H
-#define CASA_API_PARAMETER_SOURCE_ROCK_HC_H
+#ifndef CASA_API_PARAMETER_SOURCE_ROCK_TYPE_H
+#define CASA_API_PARAMETER_SOURCE_ROCK_TYPE_H
 
 #include "Parameter.h"
+#include "VarPrmSourceRockType.h"
 
 // CMB API
 #include <UndefinedValues.h>
@@ -26,35 +27,34 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_SourceRockHCPage Source rock H/C initial ratio parameter
+/// @page CASA_SourceRockTypePage Source rock type parameter
 /// 
-/// This parameter defines the H/C initial ratio in source rock.
-/// The value is defined in units: @f$ [ kg/tonne C] @f$
-/// It is continuous parameter and his range is @f$ [0:2] @f$
+/// This parameter defines a source rock type for the stratigraphy layer as a source rock type name 
+/// from the source rock lithology table. This table must has a record for the combination of 
+/// the given stratigraphy layer and the given source rock type name
+///
 
 namespace casa
 {
-   class VarPrmSourceRockHC;
 
-   /// @brief Source rock hydrogen index initial ratio parameter
-   class PrmSourceRockHC : public Parameter
+   /// @brief Layer source rock type parameter
+   class PrmSourceRockType : public Parameter
    {
    public:
       /// @brief Constructor. Create parameter by reading parameter value from the given model
-      /// @param mdl Cauldron model interface object to get value for H/C for given layer from.
-      ///            If model has more than one source rock lithology for the same layer, the H/C
-      ///            value will be equal the first one
+      /// @param mdl Cauldron model interface object to get from it the value of source rock type name for the 
+      ///            given layer.
       /// @param layerName layer name
-      PrmSourceRockHC( mbapi::Model & mdl, const char * layerName );
+      PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
-      /// @param parent pointer to a variable parameter which created this one
-      /// @param val value of the hydrogen index initial ratio in source rock @f$ [ kg/tonne C] @f$
-      /// @param layerName layer name
-      PrmSourceRockHC( const VarPrmSourceRockHC * parent, double val, const char * layerName );
+      /// @brief Constructor. Creates the parameter to variate source rock types for the given layer
+      PrmSourceRockType( const VarPrmSourceRockType            * parent             ///< pointer to a variable parameter which created this one
+                       , const std::string                     & layerName          ///< stratigraphy layer name
+                       , const std::string                     & sourceRockTypeName ///< name of the source rock type
+                      );
 
       /// @brief Destructor
-      virtual ~PrmSourceRockHC() { ; }
+      virtual ~PrmSourceRockType() { ; }
      
       /// @brief Get name of the parameter
       /// @return parameter name
@@ -69,24 +69,29 @@ namespace casa
       /// @return ErrorHandler::NoError in success, or error code otherwise     
       virtual ErrorHandler::ReturnCode setInModel( mbapi::Model & caldModel );
 
-      /// @brief Validate H/C value if it is in [0:2] range
+      /// @brief Validate parameter value if it exist in source rock lithology table and if 
+      ///         stratigraphy layer has this source rock type 
       /// @param caldModel reference to Cauldron model
       /// @return empty string on success or error message with current parameter value
       virtual std::string validate( mbapi::Model & caldModel );
 
-      /// @brief Get value for the parameter as double
-      /// @return parameter value
-      double value() const { return m_hc;  }
+      /// @brief Get source rock type name
+      /// @return source rock type name
+      std::string sourceRockTypeName() const { return m_srtName; }
+
+      /// @brief Get layer name
+      /// @return layer name
+      std::string layerName() const { return m_layerName; }
 
       // The following methods are used for converting between CASA RunCase and SUMLib::Case objects
       
       /// @brief Get parameter value as an array of doubles
       /// @return parameter value represented as set of doubles
-      virtual std::vector<double> asDoubleArray() const { return std::vector<double>( 1, value() ); }
+      virtual std::vector<double> asDoubleArray() const { assert( 0 ); return std::vector<double>(); }
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
+      virtual int asInteger() const;
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
@@ -106,23 +111,21 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "PrmSourceRockHC"; }
+      virtual const char * typeName() const { return "PrmSourceRockType"; }
 
       /// @brief Create a new parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      PrmSourceRockHC( CasaDeserializer & dz, unsigned int objVer );
+      PrmSourceRockType( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 
    protected:
-      const VarParameter * m_parent;    ///< variable parameter which was used to create this one
-
-      std::string          m_name;      ///< name of the parameter
+      const VarPrmSourceRockType           * m_parent;    ///< variable parameter which was used to create this one
+      std::string                            m_name;      ///< name of the parameter
       
-      std::string          m_layerName; ///< layer name with source rock
-      double               m_hc;        ///< H/C value
+      std::string                            m_layerName; ///< layer name with source rock
+      std::string                            m_srtName;   ///< source rock type name
    };
-
 }
 
-#endif // CASA_API_PARAMETER_SOURCE_ROCK_HC_H
+#endif // CASA_API_PARAMETER_SOURCE_ROCK_TYPE_H

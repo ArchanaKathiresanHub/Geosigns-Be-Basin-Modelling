@@ -84,6 +84,13 @@ namespace mbapi {
       // Set H/C initial ratio value ( must be in range 0-1000 kg/tonne C)
       virtual ReturnCode setHCIni( SourceRockID id, double newHC );
 
+      // Get pre-asphaltene activation energy [kJ/mol]
+      virtual double preAsphActEnergy( SourceRockID id );
+
+      // Set pre-asphaltene activation energy (must be in range 200-220 kJ/mol)
+      virtual ReturnCode setPreAsphActEnergy( SourceRockID id, double newVal );
+
+
    private:
       static const char * m_sourceRockTableName;     // table name for source rock lithologies in project file
       static const char * m_layerNameFieldName;      // name of the field which keeps layer name
@@ -92,6 +99,7 @@ namespace mbapi {
       static const char * m_tocIniMap;               // initial TOC map name
       static const char * m_hiIni;                   // initial HI
       static const char * m_hcIni;                   // initial H/C ratio
+      static const char * m_PreAsphaltStartAct;      // pre-asphaltene activation energy
 
       // Copy constructor is disabled, use the copy operator instead
       SourceRockManagerImpl( const SourceRockManager & );

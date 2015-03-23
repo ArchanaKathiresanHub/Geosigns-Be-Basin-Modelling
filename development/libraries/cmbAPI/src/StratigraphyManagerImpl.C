@@ -58,7 +58,7 @@ void StratigraphyManagerImpl::setDatabase( database::Database * db )
 
 // Get list of layers in the model
 // returns an array with IDs of layers defined in the model
-std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::getLayersID() const
+std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::layersIDs() const
 {
    std::vector<LayerID> ids;
    if ( !m_db ) return ids;
@@ -79,7 +79,7 @@ std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::getLayersID()
 
 // Get list of surfaces in the model. Numbering from top to bottom
 // returns array with IDs of surfaces defined in the model
-std::vector<StratigraphyManager::SurfaceID> StratigraphyManagerImpl::geSurfacesID() const
+std::vector<StratigraphyManager::SurfaceID> StratigraphyManagerImpl::surfacesIDs() const
 {
    std::vector<SurfaceID> ids;
    if ( !m_db ) return ids;
@@ -145,7 +145,7 @@ std::string StratigraphyManagerImpl::layerName( StratigraphyManager::LayerID id 
 // Get layer ID for the given name 
 StratigraphyManagerImpl::LayerID StratigraphyManagerImpl::layerID( const std::string & ln )
 {
-   const std::vector<LayerID> & ids = getLayersID();
+   const std::vector<LayerID> & ids = layersIDs();
    for ( size_t i = 0; i < ids.size(); ++i )
    {
       if ( ln == layerName( ids[i] ) ) return ids[i];

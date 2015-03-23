@@ -30,6 +30,8 @@
 /// - @subpage CASA_SourceRockTOCPage 
 /// - @subpage CASA_SourceRockHIPage 
 /// - @subpage CASA_SourceRockHCPage 
+/// - @subpage CASA_SourceRockTypePage
+/// - @subpage CASA_SourceRockPreAsphaltStartActPage
 /// - @subpage CASA_TopCrustHeatProductionPage 
 /// - @subpage CASA_OneCrustThinningEventPage 
 /// - @subpage CASA_PorosityModelPage 
@@ -67,10 +69,6 @@ namespace casa
       /// @brief A parameter which corresponds the base value of the variable parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const { return m_baseValue; }
-
-      /// @brief For continuous parameters weights are calculated using PDF
-      /// @return empty array 
-      virtual std::vector<double> weights() const { return std::vector<double>(); }
 
       /// @brief Get Probability Density Function type of the variable parameter
       /// @return parameter PDF type

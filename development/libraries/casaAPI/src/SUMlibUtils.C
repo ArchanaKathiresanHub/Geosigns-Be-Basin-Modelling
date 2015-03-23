@@ -218,30 +218,44 @@ void sumext::createSUMlibBounds( const casa::VarSpace           & varSp
    casa::RunCaseImpl lowRCs;
    casa::RunCaseImpl uprRCs;
 
-   selectedPrms.clear();
-   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
-   {
-      lowRCs.addParameter( varSpace.continuousParameter( i )->minValue() );
-      uprRCs.addParameter( varSpace.continuousParameter( i )->maxValue() );
+   selectedPrms.clear(); // clean mask array   
+   catIndices.clear();   // clean container for categorical values
 
-      const std::vector<bool> & selPrms = varSpace.continuousParameter( i )->selected();
-      selectedPrms.insert( selectedPrms.end(), selPrms.begin(), selPrms.end() );
+   for (size_t i = 0; i < varSpace.size(); ++i)
+   {
+
+      lowRCs.addParameter( varSpace.parameter( i )->minValue() );
+      uprRCs.addParameter( varSpace.parameter( i )->maxValue() );
+      switch ( varSpace.parameter(i)->variationType() )
+      {
+         case casa::VarParameter::Continuous:
+         {
+            const casa::VarPrmContinuous * prm = dynamic_cast<const casa::VarPrmContinuous*>( varSpace.parameter( i ) );
+            const std::vector<bool> & selPrms = prm->selected();
+            selectedPrms.insert(selectedPrms.end(), selPrms.begin(), selPrms.end());
+         }
+         break;
+
+      case casa::VarParameter::Categorical:
+         {
+            const casa::VarPrmCategorical * prm = dynamic_cast<const casa::VarPrmCategorical*>(varSpace.parameter(i));
+            selectedPrms.push_back( prm->selected() );
+
+            const std::vector<unsigned int> & valsSet = prm->valuesAsUnsignedIntSortedSet();
+            assert(!valsSet.empty());
+
+            catIndices.push_back(SUMlib::IndexList(valsSet.begin(), valsSet.end()));
+         }
+         break;
+
+      default:
+         assert(0);  // other cases not implemented yet
+         break;
+      }
    }
 
    sumext::convertCase( lowRCs, lowCs );
    sumext::convertCase( uprRCs, highCs );
-
-   // collect categorical parameters enumeration set  
-   // clean container for categorical values
-   catIndices.clear();
-
-   for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
-   {
-      const std::vector<unsigned int> & valsSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet();
-      assert( !valsSet.empty() );
-
-      catIndices.push_back( SUMlib::IndexList( valsSet.begin(), valsSet.end() ) );
-   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -260,62 +274,64 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
    SUMlib::RealVector stdDevs;
    casa::RunCaseImpl  baseRCs;
 
-   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
+   for ( size_t i = 0; i < varSpace.size(); ++i )
    {
-      const casa::VarPrmContinuous * prm = varSpace.continuousParameter( i );
       // set base value
-      baseRCs.addParameter( prm->baseValue() );
+      baseRCs.addParameter( varSpace.parameter( i )->baseValue() );
 
-      // calculate standard deviation value:
-      const std::vector<double> & prmStdDev = prm->stdDevs();
-
-      stdDevs.insert( stdDevs.end(), prmStdDev.begin(), prmStdDev.end() );
-   }
-
-   // Convert the standard deviations to a variance matrix.
-   for ( std::size_t i = 0; i < stdDevs.size(); ++i )
-   {
-      variance.push_back( SUMlib::RealVector( stdDevs.size(), 0.0 ) );
-      variance.back()[ i ] = stdDevs[ i ] * stdDevs[ i ];
-   }
-
-   // process discrete parameters
-   for ( size_t i = 0; i < varSpace.numberOfDiscrPrms(); ++i )
-   {
-      const casa::VarPrmDiscrete * prm = varSpace.discreteParameter( i );
-      // set base value
-      baseRCs.addParameter( prm->baseValue() );
-
-      std::vector< double > weights = prm->weights();
-
-      // If no weights are specified, create a vector with weights all equal to 1.
-      if ( weights.empty() )
+      switch (varSpace.parameter(i)->variationType())
       {
-         const std::vector<SharedParameterPtr> & valsSet = varSpace.discreteParameter(i)->valuesSet();
-         weights.assign( valsSet.size(), 1.0 );
-      }
-      disWeights.push_back( weights );
-   }
- 
-   // process categorical parameters
-   for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
-   {
-      const casa::VarPrmCategorical * prm = varSpace.categoricalParameter( i );
-      // set base case
-      baseRCs.addParameter( prm->baseValue() );
+         case casa::VarParameter::Continuous:
+            {
+               const casa::VarPrmContinuous * prm = dynamic_cast<const casa::VarPrmContinuous*>( varSpace.parameter( i ) );
 
-      std::vector< double > weights = prm->weights();
-      // If no weights are specified, create a vector with weights all equal to 1.
-      if ( weights.empty() )
-      {
-         const std::vector<unsigned int> & prmIndSet = varSpace.categoricalParameter( i )->valuesAsUnsignedIntSortedSet();
-         weights.assign( prmIndSet.size(), 1.0 );
-      }
-      catWeights.push_back( weights );
-   }
+               // calculate standard deviation value:
+               const std::vector<double> & prmStdDev = prm->stdDevs();
+               stdDevs.insert( stdDevs.end(), prmStdDev.begin(), prmStdDev.end() );
+            }
+            break;
 
+         case casa::VarParameter::Discrete:
+            {
+               const casa::VarPrmDiscrete * prm = dynamic_cast<const casa::VarPrmDiscrete*>( varSpace.parameter( i ) );
+               std::vector< double > weights = prm->weights();
+
+               // If no weights are specified, create a vector with weights all equal to 1.
+               if (weights.empty())
+               {
+                  const std::vector<SharedParameterPtr> & valsSet = prm->valuesSet();
+                  weights.assign( valsSet.size(), 1.0 );
+               }
+               disWeights.push_back( weights );
+            }
+            break;
+
+         // process categorical parameters
+         case casa::VarParameter::Categorical:
+            {
+               const casa::VarPrmCategorical * prm = dynamic_cast<const casa::VarPrmCategorical *>(varSpace.parameter( i ));
+
+               std::vector< double > weights = prm->weights();
+               // If no weights are specified, create a vector with weights all equal to 1.
+               if ( weights.empty() )
+               {
+                  const std::vector<unsigned int> & prmIndSet = prm->valuesAsUnsignedIntSortedSet();
+                  weights.assign( prmIndSet.size(), 1.0 );
+               }
+               catWeights.push_back(weights);
+            }
+            break;   
+      }
+   }
    // Convert the base case.
    sumext::convertCase( baseRCs, pBase );
+   
+   // Convert the standard deviations to a variance matrix.
+   for (std::size_t i = 0; i < stdDevs.size(); ++i)
+   {
+      variance.push_back(SUMlib::RealVector(stdDevs.size(), 0.0));
+      variance.back()[i] = stdDevs[i] * stdDevs[i];
+   }
 }
 
 

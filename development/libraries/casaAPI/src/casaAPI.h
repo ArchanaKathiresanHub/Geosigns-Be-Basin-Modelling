@@ -67,6 +67,8 @@
 ///   - casa::Parameter - base class for keeping a single parameter value. The following set of parameters is implemented now:
 ///     -# casa::PrmSourceRockTOC - @link CASA_SourceRockTOCPage Source rock initial Total Organic Contents (TOC) parameter @endlink
 ///     -# casa::PrmSourceRockHI  - @link CASA_SourceRockHIPage  Source rock Hydrogen Index (HI) initial ratio parameter @endlink
+///     -# casa::PrmSourceRockType - @link CASA_SourceRockTypePage Source rock type parameter (categorical) @endlink
+///     -# casa::PrmSourceRockPreAsphaltStartAct - @link CASA_SourceRockPreAsphaltStartActPage Source rock pre-asphaltene activation energy parameter @endlink
 ///     -# casa::PrmTopCrustHeatProduction - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
 ///     -# casa::PrmOneCrustThinningEvent - @link CASA_OneCrustThinningEventPage Crust thinning parameter @endlink
 ///     -# casa::PrmPorosityModel - @link CASA_PorosityModelPage lithology porosity model parameters @endlink
@@ -193,13 +195,26 @@ namespace casa
                                                         parameter value it will be taken from the base case model */
           );
 
-/*      /// @brief Add parameter to variate source rock type for the specified layer
+      /// @brief Add a parameter to variate source rock lithology pre-asphaltene activation energy value @f$ [kJ/mol] @f$ in given range
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy(
+           ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+         , const char          * layerName   ///< [in] layer name
+         , double                minVal      ///< [in] the minimal range value 
+         , double                maxVal      ///< [in] the maximal range value 
+         , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle
+                                                       parameter value it will be taken from the base case model */
+         );
+
+      /// @brief Add parameter to variate source rock type for the specified layer
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockType(
-            ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
-          , const char          * 
-*/ 
+            ScenarioAnalysis               & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char                     * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , const std::vector<std::string> & stVariation ///< [in] list of source rock types to variate them 
+          , const std::vector<double>      & weights     ///< [in] weighting coefficient for each parameter value
+          );
+ 
 
       /// @brief Add 4 variable parameters to one crust thinning event.
       /// @return ErrorHandler::NoError on success or error code otherwise

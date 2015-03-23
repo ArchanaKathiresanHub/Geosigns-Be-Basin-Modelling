@@ -3,9 +3,12 @@
 #include "../src/VarSpaceImpl.h"
 #include "../src/PrmSourceRockTOC.h"
 #include "../src/PrmSourceRockHI.h"
+#include "../src/PrmSourceRockHC.h"
 #include "../src/PrmTopCrustHeatProduction.h"
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmSourceRockHI.h"
+#include "../src/VarPrmSourceRockHC.h"
+#include "../src/VarPrmSourceRockPreAsphaltStartAct.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
 #include "../src/VarPrmOneCrustThinningEvent.h"
 #include "../src/VarPrmPorosityModel.h"
@@ -25,7 +28,10 @@ class BLRSTest : public ::testing::Test
 public:
    BLRSTest()  { ; }
    ~BLRSTest() { ; }
+   const static char * m_testProject;
 };
+
+const char * BLRSTest::m_testProject = "Ottoland.project3d";
 
 // Test how ones can add variable parameter TopCrustHeatProduction to scenario analysis
 TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
@@ -34,7 +40,7 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
    ScenarioAnalysis sc;
 
    // load base case to scenario
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // add the new variable parameter TopCrustHeatProduction to the scenario analysis by using one of the BLRS API function
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( sc,  0.2, 4.0, VarPrmContinuous::Block ) );
@@ -64,7 +70,7 @@ TEST_F( BLRSTest, VarySourceRockTOCTest )
    ScenarioAnalysis sc;
 
    // load base case to scenario
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySourceRockTOC( sc, "Lower Jurassic", 10.0, 30.0, VarPrmContinuous::Block ) );
@@ -93,10 +99,12 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    ScenarioAnalysis sc;
 
    // load base case to scenario
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySourceRockHI( sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError,        casa::BusinessLogicRulesSet::VarySourceRockHI( sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
+   // expect failure so HI and H/C can't be variated both in the same time
+   ASSERT_EQ( ErrorHandler::AlreadyDefined, casa::BusinessLogicRulesSet::VarySourceRockHC( sc, "Lower Jurassic", 0.5,   1.5,   VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -106,8 +114,8 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    const VarPrmSourceRockHI * p1c = dynamic_cast<const VarPrmSourceRockHI*>( varPrms.continuousParameter( 0 ) );
    ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
 
-   const std::vector<double> & minV = p1c->minValue()->asDoubleArray();
-   const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & minV  = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
    const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
 
    ASSERT_NEAR( minV[0],  371.0,      eps );  // does it range have given min value?
@@ -115,13 +123,72 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    ASSERT_NEAR( baseV[0], 472.068687, eps );  // does it range have base value from the project?
 }
 
+// Test how ones can add variable parameter source rock H/C to scenario analysis
+TEST_F( BLRSTest, VarySourceRockHCTest )
+{
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
+
+   // set the parameter
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySourceRockHC( sc, "Lower Jurassic", 0.5, 1.75, VarPrmContinuous::Block ) );
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+   const VarPrmSourceRockHC * p1c = dynamic_cast<const VarPrmSourceRockHC*>(varPrms.continuousParameter( 0 ));
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const std::vector<double> & minV = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   ASSERT_NEAR( minV[0], 0.5, eps );  // does it range have given min value?
+   ASSERT_NEAR( maxV[0], 1.75, eps );  // does it range have given max value?
+   ASSERT_NEAR( baseV[0], 1.25, eps );  // does it range have base value from the project?
+}
+
+// Test how ones can add variable parameter source rock preasphalten activation energy to scenario analysis
+TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
+{
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
+
+   // set the parameter
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySourceRockPreAsphaltActEnergy( sc, "Lower Jurassic", 208, 212, VarPrmContinuous::Block ) );
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+   const VarPrmSourceRockPreAsphaltStartAct * p1c = dynamic_cast<const VarPrmSourceRockPreAsphaltStartAct*>(varPrms.continuousParameter( 0 ));
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const std::vector<double> & minV = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   ASSERT_NEAR( minV[0], 208, eps );  // does it range have given min value?
+   ASSERT_NEAR( maxV[0], 212, eps );  // does it range have given max value?
+   ASSERT_NEAR( baseV[0], 210, eps );  // does it range have base value from the project?
+}
+
+
 TEST_F( BLRSTest, VaryOneCrustThinningEvent )
 {
    // create new scenario analysis
    ScenarioAnalysis sc;
 
    // load base case to scenario
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, 
@@ -163,7 +230,7 @@ TEST_F( BLRSTest, VaryOneCrustThinningEvent )
 TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
 {
    ScenarioAnalysis sc;
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // the first one - try to give wrong porosity model name
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, "Std. Sandstone"
@@ -216,7 +283,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
 TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
 {
    ScenarioAnalysis sc;
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // the first one - try to define both parameters in inconsistent way
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, "Std. Sandstone"
@@ -267,7 +334,7 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
 TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
 {
    ScenarioAnalysis sc;
-   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( "Ottoland.project3d" ) );
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
    ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( 

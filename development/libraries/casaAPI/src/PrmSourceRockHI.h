@@ -54,7 +54,7 @@ namespace casa
       PrmSourceRockHI( const VarPrmSourceRockHI * parent, double val, const char * layerName );
 
       /// @brief Destructor
-      virtual ~PrmSourceRockHI();
+      virtual ~PrmSourceRockHI() { ; }
      
       /// @brief Get name of the parameter
       /// @return parameter name

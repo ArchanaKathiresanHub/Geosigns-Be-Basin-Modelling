@@ -6,7 +6,23 @@ base_project "OttolandWithGenex.project3d"
 #
 # Variable parameters
 varprm "TopCrustHeatProduction" 0.1 4.9 "Block"
-varprm "SourceRockTOC" "Lower Jurassic" 5.0 15.0 "Block"
+
+# for Soil mechanics only one parameter must be varied, the second one must be frozen and it will be ignored
+#       VarPrmName     Lithology Name         PorModel:              SurfPorosity [%]  CompCoeff      Parameter PDF
+varprm "PorosityModel" "Std. Sandstone"     "Exponential"            24 70             -9999 -9999    "Block"
+
+#Source rock type must be defined before any other source rock parameters
+#                       Layer name        Source rock types variation                                                                              variation weights
+varprm "SourceRockType" "Lower Jurassic"  "Type_I_CenoMesozoic_Lacustrine_kin,Type_II_Mesozoic_MarineShale_kin,Type_III_II_Mesozoic_HumicCoal_lit" [1.0,1.0,1.0] 
+
+#       VarPrmName                Layer name Name      HI value     Parameter PDF
+varprm "SourceRockTOC"            "Lower Jurassic"     5.0   15.0   "Block"
+varprm  "CrustThinningOneEvent"   "Lower Jurassic"     204.0 206.0  "Block"
+
+# HI or H/C can't be defined together
+#varprm "SourceRockHI"            "Lower Jurassic"     371.0 571.0  "Block"
+varprm  "SourceRockHC"            "Lower Jurassic"     0.5   1.75  "Block"
+
 #                              InCrThick   T0      dT    ThinFct  PDF
 varprm "CrustThinningOneEvent" 15000 40000 120 180 30 45 0.5 0.8 "Block"
 #

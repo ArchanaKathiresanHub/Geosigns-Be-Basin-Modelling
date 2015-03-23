@@ -25,7 +25,7 @@ namespace SUMlib {
 namespace
 {
 
-unsigned int g_version( 1 );
+unsigned int g_version( 2 );
 
 struct AbsoluteLessThan
 {
@@ -627,7 +627,7 @@ bool CubicProxy::load( IDeserializer* deserializer, unsigned int version )
       m_stdErrors.assign( m_coefficients.size() + 1, -1.0 );
    }
    ok = ok && deserialize(deserializer,m_size);
-   if ( version >= 1 )
+   if ( version >= 2 )
    {
       ok = ok && deserialize(deserializer,m_designMatrixRank);
    }

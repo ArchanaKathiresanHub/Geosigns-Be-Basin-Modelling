@@ -97,9 +97,6 @@ PrmSourceRockHI::PrmSourceRockHI( const VarPrmSourceRockHI * parent, double val,
    m_name = oss.str();
 }
 
-// Destructor
-PrmSourceRockHI::~PrmSourceRockHI() {;}
-
 
 // Update given model with the parameter value
 ErrorHandler::ReturnCode PrmSourceRockHI::setInModel( mbapi::Model & caldModel )

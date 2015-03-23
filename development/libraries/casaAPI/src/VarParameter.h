@@ -63,6 +63,10 @@ namespace casa
       /// @return type of parameter variation
       virtual Type variationType() const = 0;
 
+      /// @brief A parameter which corresponds the base value of the variable parameter 
+      /// @return the parameter object which should not be deleted by a caller
+      virtual const SharedParameterPtr baseValue() const = 0;
+
       /// @brief A parameter which corresponds the minimal range value of the variable parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const = 0;
@@ -71,17 +75,7 @@ namespace casa
       /// @return the parameter object should be deleted by a caller
       virtual const SharedParameterPtr maxValue() const = 0;
 
-      /// @brief A parameter which corresponds the base value of the variable parameter 
-      /// @return the parameter object which should not be deleted by a caller
-      virtual const SharedParameterPtr baseValue() const = 0;
-
-      /// @brief For Discrete and Categorical var. parameter this function returns user specified
-      ///        weights for each parameter value. If user didn't specify weights or parameter type
-      ///        is continuous, empty array will be returned
-      /// @return array with parameter values weights
-      virtual std::vector<double> weights() const = 0;
-
-   protected:
+protected:
    };
 }
 #endif // CASA_API_VAR_PARAMETER_H
