@@ -13,7 +13,7 @@ varprm "PorosityModel" "Std. Sandstone"     "Exponential"            24 70      
 
 #Source rock type must be defined before any other source rock parameters
 #                       Layer name        Source rock types variation                                                                              variation weights
-varprm "SourceRockType" "Lower Jurassic"  "Type_I_CenoMesozoic_Lacustrine_kin,Type_II_Mesozoic_MarineShale_kin,Type_III_II_Mesozoic_HumicCoal_lit" [1.0,1.0,1.0] 
+varprm "SourceRockType" "Lower Jurassic"  "Type_I_CenoMesozoic_Lacustrine_kin,Type_II_Mesozoic_MarineShale_kin,Type_III_II_Mesozoic_HumicCoal_lit" [1.0,1.0,1.0]
 
 #       VarPrmName                Layer name Name      HI value     Parameter PDF
 varprm "SourceRockTOC"            "Lower Jurassic"     5.0   15.0   "Block"
