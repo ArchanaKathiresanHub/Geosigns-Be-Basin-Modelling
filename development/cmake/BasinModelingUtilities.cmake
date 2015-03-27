@@ -65,8 +65,9 @@ endmacro()
 macro( generate_dox DOXYGEN_CONFIG_FILE )
 	if (BM_BUILD_DOCS AND DOXYGEN_FOUND)
 		message(STATUS "Configure doxygen...")
-		# generate an identifier
-		string(RANDOM LENGTH 10 id)
+		# generate an identifier according to the corresponding project name
+		get_filename_component(id ${CMAKE_CURRENT_BINARY_DIR} NAME)
+		string(REPLACE " " "_" id ${id})
 		file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
 		if (UNIX)
 			add_custom_target( doc_${id}

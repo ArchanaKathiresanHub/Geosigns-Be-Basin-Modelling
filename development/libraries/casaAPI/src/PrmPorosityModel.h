@@ -65,7 +65,7 @@ namespace mbapi
 ///
 /// @f$ \phi = \phi_m + \phi_a \cdot exp( -c_a \sigma ) + \phi_b \cdot exp( -c_b \sigma ) @f$
 /// @f$ \phi_0 = \phi_m + \phi_a + \phi_b @f$
-/// @f$ \phi_c = \phi_0 - \phi_m, \phb_a = \phi_b = \frac{1}{2}\phi_c @f$
+/// @f$ \phi_c = \phi_0 - \phi_m, \phi_a = \phi_b = \frac{1}{2}\phi_c @f$
 ///
 /// Double Exponential model has 4 independent parameters
 /// -# Surface porosity @f$ \phi_0 @f$

@@ -273,12 +273,12 @@ namespace Basin_Modelling {
   ///
   /// The Jacobian:
   ///
-  /// \f${eqnarray}
-  ///     J &=& \frac{\partial R}{\partial \alpha_i} \newline
-  ///       &=& -\int_{e} N \frac{\partial (\phi \rho_f)_{n}}{\partial P_o}\frac{1}{\delta t} N dx
-  ///           -\int_{e} \nabla N \left( \frac{1}{\mu}\frac{\partial (k \rho_f)}{\partial P_o} \nabla P_o \right) N dx
-  ///           -\int_{e} \nabla N \left(\frac{k \rho_f}{\mu} \right) \nabla N dx
-  /// \f$
+  /// \begin{eqnarray}
+  ///     J & = & \frac{\partial R}{\partial \alpha_i} \\
+  ///       & = & -\int_{e} N \frac{\partial (\phi \rho_f)_{n}}{\partial P_o}\frac{1}{\delta t} N dx
+  ///             -\int_{e} \nabla N \left( \frac{1}{\mu}\frac{\partial (k \rho_f)}{\partial P_o} \nabla P_o \right) N dx
+  ///             -\int_{e} \nabla N \left(\frac{k \rho_f}{\mu} \right) \nabla N dx
+  /// \end{eqnarray}
   ///
   ///
   ///
