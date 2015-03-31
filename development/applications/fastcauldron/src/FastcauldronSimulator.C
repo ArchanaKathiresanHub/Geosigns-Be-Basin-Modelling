@@ -1026,6 +1026,15 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
          }
       }
 
+      if ( name == "FracturePressure" ) {
+
+         if ( getRunParameters ()->getFractureType () == "None" ) {
+            property->setOption ( Interface::NO_OUTPUT );
+         }
+
+      }
+
+
       if ( name == "HorizontalPermeability" ) {
          containsHorizontalPermeability = true;
       }
@@ -1944,13 +1953,13 @@ void FastcauldronSimulator::readCommandLineWells () {
    int numberOfWellIndicesInput = MaximumNumberOfPseudoWells;
 
    PetscBool pseudoWellLocationInput = PETSC_FALSE;
-   int pseudoWellLocations [ MaximumNumberOfPseudoWells ];
+   double pseudoWellLocations [ MaximumNumberOfPseudoWells ];
    int numberOfWellLocationsInput = MaximumNumberOfPseudoWells;
 
    int i;
 
    PetscOptionsGetIntArray ( PETSC_NULL, "-fcwellindex", pseudoWellIndices, &numberOfWellIndicesInput, &pseudoWellIndexInput );
-   PetscOptionsGetIntArray ( PETSC_NULL, "-fcwelllocation", pseudoWellLocations, &numberOfWellLocationsInput, &pseudoWellLocationInput );
+   PetscOptionsGetRealArray ( PETSC_NULL, "-fcwelllocation", pseudoWellLocations, &numberOfWellLocationsInput, &pseudoWellLocationInput );
 
    if ( pseudoWellIndexInput ) {
 
