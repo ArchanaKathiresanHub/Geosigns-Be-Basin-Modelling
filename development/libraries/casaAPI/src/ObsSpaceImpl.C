@@ -50,11 +50,9 @@ bool casa::ObsSpaceImpl::save( CasaSerializer & sz, unsigned int fileVersion ) c
 casa::ObsSpaceImpl::ObsSpaceImpl(CasaDeserializer & dz, const char * objName)
 {  
    // read from file object name and version
-   std::string  objNameInFile;
-   std::string  objType;
-   unsigned int objVer;
+   unsigned int objVer = version();
 
-   bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+   bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
    CasaDeserializer::ObjRefID obsID;
 

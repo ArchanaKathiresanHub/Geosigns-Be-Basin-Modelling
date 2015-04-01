@@ -32,17 +32,11 @@ class VarSpaceImpl : public VarSpace
 public:  
    // VarSpace interface implementation
    
-   // Add a new categorical parameter
-   virtual ErrorHandler::ReturnCode addParameter( VarPrmCategorical * prm );
-
-   // Add a new continuous parameter
-   virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm );
-
-   // Add a new discrete parameter
-   virtual ErrorHandler::ReturnCode addParameter( VarPrmDiscrete * prm );
+   // Add a new variable parameter
+   virtual ErrorHandler::ReturnCode addParameter( VarParameter * prm );
 
    // Get number of variable parameters defined in VarSpace
-   virtual size_t size() const { return m_catPrms.size() + m_cntPrms.size() + m_disPrms.size(); } 
+   virtual size_t size() const { return m_prms.size(); } 
 
    // Get number of continuous parameters defined in VarSpace
    virtual size_t numberOfContPrms() const { return m_cntPrms.size(); } 
@@ -61,15 +55,7 @@ public:
    virtual ~VarSpaceImpl();
 
    // Get i-th parameter (numeration is first continuous, then discrete and then categorical)
-   virtual const VarParameter * parameter( size_t i ) const 
-   {
-      if ( i < m_cntPrms.size() ) return m_cntPrms[i];
-      i -= m_cntPrms.size();
-      if ( i < m_disPrms.size() ) return m_disPrms[i];
-      i -= m_disPrms.size();
-      if ( i < m_catPrms.size() ) return m_catPrms[i];
-      return 0;
-   }
+   virtual const VarParameter * parameter( size_t i ) const { return i < m_prms.size() ? m_prms[i] : 0; }
 
    // Get i-th continuous parameter from the list
    virtual const VarPrmContinuous * continuousParameter( size_t i ) const { return i < m_cntPrms.size() ? m_cntPrms[ i ] : NULL; }
@@ -79,12 +65,11 @@ public:
 
    // Get i-th discrete parameter from the list
    virtual const VarPrmDiscrete * discreteParameter( size_t i ) const { return i < m_disPrms.size() ? m_disPrms[ i ] : NULL; }
-
   
    // Serialization / Deserialization
 
    // version of serialized object representation
-   virtual unsigned int version() const { return 0; }
+   virtual unsigned int version() const { return 1; }
 
    // Get type name of the serialaizable object, used in deserialization to create object with correct type
    virtual const char * typeName() const { return "VarSpaceImpl"; }
@@ -98,6 +83,8 @@ public:
 private:
    VarSpaceImpl( const VarSpaceImpl & );
    VarSpaceImpl & operator = ( const VarSpaceImpl & );
+
+   std::vector< VarParameter *>     m_prms;    // set of all variable parameters
 
    std::vector< VarPrmCategorical*> m_catPrms; // set of categorical variable parameters
    std::vector< VarPrmDiscrete*>    m_disPrms; // set of discrete variable parameters

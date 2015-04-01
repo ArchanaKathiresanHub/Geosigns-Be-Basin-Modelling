@@ -337,7 +337,8 @@ namespace casa
    SensitivityCalculatorImpl::SensitivityCalculatorImpl( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+      unsigned int objVer = version();
+      bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
       CasaSerializer::ObjRefID obsID;
       CasaSerializer::ObjRefID vspID;

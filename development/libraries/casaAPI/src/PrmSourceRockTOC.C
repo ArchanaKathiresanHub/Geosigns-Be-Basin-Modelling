@@ -176,35 +176,54 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
    if (      m_toc < 0   ) oss << "TOC value for the layer " << m_layerName << ", can not be negative: " << m_toc << std::endl;
    else if ( m_toc > 100 ) oss << "TOC value for the layer " << m_layerName << ", can not be more than 100%: " << m_toc << std::endl;
 
-   mbapi::SourceRockManager & mgr = caldModel.sourceRockManager();
-
-   bool layerFound = false;
-
-   // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
-   const std::vector<mbapi::SourceRockManager::SourceRockID> & srIDs = mgr.sourceRockIDs();
-   for ( size_t i = 0; i < srIDs.size(); ++i )
+   try
    {
-      if ( mgr.layerName( srIDs[i] ) == m_layerName )
-      {
-         layerFound = true;
+      mbapi::SourceRockManager   & srMgr = caldModel.sourceRockManager();
+      mbapi::StratigraphyManager & stMgr = caldModel.stratigraphyManager();
 
-         const std::string & mapName = mgr.tocInitMapName( srIDs[i] );
-         if ( !mapName.empty() )
+      // get check is this layer has a mix of source rocks
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+
+      // check if layer set as active source rock
+      if ( !stMgr.isSourceRockActive( lid ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
+            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+      }
+
+      double tocInModel = UndefinedDoubleValue;
+
+      // in case of SR mixing get HI from the mix
+      if ( stMgr.isSourceRockMixingEnabled( lid ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<
+               "Can not get TOC parameter for the mixing of source rocks for the layer " << m_layerName << ", not implemented yet";
+      }
+      else // otherwise go to source rock lithology table for the source rock hi
+      {
+         const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+         if ( srtNames.empty() )
          {
-            oss << "Source rock lithology with ID " << srIDs[i] << "for the layer " << m_layerName <<
-                   " has TOC already defined as a map" << std::endl;
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
+               " set as source rock layer but has no source rock lithology defined";
          }
-         else if ( ErrorHandler::NoError != mgr.errorCode() ) oss << mgr.errorCode() << std::endl;
-         
-         double mdlTOC = mgr.tocIni( srIDs[i] );
-         if ( !NumericFunctions::isEqual( mdlTOC, m_toc, 1.e-4 ) )
+
+         mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
+         if ( IsValueUndefined( sid ) )
          {
-            oss << "Value of TOC in the model (" << mdlTOC << ") is different from the parameter value (" << m_toc << ")" << std::endl;
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
+               << m_layerName << " and SR type " << srtNames[0];
          }
+         tocInModel = srMgr.tocIni( sid );
+      }
+
+      if ( !NumericFunctions::isEqual( tocInModel, m_toc, 1.e-4 ) )
+      {
+         oss << "Value of TOC in the model (" << tocInModel << ") is different from the parameter value (" << m_toc << ")" << std::endl;
       }
    }
-
-   if ( !layerFound ) oss << "There is no such layer in the model: " << m_layerName << std::endl;
+   catch ( const ErrorHandler::Exception & e ) { oss << e.what() << std::endl; }
 
    return oss.str();
 }

@@ -119,6 +119,9 @@ namespace casa
       /// @return which kriging interpolation is used for the proxy
       virtual RSKrigingType kriging() const = 0; 
 
+      /// @brief Get order of polynomial approximation for the proxy
+      /// @return polynomial order
+      virtual int polynomialOrder() const = 0;
 
       /// @brief Get the coefficient maps for all proxies.
       /// @returns a CoefficientsMapList representing the cubic proxy expressions for all observables.

@@ -236,7 +236,7 @@ namespace casa
    }
 
    // Read the description of the next object in file. Works only for CasaSerializable objects
-   bool TxtDeserializer::checkObjectDescription( const char * objType, const std::string & objName, unsigned int ver )
+   bool TxtDeserializer::checkObjectDescription( const char * objType, const std::string & objName, unsigned int & ver )
    {
       std::vector<std::string> tokens;
       if ( !readAndSplitLine( m_file, m_buf, tokens ) || tokens.size() != 3 )
@@ -265,6 +265,8 @@ namespace casa
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
             << "Version of object in file is newer. No forward compatibility!";
       }
+      ver = objVer;
+
       return ok;
    }
 

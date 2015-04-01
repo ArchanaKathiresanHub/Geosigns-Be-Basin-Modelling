@@ -123,7 +123,17 @@ namespace casa
    // Do checking, are all variable parameters case value in their ranges
    std::string RunCaseImpl::validateCase()
    {
-      if ( !m_model.get() ) return "Case can not be validated because cauldron model was not defined for this case";
+      if ( !m_model.get() ) 
+      {
+         if ( m_modelProjectFileName.empty() ) return "Case can not be validated because cauldron model was not defined for this case";
+
+         // try to load model
+         m_model.reset( new mbapi::Model() );
+         if ( ErrorHandler::NoError != m_model->loadModelFromProjectFile( m_modelProjectFileName.c_str() ) )
+         {
+            return std::string( "Can't read mutated project: " ) + m_modelProjectFileName;
+         }
+      }
 
       std::ostringstream oss;
       for ( size_t i = 0; i < m_prmsSet.size(); ++i )
@@ -201,7 +211,8 @@ namespace casa
    RunCaseImpl::RunCaseImpl( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+      unsigned int objVer = version();
+      bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
       CasaDeserializer::ObjRefID rcID;
 

@@ -35,9 +35,10 @@ namespace casa
       /// @brief Read the description of the next object from file and compare with given data. Works only for CasaSerializable objects
       /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
       /// @param objName object name 
-      /// @param ver version of object 
+      /// @param [in,out] ver expected version of object, if version of the object in file is newer it will throw an exception. 
+      ///                     On return it keeps object version from the file.
       /// @return true on success, false on any error
-      virtual bool checkObjectDescription( const char * objType, const std::string & objName, unsigned int ver );
+      virtual bool checkObjectDescription( const char * objType, const std::string & objName, unsigned int & ver );
 
       /// @brief Read the description of the next object in file. Works only for class objects
       /// @param objType string representation of object type as it returned by typeid().name()

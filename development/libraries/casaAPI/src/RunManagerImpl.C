@@ -34,6 +34,7 @@
 
 // STD C lib
 #include <cstring>
+#include <ctime>
 
 namespace casa
 {
@@ -64,7 +65,7 @@ CauldronApp * RunManager::createApplication( ApplicationType appType, int cpus, 
 
 
 ///////////////////////////////////////////////////////////////////////////////
-RunManagerImpl::RunManagerImpl( const std::string & clusterName )
+RunManagerImpl::RunManagerImpl( const std::string & clusterName ) : m_maxPendingJobs( 0 )
 {
    // create instance of job scheduler
 #if defined (_WIN32) || !defined (WITH_LSF_SCHEDULER)
@@ -119,8 +120,6 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun )
 
    // get project file path
    ibs::FilePath pfp( newRun.projectPath() );
-
-   if ( !pfp.exists() ) return reportError( WrongPath, "Project file does not exist, can't schedule given case" );
 
    // if no project defined - report error
    if ( !pfp.exists() ) return reportError( WrongPath, "Wrong path to case project file was given" );
@@ -188,6 +187,15 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase( RunCase & newRun )
    return NoError;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Set max number of pending jobs
+ErrorHandler::ReturnCode RunManagerImpl::setMaxNumberOfPendingJobs( size_t pendJobsNum )
+{
+   m_maxPendingJobs = pendJobsNum;
+   return NoError;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Execute all scheduled cases. Very loooong cycle
 ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
@@ -196,6 +204,12 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
   
    try 
    {
+      int prevFinished  = 0;
+      int prevSubmitted = 0;
+      int prevCrashed   = 0;
+      int prevRunning   = 0;
+      int prevPending   = 0;
+
       while ( !allFinished ) // loop till all will be finished
       {
          // counters for jobs states
@@ -218,7 +232,7 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                JobScheduler::JobState jobState = m_jobSched->jobState( job );
                ++totJobs;
 
-               if ( JobScheduler::NotSubmittedYet == jobState )
+               if ( (m_maxPendingJobs < 1 || pending < m_maxPendingJobs) && JobScheduler::NotSubmittedYet == jobState )
                {
                   jobState = m_jobSched->runJob( job ); // submit job
                   ++submitted;
@@ -263,13 +277,29 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool asyncRun )
                m_cases[i]->setRunStatus( RunCase::Completed );
             }
          }
-         // run over all cases, make a pause, get a Twix
-         std::cout << "total: "       << totJobs   << 
-                      ", submitted: " << submitted <<
-                      ", finished: "  << finished  << 
-                      ", failed: "    << crashed   << 
-                      ", pending: "   << pending   << 
-                      ", running: "   << running   << std::endl;
+
+         // check if it was a change in any state of jobs, report it
+         if ( prevSubmitted != submitted || prevFinished != finished || prevCrashed != crashed || prevPending != pending || prevRunning != running )
+         {
+            time_t curTm = time( 0 );
+            std::string curStrTime( ctime( &curTm ) );
+            curStrTime.resize( curStrTime.size() - 1 ); // "remove ending \n"
+
+            std::cout << curStrTime << ": ";
+            // run over all cases, make a pause, get a Twix
+            std::cout << "total: "       << totJobs   << 
+                         ", submitted: " << submitted <<
+                         ", finished: "  << finished  << 
+                         ", failed: "    << crashed   << 
+                         ", pending: "   << pending   << 
+                         ", running: "   << running   << std::endl;
+
+            prevSubmitted = submitted;
+            prevFinished  = finished;
+            prevCrashed   = crashed;
+            prevPending   = pending;
+            prevRunning   = running;
+         }
          
          if ( totJobs == (finished+crashed) )
          {
@@ -315,6 +345,91 @@ ErrorHandler::ReturnCode RunManagerImpl::setClusterName( const char * clusterNam
 std::string RunManagerImpl::clusterName() { return m_jobSched->clusterName(); }
 
 
+void RunManagerImpl::restoreCaseStatus( RunCase * cs )
+{
+   RunCaseImpl * rcs = dynamic_cast<RunCaseImpl *>( cs );
+
+   // check if the case already in list
+   bool found = false;
+   for ( size_t i = 0; i < m_cases.size() && !found; ++i )
+   {
+      if ( m_cases[i] == rcs ) found = true;
+   }
+   if ( found ) return; // already in the list - do nothing
+
+   // do not add cases which has no project file
+   if ( !rcs->projectPath() ) throw Exception( WrongPath ) << "Case with empty path to project file was given";
+
+   // get project file path
+   ibs::FilePath pfp( rcs->projectPath() );
+
+   // if no project defined - report error
+   if ( !pfp.exists() ) throw Exception( WrongPath ) << "Wrong path to case project file was given";
+
+   // add empty row to jobs list
+   m_jobs.push_back( std::vector< JobScheduler::JobID >() );
+   m_cases.push_back( rcs );
+
+   // construct case name, use name of the directory where project is located or just Case_N
+   size_t sz = pfp.size();
+   std::string caseName = sz > 2 ? pfp[sz - 2 ] : (std::string( "Case_" ) + ibs::to_string( m_jobs.size() ) );
+   
+   // go through pipelines and populate jobs list check generated scripts for all stages
+   if ( !m_appList.empty() )
+   {
+      std::vector< JobScheduler::JobState > stageState;
+      std::vector< std::string >            stageScript;
+
+      for ( size_t i = 0; i < m_appList.size(); ++i )
+      {
+
+         // generate script file name
+         ibs::FilePath scriptFile( pfp.filePath() );
+         scriptFile << (std::string( "Stage_" ) + ibs::to_string( i ) + m_appList[i]->scriptSuffix() );
+      
+         if ( !scriptFile.exists() ) throw Exception( WrongPath ) << scriptFile.path() << " does not exist, can't reload case state";
+
+         // construct job name 
+         std::ostringstream oss;
+         oss << caseName << "_stage_" << ibs::to_string( i );
+
+         stageScript.push_back( scriptFile.path() );
+
+         stageState.push_back( m_jobSched->restoreJobState( pfp.filePath().c_str(),  // cwd
+                                                            stageScript.back(),      // script name
+                                                            oss.str()
+                                                          ) );
+      }
+
+      if (      stageState.front() == JobScheduler::NotSubmittedYet ) { rcs->setRunStatus( RunCase::NotSubmitted ); }
+      else if ( stageState.back()  == JobScheduler::JobSucceeded ) { rcs->setRunStatus( RunCase::Completed       ); }
+      else                                                         { rcs->setRunStatus( RunCase::Failed          ); }
+
+      if ( rcs->runStatus() != RunCase::Completed )
+      {
+         for ( size_t i = 0; i < stageState.size(); ++i )
+         {
+            if ( stageState[i] == JobScheduler::JobSucceeded ) continue;
+
+            // construct job name 
+            std::ostringstream oss;
+            oss << caseName << "_stage_" << ibs::to_string( i );
+
+            ////////////////////////////////////////
+            /// put job to the queue through job scheduler
+            JobScheduler::JobID id = m_jobSched->addJob( pfp.filePath().c_str(),  // cwd
+                                                         stageScript[i],          // script name
+                                                         oss.str(),               // job name
+                                                         m_appList[i]->cpus()     // number of CPUs for this job
+                                                       );
+
+            // put job to the queue for the current case
+            m_jobs.back().push_back( id );
+         }
+      }
+   }
+}
+
 // Serialize object to the given stream
 bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
 {
@@ -349,6 +464,11 @@ bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
          ok = ok ? sz.save( rcID, "RunCaseID" ) : ok;
       }
    }
+
+   if ( fileVersion >= 4 )
+   {
+      ok = ok & sz.save( m_maxPendingJobs, "maxPendingJobs" );
+   }
    return ok;
 }
 
@@ -356,7 +476,8 @@ bool RunManagerImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
 RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
 {
    // read from file object name and version
-   bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+   unsigned int objVer = version();
+   bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
    ok = ok ? dz.load( m_cldVersion, "CauldronVersion" ) : ok;
    ok = ok ? dz.load( m_ibsRoot,    "IBSRoot"         ) : ok;
@@ -392,7 +513,12 @@ RunManagerImpl::RunManagerImpl( CasaDeserializer & dz, const char * objName )
       if ( rc ) m_cases.push_back( rc );
       else ok = false;
    }
- 
+
+   if ( objVer >= 1 )
+   {
+      ok = ok ? dz.load( m_maxPendingJobs, "maxPendingJobs" ) : ok;
+   }
+
    if ( !ok ) throw Exception( DeserializationError ) << "RunManagerImpl deserialization error";
 }
 

@@ -19,8 +19,8 @@ source_group(source FILES ${all_srcs})
 configure_file(src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
 
 add_library(casaapi
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(
@@ -37,7 +37,7 @@ include_directories(
    src
 )
 
-target_link_libraries(casaapi 
+target_link_libraries(casaapi
    cmbapi
    FileSystem
    utilities
@@ -51,7 +51,7 @@ if (LSF_HOME)
 endif(LSF_HOME)
 
 generate_dox( src/API.cfg )
-	
+
 #######################################
 ### Unit Tests
 #######################################
@@ -60,15 +60,12 @@ generate_dox( src/API.cfg )
 # Unit tests for DoEGeneratorTest
 
 #Various cauldron projects which are used in unit tests
-configure_file(test/Ottoland.project3d Ottoland.project3d) 
+configure_file(test/Ottoland.project3d Ottoland.project3d)
 
 #Cauldron project with results for DataDigger unit testing
-configure_file(test/OttolandWithGenex.project3d OttolandWithGenex.project3d COPYONLY ) 
-configure_file(test/Ottoland_casa_state.txt Ottoland_casa_state.txt COPYONLY ) 
-
-configure_file(test/OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 OttolandWithGenex_CauldronOutputDir/Time_0.000000.h5 COPYONLY ) 
-configure_file(test/OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF OttolandWithGenex_CauldronOutputDir/Genex5_Results.HDF COPYONLY ) 
-configure_file(test/OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF OttolandWithGenex_CauldronOutputDir/PressureAndTemperature_Results.HDF COPYONLY ) 
+configure_file(test/OttolandWithGenex.project3d OttolandWithGenex.project3d COPYONLY )
+configure_file(test/OttolandCatPrms.project3d OttolandCatPrms.project3d COPYONLY )
+configure_file(test/Ottoland_casa_state.txt Ottoland_casa_state.txt COPYONLY )
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.C

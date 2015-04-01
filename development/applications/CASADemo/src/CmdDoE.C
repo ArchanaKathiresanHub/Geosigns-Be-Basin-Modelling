@@ -58,5 +58,12 @@ void CmdDoE::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }
-   std::cout << "\n  Generated " << sa->doeCaseSet().size() << " cases" << std::endl;
+
+   if ( m_commander.verboseLevel() > CasaCommander::Quiet )
+   {
+      sa->doeCaseSet().filterByExperimentName( casa::DoEGenerator::DoEName( static_cast<casa::DoEGenerator::DoEAlgorithm>( m_doeAlg ) ) );
+      std::cout << "\n  Generated " << sa->doeCaseSet().size() << " cases" << std::endl;
+      sa->doeCaseSet().filterByExperimentName( "" );
+   }
 }
+

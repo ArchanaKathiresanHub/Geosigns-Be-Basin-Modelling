@@ -324,7 +324,8 @@ public:
    Job( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+      unsigned int objVer = version();
+      bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
       int js;
       ok = ok ? dz.load( js, "JobState" ) : ok;
@@ -382,9 +383,13 @@ void JobSchedulerLocal::setClusterName( const char * clusterName )
 // Add job to the list
 JobScheduler::JobID JobSchedulerLocal::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
 {
+   ibs::FilePath scriptStatFile( scriptName + ".failed" );
+   if ( scriptStatFile.exists() ) scriptStatFile.remove();
+
    m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus ) );
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
+
 
 // run job
 JobScheduler::JobState JobSchedulerLocal::runJob( JobID job )

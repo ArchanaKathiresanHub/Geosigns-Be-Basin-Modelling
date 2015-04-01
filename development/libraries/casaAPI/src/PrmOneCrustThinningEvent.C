@@ -171,9 +171,9 @@ std::string PrmOneCrustThinningEvent::validate( mbapi::Model & caldModel )
       oss << "Crust thinning duration value in the model (" << t[2]-t[1] << ") is differ from parameter value (" << m_dt << ")\n";
    }
 
-   if ( std::abs( (d[3]/d[0] ) - m_coeff ) > s_eps )
+   if ( std::abs( (d[0]/d[3] ) - m_coeff ) > s_eps )
    {
-      oss << "Crust thinning factor value in the model (" << d[3]/d[0] << ") is differ from parameter value (" << m_coeff << ")\n";
+      oss << "Crust thinning factor value in the model (" << d[0]/d[3] << ") is differ from parameter value (" << m_coeff << ")\n";
    }
 
    if ( std::abs( d[0] - d[1] ) > s_eps || std::abs( d[3] - d[2] ) > s_eps )

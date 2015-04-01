@@ -45,10 +45,17 @@ namespace casa
       /// @return NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode setCauldronVersion( const char * verString ) { m_cldVersion = verString; return NoError; }
 
-      /// @brief add Case to set
+      /// @brief Add a new Case to the set
       /// @param newRun new Case to be scheduled for run
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun );
+
+      /// @brief Define how many jobs could be in Pending state. If there are to many jobs submitted,
+      ///        cluster starts to reduce available slots for the user, in this case better do not 
+      ///        submit all jobs in one time but keep feeding cluster with new jobs as previous one was finished
+      /// @param pendJobsNum the number of pending jobs after which RunManager will stop to schedule the new jobs
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode setMaxNumberOfPendingJobs( size_t pendJobsNum );
 
       /// @brief Execute all scheduled cases
       /// @param asyncRun
@@ -62,11 +69,15 @@ namespace casa
       /// @return cluster name as a string
       virtual std::string clusterName();
 
+      /// @brief Add case to the list of jobs and update case status by analysing completed stages into Case folder
+      /// @param cs case object
+      virtual void restoreCaseStatus( RunCase * cs );
+
       // Serialization / Deserialization
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -87,11 +98,12 @@ namespace casa
 
 
    protected:
-      std::string                     m_cldVersion;  ///< version of the cauldron to be used in calculations
-      std::string                     m_ibsRoot;     ///< full path to cauldron installation
+      size_t                          m_maxPendingJobs; ///< define how much pending jobs should keep job scheduler
+      std::string                     m_cldVersion;     ///< version of the cauldron to be used in calculations
+      std::string                     m_ibsRoot;        ///< full path to cauldron installation
 
-      std::vector< CauldronApp* >     m_appList;     ///< pipeline of cauldron applications to perform simulation
-      std::auto_ptr<JobScheduler>     m_jobSched;    ///< OS dependent wrapper for the job scheduler
+      std::vector< CauldronApp* >     m_appList;        ///< pipeline of cauldron applications to perform simulation
+      std::auto_ptr<JobScheduler>     m_jobSched;       ///< OS dependent wrapper for the job scheduler
 
       std::vector< std::vector< JobScheduler::JobID > >   m_jobs;  ///< queue of jobs for each case
       std::vector< RunCaseImpl * >                        m_cases; ///< list of run cases

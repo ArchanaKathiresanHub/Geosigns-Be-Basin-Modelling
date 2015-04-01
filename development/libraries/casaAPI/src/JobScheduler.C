@@ -14,6 +14,9 @@
 // CMB
 #include "ErrorHandler.h"
 
+// FileSystem
+#include "FilePath.h"
+
 // CASA
 #include "CasaDeserializer.h"
 #include "JobSchedulerLocal.h"
@@ -41,3 +44,13 @@ casa::JobScheduler * casa::JobScheduler::load( CasaDeserializer & dz, const char
    }
    return 0;
 }
+
+casa::JobScheduler::JobState casa::JobScheduler::restoreJobState( const std::string & cwd, const std::string & scriptName, const std::string & jobName )
+{
+   if (      ibs::FilePath ( scriptName + ".success" ).exists() ) { return JobScheduler::JobSucceeded; }
+   else if ( ibs::FilePath ( scriptName + ".failed"  ).exists() ) { return JobScheduler::JobFailed;    }
+
+   return JobScheduler::NotSubmittedYet;
+}
+
+

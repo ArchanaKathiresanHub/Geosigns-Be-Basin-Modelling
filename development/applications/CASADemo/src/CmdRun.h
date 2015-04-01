@@ -25,10 +25,14 @@ public:
    /// @brief Run command
    virtual void execute( std::auto_ptr<casa::ScenarioAnalysis> & sa );
 
-protected:
-   std::string  m_cldVer;  // cauldron version
-   std::string  m_cluster; // cluster name
+   /// @brief Print help page about command purpose and it parameters
+   /// @param cmdName - command name - how it is defined in CasaCommander
+   static void printHelpPage( const char * cmdName );
 
+protected:
+   std::string  m_cldVer;         // cauldron version
+   std::string  m_cluster;        // cluster name
+   size_t       m_maxPendingJobs; // max number of pending jobs for submitting to the cluster, to stick with fair share policy
 };
 
 #endif // CASA_CMD_RUN_H

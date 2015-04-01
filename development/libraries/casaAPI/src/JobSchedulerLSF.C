@@ -11,6 +11,9 @@
 // CMB
 #include "ErrorHandler.h"
 
+// FileSystem
+#include "FilePath.h"
+
 // CASA
 #include "CasaDeserializer.h"
 #include "JobSchedulerLSF.h"
@@ -181,13 +184,13 @@ public:
       bool ok = sz.save( m_isFinished, "IsFinished" );
 
 #ifdef WITH_LSF_SCHEDULER
-      ok = ok ? sz.save( m_submit.projectName,      "CldProjectName" ) : ok;
-      ok = ok ? sz.save( m_submit.command,          "ScriptName"     ) : ok;
-      ok = ok ? sz.save( m_submit.jobName,          "JobName"        ) : ok;
-      ok = ok ? sz.save( m_submit.outFile,          "StdOutLogFile"  ) : ok;
-      ok = ok ? sz.save( m_submit.errFile,          "StdErrLogFile"  ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.projectName ),      "CldProjectName" ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.command ),          "ScriptName"     ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.jobName ),          "JobName"        ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.outFile ),          "StdOutLogFile"  ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.errFile ),          "StdErrLogFile"  ) : ok;
       ok = ok ? sz.save( m_submit.options,          "OptionsFlags"   ) : ok;
-      ok = ok ? sz.save( m_submit.cwd,              "CWD"            ) : ok;
+      ok = ok ? sz.save( std::string( m_submit.cwd ),              "CWD"            ) : ok;
       ok = ok ? sz.save( m_submit.options3,         "Options3Flags"  ) : ok; 
       ok = ok ? sz.save( m_submit.numProcessors,    "CPUsNum"        ) : ok;
       ok = ok ? sz.save( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
@@ -206,7 +209,8 @@ public:
    Job( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+      unsigned int objVer = version();
+      bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
       ok = ok ? dz.load( m_isFinished, "IsFinished" ) : ok;
 #ifdef WITH_LSF_SCHEDULER
@@ -242,6 +246,7 @@ public:
       ok = ok ? dz.load( m_submit.options3,         "Options3Flags"  ) : ok; 
       ok = ok ? dz.load( m_submit.numProcessors,    "CPUsNum"        ) : ok;
       ok = ok ? dz.load( m_submit.maxNumProcessors, "MaxCPUsNum"     ) : ok;
+      ok = ok ? dz.load( m_lsfJobID,                "LSFJobID" ) : ok;
       
 #else
       ok = ok ? dz.load( m_command,  "Command" ) : ok;
@@ -313,6 +318,9 @@ JobSchedulerLSF::~JobSchedulerLSF()
 // Add job to the list
 JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus )
 {
+   ibs::FilePath scriptStatFile( scriptName + ".failed" );
+   if ( scriptStatFile.exists() ) scriptStatFile.remove();
+
    m_jobs.push_back( new Job( cwd, scriptName, jobName, cpus ) );
    return m_jobs.size() - 1; // the position of the new job in the list is it JobID
 }
@@ -320,7 +328,7 @@ JobScheduler::JobID JobSchedulerLSF::addJob( const std::string & cwd, const std:
 // run job
 JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
 {
-   if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no such job in the queue";
+   if ( job >= m_jobs.size() ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "runJob(): no job with ID: "  << job << " in the queue";
 
    if ( !m_jobs[job]->isSubmitted() )
    {

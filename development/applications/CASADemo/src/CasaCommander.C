@@ -29,6 +29,7 @@
 #include "CmdPlotRSProxyQC.h"
 #include "CmdPlotTornado.h"
 #include "CmdRun.h"
+#include "CmdRunReload.h"
 #include "CmdRunMC.h"
 #include "CmdSaveState.h"
 #include "CmdLoadState.h"
@@ -39,6 +40,8 @@ static const char * CmdNameAddCldApp      = "app";
 static const char * CmdNameAddObservable  = "target";
 static const char * CmdNameAddVarPrm      = "varprm";
 static const char * CmdNameGenerateBMCase = "generateCalibratedCase";
+static const char * CmdNameRun            = "run";
+static const char * CmdNameRunReload      = "runReload";
 static const char * CmdNamePlotMC         = "plotMC";
 static const char * CmdNamePlotP10P90     = "plotP10P90";
 static const char * CmdNamePlotPareto     = "plotPareto";
@@ -58,7 +61,8 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CmdNameAddVarPrm      ) cmd.reset( new CmdAddVarPrm(               *this, prms ) );// create variable parameter
    else if ( cmdName == CmdNameAddObservable  ) cmd.reset( new CmdAddObs(                  *this, prms ) );// create observable
    else if ( cmdName == "doe"                 ) cmd.reset( new CmdDoE(                     *this, prms ) );// create doe
-   else if ( cmdName == "run"                 ) cmd.reset( new CmdRun(                     *this, prms ) );// run planned DoE experiments
+   else if ( cmdName == CmdNameRun            ) cmd.reset( new CmdRun(                     *this, prms ) );// run planned DoE experiments
+   else if ( cmdName == CmdNameRunReload      ) cmd.reset( new CmdRunReload(               *this, prms ) );// reload the results of run of DoE experiments
    else if ( cmdName == "location"            ) cmd.reset( new CmdLocation(                *this, prms ) );// where cases will be generated, run mutator
    else if ( cmdName == "response"            ) cmd.reset( new CmdCreateResponse(          *this, prms ) );// calculate coefficients for response surface approximation
    else if ( cmdName == "evaluate"            ) cmd.reset( new CmdEvaluateResponse(        *this, prms ) );// calculate observables value using response surface approximation
@@ -106,6 +110,8 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "   " << CmdNameAddCldApp      << " - add new Cauldron app to application pipeline\n";
       std::cout << "   " << CmdNameAddObservable  << " - specify new observable (target)\n";
       std::cout << "   " << CmdNameAddVarPrm      << " - specify new variable parameter\n";
+      std::cout << "   " << CmdNameRun            << " - execute generated cases on HPC cluster\n";
+      std::cout << "   " << CmdNameRunReload      << " - reload results of completed cases\n";
       std::cout << "   " << CmdNameGenerateBMCase << " - generate run case with parameters set from MonteCarlo simulation sample with minimal RMSE\n";
       std::cout << "   " << "\nVarious plot commands:" << "\n";
       std::cout << "   " << CmdNamePlotMC         << " - create Matlab/Octave script to create a set of MC sampling plots for each pair of variable parameters\n";
@@ -113,13 +119,15 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "   " << CmdNamePlotPareto     << " - create Matlab/Octave script to plot Pareto diagram for parameters sensitivity over all observables\n";
       std::cout << "   " << CmdNamePlotTornado    << " - create Matlab/Octave script to plot Tornado diagrams for parameters sensitivity for each observable\n";
    }
-   else if ( cmd == CmdNameAddCldApp      ) { CmdAddCldApp::printHelpPage(   CmdNameAddCldApp      ); }
-   else if ( cmd == CmdNameAddObservable  ) { CmdAddObs::printHelpPage(      CmdNameAddObservable  ); }
-   else if ( cmd == CmdNameAddVarPrm      ) { CmdAddVarPrm::printHelpPage(   CmdNameAddVarPrm      ); }
+   else if ( cmd == CmdNameAddCldApp      ) { CmdAddCldApp::printHelpPage(               CmdNameAddCldApp      ); }
+   else if ( cmd == CmdNameAddObservable  ) { CmdAddObs::printHelpPage(                  CmdNameAddObservable  ); }
+   else if ( cmd == CmdNameAddVarPrm      ) { CmdAddVarPrm::printHelpPage(               CmdNameAddVarPrm      ); }
+   else if ( cmd == CmdNameRun            ) { CmdAddVarPrm::printHelpPage(               CmdNameRun            ); }
+   else if ( cmd == CmdNameRunReload      ) { CmdAddVarPrm::printHelpPage(               CmdNameRunReload      ); }
    else if ( cmd == CmdNameGenerateBMCase ) { CmdGenerateBestMatchedCase::printHelpPage( CmdNameGenerateBMCase ); }
-   else if ( cmd == CmdNamePlotMC         ) { CmdPlotMC::printHelpPage(      CmdNamePlotMC         ); }
-   else if ( cmd == CmdNamePlotP10P90     ) { CmdPlotP10P90::printHelpPage(  CmdNamePlotP10P90     ); }
-   else if ( cmd == CmdNamePlotPareto     ) { CmdPlotPareto::printHelpPage(  CmdNamePlotPareto     ); }
-   else if ( cmd == CmdNamePlotTornado    ) { CmdPlotTornado::printHelpPage( CmdNamePlotTornado    ); }
+   else if ( cmd == CmdNamePlotMC         ) { CmdPlotMC::printHelpPage(                  CmdNamePlotMC         ); }
+   else if ( cmd == CmdNamePlotP10P90     ) { CmdPlotP10P90::printHelpPage(              CmdNamePlotP10P90     ); }
+   else if ( cmd == CmdNamePlotPareto     ) { CmdPlotPareto::printHelpPage(              CmdNamePlotPareto     ); }
+   else if ( cmd == CmdNamePlotTornado    ) { CmdPlotTornado::printHelpPage(             CmdNamePlotTornado    ); }
 }
 

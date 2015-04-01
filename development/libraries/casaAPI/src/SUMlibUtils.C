@@ -81,22 +81,39 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
    const std::vector<double>       & sumCntArray = sc.continuousPart();
    const std::vector<unsigned int> & sumCatArray = sc.categoricalPart();
 
-   std::vector<double>::const_iterator cit = sumCntArray.begin();
+   std::vector< double      >::const_iterator cntIt = sumCntArray.begin();
+   std::vector< unsigned int>::const_iterator catIt = sumCatArray.begin();
 
    // go over all parameters in scenario and convert parameters
-
-   // Continuous parameters first!
-   for ( size_t i = 0; i < varSpace.numberOfContPrms(); ++i )
+   for ( size_t i = 0; i < varSpace.size(); ++i )
    {
-      assert( cit != sumCntArray.end() );
-      SharedParameterPtr  newPrm = varSpace.continuousParameter( i )->newParameterFromDoubles( cit );
-      newCase.addParameter( newPrm );
-   }
+      const casa::VarParameter * prm = varSpace.parameter( i );
+      switch ( prm->variationType() )
+      {
+         case casa::VarParameter::Continuous:
+            {
+               const casa::VarPrmContinuous * cntPrm = dynamic_cast<const casa::VarPrmContinuous *>( prm );
+               assert( cntIt != sumCntArray.end() );
 
-   // Then categorical parameters
-   for ( size_t i = 0; i < varSpace.numberOfCategPrms(); ++i )
-   {
-      newCase.addParameter( varSpace.categoricalParameter( i )->createNewParameterFromUnsignedInt( sumCatArray[ i ] ) );
+               SharedParameterPtr newPrm = cntPrm->newParameterFromDoubles( cntIt );
+               newCase.addParameter( newPrm );
+            }
+            break;
+
+         case casa::VarParameter::Categorical:
+            {
+               const casa::VarPrmCategorical * catPrm = dynamic_cast<const casa::VarPrmCategorical *>( prm );
+               assert( catIt != sumCatArray.end() );
+               newCase.addParameter( catPrm->createNewParameterFromUnsignedInt( *catIt ) );
+               ++catIt;
+            }
+            break;
+
+         case casa::VarParameter::Discrete:
+         default:
+            throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented variable parameter type: " << prm->variationType(); 
+            break;
+      }
    }
 }
 

@@ -59,7 +59,7 @@ namespace casa
 
       if ( !env( "SIEPRTS_LICENSE_FILE" ) ) m_env["SIEPRTS_LICENSE_FILE"] = s_LICENSE_SERVER;
 
-      m_version = env( "CAULDRON_VERSION" ) ? env( "CAULDRON_VERSION" ) : "v2014.0703";        // the default version is the latest available release for now
+      m_version = env( "CAULDRON_VERSION" ) ? env( "CAULDRON_VERSION" ) : "v2014.0710";        // the default version is the latest available release for now
       m_rootPath = env( "IBS_ROOT" ) ? env( "IBS_ROOT" ) : "/apps/sssdev/ibs";  // path to IBS folder where the different versions are
       m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                  // 
 
@@ -196,8 +196,8 @@ namespace casa
       // add to scrip checking of the return code of the mpirun. If it is 0 - create file Stage_X.sh.success, or Stage_X.ch.failed otherwise
       switch ( m_sh )
       {
-      case bash: oss << "if [ $? -eq 0 ]; then\n   touch $(basename $BASH_SOURCE).success\nelse\n   touch $(basename $BASH_SOURCE).failed\nfi\n"; break;
-      case csh:  oss << "if ( $status != 0 ) then\n   touch `basename $0`.failed\nelse\n   touch `basename $0`.success\nendif\n"; break;
+      case bash: oss << "if [ $? -eq 0 ];    then\n   touch $(basename $BASH_SOURCE).success\n   exit 0\nelse\n   touch $(basename $BASH_SOURCE).failed\n   exit 1\nfi\n";    break;
+      case csh:  oss << "if ( $status != 0 ) then\n   touch             `basename $0`.failed\n   exit 1\nelse\n   touch           `basename $0`.success\n   exit 0\nendif\n"; break;
       case cmd:  oss << "if errorlevel 1 (\n   type NUL > %~n0.bat.failed\n) else (\n   type NUL > %~n0.bat.success\n)\n"; break;
       }
       return oss.str();
@@ -315,7 +315,8 @@ namespace casa
    CauldronApp::CauldronApp( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+      unsigned int objVer = version();
+      bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
       size_t setSize;
       ok = ok ? dz.load( setSize, "EnvVarList" ) : ok;

@@ -332,7 +332,41 @@ ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
                layerName << "->" << stVariation[i] <<  " does not exist in source rock lithology table";
          }
       }
-      
+
+      // check if TOC, H/C, HI or PreAsphaltenActEnergy variation defined before source rock type for this layer
+      for ( size_t i = 0; i < varPrmsSet.size(); ++i )
+      {
+         const VarParameter * prm = varPrmsSet.parameter( i );
+
+         const VarPrmSourceRockTOC * tocPrm = dynamic_cast<const VarPrmSourceRockTOC *>( prm );
+         if ( tocPrm && tocPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of TOC for the layer: " << layerName <<
+               " is defined before source rock type variation for the same layer";
+         }
+
+         const VarPrmSourceRockHC * hcPrm = dynamic_cast<const VarPrmSourceRockHC *>( prm );
+         if ( hcPrm && hcPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of H/C for the layer: " << layerName <<
+               " is defined before source rock type variation for the same layer";
+         }
+
+         const VarPrmSourceRockHI * hiPrm = dynamic_cast<const VarPrmSourceRockHI *>( prm );
+         if ( hiPrm && hiPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of HI for the layer: " << layerName <<
+               " is defined before source rock type variation for the same layer";
+         }
+
+         const VarPrmSourceRockPreAsphaltStartAct * aaPrm = dynamic_cast<const VarPrmSourceRockPreAsphaltStartAct *>( prm );
+         if ( aaPrm && aaPrm->layerName() == layerName )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Variation of pre-asphalt activation energy for the layer: " << layerName <<
+               " is defined before source rock type variation for the same layer";
+         }
+      }
+     
       // add variable parameter to VarSpace
       if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockType( layerName, prm.sourceRockTypeName(), stVariation, weights ) ) )
       {

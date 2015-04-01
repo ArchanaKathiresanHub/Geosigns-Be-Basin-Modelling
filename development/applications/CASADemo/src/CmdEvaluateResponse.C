@@ -14,6 +14,8 @@
 #include "MatlabExporter.h"
 
 #include "casaAPI.h"
+#include "VarPrmContinuous.h"
+#include "VarPrmCategorical.h"
 #include "RunCaseImpl.h"
 
 #include <cstdlib>
@@ -77,16 +79,39 @@ void CmdEvaluateResponse::createRunCasesSet( std::auto_ptr<casa::ScenarioAnalysi
 
             std::vector<double>::const_iterator vit = prmVals[i].begin();
    
-            for ( size_t j = 0; j < vs.numberOfContPrms(); ++j )
+            for ( size_t j = 0; j < vs.size(); ++j )
             {
                assert( vit != prmVals[i].end() );
 
-               SharedParameterPtr prm = vs.continuousParameter( j )->newParameterFromDoubles( vit );
-               nrc->addParameter( prm );
+               const casa::VarParameter * vprm = vs.parameter( j );
+               switch( vprm->variationType() )
+               {
+                  case casa::VarParameter::Continuous:
+                     {
+                        const casa::VarPrmContinuous * cntVprm = dynamic_cast<const casa::VarPrmContinuous *>( vprm );
+                        SharedParameterPtr prm = cntVprm->newParameterFromDoubles( vit );
+                        nrc->addParameter( prm );
+                        break;
+                     }
+
+                  case casa::VarParameter::Categorical:
+                     {
+                        const casa::VarPrmCategorical * catVprm = dynamic_cast<const casa::VarPrmCategorical *>( vprm );
+                        unsigned int val = static_cast<unsigned int>( *vit );
+                        ++vit;
+                        SharedParameterPtr prm = catVprm->createNewParameterFromUnsignedInt( val );
+                        nrc->addParameter( prm );
+                        break;
+                     }
+
+                  default:
+                     throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Discrete parameter is not implemented yet";
+                     break;
+               }
             }
             rcs.push_back( nrc.release() );
-            sizePerExp[e] += 1;
          }
+         sizePerExp[e] += 1;
       }
    }
 }

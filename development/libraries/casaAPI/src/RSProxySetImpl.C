@@ -52,7 +52,8 @@ bool casa::RSProxySetImpl::save( CasaSerializer & sz, unsigned int fileVersion )
 // Create a new instance and deserialize it from the given stream
 casa::RSProxySetImpl::RSProxySetImpl( CasaDeserializer & dz, const char * objName )
 {
-   bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+   unsigned int objVer = version();
+   bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
    size_t setSize;
    ok = ok ? dz.load( setSize, "ProxiesSetSize" ) : ok;

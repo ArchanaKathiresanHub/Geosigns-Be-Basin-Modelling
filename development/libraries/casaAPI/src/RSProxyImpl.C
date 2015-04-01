@@ -176,6 +176,28 @@ ErrorHandler::ReturnCode RSProxyImpl::evaluateRSProxy( RunCase & cs )
 }
 
 
+int RSProxyImpl::polynomialOrder() const
+{
+   // search for maximal order of polynomial, order is defined by
+   // the size of coefficient array per parameter value 
+   size_t ord = 0;
+   for ( size_t j = 0; j < m_coefficients.size(); ++j )
+   {
+      const RSProxy::CoefficientsMap & cmap = m_coefficients[j];
+
+      std::vector<int> numCoefPerOrd;
+
+      // get polynomial order 
+      for ( RSProxy::CoefficientsMap::const_iterator it = cmap.begin(); it != cmap.end(); ++it )
+      {
+         const std::vector< unsigned int > & prmsLst = it->first;
+         ord = ord < prmsLst.size() ? prmsLst.size() : ord;
+      }
+   }
+   return static_cast<int>( ord );
+}
+
+
 const RSProxy::CoefficientsMapList & RSProxyImpl::getCoefficientsMapList() const
 {
    return m_coefficients;

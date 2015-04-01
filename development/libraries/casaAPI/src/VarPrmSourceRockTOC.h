@@ -47,6 +47,10 @@ namespace casa
       /// @return new casa::PrmSourceRockTOC parameter
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
+      /// @brief Get layer name for variation of TOC
+      /// @return layer name
+      std::string layerName() const { return m_layerName; }
+
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation

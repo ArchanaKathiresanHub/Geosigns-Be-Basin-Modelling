@@ -8,6 +8,7 @@
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmSourceRockHI.h"
 #include "../src/VarPrmSourceRockHC.h"
+#include "../src/VarPrmSourceRockType.h"
 #include "../src/VarPrmSourceRockPreAsphaltStartAct.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
 #include "../src/VarPrmOneCrustThinningEvent.h"
@@ -19,6 +20,7 @@
 #include <gtest/gtest.h>
 
 using namespace casa;
+using namespace casa::BusinessLogicRulesSet;
 
 static const double eps = 1.e-5;
 
@@ -29,10 +31,13 @@ public:
    BLRSTest()  { ; }
    ~BLRSTest() { ; }
    const static char * m_testProject;
+   const static char * m_testProjectCatPrms;
 };
 
-const char * BLRSTest::m_testProject = "Ottoland.project3d";
+const char * BLRSTest::m_testProject        = "Ottoland.project3d";
+const char * BLRSTest::m_testProjectCatPrms = "OttolandCatPrms.project3d";
 
+/////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter TopCrustHeatProduction to scenario analysis
 TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
 {
@@ -43,7 +48,7 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // add the new variable parameter TopCrustHeatProduction to the scenario analysis by using one of the BLRS API function
-   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryTopCrustHeatProduction( sc,  0.2, 4.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc,  0.2, 4.0, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
@@ -63,6 +68,8 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
    ASSERT_NEAR( baseV[0], 2.5, eps );  // does it range have base value from the project?
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock TOC to scenario analysis
 TEST_F( BLRSTest, VarySourceRockTOCTest )
 {
@@ -73,7 +80,7 @@ TEST_F( BLRSTest, VarySourceRockTOCTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySourceRockTOC( sc, "Lower Jurassic", 10.0, 30.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, "Lower Jurassic", 10.0, 30.0, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -92,6 +99,8 @@ TEST_F( BLRSTest, VarySourceRockTOCTest )
    ASSERT_NEAR( baseV[0], 10.0, eps );  // does it range have base value from the project?
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock HI to scenario analysis
 TEST_F( BLRSTest, VarySourceRockHITest )
 {
@@ -102,9 +111,9 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError,        casa::BusinessLogicRulesSet::VarySourceRockHI( sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI( sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
    // expect failure so HI and H/C can't be variated both in the same time
-   ASSERT_EQ( ErrorHandler::AlreadyDefined, casa::BusinessLogicRulesSet::VarySourceRockHC( sc, "Lower Jurassic", 0.5,   1.5,   VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHC( sc, "Lower Jurassic", 0.5,   1.5,   VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
@@ -123,6 +132,8 @@ TEST_F( BLRSTest, VarySourceRockHITest )
    ASSERT_NEAR( baseV[0], 472.068687, eps );  // does it range have base value from the project?
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock H/C to scenario analysis
 TEST_F( BLRSTest, VarySourceRockHCTest )
 {
@@ -133,7 +144,9 @@ TEST_F( BLRSTest, VarySourceRockHCTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySourceRockHC( sc, "Lower Jurassic", 0.5, 1.75, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC( sc, "Lower Jurassic", 0.5, 1.75,   VarPrmContinuous::Block ) );
+   // expect failure so HI and H/C can't be variated both in the same time
+   ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockHI( sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
@@ -152,6 +165,8 @@ TEST_F( BLRSTest, VarySourceRockHCTest )
    ASSERT_NEAR( baseV[0], 1.25, eps );  // does it range have base value from the project?
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter source rock preasphalten activation energy to scenario analysis
 TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
 {
@@ -162,7 +177,7 @@ TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySourceRockPreAsphaltActEnergy( sc, "Lower Jurassic", 208, 212, VarPrmContinuous::Block ) );
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, "Lower Jurassic", 208, 212, VarPrmContinuous::Block ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>(sc.varSpace());
@@ -181,7 +196,67 @@ TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergyTest )
    ASSERT_NEAR( baseV[0], 210, eps );  // does it range have base value from the project?
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Test how ones can add variable categorical parameter source rock type to scenario analysis
+TEST_F( BLRSTest, VarySourceRockTypeTest )
+{
+   std::vector<std::string> srList;
 
+   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
+   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
+   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   
+   std::vector<double> srWeights( 3, 0.33 );
+
+   // check order of variable parameters for Source Rock Type. User can't add any source rock variable parameter before 
+   // source rock type categorical parameter
+   for ( size_t i = 0; i < 4; ++i )
+   {
+      // create new scenario analysis
+      ScenarioAnalysis sc;
+
+      // load base case to scenario
+      ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
+
+      // set one of the Source Rock parameter
+      switch( i )
+      {
+         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(                 sc, "Lower Jurassic", 10.0,  30.0,  VarPrmContinuous::Block ) ); break;
+         case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, "Lower Jurassic", 371.0, 571.0, VarPrmContinuous::Block ) ); break;
+         case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, "Lower Jurassic", 0.5,   1.75,  VarPrmContinuous::Block ) ); break;
+         case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, "Lower Jurassic", 208.0, 212.0, VarPrmContinuous::Block ) ); break;
+         default: break;
+      }
+      // expect a failure if any of source rock variable parameters are defined before source rock type variation
+      ASSERT_EQ( ErrorHandler::AlreadyDefined, VarySourceRockType( sc, "Lower Jurassic", srList, srWeights ) );
+   }
+
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
+
+   // define new variable parameter
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, "Lower Jurassic", srList, srWeights ) );
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl &>( sc.varSpace() );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+
+   const VarPrmSourceRockType * prm = dynamic_cast<const VarPrmSourceRockType *>(varPrms.categoricalParameter( 0 ) );
+   ASSERT_TRUE( prm != NULL ); // do we have required the parameter in the list?
+
+   ASSERT_NEAR( prm->minValue()->asInteger(),  0, eps );  // does it range have given min value?
+   ASSERT_NEAR( prm->maxValue()->asInteger(),  2, eps );  // does it range have given max value?
+   ASSERT_NEAR( prm->baseValue()->asInteger(), 1, eps );  // does it range have base value from the project?
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Test how ones can add variate one crust thinning event parameters
 TEST_F( BLRSTest, VaryOneCrustThinningEvent )
 {
    // create new scenario analysis
@@ -226,6 +301,8 @@ TEST_F( BLRSTest, VaryOneCrustThinningEvent )
    ASSERT_NEAR( baseV[3], 0.55,    eps );  
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Exponential model test
 TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
 {
@@ -280,6 +357,8 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    ASSERT_NEAR( baseV[1], 3.22, eps );  
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Soil mechanics model parameters variation test
 TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
 {
    ScenarioAnalysis sc;
@@ -330,6 +409,8 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    ASSERT_NEAR( baseV[0], 2.3947558e-1, eps );  
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Double exponential model test
 TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
 {

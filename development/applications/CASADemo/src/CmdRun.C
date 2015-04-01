@@ -53,8 +53,9 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
 
 CmdRun::CmdRun( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   m_cluster = m_prms.size() > 0 ? m_prms[0] : "";
-   m_cldVer  = m_prms.size() > 1 ? m_prms[1] : "";
+   m_cluster        = m_prms.size() > 0 ? m_prms[0] : "";
+   m_cldVer         = m_prms.size() > 1 ? m_prms[1] : "";
+   m_maxPendingJobs = m_prms.size() > 2 ? atol( m_prms[2].c_str() ) : 0;
 
    if ( m_cluster.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty HPC cluster name";
    if ( m_cldVer.empty() )  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Cauldron version not given";
@@ -68,6 +69,8 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    }
 
    casa::RunManager & rm = sa->runManager();
+
+   if ( m_maxPendingJobs > 0 ) rm.setMaxNumberOfPendingJobs( m_maxPendingJobs );
 
    // set version and cluster
    if ( ErrorHandler::NoError != rm.setCauldronVersion( m_cldVer.c_str() ) ||
@@ -107,3 +110,23 @@ void CmdRun::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
 
    if ( m_commander.verboseLevel() > CasaCommander::Minimal ) { PrintObsValues( *sa.get() ); }
 }
+
+void CmdRun::printHelpPage( const char * cmdName )
+{
+   std::cout << "  " << cmdName << " <HPC cluster name> <Cauldron version> [<max number of pending jobs>]\n\n";
+   std::cout << "  - generates script files for each case and submit jobs to HPC cluster for execution.\n";
+   std::cout << "    If cluster name is defined as LOCAL, jobs will be submitted to the local host. The number\n";
+   std::cout << "    of jobs submitted at one time will be restricted by the number of cores on local host.\n";
+   std::cout << "    Max number of pending jobs optional parameter allows to keep the number of pending jobs on HPC\n";
+   std::cout << "    below or equal the given value. New jobs will not be submitted till pending jobs will start\n";
+   std::cout << "    This allows to follow a \"fair-share\" policy on HPC cluster.\n\n";
+   std::cout << "\n";
+   std::cout << "    Examples:\n";
+   std::cout << "    #     Cluster  Cauldron version.\n";
+   std::cout << "    " << cmdName << " \"LOCAL\"        \"v2014.07nightly\"\n";
+   std::cout << "\n";
+   std::cout << "    #     Cluster  Cauldron ver.   Max pend. jobs\n";
+   std::cout << "    " << cmdName << " \"AMSGDC\"        \"v2014.07nightly\"  5\n";
+   std::cout << "\n";
+}
+

@@ -46,7 +46,7 @@ PrmSourceRockHI::PrmSourceRockHI( mbapi::Model & mdl, const char * layerName ) :
       if ( !stMgr.isSourceRockActive( lid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+            "HI setting error: source rock is not active for the layer:" << m_layerName;
       }
 
       // in case of SR mixing get HI from the mix
@@ -171,7 +171,7 @@ std::string PrmSourceRockHI::validate( mbapi::Model & caldModel )
       if ( !stMgr.isSourceRockActive( lid ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+            "HI setting error: source rock is not active for the layer:" << m_layerName;
       }
 
       double hiInModel = UndefinedDoubleValue;
@@ -204,7 +204,7 @@ std::string PrmSourceRockHI::validate( mbapi::Model & caldModel )
          hiInModel = srMgr.hiIni( sid );
       }
 
-      if ( !NumericFunctions::isEqual( hiInModel, m_hi, 1.e-4 ) )
+      if ( !NumericFunctions::isEqual( hiInModel, m_hi, 1.0 ) ) // HI is set through recalculation to H/C 
       {
          oss << "Value of HI in the model (" << hiInModel << ") is different from the parameter value (" << m_hi << ")" << std::endl;
       }

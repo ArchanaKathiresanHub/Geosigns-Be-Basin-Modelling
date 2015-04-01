@@ -111,7 +111,7 @@ ErrorHandler::ReturnCode PrmSourceRockHC::setInModel( mbapi::Model & caldModel )
       if ( !stMgr.isSourceRockActive( lid ) )
       { 
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "HI setting error: source rock is not active for the layer:" << m_layerName;
+            "HC setting error: source rock is not active for the layer:" << m_layerName;
       }
 
       // in case of SR mixing, HI is set in stratigraphy table

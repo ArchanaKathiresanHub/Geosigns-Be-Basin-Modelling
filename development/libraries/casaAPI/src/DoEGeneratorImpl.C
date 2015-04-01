@@ -191,7 +191,8 @@ namespace casa
    DoEGeneratorImpl::DoEGeneratorImpl( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+      unsigned int objVer = version();
+      bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
 
       int doeAlg = -1;
       ok = ok ? dz.load( doeAlg, "TypOfDoE" ) : ok;

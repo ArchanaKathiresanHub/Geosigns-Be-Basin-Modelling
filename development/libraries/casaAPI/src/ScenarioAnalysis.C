@@ -79,7 +79,10 @@ public:
 
    // Set path where SA will generate a bunch of cases
    void setScenarioLocation( const char * pathToCaseSet );
-   
+
+   // Restore path where SA generated a bunch of cases
+   void restoreScenarioLocation( const char * pathToCaseSet );
+    
    // Get path to top level folder where the set of generated cases are located
    const char *scenarioLocation() const { return m_caseSetPath.c_str(); }
 
@@ -122,7 +125,7 @@ public:
    // Define which order of response surface polynomial approximation of  will be used in this scenario analysis
    // order order of polynomial approximation
    // krType do we need Kriging interpolation, and which one?
-   void addRSAlgorithm( const std::string & name, size_t order, RSProxy::RSKrigingType krType, const std::vector<std::string> & doeList );
+   void addRSAlgorithm( const std::string & name, int order, RSProxy::RSKrigingType krType, const std::vector<std::string> & doeList, double targetR2 );
   
    // Get response surface proxies set
    RSProxySet & rsProxySet() { return *(m_rsProxySet.get() ); }
@@ -173,7 +176,7 @@ private:
    std::auto_ptr<RunCaseSetImpl>            m_doeCases;
    std::auto_ptr<RunCaseSetImpl>            m_mcCases;
 
-   std::auto_ptr<RunManager>                m_runManager;
+   std::auto_ptr<RunManagerImpl>            m_runManager;
    std::auto_ptr<DataDiggerImpl>            m_dataDigger;
    std::auto_ptr<RSProxySetImpl>            m_rsProxySet;
    std::auto_ptr<SensitivityCalculatorImpl> m_sensCalc;
@@ -236,6 +239,18 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setScenarioLocation( const char * pat
    return NoError;
 }
 
+// restroe path where scenario generated projects
+ErrorHandler::ReturnCode ScenarioAnalysis::restoreScenarioLocation( const char * pathToCaseSet )
+{
+   try { m_pimpl->restoreScenarioLocation( pathToCaseSet ); }
+   catch ( Exception & ex           ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError,        pex.what() ); }
+   catch ( ...                      ) { return reportError( UnknownError,   "Unknown error" ); }
+
+   return NoError;
+}
+
+
 const char * ScenarioAnalysis::scenarioLocation() const
 {
    return m_pimpl->scenarioLocation();
@@ -289,9 +304,10 @@ ErrorHandler::ReturnCode ScenarioAnalysis::addRSAlgorithm( const char * name
                                                          , int order
                                                          , RSProxy::RSKrigingType krType
                                                          , const std::vector<std::string> & doeList
+                                                         , double targetR2
                                                          )
 {
-   try { m_pimpl->addRSAlgorithm( name, static_cast<size_t>( order ), krType, doeList ); }
+   try { m_pimpl->addRSAlgorithm( name, order, krType, doeList, targetR2 ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch( ...            ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -473,6 +489,102 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
    }      
 }
 
+void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char * pathToCaseSet )
+{
+   try
+   {
+      if ( !pathToCaseSet ) throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Empty path to completed cases";
+
+      ibs::FolderPath saFolder = ibs::FolderPath( pathToCaseSet );
+
+      if ( !saFolder.exists() || saFolder.empty() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::IoError ) << " folder " << pathToCaseSet << " does not exist or empty";
+      }
+      
+      m_caseSetPath = pathToCaseSet;
+      const std::vector<std::string> & expNames = m_doeCases->experimentNames();
+
+      // construct case set path like pathToScenario/Iteration_XX
+      bool found = false;
+      
+      ibs::FolderPath caseSetPath( m_caseSetPath );
+
+      for ( m_iterationNum = 1; m_iterationNum < 100 && !found; ++m_iterationNum )
+      {
+         caseSetPath = m_caseSetPath;
+
+         caseSetPath << std::string( "Iteration_" ) + ibs::to_string( m_iterationNum );
+         if ( caseSetPath.exists() ) { found = true; }
+         else // try to find folders with experiment names
+         {
+            for ( size_t i = 0; i < expNames.size() && !found; ++i )
+            {
+               ibs::FolderPath caseSetPathDoE( caseSetPath );
+
+               caseSetPathDoE << std::string( "Iteration_" ) + ibs::to_string( m_iterationNum ) + "_" + expNames[i];
+               if ( caseSetPathDoE.exists() )
+               { 
+                  found = true;
+                  caseSetPath = caseSetPathDoE;
+                  m_doeCases->filterByExperimentName( expNames[i] );
+               }
+            }
+         }
+         if ( found ) // do checking if folder has Case_N subfolders and what is the starting number for case numbering
+         {
+            for ( m_caseNum = 1; m_caseNum < 100; ++m_caseNum )
+            {
+               ibs::FolderPath casePath = caseSetPath;
+               casePath << ( std::string( "Case_" ) + ibs::to_string( m_caseNum ) );
+               if ( casePath.exists() ) break;
+            }
+            found = m_caseNum == 100 ? false : true;
+         }
+      }
+
+      if ( !found ) throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Given folder: " << caseSetPath.path() << "  does not have cases set";
+
+      for ( size_t i = 0; i < m_doeCases->size(); ++i, ++m_caseNum )
+      {
+         // construct case project path: pathToScenario/Iteration_XX_ExperimentName/Case_XX/ProjectName.project3d
+         ibs::FolderPath casePath = caseSetPath;
+         casePath << ( std::string( "Case_" ) + ibs::to_string( m_caseNum ) );
+
+         // extract project file name:
+         std::string projectFileName = "Project.project3d";
+         if ( !m_baseCaseProjectFile.empty() )
+         {
+            ibs::FilePath pf( m_baseCaseProjectFile );
+            const std::string & fn = pf.fileName();
+            if ( !fn.empty() )
+            {
+               projectFileName = fn;
+            }
+         }
+
+         casePath << projectFileName;
+
+         // point case to the corresponded location and validate it
+         RunCaseImpl * rc = dynamic_cast<RunCaseImpl *>( m_doeCases->runCase( i ) );
+         rc->setProjectPath( casePath.path().c_str() );
+         const std::string & errMsgs = rc->validateCase();
+         if ( !errMsgs.empty() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Mismatched case variable parameters and completed case project: " <<
+               casePath.path() << ", " << errMsgs;
+         }
+
+         // get case run status
+         m_runManager->restoreCaseStatus( rc );
+      }
+   }
+   catch ( const ibs::PathException & ex )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what();
+   }      
+}
+
 void ScenarioAnalysis::ScenarioAnalysisImpl::setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo )
 {
    m_doe.reset( new DoEGeneratorImpl( algo ) );
@@ -602,13 +714,14 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string              & name
-                                                           , size_t                           order
+                                                           , int                              order
                                                            , RSProxy::RSKrigingType           krType
                                                            , const std::vector<std::string> & doeList
+                                                           , double                           targetR2
                                                            )
 {
 
-   if ( order < 0 || order > 3 )
+   if ( order < -1 || order > 3 )
    {
       throw Exception( OutOfRangeValue ) << "addRSAlgorithm(): wrong value for the order: " << order << 
                                             ", must be in range: [0:3]";
@@ -622,8 +735,15 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string  
    }
    else
    { 
-      proxy = order < 3 ? new RSProxyImpl( name, varSpace(), obsSpace(), order, krType ) :
-                          new RSProxyImpl( name, varSpace(), obsSpace(), 0, krType, true, 1.0 );
+      switch ( order )
+      {
+         case -1: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), 0,     krType, true, targetR2 ); break;
+         case  0:
+         case  1:
+         case  2: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), order, krType                 ); break;
+         case  3: proxy = new RSProxyImpl( name, varSpace(), obsSpace(), 0,     krType, true, 1.0      ); break;
+      }
+
       m_rsProxySet->addNewRSProxy( proxy, name );
    }
 

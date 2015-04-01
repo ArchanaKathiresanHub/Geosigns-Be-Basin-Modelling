@@ -116,7 +116,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -145,7 +145,7 @@ namespace casa
 
       std::vector< std::string> m_name;      ///< name of the observable
 
-      std::vector<size_t>     m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
+      std::vector<int>        m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
       std::auto_ptr<ObsValue> m_refValue;  ///< reference value
       double                  m_devValue;  ///< standard deviation for reference value

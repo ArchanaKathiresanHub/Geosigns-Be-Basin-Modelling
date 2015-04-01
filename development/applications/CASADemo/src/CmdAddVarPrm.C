@@ -239,11 +239,16 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "  To define the variable parameter user should specify parameter type name and parameter range min/max values\n\n";
 
    std::cout << "  The following list of variable parameters is implemented for this command:\n";
-   std::cout << "    TopCrustHeatProduction - surface radiogenic heat production of the basement [ uW/m^3].\n";
-   std::cout << "    SourceRockTOC          - the initial total organic content in source rock [ weight % ].\n";
-   std::cout << "    SourceRockHC           - the initial H/C ratio in source rock [ kg/tonne C ].\n";
-   std::cout << "    SourceRockHI           - the initial hydrogen index (HI) ratio in source rock [ kg/tonne ].\n";
-   std::cout << "    CrustThinningOneEvent  - a crust thickness function with one crust thinning event.\n";
+   std::cout << "    TopCrustHeatProduction     - surface radiogenic heat production of the basement [ uW/m^3].\n";
+   std::cout << "\n";
+   std::cout << "    SourceRockType             - categorical parameter which could variate source rock type for the layer.\n";
+   std::cout << "                                 This parameter must be defined BEFORE any other SorceRock parameter\n";
+   std::cout << "    SourceRockTOC              - the initial total organic content in source rock [ weight % ].\n";
+   std::cout << "    SourceRockHC               - the initial H/C ratio in source rock [ kg/tonne C ].\n";
+   std::cout << "    SourceRockHI               - the initial hydrogen index (HI) ratio in source rock [ kg/tonne ].\n";
+   std::cout << "    SourceRockPreasphActEnergy - the activation energy limit for which the pre-asphalt cracking starts [ kJ/mol ].\n";
+   std::cout << "\n";
+   std::cout << "    CrustThinningOneEvent      - a crust thickness function with one crust thinning event.\n";
    std::cout << "\n";
    std::cout << "    TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
    std::cout << "    Where:\n";

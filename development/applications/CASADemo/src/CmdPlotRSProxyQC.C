@@ -233,11 +233,14 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   hold off\n";
    ofs << "   close\n";
    ofs << "\n";
-   ofs << "   axis( [minV maxV minV maxV] );\n";
    ofs << "   % Get reference value and standard deviation\n";
    ofs << "   if ( length( ObservablesRefValue{ i } ) > 0 )\n";
    ofs << "      ObsRefVal    = ObservablesRefValue{ i, 1 };\n";
    ofs << "      ObsRefStdDev = ObservablesRefValue{ i, 2 };\n";
+   ofs << "\n";
+   ofs << "      minV = min( [minV ObsRefVal-ObsRefStdDev ] );\n";
+   ofs << "      maxV = max( [maxV ObsRefVal+ObsRefStdDev ] );\n";
+   ofs << "\n";
    ofs << "      % Plot standard deviation as a stripe\n";
    ofs << "      rectangle( 'Position', [ObsRefVal - ObsRefStdDev, minV, 2 * ObsRefStdDev, maxV - minV ], 'FaceColor', [0.8 1 0.8], 'EdgeColor', 'g', 'linewidth', 3 );\n";
    ofs << "      hold on;\n";
@@ -247,6 +250,8 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   else\n";
    ofs << "      hold on;\n";
    ofs << "   end\n";
+   ofs << "\n";
+   ofs << "   axis( [minV maxV minV maxV] );\n";
    ofs << "\n";
    ofs << "   % plot 90%-100%-110% lines\n";
    ofs << "   pbndsX = [ minV maxV; minV     maxV;     minV     maxV];\n";
@@ -299,7 +304,7 @@ void CmdPlotRSProxyQC::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "\n";
    ofs << "   clear h;\n";
    ofs << "   clear legName;\n";
-   ofs << "   eval( sprintf( 'print "<< m_proxyName << "_proxyQC_Obs_%d.jpg -S1000,1000', i ) )\n";
+   ofs << "   eval( sprintf( 'print "<< m_proxyName << "_proxyQC_Obs_%d.jpg -S1000,1000', i ) );\n";
    ofs << "end\n";
 
    if ( m_commander.verboseLevel() > CasaCommander::Quiet )

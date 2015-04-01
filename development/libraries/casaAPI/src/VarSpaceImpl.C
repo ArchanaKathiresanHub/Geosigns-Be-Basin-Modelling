@@ -19,37 +19,36 @@ namespace casa
 {
    VarSpaceImpl::~VarSpaceImpl()
    {
-      for ( size_t i = 0; i < m_catPrms.size(); ++i ) delete m_catPrms[i];
-      for ( size_t i = 0; i < m_disPrms.size(); ++i ) delete m_disPrms[i];
-      for ( size_t i = 0; i < m_cntPrms.size(); ++i ) delete m_cntPrms[i];
+      for ( size_t i = 0; i < m_prms.size(); ++i ) delete m_prms[i];
+      m_prms.clear();
 
       m_catPrms.clear();
       m_disPrms.clear();
       m_cntPrms.clear();
    }
 
-   ErrorHandler::ReturnCode VarSpaceImpl::addParameter( VarPrmCategorical * prm )
+   ErrorHandler::ReturnCode VarSpaceImpl::addParameter( VarParameter * prm )
    {
-      if ( prm ) { m_catPrms.push_back( prm ); }
-      else       { return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
+      if ( prm )
+      { 
+         switch( prm->variationType() ) // also add parameter to the list depending on parameter type
+         {
+            case VarParameter::Continuous:  m_cntPrms.push_back( dynamic_cast<VarPrmContinuous* >( prm ) ); break;
+            case VarParameter::Categorical: m_catPrms.push_back( dynamic_cast<VarPrmCategorical*>( prm ) ); break;
+            case VarParameter::Discrete:    m_disPrms.push_back( dynamic_cast<VarPrmDiscrete   *>( prm ) ); break;
+
+            default:
+               return reportError( UndefinedValue, "Unknown variable parameter type: " );
+               break;
+         }
+         m_prms.push_back( prm ); // add parameter to the list of all var parameters
+      }
+      else
+      { 
+         return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" );
+      }
       return NoError;
    }
-
-   ErrorHandler::ReturnCode VarSpaceImpl::addParameter( VarPrmContinuous * prm )
-   {
-      if ( prm ) { m_cntPrms.push_back( prm ); }
-      else       { return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
-      return NoError;
-   }
-
-   // Add a new discrete parameter
-   ErrorHandler::ReturnCode VarSpaceImpl::addParameter( VarPrmDiscrete * prm )
-   {
-      if ( prm ) { m_disPrms.push_back( prm ); }
-      else       { return reportError( UndefinedValue, "VarSpaceImpl::addParameter() no parameter given" ); }
-      return NoError;
-   }
-
 
    // Serialize object to the given stream
    bool VarSpaceImpl::save( CasaSerializer & sz, unsigned int fileVersion ) const
@@ -62,7 +61,10 @@ namespace casa
          // register VarSpace object with serializer to allow other objects to keep reference after deserializtion
          CasaSerializer::ObjRefID vspID = sz.ptr2id( this );
          ok = ok ? sz.save( vspID, "ID" ) : ok;
+      }
 
+      if ( fileVersion == 0 )
+      {
          // Categorical parameters
          size_t setSize = m_catPrms.size();
 
@@ -93,6 +95,20 @@ namespace casa
             ok = ok ? sz.save( *(m_cntPrms[i]), "CntVarParameter" ) : ok;
          }
       }
+      else if ( fileVersion >= 1 )
+      {
+         // Just all parameters
+         size_t setSize = m_prms.size();
+
+         ok = ok ? sz.save( setSize, "VarPrmsSetSize" ) : ok;
+
+         for ( size_t i = 0; i < setSize && ok; ++i )
+         {
+            int prmType = static_cast<int>( m_prms[i]->variationType() );
+            ok = ok ? sz.save( prmType,      "PrmVariationType" ) : ok;
+            ok = ok ? sz.save( *(m_prms[i]), "VarParameter"     ) : ok;
+         }
+      }
       return ok;
    }
 
@@ -100,7 +116,8 @@ namespace casa
    VarSpaceImpl::VarSpaceImpl( CasaDeserializer & dz, const char * objName )
    {
       // read from file object name and version
-      bool ok = dz.checkObjectDescription( typeName(), objName, version() );
+      unsigned int objVer = version();
+      bool ok = dz.checkObjectDescription( typeName(), objName, objVer );
  
       CasaDeserializer::ObjRefID vspID;
 
@@ -110,41 +127,63 @@ namespace casa
       ok = ok ? dz.load( vspID, "ID" ) : ok;
       if ( ok ) { dz.registerObjPtrUnderID( this, vspID ); }
 
-      // Categorical parameters
       size_t setSize;
 
-      ok = ok ? dz.load( setSize, "CatPrmsSetSize" ) : ok;
-
-      for ( size_t i = 0; i < setSize && ok; ++i )
+      if ( objVer == 0 )
       {
-         VarPrmCategorical * newVar = VarPrmCategorical::load( dz, "CatVarParameter" );
-         assert( newVar );
+         // Categorical parameters
+         ok = ok ? dz.load( setSize, "CatPrmsSetSize" ) : ok;
+         for ( size_t i = 0; i < setSize && ok; ++i )
+         {
+            VarPrmCategorical * newVar = VarPrmCategorical::load( dz, "CatVarParameter" );
+            ok = newVar ? ok : false;
+            ok = ok ? (NoError == addParameter( newVar )) : ok;
+         }
 
-         ok = ok ? (NoError == addParameter( newVar )) : ok;
+         // Discrete parameters
+         ok = ok ? dz.load( setSize, "DisPrmsSetSize" ) : ok;
+         for ( size_t i = 0; i < setSize && ok; ++i )
+         {
+            VarPrmDiscrete * newVar = VarPrmDiscrete::load( dz, "DisVarParameter" );
+            ok = newVar ? ok : false;
+            ok = ok ? (NoError == addParameter( newVar )) : ok;
+         }
+
+         // Continuous parameters
+         ok = ok ? dz.load( setSize, "CntPrmsSetSize" ) : ok;
+         for ( size_t i = 0; i < setSize && ok; ++i )
+         {
+            VarPrmContinuous * newVar = VarPrmContinuous::load( dz, "CntVarParameter" );
+            ok = newVar ? ok : false;
+            ok = ok ? (NoError == addParameter( newVar )) : ok;
+         }
       }
-
-      // Discrete parameters
-      ok = ok ? dz.load( setSize, "DisPrmsSetSize" ) : ok;
-
-      for ( size_t i = 0; i < setSize && ok; ++i )
+      else if ( objVer >= 1 )
       {
-         VarPrmDiscrete * newVar = VarPrmDiscrete::load( dz, "DisVarParameter" );
-         assert( newVar );
+         ok = ok ? dz.load( setSize, "VarPrmsSetSize" ) : ok;
 
-         ok = ok ? (NoError == addParameter( newVar )) : ok;
-      }
+         for ( size_t i = 0; i < setSize && ok; ++i )
+         {
+            int prmType;
+            ok = ok ? dz.load( prmType, "PrmVariationType" ) : ok;
+            if ( ok )
+            {
+               VarParameter * newVar = NULL;
 
-      // Continuous parameters
-      ok = ok ? dz.load( setSize, "CntPrmsSetSize" ) : ok;
-
-      for ( size_t i = 0; i < setSize && ok; ++i )
-      {
-         VarPrmContinuous * newVar = VarPrmContinuous::load( dz, "CntVarParameter" );
-         assert( newVar );
-
-         ok = ok ? (NoError == addParameter( newVar )) : ok;
+               switch( static_cast< VarParameter::Type >( prmType ) )
+               {
+                  case VarParameter::Continuous:  newVar = VarPrmContinuous::load(  dz, "VarParameter" ); break;
+                  case VarParameter::Categorical: newVar = VarPrmCategorical::load( dz, "VarParameter" ); break;
+                  case VarParameter::Discrete:    newVar = VarPrmDiscrete::load(    dz, "VarParameter" ); break;
+                  default: assert( 0 );
+               }
+               ok = newVar ? ok : false;
+               ok = ok ? (NoError == addParameter( newVar )) : ok;
+            }
+         }
       }
 
       if ( !ok ) throw Exception( DeserializationError ) << "VarSpaceImpl deserialization error";
    }
 }
+

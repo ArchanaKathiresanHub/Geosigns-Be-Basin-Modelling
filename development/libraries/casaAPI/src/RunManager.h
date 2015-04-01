@@ -119,6 +119,13 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun ) = 0;
 
+      /// @brief Define how many jobs could be in Pending state. If there are to many jobs submitted,
+      ///        cluster starts to reduce available slots for the user, in this case better do not 
+      ///        submit all jobs in one time but keep feeding cluster with new jobs as previous one was finished
+      /// @param pendJobsNum the number of pending jobs after which RunManager will stop to schedule the new jobs
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode setMaxNumberOfPendingJobs( size_t pendJobsNum ) = 0;
+
       /// @brief Execute all scheduled cases
       /// @param asyncRun
       /// @return ErrorHandler::NoError on success or error code otherwise

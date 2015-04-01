@@ -114,7 +114,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -134,22 +134,22 @@ namespace casa
       /// @}
 
    protected:
-      double      m_x;  ///< X-th coordinate
-      double      m_y;  ///< Y-th coordinate
+      double                   m_x;                ///< X-th coordinate
+      double                   m_y;                ///< Y-th coordinate
 
-      std::string m_resName;   ///< reservoir name
-      std::string m_propName;  ///< Property name
-      double      m_simTime;   ///< simulator time
+      std::string              m_resName;          ///< reservoir name
+      std::string              m_propName;         ///< Property name
+      double                   m_simTime;          ///< simulator time
 
-      std::vector< std::string > m_name; ///< name of the observable
+      std::vector<std::string> m_name;             ///< name of the observable
 
-      size_t      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
+      int                      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
-      std::auto_ptr<ObsValue> m_refValue;  ///< reference value
-      double                  m_devValue;  ///< standard deviation for reference value
+      std::auto_ptr<ObsValue>  m_refValue;         ///< reference value
+      double                   m_devValue;         ///< standard deviation for reference value
 
-      double      m_saWeight;  ///< Observable weight for sensitivity analysis
-      double      m_uaWeight;  ///< Observable weight for uncertainty analysis
+      double                   m_saWeight;         ///< Observable weight for sensitivity analysis
+      double                   m_uaWeight;         ///< Observable weight for uncertainty analysis
 
    private:
 

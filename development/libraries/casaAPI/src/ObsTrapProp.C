@@ -16,6 +16,7 @@
 
 // CMB API
 #include "cmbAPI.h"
+#include "UndefinedValues.h"
 
 // Utilities lib
 #include "NumericFunctions.h"
@@ -32,7 +33,7 @@ ObsTrapProp::ObsTrapProp( double x, double y, const char * resName, const char *
 {
    assert( propName  != NULL );
    
-   m_posDataMiningTbl = 0;
+   m_posDataMiningTbl = -1;
 
    m_x = x;
    m_y = y;
@@ -71,19 +72,19 @@ void ObsTrapProp::setReferenceValue( ObsValue * obsVal, double devVal )
 // Update Model to be sure that requested property will be saved at the requested time
 ErrorHandler::ReturnCode ObsTrapProp::requestObservableInModel( mbapi::Model & caldModel )
 {
-   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot(       m_simTime  ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.snapshotManager().requestMajorSnapshot( m_simTime ) ) return caldModel.errorCode();
 
    m_posDataMiningTbl = caldModel.tableSize( Observable::s_dataMinerTable ); 
    
-   if ( ErrorHandler::NoError != caldModel.addRowToTable( Observable::s_dataMinerTable ) ) return caldModel.errorCode();
-
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Time",          m_simTime            ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "XCoord",        m_x                  ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",        m_y                  ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",        UndefinedDoubleValue ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ReservoirName", m_resName            ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName",  m_propName           ) ) return caldModel.errorCode();
-   if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",         UndefinedDoubleValue ) ) return caldModel.errorCode();
+   if ( ErrorHandler::NoError != caldModel.addRowToTable( Observable::s_dataMinerTable ) ||
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Time",          m_simTime            ) ||
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "XCoord",        m_x                  ) ||
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",        m_y                  ) ||
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",        UndefinedDoubleValue ) ||
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ReservoirName", m_resName            ) ||
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName",  m_propName           ) ||
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",         UndefinedDoubleValue ) 
+      ) return caldModel.errorCode();
 
    return ErrorHandler::NoError;
 }
@@ -92,14 +93,56 @@ ErrorHandler::ReturnCode ObsTrapProp::requestObservableInModel( mbapi::Model & c
 // Get this observable value from Cauldron model
 ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
 {
-   double val = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value" );
+   double val = UndefinedDoubleValue;
+   double eps = 1.e-5;
+   
+   if ( m_posDataMiningTbl < 0 )
+   {
+      size_t tblSize = caldModel.tableSize( Observable::s_dataMinerTable );
+      bool found = false;
+      for ( size_t i = 0; i < tblSize && !found; ++i )
+      {
+         double obTime = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "Time" );
+         if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( obTime, m_simTime, eps ) )
+         {
+            double xCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "XCoord" );
+            if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( xCrd, m_x, eps ) )
+            {
+               double yCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "YCoord" );
+               if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( yCrd, m_y, eps ) )
+               {
+                  double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "ZCoord" );
+                  if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( zCrd, UndefinedDoubleValue, eps ) )
+                  {
+                     const std::string & resName = caldModel.tableValueAsString( Observable::s_dataMinerTable, i, "ReservoirName" );
+                     if ( caldModel.errorCode() == ErrorHandler::NoError && m_resName == resName )
+                     {
+                        const std::string & propName = caldModel.tableValueAsString( Observable::s_dataMinerTable, i, "PropertyName" );
+                        if ( caldModel.errorCode() == ErrorHandler::NoError && m_propName == propName )
+                        {
+                           found = true;
+                           val = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "Value" );
+                           m_posDataMiningTbl = i;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   else
+   {
+      val = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value" );
+   }
+
    if ( caldModel.errorCode() != ErrorHandler::NoError ) return NULL;
 
    // Data digger can't find specified trap property. It could be due to absence of the trap at given place
    // here we will try to avoid undefined values for some trap properties
    if ( NumericFunctions::isEqual( UndefinedDoubleValue, val, 1e-6 ) )
    {
-      if ( m_propName.substr(0, 6) == "Volume" || m_propName.substr(0, 4) == "Mass" ) { val = 0.0; } // no trap at this place - no HC
+      if ( m_propName.substr( 0, 6 ) == "Volume" || m_propName.substr( 0, 4 ) == "Mass" ) { val = 0.0; } // no trap at this place - no HC
    }
 
    return new ObsValueDoubleScalar( this, val );
@@ -164,7 +207,17 @@ ObsTrapProp::ObsTrapProp( CasaDeserializer & dz, unsigned int objVer )
    ok = ok ? dz.load( m_simTime,  "simTime"       ) : ok;
 
    ok = ok ? dz.load( m_name, "name" ) : ok;
-   ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
+
+   if ( objVer == 0 )
+   {
+      size_t pos;
+      ok = ok ? dz.load( pos, "posDataMiningTbl" ) : ok;
+      m_posDataMiningTbl = static_cast<int>( pos );
+   }
+   else if ( objVer >= 1 )
+   {
+      ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
+   }
 
    bool hasRefVal;
    ok = ok ? dz.load( hasRefVal, "HasRefValue" ) : ok;

@@ -54,7 +54,10 @@ namespace casa
 
       // Add job to the list
       virtual JobID addJob( const std::string & cwd, const std::string & scriptName, const std::string & jobName, int cpus ) = 0;
-      
+
+      // Restore job state by analysing output files
+      virtual JobState restoreJobState( const std::string & cwd, const std::string & scriptName, const std::string & jobName );
+
       // run job
       virtual JobState runJob( JobID job ) = 0;
 

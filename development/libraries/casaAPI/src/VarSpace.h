@@ -32,20 +32,10 @@ namespace casa
    class VarSpace : public ErrorHandler, public CasaSerializable
    {
    public:
-      /// @brief Add a new categorical parameter
+      /// @brief Add a new variable parameter
       /// @param prm a new parameter to be added to the set
       /// @return NoError on success or error code if such parameter is already added to the set
-      virtual ErrorHandler::ReturnCode addParameter( VarPrmCategorical * prm ) = 0;
-
-      /// @brief Add a new continuous parameter
-      /// @param prm a new parameter to be added to the set
-      /// @return NoError on success or error code if such parameter is already added to the set
-      virtual ErrorHandler::ReturnCode addParameter( VarPrmContinuous * prm ) = 0;
-
-      /// @brief Add a new discrete parameter
-      /// @param prm a new parameter to be added to the set
-      /// @return NoError on success or error code if such parameter is already added to the set
-      virtual ErrorHandler::ReturnCode addParameter( VarPrmDiscrete * prm ) = 0;
+      virtual ErrorHandler::ReturnCode addParameter( VarParameter * prm ) = 0;
 
       /// @brief Get number of variable parameters defined in VarSpace
       /// @return total number of parameters in set
@@ -86,7 +76,6 @@ namespace casa
    protected:
       VarSpace() {;}
       virtual ~VarSpace() { ; }
-
    };
 }
 

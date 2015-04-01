@@ -72,6 +72,11 @@ namespace casa
       /// @return ErrorHandler::NoError on success, or ErrorHandler::WrongPath if SA can't create folders/files using this path
       ErrorHandler::ReturnCode setScenarioLocation( const char * pathToCaseSet );
 
+      /// @brief Restore path where SA generated a bunch of cases
+      /// @param pathToCaseSet
+      /// @return ErrorHandler::NoError on success, or ErrorHandler::WrongPath if SA can't create folders/files using this path
+      ErrorHandler::ReturnCode restoreScenarioLocation( const char * pathToCaseSet );
+
       /// @brief Get path where SA generats a bunch of cases
       /// @return path to the top folder where generated cases are located
       const char * scenarioLocation() const;
@@ -120,10 +125,25 @@ namespace casa
       /// @brief Add the new response surface polynomial approximation to scenario analysis. If
       ///        list of DoE experiments is not empty - calculate proxy for corresponded cases set
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ErrorHandler::ReturnCode addRSAlgorithm( const char * name                        ///< proxy name
-                                             , int order                                ///< order of polynomial approximation
-                                             , RSProxy::RSKrigingType krType            ///< do we need Kriging interpolation, and which one?
-                                             , const std::vector<std::string> & doeList ///< list of DoE experiments name to calculate proxy coeff.
+      ErrorHandler::ReturnCode addRSAlgorithm( const char                     * name            ///< proxy name
+                                             , int                              order           /*! order of polynomial approximation. Possible values are -1, 0, 1, 2, 3.
+                                                                                                If parameter value is set to -1 it switch on the automatic search for the order
+                                                                                                of polynomial approximation. In this mode the proxy tries to find the optimal 
+                                                                                                polynomial up to third order. Internally,a polynomial representation
+                                                                                                is set to 0 order first. Next, this representation is improved by carefully 
+                                                                                                adding or removing polynomial terms one by one, until no (significant) improvement 
+                                                                                                can be found. To avoid over-fitting, 75% of the added cases are randomly selected 
+                                                                                                and used for proxy building. The other 25% are used as internal blind tests. As a
+                                                                                                further improvement, the autosearch method repeats the random case selection 10 
+                                                                                                times, to guarantee that sufficiently many, different blind tests are used. */
+                                             , RSProxy::RSKrigingType           krType          ///< do we need Kriging interpolation, and which one?
+                                             , const std::vector<std::string> & doeList         ///< list of DoE experiments name to calculate polynomial coefficients
+                                             , double                           targetR2 = 0.95 /*! A target value can be set for the so-called adjusted R2 that is an (adjusted) 
+                                                                                                indicator for the quality of the polynomial fit. This value must range between 0 
+                                                                                                (very poor target) and 1 (highest target). Note that a high regression quality 
+                                                                                                does not automatically imply a good predictability.
+                                                                                                Note: this parameter is taking in account only when automatic search for polynomial 
+                                                                                                order is set. */
                                              );
       
       /// @brief Get response surface proxies list of this scenario.
@@ -167,7 +187,8 @@ namespace casa
       // version 2: Added SensitivityCalculator
       // version 3: Added RunManager cases state
       // version 4: SUMlib updated to the latest version
-      int version() { return 4; }
+      // version 5: Changed the way how variable parameters set is serialized to keep the original order of variable parameters
+      int version() { return 5; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in
