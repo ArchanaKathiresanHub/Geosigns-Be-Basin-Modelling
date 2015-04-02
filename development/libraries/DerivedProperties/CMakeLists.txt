@@ -30,6 +30,8 @@ set(all_headers
   src/HydrostaticPressureSurfaceCalculator.h
   src/LithostaticPressureFormationCalculator.h
   src/LithostaticPressureSurfaceCalculator.h
+  src/OverpressureFormationCalculator.h
+  src/OverpressureSurfaceCalculator.h
   src/PermeabilityFormationCalculator.h
   src/PermeabilityFormationSurfaceCalculator.h
   src/PorosityFormationCalculator.h
@@ -47,6 +49,7 @@ set(all_headers
   src/PropertySnapshotCalculatorMap.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
+  src/ThicknessFormationMapCalculator.h
   src/VesFormationCalculator.h
   src/VesSurfaceCalculator.h
 )
@@ -66,6 +69,8 @@ set(all_srcs
   src/HydrostaticPressureSurfaceCalculator.C
   src/LithostaticPressureFormationCalculator.C
   src/LithostaticPressureSurfaceCalculator.C
+  src/OverpressureFormationCalculator.C
+  src/OverpressureSurfaceCalculator.C
   src/PermeabilityFormationCalculator.C
   src/PermeabilityFormationSurfaceCalculator.C
   src/PorosityFormationCalculator.C
@@ -80,6 +85,7 @@ set(all_srcs
   src/PropertyCalculator.C
   src/PropertyRetriever.C
   src/SurfaceProperty.C
+  src/ThicknessFormationMapCalculator.C
   src/VesFormationCalculator.C
   src/VesSurfaceCalculator.C
 )
@@ -144,5 +150,15 @@ add_gtest( NAME DerivedProperties::MultipleFormationSurfacePropertyManagerTest
 
 add_gtest( NAME DerivedProperties::MultipleFormationPropertyManagerTest
            SOURCES test/MultipleFormationPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::ThicknessPropertyTest
+           SOURCES test/ThicknessPropertyTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::OverpressurePropertyTest
+           SOURCES test/OverpressurePropertyTest.C
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
