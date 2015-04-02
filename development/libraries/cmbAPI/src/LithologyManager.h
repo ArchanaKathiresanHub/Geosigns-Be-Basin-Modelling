@@ -109,15 +109,15 @@ namespace mbapi {
       /// @{
       /// Thermal conductivity model parameters
 
-      /// @brief Get lithology STP thermal conductivity coefficient
+      /// @brief Get lithology STP (Standart Temperature Pressure) thermal conductivity [W/m/K]
       /// @param[in] id lithology ID
-      /// @param[out] stpThermCond on success has the thermal conductivity coefficient value, or unchanged in case of error
-      /// @return NoError on success, NonexistingID on unknown lithology ID or UndefinedValue if the value wasn't set before
-      virtual ReturnCode STPThermalConductivityCoeff( LithologyID id, double & stpThermCond ) = 0;
+      /// @param[out] stpThermCond 
+      /// @return the STP thermal conductivity value on success or UndefinedDoubleValue on error
+      virtual double stpThermalConductivityCoeff( LithologyID id ) = 0;
 
-      /// @brief Set lithology STP thermal conductivity coefficient
+      /// @brief Set lithology STP (Standart Temperature Pressure) thermal conductivity [W/m/K]
       /// @param[in] id lithology ID
-      /// @param[in] stpThermCond the new value for the thermal conductivity coefficient 
+      /// @param[in] stpThermCond the new value for STP thermal conductivity
       /// @return NoError on success, NonexistingID on unknown lithology ID or OutOfRangeValue if the value not in an allowed range
       virtual ReturnCode setSTPThermalConductivityCoeff( LithologyID id, double stpThermCond ) = 0;
 

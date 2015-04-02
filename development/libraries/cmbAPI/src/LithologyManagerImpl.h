@@ -72,15 +72,14 @@ namespace mbapi {
       /////////////////////////////////////////////////////////////////////////
       // Thermal conductivity model
 
-      // Set lithology STP thermal conductivity coefficient
+      // Set lithology STP thermal conductivity 
       // [in] id lithology ID
-      // [out] stpThermCond on success has the thermal conductivity coefficient value, or unchanged in case of error
-      // return NoError on success, NonexistingID on unknown lithology ID or UndefinedValue if the value wasn't set before
-      virtual ReturnCode STPThermalConductivityCoeff( LithologyID id, double & stpThermCond );
+      // return the STP thermal conductivity value on success or UndefinedDoubleValue on error
+      virtual double stpThermalConductivityCoeff( LithologyID id );
 
-      // Set lithology STP thermal conductivity coefficient
+      // Set lithology STP thermal conductivity
       // [in] id lithology ID
-      // [in] stpThermCond the new value for the thermal conductivity coefficient 
+      // [in] stpThermCond the new value for STP thermal conductivity 
       // return NoError on success, NonexistingID on unknown lithology ID or OutOfRangeValue if the value not in an allowed range
       virtual ReturnCode setSTPThermalConductivityCoeff( LithologyID id, double stpThermCond );
 
@@ -102,6 +101,7 @@ namespace mbapi {
 
       static const char * m_ccSoilMechanicsFieldName;   // column name for compaction coefficient of the Soil Model porosity model
       static const char * m_minPorosityFieldName;       // column name for minimal porosity of the Double Exponential porosity model
+      static const char * m_stpThermalCondFieldName;    // column name for STP thermal conductivity coefficient
 
       database::Database * m_db; // cauldron project database
    };

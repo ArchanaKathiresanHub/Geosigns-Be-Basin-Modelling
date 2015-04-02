@@ -35,6 +35,7 @@
 /// - @subpage CASA_TopCrustHeatProductionPage 
 /// - @subpage CASA_OneCrustThinningEventPage 
 /// - @subpage CASA_PorosityModelPage 
+/// - @subpage CASA_LithoSTPThermalCondPage
 
 namespace casa
 {

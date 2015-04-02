@@ -1,10 +1,17 @@
 #include "../src/cmbAPI.h"
 #include "../src/casaAPI.h"
 #include "../src/VarSpaceImpl.h"
+
 #include "../src/PrmSourceRockTOC.h"
 #include "../src/PrmSourceRockHI.h"
 #include "../src/PrmSourceRockHC.h"
+#include "../src/PrmSourceRockType.h"
+#include "../src/PrmSourceRockPreAsphaltStartAct.h"
 #include "../src/PrmTopCrustHeatProduction.h"
+#include "../src/PrmOneCrustThinningEvent.h"
+#include "../src/PrmPorosityModel.h"
+#include "../src/PrmLithoSTPThermalCond.h"
+
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmSourceRockHI.h"
 #include "../src/VarPrmSourceRockHC.h"
@@ -13,6 +20,7 @@
 #include "../src/VarPrmTopCrustHeatProduction.h"
 #include "../src/VarPrmOneCrustThinningEvent.h"
 #include "../src/VarPrmPorosityModel.h"
+#include "../src/VarPrmLithoSTPThermalCond.h"
 
 #include <memory>
 //#include <cmath>
@@ -465,4 +473,43 @@ TEST_F( BLRSTest, VaryPorosityDoubleExponentialModelParameters )
    ASSERT_NEAR( baseV[2], 15.0, eps );  
    ASSERT_NEAR( baseV[3], 4.0,  eps );  
 }                     
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Test how ones can add variate one crust thinning event parameters
+TEST_F( BLRSTest, VaryLithoSTPThermalCondCoeff )
+{
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
+
+   // set the parameter
+   ASSERT_EQ( ErrorHandler::NoError, 
+              casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( sc, "Std. Shale", 1, 2, VarPrmContinuous::Block ) );
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+
+   const VarPrmLithoSTPThermalCond * p1c = dynamic_cast<const VarPrmLithoSTPThermalCond*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const std::vector<double> & minV  = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   // does it range have given min value
+   ASSERT_NEAR( minV[0], 1.0, eps );
+
+   // does it range have given max value
+   ASSERT_NEAR( maxV[0], 2.0, eps );  
+
+   // does it have base values from project?
+   ASSERT_NEAR( baseV[0], 1.4, eps );  
+}
+
+
 

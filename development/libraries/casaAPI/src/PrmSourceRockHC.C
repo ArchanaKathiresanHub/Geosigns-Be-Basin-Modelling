@@ -76,7 +76,7 @@ PrmSourceRockHC::PrmSourceRockHC( mbapi::Model & mdl, const char * layerName ) :
          m_hc = srMgr.hcIni( sid );
       }
    }
-   catch (const ErrorHandler::Exception & e) { mdl.reportError(e.errorCode(), e.what()); }
+   catch ( const ErrorHandler::Exception & e ) { mdl.reportError(e.errorCode(), e.what()); }
 
    // construct parameter name
    std::ostringstream oss;

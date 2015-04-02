@@ -72,6 +72,7 @@
 ///     -# casa::PrmTopCrustHeatProduction - @link CASA_TopCrustHeatProductionPage Top crust heat production rate parameter @endlink
 ///     -# casa::PrmOneCrustThinningEvent - @link CASA_OneCrustThinningEventPage Crust thinning parameter @endlink
 ///     -# casa::PrmPorosityModel - @link CASA_PorosityModelPage lithology porosity model parameters @endlink
+///     -# casa::PrmLithoSTPThermalCond - @link CASA_LithoSTPThermalCondPage lithology STP (Standart Pressure Temperature) thermal conductivity coefficient parameter @endlink
 ///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 
 ///                        value from measurements. casa::ScenarioAnalysis keeps one set of Observables in casa::ObsSpace container.
 ///                        The following set of implemented targets is implemented now:
@@ -249,9 +250,19 @@ namespace casa
           , double                maxCompCoef1  ///< [in] max range value for the compaction coefficient for the second exponent (Double_Exponential model only)
           , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
                                                         some middle parameter value it will be taken from the base case model */
-
           );
-   };
+
+      /// @brief Add STP thermal conductivity parameter variation for lithology
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( 
+         ScenarioAnalysis    & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+       , const char *          litName       ///< [in] lithology name
+       , double                minVal        ///< [in] min range value for the STP thermal conductivity coeff. 
+       , double                maxVal        ///< [in] max range value for the STP thermal conductivity coeff.
+      , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
+                                                     some middle parameter value it will be taken from the base case model */
+       );
+};
 }
 
 #endif // CASA_API

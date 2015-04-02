@@ -36,14 +36,16 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No name of variable parameter was given";
    }
 
-   if ( m_prms[0] != "TopCrustHeatProduction" &&
-        m_prms[0] != "SourceRockTOC"          &&
-        m_prms[0] != "SourceRockHC"           &&
-        m_prms[0] != "SourceRockHI"           &&
-        m_prms[0] != "SourceRockType"         &&
-        m_prms[0] != "SourceRockPreasphActEnergy" &&
-        m_prms[0] != "CrustThinningOneEvent"  &&
-        m_prms[0] != "PorosityModel" )
+   if ( m_prms[0] != "TopCrustHeatProduction"
+     && m_prms[0] != "SourceRockTOC"
+     && m_prms[0] != "SourceRockHC"
+     && m_prms[0] != "SourceRockHI"
+     && m_prms[0] != "SourceRockType"
+     && m_prms[0] != "SourceRockPreasphActEnergy"
+     && m_prms[0] != "CrustThinningOneEvent"
+     && m_prms[0] != "PorosityModel"
+     && m_prms[0] != "STPThermalCondCoeff" 
+      )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown variable parameter name: " << m_prms[0];
    }
@@ -55,7 +57,8 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
         m_prms[0] == "SourceRockType"             && m_prms.size() !=  4 ||
         m_prms[0] == "SourceRockPreasphActEnergy" && m_prms.size() !=  5 ||
         m_prms[0] == "CrustThinningOneEvent"      && m_prms.size() != 10 ||
-        m_prms[0] == "PorosityModel"              && (m_prms.size() <  8 || m_prms.size() > 12) 
+        m_prms[0] == "PorosityModel"              &&(m_prms.size()  <  8 || m_prms.size() > 12) ||
+        m_prms[0] == "STPThermalCondCoeff"        && m_prms.size() !=  5 
       )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
@@ -229,26 +232,42 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
+   else if ( m_prms[0] == "STPThermalCondCoeff" )
+   {
+      double minVal = atof( m_prms[2].c_str() );
+      double maxVal = atof( m_prms[3].c_str() );
+
+      ppdf = Str2pdf( m_prms[4] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryLithoSTPThermalCondCoeffParameter( *sa.get(), m_prms[1].c_str(), minVal, maxVal, ppdf ) )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
+   }
 }
 
 void CmdAddVarPrm::printHelpPage( const char * cmdName )
 {
    std::cout << "  " << cmdName << " <variable parameter type name> <min value> <max value> <pdf of parameter>\n\n";
-   std::cout << "    Variable parameter - a parameter in Cauldron project file which exact value is unknown.\n";
+   std::cout << "  Variable parameter - a parameter in Cauldron project file which exact value is unknown.\n";
    std::cout << "  There are only some estimations on it value range. For example - source rock TOC - [5:20]%.\n";
    std::cout << "  To define the variable parameter user should specify parameter type name and parameter range min/max values\n\n";
 
    std::cout << "  The following list of variable parameters is implemented for this command:\n";
    std::cout << "    TopCrustHeatProduction     - surface radiogenic heat production of the basement [ uW/m^3].\n";
-   std::cout << "\n";
+   std::cout << "\n  (Source rock parameters variation:)\n";
    std::cout << "    SourceRockType             - categorical parameter which could variate source rock type for the layer.\n";
    std::cout << "                                 This parameter must be defined BEFORE any other SorceRock parameter\n";
    std::cout << "    SourceRockTOC              - the initial total organic content in source rock [ weight % ].\n";
    std::cout << "    SourceRockHC               - the initial H/C ratio in source rock [ kg/tonne C ].\n";
    std::cout << "    SourceRockHI               - the initial hydrogen index (HI) ratio in source rock [ kg/tonne ].\n";
    std::cout << "    SourceRockPreasphActEnergy - the activation energy limit for which the pre-asphalt cracking starts [ kJ/mol ].\n";
-   std::cout << "\n";
+   std::cout << "\n  (Crust thinning variation:)\n";
    std::cout << "    CrustThinningOneEvent      - a crust thickness function with one crust thinning event.\n";
+   std::cout << "\n  (Lithology parameters variation:)\n";
+   std::cout << "    PorosityModel              - a variation of porosity model parameter for the given lithology.\n";
+   std::cout << "    STPThermalCondCoeff        - a variation of STP (Standart P & T) thermal conductivity coefficient for the given lithology.\n";
+   std::cout << "\n";
    std::cout << "\n";
    std::cout << "    TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
    std::cout << "    Where:\n";
@@ -344,10 +363,21 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values for min/max and will be ignored\n\n";
    std::cout << "    Example 1:\n";
    std::cout << "    #       VarPrmName      LithName             PorModel       SurfPor [%]  CompCoeff  Parameter PDF\n";
-   std::cout << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay]\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
+   std::cout << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
    std::cout << "\n";
    std::cout << "    Example 2:\n";
    std::cout << "    #      VarPrmName      LithName              PorModel          SurfPor [%]  CompCoeff      Parameter PDF\n";
    std::cout << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    STPThermalCondCoeff <lithologyName> <minValue> <maxValue> <prmPDF>\n";
+   std::cout << "       lithologyName - lithology name\n";
+   std::cout << "       minVal    - the parameter minimal range value\n";
+   std::cout << "       maxVal    - the parameter maximal range value\n";
+   std::cout << "       prmPDF    - the parameter probability density function type\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #       VarPrmName             LithName           min max  Parameter PDF\n";
+   std::cout << "    " << cmdName << " \"STPThermalCondCoeff\"  \"SM.Mudstone40%Clay\" 2   4   \"Block\"\n";
+   std::cout << "\n";
 }
 

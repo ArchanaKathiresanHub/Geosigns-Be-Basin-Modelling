@@ -13,6 +13,7 @@
 
 // CMB API
 #include "LithologyManagerImpl.h"
+#include "UndefinedValues.h"
 
 // DataAccess
 #include "database.h"
@@ -34,6 +35,7 @@ const char * LithologyManagerImpl::m_ccaDblExponentialFieldName = "CompacCoefESA
 const char * LithologyManagerImpl::m_ccbDblExponentialFieldName = "CompacCoefESB";
 const char * LithologyManagerImpl::m_ccSoilMechanicsFieldName   = "Compaction_Coefficient_SM";
 const char * LithologyManagerImpl::m_minPorosityFieldName       = "MinimumPorosity";
+const char * LithologyManagerImpl::m_stpThermalCondFieldName    = "StpThCond";
 
 // Constructor
 LithologyManagerImpl::LithologyManagerImpl()
@@ -233,12 +235,29 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
 
 
 // Set lithology STP thermal conductivity coefficient
-ErrorHandler::ReturnCode LithologyManagerImpl::STPThermalConductivityCoeff( LithologyID id        // [in] lithology ID
-                                                                          , double & stpThermCond // [out] thermal cond. coeff., or unchanged on error
-                                                                          )
+double LithologyManagerImpl::stpThermalConductivityCoeff( LithologyID id )
 {
-   throw std::runtime_error( "Not implemented yet" );
-   return NotImplementedAPI;
+   double val = UndefinedDoubleValue;
+   try
+   {
+      if ( errorCode() != NoError ) resetError();
+
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
+
+      val = rec->getValue<double>( m_stpThermalCondFieldName );
+   }
+   catch ( const Exception & e )
+   {
+      reportError( e.errorCode(), e.what() );
+   }
+   return val;
 }
 
 
@@ -247,8 +266,31 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setSTPThermalConductivityCoeff( L
                                                                              , double stpThermCond // [in] the new value of therm. cond. coeff.
                                                                              )
 {
-   throw std::runtime_error( "Not implemented yet" );
-   return NotImplementedAPI;
+   try
+   {
+      if ( errorCode() != NoError ) resetError();
+      
+      if ( stpThermCond < 0.0 || stpThermCond > 100.0 )
+      {
+         throw Exception( OutOfRangeValue ) << "STP thermal conductivity value must be in range [0:100] but given is: " << stpThermCond;
+      }
+ 
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
+
+      rec->setValue( m_stpThermalCondFieldName, stpThermCond );
+   }
+   catch ( const Exception & e )
+   {
+      return reportError( e.errorCode(), e.what() );
+   }
+   return NoError;
 }
 
 

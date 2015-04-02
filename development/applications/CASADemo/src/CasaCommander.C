@@ -102,8 +102,11 @@ void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa 
 
 void CasaCommander::printHelpPage( const std::string & cmd )
 {
-   std::cout << "Input file for application usually has .casa extension and contains a set of commands with their parameters\n";
-   std::cout << "Here is a list of implemented commands. To get detailed help on any command just specify this command name with -help option \n";
+   if ( !cmd.empty() )
+   {
+      std::cout << "Input file for application usually has .casa extension and contains a set of commands with their parameters\n";
+      std::cout << "Here is a list of implemented commands. To get detailed help on any command just specify this command name with -help option \n";
+   }
    
    if ( cmd.empty() ) // print all commands
    {

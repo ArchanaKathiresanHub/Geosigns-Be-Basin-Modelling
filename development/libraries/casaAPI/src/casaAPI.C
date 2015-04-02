@@ -14,8 +14,8 @@
 // CASA
 #include "casaAPI.h"
 
-
 #include "PrmTopCrustHeatProduction.h"
+
 #include "PrmSourceRockTOC.h"
 #include "PrmSourceRockHC.h"
 #include "PrmSourceRockHI.h"
@@ -23,16 +23,22 @@
 #include "PrmSourceRockPreAsphaltStartAct.h"
 
 #include "PrmOneCrustThinningEvent.h"
+
 #include "PrmPorosityModel.h"
+#include "PrmLithoSTPThermalCond.h"
 
 #include "VarPrmTopCrustHeatProduction.h"
+
 #include "VarPrmSourceRockTOC.h"
 #include "VarPrmSourceRockHC.h"
 #include "VarPrmSourceRockHI.h"
 #include "VarPrmSourceRockType.h"
 #include "VarPrmSourceRockPreAsphaltStartAct.h"
+
 #include "VarPrmOneCrustThinningEvent.h"
+
 #include "VarPrmPorosityModel.h"
+#include "VarPrmLithoSTPThermalCond.h"
 
 // Standard C lib
 #include <cmath>
@@ -554,6 +560,45 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
 
    return ErrorHandler::NoError;
 }
- 
+
+
+// Add STP thermal conductivity parameter variation for lithology
+ErrorHandler::ReturnCode VaryLithoSTPThermalCondCoeffParameter( ScenarioAnalysis & sa, const char * litName, double minVal, double maxVal, VarPrmContinuous::PDF pdfType )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace();
+
+      double baseVal = 0.5 * ( minVal + maxVal );
+
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase();
+
+      PrmLithoSTPThermalCond prm( mdl, litName );
+
+      if ( mdl.errorCode() == ErrorHandler::NoError )
+      {
+         baseVal = prm.asDoubleArray()[0];
+      }
+      
+      if ( baseVal < minVal || baseVal > maxVal )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of STP thermal conductivity in base case is outside of the given range";
+      }
+
+
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoSTPThermalCond( litName, baseVal, minVal, maxVal, pdfType ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
+   }
+   catch( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+
 } // namespace BusinessLogicRulesSet
 } // namespace casa

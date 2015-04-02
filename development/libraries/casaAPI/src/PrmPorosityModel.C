@@ -466,7 +466,7 @@ void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & md
    else if ( !IsValueUndefined( surfPor ) && !IsValueUndefined( cc ) )
    {
       m_clayFraction = SMsp2cf( surfPor );
-      if ( !NumericFunctions::isEqual( m_clayFraction, SMcc2cf( cc ), 1.e-4 ) )
+      if ( !NumericFunctions::isEqual( m_clayFraction, SMcc2cf( cc ), 1.e-3 ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
             "Lithology: " << m_lithoName <<
