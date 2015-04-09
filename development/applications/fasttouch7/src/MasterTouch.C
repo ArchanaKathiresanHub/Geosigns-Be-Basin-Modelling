@@ -280,12 +280,10 @@ bool MasterTouch::run()
    }
 	
    // for each TCF file
+   bool failure = false;
    FileLayerFaciesGridMap::iterator it;
-   // touchstone wrapper calculated status
-   bool calculated = false;
    for ( it = m_fileLayerFaciesGridMap.begin(); it != m_fileLayerFaciesGridMap.end(); ++it )
-   {
-		
+   {		
       const string & filename = (it->first);   
       LayerFaciesGridMap * layerFaciesGridMap = &(m_fileLayerFaciesGridMap[filename]);   
       
@@ -317,7 +315,10 @@ bool MasterTouch::run()
 	    writeBurialHistory( (outIt->first).surface, WriteBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
          }
       }
-		
+      
+      // run touchstone wrapper
+   	bool calculated = false;
+   			
       for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
       {
          calculated =  calculate(filename, burhistFile);
@@ -335,12 +336,24 @@ bool MasterTouch::run()
             message( oss.str() );
          }		
       }	
-      if (!calculated) { break;}
+      
+      if (!calculated) 
+      {
+      failure = true;
+      break;
+      }
    }        
    
    while (MinimumAll (10) < 10 );
    
-   return calculated;
+   if (failure) 
+   {
+   return false;
+   } 
+   else 
+   {
+   return true;
+   }
 }  
  
 /** Each set of results requested by the user corresponds to a grid map
