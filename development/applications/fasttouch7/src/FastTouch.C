@@ -91,7 +91,7 @@ bool FastTouch::compute (void)
       }
    }
  
-   m_masterTouch.run ();
+   if (!m_masterTouch.run ()) return false;
  
    delete touchstoneMaps;
  

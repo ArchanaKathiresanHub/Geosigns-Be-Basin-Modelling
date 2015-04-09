@@ -281,6 +281,8 @@ bool MasterTouch::run()
 	
    // for each TCF file
    FileLayerFaciesGridMap::iterator it;
+   // touchstone wrapper calculated status
+   bool calculated = false;
    for ( it = m_fileLayerFaciesGridMap.begin(); it != m_fileLayerFaciesGridMap.end(); ++it )
    {
 		
@@ -316,8 +318,6 @@ bool MasterTouch::run()
          }
       }
 		
-      //Run touchstone wrapper
-      bool calculated = false;
       for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
       {
          calculated =  calculate(filename, burhistFile);
@@ -335,11 +335,12 @@ bool MasterTouch::run()
             message( oss.str() );
          }		
       }	
+      if (!calculated) { break;}
    }        
    
    while (MinimumAll (10) < 10 );
    
-   return true;
+   return calculated;
 }  
  
 /** Each set of results requested by the user corresponds to a grid map
