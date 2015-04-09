@@ -22,7 +22,7 @@ class TouchstoneFiles;
 class TouchstoneWrapper
 {
 
-public:
+ public:
 
    TouchstoneWrapper( const char * burhistFile, char * filename, const char * results,  const char * status, const char * rank, int verboseLevel );
 
@@ -34,18 +34,19 @@ public:
       
    struct Exception : formattingexception::BaseException< Exception > {}; 
    
-	void message( const std::string & msg, int level = 0 )
-	{  
-		if ( level >= m_verboseLevel )
-		{
-			(level > 0 ? std::cout : std::cerr) << "MeSsAgE " << (level > 0 ? "warning " : "error " ) << msg << std::endl;
-		}
-	}
+   void message( const std::string & msg, int level = 0 )
+   {  
+      if ( level >= m_verboseLevel )
+      {
+         (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << (level > 0 ? "warning " : "error " ) << msg << std::endl;
+      }
+   }
 
-private:
+ private:
    int SaveResultHeader (TcfSchema::DetailHeadersType::modalHeaders_iterator& itor); 
 
-   void setCategoriesMapping( );
+   void setCategoriesMappingStatistics( );
+      
    void writeTouchstoneResults(int timestepIndex, TouchstoneFiles& TouchstoneFiles);
 
 
@@ -82,12 +83,47 @@ private:
    std::vector < TcfSchema::ResultHeaderIdentificationType > m_iD;  
 
    static const int numberOfTouchstoneProperties = 7;
-   static const int numberOfStatisticalOutputs   = 29;
+   static const int numberOfStatisticalOutputs   = 30;
    
    struct rlimit m_coreSize;
    
    int m_verboseLevel;
    
+   enum 
+   {
+      stdev,
+      mean,
+      geomean,
+      skewness,
+      kurtosis,
+      minimum,
+      maximum,
+      mode,
+      P1,
+      P5,
+      P10,
+      P15,
+      P20,
+      P25,
+      P30,
+      P35,
+      P40,
+      P45,
+      P50,
+      P55,
+      P60,
+      P65,
+      P70,
+      P75,
+      P80,
+      P85,
+      P90,
+      P95,
+      P99,
+      statSize
+   };
+
+   std::vector<TcfSchema::StatisticsType::value> m_statsVect;         
 };
 
 #endif

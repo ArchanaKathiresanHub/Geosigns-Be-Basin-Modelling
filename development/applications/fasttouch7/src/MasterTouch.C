@@ -162,6 +162,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
 // initialise statics for user interface
 const char* iSd_str             = {"Summary Standard Deviation"};
 const char* iMean_str           = {"Summary Mean"};
+const char* igeoMean_str        = {"Geometric Mean"};
 const char* iSkewness_str       = {"Summary Skewness"};
 const char* iKurtosis_str       = {"Summary Kurtosis"};
 const char* iMin_str            = {"Summary Minimum"};
@@ -198,6 +199,7 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    // set format mapping
    m_formatsMapping[iSd_str]           = SD;  
    m_formatsMapping[iMean_str]         = MEAN;  
+   m_formatsMapping[igeoMean_str]      = GEOMEAN; 
    m_formatsMapping[iSkewness_str]     = SKEWNESS;   
    m_formatsMapping[iKurtosis_str]     = KURTOSIS;    
    m_formatsMapping[iMin_str]          = MIN;          
@@ -521,7 +523,7 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
       m_categoriesMapping[iMicro_str]         = vec[3]; // TSLIB_RC_MICRO_PORO;
       m_categoriesMapping[iAbsolute_str]      = vec[4]; // TSLIB_RC_PERM;
       m_categoriesMapping[iCement_Quartz_str] = vec[5]; // TSLIB_RC_CMT_QRTZ;
-  
+        
       //Read touchstone results for all included layers	
       LayerCategoryMapInfoList::iterator outIt;
       for( outIt = m_layerList.begin( ); outIt != m_layerList.end(); ++outIt )
@@ -582,7 +584,7 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
 void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn)
 {
    const int numberOfTouchstoneProperties = 7;
-   const int numberOfStatisticalOutputs   = 29;
+   const int numberOfStatisticalOutputs   = 30;
    std::vector<double> outputProperties( numberOfTouchstoneProperties * numberOfStatisticalOutputs, 99999.0 );
   
    //Read results
@@ -600,9 +602,9 @@ void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList &
          // write appropriate results to grid
          int resultFormat = m_formatsMapping[(*mIt).format];
          // Explanation to formula below:
-         // if resultFormat = {SD = 0, 1, 2, 3, 4, 5, MODE = 6} then resultStat = resultFormat.
-         // if resultFormat = { MODE } then resultStat = 7, ... 27 
-         // if resultFormat = { DISTRIBUTION } then resultStat = 28;
+         // if resultFormat = {SD = 0, 1, 2, 3, 4, 5, MODE = 7} then resultStat = resultFormat.
+         // if resultFormat = { MODE } then resultStat = 8, ... 29 
+         // if resultFormat = { DISTRIBUTION } then resultStat = 30;
          int resultStat = resultFormat 
 	    + int (resultFormat > MODE) * ( m_percentPercentileMapping[ (*mIt).percent ] ) 
 	    + int (resultFormat > PERCENTILE ) * ( 20 - m_percentPercentileMapping [ (*mIt).percent ] );

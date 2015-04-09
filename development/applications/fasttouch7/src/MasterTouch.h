@@ -82,7 +82,7 @@ namespace fasttouch
       // map storing for each layer and category a counter, to push back only necessary maps
       typedef std::map < LayerInfo, std::map <std::string, int> > LayerCategoryResultCounter;
 
-      enum { SD = 0, MEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION };
+      enum { SD = 0, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION };
       
       void message( const std::string & msg, int level = 0 ) {  if ( level >= m_verboseLevel ) (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << msg << std::endl; }      
 
@@ -95,54 +95,54 @@ namespace fasttouch
                   
       typedef std::map < LayerInfo, faciesGridMap > LayerFaciesGridMap;
 			
-         typedef std::map < std::string, LayerFaciesGridMap >  FileLayerFaciesGridMap;
+      typedef std::map < std::string, LayerFaciesGridMap >  FileLayerFaciesGridMap;
 
    private:
 
-         DataAccess::Interface::ProjectHandle & m_projectHandle;
+      DataAccess::Interface::ProjectHandle & m_projectHandle;
 
-         std::tr1::array<int,101> m_percentPercentileMapping;
-         std::map < std::string, int > m_categoriesMapping;
+      std::tr1::array<int,101> m_percentPercentileMapping;
+      std::map < std::string, int > m_categoriesMapping;
 
-         // display values
-         std::map < std::string, int > m_formatsMapping;
+      // display values
+      std::map < std::string, int > m_formatsMapping;
          
-         LayerCategoryMapInfoList  m_layerList;
+      LayerCategoryMapInfoList  m_layerList;
          
-         std::vector<size_t> m_usedSnapshotsIndex;
+      std::vector<size_t> m_usedSnapshotsIndex;
         
-         std::vector<double> m_usedSnapshotsAge;
+      std::vector<double> m_usedSnapshotsAge;
          
-         PetscInt m_verboseLevel;         
+      PetscInt m_verboseLevel;         
          
-         LayerCategoryResultCounter m_layerCategoryResultCounter;
+      LayerCategoryResultCounter m_layerCategoryResultCounter;
          
-         // Multi facies data mebers
+      // Multi facies data mebers
          
-         FileLayerFaciesGridMap m_fileLayerFaciesGridMap;
+      FileLayerFaciesGridMap m_fileLayerFaciesGridMap;
 
-         /** Collect cauldron output and call the new ts calculate*/                         
-         bool calculate( const std::string & filename, const char * burhistFile );
+      /** Collect cauldron output and call the new ts calculate*/                         
+      bool calculate( const std::string & filename, const char * burhistFile );
 
-         bool retrieveGridMaps(const CategoryMapInfoList & currentOutputs);
-         bool restoreGridMaps(const CategoryMapInfoList & currentOutputs);
-         bool executeWrapper( const char * burHistFile, const string & filename, const char * resultFile );
+      bool retrieveGridMaps(const CategoryMapInfoList & currentOutputs);
+      bool restoreGridMaps(const CategoryMapInfoList & currentOutputs);
+      bool executeWrapper( const char * burHistFile, const string & filename, const char * resultFile );
           
-         /** save ts results to ts output directory */
+      /** save ts results to ts output directory */
 
-         void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial::WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap);
+      void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial::WriteBurial & WriteBurial, const faciesGridMap * faciesGridMap);
          
-         void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn);
+      void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn);
          
    public:
-         MasterTouch( DataAccess::Interface::ProjectHandle & projectHandle);
-         bool run(); 
+      MasterTouch( DataAccess::Interface::ProjectHandle & projectHandle);
+      bool run(); 
      
-         // add format request to category output for a certain layer
-         bool addOutputFormat( const std::string & filename,
-                               const DataAccess::Interface::Surface * surface,
-                               const DataAccess::Interface::Formation * formation,
-                               const std::string & category, const std::string & format, int percent, const DataAccess::Interface::GridMap * faciesGrid, int index);
+      // add format request to category output for a certain layer
+      bool addOutputFormat( const std::string & filename,
+                            const DataAccess::Interface::Surface * surface,
+                            const DataAccess::Interface::Formation * formation,
+                            const std::string & category, const std::string & format, int percent, const DataAccess::Interface::GridMap * faciesGrid, int index);
 
    };
 
