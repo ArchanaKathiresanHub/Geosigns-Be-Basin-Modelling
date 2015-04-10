@@ -400,9 +400,11 @@ void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFile
       {
          for ( int jj = 0; jj < numberOfStatisticalOutputs - 1; ++jj )
          {
-            if (ii != permeability && jj == geomean) continue;             	
+            if (ii != permeability && jj == geomean) continue; 
+            {            	
             outputProperties [  ii * numberOfStatisticalOutputs + jj ] = actualOutputProperties [  counter ];
             counter += 1;
+            }
          }
       }    		
    }

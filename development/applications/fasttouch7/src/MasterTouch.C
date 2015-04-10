@@ -317,8 +317,7 @@ bool MasterTouch::run()
       }
       
       // run touchstone wrapper
-   	bool calculated = false;
-   			
+   	bool calculated = false;   			
       for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
       {
          calculated =  calculate(filename, burhistFile);
@@ -346,14 +345,8 @@ bool MasterTouch::run()
    
    while (MinimumAll (10) < 10 );
    
-   if (failure) 
-   {
-   return false;
-   } 
-   else 
-   {
-   return true;
-   }
+   return (!failure);
+   
 }  
  
 /** Each set of results requested by the user corresponds to a grid map
