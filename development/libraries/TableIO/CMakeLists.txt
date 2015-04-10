@@ -30,7 +30,10 @@ add_library( TableIO
 	${generator_source_files}
 )
 
-add_dependencies(TableIO Boost)
+# under Linux we are building Boost that is why this target exist
+if (UNIX)
+   add_dependencies(TableIO Boost)
+endif (UNIX)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

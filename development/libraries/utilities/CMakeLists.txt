@@ -21,7 +21,10 @@ add_library(utilities
 	${all_headers}
 )
 
-add_dependencies(utilities Boost)
+# under Linux we are building Boost that is why this target exist
+if (UNIX)
+   add_dependencies(utilities Boost)
+endif (UNIX)
 
 if (MSVC)
 	add_definitions( "-D_USE_MATH_DEFINES" )

@@ -21,9 +21,12 @@ project( BasinModeling )
 
 # Define a macro to get the current date
 macro(today RESULT)
-   if(UNIX)
+   if (UNIX)
       execute_process(COMMAND "date" "+%Y-%m-%d" OUTPUT_VARIABLE ${RESULT})
       string(REGEX REPLACE "(....)-(..)-(..).*" "\\1\\2\\3" ${RESULT} ${${RESULT}})
+   elseif(WIN32)
+        execute_process(COMMAND "cmd" " /C date /T" OUTPUT_VARIABLE ${RESULT})
+        string(REGEX REPLACE "(..)/(..)/..(..).*" "\\1\\2\\3" ${RESULT} ${${RESULT}})
    else (UNIX)
       message(WARNING "date not implemented.")
       set(${RESULT} "000000")

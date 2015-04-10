@@ -11,6 +11,7 @@
 #########################################################################
 
 cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0054 NEW)
 
 #
 # Load system-dependent configuration
@@ -278,7 +279,7 @@ configure_file(MoveInstalls${script_suffix}.cmake MoveInstalls${script_suffix} @
 
 
 #
-# Generate Thirdy Party Component List XML file
+# Generate Third Party Component List XML file
 # 
 write_external_package_info_file(${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE})
 
@@ -286,6 +287,24 @@ install( FILES "${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE}"
                "${CMAKE_BINARY_DIR}/ThirdPartyComponentsListStyle.xsl"
 	     DESTINATION share/doc
 )		 
+
+#
+# Generate .zip file with binaries for Windows platform
+#
+if (WIN32)
+
+   SET(CPACK_GENERATOR "ZIP")
+
+   # Set the version of the package
+   if (NOT CPACK_PACKAGE_VERSION)
+      set( CPACK_PACKAGE_VERSION "${BM_TFS_BUILD_NUMBER}")
+   endif()
+   message(STATUS "Package version = ${CPACK_PACKAGE_VERSION}")
+
+   INCLUDE(CPack)
+
+endif(WIN32)
+
 
 #
 # Reporting

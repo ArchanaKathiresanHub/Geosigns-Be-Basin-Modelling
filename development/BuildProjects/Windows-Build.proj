@@ -47,6 +47,7 @@
   
   <Target Name="Build" DependsOnTargets="DebugInfo;CmakeProject">
     <MSBuild Projects="$(build_dir)\Install.vcxproj" Properties="VisualStudioVersion=$(VisualStudioVersion).0" RemoveProperties="OutDir;Platform" BuildInParallel="true"/>
+    <MSBuild Projects="$(build_dir)\PACKAGE.vcxproj" Properties="VisualStudioVersion=$(VisualStudioVersion).0" RemoveProperties="OutDir;Platform" BuildInParallel="true" ContinueOnError="WarnAndContinue"/>
     <MSBuild Projects="$(build_dir)\RUN_TESTS.vcxproj" Properties="VisualStudioVersion=$(VisualStudioVersion).0" RemoveProperties="OutDir;Platform" BuildInParallel="true" ContinueOnError="WarnAndContinue"/>
   </Target>
   

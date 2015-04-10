@@ -104,7 +104,19 @@ macro(new_guid Output)
   set(${Output} "${one}-${two}-${three}-${four}-${five}")
 endmacro(new_guid)
   
-
+# Define a macro to get the current date
+macro(today RESULT)
+   if (UNIX)
+      execute_process(COMMAND "date" "+%Y-%m-%d" OUTPUT_VARIABLE ${RESULT})
+      string(REGEX REPLACE "(....)-(..)-(..).*" "\\1\\2\\3" ${RESULT} ${${RESULT}})
+   elseif(WIN32)
+        execute_process(COMMAND "cmd" " /C date /T" OUTPUT_VARIABLE ${RESULT})
+        string(REGEX REPLACE "(..)/(..)/..(..).*" "\\1\\2\\3" ${RESULT} ${${RESULT}})
+   else (UNIX)
+      message(WARNING "date not implemented.")
+      set(${RESULT} "000000")
+   endif (UNIX)
+endmacro(today)
 
 ### Add C# Unit tests
 

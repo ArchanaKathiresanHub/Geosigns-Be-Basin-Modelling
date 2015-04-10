@@ -96,13 +96,6 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
-    <name>Enumeration.h</name>
-    <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
-    <filename>Enumeration_8h</filename>
-    <class kind="class">casa::Enumeration</class>
-    <namespace>casa</namespace>
-  </compound>
-  <compound kind="file">
     <name>JobScheduler.h</name>
     <path>D:/cauldron/trunk/development/libraries/casaAPI/src/</path>
     <filename>JobScheduler_8h</filename>
@@ -659,7 +652,6 @@
     <class kind="class">casa::CauldronApp</class>
     <class kind="class">casa::DataDigger</class>
     <class kind="class">casa::DoEGenerator</class>
-    <class kind="class">casa::Enumeration</class>
     <class kind="class">casa::MonteCarloSolver</class>
     <class kind="class">casa::Observable</class>
     <class kind="class">casa::ObsGridPropertyWell</class>
@@ -1443,17 +1435,6 @@
       <anchorfile>classcasa_1_1DoEGenerator.html</anchorfile>
       <anchor>a8c337ffc87a64c714f67ebef687230a3</anchor>
       <arglist>(DoEAlgorithm algo)</arglist>
-    </member>
-  </compound>
-  <compound kind="class">
-    <name>casa::Enumeration</name>
-    <filename>classcasa_1_1Enumeration.html</filename>
-    <member kind="function" virtualness="virtual">
-      <type>virtual</type>
-      <name>~Enumeration</name>
-      <anchorfile>classcasa_1_1Enumeration.html</anchorfile>
-      <anchor>ac1f8b754099186046dbc93b703c78873</anchor>
-      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="class">

@@ -130,7 +130,10 @@ add_library( GeoPhysics
 	${all_headers}
 )
 
-add_dependencies(GeoPhysics Boost)
+# under Linux we are building Boost that is why this target exist
+if (UNIX)
+   add_dependencies(GeoPhysics Boost)
+endif (UNIX)
 
 bm_include_libraries( 
         DataModel
