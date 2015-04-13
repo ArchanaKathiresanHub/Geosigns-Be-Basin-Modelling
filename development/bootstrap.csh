@@ -62,7 +62,7 @@ rm -rf CMakeCache.txt CMakeFiles
 
 ### Run CMake
 set cauldron_tools = /nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools
-set cmake = $cauldron_tools/cmake/cmake-3.0.2/bin/cmake
+set cmake = $cauldron_tools/bin/cmake
 $cmake $extra_cmake_params $argv $source_directory || exit 1
 
 #

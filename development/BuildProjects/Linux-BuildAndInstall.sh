@@ -46,8 +46,8 @@ popd
 
 # Standard applications
 SVN=/glb/home/ksaho3/bin.Linux/svn
-CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/cmake
-CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/ctest
+CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/cmake
+CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/ctest
 
 # Set the simplest locale so that there won't be any text conversion problems
 # for the logged output between Linux and Windows

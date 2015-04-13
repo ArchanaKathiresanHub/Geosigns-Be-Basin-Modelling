@@ -58,8 +58,8 @@ unit_test_output="`pwd -P`"
 popd
 
 # Standard applications
-CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/cmake
-CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/cmake-2.8.10.2/Linux64x_26/bin/ctest
+CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/bin/cmake
+CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/bin/ctest
 
 # Package Cauldron
 pushd $build
