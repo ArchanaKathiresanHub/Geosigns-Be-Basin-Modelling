@@ -655,9 +655,6 @@ namespace DataAccess
       /// mutable list type for the Crustal Thickness input data
       typedef vector< CrustalThicknessData *> MutableCrustalThicknessDataList;
 
-      /// mutable list type for the formations
-      typedef vector< const Formation *> ConstFormationList;
-
       /// \brief Mutable array of ingneous-intrusion events.
       typedef vector<IgneousIntrusionEvent*> MutableIgneousIntrusionEventList;
 

@@ -58,6 +58,8 @@ namespace DataAccess
 	    /// return a string description of this PropertyValue
 	    virtual void asString (string &) const;
 
+            /// Get the sequence number of the map.
+            virtual int getMapSequenceNumber () const;
 
 	    inline void setIndex (unsigned int index);
 	    inline unsigned int getIndex (void);

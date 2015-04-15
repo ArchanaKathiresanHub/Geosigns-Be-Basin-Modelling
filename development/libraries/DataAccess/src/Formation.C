@@ -36,6 +36,7 @@ using namespace database;
 #include "Interface/FaultElementCalculator.h"
 #include "Interface/FluidType.h"
 #include "Interface/AllochthonousLithology.h"
+#include "Interface/Interface.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -177,12 +178,24 @@ const string & Formation::getMangledName (void) const
 
 const string & Formation::getTopSurfaceName (void) const
 {
-   return m_top->getName ();
+
+   if ( m_top != 0 ) {
+      return m_top->getName ();
+   } else {
+      return NullString;
+   }
+
 }
 
 const string & Formation::getBottomSurfaceName (void) const
 {
-   return m_bottom->getName ();
+
+   if ( m_bottom != 0 ) {
+      return m_bottom->getName ();
+   } else {
+      return NullString;
+   }
+
 }
 
 void Formation::setTopSurface (Surface * surface)

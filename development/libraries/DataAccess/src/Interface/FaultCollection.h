@@ -53,7 +53,7 @@ namespace DataAccess
       private:
          const string m_name;
          NameFaultMapping m_faults;
-         ConstFormationList m_formations;
+         FormationList m_formations;
 
          friend ostream & operator<< (ostream & o, const FaultCollection & collection);
       };

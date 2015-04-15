@@ -78,7 +78,7 @@ void FaultCollection::addFormation (const Formation * formation)
 
 bool FaultCollection::appliesToFormation (const Formation * formation) const
 {
-   ConstFormationList::const_iterator formationIter;
+   FormationList::const_iterator formationIter;
 
    for (formationIter = m_formations.begin (); formationIter != m_formations.end (); ++formationIter)
    {
