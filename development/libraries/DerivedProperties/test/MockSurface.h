@@ -4,6 +4,7 @@
 #include <string>
 
 #include "AbstractSurface.h"
+#include "AbstractFormation.h"
 
 namespace DataModel {
 
@@ -13,8 +14,8 @@ namespace DataModel {
    public :
 
       MockSurface ( const std::string& name,
-                    const std::string& topFormationName = "",
-                    const std::string& bottomFormationName = "" );
+                    const AbstractFormation* topFormation = 0,
+                    const AbstractFormation* bottomFormation = 0 );
 
       /// \brief Get the name of the surface.
       virtual const std::string& getName () const;
@@ -29,22 +30,31 @@ namespace DataModel {
       /// If there is no formation below then a null string ("") will be returned.
       virtual const std::string& getBottomFormationName () const;
 
+      virtual const AbstractFormation* getTopFormation () const;
+
+      virtual const AbstractFormation* getBottomFormation () const;
+
    private :
 
       const std::string m_name;
       const std::string m_topFormationName;
       const std::string m_bottomFormationName;
 
+      const AbstractFormation* m_topFormation;
+      const AbstractFormation* m_bottomFormation;
+
    };
 
 }
 
 inline DataModel::MockSurface::MockSurface ( const std::string& name,
-                                             const std::string& topFormationName,
-                                             const std::string& bottomFormationName ) :
+                                             const AbstractFormation* topFormation,
+                                             const AbstractFormation* bottomFormation ) :
    m_name ( name ),
-   m_topFormationName ( topFormationName ),
-   m_bottomFormationName ( bottomFormationName )
+   m_topFormationName ( topFormation == 0 ? "" : topFormation->getName ()),
+   m_bottomFormationName ( bottomFormation == 0 ? "" : bottomFormation->getName ()),
+   m_topFormation ( topFormation ),
+   m_bottomFormation ( bottomFormation )
 {
 }
 
@@ -58,6 +68,14 @@ inline const std::string& DataModel::MockSurface::getTopFormationName () const {
 
 inline const std::string& DataModel::MockSurface::getBottomFormationName () const {
    return m_bottomFormationName;
+}
+
+inline const DataModel::AbstractFormation* DataModel::MockSurface::getTopFormation () const {
+   return m_topFormation;
+}
+
+inline const DataModel::AbstractFormation* DataModel::MockSurface::getBottomFormation () const {
+   return m_bottomFormation;
 }
 
 

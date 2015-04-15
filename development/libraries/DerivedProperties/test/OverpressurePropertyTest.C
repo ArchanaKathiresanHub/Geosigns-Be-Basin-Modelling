@@ -8,7 +8,6 @@
 #include "../src/OverpressureFormationCalculator.h"
 #include "../src/OverpressureSurfaceCalculator.h"
 
-#include "MockSurface.h"
 #include "MockFormation.h"
 #include "MockSnapshot.h"
 #include "MockProperty.h"
