@@ -162,7 +162,16 @@ namespace DerivedProperties {
       ///
       /// If no calculator has been added then a null will be returned.
       SurfacePropertyCalculatorPtr getSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                          const DataModel::AbstractSnapshot* snapshot ) const;
+                                                          const DataModel::AbstractSnapshot* snapshot );
+
+      /// \brief Get the calculator for the property and snapshot.
+      ///
+      /// \param [in] property The property whose calulator is requested.
+      /// \param [in] snapshot The associated snapshot for the calcualtor.
+      ///
+      /// If no calculator has been added then a null will be returned.
+      FormationSurfacePropertyCalculatorPtr getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property,
+                                                                            const DataModel::AbstractSnapshot* snapshot );
 
       /// \brief Get the calculator for the property and snapshot.
       ///
@@ -182,14 +191,14 @@ namespace DerivedProperties {
       FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property,
                                                               const DataModel::AbstractSnapshot* snapshot ) const;
 
-      /// \brief Get the calculator for the property and snapshot.
+      /// \brief Determine if there is a calculator for the property and snapshot.
       ///
-      /// \param [in] property The property whose calulator is requested.
-      /// \param [in] snapshot The associated snapshot for the calcualtor.
+      /// \param [in] property The property whose calulator we would like to determine if it exists.
+      /// \param [in] snapshot The associated snapshot for the calculator.
       ///
-      /// If no calculator has been added then a null will be returned.
-      FormationSurfacePropertyCalculatorPtr getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                                            const DataModel::AbstractSnapshot* snapshot ) const;
+      /// If no calculator has been added then a false will be returned.
+      bool containsFormationCalculator ( const DataModel::AbstractProperty* property,
+                                         const DataModel::AbstractSnapshot* snapshot ) const;
 
 
       /// \brief Search the list of available surface property values for a specific set of values.
