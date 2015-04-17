@@ -47,12 +47,14 @@ RunParameters::RunParameters (ProjectHandle * projectHandle, Record * record) : 
    }
 
    const std::string& seismicVelocityModelStr = database::getVelAlgorithm(m_record);
-   if (seismicVelocityModelStr == "Gardner's Velocity-Density") {
+   if (seismicVelocityModelStr == "Gardner\'s Velocity-Density") {
 	   m_seismicVelocityModel = GARDNERS_VELOCITY_ALGORITHM;
+   }
+   else if (seismicVelocityModelStr == "Wyllie\'s Time-Average") {
+	   m_seismicVelocityModel = WYLLIES_VELOCITY_ALGORITHM;
    }
    else {
 	   std::cout << " Error in seismic velocity model " << seismicVelocityModelStr << ". Using Gardner seismic velocity as the default value." << endl;
-	   // Error
 	   m_seismicVelocityModel = GARDNERS_VELOCITY_ALGORITHM;
    }
 }

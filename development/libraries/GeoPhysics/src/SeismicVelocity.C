@@ -1,5 +1,6 @@
 #include "SeismicVelocity.h"
 #include "SeismicVelocityGardner.h"
+#include "SeismicVelocityWyllie.h"
 
 namespace GeoPhysics
 {
@@ -19,6 +20,9 @@ namespace GeoPhysics
 		{
 		case DataAccess::Interface::GARDNERS_VELOCITY_ALGORITHM:
 			return SeismicVelocity(new SeismicVelocityGardner());
+
+		case DataAccess::Interface::WYLLIES_VELOCITY_ALGORITHM:
+			return SeismicVelocity(new SeismicVelocityWyllie(seimsicVelocitySolid));
 		}
 
 		return SeismicVelocity(0);

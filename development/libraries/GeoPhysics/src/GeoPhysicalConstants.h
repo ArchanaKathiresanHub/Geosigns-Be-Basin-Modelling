@@ -138,18 +138,6 @@ namespace GeoPhysics {
    /// Constant used in computation of the Gardner velocity-density velocity algorithm.
    const double GardnerVelocityConstant = 309.4;
 
-   /// \var GardnersVelocityDensityAlgorithm
-   /// Gardners velocity-density velocity algorithm.
-   const std::string GardnersVelocityDensityAlgorithm = "Gardner\'s Velocity-Density";
-
-   /// \var WylliesTimeAverageAlgorithm
-   /// Wyllie's Time-Average velocity algorithm.
-   const std::string WylliesTimeAverageAlgorithm = "Wyllie\'s Time-Average";
-
-   /// \var DefaultVelocityAlgorithm
-   /// The default velocity-algorithm to be used if none is specified in the project file.
-   const std::string DefaultVelocityAlgorithm = GardnersVelocityDensityAlgorithm;
-
    //------------------------------------------------------------//
 
    /// \var OneDHiatusLithologyName
