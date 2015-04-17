@@ -144,7 +144,7 @@ namespace DataAccess
 
       private:
 
-		  SeismicVelocityModel m_seismicVelocityModel;
+		 SeismicVelocityModel m_seismicVelocityModel;
 
       };
 

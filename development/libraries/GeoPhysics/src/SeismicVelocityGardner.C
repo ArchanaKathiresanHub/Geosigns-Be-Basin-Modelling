@@ -20,8 +20,4 @@ namespace GeoPhysics
 		return velocity;
 	}
 
-	SeismicVelocity::Model SeismicVelocityGardner::model() const
-	{
-		return DataAccess::Interface::GARDNERS_VELOCITY_ALGORITHM;
-	}
 }

@@ -366,26 +366,6 @@ namespace Basin_Modelling {
   void deleteBulkDensityVectors ( AppCtx* basinModel );
 
   ///
-  /// Compute the sonic and fill layer vectors 
-  ///
-  void computeSonicVectors ( AppCtx* basinModel );
-
-  ///
-  /// Delete the Sonic vectors stored in the layers
-  ///
-  void deleteSonicVectors ( AppCtx* basinModel );
-
-  ///
-  /// Compute the Reflectivity and fill layer vectors 
-  ///
-  void computeReflectivityVectors ( AppCtx* basinModel );
-
-  ///
-  /// Delete the Reflectivity vectors stored in the layers
-  ///
-  void deleteReflectivityVectors ( AppCtx* basinModel );
-
-  ///
   /// Compute the ThermalConductivity and fill layer vectors 
   ///
   void computeThermalConductivityVectors ( AppCtx* basinModel );
@@ -394,16 +374,6 @@ namespace Basin_Modelling {
   /// Delete the ThermalConductivity vectors stored in the layers
   ///
   void deleteThermalConductivityVectors ( AppCtx* basinModel );
-
-  ///
-  /// Compute the Diffusivity and fill layer vectors 
-  ///
-  void computeDiffusivityVectors ( AppCtx* basinModel );
-
-  ///
-  /// Delete the Diffusivity vectors stored in the layers
-  ///
-  void deleteDiffusivityVectors ( AppCtx* basinModel );
 
   ///
   /// Compute the Thickness and fill layer vectors 
@@ -420,16 +390,6 @@ namespace Basin_Modelling {
   ///
   void computePermeabilityVectors ( AppCtx* basinModel );
 
-
-  ///
-  /// Compute the maps for each layer of which elements contains a fault lithology
-  ///
-  void computeFaultElementMaps ( AppCtx* basinModel );
-
-  ///
-  ///
-  void deleteFaultElementMaps ( AppCtx* basinModel );
-
   /// Compute the maps for each layer holding the ratio of current thickness to deposition thickness.
   ///
   /// The thicknesses used will be:
@@ -441,14 +401,8 @@ namespace Basin_Modelling {
   ///
   void deleteErosionFactorMaps ( AppCtx* basinModel );
 
-  /// Compute the maps for each layer of which elements contains an allochthonous lithology
-  void computeAllochthonousLithologyMaps ( AppCtx* basinModel );
-
-  void deleteAllochthonousLithologyMaps ( AppCtx* basinModel );
-
   void collectAndSaveIsoValues(const double Current_Time, AppCtx *basinModel );
   void updateSedimentBottomSurfaceCurves(const double Current_Time, AppCtx *basinModel);
-
 
   void computeBasementLithostaticPressure ( AppCtx* basinModel,
 					    const double    age );

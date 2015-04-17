@@ -13,7 +13,7 @@ namespace GeoPhysics
 	{}
 
 	SeismicVelocity SeismicVelocity::create(const Model SeismicVelocityModel,
-		const double seimsicVelocitySolid)
+		const double seimsicVelocitySolid) const
 	{
 
 		switch (SeismicVelocityModel)
