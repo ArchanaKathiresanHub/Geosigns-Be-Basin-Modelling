@@ -51,7 +51,7 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
    } else if ( porosityModelStr == "Double_Exponential") {
      m_porosityModel = DOUBLE_EXPONENTIAL_POROSITY;
    } else {
-      std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosoty model as the default value." << endl;
+      std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosity model as the default value." << endl;
       // Error
       m_porosityModel = EXPONENTIAL_POROSITY;
    }

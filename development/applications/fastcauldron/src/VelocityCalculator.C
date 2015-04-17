@@ -1,10 +1,12 @@
 #include "VelocityCalculator.h"
-#include "DerivedOutputPropertyMap.h"
-#include "PropertyManager.h"
-#include "FastcauldronSimulator.h"
 
+#include "DerivedOutputPropertyMap.h"
+#include "FastcauldronSimulator.h"
+#include "PropertyManager.h"
 
 #include "Interface/RunParameters.h"
+
+#include "SeismicVelocity.h"
 
 OutputPropertyMap* allocateVelocityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<VelocityCalculator>( property, formation, surface, snapshot );
@@ -34,17 +36,14 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
       return true;
    }
 
-   const std::string& projectVelocityName = FastcauldronSimulator::getInstance ().getRunParameters ()->getVelAlgorithm ();
-
    unsigned int i;
    unsigned int j;
    double value;
    Interface::GridMap* velocityMap;
    double undefinedValue;
-
-   string velocityAlgorithmName = ( projectVelocityName == "" ? GeoPhysics::DefaultVelocityAlgorithm : projectVelocityName );
-
-   VelocityAlgorithm velocityAlgorithm = velocityAlgorithmValue ( velocityAlgorithmName );
+   SeismicVelocity seismicVelocity;
+   const DataAccess::Interface::SeismicVelocityModel seismicVelocityModel =
+	   FastcauldronSimulator::getInstance().getRunParameters()->getSeismicVelocityAlgorithm();
 
    if ( not m_porosity->isCalculated ()) {
 
@@ -87,13 +86,16 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
       for ( j = velocityMap->firstJ (); j <= velocityMap->lastJ (); ++j ) {
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
-            (*m_lithologies)( i, j )->calcVelocity ( m_fluid,
-                                                     velocityAlgorithm,
-                                                     0.01 * (*m_porosity)( i, j ),
-                                                     (*m_bulkDensity)( i, j ),
-                                                     (*m_pressure)( i, j ),
-                                                     (*m_temperature)( i, j ),
-                                                     value );
+
+			 seismicVelocity = seismicVelocity.create(seismicVelocityModel,
+				 (*m_lithologies)(i, j)->seismicVelocitySolid());
+
+			 value = seismicVelocity.seismicVelocity(m_fluid,
+				 (*m_bulkDensity)(i, j),
+				 0.01 * (*m_porosity)(i, j),
+				 (*m_pressure)(i, j),
+				 (*m_temperature)(i, j) );
+
             velocityMap->setValue ( i, j, value );
          } else {
             velocityMap->setValue ( i, j, undefinedValue );
@@ -151,18 +153,15 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
       return true;
    }
 
-   const std::string& projectVelocityName = FastcauldronSimulator::getInstance ().getRunParameters ()->getVelAlgorithm ();
-
-   string velocityAlgorithmName = ( projectVelocityName == "" ? GeoPhysics::DefaultVelocityAlgorithm : projectVelocityName );
-
-   VelocityAlgorithm velocityAlgorithm = velocityAlgorithmValue ( velocityAlgorithmName );
-
    unsigned int i;
    unsigned int j;
    unsigned int k;
    double value;
    double undefinedValue;
    Interface::GridMap* velocityMap;
+   SeismicVelocity seismicVelocity;
+   const DataAccess::Interface::SeismicVelocityModel seismicVelocityModel =
+	   FastcauldronSimulator::getInstance().getRunParameters()->getSeismicVelocityAlgorithm();
 
    if ( not m_porosity->isCalculated ()) {
 
@@ -207,13 +206,16 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
             
             for ( k = velocityMap->firstK (); k <= velocityMap->lastK (); ++k ) {
-               (*m_lithologies)( i, j )->calcVelocity ( m_fluid,
-                                                        velocityAlgorithm,
-                                                        0.01 * m_porosity->getVolumeValue ( i, j, k ),
-                                                        m_bulkDensity->getVolumeValue ( i, j, k ),
-                                                        m_pressure->getVolumeValue ( i, j, k ),
-                                                        m_temperature->getVolumeValue ( i, j, k ),
-                                                        value );
+
+				seismicVelocity = seismicVelocity.create(seismicVelocityModel,
+					(*m_lithologies)(i, j, k)->seismicVelocitySolid());
+
+				value = seismicVelocity.seismicVelocity(m_fluid,
+					m_bulkDensity->getVolumeValue(i, j, k),
+					0.01 * m_porosity->getVolumeValue(i, j, k),
+					m_pressure->getVolumeValue(i, j, k),
+					m_temperature->getVolumeValue(i, j, k));
+
                velocityMap->setValue ( i, j, k, value );
             }
 

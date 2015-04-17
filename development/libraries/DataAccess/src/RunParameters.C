@@ -46,6 +46,15 @@ RunParameters::RunParameters (ProjectHandle * projectHandle, Record * record) : 
       m_optimisationLevel = 4;
    }
 
+   const std::string& seismicVelocityModelStr = database::getVelAlgorithm(m_record);
+   if (seismicVelocityModelStr == "Gardner's Velocity-Density") {
+	   m_seismicVelocityModel = GARDNERS_VELOCITY_ALGORITHM;
+   }
+   else {
+	   std::cout << " Error in seismic velocity model " << seismicVelocityModelStr << ". Using Gardner seismic velocity as the default value." << endl;
+	   // Error
+	   m_seismicVelocityModel = GARDNERS_VELOCITY_ALGORITHM;
+   }
 }
 
 RunParameters::~RunParameters ()
@@ -56,8 +65,8 @@ const std::string& RunParameters::getVreAlgorithm () const {
    return database::getVreAlgorithm ( m_record );
 }
 
-const std::string& RunParameters::getVelAlgorithm () const {
-   return database::getVelAlgorithm ( m_record );
+const SeismicVelocityModel RunParameters::getSeismicVelocityAlgorithm() const {
+	return m_seismicVelocityModel;
 }
 
 const std::string& RunParameters::getChemicalCompactionAlgorithm () const{

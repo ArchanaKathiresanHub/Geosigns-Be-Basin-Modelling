@@ -20,6 +20,8 @@ set(cross_platform_headers
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
+	  src/SeismicVelocity.h
+	  src/SeismicVelocityGardner.h
 	  src/SchneiderCompactionCalculator.h
 	  src/SoilMechanicsPorosity.h
       src/VreTtiMethod.h
@@ -64,6 +66,8 @@ set(cross_platform_srcs
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
+	  src/SeismicVelocity.C
+	  src/SeismicVelocityGardner.C
 	  src/SchneiderCompactionCalculator.C
 	  src/SoilMechanicsPorosity.C
       src/VreTtiMethod.C

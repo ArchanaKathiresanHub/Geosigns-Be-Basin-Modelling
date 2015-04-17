@@ -33,8 +33,8 @@ namespace DataAccess
          /// Return name of VRe algorithm.
          virtual const std::string& getVreAlgorithm () const;
 
-         /// Return name of velocity algorithm.
-         virtual const std::string& getVelAlgorithm () const;
+         /// Return model of velocity algorithm.
+		 virtual const SeismicVelocityModel getSeismicVelocityAlgorithm() const;
 
          /// Return name of chemical compaction algorithm.
          virtual const std::string& getChemicalCompactionAlgorithm () const;
@@ -141,6 +141,10 @@ namespace DataAccess
       protected :
 
          int m_optimisationLevel;
+
+      private:
+
+		  SeismicVelocityModel m_seismicVelocityModel;
 
       };
 

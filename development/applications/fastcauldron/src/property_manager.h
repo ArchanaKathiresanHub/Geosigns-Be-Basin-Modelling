@@ -348,49 +348,6 @@ namespace Basin_Modelling {
   }; // end class Fundamental_Property_Manager
 
 
-  //------------------------------------------------------------//
-
-
-//    class Element_Nodal_Properties {
-
-//    public :
-
-//      Element_Nodal_Properties ();
-
-
-//      PetscScalar operator ()( const Fundamental_Property Property,
-//                               const int                  Node ) const {
-
-//        return Properties [ Property ][ Node ];
-
-//      } // end operator ()
-
-//      //----------------------------//
-
-//      PetscScalar& operator ()( const Fundamental_Property Property,
-//                                const int                  Node ) {
-
-//        return Properties [ Property ][ Node ];
-
-//      } // end operator ()
-
-//      //----------------------------//
-
-//      PetscScalar Evaluate_Property ( const Fundamental_Property Property,
-//                                      const ElementVector&      Coefficients ) const;
-
-
-//      void Evaluate_Properties ( const ElementVector& Coefficients, 
-//                                       Property_Array& Property_Values ) const;
-
-
-//    private :
-
-//      PetscScalar  All_Properties [ Number_Of_Nodes * Number_Of_Fundamental_Properties ];
-//      PetscScalar* Properties     [ Number_Of_Fundamental_Properties ];
-
-//    }; // end class Element_Nodal_Properties
-
 
   ///------------------------------------------------------------//
   ///
@@ -407,16 +364,6 @@ namespace Basin_Modelling {
   /// Delete the bulk density vectors stored in the layers
   ///
   void deleteBulkDensityVectors ( AppCtx* basinModel );
-
-  ///
-  /// Compute the velocity and fill layer vectors 
-  ///
-  void computeVelocityVectors ( AppCtx* basinModel );
-
-  ///
-  /// Delete the velocity vectors stored in the layers
-  ///
-  void deleteVelocityVectors ( AppCtx* basinModel );
 
   ///
   /// Compute the sonic and fill layer vectors 

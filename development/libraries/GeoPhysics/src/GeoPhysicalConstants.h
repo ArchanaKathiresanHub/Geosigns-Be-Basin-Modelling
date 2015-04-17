@@ -150,13 +150,6 @@ namespace GeoPhysics {
    /// The default velocity-algorithm to be used if none is specified in the project file.
    const std::string DefaultVelocityAlgorithm = GardnersVelocityDensityAlgorithm;
 
-   /// Indicates which velocity algorithm should be used.
-   enum VelocityAlgorithm { GARDNERS_VELOCITY_ALGORITHM, WYLLIES_VELOCITY_ALGORITHM };
-
-   const std::string& velocityAlgorithmImage ( const VelocityAlgorithm vel );
-
-   VelocityAlgorithm velocityAlgorithmValue ( const std::string& algorithmName );
-
    //------------------------------------------------------------//
 
    /// \var OneDHiatusLithologyName
@@ -176,37 +169,5 @@ namespace GeoPhysics {
 
 
 }
-
-//------------------------------------------------------------//
-// Inline functions.
-//------------------------------------------------------------//
-
-inline const std::string& GeoPhysics::velocityAlgorithmImage ( const VelocityAlgorithm vel ) {
-
-   static const std::string UnknownAlgorithmName = "UnknownAlgorithm";
-
-   if ( vel == GARDNERS_VELOCITY_ALGORITHM ) {
-      return GardnersVelocityDensityAlgorithm;
-   } else if ( vel == WYLLIES_VELOCITY_ALGORITHM ) {
-      return WylliesTimeAverageAlgorithm;
-   } else {
-      return UnknownAlgorithmName;
-   }
-
-}
-
-inline GeoPhysics::VelocityAlgorithm GeoPhysics::velocityAlgorithmValue ( const std::string& algorithmName ) {
-
-   if ( algorithmName == GardnersVelocityDensityAlgorithm ) {
-      return GARDNERS_VELOCITY_ALGORITHM;
-   } else if ( algorithmName == WylliesTimeAverageAlgorithm ) {
-      return WYLLIES_VELOCITY_ALGORITHM;
-   } else {
-      return GARDNERS_VELOCITY_ALGORITHM;
-   }
-
-}
-
-
 
 #endif // _GEOPHYSICS__GEOPHYSICAL_CONSTANTS_H_

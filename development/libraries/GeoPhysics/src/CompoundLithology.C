@@ -1,6 +1,4 @@
 #include "CompoundLithology.h"
-#include "capillarySealStrength.h"
-#include "GeoPhysicsProjectHandle.h"
 
 #include <iostream>
 #include <sstream>
@@ -9,8 +7,9 @@
 #include <vector>
 
 #include "Interface/Interface.h"
-#include "Interface/Interface.h"
 
+#include "capillarySealStrength.h"
+#include "GeoPhysicsProjectHandle.h"
 #include "NumericFunctions.h"
 #include "Quadrature.h"
 
@@ -22,7 +21,6 @@ using namespace capillarySealStrength;
 //#define NOPRESSURE 1
 
 GeoPhysics::CompoundLithology::CompoundLithology(GeoPhysics::ProjectHandle* projectHandle) : m_projectHandle(projectHandle)
-
 , m_porosity()
 {
 
@@ -505,7 +503,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    }
 
    m_density = 0.0;
-   m_seismicVelocity = 0.0;
+   m_seismicVelocitySolid = 0.0;
 
    m_depositionalPermeability       = 0.0;
    m_heatProduction                 = 0.0;
@@ -537,7 +535,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
       m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
       m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
-      m_seismicVelocity             += (*componentIter)->getSeismicVelocity() * pcMult;
+      m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
       m_referenceSolidViscosity     += (*componentIter)->getReferenceSolidViscosity() * pcMult;
       m_lithologyActivationEnergy   += (*componentIter)->getLithologyActivationEnergy() * pcMult;
       minimumMechanicalPorosity     += (*componentIter)->getMinimumMechanicalPorosity() / 100.0 * pcMult;
@@ -574,8 +572,6 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, soilMechanicsCompactionCoefficient);
     
    //Create porosity object
-   
-   //blablablabla
    m_porosity = Porosity::create(porosityModel,
    surfacePorosity,
    minimumMechanicalPorosity,
@@ -988,36 +984,6 @@ void GeoPhysics::CompoundLithology::calcBulkDensity1(const FluidType* fluid,
 
 }
 
-//------------------------------------------------------------//
-
-void GeoPhysics::CompoundLithology::calcVelocity(const FluidType*        fluid,
-   const VelocityAlgorithm velocityAlgorithm,
-   const double            Porosity,
-   const double            BulkDensity,
-   const double            porePressure,
-   const double            temperature,
-   double&           Velocity) const {
-
-   if (velocityAlgorithm == GARDNERS_VELOCITY_ALGORITHM) {
-
-      Velocity = pow(BulkDensity / GardnerVelocityConstant, 4);
-
-   }
-   else if (velocityAlgorithm == WYLLIES_VELOCITY_ALGORITHM) {
-
-      if (fluid != 0) {
-         double FluidVelocity;
-
-         FluidVelocity = fluid->seismicVelocity(temperature, porePressure);
-         Velocity = (FluidVelocity * m_seismicVelocity) / (Porosity * m_seismicVelocity + (1.0 - Porosity) * FluidVelocity);
-      }
-      else {
-         Velocity = m_seismicVelocity;
-      }
-
-   }
-
-}
 
 //------------------------------------------------------------//
 

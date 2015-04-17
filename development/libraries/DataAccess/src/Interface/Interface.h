@@ -411,9 +411,13 @@ namespace DataAccess
          CONSERVATIVE_2
       };
 
+	  /// Indicates which seismic velocity algorithm should be used.
+	  enum SeismicVelocityModel {
+		  GARDNERS_VELOCITY_ALGORITHM,
+		  WYLLIES_VELOCITY_ALGORITHM
+	  };
 
       enum CoordinateAxis { X_COORD, Y_COORD };
-
 
       /// operator type definition used in the computation of GridMaps from other GridMaps
       typedef double( *BinaryOperator ) ( double, double );
