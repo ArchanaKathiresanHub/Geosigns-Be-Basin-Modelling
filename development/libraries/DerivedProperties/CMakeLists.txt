@@ -168,3 +168,8 @@ add_gtest( NAME DerivedProperties::OverpressurePropertyTest
            SOURCES test/OverpressurePropertyTest.C
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
+
+add_gtest( NAME DerivedProperties::SurfacePropertyTest
+           SOURCES test/SurfacePropertyTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
