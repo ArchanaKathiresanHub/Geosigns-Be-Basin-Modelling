@@ -4,7 +4,7 @@
 #include "GeoPhysicsFormation.h"
 
 DerivedProperties::FaultElementFormationMapCalculator::FaultElementFormationMapCalculator () {
-   addPropertyName ( "FaultElement" );
+   addPropertyName ( "FaultElements" );
 }
 
 void DerivedProperties::FaultElementFormationMapCalculator::calculate ( AbstractPropertyManager&            propertyManager,
