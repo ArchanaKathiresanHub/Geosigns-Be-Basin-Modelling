@@ -29,7 +29,7 @@ namespace DerivedProperties {
       /// \param [in]  propManager The property manager.
       /// \param [in]  snapshot    The snapshot time for which the fault-element property is requested.
       /// \param [in]  formation   The formation for which the fault-element property is requested.
-      /// \param [out] derivedProperties On exit will contain a single formation map property containing the fault-element property values.
+      /// \param [out] derivedProperties On exit will contain a single formation map property, the fault-element property values.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
       virtual void calculate ( AbstractPropertyManager&            propManager,

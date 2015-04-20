@@ -42,15 +42,19 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
             if ( propertyManager.getNodeIsValid ( i, j )) {
                 
                for ( unsigned int k = lithostaticPressure->firstK (); k <= lithostaticPressure->lastK (); ++k ) {
-                 
                   ves->set ( i, j, k, ( lithostaticPressure->get ( i, j, k ) - porePressure->get ( i, j, k )) * GeoPhysics::MPa_To_Pa );
                }
+
             } else {
+
                for ( unsigned int k = lithostaticPressure->firstK (); k <= lithostaticPressure->lastK (); ++k ) {
                    ves->set ( i, j, k, undefinedValue );
                }
+
             }
+
          }
+
       }
 
       derivedProperties.push_back ( ves );
