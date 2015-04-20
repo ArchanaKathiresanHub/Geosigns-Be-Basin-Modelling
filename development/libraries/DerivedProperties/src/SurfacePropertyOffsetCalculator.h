@@ -24,7 +24,6 @@ namespace DerivedProperties {
       /// \brief Constructor.
       ///
       /// \param [in] property The proerty for which the calculator is to extract values.
-      /// \pre property is not null.
       /// \pre property points to a valid property object.
       SurfacePropertyOffsetCalculator ( const DataModel::AbstractProperty* property );
 
