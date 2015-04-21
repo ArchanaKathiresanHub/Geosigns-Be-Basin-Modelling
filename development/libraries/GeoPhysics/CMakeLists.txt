@@ -219,6 +219,16 @@ add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
+add_gtest( NAME GeoPhysics::SeismicVelocityGardner
+      SOURCES test/SeismicVelocityGardner.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::SeismicVelocityWyllie
+      SOURCES test/SeismicVelocityWyllie.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
 add_gtest( NAME GeoPhysics::SoilMechanicsPorosity
       SOURCES test/SoilMechanicsPorosity.C 
       LIBRARIES GeoPhysics SerialDataAccess

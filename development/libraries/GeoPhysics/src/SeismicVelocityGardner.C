@@ -10,11 +10,9 @@ namespace GeoPhysics
 	SeismicVelocityGardner::~SeismicVelocityGardner()
 	{}
 
-	double SeismicVelocityGardner::seismicVelocity(const FluidType* fluid,
+	double SeismicVelocityGardner::seismicVelocity(const double seismciVelocityFluid,
 		const double density,
-		const double porosity,
-		const double porePressure,
-		const double temperature) const
+		const double porosity) const
 	{
 		double velocity = pow(density / GardnerVelocityConstant, 4);
 		return velocity;

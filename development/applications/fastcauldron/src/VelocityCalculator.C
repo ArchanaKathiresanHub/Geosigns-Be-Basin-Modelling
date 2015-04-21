@@ -39,6 +39,7 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
    unsigned int i;
    unsigned int j;
    double value;
+   double seismciVelocityFluid = -1;
    Interface::GridMap* velocityMap;
    double undefinedValue;
    SeismicVelocity seismicVelocity;
@@ -90,11 +91,13 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 			 seismicVelocity = seismicVelocity.create(seismicVelocityModel,
 				 (*m_lithologies)(i, j)->seismicVelocitySolid());
 
-			 value = seismicVelocity.seismicVelocity(m_fluid,
+			 if (m_fluid != 0) {
+				 seismciVelocityFluid = m_fluid->seismicVelocity((*m_temperature)(i, j), (*m_pressure)(i, j));
+			 }
+
+			 value = seismicVelocity.seismicVelocity(seismciVelocityFluid,
 				 (*m_bulkDensity)(i, j),
-				 0.01 * (*m_porosity)(i, j),
-				 (*m_pressure)(i, j),
-				 (*m_temperature)(i, j) );
+				 0.01 * (*m_porosity)(i, j));
 
             velocityMap->setValue ( i, j, value );
          } else {
@@ -158,6 +161,7 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    unsigned int k;
    double value;
    double undefinedValue;
+   double seismciVelocityFluid = -1;
    Interface::GridMap* velocityMap;
    SeismicVelocity seismicVelocity;
    const DataAccess::Interface::SeismicVelocityModel seismicVelocityModel =
@@ -210,11 +214,14 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 				seismicVelocity = seismicVelocity.create(seismicVelocityModel,
 					(*m_lithologies)(i, j, k)->seismicVelocitySolid());
 
-				value = seismicVelocity.seismicVelocity(m_fluid,
+				if (m_fluid != 0) {
+					seismciVelocityFluid = m_fluid->seismicVelocity(m_temperature->getVolumeValue(i, j, k),
+						m_pressure->getVolumeValue(i, j, k));
+				}
+
+				value = seismicVelocity.seismicVelocity(seismciVelocityFluid,
 					m_bulkDensity->getVolumeValue(i, j, k),
-					0.01 * m_porosity->getVolumeValue(i, j, k),
-					m_pressure->getVolumeValue(i, j, k),
-					m_temperature->getVolumeValue(i, j, k));
+					0.01 * m_porosity->getVolumeValue(i, j, k));
 
                velocityMap->setValue ( i, j, k, value );
             }

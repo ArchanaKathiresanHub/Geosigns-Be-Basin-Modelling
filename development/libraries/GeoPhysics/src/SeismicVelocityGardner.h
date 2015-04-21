@@ -17,16 +17,13 @@ namespace GeoPhysics
 
 		/*!
 		* \brief Compute the seismicVelocity (of the bulk, inlc. prosity and fluid) using the Garnder's model.
-		* \param fluid The fluid (must be a NULL pointer if there is no fluid).
+		* \param fluid The seismic velocity of the fluid (must be -1 if there is no fluid).
 		* \param density The bulk density.
-		* \param porePressure The pore pressure.
-		* \param temperature The temperature.
+		* \param porosity The porosity.
 		*/
-		virtual double seismicVelocity(const FluidType* fluid,
+		virtual double seismicVelocity(const double seismciVelocityFluid,
 			const double density,
-			const double porosity,
-			const double porePressure,
-			const double temperature) const;
+			const double porosity) const;
 	};
 }
 

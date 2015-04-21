@@ -27,16 +27,13 @@ namespace GeoPhysics
 
 		/*!
 		* \brief Compute the seismicVelocity (of the bulk, inlc. prosity and fluid) by calling its class member Algorithm.
-		* \param fluid The fluid (must be a NULL pointer if there is no fluid).
+		* \param fluid The seismic velocity of the fluid (must be -1 if there is no fluid).
 		* \param density The bulk density.
-		* \param porePressure The pore pressure.
-		* \param temperature The temperature.
+		* \param porosity The porosity.
 		*/
-		double seismicVelocity(const FluidType* fluid,
+		double seismicVelocity(const double seismciVelocityFluid,
 			const double density,
-			const double porosity,
-			const double porePressure,
-			const double temperature) const;
+			const double porosity) const;
 
 		/*! \class Algorithm
 		* \brief Abstract class member of seismicVelocity. Compute the seismicVelocity (of the bulk, inlc. prosity and fluid).
@@ -49,16 +46,13 @@ namespace GeoPhysics
 
 			/*!
 			* \brief Compute the seismicVelocity (of the bulk, inlc. prosity and fluid) via its child.
-			* \param fluid The fluid (must be a NULL pointer if there is no fluid).
+			* \param fluid The seismic velocity of the fluid (must be -1 if there is no fluid).
 			* \param density The bulk density.
-			* \param porePressure The pore pressure.
-			* \param temperature The temperature.
+			* \param porosity The porosity.
 			*/
-			virtual double seismicVelocity(const FluidType* fluid,
+			virtual double seismicVelocity(const double seismciVelocityFluid,
 				const double density,
-				const double porosity,
-				const double porePressure,
-				const double temperature) const = 0;
+				const double porosity) const = 0;
 		};
 
 	private:
@@ -70,13 +64,11 @@ namespace GeoPhysics
 	};
 
 	inline double SeismicVelocity
-		::seismicVelocity(const FluidType* fluid,
+		::seismicVelocity(const double seismciVelocityFluid,
 		const double density,
-		const double porosity,
-		const double porePressure,
-		const double temperature) const
+		const double porosity) const
 	{
-			return m_algorithm->seismicVelocity(fluid, density, porosity, porePressure, temperature);
+			return m_algorithm->seismicVelocity(seismciVelocityFluid, density, porosity);
 	}
 }
 

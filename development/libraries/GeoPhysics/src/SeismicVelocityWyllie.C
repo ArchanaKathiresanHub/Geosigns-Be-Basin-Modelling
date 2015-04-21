@@ -11,22 +11,21 @@ namespace GeoPhysics
 	SeismicVelocityWyllie::~SeismicVelocityWyllie()
 	{}
 
-	double SeismicVelocityWyllie::seismicVelocity(const FluidType* fluid,
+	double SeismicVelocityWyllie::seismicVelocity(const double seismciVelocityFluid,
 		const double density,
-		const double porosity,
-		const double porePressure,
-		const double temperature) const
+		const double porosity) const
 	{
 		double velocity;
-			if (fluid != 0) {
-				double seismciVelocitySolid;
-				seismciVelocitySolid = fluid->seismicVelocity(temperature, porePressure);
-				assert(porosity * m_seismicVelocitySolid + (1.0 - porosity) * seismciVelocitySolid != 0);
-				velocity = (seismciVelocitySolid * m_seismicVelocitySolid) / (porosity * m_seismicVelocitySolid + (1.0 - porosity) * seismciVelocitySolid);
-			}
-			else {
-				velocity = m_seismicVelocitySolid;
-			}
-			return velocity;
+		//If there is a fluid
+		if (seismciVelocityFluid != -1){
+			double denominator = porosity * m_seismicVelocitySolid + (1.0 - porosity) * seismciVelocityFluid;
+			assert(denominator!=0);
+			velocity = (seismciVelocityFluid * m_seismicVelocitySolid) / denominator;
+		}
+		//Else, if there is no fluid
+		else {
+			velocity = m_seismicVelocitySolid;
+		}
+		return velocity;
 	}
 }
