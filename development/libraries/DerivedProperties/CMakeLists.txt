@@ -19,6 +19,7 @@ set(all_headers
   src/DerivedFormationSurfaceProperty.h
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
+  src/ErosionFactorFormationMapCalculator.h
   src/FaultElementFormationMapCalculator.h
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
@@ -54,6 +55,7 @@ set(all_headers
   src/SurfacePropertyCalculator.h
   src/SurfacePropertyOffsetCalculator.h
   src/ThicknessFormationMapCalculator.h
+  src/VelocityFormationCalculator.h
   src/VesFormationCalculator.h
   src/VesSurfaceCalculator.h
 )
@@ -65,6 +67,7 @@ set(all_srcs
   src/DerivedFormationSurfaceProperty.C
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
+  src/ErosionFactorFormationMapCalculator.C
   src/FaultElementFormationMapCalculator.C
   src/FormationMapProperty.C
   src/FormationProperty.C
@@ -94,6 +97,7 @@ set(all_srcs
   src/SurfaceProperty.C
   src/SurfacePropertyOffsetCalculator.C
   src/ThicknessFormationMapCalculator.C
+  src/VelocityFormationCalculator.C
   src/VesFormationCalculator.C
   src/VesSurfaceCalculator.C
 )
