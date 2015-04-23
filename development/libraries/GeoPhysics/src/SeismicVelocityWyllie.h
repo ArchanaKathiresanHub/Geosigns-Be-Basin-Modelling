@@ -11,22 +11,29 @@ namespace GeoPhysics
 	class SeismicVelocityWyllie : public SeismicVelocity::Algorithm
 	{
 	public:
-		SeismicVelocityWyllie(double seismicVelocitySolid);
+		/*!
+		* \param seismicVelocitySolid The seismic velocity of the matrix lithology (of the solid part, excluding porosity and fluid).
+		*/
+		SeismicVelocityWyllie(const double seismicVelocitySolid);
+
 		virtual ~SeismicVelocityWyllie();
 
 		/*!
-		* \brief Compute the seismicVelocity (of the bulk, inlc. prosity and fluid) using the Wyllies's model.
-		* \param seismciVelocityFluid The seismic velocity of the fluid (must be -1 if there is no fluid).
-		* \param density The bulk density.
+		* \brief Compute the seismicVelocity of the bulk (inlc. prosity and fluid) using the Wyllies's model.
+		* \param seismicVelocityFluid The seismic velocity of the fluid (-1 if there is no fluid).
+		* \param densityFluid The fluid density (-1 if there is no fluid).
+		* \param densityBulk The bulk density (inlc. prosity and fluid).
 		* \param porosity The porosity.
+		* \warning Paramaters densityFluid and densityBulk are not used for the Wyllie computation mode.
 		*/
 		virtual double seismicVelocity(const double seismciVelocityFluid,
-			const double density,
+			const double densityFluid,
+			const double densityBulk,
 			const double porosity) const;
 
 	private:
-		/// The seismic velocity value of the solid lithology (of the solid part, excluding porosity and fluid).
-		double m_seismicVelocitySolid;
+		/// The seismic velocity value of the matrix lithology (of the solid part, excluding porosity and fluid).
+		const double m_seismicVelocitySolid;
 	};
 }
 

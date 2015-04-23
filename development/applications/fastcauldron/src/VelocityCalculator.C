@@ -4,8 +4,6 @@
 #include "FastcauldronSimulator.h"
 #include "PropertyManager.h"
 
-#include "Interface/RunParameters.h"
-
 #include "SeismicVelocity.h"
 
 OutputPropertyMap* allocateVelocityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
@@ -40,11 +38,9 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
    unsigned int j;
    double value;
    double seismciVelocityFluid = -1;
-   Interface::GridMap* velocityMap;
+   double densityFluid = -1;
    double undefinedValue;
-   SeismicVelocity seismicVelocity;
-   const DataAccess::Interface::SeismicVelocityModel seismicVelocityModel =
-	   FastcauldronSimulator::getInstance().getRunParameters()->getSeismicVelocityAlgorithm();
+   Interface::GridMap* velocityMap;
 
    if ( not m_porosity->isCalculated ()) {
 
@@ -88,14 +84,13 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
 
-			 seismicVelocity = seismicVelocity.create(seismicVelocityModel,
-				 (*m_lithologies)(i, j)->seismicVelocitySolid());
-
 			 if (m_fluid != 0) {
 				 seismciVelocityFluid = m_fluid->seismicVelocity((*m_temperature)(i, j), (*m_pressure)(i, j));
+				 densityFluid = m_fluid->density((*m_temperature)(i, j), (*m_pressure)(i, j));
 			 }
 
-			 value = seismicVelocity.seismicVelocity(seismciVelocityFluid,
+			 value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
+				 densityFluid,
 				 (*m_bulkDensity)(i, j),
 				 0.01 * (*m_porosity)(i, j));
 
@@ -162,10 +157,8 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    double value;
    double undefinedValue;
    double seismciVelocityFluid = -1;
+   double densityFluid = -1;
    Interface::GridMap* velocityMap;
-   SeismicVelocity seismicVelocity;
-   const DataAccess::Interface::SeismicVelocityModel seismicVelocityModel =
-	   FastcauldronSimulator::getInstance().getRunParameters()->getSeismicVelocityAlgorithm();
 
    if ( not m_porosity->isCalculated ()) {
 
@@ -211,15 +204,15 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
             
             for ( k = velocityMap->firstK (); k <= velocityMap->lastK (); ++k ) {
 
-				seismicVelocity = seismicVelocity.create(seismicVelocityModel,
-					(*m_lithologies)(i, j, k)->seismicVelocitySolid());
-
 				if (m_fluid != 0) {
 					seismciVelocityFluid = m_fluid->seismicVelocity(m_temperature->getVolumeValue(i, j, k),
 						m_pressure->getVolumeValue(i, j, k));
+					densityFluid = m_fluid->density(m_temperature->getVolumeValue(i, j, k),
+						m_pressure->getVolumeValue(i, j, k));
 				}
 
-				value = seismicVelocity.seismicVelocity(seismciVelocityFluid,
+				value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
+					densityFluid,
 					m_bulkDensity->getVolumeValue(i, j, k),
 					0.01 * m_porosity->getVolumeValue(i, j, k));
 

@@ -22,6 +22,7 @@ set(cross_platform_headers
       src/PermeabilitySandStone.h
 	  src/SeismicVelocity.h
 	  src/SeismicVelocityGardner.h
+	  src/SeismicVelocityLorcan.h
 	  src/SeismicVelocityWyllie.h
 	  src/SchneiderCompactionCalculator.h
 	  src/SoilMechanicsPorosity.h
@@ -69,6 +70,7 @@ set(cross_platform_srcs
       src/PermeabilitySandStone.C
 	  src/SeismicVelocity.C
 	  src/SeismicVelocityGardner.C
+	  src/SeismicVelocityLorcan.C
 	  src/SeismicVelocityWyllie.C
 	  src/SchneiderCompactionCalculator.C
 	  src/SoilMechanicsPorosity.C
@@ -221,6 +223,11 @@ add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
 
 add_gtest( NAME GeoPhysics::SeismicVelocityGardner
       SOURCES test/SeismicVelocityGardner.C 
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::SeismicVelocityLorcan
+      SOURCES test/SeismicVelocityLorcan.C 
       LIBRARIES GeoPhysics SerialDataAccess
 )
 

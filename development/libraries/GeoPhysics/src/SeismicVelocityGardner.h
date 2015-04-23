@@ -16,13 +16,16 @@ namespace GeoPhysics
 		virtual ~SeismicVelocityGardner();
 
 		/*!
-		* \brief Compute the seismicVelocity (of the bulk, inlc. prosity and fluid) using the Garnder's model.
-		* \param fluid The seismic velocity of the fluid (must be -1 if there is no fluid).
-		* \param density The bulk density.
+		* \brief Compute the seismic velocity of the bulk (inlc. prosity and fluid) using the Garnder's model.
+		* \param seismicVelocityFluid The seismic velocity of the fluid (-1 if there is no fluid).
+		* \param densityFluid The fluid density (-1 if there is no fluid).
+		* \param densityBulk The bulk density (inlc. prosity and fluid).
 		* \param porosity The porosity.
+		* \warning Paramaters seismicVelocityFluid, densityFluid and porosity are not used for the Gardner computation mode.
 		*/
-		virtual double seismicVelocity(const double seismciVelocityFluid,
-			const double density,
+		virtual double seismicVelocity(const double seismicVelocityFluid,
+			const double densityFluid,
+			const double densityBulk,
 			const double porosity) const;
 	};
 }

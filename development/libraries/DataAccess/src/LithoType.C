@@ -88,7 +88,7 @@ const string LithoType::s_attributeNames[] =
    // Doubles
    "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA","CompacCoefESB", "CompacCoefSC", "CompacCoefFM", "StpThCond",
    "ThCondAnisotropy", "DepoPerm", "PermDecrStressCoef", "PermIncrRelaxCoef", "PermAnisotropy",
-   "SeisVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
+   "SeisVelocity", "NExponentVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
    "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "SpecSurfArea", "GeoVariance",
    // Ints
    "UserDefined", "Number_Of_Data_Points"
@@ -222,6 +222,10 @@ double LithoType::getPermeabilityRecoveryCoefficient () const {
 
 double LithoType::getSeismicVelocity () const {
    return database::getSeisVelocity ( m_record );
+}
+
+double LithoType::getNExponentVelocity() const {
+	return database::getNExponentVelocity( m_record );
 }
 
 double LithoType::getCapillaryEntryPressureC1 () const {

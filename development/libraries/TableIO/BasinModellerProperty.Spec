@@ -2018,6 +2018,13 @@ START-properties
     Type                : float
     Error Field         : Yes
 
+	Identification      : NExponentVelocity
+    Description         : n exponent used for Lorcan's velocity computation mode
+    Unit of measurement : 
+    Type                : float
+    Error Field         : No
+	Default             : 0.1234
+
     Identification      : HydraulicFracturingPercent
     Description         : Lithostatic pressure % to trigger hydraulic fracturing
     Unit of measurement : %
@@ -7441,6 +7448,7 @@ START-property-tables
     Column         : PermAnisotropy
     Column         : PermMixModel
     Column         : SeisVelocity
+	Column         : NExponentVelocity
     Column         : CapC1
     Column         : CapC2
     Column         : PcKrModel

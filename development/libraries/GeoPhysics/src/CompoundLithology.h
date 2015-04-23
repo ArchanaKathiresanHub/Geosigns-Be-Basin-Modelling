@@ -9,6 +9,7 @@
 #include "CompoundProperty.h"
 #include "GeoPhysicsFluidType.h"
 #include "Interface/Interface.h"
+#include "SeismicVelocity.h"
 #include "SimpleLithology.h"
 
 namespace GeoPhysics {
@@ -120,6 +121,9 @@ namespace GeoPhysics {
 
 	  /// Return the solid seismic-velocity value for the compound-lithology.
 	  double seismicVelocitySolid() const;
+
+	  /// Return the SeismicVelocity object for the compound-lithology.
+	  SeismicVelocity seismicVelocity() const;
 
       /// Return the thermal-conductivity anisotropy.
       double thermalcondaniso() const;
@@ -361,6 +365,7 @@ namespace GeoPhysics {
       double           m_depositionalPermeability;
       double           m_heatProduction;
 	  double           m_seismicVelocitySolid;
+	  double           m_nExponentVelocity;
       double           m_permeabilityincr;
       double           m_permeabilitydecr;
       double           m_thermalConductivityValue;
@@ -414,6 +419,10 @@ namespace GeoPhysics {
 
 	  Porosity m_porosity;
 
+   private:
+	   /// The object used to compute the velocity (by using m_seismicVelocity.seismicVelocity() method).
+	   SeismicVelocity m_seismicVelocity;
+
    };
 
 
@@ -458,6 +467,10 @@ inline double GeoPhysics::CompoundLithology::heatproduction() const {
 
 inline double GeoPhysics::CompoundLithology::seismicVelocitySolid() const {
 	return m_seismicVelocitySolid;
+}
+
+inline GeoPhysics::SeismicVelocity GeoPhysics::CompoundLithology::seismicVelocity() const {
+	return m_seismicVelocity;
 }
 
 inline double GeoPhysics::CompoundLithology::thermalcondaniso() const {

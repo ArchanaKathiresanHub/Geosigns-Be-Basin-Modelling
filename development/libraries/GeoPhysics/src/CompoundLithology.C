@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Interface/Interface.h"
+#include "Interface/RunParameters.h"
 
 #include "capillarySealStrength.h"
 #include "GeoPhysicsProjectHandle.h"
@@ -502,9 +503,9 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       return false;
    }
 
-   m_density = 0.0;
-   m_seismicVelocitySolid = 0.0;
-
+   m_density                        = 0.0;
+   m_seismicVelocitySolid           = 0.0;
+   m_nExponentVelocity              = 0.0;
    m_depositionalPermeability       = 0.0;
    m_heatProduction                 = 0.0;
    m_permeabilityincr               = 0.0;
@@ -530,12 +531,13 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    while (m_lithoComponents.end() != componentIter) {
       double pcMult = (double)(*percentIter) / 100;
 
-      // Matrix Property calculated using the arithmetic mean
+      //1. Matrix Property calculated using the arithmetic mean
       m_density                     += (*componentIter)->getDensity()  * pcMult;
+	  m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
+	  m_nExponentVelocity           += (*componentIter)->getNExponentVelocity() * pcMult;
       m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
       m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
       m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
-      m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
       m_referenceSolidViscosity     += (*componentIter)->getReferenceSolidViscosity() * pcMult;
       m_lithologyActivationEnergy   += (*componentIter)->getLithologyActivationEnergy() * pcMult;
       minimumMechanicalPorosity     += (*componentIter)->getMinimumMechanicalPorosity() / 100.0 * pcMult;
@@ -543,19 +545,21 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       m_quartzFraction              += (*componentIter)->getQuartzFraction() * pcMult;
       m_coatingClayFactor           += (*componentIter)->getClayCoatingFactor() * pcMult;
 
-      // Matrix Property calculated using the geometric mean
+      //2. Matrix Property calculated using the geometric mean
       m_thermalConductivityAnisotropy *= pow((*componentIter)->getThCondAn(), pcMult);
 
       m_specificSurfaceArea *= pow((*componentIter)->getSpecificSurfArea(), pcMult);
       m_geometricVariance *= pow((*componentIter)->getGeometricVariance(), pcMult);
 
-      //Matrix Property calculated using the algebraic mean
+      //3. Matrix Property calculated using the algebraic mean
       m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
       ++componentIter;
       ++percentIter;
    }
    m_quartzGrainSize = pow(m_quartzGrainSize, 1.0 / 3.0);
-   //Temporary values before mixing
+
+   //4. Porosity
+   // temporary values before mixing
    DataAccess::Interface::PorosityModel porosityModel;
    double surfacePorosity;
    double surfaceVoidRatio;
@@ -571,7 +575,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    mixSurfacePorosity(porosityModel, surfacePorosity, surfaceVoidRatio);
    mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, soilMechanicsCompactionCoefficient);
     
-   //Create porosity object
+   // create porosity object
    m_porosity = Porosity::create(porosityModel,
    surfacePorosity,
    minimumMechanicalPorosity,
@@ -590,8 +594,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
    setMinimumPorosity(porosityModel, surfaceVoidRatio, soilMechanicsCompactionCoefficient);
 
-
-
+   //5. Permeability
    if (surfacePorosity < 0.0299) {
       // Really less than 0.03 but some rounding may occur if user set a litho with 0.03 surface porosity
       m_fracturedPermeabilityScalingValue = 100.0;
@@ -599,6 +602,14 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    else {
       m_fracturedPermeabilityScalingValue = 10.0; // What to set this to?  10, 50 or whatever.
    }
+
+   //6. Seismic velocity
+   DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle->getRunParameters()->getSeismicVelocityAlgorithm();
+   m_seismicVelocity = m_seismicVelocity.create(seismicVelocityModel,
+	   m_seismicVelocitySolid,
+	   m_density,
+	   surfacePorosity,
+	   m_nExponentVelocity);
 
    return true;
 }
