@@ -35,7 +35,7 @@ TEST( SeismicVelocityWyllie, std_sandstone )
 	EXPECT_NEAR(1946.7685572242, myVelocity.seismicVelocity(1507, 1000, 2200, 0.45), 1e-10);
 
 	//For suspension line (porosity > surfacePorosity)
-	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2200, 0.5), 1e-10);
+	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2200, 0.5));
 
 }
 
@@ -70,7 +70,7 @@ TEST(SeismicVelocityWyllie, std_shale)
 	EXPECT_NEAR(1321.7868476107, myVelocity.seismicVelocity(1507, 1000, 2000, 0.65), 1e-10);
 	
 	//For suspension line (porosity > surfacePorosity)
-	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2000, 0.8), 1e-10);
+	EXPECT_EQ(1507, myVelocity.seismicVelocity(1507, 1000, 2000, 0.8));
 }
 
 TEST(SeismicVelocityWyllie, death_test)

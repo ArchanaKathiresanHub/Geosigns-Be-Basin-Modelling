@@ -70,7 +70,7 @@ const std::string& RunParameters::getVreAlgorithm () const {
    return database::getVreAlgorithm ( m_record );
 }
 
-const SeismicVelocityModel RunParameters::getSeismicVelocityAlgorithm() const {
+SeismicVelocityModel RunParameters::getSeismicVelocityAlgorithm() const {
 	return m_seismicVelocityModel;
 }
 
