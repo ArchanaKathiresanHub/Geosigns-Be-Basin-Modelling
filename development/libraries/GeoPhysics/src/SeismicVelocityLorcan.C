@@ -1,4 +1,5 @@
 #include "SeismicVelocityLorcan.h"
+#include "math.h"
 
 namespace GeoPhysics
 {

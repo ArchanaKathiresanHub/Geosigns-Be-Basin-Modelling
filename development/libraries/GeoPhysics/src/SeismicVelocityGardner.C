@@ -1,4 +1,5 @@
 #include "GeoPhysicalConstants.h"
+#include "math.h"
 #include "SeismicVelocityGardner.h"
 
 namespace GeoPhysics
