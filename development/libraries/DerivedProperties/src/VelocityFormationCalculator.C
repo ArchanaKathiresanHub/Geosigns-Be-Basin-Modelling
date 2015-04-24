@@ -49,7 +49,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geophysicsFormation->getCompoundLithologyArray ();
       
-      if (  lithologies != 0 ) {
+      if ( lithologies != 0 ) {
 
          PropertyRetriever porosityRetriever ( porosity );
          PropertyRetriever bulkDensityRetriever ( bulkDensity );
