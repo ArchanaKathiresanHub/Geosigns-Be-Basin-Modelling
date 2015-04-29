@@ -79,6 +79,7 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
    database = 0;
    timeIoTbl = 0;
    m_saveOnDarcyError = false;
+   m_no2Doutput = false;
 
    Reference_DA_For_Io_Maps = 0;
 
@@ -614,6 +615,7 @@ bool AppCtx::getCommandLineOptions() {
   PetscBool outputAgeChanged = PETSC_FALSE;
   PetscBool exitAgeChanged = PETSC_FALSE;
   PetscBool bbtemp = PETSC_FALSE;
+  PetscBool no2Doutput = PETSC_FALSE;
   PetscBool Found;
   double outputAge;
   double exitAge;
@@ -657,9 +659,15 @@ bool AppCtx::getCommandLineOptions() {
 
   PetscOptionsGetReal ( PETSC_NULL, "-exitat", &exitAge, &exitAgeChanged );
 
-
+  ierr = PetscOptionsHasName( PETSC_NULL, "-no2Doutput", &no2Doutput ); CHKERRQ(ierr);
 
   ierr = PetscOptionsHasName( PETSC_NULL, "-saveonerror", &saveResultsIfDarcyError ); CHKERRQ(ierr);
+
+  if ( no2Doutput ) {
+     m_no2Doutput = true;
+  } else {
+     m_no2Doutput = false;
+  }
 
   if ( saveResultsIfDarcyError ) {
      m_saveOnDarcyError = true;

@@ -120,6 +120,10 @@ bool PorosityCalculator::initialise ( OutputPropertyMap::PropertyValueList& prop
    m_lithologies = &m_formation->getCompoundLithologyArray ();
 //    m_lithologies = &m_formation->Lithology;
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
+
    return m_ves != 0 and m_maxVes != 0 and m_lithologies != 0 and ( m_chemicalCompactionRequired ? m_chemicalCompaction != 0 : true );
 }
 

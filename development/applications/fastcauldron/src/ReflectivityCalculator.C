@@ -240,6 +240,10 @@ bool ReflectivityCalculator::initialise ( OutputPropertyMap::PropertyValueList& 
 
    m_computeReflectivity = true;
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
+
    return m_bulkDensity != 0 and m_velocity != 0 and m_thickness != 0;
 }
 

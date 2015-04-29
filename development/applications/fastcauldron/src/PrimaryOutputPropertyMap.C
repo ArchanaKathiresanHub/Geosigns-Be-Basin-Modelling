@@ -1,6 +1,7 @@
 #include "PrimaryOutputPropertyMap.h"
 #include "FastcauldronSimulator.h"
 #include "timefilter.h"
+#include "propinterface.h"
 
 #include "Interface/RunParameters.h"
 
@@ -28,6 +29,10 @@ PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyList         
                                                                                                                 snapshot, 0, localFormation,
                                                                                                                 surface ));
    if( m_propertyName == CHEMICAL_COMPACTION && ! m_formation->hasChemicalCompaction () ) {
+      localValues->allowOutput( false );
+   }
+
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
       localValues->allowOutput( false );
    }
 

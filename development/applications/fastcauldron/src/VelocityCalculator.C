@@ -127,6 +127,10 @@ bool VelocityCalculator::initialise ( OutputPropertyMap::PropertyValueList& prop
    m_lithologies = &m_formation->getCompoundLithologyArray ();
    m_fluid = m_formation->fluid;
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
+
    return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_bulkDensity != 0 and m_lithologies != 0 and m_fluid != 0;
 }
 

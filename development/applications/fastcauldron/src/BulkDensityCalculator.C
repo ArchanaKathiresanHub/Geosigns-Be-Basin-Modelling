@@ -154,6 +154,11 @@ bool BulkDensityCalculator::initialise ( OutputPropertyMap::PropertyValueList& p
    m_lithologies = &m_formation->getCompoundLithologyArray ();
    m_fluid = m_formation->fluid;
 
+
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput( false );
+   }
+
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () != HYDROSTATIC_DECOMPACTION_MODE ) {
       return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and 
          ( m_BasinModel->isALC() && m_formation->isBasement() ? m_lithopressure != 0 : true );

@@ -384,6 +384,12 @@ bool FluidVelocityCalculator::initialise ( OutputPropertyMap::PropertyValueList&
    m_lithologies = &m_formation->getCompoundLithologyArray ();
 //    m_lithologies = &m_formation->Lithology;
    m_fluid = m_formation->fluid;
+   
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+      propertyValues [ 1 ]->allowOutput ( false );
+      propertyValues [ 2 ]->allowOutput ( false );
+   }
 
    return m_depth != 0 and m_temperature != 0 and m_hydrostaticPressure != 0 and m_overpressure != 0 and 
           m_ves != 0 and m_maxVes != 0 and m_lithologies != 0 and
