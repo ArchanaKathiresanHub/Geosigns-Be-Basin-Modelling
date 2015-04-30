@@ -18,10 +18,10 @@
 #include "FormationPropertyAtSurface.h"
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+   loadFormationPropertyCalculators ();
    loadSurfacePropertyCalculators ();
    loadFormationSurfacePropertyCalculators ();
    loadFormationMapPropertyCalculators ();
-   loadFormationPropertyCalculators ();
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -107,52 +107,15 @@ void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators
    for ( size_t i = 0; i < allFormationProperties->size (); ++i ) {
       const DataAccess::Interface::Property* property = (*allFormationProperties)[ i ];
 
-      PrimaryFormationPropertyCalculatorPtr propertyCalculator ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property ));
-      const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
+      PrimaryFormationPropertyCalculatorPtr formationPropertyCalculator ( new PrimaryFormationPropertyCalculator ( m_projectHandle, property ));
+      const DataModel::AbstractSnapshotSet& snapshots = formationPropertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
       for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addFormationPropertyCalculator ( propertyCalculator, *ssIter );
+         addFormationPropertyCalculator ( formationPropertyCalculator, *ssIter );
       }
 
    } 
 
    delete allFormationProperties;
-}
-
-DerivedProperties::SurfacePropertyPtr DerivedProperties::DerivedPropertyManager::getSurfaceProperty ( const DataModel::AbstractProperty* property,
-                                                                                                      const DataModel::AbstractSnapshot* snapshot,
-                                                                                                      const DataModel::AbstractSurface*  surface ) {
-
-   SurfacePropertyPtr result;
-
-   // First try to find the property requested.
-   result = findSurfacePropertyValues ( property, snapshot, surface );
-
-   if ( result == 0 ) {
-      // If this fails
-
-      // Next search for formation property values of the formation directly above or below the surface.
-      const DataAccess::Interface::Formation* formationAbove = m_projectHandle->findFormation ( surface->getTopFormationName ());
-      const DataAccess::Interface::Formation* formationBelow = m_projectHandle->findFormation ( surface->getBottomFormationName ());
-
-      FormationPropertyPtr formationProperty;
-
-      if ( formationAbove != 0 and ( formationBelow == 0 or formationBelow->getName () == "Crust" )) {
-         formationProperty = findFormationPropertyValues ( property, snapshot, formationAbove );
-      } else if ( formationBelow != 0 ) {
-         formationProperty = findFormationPropertyValues ( property, snapshot, formationBelow );
-      }
-
-      if ( formationProperty != 0 ) {
-         result = SurfacePropertyPtr ( new FormationPropertyAtSurface ( formationProperty, surface ));
-         addSurfaceProperty ( result );
-      } else {
-         // If this still fails then it has not been computed yet, so must be computed.
-         result = AbstractPropertyManager::getSurfaceProperty ( property, snapshot, surface );
-      }
-
-   }
-
-   return result;
 }

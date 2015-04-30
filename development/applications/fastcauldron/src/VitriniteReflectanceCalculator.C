@@ -122,6 +122,11 @@ void VitriniteReflectanceCalculator::allocatePropertyValues ( OutputPropertyMap:
 }
 
 bool VitriniteReflectanceCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
+
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
+
    return true;
 }
 

@@ -1,15 +1,15 @@
-#ifndef DERIVED_PROPERTIES__FORMATION_PROPERTY_AT_SURFACE_H
-#define DERIVED_PROPERTIES__FORMATION_PROPERTY_AT_SURFACE_H
+#ifndef DERIVED_PROPERTIES__FORMATION_SURFACE_PROPERTY_AT_SURFACE_H
+#define DERIVED_PROPERTIES__FORMATION_SURFACE_PROPERTY_AT_SURFACE_H
 
 #include "AbstractSurface.h"
 
 #include "FormationProperty.h"
-#include "SurfaceProperty.h"
+#include "FormationSurfaceProperty.h"
 
 namespace DerivedProperties {
 
    /// \brief Stores the values of the designated formation-property with an offset for the particular surface.
-   class FormationPropertyAtSurface : public SurfaceProperty {
+   class FormationSurfacePropertyAtSurface : public FormationSurfaceProperty {
 
    public :
 
@@ -20,8 +20,8 @@ namespace DerivedProperties {
       /// \pre formationProperty is not null.
       /// \pre surface is not null.
       /// \pre surface is attached to the formation associated to the formationProperty, i.e. must be either the top or bottom surface of the formation.
-      FormationPropertyAtSurface ( const FormationPropertyPtr&       formationProperty,
-                                   const DataModel::AbstractSurface* surface );
+      FormationSurfacePropertyAtSurface ( const FormationPropertyPtr&       formationProperty,
+                                          const DataModel::AbstractSurface* surface );
 
       /// \brief Get the value of the property at the position i,j.
       virtual double get ( unsigned int i,
@@ -48,4 +48,4 @@ namespace DerivedProperties {
 
 } // namespace DerivedProperties
 
-#endif // DERIVED_PROPERTIES__FORMATION_PROPERTY_AT_SURFACE_H
+#endif // DERIVED_PROPERTIES__FORMATION_SURFACE_PROPERTY_AT_SURFACE_H

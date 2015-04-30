@@ -1,5 +1,5 @@
-#ifndef DERIVED_PROPERTIES__THICKNESS_FORMATION_MAP_CALCULATOR_H
-#define DERIVED_PROPERTIES__THICKNESS_FORMATION_MAP_CALCULATOR_H
+#ifndef DERIVED_PROPERTIES__FAULT_ELEMENT_FORMATION_MAP_CALCULATOR_H
+#define DERIVED_PROPERTIES__FAULT_ELEMENT_FORMATION_MAP_CALCULATOR_H
 
 #include <vector>
 #include <string>
@@ -16,20 +16,20 @@
 
 namespace DerivedProperties {
 
-   /// \brief Calculates a derived property or set of properties.
-   class ThicknessFormationMapCalculator : public FormationMapPropertyCalculator {
+   /// \brief Calculates a map containing values indicating whether or not a location has faulted.
+   class FaultElementFormationMapCalculator : public FormationMapPropertyCalculator {
 
    public :
 
       /// Constructor.
-      ThicknessFormationMapCalculator ();
+      FaultElementFormationMapCalculator ();
 
-      /// \brief Calculate the thickness derived property.
-      /// 
+      /// \brief Calculate the property values and add the property values to the list.
+      ///
       /// \param [in]  propManager The property manager.
-      /// \param [in]  snapshot    The snapshot time for which the thickness property is requested.
-      /// \param [in]  formation   The formation for which the thickness property is requested.
-      /// \param [out] derivedProperties On exit will contain a single formation-map property, the thickness of the layer.
+      /// \param [in]  snapshot    The snapshot time for which the fault-element property is requested.
+      /// \param [in]  formation   The formation for which the fault-element property is requested.
+      /// \param [out] derivedProperties On exit will contain a single formation map property, the fault-element property values.
       /// \pre snapshot points to a valid snapshot age.
       /// \pre formation points to a valid formation.
       virtual void calculate ( AbstractPropertyManager&            propManager,
@@ -42,4 +42,4 @@ namespace DerivedProperties {
 } // namespace DerivedProperties
 
 
-#endif // DERIVED_PROPERTIES__THICKNESS_FORMATION_MAP_CALCULATOR_H
+#endif // DERIVED_PROPERTIES__FAULT_ELEMENT_FORMATION_MAP_CALCULATOR_H

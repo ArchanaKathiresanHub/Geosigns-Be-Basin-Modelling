@@ -7,7 +7,6 @@
 #include "../src/DerivedFormationMapProperty.h"
 #include "../src/ThicknessFormationMapCalculator.h"
 
-#include "MockSurface.h"
 #include "MockFormation.h"
 #include "MockSnapshot.h"
 #include "MockProperty.h"

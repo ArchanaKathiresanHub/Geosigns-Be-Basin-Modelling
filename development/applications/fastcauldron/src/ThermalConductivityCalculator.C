@@ -157,6 +157,9 @@ bool ThermalConductivityCalculator::initialise ( OutputPropertyMap::PropertyValu
 //    m_lithologies = &m_formation->Lithology;
    m_fluid = m_formation->fluid;
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
    return m_porosity != 0 and m_temperature != 0 and m_lithologies != 0 and m_fluid != 0 and m_porePressure != 0 and
       ( m_isBasementFormationAndALC ? (m_lithopressure != 0) : true );
 }

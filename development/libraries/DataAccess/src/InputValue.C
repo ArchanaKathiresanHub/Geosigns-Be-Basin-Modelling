@@ -479,6 +479,11 @@ string InputValue::saveToDirectory (const string & directory)
    }
 }
 
+int InputValue::getMapSequenceNumber () const {
+   return getMapSeqNbr (m_record);
+}
+
+
 GridMap * InputValue::loadGridMap (void) const
 {
    assert (m_record);

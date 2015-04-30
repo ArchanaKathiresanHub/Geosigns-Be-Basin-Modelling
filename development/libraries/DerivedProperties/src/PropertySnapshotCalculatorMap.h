@@ -26,6 +26,10 @@ namespace DerivedProperties {
       CalculatorType get ( const DataModel::AbstractProperty* property,
                            const DataModel::AbstractSnapshot* snapshot ) const;
 
+      /// \brief Determine if the calculator map contains a calculator for the property.
+      bool contains ( const DataModel::AbstractProperty* property,
+                      const DataModel::AbstractSnapshot* snapshot ) const;
+
    private :
 
       /// \brief A mapping from a snapshot to a calculator.
@@ -75,6 +79,14 @@ CalculatorType DerivedProperties::PropertySnapshotCalculatorMap<CalculatorType>:
 
    return CalculatorType ();
 }
+
+
+template<typename CalculatorType>
+bool DerivedProperties::PropertySnapshotCalculatorMap<CalculatorType>::contains ( const DataModel::AbstractProperty* property,
+                                                                                  const DataModel::AbstractSnapshot* snapshot ) const {
+   return get ( property, snapshot ) != 0;
+}
+
 
 
 #endif // DERIVED_PROPERTIES__PROPERTY_SNAPSHOT_CALCULATOR_MAP_H

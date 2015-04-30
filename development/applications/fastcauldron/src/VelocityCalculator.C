@@ -84,15 +84,15 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
 
-			 if (m_fluid != 0) {
-				 seismciVelocityFluid = m_fluid->seismicVelocity((*m_temperature)(i, j), (*m_pressure)(i, j));
-				 densityFluid = m_fluid->density((*m_temperature)(i, j), (*m_pressure)(i, j));
-			 }
+		 if (m_fluid != 0) {
+			 seismciVelocityFluid = m_fluid->seismicVelocity((*m_temperature)(i, j), (*m_pressure)(i, j));
+			 densityFluid = m_fluid->density((*m_temperature)(i, j), (*m_pressure)(i, j));
+		 }
 
-			 value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
-				 densityFluid,
-				 (*m_bulkDensity)(i, j),
-				 0.01 * (*m_porosity)(i, j));
+		 value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
+			 densityFluid,
+			 (*m_bulkDensity)(i, j),
+			 0.01 * (*m_porosity)(i, j));
 
             velocityMap->setValue ( i, j, value );
          } else {
@@ -126,6 +126,10 @@ bool VelocityCalculator::initialise ( OutputPropertyMap::PropertyValueList& prop
 
    m_lithologies = &m_formation->getCompoundLithologyArray ();
    m_fluid = m_formation->fluid;
+
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
 
    return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_bulkDensity != 0 and m_lithologies != 0 and m_fluid != 0;
 }
@@ -204,17 +208,17 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
             
             for ( k = velocityMap->firstK (); k <= velocityMap->lastK (); ++k ) {
 
-				if (m_fluid != 0) {
-					seismciVelocityFluid = m_fluid->seismicVelocity(m_temperature->getVolumeValue(i, j, k),
-						m_pressure->getVolumeValue(i, j, k));
-					densityFluid = m_fluid->density(m_temperature->getVolumeValue(i, j, k),
-						m_pressure->getVolumeValue(i, j, k));
-				}
+		if (m_fluid != 0) {
+			seismciVelocityFluid = m_fluid->seismicVelocity(m_temperature->getVolumeValue(i, j, k),
+				m_pressure->getVolumeValue(i, j, k));
+			densityFluid = m_fluid->density(m_temperature->getVolumeValue(i, j, k),
+				m_pressure->getVolumeValue(i, j, k));
+		}
 
-				value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
-					densityFluid,
-					m_bulkDensity->getVolumeValue(i, j, k),
-					0.01 * m_porosity->getVolumeValue(i, j, k));
+		value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
+			densityFluid,
+			m_bulkDensity->getVolumeValue(i, j, k),
+			0.01 * m_porosity->getVolumeValue(i, j, k));
 
                velocityMap->setValue ( i, j, k, value );
             }

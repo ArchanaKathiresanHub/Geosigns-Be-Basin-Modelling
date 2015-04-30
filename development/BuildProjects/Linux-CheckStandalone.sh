@@ -58,8 +58,8 @@ unit_test_output="`pwd -P`"
 popd
 
 # Standard applications
-CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/bin/cmake
-CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/cmake/bin/ctest
+CMAKE=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/cmake
+CTEST=/nfs/rvl/groups/ept-sg/SWEast/Cauldron/Tools/bin/ctest
 
 # Package Cauldron
 pushd $build
@@ -106,7 +106,7 @@ function onExit()
 
 trap onExit EXIT
 
-CMAKE=/glb/data/ifshou_ird02/projects/cauldron/cmake/3.0.2/bin/cmake
+CMAKE=/glb/data/ifshou_ird02/projects/cauldron/cmake/latest/bin/cmake
 MPIROOT=/apps/3rdparty/intel/impi/4.1.3.049
 MKLROOT=/apps/3rdparty/intel/parallel_studio_xe/mkl
 

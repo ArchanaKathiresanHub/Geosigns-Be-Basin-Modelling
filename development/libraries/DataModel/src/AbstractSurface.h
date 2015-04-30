@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "AbstractFormation.h"
 
 namespace DataModel {
 
@@ -25,6 +26,18 @@ namespace DataModel {
       ///
       /// If there is no formation below then a null string ("") will be returned.
       virtual const std::string& getBottomFormationName () const = 0;
+
+      /// \brief Return the formation that lies directly above the surface.
+      ///
+      /// If there is none, i.e. when the surface is the top surface of the domain,
+      /// then a null value will be returned.
+      virtual const AbstractFormation* getTopFormation () const = 0;
+
+      /// \brief Return the formation that lies directly below the surface.
+      ///
+      /// If there is none, i.e. when the surface is the bottom surface of the basement,
+      /// then a null value will be returned.
+      virtual const AbstractFormation* getBottomFormation () const = 0;
 
 
    };

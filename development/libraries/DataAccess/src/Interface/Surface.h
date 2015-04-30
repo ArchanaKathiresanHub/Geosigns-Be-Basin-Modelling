@@ -6,6 +6,7 @@
 
 #include "Interface/DAObject.h"
 #include "Interface.h"
+#include "Formation.h"
 
 namespace DataAccess
 {

@@ -440,6 +440,12 @@ bool HeatFlowCalculator::initialise ( OutputPropertyMap::PropertyValueList& prop
       m_lithoPressure = 0;
    }
 
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+      propertyValues [ 1 ]->allowOutput ( false );
+      propertyValues [ 2 ]->allowOutput ( false );
+   }
+
    m_lithologies = &m_formation->getCompoundLithologyArray ();
 //    m_lithologies = &m_formation->Lithology;
    m_fluid = m_formation->fluid;

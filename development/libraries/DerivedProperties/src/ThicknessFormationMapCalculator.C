@@ -22,7 +22,7 @@ void DerivedProperties::ThicknessFormationMapCalculator::calculate ( AbstractPro
    const DataModel::AbstractProperty* depthProperty = propertyManager.getProperty ( "Depth" );
    const FormationPropertyPtr depth = propertyManager.getFormationProperty ( depthProperty, snapshot, formation );
 
-   PropertyRetriever maxVesRetriever ( depth );
+   PropertyRetriever depthRetriever ( depth );
 
    derivedProperties.clear ();
 

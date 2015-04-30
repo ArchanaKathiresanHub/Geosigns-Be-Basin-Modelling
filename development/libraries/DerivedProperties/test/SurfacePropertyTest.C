@@ -6,9 +6,9 @@
 #include "../src/DerivedFormationProperty.h"
 #include "../src/DerivedFormationMapProperty.h"
 #include "../src/OverpressureFormationCalculator.h"
-#include "../src/OverpressureSurfaceCalculator.h"
 
 #include "MockFormation.h"
+#include "MockSurface.h"
 #include "MockSnapshot.h"
 #include "MockProperty.h"
 #include "MockGrid.h"
@@ -107,7 +107,11 @@ public :
 
 
 
-TEST ( OverpressureCalculatorTest, Test1 )
+//
+// In this particular test the pore-pressure is discontinuous, there is a jump in the pore-pressure across the surface.
+// So the surface formation test should be used and will be different across the surface.
+//
+TEST ( SurfacePropertyTest, Test1 )
 {
 
    TestPropertyManager propertyManager;
@@ -115,27 +119,68 @@ TEST ( OverpressureCalculatorTest, Test1 )
    const DataModel::AbstractProperty*  overpressureProp = propertyManager.getProperty ( "OverPressure" );
    const DataModel::AbstractProperty*  pressureProp = propertyManager.getProperty ( "Pressure" );
    const DataModel::AbstractProperty*  hydroPressureProp = propertyManager.getProperty ( "HydroStaticPressure" );
+   const DataModel::AbstractProperty*  depthProp = propertyManager.getProperty ( "Depth" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation" );
+   const DataModel::AbstractFormation* formation1 = new MockFormation ( "Formation1", "TopSurface", "MidSurface" );
+   const DataModel::AbstractFormation* formation2 = new MockFormation ( "Formation2", "MidSurface", "BotSurface" );
 
-   const FormationPropertyPtr po = propertyManager.getFormationProperty ( overpressureProp, snapshot, formation );
-   const FormationPropertyPtr pp = propertyManager.getFormationProperty ( pressureProp, snapshot, formation );
-   const FormationPropertyPtr ph = propertyManager.getFormationProperty ( hydroPressureProp, snapshot, formation );
+   const DataModel::AbstractSurface*  topSurface = new MockSurface ( "TopSurface", 0, formation1 );
+   const DataModel::AbstractSurface*  midSurface = new MockSurface ( "MidSurface", formation1, formation2 );
+   const DataModel::AbstractSurface*  botSurface = new MockSurface ( "BotSurface", formation2, 0 );
 
-   for ( unsigned int i = ph->firstI ( true ); i <= ph->lastI ( true ); ++i ) {
+   const FormationPropertyPtr depth1 = propertyManager.getFormationProperty ( depthProp, snapshot, formation1 );
+   const FormationPropertyPtr depth2 = propertyManager.getFormationProperty ( depthProp, snapshot, formation2 );
 
-      for ( unsigned int j = ph->firstJ ( true ); j <= ph->lastJ ( true ); ++j ) {
+   const FormationPropertyPtr pp1 = propertyManager.getFormationProperty ( pressureProp, snapshot, formation1 );
+   const FormationPropertyPtr pp2 = propertyManager.getFormationProperty ( pressureProp, snapshot, formation2 );
 
-         for ( unsigned int k = ph->firstK (); k <= ph->lastK (); ++k ) {
-            EXPECT_DOUBLE_EQ ( po->get ( i, j, k ), pp->get ( i, j, k ) - ph->get ( i, j, k ));
-         }
+   const SurfacePropertyPtr zs1 = propertyManager.getSurfaceProperty ( depthProp, snapshot, midSurface );
 
+   const FormationSurfacePropertyPtr pps1 = propertyManager.getFormationSurfaceProperty ( pressureProp, snapshot, formation1, midSurface );
+   const FormationSurfacePropertyPtr pps2 = propertyManager.getFormationSurfaceProperty ( pressureProp, snapshot, formation2, midSurface );
+
+   // Depth should be the same for the surface and the bottom of the formation1 data
+   for ( unsigned int i = depth1->firstI ( true ); i <= depth1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = depth1->firstJ ( true ); j <= depth1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( zs1->get ( i, j ), depth1->get ( i, j, 0 ));
       }
 
    }
 
-   delete formation;
+   // Depth should be the same for the surface and the top of the formation2 data
+   for ( unsigned int i = depth1->firstI ( true ); i <= depth1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = depth1->firstJ ( true ); j <= depth1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( zs1->get ( i, j ), depth2->get ( i, j, depth2->lastK ()));
+      }
+
+   }
+
+   // Pore-pressure at the surface should be the same as the pore pressure at the bottom of formation1.
+   for ( unsigned int i = depth1->firstI ( true ); i <= depth1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = depth1->firstJ ( true ); j <= depth1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( pps1->get ( i, j ), pp1->get ( i, j, 0 ));
+      }
+
+   }
+
+   // Pore-pressure at the surface should be the same as the pore pressure at the top of formation2.
+   for ( unsigned int i = depth1->firstI ( true ); i <= depth1->lastI ( true ); ++i ) {
+
+      for ( unsigned int j = depth1->firstJ ( true ); j <= depth1->lastJ ( true ); ++j ) {
+         EXPECT_DOUBLE_EQ ( pps2->get ( i, j ), pp2->get ( i, j, pp2->lastK ()));
+      }
+
+   }
+
+   delete formation1;
+   delete formation2;
+   delete topSurface;
+   delete midSurface;
+   delete botSurface;
    delete snapshot;
 }
 
@@ -161,7 +206,6 @@ TestPropertyManager::TestPropertyManager () {
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new HydrostaticCalculator )); 
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PressureCalculator )); 
    addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new DerivedProperties::OverpressureFormationCalculator ));
-   addSurfacePropertyCalculator ( SurfacePropertyCalculatorPtr ( new DerivedProperties::OverpressureSurfaceCalculator ));
 }
 
 
@@ -223,10 +267,16 @@ void DepthCalculator::calculate ( DerivedProperties::AbstractPropertyManager& pr
                                                                                                                           propertyManager.getMapGrid (),
                                                                                                                           numberOfNodes ));
 
+   double calculatorTopDepth = topDepth;
+
+   if ( formation->getName () == "Formation2" ) {
+      calculatorTopDepth += ( numberOfNodes - 1 ) * depthDelta;
+   }
+
    for ( unsigned int i = depthProp->firstI ( true ); i <= depthProp->lastI ( true ); ++i ) {
 
       for ( unsigned int j = depthProp->firstJ ( true ); j <= depthProp->lastJ ( true ); ++j ) {
-         double depthValue = topDepth;
+         double depthValue = calculatorTopDepth;
 
          for ( unsigned int k = depthProp->firstK (); k <= depthProp->lastK (); ++k ) {
             unsigned int mk = depthProp->lastK () - k;
@@ -296,12 +346,14 @@ void PressureCalculator::calculate ( DerivedProperties::AbstractPropertyManager&
                                                                                                                              propertyManager.getMapGrid (),
                                                                                                                              numberOfNodes ));
 
+   double jumpInPressure = ( formation->getName () == "Formation1" ? 0.0 : pressureGradient * 1000.0 * gravity * waterDensity );
+
    for ( unsigned int i = depth->firstI ( true ); i <= depth->lastI ( true ); ++i ) {
 
       for ( unsigned int j = depth->firstJ ( true ); j <= depth->lastJ ( true ); ++j ) {
 
          for ( unsigned int k = depth->firstK (); k <= depth->lastK (); ++k ) {
-            porePressure->set ( i, j, k, pressureGradient * gravity * waterDensity * depth->get ( i, j, k ));
+            porePressure->set ( i, j, k, pressureGradient * gravity * waterDensity * depth->get ( i, j, k ) + jumpInPressure );
          }
 
       }

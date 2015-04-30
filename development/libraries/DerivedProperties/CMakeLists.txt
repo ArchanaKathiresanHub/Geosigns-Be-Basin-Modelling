@@ -19,13 +19,17 @@ set(all_headers
   src/DerivedFormationSurfaceProperty.h
   src/DerivedPropertyManager.h
   src/DerivedSurfaceProperty.h
+  src/ErosionFactorFormationMapCalculator.h
+  src/FaultElementFormationMapCalculator.h
   src/FormationMapProperty.h
   src/FormationMapPropertyCalculator.h
   src/FormationProperty.h
   src/FormationPropertyAtSurface.h
   src/FormationPropertyCalculator.h
   src/FormationSurfaceProperty.h
+  src/FormationSurfacePropertyAtSurface.h
   src/FormationSurfacePropertyCalculator.h
+  src/FormationSurfacePropertyOffsetCalculator.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
   src/LithostaticPressureFormationCalculator.h
@@ -49,7 +53,9 @@ set(all_headers
   src/PropertySnapshotCalculatorMap.h
   src/SurfaceProperty.h
   src/SurfacePropertyCalculator.h
+  src/SurfacePropertyOffsetCalculator.h
   src/ThicknessFormationMapCalculator.h
+  src/VelocityFormationCalculator.h
   src/VesFormationCalculator.h
   src/VesSurfaceCalculator.h
 )
@@ -61,10 +67,14 @@ set(all_srcs
   src/DerivedFormationSurfaceProperty.C
   src/DerivedPropertyManager.C
   src/DerivedSurfaceProperty.C
+  src/ErosionFactorFormationMapCalculator.C
+  src/FaultElementFormationMapCalculator.C
   src/FormationMapProperty.C
   src/FormationProperty.C
   src/FormationPropertyAtSurface.C
   src/FormationSurfaceProperty.C
+  src/FormationSurfacePropertyAtSurface.C
+  src/FormationSurfacePropertyOffsetCalculator.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
   src/LithostaticPressureFormationCalculator.C
@@ -85,7 +95,9 @@ set(all_srcs
   src/PropertyCalculator.C
   src/PropertyRetriever.C
   src/SurfaceProperty.C
+  src/SurfacePropertyOffsetCalculator.C
   src/ThicknessFormationMapCalculator.C
+  src/VelocityFormationCalculator.C
   src/VesFormationCalculator.C
   src/VesSurfaceCalculator.C
 )
@@ -160,5 +172,10 @@ add_gtest( NAME DerivedProperties::ThicknessPropertyTest
 
 add_gtest( NAME DerivedProperties::OverpressurePropertyTest
            SOURCES test/OverpressurePropertyTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::SurfacePropertyTest
+           SOURCES test/SurfacePropertyTest.C
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )

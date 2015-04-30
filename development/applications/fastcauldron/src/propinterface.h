@@ -423,6 +423,7 @@ public:
    PetscBool doGenex;
    PetscBool m_doOutputAtAge;
    double m_ageToOutput;
+   bool      m_no2Doutput;
 
    PetscBool allowPressureJacobianReuse;
    int        pressureJacobianReuseCount;
@@ -441,6 +442,9 @@ public:
    // return true if bottomBoundaryCondition == ADVANCED_LITHOSPHERE_CALCULATOR
    bool isALC() const;
    PetscBool bottomBasaltTemp;
+
+   // return true if no 2D output is required
+   bool no2Doutput() const;
 
    // ModelArea Grid_Window;
    bool useTemisRelPerm () const;
@@ -628,6 +632,10 @@ inline bool AppCtx::saveOnDarcyError () const {
 
 inline bool AppCtx::isALC () const {
    return ( FastcauldronSimulator::getInstance ().getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR );
+}
+
+inline bool AppCtx::no2Doutput () const {
+   return m_no2Doutput;
 }
 
 #endif /* _PROPInterface_H_ */

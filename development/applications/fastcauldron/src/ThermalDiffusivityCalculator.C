@@ -173,6 +173,10 @@ bool ThermalDiffusivityCalculator::initialise ( OutputPropertyMap::PropertyValue
       assert ( false );
       // Error
    }
+
+   if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
+      propertyValues [ 0 ]->allowOutput ( false );
+   }
 	
    return m_porosity != 0 and m_temperature != 0 and m_pressure != 0  and m_lithologies != 0 and m_fluid != 0 and
       ( m_isBasementFormationAndALC ? m_lithopressure != 0 : true );
