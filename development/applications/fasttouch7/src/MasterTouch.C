@@ -4,6 +4,7 @@
 #include <string>
 #include <limits.h>
 #include <fcntl.h>
+#include <fstream>
 
 #include "MasterTouch.h"
 #include "misc.h"
@@ -316,11 +317,17 @@ bool MasterTouch::run()
          }
       }
       
-      // run touchstone wrapper
-   	bool calculated = false;   			
+      // run touchstone wrapper      
+      // check if failure needs to be simulated
+      char * touchstoneWrapperFailure = getenv ( "touchstoneWrapperFailure" );      
+     
+      bool calculated = false;   			
       for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
       {
          calculated =  calculate(filename, burhistFile);
+         
+         if ((touchstoneWrapperFailure!=NULL) && GetRank() == 0 ) calculated = false; 
+         
          if (calculated) 
          {
          		
@@ -338,8 +345,8 @@ bool MasterTouch::run()
       
       if (!calculated) 
       {
-      failure = true;
-      break;
+         failure = true;
+         break;
       }
    }        
    
