@@ -4,7 +4,6 @@
 #include <string>
 #include <limits.h>
 #include <fcntl.h>
-#include <fstream>
 
 #include "MasterTouch.h"
 #include "misc.h"
@@ -18,7 +17,6 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
-
 
 double MinimumAll (double myValue);
 
