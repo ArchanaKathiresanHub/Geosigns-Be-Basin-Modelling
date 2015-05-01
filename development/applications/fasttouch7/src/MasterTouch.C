@@ -1,6 +1,5 @@
 // Touchstone Include files
 //
-#define MAX_RUNS 3
 #include <string>
 #include <limits.h>
 #include <fcntl.h>

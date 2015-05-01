@@ -97,7 +97,7 @@ bool FastTouch::compute (void)
    if ( MinimumAll(status ? 1.0 : -1 ) < 0.0 ) 
    {
       //Print message error
-      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR MasterTouch::calculate failed more than MAX_RUNS times\n");
+      PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR MasterTouch::calculate failed more than %d times\n",MAX_RUNS);
       return false;
    }
  

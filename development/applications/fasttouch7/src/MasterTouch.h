@@ -14,6 +14,8 @@
 #include "BurialHistory.h"
 #include "WriteBurial.h"
 
+static const int MAX_RUNS = 3;
+
 namespace DataAccess
 {
    namespace Interface
