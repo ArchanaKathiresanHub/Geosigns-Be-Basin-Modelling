@@ -321,10 +321,16 @@ bool MasterTouch::run()
       bool calculated = false;   			
       for (int runs = 1; runs <= MAX_RUNS && !calculated; ++runs) 
       {
+         
+         if (touchstoneWrapperFailure && GetRank() == atol(touchstoneWrapperFailure)) 
+         {
+         calculated = false;
+         }
+         else
+         {
          calculated =  calculate(filename, burhistFile);
-         
-         if ((touchstoneWrapperFailure!=NULL) && GetRank() == 0 ) calculated = false; 
-         
+         }
+  
          if (calculated) 
          {
          		
