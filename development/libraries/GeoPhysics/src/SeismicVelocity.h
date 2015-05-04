@@ -4,12 +4,13 @@
 #include <boost/shared_ptr.hpp>
 #include "GeoPhysicsFluidType.h"
 #include "Interface/Interface.h"
+#include "Porosity.h"
 
 namespace GeoPhysics
 {
 	/*! \class SeismicVelocity
 	* \brief Abstract class defining the algorithm to compute the seismic velocity value.
-	* The seismic velocity can be modelled with Gardner's or Wyllie's model.
+	* The seismic velocity can be modelled with Gardner's, Lorcan's or Wyllie's model.
 	*/
 	class SeismicVelocity
 	{
@@ -21,12 +22,14 @@ namespace GeoPhysics
 		* \brief Create a seismicVelocity object corresponding to the seismic velocity model.
 		* \param SeismicVelocityModel Model to compute seismic velocity. Can be Gardner's, Lorcan's or Wyllie's.
 		* \param seimsicVelocitySolid The seismic velocity value of the matrix lithology (of the solid part, excluding porosity and fluid).
+		* \param modulusSolid The modulus value of the matrix lithology (of the solid part, excluding porosity and fluid).
 		* \param densitySolid The density of the matrix lithology (of the solid part, excluding porosity and fluid).
-		* \param prositySurface The depositional porosity (also called surface porosity or critical porosity).
+		* \param porositySurface The depositional porosity (also called surface porosity or critical porosity).
 		* \param nExponent The exponent used for the Lorcan's velocity formula [-1,1]. In general, from pure shale (n=-1) to pure sand (n=1).
 		*/
 		SeismicVelocity create(const Model SeismicVelocityModel,
 			const double seimsicVelocitySolid,
+			const double modulusSolid,
 			const double densitySolid,
 			const double porositySurface,
 			const double nExponent) const;
@@ -37,11 +40,15 @@ namespace GeoPhysics
 		* \param densityFluid The fluid density (-1 if there is no fluid).
 		* \param densityBulk The bulk density (inlc. prosity and fluid).
 		* \param porosity The porosity.
+		* \param currentVes The current vertical effective stress.
+		* \param maxVes The maximum vertical effective stress.
 		*/
 		double seismicVelocity(const double seismicVelocityFluid,
 			const double densityFluid,
 			const double densityBulk,
-			const double porosity) const;
+			const double porosity,
+			const double currentVes,
+			const double maxVes) const;
 
 		/*! \class Algorithm
 		* \brief Abstract class member of seismicVelocity. Compute the seismicVelocity (of the bulk, inlc. prosity and fluid).
@@ -58,11 +65,15 @@ namespace GeoPhysics
 			* \param densityFluid The fluid density (-1 if there is no fluid).
 			* \param densityBulk The bulk density (inlc. prosity and fluid).
 			* \param porosity The porosity.
+			* \param currentVes The current vertical effective stress.
+			* \param maxVes The maximum vertical effective stress.
 			*/
 			virtual double seismicVelocity(const double seismicVelocityFluid,
 				const double densityFluid,
 				const double densityBulk,
-				const double porosity) const = 0;
+				const double porosity,
+				const double currentVes,
+				const double maxVes) const = 0;
 		};
 
 	private:
@@ -77,12 +88,16 @@ namespace GeoPhysics
 		::seismicVelocity(const double seismicVelocityFluid,
 		const double densityFluid,
 		const double densityBulk,
-		const double porosity) const
+		const double porosity,
+		const double currentVes,
+		const double maxVes) const
 	{
 			return m_algorithm->seismicVelocity(seismicVelocityFluid,
 				densityFluid,
 				densityBulk,
-				porosity);
+				porosity,
+				currentVes,
+				maxVes);
 	}
 }
 

@@ -7,6 +7,7 @@ namespace GeoPhysics
 {
 	/*! \class SeismicVelocityWyllie
 	* \brief  Derived class of SeismicVelocity::Algorithm using the Wyllies's model for the seismic velocity computation.
+	* \details \f[ Vp = \frac{ Vp_{fluid} * Vp_{solid} }{ \phi * Vp_{solid} + (1 - \phi)*Vp_{fluid} } \f]
 	*/
 	class SeismicVelocityWyllie : public SeismicVelocity::Algorithm
 	{
@@ -24,12 +25,16 @@ namespace GeoPhysics
 		* \param densityFluid The fluid density (-1 if there is no fluid).
 		* \param densityBulk The bulk density (inlc. prosity and fluid).
 		* \param porosity The porosity.
-		* \warning Paramaters densityFluid and densityBulk are not used for the Wyllie computation mode.
+		* \param currentVes The current vertical effective stress.
+		* \param maxVes The maximum vertical effective stress.
+		* \warning Only parameters seismicVelocityFluid and porosity are not used for the Wyllie computation mode.
 		*/
-		virtual double seismicVelocity(const double seismciVelocityFluid,
+		virtual double seismicVelocity(const double seismicVelocityFluid,
 			const double densityFluid,
 			const double densityBulk,
-			const double porosity) const;
+			const double porosity,
+			const double currentVes,
+			const double maxVes) const;
 
 	private:
 		/// The seismic velocity value of the matrix lithology (of the solid part, excluding porosity and fluid).

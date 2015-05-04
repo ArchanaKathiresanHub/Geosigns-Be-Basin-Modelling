@@ -531,10 +531,10 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    while (m_lithoComponents.end() != componentIter) {
       double pcMult = (double)(*percentIter) / 100;
 
-      //1. Matrix Property calculated using the arithmetic mean
+      //1. Matrix Property calculated using the arithmetic or harmonic mean
       m_density                     += (*componentIter)->getDensity()  * pcMult;
 	  m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
-	  m_nExponentVelocity           += (*componentIter)->getNExponentVelocity() * pcMult;
+	  m_nExponentVelocity           += pcMult / (*componentIter)->getNExponentVelocity();
       m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
       m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
       m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
@@ -557,6 +557,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       ++percentIter;
    }
    m_quartzGrainSize = pow(m_quartzGrainSize, 1.0 / 3.0);
+   m_nExponentVelocity = 1 / m_nExponentVelocity;
 
    //4. Porosity
    // temporary values before mixing
@@ -605,8 +606,10 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
    //6. Seismic velocity
    DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle->getRunParameters()->getSeismicVelocityAlgorithm();
+   double mixedModulusSolid = this->mixModulusSolid();
    m_seismicVelocity = m_seismicVelocity.create(seismicVelocityModel,
 	   m_seismicVelocitySolid,
+	   mixedModulusSolid,
 	   m_density,
 	   surfacePorosity,
 	   m_nExponentVelocity);
@@ -1466,6 +1469,39 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       ++componentIter;
       ++percentIter;
    }
+}
+
+double GeoPhysics::CompoundLithology::mixModulusSolid()
+{
+	double modulusSolid = 0;
+	double currentModlusSolid = 0;
+	double currentWeight = 0;
+
+	compContainer::iterator componentIter = m_lithoComponents.begin();
+	percentContainer::iterator percentIter = m_componentPercentage.begin();
+
+	while (m_lithoComponents.end() != componentIter) {
+		currentWeight = (double)(*percentIter) / 100;
+		currentModlusSolid = (*componentIter)->getDensity()*pow((*componentIter)->getSeismicVelocity(), 2);
+
+		switch (m_mixmodeltype)
+		{
+		case HOMOGENEOUS || UNDEFINED:
+			// geometric mean
+			modulusSolid *= pow(currentModlusSolid, currentWeight);
+		case LAYERED:
+			// harmonic mean
+			modulusSolid += currentWeight / currentModlusSolid;
+		}
+	}
+
+	switch (m_mixmodeltype)
+	{
+	case HOMOGENEOUS || UNDEFINED:
+		return 1 / modulusSolid;
+	case LAYERED:
+		return modulusSolid;
+	}
 }
 
 //------------------------------------------------------------//

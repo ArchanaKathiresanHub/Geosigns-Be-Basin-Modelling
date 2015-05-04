@@ -37,6 +37,8 @@ private :
    OutputPropertyMap* m_pressure;
    OutputPropertyMap* m_temperature;
    OutputPropertyMap* m_bulkDensity;
+   OutputPropertyMap* m_ves;
+   OutputPropertyMap* m_maxVes;
 
    bool m_isCalculated;
 
@@ -70,6 +72,8 @@ private :
    OutputPropertyMap* m_pressure;
    OutputPropertyMap* m_temperature;
    OutputPropertyMap* m_bulkDensity;
+   OutputPropertyMap* m_ves;
+   OutputPropertyMap* m_maxVes;
 
    bool m_isCalculated;
 

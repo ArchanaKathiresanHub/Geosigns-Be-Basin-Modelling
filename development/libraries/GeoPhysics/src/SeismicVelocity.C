@@ -15,6 +15,7 @@ namespace GeoPhysics
 
 	SeismicVelocity SeismicVelocity::create(const Model SeismicVelocityModel,
 		const double seimsicVelocitySolid,
+		const double modulusSolid,
 		const double densitySolid,
 		const double porositySurface,
 		const double nExponent) const
@@ -26,7 +27,7 @@ namespace GeoPhysics
 			return SeismicVelocity(new SeismicVelocityGardner());
 
 		case DataAccess::Interface::LORCANS_VELOCITY_ALGORITHM:
-			return SeismicVelocity(new SeismicVelocityLorcan(seimsicVelocitySolid,
+			return SeismicVelocity(new SeismicVelocityLorcan(modulusSolid,
 				densitySolid,
 				porositySurface,
 				nExponent));

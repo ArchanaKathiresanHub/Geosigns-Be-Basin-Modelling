@@ -8,6 +8,8 @@ namespace GeoPhysics
 {
 	/*! \class SeismicVelocityGardner
 	* \brief  Derived class of SeismicVelocity::Algorithm using the Garnder's model for the seismic velocity computation.
+	* \details \f[ Vp = (\frac{ \rho_{bulk} }{ G })^4 \f] where \f[G = 309.4\f]
+	*	G is the Gardner constant.
 	*/
 	class SeismicVelocityGardner : public SeismicVelocity::Algorithm
 	{
@@ -21,12 +23,16 @@ namespace GeoPhysics
 		* \param densityFluid The fluid density (-1 if there is no fluid).
 		* \param densityBulk The bulk density (inlc. prosity and fluid).
 		* \param porosity The porosity.
-		* \warning Paramaters seismicVelocityFluid, densityFluid and porosity are not used for the Gardner computation mode.
+		* \param currentVes The current vertical effective stress.
+		* \param maxVes The maximum vertical effective stress.
+		* \warning Only densityBulk parameter is used for the Gardner computation mode.
 		*/
 		virtual double seismicVelocity(const double seismicVelocityFluid,
 			const double densityFluid,
 			const double densityBulk,
-			const double porosity) const;
+			const double porosity,
+			const double currentVes,
+			const double maxVes) const;
 	};
 }
 

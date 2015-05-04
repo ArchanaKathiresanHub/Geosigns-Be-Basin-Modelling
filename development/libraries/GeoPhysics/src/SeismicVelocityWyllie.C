@@ -14,7 +14,9 @@ namespace GeoPhysics
 	double SeismicVelocityWyllie::seismicVelocity(const double seismicVelocityFluid,
 		const double densityFluid,
 		const double densityBulk,
-		const double porosity) const
+		const double porosity,
+		const double currentVes,
+		const double maxVes) const
 	{
 		double velocity;
 		//If there is a fluid
