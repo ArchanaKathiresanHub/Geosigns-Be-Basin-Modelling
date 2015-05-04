@@ -76,7 +76,7 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
 
                // Find top-most active segment.
                for ( k = int ( m_formation->getMaximumNumberOfElements ()) - 1; k >= 0; --k ) {
-                  solidThickness = m_formation->getSolidThickness ( i, j, k, age );
+                 solidThickness = m_formation->getSolidThickness ( i, j, k, age );
 
                   if ( solidThickness != IBSNULLVALUE and solidThickness > 0 ) {
 

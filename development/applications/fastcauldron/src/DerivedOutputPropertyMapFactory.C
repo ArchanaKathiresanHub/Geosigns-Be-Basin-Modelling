@@ -104,17 +104,11 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ VES ] = mapTraits;
 
-   mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
-   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
-   mapTraits.m_isPrimaryProperty = true;
-   m_mapPropertyTraitsMap [ MAXVES ] = mapTraits;
-
-#if 0
    mapTraits.m_propertyAllocator = allocateMaxVesCalculator;
    mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = true;
    m_mapPropertyTraitsMap [ MAXVES ] = mapTraits;
-#endif
+
 
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
@@ -320,7 +314,6 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ VR ] = mapTraits;
 
-
    mapTraits.m_propertyAllocator = allocateOilExpelledRateCalculator;
    mapTraits.m_outputAssociation = FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
@@ -494,7 +487,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ VES ] = volumeTraits;
 
-   volumeTraits.m_propertyAllocator = allocatePrimaryPropertyVolumeCalculator;
+   volumeTraits.m_propertyAllocator = allocateMaxVesVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = true;
    m_volumePropertyTraitsMap [ MAXVES ] = volumeTraits;
 
