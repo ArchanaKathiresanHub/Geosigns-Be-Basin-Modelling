@@ -27,6 +27,8 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
    const DataModel::AbstractProperty* bulkDensityProperty = propertyManager.getProperty ( "BulkDensity" );
    const DataModel::AbstractProperty* pressureProperty = propertyManager.getProperty ( "Pressure" );
    const DataModel::AbstractProperty* temperatureProperty = propertyManager.getProperty ( "Temperature" );
+   const DataModel::AbstractProperty* vesProperty = propertyManager.getProperty("Ves");
+   const DataModel::AbstractProperty* maxVesProperty = propertyManager.getProperty("MaxVes");
 
    const DataModel::AbstractProperty* velocityProperty = propertyManager.getProperty ( "Velocity" );
    
@@ -34,13 +36,15 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
    const FormationPropertyPtr bulkDensity = propertyManager.getFormationProperty ( bulkDensityProperty, snapshot, formation );
    const FormationPropertyPtr pressure = propertyManager.getFormationProperty ( pressureProperty, snapshot, formation );
    const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty, snapshot, formation );
+   const FormationPropertyPtr ves = propertyManager.getFormationProperty(vesProperty, snapshot, formation);
+   const FormationPropertyPtr maxVes = propertyManager.getFormationProperty(maxVesProperty, snapshot, formation);
    
    const GeoPhysics::Formation* geophysicsFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
    const GeoPhysics::ProjectHandle* projectHandle = dynamic_cast<const GeoPhysics::ProjectHandle*>( geophysicsFormation->getProjectHandle ());
 
    derivedProperties.clear ();
    
-   if ( porosity != 0 and bulkDensity != 0 and pressure != 0 and temperature != 0 and geophysicsFormation != 0 ) {
+   if ( porosity != 0 and bulkDensity != 0 and pressure != 0 and temperature != 0 and ves!=0 and maxVes!=0 and geophysicsFormation != 0 ) {
       const GeoPhysics::FluidType* geophysicsFluid = dynamic_cast<const GeoPhysics::FluidType*>( geophysicsFormation->getFluidType ());
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geophysicsFormation->getCompoundLithologyArray ();
@@ -51,6 +55,8 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
          PropertyRetriever bulkDensityRetriever ( bulkDensity );
          PropertyRetriever pressureRetriever ( pressure );
          PropertyRetriever temperatureRetriever ( temperature );
+		 PropertyRetriever vesRetriever( ves );
+		 PropertyRetriever maxVesRetriever( maxVes );
 
          DerivedFormationPropertyPtr velocity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( velocityProperty,
                                                                                                                                 snapshot,
@@ -78,8 +84,10 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
 
 		     velocityValue = (*lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
 		        densityFluid,
-			bulkDensity->get(i, j, k),
-			0.01 * porosity->get(i, j, k));
+			    bulkDensity->get(i, j, k),
+			    0.01 * porosity->get(i, j, k),
+			    ves->get(i, j, k),
+			    maxVes->get(i, j, k));
 
                      velocity->set ( i, j, k, velocityValue );
                   }
