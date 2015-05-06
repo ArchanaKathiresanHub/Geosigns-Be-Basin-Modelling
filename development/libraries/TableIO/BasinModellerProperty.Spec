@@ -2018,7 +2018,7 @@ START-properties
     Type                : float
     Error Field         : Yes
 
-	Identification      : NExponentVelocity
+	Identification      : VelocityExponent
     Description         : n exponent used for Lorcan's velocity computation mode
     Unit of measurement : 
     Type                : float
@@ -7448,7 +7448,7 @@ START-property-tables
     Column         : PermAnisotropy
     Column         : PermMixModel
     Column         : SeisVelocity
-	Column         : NExponentVelocity
+	Column         : VelocityExponent
     Column         : CapC1
     Column         : CapC2
     Column         : PcKrModel

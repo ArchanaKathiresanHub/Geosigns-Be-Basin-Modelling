@@ -90,7 +90,7 @@ namespace GeoPhysics {
       double getSeismicVelocity() const;
 
 	  /// Return the n exponent value used for the Lorcan's velocity computation mode.
-	  double getNExponentVelocity() const;
+	  double getVelocityExponent() const;
 
       /// Return the specific surface area.
       double getSpecificSurfArea() const;
@@ -290,7 +290,7 @@ inline double GeoPhysics::SimpleLithology::getSeismicVelocity() const {
    return m_seismicvelocity;
 }
 
-inline double GeoPhysics::SimpleLithology::getNExponentVelocity() const {
+inline double GeoPhysics::SimpleLithology::getVelocityExponent() const {
 	return m_nExponentVelocity;
 }
 

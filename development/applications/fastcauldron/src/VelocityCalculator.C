@@ -37,10 +37,9 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
    unsigned int i;
    unsigned int j;
    double value;
-   double seismciVelocityFluid = -1;
-   double densityFluid = -1;
+   double seismciVelocityFluid;
+   double densityFluid;
    double undefinedValue;
-   double chemicalCompactionValue;
    Interface::GridMap* velocityMap;
 
    if ( not m_porosity->isCalculated ()) {
@@ -104,6 +103,10 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 			 if (m_fluid != 0) {
 				 seismciVelocityFluid = m_fluid->seismicVelocity((*m_temperature)(i, j), (*m_pressure)(i, j));
 				 densityFluid = m_fluid->density((*m_temperature)(i, j), (*m_pressure)(i, j));
+			 }
+			 else {
+				 seismciVelocityFluid = -1;
+				 densityFluid = -1;
 			 }
 
 			 value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
@@ -182,9 +185,8 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    unsigned int k;
    double value;
    double undefinedValue;
-   double seismciVelocityFluid = -1;
-   double densityFluid = -1;
-   double chemicalCompactionValue;
+   double seismciVelocityFluid;
+   double densityFluid;
    Interface::GridMap* velocityMap;
 
    if ( not m_porosity->isCalculated ()) {
@@ -252,6 +254,10 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 						m_pressure->getVolumeValue(i, j, k));
 					densityFluid = m_fluid->density(m_temperature->getVolumeValue(i, j, k),
 						m_pressure->getVolumeValue(i, j, k));
+				}
+				else {
+					seismciVelocityFluid = -1;
+					densityFluid = -1;
 				}
 
 				value = (*m_lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,

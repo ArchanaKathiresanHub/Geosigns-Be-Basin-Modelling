@@ -1,6 +1,5 @@
-#include "GeoPhysicalConstants.h"
-#include "math.h"
 #include "SeismicVelocityGardner.h"
+#include "GeoPhysicalConstants.h"
 
 namespace GeoPhysics
 {
@@ -18,7 +17,10 @@ namespace GeoPhysics
 		const double currentVes,
 		const double maxVes) const
 	{
-		double velocity = pow(densityBulk / GardnerVelocityConstant, 4);
+		// optimisation of pow(densityBulk / GardnerVelocityConstant, 4)
+		double velocity = densityBulk / GardnerVelocityConstant;
+		velocity *= velocity;
+		velocity *= velocity;
 		return velocity;
 	}
 

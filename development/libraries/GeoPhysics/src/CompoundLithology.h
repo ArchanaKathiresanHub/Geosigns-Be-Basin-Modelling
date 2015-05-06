@@ -123,7 +123,7 @@ namespace GeoPhysics {
 	  double seismicVelocitySolid() const;
 
 	  /// Return the SeismicVelocity object for the compound-lithology.
-	  SeismicVelocity seismicVelocity() const;
+	  const SeismicVelocity& seismicVelocity() const;
 
       /// Return the thermal-conductivity anisotropy.
       double thermalcondaniso() const;
@@ -420,16 +420,16 @@ namespace GeoPhysics {
 	  Porosity m_porosity;
 
    private:
-	   /// The object used to compute the velocity (by using m_seismicVelocity.seismicVelocity() method).
-	   SeismicVelocity m_seismicVelocity;
-
 	   /*!
 	   * \brief Compute the solid modulus of the lithology according to the following mixing rules.
 	   * \details If the compound lithology is HOMOGENEOUS or UNDEFINED we use the geometric mean.
 	   *   If the compound lithology is LAYERED we use the harmonic mean.
 	   * \endif
 	   */
-	   double mixModulusSolid();
+	   const double mixModulusSolid() const;
+
+	   /// The object used to compute the velocity (by using m_seismicVelocity.seismicVelocity() method).
+	   SeismicVelocity m_seismicVelocity;
 
    };
 
@@ -477,7 +477,7 @@ inline double GeoPhysics::CompoundLithology::seismicVelocitySolid() const {
 	return m_seismicVelocitySolid;
 }
 
-inline GeoPhysics::SeismicVelocity GeoPhysics::CompoundLithology::seismicVelocity() const {
+inline const GeoPhysics::SeismicVelocity& GeoPhysics::CompoundLithology::seismicVelocity() const {
 	return m_seismicVelocity;
 }
 

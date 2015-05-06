@@ -1,5 +1,5 @@
 #include "SeismicVelocityLorcan.h"
-#include "math.h"
+#include <cmath>
 
 namespace GeoPhysics
 {
@@ -88,11 +88,11 @@ namespace GeoPhysics
 
 		if (nExponent == 0){
 			// function aproximation
-			modulusN = pow(modulusSurface, porosityScaled)*pow(m_modulusSolid, (1 - porosityScaled));
+			modulusN = std::pow(modulusSurface, porosityScaled)*std::pow(m_modulusSolid, (1 - porosityScaled));
 		}
 		else{
-			modulusN = porosityScaled*pow(modulusSurface, nExponent) + (1 - porosityScaled)*pow(m_modulusSolid, nExponent);
-			modulusN = pow(modulusN, (1 / nExponent));
+			modulusN = porosityScaled*std::pow(modulusSurface, nExponent) + (1 - porosityScaled)*std::pow(m_modulusSolid, nExponent);
+			modulusN = std::pow(modulusN, (1 / nExponent));
 		}
 
 		return modulusN;

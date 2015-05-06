@@ -534,7 +534,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       //1. Matrix Property calculated using the arithmetic or harmonic mean
       m_density                     += (*componentIter)->getDensity()  * pcMult;
 	  m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
-	  m_nExponentVelocity           += pcMult / (*componentIter)->getNExponentVelocity();
+	  m_nExponentVelocity           += pcMult / (*componentIter)->getVelocityExponent();
       m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
       m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
       m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
@@ -1471,14 +1471,14 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    }
 }
 
-double GeoPhysics::CompoundLithology::mixModulusSolid()
+const double GeoPhysics::CompoundLithology::mixModulusSolid() const
 {
 	double modulusSolid = 0;
 	double currentModlusSolid = 0;
 	double currentWeight = 0;
 
-	compContainer::iterator componentIter = m_lithoComponents.begin();
-	percentContainer::iterator percentIter = m_componentPercentage.begin();
+	compContainer::const_iterator componentIter = m_lithoComponents.begin();
+	percentContainer::const_iterator percentIter = m_componentPercentage.begin();
 
 	while (m_lithoComponents.end() != componentIter) {
 		currentWeight = (double)(*percentIter) / 100;
@@ -1493,13 +1493,18 @@ double GeoPhysics::CompoundLithology::mixModulusSolid()
 			// harmonic mean
 			modulusSolid += currentWeight / currentModlusSolid;
 		}
+
+		++componentIter;
+		++percentIter;
 	}
 
 	switch (m_mixmodeltype)
 	{
 	case HOMOGENEOUS || UNDEFINED:
-		return 1 / modulusSolid;
+		return modulusSolid;
 	case LAYERED:
+		return 1 / modulusSolid;
+	default :
 		return modulusSolid;
 	}
 }
