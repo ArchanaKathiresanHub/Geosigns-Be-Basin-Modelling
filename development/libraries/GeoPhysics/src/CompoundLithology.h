@@ -426,7 +426,7 @@ namespace GeoPhysics {
 	   *   If the compound lithology is LAYERED we use the harmonic mean.
 	   * \endif
 	   */
-	   const double mixModulusSolid() const;
+	   double mixModulusSolid() const;
 
 	   /// The object used to compute the velocity (by using m_seismicVelocity.seismicVelocity() method).
 	   SeismicVelocity m_seismicVelocity;

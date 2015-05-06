@@ -1471,7 +1471,7 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    }
 }
 
-const double GeoPhysics::CompoundLithology::mixModulusSolid() const
+double GeoPhysics::CompoundLithology::mixModulusSolid() const
 {
 	double modulusSolid = 0;
 	double currentModlusSolid = 0;
