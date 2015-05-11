@@ -1473,7 +1473,18 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
 
 double GeoPhysics::CompoundLithology::mixModulusSolid() const
 {
-	double modulusSolid = 0;
+	double modulusSolid;
+	switch (m_mixmodeltype)
+	{
+	case HOMOGENEOUS || UNDEFINED:
+		modulusSolid = 1;
+		break;
+	case LAYERED:
+		modulusSolid = 0;
+		break;
+	default:
+		modulusSolid = 1;
+	}
 	double currentModlusSolid = 0;
 	double currentWeight = 0;
 
@@ -1489,9 +1500,14 @@ double GeoPhysics::CompoundLithology::mixModulusSolid() const
 		case HOMOGENEOUS || UNDEFINED:
 			// geometric mean
 			modulusSolid *= pow(currentModlusSolid, currentWeight);
+			break;
 		case LAYERED:
 			// harmonic mean
 			modulusSolid += currentWeight / currentModlusSolid;
+			break;
+		default:
+			// geometric mean
+			modulusSolid *= pow(currentModlusSolid, currentWeight);
 		}
 
 		++componentIter;
@@ -1502,8 +1518,10 @@ double GeoPhysics::CompoundLithology::mixModulusSolid() const
 	{
 	case HOMOGENEOUS || UNDEFINED:
 		return modulusSolid;
+		break;
 	case LAYERED:
 		return 1 / modulusSolid;
+		break;
 	default :
 		return modulusSolid;
 	}
