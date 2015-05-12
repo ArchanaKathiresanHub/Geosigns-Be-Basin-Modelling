@@ -224,6 +224,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( PERMEABILITYVEC );
   mapOutputProperties.push_back ( TEMPERATURE );
   mapOutputProperties.push_back ( DIFFUSIVITYVEC );
+  mapOutputProperties.push_back ( TWOWAYTIME );
 
   //Brine properties: density and viscosity
 #if 0
@@ -262,8 +263,8 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL0 );
 #endif
 
-  m_volumeOutputProperties.push_back ( VELOCITYVEC );
   m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
+  m_volumeOutputProperties.push_back ( VELOCITYVEC );
   m_volumeOutputProperties.push_back ( VR );
 
   mapOutputProperties.push_back ( VR );

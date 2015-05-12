@@ -68,8 +68,9 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "ThCond" ] = "ThCondVec"; 
    m_propertyName2OutputName [ "ThicknessError" ] = "ThicknessError"; 
    m_propertyName2OutputName [ "ThicknessHighRes" ] = "Thickness"; 
-   m_propertyName2OutputName [ "Thickness" ] = "Thickness"; 
-   m_propertyName2OutputName [ "Velocity" ] = "VelocityVec"; 
+   m_propertyName2OutputName [ "Thickness" ] = "Thickness";
+   m_propertyName2OutputName [ "TwoWayTime" ] = "TwoWayTime";
+   m_propertyName2OutputName [ "Velocity" ] = "VelocityVec";
    m_propertyName2OutputName [ "VesHighRes" ] = "Ves"; 
    m_propertyName2OutputName [ "Ves" ] = "Ves"; 
    m_propertyName2OutputName [ "VreMaturity" ] = "VreMaturity"; 

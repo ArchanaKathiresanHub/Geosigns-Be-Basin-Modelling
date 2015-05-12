@@ -19,9 +19,11 @@ const string OutputOptionName[] = {
 };
  
 enum PropertyList {
+   //Please use alphabetic order inside subcategories, and update PropertyOutputConstraints.C according to the order
+
    //Vector Properties
-   DIFFUSIVITYVEC, POROSITYVEC, VELOCITYVEC, REFLECTIVITYVEC, SONICVEC,
-   BULKDENSITYVEC, THCONDVEC, PERMEABILITYVEC, PERMEABILITYHVEC, VR,
+   BULKDENSITYVEC, DIFFUSIVITYVEC, PERMEABILITYHVEC, PERMEABILITYVEC, POROSITYVEC,
+   REFLECTIVITYVEC, SONICVEC, THCONDVEC, VELOCITYVEC, VR,
 
    //Scalar Properties
    DEPTH, HEAT_FLOW, HEAT_FLOWY, HEAT_FLOWZ, HEAT_FLOW_,
@@ -31,7 +33,7 @@ enum PropertyList {
    BIOMARKERS, STERANEAROMATISATION, STERANEISOMERISATION,HOPANEISOMERISATION,
    ILLITEFRACTION, ALLOCHTHONOUS_LITHOLOGY, EROSIONFACTOR, 
    FAULTELEMENTS, FCTCORRECTION, THICKNESS, THICKNESSERROR, CHEMICAL_COMPACTION,
-   LITHOLOGY,
+   LITHOLOGY, TWOWAYTIME,
 
    //
    CAPILLARYPRESSUREGAS100, CAPILLARYPRESSUREGAS0, CAPILLARYPRESSUREOIL100, CAPILLARYPRESSUREOIL0,
@@ -224,15 +226,15 @@ const int PropertyListSize = int(ENDPROPERTYLIST);
 const std::string& propertyListName ( const PropertyList property );
 
 const string PropertyName[] = {
+  "BulkDensityVec",
   "DiffusivityVec",
+  "PermeabilityHVec",
+  "PermeabilityVec",
   "PorosityVec",
-  "VelocityVec",
   "ReflectivityVec",
   "SonicVec",
-  "BulkDensityVec",
   "ThCondVec",
-  "PermeabilityVec",
-  "PermeabilityHVec",
+  "VelocityVec",
   "VrVec",
   "Depth",
   "HeatFlow",
@@ -268,6 +270,7 @@ const string PropertyName[] = {
   "ThicknessError",
   "ChemicalCompaction",
   "Lithology",
+  "TwoWayTime",
   "CapillaryPressureGas100",
   "CapillaryPressureGas0",
   "CapillaryPressureOil100",

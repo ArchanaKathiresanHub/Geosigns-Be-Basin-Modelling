@@ -795,12 +795,6 @@ START-properties
     Type                : float
     Error Field         : Yes
 
-    Identification      : TwoWayTtime
-    Description         : one way travel time (two-way-travel time/2)
-    Unit of measurement : s
-    Type                : float 
-    Error Field         : Yes
-
 # layer properties:
 
     Identification      : LayerName
@@ -1992,6 +1986,12 @@ START-properties
     Type                : floatvector 2
     Error Field         : No
 
+    Identification      : TwoWayTime
+    Description         : The two way (travel) time of rock/fluid segment
+    Unit of measurement : s
+    Type                : float
+    Error Field         : No
+
     Identification      : ReflectivityVec2
     Description         : reflectivity of rock/fluid segment 
     Unit of measurement : 
@@ -2018,12 +2018,12 @@ START-properties
     Type                : float
     Error Field         : Yes
 
-	Identification      : VelocityExponent
+    Identification      : VelocityExponent
     Description         : n exponent used for Lorcan's velocity computation mode
     Unit of measurement : 
     Type                : float
     Error Field         : No
-	Default             : 0.1234
+    Default             : 0.1234
 
     Identification      : HydraulicFracturingPercent
     Description         : Lithostatic pressure % to trigger hydraulic fracturing
@@ -3018,7 +3018,7 @@ START-properties
     Error Field         : No
 
     Identification      : VelAlgorithm
-    Description         : Active velocity model
+    Description         : Active seismic velocity model
     Type                : string
     Unit of measurement : 
     Error Field         : No
@@ -6551,7 +6551,6 @@ START-property-tables
     Column         : Depth
     Column         : ErrDepth
     Column         : DepthGrid
-    Column         : TwoWayTtime
 #  Layer properties:
     Column         : LayerName
     Column         : DepoSequence
@@ -6570,7 +6569,6 @@ START-property-tables
     Column         : Lithotype3
     Column         : Percent3
     Column         : MixModel
-    Column         : SeisVelocity
     Column         : Fluidtype
     Column         : TempGradient
     Column         : SourceRock
@@ -7448,7 +7446,7 @@ START-property-tables
     Column         : PermAnisotropy
     Column         : PermMixModel
     Column         : SeisVelocity
-	Column         : VelocityExponent
+    Column         : VelocityExponent
     Column         : CapC1
     Column         : CapC2
     Column         : PcKrModel

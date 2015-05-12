@@ -65,8 +65,8 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                                                                                                                                 geophysicsFormation->getMaximumNumberOfElements() + 1 ));
          double undefinedValue = velocity->getUndefinedValue ();
          double velocityValue;
-         double seismciVelocityFluid = -1;
-         double densityFluid = -1;
+         double seismciVelocityFluid;
+         double densityFluid;
          
          for ( unsigned int i = velocity->firstI ( true ); i <= velocity->lastI ( true ); ++i ) {
             
@@ -75,19 +75,23 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
                if ( projectHandle->getNodeIsValid ( i, j )) {
                   
                   for ( unsigned int k = velocity->firstK (); k <= velocity->lastK (); ++k ) {
-                     if (geophysicsFluid != 0){
-		        seismciVelocityFluid = geophysicsFluid->seismicVelocity(temperature->get(i, j, k),
-			   pressure->get(i, j, k));
-			densityFluid = geophysicsFluid->density(temperature->get(i, j, k),
-			   pressure->get(i, j, k));
-		     }
+                     if (geophysicsFluid != 0) {
+		                seismciVelocityFluid = geophysicsFluid->seismicVelocity(temperature->get(i, j, k),
+                           pressure->get(i, j, k));
+                        densityFluid = geophysicsFluid->density(temperature->get(i, j, k),
+                           pressure->get(i, j, k));
+                     }
+                     else {
+						      seismciVelocityFluid = -1;
+						      densityFluid = -1;
+					      }
 
-		     velocityValue = (*lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
-		        densityFluid,
-			    bulkDensity->get(i, j, k),
-			    0.01 * porosity->get(i, j, k),
-			    ves->get(i, j, k),
-			    maxVes->get(i, j, k));
+                     velocityValue = (*lithologies)(i, j)->seismicVelocity().seismicVelocity(seismciVelocityFluid,
+                        densityFluid,
+                        bulkDensity->get(i, j, k),
+                        0.01 * porosity->get(i, j, k),
+                        ves->get(i, j, k),
+                        maxVes->get(i, j, k));
 
                      velocity->set ( i, j, k, velocityValue );
                   }

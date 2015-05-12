@@ -19,6 +19,7 @@ public:
   bool    bIsoStaticMass;
   bool    bIsoStaticDeflection;
   bool    bIsoStaticWaterBottom;
+
 // member functions
 private:
 public:

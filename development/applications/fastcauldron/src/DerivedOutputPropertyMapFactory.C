@@ -4,29 +4,29 @@
 #include "PrimaryOutputPropertyMap.h"
 #include "PrimaryOutputPropertyVolume.h"
 
+#include "AllochthonousLithologyMapCalculator.h"
+#include "BiomarkersAdapter.h"
+#include "BulkDensityCalculator.h"
+#include "ErosionFactorCalculator.h"
+#include "FaultElementMapCalculator.h"
+#include "FluidVelocityCalculator.h"
+#include "HeatFlowCalculator.h"
+#include "LithologyIdCalculator.h"
 #include "MaxVesCalculator.h"
 #include "PorosityCalculator.h"
 #include "PermeabilityCalculator.h"
-#include "BulkDensityCalculator.h"
-#include "ThicknessCalculator.h"
-#include "VelocityCalculator.h"
 #include "ReflectivityCalculator.h"
 #include "SonicCalculator.h"
+#include "SmectiteIlliteAdapter.h"
 #include "ThermalConductivityCalculator.h"
 #include "ThermalDiffusivityCalculator.h"
-#include "AllochthonousLithologyMapCalculator.h"
-#include "ErosionFactorCalculator.h"
-#include "FaultElementMapCalculator.h"
-#include "HeatFlowCalculator.h"
-#include "FluidVelocityCalculator.h"
+#include "ThicknessCalculator.h"
+#include "TwoWayTimeCalculator.h"
+#include "VelocityCalculator.h"
 #include "VitriniteReflectanceCalculator.h"
-#include "SmectiteIlliteAdapter.h"
-#include "BiomarkersAdapter.h"
-#include "LithologyIdCalculator.h"
 
 #include "ComponentConcentrationCalculator.h"
 #include "SaturationCalculator.h"
-
 
 #include "RequiredGenex5PropertyCalculator.h"
 #include "OptionalGenexPropertyCalculator.h"
@@ -144,6 +144,11 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ BIOMARKERS ] = mapTraits;
+
+   mapTraits.m_propertyAllocator = allocateTwoWayTimeCalculator;
+   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
+   mapTraits.m_isPrimaryProperty = false;
+   m_mapPropertyTraitsMap[ TWOWAYTIME ] = mapTraits;
 
    // Formation properties.
    mapTraits.m_propertyAllocator = allocateThicknessCalculator;

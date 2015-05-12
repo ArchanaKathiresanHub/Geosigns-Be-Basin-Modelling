@@ -1,5 +1,5 @@
-#ifndef _SEISMICVELOCITY_H_
-#define _SEISMICVELOCITY_H_
+#ifndef _GEOPHYSICS__SEISMICVELOCITY_H_
+#define _GEOPHYSICS__SEISMICVELOCITY_H_
 
 #include <boost/shared_ptr.hpp>
 #include "GeoPhysicsFluidType.h"
