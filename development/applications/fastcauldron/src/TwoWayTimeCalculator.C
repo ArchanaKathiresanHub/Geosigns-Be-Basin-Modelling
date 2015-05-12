@@ -68,7 +68,7 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
 
 void TwoWayTimeCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
 
-   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "TwoWayTimeVec2", 
+   properties.push_back ((PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "TwoWayTime", 
                                                                                                          m_snapshot, 0, 
                                                                                                          m_formation,
                                                                                                          m_surface )));
