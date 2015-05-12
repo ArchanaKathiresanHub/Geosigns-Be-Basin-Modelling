@@ -16,6 +16,7 @@ TwoWayTimeCalculator::TwoWayTimeCalculator ( LayerProps* formation, const Interf
    m_formation ( formation ), m_surface ( surface ), m_snapshot ( snapshot ) {
 
    m_seismicVelocity = 0;
+   m_isCalculated = false;
 
 }
 
@@ -90,6 +91,7 @@ TwoWayTimeVolumeCalculator::TwoWayTimeVolumeCalculator ( LayerProps* formation, 
    m_formation ( formation ), m_snapshot ( snapshot ) {
 
    m_seismicVelocity = 0;
+   m_isCalculated = false;
 }
 
 bool TwoWayTimeVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
