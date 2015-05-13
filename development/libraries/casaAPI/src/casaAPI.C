@@ -25,6 +25,7 @@
 #include "PrmOneCrustThinningEvent.h"
 
 #include "PrmPorosityModel.h"
+#include "PrmPermeabilityModel.h"
 #include "PrmLithoSTPThermalCond.h"
 
 #include "VarPrmTopCrustHeatProduction.h"
@@ -38,10 +39,15 @@
 #include "VarPrmOneCrustThinningEvent.h"
 
 #include "VarPrmPorosityModel.h"
+#include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
+
+// Utilities lib
+#include <NumericFunctions.h>
 
 // Standard C lib
 #include <cmath>
+#include <sstream>
 
 namespace casa {
 
@@ -549,6 +555,155 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
                                                                                       baseCompCoef1, minCompCoef1, maxCompCoef1,
                                                                                       pdfType
                                                                                     ) ) )
+      {
+         return sa.moveError( varPrmsSet );
+      }
+   }
+   catch( const ErrorHandler::Exception & ex )
+   {
+      return sa.reportError( ex.errorCode(), ex.what() );
+   }
+
+   return ErrorHandler::NoError;
+}
+
+/// @brief Add permeability model parameters variation
+ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      & sa
+                                                        , const char            * layerName
+                                                        , const char            * lithoName
+                                                        , const char            * modelName
+                                                        , std::vector<double>   & minModelPrms
+                                                        , std::vector<double>   & maxModelPrms
+                                                        , VarPrmContinuous::PDF   pdfType
+                                                        )
+{
+   try
+   {
+      // convert model name to enum value
+      PrmPermeabilityModel::PermeabilityModelType mdlType = PrmPermeabilityModel::Unknown;
+
+      if (      !strcmp( modelName, "Sandstone"  ) || !strcmp( modelName, "Sands"  ) ) { mdlType = PrmPermeabilityModel::Sandstone;  }
+      else if ( !strcmp( modelName, "Mudstone"   ) || !strcmp( modelName, "Shales" ) ) { mdlType = PrmPermeabilityModel::Mudstone;   }
+      else if ( !strcmp( modelName, "Multipoint" )                                   ) { mdlType = PrmPermeabilityModel::Multipoint; }
+      else { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unsupported permeability model: " << modelName; }
+
+      if ( PrmPermeabilityModel::Multipoint != mdlType && minModelPrms.size() != maxModelPrms.size() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << 
+            "Different number parameters for minimal (" << minModelPrms.size() << 
+                                      ") and maximal (" << maxModelPrms.size() << 
+                                      ") values in varying of lithology permeability model parameters";
+      }
+      std::vector<double> basModelPrms;
+
+      // set base value as middle one
+      if ( PrmPermeabilityModel::Multipoint == mdlType ) 
+      {  // create base case curve as a middle curve between min/max
+         basModelPrms = VarPrmPermeabilityModel::createBaseCaseMPModelPrms( minModelPrms, maxModelPrms );
+      }
+      else
+      {
+         for ( size_t i = 0; i < minModelPrms.size(); ++i ) basModelPrms.push_back( (minModelPrms[i] + maxModelPrms[i]) * 0.5 );
+      }
+      
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase();
+      
+      mbapi::StratigraphyManager & smgr = mdl.stratigraphyManager();
+      mbapi::LithologyManager    & lmgr = mdl.lithologyManager();
+      
+      mbapi::StratigraphyManager::LayerID lid = smgr.layerID( layerName );
+
+      if ( UndefinedIDValue == lid )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No layer with name: " << layerName << " in stratigraphy table";
+      }
+      // do checking if we need to copy lithology
+      std::vector<std::string> lithNames;
+      std::vector<double>      lithPerc;
+      smgr.layerLithologiesList( lid, lithNames, lithPerc );
+
+      int found = -1;
+      for ( size_t i = 0; i < lithNames.size() && found < 0; ++i )
+      {
+         if ( lithNames[i] == lithoName ) found = static_cast<int>( i );
+      }
+      if ( found < 0 ) throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Layer " << layerName << " has no lithology type: " << lithoName;
+
+      // get model parameters from project file
+      std::vector<double> litMdlPrms;
+      std::vector<double> litMdlMPPor;
+      std::vector<double> litMdlMPPerm;
+      mbapi::LithologyManager::PermeabilityModel litMdl;
+
+      // get base value
+      mbapi::LithologyManager::LithologyID ltid = lmgr.findID( lithoName );
+      if ( UndefinedIDValue == ltid ) 
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << lithoName << " in lithologies type table";
+      }
+      if ( ErrorHandler::NoError != lmgr.permeabilityModel( ltid, litMdl, litMdlPrms, litMdlMPPor, litMdlMPPerm ) ) { return sa.moveError( lmgr ); }
+
+      // check if model in project file is the same
+      if ( litMdl == mdlType )
+      {
+         basModelPrms = litMdlPrms;
+         if ( mbapi::LithologyManager::PermMultipoint == litMdl )
+         {
+            basModelPrms.push_back( litMdlMPPor.size() );
+            for ( size_t i = 0; i < litMdlMPPor.size(); ++i )
+            {
+               basModelPrms.push_back( litMdlMPPor[i]  );
+               basModelPrms.push_back( litMdlMPPerm[i] );
+            }
+         }
+      }
+      // check parameters for undefined values and replace them with base value
+      for ( size_t i = 0; i < minModelPrms.size(); ++i )
+      {
+         if ( IsValueUndefined( minModelPrms[i] ) || IsValueUndefined( maxModelPrms[i] ) )
+         {
+            if ( litMdl == mdlType ) // if one of the range value is undefined assign min/max to the base value
+            {
+               minModelPrms[i] = maxModelPrms[i] = basModelPrms[i];
+            }
+            else // if in the project file the model is different - we can't get base value from it and replace undefined values with it
+            {
+               // if one of the value is defined - assign it to another one and base value
+               if (      !IsValueUndefined( minModelPrms[i] ) ) maxModelPrms[i] = basModelPrms[i] = minModelPrms[i];
+               else if ( !IsValueUndefined( maxModelPrms[i] ) ) minModelPrms[i] = basModelPrms[i] = maxModelPrms[i];
+               else
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Type of permeability model is changed for lithology: " << lithoName <<
+                     ", but not all model parameters are defined";
+               }
+            }
+         }
+      }
+      
+      const std::vector<mbapi::StratigraphyManager::LayerID> & layersWithSameLith = smgr.findLayersForLithology( lithoName );
+      bool copyLithology = layersWithSameLith.size() > 1 ? true : false;
+      
+      // create lithology copy if needed
+      if ( copyLithology )
+      {
+         smgr.layerLithologiesList( lid, lithNames, lithPerc );
+         mbapi::LithologyManager::LithologyID lithID = lmgr.findID( lithoName );
+         if ( UndefinedIDValue == lithID ) return sa.moveError( lmgr );
+
+         // construct new lithology name as oldName_layerName_CASA_copy
+         std::ostringstream oss;
+         oss << lithoName << "_" << layerName << "_CASA_copy";
+
+         mbapi::LithologyManager::LithologyID newLithID = lmgr.copyLithology( lithID, oss.str() );
+         if ( UndefinedIDValue == newLithID ) return sa.moveError( lmgr );
+
+         lithNames[found] = lmgr.lithologyName( newLithID );
+         smgr.setLayerLithologiesList( lid, lithNames, lithPerc );
+      }
+
+      VarSpace & varPrmsSet = sa.varSpace();
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPermeabilityModel( lithNames[found].c_str(), mdlType, basModelPrms, minModelPrms, maxModelPrms, pdfType ) ) )
       {
          return sa.moveError( varPrmsSet );
       }

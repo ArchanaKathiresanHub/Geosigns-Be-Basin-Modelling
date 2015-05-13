@@ -178,7 +178,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockHI(
             ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , const char          * layerName   ///< [in] layer name
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
@@ -189,7 +189,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockHC(
             ScenarioAnalysis    & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , const char          * layerName   ///< [in] layer name 
           , double                minVal      ///< [in] the minimal range value 
           , double                maxVal      ///< [in] the maximal range value 
           , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
@@ -211,7 +211,7 @@ namespace casa
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockType(
             ScenarioAnalysis               & sa          ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
-          , const char                     * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , const char                     * layerName   ///< [in] layer name
           , const std::vector<std::string> & stVariation ///< [in] list of source rock types to variate them 
           , const std::vector<double>      & weights     ///< [in] weighting coefficient for each parameter value
           );
@@ -251,6 +251,35 @@ namespace casa
           , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the variable parameter. If PDF needs 
                                                         some middle parameter value it will be taken from the base case model */
           );
+
+      /// @brief Add permeability model parameters variation
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VaryPermeabilityModelParameters(
+            ScenarioAnalysis      & sa            ///< [in,out] casa::ScenarioAnalysis object reference, if any error, this object will keep an error message
+          , const char            * layerName     ///< [in] stratigraphy layer name
+          , const char            * lithoName     ///< [in] lithology name, because layer could have a mix of lithology, we need to now which lithology it is
+          , const char            * modelName     ///< [in] permeability model name, supported now Sandstone, Mudstone, Multipoint
+          , std::vector<double>   & minModelPrms  /**< [in,out] List of minimal values of model parameters, depending on the model type:
+                                                       - Sandstone:
+                                                         -# Anisotropic coefficient
+                                                         -# Depositional permeability
+                                                         -# Sandstone clay percentage
+                                                      - Mudstone:
+                                                         -# Anisotropic coefficient
+                                                         -# Depositional permeability
+                                                         -# Sensibility coefficient
+                                                         -# Recovery coefficient
+                                                      - Multipoint:
+                                                         -# Anisotropic coefficient
+                                                         -# Number of points in 1D profile of permeability vs porosity
+                                                         -# set of profile points (porosity,permeability) values
+                                                      If any parameter value is set to UndefinedDoubleValue, this parameter is excluded from variation and it value
+                                                      will be taken from the base case */
+          , std::vector<double>   & maxModelPrma  ///< [inout] List of maximal values of model parameter, depending on the model type. Order the same as for minModelPrms
+          , VarPrmContinuous::PDF   pdfType             /**< [in] probability function type for the variable parameter. If PDF needs 
+                                                           some middle parameter value it will be taken from the base case model */
+          );
+
 
       /// @brief Add STP thermal conductivity parameter variation for lithology
       /// @return ErrorHandler::NoError on success or error code otherwise

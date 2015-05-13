@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file CauldronApp.h
 /// @brief This file keeps API declaration for dealing with Cauldron app executables
@@ -36,7 +36,7 @@ namespace casa
    /// @brief Class for creating command line for cauldron application
    class CauldronApp : public CasaSerializable
    {
-   public:   
+   public:
       /// @brief Shell which will be used for script generation
       typedef enum
       {
@@ -57,7 +57,7 @@ namespace casa
       /// @brief  In case of general app defines script body.
       /// @param  cmdLine  full script body
       void setScriptBody( const std::string & cmdLine ) { m_scriptBody = cmdLine; }
-      
+
       /// @brief Set which version of the Cauldron app will be used. This string is used as part of path to an application
       /// @param ver cauldron version like "v2014.7nightly"
       virtual void setCauldronVersion( const std::string & ver ) { if ( !ver.empty() ) m_version = ver; }
@@ -129,7 +129,7 @@ namespace casa
       std::string                            m_outputOpt;    ///< command line option for app to save output project file
 
       std::vector< std::string >             m_optionsList;  ///< List of options for the application
-   
+
       /// @brief get environment variable
       const char * env( const char * varName );
 

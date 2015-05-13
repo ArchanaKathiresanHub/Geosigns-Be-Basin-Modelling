@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsGridPropertyWell.h
 /// @brief This file keeps declaration of the class of grid property value as observable
@@ -59,7 +59,7 @@ namespace casa
       ///        it return name for each dimension
       /// @return observable name for each dimension
       virtual std::vector<std::string> name() const;
-      
+
       /// @brief Get observable dimension
       /// @return dimension of observable
       virtual size_t dimension() const { return m_x.size(); }
@@ -97,7 +97,7 @@ namespace casa
       /// @brief Get weighting coefficient for uncertainty analysis
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight( ) const { return m_uaWeight; }
-   
+
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
@@ -136,25 +136,24 @@ namespace casa
       /// @}
 
    protected:
-      std::vector<double>     m_x;  ///< X-th coordinates
-      std::vector<double>     m_y;  ///< Y-th coordinates
-      std::vector<double>     m_z;  ///< Z-th coordinates
+      std::vector<double>       m_x;                ///< X-th coordinates
+      std::vector<double>       m_y;                ///< Y-th coordinates
+      std::vector<double>       m_z;                ///< Z-th coordinates
 
-      std::string             m_propName;  ///< Property name
-      double                  m_simTime;   ///< simulator time
+      std::string               m_propName;         ///< Property name
+      double                    m_simTime;          ///< simulator time
 
-      std::vector< std::string> m_name;      ///< name of the observable
+      std::vector< std::string> m_name;             ///< name of the observable
 
-      std::vector<int>        m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
+      std::vector<int>          m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
-      std::auto_ptr<ObsValue> m_refValue;  ///< reference value
-      double                  m_devValue;  ///< standard deviation for reference value
+      std::auto_ptr<ObsValue>   m_refValue;         ///< reference value
+      double                    m_devValue;         ///< standard deviation for reference value
 
-      double                  m_saWeight;  ///< Observable weight for sensitivity analysis
-      double                  m_uaWeight;  ///< Observable weight for uncertainty analysis
+      double                    m_saWeight;         ///< Observable weight for sensitivity analysis
+      double                    m_uaWeight;         ///< Observable weight for uncertainty analysis
 
    private:
-
       ObsGridPropertyWell( const ObsGridPropertyWell & );
       ObsGridPropertyWell & operator = ( const ObsGridPropertyWell & );
    };

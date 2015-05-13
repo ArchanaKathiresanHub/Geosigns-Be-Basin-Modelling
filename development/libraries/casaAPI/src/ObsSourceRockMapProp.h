@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsSourceRockMapProp.h
 /// @brief This file keeps declaration of the class for Genex map property value as observable
@@ -20,7 +20,7 @@
 // STL
 #include <memory>
 
-/// @page CASA_ObservableSourceRockMapPropPage Any Genex map property value for source rock layer at 
+/// @page CASA_ObservableSourceRockMapPropPage Any Genex map property value for source rock layer at
 /// specified XY point.
 
 namespace mbapi

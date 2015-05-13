@@ -75,6 +75,19 @@ namespace mbapi {
       // return surface name on success, or empty string otherwise
       virtual std::string surfaceName( LayerID id );
 
+      // Layer -> lithology  type relation methods
+
+      // Get all lithologies associated with the given layer and percentage of each lithology in a mix
+      // id layer ID
+      // lithoList on exit it contains the list of lithologies for the given layer
+      // lithoPercent on exit it contains percentage of each lithology in a mix
+      // return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent );
+
+      // Set lithologies and their percenatges for the given layer
+      // return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode setLayerLithologiesList( LayerID id, const std::vector<std::string> & lithoList, const std::vector<double> & lithoPercent );
+
       // Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       // [in] lid layer ID
       // [in] usid up surface id
@@ -82,6 +95,11 @@ namespace mbapi {
       // returns NoError on success or NonexistingID on error
       virtual ReturnCode setLayerSurfaces( LayerID lid,  SurfaceID usid, SurfaceID dsid );
       
+      // Collect layers where the given lithology is referenced
+      // lithName name of lithology type
+      // return list of layers ID
+      virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName );
+
 
       // Layer -> Source rock type relation methods
 
@@ -134,9 +152,14 @@ namespace mbapi {
 
 
    private:
-
       static const char * m_stratigraphyTableName;
       static const char * m_layerNameFieldName;
+      static const char * m_lithoType1FiledName;
+      static const char * m_lithoType2FiledName;
+      static const char * m_lithoType3FiledName;
+      static const char * m_lithoTypePercent1FiledName;
+      static const char * m_lithoTypePercent2FiledName;
+      static const char * m_lithoTypePercent3FiledName;
       static const char * m_isSourceRockFieldName;
       static const char * m_sourceRockType1FieldName;
       static const char * m_sourceRockType2FieldName;

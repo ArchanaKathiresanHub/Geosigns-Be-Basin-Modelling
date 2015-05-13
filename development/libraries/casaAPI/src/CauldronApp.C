@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file CauldronApp.C
 /// @brief This file keeps implementation the generic part of Cauldron Applications set
@@ -61,7 +61,7 @@ namespace casa
 
       m_version = env( "CAULDRON_VERSION" ) ? env( "CAULDRON_VERSION" ) : "v2014.0710";        // the default version is the latest available release for now
       m_rootPath = env( "IBS_ROOT" ) ? env( "IBS_ROOT" ) : "/apps/sssdev/ibs";  // path to IBS folder where the different versions are
-      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                  // 
+      m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                  //
 
       if ( m_mpirunCmd.empty() )
       {
@@ -285,7 +285,7 @@ namespace casa
    bool CauldronApp::save( CasaSerializer & sz, unsigned int fileVersion ) const
    {
       bool ok = true;
-      
+
       // initial implementation
       if ( fileVersion >= 0 )
       {
@@ -295,7 +295,7 @@ namespace casa
             ok = sz.save( it->first, "EnvVarName" );
             ok = ok ? sz.save( it->second, "EnvVarVal" ) : ok;
          }
-         
+
          ok = ok ? sz.save( m_appName,                "AppName"        ) : ok;
          ok = ok ? sz.save( m_scriptBody,             "ScriptBody"     ) : ok;
          ok = ok ? sz.save( m_parallel,               "IsAppParallel"  ) : ok;
@@ -340,7 +340,7 @@ namespace casa
       ok = ok ? dz.load( m_rootPath,    "IBSROOT"        ) : ok;
       ok = ok ? dz.load( m_mpirunCmd,   "MPIRunCmd"      ) : ok;
       ok = ok ? dz.load( m_inputOpt,    "InputOpt"       ) : ok;
-      ok = ok ? dz.load( m_outputOpt,   "OutputOpt"      ) : ok;                
+      ok = ok ? dz.load( m_outputOpt,   "OutputOpt"      ) : ok;
       ok = ok ? dz.load( m_optionsList, "AppOptionsList" ) : ok;
 
       if ( !ok )

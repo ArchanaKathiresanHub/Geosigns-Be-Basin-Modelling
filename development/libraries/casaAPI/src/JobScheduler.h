@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file JobScheduler.h
 /// @brief This file keeps declaration the base class for job scheduler
@@ -78,7 +78,7 @@ namespace casa
 
       std::string m_clusterName; // name of the cluster. If not set obtained automatically through LSF API
 
-   private:      
+   private:
       JobScheduler( const JobScheduler & jbS );
       JobScheduler & operator = ( const JobScheduler & jbS );
    };

@@ -69,6 +69,27 @@ namespace mbapi {
       /// @return surface name on success, or empty string otherwise
       virtual std::string surfaceName( LayerID id ) = 0;
 
+      // Layer -> lithology type relation methods
+
+      /// @brief Get all lithologies associated with the given layer and percentage of each lithology in a mix
+      /// @param[in] id layer ID
+      /// @param[out] lithoList on exit it contains the list of lithologies for the given layer
+      /// @param[out] lithoPercent on exit it contains percentage of each lithology in a mix
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent ) = 0;
+      
+      /// @brief set lithologies and their percenatges for the given layer
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode setLayerLithologiesList( LayerID                          id           ///< layer ID
+                                                              , const std::vector<std::string> & lithoList    ///< lithologies name list (max 3)
+                                                              , const std::vector<double>      & lithoPercent ///< corresponded lithology percentage
+                                                              ) = 0;
+
+      /// @brief Collect layers where the given lithology is referenced
+      /// @param lithName name of lithology type
+      /// @return list of layers ID
+      virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName ) = 0;
+
       /// @brief Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       /// @param[in] lid layer ID
       /// @param[in] usid up surface id

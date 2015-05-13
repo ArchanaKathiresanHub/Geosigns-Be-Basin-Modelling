@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file DoEGeneratorImpl.h
 /// @brief This file keeps API declaration for the implementation of Design of Experiments generator
@@ -63,7 +63,7 @@ namespace casa
 
       // Create a new instance and deserialize it from the given stream
       DoEGeneratorImpl( CasaDeserializer & inStream, const char * objName );
-     
+
    private:
       DoEAlgorithm                         m_typeOfDoE;
 

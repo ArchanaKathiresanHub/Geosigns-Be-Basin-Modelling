@@ -63,17 +63,17 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
       if ( ErrorHandler::NoError != mgr.porosityModel( lIDs[i], mdlType, modelPrms ) ) { mdl.moveError( mgr ); return; }
       switch ( mdlType )
       {
-         case mbapi::LithologyManager::Exponential:
+         case mbapi::LithologyManager::PorExponential:
             m_modelType   = Exponential;
             m_surfPor     = modelPrms[0];
             m_compCoef    = modelPrms[1];
             break;
 
-         case mbapi::LithologyManager::SoilMechanics:
+         case mbapi::LithologyManager::PorSoilMechanics:
             initSoilMechanicsPorModel( modelPrms );
             break;
 
-         case mbapi::LithologyManager::DoubleExponential:
+         case mbapi::LithologyManager::PorDoubleExponential:
             m_modelType = DoubleExponential;
             m_surfPor     = modelPrms[0];
             m_compCoef    = modelPrms[1];
@@ -152,23 +152,23 @@ ErrorHandler::ReturnCode PrmPorosityModel::setInModel( mbapi::Model & caldModel 
    mbapi::LithologyManager & mgr = caldModel.lithologyManager();
    std::vector<double> porModelPrms;
 
-   mbapi::LithologyManager::PorosityModel mdlType = mbapi::LithologyManager::Unknown;
+   mbapi::LithologyManager::PorosityModel mdlType = mbapi::LithologyManager::PorUnknown;
    switch ( m_modelType )
    {
       case Exponential:
-         mdlType = mbapi::LithologyManager::Exponential;
+         mdlType = mbapi::LithologyManager::PorExponential;
          porModelPrms.push_back( m_surfPor );
          porModelPrms.push_back( m_compCoef );
          break;
 
       case SoilMechanics:
-         mdlType = mbapi::LithologyManager::SoilMechanics;
+         mdlType = mbapi::LithologyManager::PorSoilMechanics;
          porModelPrms.push_back( SMcf2sp( m_clayFraction ) );
          porModelPrms.push_back( SMcf2cc( m_clayFraction ) );
          break;
 
       case DoubleExponential:
-         mdlType = mbapi::LithologyManager::DoubleExponential;
+         mdlType = mbapi::LithologyManager::PorDoubleExponential;
          porModelPrms.push_back( m_surfPor );
          porModelPrms.push_back( m_minPorosity );
          porModelPrms.push_back( m_compCoef );
@@ -261,7 +261,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
 
             switch( porModel )
             {
-               case mbapi::LithologyManager::Exponential:
+               case mbapi::LithologyManager::PorExponential:
                   samePorModel = m_modelType == Exponential ? true : false;
                   if ( samePorModel )
                   {
@@ -270,7 +270,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                   }
                   break;
  
-               case mbapi::LithologyManager::SoilMechanics:
+               case mbapi::LithologyManager::PorSoilMechanics:
                   samePorModel = m_modelType == SoilMechanics ? true : false;
                   if ( samePorModel )
                   {
@@ -279,7 +279,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
                   }
                   break;
 
-              case mbapi::LithologyManager::DoubleExponential:
+              case mbapi::LithologyManager::PorDoubleExponential:
                   samePorModel = m_modelType == SoilMechanics ? true : false;
                   if ( samePorModel )
                   {

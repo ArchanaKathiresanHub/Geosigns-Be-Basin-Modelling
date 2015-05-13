@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file ObsGridPropertyXYZ.h
 /// @brief This file keeps declaration of the class of grid property value as observable
@@ -23,7 +23,7 @@
 /// @page CASA_ObservableGridPropXYZPage Any Cauldron grid property at specified XYZ point 
 /// in basin model coordinate space. This observable could retrieve any grid property value
 /// for the given position in a grid
-/// 
+///
 
 namespace mbapi
 {
@@ -97,7 +97,7 @@ namespace casa
       /// @brief Get weighting coefficient for uncertainty analysis
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight() const { return m_uaWeight; }
-   
+
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
@@ -149,12 +149,11 @@ namespace casa
 
       std::auto_ptr<ObsValue>  m_refValue;         ///< reference value
       double                   m_devValue;         ///< standard deviation for reference value
-                                                    
+
       double                   m_saWeight;         ///< Observable weight for sensitivity analysis
       double                   m_uaWeight;         ///< Observable weight for uncertainty analysis
 
    private:
-
       ObsGridPropertyXYZ( const ObsGridPropertyXYZ & );
       ObsGridPropertyXYZ & operator = ( const ObsGridPropertyXYZ & );
    };

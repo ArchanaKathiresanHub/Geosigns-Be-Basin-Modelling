@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file MonteCarloSolverImpl.C
 /// @brief This file keeps implementation of API for performing Monte Carlo simulation
@@ -38,13 +38,17 @@
 namespace casa
 {
 
-MonteCarloSolverImpl::MonteCarloSolverImpl( Algorithm algo, KrigingType interp, PriorDistribution priorDist, MeasurementDistribution measureDistr ) 
-   : m_algo( algo )
-   , m_kriging( interp )
-   , m_priorDistr( priorDist )
-   , m_measureDistr( measureDistr )
-   , m_stdDevFactor( 1.0 )
-   , m_GOF( 0.0 )
+MonteCarloSolverImpl::MonteCarloSolverImpl( Algorithm               algo
+                                          , KrigingType             interp
+                                          , PriorDistribution       priorDist
+                                          , MeasurementDistribution measureDistr
+                                          )
+                                          : m_algo( algo )
+                                          , m_kriging( interp )
+                                          , m_priorDistr( priorDist )
+                                          , m_measureDistr( measureDistr )
+                                          , m_stdDevFactor( 1.0 )
+                                          , m_GOF( 0.0 )
 {
    ;
 }
@@ -195,7 +199,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::configureSolver( const RSProxy & 
             {
                m_mcmc->setParameterDistributionType( SUMlib::McmcBase::MarginalDistribution );
 
-               // Only the continuous parameters are subject to a marginal PDF.        
+               // Only the continuous parameters are subject to a marginal PDF.
                std::vector< SUMlib::MarginalProbDistr::Type > sumPdfTypes;
                for ( size_t i = 0; i < proxyVsp.numberOfContPrms(); ++i )
                {
@@ -219,10 +223,10 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::configureSolver( const RSProxy & 
 
          default: throw ErrorHandler::Exception( MonteCarloSolverError ) << "Unknown prior distribution type";
       }
-      
+
       switch( m_stepMethod )
       {
-         case MetropolisHasting: m_mcmc->setStepMethodType( SUMlib::McmcBase::MetropolisHasting ); break;
+         case MetropolisHasting:    m_mcmc->setStepMethodType( SUMlib::McmcBase::MetropolisHasting    ); break;
          case SurvivalOfTheFittest: m_mcmc->setStepMethodType( SUMlib::McmcBase::SurvivalOfTheFittest ); break;
          default: throw ErrorHandler::Exception( MonteCarloSolverError ) << "Unknown step method";
       }
@@ -254,7 +258,7 @@ double MonteCarloSolverImpl::proposedStdDevFactor() const
 {
    return MCMC == m_algo ? sqrt( m_statistics.getChi2() ) : 1.0;
 }
- 
+
 
 ErrorHandler::ReturnCode MonteCarloSolverImpl::runSimulation( RSProxy        & proxy
                                                             , const VarSpace & proxyVsp
@@ -262,7 +266,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::runSimulation( RSProxy        & p
                                                             , const ObsSpace & obs
                                                             , unsigned int     numOfSamples
                                                             , unsigned int     maxNumSteps
-                                                            , double           stdDevFactor 
+                                                            , double           stdDevFactor
                                                             )
 {
    if ( NoError != prepareSimulation( proxy, proxyVsp, mcmcVsp, obs, numOfSamples, maxNumSteps, stdDevFactor ) ) return errorCode();
@@ -277,13 +281,13 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::runSimulation( RSProxy        & p
    return collectMCResults( proxyVsp, obs );
 }
 
-// Perform all neccessary steps for Monte Carlo simulation but do not run calculation itself 
+// Perform all neccessary steps for Monte Carlo simulation but do not run calculation itself
 ErrorHandler::ReturnCode MonteCarloSolverImpl::prepareSimulation( RSProxy        & proxy
-                                                                , const VarSpace & proxyVsp           
-                                                                , const VarSpace & mcmcVsp            
-                                                                , const ObsSpace & obs                
-                                                                , unsigned int     numOfSamples       
-                                                                , unsigned int     maxNumSteps        
+                                                                , const VarSpace & proxyVsp
+                                                                , const VarSpace & mcmcVsp
+                                                                , const ObsSpace & obs
+                                                                , unsigned int     numOfSamples
+                                                                , unsigned int     maxNumSteps
                                                                 , double           stdDevFactor
                                                                 )
 {
@@ -296,7 +300,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::prepareSimulation( RSProxy       
 
    if ( NoError != configureSolver( proxy, proxyVsp, maxNumSteps ) ) return errorCode();
 
-   return NoError; 
+   return NoError;
 }
 
 
@@ -329,7 +333,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
    // Process parameters value for each sampling point sorted by RMSE
    const SUMlib::McmcBase::ParameterRanking & prmVals = m_mcmc->getBestMatches();
    std::vector<SUMlib::Case>                  prmCases;
-      
+
    for ( SUMlib::McmcBase::ParameterRanking::const_iterator it = prmVals.begin(); it != prmVals.end(); ++it )
    {
       SUMlib::Case cs;
@@ -351,7 +355,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
    {
       sumext::convertObservablesValue( obsVals[i], obs, *(m_results[i].second) );
    }
-   
+
    m_GOF = m_statistics.getGoodnessOfFitReduced();
 
    // collect P10-P90 CDF
@@ -408,7 +412,7 @@ bool MonteCarloSolverImpl::save( CasaSerializer & sz, unsigned int fileVersion )
 
    // SUMlib::McmcStatistics           m_statistics; TODO implement save/load
    // SUMlib::ParameterPdf             m_unscaledPdf; TODO implemetn save/load
-   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself 
+   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself
 
    return ok;
 }
@@ -437,7 +441,7 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( CasaDeserializer & dz, const char * 
    int val;
    ok = ok ? dz.load( val, "Algo" ) : ok;
    m_algo = static_cast<Algorithm>(val);
-   
+
    ok = ok ? dz.load( val, "Kriging" ) : ok;
    m_kriging = static_cast<KrigingType>(val);
 
@@ -449,14 +453,14 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( CasaDeserializer & dz, const char * 
 
    ok = ok ? dz.load( val,   "StepMethod"  ) : ok;
    m_stepMethod = static_cast<StepMethod>(val);
-   
+
    ok = ok ? dz.load( m_stdDevFactor, "StdDevFact" ) : ok;
 
    // load MC results
    size_t setSize;
    ok = ok ? dz.load( setSize, "ResultsSetSize" ) : ok;
    for ( size_t i = 0; i < setSize && ok; ++i )
-   {  
+   {
       double val;
       ok = dz.load( val, "RMSEVal" );
       RunCaseImpl * rco = ok ? new RunCaseImpl( dz, "MCRunCase" ) : 0;
@@ -489,7 +493,7 @@ MonteCarloSolverImpl::MonteCarloSolverImpl( CasaDeserializer & dz, const char * 
 
    // SUMlib::McmcStatistics           m_statistics; TODO implement save/load
    // SUMlib::ParameterPdf             m_unscaledPdf; TODO implemetn save/load
-   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself 
+   // std::auto_ptr<SUMlib::McmcBase>  m_mcmc;          // TODO implement SUMlib MC/MC/MC Solver object itself
 
    if ( !ok ) throw Exception( DeserializationError ) << "MonteCarloSolverImpl deserialization error";
 }

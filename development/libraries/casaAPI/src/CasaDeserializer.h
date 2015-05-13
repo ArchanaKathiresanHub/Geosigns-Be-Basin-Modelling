@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef CASA_DESERIALIZER_H
 #define CASA_DESERIALIZER_H
@@ -29,7 +29,7 @@ namespace casa
    class VarParameter;
 
    /// @brief Intermediate class to hide inheritance from SUMlib::ISerializer
-   class CasaDeserializer 
+   class CasaDeserializer
    {
    public:
       typedef size_t ObjRefID;
@@ -39,8 +39,8 @@ namespace casa
 
       /// @brief Read the description of the next object from file and compare with given data. Works only for CasaSerializable objects
       /// @param objType string representation of object type as it returned by CasaSerializable::typeName() virtual method
-      /// @param objName object name 
-      /// @param [in,out] ver expected version of object, if version of the object in file is newer it will throw an exception. 
+      /// @param objName object name
+      /// @param [in,out] ver expected version of object, if version of the object in file is newer it will throw an exception.
       ///                     On return it keeps object version from the file.
       /// @return true on success, false on any error
       virtual bool checkObjectDescription( const char * objType, const std::string & objName, unsigned int & ver ) = 0;
@@ -174,7 +174,7 @@ namespace casa
       /// @return get file version
       virtual int version() = 0;
 
-      template <class T> bool registerObjPtrUnderID( const T * obj, ObjRefID id );     
+      template <class T> bool registerObjPtrUnderID( const T * obj, ObjRefID id );
       template <class T> const T * id2ptr( ObjRefID id ) const;
 
    protected:

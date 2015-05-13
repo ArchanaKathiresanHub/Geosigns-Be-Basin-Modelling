@@ -15,16 +15,17 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_executable( CASADemo
-	${all_srcs}
-	${all_headers}
-) 
+add_executable( casa
+  ${all_srcs}
+  ${all_headers}
+)
 
 bm_include_libraries(
    casaAPI
    cmbAPI
    CBMGenerics
    FileSystem
+   DataAccess
    utilities
 )
 
@@ -32,7 +33,7 @@ include_directories(
    ${SUMPP_INCLUDE_DIR}
 )
 
-target_link_libraries( CASADemo
+target_link_libraries( casa
    casaapi
    cmbapi
    CBMGenerics
@@ -47,6 +48,6 @@ target_link_libraries( CASADemo
    ${LSF_LIBS}
 )
 
-install( TARGETS CASADemo
-   DESTINATION	bin
+install( TARGETS casa
+   DESTINATION bin
 )

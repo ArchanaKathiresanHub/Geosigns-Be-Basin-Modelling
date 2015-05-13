@@ -30,6 +30,12 @@ namespace mbapi
 
 const char * StratigraphyManagerImpl::m_stratigraphyTableName           = "StratIoTbl";
 const char * StratigraphyManagerImpl::m_layerNameFieldName              = "LayerName";
+const char * StratigraphyManagerImpl::m_lithoType1FiledName             = "Lithotype1";
+const char * StratigraphyManagerImpl::m_lithoType2FiledName             = "Lithotype2";
+const char * StratigraphyManagerImpl::m_lithoType3FiledName             = "Lithotype3";
+const char * StratigraphyManagerImpl::m_lithoTypePercent1FiledName      = "Percent1";
+const char * StratigraphyManagerImpl::m_lithoTypePercent2FiledName      = "Percent2";
+const char * StratigraphyManagerImpl::m_lithoTypePercent3FiledName      = "Percent3";
 const char * StratigraphyManagerImpl::m_isSourceRockFieldName           = "SourceRock";
 const char * StratigraphyManagerImpl::m_sourceRockType1FieldName        = "SourceRockType1";
 const char * StratigraphyManagerImpl::m_sourceRockType2FieldName        = "SourceRockType2";
@@ -182,6 +188,149 @@ std::string StratigraphyManagerImpl::surfaceName( StratigraphyManager::LayerID i
 
    return sfName;
 }
+
+// Get all lithologies associated with the given layer and percentage of each lithology in a mix
+ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   lithoList.clear();
+   lithoPercent.clear();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_stratigraphyTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+
+      // get 1st lithology
+      std::string lithoName = rec->getValue<std::string>( m_lithoType1FiledName        );
+      double      perc      = rec->getValue<double>(      m_lithoTypePercent1FiledName );
+      if ( !lithoName.empty() && perc > 0.0 )
+      {
+         lithoList.push_back( lithoName );
+         lithoPercent.push_back( perc );
+      }
+
+      // get 2nd lithology
+      lithoName = rec->getValue<std::string>( m_lithoType2FiledName        );
+      perc      = rec->getValue<double>(      m_lithoTypePercent2FiledName );
+      if ( !lithoName.empty() && perc > 0.0 )
+      {
+         lithoList.push_back( lithoName );
+         lithoPercent.push_back( perc );
+      }
+
+      // get 3d lithology
+      lithoName = rec->getValue<std::string>( m_lithoType3FiledName        );
+      perc      = rec->getValue<double>(      m_lithoTypePercent3FiledName );
+      if ( !lithoName.empty() && perc > 0.0 )
+      {
+         lithoList.push_back( lithoName );
+         lithoPercent.push_back( perc );
+      }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Set all lithologies associated with the given layer and percentage of each lithology in a mix
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( LayerID id, const std::vector<std::string> & lithoList, const std::vector<double> & lithoPercent )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_stratigraphyTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord( static_cast<int>(id) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+
+      assert( !lithoList.empty() && lithoList.size() == lithoPercent.size() );
+
+      // set 1st lithology
+      rec->setValue<std::string>( m_lithoType1FiledName,        lithoList[0]    );
+      rec->setValue<double>(      m_lithoTypePercent1FiledName, lithoPercent[0] );
+
+      // set 2nd lithology
+      if ( lithoList.size() > 1 )
+      {
+         rec->setValue<std::string>( m_lithoType2FiledName,        lithoList[1] );
+         rec->setValue<double>(      m_lithoTypePercent2FiledName, lithoPercent[1] );
+      }
+      else
+      {
+         rec->setValue<std::string>( m_lithoType2FiledName,        ""  );
+         rec->setValue<double>(      m_lithoTypePercent2FiledName, 0.0 );
+      }
+
+      // set 3d lithology
+      if ( lithoList.size() > 2 )
+      {
+         rec->setValue<std::string>( m_lithoType3FiledName,        lithoList[2]    );
+         rec->setValue<double>(      m_lithoTypePercent3FiledName, lithoPercent[2] );
+      }
+      else
+      {
+         rec->setValue<std::string>( m_lithoType3FiledName,        ""  );
+         rec->setValue<double>(      m_lithoTypePercent3FiledName, 0.0 );
+      }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Collect layers where the given lithology is referenced
+std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::findLayersForLithology( const std::string & lithoName )
+{
+   const std::vector<LayerID> & ids = layersIDs();
+   std::vector<LayerID> foundLayers;
+
+   for ( size_t i = 0; i < ids.size(); ++ i )
+   {
+      std::vector<std::string> lithNames;
+      std::vector<double>      lithPerc;
+      
+      if ( layerLithologiesList( ids[i], lithNames, lithPerc ) != NoError ) continue;
+      
+      bool found = false;
+      for ( size_t j = 0; j < lithNames.size() && !found; ++j )
+      {
+         if ( lithNames[j] == lithoName ) // found another layer with the same lithology - needed to copy
+         {
+            found = true;
+            foundLayers.push_back( ids[i] );
+         }
+      }
+   }
+   return foundLayers;
+}
+
+
+
 
 // Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
 // [in] lid layer ID

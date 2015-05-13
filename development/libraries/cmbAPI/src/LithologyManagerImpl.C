@@ -22,12 +22,16 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
+#include <sstream>
 
 namespace mbapi
 {
 
 const char * LithologyManagerImpl::m_lithoTypesTableName        = "LithotypeIoTbl";
+
 const char * LithologyManagerImpl::m_lithoTypeNameFieldName     = "Lithotype";
+
+// Porosity model
 const char * LithologyManagerImpl::m_porosityModelFieldName     = "Porosity_Model"; 
 const char * LithologyManagerImpl::m_surfPorosityFieldName      = "SurfacePorosity";
 const char * LithologyManagerImpl::m_ccExponentialFieldName     = "CompacCoefES";
@@ -36,6 +40,62 @@ const char * LithologyManagerImpl::m_ccbDblExponentialFieldName = "CompacCoefESB
 const char * LithologyManagerImpl::m_ccSoilMechanicsFieldName   = "Compaction_Coefficient_SM";
 const char * LithologyManagerImpl::m_minPorosityFieldName       = "MinimumPorosity";
 const char * LithologyManagerImpl::m_stpThermalCondFieldName    = "StpThCond";
+
+// Permeability model
+const char * LithologyManagerImpl::m_permeabilityModelFieldName      = "PermMixModel";
+// common for all model parameters
+const char * LithologyManagerImpl::m_permeabilityAnisotropyFieldName = "PermAnisotropy";
+
+// common for Mudstone and Sandstone models
+const char * LithologyManagerImpl::m_DepositionalPermFieldName       = "DepoPerm";
+
+// Specific for Multi-point
+const char * LithologyManagerImpl::m_mpNumberOfDataPointsFieldName   = "Number_Of_Data_Points";
+const char * LithologyManagerImpl::m_mpPorosityFieldName             = "Multipoint_Porosity";
+const char * LithologyManagerImpl::m_mpPermpeabilityFieldName        = "Multipoint_Permeability";
+
+// Specific for Mudstone
+const char * LithologyManagerImpl::m_mudPermeabilityRecoveryCoeff    = "PermDecrStressCoef";
+const char * LithologyManagerImpl::m_mudPermeabilitySensitivityCoeff = "PermIncrRelaxCoef";
+
+// Specific for Sandstone
+const char * LithologyManagerImpl::m_permSandClayPercentage          = "PermIncrRelaxCoef";
+
+
+// thermo conductivity/heat capacity tables
+const char * LithologyManagerImpl::m_lithoThCondTableName  = "LitThCondIoTbl";
+const char * LithologyManagerImpl::m_lithoHeatCapTableName = "LitHeatCapIoTbl";
+
+const char * LithologyManagerImpl::m_LithotypeFieldName    = "Lithotype";
+const char * LithologyManagerImpl::m_TempIndexFieldName    = "TempIndex";
+const char * LithologyManagerImpl::m_ThCondFieldName       = "ThCond";
+const char * LithologyManagerImpl::m_HeatCapacityFieldName = "HeatCapacity";
+
+
+static void ParseCoefficientsFromString( const std::string & str, std::vector<double> & result )
+{
+   std::istringstream stream( str );
+
+   while ( stream )
+   {
+      double value = 0.0;
+      stream >> value;
+      if ( !stream ) break;                                                                                                                                                             
+      result.push_back( value );
+   }
+}
+
+static std::string PrintCoefficientsToString( const std::vector<double> & inp )
+{
+   std::ostringstream oss;
+
+   for ( size_t i = 0; i < inp.size(); ++i )
+   {
+      oss << inp[i];
+      if ( i < inp.size()-1 ) oss << " ";
+   }
+   return oss.str();
+}
 
 // Constructor
 LithologyManagerImpl::LithologyManagerImpl()
@@ -82,6 +142,77 @@ LithologyManager::LithologyID LithologyManagerImpl::createNewLithology()
    throw std::runtime_error( "Not implemented yet" );
 }
 
+// Make a copy of the given lithology. Also makes a new set of records in table [LitThCondIoTbl] for the new litholog
+LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID id, const std::string & newLithoName )
+{
+   LithologyID ret = UndefinedIDValue;
+
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // first check if given name already exist
+      if ( findID( newLithoName ) != UndefinedIDValue ) { throw Exception( AlreadyDefined ) << "Create copy: " << newLithoName << ", already exist in the lithology table"; }
+
+      // proceed with copy
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) <<  m_lithoTypesTableName << " table could not be found in project"; }
+
+      // get record for copy
+      database::Record * origRec = table->getRecord( id );
+      if ( !origRec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id; }
+
+      // create a copy of lithology
+      database::Record * copyRec = new database::Record( *origRec );
+
+      // get the orig lithology name
+      const std::string & origLithoName = origRec->getValue<std::string>( m_lithoTypeNameFieldName );
+
+      // change the name
+      copyRec->setValue( m_lithoTypeNameFieldName, newLithoName );
+      // add copy record with new name to the table end
+      table->addRecord( copyRec );
+
+      // duplicate records in Thermal conductivity and heat capacity tables
+      for ( size_t j = 0; j < 2; ++j ) // first process thermal conductivity then heat capacity
+      {
+         const std::string & tblName = j == 0 ? m_lithoThCondTableName : m_lithoHeatCapTableName;
+         database::Table * ttable = m_db->getTable( tblName );  
+
+         // if table does not exist - report error
+         if ( !ttable ) { throw Exception( NonexistingID ) <<  tblName << " table could not be found in project"; }
+
+         // go over all records and collect records for the source lithology 
+         std::vector<const database::Record *> recSet;
+         for ( size_t k = 0; k < ttable->size(); ++k )
+         {
+            database::Record * rec = ttable->getRecord( static_cast<int>( k ) );
+            if ( !rec ) continue;
+            if ( rec->getValue<std::string>( m_LithotypeFieldName ) == origLithoName )
+            {
+               recSet.push_back( rec );
+            }
+         }
+
+         // go over found records and duplicate them for the new lithology
+         for ( size_t k = 0; k < recSet.size(); ++k )
+         {
+            database::Record * nrec = new database::Record( *(recSet[k]) );
+            nrec->setValue( m_LithotypeFieldName, newLithoName );
+            ttable->addRecord( nrec );
+         }
+      }
+
+      // if all is OK - create the new LithologyID for lithology copy
+      ret = table->size() - 1;
+   }
+   catch( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
+
+   return ret;
+}
+
 
 // Get lithology name
 std::string LithologyManagerImpl::lithologyName( LithologyID id )
@@ -111,6 +242,37 @@ std::string LithologyManagerImpl::lithologyName( LithologyID id )
    return lName;
 }
 
+// find lithology ID by the lithology name
+LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & lName )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+
+      int tblSize = table->size();
+      for ( int i = 0; i < tblSize; ++i )
+      {
+         database::Record * rec = table->getRecord( i );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << i; }
+
+         if ( lName == rec->getValue<std::string>( m_lithoTypeNameFieldName ) )
+         {
+            return static_cast<LithologyManager::LithologyID>( i );
+         }
+      }
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedIDValue;
+}
+
+
+
 // Get lithology porosity model
 ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID         id              // [in] lithology ID
                                                             , PorosityModel       & porModel      // [out] porosity model type
@@ -136,26 +298,26 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
 
    std::string tpName = rec->getValue<std::string>( m_porosityModelFieldName );
 
-   if (      tpName == "Exponential"        ) { porModel = Exponential; }
-   else if ( tpName == "Soil_Mechanics"     ) { porModel = SoilMechanics; }
-   else if ( tpName == "Double_Exponential" ) { porModel = DoubleExponential; }
+   if (      tpName == "Exponential"        ) { porModel = PorExponential; }
+   else if ( tpName == "Soil_Mechanics"     ) { porModel = PorSoilMechanics; }
+   else if ( tpName == "Double_Exponential" ) { porModel = PorDoubleExponential; }
    else { return reportError( NonexistingID, std::string( "Unsupported porosity model: " ) + tpName ); }
 
    // read model parameters
    porModelPrms.clear();
    switch ( porModel )
    {
-      case Exponential:
+      case PorExponential:
          porModelPrms.push_back( rec->getValue<double>( m_surfPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( m_ccExponentialFieldName ) );
          break;
 
-      case SoilMechanics:
+      case PorSoilMechanics:
          porModelPrms.push_back( rec->getValue<double>( m_surfPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( m_ccSoilMechanicsFieldName ) );
          break;
       
-      case DoubleExponential:
+      case PorDoubleExponential:
          porModelPrms.push_back( rec->getValue<double>( m_surfPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( m_minPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( m_ccaDblExponentialFieldName ) );
@@ -174,15 +336,15 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
    // check parameters number
    switch ( porModel )
    {
-      case Exponential:
+      case PorExponential:
          if ( porModelPrms.size() != 2 ) return reportError( OutOfRangeValue, "Wrong parameters number for Exponential porosity model" );
          break;
 
-      case SoilMechanics:
+      case PorSoilMechanics:
          if ( porModelPrms.size() != 2 ) return reportError( OutOfRangeValue, "Wrong parameters number for Soil Mechanics porosity model" );
          break;
 
-      case DoubleExponential:
+      case PorDoubleExponential:
          if ( porModelPrms.size() != 4 ) return reportError( OutOfRangeValue, "Wrong parameters number for Double Exponential porosity model" );
          break;
 
@@ -203,21 +365,21 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
 
    switch ( porModel )
    {
-      case Exponential:
+      case PorExponential:
          if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
          if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
          rec->setValue( m_surfPorosityFieldName,  porModelPrms[0] );
          rec->setValue( m_ccExponentialFieldName, porModelPrms[1] );
          break;
 
-      case SoilMechanics:
+      case PorSoilMechanics:
          if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
          if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
          rec->setValue( m_surfPorosityFieldName,    porModelPrms[0] );
          rec->setValue( m_ccSoilMechanicsFieldName, porModelPrms[1] );
          break;
 
-      case DoubleExponential:
+      case PorDoubleExponential:
          if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
          if ( porModelPrms[1] < 0 || porModelPrms[1] > 100 ) return reportError( OutOfRangeValue, "Minimal porosity value must be in range [0:100]" );
          if ( porModelPrms[1] > porModelPrms[0]            ) return reportError( OutOfRangeValue, "Minimal porosity value must be less then surface porosity value" );
@@ -233,15 +395,146 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
    return NoError;
 }
 
+// Get lithology permeability model
+ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID           id
+                                                                , PermeabilityModel   & prmModel  
+                                                                , std::vector<double> & modelPrms
+                                                                , std::vector<double> & mpPor    
+                                                                , std::vector<double> & mpPerm    
+                                                                )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
 
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
+
+      modelPrms.clear();
+      const std::string & permModelName = rec->getValue<std::string>( m_permeabilityModelFieldName );
+      if (      permModelName == "None"        ) prmModel = PermNone;
+      else if ( permModelName == "Sands"       ) prmModel = PermSandstone;
+      else if ( permModelName == "Shales"      ) prmModel = PermMudstone;
+      else if ( permModelName == "Multipoint"  ) prmModel = PermMultipoint;
+      else if ( permModelName == "Impermeable" ) prmModel = PermImpermeable;
+
+      // now extract parameters of the permeability model
+      switch( prmModel )
+      {
+         case PermNone:
+         case PermImpermeable: break; // no any parameters
+
+         case PermSandstone:
+            modelPrms.push_back( rec->getValue<double>( m_permeabilityAnisotropyFieldName ) );
+            modelPrms.push_back( rec->getValue<double>( m_DepositionalPermFieldName       ) );
+            modelPrms.push_back( rec->getValue<double>( m_permSandClayPercentage          ) );
+            break;
+
+         case PermMudstone:
+            modelPrms.push_back( rec->getValue<double>( m_permeabilityAnisotropyFieldName ) );
+            modelPrms.push_back( rec->getValue<double>( m_DepositionalPermFieldName       ) );
+            modelPrms.push_back( rec->getValue<double>( m_mudPermeabilitySensitivityCoeff ) );
+            modelPrms.push_back( rec->getValue<double>( m_mudPermeabilityRecoveryCoeff    ) );
+            break;
+
+         case PermMultipoint:
+            {
+               modelPrms.push_back( rec->getValue<double>( m_permeabilityAnisotropyFieldName ) );
+               int numPts = rec->getValue<int>( m_mpNumberOfDataPointsFieldName );
+
+               ParseCoefficientsFromString( rec->getValue<std::string>( m_mpPorosityFieldName ), mpPor );
+               ParseCoefficientsFromString( rec->getValue<std::string>( m_mpPermpeabilityFieldName ), mpPerm );
+               mpPor.resize(  numPts );
+               mpPerm.resize( numPts );
+            }
+            break;
+      }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
+// Set lithology permeability model with parameters
+ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID                 id
+                                                                   , PermeabilityModel           prmModel   
+                                                                   , const std::vector<double> & modelPrms 
+                                                                   , const std::vector<double> & mpPor     
+                                                                   , const std::vector<double> & mpPerm     
+                                                                   )
+{
+   if ( errorCode() != NoError ) resetError();
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = table->getRecord( static_cast<int>( id ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
+
+      switch( prmModel )
+      {
+         case PermNone:
+            rec->setValue<std::string>( m_permeabilityModelFieldName, "None" );
+            rec->setValue( m_permeabilityAnisotropyFieldName, 1.0 );
+            break;
+
+         case PermImpermeable:
+            rec->setValue<std::string>( m_permeabilityModelFieldName, "Impermeable" );
+            rec->setValue( m_permeabilityAnisotropyFieldName, 1.0 );
+            break; // no any parameter for 
+
+         case PermSandstone:
+            rec->setValue<std::string>( m_permeabilityModelFieldName, "Sands" );
+            if ( modelPrms.size() > 0 ) rec->setValue( m_permeabilityAnisotropyFieldName, modelPrms[0] );
+            if ( modelPrms.size() > 1 ) rec->setValue( m_DepositionalPermFieldName,       modelPrms[1] );
+            if ( modelPrms.size() > 2 ) rec->setValue( m_permSandClayPercentage,          modelPrms[2] );
+            break;
+
+         case PermMudstone:
+            rec->setValue<std::string>( m_permeabilityModelFieldName, "Shales" );
+            if ( modelPrms.size() > 0 ) rec->setValue( m_permeabilityAnisotropyFieldName, modelPrms[0] );
+            if ( modelPrms.size() > 1 ) rec->setValue( m_DepositionalPermFieldName,       modelPrms[1] );
+            if ( modelPrms.size() > 2 ) rec->setValue( m_mudPermeabilitySensitivityCoeff, modelPrms[2] );
+            if ( modelPrms.size() > 3 ) rec->setValue( m_mudPermeabilityRecoveryCoeff,    modelPrms[3] );
+            break;
+
+         case PermMultipoint:
+            {
+               rec->setValue<std::string>( m_permeabilityModelFieldName, "Multipoint" );
+               if ( modelPrms.size() > 0 ) rec->setValue( m_permeabilityAnisotropyFieldName, modelPrms[0] );
+
+               assert( mpPor.size() == mpPerm.size() );
+
+               rec->setValue( m_mpNumberOfDataPointsFieldName, static_cast<int>( mpPor.size() ) );
+               rec->setValue<std::string>( m_mpPorosityFieldName,      PrintCoefficientsToString( mpPor ) ); 
+               rec->setValue<std::string>( m_mpPermpeabilityFieldName, PrintCoefficientsToString( mpPerm ) ); 
+            }
+            break;
+      }
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+ 
 // Set lithology STP thermal conductivity coefficient
 double LithologyManagerImpl::stpThermalConductivityCoeff( LithologyID id )
 {
    double val = UndefinedDoubleValue;
+
+   if ( errorCode() != NoError ) resetError();
    try
    {
-      if ( errorCode() != NoError ) resetError();
-
       // get pointer to the table
       database::Table * table = m_db->getTable( m_lithoTypesTableName );
 

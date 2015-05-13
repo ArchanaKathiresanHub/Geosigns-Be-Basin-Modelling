@@ -44,21 +44,23 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
      && m_prms[0] != "SourceRockPreasphActEnergy"
      && m_prms[0] != "CrustThinningOneEvent"
      && m_prms[0] != "PorosityModel"
+     && m_prms[0] != "PermeabilityModel"
      && m_prms[0] != "STPThermalCondCoeff" 
       )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Unknown variable parameter name: " << m_prms[0];
    }
    // check number of command parameters for var parameter
-   if ( m_prms[0] == "TopCrustHeatProduction"     && m_prms.size() !=  4 ||
-        m_prms[0] == "SourceRockTOC"              && m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockHC"               && m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockHI"               && m_prms.size() !=  5 ||
-        m_prms[0] == "SourceRockType"             && m_prms.size() !=  4 ||
-        m_prms[0] == "SourceRockPreasphActEnergy" && m_prms.size() !=  5 ||
-        m_prms[0] == "CrustThinningOneEvent"      && m_prms.size() != 10 ||
-        m_prms[0] == "PorosityModel"              &&(m_prms.size()  <  8 || m_prms.size() > 12) ||
-        m_prms[0] == "STPThermalCondCoeff"        && m_prms.size() !=  5 
+   if ( m_prms[0] == "TopCrustHeatProduction"     &&  m_prms.size() !=  4 ||
+        m_prms[0] == "SourceRockTOC"              &&  m_prms.size() !=  5 ||
+        m_prms[0] == "SourceRockHC"               &&  m_prms.size() !=  5 ||
+        m_prms[0] == "SourceRockHI"               &&  m_prms.size() !=  5 ||
+        m_prms[0] == "SourceRockType"             &&  m_prms.size() !=  4 ||
+        m_prms[0] == "SourceRockPreasphActEnergy" &&  m_prms.size() !=  5 ||
+        m_prms[0] == "CrustThinningOneEvent"      &&  m_prms.size() != 10 ||
+        m_prms[0] == "PorosityModel"              && (m_prms.size()  <  8 || m_prms.size() > 12) ||
+        m_prms[0] == "PermeabilityModel"          &&  m_prms.size()  < 10 ||
+        m_prms[0] == "STPThermalCondCoeff"        &&  m_prms.size() !=  5 
       )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
@@ -232,6 +234,116 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
       }
    }
+   else if ( m_prms[0] == "PermeabilityModel" )
+   {
+      size_t pos = 1;
+      std::string layerName = m_prms[pos++];
+      std::string lithoName = m_prms[pos++];
+      std::string modelName = m_prms[pos++];
+
+      std::vector<double> minModelPrms;
+      std::vector<double> maxModelPrms;
+
+      // Anis. coeff
+      minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+      maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+
+      if (      modelName == "Sandstone" || modelName == "Sands" )
+      {
+         if ( m_prms.size() != 11 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0] << ", expected 10, given " << m_prms.size();
+         }
+         // Depositional permeability 
+         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         // Clay percentage
+         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+      }
+      else if ( modelName == "Mudstone"  || modelName == "Shales" )
+      {
+         if ( m_prms.size() != 13 )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0] << ", expected 12, given " << m_prms.size();
+         }
+         // Depositional permeability 
+         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+
+         // Sensitivity coeff. 
+         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+
+         // Recover coeff.
+         minModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+         maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) );
+      }
+      else if ( modelName == "Multipoint" )
+      {
+         // Min permeability curve
+         if ( pos >= m_prms.size() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Number of points for min. permeability profile for layer " << layerName << " not given";
+         }
+         size_t numPts = atol( m_prms[pos++].c_str() ); // number of points for minimum multipoint perm. profile
+
+         minModelPrms.push_back( numPts );
+         
+         if ( pos + numPts * 2 >= m_prms.size() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of points for of min. permeability profile for layer " << layerName;
+         }          
+         // read points of minimal profile
+         for ( size_t i = 0; i < numPts; ++i )
+         {
+            minModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // porosity value
+            minModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // permeability value
+         }
+      
+         // Max permeability curve
+         if ( pos >= m_prms.size() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Number of points for max. permeability profile for layer " << layerName << " not given";
+         }
+         numPts = atol( m_prms[pos++].c_str() ); // number of points for maximum multipoint perm. profile
+         maxModelPrms.push_back( numPts );
+
+         if ( pos + numPts * 2 >= m_prms.size() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of points for of max. permeability profile for layer " << layerName;
+         }
+         // read points of maximal profile
+         for ( size_t i = 0; i < numPts; ++i )
+         {
+            maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // porosity value
+            maxModelPrms.push_back( atof( m_prms[pos++].c_str() ) ); // permeability value
+         }
+      }
+      else 
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unsupported porosity model (" << modelName <<") for the layer " << layerName; 
+      }
+
+      if ( pos >= m_prms.size() ) 
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "PDF of permeability model for layer " << layerName << " not specified";
+      }
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms.back() );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( *sa.get()
+                                                                                                , layerName.c_str()
+                                                                                                , lithoName.c_str()
+                                                                                                , modelName.c_str()
+                                                                                                , minModelPrms
+                                                                                                , maxModelPrms
+                                                                                                , pdfType
+                                                                                                )
+         )
+      {
+         throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
+      }
+   }
    else if ( m_prms[0] == "STPThermalCondCoeff" )
    {
       double minVal = atof( m_prms[2].c_str() );
@@ -266,6 +378,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    CrustThinningOneEvent      - a crust thickness function with one crust thinning event.\n";
    std::cout << "\n  (Lithology parameters variation:)\n";
    std::cout << "    PorosityModel              - a variation of porosity model parameter for the given lithology.\n";
+   std::cout << "    PermeabilityModel          - a variation of permeability model parameter for the given layer/lithology combination.\n";
    std::cout << "    STPThermalCondCoeff        - a variation of STP (Standart P & T) thermal conductivity coefficient for the given lithology.\n";
    std::cout << "\n";
    std::cout << "\n";
@@ -346,21 +459,23 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    #                                InCrThick   T0       dT    ThinFct  PDF\n";
    std::cout << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
    std::cout << "\n";
-   std::cout << "    PorosityModel <lithologyName> <porModelName> <mnSurfPor> <mxSurfPor> <mnCmpCf> <mxCmpCf> [<mnMinPor> <mxMinPor> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
+   std::cout << "    PorosityModel <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
    std::cout << "    Where:\n";
-   std::cout << "       lithologyName - lithology name\n";
-   std::cout << "       porModelName  - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
-   std::cout << "       mnSurfPor     - surface porosity - minimal range value\n";
-   std::cout << "       mxSurfPor     - surface porosity - maximal range value\n";
-   std::cout << "       mnCmpCf       - compaction coefficient - minimal range value\n";
-   std::cout << "       mxCmpCf       - compaction coefficient - maximal range value\n";
-   std::cout << "       mnMinPor      - minimal porosity (for Double_Exponential model only) - minimal range value\n";
-   std::cout << "       mxMinPor      - minimal porosity (for Double_Exponential model only) - maximal range value\n";
-   std::cout << "       mnCmpCf1      - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
-   std::cout << "       mxCmpCf1      - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
-   std::cout << "       prmPDF        - the parameter probability density function type\n";
+   std::cout << "       litName   - lithology name\n";
+   std::cout << "       modelName - porosity model name, allowed values: Exponential, Soil_Mechanics, Double_Exponential\n";
+   std::cout << "       mnSurfPr  - surface porosity - minimal range value\n";
+   std::cout << "       mxSurfPr  - surface porosity - maximal range value\n";
+   std::cout << "       mnCmpCf   - compaction coefficient - minimal range value\n";
+   std::cout << "       mxCmpCf   - compaction coefficient - maximal range value\n";
+   std::cout << "       mnMinPr   - minimal porosity (for Double_Exponential model only) - minimal range value\n";
+   std::cout << "       mxMinPr   - minimal porosity (for Double_Exponential model only) - maximal range value\n";
+   std::cout << "       mnCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - minimal range value\n";
+   std::cout << "       mxCmpCf1  - compaction coefficient for the second exponent (for Double_Exponential model only) - maximal range value\n";
+   std::cout << "       prmPDF    - the parameter probability density function type\n";
    std::cout << "\n";
-   std::cout << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values for min/max and will be ignored\n\n";
+   std::cout << "    Note: for the Soil_Mechanics model only one parameter variation is possible, the second one should has same values\n";
+   std::cout << "          for min/max and will be ignored\n";
+   std::cout << "\n";
    std::cout << "    Example 1:\n";
    std::cout << "    #       VarPrmName      LithName             PorModel       SurfPor [%]  CompCoeff  Parameter PDF\n";
    std::cout << "    " << cmdName << "  \"PorosityModel\" \"SM.Mudstone40%Clay\" \"Exponential\"  15 85        7.27 7.27  \"Block\"\n";
@@ -368,6 +483,45 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    Example 2:\n";
    std::cout << "    #      VarPrmName      LithName              PorModel          SurfPor [%]  CompCoeff      Parameter PDF\n";
    std::cout << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
+  std::cout << "\n";
+   std::cout << "    PermeabilityModel <layName> <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       layName       - layer name\n";
+   std::cout << "       litName       - lithology name\n";
+   std::cout << "       modelName     - permeability model name, allowed values: Sands, Shales, Multipoint\n";
+   std::cout << "       minAnisCf     - anisotropic coefficient - minimal range value                        (All models)\n";
+   std::cout << "       maxAnisCf     - anisotropic coefficient - maximal range value                        (All models)\n";
+   std::cout << "       minDepoPerm   - depositional permeability - minimal range value                      (Sands/Shales models)\n";
+   std::cout << "       maxDepoPerm   - depositional permeability - maximal range value                      (Sands/Shales models)\n";
+   std::cout << "       minClayPerc   - clay percentage - minimal range value                                (Sands model only)\n";
+   std::cout << "       maxClayPerc   - clay percentage - maximal range value                                (Sands model only)\n";
+   std::cout << "       minSensitCf   - sensitivity coefficient - minimal range value                        (Shales model only)\n";
+   std::cout << "       maxSensitCf   - sensitivity coefficient - maximal range value                        (Shales model only)\n";
+   std::cout << "       minRecoverCf  - recover coefficient - minimal range value                            (Shales model only)\n";
+   std::cout << "       maxRecoverCf  - recover coefficient - maximal range value                            (Shales model only)\n";
+   std::cout << "       minPPProfSize - number of points in minimal permeability vs porosity profile         (Multipoint model only)\n"; 
+   std::cout << "       minPPProf     - minimal profile of permeability vs porosity as set of pairs values   (Multipoint model only)\n";
+   std::cout << "       maxPPProfSize - number of points in maximal permeability vs porosity profile         (Multipoint model only)\n"; 
+   std::cout << "       maxPPProf     - maximal profile of permeability vs porosity as set of pairs values   (Multipoint model only)\n";
+   std::cout << "       prmPDF        - the parameter probability density function type\n";
+   std::cout << "\n";
+   std::cout << "    Example 1:\n";
+   std::cout << "    #       VarPrmName         LayerName        LitholName   PermModel AnisotCoef DepoPerm [mD] SensCoef RecovCoef Parameter PDF\n";
+   std::cout << "    " << cmdName << " \"PermeabilityModel\" \"Lower Jurassic\" \"Std. Shale\" \"Shales\"  1.0  1.0   0.005  0.015  1.0 2.0  0.01 0.01 \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    Example 2:\n";
+   std::cout << "    #       VarPrmName         LayerName        LitholName       PermModel AnisotCoef DepoPerm [mD] ClayPerc [%] Parameter PDF\n";
+   std::cout << "    " << cmdName << " \"PermeabilityModel\" \"Upper Jurassic\" \"Std. Sandstone\" \"Sands\"   1.0  1.0   5000  7000    1.0  2.0     \"Block\"\n";
+   std::cout << "\n";
+   std::cout << "    Example 3:\n";
+   std::cout << "    #       VarPrmName         LayerName    LitholName               PermModel     AnisotCoef\n";
+   std::cout << "    " << cmdName << " \"PermeabilityModel\" \"Paleocene\"  \"SM.Mudstone.40%Clay\"    \"Multipoint\"  1.0  1.0 \\ \n";
+   std::cout << "    #                                                        Min profile           NumPts   Por  Perm   Por Perm\n";
+   std::cout << "                                                                                   2        5    -7     60  -1.0 \\ \n";
+   std::cout << "    #                                                        Max profile           NumPts   Por  Perm   Por Perm\n";
+   std::cout << "                                                                                   2        5    -5     60   0.0 \\ \n";
+   std::cout << "    #                                                                              Parameter PDF\n";
+   std::cout << "                                                                                   \"Block\" \n";
    std::cout << "\n";
    std::cout << "    STPThermalCondCoeff <lithologyName> <minValue> <maxValue> <prmPDF>\n";
    std::cout << "       lithologyName - lithology name\n";

@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file DoEGenerator.h
 /// @brief This file keeps API declaration for creating Design of Experiments
@@ -21,17 +21,17 @@
 /// @link casa::DoEGenerator Design of Experiments (DoE) @endlink - an algorithm which creates the set of cases with parameters variations in optimal
 /// way for response surface reconstruction. It allows to reduce the costs of experimentation by allowing statistical
 /// model to be estimated with fewer experimental runs.
-/// 
+///
 /// The following set of DoE generation algorithms are implemented in API:
 ///
 /// @subsection TornadoSection Tornado design
 /// The Tornado design is used for parameter screening by systematically varying the parameters one
 /// at a time. This means that each variable resembles the base case value, except for one parameter that is set
 /// to either its lower or its upper bound.
-/// Figure 
+/// Figure
 /// @image html TornadoDesign.png "Graphical representation of a Tornado design for three parameters"
 /// gives a graphical representation of a Tornado design for three parameters.The number of simulation runs is, for
-/// this particular case, seven: one for each face center and one for the center point.Each blue dot represents one 
+/// this particular case, seven: one for each face center and one for the center point.Each blue dot represents one
 /// simulation run and its coordinates are the values of the parameter combination. Generally speaking, the number
 /// of cases is twice the number of parameters plus one.
 ///
@@ -43,8 +43,8 @@
 /// If the simulator has problems in running at these points, it is better to submit a Tornado design.
 ///
 /// Figure
-/// @image html PlackettBurman.png "Placket-Burman design for three parameters" 
-/// and 
+/// @image html PlackettBurman.png "Placket-Burman design for three parameters"
+/// and
 /// @image html PlackettBurmanMirror.png "Placket-Burman plus mirror design for three parameters"
 /// give a graphical representation of a Plackett-Burman design for three parameters.
 ///
@@ -54,20 +54,20 @@
 /// (near the vertices of the hyper cube) are unlikely. The dimension of the parameter space must be 2 or larger.
 /// The number of cases in the design is quadratic proportional to the number of parameters.
 ///
-/// Figure 
+/// Figure
 /// @image html BoxBehnkenDesign.png "Box-Behnken design for three parameters"
-/// gives a graphical representation of a Box-Behnken design for three parameters. In this particular case, 
+/// gives a graphical representation of a Box-Behnken design for three parameters. In this particular case,
 /// the number of simulation runs is 13. Each blue dot represents one simulation run and their coordinates
-/// represent the values of the corresponding parameter combination. (Note that in higher dimensions the cases 
+/// represent the values of the corresponding parameter combination. (Note that in higher dimensions the cases
 /// are not always on the mid points of the edges.This varies per dimension.)
-/// 
+///
 /// @subsection FullFactorialSection Full Factorial design
 /// The cases in the Full Factorial design correspond to the vertices of the hyper cube that is the
 /// extremes of the bounded parameter space. The design is suitable for uncertainty analysis or for optimization.
-/// Note that Full Factorial design is one of the most expensive Experimental Designs, since the number of cases 
+/// Note that Full Factorial design is one of the most expensive Experimental Designs, since the number of cases
 /// goes exponential with the number of parameters in the model.
 ///
-/// Figure 
+/// Figure
 /// @image html FullFactorialDesign.png "Full Factorial design for three parameters"
 /// gives a graphical representation of a Full Factorial design for three parameters.
 ///
@@ -83,7 +83,7 @@
 /// -# The quasi-random cases serve as adequate blind test during Proxy QC after which the proxies can be forced to 
 ///    adapt to these new cases.
 ///
-/// Figure 
+/// Figure
 /// @image html SpaceFillingDesign.png "Space filling design for three parameters"
 /// gives a graphical representation of a Space filling design for three parameters.
 ///
@@ -134,7 +134,7 @@ namespace casa
       /// @param[in]  runsNum number of runs for DoE algorithms which support this parameter
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, RunCaseSet & rcSet, size_t runsNum = 0 ) = 0;
-      
+
       /// @brief Convert algorithm enumeration to the string with DoE name
       /// @param algo DoE type
       /// @return DoE type name as string

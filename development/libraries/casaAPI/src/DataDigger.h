@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file DataDigger.h
-/// @brief This file keeps API declaration for data digger. 
+/// @brief This file keeps API declaration for data digger.
 
 #ifndef CASA_API_DATA_DIGGER_H
 #define CASA_API_DATA_DIGGER_H
@@ -26,12 +26,12 @@
 /// To full fill this purpose it should first add to each run case project request for observables. This must be done just after
 /// cases mutation. casa::DataDigger uses the functionality of datadriller cauldron application. Call for datadriller added by casa::RunManager
 /// at the end of applications pipeline.
-/// 
-/// The casa::DataDigger accepts a list of cases from casa::RunManager and a list of observables description as an input. 
+///
+/// The casa::DataDigger accepts a list of cases from casa::RunManager and a list of observables description as an input.
 /// It will load cases one by one and for each case it will collect observable values from computational results and store
 /// observables values in casa::ObsValue objects.
 ///
-/// The standard Cauldron data access API can be used to read results from the relevant mesh and trap results. 
+/// The standard Cauldron data access API can be used to read results from the relevant mesh and trap results.
 /// However there are several specific ways to read this data which need to be implemented as an CASA - specific API.
 /// -# Trap Finder.Because different experiment realizations may put traps in different places or give them different
 ///    sizes, a small program must know how to <i>find</i> a trap given a base - case trap. The simplest approach is to find
@@ -61,7 +61,7 @@
 
 
 namespace casa
-{  
+{
    /// @class DataDigger DataDigger.h "DataDigger.h"
    /// @brief Data digger extracts observables value from simulation results for single case
    ///        Also it performs like observables object factory.
@@ -74,7 +74,7 @@ namespace casa
       /// @brief Insert into project file request for observables values using datadriller cauldron app and data mining interface.
       /// Observables must be requested after case mutation.
       /// @param obs casaObsSpace object which keeps list of observables. For each observable, data digger will request data using datadriller table
-      /// @param rcs casa::RunCaseSet object which keeps list of run cases 
+      /// @param rcs casa::RunCaseSet object which keeps list of run cases
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode requestObservables( ObsSpace & obs, RunCaseSet & rcs ) = 0;
 
