@@ -8,6 +8,9 @@
 %include "std_map.i"
 %include "std_pair.i"
 
+%include "enums.swg"
+%csconst(1);
+
 /// Shared pointer types wrapping
 // CASA API
 %include "boost_shared_ptr.i"
@@ -24,9 +27,20 @@
 %shared_ptr(casa::PrmSourceRockType)
 %shared_ptr(casa::PrmSourceRockPreAsphaltStartAct)
 
+%csconstvalue("Cauldron.PermeabilityModel.SANDSTONE_PERMEABILITY")   PermSandstone;
+%csconstvalue("Cauldron.PermeabilityModel.MUDSTONE_PERMEABILITY")    PermMudstone;
+%csconstvalue("Cauldron.PermeabilityModel.NONE_PERMEABILITY")        PermNone;  
+%csconstvalue("Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY") PermImpermeable;
+%csconstvalue("Cauldron.PermeabilityModel.MULTIPOINT_PERMEABILITY")  PermMultipoint;
+
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermSandstone" )   Sandstone;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMudstone" )    Mudstone;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermNone" )        None;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermImpermeable" ) Impermeable;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMultipoint" )  Multipoint;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermUnknown" )     Unknown;
 
 %{
-
 // Interface to DataModel
 #include "../../../DataModel/src/AbstractFormation.h"
 #include "../../../DataModel/src/AbstractSurface.h"
@@ -319,6 +333,12 @@ using namespace casa;
 
 // Interface for APIs library
 // CMB API
+%csconstvalue( "Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY" ) DataAccess::Interface::SANDSTONE_PERMEABILITY;
+%csconstvalue( "Cauldron.PermeabilityModel.MUDSTONE_PERMEABILITY"    ) DataAccess::Interface::MUDSTONE_PERMEABILITY;
+%csconstvalue( "Cauldron.PermeabilityModel.NONE_PERMEABILITY"        ) DataAccess::Interface::NONE_PERMEABILITY;
+%csconstvalue( "Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY" ) DataAccess::Interface::IMPERMEABLE_PERMEABILITY;
+%csconstvalue( "Cauldron.PermeabilityModel.MULTIPOINT_PERMEABILITY"  ) DataAccess::Interface::MULTIPOINT_PERMEABILITY;
+
 %include "../../../utilities/src/formattingexception.h"
 %include "../../../cmbAPI/src/ErrorHandler.h"
 %include "../../../cmbAPI/src/UndefinedValues.h"
