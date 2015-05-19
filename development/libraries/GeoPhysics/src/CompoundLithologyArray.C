@@ -180,6 +180,14 @@ bool GeoPhysics::CompoundLithologyArray::isAllochthonousLithology ( const unsign
 
 //------------------------------------------------------------//
 
+bool GeoPhysics::CompoundLithologyArray::isAllochthonousAtAge ( const unsigned int i,
+                                                                const unsigned int j,
+                                                                const double       age ) const {
+  return m_lithologies [ i - first ( 0 )][ j - first ( 1 )]->isAllochthonousAtAge ( age );
+}
+
+//------------------------------------------------------------//
+
 bool GeoPhysics::CompoundLithologyArray::hasSwitched ( const unsigned int subscriptI, const unsigned int subscriptJ ) const {
   return m_lithologies [ subscriptI - first ( 0 )][ subscriptJ - first ( 1 )]->lithologyHasSwitched ();
 }

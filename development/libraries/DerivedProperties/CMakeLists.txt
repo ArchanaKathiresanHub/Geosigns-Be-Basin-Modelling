@@ -14,6 +14,7 @@
 set(all_headers
   src/AbstractPropertyManager.h
   src/AbstractPropertyValues.h
+  src/AllochthonousLithologyFormationMapCalculator.h
   src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
@@ -63,6 +64,7 @@ set(all_headers
 
 set(all_srcs
   src/AbstractPropertyManager.C
+  src/AllochthonousLithologyFormationMapCalculator.C
   src/DerivedFormationMapProperty.C
   src/DerivedFormationProperty.C
   src/DerivedFormationSurfaceProperty.C

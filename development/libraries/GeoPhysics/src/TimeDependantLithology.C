@@ -190,6 +190,39 @@ bool GeoPhysics::TimeDependantLithology::currentIsAllochthonous () const {
 
 //------------------------------------------------------------//
 
+bool GeoPhysics::TimeDependantLithology::isAllochthonousAtAge ( const double age ) const {
+
+   size_t i;
+
+   bool isAllochthonous;
+
+   if ( age >= stratigraphyTableLithologyStartAge ) {
+      isAllochthonous = false;
+   } else {
+      CompoundLithology* lithology = 0;
+
+      // It is possible to keep an iterator here then we only need check the
+      // lithologies from the iterator position to the end of the array
+      // rather than from the start of the array. 
+      for ( i = 0; i < m_lithologies.size (); ++i ) {
+
+         if ( m_lithologies [ i ]->startAge >= age ) {
+            lithology = m_lithologies [ i ]->theLithology;
+         } else {
+            // As soon as we go past the the age we require then exit the loop
+            break;
+         }
+
+      }
+
+      isAllochthonous = ( lithology != 0 and lithology != stratigraphyTableLithology and not lithology->isFault ());
+   }
+
+   return isAllochthonous;
+}
+
+//------------------------------------------------------------//
+
 bool GeoPhysics::TimeDependantLithology::lithologyHasSwitched () const {
    return currentLithology != previousLithology;
 }

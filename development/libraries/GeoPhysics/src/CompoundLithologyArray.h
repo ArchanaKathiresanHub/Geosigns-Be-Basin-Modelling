@@ -54,6 +54,11 @@ namespace GeoPhysics {
       bool isAllochthonousLithology ( const unsigned int subscriptI,
                                       const unsigned int subscriptJ ) const;
 
+      /// Returns whether the lithology at any age is part of the allochthonous modelling.
+      bool isAllochthonousAtAge ( const unsigned int i,
+                                  const unsigned int j,
+                                  const double       age ) const;
+
       bool hasSwitched ( const unsigned int subscriptI,
                          const unsigned int subscriptJ ) const;
 

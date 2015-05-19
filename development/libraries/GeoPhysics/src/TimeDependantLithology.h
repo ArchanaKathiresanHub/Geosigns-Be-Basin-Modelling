@@ -92,6 +92,9 @@ namespace GeoPhysics {
       /// Returns whether the current lithology is part of the allochthonous modelling.
       bool currentIsAllochthonous () const;
 
+      /// Returns whether the lithology at any age is part of the allochthonous modelling.
+      bool isAllochthonousAtAge ( const double age ) const;
+
       /// Returns whether the lithology has changed in the last switching request.
       ///
       /// If the lithology has switched to the same lithology this will not be 
