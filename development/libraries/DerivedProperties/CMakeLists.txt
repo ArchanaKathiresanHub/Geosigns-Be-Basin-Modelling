@@ -30,6 +30,7 @@ set(all_headers
   src/FormationSurfacePropertyAtSurface.h
   src/FormationSurfacePropertyCalculator.h
   src/FormationSurfacePropertyOffsetCalculator.h
+  src/FracturePressureFormationCalculator.h
   src/HydrostaticPressureFormationCalculator.h
   src/HydrostaticPressureSurfaceCalculator.h
   src/LithostaticPressureFormationCalculator.h
@@ -75,6 +76,7 @@ set(all_srcs
   src/FormationSurfaceProperty.C
   src/FormationSurfacePropertyAtSurface.C
   src/FormationSurfacePropertyOffsetCalculator.C
+  src/FracturePressureFormationCalculator.C
   src/HydrostaticPressureFormationCalculator.C
   src/HydrostaticPressureSurfaceCalculator.C
   src/LithostaticPressureFormationCalculator.C
