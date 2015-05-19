@@ -275,7 +275,7 @@ namespace casa
                                                          -# set of profile points (porosity,permeability) values
                                                       If any parameter value is set to UndefinedDoubleValue, this parameter is excluded from variation and it value
                                                       will be taken from the base case */
-          , std::vector<double>   & maxModelPrma  ///< [inout] List of maximal values of model parameter, depending on the model type. Order the same as for minModelPrms
+          , std::vector<double>   & maxModelPrms  ///< [inout] List of maximal values of model parameter, depending on the model type. Order the same as for minModelPrms
           , VarPrmContinuous::PDF   pdfType             /**< [in] probability function type for the variable parameter. If PDF needs 
                                                            some middle parameter value it will be taken from the base case model */
           );

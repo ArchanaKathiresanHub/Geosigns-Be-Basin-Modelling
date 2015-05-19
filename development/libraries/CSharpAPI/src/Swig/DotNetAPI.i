@@ -27,18 +27,24 @@
 %shared_ptr(casa::PrmSourceRockType)
 %shared_ptr(casa::PrmSourceRockPreAsphaltStartAct)
 
+// CASA API enums constants
 %csconstvalue("Cauldron.PermeabilityModel.SANDSTONE_PERMEABILITY")   PermSandstone;
 %csconstvalue("Cauldron.PermeabilityModel.MUDSTONE_PERMEABILITY")    PermMudstone;
 %csconstvalue("Cauldron.PermeabilityModel.NONE_PERMEABILITY")        PermNone;  
 %csconstvalue("Cauldron.PermeabilityModel.IMPERMEABLE_PERMEABILITY") PermImpermeable;
 %csconstvalue("Cauldron.PermeabilityModel.MULTIPOINT_PERMEABILITY")  PermMultipoint;
 
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermSandstone" )   Sandstone;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMudstone" )    Mudstone;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermNone" )        None;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermImpermeable" ) Impermeable;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMultipoint" )  Multipoint;
-%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermUnknown" )     Unknown;
+%csconstvalue("Cauldron.PorosityModel.EXPONENTIAL_POROSITY")        PorExponential;
+%csconstvalue("Cauldron.PorosityModel.SOIL_MECHANICS_POROSITY")     PorSoilMechanics;
+%csconstvalue("Cauldron.PorosityModel.DOUBLE_EXPONENTIAL_POROSITY") PorDoubleExponential;
+
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermSandstone")   Sandstone;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMudstone")    Mudstone;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermNone")        None;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermImpermeable") Impermeable;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermMultipoint")  Multipoint;
+%csconstvalue("Cauldron.LithologyManager.PermeabilityModel.PermUnknown")     Unknown;
+
 
 %{
 // Interface to DataModel

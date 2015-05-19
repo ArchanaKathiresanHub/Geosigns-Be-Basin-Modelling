@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file cusaAPI.C 
+/// @file casaAPI.C 
 /// This file keeps API definitions for Business Logic Rules Set functions
 
 // CASA

@@ -106,10 +106,10 @@ namespace mbapi {
 
       typedef enum
       {
-         PorExponential,       ///< Exponential porosity model
-         PorSoilMechanics,     ///< Soil mechanics porosity model
-         PorDoubleExponential, ///< Double Exponential porosity model 
-         PorUnknown            ///< Not any model was defined
+         PorExponential       = DataAccess::Interface::EXPONENTIAL_POROSITY,        ///< Exponential porosity model
+         PorSoilMechanics     = DataAccess::Interface::SOIL_MECHANICS_POROSITY,     ///< Soil mechanics porosity model
+         PorDoubleExponential = DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, ///< Double Exponential porosity model 
+         PorUnknown           = -1                                                  ///< Not any model was defined
       } PorosityModel;
 
 
@@ -121,7 +121,7 @@ namespace mbapi {
          PermNone        = DataAccess::Interface::NONE_PERMEABILITY,        ///< non permeable layer, layer with tiny permeability ~1e-9
          PermImpermeable = DataAccess::Interface::IMPERMEABLE_PERMEABILITY, ///< mostly the same as None
          PermMultipoint  = DataAccess::Interface::MULTIPOINT_PERMEABILITY,  ///< permeability depends on porosity as 1D function
-         PermUnknown                                                        ///< Not any model was defined
+         PermUnknown     = -1                                               ///< Not any model was defined
       } PermeabilityModel;
 
       /// @brief Get list of lithologies in the model
@@ -149,7 +149,7 @@ namespace mbapi {
       /// @return new lithology ID on success or UndefinedIDValue on error
       virtual LithologyID copyLithology( LithologyID id, const std::string & newLithoName ) = 0;
 
-      /// Porosity model definition
+      // Porosity model definition
       /// @{
 
       /// @brief Get lithology porosity model
