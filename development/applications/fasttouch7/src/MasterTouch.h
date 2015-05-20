@@ -86,6 +86,8 @@ namespace fasttouch
 
       enum { SD = 0, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION };
       
+      enum { MACRO_PORO = 0, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM};      
+      
       void message( const std::string & msg, int level = 0 ) {  if ( level >= m_verboseLevel ) (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << msg << std::endl; }      
 
       //** Struct containing facies map and facies indexes *//
@@ -105,6 +107,7 @@ namespace fasttouch
 
       std::tr1::array<int,101> m_percentPercentileMapping;
       std::map < std::string, int > m_categoriesMapping;
+      std::vector<std::string> m_categories;
 
       // display values
       std::map < std::string, int > m_formatsMapping;

@@ -33,23 +33,25 @@ int TouchstoneWrapper::SaveResultHeader( TcfSchema::DetailHeadersType::modalHead
 void TouchstoneWrapper::setCategoriesMappingStatistics ()
 {
 
-   // Total (Core) Porosity (volume %)
-   m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 5, 0 ) );
-
-   // Intergranular volume (volume %)
-   m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 0, 0 ) );
-
    // Macro Porosity (volume %)
    m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "modal", 0, 0, 4 ) );
+   
+ 	// Intergranular volume (volume %)
+   m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 0, 0 ) );
+   
+   // Quartz (Volume %)
+   m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 3, 0 ) );
+
+   // Total (Core) Porosity (volume %)
+   m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 5, 0 ) );
 
    // Micro Porosity (volume %)
    m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 5, 1 ) );
 
-   // Permiability (md)
+   // Permeability (md)
    m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 6, 0 ) );
 
-   // Quartz (Volume %)
-   m_iD.push_back( TcfSchema::ResultHeaderIdentificationType( "model", 1, 3, 0 ) );
+
 
    // fill m_statsVec with the appropriate StatisticsType values
    m_statsVect[stdev]=TcfSchema::StatisticsType::stdev;
@@ -194,7 +196,7 @@ bool TouchstoneWrapper::loadTcf ( )
    {
       int result = SaveResultHeader( itor );
       if ( result != -1 ) 
-      {      
+      {     
          itor->saved( 1 );
          m_categoriesMappingOrder[result] = categoriesOrder;        
          ++categoriesOrder;  
@@ -213,8 +215,8 @@ bool TouchstoneWrapper::loadTcf ( )
    {
       int result = SaveResultHeader( itor );
       if ( result != -1 ) 
-      {      	
-         itor->saved( 1 );
+      {   	
+         itor->saved( 1 );      
          m_categoriesMappingOrder[result] = categoriesOrder;
          ++categoriesOrder;
       }
@@ -374,16 +376,15 @@ void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFile
    GeoKernelDetailResultData detailedResults;
 
    std::vector<double> outputProperties( numberOfTouchstoneProperties * numberOfStatisticalOutputs, 99999.0);
-   std::vector<double> actualOutputProperties(numberOfTouchstoneProperties * numberOfStatisticalOutputs, 0.0);
+   std::vector<double> actualOutputProperties(numberOfTouchstoneProperties * numberOfStatisticalOutputs, 99999.0);
 
    // Get statstics results from touchstone library;  
    if( m_tslibCalcContext->GetPredictionStatisticsResults( timestepIndex, detailedResults) )
    {     
       // Get the output from the touchstone
       int counter = 0;
-      // If saved, the last result is permeability
-      int permeability = m_iD.size() - 1; 
 
+		//Intergranular volume is always the first saved result
       for (unsigned int ii = 0; ii < detailedResults.modalResults.count; ++ii)
       {
          actualOutputProperties [ ii + counter ] =  detailedResults.modalResults.results[ ii ];
@@ -396,6 +397,8 @@ void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFile
       }
 
       counter = 0;
+      // If saved, the last model result is permeability
+      int permeability = m_iD.size() - 1; 
       for ( int ii = 0; ii < numberOfTouchstoneProperties - 1; ++ii )
       {
          for ( int jj = 0; jj < numberOfStatisticalOutputs - 1; ++jj )
@@ -405,6 +408,7 @@ void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFile
             outputProperties [  ii * numberOfStatisticalOutputs + jj ] = actualOutputProperties [  counter ];
             counter += 1;
             }
+           ;
          }
       }    		
    }
@@ -415,7 +419,7 @@ void TouchstoneWrapper::writeTouchstoneResults(int timestepIndex, TouchstoneFile
 
    for(int ii = 0; ii < numberOfTouchstoneProperties * numberOfStatisticalOutputs; ++ii)
    {
-      actualOutputProperties [ ii ] = 0;
+      actualOutputProperties [ ii ] = 99999.0;
    }
 
    // Get raw results from touchstone library;  

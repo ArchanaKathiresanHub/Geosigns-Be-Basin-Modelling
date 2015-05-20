@@ -155,30 +155,6 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    return true; 
 }
 
-
-
-// initialise statics for user interface
-const char* iSd_str             = {"Summary Standard Deviation"};
-const char* iMean_str           = {"Summary Mean"};
-const char* igeoMean_str        = {"Geometric Mean"};
-const char* iSkewness_str       = {"Summary Skewness"};
-const char* iKurtosis_str       = {"Summary Kurtosis"};
-const char* iMin_str            = {"Summary Minimum"};
-const char* iMax_str            = {"Summary Maximum"};
-const char* iMode_str           = {"Summary Mode"};
-const char* iPercentile_str     = {"Percentile"};
-const char* iDistribution_str   = {"Distribution"};
-const char* iCore_equiv_str     = {"Porosity Core Equivalent"};
-const char* iIntergranular_str  = {"Porosity Intergranular Volume"};
-const char* iMacro_str          = {"Porosity Macro"};
-const char* iMicro_str          = {"Porosity Micro"};
-const char* iAbsolute_str       = {"Permeability Absolute"};
-const char* iLog_str            = {"Permeability Log10"};
-const char* iCement_Quartz_str  = {"Cement Quartz"};
-
-
-//const int MasterTouch::numberOfTouchstoneProperties = 6;
-
 // PUBLIC METHODS
 //
 /// The job of the constructor is to open the ResQ library and initialise
@@ -193,18 +169,20 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    , m_usedSnapshotsAge()
    , m_layerCategoryResultCounter()
    , m_verboseLevel(0)
+   , m_categories(0)
 {
    // set format mapping
-   m_formatsMapping[iSd_str]           = SD;  
-   m_formatsMapping[iMean_str]         = MEAN;  
-   m_formatsMapping[igeoMean_str]      = GEOMEAN; 
-   m_formatsMapping[iSkewness_str]     = SKEWNESS;   
-   m_formatsMapping[iKurtosis_str]     = KURTOSIS;    
-   m_formatsMapping[iMin_str]          = MIN;          
-   m_formatsMapping[iMax_str]          = MAX;          
-   m_formatsMapping[iMode_str]         = MODE;         
-   m_formatsMapping[iPercentile_str]   = PERCENTILE;  
-   m_formatsMapping[iDistribution_str] = DISTRIBUTION;
+   m_formatsMapping["Summary Standard Deviation"]  = SD;  
+   m_formatsMapping["Summary Mean"]         	   = MEAN;  
+   m_formatsMapping["Geometric Mean"]      	   = GEOMEAN; 
+   m_formatsMapping["Summary Skewness"]     	   = SKEWNESS;   
+   m_formatsMapping["Summary Kurtosis"]     	   = KURTOSIS;    
+   m_formatsMapping["Summary Minimum"]             = MIN;          
+   m_formatsMapping["Summary Maximum"]             = MAX;          
+   m_formatsMapping["Summary Mode"]         	   = MODE;         
+   m_formatsMapping["Percentile"]   		   = PERCENTILE;  
+   m_formatsMapping["Distribution"]                = DISTRIBUTION;
+
 
    // To default the percent for Percentile to 60 %.
    for ( int i = 0; i < 100; ++i )
@@ -220,15 +198,24 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    }
    m_percentPercentileMapping[ 99 ] = 20; 
    
-   // set categories mapping
-   m_categoriesMapping [iCore_equiv_str]    = 0; //TSLIB_RC_CORE_PORO;
-   m_categoriesMapping [iIntergranular_str] = 1; //TSLIB_RC_IGV;
-   m_categoriesMapping [iMacro_str]         = 2; //TSLIB_RC_MACRO_PORO;
-   m_categoriesMapping [iMicro_str]         = 3; //TSLIB_RC_MICRO_PORO;
-   m_categoriesMapping [iAbsolute_str]      = 4; //TSLIB_RC_PERM;
-   m_categoriesMapping [iCement_Quartz_str] = 5; //TSLIB_RC_CMT_QRTZ;
-   m_categoriesMapping [iLog_str]           = 6; //TSLIB_RC_LOGPERM;
+   // set categories mapping 
+   m_categories.push_back("Porosity Macro");
+   m_categories.push_back("Porosity Intergranular Volume");
+   m_categories.push_back("Cement Quartz");
+   m_categories.push_back("Porosity Core Equivalent");
+   m_categories.push_back("Porosity Micro");
+   m_categories.push_back("Permeability Absolute");
+   m_categories.push_back("Permeability Log10");
    
+   //default indexing
+   m_categoriesMapping[m_categories[MACRO_PORO]]		= MACRO_PORO; 	// TSLIB_RC_MACRO_PORO;
+   m_categoriesMapping[m_categories[IGV]]		        = IGV; 			// TSLIB_RC_IGV;
+   m_categoriesMapping[m_categories[CMT_QRTZ]]  		= CMT_QRTZ; 	// TSLIB_RC_CMT_QRTZ;
+   m_categoriesMapping[m_categories[CORE_PORO]]   		= CORE_PORO; 	// TSLIB_RC_CORE_PORO;
+   m_categoriesMapping[m_categories[MICRO_PORO]]   	        = MICRO_PORO; 	// TSLIB_RC_MICRO_PORO;
+   m_categoriesMapping[m_categories[PERM]]   			= PERM; 			// TSLIB_RC_PERM;
+   m_categoriesMapping[m_categories[LOGPERM]]   		= LOGPERM; 		// TSLIB_RC_LOGPERM;
+     
    // Used snapshots
    Interface::SnapshotList * MajorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
    Interface::SnapshotList::iterator it;
@@ -533,13 +520,9 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
       TouchstoneFiles ReadTouchstone(resultFile);
       std::vector<int> vec;
       ReadTouchstone.readOrder(vec);
-
-      m_categoriesMapping[iCore_equiv_str]    = vec[0]; // TSLIB_RC_CORE_PORO;
-      m_categoriesMapping[iIntergranular_str] = vec[1]; // TSLIB_RC_IGV;
-      m_categoriesMapping[iMacro_str]         = vec[2]; // TSLIB_RC_MACRO_PORO;
-      m_categoriesMapping[iMicro_str]         = vec[3]; // TSLIB_RC_MICRO_PORO;
-      m_categoriesMapping[iAbsolute_str]      = vec[4]; // TSLIB_RC_PERM;
-      m_categoriesMapping[iCement_Quartz_str] = vec[5]; // TSLIB_RC_CMT_QRTZ;
+		
+      //as saved by the library
+      for ( int ii = 0; ii < vec.size() - 1; ++ii ) m_categoriesMapping[m_categories[ii]] = vec[ii];
         
       //Read touchstone results for all included layers	
       LayerCategoryMapInfoList::iterator outIt;
