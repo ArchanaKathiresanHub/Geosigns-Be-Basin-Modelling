@@ -297,12 +297,15 @@ if (WIN32)
 
    # Set the version of the package
    if (NOT CPACK_PACKAGE_VERSION)
-      set( CPACK_PACKAGE_VERSION "${BM_TFS_BUILD_NUMBER}")
+      if ( "${BM_TFS_BUILD_NUMBER}" STREQUAL "" )
+         today(currentDate) 
+         set( CPACK_PACKAGE_VERSION "${currentDate}") 
+      else()
+         set( CPACK_PACKAGE_VERSION "${BM_TFS_BUILD_NUMBER}")
+      endif()
    endif()
-   message(STATUS "Package version = ${CPACK_PACKAGE_VERSION}")
 
    INCLUDE(CPack)
-
 endif(WIN32)
 
 
