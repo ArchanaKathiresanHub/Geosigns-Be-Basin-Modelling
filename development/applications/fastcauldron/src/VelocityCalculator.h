@@ -72,7 +72,7 @@ public :
 private :
 
    LayerProps                const * const m_formation;
-   const Interface::Snapshot const * const m_snapshot;
+   Interface::Snapshot       const * const m_snapshot;
 
    OutputPropertyMap* m_bulkDensity;
    OutputPropertyMap* m_porosity;
