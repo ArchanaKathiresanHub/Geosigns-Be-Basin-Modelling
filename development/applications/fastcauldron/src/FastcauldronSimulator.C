@@ -1079,7 +1079,9 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       }
 
       if ( name == "VelocityVec" ) {
-         containsVelocity = true;
+         if (property->getOption() != Interface::NO_OUTPUT) {
+            containsVelocity = true;
+         }
       }
           
       const PropertyList propertyListValue = getPropertyList ( name );

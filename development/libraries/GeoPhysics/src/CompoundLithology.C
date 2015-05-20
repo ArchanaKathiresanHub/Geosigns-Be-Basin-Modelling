@@ -531,10 +531,10 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    while (m_lithoComponents.end() != componentIter) {
       double pcMult = (double)(*percentIter) / 100;
 
-      //1. Matrix Property calculated using the arithmetic or harmonic mean
+      //1. Matrix Property calculated using the arithmetic mean
       m_density                     += (*componentIter)->getDensity()  * pcMult;
-	  m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
-	  m_nExponentVelocity           += pcMult / (*componentIter)->getVelocityExponent();
+      m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
+      m_nExponentVelocity           += (*componentIter)->getVelocityExponent( ) * pcMult;
       m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
       m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
       m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
@@ -557,7 +557,6 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       ++percentIter;
    }
    m_quartzGrainSize = pow(m_quartzGrainSize, 1.0 / 3.0);
-   m_nExponentVelocity = 1 / m_nExponentVelocity;
 
    //4. Porosity
    // temporary values before mixing

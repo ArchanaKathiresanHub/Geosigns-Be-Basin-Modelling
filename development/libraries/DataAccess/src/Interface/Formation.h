@@ -177,11 +177,11 @@ namespace DataAccess
 
 	    string m_mangledName;
 
-            static const unsigned int ThicknessMap = 0;
-            static const unsigned int LithoType1Map = 1;
-            static const unsigned int LithoType2Map = 2;
-            static const unsigned int LithoType3Map = 3;
-            static const unsigned int MixingHIMap = 4;
+       static const unsigned int ThicknessMap = 0;
+       static const unsigned int LithoType1Map = 1;
+       static const unsigned int LithoType2Map = 2;
+       static const unsigned int LithoType3Map = 3;
+       static const unsigned int MixingHIMap = 4;
 
 	    Surface * m_top;
 	    Surface * m_bottom;
@@ -189,15 +189,15 @@ namespace DataAccess
 	    mutable AllochthonousLithology const * m_allochthonousLithology;
 	    mutable SourceRock const * m_sourceRock1;
 	    mutable SourceRock const * m_sourceRock2;
-            mutable LithoType const * m_lithoType1;
-            mutable LithoType const * m_lithoType2;
-            mutable LithoType const * m_lithoType3;
+       mutable LithoType const * m_lithoType1;
+       mutable LithoType const * m_lithoType2;
+       mutable LithoType const * m_lithoType3;
 
-            mutable const FluidType* m_fluidType;
+       mutable const FluidType* m_fluidType;
 
-            FormationKind m_kind;
+       FormationKind m_kind;
 
-            const IgneousIntrusionEvent* m_igneousIntrusion;
+       const IgneousIntrusionEvent* m_igneousIntrusion;
 
       };
 

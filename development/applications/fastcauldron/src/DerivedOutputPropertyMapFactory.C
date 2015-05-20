@@ -547,6 +547,10 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ VELOCITYVEC ] = volumeTraits;
 
+   volumeTraits.m_propertyAllocator = allocateTwoWayTimeVolumeCalculator;
+   volumeTraits.m_isPrimaryProperty = false;
+   m_volumePropertyTraitsMap[ TWOWAYTIME ] = volumeTraits;
+
    volumeTraits.m_propertyAllocator = allocateVitriniteReflectanceVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ VR ] = volumeTraits;
@@ -562,6 +566,8 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_propertyAllocator = allocateLithologyIdVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ LITHOLOGY ] = volumeTraits;
+
+
 
   //  volumeTraits.m_propertyAllocator = allocateCapillaryPressureGas100VolumeCalculator;
 //    volumeTraits.m_isPrimaryProperty = false;

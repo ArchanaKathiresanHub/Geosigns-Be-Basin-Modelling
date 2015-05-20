@@ -3,7 +3,6 @@
 #include "fem_grid.h"
 #include "fem_grid_auxiliary_functions.h"
 #include "FiniteElementTypes.h"
-// #include "preevaluated_basis_functions.h"
 #include "AllochthonousLithologyManager.h"
 #include "HydraulicFracturingManager.h"
 #include "PropertyManager.h"
@@ -250,6 +249,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
   m_volumeOutputProperties.push_back ( THCONDVEC );
   m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
+  m_volumeOutputProperties.push_back ( TWOWAYTIME );
 
 #if 0
   // Remove from list until the lithology id has been fixed.

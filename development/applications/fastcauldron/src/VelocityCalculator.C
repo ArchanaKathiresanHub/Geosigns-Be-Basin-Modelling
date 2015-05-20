@@ -13,17 +13,16 @@ OutputPropertyMap* allocateVelocityVolumeCalculator ( const PropertyList propert
 }
 
 VelocityCalculator::VelocityCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
-   m_formation ( formation ), m_surface ( surface ), m_snapshot ( snapshot ) {
+   m_formation ( formation ), m_surface ( surface ), m_snapshot ( snapshot ),
+   m_lithologies( &m_formation->getCompoundLithologyArray( ) ), m_fluid( m_formation->fluid ){
 
-   m_porosity = 0;
-   m_pressure = 0;
-   m_temperature = 0;
-   m_bulkDensity = 0;
+   m_bulkDensity  = 0;
+   m_porosity     = 0;
+   m_pressure     = 0;
+   m_temperature  = 0;
+   m_ves          = 0;
+   m_maxVes       = 0;
    m_isCalculated = false;
-   m_lithologies = 0;
-   m_fluid = 0;
-   m_ves = 0;
-   m_maxVes = 0;
 
 }
 
@@ -36,9 +35,11 @@ bool VelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
    unsigned int i;
    unsigned int j;
-   double value;
+
    double seismciVelocityFluid;
    double densityFluid;
+
+   double value;
    double undefinedValue;
    Interface::GridMap* velocityMap;
 
@@ -141,35 +142,31 @@ void VelocityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyVal
 
 bool VelocityCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   m_porosity = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
-   m_pressure = PropertyManager::getInstance().findOutputPropertyMap ( "Pressure", m_formation, m_surface, m_snapshot );
+   m_porosity    = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
+   m_pressure    = PropertyManager::getInstance().findOutputPropertyMap ( "Pressure", m_formation, m_surface, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
    m_bulkDensity = PropertyManager::getInstance().findOutputPropertyMap ( "BulkDensity", m_formation, m_surface, m_snapshot );
-   m_ves = PropertyManager::getInstance().findOutputPropertyMap("Ves", m_formation, m_surface, m_snapshot);
-   m_maxVes = PropertyManager::getInstance().findOutputPropertyMap("MaxVes", m_formation, m_surface, m_snapshot);
-
-   m_lithologies = &m_formation->getCompoundLithologyArray ();
-   m_fluid = m_formation->fluid;
+   m_ves         = PropertyManager::getInstance().findOutputPropertyMap ( "Ves", m_formation, m_surface, m_snapshot );
+   m_maxVes      = PropertyManager::getInstance().findOutputPropertyMap ( "MaxVes", m_formation, m_surface, m_snapshot );
 
    if ( FastcauldronSimulator::getInstance ().getCauldron()->no2Doutput()) {
       propertyValues [ 0 ]->allowOutput ( false );
    }
-   return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_bulkDensity != 0 and m_lithologies != 0 and m_fluid != 0 and m_ves != 0 and m_maxVes != 0;
+   return m_bulkDensity != 0 and m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_ves != 0 and m_maxVes != 0 and m_lithologies != 0;
 }
 
 
 VelocityVolumeCalculator::VelocityVolumeCalculator ( LayerProps* formation, const Interface::Snapshot* snapshot ) :
-   m_formation ( formation ), m_snapshot ( snapshot ) {
+   m_formation ( formation ), m_snapshot ( snapshot ),
+   m_lithologies ( &m_formation->getCompoundLithologyArray( ) ), m_fluid ( m_formation->fluid ) {
 
-   m_porosity = 0;
-   m_pressure = 0;
-   m_temperature = 0;
-   m_bulkDensity = 0;
+   m_bulkDensity  = 0;
+   m_porosity     = 0;
+   m_pressure     = 0;
+   m_temperature  = 0;
+   m_ves          = 0;
+   m_maxVes       = 0;
    m_isCalculated = false;
-   m_lithologies = 0;
-   m_fluid = 0;
-   m_ves = 0;
-   m_maxVes = 0;
 
 }
 
@@ -183,10 +180,12 @@ bool VelocityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    unsigned int i;
    unsigned int j;
    unsigned int k;
-   double value;
-   double undefinedValue;
+
    double seismciVelocityFluid;
    double densityFluid;
+
+   double value;
+   double undefinedValue;
    Interface::GridMap* velocityMap;
 
    if ( not m_porosity->isCalculated ()) {
@@ -298,15 +297,12 @@ void VelocityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::Prope
 
 bool VelocityVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
 
-   m_porosity = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );
-   m_pressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
+   m_bulkDensity = PropertyManager::getInstance( ).findOutputPropertyVolume( "BulkDensity", m_formation, m_snapshot );
+   m_porosity    = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );
+   m_pressure    = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
    m_temperature = PropertyManager::getInstance().findOutputPropertyVolume ( "Temperature", m_formation, m_snapshot );
-   m_bulkDensity = PropertyManager::getInstance().findOutputPropertyVolume ( "BulkDensity", m_formation, m_snapshot );
-   m_ves = PropertyManager::getInstance().findOutputPropertyVolume("Ves", m_formation, m_snapshot);
-   m_maxVes = PropertyManager::getInstance().findOutputPropertyVolume("MaxVes", m_formation, m_snapshot);
+   m_ves         = PropertyManager::getInstance().findOutputPropertyVolume ( "Ves", m_formation, m_snapshot );
+   m_maxVes      = PropertyManager::getInstance().findOutputPropertyVolume ( "MaxVes", m_formation, m_snapshot );
 
-   m_lithologies = &m_formation->getCompoundLithologyArray ();
-   m_fluid = m_formation->fluid;
-
-   return m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_bulkDensity != 0 and m_lithologies != 0 and m_fluid != 0 and m_ves != 0 and m_maxVes != 0;
+   return m_bulkDensity != 0 and m_porosity != 0 and m_pressure != 0 and m_temperature != 0 and m_ves != 0 and m_maxVes != 0 and m_lithologies != 0;
 }
