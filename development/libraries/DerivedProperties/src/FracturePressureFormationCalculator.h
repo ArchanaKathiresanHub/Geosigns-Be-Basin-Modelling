@@ -9,6 +9,7 @@
 
 namespace DerivedProperties {
 
+   /// \brief Calculates the fracture pressure for a formation.
    class FracturePressureFormationCalculator : public FormationPropertyCalculator {
 
    public :

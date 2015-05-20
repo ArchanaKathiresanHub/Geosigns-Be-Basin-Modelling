@@ -15,7 +15,7 @@
 
 namespace DerivedProperties {
 
-   /// \brief Calculates a derived property or set of properties.
+   /// \brief Calculate the allochthonous lithology derived property.
    class AllochthonousLithologyFormationMapCalculator : public FormationMapPropertyCalculator {
 
    public :
@@ -33,7 +33,7 @@ namespace DerivedProperties {
       /// \pre formation points to a valid formation.
       ///
       /// The floating point number 1.0 indicates that the lithology at a position is defined as allochthonous, 0.0 if it is not.
-      /// The undefined value indicated undefined regions.
+      /// The undefined value indicates nodes in undefined regions.
       virtual void calculate ( AbstractPropertyManager&            propManager,
                                const DataModel::AbstractSnapshot*  snapshot,
                                const DataModel::AbstractFormation* formation,
