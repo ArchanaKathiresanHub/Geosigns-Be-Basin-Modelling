@@ -5,11 +5,11 @@
 
 #include "AllochthonousLithologyInterpolator.h"
 #include "CompoundLithology.h"
-#include "TimeDependantLithology.h"
+#include "TimeDependentLithology.h"
 
 namespace GeoPhysics {
 
-   /// A two-dimensional array of TimeDependantLithology's.
+   /// A two-dimensional array of TimeDependentLithology's.
    /// The array includes ghost-nodes.
    class CompoundLithologyArray {
 
@@ -80,7 +80,7 @@ namespace GeoPhysics {
 
    private :
 
-      TimeDependantLithology*** m_lithologies;
+      TimeDependentLithology*** m_lithologies;
 
       unsigned int m_first [ 2 ];
       unsigned int m_last  [ 2 ];

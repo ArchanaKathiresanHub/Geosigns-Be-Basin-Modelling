@@ -1,5 +1,5 @@
-#ifndef _GEOPHYSICS__TIME_DEPENDANT_LITHOLOGY_H_
-#define _GEOPHYSICS__TIME_DEPENDANT_LITHOLOGY_H_
+#ifndef _GEOPHYSICS__TIME_DEPENDENT_LITHOLOGY_H_
+#define _GEOPHYSICS__TIME_DEPENDENT_LITHOLOGY_H_
 
 #include <vector>
 
@@ -64,14 +64,14 @@ namespace GeoPhysics {
    /// If a lithology is added with the same start time as one that already exists then 
    /// the behaviour depends on the paramater 'DuplicateLithologyAgePreference'.
    ///
-   class TimeDependantLithology {
+   class TimeDependentLithology {
 
       typedef std::vector<LithologyAgePtr> LithologyAgeVector;
 
    public :
 
-      TimeDependantLithology ();
-      ~TimeDependantLithology ();
+      TimeDependentLithology ();
+      ~TimeDependentLithology ();
 
       /// Add the lithology that is defined in the stratigraphy table to the sequence.
       void addStratigraphyTableLithology ( const double             age,
@@ -130,7 +130,7 @@ namespace GeoPhysics {
 //  Inline functions.
 //------------------------------------------------------------//
 
-inline GeoPhysics::CompoundLithology* GeoPhysics::TimeDependantLithology::currentActiveLithology () const {
+inline GeoPhysics::CompoundLithology* GeoPhysics::TimeDependentLithology::currentActiveLithology () const {
   return currentLithology;
 }
 

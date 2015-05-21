@@ -1,4 +1,4 @@
-#include "TimeDependantLithology.h"
+#include "TimeDependentLithology.h"
 
 #include <algorithm>
 
@@ -22,7 +22,7 @@ bool GeoPhysics::LithologyAgeFindAge::operator ()( const LithologyAgePtr l1 ) co
 
 //------------------------------------------------------------//
 
-GeoPhysics::TimeDependantLithology::TimeDependantLithology () {
+GeoPhysics::TimeDependentLithology::TimeDependentLithology () {
 
    currentLithology = 0;
    previousLithology = 0;
@@ -34,7 +34,7 @@ GeoPhysics::TimeDependantLithology::TimeDependantLithology () {
 
 //------------------------------------------------------------//
 
-GeoPhysics::TimeDependantLithology::~TimeDependantLithology () {
+GeoPhysics::TimeDependentLithology::~TimeDependentLithology () {
 
    size_t I;
 
@@ -48,7 +48,7 @@ GeoPhysics::TimeDependantLithology::~TimeDependantLithology () {
 
 //------------------------------------------------------------//
 
-void GeoPhysics::TimeDependantLithology::addStratigraphyTableLithology ( const double             age,
+void GeoPhysics::TimeDependentLithology::addStratigraphyTableLithology ( const double             age,
                                                                                CompoundLithology* newLithology ) {
 
    stratigraphyTableLithology = newLithology;
@@ -64,7 +64,7 @@ void GeoPhysics::TimeDependantLithology::addStratigraphyTableLithology ( const d
 
 //------------------------------------------------------------//
 
-void GeoPhysics::TimeDependantLithology::addLithology ( const double                          age,
+void GeoPhysics::TimeDependentLithology::addLithology ( const double                          age,
                                                               CompoundLithology*              newLithology,
                                                         const DuplicateLithologyAgePreference duplicatePreference  ) {
 
@@ -146,7 +146,7 @@ void GeoPhysics::TimeDependantLithology::addLithology ( const double            
 
 //------------------------------------------------------------//
 
-void GeoPhysics::TimeDependantLithology::setCurrentLithology ( const double age ) {
+void GeoPhysics::TimeDependentLithology::setCurrentLithology ( const double age ) {
 
    size_t I;
 
@@ -184,13 +184,13 @@ void GeoPhysics::TimeDependantLithology::setCurrentLithology ( const double age 
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::TimeDependantLithology::currentIsAllochthonous () const {
+bool GeoPhysics::TimeDependentLithology::currentIsAllochthonous () const {
    return isAllochthonous;
 }
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::TimeDependantLithology::isAllochthonousAtAge ( const double age ) const {
+bool GeoPhysics::TimeDependentLithology::isAllochthonousAtAge ( const double age ) const {
 
    size_t i;
 
@@ -223,13 +223,13 @@ bool GeoPhysics::TimeDependantLithology::isAllochthonousAtAge ( const double age
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::TimeDependantLithology::lithologyHasSwitched () const {
+bool GeoPhysics::TimeDependentLithology::lithologyHasSwitched () const {
    return currentLithology != previousLithology;
 }
 
 //------------------------------------------------------------//
 
-GeoPhysics::CompoundLithology* GeoPhysics::TimeDependantLithology::activeAt ( const double age ) const {
+GeoPhysics::CompoundLithology* GeoPhysics::TimeDependentLithology::activeAt ( const double age ) const {
 
    size_t I;
    CompoundLithology* lithology = 0;
@@ -256,11 +256,11 @@ GeoPhysics::CompoundLithology* GeoPhysics::TimeDependantLithology::activeAt ( co
 
 //------------------------------------------------------------//
 
-void GeoPhysics::TimeDependantLithology::Print () const {
+void GeoPhysics::TimeDependentLithology::Print () const {
 
    size_t I;
 
-   cout << "  GeoPhysics::TimeDependantLithology::Print ages " << currentLithologyStartAge << ":  ";
+   cout << "  GeoPhysics::TimeDependentLithology::Print ages " << currentLithologyStartAge << ":  ";
 
    for ( I = 0; I < m_lithologies.size (); I++ ){
       cout << m_lithologies [ I ]->startAge << "  ";
