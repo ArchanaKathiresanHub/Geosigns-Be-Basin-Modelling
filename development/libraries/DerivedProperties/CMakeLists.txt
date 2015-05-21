@@ -57,6 +57,7 @@ set(all_headers
   src/SurfacePropertyCalculator.h
   src/SurfacePropertyOffsetCalculator.h
   src/ThermalConductivityFormationCalculator.h
+  src/ThermalDiffusivityFormationCalculator.h
   src/ThicknessFormationMapCalculator.h
   src/VelocityFormationCalculator.h
   src/VesFormationCalculator.h
@@ -102,6 +103,7 @@ set(all_srcs
   src/SurfaceProperty.C
   src/SurfacePropertyOffsetCalculator.C
   src/ThermalConductivityFormationCalculator.C
+  src/ThermalDiffusivityFormationCalculator.C
   src/ThicknessFormationMapCalculator.C
   src/VelocityFormationCalculator.C
   src/VesFormationCalculator.C
