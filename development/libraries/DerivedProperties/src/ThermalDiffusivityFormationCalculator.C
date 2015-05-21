@@ -6,7 +6,6 @@
 
 #include "Interface/Interface.h"
 
-
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
 #include "CompoundLithologyArray.h"
@@ -30,10 +29,10 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
    const DataModel::AbstractProperty* lithostaticPressureProperty = propertyManager.getProperty ( "LithoStaticPressure" );
    const DataModel::AbstractProperty* porosityProperty            = propertyManager.getProperty ( "Porosity" );
 
-   const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
-   const FormationPropertyPtr porosity    = propertyManager.getFormationProperty ( porosityProperty,     snapshot, formation );
+   const FormationPropertyPtr temperature  = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
+   const FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
+   const FormationPropertyPtr porosity     = propertyManager.getFormationProperty ( porosityProperty,     snapshot, formation );
 
-   FormationPropertyPtr porePressure;
    FormationPropertyPtr lithostaticPressure;
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
@@ -42,8 +41,6 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
 
    if ( basementFormationAndAlcMode ) {
       lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
-   } else {
-      porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
    }
 
    if ( temperature != 0 and porePressure != 0 and porosity != 0 and geoFormation != 0 ) {
