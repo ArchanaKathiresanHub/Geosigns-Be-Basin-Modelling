@@ -273,11 +273,6 @@ bool ThermalDiffusivityVolumeCalculator::operator ()( const OutputPropertyMap::O
                 porosity = 0.01 * m_porosity->getVolumeValue ( i, j, k );
                 if( m_isBasementFormationAndALC ) {
                    curLithology = m_formation->getLithology( i, j, k );
-                   curLithology->calcBulkDensXHeatCapacity ( m_fluid, porosity,
-                                                             m_pressure->getVolumeValue ( i, j, k ),
-                                                             m_temperature->getVolumeValue ( i, j, k ),
-                                                             m_lithopressure->getVolumeValue( i, j, k ),
-                                                             bulkDensityHeatCapacity );
                    curLithology->calcBulkThermCondNPBasement ( m_fluid, porosity,
                                                                m_temperature->getVolumeValue ( i, j, k ),
                                                                m_lithopressure->getVolumeValue ( i, j, k ),
