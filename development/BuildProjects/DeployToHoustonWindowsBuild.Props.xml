@@ -52,7 +52,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
       <!-- Remove old one if exist and create new deploy dir -->
       <make_deploy_dir>$(ssh_command) "rm -Rf $(DeployDir)/$(Configuration); mkdir -p $(DeployDir)/$(Configuration)"</make_deploy_dir>
       <!-- Copy packed binaries to deploy folder -->
-      <copy_zip>$(scp_command) -r $(build_dir_cmake)/*.zip $(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/</copy_zip>
+      <copy_zip>$(scp_command) -r "$(build_dir_cmake)/*.zip" "$(AgentAccount)@$(AgentHost):$(DeployDir)/$(Configuration)/"</copy_zip>
    </PropertyGroup>
 
    <Target Name="DeployBinariesToHouston">
