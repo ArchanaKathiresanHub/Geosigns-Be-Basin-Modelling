@@ -25,19 +25,29 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
 
    const DataModel::AbstractProperty* thermalConductivityProperty = propertyManager.getProperty ( "ThCondVec2" );
 
-   const DataModel::AbstractProperty* temperatureProperty  = propertyManager.getProperty ( "Temperature" );
-   const DataModel::AbstractProperty* porePressureProperty = propertyManager.getProperty ( "Pressure" );
-   const DataModel::AbstractProperty* porosityProperty     = propertyManager.getProperty ( "Porosity" );
+   const DataModel::AbstractProperty* temperatureProperty         = propertyManager.getProperty ( "Temperature" );
+   const DataModel::AbstractProperty* porePressureProperty        = propertyManager.getProperty ( "Pressure" );
+   const DataModel::AbstractProperty* lithostaticPressureProperty = propertyManager.getProperty ( "LithoStaticPressure" );
+   const DataModel::AbstractProperty* porosityProperty            = propertyManager.getProperty ( "Porosity" );
 
-   const FormationPropertyPtr temperature  = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
-   const FormationPropertyPtr porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
-   const FormationPropertyPtr porosity     = propertyManager.getFormationProperty ( porosityProperty,     snapshot, formation );
+   const FormationPropertyPtr temperature = propertyManager.getFormationProperty ( temperatureProperty,  snapshot, formation );
+   const FormationPropertyPtr porosity    = propertyManager.getFormationProperty ( porosityProperty,     snapshot, formation );
+
+   FormationPropertyPtr porePressure;
+   FormationPropertyPtr lithostaticPressure;
 
    const GeoPhysics::Formation* geoFormation = dynamic_cast<const GeoPhysics::Formation*>( formation );
 
-   if ( temperature != 0 and porePressure != 0 and porosity != 0 and geoFormation != 0 ) {
+   bool basementFormationAndAlcMode = ( geoFormation != 0 and geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) and m_projectHandle->isALC ();
+
+   if ( basementFormationAndAlcMode ) {
+      lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
+   } else {
+      porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
+   }
+
+   if ( temperature != 0 and ( porePressure != 0 or lithostaticPressure != 0 ) and porosity != 0 and geoFormation != 0 ) {
       const double age = snapshot->getTime ();
-      bool basementFormationAndAlcMode = ( geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) and m_projectHandle->isALC ();
 
       DerivedFormationPropertyPtr thermalConductivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalConductivityProperty,
                                                                                                                                         snapshot,
@@ -70,7 +80,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
                      lithology->calcBulkThermCondNPBasement ( fluid,
                                                               0.01 * porosity->get ( i, j, k ),
                                                               temperature->get ( i, j, k ),
-                                                              porePressure->get ( i, j, k ),
+                                                              lithostaticPressure->get ( i, j, k ),
                                                               thermalConductivityNormal,
                                                               thermalConductivityPlane );
                   } else {
