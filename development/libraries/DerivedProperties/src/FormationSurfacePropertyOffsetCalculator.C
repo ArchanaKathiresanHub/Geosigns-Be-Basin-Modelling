@@ -23,6 +23,11 @@ void DerivedProperties::FormationSurfacePropertyOffsetCalculator::calculate ( Ab
    const DataModel::AbstractFormation* formationAbove = surface->getTopFormation ();
    const DataModel::AbstractFormation* formationBelow = surface->getBottomFormation ();
 
+   if ( formation == 0 or ( formationAbove != formation and formationBelow != formation )) {
+      // No property can be calculated.
+      return;
+   }
+
    FormationPropertyPtr formationProperty = propManager.getFormationProperty ( m_property, snapshot, formation );
 
    if ( formationProperty != 0 ) {
