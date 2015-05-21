@@ -64,8 +64,8 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
 
       // We could use any of the formation-properties here to get the undefined value.
       double undefinedValue = thermalDiffusivity->getUndefinedValue ();
-      double thermalDiffusivityNormal;
-      double thermalDiffusivityPlane;
+      double thermalConductivityNormal;
+      double thermalConductivityPlane;
       double bulkDensityXHeatCapacity;
 
       for ( unsigned int i = thermalDiffusivity->firstI ( true ); i <= thermalDiffusivity->lastI ( true ); ++i ) {
@@ -78,12 +78,18 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
                for ( unsigned int k = thermalDiffusivity->firstK (); k <= thermalDiffusivity->lastK (); ++k ) {
 
                   if ( basementFormationAndAlcMode ) {
+                     lithology->calcBulkDensXHeatCapacity ( fluid,
+                                                            0.01 * porosity->get ( i, j, k ),
+                                                            porePressure->get ( i, j, k ),
+                                                            temperature->get ( i, j, k ),
+                                                            lithostaticPressure->get ( i, j, k ),
+                                                            bulkDensityXHeatCapacity );
                      lithology->calcBulkThermCondNPBasement ( fluid,
                                                               0.01 * porosity->get ( i, j, k ),
                                                               temperature->get ( i, j, k ),
                                                               lithostaticPressure->get ( i, j, k ),
-                                                              thermalDiffusivityNormal,
-                                                              thermalDiffusivityPlane );
+                                                              thermalConductivityNormal,
+                                                              thermalConductivityPlane );
 
                   } else {
                      lithology->calcBulkDensXHeatCapacity ( fluid,
@@ -97,11 +103,16 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
                                                       0.01 * porosity->get ( i, j, k ),
                                                       temperature->get ( i, j, k ),
                                                       porePressure->get ( i, j, k ),
-                                                      thermalDiffusivityNormal,
-                                                      thermalDiffusivityPlane );
+                                                      thermalConductivityNormal,
+                                                      thermalConductivityPlane );
                   }
 
-                  thermalDiffusivity->set ( i, j, k, thermalDiffusivityNormal );
+                  if ( thermalConductivityNormal != undefinedValue and bulkDensityXHeatCapacity != undefinedValue ) {
+                     thermalDiffusivity->set ( i, j, k, thermalConductivityNormal / bulkDensityXHeatCapacity );
+                  } else {
+                     thermalDiffusivity->set ( i, j, k, undefinedValue );
+                  }
+
                }
 
             } else {
