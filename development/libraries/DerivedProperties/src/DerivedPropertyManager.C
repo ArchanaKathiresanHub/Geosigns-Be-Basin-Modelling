@@ -18,10 +18,10 @@
 #include "FormationPropertyAtSurface.h"
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
-   loadFormationPropertyCalculators ();
-   loadSurfacePropertyCalculators ();
-   loadFormationSurfacePropertyCalculators ();
-   loadFormationMapPropertyCalculators ();
+   loadPrimaryFormationPropertyCalculators ();
+   loadPrimarySurfacePropertyCalculators ();
+   loadPrimaryFormationSurfacePropertyCalculators ();
+   loadPrimaryFormationMapPropertyCalculators ();
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -36,7 +36,7 @@ const DataAccess::Interface::Grid* DerivedProperties::DerivedPropertyManager::ge
    return m_projectHandle->getActivityOutputGrid ();
 }
 
-void DerivedProperties::DerivedPropertyManager::loadSurfacePropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalculators () {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allSurfaceProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::SURFACE, 0, 0, 0, 0, DataAccess::Interface::MAP );
@@ -57,7 +57,7 @@ void DerivedProperties::DerivedPropertyManager::loadSurfacePropertyCalculators (
    delete allSurfaceProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadFormationSurfacePropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationSurfacePropertyCalculators () {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allFormationSurfaceProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATIONSURFACE, 0, 0, 0, 0, DataAccess::Interface::MAP );
@@ -78,7 +78,7 @@ void DerivedProperties::DerivedPropertyManager::loadFormationSurfacePropertyCalc
    delete allFormationSurfaceProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadFormationMapPropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationMapPropertyCalculators () {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allFormationMapProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATION, 0, 0, 0, 0, DataAccess::Interface::MAP );
@@ -99,7 +99,7 @@ void DerivedProperties::DerivedPropertyManager::loadFormationMapPropertyCalculat
    delete allFormationMapProperties;
 }
 
-void DerivedProperties::DerivedPropertyManager::loadFormationPropertyCalculators () {
+void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalculators () {
 
    // Get a list of properties that have been saved.
    DataAccess::Interface::PropertyList* allFormationProperties = m_projectHandle->getProperties ( false, DataAccess::Interface::FORMATION, 0, 0, 0, 0, DataAccess::Interface::VOLUME );

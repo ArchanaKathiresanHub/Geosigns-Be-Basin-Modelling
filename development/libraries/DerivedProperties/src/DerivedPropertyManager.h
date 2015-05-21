@@ -48,22 +48,22 @@ namespace DerivedProperties {
       /// \brief Load primary property calculators that are associated with surface only.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadSurfacePropertyCalculators ();
+      void loadPrimarySurfacePropertyCalculators ();
 
       /// \brief Load primary property calculators that are associated with formation and surface.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadFormationSurfacePropertyCalculators ();
+      void loadPrimaryFormationSurfacePropertyCalculators ();
 
       /// \brief Load primary property calculators that are associated with formation only.
       ///
       /// These are map properties loaded from the property-values in the project-handle.
-      void loadFormationMapPropertyCalculators ();
+      void loadPrimaryFormationMapPropertyCalculators ();
 
       /// \brief Load primary property calculators that are associated with formation only.
       ///
       /// These are volume properties loaded from the property-values in the project-handle.
-      void loadFormationPropertyCalculators ();
+      void loadPrimaryFormationPropertyCalculators ();
 
 
       /// \brief The geophysics project handle
