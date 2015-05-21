@@ -37,7 +37,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
 
    if ( temperature != 0 and porePressure != 0 and porosity != 0 and geoFormation != 0 ) {
       const double age = snapshot->getTime ();
-      bool alcMode = ( geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) and m_projectHandle->isALC ();
+      bool basementFormationAndAlcMode = ( geoFormation->kind() == DataAccess::Interface::BASEMENT_FORMATION ) and m_projectHandle->isALC ();
 
       DerivedFormationPropertyPtr thermalConductivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalConductivityProperty,
                                                                                                                                         snapshot,
@@ -66,7 +66,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
 
                for ( unsigned int k = thermalConductivity->firstK (); k <= thermalConductivity->lastK (); ++k ) {
 
-                  if ( alcMode ) {
+                  if ( basementFormationAndAlcMode ) {
                      lithology->calcBulkThermCondNPBasement ( fluid,
                                                               0.01 * porosity->get ( i, j, k ),
                                                               temperature->get ( i, j, k ),
