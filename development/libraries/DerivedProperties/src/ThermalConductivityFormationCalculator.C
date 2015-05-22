@@ -46,7 +46,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
       porePressure = propertyManager.getFormationProperty ( porePressureProperty, snapshot, formation );
    }
 
-   if ( temperature != 0 and ( porePressure != 0 or lithostaticPressure != 0 ) and porosity != 0 and geoFormation != 0 ) {
+   if ( temperature != 0 and (( not basementFormationAndAlcMode and porePressure != 0 ) or ( basementFormationAndAlcMode and lithostaticPressure != 0 )) and porosity != 0 and geoFormation != 0 ) {
       const double age = snapshot->getTime ();
 
       DerivedFormationPropertyPtr thermalConductivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalConductivityProperty,
