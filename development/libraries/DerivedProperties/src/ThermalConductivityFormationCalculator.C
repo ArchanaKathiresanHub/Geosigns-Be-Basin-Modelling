@@ -47,8 +47,6 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
    }
 
    if ( temperature != 0 and (( not basementFormationAndAlcMode and porePressure != 0 ) or ( basementFormationAndAlcMode and lithostaticPressure != 0 )) and porosity != 0 and geoFormation != 0 ) {
-      const double age = snapshot->getTime ();
-
       DerivedFormationPropertyPtr thermalConductivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalConductivityProperty,
                                                                                                                                         snapshot,
                                                                                                                                         formation,
@@ -59,7 +57,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
       PropertyRetriever porePressureRetriever ( porePressure );
       PropertyRetriever porosityRetriever ( porosity );
 
-      const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
+      const GeoPhysics::CompoundLithologyArray& lithologies = geoFormation->getCompoundLithologyArray ();
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
 
       // We could use any of the formation-properties here to get the undefined value.
@@ -72,7 +70,7 @@ void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( Deri
          for ( unsigned int j = thermalConductivity->firstJ ( true ); j <= thermalConductivity->lastJ ( true ); ++j ) {
                
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
-               const GeoPhysics::CompoundLithology* lithology = (*lithologies)( i, j );
+               const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j );
 
                for ( unsigned int k = thermalConductivity->firstK (); k <= thermalConductivity->lastK (); ++k ) {
 
