@@ -43,9 +43,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
       lithostaticPressure = propertyManager.getFormationProperty ( lithostaticPressureProperty, snapshot, formation );
    }
 
-   if ( temperature != 0 and porePressure != 0 and porosity != 0 and geoFormation != 0 ) {
-      const double age = snapshot->getTime ();
-
+   if ( temperature != 0 and porePressure != 0 and porosity != 0 and geoFormation != 0 and ( not basementFormationAndAlcMode or ( basementFormationAndAlcMode and lithostaticPressure != 0 ))) {
       DerivedFormationPropertyPtr thermalDiffusivity = DerivedFormationPropertyPtr ( new DerivedProperties::DerivedFormationProperty ( thermalDiffusivityProperty,
                                                                                                                                        snapshot,
                                                                                                                                        formation,
@@ -56,7 +54,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
       PropertyRetriever porePressureRetriever ( porePressure );
       PropertyRetriever porosityRetriever ( porosity );
 
-      const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
+      const GeoPhysics::CompoundLithologyArray& lithologies = geoFormation->getCompoundLithologyArray ();
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(geoFormation->getFluidType ());
 
       // We could use any of the formation-properties here to get the undefined value.
@@ -70,7 +68,7 @@ void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( Deriv
          for ( unsigned int j = thermalDiffusivity->firstJ ( true ); j <= thermalDiffusivity->lastJ ( true ); ++j ) {
                
             if ( m_projectHandle->getNodeIsValid ( i, j )) {
-               const GeoPhysics::CompoundLithology* lithology = (*lithologies)( i, j );
+               const GeoPhysics::CompoundLithology* lithology = lithologies ( i, j );
 
                for ( unsigned int k = thermalDiffusivity->firstK (); k <= thermalDiffusivity->lastK (); ++k ) {
 
