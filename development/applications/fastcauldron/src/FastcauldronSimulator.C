@@ -1100,6 +1100,10 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       if (property == 0) {
          m_timeOutputProperties.push_back(getFactory()->produceOutputProperty(this, getModellingMode(), Interface::SEDIMENTS_ONLY_OUTPUT, "TwoWayTime"));
       }
+      const Interface::OutputProperty * propertyResidual = findTimeOutputProperty( "TwoWayTimeResidual" );
+      if (propertyResidual == 0) {
+         m_timeOutputProperties.push_back( getFactory( )->produceOutputProperty( this, getModellingMode( ), Interface::SEDIMENTS_ONLY_OUTPUT, "TwoWayTimeResidual" ) );
+      }
    }
 
 

@@ -795,6 +795,20 @@ START-properties
     Type                : float
     Error Field         : Yes
 
+    Identification      : TwoWayTimeGrid
+    Description         : The name of the two way (travel) time grid of the surface,
+                          this grid is supposed to be imported from nDIc(input by user)
+    Unit of measurement : 
+    Type                : string
+    Error Field         : No
+
+    Identification      : TwoWayTimeResidual
+    Description         : The difference between the TwoWayTimeGrid (input by user from nDI)
+                          and the TwoWayTime (computed in fastcauldron)
+    Unit of measurement : s
+    Type                : float
+    Error Field         : No
+
 # layer properties:
 
     Identification      : LayerName
@@ -1986,12 +2000,6 @@ START-properties
     Type                : floatvector 2
     Error Field         : No
 
-    Identification      : TwoWayTime
-    Description         : The two way (travel) time of rock/fluid segment
-    Unit of measurement : s
-    Type                : float
-    Error Field         : No
-
     Identification      : ReflectivityVec2
     Description         : reflectivity of rock/fluid segment 
     Unit of measurement : 
@@ -2012,8 +2020,8 @@ START-properties
     Error Field         : Yes
 
     Identification      : SeisVelocity
-    Description         : seismic velocity of a lithotype, fluidtype, matrix,
-                          fluid or bulk 
+    Description         : The seismic velocity of a lithotype, fluidtype, matrix,
+                          fluid or bulk
     Unit of measurement : m/s
     Type                : float
     Error Field         : Yes
@@ -2024,6 +2032,12 @@ START-properties
     Type                : float
     Error Field         : No
     Default             : 0.1234
+
+    Identification      : TwoWayTime
+    Description         : The two way (travel) time computed from the seismic velocity
+    Unit of measurement : s
+    Type                : float
+    Error Field         : No
 
     Identification      : HydraulicFracturingPercent
     Description         : Lithostatic pressure % to trigger hydraulic fracturing
@@ -6551,6 +6565,7 @@ START-property-tables
     Column         : Depth
     Column         : ErrDepth
     Column         : DepthGrid
+    Column         : TwoWayTimeGrid
 #  Layer properties:
     Column         : LayerName
     Column         : DepoSequence

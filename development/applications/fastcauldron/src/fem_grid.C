@@ -224,14 +224,11 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( TEMPERATURE );
   mapOutputProperties.push_back ( DIFFUSIVITYVEC );
   mapOutputProperties.push_back ( TWOWAYTIME );
+  mapOutputProperties.push_back ( TWOWAYTIME_RESIDUAL );
 
-  //Brine properties: density and viscosity
-#if 0
-  mapOutputProperties.push_back ( BRINE_PROPERTIES );
-#endif 
-
+  // Brine properties: density and viscosity
   m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
-   
+  
   m_volumeOutputProperties.push_back ( DEPTH );
   m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
   m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
@@ -256,7 +253,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( LITHOLOGY );
 #endif
 
-#if 0
+#ifdef DEBUG_CAPILLARYPRESSURE 
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREGAS100 );
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREGAS0 );
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL100 );
@@ -303,13 +300,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( FRACTURE_PRESSURE );
   mapOutputProperties.push_back ( HYDROSTATICPRESSURE );
   mapOutputProperties.push_back ( LITHOSTATICPRESSURE );
-
-#if 0
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREGAS100 );
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREGAS0 );
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREOIL100 );
-  mapOutputProperties.push_back ( CAPILLARYPRESSUREOIL0 );
-#endif
 
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == OVERPRESSURED_TEMPERATURE_MODE or 
        FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )

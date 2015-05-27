@@ -12,6 +12,16 @@ OutputPropertyMap* allocateTwoWayTimeVolumeCalculator ( const PropertyList prope
    return new DerivedOutputPropertyMap<TwoWayTimeVolumeCalculator>( property, formation, snapshot );
 }
 
+OutputPropertyMap* allocateTwoWayTimeResidualCalculator( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ){
+   return new DerivedOutputPropertyMap<TwoWayTimeResidualCalculator>( property, formation, surface, snapshot );
+}
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//2D CALCULATOR
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
 TwoWayTimeCalculator::TwoWayTimeCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
 m_formation( formation ), m_surface( surface ), m_snapshot( snapshot ),
 m_topFormation( dynamic_cast<LayerProps const * const>( surface->getTopFormation( )) ),
@@ -188,6 +198,11 @@ bool TwoWayTimeCalculator::initialise ( OutputPropertyMap::PropertyValueList& pr
 }
 
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//3D CALCULATOR
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
 TwoWayTimeVolumeCalculator::TwoWayTimeVolumeCalculator ( LayerProps* formation, const Interface::Snapshot* snapshot ) :
    m_formation ( formation ), m_snapshot ( snapshot ) {
 
@@ -302,4 +317,85 @@ bool TwoWayTimeVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueLi
    m_twoWayTimeTop   = PropertyManager::getInstance( ).findOutputPropertyMap( "TwoWayTime", 0, m_formation->getTopSurface( ), m_snapshot );
 
    return m_depth != 0 and m_seismicVelocity != 0 and m_twoWayTimeTop != 0;
+}
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//RESIDUAL CALCULATOR
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TwoWayTimeResidualCalculator::TwoWayTimeResidualCalculator( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
+m_formation( formation ), m_surface( surface ), m_snapshot( snapshot )
+{
+   m_isCalculated = false;
+}
+
+bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
+   OutputPropertyMap::PropertyValueList&  propertyValues ) {
+
+   if (m_isCalculated) {
+      return true;
+   }
+
+   unsigned int i;
+   unsigned int j;
+   unsigned int k;
+
+   double value;
+   double undefinedValue;
+   Interface::GridMap* TwoWayTimeResidualMap;
+
+   TwoWayTimeResidualMap = propertyValues[0]->getGridMap( );
+   TwoWayTimeResidualMap->retrieveData( );
+   undefinedValue = TwoWayTimeResidualMap->getUndefinedValue( );
+
+   for (i = TwoWayTimeResidualMap->firstI( ); i <= TwoWayTimeResidualMap->lastI( ); ++i) {
+
+      for (j = TwoWayTimeResidualMap->firstJ( ); j <= TwoWayTimeResidualMap->lastJ( ); ++j) {
+
+         // if the surface is linked to an intial two way time
+         if (m_twoWayTimeInitial != 0) {
+            if (FastcauldronSimulator::getInstance().nodeIsDefined( i, j )) {
+
+               value = m_twoWayTimeCauldron->getMapValue( i, j ) - m_twoWayTimeInitial->getValue( i, j );
+               TwoWayTimeResidualMap->setValue( i, j, value );
+
+            }
+            else {
+               TwoWayTimeResidualMap->setValue( i, j, undefinedValue );
+            }
+         }
+         else {
+            TwoWayTimeResidualMap->setValue( i, j, undefinedValue );
+         }
+
+      }
+
+   }
+
+   TwoWayTimeResidualMap->restoreData( );
+   m_isCalculated = true;
+   return true;
+}
+
+void TwoWayTimeResidualCalculator::allocatePropertyValues( OutputPropertyMap::PropertyValueList& properties ) {
+
+   properties.push_back( (PropertyValue*)(FastcauldronSimulator::getInstance( ).createMapPropertyValue( "TwoWayTimeResidual",
+      m_snapshot, 0,
+      0,
+      m_surface )) );
+
+}
+
+bool TwoWayTimeResidualCalculator::initialise( OutputPropertyMap::PropertyValueList& propertyValues ) {
+
+   if (FastcauldronSimulator::getInstance( ).getCauldron( )->no2Doutput( )) {
+      propertyValues[0]->allowOutput( false );
+   }
+
+   m_twoWayTimeCauldron = PropertyManager::getInstance( ).findOutputPropertyMap( "TwoWayTime", m_formation, m_surface, m_snapshot );
+   m_twoWayTimeInitial = m_surface->getInputTwoWayTimeMap( );
+
+   return m_twoWayTimeCauldron != 0;
 }

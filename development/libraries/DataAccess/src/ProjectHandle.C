@@ -986,6 +986,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ThicknessHighRes", "ThicknessHighRes", "m", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Thickness", "Thickness", "m", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTime", "TwoWayTime", "s", FORMATIONPROPERTY) );
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "TwoWayTimeResidual", "TwoWayTimeResidual", "s", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Velocity", "VelocityVec2", "m/s", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "VesHighRes", "VesHighRes", "Pa", FORMATIONPROPERTY ) );
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Ves", "Ves", "Pa", FORMATIONPROPERTY ) );

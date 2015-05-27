@@ -364,8 +364,8 @@ namespace GeoPhysics {
       double           m_density;
       double           m_depositionalPermeability;
       double           m_heatProduction;
-	  double           m_seismicVelocitySolid;
-	  double           m_nExponentVelocity;
+	   double           m_seismicVelocitySolid;
+	   double           m_nExponentVelocity;
       double           m_permeabilityincr;
       double           m_permeabilitydecr;
       double           m_thermalConductivityValue;

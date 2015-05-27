@@ -191,7 +191,7 @@ namespace GeoPhysics {
 
       double            m_heatproduction;
       double            m_seismicvelocity;
-	  double            m_nExponentVelocity;
+	   double            m_nExponentVelocity;
 
       double            m_thermalcondaniso;
       double            m_thermalconductivityval;

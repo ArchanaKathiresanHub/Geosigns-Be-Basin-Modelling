@@ -553,6 +553,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
       //3. Matrix Property calculated using the algebraic mean
       m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
+
       ++componentIter;
       ++percentIter;
    }

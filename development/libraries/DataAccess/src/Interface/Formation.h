@@ -45,20 +45,20 @@ namespace DataAccess
 	    /// a hiatus or an erosion.
 	    virtual const GridMap * getInputThicknessMap (void) const;
 
-            /// Return the first lithotype of this Formation
-            virtual const LithoType * getLithoType1 (void) const;
-            /// Return the percentage map of the first lithotype
-            virtual const GridMap * getLithoType1PercentageMap (void) const;
+       /// Return the first lithotype of this Formation
+       virtual const LithoType * getLithoType1 (void) const;
+       /// Return the percentage map of the first lithotype
+       virtual const GridMap * getLithoType1PercentageMap (void) const;
 
-            /// Return the second lithotype of this Formation
-            virtual const LithoType * getLithoType2 (void) const;
-            /// Return the percentage map of the second lithotype
-            virtual const GridMap * getLithoType2PercentageMap (void) const;
+       /// Return the second lithotype of this Formation
+       virtual const LithoType * getLithoType2 (void) const;
+       /// Return the percentage map of the second lithotype
+       virtual const GridMap * getLithoType2PercentageMap (void) const;
 
-            /// Return the third lithotype of this Formation
-            virtual const LithoType * getLithoType3 (void) const;
-            /// Return the percentage map of the third lithotype
-            virtual const GridMap * getLithoType3PercentageMap (void) const;
+       /// Return the third lithotype of this Formation
+       virtual const LithoType * getLithoType3 (void) const;
+       /// Return the percentage map of the third lithotype
+       virtual const GridMap * getLithoType3PercentageMap (void) const;
 
 	    /// return the list of reservoirs in this formation.
 	    virtual ReservoirList * getReservoirs (void) const;
