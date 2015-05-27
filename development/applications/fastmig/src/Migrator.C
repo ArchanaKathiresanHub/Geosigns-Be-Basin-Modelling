@@ -931,7 +931,7 @@ bool MigrationIoTblSorter (database::Record * recordL,  database::Record * recor
    if (getDestinationTrapID (recordL) != getDestinationTrapID (recordR))
       return (getDestinationTrapID (recordL) < getDestinationTrapID (recordR));
 
-   return true;
+   return false;
 }
    
 void Migrator::sortMigrationRecords (void)
