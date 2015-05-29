@@ -422,7 +422,7 @@ Record * Table::findRecord (const std::string & fieldName, const std::string & v
 Record * Table::findRecord (const std::string & field1, const std::string & value1, const std::string & field2, const std::string & value2, Record * other)
 {
 	int index1 = getIndex(field1);
-        int index2 = getIndex(field2);
+   int index2 = getIndex(field2);
 	if (index1 < 0 || index2 < 0) return 0;
 
 	Table::iterator iter;
@@ -430,9 +430,9 @@ Record * Table::findRecord (const std::string & field1, const std::string & valu
 	{
 		Record * record = * iter;
 		if (  record != other &&
-                      value1 == record->getValue<std::string>(index1) && 
-                      value2 == record->getValue<std::string>(index2)) 
-                   return record;
+        value1 == record->getValue<std::string>(index1) && 
+        value2 == record->getValue<std::string>(index2)) 
+        return record;
 	}
 	return 0;
 }

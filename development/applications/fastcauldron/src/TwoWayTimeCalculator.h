@@ -52,7 +52,7 @@ private :
 };
 
 /*! \class TwoWayTimeVolumeCalculator
-* \brief Class used to compute the 3D two way travel time (TwoWayTime) property.
+* \brief Class used to compute the 3D two way travel time (TwoWayTime) property
 */
 class TwoWayTimeVolumeCalculator {
 
@@ -84,8 +84,8 @@ private :
 
 /*! \class TwoWayTimeResidualCalculator
 * \brief Class used to compute the 2D two way travel time residual (TwoWayTimeResidual) property.
-* \details This is the difference between the 2D TwoWayTimeGrid linked to the surface stratigraphy in StratIoTbl (input by user)
-*    and the TwoWayTime 2D property computed in fastcauldron.
+* \details This is the difference between the 2D two way time map linked to the surface stratigraphy in TwoWayTimeIoTbl (input by user)
+*    and the two way time 2D property map computed in fastcauldron : TwoWayTimeResidual = TwoWayTimeCauldron - TwoWayTimeInput.
 */
 class TwoWayTimeResidualCalculator {
 
@@ -107,7 +107,9 @@ private:
    Interface::Surface  const * const m_surface;
    Interface::Snapshot const * const m_snapshot;
 
+   /// The two way travel time maps computed from TwoWayTimeCalculator
    OutputPropertyMap * m_twoWayTimeCauldron;
+   /// The initial two way travel time (at t=0Ma) of m_surface, this is a user input
    const Interface::GridMap * m_twoWayTimeInitial;
 
    bool m_isCalculated;

@@ -340,14 +340,25 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
 
    unsigned int i;
    unsigned int j;
-   unsigned int k;
 
    double value;
    double undefinedValue;
    Interface::GridMap* TwoWayTimeResidualMap;
 
+
+   if (not m_twoWayTimeCauldron->isCalculated( )) {
+
+      if (not m_twoWayTimeCauldron->calculate( )) {
+         return false;
+      }
+
+   }
+
    TwoWayTimeResidualMap = propertyValues[0]->getGridMap( );
    TwoWayTimeResidualMap->retrieveData( );
+   if (m_twoWayTimeInitial != 0) {
+      m_twoWayTimeInitial->retrieveData();
+   }
    undefinedValue = TwoWayTimeResidualMap->getUndefinedValue( );
 
    for (i = TwoWayTimeResidualMap->firstI( ); i <= TwoWayTimeResidualMap->lastI( ); ++i) {
@@ -374,7 +385,10 @@ bool TwoWayTimeResidualCalculator::operator ()( const OutputPropertyMap::OutputP
 
    }
 
-   TwoWayTimeResidualMap->restoreData( );
+   if (m_twoWayTimeInitial != 0) {
+      m_twoWayTimeInitial->restoreData();
+   }
+   TwoWayTimeResidualMap->restoreData();
    m_isCalculated = true;
    return true;
 }

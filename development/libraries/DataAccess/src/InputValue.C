@@ -185,13 +185,6 @@ bool InputValue::fillEventAttributes (void) const
 	            m_eventAge = getDepoAge (record);
 	            return true;
 	         }
-            else if (getTwoWayTimeGrid (record) == database::getMapName (m_record))
-            {
-               m_propertyName = "Two way time";
-               m_formationName = database::getLayerName( record );
-               m_eventAge = getDepoAge( record );
-               return true;
-            }
 	      }
       }
       else if (tblName == "MobLayThicknIoTbl")
@@ -420,7 +413,23 @@ bool InputValue::fillEventAttributes (void) const
 	            return true;
 	      	}    
 	      }
-      }      
+      }
+      else if (tblName == "TwoWayTimeIoTbl")
+      {
+         Table::iterator tblIter;
+         Record * record = 0;
+         for (tblIter = tbl->begin(); tblIter != tbl->end(); ++tblIter)
+         {
+            record = *tblIter;
+            if (getTwoWayTimeGrid( record ) == database::getMapName( m_record ))
+            {
+               m_propertyName = "Two way time";
+               m_formationName = database::getLayerName( record );
+               m_eventAge = getDepoAge( record );
+               return true;
+            }
+         }
+      }
    }
    return false;
 }

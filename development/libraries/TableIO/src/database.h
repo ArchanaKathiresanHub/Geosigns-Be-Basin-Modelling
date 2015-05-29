@@ -125,29 +125,29 @@ namespace database
 		inline Table * getTable (void) const;
 
 
-                template <typename Type>
-                void setValue (int index, const Type & value)
-                {
-                   boost::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
-                }
+      template <typename Type>
+      void setValue (int index, const Type & value)
+      {
+         boost::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
+      }
 
-                template < class Type > 
-                void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
-                {
-                   boost::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
-                }
+      template < class Type > 
+      void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
+      {
+         boost::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
+      }
 
-                template <typename Type>
-                const Type & getValue (int index) const
-                {
-                   return boost::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
-                }
+      template <typename Type>
+      const Type & getValue (int index) const
+      {
+         return boost::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
+      }
 
-                template < class Type > 
-                const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
-                {
-                   return boost::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
-                }
+      template < class Type > 
+      const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
+      {
+         return boost::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
+      }
 
 		Record (const TableDefinition & tableDefinition, Table * table);
 		Record (const Record & record);
@@ -155,15 +155,15 @@ namespace database
 	 private:
 		friend class Table;
                 
-                typedef std::vector< boost::shared_ptr< AbstractField > > FieldList;
+      typedef std::vector< boost::shared_ptr< AbstractField > > FieldList;
 		typedef FieldList::iterator FieldListIterator;
 
 		~Record() {}
                 
-                boost::shared_ptr<AbstractField> getField (int index) const
-                { return m_fields[index]; }
+      boost::shared_ptr<AbstractField> getField (int index) const
+      { return m_fields[index]; }
 
-                boost::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
+      boost::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
  
 		// Record (const TableDefinition & tableDefinition, Table * table);
 		//      Record (Record & record);
@@ -253,7 +253,7 @@ namespace database
 
 		/// Find a record in which the specified field has the specified value
 		Record * findRecord(const std::string & fieldName, const std::string & value);
-                Record * findRecord(const std::string & field1, const std::string & value1, const std::string & field2, const std::string & value2, Record * other = 0);
+      Record * findRecord(const std::string & field1, const std::string & value1, const std::string & field2, const std::string & value2, Record * other = 0);
 
 
 		/// Remove all Records from this Table and destroy them as requested.

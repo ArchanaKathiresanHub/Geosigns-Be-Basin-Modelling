@@ -6565,7 +6565,6 @@ START-property-tables
     Column         : Depth
     Column         : ErrDepth
     Column         : DepthGrid
-    Column         : TwoWayTimeGrid
 #  Layer properties:
     Column         : LayerName
     Column         : DepoSequence
@@ -7702,6 +7701,12 @@ START-property-tables
     Column         : Sum
     Column         : NP
     Header         : Iso vr data for burial graph
+
+    Identification : TwoWayTimeIoTbl
+    Description    : Table to hold relationship between initial two way travel time and
+                     stratigraphic surfaces
+    Column         : SurfaceName
+    Column         : TwoWayTimeGrid
  
     Identification : TouchstoneMapIoTbl
     Description    : List of map choices made by user
@@ -7848,6 +7853,7 @@ START-application-class-properties
     Property : 1DTimeIoTbl
     Property : TemperatureIsoIoTbl
     Property : VrIsoIoTbl
+    Property : TwoWayTimeIoTbl
 # Genex History Location 
     Property : GenexHistoryLocationIoTbl
 # CrustalThicknessCalculator data

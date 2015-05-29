@@ -273,6 +273,7 @@ const string PropertyName[] = {
   "ChemicalCompaction",
   "Lithology",
   "TwoWayTime",
+  "TwoWayTimeResidual",
   "CapillaryPressureGas100",
   "CapillaryPressureGas0",
   "CapillaryPressureOil100",
