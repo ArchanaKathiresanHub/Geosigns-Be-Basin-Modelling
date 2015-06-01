@@ -6316,6 +6316,40 @@ START-properties
     Description         : The BPA value to use (preserve)
     Type                : string
     Error Field         : No
+
+#### Simulation details: contains details about the previous simulations that may be required or just useful in subsequent simulations.
+
+    Identification      : SimulationSequenceNumber
+    Description         : The sequence number of the simulation relative to other simulations.
+    Type                : integer
+    Error Field         : No
+    Default             : 1
+
+    Identification      : SimulatorName
+    Description         : The name of the simulator, e.g. fastcauldron, fastmig.
+    Type                : string
+    Error Field         : No
+    Default             : ""
+
+    Identification      : SimulatorMode
+    Description         : The mode of the simulation, e.g. HydrostaticDecompaction
+    Type                : string
+    Error Field         : No
+    Default             : ""
+
+    Identification      : NumberOfCores
+    Description         : The number of cores in the simulation
+    Type                : integer
+    Error Field         : No
+    Default             : -9999
+
+    Identification      : SimulatorCommandLineParameters
+    Description         : The command line parameters that were passed to the simulation.
+    Type                : string
+    Error Field         : No
+    Default             : ""
+
+
 END-properties
 
 ##########################################################################
@@ -7737,6 +7771,15 @@ START-property-tables
     Column         : SGMeanBulkDensity
 
 
+    Identification      : SimulationDetailsIoTbl
+    Description		: Details about a particular simulation
+    Column		: SimulationSequenceNumber
+    Column		: SimulatorName
+    Column		: SimulatorMode
+    Column		: NumberOfCores
+    Column		: SimulatorCommandLineParameters
+
+
 END-property-tables
 
 ##########################################################################
@@ -7839,7 +7882,8 @@ START-application-class-properties
     Property : SGDensityIoTbl
 # BPA-Cauldron integration
     Property : BPANameMapping
-    
+# Persisting details about simulator, mode, number cores, ...
+    Property : SimulationDetailsIoTbl    
 
 END-application-class-properties
 

@@ -83,6 +83,7 @@ namespace DataAccess
       class Reservoir;
       class RunParameters;
       class SGDensitySample;
+      class SimulationDetails;
       class Snapshot;
       class SourceRock;
       class Surface;
@@ -155,6 +156,9 @@ namespace DataAccess
       typedef vector<const RelatedProject *> RelatedProjectList;
       /// list type for constrained overpressure intervals.
       typedef vector<const ConstrainedOverpressureInterval*> ConstrainedOverpressureIntervalList;
+
+      /// list type for the SimulationDetails
+      typedef vector<const SimulationDetails*> SimulationDetailsList;
 
       const string ALCBasalt = "ALC Basalt";
 
@@ -683,6 +687,9 @@ namespace DataAccess
       /// \brief Mutable list of all sg-density samples.
       typedef vector<SGDensitySample*> MutableSGDensitySampleList;
 
+
+      /// list type for the SimulationDetails
+      typedef vector<SimulationDetails*> MutableSimulationDetailsList;
 
       /// Value for undefined used in maps
       const double DefaultUndefinedMapValue = 99999;

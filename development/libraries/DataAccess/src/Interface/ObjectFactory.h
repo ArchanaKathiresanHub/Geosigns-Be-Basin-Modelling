@@ -98,6 +98,8 @@ namespace DataAccess
 
             virtual ProjectData * produceProjectData (ProjectHandle * projectHandle, database::Record * record);
 
+            virtual SimulationDetails* produceSimulationDetails ( ProjectHandle * projectHandle, database::Record * record );
+
 	    virtual AllochthonousLithology * produceAllochthonousLithology (ProjectHandle * projectHandle, database::Record * record);
 
 	    virtual AllochthonousLithologyDistribution * produceAllochthonousLithologyDistribution (ProjectHandle * projectHandle, database::Record * record);

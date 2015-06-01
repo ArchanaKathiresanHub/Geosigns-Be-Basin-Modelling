@@ -92,6 +92,11 @@ namespace DataAccess
          /// save the project to the specified file
          bool saveToFile( const string & fileName );
 
+         /// \brief Set details about the current simulation.
+         void setSimulationDetails ( const std::string& simulatorName,
+                                     const std::string& simulatorMode,
+                                     const std::string& simulatorCommandLineParams );
+
          /// Return the full file name of the project
          virtual const string & getName( void ) const;
          /// Return the directory of the project
@@ -559,6 +564,8 @@ namespace DataAccess
 
          RunParameters* m_runParameters;
          ProjectData* m_projectData;
+         MutableSimulationDetailsList m_simulationDetails;
+
 
          /// The crust- and mantle-formations do not have to be deallocated directly. Since they are added
          /// to the list of formations in the model they will be deleted when this object is destroyed.
@@ -662,6 +669,7 @@ namespace DataAccess
          bool loadSurfaceTemperatureHistory( void );
          bool loadTimeOutputProperties( void );
          bool loadDepthOutputProperties( void );
+         bool loadSimulationDetails ();
 
          bool loadFluidDensitySamples();
          bool loadFluidThermalConductivitySamples();
@@ -781,6 +789,7 @@ namespace DataAccess
          void deleteSurfaceTemperatureHistory( void );
          void deleteRunParameters( void );
          void deleteProjectData( void );
+         void deleteSimulationDetails ();
 
          void deleteTimeOutputProperties( void );
          void deleteDepthOutputProperties( void );

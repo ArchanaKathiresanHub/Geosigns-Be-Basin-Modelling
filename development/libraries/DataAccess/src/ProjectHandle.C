@@ -70,6 +70,7 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
 #include "Interface/Reservoir.h"
+#include "Interface/SimulationDetails.h"
 #include "Interface/Snapshot.h"
 #include "Interface/SourceRock.h"
 #include "Interface/Surface.h"
@@ -288,6 +289,7 @@ m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutpu
    loadDiffusionLeakageParameters();
 
    loadRunParameters();
+   loadSimulationDetails ();
 
    // Depends on the run parameters.
    loadFracturePressureFunctionParameters();
@@ -2253,6 +2255,35 @@ bool ProjectHandle::loadProjectData( void )
    }
 
 }
+
+bool ProjectHandle::loadSimulationDetails () {
+
+   cout << "ProjectHandle::loadSimulationDetails" << endl;
+
+   database::Table* simulationDetailsIoTbl = getTable( "SimulationDetailsIoTbl" );
+   database::Table::iterator tblIter;
+
+   if ( simulationDetailsIoTbl == 0 ) {
+      return false;
+   }
+
+   for ( tblIter = simulationDetailsIoTbl->begin (); tblIter != simulationDetailsIoTbl->end (); ++tblIter ) {
+      Record* simulationDetailsRecord = *tblIter;
+      m_simulationDetails.push_back ( getFactory ()->produceSimulationDetails ( this, simulationDetailsRecord ));
+
+      cout << " details: " << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulationSequenceNumber () << "  " 
+           << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulatorName () << "  " 
+           << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulatorMode () << "  " 
+           << m_simulationDetails[m_simulationDetails.size () - 1]->getNumberOfCores () << "  " 
+           << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulatorCommandLineParameters () << "  " 
+           << endl;
+   }
+
+   std::sort ( m_simulationDetails.begin (), m_simulationDetails.end (), SimulationDetailsComparison ());
+
+   return true;
+}
+
 
 bool ProjectHandle::loadBottomBoundaryConditions( void )
 {
@@ -5552,6 +5583,39 @@ void ProjectHandle::deleteProjectData( void ) {
    }
 
 }
+
+void ProjectHandle::setSimulationDetails ( const std::string& simulatorName,
+                                           const std::string& simulatorMode,
+                                           const std::string& simulatorCommandLineParams ) {
+
+   database::Table* simulationDetailsIoTbl = getTable( "SimulationDetailsIoTbl" );
+   database::Record* sdRecord = simulationDetailsIoTbl->createRecord();
+
+   int lastSequenceNumber = 0;
+
+   if ( m_simulationDetails.size () > 0 ) {
+      // Sequence of simulation details should be ordered, so the last entry should have the largest seqnence number.
+      lastSequenceNumber = m_simulationDetails [ m_simulationDetails.size () - 1 ]->getSimulationSequenceNumber ();
+   }
+
+   database::setSimulatorName ( sdRecord, simulatorName );
+   database::setSimulatorMode ( sdRecord, simulatorMode );
+   database::setSimulatorCommandLineParameters ( sdRecord, simulatorCommandLineParams );
+   database::setSimulationSequenceNumber ( sdRecord, lastSequenceNumber + 1 );
+   database::setNumberOfCores ( sdRecord, m_size );
+}
+
+
+void ProjectHandle::deleteSimulationDetails () {
+
+   for ( size_t i = 0; i < m_simulationDetails.size (); ++i ) {
+      delete m_simulationDetails [ i ];
+      m_simulationDetails [ i ] = 0;
+   }
+
+   m_simulationDetails.clear ();
+}
+
 
 void ProjectHandle::deleteSurfaceDepthHistory( void ) {
 
