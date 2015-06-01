@@ -47,8 +47,13 @@ namespace DataAccess {
 
       private :
 
+         /// \brief Contains the name of the simulator.
          std::string m_simulatorName;
+
+         /// \brief Contains the name of the mode the simulator was run.
          std::string m_simulatorMode;
+
+         /// \brief Contains all of the command line parameters that were passed to the simulator.
          std::string m_commandLineParams;
 
       };
@@ -56,6 +61,10 @@ namespace DataAccess {
       /// \brief Used to order a sequence of simulation-details.
       class SimulationDetailsComparison {
       public :
+         /// \brief Determine order of SimulationDetails.
+         ///
+         /// The simulation sequence number is used to determine the order.
+         /// No two numbers should be the same.
          bool operator ()( const SimulationDetails* left, const SimulationDetails* right ) const;
       };
 
