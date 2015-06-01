@@ -882,6 +882,9 @@ void FastcauldronSimulator::finalise ( const bool saveResults ) {
       m_fastcauldronSimulator->finishActivity ( saveResults );
 
       if ( saveResults and m_fastcauldronSimulator->getRank () == 0 and m_fastcauldronSimulator->getCalculationMode () != NO_CALCULATION_MODE ) {
+         m_fastcauldronSimulator->setSimulationDetails ( "fastcauldron",
+                                                         getSimulationModeString ( m_fastcauldronSimulator->getCalculationMode ()),
+                                                         m_fastcauldronSimulator->m_commandLine );
 
          if ( m_fastcauldronSimulator->getModellingMode () == Interface::MODE1D ) 
          {
@@ -1908,6 +1911,11 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
    if ( getModellingMode () != Interface::MODE1D ) {
       H5_Parallel_PropertyList::setOneFilePerProcessOption ();
    }
+
+   for ( int i = 0; i < argc; ++i ) {
+      m_commandLine += std::string ( argv [ i ]) + ' ';
+   }
+
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
 }
 
