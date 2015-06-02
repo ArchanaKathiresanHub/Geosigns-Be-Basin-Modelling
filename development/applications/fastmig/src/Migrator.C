@@ -202,7 +202,7 @@ bool Migrator::compute (void)
 #endif
    finishActivity ();
 
-   setSimulationDetails ( "fastmig", "", "" );
+   setSimulationDetails ( "fastmig", "default", "" );
 
    bool status = true;
    if( !mergeOutputFiles ()) {

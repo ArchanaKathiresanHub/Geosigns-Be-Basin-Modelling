@@ -200,7 +200,7 @@ int main (int argc, char ** argv)
 	 generateBHF (projectHandle, record);
       }
 
-      ((Interface::ProjectHandle *) projectHandle)->setSimulationDetails ( "cauldron2bhf", "", "" );
+      ((Interface::ProjectHandle *) projectHandle)->setSimulationDetails ( "cauldron2bhf", "default", "" );
       ((Interface::ProjectHandle *) projectHandle)->finishActivity ();
       projectHandle->saveToFile (outputProjectFileName);
    }
