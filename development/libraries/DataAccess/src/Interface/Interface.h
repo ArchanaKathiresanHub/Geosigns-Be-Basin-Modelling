@@ -5,6 +5,7 @@
 #include <string>
 using namespace std;
 
+#include <boost/shared_ptr.hpp>
 
 // V.R. Ambati (25/07/2011)
 // typedef's are not needed at the moment.
@@ -159,6 +160,10 @@ namespace DataAccess
 
       /// list type for the SimulationDetails
       typedef vector<const SimulationDetails*> SimulationDetailsList;
+
+      /// \typedef SimulationDetailsListPtr
+      /// \brief Smart pointer to vector of simulation-details.
+      typedef boost::shared_ptr<SimulationDetailsList> SimulationDetailsListPtr;
 
       const string ALCBasalt = "ALC Basalt";
 

@@ -37,6 +37,7 @@ include_directories(
 )
 
 target_link_libraries(DataAccess 
+    ${Boost_LIBRARIES}
 	Serial_Hdf5
 	CBMGenerics 
 	utilities

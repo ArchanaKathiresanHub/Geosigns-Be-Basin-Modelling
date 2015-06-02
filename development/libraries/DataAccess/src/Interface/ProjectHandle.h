@@ -97,6 +97,9 @@ namespace DataAccess
                                      const std::string& simulatorMode,
                                      const std::string& simulatorCommandLineParams );
 
+         /// \brief Get list of simulation details.
+         SimulationDetailsListPtr getSimulationDetails () const;
+
          /// Return the full file name of the project
          virtual const string & getName( void ) const;
          /// Return the directory of the project

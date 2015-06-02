@@ -2258,8 +2258,6 @@ bool ProjectHandle::loadProjectData( void )
 
 bool ProjectHandle::loadSimulationDetails () {
 
-   cout << "ProjectHandle::loadSimulationDetails" << endl;
-
    database::Table* simulationDetailsIoTbl = getTable( "SimulationDetailsIoTbl" );
    database::Table::iterator tblIter;
 
@@ -2270,13 +2268,6 @@ bool ProjectHandle::loadSimulationDetails () {
    for ( tblIter = simulationDetailsIoTbl->begin (); tblIter != simulationDetailsIoTbl->end (); ++tblIter ) {
       Record* simulationDetailsRecord = *tblIter;
       m_simulationDetails.push_back ( getFactory ()->produceSimulationDetails ( this, simulationDetailsRecord ));
-
-      cout << " details: " << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulationSequenceNumber () << "  " 
-           << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulatorName () << "  " 
-           << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulatorMode () << "  " 
-           << m_simulationDetails[m_simulationDetails.size () - 1]->getNumberOfCores () << "  " 
-           << m_simulationDetails[m_simulationDetails.size () - 1]->getSimulatorCommandLineParameters () << "  " 
-           << endl;
    }
 
    std::sort ( m_simulationDetails.begin (), m_simulationDetails.end (), SimulationDetailsComparison ());
@@ -5603,6 +5594,17 @@ void ProjectHandle::setSimulationDetails ( const std::string& simulatorName,
    database::setSimulatorCommandLineParameters ( sdRecord, simulatorCommandLineParams );
    database::setSimulationSequenceNumber ( sdRecord, lastSequenceNumber + 1 );
    database::setNumberOfCores ( sdRecord, m_size );
+}
+
+SimulationDetailsListPtr ProjectHandle::getSimulationDetails () const {
+
+   SimulationDetailsListPtr result = SimulationDetailsListPtr ( new SimulationDetailsList ( m_simulationDetails.size ()));
+
+   for ( size_t i = 0; i < m_simulationDetails.size (); ++i ) {
+      (*result)[ i ] = m_simulationDetails [ i ];
+   } 
+
+   return result;
 }
 
 
