@@ -356,6 +356,7 @@ private :
    double                     m_hcVapourCurveExponent;
    double                     m_fctCorrectionScalingWeight;
    bool                       m_printCommandLine;
+   std::string                m_commandLine;
    bool                       m_computeCapillaryPressure;
 
 };
