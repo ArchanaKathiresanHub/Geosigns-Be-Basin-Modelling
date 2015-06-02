@@ -218,6 +218,7 @@ namespace mbapi {
       
       /// @brief Destructor, no any actual work is needed here, all is done in the implementation part
       virtual ~LithologyManager() {;}
+      /// @}
 
    private:
       /// @{

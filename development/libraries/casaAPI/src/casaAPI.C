@@ -42,9 +42,6 @@
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
 
-// Utilities lib
-#include <NumericFunctions.h>
-
 // Standard C lib
 #include <cmath>
 #include <sstream>

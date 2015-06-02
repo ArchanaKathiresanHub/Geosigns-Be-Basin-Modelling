@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <fstream>
 
+#include "FilePath.h"
+
 //#include <cmath>
 
 #include <gtest/gtest.h>
@@ -24,11 +26,13 @@ public:
    static const char * m_sourceRockTestProject;
    static const char * m_testProject;
    static const char * m_lithologyTestProject;
+   static const char * m_mapsTestProject;
 };
 
 const char * mbapiModelTest::m_sourceRockTestProject = "SourceRockTesting.project3d";
 const char * mbapiModelTest::m_lithologyTestProject  = "LithologyTesting.project3d";
 const char * mbapiModelTest::m_testProject           = "Project.project3d";
+const char * mbapiModelTest::m_mapsTestProject       = "MapsTesting.project3d";
 
 bool mbapiModelTest::compareFiles( const char * projFile1, const char * projFile2 )
 {
@@ -625,3 +629,89 @@ TEST_F( mbapiModelTest, SetPermeabilityModelParametersTest )
    ASSERT_NEAR( mpPerm[1], 3.0, eps );
    ASSERT_NEAR( mpPerm[2], 4.0, eps );
 }
+
+
+TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
+{
+   mbapi::Model testModel;
+
+   // load test project
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_mapsTestProject ) );
+   std::string mapName = "MAP-1076770443-4";
+   
+   // clean any previous runs result
+   if ( ibs::FilePath( "MAP-1076770443-4_copy.HDF" ).exists() ) { ibs::FilePath( "MAP-1076770443-4_copy.HDF" ).remove(); }
+   if ( ibs::FilePath( "Test.HDF"                  ).exists() ) { ibs::FilePath( "Test.HDF" ).remove(); }
+   if ( ibs::FilePath( "MapsTest1.project3d"       ).exists() ) { ibs::FilePath( "MapsTest1.project3d" ).remove(); }
+   if ( ibs::FilePath( "MapsTest2.project3d"       ).exists() ) { ibs::FilePath( "MapsTest2.project3d" ).remove(); }
+
+   mbapi::MapsManager & mm = testModel.mapsManager();
+
+   const std::vector<mbapi::MapsManager::MapID> & ids = mm.mapsIDs();
+   ASSERT_EQ( ids.size(),  8 ); // number of maps in GridMapIoTbl
+
+   mbapi::MapsManager::MapID id = mm.findID( mapName );
+   ASSERT_EQ( id, 6 ); // given map is 7th in the list
+
+   double minV, maxV;
+   mm.mapValuesRange( id, minV, maxV );
+
+   ASSERT_NEAR( minV, 2288.0, eps );
+   ASSERT_NEAR( maxV, 6434.0, eps );
+
+   mbapi::MapsManager::MapID nid = mm.copyMap( id, mapName+"_copy" );
+
+   ASSERT_EQ( nid, 8 ); // the new map is at the end of the list
+   ASSERT_EQ( mm.mapsIDs().size(), 9 ); // now maps in GridMapIoTbl are 9
+
+   // min/max values in the copy are the same
+   mm.mapValuesRange( nid, minV, maxV );
+
+   ASSERT_NEAR( minV, 2288.0, eps );
+   ASSERT_NEAR( maxV, 6434.0, eps );
+
+   ASSERT_EQ( ErrorHandler::NoError, mm.rescaleMap( nid, 1000, 3000 ) );
+
+   // min/max values in the copy are as given for rescale
+   mm.mapValuesRange( nid, minV, maxV );
+
+   ASSERT_NEAR( minV, 1000.0, eps );
+   ASSERT_NEAR( maxV, 3000.0, eps );
+
+   
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "Inputs.HDF" ) ); // attempt to save in already existed file should fail
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "/tmp/Inputs.HDF" ) ); // attempt to save in a place different from the project location should fail
+
+   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "" ) ); // file name will be generated from map name
+   ASSERT_EQ( true, ibs::FilePath( mapName+"_copy.HDF" ).exists() ); // file was written
+
+   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest1.project3d" ) );
+   {
+      mbapi::Model tmpModel;
+      tmpModel.loadModelFromProjectFile( "MapsTest1.project3d" );
+
+      const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager().mapsIDs();
+      ASSERT_EQ( tids.size(), 9 );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapName" ), std::string( "MAP-1076770443-4_copy" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapFileName" ), std::string( "MAP-1076770443-4_copy.HDF" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapType" ), std::string( "HDF5" ) );
+   }
+   ibs::FilePath( "MapsTest1.project3d" ).remove();
+
+   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "Test.HDF" ) ); // file name will be generated from map name
+   ASSERT_EQ( true, ibs::FilePath( "Test.HDF" ).exists() ); // file was written
+   
+   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest2.project3d" ) );
+   {
+      mbapi::Model tmpModel;
+      tmpModel.loadModelFromProjectFile( "MapsTest2.project3d" );
+
+      const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager().mapsIDs();
+      ASSERT_EQ( tids.size(), 9 );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapName" ), std::string( "MAP-1076770443-4_copy" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapFileName" ), std::string( "Test.HDF" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 8, "MapType" ), std::string( "HDF5" ) );
+   }
+   ibs::FilePath( "MapsTest2.project3d" ).remove();
+}
+

@@ -2,7 +2,7 @@
 <tagfile>
   <compound kind="file">
     <name>cmbAPI.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>cmbAPI_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <includes id="LithologyManager_8h" name="LithologyManager.h" local="yes" imported="no">LithologyManager.h</includes>
@@ -17,13 +17,13 @@
   </compound>
   <compound kind="file">
     <name>ErrorHandler.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>ErrorHandler_8h</filename>
     <class kind="class">ErrorHandler</class>
   </compound>
   <compound kind="file">
     <name>FluidManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>FluidManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::FluidManager</class>
@@ -31,7 +31,7 @@
   </compound>
   <compound kind="file">
     <name>LithologyManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
@@ -39,7 +39,7 @@
   </compound>
   <compound kind="file">
     <name>PropertyManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>PropertyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::PropertyManager</class>
@@ -47,7 +47,7 @@
   </compound>
   <compound kind="file">
     <name>SnapshotManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>SnapshotManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SnapshotManager</class>
@@ -55,7 +55,7 @@
   </compound>
   <compound kind="file">
     <name>SourceRockManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>SourceRockManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SourceRockManager</class>
@@ -63,7 +63,7 @@
   </compound>
   <compound kind="file">
     <name>StratigraphyManager.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>StratigraphyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::StratigraphyManager</class>
@@ -71,7 +71,7 @@
   </compound>
   <compound kind="file">
     <name>UndefinedValues.h</name>
-    <path>D:/cauldron/trunk/development/libraries/cmbAPI/src/</path>
+    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>UndefinedValues_8h</filename>
     <member kind="define">
       <type>#define</type>
@@ -158,6 +158,10 @@
     <docanchor file="LithologyManagerPage" title="Exponential porosity model">ExpPorosityModelSubSec</docanchor>
     <docanchor file="LithologyManagerPage" title="Soil mechanics porosity model">SoilMechPorosityModelSubSec</docanchor>
     <docanchor file="LithologyManagerPage" title="Double-Exponential porosity model">DoubleExpPorosityModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Permeability models">PermModelsSpec</docanchor>
+    <docanchor file="LithologyManagerPage" title="None model means tiny constant permeability">NonePermModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Permeability for sandstone">SandPermModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage" title="Permeability for mudstone">MudPermModelSubSec</docanchor>
   </compound>
   <compound kind="page">
     <name>SourceRockManagerPage</name>
@@ -405,10 +409,24 @@
     <base>ErrorHandler</base>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
-      <name>STPThermalConductivityCoeff</name>
+      <name>permeabilityModel</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a5689ece2a18964525251a13b0643946d</anchor>
-      <arglist>(LithologyID id, double &amp;stpThermCond)=0</arglist>
+      <anchor>a4ffe87e6674c438a85dcdbaa24b00c25</anchor>
+      <arglist>(LithologyID id, PermeabilityModel &amp;prmModel, std::vector&lt; double &gt; &amp;modelPrms, std::vector&lt; double &gt; &amp;mpPor, std::vector&lt; double &gt; &amp;mpPerm)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setPermeabilityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>ae06543991706b50048fd0dba809f5517</anchor>
+      <arglist>(LithologyID id, PermeabilityModel prmModel, const std::vector&lt; double &gt; &amp;modelPrms, const std::vector&lt; double &gt; &amp;mpPor, const std::vector&lt; double &gt; &amp;mpPerm)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>stpThermalConductivityCoeff</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a8b6609940c60e4b2a04fa4553edbfc55</anchor>
+      <arglist>(LithologyID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
@@ -426,30 +444,79 @@
     </member>
     <member kind="enumvalue">
       <type>@</type>
-      <name>Exponential</name>
+      <name>PorExponential</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52a84ae9107844367f2629e8bb63be08c4b</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a6136ef8a9cf81f8a7d7b3f3927b598e2</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <type>@</type>
-      <name>SoilMechanics</name>
+      <name>PorSoilMechanics</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52a9eb738599441dabdf9e6bd5916c80e35</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a877a14dedc0be3867260fc50edf1c940</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <type>@</type>
-      <name>DoubleExponential</name>
+      <name>PorDoubleExponential</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52aab09c791a527b767e78d0a5303fd9bf2</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a234b24e80c3f61b37e8d84f36ffca632</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <type>@</type>
-      <name>Unknown</name>
+      <name>PorUnknown</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a08cb1061f6837c519aac4693059d2e52a4949d15dc8c5d90d29288d6e04ac0318</anchor>
+      <anchor>a08cb1061f6837c519aac4693059d2e52a9b69869589d397a08d02dba0bb30e9a3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>PermeabilityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PermSandstone</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7ad3e0bcc19fdcc2f3e03f794c2e81db6d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PermMudstone</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7a8e9d552709ff2027e747509b12136903</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PermNone</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7aa719cc0bc6ee613e829bea534904628a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PermImpermeable</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7a99f0ba9769e0c8ec515ad76ad1af1a30</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PermMultipoint</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7afdaf8e1a78818b355d55a08597c63f58</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>PermUnknown</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a60a733ce7e8dc40d3c34a148b20009a7a8d81c57c9880b040907e0238eaed9539</anchor>
       <arglist></arglist>
     </member>
     <member kind="typedef">
@@ -479,6 +546,20 @@
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
       <anchor>afb0d100c1b64f3b1c7b938f877593e7e</anchor>
       <arglist>(LithologyID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual LithologyID</type>
+      <name>findID</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a880822d08e356235c9008662c8a4d73f</anchor>
+      <arglist>(const std::string &amp;lName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual LithologyID</type>
+      <name>copyLithology</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a2950a1af483ae7163b611d0b52be677f</anchor>
+      <arglist>(LithologyID id, const std::string &amp;newLithoName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
@@ -882,6 +963,27 @@
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>ac8f5c4812a9c0ada5e008c8d4a468003</anchor>
       <arglist>(LayerID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>layerLithologiesList</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a1b19b2f0373285b8dfd7c909dc9944f0</anchor>
+      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setLayerLithologiesList</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a907c128c45f029e469dc00b2156f5fa0</anchor>
+      <arglist>(LayerID id, const std::vector&lt; std::string &gt; &amp;lithoList, const std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; LayerID &gt;</type>
+      <name>findLayersForLithology</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ab5b7608a217dea56fc9c8946dcd44d36</anchor>
+      <arglist>(const std::string &amp;lithoName)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>

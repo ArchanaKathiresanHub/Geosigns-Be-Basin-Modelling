@@ -76,12 +76,21 @@ namespace casa
       const std::string & mapName = srMgr.tocInitMapName(sid);
       if ( !mapName.empty() )
       {
-         throw ErrorHandler::Exception(ErrorHandler::AlreadyDefined) <<
-            "Source rock lithology for layer" << m_layerName << 
-            " has TOC already defined as a map. This is unsupported yet";
+         mbapi::MapsManager & mpMgr = mdl.mapsManager();
+         mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
+         if ( UndefinedIDValue == mID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
+               << " has TOC defined as unknown map :" << mapName; 
+         }
+         double minVal, maxVal;
+         mpMgr.mapValuesRange( mID, minVal, maxVal );
+         m_toc = maxVal;
       }
-
-      m_toc = srMgr.tocIni( sid );
+      else
+      {
+         m_toc = srMgr.tocIni( sid );
+      }
    }
    catch (const ErrorHandler::Exception & e) { mdl.reportError(e.errorCode(), e.what()); }
 
@@ -154,11 +163,33 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel 
       const std::string & mapName = srMgr.tocInitMapName( sid );
       if ( !mapName.empty() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Source rock lithology for layer" <<
-            m_layerName << " has TOC already defined as a map. This is unsupported yet";
-      }
+         mbapi::MapsManager & mpMgr = caldModel.mapsManager();
+         mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
 
-      if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, m_toc ) )
+         if ( UndefinedIDValue == mID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
+               << " has TOC defined as unknown map :" << mapName; 
+         }
+
+         // copy map and rescale it for max TOC
+         double minV, maxV;
+         mpMgr.mapValuesRange( mID, minV, maxV );
+
+         mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, mapName + "_VarTOC" );
+         if ( UndefinedIDValue == cmID )
+         {
+            ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy TOC map " << mapName << " failed";
+         }
+         mpMgr.mapValuesRange( cmID, minV, maxV );
+         if ( !NumericFunctions::isEqual( 0.0, minV, 1.e-4 ) && minV >= m_toc )
+         {
+            minV = (m_toc - (maxV - minV)) < 0 ? 0.0 : (m_toc - (maxV - minV));
+         }
+         mpMgr.rescaleMap( cmID, minV, m_toc );
+         mpMgr.saveMapToHDF( cmID,  mapName + "_VarTOC.HDF" );
+      }
+      else if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, m_toc ) )
       {
          throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
       }
@@ -200,23 +231,39 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<
                "Can not get TOC parameter for the mixing of source rocks for the layer " << m_layerName << ", not implemented yet";
       }
-      else // otherwise go to source rock lithology table for the source rock hi
-      {
-         const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
-         if ( srtNames.empty() )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
-               " set as source rock layer but has no source rock lithology defined";
-         }
 
-         mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
-         if ( IsValueUndefined( sid ) )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
-               << m_layerName << " and SR type " << srtNames[0];
-         }
-         tocInModel = srMgr.tocIni( sid );
+      // otherwise go to source rock lithology table for the source rock hi
+      const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
+      if ( srtNames.empty() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Layer " << m_layerName <<
+            " set as source rock layer but has no source rock lithology defined";
       }
+
+      mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, srtNames[0] );
+      if ( IsValueUndefined( sid ) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Can not find source rock lithology for layer "
+            << m_layerName << " and SR type " << srtNames[0];
+      }
+
+      // check if in base project TOC is defined as a map
+      const std::string & mapName = srMgr.tocInitMapName( sid );
+      if ( !mapName.empty() )
+      {
+         mbapi::MapsManager & mpMgr = caldModel.mapsManager();
+         mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
+
+         if ( UndefinedIDValue == mID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
+               << " has TOC defined as unknown map :" << mapName; 
+         }
+         // copy map and rescale it for max TOC
+         double minV;
+         mpMgr.mapValuesRange( mID, minV, tocInModel );
+      }
+      else { tocInModel = srMgr.tocIni( sid ); }
 
       if ( !NumericFunctions::isEqual( tocInModel, m_toc, 1.e-4 ) )
       {

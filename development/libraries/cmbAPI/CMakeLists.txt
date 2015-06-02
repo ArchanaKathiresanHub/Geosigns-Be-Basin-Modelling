@@ -68,6 +68,9 @@ configure_file(test/Project.project3d Project.project3d COPYONLY )
 configure_file(test/SourceRockTesting.project3d SourceRockTesting.project3d COPYONLY )
 configure_file(test/LithologyTesting.project3d LithologyTesting.project3d COPYONLY )
 configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
+configure_file( test/MapsTesting.project3d MapsTesting.project3d COPYONLY )
+configure_file( test/Inputs.HDF Inputs.HDF COPYONLY )
+
 
 add_gtest( NAME mbapiModelTest
    SOURCES test/mbapiModelTest.C

@@ -23,6 +23,7 @@
 #include "SourceRockManager.h"
 #include "StratigraphyManager.h"
 #include "FluidManager.h"
+#include "MapsManager.h"
 
 #include "UndefinedValues.h"
 
@@ -58,6 +59,7 @@
 /// -# \subpage LithologyManagerPage
 /// -# \subpage SourceRockManagerPage
 /// -# \subpage FluidManagerPage
+/// -# \subpage MapsManagerPage
 ///
 /// @page ClassHierachyPage Cauldron Model hierarchy description.
 /// The top level class is the mbapi::Model . It includes and provides access to the following set of classes:
@@ -65,6 +67,7 @@
 ///   -# mbapi::FluidManager - for manipulating fluids
 ///   -# mbapi::SourceRockManager - for manipulating source rocks
 ///   -# mbapi::LithologyManager for manipulating lithologies
+///   -# mbapi::MapsManager for manipulating 2D input maps
 
 /// @brief Namespace which keeps API to manipulate Cauldron model
 namespace mbapi {
@@ -183,7 +186,11 @@ namespace mbapi {
       /// @brief Get property manager. It provides access to the FilterTimeIoTable in project file
       /// @return reference to property manager
       PropertyManager & propertyManager();
-    
+
+      /// @brief Get input maps manager. It provides access to the GridMapIoTbl in project file
+      /// @return reference to maps manager
+      MapsManager & mapsManager();
+
       ///@}
 
    private:
