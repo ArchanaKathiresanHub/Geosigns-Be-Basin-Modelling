@@ -137,7 +137,7 @@ const GridMap * Surface::getInputDepthMap (void) const
    else return 0;
 }
 
-const GridMap * Surface::getInputTwoWayTimeMap (void) const
+GridMap const * const Surface::getInputTwoWayTimeMap( void ) const
 {
    const GridMap * gridMap = 0;
    database::Table* twoWayTimeTbl = m_projectHandle -> getTable( "TwoWayTimeIoTbl" );

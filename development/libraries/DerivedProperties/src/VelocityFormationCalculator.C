@@ -30,7 +30,7 @@ void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperti
    DataModel::AbstractProperty const * const vesProperty         = propertyManager.getProperty( "Ves" );
    DataModel::AbstractProperty const * const maxVesProperty      = propertyManager.getProperty( "MaxVes" );
 
-   const DataModel::AbstractProperty const * const velocityProperty = propertyManager.getProperty ( "Velocity" );
+   DataModel::AbstractProperty const * const velocityProperty = propertyManager.getProperty ( "Velocity" );
    
    const FormationPropertyPtr porosity    = propertyManager.getFormationProperty ( porosityProperty, snapshot, formation );
    const FormationPropertyPtr bulkDensity = propertyManager.getFormationProperty ( bulkDensityProperty, snapshot, formation );
