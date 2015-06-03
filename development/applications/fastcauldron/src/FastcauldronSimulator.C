@@ -1912,8 +1912,8 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
       H5_Parallel_PropertyList::setOneFilePerProcessOption ();
    }
 
-   for ( int i = 0; i < argc; ++i ) {
-      m_commandLine += std::string ( argv [ i ]) + ' ';
+   for ( int i = 1; i < argc; ++i ) {
+      m_commandLine += std::string ( argv [ i ]) + ( i == argc - 1 ? "" : " " );
    }
 
    H5_Parallel_PropertyList::setOneNodeCollectiveBufferingOption();
