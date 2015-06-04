@@ -157,6 +157,8 @@
 #include "../../../cmbAPI/src/SnapshotManagerImpl.h"
 #include "../../../cmbAPI/src/PropertyManager.h"
 #include "../../../cmbAPI/src/PropertyManagerImpl.h"
+#include "../../../cmbAPI/src/MapsManager.h"
+#include "../../../cmbAPI/src/MapsManagerImpl.h"
 #include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 #include "../../../casaAPI/src/CauldronApp.h"
@@ -360,6 +362,8 @@ using namespace casa;
 %include "../../../cmbAPI/src/SnapshotManagerImpl.h"
 %include "../../../cmbAPI/src/PropertyManager.h"
 %include "../../../cmbAPI/src/PropertyManagerImpl.h"
+%include "../../../cmbAPI/src/MapsManager.h"
+%include "../../../cmbAPI/src/MapsManagerImpl.h"
 %include "../../../cmbAPI/src/cmbAPI.h"
 // CASA API
 %include "../../../casaAPI/src/CauldronApp.h"
