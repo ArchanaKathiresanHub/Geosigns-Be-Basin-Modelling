@@ -67,7 +67,7 @@ CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom ( const strin
 
 void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
 
-   m_crustalThicknessCalculator->setSimulationDetails ( "fastctc", "default", "" );
+   m_crustalThicknessCalculator->setSimulationDetails ( "fastctc", "Default", "" );
    m_crustalThicknessCalculator->finishActivity ();
 
    if( saveResults ) {

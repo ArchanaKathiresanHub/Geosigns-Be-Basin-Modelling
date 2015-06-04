@@ -144,7 +144,7 @@ bool GenexSimulator::run()
    }
 
    finishActivity (); 
-   setSimulationDetails ( "fastgenex", "default", "" );
+   setSimulationDetails ( "fastgenex", "Default", "" );
 
    if( !mergeOutputFiles ()) {
       PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");

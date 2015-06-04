@@ -104,7 +104,7 @@ bool FastTouch::compute (void)
    delete touchstoneMaps;
  
    m_projectHandle->finishActivity ();
-   m_projectHandle->setSimulationDetails ( "fasttouch", "default", "" );
+   m_projectHandle->setSimulationDetails ( "fasttouch", "Default", "" );
  
    status = true;
    if( !mergeOutputFiles ()) {

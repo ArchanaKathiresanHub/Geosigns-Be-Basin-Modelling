@@ -202,7 +202,7 @@ bool Migrator::compute (void)
 #endif
    finishActivity ();
 
-   setSimulationDetails ( "fastmig", "default", "" );
+   setSimulationDetails ( "fastmig", "Default", "" );
 
    bool status = true;
    if( !mergeOutputFiles ()) {
@@ -307,8 +307,6 @@ bool Migrator::chargeReservoirs (const Interface::Snapshot * start, const Interf
    Interface::ReservoirList::iterator reservoirAboveIter;
 
 
-   cerr << endl << endl;
-
    Reservoir * reservoir = 0;
    Reservoir * reservoirBelow = 0;
    Reservoir * reservoirAbove = 0;
@@ -323,12 +321,12 @@ bool Migrator::chargeReservoirs (const Interface::Snapshot * start, const Interf
          reservoirAbove = 0;
 
       assert (reservoir);
-#if 1
+#if 0
       cerr << GetRankString () << ": " << "Evaluating Reservoir: " << reservoir->getName () << endl;
 #endif
       if (reservoir->isActive (start))
       {
-#if 1
+#if 0
          cerr << GetRankString () << ": " << "Charging Reservoir: " << reservoir->getName () << endl;
 #endif
          if (!chargeReservoir (reservoir, reservoirAbove, reservoirBelow, start, end))
@@ -508,7 +506,7 @@ bool Migrator::chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbov
 bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
       const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier)
 {
-#if 1
+#if 0
    cerr << GetRankString () << ": " << "collectAndMigrateExpelledCharges (" << reservoir->getName () << ") starting" << endl;
 #endif
 
@@ -527,20 +525,20 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       const Formation * formationBelowBelow = 0;
       if (formationBelow) formationBelowBelow = formationBelow->getBottomFormation ();
 
-#if 1
+#if 0
       cerr << "\tFormation: " << formation->getName () << (formation->isSourceRock () ? "(SR)" : "(--)");
 #endif
 
       if (withinRange || formationBelow == reservoir->getFormation () || formationBelowBelow == reservoir->getFormation ())
       {
          withinRange = true;
-#if 1
+#if 0
          cerr << " is within range" << endl;
 #endif
       }
       else
       {
-#if 1
+#if 0
          cerr << " is out of range" << endl;
 #endif
          continue;
@@ -551,7 +549,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       if (formationBelow == reservoir->getFormation () || formationBelowBelow == reservoir->getFormation ())
       {
          // source rock atmost 2 formations above reservoir
-#if 1
+#if 0
          cerr << "\t\tand just above reservoir" << endl;
 #endif
          // check if reservoirAbove is in the way of reservoir with respect to downward migration
@@ -567,7 +565,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       else if (formation == reservoir->getFormation ())
       {
          // reservoir in source rock
-#if 1
+#if 0
          cerr << "\t\tand contains reservoir" << endl;
 #endif
          // check if reservoirBelow is also in the source rock
@@ -586,7 +584,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
              formationBelowBelow == reservoirBelow->getFormation ()))
       {
          // source rock just above reservoir below
-#if 1
+#if 0
          cerr << "\t\tand just above reservoir below" << endl;
 #endif
          directionsToCollect |= EXPELLEDUPWARD;
@@ -598,7 +596,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       }
       else
       {
-#if 1
+#if 0
          cerr << "\t\tand comfortably below reservoir and above reservoir below" << endl;
 #endif
          // comfortably below reservoir and above reservoirBelow
@@ -609,7 +607,6 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
 
       if (formation->isSourceRock ())
       {
-         cerr << " migrating from formation " << formation->getName () << "is source rock, to reservoir " << reservoir->getFormation ()->getName ()<< endl;
          reservoir->collectExpelledCharges (formation, directionsToCollect, barrier);
          reservoir->migrateChargesToBeMigrated (formation, 0);
       }
@@ -619,14 +616,14 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       if (reservoirBelow && reservoirBelow->isActive (end) &&
             formationBelow == reservoirBelow->getFormation ())
       {
-#if 1
+#if 0
          cerr << "\t\tand last within range" << endl;
 #endif
          break;
       }
    }
 
-#if 1
+#if 0
    cerr << GetRankString () << ": " << "collectAndMigrateExpelledCharges (" << reservoir->getName () << ") finished" << endl;
 #endif
    return false;
@@ -679,7 +676,7 @@ Interface::ReservoirList * Migrator::getReservoirs (const Interface::Formation *
       {
          m_reservoirs = Interface::ProjectHandle::getReservoirs (0);
 
-#if 1
+#if 0
          Interface::ReservoirList::iterator reservoirIter;
          cerr << GetRankString () << ": " << "Before sorting: " << endl;
          for (reservoirIter = m_reservoirs->begin (); reservoirIter != m_reservoirs->end (); ++reservoirIter)
@@ -694,7 +691,7 @@ Interface::ReservoirList * Migrator::getReservoirs (const Interface::Formation *
 #endif
          sort (m_reservoirs->begin (), m_reservoirs->end (), reservoirSorter);
 
-#if 1
+#if 0
          cerr << GetRankString () << ": " << "After sorting: " << endl;
          for (reservoirIter = m_reservoirs->begin (); reservoirIter != m_reservoirs->end (); ++reservoirIter)
          {
