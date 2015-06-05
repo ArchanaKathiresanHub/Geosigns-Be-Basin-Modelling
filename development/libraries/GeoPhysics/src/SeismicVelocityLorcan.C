@@ -26,7 +26,7 @@ namespace GeoPhysics
 	{
 		double velocity = 0;
 		/// If there is a fluid
-		if (seismicVelocityFluid != -1 && densityFluid != -1)
+      if (seismicVelocityFluid != -1 && densityFluid != -1 && m_porositySurface != 0)
 		{
 			///1 Compute fluid modulus
 			double modulusFluid = densityFluid*seismicVelocityFluid*seismicVelocityFluid;

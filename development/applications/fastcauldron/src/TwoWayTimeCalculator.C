@@ -117,10 +117,15 @@ bool TwoWayTimeCalculator::operator ()( const OutputPropertyMap::OutputPropertyL
                   distance = m_depth->getVolumeValue( i, j, k ) - m_depth->getVolumeValue( i, j, k + 1 );
                   ///2.2 Compute the harmonic mean of the velocity between the nodes
                   seismicVelocityBulk = 2 * m_seismicVelocity->getVolumeValue( i, j, k ) * m_seismicVelocity->getVolumeValue( i, j, k + 1 );
-                  seismicVelocityBulk /= m_seismicVelocity->getVolumeValue( i, j, k ) + m_seismicVelocity->getVolumeValue( i, j, k + 1 );
-                  assert( seismicVelocityBulk != 0 );
-                  ///2.3 Compute the twoWayTime between the nodes
-                  value += 2 * distance / seismicVelocityBulk;
+                  if ( seismicVelocityBulk != 0 ){
+                     seismicVelocityBulk /= m_seismicVelocity->getVolumeValue( i, j, k ) + m_seismicVelocity->getVolumeValue( i, j, k + 1 );
+                     ///2.3 Compute the twoWayTime between the nodes
+                     value += 2 * distance / seismicVelocityBulk;
+                  }
+                  else {
+                     // In case we have basalt or other lithologies which are blocking the seismic waves (Vp=0)
+                     value = undefinedValue;
+                  }
                }
 
             }
