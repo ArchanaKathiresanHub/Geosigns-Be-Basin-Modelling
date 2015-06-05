@@ -38,7 +38,7 @@ namespace DataAccess
 	    virtual const GridMap * getInputDepthMap (void) const;
 
        /// Return the present day, user-supplied Surface two way (travel) time GridMap.
-       virtual const GridMap * const getInputTwoWayTimeMap (void) const;
+       virtual const GridMap * getInputTwoWayTimeMap (void) const;
 
 	    /// Return the Formation found above this Surface if there is one.
 	    virtual const Formation * getTopFormation (void) const;
