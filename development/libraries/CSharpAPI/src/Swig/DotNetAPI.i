@@ -48,6 +48,7 @@
 
 %{
 // Interface to DataModel
+#include "../../../DataModel/src/PropertyAttribute.h"
 #include "../../../DataModel/src/AbstractFormation.h"
 #include "../../../DataModel/src/AbstractSurface.h"
 #include "../../../DataModel/src/AbstractGrid.h"
@@ -250,6 +251,7 @@ using namespace casa;
 %rename(ComponentId2) DataAccess::Interface::ComponentId;
 
 // Interface to DataModel
+%include "../../../DataModel/src/PropertyAttribute.h"
 %include "../../../DataModel/src/AbstractFormation.h"
 %include "../../../DataModel/src/AbstractSurface.h"
 %include "../../../DataModel/src/AbstractGrid.h"
