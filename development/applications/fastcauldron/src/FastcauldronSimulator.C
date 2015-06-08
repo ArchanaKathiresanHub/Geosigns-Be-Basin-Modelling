@@ -1454,36 +1454,9 @@ void FastcauldronSimulator::setToConstantDensity () {
 //------------------------------------------------------------//
 
 void FastcauldronSimulator::correctAllPropertyLists () {
-
-   if ( getModellingMode () == Interface::MODE1D ) {
-      correctAllPropertyLists1D ();
-   } else {
-      correctAllPropertyLists3D ();
-   }
-
    correctTimeFilterDefaults ();
    connectOutputProperties ();
   
-}
-
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::correctAllPropertyLists1D () {
-
-   if ( findProperty ( "ChemicalCompaction" ) == 0 ) {
-      m_properties.push_back (getFactory ()->produceProperty (this, 0, "ChemicalCompaction", "ChemicalCompaction", "", Interface::FORMATIONPROPERTY));
-   }
-
-}
-
-//------------------------------------------------------------//
-
-void FastcauldronSimulator::correctAllPropertyLists3D () {
-
-   if ( findProperty ( "ChemicalCompaction" ) == 0 ) {
-      m_properties.push_back (getFactory ()->produceProperty (this, 0, "ChemicalCompaction", "ChemicalCompaction", "", Interface::FORMATIONPROPERTY));
-   }
-
 }
 
 //------------------------------------------------------------//

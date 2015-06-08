@@ -36,7 +36,11 @@ namespace DataAccess {
          /// \brief Get the name of the simulator.
          virtual const std::string& getSimulatorName () const;
 
-         /// \brief Get the most of the simulation.
+         /// \brief Get the mode of the simulation.
+         ///
+         /// Currently only fastcaudron is capable of running in different modes.
+         /// HydrostaticDecompaction, HydrostaticTemperature, ...
+         /// All other simulators will have the value Default.
          virtual const std::string& getSimulatorMode () const;
 
          /// \brief Get the number of cores used in the simulation.

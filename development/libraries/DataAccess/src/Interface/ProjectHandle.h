@@ -11,6 +11,8 @@ using namespace std;
 
 #include "database.h"
 
+#include "PropertyAttribute.h"
+
 #include "MessageHandler.h"
 #include "ApplicationGlobalOperations.h"
 
@@ -308,6 +310,9 @@ namespace DataAccess
             const Snapshot * snapshot = 0,
             const Reservoir * reservoir = 0, const Formation * formation = 0,
             const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
+
+         /// \brief Get the list of properties that have the particular PropertyAttribute.
+         virtual PropertyListPtr getProperties ( const DataModel::PropertyAttribute attr ) const;
 
          /// @brief Return a list of property values based on the given arguments.
          ///

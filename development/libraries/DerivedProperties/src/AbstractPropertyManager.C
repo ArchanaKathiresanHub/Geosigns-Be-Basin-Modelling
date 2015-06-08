@@ -258,30 +258,35 @@ DerivedProperties::SurfacePropertyPtr DerivedProperties::AbstractPropertyManager
 
    SurfacePropertyPtr result;
 
-   result = findSurfacePropertyValues ( property, snapshot, surface );
+   if ( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+        property->getPropertyAttribute () == DataModel::SURFACE_2D_PROPERTY ) {
 
-   if ( result == 0 ) {
-      const SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property, snapshot );
-      SurfacePropertyList  calculatedProperties;
+      result = findSurfacePropertyValues ( property, snapshot, surface );
+
+      if ( result == 0 ) {
+         const SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property, snapshot );
+         SurfacePropertyList  calculatedProperties;
  
-      if ( calculator != 0 ) {
-         calculator->calculate ( *this, snapshot, surface, calculatedProperties );
+         if ( calculator != 0 ) {
+            calculator->calculate ( *this, snapshot, surface, calculatedProperties );
 
-         for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
-            addSurfaceProperty ( calculatedProperties [ i ]);
+            for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+               addSurfaceProperty ( calculatedProperties [ i ]);
 
-            if ( calculatedProperties [ i ]->getProperty () == property ) {
-               result = calculatedProperties [ i ];
+               if ( calculatedProperties [ i ]->getProperty () == property ) {
+                  result = calculatedProperties [ i ];
+               }
+
             }
 
-         }
+            if ( result == 0 ) {
+               // Error.
+            }
 
-         if ( result == 0 ) {
+         } else {
             // Error.
          }
 
-      } else {
-         // Error.
       }
 
    }
@@ -295,30 +300,34 @@ DerivedProperties::FormationMapPropertyPtr DerivedProperties::AbstractPropertyMa
    
    FormationMapPropertyPtr result;
 
-   result = findFormationMapPropertyValues ( property, snapshot, formation );
+   if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY ) {
 
-   if ( result == 0 ) {
-      const FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property, snapshot );
-      FormationMapPropertyList  calculatedProperties;
+      result = findFormationMapPropertyValues ( property, snapshot, formation );
+
+      if ( result == 0 ) {
+         const FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property, snapshot );
+         FormationMapPropertyList  calculatedProperties;
  
-      if ( calculator != 0 ) {
-         calculator->calculate ( *this, snapshot, formation, calculatedProperties );
+         if ( calculator != 0 ) {
+            calculator->calculate ( *this, snapshot, formation, calculatedProperties );
 
-         for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
-            addFormationMapProperty ( calculatedProperties [ i ]);
+            for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+               addFormationMapProperty ( calculatedProperties [ i ]);
 
-            if ( calculatedProperties [ i ]->getProperty () == property ) {
-               result = calculatedProperties [ i ];
+               if ( calculatedProperties [ i ]->getProperty () == property ) {
+                  result = calculatedProperties [ i ];
+               }
+
             }
 
-         }
+            if ( result == 0 ) {
+               // Error.
+            }
 
-         if ( result == 0 ) {
+         } else {
             // Error.
          }
 
-      } else {
-         // Error.
       }
 
    }
@@ -332,30 +341,35 @@ DerivedProperties::FormationPropertyPtr DerivedProperties::AbstractPropertyManag
    
    FormationPropertyPtr result;
 
-   result = findFormationPropertyValues ( property, snapshot, formation );
+   if ( property->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY or
+        property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
 
-   if ( result == 0 ) {
-      const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property, snapshot );
-      FormationPropertyList  calculatedProperties;
+      result = findFormationPropertyValues ( property, snapshot, formation );
+
+      if ( result == 0 ) {
+         const FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property, snapshot );
+         FormationPropertyList  calculatedProperties;
  
-      if ( calculator != 0 ) {
-         calculator->calculate ( *this, snapshot, formation, calculatedProperties );
+         if ( calculator != 0 ) {
+            calculator->calculate ( *this, snapshot, formation, calculatedProperties );
 
-         for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
-            addFormationProperty ( calculatedProperties [ i ]);
+            for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+               addFormationProperty ( calculatedProperties [ i ]);
 
-            if ( calculatedProperties [ i ]->getProperty () == property ) {
-               result = calculatedProperties [ i ];
+               if ( calculatedProperties [ i ]->getProperty () == property ) {
+                  result = calculatedProperties [ i ];
+               }
+
             }
 
-         }
+            if ( result == 0 ) {
+               // Error.
+            }
 
-         if ( result == 0 ) {
+         } else {
             // Error.
          }
 
-      } else {
-         // Error.
       }
 
    }
@@ -367,33 +381,37 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
                                                                                                                          const DataModel::AbstractSnapshot*  snapshot,
                                                                                                                          const DataModel::AbstractFormation* formation,
                                                                                                                          const DataModel::AbstractSurface*   surface ) {
-   
+
    FormationSurfacePropertyPtr result;
 
-   result = findFormationSurfacePropertyValues ( property, snapshot, formation, surface );
+   if ( property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
 
-   if ( result == 0 ) {
-      const FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property, snapshot );
-      FormationSurfacePropertyList  calculatedProperties;
+      result = findFormationSurfacePropertyValues ( property, snapshot, formation, surface );
+
+      if ( result == 0 ) {
+         const FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property, snapshot );
+         FormationSurfacePropertyList  calculatedProperties;
  
-      if ( calculator != 0 ) {
-         calculator->calculate ( *this, snapshot, formation, surface, calculatedProperties );
+         if ( calculator != 0 ) {
+            calculator->calculate ( *this, snapshot, formation, surface, calculatedProperties );
 
-         for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
-            addFormationSurfaceProperty ( calculatedProperties [ i ]);
+            for ( size_t i = 0; i < calculatedProperties.size (); ++i ) {
+               addFormationSurfaceProperty ( calculatedProperties [ i ]);
 
-            if ( calculatedProperties [ i ]->getProperty () == property ) {
-               result = calculatedProperties [ i ];
+               if ( calculatedProperties [ i ]->getProperty () == property ) {
+                  result = calculatedProperties [ i ];
+               }
+
             }
 
-         }
+            if ( result == 0 ) {
+               // Error.
+            }
 
-         if ( result == 0 ) {
+         } else {
             // Error.
          }
 
-      } else {
-         // Error.
       }
 
    }

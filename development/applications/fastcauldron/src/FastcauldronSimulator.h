@@ -323,10 +323,6 @@ private :
    void correctTimeFilterDefaults3D ();
 
 
-   void correctAllPropertyLists1D ();
-
-   void correctAllPropertyLists3D ();
-
    /// \brief Read command line parameters associated with the relative-permeabilities.
    void readRelPermCommandLineParameters ();
 

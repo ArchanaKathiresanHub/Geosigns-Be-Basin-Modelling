@@ -6,6 +6,8 @@
 
 // #include "hdf5.h"
 
+#include "PropertyAttribute.h"
+
 using namespace std;
 #include "Interface/Interface.h"
 
@@ -138,8 +140,9 @@ namespace DataAccess
             virtual PermafrostEvent* producePermafrostEvent (ProjectHandle * projectHandle, database::Record * record );
 
 	    virtual Property * produceProperty (ProjectHandle * projectHandle, database::Record * record,
-                     const string & userName, const string & cauldronName,
-                     const string & unit, PropertyType type);
+                                                const string & userName, const string & cauldronName,
+                                                const string & unit, PropertyType type,
+                                                const DataModel::PropertyAttribute attr );
 
 	    virtual PropertyValue * producePropertyValue (ProjectHandle * projectHandle, database::Record * record,
 		  const string & name, const Property * property, const Snapshot * snapshot,

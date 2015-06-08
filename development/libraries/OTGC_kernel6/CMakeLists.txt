@@ -22,6 +22,7 @@ add_library(OTGC_kernel6
 )
 
 bm_include_libraries(
+	DataModel
 	genex6
 	utilities
 	CBMGenerics

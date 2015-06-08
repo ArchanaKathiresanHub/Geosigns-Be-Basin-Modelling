@@ -165,6 +165,11 @@ namespace DataAccess
       /// \brief Smart pointer to vector of simulation-details.
       typedef boost::shared_ptr<SimulationDetailsList> SimulationDetailsListPtr;
 
+      /// \typedef PropertyListPtr
+      /// \brief Smart pointer to vector of properties.
+      typedef boost::shared_ptr<PropertyList> PropertyListPtr;
+
+
       const string ALCBasalt = "ALC Basalt";
 
       // Shale-gas specific classes.
@@ -250,7 +255,7 @@ namespace DataAccess
       };
 
 
-      /// Specifies whether a Property applies to Formations or Reservoirs
+      /// Specifies whether a Property applies to formations, reservoirs or traps.
       enum PropertyType { FORMATIONPROPERTY, RESERVOIRPROPERTY, TRAPPROPERTY };
 
       /// Indicates the type of formation.
