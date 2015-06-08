@@ -253,58 +253,6 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
 
 
 
-
-TEST ( AbstractPropertyManagerTest,  Test2 )
-{
-   TestPropertyManager propertyManager;
-
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
-   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
-   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
-
-   const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
-   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
-
-   FormationMapPropertyPtr formationProperty2 = propertyManager.getFormationMapProperty ( property2, snapshot, formation );
-   FormationMapPropertyPtr formationProperty1 = propertyManager.getFormationMapProperty ( property1, snapshot, formation );
-   FormationMapPropertyPtr formationProperty3 = propertyManager.getFormationMapProperty ( property3, snapshot, formation );
-
-   EXPECT_EQ ( property1, formationProperty1->getProperty ());
-   EXPECT_EQ ( formation, formationProperty1->getFormation ());
-   EXPECT_EQ ( snapshot, formationProperty1->getSnapshot ());
-
-   EXPECT_EQ ( property2, formationProperty2->getProperty ());
-   EXPECT_EQ ( formation, formationProperty2->getFormation ());
-   EXPECT_EQ ( snapshot, formationProperty2->getSnapshot ());
-
-   EXPECT_EQ ( property3, formationProperty3->getProperty ());
-   EXPECT_EQ ( formation, formationProperty3->getFormation ());
-   EXPECT_EQ ( snapshot, formationProperty3->getSnapshot ());
-
-   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
-
-      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
-         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd, formationProperty2->get ( i, j ));
-      }
-
-   }
-
-   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
-
-      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
-         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd * ValueToAdd, formationProperty3->get ( i, j ));
-      }
-
-   }
-
-   delete snapshot;
-   delete surface;
-   delete formation;
-}
-
-
-
 TEST ( AbstractPropertyManagerTest,  Test3 )
 {
    TestPropertyManager propertyManager;
@@ -363,67 +311,11 @@ TEST ( AbstractPropertyManagerTest,  Test3 )
 }
 
 
-
-
-
-TEST ( AbstractPropertyManagerTest,  Test4 )
-{
-   TestPropertyManager propertyManager;
-
-   const DataModel::AbstractProperty* property1 = propertyManager.getProperty ( "Property1" );
-   const DataModel::AbstractProperty* property2 = propertyManager.getProperty ( "Property2" );
-   const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
-
-   const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
-   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
-
-   FormationSurfacePropertyPtr formationProperty2 = propertyManager.getFormationSurfaceProperty ( property2, snapshot, formation, surface );
-   FormationSurfacePropertyPtr formationProperty1 = propertyManager.getFormationSurfaceProperty ( property1, snapshot, formation, surface );
-   FormationSurfacePropertyPtr formationProperty3 = propertyManager.getFormationSurfaceProperty ( property3, snapshot, formation, surface );
-
-   EXPECT_EQ ( property1, formationProperty1->getProperty ());
-   EXPECT_EQ ( formation, formationProperty1->getFormation ());
-   EXPECT_EQ ( surface,   formationProperty1->getSurface ());
-   EXPECT_EQ ( snapshot, formationProperty1->getSnapshot ());
-
-   EXPECT_EQ ( property2, formationProperty2->getProperty ());
-   EXPECT_EQ ( formation, formationProperty2->getFormation ());
-   EXPECT_EQ ( surface,   formationProperty2->getSurface ());
-   EXPECT_EQ ( snapshot, formationProperty2->getSnapshot ());
-
-   EXPECT_EQ ( property3, formationProperty3->getProperty ());
-   EXPECT_EQ ( formation, formationProperty3->getFormation ());
-   EXPECT_EQ ( surface,   formationProperty3->getSurface ());
-   EXPECT_EQ ( snapshot, formationProperty3->getSnapshot ());
-
-   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
-
-      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
-         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd, formationProperty2->get ( i, j ));
-      }
-
-   }
-
-   for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
-
-      for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
-         EXPECT_DOUBLE_EQ ( formationProperty1->get ( i, j ) + ValueToAdd * ValueToAdd, formationProperty3->get ( i, j ));
-      }
-
-   }
-
-   delete snapshot;
-   delete surface;
-   delete formation;
-}
-
-
 TestPropertyManager::TestPropertyManager () {
    // These will come from the project handle.
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1" ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2" ) );
-   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3" ) );
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property1", DataModel::CONTINUOUS_3D_PROPERTY ));
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property2", DataModel::CONTINUOUS_3D_PROPERTY ));
+   m_mockProperties.push_back ( new DataModel::MockProperty ( "Property3", DataModel::CONTINUOUS_3D_PROPERTY ));
 
    // Add all properties to the property manager.
    for ( size_t i = 0; i < m_mockProperties.size (); ++i ) {

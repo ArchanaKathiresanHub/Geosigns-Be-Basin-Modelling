@@ -15,6 +15,7 @@ set(all_headers
   src/AbstractPropertyManager.h
   src/AbstractPropertyValues.h
   src/AllochthonousLithologyFormationMapCalculator.h
+  src/BulkDensityFormationCalculator.h
   src/DerivedFormationMapProperty.h
   src/DerivedFormationProperty.h
   src/DerivedFormationSurfaceProperty.h
@@ -67,6 +68,7 @@ set(all_headers
 set(all_srcs
   src/AbstractPropertyManager.C
   src/AllochthonousLithologyFormationMapCalculator.C
+  src/BulkDensityFormationCalculator.C
   src/DerivedFormationMapProperty.C
   src/DerivedFormationProperty.C
   src/DerivedFormationSurfaceProperty.C
@@ -148,8 +150,18 @@ add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
-add_gtest( NAME DerivedProperties::CompoundPropertyManagerTest
-           SOURCES test/CompoundPropertyManagerTest.C
+add_gtest( NAME DerivedProperties::CompoundFormationMapPropertyManagerTest
+           SOURCES test/CompoundFormationMapPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::CompoundContinuousPropertyManagerTest
+           SOURCES test/CompoundContinuousPropertyManagerTest.C
+           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+)
+
+add_gtest( NAME DerivedProperties::CompoundDiscontinuousPropertyManagerTest
+           SOURCES test/CompoundDiscontinuousPropertyManagerTest.C
            LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
 )
 
