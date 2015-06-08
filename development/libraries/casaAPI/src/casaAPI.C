@@ -544,17 +544,40 @@ ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa
             }
          }
       }
-      
+
+      // check ranges and base value
+      ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
+
+      switch ( mdlType )
+      {
+         case PrmPorosityModel::DoubleExponential:
+            if ( baseMinPor    < minMinPor    || baseMinPor    > maxMinPor    ) { throw ex << "Minimal porosity in the base case is outside of the given range"; }
+            if ( baseCompCoef1 < minCompCoef1 || baseCompCoef1 > maxCompCoef1 ) { throw ex << "Compaction coeff. (the second one) in the base case is outside of the given range"; }
+
+         case PrmPorosityModel::Exponential:
+           if ( baseSurfPor  < minSurfPor  || baseSurfPor  > maxSurfPor  ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
+           if ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) { throw ex << "Value of comaction coeff. in the base case is outside of the given range"; }
+           break;
+
+         case PrmPorosityModel::SoilMechanics:
+            {
+               bool surfPorIsDef = IsValueUndefined( minSurfPor  ) || IsValueUndefined( maxSurfPor  ) ? false : true;
+               bool compCofIsDef = IsValueUndefined( minCompCoef ) || IsValueUndefined( maxCompCoef ) ? false : true;
+ 
+               if ( surfPorIsDef && ( baseSurfPor  < minSurfPor  || baseSurfPor  > maxSurfPor  ) ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
+               if ( compCofIsDef && ( baseCompCoef < minCompCoef || baseCompCoef > maxCompCoef ) ) { throw ex << "Compaction coeff. in the base case is outside of the given range"; }
+            }
+            break;
+      }
+
       if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmPorosityModel( litName,       mdlType, 
                                                                                       baseSurfPor,   minSurfPor,   maxSurfPor, 
                                                                                       baseMinPor,    minMinPor,    maxMinPor,
                                                                                       baseCompCoef,  minCompCoef,  maxCompCoef,
                                                                                       baseCompCoef1, minCompCoef1, maxCompCoef1,
                                                                                       pdfType
-                                                                                    ) ) )
-      {
-         return sa.moveError( varPrmsSet );
-      }
+                                                                                    ) )
+         ) { return sa.moveError( varPrmsSet ); }
    }
    catch( const ErrorHandler::Exception & ex )
    {

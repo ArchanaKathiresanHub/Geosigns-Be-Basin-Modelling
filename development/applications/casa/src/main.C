@@ -12,6 +12,8 @@
 #include "CasaCommander.h"
 #include "CfgFileParser.h"
 
+#include <stdexcept>
+
 int main( int argc, char ** argv )
 {
    if ( argc < 2 )
@@ -23,12 +25,14 @@ int main( int argc, char ** argv )
       return -1;
    }
 
+   const char                  * cmdFileName = 0;
+   CasaCommander::VerboseLevel   msgLvl = CasaCommander::Minimal;
+   CasaCommander                 cmdQueue;
+   bool                          cmdExecutionStarted = false; // to distinct execution error from input file parsing errors
+
    try
    {
       // parse args
-      const char                  * cmdFileName = 0;
-      CasaCommander::VerboseLevel   msgLvl = CasaCommander::Minimal;
-
       for ( size_t i = 1; i < argc; ++i )
       {
          if ( '-' == argv[i][0] )
@@ -47,7 +51,6 @@ int main( int argc, char ** argv )
 
       // parse command file
       CfgFileParser  cmdFile;
-      CasaCommander  cmdQueue;
    
       cmdFile.parseFile( argv[1], cmdQueue );
 
@@ -55,11 +58,34 @@ int main( int argc, char ** argv )
       std::auto_ptr<casa::ScenarioAnalysis> sc( new casa::ScenarioAnalysis() );
 
       //process commands
+      cmdExecutionStarted = true;
       cmdQueue.executeCommands( sc );
+   }
+   catch ( const std::runtime_error & ex )
+   {
+      std::cerr << "Command file " << cmdFileName << " execution error: " << std::endl;
+      std::cerr << "   SUMlib error: " << ex.what() << std::endl;
+      std::cerr << "   CASA command \"" << cmdQueue.curCmdName() << "\" at line: " << cmdQueue.curCmdInputFileLineNumber() << std::endl;
+      return -1;
    }
    catch ( ErrorHandler::Exception & ex )
    {
+      if ( cmdExecutionStarted )
+      {
+         std::cerr << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+            cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << std::endl;
+      }
       std::cerr << "CASA error ID:" << ex.errorCode() << ", message: " << ex.what() << std::endl;
+      return -1;
+   }
+   catch ( ... )
+   {
+      if ( cmdExecutionStarted )
+      {
+         std::cerr << "Exception on processing command: " << cmdQueue.curCmdName() << " located at line " << 
+            cmdQueue.curCmdInputFileLineNumber() << " of input file " << cmdFileName << std::endl;
+      }
+       std::cerr << "CASA unknown exception, aborting..." << std::endl;
       return -1;
    }
 }

@@ -114,6 +114,7 @@ void CmdEvaluateResponse::createRunCasesSet( std::auto_ptr<casa::ScenarioAnalysi
          sizePerExp[e] += 1;
       }
    }
+   sa->doeCaseSet().filterByExperimentName( "" );
 }
 
 void CmdEvaluateResponse::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )

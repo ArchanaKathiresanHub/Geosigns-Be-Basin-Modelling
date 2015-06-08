@@ -272,6 +272,33 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( SourceRockID id, doub
    return NoError;
 }
 
+ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCInitMapName( SourceRockID id, const std::string & mapName )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( m_sourceRockTableName );
+
+      // if table does not exist - report error
+      if ( !table )
+      {
+         throw Exception( NonexistingID ) << m_sourceRockTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = table->getRecord(  static_cast<int>( id ) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
+      }
+      rec->setValue( m_tocIniMap, mapName );
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
 double SourceRockManagerImpl::hiIni( SourceRockID id )
 {
    if ( errorCode() != NoError ) resetError();

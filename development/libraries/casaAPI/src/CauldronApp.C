@@ -38,6 +38,7 @@ namespace casa
       , m_cpus( 1 )
       , m_inputOpt( "-project" )
       , m_outputOpt( "-save" )
+      , m_clearSnapshots( false )
    {
       std::string version;
       std::string rootPath;
@@ -139,6 +140,25 @@ namespace casa
       // in case of generic app we should put in the script the given script body
       if ( !m_scriptBody.empty() ) return m_scriptBody;
 
+      // check if we have decompaction/overpressure/itcoupled/temperature run to clean previous 3D results
+      if ( m_appName == "fastcauldron" )
+      {
+         for ( size_t i = 0; i < m_optionsList.size() && !m_clearSnapshots; ++i )
+         {
+            if (      m_optionsList[i] == "-overpressure" ) m_clearSnapshots = true;
+            else if ( m_optionsList[i] == "-itcoupled"    ) m_clearSnapshots = true;
+            else if ( m_optionsList[i] == "-decompaction" ) m_clearSnapshots = true;
+            else if ( m_optionsList[i] == "-temperature"  )
+            {
+               m_clearSnapshots = true;
+               for ( size_t j = 0; j < m_optionsList.size(); ++j )
+               {
+                  if ( m_optionsList[j] == "-coupled" ) m_clearSnapshots = false;
+               }
+            }
+         }
+      }
+
       // dump script top line with shell preference
       std::ostringstream oss;
 
@@ -153,6 +173,11 @@ namespace casa
       dumpEnv( oss );
 
       oss << "\n";
+
+      if ( m_clearSnapshots )
+      {
+         oss << "\n rm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension() << "_CauldronOutputDir/Time*.h5\n";
+      }
 
       // if application is parallel, add mpirun dirrective with options
       if ( m_parallel )

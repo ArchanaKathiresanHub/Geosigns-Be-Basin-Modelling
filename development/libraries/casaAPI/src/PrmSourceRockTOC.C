@@ -188,6 +188,12 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel 
          }
          mpMgr.rescaleMap( cmID, minV, m_toc );
          mpMgr.saveMapToHDF( cmID,  mapName + "_VarTOC.HDF" );
+        
+         if ( ErrorHandler::NoError != srMgr.setTOCInitMapName( sid, mapName + "_VarTOC" ) );
+         {
+            throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
+         }
+    
       }
       else if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, m_toc ) )
       {

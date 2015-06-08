@@ -433,6 +433,7 @@ void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName )
    projectFilePath.cutLast();  // cut filename
 
    m_mapMgr.copyMapFiles( projectFilePath.path() );
+   m_prpMgr.copyResultsFiles( m_projFileName, std::string( projectFileName ) );
 }
 
 }

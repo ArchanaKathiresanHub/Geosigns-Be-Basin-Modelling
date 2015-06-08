@@ -52,7 +52,7 @@ CasaCommander::CasaCommander()
    m_msgLvl = Minimal;
 }
 
-void CasaCommander::addCommand( const std::string & cmdName, const std::vector< std::string > & prms )
+void CasaCommander::addCommand( const std::string & cmdName, const std::vector< std::string > & prms, size_t lineNum )
 {
    SharedCmdPtr  cmd;
 
@@ -81,6 +81,9 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
 
    m_cmds.push_back( cmd );
 
+   m_cmdNames.push_back( cmdName );
+   m_inpFileCmdPos.push_back( lineNum );
+
    if ( m_msgLvl > Minimal )
    {
       std::cout << "Added command to the command queue: " << typeid(*(cmd.get())).name() << "(";
@@ -96,6 +99,7 @@ void CasaCommander::executeCommands( std::auto_ptr<casa::ScenarioAnalysis> & sa 
 {
    for ( size_t i = 0; i < m_cmds.size(); ++i )
    {
+      m_curCmd = i;
       m_cmds[i]->execute( sa );
    }
 }

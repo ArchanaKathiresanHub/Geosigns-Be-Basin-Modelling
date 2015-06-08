@@ -13,6 +13,8 @@
 
 #include "Path.h"
 
+#include "boost/filesystem.hpp"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -66,6 +68,11 @@ std::string Path::operator [] ( size_t i )
       return it->string();
    else
       return "";
+}
+
+Path Path::fullPath()
+{
+   return Path( boost::filesystem::absolute( boost::filesystem::path( m_path ) ).string() );
 }
 
 }

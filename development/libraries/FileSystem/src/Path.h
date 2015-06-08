@@ -63,6 +63,10 @@ namespace ibs
       /// @return i-th path element as a string or empty string if i is out of bounds
       std::string operator [] ( size_t i );
 
+      /// @brief Get full path to the file
+      /// @return full path
+      Path fullPath();
+
       /// @brief Add to path new element divided by path separator
       /// @param pathEl the new element of the path to be added
       /// @return Path object itself

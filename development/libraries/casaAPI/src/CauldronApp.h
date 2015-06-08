@@ -128,7 +128,8 @@ namespace casa
       std::string                            m_inputOpt;     ///< command line option for app to load input project file
       std::string                            m_outputOpt;    ///< command line option for app to save output project file
 
-      std::vector< std::string >             m_optionsList;  ///< List of options for the application
+      std::vector< std::string >             m_optionsList;    ///< List of options for the application
+      bool                                   m_clearSnapshots; ///< Add or not to script file cleaning results call
 
       /// @brief get environment variable
       const char * env( const char * varName );

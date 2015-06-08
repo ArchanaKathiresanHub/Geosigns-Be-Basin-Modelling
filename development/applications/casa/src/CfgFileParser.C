@@ -28,9 +28,12 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
    std::string line;
    std::string cmdLine;
 
+   size_t lineNum = 0;
    // process command
    while( std::getline( file, line ) )
    {
+      ++lineNum;
+
       if ( line[0] == '#' || line.empty() ) continue;
 
       // check if line is splitted by \ character. If yes - just read next one and concatenate
@@ -95,7 +98,7 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
          }
          ++tokNum;
       }
-      cmdQueue.addCommand( cmdID, cmdPrms );
+      cmdQueue.addCommand( cmdID, cmdPrms, lineNum );
       cmdLine = "";
    }
 }

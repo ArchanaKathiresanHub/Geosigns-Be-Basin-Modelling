@@ -71,6 +71,8 @@ namespace mbapi {
       // rock lithologies associated with the given layer
       virtual ReturnCode setTOCIni( SourceRockID id, double newTOC );
 
+      // Set TOC map name for the given source rock lithology
+      virtual ReturnCode setTOCInitMapName( SourceRockID id, const std::string & mapName );
 
       // Source rock HI (hydrogen index initial ratio) API 
       virtual double hiIni( SourceRockID id );
