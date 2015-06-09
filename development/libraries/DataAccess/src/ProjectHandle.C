@@ -965,7 +965,7 @@ bool ProjectHandle::loadProperties( void )
    // not sure which attribute this property shoudl have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( this, 0, "HopaneIsomerisation",            "HopaneIsomerisation",            "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "HorizontalPermeability",         "HorizontalPermeability",         "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HydroStaticPressure",            "HydroStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HydroStaticPressure",            "HydroStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
 
    // not sure which attribute this property shoudl have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( this, 0, "IlliteFraction",                 "IlliteFraction",                 "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
