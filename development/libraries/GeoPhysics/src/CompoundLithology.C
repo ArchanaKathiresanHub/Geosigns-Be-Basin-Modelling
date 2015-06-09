@@ -574,8 +574,6 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, soilMechanicsCompactionCoefficient);
     
    //Create porosity object
-   
-   //blablablabla
    m_porosity = Porosity::create(porosityModel,
    surfacePorosity,
    minimumMechanicalPorosity,
