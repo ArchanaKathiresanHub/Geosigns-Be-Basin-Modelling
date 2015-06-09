@@ -887,6 +887,7 @@ database::Record * Migrator::findMigrationRecord (const string & srcReservoirNam
    return 0;
 }
 
+//  this function is used as less operator for the strict weak ordering
 bool MigrationIoTblSorter (database::Record * recordL,  database::Record * recordR)
 {
    static int calls = 0;
