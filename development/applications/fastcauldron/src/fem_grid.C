@@ -210,6 +210,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      looselyCoupledOutputProperties.push_back ( DEPTH );
      looselyCoupledOutputProperties.push_back ( PRESSURE );
      looselyCoupledOutputProperties.push_back ( CHEMICAL_COMPACTION );
+     looselyCoupledOutputProperties.push_back ( VR );
   }
   looselyCoupledOutputProperties.push_back ( VES );
   looselyCoupledOutputProperties.push_back ( MAXVES );

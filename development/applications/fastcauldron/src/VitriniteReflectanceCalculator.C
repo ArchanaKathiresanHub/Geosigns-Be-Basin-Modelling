@@ -144,6 +144,9 @@ bool VitriniteReflectanceVolumeCalculator::operator ()( const OutputPropertyMap:
    if ( m_isCalculated ) {
       return true;
    }
+   if( !m_formation->Vre ) {
+      return false;
+   }
 
    unsigned int i;
    unsigned int j;

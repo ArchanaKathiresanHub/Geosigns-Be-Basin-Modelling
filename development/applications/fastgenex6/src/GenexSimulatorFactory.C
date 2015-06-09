@@ -11,7 +11,7 @@ using namespace std;
 
 using namespace GenexSimulation;
 
-DataAccess::Interface::ProjectHandle *
+GeoPhysics::ProjectHandle *
 GenexSimulatorFactory::produceProjectHandle (database::Database * database, const string & name, 
                                              const string & accessMode)
 {

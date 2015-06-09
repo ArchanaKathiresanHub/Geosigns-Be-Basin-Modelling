@@ -804,9 +804,12 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
 
    PetscBool noFileCopy = PETSC_FALSE;
+   PetscBool copy3d     = PETSC_FALSE;
    PetscLogDouble StartMergingTime;
+   PetscLogDouble StartMergingOneTime;
 
    PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+   PetscOptionsHasName( PETSC_NULL, "-copy3d", &copy3d );
 
    PetscTime(&StartMergingTime);
    bool status = true;
@@ -830,6 +833,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
             Display_Merging_Progress( snapshotFileName, StartMergingTime );
 
+            PetscTime(&StartMergingOneTime);
             if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
                if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
                   if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
@@ -838,10 +842,20 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
                   } 
                }
             } else {
-               if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
+               //             if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
+               if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( copy3d ? REUSE : CREATE )))) {
                   status = false;
                   PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.c_str() );               
                } 
+               Display_Merging_Progress( "", StartMergingOneTime, "    Merging time" );
+               if( copy3d && status ) {
+                  PetscLogDouble StartCopy;
+                  PetscTime( &StartCopy );
+                  // Display_Merging_Progress( snapshotFileName, StartMergingTime, "    Start copy: " );
+                  status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
+                  Display_Merging_Progress( "", StartCopy, "    Copy time   " );
+               }
+              
             }
          }
       }
@@ -850,12 +864,18 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    string filePathName = getProjectPath () + "/" + directoryName + "/" + fileName;
    
    Display_Merging_Progress( fileName, StartMergingTime );
+   PetscTime(&StartMergingOneTime);
 
-   status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+   status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+   Display_Merging_Progress( "", StartMergingOneTime, "    Merging time" );
 
    if( !noFileCopy && status ) {
+      PetscLogDouble StartCopy;
+      PetscTime( &StartCopy );
+      //Display_Merging_Progress( filePathName, StartMergingTime, "    Start copy:  " );
       status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
-   }
+      Display_Merging_Progress( "", StartCopy, "    Copy time   " );
+    }
    if( status ) {
       if( m_fastcauldronSimulator->getRank () == 0 ) {
          displayTime( "Total merging time: ", StartMergingTime );
