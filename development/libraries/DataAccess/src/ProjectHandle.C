@@ -973,6 +973,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "LithoStaticPressure",            "LithoStaticPressure",            "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "MaxVesHighRes",                  "MaxVesHighRes",                  "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "MaxVes",                         "MaxVes",                         "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back(getFactory ()->produceProperty( this, 0, "Overburden",                     "Overburden",                     "m",     FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "OverPressure",                   "OverPressure",                   "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "PermeabilityH",                  "PermeabilityHVec2",              "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Permeability",                   "PermeabilityVec2",               "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
