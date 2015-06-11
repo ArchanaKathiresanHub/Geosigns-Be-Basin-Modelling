@@ -205,7 +205,11 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   PetscOptionsHasName ( PETSC_NULL, "-minor", &addMinorProperties );
 
-  if( addMinorProperties ) {
+  PetscBool onlyPrimaryProperties = PETSC_FALSE;
+
+  PetscOptionsHasName ( PETSC_NULL, "-primary", &onlyPrimaryProperties );
+
+  if( addMinorProperties || onlyPrimaryProperties ) {
      looselyCoupledOutputProperties.push_back ( TEMPERATURE );
      looselyCoupledOutputProperties.push_back ( DEPTH );
      looselyCoupledOutputProperties.push_back ( PRESSURE );
@@ -231,26 +235,31 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   mapOutputProperties.push_back ( BRINE_PROPERTIES );
 #endif 
 
-  m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
-   
+  if( !onlyPrimaryProperties ) {
+     m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );     
+     m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
+     m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
+     m_volumeOutputProperties.push_back ( OVERPRESSURE );
+     m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
+     m_volumeOutputProperties.push_back ( POROSITYVEC );
+     m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
+     m_volumeOutputProperties.push_back ( HEAT_FLOW );
+     m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
+     m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
+     m_volumeOutputProperties.push_back ( THCONDVEC );
+     m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
+
+     m_volumeOutputProperties.push_back ( VELOCITYVEC );
+     m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
+  }
   m_volumeOutputProperties.push_back ( DEPTH );
-  m_volumeOutputProperties.push_back ( HYDROSTATICPRESSURE );
-  m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
-  m_volumeOutputProperties.push_back ( OVERPRESSURE );
   m_volumeOutputProperties.push_back ( PRESSURE );
-  m_volumeOutputProperties.push_back ( FRACTURE_PRESSURE );
   m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
   m_volumeOutputProperties.push_back ( VES );
   m_volumeOutputProperties.push_back ( MAXVES );
   m_volumeOutputProperties.push_back ( TEMPERATURE );
-  m_volumeOutputProperties.push_back ( POROSITYVEC );
-  m_volumeOutputProperties.push_back ( PERMEABILITYVEC );
-  m_volumeOutputProperties.push_back ( HEAT_FLOW );
-  m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
-  m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
-  m_volumeOutputProperties.push_back ( THCONDVEC );
-  m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
-
+  m_volumeOutputProperties.push_back ( VR );
+ 
 #if 0
   // Remove from list until the lithology id has been fixed.
   m_volumeOutputProperties.push_back ( LITHOLOGY );
@@ -262,10 +271,6 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL100 );
   m_volumeOutputProperties.push_back ( CAPILLARYPRESSUREOIL0 );
 #endif
-
-  m_volumeOutputProperties.push_back ( VELOCITYVEC );
-  m_volumeOutputProperties.push_back ( REFLECTIVITYVEC );
-  m_volumeOutputProperties.push_back ( VR );
 
   mapOutputProperties.push_back ( VR );
 
