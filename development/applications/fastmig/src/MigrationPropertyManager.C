@@ -25,9 +25,7 @@ MigrationPropertyManager::MigrationPropertyManager ( GeoPhysics::ProjectHandle* 
    addFormationSurfacePropertyCalculator ( DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationSurfaceCalculator ( projectHandle ) ));
 
    addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureFormationCalculator ( projectHandle )));
-   addSurfacePropertyCalculator ( DerivedProperties::SurfacePropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureSurfaceCalculator ( projectHandle )));
 
-   addSurfacePropertyCalculator ( DerivedProperties::SurfacePropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureSurfaceCalculator ( projectHandle )));
    addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureFormationCalculator ( projectHandle )));
 } 
       

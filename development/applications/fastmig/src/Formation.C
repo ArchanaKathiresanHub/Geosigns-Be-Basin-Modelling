@@ -159,6 +159,8 @@ const GridMap* Formation::getFormationPrimaryPropertyGridMap ( const Property* p
 
          if( thePrimaryProperty != 0 ) {
             theMap = thePrimaryProperty->getGridMap();
+         } else {
+            theMap = mig->getPropertyManager ().produceDerivedGridMap ( theProperty );
          }
 
       }
