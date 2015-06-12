@@ -1,5 +1,7 @@
 #include "PropertyCalculator.h"
 
+#include <algorithm>
+
 DerivedProperties::PropertyCalculator::PropertyCalculator () {
 }
 
