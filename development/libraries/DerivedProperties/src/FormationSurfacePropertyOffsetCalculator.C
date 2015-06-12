@@ -5,10 +5,17 @@
 #include "FormationSurfacePropertyAtSurface.h"
 
 
-DerivedProperties::FormationSurfacePropertyOffsetCalculator::FormationSurfacePropertyOffsetCalculator ( const DataModel::AbstractProperty* property ) : m_property ( property ) {
+DerivedProperties::FormationSurfacePropertyOffsetCalculator::FormationSurfacePropertyOffsetCalculator ( const DataModel::AbstractProperty* property,
+                                                                                                        const std::vector<std::string>&    dependentPropertyNames ) : 
+   m_property ( property )
+{
 
    if ( m_property != 0 ) {
       addPropertyName ( m_property->getName ());
+   }
+
+   for ( size_t i = 0; i < dependentPropertyNames.size (); ++i ) {
+      addDependentPropertyName ( dependentPropertyNames [ i ]);
    }
 
 }

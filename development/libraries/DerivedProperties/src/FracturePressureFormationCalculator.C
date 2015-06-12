@@ -16,6 +16,10 @@
 
 DerivedProperties::FracturePressureFormationCalculator::FracturePressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "FracturePressure" );
+
+   addDependentPropertyName ( "Depth" );
+   addDependentPropertyName ( "HydroStaticPressure" );
+   addDependentPropertyName ( "LithoStaticPressure" );
 }
 
 void DerivedProperties::FracturePressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,

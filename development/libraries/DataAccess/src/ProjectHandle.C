@@ -5444,6 +5444,20 @@ SimulationDetailsListPtr ProjectHandle::getSimulationDetails () const {
    return result;
 }
 
+const SimulationDetails* ProjectHandle::getDetailsOfLastSimulation ( const std::string& simulatorName ) const {
+
+   MutableSimulationDetailsList::const_reverse_iterator simDetailsIter;
+
+   for ( simDetailsIter = m_simulationDetails.rbegin (); simDetailsIter != m_simulationDetails.rend (); ++simDetailsIter ) {
+
+      if ((*simDetailsIter)->getSimulatorName () == simulatorName ) {
+         return *simDetailsIter;
+      }
+   }
+   
+
+   return 0;
+}
 
 void ProjectHandle::deleteSimulationDetails () {
 

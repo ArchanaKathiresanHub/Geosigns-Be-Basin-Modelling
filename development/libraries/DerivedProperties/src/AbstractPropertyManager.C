@@ -5,8 +5,10 @@
 using namespace std;
 
 #include "PropertyErasePredicate.h"
-#include "SurfacePropertyOffsetCalculator.h"
+
+// Surface property calcualtors with offset.
 #include "FormationSurfacePropertyOffsetCalculator.h"
+#include "SurfacePropertyOffsetCalculator.h"
 
 DerivedProperties::AbstractPropertyManager::AbstractPropertyManager () {}
 
@@ -65,7 +67,22 @@ void DerivedProperties::AbstractPropertyManager::addFormationPropertyCalculator 
       const DataModel::AbstractProperty* computedProperty = getProperty ( propertyNames [ i ]);
 
       if ( computedProperty != 0 ) {
+         // Add calculator to the property->calculator mapping.
          m_formationPropertyCalculators.insert ( computedProperty, snapshot, calculator );
+
+         // Add the necessary surface/formation-surface offset property calculator for the 3d property.
+         if ( computedProperty->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY ) {
+            SurfacePropertyCalculatorPtr surfaceCalculator;
+            surfaceCalculator = DerivedProperties::SurfacePropertyCalculatorPtr ( new SurfacePropertyOffsetCalculator ( computedProperty,
+                                                                                                                        calculator->getDependentPropertyNames ()));
+            addSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+         } else if ( computedProperty->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
+            FormationSurfacePropertyCalculatorPtr surfaceCalculator;
+            surfaceCalculator = DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new FormationSurfacePropertyOffsetCalculator ( computedProperty,
+                                                                                                                                          calculator->getDependentPropertyNames ()));
+            addFormationSurfacePropertyCalculator ( surfaceCalculator, snapshot );
+         }
+
       } else {
          // Error
       }
@@ -95,55 +112,13 @@ void DerivedProperties::AbstractPropertyManager::addFormationSurfacePropertyCalc
 }
 
 DerivedProperties::SurfacePropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                                                                                   const DataModel::AbstractSnapshot* snapshot ) {
-
-   DerivedProperties::SurfacePropertyCalculatorPtr surfaceCalculator = m_surfacePropertyCalculators.get ( property, snapshot );
-
-   if ( surfaceCalculator == 0 ) {
-      // If there is no surface calculator for this property then allocate one that can extract the data from the formation property.
-      //
-      // Check to see if there is a formation calculator, from which the formation data can be or has been calculated.
-      if ( containsFormationCalculator ( property, 0 )) {
-         // First check for a general formation calculator, i.e. one which is not associated with any snapshot.
-         surfaceCalculator = DerivedProperties::SurfacePropertyCalculatorPtr ( new SurfacePropertyOffsetCalculator ( property ));
-
-         // Do not associate this surface calculator with any snapshot time, since it will be the same for all snapshot times.
-         addSurfacePropertyCalculator ( surfaceCalculator, 0 );
-      } else if ( containsFormationCalculator ( property, snapshot )) {
-         // Then check for a formation calculator that is for a specific snapshot.
-         surfaceCalculator = DerivedProperties::SurfacePropertyCalculatorPtr ( new SurfacePropertyOffsetCalculator ( property ));
-         addSurfacePropertyCalculator ( surfaceCalculator, snapshot );
-      }
-
-   }
-
-   return surfaceCalculator;
+                                                                                                                   const DataModel::AbstractSnapshot* snapshot ) const {
+   return m_surfacePropertyCalculators.get ( property, snapshot );
 }
 
 DerivedProperties::FormationSurfacePropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                                                                                                     const DataModel::AbstractSnapshot* snapshot ) {
-
-   DerivedProperties::FormationSurfacePropertyCalculatorPtr formationSurfaceCalculator = m_formationSurfacePropertyCalculators.get ( property, snapshot );
-
-   if ( formationSurfaceCalculator == 0 ) {
-      // If there is no formation surface calculator for this property then allocate one that can extract the data from the formation property.
-      //
-      // Check to see if there is a formation calculator, from which the formation data can be or has been calculated.
-      if ( containsFormationCalculator ( property, 0 )) {
-         // First check for a general formation calculator, i.e. one which is not associated with any snapshot.
-         formationSurfaceCalculator = DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new FormationSurfacePropertyOffsetCalculator ( property ));
-
-         // Do not associate this formation surface calculator with any snapshot time, since it will be the same for all snapshot times.
-         addFormationSurfacePropertyCalculator ( formationSurfaceCalculator, 0 );
-      } else if ( containsFormationCalculator ( property, snapshot )) {
-         // Then check for a formation calculator that is for a specific snapshot.
-         formationSurfaceCalculator = DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new FormationSurfacePropertyOffsetCalculator ( property ));
-         addFormationSurfacePropertyCalculator ( formationSurfaceCalculator, snapshot );
-      }
-
-   }
-
-   return formationSurfaceCalculator;
+                                                                                                                                     const DataModel::AbstractSnapshot* snapshot ) const {
+   return m_formationSurfacePropertyCalculators.get ( property, snapshot );
 }
 
 DerivedProperties::FormationMapPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationMapCalculator ( const DataModel::AbstractProperty* property,
@@ -154,11 +129,6 @@ DerivedProperties::FormationMapPropertyCalculatorPtr DerivedProperties::Abstract
 DerivedProperties::FormationPropertyCalculatorPtr DerivedProperties::AbstractPropertyManager::getFormationCalculator ( const DataModel::AbstractProperty* property,
                                                                                                                        const DataModel::AbstractSnapshot* snapshot ) const {
    return m_formationPropertyCalculators.get ( property, snapshot );
-}
-
-bool DerivedProperties::AbstractPropertyManager::containsFormationCalculator ( const DataModel::AbstractProperty* property,
-                                                                               const DataModel::AbstractSnapshot* snapshot ) const {
-   return m_formationPropertyCalculators.contains ( property, snapshot );
 }
 
 
@@ -442,4 +412,116 @@ void DerivedProperties::AbstractPropertyManager::removeProperties ( const DataMo
    m_surfaceProperties.erase ( surfacesToRemove, m_surfaceProperties.end ());
 
 
+}
+
+bool DerivedProperties::AbstractPropertyManager::formationPropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+
+   FormationPropertyCalculatorPtr calculator = getFormationCalculator ( property, 0 );
+   bool isComputable;
+
+   if ( calculator != 0 ) {
+      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
+
+      // If there are no dependent properties then the property is calculatable because we have a calculator
+      isComputable = true;
+
+      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
+         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
+
+         if ( dependentProperty == property ) {
+            // Error
+         }
+
+         isComputable = isComputable and formationPropertyIsComputable ( dependentProperty );
+      }
+
+   } else {
+      isComputable = false;
+   }
+
+   return isComputable;
+}
+
+bool DerivedProperties::AbstractPropertyManager::formationSurfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+
+   FormationSurfacePropertyCalculatorPtr calculator = getFormationSurfaceCalculator ( property, 0 );
+   bool isComputable;
+
+   if ( calculator != 0 ) {
+      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
+
+      // If there are no dependent properties then the property is calculatable because we have a calculator
+      isComputable = true;
+
+      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
+         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
+
+         if ( dependentProperty == property ) {
+            // Error
+         }
+
+         isComputable = isComputable and formationSurfacePropertyIsComputable ( dependentProperty );
+      }
+
+   } else {
+      isComputable = false;
+   }
+
+   return isComputable;
+}
+
+bool DerivedProperties::AbstractPropertyManager::surfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+
+   SurfacePropertyCalculatorPtr calculator = getSurfaceCalculator ( property, 0 );
+   bool isComputable;
+
+   if ( calculator != 0 ) {
+      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
+
+      // If there are no dependent properties then the property is calculatable because we have a calculator
+      isComputable = true;
+
+      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
+         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
+
+         if ( dependentProperty == property ) {
+            // Error
+         }
+
+         isComputable = isComputable and surfacePropertyIsComputable ( dependentProperty );
+      }
+
+   } else {
+      isComputable = false;
+   }
+
+   return isComputable;
+}
+
+bool DerivedProperties::AbstractPropertyManager::formationMapPropertyIsComputable ( const DataModel::AbstractProperty* property ) const {
+
+   FormationMapPropertyCalculatorPtr calculator = getFormationMapCalculator ( property, 0 );
+   bool isComputable;
+
+   if ( calculator != 0 ) {
+      const std::vector<std::string>& dependentProperties = calculator->getDependentPropertyNames ();
+
+      // If there are no dependent properties then the property is calculatable because we have a calculator
+      isComputable = true;
+
+      for ( size_t i = 0; i < dependentProperties.size (); ++i ) {
+         const DataModel::AbstractProperty* dependentProperty = getProperty ( dependentProperties [ i ]);
+
+         if ( dependentProperty == property ) {
+            // Error
+         }
+
+         isComputable = isComputable and formationMapPropertyIsComputable ( dependentProperty );
+      }
+
+   } else {
+      isComputable = false;
+   }
+
+   return isComputable;
 }

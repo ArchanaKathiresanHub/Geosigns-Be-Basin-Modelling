@@ -16,6 +16,11 @@
 
 DerivedProperties::VelocityFormationCalculator::VelocityFormationCalculator () {
    addPropertyName ( "Velocity" );
+
+   addDependentPropertyName ( "Porosity" );
+   addDependentPropertyName ( "BulkDensity" );
+   addDependentPropertyName ( "Pressure" );
+   addDependentPropertyName ( "Temperature" );
 }
 
 void DerivedProperties::VelocityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,

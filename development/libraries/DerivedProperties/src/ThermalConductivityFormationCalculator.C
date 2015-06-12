@@ -16,6 +16,11 @@
 
 DerivedProperties::ThermalConductivityFormationCalculator::ThermalConductivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "ThCondVec2" );
+
+   addDependentPropertyName ( "Temperature" );
+   addDependentPropertyName ( "Pressure" );
+   addDependentPropertyName ( "LithoStaticPressure" );
+   addDependentPropertyName ( "Porosity" );
 }
 
 void DerivedProperties::ThermalConductivityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,

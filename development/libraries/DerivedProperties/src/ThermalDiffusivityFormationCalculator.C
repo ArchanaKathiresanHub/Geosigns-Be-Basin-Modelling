@@ -15,6 +15,11 @@
 
 DerivedProperties::ThermalDiffusivityFormationCalculator::ThermalDiffusivityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "DiffusivityVec2" );
+
+   addDependentPropertyName ( "Temperature" );
+   addDependentPropertyName ( "Pressure" );
+   addDependentPropertyName ( "LithoStaticPressure" );
+   addDependentPropertyName ( "Porosity" );
 }
 
 void DerivedProperties::ThermalDiffusivityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,

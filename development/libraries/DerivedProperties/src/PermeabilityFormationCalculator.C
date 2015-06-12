@@ -3,6 +3,7 @@
 #include "DerivedPropertyManager.h"
 
 #include "Interface/RunParameters.h"
+#include "Interface/SimulationDetails.h"
 
 #include "GeoPhysicsFormation.h"
 #include "GeoPhysicalConstants.h"
@@ -12,8 +13,22 @@
 #include "PropertyRetriever.h"
 
 DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
+
+   bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                                     m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "Decompaction" and
+                                     m_projectHandle->getRunParameters()->getChemicalCompaction ();
+
+
    addPropertyName ( "PermeabilityVec2" );
    addPropertyName ( "PermeabilityHVec2" );
+
+   addDependentPropertyName ( "Ves" );
+   addDependentPropertyName ( "MaxVes" );
+
+   if ( chemicalCompactionRequired ) {
+      addDependentPropertyName ( "ChemicalCompaction" );
+   }
+
 }
 
 void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
@@ -41,10 +56,18 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
    
    if( ves != 0 and maxVes != 0 and geoFormation != 0 ) {
          
-      const FormationPropertyPtr chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
-      bool chemicalCompactionRequired  = false;
+      bool chemicalCompactionRequired = m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" ) != 0 and
+                                        m_projectHandle->getDetailsOfLastSimulation ( "fastcauldron" )->getSimulatorMode () != "Decompaction" and
+                                        geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction ();
+
+      FormationPropertyPtr chemicalCompaction;
+
+      if ( chemicalCompactionRequired ) {
+         chemicalCompaction = propertyManager.getFormationProperty ( aChemicalCompactionProperty, snapshot, formation );
+         // Just in case the property is not found.
+         chemicalCompactionRequired = chemicalCompaction != 0;
+      }
       
-      chemicalCompactionRequired = geoFormation->hasChemicalCompaction () and m_projectHandle->getRunParameters()->getChemicalCompaction () and ( chemicalCompaction != 0 );
 
       const GeoPhysics::CompoundLithologyArray * lithologies = &geoFormation->getCompoundLithologyArray ();
       

@@ -17,11 +17,33 @@
 
 #include "FormationPropertyAtSurface.h"
 
+#include "PropertyAttribute.h"
+
+// Derived formation property calculators
+#include "FracturePressureFormationCalculator.h"
+#include "HydrostaticPressureFormationCalculator.h"
+#include "LithostaticPressureFormationCalculator.h"
+#include "OverpressureFormationCalculator.h"
+#include "PermeabilityFormationCalculator.h"
+#include "PorosityFormationCalculator.h"
+#include "ThermalConductivityFormationCalculator.h"
+#include "ThermalDiffusivityFormationCalculator.h"
+#include "VelocityFormationCalculator.h"
+
+// Derived formation-map property calcualtors
+#include "AllochthonousLithologyFormationMapCalculator.h"
+#include "ErosionFactorFormationMapCalculator.h"
+#include "FaultElementFormationMapCalculator.h"
+#include "ThicknessFormationMapCalculator.h"
+
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    loadPrimaryFormationPropertyCalculators ();
    loadPrimarySurfacePropertyCalculators ();
    loadPrimaryFormationSurfacePropertyCalculators ();
    loadPrimaryFormationMapPropertyCalculators ();
+
+   loadDerivedFormationPropertyCalculator ();
+   loadDerivedFormationMapPropertyCalculator ();
 }
 
 const GeoPhysics::ProjectHandle* DerivedProperties::DerivedPropertyManager::getProjectHandle () const {
@@ -36,6 +58,25 @@ const DataAccess::Interface::Grid* DerivedProperties::DerivedPropertyManager::ge
    return m_projectHandle->getActivityOutputGrid ();
 }
 
+void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalculator () {
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new FracturePressureFormationCalculator ( m_projectHandle )));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new HydrostaticPressureFormationCalculator ( m_projectHandle )));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new LithostaticPressureFormationCalculator ( m_projectHandle )));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new OverpressureFormationCalculator ));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PermeabilityFormationCalculator ( m_projectHandle )));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new PorosityFormationCalculator ( m_projectHandle )));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new ThermalConductivityFormationCalculator ( m_projectHandle )));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new ThermalDiffusivityFormationCalculator ( m_projectHandle )));
+   addFormationPropertyCalculator ( FormationPropertyCalculatorPtr ( new VelocityFormationCalculator ));
+}
+
+void DerivedProperties::DerivedPropertyManager::loadDerivedFormationMapPropertyCalculator () {
+   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new AllochthonousLithologyFormationMapCalculator ));
+   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new ErosionFactorFormationMapCalculator ));
+   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new FaultElementFormationMapCalculator ));
+   addFormationMapPropertyCalculator ( FormationMapPropertyCalculatorPtr ( new ThicknessFormationMapCalculator ));
+}
+
 void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalculators () {
 
    // Get a list of properties that have been saved.
@@ -48,10 +89,7 @@ void DerivedProperties::DerivedPropertyManager::loadPrimarySurfacePropertyCalcul
       const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
-      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addSurfacePropertyCalculator ( propertyCalculator, *ssIter );
-      }
-
+      addSurfacePropertyCalculator ( propertyCalculator );
    } 
 
    delete allSurfaceProperties;
@@ -69,10 +107,7 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationSurfacePrope
       const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
-      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addFormationSurfacePropertyCalculator ( propertyCalculator, *ssIter );
-      }
-
+      addFormationSurfacePropertyCalculator ( propertyCalculator );
    } 
 
    delete allFormationSurfaceProperties;
@@ -90,10 +125,7 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationMapPropertyC
       const DataModel::AbstractSnapshotSet& snapshots = propertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
-      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addFormationMapPropertyCalculator ( propertyCalculator, *ssIter );
-      }
-
+      addFormationMapPropertyCalculator ( propertyCalculator );
    } 
 
    delete allFormationMapProperties;
@@ -111,10 +143,7 @@ void DerivedProperties::DerivedPropertyManager::loadPrimaryFormationPropertyCalc
       const DataModel::AbstractSnapshotSet& snapshots = formationPropertyCalculator->getSnapshots ();
       DataModel::AbstractSnapshotSet::const_iterator ssIter;
 
-      for ( ssIter = snapshots.begin (); ssIter != snapshots.end (); ++ssIter ) {
-         addFormationPropertyCalculator ( formationPropertyCalculator, *ssIter );
-      }
-
+      addFormationPropertyCalculator ( formationPropertyCalculator );
    } 
 
    delete allFormationProperties;

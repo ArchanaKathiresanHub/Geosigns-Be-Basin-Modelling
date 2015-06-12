@@ -86,6 +86,30 @@ namespace DerivedProperties {
                                                                         const DataModel::AbstractFormation* formation,
                                                                         const DataModel::AbstractSurface*   surface );
 
+      /// \brief Determine if a property is computable for the formation.
+      ///
+      /// \param [in] property The property we would like to know is calculatable.
+      /// \pre The property points to a valid property object.
+      virtual bool formationPropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+
+      /// \brief Determine if a property is computable for the formation-surface.
+      ///
+      /// \param [in] property The property we would like to know is calculatable.
+      /// \pre The property points to a valid property object.
+      virtual bool formationSurfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+
+      /// \brief Determine if a property is computable for the surface.
+      ///
+      /// \param [in] property The property we would like to know is calculatable.
+      /// \pre The property points to a valid property object.
+      virtual bool surfacePropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+
+      /// \brief Determine if a property is computable for the formation-map.
+      ///
+      /// \param [in] property The property we would like to know is calculatable.
+      /// \pre The property points to a valid property object.
+      virtual bool formationMapPropertyIsComputable ( const DataModel::AbstractProperty* property ) const;
+
       /// \brief Remove all properties associated with a particular snapshot.
       void removeProperties ( const DataModel::AbstractSnapshot* snapshot );
 
@@ -154,6 +178,8 @@ namespace DerivedProperties {
       /// \param [in] formationSurfaceProperty  A set of property values associated with a formation and surface.
       void addFormationSurfaceProperty ( const FormationSurfacePropertyPtr& formationSurfaceProperty );
 
+      /// \brief Add a primary-property to the list of those contained in the property-manager.
+      void addPrimaryProperty ( const DataModel::AbstractProperty* prop );
 
       /// \brief Get the calculator for the property and snapshot.
       ///
@@ -162,7 +188,7 @@ namespace DerivedProperties {
       ///
       /// If no calculator has been added then a null will be returned.
       SurfacePropertyCalculatorPtr getSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                          const DataModel::AbstractSnapshot* snapshot );
+                                                          const DataModel::AbstractSnapshot* snapshot ) const;
 
       /// \brief Get the calculator for the property and snapshot.
       ///
@@ -171,7 +197,7 @@ namespace DerivedProperties {
       ///
       /// If no calculator has been added then a null will be returned.
       FormationSurfacePropertyCalculatorPtr getFormationSurfaceCalculator ( const DataModel::AbstractProperty* property,
-                                                                            const DataModel::AbstractSnapshot* snapshot );
+                                                                            const DataModel::AbstractSnapshot* snapshot ) const;
 
       /// \brief Get the calculator for the property and snapshot.
       ///
@@ -190,16 +216,6 @@ namespace DerivedProperties {
       /// If no calculator has been added then a null will be returned.
       FormationPropertyCalculatorPtr getFormationCalculator ( const DataModel::AbstractProperty* property,
                                                               const DataModel::AbstractSnapshot* snapshot ) const;
-
-      /// \brief Determine if there is a calculator for the property and snapshot.
-      ///
-      /// \param [in] property The property whose calulator we would like to determine if it exists.
-      /// \param [in] snapshot The associated snapshot for the calculator.
-      ///
-      /// If no calculator has been added then a false will be returned.
-      bool containsFormationCalculator ( const DataModel::AbstractProperty* property,
-                                         const DataModel::AbstractSnapshot* snapshot ) const;
-
 
       /// \brief Search the list of available surface property values for a specific set of values.
       ///
@@ -269,23 +285,22 @@ namespace DerivedProperties {
       FormationMapPropertyCalculatorMap m_formationMapPropertyCalculators;
 
       /// \brief List of all formation-properties that have been stored.
-      FormationMapPropertyList       m_formationMapProperties;
+      FormationMapPropertyList         m_formationMapProperties;
 
       /// \brief Map of property to formation and surface property calculator.
       FormationSurfacePropertyCalculatorMap m_formationSurfacePropertyCalculators;
 
       /// \brief List of all formation and surface properties that have been stored.
-      FormationSurfacePropertyList  m_formationSurfaceProperties;
+      FormationSurfacePropertyList    m_formationSurfaceProperties;
 
       /// \brief Map of property to formation-property calculator.
-      FormationPropertyCalculatorMap m_formationPropertyCalculators;
+      FormationPropertyCalculatorMap  m_formationPropertyCalculators;
 
       /// \brief List of all formation-properties that have been stored.
-      FormationPropertyList          m_formationProperties;
+      FormationPropertyList           m_formationProperties;
 
    };
 
 } // namespace DerivedProperties
-
 
 #endif // DERIVED_PROPERTIES__ABSTRACT_PROPERTY_MANAGER_H

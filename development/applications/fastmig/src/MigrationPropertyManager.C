@@ -18,15 +18,6 @@ namespace migration {
 
 MigrationPropertyManager::MigrationPropertyManager ( GeoPhysics::ProjectHandle* projectHandle ) :
    DerivedProperties::DerivedPropertyManager ( projectHandle ) {
-   
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PorosityFormationCalculator ( projectHandle ) ));
-
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationCalculator ( projectHandle ) ));
-   addFormationSurfacePropertyCalculator ( DerivedProperties::FormationSurfacePropertyCalculatorPtr ( new DerivedProperties::PermeabilityFormationSurfaceCalculator ( projectHandle ) ));
-
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::HydrostaticPressureFormationCalculator ( projectHandle )));
-
-   addFormationPropertyCalculator ( DerivedProperties::FormationPropertyCalculatorPtr ( new DerivedProperties::LithostaticPressureFormationCalculator ( projectHandle )));
 } 
       
 MigrationPropertyManager::~MigrationPropertyManager() {

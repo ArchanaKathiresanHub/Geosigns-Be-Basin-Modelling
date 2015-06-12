@@ -2,6 +2,7 @@
 #define _DATA_MODEL__ABSTRACT_PROPERTY_H_
 
 #include <string>
+#include <vector>
 
 #include "PropertyAttribute.h"
 
@@ -21,6 +22,8 @@ namespace DataModel {
       virtual PropertyAttribute getPropertyAttribute () const = 0;
 
    };
+
+   typedef std::vector<const AbstractProperty*> AbstractPropertyList;
 
 } // namespace DataModel
 

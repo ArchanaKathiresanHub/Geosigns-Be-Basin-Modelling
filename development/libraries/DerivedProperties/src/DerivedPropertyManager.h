@@ -65,6 +65,16 @@ namespace DerivedProperties {
       /// These are volume properties loaded from the property-values in the project-handle.
       void loadPrimaryFormationPropertyCalculators ();
 
+      /// \brief Load  derived formation property calculators.
+      ///
+      /// Here all the calculators for derived properties on formation are added to the set of calculators.
+      void loadDerivedFormationPropertyCalculator ();
+
+      /// \brief Load derived formation-map property calculators.
+      ///
+      /// Here all the calculators for derived properties for formation-map are added to the set of calculators.
+      void loadDerivedFormationMapPropertyCalculator ();
+
 
       /// \brief The geophysics project handle
       GeoPhysics::ProjectHandle* m_projectHandle;

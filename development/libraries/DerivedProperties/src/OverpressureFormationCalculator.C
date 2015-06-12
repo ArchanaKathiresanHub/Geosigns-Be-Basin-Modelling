@@ -8,6 +8,9 @@
 
 DerivedProperties::OverpressureFormationCalculator::OverpressureFormationCalculator () {
    addPropertyName ( "OverPressure" );
+
+   addDependentPropertyName ( "HydroStaticPressure" );
+   addDependentPropertyName ( "Pressure" );
 }
 
 void DerivedProperties::OverpressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,

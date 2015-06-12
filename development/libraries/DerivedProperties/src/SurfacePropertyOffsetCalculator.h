@@ -16,7 +16,7 @@ namespace DerivedProperties {
 
    /// \brief Calculates a derived property or set of properties.
    ///
-   /// Calcualtes the surface property from the formation property values.
+   /// Calculates the surface property from the formation property values.
    class SurfacePropertyOffsetCalculator : public SurfacePropertyCalculator {
 
    public :
@@ -24,8 +24,10 @@ namespace DerivedProperties {
       /// \brief Constructor.
       ///
       /// \param [in] property The proerty for which the calculator is to extract values.
+      /// \param [in] dependentPropertyNames The list of properties that are required to be able to compute this property.
       /// \pre property points to a valid property object.
-      SurfacePropertyOffsetCalculator ( const DataModel::AbstractProperty* property );
+      SurfacePropertyOffsetCalculator ( const DataModel::AbstractProperty* property,
+                                        const std::vector<std::string>&    dependentPropertyNames );
 
       /// \brief Calculate the property values and add the property values to the list.
       virtual void calculate ( AbstractPropertyManager&           propManager,
@@ -35,6 +37,7 @@ namespace DerivedProperties {
 
    private :
 
+      /// \brief The property calculated by this calculator.
       const DataModel::AbstractProperty* m_property;
 
    };

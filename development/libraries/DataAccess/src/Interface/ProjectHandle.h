@@ -102,6 +102,9 @@ namespace DataAccess
          /// \brief Get list of simulation details.
          SimulationDetailsListPtr getSimulationDetails () const;
 
+         /// \brief Get the details of the last simulation for a particular simulator.
+         const SimulationDetails* getDetailsOfLastSimulation ( const std::string& simulatorName ) const;
+
          /// Return the full file name of the project
          virtual const string & getName( void ) const;
          /// Return the directory of the project

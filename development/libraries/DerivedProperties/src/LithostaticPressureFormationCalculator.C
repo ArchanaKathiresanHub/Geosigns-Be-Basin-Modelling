@@ -9,6 +9,9 @@
 
 DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "LithoStaticPressure" );
+
+   addDependentPropertyName ( "Ves" );
+   addDependentPropertyName ( "Pressure" );
 }
 
 void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( DerivedProperties::AbstractPropertyManager& propertyManager,
