@@ -178,9 +178,6 @@ namespace DerivedProperties {
       /// \param [in] formationSurfaceProperty  A set of property values associated with a formation and surface.
       void addFormationSurfaceProperty ( const FormationSurfacePropertyPtr& formationSurfaceProperty );
 
-      /// \brief Add a primary-property to the list of those contained in the property-manager.
-      void addPrimaryProperty ( const DataModel::AbstractProperty* prop );
-
       /// \brief Get the calculator for the property and snapshot.
       ///
       /// \param [in] property The property whose calulator is requested.
