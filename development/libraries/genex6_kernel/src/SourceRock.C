@@ -1496,13 +1496,18 @@ bool SourceRock::process()
       }
       
       //erosion 
-       property = m_propertyManager->getProperty ( "ErosionFactor" );
-       DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
-       DerivedProperties::FormationMapPropertyPtr thicknessScalingAtEnd   = m_propertyManager->getFormationMapProperty ( property, intervalEnd, m_formation );
+      //       property = m_propertyManager->getProperty ( "ErosionFactor" );
+      
+      const GridMap *thicknessScalingAtStart = getFormationPropertyGridMap("ErosionFactor", intervalStart);      
+      const GridMap *thicknessScalingAtEnd   = getFormationPropertyGridMap("ErosionFactor", intervalEnd);
+      // DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
+      //  DerivedProperties::FormationMapPropertyPtr thicknessScalingAtEnd   = m_propertyManager->getFormationMapProperty ( property, intervalEnd, m_formation );
  
       if(thicknessScalingAtStart && thicknessScalingAtEnd) {
+
          ThicknessScalingInterpolator->compute(intervalStart, thicknessScalingAtStart, 
                                                intervalEnd,   thicknessScalingAtEnd);  
+
       }
 
       double snapShotIntervalEndTime = intervalEnd->getTime();
@@ -2268,11 +2273,13 @@ bool SourceRock::computeSnapShot ( const double previousTime,
    //erosion
    const DataModel::AbstractProperty* property = 0;
 
-   property = m_propertyManager->getProperty ( "ErosionFactor" );
-   DerivedProperties::FormationMapPropertyPtr calcErosion = m_propertyManager->getFormationMapProperty ( property, theSnapshot, m_formation  );
-
    property = m_propertyManager->getProperty ( "Ves" );
    DerivedProperties::SurfacePropertyPtr calcVes = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
+
+   const GridMap *thicknessScaling = getFormationPropertyGridMap("ErosionFactor",theSnapshot );
+
+   // property = m_propertyManager->getProperty ( "ErosionFactor" );
+   // DerivedProperties::FormationMapPropertyPtr calcErosion = m_propertyManager->getFormationMapProperty ( property, theSnapshot, m_formation  );
 
    property = m_propertyManager->getProperty ( "Temperature" );
    DerivedProperties::SurfacePropertyPtr calcTemp = m_propertyManager->getSurfaceProperty ( property, theSnapshot, m_formation->getTopSurface () );
@@ -2351,6 +2358,13 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       bool useMaximumVes = isVESMaxEnabled();
       double maximumVes = getVESMax();
       maximumVes *= Genex6::Constants::convertMpa2Pa;
+      
+      
+      unsigned int depthThicknessScaling = 1;
+      if(thicknessScaling) {
+         thicknessScaling->retrieveData();
+         depthThicknessScaling = thicknessScaling->getDepth();
+      }
 
       //need to optimize..
       std::vector<Genex6::SourceRockNode*>::iterator itNode;
@@ -2363,7 +2377,10 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          }
          double in_Temp = calcTemp->get(( *itNode)->GetI(), (*itNode)->GetJ());
 
-         double in_thicknessScaling = calcErosion ? calcErosion->get(( *itNode)->GetI(), (*itNode)->GetJ()) : 1.0;
+        double in_thicknessScaling = thicknessScaling ? 
+            thicknessScaling->getValue(( *itNode)->GetI(), (*itNode)->GetJ(), depthThicknessScaling - 1 ) : 1.0;
+
+        //         double in_thicknessScaling = calcErosion ? calcErosion->get(( *itNode)->GetI(), (*itNode)->GetJ()) : 1.0;
  
          double nodeHydrostaticPressure =  ( calcHP ?  1.0e6 * calcHP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
 
@@ -2431,6 +2448,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
          updateSnapShotOutputMaps((*itNode));
          (*itNode)->ClearInputHistory();
+
       }
 
       saveSnapShotOutputMaps(theSnapshot);
@@ -2439,6 +2457,10 @@ bool SourceRock::computeSnapShot ( const double previousTime,
       calcTemp->restoreData();
       calcVre->restoreData();
       if( calcPressure ) calcPressure->restoreData();
+
+      if(thicknessScaling) {
+         thicknessScaling->restoreData();
+      }
 
    }
 
