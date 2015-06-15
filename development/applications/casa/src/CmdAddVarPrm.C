@@ -1,4 +1,4 @@
-//                                                                      
+///                                                                      
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -43,6 +43,7 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
      && m_prms[0] != "SourceRockType"
      && m_prms[0] != "SourceRockPreasphActEnergy"
      && m_prms[0] != "CrustThinningOneEvent"
+     && m_prms[0] != "CrustThinning"
      && m_prms[0] != "PorosityModel"
      && m_prms[0] != "PermeabilityModel"
      && m_prms[0] != "STPThermalCondCoeff" 
@@ -58,6 +59,7 @@ CmdAddVarPrm::CmdAddVarPrm( CasaCommander & parent, const std::vector< std::stri
         m_prms[0] == "SourceRockType"             &&  m_prms.size() !=  4 ||
         m_prms[0] == "SourceRockPreasphActEnergy" &&  m_prms.size() !=  5 ||
         m_prms[0] == "CrustThinningOneEvent"      &&  m_prms.size() != 10 ||
+        m_prms[0] == "CrustThinning"              &&  m_prms.size()  < 11 ||
         m_prms[0] == "PorosityModel"              && (m_prms.size()  <  8 || m_prms.size() > 12) ||
         m_prms[0] == "PermeabilityModel"          &&  m_prms.size()  < 10 ||
         m_prms[0] == "STPThermalCondCoeff"        &&  m_prms.size() !=  5 
@@ -185,6 +187,59 @@ void CmdAddVarPrm::execute( std::auto_ptr<casa::ScenarioAnalysis> & sa )
                                                                                           , maxFactor
                                                                                           , pdfType
                                                                                           )
+         ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
+   }
+   else if ( m_prms[0] == "CrustThinning" )
+   {
+      size_t eventsNumber = (m_prms.size() - 3) / 7;
+
+      if ( (m_prms.size() - 4) % 7 > 0 || m_prms.size() != (4+eventsNumber * 7) )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong number of parameters for " << m_prms[0];
+      }
+      
+      // Initial crustal thickness
+      double minCrustThickn = atof( m_prms[1].c_str() );
+      double maxCrustThickn = atof( m_prms[2].c_str() );
+
+      // Start thinning time
+      std::vector<double> minT0( eventsNumber );
+      std::vector<double> maxT0( eventsNumber );
+      // Thinning duration
+      std::vector<double> minDeltaT( eventsNumber );
+      std::vector<double> maxDeltaT( eventsNumber );
+      // Thinning factor
+      std::vector<double> minFactor( eventsNumber );
+      std::vector<double> maxFactor( eventsNumber );
+      // Maps list
+      std::vector<std::string> mapsList( eventsNumber );
+
+      size_t pos = 3;
+
+      for ( size_t i = 0; i < eventsNumber; ++i )
+      {
+         minT0[i]     = atof( m_prms[pos++].c_str() );
+         maxT0[i]     = atof( m_prms[pos++].c_str() );
+         minDeltaT[i] = atof( m_prms[pos++].c_str() );
+         maxDeltaT[i] = atof( m_prms[pos++].c_str() );
+         minFactor[i] = atof( m_prms[pos++].c_str() );
+         maxFactor[i] = atof( m_prms[pos++].c_str() );
+         mapsList[i]  = m_prms[pos++];
+      }
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( m_prms[pos] );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryCrustThinning( *sa.get()
+                                                                                  , minCrustThickn
+                                                                                  , maxCrustThickn
+                                                                                  , minT0
+                                                                                  , maxT0
+                                                                                  , minDeltaT
+                                                                                  , maxDeltaT
+                                                                                  , minFactor
+                                                                                  , maxFactor
+                                                                                  , mapsList
+                                                                                  , pdfType
+                                                                                  )
          ) { throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage(); }
    }
    else if ( m_prms[0] == "PorosityModel" )
@@ -376,12 +431,15 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    SourceRockPreasphActEnergy - the activation energy limit for which the pre-asphalt cracking starts [ kJ/mol ].\n";
    std::cout << "\n  (Crust thinning variation:)\n";
    std::cout << "    CrustThinningOneEvent      - a crust thickness function with one crust thinning event.\n";
+   std::cout << "    CrustThinning              - a crust thickness function with arbitrary number of crust thinning event and thickness maps support.\n";
+   std::cout << "\n  (Lithology parameters variation:)\n";
    std::cout << "\n  (Lithology parameters variation:)\n";
    std::cout << "    PorosityModel              - a variation of porosity model parameter for the given lithology.\n";
    std::cout << "    PermeabilityModel          - a variation of permeability model parameter for the given layer/lithology combination.\n";
    std::cout << "    STPThermalCondCoeff        - a variation of STP (Standart P & T) thermal conductivity coefficient for the given lithology.\n";
    std::cout << "\n";
    std::cout << "\n";
+
    std::cout << "    TopCrustHeatProduction  <minVal> <maxVal> <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       minVal - the parameter minimal range value\n";
@@ -395,6 +453,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    #              type               minVal  maxVal    prmPDF\n";
    std::cout << "    " << cmdName << " \"TopCrustHeatProduction\"    0.1     4.9  \"Block\"\n";
    std::cout << "\n";
+
    std::cout << "    SourceRockTOC  <layerName> <minVal> <maxVal> <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       layerName - source rock layer name\n";
@@ -402,6 +461,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "       maxVal    - the parameter maximal range value\n";
    std::cout << "       prmPDF    - the parameter probability density function type\n";
    std::cout << "\n";
+
    std::cout << "    SourceRockHC  <layerName> <minVal> <maxVal> <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       layerName - source rock layer name\n";
@@ -413,6 +473,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
    std::cout << "    "<< cmdName << " \"SourceRockHC\" \"Lower Jurassic\"   0.5    1.0  \"Block\"\n";
    std::cout << "\n";
+
    std::cout << "    SourceRockHI  <layerName> <minVal> <maxVal> <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       layerName - source rock layer name\n";
@@ -424,6 +485,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
    std::cout << "    " << cmdName << " \"SourceRockHI\" \"Lower Jurassic\"    433.5    521.0  \"Block\"\n";
    std::cout << "\n";
+
    std::cout << "    SourceRockType  <layerName> \"SRType1,SRType2,SRType3\" [w1,w2,w3 ]\n";
    std::cout << "    Where:\n";
    std::cout << "       layerName - source rock layer name\n";
@@ -434,6 +496,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    #             type         layerName          category list             categories weight\n";
    std::cout << "    "<< cmdName << " \"SourceRockType\" \"Lower Jurassic\"  \"Type1,Type2,Type3\" [0.8, 0.1, 0.1]\n";
    std::cout << "\n";
+
    std::cout << "    SourceRockPreasphActEnergy  <layerName> <minVal> <maxVal> <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       layerName - source rock layer name\n";
@@ -445,20 +508,48 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    #             type         layerName        minVal  maxVal   prmPDF\n";
    std::cout << "    " << cmdName << " \"SourceRockPreasphActEnergy\" \"Lower Jurassic\"    204.0  206.0  \"Block\"\n";
    std::cout << "\n";
+
    std::cout << "    CrustThinningOneEvent <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
    std::cout << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
-   std::cout << "       mnT0           - crust thinning event start time - minimal range value\n";
-   std::cout << "       mxT0           - crust thinning event start time - maximal range value\n";
-   std::cout << "       mnVact         - crust thickness factor - minimal range value\n";
-   std::cout << "       mxVact         - crust thickness factor - maximal range value\n";
+   std::cout << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
+   std::cout << "       mxT0           - crust thinning event start time [Ma] - maximal range value\n";
+   std::cout << "       mndT           - crust thinning event duration [MY] - minimal range value\n";
+   std::cout << "       mxdT           - crust thinning event duration [MY] - maximal range value\n";
+   std::cout << "       mnFact         - crust thickness factor - minimal range value\n";
+   std::cout << "       mxFact         - crust thickness factor - maximal range value\n";
    std::cout << "       prmPDF         - the parameter probability density function type\n";
    std::cout << "\n";
    std::cout << "    Example:\n";
    std::cout << "    #                                InCrThick   T0       dT    ThinFct  PDF\n";
    std::cout << "    " << cmdName << " \"CrustThinningOneEvent\" 15000 40000 120 180 30 45   0.5 0.8 \"Block\"\n";
    std::cout << "\n";
+   
+   std::cout << "    CrustThinning <IniCrstThickMn> <IniCrstThickMx> <mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>\n";
+   std::cout << "                                                   [<mnT0> <mxT0> <mndT> <mxdT> <mnFact> <mxFct> <mapName>]\n";
+   std::cout << "                                                    ...\n";
+   std::cout << "                                                   <prmPDF>\n";
+   std::cout << "    Where:\n";
+   std::cout << "       IniCrstThickMn - initial crust thickness - minimal range value\n";
+   std::cout << "       IniCrstThickMx - initial crust thickness - maximal range value\n";
+   std::cout << "       mnT0           - crust thinning event start time [Ma] - minimal range value\n";
+   std::cout << "       mxT0           - crust thinning event start time [Ma] - maximal range value\n";
+   std::cout << "       mndT           - crust thinning event duration [MY] - minimal range value\n";
+   std::cout << "       mxdT           - crust thinning event duration [MY] - maximal range value\n";
+   std::cout << "       mnFact         - crust thickness factor - minimal range value\n";
+   std::cout << "       mxFact         - crust thickness factor - maximal range value\n";
+   std::cout << "       mapName        - thickness map name\n";
+   std::cout << "       prmPDF         - the parameter probability density function type\n";
+   std::cout << "\n";
+   std::cout << "    Example:\n";
+   std::cout << "    #                      InCrThick      T0       dT      ThinFct   MapName\n";
+   std::cout << "    " << cmdName << " \"CrustThinning\" 20000  40000   200 250  20 30   0.7  0.9  ""\\ # first tinning event.\n";
+   std::cout << "                                          120 120  20 20   0.65 0.65 "" \\ # second tinnnng event - no variation\n";
+   std::cout << "                                          60  80   10 20   0.4  0.5  ""  \\ # third event\n";
+   std::cout << "                                          \"Block\"                      # PDF\n";
+   std::cout << "\n";
+
    std::cout << "    PorosityModel <litName> <modelName> <mnSurfPr> <mxSurfPr> <mnCmpCf> <mxCmpCf> [<mnMinPr> <mxMinPr> <mnCmpCf1> <mxCmpCf1>] <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       litName   - lithology name\n";
@@ -483,7 +574,8 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    Example 2:\n";
    std::cout << "    #      VarPrmName      LithName              PorModel          SurfPor [%]  CompCoeff      Parameter PDF\n";
    std::cout << "    " << cmdName << " \"PorosityModel\" \"SM.Mudstone40%Clay\"  \"Soil_Mechanics\"  15 85        0.1988 0.1988  \"Block\"\n";
-  std::cout << "\n";
+
+   std::cout << "\n";
    std::cout << "    PermeabilityModel <layName> <litName> <modelName> <minAnisCf> <maxAnisCf> [other model min/max parameters value] <prmPDF>\n";
    std::cout << "    Where:\n";
    std::cout << "       layName       - layer name\n";
@@ -523,6 +615,7 @@ void CmdAddVarPrm::printHelpPage( const char * cmdName )
    std::cout << "    #                                                                              Parameter PDF\n";
    std::cout << "                                                                                   \"Block\" \n";
    std::cout << "\n";
+
    std::cout << "    STPThermalCondCoeff <lithologyName> <minValue> <maxValue> <prmPDF>\n";
    std::cout << "       lithologyName - lithology name\n";
    std::cout << "       minVal    - the parameter minimal range value\n";

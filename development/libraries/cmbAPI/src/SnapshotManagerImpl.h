@@ -72,7 +72,7 @@ namespace mbapi
    protected:
 
    private:
-      static double                                     m_snpTol;   // small value for comparison of snapshot time
+      static double                                     s_snpTol;   // small value for comparison of snapshot time
       database::Database                              * m_db;       // project database
       database::Table                                 * m_snpTable; // snapshot table
 

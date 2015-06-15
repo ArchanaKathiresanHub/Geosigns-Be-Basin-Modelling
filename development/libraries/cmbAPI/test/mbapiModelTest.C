@@ -670,12 +670,13 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    ASSERT_NEAR( minV, 2288.0, eps );
    ASSERT_NEAR( maxV, 6434.0, eps );
 
-   ASSERT_EQ( ErrorHandler::NoError, mm.rescaleMap( nid, 1000, 3000 ) );
+   double coeff = 3000 / maxV;
+   ASSERT_EQ( ErrorHandler::NoError, mm.scaleMap( nid, coeff ) );
 
    // min/max values in the copy are as given for rescale
    mm.mapValuesRange( nid, minV, maxV );
 
-   ASSERT_NEAR( minV, 1000.0, eps );
+   ASSERT_NEAR( minV, 2288.0 * coeff, eps );
    ASSERT_NEAR( maxV, 3000.0, eps );
 
    

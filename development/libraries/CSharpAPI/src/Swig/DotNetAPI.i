@@ -17,6 +17,7 @@
 // CASA API
 %shared_ptr(casa::Parameter)
 %shared_ptr(casa::PrmOneCrustThinningEvent)
+%shared_ptr(casa::PrmCrustThinning)
 %shared_ptr(casa::PrmTopCrustHeatProduction)
 %shared_ptr(casa::PrmPorosityModel)
 %shared_ptr(casa::PrmPermeabilityModel)
@@ -180,6 +181,7 @@
 #include "../../../casaAPI/src/ObsSpace.h"
 #include "../../../casaAPI/src/ObsSpaceImpl.h"
 #include "../../../casaAPI/src/Parameter.h"
+#include "../../../casaAPI/src/PrmCrustThinning.h"
 #include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 #include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/PrmSourceRockTOC.h"
@@ -386,6 +388,7 @@ using namespace casa;
 %include "../../../casaAPI/src/ObsSpace.h"
 %include "../../../casaAPI/src/ObsSpaceImpl.h"
 %include "../../../casaAPI/src/Parameter.h"
+%include "../../../casaAPI/src/PrmCrustThinning.h"
 %include "../../../casaAPI/src/PrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/PrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/PrmSourceRockTOC.h"

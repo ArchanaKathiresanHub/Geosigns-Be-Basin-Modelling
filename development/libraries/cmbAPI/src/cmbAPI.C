@@ -24,6 +24,7 @@
 
 // DataAccess library
 #include "Interface/ProjectHandle.h"
+#include "Interface/ProjectData.h"
 #include "Interface/ObjectFactory.h"
 
 #include "cauldronschemafuncs.h"
@@ -94,6 +95,13 @@ public:
 
    std::auto_ptr<DataAccess::Interface::ProjectHandle>  m_projHandle;  // project file database (set of tables)
    std::string                                          m_projFileName;  // project files name with path
+
+   // model origin
+   void origin( double & x, double & y );
+
+   // model dimensions along X/Y
+   void arealSize( double & dimX, double & dimY);
+
 };
 
 
@@ -226,6 +234,28 @@ SourceRockManager   & Model::sourceRockManager(  ) { return m_pimpl->sourceRockM
 SnapshotManager     & Model::snapshotManager(    ) { return m_pimpl->snapshotManager(    ); }
 PropertyManager     & Model::propertyManager(    ) { return m_pimpl->propertyManager(    ); }
 MapsManager         & Model::mapsManager(        ) { return m_pimpl->mapsManager(        ); }
+
+Model::ReturnCode Model::origin( double & x, double & y )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->origin( x, y ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->arealSize( dimX, dimY ); }
+   catch ( const ErrorHandler::Exception & ex ) { return this->ErrorHandler::reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... ) { return this->ErrorHandler::reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -434,6 +464,31 @@ void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName )
 
    m_mapMgr.copyMapFiles( projectFilePath.path() );
    m_prpMgr.copyResultsFiles( m_projFileName, std::string( projectFileName ) );
+}
+
+// model origin
+void Model::ModelImpl::origin( double & x, double & y )
+{
+   if ( !m_projHandle.get() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded";
+   }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   x = pd->getXOrigin() + pd->getDeltaX() * pd->getWindowXMin();
+   y = pd->getYOrigin() + pd->getDeltaY() * pd->getWindowYMin();
+}
+
+// model dimensions along X/Y
+void Model::ModelImpl::arealSize( double & dimX, double & dimY )
+{
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   dimX = ( pd->getWindowXMax() - pd->getWindowXMin() ) * pd->getDeltaX();
+   dimY = ( pd->getWindowYMax() - pd->getWindowYMin() ) * pd->getDeltaY();
 }
 
 }

@@ -27,49 +27,49 @@
 namespace mbapi
 {
 
-const char * LithologyManagerImpl::m_lithoTypesTableName        = "LithotypeIoTbl";
+const char * LithologyManagerImpl::s_lithoTypesTableName        = "LithotypeIoTbl";
 
-const char * LithologyManagerImpl::m_lithoTypeNameFieldName     = "Lithotype";
+const char * LithologyManagerImpl::s_lithoTypeNameFieldName     = "Lithotype";
 
 // Porosity model
-const char * LithologyManagerImpl::m_porosityModelFieldName     = "Porosity_Model"; 
-const char * LithologyManagerImpl::m_surfPorosityFieldName      = "SurfacePorosity";
-const char * LithologyManagerImpl::m_ccExponentialFieldName     = "CompacCoefES";
-const char * LithologyManagerImpl::m_ccaDblExponentialFieldName = "CompacCoefESA";
-const char * LithologyManagerImpl::m_ccbDblExponentialFieldName = "CompacCoefESB";
-const char * LithologyManagerImpl::m_ccSoilMechanicsFieldName   = "Compaction_Coefficient_SM";
-const char * LithologyManagerImpl::m_minPorosityFieldName       = "MinimumPorosity";
-const char * LithologyManagerImpl::m_stpThermalCondFieldName    = "StpThCond";
+const char * LithologyManagerImpl::s_porosityModelFieldName     = "Porosity_Model"; 
+const char * LithologyManagerImpl::s_surfPorosityFieldName      = "SurfacePorosity";
+const char * LithologyManagerImpl::s_ccExponentialFieldName     = "CompacCoefES";
+const char * LithologyManagerImpl::s_ccaDblExponentialFieldName = "CompacCoefESA";
+const char * LithologyManagerImpl::s_ccbDblExponentialFieldName = "CompacCoefESB";
+const char * LithologyManagerImpl::s_ccSoilMechanicsFieldName   = "Compaction_Coefficient_SM";
+const char * LithologyManagerImpl::s_minPorosityFieldName       = "MinimumPorosity";
+const char * LithologyManagerImpl::s_stpThermalCondFieldName    = "StpThCond";
 
 // Permeability model
-const char * LithologyManagerImpl::m_permeabilityModelFieldName      = "PermMixModel";
+const char * LithologyManagerImpl::s_permeabilityModelFieldName      = "PermMixModel";
 // common for all model parameters
-const char * LithologyManagerImpl::m_permeabilityAnisotropyFieldName = "PermAnisotropy";
+const char * LithologyManagerImpl::s_permeabilityAnisotropyFieldName = "PermAnisotropy";
 
 // common for Mudstone and Sandstone models
-const char * LithologyManagerImpl::m_DepositionalPermFieldName       = "DepoPerm";
+const char * LithologyManagerImpl::s_DepositionalPermFieldName       = "DepoPerm";
 
 // Specific for Multi-point
-const char * LithologyManagerImpl::m_mpNumberOfDataPointsFieldName   = "Number_Of_Data_Points";
-const char * LithologyManagerImpl::m_mpPorosityFieldName             = "Multipoint_Porosity";
-const char * LithologyManagerImpl::m_mpPermpeabilityFieldName        = "Multipoint_Permeability";
+const char * LithologyManagerImpl::s_mpNumberOfDataPointsFieldName   = "Number_Of_Data_Points";
+const char * LithologyManagerImpl::s_mpPorosityFieldName             = "Multipoint_Porosity";
+const char * LithologyManagerImpl::s_mpPermpeabilityFieldName        = "Multipoint_Permeability";
 
 // Specific for Mudstone
-const char * LithologyManagerImpl::m_mudPermeabilityRecoveryCoeff    = "PermDecrStressCoef";
-const char * LithologyManagerImpl::m_mudPermeabilitySensitivityCoeff = "PermIncrRelaxCoef";
+const char * LithologyManagerImpl::s_mudPermeabilityRecoveryCoeff    = "PermDecrStressCoef";
+const char * LithologyManagerImpl::s_mudPermeabilitySensitivityCoeff = "PermIncrRelaxCoef";
 
 // Specific for Sandstone
-const char * LithologyManagerImpl::m_permSandClayPercentage          = "PermIncrRelaxCoef";
+const char * LithologyManagerImpl::s_permSandClayPercentage          = "PermIncrRelaxCoef";
 
 
 // thermo conductivity/heat capacity tables
-const char * LithologyManagerImpl::m_lithoThCondTableName  = "LitThCondIoTbl";
-const char * LithologyManagerImpl::m_lithoHeatCapTableName = "LitHeatCapIoTbl";
+const char * LithologyManagerImpl::s_lithoThCondTableName  = "LitThCondIoTbl";
+const char * LithologyManagerImpl::s_lithoHeatCapTableName = "LitHeatCapIoTbl";
 
-const char * LithologyManagerImpl::m_LithotypeFieldName    = "Lithotype";
-const char * LithologyManagerImpl::m_TempIndexFieldName    = "TempIndex";
-const char * LithologyManagerImpl::m_ThCondFieldName       = "ThCond";
-const char * LithologyManagerImpl::m_HeatCapacityFieldName = "HeatCapacity";
+const char * LithologyManagerImpl::s_LithotypeFieldName    = "Lithotype";
+const char * LithologyManagerImpl::s_TempIndexFieldName    = "TempIndex";
+const char * LithologyManagerImpl::s_ThCondFieldName       = "ThCond";
+const char * LithologyManagerImpl::s_HeatCapacityFieldName = "HeatCapacity";
 
 
 static void ParseCoefficientsFromString( const std::string & str, std::vector<double> & result )
@@ -123,7 +123,7 @@ std::vector<LithologyManager::LithologyID> LithologyManagerImpl::lithologiesIDs(
    if ( !m_db ) return ltIDs;
 
    // get pointer to the table
-   database::Table * table = m_db->getTable( m_lithoTypesTableName );
+   database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
    // if table does not exist - return empty array
    if ( !table ) return ltIDs;
@@ -155,10 +155,10 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
 
       // proceed with copy
       // get pointer to the table
-      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+      database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) <<  m_lithoTypesTableName << " table could not be found in project"; }
+      if ( !table ) { throw Exception( NonexistingID ) <<  s_lithoTypesTableName << " table could not be found in project"; }
 
       // get record for copy
       database::Record * origRec = table->getRecord( id );
@@ -168,17 +168,17 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
       database::Record * copyRec = new database::Record( *origRec );
 
       // get the orig lithology name
-      const std::string & origLithoName = origRec->getValue<std::string>( m_lithoTypeNameFieldName );
+      const std::string & origLithoName = origRec->getValue<std::string>( s_lithoTypeNameFieldName );
 
       // change the name
-      copyRec->setValue( m_lithoTypeNameFieldName, newLithoName );
+      copyRec->setValue( s_lithoTypeNameFieldName, newLithoName );
       // add copy record with new name to the table end
       table->addRecord( copyRec );
 
       // duplicate records in Thermal conductivity and heat capacity tables
       for ( size_t j = 0; j < 2; ++j ) // first process thermal conductivity then heat capacity
       {
-         const std::string & tblName = j == 0 ? m_lithoThCondTableName : m_lithoHeatCapTableName;
+         const std::string & tblName = j == 0 ? s_lithoThCondTableName : s_lithoHeatCapTableName;
          database::Table * ttable = m_db->getTable( tblName );  
 
          // if table does not exist - report error
@@ -190,7 +190,7 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
          {
             database::Record * rec = ttable->getRecord( static_cast<int>( k ) );
             if ( !rec ) continue;
-            if ( rec->getValue<std::string>( m_LithotypeFieldName ) == origLithoName )
+            if ( rec->getValue<std::string>( s_LithotypeFieldName ) == origLithoName )
             {
                recSet.push_back( rec );
             }
@@ -200,7 +200,7 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
          for ( size_t k = 0; k < recSet.size(); ++k )
          {
             database::Record * nrec = new database::Record( *(recSet[k]) );
-            nrec->setValue( m_LithotypeFieldName, newLithoName );
+            nrec->setValue( s_LithotypeFieldName, newLithoName );
             ttable->addRecord( nrec );
          }
       }
@@ -222,12 +222,12 @@ std::string LithologyManagerImpl::lithologyName( LithologyID id )
    std::string lName;
 
    // get pointer to the table
-   database::Table * table = m_db->getTable( m_lithoTypesTableName );
+   database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
    // if table does not exist - report error
    if ( !table )
    {
-      reportError( NonexistingID, std::string( m_lithoTypesTableName ) + " table could not be found in project" );
+      reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
       return lName;
    }
 
@@ -237,7 +237,7 @@ std::string LithologyManagerImpl::lithologyName( LithologyID id )
       reportError( NonexistingID, "No lithology type with such ID" );
       return lName;
    }
-   lName = rec->getValue<std::string>( m_lithoTypeNameFieldName );
+   lName = rec->getValue<std::string>( s_lithoTypeNameFieldName );
 
    return lName;
 }
@@ -249,10 +249,10 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
    try
    {
       // get pointer to the table
-      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+      database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
       int tblSize = table->size();
       for ( int i = 0; i < tblSize; ++i )
@@ -260,7 +260,7 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
          database::Record * rec = table->getRecord( i );
          if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << i; }
 
-         if ( lName == rec->getValue<std::string>( m_lithoTypeNameFieldName ) )
+         if ( lName == rec->getValue<std::string>( s_lithoTypeNameFieldName ) )
          {
             return static_cast<LithologyManager::LithologyID>( i );
          }
@@ -282,12 +282,12 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
    if ( errorCode() != NoError ) resetError();
 
    // get pointer to the table
-   database::Table * table = m_db->getTable( m_lithoTypesTableName );
+   database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
    // if table does not exist - report error
    if ( !table )
    {
-      return reportError( NonexistingID, std::string( m_lithoTypesTableName ) + " table could not be found in project" );
+      return reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
    }
 
    database::Record * rec = table->getRecord( static_cast<int>( id ) );
@@ -296,7 +296,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
       return reportError( NonexistingID, "No lithology type with such ID" );
    }
 
-   std::string tpName = rec->getValue<std::string>( m_porosityModelFieldName );
+   std::string tpName = rec->getValue<std::string>( s_porosityModelFieldName );
 
    if (      tpName == "Exponential"        ) { porModel = PorExponential; }
    else if ( tpName == "Soil_Mechanics"     ) { porModel = PorSoilMechanics; }
@@ -308,20 +308,20 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
    switch ( porModel )
    {
       case PorExponential:
-         porModelPrms.push_back( rec->getValue<double>( m_surfPorosityFieldName ) );
-         porModelPrms.push_back( rec->getValue<double>( m_ccExponentialFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_surfPorosityFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_ccExponentialFieldName ) );
          break;
 
       case PorSoilMechanics:
-         porModelPrms.push_back( rec->getValue<double>( m_surfPorosityFieldName ) );
-         porModelPrms.push_back( rec->getValue<double>( m_ccSoilMechanicsFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_surfPorosityFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_ccSoilMechanicsFieldName ) );
          break;
       
       case PorDoubleExponential:
-         porModelPrms.push_back( rec->getValue<double>( m_surfPorosityFieldName ) );
-         porModelPrms.push_back( rec->getValue<double>( m_minPorosityFieldName ) );
-         porModelPrms.push_back( rec->getValue<double>( m_ccaDblExponentialFieldName ) );
-         porModelPrms.push_back( rec->getValue<double>( m_ccbDblExponentialFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_surfPorosityFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_minPorosityFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_ccaDblExponentialFieldName ) );
+         porModelPrms.push_back( rec->getValue<double>( s_ccbDblExponentialFieldName ) );
          break;
    }
    return NoError;
@@ -352,10 +352,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
    }
 
    // get pointer to the table
-   database::Table * table = m_db->getTable( m_lithoTypesTableName );
+   database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
    // if table does not exist - report error
-   if ( !table ) return reportError( NonexistingID, std::string( m_lithoTypesTableName ) + " table could not be found in project" );
+   if ( !table ) return reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
    
    size_t recNum = table->size();
    if ( id >= recNum ) { return reportError( OutOfRangeValue, "Wrong lithology ID" ); }
@@ -368,15 +368,15 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
       case PorExponential:
          if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
          if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
-         rec->setValue( m_surfPorosityFieldName,  porModelPrms[0] );
-         rec->setValue( m_ccExponentialFieldName, porModelPrms[1] );
+         rec->setValue( s_surfPorosityFieldName,  porModelPrms[0] );
+         rec->setValue( s_ccExponentialFieldName, porModelPrms[1] );
          break;
 
       case PorSoilMechanics:
          if ( porModelPrms[0] < 0 || porModelPrms[0] > 100 ) return reportError( OutOfRangeValue, "Surface porosity value must be in range [0:100]" );
          if ( porModelPrms[1] < 0 || porModelPrms[1] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient value must be in range [0:50]" );
-         rec->setValue( m_surfPorosityFieldName,    porModelPrms[0] );
-         rec->setValue( m_ccSoilMechanicsFieldName, porModelPrms[1] );
+         rec->setValue( s_surfPorosityFieldName,    porModelPrms[0] );
+         rec->setValue( s_ccSoilMechanicsFieldName, porModelPrms[1] );
          break;
 
       case PorDoubleExponential:
@@ -386,10 +386,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          if ( porModelPrms[2] < 0 || porModelPrms[2] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient A value must be in range [0:50]" );
          if ( porModelPrms[3] < 0 || porModelPrms[3] > 50  ) return reportError( OutOfRangeValue, "Compaction coefficient B value must be in range [0:50]" );
 
-         rec->setValue( m_surfPorosityFieldName,      porModelPrms[0] );
-         rec->setValue( m_minPorosityFieldName,       porModelPrms[1] );
-         rec->setValue( m_ccaDblExponentialFieldName, porModelPrms[2] );
-         rec->setValue( m_ccbDblExponentialFieldName, porModelPrms[3] );
+         rec->setValue( s_surfPorosityFieldName,      porModelPrms[0] );
+         rec->setValue( s_minPorosityFieldName,       porModelPrms[1] );
+         rec->setValue( s_ccaDblExponentialFieldName, porModelPrms[2] );
+         rec->setValue( s_ccbDblExponentialFieldName, porModelPrms[3] );
          break;
    }
    return NoError;
@@ -408,16 +408,16 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
    {
 
       // get pointer to the table
-      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+      database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
       database::Record * rec = table->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
 
       modelPrms.clear();
-      const std::string & permModelName = rec->getValue<std::string>( m_permeabilityModelFieldName );
+      const std::string & permModelName = rec->getValue<std::string>( s_permeabilityModelFieldName );
       if (      permModelName == "None"        ) prmModel = PermNone;
       else if ( permModelName == "Sands"       ) prmModel = PermSandstone;
       else if ( permModelName == "Shales"      ) prmModel = PermMudstone;
@@ -431,25 +431,25 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
          case PermImpermeable: break; // no any parameters
 
          case PermSandstone:
-            modelPrms.push_back( rec->getValue<double>( m_permeabilityAnisotropyFieldName ) );
-            modelPrms.push_back( rec->getValue<double>( m_DepositionalPermFieldName       ) );
-            modelPrms.push_back( rec->getValue<double>( m_permSandClayPercentage          ) );
+            modelPrms.push_back( rec->getValue<double>( s_permeabilityAnisotropyFieldName ) );
+            modelPrms.push_back( rec->getValue<double>( s_DepositionalPermFieldName       ) );
+            modelPrms.push_back( rec->getValue<double>( s_permSandClayPercentage          ) );
             break;
 
          case PermMudstone:
-            modelPrms.push_back( rec->getValue<double>( m_permeabilityAnisotropyFieldName ) );
-            modelPrms.push_back( rec->getValue<double>( m_DepositionalPermFieldName       ) );
-            modelPrms.push_back( rec->getValue<double>( m_mudPermeabilitySensitivityCoeff ) );
-            modelPrms.push_back( rec->getValue<double>( m_mudPermeabilityRecoveryCoeff    ) );
+            modelPrms.push_back( rec->getValue<double>( s_permeabilityAnisotropyFieldName ) );
+            modelPrms.push_back( rec->getValue<double>( s_DepositionalPermFieldName       ) );
+            modelPrms.push_back( rec->getValue<double>( s_mudPermeabilitySensitivityCoeff ) );
+            modelPrms.push_back( rec->getValue<double>( s_mudPermeabilityRecoveryCoeff    ) );
             break;
 
          case PermMultipoint:
             {
-               modelPrms.push_back( rec->getValue<double>( m_permeabilityAnisotropyFieldName ) );
-               int numPts = rec->getValue<int>( m_mpNumberOfDataPointsFieldName );
+               modelPrms.push_back( rec->getValue<double>( s_permeabilityAnisotropyFieldName ) );
+               int numPts = rec->getValue<int>( s_mpNumberOfDataPointsFieldName );
 
-               ParseCoefficientsFromString( rec->getValue<std::string>( m_mpPorosityFieldName ), mpPor );
-               ParseCoefficientsFromString( rec->getValue<std::string>( m_mpPermpeabilityFieldName ), mpPerm );
+               ParseCoefficientsFromString( rec->getValue<std::string>( s_mpPorosityFieldName ), mpPor );
+               ParseCoefficientsFromString( rec->getValue<std::string>( s_mpPermpeabilityFieldName ), mpPerm );
                mpPor.resize(  numPts );
                mpPerm.resize( numPts );
             }
@@ -473,10 +473,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
    try
    {
       // get pointer to the table
-      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+      database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
       database::Record * rec = table->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
@@ -484,40 +484,40 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
       switch( prmModel )
       {
          case PermNone:
-            rec->setValue<std::string>( m_permeabilityModelFieldName, "None" );
-            rec->setValue( m_permeabilityAnisotropyFieldName, 1.0 );
+            rec->setValue<std::string>( s_permeabilityModelFieldName, "None" );
+            rec->setValue( s_permeabilityAnisotropyFieldName, 1.0 );
             break;
 
          case PermImpermeable:
-            rec->setValue<std::string>( m_permeabilityModelFieldName, "Impermeable" );
-            rec->setValue( m_permeabilityAnisotropyFieldName, 1.0 );
+            rec->setValue<std::string>( s_permeabilityModelFieldName, "Impermeable" );
+            rec->setValue( s_permeabilityAnisotropyFieldName, 1.0 );
             break; // no any parameter for 
 
          case PermSandstone:
-            rec->setValue<std::string>( m_permeabilityModelFieldName, "Sands" );
-            if ( modelPrms.size() > 0 ) rec->setValue( m_permeabilityAnisotropyFieldName, modelPrms[0] );
-            if ( modelPrms.size() > 1 ) rec->setValue( m_DepositionalPermFieldName,       modelPrms[1] );
-            if ( modelPrms.size() > 2 ) rec->setValue( m_permSandClayPercentage,          modelPrms[2] );
+            rec->setValue<std::string>( s_permeabilityModelFieldName, "Sands" );
+            if ( modelPrms.size() > 0 ) rec->setValue( s_permeabilityAnisotropyFieldName, modelPrms[0] );
+            if ( modelPrms.size() > 1 ) rec->setValue( s_DepositionalPermFieldName,       modelPrms[1] );
+            if ( modelPrms.size() > 2 ) rec->setValue( s_permSandClayPercentage,          modelPrms[2] );
             break;
 
          case PermMudstone:
-            rec->setValue<std::string>( m_permeabilityModelFieldName, "Shales" );
-            if ( modelPrms.size() > 0 ) rec->setValue( m_permeabilityAnisotropyFieldName, modelPrms[0] );
-            if ( modelPrms.size() > 1 ) rec->setValue( m_DepositionalPermFieldName,       modelPrms[1] );
-            if ( modelPrms.size() > 2 ) rec->setValue( m_mudPermeabilitySensitivityCoeff, modelPrms[2] );
-            if ( modelPrms.size() > 3 ) rec->setValue( m_mudPermeabilityRecoveryCoeff,    modelPrms[3] );
+            rec->setValue<std::string>( s_permeabilityModelFieldName, "Shales" );
+            if ( modelPrms.size() > 0 ) rec->setValue( s_permeabilityAnisotropyFieldName, modelPrms[0] );
+            if ( modelPrms.size() > 1 ) rec->setValue( s_DepositionalPermFieldName,       modelPrms[1] );
+            if ( modelPrms.size() > 2 ) rec->setValue( s_mudPermeabilitySensitivityCoeff, modelPrms[2] );
+            if ( modelPrms.size() > 3 ) rec->setValue( s_mudPermeabilityRecoveryCoeff,    modelPrms[3] );
             break;
 
          case PermMultipoint:
             {
-               rec->setValue<std::string>( m_permeabilityModelFieldName, "Multipoint" );
-               if ( modelPrms.size() > 0 ) rec->setValue( m_permeabilityAnisotropyFieldName, modelPrms[0] );
+               rec->setValue<std::string>( s_permeabilityModelFieldName, "Multipoint" );
+               if ( modelPrms.size() > 0 ) rec->setValue( s_permeabilityAnisotropyFieldName, modelPrms[0] );
 
                assert( mpPor.size() == mpPerm.size() );
 
-               rec->setValue( m_mpNumberOfDataPointsFieldName, static_cast<int>( mpPor.size() ) );
-               rec->setValue<std::string>( m_mpPorosityFieldName,      PrintCoefficientsToString( mpPor ) ); 
-               rec->setValue<std::string>( m_mpPermpeabilityFieldName, PrintCoefficientsToString( mpPerm ) ); 
+               rec->setValue( s_mpNumberOfDataPointsFieldName, static_cast<int>( mpPor.size() ) );
+               rec->setValue<std::string>( s_mpPorosityFieldName,      PrintCoefficientsToString( mpPor ) ); 
+               rec->setValue<std::string>( s_mpPermpeabilityFieldName, PrintCoefficientsToString( mpPerm ) ); 
             }
             break;
       }
@@ -536,15 +536,15 @@ double LithologyManagerImpl::stpThermalConductivityCoeff( LithologyID id )
    try
    {
       // get pointer to the table
-      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+      database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
       database::Record * rec = table->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
 
-      val = rec->getValue<double>( m_stpThermalCondFieldName );
+      val = rec->getValue<double>( s_stpThermalCondFieldName );
    }
    catch ( const Exception & e )
    {
@@ -569,15 +569,15 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setSTPThermalConductivityCoeff( L
       }
  
       // get pointer to the table
-      database::Table * table = m_db->getTable( m_lithoTypesTableName );
+      database::Table * table = m_db->getTable( s_lithoTypesTableName );
 
       // if table does not exist - report error
-      if ( !table ) { throw Exception( NonexistingID ) << m_lithoTypesTableName << " table could not be found in project"; }
+      if ( !table ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 
       database::Record * rec = table->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id ; }
 
-      rec->setValue( m_stpThermalCondFieldName, stpThermCond );
+      rec->setValue( s_stpThermalCondFieldName, stpThermCond );
    }
    catch ( const Exception & e )
    {

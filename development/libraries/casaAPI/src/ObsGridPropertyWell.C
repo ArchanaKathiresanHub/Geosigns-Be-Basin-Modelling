@@ -155,6 +155,29 @@ ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
    return new ObsValueDoubleArray( this, vals );
 }
 
+// Check well against project coordinates
+std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldModel )
+{
+   std::ostringstream oss;
+
+   double x0, y0;
+   caldModel.origin( x0, y0 );
+   
+   double dimX, dimY;
+   caldModel.arealSize( dimX, dimY );
+
+   for ( size_t i = 0; i < m_x.size(); ++i )
+   {
+      if ( m_x[i] < x0 || m_x[i] > x0 + dimX ||
+           m_y[i] < y0 || m_y[i] > y0 + dimY )
+      {
+         oss << "Well point " << i + 1 << " is outside of the project boundaries" << std::endl; 
+      }
+   }
+
+   return oss.str();
+}
+
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsGridPropertyWell::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {

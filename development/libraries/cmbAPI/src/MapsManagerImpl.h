@@ -63,7 +63,7 @@ namespace mbapi
       virtual ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV );
 
       // Linearly rescale input map to the new value range
-      virtual ErrorHandler::ReturnCode rescaleMap( MapID id, double newMinV, double newMaxV );
+      virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff );
  
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all
@@ -73,12 +73,12 @@ namespace mbapi
       void copyMapFiles( const std::string & newLocation );
 
    private:
-      static const char * m_mapsTableName;      // table name for input maps list in project file
-      static const char * m_ReferredByColName;  // Name of the table which refer to this map, e.g. StratIoTbl
-      static const char * m_MapNameColName;     // Input map name
-      static const char * m_MapTypeColName;     // Type of the grid map, possible values are:DECASCII, DECBINARY, ZYCOR, CPS3, EPIRUS, XYZ
-      static const char * m_MapFileNameColName; // Filename of the grid map (with extension)
-      static const char * m_MapSeqNbrColName;   // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
+      static const char * s_mapsTableName;      // table name for input maps list in project file
+      static const char * s_ReferredByColName;  // Name of the table which refer to this map, e.g. StratIoTbl
+      static const char * s_MapNameColName;     // Input map name
+      static const char * s_MapTypeColName;     // Type of the grid map, possible values are:DECASCII, DECBINARY, ZYCOR, CPS3, EPIRUS, XYZ
+      static const char * s_MapFileNameColName; // Filename of the grid map (with extension)
+      static const char * s_MapSeqNbrColName;   // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
 
       // Copy constructor and operator are disabled
       MapsManagerImpl( const MapsManagerImpl & otherMapsManagerImpl );

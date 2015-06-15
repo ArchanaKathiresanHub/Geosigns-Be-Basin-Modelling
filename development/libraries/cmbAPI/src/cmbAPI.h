@@ -163,6 +163,8 @@ namespace mbapi {
       /// @return NoError in case of success, error code otherwise.
       ReturnCode saveModelToProjectFile( const char * projectFileName );
 
+      // Access to some project functionality
+
       /// @brief Get model stratigraphy manager. It allows manipulate model startigraphy
       /// @return reference to the model stratigraphy. It created/deleted by the Model itself.
       StratigraphyManager & stratigraphyManager();
@@ -190,6 +192,21 @@ namespace mbapi {
       /// @brief Get input maps manager. It provides access to the GridMapIoTbl in project file
       /// @return reference to maps manager
       MapsManager & mapsManager();
+
+
+      // Request some project porperties
+
+      /// @brief Get basin model origin areal position
+      /// @param[out] x x coordinate [m] for the project origin
+      /// @param[out] y y coordinate [m] for the project origin
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode origin( double & x, double & y );
+
+      /// @brief Get basin model areal dimenstions
+      /// @param[out] dimX length [m] of the model along X axis
+      /// @param[out] dimY length [m] of the model along Y axis
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode arealSize( double & dimX, double & dimY );
 
       ///@}
 

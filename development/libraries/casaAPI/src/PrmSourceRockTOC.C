@@ -77,7 +77,7 @@ namespace casa
       if ( !mapName.empty() )
       {
          mbapi::MapsManager & mpMgr = mdl.mapsManager();
-         mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
+         const mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
          if ( UndefinedIDValue == mID )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
@@ -173,26 +173,19 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel 
          }
 
          // copy map and rescale it for max TOC
-         double minV, maxV;
-         mpMgr.mapValuesRange( mID, minV, maxV );
-
          mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, mapName + "_VarTOC" );
          if ( UndefinedIDValue == cmID )
          {
             ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy TOC map " << mapName << " failed";
          }
-         mpMgr.mapValuesRange( cmID, minV, maxV );
-         if ( !NumericFunctions::isEqual( 0.0, minV, 1.e-4 ) && minV >= m_toc )
-         {
-            minV = (m_toc - (maxV - minV)) < 0 ? 0.0 : (m_toc - (maxV - minV));
-         }
-         mpMgr.rescaleMap( cmID, minV, m_toc );
-         mpMgr.saveMapToHDF( cmID,  mapName + "_VarTOC.HDF" );
-        
-         if ( ErrorHandler::NoError != srMgr.setTOCInitMapName( sid, mapName + "_VarTOC" ) );
-         {
-            throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
-         }
+
+         double minVal, maxVal;
+
+         bool ok = ErrorHandler::NoError == mpMgr.mapValuesRange( mID, minVal, maxVal ) ? true : false;
+         ok      = ErrorHandler::NoError == mpMgr.scaleMap(      cmID, (NumericFunctions::isEqual( 0.0, maxVal, 1e-10 ) ? 0.0 : m_toc / maxVal) ) ? true : ok;
+         ok      = ErrorHandler::NoError == mpMgr.saveMapToHDF(  cmID, mapName + "_VarTOC.HDF" ) ? true : ok;
+
+         if ( !ok ) { throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage(); }
     
       }
       else if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, m_toc ) )

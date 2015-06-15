@@ -68,7 +68,7 @@ int main( int argc, char ** argv )
       std::cerr << "   CASA command \"" << cmdQueue.curCmdName() << "\" at line: " << cmdQueue.curCmdInputFileLineNumber() << std::endl;
       return -1;
    }
-   catch ( ErrorHandler::Exception & ex )
+   catch ( const ErrorHandler::Exception & ex )
    {
       if ( cmdExecutionStarted )
       {

@@ -23,6 +23,7 @@
 #include "PrmSourceRockPreAsphaltStartAct.h"
 
 #include "PrmOneCrustThinningEvent.h"
+#include "PrmCrustThinning.h"
 
 #include "PrmPorosityModel.h"
 #include "PrmPermeabilityModel.h"
@@ -37,6 +38,7 @@
 #include "VarPrmSourceRockPreAsphaltStartAct.h"
 
 #include "VarPrmOneCrustThinningEvent.h"
+#include "VarPrmCrustThinning.h"
 
 #include "VarPrmPorosityModel.h"
 #include "VarPrmPermeabilityModel.h"
@@ -465,6 +467,119 @@ ErrorHandler::ReturnCode VaryOneCrustThinningEvent( casa::ScenarioAnalysis & sa,
 
    return ErrorHandler::NoError;
 }
+
+// Add Multi-event crust thinning parameter with maps support
+ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
+                                           , double                           minThickIni,    double                     maxThickIni    
+                                           , const std::vector<double>      & minT0,          const std::vector<double> & maxT0          
+                                           , const std::vector<double>      & minDeltaT,      const std::vector<double> & maxDeltaT      
+                                           , const std::vector<double>      & minThinningFct, const std::vector<double> & maxThinningFct 
+                                           , const std::vector<std::string> & mapsList  
+                                           , VarPrmContinuous::PDF            pdfType
+                                           )
+{
+   try
+   {
+      VarSpace & varPrmsSet = sa.varSpace();
+      mbapi::Model & mdl = sa.baseCase();
+
+      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+      // check given arrays dimensions
+      if ( minT0.size() != maxT0.size()    || minT0.size() != minDeltaT.size()      || minT0.size() != maxDeltaT.size()     || 
+           minT0.size() != mapsList.size() || minT0.size() != minThinningFct.size() || minT0.size() != maxThinningFct.size()
+         )
+
+      {
+         throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Crust thinning variation: wrong parameters number";
+      }
+           
+      // Get base value of parameter from the Model
+      casa::PrmCrustThinning prm( mdl );
+
+      //        t0      t1  t2     t3 t4    t5  t6                                           T0  DeltaT   ThinningFct  MapName
+      //    S1  *--------*  |       |  |     |  |    t0: S0 - ThickIni                       Ev1: t1, (t2-t1), f1,          "Map1"
+      //Ev1               \ |       |  |     |  |    t1: S1 = S0                             Ev2: t3, (t4-t1), f2            ""             
+      //    S2           Map1-------*  |     |  |    t2: S2 = Map1 * f2                      Ev3: t5, (t6-t5), f3,          "Map2"
+      //                             \ |     |  |    t3: S2
+      //Ev2                           \|     |  |    t4: S3 = S2 * f3 = (Map1 * f2)  * f3  
+      //    S3                         *-----*  |    t5  S3                                
+      //Ev3                                   \ |    t6  S4 = Map2 * f4
+      //    S4                                Map2
+
+      // create min/base/max arrays to keep all crust thinning history variation
+      // parameter as: initial thickness, events sequence as (time, duration, new thickness) triplets list
+      const std::vector<double> & prmBaseValues        = prm.asDoubleArray();
+      const std::vector<std::string> & prmBaseMapsList = prm.getMapsList();
+      
+      // check, does the base case has the same thinning history
+      bool samePattern = prm.numberOfEvents() == minT0.size() ? true : false;
+      for ( size_t i = 0; i < mapsList.size() && samePattern; ++i ) samePattern = !mapsList[i].compare( prmBaseMapsList[i] ) ? true : false;
+
+      std::vector<double> baseValues;
+      // if base case does not have the same pattern - ignore it and generate base case as a middle between min/max
+      if ( !samePattern ) { baseValues.assign( 3 * minT0.size() + 1, UndefinedDoubleValue ); }
+      else                { baseValues.insert( baseValues.begin(), prmBaseValues.begin(), prmBaseValues.end() ); }
+
+      std::vector<double> minValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
+      std::vector<double> maxValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
+
+      double basinTime = 1000.0; // MYA
+
+      if ( IsValueUndefined( minThickIni ) ||
+           IsValueUndefined( maxThickIni ) ) { throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Initial crust thickness is undefined"; }
+         
+      minValues[0] = minThickIni;
+      maxValues[0] = maxThickIni;
+
+      if ( IsValueUndefined( baseValues[0] ) ) { baseValues[0] = 0.5 * ( minThickIni + maxThickIni );  }
+ 
+      for ( size_t i = 0, pos = 1; i < minT0.size(); ++i ) // replace undefined base value with middle of value range
+      {
+         // process one event
+         // Event start time
+         if ( IsValueUndefined( minT0[i] ) || IsValueUndefined( maxT0[i] ) )
+         { 
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << 
+                  "Crust thinning event: " << i+1 << ", has undefined range for start time";
+         }         
+         minValues[pos] = minT0[i];
+         maxValues[pos] = maxT0[i];
+
+         if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minT0[i] + maxT0[i] ); }
+         ++pos;
+         
+         // Event duration
+         if ( IsValueUndefined( minDeltaT[i] ) || IsValueUndefined( maxDeltaT[i] ) )
+         { 
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Crust thinning event: " << i+1 << ", has undefined range for event duration";
+         }
+         minValues[pos] = minDeltaT[i];
+         maxValues[pos] = maxDeltaT[i];
+         
+         if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minDeltaT[i] + maxDeltaT[i] ); }
+         ++pos;
+ 
+         // Thinning factor
+         if ( IsValueUndefined( minThinningFct[i] ) || IsValueUndefined( maxThinningFct[i] ) )
+         { 
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Crust thinning event: " << i+1 << ", has undefined range for event thinning factor";
+         }
+         minValues[pos] = minThinningFct[i];
+         maxValues[pos] = maxThinningFct[i];
+         
+         if ( IsValueUndefined( baseValues[pos] ) ) { baseValues[pos] = 0.5 * ( minThinningFct[i] + maxThinningFct[i] ); }
+         ++pos;
+      }
+      if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCrustThinning( baseValues, minValues, maxValues, mapsList, pdfType ) ) );
+      {
+         return sa.moveError( varPrmsSet );
+      }
+   }
+   catch( const ErrorHandler::Exception & ex ) { return sa.reportError( ex.errorCode(), ex.what() ); }
+
+   return ErrorHandler::NoError;
+}
+
 
 // Add variation of porosity model parameters 
 ErrorHandler::ReturnCode VaryPorosityModelParameters( ScenarioAnalysis    & sa

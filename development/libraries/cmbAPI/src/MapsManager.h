@@ -61,12 +61,11 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV ) = 0;
 
-      /// @brief Linearly rescale input map to the new value range
+      /// @brief Scale input map to the new value range: [min,max] -> [min*coeff, newMaxV*coeff]
       /// @param[in] id map ID
-      /// @param[out] minV new minimal value in the map
       /// @param[out] maxV new maximal value in the map
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode rescaleMap( MapID id, double newMinV, double newMaxV ) = 0;
+      virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) = 0;
 
       /// @}
 

@@ -148,6 +148,28 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
    return new ObsValueDoubleScalar( this, val );
 }
 
+
+// Check well against project coordinates
+std::string ObsTrapProp::checkObservableForProject( mbapi::Model & caldModel )
+{
+   std::ostringstream oss;
+
+   double x0, y0;
+   caldModel.origin( x0, y0 );
+   
+   double dimX, dimY;
+   caldModel.arealSize( dimX, dimY );
+
+   if ( m_x < x0 || m_x > x0 + dimX ||
+        m_y < y0 || m_y > y0 + dimY )
+   {
+      oss << "Trap is outside of the project boundaries"; 
+   }
+
+   return oss.str();
+}
+
+
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsTrapProp::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {

@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file PrmSourceRockTypes.h
+/// @file PrmSourceRockType.h
 /// @brief This file keeps API declaration for Source Rock Type parameter handling.
 
 #ifndef CASA_API_PARAMETER_SOURCE_ROCK_TYPE_H

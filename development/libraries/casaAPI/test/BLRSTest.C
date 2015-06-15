@@ -8,6 +8,7 @@
 #include "../src/PrmSourceRockType.h"
 #include "../src/PrmSourceRockPreAsphaltStartAct.h"
 #include "../src/PrmTopCrustHeatProduction.h"
+#include "../src/PrmCrustThinning.h"
 #include "../src/PrmOneCrustThinningEvent.h"
 #include "../src/PrmPorosityModel.h"
 #include "../src/PrmPermeabilityModel.h"
@@ -19,6 +20,7 @@
 #include "../src/VarPrmSourceRockType.h"
 #include "../src/VarPrmSourceRockPreAsphaltStartAct.h"
 #include "../src/VarPrmTopCrustHeatProduction.h"
+#include "../src/VarPrmCrustThinning.h"
 #include "../src/VarPrmOneCrustThinningEvent.h"
 #include "../src/VarPrmPorosityModel.h"
 #include "../src/VarPrmPermeabilityModel.h"
@@ -311,6 +313,69 @@ TEST_F( BLRSTest, VaryOneCrustThinningEvent )
    ASSERT_NEAR( baseV[1], 220.0,   eps );  
    ASSERT_NEAR( baseV[2], 35.0,    eps );  
    ASSERT_NEAR( baseV[3], 0.55,    eps );  
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Test how ones can add variate one crust thinning event parameters
+TEST_F( BLRSTest, VaryCrustThinningNoMaps )
+{
+   // create new scenario analysis
+   ScenarioAnalysis sc;
+
+   // load base case to scenario
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
+
+   std::vector<double> minT0(3), maxT0(3), minDeltaT(3), maxDeltaT(3), minThinningFct(3), maxThinningFct(3);
+   std::vector<std::string> mapsList( 3 );
+
+   minT0[0] = 240.0; minT0[1] = 190.0; minT0[2] = 140.0;
+   maxT0[0] = 260.0; maxT0[1] = 210.0; maxT0[2] = 160.0;
+
+   minDeltaT[0] = 5.0;  minDeltaT[1] =  5.0; minDeltaT[2] =  5.0;
+   maxDeltaT[0] = 10.0; maxDeltaT[1] = 10.0; maxDeltaT[2] = 10.0;
+
+   minThinningFct[0] = 0.5; minThinningFct[1] = 0.6; minThinningFct[2] = 0.7;
+   maxThinningFct[0] = 0.7; maxThinningFct[1] = 0.8; maxThinningFct[2] = 0.9; 
+
+   // set the parameter
+   ASSERT_EQ( ErrorHandler::NoError, 
+              casa::BusinessLogicRulesSet::VaryCrustThinning( sc, 15000.0,        40000.0
+                                                                , minT0,          maxT0
+                                                                , minDeltaT,      maxDeltaT
+                                                                , minThinningFct, maxThinningFct
+                                                                , mapsList, VarPrmContinuous::Block ) );
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size(), 1 );
+
+   const VarPrmCrustThinning * p1c = dynamic_cast<const VarPrmCrustThinning*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const std::vector<double> & minV  = p1c->minValue()->asDoubleArray();
+   const std::vector<double> & maxV  = p1c->maxValue()->asDoubleArray();
+   const std::vector<double> & baseV = p1c->baseValue()->asDoubleArray();
+
+   ASSERT_EQ( minV.size(),  10 );
+   ASSERT_EQ( baseV.size(), 10 );
+   ASSERT_EQ( maxV.size(),  10 );
+
+   // does it range have given min/base/max values
+   ASSERT_NEAR( minV[0], 15000.0, eps ); ASSERT_NEAR( baseV[0], 27500.0, eps ); ASSERT_NEAR( maxV[0], 40000.0, eps ); 
+   
+   // event 1
+   ASSERT_NEAR( minV[1], 240.0, eps ); ASSERT_NEAR( baseV[1], 250.0, eps ); ASSERT_NEAR( maxV[1], 260.0, eps ); 
+   ASSERT_NEAR( minV[2], 5.0,   eps ); ASSERT_NEAR( baseV[2], 7.5,   eps ); ASSERT_NEAR( maxV[2], 10.0,  eps ); 
+   ASSERT_NEAR( minV[3], 0.5,   eps ); ASSERT_NEAR( baseV[3], 0.6,   eps ); ASSERT_NEAR( maxV[3], 0.7,   eps ); 
+   // event 2
+   ASSERT_NEAR( minV[4], 190.0, eps ); ASSERT_NEAR( baseV[4], 200.0, eps ); ASSERT_NEAR( maxV[4], 210.0,  eps ); 
+   ASSERT_NEAR( minV[5], 5.0,   eps ); ASSERT_NEAR( baseV[5], 7.5,   eps ); ASSERT_NEAR( maxV[5], 10.0,   eps ); 
+   ASSERT_NEAR( minV[6], 0.6,   eps ); ASSERT_NEAR( baseV[6], 0.7,   eps ); ASSERT_NEAR( maxV[6], 0.8,    eps ); 
+   // event3                                                                                   
+   ASSERT_NEAR( minV[7], 140.0, eps ); ASSERT_NEAR( baseV[7], 150.0, eps ); ASSERT_NEAR( maxV[7], 160.0,  eps );
+   ASSERT_NEAR( minV[8], 5.0,   eps ); ASSERT_NEAR( baseV[8], 7.5,   eps ); ASSERT_NEAR( maxV[8], 10.0,   eps );
+   ASSERT_NEAR( minV[9], 0.7,   eps ); ASSERT_NEAR( baseV[9], 0.8,   eps ); ASSERT_NEAR( maxV[9], 0.9,    eps );
 }
 
 

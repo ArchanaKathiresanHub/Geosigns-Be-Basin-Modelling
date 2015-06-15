@@ -21,6 +21,7 @@
 namespace database
 {
    class Database;
+   class Table;
 }
 
 namespace mbapi {
@@ -74,6 +75,10 @@ namespace mbapi {
       // id surface ID
       // return surface name on success, or empty string otherwise
       virtual std::string surfaceName( LayerID id );
+
+      // Get age of the eldest layer in stratigraphy
+      // return age of the eldest (first) layer, UndefinedDoubleValue if no any layer is defined
+      virtual double eldestLayerAge();
 
       // Layer -> lithology  type relation methods
 
@@ -152,21 +157,23 @@ namespace mbapi {
 
 
    private:
-      static const char * m_stratigraphyTableName;
-      static const char * m_layerNameFieldName;
-      static const char * m_lithoType1FiledName;
-      static const char * m_lithoType2FiledName;
-      static const char * m_lithoType3FiledName;
-      static const char * m_lithoTypePercent1FiledName;
-      static const char * m_lithoTypePercent2FiledName;
-      static const char * m_lithoTypePercent3FiledName;
-      static const char * m_isSourceRockFieldName;
-      static const char * m_sourceRockType1FieldName;
-      static const char * m_sourceRockType2FieldName;
-      static const char * m_sourceRockHIFieldName;
-      static const char * m_sourceRockEnableMixintFieldName;
+      static const char * s_stratigraphyTableName;
+      static const char * s_layerNameFieldName;
+      static const char * s_depoAgeFieldName;
+      static const char * s_lithoType1FiledName;
+      static const char * s_lithoType2FiledName;
+      static const char * s_lithoType3FiledName;
+      static const char * s_lithoTypePercent1FiledName;
+      static const char * s_lithoTypePercent2FiledName;
+      static const char * s_lithoTypePercent3FiledName;
+      static const char * s_isSourceRockFieldName;
+      static const char * s_sourceRockType1FieldName;
+      static const char * s_sourceRockType2FieldName;
+      static const char * s_sourceRockHIFieldName;
+      static const char * s_sourceRockEnableMixintFieldName;
 
-      database::Database * m_db; // cauldron project database
+      database::Database * m_db;         // cauldron project database
+      database::Table    * m_stratIoTbl; // stratigraphy table
 
       // Copy constructor is disabled, use the copy operator instead
       StratigraphyManagerImpl( const StratigraphyManager & );

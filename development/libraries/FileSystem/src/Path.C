@@ -43,7 +43,7 @@ Path & Path::cutLast()
 }
 
 // Split path by path separator and return the number of elements in path
-size_t Path::size()
+size_t Path::size() const
 {
    int sz = 0;
    boost::filesystem::path thePath( m_path );
@@ -56,7 +56,7 @@ size_t Path::size()
 }
 
 // Path element accessor
-std::string Path::operator [] ( size_t i )
+std::string Path::operator [] ( size_t i ) const
 {
    boost::filesystem::path thePath( m_path );
 
@@ -70,7 +70,7 @@ std::string Path::operator [] ( size_t i )
       return "";
 }
 
-Path Path::fullPath()
+Path Path::fullPath() const
 {
    return Path( boost::filesystem::absolute( boost::filesystem::path( m_path ) ).string() );
 }
