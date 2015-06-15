@@ -6,7 +6,10 @@
 
 namespace DerivedProperties {
 
-   /// \brief 
+   /// \brief Base class for all property calculators.
+   ///
+   /// Provides only the names of the properties that can be calculated by the calculator.
+   /// And the properties required to be able to calculate these properties.
    class PropertyCalculator {
 
    public :
