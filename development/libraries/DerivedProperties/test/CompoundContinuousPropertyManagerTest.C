@@ -211,8 +211,8 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
    const DataModel::AbstractProperty* property3 = propertyManager.getProperty ( "Property3" );
 
    const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
-   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1" );
+   const DataModel::AbstractFormation* formation = new MockFormation ( "Formation1", "TopSurface", "BottomSurface" );
+   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface", 0, formation );
 
    SurfacePropertyPtr surfaceProperty2 = propertyManager.getSurfaceProperty ( property2, snapshot, surface );
    SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property1, snapshot, surface );
