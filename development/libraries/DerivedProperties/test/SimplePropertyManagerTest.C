@@ -157,13 +157,15 @@ TEST ( AbstractPropertyManagerTest,  Test1 )
 
    const DataModel::AbstractProperty* property = propertyManager.getProperty ( "Property1" );
 
-   const DataModel::AbstractSnapshot*  snapshot = new MockSnapshot ( 0.0 );
-   const DataModel::AbstractSurface*   surface = new MockSurface ( "TopSurface" );
+   const DataModel::AbstractSnapshot*  snapshot     = new MockSnapshot ( 0.0 );
+   const DataModel::AbstractFormation* topFormation = new MockFormation ( "TopFormation", "TopSurface", "MiddleSurface" );
+   const DataModel::AbstractFormation* botFormation = new MockFormation ( "BottomFormation", "MiddleSurface", "BottomSurface" );
+   const DataModel::AbstractSurface*   surface      = new MockSurface ( "MiddleSurface", topFormation, botFormation );
 
    SurfacePropertyPtr surfaceProperty1 = propertyManager.getSurfaceProperty ( property, snapshot, surface );
    PropertyRetriever propRet ( surfaceProperty1 );
 
-   double value = 0.0;
+   double value = 1089.0;
 
    EXPECT_EQ ( property->getName (), "Property1" );
    EXPECT_EQ ( property, surfaceProperty1->getProperty ());
@@ -195,23 +197,23 @@ TEST ( AbstractPropertyManagerTest,  Test2 )
    FormationPropertyPtr formationProperty1 = propertyManager.getFormationProperty ( property, snapshot, formation );
    PropertyRetriever propRet ( formationProperty1 );
 
-   // double value = 0.0;
+   double value = 0.0;
 
-   // EXPECT_EQ ( property->getName (), "Property1" );
-   // EXPECT_EQ ( property, formationProperty1->getProperty ());
-   // EXPECT_EQ ( formation, formationProperty1->getFormation ());
-   // EXPECT_EQ ( snapshot,  formationProperty1->getSnapshot ());
+   EXPECT_EQ ( property->getName (), "Property1" );
+   EXPECT_EQ ( property, formationProperty1->getProperty ());
+   EXPECT_EQ ( formation, formationProperty1->getFormation ());
+   EXPECT_EQ ( snapshot,  formationProperty1->getSnapshot ());
 
-   // for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
+   for ( unsigned int k = formationProperty1->firstK (); k <= formationProperty1->lastK (); ++ k ) {
 
-   //    for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+      for ( unsigned int i = formationProperty1->firstI ( true ); i <= formationProperty1->lastI ( true ); ++i ) {
 
-   //       for ( unsigned int k = formationProperty1->firstK (); k <= formationProperty1->lastK (); ++ k ) {
-   //          EXPECT_DOUBLE_EQ ( value, formationProperty1->get ( i, j, k ));
-   //          value += 1.0;
-   //       }
-   //    }
-   // }
+         for ( unsigned int j = formationProperty1->firstJ ( true ); j <= formationProperty1->lastJ ( true ); ++j ) {
+            EXPECT_DOUBLE_EQ ( value, formationProperty1->get ( i, j, k ));
+            value += 1.0;
+         }
+      }
+   }
 
    delete snapshot;
    delete formation;
@@ -427,11 +429,11 @@ void FormationProperty1Calculator::calculate ( DerivedProperties::AbstractProper
 
    derivedProperties.clear ();
 
-   for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
+   for ( unsigned int k = derivedProp->firstK (); k <= derivedProp->lastK (); ++ k ) {
 
-      for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
+      for ( unsigned int i = derivedProp->firstI ( true ); i <= derivedProp->lastI ( true ); ++i ) {
 
-         for ( unsigned int k = derivedProp->firstK (); k <= derivedProp->lastK (); ++ k ) {
+         for ( unsigned int j = derivedProp->firstJ ( true ); j <= derivedProp->lastJ ( true ); ++j ) {
             derivedProp->set ( i, j, k, value );
             value += 1.0;
          }
